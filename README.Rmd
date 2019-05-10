@@ -47,7 +47,7 @@ install.packages("Giotto")
 ```
 
 #### Python tools (optional)  
-This is necessary to run all available analyses, including Leiden / Louvain clustering and to build and use the interactive visualization tool. An alternative, but less flexible, R version for Louvain clustering is also available.
+This is necessary to run all available analyses, including Leiden / Louvain clustering and to build and use the interactive visualization tool. An alternative, but less flexible, R version for Louvain clustering is also available. It is advisable to install everything within a specific conda environment and specify the python path in the R function when required.
 
 Required python modules:  
 - pandas  
