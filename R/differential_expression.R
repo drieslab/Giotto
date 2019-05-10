@@ -155,34 +155,35 @@ findGiniMarkers <- function(gobject,
     group_2_name = paste0(group_2, collapse = '_')
     cell_metadata[, pairwise_select_comp := ifelse(get(cluster_column) %in% group_1, group_1_name, group_2_name)]
 
+
     cluster_column = 'pairwise_select_comp'
 
     # expression data
     subset_cell_IDs = cell_metadata[['cell_ID']]
     gobject = subsetGiotto(gobject = gobject, cell_ids = subset_cell_IDs)
-
+    gobject@cell_metadata = cell_metadata
   }
 
-
-
-
   # average expression per cluster
-  aggr_sc_clusters <- create_average_DT(gobject = gobject, meta_data_name = cluster_column,
-                                        expression_values = values)
+  aggr_sc_clusters <- Giotto:::create_average_DT(gobject = gobject,
+                                                 meta_data_name = cluster_column,
+                                                 expression_values = values)
   aggr_sc_clusters_DT <- as.data.table(aggr_sc_clusters)
   aggr_sc_clusters_DT[, genes := rownames(aggr_sc_clusters)]
   aggr_sc_clusters_DT_melt <- melt.data.table(aggr_sc_clusters_DT, variable.name = 'cluster', id.vars = 'genes', value.name = 'expression')
 
+
+
   # detection per cluster
-  aggr_detection_sc_clusters <- create_average_detection_DT(gobject = gobject, meta_data_name = cluster_column,
-                                                            expression_values = values, detection_threshold = detection_threshold)
+  aggr_detection_sc_clusters <- Giotto:::create_average_detection_DT(gobject = gobject, meta_data_name = cluster_column,
+                                                                     expression_values = values, detection_threshold = detection_threshold)
   aggr_detection_sc_clusters_DT <- as.data.table(aggr_detection_sc_clusters)
   aggr_detection_sc_clusters_DT[, genes := rownames(aggr_detection_sc_clusters)]
   aggr_detection_sc_clusters_DT_melt <- melt.data.table(aggr_detection_sc_clusters_DT, variable.name = 'cluster', id.vars = 'genes', value.name = 'detection')
 
   # gini
-  aggr_sc_clusters_DT_melt[, expression_gini := mygini_fun(expression), by = genes]
-  aggr_detection_sc_clusters_DT_melt[, detection_gini := mygini_fun(detection), by = genes]
+  aggr_sc_clusters_DT_melt[, expression_gini := Giotto:::mygini_fun(expression), by = genes]
+  aggr_detection_sc_clusters_DT_melt[, detection_gini := Giotto:::mygini_fun(detection), by = genes]
 
   # combine
   aggr_sc = cbind(aggr_sc_clusters_DT_melt, aggr_detection_sc_clusters_DT_melt[,.(detection, detection_gini)])
