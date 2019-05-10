@@ -41,6 +41,8 @@ conda install GioTools
 Examples
 --------
 
+<img src="./inst/extdata/cortex_svz_location_fields.png" alt="raw image" width="264" />
+
 [<img src="./inst/images/test_cortex.png" alt="Cortex" width="377" />](./inst/examples/mouse_cortex_svz/mouse_cortex_example.md) <img src="./inst/images/test_OB.png" alt="OB" width="377" />
 
 Latest News

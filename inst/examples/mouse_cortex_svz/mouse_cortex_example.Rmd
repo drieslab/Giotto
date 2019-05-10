@@ -19,10 +19,16 @@ library(Giotto)
 
 ### Data input
 
+- load cortex/svz gene expression matrix  
 - prepare cell coordinates by stitching imaging fields  
-- load cortex/svz gene expression matrix
+
+Several fields - containing 100's of cells - in the mouse cortex and subventricular zone were imaged. The coordinates of the cells within each field are independent of eachother, so in order to visualize and process all cells together imaging fields will be stitched together by providing x and y-offset values specific to each field. These offset values are estimates based on the original raw image:  
+![raw image](./cortex_svz_location_fields.png){width=7cm} .
 
 ```{r eval=TRUE}
+## visual cortex expression DATA ##
+VC_exprs = read.table(system.file("extdata", "cortex_svz_expression.txt", package = "Giotto"))
+
 ## prepare cell locations
 VC_locs = fread(system.file("extdata", "cortex_svz_centroids_rotated.csv", package = "Giotto"))
 my_offset_file = data.table(field = c(0, 1, 2, 3, 4, 5, 6),
@@ -35,9 +41,6 @@ stitch_file = stitchFieldCoordinates(location_file = VC_locs, offset_file = my_o
                                      reverse_final_y = T)
 stitch_file    = stitch_file[,.(X_final, Y_final)]
 my_offset_file = my_offset_file[,.(field, x_offset_final, y_offset_final)]
-
-## visual cortex expression DATA ##
-VC_exprs = read.table(system.file("extdata", "cortex_svz_expression.txt", package = "Giotto"))
 ```
 
 ***
@@ -46,7 +49,7 @@ VC_exprs = read.table(system.file("extdata", "cortex_svz_expression.txt", packag
 
 ### 1. Create Giotto object & process data
 
-```{r eval=TRUE, message=FALSE, warning=FALSE}
+```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=9, fig.height=6, out.width="75%", fig.align='center'}
 ## create
 VC_test <- createGiottoObject(raw_exprs = VC_exprs, spatial_locs = stitch_file, offset_file = my_offset_file)
 ## filter
@@ -76,7 +79,7 @@ visPlot(gobject = VC_test)
 
 ### 2. dimension reduction
 
-```{r eval=TRUE, message=FALSE, warning=FALSE}
+```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=7, fig.height=5, out.width="50%", fig.align='center'}
 ## HVG genes
 VC_test <- calculateHVG(gobject = VC_test)
 # selected genes
@@ -96,7 +99,7 @@ VC_test <- runtSNE(VC_test)
 
 ### 3. cluster
 
-```{r eval=TRUE, message=FALSE, warning=FALSE}
+```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
 ## cluster
 # SNN
 VC_test <- createNearestNetwork(gobject = VC_test)
@@ -115,9 +118,7 @@ plotUMAP(gobject = VC_test, cell_color = 'pleiden_clus', point_size = 1.5,
 
 ### 4. co-visualize ####
 
-```{r eval=TRUE, message=FALSE, warning=FALSE}
-# spatial
-visPlot(gobject = VC_test, cell_color = 'pleiden_clus', point_size = 2)
+```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
 # expression and spatial
 visSpatDimPlot(gobject = VC_test, cell_color = 'pleiden_clus', dim_point_size = 2, spatial_point_size = 2)
 # relationship between clusters
@@ -131,7 +132,7 @@ print(clusterheatmap)
 
 ### 5. differential expression ####
 
-```{r eval=TRUE, message=FALSE, warning=FALSE}
+```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
 # pairwise t-test #
 gene_markers = findMarkers(gobject = VC_test, cluster_column = 'pleiden_clus')
 gene_markers_pair = findMarkers(gobject = VC_test, cluster_column = 'pleiden_clus',
@@ -151,7 +152,7 @@ violinPlot(gobject = VC_test, genes = c('Dlx1', 'Rtn4r', 'Csf1r', 'Cldn11', 'Cld
 \ 
 
 ### 6. spatial network + grid ####
-```{r eval=TRUE, message=FALSE, warning=FALSE}
+```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
 ## spatial network
 VC_test <- createSpatialNetwork(gobject = VC_test, k = 3)
 VC_test <- createSpatialNetwork(gobject = VC_test, k = 100, maximum_distance = 200, minimum_k = 1, name = 'distance_network')
@@ -169,4 +170,84 @@ spatial_gene_DT <- calculateSpatialGenes(gobject = VC_test , method = 'kmeans', 
 visGenePlot(gobject = VC_test,  genes = c('Enpp2', 'Aqp1', 'Shank1', 'Clic6', 'Nptxr', 'Rtn4r'),
             scale_alpha_with_expression = T)
 ```
+
+***
+
+\ 
+
+### 7. HMRF
+```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
+# select 500 spatial genes
+gene_data = fDataDT(VC_test)
+spatial_genes = gene_data[SV == 'yes' | spg == 'yes']$gene_ID
+set.seed(seed = 1234)
+spatial_genes = spatial_genes[sample(x = 1:length(spatial_genes), size = 500)]
+
+# run HMRF
+HMRFtest = doHMRF(gobject = VC_test, expression_values = 'scaled',
+                  spatial_genes = spatial_genes,
+                  k = 10,
+                  betas = c(40, 4, 3),
+                  output_folder = '/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Data/package_testHMRF/',
+                  python_path = "/Users/rubendries/Bin/anaconda3/envs/py36/bin/pythonw")
+
+# view HMRF results for multiple tested betas
+viewHMRFresults(gobject = VC_test,
+                HMRFoutput = HMRFtest,
+                k = 10, betas_to_view = c(44, 48), point_size = 2)
+
+# add the HMRF results of interest
+VC_test = addHMRF(gobject = VC_test,
+                  HMRFoutput = HMRFtest,
+                  k = 10, betas_to_add = c(48))
+
+# co-visualize
+visSpatDimPlot(gobject = VC_test, cell_color = 'hmrf_k.10_b.48', dim_point_size = 2, spatial_point_size = 2)
+
+```
+
+***
+
+\ 
+
+### 8. spatial analysis
+```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
+## cell-cell interaction ##
+## calculate and visualize cell-cell proximities
+cell_proximities = cellProximityEnrichment(gobject = VC_test, cluster_column = 'pleiden_clus')
+cellProximityBarplot(CPscore = cell_proximities)
+cellProximityHeatmap(CPscore = cell_proximities, order_cell_types = T)
+
+cellProximityVisPlot(gobject = VC_test, interaction_name = '1-5',
+                     cluster_column = 'pleiden_clus',
+                     cell_color = 'pleiden_clus', show_network = T, network_color = 'blue')
+
+
+## 1 gene enrichment for cell-cell interaction ##
+test_int_gene_scores = getAverageCellProximityGeneScores(gobject = VC_test, cluster_column = 'pleiden_clus')
+test_gene_example = showGeneExpressionProximityScore(scores = test_int_gene_scores, selected_gene = 'Dlx1')
+test_interaction_example = showIntExpressionProximityScore(scores = test_int_gene_scores, selected_interaction = '5-6')
+
+
+## 2 selected ligand - receptor ##
+LR_data = fread(system.file("extdata", "mouse_ligand_receptors.txt", package = 'Giotto'))
+ligands = LR_data$mouseLigand
+receptors = LR_data$mouseReceptor
+
+my_subset_interactions = c('5-6','3-6','1-2')
+LR_VC = getGeneToGeneScores(CPGscore = test_int_gene_scores,
+                            selected_genes = NULL,
+                            selected_cell_interactions = my_subset_interactions,
+                            specific_genes_1 = ligands, specific_genes_2 = receptors)
+
+showTopGeneToGene(GTGscore = LR_VC, top_interactions = 10,
+                  direction = c('increased'),
+                  complement_data = T)
+
+showTopGeneToGene(GTGscore = LR_VC, top_interactions = 10,
+                  direction = c('decreased'),
+                  complement_data = T, subset_cell_ints = '5-6')
+```
+
+
 
