@@ -37,19 +37,29 @@ library(devtools)
 install_github("RubD/Giotto")
 ```
 
-You can NOT YET install the released version of Giotto from [CRAN](https://CRAN.R-project.org) with:
-
+Future plan:
 ``` r
 install.packages("Giotto")
 ```
 
 #### Python tools (optional)  
-This is necessary to run all available analyses, including Leiden/Louvain clustering and [**HMRF**](http://www.nature.com/articles/nbt.4260) and to build and use the interactive visualization tool. An alternative, but less flexible, R version for Louvain clustering is available.
+This is necessary to run all available analyses, including Leiden / Louvain clustering and to build and use the interactive visualization tool. An alternative, but less flexible, R version for Louvain clustering is also available.
 
+Required python modules:  
+- pandas
+- igraph
+- networkx
+- leidenalg
+- community
+
+Future plan:  
 ``` python
 conda install GioTools
 ```
 
+#### HMRF
+
+See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation instructions(http://spatial.rc.fas.harvard.edu/install.html).
 
 
 
