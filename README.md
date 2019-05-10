@@ -43,7 +43,7 @@ conda install GioTools
 Examples
 --------
 
-[<embed src="./inst/images/cortex_image_summary.pdf" width="377" />](./inst/examples/mouse_cortex_svz/mouse_cortex_example.md) [<embed src="./inst/images/OB_image_summary.pdf" width="377" />](./inst/examples/mouse_cortex_svz/mouse_olfactory_bulb_example.md)
+[<img src="./inst/images/cortex_image_summary.png" alt="Cortex" width="377" />](./inst/examples/mouse_cortex_svz/mouse_cortex_example.md) [<img src="./inst/images/OB_image_summary.png" alt="OB" width="377" />](./inst/examples/mouse_cortex_svz/mouse_olfactory_bulb_example.md)
 
 Latest News
 -----------
