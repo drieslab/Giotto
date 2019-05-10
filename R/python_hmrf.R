@@ -1,0 +1,477 @@
+
+
+
+#' @title doHMRFextend
+#' @name doHMRFextend
+#' @description Run HMRF
+#' @param gobject giotto object
+#' @param expression_values expression values to use
+#' @param spatial_network_name name of spatial network to use for HMRF
+#' @param spatial_genes spatial genes to use for HMRF
+#' @param name name of HMRF run
+#' @param k  number of HMRF domains
+#' @param betas betas to test for
+#' @param tolerance tolerance
+#' @param zscore zscore
+#' @param numinit number of initializations
+#' @param python_path python path to use
+#' @param reader_path path to reader script
+#' @param get_result_path path to get results script
+#' @param output_folder output folder to save results
+#' @return Creates a directory with results that can be viewed with viewHMRFresults
+#' @details Description of HMRF parameters ...
+#' @examples
+#'     doHMRFextend(gobject)
+doHMRFextend <- function(gobject,
+                         expression_values = c('normalized', 'scaled', 'custom'),
+                         spatial_network_name = 'spatial_network',
+                         spatial_genes = NULL,
+                         name = 'test',
+                         k = 10,
+                         betas = c(0, 2, 50),
+                         tolerance = 1e-10,
+                         zscore = c('rowcol', 'colrow', 'None'),
+                         numinit = 100,
+                         python_path = NULL,
+                         reader_path = NULL,
+                         get_result_path = NULL,
+                         output_folder = NULL
+) {
+
+  ## check or make paths
+  # python path
+  if(is.null(python_path)) {
+    python_path = system('which python')
+  }
+
+  ## reader.py and get_result.py paths
+  # TODO: part of the package
+  reader_path = "/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Data/Qian_input_files//reader.py"
+  get_result_path = "/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Data/Qian_input_files//get_result2.py"
+
+
+  ## output folder
+  if(is.null(output_folder)) {
+    output_folder = paste0(getwd(),'/','HMRF_output')
+    if(!file.exists(output_folder)) dir.create(path = paste0(getwd(),'/','HMRF_output'), recursive = T)
+  } else {
+    if(!file.exists(output_folder))  dir.create(path = output_folder, recursive = T)
+  }
+
+
+  ## first write necessary txt files to output folder ##
+  # cell location / spatial network / expression data and selected spatial genes
+
+  ## 1. expression values
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_values = select_expression_values(gobject = gobject, values = values)
+  expression_file = paste0(output_folder,'/', 'expression_matrix.txt')
+  if(file.exists(expression_file)) {
+    cat('\n expresion_matrix.txt already exists at this location, will be used again \n')
+  } else {
+    write.table(expr_values,
+                file = expression_file,
+                quote = F, col.names = NA, row.names = T)
+  }
+
+
+  ## 2. spatial genes
+  if(is.null(spatial_genes)) {
+    stop('\n you need to provide a vector of spatial genes (~500) \n')
+  }
+  spatial_genes_detected = spatial_genes[spatial_genes %in% rownames(expr_values)]
+  spatial_genes_file = paste0(output_folder,'/', 'spatial_genes.txt')
+  if(file.exists(spatial_genes_file)) {
+    cat('\n spatial_genes.txt already exists at this location, will be used again \n')
+  } else {
+    write.table(spatial_genes_detected,
+                file = spatial_genes_file,
+                quote = F, col.names = F, row.names = F)
+  }
+
+
+
+  ## 3. spatial network
+  spatial_network = gobject@spatial_network[[spatial_network_name]]
+  spatial_network = spatial_network[,.(to,from)]
+  spatial_network_file = paste0(output_folder,'/', 'spatial_network.txt')
+  if(file.exists(spatial_network_file)) {
+    cat('\n spatial_network.txt already exists at this location, will be used again \n')
+  } else {
+    write.table(spatial_network,
+                file = spatial_network_file,
+                row.names = F, col.names = F, quote = F, sep = '\t')
+  }
+
+
+
+  ## 4. cell location
+  spatial_location = gobject@spatial_locs
+  spatial_location = spatial_location[,1:3]
+  spatial_location_file = paste0(output_folder,'/', 'spatial_cell_locations.txt')
+  if(file.exists(spatial_location_file)) {
+    cat('\n spatial_cell_locations.txt already exists at this location, will be used again \n')
+  } else {
+    write.table(spatial_location,
+                file = spatial_location_file,
+                row.names = F, col.names = F, quote = F, sep = '\t')
+  }
+
+
+
+  # prepare input paths
+  cell_location = paste0(output_folder,'/','spatial_cell_locations.txt')
+  spatial_genes = paste0(output_folder,'/','spatial_genes.txt')
+  spatial_network = paste0(output_folder,'/','spatial_network.txt')
+  expression_data = paste0(output_folder,'/', 'expression_matrix.txt')
+
+  # create output subfolder for HMRF
+  output_data = paste0(output_folder,'/', 'result.spatial.zscore')
+  if(!file.exists(output_data)) dir.create(output_data)
+
+
+  # process other params
+  zscore = match.arg(zscore, c('rowcol', 'colrow', 'None'))
+  betas_param = c('-b', betas)
+  betas_final = paste(betas_param, collapse = ' ')
+
+  ## reader part ##
+  reader_command = paste0(python_path, ' ', reader_path,
+                          ' -l ', cell_location,
+                          ' -g ', spatial_genes,
+                          ' -n ', spatial_network,
+                          ' -e ', expression_data,
+                          ' -o ', output_data,
+                          ' -a ', name,
+                          ' -k ', k,
+                          ' ', betas_final,
+                          ' -t ', tolerance,
+                          ' -z ', zscore,
+                          ' -i ', numinit)
+
+  system(command = reader_command)
+
+
+  # store parameter results in HMRF S3 object
+  HMRFObj = list(name = name,
+                 output_data = output_data,
+                 k = k,
+                 betas = betas,
+                 python_path = python_path)
+
+  class(HMRFObj) <- append(class(HMRFObj), 'HMRFoutput')
+
+
+  return(HMRFObj)
+
+}
+
+
+#' @title doHMRF
+#' @name doHMRF
+#' @description Run HMRF
+#' @param gobject giotto object
+#' @param expression_values expression values to use
+#' @param spatial_network_name name of spatial network to use for HMRF
+#' @param spatial_genes spatial genes to use for HMRF
+#' @param name name of HMRF run
+#' @param k  number of HMRF domains
+#' @param betas betas to test for
+#' @param tolerance tolerance
+#' @param zscore zscore
+#' @param numinit number of initializations
+#' @param python_path python path to use
+#' @param output_folder output folder to save results
+#' @return Creates a directory with results that can be viewed with viewHMRFresults
+#' @details Description of HMRF parameters ...
+#' @export
+#' @examples
+#'     doHMRF(gobject)
+doHMRF <- function(gobject,
+                   expression_values = c('normalized', 'scaled', 'custom'),
+                   spatial_network_name = 'spatial_network',
+                   spatial_genes = NULL,
+                   name = 'test',
+                   k = 10,
+                   betas = c(0, 2, 50),
+                   tolerance = 1e-10,
+                   zscore = c('rowcol', 'colrow', 'None'),
+                   numinit = 100,
+                   python_path = NULL,
+                   output_folder = NULL
+
+) {
+
+  ## check or make paths
+  # python path
+  if(is.null(python_path)) {
+    python_path = system('which python')
+  }
+
+  ## reader.py and get_result.py paths
+  # TODO: part of the package
+  reader_path = system.file("python", "reader.py", package = 'Giotto')
+
+  ## output folder
+  if(is.null(output_folder)) {
+    output_folder = paste0(getwd(),'/','HMRF_output')
+    if(!file.exists(output_folder)) dir.create(path = paste0(getwd(),'/','HMRF_output'), recursive = T)
+  } else {
+    if(!file.exists(output_folder))  dir.create(path = output_folder, recursive = T)
+  }
+
+
+  ## first write necessary txt files to output folder ##
+  # cell location / spatial network / expression data and selected spatial genes
+
+  ## 1. expression values
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_values = select_expression_values(gobject = gobject, values = values)
+  expression_file = paste0(output_folder,'/', 'expression_matrix.txt')
+  if(file.exists(expression_file)) {
+    cat('\n expresion_matrix.txt already exists at this location, will be used again \n')
+  } else {
+    write.table(expr_values,
+                file = expression_file,
+                quote = F, col.names = NA, row.names = T)
+  }
+
+
+  ## 2. spatial genes
+  if(is.null(spatial_genes)) {
+    stop('\n you need to provide a vector of spatial genes (~500) \n')
+  }
+  spatial_genes_detected = spatial_genes[spatial_genes %in% rownames(expr_values)]
+  spatial_genes_file = paste0(output_folder,'/', 'spatial_genes.txt')
+  if(file.exists(spatial_genes_file)) {
+    cat('\n spatial_genes.txt already exists at this location, will be used again \n')
+  } else {
+    write.table(spatial_genes_detected,
+                file = spatial_genes_file,
+                quote = F, col.names = F, row.names = F)
+  }
+
+
+
+  ## 3. spatial network
+  spatial_network = gobject@spatial_network[[spatial_network_name]]
+  spatial_network = spatial_network[,.(to,from)]
+  spatial_network_file = paste0(output_folder,'/', 'spatial_network.txt')
+  if(file.exists(spatial_network_file)) {
+    cat('\n spatial_network.txt already exists at this location, will be used again \n')
+  } else {
+    write.table(spatial_network,
+                file = spatial_network_file,
+                row.names = F, col.names = F, quote = F, sep = '\t')
+  }
+
+
+
+  ## 4. cell location
+  spatial_location = gobject@spatial_locs
+  spatial_location = spatial_location[,1:3]
+  spatial_location_file = paste0(output_folder,'/', 'spatial_cell_locations.txt')
+  if(file.exists(spatial_location_file)) {
+    cat('\n spatial_cell_locations.txt already exists at this location, will be used again \n')
+  } else {
+    write.table(spatial_location,
+                file = spatial_location_file,
+                row.names = F, col.names = F, quote = F, sep = '\t')
+  }
+
+
+
+  # prepare input paths
+  cell_location = paste0(output_folder,'/','spatial_cell_locations.txt')
+  spatial_genes = paste0(output_folder,'/','spatial_genes.txt')
+  spatial_network = paste0(output_folder,'/','spatial_network.txt')
+  expression_data = paste0(output_folder,'/', 'expression_matrix.txt')
+
+  # create output subfolder for HMRF
+  output_data = paste0(output_folder,'/', 'result.spatial.zscore')
+  if(!file.exists(output_data)) dir.create(output_data)
+
+
+  # process other params
+  zscore = match.arg(zscore, c('rowcol', 'colrow', 'None'))
+  betas_param = c('-b', betas)
+  betas_final = paste(betas_param, collapse = ' ')
+
+  ## reader part ##
+  reader_command = paste0(python_path, ' ', reader_path,
+                          ' -l ', cell_location,
+                          ' -g ', spatial_genes,
+                          ' -n ', spatial_network,
+                          ' -e ', expression_data,
+                          ' -o ', output_data,
+                          ' -a ', name,
+                          ' -k ', k,
+                          ' ', betas_final,
+                          ' -t ', tolerance,
+                          ' -z ', zscore,
+                          ' -i ', numinit)
+
+  system(command = reader_command)
+
+
+  # store parameter results in HMRF S3 object
+  HMRFObj = list(name = name,
+                 output_data = output_data,
+                 k = k,
+                 betas = betas,
+                 python_path = python_path)
+
+  class(HMRFObj) <- append(class(HMRFObj), 'HMRFoutput')
+
+
+  return(HMRFObj)
+
+}
+
+
+
+#' @title viewHMRFresults
+#' @name viewHMRFresults
+#' @description View results from doHMRF.
+#' @param gobject giotto object
+#' @param HMRFoutput HMRF output from doHMRF
+#' @param k number of HMRF domains
+#' @param betas_to_view results from different betas that you want to view
+#' @param ... paramters to visPlot()
+#' @return spatial plots with HMRF domains
+#' @details Description ...
+#' @seealso \code{\link{visPlot}}
+#' @export
+#' @examples
+#'     viewHMRFresults(gobject)
+viewHMRFresults <- function(gobject,
+                            HMRFoutput,
+                            k = NULL,
+                            betas_to_view = NULL,
+                            ...) {
+
+
+  if(!'HMRFoutput' %in% class(HMRFtest)) {
+    stop('\n HMRFoutput needs to be output from doHMRFextend \n')
+  }
+
+  ## reader.py and get_result.py paths
+  # TODO: part of the package
+  get_result_path = system.file("python", "get_result2.py", package = 'Giotto')
+
+  # paths and name
+  name = HMRFoutput$name
+  output_data = HMRFoutput$output_data
+  python_path = HMRFoutput$python_path
+
+  # k-values
+  if(is.null(k)) {
+    stop('\n you need to select a k that was used with doHMRFextend \n')
+  }
+  k = HMRFoutput$k
+
+  # betas
+  betas = HMRFoutput$betas
+  possible_betas = seq(betas[1], to = betas[1]+(betas[2]*(betas[3]-1)), by = betas[2])
+
+  betas_to_view_detected = betas_to_view[betas_to_view %in% possible_betas]
+
+  # plot betas
+  for(b in betas_to_view_detected) {
+
+    ## get results part ##
+    result_command = paste0(python_path, ' ', get_result_path,
+                            ' -r ', output_data,
+                            ' -a ', name,
+                            ' -k ', k,
+                            ' -b ', b)
+
+    print(result_command)
+
+    output = system(command = result_command, intern = T)
+
+
+    title_name = paste0('k = ', k, ' b = ',b)
+
+    visPlot(gobject = gobject, cell_color = output, show.plot = T, title = title_name, ...)
+
+
+  }
+
+
+}
+
+
+#' @title addHMRF
+#' @name addHMRF
+#' @description Add selected results from doHMRF to the giotto object
+#' @param gobject giotto object
+#' @param HMRFoutput HMRF output from doHMRF()
+#' @param k number of domains
+#' @param betas_to_add results from different betas that you want to add
+#' @return giotto object
+#' @details Description ...
+#' @export
+#' @examples
+#'     addHMRF(gobject)
+addHMRF <- function(gobject,
+                    HMRFoutput,
+                    k = NULL,
+                    betas_to_add = NULL) {
+
+
+  if(!'HMRFoutput' %in% class(HMRFtest)) {
+    stop('\n HMRFoutput needs to be output from doHMRFextend \n')
+  }
+
+  ## reader.py and get_result.py paths
+  # TODO: part of the package
+  get_result_path = "/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Data/Qian_input_files//get_result2.py"
+
+
+  # paths and name
+  name = HMRFoutput$name
+  output_data = HMRFoutput$output_data
+  python_path = HMRFoutput$python_path
+
+  # k-values
+  if(is.null(k)) {
+    stop('\n you need to select a k that was used with doHMRFextend \n')
+  }
+  k = HMRFoutput$k
+
+  # betas
+  betas = HMRFoutput$betas
+  possible_betas = seq(betas[1], to = betas[1]+(betas[2]*(betas[3]-1)), by = betas[2])
+
+  betas_to_add_detected = betas_to_add[betas_to_add %in% possible_betas]
+
+
+
+  # plot betas
+  for(b in betas_to_add_detected) {
+
+    ## get results part ##
+    result_command = paste0(python_path, ' ', get_result_path,
+                            ' -r ', output_data,
+                            ' -a ', name,
+                            ' -k ', k,
+                            ' -b ', b)
+    print(result_command)
+    output = system(command = result_command, intern = T)
+
+    # create unique name
+    annot_name = paste0('hmrf_k.', k, '_b.',b)
+    annot_DT = data.table(temp_name = output)
+    setnames(annot_DT, old = 'temp_name', new = annot_name)
+
+    gobject = addCellMetadata(gobject = gobject, new_metadata = annot_DT, by_column = F)
+
+
+  }
+
+  return(gobject)
+
+}
+
+
