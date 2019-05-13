@@ -8,7 +8,8 @@ detectSpatialPatterns(gobject, expression_values = c("normalized",
   "scaled", "custom"), spatial_grid_name = "spatial_grid",
   min_cells_per_grid = 4, scale.unit = F, ncp = 100,
   show_plots = T, PC_zscore = 1.5, min_pattern_cor_score = 0.8,
-  min_cor_genes = 10, trim = 0, return_gobject = TRUE,
+  min_cor_genes = 10, trim = 0, background.color = "white",
+  grid.border.color = "darkgrey", return_gobject = TRUE,
   SPname = "spg", dims_to_plot = 1)
 }
 \arguments{

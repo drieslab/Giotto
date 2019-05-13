@@ -419,6 +419,8 @@ detectSpatialPatterns <- function(gobject,
                                   min_pattern_cor_score = 0.8,
                                   min_cor_genes = 10,
                                   trim = 0,
+                                  background.color = 'white',
+                                  grid.border.color = 'darkgrey',
                                   return_gobject = TRUE,
                                   SPname = 'spg',
                                   dims_to_plot = 1) {
@@ -552,12 +554,12 @@ detectSpatialPatterns <- function(gobject,
       dpl <- dpl + theme_bw()
       dpl <- dpl + geom_tile(data = spatial_grid_combined[dim == select_dim],
                              aes_string(x = 'x_start', y = 'y_start', fill = 'av_scaled_values'),
-                             color = 'lightgrey', show.legend = T)
+                             color = grid.border.color, show.legend = T)
       dpl <- dpl + scale_fill_gradient2('low' = 'darkblue', mid = 'white', high = 'darkred', midpoint = 0,
                                         guide = guide_legend(title = ''))
       dpl <- dpl + facet_wrap(dim~geneset, nrow = 2)
       dpl <- dpl + theme(axis.text.x = element_text(size = 8, angle = 45, vjust = 1, hjust = 1),
-                         panel.background = element_rect(fill = 'black'),
+                         panel.background = element_rect(fill = background.color),
                          panel.grid = element_blank())
       dpl <- dpl + labs(x = 'x coordinates', y = 'y coordinates')
       print(dpl)

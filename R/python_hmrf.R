@@ -174,6 +174,9 @@ doHMRFextend <- function(gobject,
 #' @param expression_values expression values to use
 #' @param spatial_network_name name of spatial network to use for HMRF
 #' @param spatial_genes spatial genes to use for HMRF
+#' @param dim_reduction_to_use use another dimension reduction set as input
+#' @param dim_reduction_name name of dimension reduction set to use
+#' @param dimensions_to_use number of dimensions to use as input
 #' @param name name of HMRF run
 #' @param k  number of HMRF domains
 #' @param betas betas to test for
@@ -191,6 +194,9 @@ doHMRF <- function(gobject,
                    expression_values = c('normalized', 'scaled', 'custom'),
                    spatial_network_name = 'spatial_network',
                    spatial_genes = NULL,
+                   dim_reduction_to_use = NULL,
+                   dim_reduction_name = 'pca',
+                   dimensions_to_use = 1:10,
                    name = 'test',
                    k = 10,
                    betas = c(0, 2, 50),
@@ -198,9 +204,7 @@ doHMRF <- function(gobject,
                    zscore = c('rowcol', 'colrow', 'None'),
                    numinit = 100,
                    python_path = NULL,
-                   output_folder = NULL
-
-) {
+                   output_folder = NULL) {
 
   ## check or make paths
   # python path
@@ -225,11 +229,16 @@ doHMRF <- function(gobject,
   # cell location / spatial network / expression data and selected spatial genes
 
   ## 1. expression values
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  if(!is.null(dim_reduction_to_use)) {
+    expr_values = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']][, dimensions_to_use]
+    expr_values = t(expr_values)
+  } else {
+    values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+    expr_values = select_expression_values(gobject = gobject, values = values)
+  }
   expression_file = paste0(output_folder,'/', 'expression_matrix.txt')
   if(file.exists(expression_file)) {
-    cat('\n expresion_matrix.txt already exists at this location, will be used again \n')
+    cat('\n expression_matrix.txt already exists at this location, will be used again \n')
   } else {
     write.table(expr_values,
                 file = expression_file,
@@ -238,10 +247,16 @@ doHMRF <- function(gobject,
 
 
   ## 2. spatial genes
-  if(is.null(spatial_genes)) {
-    stop('\n you need to provide a vector of spatial genes (~500) \n')
+  if(!is.null(dim_reduction_to_use)) {
+    dimred_rownames = rownames(expr_values)
+    spatial_genes_detected = dimred_rownames[dimensions_to_use]
+    spatial_genes_detected = spatial_genes_detected[!is.na(spatial_genes_detected)]
+  } else {
+    if(is.null(spatial_genes)) {
+      stop('\n you need to provide a vector of spatial genes (~500) \n')
+    }
+    spatial_genes_detected = spatial_genes[spatial_genes %in% rownames(expr_values)]
   }
-  spatial_genes_detected = spatial_genes[spatial_genes %in% rownames(expr_values)]
   spatial_genes_file = paste0(output_folder,'/', 'spatial_genes.txt')
   if(file.exists(spatial_genes_file)) {
     cat('\n spatial_genes.txt already exists at this location, will be used again \n')

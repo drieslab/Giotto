@@ -6,9 +6,10 @@
 \usage{
 doHMRF(gobject, expression_values = c("normalized", "scaled", "custom"),
   spatial_network_name = "spatial_network", spatial_genes = NULL,
-  name = "test", k = 10, betas = c(0, 2, 50), tolerance = 1e-10,
-  zscore = c("rowcol", "colrow", "None"), numinit = 100,
-  python_path = NULL, output_folder = NULL)
+  dim_reduction_to_use = NULL, dim_reduction_name = "pca",
+  dimensions_to_use = 1:10, name = "test", k = 10, betas = c(0, 2,
+  50), tolerance = 1e-10, zscore = c("rowcol", "colrow", "None"),
+  numinit = 100, python_path = NULL, output_folder = NULL)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -18,6 +19,12 @@ doHMRF(gobject, expression_values = c("normalized", "scaled", "custom"),
 \item{spatial_network_name}{name of spatial network to use for HMRF}
 
 \item{spatial_genes}{spatial genes to use for HMRF}
+
+\item{dim_reduction_to_use}{use another dimension reduction set as input}
+
+\item{dim_reduction_name}{name of dimension reduction set to use}
+
+\item{dimensions_to_use}{number of dimensions to use as input}
 
 \item{name}{name of HMRF run}
 

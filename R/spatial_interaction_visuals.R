@@ -441,6 +441,10 @@ showTopGeneToGene = function(GTGscore,
 
   }
 
+  # sort gene_gene
+  setorder(topDT, interaction, -diff_spat)
+  gene_gene_order = unique(topDT[['gene_gene']])
+  topDT[, gene_gene := factor(gene_gene, level = gene_gene_order)]
 
   pl <- ggplot()
   pl <- pl + theme_classic()

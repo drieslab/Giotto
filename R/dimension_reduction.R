@@ -251,6 +251,7 @@ runUMAP <- function(gobject,
 
   reduction = match.arg(reduction, choices = c('cells', 'genes'))
 
+
   ## umap on cells ##
   if(reduction == 'cells') {
 
@@ -347,7 +348,7 @@ runUMAP <- function(gobject,
 
   } else if(reduction == 'genes') {
 
-    cat('To be completed')
+    cat('\n Gene reduction is not yet implemented \n')
 
   }
 
@@ -495,7 +496,7 @@ runtSNE <- function(gobject,
 
   } else if(reduction == 'genes') {
 
-    cat('To be completed')
+    cat('\n Not yet implemented \n')
 
   }
 
