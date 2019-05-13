@@ -23,7 +23,8 @@ Imports:
     ComplexHeatmap,
     cowplot,
     grDevices,
-    RColorBrewer
+    RColorBrewer,
+    jackstraw
 Suggests: 
     knitr,
     rmarkdown

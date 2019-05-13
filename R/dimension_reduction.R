@@ -119,6 +119,91 @@ runPCA <- function(gobject,
 
 
 
+
+#' @title signPCA
+#' @name signPCA
+#' @description identify significant prinicipal components (PCs)
+#' @param gobject giotto object
+#' @param method method to use to identify significant PCs
+#' @param expression_values expression values to use
+#' @param reduction cells or genes
+#' @param genes_to_use subset of genes to use for PCA
+#' @param scale.unit scale features before PCA
+#' @param ncp number of principal components to calculate
+#' @param scree.labels show labels on scree plot
+#' @param scree.ylim y-axis limits on scree plot
+#' @param jack.iter number of interations for jackstraw
+#' @param jack.threshold p-value threshold to call a PC significant
+#' @param jack.verbose show progress of jackstraw method
+#' @param show.plot show plots
+#' @param ... additional parameters for PCA
+#' @return ggplot object for scree method and maxtrix of p-values for jackstraw
+#' @details Description of PCA steps...
+#' @export
+#' @examples
+#'     signPCA(gobject)
+signPCA <- function(gobject, method = c('screeplot', 'jackstraw'),
+                    expression_values = c("normalized", "scaled", "custom"),
+                    reduction = c("cells", "genes"),
+                    genes_to_use = NULL,
+                    scale.unit = T,
+                    ncp = 50,
+                    scree.labels = T,
+                    scree.ylim = c(0,10),
+                    jack.iter = 10,
+                    jack.threshold = 0.01,
+                    jack.verbose = T,
+                    show.plot = T, ...) {
+
+  # select method
+  method = base::match.arg(method, choices = c('screeplot', 'jackstraw'))
+
+  # select direction of reduction
+  reduction = match.arg(reduction, c('cells', 'genes'))
+
+  # expression values to be used
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+
+  # subset expression matrix
+  if(!is.null(genes_to_use)) {
+    expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
+  }
+
+  # reduction of cells
+  if(reduction == 'cells') {
+
+    if(method == 'screeplot') {
+      pca_object <- FactoMineR::PCA(X = t(expr_values),
+                                    scale.unit = scale.unit,
+                                    ncp = ncp, graph = F, ...)
+      screeplot = factoextra::fviz_eig(pca_object, addlabels = scree.labels, ylim = scree.ylim, ncp = ncp)
+      if(show.plot == TRUE) print(screeplot)
+      return(screeplot)
+    } else if(method == 'jackstraw') {
+      if(scale.unit == TRUE) {
+        expr_values = t(scale(t(expr_values)))
+      }
+      jtest = jackstraw::permutationPA(dat = expr_values, B = jack.iter, threshold = jack.threshold, verbose = jack.verbose)
+      if(show.plot == TRUE) plot(jtest$p)
+      return(jtest)
+    }
+
+  } else {
+    cat('gene reduction not yet implemented')
+  }
+
+}
+
+
+
+
+
+
+
+
+
+
 #' @title runUMAP
 #' @name runUMAP
 #' @description run UMAP
