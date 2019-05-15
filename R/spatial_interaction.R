@@ -357,8 +357,8 @@ get_interaction_gene_enrichment <- function(spatial_network,
 
 
 
-#' @title getAverageCellProximityGeneScores
-#' @name getAverageCellProximityGeneScores
+#' @title getCellProximityGeneScores
+#' @name getCellProximityGeneScores
 #' @description Compute cell-cell interaction enrichment (observed vs expected)
 #' @param gobject giotto object
 #' @param spatial_network_name name of spatial network to use
@@ -371,8 +371,8 @@ get_interaction_gene_enrichment <- function(spatial_network,
 #' @details Give more details ...
 #' @export
 #' @examples
-#'     getAverageCellProximityGeneScores(gobject)
-getAverageCellProximityGeneScores = function(gobject,
+#'     getCellProximityGeneScores(gobject)
+getCellProximityGeneScores = function(gobject,
                                              spatial_network_name = 'spatial_network',
                                              cluster_column = 'louvain_clus.1',
                                              expression_values = c('normalized', 'scaled', 'custom'),

@@ -389,6 +389,7 @@ visDimPlot <- function(gobject,
   cell_metadata = gobject@cell_metadata
   annotated_DT = merge(cell_metadata, dim_DT, by = 'cell_ID')
 
+
   # create input for network
   if(show_NN_network == TRUE) {
 
@@ -469,6 +470,23 @@ visDimPlot <- function(gobject,
     pl <- pl + geom_point(data = annotated_DT, aes_string(x = dim_names[1], y = dim_names[2]),
                           show.legend = show.legend, shape = 21, fill = cell_color, size = point_size)
   }
+
+
+  ## add % variance explained to names of plot for PCA ##
+  if(dim_reduction_to_use == 'pca') {
+
+    eigenvaluesDT = as.data.table(gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$misc$eig)
+    var_expl_vec = eigenvaluesDT[c(dim1_to_use, dim2_to_use)][['percentage of variance']]
+    dim1_x_variance = var_expl_vec[1]
+    dim2_y_variance = var_expl_vec[2]
+
+    x_title = sprintf('%s explains %.02f%% of variance', dim_names[1], var_expl_vec[1])
+    y_title = sprintf('%s explains %.02f%% of variance', dim_names[2], var_expl_vec[2])
+
+    pl <- pl + labs(x = x_title, y = y_title)
+
+  }
+
 
   return(pl)
 
