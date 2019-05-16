@@ -8,7 +8,7 @@ plotCellProximityGeneToGeneScores(GTGscore, selected_interactions = NULL,
   selected_gene_to_gene = NULL, detail_plot = T, simple_plot = F,
   simple_plot_facet = c("interaction", "genes"),
   facet.scales = "fixed", facet.ncol = length(selected_gene_to_gene),
-  facet.nrow = length(selected_interactions), show.plot = T)
+  facet.nrow = length(selected_interactions), show.plot = F)
 }
 \arguments{
 \item{GTGscore}{GTGscore, output from getGeneToGeneScores()}

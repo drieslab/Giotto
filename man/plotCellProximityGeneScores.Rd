@@ -8,7 +8,7 @@ plotCellProximityGeneScores(CPGscores, selected_interactions = NULL,
   selected_genes = NULL, detail_plot = T, simple_plot = F,
   simple_plot_facet = c("interaction", "genes"),
   facet.scales = "fixed", facet.ncol = length(selected_genes),
-  facet.nrow = length(selected_interactions), show.plot = T)
+  facet.nrow = length(selected_interactions), show.plot = F)
 }
 \arguments{
 \item{CPGscores}{CPGscores, output from getCellProximityGeneScores()}

@@ -236,7 +236,7 @@ plotCellProximityGeneScores(CPGscores = cell_int_gene_scores,
 
 plotCellProximityGeneScores(CPGscores = cell_int_gene_scores,
                             selected_interactions = selection$interaction,
-                            selected_genes = selection$genes[1],
+                            selected_genes = selection$genes,
                             detail_plot = T, facet.scales = 'fixed',
                             simple_plot = T,
                             simple_plot_facet = 'genes',

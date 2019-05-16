@@ -9,7 +9,7 @@ visDimPlot(gobject, dim_reduction_to_use = "umap",
   show_NN_network = F, nn_network_to_use = "sNN",
   network_name = "sNN.pca", cell_color = NULL, color_as_factor = T,
   cell_color_code = NULL, show_cluster_center = T,
-  show_center_label = T, center.point.size = 4, label.size = 10,
+  show_center_label = T, center.point.size = 4, label.size = 6,
   label.fontface = "bold", edge_alpha = NULL, point_size = 1,
   show.legend = T)
 }

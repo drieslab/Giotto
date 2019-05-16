@@ -295,25 +295,31 @@ cellProximityVisPlot(gobject = VC_test, interaction_name = '1-5',
 
 ## 1 gene enrichment for cell-cell interaction ##
 cell_int_gene_scores = getCellProximityGeneScores(gobject = VC_test, cluster_column = 'pleiden_clus')
-#> start  1-1 
-#> start  1-4 
-#> start  1-5 
-#> start  5-5 
-#> start  1-2 
-#> start  1-6 
-#> start  4-4 
-#> start  4-5 
-#> start  5-6 
-#> start  4-6 
-#> start  6-6 
-#> start  2-2 
-#> start  2-5 
 #> start  3-3 
-#> start  2-4 
-#> start  2-6 
+#> start  3-5 
+#> start  3-6 
+#> start  1-3 
+#> start  6-6 
+#> start  1-6 
 #> start  2-3 
-#> start  3-4 
-#> start  3-5
+#> start  1-7 
+#> start  3-7 
+#> start  1-2 
+#> start  1-5 
+#> start  1-1 
+#> start  5-5 
+#> start  5-6 
+#> start  6-7 
+#> start  5-7 
+#> start  7-7 
+#> start  2-2 
+#> start  2-6 
+#> start  4-4 
+#> start  2-5 
+#> start  2-7 
+#> start  2-4 
+#> start  4-5 
+#> start  4-6
 
 # selection
 setorder(cell_int_gene_scores, -diff_spat)
@@ -324,20 +330,20 @@ plotCellProximityGeneScores(CPGscores = cell_int_gene_scores,
                             selected_genes = selection$genes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-4.png" width="60%" style="display: block; margin: auto;" /><img src="man/figures/README-unnamed-chunk-11-5.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-11-4.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 
 plotCellProximityGeneScores(CPGscores = cell_int_gene_scores,
                             selected_interactions = selection$interaction,
-                            selected_genes = selection$genes[1],
+                            selected_genes = selection$genes,
                             detail_plot = T, facet.scales = 'fixed',
                             simple_plot = T,
                             simple_plot_facet = 'genes',
                             facet.ncol = 1, facet.nrow = 2)
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-6.png" width="60%" style="display: block; margin: auto;" /><img src="man/figures/README-unnamed-chunk-11-7.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-11-5.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 
@@ -366,7 +372,7 @@ plotCellProximityGeneToGeneScores(GTGscore = LR_VC,
                                   selected_gene_to_gene = pair_selection$gene_gene, detail_plot = T)
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-8.png" width="60%" style="display: block; margin: auto;" /><img src="man/figures/README-unnamed-chunk-11-9.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-11-6.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 
@@ -378,7 +384,7 @@ plotCellProximityGeneToGeneScores(GTGscore = LR_VC,
                                   simple_plot_facet = 'genes')
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-10.png" width="60%" style="display: block; margin: auto;" /><img src="man/figures/README-unnamed-chunk-11-11.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-11-7.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 
@@ -390,4 +396,4 @@ plotCellProximityGeneToGeneScores(GTGscore = LR_VC,
                                   simple_plot_facet = 'interaction')
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-12.png" width="60%" style="display: block; margin: auto;" /><img src="man/figures/README-unnamed-chunk-11-13.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-11-8.png" width="60%" style="display: block; margin: auto;" />

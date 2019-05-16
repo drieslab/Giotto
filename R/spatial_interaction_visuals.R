@@ -311,7 +311,7 @@ plotCellProximityGeneScores <- function(CPGscores,
                                         facet.scales = 'fixed',
                                         facet.ncol = length(selected_genes),
                                         facet.nrow = length(selected_interactions),
-                                        show.plot = T) {
+                                        show.plot = F) {
 
   if(is.null(selected_interactions) | is.null(selected_genes)) {
     stop('\n You need to provide a selection of cell-cell interactions and genes to plot \n')
@@ -409,7 +409,7 @@ plotCellProximityGeneToGeneScores <- function(GTGscore,
                                               facet.scales = 'fixed',
                                               facet.ncol = length(selected_gene_to_gene),
                                               facet.nrow = length(selected_interactions),
-                                              show.plot = T) {
+                                              show.plot = F) {
 
   if(is.null(selected_interactions) | is.null(selected_gene_to_gene)) {
     stop('\n You need to provide a selection of cell-cell interactions and genes-genes to plot \n')
