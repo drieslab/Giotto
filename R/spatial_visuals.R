@@ -356,6 +356,11 @@ visGenePlot <- function(gobject,
 #' @param cell_color color for cells (see details)
 #' @param color_as_factor convert color column to factor
 #' @param cell_color_code named vector with colors
+#' @param show_cluster_center plot center of selected clusters
+#' @param show_center_label plot label of selected clusters
+#' @param center.point.size size of center points
+#' @param label.size  size of labels
+#' @param label.fontface font of labels
 #' @param edge_alpha column to use for alpha of the edges
 #' @param point_size size of point (cell)
 #' @param show.legend show legend
@@ -375,6 +380,11 @@ visDimPlot <- function(gobject,
                        cell_color = NULL,
                        color_as_factor = T,
                        cell_color_code = NULL,
+                       show_cluster_center = T,
+                       show_center_label = T,
+                       center.point.size = 4,
+                       label.size = 6,
+                       label.fontface = 'bold',
                        edge_alpha = NULL,
                        point_size = 1,
                        show.legend = T) {
@@ -445,13 +455,46 @@ visDimPlot <- function(gobject,
 
     if(cell_color %in% colnames(annotated_DT)) {
 
+      class_cell_color = class(annotated_DT[[cell_color]])
+
+
+
+      # convert numericals to factors
       if(color_as_factor == TRUE) {
         factor_data = factor(annotated_DT[[cell_color]])
         annotated_DT[[cell_color]] <- factor_data
+        # for centers
+        if(show_cluster_center == TRUE) {
+          annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dim_names[1])), center_2 = median(get(dim_names[2]))), by = cell_color]
+          factor_center_data = factor(annotated_DT_centers[[cell_color]])
+          annotated_DT_centers[[cell_color]] <- factor_center_data
+        }
+      } else {
+
+        # TEST: centers can only be shown for factors that are part of the metadata
+        if(show_cluster_center == TRUE & class_cell_color %in% c('character', 'factor')) {
+          annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dim_names[1])), center_2 = median(get(dim_names[2]))), by = cell_color]
+        }
+
       }
 
       pl <- pl + geom_point(data = annotated_DT, aes_string(x = dim_names[1], y = dim_names[2], fill = cell_color),
                             show.legend = show.legend, shape = 21, size = point_size)
+
+      # plot centers
+      if(show_cluster_center == TRUE & (color_as_factor == TRUE | class_cell_color %in% c('character', 'factor'))) {
+
+        pl <- pl + geom_point(data = annotated_DT_centers,
+                              aes_string(x = 'center_1', y = 'center_2', fill = cell_color),
+                              color = 'black',
+                              size = center.point.size, shape = 21)
+        if(show_center_label == TRUE) {
+          pl <- pl + ggrepel::geom_text_repel(data = annotated_DT_centers,
+                                              aes_string(x = 'center_1', y = 'center_2', label = cell_color),
+                                              size = label.size, fontface = label.fontface)
+        }
+      }
+
 
       if(!is.null(cell_color_code)) {
         pl <- pl + scale_fill_manual(values = cell_color_code)
@@ -491,6 +534,7 @@ visDimPlot <- function(gobject,
   return(pl)
 
 }
+
 
 
 #' @title plotUMAP

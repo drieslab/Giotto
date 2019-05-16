@@ -220,6 +220,14 @@ HMRFtest = doHMRF(gobject = VC_test, expression_values = 'scaled',
                   betas = c(40, 4, 3),
                   output_folder = '/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Data/package_testHMRF/',
                   python_path = "/Users/rubendries/Bin/anaconda3/envs/py36/bin/pythonw")
+#> 
+#>  expression_matrix.txt already exists at this location, will be used again 
+#> 
+#>  spatial_genes.txt already exists at this location, will be used again 
+#> 
+#>  spatial_network.txt already exists at this location, will be used again 
+#> 
+#>  spatial_cell_locations.txt already exists at this location, will be used again
 
 # view HMRF results for multiple tested betas
 viewHMRFresults(gobject = VC_test,
@@ -286,7 +294,7 @@ cellProximityVisPlot(gobject = VC_test, interaction_name = '1-5',
 
 
 ## 1 gene enrichment for cell-cell interaction ##
-test_int_gene_scores = getAverageCellProximityGeneScores(gobject = VC_test, cluster_column = 'pleiden_clus')
+cell_int_gene_scores = getCellProximityGeneScores(gobject = VC_test, cluster_column = 'pleiden_clus')
 #> start  1-1 
 #> start  1-4 
 #> start  1-5 
@@ -306,27 +314,40 @@ test_int_gene_scores = getAverageCellProximityGeneScores(gobject = VC_test, clus
 #> start  2-3 
 #> start  3-4 
 #> start  3-5
-test_gene_example = showGeneExpressionProximityScore(scores = test_int_gene_scores, selected_gene = 'Dlx1')
+
+# selection
+setorder(cell_int_gene_scores, -diff_spat)
+selection = cell_int_gene_scores[nr_1 > 5 & nr_2 > 5, head(.SD, 1), by = interaction][1:2]
+
+plotCellProximityGeneScores(CPGscores = cell_int_gene_scores,
+                            selected_interactions = selection$interaction,
+                            selected_genes = selection$genes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-4.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-11-4.png" width="60%" style="display: block; margin: auto;" /><img src="man/figures/README-unnamed-chunk-11-5.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
-test_interaction_example = showIntExpressionProximityScore(scores = test_int_gene_scores, selected_interaction = '5-6')
+
+plotCellProximityGeneScores(CPGscores = cell_int_gene_scores,
+                            selected_interactions = selection$interaction,
+                            selected_genes = selection$genes[1],
+                            detail_plot = T, facet.scales = 'fixed',
+                            simple_plot = T,
+                            simple_plot_facet = 'genes',
+                            facet.ncol = 1, facet.nrow = 2)
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-5.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-11-6.png" width="60%" style="display: block; margin: auto;" /><img src="man/figures/README-unnamed-chunk-11-7.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
-
 
 ## 2 selected ligand - receptor ##
 LR_data = fread(system.file("extdata", "mouse_ligand_receptors.txt", package = 'Giotto'))
 ligands = LR_data$mouseLigand
 receptors = LR_data$mouseReceptor
 
-my_subset_interactions = c('5-6','3-6','1-2')
-LR_VC = getGeneToGeneScores(CPGscore = test_int_gene_scores,
+my_subset_interactions = c('4-5','3-5','1-2')
+LR_VC = getGeneToGeneScores(CPGscore = cell_int_gene_scores,
                             selected_genes = NULL,
                             selected_cell_interactions = my_subset_interactions,
                             specific_genes_1 = ligands, specific_genes_2 = receptors)
@@ -335,18 +356,38 @@ LR_VC = getGeneToGeneScores(CPGscore = test_int_gene_scores,
 #> 
 #>  start specific gene-gene interactions
 
-showTopGeneToGene(GTGscore = LR_VC, top_interactions = 10,
-                  direction = c('increased'),
-                  complement_data = T)
+# select top 2
+setorder(LR_VC, -diff_spat)
+pair_selection = LR_VC[nr_1 > 5 & nr_2 > 5, head(.SD, 1), by = interaction][1:2]
+
+# detailed plot
+plotCellProximityGeneToGeneScores(GTGscore = LR_VC, 
+                                  selected_interactions = pair_selection$interaction,
+                                  selected_gene_to_gene = pair_selection$gene_gene, detail_plot = T)
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-6.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-11-8.png" width="60%" style="display: block; margin: auto;" /><img src="man/figures/README-unnamed-chunk-11-9.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 
-showTopGeneToGene(GTGscore = LR_VC, top_interactions = 10,
-                  direction = c('decreased'),
-                  complement_data = T, subset_cell_ints = '5-6')
+# simple plot per gene-gene
+plotCellProximityGeneToGeneScores(GTGscore = LR_VC, 
+                                  selected_interactions = pair_selection$interaction,
+                                  selected_gene_to_gene = pair_selection$gene_gene,
+                                  simple_plot = T,
+                                  simple_plot_facet = 'genes')
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-7.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-11-10.png" width="60%" style="display: block; margin: auto;" /><img src="man/figures/README-unnamed-chunk-11-11.png" width="60%" style="display: block; margin: auto;" />
+
+``` r
+
+# simple plot per cell-cell interaction
+plotCellProximityGeneToGeneScores(GTGscore = LR_VC, 
+                                  selected_interactions = pair_selection$interaction,
+                                  selected_gene_to_gene = pair_selection$gene_gene,
+                                  simple_plot = T,
+                                  simple_plot_facet = 'interaction')
+```
+
+<img src="man/figures/README-unnamed-chunk-11-12.png" width="60%" style="display: block; margin: auto;" /><img src="man/figures/README-unnamed-chunk-11-13.png" width="60%" style="display: block; margin: auto;" />

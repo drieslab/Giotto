@@ -8,7 +8,9 @@ visDimPlot(gobject, dim_reduction_to_use = "umap",
   dim_reduction_name = "umap", dim1_to_use = 1, dim2_to_use = 2,
   show_NN_network = F, nn_network_to_use = "sNN",
   network_name = "sNN.pca", cell_color = NULL, color_as_factor = T,
-  cell_color_code = NULL, edge_alpha = NULL, point_size = 1,
+  cell_color_code = NULL, show_cluster_center = T,
+  show_center_label = T, center.point.size = 4, label.size = 10,
+  label.fontface = "bold", edge_alpha = NULL, point_size = 1,
   show.legend = T)
 }
 \arguments{
@@ -33,6 +35,16 @@ visDimPlot(gobject, dim_reduction_to_use = "umap",
 \item{color_as_factor}{convert color column to factor}
 
 \item{cell_color_code}{named vector with colors}
+
+\item{show_cluster_center}{plot center of selected clusters}
+
+\item{show_center_label}{plot label of selected clusters}
+
+\item{center.point.size}{size of center points}
+
+\item{label.size}{size of labels}
+
+\item{label.fontface}{font of labels}
 
 \item{edge_alpha}{column to use for alpha of the edges}
 
