@@ -156,6 +156,7 @@ violinPlot(gobject = VC_test, genes = c('Dlx1', 'Rtn4r', 'Csf1r', 'Cldn11', 'Cld
 ## spatial network
 VC_test <- createSpatialNetwork(gobject = VC_test, k = 3)
 VC_test <- createSpatialNetwork(gobject = VC_test, k = 100, maximum_distance = 200, minimum_k = 1, name = 'distance_network')
+visPlot(gobject = VC_test, show_network = T, network_color = 'blue', point_size = 1)
 ## spatial grid
 VC_test <- createSpatialGrid(gobject = VC_test,
                              sdimx_stepsize = 500,

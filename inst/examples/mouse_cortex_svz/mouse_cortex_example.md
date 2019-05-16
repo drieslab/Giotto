@@ -173,6 +173,13 @@ violinPlot(gobject = VC_test, genes = c('Dlx1', 'Rtn4r', 'Csf1r', 'Cldn11', 'Cld
 ## spatial network
 VC_test <- createSpatialNetwork(gobject = VC_test, k = 3)
 VC_test <- createSpatialNetwork(gobject = VC_test, k = 100, maximum_distance = 200, minimum_k = 1, name = 'distance_network')
+visPlot(gobject = VC_test, show_network = T, network_color = 'blue', point_size = 1)
+#> first and second dimenion need to be defined, default is first 2
+```
+
+<img src="man/figures/README-unnamed-chunk-9-1.png" width="60%" style="display: block; margin: auto;" />
+
+``` r
 ## spatial grid
 VC_test <- createSpatialGrid(gobject = VC_test,
                              sdimx_stepsize = 500,
@@ -182,12 +189,12 @@ VC_test <- createSpatialGrid(gobject = VC_test,
 VC_test = detectSpatialPatterns(gobject = VC_test, dims_to_plot = 2)
 ```
 
-<img src="man/figures/README-unnamed-chunk-9-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-9-2.png" width="60%" style="display: block; margin: auto;" />
 
     #> [1] "Dim.1"
     #> [1] "Dim.2"
 
-<img src="man/figures/README-unnamed-chunk-9-2.png" width="60%" style="display: block; margin: auto;" /><img src="man/figures/README-unnamed-chunk-9-3.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-9-3.png" width="60%" style="display: block; margin: auto;" /><img src="man/figures/README-unnamed-chunk-9-4.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 ## spatial genes
@@ -198,7 +205,7 @@ visGenePlot(gobject = VC_test,  genes = c('Enpp2', 'Aqp1', 'Shank1', 'Clic6', 'N
             scale_alpha_with_expression = T)
 ```
 
-<img src="man/figures/README-unnamed-chunk-9-4.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-9-5.png" width="60%" style="display: block; margin: auto;" />
 
 ------------------------------------------------------------------------
 
@@ -295,31 +302,25 @@ cellProximityVisPlot(gobject = VC_test, interaction_name = '1-5',
 
 ## 1 gene enrichment for cell-cell interaction ##
 cell_int_gene_scores = getCellProximityGeneScores(gobject = VC_test, cluster_column = 'pleiden_clus')
-#> start  3-3 
-#> start  3-5 
-#> start  3-6 
-#> start  1-3 
-#> start  6-6 
-#> start  1-6 
-#> start  2-3 
-#> start  1-7 
-#> start  3-7 
-#> start  1-2 
-#> start  1-5 
 #> start  1-1 
+#> start  1-4 
+#> start  1-5 
 #> start  5-5 
-#> start  5-6 
-#> start  6-7 
-#> start  5-7 
-#> start  7-7 
-#> start  2-2 
-#> start  2-6 
+#> start  1-2 
+#> start  1-6 
 #> start  4-4 
-#> start  2-5 
-#> start  2-7 
-#> start  2-4 
 #> start  4-5 
-#> start  4-6
+#> start  5-6 
+#> start  4-6 
+#> start  6-6 
+#> start  2-2 
+#> start  2-5 
+#> start  3-3 
+#> start  2-4 
+#> start  2-6 
+#> start  2-3 
+#> start  3-4 
+#> start  3-5
 
 # selection
 setorder(cell_int_gene_scores, -diff_spat)
