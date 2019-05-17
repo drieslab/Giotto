@@ -278,6 +278,10 @@ visSpatDimPlot(gobject = VC_test, cell_color = 'hmrf_k.10_b.48', dim_point_size 
 
 ### 8. spatial analysis
 
+##### Cell-cell preferential proximity
+
+<img src="./cell_cell_neighbors.png" alt="cell-cell" width="453" />
+
 ``` r
 ## cell-cell interaction ##
 ## calculate and visualize cell-cell proximities
@@ -303,10 +307,11 @@ cellProximityVisPlot(gobject = VC_test, interaction_name = 'Astrocyte-Oligo',
 
 <img src="man/figures/README-unnamed-chunk-15-3.png" width="60%" style="display: block; margin: auto;" />
 
+##### 1 gene enrichment for cell-cell interactions
+
+<img src="./single_gene_enrichemt.png" alt="cell-cell" width="453" />
+
 ``` r
-
-
-## 1 gene enrichment for cell-cell interaction ##
 cell_int_gene_scores = getCellProximityGeneScores(gobject = VC_test, cluster_column = 'cell_types')
 #> start  Outer Neuron-Outer Neuron 
 #> start  Endothelial-Outer Neuron 
@@ -343,7 +348,7 @@ plotCellProximityGeneScores(CPGscores = cell_int_gene_scores,
                             selected_genes = selection$genes[1])
 ```
 
-<img src="man/figures/README-unnamed-chunk-15-4.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-16-1.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 
@@ -356,11 +361,15 @@ plotCellProximityGeneScores(CPGscores = cell_int_gene_scores,
                             facet.ncol = 1, facet.nrow = 2)
 ```
 
-<img src="man/figures/README-unnamed-chunk-15-5.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-16-2.png" width="60%" style="display: block; margin: auto;" />
+
+##### gene-gene enrichment for cell-cell interactions
+
+example: ligand - receptor combinations
+
+<img src="./double_gene_enrichment.png" alt="cell-cell" width="453" />
 
 ``` r
-
-## 2 selected ligand - receptor ##
 LR_data = fread(system.file("extdata", "mouse_ligand_receptors.txt", package = 'Giotto'))
 ligands = LR_data$mouseLigand
 receptors = LR_data$mouseReceptor
@@ -385,7 +394,7 @@ plotCellProximityGeneToGeneScores(GTGscore = LR_VC,
                                   selected_gene_to_gene = pair_selection$gene_gene, detail_plot = T)
 ```
 
-<img src="man/figures/README-unnamed-chunk-15-6.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-17-1.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 
@@ -397,7 +406,7 @@ plotCellProximityGeneToGeneScores(GTGscore = LR_VC,
                                   simple_plot_facet = 'genes')
 ```
 
-<img src="man/figures/README-unnamed-chunk-15-7.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-17-2.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 
@@ -409,4 +418,4 @@ plotCellProximityGeneToGeneScores(GTGscore = LR_VC,
                                   simple_plot_facet = 'interaction')
 ```
 
-<img src="man/figures/README-unnamed-chunk-15-8.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-17-3.png" width="60%" style="display: block; margin: auto;" />
