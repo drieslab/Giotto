@@ -108,6 +108,16 @@ VC_test <- createNearestNetwork(gobject = VC_test)
 VC_test = doLeidenCluster(gobject = VC_test, resolution = 0.5,
                           python_path = "/Users/rubendries/Bin/anaconda3/envs/py36/bin/python")
 
+```
+
+```{r eval=TRUE, echo=FALSE}
+VC_test = readRDS(file = paste0('./VC_test.RDS'))
+spatial_locs = VC_test@spatial_locs
+spatial_locs[, cell_ID := VC_test@cell_ID]
+VC_test@spatial_locs = spatial_locs
+```
+
+```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
 plotUMAP(gobject = VC_test, cell_color = 'pleiden_clus', point_size = 1.5,
         show_NN_network = T, edge_alpha = 0.1)
 ```
@@ -136,15 +146,30 @@ print(clusterheatmap)
 # pairwise t-test #
 gene_markers = findMarkers(gobject = VC_test, cluster_column = 'pleiden_clus')
 gene_markers_pair = findMarkers(gobject = VC_test, cluster_column = 'pleiden_clus',
-                                group_1 = c(1,2), group_2 = c(3,4,5))
+                                group_1 = c(1,3), group_2 = c(2,4,5))
 
 # Gini markers #
 gini_markers = findGiniMarkers(gobject = VC_test, cluster_column = 'pleiden_clus')
 gini_markers_DT = gini_markers[, head(.SD, 3), by = 'cluster']
 myheat = plotHeatmap(gobject = VC_test, genes = gini_markers_DT$genes,
                      cluster_column = 'pleiden_clus')
-violinPlot(gobject = VC_test, genes = c('Dlx1', 'Rtn4r', 'Csf1r', 'Cldn11', 'Cldn5', 'Igfbp5'),
+```
+
+```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=6, fig.height=7, out.width="60%", fig.align='center'}
+violinPlot(gobject = VC_test, genes = c('Nptxr', 'Cplx1',  'Fgfr3', 'Cldn5', 'Cldn11', 'Igfbp5', 'Sox2', 'Thbs4', 'Clic6'),
            cluster_column = 'pleiden_clus')
+```
+
+
+```{r eval=TRUE, echo=FALSE}
+clusters_cell_types =  c('Inner Neuron', 'NSC', 'Outer Neuron', 'Choroid Plexus', 'Endothelial', 'Astrocyte', 'Oligo')
+names(clusters_cell_types) = c(1, 2, 3, 4, 5, 6, 7)
+
+cell_metadata = pDataDT(VC_test)
+cell_metadata[, cell_types := clusters_cell_types[[pleiden_clus]], by = 1:nrow(cell_metadata)]
+VC_test@cell_metadata = cell_metadata
+
+visSpatDimPlot(gobject = VC_test, cell_color = 'cell_types', dim_point_size = 2, spatial_point_size = 2)
 ```
 
 ***
@@ -163,12 +188,12 @@ VC_test <- createSpatialGrid(gobject = VC_test,
                              sdimy_stepsize = 500,
                              minimum_padding = 50 )
 # spatial pattern genes
-VC_test = detectSpatialPatterns(gobject = VC_test, dims_to_plot = 2)
+VC_test = detectSpatialPatterns(gobject = VC_test, dims_to_plot = 1)
 ## spatial genes
 VC_test <- calculateSpatialGenes(gobject = VC_test, min_N = 20)
 spatial_gene_DT <- calculateSpatialGenes(gobject = VC_test , method = 'kmeans', return_gobject = F)
 # visualize
-visGenePlot(gobject = VC_test,  genes = c('Enpp2', 'Aqp1', 'Shank1', 'Clic6', 'Nptxr', 'Rtn4r'),
+visGenePlot(gobject = VC_test,  genes = c('Enpp2', 'Shank1', 'Nptxr', 'Sox2'),
             scale_alpha_with_expression = T)
 ```
 
@@ -215,29 +240,29 @@ visSpatDimPlot(gobject = VC_test, cell_color = 'hmrf_k.10_b.48', dim_point_size 
 ```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
 ## cell-cell interaction ##
 ## calculate and visualize cell-cell proximities
-cell_proximities = cellProximityEnrichment(gobject = VC_test, cluster_column = 'pleiden_clus')
+cell_proximities = cellProximityEnrichment(gobject = VC_test, cluster_column = 'cell_types')
 cellProximityBarplot(CPscore = cell_proximities)
 cellProximityHeatmap(CPscore = cell_proximities, order_cell_types = T)
 
-cellProximityVisPlot(gobject = VC_test, interaction_name = '1-5',
-                     cluster_column = 'pleiden_clus',
-                     cell_color = 'pleiden_clus', show_network = T, network_color = 'blue')
+cellProximityVisPlot(gobject = VC_test, interaction_name = 'Astrocyte-Oligo',
+                     cluster_column = 'cell_types',
+                     cell_color = 'cell_types', show_network = T, network_color = 'blue')
 
 
 ## 1 gene enrichment for cell-cell interaction ##
-cell_int_gene_scores = getCellProximityGeneScores(gobject = VC_test, cluster_column = 'pleiden_clus')
+cell_int_gene_scores = getCellProximityGeneScores(gobject = VC_test, cluster_column = 'cell_types')
 
 # selection
 setorder(cell_int_gene_scores, -diff_spat)
 selection = cell_int_gene_scores[nr_1 > 5 & nr_2 > 5, head(.SD, 1), by = interaction][1:2]
 
 plotCellProximityGeneScores(CPGscores = cell_int_gene_scores,
-                            selected_interactions = selection$interaction,
-                            selected_genes = selection$genes)
+                            selected_interactions = selection$interaction[1],
+                            selected_genes = selection$genes[1])
 
 plotCellProximityGeneScores(CPGscores = cell_int_gene_scores,
                             selected_interactions = selection$interaction,
-                            selected_genes = selection$genes,
+                            selected_genes = selection$genes[1],
                             detail_plot = T, facet.scales = 'fixed',
                             simple_plot = T,
                             simple_plot_facet = 'genes',
@@ -248,7 +273,7 @@ LR_data = fread(system.file("extdata", "mouse_ligand_receptors.txt", package = '
 ligands = LR_data$mouseLigand
 receptors = LR_data$mouseReceptor
 
-my_subset_interactions = c('4-5','3-5','1-2')
+my_subset_interactions = c('Endothelial-NSC', 'Inner Neuron-NSC')
 LR_VC = getGeneToGeneScores(CPGscore = cell_int_gene_scores,
                             selected_genes = NULL,
                             selected_cell_interactions = my_subset_interactions,

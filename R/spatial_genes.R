@@ -461,6 +461,9 @@ detectSpatialPatterns <- function(gobject,
   }
   loc_av_expr_matrix = base::do.call('cbind', loc_av_expr_list)
 
+  # START TEST
+  loc_av_expr_matrix = as.matrix(loc_av_expr_matrix)
+  # STOP
 
   # perform pca on grid matrix
   mypca <- FactoMineR::PCA(X = t(loc_av_expr_matrix), scale.unit = scale.unit, ncp = ncp, graph = F)

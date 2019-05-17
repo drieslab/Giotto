@@ -106,12 +106,14 @@ VC_test <- createNearestNetwork(gobject = VC_test)
 # cluster on network
 VC_test = doLeidenCluster(gobject = VC_test, resolution = 0.5,
                           python_path = "/Users/rubendries/Bin/anaconda3/envs/py36/bin/python")
+```
 
+``` r
 plotUMAP(gobject = VC_test, cell_color = 'pleiden_clus', point_size = 1.5,
         show_NN_network = T, edge_alpha = 0.1)
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-8-1.png" width="60%" style="display: block; margin: auto;" />
 
 ------------------------------------------------------------------------
 
@@ -125,7 +127,7 @@ visSpatDimPlot(gobject = VC_test, cell_color = 'pleiden_clus', dim_point_size = 
 #> first and second dimenion need to be defined, default is first 2
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-9-1.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 # relationship between clusters
@@ -133,7 +135,7 @@ clusterheatmap <- showClusterHeatmap(gobject = VC_test, cluster_column = 'pleide
 print(clusterheatmap)
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-2.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-9-2.png" width="60%" style="display: block; margin: auto;" />
 
 ------------------------------------------------------------------------
 
@@ -145,7 +147,7 @@ print(clusterheatmap)
 # pairwise t-test #
 gene_markers = findMarkers(gobject = VC_test, cluster_column = 'pleiden_clus')
 gene_markers_pair = findMarkers(gobject = VC_test, cluster_column = 'pleiden_clus',
-                                group_1 = c(1,2), group_2 = c(3,4,5))
+                                group_1 = c(1,3), group_2 = c(2,4,5))
 
 # Gini markers #
 gini_markers = findGiniMarkers(gobject = VC_test, cluster_column = 'pleiden_clus')
@@ -154,14 +156,18 @@ myheat = plotHeatmap(gobject = VC_test, genes = gini_markers_DT$genes,
                      cluster_column = 'pleiden_clus')
 ```
 
-<img src="man/figures/README-unnamed-chunk-8-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-10-1.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
-violinPlot(gobject = VC_test, genes = c('Dlx1', 'Rtn4r', 'Csf1r', 'Cldn11', 'Cldn5', 'Igfbp5'),
+violinPlot(gobject = VC_test, genes = c('Nptxr', 'Cplx1',  'Fgfr3', 'Cldn5', 'Cldn11', 'Igfbp5', 'Sox2', 'Thbs4', 'Clic6'),
            cluster_column = 'pleiden_clus')
 ```
 
-<img src="man/figures/README-unnamed-chunk-8-2.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-11-1.png" width="60%" style="display: block; margin: auto;" />
+
+    #> first and second dimenion need to be defined, default is first 2
+
+<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
 
 ------------------------------------------------------------------------
 
@@ -177,7 +183,7 @@ visPlot(gobject = VC_test, show_network = T, network_color = 'blue', point_size 
 #> first and second dimenion need to be defined, default is first 2
 ```
 
-<img src="man/figures/README-unnamed-chunk-9-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-13-1.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 ## spatial grid
@@ -186,26 +192,26 @@ VC_test <- createSpatialGrid(gobject = VC_test,
                              sdimy_stepsize = 500,
                              minimum_padding = 50 )
 # spatial pattern genes
-VC_test = detectSpatialPatterns(gobject = VC_test, dims_to_plot = 2)
+VC_test = detectSpatialPatterns(gobject = VC_test, dims_to_plot = 1)
 ```
 
-<img src="man/figures/README-unnamed-chunk-9-2.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-13-2.png" width="60%" style="display: block; margin: auto;" />
 
     #> [1] "Dim.1"
     #> [1] "Dim.2"
 
-<img src="man/figures/README-unnamed-chunk-9-3.png" width="60%" style="display: block; margin: auto;" /><img src="man/figures/README-unnamed-chunk-9-4.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-13-3.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 ## spatial genes
 VC_test <- calculateSpatialGenes(gobject = VC_test, min_N = 20)
 spatial_gene_DT <- calculateSpatialGenes(gobject = VC_test , method = 'kmeans', return_gobject = F)
 # visualize
-visGenePlot(gobject = VC_test,  genes = c('Enpp2', 'Aqp1', 'Shank1', 'Clic6', 'Nptxr', 'Rtn4r'),
+visGenePlot(gobject = VC_test,  genes = c('Enpp2', 'Shank1', 'Nptxr', 'Sox2'),
             scale_alpha_with_expression = T)
 ```
 
-<img src="man/figures/README-unnamed-chunk-9-5.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-13-4.png" width="60%" style="display: block; margin: auto;" />
 
 ------------------------------------------------------------------------
 
@@ -244,12 +250,12 @@ viewHMRFresults(gobject = VC_test,
 #> first and second dimenion need to be defined, default is first 2
 ```
 
-<img src="man/figures/README-unnamed-chunk-10-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-14-1.png" width="60%" style="display: block; margin: auto;" />
 
     #> [1] "/Users/rubendries/Bin/anaconda3/envs/py36/bin/pythonw /Library/Frameworks/R.framework/Versions/3.5/Resources/library/Giotto/python/get_result2.py -r /Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Data/package_testHMRF//result.spatial.zscore -a test -k 10 -b 48"
     #> first and second dimenion need to be defined, default is first 2
 
-<img src="man/figures/README-unnamed-chunk-10-2.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-14-2.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 
@@ -264,7 +270,7 @@ visSpatDimPlot(gobject = VC_test, cell_color = 'hmrf_k.10_b.48', dim_point_size 
 #> first and second dimenion need to be defined, default is first 2
 ```
 
-<img src="man/figures/README-unnamed-chunk-10-3.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-14-3.png" width="60%" style="display: block; margin: auto;" />
 
 ------------------------------------------------------------------------
 
@@ -275,76 +281,82 @@ visSpatDimPlot(gobject = VC_test, cell_color = 'hmrf_k.10_b.48', dim_point_size 
 ``` r
 ## cell-cell interaction ##
 ## calculate and visualize cell-cell proximities
-cell_proximities = cellProximityEnrichment(gobject = VC_test, cluster_column = 'pleiden_clus')
+cell_proximities = cellProximityEnrichment(gobject = VC_test, cluster_column = 'cell_types')
 cellProximityBarplot(CPscore = cell_proximities)
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-15-1.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 cellProximityHeatmap(CPscore = cell_proximities, order_cell_types = T)
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-2.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-15-2.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 
-cellProximityVisPlot(gobject = VC_test, interaction_name = '1-5',
-                     cluster_column = 'pleiden_clus',
-                     cell_color = 'pleiden_clus', show_network = T, network_color = 'blue')
+cellProximityVisPlot(gobject = VC_test, interaction_name = 'Astrocyte-Oligo',
+                     cluster_column = 'cell_types',
+                     cell_color = 'cell_types', show_network = T, network_color = 'blue')
 #> first and second dimenion need to be defined, default is first 2
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-3.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-15-3.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 
 
 ## 1 gene enrichment for cell-cell interaction ##
-cell_int_gene_scores = getCellProximityGeneScores(gobject = VC_test, cluster_column = 'pleiden_clus')
-#> start  1-1 
-#> start  1-4 
-#> start  1-5 
-#> start  5-5 
-#> start  1-2 
-#> start  1-6 
-#> start  4-4 
-#> start  4-5 
-#> start  5-6 
-#> start  4-6 
-#> start  6-6 
-#> start  2-2 
-#> start  2-5 
-#> start  3-3 
-#> start  2-4 
-#> start  2-6 
-#> start  2-3 
-#> start  3-4 
-#> start  3-5
+cell_int_gene_scores = getCellProximityGeneScores(gobject = VC_test, cluster_column = 'cell_types')
+#> start  Outer Neuron-Outer Neuron 
+#> start  Endothelial-Outer Neuron 
+#> start  Astrocyte-Outer Neuron 
+#> start  Inner Neuron-Outer Neuron 
+#> start  Astrocyte-Astrocyte 
+#> start  Astrocyte-Inner Neuron 
+#> start  NSC-Outer Neuron 
+#> start  Inner Neuron-Oligo 
+#> start  Oligo-Outer Neuron 
+#> start  Inner Neuron-NSC 
+#> start  Endothelial-Inner Neuron 
+#> start  Inner Neuron-Inner Neuron 
+#> start  Endothelial-Endothelial 
+#> start  Astrocyte-Endothelial 
+#> start  Astrocyte-Oligo 
+#> start  Endothelial-Oligo 
+#> start  Oligo-Oligo 
+#> start  NSC-NSC 
+#> start  Astrocyte-NSC 
+#> start  Choroid Plexus-Choroid Plexus 
+#> start  Endothelial-NSC 
+#> start  NSC-Oligo 
+#> start  Choroid Plexus-NSC 
+#> start  Choroid Plexus-Endothelial 
+#> start  Astrocyte-Choroid Plexus
 
 # selection
 setorder(cell_int_gene_scores, -diff_spat)
 selection = cell_int_gene_scores[nr_1 > 5 & nr_2 > 5, head(.SD, 1), by = interaction][1:2]
 
 plotCellProximityGeneScores(CPGscores = cell_int_gene_scores,
-                            selected_interactions = selection$interaction,
-                            selected_genes = selection$genes)
+                            selected_interactions = selection$interaction[1],
+                            selected_genes = selection$genes[1])
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-4.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-15-4.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 
 plotCellProximityGeneScores(CPGscores = cell_int_gene_scores,
                             selected_interactions = selection$interaction,
-                            selected_genes = selection$genes,
+                            selected_genes = selection$genes[1],
                             detail_plot = T, facet.scales = 'fixed',
                             simple_plot = T,
                             simple_plot_facet = 'genes',
                             facet.ncol = 1, facet.nrow = 2)
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-5.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-15-5.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 
@@ -353,7 +365,7 @@ LR_data = fread(system.file("extdata", "mouse_ligand_receptors.txt", package = '
 ligands = LR_data$mouseLigand
 receptors = LR_data$mouseReceptor
 
-my_subset_interactions = c('4-5','3-5','1-2')
+my_subset_interactions = c('Endothelial-NSC', 'Inner Neuron-NSC')
 LR_VC = getGeneToGeneScores(CPGscore = cell_int_gene_scores,
                             selected_genes = NULL,
                             selected_cell_interactions = my_subset_interactions,
@@ -373,7 +385,7 @@ plotCellProximityGeneToGeneScores(GTGscore = LR_VC,
                                   selected_gene_to_gene = pair_selection$gene_gene, detail_plot = T)
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-6.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-15-6.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 
@@ -385,7 +397,7 @@ plotCellProximityGeneToGeneScores(GTGscore = LR_VC,
                                   simple_plot_facet = 'genes')
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-7.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-15-7.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 
@@ -397,4 +409,4 @@ plotCellProximityGeneToGeneScores(GTGscore = LR_VC,
                                   simple_plot_facet = 'interaction')
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-8.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-15-8.png" width="60%" style="display: block; margin: auto;" />
