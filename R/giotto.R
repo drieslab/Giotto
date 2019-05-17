@@ -172,9 +172,14 @@ createGiottoObject <- function(raw_exprs,
   gobject@parameters = list()
 
   # spatial
-  spatial_dimensions = c('x', 'y', 'z')
-  colnames(gobject@spatial_locs) <- paste0('sdim', spatial_dimensions[1:ncol(gobject@spatial_locs)])
-  gobject@spatial_locs[, cell_ID := colnames(raw_exprs)]
+  if(nrow(spatial_locs) != ncol(raw_exprs)) {
+    stop('\n Number of rows of spatial location must equal number of columns of expression matrix \n')
+  } else {
+    spatial_dimensions = c('x', 'y', 'z')
+    colnames(gobject@spatial_locs) <- paste0('sdim', spatial_dimensions[1:ncol(gobject@spatial_locs)])
+    gobject@spatial_locs = as.data.table(gobject@spatial_locs)
+    gobject@spatial_locs[, cell_ID := colnames(raw_exprs)]
+  }
 
 
   ## OPTIONAL:

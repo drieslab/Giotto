@@ -307,6 +307,8 @@ cellProximityVisPlot(gobject = VC_test, interaction_name = 'Astrocyte-Oligo',
 
 <img src="man/figures/README-unnamed-chunk-15-3.png" width="60%" style="display: block; margin: auto;" />
 
+ 
+
 ##### 1 gene enrichment for cell-cell interactions
 
 <img src="./single_gene_enrichemt.png" alt="cell-cell" width="453" />
@@ -362,6 +364,8 @@ plotCellProximityGeneScores(CPGscores = cell_int_gene_scores,
 ```
 
 <img src="man/figures/README-unnamed-chunk-16-2.png" width="60%" style="display: block; margin: auto;" />
+
+ 
 
 ##### gene-gene enrichment for cell-cell interactions
 

@@ -111,6 +111,7 @@ VC_test = doLeidenCluster(gobject = VC_test, resolution = 0.5,
 ```
 
 ```{r eval=TRUE, echo=FALSE}
+# cell_ID problem is fixed, but VC_test.RDS needs to be remade or updated
 VC_test = readRDS(file = paste0('./VC_test.RDS'))
 spatial_locs = VC_test@spatial_locs
 spatial_locs[, cell_ID := VC_test@cell_ID]
@@ -252,6 +253,8 @@ cellProximityVisPlot(gobject = VC_test, interaction_name = 'Astrocyte-Oligo',
                      cell_color = 'cell_types', show_network = T, network_color = 'blue')
 ```
 
+\  
+
 
 ##### 1 gene enrichment for cell-cell interactions  
 ![cell-cell](./single_gene_enrichemt.png){width=12cm}      
@@ -275,6 +278,9 @@ plotCellProximityGeneScores(CPGscores = cell_int_gene_scores,
                             simple_plot_facet = 'genes',
                             facet.ncol = 1, facet.nrow = 2)
 ```
+
+\  
+
 
 ##### gene-gene enrichment for cell-cell interactions
 example: ligand - receptor combinations  
