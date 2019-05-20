@@ -21,20 +21,33 @@ getDistinctColors <- function(n) {
 }
 
 
-
 #' @title mygini_fun
 #' @description calculate gini coefficient
 #' @return gini coefficient
-mygini_fun <- function(x, weights = rep(1, length = length(x))) {
-  ox <- order(x)
-  x <- x[ox]
-  weights <- weights[ox]/sum(weights)
-  p <- cumsum(weights)
-  nu <- cumsum(weights * x)
-  n <- length(nu)
-  nu <- nu/nu[n]
-  sum(nu[-1] * p[-n]) - sum(nu[-n] * p[-1])
+mygini_fun <- function(x, weights = rep(1,length(x))) {
+
+  # adapted from R package GiniWegNeg
+  dataset = cbind(x, weights)
+  ord_x = order(x)
+  dataset_ord = dataset[ord_x,]
+  x       = dataset_ord[,1]
+  weights = dataset_ord[,2]
+  N  = sum(weights)
+  xw = x*weights
+  C_i = cumsum(weights)
+  num_1 = sum(xw*C_i)
+  num_2 = sum(xw)
+  num_3 = sum(xw*weights)
+  G_num = (2/N^2)*num_1-(1/N)*num_2-(1/N^2)*num_3
+  t_neg = subset(xw, xw<=0)
+  T_neg = sum(t_neg)
+  T_pos = sum(xw)+abs(T_neg)
+  n_RSV = (2*(T_pos+(abs(T_neg)))/N)
+  mean_RSV = (n_RSV/2)
+  G_RSV = (1/mean_RSV)*G_num
+  return(G_RSV)
 }
+
 
 #' @title extended_gini_fun
 #' @description calculate gini coefficient on a minimum length vector
@@ -43,7 +56,8 @@ extended_gini_fun <- function(x, weights = rep(1, length = length(x)), minimum_l
 
   if(length(x) < minimum_length) {
     difference = minimum_length - length(x)
-    x = c(x,rep(0,difference))
+    min_value = min(x)
+    x = c(x,rep(min_value, difference))
   }
 
   result <- mygini_fun(x = x, weights = weights)

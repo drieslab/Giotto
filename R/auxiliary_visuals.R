@@ -52,6 +52,7 @@ showClusterHeatmap <- function(gobject,
 #' @param cluster_custom_order vector with custom order of clusters
 #' @param gene_order order of genes (see details)
 #' @param show_values values to plot on heatmap (see details)
+#' @param legend.nrows number of rows for legend on top
 #' @return ggplot
 #' @details Correlation heatmap of clusters vs genes.
 #' @export
@@ -63,14 +64,16 @@ plotHeatmap <- function(gobject,
                         cluster_column = NULL,
                         cluster_order = c('size', 'correlation', 'custom'),
                         cluster_custom_order = NULL,
+                        cluster_color_code = NULL,
                         gene_order = c('custom', 'correlation'),
-                        show_values = c('rescaled', 'z-scaled', 'original')) {
+                        show_values = c('rescaled', 'z-scaled', 'original'),
+                        legend.nrows = 1) {
 
   show_values = match.arg(show_values, choices = c('rescaled', 'z-scaled', 'original'))
 
   # epxression data
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
 
   # subset expression data
   detected_genes = genes[genes %in% rownames(expr_values)]
@@ -135,9 +138,14 @@ plotHeatmap <- function(gobject,
     cell_order_DT = cell_order_DT[order(get(cluster_column), V1)]
     subset_values_DT[, cells := factor(cells, cell_order_DT$cells)]
 
-    clus_values = unique(cell_order_DT[[cluster_column]])
-    clus_colors = getDistinctColors(n = length(clus_values))
-    names(clus_colors) = clus_values
+    if(is.null(cluster_color_code)) {
+      clus_values = unique(cell_order_DT[[cluster_column]])
+      clus_colors = Giotto:::getDistinctColors(n = length(clus_values))
+      names(clus_colors) = clus_values
+    } else {
+      clus_colors = cluster_color_code
+    }
+
 
     x_lines = cumsum(as.vector(table(cell_order_DT[[cluster_column]])))
 
@@ -165,10 +173,11 @@ plotHeatmap <- function(gobject,
 
     cell_order_DT[['cells']] = factor(cell_order_DT[['cells']], levels = as.character(cell_order_DT[['cells']]))
 
+    ## bar on top ##
     clus_pl <- ggplot()
     clus_pl <- clus_pl + geom_raster(data = cell_order_DT, aes_string(x = 'cells', y = '1', fill = cluster_column))
     clus_pl <- clus_pl + geom_vline(xintercept = x_lines, color = 'white', size = 1.1)
-    clus_pl <- clus_pl + scale_fill_manual(values = clus_colors, guide = guide_legend(title = '', nrow = 1))
+    clus_pl <- clus_pl + scale_fill_manual(values = clus_colors, guide = guide_legend(title = '', nrow = legend.nrows))
     clus_pl <- clus_pl + theme(axis.text = element_blank(),
                                axis.ticks = element_blank(),
                                axis.line = element_blank(),
@@ -189,7 +198,9 @@ plotHeatmap <- function(gobject,
       value_column = 'scale_scores'
       midpoint = 0.5
     }
-    pl <- pl + geom_raster(data = subset_values_DT, aes_string(x = 'cells', y = 'genes', fill = value_column))
+
+    ## heatmap ##
+    pl <- pl + geom_tile(data = subset_values_DT, aes_string(x = 'cells', y = 'genes', fill = value_column))
     pl <- pl + geom_vline(xintercept = x_lines, color = 'white', size = 1.1)
     pl <- pl + theme(axis.text.x = element_blank(),
                      axis.ticks.x = element_blank())
@@ -224,7 +235,9 @@ violinPlot <- function(gobject,
                        expression_values = c('normalized', 'scaled', 'custom'),
                        genes,
                        cluster_column,
+                       cluster_custom_order = NULL,
                        color_violin = c('genes', 'cluster'),
+                       cluster_color_code = NULL,
                        strip.text = 7,
                        axis.text.x.size = 10,
                        axis.text.y.size = 6) {
@@ -235,7 +248,7 @@ violinPlot <- function(gobject,
 
   ## expression data ##
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_data = select_expression_values(gobject = gobject, values = values)
+  expr_data = Giotto:::select_expression_values(gobject = gobject, values = values)
 
   # only keep genes that are in the dataset
   selected_genes = genes[genes %in% rownames(expr_data) ]
@@ -262,6 +275,9 @@ violinPlot <- function(gobject,
   metadata_expr_m[, genes := factor(genes, selected_genes)]
   metadata_expr_m[[cluster_column]] = as.factor(metadata_expr_m[[cluster_column]])
 
+  if(!is.null(cluster_custom_order)) {
+    metadata_expr_m[[cluster_column]] = factor(x = metadata_expr_m[[cluster_column]], levels = cluster_custom_order)
+  }
 
 
   pl <- ggplot()
@@ -270,7 +286,16 @@ violinPlot <- function(gobject,
   if(color_violin == 'genes') {
     pl <- pl + geom_violin(data = metadata_expr_m, aes_string(x = cluster_column, y = 'value', fill = 'genes'), width = 1, scale = 'width', show.legend = F)
   } else {
-    pl <- pl + geom_violin(data = metadata_expr_m, aes_string(x = cluster_column, y = 'value', fill = cluster_column), width = 1, scale = 'width', show.legend = F)
+    pl <- pl + geom_violin(data = metadata_expr_m,
+                           aes_string(x = cluster_column, y = 'value',
+                                      fill = cluster_column),
+                           width = 1, scale = 'width',
+                           show.legend = F)
+
+    # provide own color scheme for clusters
+    if(!is.null(cluster_color_code)) {
+      pl <- pl + scale_fill_manual(values = cluster_color_code)
+    }
   }
   pl <- pl + facet_wrap(~genes, ncol = 1)
   pl <- pl + theme(strip.text = element_text(size = strip.text),

@@ -5,7 +5,8 @@
 \title{violinPlot}
 \usage{
 violinPlot(gobject, expression_values = c("normalized", "scaled",
-  "custom"), genes, cluster_column, color_violin = c("genes", "cluster"),
+  "custom"), genes, cluster_column, cluster_custom_order = NULL,
+  color_violin = c("genes", "cluster"), cluster_color_code = NULL,
   strip.text = 7, axis.text.x.size = 10, axis.text.y.size = 6)
 }
 \arguments{

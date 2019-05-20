@@ -4,7 +4,7 @@
 \alias{mygini_fun}
 \title{mygini_fun}
 \usage{
-mygini_fun(x, weights = rep(1, length = length(x)))
+mygini_fun(x, weights = rep(1, length(x)))
 }
 \value{
 gini coefficient

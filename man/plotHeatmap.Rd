@@ -7,8 +7,9 @@
 plotHeatmap(gobject, expression_values = c("normalized", "scaled",
   "custom"), genes, cluster_column = NULL, cluster_order = c("size",
   "correlation", "custom"), cluster_custom_order = NULL,
-  gene_order = c("custom", "correlation"), show_values = c("rescaled",
-  "z-scaled", "original"))
+  cluster_color_code = NULL, gene_order = c("custom", "correlation"),
+  show_values = c("rescaled", "z-scaled", "original"),
+  legend.nrows = 1)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -26,6 +27,8 @@ plotHeatmap(gobject, expression_values = c("normalized", "scaled",
 \item{gene_order}{order of genes (see details)}
 
 \item{show_values}{values to plot on heatmap (see details)}
+
+\item{legend.nrows}{number of rows for legend on top}
 }
 \value{
 ggplot
