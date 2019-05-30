@@ -11,11 +11,13 @@ visSpatDimPlot(gobject, plot_alignment = c("vertical", "horizontal"),
   show_cluster_center = T, show_center_label = T,
   center.point.size = 4, label.size = 4, label.fontface = "bold",
   cell_color = NULL, color_as_factor = T, cell_color_code = NULL,
-  dim_point_size = 1, edge_alpha = 0.05, show_spatial_network = F,
-  spatial_network_name = "spatial_network",
+  dim_point_size = 1, dim.point.border.col = "black",
+  dim.point.border.stroke = 0.1, edge_alpha = 0.05,
+  show_spatial_network = F, spatial_network_name = "spatial_network",
   spatial_network_color = NULL, show_spatial_grid = F,
   spatial_grid_name = "spatial_grid", spatial_grid_color = NULL,
-  spatial_point_size = 1, show.legend = T, show.plot = F)
+  spatial_point_size = 1, spatial.point.border.col = "black",
+  spatial.point.border.stroke = 0.1, show.legend = T, show.plot = F)
 }
 \arguments{
 \item{gobject}{giotto object}

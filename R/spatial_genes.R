@@ -388,6 +388,323 @@ calculateSpatialGenes <- function(gobject,
 
 #' @title detectSpatialPatterns
 #' @name detectSpatialPatterns
+#' @description Identify spatial patterns through PCA on average expression in a spatial grid.
+#' @param gobject giotto object
+#' @param expression_values expression values to use
+#' @param spatial_grid_name name of spatial grid to use (default = 'spatial_grid')
+#' @param min_cells_per_grid minimum number of cells in a grid to be considered
+#' @param scale.unit scale features
+#' @param ncp number of principal components to calculate
+#' @param show.plots show plots
+#' @param PC_zscore minimum z-score of variance explained by a PC
+#' @return spatial pattern object 'spatPatObj'
+#' @details Description of how we compute spatial pattern genes.
+#' @export
+#' @examples
+#'     detectSpatialPatterns(gobject)
+detectSpatialPatterns <- function(gobject,
+                                  expression_values = c('normalized', 'scaled', 'custom'),
+                                  spatial_grid_name = 'spatial_grid',
+                                  min_cells_per_grid = 4,
+                                  scale.unit = F,
+                                  ncp = 100,
+                                  show.plots = T,
+                                  PC_zscore = 1.5) {
+
+
+  # expression values to be used
+  values = base::match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+
+
+  # spatial grid and spatial locations
+  if(is.null(gobject@spatial_grid)) {
+    stop("\n you need to create a spatial grid, see createSpatialGrid(), for this function to work \n")
+  }
+  if(!spatial_grid_name %in% names(gobject@spatial_grid)) {
+    stop("\n you need to provide an existing spatial grid name for this function to work \n")
+  }
+  spatial_grid = gobject@spatial_grid[[spatial_grid_name]]
+  spatial_locs = gobject@spatial_locs
+
+  # filter grid, minimum number of cells per grid
+  cells_per_grid = base::sort(base::table(spatial_locs$gr_loc))
+  cells_per_grid = cells_per_grid[cells_per_grid >= min_cells_per_grid]
+  loc_names = base::names(cells_per_grid)
+
+  # average expression per grid
+  loc_av_expr_list <- base::list()
+  for(loc_name in loc_names) {
+
+    loc_cell_IDs = spatial_locs[gr_loc == loc_name]$cell_ID
+    subset_expr = expr_values[, base::colnames(expr_values) %in% loc_cell_IDs]
+    if(base::is.vector(subset_expr) == TRUE) {
+      loc_av_expr = subset_expr
+    } else {
+      loc_av_expr = base::rowMeans(subset_expr)
+    }
+    loc_av_expr_list[[loc_name]] <- loc_av_expr
+  }
+  loc_av_expr_matrix = base::do.call('cbind', loc_av_expr_list)
+
+  # START TEST
+  loc_av_expr_matrix = as.matrix(loc_av_expr_matrix)
+  # STOP
+
+  # perform pca on grid matrix
+  mypca <- FactoMineR::PCA(X = t(loc_av_expr_matrix), scale.unit = scale.unit, ncp = ncp, graph = F)
+
+  # screeplot
+  screeplot = factoextra::fviz_eig(mypca, addlabels = T, ylim = c(0, 50))
+  if(show.plots == TRUE) {
+    print(screeplot)
+  }
+
+  # select variable PCs
+  eig.val <- factoextra::get_eigenvalue(mypca)
+  eig.val_DT <- data.table::as.data.table(eig.val)
+  eig.val_DT$names = base::rownames(eig.val)
+  eig.val_DT[, zscore := base::scale(variance.percent)]
+  eig.val_DT[, rank := base::rank(variance.percent)]
+  dims_to_keep = eig.val_DT[zscore > PC_zscore]$names
+
+
+  # if no dimensions are kept, return message
+  if(base::is.null(dims_to_keep) | base::length(dims_to_keep) < 1) {
+    return(base::cat('\n no PC dimensions retained, lower the PC zscore \n'))
+  }
+
+  # coordinates for cells
+  pca_matrix <- mypca$ind$coord
+  if(base::length(dims_to_keep) == 1) {
+    pca_matrix_DT = data.table::data.table('dimkeep' = pca_matrix[,1],
+                                           loc_ID = base::colnames(loc_av_expr_matrix))
+    data.table::setnames(pca_matrix_DT, old = 'dimkeep', dims_to_keep)
+  } else {
+    pca_matrix_DT <- data.table::as.data.table(pca_matrix[,1:base::length(dims_to_keep)])
+    pca_matrix_DT[, loc_ID := base::colnames(loc_av_expr_matrix)]
+  }
+
+
+  # correlation of genes with PCs
+  feat_matrix <- mypca$var$cor
+  if(base::length(dims_to_keep) == 1) {
+    feat_matrix_DT = data.table::data.table('featkeep' = feat_matrix[,1],
+                                            gene_ID = base::rownames(loc_av_expr_matrix))
+    data.table::setnames(feat_matrix_DT, old = 'featkeep', dims_to_keep)
+  } else {
+    feat_matrix_DT <- data.table::as.data.table(feat_matrix[,1:base::length(dims_to_keep)])
+    feat_matrix_DT[, gene_ID := base::rownames(loc_av_expr_matrix)]
+  }
+
+
+  spatPatObject = list(pca_matrix_DT = pca_matrix_DT,
+                       feat_matrix_DT = feat_matrix_DT,
+                       spatial_grid = spatial_grid)
+
+  class(spatPatObject) <- append(class(spatPatObject), 'spatPatObj')
+
+  return(spatPatObject)
+}
+
+
+
+#' @title showPattern
+#' @name showPattern
+#' @description create a spatial grid
+#' @param spatPatObj Output from detectSpatialPatterns
+#' @param dimension dimension to plot
+#' @param trim Trim ends of the PC values.
+#' @param background.color background color for plot
+#' @param grid.border.color color for grid
+#' @param show.plot Show the plot.
+#' @return ggplot
+#' @details Description.
+#' @export
+#' @examples
+#'     showPattern(gobject)
+showPattern <- function(spatPatObj,
+                        dimension = 1,
+                        trim = c(0.02, 0.98),
+                        background.color = 'white',
+                        grid.border.color = 'grey',
+                        show.legend = T,
+                        show.plot = F) {
+
+  if(!'spatPatObj' %in% class(spatPatObj)) {
+    stop('\n spatPatObj needs to be the output from detectSpatialPatterns \n')
+  }
+
+  # select PC and subset data
+  selected_PC = paste0('Dim.', dimension)
+  PC_DT = spatPatObj$pca_matrix_DT
+  if(!selected_PC %in% colnames(PC_DT)) {
+    stop('\n This dimension was not found in the spatial pattern object \n')
+  }
+  PC_DT = PC_DT[,c(selected_PC, 'loc_ID'), with = F]
+
+  # annotate grid with PC values
+  annotated_grid = merge(spatPatObj$spatial_grid, by.x = 'gr_name', PC_DT, by.y = 'loc_ID')
+
+  # trim PC values
+  if(!is.null(trim)) {
+    boundaries = quantile(annotated_grid[[selected_PC]], probs = trim)
+    annotated_grid[[selected_PC]][annotated_grid[[selected_PC]] < boundaries[1]] = boundaries[1]
+    annotated_grid[[selected_PC]][annotated_grid[[selected_PC]] > boundaries[2]] = boundaries[2]
+
+  }
+
+  # plot
+  dpl <- ggplot()
+  dpl <- dpl + theme_bw()
+  dpl <- dpl + geom_tile(data = annotated_grid,
+                         aes_string(x = 'x_start', y = 'y_start', fill = selected_PC),
+                         color = grid.border.color, show.legend = show.legend)
+  dpl <- dpl + scale_fill_gradient2('low' = 'darkblue', mid = 'white', high = 'darkred', midpoint = 0,
+                                    guide = guide_legend(title = ''))
+  dpl <- dpl + theme(axis.text.x = element_text(size = 8, angle = 45, vjust = 1, hjust = 1),
+                     panel.background = element_rect(fill = background.color),
+                     panel.grid = element_blank(),
+                     plot.title = element_text(hjust = 0.5))
+  dpl <- dpl + labs(x = 'x coordinates', y = 'y coordinates')
+
+  if(show.plot == TRUE) {
+    print(dpl)
+  }
+  return(dpl)
+
+}
+
+
+
+
+#' @title showPatternGenes
+#' @name showPatternGenes
+#' @description create a spatial grid
+#' @param spatPatObj Output from detectSpatialPatterns
+#' @param dimension dimension to plot genes for.
+#' @param top_pos_genes Top positively correlated genes.
+#' @param top_neg_genes Top negatively correlated genes.
+#' @param point.size size of points
+#' @param show.plot Show the plot.
+#' @return ggplot
+#' @details Description.
+#' @export
+#' @examples
+#'     showPatternGenes(gobject)
+showPatternGenes <- function(spatPatObj,
+                             dimension = 1,
+                             top_pos_genes = 5,
+                             top_neg_genes = 5,
+                             point.size = 1,
+                             show.plot = F) {
+
+  if(!'spatPatObj' %in% class(spatPatObj)) {
+    stop('\n spatPatObj needs to be the output from detectSpatialPatterns \n')
+  }
+
+
+  # select PC to use
+  selected_PC = paste0('Dim.', dimension)
+
+  gene_cor_DT = spatPatObj$feat_matrix_DT
+  if(!selected_PC %in% colnames(gene_cor_DT)) {
+    stop('\n This dimension was not found in the spatial pattern object \n')
+  }
+  gene_cor_DT = gene_cor_DT[,c(selected_PC, 'gene_ID'), with = F]
+
+  # order and subset
+  gene_cor_DT = gene_cor_DT[order(get(selected_PC))]
+
+  subset = gene_cor_DT[c(1:top_neg_genes, (nrow(gene_cor_DT)-top_pos_genes):nrow(gene_cor_DT))]
+  subset[, gene_ID := factor(gene_ID, gene_ID)]
+
+  pl <- ggplot()
+  pl <- pl + theme_classic()
+  pl <- pl + geom_point(data = subset, aes_string(x = selected_PC, y = 'gene_ID'), size = point.size)
+  pl <- pl + geom_vline(xintercept = 0, linetype = 2)
+  pl <- pl + labs(x = 'correlation', y = '', title = selected_PC)
+  pl <- pl + theme(plot.title = element_text(hjust = 0.5))
+  if(show.plot == TRUE) {
+    print(pl)
+  }
+  return(pl)
+}
+
+
+
+
+
+
+#' @title selectPatternGenes
+#' @name selectPatternGenes
+#' @description create a spatial grid
+#' @param spatPatObj Output from detectSpatialPatterns
+#' @param dimensions dimensions to identify correlated genes for.
+#' @param top_pos_genes Top positively correlated genes.
+#' @param top_neg_genes Top negatively correlated genes.
+#' @param min_pos_cor Minimum positive correlation score to include a gene.
+#' @param min_neg_cor Minimum negative correlation score to include a gene.
+#' @return ggplot
+#' @details Description.
+#' @export
+#' @examples
+#'     selectPatternGenes(gobject)
+selectPatternGenes <- function(spatPatObj,
+                               dimensions = 1:5,
+                               top_pos_genes = 10,
+                               top_neg_genes = 10,
+                               min_pos_cor = 0.5,
+                               min_neg_cor = -0.5) {
+
+
+  if(!'spatPatObj' %in% class(spatPatObj)) {
+    stop('\n spatPatObj needs to be the output from detectSpatialPatterns \n')
+  }
+
+
+  # select PC to use
+  selected_PCs = paste0('Dim.', dimensions)
+  gene_cor_DT = spatPatObj$feat_matrix_DT
+  if(any(selected_PCs %in% colnames(gene_cor_DT) == F)) {
+    stop('\n not all dimensions were found back \n')
+  }
+  gene_cor_DT = gene_cor_DT[,c(selected_PCs, 'gene_ID'), with = FALSE]
+
+  # melt and select
+  gene_cor_DT_m = melt.data.table(gene_cor_DT, id.vars = 'gene_ID')
+  gene_cor_DT_m[, top_pos_rank := rank(value), by = 'variable']
+  gene_cor_DT_m[, top_neg_rank := rank(-value), by = 'variable']
+  selection = gene_cor_DT_m[top_pos_rank %in% 1:top_pos_genes | top_neg_rank %in% 1:top_neg_genes]
+
+  # filter on min correlation
+  selection = selection[value > min_pos_cor | value < min_neg_cor]
+
+  # remove duplicated genes by only retaining the most correlated dimension
+  selection[, topvalue := max(abs(value)), by = 'gene_ID']
+  uniq_selection = selection[value == topvalue]
+
+  # add other genes back
+  output_selection = uniq_selection[,.(gene_ID, variable)]
+  other_genes = gene_cor_DT[!gene_ID %in% output_selection$gene_ID][['gene_ID']]
+  other_genes_DT = data.table(gene_ID = other_genes, variable = 'noDim')
+
+
+  comb_output_genes = rbind(output_selection, other_genes_DT)
+  setnames(comb_output_genes, 'variable', 'patDim')
+
+  return(comb_output_genes)
+
+}
+
+
+
+
+
+
+
+#' @title detectSpatialPatterns_old
+#' @name detectSpatialPatterns_old
 #' @description create a spatial grid
 #' @param gobject giotto object
 #' @param expression_values expression values to use
@@ -405,10 +722,9 @@ calculateSpatialGenes <- function(gobject,
 #' @param dims_to_plot # of PC dimensions to plot if show_plots = TRUE
 #' @return giotto object spatial pattern genes appended to fDataDT
 #' @details Description of how we compute spatial pattern genes.
-#' @export
 #' @examples
-#'     detectSpatialPatterns(gobject)
-detectSpatialPatterns <- function(gobject,
+#'     detectSpatialPatterns_old(gobject)
+detectSpatialPatterns_old <- function(gobject,
                                   expression_values = c('normalized', 'scaled', 'custom'),
                                   spatial_grid_name = 'spatial_grid',
                                   min_cells_per_grid = 4,

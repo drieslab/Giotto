@@ -345,6 +345,47 @@ doHMRF <- function(gobject,
 
 
 
+#' @title loadHMRF
+#' @name loadHMRF
+#' @description load previous HMRF
+#' @param name_used name of HMRF that was run
+#' @param k_used  number of HMRF domains that was tested
+#' @param betas_used betas that were tested
+#' @param python_path_used python path that was used
+#' @param output_folder_used output folder that was used
+#' @return reloads a previous ran HMRF from doHRMF
+#' @details Description of HMRF parameters ...
+#' @export
+#' @examples
+#'     loadHMRF(gobject)
+loadHMRF = function(name_used = 'test',
+                    output_folder_used,
+                    k_used = 10,
+                    betas_used,
+                    python_path_used) {
+
+  output_data = paste0(output_folder_used,'/', 'result.spatial.zscore')
+  if(!file.exists(output_data)) {
+    stop('\n doHMRF was not run in this output directory \n')
+  }
+
+  # check if it indeed exists
+
+  HMRFObj = list(name = name_used,
+                 output_data = output_data,
+                 k = k_used,
+                 betas = betas_used,
+                 python_path = python_path_used)
+
+  class(HMRFObj) <- append(class(HMRFObj), 'HMRFoutput')
+
+
+  return(HMRFObj)
+
+}
+
+
+
 #' @title viewHMRFresults
 #' @name viewHMRFresults
 #' @description View results from doHMRF.

@@ -8,6 +8,8 @@
 #' @param sdimy y-axis dimension name (default = 'sdimy')
 #' @param sdimz z-axis dimension name (default = 'sdimz')
 #' @param point_size size of point (cell)
+#' @param point.border.col color of border around points
+#' @param point.border.stroke stroke size of border around points
 #' @param cell_color color for cells (see details)
 #' @param cell_color_code named vector with colors
 #' @param color_as_factor convert color column to factor
@@ -31,6 +33,8 @@ visPlot <- function(gobject,
                     sdimy = NULL,
                     sdimz = NULL,
                     point_size = 1,
+                    point.border.col = 'black',
+                    point.border.stroke = 0.1,
                     cell_color = NULL,
                     cell_color_code = NULL,
                     color_as_factor = T,
@@ -133,7 +137,8 @@ visPlot <- function(gobject,
       cell_color = 'lightblue'
       pl <- pl + geom_point(data = cell_locations, aes_string(x = sdimx, y = sdimy),
                             show.legend = show.legend, shape = 21,
-                            fill = cell_color, size = point_size)
+                            fill = cell_color, size = point_size,
+                            stroke = point.border.stroke, color = point.border.col)
     }
 
     else if (is.character(cell_color)) {
@@ -146,7 +151,8 @@ visPlot <- function(gobject,
         }
 
         pl <- pl + geom_point(data = cell_locations_metadata, aes_string(x = sdimx, y = sdimy, fill = cell_color),
-                              show.legend = show.legend, shape = 21, size = point_size)
+                              show.legend = show.legend, shape = 21, size = point_size,
+                              stroke = point.border.stroke, color = point.border.col)
 
         if(!is.null(cell_color_code)) {
           pl <- pl + scale_fill_manual(values = cell_color_code)
@@ -161,7 +167,9 @@ visPlot <- function(gobject,
 
       } else {
         pl <- pl + geom_point(data = cell_locations_metadata, aes_string(x = sdimx, y = sdimy),
-                              show.legend = show.legend, shape = 21, fill = cell_color, size = point_size)
+                              show.legend = show.legend, shape = 21, fill = cell_color,
+                              size = point_size,
+                              stroke = point.border.stroke, color = point.border.col)
       }
 
     }
@@ -203,6 +211,8 @@ visPlot <- function(gobject,
 #' @param midpoint expression midpoint
 #' @param scale_alpha_with_expression scale expression with ggplot alpha parameter
 #' @param point_size size of point (cell)
+#' @param point.border.col color of border around points
+#' @param point.border.stroke stroke size of border around points
 #' @param cow_n_col cowplot param: how many columns
 #' @param cow_rel_h cowplot param: relative height
 #' @param cow_rel_w cowplot param: relative width
@@ -226,6 +236,8 @@ visGenePlot <- function(gobject,
                         midpoint = 0,
                         scale_alpha_with_expression = TRUE,
                         point_size = 1,
+                        point.border.col = 'black',
+                        point.border.stroke = 0.1,
                         show.legend = T,
                         cow_n_col = 2,
                         cow_rel_h = 1,
@@ -310,11 +322,15 @@ visGenePlot <- function(gobject,
     if(scale_alpha_with_expression == TRUE) {
       pl <- pl + geom_point(data = cell_locations_metadata_genes, aes_string(x = 'sdimx', y = 'sdimy',
                                                                              fill = gene, alpha = gene),
-                            shape = 21, color = 'black', size = point_size, show.legend = show.legend)
+                            shape = 21,
+                            color = point.border.col, size = point_size, stroke = point.border.stroke,
+                            show.legend = show.legend)
     } else {
       pl <- pl + geom_point(data = cell_locations_metadata_genes, aes_string(x = 'sdimx', y = 'sdimy',
                                                                              fill = gene),
-                            shape = 21, color = 'black', size = point_size, show.legend = show.legend)
+                            shape = 21,
+                            color = point.border.col, size = point_size, stroke = point.border.stroke,
+                            show.legend = show.legend)
     }
     pl <- pl + scale_alpha_continuous(guide = 'none')
     pl <- pl + scale_fill_gradient2(low = 'darkblue', mid = 'white', high = 'darkred',
@@ -363,6 +379,8 @@ visGenePlot <- function(gobject,
 #' @param label.fontface font of labels
 #' @param edge_alpha column to use for alpha of the edges
 #' @param point_size size of point (cell)
+#' @param point.border.col color of border around points
+#' @param point.border.stroke stroke size of border around points
 #' @param show.legend show legend
 #' @return ggplot
 #' @details Description of parameters.
@@ -383,10 +401,14 @@ visDimPlot <- function(gobject,
                        show_cluster_center = T,
                        show_center_label = T,
                        center.point.size = 4,
+                       center.point.border.col = 'black',
+                       center.point.border.stroke = 0.1,
                        label.size = 4,
                        label.fontface = 'bold',
                        edge_alpha = NULL,
                        point_size = 1,
+                       point.border.col = 'black',
+                       point.border.stroke = 0.1,
                        show.legend = T) {
 
 
@@ -479,14 +501,15 @@ visDimPlot <- function(gobject,
       }
 
       pl <- pl + geom_point(data = annotated_DT, aes_string(x = dim_names[1], y = dim_names[2], fill = cell_color),
-                            show.legend = show.legend, shape = 21, size = point_size)
+                            show.legend = show.legend, shape = 21, size = point_size,
+                            color = point.border.col, stroke = point.border.stroke)
 
       # plot centers
       if(show_cluster_center == TRUE & (color_as_factor == TRUE | class_cell_color %in% c('character', 'factor'))) {
 
         pl <- pl + geom_point(data = annotated_DT_centers,
                               aes_string(x = 'center_1', y = 'center_2', fill = cell_color),
-                              color = 'black',
+                              color = center.point.border.col, stroke = center.point.border.stroke,
                               size = center.point.size, shape = 21)
         if(show_center_label == TRUE) {
           pl <- pl + ggrepel::geom_text_repel(data = annotated_DT_centers,
@@ -511,7 +534,9 @@ visDimPlot <- function(gobject,
 
   } else {
     pl <- pl + geom_point(data = annotated_DT, aes_string(x = dim_names[1], y = dim_names[2]),
-                          show.legend = show.legend, shape = 21, fill = cell_color, size = point_size)
+                          show.legend = show.legend, shape = 21, fill = cell_color,
+                          size = point_size,
+                          color = point.border.col, stroke = point.border.stroke)
   }
 
 
@@ -523,8 +548,18 @@ visDimPlot <- function(gobject,
     dim1_x_variance = var_expl_vec[1]
     dim2_y_variance = var_expl_vec[2]
 
-    x_title = sprintf('%s explains %.02f%% of variance', dim_names[1], var_expl_vec[1])
-    y_title = sprintf('%s explains %.02f%% of variance', dim_names[2], var_expl_vec[2])
+    x_name = paste0('pca','-',dim_names[1])
+    y_name = paste0('pca','-',dim_names[2])
+
+    x_title = sprintf('%s explains %.02f%% of variance', x_name, var_expl_vec[1])
+    y_title = sprintf('%s explains %.02f%% of variance', y_name, var_expl_vec[2])
+
+    pl <- pl + labs(x = x_title, y = y_title)
+
+  } else {
+
+    x_title = paste0(dim_reduction_to_use,'-',dim_names[1])
+    y_title = paste0(dim_reduction_to_use,'-',dim_names[2])
 
     pl <- pl + labs(x = x_title, y = y_title)
 
@@ -606,6 +641,8 @@ plotPCA = function(gobject, ...) {
 #' @param cell_color_code named vector with colors
 #' @param edge_alpha column to use for alpha of the edges
 #' @param point_size size of point (cell)
+#' @param point.border.col color of border around points
+#' @param point.border.stroke stroke size of border around points
 #' @param show.legend show legend
 #' @return ggplot
 #' @details Description of parameters.
@@ -624,6 +661,8 @@ visForceLayoutPlot <- function(gobject,
                                cell_color_code = NULL,
                                edge_alpha = NULL,
                                point_size = 1,
+                               point.border.col = 'black',
+                               point.border.stroke = 0.1,
                                show.legend = T) {
 
 
@@ -701,7 +740,8 @@ visForceLayoutPlot <- function(gobject,
       }
 
       pl <- pl + geom_point(data = annotated_DT, aes_string(x = dim_names[1], y = dim_names[2], fill = cell_color),
-                            show.legend = show.legend, shape = 21, size = point_size)
+                            show.legend = show.legend, shape = 21, size = point_size,
+                            color = point.border.col, stroke = point.border.stroke)
 
 
       if(!is.null(cell_color_code)) {
@@ -719,7 +759,9 @@ visForceLayoutPlot <- function(gobject,
 
   } else {
     pl <- pl + geom_point(data = annotated_DT, aes_string(x = dim_names[1], y = dim_names[2]),
-                          show.legend = show.legend, shape = 21, fill = cell_color, size = point_size)
+                          show.legend = show.legend, shape = 21, fill = cell_color,
+                          size = point_size,
+                          color = point.border.col, stroke = point.border.stroke)
   }
 
   return(pl)
@@ -776,6 +818,8 @@ visSpatDimPlot <- function(gobject,
                            color_as_factor = T,
                            cell_color_code = NULL,
                            dim_point_size = 1,
+                           dim.point.border.col = 'black',
+                           dim.point.border.stroke = 0.1,
                            edge_alpha = 0.05,
                            show_spatial_network = F,
                            spatial_network_name = 'spatial_network',
@@ -784,6 +828,8 @@ visSpatDimPlot <- function(gobject,
                            spatial_grid_name = 'spatial_grid',
                            spatial_grid_color = NULL,
                            spatial_point_size = 1,
+                           spatial.point.border.col = 'black',
+                           spatial.point.border.stroke = 0.1,
                            show.legend = T,
                            show.plot = F) {
 
@@ -814,7 +860,10 @@ visSpatDimPlot <- function(gobject,
                     show_NN_network = show_NN_network,
                     nn_network_to_use = nn_network_to_use, network_name = network_name,
                     cell_color = cell_color, color_as_factor = color_as_factor, cell_color_code = cell_color_code,
-                    edge_alpha = edge_alpha, show.legend = show.legend, point_size = dim_point_size,
+                    edge_alpha = edge_alpha, show.legend = show.legend,
+                    point_size = dim_point_size,
+                    point.border.col = dim.point.border.col,
+                    point.border.stroke = dim.point.border.stroke,
                     show_cluster_center = show_cluster_center,
                     show_center_label = show_center_label,
                     center.point.size = center.point.size,
@@ -828,7 +877,9 @@ visSpatDimPlot <- function(gobject,
                 cell_color = cell_color,
                 cell_color_code = cell_color_code, color_as_factor = color_as_factor, coord_fix_ratio = NULL,
                 network_color = spatial_network_color, grid_color = spatial_grid_color,
-                show.legend = show.legend, show.plot = show.plot, point_size = spatial_point_size)
+                show.legend = show.legend, show.plot = show.plot,
+                point_size = spatial_point_size, point.border.col = spatial.point.border.col,
+                point.border.stroke = spatial.point.border.stroke)
 
 
   if(plot_alignment == 'vertical') {
@@ -858,6 +909,8 @@ visSpatDimPlot <- function(gobject,
 #' @param edge_alpha column to use for alpha of the edges
 #' @param scale_alpha_with_expression scale expression with ggplot alpha parameter
 #' @param point_size size of point (cell)
+#' @param point.border.col color of border around points
+#' @param point.border.stroke stroke size of border around points
 #' @param midpoint size of point (cell)
 #' @param cow_n_col cowplot param: how many columns
 #' @param cow_rel_h cowplot param: relative height
@@ -883,6 +936,8 @@ visDimGenePlot <- function(gobject,
                            edge_alpha = NULL,
                            scale_alpha_with_expression = TRUE,
                            point_size = 1,
+                           point.border.col = 'black',
+                           point.border.stroke = 0.1,
                            midpoint = 0,
                            cow_n_col = 2,
                            cow_rel_h = 1,
@@ -981,15 +1036,19 @@ visDimGenePlot <- function(gobject,
     # point layer
     if(is.null(genes)) {
       cell_color = 'lightblue'
-      pl <- pl + geom_point(data = annotated_gene_DT, aes_string(x = dim_names[1], dim_names[2]), fill = cell_color, show.legend = show.legend, size =  point_size)
+      pl <- pl + geom_point(data = annotated_gene_DT, aes_string(x = dim_names[1], dim_names[2]),
+                            fill = cell_color, show.legend = show.legend, size =  point_size)
 
     } else {
       if(scale_alpha_with_expression == TRUE) {
         pl <- pl + geom_point(data = annotated_gene_DT, aes_string(x = dim_names[1], y = dim_names[2], fill = gene, alpha = gene),
-                              color = 'black', show.legend = show.legend, shape = 21, size =  point_size)
+                              show.legend = show.legend, shape = 21, size = point_size,
+                              color = point.border.col, stroke = point.border.stroke)
       } else {
         pl <- pl + geom_point(data = annotated_gene_DT, aes_string(x = dim_names[1], y = dim_names[2], fill = gene),
-                              color = 'black', show.legend = show.legend, shape = 21, size =  point_size)
+                              show.legend = show.legend, shape = 21,
+                              size =  point_size,
+                              color = point.border.col, stroke = point.border.stroke)
       }
 
       pl <- pl + scale_fill_gradient2(low = 'grey', mid = 'lightgrey', high = 'red', midpoint = midpoint)
@@ -1028,6 +1087,8 @@ visDimGenePlot <- function(gobject,
 #' @param dim1_to_use dimension to use on x-axis
 #' @param dim2_to_use dimension to use on y-axis
 #' @param dim_point_size dim reduction plot: point size
+#' @param dim.point.border.col color of border around points
+#' @param dim.point.border.stroke stroke size of border around points
 #' @param show_NN_network show underlying NN network
 #' @param nn_network_to_use type of NN network to use (kNN vs sNN)
 #' @param network_name name of NN network to use, if show_NN_network = TRUE
@@ -1036,6 +1097,8 @@ visDimGenePlot <- function(gobject,
 #' @param spatial_network_name name of spatial network to use
 #' @param spatial_grid_name name of spatial grid to use
 #' @param spatial_point_size spatial plot: point size
+#' @param spatial.point.border.col color of border around points
+#' @param spatial.point.border.stroke stroke size of border around points
 #' @param midpoint size of point (cell)
 #' @param point_size size of point (cell)
 #' @param cow_n_col cowplot param: how many columns
@@ -1058,6 +1121,8 @@ visSpatDimGenePlot <- function(gobject,
                                dim1_to_use = 1,
                                dim2_to_use = 2,
                                dim_point_size = 1,
+                               dim.point.border.col = 'black',
+                               dim.point.border.stroke = 0.1,
                                show_NN_network = F,
                                nn_network_to_use = 'sNN',
                                network_name = 'sNN.pca',
@@ -1066,6 +1131,8 @@ visSpatDimGenePlot <- function(gobject,
                                spatial_network_name = 'spatial_network',
                                spatial_grid_name = 'spatial_grid',
                                spatial_point_size = 1,
+                               spatial.point.border.col = 'black',
+                               spatial.point.border.stroke = 0.1,
                                midpoint = 0,
                                point_size = 1,
                                cow_n_col = 2,
@@ -1088,6 +1155,8 @@ visSpatDimGenePlot <- function(gobject,
                           edge_alpha = edge_alpha_dim, midpoint = midpoint,
                           show.legend = show.legend,scale_alpha_with_expression = scale_alpha_with_expression,
                           point_size = dim_point_size,
+                          point.border.col = dim.point.border.col,
+                          point.border.stroke = dim.point.border.stroke,
                           cow_n_col = cow_n_col, cow_rel_h = cow_rel_h, cow_rel_w = cow_rel_w, cow_align = cow_align, show_plots = show_plots)
 
 
@@ -1095,7 +1164,10 @@ visSpatDimGenePlot <- function(gobject,
     spl = visGenePlot(gobject = gobject, genes = genes, expression_values = expression_values,
                       spatial_network_name = spatial_network_name, midpoint = midpoint,
                       show_plots = show_plots, scale_alpha_with_expression = scale_alpha_with_expression,
-                      point_size = spatial_point_size, show.legend = show.legend,
+                      point_size = spatial_point_size,
+                      point.border.col = spatial.point.border.col,
+                      point.border.stroke = spatial.point.border.stroke,
+                      show.legend = show.legend,
                       cow_n_col = cow_n_col, cow_rel_h = cow_rel_h, cow_rel_w = cow_rel_w, cow_align = cow_align)
 
     if(plot_alignment == 'vertical') {

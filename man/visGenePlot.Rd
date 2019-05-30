@@ -9,6 +9,7 @@ visGenePlot(gobject, expression_values = c("normalized", "scaled",
   spatial_network_name = "spatial_network", show_grid = F,
   grid_color = NULL, spatial_grid_name = "spatial_grid",
   midpoint = 0, scale_alpha_with_expression = TRUE, point_size = 1,
+  point.border.col = "black", point.border.stroke = 0.1,
   show.legend = T, cow_n_col = 2, cow_rel_h = 1, cow_rel_w = 1,
   cow_align = "h", show_plots = F)
 }
@@ -36,6 +37,10 @@ visGenePlot(gobject, expression_values = c("normalized", "scaled",
 \item{scale_alpha_with_expression}{scale expression with ggplot alpha parameter}
 
 \item{point_size}{size of point (cell)}
+
+\item{point.border.col}{color of border around points}
+
+\item{point.border.stroke}{stroke size of border around points}
 
 \item{show.legend}{show legend}
 

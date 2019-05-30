@@ -8,7 +8,8 @@ visForceLayoutPlot(gobject, nn_network_to_use = "sNN",
   network_name = "sNN.pca", layout_name = "layout", dim1_to_use = 1,
   dim2_to_use = 2, show_NN_network = T, cell_color = NULL,
   color_as_factor = F, cell_color_code = NULL, edge_alpha = NULL,
-  point_size = 1, show.legend = T)
+  point_size = 1, point.border.col = "black",
+  point.border.stroke = 0.1, show.legend = T)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -34,6 +35,10 @@ visForceLayoutPlot(gobject, nn_network_to_use = "sNN",
 \item{edge_alpha}{column to use for alpha of the edges}
 
 \item{point_size}{size of point (cell)}
+
+\item{point.border.col}{color of border around points}
+
+\item{point.border.stroke}{stroke size of border around points}
 
 \item{show.legend}{show legend}
 }

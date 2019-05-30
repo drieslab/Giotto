@@ -54,7 +54,26 @@ Required python modules:
 - igraph  
 - networkx  
 - leidenalg  
-- community  
+- community 
+
+Conda installation:
+``` python
+# python-igraph:
+conda install -c conda-forge python-igraph
+conda install -c conda-forge/label/gcc7 python-igraph
+conda install -c conda-forge/label/cf201901 python-igraph 
+
+# networkx:
+conda install -c anaconda networkx
+
+# louvain:
+conda install -c conda-forge python-louvain
+conda install -c conda-forge/label/gcc7 python-louvain
+conda install -c conda-forge/label/cf201901 python-louvain
+
+# leidenalg:
+conda install -c conda-forge leidenalg
+```
 
 Future plan:  
 ``` python

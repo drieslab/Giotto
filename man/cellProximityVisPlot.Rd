@@ -11,7 +11,9 @@ cellProximityVisPlot(gobject, interaction_name = NULL,
   spatial_network_name = "spatial_network", show_grid = F,
   grid_color = NULL, spatial_grid_name = "spatial_grid",
   coord_fix_ratio = 0.6, show.legend = T, point_size_select = 2,
-  point_size_other = 1, ...)
+  point_select.border.col = "black", point_select.border.stroke = 0.05,
+  point_size_other = 1, point_other.border.col = "lightgrey",
+  point_other.border.stroke = 0.01, ...)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -47,6 +49,18 @@ cellProximityVisPlot(gobject, interaction_name = NULL,
 \item{coord_fix_ratio}{fix ratio between x and y-axis}
 
 \item{show.legend}{show legend}
+
+\item{point_size_select}{size of selected points}
+
+\item{point_select.border.col}{border color of selected points}
+
+\item{point_select.border.stroke}{stroke size of selected points}
+
+\item{point_size_other}{size of other points}
+
+\item{point_other.border.col}{border color of other points}
+
+\item{point_other.border.stroke}{stroke size of other points}
 }
 \value{
 ggplot

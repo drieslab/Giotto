@@ -125,6 +125,12 @@ cellProximityHeatmap = function(CPscore,
 #' @param spatial_grid_name name of spatial grid to use
 #' @param coord_fix_ratio fix ratio between x and y-axis
 #' @param show.legend show legend
+#' @param point_size_select size of selected points
+#' @param point_select.border.col border color of selected points
+#' @param point_select.border.stroke stroke size of selected points
+#' @param point_size_other size of other points
+#' @param point_other.border.col border color of other points
+#' @param point_other.border.stroke stroke size of other points
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -148,7 +154,11 @@ cellProximityVisPlot <- function(gobject,
                                  coord_fix_ratio = 0.6,
                                  show.legend = T,
                                  point_size_select = 2,
+                                 point_select.border.col = 'black',
+                                 point_select.border.stroke = 0.05,
                                  point_size_other = 1,
+                                 point_other.border.col = 'lightgrey',
+                                 point_other.border.stroke = 0.01,
                                  ...) {
 
 
@@ -215,20 +225,27 @@ cellProximityVisPlot <- function(gobject,
 
     if(!is.null(spatial_network) & show_network == TRUE) {
       if(is.null(network_color)) network_color = 'red'
-      pl <- pl + geom_segment(data = spatial_network[!unified_int %in% interaction_name], aes(x = sdimx_begin, y = sdimy_begin, xend = sdimx_end, yend = sdimy_end), color = 'lightgrey', size = 0.5, alpha = 0.5)
-      pl <- pl + geom_segment(data = spatial_network[unified_int %in% interaction_name], aes(x = sdimx_begin, y = sdimy_begin, xend = sdimx_end, yend = sdimy_end), color = network_color, size = 0.5, alpha = 0.5)
+      pl <- pl + geom_segment(data = spatial_network[!unified_int %in% interaction_name],
+                              aes(x = sdimx_begin, y = sdimy_begin, xend = sdimx_end, yend = sdimy_end),
+                              color = 'lightgrey', size = 0.5, alpha = 0.5)
+      pl <- pl + geom_segment(data = spatial_network[unified_int %in% interaction_name],
+                              aes(x = sdimx_begin, y = sdimy_begin, xend = sdimx_end, yend = sdimy_end),
+                              color = network_color, size = 0.5, alpha = 0.5)
     }
 
     if(!is.null(spatial_grid) & show_grid == TRUE) {
       if(is.null(grid_color)) grid_color = 'black'
-      pl <- pl + geom_rect(data = spatial_grid, aes(xmin = x_start, xmax = x_end, ymin = y_start, ymax = y_end), color = grid_color, fill = NA)
+      pl <- pl + geom_rect(data = spatial_grid, aes(xmin = x_start, xmax = x_end, ymin = y_start, ymax = y_end),
+                           color = grid_color, fill = NA)
     }
 
     # cell color default
     if(is.null(cell_color)) {
       cell_color = 'lightblue'
-      pl <- pl + geom_point(data = cell_locations[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy), show.legend = show.legend, shape = 21, fill = 'lightgrey', size = point_size_other)
-      pl <- pl + geom_point(data = cell_locations[cell_ID %In% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy), show.legend = show.legend, shape = 21, fill = cell_color, size = point_size_select)
+      pl <- pl + geom_point(data = cell_locations[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
+                            show.legend = show.legend, shape = 21, fill = 'lightgrey', size = point_size_other)
+      pl <- pl + geom_point(data = cell_locations[cell_ID %In% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
+                            show.legend = show.legend, shape = 21, fill = cell_color, size = point_size_select)
     }
     else if (is.character(cell_color)) {
       if(cell_color %in% colnames(cell_locations_metadata)) {
@@ -238,8 +255,12 @@ cellProximityVisPlot <- function(gobject,
           cell_locations_metadata[[cell_color]] <- factor_data
         }
 
-        pl <- pl + geom_point(data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy), fill = 'lightgrey', shape = 21, size = point_size_other)
-        pl <- pl + geom_point(data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy, fill = cell_color), show.legend = show.legend, shape = 21, size = point_size_select)
+        pl <- pl + geom_point(data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
+                              fill = 'lightgrey', shape = 21, size = point_size_other,
+                              color = point_other.border.col, stroke = point_other.border.stroke)
+        pl <- pl + geom_point(data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy, fill = cell_color),
+                              show.legend = show.legend, shape = 21, size = point_size_select,
+                              color = point_select.border.col, stroke = point_select.border.stroke)
 
 
 
@@ -255,8 +276,12 @@ cellProximityVisPlot <- function(gobject,
         }
 
       } else {
-        pl <- pl + geom_point(data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy), show.legend = show.legend, shape = 21, fill = 'lightgrey', size = point_size_other)
-        pl <- pl + geom_point(data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy), show.legend = show.legend, shape = 21, fill = cell_color, size = point_size_select)
+        pl <- pl + geom_point(data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
+                              show.legend = show.legend, shape = 21, fill = 'lightgrey', size = point_size_other,
+                              color = point_other.border.col, stroke = point_other.border.stroke)
+        pl <- pl + geom_point(data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
+                              show.legend = show.legend, shape = 21, fill = cell_color, size = point_size_select,
+                              color = point_select.border.col, stroke = point_select.border.stroke)
       }
 
     }
@@ -326,6 +351,12 @@ plotCellProximityGeneScores <- function(CPGscores,
   subDT[, cell_expr_2 := as.numeric(cell_expr_2)]
   subDT[, all_comb_expr := as.numeric(all_comb_expr)]
   subDT[, comb_expr := as.numeric(comb_expr)]
+
+
+  # order interactions and gene-to-gene according to input
+  subDT[, genes := factor(genes, levels = selected_genes)]
+  subDT[, interaction := factor(interaction, levels = selected_interactions)]
+
 
   if(simple_plot == F) {
 
@@ -425,6 +456,10 @@ plotCellProximityGeneToGeneScores <- function(GTGscore,
   subDT[, all_comb_expr := as.numeric(all_comb_expr)]
   subDT[, comb_expr := as.numeric(comb_expr)]
 
+
+  # order interactions and gene-to-gene according to input
+  subDT[, gene_gene := factor(gene_gene, levels = selected_gene_to_gene)]
+  subDT[, interaction := factor(interaction, levels = selected_interactions)]
 
 
   if(simple_plot == F) {

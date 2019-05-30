@@ -9,9 +9,10 @@ visDimGenePlot(gobject, expression_values = c("normalized", "scaled",
   dim_reduction_name = "umap", dim1_to_use = 1, dim2_to_use = 2,
   show_NN_network = T, nn_network_to_use = "sNN",
   network_name = "sNN.pca", edge_alpha = NULL,
-  scale_alpha_with_expression = TRUE, point_size = 1, midpoint = 0,
-  cow_n_col = 2, cow_rel_h = 1, cow_rel_w = 1, cow_align = "h",
-  show.legend = T, show_plots = T)
+  scale_alpha_with_expression = TRUE, point_size = 1,
+  point.border.col = "black", point.border.stroke = 0.1,
+  midpoint = 0, cow_n_col = 2, cow_rel_h = 1, cow_rel_w = 1,
+  cow_align = "h", show.legend = T, show_plots = T)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -39,6 +40,10 @@ visDimGenePlot(gobject, expression_values = c("normalized", "scaled",
 \item{scale_alpha_with_expression}{scale expression with ggplot alpha parameter}
 
 \item{point_size}{size of point (cell)}
+
+\item{point.border.col}{color of border around points}
+
+\item{point.border.stroke}{stroke size of border around points}
 
 \item{midpoint}{size of point (cell)}
 

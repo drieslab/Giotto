@@ -8,13 +8,16 @@ visSpatDimGenePlot(gobject, expression_values = c("normalized", "scaled",
   "custom"), plot_alignment = c("horizontal", "vertical"), genes,
   dim_reduction_to_use = "umap", dim_reduction_name = "umap",
   dim1_to_use = 1, dim2_to_use = 2, dim_point_size = 1,
+  dim.point.border.col = "black", dim.point.border.stroke = 0.1,
   show_NN_network = F, nn_network_to_use = "sNN",
   network_name = "sNN.pca", edge_alpha_dim = NULL,
   scale_alpha_with_expression = TRUE,
   spatial_network_name = "spatial_network",
   spatial_grid_name = "spatial_grid", spatial_point_size = 1,
-  midpoint = 0, point_size = 1, cow_n_col = 2, cow_rel_h = 1,
-  cow_rel_w = 1, cow_align = "h", show.legend = T, show_plots = F)
+  spatial.point.border.col = "black",
+  spatial.point.border.stroke = 0.1, midpoint = 0, point_size = 1,
+  cow_n_col = 2, cow_rel_h = 1, cow_rel_w = 1, cow_align = "h",
+  show.legend = T, show_plots = F)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -35,6 +38,10 @@ visSpatDimGenePlot(gobject, expression_values = c("normalized", "scaled",
 
 \item{dim_point_size}{dim reduction plot: point size}
 
+\item{dim.point.border.col}{color of border around points}
+
+\item{dim.point.border.stroke}{stroke size of border around points}
+
 \item{show_NN_network}{show underlying NN network}
 
 \item{nn_network_to_use}{type of NN network to use (kNN vs sNN)}
@@ -50,6 +57,10 @@ visSpatDimGenePlot(gobject, expression_values = c("normalized", "scaled",
 \item{spatial_grid_name}{name of spatial grid to use}
 
 \item{spatial_point_size}{spatial plot: point size}
+
+\item{spatial.point.border.col}{color of border around points}
+
+\item{spatial.point.border.stroke}{stroke size of border around points}
 
 \item{midpoint}{size of point (cell)}
 

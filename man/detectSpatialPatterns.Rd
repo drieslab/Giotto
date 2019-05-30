@@ -7,10 +7,7 @@
 detectSpatialPatterns(gobject, expression_values = c("normalized",
   "scaled", "custom"), spatial_grid_name = "spatial_grid",
   min_cells_per_grid = 4, scale.unit = F, ncp = 100,
-  show_plots = T, PC_zscore = 1.5, min_pattern_cor_score = 0.8,
-  min_cor_genes = 10, trim = 0, background.color = "white",
-  grid.border.color = "darkgrey", return_gobject = TRUE,
-  SPname = "spg", dims_to_plot = 1)
+  show.plots = T, PC_zscore = 1.5)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -25,27 +22,15 @@ detectSpatialPatterns(gobject, expression_values = c("normalized",
 
 \item{ncp}{number of principal components to calculate}
 
-\item{show_plots}{show plots}
+\item{show.plots}{show plots}
 
 \item{PC_zscore}{minimum z-score of variance explained by a PC}
-
-\item{min_pattern_cor_score}{minimum correlation of gene to significant PC}
-
-\item{min_cor_genes}{minimum number of genes to attribute to significant PC}
-
-\item{trim}{trim values}
-
-\item{return_gobject}{boolean: return giotto object (default = TRUE)}
-
-\item{SPname}{name for identified spatial pattern genes (default = 'spg')}
-
-\item{dims_to_plot}{# of PC dimensions to plot if show_plots = TRUE}
 }
 \value{
-giotto object spatial pattern genes appended to fDataDT
+spatial pattern object 'spatPatObj'
 }
 \description{
-create a spatial grid
+Identify spatial patterns through PCA on average expression in a spatial grid.
 }
 \details{
 Description of how we compute spatial pattern genes.

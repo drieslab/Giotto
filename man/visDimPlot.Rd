@@ -9,9 +9,11 @@ visDimPlot(gobject, dim_reduction_to_use = "umap",
   show_NN_network = F, nn_network_to_use = "sNN",
   network_name = "sNN.pca", cell_color = NULL, color_as_factor = T,
   cell_color_code = NULL, show_cluster_center = T,
-  show_center_label = T, center.point.size = 4, label.size = 4,
-  label.fontface = "bold", edge_alpha = NULL, point_size = 1,
-  show.legend = T)
+  show_center_label = T, center.point.size = 4,
+  center.point.border.col = "black", center.point.border.stroke = 0.1,
+  label.size = 4, label.fontface = "bold", edge_alpha = NULL,
+  point_size = 1, point.border.col = "black",
+  point.border.stroke = 0.1, show.legend = T)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -49,6 +51,10 @@ visDimPlot(gobject, dim_reduction_to_use = "umap",
 \item{edge_alpha}{column to use for alpha of the edges}
 
 \item{point_size}{size of point (cell)}
+
+\item{point.border.col}{color of border around points}
+
+\item{point.border.stroke}{stroke size of border around points}
 
 \item{show.legend}{show legend}
 }

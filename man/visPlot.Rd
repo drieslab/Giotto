@@ -5,12 +5,13 @@
 \title{visPlot}
 \usage{
 visPlot(gobject, sdimx = NULL, sdimy = NULL, sdimz = NULL,
-  point_size = 1, cell_color = NULL, cell_color_code = NULL,
-  color_as_factor = T, show_network = F, network_color = NULL,
-  spatial_network_name = "spatial_network", show_grid = F,
-  grid_color = NULL, spatial_grid_name = "spatial_grid",
-  coord_fix_ratio = 0.6, title = "", show.legend = T,
-  show.plot = F)
+  point_size = 1, point.border.col = "black",
+  point.border.stroke = 0.1, cell_color = NULL,
+  cell_color_code = NULL, color_as_factor = T, show_network = F,
+  network_color = NULL, spatial_network_name = "spatial_network",
+  show_grid = F, grid_color = NULL,
+  spatial_grid_name = "spatial_grid", coord_fix_ratio = 0.6,
+  title = "", show.legend = T, show.plot = F)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -22,6 +23,10 @@ visPlot(gobject, sdimx = NULL, sdimy = NULL, sdimz = NULL,
 \item{sdimz}{z-axis dimension name (default = 'sdimz')}
 
 \item{point_size}{size of point (cell)}
+
+\item{point.border.col}{color of border around points}
+
+\item{point.border.stroke}{stroke size of border around points}
 
 \item{cell_color}{color for cells (see details)}
 
