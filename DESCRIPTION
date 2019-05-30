@@ -24,7 +24,9 @@ Imports:
     cowplot,
     grDevices,
     RColorBrewer,
-    jackstraw
+    jackstraw,
+    dbscan,
+    scran
 Suggests: 
     knitr,
     rmarkdown
