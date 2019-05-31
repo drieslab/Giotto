@@ -1,0 +1,914 @@
+uniq_ID	Field_of_View	cell_types
+cell_1	0	Excitatory neuron
+cell_2	0	Excitatory neuron
+cell_3	0	Excitatory neuron
+cell_4	0	Interneuron
+cell_5	0	Excitatory neuron
+cell_6	0	Interneuron
+cell_7	0	Excitatory neuron
+cell_8	0	Interneuron
+cell_9	0	Excitatory neuron
+cell_10	0	Excitatory neuron
+cell_11	0	Excitatory neuron
+cell_12	0	Excitatory neuron
+cell_13	0	Microglia
+cell_14	0	Excitatory neuron
+cell_15	0	Excitatory neuron
+cell_16	0	Interneuron
+cell_17	0	Astrocyte
+cell_18	0	Excitatory neuron
+cell_19	0	Microglia
+cell_20	0	Excitatory neuron
+cell_21	0	Excitatory neuron
+cell_22	0	Interneuron
+cell_23	0	Endothelial
+cell_24	0	Interneuron
+cell_25	0	Excitatory neuron
+cell_26	0	Interneuron
+cell_27	0	Excitatory neuron
+cell_28	0	Excitatory neuron
+cell_29	0	Excitatory neuron
+cell_30	0	Excitatory neuron
+cell_31	0	Excitatory neuron
+cell_32	0	Excitatory neuron
+cell_33	0	Excitatory neuron
+cell_34	0	Excitatory neuron
+cell_35	0	Endothelial
+cell_36	0	Interneuron
+cell_37	0	Astrocyte
+cell_38	0	Endothelial
+cell_39	0	Microglia
+cell_40	0	Astrocyte
+cell_41	0	Excitatory neuron
+cell_42	0	Astrocyte
+cell_43	0	Astrocyte
+cell_44	0	Endothelial
+cell_45	0	Astrocyte
+cell_46	0	Microglia
+cell_47	0	Interneuron
+cell_48	0	Astrocyte
+cell_49	0	Interneuron
+cell_50	0	Microglia
+cell_51	0	Astrocyte
+cell_52	0	Excitatory neuron
+cell_53	0	Interneuron
+cell_54	0	Oligodendrocyte
+cell_55	0	Excitatory neuron
+cell_56	0	Excitatory neuron
+cell_57	0	Excitatory neuron
+cell_58	0	Excitatory neuron
+cell_59	0	Excitatory neuron
+cell_60	0	Interneuron
+cell_61	0	Excitatory neuron
+cell_62	0	Interneuron
+cell_63	0	Excitatory neuron
+cell_64	0	Excitatory neuron
+cell_65	0	Excitatory neuron
+cell_66	0	Microglia
+cell_67	0	Excitatory neuron
+cell_68	0	Excitatory neuron
+cell_69	0	Excitatory neuron
+cell_70	0	Excitatory neuron
+cell_71	0	Excitatory neuron
+cell_72	0	Excitatory neuron
+cell_73	0	Excitatory neuron
+cell_74	0	Excitatory neuron
+cell_75	0	Excitatory neuron
+cell_76	0	Excitatory neuron
+cell_77	0	Excitatory neuron
+cell_78	0	Microglia
+cell_79	0	Excitatory neuron
+cell_80	0	Excitatory neuron
+cell_81	0	Excitatory neuron
+cell_82	0	Excitatory neuron
+cell_83	0	Excitatory neuron
+cell_84	0	Excitatory neuron
+cell_85	0	Excitatory neuron
+cell_86	0	Interneuron
+cell_87	0	Endothelial
+cell_88	0	Excitatory neuron
+cell_89	0	Excitatory neuron
+cell_90	0	Excitatory neuron
+cell_91	0	Excitatory neuron
+cell_92	0	Excitatory neuron
+cell_93	0	Excitatory neuron
+cell_94	0	Interneuron
+cell_95	0	Excitatory neuron
+cell_96	0	Excitatory neuron
+cell_97	0	Excitatory neuron
+cell_98	0	Excitatory neuron
+cell_99	0	Excitatory neuron
+cell_100	0	Astrocyte
+cell_101	0	Excitatory neuron
+cell_102	0	Excitatory neuron
+cell_103	0	Excitatory neuron
+cell_104	0	Excitatory neuron
+cell_105	0	Oligodendrocyte
+cell_106	0	Oligodendrocyte
+cell_107	0	Interneuron
+cell_108	0	Excitatory neuron
+cell_109	0	Excitatory neuron
+cell_110	0	Interneuron
+cell_111	0	Excitatory neuron
+cell_112	0	Excitatory neuron
+cell_113	0	Excitatory neuron
+cell_114	0	Interneuron
+cell_115	0	Excitatory neuron
+cell_116	0	Endothelial
+cell_117	0	Endothelial
+cell_118	0	Astrocyte
+cell_119	1	Excitatory neuron
+cell_120	1	Excitatory neuron
+cell_121	1	Excitatory neuron
+cell_122	1	Excitatory neuron
+cell_123	1	Excitatory neuron
+cell_124	1	Oligodendrocyte
+cell_125	1	Astrocyte
+cell_126	1	Endothelial
+cell_127	1	Excitatory neuron
+cell_128	1	Excitatory neuron
+cell_129	1	Excitatory neuron
+cell_130	1	Excitatory neuron
+cell_131	1	Astrocyte
+cell_132	1	Excitatory neuron
+cell_133	1	Excitatory neuron
+cell_134	1	Excitatory neuron
+cell_135	1	Excitatory neuron
+cell_136	1	Excitatory neuron
+cell_137	1	Astrocyte
+cell_138	1	Excitatory neuron
+cell_139	1	Excitatory neuron
+cell_140	1	Excitatory neuron
+cell_141	1	Astrocyte
+cell_142	1	Excitatory neuron
+cell_143	1	Excitatory neuron
+cell_144	1	Excitatory neuron
+cell_145	1	Excitatory neuron
+cell_146	1	Oligodendrocyte
+cell_147	1	Interneuron
+cell_148	1	Excitatory neuron
+cell_149	1	Astrocyte
+cell_150	1	Excitatory neuron
+cell_151	1	Interneuron
+cell_152	1	Excitatory neuron
+cell_153	1	Excitatory neuron
+cell_154	1	Excitatory neuron
+cell_155	1	Endothelial
+cell_156	1	Endothelial
+cell_157	1	Excitatory neuron
+cell_158	1	Excitatory neuron
+cell_159	1	Excitatory neuron
+cell_160	1	Astrocyte
+cell_161	1	Excitatory neuron
+cell_162	1	Excitatory neuron
+cell_163	1	Excitatory neuron
+cell_164	1	Excitatory neuron
+cell_165	1	Excitatory neuron
+cell_166	1	Excitatory neuron
+cell_167	1	Microglia
+cell_168	1	Endothelial
+cell_169	1	Astrocyte
+cell_170	1	Excitatory neuron
+cell_171	1	Astrocyte
+cell_172	1	Excitatory neuron
+cell_173	1	Excitatory neuron
+cell_174	1	Excitatory neuron
+cell_175	1	Excitatory neuron
+cell_176	1	Excitatory neuron
+cell_177	1	Interneuron
+cell_178	1	Endothelial
+cell_179	1	Excitatory neuron
+cell_180	1	Excitatory neuron
+cell_181	1	Excitatory neuron
+cell_182	1	Astrocyte
+cell_183	1	Excitatory neuron
+cell_184	1	Excitatory neuron
+cell_185	1	Excitatory neuron
+cell_186	1	Excitatory neuron
+cell_187	1	Excitatory neuron
+cell_188	1	Excitatory neuron
+cell_189	1	Excitatory neuron
+cell_190	1	Astrocyte
+cell_191	1	Excitatory neuron
+cell_192	1	Excitatory neuron
+cell_193	1	Astrocyte
+cell_194	1	Astrocyte
+cell_195	1	Excitatory neuron
+cell_196	1	Astrocyte
+cell_197	1	Excitatory neuron
+cell_198	1	Endothelial
+cell_199	1	Interneuron
+cell_200	1	Excitatory neuron
+cell_201	1	Excitatory neuron
+cell_202	1	Astrocyte
+cell_203	1	Excitatory neuron
+cell_204	1	Endothelial
+cell_205	1	Excitatory neuron
+cell_206	1	Endothelial
+cell_207	1	Excitatory neuron
+cell_208	1	Excitatory neuron
+cell_209	1	Excitatory neuron
+cell_210	1	Excitatory neuron
+cell_211	1	Excitatory neuron
+cell_212	1	Astrocyte
+cell_213	1	Endothelial
+cell_214	1	Excitatory neuron
+cell_215	1	Microglia
+cell_216	1	Excitatory neuron
+cell_217	1	Excitatory neuron
+cell_218	1	Excitatory neuron
+cell_219	1	Excitatory neuron
+cell_220	1	Interneuron
+cell_221	1	Endothelial
+cell_222	1	Excitatory neuron
+cell_223	1	Excitatory neuron
+cell_224	1	Excitatory neuron
+cell_225	1	Excitatory neuron
+cell_226	1	Excitatory neuron
+cell_227	2	Endothelial
+cell_228	2	Excitatory neuron
+cell_229	2	Excitatory neuron
+cell_230	2	Excitatory neuron
+cell_231	2	Excitatory neuron
+cell_232	2	Neuroblast
+cell_233	2	Excitatory neuron
+cell_234	2	Excitatory neuron
+cell_235	2	Excitatory neuron
+cell_236	2	Excitatory neuron
+cell_237	2	Excitatory neuron
+cell_238	2	Excitatory neuron
+cell_239	2	Astrocyte
+cell_240	2	Endothelial
+cell_241	2	Astrocyte
+cell_242	2	Excitatory neuron
+cell_243	2	Excitatory neuron
+cell_244	2	Neural Stem
+cell_245	2	Astrocyte
+cell_246	2	Interneuron
+cell_247	2	Astrocyte
+cell_248	2	Excitatory neuron
+cell_249	2	Excitatory neuron
+cell_250	2	Excitatory neuron
+cell_251	2	Excitatory neuron
+cell_252	2	Excitatory neuron
+cell_253	2	Endothelial
+cell_254	2	Astrocyte
+cell_255	2	Excitatory neuron
+cell_256	2	Astrocyte
+cell_257	2	Astrocyte
+cell_258	2	Excitatory neuron
+cell_259	2	Excitatory neuron
+cell_260	2	Excitatory neuron
+cell_261	2	Interneuron
+cell_262	2	Neuroblast
+cell_263	2	Excitatory neuron
+cell_264	2	Endothelial
+cell_265	2	Interneuron
+cell_266	2	Endothelial
+cell_267	2	Interneuron
+cell_268	2	Interneuron
+cell_269	2	Excitatory neuron
+cell_270	2	Excitatory neuron
+cell_271	2	Oligodendrocyte
+cell_272	2	Excitatory neuron
+cell_273	2	Excitatory neuron
+cell_274	2	Excitatory neuron
+cell_275	2	Interneuron
+cell_276	2	Astrocyte
+cell_277	2	Excitatory neuron
+cell_278	2	Excitatory neuron
+cell_279	2	Interneuron
+cell_280	2	Excitatory neuron
+cell_281	2	Excitatory neuron
+cell_282	2	Endothelial
+cell_283	2	Astrocyte
+cell_284	2	Excitatory neuron
+cell_285	2	Neural Stem
+cell_286	2	Excitatory neuron
+cell_287	2	Excitatory neuron
+cell_288	2	Astrocyte
+cell_289	2	Excitatory neuron
+cell_290	2	Microglia
+cell_291	2	Astrocyte
+cell_292	2	Excitatory neuron
+cell_293	2	Excitatory neuron
+cell_294	2	Interneuron
+cell_295	2	Excitatory neuron
+cell_296	2	Neural Stem
+cell_297	2	Endothelial
+cell_298	2	Astrocyte
+cell_299	2	Excitatory neuron
+cell_300	2	Neuroblast
+cell_301	2	Excitatory neuron
+cell_302	2	Oligodendrocyte
+cell_303	2	Interneuron
+cell_304	2	Excitatory neuron
+cell_305	2	Excitatory neuron
+cell_306	2	Oligodendrocyte
+cell_307	2	Excitatory neuron
+cell_308	2	Neuroblast
+cell_309	2	Neural Stem
+cell_310	2	Interneuron
+cell_311	2	Neural Stem
+cell_312	2	Excitatory neuron
+cell_313	2	Excitatory neuron
+cell_314	2	Interneuron
+cell_315	2	Endothelial
+cell_316	2	Oligodendrocyte
+cell_317	3	Excitatory neuron
+cell_318	3	Excitatory neuron
+cell_319	3	Endothelial
+cell_320	3	Excitatory neuron
+cell_321	3	Excitatory neuron
+cell_322	3	Excitatory neuron
+cell_323	3	Excitatory neuron
+cell_324	3	Excitatory neuron
+cell_325	3	Excitatory neuron
+cell_326	3	Astrocyte
+cell_327	3	Excitatory neuron
+cell_328	3	Endothelial
+cell_329	3	Excitatory neuron
+cell_330	3	Interneuron
+cell_331	3	Microglia
+cell_332	3	Oligodendrocyte
+cell_333	3	Excitatory neuron
+cell_334	3	Microglia
+cell_335	3	Excitatory neuron
+cell_336	3	Astrocyte
+cell_337	3	Excitatory neuron
+cell_338	3	Excitatory neuron
+cell_339	3	Excitatory neuron
+cell_340	3	Astrocyte
+cell_341	3	Oligodendrocyte
+cell_342	3	Excitatory neuron
+cell_343	3	Microglia
+cell_344	3	Excitatory neuron
+cell_345	3	Microglia
+cell_346	3	Excitatory neuron
+cell_347	3	Astrocyte
+cell_348	3	Excitatory neuron
+cell_349	3	Excitatory neuron
+cell_350	3	Endothelial
+cell_351	3	Excitatory neuron
+cell_352	3	Excitatory neuron
+cell_353	3	Excitatory neuron
+cell_354	3	Endothelial
+cell_355	3	Excitatory neuron
+cell_356	3	Excitatory neuron
+cell_357	3	Excitatory neuron
+cell_358	3	Astrocyte
+cell_359	3	Interneuron
+cell_360	3	Excitatory neuron
+cell_361	3	Endothelial
+cell_362	3	Endothelial
+cell_363	3	Excitatory neuron
+cell_364	3	Excitatory neuron
+cell_365	3	Astrocyte
+cell_366	3	Excitatory neuron
+cell_367	3	Oligodendrocyte
+cell_368	3	Excitatory neuron
+cell_369	3	Excitatory neuron
+cell_370	3	Excitatory neuron
+cell_371	3	Excitatory neuron
+cell_372	3	Excitatory neuron
+cell_373	3	Interneuron
+cell_374	3	Excitatory neuron
+cell_375	3	Excitatory neuron
+cell_376	3	Excitatory neuron
+cell_377	3	Excitatory neuron
+cell_378	3	Excitatory neuron
+cell_379	3	Excitatory neuron
+cell_380	3	Endothelial
+cell_381	3	Excitatory neuron
+cell_382	3	Interneuron
+cell_383	3	Excitatory neuron
+cell_384	3	Excitatory neuron
+cell_385	3	Endothelial
+cell_386	3	Excitatory neuron
+cell_387	3	Excitatory neuron
+cell_388	3	Excitatory neuron
+cell_389	3	Neural Stem
+cell_390	3	Excitatory neuron
+cell_391	3	Excitatory neuron
+cell_392	3	Excitatory neuron
+cell_393	3	Excitatory neuron
+cell_394	3	Interneuron
+cell_395	3	Excitatory neuron
+cell_396	3	Excitatory neuron
+cell_397	3	Excitatory neuron
+cell_398	3	Astrocyte
+cell_399	3	Endothelial
+cell_400	3	Excitatory neuron
+cell_401	3	Excitatory neuron
+cell_402	3	Excitatory neuron
+cell_403	3	Excitatory neuron
+cell_404	3	Endothelial
+cell_405	3	Excitatory neuron
+cell_406	3	Excitatory neuron
+cell_407	3	Excitatory neuron
+cell_408	3	Endothelial
+cell_409	3	Excitatory neuron
+cell_410	3	Oligodendrocyte
+cell_411	3	Excitatory neuron
+cell_412	3	Interneuron
+cell_413	3	Excitatory neuron
+cell_414	3	Excitatory neuron
+cell_415	3	Excitatory neuron
+cell_416	3	Excitatory neuron
+cell_417	3	Excitatory neuron
+cell_418	3	Excitatory neuron
+cell_419	3	Excitatory neuron
+cell_420	3	Excitatory neuron
+cell_421	3	Excitatory neuron
+cell_422	3	Excitatory neuron
+cell_423	4	Oligodendrocyte
+cell_424	4	Astrocyte
+cell_425	4	Oligodendrocyte
+cell_426	4	Oligodendrocyte
+cell_427	4	Astrocyte
+cell_428	4	Oligodendrocyte
+cell_429	4	Oligodendrocyte
+cell_430	4	Endothelial
+cell_431	4	Oligodendrocyte
+cell_432	4	Oligodendrocyte
+cell_433	4	Endothelial
+cell_434	4	Oligodendrocyte
+cell_435	4	Excitatory neuron
+cell_436	4	Excitatory neuron
+cell_437	4	Excitatory neuron
+cell_438	4	Endothelial
+cell_439	4	Excitatory neuron
+cell_440	4	Excitatory neuron
+cell_441	4	Excitatory neuron
+cell_442	4	Excitatory neuron
+cell_443	4	Endothelial
+cell_444	4	Excitatory neuron
+cell_445	4	Excitatory neuron
+cell_446	4	Excitatory neuron
+cell_447	4	Excitatory neuron
+cell_448	4	Oligodendrocyte
+cell_449	4	Excitatory neuron
+cell_450	4	Excitatory neuron
+cell_451	4	Microglia
+cell_452	4	Excitatory neuron
+cell_453	4	Oligodendrocyte
+cell_454	4	Excitatory neuron
+cell_455	4	Excitatory neuron
+cell_456	4	Endothelial
+cell_457	4	Excitatory neuron
+cell_458	4	Excitatory neuron
+cell_459	4	Astrocyte
+cell_460	4	Astrocyte
+cell_461	4	Endothelial
+cell_462	4	Endothelial
+cell_463	4	Excitatory neuron
+cell_464	4	Excitatory neuron
+cell_465	4	Excitatory neuron
+cell_466	4	Excitatory neuron
+cell_467	4	Excitatory neuron
+cell_468	4	Excitatory neuron
+cell_469	4	Excitatory neuron
+cell_470	4	Excitatory neuron
+cell_471	4	Excitatory neuron
+cell_472	4	Excitatory neuron
+cell_473	4	Microglia
+cell_474	4	Excitatory neuron
+cell_475	4	Excitatory neuron
+cell_476	4	Excitatory neuron
+cell_477	4	Excitatory neuron
+cell_478	4	Excitatory neuron
+cell_479	4	Excitatory neuron
+cell_480	4	Excitatory neuron
+cell_481	4	Excitatory neuron
+cell_482	4	Endothelial
+cell_483	4	Excitatory neuron
+cell_484	4	Endothelial
+cell_485	4	Excitatory neuron
+cell_486	4	Oligodendrocyte
+cell_487	4	Astrocyte
+cell_488	4	Oligodendrocyte
+cell_489	4	Excitatory neuron
+cell_490	4	Oligodendrocyte
+cell_491	4	Astrocyte
+cell_492	4	Excitatory neuron
+cell_493	4	Excitatory neuron
+cell_494	4	Excitatory neuron
+cell_495	4	Excitatory neuron
+cell_496	4	Interneuron
+cell_497	4	Astrocyte
+cell_498	4	Excitatory neuron
+cell_499	4	Excitatory neuron
+cell_500	4	Ependymal
+cell_501	4	Excitatory neuron
+cell_502	4	Neuroblast
+cell_503	4	Excitatory neuron
+cell_504	4	Excitatory neuron
+cell_505	4	Astrocyte
+cell_506	4	Oligodendrocyte
+cell_507	4	Oligodendrocyte
+cell_508	4	Excitatory neuron
+cell_509	4	Interneuron
+cell_510	4	Oligodendrocyte
+cell_511	4	Excitatory neuron
+cell_512	4	Astrocyte
+cell_513	4	Excitatory neuron
+cell_514	4	Excitatory neuron
+cell_515	4	Excitatory neuron
+cell_516	4	Astrocyte
+cell_517	4	Excitatory neuron
+cell_518	4	Excitatory neuron
+cell_519	4	Excitatory neuron
+cell_520	4	Excitatory neuron
+cell_521	4	Excitatory neuron
+cell_522	4	Excitatory neuron
+cell_523	4	Excitatory neuron
+cell_524	5	Neural Stem
+cell_525	5	Neural Stem
+cell_526	5	Neuroblast
+cell_527	5	Neuroblast
+cell_528	5	Neuroblast
+cell_529	5	Ependymal
+cell_530	5	Neuroblast
+cell_531	5	Neuroblast
+cell_532	5	Choroid Plexus
+cell_533	5	Neuroblast
+cell_534	5	Neuroblast
+cell_535	5	Ependymal
+cell_536	5	Neuroblast
+cell_537	5	Excitatory neuron
+cell_538	5	Neuroblast
+cell_539	5	Neural Stem
+cell_540	5	Choroid Plexus
+cell_541	5	Neuroblast
+cell_542	5	Neuroblast
+cell_543	5	Neural Stem
+cell_544	5	Neural Stem
+cell_545	5	Neuroblast
+cell_546	5	Neuroblast
+cell_547	5	Neural Stem
+cell_548	5	Neuroblast
+cell_549	5	Neuroblast
+cell_550	5	Neural Stem
+cell_551	5	Neuroblast
+cell_552	5	Neuroblast
+cell_553	5	Neuroblast
+cell_554	5	Neuroblast
+cell_555	5	Neuroblast
+cell_556	5	Neuroblast
+cell_557	5	Neuroblast
+cell_558	5	Neuroblast
+cell_559	5	Neural Stem
+cell_560	5	Neural Stem
+cell_561	5	Neuroblast
+cell_562	5	Neuroblast
+cell_563	5	Neural Stem
+cell_564	5	Neuroblast
+cell_565	5	Neuroblast
+cell_566	5	Oligodendrocyte
+cell_567	5	Astrocyte
+cell_568	5	Oligodendrocyte
+cell_569	5	Oligodendrocyte
+cell_570	5	Oligodendrocyte
+cell_571	5	Microglia
+cell_572	5	Neural Stem
+cell_573	5	Excitatory neuron
+cell_574	5	Neural Stem
+cell_575	5	Neuroblast
+cell_576	5	Interneuron
+cell_577	5	Neuroblast
+cell_578	5	Ependymal
+cell_579	5	Neural Stem
+cell_580	5	Interneuron
+cell_581	5	Interneuron
+cell_582	5	Interneuron
+cell_583	5	Astrocyte
+cell_584	5	Neuroblast
+cell_585	5	Endothelial
+cell_586	5	Ependymal
+cell_587	5	Neural Stem
+cell_588	5	Interneuron
+cell_589	5	Astrocyte
+cell_590	5	Microglia
+cell_591	5	Choroid Plexus
+cell_592	5	Interneuron
+cell_593	5	Interneuron
+cell_594	5	Endothelial
+cell_595	5	Neural Stem
+cell_596	5	Interneuron
+cell_597	5	Neural Stem
+cell_598	5	Choroid Plexus
+cell_599	5	Interneuron
+cell_600	5	Astrocyte
+cell_601	5	Excitatory neuron
+cell_602	5	Interneuron
+cell_603	5	Astrocyte
+cell_604	5	Choroid Plexus
+cell_605	5	Neuroblast
+cell_606	5	Interneuron
+cell_607	5	Ependymal
+cell_608	5	Choroid Plexus
+cell_609	5	Neuroblast
+cell_610	5	Neuroblast
+cell_611	5	Interneuron
+cell_612	5	Endothelial
+cell_613	5	Neuroblast
+cell_614	5	Choroid Plexus
+cell_615	5	Neuroblast
+cell_616	5	Neuroblast
+cell_617	5	Neural Stem
+cell_618	5	Interneuron
+cell_619	5	Endothelial
+cell_620	5	Neuroblast
+cell_621	5	Neuroblast
+cell_622	5	Neuroblast
+cell_623	5	Neuroblast
+cell_624	5	Ependymal
+cell_625	5	Endothelial
+cell_626	5	Neural Stem
+cell_627	5	Neural Stem
+cell_628	5	Neural Stem
+cell_629	5	Neural Stem
+cell_630	5	Neural Stem
+cell_631	5	Neuroblast
+cell_632	5	Oligodendrocyte
+cell_633	5	Neuroblast
+cell_634	5	Neural Stem
+cell_635	5	Oligodendrocyte
+cell_636	5	Oligodendrocyte
+cell_637	5	Microglia
+cell_638	5	Oligodendrocyte
+cell_639	5	Oligodendrocyte
+cell_640	5	Neuroblast
+cell_641	5	Neuroblast
+cell_642	5	Interneuron
+cell_643	5	Neural Stem
+cell_644	5	Neural Stem
+cell_645	5	Excitatory neuron
+cell_646	5	Neural Stem
+cell_647	5	Neuroblast
+cell_648	5	Neuroblast
+cell_649	5	Neural Stem
+cell_650	5	Neural Stem
+cell_651	5	Neuroblast
+cell_652	5	Excitatory neuron
+cell_653	5	Neuroblast
+cell_654	5	Neuroblast
+cell_655	5	Astrocyte
+cell_656	5	Neuroblast
+cell_657	5	Neuroblast
+cell_658	5	Neuroblast
+cell_659	5	Astrocyte
+cell_660	5	Neuroblast
+cell_661	5	Neuroblast
+cell_662	5	Ependymal
+cell_663	5	Neural Stem
+cell_664	5	Neural Stem
+cell_665	5	Interneuron
+cell_666	5	Microglia
+cell_667	5	Ependymal
+cell_668	5	Ependymal
+cell_669	5	Ependymal
+cell_670	5	Neuroblast
+cell_671	5	Neuroblast
+cell_672	5	Neural Stem
+cell_673	5	Neuroblast
+cell_674	5	Neuroblast
+cell_675	5	Ependymal
+cell_676	5	Neuroblast
+cell_677	5	Endothelial
+cell_678	5	Neuroblast
+cell_679	5	Neuroblast
+cell_680	5	Interneuron
+cell_681	5	Neuroblast
+cell_682	5	Neuroblast
+cell_683	5	Endothelial
+cell_684	5	Microglia
+cell_685	5	Neural Stem
+cell_686	5	Neuroblast
+cell_687	5	Neuroblast
+cell_688	5	Neuroblast
+cell_689	5	Ependymal
+cell_690	5	Neuroblast
+cell_691	5	Neuroblast
+cell_692	5	Excitatory neuron
+cell_693	5	Neural Stem
+cell_694	5	Neuroblast
+cell_695	5	Neuroblast
+cell_696	5	Ependymal
+cell_697	5	Neuroblast
+cell_698	5	Neuroblast
+cell_699	5	Neural Stem
+cell_700	5	Neuroblast
+cell_701	5	Ependymal
+cell_702	5	Ependymal
+cell_703	5	Neuroblast
+cell_704	5	Neuroblast
+cell_705	5	Excitatory neuron
+cell_706	5	Neuroblast
+cell_707	5	Microglia
+cell_708	5	Neuroblast
+cell_709	5	Excitatory neuron
+cell_710	5	Neuroblast
+cell_711	5	Ependymal
+cell_712	5	Neural Stem
+cell_713	5	Ependymal
+cell_714	5	Neuroblast
+cell_715	5	Ependymal
+cell_716	5	Neuroblast
+cell_717	5	Excitatory neuron
+cell_718	5	Microglia
+cell_719	5	Neuroblast
+cell_720	5	Excitatory neuron
+cell_721	5	Neural Stem
+cell_722	5	Neural Stem
+cell_723	5	Interneuron
+cell_724	5	Neural Stem
+cell_725	5	Neural Stem
+cell_726	5	Neuroblast
+cell_727	5	Neuroblast
+cell_728	5	Neural Stem
+cell_729	5	Neural Stem
+cell_730	5	Ependymal
+cell_731	5	Neural Stem
+cell_732	5	Neuroblast
+cell_733	5	Neuroblast
+cell_734	5	Microglia
+cell_735	5	Neuroblast
+cell_736	5	Neural Stem
+cell_737	5	Neuroblast
+cell_738	5	Neuroblast
+cell_739	5	Microglia
+cell_740	5	Neuroblast
+cell_741	5	Neuroblast
+cell_742	5	Neuroblast
+cell_743	5	Neural Stem
+cell_744	5	Neuroblast
+cell_745	5	Neural Stem
+cell_746	5	Neural Stem
+cell_747	5	Neuroblast
+cell_748	5	Neuroblast
+cell_749	5	Neuroblast
+cell_750	5	Neuroblast
+cell_751	5	Neural Stem
+cell_752	5	Neuroblast
+cell_753	5	Neuroblast
+cell_754	5	Neuroblast
+cell_755	5	Neuroblast
+cell_756	5	Neuroblast
+cell_757	5	Neuroblast
+cell_758	5	Neuroblast
+cell_759	5	Excitatory neuron
+cell_760	5	Neuroblast
+cell_761	5	Neuroblast
+cell_762	5	Interneuron
+cell_763	5	Neural Stem
+cell_764	5	Neuroblast
+cell_765	5	Neural Stem
+cell_766	5	Neuroblast
+cell_767	5	Neural Stem
+cell_768	5	Neuroblast
+cell_769	5	Neuroblast
+cell_770	5	Neuroblast
+cell_771	5	Neural Stem
+cell_772	5	Neuroblast
+cell_773	5	Neuroblast
+cell_774	5	Neuroblast
+cell_775	5	Microglia
+cell_776	5	Neuroblast
+cell_777	5	Neuroblast
+cell_778	5	Neural Stem
+cell_779	5	Endothelial
+cell_780	5	Neural Stem
+cell_781	5	Neuroblast
+cell_782	5	Neural Stem
+cell_783	5	Neuroblast
+cell_784	5	Neural Stem
+cell_785	5	Neuroblast
+cell_786	5	Oligodendrocyte
+cell_787	5	Neural Stem
+cell_788	5	Microglia
+cell_789	5	Neuroblast
+cell_790	5	Excitatory neuron
+cell_791	5	Endothelial
+cell_792	5	Neural Stem
+cell_793	5	Microglia
+cell_794	5	Neuroblast
+cell_795	5	Astrocyte
+cell_796	5	Neuroblast
+cell_797	5	Neuroblast
+cell_798	5	Neural Stem
+cell_799	5	Oligodendrocyte
+cell_800	5	Neural Stem
+cell_801	5	Neural Stem
+cell_802	5	Oligodendrocyte
+cell_803	5	Neural Stem
+cell_804	5	Neuroblast
+cell_805	6	Choroid Plexus
+cell_806	6	Choroid Plexus
+cell_807	6	Choroid Plexus
+cell_808	6	Choroid Plexus
+cell_809	6	Choroid Plexus
+cell_810	6	Choroid Plexus
+cell_811	6	Choroid Plexus
+cell_812	6	Choroid Plexus
+cell_813	6	Choroid Plexus
+cell_814	6	Endothelial
+cell_815	6	Choroid Plexus
+cell_816	6	Choroid Plexus
+cell_817	6	Choroid Plexus
+cell_818	6	Choroid Plexus
+cell_819	6	Choroid Plexus
+cell_820	6	Choroid Plexus
+cell_821	6	Choroid Plexus
+cell_822	6	Choroid Plexus
+cell_823	6	Choroid Plexus
+cell_824	6	Choroid Plexus
+cell_825	6	Choroid Plexus
+cell_826	6	Choroid Plexus
+cell_827	6	Choroid Plexus
+cell_828	6	Endothelial
+cell_829	6	Choroid Plexus
+cell_830	6	Choroid Plexus
+cell_831	6	Choroid Plexus
+cell_832	6	Choroid Plexus
+cell_833	6	Choroid Plexus
+cell_834	6	Choroid Plexus
+cell_835	6	Choroid Plexus
+cell_836	6	Choroid Plexus
+cell_837	6	Choroid Plexus
+cell_838	6	Choroid Plexus
+cell_839	6	Choroid Plexus
+cell_840	6	Choroid Plexus
+cell_841	6	Choroid Plexus
+cell_842	6	Choroid Plexus
+cell_843	6	Choroid Plexus
+cell_844	6	Choroid Plexus
+cell_845	6	Choroid Plexus
+cell_846	6	Choroid Plexus
+cell_847	6	Choroid Plexus
+cell_848	6	Choroid Plexus
+cell_849	6	Choroid Plexus
+cell_850	6	Choroid Plexus
+cell_851	6	Choroid Plexus
+cell_852	6	Choroid Plexus
+cell_853	6	Choroid Plexus
+cell_854	6	Choroid Plexus
+cell_855	6	Choroid Plexus
+cell_856	6	Choroid Plexus
+cell_857	6	Choroid Plexus
+cell_858	6	Choroid Plexus
+cell_859	6	Choroid Plexus
+cell_860	6	Choroid Plexus
+cell_861	6	Neural Stem
+cell_862	6	Choroid Plexus
+cell_863	6	Endothelial
+cell_864	6	Choroid Plexus
+cell_865	6	Choroid Plexus
+cell_866	6	Endothelial
+cell_867	6	Choroid Plexus
+cell_868	6	Endothelial
+cell_869	6	Choroid Plexus
+cell_870	6	Choroid Plexus
+cell_871	6	Choroid Plexus
+cell_872	6	Choroid Plexus
+cell_873	6	Choroid Plexus
+cell_874	6	Choroid Plexus
+cell_875	6	Choroid Plexus
+cell_876	6	Choroid Plexus
+cell_877	6	Choroid Plexus
+cell_878	6	Choroid Plexus
+cell_879	6	Choroid Plexus
+cell_880	6	Endothelial
+cell_881	6	Choroid Plexus
+cell_882	6	Endothelial
+cell_883	6	Choroid Plexus
+cell_884	6	Choroid Plexus
+cell_885	6	Choroid Plexus
+cell_886	6	Endothelial
+cell_887	6	Endothelial
+cell_888	6	Endothelial
+cell_889	6	Choroid Plexus
+cell_890	6	Choroid Plexus
+cell_891	6	Choroid Plexus
+cell_892	6	Choroid Plexus
+cell_893	6	Choroid Plexus
+cell_894	6	Endothelial
+cell_895	6	Choroid Plexus
+cell_896	6	Choroid Plexus
+cell_897	6	Choroid Plexus
+cell_898	6	Choroid Plexus
+cell_899	6	Choroid Plexus
+cell_900	6	Choroid Plexus
+cell_901	6	Choroid Plexus
+cell_902	6	Microglia
+cell_903	6	Endothelial
+cell_904	6	Endothelial
+cell_905	6	Choroid Plexus
+cell_906	6	Choroid Plexus
+cell_907	6	Choroid Plexus
+cell_908	6	Choroid Plexus
+cell_909	6	Choroid Plexus
+cell_910	6	Choroid Plexus
+cell_911	6	Endothelial
+cell_912	6	Choroid Plexus
+cell_913	6	Microglia

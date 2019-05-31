@@ -65,7 +65,6 @@ VC_test = adjustGiottoMatrix(gobject = VC_test, expression_values = c('normalize
                              update_slot = c('custom'))
 # plain visualization
 visPlot(gobject = VC_test)
-#> first and second dimenion need to be defined, default is first 2
 ```
 
 <img src="man/figures/README-unnamed-chunk-4-1.png" width="75%" style="display: block; margin: auto;" />
@@ -130,7 +129,6 @@ plotUMAP(gobject = VC_test, cell_color = 'pleiden_clus', point_size = 1.5,
 ``` r
 # expression and spatial
 visSpatDimPlot(gobject = VC_test, cell_color = 'pleiden_clus', dim_point_size = 2, spatial_point_size = 2)
-#> first and second dimenion need to be defined, default is first 2
 ```
 
 <img src="man/figures/README-unnamed-chunk-9-1.png" width="60%" style="display: block; margin: auto;" />
@@ -171,8 +169,6 @@ violinPlot(gobject = VC_test, genes = c('Nptxr', 'Cplx1',  'Fgfr3', 'Cldn5', 'Cl
 
 <img src="man/figures/README-unnamed-chunk-11-1.png" width="60%" style="display: block; margin: auto;" />
 
-    #> first and second dimenion need to be defined, default is first 2
-
 <img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
 
 -----
@@ -186,7 +182,6 @@ violinPlot(gobject = VC_test, genes = c('Nptxr', 'Cplx1',  'Fgfr3', 'Cldn5', 'Cl
 VC_test <- createSpatialNetwork(gobject = VC_test, k = 3)
 VC_test <- createSpatialNetwork(gobject = VC_test, k = 100, maximum_distance = 200, minimum_k = 1, name = 'distance_network')
 visPlot(gobject = VC_test, show_network = T, network_color = 'blue', point_size = 1)
-#> first and second dimenion need to be defined, default is first 2
 ```
 
 <img src="man/figures/README-unnamed-chunk-13-1.png" width="60%" style="display: block; margin: auto;" />
@@ -223,7 +218,7 @@ print(dim1_pattern)
 print(dim1_genes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-15-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-15-1.png" width="40%" height="40%" style="display: block; margin: auto;" />
 
 ``` r
 # identify top 50 gens with top 5 spatial dimensions
@@ -281,13 +276,11 @@ viewHMRFresults(gobject = VC_test,
                 HMRFoutput = HMRFtest,
                 k = 10, betas_to_view = c(44, 48), point_size = 2)
 #> [1] "/Users/rubendries/Bin/anaconda3/envs/py36/bin/pythonw /Library/Frameworks/R.framework/Versions/3.5/Resources/library/Giotto/python/get_result2.py -r /Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Data/package_testHMRF//result.spatial.zscore -a test -k 10 -b 44"
-#> first and second dimenion need to be defined, default is first 2
 ```
 
 <img src="man/figures/README-unnamed-chunk-18-1.png" width="60%" style="display: block; margin: auto;" />
 
     #> [1] "/Users/rubendries/Bin/anaconda3/envs/py36/bin/pythonw /Library/Frameworks/R.framework/Versions/3.5/Resources/library/Giotto/python/get_result2.py -r /Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Data/package_testHMRF//result.spatial.zscore -a test -k 10 -b 48"
-    #> first and second dimenion need to be defined, default is first 2
 
 <img src="man/figures/README-unnamed-chunk-18-2.png" width="60%" style="display: block; margin: auto;" />
 
@@ -301,7 +294,6 @@ VC_test = addHMRF(gobject = VC_test,
 
 # co-visualize
 visSpatDimPlot(gobject = VC_test, cell_color = 'hmrf_k.10_b.48', dim_point_size = 2, spatial_point_size = 2)
-#> first and second dimenion need to be defined, default is first 2
 ```
 
 <img src="man/figures/README-unnamed-chunk-18-3.png" width="60%" style="display: block; margin: auto;" />

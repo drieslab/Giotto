@@ -60,24 +60,53 @@ VC_test = adjustGiottoMatrix(gobject = VC_test, expression_values = c('normalize
 Start from Giotto object from the Mouse Visual Cortex and SVZ:  
 
 ```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, fig.width=9, fig.height=6, out.width="75%", fig.align='center'}
-visPlot(gobject = VC_test)
+visPlot(gobject = VC_test, point_size = 2)
 ```
 
 ### 1. add annotation
 
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, fig.width=9, fig.height=6, out.width="75%", fig.align='center'}
+# cell metadata before 
+print(pDataDT(VC_test))
 
+# add metadata by column name
+cortex_annotation = fread(system.file("extdata", "cortex_annotation.txt", package = "Giotto"))
+VC_test = addCellMetadata(gobject = VC_test, new_metadata = cortex_annotation, by_column = T, column_cell_ID = 'uniq_ID')
+
+# cell metadata after
+cell_metadata = pDataDT(VC_test)
+print(cell_metadata)
+```
 
 ### 2. subset Giotto
 
 - subset first 500 cells  
 
 ```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, fig.width=9, fig.height=6, out.width="75%", fig.align='center'}
-cell_metadata = pDataDT(VC_test)
 first_500_cells = cell_metadata[1:500][['cell_ID']]
-
 VC_subset = subsetGiotto(VC_test, cell_ids = first_500_cells)
-
-visPlot(gobject = VC_subset)
+visPlot(gobject = VC_subset, point_size = 2, cell_color = 'cell_types')
 ```
+
+
+- subset for SVZ cells (located in field 5) 
+
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, fig.width=9, fig.height=6, out.width="75%", fig.align='center'}
+SVZ_cells = cell_metadata[Field_of_View == 5][['cell_ID']]
+VC_SVZ = subsetGiotto(VC_test, cell_ids = SVZ_cells)
+visPlot(gobject = VC_SVZ, point_size = 4, cell_color = 'cell_types')
+
+```
+
+
+- subset for all interneurons  
+
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, fig.width=9, fig.height=6, out.width="75%", fig.align='center'}
+interneuron_cells = cell_metadata[cell_types == 'Interneuron'][['cell_ID']]
+VC_interneuron = subsetGiotto(VC_test, cell_ids = interneuron_cells)
+visPlot(gobject = VC_interneuron, point_size = 2, cell_color = 'cell_types')
+```
+
+
 
 
