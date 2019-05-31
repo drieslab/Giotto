@@ -203,7 +203,7 @@ dim1_genes = showPatternGenes(pattern_VC, dimension = 1)
 print(dim1_pattern)
 ```
 
-```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=3, fig.height=4, out.width="60%", fig.align='center'}
+```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=3, fig.height=5, out.width="40%", out.height="40%", fig.align='center'}
 print(dim1_genes)
 ```
 
