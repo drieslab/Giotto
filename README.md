@@ -105,7 +105,7 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation
 
 ## FAQ
 
-Coming soon …
+Howto’s and faqs examples:
 
   - Cortex/SVZ and olfactory bulb data availability?
   - How to create a giotto object with your own spatial network/grid,
