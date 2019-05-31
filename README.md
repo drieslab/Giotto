@@ -110,7 +110,9 @@ Coming soon …
   - Cortex/SVZ and olfactory bulb data availability?
   - How to create a giotto object with your own spatial network/grid,
     dimensions reduction, … ?  
-  - How to make full use of giotto object flexibility?
+  - [How to add metadata and subset a Giotto
+    object?](./inst/faqs/metadata_and_subset/metadata_and_subset_VC.md)
+  - How to test and store multiple parameters or analyses?
   - …
 
  
