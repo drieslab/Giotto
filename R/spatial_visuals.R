@@ -79,7 +79,7 @@ visPlot <- function(gobject,
 
   # first 2 dimensions need to be defined
   if(is.null(sdimx) | is.null(sdimy)) {
-    cat('first and second dimenion need to be defined, default is first 2 \n')
+    # cat('first and second dimenion need to be defined, default is first 2 \n')
     sdimx = 'sdimx'
     sdimy = 'sdimy'
   }
