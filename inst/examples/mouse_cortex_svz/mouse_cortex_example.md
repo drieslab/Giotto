@@ -1,16 +1,22 @@
 
 <!-- mouse_cortex_example.md is generated from mouse_cortex_example.Rmd Please edit that file -->
+
 ``` r
 library(Giotto)
 ```
 
 ### Data input
 
--   load cortex/svz gene expression matrix
--   prepare cell coordinates by stitching imaging fields
+  - load cortex/svz gene expression matrix  
+  - prepare cell coordinates by stitching imaging fields
 
-Several fields - containing 100's of cells - in the mouse cortex and subventricular zone were imaged. The coordinates of the cells within each field are independent of eachother, so in order to visualize and process all cells together imaging fields will be stitched together by providing x and y-offset values specific to each field. These offset values are estimates based on the original raw image:
-<img src="./cortex_svz_location_fields.png" alt="raw image" width="264" /> .
+Several fields - containing 100’s of cells - in the mouse cortex and
+subventricular zone were imaged. The coordinates of the cells within
+each field are independent of eachother, so in order to visualize and
+process all cells together imaging fields will be stitched together by
+providing x and y-offset values specific to each field. These offset
+values are estimates based on the original raw image:  
+![raw image](./cortex_svz_location_fields.png) .
 
 ``` r
 ## visual cortex expression DATA ##
@@ -30,11 +36,11 @@ stitch_file    = stitch_file[,.(X_final, Y_final)]
 my_offset_file = my_offset_file[,.(field, x_offset_final, y_offset_final)]
 ```
 
-------------------------------------------------------------------------
+-----
 
  
 
-### 1. Create Giotto object & process data
+### 1\. Create Giotto object & process data
 
 ``` r
 ## create
@@ -64,11 +70,11 @@ visPlot(gobject = VC_test)
 
 <img src="man/figures/README-unnamed-chunk-4-1.png" width="75%" style="display: block; margin: auto;" />
 
-------------------------------------------------------------------------
+-----
 
  
 
-### 2. dimension reduction
+### 2\. dimension reduction
 
 ``` r
 ## HVG genes
@@ -92,11 +98,11 @@ VC_test <- runUMAP(VC_test)
 VC_test <- runtSNE(VC_test)
 ```
 
-------------------------------------------------------------------------
+-----
 
  
 
-### 3. cluster
+### 3\. cluster
 
 ``` r
 ## cluster
@@ -115,11 +121,11 @@ plotUMAP(gobject = VC_test, cell_color = 'pleiden_clus', point_size = 1.5,
 
 <img src="man/figures/README-unnamed-chunk-8-1.png" width="60%" style="display: block; margin: auto;" />
 
-------------------------------------------------------------------------
+-----
 
  
 
-### 4. co-visualize
+### 4\. co-visualize
 
 ``` r
 # expression and spatial
@@ -137,11 +143,11 @@ print(clusterheatmap)
 
 <img src="man/figures/README-unnamed-chunk-9-2.png" width="60%" style="display: block; margin: auto;" />
 
-------------------------------------------------------------------------
+-----
 
  
 
-### 5. differential expression
+### 5\. differential expression
 
 ``` r
 # pairwise t-test #
@@ -169,11 +175,11 @@ violinPlot(gobject = VC_test, genes = c('Nptxr', 'Cplx1',  'Fgfr3', 'Cldn5', 'Cl
 
 <img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
 
-------------------------------------------------------------------------
+-----
 
  
 
-### 6. spatial network + grid
+### 6\. spatial network + grid
 
 ``` r
 ## spatial network
@@ -186,21 +192,49 @@ visPlot(gobject = VC_test, show_network = T, network_color = 'blue', point_size 
 <img src="man/figures/README-unnamed-chunk-13-1.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
+
 ## spatial grid
 VC_test <- createSpatialGrid(gobject = VC_test,
                              sdimx_stepsize = 500,
                              sdimy_stepsize = 500,
                              minimum_padding = 50 )
+
 # spatial pattern genes
-VC_test = detectSpatialPatterns(gobject = VC_test, dims_to_plot = 1)
+pattern_VC = detectSpatialPatterns(gobject = VC_test, expression_values = 'custom',
+                                min_cells_per_grid = 5, scale.unit = T)
 ```
 
 <img src="man/figures/README-unnamed-chunk-13-2.png" width="60%" style="display: block; margin: auto;" />
 
-    #> [1] "Dim.1"
-    #> [1] "Dim.2"
+``` r
 
-<img src="man/figures/README-unnamed-chunk-13-3.png" width="60%" style="display: block; margin: auto;" />
+# show first PCA dimension
+dim1_pattern = showPattern(pattern_VC, dimension = 1)
+dim1_genes = showPatternGenes(pattern_VC, dimension = 1)
+```
+
+``` r
+print(dim1_pattern)
+```
+
+<img src="man/figures/README-unnamed-chunk-14-1.png" width="60%" style="display: block; margin: auto;" />
+
+``` r
+print(dim1_genes)
+```
+
+<img src="man/figures/README-unnamed-chunk-15-1.png" width="60%" style="display: block; margin: auto;" />
+
+``` r
+# identify top 50 gens with top 5 spatial dimensions
+patterned_Genes = selectPatternGenes(pattern_VC, dimensions = 1:5,
+                                              top_pos_genes = 50, top_neg_genes = 50,
+                                              min_pos_cor = 0.3, min_neg_cor = 0.3)
+
+## add spatial pattern genes to Giotto object ##
+VC_test = addGeneMetadata(gobject = VC_test, new_metadata = patterned_Genes,
+                          by_column = T, column_gene_ID = 'gene_ID')
+```
 
 ``` r
 ## spatial genes
@@ -211,18 +245,18 @@ visGenePlot(gobject = VC_test,  genes = c('Enpp2', 'Shank1', 'Nptxr', 'Sox2'),
             scale_alpha_with_expression = T)
 ```
 
-<img src="man/figures/README-unnamed-chunk-13-4.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-17-1.png" width="60%" style="display: block; margin: auto;" />
 
-------------------------------------------------------------------------
+-----
 
  
 
-### 7. HMRF
+### 7\. HMRF
 
 ``` r
 # select 500 spatial genes
 gene_data = fDataDT(VC_test)
-spatial_genes = gene_data[SV == 'yes' | spg == 'yes']$gene_ID
+spatial_genes = gene_data[SV == 'yes' | patDim != 'noDim']$gene_ID
 set.seed(seed = 1234)
 spatial_genes = spatial_genes[sample(x = 1:length(spatial_genes), size = 500)]
 
@@ -250,12 +284,12 @@ viewHMRFresults(gobject = VC_test,
 #> first and second dimenion need to be defined, default is first 2
 ```
 
-<img src="man/figures/README-unnamed-chunk-14-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-18-1.png" width="60%" style="display: block; margin: auto;" />
 
     #> [1] "/Users/rubendries/Bin/anaconda3/envs/py36/bin/pythonw /Library/Frameworks/R.framework/Versions/3.5/Resources/library/Giotto/python/get_result2.py -r /Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Data/package_testHMRF//result.spatial.zscore -a test -k 10 -b 48"
     #> first and second dimenion need to be defined, default is first 2
 
-<img src="man/figures/README-unnamed-chunk-14-2.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-18-2.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 
@@ -270,17 +304,17 @@ visSpatDimPlot(gobject = VC_test, cell_color = 'hmrf_k.10_b.48', dim_point_size 
 #> first and second dimenion need to be defined, default is first 2
 ```
 
-<img src="man/figures/README-unnamed-chunk-14-3.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-18-3.png" width="60%" style="display: block; margin: auto;" />
 
-------------------------------------------------------------------------
+-----
 
  
 
-### 8. spatial analysis
+### 8\. spatial analysis
 
 ##### Cell-cell preferential proximity
 
-<img src="./cell_cell_neighbors.png" alt="cell-cell" width="453" />
+![cell-cell](./cell_cell_neighbors.png)
 
 ``` r
 ## cell-cell interaction ##
@@ -289,13 +323,13 @@ cell_proximities = cellProximityEnrichment(gobject = VC_test, cluster_column = '
 cellProximityBarplot(CPscore = cell_proximities)
 ```
 
-<img src="man/figures/README-unnamed-chunk-15-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-19-1.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 cellProximityHeatmap(CPscore = cell_proximities, order_cell_types = T)
 ```
 
-<img src="man/figures/README-unnamed-chunk-15-2.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-19-2.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 
@@ -305,13 +339,13 @@ cellProximityVisPlot(gobject = VC_test, interaction_name = 'Astrocyte-Oligo',
 #> first and second dimenion need to be defined, default is first 2
 ```
 
-<img src="man/figures/README-unnamed-chunk-15-3.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-19-3.png" width="60%" style="display: block; margin: auto;" />
 
  
 
 ##### 1 gene enrichment for cell-cell interactions
 
-<img src="./single_gene_enrichemt.png" alt="cell-cell" width="453" />
+![cell-cell](./single_gene_enrichemt.png)
 
 ``` r
 cell_int_gene_scores = getCellProximityGeneScores(gobject = VC_test, cluster_column = 'cell_types')
@@ -350,7 +384,7 @@ plotCellProximityGeneScores(CPGscores = cell_int_gene_scores,
                             selected_genes = selection$genes[1])
 ```
 
-<img src="man/figures/README-unnamed-chunk-16-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-20-1.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 
@@ -363,7 +397,7 @@ plotCellProximityGeneScores(CPGscores = cell_int_gene_scores,
                             facet.ncol = 1, facet.nrow = 2)
 ```
 
-<img src="man/figures/README-unnamed-chunk-16-2.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-20-2.png" width="60%" style="display: block; margin: auto;" />
 
  
 
@@ -371,7 +405,7 @@ plotCellProximityGeneScores(CPGscores = cell_int_gene_scores,
 
 example: ligand - receptor combinations
 
-<img src="./double_gene_enrichment.png" alt="cell-cell" width="453" />
+![cell-cell](./double_gene_enrichment.png)
 
 ``` r
 LR_data = fread(system.file("extdata", "mouse_ligand_receptors.txt", package = 'Giotto'))
@@ -398,7 +432,7 @@ plotCellProximityGeneToGeneScores(GTGscore = LR_VC,
                                   selected_gene_to_gene = pair_selection$gene_gene, detail_plot = T)
 ```
 
-<img src="man/figures/README-unnamed-chunk-17-1.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-21-1.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 
@@ -410,7 +444,7 @@ plotCellProximityGeneToGeneScores(GTGscore = LR_VC,
                                   simple_plot_facet = 'genes')
 ```
 
-<img src="man/figures/README-unnamed-chunk-17-2.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-21-2.png" width="60%" style="display: block; margin: auto;" />
 
 ``` r
 
@@ -422,4 +456,4 @@ plotCellProximityGeneToGeneScores(GTGscore = LR_VC,
                                   simple_plot_facet = 'interaction')
 ```
 
-<img src="man/figures/README-unnamed-chunk-17-3.png" width="60%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-21-3.png" width="60%" style="display: block; margin: auto;" />

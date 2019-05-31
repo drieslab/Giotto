@@ -197,7 +197,17 @@ pattern_VC = detectSpatialPatterns(gobject = VC_test, expression_values = 'custo
 # show first PCA dimension
 dim1_pattern = showPattern(pattern_VC, dimension = 1)
 dim1_genes = showPatternGenes(pattern_VC, dimension = 1)
+```
 
+```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
+print(dim1_pattern)
+```
+
+```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=3, fig.height=4, out.width="60%", fig.align='center'}
+print(dim1_genes)
+```
+
+```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
 # identify top 50 gens with top 5 spatial dimensions
 patterned_Genes = selectPatternGenes(pattern_VC, dimensions = 1:5,
                                               top_pos_genes = 50, top_neg_genes = 50,
@@ -207,7 +217,9 @@ patterned_Genes = selectPatternGenes(pattern_VC, dimensions = 1:5,
 VC_test = addGeneMetadata(gobject = VC_test, new_metadata = patterned_Genes,
                           by_column = T, column_gene_ID = 'gene_ID')
 
+```
 
+```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
 ## spatial genes
 VC_test <- calculateSpatialGenes(gobject = VC_test, min_N = 20)
 spatial_gene_DT <- calculateSpatialGenes(gobject = VC_test , method = 'kmeans', return_gobject = F)
@@ -224,7 +236,7 @@ visGenePlot(gobject = VC_test,  genes = c('Enpp2', 'Shank1', 'Nptxr', 'Sox2'),
 ```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
 # select 500 spatial genes
 gene_data = fDataDT(VC_test)
-spatial_genes = gene_data[SV == 'yes' | spg == 'yes']$gene_ID
+spatial_genes = gene_data[SV == 'yes' | patDim != 'noDim']$gene_ID
 set.seed(seed = 1234)
 spatial_genes = spatial_genes[sample(x = 1:length(spatial_genes), size = 500)]
 
