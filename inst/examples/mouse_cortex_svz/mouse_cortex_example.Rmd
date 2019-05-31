@@ -183,13 +183,31 @@ visSpatDimPlot(gobject = VC_test, cell_color = 'cell_types', dim_point_size = 2,
 VC_test <- createSpatialNetwork(gobject = VC_test, k = 3)
 VC_test <- createSpatialNetwork(gobject = VC_test, k = 100, maximum_distance = 200, minimum_k = 1, name = 'distance_network')
 visPlot(gobject = VC_test, show_network = T, network_color = 'blue', point_size = 1)
+
 ## spatial grid
 VC_test <- createSpatialGrid(gobject = VC_test,
                              sdimx_stepsize = 500,
                              sdimy_stepsize = 500,
                              minimum_padding = 50 )
+
 # spatial pattern genes
-VC_test = detectSpatialPatterns(gobject = VC_test, dims_to_plot = 1)
+pattern_VC = detectSpatialPatterns(gobject = VC_test, expression_values = 'custom',
+                                min_cells_per_grid = 5, scale.unit = T)
+
+# show first PCA dimension
+dim1_pattern = showPattern(pattern_VC, dimension = 1)
+dim1_genes = showPatternGenes(pattern_VC, dimension = 1)
+
+# identify top 50 gens with top 5 spatial dimensions
+patterned_Genes = selectPatternGenes(pattern_VC, dimensions = 1:5,
+                                              top_pos_genes = 50, top_neg_genes = 50,
+                                              min_pos_cor = 0.3, min_neg_cor = 0.3)
+
+## add spatial pattern genes to Giotto object ##
+VC_test = addGeneMetadata(gobject = VC_test, new_metadata = patterned_Genes,
+                          by_column = T, column_gene_ID = 'gene_ID')
+
+
 ## spatial genes
 VC_test <- calculateSpatialGenes(gobject = VC_test, min_N = 20)
 spatial_gene_DT <- calculateSpatialGenes(gobject = VC_test , method = 'kmeans', return_gobject = F)
