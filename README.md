@@ -34,12 +34,6 @@ library(devtools)
 install_github("RubD/Giotto")
 ```
 
-Future plan:
-
-``` r
-install.packages("Giotto")
-```
-
 #### Python tools (optional)
 
 This is necessary to run all available analyses, including Leiden /
@@ -59,6 +53,9 @@ Required python modules:
 Conda installation:
 
 ``` python
+# pandas:
+conda install -c anaconda pandas
+
 # python-igraph:
 conda install -c conda-forge python-igraph
 conda install -c conda-forge/label/gcc7 python-igraph
@@ -74,12 +71,6 @@ conda install -c conda-forge/label/cf201901 python-louvain
 
 # leidenalg:
 conda install -c conda-forge leidenalg
-```
-
-Future plan:
-
-``` python
-conda install GioTools
 ```
 
 #### HMRF
@@ -107,7 +98,9 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation
 
 Howto’s and faqs examples:
 
-  - Cortex/SVZ and olfactory bulb data availability?
+  - Cortex/SVZ and olfactory bulb data availability?  
+    **Expression and centroid information is part of Giotto, see
+    examples.**
   - How to create a giotto object with your own spatial network/grid,
     dimensions reduction, … ?  
   - [How to add metadata and subset a Giotto
