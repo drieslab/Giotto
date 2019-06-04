@@ -247,6 +247,15 @@ calculateSpatialGenes <- function(gobject,
                                   nr_genes = 20,
                                   return_gobject = T) {
 
+
+  # spatial network is required to run this function
+  if(is.null(gobject@spatial_network)) {
+    stop('\n This function requires a spatial network, run createSpatialNetwork() first \n')
+  } else if(is.null(gobject@spatial_network[[spatial_network_name]])) {
+    stop('\n This function requires an existing spatial network name, run names(your_giotto_object@spatial_network) or make it with createSpatialNetwork() \n')
+  }
+
+
   method = match.arg(method, choices = c('kmeans', 'gini', 'rank'))
 
   # split genes to run function in for loop OR in parallel

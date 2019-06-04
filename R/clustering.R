@@ -701,6 +701,198 @@ doSNNCluster <- function(gobject,
 
 
 
+#' @title iterCluster
+#' @name iterCluster
+#' @description cluster cells iteratively
+#' @param gobject giotto object
+#' @param nr_rounds number of iterative rounds
+#' @param hvg_param parameters for calculateHVG()
+#' @param hvg_min_perc_cells threshold for detection in min % of cells
+#' @param hvg_mean_expr_det threshold for mean expression level in cells with detection
+#' @param pca_param parameters for runPCA()
+#' @param nn_param parameters for parameters for runPCA()()
+#' @param resolution resolution for Leiden clustering
+#' @param n_iterations number of iterations for Leiden clustering
+#' @param python_path python path to use for Leiden clustering
+#' @param nn_network_to_use NN network to use
+#' @param network_name NN network name
+#' @param name name of clustering
+#' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @param ... additional parameters
+#' @return giotto object appended with new cluster
+#' @details Description of iterative clustering.
+#' @export
+#' @examples
+#'     iterCluster(gobject)
+iterCluster <- function(gobject,
+                        nr_rounds = 5,
+                        ## hvg
+                        hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
+                        hvg_min_perc_cells = 5,
+                        hvg_mean_expr_det = 1,
+                        ## pca
+                        pca_param = list(expression_values = 'custom', scale.unit = T),
+                        ## nn-network
+                        nn_param = list(dimensions_to_use = 1:20),
+                        resolution = 1,
+                        n_iterations = 500,
+                        python_path = "/Users/rubendries/Bin/anaconda3/envs/py36/bin/python",
+                        ...,
+                        nn_network_to_use = 'sNN',
+                        network_name = 'sNN.pca',
+                        name = 'iter_clus',
+                        return_gobject = TRUE) {
+
+
+  final_cluster_list = list()
+  final_groups_list = list()
+
+  # create temporary giotto object
+  temp_giotto = gobject
+
+  # iterations
+  for(round in 1:nr_rounds) {
+
+
+    ## calculate stats
+    temp_giotto <- addStatistics(gobject = temp_giotto)
+
+    ## calculate variable genes
+    temp_giotto = do.call('calculateHVG', c(gobject = temp_giotto, hvg_param))
+
+    ## get hvg
+    gene_metadata = fDataDT(temp_giotto)
+    featgenes     = gene_metadata[hvg == 'yes' & perc_cells >= hvg_min_perc_cells & mean_expr_det >= hvg_mean_expr_det]$gene_ID
+
+
+    ## run PCA
+    #temp_giotto   = runPCA(gobject = temp_giotto, genes_to_use = featgenes, expression_values = 'custom', scale.unit = T)
+    temp_giotto = do.call('runPCA', c(gobject =  temp_giotto, genes_to_use = list(featgenes), pca_param))
+
+    ## nearest neighbor and clustering
+    #temp_giotto = createNearestNetwork(gobject = temp_giotto, dimensions_to_use = 1:20)
+    temp_giotto = do.call('createNearestNetwork', c(gobject = temp_giotto, nn_param))
+
+    ## Leiden Cluster
+    ## TO DO: expand to all clustering options
+    temp_giotto = doLeidenCluster(gobject = temp_giotto,
+                                  resolution = resolution,
+                                  n_iterations = n_iterations,
+                                  python_path = python_path,
+                                  name = 'tempclus',
+                                  ...)
+
+    ## get network and add cluster
+    my_nn_network = temp_giotto@nn_network[[nn_network_to_use]][[network_name]][['igraph']]
+    cell_metadata = pDataDT(temp_giotto)
+    my_nn_network = set_vertex_attr(my_nn_network, name = 'tempcluster', value = cell_metadata[['tempclus']])
+
+    ## convert network into data.table
+    edgeDT = as.data.table(igraph::as_data_frame(x = my_nn_network, what = 'edges'))
+    vertexDT = as.data.table(igraph::as_data_frame(x = my_nn_network, what = 'vertices'))
+
+    ## identify if edge goes to inside or outside of cluster
+    edgeDT <- merge(x = edgeDT, by.x = 'from', y = vertexDT, by.y = 'name')
+    setnames(edgeDT, 'tempcluster', 'from_clus')
+    edgeDT <- merge(x = edgeDT, by.x = 'to', y = vertexDT, by.y = 'name')
+    setnames(edgeDT, 'tempcluster', 'to_clus')
+    edgeDT[, type_edge := ifelse(from_clus == to_clus, 'same', 'other')]
+
+
+    ## calculate ratio of inside edges / outside edges for each cluster
+    vcountlist = c()
+    ratiolist = c()
+    indexlist = c()
+
+    for(i in sort(unique( cell_metadata[['tempclus']] ))) {
+
+      #cat('\n \n for :', i, '\n')
+
+      # subset edgeDT for each cluster
+      sub_edgeDT = edgeDT[from_clus == i | to_clus == i]
+      # number of unique vertices
+      total_v = length(unique(c(sub_edgeDT$to, sub_edgeDT$from)))
+      # calculate ratio
+      mytable = table(sub_edgeDT$type_edge)
+      ratio = (mytable['same']+1)/(mytable['other']+1)
+
+      indexlist[[i]] = i
+      vcountlist[[i]] = total_v
+      ratiolist[[i]] = ratio
+
+    }
+
+
+    mytempDT = data.table(index = indexlist, ratio = ratiolist, vc = vcountlist)
+
+    # identify cluster with the maximum ratio (most tx coherent cluster)
+    cell_cluster_index = mytempDT[ratio == max(ratio)][['index']]
+    cat('\n index to keep: ', cell_cluster_index, '\n')
+
+    # identify ids from selected cluster and all others outside cluster
+    store_ids = cell_metadata[tempclus == cell_cluster_index][['cell_ID']]
+    remain_ids = cell_metadata[tempclus != cell_cluster_index][['cell_ID']]
+
+    final_cluster_list[[round]] = store_ids
+    final_groups_list[[round]] = rep(round, length(store_ids))
+
+    if(round == nr_rounds) {
+
+      final_cluster_list[[round]] = cell_metadata[['cell_ID']]
+      final_groups_list[[round]] = rep(round, length(cell_metadata[['cell_ID']]))
+
+    } else {
+      temp_giotto = subsetGiotto(temp_giotto, cell_ids = remain_ids)
+    }
+
+  }
+
+
+  # combine information
+  cell_ids    = unlist(final_cluster_list)
+  cell_groups = unlist(final_groups_list)
+  annot_DT = data.table(cell_ids = cell_ids, cell_groups = cell_groups)
+  setnames(annot_DT, 'cell_groups', name)
+
+
+
+  ## add clusters to metadata ##
+  if(return_gobject == TRUE) {
+
+    cluster_names = names(gobject@cell_metadata)
+    if(name %in% cluster_names) {
+      cat('\n ', name, ' has already been used, will be overwritten \n')
+      cell_metadata = gobject@cell_metadata
+      cell_metadata[, eval(name) := NULL]
+      gobject@cell_metadata = cell_metadata
+    }
+
+    gobject = addCellMetadata(gobject = gobject, new_metadata = annot_DT[, c('cell_ids', name), with = F],
+                              by_column = T, column_cell_ID = 'cell_ID')
+
+
+    ## update parameters used ##
+    parameters_list = gobject@parameters
+    number_of_rounds = length(parameters_list)
+    update_name = paste0(number_of_rounds,'_iter_cluster')
+
+    # parameters to include
+    parameters_list[[update_name]] = c('iterclus name' = name,
+                                       'number of iterative rounds ' = nr_rounds,
+                                       'number of iterations leiden ' = n_iterations,
+                                       'resolution ' = resolution)
+
+    gobject@parameters = parameters_list
+
+    return(gobject)
+  } else {
+    return(annot_DT)
+  }
+}
+
+
+
+
 
 
 

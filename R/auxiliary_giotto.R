@@ -550,6 +550,20 @@ addCellMetadata <- function(gobject,
   cell_metadata = gobject@cell_metadata
   ordered_cell_IDs = gobject@cell_ID
 
+  # overwrite columns with same name
+  new_col_names = colnames(new_metadata)
+  new_col_names = new_col_names[new_col_names != column_cell_ID]
+  old_col_names = colnames(cell_metadata)
+  old_col_names = old_col_names[old_col_names != 'cell_ID']
+  same_col_names = new_col_names[new_col_names %in% old_col_names]
+  if(length(same_col_names) >= 1) {
+    cat('\n these column names were already used: ', same_col_names, '\n',
+        'and will be overwritten \n')
+    cell_metadata[, (same_col_names) := NULL]
+  }
+
+
+
   if(by_column == FALSE) {
     cell_metadata = base::cbind(cell_metadata, new_metadata)
   } else {

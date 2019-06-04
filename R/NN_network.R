@@ -45,7 +45,10 @@ createNearestNetwork <- function(gobject,
 
     ## TODO: check if reduction exists
 
-    matrix_to_use = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']][, dimensions_to_use]
+    # use only available dimensions if dimensions < dimensions_to_use
+    dim_coord = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']]
+    dimensions_to_use = dimensions_to_use[dimensions_to_use %in% 1:ncol(dim_coord)]
+    matrix_to_use = dim_coord[, dimensions_to_use]
 
 
   } else {
