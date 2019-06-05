@@ -11,8 +11,8 @@ iterCluster(gobject, nr_rounds = 5, hvg_param = list(reverse_log_scale
   nn_param = list(dimensions_to_use = 1:20), resolution = 1,
   n_iterations = 500,
   python_path = "/Users/rubendries/Bin/anaconda3/envs/py36/bin/python",
-  ..., nn_network_to_use = "sNN", network_name = "sNN.pca",
-  name = "iter_clus", return_gobject = TRUE)
+  nn_network_to_use = "sNN", network_name = "sNN.pca",
+  name = "iter_clus", return_gobject = TRUE, ...)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -21,7 +21,7 @@ iterCluster(gobject, nr_rounds = 5, hvg_param = list(reverse_log_scale
 
 \item{hvg_param}{parameters for calculateHVG()}
 
-\item{hvg_min_perc_cells}{threshold for detection in min % of cells}
+\item{hvg_min_perc_cells}{threshold for detection in min percentage of cells}
 
 \item{hvg_mean_expr_det}{threshold for mean expression level in cells with detection}
 
@@ -35,8 +35,6 @@ iterCluster(gobject, nr_rounds = 5, hvg_param = list(reverse_log_scale
 
 \item{python_path}{python path to use for Leiden clustering}
 
-\item{...}{additional parameters}
-
 \item{nn_network_to_use}{NN network to use}
 
 \item{network_name}{NN network name}
@@ -44,6 +42,8 @@ iterCluster(gobject, nr_rounds = 5, hvg_param = list(reverse_log_scale
 \item{name}{name of clustering}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
+
+\item{...}{additional parameters}
 }
 \value{
 giotto object appended with new cluster

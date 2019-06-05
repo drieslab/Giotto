@@ -707,7 +707,7 @@ doSNNCluster <- function(gobject,
 #' @param gobject giotto object
 #' @param nr_rounds number of iterative rounds
 #' @param hvg_param parameters for calculateHVG()
-#' @param hvg_min_perc_cells threshold for detection in min % of cells
+#' @param hvg_min_perc_cells threshold for detection in min percentage of cells
 #' @param hvg_mean_expr_det threshold for mean expression level in cells with detection
 #' @param pca_param parameters for runPCA()
 #' @param nn_param parameters for parameters for runPCA()()
@@ -726,22 +726,19 @@ doSNNCluster <- function(gobject,
 #'     iterCluster(gobject)
 iterCluster <- function(gobject,
                         nr_rounds = 5,
-                        ## hvg
                         hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
                         hvg_min_perc_cells = 5,
                         hvg_mean_expr_det = 1,
-                        ## pca
                         pca_param = list(expression_values = 'custom', scale.unit = T),
-                        ## nn-network
                         nn_param = list(dimensions_to_use = 1:20),
                         resolution = 1,
                         n_iterations = 500,
                         python_path = "/Users/rubendries/Bin/anaconda3/envs/py36/bin/python",
-                        ...,
                         nn_network_to_use = 'sNN',
                         network_name = 'sNN.pca',
                         name = 'iter_clus',
-                        return_gobject = TRUE) {
+                        return_gobject = TRUE,
+                        ...) {
 
 
   final_cluster_list = list()
@@ -868,7 +865,7 @@ iterCluster <- function(gobject,
     }
 
     gobject = addCellMetadata(gobject = gobject, new_metadata = annot_DT[, c('cell_ids', name), with = F],
-                              by_column = T, column_cell_ID = 'cell_ID')
+                              by_column = T, column_cell_ID = 'cell_ids')
 
 
     ## update parameters used ##

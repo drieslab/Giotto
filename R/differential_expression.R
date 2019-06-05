@@ -199,3 +199,106 @@ findGiniMarkers <- function(gobject,
   return(top_genes_scores_filtered)
 
 }
+
+
+
+
+
+#' @title findMarkers_one_vs_all
+#' @name findMarkers_one_vs_all
+#' @description Identify marker genes for selected clusters
+#' @param gobject giotto object
+#' @param expression_values gene expression values to use
+#' @param cluster_column clusters to use
+#' @param method method to use
+#' @param pval max pvalue with method scran
+#' @param logFC min logFC with method scran
+#' @param min_expr_gini_score minimum gini coefficient on expression
+#' @param min_det_gini_score minimum gini coefficient on detection
+#' @param detection_threshold detection threshold for gene expression
+#' @param min_genes minimum number of genes to keep
+#' @return gini genes output
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     findMarkers_one_vs_all(gobject)
+findMarkers_one_vs_all <- function(gobject,
+                                   expression_values = c('normalized', 'scaled', 'custom'),
+                                   cluster_column,
+                                   method = c('scran', 'gini'),
+                                   pval = 0.01,
+                                   logFC = 0.5,
+                                   min_expr_gini_score = 0.5,
+                                   min_det_gini_score = 0.5,
+                                   detection_threshold = 0,
+                                   min_genes = 10) {
+
+  # expression data
+  values = match.arg(expression_values, choices = c('normalized', 'scaled', 'custom'))
+
+  # select method
+  method = match.arg(method, choices = c('scran', 'gini'))
+
+  # cluster column
+  cell_metadata = pDataDT(gobject)
+  if(!cluster_column %in% colnames(cell_metadata)) {
+    stop('\n cluster column not found \n')
+  }
+
+
+  # sort uniq clusters
+  uniq_clusters = sort(unique(cell_metadata[[cluster_column]]))
+
+
+  # save list
+  result_list = list()
+
+
+  for(clus_i in 1:length(uniq_clusters)) {
+
+    selected_clus = uniq_clusters[clus_i]
+    other_clus = uniq_clusters[uniq_clusters != selected_clus]
+
+    # for method scran
+    if(method == 'scran') {
+
+      # one vs all markers
+      markers = findMarkers(gobject = gobject, expression_values = values, cluster_column = cluster_column,
+                            group_1 = selected_clus, group_2 = other_clus)
+
+      # identify list to continue with
+      select_bool = unlist(lapply(markers, FUN = function(x) {
+        unique(x$cluster_ID) == selected_clus
+      }))
+      selected_table = as.data.table(markers[select_bool])
+      setnames(selected_table, colnames(selected_table)[4], 'logFC')
+
+      # filter selected table
+      filtered_table = selected_table[logFC > 0]
+      filtered_table[, 'ranking' := rank(-logFC)]
+      filtered_table = filtered_table[(p.value <= pval & logFC >= logFC) | (ranking <= min_genes)]
+
+    } else if(method == 'gini') {
+
+      markers = findGiniMarkers(gobject = gobject, expression_values = values, cluster_column = cluster_column,
+                                group_1 = selected_clus, group_2 = other_clus,
+                                min_expr_gini_score = min_expr_gini_score, min_det_gini_score = min_det_gini_score,
+                                detection_threshold = detection_threshold)
+
+      # filter steps
+      clus_name = paste0('cluster_', selected_clus)
+      filtered_table = markers[cluster == clus_name]
+
+      filtered_table = filtered_table[comb_rank <= min_genes]
+
+    }
+
+    result_list[[clus_i]] = filtered_table
+  }
+
+  return(do.call('rbind', result_list))
+
+}
+
+
+
