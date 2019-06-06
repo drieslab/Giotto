@@ -288,10 +288,10 @@ createSpatialGrid <- function(gobject,
 
 
 
-  spatial_grid = create_spatial_grid(spatial_coord = spatial_locations,
-                                     sdimx_coord = sdimx_coord,  sdimx_start = dimx_start, sdimx_end = dimx_end, sdimx_stepsize = sdimx_stepsize,
-                                     sdimy_coord = sdimy_coord,  sdimy_start = dimy_start, sdimy_end = dimy_end, sdimy_stepsize = sdimy_stepsize,
-                                     sdimz_coord = sdimz_coord,  sdimz_start = dimz_start, sdimz_end = dimz_end, sdimz_stepsize = sdimz_stepsize)
+  spatial_grid = Giotto:::create_spatial_grid(spatial_coord = spatial_locations,
+                                              sdimx_coord = sdimx_coord,  sdimx_start = dimx_start, sdimx_end = dimx_end, sdimx_stepsize = sdimx_stepsize,
+                                              sdimy_coord = sdimy_coord,  sdimy_start = dimy_start, sdimy_end = dimy_end, sdimy_stepsize = sdimy_stepsize,
+                                              sdimz_coord = sdimz_coord,  sdimz_start = dimz_start, sdimz_end = dimz_end, sdimz_stepsize = sdimz_stepsize)
 
 
   if(return_gobject == TRUE) {
@@ -306,24 +306,26 @@ createSpatialGrid <- function(gobject,
 
 
     # annotate spatial locations with grid info
-
     grid_DT_x = unique(spatial_grid[,.(x_start, x_end, gr_x_name)])
-    gobject@spatial_locs[, gr_x_loc := find_grid_x(grid_DT_x, x_loc = sdimx), by = 1:nrow(gobject@spatial_locs)]
+    spatial_locations[, gr_x_loc := Giotto:::find_grid_x(grid_DT_x, x_loc = sdimx), by = 1:nrow(gobject@spatial_locs)]
 
     grid_DT_y = unique(spatial_grid[,.(y_start, y_end, gr_y_name)])
-    gobject@spatial_locs[, gr_y_loc := find_grid_y(grid_DT_y, y_loc = sdimy), by = 1:nrow(gobject@spatial_locs)]
+    spatial_locations[, gr_y_loc := Giotto:::find_grid_y(grid_DT_y, y_loc = sdimy), by = 1:nrow(gobject@spatial_locs)]
 
     # 2D or 3D coordinates
     if(!is.null(sdimz_coord)) {
       grid_DT_z = unique(spatial_grid[,.(z_start, z_end, gr_z_name)])
-      gobject@spatial_locs[, gr_z_loc := find_grid_z(grid_DT_z, z_loc = sdimz), by = 1:nrow(gobject@spatial_locs)]
+      spatial_locations[, gr_z_loc := Giotto:::find_grid_z(grid_DT_z, z_loc = sdimz), by = 1:nrow(gobject@spatial_locs)]
 
-      gobject@spatial_locs[, gr_loc := find_grid_3D(spatial_grid, x_loc = sdimx, y_loc = sdimy, z_loc = sdimz), by = 1:nrow(gobject@spatial_locs)]
+      spatial_locations[, gr_loc := Giotto:::find_grid_3D(spatial_grid, x_loc = sdimx, y_loc = sdimy, z_loc = sdimz), by = 1:nrow(gobject@spatial_locs)]
     } else {
 
-      gobject@spatial_locs[, gr_loc := find_grid_2D(spatial_grid, x_loc = sdimx, y_loc = sdimy), by = 1:nrow(gobject@spatial_locs)]
+      spatial_locations[, gr_loc := Giotto:::find_grid_2D(spatial_grid, x_loc = sdimx, y_loc = sdimy), by = 1:nrow(gobject@spatial_locs)]
     }
 
+    # assign back to object
+    # !! data.table by reference might sometimes not work
+    gobject@spatial_locs = spatial_locations
 
     ## update parameters used ##
     parameters_list = gobject@parameters
