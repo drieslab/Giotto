@@ -441,6 +441,24 @@ getGeneToGeneScores <- function(CPGscore,
                                 specific_genes_2 = NULL,
                                 verbose = FALSE) {
 
+
+  # expand CPGscore to all possible cell-cell combinations
+  # e.g. both astrocyte-NSC and NSC-astrocyte
+  CPGscore_first_direction = CPGscore
+  CPGscore_second_direction = CPGscore
+  colnames(CPGscore_second_direction) = c('genes', 'cell_expr_2', 'cell_expr_1', 'comb_expr',
+                                          'all_cell_expr_2', 'all_cell_expr_1', 'all_comb_expr',
+                                          'pval_2', 'pval_1',
+                                          'cell_type_2', 'cell_type_1', 'interaction',
+                                          'nr_2', 'nr_1', 'all_nr_2', 'all_nr_1',
+                                          'diff_spat', 'diff_spat_2', 'diff_spat_1')
+  CPGscore_second_direction = CPGscore_second_direction[, colnames(CPGscore_first_direction), with = F]
+  CPGscore_second_direction[, interaction := paste0(cell_type_1,'-', cell_type_2)]
+  CPGscore = rbind(CPGscore_first_direction, CPGscore_second_direction)
+  CPGscore = unique(CPGscore)
+
+
+
   all_genes = unique(CPGscore[['genes']])
 
   if(!is.null(specific_genes_1) & !is.null(specific_genes_2) & length(specific_genes_1) == length(specific_genes_2)) {
