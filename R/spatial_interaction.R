@@ -373,12 +373,12 @@ get_interaction_gene_enrichment <- function(spatial_network,
 #' @examples
 #'     getCellProximityGeneScores(gobject)
 getCellProximityGeneScores = function(gobject,
-                                             spatial_network_name = 'spatial_network',
-                                             cluster_column = 'louvain_clus.1',
-                                             expression_values = c('normalized', 'scaled', 'custom'),
-                                             do_diff_test = T,
-                                             exclude_selected_cells_from_test = F,
-                                             verbose = T) {
+                                      spatial_network_name = 'spatial_network',
+                                      cluster_column = 'louvain_clus.1',
+                                      expression_values = c('normalized', 'scaled', 'custom'),
+                                      do_diff_test = T,
+                                      exclude_selected_cells_from_test = F,
+                                      verbose = T) {
 
 
   # 1. create annotated spatial network
@@ -388,7 +388,7 @@ getCellProximityGeneScores = function(gobject,
 
   # 2. get expression values
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
 
   # 3. get cell metadata
   cell_metadata = pDataDT(gobject)
@@ -397,16 +397,16 @@ getCellProximityGeneScores = function(gobject,
   }
 
   # 4. calculate cell-cell interaction gene scores
-  interaction_gene_scores = get_interaction_gene_enrichment(spatial_network = annot_spatial_network,
-                                                            unified_int_col = 'unified_int',
-                                                            source_col = 'from_cell_type', source_IDs = 'from',
-                                                            neighb_col = 'to_cell_type', neighb_IDs = 'to',
-                                                            expression_matrix = expr_values,
-                                                            cell_annotation = cell_metadata,
-                                                            annotation_ID = 'cell_ID', cell_type_col = cluster_column,
-                                                            do_diff_test = do_diff_test,
-                                                            exclude_selected_cells_from_test = exclude_selected_cells_from_test,
-                                                            verbose = verbose)
+  interaction_gene_scores = Giotto:::get_interaction_gene_enrichment(spatial_network = annot_spatial_network,
+                                                                     unified_int_col = 'unified_int',
+                                                                     source_col = 'from_cell_type', source_IDs = 'from',
+                                                                     neighb_col = 'to_cell_type', neighb_IDs = 'to',
+                                                                     expression_matrix = expr_values,
+                                                                     cell_annotation = cell_metadata,
+                                                                     annotation_ID = 'cell_ID', cell_type_col = cluster_column,
+                                                                     do_diff_test = do_diff_test,
+                                                                     exclude_selected_cells_from_test = exclude_selected_cells_from_test,
+                                                                     verbose = verbose)
 
   interaction_gene_scores[, diff_spat := as.numeric(comb_expr)-as.numeric(all_comb_expr)]
   interaction_gene_scores[, diff_spat_1 := as.numeric(cell_expr_1)-as.numeric(all_cell_expr_1)]
@@ -414,7 +414,23 @@ getCellProximityGeneScores = function(gobject,
   setorder(interaction_gene_scores, diff_spat)
 
 
-  return(interaction_gene_scores)
+  # expand scores to all possible cell-cell combinations
+  # e.g. both astrocyte-NSC and NSC-astrocyte
+  CPGscore_first_direction  = interaction_gene_scores
+  CPGscore_second_direction = interaction_gene_scores
+  colnames(CPGscore_second_direction) = c('genes', 'cell_expr_2', 'cell_expr_1', 'comb_expr',
+                                          'all_cell_expr_2', 'all_cell_expr_1', 'all_comb_expr',
+                                          'pval_2', 'pval_1',
+                                          'cell_type_2', 'cell_type_1', 'interaction',
+                                          'nr_2', 'nr_1', 'all_nr_2', 'all_nr_1',
+                                          'diff_spat', 'diff_spat_2', 'diff_spat_1')
+  CPGscore_second_direction = CPGscore_second_direction[, colnames(CPGscore_first_direction), with = F]
+  CPGscore_second_direction[, interaction := paste0(cell_type_1,'-', cell_type_2)]
+  CPGscore = rbind(CPGscore_first_direction, CPGscore_second_direction)
+  CPGscore = unique(CPGscore)
+
+
+  return(CPGscore)
 
 }
 
@@ -440,23 +456,6 @@ getGeneToGeneScores <- function(CPGscore,
                                 specific_genes_1 = NULL,
                                 specific_genes_2 = NULL,
                                 verbose = FALSE) {
-
-
-  # expand CPGscore to all possible cell-cell combinations
-  # e.g. both astrocyte-NSC and NSC-astrocyte
-  CPGscore_first_direction = CPGscore
-  CPGscore_second_direction = CPGscore
-  colnames(CPGscore_second_direction) = c('genes', 'cell_expr_2', 'cell_expr_1', 'comb_expr',
-                                          'all_cell_expr_2', 'all_cell_expr_1', 'all_comb_expr',
-                                          'pval_2', 'pval_1',
-                                          'cell_type_2', 'cell_type_1', 'interaction',
-                                          'nr_2', 'nr_1', 'all_nr_2', 'all_nr_1',
-                                          'diff_spat', 'diff_spat_2', 'diff_spat_1')
-  CPGscore_second_direction = CPGscore_second_direction[, colnames(CPGscore_first_direction), with = F]
-  CPGscore_second_direction[, interaction := paste0(cell_type_1,'-', cell_type_2)]
-  CPGscore = rbind(CPGscore_first_direction, CPGscore_second_direction)
-  CPGscore = unique(CPGscore)
-
 
 
   all_genes = unique(CPGscore[['genes']])
