@@ -407,7 +407,7 @@ viewHMRFresults <- function(gobject,
                             ...) {
 
 
-  if(!'HMRFoutput' %in% class(HMRFtest)) {
+  if(!'HMRFoutput' %in% class(HMRFoutput)) {
     stop('\n HMRFoutput needs to be output from doHMRFextend \n')
   }
 
@@ -476,7 +476,7 @@ addHMRF <- function(gobject,
                     betas_to_add = NULL) {
 
 
-  if(!'HMRFoutput' %in% class(HMRFtest)) {
+  if(!'HMRFoutput' %in% class(HMRFoutput)) {
     stop('\n HMRFoutput needs to be output from doHMRFextend \n')
   }
 
