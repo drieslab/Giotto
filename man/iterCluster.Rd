@@ -19,15 +19,15 @@ iterCluster(gobject, nr_rounds = 5, hvg_param = list(reverse_log_scale
 
 \item{nr_rounds}{number of iterative rounds}
 
-\item{hvg_param}{parameters for calculateHVG()}
+\item{hvg_param}{parameters for calculateHVG}
 
 \item{hvg_min_perc_cells}{threshold for detection in min percentage of cells}
 
 \item{hvg_mean_expr_det}{threshold for mean expression level in cells with detection}
 
-\item{pca_param}{parameters for runPCA()}
+\item{pca_param}{parameters for runPCA}
 
-\item{nn_param}{parameters for parameters for runPCA()()}
+\item{nn_param}{parameters for parameters for runPCA}
 
 \item{resolution}{resolution for Leiden clustering}
 

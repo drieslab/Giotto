@@ -706,11 +706,11 @@ doSNNCluster <- function(gobject,
 #' @description cluster cells iteratively
 #' @param gobject giotto object
 #' @param nr_rounds number of iterative rounds
-#' @param hvg_param parameters for calculateHVG()
+#' @param hvg_param parameters for calculateHVG
 #' @param hvg_min_perc_cells threshold for detection in min percentage of cells
 #' @param hvg_mean_expr_det threshold for mean expression level in cells with detection
-#' @param pca_param parameters for runPCA()
-#' @param nn_param parameters for parameters for runPCA()()
+#' @param pca_param parameters for runPCA
+#' @param nn_param parameters for parameters for runPCA
 #' @param resolution resolution for Leiden clustering
 #' @param n_iterations number of iterations for Leiden clustering
 #' @param python_path python path to use for Leiden clustering
