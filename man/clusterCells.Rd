@@ -16,7 +16,7 @@ clusterCells(gobject, nn_network_to_use = "sNN",
   walk_steps = 4, walk_clusters = 10, walk_weights = NA,
   sNNclust_k = 20, sNNclust_eps = 4, sNNclust_minPts = 16,
   borderPoints = TRUE, name = "plouvain_clus", return_gobject = TRUE,
-  set_seed = F, seed_number = 1234, ...)
+  set_seed = T, seed_number = 1234, ...)
 }
 \arguments{
 \item{gobject}{giotto object}

@@ -10,7 +10,7 @@ doLeidenCluster(gobject, nn_network_to_use = "sNN",
   partition_type = c("RBConfigurationVertexPartition",
   "ModularityVertexPartition"), init_membership = NULL,
   n_iterations = 200, name = "pleiden_clus", return_gobject = TRUE,
-  set_seed = F, seed_number = 1234, ...)
+  set_seed = T, seed_number = 1234, ...)
 }
 \arguments{
 \item{gobject}{giotto object}

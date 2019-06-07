@@ -62,7 +62,7 @@ clusterCells <- function(gobject,
 
                          name = 'plouvain_clus',
                          return_gobject = TRUE,
-                         set_seed = F,
+                         set_seed = T,
                          seed_number = 1234,
                          ...) {
 
@@ -468,7 +468,7 @@ doLeidenCluster <- function(gobject,
                             n_iterations = 200,
                             name = 'pleiden_clus',
                             return_gobject = TRUE,
-                            set_seed = F,
+                            set_seed = T,
                             seed_number = 1234,
                             ...) {
 
