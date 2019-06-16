@@ -4,8 +4,9 @@
 \alias{normalizeGiotto}
 \title{normalizeGiotto}
 \usage{
-normalizeGiotto(gobject, library_size_norm = T, scalefactor = 2000,
-  logbase = 2, scale_genes = T, scale_cells = T)
+normalizeGiotto(gobject, library_size_norm = T, scalefactor = 6000,
+  logbase = 2, scale_genes = T, scale_cells = T,
+  scale_order = c("first_genes", "first_cells"), verbose = F)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -19,6 +20,10 @@ normalizeGiotto(gobject, library_size_norm = T, scalefactor = 2000,
 \item{scale_genes}{z-score genes over all cells}
 
 \item{scale_cells}{z-score cells over all genes}
+
+\item{scale_order}{order to scale genes and cells}
+
+\item{verbose}{be verbose}
 }
 \value{
 giotto object

@@ -801,6 +801,10 @@ iterCluster <- function(gobject,
     ratiolist = c()
     indexlist = c()
 
+
+    ## number of clusters ##
+    nr_clusters = length(unique( cell_metadata[['tempclus']] ))
+
     for(i in sort(unique( cell_metadata[['tempclus']] ))) {
 
       #cat('\n \n for :', i, '\n')
@@ -833,7 +837,7 @@ iterCluster <- function(gobject,
     final_cluster_list[[round]] = store_ids
     final_groups_list[[round]] = rep(round, length(store_ids))
 
-    if(round == nr_rounds) {
+    if(round == nr_rounds | nr_clusters == 1) {
 
       final_cluster_list[[round]] = cell_metadata[['cell_ID']]
       final_groups_list[[round]] = rep(round, length(cell_metadata[['cell_ID']]))

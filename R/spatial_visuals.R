@@ -13,6 +13,7 @@
 #' @param cell_color color for cells (see details)
 #' @param cell_color_code named vector with colors
 #' @param color_as_factor convert color column to factor
+#' @param select_cell_groups select a subset of the groups from cell_color
 #' @param show_network show underlying spatial network
 #' @param network_color color of spatial network
 #' @param spatial_network_name name of spatial network to use
@@ -38,6 +39,7 @@ visPlot <- function(gobject,
                     cell_color = NULL,
                     cell_color_code = NULL,
                     color_as_factor = T,
+                    select_cell_groups = NULL,
                     show_network = F,
                     network_color = NULL,
                     spatial_network_name = 'spatial_network',
@@ -68,14 +70,17 @@ visPlot <- function(gobject,
   cell_metadata   = gobject@cell_metadata
   cell_metadata   = cell_metadata[, !grepl('cell_ID', colnames(cell_metadata)), with = F]
 
-
   if(nrow(cell_metadata) == 0) {
     cell_locations_metadata = cell_locations
   } else {
     cell_locations_metadata <- cbind(cell_locations, cell_metadata)
   }
 
-
+  # create subsets of needed
+  if(!is.null(select_cell_groups)) {
+    cell_locations_metadata_selected = cell_locations_metadata[get(cell_color) %in% select_cell_groups]
+    cell_locations_metadata_other = cell_locations_metadata[!get(cell_color) %in% select_cell_groups]
+  }
 
   # first 2 dimensions need to be defined
   if(is.null(sdimx) | is.null(sdimy)) {
@@ -134,11 +139,13 @@ visPlot <- function(gobject,
 
     # cell color default
     if(is.null(cell_color)) {
+
       cell_color = 'lightblue'
-      pl <- pl + geom_point(data = cell_locations, aes_string(x = sdimx, y = sdimy),
+      pl <- pl + geom_point(data = cell_locations_metadata, aes_string(x = sdimx, y = sdimy),
                             show.legend = show.legend, shape = 21,
                             fill = cell_color, size = point_size,
                             stroke = point.border.stroke, color = point.border.col)
+
     }
 
     else if (is.character(cell_color)) {
@@ -146,30 +153,75 @@ visPlot <- function(gobject,
       if(cell_color %in% colnames(cell_locations_metadata)) {
 
         if(color_as_factor == TRUE) {
-          factor_data = factor(cell_locations_metadata[[cell_color]])
-          cell_locations_metadata[[cell_color]] <- factor_data
+          if(is.null(select_cell_groups)) {
+            factor_data = factor(cell_locations_metadata[[cell_color]])
+            cell_locations_metadata[[cell_color]] <- factor_data
+          } else {
+            factor_data_selected = factor(cell_locations_metadata_selected[[cell_color]])
+            cell_locations_metadata_selected[[cell_color]] <- factor_data_selected
+            factor_data_other = factor(cell_locations_metadata_other[[cell_color]])
+            cell_locations_metadata_other[[cell_color]] <- factor_data_other
+          }
+
         }
 
-        pl <- pl + geom_point(data = cell_locations_metadata, aes_string(x = sdimx, y = sdimy, fill = cell_color),
-                              show.legend = show.legend, shape = 21, size = point_size,
-                              stroke = point.border.stroke, color = point.border.col)
+        if(is.null(select_cell_groups)) {
+          pl <- pl + geom_point(data = cell_locations_metadata, aes_string(x = sdimx, y = sdimy, fill = cell_color),
+                                show.legend = show.legend, shape = 21, size = point_size,
+                                stroke = point.border.stroke, color = point.border.col)
+        } else {
+          cell_color_other = 'grey'
+          pl <- pl + geom_point(data = cell_locations_metadata_other, aes_string(x = sdimx, y = sdimy),
+                                fill = cell_color_other,
+                                show.legend = show.legend, shape = 21, size = point_size/2,
+                                stroke = point.border.stroke, color = point.border.col)
+
+          pl <- pl + geom_point(data = cell_locations_metadata_selected, aes_string(x = sdimx, y = sdimy, fill = cell_color),
+                                show.legend = show.legend, shape = 21, size = point_size,
+                                stroke = point.border.stroke, color = point.border.col)
+        }
+
+
+
 
         if(!is.null(cell_color_code)) {
           pl <- pl + scale_fill_manual(values = cell_color_code)
         } else if(color_as_factor == T) {
-          number_colors = length(unique(factor_data))
-          cell_color_code = Giotto:::getDistinctColors(n = number_colors)
-          names(cell_color_code) = unique(factor_data)
+          if(is.null(select_cell_groups)) {
+            number_colors = length(unique(factor_data))
+            cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+            names(cell_color_code) = unique(factor_data)
+          } else {
+            number_colors = length(unique(factor_data_selected))
+            cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+            names(cell_color_code) = unique(factor_data_selected)
+          }
           pl <- pl + scale_fill_manual(values = cell_color_code)
         } else if(color_as_factor == F){
           pl <- pl + scale_fill_gradient(low = 'blue', high = 'red')
         }
 
       } else {
-        pl <- pl + geom_point(data = cell_locations_metadata, aes_string(x = sdimx, y = sdimy),
-                              show.legend = show.legend, shape = 21, fill = cell_color,
-                              size = point_size,
-                              stroke = point.border.stroke, color = point.border.col)
+
+
+        if(is.null(select_cell_groups)) {
+          pl <- pl + geom_point(data = cell_locations_metadata, aes_string(x = sdimx, y = sdimy),
+                                show.legend = show.legend, shape = 21, fill = cell_color,
+                                size = point_size,
+                                stroke = point.border.stroke, color = point.border.col)
+        } else {
+          cell_color_other = 'grey'
+          pl <- pl + geom_point(data = cell_locations_metadata_other, aes_string(x = sdimx, y = sdimy),
+                                show.legend = show.legend, shape = 21, fill = cell_color_other,
+                                size = point_size/2,
+                                stroke = point.border.stroke, color = point.border.col)
+
+          pl <- pl + geom_point(data = cell_locations_metadata_selected, aes_string(x = sdimx, y = sdimy),
+                                show.legend = show.legend, shape = 21, fill = cell_color,
+                                size = point_size,
+                                stroke = point.border.stroke, color = point.border.col)
+        }
+
       }
 
     }
@@ -193,6 +245,7 @@ visPlot <- function(gobject,
   }
 
 }
+
 
 
 

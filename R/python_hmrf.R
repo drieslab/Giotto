@@ -201,7 +201,7 @@ doHMRF <- function(gobject,
                    k = 10,
                    betas = c(0, 2, 50),
                    tolerance = 1e-10,
-                   zscore = c('rowcol', 'colrow', 'None'),
+                   zscore = c('none','rowcol', 'colrow'),
                    numinit = 100,
                    python_path = NULL,
                    output_folder = NULL) {
@@ -308,7 +308,7 @@ doHMRF <- function(gobject,
 
 
   # process other params
-  zscore = match.arg(zscore, c('rowcol', 'colrow', 'None'))
+  zscore = match.arg(zscore, c('none','rowcol', 'colrow'))
   betas_param = c('-b', betas)
   betas_final = paste(betas_param, collapse = ' ')
 

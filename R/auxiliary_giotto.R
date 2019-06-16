@@ -380,6 +380,8 @@ filterGiotto <- function(gobject,
 #' @param logbase log base to use to log normalize expression values
 #' @param scale_genes z-score genes over all cells
 #' @param scale_cells z-score cells over all genes
+#' @param scale_order order to scale genes and cells
+#' @param verbose be verbose
 #' @return giotto object
 #' @details Description of normalization steps ...
 #' @export
@@ -387,44 +389,55 @@ filterGiotto <- function(gobject,
 #'     normalizeGiotto(gobject)
 normalizeGiotto <- function(gobject,
                             library_size_norm = T,
-                            scalefactor = 2e3,
+                            scalefactor = 6e3,
                             logbase = 2,
                             scale_genes = T,
-                            scale_cells = T) {
+                            scale_cells = T,
+                            scale_order = c('first_genes', 'first_cells'),
+                            verbose = F) {
 
   raw_expr = gobject@raw_exprs
 
-    # 1. library size normalize
+    ## 1. library size normalize
   if(library_size_norm == TRUE) {
     norm_expr = base::t((base::t(raw_expr)/base::colSums(raw_expr))*scalefactor)
 
     if(!is.null(logbase)) {
-      # 2. lognormalize
+      ## 2. lognormalize
       norm_expr = base::log(x = norm_expr+1, base = logbase)
     }
   }
 
 
 
+  ## 3. scale
+  if(scale_genes == TRUE & scale_cells == TRUE) {
 
-  # 3. scale
-  if(scale_genes == TRUE) {
-    norm_scaled_expr = base::t(scale(x = base::t(norm_expr)))
-    if(scale_cells == TRUE) {
+    scale_order = match.arg(arg = scale_order, choices = c('first_genes', 'first_cells'))
+
+    if(scale_order == 'first_genes') {
+      if(verbose == TRUE) cat('\n first scale genes and then cells \n')
+      norm_scaled_expr = base::t(scale(x = base::t(norm_expr)))
       norm_scaled_expr = base::scale(x = norm_scaled_expr)
+    } else if(scale_order == 'first_cells') {
+      if(verbose == TRUE) cat('\n first scale cells and then genes \n')
+      norm_scaled_expr = base::scale(x = norm_expr)
+      norm_scaled_expr = base::t(scale(x = base::t(norm_scaled_expr)))
+    } else {
+      stop('\n scale order must be given \n')
     }
+
+  } else if(scale_genes == TRUE) {
+    norm_scaled_expr = base::t(scale(x = base::t(norm_expr)))
   } else if(scale_cells == TRUE) {
     norm_scaled_expr = base::scale(x = norm_expr)
   } else {
     norm_scaled_expr = NULL
   }
 
-
   # return Giotto object
   gobject@norm_expr = norm_expr
   gobject@norm_scaled_expr = norm_scaled_expr
-
-
 
   ## update parameters used ##
   parameters_list  = gobject@parameters
