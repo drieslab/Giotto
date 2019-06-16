@@ -9,7 +9,7 @@ createNearestNetwork(gobject, expression_values = c("normalized",
   dim_reduction_to_use = "pca", dim_reduction_name = "pca",
   dimensions_to_use = 1:10, genes_to_use = NULL, name = "sNN.pca",
   return_gobject = TRUE, k = 30, minimum_shared = 5,
-  top_shared = 3, ...)
+  top_shared = 3, verbose = T, ...)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -35,6 +35,8 @@ createNearestNetwork(gobject, expression_values = c("normalized",
 \item{minimum_shared}{minimum shared neighbors}
 
 \item{top_shared}{keep at ...}
+
+\item{verbose}{be verbose}
 
 \item{...}{additional parameters}
 }

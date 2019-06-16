@@ -17,6 +17,7 @@
 #' @param k number of k neighbors to use
 #' @param minimum_shared minimum shared neighbors
 #' @param top_shared keep at ...
+#' @param verbose be verbose
 #' @param ... additional parameters
 #' @return giotto object with updated NN network
 #' @details Description of nearest neighbor network creation and filter steps.
@@ -35,6 +36,7 @@ createNearestNetwork <- function(gobject,
                                  k = 30,
                                  minimum_shared = 5,
                                  top_shared = 3,
+                                 verbose = T,
                                  ...) {
 
   # type of NN network
@@ -73,6 +75,11 @@ createNearestNetwork <- function(gobject,
 
 
   ## run nearest-neighbour algorithm ##
+  if(k >= nrow(matrix_to_use)) {
+    k = (nrow(matrix_to_use)-1)
+    if(verbose == TRUE) cat('\n k is too high, adjusted to nrow(matrix)-1 \n')
+  }
+
   nn_network = dbscan::kNN(x = matrix_to_use, k = k, sort = TRUE, ...)
   nn_network_dt = data.table(from = rep(1:nrow(nn_network$id), k),
                              to = as.vector(nn_network$id),

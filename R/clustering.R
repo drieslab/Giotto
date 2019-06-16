@@ -894,6 +894,452 @@ iterCluster <- function(gobject,
 
 
 
+#' @title doKmeans
+#' @name doKmeans
+#' @description cluster cells using kmeans algorithm
+#' @param gobject giotto object
+#' @param expression_values expression values to use
+#' @param genes_to_use subset of genes to use
+#' @param dim_reduction_to_use dimension reduction to use
+#' @param dim_reduction_name dimensions reduction name
+#' @param dimensions_to_use dimensions to use
+#' @param distance_method distance method
+#' @param centers number of final clusters
+#' @param iter.max kmeans maximum iterations
+#' @param nstart kmeans nstart
+#' @param algorithm kmeans algorithm
+#' @param name name for kmeans clustering
+#' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @param set_seed set seed
+#' @param seed_number number for seed
+#' @param ... additional parameters
+#' @return giotto object appended with new cluster
+#' @details Description on how to use Kmeans clustering method.
+#' @export
+#' @examples
+#'     doKmeans(gobject)
+doKmeans <- function(gobject,
+                     expression_values = c('normalized', 'scaled', 'custom'),
+                     genes_to_use = NULL,
+                     dim_reduction_to_use = c('cells', 'pca', 'umap', 'tsne'),
+                     dim_reduction_name = 'pca',
+                     dimensions_to_use = 1:10,
+                     distance_method = c("pearson", "spearman", "original",
+                                         "euclidean", "maximum", "manhattan",
+                                         "canberra", "binary", "minkowski"),
+                     centers = 10,
+                     iter.max = 10,
+                     nstart = 10,
+                     algorithm = "Hartigan-Wong",
+                     name = 'kmeans',
+                     return_gobject = TRUE,
+                     set_seed = T,
+                     seed_number = 1234) {
+
+
+
+  dim_reduction_to_use = match.arg(dim_reduction_to_use, choices = c('cells', 'pca', 'umap', 'tsne'))
+  distance_method = match.arg(distance_method, choices = c("pearson", "spearman",  "original",
+                                                           "euclidean", "maximum", "manhattan",
+                                                           "canberra", "binary", "minkowski"))
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+
+  ## using dimension reduction ##
+  if(dim_reduction_to_use != 'cells' & !is.null(dim_reduction_to_use)) {
+
+    ## TODO: check if reduction exists
+
+    # use only available dimensions if dimensions < dimensions_to_use
+    dim_coord = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']]
+    dimensions_to_use = dimensions_to_use[dimensions_to_use %in% 1:ncol(dim_coord)]
+    matrix_to_use = dim_coord[, dimensions_to_use]
+
+
+  } else {
+    ## using original matrix ##
+    expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+
+    # subset expression matrix
+    if(!is.null(genes_to_use)) {
+      expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
+    }
+
+    # features as columns
+    # cells as rows
+    matrix_to_use = t(expr_values)
+
+  }
+
+  ## distance
+  if(distance_method == 'original') {
+    celldist = matrix_to_use
+  } else if(distance_method %in% c('spearman', 'pearson')) {
+    celldist = stats::as.dist(1-cor(x = t(matrix_to_use), method = distance_method))
+  } else if(distance_method %in% c("euclidean", "maximum", "manhattan",
+                                   "canberra", "binary", "minkowski")) {
+    celldist = stats::dist(x = matrix_to_use, method = distance_method)
+  }
+
+  ## kmeans clustering
+  # set seed
+  if(set_seed == TRUE) {
+    seed_number = as.integer(seed_number)
+  } else {
+    seed_number = as.integer(sample(x = 1:10000, size = 1))
+  }
+  base::set.seed(seed = seed_number)
+
+  # start clustering
+  kclusters = stats::kmeans(x = celldist, centers = centers,
+                            iter.max = iter.max, nstart = nstart,
+                            algorithm =  algorithm)
+
+
+  ident_clusters_DT = data.table::data.table(cell_ID = names(kclusters[['cluster']]),
+                                             'name' = kclusters[['cluster']])
+  data.table::setnames(ident_clusters_DT, 'name', name)
+
+
+  ## add clusters to metadata ##
+  if(return_gobject == TRUE) {
+
+    cluster_names = names(gobject@cell_metadata)
+    if(name %in% cluster_names) {
+      cat('\n ', name, ' has already been used, will be overwritten \n')
+      cell_metadata = gobject@cell_metadata
+      cell_metadata[, eval(name) := NULL]
+      gobject@cell_metadata = cell_metadata
+    }
+
+    gobject = addCellMetadata(gobject = gobject, new_metadata = ident_clusters_DT[, c('cell_ID', name), with = F],
+                              by_column = T, column_cell_ID = 'cell_ID')
+
+
+    ## update parameters used ##
+    parameters_list = gobject@parameters
+    number_of_rounds = length(parameters_list)
+    update_name = paste0(number_of_rounds,'_kmeans_cluster')
+    # parameters to include
+
+
+    parameters_list[[update_name]] = c('expression values' = values,
+                                       'dim reduction used' = dim_reduction_to_use,
+                                       'dim reduction name' = dim_reduction_name,
+                                       'name for clusters' = name,
+                                       'distance method' = distance_method,
+                                       'centers' = centers,
+                                       'iter.max' = iter.max,
+                                       'nstart' =  nstart
+    )
+
+    gobject@parameters = parameters_list
+
+    return(gobject)
+
+  } else {
+
+    return(ident_clusters_DT)
+
+  }
+
+}
+
+
+
+
+
+#' @title doHclust
+#' @name doHclust
+#' @description cluster cells using hierarchical clustering algorithm
+#' @param gobject giotto object
+#' @param expression_values expression values to use
+#' @param genes_to_use subset of genes to use
+#' @param dim_reduction_to_use dimension reduction to use
+#' @param dim_reduction_name dimensions reduction name
+#' @param dimensions_to_use dimensions to use
+#' @param distance_method distance method
+#' @param agglomeration_method agglomeration method for hclust
+#' @param k number of final clusters
+#' @param h cut hierarchical tree at height = h
+#' @param name name for hierarchical clustering
+#' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @param set_seed set seed
+#' @param seed_number number for seed
+#' @param ... additional parameters
+#' @return giotto object appended with new cluster
+#' @details Description on how to use Kmeans clustering method.
+#' @export
+#' @examples
+#'     doHclust(gobject)
+doHclust <- function(gobject,
+                     expression_values = c('normalized', 'scaled', 'custom'),
+                     genes_to_use = NULL,
+                     dim_reduction_to_use = c('cells', 'pca', 'umap', 'tsne'),
+                     dim_reduction_name = 'pca',
+                     dimensions_to_use = 1:10,
+                     distance_method = c("pearson", "spearman", "original",
+                                         "euclidean", "maximum", "manhattan",
+                                         "canberra", "binary", "minkowski"),
+                     agglomeration_method = c("ward.D2","ward.D", "single",
+                                              "complete", "average", "mcquitty",
+                                              "median", "centroid" ),
+                     k = 10,
+                     h = NULL,
+                     name = 'hclust',
+                     return_gobject = TRUE,
+                     set_seed = T,
+                     seed_number = 1234) {
+
+
+
+  dim_reduction_to_use = match.arg(dim_reduction_to_use, choices = c('cells', 'pca', 'umap', 'tsne'))
+  distance_method = match.arg(distance_method, choices = c("pearson", "spearman",  "original",
+                                                           "euclidean", "maximum", "manhattan",
+                                                           "canberra", "binary", "minkowski"))
+  agglomeration_method = match.arg(agglomeration_method, choices = c("ward.D2","ward.D", "single",
+                                                                     "complete", "average", "mcquitty",
+                                                                     "median", "centroid" ))
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+
+
+  ## using dimension reduction ##
+  if(dim_reduction_to_use != 'cells' & !is.null(dim_reduction_to_use)) {
+
+    ## TODO: check if reduction exists
+
+    # use only available dimensions if dimensions < dimensions_to_use
+    dim_coord = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']]
+    dimensions_to_use = dimensions_to_use[dimensions_to_use %in% 1:ncol(dim_coord)]
+    matrix_to_use = dim_coord[, dimensions_to_use]
+
+
+  } else {
+    ## using original matrix ##
+    expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+
+    # subset expression matrix
+    if(!is.null(genes_to_use)) {
+      expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
+    }
+
+    # features as columns
+    # cells as rows
+    matrix_to_use = t(expr_values)
+
+  }
+
+  ## distance
+  if(distance_method == 'original') {
+    celldist = matrix_to_use
+  } else if(distance_method %in% c('spearman', 'pearson')) {
+    celldist = stats::as.dist(1-cor(x = t(matrix_to_use), method = distance_method))
+  } else if(distance_method %in% c("euclidean", "maximum", "manhattan",
+                                   "canberra", "binary", "minkowski")) {
+    celldist = stats::dist(x = matrix_to_use, method = distance_method)
+  }
+
+  ## hierarchical clustering
+  # set seed
+  if(set_seed == TRUE) {
+    seed_number = as.integer(seed_number)
+  } else {
+    seed_number = as.integer(sample(x = 1:10000, size = 1))
+  }
+  base::set.seed(seed = seed_number)
+
+  # start clustering
+  hclusters = stats::hclust(d = celldist, method = agglomeration_method)
+  hclusters_cut = stats::cutree(tree = hclusters, k = k, h = h)
+
+  ident_clusters_DT = data.table::data.table(cell_ID = names(hclusters_cut),
+                                             'name' = hclusters_cut)
+  data.table::setnames(ident_clusters_DT, 'name', name)
+
+
+  ## add clusters to metadata ##
+  if(return_gobject == TRUE) {
+
+    cluster_names = names(gobject@cell_metadata)
+    if(name %in% cluster_names) {
+      cat('\n ', name, ' has already been used, will be overwritten \n')
+      cell_metadata = gobject@cell_metadata
+      cell_metadata[, eval(name) := NULL]
+      gobject@cell_metadata = cell_metadata
+    }
+
+    gobject = addCellMetadata(gobject = gobject, new_metadata = ident_clusters_DT[, c('cell_ID', name), with = F],
+                              by_column = T, column_cell_ID = 'cell_ID')
+
+
+    ## update parameters used ##
+    parameters_list = gobject@parameters
+    number_of_rounds = length(parameters_list)
+    update_name = paste0(number_of_rounds,'_hierarchical_cluster')
+    # parameters to include
+
+
+    parameters_list[[update_name]] = c('expression values' = values,
+                                       'dim reduction used' = dim_reduction_to_use,
+                                       'dim reduction name' = dim_reduction_name,
+                                       'name for clusters' = name,
+                                       'distance method' = distance_method,
+                                       'k' = k,
+                                       'h' = h
+    )
+
+    gobject@parameters = parameters_list
+
+    return(gobject)
+
+  } else {
+
+    return(list('hclust' = hclusters, 'DT' = ident_clusters_DT))
+
+  }
+
+}
+
+
+
+
+
+#' @title doLeidenSubCluster
+#' @name doLeidenSubCluster
+#' @description cluster cells iteratively
+#' @param gobject giotto object
+#' @param cluster_column cluster column to subcluster
+#' @param hvg_param parameters for calculateHVG
+#' @param hvg_min_perc_cells threshold for detection in min percentage of cells
+#' @param hvg_mean_expr_det threshold for mean expression level in cells with detection
+#' @param pca_param parameters for runPCA
+#' @param nn_param parameters for parameters for runPCA
+#' @param k_neighbors number of k for sNN
+#' @param resolution resolution for Leiden clustering
+#' @param n_iterations number of iterations for Leiden clustering
+#' @param python_path python path to use for Leiden clustering
+#' @param nn_network_to_use NN network to use
+#' @param network_name NN network name
+#' @param name name of clustering
+#' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @param verbose be verbose
+#' @param ... additional parameters
+#' @return giotto object appended with new cluster
+#' @details Description of iterative clustering.
+#' @export
+#' @examples
+#'     doLeidenSubCluster(gobject)
+doLeidenSubCluster = function(gobject,
+                              cluster_column = NULL,
+                              hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
+                              hvg_min_perc_cells = 5,
+                              hvg_mean_expr_det = 1,
+                              pca_param = list(expression_values = 'custom', scale.unit = T),
+                              nn_param = list(dimensions_to_use = 1:20),
+                              k_neighbors = 10,
+                              resolution = 0.5,
+                              n_iterations = 500,
+                              python_path = "/Users/rubendries/Bin/anaconda3/envs/py36/bin/python",
+                              nn_network_to_use = 'sNN',
+                              network_name = 'sNN.pca',
+                              name = 'sub_pleiden_clus',
+                              return_gobject = TRUE,
+                              verbose = T,
+                              ...) {
+
+
+
+
+  iter_list = list()
+
+  cell_metadata = pDataDT(gobject)
+
+  if(is.null(cluster_column)) {
+    stop('\n You need to provide a cluster column to subcluster on \n')
+  }
+  unique_clusters = sort(unique(cell_metadata[[cluster_column]]))
+
+
+  for(cluster in unique_clusters) {
+
+    if(verbose == TRUE) cat('\n start with cluster: ', cluster, '\n')
+
+    # get subset
+    subset_cell_IDs = cell_metadata[get(cluster_column) == cluster][['cell_ID']]
+    temp_giotto = subsetGiotto(gobject = gobject, cell_ids = subset_cell_IDs)
+
+    ## calculate stats
+    temp_giotto <- addStatistics(gobject = temp_giotto)
+
+    ## calculate variable genes
+    temp_giotto = do.call('calculateHVG', c(gobject = temp_giotto, hvg_param))
+
+    ## get hvg
+    gene_metadata = fDataDT(temp_giotto)
+    featgenes     = gene_metadata[hvg == 'yes' & perc_cells >= hvg_min_perc_cells & mean_expr_det >= hvg_mean_expr_det]$gene_ID
+
+
+    ## run PCA
+    temp_giotto = do.call('runPCA', c(gobject =  temp_giotto, genes_to_use = list(featgenes), pca_param))
+
+    ## nearest neighbor and clustering
+    temp_giotto = do.call('createNearestNetwork', c(gobject = temp_giotto, k = k_neighbors, nn_param))
+
+    ## Leiden Cluster
+    ## TO DO: expand to all clustering options
+    temp_cluster = doLeidenCluster(gobject = temp_giotto,
+                                   resolution = resolution,
+                                   n_iterations = n_iterations,
+                                   python_path = python_path,
+                                   name = 'tempclus',
+                                   return_gobject = F,
+                                   ...)
+
+    temp_cluster[, parent_cluster := cluster]
+
+    iter_list[[cluster]] = temp_cluster
+
+  }
+
+  together = do.call('rbind', iter_list)
+  together[, comb := paste0(parent_cluster,'.',tempclus)]
+
+  # rename with subcluster of original name
+  #new_cluster_column = paste0(cluster_column,'_sub')
+  setnames(together, 'comb', name)
+
+
+  if(return_gobject == TRUE) {
+
+    cluster_names = names(gobject@cell_metadata)
+    if(name %in% cluster_names) {
+      cat('\n ', name, ' has already been used, will be overwritten \n')
+      cell_metadata = gobject@cell_metadata
+      cell_metadata[, eval(name) := NULL]
+      gobject@cell_metadata = cell_metadata
+    }
+
+    gobject <- addCellMetadata(gobject, new_metadata = together[, c('cell_ID', name), with = F],
+                               by_column = T, column_cell_ID = 'cell_ID')
+
+    ## update parameters used ##
+    parameters_list = gobject@parameters
+    number_of_rounds = length(parameters_list)
+    update_name = paste0(number_of_rounds,'_sub_cluster')
+
+    # parameters to include
+    parameters_list[[update_name]] = c('subclus name' = name,
+                                       'resolution ' = resolution,
+                                       'k neighbors ' = k_neighbors)
+
+    gobject@parameters = parameters_list
+
+    return(gobject)
+
+  } else {
+    return(together)
+  }
+
+}
 
 
 
