@@ -731,6 +731,7 @@ iterCluster <- function(gobject,
                         hvg_mean_expr_det = 1,
                         pca_param = list(expression_values = 'custom', scale.unit = T),
                         nn_param = list(dimensions_to_use = 1:20),
+                        k_neighbors = 20,
                         resolution = 1,
                         n_iterations = 500,
                         python_path = "/Users/rubendries/Bin/anaconda3/envs/py36/bin/python",
@@ -744,12 +745,12 @@ iterCluster <- function(gobject,
   final_cluster_list = list()
   final_groups_list = list()
 
+
   # create temporary giotto object
   temp_giotto = gobject
 
   # iterations
   for(round in 1:nr_rounds) {
-
 
     ## calculate stats
     temp_giotto <- addStatistics(gobject = temp_giotto)
@@ -768,7 +769,7 @@ iterCluster <- function(gobject,
 
     ## nearest neighbor and clustering
     #temp_giotto = createNearestNetwork(gobject = temp_giotto, dimensions_to_use = 1:20)
-    temp_giotto = do.call('createNearestNetwork', c(gobject = temp_giotto, nn_param))
+    temp_giotto = do.call('createNearestNetwork', c(gobject = temp_giotto, k = k_neighbors, nn_param))
 
     ## Leiden Cluster
     ## TO DO: expand to all clustering options
@@ -815,7 +816,12 @@ iterCluster <- function(gobject,
       total_v = length(unique(c(sub_edgeDT$to, sub_edgeDT$from)))
       # calculate ratio
       mytable = table(sub_edgeDT$type_edge)
-      ratio = (mytable['same']+1)/(mytable['other']+1)
+      within_edges = mytable['same']
+      within_edges = ifelse(is.na(within_edges), 0, within_edges)
+      outside_edges = mytable['other']
+      outside_edges = ifelse(is.na(outside_edges), 0, outside_edges)
+
+      ratio = (within_edges+1)/(outside_edges+1)
 
       indexlist[[i]] = i
       vcountlist[[i]] = total_v
@@ -825,6 +831,7 @@ iterCluster <- function(gobject,
 
 
     mytempDT = data.table(index = indexlist, ratio = ratiolist, vc = vcountlist)
+    print(mytempDT)
 
     # identify cluster with the maximum ratio (most tx coherent cluster)
     cell_cluster_index = mytempDT[ratio == max(ratio)][['index']]
@@ -841,6 +848,12 @@ iterCluster <- function(gobject,
 
       final_cluster_list[[round]] = cell_metadata[['cell_ID']]
       final_groups_list[[round]] = rep(round, length(cell_metadata[['cell_ID']]))
+
+      if(nr_clusters == 1) {
+        break
+        print(i)
+        print('end \n')
+      }
 
     } else {
       temp_giotto = subsetGiotto(temp_giotto, cell_ids = remain_ids)

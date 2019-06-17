@@ -542,6 +542,48 @@ adjustGiottoMatrix <- function(gobject,
 
 
 
+#' @title annotateGiotto
+#' @description adds cell annotation to giotto object based on clustering
+#' @param gobject giotto object
+#' @param annotation_vector named annotation vector (names = cluster ids)
+#' @param cluster_column cluster column to convert to annotation names
+#' @param name new name for annotation column
+#' @return giotto object
+#' @details Description of how to add cell metadata ...
+#' @export
+#' @examples
+#'     annotateGiotto(gobject)
+annotateGiotto <- function(gobject, annotation_vector = NULL, cluster_column = NULL, name = 'cell_types') {
+
+  if(is.null(annotation_vector) | is.null(cluster_column)) {
+    stop('\n You need to provide both a named annotation vector and the corresponding cluster column  \n')
+  }
+
+
+  cell_metadata = pDataDT(gobject)
+
+  # 1. verify if cluster column exist
+  if(!cluster_column %in% colnames(cell_metadata)) {
+    stop('\n Cluster column is not found in cell metadata \n')
+  }
+
+  # 2. remove previous annotation name if it's the same
+  if(name %in% colnames(cell_metadata)) {
+    cat('\n annotation name ', name,' was already used \n',
+        'and will be overwritten \n')
+    cell_metadata[, (name) := NULL]
+  }
+
+  cell_metadata[, temp_cluster_name := annotation_vector[[get(cluster_column)]], by = 1:nrow(cell_metadata)]
+  setnames(cell_metadata, old = 'temp_cluster_name', new = name)
+  gobject@cell_metadata = cell_metadata
+
+  return(gobject)
+
+
+}
+
+
 
 
 #' @title addCellMetadata
@@ -569,6 +611,7 @@ addCellMetadata <- function(gobject,
   old_col_names = colnames(cell_metadata)
   old_col_names = old_col_names[old_col_names != 'cell_ID']
   same_col_names = new_col_names[new_col_names %in% old_col_names]
+
   if(length(same_col_names) >= 1) {
     cat('\n these column names were already used: ', same_col_names, '\n',
         'and will be overwritten \n')
