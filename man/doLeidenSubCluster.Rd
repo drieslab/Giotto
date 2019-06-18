@@ -5,11 +5,12 @@
 \title{doLeidenSubCluster}
 \usage{
 doLeidenSubCluster(gobject, cluster_column = NULL,
-  hvg_param = list(reverse_log_scale = T, difference_in_variance = 1,
-  expression_values = "normalized"), hvg_min_perc_cells = 5,
-  hvg_mean_expr_det = 1, pca_param = list(expression_values = "custom",
-  scale.unit = T), nn_param = list(dimensions_to_use = 1:20),
-  k_neighbors = 10, resolution = 0.5, n_iterations = 500,
+  selected_clusters = NULL, hvg_param = list(reverse_log_scale = T,
+  difference_in_variance = 1, expression_values = "normalized"),
+  hvg_min_perc_cells = 5, hvg_mean_expr_det = 1,
+  pca_param = list(expression_values = "custom", scale.unit = T),
+  nn_param = list(dimensions_to_use = 1:20), k_neighbors = 10,
+  resolution = 0.5, n_iterations = 500,
   python_path = "/Users/rubendries/Bin/anaconda3/envs/py36/bin/python",
   nn_network_to_use = "sNN", network_name = "sNN.pca",
   name = "sub_pleiden_clus", return_gobject = TRUE, verbose = T, ...)
@@ -18,6 +19,8 @@ doLeidenSubCluster(gobject, cluster_column = NULL,
 \item{gobject}{giotto object}
 
 \item{cluster_column}{cluster column to subcluster}
+
+\item{selected_clusters}{only do subclustering on these clusters}
 
 \item{hvg_param}{parameters for calculateHVG}
 

@@ -937,12 +937,12 @@ doKmeans <- function(gobject,
                      dim_reduction_to_use = c('cells', 'pca', 'umap', 'tsne'),
                      dim_reduction_name = 'pca',
                      dimensions_to_use = 1:10,
-                     distance_method = c("pearson", "spearman", "original",
+                     distance_method = c("original", "pearson", "spearman",
                                          "euclidean", "maximum", "manhattan",
                                          "canberra", "binary", "minkowski"),
                      centers = 10,
-                     iter.max = 10,
-                     nstart = 10,
+                     iter.max = 100,
+                     nstart = 1000,
                      algorithm = "Hartigan-Wong",
                      name = 'kmeans',
                      return_gobject = TRUE,
@@ -1221,6 +1221,7 @@ doHclust <- function(gobject,
 #' @description cluster cells iteratively
 #' @param gobject giotto object
 #' @param cluster_column cluster column to subcluster
+#' @param selected_clusters only do subclustering on these clusters
 #' @param hvg_param parameters for calculateHVG
 #' @param hvg_min_perc_cells threshold for detection in min percentage of cells
 #' @param hvg_mean_expr_det threshold for mean expression level in cells with detection
@@ -1243,6 +1244,7 @@ doHclust <- function(gobject,
 #'     doLeidenSubCluster(gobject)
 doLeidenSubCluster = function(gobject,
                               cluster_column = NULL,
+                              selected_clusters = NULL,
                               hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
                               hvg_min_perc_cells = 5,
                               hvg_mean_expr_det = 1,
@@ -1276,40 +1278,53 @@ doLeidenSubCluster = function(gobject,
 
     if(verbose == TRUE) cat('\n start with cluster: ', cluster, '\n')
 
-    # get subset
+    ## get subset
     subset_cell_IDs = cell_metadata[get(cluster_column) == cluster][['cell_ID']]
     temp_giotto = subsetGiotto(gobject = gobject, cell_ids = subset_cell_IDs)
 
-    ## calculate stats
-    temp_giotto <- addStatistics(gobject = temp_giotto)
+    ## if cluster is not selected
+    if(!is.null(selected_clusters) & !cluster %in% selected_clusters) {
 
-    ## calculate variable genes
-    temp_giotto = do.call('calculateHVG', c(gobject = temp_giotto, hvg_param))
+      temp_cluster = data.table('cell_ID' = subset_cell_IDs, 'tempclus' = 1, 'parent_cluster' = cluster)
+      iter_list[[cluster]] = temp_cluster
 
-    ## get hvg
-    gene_metadata = fDataDT(temp_giotto)
-    featgenes     = gene_metadata[hvg == 'yes' & perc_cells >= hvg_min_perc_cells & mean_expr_det >= hvg_mean_expr_det]$gene_ID
+    } else {
+      # continue for selected clusters or all clusters if there is no selection
+
+      ## calculate stats
+      temp_giotto <- addStatistics(gobject = temp_giotto)
+
+      ## calculate variable genes
+      temp_giotto = do.call('calculateHVG', c(gobject = temp_giotto, hvg_param))
+
+      ## get hvg
+      gene_metadata = fDataDT(temp_giotto)
+      featgenes     = gene_metadata[hvg == 'yes' & perc_cells >= hvg_min_perc_cells & mean_expr_det >= hvg_mean_expr_det]$gene_ID
 
 
-    ## run PCA
-    temp_giotto = do.call('runPCA', c(gobject =  temp_giotto, genes_to_use = list(featgenes), pca_param))
+      ## run PCA
+      temp_giotto = do.call('runPCA', c(gobject =  temp_giotto, genes_to_use = list(featgenes), pca_param))
 
-    ## nearest neighbor and clustering
-    temp_giotto = do.call('createNearestNetwork', c(gobject = temp_giotto, k = k_neighbors, nn_param))
+      ## nearest neighbor and clustering
+      temp_giotto = do.call('createNearestNetwork', c(gobject = temp_giotto, k = k_neighbors, nn_param))
 
-    ## Leiden Cluster
-    ## TO DO: expand to all clustering options
-    temp_cluster = doLeidenCluster(gobject = temp_giotto,
-                                   resolution = resolution,
-                                   n_iterations = n_iterations,
-                                   python_path = python_path,
-                                   name = 'tempclus',
-                                   return_gobject = F,
-                                   ...)
+      ## Leiden Cluster
+      ## TO DO: expand to all clustering options
+      temp_cluster = doLeidenCluster(gobject = temp_giotto,
+                                     resolution = resolution,
+                                     n_iterations = n_iterations,
+                                     python_path = python_path,
+                                     name = 'tempclus',
+                                     return_gobject = F,
+                                     ...)
 
-    temp_cluster[, parent_cluster := cluster]
+      temp_cluster[, parent_cluster := cluster]
 
-    iter_list[[cluster]] = temp_cluster
+      iter_list[[cluster]] = temp_cluster
+
+
+
+    }
 
   }
 

@@ -7,9 +7,9 @@
 doKmeans(gobject, expression_values = c("normalized", "scaled",
   "custom"), genes_to_use = NULL, dim_reduction_to_use = c("cells",
   "pca", "umap", "tsne"), dim_reduction_name = "pca",
-  dimensions_to_use = 1:10, distance_method = c("pearson", "spearman",
-  "original", "euclidean", "maximum", "manhattan", "canberra", "binary",
-  "minkowski"), centers = 10, iter.max = 10, nstart = 10,
+  dimensions_to_use = 1:10, distance_method = c("original", "pearson",
+  "spearman", "euclidean", "maximum", "manhattan", "canberra", "binary",
+  "minkowski"), centers = 10, iter.max = 100, nstart = 1000,
   algorithm = "Hartigan-Wong", name = "kmeans",
   return_gobject = TRUE, set_seed = T, seed_number = 1234)
 }
