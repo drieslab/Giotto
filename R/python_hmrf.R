@@ -465,6 +465,7 @@ viewHMRFresults <- function(gobject,
 #' @param HMRFoutput HMRF output from doHMRF()
 #' @param k number of domains
 #' @param betas_to_add results from different betas that you want to add
+#' @param name specify a custom name
 #' @return giotto object
 #' @details Description ...
 #' @export
@@ -473,7 +474,8 @@ viewHMRFresults <- function(gobject,
 addHMRF <- function(gobject,
                     HMRFoutput,
                     k = NULL,
-                    betas_to_add = NULL) {
+                    betas_to_add = NULL,
+                    name = NULL) {
 
 
   if(!'HMRFoutput' %in% class(HMRFoutput)) {
@@ -517,9 +519,15 @@ addHMRF <- function(gobject,
     output = system(command = result_command, intern = T)
 
     # create unique name
-    annot_name = paste0('hmrf_k.', k, '_b.',b)
     annot_DT = data.table(temp_name = output)
-    setnames(annot_DT, old = 'temp_name', new = annot_name)
+
+    if(!is.null(name)) {
+      setnames(annot_DT, old = 'temp_name', new = name)
+    } else {
+      annot_name = paste0('hmrf_k.', k, '_b.',b)
+      setnames(annot_DT, old = 'temp_name', new = annot_name)
+    }
+
 
     gobject = addCellMetadata(gobject = gobject, new_metadata = annot_DT, by_column = F)
 

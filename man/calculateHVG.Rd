@@ -5,8 +5,9 @@
 \title{calculateHVG}
 \usage{
 calculateHVG(gobject, expression_values = c("normalized", "scaled",
-  "custom"), method = c("cov", "gini"), reverse_log_scale = T,
-  logbase = 2, expression_threshold = 0, HVGname = "hvg",
+  "custom"), method = c("cov_loess", "cov_groups", "gini_loess"),
+  reverse_log_scale = T, logbase = 2, expression_threshold = 0,
+  nr_expression_groups = 20, zscore_threshold = 1.5, HVGname = "hvg",
   difference_in_variance = 1, show_plot = T, return_gobject = T)
 }
 \arguments{
@@ -21,6 +22,10 @@ calculateHVG(gobject, expression_values = c("normalized", "scaled",
 \item{logbase}{if reverse_log_scale is TRUE, which log base was used?}
 
 \item{expression_threshold}{expression threshold to consider a gene detected}
+
+\item{nr_expression_groups}{number of expression groups for cov_groups}
+
+\item{zscore_threshold}{zscore to select hvg for cov_groups}
 
 \item{HVGname}{name for highly variable genes in cell metadata}
 

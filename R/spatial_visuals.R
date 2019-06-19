@@ -451,7 +451,7 @@ visDimPlot <- function(gobject,
                        cell_color = NULL,
                        color_as_factor = T,
                        cell_color_code = NULL,
-                       show_cluster_center = T,
+                       show_cluster_center = F,
                        show_center_label = T,
                        center.point.size = 4,
                        center.point.border.col = 'black',
@@ -564,11 +564,13 @@ visDimPlot <- function(gobject,
                               aes_string(x = 'center_1', y = 'center_2', fill = cell_color),
                               color = center.point.border.col, stroke = center.point.border.stroke,
                               size = center.point.size, shape = 21)
-        if(show_center_label == TRUE) {
-          pl <- pl + ggrepel::geom_text_repel(data = annotated_DT_centers,
-                                              aes_string(x = 'center_1', y = 'center_2', label = cell_color),
-                                              size = label.size, fontface = label.fontface)
-        }
+      }
+
+      # plot labels
+      if(show_center_label == TRUE) {
+        pl <- pl + ggrepel::geom_text_repel(data = annotated_DT_centers,
+                                            aes_string(x = 'center_1', y = 'center_2', label = cell_color),
+                                            size = label.size, fontface = label.fontface)
       }
 
 
@@ -862,7 +864,7 @@ visSpatDimPlot <- function(gobject,
                            show_NN_network = F,
                            nn_network_to_use = 'sNN',
                            network_name = 'sNN.pca',
-                           show_cluster_center = T,
+                           show_cluster_center = F,
                            show_center_label = T,
                            center.point.size = 4,
                            label.size = 4,

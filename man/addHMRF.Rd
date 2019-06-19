@@ -4,7 +4,8 @@
 \alias{addHMRF}
 \title{addHMRF}
 \usage{
-addHMRF(gobject, HMRFoutput, k = NULL, betas_to_add = NULL)
+addHMRF(gobject, HMRFoutput, k = NULL, betas_to_add = NULL,
+  name = NULL)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -14,6 +15,8 @@ addHMRF(gobject, HMRFoutput, k = NULL, betas_to_add = NULL)
 \item{k}{number of domains}
 
 \item{betas_to_add}{results from different betas that you want to add}
+
+\item{name}{specify a custom name}
 }
 \value{
 giotto object

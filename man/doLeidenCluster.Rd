@@ -9,7 +9,7 @@ doLeidenCluster(gobject, nn_network_to_use = "sNN",
   weight_col = "weight",
   partition_type = c("RBConfigurationVertexPartition",
   "ModularityVertexPartition"), init_membership = NULL,
-  n_iterations = 200, name = "pleiden_clus", return_gobject = TRUE,
+  n_iterations = 1000, name = "pleiden_clus", return_gobject = TRUE,
   set_seed = T, seed_number = 1234, ...)
 }
 \arguments{
