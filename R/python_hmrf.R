@@ -475,7 +475,7 @@ addHMRF <- function(gobject,
                     HMRFoutput,
                     k = NULL,
                     betas_to_add = NULL,
-                    name = NULL) {
+                    hmrf_name = NULL) {
 
 
   if(!'HMRFoutput' %in% class(HMRFoutput)) {
@@ -521,8 +521,9 @@ addHMRF <- function(gobject,
     # create unique name
     annot_DT = data.table(temp_name = output)
 
-    if(!is.null(name)) {
-      setnames(annot_DT, old = 'temp_name', new = name)
+    if(!is.null(hmrf_name)) {
+      annot_name = paste0(hmrf_name,'_k', k, '_b.',b)
+      setnames(annot_DT, old = 'temp_name', new = annot_name)
     } else {
       annot_name = paste0('hmrf_k.', k, '_b.',b)
       setnames(annot_DT, old = 'temp_name', new = annot_name)

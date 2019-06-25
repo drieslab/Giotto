@@ -539,7 +539,7 @@ visDimPlot <- function(gobject,
         factor_data = factor(annotated_DT[[cell_color]])
         annotated_DT[[cell_color]] <- factor_data
         # for centers
-        if(show_cluster_center == TRUE) {
+        if(show_cluster_center == TRUE | show_center_label == TRUE) {
           annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dim_names[1])), center_2 = median(get(dim_names[2]))), by = cell_color]
           factor_center_data = factor(annotated_DT_centers[[cell_color]])
           annotated_DT_centers[[cell_color]] <- factor_center_data
@@ -547,7 +547,7 @@ visDimPlot <- function(gobject,
       } else {
 
         # TEST: centers can only be shown for factors that are part of the metadata
-        if(show_cluster_center == TRUE & class_cell_color %in% c('character', 'factor')) {
+        if((show_cluster_center == TRUE | show_center_label == TRUE) & class_cell_color %in% c('character', 'factor')) {
           annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dim_names[1])), center_2 = median(get(dim_names[2]))), by = cell_color]
         }
 

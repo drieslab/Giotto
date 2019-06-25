@@ -8,7 +8,7 @@ getCellProximityGeneScores(gobject,
   spatial_network_name = "spatial_network",
   cluster_column = "louvain_clus.1",
   expression_values = c("normalized", "scaled", "custom"),
-  do_diff_test = T, exclude_selected_cells_from_test = F,
+  in_two_directions = TRUE, exclude_selected_cells_from_test = F,
   verbose = T)
 }
 \arguments{
@@ -20,7 +20,7 @@ getCellProximityGeneScores(gobject,
 
 \item{expression_values}{expression values to use}
 
-\item{do_diff_test}{do differential test}
+\item{in_two_directions}{shows enrichment in both directions: cell1-cell2, cell2-cell1}
 
 \item{exclude_selected_cells_from_test}{exclude certain cells from test}
 

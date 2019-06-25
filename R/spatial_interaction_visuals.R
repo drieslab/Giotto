@@ -518,11 +518,6 @@ plotCellProximityGeneToGeneScores <- function(GTGscore,
 
 
 
-
-
-
-
-
 #' @title showGeneExpressionProximityScore
 #' @name showGeneExpressionProximityScore
 #' @description Create heatmap from cell-cell proximity scores
@@ -568,6 +563,9 @@ showGeneExpressionProximityScore <- function(scores,
 
 
 }
+
+
+
 
 #' @title showIntExpressionProximityScore
 #' @name showIntExpressionProximityScore
@@ -694,5 +692,300 @@ showTopGeneToGene = function(GTGscore,
   pl
 
 }
+
+
+
+#' @title showCPGscores
+#' @name showCPGscores
+#' @description visualize Cell Proximity Gene enrichment scores
+#' @param CPGscore CPGscore, output from getCellProximityGeneScores()
+#' @param method visualization method
+#' @param min_cells min number of cells threshold
+#' @param min_pval p-value threshold
+#' @param min_spat_diff spatial difference threshold
+#' @param cell_color_code color code for cell types
+#' @param show.plot print plot
+#' @return Gene to gene scores in data.table format
+#' @details Give more details ...
+#' @export
+#' @examples
+#'     showCPGscores(CPGscore)
+showCPGscores = function(CPGscore,
+                         method = c('cell_barplot', 'cell-cell', 'cell_sankey'),
+                         min_cells = 5,
+                         min_pval = 0.05,
+                         min_spat_diff = 0.2,
+                         cell_color_code = NULL,
+                         show.plot = T) {
+
+
+  method = match.arg(method, choices = c('cell_barplot', 'cell-cell', 'cell_sankey'))
+
+  selection_scores = CPGscore[unif_int_rank == 1][(nr_1 >= min_cells & pval_1 < min_pval & abs(diff_spat_1) >= min_spat_diff) |
+                                                    (nr_2 >= min_cells & pval_2 < min_pval & abs(diff_spat_2) >= min_spat_diff)]
+
+  if(method == 'cell-cell') {
+
+    nr_int_selection_scores = selection_scores[, .N, by = interaction]
+    order_interactions = nr_int_selection_scores[order(N)]$interaction
+
+    selection_scores[, interaction := factor(interaction, order_interactions)]
+
+    pl <- ggplot()
+    pl <- pl + geom_bar(data = selection_scores, aes(x = interaction, fill = type_int))
+    pl <- pl + theme_classic() + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1))
+    pl <- pl + coord_flip()
+
+    if(show.plot == TRUE) {
+      print(pl)
+    }
+  } else if(method == 'cell_barplot') {
+
+
+    part0 = selection_scores[pval_1 < min_pval & pval_2 < min_pval]
+    part0_a = part0[cell_type_1 == cell_type_2]
+    part0_b = part0[cell_type_1 != cell_type_2]
+    part1 = selection_scores[pval_1 < min_pval & pval_2 >= min_pval]
+    part2 = selection_scores[pval_2 < min_pval & pval_1 >= min_pval]
+
+    part_full = data.table(changed_cell_type = c(part0_a$cell_type_1, part0_b$cell_type_1, part0_b$cell_type_2, part1$cell_type_1, part2$cell_type_2),
+                           neighb_cell_type = c(part0_a$cell_type_2, part0_b$cell_type_2, part0_b$cell_type_1, part1$cell_type_2, part2$cell_type_1))
+
+    total_genes = part_full[, .N, by = changed_cell_type]
+    order_cell_types = total_genes[order(N)]$changed_cell_type
+    part_full[, changed_cell_type := factor(changed_cell_type, levels = order_cell_types)]
+
+    pl <- ggplot()
+    pl <- pl + geom_bar(data = part_full, aes(x = changed_cell_type, fill = neighb_cell_type))
+
+    if(!is.null(cell_color_code)) {
+      pl <- pl + scale_fill_manual(values = cell_color_code)
+    }
+
+    pl <- pl + theme_classic() + theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+    pl <- pl + labs(x = '', y = '# of genes influenced by cell neighborhood')
+    if(show.plot == TRUE) {
+      print(pl)
+    }
+
+  } else if(method == 'cell_sankey') {
+
+    part0 = selection_scores[pval_1 < min_pval & pval_2 < min_pval]
+    part0_a = part0[cell_type_1 == cell_type_2]
+    part0_b = part0[cell_type_1 != cell_type_2]
+    part1 = selection_scores[pval_1 < min_pval & pval_2 >= min_pval]
+    part2 = selection_scores[pval_2 < min_pval & pval_1 >= min_pval]
+
+    part_full = data.table(changed_cell_type = c(part0_a$cell_type_1, part0_b$cell_type_1, part0_b$cell_type_2, part1$cell_type_1, part2$cell_type_2),
+                           neighb_cell_type = c(part0_a$cell_type_2, part0_b$cell_type_2, part0_b$cell_type_1, part1$cell_type_2, part2$cell_type_1))
+
+    total_genes = part_full[, .N, by = changed_cell_type]
+    order_cell_types = total_genes[order(N)]$changed_cell_type
+    part_full[, changed_cell_type := factor(changed_cell_type, levels = order_cell_types)]
+
+
+    testalluv = part_full[, .N, by = c('changed_cell_type', 'neighb_cell_type')]
+    testalluv[, changed_cell_type := factor(changed_cell_type)]
+    testalluv[, neighb_cell_type := factor(neighb_cell_type)]
+
+    pl <- ggplot(testalluv,
+                 aes(y = N, axis1 = changed_cell_type, axis2 = neighb_cell_type)) +
+      ggalluvial::geom_alluvium(aes(fill = changed_cell_type), width = 1/12) +
+      ggalluvial::geom_stratum(width = 1/12, fill = "black", color = "grey") +
+      scale_x_discrete(limits = c("cell type", "neighbours"), expand = c(.05, .05)) +
+      geom_label(stat = "stratum", label.strata = TRUE, size = 3) +
+      theme_classic() + labs(x = '', y = '# of genes influenced by cell neighborhood')
+
+    if(!is.null(cell_color_code)) {
+      pl <- pl + scale_fill_manual(values = cell_color_code)
+    }
+
+    if(show.plot == TRUE) {
+      print(pl)
+    }
+
+  }
+
+  return(pl)
+
+}
+
+
+
+#' @title showGTGscores
+#' @name showGTGscores
+#' @description visualize Cell Proximity Gene enrichment scores
+#' @param CPGscore CPGscore, output from getCellProximityGeneScores()
+#' @param method visualization method
+#' @param min_cells min number of cells threshold
+#' @param min_pval p-value threshold
+#' @param min_spat_diff spatial difference threshold
+#' @param cell_color_code color code for cell types
+#' @param show.plot print plot
+#' @param specific_genes_1 subset of genes, matched with specific_genes_2
+#' @param specific_genes_2 subset of genes, matched with specific_genes_1
+#' @param first_cell_name name for first cells
+#' @param second_cell_name name for second cells
+#' @return ggplot
+#' @details Give more details ...
+#' @export
+#' @examples
+#'     showGTGscores(CPGscore)
+showGTGscores = function(GTGscore,
+                         method = c('cell_barplot', 'cell-cell', 'cell_sankey'),
+                         min_cells = 5,
+                         min_pval = 0.05,
+                         min_spat_diff = 0.2,
+                         cell_color_code = NULL,
+                         show.plot = T,
+                         specific_genes_1 = NULL,
+                         specific_genes_2 = NULL,
+                         first_cell_name = 'ligand cell',
+                         second_cell_name = 'receptor cell') {
+
+
+
+  method = match.arg(method, choices = c('cell_barplot', 'cell-cell', 'cell_sankey'))
+
+  ## filter ##
+  ## p-value, nr of cells and spatial difference
+  GTGscore = GTGscore[(nr_1 >= min_cells & pval_1 < min_pval & diff_spat_1 >= min_spat_diff) &
+                        (nr_2 >= min_cells & pval_2 < min_pval & diff_spat_2 >= min_spat_diff)]
+
+  ## specific genes
+  if((!is.null(specific_genes_1) & !is.null(specific_genes_2))) {
+
+    if(length(specific_genes_1) != length(specific_genes_2)) {
+      stop('\n specific_genes_1 must have the same length as specific_genes_2')
+    }
+
+    LR_combo = paste0(specific_genes_1,'-', specific_genes_2)
+    RL_combo = paste0(specific_genes_2,'-', specific_genes_1)
+    GTGscore = GTGscore[gene_gene %in% c(LR_combo, RL_combo)]
+
+  }
+
+
+
+
+
+  if(method == 'cell-cell') {
+
+    nr_int_GTGscore = GTGscore[, .N, by = unified_int]
+    order_interactions = nr_int_GTGscore[order(N)]$unified_int
+
+    GTGscore[, unified_int := factor(unified_int, order_interactions)]
+    GTGscore[, type_int := ifelse(cell_type_1 == cell_type_2, 'homo', 'hetero')]
+
+    pl <- ggplot()
+    pl <- pl + geom_bar(data = GTGscore, aes(x = unified_int, fill = type_int))
+    pl <- pl + theme_classic() + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1))
+    pl <- pl + coord_flip()
+
+    if(show.plot == TRUE) {
+      print(pl)
+    }
+
+  } else if(method == 'cell_barplot') {
+
+    if((!is.null(specific_genes_1) & !is.null(specific_genes_2))) {
+
+      LR_GTGscore = GTGscore[(genes_1 %in% specific_genes_1 & genes_2 %in% specific_genes_2)]
+      RL_GTGscore = GTGscore[(genes_1 %in% specific_genes_2 & genes_2 %in% specific_genes_1)]
+
+      hipLR = LR_GTGscore[, .N, by = .(cell_type_1, cell_type_2)]
+      setnames(hipLR, c('cell_type_1', 'cell_type_2'), c('first_cell', 'second_cell'))
+      hipRL = RL_GTGscore[, .N, by = .(cell_type_2, cell_type_1)]
+      setnames(hipRL, c('cell_type_2', 'cell_type_1'), c('first_cell', 'second_cell'))
+      hip = rbind(hipLR, hipRL)
+
+      hip[, type_int := ifelse(first_cell == second_cell, 'homo', 'hetero')]
+
+    } else {
+
+      hip = GTGscore[, .N, by = .(cell_type_1, cell_type_2)]
+      setnames(hip, c('cell_type_1', 'cell_type_2'), c('first_cell', 'second_cell'))
+
+    }
+
+    first_order = hip[, sum(N), by = first_cell]
+    first_cell_order = first_order[order(V1)][['first_cell']]
+
+    second_order = hip[, sum(N), by = second_cell]
+    second_cell_order = second_order[order(V1)][['second_cell']]
+
+    hip[, first_cell := factor(first_cell, levels = first_cell_order)]
+    hip[, second_cell := factor(second_cell, levels = second_cell_order)]
+
+
+    pl <- ggplot()
+    pl <- pl + geom_bar(data = hip, aes(x = first_cell, fill = second_cell, y = N), stat = 'identity')
+    pl <- pl + theme_classic()  + theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+
+    if(!is.null(cell_color_code)) {
+      pl <- pl + scale_fill_manual(values = cell_color_code)
+    }
+
+    if(show.plot == TRUE) {
+      print(pl)
+    }
+
+
+  } else if(method == 'cell_sankey') {
+
+
+    if((!is.null(specific_genes_1) & !is.null(specific_genes_2))) {
+
+      LR_GTGscore = GTGscore[(genes_1 %in% specific_genes_1 & genes_2 %in% specific_genes_2)]
+      RL_GTGscore = GTGscore[(genes_1 %in% specific_genes_2 & genes_2 %in% specific_genes_1)]
+
+      hipLR = LR_GTGscore[, .N, by = .(cell_type_1, cell_type_2)]
+      setnames(hipLR, c('cell_type_1', 'cell_type_2'), c('first_cell', 'second_cell'))
+      hipRL = RL_GTGscore[, .N, by = .(cell_type_2, cell_type_1)]
+      setnames(hipRL, c('cell_type_2', 'cell_type_1'), c('first_cell', 'second_cell'))
+      hip = rbind(hipLR, hipRL)
+
+      hip[, type_int := ifelse(first_cell == second_cell, 'homo', 'hetero')]
+
+    } else {
+
+      hip = GTGscore[, .N, by = .(cell_type_1, cell_type_2)]
+      setnames(hip, c('cell_type_1', 'cell_type_2'), c('first_cell', 'second_cell'))
+
+    }
+
+    first_order = hip[, sum(N), by = first_cell]
+    first_cell_order = first_order[order(V1)][['first_cell']]
+
+    second_order = hip[, sum(N), by = second_cell]
+    second_cell_order = second_order[order(V1)][['second_cell']]
+
+    hip[, first_cell := factor(first_cell, levels = first_cell_order)]
+    hip[, second_cell := factor(second_cell, levels = second_cell_order)]
+
+
+    pl <- ggplot(hip,
+                 aes(y = N, axis1 = first_cell, axis2 = second_cell)) +
+      ggalluvial::geom_alluvium(aes(fill = first_cell), width = 1/12) +
+      ggalluvial::geom_stratum(width = 1/12, fill = "black", color = "grey") +
+      scale_x_discrete(limits = c(first_cell_name, second_cell_name), expand = c(.05, .05)) +
+      geom_label(stat = "stratum", label.strata = TRUE, size = 3) +
+      theme_classic() + labs(x = '', y = '# spatial L-R')
+    if(!is.null(cell_color_code)) {
+      pl <- pl + scale_fill_manual(values = cell_color_code)
+    }
+    if(show.plot == TRUE) {
+      print(pl)
+    }
+
+  }
+
+  return(pl)
+
+}
+
+
+
+
 
 

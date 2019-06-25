@@ -26,7 +26,8 @@ Imports:
     RColorBrewer,
     jackstraw,
     dbscan,
-    scran
+    scran,
+    ggalluvial
 Suggests: 
     knitr,
     rmarkdown
