@@ -201,6 +201,84 @@ calculate_spatial_genes <- function(gobject,
 }
 
 
+#' @title calculate_spatial_genes_python
+#' @name calculate_spatial_genes_python
+#' @description Calculate spatial genes using distance matrix.
+#' @param gobject giotto object
+#' @param expression_values expression values to use
+#' @param metric distance metric to use
+#' @param subset_genes only run on this subset of genes
+#' @param rbp_p fractional binarization threshold
+#' @param examine_top top fraction to evaluate with silhouette
+#' @param python_path specify specific path to python if required
+#' @return data.table with spatial scores
+#' @details Description of how we compute spatial pattern genes.
+#' @export
+#' @examples
+#'     calculate_spatial_genes_python(gobject)
+calculate_spatial_genes_python <- function(gobject,
+                                           expression_values = c('normalized', 'scaled', 'custom'),
+                                           metric = "euclidean",
+                                           subset_genes = NULL,
+                                           rbp_p = 0.95,
+                                           examine_top = 0.3,
+                                           python_path = NULL) {
+
+
+  # expression values
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_values = select_expression_values(gobject = gobject, values = values)
+
+  # subset genes
+  if(!is.null(subset_genes)) {
+
+    subset_genes = subset_genes[subset_genes %in% gobject@gene_ID]
+    expr_values = expr_values[rownames(expr_values) %in% subset_genes, ]
+
+  }
+
+
+  # spatial locations
+  spatlocs = as.matrix(gobject@spatial_locs[,.(sdimx, sdimy)])
+
+  # python path
+  if(is.null(python_path)) {
+    python_path = system('which python', intern = T)
+  }
+
+  ## prepare python path and louvain script
+  reticulate::use_python(required = T, python = python_path)
+  python_leiden_function = system.file("python", "python_spatial_genes.py", package = 'Giotto')
+  reticulate::source_python(file = python_leiden_function)
+
+
+  output_python = python_spatial_genes(spatial_locations = spatlocs,
+                                       expression_matrix = as.data.frame(expr_values),
+                                       metric = metric,
+                                       rbp_p = rbp_p,
+                                       examine_top = examine_top)
+
+  # unlist output
+  genes = unlist(lapply(output_python, FUN = function(x) {
+    y = x[1][[1]]
+  }))
+  scores = unlist(lapply(output_python, FUN = function(x) {
+    y = x[2][[1]]
+  }))
+
+  spatial_python_DT = data.table(genes = genes, scores = scores)
+
+  return(spatial_python_DT)
+
+
+}
+
+
+
+
+
+
+
 #' @title calculateSpatialGenes
 #' @name calculateSpatialGenes
 #' @description compute genes that are spatially clustered
@@ -708,241 +786,6 @@ selectPatternGenes <- function(spatPatObj,
 
 
 
-
-
-
-
-#' @title detectSpatialPatterns_old
-#' @name detectSpatialPatterns_old
-#' @description create a spatial grid
-#' @param gobject giotto object
-#' @param expression_values expression values to use
-#' @param spatial_grid_name name of spatial grid to use (default = 'spatial_grid')
-#' @param min_cells_per_grid minimum number of cells in a grid to be considered
-#' @param scale.unit scale features
-#' @param ncp number of principal components to calculate
-#' @param show_plots show plots
-#' @param PC_zscore minimum z-score of variance explained by a PC
-#' @param min_pattern_cor_score minimum correlation of gene to significant PC
-#' @param min_cor_genes minimum number of genes to attribute to significant PC
-#' @param trim trim values
-#' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @param SPname name for identified spatial pattern genes (default = 'spg')
-#' @param dims_to_plot # of PC dimensions to plot if show_plots = TRUE
-#' @return giotto object spatial pattern genes appended to fDataDT
-#' @details Description of how we compute spatial pattern genes.
-#' @examples
-#'     detectSpatialPatterns_old(gobject)
-detectSpatialPatterns_old <- function(gobject,
-                                  expression_values = c('normalized', 'scaled', 'custom'),
-                                  spatial_grid_name = 'spatial_grid',
-                                  min_cells_per_grid = 4,
-                                  scale.unit = F,
-                                  ncp = 100,
-                                  show_plots = T,
-                                  PC_zscore = 1.5,
-                                  min_pattern_cor_score = 0.8,
-                                  min_cor_genes = 10,
-                                  trim = 0,
-                                  background.color = 'white',
-                                  grid.border.color = 'darkgrey',
-                                  return_gobject = TRUE,
-                                  SPname = 'spg',
-                                  dims_to_plot = 1) {
-
-
-  # expression values to be used
-  values = base::match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
-
-
-  # spatial grid and spatial locations
-  if(is.null(gobject@spatial_grid)) {
-    stop("\n you need to create a spatial grid, see createSpatialGrid(), for this function to work \n")
-  }
-  if(!spatial_grid_name %in% names(gobject@spatial_grid)) {
-    stop("\n you need to provide an existing spatial grid name for this function to work \n")
-  }
-  spatial_grid = gobject@spatial_grid[[spatial_grid_name]]
-  spatial_locs = gobject@spatial_locs
-
-  # filter grid, minimum number of cells per grid
-  cells_per_grid = base::sort(base::table(spatial_locs$gr_loc))
-  cells_per_grid = cells_per_grid[cells_per_grid >= min_cells_per_grid]
-  loc_names = base::names(cells_per_grid)
-
-  # average expression per grid
-  loc_av_expr_list <- base::list()
-  for(loc_name in loc_names) {
-
-    loc_cell_IDs = spatial_locs[gr_loc == loc_name]$cell_ID
-    subset_expr = expr_values[, base::colnames(expr_values) %in% loc_cell_IDs]
-    if(base::is.vector(subset_expr) == TRUE) {
-      loc_av_expr = subset_expr
-    } else {
-      loc_av_expr = base::rowMeans(subset_expr)
-    }
-    loc_av_expr_list[[loc_name]] <- loc_av_expr
-  }
-  loc_av_expr_matrix = base::do.call('cbind', loc_av_expr_list)
-
-  # START TEST
-  loc_av_expr_matrix = as.matrix(loc_av_expr_matrix)
-  # STOP
-
-  # perform pca on grid matrix
-  mypca <- FactoMineR::PCA(X = t(loc_av_expr_matrix), scale.unit = scale.unit, ncp = ncp, graph = F)
-
-  # screeplot
-  screeplot = factoextra::fviz_eig(mypca, addlabels = T, ylim = c(0, 50))
-  if(show_plots == TRUE) {
-    print(screeplot)
-  }
-
-  # select variable PCs
-  eig.val <- factoextra::get_eigenvalue(mypca)
-  eig.val_DT <- data.table::as.data.table(eig.val)
-  eig.val_DT$names = base::rownames(eig.val)
-  eig.val_DT[, zscore := base::scale(variance.percent)]
-  eig.val_DT[, rank := base::rank(variance.percent)]
-  dims_to_keep = eig.val_DT[zscore > PC_zscore]$names
-
-
-  # if no dimensions are kept, return message
-  if(base::is.null(dims_to_keep) | base::length(dims_to_keep) < 1) {
-    return(base::cat('\n no PC dimensions retained, lower the PC zscore \n'))
-  }
-
-  # coordinates for cells
-  pca_matrix <- mypca$ind$coord
-  if(base::length(dims_to_keep) == 1) {
-    pca_matrix_DT = data.table::data.table('dimkeep' = pca_matrix[,1],
-                                           loc_ID = base::colnames(loc_av_expr_matrix))
-    data.table::setnames(pca_matrix_DT, old = 'dimkeep', dims_to_keep)
-  } else {
-    pca_matrix_DT <- data.table::as.data.table(pca_matrix[,1:base::length(dims_to_keep)])
-    pca_matrix_DT[, loc_ID := base::colnames(loc_av_expr_matrix)]
-  }
-
-
-  # correlation of genes with PCs
-  feat_matrix <- mypca$var$cor
-  if(base::length(dims_to_keep) == 1) {
-    feat_matrix_DT = data.table::data.table('featkeep' = feat_matrix[,1],
-                                            gene_ID = base::rownames(loc_av_expr_matrix))
-    data.table::setnames(feat_matrix_DT, old = 'featkeep', dims_to_keep)
-  } else {
-    feat_matrix_DT <- data.table::as.data.table(feat_matrix[,1:base::length(dims_to_keep)])
-    feat_matrix_DT[, gene_ID := base::rownames(loc_av_expr_matrix)]
-  }
-
-
-  # get genes that correlate with retained PC's
-  dim_correlation_list =  base::list()
-
-  for(dimension in dims_to_keep) {
-
-    base::print(dimension)
-
-    topgenes = feat_matrix_DT[get(dimension) > min_pattern_cor_score]$gene_ID
-    if(base::length(topgenes) < min_cor_genes) {
-      topgenes = utils::head(feat_matrix_DT[order(get(dimension), decreasing = T)], min_cor_genes)$gene_ID
-    }
-    bottomgenes = feat_matrix_DT[get(dimension) < -min_pattern_cor_score]$gene_ID
-    if(base::length(bottomgenes) < min_cor_genes) {
-      bottomgenes = utils::tail(feat_matrix_DT[order(get(dimension), decreasing = T)], min_cor_genes)$gene_ID
-    }
-
-    subset_dim_expr = loc_av_expr_matrix[base::rownames(loc_av_expr_matrix) %in% c(topgenes, bottomgenes),]
-    subset_dim_expr_m = data.table::as.data.table(melt(subset_dim_expr))
-    colnames(subset_dim_expr_m) <- c('genes', 'gr_name', 'values')
-
-    spatial_grid_gene_expr <- data.table:::merge.data.table(spatial_grid, subset_dim_expr_m, by = 'gr_name')
-    spatial_grid_gene_expr[, scaled_values := base::scale(values), by = genes]
-    spatial_grid_gene_expr[, geneset := base::ifelse(genes %in% topgenes, 'top', 'bottom')]
-    spatial_grid_gene_expr[, dim := dimension]
-
-    dim_correlation_list[[dimension]] <- spatial_grid_gene_expr
-  }
-
-  dim_correlation_DT = base::do.call('rbind', dim_correlation_list)
-
-  spatial_grid_combined = dim_correlation_DT[, .(av_values = base::mean(x = values, trim = trim)),
-                                             by = .(dim, gr_name, geneset, x_start, y_start)]
-  spatial_grid_combined[, av_scaled_values := base::scale(av_values), by = .(dim,geneset)]
-
-
-  if(show_plots == TRUE) {
-
-    maximum_dimensions = base::length(dims_to_keep)
-    dims_to_plot = base::ifelse(dims_to_plot > maximum_dimensions, maximum_dimensions, dims_to_plot)
-
-    for(select_dim in unique(spatial_grid_combined$dim)[1:dims_to_plot]) {
-      dpl <- ggplot()
-      dpl <- dpl + theme_bw()
-      dpl <- dpl + geom_tile(data = spatial_grid_combined[dim == select_dim],
-                             aes_string(x = 'x_start', y = 'y_start', fill = 'av_scaled_values'),
-                             color = grid.border.color, show.legend = T)
-      dpl <- dpl + scale_fill_gradient2('low' = 'darkblue', mid = 'white', high = 'darkred', midpoint = 0,
-                                        guide = guide_legend(title = ''))
-      dpl <- dpl + facet_wrap(dim~geneset, nrow = 2)
-      dpl <- dpl + theme(axis.text.x = element_text(size = 8, angle = 45, vjust = 1, hjust = 1),
-                         panel.background = element_rect(fill = background.color),
-                         panel.grid = element_blank())
-      dpl <- dpl + labs(x = 'x coordinates', y = 'y coordinates')
-      print(dpl)
-    }
-  }
-
-
-
-
-  if(return_gobject == TRUE) {
-
-    # add HVG metadata to gene_metadata
-    gene_metadata = gobject@gene_metadata
-    column_names_gene_metadata = base::colnames(gene_metadata)
-    if(SPname %in% column_names_gene_metadata) {
-      base::cat('\n ', SPname, ' has already been used, will be overwritten \n')
-      gene_metadata[, eval(SPname) := NULL]
-      gobject@gene_metadata = gene_metadata
-    }
-
-    SPgenes = gene_metadata
-    SPgenes[, selected := base::ifelse(gene_ID %in% unique(dim_correlation_DT$genes), 'yes', 'no')]
-    SPgenes = SPgenes[,.(gene_ID, selected)]
-    data.table::setnames(SPgenes, 'selected', SPname)
-    gobject <- Giotto::addGeneMetadata(gobject = gobject, new_metadata = SPgenes,
-                                       by_column = T, column_gene_ID = 'gene_ID')
-
-
-
-    ## update parameters used ##
-    parameters_list = gobject@parameters
-    number_of_rounds = base::length(parameters_list)
-    update_name = base::paste0(number_of_rounds,'_spg')
-    # parameters to include
-    parameters_list[[update_name]] = c('minimum cells per grid' = min_cells_per_grid,
-                                       'expression values' = expression_values,
-                                       'scale.unit' = scale.unit,
-                                       'ncp' = ncp,
-                                       'PC_zscore' = PC_zscore,
-                                       'min_pattern_cor_score' = min_pattern_cor_score,
-                                       'min_cor_genes' = min_cor_genes,
-                                       'trim' = trim,
-                                       'name for spatial pattern genes' = SPname)
-    gobject@parameters = parameters_list
-
-    return(gobject)
-
-  } else {
-    return(list(pca_matrix_DT = pca_matrix_DT,
-                feat_matrix_DT = feat_matrix_DT,
-                dim_correlation_DT = dim_correlation_DT,
-                spatial_grid_combined = spatial_grid_combined))
-  }
-
-}
 
 
 

@@ -6,7 +6,8 @@
 \usage{
 showCPGscores(CPGscore, method = c("cell_barplot", "cell-cell",
   "cell_sankey"), min_cells = 5, min_pval = 0.05,
-  min_spat_diff = 0.2, cell_color_code = NULL, show.plot = T)
+  min_spat_diff = 0.2, min_log2_fc = 0.5, direction = c("both", "up",
+  "down"), cell_color_code = NULL, show.plot = T, return.DT = F)
 }
 \arguments{
 \item{CPGscore}{CPGscore, output from getCellProximityGeneScores()}
@@ -19,9 +20,15 @@ showCPGscores(CPGscore, method = c("cell_barplot", "cell-cell",
 
 \item{min_spat_diff}{spatial difference threshold}
 
+\item{min_log2_fc}{min log2 fold-change}
+
+\item{direction}{up or downregulation or both}
+
 \item{cell_color_code}{color code for cell types}
 
 \item{show.plot}{print plot}
+
+\item{return.DT}{return filtered data.table (boolean)}
 }
 \value{
 Gene to gene scores in data.table format

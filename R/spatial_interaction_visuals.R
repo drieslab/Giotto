@@ -308,216 +308,6 @@ cellProximityVisPlot <- function(gobject,
 
 
 
-
-#' @title plotCellProximityGeneScores
-#' @name plotCellProximityGeneScores
-#' @description Create heatmap from cell-cell proximity scores
-#' @param CPGscores CPGscores, output from getCellProximityGeneScores()
-#' @param selected_interactions interactions to show
-#' @param selected_genes genes to show
-#' @param detail_plot show detailed info in both interacting cell types
-#' @param simple_plot show a simplified plot
-#' @param simple_plot_facet facet on interactions or genes with simple plot
-#' @param facet.scales ggplot facet scales paramter
-#' @param facet.ncol ggplot facet ncol parameter
-#' @param facet.nrow ggplot facet nrow parameter
-#' @param show.plot show plot
-#' @return ggplot barplot
-#' @details Give more details ...
-#' @export
-#' @examples
-#'     plotCellProximityGeneScores(CPGscores)
-plotCellProximityGeneScores <- function(CPGscores,
-                                        selected_interactions = NULL,
-                                        selected_genes = NULL,
-                                        detail_plot = T,
-                                        simple_plot = F,
-                                        simple_plot_facet = c('interaction', 'genes'),
-                                        facet.scales = 'fixed',
-                                        facet.ncol = length(selected_genes),
-                                        facet.nrow = length(selected_interactions),
-                                        show.plot = F) {
-
-  if(is.null(selected_interactions) | is.null(selected_genes)) {
-    stop('\n You need to provide a selection of cell-cell interactions and genes to plot \n')
-  }
-
-
-  subDT = CPGscores[genes %in% selected_genes & interaction %in% selected_interactions]
-
-  subDT[, all_cell_expr_1 := as.numeric(all_cell_expr_1)]
-  subDT[, cell_expr_1 := as.numeric(cell_expr_1)]
-  subDT[, all_cell_expr_2 := as.numeric(all_cell_expr_2)]
-  subDT[, cell_expr_2 := as.numeric(cell_expr_2)]
-  subDT[, all_comb_expr := as.numeric(all_comb_expr)]
-  subDT[, comb_expr := as.numeric(comb_expr)]
-
-
-  # order interactions and gene-to-gene according to input
-  subDT[, genes := factor(genes, levels = selected_genes)]
-  subDT[, interaction := factor(interaction, levels = selected_interactions)]
-
-
-  if(simple_plot == F) {
-
-    pl <- ggplot()
-    pl <- pl + theme_bw()
-
-    if(detail_plot == TRUE) {
-      pl <- pl + geom_point(data = subDT, aes(x = 0, y = all_cell_expr_2), color = 'blue', shape = 1)
-      pl <- pl + geom_point(data = subDT, aes(x = 0, y = cell_expr_2), color = 'red', shape = 1)
-      pl <- pl + geom_point(data = subDT, aes(x = all_cell_expr_1, y = 0), color = 'blue', shape = 1)
-      pl <- pl + geom_point(data = subDT, aes(x = cell_expr_1, y = 0), color = 'red', shape = 1)
-    }
-
-    pl <- pl + geom_point(data = subDT, aes(x = all_cell_expr_1, y = all_cell_expr_2), color = 'blue', size = 2)
-    pl <- pl + geom_point(data = subDT, aes(x = cell_expr_1, y = cell_expr_2), color = 'red', size = 2)
-    pl <- pl + geom_segment(data = subDT, aes(x = all_cell_expr_1, xend = cell_expr_1,
-                                              y = all_cell_expr_2, yend = cell_expr_2), linetype = 2)
-    pl <- pl + labs(x = 'gene in celltype 1', y = 'gene in celltype 2')
-    pl <- pl + facet_wrap(~genes+interaction, nrow = facet.nrow, ncol = facet.ncol,
-                          scales = facet.scales)
-
-  } else {
-
-    simple_plot_facet = match.arg(arg = simple_plot_facet, choices = c('interaction', 'genes'))
-
-    if(simple_plot_facet == 'interaction') {
-      pl <- ggplot()
-      pl <- pl + theme_bw()
-      pl <- pl + geom_segment(data = subDT, aes(x = all_comb_expr, xend = comb_expr,
-                                                y = genes, yend = genes), linetype = 2)
-      pl <- pl + geom_point(data = subDT, aes(x = all_comb_expr, y = genes), color = 'blue')
-      pl <- pl + geom_point(data = subDT, aes(x = comb_expr, y = genes), color = 'red')
-      pl <- pl + facet_wrap(~interaction, scales = facet.scales)
-      pl <- pl + labs(x = 'interactions', y = 'genes')
-    } else {
-      pl <- ggplot()
-      pl <- pl + theme_bw()
-      pl <- pl + geom_segment(data = subDT, aes(x = all_comb_expr, xend = comb_expr,
-                                                y = interaction, yend = interaction), linetype = 2)
-      pl <- pl + geom_point(data = subDT, aes(x = all_comb_expr, y = interaction), color = 'blue')
-      pl <- pl + geom_point(data = subDT, aes(x = comb_expr, y = interaction), color = 'red')
-      pl <- pl + facet_wrap(~genes, scales = facet.scales)
-      pl <- pl + labs(x = 'genes', y = 'interactions')
-    }
-  }
-
-  if(show.plot == TRUE) {
-    print(pl)
-  }
-
-  return(pl)
-
-}
-
-
-
-#' @title plotCellProximityGeneToGeneScores
-#' @name plotCellProximityGeneToGeneScores
-#' @description Create heatmap from cell-cell proximity scores
-#' @param GTGscore GTGscore, output from getGeneToGeneScores()
-#' @param selected_interactions interactions to show
-#' @param selected_genes genes to show
-#' @param detail_plot show detailed info in both interacting cell types
-#' @param simple_plot show a simplified plot
-#' @param simple_plot_facet facet on interactions or genes with simple plot
-#' @param facet.scales ggplot facet scales paramter
-#' @param facet.ncol ggplot facet ncol parameter
-#' @param facet.nrow ggplot facet nrow parameter
-#' @param show.plot show plot
-#' @return ggplot barplot
-#' @details Give more details ...
-#' @export
-#' @examples
-#'     plotCellProximityGeneToGeneScores(GTGscore)
-plotCellProximityGeneToGeneScores <- function(GTGscore,
-                                              selected_interactions = NULL,
-                                              selected_gene_to_gene = NULL,
-                                              detail_plot = T,
-                                              simple_plot = F,
-                                              simple_plot_facet = c('interaction', 'genes'),
-                                              facet.scales = 'fixed',
-                                              facet.ncol = length(selected_gene_to_gene),
-                                              facet.nrow = length(selected_interactions),
-                                              show.plot = F) {
-
-  if(is.null(selected_interactions) | is.null(selected_gene_to_gene)) {
-    stop('\n You need to provide a selection of cell-cell interactions and genes-genes to plot \n')
-  }
-
-
-  subDT = GTGscore[gene_gene %in% selected_gene_to_gene & interaction %in% selected_interactions]
-
-  subDT[, all_cell_expr_1 := as.numeric(all_cell_expr_1)]
-  subDT[, cell_expr_1 := as.numeric(cell_expr_1)]
-  subDT[, all_cell_expr_2 := as.numeric(all_cell_expr_2)]
-  subDT[, cell_expr_2 := as.numeric(cell_expr_2)]
-  subDT[, all_comb_expr := as.numeric(all_comb_expr)]
-  subDT[, comb_expr := as.numeric(comb_expr)]
-
-
-  # order interactions and gene-to-gene according to input
-  subDT[, gene_gene := factor(gene_gene, levels = selected_gene_to_gene)]
-  subDT[, interaction := factor(interaction, levels = selected_interactions)]
-
-
-  if(simple_plot == F) {
-
-    pl <- ggplot()
-    pl <- pl + theme_bw()
-
-    if(detail_plot == TRUE) {
-      pl <- pl + geom_point(data = subDT, aes(x = 0, y = all_cell_expr_2), color = 'blue', shape = 1)
-      pl <- pl + geom_point(data = subDT, aes(x = 0, y = cell_expr_2), color = 'red', shape = 1)
-      pl <- pl + geom_point(data = subDT, aes(x = all_cell_expr_1, y = 0), color = 'blue', shape = 1)
-      pl <- pl + geom_point(data = subDT, aes(x = cell_expr_1, y = 0), color = 'red', shape = 1)
-    }
-
-    pl <- pl + geom_point(data = subDT, aes(x = all_cell_expr_1, y = all_cell_expr_2), color = 'blue', size = 2)
-    pl <- pl + geom_point(data = subDT, aes(x = cell_expr_1, y = cell_expr_2), color = 'red', size = 2)
-    pl <- pl + geom_segment(data = subDT, aes(x = all_cell_expr_1, xend = cell_expr_1,
-                                              y = all_cell_expr_2, yend = cell_expr_2), linetype = 2)
-    pl <- pl + labs(x = 'gene 1 in celltype 1', y = 'gene 2 in celltype 2')
-    pl <- pl + facet_wrap(~gene_gene+interaction, nrow = facet.nrow, ncol = facet.ncol,
-                          scales = facet.scales)
-
-  } else {
-
-    simple_plot_facet = match.arg(arg = simple_plot_facet, choices = c('interaction', 'genes'))
-
-    if(simple_plot_facet == 'interaction') {
-      pl <- ggplot()
-      pl <- pl + theme_bw()
-      pl <- pl + geom_segment(data = subDT, aes(x = all_comb_expr, xend = comb_expr,
-                                                y = gene_gene, yend = gene_gene), linetype = 2)
-      pl <- pl + geom_point(data = subDT, aes(x = all_comb_expr, y = gene_gene), color = 'blue')
-      pl <- pl + geom_point(data = subDT, aes(x = comb_expr, y = gene_gene), color = 'red')
-      pl <- pl + facet_wrap(~interaction, scales = facet.scales)
-      pl <- pl + labs(x = 'interactions', y = 'gene-gene')
-    } else {
-      pl <- ggplot()
-      pl <- pl + theme_bw()
-      pl <- pl + geom_segment(data = subDT, aes(x = all_comb_expr, xend = comb_expr,
-                                                y = interaction, yend = interaction), linetype = 2)
-      pl <- pl + geom_point(data = subDT, aes(x = all_comb_expr, y = interaction), color = 'blue')
-      pl <- pl + geom_point(data = subDT, aes(x = comb_expr, y = interaction), color = 'red')
-      pl <- pl + facet_wrap(~gene_gene, scales = facet.scales)
-      pl <- pl + labs(x = 'gene-gene', y = 'interactions')
-    }
-  }
-
-  if(show.plot == TRUE) {
-    print(pl)
-  }
-
-  return(pl)
-
-}
-
-
-
-
 #' @title showGeneExpressionProximityScore
 #' @name showGeneExpressionProximityScore
 #' @description Create heatmap from cell-cell proximity scores
@@ -695,6 +485,45 @@ showTopGeneToGene = function(GTGscore,
 
 
 
+#' @title direction_test_CPG
+#' @name direction_test_CPG
+#' @description shows direction of change
+#' @examples
+#'     direction_test_CPG()
+direction_test = function(x, min_pval = 0.05) {
+
+  pval_1 = as.numeric(x[['pval_1']])
+  if(is.na(pval_1) == TRUE) pval_1 = 1
+  pval_2 = as.numeric(x[['pval_2']])
+  if(is.na(pval_2) == TRUE) pval_2 = 1
+
+  log2fc_1 = as.numeric(x[['log2fc_spat_1']])
+  log2fc_2 = as.numeric(x[['log2fc_spat_2']])
+
+  if(pval_1 > min_pval & pval_2 > min_pval) {
+    return('n.s.')
+  } else if(pval_1 <= min_pval & pval_2 <= min_pval) {
+
+    if(log2fc_1 > 0 & log2fc_2 > 0) {
+      return('both_up')
+    } else if(log2fc_1 < 0 & log2fc_2 < 0) {
+      return('both_down')
+    } else {
+      return('mixed')
+    }
+
+  } else if((pval_1 <= min_pval & log2fc_1 > 0) | (pval_2 <= min_pval & log2fc_2 > 0)) {
+    return('up')
+  } else if((pval_1 <= min_pval & log2fc_1 < 0) | (pval_2 <= min_pval & log2fc_2 < 0)) {
+    return('down')
+  } else {
+    return('missing')
+  }
+
+}
+
+
+
 #' @title showCPGscores
 #' @name showCPGscores
 #' @description visualize Cell Proximity Gene enrichment scores
@@ -703,8 +532,11 @@ showTopGeneToGene = function(GTGscore,
 #' @param min_cells min number of cells threshold
 #' @param min_pval p-value threshold
 #' @param min_spat_diff spatial difference threshold
+#' @param min_log2_fc min log2 fold-change
+#' @param direction up or downregulation or both
 #' @param cell_color_code color code for cell types
 #' @param show.plot print plot
+#' @param return.DT return filtered data.table (boolean)
 #' @return Gene to gene scores in data.table format
 #' @details Give more details ...
 #' @export
@@ -715,14 +547,43 @@ showCPGscores = function(CPGscore,
                          min_cells = 5,
                          min_pval = 0.05,
                          min_spat_diff = 0.2,
+                         min_log2_fc = 0.5,
+                         direction = c('both', 'up', 'down'),
                          cell_color_code = NULL,
-                         show.plot = T) {
+                         show.plot = T,
+                         return.DT = F) {
 
 
+  direction = match.arg(direction, choices = c('both', 'up', 'down'))
   method = match.arg(method, choices = c('cell_barplot', 'cell-cell', 'cell_sankey'))
 
-  selection_scores = CPGscore[unif_int_rank == 1][(nr_1 >= min_cells & pval_1 < min_pval & abs(diff_spat_1) >= min_spat_diff) |
-                                                    (nr_2 >= min_cells & pval_2 < min_pval & abs(diff_spat_2) >= min_spat_diff)]
+  selection_scores = CPGscore[unif_int_rank == 1][(nr_1 >= min_cells & pval_1 <= min_pval &
+                                                     abs(diff_spat_1) >= min_spat_diff &
+                                                     abs(log2fc_spat_1) >= min_log2_fc) |
+                                                    (nr_2 >= min_cells & pval_2 <= min_pval &
+                                                       abs(diff_spat_2) >= min_spat_diff &
+                                                       abs(log2fc_spat_2) >= min_log2_fc)]
+
+  if(direction == 'both') {
+    selection_scores = selection_scores
+  } else if(direction == 'up') {
+    selection_scores = selection_scores[(log2fc_spat_1 >= min_log2_fc & pval_1 <= min_pval & diff_spat_1 >= min_spat_diff) |
+                                          (log2fc_spat_2 >= min_log2_fc & pval_2 <= min_pval & diff_spat_2 >= min_spat_diff)]
+  } else if(direction == 'down') {
+    selection_scores = selection_scores[(log2fc_spat_1 <= -min_log2_fc & pval_1 <= min_pval & diff_spat_1 <= -min_spat_diff) |
+                                          (log2fc_spat_2 <= -min_log2_fc & pval_2 <= min_pval & diff_spat_2 <= -min_spat_diff)]
+  }
+
+
+  if(return.DT == TRUE) {
+
+    change_values = unlist(apply(selection_scores, MARGIN = 1, FUN = function(x) {
+      direction_test(x, min_pval = min_pval)
+    }))
+    selection_scores[, change := change_values]
+    return(selection_scores)
+  }
+
 
   if(method == 'cell-cell') {
 
@@ -820,6 +681,8 @@ showCPGscores = function(CPGscore,
 #' @param min_cells min number of cells threshold
 #' @param min_pval p-value threshold
 #' @param min_spat_diff spatial difference threshold
+#' @param min_log2_fc log2 fold-change threshold
+#' @param direction up or downregulation or both
 #' @param cell_color_code color code for cell types
 #' @param show.plot print plot
 #' @param specific_genes_1 subset of genes, matched with specific_genes_2
@@ -836,21 +699,36 @@ showGTGscores = function(GTGscore,
                          min_cells = 5,
                          min_pval = 0.05,
                          min_spat_diff = 0.2,
+                         min_log2_fc = 0.5,
+                         direction = c('both', 'up', 'down'),
                          cell_color_code = NULL,
                          show.plot = T,
                          specific_genes_1 = NULL,
                          specific_genes_2 = NULL,
                          first_cell_name = 'ligand cell',
-                         second_cell_name = 'receptor cell') {
+                         second_cell_name = 'receptor cell',
+                         return.DT = F) {
 
 
-
+  direction = match.arg(direction, choices = c('both', 'up', 'down'))
   method = match.arg(method, choices = c('cell_barplot', 'cell-cell', 'cell_sankey'))
 
+
   ## filter ##
+
   ## p-value, nr of cells and spatial difference
-  GTGscore = GTGscore[(nr_1 >= min_cells & pval_1 < min_pval & diff_spat_1 >= min_spat_diff) &
-                        (nr_2 >= min_cells & pval_2 < min_pval & diff_spat_2 >= min_spat_diff)]
+  if(direction == 'both') {
+    GTGscore = GTGscore[(nr_1 >= min_cells & pval_1 < min_pval & abs(diff_spat_1) >= min_spat_diff & abs(log2fc_spat_1) >= min_log2_fc) &
+                          (nr_2 >= min_cells & pval_2 < min_pval & abs(diff_spat_2) >= min_spat_diff & abs(log2fc_spat_2) >= min_log2_fc)]
+  } else if(direction == 'up') {
+    GTGscore = GTGscore[(nr_1 >= min_cells & pval_1 < min_pval & diff_spat_1 >= min_spat_diff & log2fc_spat_1 >= min_log2_fc) &
+                          (nr_2 >= min_cells & pval_2 < min_pval & diff_spat_2 >= min_spat_diff & log2fc_spat_2 >= min_log2_fc)]
+  } else if(direction == 'down') {
+    GTGscore = GTGscore[(nr_1 >= min_cells & pval_1 < min_pval & diff_spat_1 <= -min_spat_diff & log2fc_spat_1 <= -min_log2_fc) &
+                          (nr_2 >= min_cells & pval_2 < min_pval & diff_spat_2 <= -min_spat_diff & log2fc_spat_2 <= -min_log2_fc)]
+  }
+
+
 
   ## specific genes
   if((!is.null(specific_genes_1) & !is.null(specific_genes_2))) {
@@ -866,6 +744,10 @@ showGTGscores = function(GTGscore,
   }
 
 
+  # return data.table
+  if(return.DT == TRUE) {
+    return(GTGscore)
+  }
 
 
 
@@ -987,5 +869,210 @@ showGTGscores = function(GTGscore,
 
 
 
+#' @title plotGTGscores
+#' @name plotGTGscores
+#' @description Create heatmap from cell-cell proximity scores
+#' @param GTGscore GTGscore, output from getGeneToGeneScores()
+#' @param selected_interactions interactions to show
+#' @param selected_genes genes to show
+#' @param detail_plot show detailed info in both interacting cell types
+#' @param simple_plot show a simplified plot
+#' @param simple_plot_facet facet on interactions or genes with simple plot
+#' @param facet.scales ggplot facet scales paramter
+#' @param facet.ncol ggplot facet ncol parameter
+#' @param facet.nrow ggplot facet nrow parameter
+#' @param show.plot show plot
+#' @return ggplot barplot
+#' @details Give more details ...
+#' @export
+#' @examples
+#'     plotGTGscores(GTGscore)
+plotGTGscores <- function(GTGscore,
+                          selected_interactions = NULL,
+                          selected_gene_to_gene = NULL,
+                          detail_plot = T,
+                          simple_plot = F,
+                          simple_plot_facet = c('interaction', 'genes'),
+                          facet.scales = 'fixed',
+                          facet.ncol = length(selected_gene_to_gene),
+                          facet.nrow = length(selected_interactions),
+                          show.plot = F) {
 
+  if(is.null(selected_interactions) | is.null(selected_gene_to_gene)) {
+    stop('\n You need to provide a selection of cell-cell interactions and genes-genes to plot \n')
+  }
+
+
+  subDT = GTGscore[unif_gene_gene %in% selected_gene_to_gene & unified_int %in% selected_interactions]
+
+  subDT[, all_cell_expr_1 := as.numeric(all_cell_expr_1)]
+  subDT[, cell_expr_1 := as.numeric(cell_expr_1)]
+  subDT[, all_cell_expr_2 := as.numeric(all_cell_expr_2)]
+  subDT[, cell_expr_2 := as.numeric(cell_expr_2)]
+  subDT[, all_cell_expr := as.numeric(all_cell_expr)]
+  subDT[, spatial_cell_expr := as.numeric(spatial_cell_expr)]
+
+
+  # order interactions and gene-to-gene according to input
+  subDT[, gene_gene := factor(gene_gene, levels = selected_gene_to_gene)]
+  subDT[, unified_int := factor(unified_int, levels = selected_interactions)]
+
+
+  if(simple_plot == F) {
+
+    pl <- ggplot()
+    pl <- pl + theme_bw()
+
+    if(detail_plot == TRUE) {
+      pl <- pl + geom_point(data = subDT, aes(x = 0, y = all_cell_expr_2), color = 'blue', shape = 1)
+      pl <- pl + geom_point(data = subDT, aes(x = 0, y = cell_expr_2), color = 'red', shape = 1)
+      pl <- pl + geom_point(data = subDT, aes(x = all_cell_expr_1, y = 0), color = 'blue', shape = 1)
+      pl <- pl + geom_point(data = subDT, aes(x = cell_expr_1, y = 0), color = 'red', shape = 1)
+    }
+
+    pl <- pl + geom_point(data = subDT, aes(x = all_cell_expr_1, y = all_cell_expr_2), color = 'blue', size = 2)
+    pl <- pl + geom_point(data = subDT, aes(x = cell_expr_1, y = cell_expr_2), color = 'red', size = 2)
+    pl <- pl + geom_segment(data = subDT, aes(x = all_cell_expr_1, xend = cell_expr_1,
+                                              y = all_cell_expr_2, yend = cell_expr_2), linetype = 2)
+    pl <- pl + labs(x = 'gene 1 in celltype 1', y = 'gene 2 in celltype 2')
+    pl <- pl + facet_wrap(~unif_gene_gene+unified_int, nrow = facet.nrow, ncol = facet.ncol,
+                          scales = facet.scales)
+
+  } else {
+
+    simple_plot_facet = match.arg(arg = simple_plot_facet, choices = c('interaction', 'genes'))
+
+    if(simple_plot_facet == 'interaction') {
+      pl <- ggplot()
+      pl <- pl + theme_bw()
+      pl <- pl + geom_segment(data = subDT, aes(x = all_cell_expr, xend = spatial_cell_expr,
+                                                y = unif_gene_gene, yend = unif_gene_gene), linetype = 2)
+      pl <- pl + geom_point(data = subDT, aes(x = all_cell_expr, y = unif_gene_gene), color = 'blue')
+      pl <- pl + geom_point(data = subDT, aes(x = spatial_cell_expr, y = unif_gene_gene), color = 'red')
+      pl <- pl + facet_wrap(~unified_int, scales = facet.scales)
+      pl <- pl + labs(x = 'interactions', y = 'gene-gene')
+    } else {
+      pl <- ggplot()
+      pl <- pl + theme_bw()
+      pl <- pl + geom_segment(data = subDT, aes(x = all_cell_expr, xend = spatial_cell_expr,
+                                                y = unified_int, yend = unified_int), linetype = 2)
+      pl <- pl + geom_point(data = subDT, aes(x = all_cell_expr, y = unified_int), color = 'blue')
+      pl <- pl + geom_point(data = subDT, aes(x = spatial_cell_expr, y = unified_int), color = 'red')
+      pl <- pl + facet_wrap(~unif_gene_gene, scales = facet.scales)
+      pl <- pl + labs(x = 'gene-gene', y = 'interactions')
+    }
+  }
+
+  if(show.plot == TRUE) {
+    print(pl)
+  }
+
+  return(pl)
+
+}
+
+
+
+
+#' @title plotCPGscores
+#' @name plotCPGscores
+#' @description Create heatmap from cell-cell proximity scores
+#' @param CPGscores CPGscores, output from getCellProximityGeneScores()
+#' @param selected_interactions interactions to show
+#' @param selected_genes genes to show
+#' @param detail_plot show detailed info in both interacting cell types
+#' @param simple_plot show a simplified plot
+#' @param simple_plot_facet facet on interactions or genes with simple plot
+#' @param facet.scales ggplot facet scales paramter
+#' @param facet.ncol ggplot facet ncol parameter
+#' @param facet.nrow ggplot facet nrow parameter
+#' @param show.plot show plot
+#' @return ggplot barplot
+#' @details Give more details ...
+#' @export
+#' @examples
+#'     plotCPGscores(CPGscores)
+plotCPGscores <- function(CPGscores,
+                          selected_interactions = NULL,
+                          selected_genes = NULL,
+                          detail_plot = T,
+                          simple_plot = F,
+                          simple_plot_facet = c('interaction', 'genes'),
+                          facet.scales = 'fixed',
+                          facet.ncol = length(selected_genes),
+                          facet.nrow = length(selected_interactions),
+                          show.plot = F) {
+
+  if(is.null(selected_interactions) | is.null(selected_genes)) {
+    stop('\n You need to provide a selection of cell-cell interactions and genes to plot \n')
+  }
+
+
+  subDT = CPGscores[genes %in% selected_genes & interaction %in% selected_interactions]
+
+  subDT[, all_cell_expr_1 := as.numeric(all_cell_expr_1)]
+  subDT[, cell_expr_1 := as.numeric(cell_expr_1)]
+  subDT[, all_cell_expr_2 := as.numeric(all_cell_expr_2)]
+  subDT[, cell_expr_2 := as.numeric(cell_expr_2)]
+  subDT[, all_comb_expr := as.numeric(all_comb_expr)]
+  subDT[, comb_expr := as.numeric(comb_expr)]
+
+
+  # order interactions and gene-to-gene according to input
+  subDT[, genes := factor(genes, levels = selected_genes)]
+  subDT[, interaction := factor(interaction, levels = selected_interactions)]
+
+
+  if(simple_plot == F) {
+
+    pl <- ggplot()
+    pl <- pl + theme_bw()
+
+    if(detail_plot == TRUE) {
+      pl <- pl + geom_point(data = subDT, aes(x = 0, y = all_cell_expr_2), color = 'blue', shape = 1)
+      pl <- pl + geom_point(data = subDT, aes(x = 0, y = cell_expr_2), color = 'red', shape = 1)
+      pl <- pl + geom_point(data = subDT, aes(x = all_cell_expr_1, y = 0), color = 'blue', shape = 1)
+      pl <- pl + geom_point(data = subDT, aes(x = cell_expr_1, y = 0), color = 'red', shape = 1)
+    }
+
+    pl <- pl + geom_point(data = subDT, aes(x = all_cell_expr_1, y = all_cell_expr_2), color = 'blue', size = 2)
+    pl <- pl + geom_point(data = subDT, aes(x = cell_expr_1, y = cell_expr_2), color = 'red', size = 2)
+    pl <- pl + geom_segment(data = subDT, aes(x = all_cell_expr_1, xend = cell_expr_1,
+                                              y = all_cell_expr_2, yend = cell_expr_2), linetype = 2)
+    pl <- pl + labs(x = 'gene in celltype 1', y = 'gene in celltype 2')
+    pl <- pl + facet_wrap(~genes+interaction, nrow = facet.nrow, ncol = facet.ncol,
+                          scales = facet.scales)
+
+  } else {
+
+    simple_plot_facet = match.arg(arg = simple_plot_facet, choices = c('interaction', 'genes'))
+
+    if(simple_plot_facet == 'interaction') {
+      pl <- ggplot()
+      pl <- pl + theme_bw()
+      pl <- pl + geom_segment(data = subDT, aes(x = all_comb_expr, xend = comb_expr,
+                                                y = genes, yend = genes), linetype = 2)
+      pl <- pl + geom_point(data = subDT, aes(x = all_comb_expr, y = genes), color = 'blue')
+      pl <- pl + geom_point(data = subDT, aes(x = comb_expr, y = genes), color = 'red')
+      pl <- pl + facet_wrap(~interaction, scales = facet.scales)
+      pl <- pl + labs(x = 'interactions', y = 'genes')
+    } else {
+      pl <- ggplot()
+      pl <- pl + theme_bw()
+      pl <- pl + geom_segment(data = subDT, aes(x = all_comb_expr, xend = comb_expr,
+                                                y = interaction, yend = interaction), linetype = 2)
+      pl <- pl + geom_point(data = subDT, aes(x = all_comb_expr, y = interaction), color = 'blue')
+      pl <- pl + geom_point(data = subDT, aes(x = comb_expr, y = interaction), color = 'red')
+      pl <- pl + facet_wrap(~genes, scales = facet.scales)
+      pl <- pl + labs(x = 'genes', y = 'interactions')
+    }
+  }
+
+  if(show.plot == TRUE) {
+    print(pl)
+  }
+
+  return(pl)
+
+}
 

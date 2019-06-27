@@ -6,7 +6,9 @@
 \usage{
 getGeneToGeneSelection(CPGscore, selected_genes = NULL,
   specific_genes_1 = NULL, specific_genes_2 = NULL, min_cells = 5,
-  min_pval = 0.05, min_spat_diff = 0.2, verbose = TRUE)
+  min_pval = 0.05, min_spat_diff = 0.2, min_log2_fc = 0.5,
+  direction = c("both", "up", "down"), fold_change_addendum = 0.1,
+  verbose = TRUE)
 }
 \arguments{
 \item{CPGscore}{CPGscore, output from getCellProximityGeneScores()}
@@ -22,6 +24,12 @@ getGeneToGeneSelection(CPGscore, selected_genes = NULL,
 \item{min_pval}{p-value threshold}
 
 \item{min_spat_diff}{spatial difference threshold}
+
+\item{min_log2_fc}{log2 fold-change threshold}
+
+\item{direction}{up or downregulation or both}
+
+\item{fold_change_addendum}{constant to add when calculating log2 fold-change}
 
 \item{verbose}{verbose}
 }

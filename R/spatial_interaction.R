@@ -400,6 +400,7 @@ get_cell_to_cell_sorted_name_conversion <- function(all_cell_types) {
 #' @param spatial_network_name name of spatial network to use
 #' @param cluster_column name of column to use for clusters
 #' @param expression_values expression values to use
+#' @param fold_change_addendum constant to add when calculating log2 fold-change
 #' @param in_two_directions shows enrichment in both directions: cell1-cell2, cell2-cell1
 #' @param exclude_selected_cells_from_test exclude certain cells from test
 #' @param verbose verbose
@@ -412,6 +413,7 @@ getCellProximityGeneScores = function(gobject,
                                       spatial_network_name = 'spatial_network',
                                       cluster_column = 'louvain_clus.1',
                                       expression_values = c('normalized', 'scaled', 'custom'),
+                                      fold_change_addendum = 0.1,
                                       in_two_directions = TRUE,
                                       exclude_selected_cells_from_test = F,
                                       verbose = T) {
@@ -444,10 +446,17 @@ getCellProximityGeneScores = function(gobject,
                                                                      exclude_selected_cells_from_test = exclude_selected_cells_from_test,
                                                                      verbose = verbose)
 
+  # difference with spatial
   interaction_gene_scores[, diff_spat := as.numeric(comb_expr)-as.numeric(all_comb_expr)]
   interaction_gene_scores[, diff_spat_1 := as.numeric(cell_expr_1)-as.numeric(all_cell_expr_1)]
   interaction_gene_scores[, diff_spat_2 := as.numeric(cell_expr_2)-as.numeric(all_cell_expr_2)]
   setorder(interaction_gene_scores, diff_spat)
+
+  # fold-change with spatial
+  interaction_gene_scores[, log2fc_spat_1 := log2((as.numeric(cell_expr_1)+fold_change_addendum)/(as.numeric(all_cell_expr_1)+fold_change_addendum))]
+  interaction_gene_scores[, log2fc_spat_2 := log2((as.numeric(cell_expr_2)+fold_change_addendum)/(as.numeric(all_cell_expr_2)+fold_change_addendum))]
+  interaction_gene_scores[, log2fc_spat := log2((as.numeric(comb_expr)+fold_change_addendum)/(as.numeric(all_comb_expr)+fold_change_addendum))]
+
 
 
   # expand scores to all possible cell-cell combinations
@@ -460,7 +469,8 @@ getCellProximityGeneScores = function(gobject,
                                             'pval_2', 'pval_1',
                                             'cell_type_2', 'cell_type_1', 'interaction',
                                             'nr_2', 'nr_1', 'all_nr_2', 'all_nr_1',
-                                            'diff_spat', 'diff_spat_2', 'diff_spat_1')
+                                            'diff_spat', 'diff_spat_2', 'diff_spat_1',
+                                            'log2fc_spat_1', 'log2fc_spat_2', 'log2fc_spat')
     CPGscore_second_direction = CPGscore_second_direction[, colnames(CPGscore_first_direction), with = F]
     CPGscore_second_direction[, interaction := paste0(cell_type_1,'-', cell_type_2)]
     CPGscore = rbind(CPGscore_first_direction, CPGscore_second_direction)
@@ -502,6 +512,9 @@ getCellProximityGeneScores = function(gobject,
 #' @param min_cells min number of cells threshold
 #' @param min_pval p-value threshold
 #' @param min_spat_diff spatial difference threshold
+#' @param min_log2_fc log2 fold-change threshold
+#' @param direction up or downregulation or both
+#' @param fold_change_addendum constant to add when calculating log2 fold-change
 #' @param verbose verbose
 #' @return Gene to gene scores in data.table format
 #' @details Give more details ...
@@ -515,11 +528,22 @@ getGeneToGeneSelection <- function(CPGscore,
                                    min_cells = 5,
                                    min_pval = 0.05,
                                    min_spat_diff = 0.2,
+                                   min_log2_fc = 0.5,
+                                   direction = c('both', 'up', 'down'),
+                                   fold_change_addendum = 0.1,
                                    verbose = TRUE) {
 
 
+  direction = match.arg(direction, choices = c('both', 'up', 'down'))
+
+  # remove redundant data
   unif_gene_scores = CPGscore[unif_int_rank == 1]
 
+  # make sure p-value are numeric
+  unif_gene_scores[, pval_1 := as.numeric(pval_1)]
+  unif_gene_scores[, pval_2 := as.numeric(pval_2)]
+
+  ## first filtering CPGscores
   if((!is.null(specific_genes_1) & !is.null(specific_genes_2))) {
 
     if(length(specific_genes_1) != length(specific_genes_2)) {
@@ -534,8 +558,13 @@ getGeneToGeneSelection <- function(CPGscore,
   }
 
 
-  all_ints = unique(unif_gene_scores[(pval_1 < min_pval & nr_1 >= min_cells & diff_spat_1 > min_spat_diff) |
-                                       (pval_2 < min_pval & nr_2 >= min_cells & diff_spat_2 > min_spat_diff)][['unified_int']])
+  # second filtering
+  all_ints_selection = unif_gene_scores[(pval_1 <= min_pval & nr_1 >= min_cells & abs(diff_spat_1) >= min_spat_diff & abs(log2fc_spat_1) >= min_log2_fc) |
+                                          (pval_2 <= min_pval & nr_2 >= min_cells & abs(diff_spat_2) >= min_spat_diff  & abs(log2fc_spat_2) >= min_log2_fc)]
+
+  unif_gene_scores = all_ints_selection
+  all_ints = unique(all_ints_selection[['unified_int']])
+
 
   savelist = list()
 
@@ -552,11 +581,12 @@ getGeneToGeneSelection <- function(CPGscore,
     sel_type_2 = strsplit(x = sel_int, split = '-')[[1]][2]
 
     # subsets of the data
-    subset_type_1 = unif_gene_scores[cell_type_1 == sel_type_1][(pval_1 < min_pval & nr_1 >= min_cells & diff_spat_1 > min_spat_diff)][cell_type_2 == sel_type_2]
-    subset_type_2 = unif_gene_scores[cell_type_2 == sel_type_2][(pval_2 < min_pval & nr_2 >= min_cells & diff_spat_2 > min_spat_diff)][cell_type_1 == sel_type_1]
-    subset_type_1 = subset_type_1[,.(genes, cell_type_1, nr_1, cell_expr_1, all_nr_1, all_cell_expr_1, pval_1, diff_spat_1, unified_int)]
+    subset_type_1 = unif_gene_scores[cell_type_1 == sel_type_1][(pval_1 <= min_pval & nr_1 >= min_cells & abs(diff_spat_1) >= min_spat_diff & abs(log2fc_spat_1) >= min_log2_fc)][cell_type_2 == sel_type_2]
+    subset_type_2 = unif_gene_scores[cell_type_2 == sel_type_2][(pval_2 <= min_pval & nr_2 >= min_cells & abs(diff_spat_2) >= min_spat_diff & abs(log2fc_spat_2) >= min_log2_fc)][cell_type_1 == sel_type_1]
+
+    subset_type_1 = subset_type_1[,.(genes, cell_type_1, nr_1, cell_expr_1, all_nr_1, all_cell_expr_1, pval_1, diff_spat_1, log2fc_spat_1, unified_int)]
     setnames(subset_type_1, 'genes', 'genes_1')
-    subset_type_2 = subset_type_2[,.(genes, cell_type_2, nr_2, cell_expr_2, all_nr_2, all_cell_expr_2, pval_2, diff_spat_2, unified_int)]
+    subset_type_2 = subset_type_2[,.(genes, cell_type_2, nr_2, cell_expr_2, all_nr_2, all_cell_expr_2, pval_2, diff_spat_2, log2fc_spat_2, unified_int)]
     setnames(subset_type_2, 'genes', 'genes_2')
 
     # merge data again
@@ -586,16 +616,38 @@ getGeneToGeneSelection <- function(CPGscore,
 
   finalres = do.call('rbind', savelist)
 
+  # remove redundant homo-typic interaction data
+  if(verbose == TRUE) cat('\n calculate additional information \n')
 
-  finalres[, unif_gene_gene_int := length(unique(gene_gene)), by = .(unified_int, unif_gene_gene)]
-  finalres = finalres[unif_gene_gene_int == 1]
+  finalres[, type_int := ifelse(cell_type_1 == cell_type_2, 'homo', 'hetero')]
+  finalres[, unif_gene_gene_int := 1:.N, by = .(unified_int, unif_gene_gene)]
+  finalres = finalres[type_int == 'hetero' | (type_int == 'homo' & unif_gene_gene_int == 1)]
 
+
+
+  if(direction == 'both') {
+    finalres = finalres
+  } else if(direction == 'up') {
+    finalres = finalres[(pval_1 <= min_pval & nr_1 >= min_cells & diff_spat_1 >= min_spat_diff & log2fc_spat_1 >= min_log2_fc) &
+                          (pval_2 <= min_pval & nr_2 >= min_cells & diff_spat_2 >= min_spat_diff  & log2fc_spat_2 >= min_log2_fc)]
+  } else if(direction == 'down') {
+    finalres = finalres[(pval_1 <= min_pval & nr_1 >= min_cells & diff_spat_1 <= -min_spat_diff & log2fc_spat_1 <= -min_log2_fc) &
+                          (pval_2 <= min_pval & nr_2 >= min_cells & diff_spat_2 <= -min_spat_diff  & log2fc_spat_2 <= -min_log2_fc)]
+  }
+
+
+  # provide additional data
   finalres[, all_cell_expr := as.numeric(all_cell_expr_1)+as.numeric(all_cell_expr_2), 1:nrow(finalres)]
   finalres[, spatial_cell_expr := as.numeric(cell_expr_1)+as.numeric(cell_expr_2), 1:nrow(finalres)]
   finalres[, diff_spatial_expr := spatial_cell_expr-all_cell_expr]
+  finalres[, log2fc_spatial_expr := log2((spatial_cell_expr+fold_change_addendum)/(all_cell_expr+fold_change_addendum))]
   finalres[, all_cell_rank := rank(-all_cell_expr), by = unif_gene_gene]
   finalres[, spatial_cell_rank := rank(-spatial_cell_expr), by = unif_gene_gene]
 
+  change_values = unlist(apply(finalres, MARGIN = 1, FUN = function(x) {
+    direction_test(x, min_pval = min_pval)
+  }))
+  finalres[, change := change_values]
 
   return(finalres)
 

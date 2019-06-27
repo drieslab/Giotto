@@ -8,8 +8,8 @@ getCellProximityGeneScores(gobject,
   spatial_network_name = "spatial_network",
   cluster_column = "louvain_clus.1",
   expression_values = c("normalized", "scaled", "custom"),
-  in_two_directions = TRUE, exclude_selected_cells_from_test = F,
-  verbose = T)
+  fold_change_addendum = 0.1, in_two_directions = TRUE,
+  exclude_selected_cells_from_test = F, verbose = T)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -19,6 +19,8 @@ getCellProximityGeneScores(gobject,
 \item{cluster_column}{name of column to use for clusters}
 
 \item{expression_values}{expression values to use}
+
+\item{fold_change_addendum}{constant to add when calculating log2 fold-change}
 
 \item{in_two_directions}{shows enrichment in both directions: cell1-cell2, cell2-cell1}
 
