@@ -10,7 +10,11 @@ RoxygenNote: 6.1.1
 Depends:
     data.table,
     igraph,
-    ggplot2
+    ggplot2,
+    ComplexHeatmap,
+    scran,
+    qvalue,
+    lfa
 Imports: 
     data.table,
     ggplot2,
@@ -20,13 +24,11 @@ Imports:
     multinet,
     FactoMineR,
     factoextra,
-    ComplexHeatmap,
     cowplot,
     grDevices,
     RColorBrewer,
     jackstraw,
     dbscan,
-    scran,
     ggalluvial
 Suggests: 
     knitr,

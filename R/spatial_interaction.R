@@ -658,3 +658,402 @@ getGeneToGeneSelection <- function(CPGscore,
 
 
 
+
+#' @title exprOnlyCellCellcommunicationScores
+#' @name exprOnlyCellCellcommunicationScores
+#' @description Cell-Cell communication scores based on expression only
+#' @param gobject giotto object to use
+#' @param cluster_column cluster column with cell type information
+#' @param random_iter number of iterations
+#' @param gene_set_1 first specific gene set from gene pairs
+#' @param gene_set_2 second specific gene set from gene pairs
+#' @param log2FC_addendum addendum to add when calculating log2FC
+#' @param verbose verbose
+#' @return Cell-Cell communication scores for gene pairs based on expression only
+#' @details Details will follow.
+#' @export
+#' @examples
+#'     exprOnlyCellCellcommunicationScores(gobject)
+exprOnlyCellCellcommunicationScores = function(gobject,
+                                               cluster_column = 'cell_types',
+                                               random_iter = 100,
+                                               gene_set_1,
+                                               gene_set_2,
+                                               log2FC_addendum = 0.1,
+                                               verbose = T) {
+
+
+  # get information about number of cells
+  cell_metadata = pDataDT(gobject)
+  nr_cell_types = cell_metadata[,.N, by = c(cluster_column)]
+  nr_cells = nr_cell_types$N
+  names(nr_cells) = nr_cell_types$cell_types
+
+
+  comScore = average_gene_gene_expression_in_groups(gobject = gobject,
+                                                    cluster_column = cluster_column,
+                                                    gene_set_1 = gene_set_1, gene_set_2 = gene_set_2)
+
+  comScore[, lig_nr := nr_cells[lig_cell_type]]
+  comScore[, rec_nr := nr_cells[rec_cell_type]]
+
+  # prepare for randomized scores
+  total_av = rep(0, nrow(comScore))
+  total_sum = rep(0, nrow(comScore))
+  total_bool = rep(0, nrow(comScore))
+
+
+
+  for(sim in 1:random_iter) {
+
+    if(verbose == TRUE) cat('simulation ', sim, '\n')
+
+
+    # create temporary giotto
+    tempGiotto = subsetGiotto(gobject = gobject)
+
+    # randomize annoation
+    cell_types = cell_metadata[[cluster_column]]
+    random_cell_types = sample(x = cell_types, size = length(cell_types))
+    tempGiotto = addCellMetadata(gobject = tempGiotto, new_metadata = random_cell_types, by_column = F)
+
+    # get random communication scores
+    randomScore = average_gene_gene_expression_in_groups(gobject = tempGiotto,
+                                                         cluster_column = 'new_metadata',
+                                                         gene_set_1 = gene_set_1, gene_set_2 = gene_set_2)
+
+    # average random score
+    total_av = total_av + randomScore[['LR_expr']]
+
+    # difference between observed and random
+    difference = comScore[['LR_expr']] - randomScore[['LR_expr']]
+
+    # calculate total difference
+    total_sum = total_sum+difference
+
+    # calculate p-values
+    difference[difference > 0] = 1
+    difference[difference < 0] = -1
+    total_bool = total_bool + difference
+
+  }
+
+  comScore[, rand_expr := total_av/random_iter]
+  comScore[, av_diff := total_sum/random_iter]
+  comScore[, log2fc := log2((LR_expr+log2FC_addendum)/(rand_expr+log2FC_addendum))]
+  comScore[, pvalue := total_bool/random_iter]
+  comScore[, pvalue := ifelse(pvalue > 0, 1-pvalue, 1+pvalue)]
+
+  return(comScore)
+
+}
+
+
+
+
+#' @title average_gene_gene_expression_in_groups
+#' @name average_gene_gene_expression_in_groups
+#' @description calculate average expression per cluster
+#' @param gobject giotto object to use
+#' @param cluster_column cluster column with cell type information
+#' @param gene_set_1 first specific gene set from gene pairs
+#' @param gene_set_2 second specific gene set from gene pairs
+#' @return data.table with average expression scores for each cluster
+#' @details Details will follow.
+#' @examples
+#'     average_gene_gene_expression_in_groups(gobject)
+average_gene_gene_expression_in_groups = function(gobject,
+                                                  cluster_column = 'cell_types',
+                                                  gene_set_1,
+                                                  gene_set_2) {
+
+  average_DT = Giotto:::create_average_DT(gobject = gobject, meta_data_name = cluster_column)
+
+  # change column names back to original
+  new_colnames = gsub(pattern = 'cluster_', replacement = '', colnames(average_DT))
+  colnames(average_DT) = new_colnames
+
+  # keep order of colnames
+  colnames_order = new_colnames
+
+  # gene_set_1 and gene_set_2 need to have same length and all genes need to be present in data
+  if(length(gene_set_1) != length(gene_set_2)) {
+    stop('\n length of set1 needs to be the same as that of set2 \n')
+  }
+
+  if(!all(c(gene_set_1, gene_set_2) %in% rownames(average_DT) == T)) {
+    stop('\n all selected genes from set 1 and 2 need to be present \n')
+  }
+
+
+  # get ligand and receptor information
+  ligand_match = average_DT[match(gene_set_1, rownames(average_DT)), ,drop = F]
+  receptor_match = average_DT[match(gene_set_2, rownames(average_DT)), ,drop = F]
+
+  all_ligand_cols = colnames(ligand_match)
+  lig_test = as.data.table(melt(ligand_match, measure.vars = all_ligand_cols))
+  lig_test[, ligand := rep(rownames(ligand_match), ncol(ligand_match))]
+  lig_test[, ligand := strsplit(ligand,'\\.')[[1]][1] , by = 1:nrow(lig_test)]
+  lig_test[, LR_comb := rep(LR_pairs, ncol(ligand_match))]
+  setnames(lig_test, 'value', 'lig_expr')
+  setnames(lig_test, 'variable', 'lig_cell_type')
+
+  all_receptor_cols = colnames(receptor_match)
+  rec_test = as.data.table(melt(receptor_match, measure.vars = all_receptor_cols))
+  rec_test[, receptor := rep(rownames(receptor_match), ncol(receptor_match))]
+  rec_test[, receptor := strsplit(receptor,'\\.')[[1]][1] , by = 1:nrow(rec_test)]
+  rec_test[, LR_comb := rep(LR_pairs, ncol(receptor_match))]
+  setnames(rec_test, 'value', 'rec_expr')
+  setnames(rec_test, 'variable', 'rec_cell_type')
+
+  lig_rec_test = merge(lig_test, rec_test, by = 'LR_comb', allow.cartesian = T)
+  lig_rec_test[, LR_expr := lig_expr+rec_expr]
+
+
+  lig_rec_test[, lig_cell_type := factor(lig_cell_type, levels = colnames_order)]
+  lig_rec_test[, rec_cell_type := factor(rec_cell_type, levels = colnames_order)]
+  setorder(lig_rec_test, LR_comb, lig_cell_type, rec_cell_type)
+
+  return(lig_rec_test)
+
+}
+
+
+#' @title create_cell_type_random_cell_IDs
+#' @name create_cell_type_random_cell_IDs
+#' @description creates randomized cell ids within a selection of cell types
+#' @param gobject giotto object to use
+#' @param cluster_column cluster column with cell type information
+#' @param needed_cell_types vector of cell type names for which a random id will be found
+#' @return list of randomly sampled cell ids with same cell type composition
+#' @details Details will follow.
+#' @examples
+#'     create_cell_type_random_cell_IDs(gobject)
+create_cell_type_random_cell_IDs = function(gobject,
+                                            cluster_column = 'cell_types',
+                                            needed_cell_types) {
+
+  # subset metadata to choose from
+  full_metadata = pDataDT(gobject)
+  possible_metadata = full_metadata[get(cluster_column) %in% unique(needed_cell_types)]
+
+  sample_ids = list()
+
+  uniq_types = unique(needed_cell_types)
+
+  for(i in 1:length(uniq_types)) {
+
+    uniq_type = uniq_types[i]
+    length_random = length(needed_cell_types[needed_cell_types == uniq_type])
+    sub_sample_ids = possible_metadata[get(cluster_column) == uniq_type][sample(x = 1:.N, size = length_random)][['cell_ID']]
+    sample_ids[[i]] = sub_sample_ids
+
+  }
+  return(unlist(sample_ids))
+}
+
+
+
+
+#' @title specificCellCellcommunicationScores
+#' @name specificCellCellcommunicationScores
+#' @description Specific Cell-Cell communication scores based on spatial expression of interacting cells
+#' @param gobject giotto object to use
+#' @param spatial_network_name spatial network to use for identifying interacting cells
+#' @param cluster_column cluster column with cell type information
+#' @param random_iter number of iterations
+#' @param cell_type_1 first cell type
+#' @param cell_type_2 second cell type
+#' @param gene_set_1 first specific gene set from gene pairs
+#' @param gene_set_2 second specific gene set from gene pairs
+#' @param log2FC_addendum addendum to add when calculating log2FC
+#' @param min_observations minimum number of interactions needed to be considered
+#' @param verbose verbose
+#' @return Cell-Cell communication scores for gene pairs based on spatial interaction
+#' @details Details will follow.
+#' @export
+#' @examples
+#'     specificCellCellcommunicationScores(gobject)
+specificCellCellcommunicationScores = function(gobject,
+                                               spatial_network_name = 'spatial_network',
+                                               cluster_column = 'cell_types',
+                                               random_iter = 100,
+                                               cell_type_1 = 'astrocyte',
+                                               cell_type_2 = 'endothelial',
+                                               gene_set_1,
+                                               gene_set_2,
+                                               log2FC_addendum = 0.1,
+                                               min_observations = 2,
+                                               verbose = T) {
+
+  # metadata
+  cell_metadata = pDataDT(gobject = gobject)
+
+  # get annotated spatial network
+  annot_network = Giotto:::annotateSpatialNetwork(gobject, spatial_network_name = spatial_network_name, cluster_column = cluster_column)
+
+  cell_direction_1 = paste0(cell_type_1,'-',cell_type_2)
+  cell_direction_2 = paste0(cell_type_2,'-',cell_type_1)
+
+  subset_annot_network = annot_network[from_to %in% c(cell_direction_1, cell_direction_1)]
+
+  # make sure that there are sufficient observations
+  if(nrow(subset_annot_network) <= min_observations) {
+
+    return(NULL)
+
+  } else {
+
+
+    # subset giotto object to only interacting cells
+    subset_ids = unique(c(subset_annot_network$to, subset_annot_network$from))
+    subsetGiotto = subsetGiotto(gobject = gobject, cell_ids = subset_ids)
+
+    # get information about number of cells
+    temp_meta = pDataDT(subsetGiotto)
+    nr_cell_types = temp_meta[cell_ID %in% subset_ids][,.N, by = c(cluster_column)]
+    nr_cells = nr_cell_types$N
+    names(nr_cells) = nr_cell_types$cell_types
+
+    # get average communication scores
+    comScore = average_gene_gene_expression_in_groups(gobject = subsetGiotto,
+                                                      cluster_column = cluster_column,
+                                                      gene_set_1 = gene_set_1, gene_set_2 = gene_set_2)
+    comScore = comScore[(lig_cell_type == cell_type_1 & rec_cell_type == cell_type_2) |
+                          (lig_cell_type == cell_type_2 & rec_cell_type == cell_type_1)]
+
+    comScore[, lig_nr := nr_cells[lig_cell_type]]
+    comScore[, rec_nr := nr_cells[rec_cell_type]]
+
+    # prepare for randomized scores
+    total_av = rep(0, nrow(comScore))
+    total_sum = rep(0, nrow(comScore))
+    total_bool = rep(0, nrow(comScore))
+
+    # identify which cell types you need
+    subset_metadata = cell_metadata[cell_ID %in% subset_ids]
+    needed_cell_types = subset_metadata[[cluster_column]]
+
+    # simulations
+    for(sim in 1:random_iter) {
+
+      if(verbose == TRUE) cat('simulation ', sim, '\n')
+
+      # get random ids and subset
+      random_ids = create_cell_type_random_cell_IDs(gobject = gobject, cluster_column = cluster_column,
+                                                    needed_cell_types = needed_cell_types)
+      tempGiotto = subsetGiotto(gobject = gobject, cell_ids = random_ids)
+
+      # get random communication scores
+      randomScore = average_gene_gene_expression_in_groups(gobject = tempGiotto,
+                                                           cluster_column = cluster_column,
+                                                           gene_set_1 = gene_set_1, gene_set_2 = gene_set_2)
+      randomScore = randomScore[(lig_cell_type == cell_type_1 & rec_cell_type == cell_type_2) |
+                                  (lig_cell_type == cell_type_2 & rec_cell_type == cell_type_1)]
+
+
+      # average random score
+      total_av = total_av + randomScore[['LR_expr']]
+
+      # difference between observed and random
+      difference = comScore[['LR_expr']] - randomScore[['LR_expr']]
+
+      # calculate total difference
+      total_sum = total_sum+difference
+
+      # calculate p-values
+      difference[difference > 0] = 1
+      difference[difference < 0] = -1
+      total_bool = total_bool + difference
+
+    }
+
+    comScore[, rand_expr := total_av/random_iter]
+    comScore[, av_diff := total_sum/random_iter]
+    comScore[, log2fc := log2((LR_expr+log2FC_addendum)/(rand_expr+log2FC_addendum))]
+    comScore[, pvalue := total_bool/random_iter]
+    comScore[, pvalue := ifelse(pvalue > 0, 1-pvalue, 1+pvalue)]
+
+
+    return(comScore)
+
+  }
+}
+
+
+#' @title allCellCellcommunicationsScores
+#' @name allCellCellcommunicationsScores
+#' @description All Cell-Cell communication scores based on spatial expression of interacting cells
+#' @param gobject giotto object to use
+#' @param spatial_network_name spatial network to use for identifying interacting cells
+#' @param cluster_column cluster column with cell type information
+#' @param random_iter number of iterations
+#' @param gene_set_1 first specific gene set from gene pairs
+#' @param gene_set_2 second specific gene set from gene pairs
+#' @param log2FC_addendum addendum to add when calculating log2FC
+#' @param min_observations minimum number of interactions needed to be considered
+#' @param verbose verbose
+#' @return Cell-Cell communication scores for gene pairs based on spatial interaction
+#' @details Details will follow.
+#' @export
+#' @examples
+#'     allCellCellcommunicationsScores(gobject)
+allCellCellcommunicationsScores = function(gobject,
+                                           spatial_network_name = 'spatial_network',
+                                           cluster_column = 'cell_types',
+                                           random_iter = 100,
+                                           gene_set_1,
+                                           gene_set_2,
+                                           log2FC_addendum = 0.1,
+                                           min_observations = 2,
+                                           verbose = c('a little', 'a lot', 'none')) {
+
+  verbose = match.arg(verbose, choices = c('a little', 'a lot'))
+
+  cell_metadata = pDataDT(gobject)
+
+  ## get all combinations between cell types
+  all_uniq_values = unique(cell_metadata[[cluster_column]])
+  same_DT = data.table(V1 = all_uniq_values, V2 = all_uniq_values)
+  combn_DT = as.data.table(t(combn(all_uniq_values, m = 2)))
+  combn_DT = rbind(same_DT, combn_DT)
+
+  savelist = list()
+  countdown = nrow(combn_DT)
+
+  # loop over all combinations
+  for(row in 1:nrow(combn_DT)) {
+
+    cell_type_1 = combn_DT[row][['V1']]
+    cell_type_2 = combn_DT[row][['V2']]
+
+    if(verbose == 'a little' | verbose == 'a lot') cat('\n\n PROCESS nr ', countdown,': ', cell_type_1, ' and ', cell_type_2, '\n\n')
+
+    if(verbose %in% c('a little', 'none')) {
+      specific_verbose = F
+    } else {
+      specific_verbose = T
+    }
+
+    specific_scores = specificCellCellcommunicationScores(gobject = gobject,
+                                                          cluster_column = cluster_column,
+                                                          random_iter = random_iter,
+                                                          cell_type_1 = cell_type_1,
+                                                          cell_type_2 = cell_type_2,
+                                                          gene_set_1 = gene_set_1,
+                                                          gene_set_2 = gene_set_2,
+                                                          spatial_network_name = spatial_network_name,
+                                                          log2FC_addendum = log2FC_addendum,
+                                                          min_observations = min_observations,
+                                                          verbose = specific_verbose)
+    savelist[[row]] = specific_scores
+    countdown = countdown - 1
+  }
+
+  finalDT = do.call('rbind', savelist)
+  return(finalDT)
+}
+
+
+
+
