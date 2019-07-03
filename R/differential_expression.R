@@ -93,9 +93,6 @@ findMarkers <- function(gobject,
     cat('\n no other DEG methods implemented yet \n')
 
   }
-
-
-
 }
 
 

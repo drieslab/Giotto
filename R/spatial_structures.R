@@ -31,13 +31,13 @@ createSpatialNetwork <- function(gobject,
   if(dimensions != 'all') {
     spatial_locations = spatial_locations[, dimensions]
   }
-  spatial_locations <- as.matrix(spatial_locations)
+  spatial_locations <- base::as.matrix(spatial_locations)
   rownames(spatial_locations) <- gobject@cell_ID
 
 
   # vector matching cell_ID and order
   cell_ID_vec <- c(1:nrow(spatial_locations))
-  names(cell_ID_vec) <- rownames(spatial_locations)
+  names(cell_ID_vec) <- base::rownames(spatial_locations)
 
 
   # knn network
@@ -107,6 +107,7 @@ createSpatialNetwork <- function(gobject,
     return(spatial_network_DT)
   }
 }
+
 
 
 #' @title create_spatial_grid
