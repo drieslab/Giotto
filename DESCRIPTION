@@ -12,7 +12,8 @@ Depends:
     igraph (>= 1.2.4.1),
     ggplot2 (>= 3.1.1),
     base (>= 3.5.1),
-    utils (>= 3.5.1)
+    utils (>= 3.5.1),
+    R (>= 3.5.1)
 Imports:
     Rtsne (>= 0.15),
     uwot (>= 0.0.0.9010),
