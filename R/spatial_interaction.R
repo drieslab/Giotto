@@ -785,6 +785,7 @@ average_gene_gene_expression_in_groups = function(gobject,
     stop('\n all selected genes from set 1 and 2 need to be present \n')
   }
 
+  LR_pairs = paste0(gene_set_1,'-',gene_set_2)
 
   # get ligand and receptor information
   ligand_match = average_DT[match(gene_set_1, rownames(average_DT)), ,drop = F]
@@ -1008,7 +1009,7 @@ allCellCellcommunicationsScores = function(gobject,
                                            min_observations = 2,
                                            verbose = c('a little', 'a lot', 'none')) {
 
-  verbose = match.arg(verbose, choices = c('a little', 'a lot'))
+  verbose = match.arg(verbose, choices = c('a little', 'a lot', 'none'))
 
   cell_metadata = pDataDT(gobject)
 
