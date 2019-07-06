@@ -801,8 +801,6 @@ LR_data_det = LR_data[ligand_det == T & receptor_det == T]
 select_ligands = LR_data_det$mouseLigand
 select_receptors = LR_data_det$mouseReceptor
 
-LR_pairs = paste0(select_ligands,'-',select_receptors)
-
 ## get statistical significance of gene pair expression changes based on expression ##
 expr_only_scores = exprOnlyCellCellcommunicationScores(gobject = VC_test,
                                           cluster_column = 'cell_types', 
@@ -861,195 +859,16 @@ expr_only_scores = exprOnlyCellCellcommunicationScores(gobject = VC_test,
 #> simulation  50
 
 
-## get statistical significance of gene pair expression changes upon cell-cell interaction ##
+## get statistical significance of gene pair expression changes upon cell-cell interaction
 spatial_all_scores = allCellCellcommunicationsScores(VC_test,
                                                   spatial_network_name = 'spatial_network',
                                                   cluster_column = 'cell_types', 
-                                                  random_iter = 50,
+                                                  random_iter = 200,
                                                   gene_set_1 = select_ligands,
                                                   gene_set_2 = select_receptors,
-                                                  verbose = 'a little')
-#> 
-#> 
-#>  PROCESS nr  45 :  L2/3 exc neuron  and  L2/3 exc neuron 
-#> 
-#> 
-#> 
-#>  PROCESS nr  44 :  inh neuron  and  inh neuron 
-#> 
-#> 
-#> 
-#>  PROCESS nr  43 :  microglia  and  microglia 
-#> 
-#> 
-#> 
-#>  PROCESS nr  42 :  endothelial  and  endothelial 
-#> 
-#> 
-#> 
-#>  PROCESS nr  41 :  astrocyte  and  astrocyte 
-#> 
-#> 
-#> 
-#>  PROCESS nr  40 :  L6 exc neuron  and  L6 exc neuron 
-#> 
-#> 
-#> 
-#>  PROCESS nr  39 :  OL  and  OL 
-#> 
-#> 
-#> 
-#>  PROCESS nr  38 :  L4 exc neuron  and  L4 exc neuron 
-#> 
-#> 
-#> 
-#>  PROCESS nr  37 :  L5 exc neuron  and  L5 exc neuron 
-#> 
-#> 
-#> 
-#>  PROCESS nr  36 :  L2/3 exc neuron  and  inh neuron 
-#> 
-#> 
-#> 
-#>  PROCESS nr  35 :  L2/3 exc neuron  and  microglia 
-#> 
-#> 
-#> 
-#>  PROCESS nr  34 :  L2/3 exc neuron  and  endothelial 
-#> 
-#> 
-#> 
-#>  PROCESS nr  33 :  L2/3 exc neuron  and  astrocyte 
-#> 
-#> 
-#> 
-#>  PROCESS nr  32 :  L2/3 exc neuron  and  L6 exc neuron 
-#> 
-#> 
-#> 
-#>  PROCESS nr  31 :  L2/3 exc neuron  and  OL 
-#> 
-#> 
-#> 
-#>  PROCESS nr  30 :  L2/3 exc neuron  and  L4 exc neuron 
-#> 
-#> 
-#> 
-#>  PROCESS nr  29 :  L2/3 exc neuron  and  L5 exc neuron 
-#> 
-#> 
-#> 
-#>  PROCESS nr  28 :  inh neuron  and  microglia 
-#> 
-#> 
-#> 
-#>  PROCESS nr  27 :  inh neuron  and  endothelial 
-#> 
-#> 
-#> 
-#>  PROCESS nr  26 :  inh neuron  and  astrocyte 
-#> 
-#> 
-#> 
-#>  PROCESS nr  25 :  inh neuron  and  L6 exc neuron 
-#> 
-#> 
-#> 
-#>  PROCESS nr  24 :  inh neuron  and  OL 
-#> 
-#> 
-#> 
-#>  PROCESS nr  23 :  inh neuron  and  L4 exc neuron 
-#> 
-#> 
-#> 
-#>  PROCESS nr  22 :  inh neuron  and  L5 exc neuron 
-#> 
-#> 
-#> 
-#>  PROCESS nr  21 :  microglia  and  endothelial 
-#> 
-#> 
-#> 
-#>  PROCESS nr  20 :  microglia  and  astrocyte 
-#> 
-#> 
-#> 
-#>  PROCESS nr  19 :  microglia  and  L6 exc neuron 
-#> 
-#> 
-#> 
-#>  PROCESS nr  18 :  microglia  and  OL 
-#> 
-#> 
-#> 
-#>  PROCESS nr  17 :  microglia  and  L4 exc neuron 
-#> 
-#> 
-#> 
-#>  PROCESS nr  16 :  microglia  and  L5 exc neuron 
-#> 
-#> 
-#> 
-#>  PROCESS nr  15 :  endothelial  and  astrocyte 
-#> 
-#> 
-#> 
-#>  PROCESS nr  14 :  endothelial  and  L6 exc neuron 
-#> 
-#> 
-#> 
-#>  PROCESS nr  13 :  endothelial  and  OL 
-#> 
-#> 
-#> 
-#>  PROCESS nr  12 :  endothelial  and  L4 exc neuron 
-#> 
-#> 
-#> 
-#>  PROCESS nr  11 :  endothelial  and  L5 exc neuron 
-#> 
-#> 
-#> 
-#>  PROCESS nr  10 :  astrocyte  and  L6 exc neuron 
-#> 
-#> 
-#> 
-#>  PROCESS nr  9 :  astrocyte  and  OL 
-#> 
-#> 
-#> 
-#>  PROCESS nr  8 :  astrocyte  and  L4 exc neuron 
-#> 
-#> 
-#> 
-#>  PROCESS nr  7 :  astrocyte  and  L5 exc neuron 
-#> 
-#> 
-#> 
-#>  PROCESS nr  6 :  L6 exc neuron  and  OL 
-#> 
-#> 
-#> 
-#>  PROCESS nr  5 :  L6 exc neuron  and  L4 exc neuron 
-#> 
-#> 
-#> 
-#>  PROCESS nr  4 :  L6 exc neuron  and  L5 exc neuron 
-#> 
-#> 
-#> 
-#>  PROCESS nr  3 :  OL  and  L4 exc neuron 
-#> 
-#> 
-#> 
-#>  PROCESS nr  2 :  OL  and  L5 exc neuron 
-#> 
-#> 
-#> 
-#>  PROCESS nr  1 :  L4 exc neuron  and  L5 exc neuron
+                                                  verbose = 'none')
 
-
+## filter
 selected_spat = spatial_all_scores[pvalue <= 0.01 & abs(log2fc) > 0.5 &
                                  lig_nr >= 5 & rec_nr >= 5]
 selected_spat[, lig_rec_cell_types := paste0(lig_cell_type,'-',rec_cell_type)]
@@ -1094,12 +913,23 @@ plotGTGscores(GTGscore = selected_LR,
               selected_interactions = c('astrocyte-inh neuron'),
               selected_gene_to_gene = 'Nrp2-Sema3f',
               simple_plot = F, detail_plot = T)
+```
+
+<img src="man/figures/README-unnamed-chunk-21-1.png" width="60%" style="display: block; margin: auto;" />
+
+``` r
 
 cellProximityVisPlot(gobject = VC_test, interaction_name = "astrocyte-inh neuron",
                      spatial_network_name = 'spatial_network',
                      cluster_column = 'cell_types', cell_color_code = NULL,
                      cell_color = 'cell_types', show_network = T,
                      network_color = 'blue', point_size_select = 3)
+#> first and second dimenion need to be defined, default is first 2
+```
+
+<img src="man/figures/README-unnamed-chunk-21-2.png" width="60%" style="display: block; margin: auto;" />
+
+``` r
 
 
 
@@ -1111,12 +941,20 @@ plotGTGscores(GTGscore = selected_LR,
               selected_interactions = c('endothelial-microglia'),
               selected_gene_to_gene = 'Nrp2-Sema3f',
               simple_plot = F, detail_plot = T)
+```
+
+<img src="man/figures/README-unnamed-chunk-21-3.png" width="60%" style="display: block; margin: auto;" />
+
+``` r
 
 cellProximityVisPlot(gobject = VC_test, interaction_name = 'endothelial-microglia', spatial_network_name = 'spatial_network',
                      cluster_column = 'cell_types', cell_color_code = NULL,
                      cell_color = 'cell_types', show_network = T,
                      network_color = 'blue', point_size_select = 3)
+#> first and second dimenion need to be defined, default is first 2
 ```
+
+<img src="man/figures/README-unnamed-chunk-21-4.png" width="60%" style="display: block; margin: auto;" />
 
 -----
 
