@@ -30,7 +30,9 @@ and can thus be used to explore or re-analyze this dataset.
 You can install the development version of Giotto with:
 
 ``` r
-library(devtools)
+library("devtools")
+library("BiocManager")
+BiocManager::install(c("qvalue", "lfa", "ComplexHeatmap", "scran"))
 install_github("RubD/Giotto")
 ```
 
