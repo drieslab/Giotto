@@ -37,10 +37,8 @@ The goal of Giotto is to process, analyze and visualize **single-cell spatial tr
 You can install the development version of Giotto with:
 
 ``` r
-library("devtools")
-library("BiocManager")
-BiocManager::install(c("qvalue", "lfa", "ComplexHeatmap", "scran"))
-install_github("RubD/Giotto")
+library(remotes)
+remotes::install_github("RubD/Giotto")
 ```
 
 
