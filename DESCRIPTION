@@ -35,5 +35,4 @@ Suggests:
     knitr,
     rmarkdown
 biocViews:
-    Software
 VignetteBuilder: knitr
