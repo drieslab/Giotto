@@ -6,14 +6,14 @@
 #' @return number of distinct colors
 getDistinctColors <- function(n) {
   qual_col_pals <- RColorBrewer::brewer.pal.info[RColorBrewer::brewer.pal.info$category == 'qual',]
-  col_vector <- unique (base::unlist(base::mapply(RColorBrewer::brewer.pal, qual_col_pals$maxcolors, base::rownames(qual_col_pals))));
-  stopifnot (n <= base::length(col_vector));
+  col_vector <- unique(unlist(mapply(RColorBrewer::brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals))));
+  stopifnot (n <= length(col_vector));
   xxx <- grDevices::col2rgb(col_vector);
-  dist_mat <- base::as.matrix(dist(t(xxx)));
-  base::diag(dist_mat) <- 1e10;
-  while (base::length(col_vector) > n) {
-    minv <- base::apply (dist_mat,1,function(x)min(x));
-    idx <- base::which(minv==min(minv))[1];
+  dist_mat <- as.matrix(dist(t(xxx)));
+  diag(dist_mat) <- 1e10;
+  while (length(col_vector) > n) {
+    minv <- apply(dist_mat,1,function(x)min(x));
+    idx <- which(minv==min(minv))[1];
     dist_mat <- dist_mat[-idx, -idx];
     col_vector <- col_vector[-idx]
   }
