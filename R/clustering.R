@@ -88,7 +88,7 @@ clusterCells <- function(gobject,
     # create mlnetworkobject
     mln_object <- multinet::ml_empty()
     multinet::add_actors_ml(mlnetwork = mln_object, actors = V(igraph_object))
-    add_igraph_layer_ml(mlnetwork = mln_object, g = igraph_object, name = name)
+    multinet::add_igraph_layer_ml(mlnetwork = mln_object, g = igraph_object, name = name)
 
     # start seed
     if(set_seed == TRUE) {
@@ -96,7 +96,7 @@ clusterCells <- function(gobject,
     }
 
     louvain_clusters = multinet::glouvain_ml(mlnetwork = mln_object, gamma = louvain_gamma, omega = louvain_omega, ...)
-    ident_clusters_DT = as.data.table(louvain_clusters)
+    ident_clusters_DT = data.table::as.data.table(louvain_clusters)
     ident_clusters_DT[, cell_ID := actor]
     setnames(ident_clusters_DT, 'cid', name)
 
@@ -134,7 +134,7 @@ clusterCells <- function(gobject,
     }
 
     ## extract NN network
-    network_edge_dt = as.data.table(igraph::as_data_frame(x = igraph_object, what = 'edges'))
+    network_edge_dt = data.table::as.data.table(igraph::as_data_frame(x = igraph_object, what = 'edges'))
 
     # add weight for edges or set to 1 for all
     if(!is.null(pyth_louv_weight_col)) {
@@ -192,7 +192,7 @@ clusterCells <- function(gobject,
     }
 
 
-    network_edge_dt = as.data.table(igraph::as_data_frame(x = igraph_object, what = 'edges'))
+    network_edge_dt = data.table::as.data.table(igraph::as_data_frame(x = igraph_object, what = 'edges'))
 
     if(!is.null(pyth_louv_weight_col)) {
 
@@ -236,7 +236,7 @@ clusterCells <- function(gobject,
     randomwalk_clusters <- igraph::cluster_walktrap(graph = igraph_object, steps = walk_steps, weights = walk_weights)
     randomwalk_clusters <- as.factor(igraph::cut_at(communities = randomwalk_clusters, no =  walk_clusters))
 
-    ident_clusters_DT <- data.table('cell_ID' = V(igraph_object)$name, 'name' = randomwalk_clusters)
+    ident_clusters_DT <- data.table::data.table('cell_ID' = V(igraph_object)$name, 'name' = randomwalk_clusters)
     # TODO: remove if tested
     #ident_clusters_DT <- data.table('cell_ID' = cell_ID_vec, 'name' = randomwalk_clusters)
     setnames(ident_clusters_DT, 'name', name)
@@ -263,7 +263,7 @@ clusterCells <- function(gobject,
     }
 
     # TODO: NOT TESTED YET #
-    igraph_DT = as.data.table(igraph::as_data_frame(igraph_object, what = 'edges'))
+    igraph_DT = data.table::as.data.table(igraph::as_data_frame(igraph_object, what = 'edges'))
     igraph_DT = igraph_DT[order(from)]
 
     cell_id_numeric = unique(x = c(igraph_DT$from, igraph_DT$to))
@@ -271,14 +271,14 @@ clusterCells <- function(gobject,
     igraph_DT[, from_T := as.numeric(names(cell_id_numeric[cell_id_numeric == from])), by = 1:nrow(igraph_DT)]
     igraph_DT[, to_T := as.numeric(names(cell_id_numeric[cell_id_numeric == to])), by = 1:nrow(igraph_DT)]
     temp_igraph_DT = igraph_DT[,.(from_T, to_T, weight, distance)]
-    setnames(temp_igraph_DT, old = c('from_T', 'to_T'), new = c('from', 'to'))
+    data.table::setnames(temp_igraph_DT, old = c('from_T', 'to_T'), new = c('from', 'to'))
 
     kNN_object = nnDT_to_kNN(nnDT = temp_igraph_DT)
     sNN_clusters = dbscan::sNNclust(x = kNN_object, k = sNNclust_k, eps = sNNclust_eps,
                                     minPts = sNNclust_minPts, borderPoints = borderPoints)
 
-    ident_clusters_DT <- data.table('cell_ID' = cell_id_numeric[1:nrow(kNN_object$dist)], 'name' = sNN_clusters$cluster)
-    setnames(ident_clusters_DT, 'name', name)
+    ident_clusters_DT <- data.table::data.table('cell_ID' = cell_id_numeric[1:nrow(kNN_object$dist)], 'name' = sNN_clusters$cluster)
+    data.table::setnames(ident_clusters_DT, 'name', name)
 
     # exit seed
     if(set_seed == TRUE) {
@@ -783,17 +783,17 @@ iterCluster <- function(gobject,
     ## get network and add cluster
     my_nn_network = temp_giotto@nn_network[[nn_network_to_use]][[network_name]][['igraph']]
     cell_metadata = pDataDT(temp_giotto)
-    my_nn_network = set_vertex_attr(my_nn_network, name = 'tempcluster', value = cell_metadata[['tempclus']])
+    my_nn_network = igraph::set_vertex_attr(my_nn_network, name = 'tempcluster', value = cell_metadata[['tempclus']])
 
     ## convert network into data.table
-    edgeDT = as.data.table(igraph::as_data_frame(x = my_nn_network, what = 'edges'))
-    vertexDT = as.data.table(igraph::as_data_frame(x = my_nn_network, what = 'vertices'))
+    edgeDT = data.table::as.data.table(igraph::as_data_frame(x = my_nn_network, what = 'edges'))
+    vertexDT = data.table::as.data.table(igraph::as_data_frame(x = my_nn_network, what = 'vertices'))
 
     ## identify if edge goes to inside or outside of cluster
     edgeDT <- merge(x = edgeDT, by.x = 'from', y = vertexDT, by.y = 'name')
-    setnames(edgeDT, 'tempcluster', 'from_clus')
+    data.table::setnames(edgeDT, 'tempcluster', 'from_clus')
     edgeDT <- merge(x = edgeDT, by.x = 'to', y = vertexDT, by.y = 'name')
-    setnames(edgeDT, 'tempcluster', 'to_clus')
+    data.table::setnames(edgeDT, 'tempcluster', 'to_clus')
     edgeDT[, type_edge := ifelse(from_clus == to_clus, 'same', 'other')]
 
 
@@ -830,7 +830,7 @@ iterCluster <- function(gobject,
     }
 
 
-    mytempDT = data.table(index = indexlist, ratio = ratiolist, vc = vcountlist)
+    mytempDT = data.table::data.table(index = indexlist, ratio = ratiolist, vc = vcountlist)
     print(mytempDT)
 
     # identify cluster with the maximum ratio (most tx coherent cluster)
@@ -970,7 +970,7 @@ doKmeans <- function(gobject,
 
   } else {
     ## using original matrix ##
-    expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+    expr_values = select_expression_values(gobject = gobject, values = values)
 
     # subset expression matrix
     if(!is.null(genes_to_use)) {
@@ -1000,7 +1000,7 @@ doKmeans <- function(gobject,
   } else {
     seed_number = as.integer(sample(x = 1:10000, size = 1))
   }
-  base::set.seed(seed = seed_number)
+  set.seed(seed = seed_number)
 
   # start clustering
   kclusters = stats::kmeans(x = celldist, centers = centers,
@@ -1128,7 +1128,7 @@ doHclust <- function(gobject,
 
   } else {
     ## using original matrix ##
-    expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+    expr_values = select_expression_values(gobject = gobject, values = values)
 
     # subset expression matrix
     if(!is.null(genes_to_use)) {
@@ -1158,7 +1158,7 @@ doHclust <- function(gobject,
   } else {
     seed_number = as.integer(sample(x = 1:10000, size = 1))
   }
-  base::set.seed(seed = seed_number)
+  set.seed(seed = seed_number)
 
   # start clustering
   hclusters = stats::hclust(d = celldist, method = agglomeration_method)

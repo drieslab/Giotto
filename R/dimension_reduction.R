@@ -156,14 +156,14 @@ signPCA <- function(gobject, method = c('screeplot', 'jackstraw'),
                     show.plot = T, ...) {
 
   # select method
-  method = base::match.arg(method, choices = c('screeplot', 'jackstraw'))
+  method = match.arg(method, choices = c('screeplot', 'jackstraw'))
 
   # select direction of reduction
   reduction = match.arg(reduction, c('cells', 'genes'))
 
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_values = select_expression_values(gobject = gobject, values = values)
 
   # subset expression matrix
   if(!is.null(genes_to_use)) {
@@ -285,7 +285,7 @@ runUMAP <- function(gobject,
 
     uwot_clus <- uwot::umap(X = matrix_to_use, n_neighbors = n_neighbors, n_components = n_components,
                             n_epochs = n_epochs, min_dist = min_dist, n_threads = n_threads, spread = spread, ...)
-    uwot_clus_pos_DT <- as.data.table(uwot_clus)
+    uwot_clus_pos_DT <- data.table::as.data.table(uwot_clus)
     uwot_clus_pos_DT[, cell_ID := rownames(matrix_to_use)]
 
 
@@ -436,7 +436,7 @@ runtSNE <- function(gobject,
                              theta = theta,
                              pca = do_PCA_first, ...)
 
-    tsne_clus_pos_DT <- as.data.table(tsne_clus$Y)
+    tsne_clus_pos_DT <- data.table::as.data.table(tsne_clus$Y)
     tsne_clus_pos_DT[, cell_ID := rownames(matrix_to_use)]
 
     if(set_seed == TRUE) {

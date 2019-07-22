@@ -81,7 +81,7 @@ createNearestNetwork <- function(gobject,
   }
 
   nn_network = dbscan::kNN(x = matrix_to_use, k = k, sort = TRUE, ...)
-  nn_network_dt = data.table(from = rep(1:nrow(nn_network$id), k),
+  nn_network_dt = data.table::data.table(from = rep(1:nrow(nn_network$id), k),
                              to = as.vector(nn_network$id),
                              weight = 1/(1 + as.vector(nn_network$dist)),
                              distance = as.vector(nn_network$dist))
@@ -92,7 +92,7 @@ createNearestNetwork <- function(gobject,
   if(type == 'sNN') {
 
     snn_network = dbscan::sNN(x = nn_network, k = k, kt = NULL, ...)
-    snn_network_dt = data.table(from = rep(1:nrow(snn_network$id), k),
+    snn_network_dt = data.table::data.table(from = rep(1:nrow(snn_network$id), k),
                                 to = as.vector(snn_network$id),
                                 weight = 1/(1 + as.vector(snn_network$dist)),
                                 distance = as.vector(snn_network$dist),
@@ -251,12 +251,12 @@ nnDT_to_kNN <- function(nnDT) {
   nnDT[, rank := 1:.N, by = from]
 
   # distance matrix
-  dist_prep = dcast.data.table(nnDT, formula = from~rank, value.var = 'distance')
+  dist_prep = data.table::dcast.data.table(nnDT, formula = from~rank, value.var = 'distance')
   dist_prep[, from := NULL]
   dist_matrix = as.matrix(dist_prep)
 
   # id matrix
-  id_prep = dcast.data.table(nnDT, formula = from~rank, value.var = 'to')
+  id_prep = data.table::dcast.data.table(nnDT, formula = from~rank, value.var = 'to')
   id_prep[, from := NULL]
   id_matrix = as.matrix(id_prep)
 
