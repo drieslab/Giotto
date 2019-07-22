@@ -35,10 +35,10 @@ calculateHVG <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_values = select_expression_values(gobject = gobject, values = values)
 
   # method to use
-  method = base::match.arg(method, choices = c('cov_loess', 'cov_groups', 'gini_loess'))
+  method = match.arg(method, choices = c('cov_loess', 'cov_groups', 'gini_loess'))
 
   if(reverse_log_scale == TRUE) {
     expr_values = (logbase^expr_values)-1
@@ -53,7 +53,7 @@ calculateHVG <- function(gobject,
   gene_in_cells_detected[, cov := (sd/mean_expr)]
   gini_level <- unlist(apply(expr_values, MARGIN = 1, FUN = function(x) {
 
-    gini = Giotto:::mygini_fun(x)
+    gini = mygini_fun(x)
     return(gini)
 
   }))
@@ -65,7 +65,7 @@ calculateHVG <- function(gobject,
     steps = 1/nr_expression_groups
     prob_sequence = seq(0, 1, steps)
     prob_sequence[length(prob_sequence)] = 1
-    expr_group_breaks = quantile(gene_in_cells_detected$mean_expr, probs = prob_sequence)
+    expr_group_breaks = stats::quantile(gene_in_cells_detected$mean_expr, probs = prob_sequence)
     expr_groups = cut(x = gene_in_cells_detected$mean_expr, breaks = expr_group_breaks,
                       labels = paste0('group_', 1:nr_expression_groups), include.lowest = T)
     gene_in_cells_detected[, expr_groups := expr_groups]
@@ -73,12 +73,12 @@ calculateHVG <- function(gobject,
     gene_in_cells_detected[, selected := ifelse(cov_group_zscore > zscore_threshold, 'yes', 'no')]
 
     if(show_plot == TRUE) {
-      pl <- ggplot()
-      pl <- pl + theme_classic()
-      pl <- pl + geom_point(data = gene_in_cells_detected, aes(x = mean_expr, y = cov, color = selected))
-      pl <- pl + facet_wrap(~expr_groups, ncol = nr_expression_groups, scales = 'free_x')
-      pl <- pl + theme(axis.text.x = element_blank(), strip.text = element_text(size = 4))
-      pl <- pl + labs(x = 'expression groups', y = 'cov')
+      pl <- ggplot2::ggplot()
+      pl <- pl + ggplot2::theme_classic()
+      pl <- pl + ggplot2::geom_point(data = gene_in_cells_detected, aes(x = mean_expr, y = cov, color = selected))
+      pl <- pl + ggplot2::facet_wrap(~expr_groups, ncol = nr_expression_groups, scales = 'free_x')
+      pl <- pl + ggplot2::theme(axis.text.x = element_blank(), strip.text = element_text(size = 4))
+      pl <- pl + ggplot2::labs(x = 'expression groups', y = 'cov')
       print(pl)
     }
   } else {
@@ -92,7 +92,7 @@ calculateHVG <- function(gobject,
       var_col = 'gini'
     }
 
-    loess_model_sample <- loess(loess_formula, data = gene_in_cells_detected)
+    loess_model_sample <- stats::loess(loess_formula, data = gene_in_cells_detected)
     gene_in_cells_detected$pred_var_genes <- predict(loess_model_sample, newdata = gene_in_cells_detected)
     gene_in_cells_detected[, var_diff := get(var_col)-pred_var_genes, by = 1:nrow(gene_in_cells_detected)]
     setorder(gene_in_cells_detected, -var_diff)
@@ -100,13 +100,13 @@ calculateHVG <- function(gobject,
 
 
     if(show_plot == TRUE) {
-      pl <- ggplot()
+      pl <- ggplot2::ggplot()
       pl <- pl + ggplot2::theme_classic()
-      pl <- pl + geom_point(data = gene_in_cells_detected, aes_string(x = 'mean_expr', y = var_col, color = 'selected'))
-      pl <- pl + geom_line(data = gene_in_cells_detected, aes_string(x = 'mean_expr', y = 'pred_var_genes'), color = 'blue')
+      pl <- pl + ggplot2::geom_point(data = gene_in_cells_detected, aes_string(x = 'mean_expr', y = var_col, color = 'selected'))
+      pl <- pl + ggplot2::geom_line(data = gene_in_cells_detected, aes_string(x = 'mean_expr', y = 'pred_var_genes'), color = 'blue')
       hvg_line = paste0('pred_var_genes+',difference_in_variance)
-      pl <- pl + geom_line(data = gene_in_cells_detected, aes_string(x = 'mean_expr', y = hvg_line), linetype = 2)
-      pl <- pl + labs(x = 'mean expression', y = var_col)
+      pl <- pl + ggplot2::geom_line(data = gene_in_cells_detected, aes_string(x = 'mean_expr', y = hvg_line), linetype = 2)
+      pl <- pl + ggplot2::labs(x = 'mean expression', y = var_col)
       print(pl)
     }
 
