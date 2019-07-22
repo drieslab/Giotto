@@ -177,18 +177,18 @@ createGiottoObject <- function(raw_exprs,
   } else {
     spatial_dimensions = c('x', 'y', 'z')
     colnames(gobject@spatial_locs) <- paste0('sdim', spatial_dimensions[1:ncol(gobject@spatial_locs)])
-    gobject@spatial_locs = as.data.table(gobject@spatial_locs)
+    gobject@spatial_locs = data.table::as.data.table(gobject@spatial_locs)
     gobject@spatial_locs[, cell_ID := colnames(raw_exprs)]
   }
 
 
   ## OPTIONAL:
   # add other normalized expression data
-  if(!base::is.null(norm_expr)) {
+  if(!is.null(norm_expr)) {
 
-    if(base::dim(norm_expr) == base::dim(raw_exprs) &
-       base::colnames(norm_expr) == base::colnames(raw_exprs) &
-       base::rownames(norm_expr) == base::rownames(raw_exprs)) {
+    if(dim(norm_expr) == dim(raw_exprs) &
+       colnames(norm_expr) == colnames(raw_exprs) &
+       rownames(norm_expr) == rownames(raw_exprs)) {
 
       gobject@norm_expr = norm_expr
     } else {
@@ -197,11 +197,11 @@ createGiottoObject <- function(raw_exprs,
   }
 
   # add other normalized and scaled expression data
-  if(!base::is.null(norm_scaled_expr)) {
+  if(!is.null(norm_scaled_expr)) {
 
-    if(base::dim(norm_scaled_expr) == base::dim(raw_exprs) &
-       base::colnames(norm_scaled_expr) == base::colnames(raw_exprs) &
-       base::rownames(norm_scaled_expr) == base::rownames(raw_exprs)) {
+    if(dim(norm_scaled_expr) == dim(raw_exprs) &
+       colnames(norm_scaled_expr) == colnames(raw_exprs) &
+       rownames(norm_scaled_expr) == rownames(raw_exprs)) {
 
       gobject@norm_scaled_expr = norm_scaled_expr
     } else {
@@ -210,11 +210,11 @@ createGiottoObject <- function(raw_exprs,
   }
 
   # add other custom normalized expression data
-  if(!base::is.null(custom_expr)) {
+  if(!is.null(custom_expr)) {
 
-    if(base::dim(custom_expr) == base::dim(raw_exprs) &
-       base::colnames(custom_expr) == base::colnames(raw_exprs) &
-       base::rownames(custom_expr) == base::rownames(raw_exprs)) {
+    if(dim(custom_expr) == dim(raw_exprs) &
+       colnames(custom_expr) == colnames(raw_exprs) &
+       rownames(custom_expr) == rownames(raw_exprs)) {
 
       gobject@custom_expr = custom_expr
     } else {
@@ -224,14 +224,14 @@ createGiottoObject <- function(raw_exprs,
 
   # cell metadata
   if(is.null(cell_metadata)) {
-    gobject@cell_metadata = data.table(cell_ID = colnames(raw_exprs))
+    gobject@cell_metadata = data.table::data.table(cell_ID = colnames(raw_exprs))
   } else {
     gobject@cell_metadata[, cell_ID := colnames(raw_exprs)]
   }
 
   # gene metadata
   if(is.null(gene_metadata)) {
-    gobject@gene_metadata = data.table(gene_ID = rownames(raw_exprs))
+    gobject@gene_metadata = data.table::data.table(gene_ID = rownames(raw_exprs))
   } else {
     gobject@gene_metadata[, gene_ID := rownames(raw_exprs)]
   }

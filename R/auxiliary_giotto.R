@@ -39,9 +39,10 @@ fDataDT <- function(gobject) {
   else if(class(gobject) == 'giotto') {
     return(gobject@gene_metadata)
   }
-  return(as.data.table(fData(gobject)))
+  return(data.table::as.data.table(fData(gobject)))
 
 }
+
 
 
 #' @title select_expression_values
@@ -328,14 +329,14 @@ filterGiotto <- function(gobject,
                          verbose = F) {
 
   # expression values to be used
-  values = base::match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
+  expr_values = select_expression_values(gobject = gobject, values = values)
 
   ## filter cells
-  filter_index_cells = base::colSums(expr_values >= expression_threshold) >= minimum_detected_genes
+  filter_index_cells = colSums(expr_values >= expression_threshold) >= minimum_detected_genes
   selected_cell_ids = gobject@cell_ID[filter_index_cells]
   ## filter genes
-  filter_index_genes = base::rowSums(expr_values >= expression_threshold) >= minimum_expression_in_cell
+  filter_index_genes = rowSums(expr_values >= expression_threshold) >= minimum_expression_in_cell
   selected_gene_ids = gobject@gene_ID[filter_index_genes]
 
   newGiottoObject = Giotto::subsetGiotto(gobject = gobject,
@@ -343,11 +344,11 @@ filterGiotto <- function(gobject,
                                  gene_ids = selected_gene_ids)
 
   ## print output ##
-  removed_cells = base::length(filter_index_cells[filter_index_cells == FALSE])
-  total_cells   = base::length(filter_index_cells)
+  removed_cells = length(filter_index_cells[filter_index_cells == FALSE])
+  total_cells   = length(filter_index_cells)
 
-  removed_genes = base::length(filter_index_genes[filter_index_genes == FALSE])
-  total_genes   = base::length(filter_index_genes)
+  removed_genes = length(filter_index_genes[filter_index_genes == FALSE])
+  total_genes   = length(filter_index_genes)
 
   if(verbose == TRUE) {
     cat('Number of cells removed: ', removed_cells, ' out of ', total_cells, '\n')
@@ -357,8 +358,8 @@ filterGiotto <- function(gobject,
 
   ## update parameters used ##
   parameters_list  = gobject@parameters
-  number_of_rounds = base::length(parameters_list)
-  update_name      = base::paste0(number_of_rounds,'_filter')
+  number_of_rounds = length(parameters_list)
+  update_name      = paste0(number_of_rounds,'_filter')
   # parameters to include
   parameters_list[[update_name]] = c('used expression values' = expression_values,
                                      'gene expression threshold' = expression_threshold,
@@ -400,11 +401,11 @@ normalizeGiotto <- function(gobject,
 
     ## 1. library size normalize
   if(library_size_norm == TRUE) {
-    norm_expr = base::t((base::t(raw_expr)/base::colSums(raw_expr))*scalefactor)
+    norm_expr = t((t(raw_expr)/colSums(raw_expr))*scalefactor)
 
     if(!is.null(logbase)) {
       ## 2. lognormalize
-      norm_expr = base::log(x = norm_expr+1, base = logbase)
+      norm_expr = log(x = norm_expr+1, base = logbase)
     }
   }
 
@@ -417,20 +418,20 @@ normalizeGiotto <- function(gobject,
 
     if(scale_order == 'first_genes') {
       if(verbose == TRUE) cat('\n first scale genes and then cells \n')
-      norm_scaled_expr = base::t(scale(x = base::t(norm_expr)))
-      norm_scaled_expr = base::scale(x = norm_scaled_expr)
+      norm_scaled_expr = t(scale(x = t(norm_expr)))
+      norm_scaled_expr = scale(x = norm_scaled_expr)
     } else if(scale_order == 'first_cells') {
       if(verbose == TRUE) cat('\n first scale cells and then genes \n')
-      norm_scaled_expr = base::scale(x = norm_expr)
-      norm_scaled_expr = base::t(scale(x = base::t(norm_scaled_expr)))
+      norm_scaled_expr = scale(x = norm_expr)
+      norm_scaled_expr = t(scale(x = t(norm_scaled_expr)))
     } else {
       stop('\n scale order must be given \n')
     }
 
   } else if(scale_genes == TRUE) {
-    norm_scaled_expr = base::t(scale(x = base::t(norm_expr)))
+    norm_scaled_expr = t(scale(x = t(norm_expr)))
   } else if(scale_cells == TRUE) {
-    norm_scaled_expr = base::scale(x = norm_expr)
+    norm_scaled_expr = scale(x = norm_expr)
   } else {
     norm_scaled_expr = NULL
   }
@@ -441,8 +442,8 @@ normalizeGiotto <- function(gobject,
 
   ## update parameters used ##
   parameters_list  = gobject@parameters
-  number_of_rounds = base::length(parameters_list)
-  update_name      = base::paste0(number_of_rounds,'_normalize')
+  number_of_rounds = length(parameters_list)
+  update_name      = paste0(number_of_rounds,'_normalize')
   # parameters to include
   parameters_list[[update_name]] = c('normalized to library size' = ifelse(library_size_norm == T, 'yes', 'no'),
                                      'scalefactor' = scalefactor,
@@ -479,26 +480,26 @@ adjustGiottoMatrix <- function(gobject,
   cell_metadata = Giotto::pDataDT(gobject)
 
   if(!is.null(batch_columns)) {
-    if(!all(batch_columns %in% base::colnames(cell_metadata))) {
+    if(!all(batch_columns %in% colnames(cell_metadata))) {
       stop('\n batch column name(s) were not found in the cell metadata \n')
     }
   }
 
   if(!is.null(covariate_columns)) {
-    if(!all(covariate_columns %in% base::colnames(cell_metadata))) {
+    if(!all(covariate_columns %in% colnames(cell_metadata))) {
       stop('\n covariate column name(s) were not found in the cell metadata \n')
     }
   }
 
-  update_slot = base::match.arg(update_slot, c('normalized', 'scaled', 'custom'))
+  update_slot = match.arg(update_slot, c('normalized', 'scaled', 'custom'))
 
-  values = base::match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_data = Giotto:::select_expression_values(gobject = gobject, values = values)
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_data = select_expression_values(gobject = gobject, values = values)
 
   # batch columns
-  if(!base::is.null(batch_columns)) {
+  if(!is.null(batch_columns)) {
     batch_column_1 = cell_metadata[[ batch_columns[1] ]]
-    if(base::length(batch_columns) > 1) {
+    if(length(batch_columns) > 1) {
       batch_column_2 = cell_metadata[[ batch_columns[2] ]]
     } else {
       batch_column_2 = NULL
@@ -509,8 +510,8 @@ adjustGiottoMatrix <- function(gobject,
   }
 
   # covariate columns
-  if(!base::is.null(covariate_columns)) {
-    covariates = base::as.matrix(cell_metadata[, covariate_columns, with = F])
+  if(!is.null(covariate_columns)) {
+    covariates = as.matrix(cell_metadata[, covariate_columns, with = F])
   } else {
     covariates = NULL
   }
@@ -621,16 +622,16 @@ addCellMetadata <- function(gobject,
 
 
   if(by_column == FALSE) {
-    cell_metadata = base::cbind(cell_metadata, new_metadata)
+    cell_metadata = cbind(cell_metadata, new_metadata)
   } else {
-    if(base::is.null(column_cell_ID)) stop('You need to provide cell_ID column')
+    if(is.null(column_cell_ID)) stop('You need to provide cell_ID column')
     cell_metadata <- data.table:::merge.data.table(cell_metadata, by.x = 'cell_ID',
                                                    new_metadata, by.y = column_cell_ID,
                                                    all.x = T)
   }
 
   # reorder
-  cell_metadata = cell_metadata[base::match(ordered_cell_IDs, cell_ID)]
+  cell_metadata = cell_metadata[match(ordered_cell_IDs, cell_ID)]
 
   gobject@cell_metadata <- cell_metadata
   return(gobject)
@@ -657,9 +658,9 @@ addGeneMetadata <- function(gobject,
   ordered_gene_IDs = gobject@gene_ID
 
   if(by_column == FALSE) {
-    gene_metadata = base::cbind(gene_metadata, new_metadata)
+    gene_metadata = cbind(gene_metadata, new_metadata)
   } else {
-    if(base::is.null(column_gene_ID)) stop('You need to provide gene_ID column')
+    if(is.null(column_gene_ID)) stop('You need to provide gene_ID column')
     gene_metadata <- data.table:::merge.data.table(gene_metadata, by.x = 'gene_ID',
                                                    new_metadata, by.y = column_gene_ID,
                                                    all.x = T)
@@ -691,17 +692,17 @@ addGeneStatistics <- function(gobject,
                               return_gobject = TRUE) {
 
   # expression values to be used
-  values = base::match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_data = Giotto:::select_expression_values(gobject = gobject, values = values)
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_data = select_expression_values(gobject = gobject, values = values)
 
   # calculate stats
-  gene_stats = data.table(genes = base::rownames(expr_data),
-                          nr_cells = base::rowSums(expr_data > detection_threshold),
-                          perc_cells = (base::rowSums(expr_data > detection_threshold)/base::ncol(expr_data))*100,
-                          total_expr = base::rowSums(expr_data),
-                          mean_expr = base::rowMeans(expr_data))
+  gene_stats = data.table::data.table(genes = rownames(expr_data),
+                          nr_cells = rowSums(expr_data > detection_threshold),
+                          perc_cells = (rowSums(expr_data > detection_threshold)/ncol(expr_data))*100,
+                          total_expr = rowSums(expr_data),
+                          mean_expr = rowMeans(expr_data))
 
-    mean_expr_detected = base::unlist(base::apply(X = expr_data, MARGIN = 1, FUN = function(x) {
+    mean_expr_detected = unlist(apply(X = expr_data, MARGIN = 1, FUN = function(x) {
     detected_x = x[x > detection_threshold]
     mean(detected_x)
   }))
@@ -711,21 +712,21 @@ addGeneStatistics <- function(gobject,
   if(return_gobject == TRUE) {
 
     # remove previous statistics
-    gene_metadata = Giotto::fDataDT(gobject)
-    metadata_names = base::colnames(gene_metadata)
+    gene_metadata = fDataDT(gobject)
+    metadata_names = colnames(gene_metadata)
     if('nr_cells' %in% metadata_names) {
-      base::cat('\n gene statistics has already been applied once, will be overwritten \n')
+      cat('\n gene statistics has already been applied once, will be overwritten \n')
       gene_metadata[, c('nr_cells', 'perc_cells', 'total_expr', 'mean_expr', 'mean_expr_det') := NULL]
       gobject@gene_metadata = gene_metadata
     }
 
-    gobject = Giotto::addGeneMetadata(gobject = gobject, new_metadata = gene_stats,
+    gobject = addGeneMetadata(gobject = gobject, new_metadata = gene_stats,
                                       by_column = T, column_gene_ID = 'genes')
 
     ## update parameters used ##
     parameters_list = gobject@parameters
-    number_of_rounds = base::length(parameters_list)
-    update_name = base::paste0(number_of_rounds,'_gene_stats')
+    number_of_rounds = length(parameters_list)
+    update_name = paste0(number_of_rounds,'_gene_stats')
     # parameters to include
     parameters_list[[update_name]] = c('expression values used' = expression_values,
                                        'detection_threshold' = detection_threshold)
@@ -758,35 +759,35 @@ addCellStatistics <- function(gobject,
                               return_gobject = TRUE) {
 
   # expression values to be used
-  values = base::match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_data = Giotto:::select_expression_values(gobject = gobject, values = values)
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_data = select_expression_values(gobject = gobject, values = values)
 
   # calculate stats
-  cell_stats = data.table(cells = base::colnames(expr_data),
-                          nr_genes = base::colSums(expr_data > detection_threshold),
-                          perc_genes = (base::colSums(expr_data > detection_threshold)/base::nrow(expr_data))*100,
-                          total_expr = base::colSums(expr_data))
+  cell_stats = data.table::data.table(cells = colnames(expr_data),
+                          nr_genes = colSums(expr_data > detection_threshold),
+                          perc_genes = (colSums(expr_data > detection_threshold)/nrow(expr_data))*100,
+                          total_expr = colSums(expr_data))
 
 
 
   if(return_gobject == TRUE) {
 
     # remove previous statistics
-    cell_metadata = Giotto::pDataDT(gobject)
-    metadata_names = base::colnames(cell_metadata)
+    cell_metadata = pDataDT(gobject)
+    metadata_names = colnames(cell_metadata)
     if('nr_genes' %in% metadata_names) {
       cat('\n cells statistics has already been applied once, will be overwritten \n')
       cell_metadata[, c('nr_genes', 'perc_genes', 'total_expr') := NULL]
       gobject@cell_metadata = cell_metadata
     }
 
-    gobject = Giotto::addCellMetadata(gobject = gobject, new_metadata = cell_stats,
+    gobject = addCellMetadata(gobject = gobject, new_metadata = cell_stats,
                                       by_column = T, column_cell_ID = 'cells')
 
     ## update parameters used ##
     parameters_list = gobject@parameters
-    number_of_rounds = base::length(parameters_list)
-    update_name = base::paste0(number_of_rounds,'_cell_stats')
+    number_of_rounds = length(parameters_list)
+    update_name = paste0(number_of_rounds,'_cell_stats')
     # parameters to include
     parameters_list[[update_name]] = c('expression values used' = expression_values,
                                        'detection_threshold' = detection_threshold)
@@ -857,17 +858,17 @@ showProcessingSteps <- function(gobject) {
 
   parameters = gobject@parameters
 
-  base::cat('Processing steps: \n \n')
+  cat('Processing steps: \n \n')
 
-  for(step in base::names(parameters)) {
-    base::cat('\n', step, '\n')
+  for(step in names(parameters)) {
+    cat('\n', step, '\n')
 
     sub_step = parameters[[step]]
 
-    if(base::any(base::grepl('name', base::names(sub_step)) == TRUE)) {
+    if(any(grepl('name', names(sub_step)) == TRUE)) {
 
-      selected_names = base::grep('name', base::names(sub_step), value = T)
-      base::cat('\t name info: ', sub_step[selected_names], '\n')
+      selected_names = grep('name', names(sub_step), value = T)
+      cat('\t name info: ', sub_step[selected_names], '\n')
 
     }
 
@@ -887,13 +888,13 @@ create_cluster_matrix <- function(gobject,
                                   cluster_column,
                                   gene_subset = NULL) {
 
-  values = base::match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
 
   # average expression per cluster
-  aggr_sc_clusters <- Giotto:::create_average_DT(gobject = gobject, meta_data_name = cluster_column,
+  aggr_sc_clusters <- create_average_DT(gobject = gobject, meta_data_name = cluster_column,
                                         expression_values = values)
   aggr_sc_clusters_DT <- data.table::as.data.table(aggr_sc_clusters)
-  aggr_sc_clusters_DT[, genes := base::rownames(aggr_sc_clusters)]
+  aggr_sc_clusters_DT[, genes := rownames(aggr_sc_clusters)]
   aggr_sc_clusters_DT_melt <- data.table::melt.data.table(aggr_sc_clusters_DT,
                                                           variable.name = 'cluster',
                                                           id.vars = 'genes',
@@ -902,13 +903,13 @@ create_cluster_matrix <- function(gobject,
   # create matrix
   testmat = data.table::dcast.data.table(aggr_sc_clusters_DT_melt,
                                          formula = genes~cluster, value.var = 'expression')
-  testmatrix = base::as.matrix(testmat[,-1])
-  base::rownames(testmatrix) = testmat[['genes']]
+  testmatrix = as.matrix(testmat[,-1])
+  rownames(testmatrix) = testmat[['genes']]
 
   # create subset if required
-  if(!base::is.null(gene_subset)) {
-    gene_subset_detected = gene_subset[gene_subset %in% base::rownames(testmatrix)]
-    testmatrix = testmatrix[base::rownames(testmatrix) %in% gene_subset_detected, ]
+  if(!is.null(gene_subset)) {
+    gene_subset_detected = gene_subset[gene_subset %in% rownames(testmatrix)]
+    testmatrix = testmatrix[rownames(testmatrix) %in% gene_subset_detected, ]
   }
 
   return(testmatrix)

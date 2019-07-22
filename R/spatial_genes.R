@@ -3,7 +3,7 @@
 #' @description create binarized scores using kmeans
 kmeans_binarize = function(x) {
 
-  sel_gene_km = kmeans(x, centers = 2)$cluster
+  sel_gene_km = stats::kmeans(x, centers = 2)$cluster
   mean_1 = mean(x[sel_gene_km == 1])
   mean_2 = mean(x[sel_gene_km == 2])
 
@@ -46,7 +46,7 @@ fish_function = function(x_to, x_from) {
   fish_table = table(x_to == '1',
                      x_from == '1')
 
-  fish_res = fisher.test(fish_table)
+  fish_res = stats::fisher.test(fish_table)
 
   return(list(pval = fish_res$p.value, OR = fish_res$estimate))
 }
@@ -78,7 +78,7 @@ calculate_binarized_spatial_genes <- function(gobject,
     max_rank = (ncol(expr_values)/100)*percentage_rank
     bin_matrix = t(apply(X = expr_values, MARGIN = 1, FUN = function(x) rank_binarize(x = x, max_rank = max_rank)))
   }
-  bin_matrix_DT = as.data.table(melt(bin_matrix, varnames = c('genes', 'cells'), value.name = 'value'))
+  bin_matrix_DT = data.table::as.data.table(melt(bin_matrix, varnames = c('genes', 'cells'), value.name = 'value'))
 
   # extra info: nr of cells with high expression
   nr_high_cells = bin_matrix_DT[, .N, by = .(genes, value)][value == 1]
@@ -116,12 +116,12 @@ calculate_spatial_genes <- function(gobject,
 
   # calculate detection
   detection = rowSums(expr_values > detection_threshold)/ncol(expr_values)
-  detection_DT = data.table(genes = names(detection), detection = detection)
+  detection_DT = data.table::data.table(genes = names(detection), detection = detection)
 
 
   # transpose expression data
   t_expression_data = t(expr_values)
-  t_expression_data_DT <- as.data.table(t_expression_data)
+  t_expression_data_DT <- data.table::as.data.table(t_expression_data)
   t_expression_data_DT[, cell_ID := rownames(t_expression_data)]
 
   # spatial network
@@ -130,9 +130,9 @@ calculate_spatial_genes <- function(gobject,
   # merge spatial network and expression data
   geneset = colnames(t_expression_data)
   spatial_netw_ext_to <- merge(spatial_network, by.x = 'to', t_expression_data_DT, by.y = 'cell_ID')
-  spatial_netw_ext_to_m <- melt.data.table(spatial_netw_ext_to, measure.vars = geneset, variable.name = 'to_gene', value.name = 'to_expression')
+  spatial_netw_ext_to_m <- data.table::melt.data.table(spatial_netw_ext_to, measure.vars = geneset, variable.name = 'to_gene', value.name = 'to_expression')
   spatial_netw_ext_from <- merge(spatial_network, by.x = 'from', t_expression_data_DT, by.y = 'cell_ID')
-  spatial_netw_ext_from_m <- melt.data.table(spatial_netw_ext_from, measure.vars = geneset, variable.name = 'from_gene', value.name = 'from_expression')
+  spatial_netw_ext_from_m <- data.table::melt.data.table(spatial_netw_ext_from, measure.vars = geneset, variable.name = 'from_gene', value.name = 'from_expression')
   spatial_netw_ext_to_m[spatial_netw_ext_from_m, from_expression := from_expression, on = c(from='from',to_gene='from_gene')]
 
 
@@ -180,7 +180,7 @@ calculate_spatial_genes <- function(gobject,
     random_columns = paste0('rand_gini_', 1:simulations)
 
     # calculate p-value, mean and sd of observed and random gini scores
-    gini_scores_DT_m = melt.data.table(gini_scores_DT, measure.vars = random_columns, variable.name = 'random', value.name = 'random_scores')
+    gini_scores_DT_m = data.table::melt.data.table(gini_scores_DT, measure.vars = random_columns, variable.name = 'random', value.name = 'random_scores')
     gini_scores_DT_m[, prob := ifelse(spatial_gini_score > random_scores, 0, 1)]
 
     summary_gini_scores = gini_scores_DT_m[, .(mean_score = mean(random_scores), sd_score = sd(random_scores), prob = sum(prob)/.N), by = .(to_gene, spatial_gini_score)]
@@ -266,7 +266,7 @@ calculate_spatial_genes_python <- function(gobject,
     y = x[2][[1]]
   }))
 
-  spatial_python_DT = data.table(genes = genes, scores = scores)
+  spatial_python_DT = data.table::data.table(genes = genes, scores = scores)
 
   return(spatial_python_DT)
 
@@ -373,10 +373,10 @@ calculateSpatialGenes <- function(gobject,
     }
 
     # calculate prediction
-    loess_model = loess(formula = spatial_gini_score~detection, data = spatial_results, span = loess_span)
+    loess_model = stats::loess(formula = spatial_gini_score~detection, data = spatial_results, span = loess_span)
 
     # predict spatial gini ratio score based on detection
-    predicted_gini = predict(object = loess_model, newdata = spatial_results$detection, se = T)
+    predicted_gini = stats::predict(object = loess_model, newdata = spatial_results$detection, se = T)
     pred_gini = predicted_gini$fit
     pred_se_gini = predicted_gini$se.fit
     spatial_results[, c('pred_gini_score', 'pred_se_gini_score') := list(pred_gini, pred_se_gini)]
@@ -386,14 +386,14 @@ calculateSpatialGenes <- function(gobject,
 
     if(show_plot == TRUE) {
 
-      pl <- ggplot()
-      pl <- pl + geom_point(data = spatial_results, aes(x = detection, y = spatial_gini_score, color = SVgenes))
-      pl <- pl + geom_line(data = spatial_results, aes(x = detection, y = pred_gini_score, group = 1), color = 'blue', size = 1.5)
-      pl <- pl + geom_line(data = spatial_results, aes(x = detection, y = pred_gini_score+pred_difference, group = 1), color = 'red', size = 1.5)
+      pl <- ggplot2::ggplot()
+      pl <- pl + ggplot2::geom_point(data = spatial_results, aes(x = detection, y = spatial_gini_score, color = SVgenes))
+      pl <- pl + ggplot2::geom_line(data = spatial_results, aes(x = detection, y = pred_gini_score, group = 1), color = 'blue', size = 1.5)
+      pl <- pl + ggplot2::geom_line(data = spatial_results, aes(x = detection, y = pred_gini_score+pred_difference, group = 1), color = 'red', size = 1.5)
       if(show_genes == TRUE) {
         pl <- pl + ggrepel::geom_text_repel(data = spatial_results[SVgenes == 'yes'][1:nr_genes], aes(x = detection, y = spatial_gini_score, label = to_gene))
       }
-      pl <- pl + labs(x = 'gene detection fraction', y = 'gini-score')
+      pl <- pl + ggplot2::labs(x = 'gene detection fraction', y = 'gini-score')
       print(pl)
     }
 
@@ -500,8 +500,8 @@ detectSpatialPatterns <- function(gobject,
 
 
   # expression values to be used
-  values = base::match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_values = select_expression_values(gobject = gobject, values = values)
 
 
   # spatial grid and spatial locations
@@ -515,24 +515,24 @@ detectSpatialPatterns <- function(gobject,
   spatial_locs = gobject@spatial_locs
 
   # filter grid, minimum number of cells per grid
-  cells_per_grid = base::sort(base::table(spatial_locs$gr_loc))
+  cells_per_grid = sort(table(spatial_locs$gr_loc))
   cells_per_grid = cells_per_grid[cells_per_grid >= min_cells_per_grid]
-  loc_names = base::names(cells_per_grid)
+  loc_names = names(cells_per_grid)
 
   # average expression per grid
-  loc_av_expr_list <- base::list()
+  loc_av_expr_list <- list()
   for(loc_name in loc_names) {
 
     loc_cell_IDs = spatial_locs[gr_loc == loc_name]$cell_ID
-    subset_expr = expr_values[, base::colnames(expr_values) %in% loc_cell_IDs]
-    if(base::is.vector(subset_expr) == TRUE) {
+    subset_expr = expr_values[, colnames(expr_values) %in% loc_cell_IDs]
+    if(is.vector(subset_expr) == TRUE) {
       loc_av_expr = subset_expr
     } else {
-      loc_av_expr = base::rowMeans(subset_expr)
+      loc_av_expr = rowMeans(subset_expr)
     }
     loc_av_expr_list[[loc_name]] <- loc_av_expr
   }
-  loc_av_expr_matrix = base::do.call('cbind', loc_av_expr_list)
+  loc_av_expr_matrix = do.call('cbind', loc_av_expr_list)
 
   # START TEST
   loc_av_expr_matrix = as.matrix(loc_av_expr_matrix)
@@ -550,38 +550,38 @@ detectSpatialPatterns <- function(gobject,
   # select variable PCs
   eig.val <- factoextra::get_eigenvalue(mypca)
   eig.val_DT <- data.table::as.data.table(eig.val)
-  eig.val_DT$names = base::rownames(eig.val)
-  eig.val_DT[, zscore := base::scale(variance.percent)]
-  eig.val_DT[, rank := base::rank(variance.percent)]
+  eig.val_DT$names = rownames(eig.val)
+  eig.val_DT[, zscore := scale(variance.percent)]
+  eig.val_DT[, rank := rank(variance.percent)]
   dims_to_keep = eig.val_DT[zscore > PC_zscore]$names
 
 
   # if no dimensions are kept, return message
-  if(base::is.null(dims_to_keep) | base::length(dims_to_keep) < 1) {
-    return(base::cat('\n no PC dimensions retained, lower the PC zscore \n'))
+  if(is.null(dims_to_keep) | length(dims_to_keep) < 1) {
+    return(cat('\n no PC dimensions retained, lower the PC zscore \n'))
   }
 
   # coordinates for cells
   pca_matrix <- mypca$ind$coord
-  if(base::length(dims_to_keep) == 1) {
+  if(length(dims_to_keep) == 1) {
     pca_matrix_DT = data.table::data.table('dimkeep' = pca_matrix[,1],
-                                           loc_ID = base::colnames(loc_av_expr_matrix))
+                                           loc_ID = colnames(loc_av_expr_matrix))
     data.table::setnames(pca_matrix_DT, old = 'dimkeep', dims_to_keep)
   } else {
-    pca_matrix_DT <- data.table::as.data.table(pca_matrix[,1:base::length(dims_to_keep)])
-    pca_matrix_DT[, loc_ID := base::colnames(loc_av_expr_matrix)]
+    pca_matrix_DT <- data.table::as.data.table(pca_matrix[,1:length(dims_to_keep)])
+    pca_matrix_DT[, loc_ID := colnames(loc_av_expr_matrix)]
   }
 
 
   # correlation of genes with PCs
   feat_matrix <- mypca$var$cor
-  if(base::length(dims_to_keep) == 1) {
+  if(length(dims_to_keep) == 1) {
     feat_matrix_DT = data.table::data.table('featkeep' = feat_matrix[,1],
-                                            gene_ID = base::rownames(loc_av_expr_matrix))
+                                            gene_ID = rownames(loc_av_expr_matrix))
     data.table::setnames(feat_matrix_DT, old = 'featkeep', dims_to_keep)
   } else {
-    feat_matrix_DT <- data.table::as.data.table(feat_matrix[,1:base::length(dims_to_keep)])
-    feat_matrix_DT[, gene_ID := base::rownames(loc_av_expr_matrix)]
+    feat_matrix_DT <- data.table::as.data.table(feat_matrix[,1:length(dims_to_keep)])
+    feat_matrix_DT[, gene_ID := rownames(loc_av_expr_matrix)]
   }
 
 
@@ -635,25 +635,25 @@ showPattern <- function(spatPatObj,
 
   # trim PC values
   if(!is.null(trim)) {
-    boundaries = quantile(annotated_grid[[selected_PC]], probs = trim)
+    boundaries = stats::quantile(annotated_grid[[selected_PC]], probs = trim)
     annotated_grid[[selected_PC]][annotated_grid[[selected_PC]] < boundaries[1]] = boundaries[1]
     annotated_grid[[selected_PC]][annotated_grid[[selected_PC]] > boundaries[2]] = boundaries[2]
 
   }
 
   # plot
-  dpl <- ggplot()
-  dpl <- dpl + theme_bw()
-  dpl <- dpl + geom_tile(data = annotated_grid,
+  dpl <- ggplot2::ggplot()
+  dpl <- dpl + ggplot2::theme_bw()
+  dpl <- dpl + ggplot2::geom_tile(data = annotated_grid,
                          aes_string(x = 'x_start', y = 'y_start', fill = selected_PC),
                          color = grid.border.color, show.legend = show.legend)
-  dpl <- dpl + scale_fill_gradient2('low' = 'darkblue', mid = 'white', high = 'darkred', midpoint = 0,
+  dpl <- dpl + ggplot2::scale_fill_gradient2('low' = 'darkblue', mid = 'white', high = 'darkred', midpoint = 0,
                                     guide = guide_legend(title = ''))
-  dpl <- dpl + theme(axis.text.x = element_text(size = 8, angle = 45, vjust = 1, hjust = 1),
+  dpl <- dpl + ggplot2::theme(axis.text.x = element_text(size = 8, angle = 45, vjust = 1, hjust = 1),
                      panel.background = element_rect(fill = background.color),
                      panel.grid = element_blank(),
                      plot.title = element_text(hjust = 0.5))
-  dpl <- dpl + labs(x = 'x coordinates', y = 'y coordinates')
+  dpl <- dpl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates')
 
   if(show.plot == TRUE) {
     print(dpl)
@@ -707,11 +707,11 @@ showPatternGenes <- function(spatPatObj,
   subset[, gene_ID := factor(gene_ID, gene_ID)]
 
   pl <- ggplot()
-  pl <- pl + theme_classic()
-  pl <- pl + geom_point(data = subset, aes_string(x = selected_PC, y = 'gene_ID'), size = point.size)
-  pl <- pl + geom_vline(xintercept = 0, linetype = 2)
-  pl <- pl + labs(x = 'correlation', y = '', title = selected_PC)
-  pl <- pl + theme(plot.title = element_text(hjust = 0.5))
+  pl <- pl + ggplot2::theme_classic()
+  pl <- pl + ggplot2::geom_point(data = subset, aes_string(x = selected_PC, y = 'gene_ID'), size = point.size)
+  pl <- pl + ggplot2::geom_vline(xintercept = 0, linetype = 2)
+  pl <- pl + ggplot2::labs(x = 'correlation', y = '', title = selected_PC)
+  pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5))
   if(show.plot == TRUE) {
     print(pl)
   }
@@ -759,7 +759,7 @@ selectPatternGenes <- function(spatPatObj,
   gene_cor_DT = gene_cor_DT[,c(selected_PCs, 'gene_ID'), with = FALSE]
 
   # melt and select
-  gene_cor_DT_m = melt.data.table(gene_cor_DT, id.vars = 'gene_ID')
+  gene_cor_DT_m = data.table::melt.data.table(gene_cor_DT, id.vars = 'gene_ID')
   gene_cor_DT_m[, top_pos_rank := rank(value), by = 'variable']
   gene_cor_DT_m[, top_neg_rank := rank(-value), by = 'variable']
   selection = gene_cor_DT_m[top_pos_rank %in% 1:top_pos_genes | top_neg_rank %in% 1:top_neg_genes]
@@ -774,7 +774,7 @@ selectPatternGenes <- function(spatPatObj,
   # add other genes back
   output_selection = uniq_selection[,.(gene_ID, variable)]
   other_genes = gene_cor_DT[!gene_ID %in% output_selection$gene_ID][['gene_ID']]
-  other_genes_DT = data.table(gene_ID = other_genes, variable = 'noDim')
+  other_genes_DT = data.table::data.table(gene_ID = other_genes, variable = 'noDim')
 
 
   comb_output_genes = rbind(output_selection, other_genes_DT)

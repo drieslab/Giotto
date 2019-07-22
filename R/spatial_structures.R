@@ -3,7 +3,7 @@
 #' @title createSpatialNetwork
 #' @description create a spatial network based on cell centroid distances
 #' @param gobject giotto object
-#' @param k number of nearest neighbors (spatial distance)
+#' @param k number of nearest neighbors based on physical distance
 #' @param dimensions which spatial dimensions to use
 #' @param maximum_distance cuttof for nearest neighbors to consider
 #' @param minimum_k minimum nearest neigbhours if maximum_distance != NULL
@@ -11,7 +11,9 @@
 #' @param verbose verbose
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @return giotto object with updated spatial network slot
-#' @details Description of spatial network creation ...
+#' @details Creates a spatial network connecting single-cells based on their physical distance to eachother.
+#' Number of neighbors can be determined by k, maximum distance from each cell with or without
+#' setting a minimum k for each cell.
 #' @export
 #' @examples
 #'     createSpatialNetwork(gobject)
@@ -31,13 +33,13 @@ createSpatialNetwork <- function(gobject,
   if(dimensions != 'all') {
     spatial_locations = spatial_locations[, dimensions]
   }
-  spatial_locations <- base::as.matrix(spatial_locations)
+  spatial_locations <- as.matrix(spatial_locations)
   rownames(spatial_locations) <- gobject@cell_ID
 
 
   # vector matching cell_ID and order
   cell_ID_vec <- c(1:nrow(spatial_locations))
-  names(cell_ID_vec) <- base::rownames(spatial_locations)
+  names(cell_ID_vec) <- rownames(spatial_locations)
 
 
   # knn network
@@ -46,11 +48,10 @@ createSpatialNetwork <- function(gobject,
                                to = as.vector(knn_spatial$id),
                                weight = 1/(1 + as.vector(knn_spatial$dist)),
                                distance = as.vector(knn_spatial$dist))
-  nw_sptial.norm = graph_from_data_frame(knn_sptial.norm, directed = FALSE)
-
+  nw_sptial.norm = igraph::graph_from_data_frame(knn_sptial.norm, directed = FALSE)
 
   # create network for coordinates #
-  spatial_network_DT <- as.data.table(knn_sptial.norm)
+  spatial_network_DT <- data.table::as.data.table(knn_sptial.norm)
 
   spatial_network_DT[, from := names(cell_ID_vec[from])]
   spatial_network_DT[, to := names(cell_ID_vec[to])]
@@ -146,12 +147,12 @@ create_spatial_grid <- function(spatial_coord,
   if(!is.null(sdimz_coord)) {
     start_grid <- expand.grid(x = sdimx_starts, y = sdimy_starts, z = sdimz_starts)
     end_grid <- expand.grid(x = sdimx_end, y = sdimy_end, z = sdimz_end)
-    poly_grid <- as.data.table(cbind(start_grid, end_grid))
+    poly_grid <- data.table::as.data.table(cbind(start_grid, end_grid))
     colnames(poly_grid) <- c('x_start', 'y_start', 'z_start', 'x_end', 'y_end', 'z_end')
   } else {
     start_grid <- expand.grid(x = sdimx_starts, y = sdimy_starts)
     end_grid <- expand.grid(x = sdimx_end, y = sdimy_end)
-    poly_grid <- as.data.table(cbind(start_grid, end_grid))
+    poly_grid <- data.table::as.data.table(cbind(start_grid, end_grid))
     colnames(poly_grid) <- c('x_start', 'y_start', 'x_end', 'y_end')
   }
 
@@ -236,7 +237,7 @@ find_grid_z <- function(grid_DT, z_loc) {
 #' @param name name for spatial grid (default = 'spatial_grid')
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @return giotto object with updated spatial grid slot
-#' @details Description of spatial grid creation ...
+#' @details Creates a spatial grid with defined x, y (and z) dimensions.
 #' @export
 #' @examples
 #'     createSpatialGrid(gobject)
@@ -289,7 +290,7 @@ createSpatialGrid <- function(gobject,
 
 
 
-  spatial_grid = Giotto:::create_spatial_grid(spatial_coord = spatial_locations,
+  spatial_grid = create_spatial_grid(spatial_coord = spatial_locations,
                                               sdimx_coord = sdimx_coord,  sdimx_start = dimx_start, sdimx_end = dimx_end, sdimx_stepsize = sdimx_stepsize,
                                               sdimy_coord = sdimy_coord,  sdimy_start = dimy_start, sdimy_end = dimy_end, sdimy_stepsize = sdimy_stepsize,
                                               sdimz_coord = sdimz_coord,  sdimz_start = dimz_start, sdimz_end = dimz_end, sdimz_stepsize = sdimz_stepsize)

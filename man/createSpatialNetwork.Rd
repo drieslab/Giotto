@@ -11,7 +11,7 @@ createSpatialNetwork(gobject, k = 4, dimensions = "all",
 \arguments{
 \item{gobject}{giotto object}
 
-\item{k}{number of nearest neighbors (spatial distance)}
+\item{k}{number of nearest neighbors based on physical distance}
 
 \item{dimensions}{which spatial dimensions to use}
 
@@ -32,7 +32,9 @@ giotto object with updated spatial network slot
 create a spatial network based on cell centroid distances
 }
 \details{
-Description of spatial network creation ...
+Creates a spatial network connecting single-cells based on their physical distance to eachother.
+Number of neighbors can be determined by k, maximum distance from each cell with or without
+setting a minimum k for each cell.
 }
 \examples{
     createSpatialNetwork(gobject)
