@@ -53,7 +53,7 @@ showClusterHeatmap <- function(gobject,
 #' @param cluster_custom_order vector with custom order of clusters
 #' @param gene_order order of genes (see details)
 #' @param show_values values to plot on heatmap (see details)
-#' @param legend.nrows number of rows for legend on top
+#' @param legend_nrows number of rows for legend on top
 #' @return ggplot
 #' @details Correlation heatmap of clusters vs genes.
 #' @export
@@ -68,7 +68,7 @@ plotHeatmap <- function(gobject,
                         cluster_color_code = NULL,
                         gene_order = c('custom', 'correlation'),
                         show_values = c('rescaled', 'z-scaled', 'original'),
-                        legend.nrows = 1) {
+                        legend_nrows = 1) {
 
   show_values = match.arg(show_values, choices = c('rescaled', 'z-scaled', 'original'))
 
@@ -178,7 +178,7 @@ plotHeatmap <- function(gobject,
     clus_pl <- ggplot2::ggplot()
     clus_pl <- clus_pl + ggplot2::geom_raster(data = cell_order_DT, aes_string(x = 'cells', y = '1', fill = cluster_column))
     clus_pl <- clus_pl + ggplot2::geom_vline(xintercept = x_lines, color = 'white', size = 1.1)
-    clus_pl <- clus_pl + ggplot2::scale_fill_manual(values = clus_colors, guide = guide_legend(title = '', nrow = legend.nrows))
+    clus_pl <- clus_pl + ggplot2::scale_fill_manual(values = clus_colors, guide = guide_legend(title = '', nrow = legend_nrows))
     clus_pl <- clus_pl + ggplot2::theme(axis.text = element_blank(),
                                axis.ticks = element_blank(),
                                axis.line = element_blank(),
@@ -239,9 +239,9 @@ violinPlot <- function(gobject,
                        cluster_custom_order = NULL,
                        color_violin = c('genes', 'cluster'),
                        cluster_color_code = NULL,
-                       strip.text = 7,
-                       axis.text.x.size = 10,
-                       axis.text.y.size = 6) {
+                       strip_text = 7,
+                       axis_text_x_size = 10,
+                       axis_text_y_size = 6) {
 
 
   ## color of violin plots
@@ -299,9 +299,9 @@ violinPlot <- function(gobject,
     }
   }
   pl <- pl + ggplot2::facet_wrap(~genes, ncol = 1)
-  pl <- pl + ggplot2::theme(strip.text = element_text(size = strip.text),
-                   axis.text.x = element_text(size = axis.text.x.size, angle = 45, hjust = 1, vjust = 1),
-                   axis.text.y = element_text(size = axis.text.y.size))
+  pl <- pl + ggplot2::theme(strip.text = element_text(size = strip_text),
+                   axis.text.x = element_text(size = axis_text_x_size, angle = 45, hjust = 1, vjust = 1),
+                   axis.text.y = element_text(size = axis_text_y_size))
   pl <- pl + ggplot2::labs(x = '', y = 'normalized expression')
   pl
 

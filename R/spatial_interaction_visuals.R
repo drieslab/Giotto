@@ -124,13 +124,13 @@ cellProximityHeatmap = function(CPscore,
 #' @param grid_color color of spatial grid
 #' @param spatial_grid_name name of spatial grid to use
 #' @param coord_fix_ratio fix ratio between x and y-axis
-#' @param show.legend show legend
+#' @param show_legend show legend
 #' @param point_size_select size of selected points
-#' @param point_select.border.col border color of selected points
-#' @param point_select.border.stroke stroke size of selected points
+#' @param point_select_border_col border color of selected points
+#' @param point_select_border_stroke stroke size of selected points
 #' @param point_size_other size of other points
-#' @param point_other.border.col border color of other points
-#' @param point_other.border.stroke stroke size of other points
+#' @param point_other_border_col border color of other points
+#' @param point_other_border_stroke stroke size of other points
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -152,13 +152,13 @@ cellProximityVisPlot <- function(gobject,
                                  grid_color = NULL,
                                  spatial_grid_name = 'spatial_grid',
                                  coord_fix_ratio = 0.6,
-                                 show.legend = T,
+                                 show_legend = T,
                                  point_size_select = 2,
-                                 point_select.border.col = 'black',
-                                 point_select.border.stroke = 0.05,
+                                 point_select_border_col = 'black',
+                                 point_select_border_stroke = 0.05,
                                  point_size_other = 1,
-                                 point_other.border.col = 'lightgrey',
-                                 point_other.border.stroke = 0.01,
+                                 point_other_border_col = 'lightgrey',
+                                 point_other_border_stroke = 0.01,
                                  ...) {
 
 
@@ -243,9 +243,9 @@ cellProximityVisPlot <- function(gobject,
     if(is.null(cell_color)) {
       cell_color = 'lightblue'
       pl <- pl + ggplot2::geom_point(data = cell_locations[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
-                            show.legend = show.legend, shape = 21, fill = 'lightgrey', size = point_size_other)
+                            show.legend = show_legend, shape = 21, fill = 'lightgrey', size = point_size_other)
       pl <- pl + ggplot2::geom_point(data = cell_locations[cell_ID %In% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
-                            show.legend = show.legend, shape = 21, fill = cell_color, size = point_size_select)
+                            show.legend = show_legend, shape = 21, fill = cell_color, size = point_size_select)
     }
     else if (is.character(cell_color)) {
       if(cell_color %in% colnames(cell_locations_metadata)) {
@@ -257,10 +257,10 @@ cellProximityVisPlot <- function(gobject,
 
         pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
                               fill = 'lightgrey', shape = 21, size = point_size_other,
-                              color = point_other.border.col, stroke = point_other.border.stroke)
+                              color = point_other_border_col, stroke = point_other_border_stroke)
         pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy, fill = cell_color),
-                              show.legend = show.legend, shape = 21, size = point_size_select,
-                              color = point_select.border.col, stroke = point_select.border.stroke)
+                              show.legend = show_legend, shape = 21, size = point_size_select,
+                              color = point_select_border_col, stroke = point_select_border_stroke)
 
 
 
@@ -277,11 +277,11 @@ cellProximityVisPlot <- function(gobject,
 
       } else {
         pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
-                              show.legend = show.legend, shape = 21, fill = 'lightgrey', size = point_size_other,
-                              color = point_other.border.col, stroke = point_other.border.stroke)
+                              show.legend = show_legend, shape = 21, fill = 'lightgrey', size = point_size_other,
+                              color = point_other_border_col, stroke = point_other_border_stroke)
         pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
-                              show.legend = show.legend, shape = 21, fill = cell_color, size = point_size_select,
-                              color = point_select.border.col, stroke = point_select.border.stroke)
+                              show.legend = show_legend, shape = 21, fill = cell_color, size = point_size_select,
+                              color = point_select_border_col, stroke = point_select_border_stroke)
       }
 
     }
@@ -535,8 +535,8 @@ direction_test = function(x, min_pval = 0.05) {
 #' @param min_log2_fc min log2 fold-change
 #' @param direction up or downregulation or both
 #' @param cell_color_code color code for cell types
-#' @param show.plot print plot
-#' @param return.DT return filtered data.table (boolean)
+#' @param show_plot print plot
+#' @param return_DT return filtered data.table (boolean)
 #' @return Gene to gene scores in data.table format
 #' @details Give more details ...
 #' @export
@@ -550,8 +550,8 @@ showCPGscores = function(CPGscore,
                          min_log2_fc = 0.5,
                          direction = c('both', 'up', 'down'),
                          cell_color_code = NULL,
-                         show.plot = T,
-                         return.DT = F) {
+                         show_plot = T,
+                         return_DT = F) {
 
 
   direction = match.arg(direction, choices = c('both', 'up', 'down'))
@@ -575,7 +575,7 @@ showCPGscores = function(CPGscore,
   }
 
 
-  if(return.DT == TRUE) {
+  if(return_DT == TRUE) {
 
     change_values = unlist(apply(selection_scores, MARGIN = 1, FUN = function(x) {
       direction_test(x, min_pval = min_pval)
@@ -597,7 +597,7 @@ showCPGscores = function(CPGscore,
     pl <- pl + ggplot2::theme_classic() + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1))
     pl <- pl + ggplot2::coord_flip()
 
-    if(show.plot == TRUE) {
+    if(show_plot == TRUE) {
       print(pl)
     }
   } else if(method == 'cell_barplot') {
@@ -625,7 +625,7 @@ showCPGscores = function(CPGscore,
 
     pl <- pl + ggplot2::theme_classic() + ggplot2::theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
     pl <- pl + ggplot2::labs(x = '', y = '# of genes influenced by cell neighborhood')
-    if(show.plot == TRUE) {
+    if(show_plot == TRUE) {
       print(pl)
     }
 
@@ -661,7 +661,7 @@ showCPGscores = function(CPGscore,
       pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
     }
 
-    if(show.plot == TRUE) {
+    if(show_plot == TRUE) {
       print(pl)
     }
 
@@ -684,7 +684,7 @@ showCPGscores = function(CPGscore,
 #' @param min_log2_fc log2 fold-change threshold
 #' @param direction up or downregulation or both
 #' @param cell_color_code color code for cell types
-#' @param show.plot print plot
+#' @param show_plot print plot
 #' @param specific_genes_1 subset of genes, matched with specific_genes_2
 #' @param specific_genes_2 subset of genes, matched with specific_genes_1
 #' @param first_cell_name name for first cells
@@ -702,12 +702,12 @@ showGTGscores = function(GTGscore,
                          min_log2_fc = 0.5,
                          direction = c('both', 'up', 'down'),
                          cell_color_code = NULL,
-                         show.plot = T,
+                         show_plot = T,
                          specific_genes_1 = NULL,
                          specific_genes_2 = NULL,
                          first_cell_name = 'ligand cell',
                          second_cell_name = 'receptor cell',
-                         return.DT = F) {
+                         return_DT = F) {
 
 
   direction = match.arg(direction, choices = c('both', 'up', 'down'))
@@ -745,7 +745,7 @@ showGTGscores = function(GTGscore,
 
 
   # return data.table
-  if(return.DT == TRUE) {
+  if(return_DT == TRUE) {
     return(GTGscore)
   }
 
@@ -764,7 +764,7 @@ showGTGscores = function(GTGscore,
     pl <- pl + ggplot2::theme_classic() + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1))
     pl <- pl + ggplot2::coord_flip()
 
-    if(show.plot == TRUE) {
+    if(show_plot == TRUE) {
       print(pl)
     }
 
@@ -808,7 +808,7 @@ showGTGscores = function(GTGscore,
       pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
     }
 
-    if(show.plot == TRUE) {
+    if(show_plot == TRUE) {
       print(pl)
     }
 
@@ -856,7 +856,7 @@ showGTGscores = function(GTGscore,
     if(!is.null(cell_color_code)) {
       pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
     }
-    if(show.plot == TRUE) {
+    if(show_plot == TRUE) {
       print(pl)
     }
 
@@ -878,10 +878,10 @@ showGTGscores = function(GTGscore,
 #' @param detail_plot show detailed info in both interacting cell types
 #' @param simple_plot show a simplified plot
 #' @param simple_plot_facet facet on interactions or genes with simple plot
-#' @param facet.scales ggplot facet scales paramter
-#' @param facet.ncol ggplot facet ncol parameter
-#' @param facet.nrow ggplot facet nrow parameter
-#' @param show.plot show plot
+#' @param facet_scales ggplot facet scales paramter
+#' @param facet_ncol ggplot facet ncol parameter
+#' @param facet_nrow ggplot facet nrow parameter
+#' @param show_plot show plot
 #' @return ggplot barplot
 #' @details Give more details ...
 #' @export
@@ -893,10 +893,10 @@ plotGTGscores <- function(GTGscore,
                           detail_plot = T,
                           simple_plot = F,
                           simple_plot_facet = c('interaction', 'genes'),
-                          facet.scales = 'fixed',
-                          facet.ncol = length(selected_gene_to_gene),
-                          facet.nrow = length(selected_interactions),
-                          show.plot = F) {
+                          facet_scales = 'fixed',
+                          facet_ncol = length(selected_gene_to_gene),
+                          facet_nrow = length(selected_interactions),
+                          show_plot = F) {
 
   if(is.null(selected_interactions) | is.null(selected_gene_to_gene)) {
     stop('\n You need to provide a selection of cell-cell interactions and genes-genes to plot \n')
@@ -935,8 +935,8 @@ plotGTGscores <- function(GTGscore,
     pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = all_cell_expr_1, xend = cell_expr_1,
                                               y = all_cell_expr_2, yend = cell_expr_2), linetype = 2)
     pl <- pl + ggplot2::labs(x = 'gene 1 in celltype 1', y = 'gene 2 in celltype 2')
-    pl <- pl + ggplot2::facet_wrap(~unif_gene_gene+unified_int, nrow = facet.nrow, ncol = facet.ncol,
-                          scales = facet.scales)
+    pl <- pl + ggplot2::facet_wrap(~unif_gene_gene+unified_int, nrow = facet_nrow, ncol = facet_ncol,
+                          scales = facet_scales)
 
   } else {
 
@@ -949,7 +949,7 @@ plotGTGscores <- function(GTGscore,
                                                 y = unif_gene_gene, yend = unif_gene_gene), linetype = 2)
       pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_cell_expr, y = unif_gene_gene), color = 'blue')
       pl <- pl + ggplot2::geom_point(data = subDT, aes(x = spatial_cell_expr, y = unif_gene_gene), color = 'red')
-      pl <- pl + ggplot2::facet_wrap(~unified_int, scales = facet.scales)
+      pl <- pl + ggplot2::facet_wrap(~unified_int, scales = facet_scales)
       pl <- pl + ggplot2::labs(x = 'interactions', y = 'gene-gene')
     } else {
       pl <- ggplot2::ggplot()
@@ -958,12 +958,12 @@ plotGTGscores <- function(GTGscore,
                                                 y = unified_int, yend = unified_int), linetype = 2)
       pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_cell_expr, y = unified_int), color = 'blue')
       pl <- pl + ggplot2::geom_point(data = subDT, aes(x = spatial_cell_expr, y = unified_int), color = 'red')
-      pl <- pl + ggplot2::facet_wrap(~unif_gene_gene, scales = facet.scales)
+      pl <- pl + ggplot2::facet_wrap(~unif_gene_gene, scales = facet_scales)
       pl <- pl + ggplot2::labs(x = 'gene-gene', y = 'interactions')
     }
   }
 
-  if(show.plot == TRUE) {
+  if(show_plot == TRUE) {
     print(pl)
   }
 
@@ -983,10 +983,10 @@ plotGTGscores <- function(GTGscore,
 #' @param detail_plot show detailed info in both interacting cell types
 #' @param simple_plot show a simplified plot
 #' @param simple_plot_facet facet on interactions or genes with simple plot
-#' @param facet.scales ggplot facet scales paramter
-#' @param facet.ncol ggplot facet ncol parameter
-#' @param facet.nrow ggplot facet nrow parameter
-#' @param show.plot show plot
+#' @param facet_scales ggplot facet scales paramter
+#' @param facet_ncol ggplot facet ncol parameter
+#' @param facet_nrow ggplot facet nrow parameter
+#' @param show_plot show plot
 #' @return ggplot barplot
 #' @details Give more details ...
 #' @export
@@ -998,10 +998,10 @@ plotCPGscores <- function(CPGscores,
                           detail_plot = T,
                           simple_plot = F,
                           simple_plot_facet = c('interaction', 'genes'),
-                          facet.scales = 'fixed',
-                          facet.ncol = length(selected_genes),
-                          facet.nrow = length(selected_interactions),
-                          show.plot = F) {
+                          facet_scales = 'fixed',
+                          facet_ncol = length(selected_genes),
+                          facet_nrow = length(selected_interactions),
+                          show_plot = F) {
 
   if(is.null(selected_interactions) | is.null(selected_genes)) {
     stop('\n You need to provide a selection of cell-cell interactions and genes to plot \n')
@@ -1040,8 +1040,8 @@ plotCPGscores <- function(CPGscores,
     pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = all_cell_expr_1, xend = cell_expr_1,
                                               y = all_cell_expr_2, yend = cell_expr_2), linetype = 2)
     pl <- pl + ggplot2::labs(x = 'gene in celltype 1', y = 'gene in celltype 2')
-    pl <- pl + ggplot2::facet_wrap(~genes+interaction, nrow = facet.nrow, ncol = facet.ncol,
-                          scales = facet.scales)
+    pl <- pl + ggplot2::facet_wrap(~genes+interaction, nrow = facet_nrow, ncol = facet_ncol,
+                          scales = facet_scales)
 
   } else {
 
@@ -1054,7 +1054,7 @@ plotCPGscores <- function(CPGscores,
                                                 y = genes, yend = genes), linetype = 2)
       pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_comb_expr, y = genes), color = 'blue')
       pl <- pl + ggplot2::geom_point(data = subDT, aes(x = comb_expr, y = genes), color = 'red')
-      pl <- pl + ggplot2::facet_wrap(~interaction, scales = facet.scales)
+      pl <- pl + ggplot2::facet_wrap(~interaction, scales = facet_scales)
       pl <- pl + ggplot2::labs(x = 'interactions', y = 'genes')
     } else {
       pl <- ggplot2::ggplot()
@@ -1063,12 +1063,12 @@ plotCPGscores <- function(CPGscores,
                                                 y = interaction, yend = interaction), linetype = 2)
       pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_comb_expr, y = interaction), color = 'blue')
       pl <- pl + ggplot2::geom_point(data = subDT, aes(x = comb_expr, y = interaction), color = 'red')
-      pl <- pl + ggplot2::facet_wrap(~genes, scales = facet.scales)
+      pl <- pl + ggplot2::facet_wrap(~genes, scales = facet_scales)
       pl <- pl + ggplot2::labs(x = 'genes', y = 'interactions')
     }
   }
 
-  if(show.plot == TRUE) {
+  if(show_plot == TRUE) {
     print(pl)
   }
 

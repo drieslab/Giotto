@@ -480,9 +480,9 @@ calculateSpatialGenes <- function(gobject,
 #' @param expression_values expression values to use
 #' @param spatial_grid_name name of spatial grid to use (default = 'spatial_grid')
 #' @param min_cells_per_grid minimum number of cells in a grid to be considered
-#' @param scale.unit scale features
+#' @param scale_unit scale features
 #' @param ncp number of principal components to calculate
-#' @param show.plots show plots
+#' @param show_plot show plots
 #' @param PC_zscore minimum z-score of variance explained by a PC
 #' @return spatial pattern object 'spatPatObj'
 #' @details Description of how we compute spatial pattern genes.
@@ -493,9 +493,9 @@ detectSpatialPatterns <- function(gobject,
                                   expression_values = c('normalized', 'scaled', 'custom'),
                                   spatial_grid_name = 'spatial_grid',
                                   min_cells_per_grid = 4,
-                                  scale.unit = F,
+                                  scale_unit = F,
                                   ncp = 100,
-                                  show.plots = T,
+                                  show_plot = T,
                                   PC_zscore = 1.5) {
 
 
@@ -539,11 +539,11 @@ detectSpatialPatterns <- function(gobject,
   # STOP
 
   # perform pca on grid matrix
-  mypca <- FactoMineR::PCA(X = t(loc_av_expr_matrix), scale.unit = scale.unit, ncp = ncp, graph = F)
+  mypca <- FactoMineR::PCA(X = t(loc_av_expr_matrix), scale.unit = scale_unit, ncp = ncp, graph = F)
 
   # screeplot
   screeplot = factoextra::fviz_eig(mypca, addlabels = T, ylim = c(0, 50))
-  if(show.plots == TRUE) {
+  if(show_plot == TRUE) {
     print(screeplot)
   }
 
@@ -602,9 +602,10 @@ detectSpatialPatterns <- function(gobject,
 #' @param spatPatObj Output from detectSpatialPatterns
 #' @param dimension dimension to plot
 #' @param trim Trim ends of the PC values.
-#' @param background.color background color for plot
-#' @param grid.border.color color for grid
-#' @param show.plot Show the plot.
+#' @param background_color background color for plot
+#' @param grid_border_color color for grid
+#' @param show_legend show legend of ggplot
+#' @param show_plot Show the plot.
 #' @return ggplot
 #' @details Description.
 #' @export
@@ -613,10 +614,10 @@ detectSpatialPatterns <- function(gobject,
 showPattern <- function(spatPatObj,
                         dimension = 1,
                         trim = c(0.02, 0.98),
-                        background.color = 'white',
-                        grid.border.color = 'grey',
-                        show.legend = T,
-                        show.plot = F) {
+                        background_color = 'white',
+                        grid_border_color = 'grey',
+                        show_legend = T,
+                        show_plot = F) {
 
   if(!'spatPatObj' %in% class(spatPatObj)) {
     stop('\n spatPatObj needs to be the output from detectSpatialPatterns \n')
@@ -646,16 +647,16 @@ showPattern <- function(spatPatObj,
   dpl <- dpl + ggplot2::theme_bw()
   dpl <- dpl + ggplot2::geom_tile(data = annotated_grid,
                          aes_string(x = 'x_start', y = 'y_start', fill = selected_PC),
-                         color = grid.border.color, show.legend = show.legend)
+                         color = grid_border_color, show.legend = show_legend)
   dpl <- dpl + ggplot2::scale_fill_gradient2('low' = 'darkblue', mid = 'white', high = 'darkred', midpoint = 0,
                                     guide = guide_legend(title = ''))
   dpl <- dpl + ggplot2::theme(axis.text.x = element_text(size = 8, angle = 45, vjust = 1, hjust = 1),
-                     panel.background = element_rect(fill = background.color),
+                     panel.background = element_rect(fill = background_color),
                      panel.grid = element_blank(),
                      plot.title = element_text(hjust = 0.5))
   dpl <- dpl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates')
 
-  if(show.plot == TRUE) {
+  if(show_plot == TRUE) {
     print(dpl)
   }
   return(dpl)
@@ -672,8 +673,8 @@ showPattern <- function(spatPatObj,
 #' @param dimension dimension to plot genes for.
 #' @param top_pos_genes Top positively correlated genes.
 #' @param top_neg_genes Top negatively correlated genes.
-#' @param point.size size of points
-#' @param show.plot Show the plot.
+#' @param point_size size of points
+#' @param show_plot Show the plot.
 #' @return ggplot
 #' @details Description.
 #' @export
@@ -683,8 +684,8 @@ showPatternGenes <- function(spatPatObj,
                              dimension = 1,
                              top_pos_genes = 5,
                              top_neg_genes = 5,
-                             point.size = 1,
-                             show.plot = F) {
+                             point_size = 1,
+                             show_plot = F) {
 
   if(!'spatPatObj' %in% class(spatPatObj)) {
     stop('\n spatPatObj needs to be the output from detectSpatialPatterns \n')
@@ -708,11 +709,11 @@ showPatternGenes <- function(spatPatObj,
 
   pl <- ggplot()
   pl <- pl + ggplot2::theme_classic()
-  pl <- pl + ggplot2::geom_point(data = subset, aes_string(x = selected_PC, y = 'gene_ID'), size = point.size)
+  pl <- pl + ggplot2::geom_point(data = subset, aes_string(x = selected_PC, y = 'gene_ID'), size = point_size)
   pl <- pl + ggplot2::geom_vline(xintercept = 0, linetype = 2)
   pl <- pl + ggplot2::labs(x = 'correlation', y = '', title = selected_PC)
   pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5))
-  if(show.plot == TRUE) {
+  if(show_plot == TRUE) {
     print(pl)
   }
   return(pl)

@@ -918,7 +918,7 @@ iterCluster <- function(gobject,
 #' @param dimensions_to_use dimensions to use
 #' @param distance_method distance method
 #' @param centers number of final clusters
-#' @param iter.max kmeans maximum iterations
+#' @param iter_max kmeans maximum iterations
 #' @param nstart kmeans nstart
 #' @param algorithm kmeans algorithm
 #' @param name name for kmeans clustering
@@ -941,7 +941,7 @@ doKmeans <- function(gobject,
                                          "euclidean", "maximum", "manhattan",
                                          "canberra", "binary", "minkowski"),
                      centers = 10,
-                     iter.max = 100,
+                     iter_max = 100,
                      nstart = 1000,
                      algorithm = "Hartigan-Wong",
                      name = 'kmeans',
@@ -1004,7 +1004,7 @@ doKmeans <- function(gobject,
 
   # start clustering
   kclusters = stats::kmeans(x = celldist, centers = centers,
-                            iter.max = iter.max, nstart = nstart,
+                            iter.max = iter_max, nstart = nstart,
                             algorithm =  algorithm)
 
 
@@ -1041,7 +1041,7 @@ doKmeans <- function(gobject,
                                        'name for clusters' = name,
                                        'distance method' = distance_method,
                                        'centers' = centers,
-                                       'iter.max' = iter.max,
+                                       'iter_max' = iter_max,
                                        'nstart' =  nstart
     )
 

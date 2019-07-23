@@ -105,8 +105,10 @@ exportGiottoViewer = function(gobject,
                               dim_reductions,
                               dim_reduction_names,
                               expression_values = c('normalized', 'scaled', 'custom'),
-                              dim_red_rounding = NULL, dim_red_rescale = c(-20,20),
-                              expression_rounding = NULL, overwrite_dir = F,
+                              dim_red_rounding = NULL,
+                              dim_red_rescale = c(-20,20),
+                              expression_rounding = NULL,
+                              overwrite_dir = F,
                               verbose = T) {
 
   ## output directory ##

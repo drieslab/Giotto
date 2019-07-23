@@ -40,7 +40,7 @@ create_dimObject = function(name = 'test',
 #' @param name arbitrary name for PCA run
 #' @param genes_to_use subset of genes to use for PCA
 #' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @param scale.unit scale features before PCA
+#' @param scale_unit scale features before PCA
 #' @param ncp number of principal components to calculate
 #' @param ... additional parameters for PCA
 #' @return giotto object with updated PCA dimension recuction
@@ -54,7 +54,7 @@ runPCA <- function(gobject,
                    name = 'pca',
                    genes_to_use = NULL,
                    return_gobject = TRUE,
-                   scale.unit = F,
+                   scale_unit = F,
                    ncp = 200,
                    ...) {
 
@@ -73,10 +73,10 @@ runPCA <- function(gobject,
   reduction = match.arg(reduction, c('cells', 'genes'))
   if(reduction == 'cells') {
     pca_object <- FactoMineR::PCA(X = t(expr_values),
-                                  scale.unit = scale.unit, ncp = ncp, graph = F, ...)
+                                  scale.unit = scale_unit, ncp = ncp, graph = F, ...)
   } else {
     pca_object <- FactoMineR::PCA(X = expr_values,
-                                  scale.unit = scale.unit, ncp = ncp, graph = F, ...)
+                                  scale.unit = scale_unit, ncp = ncp, graph = F, ...)
   }
 
   if(return_gobject == TRUE) {
@@ -105,7 +105,7 @@ runPCA <- function(gobject,
                                        'expression values' = expression_values,
                                        'number of genes used:' = length(genes_to_use),
                                        'ncp' = ncp,
-                                       'scale.unit' = scale.unit,
+                                       'scale_unit' = scale_unit,
                                        'name for pca' = name)
     gobject@parameters = parameters_list
 
@@ -128,14 +128,14 @@ runPCA <- function(gobject,
 #' @param expression_values expression values to use
 #' @param reduction cells or genes
 #' @param genes_to_use subset of genes to use for PCA
-#' @param scale.unit scale features before PCA
+#' @param scale_unit scale features before PCA
 #' @param ncp number of principal components to calculate
-#' @param scree.labels show labels on scree plot
-#' @param scree.ylim y-axis limits on scree plot
-#' @param jack.iter number of interations for jackstraw
-#' @param jack.threshold p-value threshold to call a PC significant
-#' @param jack.verbose show progress of jackstraw method
-#' @param show.plot show plots
+#' @param scree_labels show labels on scree plot
+#' @param scree_ylim y-axis limits on scree plot
+#' @param jack_iter number of interations for jackstraw
+#' @param jack_threshold p-value threshold to call a PC significant
+#' @param jack_verbose show progress of jackstraw method
+#' @param show_plot show plots
 #' @param ... additional parameters for PCA
 #' @return ggplot object for scree method and maxtrix of p-values for jackstraw
 #' @details Description of PCA steps...
@@ -146,14 +146,14 @@ signPCA <- function(gobject, method = c('screeplot', 'jackstraw'),
                     expression_values = c("normalized", "scaled", "custom"),
                     reduction = c("cells", "genes"),
                     genes_to_use = NULL,
-                    scale.unit = T,
+                    scale_unit = T,
                     ncp = 50,
-                    scree.labels = T,
-                    scree.ylim = c(0,10),
-                    jack.iter = 10,
-                    jack.threshold = 0.01,
-                    jack.verbose = T,
-                    show.plot = T, ...) {
+                    scree_labels = T,
+                    scree_ylim = c(0,10),
+                    jack_iter = 10,
+                    jack_threshold = 0.01,
+                    jack_verbose = T,
+                    show_plot = T, ...) {
 
   # select method
   method = match.arg(method, choices = c('screeplot', 'jackstraw'))
@@ -175,17 +175,17 @@ signPCA <- function(gobject, method = c('screeplot', 'jackstraw'),
 
     if(method == 'screeplot') {
       pca_object <- FactoMineR::PCA(X = t(expr_values),
-                                    scale.unit = scale.unit,
+                                    scale.unit = scale_unit,
                                     ncp = ncp, graph = F, ...)
-      screeplot = factoextra::fviz_eig(pca_object, addlabels = scree.labels, ylim = scree.ylim, ncp = ncp)
-      if(show.plot == TRUE) print(screeplot)
+      screeplot = factoextra::fviz_eig(pca_object, addlabels = scree_labels, ylim = scree_ylim, ncp = ncp)
+      if(show_plot == TRUE) print(screeplot)
       return(screeplot)
     } else if(method == 'jackstraw') {
-      if(scale.unit == TRUE) {
+      if(scale_unit == TRUE) {
         expr_values = t(scale(t(expr_values)))
       }
-      jtest = jackstraw::permutationPA(dat = expr_values, B = jack.iter, threshold = jack.threshold, verbose = jack.verbose)
-      if(show.plot == TRUE) plot(jtest$p)
+      jtest = jackstraw::permutationPA(dat = expr_values, B = jack_iter, threshold = jack_threshold, verbose = jack_verbose)
+      if(show_plot == TRUE) plot(jtest$p)
       return(jtest)
     }
 
