@@ -9,11 +9,11 @@ visDimPlot(gobject, dim_reduction_to_use = "umap",
   show_NN_network = F, nn_network_to_use = "sNN",
   network_name = "sNN.pca", cell_color = NULL, color_as_factor = T,
   cell_color_code = NULL, show_cluster_center = F,
-  show_center_label = T, center.point.size = 4,
-  center.point.border.col = "black", center.point.border.stroke = 0.1,
-  label.size = 4, label.fontface = "bold", edge_alpha = NULL,
-  point_size = 1, point.border.col = "black",
-  point.border.stroke = 0.1, show.legend = T)
+  show_center_label = T, center_point_size = 4,
+  center_point_border_col = "black", center_point_border_stroke = 0.1,
+  label_size = 4, label_fontface = "bold", edge_alpha = NULL,
+  point_size = 1, point_border_col = "black",
+  point_border_stroke = 0.1, show_legend = T)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -42,21 +42,21 @@ visDimPlot(gobject, dim_reduction_to_use = "umap",
 
 \item{show_center_label}{plot label of selected clusters}
 
-\item{center.point.size}{size of center points}
+\item{center_point_size}{size of center points}
 
-\item{label.size}{size of labels}
+\item{label_size}{size of labels}
 
-\item{label.fontface}{font of labels}
+\item{label_fontface}{font of labels}
 
 \item{edge_alpha}{column to use for alpha of the edges}
 
 \item{point_size}{size of point (cell)}
 
-\item{point.border.col}{color of border around points}
+\item{point_border_col}{color of border around points}
 
-\item{point.border.stroke}{stroke size of border around points}
+\item{point_border_stroke}{stroke size of border around points}
 
-\item{show.legend}{show legend}
+\item{show_legend}{show legend}
 }
 \value{
 ggplot

@@ -5,8 +5,8 @@
 \title{showPattern}
 \usage{
 showPattern(spatPatObj, dimension = 1, trim = c(0.02, 0.98),
-  background.color = "white", grid.border.color = "grey",
-  show.legend = T, show.plot = F)
+  background_color = "white", grid_border_color = "grey",
+  show_legend = T, show_plot = F)
 }
 \arguments{
 \item{spatPatObj}{Output from detectSpatialPatterns}
@@ -15,11 +15,13 @@ showPattern(spatPatObj, dimension = 1, trim = c(0.02, 0.98),
 
 \item{trim}{Trim ends of the PC values.}
 
-\item{background.color}{background color for plot}
+\item{background_color}{background color for plot}
 
-\item{grid.border.color}{color for grid}
+\item{grid_border_color}{color for grid}
 
-\item{show.plot}{Show the plot.}
+\item{show_legend}{show legend of ggplot}
+
+\item{show_plot}{Show the plot.}
 }
 \value{
 ggplot

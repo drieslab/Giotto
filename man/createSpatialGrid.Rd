@@ -30,7 +30,7 @@ giotto object with updated spatial grid slot
 create a spatial grid
 }
 \details{
-Description of spatial grid creation ...
+Creates a spatial grid with defined x, y (and z) dimensions.
 }
 \examples{
     createSpatialGrid(gobject)

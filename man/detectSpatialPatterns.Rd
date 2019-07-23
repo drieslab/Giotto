@@ -6,8 +6,8 @@
 \usage{
 detectSpatialPatterns(gobject, expression_values = c("normalized",
   "scaled", "custom"), spatial_grid_name = "spatial_grid",
-  min_cells_per_grid = 4, scale.unit = F, ncp = 100,
-  show.plots = T, PC_zscore = 1.5)
+  min_cells_per_grid = 4, scale_unit = F, ncp = 100, show_plot = T,
+  PC_zscore = 1.5)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -18,11 +18,11 @@ detectSpatialPatterns(gobject, expression_values = c("normalized",
 
 \item{min_cells_per_grid}{minimum number of cells in a grid to be considered}
 
-\item{scale.unit}{scale features}
+\item{scale_unit}{scale features}
 
 \item{ncp}{number of principal components to calculate}
 
-\item{show.plots}{show plots}
+\item{show_plot}{show plots}
 
 \item{PC_zscore}{minimum z-score of variance explained by a PC}
 }

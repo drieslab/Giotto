@@ -7,8 +7,8 @@
 plotGTGscores(GTGscore, selected_interactions = NULL,
   selected_gene_to_gene = NULL, detail_plot = T, simple_plot = F,
   simple_plot_facet = c("interaction", "genes"),
-  facet.scales = "fixed", facet.ncol = length(selected_gene_to_gene),
-  facet.nrow = length(selected_interactions), show.plot = F)
+  facet_scales = "fixed", facet_ncol = length(selected_gene_to_gene),
+  facet_nrow = length(selected_interactions), show_plot = F)
 }
 \arguments{
 \item{GTGscore}{GTGscore, output from getGeneToGeneScores()}
@@ -21,13 +21,13 @@ plotGTGscores(GTGscore, selected_interactions = NULL,
 
 \item{simple_plot_facet}{facet on interactions or genes with simple plot}
 
-\item{facet.scales}{ggplot facet scales paramter}
+\item{facet_scales}{ggplot facet scales paramter}
 
-\item{facet.ncol}{ggplot facet ncol parameter}
+\item{facet_ncol}{ggplot facet ncol parameter}
 
-\item{facet.nrow}{ggplot facet nrow parameter}
+\item{facet_nrow}{ggplot facet nrow parameter}
 
-\item{show.plot}{show plot}
+\item{show_plot}{show plot}
 
 \item{selected_genes}{genes to show}
 }

@@ -7,7 +7,7 @@
 violinPlot(gobject, expression_values = c("normalized", "scaled",
   "custom"), genes, cluster_column, cluster_custom_order = NULL,
   color_violin = c("genes", "cluster"), cluster_color_code = NULL,
-  strip.text = 7, axis.text.x.size = 10, axis.text.y.size = 6)
+  strip_text = 7, axis_text_x_size = 10, axis_text_y_size = 6)
 }
 \arguments{
 \item{gobject}{giotto object}

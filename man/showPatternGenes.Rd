@@ -5,7 +5,7 @@
 \title{showPatternGenes}
 \usage{
 showPatternGenes(spatPatObj, dimension = 1, top_pos_genes = 5,
-  top_neg_genes = 5, point.size = 1, show.plot = F)
+  top_neg_genes = 5, point_size = 1, show_plot = F)
 }
 \arguments{
 \item{spatPatObj}{Output from detectSpatialPatterns}
@@ -16,9 +16,9 @@ showPatternGenes(spatPatObj, dimension = 1, top_pos_genes = 5,
 
 \item{top_neg_genes}{Top negatively correlated genes.}
 
-\item{point.size}{size of points}
+\item{point_size}{size of points}
 
-\item{show.plot}{Show the plot.}
+\item{show_plot}{Show the plot.}
 }
 \value{
 ggplot

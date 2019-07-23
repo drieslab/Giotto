@@ -9,15 +9,15 @@ visSpatDimPlot(gobject, plot_alignment = c("vertical", "horizontal"),
   dim1_to_use = 1, dim2_to_use = 2, show_NN_network = F,
   nn_network_to_use = "sNN", network_name = "sNN.pca",
   show_cluster_center = F, show_center_label = T,
-  center.point.size = 4, label.size = 4, label.fontface = "bold",
+  center_point_size = 4, label_size = 4, label_fontface = "bold",
   cell_color = NULL, color_as_factor = T, cell_color_code = NULL,
-  dim_point_size = 1, dim.point.border.col = "black",
-  dim.point.border.stroke = 0.1, edge_alpha = 0.05,
+  dim_point_size = 1, dim_point_border_col = "black",
+  dim_point_border_stroke = 0.1, edge_alpha = 0.05,
   show_spatial_network = F, spatial_network_name = "spatial_network",
   spatial_network_color = NULL, show_spatial_grid = F,
   spatial_grid_name = "spatial_grid", spatial_grid_color = NULL,
-  spatial_point_size = 1, spatial.point.border.col = "black",
-  spatial.point.border.stroke = 0.1, show.legend = T, show.plot = F)
+  spatial_point_size = 1, spatial_point_border_col = "black",
+  spatial_point_border_stroke = 0.1, show_legend = T, show_plot = F)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -58,9 +58,9 @@ visSpatDimPlot(gobject, plot_alignment = c("vertical", "horizontal"),
 
 \item{spatial_grid_color}{color of spatial grid}
 
-\item{show.legend}{show legend}
+\item{show_legend}{show legend}
 
-\item{show.plot}{show plot}
+\item{show_plot}{show plot}
 }
 \value{
 ggplot

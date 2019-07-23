@@ -10,9 +10,9 @@ visDimGenePlot(gobject, expression_values = c("normalized", "scaled",
   show_NN_network = T, nn_network_to_use = "sNN",
   network_name = "sNN.pca", edge_alpha = NULL,
   scale_alpha_with_expression = TRUE, point_size = 1,
-  point.border.col = "black", point.border.stroke = 0.1,
+  point_border_col = "black", point_border_stroke = 0.1,
   midpoint = 0, cow_n_col = 2, cow_rel_h = 1, cow_rel_w = 1,
-  cow_align = "h", show.legend = T, show_plots = T)
+  cow_align = "h", show_legend = T, show_plots = T)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -41,9 +41,9 @@ visDimGenePlot(gobject, expression_values = c("normalized", "scaled",
 
 \item{point_size}{size of point (cell)}
 
-\item{point.border.col}{color of border around points}
+\item{point_border_col}{color of border around points}
 
-\item{point.border.stroke}{stroke size of border around points}
+\item{point_border_stroke}{stroke size of border around points}
 
 \item{midpoint}{size of point (cell)}
 
@@ -55,7 +55,7 @@ visDimGenePlot(gobject, expression_values = c("normalized", "scaled",
 
 \item{cow_align}{cowplot param: how to align}
 
-\item{show.legend}{show legend}
+\item{show_legend}{show legend}
 
 \item{show_plots}{show plots}
 }

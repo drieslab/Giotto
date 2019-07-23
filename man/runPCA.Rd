@@ -6,7 +6,7 @@
 \usage{
 runPCA(gobject, expression_values = c("normalized", "scaled", "custom"),
   reduction = c("cells", "genes"), name = "pca", genes_to_use = NULL,
-  return_gobject = TRUE, scale.unit = F, ncp = 200, ...)
+  return_gobject = TRUE, scale_unit = F, ncp = 200, ...)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -21,7 +21,7 @@ runPCA(gobject, expression_values = c("normalized", "scaled", "custom"),
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
-\item{scale.unit}{scale features before PCA}
+\item{scale_unit}{scale features before PCA}
 
 \item{ncp}{number of principal components to calculate}
 

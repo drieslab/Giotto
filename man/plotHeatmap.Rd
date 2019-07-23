@@ -9,7 +9,7 @@ plotHeatmap(gobject, expression_values = c("normalized", "scaled",
   "correlation", "custom"), cluster_custom_order = NULL,
   cluster_color_code = NULL, gene_order = c("custom", "correlation"),
   show_values = c("rescaled", "z-scaled", "original"),
-  legend.nrows = 1)
+  legend_nrows = 1)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -28,7 +28,7 @@ plotHeatmap(gobject, expression_values = c("normalized", "scaled",
 
 \item{show_values}{values to plot on heatmap (see details)}
 
-\item{legend.nrows}{number of rows for legend on top}
+\item{legend_nrows}{number of rows for legend on top}
 }
 \value{
 ggplot

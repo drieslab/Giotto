@@ -7,10 +7,10 @@
 showGTGscores(GTGscore, method = c("cell_barplot", "cell-cell",
   "cell_sankey"), min_cells = 5, min_pval = 0.05,
   min_spat_diff = 0.2, min_log2_fc = 0.5, direction = c("both", "up",
-  "down"), cell_color_code = NULL, show.plot = T,
+  "down"), cell_color_code = NULL, show_plot = T,
   specific_genes_1 = NULL, specific_genes_2 = NULL,
   first_cell_name = "ligand cell", second_cell_name = "receptor cell",
-  return.DT = F)
+  return_DT = F)
 }
 \arguments{
 \item{method}{visualization method}
@@ -27,7 +27,7 @@ showGTGscores(GTGscore, method = c("cell_barplot", "cell-cell",
 
 \item{cell_color_code}{color code for cell types}
 
-\item{show.plot}{print plot}
+\item{show_plot}{print plot}
 
 \item{specific_genes_1}{subset of genes, matched with specific_genes_2}
 

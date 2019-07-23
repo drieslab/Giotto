@@ -9,7 +9,7 @@ doKmeans(gobject, expression_values = c("normalized", "scaled",
   "pca", "umap", "tsne"), dim_reduction_name = "pca",
   dimensions_to_use = 1:10, distance_method = c("original", "pearson",
   "spearman", "euclidean", "maximum", "manhattan", "canberra", "binary",
-  "minkowski"), centers = 10, iter.max = 100, nstart = 1000,
+  "minkowski"), centers = 10, iter_max = 100, nstart = 1000,
   algorithm = "Hartigan-Wong", name = "kmeans",
   return_gobject = TRUE, set_seed = T, seed_number = 1234)
 }
@@ -30,7 +30,7 @@ doKmeans(gobject, expression_values = c("normalized", "scaled",
 
 \item{centers}{number of final clusters}
 
-\item{iter.max}{kmeans maximum iterations}
+\item{iter_max}{kmeans maximum iterations}
 
 \item{nstart}{kmeans nstart}
 

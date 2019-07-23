@@ -5,14 +5,14 @@
 \title{visPlot}
 \usage{
 visPlot(gobject, sdimx = NULL, sdimy = NULL, sdimz = NULL,
-  point_size = 1, point.border.col = "black",
-  point.border.stroke = 0.1, cell_color = NULL,
+  point_size = 1, point_border_col = "black",
+  point_border_stroke = 0.1, cell_color = NULL,
   cell_color_code = NULL, color_as_factor = T,
   select_cell_groups = NULL, show_network = F, network_color = NULL,
   spatial_network_name = "spatial_network", show_grid = F,
   grid_color = NULL, spatial_grid_name = "spatial_grid",
-  coord_fix_ratio = 0.6, title = "", show.legend = T,
-  show.plot = F)
+  coord_fix_ratio = 0.6, title = "", show_legend = T,
+  show_plot = F)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -25,9 +25,9 @@ visPlot(gobject, sdimx = NULL, sdimy = NULL, sdimz = NULL,
 
 \item{point_size}{size of point (cell)}
 
-\item{point.border.col}{color of border around points}
+\item{point_border_col}{color of border around points}
 
-\item{point.border.stroke}{stroke size of border around points}
+\item{point_border_stroke}{stroke size of border around points}
 
 \item{cell_color}{color for cells (see details)}
 
@@ -53,9 +53,9 @@ visPlot(gobject, sdimx = NULL, sdimy = NULL, sdimz = NULL,
 
 \item{title}{title of plot}
 
-\item{show.legend}{show legend}
+\item{show_legend}{show legend}
 
-\item{show.plot}{show plot}
+\item{show_plot}{show plot}
 }
 \value{
 ggplot
