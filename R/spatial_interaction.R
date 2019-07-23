@@ -32,7 +32,7 @@ annotateSpatialNetwork = function(gobject,
   names(cluster_type_vector) = cell_metadata[['cell_ID']]
 
 
-  spatial_network_annot = copy(spatial_network)
+  spatial_network_annot = data.table::copy(spatial_network)
   spatial_network_annot[, to_cell_type := cluster_type_vector[to]]
   spatial_network_annot[, from_cell_type := cluster_type_vector[from]]
   spatial_network_annot[, type_int := ifelse(to_cell_type == from_cell_type, 'homo', 'hetero')]
@@ -83,7 +83,7 @@ make_simulated_network = function(gobject,
   s2_vector = do.call('c', s2_list)
   round_vector = rep(x = 1:number_of_simulations, each = length_ints)
   round_vector = paste0('sim',round_vector)
-  sample_dt = data.table(s1 = s1_vector, s2 = s2_vector, round = round_vector)
+  sample_dt = data.table::data.table(s1 = s1_vector, s2 = s2_vector, round = round_vector)
 
   uniq_sim_comb = unique(sample_dt[,.(s1,s2)])
   uniq_sim_comb[, unified_int := paste(sort(c(s1,s2)), collapse = '-'), by  = 1:nrow(uniq_sim_comb)]
@@ -174,21 +174,21 @@ cellProximityEnrichment <- function(gobject,
     p_low[[int_combo]] = p_orig_lower
 
   }
-  res_pvalue_DT = data.table(unified_int = as.vector(combo_list), p_higher_orig = p_high, p_lower_orig = p_low)
+  res_pvalue_DT = data.table::data.table(unified_int = as.vector(combo_list), p_higher_orig = p_high, p_lower_orig = p_low)
 
 
   # depletion or enrichment in barplot format
   table_mean_results <- table_results[, .(mean(V1)), by = c('orig', 'unified_int', 'type_int')]
-  table_mean_results_dc <- dcast.data.table(data = table_mean_results, formula = type_int+unified_int~orig, value.var = 'V1')
+  table_mean_results_dc <- data.table::dcast.data.table(data = table_mean_results, formula = type_int+unified_int~orig, value.var = 'V1')
   table_mean_results_dc[, original := ifelse(is.na(original), 0, original)]
   table_mean_results_dc[, enrichm := log2((original+1)/(simulations+1))]
 
 
   table_mean_results_dc <- merge(table_mean_results_dc, res_pvalue_DT, by = 'unified_int')
-  setorder(table_mean_results_dc, enrichm)
+  data.table::setorder(table_mean_results_dc, enrichm)
   table_mean_results_dc[, unified_int := factor(unified_int, unified_int)]
   table_mean_results_dc[, PI_value := ifelse(p_higher_orig <= p_lower_orig, -log10(p_higher_orig+(1/number_of_simulations))*enrichm, -log10(p_lower_orig+(1/number_of_simulations))*enrichm)]
-  setorder(table_mean_results_dc, PI_value)
+  data.table::setorder(table_mean_results_dc, PI_value)
 
   # order
   table_mean_results_dc <- table_mean_results_dc[order(-PI_value)]
@@ -276,18 +276,18 @@ get_specific_interaction_gene_enrichment <- function(sub_spatial_network,
 
   # wilcox test and averages
   if(nr_cell_type_1 == 1) {
-    if(do_diff_test == T) cell_type_1_test =  wilcox.test(x = as.vector(cell_type_1_ids_matrix), y = as.vector(all_cell_type_1_ids_matrix))$p.value
+    if(do_diff_test == T) cell_type_1_test =  stats::wilcox.test(x = as.vector(cell_type_1_ids_matrix), y = as.vector(all_cell_type_1_ids_matrix))$p.value
     average_all_cell_type_1_ids = rowMeans(all_cell_type_1_ids_matrix)
   } else {
-    if(do_diff_test == T) cell_type_1_test = sapply(1:nrow(cell_type_1_ids_matrix), function(i) wilcox.test(as.vector(cell_type_1_ids_matrix[i,]), as.vector(all_cell_type_1_ids_matrix[i,]))$p.value)
+    if(do_diff_test == T) cell_type_1_test = sapply(1:nrow(cell_type_1_ids_matrix), function(i) stats::wilcox.test(as.vector(cell_type_1_ids_matrix[i,]), as.vector(all_cell_type_1_ids_matrix[i,]))$p.value)
     average_all_cell_type_1_ids = rowMeans(all_cell_type_1_ids_matrix)
   }
 
   if(nr_cell_type_2 == 1) {
-    if(do_diff_test == T) cell_type_2_test =  wilcox.test(x = as.vector(cell_type_2_ids_matrix), y = as.vector(all_cell_type_2_ids_matrix))$p.value
+    if(do_diff_test == T) cell_type_2_test =  stats::wilcox.test(x = as.vector(cell_type_2_ids_matrix), y = as.vector(all_cell_type_2_ids_matrix))$p.value
     average_all_cell_type_2_ids = rowMeans(all_cell_type_2_ids_matrix)
   } else {
-    if(do_diff_test == T) cell_type_2_test = sapply(1:nrow(cell_type_2_ids_matrix), function(i) wilcox.test(as.vector(cell_type_2_ids_matrix[i,]), as.vector(all_cell_type_2_ids_matrix[i,]))$p.value)
+    if(do_diff_test == T) cell_type_2_test = sapply(1:nrow(cell_type_2_ids_matrix), function(i) stats::wilcox.test(as.vector(cell_type_2_ids_matrix[i,]), as.vector(all_cell_type_2_ids_matrix[i,]))$p.value)
     average_all_cell_type_2_ids = rowMeans(all_cell_type_2_ids_matrix)
   }
 
@@ -297,14 +297,14 @@ get_specific_interaction_gene_enrichment <- function(sub_spatial_network,
   gene_names = names(combined_1_2_ids)
 
   if(do_diff_test == T) {
-    res_DT = as.data.table(do.call('cbind', list(genes = gene_names,
+    res_DT = data.table::as.data.table(do.call('cbind', list(genes = gene_names,
                                                  cell_expr_1 = average_cell_type_1_ids, cell_expr_2 = average_cell_type_2_ids,
                                                  comb_expr = combined_1_2_ids,
                                                  all_cell_expr_1 = average_all_cell_type_1_ids, all_cell_expr_2 = average_all_cell_type_2_ids,
                                                  all_comb_expr = combined_all_1_2_ids,
                                                  pval_1 = cell_type_1_test, pval_2 = cell_type_2_test)))
   } else {
-    res_DT = as.data.table(do.call('cbind', list(genes = gene_names,
+    res_DT = data.table::as.data.table(do.call('cbind', list(genes = gene_names,
                                                  cell_expr_1 = average_cell_type_1_ids, cell_expr_2 = average_cell_type_2_ids,
                                                  comb_expr = combined_1_2_ids,
                                                  all_cell_expr_1 = average_all_cell_type_1_ids, all_cell_expr_2 = average_all_cell_type_2_ids,
@@ -374,9 +374,9 @@ get_cell_to_cell_sorted_name_conversion <- function(all_cell_types) {
 
   # create all possible combinations
   all_cell_types = unique(all_cell_types)
-  first_combn = as.data.table(t(combn(x = all_cell_types, m = 2)))
-  sec_combn = data.table(V1 = first_combn$V2, V2 = first_combn$V1)
-  self_comb = data.table(V1 = all_cell_types, V2 = all_cell_types)
+  first_combn = data.table::as.data.table(t(combn(x = all_cell_types, m = 2)))
+  sec_combn = data.table::data.table(V1 = first_combn$V2, V2 = first_combn$V1)
+  self_comb = data.table::data.table(V1 = all_cell_types, V2 = all_cell_types)
 
   # create data.table
   mult_comb = do.call('rbind', list(first_combn, sec_combn, self_comb))
@@ -426,7 +426,7 @@ getCellProximityGeneScores = function(gobject,
 
   # 2. get expression values
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_values = select_expression_values(gobject = gobject, values = values)
 
   # 3. get cell metadata
   cell_metadata = pDataDT(gobject)
@@ -435,7 +435,7 @@ getCellProximityGeneScores = function(gobject,
   }
 
   # 4. calculate cell-cell interaction gene scores
-  interaction_gene_scores = Giotto:::get_interaction_gene_enrichment(spatial_network = annot_spatial_network,
+  interaction_gene_scores = get_interaction_gene_enrichment(spatial_network = annot_spatial_network,
                                                                      unified_int_col = 'unified_int',
                                                                      source_col = 'from_cell_type', source_IDs = 'from',
                                                                      neighb_col = 'to_cell_type', neighb_IDs = 'to',
@@ -450,7 +450,7 @@ getCellProximityGeneScores = function(gobject,
   interaction_gene_scores[, diff_spat := as.numeric(comb_expr)-as.numeric(all_comb_expr)]
   interaction_gene_scores[, diff_spat_1 := as.numeric(cell_expr_1)-as.numeric(all_cell_expr_1)]
   interaction_gene_scores[, diff_spat_2 := as.numeric(cell_expr_2)-as.numeric(all_cell_expr_2)]
-  setorder(interaction_gene_scores, diff_spat)
+  data.table::setorder(interaction_gene_scores, diff_spat)
 
   # fold-change with spatial
   interaction_gene_scores[, log2fc_spat_1 := log2((as.numeric(cell_expr_1)+fold_change_addendum)/(as.numeric(all_cell_expr_1)+fold_change_addendum))]
@@ -767,7 +767,7 @@ average_gene_gene_expression_in_groups = function(gobject,
                                                   gene_set_1,
                                                   gene_set_2) {
 
-  average_DT = Giotto:::create_average_DT(gobject = gobject, meta_data_name = cluster_column)
+  average_DT = create_average_DT(gobject = gobject, meta_data_name = cluster_column)
 
   # change column names back to original
   new_colnames = gsub(pattern = 'cluster_', replacement = '', colnames(average_DT))
@@ -792,7 +792,7 @@ average_gene_gene_expression_in_groups = function(gobject,
   receptor_match = average_DT[match(gene_set_2, rownames(average_DT)), ,drop = F]
 
   all_ligand_cols = colnames(ligand_match)
-  lig_test = as.data.table(melt(ligand_match, measure.vars = all_ligand_cols))
+  lig_test = data.table::as.data.table(melt(ligand_match, measure.vars = all_ligand_cols))
   lig_test[, ligand := rep(rownames(ligand_match), ncol(ligand_match))]
   lig_test[, ligand := strsplit(ligand,'\\.')[[1]][1] , by = 1:nrow(lig_test)]
   lig_test[, LR_comb := rep(LR_pairs, ncol(ligand_match))]
@@ -800,7 +800,7 @@ average_gene_gene_expression_in_groups = function(gobject,
   setnames(lig_test, 'variable', 'lig_cell_type')
 
   all_receptor_cols = colnames(receptor_match)
-  rec_test = as.data.table(melt(receptor_match, measure.vars = all_receptor_cols))
+  rec_test = data.table::as.data.table(melt(receptor_match, measure.vars = all_receptor_cols))
   rec_test[, receptor := rep(rownames(receptor_match), ncol(receptor_match))]
   rec_test[, receptor := strsplit(receptor,'\\.')[[1]][1] , by = 1:nrow(rec_test)]
   rec_test[, LR_comb := rep(LR_pairs, ncol(receptor_match))]
@@ -891,7 +891,7 @@ specificCellCellcommunicationScores = function(gobject,
   cell_metadata = pDataDT(gobject = gobject)
 
   # get annotated spatial network
-  annot_network = Giotto:::annotateSpatialNetwork(gobject, spatial_network_name = spatial_network_name, cluster_column = cluster_column)
+  annot_network = annotateSpatialNetwork(gobject, spatial_network_name = spatial_network_name, cluster_column = cluster_column)
 
   cell_direction_1 = paste0(cell_type_1,'-',cell_type_2)
   cell_direction_2 = paste0(cell_type_2,'-',cell_type_1)

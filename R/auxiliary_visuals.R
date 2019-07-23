@@ -29,9 +29,9 @@ showClusterHeatmap <- function(gobject,
                                      expression_values = values)
 
   # correlation
-  cormatrix = cor(x = testmatrix, method = distance)
-  cordist = as.dist(1 - cormatrix, diag = T, upper = T)
-  corclus = hclust(d = cordist, method = 'ward.D')
+  cormatrix = stats::cor(x = testmatrix, method = distance)
+  cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
+  corclus = stats::hclust(d = cordist, method = 'ward.D')
 
   hmap = ComplexHeatmap::Heatmap(matrix = cormatrix,
                  cluster_rows = corclus,
@@ -74,7 +74,7 @@ plotHeatmap <- function(gobject,
 
   # epxression data
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_values = select_expression_values(gobject = gobject, values = values)
 
   # subset expression data
   detected_genes = genes[genes %in% rownames(expr_values)]
@@ -108,9 +108,9 @@ plotHeatmap <- function(gobject,
                                             gene_subset = detected_genes,
                                             expression_values = values)
 
-      cormatrix = cor(x = subset_matrix, method = 'pearson')
-      cordist = as.dist(1 - cormatrix, diag = T, upper = T)
-      corclus = hclust(d = cordist, method = 'ward.D')
+      cormatrix = stats::cor(x = subset_matrix, method = 'pearson')
+      cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
+      corclus = stats::hclust(d = cordist, method = 'ward.D')
 
       clus_names = rownames(cormatrix)
       names(clus_names) = 1:length(clus_names)
@@ -126,12 +126,12 @@ plotHeatmap <- function(gobject,
     }
 
     ## data.table ##
-    subset_values_DT <- as.data.table(melt(subset_values, varnames = c('genes', 'cells'), value.name = 'expression'))
+    subset_values_DT <- data.table::as.data.table(melt(subset_values, varnames = c('genes', 'cells'), value.name = 'expression'))
     subset_values_DT <- merge(subset_values_DT, by.x = 'cells', cell_metadata[, c('cell_ID', cluster_column), with = F], by.y = 'cell_ID')
     subset_values_DT[[cluster_column]] <- factor(subset_values_DT[[cluster_column]], levels = clus_sort_names)
 
     subset_values_DT[, genes := factor(genes, unique(detected_genes))]
-    subset_values_DT[, z_scores := base::scale(expression), by = genes]
+    subset_values_DT[, z_scores := scale(expression), by = genes]
     subset_values_DT[, scale_scores := scales::rescale(x = expression, to = c(0,1)), by = genes]
 
     # order cells
@@ -141,7 +141,7 @@ plotHeatmap <- function(gobject,
 
     if(is.null(cluster_color_code)) {
       clus_values = unique(cell_order_DT[[cluster_column]])
-      clus_colors = Giotto:::getDistinctColors(n = length(clus_values))
+      clus_colors = getDistinctColors(n = length(clus_values))
       names(clus_colors) = clus_values
     } else {
       clus_colors = cluster_color_code
@@ -157,12 +157,12 @@ plotHeatmap <- function(gobject,
       genesum_per_clus = subset_values_DT[, sum(expression), by = c('genes', cluster_column)]
 
       my_formula = paste0('genes~',cluster_column)
-      test_mat = dcast.data.table(data = genesum_per_clus, formula = my_formula, value.var = 'V1')
+      test_mat = data.table::dcast.data.table(data = genesum_per_clus, formula = my_formula, value.var = 'V1')
       test_matrix = as.matrix(test_mat[,-1]); rownames(test_matrix) = test_mat$genes
 
-      gene_dist = dist(test_matrix, method = 'euclidean')
-      gene_dist = as.dist(1-cor(t(test_matrix), method = 'pearson'))
-      gene_clus = hclust(gene_dist, method = 'complete')
+      gene_dist = stats::dist(test_matrix, method = 'euclidean')
+      gene_dist = stats::as.dist(1-cor(t(test_matrix), method = 'pearson'))
+      gene_clus = stats::hclust(gene_dist, method = 'complete')
 
       gene_labels = rownames(test_matrix)
       gene_index = 1:length(gene_labels)
@@ -175,15 +175,15 @@ plotHeatmap <- function(gobject,
     cell_order_DT[['cells']] = factor(cell_order_DT[['cells']], levels = as.character(cell_order_DT[['cells']]))
 
     ## bar on top ##
-    clus_pl <- ggplot()
-    clus_pl <- clus_pl + geom_raster(data = cell_order_DT, aes_string(x = 'cells', y = '1', fill = cluster_column))
-    clus_pl <- clus_pl + geom_vline(xintercept = x_lines, color = 'white', size = 1.1)
-    clus_pl <- clus_pl + scale_fill_manual(values = clus_colors, guide = guide_legend(title = '', nrow = legend.nrows))
-    clus_pl <- clus_pl + theme(axis.text = element_blank(),
+    clus_pl <- ggplot2::ggplot()
+    clus_pl <- clus_pl + ggplot2::geom_raster(data = cell_order_DT, aes_string(x = 'cells', y = '1', fill = cluster_column))
+    clus_pl <- clus_pl + ggplot2::geom_vline(xintercept = x_lines, color = 'white', size = 1.1)
+    clus_pl <- clus_pl + ggplot2::scale_fill_manual(values = clus_colors, guide = guide_legend(title = '', nrow = legend.nrows))
+    clus_pl <- clus_pl + ggplot2::theme(axis.text = element_blank(),
                                axis.ticks = element_blank(),
                                axis.line = element_blank(),
                                legend.position = 'top')
-    clus_pl <- clus_pl + labs(x = '', y = '')
+    clus_pl <- clus_pl + ggplot2::labs(x = '', y = '')
     clus_pl
 
 
@@ -201,11 +201,11 @@ plotHeatmap <- function(gobject,
     }
 
     ## heatmap ##
-    pl <- pl + geom_tile(data = subset_values_DT, aes_string(x = 'cells', y = 'genes', fill = value_column))
-    pl <- pl + geom_vline(xintercept = x_lines, color = 'white', size = 1.1)
-    pl <- pl + theme(axis.text.x = element_blank(),
+    pl <- pl + ggplot2::geom_tile(data = subset_values_DT, aes_string(x = 'cells', y = 'genes', fill = value_column))
+    pl <- pl + ggplot2::geom_vline(xintercept = x_lines, color = 'white', size = 1.1)
+    pl <- pl + ggplot2::theme(axis.text.x = element_blank(),
                      axis.ticks.x = element_blank())
-    pl <- pl + scale_fill_gradient2(low = 'blue', mid = 'yellow', high = 'red', midpoint = midpoint)
+    pl <- pl + ggplot2::scale_fill_gradient2(low = 'blue', mid = 'yellow', high = 'red', midpoint = midpoint)
     pl
 
 
@@ -249,7 +249,7 @@ violinPlot <- function(gobject,
 
   ## expression data ##
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_data = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_data = select_expression_values(gobject = gobject, values = values)
 
   # only keep genes that are in the dataset
   selected_genes = genes[genes %in% rownames(expr_data) ]
@@ -272,7 +272,7 @@ violinPlot <- function(gobject,
   }
 
 
-  metadata_expr_m <- melt.data.table(metadata_expr, measure.vars = unique(selected_genes), variable.name = 'genes')
+  metadata_expr_m <- data.table::melt.data.table(metadata_expr, measure.vars = unique(selected_genes), variable.name = 'genes')
   metadata_expr_m[, genes := factor(genes, selected_genes)]
   metadata_expr_m[[cluster_column]] = as.factor(metadata_expr_m[[cluster_column]])
 
@@ -281,13 +281,13 @@ violinPlot <- function(gobject,
   }
 
 
-  pl <- ggplot()
-  pl <- pl + theme_classic()
+  pl <- ggplot2::ggplot()
+  pl <- pl + ggplot2::theme_classic()
 
   if(color_violin == 'genes') {
-    pl <- pl + geom_violin(data = metadata_expr_m, aes_string(x = cluster_column, y = 'value', fill = 'genes'), width = 1, scale = 'width', show.legend = F)
+    pl <- pl + ggplot2::geom_violin(data = metadata_expr_m, aes_string(x = cluster_column, y = 'value', fill = 'genes'), width = 1, scale = 'width', show.legend = F)
   } else {
-    pl <- pl + geom_violin(data = metadata_expr_m,
+    pl <- pl + ggplot2::geom_violin(data = metadata_expr_m,
                            aes_string(x = cluster_column, y = 'value',
                                       fill = cluster_column),
                            width = 1, scale = 'width',
@@ -295,14 +295,14 @@ violinPlot <- function(gobject,
 
     # provide own color scheme for clusters
     if(!is.null(cluster_color_code)) {
-      pl <- pl + scale_fill_manual(values = cluster_color_code)
+      pl <- pl + ggplot2::scale_fill_manual(values = cluster_color_code)
     }
   }
-  pl <- pl + facet_wrap(~genes, ncol = 1)
-  pl <- pl + theme(strip.text = element_text(size = strip.text),
+  pl <- pl + ggplot2::facet_wrap(~genes, ncol = 1)
+  pl <- pl + ggplot2::theme(strip.text = element_text(size = strip.text),
                    axis.text.x = element_text(size = axis.text.x.size, angle = 45, hjust = 1, vjust = 1),
                    axis.text.y = element_text(size = axis.text.y.size))
-  pl <- pl + labs(x = '', y = 'normalized expression')
+  pl <- pl + ggplot2::labs(x = '', y = 'normalized expression')
   pl
 
   return(pl)

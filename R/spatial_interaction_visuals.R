@@ -26,18 +26,18 @@ cellProximityBarplot = function(CPscore,
   table_mean_results_dc_filter = table_mean_results_dc[original >= min_orig_ints & simulations >= min_sim_ints]
   table_mean_results_dc_filter = table_mean_results_dc_filter[p_higher_orig <= p_val | p_lower_orig <= p_val]
 
-  pl <- ggplot()
-  pl <- pl + geom_bar(data = table_mean_results_dc_filter, aes(x = unified_int, y = enrichm, fill = type_int), stat = 'identity', show.legend = F)
-  pl <- pl + coord_flip()
-  pl <- pl + theme_bw()
-  pl <- pl + labs(y = 'enrichment/depletion')
+  pl <- ggplot2::ggplot()
+  pl <- pl + ggplot2::geom_bar(data = table_mean_results_dc_filter, aes(x = unified_int, y = enrichm, fill = type_int), stat = 'identity', show.legend = F)
+  pl <- pl + ggplot2::coord_flip()
+  pl <- pl + ggplot2::theme_bw()
+  pl <- pl + ggplot2::labs(y = 'enrichment/depletion')
   pl
 
-  bpl <- ggplot()
-  bpl <- bpl + geom_bar(data = table_mean_results_dc_filter, aes(x = unified_int, y = original, fill = type_int), stat = 'identity', show.legend = T)
-  bpl <- bpl + coord_flip()
-  bpl <- bpl + theme_bw() + theme(axis.text.y = element_blank())
-  bpl <- bpl + labs(y = '# of interactions')
+  bpl <- ggplot2::ggplot()
+  bpl <- bpl + ggplot2::geom_bar(data = table_mean_results_dc_filter, aes(x = unified_int, y = original, fill = type_int), stat = 'identity', show.legend = T)
+  bpl <- bpl + ggplot2::coord_flip()
+  bpl <- bpl + ggplot2::theme_bw() + theme(axis.text.y = element_blank())
+  bpl <- bpl + ggplot2::labs(y = '# of interactions')
   bpl
 
   combo_plot <- cowplot::plot_grid(pl, bpl, ncol = 2, rel_heights = c(1), rel_widths = c(3,1.5), align = 'h')
@@ -66,7 +66,7 @@ cellProximityHeatmap = function(CPscore,
   enrich_res[, second_type := strsplit(x = as.character(unified_int), split = '-')[[1]][2], by = 1:nrow(enrich_res)]
 
   # create matrix
-  enrich_mat = dcast.data.table(data = enrich_res,formula = first_type~second_type, value.var = 'enrichm')
+  enrich_mat = data.table::dcast.data.table(data = enrich_res,formula = first_type~second_type, value.var = 'enrichm')
   matrix_d <- as.matrix(enrich_mat[,-1]); rownames(matrix_d) = as.vector(enrich_mat[[1]])
   t_matrix_d <- t(matrix_d)
   t_matrix_d[upper.tri(t_matrix_d)] <- matrix_d[upper.tri(matrix_d)]
@@ -89,8 +89,8 @@ cellProximityHeatmap = function(CPscore,
   # order cell types
   if(order_cell_types == TRUE) {
 
-    cordist = as.dist(1-cor(final_matrix))
-    clus = hclust(cordist)
+    cordist = stats::as.dist(1-cor(final_matrix))
+    clus = stats::hclust(cordist)
     myorder = clus$order
     mylabels = clus$labels
     names(mylabels) = 1:length(mylabels)
@@ -204,13 +204,13 @@ cellProximityVisPlot <- function(gobject,
 
     if(!is.null(cell_color) & cell_color %in% colnames(cell_locations_metadata)) {
       if(is.null(cell_color_code)) cell_color_code <- 'lightblue'
-      p <- plot_ly(type = 'scatter3d',
+      p <- plotly::plot_ly(type = 'scatter3d',
                    x = cell_locations_metadata$sdimx, y = cell_locations_metadata$sdimy, z = cell_locations_metadata$sdimz,
                    color = cell_locations_metadata[[cell_color]],
                    mode = 'markers', colors = cell_color_code)
       print(p)
     } else {
-      p <- plot_ly(type = 'scatter3d',
+      p <- plotly::plot_ly(type = 'scatter3d',
                    x = cell_locations_metadata$sdimx, y = cell_locations_metadata$sdimy, z = cell_locations_metadata$sdimz,
                    mode = 'markers', colors = 'lightblue')
       print(p)
@@ -220,31 +220,31 @@ cellProximityVisPlot <- function(gobject,
 
   } else {
 
-    pl <- ggplot()
-    pl <- pl + theme_classic()
+    pl <- ggplot2::ggplot()
+    pl <- pl + ggplot2::theme_classic()
 
     if(!is.null(spatial_network) & show_network == TRUE) {
       if(is.null(network_color)) network_color = 'red'
-      pl <- pl + geom_segment(data = spatial_network[!unified_int %in% interaction_name],
+      pl <- pl + ggplot2::geom_segment(data = spatial_network[!unified_int %in% interaction_name],
                               aes(x = sdimx_begin, y = sdimy_begin, xend = sdimx_end, yend = sdimy_end),
                               color = 'lightgrey', size = 0.5, alpha = 0.5)
-      pl <- pl + geom_segment(data = spatial_network[unified_int %in% interaction_name],
+      pl <- pl + ggplot2::geom_segment(data = spatial_network[unified_int %in% interaction_name],
                               aes(x = sdimx_begin, y = sdimy_begin, xend = sdimx_end, yend = sdimy_end),
                               color = network_color, size = 0.5, alpha = 0.5)
     }
 
     if(!is.null(spatial_grid) & show_grid == TRUE) {
       if(is.null(grid_color)) grid_color = 'black'
-      pl <- pl + geom_rect(data = spatial_grid, aes(xmin = x_start, xmax = x_end, ymin = y_start, ymax = y_end),
+      pl <- pl + ggplot2::geom_rect(data = spatial_grid, aes(xmin = x_start, xmax = x_end, ymin = y_start, ymax = y_end),
                            color = grid_color, fill = NA)
     }
 
     # cell color default
     if(is.null(cell_color)) {
       cell_color = 'lightblue'
-      pl <- pl + geom_point(data = cell_locations[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
+      pl <- pl + ggplot2::geom_point(data = cell_locations[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
                             show.legend = show.legend, shape = 21, fill = 'lightgrey', size = point_size_other)
-      pl <- pl + geom_point(data = cell_locations[cell_ID %In% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
+      pl <- pl + ggplot2::geom_point(data = cell_locations[cell_ID %In% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
                             show.legend = show.legend, shape = 21, fill = cell_color, size = point_size_select)
     }
     else if (is.character(cell_color)) {
@@ -255,47 +255,47 @@ cellProximityVisPlot <- function(gobject,
           cell_locations_metadata[[cell_color]] <- factor_data
         }
 
-        pl <- pl + geom_point(data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
+        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
                               fill = 'lightgrey', shape = 21, size = point_size_other,
                               color = point_other.border.col, stroke = point_other.border.stroke)
-        pl <- pl + geom_point(data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy, fill = cell_color),
+        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy, fill = cell_color),
                               show.legend = show.legend, shape = 21, size = point_size_select,
                               color = point_select.border.col, stroke = point_select.border.stroke)
 
 
 
         if(!is.null(cell_color_code)) {
-          pl <- pl + scale_fill_manual(values = cell_color_code)
+          pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
         } else if(color_as_factor == T) {
           number_colors = length(unique(factor_data))
-          cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+          cell_color_code = getDistinctColors(n = number_colors)
           names(cell_color_code) = unique(factor_data)
-          pl <- pl + scale_fill_manual(values = cell_color_code)
+          pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
         } else if(color_as_factor == F){
-          pl <- pl + scale_fill_gradient(low = 'blue', high = 'red')
+          pl <- pl + ggplot2::scale_fill_gradient(low = 'blue', high = 'red')
         }
 
       } else {
-        pl <- pl + geom_point(data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
+        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
                               show.legend = show.legend, shape = 21, fill = 'lightgrey', size = point_size_other,
                               color = point_other.border.col, stroke = point_other.border.stroke)
-        pl <- pl + geom_point(data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
+        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
                               show.legend = show.legend, shape = 21, fill = cell_color, size = point_size_select,
                               color = point_select.border.col, stroke = point_select.border.stroke)
       }
 
     }
 
-    pl <- pl + theme_bw() + theme(plot.title = element_text(hjust = 0.5),
+    pl <- pl + ggplot2::theme_bw() + ggplot2::theme(plot.title = element_text(hjust = 0.5),
                                   legend.title = element_text(size = 10),
                                   legend.text = element_text(size = 10))
 
     # fix coord ratio
     if(!is.null(coord_fix_ratio)) {
-      pl <- pl + coord_fixed(ratio = coord_fix_ratio)
+      pl <- pl + ggplot2::coord_fixed(ratio = coord_fix_ratio)
     }
 
-    pl <- pl + labs(x = 'x coordinates', y = 'y coordinates')
+    pl <- pl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates')
     pl
 
     print(pl)
@@ -332,7 +332,7 @@ showGeneExpressionProximityScore <- function(scores,
   specific_int_scores = subset_scores[,.(genes, interaction, cell_expr_1, cell_expr_2, comb_expr,
                                          all_cell_expr_1, all_cell_expr_2, all_comb_expr,
                                          diff_spat, diff_spat_1, diff_spat_2)]
-  specific_int_scores = melt.data.table(data = specific_int_scores, id.vars = c('genes', 'interaction'))
+  specific_int_scores = data.table::melt.data.table(data = specific_int_scores, id.vars = c('genes', 'interaction'))
   specific_int_scores[, value := as.numeric(value)]
   specific_int_scores[, interaction := factor(interaction, order_ints)]
   specific_int_scores[, score := ifelse(grepl('spat', variable), 'difference',
@@ -341,12 +341,12 @@ showGeneExpressionProximityScore <- function(scores,
                                                                 'all_cell_expr_1', 'all_cell_expr_2', 'all_comb_expr',
                                                                 'diff_spat_1', 'diff_spat_2', 'diff_spat'))]
 
-  pl <- ggplot()
-  pl <- pl + theme_classic()
-  pl <- pl + geom_bar(data = specific_int_scores, aes(x = interaction, y = as.numeric(value), fill = score), stat = 'identity')
-  pl <- pl + facet_wrap(~ variable, ncol = 9)
-  pl <- pl + coord_flip()
-  pl <- pl + labs(x = '', y = 'normalized expression', title = selected_gene)
+  pl <- ggplot2::ggplot()
+  pl <- pl + ggplot2::theme_classic()
+  pl <- pl + ggplot2::geom_bar(data = specific_int_scores, aes(x = interaction, y = as.numeric(value), fill = score), stat = 'identity')
+  pl <- pl + ggplot2::facet_wrap(~ variable, ncol = 9)
+  pl <- pl + ggplot2::coord_flip()
+  pl <- pl + ggplot2::labs(x = '', y = 'normalized expression', title = selected_gene)
   pl
 
   print(pl)
@@ -387,7 +387,7 @@ showIntExpressionProximityScore <- function(scores,
   specific_gene_scores = subset_scores[,.(genes, interaction, cell_expr_1, cell_expr_2, comb_expr,
                                           all_cell_expr_1, all_cell_expr_2, all_comb_expr,
                                           diff_spat, diff_spat_1, diff_spat_2)]
-  specific_gene_scores = melt.data.table(data = specific_gene_scores, id.vars = c('genes', 'interaction'))
+  specific_gene_scores = data.table::melt.data.table(data = specific_gene_scores, id.vars = c('genes', 'interaction'))
   specific_gene_scores[, value := as.numeric(value)]
   specific_gene_scores[, genes := factor(genes, order_genes)]
   specific_gene_scores[, score := ifelse(grepl('spat', variable), 'difference',
@@ -398,12 +398,12 @@ showIntExpressionProximityScore <- function(scores,
 
   specific_gene_scores = specific_gene_scores[genes %in% c(head_genes, tail_genes)]
 
-  pl <- ggplot()
-  pl <- pl + theme_classic()
-  pl <- pl + geom_bar(data = specific_gene_scores, aes(x = genes, y = as.numeric(value), fill = score), stat = 'identity')
-  pl <- pl + facet_wrap(~ variable, ncol = 9)
-  pl <- pl + coord_flip()
-  pl <- pl + labs(x = '', y = 'normalized expression', title = '1-3')
+  pl <- ggplot2::ggplot()
+  pl <- pl + ggplot2::theme_classic()
+  pl <- pl + ggplot2::geom_bar(data = specific_gene_scores, aes(x = genes, y = as.numeric(value), fill = score), stat = 'identity')
+  pl <- pl + ggplot2::facet_wrap(~ variable, ncol = 9)
+  pl <- pl + ggplot2::coord_flip()
+  pl <- pl + ggplot2::labs(x = '', y = 'normalized expression', title = '1-3')
   pl
 
   print(pl)
@@ -433,7 +433,7 @@ showTopGeneToGene = function(GTGscore,
                              subset_genes = NULL) {
 
   direction = match.arg(direction, choices = c('increased', 'decreased'))
-  setorder(GTGscore, interaction, -diff_spat)
+  data.table::setorder(GTGscore, interaction, -diff_spat)
 
 
   # subset genes or cell cell interactions
@@ -473,12 +473,12 @@ showTopGeneToGene = function(GTGscore,
   gene_gene_order = unique(topDT[['gene_gene']])
   topDT[, gene_gene := factor(gene_gene, level = gene_gene_order)]
 
-  pl <- ggplot()
-  pl <- pl + theme_classic()
-  pl <- pl + geom_segment(data = topDT, aes(x = comb_expr, xend = all_comb_expr, y = gene_gene, yend = gene_gene), linetype = 2)
-  pl <- pl + geom_point(data = topDT, aes_string(x = 'all_comb_expr', y = 'gene_gene'), color = 'blue', size = 2)
-  pl <- pl + geom_point(data = topDT, aes_string(x = 'comb_expr', y = 'gene_gene'), color = 'red', size = 2)
-  pl <- pl + facet_wrap( ~ interaction, ncol = length(unique(topDT$interaction)))
+  pl <- ggplot2::ggplot()
+  pl <- pl + ggplot2::theme_classic()
+  pl <- pl + ggplot2::geom_segment(data = topDT, aes(x = comb_expr, xend = all_comb_expr, y = gene_gene, yend = gene_gene), linetype = 2)
+  pl <- pl + ggplot2::geom_point(data = topDT, aes_string(x = 'all_comb_expr', y = 'gene_gene'), color = 'blue', size = 2)
+  pl <- pl + ggplot2::geom_point(data = topDT, aes_string(x = 'comb_expr', y = 'gene_gene'), color = 'red', size = 2)
+  pl <- pl + ggplot2::facet_wrap( ~ interaction, ncol = length(unique(topDT$interaction)))
   pl
 
 }
@@ -592,10 +592,10 @@ showCPGscores = function(CPGscore,
 
     selection_scores[, interaction := factor(interaction, order_interactions)]
 
-    pl <- ggplot()
-    pl <- pl + geom_bar(data = selection_scores, aes(x = interaction, fill = type_int))
-    pl <- pl + theme_classic() + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1))
-    pl <- pl + coord_flip()
+    pl <- ggplot2::ggplot()
+    pl <- pl + ggplot2::geom_bar(data = selection_scores, aes(x = interaction, fill = type_int))
+    pl <- pl + ggplot2::theme_classic() + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1))
+    pl <- pl + ggplot2::coord_flip()
 
     if(show.plot == TRUE) {
       print(pl)
@@ -609,22 +609,22 @@ showCPGscores = function(CPGscore,
     part1 = selection_scores[pval_1 < min_pval & pval_2 >= min_pval]
     part2 = selection_scores[pval_2 < min_pval & pval_1 >= min_pval]
 
-    part_full = data.table(changed_cell_type = c(part0_a$cell_type_1, part0_b$cell_type_1, part0_b$cell_type_2, part1$cell_type_1, part2$cell_type_2),
+    part_full = data.table::data.table(changed_cell_type = c(part0_a$cell_type_1, part0_b$cell_type_1, part0_b$cell_type_2, part1$cell_type_1, part2$cell_type_2),
                            neighb_cell_type = c(part0_a$cell_type_2, part0_b$cell_type_2, part0_b$cell_type_1, part1$cell_type_2, part2$cell_type_1))
 
     total_genes = part_full[, .N, by = changed_cell_type]
     order_cell_types = total_genes[order(N)]$changed_cell_type
     part_full[, changed_cell_type := factor(changed_cell_type, levels = order_cell_types)]
 
-    pl <- ggplot()
-    pl <- pl + geom_bar(data = part_full, aes(x = changed_cell_type, fill = neighb_cell_type))
+    pl <- ggplot2::ggplot()
+    pl <- pl + ggplot2::geom_bar(data = part_full, aes(x = changed_cell_type, fill = neighb_cell_type))
 
     if(!is.null(cell_color_code)) {
-      pl <- pl + scale_fill_manual(values = cell_color_code)
+      pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
     }
 
-    pl <- pl + theme_classic() + theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
-    pl <- pl + labs(x = '', y = '# of genes influenced by cell neighborhood')
+    pl <- pl + ggplot2::theme_classic() + ggplot2::theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+    pl <- pl + ggplot2::labs(x = '', y = '# of genes influenced by cell neighborhood')
     if(show.plot == TRUE) {
       print(pl)
     }
@@ -637,7 +637,7 @@ showCPGscores = function(CPGscore,
     part1 = selection_scores[pval_1 < min_pval & pval_2 >= min_pval]
     part2 = selection_scores[pval_2 < min_pval & pval_1 >= min_pval]
 
-    part_full = data.table(changed_cell_type = c(part0_a$cell_type_1, part0_b$cell_type_1, part0_b$cell_type_2, part1$cell_type_1, part2$cell_type_2),
+    part_full = data.table::data.table(changed_cell_type = c(part0_a$cell_type_1, part0_b$cell_type_1, part0_b$cell_type_2, part1$cell_type_1, part2$cell_type_2),
                            neighb_cell_type = c(part0_a$cell_type_2, part0_b$cell_type_2, part0_b$cell_type_1, part1$cell_type_2, part2$cell_type_1))
 
     total_genes = part_full[, .N, by = changed_cell_type]
@@ -649,16 +649,16 @@ showCPGscores = function(CPGscore,
     testalluv[, changed_cell_type := factor(changed_cell_type)]
     testalluv[, neighb_cell_type := factor(neighb_cell_type)]
 
-    pl <- ggplot(testalluv,
+    pl <- ggplot2::ggplot(testalluv,
                  aes(y = N, axis1 = changed_cell_type, axis2 = neighb_cell_type)) +
       ggalluvial::geom_alluvium(aes(fill = changed_cell_type), width = 1/12) +
       ggalluvial::geom_stratum(width = 1/12, fill = "black", color = "grey") +
-      scale_x_discrete(limits = c("cell type", "neighbours"), expand = c(.05, .05)) +
-      geom_label(stat = "stratum", label.strata = TRUE, size = 3) +
-      theme_classic() + labs(x = '', y = '# of genes influenced by cell neighborhood')
+      ggplot2::scale_x_discrete(limits = c("cell type", "neighbours"), expand = c(.05, .05)) +
+      ggplot2::geom_label(stat = "stratum", label.strata = TRUE, size = 3) +
+      ggplot2::theme_classic() + ggplot2::labs(x = '', y = '# of genes influenced by cell neighborhood')
 
     if(!is.null(cell_color_code)) {
-      pl <- pl + scale_fill_manual(values = cell_color_code)
+      pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
     }
 
     if(show.plot == TRUE) {
@@ -759,10 +759,10 @@ showGTGscores = function(GTGscore,
     GTGscore[, unified_int := factor(unified_int, order_interactions)]
     GTGscore[, type_int := ifelse(cell_type_1 == cell_type_2, 'homo', 'hetero')]
 
-    pl <- ggplot()
-    pl <- pl + geom_bar(data = GTGscore, aes(x = unified_int, fill = type_int))
-    pl <- pl + theme_classic() + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1))
-    pl <- pl + coord_flip()
+    pl <- ggplot2::ggplot()
+    pl <- pl + ggplot2::geom_bar(data = GTGscore, aes(x = unified_int, fill = type_int))
+    pl <- pl + ggplot2::theme_classic() + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1))
+    pl <- pl + ggplot2::coord_flip()
 
     if(show.plot == TRUE) {
       print(pl)
@@ -800,12 +800,12 @@ showGTGscores = function(GTGscore,
     hip[, second_cell := factor(second_cell, levels = second_cell_order)]
 
 
-    pl <- ggplot()
-    pl <- pl + geom_bar(data = hip, aes(x = first_cell, fill = second_cell, y = N), stat = 'identity')
-    pl <- pl + theme_classic()  + theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+    pl <- ggplot2::ggplot()
+    pl <- pl + ggplot2::geom_bar(data = hip, aes(x = first_cell, fill = second_cell, y = N), stat = 'identity')
+    pl <- pl + ggplot2::theme_classic()  + theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
 
     if(!is.null(cell_color_code)) {
-      pl <- pl + scale_fill_manual(values = cell_color_code)
+      pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
     }
 
     if(show.plot == TRUE) {
@@ -846,15 +846,15 @@ showGTGscores = function(GTGscore,
     hip[, second_cell := factor(second_cell, levels = second_cell_order)]
 
 
-    pl <- ggplot(hip,
+    pl <- ggplot2::ggplot(hip,
                  aes(y = N, axis1 = first_cell, axis2 = second_cell)) +
       ggalluvial::geom_alluvium(aes(fill = first_cell), width = 1/12) +
       ggalluvial::geom_stratum(width = 1/12, fill = "black", color = "grey") +
-      scale_x_discrete(limits = c(first_cell_name, second_cell_name), expand = c(.05, .05)) +
-      geom_label(stat = "stratum", label.strata = TRUE, size = 3) +
-      theme_classic() + labs(x = '', y = '# spatial L-R')
+      ggplot2::scale_x_discrete(limits = c(first_cell_name, second_cell_name), expand = c(.05, .05)) +
+      ggplot2::geom_label(stat = "stratum", label.strata = TRUE, size = 3) +
+      ggplot2::theme_classic() + ggplot2::labs(x = '', y = '# spatial L-R')
     if(!is.null(cell_color_code)) {
-      pl <- pl + scale_fill_manual(values = cell_color_code)
+      pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
     }
     if(show.plot == TRUE) {
       print(pl)
@@ -920,22 +920,22 @@ plotGTGscores <- function(GTGscore,
 
   if(simple_plot == F) {
 
-    pl <- ggplot()
-    pl <- pl + theme_bw()
+    pl <- ggplot2::ggplot()
+    pl <- pl + ggplot2::theme_bw()
 
     if(detail_plot == TRUE) {
-      pl <- pl + geom_point(data = subDT, aes(x = 0, y = all_cell_expr_2), color = 'blue', shape = 1)
-      pl <- pl + geom_point(data = subDT, aes(x = 0, y = cell_expr_2), color = 'red', shape = 1)
-      pl <- pl + geom_point(data = subDT, aes(x = all_cell_expr_1, y = 0), color = 'blue', shape = 1)
-      pl <- pl + geom_point(data = subDT, aes(x = cell_expr_1, y = 0), color = 'red', shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = 0, y = all_cell_expr_2), color = 'blue', shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = 0, y = cell_expr_2), color = 'red', shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_cell_expr_1, y = 0), color = 'blue', shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = cell_expr_1, y = 0), color = 'red', shape = 1)
     }
 
-    pl <- pl + geom_point(data = subDT, aes(x = all_cell_expr_1, y = all_cell_expr_2), color = 'blue', size = 2)
-    pl <- pl + geom_point(data = subDT, aes(x = cell_expr_1, y = cell_expr_2), color = 'red', size = 2)
-    pl <- pl + geom_segment(data = subDT, aes(x = all_cell_expr_1, xend = cell_expr_1,
+    pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_cell_expr_1, y = all_cell_expr_2), color = 'blue', size = 2)
+    pl <- pl + ggplot2::geom_point(data = subDT, aes(x = cell_expr_1, y = cell_expr_2), color = 'red', size = 2)
+    pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = all_cell_expr_1, xend = cell_expr_1,
                                               y = all_cell_expr_2, yend = cell_expr_2), linetype = 2)
-    pl <- pl + labs(x = 'gene 1 in celltype 1', y = 'gene 2 in celltype 2')
-    pl <- pl + facet_wrap(~unif_gene_gene+unified_int, nrow = facet.nrow, ncol = facet.ncol,
+    pl <- pl + ggplot2::labs(x = 'gene 1 in celltype 1', y = 'gene 2 in celltype 2')
+    pl <- pl + ggplot2::facet_wrap(~unif_gene_gene+unified_int, nrow = facet.nrow, ncol = facet.ncol,
                           scales = facet.scales)
 
   } else {
@@ -943,23 +943,23 @@ plotGTGscores <- function(GTGscore,
     simple_plot_facet = match.arg(arg = simple_plot_facet, choices = c('interaction', 'genes'))
 
     if(simple_plot_facet == 'interaction') {
-      pl <- ggplot()
-      pl <- pl + theme_bw()
-      pl <- pl + geom_segment(data = subDT, aes(x = all_cell_expr, xend = spatial_cell_expr,
+      pl <- ggplot2::ggplot()
+      pl <- pl + ggplot2::theme_bw()
+      pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = all_cell_expr, xend = spatial_cell_expr,
                                                 y = unif_gene_gene, yend = unif_gene_gene), linetype = 2)
-      pl <- pl + geom_point(data = subDT, aes(x = all_cell_expr, y = unif_gene_gene), color = 'blue')
-      pl <- pl + geom_point(data = subDT, aes(x = spatial_cell_expr, y = unif_gene_gene), color = 'red')
-      pl <- pl + facet_wrap(~unified_int, scales = facet.scales)
-      pl <- pl + labs(x = 'interactions', y = 'gene-gene')
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_cell_expr, y = unif_gene_gene), color = 'blue')
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = spatial_cell_expr, y = unif_gene_gene), color = 'red')
+      pl <- pl + ggplot2::facet_wrap(~unified_int, scales = facet.scales)
+      pl <- pl + ggplot2::labs(x = 'interactions', y = 'gene-gene')
     } else {
-      pl <- ggplot()
-      pl <- pl + theme_bw()
-      pl <- pl + geom_segment(data = subDT, aes(x = all_cell_expr, xend = spatial_cell_expr,
+      pl <- ggplot2::ggplot()
+      pl <- pl + ggplot2::theme_bw()
+      pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = all_cell_expr, xend = spatial_cell_expr,
                                                 y = unified_int, yend = unified_int), linetype = 2)
-      pl <- pl + geom_point(data = subDT, aes(x = all_cell_expr, y = unified_int), color = 'blue')
-      pl <- pl + geom_point(data = subDT, aes(x = spatial_cell_expr, y = unified_int), color = 'red')
-      pl <- pl + facet_wrap(~unif_gene_gene, scales = facet.scales)
-      pl <- pl + labs(x = 'gene-gene', y = 'interactions')
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_cell_expr, y = unified_int), color = 'blue')
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = spatial_cell_expr, y = unified_int), color = 'red')
+      pl <- pl + ggplot2::facet_wrap(~unif_gene_gene, scales = facet.scales)
+      pl <- pl + ggplot2::labs(x = 'gene-gene', y = 'interactions')
     }
   }
 
@@ -1025,22 +1025,22 @@ plotCPGscores <- function(CPGscores,
 
   if(simple_plot == F) {
 
-    pl <- ggplot()
-    pl <- pl + theme_bw()
+    pl <- ggplot2::ggplot()
+    pl <- pl + ggplot2::theme_bw()
 
     if(detail_plot == TRUE) {
-      pl <- pl + geom_point(data = subDT, aes(x = 0, y = all_cell_expr_2), color = 'blue', shape = 1)
-      pl <- pl + geom_point(data = subDT, aes(x = 0, y = cell_expr_2), color = 'red', shape = 1)
-      pl <- pl + geom_point(data = subDT, aes(x = all_cell_expr_1, y = 0), color = 'blue', shape = 1)
-      pl <- pl + geom_point(data = subDT, aes(x = cell_expr_1, y = 0), color = 'red', shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = 0, y = all_cell_expr_2), color = 'blue', shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = 0, y = cell_expr_2), color = 'red', shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_cell_expr_1, y = 0), color = 'blue', shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = cell_expr_1, y = 0), color = 'red', shape = 1)
     }
 
-    pl <- pl + geom_point(data = subDT, aes(x = all_cell_expr_1, y = all_cell_expr_2), color = 'blue', size = 2)
-    pl <- pl + geom_point(data = subDT, aes(x = cell_expr_1, y = cell_expr_2), color = 'red', size = 2)
-    pl <- pl + geom_segment(data = subDT, aes(x = all_cell_expr_1, xend = cell_expr_1,
+    pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_cell_expr_1, y = all_cell_expr_2), color = 'blue', size = 2)
+    pl <- pl + ggplot2::geom_point(data = subDT, aes(x = cell_expr_1, y = cell_expr_2), color = 'red', size = 2)
+    pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = all_cell_expr_1, xend = cell_expr_1,
                                               y = all_cell_expr_2, yend = cell_expr_2), linetype = 2)
-    pl <- pl + labs(x = 'gene in celltype 1', y = 'gene in celltype 2')
-    pl <- pl + facet_wrap(~genes+interaction, nrow = facet.nrow, ncol = facet.ncol,
+    pl <- pl + ggplot2::labs(x = 'gene in celltype 1', y = 'gene in celltype 2')
+    pl <- pl + ggplot2::facet_wrap(~genes+interaction, nrow = facet.nrow, ncol = facet.ncol,
                           scales = facet.scales)
 
   } else {
@@ -1048,23 +1048,23 @@ plotCPGscores <- function(CPGscores,
     simple_plot_facet = match.arg(arg = simple_plot_facet, choices = c('interaction', 'genes'))
 
     if(simple_plot_facet == 'interaction') {
-      pl <- ggplot()
-      pl <- pl + theme_bw()
-      pl <- pl + geom_segment(data = subDT, aes(x = all_comb_expr, xend = comb_expr,
+      pl <- ggplot2::ggplot()
+      pl <- pl + ggplot2::theme_bw()
+      pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = all_comb_expr, xend = comb_expr,
                                                 y = genes, yend = genes), linetype = 2)
-      pl <- pl + geom_point(data = subDT, aes(x = all_comb_expr, y = genes), color = 'blue')
-      pl <- pl + geom_point(data = subDT, aes(x = comb_expr, y = genes), color = 'red')
-      pl <- pl + facet_wrap(~interaction, scales = facet.scales)
-      pl <- pl + labs(x = 'interactions', y = 'genes')
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_comb_expr, y = genes), color = 'blue')
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = comb_expr, y = genes), color = 'red')
+      pl <- pl + ggplot2::facet_wrap(~interaction, scales = facet.scales)
+      pl <- pl + ggplot2::labs(x = 'interactions', y = 'genes')
     } else {
-      pl <- ggplot()
-      pl <- pl + theme_bw()
-      pl <- pl + geom_segment(data = subDT, aes(x = all_comb_expr, xend = comb_expr,
+      pl <- ggplot2::ggplot()
+      pl <- pl + ggplot2::theme_bw()
+      pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = all_comb_expr, xend = comb_expr,
                                                 y = interaction, yend = interaction), linetype = 2)
-      pl <- pl + geom_point(data = subDT, aes(x = all_comb_expr, y = interaction), color = 'blue')
-      pl <- pl + geom_point(data = subDT, aes(x = comb_expr, y = interaction), color = 'red')
-      pl <- pl + facet_wrap(~genes, scales = facet.scales)
-      pl <- pl + labs(x = 'genes', y = 'interactions')
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_comb_expr, y = interaction), color = 'blue')
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = comb_expr, y = interaction), color = 'red')
+      pl <- pl + ggplot2::facet_wrap(~genes, scales = facet.scales)
+      pl <- pl + ggplot2::labs(x = 'genes', y = 'interactions')
     }
   }
 

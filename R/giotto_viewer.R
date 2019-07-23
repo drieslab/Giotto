@@ -21,7 +21,7 @@ write_giotto_viewer_annotation = function(annotation,
   names(uniq_factor_num_converter) = uniq_factors
 
   # annotation information and mapping
-  annot_map = data.table(num = uniq_numerics, fac = uniq_factors)
+  annot_map = data.table::data.table(num = uniq_numerics, fac = uniq_factors)
   annot_information = uniq_factor_num_converter[annotation]
 
   # write to output directory
@@ -179,9 +179,9 @@ exportGiottoViewer = function(gobject,
   # expression values to be used
   if(verbose == TRUE) cat('\n write expression values \n')
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
-  #print(expr_values[1:10, 1:10])
-  # swap cell_IDs for numerical values
+  expr_values = select_expression_values(gobject = gobject, values = values)
+
+    # swap cell_IDs for numerical values
   colnames(expr_values) = 1:ncol(expr_values)
   # round values
   if(!is.null(expression_rounding) & is.integer(expression_rounding)) {

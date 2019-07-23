@@ -98,13 +98,13 @@ visPlot <- function(gobject,
 
     if(!is.null(cell_color) & cell_color %in% colnames(cell_locations_metadata)) {
       if(is.null(cell_color_code)) cell_color_code <- 'lightblue'
-      p <- plot_ly(type = 'scatter3d',
+      p <- plotly::plot_ly(type = 'scatter3d',
                    x = cell_locations_metadata$sdimx, y = cell_locations_metadata$sdimy, z = cell_locations_metadata$sdimz,
                    color = cell_locations_metadata[[cell_color]],
                    mode = 'markers', colors = cell_color_code)
       print(p)
     } else {
-      p <- plot_ly(type = 'scatter3d',
+      p <- plotly::plot_ly(type = 'scatter3d',
                    x = cell_locations_metadata$sdimx, y = cell_locations_metadata$sdimy, z = cell_locations_metadata$sdimz,
                    mode = 'markers', colors = 'lightblue')
 
@@ -118,13 +118,13 @@ visPlot <- function(gobject,
 
   } else {
 
-    pl <- ggplot()
-    pl <- pl + theme_bw()
+    pl <- ggplot2::ggplot()
+    pl <- pl + ggplot2::theme_bw()
 
     ## plot spatial network
     if(!is.null(spatial_network) & show_network == TRUE) {
       if(is.null(network_color)) network_color = 'red'
-      pl <- pl + geom_segment(data = spatial_network, aes(x = sdimx_begin, y = sdimy_begin,
+      pl <- pl + ggplot2::geom_segment(data = spatial_network, aes(x = sdimx_begin, y = sdimy_begin,
                                                           xend = sdimx_end, yend = sdimy_end),
                               color = network_color, size = 0.5, alpha = 0.5)
     }
@@ -132,7 +132,7 @@ visPlot <- function(gobject,
     ## plot spatial grid
     if(!is.null(spatial_grid) & show_grid == TRUE) {
       if(is.null(grid_color)) grid_color = 'black'
-      pl <- pl + geom_rect(data = spatial_grid, aes(xmin = x_start, xmax = x_end,
+      pl <- pl + ggplot2::geom_rect(data = spatial_grid, aes(xmin = x_start, xmax = x_end,
                                                     ymin = y_start, ymax = y_end),
                            color = grid_color, fill = NA)
     }
@@ -141,7 +141,7 @@ visPlot <- function(gobject,
     if(is.null(cell_color)) {
 
       cell_color = 'lightblue'
-      pl <- pl + geom_point(data = cell_locations_metadata, aes_string(x = sdimx, y = sdimy),
+      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata, aes_string(x = sdimx, y = sdimy),
                             show.legend = show.legend, shape = 21,
                             fill = cell_color, size = point_size,
                             stroke = point.border.stroke, color = point.border.col)
@@ -166,17 +166,17 @@ visPlot <- function(gobject,
         }
 
         if(is.null(select_cell_groups)) {
-          pl <- pl + geom_point(data = cell_locations_metadata, aes_string(x = sdimx, y = sdimy, fill = cell_color),
+          pl <- pl + ggplot2::geom_point(data = cell_locations_metadata, aes_string(x = sdimx, y = sdimy, fill = cell_color),
                                 show.legend = show.legend, shape = 21, size = point_size,
                                 stroke = point.border.stroke, color = point.border.col)
         } else {
           cell_color_other = 'grey'
-          pl <- pl + geom_point(data = cell_locations_metadata_other, aes_string(x = sdimx, y = sdimy),
+          pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_other, aes_string(x = sdimx, y = sdimy),
                                 fill = cell_color_other,
                                 show.legend = show.legend, shape = 21, size = point_size/2,
                                 stroke = point.border.stroke, color = point.border.col)
 
-          pl <- pl + geom_point(data = cell_locations_metadata_selected, aes_string(x = sdimx, y = sdimy, fill = cell_color),
+          pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_selected, aes_string(x = sdimx, y = sdimy, fill = cell_color),
                                 show.legend = show.legend, shape = 21, size = point_size,
                                 stroke = point.border.stroke, color = point.border.col)
         }
@@ -185,38 +185,38 @@ visPlot <- function(gobject,
 
 
         if(!is.null(cell_color_code)) {
-          pl <- pl + scale_fill_manual(values = cell_color_code)
+          pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
         } else if(color_as_factor == T) {
           if(is.null(select_cell_groups)) {
             number_colors = length(unique(factor_data))
-            cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+            cell_color_code = getDistinctColors(n = number_colors)
             names(cell_color_code) = unique(factor_data)
           } else {
             number_colors = length(unique(factor_data_selected))
-            cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+            cell_color_code = getDistinctColors(n = number_colors)
             names(cell_color_code) = unique(factor_data_selected)
           }
-          pl <- pl + scale_fill_manual(values = cell_color_code)
+          pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
         } else if(color_as_factor == F){
-          pl <- pl + scale_fill_gradient(low = 'blue', high = 'red')
+          pl <- pl + ggplot2::scale_fill_gradient(low = 'blue', high = 'red')
         }
 
       } else {
 
 
         if(is.null(select_cell_groups)) {
-          pl <- pl + geom_point(data = cell_locations_metadata, aes_string(x = sdimx, y = sdimy),
+          pl <- pl + ggplot2::geom_point(data = cell_locations_metadata, aes_string(x = sdimx, y = sdimy),
                                 show.legend = show.legend, shape = 21, fill = cell_color,
                                 size = point_size,
                                 stroke = point.border.stroke, color = point.border.col)
         } else {
           cell_color_other = 'grey'
-          pl <- pl + geom_point(data = cell_locations_metadata_other, aes_string(x = sdimx, y = sdimy),
+          pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_other, aes_string(x = sdimx, y = sdimy),
                                 show.legend = show.legend, shape = 21, fill = cell_color_other,
                                 size = point_size/2,
                                 stroke = point.border.stroke, color = point.border.col)
 
-          pl <- pl + geom_point(data = cell_locations_metadata_selected, aes_string(x = sdimx, y = sdimy),
+          pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_selected, aes_string(x = sdimx, y = sdimy),
                                 show.legend = show.legend, shape = 21, fill = cell_color,
                                 size = point_size,
                                 stroke = point.border.stroke, color = point.border.col)
@@ -226,16 +226,16 @@ visPlot <- function(gobject,
 
     }
 
-    pl <- pl + theme(plot.title = element_text(hjust = 0.5),
+    pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5),
                      legend.title = element_text(size = 10),
                      legend.text = element_text(size = 10))
 
     # fix coord ratio
     if(!is.null(coord_fix_ratio)) {
-      pl <- pl + coord_fixed(ratio = coord_fix_ratio)
+      pl <- pl + ggplot2::coord_fixed(ratio = coord_fix_ratio)
     }
 
-    pl <- pl + labs(x = 'x coordinates', y = 'y coordinates', title = title)
+    pl <- pl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates', title = title)
 
 
     if(show.plot == TRUE) {
@@ -301,7 +301,7 @@ visGenePlot <- function(gobject,
   selected_genes = genes
 
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_values = select_expression_values(gobject = gobject, values = values)
 
   # only keep genes that are in the dataset
   selected_genes = selected_genes[selected_genes %in% rownames(expr_values) ]
@@ -309,12 +309,12 @@ visGenePlot <- function(gobject,
   # get selected gene expression values in data.table format
   if(length(selected_genes) == 1) {
     subset_expr_data = expr_values[rownames(expr_values) %in% selected_genes, ]
-    t_sub_expr_data_DT = data.table('selected_gene' = subset_expr_data, 'cell_ID' = colnames(expr_values))
-    setnames(t_sub_expr_data_DT, 'selected_gene', selected_genes)
+    t_sub_expr_data_DT = data.table::data.table('selected_gene' = subset_expr_data, 'cell_ID' = colnames(expr_values))
+    data.table::setnames(t_sub_expr_data_DT, 'selected_gene', selected_genes)
   } else {
     subset_expr_data = expr_values[rownames(expr_values) %in% selected_genes, ]
     t_sub_expr_data = t(subset_expr_data)
-    t_sub_expr_data_DT = as.data.table(t_sub_expr_data)
+    t_sub_expr_data_DT = data.table::as.data.table(t_sub_expr_data)
     t_sub_expr_data_DT[, cell_ID := rownames(t_sub_expr_data)]
   }
 
@@ -352,13 +352,13 @@ visGenePlot <- function(gobject,
   savelist <- list()
   for(gene in selected_genes) {
 
-    pl <- ggplot()
-    pl <- pl + theme_classic()
+    pl <- ggplot2::ggplot()
+    pl <- pl + ggplot2::theme_classic()
 
     ## plot spatial network
     if(!is.null(spatial_network) & show_network == TRUE) {
       if(is.null(network_color)) network_color = 'red'
-      pl <- pl + geom_segment(data = spatial_network, aes(x = sdimx_begin, y = sdimy_begin,
+      pl <- pl + ggplot2::geom_segment(data = spatial_network, aes(x = sdimx_begin, y = sdimy_begin,
                                                           xend = sdimx_end, yend = sdimy_end),
                               color = network_color, size = 0.5, alpha = 0.5)
     }
@@ -366,30 +366,30 @@ visGenePlot <- function(gobject,
     ## plot spatial grid
     if(!is.null(spatial_grid) & show_grid == TRUE) {
       if(is.null(grid_color)) grid_color = 'black'
-      pl <- pl + geom_rect(data = spatial_grid, aes(xmin = x_start, xmax = x_end,
+      pl <- pl + ggplot2::geom_rect(data = spatial_grid, aes(xmin = x_start, xmax = x_end,
                                                     ymin = y_start, ymax = y_end),
                            color = grid_color, fill = NA)
     }
 
 
     if(scale_alpha_with_expression == TRUE) {
-      pl <- pl + geom_point(data = cell_locations_metadata_genes, aes_string(x = 'sdimx', y = 'sdimy',
+      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes, aes_string(x = 'sdimx', y = 'sdimy',
                                                                              fill = gene, alpha = gene),
                             shape = 21,
                             color = point.border.col, size = point_size, stroke = point.border.stroke,
                             show.legend = show.legend)
     } else {
-      pl <- pl + geom_point(data = cell_locations_metadata_genes, aes_string(x = 'sdimx', y = 'sdimy',
+      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes, aes_string(x = 'sdimx', y = 'sdimy',
                                                                              fill = gene),
                             shape = 21,
                             color = point.border.col, size = point_size, stroke = point.border.stroke,
                             show.legend = show.legend)
     }
-    pl <- pl + scale_alpha_continuous(guide = 'none')
-    pl <- pl + scale_fill_gradient2(low = 'darkblue', mid = 'white', high = 'darkred',
+    pl <- pl + ggplot2::scale_alpha_continuous(guide = 'none')
+    pl <- pl + ggplot2::scale_fill_gradient2(low = 'darkblue', mid = 'white', high = 'darkred',
                                     midpoint = midpoint, guide = guide_colorbar(title = ''))
-    pl <- pl + labs(x = 'coord x', y = 'coord y', title = gene)
-    pl <- pl + theme(plot.title = element_text(hjust = 0.5))
+    pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y', title = gene)
+    pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5))
 
     if(show_plots == TRUE) {
       print(pl)
@@ -468,7 +468,7 @@ visDimPlot <- function(gobject,
   ## dimension reduction ##
   dim_dfr = gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$coordinates[,c(dim1_to_use, dim2_to_use)]
   dim_names = colnames(dim_dfr)
-  dim_DT = as.data.table(dim_dfr); dim_DT[, cell_ID := rownames(dim_dfr)]
+  dim_DT = data.table::as.data.table(dim_dfr); dim_DT[, cell_ID := rownames(dim_dfr)]
 
   ## annotated cell metadata
   cell_metadata = gobject@cell_metadata
@@ -480,41 +480,41 @@ visDimPlot <- function(gobject,
 
     # nn_network
     selected_nn_network = gobject@nn_network[[nn_network_to_use]][[network_name]][['igraph']]
-    network_DT = as.data.table(igraph::as_data_frame(selected_nn_network, what = 'edges'))
+    network_DT = data.table::as.data.table(igraph::as_data_frame(selected_nn_network, what = 'edges'))
 
     # annotated network
     old_dim_names = dim_names
 
     annotated_network_DT <- merge(network_DT, dim_DT, by.x = 'from', by.y = 'cell_ID')
     from_dim_names = paste0('from_', old_dim_names)
-    setnames(annotated_network_DT, old = old_dim_names, new = from_dim_names)
+    data.table::setnames(annotated_network_DT, old = old_dim_names, new = from_dim_names)
 
     annotated_network_DT <- merge(annotated_network_DT, dim_DT, by.x = 'to', by.y = 'cell_ID')
     to_dim_names = paste0('to_', old_dim_names)
-    setnames(annotated_network_DT, old = old_dim_names, new = to_dim_names)
+    data.table::setnames(annotated_network_DT, old = old_dim_names, new = to_dim_names)
 
   }
 
 
   # visualize
 
-  pl <- ggplot()
-  pl <- pl + theme_classic()
+  pl <- ggplot2::ggplot()
+  pl <- pl + ggplot2::theme_classic()
 
   # network layer
   if(show_NN_network == TRUE) {
 
     if(is.null(edge_alpha)) {
       edge_alpha = 0.5
-      pl <- pl + geom_segment(data = annotated_network_DT, aes_string(x = from_dim_names[1], y = from_dim_names[2],
+      pl <- pl + ggplot2::geom_segment(data = annotated_network_DT, aes_string(x = from_dim_names[1], y = from_dim_names[2],
                                                                       xend = to_dim_names[1], yend = to_dim_names[2]), alpha = edge_alpha, show.legend = show.legend)
     } else if(is.numeric(edge_alpha)) {
-      pl <- pl + geom_segment(data = annotated_network_DT, aes_string(x = from_dim_names[1], y = from_dim_names[2],
+      pl <- pl + ggplot2::geom_segment(data = annotated_network_DT, aes_string(x = from_dim_names[1], y = from_dim_names[2],
                                                                       xend = to_dim_names[1], yend = to_dim_names[2]), alpha = edge_alpha, show.legend = show.legend)
     } else if(is.character(edge_alpha)) {
 
       if(edge_alpha %in% colnames(annotated_network_DT)) {
-        pl <- pl + geom_segment(data = annotated_network_DT, aes_string(x = from_dim_names[1], y = from_dim_names[2],
+        pl <- pl + ggplot2::geom_segment(data = annotated_network_DT, aes_string(x = from_dim_names[1], y = from_dim_names[2],
                                                                         xend = to_dim_names[1], yend = to_dim_names[2], alpha = edge_alpha), show.legend = show.legend)
       }
     }
@@ -523,7 +523,7 @@ visDimPlot <- function(gobject,
   # point layer
   if(is.null(cell_color)) {
     cell_color = 'lightblue'
-    pl <- pl + geom_point(data = annotated_DT, aes_string(x = dim_names[1], dim_names[2]),
+    pl <- pl + ggplot2::geom_point(data = annotated_DT, aes_string(x = dim_names[1], dim_names[2]),
                           color = cell_color, show.legend = show.legend, size = point_size)
 
   } else if (is.character(cell_color)) {
@@ -553,14 +553,14 @@ visDimPlot <- function(gobject,
 
       }
 
-      pl <- pl + geom_point(data = annotated_DT, aes_string(x = dim_names[1], y = dim_names[2], fill = cell_color),
+      pl <- pl + ggplot2::geom_point(data = annotated_DT, aes_string(x = dim_names[1], y = dim_names[2], fill = cell_color),
                             show.legend = show.legend, shape = 21, size = point_size,
                             color = point.border.col, stroke = point.border.stroke)
 
       # plot centers
       if(show_cluster_center == TRUE & (color_as_factor == TRUE | class_cell_color %in% c('character', 'factor'))) {
 
-        pl <- pl + geom_point(data = annotated_DT_centers,
+        pl <- pl + ggplot2::geom_point(data = annotated_DT_centers,
                               aes_string(x = 'center_1', y = 'center_2', fill = cell_color),
                               color = center.point.border.col, stroke = center.point.border.stroke,
                               size = center.point.size, shape = 21)
@@ -575,20 +575,20 @@ visDimPlot <- function(gobject,
 
 
       if(!is.null(cell_color_code)) {
-        pl <- pl + scale_fill_manual(values = cell_color_code)
+        pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
       } else if(color_as_factor == T) {
         number_colors = length(unique(factor_data))
-        cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+        cell_color_code = getDistinctColors(n = number_colors)
         names(cell_color_code) = unique(factor_data)
-        pl <- pl + scale_fill_manual(values = cell_color_code)
+        pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
       } else if(color_as_factor == F){
-        pl <- pl + scale_fill_gradient(low = 'blue', high = 'red')
+        pl <- pl + ggplot2::scale_fill_gradient(low = 'blue', high = 'red')
       }
 
     }
 
   } else {
-    pl <- pl + geom_point(data = annotated_DT, aes_string(x = dim_names[1], y = dim_names[2]),
+    pl <- pl + ggplot2::geom_point(data = annotated_DT, aes_string(x = dim_names[1], y = dim_names[2]),
                           show.legend = show.legend, shape = 21, fill = cell_color,
                           size = point_size,
                           color = point.border.col, stroke = point.border.stroke)
@@ -598,7 +598,7 @@ visDimPlot <- function(gobject,
   ## add % variance explained to names of plot for PCA ##
   if(dim_reduction_to_use == 'pca') {
 
-    eigenvaluesDT = as.data.table(gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$misc$eig)
+    eigenvaluesDT = data.table::as.data.table(gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$misc$eig)
     var_expl_vec = eigenvaluesDT[c(dim1_to_use, dim2_to_use)][['percentage of variance']]
     dim1_x_variance = var_expl_vec[1]
     dim2_y_variance = var_expl_vec[2]
@@ -609,14 +609,14 @@ visDimPlot <- function(gobject,
     x_title = sprintf('%s explains %.02f%% of variance', x_name, var_expl_vec[1])
     y_title = sprintf('%s explains %.02f%% of variance', y_name, var_expl_vec[2])
 
-    pl <- pl + labs(x = x_title, y = y_title)
+    pl <- pl + ggplot2::labs(x = x_title, y = y_title)
 
   } else {
 
     x_title = paste0(dim_reduction_to_use,'-',dim_names[1])
     y_title = paste0(dim_reduction_to_use,'-',dim_names[2])
 
-    pl <- pl + labs(x = x_title, y = y_title)
+    pl <- pl + ggplot2::labs(x = x_title, y = y_title)
 
   }
 
@@ -726,7 +726,7 @@ visForceLayoutPlot <- function(gobject,
   dim_dfr = as.data.frame(co)
   colnames(dim_dfr) = paste0('Dim.', 1:ncol(dim_dfr))
   dim_names = colnames(dim_dfr)
-  dim_DT = as.data.table(dim_dfr); dim_DT[, cell_ID := paste0('cell_', rownames(dim_dfr))]
+  dim_DT = data.table::as.data.table(dim_dfr); dim_DT[, cell_ID := paste0('cell_', rownames(dim_dfr))]
 
   ## annotated cell metadata
   cell_metadata = gobject@cell_metadata
@@ -737,7 +737,7 @@ visForceLayoutPlot <- function(gobject,
 
     # nn_network
     selected_nn_network = gobject@nn_network[[nn_network_to_use]][[network_name]][['igraph']]
-    network_DT = as.data.table(igraph::as_data_frame(selected_nn_network, what = 'edges'))
+    network_DT = data.table::as.data.table(igraph::as_data_frame(selected_nn_network, what = 'edges'))
     #network_DT[, from := paste0('cell_', from)]
     #network_DT[, to := paste0('cell_', to)]
 
@@ -746,34 +746,34 @@ visForceLayoutPlot <- function(gobject,
 
     annotated_network_DT <- merge(network_DT, dim_DT, by.x = 'from', by.y = 'cell_ID')
     from_dim_names = paste0('from_', old_dim_names)
-    setnames(annotated_network_DT, old = old_dim_names, new = from_dim_names)
+    data.table::setnames(annotated_network_DT, old = old_dim_names, new = from_dim_names)
 
     annotated_network_DT <- merge(annotated_network_DT, dim_DT, by.x = 'to', by.y = 'cell_ID')
     to_dim_names = paste0('to_', old_dim_names)
-    setnames(annotated_network_DT, old = old_dim_names, new = to_dim_names)
+    data.table::setnames(annotated_network_DT, old = old_dim_names, new = to_dim_names)
 
   }
 
 
   # visualize
 
-  pl <- ggplot()
-  pl <- pl + theme_classic()
+  pl <- ggplot2::ggplot()
+  pl <- pl + ggplot2::theme_classic()
 
   # network layer
   if(show_NN_network == TRUE) {
 
     if(is.null(edge_alpha)) {
       edge_alpha = 0.5
-      pl <- pl + geom_segment(data = annotated_network_DT, aes_string(x = from_dim_names[1], y = from_dim_names[2],
+      pl <- pl + ggplot2::geom_segment(data = annotated_network_DT, aes_string(x = from_dim_names[1], y = from_dim_names[2],
                                                                       xend = to_dim_names[1], yend = to_dim_names[2]), alpha = edge_alpha, show.legend = show.legend)
     } else if(is.numeric(edge_alpha)) {
-      pl <- pl + geom_segment(data = annotated_network_DT, aes_string(x = from_dim_names[1], y = from_dim_names[2],
+      pl <- pl + ggplot2::geom_segment(data = annotated_network_DT, aes_string(x = from_dim_names[1], y = from_dim_names[2],
                                                                       xend = to_dim_names[1], yend = to_dim_names[2]), alpha = edge_alpha, show.legend = show.legend)
     } else if(is.character(edge_alpha)) {
 
       if(edge_alpha %in% colnames(annotated_network_DT)) {
-        pl <- pl + geom_segment(data = annotated_network_DT, aes_string(x = from_dim_names[1], y = from_dim_names[2],
+        pl <- pl + ggplot2::geom_segment(data = annotated_network_DT, aes_string(x = from_dim_names[1], y = from_dim_names[2],
                                                                         xend = to_dim_names[1], yend = to_dim_names[2], alpha = edge_alpha), show.legend = show.legend)
       }
     }
@@ -782,7 +782,7 @@ visForceLayoutPlot <- function(gobject,
   # point layer
   if(is.null(cell_color)) {
     cell_color = 'lightblue'
-    pl <- pl + geom_point(data = annotated_DT, aes_string(x = dim_names[1], dim_names[2]),
+    pl <- pl + ggplot2::geom_point(data = annotated_DT, aes_string(x = dim_names[1], dim_names[2]),
                           color = cell_color, show.legend = show.legend, size = point_size)
 
   } else if (is.character(cell_color)) {
@@ -794,26 +794,26 @@ visForceLayoutPlot <- function(gobject,
         annotated_DT[[cell_color]] <- factor_data
       }
 
-      pl <- pl + geom_point(data = annotated_DT, aes_string(x = dim_names[1], y = dim_names[2], fill = cell_color),
+      pl <- pl + ggplot2::geom_point(data = annotated_DT, aes_string(x = dim_names[1], y = dim_names[2], fill = cell_color),
                             show.legend = show.legend, shape = 21, size = point_size,
                             color = point.border.col, stroke = point.border.stroke)
 
 
       if(!is.null(cell_color_code)) {
-        pl <- pl + scale_fill_manual(values = cell_color_code)
+        pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
       } else if(color_as_factor == T) {
         number_colors = length(unique(factor_data))
-        cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+        cell_color_code = getDistinctColors(n = number_colors)
         names(cell_color_code) = unique(factor_data)
-        pl <- pl + scale_fill_manual(values = cell_color_code)
+        pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
       } else if(color_as_factor == F){
-        pl <- pl + scale_fill_gradient(low = 'blue', high = 'red')
+        pl <- pl + ggplot2::scale_fill_gradient(low = 'blue', high = 'red')
       }
 
     }
 
   } else {
-    pl <- pl + geom_point(data = annotated_DT, aes_string(x = dim_names[1], y = dim_names[2]),
+    pl <- pl + ggplot2::geom_point(data = annotated_DT, aes_string(x = dim_names[1], y = dim_names[2]),
                           show.legend = show.legend, shape = 21, fill = cell_color,
                           size = point_size,
                           color = point.border.col, stroke = point.border.stroke)
@@ -895,12 +895,12 @@ visSpatDimPlot <- function(gobject,
   if(is.null(cell_color_code)) {
     if(is.character(cell_color)) {
 
-      cell_metadata = Giotto::pDataDT(gobject)
+      cell_metadata = pDataDT(gobject)
       if(cell_color %in% colnames(cell_metadata)) {
 
         if(color_as_factor == TRUE) {
           number_colors = length(unique(cell_metadata[[cell_color]]))
-          cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+          cell_color_code = getDistinctColors(n = number_colors)
           names(cell_color_code) = unique(cell_metadata[[cell_color]])
           cell_color_code = cell_color_code
         }
@@ -1014,11 +1014,11 @@ visDimGenePlot <- function(gobject,
   if(length(selected_genes) == 1) {
     subset_expr_data = expr_values[rownames(expr_values) %in% selected_genes, ]
     t_sub_expr_data_DT = data.table('selected_gene' = subset_expr_data, 'cell_ID' = colnames(expr_values))
-    setnames(t_sub_expr_data_DT, 'selected_gene', selected_genes)
+    data.table::setnames(t_sub_expr_data_DT, 'selected_gene', selected_genes)
   } else {
     subset_expr_data = expr_values[rownames(expr_values) %in% selected_genes, ]
     t_sub_expr_data = t(subset_expr_data)
-    t_sub_expr_data_DT = as.data.table(t_sub_expr_data)
+    t_sub_expr_data_DT = data.table::as.data.table(t_sub_expr_data)
     t_sub_expr_data_DT[, cell_ID := rownames(t_sub_expr_data)]
   }
 
@@ -1026,7 +1026,7 @@ visDimGenePlot <- function(gobject,
   ## dimension reduction ##
   dim_dfr = gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$coordinates[,c(dim1_to_use, dim2_to_use)]
   dim_names = colnames(dim_dfr)
-  dim_DT = as.data.table(dim_dfr); dim_DT[, cell_ID := rownames(dim_dfr)]
+  dim_DT = data.table::as.data.table(dim_dfr); dim_DT[, cell_ID := rownames(dim_dfr)]
 
   ## annotated cell metadata
   cell_metadata = gobject@cell_metadata
@@ -1040,7 +1040,7 @@ visDimGenePlot <- function(gobject,
 
     # nn_network
     selected_nn_network = gobject@nn_network[[nn_network_to_use]][[network_name]]
-    network_DT = as.data.table(igraph::as_data_frame(selected_nn_network, what = 'edges'))
+    network_DT = data.table::as.data.table(igraph::as_data_frame(selected_nn_network, what = 'edges'))
     network_DT[, from := paste0('cell_', from)]
     network_DT[, to := paste0('cell_', to)]
 
@@ -1049,11 +1049,11 @@ visDimGenePlot <- function(gobject,
 
     annotated_network_DT <- merge(network_DT, dim_DT, by.x = 'from', by.y = 'cell_ID')
     from_dim_names = paste0('from_', old_dim_names)
-    setnames(annotated_network_DT, old = old_dim_names, new = from_dim_names)
+    data.table::setnames(annotated_network_DT, old = old_dim_names, new = from_dim_names)
 
     annotated_network_DT <- merge(annotated_network_DT, dim_DT, by.x = 'to', by.y = 'cell_ID')
     to_dim_names = paste0('to_', old_dim_names)
-    setnames(annotated_network_DT, old = old_dim_names, new = to_dim_names)
+    data.table::setnames(annotated_network_DT, old = old_dim_names, new = to_dim_names)
 
   }
 
@@ -1065,23 +1065,23 @@ visDimGenePlot <- function(gobject,
 
 
     ## OLD need to be combined ##
-    pl <- ggplot()
-    pl <- pl + theme_classic()
+    pl <- ggplot2::ggplot()
+    pl <- pl + ggplot2::theme_classic()
 
     # network layer
     if(show_NN_network == TRUE) {
 
       if(is.null(edge_alpha)) {
         edge_alpha = 0.5
-        pl <- pl + geom_segment(data = annotated_network_DT, aes_string(x = from_dim_names[1], y = from_dim_names[2],
+        pl <- pl + ggplot2::geom_segment(data = annotated_network_DT, aes_string(x = from_dim_names[1], y = from_dim_names[2],
                                                                         xend = to_dim_names[1], yend = to_dim_names[2]), alpha = edge_alpha, show.legend = show.legend)
       } else if(is.numeric(edge_alpha)) {
-        pl <- pl + geom_segment(data = annotated_network_DT, aes_string(x = from_dim_names[1], y = from_dim_names[2],
+        pl <- pl + ggplot2::geom_segment(data = annotated_network_DT, aes_string(x = from_dim_names[1], y = from_dim_names[2],
                                                                         xend = to_dim_names[1], yend = to_dim_names[2]), alpha = edge_alpha, show.legend = show.legend)
       } else if(is.character(edge_alpha)) {
 
         if(edge_alpha %in% colnames(annotated_network_DT)) {
-          pl <- pl + geom_segment(data = annotated_network_DT, aes_string(x = from_dim_names[1], y = from_dim_names[2],
+          pl <- pl + ggplot2::geom_segment(data = annotated_network_DT, aes_string(x = from_dim_names[1], y = from_dim_names[2],
                                                                           xend = to_dim_names[1], yend = to_dim_names[2], alpha = edge_alpha), show.legend = show.legend)
         }
       }
@@ -1091,25 +1091,25 @@ visDimGenePlot <- function(gobject,
     # point layer
     if(is.null(genes)) {
       cell_color = 'lightblue'
-      pl <- pl + geom_point(data = annotated_gene_DT, aes_string(x = dim_names[1], dim_names[2]),
+      pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string(x = dim_names[1], dim_names[2]),
                             fill = cell_color, show.legend = show.legend, size =  point_size)
 
     } else {
       if(scale_alpha_with_expression == TRUE) {
-        pl <- pl + geom_point(data = annotated_gene_DT, aes_string(x = dim_names[1], y = dim_names[2], fill = gene, alpha = gene),
+        pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string(x = dim_names[1], y = dim_names[2], fill = gene, alpha = gene),
                               show.legend = show.legend, shape = 21, size = point_size,
                               color = point.border.col, stroke = point.border.stroke)
       } else {
-        pl <- pl + geom_point(data = annotated_gene_DT, aes_string(x = dim_names[1], y = dim_names[2], fill = gene),
+        pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string(x = dim_names[1], y = dim_names[2], fill = gene),
                               show.legend = show.legend, shape = 21,
                               size =  point_size,
                               color = point.border.col, stroke = point.border.stroke)
       }
 
-      pl <- pl + scale_fill_gradient2(low = 'grey', mid = 'lightgrey', high = 'red', midpoint = midpoint)
+      pl <- pl + ggplot2::scale_fill_gradient2(low = 'grey', mid = 'lightgrey', high = 'red', midpoint = midpoint)
     }
 
-    pl <- pl + labs(x = 'coord x', y = 'coord y')
+    pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y')
 
     if(show_plots == TRUE) {
       print(pl)

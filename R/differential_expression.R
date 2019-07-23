@@ -30,7 +30,7 @@ findMarkers <- function(gobject,
 
   # expression data
   values = match.arg(expression_values, choices = c('normalized', 'scaled', 'custom'))
-  expr_data = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_data = select_expression_values(gobject = gobject, values = values)
 
   # select method
   method = match.arg(method, choices = c('scran'))
@@ -80,7 +80,7 @@ findMarkers <- function(gobject,
 
       dfr = marker_results[[x]]
 
-      DT = as.data.table(dfr)
+      DT = data.table::as.data.table(dfr)
       DT[, gene_ID := rownames(dfr)]
       DT[, cluster_ID := x]
 
@@ -162,25 +162,25 @@ findGiniMarkers <- function(gobject,
   }
 
   # average expression per cluster
-  aggr_sc_clusters <- Giotto:::create_average_DT(gobject = gobject,
+  aggr_sc_clusters <- create_average_DT(gobject = gobject,
                                                  meta_data_name = cluster_column,
                                                  expression_values = values)
-  aggr_sc_clusters_DT <- as.data.table(aggr_sc_clusters)
+  aggr_sc_clusters_DT <- data.table::as.data.table(aggr_sc_clusters)
   aggr_sc_clusters_DT[, genes := rownames(aggr_sc_clusters)]
-  aggr_sc_clusters_DT_melt <- melt.data.table(aggr_sc_clusters_DT, variable.name = 'cluster', id.vars = 'genes', value.name = 'expression')
+  aggr_sc_clusters_DT_melt <- data.table::melt.data.table(aggr_sc_clusters_DT, variable.name = 'cluster', id.vars = 'genes', value.name = 'expression')
 
 
 
   # detection per cluster
-  aggr_detection_sc_clusters <- Giotto:::create_average_detection_DT(gobject = gobject, meta_data_name = cluster_column,
+  aggr_detection_sc_clusters <- create_average_detection_DT(gobject = gobject, meta_data_name = cluster_column,
                                                                      expression_values = values, detection_threshold = detection_threshold)
   aggr_detection_sc_clusters_DT <- as.data.table(aggr_detection_sc_clusters)
   aggr_detection_sc_clusters_DT[, genes := rownames(aggr_detection_sc_clusters)]
-  aggr_detection_sc_clusters_DT_melt <- melt.data.table(aggr_detection_sc_clusters_DT, variable.name = 'cluster', id.vars = 'genes', value.name = 'detection')
+  aggr_detection_sc_clusters_DT_melt <- data.table::melt.data.table(aggr_detection_sc_clusters_DT, variable.name = 'cluster', id.vars = 'genes', value.name = 'detection')
 
   # gini
-  aggr_sc_clusters_DT_melt[, expression_gini := Giotto:::mygini_fun(expression), by = genes]
-  aggr_detection_sc_clusters_DT_melt[, detection_gini := Giotto:::mygini_fun(detection), by = genes]
+  aggr_sc_clusters_DT_melt[, expression_gini := mygini_fun(expression), by = genes]
+  aggr_detection_sc_clusters_DT_melt[, detection_gini := mygini_fun(detection), by = genes]
 
   # combine
   aggr_sc = cbind(aggr_sc_clusters_DT_melt, aggr_detection_sc_clusters_DT_melt[,.(detection, detection_gini)])
@@ -267,8 +267,8 @@ findMarkers_one_vs_all <- function(gobject,
       select_bool = unlist(lapply(markers, FUN = function(x) {
         unique(x$cluster_ID) == selected_clus
       }))
-      selected_table = as.data.table(markers[select_bool])
-      setnames(selected_table, colnames(selected_table)[4], 'logFC')
+      selected_table = data.table::as.data.table(markers[select_bool])
+      data.table::setnames(selected_table, colnames(selected_table)[4], 'logFC')
 
       # filter selected table
       filtered_table = selected_table[logFC > 0]
