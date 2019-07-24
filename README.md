@@ -82,7 +82,7 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation
 
 ## Examples
 
-[![Cortex](./inst/images/cortex_image_summary.png)](./inst/examples/mouse_cortex_svz/mouse_cortex_1_simple.md)
+[![Cortex](./inst/images/cortex_image_summary.png)](./inst/examples/mouse_cortex_svz/mouse_cortex_1_simple_improved.md)
 
  
 
