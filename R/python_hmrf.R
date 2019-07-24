@@ -281,7 +281,7 @@ viewHMRFresults <- function(gobject,
 
     title_name = paste0('k = ', k, ' b = ',b)
 
-    visPlot(gobject = gobject, cell_color = output, show.plot = T, title = title_name, ...)
+    visPlot(gobject = gobject, cell_color = output, show_plot = T, title = title_name, ...)
 
 
   }
