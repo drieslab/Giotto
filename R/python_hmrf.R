@@ -316,8 +316,7 @@ addHMRF <- function(gobject,
 
   ## reader.py and get_result.py paths
   # TODO: part of the package
-  get_result_path = "/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Data/Qian_input_files//get_result2.py"
-
+  get_result_path = system.file("python", "get_result2.py", package = 'Giotto')
 
   # paths and name
   name = HMRFoutput$name
