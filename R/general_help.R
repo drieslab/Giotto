@@ -132,6 +132,8 @@ stitchFieldCoordinates <- function(location_file,
   if(reverse_final_x == TRUE) new_x_coord = new_x_coord*-1
   if(reverse_final_y == TRUE) new_y_coord = new_y_coord*-1
 
+  copy_loc_file = data.table(copy_loc_file)
+
   copy_loc_file[, c('X_final', 'Y_final') := list(new_x_coord, new_y_coord)]
 
   return(copy_loc_file)

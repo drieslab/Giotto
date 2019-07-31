@@ -357,7 +357,8 @@ filterGiotto <- function(gobject,
 
 
   ## update parameters used ##
-  parameters_list  = gobject@parameters
+  #parameters_list  = gobject@parameters(parameters won't update)
+  parameters_list  = newGiottoObject@parameters
   number_of_rounds = length(parameters_list)
   update_name      = paste0(number_of_rounds,'_filter')
   # parameters to include
