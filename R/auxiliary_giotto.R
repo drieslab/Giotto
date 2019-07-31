@@ -531,31 +531,36 @@ filterCombinations <- function(gobject,
 filterGiotto <- function(gobject,
                          expression_values = c('raw', 'normalized', 'scaled', 'custom'),
                          expression_threshold = 1,
-                         minimum_detected_genes = 100,
-                         minimum_expression_in_cell = 100,
+                         gene_det_in_min_cells = 100,
+                         min_det_genes_per_cell = 100,
                          verbose = F) {
 
   # expression values to be used
   values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
   expr_values = select_expression_values(gobject = gobject, values = values)
 
-  ## filter cells
-  filter_index_cells = colSums(expr_values >= expression_threshold) >= minimum_detected_genes
-  selected_cell_ids = gobject@cell_ID[filter_index_cells]
+  # approach:
+  # 1. first remove genes that are not frequently detected
+  # 2. then remove cells that do not have sufficient detected genes
+
   ## filter genes
-  filter_index_genes = rowSums(expr_values >= expression_threshold) >= minimum_expression_in_cell
+  filter_index_genes = rowSums(expr_values >= expression_threshold) >= gene_det_in_min_cells
   selected_gene_ids = gobject@gene_ID[filter_index_genes]
 
-  newGiottoObject = Giotto::subsetGiotto(gobject = gobject,
+  ## filter cells
+  filter_index_cells = colSums(expr_values[filter_index_genes, ] >= expression_threshold) >= min_det_genes_per_cell
+  selected_cell_ids = gobject@cell_ID[filter_index_cells]
+
+  newGiottoObject = subsetGiotto(gobject = gobject,
                                  cell_ids = selected_cell_ids,
                                  gene_ids = selected_gene_ids)
 
   ## print output ##
-  removed_cells = length(filter_index_cells[filter_index_cells == FALSE])
-  total_cells   = length(filter_index_cells)
-
   removed_genes = length(filter_index_genes[filter_index_genes == FALSE])
   total_genes   = length(filter_index_genes)
+
+  removed_cells = length(filter_index_cells[filter_index_cells == FALSE])
+  total_cells   = length(filter_index_cells)
 
   if(verbose == TRUE) {
     cat('Number of cells removed: ', removed_cells, ' out of ', total_cells, '\n')
@@ -564,15 +569,15 @@ filterGiotto <- function(gobject,
 
 
   ## update parameters used ##
-  parameters_list  = gobject@parameters
+  parameters_list  = newGiottoObject@parameters
   number_of_rounds = length(parameters_list)
   update_name      = paste0(number_of_rounds,'_filter')
   # parameters to include
   parameters_list[[update_name]] = c('used expression values' = expression_values,
                                      'gene expression threshold' = expression_threshold,
-                                     'minimum genes detected per cell' = minimum_detected_genes,
-                                     'minimum times a gene is detected over all cells' = minimum_expression_in_cell)
-  gobject@parameters = parameters_list
+                                     'minimum # of genes detected per cell' = min_det_genes_per_cell,
+                                     'minimum times a gene is detected over all cells' = gene_det_in_min_cells)
+  newGiottoObject@parameters = parameters_list
 
   return(newGiottoObject)
 
