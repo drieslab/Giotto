@@ -275,10 +275,6 @@ calculate_spatial_genes_python <- function(gobject,
 
 
 
-
-
-
-
 #' @title calculateSpatialGenes
 #' @name calculateSpatialGenes
 #' @description compute genes that are spatially clustered
