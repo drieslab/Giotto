@@ -6,7 +6,7 @@
 \usage{
 filterGiotto(gobject, expression_values = c("raw", "normalized",
   "scaled", "custom"), expression_threshold = 1,
-  minimum_detected_genes = 100, minimum_expression_in_cell = 100,
+  gene_det_in_min_cells = 100, min_det_genes_per_cell = 100,
   verbose = F)
 }
 \arguments{
@@ -16,11 +16,11 @@ filterGiotto(gobject, expression_values = c("raw", "normalized",
 
 \item{expression_threshold}{threshold to consider a gene expressed}
 
+\item{verbose}{verbose}
+
 \item{minimum_detected_genes}{minimum # of genes that need to be detected in a cell}
 
 \item{minimum_expression_in_cell}{minimum # of cells that need to express a gene}
-
-\item{verbose}{verbose}
 }
 \value{
 giotto object

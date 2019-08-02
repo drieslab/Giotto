@@ -491,6 +491,9 @@ filterCombinations <- function(gobject,
                            gene_detected_in_min_cells, min_detected_genes_per_cell,
                            combination, removed_genes, removed_cells)]
 
+  maximum_x_value = max(result_DT[['removed_cells']], na.rm = T)
+  maximum_y_value = max(result_DT[['removed_genes']], na.rm = T)
+
   pl <- ggplot2::ggplot()
   pl <- pl + ggplot2::theme_classic()
   pl <- pl + ggplot2::geom_line(data = result_DT, aes(x = removed_cells+x_axis_offset,
@@ -503,10 +506,9 @@ filterCombinations <- function(gobject,
   pl <- pl + ggrepel::geom_text_repel(data = result_DT, aes(x = removed_cells+x_axis_offset,
                                                             y = removed_genes+y_axis_offset,
                                                             label = combination))
-  pl <- pl + ggplot2::scale_x_continuous(trans = scale_x_axis)
-  pl <- pl + ggplot2::scale_y_continuous(trans = scale_y_axis)
+  pl <- pl + ggplot2::scale_x_continuous(trans = scale_x_axis, limits = c(0, maximum_x_value))
+  pl <- pl + ggplot2::scale_y_continuous(trans = scale_y_axis, limits = c(0, maximum_y_value))
   pl <- pl + ggplot2::labs(x = 'number of removed cells', y = 'number of removed genes')
-
   if(show_plot == TRUE) {
     print(pl)
   }
@@ -904,8 +906,8 @@ addGeneStatistics <- function(gobject,
                               return_gobject = TRUE) {
 
   # expression values to be used
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_data = select_expression_values(gobject = gobject, values = values)
+  expression_values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_data = select_expression_values(gobject = gobject, values = expression_values)
 
   # calculate stats
   gene_stats = data.table::data.table(genes = rownames(expr_data),
@@ -971,8 +973,8 @@ addCellStatistics <- function(gobject,
                               return_gobject = TRUE) {
 
   # expression values to be used
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_data = select_expression_values(gobject = gobject, values = values)
+  expression_values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_data = select_expression_values(gobject = gobject, values = expression_values)
 
   # calculate stats
   cell_stats = data.table::data.table(cells = colnames(expr_data),
