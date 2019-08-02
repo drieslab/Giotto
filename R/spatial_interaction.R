@@ -274,12 +274,12 @@ get_specific_interaction_gene_enrichment <- function(sub_spatial_network,
 
 
 
-  # wilcox test and averages
+  # wilcox test and averages ###(parallel)
   if(nr_cell_type_1 == 1) {
-    if(do_diff_test == T) cell_type_1_test =  stats::wilcox.test(x = as.vector(cell_type_1_ids_matrix), y = as.vector(all_cell_type_1_ids_matrix))$p.value
+    if(do_diff_test == T) cell_type_1_test =  stats::wilcox.test(x = as.vector(cell_type_1_ids_matrix), y = as.vector(all_cell_type_1_ids_matrix),exact = F)$p.value
     average_all_cell_type_1_ids = rowMeans(all_cell_type_1_ids_matrix)
   } else {
-    if(do_diff_test == T) cell_type_1_test = sapply(1:nrow(cell_type_1_ids_matrix), function(i) stats::wilcox.test(as.vector(cell_type_1_ids_matrix[i,]), as.vector(all_cell_type_1_ids_matrix[i,]))$p.value)
+    if(do_diff_test == T) cell_type_1_test = sapply(1:nrow(cell_type_1_ids_matrix), function(i) stats::wilcox.test(as.vector(cell_type_1_ids_matrix[i,]), as.vector(all_cell_type_1_ids_matrix[i,]),exact = F)$p.value)
     average_all_cell_type_1_ids = rowMeans(all_cell_type_1_ids_matrix)
   }
 
@@ -597,7 +597,7 @@ getGeneToGeneSelection <- function(CPGscore,
 
       # create additional columns
       mergetest[, gene_gene := paste0(genes_1,'-',genes_2), by = 1:nrow(mergetest)]
-      mergetest[, unif_gene_gene := paste(sort(c(genes_1, genes_2)), collapse = '-'), by = 1:nrow(mergetest)]
+      #mergetest[, unif_gene_gene := paste(sort(c(genes_1, genes_2)), collapse = '-'), by = 1:nrow(mergetest)]
 
       # only keep specific combinations
       if((!is.null(specific_genes_1) & !is.null(specific_genes_2))) {
@@ -606,6 +606,8 @@ getGeneToGeneSelection <- function(CPGscore,
         RL_combo = paste0(specific_genes_2,'-', specific_genes_1)
         mergetest = mergetest[gene_gene %in% c(LR_combo, RL_combo)]
       }
+
+      mergetest[, unif_gene_gene := paste(sort(c(genes_1, genes_2)), collapse = '-'), by = 1:nrow(mergetest)]
 
       savelist[[cell_int]] = mergetest
     }
@@ -687,7 +689,7 @@ exprOnlyCellCellcommunicationScores = function(gobject,
   cell_metadata = pDataDT(gobject)
   nr_cell_types = cell_metadata[,.N, by = c(cluster_column)]
   nr_cells = nr_cell_types$N
-  names(nr_cells) = nr_cell_types$cell_types
+  names(nr_cells) = nr_cell_types$cluster_column
 
 
   comScore = average_gene_gene_expression_in_groups(gobject = gobject,
