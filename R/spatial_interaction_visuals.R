@@ -918,27 +918,30 @@ plotGTGscores <- function(GTGscore,
   subDT[, unified_int := factor(unified_int, levels = selected_interactions)]
 
 
-  if(simple_plot == F) {
+    if(simple_plot == F) {
 
     pl <- ggplot2::ggplot()
     pl <- pl + ggplot2::theme_bw()
 
     if(detail_plot == TRUE) {
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = 0, y = all_cell_expr_2), color = 'blue', shape = 1)
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = 0, y = cell_expr_2), color = 'red', shape = 1)
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_cell_expr_1, y = 0), color = 'blue', shape = 1)
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = cell_expr_1, y = 0), color = 'red', shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = 0, y = all_cell_expr_2, colour = "all cell expression"),shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = 0, y = cell_expr_2,colour = "selected cell expression"), shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_cell_expr_1, y = 0, colour = "all cell expression"), shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = cell_expr_1, y = 0,colour ="selected cell expression"), shape = 1)
     }
 
-    pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_cell_expr_1, y = all_cell_expr_2), color = 'blue', size = 2)
-    pl <- pl + ggplot2::geom_point(data = subDT, aes(x = cell_expr_1, y = cell_expr_2), color = 'red', size = 2)
+    pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_cell_expr_1, y = all_cell_expr_2,colour = "all cell expression"),size = 2)
+    pl <- pl + ggplot2::geom_point(data = subDT, aes(x = cell_expr_1, y = cell_expr_2,colour ="selected cell expression"), size = 2)
     pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = all_cell_expr_1, xend = cell_expr_1,
                                               y = all_cell_expr_2, yend = cell_expr_2), linetype = 2)
-    pl <- pl + ggplot2::labs(x = 'gene 1 in celltype 1', y = 'gene 2 in celltype 2')
+    #pl <- pl + ggplot2::labs(x = 'gene 1 in celltype 1', y = 'gene 2 in celltype 2')
+    pl <- pl + ggplot2::labs(x = paste(subDT$genes_1,subDT$cell_type_1,sep = " in ")
+                             , y = paste(subDT$genes_2,subDT$cell_type_2,sep = " in "))
+    pl <- pl + ggplot2::scale_colour_manual(name="expression source",values=cols)
     pl <- pl + ggplot2::facet_wrap(~unif_gene_gene+unified_int, nrow = facet_nrow, ncol = facet_ncol,
                           scales = facet_scales)
 
-  } else {
+  }else {
 
     simple_plot_facet = match.arg(arg = simple_plot_facet, choices = c('interaction', 'genes'))
 
@@ -947,8 +950,9 @@ plotGTGscores <- function(GTGscore,
       pl <- pl + ggplot2::theme_bw()
       pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = all_cell_expr, xend = spatial_cell_expr,
                                                 y = unif_gene_gene, yend = unif_gene_gene), linetype = 2)
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_cell_expr, y = unif_gene_gene), color = 'blue')
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = spatial_cell_expr, y = unif_gene_gene), color = 'red')
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_cell_expr, y = unif_gene_gene,colour = "all cell expression"))
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = spatial_cell_expr, y = unif_gene_gene,colour ="selected cell expression"))
+      pl <- pl + ggplot2::scale_colour_manual(name="expression source",values=cols)
       pl <- pl + ggplot2::facet_wrap(~unified_int, scales = facet_scales)
       pl <- pl + ggplot2::labs(x = 'interactions', y = 'gene-gene')
     } else {
@@ -956,8 +960,9 @@ plotGTGscores <- function(GTGscore,
       pl <- pl + ggplot2::theme_bw()
       pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = all_cell_expr, xend = spatial_cell_expr,
                                                 y = unified_int, yend = unified_int), linetype = 2)
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_cell_expr, y = unified_int), color = 'blue')
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = spatial_cell_expr, y = unified_int), color = 'red')
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_cell_expr, y = unified_int,colour = "all cell expression"))
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = spatial_cell_expr, y = unified_int,colour ="selected cell expression"))
+      pl <- pl + ggplot2::scale_colour_manual(name="expression source",values=cols)
       pl <- pl + ggplot2::facet_wrap(~unif_gene_gene, scales = facet_scales)
       pl <- pl + ggplot2::labs(x = 'gene-gene', y = 'interactions')
     }
