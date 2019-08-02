@@ -81,6 +81,7 @@ clusterCells <- function(gobject,
   }
 
 
+
   # perform clustering
   if(cluster_method == 'louvain') {
     ## louvain clustering using the R library 'multinet' ##
