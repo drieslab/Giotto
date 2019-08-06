@@ -4,16 +4,18 @@
 \alias{doLeidenCluster}
 \title{doLeidenCluster}
 \usage{
-doLeidenCluster(gobject, nn_network_to_use = "sNN",
-  network_name = "sNN.pca", python_path = NULL, resolution = 1,
-  weight_col = "weight",
+doLeidenCluster(gobject, name = "leiden_clus",
+  nn_network_to_use = "sNN", network_name = "sNN.pca",
+  python_path = NULL, resolution = 1, weight_col = "weight",
   partition_type = c("RBConfigurationVertexPartition",
   "ModularityVertexPartition"), init_membership = NULL,
-  n_iterations = 1000, name = "pleiden_clus", return_gobject = TRUE,
-  set_seed = T, seed_number = 1234, ...)
+  n_iterations = 1000, return_gobject = TRUE, set_seed = T,
+  seed_number = 1234, ...)
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{name}{name for cluster}
 
 \item{nn_network_to_use}{type of NN network to use (kNN vs sNN)}
 
@@ -30,8 +32,6 @@ doLeidenCluster(gobject, nn_network_to_use = "sNN",
 \item{init_membership}{initial membership of cells}
 
 \item{n_iterations}{number of interations}
-
-\item{name}{name for cluster}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
