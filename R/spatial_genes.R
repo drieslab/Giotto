@@ -614,7 +614,7 @@ detectSpatialPatterns <- function(gobject,
 showPattern <- function(spatPatObj,
                         dimension = 1,
                         trim = c(0.02, 0.98),
-                        background_color = 'grey',
+                        background_color = 'white',
                         grid_border_color = 'grey',
                         show_legend = T,
                         plot_dim = 2,
@@ -638,7 +638,7 @@ showPattern <- function(spatPatObj,
 
   # trim PC values
   if(!is.null(trim)) {
-    boundaries = quantile(annotated_grid[[selected_PC]], probs = trim)
+    boundaries = stats::quantile(annotated_grid[[selected_PC]], probs = trim)
     annotated_grid[[selected_PC]][annotated_grid[[selected_PC]] < boundaries[1]] = boundaries[1]
     annotated_grid[[selected_PC]][annotated_grid[[selected_PC]] > boundaries[2]] = boundaries[2]
 
@@ -646,18 +646,18 @@ showPattern <- function(spatPatObj,
 
   # 2D-plot
   if(plot_dim == 2){
-        dpl <- ggplot()
-        dpl <- dpl + theme_bw()
-        dpl <- dpl + geom_tile(data = annotated_grid,
+        dpl <- ggplot2::ggplot()
+        dpl <- dpl + ggplot2::theme_bw()
+        dpl <- dpl + ggplot2::geom_tile(data = annotated_grid,
                          aes_string(x = 'x_start', y = 'y_start', fill = selected_PC),
                          color = grid_border_color, show_legend = show_legend)
-        dpl <- dpl + scale_fill_gradient2('low' = 'darkblue', mid = 'white', high = 'darkred', midpoint = 0,
+        dpl <- dpl + ggplot2::scale_fill_gradient2('low' = 'darkblue', mid = 'white', high = 'darkred', midpoint = 0,
                                     guide = guide_legend(title = ''))
-        dpl <- dpl + theme(axis_text_x = element_text(size = 8, angle = 45, vjust = 1, hjust = 1),
+        dpl <- dpl + ggplot2::theme(axis_text_x = element_text(size = 8, angle = 45, vjust = 1, hjust = 1),
                      panel_background = element_rect(fill = background.color),
                      panel_grid = element_blank(),
                      plot_title = element_text(hjust = 0.5))
-        dpl <- dpl + labs(x = 'x coordinates', y = 'y coordinates')
+        dpl <- dpl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates')
   }
 
   else if (plot_dim == 3){
@@ -665,13 +665,13 @@ showPattern <- function(spatPatObj,
       annotated_grid[,center_x:=(x_start+x_end)/2]
       annotated_grid[,center_y:=(y_start+y_end)/2]
       annotated_grid[,center_z:=(z_start+z_end)/2]
-                  
+
       dpl <- plot_ly(type = 'scatter3d',
                     x = annotated_grid$center_x, y = annotated_grid$center_y, z = annotated_grid$center_z,
                     color = annotated_grid[[selected_PC]],size = point_size,
                     mode = 'markers', colors = c( 'darkblue','white','darkred'))
       dpl <- dpl %>% layout(plot_bgcolor = "LightGray")
-      
+
   }
 
 
