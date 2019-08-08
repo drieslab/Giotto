@@ -84,6 +84,7 @@ visPlot <- function(gobject,
       spatial_network <- spatial_network[spatial_network$to %in% select_cells & spatial_network$from %in% select_cells]
   }
 
+
   # first 2 dimensions need to be defined
   if(is.null(sdimx) | is.null(sdimy)) {
     # cat('first and second dimenion need to be defined, default is first 2 \n')
@@ -96,7 +97,7 @@ visPlot <- function(gobject,
   # if 3 dimensions are defined create a 3D plot
   if(!is.null(sdimx) & !is.null(sdimy) & !is.null(sdimz)) {
 
-    cat('create 3D plot')
+    cat('create 3D plot\n')
 
     if(!is.null(cell_color)) {
         if(cell_color %in% colnames(cell_locations_metadata)){
@@ -106,19 +107,28 @@ visPlot <- function(gobject,
             }
             pl <- plot_ly(type = 'scatter3d',
                           x = cell_locations_metadata$sdimx, y = cell_locations_metadata$sdimy, z = cell_locations_metadata$sdimz,
-                          color = cell_locations_metadata[[cell_color]],size = point_size,legendgroup = cell_locations_metadata$cell_color,
+                          color = cell_locations_metadata[[cell_color]],marker = list(size = point_size),
                           mode = 'markers', colors = cell_color_code,name = "selected cells")%>%
-                  add_trace(type = "scatter3d",mode="markers",data=cell_locations_metadata_other,name = "unselected cells",
-                      x=~sdimx,y=~sdimy,z=~sdimz,size=point_size,colors="lightgray",inherit=F,opacity=0.05)
-
-
+                  layout(scene = list(xaxis = list(title = 'X'),
+                                      yaxis = list(title = 'Y'),
+                                      zaxis = list(title = 'Z')))
+            
+            if(!is.null(select_cells)){
+                pl <- pl %>%add_trace(type = "scatter3d",mode="markers",data=cell_locations_metadata_other,name = "unselected cells",
+                      x=~sdimx,y=~sdimy,z=~sdimz,marker = list(size = point_size/2),colors="lightgray",inherit=F,opacity=0.05)
+                }
             }
+        else{
+            cat('Cell_color not exist!\n')
+        }
     } else {
       pl <- plot_ly(type = 'scatter3d',
                    x = cell_locations_metadata$sdimx, y = cell_locations_metadata$sdimy, z = cell_locations_metadata$sdimz,
-                   mode = 'markers', size = point_size,colors = 'lightblue',name = "selected cells") %>%
-            add_trace(type = "scatter3d",mode="markers",data=cell_locations_metadata_other,name = "unselected cells",
-                      x=~sdimx,y=~sdimy,z=~sdimz,size=point_size,colors="lightgray",inherit = F,opacity = 0.05)
+                   mode = 'markers', marker = list(size = point_size),colors = 'lightblue',name = "selected cells") 
+           if(!is.null(select_cells)){
+                pl <- pl%>%add_trace(type = "scatter3d",mode="markers",data=cell_locations_metadata_other,name = "unselected cells",
+                      x=~sdimx,y=~sdimy,z=~sdimz,marker = list(size = point_size/2),colors="lightgray",inherit = F,opacity = 0.05)
+               }
         }
           ## plot spatial network
     if(!is.null(spatial_network) & show_network == TRUE) {
@@ -282,7 +292,6 @@ visPlot <- function(gobject,
   }
 
 }
-
 
 
 
@@ -989,13 +998,18 @@ visSpatDimPlot <- function(gobject,
     }
     
     else if(plot_dim == 3){
-        suppressWarnings(dmpl <- ggplotly(dmpl,width = 900, height = 800))
+        suppressWarnings(dmpl <- ggplotly(dmpl))
+        if(plot_alignment == 'vertical'){
         combo_plot <- suppressWarnings(subplot(dmpl,hide_colorbar(spl),nrows = 2)%>% layout(scene = list(domain = list(x = c(0, 1), y = c(0,0.5))),
                                                       legend = list(x = 100, y = 0)))
+            }
+        else{
+            combo_plot <- suppressWarnings(subplot(dmpl,hide_colorbar(spl))%>% layout(scene = list(domain = list(x = c(0.5, 1), y = c(0,1))),
+                                                      legend = list(x = 100, y = 0)))
+        }
         return(combo_plot)
     }
 }
-
 
 
 #' @title visDimGenePlot
