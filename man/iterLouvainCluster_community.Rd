@@ -7,9 +7,9 @@
 iterLouvainCluster_community(gobject, nr_rounds = 5,
   hvg_param = list(reverse_log_scale = T, difference_in_variance = 1,
   expression_values = "normalized"), hvg_min_perc_cells = 5,
-  hvg_mean_expr_det = 1, pca_param = list(expression_values = "custom",
-  scale.unit = T), nn_param = list(dimensions_to_use = 1:20),
-  k_neighbors = 20, resolution = 1, python_path = NULL,
+  hvg_mean_expr_det = 1, pca_param = list(expression_values =
+  "normalized", scale_unit = T), nn_param = list(dimensions_to_use =
+  1:20), k_neighbors = 20, resolution = 1, python_path = NULL,
   nn_network_to_use = "sNN", network_name = "sNN.pca",
   name = "iter_clus", return_gobject = TRUE, ...)
 }

@@ -7,9 +7,9 @@
 iterLouvainCluster_multinet(gobject, nr_rounds = 5,
   hvg_param = list(reverse_log_scale = T, difference_in_variance = 1,
   expression_values = "normalized"), hvg_min_perc_cells = 5,
-  hvg_mean_expr_det = 1, pca_param = list(expression_values = "custom",
-  scale.unit = T), nn_param = list(dimensions_to_use = 1:20),
-  k_neighbors = 20, gamma = 1, omega = 1, python_path = NULL,
+  hvg_mean_expr_det = 1, pca_param = list(expression_values =
+  "normalized", scale_unit = T), nn_param = list(dimensions_to_use =
+  1:20), k_neighbors = 20, gamma = 1, omega = 1,
   nn_network_to_use = "sNN", network_name = "sNN.pca",
   name = "iter_clus", return_gobject = TRUE, ...)
 }
@@ -34,8 +34,6 @@ iterLouvainCluster_multinet(gobject, nr_rounds = 5,
 
 \item{omega}{omega}
 
-\item{python_path}{python path to use for Leiden clustering}
-
 \item{nn_network_to_use}{NN network to use}
 
 \item{network_name}{NN network name}
@@ -45,6 +43,8 @@ iterLouvainCluster_multinet(gobject, nr_rounds = 5,
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
 \item{...}{additional parameters}
+
+\item{python_path}{python path to use for Leiden clustering}
 }
 \value{
 giotto object appended with new cluster

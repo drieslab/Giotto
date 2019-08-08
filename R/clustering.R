@@ -445,7 +445,6 @@ doLouvainCluster = function(gobject,
                                        name = name,
                                        nn_network_to_use = nn_network_to_use,
                                        network_name = network_name,
-                                       python_path = python_path,
                                        gamma = gamma,
                                        omega = omega,
                                        weight_col = weight_col,
@@ -1261,7 +1260,7 @@ doLeidenSubCluster = function(gobject,
                               hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
                               hvg_min_perc_cells = 5,
                               hvg_mean_expr_det = 1,
-                              pca_param = list(expression_values = 'custom', scale.unit = T),
+                              pca_param = list(expression_values = 'normalized', scale_unit = T),
                               nn_param = list(dimensions_to_use = 1:20),
                               k_neighbors = 10,
                               resolution = 0.5,
@@ -1412,7 +1411,7 @@ doLouvainSubCluster_community = function(gobject,
                                          hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
                                          hvg_min_perc_cells = 5,
                                          hvg_mean_expr_det = 1,
-                                         pca_param = list(expression_values = 'custom', scale.unit = T),
+                                         pca_param = list(expression_values = 'normalized', scale_unit = T),
                                          nn_param = list(dimensions_to_use = 1:20),
                                          k_neighbors = 10,
                                          resolution = 0.5,
@@ -1433,6 +1432,8 @@ doLouvainSubCluster_community = function(gobject,
   }
   unique_clusters = sort(unique(cell_metadata[[cluster_column]]))
 
+  ## if clusters start at 0, then add +1 for the index ##
+  index_offset = ifelse(0 %in% unique_clusters, 1, 0)
 
   for(cluster in unique_clusters) {
 
@@ -1446,7 +1447,7 @@ doLouvainSubCluster_community = function(gobject,
     if(!is.null(selected_clusters) & !cluster %in% selected_clusters) {
 
       temp_cluster = data.table('cell_ID' = subset_cell_IDs, 'tempclus' = 1, 'parent_cluster' = cluster)
-      iter_list[[cluster]] = temp_cluster
+      iter_list[[cluster+index_offset]] = temp_cluster
 
     } else {
       # continue for selected clusters or all clusters if there is no selection
@@ -1479,7 +1480,7 @@ doLouvainSubCluster_community = function(gobject,
 
       temp_cluster[, parent_cluster := cluster]
 
-      iter_list[[cluster]] = temp_cluster
+      iter_list[[cluster+index_offset]] = temp_cluster
 
 
 
@@ -1558,20 +1559,19 @@ doLouvainSubCluster_community = function(gobject,
 #' @examples
 #'     doLouvainSubCluster_multinet(gobject)
 doLouvainSubCluster_multinet =  function(gobject,
+                                         name = 'sub_louvain_mult_clus',
                                          cluster_column = NULL,
                                          selected_clusters = NULL,
                                          hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
                                          hvg_min_perc_cells = 5,
                                          hvg_mean_expr_det = 1,
-                                         pca_param = list(expression_values = 'custom', scale.unit = T),
+                                         pca_param = list(expression_values = 'normalized', scale_unit = T),
                                          nn_param = list(dimensions_to_use = 1:20),
                                          k_neighbors = 10,
                                          gamma = 1,
                                          omega = 1,
-                                         python_path = NULL,
                                          nn_network_to_use = 'sNN',
                                          network_name = 'sNN.pca',
-                                         name = 'sub_louvain_mult_clus',
                                          return_gobject = TRUE,
                                          verbose = T,
                                          ...) {
@@ -1586,6 +1586,8 @@ doLouvainSubCluster_multinet =  function(gobject,
   }
   unique_clusters = sort(unique(cell_metadata[[cluster_column]]))
 
+  ## if clusters start at 0, then add +1 for the index ##
+  index_offset = ifelse(0 %in% unique_clusters, 1, 0)
 
   for(cluster in unique_clusters) {
 
@@ -1599,7 +1601,7 @@ doLouvainSubCluster_multinet =  function(gobject,
     if(!is.null(selected_clusters) & !cluster %in% selected_clusters) {
 
       temp_cluster = data.table('cell_ID' = subset_cell_IDs, 'tempclus' = 1, 'parent_cluster' = cluster)
-      iter_list[[cluster]] = temp_cluster
+      iter_list[[cluster+index_offset]] = temp_cluster
 
     } else {
       # continue for selected clusters or all clusters if there is no selection
@@ -1626,14 +1628,14 @@ doLouvainSubCluster_multinet =  function(gobject,
       temp_cluster = doLouvainCluster_multinet(gobject = temp_giotto,
                                                gamma = gamma,
                                                omega = omega,
-                                               python_path = python_path,
                                                name = 'tempclus',
                                                return_gobject = F,
                                                ...)
 
       temp_cluster[, parent_cluster := cluster]
+      temp_cluster = temp_cluster[,.(cell_ID, tempclus, parent_cluster)]
 
-      iter_list[[cluster]] = temp_cluster
+      iter_list[[cluster+index_offset]] = temp_cluster
 
 
 
@@ -1721,7 +1723,7 @@ doLouvainSubCluster =  function(gobject,
                                 hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
                                 hvg_min_perc_cells = 5,
                                 hvg_mean_expr_det = 1,
-                                pca_param = list(expression_values = 'custom', scale.unit = T),
+                                pca_param = list(expression_values = 'normalized', scale_unit = T),
                                 nn_param = list(dimensions_to_use = 1:20),
                                 k_neighbors = 10,
                                 resolution = 0.5,
@@ -1770,7 +1772,6 @@ doLouvainSubCluster =  function(gobject,
                                           k_neighbors = k_neighbors,
                                           gamma = gamma,
                                           omega = omega,
-                                          python_path = python_path,
                                           nn_network_to_use = nn_network_to_use,
                                           network_name = network_name,
                                           name = name,
@@ -1826,7 +1827,7 @@ subClusterCells <- function(gobject,
                             hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
                             hvg_min_perc_cells = 5,
                             hvg_mean_expr_det = 1,
-                            pca_param = list(expression_values = 'custom', scale.unit = T),
+                            pca_param = list(expression_values = 'normalized', scale_unit = T),
                             nn_param = list(dimensions_to_use = 1:20),
                             k_neighbors = 10,
                             resolution = 1,
@@ -1899,7 +1900,6 @@ subClusterCells <- function(gobject,
                                        k_neighbors = k_neighbors,
                                        gamma = gamma,
                                        omega = omega,
-                                       python_path = python_path,
                                        nn_network_to_use = nn_network_to_use,
                                        network_name = network_name,
                                        name = name,
@@ -1944,11 +1944,12 @@ subClusterCells <- function(gobject,
 #' @examples
 #'     iterLeidenCluster(gobject)
 iterLeidenCluster <- function(gobject,
+                              name = 'iter_clus',
                               nr_rounds = 5,
                               hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
                               hvg_min_perc_cells = 5,
                               hvg_mean_expr_det = 1,
-                              pca_param = list(expression_values = 'custom', scale.unit = T),
+                              pca_param = list(expression_values = 'normalized', scale_unit = T),
                               nn_param = list(dimensions_to_use = 1:20),
                               k_neighbors = 20,
                               resolution = 1,
@@ -1956,7 +1957,6 @@ iterLeidenCluster <- function(gobject,
                               python_path = NULL,
                               nn_network_to_use = 'sNN',
                               network_name = 'sNN.pca',
-                              name = 'iter_clus',
                               return_gobject = TRUE,
                               ...) {
 
@@ -2153,7 +2153,7 @@ iterLouvainCluster_community <- function(gobject,
                                          hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
                                          hvg_min_perc_cells = 5,
                                          hvg_mean_expr_det = 1,
-                                         pca_param = list(expression_values = 'custom', scale.unit = T),
+                                         pca_param = list(expression_values = 'normalized', scale_unit = T),
                                          nn_param = list(dimensions_to_use = 1:20),
                                          k_neighbors = 20,
                                          resolution = 1,
@@ -2227,8 +2227,13 @@ iterLouvainCluster_community <- function(gobject,
 
     ## number of clusters ##
     nr_clusters = length(unique( cell_metadata[['tempclus']] ))
+    sorted_unique_clusters = sort(unique( cell_metadata[['tempclus']] ))
 
-    for(i in sort(unique( cell_metadata[['tempclus']] ))) {
+    ## if clusters start at 0, then add +1 for the index ##
+    index_offset = ifelse(0 %in% sorted_unique_clusters, 1, 0)
+
+
+    for(i in sorted_unique_clusters) {
 
       #cat('\n \n for :', i, '\n')
 
@@ -2245,9 +2250,9 @@ iterLouvainCluster_community <- function(gobject,
 
       ratio = (within_edges+1)/(outside_edges+1)
 
-      indexlist[[i]] = i
-      vcountlist[[i]] = total_v
-      ratiolist[[i]] = ratio
+      indexlist[[i+index_offset]] = i
+      vcountlist[[i+index_offset]] = total_v
+      ratiolist[[i+index_offset]] = ratio
 
     }
 
@@ -2355,12 +2360,11 @@ iterLouvainCluster_multinet <- function(gobject,
                                         hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
                                         hvg_min_perc_cells = 5,
                                         hvg_mean_expr_det = 1,
-                                        pca_param = list(expression_values = 'custom', scale.unit = T),
+                                        pca_param = list(expression_values = 'normalized', scale_unit = T),
                                         nn_param = list(dimensions_to_use = 1:20),
                                         k_neighbors = 20,
                                         gamma = 1,
                                         omega = 1,
-                                        python_path = NULL,
                                         nn_network_to_use = 'sNN',
                                         network_name = 'sNN.pca',
                                         name = 'iter_clus',
@@ -2402,7 +2406,6 @@ iterLouvainCluster_multinet <- function(gobject,
     temp_giotto = doLouvainCluster_multinet(gobject = temp_giotto,
                                             gamma = gamma,
                                             omega = omega,
-                                            python_path = python_path,
                                             name = 'tempclus',
                                             ...)
 
@@ -2431,8 +2434,13 @@ iterLouvainCluster_multinet <- function(gobject,
 
     ## number of clusters ##
     nr_clusters = length(unique( cell_metadata[['tempclus']] ))
+    sorted_unique_clusters = sort(unique( cell_metadata[['tempclus']] ))
 
-    for(i in sort(unique( cell_metadata[['tempclus']] ))) {
+    ## if clusters start at 0, then add +1 for the index ##
+    index_offset = ifelse(0 %in% sorted_unique_clusters, 1, 0)
+
+
+    for(i in sorted_unique_clusters) {
 
       #cat('\n \n for :', i, '\n')
 
@@ -2449,9 +2457,9 @@ iterLouvainCluster_multinet <- function(gobject,
 
       ratio = (within_edges+1)/(outside_edges+1)
 
-      indexlist[[i]] = i
-      vcountlist[[i]] = total_v
-      ratiolist[[i]] = ratio
+      indexlist[[i+index_offset]] = i
+      vcountlist[[i+index_offset]] = total_v
+      ratiolist[[i+index_offset]] = ratio
 
     }
 
@@ -2564,7 +2572,7 @@ iterLouvainCluster <- function(gobject,
                                hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
                                hvg_min_perc_cells = 5,
                                hvg_mean_expr_det = 1,
-                               pca_param = list(expression_values = 'custom', scale.unit = T),
+                               pca_param = list(expression_values = 'normalized', scale_unit = T),
                                nn_param = list(dimensions_to_use = 1:20),
                                k_neighbors = 20,
                                resolution = 1,
@@ -2612,7 +2620,6 @@ iterLouvainCluster <- function(gobject,
                                          k_neighbors = k_neighbors,
                                          gamma = gamma,
                                          omega = omega,
-                                         python_path = python_path,
                                          nn_network_to_use = nn_network_to_use,
                                          network_name = network_name,
                                          name = name,
@@ -2661,7 +2668,7 @@ iterCluster = function(gobject,
                        hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
                        hvg_min_perc_cells = 5,
                        hvg_mean_expr_det = 1,
-                       pca_param = list(expression_values = 'custom', scale.unit = T),
+                       pca_param = list(expression_values = 'normalized', scale_unit = T),
                        nn_param = list(dimensions_to_use = 1:20),
                        k_neighbors = 20,
                        resolution = 1,
@@ -2672,8 +2679,7 @@ iterCluster = function(gobject,
                        network_name = 'sNN.pca',
                        name = 'iter_clus',
                        return_gobject = TRUE,
-                       ...
-) {
+                       ...) {
 
 
 
@@ -2732,7 +2738,6 @@ iterCluster = function(gobject,
                                          k_neighbors = k_neighbors,
                                          gamma = gamma,
                                          omega = omega,
-                                         python_path = python_path,
                                          nn_network_to_use = nn_network_to_use,
                                          network_name = network_name,
                                          name = name,

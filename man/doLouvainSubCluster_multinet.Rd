@@ -4,19 +4,20 @@
 \alias{doLouvainSubCluster_multinet}
 \title{doLouvainSubCluster_multinet}
 \usage{
-doLouvainSubCluster_multinet(gobject, cluster_column = NULL,
-  selected_clusters = NULL, hvg_param = list(reverse_log_scale = T,
-  difference_in_variance = 1, expression_values = "normalized"),
-  hvg_min_perc_cells = 5, hvg_mean_expr_det = 1,
-  pca_param = list(expression_values = "custom", scale.unit = T),
-  nn_param = list(dimensions_to_use = 1:20), k_neighbors = 10,
-  gamma = 1, omega = 1, python_path = NULL,
+doLouvainSubCluster_multinet(gobject, name = "sub_louvain_mult_clus",
+  cluster_column = NULL, selected_clusters = NULL,
+  hvg_param = list(reverse_log_scale = T, difference_in_variance = 1,
+  expression_values = "normalized"), hvg_min_perc_cells = 5,
+  hvg_mean_expr_det = 1, pca_param = list(expression_values =
+  "normalized", scale_unit = T), nn_param = list(dimensions_to_use =
+  1:20), k_neighbors = 10, gamma = 1, omega = 1,
   nn_network_to_use = "sNN", network_name = "sNN.pca",
-  name = "sub_louvain_mult_clus", return_gobject = TRUE, verbose = T,
-  ...)
+  return_gobject = TRUE, verbose = T, ...)
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{name}{name for new clustering result}
 
 \item{cluster_column}{cluster column to subcluster}
 
@@ -38,19 +39,17 @@ doLouvainSubCluster_multinet(gobject, cluster_column = NULL,
 
 \item{omega}{omega}
 
-\item{python_path}{specify specific path to python if required}
-
 \item{nn_network_to_use}{type of NN network to use (kNN vs sNN)}
 
 \item{network_name}{name of NN network to use}
-
-\item{name}{name for new clustering result}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
 \item{verbose}{verbose}
 
 \item{...}{additional parameters}
+
+\item{python_path}{specify specific path to python if required}
 }
 \value{
 giotto object appended with new cluster
