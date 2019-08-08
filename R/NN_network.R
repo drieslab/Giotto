@@ -264,3 +264,35 @@ nnDT_to_kNN <- function(nnDT) {
                    class = c("kNN", "NN")))
 }
 
+
+
+#' @title extractNearestNetwork
+#' @name extractNearestNetwork
+#' @description Extracts a NN-network from a Giotto object as an igraph object
+#' @param gobject giotto object
+#' @param nn_network_to_use kNN or sNN
+#' @param network_name name of NN network to be used
+#' @return igraph object
+#' @export
+#' @examples
+#'     extractNearestNetwork(gobject)
+extractNearestNetwork = function(gobject,
+                                 nn_network_to_use = 'sNN',
+                                 network_name = 'sNN.pca') {
+
+  ## select network to use
+  if(is.null(nn_network_to_use) | is.null(network_name)) {
+    stop('\n you need to select network type: knn or snn \n
+         and you need to select the network name you created\n')
+  } else {
+    igraph_object = gobject@nn_network[[nn_network_to_use]][[network_name]][['igraph']]
+    if(is.null(igraph_object)) {
+      stop('\n nn_network_to_use or network_name does not exist, \n
+           create a nearest-neighbor network first \n')
+    }
+  }
+
+  return(igraph_object)
+
+}
+
