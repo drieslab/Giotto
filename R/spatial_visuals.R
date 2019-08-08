@@ -39,7 +39,7 @@ visPlot <- function(gobject,
                     cell_color = NULL,
                     cell_color_code = NULL,
                     color_as_factor = T,
-                    select_cell_groups = NULL,
+                    select_cells = NULL,
                     show_network = F,
                     network_color = NULL,
                     spatial_network_name = 'spatial_network',
@@ -77,9 +77,11 @@ visPlot <- function(gobject,
   }
 
   # create subsets of needed
-  if(!is.null(select_cell_groups)) {
-    cell_locations_metadata_selected = cell_locations_metadata[get(cell_color) %in% select_cell_groups]
-    cell_locations_metadata_other = cell_locations_metadata[!get(cell_color) %in% select_cell_groups]
+  if(!is.null(select_cells)) {
+      cell_locations_metadata_other = cell_locations_metadata[!cell_locations_metadata$cell_ID %in% select_cells]
+      cell_locations_metadata_selected = cell_locations_metadata[cell_locations_metadata$cell_ID %in% select_cells]
+      cell_locations_metadata = cell_locations_metadata_selected
+      spatial_network <- spatial_network[spatial_network$to %in% select_cells & spatial_network$from %in% select_cells]
   }
 
   # first 2 dimensions need to be defined
@@ -96,35 +98,70 @@ visPlot <- function(gobject,
 
     cat('create 3D plot')
 
-    if(!is.null(cell_color) & cell_color %in% colnames(cell_locations_metadata)) {
-      if(is.null(cell_color_code)) cell_color_code <- 'lightblue'
-      p <- plotly::plot_ly(type = 'scatter3d',
-                   x = cell_locations_metadata$sdimx, y = cell_locations_metadata$sdimy, z = cell_locations_metadata$sdimz,
-                   color = cell_locations_metadata[[cell_color]],
-                   mode = 'markers', colors = cell_color_code)
-      print(p)
-    } else {
-      p <- plotly::plot_ly(type = 'scatter3d',
-                   x = cell_locations_metadata$sdimx, y = cell_locations_metadata$sdimy, z = cell_locations_metadata$sdimz,
-                   mode = 'markers', colors = 'lightblue')
+    if(!is.null(cell_color)) {
+        if(cell_color %in% colnames(cell_locations_metadata)){
+            if(is.null(cell_color_code)) {
+                number_colors=length(unique(cell_locations_metadata[[cell_color]]))
+                cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+            }
+            pl <- plot_ly(type = 'scatter3d',
+                          x = cell_locations_metadata$sdimx, y = cell_locations_metadata$sdimy, z = cell_locations_metadata$sdimz,
+                          color = cell_locations_metadata[[cell_color]],size = point_size,legendgroup = cell_locations_metadata$cell_color,
+                          mode = 'markers', colors = cell_color_code,name = "selected cells")%>%
+                  add_trace(type = "scatter3d",mode="markers",data=cell_locations_metadata_other,name = "unselected cells",
+                      x=~sdimx,y=~sdimy,z=~sdimz,size=point_size,colors="lightgray",inherit=F,opacity=0.05)
 
+
+            }
+    } else {
+      pl <- plot_ly(type = 'scatter3d',
+                   x = cell_locations_metadata$sdimx, y = cell_locations_metadata$sdimy, z = cell_locations_metadata$sdimz,
+                   mode = 'markers', size = point_size,colors = 'lightblue',name = "selected cells") %>%
+            add_trace(type = "scatter3d",mode="markers",data=cell_locations_metadata_other,name = "unselected cells",
+                      x=~sdimx,y=~sdimy,z=~sdimz,size=point_size,colors="lightgray",inherit = F,opacity = 0.05)
+        }
+          ## plot spatial network
+    if(!is.null(spatial_network) & show_network == TRUE) {
+      if(is.null(network_color)) {
+          network_color = 'red'
+          }
+        edges <- data.table(edge_id = 1:(3*dim(spatial_network)[1]),x = 0,y = 0,z = 0)
+        edges[edges$edge_id%%3 == 1]$x = spatial_network$sdimx_begin
+        edges[edges$edge_id%%3 == 1]$y = spatial_network$sdimy_begin
+        edges[edges$edge_id%%3 == 1]$z = spatial_network$sdimz_begin
+
+        edges[edges$edge_id%%3 == 2]$x = spatial_network$sdimx_end
+        edges[edges$edge_id%%3 == 2]$y = spatial_network$sdimy_end
+        edges[edges$edge_id%%3 == 2]$z = spatial_network$sdimz_end
+
+        edges[edges$edge_id%%3 == 0]$x = NA
+        edges[edges$edge_id%%3 == 0]$y = NA
+        edges[edges$edge_id%%3 == 0]$z = NA
+        
+        pl <- pl %>% add_trace(name = "sptial network",mode = "lines", type = "scatter3d",
+                               data = edges,x = ~x,y=~y,z=~z,inherit = F,line=list(color=network_color))
+    }
+          ## plot spatial grid
+          # 3D grid is not clear to view
+
+      
       if(show_plot == TRUE) {
         print(pl)
       }
-      return(pl)
+      return(hide_colorbar(pl))
     }
 
 
 
-  } else {
+   else {
 
-    pl <- ggplot2::ggplot()
-    pl <- pl + ggplot2::theme_bw()
+    pl <- ggplot()
+    pl <- pl + theme_bw()
 
     ## plot spatial network
     if(!is.null(spatial_network) & show_network == TRUE) {
       if(is.null(network_color)) network_color = 'red'
-      pl <- pl + ggplot2::geom_segment(data = spatial_network, aes(x = sdimx_begin, y = sdimy_begin,
+      pl <- pl + geom_segment(data = spatial_network, aes(x = sdimx_begin, y = sdimy_begin,
                                                           xend = sdimx_end, yend = sdimy_end),
                               color = network_color, size = 0.5, alpha = 0.5)
     }
@@ -132,7 +169,7 @@ visPlot <- function(gobject,
     ## plot spatial grid
     if(!is.null(spatial_grid) & show_grid == TRUE) {
       if(is.null(grid_color)) grid_color = 'black'
-      pl <- pl + ggplot2::geom_rect(data = spatial_grid, aes(xmin = x_start, xmax = x_end,
+      pl <- pl + geom_rect(data = spatial_grid, aes(xmin = x_start, xmax = x_end,
                                                     ymin = y_start, ymax = y_end),
                            color = grid_color, fill = NA)
     }
@@ -141,8 +178,8 @@ visPlot <- function(gobject,
     if(is.null(cell_color)) {
 
       cell_color = 'lightblue'
-      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata, aes_string(x = sdimx, y = sdimy),
-                            show.legend = show_legend, shape = 21,
+      pl <- pl + geom_point(data = cell_locations_metadata, aes_string(x = sdimx, y = sdimy),
+                            show_legend = show_legend, shape = 21,
                             fill = cell_color, size = point_size,
                             stroke = point_border_stroke, color = point_border_col)
 
@@ -153,7 +190,7 @@ visPlot <- function(gobject,
       if(cell_color %in% colnames(cell_locations_metadata)) {
 
         if(color_as_factor == TRUE) {
-          if(is.null(select_cell_groups)) {
+          if(is.null(select_cells)) {
             factor_data = factor(cell_locations_metadata[[cell_color]])
             cell_locations_metadata[[cell_color]] <- factor_data
           } else {
@@ -165,19 +202,19 @@ visPlot <- function(gobject,
 
         }
 
-        if(is.null(select_cell_groups)) {
-          pl <- pl + ggplot2::geom_point(data = cell_locations_metadata, aes_string(x = sdimx, y = sdimy, fill = cell_color),
-                                show.legend = show_legend, shape = 21, size = point_size,
+        if(is.null(select_cells)) {
+          pl <- pl + geom_point(data = cell_locations_metadata, aes_string(x = sdimx, y = sdimy, fill = cell_color),
+                                show_legend = show_legend, shape = 21, size = point_size,
                                 stroke = point_border_stroke, color = point_border_col)
         } else {
           cell_color_other = 'grey'
-          pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_other, aes_string(x = sdimx, y = sdimy),
+          pl <- pl + geom_point(data = cell_locations_metadata_other, aes_string(x = sdimx, y = sdimy),
                                 fill = cell_color_other,
-                                show.legend = show_legend, shape = 21, size = point_size/2,
+                                show_legend = show_legend, shape = 21, size = point_size/2,
                                 stroke = point_border_stroke, color = point_border_col)
 
-          pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_selected, aes_string(x = sdimx, y = sdimy, fill = cell_color),
-                                show.legend = show_legend, shape = 21, size = point_size,
+          pl <- pl + geom_point(data = cell_locations_metadata_selected, aes_string(x = sdimx, y = sdimy, fill = cell_color),
+                                show_legend = show_legend, shape = 21, size = point_size,
                                 stroke = point_border_stroke, color = point_border_col)
         }
 
@@ -185,39 +222,39 @@ visPlot <- function(gobject,
 
 
         if(!is.null(cell_color_code)) {
-          pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
+          pl <- pl + scale_fill_manual(values = cell_color_code)
         } else if(color_as_factor == T) {
-          if(is.null(select_cell_groups)) {
+          if(is.null(select_cells)) {
             number_colors = length(unique(factor_data))
-            cell_color_code = getDistinctColors(n = number_colors)
+            cell_color_code = Giotto:::getDistinctColors(n = number_colors)
             names(cell_color_code) = unique(factor_data)
           } else {
             number_colors = length(unique(factor_data_selected))
-            cell_color_code = getDistinctColors(n = number_colors)
+            cell_color_code = Giotto:::getDistinctColors(n = number_colors)
             names(cell_color_code) = unique(factor_data_selected)
           }
-          pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
+          pl <- pl + scale_fill_manual(values = cell_color_code)
         } else if(color_as_factor == F){
-          pl <- pl + ggplot2::scale_fill_gradient(low = 'blue', high = 'red')
+          pl <- pl + scale_fill_gradient(low = 'blue', high = 'red')
         }
 
       } else {
 
 
-        if(is.null(select_cell_groups)) {
-          pl <- pl + ggplot2::geom_point(data = cell_locations_metadata, aes_string(x = sdimx, y = sdimy),
-                                show.legend = show_legend, shape = 21, fill = cell_color,
+        if(is.null(select_cells)) {
+          pl <- pl + geom_point(data = cell_locations_metadata, aes_string(x = sdimx, y = sdimy),
+                                show_legend = show.legend, shape = 21, fill = cell_color,
                                 size = point_size,
                                 stroke = point_border_stroke, color = point_border_col)
         } else {
           cell_color_other = 'grey'
-          pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_other, aes_string(x = sdimx, y = sdimy),
-                                show.legend = show_legend, shape = 21, fill = cell_color_other,
+          pl <- pl + geom_point(data = cell_locations_metadata_other, aes_string(x = sdimx, y = sdimy),
+                                show_legend = show.legend, shape = 21, fill = cell_color_other,
                                 size = point_size/2,
                                 stroke = point_border_stroke, color = point_border_col)
 
-          pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_selected, aes_string(x = sdimx, y = sdimy),
-                                show.legend = show_legend, shape = 21, fill = cell_color,
+          pl <- pl + geom_point(data = cell_locations_metadata_selected, aes_string(x = sdimx, y = sdimy),
+                                show_legend = show_legend, shape = 21, fill = cell_color,
                                 size = point_size,
                                 stroke = point_border_stroke, color = point_border_col)
         }
@@ -226,16 +263,16 @@ visPlot <- function(gobject,
 
     }
 
-    pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5),
+    pl <- pl + theme(plot.title = element_text(hjust = 0.5),
                      legend.title = element_text(size = 10),
                      legend.text = element_text(size = 10))
 
     # fix coord ratio
     if(!is.null(coord_fix_ratio)) {
-      pl <- pl + ggplot2::coord_fixed(ratio = coord_fix_ratio)
+      pl <- pl + coord_fixed(ratio = coord_fix_ratio)
     }
 
-    pl <- pl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates', title = title)
+    pl <- pl + labs(x = 'x coordinates', y = 'y coordinates', title = title)
 
 
     if(show_plot == TRUE) {
@@ -855,12 +892,16 @@ visForceLayoutPlot <- function(gobject,
 #' @export
 #' @examples
 #'     visSpatDimPlot(gobject)
+#visSpatDimPlot from spatial_visuals.R(NOT COMPLETED, legend can be linked)
 visSpatDimPlot <- function(gobject,
                            plot_alignment = c('vertical', 'horizontal'),
                            dim_reduction_to_use = 'umap',
                            dim_reduction_name = 'umap',
                            dim1_to_use = 1,
                            dim2_to_use = 2,
+                           sdimx="sdimx",
+                           sdimy="sdimy",
+                           sdimz="sdimz",
                            show_NN_network = F,
                            nn_network_to_use = 'sNN',
                            network_name = 'sNN.pca',
@@ -886,6 +927,7 @@ visSpatDimPlot <- function(gobject,
                            spatial_point_border_col = 'black',
                            spatial_point_border_stroke = 0.1,
                            show_legend = T,
+                           plot_dim = 2,
                            show_plot = F) {
 
   plot_alignment = match.arg(plot_alignment, choices = c('vertical', 'horizontal'))
@@ -926,7 +968,7 @@ visSpatDimPlot <- function(gobject,
                     label_fontface = label_fontface)
 
   # spatial plot
-  spl = visPlot(gobject = gobject,
+  spl = visPlot(gobject = gobject,sdimx=sdimx,sdimy=sdimy,sdimz=sdimz,
                 show_network = show_spatial_network, spatial_network_name = spatial_network_name,
                 show_grid = show_spatial_grid, spatial_grid_name = spatial_grid_name,
                 cell_color = cell_color,
@@ -935,15 +977,23 @@ visSpatDimPlot <- function(gobject,
                 show_legend = show_legend, show_plot = show_plot,
                 point_size = spatial_point_size, point_border_col = spatial_point_border_col,
                 point_border_stroke = spatial_point_border_stroke)
-
-
-  if(plot_alignment == 'vertical') {
-    combo_plot <- cowplot::plot_grid(dmpl, spl, ncol = 1, rel_heights = c(1), rel_widths = c(1), align = 'v')
-    return(cowplot::plot_grid(combo_plot))
-  } else {
-    combo_plot <- cowplot::plot_grid(dmpl, spl, ncol = 2, rel_heights = c(1), rel_widths = c(1), align = 'h')
-    return(cowplot::plot_grid(combo_plot))
-  }
+    
+    if(plot_dim == 2){
+          if(plot_alignment == 'vertical') {
+              combo_plot <- cowplot::plot_grid(dmpl, spl, ncol = 1, rel_heights = c(1), rel_widths = c(1), align = 'v')
+              return(cowplot::plot_grid(combo_plot))
+          } else {
+              combo_plot <- cowplot::plot_grid(dmpl, spl, ncol = 2, rel_heights = c(1), rel_widths = c(1), align = 'h')
+              return(cowplot::plot_grid(combo_plot))
+          }
+    }
+    
+    else if(plot_dim == 3){
+        suppressWarnings(dmpl <- ggplotly(dmpl,width = 900, height = 800))
+        combo_plot <- suppressWarnings(subplot(dmpl,hide_colorbar(spl),nrows = 2)%>% layout(scene = list(domain = list(x = c(0, 1), y = c(0,0.5))),
+                                                      legend = list(x = 100, y = 0)))
+        return(combo_plot)
+    }
 }
 
 
