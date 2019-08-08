@@ -309,6 +309,215 @@ subsetGiotto <- function(gobject, cell_ids = NULL, gene_ids = NULL) {
 }
 
 
+
+#' @title filterDistributions
+#' @description show gene or cell filter distributions
+#' @param gobject giotto object
+#' @param expression_values expression values to use
+#' @param expression_threshold threshold to consider a gene expressed
+#' @param detection look at genes or cells
+#' @param plot_type type of plot
+#' @param nr_bins number of bins for histogram plot
+#' @param fill_color fill color for plots
+#' @param scale_axis ggplot transformation for axis (e.g. log2)
+#' @param axis_offset offset to be used together with the scaling transformation
+#' @param show_plot show plot
+#' @return ggplot object
+#' @export
+#' @examples
+#'     filterDistributions(gobject)
+filterDistributions <- function(gobject,
+                                expression_values = c('raw', 'normalized', 'scaled', 'custom'),
+                                expression_threshold = 1,
+                                detection = c('genes', 'cells'),
+                                plot_type = c('histogram', 'violin'),
+                                nr_bins = 30,
+                                fill_color = 'lightblue',
+                                scale_axis = 'identity',
+                                axis_offset = 0,
+                                show_plot = TRUE) {
+
+  # expression values to be used
+  values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
+  expr_values = select_expression_values(gobject = gobject, values = values)
+
+  # plot distribution for genes or cells
+  detection = match.arg(detection, c('genes', 'cells'))
+
+  # plot type
+  plot_type = match.arg(plot_type, c('histogram', 'violin'))
+
+  # for genes
+  if(detection == 'genes') {
+
+    gene_detection_levels = data.table::as.data.table(rowSums(expr_values >= expression_threshold))
+
+    if(plot_type == 'violin') {
+
+      pl <- ggplot2::ggplot()
+      pl <- pl + ggplot2::theme_classic()
+      pl <- pl + ggplot2::geom_violin(data = gene_detection_levels, aes(x = 'genes', y = V1+axis_offset),
+                                      fill = fill_color)
+      pl <- pl + ggplot2::scale_y_continuous(trans = scale_axis)
+      pl <- pl + ggplot2::labs(y = 'gene detected in # of cells', x = '')
+
+    } else if(plot_type == 'histogram') {
+
+      pl <- ggplot2::ggplot()
+      pl <- pl + ggplot2::theme_classic()
+      pl <- pl + ggplot2::geom_histogram(data = gene_detection_levels, aes(x = V1+axis_offset),
+                                         color = 'white', bins = nr_bins, fill = fill_color)
+      pl <- pl + ggplot2::scale_x_continuous(trans = scale_axis)
+      pl <- pl + ggplot2::labs(x = 'gene detected in # of cells')
+
+    }
+
+    # for cells
+  } else if(detection == 'cells') {
+
+    cell_detection_levels = data.table::as.data.table(colSums(expr_values >= expression_threshold))
+
+    if(plot_type == 'violin') {
+
+      pl <- ggplot2::ggplot()
+      pl <- pl + ggplot2::theme_classic()
+      pl <- pl + ggplot2::geom_violin(data = cell_detection_levels, aes(x = 'cells', y = V1+axis_offset),
+                                      fill = fill_color)
+      pl <- pl + ggplot2::scale_y_continuous(trans = scale_axis)
+      pl <- pl + ggplot2::labs(y = 'genes detected per cell', x = '')
+
+    } else if(plot_type == 'histogram') {
+
+      pl <- ggplot2::ggplot()
+      pl <- pl + ggplot2::theme_classic()
+      pl <- pl + ggplot2::geom_histogram(data = cell_detection_levels, aes(x = V1+axis_offset),
+                                         color = 'white', bins = nr_bins, fill = fill_color)
+      pl <- pl + ggplot2::scale_x_continuous(trans = scale_axis)
+      pl <- pl + ggplot2::labs(x = 'genes detected per cell')
+
+    }
+  }
+
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+  return(pl)
+
+}
+
+
+
+#' @title filterCombinations
+#' @description Shows how many genes and cells are lost with combinations of thresholds.
+#' @param gobject giotto object
+#' @param expression_values expression values to use
+#' @param expression_thresholds all thresholds to consider a gene expressed
+#' @param gene_det_in_min_cells minimum number of cells that should express a gene to consider that gene further
+#' @param min_det_genes_per_cell minimum number of expressed genes per cell to consider that cell further
+#' @param scale_x_axis ggplot transformation for x-axis (e.g. log2)
+#' @param x_axis_offset x-axis offset to be used together with the scaling transformation
+#' @param scale_y_axis ggplot transformation for y-axis (e.g. log2)
+#' @param y_axis_offset y-axis offset to be used together with the scaling transformation
+#' @param show_plot show plot
+#' @return list of data.table and ggplot object
+#' @details Creates a scatterplot that visualizes the number of genes and cells that are
+#' lost with a specific combination of a gene and cell threshold given an arbitrary cutoff
+#' to call a gene expressed. This function can be used to make an informed decision at the
+#' filtering step with filterGiotto.
+#' @export
+#' @examples
+#'     filterCombinations(gobject)
+filterCombinations <- function(gobject,
+                               expression_values = c('raw', 'normalized', 'scaled', 'custom'),
+                               expression_thresholds = c(1, 2),
+                               gene_det_in_min_cells = c(5, 50),
+                               min_det_genes_per_cell = c(200, 400),
+                               scale_x_axis = 'identity',
+                               x_axis_offset = 0,
+                               scale_y_axis = 'identity',
+                               y_axis_offset = 0,
+                               show_plot = TRUE) {
+
+
+  # expression values to be used
+  values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
+  expr_values = select_expression_values(gobject = gobject, values = values)
+
+  # gene and cell minimums need to have the same length
+  if(length(gene_det_in_min_cells) != length(min_det_genes_per_cell)) {
+    stop('\n gene_det_in_min_cells and min_det_genes_per_cell need to be the same size \n')
+  }
+
+  # compute the number of removed genes and cells
+  result_list = list()
+  for(thresh_i in 1:length(expression_thresholds)) {
+
+    threshold = expression_thresholds[thresh_i]
+
+    det_genes_res = list()
+    det_cells_res = list()
+    for(combn_i in 1:length(gene_det_in_min_cells)) {
+
+      min_cells_for_gene = gene_det_in_min_cells[combn_i]
+      min_genes_per_cell = min_det_genes_per_cell[combn_i]
+
+
+      # first remove genes
+      filter_index_genes = rowSums(expr_values >= threshold) >= min_cells_for_gene
+      removed_genes = length(filter_index_genes[filter_index_genes == FALSE])
+      det_cells_res[[combn_i]] = removed_genes
+
+      # then remove cells
+      filter_index_cells = colSums(expr_values[filter_index_genes, ] >= threshold) >= min_genes_per_cell
+      removed_cells = length(filter_index_cells[filter_index_cells == FALSE])
+      det_genes_res[[combn_i]] = removed_cells
+    }
+
+    temp_dt = data.table::data.table('threshold' = threshold,
+                                     removed_genes = unlist(det_cells_res),
+                                     removed_cells = unlist(det_genes_res))
+
+    result_list[[thresh_i]] = temp_dt
+
+  }
+
+  result_DT = do.call('rbind', result_list)
+  result_DT[['gene_detected_in_min_cells']] = gene_det_in_min_cells
+  result_DT[['min_detected_genes_per_cell']] = min_det_genes_per_cell
+  result_DT[['combination']] = paste0(result_DT$gene_detected_in_min_cells,'-',result_DT$min_detected_genes_per_cell)
+
+  result_DT = result_DT[,.(threshold,
+                           gene_detected_in_min_cells, min_detected_genes_per_cell,
+                           combination, removed_genes, removed_cells)]
+
+  maximum_x_value = max(result_DT[['removed_cells']], na.rm = T)
+  maximum_y_value = max(result_DT[['removed_genes']], na.rm = T)
+
+  pl <- ggplot2::ggplot()
+  pl <- pl + ggplot2::theme_classic()
+  pl <- pl + ggplot2::geom_line(data = result_DT, aes(x = removed_cells+x_axis_offset,
+                                                      y = removed_genes+y_axis_offset,
+                                                      group = as.factor(threshold)), linetype = 2)
+  pl <- pl + ggplot2::geom_point(data = result_DT, aes(x = removed_cells+x_axis_offset,
+                                                       y = removed_genes+y_axis_offset,
+                                                       color = as.factor(threshold)))
+  pl <- pl + scale_color_discrete(guide = guide_legend(title = 'threshold(s)'))
+  pl <- pl + ggrepel::geom_text_repel(data = result_DT, aes(x = removed_cells+x_axis_offset,
+                                                            y = removed_genes+y_axis_offset,
+                                                            label = combination))
+  pl <- pl + ggplot2::scale_x_continuous(trans = scale_x_axis, limits = c(0, maximum_x_value))
+  pl <- pl + ggplot2::scale_y_continuous(trans = scale_y_axis, limits = c(0, maximum_y_value))
+  pl <- pl + ggplot2::labs(x = 'number of removed cells', y = 'number of removed genes')
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+  return(list(results = result_DT, ggplot = pl))
+
+}
+
+
 #' @title filterGiotto
 #' @description filter Giotto object
 #' @param gobject giotto object
@@ -324,31 +533,36 @@ subsetGiotto <- function(gobject, cell_ids = NULL, gene_ids = NULL) {
 filterGiotto <- function(gobject,
                          expression_values = c('raw', 'normalized', 'scaled', 'custom'),
                          expression_threshold = 1,
-                         minimum_detected_genes = 100,
-                         minimum_expression_in_cell = 100,
+                         gene_det_in_min_cells = 100,
+                         min_det_genes_per_cell = 100,
                          verbose = F) {
 
   # expression values to be used
   values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
   expr_values = select_expression_values(gobject = gobject, values = values)
 
-  ## filter cells
-  filter_index_cells = colSums(expr_values >= expression_threshold) >= minimum_detected_genes
-  selected_cell_ids = gobject@cell_ID[filter_index_cells]
+  # approach:
+  # 1. first remove genes that are not frequently detected
+  # 2. then remove cells that do not have sufficient detected genes
+
   ## filter genes
-  filter_index_genes = rowSums(expr_values >= expression_threshold) >= minimum_expression_in_cell
+  filter_index_genes = rowSums(expr_values >= expression_threshold) >= gene_det_in_min_cells
   selected_gene_ids = gobject@gene_ID[filter_index_genes]
 
-  newGiottoObject = Giotto::subsetGiotto(gobject = gobject,
+  ## filter cells
+  filter_index_cells = colSums(expr_values[filter_index_genes, ] >= expression_threshold) >= min_det_genes_per_cell
+  selected_cell_ids = gobject@cell_ID[filter_index_cells]
+
+  newGiottoObject = subsetGiotto(gobject = gobject,
                                  cell_ids = selected_cell_ids,
                                  gene_ids = selected_gene_ids)
 
   ## print output ##
-  removed_cells = length(filter_index_cells[filter_index_cells == FALSE])
-  total_cells   = length(filter_index_cells)
-
   removed_genes = length(filter_index_genes[filter_index_genes == FALSE])
   total_genes   = length(filter_index_genes)
+
+  removed_cells = length(filter_index_cells[filter_index_cells == FALSE])
+  total_cells   = length(filter_index_cells)
 
   if(verbose == TRUE) {
     cat('Number of cells removed: ', removed_cells, ' out of ', total_cells, '\n')
@@ -357,16 +571,15 @@ filterGiotto <- function(gobject,
 
 
   ## update parameters used ##
-  #parameters_list  = gobject@parameters(parameters won't update)
   parameters_list  = newGiottoObject@parameters
   number_of_rounds = length(parameters_list)
   update_name      = paste0(number_of_rounds,'_filter')
   # parameters to include
   parameters_list[[update_name]] = c('used expression values' = expression_values,
                                      'gene expression threshold' = expression_threshold,
-                                     'minimum genes detected per cell' = minimum_detected_genes,
-                                     'minimum times a gene is detected over all cells' = minimum_expression_in_cell)
-  gobject@parameters = parameters_list
+                                     'minimum # of genes detected per cell' = min_det_genes_per_cell,
+                                     'minimum times a gene is detected over all cells' = gene_det_in_min_cells)
+  newGiottoObject@parameters = parameters_list
 
   return(newGiottoObject)
 
@@ -693,8 +906,8 @@ addGeneStatistics <- function(gobject,
                               return_gobject = TRUE) {
 
   # expression values to be used
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_data = select_expression_values(gobject = gobject, values = values)
+  expression_values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_data = select_expression_values(gobject = gobject, values = expression_values)
 
   # calculate stats
   gene_stats = data.table::data.table(genes = rownames(expr_data),
@@ -760,8 +973,8 @@ addCellStatistics <- function(gobject,
                               return_gobject = TRUE) {
 
   # expression values to be used
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_data = select_expression_values(gobject = gobject, values = values)
+  expression_values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_data = select_expression_values(gobject = gobject, values = expression_values)
 
   # calculate stats
   cell_stats = data.table::data.table(cells = colnames(expr_data),

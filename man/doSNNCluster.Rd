@@ -4,27 +4,27 @@
 \alias{doSNNCluster}
 \title{doSNNCluster}
 \usage{
-doSNNCluster(gobject, nn_network_to_use = "kNN",
+doSNNCluster(gobject, name = "sNN_clus", nn_network_to_use = "kNN",
   network_name = "kNN.pca", k = 20, eps = 4, minPts = 16,
-  borderPoints = TRUE, name = "sNN_clus", return_gobject = TRUE,
-  set_seed = F, seed_number = 1234, ...)
+  borderPoints = TRUE, return_gobject = TRUE, set_seed = F,
+  seed_number = 1234, ...)
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{nn_network_to_use}{type of NN network to use (kNN vs sNN)}
-
-\item{network_name}{name of NN network to use}
-
-\item{k}{number of clusters}
-
-\item{eps}{eps parameter dbscan}
-
-\item{minPts}{minimum Points}
-
-\item{borderPoints}{include points at border}
-
 \item{name}{name for cluster}
+
+\item{nn_network_to_use}{type of NN network to use (only works on kNN)}
+
+\item{network_name}{name of kNN network to use}
+
+\item{k}{Neighborhood size for nearest neighbor sparsification to create the shared NN graph.}
+
+\item{eps}{Two objects are only reachable from each other if they share at least eps nearest neighbors.}
+
+\item{minPts}{minimum number of points that share at least eps nearest neighbors for a point to be considered a core points.}
+
+\item{borderPoints}{should borderPoints be assigned to clusters like in DBSCAN?}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
@@ -38,10 +38,10 @@ doSNNCluster(gobject, nn_network_to_use = "kNN",
 giotto object appended with new cluster
 }
 \description{
-cluster cells using a NN-network and the SNNclust community detection algorithm
+Cluster cells using a SNN cluster approach.
 }
 \details{
-Description of SNNclust clustering method.
+See sNNclust algorithm from dbscan package
 }
 \examples{
     doSNNCluster(gobject)

@@ -4,10 +4,11 @@
 \alias{clusterCells}
 \title{clusterCells}
 \usage{
-clusterCells(gobject, nn_network_to_use = "sNN",
-  network_name = "sNN.pca", cluster_method = c("python_leiden",
-  "python_louvain", "louvain", "randomwalk", "sNNclust"),
-  pyth_leid_resolution = 1, pyth_leid_weight_col = "weight",
+clusterCells(gobject, cluster_method = c("leiden", "louvain_community",
+  "louvain_multinet", "randomwalk", "sNNclust", "kmeans", "hierarchical"),
+  name = "cluster_name", nn_network_to_use = "sNN",
+  network_name = "sNN.pca", pyth_leid_resolution = 1,
+  pyth_leid_weight_col = "weight",
   pyth_leid_part_type = c("RBConfigurationVertexPartition",
   "ModularityVertexPartition"), pyth_leid_init_memb = NULL,
   pyth_leid_iterations = 1000, pyth_louv_resolution = 1,
@@ -15,19 +16,39 @@ clusterCells(gobject, nn_network_to_use = "sNN",
   python_path = NULL, louvain_gamma = 1, louvain_omega = 1,
   walk_steps = 4, walk_clusters = 10, walk_weights = NA,
   sNNclust_k = 20, sNNclust_eps = 4, sNNclust_minPts = 16,
-  borderPoints = TRUE, name = "plouvain_clus", return_gobject = TRUE,
-  set_seed = T, seed_number = 1234, ...)
+  borderPoints = TRUE, expression_values = c("normalized", "scaled",
+  "custom"), genes_to_use = NULL, dim_reduction_to_use = c("cells",
+  "pca", "umap", "tsne"), dim_reduction_name = "pca",
+  dimensions_to_use = 1:10, distance_method = c("original", "pearson",
+  "spearman", "euclidean", "maximum", "manhattan", "canberra", "binary",
+  "minkowski"), km_centers = 10, km_iter_max = 100, km_nstart = 1000,
+  km_algorithm = "Hartigan-Wong",
+  hc_agglomeration_method = c("ward.D2", "ward.D", "single", "complete",
+  "average", "mcquitty", "median", "centroid"), hc_k = 10, hc_h = NULL,
+  return_gobject = TRUE, set_seed = T, seed_number = 1234, ...)
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{cluster_method}{community cluster method to use}
+
+\item{name}{name for new clustering result}
 
 \item{nn_network_to_use}{type of NN network to use (kNN vs sNN)}
 
 \item{network_name}{name of NN network to use}
 
-\item{cluster_method}{community cluster method to use}
+\item{pyth_leid_resolution}{resolution for leiden}
 
-\item{pyth_louv_resolution}{python louvain param: resolution}
+\item{pyth_leid_weight_col}{column to use for weights}
+
+\item{pyth_leid_part_type}{partition type to use}
+
+\item{pyth_leid_init_memb}{initial membership}
+
+\item{pyth_leid_iterations}{number of iterations}
+
+\item{pyth_louv_resolution}{resolution for louvain}
 
 \item{pyth_louv_weight_col}{python louvain param: weight column}
 
@@ -53,7 +74,31 @@ clusterCells(gobject, nn_network_to_use = "sNN",
 
 \item{borderPoints}{SNNclust: border points}
 
-\item{name}{name for cluster}
+\item{expression_values}{expression values to use}
+
+\item{genes_to_use}{= NULL,}
+
+\item{dim_reduction_to_use}{dimension reduction to use}
+
+\item{dim_reduction_name}{name of reduction 'pca',}
+
+\item{dimensions_to_use}{dimensions to use}
+
+\item{distance_method}{distance method}
+
+\item{km_centers}{kmeans centers}
+
+\item{km_iter_max}{kmeans iterations}
+
+\item{km_nstart}{kmeans random starting points}
+
+\item{km_algorithm}{kmeans algorithm}
+
+\item{hc_agglomeration_method}{hierarchical clustering method}
+
+\item{hc_k}{hierachical number of clusters}
+
+\item{hc_h}{hierarchical tree cutoff}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
