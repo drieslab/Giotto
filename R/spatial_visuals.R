@@ -1009,7 +1009,7 @@ visSpatDimPlot <- function(gobject,
                     label_fontface = label_fontface)
 
   # spatial plot
-  spl = visPlot(gobject = gobject,sdimx=sdimx,sdimy=sdimy,sdimz=sdimz,
+  spl = visPlot(gobject = gobject,sdimx = sdimx, sdimy = sdimy, sdimz = sdimz,
                 show_network = show_spatial_network, spatial_network_name = spatial_network_name,
                 show_grid = show_spatial_grid, spatial_grid_name = spatial_grid_name,
                 cell_color = cell_color,
