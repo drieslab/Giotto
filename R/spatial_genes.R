@@ -664,7 +664,7 @@ showPattern <- function(spatPatObj,
 
       dpl <- plot_ly(type = 'scatter3d',
                     x = annotated_grid$center_x, y = annotated_grid$center_y, z = annotated_grid$center_z,
-                    color = annotated_grid[[selected_PC]],size = point_size,
+                    color = annotated_grid[[selected_PC]],marker = list(size = point_size),
                     mode = 'markers', colors = c( 'darkblue','white','darkred'))
       dpl <- dpl %>% layout(plot_bgcolor = "LightGray")
 
