@@ -51,7 +51,6 @@ visPlot <- function(gobject,
                     spatial_grid_name = 'spatial_grid',
                     coord_fix_ratio = 0.6,
                     title = '',
-                    show_legend = T,
                     show_plot = F) {
 
   cell_locations  = gobject@spatial_locs
