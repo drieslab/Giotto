@@ -218,9 +218,9 @@ visPlot <- function(gobject,
       cell_color = 'lightblue'
       pl <- pl + ggplot2::geom_point(data = cell_locations_metadata,
                                      aes_string(x = sdimx, y = sdimy),
-                            show_legend = show_legend, shape = 21,
-                            fill = cell_color, size = point_size,
-                            stroke = point_border_stroke, color = point_border_col)
+                                     show.legend = show_legend, shape = 21,
+                                     fill = cell_color, size = point_size,
+                                     stroke = point_border_stroke, color = point_border_col)
 
     }
 
@@ -244,20 +244,20 @@ visPlot <- function(gobject,
         if(is.null(select_cells)) {
           pl <- pl + ggplot2::geom_point(data = cell_locations_metadata,
                                          aes_string(x = sdimx, y = sdimy, fill = cell_color),
-                                show_legend = show_legend, shape = 21, size = point_size,
-                                stroke = point_border_stroke, color = point_border_col)
+                                         show.legend = show_legend, shape = 21, size = point_size,
+                                         stroke = point_border_stroke, color = point_border_col)
         } else {
           cell_color_other = 'grey'
           pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_other,
-                                         aes_string(x = sdimx, y = sdimy),
-                                fill = cell_color_other,
-                                show_legend = show_legend, shape = 21, size = point_size/2,
-                                stroke = point_border_stroke, color = point_border_col)
+                                         aes_string(x = sdimx, y = sdimy), fill = cell_color_other,
+                                         show.legend = show_legend, shape = 21, size = point_size/2,
+                                         stroke = point_border_stroke, color = point_border_col
+                               )
 
           pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_selected,
                                          aes_string(x = sdimx, y = sdimy, fill = cell_color),
-                                show_legend = show_legend, shape = 21, size = point_size,
-                                stroke = point_border_stroke, color = point_border_col)
+                                         show.legend = show_legend, shape = 21, size = point_size,
+                                         stroke = point_border_stroke, color = point_border_col)
         }
 
 
@@ -285,18 +285,17 @@ visPlot <- function(gobject,
 
         if(is.null(select_cells)) {
           pl <- pl + ggplot2::geom_point(data = cell_locations_metadata, aes_string(x = sdimx, y = sdimy),
-                                show_legend = show.legend, shape = 21, fill = cell_color,
-                                size = point_size,
-                                stroke = point_border_stroke, color = point_border_col)
+                                         show.legend = show_legend, shape = 21, fill = cell_color,
+                                         size = point_size, stroke = point_border_stroke, color = point_border_col)
         } else {
           cell_color_other = 'grey'
           pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_other, aes_string(x = sdimx, y = sdimy),
-                                show_legend = show.legend, shape = 21, fill = cell_color_other,
+                                show.legend = show_legend, shape = 21, fill = cell_color_other,
                                 size = point_size/2,
                                 stroke = point_border_stroke, color = point_border_col)
 
           pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_selected, aes_string(x = sdimx, y = sdimy),
-                                show_legend = show_legend, shape = 21, fill = cell_color,
+                                         show.legend = show_legend, shape = 21, fill = cell_color,
                                 size = point_size,
                                 stroke = point_border_stroke, color = point_border_col)
         }
