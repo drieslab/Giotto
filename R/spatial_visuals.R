@@ -491,8 +491,8 @@ visGenePlot <- function(gobject,
         stop("\n The max number of genes showed together is 4.Otherwise it will be too small to see\n 
               \n If you have more genes to show, please divide them into groups\n")
     }
-    i = 1
-    for(i in range(1:length(selected_genes))){
+
+    for(i in 1:length(selected_genes)){
         gene = selected_genes[i]
         if(!is.null(genes_color)){
             if(length(genes_color)!=length(selected_genes)){
@@ -526,6 +526,7 @@ visGenePlot <- function(gobject,
     }
     savelist[[gene]] <- pl
     }
+
     if(length(savelist) == 1){
         if(show_plots){
             print(savelist[1])
@@ -543,7 +544,8 @@ visGenePlot <- function(gobject,
                                                                 scene3 = list(domain = list(x = c(0, 0.5), y = c(0.5,1))),
                                                                 legend = list(x = 100, y = 0)))
     }
-    else if(length(savelist)==3){
+    else if(length(savelist)==4){
+        
         cowplot <- suppressWarnings(subplot(savelist)%>% layout(scene1 = list(domain = list(x = c(0, 0.5), y = c(0,0.5))),
                                                                 scene2 = list(domain = list(x = c(0.5, 1), y = c(0,0.5))),
                                                                 scene3 = list(domain = list(x = c(0, 0.5), y = c(0.5,1))),
