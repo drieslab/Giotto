@@ -523,8 +523,8 @@ filterCombinations <- function(gobject,
 #' @param gobject giotto object
 #' @param expression_values expression values to use
 #' @param expression_threshold threshold to consider a gene expressed
-#' @param minimum_detected_genes minimum # of genes that need to be detected in a cell
-#' @param minimum_expression_in_cell minimum # of cells that need to express a gene
+#' @param gene_det_in_min_cells minimum # of cells that need to express a gene
+#' @param min_det_genes_per_cell minimum # of genes that need to be detected in a cell
 #' @param verbose verbose
 #' @return giotto object
 #' @export

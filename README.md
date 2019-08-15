@@ -27,11 +27,15 @@ and can thus be used to explore or re-analyze this dataset.
 
 #### R installation
 
-You can install the development version of Giotto with:
+You can install (\~1-5 mins) the development version of Giotto with:
 
 ``` r
 library(remotes)
+# to install the latest stable version (advised)
 remotes::install_github("RubD/Giotto")
+
+# to install a specific release version (example)
+remotes::install_github("RubD/Giotto@v0.1.0")
 ```
 
 #### Python tools (optional)
@@ -81,6 +85,9 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation
  
 
 ## Examples
+
+  - typical run time for the cortex dataset on a personal computer is
+    around 20\~30 mins.
 
 [![Cortex](./inst/images/cortex_image_summary.png)](./inst/examples/mouse_cortex_svz/mouse_cortex_1_simple_improved.md)
 
