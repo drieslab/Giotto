@@ -284,10 +284,10 @@ get_specific_interaction_gene_enrichment <- function(sub_spatial_network,
   }
 
   if(nr_cell_type_2 == 1) {
-    if(do_diff_test == T) cell_type_2_test =  stats::wilcox.test(x = as.vector(cell_type_2_ids_matrix), y = as.vector(all_cell_type_2_ids_matrix))$p.value
+    if(do_diff_test == T) cell_type_2_test =  stats::wilcox.test(x = as.vector(cell_type_2_ids_matrix), y = as.vector(all_cell_type_2_ids_matrix),exact = F)$p.value
     average_all_cell_type_2_ids = rowMeans(all_cell_type_2_ids_matrix)
   } else {
-    if(do_diff_test == T) cell_type_2_test = sapply(1:nrow(cell_type_2_ids_matrix), function(i) stats::wilcox.test(as.vector(cell_type_2_ids_matrix[i,]), as.vector(all_cell_type_2_ids_matrix[i,]))$p.value)
+    if(do_diff_test == T) cell_type_2_test = sapply(1:nrow(cell_type_2_ids_matrix), function(i) stats::wilcox.test(as.vector(cell_type_2_ids_matrix[i,]), as.vector(all_cell_type_2_ids_matrix[i,]),exact = F)$p.value)
     average_all_cell_type_2_ids = rowMeans(all_cell_type_2_ids_matrix)
   }
 

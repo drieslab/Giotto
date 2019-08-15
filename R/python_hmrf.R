@@ -236,6 +236,7 @@ viewHMRFresults <- function(gobject,
                             HMRFoutput,
                             k = NULL,
                             betas_to_view = NULL,
+                            third_dim = NULL,
                             ...) {
 
 
@@ -281,12 +282,8 @@ viewHMRFresults <- function(gobject,
 
     title_name = paste0('k = ', k, ' b = ',b)
 
-    visPlot(gobject = gobject, cell_color = output, show_plot = T, title = title_name, ...)
-
-
+    visPlot(gobject = gobject, sdimz = third_dim, cell_color = output, show_plot = T, title = title_name,...)
   }
-
-
 }
 
 

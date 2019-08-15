@@ -33,7 +33,7 @@ visPlot <- function(gobject,
                     sdimx = NULL,
                     sdimy = NULL,
                     sdimz = NULL,
-                    point_size = 1,
+                    point_size = 3,
                     point_border_col = 'black',
                     point_border_stroke = 0.1,
                     cell_color = NULL,
@@ -43,6 +43,8 @@ visPlot <- function(gobject,
                     select_cells = NULL,
                     show_network = F,
                     network_color = NULL,
+                    network_alpha = 1,
+                    other_cells_alpha = 0.1,
                     spatial_network_name = 'spatial_network',
                     show_grid = F,
                     grid_color = NULL,
@@ -118,21 +120,25 @@ visPlot <- function(gobject,
                 number_colors=length(unique(cell_locations_metadata[[cell_color]]))
                 cell_color_code = Giotto:::getDistinctColors(n = number_colors)
             }
+            cell_locations_metadata[[cell_color]] <- as.factor(cell_locations_metadata[[cell_color]])
             pl <- plotly::plot_ly(type = 'scatter3d',
                           x = cell_locations_metadata$sdimx, y = cell_locations_metadata$sdimy, z = cell_locations_metadata$sdimz,
                           color = cell_locations_metadata[[cell_color]],marker = list(size = point_size),
-                          mode = 'markers', colors = cell_color_code,name = "selected cells") %>%
+                          mode = 'markers', colors = cell_color_code) %>%
                   plotly::layout(scene = list(xaxis = list(title = 'X'),
                                       yaxis = list(title = 'Y'),
-                                      zaxis = list(title = 'Z')))
+                                      zaxis = list(title = 'Z')),
+                                legend = list(x = 100, y = 0.5,
+                                             font = list(family = "sans-serif",size = 12)))                    
+                  
 
             if(!is.null(select_cells)){
                 pl <- pl %>% plotly::add_trace(type = "scatter3d",mode="markers",
                                        data=cell_locations_metadata_other,
                                        name = "unselected cells",
                                        x=~sdimx,y=~sdimy,z=~sdimz,
-                                       marker = list(size = point_size/2),
-                                       colors="lightgray",inherit=F,opacity=0.05)
+                                       marker = list(size = point_size/2),color = "lightgray",
+                                       colors="lightgray",inherit=F,opacity=other_cells_alpha)
                 }
             }
         else{
@@ -145,7 +151,12 @@ visPlot <- function(gobject,
                    z = cell_locations_metadata$sdimz,
                    mode = 'markers',
                    marker = list(size = point_size),
-                   colors = 'lightblue',name = "selected cells")
+                   colors = 'lightblue',name = "selected cells")  %>%                
+           plotly::layout(scene = list(xaxis = list(title = 'X'),
+                                      yaxis = list(title = 'Y'),
+                                      zaxis = list(title = 'Z')),
+                         legend = list(x = 100, y = 0.5,
+                                       font = list(family = "sans-serif",size = 12)))
            if(!is.null(select_cells)){
                 pl <- pl %>% plotly::add_trace(type = "scatter3d",
                                                mode="markers",
@@ -153,7 +164,7 @@ visPlot <- function(gobject,
                                                name = "unselected cells",
                                                x=~sdimx,y=~sdimy,z=~sdimz,
                                                marker = list(size = point_size/2),
-                                               colors="lightgray",inherit = F,opacity = 0.05)
+                                               colors="lightgray",inherit = F,opacity = other_cells_alpha)
                }
         }
           ## plot spatial network
@@ -161,25 +172,14 @@ visPlot <- function(gobject,
       if(is.null(network_color)) {
           network_color = 'red'
           }
-        edges <- data.table::data.table(edge_id = 1:(3*dim(spatial_network)[1]),x = 0,y = 0,z = 0)
-        edges[edges$edge_id%%3 == 1]$x = spatial_network$sdimx_begin
-        edges[edges$edge_id%%3 == 1]$y = spatial_network$sdimy_begin
-        edges[edges$edge_id%%3 == 1]$z = spatial_network$sdimz_begin
-
-        edges[edges$edge_id%%3 == 2]$x = spatial_network$sdimx_end
-        edges[edges$edge_id%%3 == 2]$y = spatial_network$sdimy_end
-        edges[edges$edge_id%%3 == 2]$z = spatial_network$sdimz_end
-
-        edges[edges$edge_id%%3 == 0]$x = NA
-        edges[edges$edge_id%%3 == 0]$y = NA
-        edges[edges$edge_id%%3 == 0]$z = NA
+        edges <- plotly_spatial_network(spatial_network)
 
         pl <- pl %>% plotly::add_trace(name = "sptial network",
                                        mode = "lines",
                                        type = "scatter3d",
                                        data = edges,
                                        x = ~x,y=~y,z=~z,
-                                       inherit = F,line=list(color=network_color))
+                                       inherit = F,line=list(color=network_color),opacity=network_alpha)
     }
           ## plot spatial grid
           # 3D grid is not clear to view
@@ -188,7 +188,7 @@ visPlot <- function(gobject,
       if(show_plot == TRUE) {
         print(pl)
       }
-      return(hide_colorbar(pl))
+      return((pl))
     }
 
 
@@ -359,6 +359,7 @@ visPlot <- function(gobject,
 visGenePlot <- function(gobject,
                         expression_values = c('normalized', 'scaled', 'custom'),
                         genes,
+                        genes_color = NULL,
                         show_network = F,
                         network_color = NULL,
                         spatial_network_name = 'spatial_network',
@@ -375,12 +376,13 @@ visGenePlot <- function(gobject,
                         cow_rel_h = 1,
                         cow_rel_w = 1,
                         cow_align = 'h',
+                        plot_dim = 2,
                         show_plots = F) {
 
   selected_genes = genes
 
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
 
   # only keep genes that are in the dataset
   selected_genes = selected_genes[selected_genes %in% rownames(expr_values) ]
@@ -428,7 +430,10 @@ visGenePlot <- function(gobject,
   cell_locations_metadata_genes <- merge(cell_locations_metadata, t_sub_expr_data_DT, by = 'cell_ID')
 
   ## plotting ##
+    
   savelist <- list()
+  #2D plot
+  if(plot_dim == 2){
   for(gene in selected_genes) {
 
     pl <- ggplot2::ggplot()
@@ -484,7 +489,86 @@ visGenePlot <- function(gobject,
   combined_cowplot = cowplot::plot_grid(combo_plot)
 
   return(combined_cowplot)
+   }
+    
+   #3D plot 
+    else{
+    ## spatial network data
+    if(!is.null(spatial_network) & show_network == TRUE){
+        edges <- plotly_spatial_network(spatial_network)
+    }
+    ##Point layer
+    if(length(selected_genes) > 4){
+        stop("\n The max number of genes showed together is 4.Otherwise it will be too small to see\n 
+              \n If you have more genes to show, please divide them into groups\n")
+    }
 
+    for(i in 1:length(selected_genes)){
+        gene = selected_genes[i]
+        if(!is.null(genes_color)){
+            if(length(genes_color)!=length(selected_genes)){
+                stop('\n The number of genes and their corresbonding do not match\n')
+            }
+        }
+        else{
+            genes_color = rep("red",length(selected_genes))
+        }
+        pl <- plot_ly(name = gene,
+                      color = cell_locations_metadata_genes[[gene]],
+                      colors = c("white",genes_color[i]),scene=paste("scene",i,sep = "")) %>%
+              add_trace(data = cell_locations_metadata_genes,type = 'scatter3d',mode = "markers",
+                        x = ~sdimx, y = ~sdimy, z = ~sdimz,marker = list(size = point_size))%>%
+              layout(scene = list(xaxis = list(title = 'X'),
+                                  yaxis = list(title = 'Y'),
+                                  zaxis = list(title = 'Z')))
+            
+    ## plot spatial network
+    if(show_network == TRUE) {
+      if(is.null(network_color)) {
+          network_color = 'lightblue'
+          }
+        pl <- pl %>% add_trace(name = "sptial network",mode = "lines", type = "scatter3d",
+                               data = edges,x = ~x,y=~y,z=~z,inherit = F,line=list(color=network_color))
+        print(head(edges))
+    }
+    ##plot spatial grid
+    if(!is.null(spatial_grid) & show_grid == TRUE){
+        cat("\n spatial grid is not clear in 3D plot \n")
+    }
+    savelist[[gene]] <- pl
+    }
+
+    if(length(savelist) == 1){
+        if(show_plots){
+            print(savelist[1])
+        }
+        return (savelist[1])
+    }
+    else if(length(savelist)==2){
+        cowplot <- suppressWarnings(subplot(savelist)%>% layout(scene1 = list(domain = list(x = c(0, 0.5), y = c(0,1))),
+                                                                scene2 = list(domain = list(x = c(0.5, 1), y = c(0,1))),
+                                                                legend = list(x = 100, y = 0)))
+    }
+    else if(length(savelist)==3){
+        cowplot <- suppressWarnings(subplot(savelist)%>% layout(scene1 = list(domain = list(x = c(0, 0.5), y = c(0,0.5))),
+                                                                scene2 = list(domain = list(x = c(0.5, 1), y = c(0,0.5))),
+                                                                scene3 = list(domain = list(x = c(0, 0.5), y = c(0.5,1))),
+                                                                legend = list(x = 100, y = 0)))
+    }
+    else if(length(savelist)==4){
+        
+        cowplot <- suppressWarnings(subplot(savelist)%>% layout(scene1 = list(domain = list(x = c(0, 0.5), y = c(0,0.5))),
+                                                                scene2 = list(domain = list(x = c(0.5, 1), y = c(0,0.5))),
+                                                                scene3 = list(domain = list(x = c(0, 0.5), y = c(0.5,1))),
+                                                                scene4 = list(domain = list(x = c(0.5, 1), y = c(0.5,1))),
+                                                                legend = list(x = 100, y = 0)))
+        }
+    if(show_plots){
+        print(cowplot)
+    }
+    return(cowplot)
+    }
+      
 }
 
 

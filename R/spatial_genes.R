@@ -650,7 +650,7 @@ showPattern <- function(spatPatObj,
         dpl <- dpl + ggplot2::scale_fill_gradient2('low' = 'darkblue', mid = 'white', high = 'darkred', midpoint = 0,
                                     guide = guide_legend(title = ''))
         dpl <- dpl + ggplot2::theme(axis_text_x = element_text(size = 8, angle = 45, vjust = 1, hjust = 1),
-                     panel_background = element_rect(fill = background.color),
+                     panel_background = element_rect(fill = background_color),
                      panel_grid = element_blank(),
                      plot_title = element_text(hjust = 0.5))
         dpl <- dpl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates')
@@ -664,7 +664,7 @@ showPattern <- function(spatPatObj,
 
       dpl <- plotly::plot_ly(type = 'scatter3d',
                     x = annotated_grid$center_x, y = annotated_grid$center_y, z = annotated_grid$center_z,
-                    color = annotated_grid[[selected_PC]],size = point_size,
+                    color = annotated_grid[[selected_PC]],marker = list(size = point_size),
                     mode = 'markers', colors = c( 'darkblue','white','darkred'))
       dpl <- dpl %>% plotly::layout(plot_bgcolor = "LightGray")
 
