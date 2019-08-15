@@ -33,7 +33,7 @@ visPlot <- function(gobject,
                     sdimx = NULL,
                     sdimy = NULL,
                     sdimz = NULL,
-                    point_size = 1,
+                    point_size = 3,
                     point_border_col = 'black',
                     point_border_stroke = 0.1,
                     cell_color = NULL,
@@ -47,11 +47,11 @@ visPlot <- function(gobject,
                     other_cells_alpha = 0.1,
                     spatial_network_name = 'spatial_network',
                     show_grid = F,
-                    show_legend = F,
                     grid_color = NULL,
                     spatial_grid_name = 'spatial_grid',
                     coord_fix_ratio = 0.6,
                     title = '',
+                    show_legend = T,
                     show_plot = F) {
 
   cell_locations  = gobject@spatial_locs
@@ -118,13 +118,17 @@ visPlot <- function(gobject,
                 number_colors=length(unique(cell_locations_metadata[[cell_color]]))
                 cell_color_code = Giotto:::getDistinctColors(n = number_colors)
             }
+            cell_locations_metadata[[cell_color]] <- as.factor(cell_locations_metadata[[cell_color]])
             pl <- plotly::plot_ly(type = 'scatter3d',
                           x = cell_locations_metadata$sdimx, y = cell_locations_metadata$sdimy, z = cell_locations_metadata$sdimz,
                           color = cell_locations_metadata[[cell_color]],marker = list(size = point_size),
-                          mode = 'markers', colors = cell_color_code,name = "selected cells") %>%
+                          mode = 'markers', colors = cell_color_code) %>%
                   plotly::layout(scene = list(xaxis = list(title = 'X'),
                                       yaxis = list(title = 'Y'),
-                                      zaxis = list(title = 'Z')))
+                                      zaxis = list(title = 'Z')),
+                                legend = list(x = 100, y = 0.5,
+                                             font = list(family = "sans-serif",size = 12)))                    
+                  
 
             if(!is.null(select_cells)){
                 pl <- pl %>% plotly::add_trace(type = "scatter3d",mode="markers",
@@ -145,7 +149,12 @@ visPlot <- function(gobject,
                    z = cell_locations_metadata$sdimz,
                    mode = 'markers',
                    marker = list(size = point_size),
-                   colors = 'lightblue',name = "selected cells")
+                   colors = 'lightblue',name = "selected cells")  %>%                
+           plotly::layout(scene = list(xaxis = list(title = 'X'),
+                                      yaxis = list(title = 'Y'),
+                                      zaxis = list(title = 'Z')),
+                         legend = list(x = 100, y = 0.5,
+                                       font = list(family = "sans-serif",size = 12)))
            if(!is.null(select_cells)){
                 pl <- pl %>% plotly::add_trace(type = "scatter3d",
                                                mode="markers",
@@ -177,7 +186,7 @@ visPlot <- function(gobject,
       if(show_plot == TRUE) {
         print(pl)
       }
-      return(hide_colorbar(pl))
+      return((pl))
     }
 
 
