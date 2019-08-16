@@ -54,6 +54,7 @@ visPlot <- function(gobject,
                     show_legend = T,
                     show_plot = F) {
 
+  ## get spatial cell locations
   cell_locations  = gobject@spatial_locs
 
   ## extract spatial network
@@ -97,6 +98,7 @@ visPlot <- function(gobject,
       # if specific cells are selected
       cell_locations_metadata = cell_locations_metadata_selected
   }
+
 
   # first 2 dimensions need to be defined
   if(is.null(sdimx) | is.null(sdimy)) {
@@ -1023,9 +1025,9 @@ visSpatDimPlot <- function(gobject,
                            dim_reduction_name = 'umap',
                            dim1_to_use = 1,
                            dim2_to_use = 2,
-                           sdimx="sdimx",
-                           sdimy="sdimy",
-                           sdimz="sdimz",
+                           sdimx=NULL,
+                           sdimy=NULL,
+                           sdimz=NULL,
                            show_NN_network = F,
                            nn_network_to_use = 'sNN',
                            network_name = 'sNN.pca',
@@ -1076,8 +1078,10 @@ visSpatDimPlot <- function(gobject,
 
 
   # dimension reduction plot
-  dmpl = visDimPlot(gobject = gobject, dim_reduction_to_use = dim_reduction_to_use, dim_reduction_name = dim_reduction_name,
-                    dim1_to_use = dim1_to_use, dim2_to_use = dim2_to_use,
+  dmpl = visDimPlot(gobject = gobject,
+                    dim_reduction_to_use = dim_reduction_to_use, dim_reduction_name = dim_reduction_name,
+                    dim1_to_use = dim1_to_use,
+                    dim2_to_use = dim2_to_use,
                     show_NN_network = show_NN_network,
                     nn_network_to_use = nn_network_to_use, network_name = network_name,
                     cell_color = cell_color, color_as_factor = color_as_factor, cell_color_code = cell_color_code,
@@ -1092,7 +1096,10 @@ visSpatDimPlot <- function(gobject,
                     label_fontface = label_fontface)
 
   # spatial plot
-  spl = visPlot(gobject = gobject,sdimx = sdimx, sdimy = sdimy, sdimz = sdimz,
+  spl = visPlot(gobject = gobject,
+                sdimx = sdimx,
+                sdimy = sdimy,
+                sdimz = sdimz,
                 show_network = show_spatial_network, spatial_network_name = spatial_network_name,
                 show_grid = show_spatial_grid, spatial_grid_name = spatial_grid_name,
                 cell_color = cell_color,
@@ -1115,11 +1122,13 @@ visSpatDimPlot <- function(gobject,
     else if(plot_dim == 3){
         suppressWarnings(dmpl <- ggplotly(dmpl))
         if(plot_alignment == 'vertical'){
-        combo_plot <- suppressWarnings(subplot(dmpl,hide_colorbar(spl),nrows = 2)%>% layout(scene = list(domain = list(x = c(0, 1), y = c(0,0.5))),
+        combo_plot <- suppressWarnings( plotly::subplot(dmpl,hide_colorbar(spl),nrows = 2)
+                                       %>% plotly::layout(scene = list(domain = list(x = c(0, 1), y = c(0,0.5))),
                                                       legend = list(x = 100, y = 0)))
             }
         else{
-            combo_plot <- suppressWarnings(subplot(dmpl,hide_colorbar(spl))%>% layout(scene = list(domain = list(x = c(0.5, 1), y = c(0,1))),
+            combo_plot <- suppressWarnings( plotly::subplot(dmpl,hide_colorbar(spl))
+                                            %>%  plotly::layout(scene = list(domain = list(x = c(0.5, 1), y = c(0,1))),
                                                       legend = list(x = 100, y = 0)))
         }
         return(combo_plot)
