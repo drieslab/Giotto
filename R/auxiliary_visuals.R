@@ -333,3 +333,40 @@ plotly_spatial_network <- function(spatial_network){
     edges[edges$edge_id%%3 == 0]$z = NA
     return(edges)
 }
+
+#' @title plotly_grid
+#' @name plotly_grid
+#' @description provide grid segment to draw in plot_ly()
+#' @param spatial_grid spatial_grid in giotto object
+#' @return edges in spatial grid as data.table()
+#' @export
+#' @examples
+plotly_grid <- function(spatial_grid,
+                        x_start = "x_start",
+                        y_start = "y_start",
+                        x_end = "x_end",
+                        y_end = "y_end"){
+  edge_num <- length(unique(spatial_grid[[x_start]])) + length(unique(spatial_grid[[y_start]])) + 2
+  x_line <- unique(as.numeric(unlist(spatial_grid[,c(x_start,x_end)])))
+  y_line <- unique(as.numeric(unlist(spatial_grid[,c(y_start,y_end)])))
+  
+  x_min <- min(spatial_grid[[x_start]])
+  x_max <- max(spatial_grid[[x_end]])
+  
+  y_min <- min(spatial_grid[[y_start]])
+  y_max <- max(spatial_grid[[y_end]])
+  
+  edges <- data.table(edge_id = 1:edge_num,x = 0,y = 0,x_end = 0,y_end = 0)
+  
+  edges[1:length(x_line),]$x <- x_line
+  edges[1:length(x_line),]$x_end <- x_line
+  edges[1:length(x_line),]$y <- y_min
+  edges[1:length(x_line),]$y_end <- y_max
+  
+  edges[(length(x_line)+1):edge_num,]$x <- x_min
+  edges[(length(x_line)+1):edge_num,]$x_end <- x_max
+  edges[(length(x_line)+1):edge_num,]$y <- y_line
+  edges[(length(x_line)+1):edge_num,]$y_end <- y_line
+  
+  return(edges)
+}
