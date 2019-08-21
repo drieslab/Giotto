@@ -2363,6 +2363,132 @@ visSpatDimGenePlot <- function(gobject,
 }
 
 
+#' @title GenePattern_show
+#' @name GenePattern_show
+#' @description Visualize genes distribution patterns calculated by spatial_AEH
+#' @param gobject giotto object
+#' @param AEH_results results from spatial_AEH
+#' @param sdimx x axis of spatial locus
+#' @param sdimy y axis of spatial locus
+#' @param point_size size of points to indicate cells
+#' @param point_alpha transparency of points to indicate cells
+#' @param low_color color to indicate low score level
+#' @param mid_color color to indicate middle score level
+#' @param high_color color to indicate high score level
+#' @param midpoint point to set mid_color
+#' @return nothing
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     GenePattern_show(gobject,AEH_results)
+GenePattern_show <- function(gobject = NULL,
+                             AEH_results = NULL,
+                             sdimx = NULL, 
+                             sdimy = NULL,
+                             point_size = 3,
+                             point_alpha = 1,
+                             low_color = "blue",
+                             mid_color = "white",
+                             high_color = "red",
+                             midpoint = 0){
+  histology_results <- AEH_results[[1]]
+  pattern_num <- max(unique(histology_results$pattern))
+  #spatial_loc <- gobject@spatial_locs
+  
+  
+  cell_pattern_score <- as.data.table(AEH_results[[2]])
+  colnames_list = paste("pattern",colnames(cell_pattern_score),sep = "")
+  colnames(cell_pattern_score) <- colnames_list
+  cell_pattern_score <- cell_pattern_score[, cell_ID := rownames(AEH_results[[2]])]
+  cell_pattern_score <- merge(cell_pattern_score,
+                              gobject@spatial_locs,by.x = "cell_ID",by.y="cell_ID")
+  
+  if(is.null(sdimx) & is.null(sdimy)){
+    sdimx = "sdimx"
+    sdimy = "sdimy"
+  }
+  
+  pattern_list = list()
+  
+  for (i in 0:pattern_num){
+    pl <- ggplot()
+    pl <- pl + theme_bw()
+    
+    gene_num <- sum(histology_results$pattern == i)
+    
+    pl <- ggplot() + ggplot2::geom_point(data = cell_pattern_score,
+                                         aes_string(x = sdimx, y = sdimy,fill = paste("pattern",i,sep = "")),
+                                         show.legend = T, shape = 21,alpha = point_alpha,size = point_size,
+                                         stroke = 0.1, color = "black")+
+      ggplot2::scale_fill_gradient2(low = low_color,mid = mid_color,high = high_color,midpoint = midpoint)+
+      ggplot2::ggtitle(paste(paste("pattern",i,sep = ""),paste(gene_num,"genes",sep = " "),sep = " - ")) + 
+      ggplot2::labs(x = "X",y="Y")
+    
+    pattern_list[[i + 1]] <- pl
+  }
+  n <- length(pattern_list)
+  nCol <- floor(sqrt(n))
+  do.call("grid.arrange", c(pattern_list, ncol=nCol))
+}
+
+
+#' @title FSV_show
+#' @name FSV_show
+#' @description Visualize spatial varible genes caculated by spatial_DE
+#' @param results results caculated by spatial_DE
+#' @param ms_results ms_results caculated by spatial_DE
+#' @param size indicate different levels of qval
+#' @param color indicate different SV features
+#' @param sig_alpha transparency of significant genes
+#' @param unsig_alpha transparency of unsignificant genes
+#' @return nothing
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     FSV_show(results)
+FSV_show <- function(results,ms_results = NULL,size = c(4,2,1), color = c("blue", "green", "red"),
+                     sig_alpha = 0.5, unsig_alpha = 0.5){
+  
+  results$FSV95conf = 2 * sqrt(results$s2_FSV)
+  results$intervals <- cut(results$FSV95conf,c(0, 1e-1, 1e0, Inf),label = F)
+  results$log_pval <- log10(results$pval)
+  
+  if(is.null(ms_results)){
+    results$model_bic = results$model
+  }
+  else{
+    results= merge(results,ms_results[,c("g","model")],by.x = "g",by.y = "g",all.x = T,
+                   suffixes=(c(" ",'_bic')))
+  }
+  
+  results$model_bic <- factor(results$model_bic)
+  results$intervals <- factor(results$intervals)
+  
+  
+  pl <- ggplot2::ggplot()
+  pl <- pl + ggplot2::theme_bw()  
+  pl <- pl + ggplot2::geom_point(data = results[results$qval < 0.05,],
+                                 aes_string(x = "FSV", y = "log_pval",fill = "model_bic",size = "intervals"),
+                                 show.legend = T, shape = 21,alpha = sig_alpha,
+                                 #size = size[results_cp_s$inftervals],
+                                 stroke = 0.1, color = "black") + 
+    ggplot2::geom_point(data = results[results$qval > 0.05,],
+                        aes_string(x = "FSV", y = "log_pval",size = "intervals"),
+                        show.legend = T, shape = 21,alpha = unsig_alpha,
+                        fill = "black", #size = size[results_cp_ns$inftervals],
+                        stroke = 0.1, color = "black") +
+    scale_size_manual(values = size,guide=FALSE)+
+    scale_color_manual(values = color)+
+    scale_fill_discrete(name="Spatial Patterns",
+                        breaks=c("linear", "PER", "SE"),
+                        labels=c("linear", "periodical", "general"))+
+    ggplot2::geom_hline(yintercept = max(results[results$qval < 0.05,]$log_pval),linetype = "dashed")+
+    geom_text(aes(0.9,max(results[results$qval < 0.05,]$log_pval),
+                  label = "FDR = 0.05", vjust = -1))+
+    scale_y_reverse()
+  
+  print(pl)
+}
 
 
 
