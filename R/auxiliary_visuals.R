@@ -311,28 +311,30 @@ violinPlot <- function(gobject,
 }
 
 
-#' @title plotly_spatial_network
-#' @name plotly_spatial_network
+#' @title plotly_network
+#' @name plotly_network
 #' @description provide network segment to draw in 3D plot_ly()
-#' @param gobject spatial_network in giotto object
+#' @param gobject network in giotto object
 #' @return edges in network as data.table()
 #' @export
 #' @examples
-#'     plotly_spatial_network(gobject)
-plotly_spatial_network <- function(spatial_network){
-    edges <- data.table(edge_id = 1:(3*dim(spatial_network)[1]),x = 0,y = 0,z = 0)
-    edges[edges$edge_id%%3 == 1]$x = as.double(spatial_network$sdimx_begin)
-    edges[edges$edge_id%%3 == 1]$y = as.double(spatial_network$sdimy_begin)
-    edges[edges$edge_id%%3 == 1]$z = as.double(spatial_network$sdimz_begin)
-
-    edges[edges$edge_id%%3 == 2]$x = as.double(spatial_network$sdimx_end)
-    edges[edges$edge_id%%3 == 2]$y = as.double(spatial_network$sdimy_end)
-    edges[edges$edge_id%%3 == 2]$z = as.double(spatial_network$sdimz_end)
-
-    edges[edges$edge_id%%3 == 0]$x = NA
-    edges[edges$edge_id%%3 == 0]$y = NA
-    edges[edges$edge_id%%3 == 0]$z = NA
-    return(edges)
+#'     plotly_network(gobject)
+plotly_network <- function(network,
+                           x = "sdimx_begin",y = "sdimy_begin",z = "sdimz_begin",
+                           x_end = "sdimx_end",y_end="sdimy_end",z_end="sdimz_end"){
+  edges <- data.table(edge_id = 1:(3*dim(network)[1]),x = 0,y = 0,z = 0)
+  edges[edges$edge_id%%3 == 1]$x = as.double(network[[x]])
+  edges[edges$edge_id%%3 == 1]$y = as.double(network[[y]])
+  edges[edges$edge_id%%3 == 1]$z = as.double(network[[z]])
+  
+  edges[edges$edge_id%%3 == 2]$x = as.double(network[[x_end]])
+  edges[edges$edge_id%%3 == 2]$y = as.double(network[[y_end]])
+  edges[edges$edge_id%%3 == 2]$z = as.double(network[[z_end]])
+  
+  edges[edges$edge_id%%3 == 0]$x = NA
+  edges[edges$edge_id%%3 == 0]$y = NA
+  edges[edges$edge_id%%3 == 0]$z = NA
+  return(edges)
 }
 
 
