@@ -1,6 +1,6 @@
 Package: Giotto
 Title: Spatial single-cell transcriptomics pipeline.
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: person("Ruben", "Dries", email = "rubendries@gmail.com", role = c("aut", "cre"))
 Description: Pipeline to process, analyze and visualize (spatial) single-cell transcriptomic data.
 License: MIT + file LICENSE
@@ -9,7 +9,6 @@ LazyData: true
 RoxygenNote: 6.1.1
 Depends:
     data.table (>= 1.12.2),
-    igraph (>= 1.2.4.1),
     ggplot2 (>= 3.1.1),
     base (>= 3.5.1),
     utils (>= 3.5.1),
@@ -28,11 +27,13 @@ Imports:
     ggalluvial (>= 0.9.1),
     scales (>= 1.0.0),
     ComplexHeatmap (>= 1.20.0),
-    scran (>= 1.10.1),
     qvalue (>= 2.14.1),
-    lfa (>= 1.12.0)
+    lfa (>= 1.12.0),
+    igraph (>= 1.2.4.1)
 Suggests:
     knitr,
-    rmarkdown
+    rmarkdown,
+    MAST,
+    scran (>= 1.10.1)
 biocViews:
 VignetteBuilder: knitr

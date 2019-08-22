@@ -5,8 +5,11 @@
 \title{findMarkers}
 \usage{
 findMarkers(gobject, expression_values = c("normalized", "scaled",
-  "custom"), cluster_column, subset_clusters = NULL, group_1 = NULL,
-  group_2 = NULL, method = c("scran"), ...)
+  "custom"), cluster_column, method = c("scran", "gini", "mast"),
+  subset_clusters = NULL, group_1 = NULL, group_2 = NULL,
+  min_expr_gini_score = 0.5, min_det_gini_score = 0.5,
+  detection_threshold = 0, rank_score = 1, group_1_name = NULL,
+  group_2_name = NULL, adjust_columns = NULL, ...)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -15,24 +18,38 @@ findMarkers(gobject, expression_values = c("normalized", "scaled",
 
 \item{cluster_column}{clusters to use}
 
+\item{method}{method to use to detect differentially expressed genes}
+
 \item{subset_clusters}{selection of clusters to compare}
 
 \item{group_1}{group 1 cluster IDs from cluster_column for pairwise comparison}
 
 \item{group_2}{group 2 cluster IDs from cluster_column for pairwise comparison}
 
-\item{method}{method to use}
+\item{min_expr_gini_score}{gini: filter on minimum gini coefficient for expression}
 
-\item{...}{additional parameters}
+\item{min_det_gini_score}{gini: filter minimum gini coefficient for detection}
+
+\item{detection_threshold}{gini: detection threshold for gene expression}
+
+\item{rank_score}{gini: rank scores to include}
+
+\item{group_1_name}{mast: custom name for group_1 clusters}
+
+\item{group_2_name}{mast: custom name for group_2 clusters}
+
+\item{adjust_columns}{mast: column in pDataDT to adjust for (e.g. detection rate)}
+
+\item{...}{additional parameters for the findMarkers function in scran or zlm function in MAST}
 }
 \value{
-differentially expressed genes (DEG) output
+data.table with marker genes
 }
 \description{
-Identify marker genes for selected clusters
+Identify marker genes for selected clusters.
 }
 \details{
-Description of different DEG methods.
+Wrapper for findScranMarkers, findGiniMarkers and FindMastMarkers.
 }
 \examples{
     findMarkers(gobject)

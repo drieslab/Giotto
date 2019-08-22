@@ -22,19 +22,19 @@ findGiniMarkers(gobject, expression_values = c("normalized", "scaled",
 
 \item{group_2}{group 2 cluster IDs from cluster_column for pairwise comparison}
 
-\item{min_expr_gini_score}{minimum gini coefficient on expression}
+\item{min_expr_gini_score}{filter on minimum gini coefficient for expression}
 
-\item{min_det_gini_score}{minimum gini coefficient on detection}
+\item{min_det_gini_score}{filter minimum gini coefficient for detection}
 
 \item{detection_threshold}{detection threshold for gene expression}
 
 \item{rank_score}{rank scores to include}
 }
 \value{
-gini genes output
+data.table with marker genes
 }
 \description{
-Identify marker genes for selected clusters
+Identify marker genes for selected clusters based on gini detection and expression scores.
 }
 \details{
 Description of parameters.
