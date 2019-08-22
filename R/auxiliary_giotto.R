@@ -50,6 +50,7 @@ fDataDT <- function(gobject) {
 #' @param gobject giotto object
 #' @param values expression values to extract
 #' @return expression matrix
+#' @export
 select_expression_values <- function(gobject, values) {
 
   if(values == 'scaled' & is.null(gobject@norm_scaled_expr)) {

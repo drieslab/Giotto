@@ -318,6 +318,7 @@ violinPlot <- function(gobject,
 #' @return edges in network as data.table()
 #' @export
 #' @examples
+#'     plotly_spatial_network(gobject)
 plotly_spatial_network <- function(spatial_network){
     edges <- data.table(edge_id = 1:(3*dim(spatial_network)[1]),x = 0,y = 0,z = 0)
     edges[edges$edge_id%%3 == 1]$x = as.double(spatial_network$sdimx_begin)
@@ -334,6 +335,7 @@ plotly_spatial_network <- function(spatial_network){
     return(edges)
 }
 
+
 #' @title plotly_grid
 #' @name plotly_grid
 #' @description provide grid segment to draw in plot_ly()
@@ -341,6 +343,7 @@ plotly_spatial_network <- function(spatial_network){
 #' @return edges in spatial grid as data.table()
 #' @export
 #' @examples
+#'     plotly_grid(gobject)
 plotly_grid <- function(spatial_grid,
                         x_start = "x_start",
                         y_start = "y_start",
@@ -349,24 +352,24 @@ plotly_grid <- function(spatial_grid,
   edge_num <- length(unique(spatial_grid[[x_start]])) + length(unique(spatial_grid[[y_start]])) + 2
   x_line <- unique(as.numeric(unlist(spatial_grid[,c(x_start,x_end)])))
   y_line <- unique(as.numeric(unlist(spatial_grid[,c(y_start,y_end)])))
-  
+
   x_min <- min(spatial_grid[[x_start]])
   x_max <- max(spatial_grid[[x_end]])
-  
+
   y_min <- min(spatial_grid[[y_start]])
   y_max <- max(spatial_grid[[y_end]])
-  
+
   edges <- data.table(edge_id = 1:edge_num,x = 0,y = 0,x_end = 0,y_end = 0)
-  
+
   edges[1:length(x_line),]$x <- x_line
   edges[1:length(x_line),]$x_end <- x_line
   edges[1:length(x_line),]$y <- y_min
   edges[1:length(x_line),]$y_end <- y_max
-  
+
   edges[(length(x_line)+1):edge_num,]$x <- x_min
   edges[(length(x_line)+1):edge_num,]$x_end <- x_max
   edges[(length(x_line)+1):edge_num,]$y <- y_line
   edges[(length(x_line)+1):edge_num,]$y_end <- y_line
-  
+
   return(edges)
 }

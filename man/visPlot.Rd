@@ -5,10 +5,11 @@
 \title{visPlot}
 \usage{
 visPlot(gobject, sdimx = NULL, sdimy = NULL, sdimz = NULL,
-  point_size = 1, point_border_col = "black",
+  point_size = 3, point_border_col = "black",
   point_border_stroke = 0.1, cell_color = NULL,
   cell_color_code = NULL, color_as_factor = T,
-  select_cell_groups = NULL, show_network = F, network_color = NULL,
+  select_cell_groups = NULL, select_cells = NULL, show_network = F,
+  network_color = NULL, network_alpha = 1, other_cells_alpha = 0.1,
   spatial_network_name = "spatial_network", show_grid = F,
   grid_color = NULL, spatial_grid_name = "spatial_grid",
   coord_fix_ratio = 0.6, title = "", show_legend = T,

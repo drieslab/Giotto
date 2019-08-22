@@ -129,8 +129,8 @@ visPlot <- function(gobject,
                                       yaxis = list(title = 'Y'),
                                       zaxis = list(title = 'Z')),
                                 legend = list(x = 100, y = 0.5,
-                                             font = list(family = "sans-serif",size = 12)))                    
-                  
+                                             font = list(family = "sans-serif",size = 12)))
+
 
             if(!is.null(select_cells)){
                 pl <- pl %>% plotly::add_trace(type = "scatter3d",mode="markers",
@@ -151,7 +151,7 @@ visPlot <- function(gobject,
                    z = cell_locations_metadata$sdimz,
                    mode = 'markers',
                    marker = list(size = point_size),
-                   colors = 'lightblue',name = "selected cells")  %>%                
+                   colors = 'lightblue',name = "selected cells")  %>%
            plotly::layout(scene = list(xaxis = list(title = 'X'),
                                       yaxis = list(title = 'Y'),
                                       zaxis = list(title = 'Z')),
@@ -430,7 +430,7 @@ visGenePlot <- function(gobject,
   cell_locations_metadata_genes <- merge(cell_locations_metadata, t_sub_expr_data_DT, by = 'cell_ID')
 
   ## plotting ##
-    
+
   savelist <- list()
   #2D plot
   if(plot_dim == 2){
@@ -490,8 +490,8 @@ visGenePlot <- function(gobject,
 
   return(combined_cowplot)
    }
-    
-   #3D plot 
+
+   #3D plot
     else{
     ## spatial network data
     if(!is.null(spatial_network) & show_network == TRUE){
@@ -499,7 +499,7 @@ visGenePlot <- function(gobject,
     }
     ##Point layer
     if(length(selected_genes) > 4){
-        stop("\n The max number of genes showed together is 4.Otherwise it will be too small to see\n 
+        stop("\n The max number of genes showed together is 4.Otherwise it will be too small to see\n
               \n If you have more genes to show, please divide them into groups\n")
     }
 
@@ -513,21 +513,21 @@ visGenePlot <- function(gobject,
         else{
             genes_color = rep("red",length(selected_genes))
         }
-        pl <- plot_ly(name = gene,
+        pl <- plotly::plot_ly(name = gene,
                       color = cell_locations_metadata_genes[[gene]],
                       colors = c("white",genes_color[i]),scene=paste("scene",i,sep = "")) %>%
-              add_trace(data = cell_locations_metadata_genes,type = 'scatter3d',mode = "markers",
+          plotly::add_trace(data = cell_locations_metadata_genes,type = 'scatter3d',mode = "markers",
                         x = ~sdimx, y = ~sdimy, z = ~sdimz,marker = list(size = point_size))%>%
-              layout(scene = list(xaxis = list(title = 'X'),
+          plotly::layout(scene = list(xaxis = list(title = 'X'),
                                   yaxis = list(title = 'Y'),
                                   zaxis = list(title = 'Z')))
-            
+
     ## plot spatial network
     if(show_network == TRUE) {
       if(is.null(network_color)) {
           network_color = 'lightblue'
           }
-        pl <- pl %>% add_trace(name = "sptial network",mode = "lines", type = "scatter3d",
+        pl <- pl %>% plotly::add_trace(name = "sptial network",mode = "lines", type = "scatter3d",
                                data = edges,x = ~x,y=~y,z=~z,inherit = F,line=list(color=network_color))
         print(head(edges))
     }
@@ -545,19 +545,19 @@ visGenePlot <- function(gobject,
         return (savelist[1])
     }
     else if(length(savelist)==2){
-        cowplot <- suppressWarnings(subplot(savelist)%>% layout(scene1 = list(domain = list(x = c(0, 0.5), y = c(0,1))),
+        cowplot <- suppressWarnings(subplot(savelist)%>% plotly::layout(scene1 = list(domain = list(x = c(0, 0.5), y = c(0,1))),
                                                                 scene2 = list(domain = list(x = c(0.5, 1), y = c(0,1))),
                                                                 legend = list(x = 100, y = 0)))
     }
     else if(length(savelist)==3){
-        cowplot <- suppressWarnings(subplot(savelist)%>% layout(scene1 = list(domain = list(x = c(0, 0.5), y = c(0,0.5))),
+        cowplot <- suppressWarnings(subplot(savelist)%>% plotly::layout(scene1 = list(domain = list(x = c(0, 0.5), y = c(0,0.5))),
                                                                 scene2 = list(domain = list(x = c(0.5, 1), y = c(0,0.5))),
                                                                 scene3 = list(domain = list(x = c(0, 0.5), y = c(0.5,1))),
                                                                 legend = list(x = 100, y = 0)))
     }
     else if(length(savelist)==4){
-        
-        cowplot <- suppressWarnings(subplot(savelist)%>% layout(scene1 = list(domain = list(x = c(0, 0.5), y = c(0,0.5))),
+
+        cowplot <- suppressWarnings(subplot(savelist)%>% plotly::layout(scene1 = list(domain = list(x = c(0, 0.5), y = c(0,0.5))),
                                                                 scene2 = list(domain = list(x = c(0.5, 1), y = c(0,0.5))),
                                                                 scene3 = list(domain = list(x = c(0, 0.5), y = c(0.5,1))),
                                                                 scene4 = list(domain = list(x = c(0.5, 1), y = c(0.5,1))),
@@ -568,7 +568,7 @@ visGenePlot <- function(gobject,
     }
     return(cowplot)
     }
-      
+
 }
 
 
@@ -628,38 +628,38 @@ visDimPlot <- function(gobject,
                        point_border_stroke = 0.1,
                        plot_mode = "ggplot2",
                        show_legend = T) {
-  
-  
+
+
   ## dimension reduction ##
   dim_dfr = gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$coordinates[,c(dim1_to_use, dim2_to_use,dim3_to_use)]
   dim_names = colnames(dim_dfr)
   dim_DT = data.table::as.data.table(dim_dfr); dim_DT[, cell_ID := rownames(dim_dfr)]
-  
+
   ## annotated cell metadata
   cell_metadata = gobject@cell_metadata
   annotated_DT = merge(cell_metadata, dim_DT, by = 'cell_ID')
-  
-  
+
+
   # create input for network
   if(show_NN_network == TRUE) {
-    
+
     # nn_network
     selected_nn_network = gobject@nn_network[[nn_network_to_use]][[network_name]][['igraph']]
     network_DT = data.table::as.data.table(igraph::as_data_frame(selected_nn_network, what = 'edges'))
-    
+
     # annotated network
     old_dim_names = dim_names
-    
+
     annotated_network_DT <- merge(network_DT, dim_DT, by.x = 'from', by.y = 'cell_ID')
     from_dim_names = paste0('from_', old_dim_names)
     data.table::setnames(annotated_network_DT, old = old_dim_names, new = from_dim_names)
-    
+
     annotated_network_DT <- merge(annotated_network_DT, dim_DT, by.x = 'to', by.y = 'cell_ID')
     to_dim_names = paste0('to_', old_dim_names)
     data.table::setnames(annotated_network_DT, old = old_dim_names, new = to_dim_names)
-    
+
   }
-  
+
   if(dim_reduction_to_use == "pca"){
     eigenvaluesDT = data.table::as.data.table(gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$misc$eig)
     var_expl_vec = eigenvaluesDT[c(dim1_to_use, dim2_to_use,dim3_to_use)][['percentage of variance']]
@@ -669,21 +669,21 @@ visDimPlot <- function(gobject,
       dim3_z_variance = var_expl_vec[3]
     }
   }
-  
-  
+
+
   # visualize
   if(plot_mode == "ggplot2"){
     pl <- ggplot2::ggplot()
     pl <- pl + ggplot2::theme_classic()
-    
+
     if(!is.null(dim3_to_use)){
       warning("ggplot mode can just plot two dimensions.Only the first two dims will be plot!\n
                If you want to plot 3D picture, please choose plotly mode.\n")
     }
-    
+
     # network layer
     if(show_NN_network == TRUE) {
-      
+
       if(is.null(edge_alpha)) {
         edge_alpha = 0.5
         pl <- pl + ggplot2::geom_segment(data = annotated_network_DT, aes_string(x = from_dim_names[1], y = from_dim_names[2],
@@ -692,28 +692,28 @@ visDimPlot <- function(gobject,
         pl <- pl + ggplot2::geom_segment(data = annotated_network_DT, aes_string(x = from_dim_names[1], y = from_dim_names[2],
                                                                                  xend = to_dim_names[1], yend = to_dim_names[2]), alpha = edge_alpha, show.legend = show_legend)
       } else if(is.character(edge_alpha)) {
-        
+
         if(edge_alpha %in% colnames(annotated_network_DT)) {
           pl <- pl + ggplot2::geom_segment(data = annotated_network_DT, aes_string(x = from_dim_names[1], y = from_dim_names[2],
                                                                                    xend = to_dim_names[1], yend = to_dim_names[2], alpha = edge_alpha), show.legend = show_legend)
         }
       }
     }
-    
+
     # point layer
     if(is.null(cell_color)) {
       cell_color = 'lightblue'
       pl <- pl + ggplot2::geom_point(data = annotated_DT, aes_string(x = dim_names[1], dim_names[2]),
                                      color = cell_color, show.legend = show_legend, size = point_size)
-      
+
     } else if (is.character(cell_color)) {
-      
+
       if(cell_color %in% colnames(annotated_DT)) {
-        
+
         class_cell_color = class(annotated_DT[[cell_color]])
-        
-        
-        
+
+
+
         # convert numericals to factors
         if(color_as_factor == TRUE) {
           factor_data = factor(annotated_DT[[cell_color]])
@@ -725,35 +725,35 @@ visDimPlot <- function(gobject,
             annotated_DT_centers[[cell_color]] <- factor_center_data
           }
         } else {
-          
+
           # TEST: centers can only be shown for factors that are part of the metadata
           if((show_cluster_center == TRUE | show_center_label == TRUE) & class_cell_color %in% c('character', 'factor')) {
             annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dim_names[1])), center_2 = median(get(dim_names[2]))), by = cell_color]
           }
-          
+
         }
-        
+
         pl <- pl + ggplot2::geom_point(data = annotated_DT, aes_string(x = dim_names[1], y = dim_names[2], fill = cell_color),
                                        show.legend = show_legend, shape = 21, size = point_size,
                                        color = point_border_col, stroke = point_border_stroke)
-        
+
         # plot centers
         if(show_cluster_center == TRUE & (color_as_factor == TRUE | class_cell_color %in% c('character', 'factor'))) {
-          
+
           pl <- pl + ggplot2::geom_point(data = annotated_DT_centers,
                                          aes_string(x = 'center_1', y = 'center_2', fill = cell_color),
                                          color = center_point_border_col, stroke = center_point_border_stroke,
                                          size = center_point_size, shape = 21)
         }
-        
+
         # plot labels
         if(show_center_label == TRUE) {
           pl <- pl + ggrepel::geom_text_repel(data = annotated_DT_centers,
                                               aes_string(x = 'center_1', y = 'center_2', label = cell_color),
                                               size = label_size, fontface = label_fontface)
         }
-        
-        
+
+
         if(!is.null(cell_color_code)) {
           pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
         } else if(color_as_factor == T) {
@@ -764,41 +764,41 @@ visDimPlot <- function(gobject,
         } else if(color_as_factor == F){
           pl <- pl + ggplot2::scale_fill_gradient(low = 'blue', high = 'red')
         }
-        
+
       }
-      
+
     } else {
       pl <- pl + ggplot2::geom_point(data = annotated_DT, aes_string(x = dim_names[1], y = dim_names[2]),
                                      show.legend = show_legend, shape = 21, fill = cell_color,
                                      size = point_size,
                                      color = point_border_col, stroke = point_border_stroke)
     }
-    
-    
+
+
     ## add % variance explained to names of plot for PCA ##
     if(dim_reduction_to_use == 'pca') {
       x_name = paste0('pca','-',dim_names[1])
       y_name = paste0('pca','-',dim_names[2])
-      
+
       x_title = sprintf('%s explains %.02f%% of variance', x_name, var_expl_vec[1])
       y_title = sprintf('%s explains %.02f%% of variance', y_name, var_expl_vec[2])
-      
+
       pl <- pl + ggplot2::labs(x = x_title, y = y_title)
-      
+
     } else {
-      
+
       x_title = paste0(dim_reduction_to_use,'-',dim_names[1])
       y_title = paste0(dim_reduction_to_use,'-',dim_names[2])
-      
+
       pl <- pl + ggplot2::labs(x = x_title, y = y_title)
-      
+
     }
-    
-    
+
+
     return(pl)
   }
-  
-  
+
+
   else if(plot_mode == "plotly"){
     # 2D plot
     if(is.null(dim3_to_use)){
@@ -821,7 +821,7 @@ visDimPlot <- function(gobject,
                                                       width = 0.5),
                                           opacity=edge_alpha)
       }
-      
+
       if(is.null(cell_color)){
         cell_color = "lightblue"
         pl <- pl %>% plotly::add_trace(type = "scatter",mode = "markers",
@@ -831,7 +831,7 @@ visDimPlot <- function(gobject,
                                        colors = cell_color,
                                        marker = list(size = point_size))
       }
-      
+
       else if(cell_color %in% colnames(annotated_DT)){
         if(is.null(cell_color_code)){
           number_colors=length(unique(annotated_DT[[cell_color]]))
@@ -840,8 +840,8 @@ visDimPlot <- function(gobject,
         if(color_as_factor){
           annotated_DT[[cell_color]] <- as.factor(annotated_DT[[cell_color]])
         }
-        
-        
+
+
         pl <- pl %>% plotly::add_trace(type = "scatter",mode = "markers",
                                        x = annotated_DT[[dim_names[1]]],
                                        y = annotated_DT[[dim_names[2]]],
@@ -850,15 +850,15 @@ visDimPlot <- function(gobject,
                                        legendgroup = annotated_DT[[cell_color]],
                                        marker = list(size = point_size))
       }
-      
+
       else{
         stop("cell_color does not exist!\n")
       }
-      
-      
+
+
       if(show_cluster_center == TRUE | show_center_label == TRUE) {
-        annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dim_names[1])), 
-                                                center_2 = median(get(dim_names[2]))), 
+        annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dim_names[1])),
+                                                center_2 = median(get(dim_names[2]))),
                                             by = cell_color]
         annotated_DT_centers[[cell_color]] <- as.factor(annotated_DT_centers[[cell_color]])
         if(show_cluster_center == TRUE){
@@ -871,16 +871,16 @@ visDimPlot <- function(gobject,
                                          marker = list(size = center_point_size,symbol = "x",symbols = "x"),
                                          showlegend = F)
         }
-        
+
         if(show_center_label == TRUE){
           pl <- pl %>%  plotly::add_text(x = annotated_DT_centers[["center_1"]],
                                          y = annotated_DT_centers[["center_2"]],
-                                         type = 'scatter',mode = 'text', 
+                                         type = 'scatter',mode = 'text',
                                          text = annotated_DT_centers[["leiden_clus"]],
                                          textposition = 'middle right',
                                          textfont = list(color = '#000000', size = 16),showlegend = F)
         }
-        
+
       }
       if(dim_reduction_to_use == 'pca') {
         x_name = paste0('pca','-',dim_names[1])
@@ -895,11 +895,11 @@ visDimPlot <- function(gobject,
       pl <- pl %>% plotly::layout(xaxis = list(title = x_title),
                                   yaxis = list(title = y_title),
                                   legend = list(x = 100, y = 0.5,font = list(family = "sans-serif",size = 12)))
-      
+
       return (pl)
-      
+
     }
-    
+
     # 3D plot
     else if(!is.null(dim3_to_use)){
       if(is.null(cell_color)){
@@ -929,14 +929,14 @@ visDimPlot <- function(gobject,
                                 color = annotated_DT[[cell_color]],
                                 colors = cell_color_code,
                                 marker = list(size = point_size),
-                                legendgroup = annotated_DT[[cell_color]])                      
+                                legendgroup = annotated_DT[[cell_color]])
         }
-        
+
         else{
           stop("cell_color does not exist!\n")
-        }       
+        }
       }
-      
+
       if(show_NN_network){
         edges <- plotly_network(annotated_network_DT,
                                 "from_Dim.1","from_Dim.2","from_Dim.3",
@@ -948,7 +948,7 @@ visDimPlot <- function(gobject,
           warning("Edge_alpha for plotly mode is not adjustable yet. Default 0.5 will be set\n")
           edge_alpha = 0.5
         }
-        
+
         pl <- pl %>% plotly::add_trace(name = network_name,
                                        mode = "lines",
                                        type = "scatter3d",
@@ -956,14 +956,14 @@ visDimPlot <- function(gobject,
                                        x = ~x,y=~y,z=~z,
                                        inherit = F,
                                        line=list(color="lightgray"),
-                                       opacity=edge_alpha)                       
+                                       opacity=edge_alpha)
       }
       if(show_cluster_center == TRUE | show_center_label == TRUE){
-        annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dim_names[1])), 
+        annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dim_names[1])),
                                                 center_2 = median(get(dim_names[2])),
-                                                center_3 = median(get(dim_names[3]))), 
+                                                center_3 = median(get(dim_names[3]))),
                                             by = cell_color]
-        annotated_DT_centers[[cell_color]] <- as.factor(annotated_DT_centers[[cell_color]])  
+        annotated_DT_centers[[cell_color]] <- as.factor(annotated_DT_centers[[cell_color]])
         if(show_cluster_center == TRUE){
           pl <- pl %>% plotly::add_trace(mode = "markers",
                                          type = "scatter3d",
@@ -976,7 +976,7 @@ visDimPlot <- function(gobject,
                                          inherit = F,
                                          marker=list(size = 2,symbol = "x",symbols = "x"),
                                          legendgroup = annotated_DT_centers[[cell_color]],
-                                         showlegend = F)                      
+                                         showlegend = F)
         }
         if(show_center_label == TRUE){
           cat(" center label is not clear to see in 3D plot\n You can shut it down with show_center_label = F\n")
@@ -989,9 +989,9 @@ visDimPlot <- function(gobject,
                                          text = annotated_DT_centers[[cell_color]],
                                          legendgroup = annotated_DT_centers[[cell_color]],
                                          inherit = F,
-                                         showlegend = F)         
+                                         showlegend = F)
         }
-        
+
       }
       if(dim_reduction_to_use == 'pca') {
         x_name = paste0('pca','-',dim_names[1])
@@ -1014,6 +1014,8 @@ visDimPlot <- function(gobject,
     }
   }
 }
+
+
 
 
 
@@ -1280,17 +1282,17 @@ visSpatDimPlot_2D <- function(gobject,
                               spatial_point_border_stroke = 0.1,
                               show_legend = T,
                               show_plot = F){
-  
+
   plot_alignment = match.arg(plot_alignment, choices = c( 'vertical','horizontal'))
-  
-  
+
+
   # create matching cell_color_code
   if(is.null(cell_color_code)) {
     if(is.character(cell_color)) {
-      
+
       cell_metadata = pDataDT(gobject)
       if(cell_color %in% colnames(cell_metadata)) {
-        
+
         if(color_as_factor == TRUE) {
           number_colors = length(unique(cell_metadata[[cell_color]]))
           cell_color_code = Giotto:::getDistinctColors(n = number_colors)
@@ -1300,7 +1302,7 @@ visSpatDimPlot_2D <- function(gobject,
       }
     }
   }
-  
+
   # dimension reduction plot
   dmpl = visDimPlot(gobject = gobject,
                      dim_reduction_to_use = dim_reduction_to_use, dim_reduction_name = dim_reduction_name,
@@ -1318,7 +1320,7 @@ visSpatDimPlot_2D <- function(gobject,
                      center_point_size = center_point_size,
                      label_size = label_size,
                      label_fontface = label_fontface)
-  
+
   # spatial plot
   spl = visPlot(gobject = gobject,
                  sdimx = sdimx,
@@ -1331,7 +1333,7 @@ visSpatDimPlot_2D <- function(gobject,
                  show_legend = show_legend, show_plot = show_plot,
                  point_size = spatial_point_size, point_border_col = spatial_point_border_col,
                  point_border_stroke = spatial_point_border_stroke)
-  
+
   if(plot_alignment == 'vertical') {
     combo_plot <- cowplot::plot_grid(dmpl, spl, ncol = 1, rel_heights = c(1), rel_widths = c(1), align = 'v')
     return(cowplot::plot_grid(combo_plot))
@@ -1339,7 +1341,7 @@ visSpatDimPlot_2D <- function(gobject,
     combo_plot <- cowplot::plot_grid(dmpl, spl, ncol = 2, rel_heights = c(1), rel_widths = c(1), align = 'h')
     return(cowplot::plot_grid(combo_plot))
   }
-  
+
 }
 
 #' @title visSpatDimPlot_3D
@@ -1407,20 +1409,20 @@ visSpatDimPlot_3D <- function(gobject,
                               spatial_grid_alpha = 0.5,
                               spatial_point_size = 3,
                               legend_text_size = 12){
-  
+
   plot_alignment = match.arg(plot_alignment, choices = c( 'horizontal','vertical'))
-  
+
   # ********data prepare********#
   ## dimension reduction ##
   dim_dfr = gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$coordinates[,c(dim1_to_use, dim2_to_use,dim3_to_use)]
   dim_names = colnames(dim_dfr)
   dim_DT = data.table::as.data.table(dim_dfr); dim_DT[, cell_ID := rownames(dim_dfr)]
-  
+
   ## annotated cell metadata
   cell_metadata = gobject@cell_metadata
   annotated_DT = merge(cell_metadata, dim_DT, by = 'cell_ID')
   annotated_DT = merge(annotated_DT, gobject@spatial_locs,by = 'cell_ID')
-  
+
   if(dim_reduction_to_use == "pca"){
     eigenvaluesDT = data.table::as.data.table(gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$misc$eig)
     var_expl_vec = eigenvaluesDT[c(dim1_to_use, dim2_to_use,dim3_to_use)][['percentage of variance']]
@@ -1430,46 +1432,46 @@ visSpatDimPlot_3D <- function(gobject,
       dim3_z_variance = var_expl_vec[3]
     }
   }
-  
+
   ## nn network
   if(show_NN_network){
     selected_nn_network = gobject@nn_network[[nn_network_to_use]][[network_name]][['igraph']]
     network_DT = data.table::as.data.table(igraph::as_data_frame(selected_nn_network, what = 'edges'))
-    
+
     # annotated network
     old_dim_names = dim_names
-    
+
     annotated_network_DT <- merge(network_DT, dim_DT, by.x = 'from', by.y = 'cell_ID')
     from_dim_names = paste0('from_', old_dim_names)
     data.table::setnames(annotated_network_DT, old = old_dim_names, new = from_dim_names)
-    
+
     annotated_network_DT <- merge(annotated_network_DT, dim_DT, by.x = 'to', by.y = 'cell_ID')
     to_dim_names = paste0('to_', old_dim_names)
     data.table::setnames(annotated_network_DT, old = old_dim_names, new = to_dim_names)
   }
-  
-  
+
+
   ## extract spatial network
   if(!is.null(spatial_network_name)) {
     spatial_network = gobject@spatial_network[[spatial_network_name]]
   } else {
     spatial_network = NULL
   }
-  
+
   ## extract spatial grid
   if(!is.null(spatial_grid_name)) {
     spatial_grid = gobject@spatial_grid[[spatial_grid_name]]
   } else {
     spatial_grid = NULL
   }
-  
+
   # create matching cell_color_code
   if(is.null(cell_color_code)) {
     if(is.character(cell_color)) {
-      
+
       cell_metadata = pDataDT(gobject)
       if(cell_color %in% colnames(cell_metadata)) {
-        
+
         if(color_as_factor == TRUE) {
           number_colors = length(unique(cell_metadata[[cell_color]]))
           cell_color_code = Giotto:::getDistinctColors(n = number_colors)
@@ -1478,8 +1480,8 @@ visSpatDimPlot_3D <- function(gobject,
       }
     }
   }
-  
-  
+
+
   #********** dim plot ***********#
   #2D plot
   if(is.null(dim3_to_use)){
@@ -1502,7 +1504,7 @@ visSpatDimPlot_3D <- function(gobject,
                                                       width = 0.5),
                                           opacity=nn_network_alpha)
     }
-    
+
     if(is.null(cell_color)){
       cell_color = "lightblue"
       dpl <- dpl %>% plotly::add_trace(type = "scatter",mode = "markers",
@@ -1512,13 +1514,13 @@ visSpatDimPlot_3D <- function(gobject,
                                        colors = cell_color,
                                        marker = list(size = dim_point_size))
     }
-    
+
     else if(cell_color %in% colnames(annotated_DT)){
       if(color_as_factor){
         annotated_DT[[cell_color]] <- as.factor(annotated_DT[[cell_color]])
       }
-      
-      
+
+
       dpl <- dpl %>% plotly::add_trace(type = "scatter",mode = "markers",
                                        x = annotated_DT[[dim_names[1]]],
                                        y = annotated_DT[[dim_names[2]]],
@@ -1527,15 +1529,15 @@ visSpatDimPlot_3D <- function(gobject,
                                        legendgroup = annotated_DT[[cell_color]],
                                        marker = list(size = dim_point_size))
     }
-    
+
     else{
       stop("cell_color does not exist!\n")
     }
-    
-    
+
+
     if(show_cluster_center == TRUE | show_center_label == TRUE) {
-      annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dim_names[1])), 
-                                              center_2 = median(get(dim_names[2]))), 
+      annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dim_names[1])),
+                                              center_2 = median(get(dim_names[2]))),
                                           by = cell_color]
       annotated_DT_centers[[cell_color]] <- as.factor(annotated_DT_centers[[cell_color]])
       if(show_cluster_center == TRUE){
@@ -1548,16 +1550,16 @@ visSpatDimPlot_3D <- function(gobject,
                                          marker = list(size = center_point_size,symbol = "x",symbols = "x"),
                                          showlegend = F)
       }
-      
+
       if(show_center_label == TRUE){
         dpl <- dpl %>%  plotly::add_text(x = annotated_DT_centers[["center_1"]],
                                          y = annotated_DT_centers[["center_2"]],
-                                         type = 'scatter',mode = 'text', 
+                                         type = 'scatter',mode = 'text',
                                          text = annotated_DT_centers[["leiden_clus"]],
                                          textposition = 'middle right',
                                          textfont = list(color = '#000000', size = label_size),showlegend = F)
       }
-      
+
     }
     if(dim_reduction_to_use == 'pca') {
       x_name = paste0('pca','-',dim_names[1])
@@ -1573,7 +1575,7 @@ visSpatDimPlot_3D <- function(gobject,
                                   yaxis = list(title = y_title),
                                   legend = list(x = 100, y = 0.5,font = list(family = "sans-serif",size = legend_text_size)))
   }
-  #3D plot  
+  #3D plot
   else if(!is.null(dim3_to_use)){
     if(is.null(cell_color)){
       cell_color = "lightblue"
@@ -1604,14 +1606,14 @@ visSpatDimPlot_3D <- function(gobject,
                                colors = cell_color_code,
                                marker = list(size = dim_point_size),
                                legendgroup = annotated_DT[[cell_color]],
-                               scene = "scene1")                      
+                               scene = "scene1")
       }
-      
+
       else{
         stop("cell_color does not exist!\n")
-      }       
+      }
     }
-    
+
     if(show_NN_network){
       edges <- plotly_network(annotated_network_DT,
                               "from_Dim.1","from_Dim.2","from_Dim.3",
@@ -1623,7 +1625,7 @@ visSpatDimPlot_3D <- function(gobject,
         warning("Edge_alpha for plotly mode is not adjustable yet. Default 0.5 will be set\n")
         nn_network_alpha = 0.5
       }
-      
+
       dpl <- dpl %>% plotly::add_trace(name = network_name,
                                        mode = "lines",
                                        type = "scatter3d",
@@ -1631,14 +1633,14 @@ visSpatDimPlot_3D <- function(gobject,
                                        x = ~x,y=~y,z=~z,
                                        inherit = F,
                                        line=list(color=spatial_network_color),
-                                       opacity=nn_network_alpha)                       
+                                       opacity=nn_network_alpha)
     }
     if(show_cluster_center == TRUE | show_center_label == TRUE){
-      annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dim_names[1])), 
+      annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dim_names[1])),
                                               center_2 = median(get(dim_names[2])),
-                                              center_3 = median(get(dim_names[3]))), 
+                                              center_3 = median(get(dim_names[3]))),
                                           by = cell_color]
-      annotated_DT_centers[[cell_color]] <- as.factor(annotated_DT_centers[[cell_color]])  
+      annotated_DT_centers[[cell_color]] <- as.factor(annotated_DT_centers[[cell_color]])
       if(show_cluster_center == TRUE){
         dpl <- dpl %>% plotly::add_trace(mode = "markers",
                                          type = "scatter3d",
@@ -1651,7 +1653,7 @@ visSpatDimPlot_3D <- function(gobject,
                                          inherit = F,
                                          marker=list(size = 2,symbol = "x",symbols = "x"),
                                          legendgroup = annotated_DT_centers[[cell_color]],
-                                         showlegend = F)                      
+                                         showlegend = F)
       }
       if(show_center_label == TRUE){
         cat(" center label is not clear to see in 3D plot\n You can shut it down with show_center_label = F\n")
@@ -1664,9 +1666,9 @@ visSpatDimPlot_3D <- function(gobject,
                                          text = annotated_DT_centers[[cell_color]],
                                          legendgroup = annotated_DT_centers[[cell_color]],
                                          inherit = F,
-                                         showlegend = F)         
+                                         showlegend = F)
       }
-      
+
     }
     if(dim_reduction_to_use == 'pca') {
       x_name = paste0('pca','-',dim_names[1])
@@ -1686,20 +1688,20 @@ visSpatDimPlot_3D <- function(gobject,
                                                 zaxis = list(title = z_title)),
                                    legend = list(x = 100, y = 0.5,font = list(family = "sans-serif",size = legend_text_size)))
   }
-  
-  
-  
+
+
+
   #********** spatial plot ***********#
   if(is.null(sdimx) | is.null(sdimy)) {
     # cat('first and second dimenion need to be defined, default is first 2 \n')
     sdimx = 'sdimx'
     sdimy = 'sdimy'
   }
-  
-  # 2D plot  
+
+  # 2D plot
   if(is.null(sdimz)){
     spl <- plot_ly()
-    
+
     if(show_spatial_network == TRUE) {
       if(is.null(spatial_network)){
         stop("No usable spatial network specified! Please choose a network with spatial_network_name=xxx")
@@ -1720,7 +1722,7 @@ visSpatDimPlot_3D <- function(gobject,
                                             yend = spatial_network[["sdimy_end"]],
                                             line = list(color = "lightgray",
                                                         width = 0.5),
-                                            opacity=spatial_network_alpha)        
+                                            opacity=spatial_network_alpha)
       }
     }
     if(show_spatial_grid == TRUE){
@@ -1741,8 +1743,8 @@ visSpatDimPlot_3D <- function(gobject,
                                             yend = ~y_end,
                                             line = list(color = spatial_grid_color,
                                                         width = 1),
-                                            opacity=spatial_grid_alpha) 
-        
+                                            opacity=spatial_grid_alpha)
+
       }
     }
     if(is.null(cell_color)){
@@ -1754,13 +1756,13 @@ visSpatDimPlot_3D <- function(gobject,
                                        colors = cell_color,
                                        marker = list(size = spatial_point_size))
     }
-    
+
     else if(cell_color %in% colnames(annotated_DT)){
       if(color_as_factor){
         annotated_DT[[cell_color]] <- as.factor(annotated_DT[[cell_color]])
       }
-      
-      
+
+
       spl <- spl %>% plotly::add_trace(type = "scatter",mode = "markers",
                                        x = annotated_DT[[sdimx]],
                                        y = annotated_DT[[sdimy]],
@@ -1776,25 +1778,25 @@ visSpatDimPlot_3D <- function(gobject,
     spl <- spl %>% plotly::layout(xaxis = list(title = "X"),
                                   yaxis = list(title = "Y"),
                                   legend = list(x = 100, y = 0.5,font = list(family = "sans-serif",size = legend_text_size)))
-    
+
   }
-  
-  
-  # 3D plot 
+
+
+  # 3D plot
   else{
     if(!is.null(cell_color)) {
       if(cell_color %in% colnames(annotated_DT)){
         annotated_DT[[cell_color]] <- as.factor(annotated_DT[[cell_color]])
         spl <- plotly::plot_ly(type = 'scatter3d',mode = 'markers',
-                               x = annotated_DT$sdimx, 
-                               y = annotated_DT$sdimy, 
+                               x = annotated_DT$sdimx,
+                               y = annotated_DT$sdimy,
                                z = annotated_DT$sdimz,
                                color = annotated_DT[[cell_color]],
                                colors = cell_color_code,
                                legendgroup = annotated_DT[[cell_color]],
                                marker = list(size = spatial_point_size),
                                scene = "scene2",
-                               showlegend = F) 
+                               showlegend = F)
       }
       else{
         stop("cell_color doesn't exist!\n")
@@ -1802,8 +1804,8 @@ visSpatDimPlot_3D <- function(gobject,
     }
     else{
       spl <- plotly::plot_ly(type = 'scatter3d',mode = 'markers',
-                             x = annotated_DT$sdimx, 
-                             y = annotated_DT$sdimy, 
+                             x = annotated_DT$sdimx,
+                             y = annotated_DT$sdimy,
                              z = annotated_DT$sdimz,
                              color = "lightblue",
                              colors = "lightblue",
@@ -1825,7 +1827,7 @@ visSpatDimPlot_3D <- function(gobject,
           spatial_network_alpha = 0.5
         }
         edges <- plotly_spatial_network(spatial_network)
-        
+
         spl <- spl %>% plotly::add_trace(name = "sptial network",
                                          mode = "lines",
                                          type = "scatter3d",
@@ -1833,10 +1835,10 @@ visSpatDimPlot_3D <- function(gobject,
                                          x = ~x,y=~y,z=~z,
                                          inherit = F,
                                          line=list(color=spatial_network_color),
-                                         opacity=spatial_network_alpha)      
+                                         opacity=spatial_network_alpha)
       }
     }
-    
+
     if(show_spatial_grid == TRUE){
       cat("3D grid is not clear to view\n")
     }
@@ -1846,10 +1848,10 @@ visSpatDimPlot_3D <- function(gobject,
                                   legend = list(x = 100, y = 0.5,
                                                 font = list(family = "sans-serif",size = legend_text_size)))
   }
-  
-  
-  
-  
+
+
+
+
   if(is.null(dim3_to_use) & is.null(sdimz)){
     if(plot_alignment == 'vertical'){
       combo_plot <- plotly::subplot(dpl,spl,nrows = 2,titleX = TRUE,titleY = TRUE)
@@ -1858,7 +1860,7 @@ visSpatDimPlot_3D <- function(gobject,
       combo_plot <- plotly::subplot(dpl,spl,titleX = TRUE,titleY = TRUE)
     }
   }
-  
+
   else if(!is.null(dim3_to_use) & is.null(sdimz)){
     if(plot_alignment == 'vertical'){
       combo_plot <- plotly::subplot(dpl,spl,nrows = 2,titleX = TRUE,titleY = TRUE)%>%
@@ -1869,7 +1871,7 @@ visSpatDimPlot_3D <- function(gobject,
         plotly::layout(scene = list(domain = list(x = c(0, 0.5), y = c(0,1))))
     }
   }
-  
+
   else if(is.null(dim3_to_use) & !is.null(sdimz)){
     if(plot_alignment == 'vertical'){
       combo_plot <- plotly::subplot(dpl,spl,nrows = 2,titleX = TRUE,titleY = TRUE)%>%
@@ -1880,7 +1882,7 @@ visSpatDimPlot_3D <- function(gobject,
         plotly::layout(scene2 = list(domain = list(x = c(0.5, 1), y = c(0,1))))
     }
   }
-  
+
   else if(!is.null(dim3_to_use) & !is.null(sdimz)){
     if(plot_alignment == 'vertical'){
       combo_plot <- plotly::subplot(dpl,spl,nrows = 2,titleX = TRUE,titleY = TRUE)%>%
@@ -1893,11 +1895,11 @@ visSpatDimPlot_3D <- function(gobject,
                        scene2 = list(domain = list(x = c(0.5, 1), y = c(0,1))))
     }
   }
-  
-  
-  
+
+
+
   return(combo_plot)
-  
+
 }
 
 #' @title visSpatDimPlot
@@ -1975,7 +1977,7 @@ visSpatDimPlot <- function(gobject,
                            show_legend = T,
                            show_plot = F){
   plot_mode = match.arg(plot_mode, c("plotly","ggplot2"))
-  
+
   if(plot_mode == "ggplot2"){
     if(!is.null(sdimz) | !is.null(dim3_to_use)){
       stop("3D plots couldn't be drawn in ggplot2 mode,please choose plotly mode with plot_mode = \"plotly\"\n")
@@ -2025,7 +2027,7 @@ visSpatDimPlot <- function(gobject,
                             show_legend = show_legend,
                             show_plot = show_plot)
   }
-  
+
   else if(plot_mode == "plotly"){
     if(is.null(plot_alignment)){
       plot_alignment = "horizontal"
@@ -2383,7 +2385,7 @@ visSpatDimGenePlot <- function(gobject,
 #'     GenePattern_show(gobject,AEH_results)
 GenePattern_show <- function(gobject = NULL,
                              AEH_results = NULL,
-                             sdimx = NULL, 
+                             sdimx = NULL,
                              sdimy = NULL,
                              point_size = 3,
                              point_alpha = 1,
@@ -2394,36 +2396,36 @@ GenePattern_show <- function(gobject = NULL,
   histology_results <- AEH_results[[1]]
   pattern_num <- max(unique(histology_results$pattern))
   #spatial_loc <- gobject@spatial_locs
-  
-  
+
+
   cell_pattern_score <- as.data.table(AEH_results[[2]])
   colnames_list = paste("pattern",colnames(cell_pattern_score),sep = "")
   colnames(cell_pattern_score) <- colnames_list
   cell_pattern_score <- cell_pattern_score[, cell_ID := rownames(AEH_results[[2]])]
   cell_pattern_score <- merge(cell_pattern_score,
                               gobject@spatial_locs,by.x = "cell_ID",by.y="cell_ID")
-  
+
   if(is.null(sdimx) & is.null(sdimy)){
     sdimx = "sdimx"
     sdimy = "sdimy"
   }
-  
+
   pattern_list = list()
-  
+
   for (i in 0:pattern_num){
     pl <- ggplot()
     pl <- pl + theme_bw()
-    
+
     gene_num <- sum(histology_results$pattern == i)
-    
+
     pl <- ggplot() + ggplot2::geom_point(data = cell_pattern_score,
                                          aes_string(x = sdimx, y = sdimy,fill = paste("pattern",i,sep = "")),
                                          show.legend = T, shape = 21,alpha = point_alpha,size = point_size,
                                          stroke = 0.1, color = "black")+
       ggplot2::scale_fill_gradient2(low = low_color,mid = mid_color,high = high_color,midpoint = midpoint)+
-      ggplot2::ggtitle(paste(paste("pattern",i,sep = ""),paste(gene_num,"genes",sep = " "),sep = " - ")) + 
+      ggplot2::ggtitle(paste(paste("pattern",i,sep = ""),paste(gene_num,"genes",sep = " "),sep = " - ")) +
       ggplot2::labs(x = "X",y="Y")
-    
+
     pattern_list[[i + 1]] <- pl
   }
   n <- length(pattern_list)
@@ -2448,11 +2450,11 @@ GenePattern_show <- function(gobject = NULL,
 #'     FSV_show(results)
 FSV_show <- function(results,ms_results = NULL,size = c(4,2,1), color = c("blue", "green", "red"),
                      sig_alpha = 0.5, unsig_alpha = 0.5){
-  
+
   results$FSV95conf = 2 * sqrt(results$s2_FSV)
   results$intervals <- cut(results$FSV95conf,c(0, 1e-1, 1e0, Inf),label = F)
   results$log_pval <- log10(results$pval)
-  
+
   if(is.null(ms_results)){
     results$model_bic = results$model
   }
@@ -2460,18 +2462,18 @@ FSV_show <- function(results,ms_results = NULL,size = c(4,2,1), color = c("blue"
     results= merge(results,ms_results[,c("g","model")],by.x = "g",by.y = "g",all.x = T,
                    suffixes=(c(" ",'_bic')))
   }
-  
+
   results$model_bic <- factor(results$model_bic)
   results$intervals <- factor(results$intervals)
-  
-  
+
+
   pl <- ggplot2::ggplot()
-  pl <- pl + ggplot2::theme_bw()  
+  pl <- pl + ggplot2::theme_bw()
   pl <- pl + ggplot2::geom_point(data = results[results$qval < 0.05,],
                                  aes_string(x = "FSV", y = "log_pval",fill = "model_bic",size = "intervals"),
                                  show.legend = T, shape = 21,alpha = sig_alpha,
                                  #size = size[results_cp_s$inftervals],
-                                 stroke = 0.1, color = "black") + 
+                                 stroke = 0.1, color = "black") +
     ggplot2::geom_point(data = results[results$qval > 0.05,],
                         aes_string(x = "FSV", y = "log_pval",size = "intervals"),
                         show.legend = T, shape = 21,alpha = unsig_alpha,
@@ -2486,7 +2488,7 @@ FSV_show <- function(results,ms_results = NULL,size = c(4,2,1), color = c("blue"
     geom_text(aes(0.9,max(results[results$qval < 0.05,]$log_pval),
                   label = "FDR = 0.05", vjust = -1))+
     scale_y_reverse()
-  
+
   print(pl)
 }
 
