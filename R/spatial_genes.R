@@ -616,11 +616,11 @@ showPattern <- function(spatPatObj,
                         plot_dim = 2,
                         point_size = 1,
                         show_plot = F) {
-
+  
   if(!'spatPatObj' %in% class(spatPatObj)) {
     stop('\n spatPatObj needs to be the output from detectSpatialPatterns \n')
   }
-
+  
   # select PC and subset data
   selected_PC = paste0('Dim.', dimension)
   PC_DT = spatPatObj$pca_matrix_DT
@@ -628,54 +628,54 @@ showPattern <- function(spatPatObj,
     stop('\n This dimension was not found in the spatial pattern object \n')
   }
   PC_DT = PC_DT[,c(selected_PC, 'loc_ID'), with = F]
-
+  
   # annotate grid with PC values
   annotated_grid = merge(spatPatObj$spatial_grid, by.x = 'gr_name', PC_DT, by.y = 'loc_ID')
-
+  
   # trim PC values
   if(!is.null(trim)) {
     boundaries = stats::quantile(annotated_grid[[selected_PC]], probs = trim)
     annotated_grid[[selected_PC]][annotated_grid[[selected_PC]] < boundaries[1]] = boundaries[1]
     annotated_grid[[selected_PC]][annotated_grid[[selected_PC]] > boundaries[2]] = boundaries[2]
-
+    
   }
-
+  
   # 2D-plot
   if(plot_dim == 2){
-        dpl <- ggplot2::ggplot()
-        dpl <- dpl + ggplot2::theme_bw()
-        dpl <- dpl + ggplot2::geom_tile(data = annotated_grid,
-                         aes_string(x = 'x_start', y = 'y_start', fill = selected_PC),
-                         color = grid_border_color, show_legend = show_legend)
-        dpl <- dpl + ggplot2::scale_fill_gradient2('low' = 'darkblue', mid = 'white', high = 'darkred', midpoint = 0,
-                                    guide = guide_legend(title = ''))
-        dpl <- dpl + ggplot2::theme(axis_text_x = element_text(size = 8, angle = 45, vjust = 1, hjust = 1),
-                     panel_background = element_rect(fill = background_color),
-                     panel_grid = element_blank(),
-                     plot_title = element_text(hjust = 0.5))
-        dpl <- dpl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates')
+    dpl <- ggplot2::ggplot()
+    dpl <- dpl + ggplot2::theme_bw()
+    dpl <- dpl + ggplot2::geom_tile(data = annotated_grid,
+                                    aes_string(x = 'x_start', y = 'y_start', fill = selected_PC),
+                                    color = grid_border_color, show.legend = show_legend)
+    dpl <- dpl + ggplot2::scale_fill_gradient2('low' = 'darkblue', mid = 'white', high = 'darkred', midpoint = 0,
+                                               guide = guide_legend(title = ''))
+    dpl <- dpl + ggplot2::theme(axis.text.x = element_text(size = 8, angle = 45, vjust = 1, hjust = 1),
+                                panel.background = element_rect(fill = background_color),
+                                panel.grid = element_blank(),
+                                plot.title = element_text(hjust = 0.5))
+    dpl <- dpl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates')
   }
-
+  
   else if (plot_dim == 3){
-      annotated_grid <- data.table(annotated_grid)
-      annotated_grid[,center_x:=(x_start+x_end)/2]
-      annotated_grid[,center_y:=(y_start+y_end)/2]
-      annotated_grid[,center_z:=(z_start+z_end)/2]
-
-      dpl <- plotly::plot_ly(type = 'scatter3d',
-                    x = annotated_grid$center_x, y = annotated_grid$center_y, z = annotated_grid$center_z,
-                    color = annotated_grid[[selected_PC]],marker = list(size = point_size),
-                    mode = 'markers', colors = c( 'darkblue','white','darkred'))
-      dpl <- dpl %>% plotly::layout(plot_bgcolor = "LightGray")
-
+    annotated_grid <- data.table(annotated_grid)
+    annotated_grid[,center_x:=(x_start+x_end)/2]
+    annotated_grid[,center_y:=(y_start+y_end)/2]
+    annotated_grid[,center_z:=(z_start+z_end)/2]
+    
+    dpl <- plotly::plot_ly(type = 'scatter3d',
+                           x = annotated_grid$center_x, y = annotated_grid$center_y, z = annotated_grid$center_z,
+                           color = annotated_grid[[selected_PC]],marker = list(size = point_size),
+                           mode = 'markers', colors = c( 'darkblue','white','darkred'))
+    dpl <- dpl %>% plotly::layout(plot_bgcolor = "LightGray")
+    
   }
-
-
+  
+  
   if(show_plot == TRUE) {
     print(dpl)
   }
   return(dpl)
-
+  
 }
 
 
