@@ -7,7 +7,7 @@
 visGenePlot(gobject, expression_values = c("normalized", "scaled",
   "custom"), genes, genes_color = NULL, show_network = F,
   network_color = NULL, spatial_network_name = "spatial_network",
-  show_grid = F, grid_color = NULL,
+  edge_alpha = NULL, show_grid = F, grid_color = NULL,
   spatial_grid_name = "spatial_grid", midpoint = 0,
   scale_alpha_with_expression = TRUE, point_size = 1,
   point_border_col = "black", point_border_stroke = 0.1,
