@@ -162,153 +162,153 @@ cellProximityVisPlot <- function(gobject,
                                  point_other_border_col = 'lightgrey',
                                  point_other_border_stroke = 0.01,
                                  ...) {
-
-
+  
+  
   if(is.null(interaction_name)) {
     stop('\n you need to specific at least one interaction name, run cellProximityEnrichment \n')
   }
-
-
+  
+  
   cell_locations  = gobject@spatial_locs
   spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
   cell_metadata   = gobject@cell_metadata
   cell_metadata   = cell_metadata[, !grepl('cell_ID', colnames(cell_metadata)), with = F]
-
-
+  
+  
   spatial_network = annotateSpatialNetwork(gobject = gobject, spatial_network_name = spatial_network_name, cluster_column = cluster_column)
-
+  
   cell_IDs_to_keep = unique(c(spatial_network[unified_int %in% interaction_name]$to, spatial_network[unified_int %in% interaction_name]$from))
-
-
+  
+  
   # annotated cell data
   if(nrow(cell_metadata) == 0) {
     cell_locations_metadata = cell_locations
   } else {
     cell_locations_metadata <- cbind(cell_locations, cell_metadata)
   }
-
-
-
-
+  
+  
+  
+  
   # first 2 dimensions need to be defined
   if(is.null(sdimx) | is.null(sdimy)) {
     cat('first and second dimenion need to be defined, default is first 2 \n')
     sdimx = 'sdimx'
     sdimy = 'sdimy'
   }
-
-
-
+  
+  
+  
   # if 3 dimensions are defined create a 3D plot
   if(!is.null(sdimx) & !is.null(sdimy) & !is.null(sdimz)) {
-
+    
     cat('create 3D plot')
-
-        if(!is.null(cell_color)) {
-        if(cell_color %in% colnames(cell_locations_metadata)){
-            if(is.null(cell_color_code)) {
-                number_colors=length(unique(cell_locations_metadata[[cell_color]]))
-                cell_color_code = Giotto:::getDistinctColors(n = number_colors)
-            }
-
-            pl <- plot_ly(type = 'scatter3d',data=cell_locations_metadata[cell_ID %in% cell_IDs_to_keep],
-                          x = ~sdimx, y = ~sdimy, z = ~sdimz,
-                          color = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep][[cell_color]],
-                          marker = list(size = point_size_select),
-                          mode = 'markers', colors = cell_color_code,name = "selected cells")%>%
-                  add_trace(type = 'scatter3d',mode = "markers",name = "unselected cells",
-                            data=cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep],opacity = point_alpha_other,
-                            x = ~sdimx, y = ~sdimy, z = ~sdimz,inherit = F,
-                            marker = list(size = point_size_other,color = "lightgray",colors = "lightgray")) %>%
-                  layout(scene = list(xaxis = list(title = 'X'),
-                                      yaxis = list(title = 'Y'),
-                                      zaxis = list(title = 'Z')))
-            }
-        else{
-            cat('cell_color not exist!\n')
+    
+    if(!is.null(cell_color)) {
+      if(cell_color %in% colnames(cell_locations_metadata)){
+        if(is.null(cell_color_code)) {
+          number_colors=length(unique(cell_locations_metadata[[cell_color]]))
+          cell_color_code = Giotto:::getDistinctColors(n = number_colors)
         }
+        
+        pl <- plot_ly::plot_ly(type = 'scatter3d',data=cell_locations_metadata[cell_ID %in% cell_IDs_to_keep],
+                               x = ~sdimx, y = ~sdimy, z = ~sdimz,
+                               color = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep][[cell_color]],
+                               marker = list(size = point_size_select),
+                               mode = 'markers', colors = cell_color_code,name = "selected cells")%>%
+          plot_ly::add_trace(type = 'scatter3d',mode = "markers",name = "unselected cells",
+                             data=cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep],opacity = point_alpha_other,
+                             x = ~sdimx, y = ~sdimy, z = ~sdimz,inherit = F,
+                             marker = list(size = point_size_other,color = "lightgray",colors = "lightgray")) %>%
+          plot_ly::layout(scene = list(xaxis = list(title = 'X'),
+                                       yaxis = list(title = 'Y'),
+                                       zaxis = list(title = 'Z')))
+      }
+      else{
+        cat('cell_color not exist!\n')
+      }
     } else {
-            pl <- plot_ly(type = 'scatter3d',data=cell_locations_metadata[cell_ID %in% cell_IDs_to_keep],
-                          x = ~sdimx, y = ~sdimy, z = ~sdimz,
-                          color = "lightblue",marker = list(size = point_size_select),
-                          mode = 'markers', colors = "lightblue",name = "selected cells")%>%
-                  add_trace(type = 'scatter3d',mode = "markers",name = "unselected cells",
-                            data=cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep],opacity = point_alpha_other,
-                            x = ~sdimx, y = ~sdimy, z = ~sdimz,inherit = F,
-                            marker = list(size = point_size_other,color = "lightgray",colors = "lightgray")) %>%
-                  layout(scene = list(xaxis = list(title = 'X'),
-                                      yaxis = list(title = 'Y'),
-                                      zaxis = list(title = 'Z')))
-        }
+      pl <- plot_ly::plot_ly(type = 'scatter3d',data=cell_locations_metadata[cell_ID %in% cell_IDs_to_keep],
+                             x = ~sdimx, y = ~sdimy, z = ~sdimz,
+                             color = "lightblue",marker = list(size = point_size_select),
+                             mode = 'markers', colors = "lightblue",name = "selected cells")%>%
+        plot_ly::add_trace(type = 'scatter3d',mode = "markers",name = "unselected cells",
+                           data=cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep],opacity = point_alpha_other,
+                           x = ~sdimx, y = ~sdimy, z = ~sdimz,inherit = F,
+                           marker = list(size = point_size_other,color = "lightgray",colors = "lightgray")) %>%
+        plot_ly::layout(scene = list(xaxis = list(title = 'X'),
+                                     yaxis = list(title = 'Y'),
+                                     zaxis = list(title = 'Z')))
+    }
     if(!is.null(spatial_network) & show_network == TRUE) {
-        if(is.null(network_color)) {
-            network_color = 'red'
-            }
+      if(is.null(network_color)) {
+        network_color = 'red'
+      }
       unselect_network <- spatial_network[!unified_int %in% interaction_name]
       select_network <- spatial_network[unified_int %in% interaction_name]
-        if(show_other_network == T){
-            pl <- pl %>% add_trace(name = "sptial network",mode = "lines", type = "scatter3d",opacity=0.1,
-                                   data = plotly_spatial_network(unselect_network),
-                                   x = ~x,y=~y,z=~z,inherit = F,line=list(color="lightgray")) 
-            }
-        pl <- pl %>% add_trace(name = "sptial network",mode = "lines", type = "scatter3d",opacity=0.5,
-                               data = plotly_spatial_network(select_network),
-                               x = ~x,y=~y,z=~z,inherit = F,line=list(color=network_color))
-
-        }
+      if(show_other_network == T){
+        pl <- pl %>% plot_ly::add_trace(name = "sptial network",mode = "lines", type = "scatter3d",opacity=0.1,
+                                        data = plotly_network(unselect_network),
+                                        x = ~x,y=~y,z=~z,inherit = F,line=list(color="lightgray")) 
+      }
+      pl <- pl %>% plot_ly::add_trace(name = "sptial network",mode = "lines", type = "scatter3d",opacity=0.5,
+                                      data = plotly_network(select_network),
+                                      x = ~x,y=~y,z=~z,inherit = F,line=list(color=network_color))
       
-      
-      return(hide_colorbar(pl))
     }
-
-
     
-    else {
-
+    
+    return(hide_colorbar(pl))
+  }
+  
+  
+  
+  else {
+    
     pl <- ggplot2::ggplot()
     pl <- pl + ggplot2::theme_classic()
-
+    
     if(!is.null(spatial_network) & show_network == TRUE) {
       if(is.null(network_color)) network_color = 'red'
       pl <- pl + ggplot2::geom_segment(data = spatial_network[!unified_int %in% interaction_name],
-                              aes(x = sdimx_begin, y = sdimy_begin, xend = sdimx_end, yend = sdimy_end),
-                              color = 'lightgrey', size = 0.5, alpha = 0.5)
+                                       aes(x = sdimx_begin, y = sdimy_begin, xend = sdimx_end, yend = sdimy_end),
+                                       color = 'lightgrey', size = 0.5, alpha = 0.5)
       pl <- pl + ggplot2::geom_segment(data = spatial_network[unified_int %in% interaction_name],
-                              aes(x = sdimx_begin, y = sdimy_begin, xend = sdimx_end, yend = sdimy_end),
-                              color = network_color, size = 0.5, alpha = 0.5)
+                                       aes(x = sdimx_begin, y = sdimy_begin, xend = sdimx_end, yend = sdimy_end),
+                                       color = network_color, size = 0.5, alpha = 0.5)
     }
-
+    
     if(!is.null(spatial_grid) & show_grid == TRUE) {
       if(is.null(grid_color)) grid_color = 'black'
       pl <- pl + ggplot2::geom_rect(data = spatial_grid, aes(xmin = x_start, xmax = x_end, ymin = y_start, ymax = y_end),
-                           color = grid_color, fill = NA)
+                                    color = grid_color, fill = NA)
     }
-
+    
     # cell color default
     if(is.null(cell_color)) {
       cell_color = 'lightblue'
       pl <- pl + ggplot2::geom_point(data = cell_locations[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
-                            show.legend = show_legend, shape = 21, fill = 'lightgrey', size = point_size_other)
+                                     show.legend = show_legend, shape = 21, fill = 'lightgrey', size = point_size_other)
       pl <- pl + ggplot2::geom_point(data = cell_locations[cell_ID %In% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
-                            show.legend = show_legend, shape = 21, fill = cell_color, size = point_size_select)
+                                     show.legend = show_legend, shape = 21, fill = cell_color, size = point_size_select)
     }
     else if (is.character(cell_color)) {
       if(cell_color %in% colnames(cell_locations_metadata)) {
-
+        
         if(color_as_factor == TRUE) {
           factor_data = factor(cell_locations_metadata[[cell_color]])
           cell_locations_metadata[[cell_color]] <- factor_data
         }
-
+        
         pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
-                              fill = 'lightgrey', shape = 21, size = point_size_other,
-                              color = point_other_border_col, stroke = point_other_border_stroke)
+                                       fill = 'lightgrey', shape = 21, size = point_size_other,
+                                       color = point_other_border_col, stroke = point_other_border_stroke)
         pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy, fill = cell_color),
-                              show.legend = show_legend, shape = 21, size = point_size_select,
-                              color = point_select_border_col, stroke = point_select_border_stroke)
-
-
-
+                                       show.legend = show_legend, shape = 21, size = point_size_select,
+                                       color = point_select_border_col, stroke = point_select_border_stroke)
+        
+        
+        
         if(!is.null(cell_color_code)) {
           pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
         } else if(color_as_factor == T) {
@@ -319,33 +319,33 @@ cellProximityVisPlot <- function(gobject,
         } else if(color_as_factor == F){
           pl <- pl + ggplot2::scale_fill_gradient(low = 'blue', high = 'red')
         }
-
+        
       } else {
         pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
-                              show.legend = show_legend, shape = 21, fill = 'lightgrey', size = point_size_other,
-                              color = point_other_border_col, stroke = point_other_border_stroke)
+                                       show.legend = show_legend, shape = 21, fill = 'lightgrey', size = point_size_other,
+                                       color = point_other_border_col, stroke = point_other_border_stroke)
         pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
-                              show.legend = show_legend, shape = 21, fill = cell_color, size = point_size_select,
-                              color = point_select_border_col, stroke = point_select_border_stroke)
+                                       show.legend = show_legend, shape = 21, fill = cell_color, size = point_size_select,
+                                       color = point_select_border_col, stroke = point_select_border_stroke)
       }
-
+      
     }
-
+    
     pl <- pl + ggplot2::theme_bw() + ggplot2::theme(plot.title = element_text(hjust = 0.5),
-                                  legend.title = element_text(size = 10),
-                                  legend.text = element_text(size = 10))
-
+                                                    legend.title = element_text(size = 10),
+                                                    legend.text = element_text(size = 10))
+    
     # fix coord ratio
     if(!is.null(coord_fix_ratio)) {
       pl <- pl + ggplot2::coord_fixed(ratio = coord_fix_ratio)
     }
-
+    
     pl <- pl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates')
     pl
-
+    
     print(pl)
   }
-
+  
 }
 
 
