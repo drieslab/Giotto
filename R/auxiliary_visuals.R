@@ -241,6 +241,7 @@ createHeatmap_DT <- function(gobject,
 #' @param legend_nrows number of rows for the cluster legend
 #' @return ggplot
 #' @details Creates heatmap for genes and clusters.
+#' @export
 #' @examples
 #'     plotHeatmap(gobject)
 plotHeatmap <- function(gobject,
