@@ -16,7 +16,7 @@ visSpatDimPlot(gobject, plot_mode = c("plotly", "ggplot2"),
   dim_point_border_col = "black", dim_point_border_stroke = 0.1,
   nn_network_alpha = NULL, show_spatial_network = F,
   spatial_network_name = "spatial_network",
-  spatial_network_color = "lightgray", spatial_network_alpha = 0.5,
+  network_color = "lightgray", spatial_network_alpha = 0.5,
   show_spatial_grid = F, spatial_grid_name = "spatial_grid",
   spatial_grid_color = NULL, spatial_grid_alpha = 0.5,
   spatial_point_size = 3, legend_text_size = 12,
@@ -58,8 +58,6 @@ visSpatDimPlot(gobject, plot_mode = c("plotly", "ggplot2"),
 
 \item{spatial_network_name}{name of spatial network to use}
 
-\item{spatial_network_color}{color of spatial network}
-
 \item{spatial_network_alpha}{alpha of spatial network}
 
 \item{show_spatial_grid}{show spatial grid}
@@ -75,6 +73,8 @@ visSpatDimPlot(gobject, plot_mode = c("plotly", "ggplot2"),
 \item{show_legend}{show legend}
 
 \item{show_plot}{show plot}
+
+\item{spatial_network_color}{color of spatial network}
 }
 \value{
 ggplot or plotly

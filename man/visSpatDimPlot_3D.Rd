@@ -14,7 +14,7 @@ visSpatDimPlot_3D(gobject, plot_alignment = c("horizontal", "vertical"),
   color_as_factor = T, cell_color_code = NULL, dim_point_size = 3,
   nn_network_alpha = 0.5, show_spatial_network = F,
   spatial_network_name = "spatial_network",
-  spatial_network_color = "lightgray", spatial_network_alpha = 0.5,
+  network_color = "lightgray", spatial_network_alpha = 0.5,
   show_spatial_grid = F, spatial_grid_name = "spatial_grid",
   spatial_grid_color = NULL, spatial_grid_alpha = 0.5,
   spatial_point_size = 3, legend_text_size = 12)
@@ -52,8 +52,6 @@ visSpatDimPlot_3D(gobject, plot_alignment = c("horizontal", "vertical"),
 
 \item{spatial_network_name}{name of spatial network to use}
 
-\item{spatial_network_color}{color of spatial network}
-
 \item{spatial_network_alpha}{alpha of spatial network}
 
 \item{show_spatial_grid}{show spatial grid}
@@ -65,6 +63,8 @@ visSpatDimPlot_3D(gobject, plot_alignment = c("horizontal", "vertical"),
 \item{spatial_grid_alpha}{alpha of spatial grid}
 
 \item{legend_text_size}{text size of legend}
+
+\item{spatial_network_color}{color of spatial network}
 
 \item{show_legend}{show legend}
 
