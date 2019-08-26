@@ -14,7 +14,7 @@ plotHeatmap(gobject, expression_values = c("normalized", "scaled",
   "z-scaled", "original"), size_vertical_lines = 1.1,
   gradient_colors = c("blue", "yellow", "red"),
   gene_label_selection = NULL, axis_text_y_size = NULL,
-  legend_nrows = 1)
+  legend_nrows = 1, show_plot = TRUE)
 }
 \arguments{
 \item{gobject}{giotto object}

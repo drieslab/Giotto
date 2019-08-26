@@ -10,10 +10,10 @@ visDimGenePlot(gobject, expression_values = c("normalized", "scaled",
   dim3_to_use = NULL, show_NN_network = T, nn_network_to_use = "sNN",
   network_name = "sNN.pca", network_color = "lightgray",
   edge_alpha = NULL, scale_alpha_with_expression = TRUE,
-  point_size = 1, genes_color = NULL, point_border_col = "black",
-  point_border_stroke = 0.1, midpoint = 0, cow_n_col = 2,
-  cow_rel_h = 1, cow_rel_w = 1, cow_align = "h", show_legend = T,
-  show_plots = F)
+  point_size = 1, genes_high_color = NULL, genes_low_color = NULL,
+  point_border_col = "black", point_border_stroke = 0.1,
+  midpoint = 0, cow_n_col = 2, cow_rel_h = 1, cow_rel_w = 1,
+  cow_align = "h", show_legend = T, show_plots = F)
 }
 \arguments{
 \item{gobject}{giotto object}
