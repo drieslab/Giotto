@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of Giotto is to process, analyze and visualize **single-cell spatial transcriptomic** data. Simultaneously this package contains the data that was used in the recent [**seqFISH+**](https://www.nature.com/articles/s41586-019-1049-y) paper and can thus be used to explore or re-analyze this dataset.
+The goal of Giotto is to process, analyze and visualize **single-cell spatial transcriptomic** data. Simultaneously this package contains the data that was used in the recent [**seqFISH+**](https://www.nature.com/articles/s41586-019-1049-y) paper and can thus be used to explore or re-analyze this dataset. Firstly Giotto provides a flexible framework for common single-cell processing steps such as quality control, normalization, dimension reduction, clustering and cell type annotation. Next, it incorporates spatial information through the formation of a spatial grid or network, which will be used in subsequent analyses to identify spatial genes or patterns, cell-cell preferential interactions and ligand-receptor signaling.
 
 \  
 
@@ -97,7 +97,9 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation [instructio
 ## Latest News
 
 - First release (beta)
-- ...
+- Add support for 3D spatial data
+- Implemented [SpatialDE](https://github.com/Teichlab/SpatialDE)
+- Add wrapper for differential expression with [MAST](https://github.com/RGLab/MAST)
 
 \  
 
@@ -118,9 +120,11 @@ Howto's and faqs examples:
 
 ## References
 
-- Eng, C.-H. L. et al. Transcriptome-scale super-resolved imaging in tissues by RNA seqFISH+. Nature 1 (2019). doi:10.1038/s41586-019-1049-y
+- 1.Dries, R. et al. Giotto, a pipeline for integrative analysis and visualization of single-cell spatial transcriptomic data. bioRxiv 701680 (2019). doi:10.1101/701680 [link](https://www.biorxiv.org/content/10.1101/701680v1)
 
-- Zhu, Q., Shah, S., Dries, R., Cai, L. & Yuan, G.-C. Identification of spatially associated subpopulations by combining scRNAseq and sequential fluorescence in situ hybridization data. Nature Biotechnology (2018). doi:10.1038/nbt.4260
+- Eng, C.-H. L. et al. Transcriptome-scale super-resolved imaging in tissues by RNA seqFISH+. Nature 1 (2019). doi:10.1038/s41586-019-1049-y [link](https://www.nature.com/articles/s41586-019-1049-y)
+
+- Zhu, Q., Shah, S., Dries, R., Cai, L. & Yuan, G.-C. Identification of spatially associated subpopulations by combining scRNAseq and sequential fluorescence in situ hybridization data. Nature Biotechnology (2018). doi:10.1038/nbt.4260 [link](https://www.nature.com/articles/nbt.4260)
 
 
 
