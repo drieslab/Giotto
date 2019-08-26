@@ -616,11 +616,11 @@ showPattern <- function(spatPatObj,
                         plot_dim = 2,
                         point_size = 1,
                         show_plot = F) {
-  
+
   if(!'spatPatObj' %in% class(spatPatObj)) {
     stop('\n spatPatObj needs to be the output from detectSpatialPatterns \n')
   }
-  
+
   # select PC and subset data
   selected_PC = paste0('Dim.', dimension)
   PC_DT = spatPatObj$pca_matrix_DT
@@ -628,18 +628,18 @@ showPattern <- function(spatPatObj,
     stop('\n This dimension was not found in the spatial pattern object \n')
   }
   PC_DT = PC_DT[,c(selected_PC, 'loc_ID'), with = F]
-  
+
   # annotate grid with PC values
   annotated_grid = merge(spatPatObj$spatial_grid, by.x = 'gr_name', PC_DT, by.y = 'loc_ID')
-  
+
   # trim PC values
   if(!is.null(trim)) {
     boundaries = stats::quantile(annotated_grid[[selected_PC]], probs = trim)
     annotated_grid[[selected_PC]][annotated_grid[[selected_PC]] < boundaries[1]] = boundaries[1]
     annotated_grid[[selected_PC]][annotated_grid[[selected_PC]] > boundaries[2]] = boundaries[2]
-    
+
   }
-  
+
   # 2D-plot
   if(plot_dim == 2){
     dpl <- ggplot2::ggplot()
@@ -655,27 +655,27 @@ showPattern <- function(spatPatObj,
                                 plot.title = element_text(hjust = 0.5))
     dpl <- dpl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates')
   }
-  
+
   else if (plot_dim == 3){
     annotated_grid <- data.table(annotated_grid)
     annotated_grid[,center_x:=(x_start+x_end)/2]
     annotated_grid[,center_y:=(y_start+y_end)/2]
     annotated_grid[,center_z:=(z_start+z_end)/2]
-    
+
     dpl <- plotly::plot_ly(type = 'scatter3d',
                            x = annotated_grid$center_x, y = annotated_grid$center_y, z = annotated_grid$center_z,
                            color = annotated_grid[[selected_PC]],marker = list(size = point_size),
                            mode = 'markers', colors = c( 'darkblue','white','darkred'))
     dpl <- dpl %>% plotly::layout(plot_bgcolor = "LightGray")
-    
+
   }
-  
-  
+
+
   if(show_plot == TRUE) {
     print(dpl)
   }
   return(dpl)
-  
+
 }
 
 
@@ -815,40 +815,40 @@ Spatial_DE <- function(gobject = NULL,
                        show_plot = T,
                        size = c(4,2,1),
                        color = c("blue", "green", "red"),
-                       sig_alpha = 0.5, 
+                       sig_alpha = 0.5,
                        unsig_alpha = 0.5){
   reader_path = system.file("python", "SpatialDE_wrapper.py", package = 'Giotto')
   source_python(reader_path)
-  
+
   spatial_locs <- as.data.frame(gobject@spatial_locs)
   rownames(spatial_locs) <- spatial_locs$cell_ID
   spatial_locs <- subset(spatial_locs, select = -cell_ID)
-  
+
   Spatial_DE_results = Spatial_DE(as.data.frame(t(gobject@raw_exprs)), spatial_locs)
-  
+
   results <- as.data.frame(py_to_r(Spatial_DE_results[[1]]))
-  
+
   if(length(Spatial_DE_results) == 2){
     ms_results <- as.data.frame(py_to_r(Spatial_DE_results[[2]]))
     spatial_genes_results <- list(results,ms_results)
     names(spatial_genes_results) <- c("results","ms_results")
   }
-  
+
   else{
     spatial_genes_results =  results
     ms_results = NULL
   }
-  
-  
+
+
   if(show_plot == T){
     FSV_show(results = results,
              ms_results = ms_results,
-             size =size, 
+             size =size,
              color = color,
-             sig_alpha = sig_alpha, 
+             sig_alpha = sig_alpha,
              unsig_alpha = unsig_alpha)
   }
-  
+
   return(spatial_genes_results)
 }
 
@@ -872,24 +872,25 @@ Spatial_AEH <- function(gobject = NULL,
                         l = 1.05,
                         show_AEH = T,
                         sdimx = NULL,
-                        sdimy = NULL,                         
+                        sdimy = NULL,
                         point_size = 3,
                         point_alpha = 1,
                         low_color = "blue",
                         mid_color = "white",
                         high_color = "red",
                         midpoint = 0){
+
   reader_path = system.file("python", "SpatialDE_wrapper.py", package = 'Giotto')
   source_python(reader_path)
   if(is.null(sdimx)|is.null(sdimy)){
     sdimx = "sdimx"
     sdimy = "sdimy"
   }
-  
+
   spatial_locs <- as.data.frame(gobject@spatial_locs)
   rownames(spatial_locs) <- spatial_locs$cell_ID
   spatial_locs <- subset(spatial_locs, select = -cell_ID)
-  
+
   AEH_results = Spatial_DE_AEH(filterd_exprs = as.data.frame(t(gobject@raw_exprs)),
                                coordinates = spatial_locs,
                                results = as.data.frame(results),
@@ -897,14 +898,14 @@ Spatial_AEH <- function(gobject = NULL,
                                l = l)
   histology_results <- as.data.frame(py_to_r(AEH_results[[1]]))
   cell_pattern_score <- as.data.frame((py_to_r(AEH_results[[2]])))
-  
+
   spatial_pattern_results <- list(histology_results,cell_pattern_score)
   names(spatial_pattern_results) <- c("histology_results","cell_pattern_score")
-  
+
   if(show_AEH){
     GenePattern_show(gobject = gobject,
                      AEH_results = spatial_pattern_results,
-                     sdimx = sdimx, 
+                     sdimx = sdimx,
                      sdimy = sdimy,
                      point_size = point_size,
                      point_alpha = point_alpha,
@@ -913,7 +914,7 @@ Spatial_AEH <- function(gobject = NULL,
                      high_color = high_color,
                      midpoint = 0)
   }
-  
+
   return(spatial_pattern_results)
 }
 
