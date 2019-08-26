@@ -1533,7 +1533,7 @@ visSpatDimPlot_3D <- function(gobject,
   #********** dim plot ***********#
   #2D plot
   if(is.null(dim3_to_use)){
-    dpl <- plot_ly()
+    dpl <- plotly::plot_ly()
     if(show_NN_network == TRUE) {
       if(is.null(nn_network_alpha)) {
         nn_network_alpha = 0.5
@@ -1627,7 +1627,7 @@ visSpatDimPlot_3D <- function(gobject,
   }
   #3D plot  
   else if(!is.null(dim3_to_use)){
-    dpl <- plot_ly(scene = "scene1")
+    dpl <- plotly::plot_ly(scene = "scene1")
     if(is.null(cell_color)){
       #cell_color = "lightblue"
       dpl <- dpl %>% plotly::add_trace(type = 'scatter3d',mode = "markers",
@@ -1744,7 +1744,7 @@ visSpatDimPlot_3D <- function(gobject,
   
   # 2D plot  
   if(is.null(sdimz)){
-    spl <- plot_ly()
+    spl <- plotly::plot_ly()
     
     if(show_spatial_network == TRUE) {
       if(is.null(spatial_network)){
@@ -2169,30 +2169,31 @@ visSpatDimPlot <- function(gobject,
 #' @examples
 #'     visDimGenePlot(gobject)
 visDimGenePlot <- function(gobject,
-                            expression_values = c('normalized', 'scaled', 'custom'),
-                            genes = NULL,
-                            dim_reduction_to_use = 'umap',
-                            dim_reduction_name = 'umap',
-                            dim1_to_use = 1,
-                            dim2_to_use = 2,
-                            dim3_to_use = NULL,
-                            show_NN_network = T,
-                            nn_network_to_use = 'sNN',
-                            network_name = 'sNN.pca',
-                            network_color = "lightgray",
-                            edge_alpha = NULL,
-                            scale_alpha_with_expression = TRUE,
-                            point_size = 1,
-                            genes_color = NULL,
-                            point_border_col = 'black',
-                            point_border_stroke = 0.1,
-                            midpoint = 0,
-                            cow_n_col = 2,
-                            cow_rel_h = 1,
-                            cow_rel_w = 1,
-                            cow_align = 'h',
-                            show_legend = T,
-                            show_plots = F) {
+                           expression_values = c('normalized', 'scaled', 'custom'),
+                           genes = NULL,
+                           dim_reduction_to_use = 'umap',
+                           dim_reduction_name = 'umap',
+                           dim1_to_use = 1,
+                           dim2_to_use = 2,
+                           dim3_to_use = NULL,
+                           show_NN_network = T,
+                           nn_network_to_use = 'sNN',
+                           network_name = 'sNN.pca',
+                           network_color = "lightgray",
+                           edge_alpha = NULL,
+                           scale_alpha_with_expression = TRUE,
+                           point_size = 1,
+                           genes_high_color = NULL,
+                           genes_low_color = NULL,
+                           point_border_col = 'black',
+                           point_border_stroke = 0.1,
+                           midpoint = 0,
+                           cow_n_col = 2,
+                           cow_rel_h = 1,
+                           cow_rel_w = 1,
+                           cow_align = 'h',
+                           show_legend = T,
+                           show_plots = F) {
   
   
   ## select genes ##
@@ -2343,13 +2344,19 @@ visDimGenePlot <- function(gobject,
       stop("\n The max number of genes showed together is 4.Otherwise it will be too small to see\n 
               \n If you have more genes to show, please divide them into groups\n")
     }
-    if(!is.null(genes_color)){
-      if(length(genes_color)!=length(selected_genes)){
+    if(!is.null(genes_high_color)){
+      if(length(genes_high_color)!=length(selected_genes)&length(genes_high_color) != 1){
         stop('\n The number of genes and their corresbonding do not match\n')
       }
     }
+    else if (is.null(genes_high_color)){
+      genes_high_color = rep("red",length(selected_genes))
+    }
     else{
-      genes_color = rep("red",length(selected_genes))
+      genes_high_color = rep(genes_high_color,length(selected_genes))
+    }
+    if(is.null(genes_low_color)){
+      genes_low_color = "blue"
     }
     titleX = title = paste(dim_reduction_to_use,dim_names[1],sep = " ")
     titleY = title = paste(dim_reduction_to_use,dim_names[2],sep = " ")
@@ -2364,7 +2371,7 @@ visDimGenePlot <- function(gobject,
                                       y = annotated_gene_DT[[dim_names[2]]],
                                       z = annotated_gene_DT[[dim_names[3]]],
                                       color = annotated_gene_DT[[gene]],
-                                      colors = c("white",genes_color[i]),
+                                      colors = c(genes_low_color,"white",genes_high_color[i]),
                                       marker = list(size = point_size))
       
       ## plot spatial network
@@ -2448,9 +2455,9 @@ visDimGenePlot <- function(gobject,
 
 
 
-#' @title visSpatDimGenePlot
-#' @name visSpatDimGenePlot
-#' @description Visualize cells according to spatial AND dimension reduction coordinates
+#' @title visSpatDimGenePlot_2D
+#' @name visSpatDimGenePlot_2D
+#' @description Visualize cells according to spatial AND dimension reduction coordinates in ggplot mode
 #' @param gobject giotto object
 #' @param expression_values gene expression values to use
 #' @param plot_alignment direction to align plot
@@ -2484,8 +2491,8 @@ visDimGenePlot <- function(gobject,
 #' @details Description of parameters.
 #' @export
 #' @examples
-#'     visSpatDimGenePlot(gobject)
-visSpatDimGenePlot <- function(gobject,
+#'     visSpatDimGenePlot_2D(gobject)
+visSpatDimGenePlot_2D <- function(gobject,
                                expression_values = c('normalized', 'scaled', 'custom'),
                                plot_alignment = c('horizontal', 'vertical'),
                                genes,
@@ -2552,8 +2559,408 @@ visSpatDimGenePlot <- function(gobject,
     }
   }
 
+}
 
-
+#' @title visSpatDimGenePlot_3D
+#' @name visSpatDimGenePlot_3D
+#' @description Visualize cells according to spatial AND dimension reduction coordinates in plotly mode
+#' @param gobject giotto object
+#' @param plot_alignment direction to align plot
+#' @param dim_reduction_to_use dimension reduction to use
+#' @param dim_reduction_name dimension reduction name
+#' @param dim1_to_use dimension to use on x-axis
+#' @param dim2_to_use dimension to use on y-axis
+#' @param dim3_to_use dimension to use on z-axis
+#' @param show_NN_network show underlying NN network
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
+#' @param network_name name of NN network to use, if show_NN_network = TRUE
+#' @param genes_high_color color represent high gene expression (see details)
+#' @param genes_low_color color represent high gene expression (see details)
+#' @param nn_network_alpha column to use for alpha of the edges
+#' @param show_spatial_network show spatial network
+#' @param spatial_network_name name of spatial network to use
+#' @param network_color color of spatial/nn network
+#' @param spatial_network_alpha alpha of spatial network
+#' @param show_spatial_grid show spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param spatial_grid_color color of spatial grid
+#' @param spatial_grid_alpha alpha of spatial grid
+#' @param show_legend show legend
+#' @param show_plot show plot
+#' @param legend_text_size text size of legend
+#' @return plotly
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     visSpatDimPlot_3D(gobject)
+visSpatDimGenePlot_3D <- function(gobject,
+                                  expression_values = c('normalized', 'scaled', 'custom'),
+                                  plot_alignment = c('horizontal','vertical'),
+                                  dim_reduction_to_use = 'umap',
+                                  dim_reduction_name = 'umap',
+                                  dim1_to_use = 1,
+                                  dim2_to_use = 2,
+                                  dim3_to_use = NULL,
+                                  sdimx=NULL,
+                                  sdimy=NULL,
+                                  sdimz=NULL,
+                                  genes,
+                                  show_NN_network = F,
+                                  nn_network_to_use = 'sNN',
+                                  network_name = 'sNN.pca',
+                                  label_size = 16,
+                                  genes_low_color = "blue",
+                                  genes_high_color = "red",
+                                  dim_point_size = 3,
+                                  nn_network_alpha = 0.5,
+                                  show_spatial_network = F,
+                                  spatial_network_name = 'spatial_network',
+                                  network_color = "lightgray",
+                                  spatial_network_alpha = 0.5,
+                                  show_spatial_grid = F,
+                                  spatial_grid_name = 'spatial_grid',
+                                  spatial_grid_color = NULL,
+                                  spatial_grid_alpha = 0.5,
+                                  spatial_point_size = 3,
+                                  legend_text_size = 12){
+  
+  plot_alignment = match.arg(plot_alignment, choices = c( 'horizontal','vertical'))
+  
+  # ********data prepare********#
+  ## select genes ##
+  selected_genes = genes
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  
+  # only keep genes that are in the dataset
+  selected_genes = selected_genes[selected_genes %in% rownames(expr_values) ]
+  subset_expr_data = expr_values[rownames(expr_values) %in% selected_genes, ]
+  t_sub_expr_data_DT = data.table('selected_gene' = subset_expr_data, 'cell_ID' = colnames(expr_values))
+  data.table::setnames(t_sub_expr_data_DT, 'selected_gene', selected_genes)
+  
+  
+  ## dimension reduction ##
+  dim_dfr = gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$coordinates[,c(dim1_to_use, dim2_to_use,dim3_to_use)]
+  dim_names = colnames(dim_dfr)
+  dim_DT = data.table::as.data.table(dim_dfr); dim_DT[, cell_ID := rownames(dim_dfr)]
+  
+  ## annotated cell metadata
+  cell_metadata = gobject@cell_metadata
+  annotated_DT = merge(cell_metadata, dim_DT, by = 'cell_ID')
+  annotated_DT = merge(annotated_DT, gobject@spatial_locs,by = 'cell_ID')
+  annotated_DT = merge(annotated_DT, t_sub_expr_data_DT,by = 'cell_ID')
+  
+  
+  ## nn network
+  if(show_NN_network){
+    selected_nn_network = gobject@nn_network[[nn_network_to_use]][[network_name]][['igraph']]
+    network_DT = data.table::as.data.table(igraph::as_data_frame(selected_nn_network, what = 'edges'))
+    
+    # annotated network
+    old_dim_names = dim_names
+    
+    annotated_network_DT <- merge(network_DT, dim_DT, by.x = 'from', by.y = 'cell_ID')
+    from_dim_names = paste0('from_', old_dim_names)
+    data.table::setnames(annotated_network_DT, old = old_dim_names, new = from_dim_names)
+    
+    annotated_network_DT <- merge(annotated_network_DT, dim_DT, by.x = 'to', by.y = 'cell_ID')
+    to_dim_names = paste0('to_', old_dim_names)
+    data.table::setnames(annotated_network_DT, old = old_dim_names, new = to_dim_names)
+  }
+  
+  
+  ## extract spatial network
+  if(!is.null(spatial_network_name)) {
+    spatial_network = gobject@spatial_network[[spatial_network_name]]
+  } else {
+    spatial_network = NULL
+  }
+  
+  ## extract spatial grid
+  if(!is.null(spatial_grid_name)) {
+    spatial_grid = gobject@spatial_grid[[spatial_grid_name]]
+  } else {
+    spatial_grid = NULL
+  }
+  
+  
+  
+  #********** dim plot ***********#
+  #2D plot
+  if(is.null(dim3_to_use)){
+    dpl <- plotly::plot_ly()
+    if(show_NN_network == TRUE) {
+      if(is.null(nn_network_alpha)) {
+        nn_network_alpha = 0.5
+      }
+      else if(is.character(nn_network_alpha)){
+        warning("Edge_alpha for plotly mode is not adjustable yet. Default 0.5 will be set\n")
+        nn_network_alpha = 0.5
+      }
+      dpl <- dpl %>% plotly::add_segments(name = network_name,
+                                          type = "scatter",
+                                          x = annotated_network_DT[[from_dim_names[1]]],
+                                          y = annotated_network_DT[[from_dim_names[2]]],
+                                          xend = annotated_network_DT[[to_dim_names[1]]],
+                                          yend = annotated_network_DT[[to_dim_names[2]]],
+                                          line = list(color = network_color,
+                                                      width = 0.5),
+                                          opacity=nn_network_alpha)
+    }
+    
+    dpl <- dpl %>% plotly::add_trace(type = "scatter",mode = "markers",
+                                     x = annotated_DT[[dim_names[1]]],
+                                     y = annotated_DT[[dim_names[2]]],
+                                     color = annotated_DT[[selected_genes]],
+                                     colors =c(genes_low_color,"white",genes_high_color),
+                                     marker = list(size = dim_point_size),
+                                     showlegend = F)
+    
+    
+    x_title = paste(dim_reduction_to_use,dim_names[1],sep = " ")
+    y_title = paste(dim_reduction_to_use,dim_names[2],sep = " ")
+    
+    dpl <- dpl %>% plotly::layout(xaxis = list(title = x_title),
+                                  yaxis = list(title = y_title),
+                                  legend = list(x = 100, y = 0.5,font = list(family = "sans-serif",size = legend_text_size)))
+  }
+  #3D plot  
+  else if(!is.null(dim3_to_use)){
+    dpl <- plot_ly(scene = "scene1")
+    
+    dpl <- dpl %>% plotly::add_trace(type = 'scatter3d',mode = "markers",
+                                     x = annotated_DT[[dim_names[1]]],
+                                     y = annotated_DT[[dim_names[2]]],
+                                     z = annotated_DT[[dim_names[3]]],
+                                     color = annotated_DT[[selected_genes]],
+                                     colors = c(genes_low_color,"white",genes_high_color),
+                                     marker = list(size = dim_point_size),
+                                     showlegend = F)
+    #legendgroup = annotated_DT[[cell_color]])
+    
+    
+    if(show_NN_network){
+      edges <- plotly_network(annotated_network_DT,
+                              "from_Dim.1","from_Dim.2","from_Dim.3",
+                              "to_Dim.1","to_Dim.2","to_Dim.3")
+      if(is.null(nn_network_alpha)){
+        nn_network_alpha = 0.5
+      }
+      else if(is.character(nn_network_alpha)){
+        warning("Edge_alpha for plotly mode is not adjustable yet. Default 0.5 will be set\n")
+        nn_network_alpha = 0.5
+      }
+      
+      dpl <- dpl %>% plotly::add_trace(name = network_name,
+                                       mode = "lines",
+                                       type = "scatter3d",
+                                       data = edges,
+                                       x = ~x,y=~y,z=~z,
+                                       line=list(color=network_color),
+                                       opacity=nn_network_alpha)                       
+    }
+    
+    
+    x_title = paste(dim_reduction_to_use,dim_names[1],sep = " ")
+    y_title = paste(dim_reduction_to_use,dim_names[2],sep = " ")
+    z_title = paste(dim_reduction_to_use,dim_names[3],sep = " ")
+    
+  }
+  
+  
+  
+  #********** spatial plot ***********#
+  if(is.null(sdimx) | is.null(sdimy)) {
+    # cat('first and second dimenion need to be defined, default is first 2 \n')
+    sdimx = 'sdimx'
+    sdimy = 'sdimy'
+  }
+  
+  # 2D plot  
+  if(is.null(sdimz)){
+    spl <- plotly::plot_ly()
+    
+    if(show_spatial_network == TRUE) {
+      if(is.null(spatial_network)){
+        stop("No usable spatial network specified! Please choose a network with spatial_network_name=xxx")
+      }
+      else{
+        if(is.null(spatial_network_alpha)) {
+          spatial_network_alpha = 0.5
+        }
+        else if(is.character(spatial_network_alpha)){
+          warning("Edge_alpha for plotly mode is not adjustable yet. Default 0.5 will be set\n")
+          spatial_network_alpha = 0.5
+        }
+        spl <- spl %>% plotly::add_segments(name = spatial_network_name,
+                                            type = "scatter",
+                                            x = spatial_network[["sdimx_begin"]],
+                                            y = spatial_network[["sdimy_begin"]],
+                                            xend = spatial_network[["sdimx_end"]],
+                                            yend = spatial_network[["sdimy_end"]],
+                                            line = list(color = network_color,
+                                                        width = 0.5),
+                                            opacity=spatial_network_alpha)        
+      }
+    }
+    if(show_spatial_grid == TRUE){
+      if(is.null(spatial_grid)){
+        stop("No usable spatial grid specified! Please choose a network with spatial_grid_name=xxx")
+      }
+      else{
+        if(is.null(spatial_grid_color)) {
+          spatial_grid_color = 'black'
+        }
+        edges <- plotly_grid(spatial_grid)
+        spl <- spl %>% plotly::add_segments(name = "spatial_grid",
+                                            type = "scatter",
+                                            data = edges,
+                                            x = ~x,
+                                            y = ~y,
+                                            xend = ~x_end,
+                                            yend = ~y_end,
+                                            line = list(color = spatial_grid_color,
+                                                        width = 1),
+                                            opacity=spatial_grid_alpha) 
+        
+      }
+    }
+    
+    spl <- spl %>% plotly::add_trace(type = "scatter",mode = "markers",
+                                     x = annotated_DT[[sdimx]],
+                                     y = annotated_DT[[sdimy]],
+                                     color = annotated_DT[[selected_genes]],
+                                     colors = c(genes_low_color,"white",genes_high_color),
+                                     marker = list(size = spatial_point_size),
+                                     showlegend = F)
+    
+    
+    spl <- spl %>% plotly::layout(xaxis = list(title = "X"),
+                                  yaxis = list(title = "Y"),
+                                  legend = list(x = 100, y = 0.5,font = list(family = "sans-serif",size = legend_text_size)))
+    
+  }
+  
+  
+  # 3D plot 
+  else{
+    spl <- plotly::plot_ly(scene = "scene2")
+    
+    spl <- spl %>% plotly::add_trace(type = 'scatter3d',mode = 'markers',
+                                     x = annotated_DT$sdimx, 
+                                     y = annotated_DT$sdimy, 
+                                     z = annotated_DT$sdimz,
+                                     color = annotated_DT[[selected_genes]],
+                                     colors = c(genes_low_color,"white",genes_high_color),
+                                     #legendgroup = annotated_DT[[cell_color]],
+                                     marker = list(size = spatial_point_size),
+                                     showlegend = F)
+    
+    if(show_spatial_network == TRUE) {
+      if(is.null(spatial_network)){
+        stop("No usable spatial network specified! Please choose a network with spatial_network_name=xxx")
+      }
+      else{
+        if(is.null(spatial_network_alpha)) {
+          spatial_network_alpha = 0.5
+        }
+        else if(is.character(spatial_network_alpha)){
+          warning("Edge_alpha for plotly mode is not adjustable yet. Default 0.5 will be set\n")
+          spatial_network_alpha = 0.5
+        }
+        edges <- plotly_network(spatial_network)
+        
+        spl <- spl %>% plotly::add_trace(name = "sptial network",
+                                         mode = "lines",
+                                         type = "scatter3d",
+                                         data = edges,
+                                         x = ~x,y=~y,z=~z,
+                                         line=list(color=network_color),
+                                         opacity=spatial_network_alpha)      
+      }
+    }
+    
+    if(show_spatial_grid == TRUE){
+      cat("3D grid is not clear to view\n")
+    }
+    
+  }
+  
+  
+  
+  
+  if(is.null(dim3_to_use) & is.null(sdimz)){
+    if(plot_alignment == 'vertical'){
+      combo_plot <- plotly::subplot(dpl,spl,nrows = 2,titleX = TRUE,titleY = TRUE)
+    }
+    else{
+      combo_plot <- plotly::subplot(dpl,spl,titleX = TRUE,titleY = TRUE)
+    }
+  }
+  
+  else if(!is.null(dim3_to_use) & is.null(sdimz)){
+    if(plot_alignment == 'vertical'){
+      combo_plot <- plotly::subplot(dpl,spl,nrows = 2,titleX = TRUE,titleY = TRUE)%>%
+        plotly::layout(scene = list(domain = list(x = c(0, 1), y = c(0,0.5)),
+                                    xaxis = list(title = x_title),
+                                    yaxis = list(title = y_title),
+                                    zaxis = list(title = z_title)))
+    }
+    else{
+      combo_plot <- plotly::subplot(dpl,spl,titleX = TRUE,titleY = TRUE) %>%
+        plotly::layout(scene = list(domain = list(x = c(0, 0.5), y = c(0,1)),
+                                    xaxis = list(title = x_title),
+                                    yaxis = list(title = y_title),
+                                    zaxis = list(title = z_title)))
+    }
+  }
+  
+  else if(is.null(dim3_to_use) & !is.null(sdimz)){
+    if(plot_alignment == 'vertical'){
+      combo_plot <- plotly::subplot(dpl,spl,nrows = 2,titleX = TRUE,titleY = TRUE)%>%
+        plotly::layout(scene2 = list(domain = list(x = c(0, 1), y = c(0.5,1)),
+                                     xaxis = list(title = "X"),
+                                     yaxis = list(title = "Y"),
+                                     zaxis = list(title = "Z")))
+    }
+    else{
+      combo_plot <- plotly::subplot(dpl,spl,titleX = TRUE,titleY = TRUE) %>%
+        plotly::layout(scene2 = list(domain = list(x = c(0.5, 1), y = c(0,1)),
+                                     xaxis = list(title = "X"),
+                                     yaxis = list(title = "Y"),
+                                     zaxis = list(title = "Z")))
+    }
+  }
+  
+  else if(!is.null(dim3_to_use) & !is.null(sdimz)){
+    if(plot_alignment == 'vertical'){
+      combo_plot <- plotly::subplot(dpl,spl,nrows = 2,titleX = TRUE,titleY = TRUE)%>%
+        plotly::layout(scene = list(domain = list(x = c(0, 1), y = c(0,0.5)),
+                                    xaxis = list(title = x_title),
+                                    yaxis = list(title = y_title),
+                                    zaxis = list(title = z_title)),
+                       scene2 = list(domain = list(x = c(0, 1), y = c(0.5,1)),
+                                     xaxis = list(title = "X"),
+                                     yaxis = list(title = "Y"),
+                                     zaxis = list(title = "Z")))
+    }
+    else{
+      combo_plot <- plotly::subplot(dpl,spl,titleX = TRUE,titleY = TRUE) %>%
+        plotly::layout(scene = list(domain = list(x = c(0, 0.5), y = c(0,1)),
+                                    xaxis = list(title = x_title),
+                                    yaxis = list(title = y_title),
+                                    zaxis = list(title = z_title)),
+                       scene2 = list(domain = list(x = c(0.5, 1), y = c(0,1)),
+                                     xaxis = list(title = "X"),
+                                     yaxis = list(title = "Y"),
+                                     zaxis = list(title = "Z")))
+    }
+  }
+  
+  
+  
+  return(combo_plot)
+  
 }
 
 
