@@ -261,7 +261,8 @@ plotHeatmap <- function(gobject,
                         gradient_colors = c('blue', 'yellow', 'red'),
                         gene_label_selection = NULL,
                         axis_text_y_size = NULL,
-                        legend_nrows = 1) {
+                        legend_nrows = 1,
+                        show_plot = TRUE) {
 
   show_values = match.arg(show_values, choices = c('rescaled', 'z-scaled', 'original'))
 
@@ -347,9 +348,12 @@ plotHeatmap <- function(gobject,
     ## align and combine
     aligned <- cowplot::align_plots(clus_pl, empty, hmap + theme(legend.position = "none"),  align = "v", axis = "l")
     aligned <- append(aligned, list(cowplot::get_legend(hmap)))
-    cowplot::plot_grid(plotlist = aligned,
-                       ncol = 2, rel_widths = c(1, 0.2),
-                       nrow = 2, rel_heights = c(0.2, 1))
+    combplot = cowplot::plot_grid(plotlist = aligned,
+                                  ncol = 2, rel_widths = c(1, 0.2),
+                                  nrow = 2, rel_heights = c(0.2, 1))
+
+    if(show_plot == TRUE) print(combplot)
+    return(combplot)
 
 
   } else {
@@ -385,11 +389,12 @@ plotHeatmap <- function(gobject,
     ## align and combine
     aligned <- cowplot::align_plots(clus_pl, empty, empty, hmap + theme(legend.position = "none"), axis, align = "h", axis = "b")
     aligned <- append(aligned, list(cowplot::get_legend(hmap)))
-    cowplot::plot_grid(plotlist = aligned,
-                       ncol = 3, rel_widths = c(1, 0.2, 0.1),
-                       nrow = 2, rel_heights = c(0.2, 1))
+    combplot = cowplot::plot_grid(plotlist = aligned,
+                                  ncol = 3, rel_widths = c(1, 0.2, 0.1),
+                                  nrow = 2, rel_heights = c(0.2, 1))
 
-
+    if(show_plot == TRUE) print(combplot)
+    return(combplot)
 
   }
 
