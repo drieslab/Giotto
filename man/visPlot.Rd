@@ -13,7 +13,8 @@ visPlot(gobject, sdimx = NULL, sdimy = NULL, sdimz = NULL,
   spatial_network_name = "spatial_network", show_grid = F,
   grid_color = NULL, spatial_grid_name = "spatial_grid",
   coord_fix_ratio = 0.6, title = "", show_legend = T,
-  show_plot = F)
+  axis_scale = c("cube", "real", "custom"), custom_ratio = NULL,
+  x_ticks = NULL, y_ticks = NULL, z_ticks = NULL, show_plot = F)
 }
 \arguments{
 \item{gobject}{giotto object}

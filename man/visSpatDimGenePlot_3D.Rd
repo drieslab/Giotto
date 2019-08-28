@@ -17,7 +17,9 @@ visSpatDimGenePlot_3D(gobject, expression_values = c("normalized",
   network_color = "lightgray", spatial_network_alpha = 0.5,
   show_spatial_grid = F, spatial_grid_name = "spatial_grid",
   spatial_grid_color = NULL, spatial_grid_alpha = 0.5,
-  spatial_point_size = 3, legend_text_size = 12)
+  spatial_point_size = 3, legend_text_size = 12,
+  axis_scale = c("cube", "real", "custom"), custom_ratio = NULL,
+  x_ticks = NULL, y_ticks = NULL, z_ticks = NULL)
 }
 \arguments{
 \item{gobject}{giotto object}

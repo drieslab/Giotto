@@ -31,7 +31,8 @@ Imports:
     lfa (>= 1.12.0),
     igraph (>= 1.2.4.1),
     plotly,
-    reticulate
+    reticulate,
+    magrittr
 Suggests:
     knitr,
     rmarkdown,
