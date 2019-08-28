@@ -1236,6 +1236,8 @@ clusterCells <- function(gobject,
 #' @param hvg_param parameters for calculateHVG
 #' @param hvg_min_perc_cells threshold for detection in min percentage of cells
 #' @param hvg_mean_expr_det threshold for mean expression level in cells with detection
+#' @param use_all_genes_as_hvg forces all genes to be HVG and to be used as input for PCA
+#' @param min_nr_of_hvg minimum number of HVG, or all genes will be used as input for PCA
 #' @param pca_param parameters for runPCA
 #' @param nn_param parameters for parameters for createNearestNetwork
 #' @param k_neighbors number of k for createNearestNetwork
@@ -1259,6 +1261,8 @@ doLeidenSubCluster = function(gobject,
                               hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
                               hvg_min_perc_cells = 5,
                               hvg_mean_expr_det = 1,
+                              use_all_genes_as_hvg = FALSE,
+                              min_nr_of_hvg = 5,
                               pca_param = list(expression_values = 'normalized', scale_unit = T),
                               nn_param = list(dimensions_to_use = 1:20),
                               k_neighbors = 10,
@@ -1309,6 +1313,16 @@ doLeidenSubCluster = function(gobject,
       gene_metadata = fDataDT(temp_giotto)
       featgenes     = gene_metadata[hvg == 'yes' & perc_cells >= hvg_min_perc_cells & mean_expr_det >= hvg_mean_expr_det]$gene_ID
 
+      ## catch too low number of hvg
+      if(use_all_genes_as_hvg == TRUE) {
+        featgenes == gene_metadata$gene_ID
+      } else {
+        if(verbose == TRUE) cat('\n', length(featgenes), 'highly variable genes have been selected \n')
+        if(length(featgenes) <= min_nr_of_hvg) {
+          cat('\n too few genes, will continue with all genes instead \n')
+          featgenes = gene_metadata$gene_ID
+        }
+      }
 
       ## run PCA
       temp_giotto = do.call('runPCA', c(gobject =  temp_giotto, genes_to_use = list(featgenes), pca_param))
@@ -1388,6 +1402,8 @@ doLeidenSubCluster = function(gobject,
 #' @param hvg_param parameters for calculateHVG
 #' @param hvg_min_perc_cells threshold for detection in min percentage of cells
 #' @param hvg_mean_expr_det threshold for mean expression level in cells with detection
+#' @param use_all_genes_as_hvg forces all genes to be HVG and to be used as input for PCA
+#' @param min_nr_of_hvg minimum number of HVG, or all genes will be used as input for PCA
 #' @param pca_param parameters for runPCA
 #' @param nn_param parameters for parameters for createNearestNetwork
 #' @param k_neighbors number of k for createNearestNetwork
@@ -1410,6 +1426,8 @@ doLouvainSubCluster_community = function(gobject,
                                          hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
                                          hvg_min_perc_cells = 5,
                                          hvg_mean_expr_det = 1,
+                                         use_all_genes_as_hvg = FALSE,
+                                         min_nr_of_hvg = 5,
                                          pca_param = list(expression_values = 'normalized', scale_unit = T),
                                          nn_param = list(dimensions_to_use = 1:20),
                                          k_neighbors = 10,
@@ -1461,6 +1479,16 @@ doLouvainSubCluster_community = function(gobject,
       gene_metadata = fDataDT(temp_giotto)
       featgenes     = gene_metadata[hvg == 'yes' & perc_cells >= hvg_min_perc_cells & mean_expr_det >= hvg_mean_expr_det]$gene_ID
 
+      ## catch too low number of hvg
+      if(use_all_genes_as_hvg == TRUE) {
+        featgenes == gene_metadata$gene_ID
+      } else {
+        if(verbose == TRUE) cat('\n', length(featgenes), 'highly variable genes have been selected \n')
+        if(length(featgenes) <= min_nr_of_hvg) {
+          cat('\n too few genes, will continue with all genes instead \n')
+          featgenes = gene_metadata$gene_ID
+        }
+      }
 
       ## run PCA
       temp_giotto = do.call('runPCA', c(gobject =  temp_giotto, genes_to_use = list(featgenes), pca_param))
@@ -1541,6 +1569,8 @@ doLouvainSubCluster_community = function(gobject,
 #' @param hvg_param parameters for calculateHVG
 #' @param hvg_min_perc_cells threshold for detection in min percentage of cells
 #' @param hvg_mean_expr_det threshold for mean expression level in cells with detection
+#' @param use_all_genes_as_hvg forces all genes to be HVG and to be used as input for PCA
+#' @param min_nr_of_hvg minimum number of HVG, or all genes will be used as input for PCA
 #' @param pca_param parameters for runPCA
 #' @param nn_param parameters for parameters for createNearestNetwork
 #' @param k_neighbors number of k for createNearestNetwork
@@ -1564,6 +1594,8 @@ doLouvainSubCluster_multinet =  function(gobject,
                                          hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
                                          hvg_min_perc_cells = 5,
                                          hvg_mean_expr_det = 1,
+                                         use_all_genes_as_hvg = FALSE,
+                                         min_nr_of_hvg = 5,
                                          pca_param = list(expression_values = 'normalized', scale_unit = T),
                                          nn_param = list(dimensions_to_use = 1:20),
                                          k_neighbors = 10,
@@ -1615,6 +1647,16 @@ doLouvainSubCluster_multinet =  function(gobject,
       gene_metadata = fDataDT(temp_giotto)
       featgenes     = gene_metadata[hvg == 'yes' & perc_cells >= hvg_min_perc_cells & mean_expr_det >= hvg_mean_expr_det]$gene_ID
 
+      ## catch too low number of hvg
+      if(use_all_genes_as_hvg == TRUE) {
+        featgenes == gene_metadata$gene_ID
+      } else {
+        if(verbose == TRUE) cat('\n', length(featgenes), 'highly variable genes have been selected \n')
+        if(length(featgenes) <= min_nr_of_hvg) {
+          cat('\n too few genes, will continue with all genes instead \n')
+          featgenes = gene_metadata$gene_ID
+        }
+      }
 
       ## run PCA
       temp_giotto = do.call('runPCA', c(gobject =  temp_giotto, genes_to_use = list(featgenes), pca_param))
@@ -1697,6 +1739,8 @@ doLouvainSubCluster_multinet =  function(gobject,
 #' @param hvg_param parameters for calculateHVG
 #' @param hvg_min_perc_cells threshold for detection in min percentage of cells
 #' @param hvg_mean_expr_det threshold for mean expression level in cells with detection
+#' @param use_all_genes_as_hvg forces all genes to be HVG and to be used as input for PCA
+#' @param min_nr_of_hvg minimum number of HVG, or all genes will be used as input for PCA
 #' @param pca_param parameters for runPCA
 #' @param nn_param parameters for parameters for createNearestNetwork
 #' @param k_neighbors number of k for createNearestNetwork
@@ -1722,6 +1766,8 @@ doLouvainSubCluster =  function(gobject,
                                 hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
                                 hvg_min_perc_cells = 5,
                                 hvg_mean_expr_det = 1,
+                                use_all_genes_as_hvg = FALSE,
+                                min_nr_of_hvg = 5,
                                 pca_param = list(expression_values = 'normalized', scale_unit = T),
                                 nn_param = list(dimensions_to_use = 1:20),
                                 k_neighbors = 10,
@@ -1799,6 +1845,8 @@ doLouvainSubCluster =  function(gobject,
 #' @param hvg_param parameters for calculateHVG
 #' @param hvg_min_perc_cells threshold for detection in min percentage of cells
 #' @param hvg_mean_expr_det threshold for mean expression level in cells with detection
+#' @param use_all_genes_as_hvg forces all genes to be HVG and to be used as input for PCA
+#' @param min_nr_of_hvg minimum number of HVG, or all genes will be used as input for PCA
 #' @param pca_param parameters for runPCA
 #' @param nn_param parameters for parameters for createNearestNetwork
 #' @param k_neighbors number of k for createNearestNetwork
@@ -1826,6 +1874,8 @@ subClusterCells <- function(gobject,
                             hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
                             hvg_min_perc_cells = 5,
                             hvg_mean_expr_det = 1,
+                            use_all_genes_as_hvg = FALSE,
+                            min_nr_of_hvg = 5,
                             pca_param = list(expression_values = 'normalized', scale_unit = T),
                             nn_param = list(dimensions_to_use = 1:20),
                             k_neighbors = 10,
@@ -1853,6 +1903,8 @@ subClusterCells <- function(gobject,
                                 hvg_param = hvg_param,
                                 hvg_min_perc_cells = hvg_min_perc_cells,
                                 hvg_mean_expr_det = hvg_mean_expr_det,
+                                use_all_genes_as_hvg = use_all_genes_as_hvg,
+                                min_nr_of_hvg = min_nr_of_hvg,
                                 pca_param = pca_param,
                                 nn_param = nn_param,
                                 k_neighbors = k_neighbors,
@@ -1874,6 +1926,8 @@ subClusterCells <- function(gobject,
                                         hvg_param = hvg_param,
                                         hvg_min_perc_cells = hvg_min_perc_cells,
                                         hvg_mean_expr_det = hvg_mean_expr_det,
+                                        use_all_genes_as_hvg = use_all_genes_as_hvg,
+                                        min_nr_of_hvg = min_nr_of_hvg,
                                         pca_param = pca_param,
                                         nn_param = nn_param,
                                         k_neighbors = k_neighbors,
@@ -1894,6 +1948,8 @@ subClusterCells <- function(gobject,
                                        hvg_param = hvg_param,
                                        hvg_min_perc_cells = hvg_min_perc_cells,
                                        hvg_mean_expr_det = hvg_mean_expr_det,
+                                       use_all_genes_as_hvg = use_all_genes_as_hvg,
+                                       min_nr_of_hvg = min_nr_of_hvg,
                                        pca_param = pca_param,
                                        nn_param = nn_param,
                                        k_neighbors = k_neighbors,
@@ -1926,6 +1982,8 @@ subClusterCells <- function(gobject,
 #' @param hvg_param parameters for calculateHVG
 #' @param hvg_min_perc_cells threshold for detection in min percentage of cells
 #' @param hvg_mean_expr_det threshold for mean expression level in cells with detection
+#' @param use_all_genes_as_hvg forces all genes to be HVG and to be used as input for PCA
+#' @param min_nr_of_hvg minimum number of HVG, or all genes will be used as input for PCA
 #' @param pca_param parameters for runPCA
 #' @param nn_param parameters for parameters for runPCA
 #' @param k_neighbors k for nn-network
@@ -1948,6 +2006,8 @@ iterLeidenCluster <- function(gobject,
                               hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
                               hvg_min_perc_cells = 5,
                               hvg_mean_expr_det = 1,
+                              use_all_genes_as_hvg = FALSE,
+                              min_nr_of_hvg = 5,
                               pca_param = list(expression_values = 'normalized', scale_unit = T),
                               nn_param = list(dimensions_to_use = 1:20),
                               k_neighbors = 20,
@@ -1979,6 +2039,17 @@ iterLeidenCluster <- function(gobject,
     ## get hvg
     gene_metadata = fDataDT(temp_giotto)
     featgenes     = gene_metadata[hvg == 'yes' & perc_cells >= hvg_min_perc_cells & mean_expr_det >= hvg_mean_expr_det]$gene_ID
+
+    ## catch too low number of hvg
+    if(use_all_genes_as_hvg == TRUE) {
+      featgenes == gene_metadata$gene_ID
+    } else {
+      if(verbose == TRUE) cat('\n', length(featgenes), 'highly variable genes have been selected \n')
+      if(length(featgenes) <= min_nr_of_hvg) {
+        cat('\n too few genes, will continue with all genes instead \n')
+        featgenes = gene_metadata$gene_ID
+      }
+    }
 
 
     ## run PCA
@@ -2132,6 +2203,8 @@ iterLeidenCluster <- function(gobject,
 #' @param hvg_param parameters for calculateHVG
 #' @param hvg_min_perc_cells threshold for detection in min percentage of cells
 #' @param hvg_mean_expr_det threshold for mean expression level in cells with detection
+#' @param use_all_genes_as_hvg forces all genes to be HVG and to be used as input for PCA
+#' @param min_nr_of_hvg minimum number of HVG, or all genes will be used as input for PCA
 #' @param pca_param parameters for runPCA
 #' @param nn_param parameters for parameters for runPCA
 #' @param k_neighbors k for nn-network
@@ -2152,6 +2225,8 @@ iterLouvainCluster_community <- function(gobject,
                                          hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
                                          hvg_min_perc_cells = 5,
                                          hvg_mean_expr_det = 1,
+                                         use_all_genes_as_hvg = FALSE,
+                                         min_nr_of_hvg = 5,
                                          pca_param = list(expression_values = 'normalized', scale_unit = T),
                                          nn_param = list(dimensions_to_use = 1:20),
                                          k_neighbors = 20,
@@ -2184,6 +2259,16 @@ iterLouvainCluster_community <- function(gobject,
     gene_metadata = fDataDT(temp_giotto)
     featgenes     = gene_metadata[hvg == 'yes' & perc_cells >= hvg_min_perc_cells & mean_expr_det >= hvg_mean_expr_det]$gene_ID
 
+    ## catch too low number of hvg
+    if(use_all_genes_as_hvg == TRUE) {
+      featgenes == gene_metadata$gene_ID
+    } else {
+      if(verbose == TRUE) cat('\n', length(featgenes), 'highly variable genes have been selected \n')
+      if(length(featgenes) <= min_nr_of_hvg) {
+        cat('\n too few genes, will continue with all genes instead \n')
+        featgenes = gene_metadata$gene_ID
+      }
+    }
 
     ## run PCA
     #temp_giotto   = runPCA(gobject = temp_giotto, genes_to_use = featgenes, expression_values = 'custom', scale.unit = T)
@@ -2338,6 +2423,8 @@ iterLouvainCluster_community <- function(gobject,
 #' @param hvg_param parameters for calculateHVG
 #' @param hvg_min_perc_cells threshold for detection in min percentage of cells
 #' @param hvg_mean_expr_det threshold for mean expression level in cells with detection
+#' @param use_all_genes_as_hvg forces all genes to be HVG and to be used as input for PCA
+#' @param min_nr_of_hvg minimum number of HVG, or all genes will be used as input for PCA
 #' @param pca_param parameters for runPCA
 #' @param nn_param parameters for parameters for runPCA
 #' @param k_neighbors k for nn-network
@@ -2359,6 +2446,8 @@ iterLouvainCluster_multinet <- function(gobject,
                                         hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
                                         hvg_min_perc_cells = 5,
                                         hvg_mean_expr_det = 1,
+                                        use_all_genes_as_hvg = FALSE,
+                                        min_nr_of_hvg = 5,
                                         pca_param = list(expression_values = 'normalized', scale_unit = T),
                                         nn_param = list(dimensions_to_use = 1:20),
                                         k_neighbors = 20,
@@ -2391,6 +2480,16 @@ iterLouvainCluster_multinet <- function(gobject,
     gene_metadata = fDataDT(temp_giotto)
     featgenes     = gene_metadata[hvg == 'yes' & perc_cells >= hvg_min_perc_cells & mean_expr_det >= hvg_mean_expr_det]$gene_ID
 
+    ## catch too low number of hvg
+    if(use_all_genes_as_hvg == TRUE) {
+      featgenes == gene_metadata$gene_ID
+    } else {
+      if(verbose == TRUE) cat('\n', length(featgenes), 'highly variable genes have been selected \n')
+      if(length(featgenes) <= min_nr_of_hvg) {
+        cat('\n too few genes, will continue with all genes instead \n')
+        featgenes = gene_metadata$gene_ID
+      }
+    }
 
     ## run PCA
     #temp_giotto   = runPCA(gobject = temp_giotto, genes_to_use = featgenes, expression_values = 'custom', scale.unit = T)
@@ -2548,6 +2647,8 @@ iterLouvainCluster_multinet <- function(gobject,
 #' @param hvg_param parameters for calculateHVG
 #' @param hvg_min_perc_cells threshold for detection in min percentage of cells
 #' @param hvg_mean_expr_det threshold for mean expression level in cells with detection
+#' @param use_all_genes_as_hvg forces all genes to be HVG and to be used as input for PCA
+#' @param min_nr_of_hvg minimum number of HVG, or all genes will be used as input for PCA
 #' @param pca_param parameters for runPCA
 #' @param nn_param parameters for parameters for runPCA
 #' @param k_neighbors k for nn-network
@@ -2571,6 +2672,8 @@ iterLouvainCluster <- function(gobject,
                                hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
                                hvg_min_perc_cells = 5,
                                hvg_mean_expr_det = 1,
+                               use_all_genes_as_hvg = FALSE,
+                               min_nr_of_hvg = 5,
                                pca_param = list(expression_values = 'normalized', scale_unit = T),
                                nn_param = list(dimensions_to_use = 1:20),
                                k_neighbors = 20,
@@ -2596,6 +2699,8 @@ iterLouvainCluster <- function(gobject,
                                           hvg_param = hvg_param,
                                           hvg_min_perc_cells = hvg_min_perc_cells,
                                           hvg_mean_expr_det = hvg_mean_expr_det,
+                                          use_all_genes_as_hvg = use_all_genes_as_hvg,
+                                          min_nr_of_hvg = min_nr_of_hvg,
                                           pca_param = pca_param,
                                           nn_param = nn_param,
                                           k_neighbors = k_neighbors,
@@ -2614,6 +2719,8 @@ iterLouvainCluster <- function(gobject,
                                          hvg_param = hvg_param,
                                          hvg_min_perc_cells = hvg_min_perc_cells,
                                          hvg_mean_expr_det = hvg_mean_expr_det,
+                                         use_all_genes_as_hvg = use_all_genes_as_hvg,
+                                         min_nr_of_hvg = min_nr_of_hvg,
                                          pca_param = pca_param,
                                          nn_param = nn_param,
                                          k_neighbors = k_neighbors,
@@ -2642,6 +2749,8 @@ iterLouvainCluster <- function(gobject,
 #' @param hvg_param parameters for calculateHVG
 #' @param hvg_min_perc_cells threshold for detection in min percentage of cells
 #' @param hvg_mean_expr_det threshold for mean expression level in cells with detection
+#' @param use_all_genes_as_hvg forces all genes to be HVG and to be used as input for PCA
+#' @param min_nr_of_hvg minimum number of HVG, or all genes will be used as input for PCA
 #' @param pca_param parameters for runPCA
 #' @param nn_param parameters for parameters for runPCA
 #' @param k_neighbors k for nn-network
@@ -2667,6 +2776,8 @@ iterCluster = function(gobject,
                        hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
                        hvg_min_perc_cells = 5,
                        hvg_mean_expr_det = 1,
+                       use_all_genes_as_hvg = FALSE,
+                       min_nr_of_hvg = 5,
                        pca_param = list(expression_values = 'normalized', scale_unit = T),
                        nn_param = list(dimensions_to_use = 1:20),
                        k_neighbors = 20,
@@ -2695,6 +2806,8 @@ iterCluster = function(gobject,
                                hvg_param = hvg_param,
                                hvg_min_perc_cells = hvg_min_perc_cells,
                                hvg_mean_expr_det = hvg_mean_expr_det,
+                               use_all_genes_as_hvg = use_all_genes_as_hvg,
+                               min_nr_of_hvg = min_nr_of_hvg,
                                pca_param = pca_param,
                                nn_param = nn_param,
                                k_neighbors = k_neighbors,
@@ -2714,6 +2827,8 @@ iterCluster = function(gobject,
                                           hvg_param = hvg_param,
                                           hvg_min_perc_cells = hvg_min_perc_cells,
                                           hvg_mean_expr_det = hvg_mean_expr_det,
+                                          use_all_genes_as_hvg = use_all_genes_as_hvg,
+                                          min_nr_of_hvg = min_nr_of_hvg,
                                           pca_param = pca_param,
                                           nn_param = nn_param,
                                           k_neighbors = k_neighbors,
@@ -2732,6 +2847,8 @@ iterCluster = function(gobject,
                                          hvg_param = hvg_param,
                                          hvg_min_perc_cells = hvg_min_perc_cells,
                                          hvg_mean_expr_det = hvg_mean_expr_det,
+                                         use_all_genes_as_hvg = use_all_genes_as_hvg,
+                                         min_nr_of_hvg = min_nr_of_hvg,
                                          pca_param = pca_param,
                                          nn_param = nn_param,
                                          k_neighbors = k_neighbors,
