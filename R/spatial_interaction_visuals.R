@@ -161,6 +161,11 @@ cellProximityVisPlot <- function(gobject,
                                  point_alpha_other = 0.1,
                                  point_other_border_col = 'lightgrey',
                                  point_other_border_stroke = 0.01,
+                                 axis_scale = c("cube","real","custom"),
+                                 custom_ratio = NULL,
+                                 x_ticks = NULL,
+                                 y_ticks = NULL,
+                                 z_ticks = NULL,
                                  ...) {
   
   
@@ -204,6 +209,10 @@ cellProximityVisPlot <- function(gobject,
     
     cat('create 3D plot')
     
+    axis_scale = match.arg(axis_scale, c("cube","real","custom"))
+    
+    ratio = plotly_axis_scale(cell_locations_metadata,sdimx = sdimx,sdimy = sdimy,sdimz = sdimz,
+                              mode = axis_scale,custom_ratio = custom_ratio)    
     if(!is.null(cell_color)) {
       if(cell_color %in% colnames(cell_locations_metadata)){
         if(is.null(cell_color_code)) {
@@ -212,33 +221,27 @@ cellProximityVisPlot <- function(gobject,
         }
         
         pl <- plotly::plot_ly(type = 'scatter3d',data=cell_locations_metadata[cell_ID %in% cell_IDs_to_keep],
-                               x = ~sdimx, y = ~sdimy, z = ~sdimz,
-                               color = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep][[cell_color]],
-                               marker = list(size = point_size_select),
-                               mode = 'markers', colors = cell_color_code,name = "selected cells")%>%
+                              x = ~sdimx, y = ~sdimy, z = ~sdimz,
+                              color = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep][[cell_color]],
+                              marker = list(size = point_size_select),
+                              mode = 'markers', colors = cell_color_code,name = "selected cells")%>%
           plotly::add_trace(type = 'scatter3d',mode = "markers",name = "unselected cells",
-                             data=cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep],opacity = point_alpha_other,
-                             x = ~sdimx, y = ~sdimy, z = ~sdimz,inherit = F,
-                             marker = list(size = point_size_other,color = "lightgray",colors = "lightgray")) %>%
-          plotly::layout(scene = list(xaxis = list(title = 'X'),
-                                       yaxis = list(title = 'Y'),
-                                       zaxis = list(title = 'Z')))
+                            data=cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep],opacity = point_alpha_other,
+                            x = ~sdimx, y = ~sdimy, z = ~sdimz,inherit = F,
+                            marker = list(size = point_size_other,color = "lightgray",colors = "lightgray"))
       }
       else{
         cat('cell_color not exist!\n')
       }
     } else {
       pl <- plotly::plot_ly(type = 'scatter3d',data=cell_locations_metadata[cell_ID %in% cell_IDs_to_keep],
-                             x = ~sdimx, y = ~sdimy, z = ~sdimz,
-                             color = "lightblue",marker = list(size = point_size_select),
-                             mode = 'markers', colors = "lightblue",name = "selected cells")%>%
+                            x = ~sdimx, y = ~sdimy, z = ~sdimz,
+                            color = "lightblue",marker = list(size = point_size_select),
+                            mode = 'markers', colors = "lightblue",name = "selected cells")%>%
         plotly::add_trace(type = 'scatter3d',mode = "markers",name = "unselected cells",
-                           data=cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep],opacity = point_alpha_other,
-                           x = ~sdimx, y = ~sdimy, z = ~sdimz,inherit = F,
-                           marker = list(size = point_size_other,color = "lightgray",colors = "lightgray")) %>%
-        plotly::layout(scene = list(xaxis = list(title = 'X'),
-                                     yaxis = list(title = 'Y'),
-                                     zaxis = list(title = 'Z')))
+                          data=cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep],opacity = point_alpha_other,
+                          x = ~sdimx, y = ~sdimy, z = ~sdimz,inherit = F,
+                          marker = list(size = point_size_other,color = "lightgray",colors = "lightgray"))
     }
     if(!is.null(spatial_network) & show_network == TRUE) {
       if(is.null(network_color)) {
@@ -248,16 +251,23 @@ cellProximityVisPlot <- function(gobject,
       select_network <- spatial_network[unified_int %in% interaction_name]
       if(show_other_network == T){
         pl <- pl %>% plotly::add_trace(name = "sptial network",mode = "lines", type = "scatter3d",opacity=0.1,
-                                        data = plotly_network(unselect_network),
-                                        x = ~x,y=~y,z=~z,inherit = F,line=list(color="lightgray")) 
+                                       data = plotly_network(unselect_network),
+                                       x = ~x,y=~y,z=~z,inherit = F,line=list(color="lightgray")) 
       }
       pl <- pl %>% plotly::add_trace(name = "sptial network",mode = "lines", type = "scatter3d",opacity=0.5,
-                                      data = plotly_network(select_network),
-                                      x = ~x,y=~y,z=~z,inherit = F,line=list(color=network_color))
+                                     data = plotly_network(select_network),
+                                     x = ~x,y=~y,z=~z,inherit = F,line=list(color=network_color))
       
     }
     
-    
+    pl <- pl %>% plotly::layout(scene = list(
+      xaxis = list(title = "X",nticks = x_ticks),
+      yaxis = list(title = "Y",nticks = y_ticks),
+      zaxis = list(title = "Z",nticks = z_ticks),
+      aspectmode='manual',
+      aspectratio = list(x=ratio[[1]], 
+                         y=ratio[[2]], 
+                         z=ratio[[3]])))
     return(hide_colorbar(pl))
   }
   
@@ -313,7 +323,7 @@ cellProximityVisPlot <- function(gobject,
           pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
         } else if(color_as_factor == T) {
           number_colors = length(unique(factor_data))
-          cell_color_code = getDistinctColors(n = number_colors)
+          cell_color_code = Giotto:::getDistinctColors(n = number_colors)
           names(cell_color_code) = unique(factor_data)
           pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
         } else if(color_as_factor == F){

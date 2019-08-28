@@ -558,3 +558,49 @@ plotly_grid <- function(spatial_grid,
 
   return(edges)
 }
+
+
+#' @title plotly_axis_scale
+#' @name plotly_axis_scale
+#' @description adjust the axis scale in 3D plotly plot
+#' @param cell_locations spatial_loc in giotto object
+#' @param sdimx x axis of cell spatial location
+#' @param sdimy y axis of cell spatial location
+#' @param sdimz z axis of cell spatial location
+#' @param mode axis adjustment mode
+#' @param custom_ratio set the ratio artificially
+#' @return edges in spatial grid as data.table()
+#' @export
+#' @examples
+#'     plotly_grid(gobject)
+plotly_axis_scale <- function(cell_locations,sdimx = NULL,sdimy = NULL,sdimz = NULL,
+                              mode = c("cube","real","custom"),custom_ratio = NULL){
+  mode = match.arg(mode, c("cube","real","custom"))
+  if(mode == "real"){
+    x_ratio = max(cell_locations[[sdimx]]) - min(cell_locations[[sdimx]])
+    y_ratio = max(cell_locations[[sdimy]]) - min(cell_locations[[sdimy]])
+    z_ratio = max(cell_locations[[sdimz]]) - min(cell_locations[[sdimz]])
+    
+    min_size = min(x_ratio,y_ratio,z_ratio)
+    x_ratio = round(x_ratio/min_size)
+    y_ratio = round(y_ratio/min_size)
+    z_ratio = round(z_ratio/min_size)
+  } 
+  else if(mode == "cube"){
+    x_ratio = 1
+    y_ratio = 1
+    z_ratio = 1
+  }
+  else{
+    if(is.null(custom_ratio) | length(custom_ratio) < 3){
+      stop("\n Please specify your costom axis scale, or choose axis_scale = \"real\"/\"cube\"\n")
+    }
+    else{
+      x_ratio = custom_ratio[1]
+      y_ratio = custom_ratio[2]
+      z_ratio = custom_ratio[3]
+    }
+  }
+  ratio <- list(x_ratio,y_ratio,z_ratio)
+  return (ratio)
+}
