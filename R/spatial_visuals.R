@@ -52,7 +52,13 @@ visPlot <- function(gobject,
                     coord_fix_ratio = 0.6,
                     title = '',
                     show_legend = T,
+                    axis_scale = c("cube","real","custom"),
+                    custom_ratio = NULL,
+                    x_ticks = NULL,
+                    y_ticks = NULL,
+                    z_ticks = NULL,
                     show_plot = F) {
+
 
   ## get spatial cell locations
   cell_locations  = gobject@spatial_locs
@@ -114,6 +120,12 @@ visPlot <- function(gobject,
 
     cat('create 3D plot\n')
 
+
+    axis_scale = match.arg(axis_scale, c("cube","real","custom"))
+
+    ratio = plotly_axis_scale(cell_locations,sdimx = sdimx,sdimy = sdimy,sdimz = sdimz,
+                              mode = axis_scale,custom_ratio = custom_ratio)
+
     if(!is.null(cell_color)) {
       if(cell_color %in% colnames(cell_locations_metadata)){
         if(is.null(cell_color_code)) {
@@ -124,12 +136,7 @@ visPlot <- function(gobject,
         pl <- plotly::plot_ly(type = 'scatter3d',
                               x = cell_locations_metadata$sdimx, y = cell_locations_metadata$sdimy, z = cell_locations_metadata$sdimz,
                               color = cell_locations_metadata[[cell_color]],marker = list(size = point_size),
-                              mode = 'markers', colors = cell_color_code) %>%
-          plotly::layout(scene = list(xaxis = list(title = 'X'),
-                                      yaxis = list(title = 'Y'),
-                                      zaxis = list(title = 'Z')),
-                         legend = list(x = 100, y = 0.5,
-                                       font = list(family = "sans-serif",size = 12)))
+                              mode = 'markers', colors = cell_color_code)
 
 
         if(!is.null(select_cells)){
@@ -151,12 +158,7 @@ visPlot <- function(gobject,
                             z = cell_locations_metadata$sdimz,
                             mode = 'markers',
                             marker = list(size = point_size),
-                            colors = 'lightblue',name = "selected cells")  %>%
-        plotly::layout(scene = list(xaxis = list(title = 'X'),
-                                    yaxis = list(title = 'Y'),
-                                    zaxis = list(title = 'Z')),
-                       legend = list(x = 100, y = 0.5,
-                                     font = list(family = "sans-serif",size = 12)))
+                            colors = 'lightblue',name = "selected cells")
       if(!is.null(select_cells)){
         pl <- pl %>% plotly::add_trace(type = "scatter3d",
                                        mode="markers",
@@ -188,6 +190,14 @@ visPlot <- function(gobject,
     if(show_plot == TRUE) {
       print(pl)
     }
+    pl <- pl %>%
+      plotly::layout(scene = list(xaxis = list(title = 'X',nticks = x_ticks),
+                                  yaxis = list(title = 'Y',nticks = y_ticks),
+                                  zaxis = list(title = 'Z',nticks = z_ticks),
+                                  aspectmode='manual',
+                                  aspectratio = list(x=ratio[[1]], y=ratio[[2]], z=ratio[[3]])),
+                     legend = list(x = 100, y = 0.5,
+                                   font = list(family = "sans-serif",size = 12)))
     return((pl))
   }
 
@@ -328,7 +338,6 @@ visPlot <- function(gobject,
 
 
 
-
 #' @title visGenePlot
 #' @name visGenePlot
 #' @description Visualize cells and gene expression according to spatial coordinates
@@ -379,6 +388,11 @@ visGenePlot <- function(gobject,
                         cow_rel_w = 1,
                         cow_align = 'h',
                         plot_dim = 2,
+                        axis_scale = c("cube","real","custom"),
+                        custom_ratio = NULL,
+                        x_ticks = NULL,
+                        y_ticks = NULL,
+                        z_ticks = NULL,
                         show_plots = F) {
 
   selected_genes = genes
@@ -497,6 +511,12 @@ visGenePlot <- function(gobject,
 
   #3D plot
   else{
+    axis_scale = match.arg(axis_scale, c("cube","real","custom"))
+
+    ratio = plotly_axis_scale(cell_locations_metadata_genes,sdimx = "sdimx",sdimy = "sdimy",sdimz = "sdimz",
+                              mode = axis_scale,custom_ratio = custom_ratio)
+
+
     ## spatial network data
     if(!is.null(spatial_network) & show_network == TRUE){
       edges <- plotly_network(spatial_network)
@@ -518,13 +538,14 @@ visGenePlot <- function(gobject,
         genes_color = rep("red",length(selected_genes))
       }
       pl <- plotly::plot_ly(name = gene,
-                    scene=paste("scene",i,sep = "")) %>%
+
+                            scene=paste("scene",i,sep = "")) %>%
         plotly::add_trace(data = cell_locations_metadata_genes,
-                  type = 'scatter3d',mode = "markers",
-                  x = ~sdimx, y = ~sdimy, z = ~sdimz,
-                  marker = list(size = point_size),
-                  color = cell_locations_metadata_genes[[gene]],
-                  colors = c("white",genes_color[i]))
+                          type = 'scatter3d',mode = "markers",
+                          x = ~sdimx, y = ~sdimy, z = ~sdimz,
+                          marker = list(size = point_size),
+                          color = cell_locations_metadata_genes[[gene]],
+                          colors = c("white",genes_color[i]))
 
       ## plot spatial network
       if(show_network == TRUE) {
@@ -539,13 +560,13 @@ visGenePlot <- function(gobject,
           cat("\nEdge_alpha for plotly mode is not adjustable yet. Default 0.5 will be set\n")
         }
         pl <- pl %>% plotly::add_trace(name = "sptial network",
-                               mode = "lines",
-                               type = "scatter3d",
-                               data = edges,
-                               x = ~x,y=~y,z=~z,
-                               line=list(color=network_color,width = 0.5),
-                               opacity = edge_alpha,
-                               showlegend = F)
+                                       mode = "lines",
+                                       type = "scatter3d",
+                                       data = edges,
+                                       x = ~x,y=~y,z=~z,
+                                       line=list(color=network_color,width = 0.5),
+                                       opacity = edge_alpha,
+                                       showlegend = F)
       }
       ##plot spatial grid
       if(!is.null(spatial_grid) & show_grid == TRUE){
@@ -556,59 +577,91 @@ visGenePlot <- function(gobject,
     }
 
     if(length(savelist) == 1){
-      savelist[[1]] <- savelist[[1]] %>% plotly::layout(scene = list(xaxis = list(title = "X"),
-                                                                     yaxis = list(title = "Y"),
-                                                                     zaxis = list(title = "Z")))
+      savelist[[1]] <- savelist[[1]] %>% plotly::layout(scene = list(xaxis = list(title = "X",nticks = x_ticks),
+                                                                     yaxis = list(title = "Y",nticks = y_ticks),
+                                                                     zaxis = list(title = "Z",nticks = z_ticks),
+                                                                     aspectmode='manual',
+                                                                     aspectratio = list(x=ratio[[1]],
+                                                                                        y=ratio[[2]],
+                                                                                        z=ratio[[3]])))
       if(show_plots){
         print(savelist[[1]])
       }
       return (savelist[[1]])
     }
     else if(length(savelist)==2){
-      cowplot <- suppressWarnings(subplot(savelist)%>% plotly::layout(scene = list(domain = list(x = c(0, 0.5), y = c(0,1)),
-                                                                                   xaxis = list(title = "X"),
-                                                                                   yaxis = list(title = "Y"),
-                                                                                   zaxis = list(title = "Z")),
-                                                                      scene2 = list(domain = list(x = c(0.5, 1), y = c(0,1)),
-                                                                                    xaxis = list(title = "X"),
-                                                                                    yaxis = list(title = "Y"),
-                                                                                    zaxis = list(title = "Z")),
+      cowplot <- suppressWarnings(subplot(savelist)%>% plotly::layout(scene = list(xaxis = list(title = "X",nticks = x_ticks),
+                                                                                   yaxis = list(title = "Y",nticks = y_ticks),
+                                                                                   zaxis = list(title = "Z",nticks = z_ticks),
+                                                                                   aspectmode='manual',
+                                                                                   aspectratio = list(x=ratio[[1]],
+                                                                                                      y=ratio[[2]],
+                                                                                                      z=ratio[[3]])),
+                                                                      scene2 = list(xaxis = list(title = "X",nticks = x_ticks),
+                                                                                    yaxis = list(title = "Y",nticks = y_ticks),
+                                                                                    zaxis = list(title = "Z",nticks = z_ticks),
+                                                                                    aspectmode='manual',
+                                                                                    aspectratio = list(x=ratio[[1]],
+                                                                                                       y=ratio[[2]],
+                                                                                                       z=ratio[[3]])),
                                                                       #annotations = annotations,
                                                                       legend = list(x = 100, y = 0)))
     }
     else if(length(savelist)==3){
-      cowplot <- suppressWarnings(subplot(savelist)%>% plotly::layout(scene = list(domain = list(x = c(0, 0.5), y = c(0,0.5)),
-                                                                                   xaxis = list(title = "X"),
-                                                                                   yaxis = list(title = "Y"),
-                                                                                   zaxis = list(title = "Z")),
-                                                                      scene2 = list(domain = list(x = c(0.5, 1), y = c(0,0.5)),
-                                                                                    xaxis = list(title = "X"),
-                                                                                    yaxis = list(title = "Y"),
-                                                                                    zaxis = list(title = "Z")),
-                                                                      scene3 = list(domain = list(x = c(0, 0.5), y = c(0.5,1)),
-                                                                                    xaxis = list(title = "X"),
-                                                                                    yaxis = list(title = "Y"),
-                                                                                    zaxis = list(title = "Z")),
+      cowplot <- suppressWarnings(subplot(savelist)%>% plotly::layout(scene = list(xaxis = list(title = "X",nticks = x_ticks),
+                                                                                   yaxis = list(title = "Y",nticks = y_ticks),
+                                                                                   zaxis = list(title = "Z",nticks = z_ticks),
+                                                                                   aspectmode='manual',
+                                                                                   aspectratio = list(x=ratio[[1]],
+                                                                                                      y=ratio[[2]],
+                                                                                                      z=ratio[[3]])),
+                                                                      scene2 = list(xaxis = list(title = "X",nticks = x_ticks),
+                                                                                    yaxis = list(title = "Y",nticks = y_ticks),
+                                                                                    zaxis = list(title = "Z",nticks = z_ticks),
+                                                                                    aspectmode='manual',
+                                                                                    aspectratio = list(x=ratio[[1]],
+                                                                                                       y=ratio[[2]],
+                                                                                                       z=ratio[[3]])),
+                                                                      scene3 = list(xaxis = list(title = "X",nticks = x_ticks),
+                                                                                    yaxis = list(title = "Y",nticks = y_ticks),
+                                                                                    zaxis = list(title = "Z",nticks = z_ticks),
+                                                                                    aspectmode='manual',
+                                                                                    aspectratio = list(x=ratio[[1]],
+                                                                                                       y=ratio[[2]],
+                                                                                                       z=ratio[[3]])),
                                                                       legend = list(x = 100, y = 0)))
     }
     else if(length(savelist)==4){
 
-      cowplot <- suppressWarnings(subplot(savelist)%>% plotly::layout(scene = list(domain = list(x = c(0, 0.5), y = c(0,0.5)),
-                                                                                   xaxis = list(title = "X"),
-                                                                                   yaxis = list(title = "Y"),
-                                                                                   zaxis = list(title = "Z")),
-                                                                      scene2 = list(domain = list(x = c(0.5, 1), y = c(0,0.5)),
-                                                                                    xaxis = list(title = "X"),
-                                                                                    yaxis = list(title = "Y"),
-                                                                                    zaxis = list(title = "Z")),
-                                                                      scene3 = list(domain = list(x = c(0, 0.5), y = c(0.5,1)),
-                                                                                    xaxis = list(title = "X"),
-                                                                                    yaxis = list(title = "Y"),
-                                                                                    zaxis = list(title = "Z")),
-                                                                      scene4 = list(domain = list(x = c(0.5, 1), y = c(0.5,1)),
-                                                                                    xaxis = list(title = "X"),
-                                                                                    yaxis = list(title = "Y"),
-                                                                                    zaxis = list(title = "Z")),
+
+      cowplot <- suppressWarnings(subplot(savelist)%>% plotly::layout(scene = list(xaxis = list(title = "X",nticks = x_ticks),
+                                                                                   yaxis = list(title = "Y",nticks = y_ticks),
+                                                                                   zaxis = list(title = "Z",nticks = z_ticks),
+                                                                                   aspectmode='manual',
+                                                                                   aspectratio = list(x=ratio[[1]],
+                                                                                                      y=ratio[[2]],
+                                                                                                      z=ratio[[3]])),
+                                                                      scene2 = list(xaxis = list(title = "X",nticks = x_ticks),
+                                                                                    yaxis = list(title = "Y",nticks = y_ticks),
+                                                                                    zaxis = list(title = "Z",nticks = z_ticks),
+                                                                                    aspectmode='manual',
+                                                                                    aspectratio = list(x=ratio[[1]],
+                                                                                                       y=ratio[[2]],
+                                                                                                       z=ratio[[3]])),
+                                                                      scene3 = list(xaxis = list(title = "X",nticks = x_ticks),
+                                                                                    yaxis = list(title = "Y",nticks = y_ticks),
+                                                                                    zaxis = list(title = "Z",nticks = z_ticks),
+                                                                                    aspectmode='manual',
+                                                                                    aspectratio = list(x=ratio[[1]],
+                                                                                                       y=ratio[[2]],
+                                                                                                       z=ratio[[3]])),
+                                                                      scene4 = list(xaxis = list(title = "X",nticks = x_ticks),
+                                                                                    yaxis = list(title = "Y",nticks = y_ticks),
+                                                                                    zaxis = list(title = "Z",nticks = z_ticks),
+                                                                                    aspectmode='manual',
+                                                                                    aspectratio = list(x=ratio[[1]],
+                                                                                                       y=ratio[[2]],
+                                                                                                       z=ratio[[3]])),
                                                                       legend = list(x = 100, y = 0)))
     }
     if(show_plots){
@@ -1456,6 +1509,11 @@ visSpatDimPlot_3D <- function(gobject,
                               spatial_grid_color = NULL,
                               spatial_grid_alpha = 0.5,
                               spatial_point_size = 3,
+                              axis_scale = c("cube","real","custom"),
+                              custom_ratio = NULL,
+                              x_ticks = NULL,
+                              y_ticks = NULL,
+                              z_ticks = NULL,
                               legend_text_size = 12){
 
   plot_alignment = match.arg(plot_alignment, choices = c( 'horizontal','vertical'))
@@ -1830,14 +1888,18 @@ visSpatDimPlot_3D <- function(gobject,
 
   # 3D plot
   else{
+    axis_scale = match.arg(axis_scale, c("cube","real","custom"))
+
+    ratio = plotly_axis_scale(annotated_DT,sdimx = sdimx,sdimy = sdimy,sdimz = sdimz,
+                              mode = axis_scale,custom_ratio = custom_ratio)
     spl <- plotly::plot_ly(scene = "scene2")
     if(!is.null(cell_color)) {
       if(cell_color %in% colnames(annotated_DT)){
         annotated_DT[[cell_color]] <- as.factor(annotated_DT[[cell_color]])
         spl <- spl %>% plotly::add_trace(type = 'scatter3d',mode = 'markers',
-                                         x = annotated_DT$sdimx,
-                                         y = annotated_DT$sdimy,
-                                         z = annotated_DT$sdimz,
+                                         x = annotated_DT[[sdimx]],
+                                         y = annotated_DT[[sdimy]],
+                                         z = annotated_DT[[sdimz]],
                                          color = annotated_DT[[cell_color]],
                                          colors = cell_color_code,
                                          legendgroup = annotated_DT[[cell_color]],
@@ -1922,16 +1984,24 @@ visSpatDimPlot_3D <- function(gobject,
     if(plot_alignment == 'vertical'){
       combo_plot <- plotly::subplot(dpl,spl,nrows = 2,titleX = TRUE,titleY = TRUE)%>%
         plotly::layout(scene2 = list(domain = list(x = c(0, 1), y = c(0.5,1)),
-                                     xaxis = list(title = "X"),
-                                     yaxis = list(title = "Y"),
-                                     zaxis = list(title = "Z")))
+                                     xaxis = list(title = "X",nticks = x_ticks),
+                                     yaxis = list(title = "Y",nticks = y_ticks),
+                                     zaxis = list(title = "Z",nticks = z_ticks),
+                                     aspectmode='manual',
+                                     aspectratio = list(x=ratio[[1]],
+                                                        y=ratio[[2]],
+                                                        z=ratio[[3]])))
     }
     else{
       combo_plot <- plotly::subplot(dpl,spl,titleX = TRUE,titleY = TRUE) %>%
         plotly::layout(scene2 = list(domain = list(x = c(0.5, 1), y = c(0,1)),
-                                     xaxis = list(title = "X"),
-                                     yaxis = list(title = "Y"),
-                                     zaxis = list(title = "Z")))
+                                     xaxis = list(title = "X",nticks = x_ticks),
+                                     yaxis = list(title = "Y",nticks = y_ticks),
+                                     zaxis = list(title = "Z",nticks = z_ticks),
+                                     aspectmode='manual',
+                                     aspectratio = list(x=ratio[[1]],
+                                                        y=ratio[[2]],
+                                                        z=ratio[[3]])))
     }
   }
 
@@ -1943,9 +2013,13 @@ visSpatDimPlot_3D <- function(gobject,
                                     yaxis = list(title = y_title),
                                     zaxis = list(title = z_title)),
                        scene2 = list(domain = list(x = c(0, 1), y = c(0.5,1)),
-                                     xaxis = list(title = "X"),
-                                     yaxis = list(title = "Y"),
-                                     zaxis = list(title = "Z")))
+                                     xaxis = list(title = "X",nticks = x_ticks),
+                                     yaxis = list(title = "Y",nticks = y_ticks),
+                                     zaxis = list(title = "Z",nticks = z_ticks),
+                                     aspectmode='manual',
+                                     aspectratio = list(x=ratio[[1]],
+                                                        y=ratio[[2]],
+                                                        z=ratio[[3]])))
     }
     else{
       combo_plot <- plotly::subplot(dpl,spl,titleX = TRUE,titleY = TRUE) %>%
@@ -1954,9 +2028,13 @@ visSpatDimPlot_3D <- function(gobject,
                                     yaxis = list(title = y_title),
                                     zaxis = list(title = z_title)),
                        scene2 = list(domain = list(x = c(0.5, 1), y = c(0,1)),
-                                     xaxis = list(title = "X"),
-                                     yaxis = list(title = "Y"),
-                                     zaxis = list(title = "Z")))
+                                     xaxis = list(title = "X",nticks = x_ticks),
+                                     yaxis = list(title = "Y",nticks = y_ticks),
+                                     zaxis = list(title = "Z",nticks = z_ticks),
+                                     aspectmode='manual',
+                                     aspectratio = list(x=ratio[[1]],
+                                                        y=ratio[[2]],
+                                                        z=ratio[[3]])))
     }
   }
 
@@ -1965,6 +2043,9 @@ visSpatDimPlot_3D <- function(gobject,
   return(combo_plot)
 
 }
+
+
+
 
 #' @title visSpatDimPlot
 #' @name visSpatDimPlot
@@ -2039,6 +2120,10 @@ visSpatDimPlot <- function(gobject,
                            spatial_point_border_col = 'black',
                            spatial_point_border_stroke = 0.1,
                            show_legend = T,
+                           custom_ratio = NULL,
+                           x_ticks = NULL,
+                           y_ticks = NULL,
+                           z_ticks = NULL,
                            show_plot = F){
   plot_mode = match.arg(plot_mode, c("plotly","ggplot2"))
 
@@ -2133,10 +2218,18 @@ visSpatDimPlot <- function(gobject,
                             spatial_grid_color = spatial_grid_color,
                             spatial_grid_alpha = spatial_grid_alpha,
                             spatial_point_size = spatial_point_size,
+                            custom_ratio = custom_ratio,
+                            x_ticks = x_ticks,
+                            y_ticks = y_ticks,
+                            z_ticks = z_ticks,
                             legend_text_size = legend_text_size)
   }
   return(pl)
 }
+
+
+
+
 
 #' @title visDimGenePlot
 #' @name visDimGenePlot
@@ -2622,7 +2715,12 @@ visSpatDimGenePlot_3D <- function(gobject,
                                   spatial_grid_color = NULL,
                                   spatial_grid_alpha = 0.5,
                                   spatial_point_size = 3,
-                                  legend_text_size = 12){
+                                  legend_text_size = 12,
+                                  axis_scale = c("cube","real","custom"),
+                                  custom_ratio = NULL,
+                                  x_ticks = NULL,
+                                  y_ticks = NULL,
+                                  z_ticks = NULL){
 
   plot_alignment = match.arg(plot_alignment, choices = c( 'horizontal','vertical'))
 
@@ -2844,12 +2942,17 @@ visSpatDimGenePlot_3D <- function(gobject,
 
   # 3D plot
   else{
+    axis_scale = match.arg(axis_scale, c("cube","real","custom"))
+    ratio = plotly_axis_scale(annotated_DT,sdimx = sdimx,sdimy = sdimy,sdimz = sdimz,
+                              mode = axis_scale,custom_ratio = custom_ratio)
+
+
     spl <- plotly::plot_ly(scene = "scene2")
 
     spl <- spl %>% plotly::add_trace(type = 'scatter3d',mode = 'markers',
-                                     x = annotated_DT$sdimx,
-                                     y = annotated_DT$sdimy,
-                                     z = annotated_DT$sdimz,
+                                     x = annotated_DT[[sdimx]],
+                                     y = annotated_DT[[sdimy]],
+                                     z = annotated_DT[[sdimz]],
                                      color = annotated_DT[[selected_genes]],
                                      colors = c(genes_low_color,"white",genes_high_color),
                                      #legendgroup = annotated_DT[[cell_color]],
@@ -2918,17 +3021,25 @@ visSpatDimGenePlot_3D <- function(gobject,
   else if(is.null(dim3_to_use) & !is.null(sdimz)){
     if(plot_alignment == 'vertical'){
       combo_plot <- plotly::subplot(dpl,spl,nrows = 2,titleX = TRUE,titleY = TRUE)%>%
-        plotly::layout(scene2 = list(domain = list(x = c(0, 1), y = c(0.5,1)),
-                                     xaxis = list(title = "X"),
-                                     yaxis = list(title = "Y"),
-                                     zaxis = list(title = "Z")))
+        plotly::layout(scene2 = list(
+          xaxis = list(title = "X",nticks = x_ticks),
+          yaxis = list(title = "Y",nticks = y_ticks),
+          zaxis = list(title = "Z",nticks = z_ticks),
+          aspectmode='manual',
+          aspectratio = list(x=ratio[[1]],
+                             y=ratio[[2]],
+                             z=ratio[[3]])))
     }
     else{
       combo_plot <- plotly::subplot(dpl,spl,titleX = TRUE,titleY = TRUE) %>%
-        plotly::layout(scene2 = list(domain = list(x = c(0.5, 1), y = c(0,1)),
-                                     xaxis = list(title = "X"),
-                                     yaxis = list(title = "Y"),
-                                     zaxis = list(title = "Z")))
+        plotly::layout(scene2 = list(
+          xaxis = list(title = "X",nticks = x_ticks),
+          yaxis = list(title = "Y",nticks = y_ticks),
+          zaxis = list(title = "Z",nticks = z_ticks),
+          aspectmode='manual',
+          aspectratio = list(x=ratio[[1]],
+                             y=ratio[[2]],
+                             z=ratio[[3]])))
     }
   }
 
@@ -2939,10 +3050,14 @@ visSpatDimGenePlot_3D <- function(gobject,
                                     xaxis = list(title = x_title),
                                     yaxis = list(title = y_title),
                                     zaxis = list(title = z_title)),
-                       scene2 = list(domain = list(x = c(0, 1), y = c(0.5,1)),
-                                     xaxis = list(title = "X"),
-                                     yaxis = list(title = "Y"),
-                                     zaxis = list(title = "Z")))
+                       scene2 = list(
+                         xaxis = list(title = "X",nticks = x_ticks),
+                         yaxis = list(title = "Y",nticks = y_ticks),
+                         zaxis = list(title = "Z",nticks = z_ticks),
+                         aspectmode='manual',
+                         aspectratio = list(x=ratio[[1]],
+                                            y=ratio[[2]],
+                                            z=ratio[[3]])))
     }
     else{
       combo_plot <- plotly::subplot(dpl,spl,titleX = TRUE,titleY = TRUE) %>%
@@ -2950,10 +3065,14 @@ visSpatDimGenePlot_3D <- function(gobject,
                                     xaxis = list(title = x_title),
                                     yaxis = list(title = y_title),
                                     zaxis = list(title = z_title)),
-                       scene2 = list(domain = list(x = c(0.5, 1), y = c(0,1)),
-                                     xaxis = list(title = "X"),
-                                     yaxis = list(title = "Y"),
-                                     zaxis = list(title = "Z")))
+                       scene2 = list(
+                         xaxis = list(title = "X",nticks = x_ticks),
+                         yaxis = list(title = "Y",nticks = y_ticks),
+                         zaxis = list(title = "Z",nticks = z_ticks),
+                         aspectmode='manual',
+                         aspectratio = list(x=ratio[[1]],
+                                            y=ratio[[2]],
+                                            z=ratio[[3]])))
     }
   }
 
