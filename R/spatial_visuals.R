@@ -924,7 +924,7 @@ visDimPlot <- function(gobject,
           pl <- pl %>%  plotly::add_text(x = annotated_DT_centers[["center_1"]],
                                          y = annotated_DT_centers[["center_2"]],
                                          type = 'scatter',mode = 'text',
-                                         text = annotated_DT_centers[["leiden_clus"]],
+                                         text = annotated_DT_centers[[cell_color]],
                                          textposition = 'middle right',
                                          textfont = list(color = '#000000', size = 16),showlegend = F)
         }
@@ -1605,7 +1605,7 @@ visSpatDimPlot_3D <- function(gobject,
         dpl <- dpl %>%  plotly::add_text(x = annotated_DT_centers[["center_1"]],
                                          y = annotated_DT_centers[["center_2"]],
                                          type = 'scatter',mode = 'text',
-                                         text = annotated_DT_centers[["leiden_clus"]],
+                                         text = annotated_DT_centers[[cell_color]],
                                          textposition = 'middle right',
                                          textfont = list(color = '#000000', size = label_size),showlegend = F)
       }
