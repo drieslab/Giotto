@@ -6,7 +6,9 @@
 \usage{
 showPattern(spatPatObj, dimension = 1, trim = c(0.02, 0.98),
   background_color = "white", grid_border_color = "grey",
-  show_legend = T, plot_dim = 2, point_size = 1, show_plot = F)
+  show_legend = T, plot_dim = 2, point_size = 1,
+  axis_scale = c("cube", "real", "custom"), custom_ratio = NULL,
+  x_ticks = NULL, y_ticks = NULL, z_ticks = NULL, show_plot = F)
 }
 \arguments{
 \item{spatPatObj}{Output from detectSpatialPatterns}

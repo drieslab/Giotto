@@ -12,7 +12,9 @@ visGenePlot(gobject, expression_values = c("normalized", "scaled",
   scale_alpha_with_expression = TRUE, point_size = 1,
   point_border_col = "black", point_border_stroke = 0.1,
   show_legend = T, cow_n_col = 2, cow_rel_h = 1, cow_rel_w = 1,
-  cow_align = "h", plot_dim = 2, show_plots = F)
+  cow_align = "h", plot_dim = 2, axis_scale = c("cube", "real",
+  "custom"), custom_ratio = NULL, x_ticks = NULL, y_ticks = NULL,
+  z_ticks = NULL, show_plots = F)
 }
 \arguments{
 \item{gobject}{giotto object}

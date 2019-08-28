@@ -7,7 +7,8 @@
 Spatial_AEH(gobject = NULL, results = NULL, pattern_num = 5,
   l = 1.05, show_AEH = T, sdimx = NULL, sdimy = NULL,
   point_size = 3, point_alpha = 1, low_color = "blue",
-  mid_color = "white", high_color = "red", midpoint = 0)
+  mid_color = "white", high_color = "red", midpoint = 0,
+  python_path = NULL)
 }
 \arguments{
 \item{gobject}{Giotto object}
@@ -17,6 +18,8 @@ Spatial_AEH(gobject = NULL, results = NULL, pattern_num = 5,
 \item{pattern_num}{the number of gene expression patterns}
 
 \item{show_AEH}{show AEH plot}
+
+\item{python_path}{specify specific path to python if required}
 }
 \value{
 a list or a dataframe of SVs
