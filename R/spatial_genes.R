@@ -817,6 +817,7 @@ Spatial_DE <- function(gobject = NULL,
                        color = c("blue", "green", "red"),
                        sig_alpha = 0.5,
                        unsig_alpha = 0.5){
+
   reader_path = system.file("python", "SpatialDE_wrapper.py", package = 'Giotto')
   source_python(reader_path)
 
