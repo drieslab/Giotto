@@ -509,6 +509,8 @@ visGenePlot <- function(gobject,
     return(combined_cowplot)
   }
 
+
+
   #3D plot
   else{
     axis_scale = match.arg(axis_scale, c("cube","real","custom"))
@@ -3209,6 +3211,613 @@ FSV_show <- function(results,ms_results = NULL,size = c(4,2,1), color = c("blue"
 
   print(pl)
 }
+
+
+
+
+
+
+
+##-------------------------------------------------------##
+##-------------------------------------------------------##
+##-------------------------------------------------------##
+
+
+#' @title visPlot2_3D
+#' @name visPlot2_3D
+#' @description Visualize cells according to spatial coordinates
+#' @param gobject giotto object
+#' @param sdimx x-axis dimension name (default = 'sdimx')
+#' @param sdimy y-axis dimension name (default = 'sdimy')
+#' @param sdimz z-axis dimension name (default = 'sdimz')
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param cell_color color for cells (see details)
+#' @param cell_color_code named vector with colors
+#' @param color_as_factor convert color column to factor
+#' @param select_cell_groups select a subset of the groups from cell_color
+#' @param show_network show underlying spatial network
+#' @param network_color color of spatial network
+#' @param spatial_network_name name of spatial network to use
+#' @param show_grid show spatial grid
+#' @param grid_color color of spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param coord_fix_ratio fix ratio between x and y-axis
+#' @param title title of plot
+#' @param show_legend show legend
+#' @param show_plot show plot
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     visPlot2_3D(gobject)
+visPlot2_3D = function(gobject,
+                       sdimx = NULL,
+                       sdimy = NULL,
+                       sdimz = NULL,
+                       point_size = 3,
+                       point_border_col = 'black',
+                       point_border_stroke = 0.1,
+                       cell_color = NULL,
+                       cell_color_code = NULL,
+                       color_as_factor = T,
+                       select_cell_groups = NULL,
+                       select_cells = NULL,
+                       show_network = F,
+                       network_color = NULL,
+                       network_alpha = 1,
+                       other_cells_alpha = 0.1,
+                       spatial_network_name = 'spatial_network',
+                       show_grid = F,
+                       grid_color = NULL,
+                       spatial_grid_name = 'spatial_grid',
+                       coord_fix_ratio = 0.6,
+                       title = '',
+                       show_legend = T,
+                       axis_scale = c("cube","real","custom"),
+                       custom_ratio = NULL,
+                       x_ticks = NULL,
+                       y_ticks = NULL,
+                       z_ticks = NULL,
+                       show_plot = F) {
+
+
+  ## get spatial cell locations
+  cell_locations  = gobject@spatial_locs
+
+  ## extract spatial network
+  if(!is.null(spatial_network_name)) {
+    spatial_network = gobject@spatial_network[[spatial_network_name]]
+  } else {
+    spatial_network = NULL
+  }
+
+  ## extract spatial grid
+  if(!is.null(spatial_grid_name)) {
+    spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
+  } else {
+    spatial_grid = NULL
+  }
+
+  ## get cell metadata
+  cell_metadata   = gobject@cell_metadata
+  cell_metadata   = cell_metadata[, !grepl('cell_ID', colnames(cell_metadata)), with = F]
+
+  if(nrow(cell_metadata) == 0) {
+    cell_locations_metadata = cell_locations
+  } else {
+    cell_locations_metadata <- cbind(cell_locations, cell_metadata)
+  }
+
+  ## create subsets if needed
+  if(!is.null(select_cells) & !is.null(select_cell_groups)) {
+    cat('You have selected both individual cell IDs and a group of cells \n')
+    group_cell_IDs = cell_locations_metadata[get(cell_color) %in% select_cell_groups][['cell_ID']]
+    select_cells = unique(c(select_cells, group_cell_IDs))
+  } else if(!is.null(select_cell_groups)) {
+    select_cells = cell_locations_metadata[get(cell_color) %in% select_cell_groups][['cell_ID']]
+  }
+
+  if(!is.null(select_cells)) {
+    cell_locations_metadata_other = cell_locations_metadata[!cell_locations_metadata$cell_ID %in% select_cells]
+    cell_locations_metadata_selected = cell_locations_metadata[cell_locations_metadata$cell_ID %in% select_cells]
+    spatial_network <- spatial_network[spatial_network$to %in% select_cells & spatial_network$from %in% select_cells]
+
+    # if specific cells are selected
+    cell_locations_metadata = cell_locations_metadata_selected
+  }
+
+
+
+  ### create 3D plot with plotly ###
+  cat('create 3D plot\n')
+
+  ### set scale
+  axis_scale = match.arg(axis_scale, c("cube","real","custom"))
+
+  ### set ratio
+  ratio = plotly_axis_scale(cell_locations,
+                            sdimx = sdimx, sdimy = sdimy, sdimz = sdimz,
+                            mode = axis_scale, custom_ratio = custom_ratio)
+
+
+  if(!is.null(cell_color)) {
+    if(cell_color %in% colnames(cell_locations_metadata)){
+      if(is.null(cell_color_code)) {
+        number_colors=length(unique(cell_locations_metadata[[cell_color]]))
+        cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+      }
+      cell_locations_metadata[[cell_color]] <- as.factor(cell_locations_metadata[[cell_color]])
+      pl <- plotly::plot_ly(type = 'scatter3d',
+                            x = cell_locations_metadata$sdimx, y = cell_locations_metadata$sdimy, z = cell_locations_metadata$sdimz,
+                            color = cell_locations_metadata[[cell_color]],marker = list(size = point_size),
+                            mode = 'markers', colors = cell_color_code)
+
+
+      if(!is.null(select_cells)){
+        pl <- pl %>% plotly::add_trace(type = "scatter3d",mode="markers",
+                                       data=cell_locations_metadata_other,
+                                       name = "unselected cells",
+                                       x=~sdimx,y=~sdimy,z=~sdimz,
+                                       marker = list(size = point_size/2),color = "lightgray",
+                                       colors="lightgray",inherit=F,opacity=other_cells_alpha)
+      }
+    }
+    else{
+      cat('cell_color does not exist! \n')
+    }
+  } else {
+    pl <- plotly::plot_ly(type = 'scatter3d',
+                          x = cell_locations_metadata$sdimx,
+                          y = cell_locations_metadata$sdimy,
+                          z = cell_locations_metadata$sdimz,
+                          mode = 'markers',
+                          marker = list(size = point_size),
+                          colors = 'lightblue',name = "selected cells")
+    if(!is.null(select_cells)){
+      pl <- pl %>% plotly::add_trace(type = "scatter3d",
+                                     mode="markers",
+                                     data=cell_locations_metadata_other,
+                                     name = "unselected cells",
+                                     x=~sdimx,y=~sdimy,z=~sdimz,
+                                     marker = list(size = point_size/2),
+                                     colors="lightgray",inherit = F,opacity = other_cells_alpha)
+    }
+  }
+
+  ## plot spatial network
+  if(!is.null(spatial_network) & show_network == TRUE) {
+    if(is.null(network_color)) {
+      network_color = 'red'
+    }
+    edges <- plotly_network(spatial_network)
+
+    pl <- pl %>% plotly::add_trace(name = "sptial network",
+                                   mode = "lines",
+                                   type = "scatter3d",
+                                   data = edges,
+                                   x = ~x,y=~y,z=~z,
+                                   inherit = F,line=list(color=network_color),opacity=network_alpha)
+  }
+  ## plot spatial grid
+  # 3D grid is not clear to view
+
+
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+  pl <- pl %>%
+    plotly::layout(scene = list(xaxis = list(title = 'X',nticks = x_ticks),
+                                yaxis = list(title = 'Y',nticks = y_ticks),
+                                zaxis = list(title = 'Z',nticks = z_ticks),
+                                aspectmode='manual',
+                                aspectratio = list(x=ratio[[1]], y=ratio[[2]], z=ratio[[3]])),
+                   legend = list(x = 100, y = 0.5,
+                                 font = list(family = "sans-serif",size = 12)))
+
+
+  return((pl))
+
+
+}
+
+
+#' @title visPlot2_2D_ggplot
+#' @name visPlot2_2D_ggplot
+#' @description Visualize cells according to spatial coordinates
+#' @param gobject giotto object
+#' @param sdimx x-axis dimension name (default = 'sdimx')
+#' @param sdimy y-axis dimension name (default = 'sdimy')
+#' @param sdimz z-axis dimension name (default = 'sdimz')
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param cell_color color for cells (see details)
+#' @param cell_color_code named vector with colors
+#' @param color_as_factor convert color column to factor
+#' @param select_cell_groups select a subset of the groups from cell_color
+#' @param show_network show underlying spatial network
+#' @param network_color color of spatial network
+#' @param spatial_network_name name of spatial network to use
+#' @param show_grid show spatial grid
+#' @param grid_color color of spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param coord_fix_ratio fix ratio between x and y-axis
+#' @param title title of plot
+#' @param show_legend show legend
+#' @param show_plot show plot
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     visPlot2_2D_ggplot(gobject)
+visPlot2_2D_ggplot = function(gobject,
+                              sdimx = NULL,
+                              sdimy = NULL,
+                              point_size = 3,
+                              point_border_col = 'black',
+                              point_border_stroke = 0.1,
+                              cell_color = NULL,
+                              cell_color_code = NULL,
+                              color_as_factor = T,
+                              select_cell_groups = NULL,
+                              select_cells = NULL,
+                              show_network = F,
+                              network_color = NULL,
+                              network_alpha = 1,
+                              other_cells_alpha = 0.1,
+                              spatial_network_name = 'spatial_network',
+                              show_grid = F,
+                              grid_color = NULL,
+                              spatial_grid_name = 'spatial_grid',
+                              coord_fix_ratio = 0.6,
+                              title = '',
+                              show_legend = T,
+                              axis_scale = c("cube","real","custom"),
+                              custom_ratio = NULL,
+                              x_ticks = NULL,
+                              y_ticks = NULL,
+                              z_ticks = NULL,
+                              show_plot = F) {
+
+
+  ## get spatial cell locations
+  cell_locations  = gobject@spatial_locs
+
+  ## extract spatial network
+  if(!is.null(spatial_network_name)) {
+    spatial_network = gobject@spatial_network[[spatial_network_name]]
+  } else {
+    spatial_network = NULL
+  }
+
+  ## extract spatial grid
+  if(!is.null(spatial_grid_name)) {
+    spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
+  } else {
+    spatial_grid = NULL
+  }
+
+  ## get cell metadata
+  cell_metadata   = gobject@cell_metadata
+  cell_metadata   = cell_metadata[, !grepl('cell_ID', colnames(cell_metadata)), with = F]
+
+  if(nrow(cell_metadata) == 0) {
+    cell_locations_metadata = cell_locations
+  } else {
+    cell_locations_metadata <- cbind(cell_locations, cell_metadata)
+  }
+
+  ## create subsets if needed
+  if(!is.null(select_cells) & !is.null(select_cell_groups)) {
+    cat('You have selected both individual cell IDs and a group of cells \n')
+    group_cell_IDs = cell_locations_metadata[get(cell_color) %in% select_cell_groups][['cell_ID']]
+    select_cells = unique(c(select_cells, group_cell_IDs))
+  } else if(!is.null(select_cell_groups)) {
+    select_cells = cell_locations_metadata[get(cell_color) %in% select_cell_groups][['cell_ID']]
+  }
+
+  if(!is.null(select_cells)) {
+    cell_locations_metadata_other = cell_locations_metadata[!cell_locations_metadata$cell_ID %in% select_cells]
+    cell_locations_metadata_selected = cell_locations_metadata[cell_locations_metadata$cell_ID %in% select_cells]
+    spatial_network <- spatial_network[spatial_network$to %in% select_cells & spatial_network$from %in% select_cells]
+
+    # if specific cells are selected
+    cell_locations_metadata = cell_locations_metadata_selected
+  }
+
+
+
+  ### create 2D plot with ggplot ###
+  cat('create 2D plot with ggplot \n')
+
+
+  pl <- ggplot2::ggplot()
+  pl <- pl + ggplot2::theme_bw()
+
+  ## plot spatial network
+  if(!is.null(spatial_network) & show_network == TRUE) {
+    if(is.null(network_color)) network_color = 'red'
+    pl <- pl + ggplot2::geom_segment(data = spatial_network, aes(x = sdimx_begin, y = sdimy_begin,
+                                                                 xend = sdimx_end, yend = sdimy_end),
+                                     color = network_color, size = 0.5, alpha = 0.5)
+  }
+
+  ## plot spatial grid
+  if(!is.null(spatial_grid) & show_grid == TRUE) {
+    if(is.null(grid_color)) grid_color = 'black'
+    pl <- pl + ggplot2::geom_rect(data = spatial_grid, aes(xmin = x_start, xmax = x_end,
+                                                           ymin = y_start, ymax = y_end),
+                                  color = grid_color, fill = NA)
+  }
+
+  # cell color default
+  if(is.null(cell_color)) {
+
+    cell_color = 'lightblue'
+    pl <- pl + ggplot2::geom_point(data = cell_locations_metadata,
+                                   aes_string(x = sdimx, y = sdimy),
+                                   show.legend = show_legend, shape = 21,
+                                   fill = cell_color, size = point_size,
+                                   stroke = point_border_stroke, color = point_border_col)
+
+  }
+
+  else if (is.character(cell_color)) {
+
+    if(cell_color %in% colnames(cell_locations_metadata)) {
+
+      if(color_as_factor == TRUE) {
+        if(is.null(select_cells)) {
+          factor_data = factor(cell_locations_metadata[[cell_color]])
+          cell_locations_metadata[[cell_color]] <- factor_data
+        } else {
+          factor_data_selected = factor(cell_locations_metadata_selected[[cell_color]])
+          cell_locations_metadata_selected[[cell_color]] <- factor_data_selected
+          factor_data_other = factor(cell_locations_metadata_other[[cell_color]])
+          cell_locations_metadata_other[[cell_color]] <- factor_data_other
+        }
+
+      }
+
+      if(is.null(select_cells)) {
+        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata,
+                                       aes_string(x = sdimx, y = sdimy, fill = cell_color),
+                                       show.legend = show_legend, shape = 21, size = point_size,
+                                       stroke = point_border_stroke, color = point_border_col)
+      } else {
+        cell_color_other = 'grey'
+        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_other,
+                                       aes_string(x = sdimx, y = sdimy), fill = cell_color_other,
+                                       show.legend = show_legend, shape = 21, size = point_size/2,
+                                       stroke = point_border_stroke, color = point_border_col
+        )
+
+        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_selected,
+                                       aes_string(x = sdimx, y = sdimy, fill = cell_color),
+                                       show.legend = show_legend, shape = 21, size = point_size,
+                                       stroke = point_border_stroke, color = point_border_col)
+      }
+
+
+
+
+      if(!is.null(cell_color_code)) {
+        pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
+      } else if(color_as_factor == T) {
+        if(is.null(select_cells)) {
+          number_colors = length(unique(factor_data))
+          cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+          names(cell_color_code) = unique(factor_data)
+        } else {
+          number_colors = length(unique(factor_data_selected))
+          cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+          names(cell_color_code) = unique(factor_data_selected)
+        }
+        pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
+      } else if(color_as_factor == F){
+        pl <- pl + ggplot2::scale_fill_gradient(low = 'blue', high = 'red')
+      }
+
+    } else {
+
+
+      if(is.null(select_cells)) {
+        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata, aes_string(x = sdimx, y = sdimy),
+                                       show.legend = show_legend, shape = 21, fill = cell_color,
+                                       size = point_size, stroke = point_border_stroke, color = point_border_col)
+      } else {
+        cell_color_other = 'grey'
+        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_other, aes_string(x = sdimx, y = sdimy),
+                                       show.legend = show_legend, shape = 21, fill = cell_color_other,
+                                       size = point_size/2,
+                                       stroke = point_border_stroke, color = point_border_col)
+
+        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_selected, aes_string(x = sdimx, y = sdimy),
+                                       show.legend = show_legend, shape = 21, fill = cell_color,
+                                       size = point_size,
+                                       stroke = point_border_stroke, color = point_border_col)
+      }
+
+    }
+
+  }
+
+  pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5),
+                            legend.title = element_text(size = 10),
+                            legend.text = element_text(size = 10))
+
+  # fix coord ratio
+  if(!is.null(coord_fix_ratio)) {
+    pl <- pl + ggplot2::coord_fixed(ratio = coord_fix_ratio)
+  }
+
+  pl <- pl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates', title = title)
+
+
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+  return(pl)
+
+}
+
+
+#' @title visPlot2
+#' @name visPlot2
+#' @description Visualize cells according to spatial coordinates
+#' @param gobject giotto object
+#' @param sdimx x-axis dimension name (default = 'sdimx')
+#' @param sdimy y-axis dimension name (default = 'sdimy')
+#' @param sdimz z-axis dimension name (default = 'sdimz')
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param cell_color color for cells (see details)
+#' @param cell_color_code named vector with colors
+#' @param color_as_factor convert color column to factor
+#' @param select_cell_groups select a subset of the groups from cell_color
+#' @param show_network show underlying spatial network
+#' @param network_color color of spatial network
+#' @param spatial_network_name name of spatial network to use
+#' @param show_grid show spatial grid
+#' @param grid_color color of spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param coord_fix_ratio fix ratio between x and y-axis
+#' @param title title of plot
+#' @param show_legend show legend
+#' @param show_plot show plot
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     visPlot2(gobject)
+visPlot2 <- function(gobject,
+                     sdimx = NULL,
+                     sdimy = NULL,
+                     sdimz = NULL,
+                     point_size = 3,
+                     point_border_col = 'black',
+                     point_border_stroke = 0.1,
+                     cell_color = NULL,
+                     cell_color_code = NULL,
+                     color_as_factor = T,
+                     select_cell_groups = NULL,
+                     select_cells = NULL,
+                     show_network = F,
+                     network_color = NULL,
+                     network_alpha = 1,
+                     other_cells_alpha = 0.1,
+                     spatial_network_name = 'spatial_network',
+                     show_grid = F,
+                     grid_color = NULL,
+                     spatial_grid_name = 'spatial_grid',
+                     coord_fix_ratio = 0.6,
+                     title = '',
+                     show_legend = T,
+                     axis_scale = c("cube","real","custom"),
+                     custom_ratio = NULL,
+                     x_ticks = NULL,
+                     y_ticks = NULL,
+                     z_ticks = NULL,
+                     plot_method = c('plotly', 'ggplot'),
+                     show_plot = F) {
+
+
+  ## decide plot method
+  plot_method = match.arg(plot_method, choices = c('plotly', 'ggplot'))
+
+
+  if(plot_method == 'ggplot') {
+
+    if(is.null(sdimx) | is.null(sdimy)) {
+      stop('\n ggplot is in 2D and you need to define sdimx and sdimy \n')
+    }
+
+    result = visPlot_2D_ggplot(gobject = gobject,
+                               sdimx = sdimx,
+                               sdimy = sdimy,
+                               point_size = point_size,
+                               point_border_col = point_border_col,
+                               point_border_stroke = point_border_stroke,
+                               cell_color = cell_color,
+                               cell_color_code = cell_color_code,
+                               color_as_factor = color_as_factor,
+                               select_cell_groups = select_cell_groups,
+                               select_cells = select_cells,
+                               show_network = show_network,
+                               network_color = network_color,
+                               network_alpha = network_alpha,
+                               other_cells_alpha = other_cells_alpha,
+                               spatial_network_name = spatial_network_name,
+                               show_grid = show_grid,
+                               grid_color = grid_color,
+                               spatial_grid_name = spatial_grid_name,
+                               coord_fix_ratio = coord_fix_ratio,
+                               title = title,
+                               show_legend = show_legend,
+                               axis_scale = axis_scale,
+                               custom_ratio = custom_ratio,
+                               x_ticks = x_ticks,
+                               y_ticks = y_ticks,
+                               z_ticks = z_ticks,
+                               show_plot = show_plot)
+
+
+  } else  if(plot_method == 'plotly') {
+
+    if(length(c(sdimx, sdimy, sdimz) == 3)) {
+
+      result = visPlot_3D(gobject = gobject,
+                          sdimx = sdimx,
+                          sdimy = sdimy,
+                          sdimz = sdimx,
+                          point_size = point_size,
+                          point_border_col = point_border_col,
+                          point_border_stroke = point_border_stroke,
+                          cell_color = cell_color,
+                          cell_color_code = cell_color_code,
+                          color_as_factor = color_as_factor,
+                          select_cell_groups = select_cell_groups,
+                          select_cells = select_cells,
+                          show_network = show_network,
+                          network_color = network_color,
+                          network_alpha = network_alpha,
+                          other_cells_alpha = other_cells_alpha,
+                          spatial_network_name = spatial_network_name,
+                          show_grid = show_grid,
+                          grid_color = grid_color,
+                          spatial_grid_name = spatial_grid_name,
+                          coord_fix_ratio = coord_fix_ratio,
+                          title = title,
+                          show_legend = show_legend,
+                          axis_scale = axis_scale,
+                          custom_ratio = custom_ratio,
+                          x_ticks = x_ticks,
+                          y_ticks = y_ticks,
+                          z_ticks = z_ticks,
+                          show_plot = show_plot)
+
+    } else {
+
+      if(is.null(sdimx) | is.null(sdimy)) {
+        stop('\n plotly in 2D requires you to define sdimx and sdimy \n')
+      }
+
+      ## run: visPlot_2D_plotly
+
+
+    }
+
+  }
+
+}
+
+
+
+
+
 
 
 
