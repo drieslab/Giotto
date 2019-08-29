@@ -338,8 +338,8 @@ visPlot <- function(gobject,
 
 
 
-#' @title visGenePlot
-#' @name visGenePlot
+#' @title visGenePlot_2D_ggplot
+#' @name visGenePlot_2D_ggplot
 #' @description Visualize cells and gene expression according to spatial coordinates
 #' @param gobject giotto object
 #' @param expression_values gene expression values to use
@@ -365,36 +365,30 @@ visPlot <- function(gobject,
 #' @details Description of parameters.
 #' @export
 #' @examples
-#'     visGenePlot(gobject)
-visGenePlot <- function(gobject,
-                        expression_values = c('normalized', 'scaled', 'custom'),
-                        genes,
-                        genes_color = NULL,
-                        show_network = F,
-                        network_color = NULL,
-                        spatial_network_name = 'spatial_network',
-                        edge_alpha = NULL,
-                        show_grid = F,
-                        grid_color = NULL,
-                        spatial_grid_name = 'spatial_grid',
-                        midpoint = 0,
-                        scale_alpha_with_expression = TRUE,
-                        point_size = 1,
-                        point_border_col = 'black',
-                        point_border_stroke = 0.1,
-                        show_legend = T,
-                        cow_n_col = 2,
-                        cow_rel_h = 1,
-                        cow_rel_w = 1,
-                        cow_align = 'h',
-                        plot_dim = 2,
-                        axis_scale = c("cube","real","custom"),
-                        custom_ratio = NULL,
-                        x_ticks = NULL,
-                        y_ticks = NULL,
-                        z_ticks = NULL,
-                        show_plots = F) {
-  
+#'     visGenePlot_2D_ggplot(gobject)
+visGenePlot_2D_ggplot <- function(gobject,
+                                  expression_values = c('normalized', 'scaled', 'custom'),
+                                  genes,
+                                  genes_high_color = 'darkred',
+                                  genes_low_color = "darkblue",
+                                  show_network = F,
+                                  network_color = NULL,
+                                  spatial_network_name = 'spatial_network',
+                                  edge_alpha = NULL,
+                                  show_grid = F,
+                                  grid_color = NULL,
+                                  spatial_grid_name = 'spatial_grid',
+                                  midpoint = 0,
+                                  scale_alpha_with_expression = TRUE,
+                                  point_size = 1,
+                                  point_border_col = 'black',
+                                  point_border_stroke = 0.1,
+                                  show_legend = T,
+                                  cow_n_col = 2,
+                                  cow_rel_h = 1,
+                                  cow_rel_w = 1,
+                                  cow_align = 'h',
+                                  show_plots = F){
   selected_genes = genes
   
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
@@ -448,231 +442,454 @@ visGenePlot <- function(gobject,
   ## plotting ##
   
   savelist <- list()
-  #2D plot
-  if(plot_dim == 2){
-    for(gene in selected_genes) {
-      
-      pl <- ggplot2::ggplot()
-      pl <- pl + ggplot2::theme_classic()
-      
-      ## plot spatial network
-      if(!is.null(spatial_network) & show_network == TRUE) {
-        if(is.null(network_color)) {
-          network_color = 'red'
-        }
-        pl <- pl + ggplot2::geom_segment(data = spatial_network, aes(x = sdimx_begin, y = sdimy_begin,
-                                                                     xend = sdimx_end, yend = sdimy_end),
-                                         color = network_color, size = 0.5, alpha = 0.5)
+  
+  for(gene in selected_genes) {
+    
+    pl <- ggplot2::ggplot()
+    pl <- pl + ggplot2::theme_classic()
+    
+    ## plot spatial network
+    if(!is.null(spatial_network) & show_network == TRUE) {
+      if(is.null(network_color)) {
+        network_color = 'red'
       }
-      
-      ## plot spatial grid
-      if(!is.null(spatial_grid) & show_grid == TRUE) {
-        if(is.null(grid_color)) grid_color = 'black'
-        pl <- pl + ggplot2::geom_rect(data = spatial_grid, aes(xmin = x_start, xmax = x_end,
-                                                               ymin = y_start, ymax = y_end),
-                                      color = grid_color, fill = NA)
-      }
-      
-      
-      if(scale_alpha_with_expression == TRUE) {
-        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes, aes_string(x = 'sdimx', y = 'sdimy',
-                                                                                        fill = gene, alpha = gene),
-                                       shape = 21,
-                                       color = point_border_col, size = point_size, stroke = point_border_stroke,
-                                       show.legend = show_legend)
-      } else {
-        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes, aes_string(x = 'sdimx', y = 'sdimy',
-                                                                                        fill = gene),
-                                       shape = 21,
-                                       color = point_border_col, size = point_size, stroke = point_border_stroke,
-                                       show.legend = show_legend)
-      }
-      pl <- pl + ggplot2::scale_alpha_continuous(guide = 'none')
-      pl <- pl + ggplot2::scale_fill_gradient2(low = 'darkblue', mid = 'white', high = 'darkred',
-                                               midpoint = midpoint, guide = guide_colorbar(title = ''))
-      pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y', title = gene)
-      pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5))
-      
-      if(show_plots == TRUE) {
-        print(pl)
-      }
-      
-      savelist[[gene]] <- pl
+      pl <- pl + ggplot2::geom_segment(data = spatial_network, aes(x = sdimx_begin, y = sdimy_begin,
+                                                                   xend = sdimx_end, yend = sdimy_end),
+                                       color = network_color, size = 0.5, alpha = 0.5)
     }
     
-    # combine plots with cowplot
-    combo_plot <- cowplot::plot_grid(plotlist = savelist,
-                                     ncol = cow_n_col,
-                                     rel_heights = cow_rel_h, rel_widths = cow_rel_w, align = cow_align)
-    combined_cowplot = cowplot::plot_grid(combo_plot)
+    ## plot spatial grid
+    if(!is.null(spatial_grid) & show_grid == TRUE) {
+      if(is.null(grid_color)) grid_color = 'black'
+      pl <- pl + ggplot2::geom_rect(data = spatial_grid, aes(xmin = x_start, xmax = x_end,
+                                                             ymin = y_start, ymax = y_end),
+                                    color = grid_color, fill = NA)
+    }
     
-    return(combined_cowplot)
+    
+    if(scale_alpha_with_expression == TRUE) {
+      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes, aes_string(x = 'sdimx', y = 'sdimy',
+                                                                                      fill = gene, alpha = gene),
+                                     shape = 21,
+                                     color = point_border_col, size = point_size, stroke = point_border_stroke,
+                                     show.legend = show_legend)
+    } else {
+      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes, aes_string(x = 'sdimx', y = 'sdimy',
+                                                                                      fill = gene),
+                                     shape = 21,
+                                     color = point_border_col, size = point_size, stroke = point_border_stroke,
+                                     show.legend = show_legend)
+    }
+    pl <- pl + ggplot2::scale_alpha_continuous(guide = 'none')
+    pl <- pl + ggplot2::scale_fill_gradient2(low = genes_low_color, mid = 'white', high = genes_high_color,
+                                             midpoint = midpoint, guide = guide_colorbar(title = ''))
+    pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y', title = gene)
+    pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5))
+    
+    if(show_plots == TRUE) {
+      print(pl)
+    }
+    
+    savelist[[gene]] <- pl
+  }
+  
+  # combine plots with cowplot
+  combo_plot <- cowplot::plot_grid(plotlist = savelist,
+                                   ncol = cow_n_col,
+                                   rel_heights = cow_rel_h, rel_widths = cow_rel_w, align = cow_align)
+  combined_cowplot = cowplot::plot_grid(combo_plot)
+  
+  return(combined_cowplot)
+}
+
+
+
+#' @title visGenePlot_3D_plotly
+#' @name visGenePlot_3D_plotly
+#' @description Visualize cells and gene expression according to spatial coordinates
+#' @param gobject giotto object
+#' @param expression_values gene expression values to use
+#' @param genes genes to show
+#' @param show_network show underlying spatial network
+#' @param network_color color of spatial network
+#' @param spatial_network_name name of spatial network to use
+#' @param show_grid show spatial grid
+#' @param grid_color color of spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param point_size size of point (cell)
+#' @param cow_n_col cowplot param: how many columns
+#' @param cow_rel_h cowplot param: relative height
+#' @param cow_rel_w cowplot param: relative width
+#' @param cow_align cowplot param: how to align
+#' @param show_legend show legend
+#' @param axis_scale three mode to adjust axis scale
+#' @param x_ticks number of ticks on x axis
+#' @param y_ticks number of ticks on y axis
+#' @param z_ticks number of ticks on z axis
+#' @param show_plots show plots
+#' @return plotly
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     visGenePlot_3D_plotly(gobject)
+visGenePlot_3D_plotly <- function(gobject,
+                                  expression_values = c('normalized', 'scaled', 'custom'),
+                                  genes,
+                                  show_network = F,
+                                  network_color = NULL,
+                                  spatial_network_name = 'spatial_network',
+                                  edge_alpha = NULL,
+                                  show_grid = F,
+                                  genes_high_color = NULL,
+                                  genes_low_color = "blue",
+                                  spatial_grid_name = 'spatial_grid',
+                                  point_size = 1,
+                                  show_legend = T,
+                                  axis_scale = c("cube","real","custom"),
+                                  custom_ratio = NULL,
+                                  x_ticks = NULL,
+                                  y_ticks = NULL,
+                                  z_ticks = NULL,
+                                  show_plots = F){
+  selected_genes = genes
+  
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  
+  # only keep genes that are in the dataset
+  selected_genes = selected_genes[selected_genes %in% rownames(expr_values) ]
+  
+  # get selected gene expression values in data.table format
+  if(length(selected_genes) == 1) {
+    subset_expr_data = expr_values[rownames(expr_values) %in% selected_genes, ]
+    t_sub_expr_data_DT = data.table::data.table('selected_gene' = subset_expr_data, 'cell_ID' = colnames(expr_values))
+    data.table::setnames(t_sub_expr_data_DT, 'selected_gene', selected_genes)
+  } else {
+    subset_expr_data = expr_values[rownames(expr_values) %in% selected_genes, ]
+    t_sub_expr_data = t(subset_expr_data)
+    t_sub_expr_data_DT = data.table::as.data.table(t_sub_expr_data)
+    t_sub_expr_data_DT[, cell_ID := rownames(t_sub_expr_data)]
   }
   
   
+  ## extract cell locations
+  cell_locations  = gobject@spatial_locs
   
-  #3D plot
-  else{
-    axis_scale = match.arg(axis_scale, c("cube","real","custom"))
-    
-    ratio = plotly_axis_scale(cell_locations_metadata_genes,sdimx = "sdimx",sdimy = "sdimy",sdimz = "sdimz",
-                              mode = axis_scale,custom_ratio = custom_ratio)
-    
-    
-    ## spatial network data
-    if(!is.null(spatial_network) & show_network == TRUE){
-      edges <- plotly_network(spatial_network)
-    }
-    ##Point layer
-    if(length(selected_genes) > 4){
-      stop("\n The max number of genes showed together is 4.Otherwise it will be too small to see\n
+  ## extract spatial network
+  if(!is.null(spatial_network_name)) {
+    spatial_network = gobject@spatial_network[[spatial_network_name]]
+  } else {
+    spatial_network = NULL
+  }
+  
+  ## extract spatial grid
+  if(!is.null(spatial_grid_name)) {
+    spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
+  } else {
+    spatial_grid = NULL
+  }
+  
+  ## extract cell metadata
+  cell_metadata   = gobject@cell_metadata
+  cell_metadata   = cell_metadata[, !grepl('cell_ID', colnames(cell_metadata)), with = F]
+  
+  if(nrow(cell_metadata) == 0) {
+    cell_locations_metadata = cell_locations
+  } else {
+    cell_locations_metadata <- cbind(cell_locations, cell_metadata)
+  }
+  
+  cell_locations_metadata_genes <- merge(cell_locations_metadata, t_sub_expr_data_DT, by = 'cell_ID')
+  
+  ## plotting ##
+  
+  
+  
+  axis_scale = match.arg(axis_scale, c("cube","real","custom"))
+  
+  ratio = plotly_axis_scale(cell_locations_metadata_genes,sdimx = "sdimx",sdimy = "sdimy",sdimz = "sdimz",
+                            mode = axis_scale,custom_ratio = custom_ratio)
+  
+  
+  ## spatial network data
+  if(!is.null(spatial_network) & show_network == TRUE){
+    edges <- plotly_network(spatial_network)
+  }
+  ##Point layer
+  if(length(selected_genes) > 4){
+    stop("\n The max number of genes showed together is 4.Otherwise it will be too small to see\n
               \n If you have more genes to show, please divide them into groups\n")
-    }
-    
-    for(i in 1:length(selected_genes)){
-      gene = selected_genes[i]
-      if(!is.null(genes_color)){
-        if(length(genes_color)!=length(selected_genes)){
-          stop('\n The number of genes and their corresbonding do not match\n')
-        }
-      }
-      else{
-        genes_color = rep("red",length(selected_genes))
-      }
-      pl <- plotly::plot_ly(name = gene,
-                            
-                            scene=paste("scene",i,sep = "")) %>%
-        plotly::add_trace(data = cell_locations_metadata_genes,
-                          type = 'scatter3d',mode = "markers",
-                          x = ~sdimx, y = ~sdimy, z = ~sdimz,
-                          marker = list(size = point_size),
-                          color = cell_locations_metadata_genes[[gene]],
-                          colors = c("white",genes_color[i]))
-      
-      ## plot spatial network
-      if(show_network == TRUE) {
-        if(is.null(network_color)) {
-          network_color = 'lightblue'
-        }
-        if(is.null(edge_alpha)) {
-          edge_alpha = 0.5
-        }
-        else if (is.character(edge_alpha)){
-          edge_alpha = 0.5
-          cat("\nEdge_alpha for plotly mode is not adjustable yet. Default 0.5 will be set\n")
-        }
-        pl <- pl %>% plotly::add_trace(name = "sptial network",
-                                       mode = "lines",
-                                       type = "scatter3d",
-                                       data = edges,
-                                       x = ~x,y=~y,z=~z,
-                                       line=list(color=network_color,width = 0.5),
-                                       opacity = edge_alpha,
-                                       showlegend = F)
-      }
-      ##plot spatial grid
-      if(!is.null(spatial_grid) & show_grid == TRUE){
-        cat("\n spatial grid is not clear in 3D plot \n")
-      }
-      pl <- pl %>% plotly::colorbar(title = gene)
-      savelist[[gene]] <- pl
-    }
-    
-    if(length(savelist) == 1){
-      savelist[[1]] <- savelist[[1]] %>% plotly::layout(scene = list(xaxis = list(title = "X",nticks = x_ticks),
-                                                                     yaxis = list(title = "Y",nticks = y_ticks),
-                                                                     zaxis = list(title = "Z",nticks = z_ticks),
-                                                                     aspectmode='manual',
-                                                                     aspectratio = list(x=ratio[[1]],
-                                                                                        y=ratio[[2]],
-                                                                                        z=ratio[[3]])))
-      if(show_plots){
-        print(savelist[[1]])
-      }
-      return (savelist[[1]])
-    }
-    else if(length(savelist)==2){
-      cowplot <- suppressWarnings(subplot(savelist)%>% plotly::layout(scene = list(xaxis = list(title = "X",nticks = x_ticks),
-                                                                                   yaxis = list(title = "Y",nticks = y_ticks),
-                                                                                   zaxis = list(title = "Z",nticks = z_ticks),
-                                                                                   aspectmode='manual',
-                                                                                   aspectratio = list(x=ratio[[1]],
-                                                                                                      y=ratio[[2]],
-                                                                                                      z=ratio[[3]])),
-                                                                      scene2 = list(xaxis = list(title = "X",nticks = x_ticks),
-                                                                                    yaxis = list(title = "Y",nticks = y_ticks),
-                                                                                    zaxis = list(title = "Z",nticks = z_ticks),
-                                                                                    aspectmode='manual',
-                                                                                    aspectratio = list(x=ratio[[1]],
-                                                                                                       y=ratio[[2]],
-                                                                                                       z=ratio[[3]])),
-                                                                      #annotations = annotations,
-                                                                      legend = list(x = 100, y = 0)))
-    }
-    else if(length(savelist)==3){
-      cowplot <- suppressWarnings(subplot(savelist)%>% plotly::layout(scene = list(xaxis = list(title = "X",nticks = x_ticks),
-                                                                                   yaxis = list(title = "Y",nticks = y_ticks),
-                                                                                   zaxis = list(title = "Z",nticks = z_ticks),
-                                                                                   aspectmode='manual',
-                                                                                   aspectratio = list(x=ratio[[1]],
-                                                                                                      y=ratio[[2]],
-                                                                                                      z=ratio[[3]])),
-                                                                      scene2 = list(xaxis = list(title = "X",nticks = x_ticks),
-                                                                                    yaxis = list(title = "Y",nticks = y_ticks),
-                                                                                    zaxis = list(title = "Z",nticks = z_ticks),
-                                                                                    aspectmode='manual',
-                                                                                    aspectratio = list(x=ratio[[1]],
-                                                                                                       y=ratio[[2]],
-                                                                                                       z=ratio[[3]])),
-                                                                      scene3 = list(xaxis = list(title = "X",nticks = x_ticks),
-                                                                                    yaxis = list(title = "Y",nticks = y_ticks),
-                                                                                    zaxis = list(title = "Z",nticks = z_ticks),
-                                                                                    aspectmode='manual',
-                                                                                    aspectratio = list(x=ratio[[1]],
-                                                                                                       y=ratio[[2]],
-                                                                                                       z=ratio[[3]])),
-                                                                      legend = list(x = 100, y = 0)))
-    }
-    else if(length(savelist)==4){
-      
-      
-      cowplot <- suppressWarnings(subplot(savelist)%>% plotly::layout(scene = list(xaxis = list(title = "X",nticks = x_ticks),
-                                                                                   yaxis = list(title = "Y",nticks = y_ticks),
-                                                                                   zaxis = list(title = "Z",nticks = z_ticks),
-                                                                                   aspectmode='manual',
-                                                                                   aspectratio = list(x=ratio[[1]],
-                                                                                                      y=ratio[[2]],
-                                                                                                      z=ratio[[3]])),
-                                                                      scene2 = list(xaxis = list(title = "X",nticks = x_ticks),
-                                                                                    yaxis = list(title = "Y",nticks = y_ticks),
-                                                                                    zaxis = list(title = "Z",nticks = z_ticks),
-                                                                                    aspectmode='manual',
-                                                                                    aspectratio = list(x=ratio[[1]],
-                                                                                                       y=ratio[[2]],
-                                                                                                       z=ratio[[3]])),
-                                                                      scene3 = list(xaxis = list(title = "X",nticks = x_ticks),
-                                                                                    yaxis = list(title = "Y",nticks = y_ticks),
-                                                                                    zaxis = list(title = "Z",nticks = z_ticks),
-                                                                                    aspectmode='manual',
-                                                                                    aspectratio = list(x=ratio[[1]],
-                                                                                                       y=ratio[[2]],
-                                                                                                       z=ratio[[3]])),
-                                                                      scene4 = list(xaxis = list(title = "X",nticks = x_ticks),
-                                                                                    yaxis = list(title = "Y",nticks = y_ticks),
-                                                                                    zaxis = list(title = "Z",nticks = z_ticks),
-                                                                                    aspectmode='manual',
-                                                                                    aspectratio = list(x=ratio[[1]],
-                                                                                                       y=ratio[[2]],
-                                                                                                       z=ratio[[3]])),
-                                                                      legend = list(x = 100, y = 0)))
-    }
-    if(show_plots){
-      print(cowplot)
-    }
-    return(cowplot)
   }
+  savelist <- list()      
+  for(i in 1:length(selected_genes)){
+    gene = selected_genes[i]
+    if(!is.null(genes_high_color)){
+      if(length(genes_high_color)!=length(selected_genes) & length(genes_high_color)!=1){
+        stop('\n The number of genes and their corresbonding do not match\n')
+      }
+      else if(length(genes_high_color) == 1){
+        genes_high_color = rep(genes_high_color,length(selected_genes))
+      }
+    }
+    else{
+      genes_high_color = rep("red",length(selected_genes))
+    }
+    pl <- plotly::plot_ly(name = gene,
+                          
+                          scene=paste("scene",i,sep = "")) %>%
+      plotly::add_trace(data = cell_locations_metadata_genes,
+                        type = 'scatter3d',mode = "markers",
+                        x = ~sdimx, y = ~sdimy, z = ~sdimz,
+                        marker = list(size = point_size),
+                        color = cell_locations_metadata_genes[[gene]],
+                        colors = c(genes_low_color,"white",genes_high_color[i]))
+    
+    ## plot spatial network
+    if(show_network == TRUE) {
+      if(is.null(network_color)) {
+        network_color = 'lightblue'
+      }
+      if(is.null(edge_alpha)) {
+        edge_alpha = 0.5
+      }
+      else if (is.character(edge_alpha)){
+        edge_alpha = 0.5
+        cat("\nEdge_alpha for plotly mode is not adjustable yet. Default 0.5 will be set\n")
+      }
+      pl <- pl %>% plotly::add_trace(name = "sptial network",
+                                     mode = "lines",
+                                     type = "scatter3d",
+                                     data = edges,
+                                     x = ~x,y=~y,z=~z,
+                                     line=list(color=network_color,width = 0.5),
+                                     opacity = edge_alpha,
+                                     showlegend = F)
+    }
+    ##plot spatial grid
+    if(!is.null(spatial_grid) & show_grid == TRUE){
+      cat("\n spatial grid is not clear in 3D plot \n")
+    }
+    pl <- pl %>% plotly::colorbar(title = gene)
+    savelist[[gene]] <- pl
+  }
+  
+  if(length(savelist) == 1){
+    savelist[[1]] <- savelist[[1]] %>% plotly::layout(scene = list(xaxis = list(title = "X",nticks = x_ticks),
+                                                                   yaxis = list(title = "Y",nticks = y_ticks),
+                                                                   zaxis = list(title = "Z",nticks = z_ticks),
+                                                                   aspectmode='manual',
+                                                                   aspectratio = list(x=ratio[[1]],
+                                                                                      y=ratio[[2]],
+                                                                                      z=ratio[[3]])))
+    if(show_plots){
+      print(savelist[[1]])
+    }
+    return (savelist[[1]])
+  }
+  else if(length(savelist)==2){
+    cowplot <- suppressWarnings(subplot(savelist)%>% plotly::layout(scene = list(xaxis = list(title = "X",nticks = x_ticks),
+                                                                                 yaxis = list(title = "Y",nticks = y_ticks),
+                                                                                 zaxis = list(title = "Z",nticks = z_ticks),
+                                                                                 aspectmode='manual',
+                                                                                 aspectratio = list(x=ratio[[1]],
+                                                                                                    y=ratio[[2]],
+                                                                                                    z=ratio[[3]])),
+                                                                    scene2 = list(xaxis = list(title = "X",nticks = x_ticks),
+                                                                                  yaxis = list(title = "Y",nticks = y_ticks),
+                                                                                  zaxis = list(title = "Z",nticks = z_ticks),
+                                                                                  aspectmode='manual',
+                                                                                  aspectratio = list(x=ratio[[1]],
+                                                                                                     y=ratio[[2]],
+                                                                                                     z=ratio[[3]])),
+                                                                    #annotations = annotations,
+                                                                    legend = list(x = 100, y = 0)))
+  }
+  else if(length(savelist)==3){
+    cowplot <- suppressWarnings(subplot(savelist)%>% plotly::layout(scene = list(xaxis = list(title = "X",nticks = x_ticks),
+                                                                                 yaxis = list(title = "Y",nticks = y_ticks),
+                                                                                 zaxis = list(title = "Z",nticks = z_ticks),
+                                                                                 aspectmode='manual',
+                                                                                 aspectratio = list(x=ratio[[1]],
+                                                                                                    y=ratio[[2]],
+                                                                                                    z=ratio[[3]])),
+                                                                    scene2 = list(xaxis = list(title = "X",nticks = x_ticks),
+                                                                                  yaxis = list(title = "Y",nticks = y_ticks),
+                                                                                  zaxis = list(title = "Z",nticks = z_ticks),
+                                                                                  aspectmode='manual',
+                                                                                  aspectratio = list(x=ratio[[1]],
+                                                                                                     y=ratio[[2]],
+                                                                                                     z=ratio[[3]])),
+                                                                    scene3 = list(xaxis = list(title = "X",nticks = x_ticks),
+                                                                                  yaxis = list(title = "Y",nticks = y_ticks),
+                                                                                  zaxis = list(title = "Z",nticks = z_ticks),
+                                                                                  aspectmode='manual',
+                                                                                  aspectratio = list(x=ratio[[1]],
+                                                                                                     y=ratio[[2]],
+                                                                                                     z=ratio[[3]])),
+                                                                    legend = list(x = 100, y = 0)))
+  }
+  else if(length(savelist)==4){
+    
+    
+    cowplot <- suppressWarnings(subplot(savelist)%>% plotly::layout(scene = list(xaxis = list(title = "X",nticks = x_ticks),
+                                                                                 yaxis = list(title = "Y",nticks = y_ticks),
+                                                                                 zaxis = list(title = "Z",nticks = z_ticks),
+                                                                                 aspectmode='manual',
+                                                                                 aspectratio = list(x=ratio[[1]],
+                                                                                                    y=ratio[[2]],
+                                                                                                    z=ratio[[3]])),
+                                                                    scene2 = list(xaxis = list(title = "X",nticks = x_ticks),
+                                                                                  yaxis = list(title = "Y",nticks = y_ticks),
+                                                                                  zaxis = list(title = "Z",nticks = z_ticks),
+                                                                                  aspectmode='manual',
+                                                                                  aspectratio = list(x=ratio[[1]],
+                                                                                                     y=ratio[[2]],
+                                                                                                     z=ratio[[3]])),
+                                                                    scene3 = list(xaxis = list(title = "X",nticks = x_ticks),
+                                                                                  yaxis = list(title = "Y",nticks = y_ticks),
+                                                                                  zaxis = list(title = "Z",nticks = z_ticks),
+                                                                                  aspectmode='manual',
+                                                                                  aspectratio = list(x=ratio[[1]],
+                                                                                                     y=ratio[[2]],
+                                                                                                     z=ratio[[3]])),
+                                                                    scene4 = list(xaxis = list(title = "X",nticks = x_ticks),
+                                                                                  yaxis = list(title = "Y",nticks = y_ticks),
+                                                                                  zaxis = list(title = "Z",nticks = z_ticks),
+                                                                                  aspectmode='manual',
+                                                                                  aspectratio = list(x=ratio[[1]],
+                                                                                                     y=ratio[[2]],
+                                                                                                     z=ratio[[3]])),
+                                                                    legend = list(x = 100, y = 0)))
+  }
+  
+  return(cowplot)
   
 }
+
+
+#' @title visGenePlot
+#' @name visGenePlot
+#' @description Visualize cells and gene expression according to spatial coordinates
+#' @param gobject giotto object
+#' @param expression_values gene expression values to use
+#' @param genes genes to show
+#' @param show_network show underlying spatial network
+#' @param network_color color of spatial network
+#' @param spatial_network_name name of spatial network to use
+#' @param show_grid show spatial grid
+#' @param grid_color color of spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param midpoint expression midpoint
+#' @param scale_alpha_with_expression scale expression with ggplot alpha parameter
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param show_legend show legend
+#' @param cow_n_col cowplot param: how many columns
+#' @param cow_rel_h cowplot param: relative height
+#' @param cow_rel_w cowplot param: relative width
+#' @param cow_align cowplot param: how to align
+#' @param axis_scale three mode to adjust axis scale
+#' @param x_ticks number of ticks on x axis
+#' @param y_ticks number of ticks on y axis
+#' @param z_ticks number of ticks on z axis
+#' @param plot_method two methods of plot
+#' @param show_plots show plots
+#' @return ggplot or plotly
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     visGenePlot(gobject)
+visGenePlot <- function(gobject,
+                        expression_values = c('normalized', 'scaled', 'custom'),
+                        genes,
+                        genes_high_color = NULL,
+                        genes_low_color = "blue",
+                        show_network = F,
+                        network_color = NULL,
+                        spatial_network_name = 'spatial_network',
+                        edge_alpha = NULL,
+                        show_grid = F,
+                        grid_color = NULL,
+                        spatial_grid_name = 'spatial_grid',
+                        midpoint = 0,
+                        scale_alpha_with_expression = TRUE,
+                        point_size = 1,
+                        point_border_col = 'black',
+                        point_border_stroke = 0.1,
+                        show_legend = T,
+                        cow_n_col = 2,
+                        cow_rel_h = 1,
+                        cow_rel_w = 1,
+                        cow_align = 'h',
+                        axis_scale = c("cube","real","custom"),
+                        custom_ratio = NULL,
+                        x_ticks = NULL,
+                        y_ticks = NULL,
+                        z_ticks = NULL,
+                        plot_method = c( 'ggplot','plotly'),
+                        show_plots = F){
+  
+  
+  plot_method = match.arg(plot_method, choices = c('ggplot','plotly'))
+  
+  if(plot_method == 'ggplot'){
+    
+    if(is.null(genes_high_color)){
+      genes_high_color = "red"
+    }
+    result = visGenePlot_2D_ggplot(gobject = gobject,
+                                   expression_values = expression_values,
+                                   genes = genes,
+                                   genes_high_color = genes_high_color,
+                                   genes_low_color = genes_low_color,
+                                   show_network = show_network,
+                                   network_color = network_color,
+                                   spatial_network_name = spatial_network_name,
+                                   edge_alpha = edge_alpha,
+                                   show_grid = show_grid,
+                                   grid_color = grid_color,
+                                   spatial_grid_name = spatial_grid_name,
+                                   midpoint = midpoint,
+                                   scale_alpha_with_expression = scale_alpha_with_expression,
+                                   point_size = point_size,
+                                   point_border_col = point_border_col,
+                                   point_border_stroke = point_border_stroke,
+                                   show_legend = show_legend,
+                                   cow_n_col = cow_n_col,
+                                   cow_rel_h = cow_rel_h,
+                                   cow_rel_w = cow_rel_w,
+                                   cow_align = cow_align,
+                                   show_plots = show_plots)
+  }
+  else{
+    
+    result = visGenePlot_3D_plotly(gobject,
+                                   expression_values = expression_values,
+                                   genes = genes,
+                                   show_network = show_network,
+                                   network_color = network_color,
+                                   spatial_network_name = spatial_network_name,
+                                   edge_alpha = edge_alpha,
+                                   show_grid = show_grid,
+                                   genes_high_color = genes_high_color,
+                                   genes_low_color = genes_low_color,
+                                   spatial_grid_name = spatial_grid_name,
+                                   point_size = point_size,
+                                   show_legend = show_legend,
+                                   axis_scale = axis_scale,
+                                   custom_ratio = custom_ratio,
+                                   x_ticks = x_ticks,
+                                   y_ticks = y_ticks,
+                                   z_ticks = z_ticks,
+                                   show_plots = show_plots)
+  }
+  return(result)
+}
+
+
+
+
 
 
 
