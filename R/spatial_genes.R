@@ -513,9 +513,9 @@ detectSpatialPatterns <- function(gobject,
   # annotate spatial locations with spatial grid information
   spatial_locs = copy(gobject@spatial_locs)
 
-  if(all(c('sdimx', 'sdimy', 'sdimz') %in% colnames(mylocations))) {
+  if(all(c('sdimx', 'sdimy', 'sdimz') %in% colnames(spatial_locs))) {
     spatial_locs = annotate_spatlocs_with_spatgrid_3D(spatloc = spatial_locs, spatgrid = spatial_grid)
-  } else if(all(c('sdimx', 'sdimy') %in% colnames(mylocations))) {
+  } else if(all(c('sdimx', 'sdimy') %in% colnames(spatial_locs))) {
     spatial_locs = annotate_spatlocs_with_spatgrid_2D(spatloc = spatial_locs, spatgrid = spatial_grid)
   }
 
@@ -682,7 +682,7 @@ showPattern <- function(spatPatObj,
 
     axis_scale = match.arg(axis_scale, c("cube","real","custom"))
 
-    ratio = plotly_axis_scale(annotated_grid,sdimx = "center_x",sdimy = "center_y",sdimz = "center_z",
+    ratio = plotly_axis_scale_3D(annotated_grid,sdimx = "center_x",sdimy = "center_y",sdimz = "center_z",
                               mode = axis_scale,custom_ratio = custom_ratio)
 
     dpl <- plotly::plot_ly(type = 'scatter3d',
