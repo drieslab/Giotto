@@ -448,6 +448,7 @@ visGenePlot <- function(gobject,
   ## plotting ##
 
   savelist <- list()
+
   #2D plot
   if(plot_dim == 2){
     for(gene in selected_genes) {
