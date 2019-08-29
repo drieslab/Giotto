@@ -508,7 +508,18 @@ detectSpatialPatterns <- function(gobject,
     stop("\n you need to provide an existing spatial grid name for this function to work \n")
   }
   spatial_grid = gobject@spatial_grid[[spatial_grid_name]]
-  spatial_locs = gobject@spatial_locs
+
+
+  # annotate spatial locations with spatial grid information
+  spatial_locs = copy(gobject@spatial_locs)
+
+  if(all(c('sdimx', 'sdimy', 'sdimz') %in% colnames(mylocations))) {
+    spatial_locs = annotate_spatlocs_with_spatgrid_3D(spatloc = spatial_locs, spatgrid = spatial_grid)
+  } else if(all(c('sdimx', 'sdimy') %in% colnames(mylocations))) {
+    spatial_locs = annotate_spatlocs_with_spatgrid_2D(spatloc = spatial_locs, spatgrid = spatial_grid)
+  }
+
+
 
   # filter grid, minimum number of cells per grid
   cells_per_grid = sort(table(spatial_locs$gr_loc))
