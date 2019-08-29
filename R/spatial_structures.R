@@ -349,3 +349,353 @@ createSpatialGrid <- function(gobject,
 
 }
 
+
+
+#' @title createSpatialGrid_3D
+#' @description create a spatial grid
+#' @param gobject giotto object
+#' @param sdimx_stepsize stepsize along the x-axis
+#' @param sdimy_stepsize stepsize along the y-axis
+#' @param sdimz_stepsize stepsize along the z-axis
+#' @param minimum_padding minimum padding on the edges
+#' @param name name for spatial grid (default = 'spatial_grid')
+#' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @return giotto object with updated spatial grid slot
+#' @details Creates a spatial grid with defined x, y (and z) dimensions.
+#' @export
+#' @examples
+#'     createSpatialGrid_3D(gobject)
+createSpatialGrid_3D <- function(gobject,
+                                 sdimx_stepsize = NULL,
+                                 sdimy_stepsize = NULL,
+                                 sdimz_stepsize = NULL,
+                                 minimum_padding = 1,
+                                 name = 'spatial_grid',
+                                 return_gobject = TRUE) {
+
+
+  spatlocs = copy(gobject@spatial_locs)
+  if(is.null(spatlocs)) stop('\n spatial locations are needed to create a spatial grid \n')
+
+  ## calculate sequences for desired stepsize
+  # x-axis
+  x_range = range(spatlocs$sdimx)
+  x_start = x_range[[1]] - minimum_padding
+  x_end = x_range[[2]] + minimum_padding
+  dimx_steps = ceiling( (x_end-x_start) / sdimx_stepsize)
+  dimx_start = mean(c(x_start, x_end))-((dimx_steps/2)*sdimx_stepsize)
+  dimx_end = mean(c(x_start, x_end))+((dimx_steps/2)*sdimx_stepsize)
+  my_x_seq = seq(from = dimx_start, to = dimx_end, by = sdimx_stepsize)
+
+  # y-axis
+  y_range = range(spatlocs$sdimy)
+  y_start = y_range[[1]] - minimum_padding
+  y_end = y_range[[2]] + minimum_padding
+  dimy_steps = ceiling( (y_end-y_start) / sdimy_stepsize)
+  dimy_start = mean(c(y_start, y_end))-((dimy_steps/2)*sdimy_stepsize)
+  dimy_end = mean(c(y_start, y_end))+((dimy_steps/2)*sdimy_stepsize)
+  my_y_seq = seq(from = dimy_start, to = dimy_end, by = sdimy_stepsize)
+
+  # z-axis
+  z_range = range(spatlocs$sdimz)
+  z_start = z_range[[1]] - minimum_padding
+  z_end = z_range[[2]] + minimum_padding
+  dimz_steps = ceiling( (z_end-z_start) / sdimz_stepsize)
+  dimz_start = mean(c(z_start, z_end))-((dimz_steps/2)*sdimz_stepsize)
+  dimz_end = mean(c(z_start, z_end))+((dimz_steps/2)*sdimz_stepsize)
+  my_z_seq = seq(from = dimz_start, to = dimz_end, by = sdimz_stepsize)
+
+  ## create grid with starts and ends
+  grid_starts = as.data.table(expand.grid(my_x_seq[-length(my_x_seq)],
+                                          my_y_seq[-length(my_y_seq)],
+                                          my_z_seq[-length(my_z_seq)]))
+  colnames(grid_starts) = c('x_start', 'y_start', 'z_start')
+  grid_ends = as.data.table(expand.grid(my_x_seq[-1],
+                                        my_y_seq[-1],
+                                        my_z_seq[-1]))
+  colnames(grid_ends) = c('x_end', 'y_end', 'z_end')
+  spatgrid = cbind(grid_starts, grid_ends)
+
+
+  ## first label the grid itself ##
+  spatgrid[, gr_name := paste0('gr_', 1:.N)]
+
+  # x-axis
+  x_labels = sort(unique(spatgrid$x_start))
+  x_gr_names = paste0('gr_x_', 1:length(x_labels))
+  names(x_gr_names) = x_labels
+  x_gr_names_vector = x_gr_names[as.character(spatgrid$x_start)]
+  spatgrid[, gr_x_name := x_gr_names_vector]
+
+  # y-axis
+  y_labels = sort(unique(spatgrid$y_start))
+  y_gr_names = paste0('gr_y_', 1:length(y_labels))
+  names(y_gr_names) = y_labels
+  y_gr_names_vector = y_gr_names[as.character(spatgrid$y_start)]
+  spatgrid[, gr_y_name := y_gr_names_vector]
+
+  # z-axis
+  z_labels = sort(unique(spatgrid$z_start))
+  z_gr_names = paste0('gr_z_', 1:length(z_labels))
+  names(z_gr_names) = z_labels
+  z_gr_names_vector = z_gr_names[as.character(spatgrid$z_start)]
+  spatgrid[, gr_z_name := z_gr_names_vector]
+
+
+
+
+  ## second label the spatial locations ##
+  spatlocs = copy(gobject@spatial_locs)
+
+  x_vector = spatlocs$sdimx
+  x_breaks = sort(unique(spatgrid$x_end))
+  x_breaks_labels = paste0('gr_x_', 1:length(x_breaks))
+  minimum_x = min(x_breaks) - sdimx_stepsize
+  my_x_gr = cut(x = x_vector, breaks = c(minimum_x, x_breaks), include.lowest = T, right = T, labels = x_breaks_labels)
+  spatlocs[, gr_x_loc := as.character(my_x_gr)]
+
+  y_vector = spatlocs$sdimy
+  y_breaks = sort(unique(spatgrid$y_end))
+  y_breaks_labels = paste0('gr_y_', 1:length(y_breaks))
+  minimum_y = min(y_breaks) - sdimy_stepsize
+  my_y_gr = cut(x = y_vector, breaks = c(minimum_y, y_breaks), include.lowest = T, right = T, labels = y_breaks_labels)
+  spatlocs[, gr_y_loc := as.character(my_y_gr)]
+
+  z_vector = spatlocs$sdimz
+  z_breaks = sort(unique(spatgrid$z_end))
+  z_breaks_labels = paste0('gr_z_', 1:length(z_breaks))
+  minimum_z = min(z_breaks) - sdimz_stepsize
+  my_z_gr = cut(x = z_vector, breaks = c(minimum_z, z_breaks), include.lowest = T, right = T, labels = z_breaks_labels)
+  spatlocs[, gr_z_loc := as.character(my_z_gr)]
+
+
+  ## for all dimensions ##
+  # converter
+  gr_dim_names = spatgrid$gr_name
+  names(gr_dim_names) = paste0(spatgrid$gr_x_name,'-', spatgrid$gr_y_name, '-', spatgrid$gr_z_name)
+
+  indiv_dim_names = paste0(spatlocs$gr_x_loc,'-', spatlocs$gr_y_loc, '-', spatlocs$gr_z_loc)
+  my_gr = gr_dim_names[indiv_dim_names]
+  spatlocs[, gr_loc := as.character(my_gr)]
+
+
+
+  if(return_gobject == TRUE) {
+
+    spg_names = names(gobject@spatial_grid[[name]])
+
+    if(name %in% spg_names) {
+      cat('\n ', name, ' has already been used, will be overwritten \n')
+    }
+
+    # assign spatial grid
+    gobject@spatial_grid[[name]] <- spatgrid
+
+    # assign spatial locations back to object
+    gobject@spatial_locs = spatlocs
+
+    ## update parameters used ##
+    parameters_list = gobject@parameters
+    number_of_rounds = length(parameters_list)
+    update_name = paste0(number_of_rounds,'_grid')
+    # parameters to include
+    parameters_list[[update_name]] = c('x stepsize' = sdimx_stepsize,
+                                       'y stepsize' = sdimy_stepsize,
+                                       'z stepsize' = sdimz_stepsize,
+                                       'minimum padding' = minimum_padding,
+                                       'name' = name)
+    gobject@parameters = parameters_list
+
+    return(gobject)
+
+  } else {
+
+    return(list(grid = spatgrid, locs = spatlocs))
+  }
+}
+
+#' @title createSpatialGrid_2D
+#' @description create a spatial grid
+#' @param gobject giotto object
+#' @param sdimx_stepsize stepsize along the x-axis
+#' @param sdimy_stepsize stepsize along the y-axis
+#' @param minimum_padding minimum padding on the edges
+#' @param name name for spatial grid (default = 'spatial_grid')
+#' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @return giotto object with updated spatial grid slot
+#' @details Creates a spatial grid with defined x, y (and z) dimensions.
+#' @export
+#' @examples
+#'     createSpatialGrid_2D(gobject)
+createSpatialGrid_2D <- function(gobject,
+                                 sdimx_stepsize = NULL,
+                                 sdimy_stepsize = NULL,
+                                 minimum_padding = 1,
+                                 name = 'spatial_grid',
+                                 return_gobject = TRUE) {
+
+
+  spatlocs = copy(gobject@spatial_locs)
+  if(is.null(spatlocs)) stop('\n spatial locations are needed to create a spatial grid \n')
+
+  ## calculate sequences for desired stepsize
+  # x-axis
+  x_range = range(spatlocs$sdimx)
+  x_start = x_range[[1]] - minimum_padding
+  x_end = x_range[[2]] + minimum_padding
+  dimx_steps = ceiling( (x_end-x_start) / sdimx_stepsize)
+  dimx_start = mean(c(x_start, x_end))-((dimx_steps/2)*sdimx_stepsize)
+  dimx_end = mean(c(x_start, x_end))+((dimx_steps/2)*sdimx_stepsize)
+  my_x_seq = seq(from = dimx_start, to = dimx_end, by = sdimx_stepsize)
+
+  # y-axis
+  y_range = range(spatlocs$sdimy)
+  y_start = y_range[[1]] - minimum_padding
+  y_end = y_range[[2]] + minimum_padding
+  dimy_steps = ceiling( (y_end-y_start) / sdimy_stepsize)
+  dimy_start = mean(c(y_start, y_end))-((dimy_steps/2)*sdimy_stepsize)
+  dimy_end = mean(c(y_start, y_end))+((dimy_steps/2)*sdimy_stepsize)
+  my_y_seq = seq(from = dimy_start, to = dimy_end, by = sdimy_stepsize)
+
+
+  ## create grid with starts and ends
+  grid_starts = as.data.table(expand.grid(my_x_seq[-length(my_x_seq)],
+                                          my_y_seq[-length(my_y_seq)]))
+  colnames(grid_starts) = c('x_start', 'y_start')
+  grid_ends = as.data.table(expand.grid(my_x_seq[-1],
+                                        my_y_seq[-1]))
+  colnames(grid_ends) = c('x_end', 'y_end')
+  spatgrid = cbind(grid_starts, grid_ends)
+
+
+  ## first label the grid itself ##
+  spatgrid[, gr_name := paste0('gr_', 1:.N)]
+
+  # x-axis
+  x_labels = sort(unique(spatgrid$x_start))
+  x_gr_names = paste0('gr_x_', 1:length(x_labels))
+  names(x_gr_names) = x_labels
+  x_gr_names_vector = x_gr_names[as.character(spatgrid$x_start)]
+  spatgrid[, gr_x_name := x_gr_names_vector]
+
+  # y-axis
+  y_labels = sort(unique(spatgrid$y_start))
+  y_gr_names = paste0('gr_y_', 1:length(y_labels))
+  names(y_gr_names) = y_labels
+  y_gr_names_vector = y_gr_names[as.character(spatgrid$y_start)]
+  spatgrid[, gr_y_name := y_gr_names_vector]
+
+
+  ## second label the spatial locations ##
+  spatlocs = copy(gobject@spatial_locs)
+
+  x_vector = spatlocs$sdimx
+  x_breaks = sort(unique(spatgrid$x_end))
+  x_breaks_labels = paste0('gr_x_', 1:length(x_breaks))
+  minimum_x = min(x_breaks) - sdimx_stepsize
+  my_x_gr = cut(x = x_vector, breaks = c(minimum_x, x_breaks), include.lowest = T, right = T, labels = x_breaks_labels)
+  spatlocs[, gr_x_loc := as.character(my_x_gr)]
+
+  y_vector = spatlocs$sdimy
+  y_breaks = sort(unique(spatgrid$y_end))
+  y_breaks_labels = paste0('gr_y_', 1:length(y_breaks))
+  minimum_y = min(y_breaks) - sdimy_stepsize
+  my_y_gr = cut(x = y_vector, breaks = c(minimum_y, y_breaks), include.lowest = T, right = T, labels = y_breaks_labels)
+  spatlocs[, gr_y_loc := as.character(my_y_gr)]
+
+
+
+  ## for all dimensions ##
+  # converter
+  gr_dim_names = spatgrid$gr_name
+  names(gr_dim_names) = paste0(spatgrid$gr_x_name,'-', spatgrid$gr_y_name)
+
+  indiv_dim_names = paste0(spatlocs$gr_x_loc,'-', spatlocs$gr_y_loc)
+  my_gr = gr_dim_names[indiv_dim_names]
+  spatlocs[, gr_loc := as.character(my_gr)]
+
+
+
+  if(return_gobject == TRUE) {
+
+    spg_names = names(gobject@spatial_grid[[name]])
+
+    if(name %in% spg_names) {
+      cat('\n ', name, ' has already been used, will be overwritten \n')
+    }
+
+    # assign spatial grid
+    gobject@spatial_grid[[name]] <- spatgrid
+
+    # assign spatial locations back to object
+    gobject@spatial_locs = spatlocs
+
+    ## update parameters used ##
+    parameters_list = gobject@parameters
+    number_of_rounds = length(parameters_list)
+    update_name = paste0(number_of_rounds,'_grid')
+    # parameters to include
+    parameters_list[[update_name]] = c('x stepsize' = sdimx_stepsize,
+                                       'y stepsize' = sdimy_stepsize,
+                                       'minimum padding' = minimum_padding,
+                                       'name' = name)
+    gobject@parameters = parameters_list
+
+    return(gobject)
+
+  } else {
+
+    return(list(grid = spatgrid, locs = spatlocs))
+  }
+}
+
+
+#' @title createSpatialGrid2
+#' @description create a spatial grid
+#' @param gobject giotto object
+#' @param sdimx_stepsize stepsize along the x-axis
+#' @param sdimy_stepsize stepsize along the y-axis
+#' @param sdimz_stepsize stepsize along the z-axis
+#' @param minimum_padding minimum padding on the edges
+#' @param name name for spatial grid (default = 'spatial_grid')
+#' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @return giotto object with updated spatial grid slot
+#' @details Creates a spatial grid with defined x, y (and z) dimensions.
+#' @export
+#' @examples
+#'     createSpatialGrid2(gobject)
+createSpatialGrid2 <- function(gobject,
+                               sdimx_stepsize = NULL,
+                               sdimy_stepsize = NULL,
+                               sdimz_stepsize = NULL,
+                               minimum_padding = 1,
+                               name = 'spatial_grid',
+                               return_gobject = TRUE) {
+
+  if(lenght(c(sdimx_stepsize, sdimy_stepsize, sdimz_stepsize)) == 3) {
+
+    result = createSpatialGrid_3D(gobject = gobject,
+                                  sdimx_stepsize = sdimx_stepsize,
+                                  sdimy_stepsize = sdimy_stepsize,
+                                  sdimz_stepsize = sdimz_stepsize,
+                                  minimum_padding = minimum_padding,
+                                  name = name,
+                                  return_gobject = return_gobject)
+
+  } else if(!is.null(sdimx_stepsize) & !is.null(sdimy_stepsize)) {
+
+    result = createSpatialGrid_2D(gobject = gobject,
+                                  sdimx_stepsize = sdimx_stepsize,
+                                  sdimy_stepsize = sdimy_stepsize,
+                                  minimum_padding = minimum_padding,
+                                  name = name,
+                                  return_gobject = return_gobject)
+
+  } else {
+    cat('\n the stepsize for the x-axis (sdimx) and y-axis (sdimy) is the minimally required \n')
+    cat('\n Additionally for a 3D spatial grid the z-axis (sdimz) is also required \n')
+  }
+  return(result)
+}
+
+
