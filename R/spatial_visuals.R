@@ -2742,8 +2742,8 @@ visSpatDimPlot <- function(gobject,
 
 
 
-#' @title visDimGenePlot
-#' @name visDimGenePlot
+#' @title visDimGenePlot_2D_ggplot
+#' @name visDimGenePlot_2D_ggplot
 #' @description Visualize cells and gene expression according to dimension reduction coordinates
 #' @param gobject giotto object
 #' @param expression_values gene expression values to use
@@ -2771,35 +2771,211 @@ visSpatDimPlot <- function(gobject,
 #' @details Description of parameters.
 #' @export
 #' @examples
-#'     visDimGenePlot(gobject)
-visDimGenePlot <- function(gobject,
-                           expression_values = c('normalized', 'scaled', 'custom'),
-                           genes = NULL,
-                           dim_reduction_to_use = 'umap',
-                           dim_reduction_name = 'umap',
-                           dim1_to_use = 1,
-                           dim2_to_use = 2,
-                           dim3_to_use = NULL,
-                           show_NN_network = T,
-                           nn_network_to_use = 'sNN',
-                           network_name = 'sNN.pca',
-                           network_color = "lightgray",
-                           edge_alpha = NULL,
-                           scale_alpha_with_expression = TRUE,
-                           point_size = 1,
-                           genes_high_color = NULL,
-                           genes_low_color = NULL,
-                           point_border_col = 'black',
-                           point_border_stroke = 0.1,
-                           midpoint = 0,
-                           cow_n_col = 2,
-                           cow_rel_h = 1,
-                           cow_rel_w = 1,
-                           cow_align = 'h',
-                           show_legend = T,
-                           show_plots = F) {
+#'     visDimGenePlot_2D_ggplot(gobject)
+visDimGenePlot_2D_ggplot <- function(gobject,
+                                     expression_values = c('normalized', 'scaled', 'custom'),
+                                     genes = NULL,
+                                     dim_reduction_to_use = 'umap',
+                                     dim_reduction_name = 'umap',
+                                     dim1_to_use = 1,
+                                     dim2_to_use = 2,
+                                     show_NN_network = F,
+                                     nn_network_to_use = 'sNN',
+                                     network_name = 'sNN.pca',
+                                     network_color = "lightgray",
+                                     edge_alpha = NULL,
+                                     scale_alpha_with_expression = TRUE,
+                                     point_size = 1,
+                                     genes_high_color = "red",
+                                     genes_low_color = "blue",
+                                     point_border_col = 'black',
+                                     point_border_stroke = 0.1,
+                                     midpoint = 0,
+                                     cow_n_col = 2,
+                                     cow_rel_h = 1,
+                                     cow_rel_w = 1,
+                                     cow_align = 'h',
+                                     show_legend = T,
+                                     show_plots = F){
+  ## select genes ##
+  selected_genes = genes
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  
+  # only keep genes that are in the dataset
+  selected_genes = selected_genes[selected_genes %in% rownames(expr_values) ]
+  
+  #
+  if(length(selected_genes) == 1) {
+    subset_expr_data = expr_values[rownames(expr_values) %in% selected_genes, ]
+    t_sub_expr_data_DT = data.table('selected_gene' = subset_expr_data, 'cell_ID' = colnames(expr_values))
+    data.table::setnames(t_sub_expr_data_DT, 'selected_gene', selected_genes)
+  } else {
+    subset_expr_data = expr_values[rownames(expr_values) %in% selected_genes, ]
+    t_sub_expr_data = t(subset_expr_data)
+    t_sub_expr_data_DT = data.table::as.data.table(t_sub_expr_data)
+    t_sub_expr_data_DT[, cell_ID := rownames(t_sub_expr_data)]
+  }
   
   
+  ## dimension reduction ##
+  dim_dfr = gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$coordinates[,c(dim1_to_use, dim2_to_use)]
+  dim_names = colnames(dim_dfr)
+  dim_DT = data.table::as.data.table(dim_dfr); dim_DT[, cell_ID := rownames(dim_dfr)]
+  
+  ## annotated cell metadata
+  cell_metadata = gobject@cell_metadata
+  annotated_DT = merge(cell_metadata, dim_DT, by = 'cell_ID')
+  
+  ## merge gene info
+  annotated_gene_DT = merge(annotated_DT, t_sub_expr_data_DT, by = 'cell_ID')
+  
+  # create input for network
+  if(show_NN_network == TRUE) {
+    
+    # nn_network
+    selected_nn_network = gobject@nn_network[[nn_network_to_use]][[network_name]][['igraph']]
+    network_DT = data.table::as.data.table(igraph::as_data_frame(selected_nn_network, what = 'edges'))
+    
+    # annotated network
+    old_dim_names = dim_names
+    
+    annotated_network_DT <- merge(network_DT, dim_DT, by.x = 'from', by.y = 'cell_ID')
+    from_dim_names = paste0('from_', old_dim_names)
+    data.table::setnames(annotated_network_DT, old = old_dim_names, new = from_dim_names)
+    
+    annotated_network_DT <- merge(annotated_network_DT, dim_DT, by.x = 'to', by.y = 'cell_ID')
+    to_dim_names = paste0('to_', old_dim_names)
+    data.table::setnames(annotated_network_DT, old = old_dim_names, new = to_dim_names)
+    
+  }
+  
+  
+  
+  ## visualize multipe plots ##
+  ## 2D plots ##
+  savelist <- list()    
+  
+  for(gene in selected_genes) {
+    
+    
+    ## OLD need to be combined ##
+    pl <- ggplot2::ggplot()
+    pl <- pl + ggplot2::theme_classic()
+    
+    # network layer
+    if(show_NN_network == TRUE) {
+      
+      if(is.null(edge_alpha)) {
+        edge_alpha = 0.5
+        pl <- pl + ggplot2::geom_segment(data = annotated_network_DT,
+                                         aes_string(x = from_dim_names[1], y = from_dim_names[2],
+                                                    xend = to_dim_names[1], yend = to_dim_names[2]),
+                                         alpha = edge_alpha, color=network_color,size = 0.1,
+                                         show.legend = F)
+      } else if(is.numeric(edge_alpha)) {
+        pl <- pl + ggplot2::geom_segment(data = annotated_network_DT,
+                                         aes_string(x = from_dim_names[1], y = from_dim_names[2],
+                                                    xend = to_dim_names[1], yend = to_dim_names[2]),
+                                         alpha = edge_alpha, color=network_color,size = 0.1,
+                                         show.legend = F)
+      } else if(is.character(edge_alpha)) {
+        
+        if(edge_alpha %in% colnames(annotated_network_DT)) {
+          pl <- pl + ggplot2::geom_segment(data = annotated_network_DT,
+                                           aes_string(x = from_dim_names[1], y = from_dim_names[2],
+                                                      xend = to_dim_names[1],
+                                                      yend = to_dim_names[2], alpha = edge_alpha),
+                                           color=network_color,
+                                           show.legend = F)
+        }
+      }
+    }
+    
+    
+    # point layer
+    if(is.null(genes)) {
+      cell_color = 'lightblue'
+      pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string(x = dim_names[1], dim_names[2]),
+                                     fill = cell_color, show.legend = show_legend, size =  point_size)
+      
+    } else {
+      if(scale_alpha_with_expression == TRUE) {
+        pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string(x = dim_names[1], y = dim_names[2], fill = gene, alpha = gene),
+                                       show.legend = show_legend, shape = 21, size = point_size,
+                                       color = point_border_col, stroke = point_border_stroke)
+      } else {
+        pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string(x = dim_names[1], y = dim_names[2], fill = gene),
+                                       show.legend = show_legend, shape = 21,
+                                       size =  point_size,
+                                       color = point_border_col, stroke = point_border_stroke)
+      }
+      
+      pl <- pl + ggplot2::scale_fill_gradient2(low = genes_low_color, mid = 'white', high = genes_high_color, midpoint = midpoint)
+    }
+    
+    pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y')
+    
+    if(show_plots == TRUE) {
+      print(pl)
+    }
+    
+    savelist[[gene]] <- pl
+  }
+  
+  # combine plots with cowplot
+  combo_plot <- cowplot::plot_grid(plotlist = savelist,
+                                   ncol = cow_n_col,
+                                   rel_heights = cow_rel_h, rel_widths = cow_rel_w, align = cow_align)
+  combined_cowplot = cowplot::plot_grid(combo_plot)
+  
+  return(combined_cowplot)
+}
+
+
+#' @title visDimGenePlot_3D_plotly
+#' @name visDimGenePlot_3D_plotly
+#' @description Visualize cells and gene expression according to dimension reduction coordinates
+#' @param gobject giotto object
+#' @param expression_values gene expression values to use
+#' @param genes genes to show
+#' @param dim_reduction_to_use dimension reduction to use
+#' @param dim_reduction_name dimension reduction name
+#' @param dim1_to_use dimension to use on x-axis
+#' @param dim2_to_use dimension to use on y-axis
+#' @param dim3_to_use dimension to use on z-axis
+#' @param show_NN_network show underlying NN network
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
+#' @param network_name name of NN network to use, if show_NN_network = TRUE
+#' @param edge_alpha column to use for alpha of the edges
+#' @param point_size size of point (cell)
+#' @param show_legend show legend
+#' @param show_plots show plots
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     visDimGenePlot_3D_plotly(gobject)
+
+
+visDimGenePlot_3D_plotly <- function(gobject,
+                                     expression_values = c('normalized', 'scaled', 'custom'),
+                                     genes = NULL,
+                                     dim_reduction_to_use = 'umap',
+                                     dim_reduction_name = 'umap',
+                                     dim1_to_use = 1,
+                                     dim2_to_use = 2,
+                                     dim3_to_use = 3,
+                                     show_NN_network = F,
+                                     nn_network_to_use = 'sNN',
+                                     network_name = 'sNN.pca',
+                                     network_color = "lightgray",
+                                     edge_alpha = NULL,
+                                     point_size = 1,
+                                     genes_high_color = NULL,
+                                     genes_low_color = NULL,
+                                     show_legend = T,
+                                     show_plots = F){
   ## select genes ##
   selected_genes = genes
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
@@ -2856,206 +3032,248 @@ visDimGenePlot <- function(gobject,
   
   
   ## visualize multipe plots ##
-  ## 2D plots ##
-  savelist <- list()
-  if(is.null(dim3_to_use)){
-    for(gene in selected_genes) {
-      
-      
-      ## OLD need to be combined ##
-      pl <- ggplot2::ggplot()
-      pl <- pl + ggplot2::theme_classic()
-      
-      # network layer
-      if(show_NN_network == TRUE) {
-        
-        if(is.null(edge_alpha)) {
-          edge_alpha = 0.5
-          pl <- pl + ggplot2::geom_segment(data = annotated_network_DT,
-                                           aes_string(x = from_dim_names[1], y = from_dim_names[2],
-                                                      xend = to_dim_names[1], yend = to_dim_names[2]),
-                                           alpha = edge_alpha, color=network_color,
-                                           show.legend = show_legend)
-        } else if(is.numeric(edge_alpha)) {
-          pl <- pl + ggplot2::geom_segment(data = annotated_network_DT,
-                                           aes_string(x = from_dim_names[1], y = from_dim_names[2],
-                                                      xend = to_dim_names[1], yend = to_dim_names[2]),
-                                           alpha = edge_alpha, color=network_color,
-                                           show.legend = show_legend)
-        } else if(is.character(edge_alpha)) {
-          
-          if(edge_alpha %in% colnames(annotated_network_DT)) {
-            pl <- pl + ggplot2::geom_segment(data = annotated_network_DT,
-                                             aes_string(x = from_dim_names[1], y = from_dim_names[2],
-                                                        xend = to_dim_names[1],
-                                                        yend = to_dim_names[2], alpha = edge_alpha),
-                                             color=network_color,
-                                             show.legend = show_legend)
-          }
-        }
-      }
-      
-      
-      # point layer
-      if(is.null(genes)) {
-        cell_color = 'lightblue'
-        pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string(x = dim_names[1], dim_names[2]),
-                                       fill = cell_color, show.legend = show_legend, size =  point_size)
-        
-      } else {
-        if(scale_alpha_with_expression == TRUE) {
-          pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string(x = dim_names[1], y = dim_names[2], fill = gene, alpha = gene),
-                                         show.legend = show_legend, shape = 21, size = point_size,
-                                         color = point_border_col, stroke = point_border_stroke)
-        } else {
-          pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string(x = dim_names[1], y = dim_names[2], fill = gene),
-                                         show.legend = show_legend, shape = 21,
-                                         size =  point_size,
-                                         color = point_border_col, stroke = point_border_stroke)
-        }
-        
-        pl <- pl + ggplot2::scale_fill_gradient2(low = 'grey', mid = 'lightgrey', high = "red", midpoint = midpoint)
-      }
-      
-      pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y')
-      
-      if(show_plots == TRUE) {
-        print(pl)
-      }
-      
-      savelist[[gene]] <- pl
-    }
-    
-    # combine plots with cowplot
-    combo_plot <- cowplot::plot_grid(plotlist = savelist,
-                                     ncol = cow_n_col,
-                                     rel_heights = cow_rel_h, rel_widths = cow_rel_w, align = cow_align)
-    combined_cowplot = cowplot::plot_grid(combo_plot)
-    
-    return(combined_cowplot)
-    
+  ## 3D plots ##
+  
+  
+  if(show_NN_network == TRUE){
+    edges <- plotly_network(annotated_network_DT,
+                            "from_Dim.1","from_Dim.2","from_Dim.3",
+                            "to_Dim.1","to_Dim.2","to_Dim.3")
   }
-  
-  
-  else{
-    if(show_NN_network == TRUE){
-      edges <- plotly_network(annotated_network_DT,
-                              "from_Dim.1","from_Dim.2","from_Dim.3",
-                              "to_Dim.1","to_Dim.2","to_Dim.3")
-    }
-    ##Point layer
-    if(length(selected_genes) > 4){
-      stop("\n The max number of genes showed together is 4.Otherwise it will be too small to see\n
+  ##Point layer
+  if(length(selected_genes) > 4){
+    stop("\n The max number of genes showed together is 4.Otherwise it will be too small to see\n
               \n If you have more genes to show, please divide them into groups\n")
+  }
+  if(!is.null(genes_high_color)){
+    if(length(genes_high_color)!=length(selected_genes)&length(genes_high_color) != 1){
+      stop('\n The number of genes and their corresbonding do not match\n')
     }
-    if(!is.null(genes_high_color)){
-      if(length(genes_high_color)!=length(selected_genes)&length(genes_high_color) != 1){
-        stop('\n The number of genes and their corresbonding do not match\n')
-      }
-    }
-    else if (is.null(genes_high_color)){
-      genes_high_color = rep("red",length(selected_genes))
-    }
-    else{
-      genes_high_color = rep(genes_high_color,length(selected_genes))
-    }
-    if(is.null(genes_low_color)){
-      genes_low_color = "blue"
-    }
-    titleX = title = paste(dim_reduction_to_use,dim_names[1],sep = " ")
-    titleY = title = paste(dim_reduction_to_use,dim_names[2],sep = " ")
-    titleZ = title = paste(dim_reduction_to_use,dim_names[3],sep = " ")
-    for(i in 1:length(selected_genes)){
-      
-      gene = selected_genes[i]
-      
-      pl <- plotly::plot_ly(name = gene,scene=paste("scene",i,sep = ""))
-      pl <- pl %>%  plotly::add_trace(data = annotated_gene_DT,type = 'scatter3d',mode = "markers",
-                                      x = annotated_gene_DT[[dim_names[1]]],
-                                      y = annotated_gene_DT[[dim_names[2]]],
-                                      z = annotated_gene_DT[[dim_names[3]]],
-                                      color = annotated_gene_DT[[gene]],
-                                      colors = c(genes_low_color,"white",genes_high_color[i]),
-                                      marker = list(size = point_size))
-      
-      ## plot spatial network
-      if(show_NN_network == TRUE) {
-        pl <- pl %>% plotly::add_trace(name = "sptial network",mode = "lines",
-                                       type = "scatter3d",opacity = edge_alpha,
-                                       showlegend = F,
-                                       data = edges,
-                                       x = ~x,y=~y,z=~z,
-                                       line=list(color=network_color, width = 0.5))
-      }
-      pl <- pl %>% plotly::colorbar(title = gene)
-      savelist[[gene]] <- pl
-    }
+  }
+  else if (is.null(genes_high_color)){
+    genes_high_color = rep("red",length(selected_genes))
+  }
+  else{
+    genes_high_color = rep(genes_high_color,length(selected_genes))
+  }
+  if(is.null(genes_low_color)){
+    genes_low_color = "blue"
+  }
+  titleX = title = paste(dim_reduction_to_use,dim_names[1],sep = " ")
+  titleY = title = paste(dim_reduction_to_use,dim_names[2],sep = " ")
+  titleZ = title = paste(dim_reduction_to_use,dim_names[3],sep = " ")
+  savelist <- list()
+  for(i in 1:length(selected_genes)){
     
-    if(length(savelist) == 1){
-      savelist[[1]] <- savelist[[1]] %>% plotly::layout(scene = list(
-        xaxis = list(title = titleX),
-        yaxis = list(title = titleY),
-        zaxis = list(title = titleZ)))
-      if(show_plots){
-        print(savelist[[1]])
-      }
-      return (savelist[[1]])
+    gene = selected_genes[i]
+    
+    pl <- plotly::plot_ly(name = gene,scene=paste("scene",i,sep = ""))
+    pl <- pl %>%  plotly::add_trace(data = annotated_gene_DT,type = 'scatter3d',mode = "markers",
+                                    x = annotated_gene_DT[[dim_names[1]]],
+                                    y = annotated_gene_DT[[dim_names[2]]],
+                                    z = annotated_gene_DT[[dim_names[3]]],
+                                    color = annotated_gene_DT[[gene]],
+                                    colors = c(genes_low_color,"white",genes_high_color[i]),
+                                    marker = list(size = point_size))
+    
+    ## plot spatial network
+    if(show_NN_network == TRUE) {
+      pl <- pl %>% plotly::add_trace(name = "sptial network",mode = "lines",
+                                     type = "scatter3d",opacity = edge_alpha,
+                                     showlegend = F,
+                                     data = edges,
+                                     x = ~x,y=~y,z=~z,
+                                     line=list(color=network_color, width = 0.5))
     }
-    else if(length(savelist)==2){
-      cowplot <- suppressWarnings(subplot(savelist,titleX = TRUE,titleY = TRUE)%>%
-                                    plotly::layout(scene = list(domain = list(x = c(0, 0.5), y = c(0,1)),
-                                                                xaxis = list(title = titleX),
-                                                                yaxis = list(title = titleY),
-                                                                zaxis = list(title = titleZ)),
-                                                   scene2 = list(domain = list(x = c(0.5, 1), y = c(0,1)),
-                                                                 xaxis = list(title = titleX),
-                                                                 yaxis = list(title = titleY),
-                                                                 zaxis = list(title = titleZ)),
-                                                   legend = list(x = 100, y = 0)))
-    }
-    else if(length(savelist)==3){
-      cowplot <- suppressWarnings(subplot(savelist,titleX = TRUE,titleY = TRUE)%>%
-                                    plotly::layout(scene = list(domain = list(x = c(0, 0.5), y = c(0,0.5)),
-                                                                xaxis = list(title = titleX),
-                                                                yaxis = list(title = titleY),
-                                                                zaxis = list(title = titleZ)),
-                                                   scene2 = list(domain = list(x = c(0.5, 1), y = c(0,0.5)),
-                                                                 xaxis = list(title = titleX),
-                                                                 yaxis = list(title = titleY),
-                                                                 zaxis = list(title = titleZ)),
-                                                   scene3 = list(domain = list(x = c(0, 0.5), y = c(0.5,1)),
-                                                                 xaxis = list(title = titleX),
-                                                                 yaxis = list(title = titleY),
-                                                                 zaxis = list(title = titleZ)),
-                                                   legend = list(x = 100, y = 0)))
-    }
-    else if(length(savelist)==4){
-      
-      cowplot <- suppressWarnings(subplot(savelist)%>% plotly::layout(scene = list(domain = list(x = c(0, 0.5), y = c(0,0.5)),
-                                                                                   xaxis = list(title = titleX),
-                                                                                   yaxis = list(title = titleY),
-                                                                                   zaxis = list(title = titleZ)),
-                                                                      scene2 = list(domain = list(x = c(0.5, 1), y = c(0,0.5)),
-                                                                                    xaxis = list(title = titleX),
-                                                                                    yaxis = list(title = titleY),
-                                                                                    zaxis = list(title = titleZ)),
-                                                                      scene3 = list(domain = list(x = c(0, 0.5), y = c(0.5,1)),
-                                                                                    xaxis = list(title = titleX),
-                                                                                    yaxis = list(title = titleY),
-                                                                                    zaxis = list(title = titleZ)),
-                                                                      scene4 = list(domain = list(x = c(0.5, 1), y = c(0.5,1)),
-                                                                                    xaxis = list(title = titleX),
-                                                                                    yaxis = list(title = titleY),
-                                                                                    zaxis = list(title = titleZ)),
-                                                                      legend = list(x = 100, y = 0)))
-    }
-    if(show_plots){
-      print(cowplot)
-    }
-    return(cowplot)
+    pl <- pl %>% plotly::colorbar(title = gene)
+    savelist[[gene]] <- pl
   }
   
+  if(length(savelist) == 1){
+    savelist[[1]] <- savelist[[1]] %>% plotly::layout(scene = list(
+      xaxis = list(title = titleX),
+      yaxis = list(title = titleY),
+      zaxis = list(title = titleZ)))
+    if(show_plots){
+      print(savelist[[1]])
+    }
+    return (savelist[[1]])
+  }
+  else if(length(savelist)==2){
+    cowplot <- suppressWarnings(subplot(savelist,titleX = TRUE,titleY = TRUE)%>%
+                                  plotly::layout(scene = list(domain = list(x = c(0, 0.5), y = c(0,1)),
+                                                              xaxis = list(title = titleX),
+                                                              yaxis = list(title = titleY),
+                                                              zaxis = list(title = titleZ)),
+                                                 scene2 = list(domain = list(x = c(0.5, 1), y = c(0,1)),
+                                                               xaxis = list(title = titleX),
+                                                               yaxis = list(title = titleY),
+                                                               zaxis = list(title = titleZ)),
+                                                 legend = list(x = 100, y = 0)))
+  }
+  else if(length(savelist)==3){
+    cowplot <- suppressWarnings(subplot(savelist,titleX = TRUE,titleY = TRUE)%>%
+                                  plotly::layout(scene = list(domain = list(x = c(0, 0.5), y = c(0,0.5)),
+                                                              xaxis = list(title = titleX),
+                                                              yaxis = list(title = titleY),
+                                                              zaxis = list(title = titleZ)),
+                                                 scene2 = list(domain = list(x = c(0.5, 1), y = c(0,0.5)),
+                                                               xaxis = list(title = titleX),
+                                                               yaxis = list(title = titleY),
+                                                               zaxis = list(title = titleZ)),
+                                                 scene3 = list(domain = list(x = c(0, 0.5), y = c(0.5,1)),
+                                                               xaxis = list(title = titleX),
+                                                               yaxis = list(title = titleY),
+                                                               zaxis = list(title = titleZ)),
+                                                 legend = list(x = 100, y = 0)))
+  }
+  else if(length(savelist)==4){
+    
+    cowplot <- suppressWarnings(subplot(savelist)%>% plotly::layout(scene = list(domain = list(x = c(0, 0.5), y = c(0,0.5)),
+                                                                                 xaxis = list(title = titleX),
+                                                                                 yaxis = list(title = titleY),
+                                                                                 zaxis = list(title = titleZ)),
+                                                                    scene2 = list(domain = list(x = c(0.5, 1), y = c(0,0.5)),
+                                                                                  xaxis = list(title = titleX),
+                                                                                  yaxis = list(title = titleY),
+                                                                                  zaxis = list(title = titleZ)),
+                                                                    scene3 = list(domain = list(x = c(0, 0.5), y = c(0.5,1)),
+                                                                                  xaxis = list(title = titleX),
+                                                                                  yaxis = list(title = titleY),
+                                                                                  zaxis = list(title = titleZ)),
+                                                                    scene4 = list(domain = list(x = c(0.5, 1), y = c(0.5,1)),
+                                                                                  xaxis = list(title = titleX),
+                                                                                  yaxis = list(title = titleY),
+                                                                                  zaxis = list(title = titleZ)),
+                                                                    legend = list(x = 100, y = 0)))
+  }
+  return(cowplot)  
 }
+
+
+#' @title visDimGenePlot
+#' @name visDimGenePlot
+#' @description Visualize cells and gene expression according to dimension reduction coordinates
+#' @param gobject giotto object
+#' @param expression_values gene expression values to use
+#' @param genes genes to show
+#' @param dim_reduction_to_use dimension reduction to use
+#' @param dim_reduction_name dimension reduction name
+#' @param dim1_to_use dimension to use on x-axis
+#' @param dim2_to_use dimension to use on y-axis
+#' @param dim3_to_use dimension to use on z-axis
+#' @param show_NN_network show underlying NN network
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
+#' @param network_name name of NN network to use, if show_NN_network = TRUE
+#' @param edge_alpha column to use for alpha of the edges
+#' @param scale_alpha_with_expression scale expression with ggplot alpha parameter
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param midpoint size of point (cell)
+#' @param cow_n_col cowplot param: how many columns
+#' @param cow_rel_h cowplot param: relative height
+#' @param cow_rel_w cowplot param: relative width
+#' @param cow_align cowplot param: how to align
+#' @param show_legend show legend
+#' @param show_plots show plots
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     visDimGenePlot(gobject)
+
+
+visDimGenePlot <- function(gobject,
+                           expression_values = c('normalized', 'scaled', 'custom'),
+                           genes = NULL,
+                           dim_reduction_to_use = 'umap',
+                           dim_reduction_name = 'umap',
+                           dim1_to_use = 1,
+                           dim2_to_use = 2,
+                           dim3_to_use = NULL,
+                           show_NN_network = F,
+                           nn_network_to_use = 'sNN',
+                           network_name = 'sNN.pca',
+                           network_color = "lightgray",
+                           edge_alpha = NULL,
+                           scale_alpha_with_expression = TRUE,
+                           point_size = 1,
+                           genes_high_color = NULL,
+                           genes_low_color = "blue",
+                           point_border_col = 'black',
+                           point_border_stroke = 0.1,
+                           midpoint = 0,
+                           cow_n_col = 2,
+                           cow_rel_h = 1,
+                           cow_rel_w = 1,
+                           cow_align = 'h',
+                           show_legend = T,
+                           plot_method = c('ggplot','plotly'),
+                           show_plots = F){
+  
+  plot_method = match.arg(plot_method, choices = c('ggplot','plotly'))
+  
+  
+  if(plot_method == 'ggplot'){
+    if(!is.null(dim3_to_use)){
+      warning("\n ggplot is only in 2D. If you want to plot the third dim, please choose plotly method with \"plot_method = \"plotly\"\"\n")
+    }
+    if(is.null(genes_high_color)){
+      genes_high_color = "red"
+    }
+    result <- visDimGenePlot_2D_ggplot(gobject = gobject,
+                                       expression_values =expression_values ,
+                                       genes = genes,
+                                       dim_reduction_to_use = dim_reduction_to_use,
+                                       dim_reduction_name = dim_reduction_name,
+                                       dim1_to_use = dim1_to_use,
+                                       dim2_to_use = dim2_to_use,
+                                       show_NN_network = show_NN_network,
+                                       nn_network_to_use = nn_network_to_use,
+                                       network_name = network_name,
+                                       network_color = network_color,
+                                       edge_alpha = edge_alpha,
+                                       scale_alpha_with_expression = scale_alpha_with_expression,
+                                       point_size = point_size,
+                                       genes_high_color = genes_high_color,
+                                       genes_low_color = genes_low_color,
+                                       point_border_col = point_border_col,
+                                       point_border_stroke = point_border_stroke,
+                                       midpoint = midpoint,
+                                       cow_n_col = cow_n_col,
+                                       cow_rel_h = cow_rel_h,
+                                       cow_rel_w = cow_rel_w,
+                                       cow_align = cow_align,
+                                       show_legend = show_legend,
+                                       show_plots = show_plots)
+    
+  }
+  else{
+    if(is.null(dim3_to_use)){
+      stop("\n plotly is in 3D and you need to define dim3_to_use \n")
+    }
+    result <- visDimGenePlot_3D_plotly(gobject =gobject,
+                                       expression_values = expression_values,
+                                       genes = genes,
+                                       dim_reduction_to_use = dim_reduction_to_use,
+                                       dim_reduction_name = dim_reduction_name,
+                                       dim1_to_use = dim1_to_use,
+                                       dim2_to_use = dim2_to_use,
+                                       dim3_to_use = dim3_to_use,
+                                       show_NN_network = show_NN_network,
+                                       nn_network_to_use = nn_network_to_use,
+                                       network_name = network_name,
+                                       network_color = network_color,
+                                       edge_alpha = edge_alpha,
+                                       point_size = point_size,
+                                       genes_high_color = genes_high_color,
+                                       genes_low_color = genes_low_color,
+                                       show_legend = show_legend,
+                                       show_plots = show_plots)
+  }
+  return(result)
+}   
 
 
 
