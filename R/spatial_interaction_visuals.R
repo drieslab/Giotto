@@ -167,59 +167,59 @@ cellProximityVisPlot <- function(gobject,
                                  y_ticks = NULL,
                                  z_ticks = NULL,
                                  ...) {
-  
-  
+
+
   if(is.null(interaction_name)) {
     stop('\n you need to specific at least one interaction name, run cellProximityEnrichment \n')
   }
-  
-  
+
+
   cell_locations  = gobject@spatial_locs
   spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
   cell_metadata   = gobject@cell_metadata
   cell_metadata   = cell_metadata[, !grepl('cell_ID', colnames(cell_metadata)), with = F]
-  
-  
+
+
   spatial_network = annotateSpatialNetwork(gobject = gobject, spatial_network_name = spatial_network_name, cluster_column = cluster_column)
-  
+
   cell_IDs_to_keep = unique(c(spatial_network[unified_int %in% interaction_name]$to, spatial_network[unified_int %in% interaction_name]$from))
-  
-  
+
+
   # annotated cell data
   if(nrow(cell_metadata) == 0) {
     cell_locations_metadata = cell_locations
   } else {
     cell_locations_metadata <- cbind(cell_locations, cell_metadata)
   }
-  
-  
-  
-  
+
+
+
+
   # first 2 dimensions need to be defined
   if(is.null(sdimx) | is.null(sdimy)) {
     cat('first and second dimenion need to be defined, default is first 2 \n')
     sdimx = 'sdimx'
     sdimy = 'sdimy'
   }
-  
-  
-  
+
+
+
   # if 3 dimensions are defined create a 3D plot
   if(!is.null(sdimx) & !is.null(sdimy) & !is.null(sdimz)) {
-    
+
     cat('create 3D plot')
-    
+
     axis_scale = match.arg(axis_scale, c("cube","real","custom"))
-    
+
     ratio = plotly_axis_scale(cell_locations_metadata,sdimx = sdimx,sdimy = sdimy,sdimz = sdimz,
-                              mode = axis_scale,custom_ratio = custom_ratio)    
+                              mode = axis_scale,custom_ratio = custom_ratio)
     if(!is.null(cell_color)) {
       if(cell_color %in% colnames(cell_locations_metadata)){
         if(is.null(cell_color_code)) {
           number_colors=length(unique(cell_locations_metadata[[cell_color]]))
           cell_color_code = Giotto:::getDistinctColors(n = number_colors)
         }
-        
+
         pl <- plotly::plot_ly(type = 'scatter3d',data=cell_locations_metadata[cell_ID %in% cell_IDs_to_keep],
                               x = ~sdimx, y = ~sdimy, z = ~sdimz,
                               color = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep][[cell_color]],
@@ -252,32 +252,32 @@ cellProximityVisPlot <- function(gobject,
       if(show_other_network == T){
         pl <- pl %>% plotly::add_trace(name = "sptial network",mode = "lines", type = "scatter3d",opacity=0.1,
                                        data = plotly_network(unselect_network),
-                                       x = ~x,y=~y,z=~z,inherit = F,line=list(color="lightgray")) 
+                                       x = ~x,y=~y,z=~z,inherit = F,line=list(color="lightgray"))
       }
       pl <- pl %>% plotly::add_trace(name = "sptial network",mode = "lines", type = "scatter3d",opacity=0.5,
                                      data = plotly_network(select_network),
                                      x = ~x,y=~y,z=~z,inherit = F,line=list(color=network_color))
-      
+
     }
-    
+
     pl <- pl %>% plotly::layout(scene = list(
       xaxis = list(title = "X",nticks = x_ticks),
       yaxis = list(title = "Y",nticks = y_ticks),
       zaxis = list(title = "Z",nticks = z_ticks),
       aspectmode='manual',
-      aspectratio = list(x=ratio[[1]], 
-                         y=ratio[[2]], 
+      aspectratio = list(x=ratio[[1]],
+                         y=ratio[[2]],
                          z=ratio[[3]])))
     return(hide_colorbar(pl))
   }
-  
-  
-  
+
+
+
   else {
-    
+
     pl <- ggplot2::ggplot()
     pl <- pl + ggplot2::theme_classic()
-    
+
     if(!is.null(spatial_network) & show_network == TRUE) {
       if(is.null(network_color)) network_color = 'red'
       pl <- pl + ggplot2::geom_segment(data = spatial_network[!unified_int %in% interaction_name],
@@ -287,13 +287,13 @@ cellProximityVisPlot <- function(gobject,
                                        aes(x = sdimx_begin, y = sdimy_begin, xend = sdimx_end, yend = sdimy_end),
                                        color = network_color, size = 0.5, alpha = 0.5)
     }
-    
+
     if(!is.null(spatial_grid) & show_grid == TRUE) {
       if(is.null(grid_color)) grid_color = 'black'
       pl <- pl + ggplot2::geom_rect(data = spatial_grid, aes(xmin = x_start, xmax = x_end, ymin = y_start, ymax = y_end),
                                     color = grid_color, fill = NA)
     }
-    
+
     # cell color default
     if(is.null(cell_color)) {
       cell_color = 'lightblue'
@@ -304,21 +304,21 @@ cellProximityVisPlot <- function(gobject,
     }
     else if (is.character(cell_color)) {
       if(cell_color %in% colnames(cell_locations_metadata)) {
-        
+
         if(color_as_factor == TRUE) {
           factor_data = factor(cell_locations_metadata[[cell_color]])
           cell_locations_metadata[[cell_color]] <- factor_data
         }
-        
+
         pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
                                        fill = 'lightgrey', shape = 21, size = point_size_other,
                                        color = point_other_border_col, stroke = point_other_border_stroke)
         pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy, fill = cell_color),
                                        show.legend = show_legend, shape = 21, size = point_size_select,
                                        color = point_select_border_col, stroke = point_select_border_stroke)
-        
-        
-        
+
+
+
         if(!is.null(cell_color_code)) {
           pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
         } else if(color_as_factor == T) {
@@ -329,7 +329,7 @@ cellProximityVisPlot <- function(gobject,
         } else if(color_as_factor == F){
           pl <- pl + ggplot2::scale_fill_gradient(low = 'blue', high = 'red')
         }
-        
+
       } else {
         pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
                                        show.legend = show_legend, shape = 21, fill = 'lightgrey', size = point_size_other,
@@ -338,24 +338,24 @@ cellProximityVisPlot <- function(gobject,
                                        show.legend = show_legend, shape = 21, fill = cell_color, size = point_size_select,
                                        color = point_select_border_col, stroke = point_select_border_stroke)
       }
-      
+
     }
-    
+
     pl <- pl + ggplot2::theme_bw() + ggplot2::theme(plot.title = element_text(hjust = 0.5),
                                                     legend.title = element_text(size = 10),
                                                     legend.text = element_text(size = 10))
-    
+
     # fix coord ratio
     if(!is.null(coord_fix_ratio)) {
       pl <- pl + ggplot2::coord_fixed(ratio = coord_fix_ratio)
     }
-    
+
     pl <- pl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates')
     pl
-    
+
     print(pl)
   }
-  
+
 }
 
 
@@ -936,6 +936,7 @@ showGTGscores = function(GTGscore,
 #' @param facet_scales ggplot facet scales paramter
 #' @param facet_ncol ggplot facet ncol parameter
 #' @param facet_nrow ggplot facet nrow parameter
+#' @param colors vector with 2 colors to represent respectively all and selected cells
 #' @param show_plot show plot
 #' @return ggplot barplot
 #' @details Give more details ...
@@ -951,6 +952,7 @@ plotGTGscores <- function(GTGscore,
                           facet_scales = 'fixed',
                           facet_ncol = length(selected_gene_to_gene),
                           facet_nrow = length(selected_interactions),
+                          colors = c('blue', 'red'),
                           show_plot = F) {
 
   if(is.null(selected_interactions) | is.null(selected_gene_to_gene)) {
@@ -992,7 +994,7 @@ plotGTGscores <- function(GTGscore,
     #pl <- pl + ggplot2::labs(x = 'gene 1 in celltype 1', y = 'gene 2 in celltype 2')
     pl <- pl + ggplot2::labs(x = paste(subDT$genes_1,subDT$cell_type_1,sep = " in ")
                              , y = paste(subDT$genes_2,subDT$cell_type_2,sep = " in "))
-    pl <- pl + ggplot2::scale_colour_manual(name="expression source",values=cols)
+    pl <- pl + ggplot2::scale_colour_manual(name="expression source",values = colors)
     pl <- pl + ggplot2::facet_wrap(~unif_gene_gene+unified_int, nrow = facet_nrow, ncol = facet_ncol,
                           scales = facet_scales)
 

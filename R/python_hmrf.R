@@ -45,7 +45,6 @@ doHMRF <- function(gobject,
   }
 
   ## reader.py and get_result.py paths
-  # TODO: part of the package
   reader_path = system.file("python", "reader.py", package = 'Giotto')
 
   ## output folder
