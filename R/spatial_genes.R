@@ -1,9 +1,9 @@
 #' @title kmeans_binarize
 #' @name kmeans_binarize
 #' @description create binarized scores using kmeans
-kmeans_binarize = function(x) {
+kmeans_binarize = function(x, nstart = 3, iter.max = 10) {
 
-  sel_gene_km = stats::kmeans(x, centers = 2)$cluster
+  sel_gene_km = stats::kmeans(x, centers = 2, nstart = nstart, iter.max = iter.max)$cluster
   mean_1 = mean(x[sel_gene_km == 1])
   mean_2 = mean(x[sel_gene_km == 2])
 
@@ -50,6 +50,8 @@ fish_function = function(x_to, x_from) {
 
   return(list(pval = fish_res$p.value, OR = fish_res$estimate))
 }
+
+
 
 #' @title calculate_binarized_spatial_genes
 #' @name calculate_binarized_spatial_genes
