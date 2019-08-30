@@ -7,10 +7,10 @@
 visGenePlot_3D_plotly(gobject, expression_values = c("normalized",
   "scaled", "custom"), genes, show_network = F, network_color = NULL,
   spatial_network_name = "spatial_network", edge_alpha = NULL,
-  show_grid = F, genes_high_color = NULL, genes_low_color = "blue",
-  spatial_grid_name = "spatial_grid", point_size = 1,
-  show_legend = T, axis_scale = c("cube", "real", "custom"),
-  custom_ratio = NULL, x_ticks = NULL, y_ticks = NULL,
+  show_grid = F, genes_high_color = NULL, genes_mid_color = "white",
+  genes_low_color = "blue", spatial_grid_name = "spatial_grid",
+  point_size = 1, show_legend = T, axis_scale = c("cube", "real",
+  "custom"), custom_ratio = NULL, x_ticks = NULL, y_ticks = NULL,
   z_ticks = NULL, show_plots = F)
 }
 \arguments{
@@ -27,6 +27,12 @@ visGenePlot_3D_plotly(gobject, expression_values = c("normalized",
 \item{spatial_network_name}{name of spatial network to use}
 
 \item{show_grid}{show spatial grid}
+
+\item{genes_high_color}{color represents high gene expression}
+
+\item{genes_mid_color}{color represents middle gene expression}
+
+\item{genes_low_color}{color represents low gene expression}
 
 \item{spatial_grid_name}{name of spatial grid to use}
 

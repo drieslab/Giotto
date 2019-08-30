@@ -10,7 +10,8 @@ visDimGenePlot_3D_plotly(gobject, expression_values = c("normalized",
   dim3_to_use = 3, show_NN_network = F, nn_network_to_use = "sNN",
   network_name = "sNN.pca", network_color = "lightgray",
   edge_alpha = NULL, point_size = 1, genes_high_color = NULL,
-  genes_low_color = NULL, show_legend = T, show_plots = F)
+  genes_mid_color = "white", genes_low_color = "blue",
+  show_legend = T, show_plots = F)
 }
 \arguments{
 \item{gobject}{giotto object}

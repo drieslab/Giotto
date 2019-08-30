@@ -6,9 +6,10 @@
 \usage{
 visGenePlot_2D_ggplot(gobject, expression_values = c("normalized",
   "scaled", "custom"), genes, genes_high_color = "darkred",
-  genes_low_color = "darkblue", show_network = F,
-  network_color = NULL, spatial_network_name = "spatial_network",
-  edge_alpha = NULL, show_grid = F, grid_color = NULL,
+  genes_mid_color = "white", genes_low_color = "darkblue",
+  show_network = F, network_color = NULL,
+  spatial_network_name = "spatial_network", edge_alpha = NULL,
+  show_grid = F, grid_color = NULL,
   spatial_grid_name = "spatial_grid", midpoint = 0,
   scale_alpha_with_expression = TRUE, point_size = 1,
   point_border_col = "black", point_border_stroke = 0.1,
@@ -21,6 +22,12 @@ visGenePlot_2D_ggplot(gobject, expression_values = c("normalized",
 \item{expression_values}{gene expression values to use}
 
 \item{genes}{genes to show}
+
+\item{genes_high_color}{color represents high gene expression}
+
+\item{genes_mid_color}{color represents middle gene expression}
+
+\item{genes_low_color}{color represents low gene expression}
 
 \item{show_network}{show underlying spatial network}
 

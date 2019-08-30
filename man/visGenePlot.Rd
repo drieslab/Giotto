@@ -5,8 +5,8 @@
 \title{visGenePlot}
 \usage{
 visGenePlot(gobject, expression_values = c("normalized", "scaled",
-  "custom"), genes, genes_high_color = NULL, genes_low_color = "blue",
-  show_network = F, network_color = NULL,
+  "custom"), genes, genes_high_color = NULL, genes_mid_color = "white",
+  genes_low_color = "blue", show_network = F, network_color = NULL,
   spatial_network_name = "spatial_network", edge_alpha = NULL,
   show_grid = F, grid_color = NULL,
   spatial_grid_name = "spatial_grid", midpoint = 0,
@@ -24,6 +24,12 @@ visGenePlot(gobject, expression_values = c("normalized", "scaled",
 \item{expression_values}{gene expression values to use}
 
 \item{genes}{genes to show}
+
+\item{genes_high_color}{color represents high gene expression}
+
+\item{genes_mid_color}{color represents middle gene expression}
+
+\item{genes_low_color}{color represents low gene expression}
 
 \item{show_network}{show underlying spatial network}
 
