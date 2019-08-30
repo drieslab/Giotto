@@ -344,6 +344,9 @@ visPlot <- function(gobject,
 #' @param gobject giotto object
 #' @param expression_values gene expression values to use
 #' @param genes genes to show
+#' @param genes_high_color color represents high gene expression
+#' @param genes_mid_color color represents middle gene expression
+#' @param genes_low_color color represents low gene expression
 #' @param show_network show underlying spatial network
 #' @param network_color color of spatial network
 #' @param spatial_network_name name of spatial network to use
@@ -370,6 +373,7 @@ visGenePlot_2D_ggplot <- function(gobject,
                                   expression_values = c('normalized', 'scaled', 'custom'),
                                   genes,
                                   genes_high_color = 'darkred',
+                                  genes_mid_color = "white",
                                   genes_low_color = "darkblue",
                                   show_network = F,
                                   network_color = NULL,
@@ -481,7 +485,7 @@ visGenePlot_2D_ggplot <- function(gobject,
                                      show.legend = show_legend)
     }
     pl <- pl + ggplot2::scale_alpha_continuous(guide = 'none')
-    pl <- pl + ggplot2::scale_fill_gradient2(low = genes_low_color, mid = 'white', high = genes_high_color,
+    pl <- pl + ggplot2::scale_fill_gradient2(low = genes_low_color, mid = genes_mid_color, high = genes_high_color,
                                              midpoint = midpoint, guide = guide_colorbar(title = ''))
     pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y', title = gene)
     pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5))
@@ -510,6 +514,9 @@ visGenePlot_2D_ggplot <- function(gobject,
 #' @param gobject giotto object
 #' @param expression_values gene expression values to use
 #' @param genes genes to show
+#' @param genes_high_color color represents high gene expression
+#' @param genes_mid_color color represents middle gene expression
+#' @param genes_low_color color represents low gene expression
 #' @param show_network show underlying spatial network
 #' @param network_color color of spatial network
 #' @param spatial_network_name name of spatial network to use
@@ -541,6 +548,7 @@ visGenePlot_3D_plotly <- function(gobject,
                                   edge_alpha = NULL,
                                   show_grid = F,
                                   genes_high_color = NULL,
+                                  genes_mid_color = "white",
                                   genes_low_color = "blue",
                                   spatial_grid_name = 'spatial_grid',
                                   point_size = 1,
@@ -642,7 +650,7 @@ visGenePlot_3D_plotly <- function(gobject,
                         x = ~sdimx, y = ~sdimy, z = ~sdimz,
                         marker = list(size = point_size),
                         color = cell_locations_metadata_genes[[gene]],
-                        colors = c(genes_low_color,"white",genes_high_color[i]))
+                        colors = c(genes_low_color,genes_mid_color,genes_high_color[i]))
     
     ## plot spatial network
     if(show_network == TRUE) {
@@ -773,6 +781,9 @@ visGenePlot_3D_plotly <- function(gobject,
 #' @param gobject giotto object
 #' @param expression_values gene expression values to use
 #' @param genes genes to show
+#' @param genes_high_color color represents high gene expression
+#' @param genes_mid_color color represents middle gene expression
+#' @param genes_low_color color represents low gene expression
 #' @param show_network show underlying spatial network
 #' @param network_color color of spatial network
 #' @param spatial_network_name name of spatial network to use
@@ -804,6 +815,7 @@ visGenePlot <- function(gobject,
                         expression_values = c('normalized', 'scaled', 'custom'),
                         genes,
                         genes_high_color = NULL,
+                        genes_mid_color = "white",
                         genes_low_color = "blue",
                         show_network = F,
                         network_color = NULL,
@@ -842,6 +854,7 @@ visGenePlot <- function(gobject,
                                    expression_values = expression_values,
                                    genes = genes,
                                    genes_high_color = genes_high_color,
+                                   genes_mid_color = genes_mid_color,
                                    genes_low_color = genes_low_color,
                                    show_network = show_network,
                                    network_color = network_color,
@@ -873,6 +886,7 @@ visGenePlot <- function(gobject,
                                    edge_alpha = edge_alpha,
                                    show_grid = show_grid,
                                    genes_high_color = genes_high_color,
+                                   genes_mid_color = genes_mid_color,
                                    genes_low_color = genes_low_color,
                                    spatial_grid_name = spatial_grid_name,
                                    point_size = point_size,
@@ -2787,6 +2801,7 @@ visDimGenePlot_2D_ggplot <- function(gobject,
                                      scale_alpha_with_expression = TRUE,
                                      point_size = 1,
                                      genes_high_color = "red",
+                                     genes_mid_color = "white",
                                      genes_low_color = "blue",
                                      point_border_col = 'black',
                                      point_border_stroke = 0.1,
@@ -2911,7 +2926,7 @@ visDimGenePlot_2D_ggplot <- function(gobject,
                                        color = point_border_col, stroke = point_border_stroke)
       }
       
-      pl <- pl + ggplot2::scale_fill_gradient2(low = genes_low_color, mid = 'white', high = genes_high_color, midpoint = midpoint)
+      pl <- pl + ggplot2::scale_fill_gradient2(low = genes_low_color, mid = genes_mid_color, high = genes_high_color, midpoint = midpoint)
     }
     
     pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y')
@@ -2973,7 +2988,8 @@ visDimGenePlot_3D_plotly <- function(gobject,
                                      edge_alpha = NULL,
                                      point_size = 1,
                                      genes_high_color = NULL,
-                                     genes_low_color = NULL,
+                                     genes_mid_color = "white",
+                                     genes_low_color = "blue",
                                      show_legend = T,
                                      show_plots = F){
   ## select genes ##
@@ -3056,9 +3072,7 @@ visDimGenePlot_3D_plotly <- function(gobject,
   else{
     genes_high_color = rep(genes_high_color,length(selected_genes))
   }
-  if(is.null(genes_low_color)){
-    genes_low_color = "blue"
-  }
+  
   titleX = title = paste(dim_reduction_to_use,dim_names[1],sep = " ")
   titleY = title = paste(dim_reduction_to_use,dim_names[2],sep = " ")
   titleZ = title = paste(dim_reduction_to_use,dim_names[3],sep = " ")
@@ -3073,7 +3087,7 @@ visDimGenePlot_3D_plotly <- function(gobject,
                                     y = annotated_gene_DT[[dim_names[2]]],
                                     z = annotated_gene_DT[[dim_names[3]]],
                                     color = annotated_gene_DT[[gene]],
-                                    colors = c(genes_low_color,"white",genes_high_color[i]),
+                                    colors = c(genes_low_color,genes_mid_color,genes_high_color[i]),
                                     marker = list(size = point_size))
     
     ## plot spatial network
@@ -3151,6 +3165,7 @@ visDimGenePlot_3D_plotly <- function(gobject,
 }
 
 
+
 #' @title visDimGenePlot
 #' @name visDimGenePlot
 #' @description Visualize cells and gene expression according to dimension reduction coordinates
@@ -3200,6 +3215,7 @@ visDimGenePlot <- function(gobject,
                            scale_alpha_with_expression = TRUE,
                            point_size = 1,
                            genes_high_color = NULL,
+                           genes_mid_color = "white",
                            genes_low_color = "blue",
                            point_border_col = 'black',
                            point_border_stroke = 0.1,
@@ -3237,6 +3253,7 @@ visDimGenePlot <- function(gobject,
                                        scale_alpha_with_expression = scale_alpha_with_expression,
                                        point_size = point_size,
                                        genes_high_color = genes_high_color,
+                                       genes_mid_color = genes_mid_color,
                                        genes_low_color = genes_low_color,
                                        point_border_col = point_border_col,
                                        point_border_stroke = point_border_stroke,
@@ -3268,6 +3285,7 @@ visDimGenePlot <- function(gobject,
                                        edge_alpha = edge_alpha,
                                        point_size = point_size,
                                        genes_high_color = genes_high_color,
+                                       genes_mid_color = genes_mid_color,
                                        genes_low_color = genes_low_color,
                                        show_legend = show_legend,
                                        show_plots = show_plots)
