@@ -3812,6 +3812,205 @@ visSpatDimGenePlot_3D <- function(gobject,
 }
 
 
+#' @title visSpatDimGenePlot
+#' @name visSpatDimGenePlot
+#' @description integration of visSpatDimGenePlot_2D(ggplot) and visSpatDimGenePlot_3D(plotly)
+#' @param gobject giotto object
+#' @param expression_values gene expression values to use
+#' @param plot_alignment direction to align plot
+#' @param genes genes to show
+#' @param dim_reduction_to_use dimension reduction to use
+#' @param dim_reduction_name dimension reduction name
+#' @param dim1_to_use dimension to use on x-axis
+#' @param dim2_to_use dimension to use on y-axis
+#' @param dim3_to_use dimension to use on z-axis
+#' @param sdimx x-axis dimension name (default = 'sdimx')
+#' @param sdimy y-axis dimension name (default = 'sdimy')
+#' @param sdimz z-axis dimension name (default = 'sdimz')
+#' @param dim_point_size dim reduction plot: point size
+#' @param dim_point_border_col color of border around points
+#' @param dim_point_border_stroke stroke size of border around points
+#' @param show_NN_network show underlying NN network
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
+#' @param network_name name of NN network to use, if show_NN_network = TRUE
+#' @param edge_alpha_dim dim reduction plot: column to use for alpha of the edges
+#' @param scale_alpha_with_expression scale expression with ggplot alpha parameter
+#' @param label_size size for the label
+#' @param genes_high_color color to represent high expression of gene 
+#' @param genes_low_color color to represent low expression of gene 
+#' @param axis_scale three modes to adjust axis scale ratio
+#' @param x_ticks number of ticks on x axis
+#' @param y_ticks number of ticks on y axis
+#' @param z_ticks number of ticks on z axis
+#' @param custom_ratio set the axis scale ratio on custom
+#' @param legend_text_size the size of the text in legend
+#' @param spatial_network_name name of spatial network to use
+#' @param spatial_grid_name name of spatial grid to use
+#' @param spatial_point_size spatial plot: point size
+#' @param spatial_point_border_col color of border around points
+#' @param spatial_point_border_stroke stroke size of border around points
+#' @param midpoint size of point (cell)
+#' @param point_size size of point (cell)
+#' @param cow_n_col cowplot param: how many columns
+#' @param cow_rel_h cowplot param: relative height
+#' @param cow_rel_w cowplot param: relative width
+#' @param cow_align cowplot param: how to align
+#' @param show_legend show legend
+#' @param show_plot show plot
+#' @return ggplot or plotly
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     visSpatDimGenePlot(gobject)
+visSpatDimGenePlot <- function(gobject,
+                               plot_method = c("plotly","ggplot"),
+                               expression_values = c('normalized', 'scaled', 'custom'),
+                               plot_alignment = c('horizontal','vertical'),
+                               dim_reduction_to_use = 'umap',
+                               dim_reduction_name = 'umap',
+                               dim1_to_use = 1,
+                               dim2_to_use = 2,
+                               dim3_to_use = NULL,
+                               sdimx=NULL,
+                               sdimy=NULL,
+                               sdimz=NULL,
+                               genes,
+                               dim_point_border_col = 'black',
+                               dim_point_border_stroke = 0.1,
+                               show_NN_network = F,
+                               nn_network_to_use = 'sNN',
+                               network_name = 'sNN.pca',
+                               edge_alpha_dim = NULL,
+                               scale_alpha_with_expression = TRUE,
+                               label_size = 16,
+                               genes_low_color = "blue",
+                               genes_high_color = "red",
+                               dim_point_size = 3,
+                               nn_network_alpha = 0.5,
+                               show_spatial_network = F,
+                               spatial_network_name = 'spatial_network',
+                               network_color = "lightgray",
+                               spatial_network_alpha = 0.5,
+                               show_spatial_grid = F,
+                               spatial_grid_name = 'spatial_grid',
+                               spatial_grid_color = NULL,
+                               spatial_grid_alpha = 0.5,
+                               spatial_point_size = 3,
+                               spatial_point_border_col = 'black',
+                               spatial_point_border_stroke = 0.1,
+                               legend_text_size = 12,
+                               axis_scale = c("cube","real","custom"),
+                               custom_ratio = NULL,
+                               x_ticks = NULL,
+                               y_ticks = NULL,
+                               z_ticks = NULL,
+                               midpoint = 0,
+                               point_size = 1,
+                               cow_n_col = 2,
+                               cow_rel_h = 1,
+                               cow_rel_w = 1,
+                               cow_align = 'h',
+                               show_legend = T,
+                               show_plots = F){
+  plot_method = match.arg(plot_method, c("plotly","ggplot"))
+  plot_alignment = match.arg(plot_alignment, c( 'horizontal','vertical'))
+  
+  if(plot_method == "ggplot"){
+    if(!is.null(sdimz) | !is.null(dim3_to_use)){
+      stop("3D plots couldn't be drawn in ggplot mode,please choose plotly mode with plot_mode = \"plotly\"\n")
+    }
+    
+    
+    if(is.null(label_size)){
+      label_size = 4
+    }
+    if(is.null(nn_network_alpha)){
+      nn_network_alpha = 0.05
+    }
+    pl <- visSpatDimGenePlot_2D(gobject = gobject,
+                                expression_values = expression_values,
+                                plot_alignment = plot_alignment,
+                                genes = genes,
+                                dim_reduction_to_use = dim_reduction_to_use,
+                                dim_reduction_name = dim_reduction_name,
+                                dim1_to_use = dim1_to_use,
+                                dim2_to_use = dim2_to_use,
+                                dim_point_size = dim_point_size,
+                                dim_point_border_col = dim_point_size,
+                                dim_point_border_stroke = dim_point_border_stroke,
+                                show_NN_network = show_NN_network,
+                                nn_network_to_use = nn_network_to_use,
+                                network_name =network_name,
+                                edge_alpha_dim = edge_alpha_dim,
+                                scale_alpha_with_expression = scale_alpha_with_expression,
+                                spatial_network_name = spatial_network_name,
+                                spatial_grid_name = spatial_grid_name,
+                                spatial_point_size = spatial_point_size,
+                                spatial_point_border_col = spatial_point_border_col,
+                                spatial_point_border_stroke = spatial_point_border_stroke,
+                                midpoint = midpoint,
+                                point_size = point_size,
+                                cow_n_col = cow_n_col,
+                                cow_rel_h = cow_rel_h,
+                                cow_rel_w = cow_rel_w,
+                                cow_align = cow_align,
+                                show_legend = show_legend,
+                                show_plots = show_plots)
+  }
+  
+  else if(plot_method == "plotly"){
+    if(is.null(label_size)){
+      label_size = 16
+    }
+    if(is.null(nn_network_alpha)){
+      nn_network_alpha = 0.5
+    }
+    if(length(genes) > 1){
+      warning("\n Now plotly mode can just accept one gene, only the first gene will be plot\n")
+      genes = genes[1]
+    }
+    pl <- visSpatDimGenePlot_3D(gobject = gobject,
+                                expression_values = expression_values,
+                                plot_alignment = plot_alignment,
+                                dim_reduction_to_use = dim_reduction_to_use,
+                                dim_reduction_name = dim_reduction_name,
+                                dim1_to_use = dim1_to_use,
+                                dim2_to_use = dim2_to_use,
+                                dim3_to_use = dim3_to_use,
+                                sdimx=sdimx,
+                                sdimy=sdimy,
+                                sdimz=sdimz,
+                                genes = genes,
+                                show_NN_network = show_NN_network,
+                                nn_network_to_use = nn_network_to_use,
+                                network_name = network_name,
+                                label_size = label_size,
+                                genes_low_color = genes_low_color,
+                                genes_high_color = genes_high_color,
+                                dim_point_size = dim_point_size,
+                                nn_network_alpha = nn_network_alpha,
+                                show_spatial_network = show_spatial_network,
+                                spatial_network_name = spatial_network_name,
+                                network_color = network_color,
+                                spatial_network_alpha = spatial_network_alpha,
+                                show_spatial_grid = show_spatial_grid,
+                                spatial_grid_name = spatial_grid_name,
+                                spatial_grid_color = spatial_grid_color,
+                                spatial_grid_alpha = spatial_grid_alpha,
+                                spatial_point_size = spatial_point_size,
+                                legend_text_size = legend_text_size,
+                                axis_scale = axis_scale,
+                                custom_ratio = custom_ratio,
+                                x_ticks = x_ticks,
+                                y_ticks = y_ticks,
+                                z_ticks = z_ticks)
+  }
+  return(pl)
+}
+
+
+
+
 #' @title GenePattern_show
 #' @name GenePattern_show
 #' @description Visualize genes distribution patterns calculated by spatial_AEH
