@@ -2667,7 +2667,7 @@ visSpatDimPlot <- function(gobject,
 
   if(plot_method == "ggplot2"){
     if(!is.null(sdimz) | !is.null(dim3_to_use)){
-      stop("3D plots couldn't be drawn in ggplot2 mode,please choose plotly mode with plot_mode = \"plotly\"\n")
+      stop("3D plots can not be drawn in ggplot2 mode, please choose plotly mode with plot_mode = \"plotly\"\n")
     }
     if(is.null(plot_alignment)){
       plot_alignment = "vertical"
