@@ -52,15 +52,63 @@ fish_function = function(x_to, x_from) {
 }
 
 
+#' @title fish_function2
+#' @name fish_function2
+#' @description perform fisher exact test
+fish_function2 = function(A, B, C, D) {
 
-#' @title calculate_binarized_spatial_genes
-#' @name calculate_binarized_spatial_genes
-#' @description compute spatial genes on binarized gene values
-calculate_binarized_spatial_genes <- function(gobject,
-                                              expression_values = c('normalized', 'scaled', 'custom'),
-                                              spatial_network_name = 'spatial_network',
-                                              bin_method = c('kmeans', 'rank'),
-                                              percentage_rank = 10) {
+  fish_matrix = matrix(c(A, B, C, D), nrow = 2)
+
+  fish_res = stats::fisher.test(fish_matrix)
+
+  return(list(pval = fish_res$p.value, OR = fish_res$estimate))
+}
+
+
+#' @title OR_function2
+#' @name OR_function2
+#' @description calculate odds-ratio
+OR_function2 = function(A, B, C, D) {
+
+  fish_matrix = matrix(c(A, B, C, D), nrow = 2)
+  fish_matrix = fish_matrix/1000 # to prevent overflow
+
+  OR = ((fish_matrix[1]*fish_matrix[4]) / (fish_matrix[2]*fish_matrix[3]))
+  return(list(OR = OR))
+}
+
+
+#' @title binGetSpatialGenes
+#' @name binGetSpatialGenes
+#' @description compute genes that are spatially clustered
+#' @param gobject giotto object
+#' @param bin_method method to binarize gene expression
+#' @param expression_values expression values to use
+#' @param spatial_network_name name of spatial network to use (default = 'spatial_network')
+#' @param nstart kmeans: nstart parameter
+#' @param iter_max kmeans: iter.max parameter
+#' @param rank_percentage percentage of top cells for binarization
+#' @param do_fisher_test perform fisher test
+#' @param community_expectation cell degree expectation in spatial communities
+#' @param verbose be verbose
+#' @return giotto object spatial genes appended to fDataDT
+#' @details Description of how we compute spatial genes.
+#' @export
+#' @examples
+#'     binGetSpatialGenes(gobject)
+binGetSpatialGenes = function(gobject,
+                              bin_method = c('kmeans', 'rank'),
+                              expression_values = c('normalized', 'scaled', 'custom'),
+                              spatial_network_name = 'spatial_network',
+                              nstart = 3,
+                              iter_max = 10,
+                              percentage_rank = 10,
+                              do_fisher_test = F,
+                              community_expectation = 5,
+                              verbose = F) {
+
+  # set binarization method
+  bin_method = match.arg(bin_method, choices = c('kmeans', 'rank'))
 
   # spatial network
   spatial_network = gobject@spatial_network[[spatial_network_name]]
@@ -69,138 +117,95 @@ calculate_binarized_spatial_genes <- function(gobject,
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = select_expression_values(gobject = gobject, values = values)
 
-  # binarization method
-  bin_method = match.arg(bin_method, choices = c('kmeans', 'rank'))
-
   # binarize matrix
   if(bin_method == 'kmeans') {
-    bin_matrix = t(apply(X = expr_values, MARGIN = 1, FUN = kmeans_binarize))
+    bin_matrix = t(apply(X = expr_values, MARGIN = 1, FUN = kmeans_binarize, nstart = nstart, iter.max = iter_max))
   } else if(bin_method == 'rank') {
-
     max_rank = (ncol(expr_values)/100)*percentage_rank
     bin_matrix = t(apply(X = expr_values, MARGIN = 1, FUN = function(x) rank_binarize(x = x, max_rank = max_rank)))
   }
+
+  if(verbose == TRUE) cat('\n 1. matrix binarization complete \n')
+
+  # extra info: average expression of high expression group
+  sel_expr_values = expr_values * bin_matrix
+  av_expr = apply(sel_expr_values, MARGIN = 1, FUN = function(x) {
+    mean(x[x > 0])
+  })
+  av_expr_DT = data.table(genes = names(av_expr), av_expr = av_expr)
+  setorder(av_expr_DT, 'genes')
+
+  # dcast
   bin_matrix_DT = data.table::as.data.table(melt(bin_matrix, varnames = c('genes', 'cells'), value.name = 'value'))
 
   # extra info: nr of cells with high expression
   nr_high_cells = bin_matrix_DT[, .N, by = .(genes, value)][value == 1]
   nr_high_cells = nr_high_cells[,.(genes,N)]
 
+  if(verbose == TRUE) cat('\n 2. average expression and number of high expression cells complete \n')
+
   # combine binarized matrix with spatial network
   spatial_network_min = spatial_network[,.(to, from)]
   spatial_network_min = data.table:::merge.data.table(x = spatial_network_min, by.x = 'to', y = bin_matrix_DT, by.y = 'cells', allow.cartesian = T)
   setnames(spatial_network_min, 'value', 'to_value')
   spatial_network_min[bin_matrix_DT, from_value := value, on = c(genes = 'genes', from = 'cells')]
-  setorder(spatial_network_min, 'genes')
+  spatial_network_min[, comb := paste0(to_value,'-',from_value)]
+  tablecomb = spatial_network_min[, .N, by = .(genes, comb)]
+  setorder(tablecomb, genes, comb)
+  dtablecomb = dcast.data.table(tablecomb, formula = genes ~ comb, value.var = 'N')
 
-  # perform fisher test to identify spatial genes
-  spatial_results = spatial_network_min[, fish_function(x_to = to_value, x_from = from_value), by = genes]
-  spatial_results = merge(spatial_results, nr_high_cells, by = 'genes')
-  setorder(spatial_results, -OR)
+  ## fisher test or odds-ratio only ##
 
-  return(spatial_results)
-
-}
-
-#' @title calculateSpatialGenes
-#' @name calculate_spatial_genes
-#' @description compute spatial genes on gene expression products between neighbors
-calculate_spatial_genes <- function(gobject,
-                                    expression_values = c('normalized', 'scaled', 'custom'),
-                                    spatial_network_name = 'spatial_network',
-                                    method = c('gini'),
-                                    simulations = 0,
-                                    detection_threshold = 0) {
-
-
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
-
-  # calculate detection
-  detection = rowSums(expr_values > detection_threshold)/ncol(expr_values)
-  detection_DT = data.table::data.table(genes = names(detection), detection = detection)
-
-
-  # transpose expression data
-  t_expression_data = t(expr_values)
-  t_expression_data_DT <- data.table::as.data.table(t_expression_data)
-  t_expression_data_DT[, cell_ID := rownames(t_expression_data)]
-
-  # spatial network
-  spatial_network = gobject@spatial_network[[spatial_network_name]]
-
-  # merge spatial network and expression data
-  geneset = colnames(t_expression_data)
-  spatial_netw_ext_to <- merge(spatial_network, by.x = 'to', t_expression_data_DT, by.y = 'cell_ID')
-  spatial_netw_ext_to_m <- data.table::melt.data.table(spatial_netw_ext_to, measure.vars = geneset, variable.name = 'to_gene', value.name = 'to_expression')
-  spatial_netw_ext_from <- merge(spatial_network, by.x = 'from', t_expression_data_DT, by.y = 'cell_ID')
-  spatial_netw_ext_from_m <- data.table::melt.data.table(spatial_netw_ext_from, measure.vars = geneset, variable.name = 'from_gene', value.name = 'from_expression')
-  spatial_netw_ext_to_m[spatial_netw_ext_from_m, from_expression := from_expression, on = c(from='from',to_gene='from_gene')]
-
-
-  # score expression
-  # edge score == product
-  comp_edge_score = spatial_netw_ext_to_m$to_expression * spatial_netw_ext_to_m$from_expression
-  spatial_netw_ext_to_m[, edge_score := comp_edge_score]
-
-  # gini scores
-  gini_scores_DT = spatial_netw_ext_to_m[, .(spatial_gini_score = mygini_fun(rank(edge_score, ties.method = 'average'))), by = 'to_gene']
-
-  # create copy for spatial random network
-  spatial_random = copy(spatial_netw_ext_to_m)
-  mygenes = unique(spatial_netw_ext_to_m$to_gene)
-
-  # create original index
-  spatial_netw_ext_to_m[, original_index := 1:.N]
-
-
-  ## simulations
-  if(simulations > 0) {
-
-    for(sim in 1:simulations) {
-
-      cat('start simulation ', sim, '\n')
-
-      # OPTIM
-      # create random index per gene and use to create random expression
-      spatial_netw_ext_to_m[, random_index := sample(original_index, size = .N), by = 'to_gene']
-      random_expr = spatial_netw_ext_to_m$from_expression[spatial_netw_ext_to_m$random_index]
-      spatial_random[, from_expression := random_expr]
-      cat('random expression is done \n')
-
-      # average expression between random pairs and gini score
-      new_comp_edge_score = spatial_random$to_expression * spatial_random$from_expression
-      spatial_random[, edge_score := new_comp_edge_score]
-      random_gini_score = spatial_random[, .(spatial_gini_score = mygini_fun(rank(edge_score, ties.method = 'average'))), by = 'to_gene']
-      cat('random_gini score calculation \n')
-
-      random_name = paste0('rand_gini_', sim)
-      gini_scores_DT[, eval(random_name) := random_gini_score$spatial_gini_score]
-
-    }
-
-    random_columns = paste0('rand_gini_', 1:simulations)
-
-    # calculate p-value, mean and sd of observed and random gini scores
-    gini_scores_DT_m = data.table::melt.data.table(gini_scores_DT, measure.vars = random_columns, variable.name = 'random', value.name = 'random_scores')
-    gini_scores_DT_m[, prob := ifelse(spatial_gini_score > random_scores, 0, 1)]
-
-    summary_gini_scores = gini_scores_DT_m[, .(mean_score = mean(random_scores), sd_score = sd(random_scores), prob = sum(prob)/.N), by = .(to_gene, spatial_gini_score)]
-    summary_gini_scores[, gini_ratio := spatial_gini_score/mean_score]
-    summary_gini_scores <- merge(summary_gini_scores, detection_DT, by.x = 'to_gene', by.y = 'genes')
-
-    # order
-    setorder(summary_gini_scores, -gini_ratio, -detection)
-
+  if(do_fisher_test == TRUE) {
+    dtablecomb = dtablecomb[, fish_function2(A = `0-0`, B = `0-1`, C = `1-0`, D = `1-1`), by = genes]
   } else {
-
-    summary_gini_scores <- merge(gini_scores_DT, detection_DT, by.x = 'to_gene', by.y = 'genes')
-
+    # OR only
+    dtablecomb = dtablecomb[, OR_function2(A = `0-0`, B = `0-1`, C = `1-0`, D = `1-1`), by = genes]
+    #dtablecomb[, OR := ((`0-0`* `1-1`)/(`0-1`*`1-0`)), by = genes]
   }
 
-  return(summary_gini_scores)
+  if(verbose == TRUE) cat('\n 3. fisher test or odds-ratio calculation complete \n')
+
+
+  ## estimate for community ##
+  # create count table for individual cells for all conditions
+  tocells = spatial_network_min[, .(to, genes, comb)]
+  setnames(tocells, 'to', 'cells')
+  fromcells = spatial_network_min[, .(from, genes, comb)]
+  setnames(fromcells, 'from', 'cells')
+  allcells = rbind(tocells, fromcells)
+  counttable_cells = allcells[, .N, by = .(genes, comb, cells)]
+
+  # uniq cells per combination (0-0, 1-1, ...)
+  count_uniq_cells = counttable_cells[, length(unique(cells)), by = .(genes, comb)]
+  setorder(count_uniq_cells, genes, comb)
+
+  # cells with higher connectivity per combination
+  count_comm_cells = counttable_cells[, sum(N >= community_expectation), by = .(genes, comb)]
+  setorder(count_comm_cells, genes, comb)
+  setnames(count_comm_cells, 'V1', 'comm')
+
+  count_comm_cells[, total := count_uniq_cells$V1]
+  count_comm_cells[, ratio := round(comm/total, 2)]
+  count_comm_cells = count_comm_cells[comb == '1-1']
+
+  if(verbose == TRUE) cat('\n 4. community estimate complete, start merging results \n')
+
+
+  # merge different information
+  mergeDT = merge(av_expr_DT, nr_high_cells, by = 'genes')
+  mergeDT = merge(mergeDT, dtablecomb, by = 'genes')
+  mergeDT = merge(mergeDT, count_comm_cells[,.(genes, ratio)], by = 'genes')
+
+  mergeDT[, total_score := av_expr*ratio*log2(OR+1)]
+  setorder(mergeDT, -total_score)
+
+  return(mergeDT)
+  #return(list(av_expr_DT, nr_high_cells, dtablecomb, count_comm_cells))
 
 }
+
+
 
 
 #' @title calculate_spatial_genes_python
@@ -274,6 +279,10 @@ calculate_spatial_genes_python <- function(gobject,
 
 
 }
+
+
+
+
 
 
 
@@ -467,6 +476,9 @@ calculateSpatialGenes <- function(gobject,
   }
 
 }
+
+
+
 
 
 
