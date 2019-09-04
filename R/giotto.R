@@ -186,9 +186,9 @@ createGiottoObject <- function(raw_exprs,
   # add other normalized expression data
   if(!is.null(norm_expr)) {
 
-    if(dim(norm_expr) == dim(raw_exprs) &
-       colnames(norm_expr) == colnames(raw_exprs) &
-       rownames(norm_expr) == rownames(raw_exprs)) {
+    if(all(dim(norm_expr) == dim(raw_exprs)) &
+       all(colnames(norm_expr) == colnames(raw_exprs)) &
+       all(rownames(norm_expr) == rownames(raw_exprs))) {
 
       gobject@norm_expr = norm_expr
     } else {
@@ -199,9 +199,9 @@ createGiottoObject <- function(raw_exprs,
   # add other normalized and scaled expression data
   if(!is.null(norm_scaled_expr)) {
 
-    if(dim(norm_scaled_expr) == dim(raw_exprs) &
-       colnames(norm_scaled_expr) == colnames(raw_exprs) &
-       rownames(norm_scaled_expr) == rownames(raw_exprs)) {
+    if(all(dim(norm_scaled_expr) == dim(raw_exprs)) &
+       all(colnames(norm_scaled_expr) == colnames(raw_exprs)) &
+       all(rownames(norm_scaled_expr) == rownames(raw_exprs))) {
 
       gobject@norm_scaled_expr = norm_scaled_expr
     } else {
@@ -212,9 +212,9 @@ createGiottoObject <- function(raw_exprs,
   # add other custom normalized expression data
   if(!is.null(custom_expr)) {
 
-    if(dim(custom_expr) == dim(raw_exprs) &
-       colnames(custom_expr) == colnames(raw_exprs) &
-       rownames(custom_expr) == rownames(raw_exprs)) {
+    if(all(dim(custom_expr) == dim(raw_exprs)) &
+       all(colnames(custom_expr) == colnames(raw_exprs)) &
+       all(rownames(custom_expr) == rownames(raw_exprs))) {
 
       gobject@custom_expr = custom_expr
     } else {
