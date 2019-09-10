@@ -2,7 +2,7 @@
 % Please edit documentation in R/spatial_structures.R
 \name{createSpatialGrid}
 \alias{createSpatialGrid}
-\title{createSpatialGrid}
+\title{createSpatialGrid2}
 \usage{
 createSpatialGrid(gobject, sdimx_stepsize = NULL,
   sdimy_stepsize = NULL, sdimz_stepsize = NULL, minimum_padding = 1,
@@ -33,5 +33,5 @@ create a spatial grid
 Creates a spatial grid with defined x, y (and z) dimensions.
 }
 \examples{
-    createSpatialGrid(gobject)
+    createSpatialGrid2(gobject)
 }

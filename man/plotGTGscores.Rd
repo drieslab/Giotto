@@ -8,7 +8,8 @@ plotGTGscores(GTGscore, selected_interactions = NULL,
   selected_gene_to_gene = NULL, detail_plot = T, simple_plot = F,
   simple_plot_facet = c("interaction", "genes"),
   facet_scales = "fixed", facet_ncol = length(selected_gene_to_gene),
-  facet_nrow = length(selected_interactions), show_plot = F)
+  facet_nrow = length(selected_interactions), colors = c("blue",
+  "red"), show_plot = F)
 }
 \arguments{
 \item{GTGscore}{GTGscore, output from getGeneToGeneScores()}
@@ -26,6 +27,8 @@ plotGTGscores(GTGscore, selected_interactions = NULL,
 \item{facet_ncol}{ggplot facet ncol parameter}
 
 \item{facet_nrow}{ggplot facet nrow parameter}
+
+\item{colors}{vector with 2 colors to represent respectively all and selected cells}
 
 \item{show_plot}{show plot}
 

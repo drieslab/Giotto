@@ -18,7 +18,8 @@ visSpatDimPlot_2D(gobject, plot_alignment = c("vertical", "horizontal"),
   spatial_network_color = NULL, show_spatial_grid = F,
   spatial_grid_name = "spatial_grid", spatial_grid_color = NULL,
   spatial_point_size = 1, spatial_point_border_col = "black",
-  spatial_point_border_stroke = 0.1, show_legend = T, show_plot = F)
+  spatial_point_border_stroke = 0.1, show_legend = T, show_plot = F,
+  plot_method = "ggplot")
 }
 \arguments{
 \item{gobject}{giotto object}

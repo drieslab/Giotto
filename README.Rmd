@@ -89,14 +89,14 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation [instructio
 ## Examples  
 - typical run time for the cortex dataset on a personal computer is around 20~30 mins.  
 
-[![Cortex](./inst/images/cortex_image_summary.png){width=10cm}](./inst/examples/mouse_cortex_svz/mouse_cortex_1_simple_improved.md)
+[![Cortex](./inst/images/cortex_image_summary.png){width=10cm}](./inst/examples/mouse_cortex_svz/seqfish_cortex_Giotto_v0.1.2.md)
 
 \  
 
 
 ## Latest News
 
-- First release (beta)
+- Release of v.0.1.2
 - Add support for 3D spatial data
 - Implemented [SpatialDE](https://github.com/Teichlab/SpatialDE)
 - Add wrapper for differential expression with [MAST](https://github.com/RGLab/MAST)

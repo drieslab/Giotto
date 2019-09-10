@@ -14,26 +14,26 @@ showClusterHeatmap <- function(gobject,
                                expression_values = c('normalized', 'scaled', 'custom'),
                                cluster_column,
                                distance = c('pearson', 'spearman')) {
-  
+
   distance = match.arg(distance, c('pearson', 'spearman'))
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  
-  
+
+
   testmatrix = create_cluster_matrix(gobject = gobject,
                                      cluster_column = cluster_column,
                                      expression_values = values)
-  
+
   # correlation
   cormatrix = stats::cor(x = testmatrix, method = distance)
   cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
   corclus = stats::hclust(d = cordist, method = 'ward.D')
-  
+
   hmap = ComplexHeatmap::Heatmap(matrix = cormatrix,
                                  cluster_rows = corclus,
                                  cluster_columns = corclus)
-  
+
   return(hmap)
-  
+
 }
 
 
@@ -62,33 +62,33 @@ decide_cluster_order = function(gobject,
                                 cluster_custom_order = NULL,
                                 cor_method = 'pearson',
                                 hclust_method = 'ward.D') {
-  
-  
+
+
   # epxression data
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = select_expression_values(gobject = gobject, values = values)
-  
+
   # subset expression data
   detected_genes = genes[genes %in% rownames(expr_values)]
   subset_values = expr_values[rownames(expr_values) %in% detected_genes, ]
-  
+
   # metadata
   cell_metadata = pDataDT(gobject)
-  
+
   ## check parameters
   if(is.null(cluster_column)) stop('\n cluster column must be selected \n')
   if(!cluster_column %in% colnames(cell_metadata)) stop('\n cluster column is not found \n')
-  
+
   ## cluster order ##
   cluster_order = match.arg(cluster_order, c('size', 'correlation', 'custom'))
-  
-  
+
+
   if(cluster_order == 'size') {
     ## sorts clusters from big to small (# of cells per cluster)
     clus_sort_sizes = sort(table(cell_metadata[[cluster_column]]))
     clus_sort_names = names(clus_sort_sizes)
-    
-    
+
+
   } else if(cluster_order == 'correlation') {
     ## sorts clusters based on their correlation
     subset_matrix = create_cluster_matrix(gobject = gobject,
@@ -102,8 +102,8 @@ decide_cluster_order = function(gobject,
     names(clus_names) = 1:length(clus_names)
     clus_sort_names = clus_names[corclus$order]
     clus_sort_names = gsub(pattern = 'cluster_', replacement = '', x = clus_sort_names)
-    
-    
+
+
   } else if(cluster_order == 'custom') {
     ## sorts based on a given custom order
     if(is.null(cluster_custom_order)) {
@@ -144,70 +144,71 @@ createHeatmap_DT <- function(gobject,
                              gene_order = c('custom', 'correlation'),
                              gene_cor_method = 'pearson',
                              gene_hclust_method = 'complete') {
-  
+
   # epxression data
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = select_expression_values(gobject = gobject, values = values)
-  
+
   # subset expression data
   detected_genes = genes[genes %in% rownames(expr_values)]
   subset_values = expr_values[rownames(expr_values) %in% detected_genes, ]
-  
+
   # metadata
   cell_metadata = pDataDT(gobject)
-  
+
   # gene order
   gene_order = match.arg(gene_order, c('custom', 'correlation'))
-  
-  
+
+
   ### cluster order ###
   clus_sort_names = decide_cluster_order(gobject = gobject,
                                          expression_values = expression_values,
                                          genes = genes,
                                          cluster_column = cluster_column,
                                          cluster_order = cluster_order,
+                                         cluster_custom_order = cluster_custom_order,
                                          cor_method = cluster_cor_method,
                                          hclust_method = cluster_hclust_method)
-  
+
   ## data.table ##
   subset_values_DT <- data.table::as.data.table(melt(subset_values, varnames = c('genes', 'cells'), value.name = 'expression'))
   subset_values_DT <- merge(subset_values_DT, by.x = 'cells', cell_metadata[, c('cell_ID', cluster_column), with = F], by.y = 'cell_ID')
   subset_values_DT[[cluster_column]] <- factor(subset_values_DT[[cluster_column]], levels = clus_sort_names)
-  
+
   subset_values_DT[, genes := factor(genes, unique(detected_genes))]
   subset_values_DT[, z_scores := scale(expression), by = genes]
   subset_values_DT[, scale_scores := scales::rescale(x = expression, to = c(0,1)), by = genes]
-  
-  
+
+
   ## order cells by mean expression ##
   cell_order_DT = subset_values_DT[, mean(expression), by = c('cells', cluster_column)]
   cell_order_DT = cell_order_DT[order(get(cluster_column), V1)]
   subset_values_DT[, cells := factor(cells, cell_order_DT$cells)]
-  
+
   ## get x-coordines for vertical lines in heatmap
   x_lines = cumsum(as.vector(table(cell_order_DT[[cluster_column]])))
-  
+
   ## order genes ##
   if(gene_order == 'correlation') {
     genesum_per_clus = subset_values_DT[, sum(expression), by = c('genes', cluster_column)]
-    
+
     my_formula = paste0('genes~',cluster_column)
     test_mat = data.table::dcast.data.table(data = genesum_per_clus, formula = my_formula, value.var = 'V1')
     test_matrix = as.matrix(test_mat[,-1]); rownames(test_matrix) = test_mat$genes
-    
+
     gene_dist = stats::as.dist(1-cor(t(test_matrix), method = gene_cor_method))
     gene_clus = stats::hclust(gene_dist, method = gene_hclust_method)
-    
+
     gene_labels = rownames(test_matrix)
     gene_index = 1:length(gene_labels)
     names(gene_index) = gene_labels
-    
+
     final_gene_order = names(gene_index[match(gene_clus$order, gene_index)])
     subset_values_DT[, genes := factor(genes, final_gene_order)]
   }
-  
+
   cell_order_DT[['cells']] = factor(cell_order_DT[['cells']], levels = as.character(cell_order_DT[['cells']]))
-  
+
   return(list(DT = subset_values_DT, x_lines = x_lines, cell_DT = cell_order_DT))
 }
 
@@ -258,10 +259,10 @@ plotHeatmap <- function(gobject,
                         axis_text_y_size = NULL,
                         legend_nrows = 1,
                         show_plot = TRUE) {
-  
+
   show_values = match.arg(show_values, choices = c('rescaled', 'z-scaled', 'original'))
-  
-  
+
+
   heatmap_data = createHeatmap_DT(gobject = gobject,
                                   expression_values = expression_values,
                                   genes = genes,
@@ -273,11 +274,11 @@ plotHeatmap <- function(gobject,
                                   gene_order = gene_order,
                                   gene_cor_method = gene_cor_method,
                                   gene_hclust_method = gene_hclust_method)
-  
+
   cell_order_DT = heatmap_data[['cell_DT']]
   subset_values_DT = heatmap_data[['DT']]
   x_lines = heatmap_data[['x_lines']]
-  
+
   ## assign colors to each cluster
   if(is.null(cluster_color_code)) {
     clus_values = unique(cell_order_DT[[cluster_column]])
@@ -286,7 +287,7 @@ plotHeatmap <- function(gobject,
   } else {
     clus_colors = cluster_color_code
   }
-  
+
   ## bar on top ##
   clus_pl <- ggplot2::ggplot()
   clus_pl <- clus_pl + ggplot2::geom_raster(data = cell_order_DT, aes_string(x = 'cells', y = '1', fill = cluster_column))
@@ -298,7 +299,7 @@ plotHeatmap <- function(gobject,
                                       legend.position = 'top',
                                       plot.margin = margin(0, 0, 0, 5.5, "pt"))
   clus_pl <- clus_pl + ggplot2::labs(x = '', y = 'clusters')
-  
+
   ## rescale values ##
   if(show_values == 'original') {
     value_column = 'expression'
@@ -310,7 +311,7 @@ plotHeatmap <- function(gobject,
     value_column = 'scale_scores'
     midpoint = 0.5
   }
-  
+
   # create empty plot
   empty = ggplot()
   empty = empty + theme_classic()
@@ -318,13 +319,13 @@ plotHeatmap <- function(gobject,
                                   axis.ticks = element_blank(),
                                   axis.line = element_blank(),
                                   plot.margin = margin(0, 0, 0, 0, "cm"))
-  
+
   ## parse gradient colors
   if(length(gradient_colors) > 3) cat('\n only first 3 colors will be used for gradient \n')
   low_color = gradient_colors[[1]]
   mid_color = gradient_colors[[2]]
   high_color = gradient_colors[[3]]
-  
+
   ### heatmap ###
   hmap <- ggplot2::ggplot()
   hmap <- hmap + ggplot2::geom_tile(data = subset_values_DT, aes_string(x = 'cells', y = 'genes', fill = value_column))
@@ -332,30 +333,30 @@ plotHeatmap <- function(gobject,
   hmap <- hmap + ggplot2::scale_fill_gradient2(low = low_color, mid = mid_color, high = high_color,
                                                midpoint = midpoint,
                                                guide = guide_colorbar(title = ''))
-  
+
   if(is.null(gene_label_selection)) {
-    
+
     hmap <- hmap + ggplot2::theme(axis.text.x = element_blank(),
                                   axis.ticks.x = element_blank(),
                                   axis.text.y = element_text(size = axis_text_y_size),
                                   plot.margin = margin(0, 0, 5.5, 5.5, "pt"))
-    
+
     ## align and combine
     aligned <- cowplot::align_plots(clus_pl, empty, hmap + theme(legend.position = "none"),  align = "v", axis = "l")
     aligned <- append(aligned, list(cowplot::get_legend(hmap)))
     combplot = cowplot::plot_grid(plotlist = aligned,
                                   ncol = 2, rel_widths = c(1, 0.2),
                                   nrow = 2, rel_heights = c(0.2, 1))
-    
+
     if(show_plot == TRUE) print(combplot)
     return(combplot)
-    
-    
+
+
   } else {
-    
+
     # set defaults
     if(is.null(axis_text_y_size)) axis_text_y_size = 0.8*11/ggplot2::.pt
-    
+
     # finish heatmap
     hmap <- hmap + ggplot2::theme(axis.text = element_blank(),
                                   axis.ticks = element_blank(),
@@ -365,7 +366,7 @@ plotHeatmap <- function(gobject,
     geneDT = unique(setorder(geneDT, genes))
     geneDT[, geneOrder := 1:.N]
     geneDT[, subset_genes := ifelse(genes %in% gene_label_selection, as.character(genes), '')]
-    
+
     axis <- ggplot(data = geneDT, aes(x = 0, y = geneOrder, label = subset_genes))
     axis <- axis + ggrepel::geom_text_repel(min.segment.length = grid::unit(0, "pt"),
                                             color = "grey30",  ## ggplot2 theme_grey() axis text
@@ -377,22 +378,22 @@ plotHeatmap <- function(gobject,
                                       breaks = NULL, labels = NULL, name = NULL)
     axis <- axis + theme(panel.background = element_blank(),
                          plot.margin = margin(0, 0, 0, 0, "cm"))
-    
-    
+
+
     #return(list(hmap, clus_pl, axis, empty))
-    
+
     ## align and combine
     aligned <- cowplot::align_plots(clus_pl, empty, empty, hmap + theme(legend.position = "none"), axis, align = "h", axis = "b")
     aligned <- append(aligned, list(cowplot::get_legend(hmap)))
     combplot = cowplot::plot_grid(plotlist = aligned,
                                   ncol = 3, rel_widths = c(1, 0.2, 0.1),
                                   nrow = 2, rel_heights = c(0.2, 1))
-    
+
     if(show_plot == TRUE) print(combplot)
     return(combplot)
-    
+
   }
-  
+
 }
 
 
@@ -420,48 +421,48 @@ violinPlot <- function(gobject,
                        strip_text = 7,
                        axis_text_x_size = 10,
                        axis_text_y_size = 6) {
-  
-  
+
+
   ## color of violin plots
   color_violin = match.arg(color_violin, c('genes', 'cluster'))
-  
+
   ## expression data ##
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_data = select_expression_values(gobject = gobject, values = values)
-  
+
   # only keep genes that are in the dataset
   selected_genes = genes[genes %in% rownames(expr_data) ]
   subset_data = as.matrix(expr_data[rownames(expr_data) %in% selected_genes, ])
-  
+
   if(length(genes) == 1) {
     t_subset_data = subset_data
   } else {
     t_subset_data = t(subset_data)
   }
-  
+
   # metadata
   metadata = pDataDT(gobject)
-  
+
   if(length(genes) == 1) {
     metadata_expr <- cbind(metadata,  t_subset_data)
     setnames(metadata_expr, 'V1', genes)
   } else {
     metadata_expr <- cbind(metadata, t_subset_data)
   }
-  
-  
+
+
   metadata_expr_m <- data.table::melt.data.table(metadata_expr, measure.vars = unique(selected_genes), variable.name = 'genes')
   metadata_expr_m[, genes := factor(genes, selected_genes)]
   metadata_expr_m[[cluster_column]] = as.factor(metadata_expr_m[[cluster_column]])
-  
+
   if(!is.null(cluster_custom_order)) {
     metadata_expr_m[[cluster_column]] = factor(x = metadata_expr_m[[cluster_column]], levels = cluster_custom_order)
   }
-  
-  
+
+
   pl <- ggplot2::ggplot()
   pl <- pl + ggplot2::theme_classic()
-  
+
   if(color_violin == 'genes') {
     pl <- pl + ggplot2::geom_violin(data = metadata_expr_m, aes_string(x = cluster_column, y = 'value', fill = 'genes'), width = 1, scale = 'width', show.legend = F)
   } else {
@@ -470,7 +471,7 @@ violinPlot <- function(gobject,
                                                fill = cluster_column),
                                     width = 1, scale = 'width',
                                     show.legend = F)
-    
+
     # provide own color scheme for clusters
     if(!is.null(cluster_color_code)) {
       pl <- pl + ggplot2::scale_fill_manual(values = cluster_color_code)
@@ -482,10 +483,10 @@ violinPlot <- function(gobject,
                             axis.text.y = element_text(size = axis_text_y_size))
   pl <- pl + ggplot2::labs(x = '', y = 'normalized expression')
   pl
-  
+
   return(pl)
-  
-  
+
+
 }
 
 
@@ -504,11 +505,11 @@ plotly_network <- function(network,
   edges[edges$edge_id%%3 == 1]$x = as.double(network[[x]])
   edges[edges$edge_id%%3 == 1]$y = as.double(network[[y]])
   edges[edges$edge_id%%3 == 1]$z = as.double(network[[z]])
-  
+
   edges[edges$edge_id%%3 == 2]$x = as.double(network[[x_end]])
   edges[edges$edge_id%%3 == 2]$y = as.double(network[[y_end]])
   edges[edges$edge_id%%3 == 2]$z = as.double(network[[z_end]])
-  
+
   edges[edges$edge_id%%3 == 0]$x = NA
   edges[edges$edge_id%%3 == 0]$y = NA
   edges[edges$edge_id%%3 == 0]$z = NA
@@ -532,25 +533,25 @@ plotly_grid <- function(spatial_grid,
   edge_num <- length(unique(spatial_grid[[x_start]])) + length(unique(spatial_grid[[y_start]])) + 2
   x_line <- unique(as.numeric(unlist(spatial_grid[,c(x_start,x_end)])))
   y_line <- unique(as.numeric(unlist(spatial_grid[,c(y_start,y_end)])))
-  
+
   x_min <- min(spatial_grid[[x_start]])
   x_max <- max(spatial_grid[[x_end]])
-  
+
   y_min <- min(spatial_grid[[y_start]])
   y_max <- max(spatial_grid[[y_end]])
-  
+
   edges <- data.table(edge_id = 1:edge_num,x = 0,y = 0,x_end = 0,y_end = 0)
-  
+
   edges[1:length(x_line),]$x <- x_line
   edges[1:length(x_line),]$x_end <- x_line
   edges[1:length(x_line),]$y <- y_min
   edges[1:length(x_line),]$y_end <- y_max
-  
+
   edges[(length(x_line)+1):edge_num,]$x <- x_min
   edges[(length(x_line)+1):edge_num,]$x_end <- x_max
   edges[(length(x_line)+1):edge_num,]$y <- y_line
   edges[(length(x_line)+1):edge_num,]$y_end <- y_line
-  
+
   return(edges)
 }
 
@@ -575,12 +576,12 @@ plotly_axis_scale_3D <- function(cell_locations,sdimx = NULL,sdimy = NULL,sdimz 
     x_ratio = max(cell_locations[[sdimx]]) - min(cell_locations[[sdimx]])
     y_ratio = max(cell_locations[[sdimy]]) - min(cell_locations[[sdimy]])
     z_ratio = max(cell_locations[[sdimz]]) - min(cell_locations[[sdimz]])
-    
+
     min_size = min(x_ratio,y_ratio,z_ratio)
     x_ratio = round(x_ratio/min_size)
     y_ratio = round(y_ratio/min_size)
     z_ratio = round(z_ratio/min_size)
-  } 
+  }
   else if(mode == "cube"){
     x_ratio = 1
     y_ratio = 1
@@ -619,11 +620,11 @@ plotly_axis_scale_2D <- function(cell_locations,sdimx = NULL,sdimy = NULL,
   if(mode == "real"){
     x_ratio = max(cell_locations[[sdimx]]) - min(cell_locations[[sdimx]])
     y_ratio = max(cell_locations[[sdimy]]) - min(cell_locations[[sdimy]])
-    
+
     min_size = min(x_ratio,y_ratio)
     x_ratio = round(x_ratio/min_size)
     y_ratio = round(y_ratio/min_size)
-  } 
+  }
   else if(mode == "cube"){
     x_ratio = 1
     y_ratio = 1

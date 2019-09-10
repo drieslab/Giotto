@@ -7,16 +7,20 @@
 visSpatDimGenePlot_2D(gobject, expression_values = c("normalized",
   "scaled", "custom"), plot_alignment = c("horizontal", "vertical"),
   genes, dim_reduction_to_use = "umap", dim_reduction_name = "umap",
-  dim1_to_use = 1, dim2_to_use = 2, dim_point_size = 1,
+  dim1_to_use = 1, dim2_to_use = 2, point_size = 1,
   dim_point_border_col = "black", dim_point_border_stroke = 0.1,
-  show_NN_network = F, nn_network_to_use = "sNN",
+  show_NN_network = F, show_spatial_network = F,
+  show_spatial_grid = F, nn_network_to_use = "sNN",
   network_name = "sNN.pca", edge_alpha_dim = NULL,
   scale_alpha_with_expression = TRUE,
   spatial_network_name = "spatial_network",
   spatial_grid_name = "spatial_grid", spatial_point_size = 1,
   spatial_point_border_col = "black",
-  spatial_point_border_stroke = 0.1, midpoint = 0, point_size = 1,
-  cow_n_col = 2, cow_rel_h = 1, cow_rel_w = 1, cow_align = "h",
+  spatial_point_border_stroke = 0.1, midpoint = 0,
+  genes_high_color = "red", genes_mid_color = "white",
+  genes_low_color = "blue", cow_n_col = 2, cow_rel_h = 1,
+  cow_rel_w = 1, cow_align = "h", axis_scale = c("cube", "real",
+  "custom"), custom_ratio = NULL, x_ticks = NULL, y_ticks = NULL,
   show_legend = T, show_plots = F)
 }
 \arguments{
@@ -36,7 +40,7 @@ visSpatDimGenePlot_2D(gobject, expression_values = c("normalized",
 
 \item{dim2_to_use}{dimension to use on y-axis}
 
-\item{dim_point_size}{dim reduction plot: point size}
+\item{point_size}{size of point (cell)}
 
 \item{dim_point_border_col}{color of border around points}
 
@@ -64,8 +68,6 @@ visSpatDimGenePlot_2D(gobject, expression_values = c("normalized",
 
 \item{midpoint}{size of point (cell)}
 
-\item{point_size}{size of point (cell)}
-
 \item{cow_n_col}{cowplot param: how many columns}
 
 \item{cow_rel_h}{cowplot param: relative height}
@@ -75,6 +77,8 @@ visSpatDimGenePlot_2D(gobject, expression_values = c("normalized",
 \item{cow_align}{cowplot param: how to align}
 
 \item{show_legend}{show legend}
+
+\item{dim_point_size}{dim reduction plot: point size}
 
 \item{show_plot}{show plot}
 }

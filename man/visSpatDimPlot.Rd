@@ -4,7 +4,7 @@
 \alias{visSpatDimPlot}
 \title{visSpatDimPlot}
 \usage{
-visSpatDimPlot(gobject, plot_mode = c("plotly", "ggplot2"),
+visSpatDimPlot(gobject, plot_method = c("plotly", "ggplot2"),
   plot_alignment = NULL, dim_reduction_to_use = "umap",
   dim_reduction_name = "umap", dim1_to_use = 1, dim2_to_use = 2,
   dim3_to_use = NULL, sdimx = NULL, sdimy = NULL, sdimz = NULL,
@@ -27,8 +27,6 @@ visSpatDimPlot(gobject, plot_mode = c("plotly", "ggplot2"),
 }
 \arguments{
 \item{gobject}{giotto object}
-
-\item{plot_mode}{choose the mode to draw plot : ggplot or plotly}
 
 \item{plot_alignment}{direction to align plot}
 
@@ -75,6 +73,8 @@ visSpatDimPlot(gobject, plot_mode = c("plotly", "ggplot2"),
 \item{show_legend}{show legend}
 
 \item{show_plot}{show plot}
+
+\item{plot_mode}{choose the mode to draw plot : ggplot or plotly}
 
 \item{spatial_network_color}{color of spatial network}
 }
