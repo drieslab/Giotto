@@ -182,6 +182,7 @@ createGiottoObject <- function(raw_exprs,
     spatial_locs = data.table::data.table(x = 1:ncol(raw_exprs),
                                           y = 1:ncol(raw_exprs),
                                           z = 1:ncol(raw_exprs))
+    gobject@spatial_locs = spatial_locs
   }
 
 
