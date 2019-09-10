@@ -123,7 +123,7 @@ visPlot <- function(gobject,
 
     axis_scale = match.arg(axis_scale, c("cube","real","custom"))
 
-    ratio = plotly_axis_scale(cell_locations,sdimx = sdimx,sdimy = sdimy,sdimz = sdimz,
+    ratio = plotly_axis_scale_3D(cell_locations,sdimx = sdimx,sdimy = sdimy,sdimz = sdimz,
                               mode = axis_scale,custom_ratio = custom_ratio)
 
     if(!is.null(cell_color)) {
@@ -615,7 +615,7 @@ visGenePlot_3D_plotly <- function(gobject,
 
   axis_scale = match.arg(axis_scale, c("cube","real","custom"))
 
-  ratio = plotly_axis_scale(cell_locations_metadata_genes,sdimx = "sdimx",sdimy = "sdimy",sdimz = "sdimz",
+  ratio = plotly_axis_scale_3D(cell_locations_metadata_genes,sdimx = "sdimx",sdimy = "sdimy",sdimz = "sdimz",
                             mode = axis_scale,custom_ratio = custom_ratio)
 
 
@@ -2427,7 +2427,7 @@ visSpatDimPlot_3D <- function(gobject,
   else{
     axis_scale = match.arg(axis_scale, c("cube","real","custom"))
 
-    ratio = plotly_axis_scale(annotated_DT,sdimx = sdimx,sdimy = sdimy,sdimz = sdimz,
+    ratio = plotly_axis_scale_3D(annotated_DT,sdimx = sdimx,sdimy = sdimy,sdimz = sdimz,
                               mode = axis_scale,custom_ratio = custom_ratio)
     spl <- plotly::plot_ly(scene = "scene2")
     if(!is.null(cell_color)) {
@@ -2657,14 +2657,16 @@ visSpatDimPlot <- function(gobject,
                            spatial_point_border_col = 'black',
                            spatial_point_border_stroke = 0.1,
                            show_legend = T,
+                           axis_scale = c("cube","real","custom"),
                            custom_ratio = NULL,
                            x_ticks = NULL,
                            y_ticks = NULL,
                            z_ticks = NULL,
                            show_plot = F){
-
+  
   plot_method = match.arg(plot_method, c("plotly","ggplot2"))
-
+  
+  axis_scale = match.arg(axis_scale,c("cube","real","custom"))
   if(plot_method == "ggplot2"){
     if(!is.null(sdimz) | !is.null(dim3_to_use)){
       stop("3D plots can not be drawn in ggplot2 mode, please choose plotly mode with plot_mode = \"plotly\"\n")
@@ -2715,7 +2717,7 @@ visSpatDimPlot <- function(gobject,
                             show_plot = show_plot,
                             plot_method = plot_method)
   }
-
+  
   else if(plot_method == "plotly"){
     if(is.null(plot_alignment)){
       plot_alignment = "horizontal"
@@ -2757,6 +2759,7 @@ visSpatDimPlot <- function(gobject,
                             spatial_grid_color = spatial_grid_color,
                             spatial_grid_alpha = spatial_grid_alpha,
                             spatial_point_size = spatial_point_size,
+                            axis_scale = axis_scale,
                             custom_ratio = custom_ratio,
                             x_ticks = x_ticks,
                             y_ticks = y_ticks,
@@ -3749,7 +3752,7 @@ visSpatDimGenePlot_3D <- function(gobject,
   # 3D plot
   else{
     axis_scale = match.arg(axis_scale, c("cube","real","custom"))
-    ratio = plotly_axis_scale(annotated_DT,sdimx = sdimx,sdimy = sdimy,sdimz = sdimz,
+    ratio = plotly_axis_scale_3D(annotated_DT,sdimx = sdimx,sdimy = sdimy,sdimz = sdimz,
                               mode = axis_scale,custom_ratio = custom_ratio)
 
 
@@ -4350,7 +4353,7 @@ visPlot_3D = function(gobject,
   axis_scale = match.arg(axis_scale, c("cube","real","custom"))
 
   ### set ratio
-  ratio = plotly_axis_scale(cell_locations,
+  ratio = plotly_axis_scale_3D(cell_locations,
                             sdimx = sdimx, sdimy = sdimy, sdimz = sdimz,
                             mode = axis_scale, custom_ratio = custom_ratio)
 
