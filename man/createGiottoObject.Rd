@@ -4,7 +4,7 @@
 \alias{createGiottoObject}
 \title{create Giotto object}
 \usage{
-createGiottoObject(raw_exprs, spatial_locs, norm_expr = NULL,
+createGiottoObject(raw_exprs, spatial_locs = NULL, norm_expr = NULL,
   norm_scaled_expr = NULL, custom_expr = NULL, cell_metadata = NULL,
   gene_metadata = NULL, spatial_network = NULL,
   spatial_network_name = NULL, spatial_grid = NULL,

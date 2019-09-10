@@ -726,7 +726,7 @@ doKmeans <- function(gobject,
 
 
   dim_reduction_to_use = match.arg(dim_reduction_to_use, choices = c('cells', 'pca', 'umap', 'tsne'))
-  distance_method = match.arg(distance_method, choices = c("pearson", "spearman",  "original",
+  distance_method = match.arg(distance_method, choices = c("original", "pearson", "spearman",
                                                            "euclidean", "maximum", "manhattan",
                                                            "canberra", "binary", "minkowski"))
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
