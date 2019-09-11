@@ -2,9 +2,10 @@
 % Please edit documentation in R/spatial_visuals.R
 \name{visPlot2}
 \alias{visPlot2}
+\alias{visPlot}
 \title{visPlot2}
 \usage{
-visPlot2(gobject, sdimx = NULL, sdimy = NULL, sdimz = NULL,
+visPlot(gobject, sdimx = NULL, sdimy = NULL, sdimz = NULL,
   point_size = 3, point_border_col = "black",
   point_border_stroke = 0.1, cell_color = NULL,
   cell_color_code = NULL, color_as_factor = T,

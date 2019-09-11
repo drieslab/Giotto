@@ -22,8 +22,8 @@ visSpatDimPlot(gobject, plot_method = c("plotly", "ggplot2"),
   spatial_point_size = 3, legend_text_size = 12,
   spatial_point_border_col = "black",
   spatial_point_border_stroke = 0.1, show_legend = T,
-  custom_ratio = NULL, x_ticks = NULL, y_ticks = NULL,
-  z_ticks = NULL, show_plot = F)
+  axis_scale = c("cube", "real", "custom"), custom_ratio = NULL,
+  x_ticks = NULL, y_ticks = NULL, z_ticks = NULL, show_plot = F)
 }
 \arguments{
 \item{gobject}{giotto object}
