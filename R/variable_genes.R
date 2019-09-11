@@ -53,7 +53,7 @@ calculateHVG <- function(gobject,
   gene_in_cells_detected[, cov := (sd/mean_expr)]
   gini_level <- unlist(apply(expr_values, MARGIN = 1, FUN = function(x) {
 
-    gini = mygini_fun(x)
+    gini = Giotto:::mygini_fun(x)
     return(gini)
 
   }))
@@ -66,6 +66,14 @@ calculateHVG <- function(gobject,
     prob_sequence = seq(0, 1, steps)
     prob_sequence[length(prob_sequence)] = 1
     expr_group_breaks = stats::quantile(gene_in_cells_detected$mean_expr, probs = prob_sequence)
+
+    ## remove zero's from cuts if there are too many and make first group zero
+    if(any(duplicated(expr_group_breaks))) {
+      m_expr_vector = gene_in_cells_detected$mean_expr
+      expr_group_breaks = stats::quantile(m_expr_vector[m_expr_vector > 0], probs = prob_sequence)
+      expr_group_breaks[[1]] = 0
+    }
+
     expr_groups = cut(x = gene_in_cells_detected$mean_expr, breaks = expr_group_breaks,
                       labels = paste0('group_', 1:nr_expression_groups), include.lowest = T)
     gene_in_cells_detected[, expr_groups := expr_groups]
