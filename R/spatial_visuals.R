@@ -174,7 +174,7 @@ visPlot_3D_plotly = function(gobject,
                                    type = "scatter3d",
                                    data = edges,
                                    x = ~x,y=~y,z=~z,
-                                   inherit = F,line=list(color=network_color£¬width = 0.5),opacity=network_alpha)
+                                   inherit = F,line=list(color=network_color,width = 0.5),opacity=network_alpha)
   }
   ## plot spatial grid
   # 3D grid is not clear to view
