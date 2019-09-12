@@ -174,7 +174,7 @@ visPlot_3D_plotly = function(gobject,
                                    type = "scatter3d",
                                    data = edges,
                                    x = ~x,y=~y,z=~z,
-                                   inherit = F,line=list(color=network_color),opacity=network_alpha)
+                                   inherit = F,line=list(color=network_color,width = 0.5),opacity=network_alpha)
   }
   ## plot spatial grid
   # 3D grid is not clear to view
@@ -592,7 +592,7 @@ visPlot_2D_plotly = function(gobject,
         grid_color = 'black'
       }
       edges <- plotly_grid(spatial_grid)
-      spl <- spl %>% plotly::add_segments(name = "spatial_grid",
+      pl <- pl %>% plotly::add_segments(name = "spatial_grid",
                                           type = "scatter",
                                           data = edges,
                                           x = ~x,
@@ -674,8 +674,8 @@ visPlot_2D_plotly = function(gobject,
 
 
 
-#' @title visPlot2
-#' @name visPlot2
+#' @title visPlot
+#' @name visPlot
 #' @description Visualize cells according to spatial coordinates
 #' @param gobject giotto object
 #' @param sdimx x-axis dimension name (default = 'sdimx')
@@ -702,7 +702,7 @@ visPlot_2D_plotly = function(gobject,
 #' @details Description of parameters.
 #' @export
 #' @examples
-#'     visPlot2(gobject)
+#'     visPlot(gobject)
 visPlot <- function(gobject,
                     sdimx = NULL,
                     sdimy = NULL,
@@ -4045,68 +4045,68 @@ visSpatDimGenePlot_3D <- function(gobject,
                                   x_ticks = NULL,
                                   y_ticks = NULL,
                                   z_ticks = NULL){
-
+  
   plot_alignment = match.arg(plot_alignment, choices = c( 'horizontal','vertical'))
-
+  
   # ********data prepare********#
   ## select genes ##
   selected_genes = genes
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
-
+  
   # only keep genes that are in the dataset
   selected_genes = selected_genes[selected_genes %in% rownames(expr_values) ]
   subset_expr_data = expr_values[rownames(expr_values) %in% selected_genes, ]
   t_sub_expr_data_DT = data.table('selected_gene' = subset_expr_data, 'cell_ID' = colnames(expr_values))
   data.table::setnames(t_sub_expr_data_DT, 'selected_gene', selected_genes)
-
-
+  
+  
   ## dimension reduction ##
   dim_dfr = gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$coordinates[,c(dim1_to_use, dim2_to_use,dim3_to_use)]
   dim_names = colnames(dim_dfr)
   dim_DT = data.table::as.data.table(dim_dfr); dim_DT[, cell_ID := rownames(dim_dfr)]
-
+  
   ## annotated cell metadata
   cell_metadata = gobject@cell_metadata
   annotated_DT = merge(cell_metadata, dim_DT, by = 'cell_ID')
   annotated_DT = merge(annotated_DT, gobject@spatial_locs,by = 'cell_ID')
   annotated_DT = merge(annotated_DT, t_sub_expr_data_DT,by = 'cell_ID')
-
-
+  
+  
   ## nn network
   if(show_NN_network){
     selected_nn_network = gobject@nn_network[[nn_network_to_use]][[network_name]][['igraph']]
     network_DT = data.table::as.data.table(igraph::as_data_frame(selected_nn_network, what = 'edges'))
-
+    
     # annotated network
     old_dim_names = dim_names
-
+    
     annotated_network_DT <- merge(network_DT, dim_DT, by.x = 'from', by.y = 'cell_ID')
     from_dim_names = paste0('from_', old_dim_names)
     data.table::setnames(annotated_network_DT, old = old_dim_names, new = from_dim_names)
-
+    
     annotated_network_DT <- merge(annotated_network_DT, dim_DT, by.x = 'to', by.y = 'cell_ID')
     to_dim_names = paste0('to_', old_dim_names)
     data.table::setnames(annotated_network_DT, old = old_dim_names, new = to_dim_names)
   }
-
-
+  
+  
   ## extract spatial network
   if(!is.null(spatial_network_name)) {
     spatial_network = gobject@spatial_network[[spatial_network_name]]
   } else {
     spatial_network = NULL
   }
-
+  
   ## extract spatial grid
   if(!is.null(spatial_grid_name)) {
     spatial_grid = gobject@spatial_grid[[spatial_grid_name]]
   } else {
     spatial_grid = NULL
   }
-
-
-
+  
+  
+  
   #********** dim plot ***********#
   #2D plot
   if(is.null(dim3_to_use)){
@@ -4129,7 +4129,7 @@ visSpatDimGenePlot_3D <- function(gobject,
                                                       width = 0.5),
                                           opacity=nn_network_alpha)
     }
-
+    
     dpl <- dpl %>% plotly::add_trace(type = "scatter",mode = "markers",
                                      x = annotated_DT[[dim_names[1]]],
                                      y = annotated_DT[[dim_names[2]]],
@@ -4137,11 +4137,11 @@ visSpatDimGenePlot_3D <- function(gobject,
                                      colors =c(genes_low_color,genes_mid_color,genes_high_color),
                                      marker = list(size = dim_point_size),
                                      showlegend = F)
-
-
+    
+    
     x_title = paste(dim_reduction_to_use,dim_names[1],sep = " ")
     y_title = paste(dim_reduction_to_use,dim_names[2],sep = " ")
-
+    
     dpl <- dpl %>% plotly::layout(xaxis = list(title = x_title),
                                   yaxis = list(title = y_title),
                                   legend = list(x = 100, y = 0.5,font = list(family = "sans-serif",size = legend_text_size)))
@@ -4149,7 +4149,7 @@ visSpatDimGenePlot_3D <- function(gobject,
   #3D plot
   else if(!is.null(dim3_to_use)){
     dpl <- plotly::plot_ly(scene = "scene1")
-
+    
     dpl <- dpl %>% plotly::add_trace(type = 'scatter3d',mode = "markers",
                                      x = annotated_DT[[dim_names[1]]],
                                      y = annotated_DT[[dim_names[2]]],
@@ -4159,8 +4159,8 @@ visSpatDimGenePlot_3D <- function(gobject,
                                      marker = list(size = dim_point_size),
                                      showlegend = F)
     #legendgroup = annotated_DT[[cell_color]])
-
-
+    
+    
     if(show_NN_network){
       edges <- plotly_network(annotated_network_DT,
                               "from_Dim.1","from_Dim.2","from_Dim.3",
@@ -4172,7 +4172,7 @@ visSpatDimGenePlot_3D <- function(gobject,
         warning("Edge_alpha for plotly mode is not adjustable yet. Default 0.5 will be set\n")
         nn_network_alpha = 0.5
       }
-
+      
       dpl <- dpl %>% plotly::add_trace(name = network_name,
                                        mode = "lines",
                                        type = "scatter3d",
@@ -4181,27 +4181,27 @@ visSpatDimGenePlot_3D <- function(gobject,
                                        line=list(color=network_color),
                                        opacity=nn_network_alpha)
     }
-
-
+    
+    
     x_title = paste(dim_reduction_to_use,dim_names[1],sep = " ")
     y_title = paste(dim_reduction_to_use,dim_names[2],sep = " ")
     z_title = paste(dim_reduction_to_use,dim_names[3],sep = " ")
-
+    
   }
-
-
-
+  
+  
+  
   #********** spatial plot ***********#
   if(is.null(sdimx) | is.null(sdimy)) {
     # cat('first and second dimenion need to be defined, default is first 2 \n')
     sdimx = 'sdimx'
     sdimy = 'sdimy'
   }
-
+  
   # 2D plot
   if(is.null(sdimz)){
     spl <- plotly::plot_ly()
-
+    
     if(show_spatial_network == TRUE) {
       if(is.null(spatial_network)){
         stop("No usable spatial network specified! Please choose a network with spatial_network_name=xxx")
@@ -4244,10 +4244,10 @@ visSpatDimGenePlot_3D <- function(gobject,
                                             line = list(color = spatial_grid_color,
                                                         width = 1),
                                             opacity=spatial_grid_alpha)
-
+        
       }
     }
-
+    
     spl <- spl %>% plotly::add_trace(type = "scatter",mode = "markers",
                                      x = annotated_DT[[sdimx]],
                                      y = annotated_DT[[sdimy]],
@@ -4255,24 +4255,24 @@ visSpatDimGenePlot_3D <- function(gobject,
                                      colors = c(genes_low_color,genes_mid_color,genes_high_color),
                                      marker = list(size = spatial_point_size),
                                      showlegend = F)
-
-
+    
+    
     spl <- spl %>% plotly::layout(xaxis = list(title = "X"),
                                   yaxis = list(title = "Y"),
                                   legend = list(x = 100, y = 0.5,font = list(family = "sans-serif",size = legend_text_size)))
-
+    
   }
-
-
+  
+  
   # 3D plot
   else{
     axis_scale = match.arg(axis_scale, c("cube","real","custom"))
     ratio = plotly_axis_scale_3D(annotated_DT,sdimx = sdimx,sdimy = sdimy,sdimz = sdimz,
-                              mode = axis_scale,custom_ratio = custom_ratio)
-
-
+                                 mode = axis_scale,custom_ratio = custom_ratio)
+    
+    
     spl <- plotly::plot_ly(scene = "scene2")
-
+    
     spl <- spl %>% plotly::add_trace(type = 'scatter3d',mode = 'markers',
                                      x = annotated_DT[[sdimx]],
                                      y = annotated_DT[[sdimy]],
@@ -4282,7 +4282,7 @@ visSpatDimGenePlot_3D <- function(gobject,
                                      #legendgroup = annotated_DT[[cell_color]],
                                      marker = list(size = spatial_point_size),
                                      showlegend = F)
-
+    
     if(show_spatial_network == TRUE) {
       if(is.null(spatial_network)){
         stop("No usable spatial network specified! Please choose a network with spatial_network_name=xxx")
@@ -4296,7 +4296,7 @@ visSpatDimGenePlot_3D <- function(gobject,
           spatial_network_alpha = 0.5
         }
         edges <- plotly_network(spatial_network)
-
+        
         spl <- spl %>% plotly::add_trace(name = "sptial network",
                                          mode = "lines",
                                          type = "scatter3d",
@@ -4306,16 +4306,16 @@ visSpatDimGenePlot_3D <- function(gobject,
                                          opacity=spatial_network_alpha)
       }
     }
-
+    
     if(show_spatial_grid == TRUE){
       cat("3D grid is not clear to view\n")
     }
-
+    
   }
-
-
-
-
+  
+  
+  
+  spl <- hide_colorbar(spl)
   if(is.null(dim3_to_use) & is.null(sdimz)){
     if(plot_alignment == 'vertical'){
       combo_plot <- plotly::subplot(dpl,spl,nrows = 2,titleX = TRUE,titleY = TRUE)
@@ -4324,7 +4324,7 @@ visSpatDimGenePlot_3D <- function(gobject,
       combo_plot <- plotly::subplot(dpl,spl,titleX = TRUE,titleY = TRUE)
     }
   }
-
+  
   else if(!is.null(dim3_to_use) & is.null(sdimz)){
     if(plot_alignment == 'vertical'){
       combo_plot <- plotly::subplot(dpl,spl,nrows = 2,titleX = TRUE,titleY = TRUE)%>%
@@ -4341,7 +4341,7 @@ visSpatDimGenePlot_3D <- function(gobject,
                                     zaxis = list(title = z_title)))
     }
   }
-
+  
   else if(is.null(dim3_to_use) & !is.null(sdimz)){
     if(plot_alignment == 'vertical'){
       combo_plot <- plotly::subplot(dpl,spl,nrows = 2,titleX = TRUE,titleY = TRUE)%>%
@@ -4366,7 +4366,7 @@ visSpatDimGenePlot_3D <- function(gobject,
                              z=ratio[[3]])))
     }
   }
-
+  
   else if(!is.null(dim3_to_use) & !is.null(sdimz)){
     if(plot_alignment == 'vertical'){
       combo_plot <- plotly::subplot(dpl,spl,nrows = 2,titleX = TRUE,titleY = TRUE)%>%
@@ -4399,11 +4399,11 @@ visSpatDimGenePlot_3D <- function(gobject,
                                             z=ratio[[3]])))
     }
   }
-
-
-
+  
+  
+  
   return(combo_plot)
-
+  
 }
 
 
