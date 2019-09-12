@@ -4187,8 +4187,8 @@ visSpatDimGenePlot_3D <- function(gobject,
     y_title = paste(dim_reduction_to_use,dim_names[2],sep = " ")
     z_title = paste(dim_reduction_to_use,dim_names[3],sep = " ")
     
-  }
-  
+  } 
+  dpl <- dpl %>% plotly::colorbar(title = selected_genes)
   
   
   #********** spatial plot ***********#
