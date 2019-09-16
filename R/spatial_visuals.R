@@ -1210,7 +1210,7 @@ visGenePlot_3D_plotly <- function(gobject,
     return (savelist[[1]])
   }
   else if(length(savelist)==2){
-    cowplot <- suppressWarnings(subplot(savelist)%>% plotly::layout(scene = list(xaxis = list(title = "X",nticks = x_ticks),
+    cowplot <- suppressWarnings(plotly::subplot(savelist)%>% plotly::layout(scene = list(xaxis = list(title = "X",nticks = x_ticks),
                                                                                  yaxis = list(title = "Y",nticks = y_ticks),
                                                                                  zaxis = list(title = "Z",nticks = z_ticks),
                                                                                  aspectmode='manual',
@@ -1228,7 +1228,7 @@ visGenePlot_3D_plotly <- function(gobject,
                                                                     legend = list(x = 100, y = 0)))
   }
   else if(length(savelist)==3){
-    cowplot <- suppressWarnings(subplot(savelist)%>% plotly::layout(scene = list(xaxis = list(title = "X",nticks = x_ticks),
+    cowplot <- suppressWarnings(plotly::subplot(savelist)%>% plotly::layout(scene = list(xaxis = list(title = "X",nticks = x_ticks),
                                                                                  yaxis = list(title = "Y",nticks = y_ticks),
                                                                                  zaxis = list(title = "Z",nticks = z_ticks),
                                                                                  aspectmode='manual',
@@ -1254,7 +1254,7 @@ visGenePlot_3D_plotly <- function(gobject,
   else if(length(savelist)==4){
 
 
-    cowplot <- suppressWarnings(subplot(savelist)%>% plotly::layout(scene = list(xaxis = list(title = "X",nticks = x_ticks),
+    cowplot <- suppressWarnings(plotly::subplot(savelist)%>% plotly::layout(scene = list(xaxis = list(title = "X",nticks = x_ticks),
                                                                                  yaxis = list(title = "Y",nticks = y_ticks),
                                                                                  zaxis = list(title = "Z",nticks = z_ticks),
                                                                                  aspectmode='manual',
@@ -3646,7 +3646,7 @@ visDimGenePlot_3D_plotly <- function(gobject,
     return (savelist[[1]])
   }
   else if(length(savelist)==2){
-    cowplot <- suppressWarnings(subplot(savelist,titleX = TRUE,titleY = TRUE)%>%
+    cowplot <- suppressWarnings(plotly::subplot(savelist,titleX = TRUE,titleY = TRUE)%>%
                                   plotly::layout(scene = list(domain = list(x = c(0, 0.5), y = c(0,1)),
                                                               xaxis = list(title = titleX),
                                                               yaxis = list(title = titleY),
@@ -3658,7 +3658,7 @@ visDimGenePlot_3D_plotly <- function(gobject,
                                                  legend = list(x = 100, y = 0)))
   }
   else if(length(savelist)==3){
-    cowplot <- suppressWarnings(subplot(savelist,titleX = TRUE,titleY = TRUE)%>%
+    cowplot <- suppressWarnings(plotly::subplot(savelist,titleX = TRUE,titleY = TRUE)%>%
                                   plotly::layout(scene = list(domain = list(x = c(0, 0.5), y = c(0,0.5)),
                                                               xaxis = list(title = titleX),
                                                               yaxis = list(title = titleY),
@@ -3675,7 +3675,7 @@ visDimGenePlot_3D_plotly <- function(gobject,
   }
   else if(length(savelist)==4){
 
-    cowplot <- suppressWarnings(subplot(savelist)%>% plotly::layout(scene = list(domain = list(x = c(0, 0.5), y = c(0,0.5)),
+    cowplot <- suppressWarnings(plotly::subplot(savelist)%>% plotly::layout(scene = list(domain = list(x = c(0, 0.5), y = c(0,0.5)),
                                                                                  xaxis = list(title = titleX),
                                                                                  yaxis = list(title = titleY),
                                                                                  zaxis = list(title = titleZ)),
