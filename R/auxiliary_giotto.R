@@ -1133,3 +1133,66 @@ create_cluster_matrix <- function(gobject,
 
 
 
+#' @title calculateMetaTable
+#' @description calculates the average gene expression for one or more (combined) annotation columns.
+#' @param gobject giotto object
+#' @param expression_values expression values to use
+#' @param metadata_cols annotation columns found in pDataDT(gobject)
+#' @param selected_genes subset of genes to use
+#' @return data.table with average expression values for each gene per (combined) annotation
+#' @export
+#' @examples
+#'     calculateMetaTable(gobject)
+calculateMetaTable = function(gobject,
+                              expression_values =  c("normalized", "scaled", "custom"),
+                              metadata_cols = NULL,
+                              selected_genes = NULL) {
+
+  if(is.null(metadata_cols)) stop('\n You need to select one or more valid column names from pDataDT() \n')
+
+  ## get metadata and create unique groups
+  metadata = data.table::copy(pDataDT(gobject))
+  if(length(metadata_cols) > 1) {
+    metadata[, uniq_ID := paste(.SD, collapse = '-'), by = 1:nrow(metadata), .SDcols = metadata_cols]
+  } else {
+    metadata[, uniq_ID := get(metadata_cols)]
+  }
+
+  ## possible groups
+  possible_groups = unique(metadata[,metadata_cols, with = F])
+  if(length(metadata_cols) > 1) {
+    possible_groups[, uniq_ID := paste(.SD, collapse = '-'), by = 1:nrow(possible_groups), .SDcols = metadata_cols]
+  } else {
+    possible_groups[, uniq_ID := get(metadata_cols)]
+  }
+
+  ## get expression data
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_values = select_expression_values(gobject = gobject, values = values)
+  if(!is.null(selected_genes)) {
+    expr_values = expr_values[rownames(expr_values) %in% selected_genes, ]
+  }
+
+  ## summarize unique groups (average)
+  result_list = list()
+
+  for(row in 1:nrow(possible_groups)) {
+
+    uniq_identifiier = possible_groups[row][['uniq_ID']]
+    selected_cell_IDs = metadata[uniq_ID == uniq_identifiier][['cell_ID']]
+    sub_expr_values = expr_values[, colnames(expr_values) %in% selected_cell_IDs]
+    if(is.vector(sub_expr_values) == FALSE) {
+      subvec = rowMeans(sub_expr_values)
+    } else {
+      subvec = sub_expr_values
+    }
+    result_list[[row]] = subvec
+  }
+  finaldt = data.table::as.data.table(do.call('rbind', result_list))
+  possible_groups_res = cbind(possible_groups, finaldt)
+  possible_groups_res_melt = data.table::melt.data.table(possible_groups_res, id.vars = c(metadata_cols, 'uniq_ID'))
+
+  return(possible_groups_res_melt)
+
+}
+
