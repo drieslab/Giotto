@@ -91,7 +91,7 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation [instructio
 
 [![Cortex](./inst/images/cortex_image_summary.png){width=10cm}](./inst/examples/mouse_cortex_svz/seqfish_cortex_Giotto_v0.1.2.md)
 
-[![STARmap](./inst/images/STARmap_summary.png){width=10cm}](./inst/examples/mouse_starmap_cortex/starmap_cortex_Giotto_v0.1.2.md)
+[![STARmap](./inst/images/starmap_cortex_image_summary.png){width=10cm}](./inst/examples/mouse_starmap_cortex/starmap_cortex_Giotto_v0.1.2.md)
 
 \  
 
