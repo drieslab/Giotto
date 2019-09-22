@@ -220,11 +220,11 @@ plotMetaDataHeatmap(STAR_test, expression_values = 'scaled',
                     metadata_cols = c('leiden_0.2'))
 ```
 
-violinplot: ![](./figures/DEG_violinplot.pdf)
+violinplot: ![](./figures/DEG_violinplot.png)
 
 Heatmap cells: ![](./figures/DEG_heatmap_cells.png)
 
-Heatmap clusters: ![](./figures/DEG_heatmap_clusters.pdf)
+Heatmap clusters: ![](./figures/DEG_heatmap_clusters.png)
 
 -----
 
@@ -252,9 +252,9 @@ plotMetaDataHeatmap(STAR_test, expression_values = 'scaled',
                     metadata_cols = c('general_cell_types'))
 ```
 
-UMAP: ![](./figures/umap_general_cell_type.pdf)
+UMAP: ![](./figures/umap_general_cell_type.png)
 
-Heatmap: ![](./figures/cluster_heatmap_general_cell_type.pdf)
+Heatmap: ![](./figures/cluster_heatmap_general_cell_type.png)
 
 ``` r
 ## detailed cell types
@@ -271,9 +271,9 @@ plotMetaDataHeatmap(STAR_test, expression_values = 'scaled',
                     metadata_cols = c('cell_types'))
 ```
 
-UMAP: ![](./figures/umap_cell_type.pdf)
+UMAP: ![](./figures/umap_cell_type.png)
 
-Heatmap: ![](./figures/cluster_heatmap_cell_type.pdf)
+Heatmap: ![](./figures/cluster_heatmap_cell_type.png)
 
 ``` r
 # create consistent color code
@@ -345,7 +345,7 @@ visPlot(STAR_test, cell_color = 'cell_types', sdimx = 'sdimx', sdimy = 'sdimy',
         select_cell_groups = c("L2/3", "L6"), other_cells_alpha = 1, cell_color_code = mycolorcode)
 ```
 
-Spatial grid and selection example: ![](./figures/gridplot.pdf)
+Spatial grid and selection example: ![](./figures/gridplot.png)
 
 ``` r
 #### spatial patterns ####
@@ -377,7 +377,7 @@ Genes associated with pattern:
 showPatternGenes(pattern_VC, dimension = 1)
 ```
 
-![](./figures/patterngenes.pdf)
+![](./figures/patterngenes.png)
 
 -----
 
@@ -481,10 +481,10 @@ cellProximityHeatmap(CPscore = cell_proximities, order_cell_types = T, scale = T
 ```
 
 barplot:  
-![](./figures/cell_proximity_barplot.pdf)
+![](./figures/cell_proximity_barplot.png)
 
 heatmap:  
-![](./figures/cell_proximity_heatmap.pdf)
+![](./figures/cell_proximity_heatmap.png)
 
 ``` r
 STAR_astro_pv <- cellProximityVisPlot(gobject = STAR_test, interaction_name = "Astro-PV", spatial_network_name = 'spatial_network',

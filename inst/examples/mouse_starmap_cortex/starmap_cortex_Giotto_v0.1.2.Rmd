@@ -238,13 +238,13 @@ plotMetaDataHeatmap(STAR_test, expression_values = 'scaled',
 ```
 
 violinplot:
-![](./figures/DEG_violinplot.pdf){width=16cm} 
+![](./figures/DEG_violinplot.png){width=16cm} 
 
 Heatmap cells:
 ![](./figures/DEG_heatmap_cells.png){width=16cm} 
 
 Heatmap clusters:
-![](./figures/DEG_heatmap_clusters.pdf){width=16cm} 
+![](./figures/DEG_heatmap_clusters.png){width=16cm} 
 
 ***
 
@@ -273,10 +273,10 @@ plotMetaDataHeatmap(STAR_test, expression_values = 'scaled',
 ```
 
 UMAP:
-![](./figures/umap_general_cell_type.pdf){width=16cm} 
+![](./figures/umap_general_cell_type.png){width=16cm} 
 
 Heatmap:
-![](./figures/cluster_heatmap_general_cell_type.pdf){width=16cm} 
+![](./figures/cluster_heatmap_general_cell_type.png){width=16cm} 
 
 ```{r eval=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
 ## detailed cell types
@@ -295,10 +295,10 @@ plotMetaDataHeatmap(STAR_test, expression_values = 'scaled',
 ```
 
 UMAP:
-![](./figures/umap_cell_type.pdf){width=16cm} 
+![](./figures/umap_cell_type.png){width=16cm} 
 
 Heatmap:
-![](./figures/cluster_heatmap_cell_type.pdf){width=16cm} 
+![](./figures/cluster_heatmap_cell_type.png){width=16cm} 
 
 
 ```{r eval=FALSE, message=FALSE, warning=FALSE, fig.width=5, fig.height=10, out.width="60%", fig.align='center'}
@@ -380,7 +380,7 @@ visPlot(STAR_test, cell_color = 'cell_types', sdimx = 'sdimx', sdimy = 'sdimy',
 ```
 
 Spatial grid and selection example:
-![](./figures/gridplot.pdf){width=16cm} 
+![](./figures/gridplot.png){width=16cm} 
 
 
 ```{r eval=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
@@ -413,7 +413,7 @@ Genes associated with pattern:
 showPatternGenes(pattern_VC, dimension = 1)
 ```
 
-![](./figures/patterngenes.pdf){width=10cm} 
+![](./figures/patterngenes.png){width=10cm} 
 
 ***  
 
@@ -526,10 +526,10 @@ cellProximityHeatmap(CPscore = cell_proximities, order_cell_types = T, scale = T
 
 
 barplot:  
-![](./figures/cell_proximity_barplot.pdf){width=16cm} 
+![](./figures/cell_proximity_barplot.png){width=16cm} 
 
 heatmap:  
-![](./figures/cell_proximity_heatmap.pdf){width=16cm} 
+![](./figures/cell_proximity_heatmap.png){width=16cm} 
 
 ```{r eval=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
 STAR_astro_pv <- cellProximityVisPlot(gobject = STAR_test, interaction_name = "Astro-PV", spatial_network_name = 'spatial_network',
