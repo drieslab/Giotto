@@ -62,50 +62,17 @@ STAR_test <- createGiottoObject(raw_exprs = expr, spatial_locs = cell_loc)
 
 # check distributions, test different thresholds and filter
 filterDistributions(STAR_test, detection = 'genes', show_plot = F)
-```
-
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="75%" style="display: block; margin: auto;" />
-
-``` r
 filterDistributions(STAR_test, detection = 'cells', show_plot = F)
-```
-
-<img src="man/figures/README-unnamed-chunk-5-2.png" width="75%" style="display: block; margin: auto;" />
-
-``` r
 filterCombinations(STAR_test,
                    expression_thresholds = c(1, 2),
                    gene_det_in_min_cells = c(20000, 30000),
                    min_det_genes_per_cell = c(20, 25))
-```
-
-<img src="man/figures/README-unnamed-chunk-5-3.png" width="75%" style="display: block; margin: auto;" />
-
-    #> $results
-    #>    threshold gene_detected_in_min_cells min_detected_genes_per_cell
-    #> 1:         1                      20000                          20
-    #> 2:         1                      30000                          25
-    #> 3:         2                      20000                          20
-    #> 4:         2                      30000                          25
-    #>    combination removed_genes removed_cells
-    #> 1:    20000-20             0           757
-    #> 2:    30000-25             1          2989
-    #> 3:    20000-20             0           757
-    #> 4:    30000-25             1          2997
-    #> 
-    #> $ggplot
-
-<img src="man/figures/README-unnamed-chunk-5-4.png" width="75%" style="display: block; margin: auto;" />
-
-``` r
 STAR_test <- filterGiotto(gobject = STAR_test,
                           gene_det_in_min_cells = 20000,
                           min_det_genes_per_cell = 20)
 
 ## normalize & adjust
 STAR_test <- normalizeGiotto(gobject = STAR_test, scalefactor = 10000, verbose = T)
-#> 
-#>  first scale genes and then cells
 STAR_test <- addStatistics(gobject = STAR_test)
 STAR_test <- adjustGiottoMatrix(gobject = STAR_test, expression_values = c('normalized'),
                                 batch_columns = NULL, covariate_columns = c('nr_genes', 'total_expr'),
@@ -132,11 +99,9 @@ cube_3D = visPlot(gobject = STAR_test,
 htmlwidgets::saveWidget(plotly::as_widget(cube_3D), file = paste0(gobject_folder,'/', 'starmap_cube_3D.html'))
 ```
 
-Real scale 3D image:
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/3D_real_presentation.png)
+Real scale 3D image: ![](./figures/3D_real_presentation.png)
 
-Cube scale 3D image:
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/3D_cube_presentation.png)
+Cube scale 3D image: ![](./figures/3D_cube_presentation.png)
 
 -----
 
@@ -152,19 +117,9 @@ Cube scale 3D image:
 
 ``` r
 STAR_test <- calculateHVG(gobject = STAR_test, method = 'cov_groups', zscore_threshold = 0.5, nr_expression_groups = 3)
-```
-
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="50%" style="display: block; margin: auto;" />
-
-``` r
 # use all genes (= default)
 STAR_test <- runPCA(gobject = STAR_test, genes_to_use = NULL, scale_unit = F)
 signPCA(STAR_test)
-```
-
-<img src="man/figures/README-unnamed-chunk-7-2.png" width="50%" style="display: block; margin: auto;" /><img src="man/figures/README-unnamed-chunk-7-3.png" width="50%" style="display: block; margin: auto;" />
-
-``` r
 STAR_test <- runUMAP(STAR_test, dimensions_to_use = 1:8, n_components = 3, n_threads = 4)
 ```
 
@@ -202,8 +157,7 @@ STAR_UMAP <- plotUMAP(gobject = STAR_test, cell_color = 'leiden_0.2',
 htmlwidgets::saveWidget(plotly::as_widget(STAR_UMAP), file = paste0(cluster_folder,'/', 'cluster_UMAP.html'))
 ```
 
-3D UMAP plot:
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/UMAP_cluster_SNN.png)
+3D UMAP plot: ![](./figures/UMAP_cluster_SNN.png)
 
 -----
 
@@ -230,8 +184,7 @@ coPlot = visSpatDimPlot(gobject = STAR_test,
 htmlwidgets::saveWidget(plotly::as_widget(coPlot), file = paste0(covis_folder,'/', 'coPlot.html'))
 ```
 
-Co-visualzation:
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/covisual_plot.png)
+Co-visualzation: ![](./figures/covisual_plot.png)
 
 -----
 
@@ -251,113 +204,27 @@ markers = findMarkers_one_vs_all(gobject = STAR_test,
                                  expression_values = 'normalized',
                                  cluster_column = 'leiden_0.2',
                                  min_genes = 5, rank_score = 2)
-#> 
-#>  start with cluster  1 
-#> 
-#>  start with cluster  2 
-#> 
-#>  start with cluster  3 
-#> 
-#>  start with cluster  4 
-#> 
-#>  start with cluster  5 
-#> 
-#>  start with cluster  6 
-#> 
-#>  start with cluster  7 
-#> 
-#>  start with cluster  8 
-#> 
-#>  start with cluster  9 
-#> 
-#>  start with cluster  10
 markers[, head(.SD, 4), by = 'cluster']
-#>        cluster  genes expression expression_gini detection detection_gini
-#>  1:  cluster_1    Vip   4.766633    0.0744583523 0.9993858   3.831830e-02
-#>  2:  cluster_1  Pvalb   6.480540    0.0502003508 0.9996929   1.609787e-02
-#>  3:  cluster_1    Sst   5.006811    0.0363036092 0.9998465   1.605527e-02
-#>  4:  cluster_1    Npy   6.839729    0.0214261282 0.9998465   1.544898e-02
-#>  5:  cluster_2   Egr2   7.145915    0.0468779066 0.9992747   7.067446e-03
-#>  6:  cluster_2   Egr1  10.512750    0.0459988839 1.0000000   6.421542e-03
-#>  7:  cluster_2   Bdnf   6.110039    0.0321213990 1.0000000   6.430928e-03
-#>  8:  cluster_2  Pvalb   5.731961    0.0106787601 1.0000000   1.558491e-02
-#>  9:  cluster_3    Vip   6.732542    0.1761480541 1.0000000   3.649791e-02
-#> 10:  cluster_3   Egr2   7.808012    0.0732338525 1.0000000   7.192201e-03
-#> 11:  cluster_3  Pvalb   6.060168    0.0272344727 1.0000000   1.538003e-02
-#> 12:  cluster_3    Npy   6.931998    0.0243629040 1.0000000   1.471874e-02
-#> 13:  cluster_4    Vip   5.982603    0.1321051490 1.0000000   3.474683e-02
-#> 14:  cluster_4    Sst   8.132101    0.1717095812 1.0000000   1.458759e-02
-#> 15:  cluster_4  Pvalb   8.447224    0.1215180123 1.0000000   1.466984e-02
-#> 16:  cluster_4    Npy   7.413062    0.0424576274 1.0000000   1.403991e-02
-#> 17:  cluster_5   Egr1   9.515300    0.0144054012 1.0000000   5.971564e-03
-#> 18:  cluster_5   Pcp4   9.360037    0.0767049930 1.0000000   2.385415e-04
-#> 19:  cluster_5   Ctgf   7.070551    0.0078366443 1.0000000   2.385415e-04
-#> 20:  cluster_5  Sulf2   8.031672    0.0025942824 1.0000000   2.385415e-04
-#> 21:  cluster_6    Npy   7.557825    0.0469936630 1.0000000   1.375828e-02
-#> 22:  cluster_6    Sst   4.974138    0.0302484703 0.9996956   1.420966e-02
-#> 23:  cluster_6  Prok2   6.847855    0.0055684086 1.0000000   5.931289e-03
-#> 24:  cluster_6    Vip   3.785783    0.0007164072 0.9579909   2.199736e-02
-#> 25:  cluster_7    Npy   6.680232    0.0121579803 1.0000000   1.348175e-02
-#> 26:  cluster_8   Ctgf   6.972996    0.0037004355 1.0000000   2.240215e-04
-#> 27:  cluster_8 Sema3e   6.771731    0.0003444247 1.0000000   2.240215e-04
-#> 28: cluster_10    Cck   9.278435    0.0133443101 1.0000000   1.523786e-05
-#>        cluster  genes expression expression_gini detection detection_gini
-#>     expression_rank detection_rank    comb_gini comb_rank
-#>  1:               1              1 2.853117e-03         1
-#>  2:               1              1 8.081185e-04         2
-#>  3:               1              1 5.828644e-04         3
-#>  4:               1              1 3.310119e-04         4
-#>  5:               1              1 3.313071e-04         1
-#>  6:               1              1 2.953838e-04         2
-#>  7:               1              1 2.065704e-04         3
-#>  8:               1              1 1.664275e-04         4
-#>  9:               1              1 6.429035e-03         1
-#> 10:               1              1 5.267126e-04         2
-#> 11:               1              1 4.188671e-04         3
-#> 12:               1              1 3.585911e-04         4
-#> 13:               1              1 4.590235e-03         1
-#> 14:               1              1 2.504829e-03         2
-#> 15:               1              1 1.782650e-03         3
-#> 16:               1              1 5.961013e-04         4
-#> 17:               1              1 8.602278e-05         1
-#> 18:               1              1 1.829732e-05         2
-#> 19:               1              1 1.869365e-06         3
-#> 20:               1              1 6.188440e-07         4
-#> 21:               1              1 6.465519e-04         1
-#> 22:               1              1 4.298205e-04         2
-#> 23:               1              1 3.302784e-05         3
-#> 24:               1              1 1.575907e-05         4
-#> 25:               1              1 1.639108e-04         1
-#> 26:               1              1 8.289771e-07         1
-#> 27:               1              1 7.715854e-08         2
-#> 28:               1              1 2.033388e-07         1
-#>     expression_rank detection_rank    comb_gini comb_rank
 
 
 # violinplot
 violinPlot(STAR_test, genes = unique(markers$genes), cluster_column = 'leiden_0.2')
-```
-
-<img src="man/figures/README-unnamed-chunk-11-1.png" width="60%" style="display: block; margin: auto;" />
-
-``` r
 
 # individual genes and cells heatmap
 plotHeatmap(STAR_test, genes = STAR_test@gene_ID, cluster_column = 'leiden_0.2',
             legend_nrows = 2, expression_values = 'scaled',
             cluster_order = 'correlation', gene_order = 'correlation', show_plot = F)
-```
-
-<img src="man/figures/README-unnamed-chunk-11-2.png" width="60%" style="display: block; margin: auto;" />
-
-``` r
 
 # individual genes and average cluster heatmap
 plotMetaDataHeatmap(STAR_test, expression_values = 'scaled',
                     metadata_cols = c('leiden_0.2'))
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-3.png" width="60%" style="display: block; margin: auto;" />
+violinplot: ![](./figures/DEG_violinplot.pdf)
+
+Heatmap cells: ![](./figures/DEG_heatmap_cells.png)
+
+Heatmap clusters: ![](./figures/DEG_heatmap_clusters.pdf)
 
 -----
 
@@ -380,6 +247,16 @@ names(clusters_cell_types_cortex) = c(1:10)
 STAR_test = annotateGiotto(gobject = STAR_test, annotation_vector = clusters_cell_types_cortex,
                            cluster_column = 'leiden_0.2', name = 'general_cell_types')
 
+plotUMAP(STAR_test, plot_method = 'ggplot', cell_color = 'general_cell_types', point_size = 1.5)
+plotMetaDataHeatmap(STAR_test, expression_values = 'scaled',
+                    metadata_cols = c('general_cell_types'))
+```
+
+UMAP: ![](./figures/umap_general_cell_type.pdf)
+
+Heatmap: ![](./figures/cluster_heatmap_general_cell_type.pdf)
+
+``` r
 ## detailed cell types
 clusters_cell_types_cortex = c('L5','L4','L2/3', 'PV', 'L6',
                                'Astro', 'Olig1', 'Olig2', 'Calretinin', 'SST')
@@ -388,31 +265,15 @@ STAR_test = annotateGiotto(gobject = STAR_test, annotation_vector = clusters_cel
                          cluster_column = 'leiden_0.2', name = 'cell_types')
 
 
-plotUMAP(STAR_test, plot_method = 'ggplot', cell_color = 'general_cell_types', point_size = 1.5)
-```
-
-<img src="man/figures/README-unnamed-chunk-12-1.png" width="60%" style="display: block; margin: auto;" />
-
-``` r
-plotMetaDataHeatmap(STAR_test, expression_values = 'scaled',
-                    metadata_cols = c('general_cell_types'))
-```
-
-<img src="man/figures/README-unnamed-chunk-12-2.png" width="60%" style="display: block; margin: auto;" />
-
-``` r
 
 plotUMAP(STAR_test, plot_method = 'ggplot', cell_color = 'cell_types', point_size = 1.5)
-```
-
-<img src="man/figures/README-unnamed-chunk-12-3.png" width="60%" style="display: block; margin: auto;" />
-
-``` r
 plotMetaDataHeatmap(STAR_test, expression_values = 'scaled',
                     metadata_cols = c('cell_types'))
 ```
 
-<img src="man/figures/README-unnamed-chunk-12-4.png" width="60%" style="display: block; margin: auto;" />
+UMAP: ![](./figures/umap_cell_type.pdf)
+
+Heatmap: ![](./figures/cluster_heatmap_cell_type.pdf)
 
 ``` r
 # create consistent color code
@@ -448,17 +309,13 @@ other = visPlot(STAR_test, cell_color = 'cell_types', plot_method = 'plotly',
 htmlwidgets::saveWidget(plotly::as_widget(other), file = paste0(annotation_folder,'/', 'realCellTypes_other.html'))
 ```
 
-All cells:
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/all_cell_types.png)
+All cells: ![](./figures/all_cell_types.png)
 
-Excitatory neurons:
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/excit_cell_types.png)
+Excitatory neurons: ![](./figures/excit_cell_types.png)
 
-Inhibitory neurons:
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/inh_cell_types.png)
+Inhibitory neurons: ![](./figures/inh_cell_types.png)
 
-Other cell types:
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/other_cell_types.png)
+Other cell types: ![](./figures/other_cell_types.png)
 
 -----
 
@@ -486,13 +343,11 @@ names(mycolorcode) = c("L2/3", "L6")
 visPlot(STAR_test, cell_color = 'cell_types', sdimx = 'sdimx', sdimy = 'sdimy',
         show_grid = T, spatial_grid_name = 'large_grid', point_size = 3, plot_method = 'ggplot',
         select_cell_groups = c("L2/3", "L6"), other_cells_alpha = 1, cell_color_code = mycolorcode)
-#> create 2D plot with ggplot
 ```
 
-<img src="man/figures/README-unnamed-chunk-14-1.png" width="60%" style="display: block; margin: auto;" />
+Spatial grid and selection example: ![](./figures/gridplot.pdf)
 
 ``` r
-
 #### spatial patterns ####
 pattern_VC = detectSpatialPatterns(gobject = STAR_test, 
                                    expression_values = 'normalized',
@@ -503,8 +358,6 @@ pattern_VC = detectSpatialPatterns(gobject = STAR_test,
                                    show_plot = T)
 ```
 
-<img src="man/figures/README-unnamed-chunk-14-2.png" width="60%" style="display: block; margin: auto;" />
-
 ``` r
 dim3_pattern = showPattern(pattern_VC,  plot_dim = 3, point_size = 4)
 htmlwidgets::saveWidget(plotly::as_widget(dim3_pattern), file = paste0(grid_folder,'/', 'dim3_pattern.html'))
@@ -512,11 +365,11 @@ htmlwidgets::saveWidget(plotly::as_widget(dim3_pattern), file = paste0(grid_fold
 
 Top view of pattern:
 
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/pattern_top_view.png)
+![](./figures/pattern_top_view.png)
 
 Layered view (cells) of pattern:
 
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/pattern_layered_view.png)
+![](./figures/pattern_layered_view.png)
 
 Genes associated with pattern:
 
@@ -524,7 +377,7 @@ Genes associated with pattern:
 showPatternGenes(pattern_VC, dimension = 1)
 ```
 
-<img src="man/figures/README-unnamed-chunk-16-1.png" width="60%" style="display: block; margin: auto;" />
+![](./figures/patterngenes.pdf)
 
 -----
 
@@ -553,11 +406,10 @@ htmlwidgets::saveWidget(plotly::as_widget(networkplot), file = paste0(spatnet_fo
 ```
 
 Zoom out 3D network:  
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/network_zoomOUT.png)
+![](./figures/network_zoomOUT.png)
 
 Zoom in 3D network:  
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/network_zoomIN.png)
-\*\*\*
+![](./figures/network_zoomIN.png) \*\*\*
 
 </details>
 
@@ -573,33 +425,20 @@ Zoom in 3D network:
 kmtest = binGetSpatialGenes(STAR_test, bin_method = 'kmeans',
                             do_fisher_test = F, community_expectation = 5,
                             spatial_network_name = 'spatial_network', verbose = T)
-#> 
-#>  1. matrix binarization complete 
-#> 
-#>  2. average expression and number of high expression cells complete 
-#> 
-#>  3. fisher test or odds-ratio calculation complete 
-#> 
-#>  4. community estimate complete, start merging results
 
 ranktest = binGetSpatialGenes(STAR_test, bin_method = 'rank',
                               do_fisher_test = F, community_expectation = 5,
                               spatial_network_name = 'spatial_network', verbose = T)
-#> 
-#>  1. matrix binarization complete 
-#> 
-#>  2. average expression and number of high expression cells complete 
-#> 
-#>  3. fisher test or odds-ratio calculation complete 
-#> 
-#>  4. community estimate complete, start merging results
+```
 
+``` r
 visSpatDimGenePlot(STAR_test, plot_method = 'ggplot',
                       genes = c('Cux2', 'Pcp4', 'Gja1', 'Mbp'), plot_alignment = 'vertical', cow_n_col = 4,
                       genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue', midpoint = 8)
 ```
 
-<img src="man/figures/README-unnamed-chunk-19-1.png" width="60%" style="display: block; margin: auto;" />
+Spatial genes:  
+![](./figures/spatial_genes.png)
 
 -----
 
@@ -638,15 +477,14 @@ cell_proximities = cellProximityEnrichment(gobject = STAR_test,
                                            number_of_simulations = 400)
 
 cellProximityBarplot(CPscore = cell_proximities, min_orig_ints = 5, min_sim_ints = 5)
-```
-
-<img src="man/figures/README-unnamed-chunk-20-1.png" width="60%" style="display: block; margin: auto;" />
-
-``` r
 cellProximityHeatmap(CPscore = cell_proximities, order_cell_types = T, scale = T)
 ```
 
-<img src="man/figures/README-unnamed-chunk-20-2.png" width="60%" style="display: block; margin: auto;" />
+barplot:  
+![](./figures/cell_proximity_barplot.pdf)
+
+heatmap:  
+![](./figures/cell_proximity_heatmap.pdf)
 
 ``` r
 STAR_astro_pv <- cellProximityVisPlot(gobject = STAR_test, interaction_name = "Astro-PV", spatial_network_name = 'spatial_network',
@@ -664,10 +502,10 @@ htmlwidgets::saveWidget(plotly::as_widget(STAR_astro_pv), file = paste0(cellprox
 Astroycte - PV inhibitory neurons:
 
 Zoom out of selected cell-cell interactions:
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/interaction_zoomOUT.png)
+![](./figures/interaction_zoomOUT.png)
 
 Zoom in of selected cell-cell interactions:
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/interaction_zoomIN.png)
+![](./figures/interaction_zoomIN.png)
 
 -----
 

@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 ```
 
 
-```{r eval=TRUE, message=FALSE, warning=FALSE}
+```{r eval=FALSE, message=FALSE, warning=FALSE}
 library(Giotto)
 # this example works with Giotto v.0.1.2
 ```
@@ -66,7 +66,7 @@ cell_loc[1:4,]
   <summary>Expand</summary>
   \ 
  
-```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=9, fig.height=6, out.width="75%", fig.align='center'}
+```{r eval=FALSE, message=FALSE, warning=FALSE, fig.width=9, fig.height=6, out.width="75%", fig.align='center'}
 # create
 STAR_test <- createGiottoObject(raw_exprs = expr, spatial_locs = cell_loc)
 
@@ -107,10 +107,10 @@ htmlwidgets::saveWidget(plotly::as_widget(cube_3D), file = paste0(gobject_folder
 ```
 
 Real scale 3D image:
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/3D_real_presentation.png){width=16cm} 
+![](./figures/3D_real_presentation.png){width=16cm} 
 
 Cube scale 3D image:
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/3D_cube_presentation.png){width=16cm} 
+![](./figures/3D_cube_presentation.png){width=16cm} 
 
 
 
@@ -127,7 +127,7 @@ Cube scale 3D image:
   <summary>Expand</summary>
   \ 
  
-```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=7, fig.height=5, out.width="50%", fig.align='center'}
+```{r eval=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.height=5, out.width="50%", fig.align='center'}
 STAR_test <- calculateHVG(gobject = STAR_test, method = 'cov_groups', zscore_threshold = 0.5, nr_expression_groups = 3)
 # use all genes (= default)
 STAR_test <- runPCA(gobject = STAR_test, genes_to_use = NULL, scale_unit = F)
@@ -148,7 +148,7 @@ STAR_test <- runUMAP(STAR_test, dimensions_to_use = 1:8, n_components = 3, n_thr
   <summary>Expand</summary>
   \ 
   
-```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
+```{r eval=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
 
 ## sNN network (default)
 STAR_test <- createNearestNetwork(gobject = STAR_test, dimensions_to_use = 1:8, k = 15)
@@ -172,7 +172,7 @@ htmlwidgets::saveWidget(plotly::as_widget(STAR_UMAP), file = paste0(cluster_fold
 ```
 
 3D UMAP plot:
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/UMAP_cluster_SNN.png){width=16cm} 
+![](./figures/UMAP_cluster_SNN.png){width=16cm} 
 
 ***
 
@@ -200,7 +200,7 @@ htmlwidgets::saveWidget(plotly::as_widget(coPlot), file = paste0(covis_folder,'/
 ```
 
 Co-visualzation:
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/covisual_plot.png){width=16cm} 
+![](./figures/covisual_plot.png){width=16cm} 
 
 ***
 
@@ -214,7 +214,7 @@ Co-visualzation:
   <summary>Expand</summary>
   \
   
-```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=7, fig.height=8, out.width="60%", fig.align='center'}
+```{r eval=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.height=8, out.width="60%", fig.align='center'}
 markers = findMarkers_one_vs_all(gobject = STAR_test,
                                  method = 'gini',
                                  expression_values = 'normalized',
@@ -237,6 +237,15 @@ plotMetaDataHeatmap(STAR_test, expression_values = 'scaled',
 
 ```
 
+violinplot:
+![](./figures/DEG_violinplot.pdf){width=16cm} 
+
+Heatmap cells:
+![](./figures/DEG_heatmap_cells.png){width=16cm} 
+
+Heatmap clusters:
+![](./figures/DEG_heatmap_clusters.pdf){width=16cm} 
+
 ***
 
 </details>
@@ -249,7 +258,7 @@ plotMetaDataHeatmap(STAR_test, expression_values = 'scaled',
   <summary>Expand</summary>
   \
   
-```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
+```{r eval=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
 
 ## general cell types
 clusters_cell_types_cortex = c('excit','excit','excit', 'inh', 'excit',
@@ -258,6 +267,18 @@ names(clusters_cell_types_cortex) = c(1:10)
 STAR_test = annotateGiotto(gobject = STAR_test, annotation_vector = clusters_cell_types_cortex,
                            cluster_column = 'leiden_0.2', name = 'general_cell_types')
 
+plotUMAP(STAR_test, plot_method = 'ggplot', cell_color = 'general_cell_types', point_size = 1.5)
+plotMetaDataHeatmap(STAR_test, expression_values = 'scaled',
+                    metadata_cols = c('general_cell_types'))
+```
+
+UMAP:
+![](./figures/umap_general_cell_type.pdf){width=16cm} 
+
+Heatmap:
+![](./figures/cluster_heatmap_general_cell_type.pdf){width=16cm} 
+
+```{r eval=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
 ## detailed cell types
 clusters_cell_types_cortex = c('L5','L4','L2/3', 'PV', 'L6',
                                'Astro', 'Olig1', 'Olig2', 'Calretinin', 'SST')
@@ -266,15 +287,18 @@ STAR_test = annotateGiotto(gobject = STAR_test, annotation_vector = clusters_cel
                          cluster_column = 'leiden_0.2', name = 'cell_types')
 
 
-plotUMAP(STAR_test, plot_method = 'ggplot', cell_color = 'general_cell_types', point_size = 1.5)
-plotMetaDataHeatmap(STAR_test, expression_values = 'scaled',
-                    metadata_cols = c('general_cell_types'))
 
 plotUMAP(STAR_test, plot_method = 'ggplot', cell_color = 'cell_types', point_size = 1.5)
 plotMetaDataHeatmap(STAR_test, expression_values = 'scaled',
                     metadata_cols = c('cell_types'))
 
 ```
+
+UMAP:
+![](./figures/umap_cell_type.pdf){width=16cm} 
+
+Heatmap:
+![](./figures/cluster_heatmap_cell_type.pdf){width=16cm} 
 
 
 ```{r eval=FALSE, message=FALSE, warning=FALSE, fig.width=5, fig.height=10, out.width="60%", fig.align='center'}
@@ -313,18 +337,18 @@ htmlwidgets::saveWidget(plotly::as_widget(other), file = paste0(annotation_folde
 ```
 
 All cells:
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/all_cell_types.png){width=16cm} 
+![](./figures/all_cell_types.png){width=16cm} 
   
   
 Excitatory neurons:
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/excit_cell_types.png){width=16cm} 
+![](./figures/excit_cell_types.png){width=16cm} 
   
   
 Inhibitory neurons:
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/inh_cell_types.png){width=16cm} 
+![](./figures/inh_cell_types.png){width=16cm} 
 
 Other cell types:
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/other_cell_types.png){width=16cm} 
+![](./figures/other_cell_types.png){width=16cm} 
 
 
 ***
@@ -339,7 +363,7 @@ Other cell types:
   <summary>Expand</summary>
   \
   
-```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
+```{r eval=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
 
 ## spatial grid
 STAR_test <- createSpatialGrid(gobject = STAR_test,
@@ -353,7 +377,13 @@ names(mycolorcode) = c("L2/3", "L6")
 visPlot(STAR_test, cell_color = 'cell_types', sdimx = 'sdimx', sdimy = 'sdimy',
         show_grid = T, spatial_grid_name = 'large_grid', point_size = 3, plot_method = 'ggplot',
         select_cell_groups = c("L2/3", "L6"), other_cells_alpha = 1, cell_color_code = mycolorcode)
+```
 
+Spatial grid and selection example:
+![](./figures/gridplot.pdf){width=16cm} 
+
+
+```{r eval=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
 #### spatial patterns ####
 pattern_VC = detectSpatialPatterns(gobject = STAR_test, 
                                    expression_values = 'normalized',
@@ -371,18 +401,19 @@ htmlwidgets::saveWidget(plotly::as_widget(dim3_pattern), file = paste0(grid_fold
 
 Top view of pattern:  
 
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/pattern_top_view.png){width=16cm} 
+![](./figures/pattern_top_view.png){width=16cm} 
 
 Layered view (cells) of pattern:  
 
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/pattern_layered_view.png){width=16cm} 
+![](./figures/pattern_layered_view.png){width=16cm} 
 
 Genes associated with pattern:  
 
-```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
+```{r eval=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
 showPatternGenes(pattern_VC, dimension = 1)
 ```
 
+![](./figures/patterngenes.pdf){width=10cm} 
 
 ***  
 
@@ -397,7 +428,7 @@ showPatternGenes(pattern_VC, dimension = 1)
   <summary>Expand</summary>
   \
   
-```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
+```{r eval=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
 
 ## create spatial networks based on k and/or distance from centroid
 STAR_test <- createSpatialNetwork(gobject = STAR_test, k = 3)
@@ -414,10 +445,10 @@ htmlwidgets::saveWidget(plotly::as_widget(networkplot), file = paste0(spatnet_fo
 ```
 
 Zoom out 3D network:  
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/network_zoomOUT.png){width=16cm} 
+![](./figures/network_zoomOUT.png){width=16cm} 
 
 Zoom in 3D network:  
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/network_zoomIN.png){width=16cm} 
+![](./figures/network_zoomIN.png){width=16cm} 
 ***  
 
 </details>
@@ -431,7 +462,7 @@ Zoom in 3D network:
   <summary>Expand</summary>
   \
   
-```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=12, fig.height=6, out.width="60%", fig.align='center'}
+```{r eval=FALSE, message=FALSE, warning=FALSE, fig.width=12, fig.height=6, out.width="60%", fig.align='center'}
 kmtest = binGetSpatialGenes(STAR_test, bin_method = 'kmeans',
                             do_fisher_test = F, community_expectation = 5,
                             spatial_network_name = 'spatial_network', verbose = T)
@@ -439,12 +470,18 @@ kmtest = binGetSpatialGenes(STAR_test, bin_method = 'kmeans',
 ranktest = binGetSpatialGenes(STAR_test, bin_method = 'rank',
                               do_fisher_test = F, community_expectation = 5,
                               spatial_network_name = 'spatial_network', verbose = T)
+```
 
+```{r eval=FALSE, message=FALSE, warning=FALSE, fig.width=12, fig.height=6, out.width="60%", fig.align='center'}
 visSpatDimGenePlot(STAR_test, plot_method = 'ggplot',
                       genes = c('Cux2', 'Pcp4', 'Gja1', 'Mbp'), plot_alignment = 'vertical', cow_n_col = 4,
                       genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue', midpoint = 8)
 
 ```
+
+Spatial genes:  
+![](./figures/spatial_genes.png){width=16cm} 
+
 
 ***
 
@@ -475,7 +512,7 @@ Not available at this time.
 
 ![cell-cell](./cell_cell_neighbors.png){width=12cm}  
 
-```{r eval=TRUE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
+```{r eval=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
 
 ## calculate frequently seen proximities
 cell_proximities = cellProximityEnrichment(gobject = STAR_test,
@@ -486,6 +523,13 @@ cell_proximities = cellProximityEnrichment(gobject = STAR_test,
 cellProximityBarplot(CPscore = cell_proximities, min_orig_ints = 5, min_sim_ints = 5)
 cellProximityHeatmap(CPscore = cell_proximities, order_cell_types = T, scale = T)
 ```
+
+
+barplot:  
+![](./figures/cell_proximity_barplot.pdf){width=16cm} 
+
+heatmap:  
+![](./figures/cell_proximity_heatmap.pdf){width=16cm} 
 
 ```{r eval=FALSE, message=FALSE, warning=FALSE, fig.width=7, fig.height=6, out.width="60%", fig.align='center'}
 STAR_astro_pv <- cellProximityVisPlot(gobject = STAR_test, interaction_name = "Astro-PV", spatial_network_name = 'spatial_network',
@@ -503,10 +547,10 @@ htmlwidgets::saveWidget(plotly::as_widget(STAR_astro_pv), file = paste0(cellprox
 Astroycte - PV inhibitory neurons: 
 
 Zoom out of selected cell-cell interactions:
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/interaction_zoomOUT.png){width=16cm} 
+![](./figures/interaction_zoomOUT.png){width=16cm} 
 
 Zoom in of selected cell-cell interactions:
-![](/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Starmap_neocortex_results/Starmap_190826/screenshots/interaction_zoomIN.png){width=16cm} 
+![](./figures/interaction_zoomIN.png){width=16cm} 
 
 
 ***
