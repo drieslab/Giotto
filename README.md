@@ -98,6 +98,8 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation
 
 [![Cortex](./inst/images/cortex_image_summary.png)](./inst/examples/mouse_cortex_svz/seqfish_cortex_Giotto_v0.1.2.md)
 
+[![STARmap](./inst/images/STARmap_summary.png)](./inst/examples/mouse_starmap_cortex/starmap_cortex_Giotto_v0.1.2.md)
+
  
 
 ## Latest News
