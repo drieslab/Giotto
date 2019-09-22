@@ -109,6 +109,8 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation
   - Implemented [SpatialDE](https://github.com/Teichlab/SpatialDE)
   - Add wrapper for differential expression with
     [MAST](https://github.com/RGLab/MAST)
+  - New example with 3D spatial data
+    [STARmap](https://science.sciencemag.org/content/361/6400/eaat5691)
 
  
 
