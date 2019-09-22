@@ -177,11 +177,11 @@ cellProximityVisPlot_2D_ggplot <- function(gobject,
   
   cell_IDs_to_keep = unique(c(spatial_network[unified_int %in% interaction_name]$to, spatial_network[unified_int %in% interaction_name]$from))
   if(show_other_cells){
-    cell_types <- strsplit(interaction_name,"-")
-    all_cell_IDs = cell_metadata[cell_metadata$"leiden_clus" == cell_types[[1]][1] | 
-                                   cell_metadata$"leiden_clus" == cell_types[[1]][2],]$cell_ID
+    CellType <- strsplit(interaction_name,"-")
+    all_cell_IDs = cell_metadata[cell_metadata[[cluster_column]] == CellType[[1]][1] | 
+                                   cell_metadata[[cluster_column]] == CellType[[1]][2],]$cell_ID
     other_cell_IDs <- setdiff(all_cell_IDs, cell_IDs_to_keep)
-  }    
+  }  
   
   
   # annotated cell data
@@ -291,6 +291,8 @@ cellProximityVisPlot_2D_ggplot <- function(gobject,
   return(pl)
 }
 
+
+
 #' @title cellProximityVisPlot_2D_plotly
 #' @name cellProximityVisPlot_2D_plotly
 #' @description Visualize 2D cell-cell interactions according to spatial coordinates in plotly mode
@@ -358,9 +360,9 @@ cellProximityVisPlot_2D_plotly <- function(gobject,
   cell_IDs_to_keep = unique(c(spatial_network[unified_int %in% interaction_name]$to, spatial_network[unified_int %in% interaction_name]$from))
   
   if(show_other_cells){
-    cell_types <- strsplit(interaction_name,"-")
-    all_cell_IDs = cell_metadata[cell_metadata$"leiden_clus" == cell_types[[1]][1] | 
-                                   cell_metadata$"leiden_clus" == cell_types[[1]][2],]$cell_ID
+    CellType <- strsplit(interaction_name,"-")
+    all_cell_IDs = cell_metadata[cell_metadata[[cluster_column]] == CellType[[1]][1] | 
+                                   cell_metadata[[cluster_column]] == CellType[[1]][2],]$cell_ID
     other_cell_IDs <- setdiff(all_cell_IDs, cell_IDs_to_keep)
   }  
   
@@ -411,7 +413,7 @@ cellProximityVisPlot_2D_plotly <- function(gobject,
                                       type = "scatter",
                                       data = spatial_network[unified_int %in% interaction_name],
                                       x = ~sdimx_begin,
-                                      y =~sdimy_begin,
+                                      y = ~sdimy_begin,
                                       xend = ~sdimx_end,
                                       yend = ~sdimy_end,
                                       line = list(color = network_color,
@@ -578,9 +580,9 @@ cellProximityVisPlot_3D_plotly <- function(gobject,
   cell_IDs_to_keep = unique(c(spatial_network[unified_int %in% interaction_name]$to, spatial_network[unified_int %in% interaction_name]$from))
   
   if(show_other_cells){
-    cell_types <- strsplit(interaction_name,"-")
-    all_cell_IDs = cell_metadata[cell_metadata$"leiden_clus" == cell_types[[1]][1] | 
-                                   cell_metadata$"leiden_clus" == cell_types[[1]][2],]$cell_ID
+    CellType <- strsplit(interaction_name,"-")
+    all_cell_IDs = cell_metadata[cell_metadata[[cluster_column]] == CellType[[1]][1] | 
+                                   cell_metadata[[cluster_column]] == CellType[[1]][2],]$cell_ID
     other_cell_IDs <- setdiff(all_cell_IDs, cell_IDs_to_keep)
   }  
   
