@@ -16,7 +16,7 @@ visPlot(gobject, sdimx = NULL, sdimy = NULL, sdimz = NULL,
   spatial_grid_name = "spatial_grid", coord_fix_ratio = 0.6,
   title = "", show_legend = T, axis_scale = c("cube", "real",
   "custom"), custom_ratio = NULL, x_ticks = NULL, y_ticks = NULL,
-  z_ticks = NULL, plot_method = c("plotly", "ggplot"), show_plot = F)
+  z_ticks = NULL, plot_method = c("ggplot", "plotly"), show_plot = F)
 }
 \arguments{
 \item{gobject}{giotto object}

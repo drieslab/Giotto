@@ -4,7 +4,7 @@
 \alias{visSpatDimGenePlot}
 \title{visSpatDimGenePlot}
 \usage{
-visSpatDimGenePlot(gobject, plot_method = c("plotly", "ggplot"),
+visSpatDimGenePlot(gobject, plot_method = c("ggplot", "plotly"),
   expression_values = c("normalized", "scaled", "custom"),
   plot_alignment = c("horizontal", "vertical"),
   dim_reduction_to_use = "umap", dim_reduction_name = "umap",
