@@ -4,7 +4,7 @@
 \alias{visSpatDimPlot}
 \title{visSpatDimPlot}
 \usage{
-visSpatDimPlot(gobject, plot_method = c("plotly", "ggplot2"),
+visSpatDimPlot(gobject, plot_method = c("ggplot", "plotly"),
   plot_alignment = NULL, dim_reduction_to_use = "umap",
   dim_reduction_name = "umap", dim1_to_use = 1, dim2_to_use = 2,
   dim3_to_use = NULL, sdimx = NULL, sdimy = NULL, sdimz = NULL,

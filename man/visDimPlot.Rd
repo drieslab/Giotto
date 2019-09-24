@@ -13,7 +13,7 @@ visDimPlot(gobject, dim_reduction_to_use = "umap",
   center_point_border_col = "black", center_point_border_stroke = 0.1,
   label_size = 4, label_fontface = "bold", edge_alpha = NULL,
   point_size = 3, point_border_col = "black",
-  point_border_stroke = 0.1, plot_method = c("plotly", "ggplot"),
+  point_border_stroke = 0.1, plot_method = c("ggplot", "plotly"),
   show_legend = T)
 }
 \arguments{

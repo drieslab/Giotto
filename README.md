@@ -98,6 +98,8 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation
 
 [![Cortex](./inst/images/cortex_image_summary.png)](./inst/examples/mouse_cortex_svz/seqfish_cortex_Giotto_v0.1.2.md)
 
+[![STARmap](./inst/images/starmap_cortex_image_summary.png)](./inst/examples/mouse_starmap_cortex/starmap_cortex_Giotto_v0.1.2.md)
+
  
 
 ## Latest News
@@ -107,6 +109,8 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation
   - Implemented [SpatialDE](https://github.com/Teichlab/SpatialDE)
   - Add wrapper for differential expression with
     [MAST](https://github.com/RGLab/MAST)
+  - New example with 3D spatial data
+    [STARmap](https://science.sciencemag.org/content/361/6400/eaat5691)
 
  
 
