@@ -69,22 +69,26 @@ cellProximityHeatmap = function(CPscore,
   enrich_mat = data.table::dcast.data.table(data = enrich_res,formula = first_type~second_type, value.var = 'enrichm')
   matrix_d <- as.matrix(enrich_mat[,-1]); rownames(matrix_d) = as.vector(enrich_mat[[1]])
   t_matrix_d <- t(matrix_d)
-  t_matrix_d[upper.tri(t_matrix_d)] <- matrix_d[upper.tri(matrix_d)]
+
+  # fill in NAs based on values in upper and lower matrix triangle
+  t_matrix_d[upper.tri(t_matrix_d)][is.na(t_matrix_d[upper.tri(t_matrix_d)])] = matrix_d[upper.tri(matrix_d)][is.na(t_matrix_d[upper.tri(t_matrix_d)])]
+  t_matrix_d[lower.tri(t_matrix_d)][is.na(t_matrix_d[lower.tri(t_matrix_d)])] = matrix_d[lower.tri(matrix_d)][is.na(t_matrix_d[lower.tri(t_matrix_d)])]
+  t_matrix_d[is.na(t_matrix_d)] = 0
   final_matrix = t_matrix_d
 
   # scale data
   if(scale == TRUE) {
     final_matrix <- t(scale(t(final_matrix)))
     final_matrix <- t(final_matrix)
-    final_matrix[upper.tri(final_matrix)] <- final_matrix[upper.tri(final_matrix)]
+    final_matrix[lower.tri(final_matrix)] <- t(final_matrix)[lower.tri(final_matrix)]
   }
 
-  # if NA values, impute as mean
-  if(any(is.na(final_matrix)) == TRUE) {
-    myrowmeans = apply(X = final_matrix, MARGIN = 1, FUN = function(x) mean(na.omit(x)))
-    mymatrixmeans = matrix(data = rep(myrowmeans, ncol(final_matrix)), nrow = nrow(final_matrix), ncol = ncol(final_matrix))
-    final_matrix[is.na(final_matrix)] = mymatrixmeans[which(is.na(final_matrix))]
-  }
+  # # if NA values, impute as mean
+  #if(any(is.na(final_matrix)) == TRUE) {
+  #  myrowmeans = apply(X = final_matrix, MARGIN = 1, FUN = function(x) mean(na.omit(x)))
+  #  mymatrixmeans = matrix(data = rep(myrowmeans, ncol(final_matrix)), nrow = nrow(final_matrix), ncol = ncol(final_matrix))
+  #  final_matrix[is.na(final_matrix)] = mymatrixmeans[which(is.na(final_matrix))]
+  #}
 
   # order cell types
   if(order_cell_types == TRUE) {
@@ -165,43 +169,43 @@ cellProximityVisPlot_2D_ggplot <- function(gobject,
   if(is.null(interaction_name)) {
     stop('\n you need to specific at least one interaction name, run cellProximityEnrichment \n')
   }
-  
-  
+
+
   cell_locations  = gobject@spatial_locs
   spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
   cell_metadata   = gobject@cell_metadata
-  
-  
-  
+
+
+
   spatial_network = annotateSpatialNetwork(gobject = gobject, spatial_network_name = spatial_network_name, cluster_column = cluster_column)
-  
+
   cell_IDs_to_keep = unique(c(spatial_network[unified_int %in% interaction_name]$to, spatial_network[unified_int %in% interaction_name]$from))
   if(show_other_cells){
     CellType <- strsplit(interaction_name,"-")
-    all_cell_IDs = cell_metadata[cell_metadata[[cluster_column]] == CellType[[1]][1] | 
+    all_cell_IDs = cell_metadata[cell_metadata[[cluster_column]] == CellType[[1]][1] |
                                    cell_metadata[[cluster_column]] == CellType[[1]][2],]$cell_ID
     other_cell_IDs <- setdiff(all_cell_IDs, cell_IDs_to_keep)
-  }  
-  
-  
+  }
+
+
   # annotated cell data
   if(nrow(cell_metadata) == 0) {
     cell_locations_metadata = cell_locations
   } else {
     cell_locations_metadata <- merge(cell_locations, cell_metadata,by = "cell_ID")
   }
-  
-  
+
+
   # first 2 dimensions need to be defined
   if(is.null(sdimx) | is.null(sdimy)) {
     cat('first and second dimenion need to be defined, default is first 2 \n')
     sdimx = 'sdimx'
     sdimy = 'sdimy'
-  }    
-  
+  }
+
   pl <- ggplot2::ggplot()
   pl <- pl + ggplot2::theme_classic()
-  
+
   if(!is.null(spatial_network) & show_network == TRUE) {
     if(is.null(network_color)) network_color = 'red'
     if(show_other_network){
@@ -213,13 +217,13 @@ cellProximityVisPlot_2D_ggplot <- function(gobject,
                                      aes(x = sdimx_begin, y = sdimy_begin, xend = sdimx_end, yend = sdimy_end),
                                      color = network_color, size = 0.5, alpha = 0.5)
   }
-  
+
   if(!is.null(spatial_grid) & show_grid == TRUE) {
     if(is.null(grid_color)) grid_color = 'black'
     pl <- pl + ggplot2::geom_rect(data = spatial_grid, aes(xmin = x_start, xmax = x_end, ymin = y_start, ymax = y_end),
                                   color = grid_color, fill = NA)
   }
-  
+
   # cell color default
   if(is.null(cell_color)) {
     cell_color = 'lightblue'
@@ -235,12 +239,12 @@ cellProximityVisPlot_2D_ggplot <- function(gobject,
   }
   else if (is.character(cell_color)) {
     if(cell_color %in% colnames(cell_locations_metadata)) {
-      
+
       if(color_as_factor == TRUE) {
         factor_data = factor(cell_locations_metadata[[cell_color]])
         cell_locations_metadata[[cell_color]] <- factor_data
       }
-      
+
       pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
                                      fill = 'lightgrey', shape = 21, size = point_size_other,
                                      color = point_other_border_col, stroke = point_other_border_stroke)
@@ -252,9 +256,9 @@ cellProximityVisPlot_2D_ggplot <- function(gobject,
                                        show.legend = show_legend, shape = 21, alpha = point_alpha_other,
                                        size = point_size_select * 0.5)
       }
-      
-      
-      
+
+
+
       if(!is.null(cell_color_code)) {
         pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
       } else if(color_as_factor == T) {
@@ -265,7 +269,7 @@ cellProximityVisPlot_2D_ggplot <- function(gobject,
       } else if(color_as_factor == F){
         pl <- pl + ggplot2::scale_fill_gradient(low = 'blue', high = 'red')
       }
-      
+
     } else {
       pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
                                      show.legend = show_legend, shape = 21, fill = 'lightgrey', size = point_size_other,
@@ -274,20 +278,20 @@ cellProximityVisPlot_2D_ggplot <- function(gobject,
                                      show.legend = show_legend, shape = 21, fill = cell_color, size = point_size_select,
                                      color = point_select_border_col, stroke = point_select_border_stroke)
     }
-    
+
   }
-  
+
   pl <- pl + ggplot2::theme_bw() + ggplot2::theme(plot.title = element_text(hjust = 0.5),
                                                   legend.title = element_text(size = 10),
                                                   legend.text = element_text(size = 10))
-  
+
   # fix coord ratio
   if(!is.null(coord_fix_ratio)) {
     pl <- pl + ggplot2::coord_fixed(ratio = coord_fix_ratio)
   }
-  
+
   pl <- pl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates')
-  
+
   return(pl)
 }
 
@@ -348,51 +352,51 @@ cellProximityVisPlot_2D_plotly <- function(gobject,
   if(is.null(interaction_name)) {
     stop('\n you need to specific at least one interaction name, run cellProximityEnrichment \n')
   }
-  
-  
+
+
   cell_locations  = gobject@spatial_locs
   spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
   cell_metadata   = gobject@cell_metadata
-  
-  
+
+
   spatial_network = annotateSpatialNetwork(gobject = gobject, spatial_network_name = spatial_network_name, cluster_column = cluster_column)
-  
+
   cell_IDs_to_keep = unique(c(spatial_network[unified_int %in% interaction_name]$to, spatial_network[unified_int %in% interaction_name]$from))
-  
+
   if(show_other_cells){
     CellType <- strsplit(interaction_name,"-")
-    all_cell_IDs = cell_metadata[cell_metadata[[cluster_column]] == CellType[[1]][1] | 
+    all_cell_IDs = cell_metadata[cell_metadata[[cluster_column]] == CellType[[1]][1] |
                                    cell_metadata[[cluster_column]] == CellType[[1]][2],]$cell_ID
     other_cell_IDs <- setdiff(all_cell_IDs, cell_IDs_to_keep)
-  }  
-  
+  }
+
   # annotated cell data
   if(nrow(cell_metadata) == 0) {
     cell_locations_metadata = cell_locations
   } else {
     cell_locations_metadata <- merge(cell_locations, cell_metadata, by = "cell_ID")
   }
-  
-  
-  
-  
+
+
+
+
   # first 2 dimensions need to be defined
   if(is.null(sdimx) | is.null(sdimy)) {
     cat('first and second dimenion need to be defined, default is first 2 \n')
     sdimx = 'sdimx'
     sdimy = 'sdimy'
-  }  
-  
-  
+  }
+
+
   cat('create 2D plotly plot')
-  
+
   axis_scale = match.arg(axis_scale, c("cube","real","custom"))
-  
+
   ratio = plotly_axis_scale_2D(cell_locations_metadata,sdimx = sdimx,sdimy = sdimy,
                                mode = axis_scale,custom_ratio = custom_ratio)
-  
+
   pl <- plotly::plot_ly()
-  
+
   if(show_network == TRUE) {
     if(is.null(network_color)){
       network_color = "red"
@@ -419,7 +423,7 @@ cellProximityVisPlot_2D_plotly <- function(gobject,
                                       line = list(color = network_color,
                                                   width = 0.5),
                                       opacity=0.8)
-    
+
   }
   if(show_grid == TRUE){
     if(is.null(grid_color)) {
@@ -436,10 +440,10 @@ cellProximityVisPlot_2D_plotly <- function(gobject,
                                         line = list(color = grid_color,
                                                     width = 1),
                                         opacity=1)
-    
+
   }
-  
-  
+
+
   if(!is.null(cell_color)) {
     if(cell_color %in% colnames(cell_locations_metadata)){
       if(is.null(cell_color_code)) {
@@ -447,7 +451,7 @@ cellProximityVisPlot_2D_plotly <- function(gobject,
         cell_color_code = Giotto:::getDistinctColors(n = number_colors)
       }
       cell_locations_metadata[[cell_color]] <- as.factor(cell_locations_metadata[[cell_color]])
-      
+
       pl <- pl %>% plotly::add_trace(type = 'scatter',mode = 'markers',
                                      #name = "selected cells",
                                      data=cell_locations_metadata[cell_ID %in% cell_IDs_to_keep],
@@ -464,19 +468,19 @@ cellProximityVisPlot_2D_plotly <- function(gobject,
                                        colors = cell_color_code,
                                        opacity = point_alpha_other,
                                        marker = list(size = point_size_select * 0.7))
-      }  
+      }
       pl <- pl %>%  plotly::add_trace(type = 'scatter',mode = "markers",
                                       name = "unselected cells",
                                       data=cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep],
                                       x = ~sdimx, y = ~sdimy,
                                       marker = list(size = point_size_other,color = "lightgray",colors = "lightgray"),
                                       opacity = point_alpha_other)
-      
+
     }
     else{
       cat('cell_color not exist!\n')
     }
-  } 
+  }
   else {
     pl <- pl %>% plotly::add_trace(type = 'scatter',mode = 'markers',
                                    name = "selected cells",
@@ -497,16 +501,16 @@ cellProximityVisPlot_2D_plotly <- function(gobject,
                                      x = ~sdimx, y = ~sdimy,
                                      marker = list(size = point_size_other,color = "lightgray",colors = "lightgray"),
                                      opacity = point_alpha_other)
-    
+
   }
-  
+
   pl <- pl %>%
     plotly::layout(list(xaxis = list(title = 'X',nticks = x_ticks),
                         yaxis = list(title = 'Y',nticks = y_ticks)),
                    legend = list(x = 100, y = 0.5,
                                  font = list(family = "sans-serif",size = 12)))
   return((pl))
-  
+
 }
 
 #' @title cellProximityVisPlot_3D_plotly
@@ -564,60 +568,60 @@ cellProximityVisPlot_3D_plotly <- function(gobject,
                                            y_ticks = NULL,
                                            z_ticks = NULL,
                                            ...){
-  
+
   if(is.null(interaction_name)) {
     stop('\n you need to specific at least one interaction name, run cellProximityEnrichment \n')
   }
-  
-  
+
+
   cell_locations  = gobject@spatial_locs
   spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
   cell_metadata   = gobject@cell_metadata
-  
-  
+
+
   spatial_network = annotateSpatialNetwork(gobject = gobject, spatial_network_name = spatial_network_name, cluster_column = cluster_column)
-  
+
   cell_IDs_to_keep = unique(c(spatial_network[unified_int %in% interaction_name]$to, spatial_network[unified_int %in% interaction_name]$from))
-  
+
   if(show_other_cells){
     CellType <- strsplit(interaction_name,"-")
-    all_cell_IDs = cell_metadata[cell_metadata[[cluster_column]] == CellType[[1]][1] | 
+    all_cell_IDs = cell_metadata[cell_metadata[[cluster_column]] == CellType[[1]][1] |
                                    cell_metadata[[cluster_column]] == CellType[[1]][2],]$cell_ID
     other_cell_IDs <- setdiff(all_cell_IDs, cell_IDs_to_keep)
-  }  
-  
+  }
+
   # annotated cell data
   if(nrow(cell_metadata) == 0) {
     cell_locations_metadata = cell_locations
   } else {
     cell_locations_metadata <- merge(cell_locations, cell_metadata, by = "cell_ID")
   }
-  
-  
-  
-  
+
+
+
+
   # first 2 dimensions need to be defined
   if(is.null(sdimx) | is.null(sdimy)) {
     cat('first and second dimenion need to be defined, default is first 2 \n')
     sdimx = 'sdimx'
     sdimy = 'sdimy'
   }
-  
-  
-  
-  
-  
+
+
+
+
+
   # if 3 dimensions are defined create a 3D plot
-  
+
   cat('create 3D plotly plot')
-  
+
   pl <- plotly::plot_ly()
-  
+
   axis_scale = match.arg(axis_scale, c("cube","real","custom"))
-  
+
   ratio = plotly_axis_scale_3D(cell_locations_metadata,sdimx = sdimx,sdimy = sdimy,sdimz = sdimz,
                                mode = axis_scale,custom_ratio = custom_ratio)
-  
+
   if(!is.null(cell_color)) {
     if(cell_color %in% colnames(cell_locations_metadata)){
       if(is.null(cell_color_code)) {
@@ -625,7 +629,7 @@ cellProximityVisPlot_3D_plotly <- function(gobject,
         cell_color_code = Giotto:::getDistinctColors(n = number_colors)
       }
       cell_locations_metadata[[cell_color]] <- as.factor(cell_locations_metadata[[cell_color]])
-      
+
       pl <- pl %>% plotly::add_trace(type = 'scatter3d',mode = 'markers',
                                      #name = "selected cells",
                                      data=cell_locations_metadata[cell_ID %in% cell_IDs_to_keep],
@@ -648,12 +652,12 @@ cellProximityVisPlot_3D_plotly <- function(gobject,
                                        colors = cell_color_code,
                                        opacity = point_alpha_other,
                                        marker = list(size = point_size_select*0.7))
-      }  
+      }
     }
     else{
       cat('cell_color not exist!\n')
     }
-  } 
+  }
   else {
     pl <- pl %>% plotly::add_trace(type = 'scatter3d',mode = 'markers',
                                    name = "selected cells",
@@ -689,10 +693,10 @@ cellProximityVisPlot_3D_plotly <- function(gobject,
                                      data = plotly_network(unselect_network),
                                      x = ~x,y=~y,z=~z,inherit = F,line=list(color="lightgray"))
     }
-    
-    
+
+
   }
-  
+
   pl <- pl %>% plotly::layout(scene = list(
     xaxis = list(title = "X",nticks = x_ticks),
     yaxis = list(title = "Y",nticks = y_ticks),
@@ -702,8 +706,8 @@ cellProximityVisPlot_3D_plotly <- function(gobject,
                        y=ratio[[2]],
                        z=ratio[[3]])))
   return(pl)
-  
-  
+
+
 }
 
 #' @title cellProximityVisPlot
@@ -770,19 +774,19 @@ cellProximityVisPlot <- function(gobject,
                                  z_ticks = NULL,
                                  plot_method = c('plotly', 'ggplot'),
                                  ...) {
-  
-  
+
+
   ## decide plot method
   plot_method = match.arg(plot_method, choices = c('plotly', 'ggplot'))
   axis_scale = match.arg(axis_scale, c("cube","real","custom"))
-  
-  
+
+
   if(plot_method == 'ggplot') {
-    
+
     if(is.null(sdimx) | is.null(sdimy)) {
       stop('\n ggplot is in 2D and you need to define sdimx and sdimy \n')
     }
-    
+
     if(length(c(sdimx, sdimy, sdimz)) == 3){
       warning("ggplot is not able to produce 3D plot! Please choose plotly method\n")
     }
@@ -812,12 +816,12 @@ cellProximityVisPlot <- function(gobject,
                                             point_other_border_col = point_other_border_col,
                                             point_other_border_stroke = point_other_border_stroke,
                                             ...)
-    
+
   }
   else if(plot_method == 'plotly') {
-    
+
     if(length(c(sdimx, sdimy, sdimz)) == 3) {
-      
+
       result = cellProximityVisPlot_3D_plotly(gobject = gobject,
                                               interaction_name = interaction_name,
                                               cluster_column = cluster_column,
@@ -845,14 +849,14 @@ cellProximityVisPlot <- function(gobject,
                                               y_ticks = y_ticks,
                                               z_ticks = z_ticks,
                                               ...)
-      
+
     }
     else {
-      
+
       if(is.null(sdimx) | is.null(sdimy)) {
         stop('\n plotly in 2D requires you to define sdimx and sdimy \n')
       }
-      
+
       ## run: visPlot_2D_plotly
       result = cellProximityVisPlot_2D_plotly(gobject = gobject,
                                               interaction_name = interaction_name,
@@ -879,13 +883,13 @@ cellProximityVisPlot <- function(gobject,
                                               x_ticks = x_ticks,
                                               y_ticks = y_ticks,
                                               ...)
-      
-      
+
+
     }
-    
+
   }
   return(result)
-  
+
 }
 
 

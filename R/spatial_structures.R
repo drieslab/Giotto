@@ -1,17 +1,17 @@
 
 
 #' @title createSpatialNetwork
-#' @description create a spatial network based on cell centroid distances
+#' @description Create a spatial network based on cell centroid distances.
 #' @param gobject giotto object
 #' @param k number of nearest neighbors based on physical distance
-#' @param dimensions which spatial dimensions to use
-#' @param maximum_distance cuttof for nearest neighbors to consider
+#' @param dimensions which spatial dimensions to use (default = all)
+#' @param maximum_distance distance cuttof for nearest neighbors to consider
 #' @param minimum_k minimum nearest neigbhours if maximum_distance != NULL
 #' @param name name for spatial network (default = 'spatial_network')
 #' @param verbose verbose
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @return giotto object with updated spatial network slot
-#' @details Creates a spatial network connecting single-cells based on their physical distance to eachother.
+#' @details Creates a spatial network connecting single-cells based on their physical distance to each other.
 #' Number of neighbors can be determined by k, maximum distance from each cell with or without
 #' setting a minimum k for each cell.
 #' @export

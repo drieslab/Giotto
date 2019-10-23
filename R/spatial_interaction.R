@@ -71,12 +71,20 @@ make_simulated_network = function(gobject,
   length_ints = nrow(spatial_network_annot)
   s1_list = list()
   s2_list = list()
-  for(sim in 1:number_of_simulations) {
-    s1 = sample(spatial_network_annot$from_cell_type, size = length_ints)
-    s1_list[[sim]] = s1
 
-    s2 = sample(spatial_network_annot$to_cell_type, size = length_ints)
-    s2_list[[sim]] = s2
+  all_cell_type = c(spatial_network_annot$from_cell_type, spatial_network_annot$to_cell_type)
+  middle_point = length(all_cell_type)/2
+
+  for(sim in 1:number_of_simulations) {
+
+    reshuffled_all_cell_type = sample(x = all_cell_type, size = length(all_cell_type), replace = F)
+
+    new_from_cell_type = reshuffled_all_cell_type[1:middle_point]
+    s1_list[[sim]] = new_from_cell_type
+
+    new_to_cell_type = reshuffled_all_cell_type[(middle_point+1):length(all_cell_type)]
+    s2_list[[sim]] = new_to_cell_type
+
   }
 
   s1_vector = do.call('c', s1_list)
@@ -102,7 +110,15 @@ make_simulated_network = function(gobject,
 #' @param spatial_network_name name of spatial network to use
 #' @param cluster_column name of column to use for clusters
 #' @param number_of_simulations number of simulations to create expected observations
-#' @return Cell Proximity scores (CPscores) in data.table format
+#' @return List of cell Proximity scores (CPscores) in data.table format. The first
+#' data.table (raw_sim_table) shows the raw observations of both the original and
+#' simulated networks. The second data.table (enrichm_res) shows the enrichment results.
+#' @details Spatial proximity enrichment or depletion between pairs of cell types
+#' is calculated by calculating the observed over the expected frequency
+#' of cell-cell proximity interactions. The expected frequency is the average frequency
+#' calculated from a number of spatial network simulations. Each individual simulation is
+#' obtained by random permutations of the cell type labels of each node (cell)
+#' in the spatial network.
 #' @export
 #' @examples
 #'     cellProximityEnrichment(gobject)
