@@ -2,16 +2,21 @@
 % Please edit documentation in R/spatial_interaction_visuals.R
 \name{cellProximityHeatmap}
 \alias{cellProximityHeatmap}
-\title{cellProximityBarplot}
+\title{cellProximityHeatmap}
 \usage{
-cellProximityHeatmap(CPscore, scale = T, order_cell_types = T)
+cellProximityHeatmap(CPscore, scale = T, order_cell_types = T,
+  color_breaks = NULL, color_names = NULL)
 }
 \arguments{
 \item{CPscore}{CPscore, output from cellProximityEnrichment()}
 
 \item{scale}{scale cell-cell proximity interaction scores}
 
-\item{order_cell_types}{order}
+\item{order_cell_types}{order cell types based on enrichment correlation}
+
+\item{color_breaks}{numerical vector of length 3 to represent min, mean and maximum}
+
+\item{color_names}{character color vector of length 3}
 }
 \value{
 ggplot heatmap

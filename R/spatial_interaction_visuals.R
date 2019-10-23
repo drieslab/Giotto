@@ -45,12 +45,14 @@ cellProximityBarplot = function(CPscore,
 
 }
 
-#' @title cellProximityBarplot
+#' @title cellProximityHeatmap
 #' @name cellProximityHeatmap
 #' @description Create heatmap from cell-cell proximity scores
 #' @param CPscore CPscore, output from cellProximityEnrichment()
 #' @param scale scale cell-cell proximity interaction scores
-#' @param order_cell_types order
+#' @param order_cell_types order cell types based on enrichment correlation
+#' @param color_breaks numerical vector of length 3 to represent min, mean and maximum
+#' @param color_names character color vector of length 3
 #' @return ggplot heatmap
 #' @details Give more details ...
 #' @export
@@ -58,7 +60,9 @@ cellProximityBarplot = function(CPscore,
 #'     cellProximityHeatmap(CPscore)
 cellProximityHeatmap = function(CPscore,
                                 scale = T,
-                                order_cell_types = T) {
+                                order_cell_types = T,
+                                color_breaks = NULL,
+                                color_names = NULL) {
 
 
   enrich_res = CPscore$enrichm_res
@@ -103,9 +107,93 @@ cellProximityHeatmap = function(CPscore,
     final_matrix = final_matrix[sample_order, sample_order]
   }
 
-  ComplexHeatmap::Heatmap(matrix = final_matrix, cluster_rows = F, cluster_columns = F)
+  # create custom colors or not
+  if(!is.null(color_breaks) & !is.null(color_names)) {
+
+    if(length(color_breaks) != 3 | !is.numeric(color_breaks)) {
+      stop('\n color_breaks needs to be a numerical vector of length 3 \n')
+    }
+
+    if(length(color_names) != 3 | !is.character(color_names)) {
+      stop('\n color_names needs to be a character vector of length 3 \n')
+    }
+
+    ComplexHeatmap::Heatmap(matrix = final_matrix, cluster_rows = F, cluster_columns = F,
+                            col = circlize::colorRamp2(breaks = color_breaks, colors = color_names))
+  } else {
+    ComplexHeatmap::Heatmap(matrix = final_matrix, cluster_rows = F, cluster_columns = F)
+  }
+
+
 
 }
+
+
+#' @title cellProximityNetwork
+#' @name cellProximityNetwork
+#' @description Create network from cell-cell proximity scores
+#' @param CPscore CPscore, output from cellProximityEnrichment()
+#' @param color_depletion color for depleted cell-cell interactions
+#' @param color_enrichment color for enriched cell-cell interactions
+#' @param rescale_edge_weights rescale edge weights (boolean)
+#' @param edge_weight_range_depletion numerical vector of length 2 to rescale depleted edge weights
+#' @param edge_weight_range_enrichment numerical vector of length 2 to rescale enriched edge weights
+#' @param layout layout algorithm to use to draw nodes and edges
+#' @return igraph plot
+#' @details Give more details ...
+#' @export
+#' @examples
+#'     cellProximityNetwork(CPscore)
+cellProximityNetwork = function(CPscore,
+                                color_depletion = 'blue',
+                                color_enrichment = 'red',
+                                rescale_edge_weights = TRUE,
+                                edge_weight_range_depletion = c(0.1, 1),
+                                edge_weight_range_enrichment = c(1, 5),
+                                layout = 'Fruchterman') {
+
+  # create coordinates
+  layout = match.arg(arg = layout, choices = c('Fruchterman'))
+
+  # extract scores
+  CPscores = CPscore[['enrichm_res']]
+  CPscores[, cell_1 := strsplit(as.character(unified_int), split = '-')[[1]][1], by = 1:nrow(CPscores)]
+  CPscores[, cell_2 := strsplit(as.character(unified_int), split = '-')[[1]][2], by = 1:nrow(CPscores)]
+
+  # create igraph with enrichm as weight edges
+  igd = igraph::graph_from_data_frame(d = CPscores[,.(cell_1, cell_2, enrichm)], directed = F)
+  edges_sizes = igraph::get.edge.attribute(igd, 'enrichm')
+  post_edges_sizes = edges_sizes[edges_sizes > 0]
+  neg_edges_sizes = edges_sizes[edges_sizes <= 0]
+
+  # rescale if wanted
+  if(rescale_edge_weights == TRUE) {
+    pos_edges_sizes_resc = scales::rescale(x = post_edges_sizes, to = edge_weight_range_enrichment)
+    neg_edges_sizes_resc = scales::rescale(x = neg_edges_sizes, to = edge_weight_range_depletion)
+    edges_sizes_resc = c(pos_edges_sizes_resc, neg_edges_sizes_resc)
+  } else {
+    edges_sizes_resc = c(post_edges_sizes, neg_edges_sizes)
+  }
+
+  # colors
+  edges_colors = ifelse(edges_sizes > 0, color_enrichment, color_depletion)
+
+  # layout
+  if(layout == 'Fruchterman') {
+    coords = igraph::layout_with_fr(graph = igd, weights = edges_sizes_resc)
+  } else {
+    stop('\n Currently no other layouts, except Fruchterman Reingold, have been implemented \n')
+  }
+
+  igraph::plot.igraph(igd, edge.color = edges_colors, edge.width = edges_sizes_resc, layout = coords)
+
+}
+
+
+
+
+
+
 
 
 
