@@ -4,13 +4,15 @@
 \alias{cellProximityNetwork}
 \title{cellProximityNetwork}
 \usage{
-cellProximityNetwork(CPscore, color_depletion = "blue",
-  color_enrichment = "red", rescale_edge_weights = TRUE,
-  edge_weight_range_depletion = c(0.1, 1),
+cellProximityNetwork(CPscore, remove_self_edges = FALSE,
+  color_depletion = "blue", color_enrichment = "red",
+  rescale_edge_weights = TRUE, edge_weight_range_depletion = c(0.1, 1),
   edge_weight_range_enrichment = c(1, 5), layout = "Fruchterman")
 }
 \arguments{
 \item{CPscore}{CPscore, output from cellProximityEnrichment()}
+
+\item{remove_self_edges}{remove enrichment/depletion edges with itself}
 
 \item{color_depletion}{color for depleted cell-cell interactions}
 
@@ -31,7 +33,8 @@ igraph plot
 Create network from cell-cell proximity scores
 }
 \details{
-Give more details ...
+This function creates a network that shows the  spatial proximity
+ enrichment or depletion of cell type pairs.
 }
 \examples{
     cellProximityNetwork(CPscore)

@@ -10,7 +10,8 @@
 #' @param min_sim_ints filter on minimum simulated cell-cell interactions
 #' @param p_val p-value
 #' @return ggplot barplot
-#' @details Give more details ...
+#' @details This function creates a barplot that shows the  spatial proximity
+#'  enrichment or depletion of cell type pairs.
 #' @export
 #' @examples
 #'     cellProximityBarplot(CPscore)
@@ -54,7 +55,8 @@ cellProximityBarplot = function(CPscore,
 #' @param color_breaks numerical vector of length 3 to represent min, mean and maximum
 #' @param color_names character color vector of length 3
 #' @return ggplot heatmap
-#' @details Give more details ...
+#' @details This function creates a heatmap that shows the  spatial proximity
+#'  enrichment or depletion of cell type pairs.
 #' @export
 #' @examples
 #'     cellProximityHeatmap(CPscore)
@@ -133,6 +135,7 @@ cellProximityHeatmap = function(CPscore,
 #' @name cellProximityNetwork
 #' @description Create network from cell-cell proximity scores
 #' @param CPscore CPscore, output from cellProximityEnrichment()
+#' @param remove_self_edges remove enrichment/depletion edges with itself
 #' @param color_depletion color for depleted cell-cell interactions
 #' @param color_enrichment color for enriched cell-cell interactions
 #' @param rescale_edge_weights rescale edge weights (boolean)
@@ -140,11 +143,13 @@ cellProximityHeatmap = function(CPscore,
 #' @param edge_weight_range_enrichment numerical vector of length 2 to rescale enriched edge weights
 #' @param layout layout algorithm to use to draw nodes and edges
 #' @return igraph plot
-#' @details Give more details ...
+#' @details This function creates a network that shows the  spatial proximity
+#'  enrichment or depletion of cell type pairs.
 #' @export
 #' @examples
 #'     cellProximityNetwork(CPscore)
 cellProximityNetwork = function(CPscore,
+                                remove_self_edges = FALSE,
                                 color_depletion = 'blue',
                                 color_enrichment = 'red',
                                 rescale_edge_weights = TRUE,
@@ -162,6 +167,11 @@ cellProximityNetwork = function(CPscore,
 
   # create igraph with enrichm as weight edges
   igd = igraph::graph_from_data_frame(d = CPscores[,.(cell_1, cell_2, enrichm)], directed = F)
+
+  if(remove_self_edges == TRUE) {
+    igd = igraph::simplify(graph = igd, remove.loops = TRUE, remove.multiple = FALSE)
+  }
+
   edges_sizes = igraph::get.edge.attribute(igd, 'enrichm')
   post_edges_sizes = edges_sizes[edges_sizes > 0]
   neg_edges_sizes = edges_sizes[edges_sizes <= 0]
@@ -188,6 +198,7 @@ cellProximityNetwork = function(CPscore,
   igraph::plot.igraph(igd, edge.color = edges_colors, edge.width = edges_sizes_resc, layout = coords)
 
 }
+
 
 
 
