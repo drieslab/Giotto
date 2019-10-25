@@ -276,9 +276,12 @@ cellProximityVisPlot_2D_ggplot <- function(gobject,
 
 
 
-  spatial_network = annotateSpatialNetwork(gobject = gobject, spatial_network_name = spatial_network_name, cluster_column = cluster_column)
+  spatial_network = annotateSpatialNetwork(gobject = gobject,
+                                           spatial_network_name = spatial_network_name,
+                                           cluster_column = cluster_column)
 
-  cell_IDs_to_keep = unique(c(spatial_network[unified_int %in% interaction_name]$to, spatial_network[unified_int %in% interaction_name]$from))
+  cell_IDs_to_keep = unique(c(spatial_network[unified_int %in% interaction_name]$to,
+                              spatial_network[unified_int %in% interaction_name]$from))
   if(show_other_cells){
     CellType <- strsplit(interaction_name,"-")
     all_cell_IDs = cell_metadata[cell_metadata[[cluster_column]] == CellType[[1]][1] |
