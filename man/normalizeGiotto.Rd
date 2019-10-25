@@ -40,17 +40,17 @@ normalize and/or scale expresion values of Giotto object
 Currently there are two 'methods' to normalize your raw counts data.
 
 A. The standard method follows the standard protocol which can be adjusted using
-the provided parameters and follows the following order: \n
+the provided parameters and follows the following order: \cr
 1. First the data can be normalized according to total library size and subsequently
-scaled by a provided scale-factor. \n
-2. The data can then be transformed to a log-scale if required. \n
+scaled by a provided scale-factor. \cr
+2. The data can then be transformed to a log-scale if required. \cr
 3. Scaling (z-score) of genes and cells can be performed together or separately.
 
 B. The normalization method as provided by the osmFISH paper is also implemented:
 1. First normalize genes, for each gene divide the counts by the total gene count and
-multiply by the total number of genes. \n
+multiply by the total number of genes. \cr
 2. Next normalize cells, for each cell divide the normalized gene counts by the total
-counts per cell and multiply by the total number of cells. \n
+counts per cell and multiply by the total number of cells. \cr
 This data will be saved in the Giotto slot for custom expression.
 }
 \examples{
