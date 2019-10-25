@@ -4,16 +4,21 @@
 \alias{normalizeGiotto}
 \title{normalizeGiotto}
 \usage{
-normalizeGiotto(gobject, library_size_norm = T, scalefactor = 6000,
+normalizeGiotto(gobject, norm_methods = c("standard", "osmFISH"),
+  library_size_norm = TRUE, scalefactor = 6000, log_norm = TRUE,
   logbase = 2, scale_genes = T, scale_cells = T,
   scale_order = c("first_genes", "first_cells"), verbose = F)
 }
 \arguments{
 \item{gobject}{giotto object}
 
+\item{norm_methods}{normalization method to use}
+
 \item{library_size_norm}{normalize cells by library size}
 
 \item{scalefactor}{scale factor to use after library size normalization}
+
+\item{log_norm}{transform values to log-scale}
 
 \item{logbase}{log base to use to log normalize expression values}
 
@@ -32,7 +37,19 @@ giotto object
 normalize and/or scale expresion values of Giotto object
 }
 \details{
-Description of normalization steps ...
+Currently there are two 'methods' to normalize your raw counts data.
+A. The standard method follows the standard protocol which can be adjusted using
+the provided parameters and follows the following order:
+1. First the data can be normalized according to total library size and subsequently
+scaled by a provided scale-factor.
+2. The data can then be transformed to a log-scale if required.
+3. Scaling (z-score) of genes and cells can be performed together or separately.
+
+B. The normalization method as provided by the osmFISH paper is also implemented:
+1. First normalize genes, for each gene divide the counts by the total gene count and
+multiply by the total number of genes.
+2. Next normalize cells, for each cell divide the normalized gene counts by the total
+counts per cell and multiply by the total number of cells.
 }
 \examples{
     normalizeGiotto(gobject)
