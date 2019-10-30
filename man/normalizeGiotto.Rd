@@ -41,12 +41,11 @@ Currently there are two 'methods' to normalize your raw counts data.
 
 A. The standard method follows the standard protocol which can be adjusted using
 the provided parameters and follows the following order: \cr
-1. First the data can be normalized according to total library size and subsequently
-scaled by a provided scale-factor. \cr
-2. The data can then be transformed to a log-scale if required. \cr
-3. Scaling (z-score) of genes and cells can be performed together or separately.
+1. Data normalization for total library size and scaling by a custom scale-factor. \cr
+2. Log transformation of data. \cr
+3. Z-scoring of data by genes and/or cells.
 
-B. The normalization method as provided by the osmFISH paper is also implemented:
+B. The normalization method as provided by the osmFISH paper is also implemented: \cr
 1. First normalize genes, for each gene divide the counts by the total gene count and
 multiply by the total number of genes. \cr
 2. Next normalize cells, for each cell divide the normalized gene counts by the total

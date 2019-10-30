@@ -4,35 +4,97 @@
 #' @param gobject giotto object
 #' @param expression_values expression values to use
 #' @param cluster_column name of column to use for clusters
-#' @param distance correlation score to calculate distance
+#' @param cor correlation score to calculate distance
+#' @param distance distance method to use for hierarchical clustering
 #' @return ggplot
-#' @details Correlation heatmap of clusters.
+#' @details Correlation heatmap of selected clustering.
 #' @export
 #' @examples
 #'     showClusterHeatmap(gobject)
 showClusterHeatmap <- function(gobject,
                                expression_values = c('normalized', 'scaled', 'custom'),
                                cluster_column,
-                               distance = c('pearson', 'spearman')) {
+                               cor = c('pearson', 'spearman'),
+                               distance = 'ward.D') {
 
-  distance = match.arg(distance, c('pearson', 'spearman'))
+  cor = match.arg(cor, c('pearson', 'spearman'))
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
 
 
-  testmatrix = create_cluster_matrix(gobject = gobject,
-                                     cluster_column = cluster_column,
-                                     expression_values = values)
+  metatable = calculateMetaTable(gobject = gobject, expression_values = values, metadata_cols = cluster_column)
+  dcast_metatable = data.table::dcast.data.table(metatable, formula = variable~uniq_ID, value.var = 'value')
+  testmatrix = dt_to_matrix(x = dcast_metatable)
+
+
+  #testmatrix = create_cluster_matrix(gobject = gobject,
+  #                                   cluster_column = cluster_column,
+  #                                   expression_values = values)
 
   # correlation
-  cormatrix = stats::cor(x = testmatrix, method = distance)
+  cormatrix = stats::cor(x = testmatrix, method = cor)
   cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
-  corclus = stats::hclust(d = cordist, method = 'ward.D')
+  corclus = stats::hclust(d = cordist, method = distance)
 
   hmap = ComplexHeatmap::Heatmap(matrix = cormatrix,
                                  cluster_rows = corclus,
                                  cluster_columns = corclus)
 
   return(hmap)
+
+}
+
+
+
+#' @title showClusterDendrogram
+#' @name showClusterDendrogram
+#' @description Creates dendrogram based on identified clusters
+#' @param gobject giotto object
+#' @param expression_values expression values to use
+#' @param cluster_column name of column to use for clusters
+#' @param cor correlation score to calculate distance
+#' @param distance distance method to use for hierarchical clustering
+#' @param h height of horizontal lines to plot
+#' @param h_color color of horizontal lines
+#' @return ggplot
+#' @details Correlation dendrogram of selected clustering.
+#' @export
+#' @examples
+#'     showClusterDendrogram(gobject)
+showClusterDendrogram <- function(gobject,
+                                  expression_values = c('normalized', 'scaled', 'custom'),
+                                  cluster_column,
+                                  cor = c('pearson', 'spearman'),
+                                  distance = 'ward.D',
+                                  h = NULL,
+                                  h_color = 'red') {
+
+  cor = match.arg(cor, c('pearson', 'spearman'))
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+
+
+  metatable = calculateMetaTable(gobject = gobject, expression_values = values, metadata_cols = cluster_column)
+  dcast_metatable = data.table::dcast.data.table(metatable, formula = variable~uniq_ID, value.var = 'value')
+  testmatrix = dt_to_matrix(x = dcast_metatable)
+
+
+  #testmatrix = create_cluster_matrix(gobject = gobject,
+  #                                   cluster_column = cluster_column,
+  #                                   expression_values = values)
+
+  # correlation
+  cormatrix = stats::cor(x = testmatrix, method = cor)
+  cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
+  corclus = stats::hclust(d = cordist, method = distance)
+
+  cordend = as.dendrogram(object = corclus)
+
+  # plot dendrogram
+  graphics::plot(cordend)
+
+  # add horizontal lines
+  if(!is.null(h)) {
+    graphics::abline(h = h, col = h_color)
+  }
 
 }
 
