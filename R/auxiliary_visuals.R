@@ -189,6 +189,7 @@ decide_cluster_order = function(gobject,
 #' @param cluster_cor_method method for cluster correlation
 #' @param cluster_hclust_method method for hierarchical clustering of clusters
 #' @param gene_order method to determine gene order
+#' @param gene_custom_order custom order for genes
 #' @param gene_cor_method method for gene correlation
 #' @param gene_hclust_method method for hierarchical clustering of genes
 #' @return list
@@ -204,6 +205,7 @@ createHeatmap_DT <- function(gobject,
                              cluster_cor_method = 'pearson',
                              cluster_hclust_method = 'ward.D',
                              gene_order = c('custom', 'correlation'),
+                             gene_custom_order = NULL,
                              gene_cor_method = 'pearson',
                              gene_hclust_method = 'complete') {
 
@@ -267,13 +269,20 @@ createHeatmap_DT <- function(gobject,
 
     final_gene_order = names(gene_index[match(gene_clus$order, gene_index)])
     subset_values_DT[, genes := factor(genes, final_gene_order)]
+
+  } else if(gene_order == 'custom') {
+
+    if(is.null(gene_custom_order)) {
+      stop('\n with custom gene order the gene_custom_order parameter needs to be provided \n')
+    }
+    subset_values_DT[, genes := factor(genes, gene_custom_order)]
+
   }
 
   cell_order_DT[['cells']] = factor(cell_order_DT[['cells']], levels = as.character(cell_order_DT[['cells']]))
 
   return(list(DT = subset_values_DT, x_lines = x_lines, cell_DT = cell_order_DT))
 }
-
 
 
 #' @title plotHeatmap
@@ -289,6 +298,7 @@ createHeatmap_DT <- function(gobject,
 #' @param cluster_cor_method method for cluster correlation
 #' @param cluster_hclust_method method for hierarchical clustering of clusters
 #' @param gene_order method to determine gene order
+#' @param gene_custom_order custom order for genes
 #' @param gene_cor_method method for gene correlation
 #' @param gene_hclust_method method for hierarchical clustering of genes
 #' @param show_values which values to show on heatmap
@@ -312,6 +322,7 @@ plotHeatmap <- function(gobject,
                         cluster_cor_method = 'pearson',
                         cluster_hclust_method = 'ward.D',
                         gene_order = c('custom', 'correlation'),
+                        gene_custom_order = NULL,
                         gene_cor_method = 'pearson',
                         gene_hclust_method = 'complete',
                         show_values = c('rescaled', 'z-scaled', 'original'),
@@ -334,6 +345,7 @@ plotHeatmap <- function(gobject,
                                   cluster_cor_method = cluster_cor_method,
                                   cluster_hclust_method = cluster_hclust_method,
                                   gene_order = gene_order,
+                                  gene_custom_order = gene_custom_order,
                                   gene_cor_method = gene_cor_method,
                                   gene_hclust_method = gene_hclust_method)
 

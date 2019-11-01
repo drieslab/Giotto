@@ -2926,8 +2926,6 @@ getClusterSimilarity <- function(gobject,
 
 
 
-
-
 #' @title mergeClusters
 #' @name mergeClusters
 #' @description Merge selected clusters based on pairwise correlation scores and size of cluster.

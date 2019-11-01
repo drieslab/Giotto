@@ -205,7 +205,6 @@ visPlot_3D_plotly = function(gobject,
 #' @param gobject giotto object
 #' @param sdimx x-axis dimension name (default = 'sdimx')
 #' @param sdimy y-axis dimension name (default = 'sdimy')
-#' @param sdimz z-axis dimension name (default = 'sdimz')
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
@@ -239,10 +238,10 @@ visPlot_2D_ggplot = function(gobject,
                              color_as_factor = T,
                              select_cell_groups = NULL,
                              select_cells = NULL,
+                             show_other_cells = T,
                              show_network = F,
                              network_color = NULL,
                              network_alpha = 1,
-                             show_other_cells = T,
                              other_cells_alpha = 0.1,
                              spatial_network_name = 'spatial_network',
                              show_grid = F,
@@ -749,7 +748,12 @@ visPlot <- function(gobject,
   if(plot_method == 'ggplot') {
 
     if(is.null(sdimx) | is.null(sdimy)) {
-      stop('\n ggplot is in 2D and you need to define sdimx and sdimy \n')
+
+      warning("plot_method = ggplot, but spatial dimensions for sdimx and sdimy for 2D plotting are not given. \n
+              It will default to the 'sdimx' and 'sdimy' ")
+      sdimx = 'sdimx'
+      sdimy = 'sdimy'
+      #stop('\n ggplot is in 2D and you need to define sdimx and sdimy \n')
     }
 
     result = visPlot_2D_ggplot(gobject = gobject,
@@ -823,7 +827,13 @@ visPlot <- function(gobject,
     else {
 
       if(is.null(sdimx) | is.null(sdimy)) {
-        stop('\n plotly in 2D requires you to define sdimx and sdimy \n')
+
+        warning("plot_method = plotly, but spatial dimensions for sdimx and sdimy for 2D plotting are not given. \n
+              It will default to the 'sdimx' and 'sdimy'. For 3D visualization also specify sdimz.")
+        sdimx = 'sdimx'
+        sdimy = 'sdimy'
+        #stop('\n plotly in 2D requires you to define sdimx and sdimy \n')
+
       }
 
       ## run: visPlot_2D_plotly

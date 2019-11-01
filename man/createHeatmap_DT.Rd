@@ -8,8 +8,8 @@ createHeatmap_DT(gobject, expression_values = c("normalized", "scaled",
   "custom"), genes, cluster_column = NULL, cluster_order = c("size",
   "correlation", "custom"), cluster_custom_order = NULL,
   cluster_cor_method = "pearson", cluster_hclust_method = "ward.D",
-  gene_order = c("custom", "correlation"), gene_cor_method = "pearson",
-  gene_hclust_method = "complete")
+  gene_order = c("custom", "correlation"), gene_custom_order = NULL,
+  gene_cor_method = "pearson", gene_hclust_method = "complete")
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -29,6 +29,8 @@ createHeatmap_DT(gobject, expression_values = c("normalized", "scaled",
 \item{cluster_hclust_method}{method for hierarchical clustering of clusters}
 
 \item{gene_order}{method to determine gene order}
+
+\item{gene_custom_order}{custom order for genes}
 
 \item{gene_cor_method}{method for gene correlation}
 
