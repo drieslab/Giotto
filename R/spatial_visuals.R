@@ -1440,6 +1440,214 @@ visGenePlot <- function(gobject,
 
 
 
+#' @title plot_network_layer_ggplot
+#' @name plot_network_layer_ggplot
+#' @description Visualize cells in network layer according to dimension reduction coordinates
+#' @param gobject giotto object
+#' @param annotated_network_DT annotated network data.table of selected cells
+#' @param edge_alpha alpha of network edges
+#' @param show_legend show legend
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     plot_network_layer_ggplot(gobject)
+plot_network_layer_ggplot = function(ggobject,
+                                     annotated_network_DT,
+                                     edge_alpha = NULL,
+                                     show_legend = T) {
+
+
+  from_dims = grep('from_Dim', colnames(annotated_network_DT), value = T)
+  to_dims = grep('to_Dim', colnames(annotated_network_DT), value = T)
+
+
+
+  pl <- ggobject
+
+  if(is.null(edge_alpha)) {
+    edge_alpha = 0.05
+    pl <- pl + ggplot2::geom_segment(data = annotated_network_DT, aes_string(x = from_dims[1], y = from_dims[2],
+                                                                             xend = to_dims[1], yend = to_dims[2]),
+                                     alpha = edge_alpha, show.legend = show_legend)
+
+  } else if(is.numeric(edge_alpha)) {
+    pl <- pl + ggplot2::geom_segment(data = annotated_network_DT, aes_string(x = from_dims[1], y = from_dims[2],
+                                                                             xend = to_dims[1], yend = to_dims[2]),
+                                     alpha = edge_alpha, show.legend = show_legend)
+  } else if(is.character(edge_alpha)) {
+
+    if(edge_alpha %in% colnames(annotated_network_DT)) {
+      pl <- pl + ggplot2::geom_segment(data = annotated_network_DT, aes_string(x = from_dims[1], y = from_dims[2],
+                                                                               xend = to_dims[1], yend = to_dims[2],
+                                                                               alpha = edge_alpha),
+                                       show.legend = show_legend)
+    }
+  }
+
+  return(pl)
+
+}
+
+
+
+
+#' @title plot_point_layer_ggplot
+#' @name plot_point_layer_ggplot
+#' @description Visualize cells in point layer according to dimension reduction coordinates
+#' @param gobject giotto object
+#' @param annotated_DT_selected annotated data.table of selected cells
+#' @param annotated_DT_other annotated data.table of not selected cells
+#' @param cell_color color for cells (see details)
+#' @param color_as_factor convert color column to factor
+#' @param cell_color_code named vector with colors
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param select_cells select subset of cells based on cell IDs
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color of not selected cells
+#' @param other_point_size size of not selected cells
+#' @param show_cluster_center plot center of selected clusters
+#' @param show_center_label plot label of selected clusters
+#' @param center_point_size size of center points
+#' @param label_size  size of labels
+#' @param label_fontface font of labels
+#' @param edge_alpha column to use for alpha of the edges
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param show_legend show legend
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     plot_point_layer_ggplot(gobject)
+plot_point_layer_ggplot = function(ggobject,
+                                   annotated_DT_selected,
+                                   annotated_DT_other,
+                                   cell_color = NULL,
+                                   color_as_factor = T,
+                                   cell_color_code = NULL,
+                                   select_cell_groups = NULL,
+                                   select_cells = NULL,
+                                   show_other_cells = T,
+                                   other_cell_color = 'lightgrey',
+                                   other_point_size = 0.5,
+                                   show_cluster_center = F,
+                                   show_center_label = T,
+                                   center_point_size = 4,
+                                   center_point_border_col = 'black',
+                                   center_point_border_stroke = 0.1,
+                                   label_size = 4,
+                                   label_fontface = 'bold',
+                                   edge_alpha = NULL,
+                                   point_size = 1,
+                                   point_border_col = 'black',
+                                   point_border_stroke = 0.1,
+                                   show_legend = T
+) {
+
+
+  pl = ggobject
+
+
+
+  ## first plot other non-selected cells
+  if((!is.null(select_cells) | !is.null(select_cell_groups)) & show_other_cells == TRUE) {
+
+    dims = grep('Dim.', colnames(annotated_DT_other), value = T)
+
+    pl <- pl + ggplot2::geom_point(data = annotated_DT_other, aes_string(x = dims[1], dims[2]),
+                                   color = other_cell_color, show.legend = F, size = other_point_size)
+
+
+  }
+
+
+
+
+  ## point layer
+
+  annotated_DT = annotated_DT_selected
+
+  dims = grep('Dim.', colnames(annotated_DT), value = T)
+
+  if(is.null(cell_color)) {
+    cell_color = 'lightblue'
+    pl <- pl + ggplot2::geom_point(data = annotated_DT, aes_string(x = dims[1], dims[2]),
+                                   color = cell_color, show.legend = show_legend, size = point_size)
+
+  } else if (is.character(cell_color)) {
+
+    if(cell_color %in% colnames(annotated_DT)) {
+
+      class_cell_color = class(annotated_DT[[cell_color]])
+
+
+
+      # convert numericals to factors
+      if(color_as_factor == TRUE) {
+        factor_data = factor(annotated_DT[[cell_color]])
+        annotated_DT[[cell_color]] <- factor_data
+        # for centers
+        if(show_cluster_center == TRUE | show_center_label == TRUE) {
+          annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dims[1])), center_2 = median(get(dims[2]))), by = cell_color]
+          factor_center_data = factor(annotated_DT_centers[[cell_color]])
+          annotated_DT_centers[[cell_color]] <- factor_center_data
+        }
+      } else {
+
+        # TEST: centers can only be shown for factors that are part of the metadata
+        if((show_cluster_center == TRUE | show_center_label == TRUE) & class_cell_color %in% c('character', 'factor')) {
+          annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dims[1])), center_2 = median(get(dims[2]))), by = cell_color]
+        }
+
+      }
+
+      pl <- pl + ggplot2::geom_point(data = annotated_DT, aes_string(x = dims[1], y = dims[2], fill = cell_color),
+                                     show.legend = show_legend, shape = 21, size = point_size,
+                                     color = point_border_col, stroke = point_border_stroke)
+
+      ## plot centers
+      if(show_cluster_center == TRUE & (color_as_factor == TRUE | class_cell_color %in% c('character', 'factor'))) {
+
+        pl <- pl + ggplot2::geom_point(data = annotated_DT_centers,
+                                       aes_string(x = 'center_1', y = 'center_2', fill = cell_color),
+                                       color = center_point_border_col, stroke = center_point_border_stroke,
+                                       size = center_point_size, shape = 21)
+      }
+
+      ## plot labels
+      if(show_center_label == TRUE) {
+        pl <- pl + ggrepel::geom_text_repel(data = annotated_DT_centers,
+                                            aes_string(x = 'center_1', y = 'center_2', label = cell_color),
+                                            size = label_size, fontface = label_fontface)
+      }
+
+
+      if(!is.null(cell_color_code)) {
+        pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
+      } else if(color_as_factor == T) {
+        number_colors = length(unique(factor_data))
+        cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+        names(cell_color_code) = unique(factor_data)
+        pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
+      } else if(color_as_factor == F){
+        pl <- pl + ggplot2::scale_fill_gradient(low = 'blue', high = 'red')
+      }
+
+    }
+
+  } else {
+    pl <- pl + ggplot2::geom_point(data = annotated_DT, aes_string(x = dims[1], y = dims[2]),
+                                   show.legend = show_legend, shape = 21, fill = cell_color,
+                                   size = point_size,
+                                   color = point_border_col, stroke = point_border_stroke)
+  }
+
+  return(pl)
+
+}
+
 
 
 #' @title visDimPlot_2D_ggplot
@@ -1456,6 +1664,11 @@ visGenePlot <- function(gobject,
 #' @param cell_color color for cells (see details)
 #' @param color_as_factor convert color column to factor
 #' @param cell_color_code named vector with colors
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param select_cells select subset of cells based on cell IDs
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color of not selected cells
+#' @param other_point_size size of not selected cells
 #' @param show_cluster_center plot center of selected clusters
 #' @param show_center_label plot label of selected clusters
 #' @param center_point_size size of center points
@@ -1471,7 +1684,6 @@ visGenePlot <- function(gobject,
 #' @export
 #' @examples
 #'     visDimPlot_2D_ggplot(gobject)
-
 visDimPlot_2D_ggplot <- function(gobject,
                                  dim_reduction_to_use = 'umap',
                                  dim_reduction_name = 'umap',
@@ -1483,6 +1695,11 @@ visDimPlot_2D_ggplot <- function(gobject,
                                  cell_color = NULL,
                                  color_as_factor = T,
                                  cell_color_code = NULL,
+                                 select_cell_groups = NULL,
+                                 select_cells = NULL,
+                                 show_other_cells = T,
+                                 other_cell_color = 'lightgrey',
+                                 other_point_size = 0.5,
                                  show_cluster_center = F,
                                  show_center_label = T,
                                  center_point_size = 4,
@@ -1495,6 +1712,7 @@ visDimPlot_2D_ggplot <- function(gobject,
                                  point_border_col = 'black',
                                  point_border_stroke = 0.1,
                                  show_legend = T){
+
   ## dimension reduction ##
   dim_dfr = gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$coordinates[,c(dim1_to_use, dim2_to_use)]
   dim_names = colnames(dim_dfr)
@@ -1532,102 +1750,77 @@ visDimPlot_2D_ggplot <- function(gobject,
     dim2_y_variance = var_expl_vec[2]
   }
 
+
+
+  ## create subsets if needed
+  if(!is.null(select_cells) & !is.null(select_cell_groups)) {
+    if(is.null(cell_color)) {
+      stop('\n selection of cells is based on cell_color paramter, which is a metadata column \n')
+    }
+    cat('You have selected both individual cell IDs and a group of cells \n')
+    group_cell_IDs = annotated_DT[get(cell_color) %in% select_cell_groups][['cell_ID']]
+    select_cells = unique(c(select_cells, group_cell_IDs))
+  } else if(!is.null(select_cell_groups)) {
+    select_cells = annotated_DT[get(cell_color) %in% select_cell_groups][['cell_ID']]
+  }
+
+  if(!is.null(select_cells)) {
+    annotated_DT_other = annotated_DT[!annotated_DT$cell_ID %in% select_cells]
+    annotated_DT_selected = annotated_DT[annotated_DT$cell_ID %in% select_cells]
+
+    annotated_network_DT <- annotated_network_DT[annotated_network_DT$to %in% select_cells & annotated_network_DT$from %in% select_cells]
+
+    # if specific cells are selected
+    annotated_DT = annotated_DT_selected
+  }
+
+  ## if no subsets are required
+  if(is.null(select_cells) & is.null(select_cell_groups)) {
+    annotated_DT_selected = annotated_DT
+    annotated_DT_other    = NULL
+  }
+
+
+
   pl <- ggplot2::ggplot()
   pl <- pl + ggplot2::theme_classic()
 
 
-  # network layer
+
+  ## add network layer
   if(show_NN_network == TRUE) {
-
-    if(is.null(edge_alpha)) {
-      edge_alpha = 0.05
-      pl <- pl + ggplot2::geom_segment(data = annotated_network_DT, aes_string(x = from_dim_names[1], y = from_dim_names[2],
-                                                                               xend = to_dim_names[1], yend = to_dim_names[2]), alpha = edge_alpha, show.legend = show_legend)
-    } else if(is.numeric(edge_alpha)) {
-      pl <- pl + ggplot2::geom_segment(data = annotated_network_DT, aes_string(x = from_dim_names[1], y = from_dim_names[2],
-                                                                               xend = to_dim_names[1], yend = to_dim_names[2]), alpha = edge_alpha, show.legend = show_legend)
-    } else if(is.character(edge_alpha)) {
-
-      if(edge_alpha %in% colnames(annotated_network_DT)) {
-        pl <- pl + ggplot2::geom_segment(data = annotated_network_DT, aes_string(x = from_dim_names[1], y = from_dim_names[2],
-                                                                                 xend = to_dim_names[1], yend = to_dim_names[2], alpha = edge_alpha), show.legend = show_legend)
-      }
-    }
+    pl = plot_network_layer_ggplot(ggobject = pl,
+                                   annotated_network_DT = annotated_network_DT,
+                                   edge_alpha = edge_alpha,
+                                   show_legend = show_legend)
   }
 
-  # point layer
-  if(is.null(cell_color)) {
-    cell_color = 'lightblue'
-    pl <- pl + ggplot2::geom_point(data = annotated_DT, aes_string(x = dim_names[1], dim_names[2]),
-                                   color = cell_color, show.legend = show_legend, size = point_size)
-
-  } else if (is.character(cell_color)) {
-
-    if(cell_color %in% colnames(annotated_DT)) {
-
-      class_cell_color = class(annotated_DT[[cell_color]])
 
 
-
-      # convert numericals to factors
-      if(color_as_factor == TRUE) {
-        factor_data = factor(annotated_DT[[cell_color]])
-        annotated_DT[[cell_color]] <- factor_data
-        # for centers
-        if(show_cluster_center == TRUE | show_center_label == TRUE) {
-          annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dim_names[1])), center_2 = median(get(dim_names[2]))), by = cell_color]
-          factor_center_data = factor(annotated_DT_centers[[cell_color]])
-          annotated_DT_centers[[cell_color]] <- factor_center_data
-        }
-      } else {
-
-        # TEST: centers can only be shown for factors that are part of the metadata
-        if((show_cluster_center == TRUE | show_center_label == TRUE) & class_cell_color %in% c('character', 'factor')) {
-          annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dim_names[1])), center_2 = median(get(dim_names[2]))), by = cell_color]
-        }
-
-      }
-
-      pl <- pl + ggplot2::geom_point(data = annotated_DT, aes_string(x = dim_names[1], y = dim_names[2], fill = cell_color),
-                                     show.legend = show_legend, shape = 21, size = point_size,
-                                     color = point_border_col, stroke = point_border_stroke)
-
-      # plot centers
-      if(show_cluster_center == TRUE & (color_as_factor == TRUE | class_cell_color %in% c('character', 'factor'))) {
-
-        pl <- pl + ggplot2::geom_point(data = annotated_DT_centers,
-                                       aes_string(x = 'center_1', y = 'center_2', fill = cell_color),
-                                       color = center_point_border_col, stroke = center_point_border_stroke,
-                                       size = center_point_size, shape = 21)
-      }
-
-      # plot labels
-      if(show_center_label == TRUE) {
-        pl <- pl + ggrepel::geom_text_repel(data = annotated_DT_centers,
-                                            aes_string(x = 'center_1', y = 'center_2', label = cell_color),
-                                            size = label_size, fontface = label_fontface)
-      }
-
-
-      if(!is.null(cell_color_code)) {
-        pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
-      } else if(color_as_factor == T) {
-        number_colors = length(unique(factor_data))
-        cell_color_code = Giotto:::getDistinctColors(n = number_colors)
-        names(cell_color_code) = unique(factor_data)
-        pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
-      } else if(color_as_factor == F){
-        pl <- pl + ggplot2::scale_fill_gradient(low = 'blue', high = 'red')
-      }
-
-    }
-
-  } else {
-    pl <- pl + ggplot2::geom_point(data = annotated_DT, aes_string(x = dim_names[1], y = dim_names[2]),
-                                   show.legend = show_legend, shape = 21, fill = cell_color,
-                                   size = point_size,
-                                   color = point_border_col, stroke = point_border_stroke)
-  }
+  ## add point layer
+  pl = plot_point_layer_ggplot(ggobject = pl,
+                               annotated_DT_selected = annotated_DT_selected,
+                               annotated_DT_other = annotated_DT_other,
+                               cell_color = cell_color,
+                               color_as_factor = color_as_factor,
+                               cell_color_code = cell_color_code,
+                               select_cell_groups = select_cell_groups,
+                               select_cells = select_cells,
+                               show_other_cells = show_other_cells,
+                               other_cell_color = other_cell_color,
+                               other_point_size = other_point_size,
+                               show_cluster_center = show_cluster_center,
+                               show_center_label = show_center_label,
+                               center_point_size = center_point_size,
+                               center_point_border_col = center_point_border_col,
+                               center_point_border_stroke = center_point_border_stroke,
+                               label_size = label_size,
+                               label_fontface = label_fontface,
+                               edge_alpha = edge_alpha,
+                               point_size = point_size,
+                               point_border_col = point_border_col,
+                               point_border_stroke = point_border_stroke,
+                               show_legend = show_legend)
 
 
   ## add % variance explained to names of plot for PCA ##
@@ -2081,6 +2274,11 @@ visDimPlot <- function(gobject,
                        cell_color = NULL,
                        color_as_factor = T,
                        cell_color_code = NULL,
+                       select_cell_groups = NULL,
+                       select_cells = NULL,
+                       show_other_cells = T,
+                       other_cell_color = 'lightgrey',
+                       other_point_size = 0.5,
                        show_cluster_center = F,
                        show_center_label = T,
                        center_point_size = 4,
@@ -2114,6 +2312,11 @@ visDimPlot <- function(gobject,
                                   cell_color = cell_color,
                                   color_as_factor = color_as_factor,
                                   cell_color_code = cell_color_code,
+                                  select_cell_groups = select_cell_groups,
+                                  select_cells = select_cells,
+                                  show_other_cells = show_other_cells,
+                                  other_cell_color = other_cell_color,
+                                  other_point_size = other_point_size,
                                   show_cluster_center = show_cluster_center,
                                   show_center_label = show_center_label,
                                   center_point_size = center_point_size,
