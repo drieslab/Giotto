@@ -1768,7 +1768,9 @@ visDimPlot_2D_ggplot <- function(gobject,
     annotated_DT_other = annotated_DT[!annotated_DT$cell_ID %in% select_cells]
     annotated_DT_selected = annotated_DT[annotated_DT$cell_ID %in% select_cells]
 
-    annotated_network_DT <- annotated_network_DT[annotated_network_DT$to %in% select_cells & annotated_network_DT$from %in% select_cells]
+    if(show_NN_network == TRUE) {
+      annotated_network_DT <- annotated_network_DT[annotated_network_DT$to %in% select_cells & annotated_network_DT$from %in% select_cells]
+    }
 
     # if specific cells are selected
     annotated_DT = annotated_DT_selected
