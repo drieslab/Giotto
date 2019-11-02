@@ -23,7 +23,8 @@ ggplot barplot
 Create barplot from cell-cell proximity scores
 }
 \details{
-Give more details ...
+This function creates a barplot that shows the  spatial proximity
+ enrichment or depletion of cell type pairs.
 }
 \examples{
     cellProximityBarplot(CPscore)

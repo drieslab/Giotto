@@ -2870,6 +2870,353 @@ iterCluster = function(gobject,
 
 
 
+#' @title getClusterSimilarity
+#' @name getClusterSimilarity
+#' @description Creates data.table with pairwise correlation scores between each cluster.
+#' @param gobject giotto object
+#' @param expression_values expression values to use
+#' @param cluster_column name of column to use for clusters
+#' @param cor correlation score to calculate distance
+#' @return data.table
+#' @details Creates data.table with pairwise correlation scores between each cluster and
+#' the group size (# of cells) for each cluster. This information can be used together
+#' with mergeClusters to combine very similar or small clusters into bigger clusters.
+#' @export
+#' @examples
+#'     getClusterSimilarity(gobject)
+getClusterSimilarity <- function(gobject,
+                                 expression_values = c('normalized', 'scaled', 'custom'),
+                                 cluster_column,
+                                 cor = c('pearson', 'spearman')) {
+
+
+  cor = match.arg(cor, c('pearson', 'spearman'))
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+
+  metadata = pDataDT(gobject)
+
+  # get clustersize
+  clustersize = metadata[, .N, by = cluster_column]
+  colnames(clustersize) = c('clusters', 'size')
+  clustersize[, clusters := as.character(clusters)]
+
+  # scores per cluster
+  metatable = calculateMetaTable(gobject = gobject, expression_values = values, metadata_cols = cluster_column)
+  dcast_metatable = data.table::dcast.data.table(metatable, formula = variable~uniq_ID, value.var = 'value')
+  testmatrix = dt_to_matrix(x = dcast_metatable)
+
+  # correlation matrix
+  cormatrix = stats::cor(x = testmatrix, method = cor)
+  cor_table = as.data.table(melt(cormatrix))
+  setnames(cor_table, old = c('Var1', 'Var2'), c('group1', 'group2'))
+  cor_table[, c('group1', 'group2') := list(as.character(group1), as.character(group2))]
+  cor_table[, unified_group := paste(sort(c(group1, group2)), collapse = '--'), by = 1:nrow(cor_table)]
+  cor_table = cor_table[!duplicated(cor_table[, .(value, unified_group)])]
+
+  cor_table = merge(cor_table, by.x = 'group1', clustersize, by.y = 'clusters')
+  setnames(cor_table, 'size', 'group1_size')
+  cor_table = merge(cor_table, by.x = 'group2', clustersize, by.y = 'clusters')
+  setnames(cor_table, 'size', 'group2_size')
+
+  return(cor_table)
+
+
+}
+
+
+
+
+#' @title mergeClusters
+#' @name mergeClusters
+#' @description Merge selected clusters based on pairwise correlation scores and size of cluster.
+#' @param gobject giotto object
+#' @param expression_values expression values to use
+#' @param cluster_column name of column to use for clusters
+#' @param cor correlation score to calculate distance
+#' @param new_cluster_name new name for merged clusters
+#' @param min_cor_score min correlation score to merge pairwise clusters
+#' @param max_group_size max cluster size that can be merged
+#' @param force_min_group_size size of clusters that will be merged with their most similar neighbor(s)
+#' @param return_gobject return giotto object
+#' @param verbose be verbose
+#' @return Giotto object
+#' @details Merge selected clusters based on pairwise correlation scores and size of cluster.
+#' To avoid large clusters to merge the max_group_size can be lowered. Small clusters can
+#' be forcibly merged with the their most similar pairwise cluster by adjusting the
+#' force_min_group_size parameter. Clusters smaller than this value will be merged
+#' independent on the provided min_cor_score value. \cr
+#' A giotto object is returned by default, if FALSE then the merging vector will be returned.
+#' @export
+#' @examples
+#'     mergeClusters(gobject)
+mergeClusters <- function(gobject,
+                          expression_values = c('normalized', 'scaled', 'custom'),
+                          cluster_column,
+                          cor = c('pearson', 'spearman'),
+                          new_cluster_name = 'merged_cluster',
+                          min_cor_score = 0.8,
+                          max_group_size = 20,
+                          force_min_group_size = 10,
+                          return_gobject = TRUE,
+                          verbose = TRUE) {
+
+  # expression values to be used
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+
+  # correlation score to be used
+  cor = match.arg(cor, c('pearson', 'spearman'))
+
+  # calculate similary data.table
+  similarityDT = getClusterSimilarity(gobject = gobject,
+                                      expression_values = values,
+                                      cluster_column = cluster_column,
+                                      cor = cor)
+
+  ## get clusters that can be merged
+  # 1. clusters with high correlation
+  filter_set_first = similarityDT[group1 != group2][group1_size < max_group_size][value >= min_cor_score]
+
+  # 2. small clusters
+  minimum_set = similarityDT[group1 != group2][group1_size < force_min_group_size][order(-value)][, head(.SD,1), by = group1]
+
+  filter_set = unique(do.call('rbind', list(filter_set_first, minimum_set)))
+
+  ## get list of correlated groups
+  finallist = list()
+  start_i = 1
+  for(row in 1:nrow(filter_set)) {
+
+    first_clus = filter_set[row][['group1']]
+    second_clus = filter_set[row][['group2']]
+
+    res = lapply(finallist, function(x) {any(x %in% c(first_clus, second_clus))})
+
+    if(all(res == F)) {
+      #print('not in list yet')
+      finallist[[start_i]] = c(first_clus, second_clus)
+      start_i = start_i + 1
+
+    } else {
+      #print('already in list')
+
+      who = which(res == TRUE)[[1]]
+      finallist[[who]] = unique(c(finallist[[who]], first_clus, second_clus))
+    }
+
+  }
+
+
+  ## update metadata
+  metadata = copy(pDataDT(gobject))
+
+  finalvec = NULL
+  for(ll in 1:length(finallist)) {
+    tempvec = finallist[[ll]]; names(tempvec) = rep(paste0('m_', ll), length(tempvec))
+    finalvec = c(finalvec, tempvec)
+  }
+
+  metadata[, eval(new_cluster_name) := ifelse(as.character(get(cluster_column)) %in% finalvec,
+                                              names(finalvec[finalvec == as.character(get(cluster_column))]),
+                                              as.character(get(cluster_column))), by = 1:nrow(metadata)]
+
+
+
+
+  if(return_gobject == TRUE) {
+
+    cluster_names = names(gobject@cell_metadata)
+    if(new_cluster_name %in% cluster_names) {
+      cat('\n ', new_cluster_name, ' has already been used, will be overwritten \n')
+      cell_metadata = gobject@cell_metadata
+      cell_metadata[, eval(new_cluster_name) := NULL]
+      gobject@cell_metadata = cell_metadata
+    }
+
+    gobject = addCellMetadata(gobject = gobject, new_metadata = metadata[, c('cell_ID', new_cluster_name), with = F],
+                              by_column = T, column_cell_ID = 'cell_ID')
+
+
+    ## update parameters used ##
+    parameters_list = gobject@parameters
+    number_of_rounds = length(parameters_list)
+    update_name = paste0(number_of_rounds,'_merge_cluster')
+
+    parameters_list[[update_name]] = c('expression values' = values,
+                                       'cluster column to merge' = cluster_column,
+                                       'cor score' = cor,
+                                       'minimum cor score' = min_cor_score,
+                                       'max group size to merge' = max_group_size,
+                                       'group size that will be forcibly merged' = force_min_group_size)
+
+    gobject@parameters = parameters_list
+    return(gobject)
+
+
+
+  } else {
+
+    return(list(mergevector = finalvec, metadata = metadata))
+
+  }
+}
+
+
+
+
+
+#' @title split_dendrogram_in_two
+#' @name split_dendrogram_in_two
+#' @description Merge selected clusters based on pairwise correlation scores and size of cluster.
+#' @param dend dendrogram object
+#' @return list of two dendrograms and height of node
+#' @examples
+#'     split_dendrogram_in_two(dend)
+split_dendrogram_in_two = function(dend) {
+
+  top_height = attributes(dend)$height
+  divided_leaves_labels = dendextend::cut_lower_fun(dend, h = top_height)
+
+  dend_1 = dendextend::find_dendrogram(dend = dend, selected_labels = divided_leaves_labels[[1]])
+  dend_2 = dendextend::find_dendrogram(dend = dend, selected_labels = divided_leaves_labels[[2]])
+
+  return(list(theight = top_height, dend1 =  dend_1, dend2 = dend_2))
+}
+
+#' @title node_clusters
+#' @name node_clusters
+#' @description Merge selected clusters based on pairwise correlation scores and size of cluster.
+#' @param hclus_obj hclus object
+#' @param verbose be verbose
+#' @return list of splitted dendrogram nodes from high to low node height
+#' @examples
+#'     node_clusters(hclus_obj)
+node_clusters = function(hclus_obj, verbose = TRUE) {
+
+  heights = sort(hclus_obj[['height']], decreasing = T)
+  mydend = as.dendrogram(hclus_obj)
+
+
+  result_list = list()
+  j = 1
+
+  dend_list = list()
+  i = 1
+  dend_list[[i]] = mydend
+
+  ## create split at each height ##
+  for(n_height in heights) {
+
+    if(verbose == TRUE) cat('height ', n_height, '\n')
+
+    # only use dendrogram objects
+    ind = lapply(dend_list, FUN = function(x) class(x) == 'dendrogram')
+    dend_list = dend_list[unlist(ind)]
+
+    # check which heights are available
+    available_h = as.numeric(unlist(lapply(dend_list, FUN = function(x) attributes(x)$height)))
+
+    # get dendrogram associated with height and split in two
+    select_dend_ind = which(available_h == n_height)
+    select_dend = dend_list[[select_dend_ind]]
+    tempres = split_dendrogram_in_two(dend = select_dend)
+
+    # find leave labels
+    toph = tempres[[1]]
+    first_group = dendextend::get_leaves_attr(tempres[[2]], attribute = 'label')
+    second_group = dendextend::get_leaves_attr(tempres[[3]], attribute = 'label')
+
+    result_list[[j]] = list('height' = toph, 'first' = first_group, 'sec' = second_group)
+    j = j+1
+
+
+
+    ## add dendrograms to list
+    ind = lapply(tempres, FUN = function(x) class(x) == 'dendrogram')
+    tempres_dend = tempres[unlist(ind)]
+
+    dend_list[[i+1]] = tempres_dend[[1]]
+    dend_list[[i+2]] = tempres_dend[[2]]
+
+    i = i+2
+
+
+  }
+
+  return(list(dend_list, result_list))
+
+}
+
+
+
+
+#' @title getDendrogramSplits
+#' @name getDendrogramSplits
+#' @description Split dendrogram at each node and keep the leave (label) information..
+#' @param gobject giotto object
+#' @param expression_values expression values to use
+#' @param cluster_column name of column to use for clusters
+#' @param cor correlation score to calculate distance
+#' @param distance distance method to use for hierarchical clustering
+#' @param h height of horizontal lines to plot
+#' @param h_color color of horizontal lines
+#' @param show_dend show dendrogram
+#' @param verbose be verbose
+#' @return data.table object
+#' @details Creates a data.table with three columns and each row represents a node in the
+#' dendrogram. For each node the height of the node is given together with the two
+#' subdendrograms. This information can be used to determine in a hierarchical manner
+#' differentially expressed marker genes at each node.
+#' @export
+#' @examples
+#'     getDendrogramSplits(gobject)
+getDendrogramSplits = function(gobject,
+                               expression_values = c('normalized', 'scaled', 'custom'),
+                               cluster_column,
+                               cor = c('pearson', 'spearman'),
+                               distance = 'ward.D',
+                               h = NULL,
+                               h_color = 'red',
+                               show_dend = TRUE,
+                               verbose = TRUE) {
+
+
+
+  cor = match.arg(cor, c('pearson', 'spearman'))
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+
+  # create average expression matrix per cluster
+  metatable = calculateMetaTable(gobject = gobject, expression_values = values, metadata_cols = cluster_column)
+  dcast_metatable = data.table::dcast.data.table(metatable, formula = variable~uniq_ID, value.var = 'value')
+  testmatrix = dt_to_matrix(x = dcast_metatable)
+
+  # correlation
+  cormatrix = stats::cor(x = testmatrix, method = cor)
+  cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
+  corclus = stats::hclust(d = cordist, method = distance)
+
+  cordend = as.dendrogram(object = corclus)
+
+  ## print dendrogram ##
+  if(show_dend == TRUE) {
+    # plot dendrogram
+    graphics::plot(cordend)
+
+    # add horizontal lines
+    if(!is.null(h)) {
+      graphics::abline(h = h, col = h_color)
+    }
+  }
+
+
+  splitList = node_clusters(hclus_obj = corclus, verbose = verbose)
+
+  splitDT = as.data.table(t(as.data.table(splitList[[2]])))
+  colnames(splitDT) = c('node_h', 'tree_1', 'tree_2')
+  splitDT[, nodeID := paste0('node_', 1:.N)]
+
+  return(splitDT)
+
+}
 
 
 

@@ -4,35 +4,97 @@
 #' @param gobject giotto object
 #' @param expression_values expression values to use
 #' @param cluster_column name of column to use for clusters
-#' @param distance correlation score to calculate distance
+#' @param cor correlation score to calculate distance
+#' @param distance distance method to use for hierarchical clustering
 #' @return ggplot
-#' @details Correlation heatmap of clusters.
+#' @details Correlation heatmap of selected clustering.
 #' @export
 #' @examples
 #'     showClusterHeatmap(gobject)
 showClusterHeatmap <- function(gobject,
                                expression_values = c('normalized', 'scaled', 'custom'),
                                cluster_column,
-                               distance = c('pearson', 'spearman')) {
+                               cor = c('pearson', 'spearman'),
+                               distance = 'ward.D') {
 
-  distance = match.arg(distance, c('pearson', 'spearman'))
+  cor = match.arg(cor, c('pearson', 'spearman'))
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
 
 
-  testmatrix = create_cluster_matrix(gobject = gobject,
-                                     cluster_column = cluster_column,
-                                     expression_values = values)
+  metatable = calculateMetaTable(gobject = gobject, expression_values = values, metadata_cols = cluster_column)
+  dcast_metatable = data.table::dcast.data.table(metatable, formula = variable~uniq_ID, value.var = 'value')
+  testmatrix = dt_to_matrix(x = dcast_metatable)
+
+
+  #testmatrix = create_cluster_matrix(gobject = gobject,
+  #                                   cluster_column = cluster_column,
+  #                                   expression_values = values)
 
   # correlation
-  cormatrix = stats::cor(x = testmatrix, method = distance)
+  cormatrix = stats::cor(x = testmatrix, method = cor)
   cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
-  corclus = stats::hclust(d = cordist, method = 'ward.D')
+  corclus = stats::hclust(d = cordist, method = distance)
 
   hmap = ComplexHeatmap::Heatmap(matrix = cormatrix,
                                  cluster_rows = corclus,
                                  cluster_columns = corclus)
 
   return(hmap)
+
+}
+
+
+
+#' @title showClusterDendrogram
+#' @name showClusterDendrogram
+#' @description Creates dendrogram based on identified clusters
+#' @param gobject giotto object
+#' @param expression_values expression values to use
+#' @param cluster_column name of column to use for clusters
+#' @param cor correlation score to calculate distance
+#' @param distance distance method to use for hierarchical clustering
+#' @param h height of horizontal lines to plot
+#' @param h_color color of horizontal lines
+#' @return ggplot
+#' @details Correlation dendrogram of selected clustering.
+#' @export
+#' @examples
+#'     showClusterDendrogram(gobject)
+showClusterDendrogram <- function(gobject,
+                                  expression_values = c('normalized', 'scaled', 'custom'),
+                                  cluster_column,
+                                  cor = c('pearson', 'spearman'),
+                                  distance = 'ward.D',
+                                  h = NULL,
+                                  h_color = 'red') {
+
+  cor = match.arg(cor, c('pearson', 'spearman'))
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+
+
+  metatable = calculateMetaTable(gobject = gobject, expression_values = values, metadata_cols = cluster_column)
+  dcast_metatable = data.table::dcast.data.table(metatable, formula = variable~uniq_ID, value.var = 'value')
+  testmatrix = dt_to_matrix(x = dcast_metatable)
+
+
+  #testmatrix = create_cluster_matrix(gobject = gobject,
+  #                                   cluster_column = cluster_column,
+  #                                   expression_values = values)
+
+  # correlation
+  cormatrix = stats::cor(x = testmatrix, method = cor)
+  cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
+  corclus = stats::hclust(d = cordist, method = distance)
+
+  cordend = as.dendrogram(object = corclus)
+
+  # plot dendrogram
+  graphics::plot(cordend)
+
+  # add horizontal lines
+  if(!is.null(h)) {
+    graphics::abline(h = h, col = h_color)
+  }
 
 }
 
@@ -127,6 +189,7 @@ decide_cluster_order = function(gobject,
 #' @param cluster_cor_method method for cluster correlation
 #' @param cluster_hclust_method method for hierarchical clustering of clusters
 #' @param gene_order method to determine gene order
+#' @param gene_custom_order custom order for genes
 #' @param gene_cor_method method for gene correlation
 #' @param gene_hclust_method method for hierarchical clustering of genes
 #' @return list
@@ -142,6 +205,7 @@ createHeatmap_DT <- function(gobject,
                              cluster_cor_method = 'pearson',
                              cluster_hclust_method = 'ward.D',
                              gene_order = c('custom', 'correlation'),
+                             gene_custom_order = NULL,
                              gene_cor_method = 'pearson',
                              gene_hclust_method = 'complete') {
 
@@ -205,13 +269,20 @@ createHeatmap_DT <- function(gobject,
 
     final_gene_order = names(gene_index[match(gene_clus$order, gene_index)])
     subset_values_DT[, genes := factor(genes, final_gene_order)]
+
+  } else if(gene_order == 'custom') {
+
+    if(is.null(gene_custom_order)) {
+      stop('\n with custom gene order the gene_custom_order parameter needs to be provided \n')
+    }
+    subset_values_DT[, genes := factor(genes, gene_custom_order)]
+
   }
 
   cell_order_DT[['cells']] = factor(cell_order_DT[['cells']], levels = as.character(cell_order_DT[['cells']]))
 
   return(list(DT = subset_values_DT, x_lines = x_lines, cell_DT = cell_order_DT))
 }
-
 
 
 #' @title plotHeatmap
@@ -227,6 +298,7 @@ createHeatmap_DT <- function(gobject,
 #' @param cluster_cor_method method for cluster correlation
 #' @param cluster_hclust_method method for hierarchical clustering of clusters
 #' @param gene_order method to determine gene order
+#' @param gene_custom_order custom order for genes
 #' @param gene_cor_method method for gene correlation
 #' @param gene_hclust_method method for hierarchical clustering of genes
 #' @param show_values which values to show on heatmap
@@ -250,6 +322,7 @@ plotHeatmap <- function(gobject,
                         cluster_cor_method = 'pearson',
                         cluster_hclust_method = 'ward.D',
                         gene_order = c('custom', 'correlation'),
+                        gene_custom_order = NULL,
                         gene_cor_method = 'pearson',
                         gene_hclust_method = 'complete',
                         show_values = c('rescaled', 'z-scaled', 'original'),
@@ -272,6 +345,7 @@ plotHeatmap <- function(gobject,
                                   cluster_cor_method = cluster_cor_method,
                                   cluster_hclust_method = cluster_hclust_method,
                                   gene_order = gene_order,
+                                  gene_custom_order = gene_custom_order,
                                   gene_cor_method = gene_cor_method,
                                   gene_hclust_method = gene_hclust_method)
 

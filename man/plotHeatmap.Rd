@@ -9,11 +9,11 @@ plotHeatmap(gobject, expression_values = c("normalized", "scaled",
   "correlation", "custom"), cluster_custom_order = NULL,
   cluster_color_code = NULL, cluster_cor_method = "pearson",
   cluster_hclust_method = "ward.D", gene_order = c("custom",
-  "correlation"), gene_cor_method = "pearson",
-  gene_hclust_method = "complete", show_values = c("rescaled",
-  "z-scaled", "original"), size_vertical_lines = 1.1,
-  gradient_colors = c("blue", "yellow", "red"),
-  gene_label_selection = NULL, axis_text_y_size = NULL,
+  "correlation"), gene_custom_order = NULL,
+  gene_cor_method = "pearson", gene_hclust_method = "complete",
+  show_values = c("rescaled", "z-scaled", "original"),
+  size_vertical_lines = 1.1, gradient_colors = c("blue", "yellow",
+  "red"), gene_label_selection = NULL, axis_text_y_size = NULL,
   legend_nrows = 1, show_plot = TRUE)
 }
 \arguments{
@@ -36,6 +36,8 @@ plotHeatmap(gobject, expression_values = c("normalized", "scaled",
 \item{cluster_hclust_method}{method for hierarchical clustering of clusters}
 
 \item{gene_order}{method to determine gene order}
+
+\item{gene_custom_order}{custom order for genes}
 
 \item{gene_cor_method}{method for gene correlation}
 

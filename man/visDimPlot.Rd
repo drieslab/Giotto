@@ -8,13 +8,15 @@ visDimPlot(gobject, dim_reduction_to_use = "umap",
   dim_reduction_name = "umap", dim1_to_use = 1, dim2_to_use = 2,
   dim3_to_use = NULL, show_NN_network = F, nn_network_to_use = "sNN",
   network_name = "sNN.pca", cell_color = NULL, color_as_factor = T,
-  cell_color_code = NULL, show_cluster_center = F,
-  show_center_label = T, center_point_size = 4,
-  center_point_border_col = "black", center_point_border_stroke = 0.1,
-  label_size = 4, label_fontface = "bold", edge_alpha = NULL,
-  point_size = 3, point_border_col = "black",
-  point_border_stroke = 0.1, plot_method = c("ggplot", "plotly"),
-  show_legend = T)
+  cell_color_code = NULL, select_cell_groups = NULL,
+  select_cells = NULL, show_other_cells = T,
+  other_cell_color = "lightgrey", other_point_size = 0.5,
+  show_cluster_center = F, show_center_label = T,
+  center_point_size = 4, center_point_border_col = "black",
+  center_point_border_stroke = 0.1, label_size = 4,
+  label_fontface = "bold", edge_alpha = NULL, point_size = 3,
+  point_border_col = "black", point_border_stroke = 0.1,
+  plot_method = c("ggplot", "plotly"), show_legend = T)
 }
 \arguments{
 \item{gobject}{giotto object}

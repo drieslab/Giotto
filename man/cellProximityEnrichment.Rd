@@ -18,10 +18,20 @@ cellProximityEnrichment(gobject,
 \item{number_of_simulations}{number of simulations to create expected observations}
 }
 \value{
-Cell Proximity scores (CPscores) in data.table format
+List of cell Proximity scores (CPscores) in data.table format. The first
+data.table (raw_sim_table) shows the raw observations of both the original and
+simulated networks. The second data.table (enrichm_res) shows the enrichment results.
 }
 \description{
 Compute cell-cell interaction enrichment (observed vs expected)
+}
+\details{
+Spatial proximity enrichment or depletion between pairs of cell types
+is calculated by calculating the observed over the expected frequency
+of cell-cell proximity interactions. The expected frequency is the average frequency
+calculated from a number of spatial network simulations. Each individual simulation is
+obtained by random permutations of the cell type labels of each node (cell)
+in the spatial network.
 }
 \examples{
     cellProximityEnrichment(gobject)
