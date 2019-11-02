@@ -211,7 +211,10 @@ visPlot_3D_plotly = function(gobject,
 #' @param cell_color color for cells (see details)
 #' @param cell_color_code named vector with colors
 #' @param color_as_factor convert color column to factor
-#' @param select_cell_groups select a subset of the groups from cell_color
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param select_cells select subset of cells based on cell IDs
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color of not selected cells
 #' @param show_network show underlying spatial network
 #' @param network_color color of spatial network
 #' @param spatial_network_name name of spatial network to use
@@ -239,6 +242,7 @@ visPlot_2D_ggplot = function(gobject,
                              select_cell_groups = NULL,
                              select_cells = NULL,
                              show_other_cells = T,
+                             other_cell_color = 'lightgrey',
                              show_network = F,
                              network_color = NULL,
                              network_alpha = 1,
@@ -364,7 +368,7 @@ visPlot_2D_ggplot = function(gobject,
                                        stroke = point_border_stroke, color = point_border_col)
       } else {
         if(show_other_cells){
-          cell_color_other = 'grey'
+          cell_color_other = other_cell_color
           pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_other,
                                          aes_string(x = sdimx, y = sdimy), fill = cell_color_other,
                                          show.legend = show_legend, shape = 21, size = point_size/2,
@@ -691,7 +695,10 @@ visPlot_2D_plotly = function(gobject,
 #' @param cell_color color for cells (see details)
 #' @param cell_color_code named vector with colors
 #' @param color_as_factor convert color column to factor
-#' @param select_cell_groups select a subset of the groups from cell_color
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param select_cells select subset of cells based on cell IDs
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color of not selected cells
 #' @param show_network show underlying spatial network
 #' @param network_color color of spatial network
 #' @param spatial_network_name name of spatial network to use
@@ -720,6 +727,7 @@ visPlot <- function(gobject,
                     select_cell_groups = NULL,
                     select_cells = NULL,
                     show_other_cells = T,
+                    other_cell_color = 'lightgrey',
                     show_network = F,
                     network_color = NULL,
                     network_alpha = 1,
@@ -768,6 +776,7 @@ visPlot <- function(gobject,
                                select_cell_groups = select_cell_groups,
                                select_cells = select_cells,
                                show_network = show_network,
+                               other_cell_color = other_cell_color,
                                network_color = network_color,
                                network_alpha = network_alpha,
                                other_cells_alpha = other_cells_alpha,
@@ -2309,7 +2318,7 @@ visDimPlot <- function(gobject,
                                   dim1_to_use = dim1_to_use,
                                   dim2_to_use = dim2_to_use,
                                   show_NN_network = show_NN_network,
-                                  nn_network_to_use =nn_network_to_use,
+                                  nn_network_to_use = nn_network_to_use,
                                   network_name = network_name,
                                   cell_color = cell_color,
                                   color_as_factor = color_as_factor,
@@ -2598,6 +2607,10 @@ visForceLayoutPlot <- function(gobject,
 #' @param cell_color color for cells (see details)
 #' @param color_as_factor convert color column to factor
 #' @param cell_color_code named vector with colors
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param select_cells select subset of cells based on cell IDs
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color of not selected cells
 #' @param nn_network_alpha column to use for alpha of the edges
 #' @param show_spatial_network show spatial network
 #' @param spatial_network_name name of spatial network to use
@@ -2631,6 +2644,10 @@ visSpatDimPlot_2D <- function(gobject,
                               cell_color = NULL,
                               color_as_factor = T,
                               cell_color_code = NULL,
+                              select_cell_groups = NULL,
+                              select_cells = NULL,
+                              show_other_cells = T,
+                              other_cell_color = 'lightgrey',
                               dim_plot_mode = NULL,
                               dim_point_size = 1,
                               dim_point_border_col = 'black',
@@ -2680,6 +2697,10 @@ visSpatDimPlot_2D <- function(gobject,
                     cell_color = cell_color,
                     color_as_factor = color_as_factor,
                     cell_color_code = cell_color_code,
+                    select_cell_groups = select_cell_groups,
+                    select_cells = select_cells,
+                    show_other_cells = show_other_cells,
+                    other_cell_color = other_cell_color,
                     edge_alpha = nn_network_alpha, show_legend = show_legend,
                     point_size = dim_point_size,
                     point_border_col = dim_point_border_col,
@@ -2702,6 +2723,10 @@ visSpatDimPlot_2D <- function(gobject,
                 cell_color = cell_color,
                 cell_color_code = cell_color_code,
                 color_as_factor = color_as_factor,
+                select_cell_groups = select_cell_groups,
+                select_cells = select_cells,
+                show_other_cells = show_other_cells,
+                other_cell_color = other_cell_color,
                 coord_fix_ratio = NULL,
                 network_color = spatial_network_color,
                 grid_color = spatial_grid_color,
@@ -3340,6 +3365,10 @@ visSpatDimPlot_3D <- function(gobject,
 #' @param cell_color color for cells (see details)
 #' @param color_as_factor convert color column to factor
 #' @param cell_color_code named vector with colors
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param select_cells select subset of cells based on cell IDs
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color of not selected cells
 #' @param nn_network_alpha column to use for alpha of the edges
 #' @param show_spatial_network show spatial network
 #' @param spatial_network_name name of spatial network to use
@@ -3379,6 +3408,10 @@ visSpatDimPlot <- function(gobject,
                            cell_color = NULL,
                            color_as_factor = T,
                            cell_color_code = NULL,
+                           select_cell_groups = NULL,
+                           select_cells = NULL,
+                           show_other_cells = T,
+                           other_cell_color = 'lightgrey',
                            dim_point_size = 3,
                            dim_point_border_col = 'black',
                            dim_point_border_stroke = 0.1,
@@ -3438,6 +3471,10 @@ visSpatDimPlot <- function(gobject,
                             cell_color = cell_color,
                             color_as_factor = color_as_factor,
                             cell_color_code = cell_color_code,
+                            select_cell_groups = select_cell_groups,
+                            select_cells = select_cells,
+                            show_other_cells = show_other_cells,
+                            other_cell_color = other_cell_color,
                             dim_plot_mode = dim_plot_mode,
                             dim_point_size = dim_point_size,
                             dim_point_border_col =dim_point_border_col,

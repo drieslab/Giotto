@@ -12,7 +12,9 @@ visSpatDimPlot(gobject, plot_method = c("ggplot", "plotly"),
   network_name = "sNN.pca", show_cluster_center = F,
   show_center_label = T, center_point_size = 4, label_size = NULL,
   label_fontface = "bold", cell_color = NULL, color_as_factor = T,
-  cell_color_code = NULL, dim_point_size = 3,
+  cell_color_code = NULL, select_cell_groups = NULL,
+  select_cells = NULL, show_other_cells = T,
+  other_cell_color = "lightgrey", dim_point_size = 3,
   dim_point_border_col = "black", dim_point_border_stroke = 0.1,
   nn_network_alpha = NULL, show_spatial_network = F,
   spatial_network_name = "spatial_network",
@@ -51,6 +53,14 @@ visSpatDimPlot(gobject, plot_method = c("ggplot", "plotly"),
 \item{color_as_factor}{convert color column to factor}
 
 \item{cell_color_code}{named vector with colors}
+
+\item{select_cell_groups}{select subset of cells/clusters based on cell_color parameter}
+
+\item{select_cells}{select subset of cells based on cell IDs}
+
+\item{show_other_cells}{display not selected cells}
+
+\item{other_cell_color}{color of not selected cells}
 
 \item{nn_network_alpha}{column to use for alpha of the edges}
 
