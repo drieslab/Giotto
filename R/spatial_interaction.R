@@ -41,11 +41,12 @@ annotateSpatialNetwork = function(gobject,
   spatial_network_annot[, from_to := paste0(from_cell_type,'-',to_cell_type)]
 
   # unified direction, due to 'sort'
-  spatial_network_annot[, unified_int := paste(sort(c(from_cell_type, to_cell_type)), collapse = '-'), by = 1:nrow(spatial_network_annot)]
+  spatial_network_annot[, unified_int := paste(sort(c(from_cell_type, to_cell_type)), collapse = '--'), by = 1:nrow(spatial_network_annot)]
 
   return(spatial_network_annot)
 
 }
+
 
 
 #' @title make_simulated_network
@@ -53,6 +54,7 @@ annotateSpatialNetwork = function(gobject,
 #' @description Simulate random network.
 #' @examples
 #'     make_simulated_network(gobject)
+
 make_simulated_network = function(gobject,
                                   spatial_network_name = 'spatial_network',
                                   cluster_column,
@@ -64,7 +66,7 @@ make_simulated_network = function(gobject,
                                                  cluster_column = cluster_column)
 
   # remove double edges between same cells #
-  spatial_network_annot[, unified_cells := paste(sort(c(to,from)), collapse = '-'), by = 1:nrow(spatial_network_annot)]
+  spatial_network_annot[, unified_cells := paste(sort(c(to,from)), collapse = '--'), by = 1:nrow(spatial_network_annot)]
   spatial_network_annot = spatial_network_annot[!duplicated(unified_cells)]
 
   # create a simulated network
@@ -94,13 +96,14 @@ make_simulated_network = function(gobject,
   sample_dt = data.table::data.table(s1 = s1_vector, s2 = s2_vector, round = round_vector)
 
   uniq_sim_comb = unique(sample_dt[,.(s1,s2)])
-  uniq_sim_comb[, unified_int := paste(sort(c(s1,s2)), collapse = '-'), by  = 1:nrow(uniq_sim_comb)]
+  uniq_sim_comb[, unified_int := paste(sort(c(s1,s2)), collapse = '--'), by  = 1:nrow(uniq_sim_comb)]
   sample_dt[uniq_sim_comb, unified_int := unified_int, on = c(s1 = 's1', s2 = 's2')]
   sample_dt[, type_int := ifelse(s1 == s2, 'homo', 'hetero')]
 
   return(sample_dt)
 
 }
+
 
 
 #' @title cellProximityEnrichment
@@ -133,7 +136,7 @@ cellProximityEnrichment <- function(gobject,
                                                  cluster_column = cluster_column)
 
   # remove double edges between same cells #
-  spatial_network_annot[, unified_cells := paste(sort(c(to,from)), collapse = '-'), by = 1:nrow(spatial_network_annot)]
+  spatial_network_annot[, unified_cells := paste(sort(c(to,from)), collapse = '--'), by = 1:nrow(spatial_network_annot)]
   spatial_network_annot = spatial_network_annot[!duplicated(unified_cells)]
 
   sample_dt = make_simulated_network(gobject = gobject,
@@ -203,7 +206,9 @@ cellProximityEnrichment <- function(gobject,
   table_mean_results_dc <- merge(table_mean_results_dc, res_pvalue_DT, by = 'unified_int')
   data.table::setorder(table_mean_results_dc, enrichm)
   table_mean_results_dc[, unified_int := factor(unified_int, unified_int)]
-  table_mean_results_dc[, PI_value := ifelse(p_higher_orig <= p_lower_orig, -log10(p_higher_orig+(1/number_of_simulations))*enrichm, -log10(p_lower_orig+(1/number_of_simulations))*enrichm)]
+  table_mean_results_dc[, PI_value := ifelse(p_higher_orig <= p_lower_orig,
+                                             -log10(p_higher_orig+(1/number_of_simulations))*enrichm,
+                                             -log10(p_lower_orig+(1/number_of_simulations))*enrichm)]
   data.table::setorder(table_mean_results_dc, PI_value)
 
   # order

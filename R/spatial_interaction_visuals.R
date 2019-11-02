@@ -68,8 +68,8 @@ cellProximityHeatmap = function(CPscore,
 
 
   enrich_res = CPscore$enrichm_res
-  enrich_res[, first_type := strsplit(x = as.character(unified_int), split = '-')[[1]][1], by = 1:nrow(enrich_res)]
-  enrich_res[, second_type := strsplit(x = as.character(unified_int), split = '-')[[1]][2], by = 1:nrow(enrich_res)]
+  enrich_res[, first_type := strsplit(x = as.character(unified_int), split = '--')[[1]][1], by = 1:nrow(enrich_res)]
+  enrich_res[, second_type := strsplit(x = as.character(unified_int), split = '--')[[1]][2], by = 1:nrow(enrich_res)]
 
   # create matrix
   enrich_mat = data.table::dcast.data.table(data = enrich_res,formula = first_type~second_type, value.var = 'enrichm')
@@ -162,8 +162,8 @@ cellProximityNetwork = function(CPscore,
 
   # extract scores
   CPscores = CPscore[['enrichm_res']]
-  CPscores[, cell_1 := strsplit(as.character(unified_int), split = '-')[[1]][1], by = 1:nrow(CPscores)]
-  CPscores[, cell_2 := strsplit(as.character(unified_int), split = '-')[[1]][2], by = 1:nrow(CPscores)]
+  CPscores[, cell_1 := strsplit(as.character(unified_int), split = '--')[[1]][1], by = 1:nrow(CPscores)]
+  CPscores[, cell_2 := strsplit(as.character(unified_int), split = '--')[[1]][2], by = 1:nrow(CPscores)]
 
   # create igraph with enrichm as weight edges
   igd = igraph::graph_from_data_frame(d = CPscores[,.(cell_1, cell_2, enrichm)], directed = F)
@@ -198,7 +198,6 @@ cellProximityNetwork = function(CPscore,
   igraph::plot.igraph(igd, edge.color = edges_colors, edge.width = edges_sizes_resc, layout = coords)
 
 }
-
 
 
 
@@ -282,8 +281,11 @@ cellProximityVisPlot_2D_ggplot <- function(gobject,
 
   cell_IDs_to_keep = unique(c(spatial_network[unified_int %in% interaction_name]$to,
                               spatial_network[unified_int %in% interaction_name]$from))
+
+  print(cell_IDs_to_keep)
+
   if(show_other_cells){
-    CellType <- strsplit(interaction_name,"-")
+    CellType <- strsplit(interaction_name,"--")
     all_cell_IDs = cell_metadata[cell_metadata[[cluster_column]] == CellType[[1]][1] |
                                    cell_metadata[[cluster_column]] == CellType[[1]][2],]$cell_ID
     other_cell_IDs <- setdiff(all_cell_IDs, cell_IDs_to_keep)
@@ -396,7 +398,6 @@ cellProximityVisPlot_2D_ggplot <- function(gobject,
 
   return(pl)
 }
-
 
 
 #' @title cellProximityVisPlot_2D_plotly
@@ -874,19 +875,24 @@ cellProximityVisPlot <- function(gobject,
                                  x_ticks = NULL,
                                  y_ticks = NULL,
                                  z_ticks = NULL,
-                                 plot_method = c('plotly', 'ggplot'),
+                                 plot_method = c('ggplot', 'plotly'),
                                  ...) {
 
 
   ## decide plot method
-  plot_method = match.arg(plot_method, choices = c('plotly', 'ggplot'))
+  plot_method = match.arg(plot_method, choices = c('ggplot', 'plotly'))
   axis_scale = match.arg(axis_scale, c("cube","real","custom"))
 
 
   if(plot_method == 'ggplot') {
 
     if(is.null(sdimx) | is.null(sdimy)) {
-      stop('\n ggplot is in 2D and you need to define sdimx and sdimy \n')
+
+      warning("plot_method = ggplot, but spatial dimensions for sdimx and sdimy for 2D plotting are not given. \n
+              It will default to the 'sdimx' and 'sdimy' ")
+      sdimx = 'sdimx'
+      sdimy = 'sdimy'
+      #stop('\n ggplot is in 2D and you need to define sdimx and sdimy \n')
     }
 
     if(length(c(sdimx, sdimy, sdimz)) == 3){
