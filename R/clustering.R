@@ -3076,8 +3076,18 @@ split_dendrogram_in_two = function(dend) {
   top_height = attributes(dend)$height
   divided_leaves_labels = dendextend::cut_lower_fun(dend, h = top_height)
 
-  dend_1 = dendextend::find_dendrogram(dend = dend, selected_labels = divided_leaves_labels[[1]])
-  dend_2 = dendextend::find_dendrogram(dend = dend, selected_labels = divided_leaves_labels[[2]])
+  # this works for both numericala nd character leave names
+  all_leaves = dendextend::get_leaves_attr(dend = dend, attribute = 'label')
+  selected_labels_ind_1 = all_leaves %in% divided_leaves_labels[[1]]
+  selected_labels_ind_2 = all_leaves %in% divided_leaves_labels[[2]]
+  numerical_leaves = unlist(dend)
+  names(numerical_leaves) = all_leaves
+
+  dend_1 = dendextend::find_dendrogram(dend = dend, selected_labels = numerical_leaves[selected_labels_ind_1])
+  dend_2 = dendextend::find_dendrogram(dend = dend, selected_labels = numerical_leaves[selected_labels_ind_2])
+
+  #dend_1 = dendextend::find_dendrogram(dend = dend, selected_labels = divided_leaves_labels[[1]])
+  #dend_2 = dendextend::find_dendrogram(dend = dend, selected_labels = divided_leaves_labels[[2]])
 
   return(list(theight = top_height, dend1 =  dend_1, dend2 = dend_2))
 }
@@ -3145,7 +3155,6 @@ node_clusters = function(hclus_obj, verbose = TRUE) {
   return(list(dend_list, result_list))
 
 }
-
 
 
 
