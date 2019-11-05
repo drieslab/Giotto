@@ -9,13 +9,14 @@ visPlot_2D_ggplot(gobject, sdimx = NULL, sdimy = NULL,
   point_border_stroke = 0.1, cell_color = NULL,
   cell_color_code = NULL, color_as_factor = T,
   select_cell_groups = NULL, select_cells = NULL,
-  show_other_cells = T, show_network = F, network_color = NULL,
-  network_alpha = 1, other_cells_alpha = 0.1,
-  spatial_network_name = "spatial_network", show_grid = F,
-  grid_color = NULL, spatial_grid_name = "spatial_grid",
-  coord_fix_ratio = 0.6, title = "", show_legend = T,
-  axis_scale = c("cube", "real", "custom"), custom_ratio = NULL,
-  x_ticks = NULL, y_ticks = NULL, z_ticks = NULL, show_plot = F)
+  show_other_cells = T, other_cell_color = "lightgrey",
+  show_network = F, network_color = NULL, network_alpha = 1,
+  other_cells_alpha = 0.1, spatial_network_name = "spatial_network",
+  show_grid = F, grid_color = NULL,
+  spatial_grid_name = "spatial_grid", coord_fix_ratio = 0.6,
+  title = "", show_legend = T, axis_scale = c("cube", "real",
+  "custom"), custom_ratio = NULL, x_ticks = NULL, y_ticks = NULL,
+  z_ticks = NULL, show_plot = F)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -36,7 +37,13 @@ visPlot_2D_ggplot(gobject, sdimx = NULL, sdimy = NULL,
 
 \item{color_as_factor}{convert color column to factor}
 
-\item{select_cell_groups}{select a subset of the groups from cell_color}
+\item{select_cell_groups}{select subset of cells/clusters based on cell_color parameter}
+
+\item{select_cells}{select subset of cells based on cell IDs}
+
+\item{show_other_cells}{display not selected cells}
+
+\item{other_cell_color}{color of not selected cells}
 
 \item{show_network}{show underlying spatial network}
 

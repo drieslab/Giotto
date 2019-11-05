@@ -17,7 +17,7 @@ cellProximityVisPlot(gobject, interaction_name = NULL,
   point_other_border_col = "lightgrey",
   point_other_border_stroke = 0.01, axis_scale = c("cube", "real",
   "custom"), custom_ratio = NULL, x_ticks = NULL, y_ticks = NULL,
-  z_ticks = NULL, plot_method = c("plotly", "ggplot"), ...)
+  z_ticks = NULL, plot_method = c("ggplot", "plotly"), ...)
 }
 \arguments{
 \item{gobject}{giotto object}

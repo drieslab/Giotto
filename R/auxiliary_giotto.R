@@ -1197,7 +1197,7 @@ create_cluster_matrix <- function(gobject,
 #' @examples
 #'     dt_to_matrix(x)
 dt_to_matrix <- function(x) {
-  rownames = as.character(x[['variable']])
+  rownames = as.character(x[[1]])
   mat = as.matrix(x[,-1])
   rownames(mat) = rownames
   return(mat)

@@ -11,10 +11,12 @@ visSpatDimPlot_2D(gobject, plot_alignment = c("vertical", "horizontal"),
   network_name = "sNN.pca", show_cluster_center = F,
   show_center_label = T, center_point_size = 4, label_size = 4,
   label_fontface = "bold", cell_color = NULL, color_as_factor = T,
-  cell_color_code = NULL, dim_plot_mode = NULL, dim_point_size = 1,
-  dim_point_border_col = "black", dim_point_border_stroke = 0.1,
-  nn_network_alpha = 0.05, show_spatial_network = F,
-  spatial_network_name = "spatial_network",
+  cell_color_code = NULL, select_cell_groups = NULL,
+  select_cells = NULL, show_other_cells = T,
+  other_cell_color = "lightgrey", dim_plot_mode = NULL,
+  dim_point_size = 1, dim_point_border_col = "black",
+  dim_point_border_stroke = 0.1, nn_network_alpha = 0.05,
+  show_spatial_network = F, spatial_network_name = "spatial_network",
   spatial_network_color = NULL, show_spatial_grid = F,
   spatial_grid_name = "spatial_grid", spatial_grid_color = NULL,
   spatial_point_size = 1, spatial_point_border_col = "black",
@@ -45,6 +47,14 @@ visSpatDimPlot_2D(gobject, plot_alignment = c("vertical", "horizontal"),
 \item{color_as_factor}{convert color column to factor}
 
 \item{cell_color_code}{named vector with colors}
+
+\item{select_cell_groups}{select subset of cells/clusters based on cell_color parameter}
+
+\item{select_cells}{select subset of cells based on cell IDs}
+
+\item{show_other_cells}{display not selected cells}
+
+\item{other_cell_color}{color of not selected cells}
 
 \item{nn_network_alpha}{column to use for alpha of the edges}
 
