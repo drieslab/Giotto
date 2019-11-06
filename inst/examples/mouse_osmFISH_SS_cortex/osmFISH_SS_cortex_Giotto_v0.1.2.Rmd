@@ -131,8 +131,6 @@ plotTSNE(gobject = osm_test)
 
 </details>
 
-\ 
-
 ### 3. cluster
 
 <details>
@@ -190,7 +188,6 @@ showClusterDendrogram(gobject = osm_test, expression_values = 'custom', cluster_
 
 </details>
 
-\ 
 
 ### 4. co-visualize ####
 <details>
@@ -215,7 +212,6 @@ Selection:
 
 </details>
 
-\ 
 
 ### 5. differential expression ####
 
@@ -265,7 +261,6 @@ Heatmap clusters:
 
 </details>
 
-\  
 
 ### 6. cell-type annotation
 
@@ -353,7 +348,6 @@ visSpatDimPlot(gobject = osm_test, cell_color = 'coarse_cell_types', sdimx = 'sd
 
 </details>
 
-\ 
 
 ### 7. spatial grid ####
 
@@ -406,7 +400,6 @@ pattern 3:
 
 </details>
 
-\  
 
 
 ### 8. spatial network ####
@@ -429,7 +422,6 @@ visPlot(gobject = osm_test, show_network = T,
 
 </details>
 
-\  
 
 
 ### 9. spatial genes ####
@@ -466,7 +458,6 @@ Spatial genes:
 
 </details>
 
-\ 
 
 ### 10. HMRF domains ####
 <details>
@@ -480,7 +471,6 @@ Not available at this time.
 </details>
 
 
-\ 
 
 ### 11. Cell-cell preferential proximity 
 
@@ -540,6 +530,5 @@ cellProximityVisPlot(gobject = osm_test,
 
 </details>
 
-\  
 
 

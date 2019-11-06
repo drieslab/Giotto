@@ -116,8 +116,6 @@ plotTSNE(gobject = osm_test)
 
 </details>
 
- 
-
 ### 3\. cluster
 
 <details>
@@ -172,8 +170,6 @@ showClusterDendrogram(gobject = osm_test, expression_values = 'custom', cluster_
 
 </details>
 
- 
-
 ### 4\. co-visualize
 
 <details>
@@ -194,8 +190,6 @@ Co-visualzation: ![](./figures/4_covis_leiden_merged.png) Selection:
 ![](./figures/4_covis_leiden_merged_selected.png) \*\*\*
 
 </details>
-
- 
 
 ### 5\. differential expression
 
@@ -242,8 +236,6 @@ Heatmap clusters: ![](./figures/5_cluster_heatmap_leiden_merged.png)
 -----
 
 </details>
-
- 
 
 ### 6\. cell-type annotation
 
@@ -328,8 +320,6 @@ visSpatDimPlot(gobject = osm_test, cell_color = 'coarse_cell_types', sdimx = 'sd
 
 </details>
 
- 
-
 ### 7\. spatial grid
 
 <details>
@@ -376,8 +366,6 @@ pattern 3: ![](./figures/7_pattern3_pca.png)
 
 </details>
 
- 
-
 ### 8\. spatial network
 
 <details>
@@ -397,8 +385,6 @@ visPlot(gobject = osm_test, show_network = T,
 -----
 
 </details>
-
- 
 
 ### 9\. spatial genes
 
@@ -433,8 +419,6 @@ Spatial genes:
 
 </details>
 
- 
-
 ### 10\. HMRF domains
 
 <details>
@@ -446,8 +430,6 @@ Not available at this time.
 -----
 
 </details>
-
- 
 
 ### 11\. Cell-cell preferential proximity
 
