@@ -81,6 +81,8 @@ osmFISH cell types from paper: ![](./figures/1_original_clusters.png)
 
 osmFISH regions from paper: ![](./figures/1_original_regions.png)
 
+</details>
+
 ### 2\. dimension reduction
 
 <details>

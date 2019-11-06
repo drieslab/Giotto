@@ -94,6 +94,7 @@ osmFISH cell types from paper:
 osmFISH regions from paper:
 ![](./figures/1_original_regions.png){width=16cm} 
 
+</details>
 
 ### 2. dimension reduction
 
