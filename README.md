@@ -93,6 +93,8 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation
 
 ## Examples
 
+  - see <https://github.com/RubD/spatial-datasets> to find raw and
+    pre-processed input data and Giotto scripts (in progress).
   - typical run time for the cortex dataset on a personal computer is
     around 20\~30 mins.
 
@@ -117,8 +119,8 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation
     [osmFISH](https://www.nature.com/articles/s41592-018-0175-z)
   - New example on the Cerebellum with the scalable data from
     [Slideseq](https://science.sciencemag.org/content/363/6434/1463)
-
- 
+  - New examples for merFISH, Spatial Transcriptomics, MIBI and others
+    will follow soon.  
 
 ## FAQ
 
