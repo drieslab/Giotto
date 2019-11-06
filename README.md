@@ -100,6 +100,7 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation
 [![STARmap](./inst/images/starmap_cortex_image_summary.png)](./inst/examples/mouse_starmap_cortex/starmap_cortex_Giotto_v0.1.2.md)
 
 [![osmFISH](./inst/images/osmFISH_SS_cortex_image_summary.png)](./inst/examples/mouse_osmFISH_SS_cortex/osmFISH_SS_cortex_Giotto_v0.1.2.md)
+[![slideseq](./inst/images/slideseq_cerebellum_image_summary.png)](./inst/examples/mouse_osmFISH_SS_cortex/slideseq_cerebellum_Giotto_v0.1.2.md)
 
  
 
@@ -114,6 +115,8 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation
     [STARmap](https://science.sciencemag.org/content/361/6400/eaat5691)
   - New example with the highly sensitive data from
     [osmFISH](https://www.nature.com/articles/s41592-018-0175-z)
+  - New example on the Cerebellum with the scalable data from
+    [Slideseq](https://science.sciencemag.org/content/363/6434/1463)
 
  
 
