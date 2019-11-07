@@ -102,7 +102,7 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation
 [![STARmap](./inst/images/starmap_cortex_image_summary.png)](./inst/examples/mouse_starmap_cortex/starmap_cortex_Giotto_v0.1.2.md)
 
 [![osmFISH](./inst/images/osmFISH_SS_cortex_image_summary.png)](./inst/examples/mouse_osmFISH_SS_cortex/osmFISH_SS_cortex_Giotto_v0.1.2.md)
-[![slideseq](./inst/images/slideseq_cerebellum_image_summary.png)](./inst/examples/mouse_osmFISH_SS_cortex/slideseq_cerebellum_Giotto_v0.1.2.md)
+[![slideseq](./inst/images/slideseq_cerebellum_image_summary.png)](./inst/examples/mouse_slideseq_cerebellum/slideseq_cerebellum_Giotto_v0.1.2.md)
 
  
 
