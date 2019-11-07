@@ -19,36 +19,15 @@ STARmap volumes.
 
 ![](./starmap_3D_data.png) .
 
-    #> R.matlab v3.6.2 (2018-09-26) successfully loaded. See ?R.matlab for help.
-    #> 
-    #> Attaching package: 'R.matlab'
-    #> The following objects are masked from 'package:base':
-    #> 
-    #>     getOption, isOpen
-
 ``` r
-# get STARMAP data and extract expression matrix and cell locations
-# expression:
-expr[1:4, 1:4]
-#>         cell_1 cell_2 cell_3 cell_4
-#> Slc17a7      0      0      0      0
-#> Mgp          0      0      0      0
-#> Gad1         0      0      0      0
-#> Nov          0      0      0      0
-# location:
-cell_loc[1:4,]
-#>      x    y z
-#> [1,] 4  575 7
-#> [2,] 4 1074 8
-#> [3,] 3 1164 6
-#> [4,] 4 1331 6
+STARMAP_data_folder = '/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Data/Starmap_data/'
+expr = read.table(paste0(STARMAP_data_folder, '/', 'STARmap_3D_data_expression.txt'))
+cell_loc = read.table(paste0(STARMAP_data_folder, '/', 'STARmap_3D_data_cell_locations.txt'))
 ```
 
 -----
 
 </details>
-
- 
 
 ### 1\. Create Giotto object & process data
 
@@ -107,8 +86,6 @@ Cube scale 3D image: ![](./figures/3D_cube_presentation.png)
 
 </details>
 
- 
-
 ### 2\. dimension reduction
 
 <details>
@@ -126,8 +103,6 @@ STAR_test <- runUMAP(STAR_test, dimensions_to_use = 1:8, n_components = 3, n_thr
 -----
 
 </details>
-
- 
 
 ### 3\. cluster
 
@@ -163,8 +138,6 @@ htmlwidgets::saveWidget(plotly::as_widget(STAR_UMAP), file = paste0(cluster_fold
 
 </details>
 
- 
-
 ### 4\. co-visualize
 
 <details>
@@ -189,8 +162,6 @@ Co-visualzation: ![](./figures/covisual_plot.png)
 -----
 
 </details>
-
- 
 
 ### 5\. differential expression
 
@@ -229,8 +200,6 @@ Heatmap clusters: ![](./figures/DEG_heatmap_clusters.png)
 -----
 
 </details>
-
- 
 
 ### 6\. cell-type annotation
 
@@ -321,8 +290,6 @@ Other cell types: ![](./figures/other_cell_types.png)
 
 </details>
 
- 
-
 ### 7\. spatial grid
 
 <details>
@@ -383,8 +350,6 @@ showPatternGenes(pattern_VC, dimension = 1)
 
 </details>
 
- 
-
 ### 8\. spatial network
 
 <details>
@@ -412,8 +377,6 @@ Zoom in 3D network:
 ![](./figures/network_zoomIN.png) \*\*\*
 
 </details>
-
- 
 
 ### 9\. spatial genes
 
@@ -444,8 +407,6 @@ Spatial genes:
 
 </details>
 
- 
-
 ### 10\. HMRF domains
 
 <details>
@@ -457,8 +418,6 @@ Not available at this time.
 -----
 
 </details>
-
- 
 
 ### 11\. Cell-cell preferential proximity
 
