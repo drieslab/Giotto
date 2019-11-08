@@ -3,7 +3,7 @@
 """
 Created on Tue Jun 25 12:13:31 2019
 
-@author: Qian Zhu
+@author: rubendries
 """
 
 import scipy
@@ -64,31 +64,13 @@ def calc_silhouette_per_gene(genes=None, expr=None, dissim=None, examine_top=0.1
 		return ;
 	if seed!=-1 and seed>=0:
 		np.random.seed(seed)
-	sys.stdout.write("Started 2 " + "\n")
+	sys.stdout.write("Started" + "\n")
 	sil = []
 	ncell = expr.shape[1]
 	ex = int((1.0-examine_top)*100.0)
 	for ig,g in enumerate(genes):
 		cutoff = np.percentile(expr[ig,:], ex)
 		clust = np.zeros((ncell), dtype="int32")
-		gt_eq = np.where(expr[ig,:]>=cutoff)[0]
-		lt = np.where(expr[ig,:]<cutoff)[0]
-		if gt_eq.shape[0]>int(ncell*examine_top):
-			num_filter = gt_eq.shape[0] - int(ncell*examine_top)
-			ss = np.random.choice(gt_eq, size=num_filter, replace=False)
-			clust[gt_eq] = 1
-			clust[lt] = 2
-			clust[ss] = 2
-		elif gt_eq.shape[0]<int(ncell*examine_top):
-			num_filter = int(ncell*examine_top) - gt_eq.shape[0]
-			ss = np.random.choice(lt, size=num_filter, replace=False)
-			clust[gt_eq] = 1
-			clust[lt] = 2
-			clust[ss] = 1
-		else:
-			clust[gt_eq] = 1
-			clust[lt] = 2
-		'''
 		if cutoff==0:
 			val_gt = np.where(expr[ig,:]>0)[0]
 			val_iszero = np.where(expr[ig,:]==0)[0]
@@ -97,9 +79,10 @@ def calc_silhouette_per_gene(genes=None, expr=None, dissim=None, examine_top=0.1
 			clust[val_iszero] = 2
 			clust[val_gt] = 1
 			clust[ss] = 1
-		'''
-		'''
-		'''	
+		else:
+			clust[np.where(expr[ig,:]>=cutoff)[0]] = 1
+			clust[np.where(expr[ig,:]<cutoff)[0]] = 2
+			
 		sys.stdout.write("%s %d / %d\n" % (g, ig, len(genes)))
 		#avg_sil_rank, all_silhouette = get_distance_per_FD(dissim, ncell, clust)
 		#avg_sil_rank, all_silhouette = get_distance_per_FD_2(dissim, ncell, clust, outcome=[1,2])
@@ -135,7 +118,7 @@ def python_spatial_genes(spatial_locations, expression_matrix,
     sys.stdout.write("Rank transform euclidean distance, and then apply exponential transform\n")
     dissim = rank_transform_matrix(euc, reverse=False, rbp_p=rbp_p)
     sys.stdout.write("Compute silhouette metric per gene\n")
-    res = calc_silhouette_per_gene(genes=genes, expr=expr, dissim=dissim, examine_top=examine_top)
+    res = calc_silhouette_per_gene(genes=genes, expr=expr, dissim=dissim, examine_top=0.3)
     
     return res
     

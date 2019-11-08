@@ -5,7 +5,6 @@ from smfishHmrf.spatial import rank_transform_matrix, calc_silhouette_per_gene
 import sys
 import os
 import math
-import subprocess
 import numpy as np
 import scipy
 import scipy.stats
@@ -20,11 +19,7 @@ from smfishHmrf.bias_correction import calc_bias_moving, do_pca, plot_pca
 from scipy.cluster.vq import kmeans2
 import argparse
 
-def read_centroid(n, cells):
-	map_cell = {}
-	for ind,val in enumerate(cells):
-		map_cell[val] = ind
-
+def read_centroid(n):
 	f = open(n)
 	num_cell = 0
 	for l in f:
@@ -38,77 +33,24 @@ def read_centroid(n, cells):
 		l = l.rstrip("\n")
 		ll = l.split()
 		x1, x2 = float(ll[0]), float(ll[1])
-		t_id = map_cell[ll[2]]
-		#t_id = int(ll[-1].split("_")[1]) - 1
+		t_id = int(ll[-1].split("_")[1]) - 1
 		Xcen[t_id, :] = [x1, x2]
 		field[t_id] = 100
 	f.close()
 	return Xcen, field
 
-def read_graph(n, cells):
-	map_cell = {}
-	for ind,val in enumerate(cells):
-		map_cell[val] = ind
-
+def read_graph(n):
 	f = open(n)
 	edges = set([])
 	for l in f:
 		l = l.rstrip("\n")
 		ll = l.split("\t")
 		e1, e2 = ll
-		e1_id = map_cell[e1]
-		e2_id = map_cell[e2]
-		#e1_id = int(e1.split("_")[1])-1
-		#e2_id = int(e2.split("_")[1])-1
+		e1_id = int(e1.split("_")[1])-1
+		e2_id = int(e2.split("_")[1])-1
 		edges.add(tuple(sorted([e1_id, e2_id])))
 	f.close()
 	return edges
-
-def read_expression_classic(n):
-	f = open(n)
-	h = f.readline().rstrip("\n").split()
-	num_cell = len(h)
-	num_gene = 0
-	for l in f:
-		l = l.rstrip("\n")
-		ll = l.split()
-		#gene = ll[0]
-		num_gene+=1
-	f.close()
-	mat = np.empty((num_gene, num_cell), dtype="float32")
-	genes = []
-	cells = h
-	f = open(n)
-	f.readline()
-	gid = 0
-	for l in f:
-		l = l.rstrip("\n")
-		ll = l.split()
-		genes.append(ll[0])
-		mat[gid, :] = [float(v) for v in ll[1:]]
-		gid+=1
-	f.close()
-	return mat, genes, cells
-
-def connected_components(edges, adjacent, points):
-	visited = {}
-	chains = []
-	for p in points:
-		visited[p] = False
-	for p in points:
-		if visited[p]==False:
-			new_chain = []
-			visited, new_chain = DFS(p, adjacent, visited, new_chain)
-			chains.append(new_chain)
-	return chains
-
-def DFS(p, adjacent, visited, new_chain):
-	visited[p] = True
-	new_chain.append(p)
-	for nei in adjacent[p]:
-		if visited[nei]==False:
-			visited, new_chain = DFS(nei, adjacent, visited, new_chain)
-	return visited, new_chain
 
 if __name__=="__main__":
 	parser = argparse.ArgumentParser(description="HMRF.", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -130,28 +72,19 @@ if __name__=="__main__":
 	#print args
 	#sys.exit(0)	
 	
-	mat, genes, cells = read_expression_classic(args.expression)
-	print("Done reading expression")
-	Xcen, field = read_centroid(args.location, cells)
-	print("Done reading location")
-
-	#mat = pd.read_table(args.expression, sep=" ", header=0, index_col=0)
+	Xcen, field = read_centroid(args.location)
+	mat = pd.read_table(args.expression, sep=" ", header=0, index_col=0)
 	
-	#print mat.index
-	'''
+	#print mat.index	
 	genes = []
 	for g in range(mat.index.shape[0]):
 		genes.append(str(mat.index[g]))
 	#print genes
-	expr = np.copy(mat.values)
-	'''
 	genes_good = reader.read_genes(args.genes)
-	expr = mat
-	
+	expr = np.copy(mat.values)
 
 	new_dset = DatasetMatrixSingleField(expr, genes, None, Xcen)	
-	edges = read_graph(args.network, cells)
-	print("Done reading graph")
+	edges = read_graph(args.network)
 	points = set([])
 	adjacent = {}
 	for e1,e2 in edges:
@@ -160,15 +93,13 @@ if __name__=="__main__":
 	ncell = expr.shape[1]
 	ngene = expr.shape[0]
 	#print ncell, ngene
-
-	'''	
+	
 	dist = pdist(Xcen, metric="euclidean")
 	dist = squareform(dist)
 	for i in range(ncell):
 		if i in points: continue
 		dist_i = sorted([(dist[i,j],j) for j in range(ncell) if i!=j])
 		edges.add(tuple(sorted([i, dist_i[0][1]])))
-	'''
 	for e1,e2 in edges:
 		adjacent.setdefault(e1, set([]))
 		adjacent.setdefault(e2, set([]))
@@ -176,52 +107,7 @@ if __name__=="__main__":
 		adjacent[e2].add(e1)
 	new_dset.edges = edges
 	new_dset.adjacent = adjacent
-
-	print("Start calculating independent regions")
-	conn = connected_components(edges, adjacent, points)
-
-	blocks = {}
-	for ind_con,con in enumerate(conn):
-		all_vert = con
-		set_all_vert = set(all_vert)
-		map_vert = {}
-		for ind,val in enumerate(all_vert):
-			map_vert[val] = ind
-		print("Edges for component", ind_con)
-		edge_file = "/tmp/edges.txt"
-		block_file = "/tmp/blocks.txt"
-		fw = open(edge_file, "w")
-		for e1, e2 in edges:
-			if e1 in set_all_vert and e2 in set_all_vert:
-				fw.write("%d %d\n" % (map_vert[e1]+1, map_vert[e2]+1))
-		fw.close()
-		import smfishHmrf
-		this_path = os.path.dirname(smfishHmrf.__file__) + "/graphColoring"
-		subprocess.call("java -cp %s -Xmx32g -Xms32g GraphColoring %s %s" % (this_path, edge_file, block_file), shell=True)
-		
-		f = open(block_file)
-		b_ind = 0
-		for l in f:
-			l = l.rstrip("\n")
-			ll = l.split()
-			#self.blocks.append(int(ll[1]))
-			blocks[all_vert[b_ind]] = int(ll[1])
-			b_ind+=1
-		f.close()
-		#self.blocks = np.array(self.blocks)
-
-	new_blocks = []
-	for b in range(0, len(blocks.keys())):
-		new_blocks.append(blocks[b])
-	new_dset.blocks = np.array(new_blocks)
-	print("Finished calculating independent regions")
-
-
-	'''
-	print("Start calculating independent region")
 	new_dset.calc_independent_region()
-	print("Finished calculating independent region")
-	'''
 
 	t_dset = new_dset.subset_genes(genes_good)
 
