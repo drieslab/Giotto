@@ -55,21 +55,13 @@ doHMRF <- function(gobject,
   # no folder path specified
   if(is.null(output_folder)) {
     output_folder = paste0(getwd(),'/','HMRF_output')
-
-    if(overwrite_output == TRUE & file.exists(output_folder)) {
-      file.remove(output_folder, recursive = TRUE)
-    } else if(!file.exists(output_folder)) {
+    if(!file.exists(output_folder)) {
       dir.create(path = paste0(getwd(),'/','HMRF_output'), recursive = T)
     }
   }
   # folder path specified
   else if(!is.null(output_folder)) {
-
-    if(overwrite_output == TRUE & file.exists(output_folder)) {
-      file.remove(output_folder, recursive = TRUE)
-    }
-
-    else if(!file.exists(output_folder)) {
+    if(!file.exists(output_folder)) {
       dir.create(path = output_folder, recursive = T)
     }
   }
@@ -87,13 +79,24 @@ doHMRF <- function(gobject,
     expr_values = select_expression_values(gobject = gobject, values = values)
   }
   expression_file = paste0(output_folder,'/', 'expression_matrix.txt')
-  if(file.exists(expression_file)) {
+
+  # overwrite if exists
+  if(file.exists(expression_file) & overwrite_output == TRUE) {
+    cat('\n expression_matrix.txt already exists at this location, will be overwritten \n')
+    write.table(expr_values,
+                file = expression_file,
+                quote = F, col.names = NA, row.names = T)
+  } else if(file.exists(expression_file) & overwrite_output == FALSE) {
     cat('\n expression_matrix.txt already exists at this location, will be used again \n')
   } else {
     write.table(expr_values,
                 file = expression_file,
                 quote = F, col.names = NA, row.names = T)
   }
+
+
+
+
 
 
   ## 2. spatial genes
@@ -108,7 +111,14 @@ doHMRF <- function(gobject,
     spatial_genes_detected = spatial_genes[spatial_genes %in% rownames(expr_values)]
   }
   spatial_genes_file = paste0(output_folder,'/', 'spatial_genes.txt')
-  if(file.exists(spatial_genes_file)) {
+
+  # overwrite if exists
+  if(file.exists(spatial_genes_file) & overwrite_output == TRUE) {
+    cat('\n spatial_genes.txt already exists at this location, will be overwritten \n')
+    write.table(spatial_genes_detected,
+                file = spatial_genes_file,
+                quote = F, col.names = F, row.names = F)
+  } else if(file.exists(spatial_genes_file) & overwrite_output == FALSE) {
     cat('\n spatial_genes.txt already exists at this location, will be used again \n')
   } else {
     write.table(spatial_genes_detected,
@@ -118,11 +128,18 @@ doHMRF <- function(gobject,
 
 
 
+
   ## 3. spatial network
   spatial_network = gobject@spatial_network[[spatial_network_name]]
   spatial_network = spatial_network[,.(to,from)]
   spatial_network_file = paste0(output_folder,'/', 'spatial_network.txt')
-  if(file.exists(spatial_network_file)) {
+
+  if(file.exists(spatial_network_file) & overwrite_output == TRUE) {
+    cat('\n spatial_network.txt already exists at this location, will be overwritten \n')
+    write.table(spatial_network,
+                file = spatial_genes_file,
+                quote = F, col.names = F, row.names = F)
+  } else if(file.exists(spatial_network_file) & overwrite_output == FALSE) {
     cat('\n spatial_network.txt already exists at this location, will be used again \n')
   } else {
     write.table(spatial_network,
@@ -132,21 +149,28 @@ doHMRF <- function(gobject,
 
 
 
+
   ## 4. cell location
   spatial_location = gobject@spatial_locs
 
   # select spatial dimensions that are available #
   spatial_dimensions = spatial_dimensions[spatial_dimensions %in% colnames(spatial_location)]
   spatial_location = spatial_location[, c(spatial_dimensions,'cell_ID'), with = F]
-
   spatial_location_file = paste0(output_folder,'/', 'spatial_cell_locations.txt')
-  if(file.exists(spatial_location_file)) {
+
+  if(file.exists(spatial_location_file) & overwrite_output == TRUE) {
+    cat('\n spatial_cell_locations.txt already exists at this location, will be overwritten \n')
+    write.table(spatial_location,
+                file = spatial_location_file,
+                row.names = F, col.names = F, quote = F, sep = '\t')
+  } else if(file.exists(spatial_location_file)) {
     cat('\n spatial_cell_locations.txt already exists at this location, will be used again \n')
   } else {
     write.table(spatial_location,
                 file = spatial_location_file,
                 row.names = F, col.names = F, quote = F, sep = '\t')
   }
+
 
 
 
