@@ -6,6 +6,7 @@
 #' @param expression_values expression values to use
 #' @param spatial_network_name name of spatial network to use for HMRF
 #' @param spatial_genes spatial genes to use for HMRF
+#' @param spatial_dimensions select spatial dimensions to use, default is all possible dimensions
 #' @param dim_reduction_to_use use another dimension reduction set as input
 #' @param dim_reduction_name name of dimension reduction set to use
 #' @param dimensions_to_use number of dimensions to use as input
@@ -26,6 +27,7 @@ doHMRF <- function(gobject,
                    expression_values = c('normalized', 'scaled', 'custom'),
                    spatial_network_name = 'spatial_network',
                    spatial_genes = NULL,
+                   spatial_dimensions = c('sdimx', 'sdimy', 'sdimz'),
                    dim_reduction_to_use = NULL,
                    dim_reduction_name = 'pca',
                    dimensions_to_use = 1:10,
@@ -115,7 +117,11 @@ doHMRF <- function(gobject,
 
   ## 4. cell location
   spatial_location = gobject@spatial_locs
-  spatial_location = spatial_location[,1:3]
+
+  # select spatial dimensions that are available #
+  spatial_dimensions = spatial_dimensions[spatial_dimensions %in% colnames(spatial_location)]
+  spatial_location = spatial_location[, c(spatial_dimensions,'cell_ID'), with = F]
+
   spatial_location_file = paste0(output_folder,'/', 'spatial_cell_locations.txt')
   if(file.exists(spatial_location_file)) {
     cat('\n spatial_cell_locations.txt already exists at this location, will be used again \n')
