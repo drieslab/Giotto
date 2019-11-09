@@ -18,6 +18,7 @@
 #' @param numinit number of initializations
 #' @param python_path python path to use
 #' @param output_folder output folder to save results
+#' @param overwrite_output overwrite output folder
 #' @return Creates a directory with results that can be viewed with viewHMRFresults
 #' @details Description of HMRF parameters ...
 #' @export
@@ -38,7 +39,8 @@ doHMRF <- function(gobject,
                    zscore = c('none','rowcol', 'colrow'),
                    numinit = 100,
                    python_path = NULL,
-                   output_folder = NULL) {
+                   output_folder = NULL,
+                   overwrite_output = TRUE) {
 
   ## check or make paths
   # python path
@@ -50,11 +52,26 @@ doHMRF <- function(gobject,
   reader_path = system.file("python", "reader.py", package = 'Giotto')
 
   ## output folder
+  # no folder path specified
   if(is.null(output_folder)) {
     output_folder = paste0(getwd(),'/','HMRF_output')
-    if(!file.exists(output_folder)) dir.create(path = paste0(getwd(),'/','HMRF_output'), recursive = T)
-  } else {
-    if(!file.exists(output_folder))  dir.create(path = output_folder, recursive = T)
+
+    if(overwrite_output == TRUE & file.exists(output_folder)) {
+      file.remove(output_folder, recursive = TRUE)
+    } else if(!file.exists(output_folder)) {
+      dir.create(path = paste0(getwd(),'/','HMRF_output'), recursive = T)
+    }
+  }
+  # folder path specified
+  else if(!is.null(output_folder)) {
+
+    if(overwrite_output == TRUE & file.exists(output_folder)) {
+      file.remove(output_folder, recursive = TRUE)
+    }
+
+    else if(!file.exists(output_folder)) {
+      dir.create(path = output_folder, recursive = T)
+    }
   }
 
 
