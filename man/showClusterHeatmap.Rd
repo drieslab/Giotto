@@ -5,19 +5,23 @@
 \title{showClusterHeatmap}
 \usage{
 showClusterHeatmap(gobject, expression_values = c("normalized", "scaled",
-  "custom"), cluster_column, cor = c("pearson", "spearman"),
-  distance = "ward.D")
+  "custom"), genes = "all", cluster_column, cor = c("pearson",
+  "spearman"), distance = "ward.D", ...)
 }
 \arguments{
 \item{gobject}{giotto object}
 
 \item{expression_values}{expression values to use}
 
+\item{genes}{vector of genes to use, default to 'all'}
+
 \item{cluster_column}{name of column to use for clusters}
 
 \item{cor}{correlation score to calculate distance}
 
 \item{distance}{distance method to use for hierarchical clustering}
+
+\item{...}{additional parameters for the Heatmap function from ComplexHeatmap}
 }
 \value{
 ggplot
@@ -26,7 +30,7 @@ ggplot
 Creates heatmap based on identified clusters
 }
 \details{
-Correlation heatmap of selected clustering.
+Correlation heatmap of selected clusters.
 }
 \examples{
     showClusterHeatmap(gobject)

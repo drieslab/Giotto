@@ -3,32 +3,43 @@
 #' @description Creates heatmap based on identified clusters
 #' @param gobject giotto object
 #' @param expression_values expression values to use
+#' @param genes vector of genes to use, default to 'all'
 #' @param cluster_column name of column to use for clusters
 #' @param cor correlation score to calculate distance
 #' @param distance distance method to use for hierarchical clustering
+#' @param ... additional parameters for the Heatmap function from ComplexHeatmap
 #' @return ggplot
-#' @details Correlation heatmap of selected clustering.
+#' @details Correlation heatmap of selected clusters.
 #' @export
 #' @examples
 #'     showClusterHeatmap(gobject)
 showClusterHeatmap <- function(gobject,
                                expression_values = c('normalized', 'scaled', 'custom'),
+                               genes = 'all',
                                cluster_column,
                                cor = c('pearson', 'spearman'),
-                               distance = 'ward.D') {
+                               distance = 'ward.D',
+                               ...) {
 
+  ## correlation
   cor = match.arg(cor, c('pearson', 'spearman'))
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
 
+  ## subset expression data
+  if(genes[1] != 'all') {
+    all_genes = gobject@gene_ID
+    detected_genes = genes[genes %in% all_genes]
+  } else {
+    # NULL = all genes in calculateMetaTable()
+    detected_genes = NULL
+  }
 
-  metatable = calculateMetaTable(gobject = gobject, expression_values = values, metadata_cols = cluster_column)
+  metatable = calculateMetaTable(gobject = gobject,
+                                 expression_values = values,
+                                 metadata_cols = cluster_column,
+                                 selected_genes = detected_genes)
   dcast_metatable = data.table::dcast.data.table(metatable, formula = variable~uniq_ID, value.var = 'value')
-  testmatrix = dt_to_matrix(x = dcast_metatable)
-
-
-  #testmatrix = create_cluster_matrix(gobject = gobject,
-  #                                   cluster_column = cluster_column,
-  #                                   expression_values = values)
+  testmatrix = Giotto:::dt_to_matrix(x = dcast_metatable)
 
   # correlation
   cormatrix = stats::cor(x = testmatrix, method = cor)
@@ -37,7 +48,7 @@ showClusterHeatmap <- function(gobject,
 
   hmap = ComplexHeatmap::Heatmap(matrix = cormatrix,
                                  cluster_rows = corclus,
-                                 cluster_columns = corclus)
+                                 cluster_columns = corclus, ...)
 
   return(hmap)
 
