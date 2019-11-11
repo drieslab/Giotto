@@ -137,8 +137,8 @@ doHMRF <- function(gobject,
   if(file.exists(spatial_network_file) & overwrite_output == TRUE) {
     cat('\n spatial_network.txt already exists at this location, will be overwritten \n')
     write.table(spatial_network,
-                file = spatial_genes_file,
-                quote = F, col.names = F, row.names = F)
+                file = spatial_network_file,
+                row.names = F, col.names = F, quote = F, sep = '\t')
   } else if(file.exists(spatial_network_file) & overwrite_output == FALSE) {
     cat('\n spatial_network.txt already exists at this location, will be used again \n')
   } else {
