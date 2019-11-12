@@ -34,76 +34,28 @@ def rank_transform_matrix(mat, rbp_p = 0.99, reverse=True):
 	dim1 = mat.shape[0]
 	dim2 = mat.shape[1]
 	rank_forward = np.empty([dim1, dim2])
-	
-	print("Start ranking forward...")
 	for c1 in range(dim1):
 		rd = scipy.stats.rankdata(mat[c1,:])
 		if reverse==True:
 			rd = dim2 - rd + 1
 		rank_forward[c1, :] = rd
-		if c1%1000==0:
-			print("Done %d" % c1)
-	
-	#rank_forward = scipy.stats.mstats.rankdata(mat, axis=0)
-	print("Finished ranking forward...")
-	'''
-	if reverse==True:
-		print("Start adjusting forward...")
-		rank_forward = np.add(np.subtract(dim2, rank_forward), 1)
-		print("Finished adjusting forward...")
-	'''
-	
 	rank_backward = np.empty([dim1, dim2])
-	
-	print("Start ranking backward...")
 	for c1 in range(dim2):
 		rd = scipy.stats.rankdata(mat[:,c1])
 		if reverse==True:
 			rd = dim1 - rd + 1
 		rank_backward[:, c1] = rd
-		if c1%1000==0:
-			print("Done %d" % c1)
-	
-	#rank_backward = scipy.stats.mstats.rankdata(mat, axis=1)
-	print("Finished ranking backward...")
-	'''
-	if reverse==True:
-		print("Start adjusting backward...")
-		rank_backward = np.add(np.subtract(dim1, rank_backward), 1)
-		print("Finished adjusting backward...")
-	'''
 	mutual_rank_rbp = np.empty([dim1, dim2])
 	mutual_rank = np.empty([dim1, dim2])
-
-	
-	print("Calculate mutual rank...")
-	ma = np.sqrt(np.multiply(rank_forward, rank_backward))
-	print("Calculate exponential transform...")
-	mutual_rank_rbp = np.multiply(1-rbp_p, np.power(rbp_p, np.subtract(ma, 1)))
-	print("Finished exponential transform...")
-	mutual_rank = ma
-	
-	
-	dissimilarity = np.empty([dim1, dim2])
-	'''
-	print("Calculate dissimilarity...")
 	for c1 in range(dim1):
 		for c2 in range(dim2):
 			ma = math.sqrt(rank_forward[c1, c2] * rank_backward[c1, c2])
 			mutual_rank_rbp[c1, c2] = (1-rbp_p) * math.pow(rbp_p, ma - 1) 
 			mutual_rank[c1, c2] = ma
-			dissimilarity[c1, c2] = 1 - mutual_rank_rbp[c1, c2] / (1-rbp_p)
-		if c1%1000==0:
-			print("Done %d" % c1)
-	'''
-	'''
+	dissimilarity = np.empty([dim1, dim2])
 	for c1 in range(dim1):
 		for c2 in range(dim2):
 			dissimilarity[c1, c2] = 1 - mutual_rank_rbp[c1, c2] / (1-rbp_p)
-	'''
-	print("Calculate dissimilarity...")
-	dissimilarity = np.subtract(1, np.divide(mutual_rank_rbp, 1-rbp_p))
-	print("Finished dissimilarity...")
 	return dissimilarity
 
 def calc_silhouette_per_gene(genes=None, expr=None, dissim=None, examine_top=0.1, seed=-1):

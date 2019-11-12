@@ -130,7 +130,7 @@ Howto's and faqs examples:
 
 ## References
 
-- 1.Dries, R. et al. Giotto, a pipeline for integrative analysis and visualization of single-cell spatial transcriptomic data. bioRxiv 701680 (2019). doi:10.1101/701680 [link](https://www.biorxiv.org/content/10.1101/701680v1)
+- Dries, R. et al. Giotto, a pipeline for integrative analysis and visualization of single-cell spatial transcriptomic data. bioRxiv 701680 (2019). doi:10.1101/701680 [link](https://www.biorxiv.org/content/10.1101/701680v1)
 
 - Eng, C.-H. L. et al. Transcriptome-scale super-resolved imaging in tissues by RNA seqFISH+. Nature 1 (2019). doi:10.1038/s41586-019-1049-y [link](https://www.nature.com/articles/s41586-019-1049-y)
 

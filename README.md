@@ -140,7 +140,7 @@ Howto’s and faqs examples:
 
 ## References
 
-  - 1.Dries, R. et al. Giotto, a pipeline for integrative analysis and
+  - Dries, R. et al. Giotto, a pipeline for integrative analysis and
     visualization of single-cell spatial transcriptomic data. bioRxiv
     701680 (2019). <doi:10.1101/701680>
     [link](https://www.biorxiv.org/content/10.1101/701680v1)
