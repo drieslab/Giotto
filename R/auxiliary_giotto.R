@@ -866,6 +866,61 @@ annotateGiotto <- function(gobject, annotation_vector = NULL, cluster_column = N
 }
 
 
+#' @title removeCellAnnotation
+#' @description removes cell annotation of giotto object
+#' @param gobject giotto object
+#' @param columns names of columns to remove
+#' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @return giotto object
+#' @export
+#' @examples
+#'     removeCellAnnotation(gobject)
+removeCellAnnotation <- function(gobject, columns = NULL, return_gobject = TRUE) {
+
+  if(is.null(columns)) {
+    stop('\t You need to provide a vector of metadata column names to remove \t')
+  }
+
+  gobject@cell_metadata[, (columns) := NULL]
+
+  if(return_gobject == TRUE) {
+    return(gobject)
+  } else {
+    gobject@cell_metadata
+  }
+
+}
+
+
+#' @title removeGeneAnnotation
+#' @description removes gene annotation of giotto object
+#' @param gobject giotto object
+#' @param columns names of columns to remove
+#' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @return giotto object
+#' @export
+#' @examples
+#'     removeGeneAnnotation(gobject)
+removeGeneAnnotation <- function(gobject, columns = NULL, return_gobject = TRUE) {
+
+  if(is.null(columns)) {
+    stop('\t You need to provide a vector of metadata column names to remove \t')
+  }
+
+  gobject@gene_metadata[, (columns) := NULL]
+
+  if(return_gobject == TRUE) {
+    return(gobject)
+  } else {
+    gobject@gene_metadata
+  }
+
+}
+
+
+
+
+
 
 #' @title addCellMetadata
 #' @description adds cell metadata to the giotto object
