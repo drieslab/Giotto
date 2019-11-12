@@ -844,13 +844,19 @@ annotateGiotto <- function(gobject, annotation_vector = NULL, cluster_column = N
   }
 
   # 2. remove previous annotation name if it's the same
+  # but only if new name is not the same as cluster to be used
   if(name %in% colnames(cell_metadata)) {
     cat('\n annotation name ', name,' was already used \n',
         'and will be overwritten \n')
+
+    cell_metadata[, temp_cluster_name := annotation_vector[[get(cluster_column)]], by = 1:nrow(cell_metadata)]
     cell_metadata[, (name) := NULL]
+
+  } else {
+
+    cell_metadata[, temp_cluster_name := annotation_vector[[get(cluster_column)]], by = 1:nrow(cell_metadata)]
   }
 
-  cell_metadata[, temp_cluster_name := annotation_vector[[get(cluster_column)]], by = 1:nrow(cell_metadata)]
   setnames(cell_metadata, old = 'temp_cluster_name', new = name)
   gobject@cell_metadata = cell_metadata
 
@@ -858,7 +864,6 @@ annotateGiotto <- function(gobject, annotation_vector = NULL, cluster_column = N
 
 
 }
-
 
 
 

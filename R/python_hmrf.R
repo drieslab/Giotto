@@ -379,6 +379,9 @@ addHMRF <- function(gobject,
   betas_to_add_detected = betas_to_add[betas_to_add %in% possible_betas]
 
 
+  # get cell metadata for object
+  cell_metadata = pDataDT(gobject)
+
 
   # plot betas
   for(b in betas_to_add_detected) {
