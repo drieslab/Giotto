@@ -334,6 +334,84 @@ viewHMRFresults <- function(gobject,
 }
 
 
+
+#' @title writeHMRFresults
+#' @name writeHMRFresults
+#' @description write results from doHMRF to a data.table.
+#' @param gobject giotto object
+#' @param HMRFoutput HMRF output from doHMRF
+#' @param k k to write results for
+#' @param betas_to_view results from different betas that you want to view
+#' @param print_command see the python command
+#' @return data.table with HMRF results for each b and the selected k
+#' @export
+#' @examples
+#'     writeHMRFresults(gobject)
+writeHMRFresults <- function(gobject,
+                             HMRFoutput,
+                             k = NULL,
+                             betas_to_view = NULL,
+                             print_command = F) {
+
+
+  if(!'HMRFoutput' %in% class(HMRFoutput)) {
+    stop('\n HMRFoutput needs to be output from doHMRFextend \n')
+  }
+
+  ## reader.py and get_result.py paths
+  # TODO: part of the package
+  get_result_path = system.file("python", "get_result2.py", package = 'Giotto')
+
+  # paths and name
+  name = HMRFoutput$name
+  output_data = HMRFoutput$output_data
+  python_path = HMRFoutput$python_path
+
+  # k-values
+  if(is.null(k)) {
+    stop('\n you need to select a k that was used with doHMRFextend \n')
+  }
+  k = HMRFoutput$k
+
+  # betas
+  betas = HMRFoutput$betas
+  possible_betas = seq(betas[1], to = betas[1]+(betas[2]*(betas[3]-1)), by = betas[2])
+
+  betas_to_view_detected = betas_to_view[betas_to_view %in% possible_betas]
+
+  result_list = list()
+
+  # plot betas
+  for(i in 1:length(betas_to_view_detected)) {
+
+    b = betas_to_view_detected[i]
+
+    ## get results part ##
+    result_command = paste0(python_path, ' ', get_result_path,
+                            ' -r ', output_data,
+                            ' -a ', name,
+                            ' -k ', k,
+                            ' -b ', b)
+
+    if(print_command == TRUE) {
+      print(result_command)
+    }
+
+    output = system(command = result_command, intern = T)
+    title_name = paste0('k.', k, '.b.',b)
+    result_list[[title_name]] = output
+
+  }
+
+  result_DT = data.table::as.data.table(do.call('cbind', result_list))
+  result_DT = cbind(data.table::data.table('cell_ID' = gobject@cell_ID), result_DT)
+  return(result_DT)
+
+}
+
+
+
+
 #' @title addHMRF
 #' @name addHMRF
 #' @description Add selected results from doHMRF to the giotto object
