@@ -204,6 +204,7 @@ doHMRF <- function(gobject,
                           ' -z ', zscore,
                           ' -i ', numinit)
 
+  print(reader_command)
   system(command = reader_command)
 
 
