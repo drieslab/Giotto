@@ -407,7 +407,9 @@ addHMRF <- function(gobject,
     }
 
 
-    gobject = addCellMetadata(gobject = gobject, new_metadata = annot_DT, by_column = F)
+    gobject = addCellMetadata(gobject = gobject, column_cell_ID = 'cell_ID',
+                              new_metadata = annot_DT,
+                              by_column = F)
 
 
   }
