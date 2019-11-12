@@ -2,8 +2,11 @@
 <!-- mouse_cortex_1_simple.md is generated from mouse_cortex_1_simple.Rmd Please edit that file -->
 
 ``` r
-library(Giotto)
 # this example works with Giotto v.0.1.2
+library(Giotto)
+
+# specify your python path
+my_python_path = "/Users/rubendries/Bin/anaconda3/envs/py36/bin/python"
 ```
 
 ### Data input
@@ -138,7 +141,7 @@ plotUMAP(gobject = osm_test, cell_color = 'kmeans',
 # sNN network (default)
 osm_test <- createNearestNetwork(gobject = osm_test, dimensions_to_use = 1:31, k = 15)
 osm_test <- doLeidenCluster(gobject = osm_test, resolution = 0.05, n_iterations = 1000,
-                           python_path = "/Users/rubendries/Bin/anaconda3/envs/py36/bin/python")
+                           python_path = my_python_path)
 plotUMAP(gobject = osm_test, cell_color = 'leiden_clus', point_size = 2.5,
          show_NN_network = F, edge_alpha = 0.05, plot_method = 'ggplot')
 
@@ -401,6 +404,11 @@ ranktest = binGetSpatialGenes(osm_test, bin_method = 'rank',
                               do_fisher_test = T, community_expectation = 5,
                               spatial_network_name = 'spatial_network', verbose = T)
 
+spatial_genes = calculate_spatial_genes_python(gobject = osm_test,
+                                               expression_values = 'scaled',
+                                               python_path = my_python_path,
+                                               rbp_p=0.99, examine_top=0.1)
+
 visSpatDimGenePlot(osm_test, plot_method = 'ggplot', expression_values = 'normalized',
                    genes = c('Rorb', 'Syt6', 'Gfap', 'Kcnip2'),
                    plot_alignment = 'vertical', cow_n_col = 4,
@@ -425,7 +433,35 @@ Spatial genes:
 
 <summary>Expand</summary>  
 
-Not available at this time.
+``` r
+my_spatial_genes = spatial_genes[1:20]$genes
+
+# do HMRF with different betas
+HMRF_spatial_genes = doHMRF(gobject = osm_test, expression_values = 'normalized',
+                            spatial_genes = my_spatial_genes,
+                            k = 10,
+                            betas = c(0, 0.5, 10), 
+                            output_folder = paste0(hmrf_folder, '/', 'Spatial_genes/SG_top10_k10_scaled'),
+                            python_path = my_python_path,
+                            zscore="rowcol", tolerance=1e-5)
+
+## view results of HMRF
+viewHMRFresults(gobject = osm_test,
+                  HMRFoutput = HMRF_spatial_genes,
+                  k = 10, betas_to_view = seq(0, 5, by = 0.5),
+                  point_size = 2)
+
+## add HMRF result of interest to giotto object
+osm_test = addHMRF(gobject = osm_test,
+                  HMRFoutput = HMRF_spatial_genes,
+                  k = 10, betas_to_add = 0.5,
+                  hmrf_name = 'HMRF')
+
+## visualize
+visPlot(gobject = osm_test, cell_color = 'HMRF_k10_b.0.5', point_size = 3)
+```
+
+![](./figures/10_final_hmrf.png)
 
 -----
 
@@ -451,7 +487,7 @@ cellProximityBarplot(CPscore = cell_proximities, min_orig_ints = 25, min_sim_int
 ```
 
 barplot:  
-![](./figures/10_barplot_cell_cell_enrichment.png)
+![](./figures/11_barplot_cell_cell_enrichment.png)
 
 ``` r
 ## heatmap
@@ -460,7 +496,7 @@ cellProximityHeatmap(CPscore = cell_proximities, order_cell_types = T, scale = T
 ```
 
 heatmap:  
-![](./figures/10_heatmap_cell_cell_enrichment.png)
+![](./figures/11_heatmap_cell_cell_enrichment.png)
 
 ``` r
 ## network
@@ -468,7 +504,7 @@ cellProximityNetwork(CPscore = cell_proximities)
 ```
 
 networks:  
-![](./figures/10_network_cell_cell_enrichment.png)
+![](./figures/11_network_cell_cell_enrichment.png)
 
 ``` r
 ## visualization
@@ -482,7 +518,7 @@ cellProximityVisPlot(gobject = osm_test,
                      point_size_select = 4, point_size_other = 2)
 ```
 
-![](./figures/10_cell_cell_enrichment_selected.png)
+![](./figures/11_cell_cell_enrichment_selected.png)
 
 -----
 
