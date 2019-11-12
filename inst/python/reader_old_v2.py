@@ -38,7 +38,7 @@ def read_centroid(n, cells):
 		l = l.rstrip("\n")
 		ll = l.split()
 		x1, x2 = float(ll[0]), float(ll[1])
-		t_id = map_cell[ll[-1]]
+		t_id = map_cell[ll[2]]
 		#t_id = int(ll[-1].split("_")[1]) - 1
 		Xcen[t_id, :] = [x1, x2]
 		field[t_id] = 100
@@ -127,7 +127,6 @@ if __name__=="__main__":
 
 	args = parser.parse_args()
 
-	sys.setrecursionlimit(50000)
 	#print args
 	#sys.exit(0)	
 	
