@@ -5,14 +5,18 @@
 \title{createGiottoInstructions}
 \usage{
 createGiottoInstructions(python_path = NULL, save_dir = NULL,
-  plot_format = NULL, dpi = NULL)
+  plot_format = NULL, dpi = NULL, height = NULL, width = NULL)
 }
 \arguments{
 \item{python_path}{path to python bin to use}
 
 \item{save_dir}{path of directory to use to save figures}
 
-\item{dpi}{resolution for raster images}
+\item{dpi}{resolution for raster images to save}
+
+\item{height}{height of the plots to save}
+
+\item{width}{width of the plots to save}
 }
 \value{
 named vector with giotto instructions

@@ -66,7 +66,7 @@ giotto <- setClass(
     # check validity of instructions vector if provided by the user
     if(!is.null(object@instructions)) {
 
-      instr_names = c("python_path", "save_dir", "plot_format", "dpi")
+      instr_names = c("python_path", "save_dir", "plot_format", "dpi", "height", "width")
       missing_names = instr_names[!instr_names %in% names(object@instructions)]
       if(length(missing_names) != 0) {
         return('\t Instruction parameters are missing for: ', missing_names, '\t')
@@ -138,7 +138,9 @@ setMethod(f = "print.giotto",
 #' @description Function to create instructions for giotto functions
 #' @param python_path path to python bin to use
 #' @param save_dir path of directory to use to save figures
-#' @param dpi resolution for raster images
+#' @param dpi resolution for raster images to save
+#' @param height height of the plots to save
+#' @param width width of the plots to save
 #' @return named vector with giotto instructions
 #' @export
 #' @examples
@@ -146,7 +148,9 @@ setMethod(f = "print.giotto",
 createGiottoInstructions <- function(python_path =  NULL,
                                      save_dir = NULL,
                                      plot_format = NULL,
-                                     dpi = NULL) {
+                                     dpi = NULL,
+                                     height = NULL,
+                                     width = NULL) {
 
   # pyton path to use
   if(is.null(python_path)) {
@@ -168,9 +172,18 @@ createGiottoInstructions <- function(python_path =  NULL,
     dpi = 300
   }
 
+  # height of plot
+  if(is.null(height)) {
+    height = 600
+  }
 
-  instructions_vector = c(python_path, save_dir, plot_format, dpi)
-  names(instructions_vector) = c('python_path','save_dir', 'plot_format', 'dpi')
+  # width of plot
+  if(is.null(width)) {
+    width = 600
+  }
+
+  instructions_vector = c(python_path, save_dir, plot_format, dpi, height, width)
+  names(instructions_vector) = c('python_path','save_dir', 'plot_format', 'dpi', 'height', 'width')
   return(instructions_vector)
 
 }

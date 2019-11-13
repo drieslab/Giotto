@@ -51,7 +51,8 @@ doLeidenCluster = function(gobject,
   ## check or make paths
   # python path
   if(is.null(python_path)) {
-    python_path = system('which python', intern = T)
+    python_path = readGiottoInstructions(gobject, param = "python_path")
+    #python_path = system('which python', intern = T)
   }
 
   ## prepare python path and louvain script
@@ -187,7 +188,8 @@ doLouvainCluster_community <- function(gobject,
   ## check or make paths
   # python path
   if(is.null(python_path)) {
-    python_path = system('which python', intern = T)
+    python_path = readGiottoInstructions(gobject, param = "python_path")
+    #python_path = system('which python', intern = T)
   }
 
   # prepare python path and louvain script

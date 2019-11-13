@@ -30,7 +30,7 @@ ggplot_save_function = function(gobject,
                                 width = NA,
                                 height = NA,
                                 units = c("in", "cm", "mm"),
-                                dpi = 300,
+                                dpi = NULL,
                                 limitsize = TRUE) {
 
   if(is.null(plot_object)) {
@@ -41,7 +41,8 @@ ggplot_save_function = function(gobject,
   if(is.null(save_dir)) save_dir = readGiottoInstructions(gobject, param = 'save_dir')
   if(is.null(save_folder)) save_folder = NULL
   if(is.null(save_name)) save_name = "giotto_plot"
-  if(is.null(save_format)) save_format = 'png'
+  if(is.null(save_format)) save_format = readGiottoInstructions(gobject, param = 'plot_format')
+  if(is.null(dpi)) dpi = readGiottoInstructions(gobject, param = 'dpi')
 
   # create saving location
   file_location = paste0(save_dir,'/', save_folder)

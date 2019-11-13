@@ -45,7 +45,8 @@ doHMRF <- function(gobject,
   ## check or make paths
   # python path
   if(is.null(python_path)) {
-    python_path = system('which python')
+    python_path = readGiottoInstructions(gobject, param = "python_path")
+    #python_path = system('which python')
   }
 
   ## reader.py and get_result.py paths
