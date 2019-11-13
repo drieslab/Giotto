@@ -5,7 +5,8 @@
 \title{createGiottoInstructions}
 \usage{
 createGiottoInstructions(python_path = NULL, save_dir = NULL,
-  plot_format = NULL, dpi = NULL, height = NULL, width = NULL)
+  plot_format = NULL, dpi = NULL, units = NULL, height = NULL,
+  width = NULL)
 }
 \arguments{
 \item{python_path}{path to python bin to use}

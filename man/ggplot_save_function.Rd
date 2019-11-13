@@ -6,8 +6,8 @@
 \usage{
 ggplot_save_function(gobject, plot_object = NULL, save_dir = NULL,
   save_folder = NULL, save_name = NULL, save_format = NULL,
-  show_saved_plot = F, scale = 1, width = NA, height = NA,
-  units = c("in", "cm", "mm"), dpi = NULL, limitsize = TRUE)
+  show_saved_plot = F, scale = 1, width = NULL, height = NULL,
+  units = NULL, dpi = NULL, limitsize = TRUE)
 }
 \arguments{
 \item{gobject}{giotto object}

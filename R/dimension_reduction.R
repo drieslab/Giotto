@@ -178,14 +178,19 @@ signPCA <- function(gobject, method = c('screeplot', 'jackstraw'),
                                     scale.unit = scale_unit,
                                     ncp = ncp, graph = F, ...)
       screeplot = factoextra::fviz_eig(pca_object, addlabels = scree_labels, ylim = scree_ylim, ncp = ncp)
+
       if(show_plot == TRUE) print(screeplot)
       return(screeplot)
+
     } else if(method == 'jackstraw') {
+
       if(scale_unit == TRUE) {
         expr_values = t(scale(t(expr_values)))
       }
+
       jtest = jackstraw::permutationPA(dat = expr_values, B = jack_iter, threshold = jack_threshold, verbose = jack_verbose)
       if(show_plot == TRUE) plot(jtest$p)
+
       return(jtest)
     }
 

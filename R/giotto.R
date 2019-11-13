@@ -66,7 +66,7 @@ giotto <- setClass(
     # check validity of instructions vector if provided by the user
     if(!is.null(object@instructions)) {
 
-      instr_names = c("python_path", "save_dir", "plot_format", "dpi", "height", "width")
+      instr_names = c("python_path", "save_dir", "plot_format", "dpi", "units", "height", "width")
       missing_names = instr_names[!instr_names %in% names(object@instructions)]
       if(length(missing_names) != 0) {
         return('\t Instruction parameters are missing for: ', missing_names, '\t')
@@ -149,6 +149,7 @@ createGiottoInstructions <- function(python_path =  NULL,
                                      save_dir = NULL,
                                      plot_format = NULL,
                                      dpi = NULL,
+                                     units = NULL,
                                      height = NULL,
                                      width = NULL) {
 
@@ -156,35 +157,47 @@ createGiottoInstructions <- function(python_path =  NULL,
   if(is.null(python_path)) {
     python_path = system('which python', intern = T)
   }
+  python_path = as.character(python_path)
 
   # directory to save results to
   if(is.null(save_dir)) {
     save_dir = getwd()
   }
+  save_dir = as.character(save_dir)
 
   # plot format
   if(is.null(plot_format)) {
     plot_format = "png"
   }
+  plot_format = as.character(plot_format)
 
   # dpi of raster images
   if(is.null(dpi)) {
     dpi = 300
   }
+  dpi = as.numeric(dpi)
+
+  # units for height and width
+  if(is.null(units)) {
+    units = 'cm'
+  }
+  units = as.character(units)
 
   # height of plot
   if(is.null(height)) {
     height = 600
   }
+  height = as.numeric(height)
 
   # width of plot
   if(is.null(width)) {
     width = 600
   }
+  width = as.numeric(width)
 
-  instructions_vector = c(python_path, save_dir, plot_format, dpi, height, width)
-  names(instructions_vector) = c('python_path','save_dir', 'plot_format', 'dpi', 'height', 'width')
-  return(instructions_vector)
+  instructions_list = list(python_path, save_dir, plot_format, dpi, units, height, width)
+  names(instructions_list) = c('python_path','save_dir', 'plot_format', 'dpi', 'units', 'height', 'width')
+  return(instructions_list)
 
 }
 
@@ -213,6 +226,78 @@ readGiottoInstructions <- function(giotto_instructions, param = NULL) {
   }
   return(specific_instruction)
 }
+
+
+#' @title showGiottoInstructions
+#' @description Function to show instructions from giotto object
+#' @param gobject giotto object
+#' @return named vector with giotto instructions
+#' @export
+#' @examples
+#'     showGiottoInstructions()
+showGiottoInstructions = function(gobject) {
+
+  instrs = gobject@instructions
+  return(instrs)
+}
+
+
+#' @title changeGiottoInstructions
+#' @description Function to change instructions to giotto object
+#' @param gobject giotto object
+#' @param params parameter(s) to change
+#' @param new_values new value(s) for parameter(s)
+#' @param return_gobject (boolean) return giotto object
+#' @return named vector with giotto instructions
+#' @export
+#' @examples
+#'     changeGiottoInstructions()
+changeGiottoInstructions = function(gobject,
+                                    params = NULL,
+                                    new_values = NULL,
+                                    return_gobject = TRUE) {
+
+  instrs = gobject@instructions
+
+  if(is.null(params) | is.null(new_values)) {
+    stop('\t params and new_values can not be NULL \t')
+  }
+
+  if(length(params) != length(new_values)) {
+    stop('\t length of params need to be the same as new values \t')
+  }
+
+  if(!all(params %in% names(instrs))) {
+    stop('\t all params need to be part of Giotto instructions \t')
+  }
+
+  ## swap with new values
+  instrs[params] = new_values
+
+  ## make sure that classes remain consistent
+  new_instrs = lapply(1:length(instrs), function(x) {
+
+    if(names(instrs[x]) %in% c('dpi', 'height', 'width')) {
+      instrs[[x]] = as.numeric(instrs[[x]])
+    } else {
+      instrs[[x]] = instrs[[x]]
+    }
+
+  })
+
+  names(new_instrs) = names(instrs)
+
+
+
+  if(return_gobject == TRUE) {
+    gobject@instructions = new_instrs
+    return(gobject)
+  } else {
+    return(new_instrs)
+  }
+
+}
+
 
 #' @title create Giotto object
 #' @description Function to create a giotto object

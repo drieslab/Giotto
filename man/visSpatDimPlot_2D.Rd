@@ -73,6 +73,20 @@ visSpatDimPlot_2D(gobject, plot_alignment = c("vertical", "horizontal"),
 \item{show_legend}{show legend}
 
 \item{show_plot}{show plot}
+
+\item{return_plot}{return ggplot object}
+
+\item{save_plot}{directly save the plot [boolean]}
+
+\item{save_dir}{directory to save the plot}
+
+\item{save_folder}{(optional) folder in directory to save the plot}
+
+\item{save_name}{name of plot}
+
+\item{save_format}{format of plot (e.g. tiff, png, pdf, ...)}
+
+\item{show_saved_plot}{load & display the saved plot}
 }
 \value{
 ggplot

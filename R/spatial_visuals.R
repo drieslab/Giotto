@@ -27,9 +27,9 @@ ggplot_save_function = function(gobject,
                                 save_format = NULL,
                                 show_saved_plot = F,
                                 scale = 1,
-                                width = NA,
-                                height = NA,
-                                units = c("in", "cm", "mm"),
+                                width = NULL,
+                                height = NULL,
+                                units = NULL,
                                 dpi = NULL,
                                 limitsize = TRUE) {
 
@@ -43,6 +43,8 @@ ggplot_save_function = function(gobject,
   if(is.null(save_name)) save_name = "giotto_plot"
   if(is.null(save_format)) save_format = readGiottoInstructions(gobject, param = 'plot_format')
   if(is.null(dpi)) dpi = readGiottoInstructions(gobject, param = 'dpi')
+  if(is.null(width)) width = readGiottoInstructions(gobject, param = 'width')
+  if(is.null(height)) height = readGiottoInstructions(gobject, param = 'height')
 
   # create saving location
   file_location = paste0(save_dir,'/', save_folder)
@@ -52,9 +54,13 @@ ggplot_save_function = function(gobject,
   ggplot2::ggsave(plot = plot_object,
                   filename = file_name,
                   path = file_location,
-                  device = save_format, scale = scale,
-                  width = width, height = height, units = units,
-                  dpi = dpi, limitsize = limitsize)
+                  device = save_format,
+                  scale = scale,
+                  width = width,
+                  height = height,
+                  units = units,
+                  dpi = dpi,
+                  limitsize = limitsize)
 
   # show saved plot if requested
   if(show_saved_plot == TRUE) {
@@ -533,6 +539,7 @@ visPlot_2D_ggplot = function(gobject,
     print(pl)
   }
 
+
   ## save plot
   if(save_plot == TRUE) {
 
@@ -920,7 +927,8 @@ visPlot <- function(gobject,
                                save_folder = save_folder,
                                save_name = save_name,
                                save_format = save_format,
-                               show_saved_plot = show_saved_plot)
+                               show_saved_plot = show_saved_plot,
+                               ...)
 
 
   }
@@ -1849,7 +1857,16 @@ visDimPlot_2D_ggplot <- function(gobject,
                                  point_size = 1,
                                  point_border_col = 'black',
                                  point_border_stroke = 0.1,
-                                 show_legend = T){
+                                 show_legend = T,
+                                 show_plot = F,
+                                 return_plot = TRUE,
+                                 save_plot = F,
+                                 save_dir = NULL,
+                                 save_folder = NULL,
+                                 save_name = NULL,
+                                 save_format = NULL,
+                                 show_saved_plot = F,
+                                 ...){
 
   ## dimension reduction ##
   dim_dfr = gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$coordinates[,c(dim1_to_use, dim2_to_use)]
@@ -1983,7 +2000,27 @@ visDimPlot_2D_ggplot <- function(gobject,
   }
 
 
-  return(pl)
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+
+  ## save plot
+  if(save_plot == TRUE) {
+
+    ggplot_save_function(gobject = gobject,
+                         plot_object = pl,
+                         save_dir = save_dir,
+                         save_folder = save_folder,
+                         save_name = save_name,
+                         save_format = save_format,
+                         show_saved_plot = show_saved_plot,
+                         ...)
+  }
+
+  ## return plot
+  if(return_plot == TRUE) return(pl)
 
 }
 
@@ -2397,6 +2434,14 @@ visDimPlot_3D_plotly <- function(gobject,
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
 #' @param show_legend show legend
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_dir directory to save the plot
+#' @param save_folder (optional) folder in directory to save the plot
+#' @param save_name name of plot
+#' @param save_format format of plot (e.g. tiff, png, pdf, ...)
+#' @param show_saved_plot load & display the saved plot
 #' @return ggplot or plotly
 #' @details Description of parameters.
 #' @export
@@ -2431,7 +2476,16 @@ visDimPlot <- function(gobject,
                        point_border_col = 'black',
                        point_border_stroke = 0.1,
                        plot_method = c('ggplot', 'plotly'),
-                       show_legend = T){
+                       show_legend = T,
+                       show_plot = F,
+                       return_plot = TRUE,
+                       save_plot = F,
+                       save_dir = NULL,
+                       save_folder = NULL,
+                       save_name = NULL,
+                       save_format = NULL,
+                       show_saved_plot = F,
+                       ...){
 
   plot_method = match.arg(plot_method, choices = c('ggplot', 'plotly'))
 
@@ -2468,7 +2522,16 @@ visDimPlot <- function(gobject,
                                   point_size = point_size,
                                   point_border_col =point_border_col,
                                   point_border_stroke = point_border_stroke,
-                                  show_legend = show_legend)
+                                  show_legend = show_legend,
+                                  show_plot = show_plot,
+                                  return_plot = return_plot,
+                                  save_plot = save_plot,
+                                  save_dir = save_dir,
+                                  save_folder = save_folder,
+                                  save_name = save_name,
+                                  save_format = save_format,
+                                  show_saved_plot = show_saved_plot,
+                                  ...)
   }
 
 
@@ -2526,7 +2589,33 @@ visDimPlot <- function(gobject,
 #' @name plotUMAP
 #' @description Short wrapper for UMAP visualization
 #' @param gobject giotto object
-#' @param ... other parameters that are part of visDimPlot()
+#' @param dim1_to_use dimension to use on x-axis
+#' @param dim2_to_use dimension to use on y-axis
+#' @param dim3_to_use dimension to use on z-axis
+#' @param show_NN_network show underlying NN network
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
+#' @param network_name name of NN network to use, if show_NN_network = TRUE
+#' @param cell_color color for cells (see details)
+#' @param color_as_factor convert color column to factor
+#' @param cell_color_code named vector with colors
+#' @param show_cluster_center plot center of selected clusters
+#' @param show_center_label plot label of selected clusters
+#' @param center_point_size size of center points
+#' @param label_size  size of labels
+#' @param label_fontface font of labels
+#' @param edge_alpha column to use for alpha of the edges
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param show_legend show legend
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_dir directory to save the plot
+#' @param save_folder (optional) folder in directory to save the plot
+#' @param save_name name of plot
+#' @param save_format format of plot (e.g. tiff, png, pdf, ...)
+#' @param show_saved_plot load & display the saved plot
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -2543,7 +2632,33 @@ plotUMAP = function(gobject, ...) {
 #' @name plotTSNE
 #' @description Short wrapper for tSNE visualization
 #' @param gobject giotto object
-#' @param ... other parameters that are part of visDimPlot()
+#' @param dim1_to_use dimension to use on x-axis
+#' @param dim2_to_use dimension to use on y-axis
+#' @param dim3_to_use dimension to use on z-axis
+#' @param show_NN_network show underlying NN network
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
+#' @param network_name name of NN network to use, if show_NN_network = TRUE
+#' @param cell_color color for cells (see details)
+#' @param color_as_factor convert color column to factor
+#' @param cell_color_code named vector with colors
+#' @param show_cluster_center plot center of selected clusters
+#' @param show_center_label plot label of selected clusters
+#' @param center_point_size size of center points
+#' @param label_size  size of labels
+#' @param label_fontface font of labels
+#' @param edge_alpha column to use for alpha of the edges
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param show_legend show legend
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_dir directory to save the plot
+#' @param save_folder (optional) folder in directory to save the plot
+#' @param save_name name of plot
+#' @param save_format format of plot (e.g. tiff, png, pdf, ...)
+#' @param show_saved_plot load & display the saved plot
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -2560,7 +2675,33 @@ plotTSNE = function(gobject, ...) {
 #' @name plotPCA
 #' @description Short wrapper for PCA visualization
 #' @param gobject giotto object
-#' @param ... other parameters that are part of visDimPlot()
+#' @param dim1_to_use dimension to use on x-axis
+#' @param dim2_to_use dimension to use on y-axis
+#' @param dim3_to_use dimension to use on z-axis
+#' @param show_NN_network show underlying NN network
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
+#' @param network_name name of NN network to use, if show_NN_network = TRUE
+#' @param cell_color color for cells (see details)
+#' @param color_as_factor convert color column to factor
+#' @param cell_color_code named vector with colors
+#' @param show_cluster_center plot center of selected clusters
+#' @param show_center_label plot label of selected clusters
+#' @param center_point_size size of center points
+#' @param label_size  size of labels
+#' @param label_fontface font of labels
+#' @param edge_alpha column to use for alpha of the edges
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param show_legend show legend
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_dir directory to save the plot
+#' @param save_folder (optional) folder in directory to save the plot
+#' @param save_name name of plot
+#' @param save_format format of plot (e.g. tiff, png, pdf, ...)
+#' @param show_saved_plot load & display the saved plot
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -2594,6 +2735,14 @@ plotPCA = function(gobject, ...) {
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
 #' @param show_legend show legend
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_dir directory to save the plot
+#' @param save_folder (optional) folder in directory to save the plot
+#' @param save_name name of plot
+#' @param save_format format of plot (e.g. tiff, png, pdf, ...)
+#' @param show_saved_plot load & display the saved plot
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -2613,7 +2762,16 @@ visForceLayoutPlot <- function(gobject,
                                point_size = 1,
                                point_border_col = 'black',
                                point_border_stroke = 0.1,
-                               show_legend = T) {
+                               show_legend = T,
+                               show_plot = F,
+                               return_plot = TRUE,
+                               save_plot = F,
+                               save_dir = NULL,
+                               save_folder = NULL,
+                               save_name = NULL,
+                               save_format = NULL,
+                               show_saved_plot = F,
+                               ...) {
 
 
   ## layout ##
@@ -2714,7 +2872,28 @@ visForceLayoutPlot <- function(gobject,
                                    color = point_border_col, stroke = point_border_stroke)
   }
 
-  return(pl)
+
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+
+    ggplot_save_function(gobject = gobject,
+                         plot_object = pl,
+                         save_dir = save_dir,
+                         save_folder = save_folder,
+                         save_name = save_name,
+                         save_format = save_format,
+                         show_saved_plot = show_saved_plot,
+                         ...)
+  }
+
+  ## return plot
+  if(return_plot == TRUE) return(pl)
 
 }
 
@@ -2749,6 +2928,13 @@ visForceLayoutPlot <- function(gobject,
 #' @param spatial_grid_color color of spatial grid
 #' @param show_legend show legend
 #' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_dir directory to save the plot
+#' @param save_folder (optional) folder in directory to save the plot
+#' @param save_name name of plot
+#' @param save_format format of plot (e.g. tiff, png, pdf, ...)
+#' @param show_saved_plot load & display the saved plot
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -2874,6 +3060,7 @@ visSpatDimPlot_2D <- function(gobject,
   }
 
 }
+
 
 #' @title visSpatDimPlot_3D
 #' @name visSpatDimPlot_3D

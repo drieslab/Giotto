@@ -16,7 +16,9 @@ visDimPlot_2D_ggplot(gobject, dim_reduction_to_use = "umap",
   center_point_border_stroke = 0.1, label_size = 4,
   label_fontface = "bold", edge_alpha = NULL, point_size = 1,
   point_border_col = "black", point_border_stroke = 0.1,
-  show_legend = T)
+  show_legend = T, show_plot = F, return_plot = TRUE,
+  save_plot = F, save_dir = NULL, save_folder = NULL,
+  save_name = NULL, save_format = NULL, show_saved_plot = F, ...)
 }
 \arguments{
 \item{gobject}{giotto object}
