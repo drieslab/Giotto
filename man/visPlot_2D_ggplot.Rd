@@ -16,7 +16,9 @@ visPlot_2D_ggplot(gobject, sdimx = NULL, sdimy = NULL,
   spatial_grid_name = "spatial_grid", coord_fix_ratio = 0.6,
   title = "", show_legend = T, axis_scale = c("cube", "real",
   "custom"), custom_ratio = NULL, x_ticks = NULL, y_ticks = NULL,
-  z_ticks = NULL, show_plot = F)
+  z_ticks = NULL, show_plot = F, return_plot = TRUE, save_plot = F,
+  save_dir = NULL, save_folder = NULL, save_name = NULL,
+  save_format = NULL, show_saved_plot = F, ...)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -64,6 +66,20 @@ visPlot_2D_ggplot(gobject, sdimx = NULL, sdimy = NULL,
 \item{show_legend}{show legend}
 
 \item{show_plot}{show plot}
+
+\item{return_plot}{return ggplot object}
+
+\item{save_plot}{directly save the plot [boolean]}
+
+\item{save_dir}{directory to save the plot}
+
+\item{save_folder}{(optional) folder in directory to save the plot}
+
+\item{save_name}{name of plot}
+
+\item{save_format}{format of plot (e.g. tiff, png, pdf, ...)}
+
+\item{show_saved_plot}{load & display the saved plot}
 }
 \value{
 ggplot

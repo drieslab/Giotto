@@ -1,4 +1,77 @@
 
+
+#' @title ggplot_save_function
+#' @name ggplot_save_function
+#' @description Function to automatically save plots to directory of interest
+#' @param gobject giotto object
+#' @param save_dir directory to save to
+#' @param save_folder folder in save_dir to save to
+#' @param save_name name of plot
+#' @param save_format format (e.g. png, tiff, pdf, ...)
+#' @param show_saved_plot load & display the saved plot
+#' @param scale scale
+#' @param width width
+#' @param heigth height
+#' @param units units
+#' @param dpi Plot resolution
+#' @param limitsize When TRUE (the default), ggsave will not save images larger than 50x50 inches, to prevent the common error of specifying dimensions in pixels.
+#' @seealso \code{\link{ggplot2::ggsave}}
+#' @export
+#' @examples
+#'     ggplot_save_function(gobject)
+ggplot_save_function = function(gobject,
+                                plot_object = NULL,
+                                save_dir = NULL,
+                                save_folder = NULL,
+                                save_name = NULL,
+                                save_format = NULL,
+                                show_saved_plot = F,
+                                scale = 1,
+                                width = NA,
+                                height = NA,
+                                units = c("in", "cm", "mm"),
+                                dpi = 300,
+                                limitsize = TRUE) {
+
+  if(is.null(plot_object)) {
+    stop('\t there is no object to plot \t')
+  }
+
+  ## get save information and set defaults
+  if(is.null(save_dir)) save_dir = readGiottoInstructions(gobject, param = 'save_dir')
+  if(is.null(save_folder)) save_folder = NULL
+  if(is.null(save_name)) save_name = "giotto_plot"
+  if(is.null(save_format)) save_format = 'png'
+
+  # create saving location
+  file_location = paste0(save_dir,'/', save_folder)
+  if(!file.exists(file_location)) dir.create(file_location, recursive = T)
+  file_name = paste0(save_name, ".", save_format)
+
+  ggplot2::ggsave(plot = plot_object,
+                  filename = file_name,
+                  path = file_location,
+                  device = save_format, scale = scale,
+                  width = width, height = height, units = units,
+                  dpi = dpi, limitsize = limitsize)
+
+  # show saved plot if requested
+  if(show_saved_plot == TRUE) {
+
+    if(save_format == 'png') {
+      img <- png::readPNG(source = paste0(file_location, '/', file_name))
+      grid::grid.raster(img)
+    } else if(save_format == 'tiff') {
+      img <- tiff::readTIFF(source =  paste0(file_location, '/', file_name))
+      grid::grid.raster(img)
+    } else {
+      cat('\t only png & tiff are currently supported \t')
+    }
+  }
+}
+
+
+
 #' @title visPlot_3D_plotly
 #' @name visPlot_3D_plotly
 #' @description Visualize cells according to spatial coordinates
@@ -225,6 +298,13 @@ visPlot_3D_plotly = function(gobject,
 #' @param title title of plot
 #' @param show_legend show legend
 #' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_dir directory to save the plot
+#' @param save_folder (optional) folder in directory to save the plot
+#' @param save_name name of plot
+#' @param save_format format of plot (e.g. tiff, png, pdf, ...)
+#' @param show_saved_plot load & display the saved plot
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -259,7 +339,15 @@ visPlot_2D_ggplot = function(gobject,
                              x_ticks = NULL,
                              y_ticks = NULL,
                              z_ticks = NULL,
-                             show_plot = F) {
+                             show_plot = F,
+                             return_plot = TRUE,
+                             save_plot = F,
+                             save_dir = NULL,
+                             save_folder = NULL,
+                             save_name = NULL,
+                             save_format = NULL,
+                             show_saved_plot = F,
+                             ...) {
 
 
   ## get spatial cell locations
@@ -439,10 +527,26 @@ visPlot_2D_ggplot = function(gobject,
   pl <- pl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates', title = title)
 
 
+  ## print plot
   if(show_plot == TRUE) {
     print(pl)
   }
-  return(pl)
+
+  ## save plot
+  if(save_plot == TRUE) {
+
+    ggplot_save_function(gobject = gobject,
+                         plot_object = pl,
+                         save_dir = save_dir,
+                         save_folder = save_folder,
+                         save_name = save_name,
+                         save_format = save_format,
+                         show_saved_plot = show_saved_plot,
+                         ...)
+  }
+
+  ## return plot
+  if(return_plot == TRUE) return(pl)
 
 }
 
@@ -709,6 +813,13 @@ visPlot_2D_plotly = function(gobject,
 #' @param title title of plot
 #' @param show_legend show legend
 #' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_dir directory to save the plot
+#' @param save_folder (optional) folder in directory to save the plot
+#' @param save_name name of plot
+#' @param save_format format of plot (e.g. tiff, png, pdf, ...)
+#' @param show_saved_plot load & display the saved plot
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -746,7 +857,15 @@ visPlot <- function(gobject,
                     y_ticks = NULL,
                     z_ticks = NULL,
                     plot_method = c('ggplot', 'plotly'),
-                    show_plot = F) {
+                    show_plot = F,
+                    return_plot = TRUE,
+                    save_plot = F,
+                    save_dir = NULL,
+                    save_folder = NULL,
+                    save_name = NULL,
+                    save_format = NULL,
+                    show_saved_plot = F,
+                    ...) {
 
 
   ## decide plot method
@@ -793,7 +912,14 @@ visPlot <- function(gobject,
                                x_ticks = x_ticks,
                                y_ticks = y_ticks,
                                z_ticks = z_ticks,
-                               show_plot = show_plot)
+                               show_plot = show_plot,
+                               return_plot = return_plot,
+                               save_plot = save_plot,
+                               save_dir = save_dir,
+                               save_folder = save_folder,
+                               save_name = save_name,
+                               save_format = save_format,
+                               show_saved_plot = show_saved_plot)
 
 
   }
@@ -879,6 +1005,8 @@ visPlot <- function(gobject,
   return(result)
 
 }
+
+
 
 
 #' @title visGenePlot_2D_ggplot

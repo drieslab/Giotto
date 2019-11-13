@@ -9,7 +9,7 @@ createGiottoObject(raw_exprs, spatial_locs = NULL, norm_expr = NULL,
   gene_metadata = NULL, spatial_network = NULL,
   spatial_network_name = NULL, spatial_grid = NULL,
   spatial_grid_name = NULL, dimension_reduction = NULL,
-  nn_network = NULL, offset_file = NULL)
+  nn_network = NULL, offset_file = NULL, instructions = NULL)
 }
 \arguments{
 \item{raw_exprs}{matrix with raw expression counts [required]}

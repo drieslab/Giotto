@@ -34,6 +34,7 @@ giotto <- setClass(
     dimension_reduction = 'ANY',
     nn_network = "ANY",
     parameters = "ANY",
+    instructions = "ANY",
     offset_file = "ANY"
   ),
 
@@ -52,6 +53,7 @@ giotto <- setClass(
     dimension_reduction = NULL,
     nn_network = NULL,
     parameters = NULL,
+    instructions = NULL,
     offset_file = NULL
   ),
 
@@ -59,6 +61,16 @@ giotto <- setClass(
 
     if(any(lapply(list(object@raw_exprs), is.null) == TRUE)) {
       return('expression and spatial locations slots need to be filled in')
+    }
+
+    # check validity of instructions vector if provided by the user
+    if(!is.null(object@instructions)) {
+
+      instr_names = c("python_path", "save_dir", "plot_format", "dpi")
+      missing_names = instr_names[!instr_names %in% names(object@instructions)]
+      if(length(missing_names) != 0) {
+        return('\t Instruction parameters are missing for: ', missing_names, '\t')
+      }
     }
 
     #if(any(lapply(list(object@raw_exprs, object@spatial_locs), is.null) == TRUE)) {
@@ -122,6 +134,73 @@ setMethod(f = "print.giotto",
 
 
 
+#' @title createGiottoInstructions
+#' @description Function to create instructions for giotto functions
+#' @param python_path path to python bin to use
+#' @param save_dir path of directory to use to save figures
+#' @param dpi resolution for raster images
+#' @return named vector with giotto instructions
+#' @export
+#' @examples
+#'     createGiottoInstructions()
+createGiottoInstructions <- function(python_path =  NULL,
+                                     save_dir = NULL,
+                                     plot_format = NULL,
+                                     dpi = NULL) {
+
+  # pyton path to use
+  if(is.null(python_path)) {
+    python_path = system('which python', intern = T)
+  }
+
+  # directory to save results to
+  if(is.null(save_dir)) {
+    save_dir = getwd()
+  }
+
+  # plot format
+  if(is.null(plot_format)) {
+    plot_format = "png"
+  }
+
+  # dpi of raster images
+  if(is.null(dpi)) {
+    dpi = 300
+  }
+
+
+  instructions_vector = c(python_path, save_dir, plot_format, dpi)
+  names(instructions_vector) = c('python_path','save_dir', 'plot_format', 'dpi')
+  return(instructions_vector)
+
+}
+
+#' @title readGiottoInstrunctions
+#' @description Function to read instructions for giotto functions
+#' @param giotto_instructions giotto object or result from createGiottoInstructions()
+#' @param param parameter to retrieve
+#' @return specific parameter
+#' @export
+#' @examples
+#'     readGiottoInstrunctions()
+readGiottoInstructions <- function(giotto_instructions, param = NULL) {
+
+  # get instructions if provided the giotto object
+  if(class(giotto_instructions) == 'giotto') {
+    giotto_instructions = giotto_instructions@instructions
+  }
+
+  # stop if parameter is not found
+  if(is.null(param)) {
+    stop('\t readGiottoInstructions needs a parameter to work \t')
+  } else if(!param %in% names(giotto_instructions)) {
+    stop('\t parameter ', param, ' is not part of Giotto parameters \t')
+  } else {
+    specific_instruction = giotto_instructions[[param]]
+  }
+  return(specific_instruction)
+}
+
 #' @title create Giotto object
 #' @description Function to create a giotto object
 #' @param raw_exprs matrix with raw expression counts [required]
@@ -156,7 +235,8 @@ createGiottoObject <- function(raw_exprs,
                                spatial_grid_name = NULL,
                                dimension_reduction = NULL,
                                nn_network = NULL,
-                               offset_file = NULL) {
+                               offset_file = NULL,
+                               instructions = NULL) {
 
   # create minimum giotto
   gobject = giotto(raw_exprs = raw_exprs,
@@ -173,13 +253,18 @@ createGiottoObject <- function(raw_exprs,
                    dimension_reduction = NULL,
                    nn_network = NULL,
                    parameters = NULL,
-                   offset_file = offset_file)
+                   offset_file = offset_file,
+                   instructions = instructions)
 
   # prepare other slots
   gobject@cell_ID = colnames(raw_exprs)
   gobject@gene_ID = rownames(raw_exprs)
   gobject@parameters = list()
 
+  if(is.null(instructions)) {
+    # create all default instructions
+    gobject@instructions = createGiottoInstructions()
+  }
 
   ## if no spatial information is given; create dummy spatial data
   if(is.null(spatial_locs)) {
