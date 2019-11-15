@@ -505,10 +505,11 @@ visPlot(gobject = osm_test, cell_color = 'HMRF_k10_b.0', point_size = 3)
 visPlot(gobject = osm_test, cell_color = 'HMRF_k10_b.0.5', point_size = 3)
 ```
 
-Without information from neighboring cells, b = 0:
+Without information from neighboring cells, b = 0:  
 ![](./figures/10_final_hmrf_b0.png){width=16cm} 
 
-b = 0.5
+
+b = 0.5:  
 ![](./figures/10_final_hmrf_b0.5.png){width=16cm} 
 
 ***
