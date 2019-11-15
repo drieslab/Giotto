@@ -1,83 +1,5 @@
 
 
-#' @title ggplot_save_function_old
-#' @name ggplot_save_function_old
-#' @description Function to automatically save plots to directory of interest
-#' @param gobject giotto object
-#' @param save_dir directory to save to
-#' @param save_folder folder in save_dir to save to
-#' @param save_name name of plot
-#' @param save_format format (e.g. png, tiff, pdf, ...)
-#' @param show_saved_plot load & display the saved plot
-#' @param scale scale
-#' @param width width
-#' @param heigth height
-#' @param units units
-#' @param dpi Plot resolution
-#' @param limitsize When TRUE (the default), ggsave will not save images larger than 50x50 inches, to prevent the common error of specifying dimensions in pixels.
-#' @seealso \code{\link{ggplot2::ggsave}}
-#' @export
-#' @examples
-#'     ggplot_save_function_old(gobject)
-ggplot_save_function_old = function(gobject,
-                                plot_object = NULL,
-                                save_dir = NULL,
-                                save_folder = NULL,
-                                save_name = NULL,
-                                save_format = NULL,
-                                show_saved_plot = F,
-                                scale = 1,
-                                width = NULL,
-                                height = NULL,
-                                units = NULL,
-                                dpi = NULL,
-                                limitsize = TRUE) {
-
-  if(is.null(plot_object)) {
-    stop('\t there is no object to plot \t')
-  }
-
-  ## get save information and set defaults
-  if(is.null(save_dir)) save_dir = readGiottoInstructions(gobject, param = 'save_dir')
-  if(is.null(save_folder)) save_folder = NULL
-  if(is.null(save_name)) save_name = "giotto_plot"
-  if(is.null(save_format)) save_format = readGiottoInstructions(gobject, param = 'plot_format')
-  if(is.null(dpi)) dpi = readGiottoInstructions(gobject, param = 'dpi')
-  if(is.null(width)) width = readGiottoInstructions(gobject, param = 'width')
-  if(is.null(height)) height = readGiottoInstructions(gobject, param = 'height')
-
-  # create saving location
-  file_location = paste0(save_dir,'/', save_folder)
-  if(!file.exists(file_location)) dir.create(file_location, recursive = T)
-  file_name = paste0(save_name, ".", save_format)
-
-  ggplot2::ggsave(plot = plot_object,
-                  filename = file_name,
-                  path = file_location,
-                  device = save_format,
-                  scale = scale,
-                  width = width,
-                  height = height,
-                  units = units,
-                  dpi = dpi,
-                  limitsize = limitsize)
-
-  # show saved plot if requested
-  if(show_saved_plot == TRUE) {
-
-    if(save_format == 'png') {
-      img <- png::readPNG(source = paste0(file_location, '/', file_name))
-      grid::grid.raster(img)
-    } else if(save_format == 'tiff') {
-      img <- tiff::readTIFF(source =  paste0(file_location, '/', file_name))
-      grid::grid.raster(img)
-    } else {
-      cat('\t only png & tiff are currently supported \t')
-    }
-  }
-}
-
-
 #' @title ggplot_save_function
 #' @name ggplot_save_function
 #' @description Function to automatically save plots to directory of interest
@@ -1674,214 +1596,6 @@ visGenePlot <- function(gobject,
 
 
 
-#' @title plot_network_layer_ggplot
-#' @name plot_network_layer_ggplot
-#' @description Visualize cells in network layer according to dimension reduction coordinates
-#' @param gobject giotto object
-#' @param annotated_network_DT annotated network data.table of selected cells
-#' @param edge_alpha alpha of network edges
-#' @param show_legend show legend
-#' @return ggplot
-#' @details Description of parameters.
-#' @export
-#' @examples
-#'     plot_network_layer_ggplot(gobject)
-plot_network_layer_ggplot = function(ggobject,
-                                     annotated_network_DT,
-                                     edge_alpha = NULL,
-                                     show_legend = T) {
-
-
-  from_dims = grep('from_Dim', colnames(annotated_network_DT), value = T)
-  to_dims = grep('to_Dim', colnames(annotated_network_DT), value = T)
-
-
-
-  pl <- ggobject
-
-  if(is.null(edge_alpha)) {
-    edge_alpha = 0.05
-    pl <- pl + ggplot2::geom_segment(data = annotated_network_DT, aes_string(x = from_dims[1], y = from_dims[2],
-                                                                             xend = to_dims[1], yend = to_dims[2]),
-                                     alpha = edge_alpha, show.legend = show_legend)
-
-  } else if(is.numeric(edge_alpha)) {
-    pl <- pl + ggplot2::geom_segment(data = annotated_network_DT, aes_string(x = from_dims[1], y = from_dims[2],
-                                                                             xend = to_dims[1], yend = to_dims[2]),
-                                     alpha = edge_alpha, show.legend = show_legend)
-  } else if(is.character(edge_alpha)) {
-
-    if(edge_alpha %in% colnames(annotated_network_DT)) {
-      pl <- pl + ggplot2::geom_segment(data = annotated_network_DT, aes_string(x = from_dims[1], y = from_dims[2],
-                                                                               xend = to_dims[1], yend = to_dims[2],
-                                                                               alpha = edge_alpha),
-                                       show.legend = show_legend)
-    }
-  }
-
-  return(pl)
-
-}
-
-
-
-
-#' @title plot_point_layer_ggplot
-#' @name plot_point_layer_ggplot
-#' @description Visualize cells in point layer according to dimension reduction coordinates
-#' @param gobject giotto object
-#' @param annotated_DT_selected annotated data.table of selected cells
-#' @param annotated_DT_other annotated data.table of not selected cells
-#' @param cell_color color for cells (see details)
-#' @param color_as_factor convert color column to factor
-#' @param cell_color_code named vector with colors
-#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
-#' @param select_cells select subset of cells based on cell IDs
-#' @param show_other_cells display not selected cells
-#' @param other_cell_color color of not selected cells
-#' @param other_point_size size of not selected cells
-#' @param show_cluster_center plot center of selected clusters
-#' @param show_center_label plot label of selected clusters
-#' @param center_point_size size of center points
-#' @param label_size  size of labels
-#' @param label_fontface font of labels
-#' @param edge_alpha column to use for alpha of the edges
-#' @param point_size size of point (cell)
-#' @param point_border_col color of border around points
-#' @param point_border_stroke stroke size of border around points
-#' @param show_legend show legend
-#' @return ggplot
-#' @details Description of parameters.
-#' @export
-#' @examples
-#'     plot_point_layer_ggplot(gobject)
-plot_point_layer_ggplot = function(ggobject,
-                                   annotated_DT_selected,
-                                   annotated_DT_other,
-                                   cell_color = NULL,
-                                   color_as_factor = T,
-                                   cell_color_code = NULL,
-                                   select_cell_groups = NULL,
-                                   select_cells = NULL,
-                                   show_other_cells = T,
-                                   other_cell_color = 'lightgrey',
-                                   other_point_size = 0.5,
-                                   show_cluster_center = F,
-                                   show_center_label = T,
-                                   center_point_size = 4,
-                                   center_point_border_col = 'black',
-                                   center_point_border_stroke = 0.1,
-                                   label_size = 4,
-                                   label_fontface = 'bold',
-                                   edge_alpha = NULL,
-                                   point_size = 1,
-                                   point_border_col = 'black',
-                                   point_border_stroke = 0.1,
-                                   show_legend = T
-) {
-
-
-  pl = ggobject
-
-
-
-  ## first plot other non-selected cells
-  if((!is.null(select_cells) | !is.null(select_cell_groups)) & show_other_cells == TRUE) {
-
-    dims = grep('Dim.', colnames(annotated_DT_other), value = T)
-
-    pl <- pl + ggplot2::geom_point(data = annotated_DT_other, aes_string(x = dims[1], dims[2]),
-                                   color = other_cell_color, show.legend = F, size = other_point_size)
-
-
-  }
-
-
-
-
-  ## point layer
-
-  annotated_DT = annotated_DT_selected
-
-  dims = grep('Dim.', colnames(annotated_DT), value = T)
-
-  if(is.null(cell_color)) {
-    cell_color = 'lightblue'
-    pl <- pl + ggplot2::geom_point(data = annotated_DT, aes_string(x = dims[1], dims[2]),
-                                   color = cell_color, show.legend = show_legend, size = point_size)
-
-  } else if (is.character(cell_color)) {
-
-    if(cell_color %in% colnames(annotated_DT)) {
-
-      class_cell_color = class(annotated_DT[[cell_color]])
-
-
-
-      # convert numericals to factors
-      if(color_as_factor == TRUE) {
-        factor_data = factor(annotated_DT[[cell_color]])
-        annotated_DT[[cell_color]] <- factor_data
-        # for centers
-        if(show_cluster_center == TRUE | show_center_label == TRUE) {
-          annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dims[1])), center_2 = median(get(dims[2]))), by = cell_color]
-          factor_center_data = factor(annotated_DT_centers[[cell_color]])
-          annotated_DT_centers[[cell_color]] <- factor_center_data
-        }
-      } else {
-
-        # TEST: centers can only be shown for factors that are part of the metadata
-        if((show_cluster_center == TRUE | show_center_label == TRUE) & class_cell_color %in% c('character', 'factor')) {
-          annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dims[1])), center_2 = median(get(dims[2]))), by = cell_color]
-        }
-
-      }
-
-      pl <- pl + ggplot2::geom_point(data = annotated_DT, aes_string(x = dims[1], y = dims[2], fill = cell_color),
-                                     show.legend = show_legend, shape = 21, size = point_size,
-                                     color = point_border_col, stroke = point_border_stroke)
-
-      ## plot centers
-      if(show_cluster_center == TRUE & (color_as_factor == TRUE | class_cell_color %in% c('character', 'factor'))) {
-
-        pl <- pl + ggplot2::geom_point(data = annotated_DT_centers,
-                                       aes_string(x = 'center_1', y = 'center_2', fill = cell_color),
-                                       color = center_point_border_col, stroke = center_point_border_stroke,
-                                       size = center_point_size, shape = 21)
-      }
-
-      ## plot labels
-      if(show_center_label == TRUE) {
-        pl <- pl + ggrepel::geom_text_repel(data = annotated_DT_centers,
-                                            aes_string(x = 'center_1', y = 'center_2', label = cell_color),
-                                            size = label_size, fontface = label_fontface)
-      }
-
-
-      if(!is.null(cell_color_code)) {
-        pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
-      } else if(color_as_factor == T) {
-        number_colors = length(unique(factor_data))
-        cell_color_code = Giotto:::getDistinctColors(n = number_colors)
-        names(cell_color_code) = unique(factor_data)
-        pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
-      } else if(color_as_factor == F){
-        pl <- pl + ggplot2::scale_fill_gradient(low = 'blue', high = 'red')
-      }
-
-    }
-
-  } else {
-    pl <- pl + ggplot2::geom_point(data = annotated_DT, aes_string(x = dims[1], y = dims[2]),
-                                   show.legend = show_legend, shape = 21, fill = cell_color,
-                                   size = point_size,
-                                   color = point_border_col, stroke = point_border_stroke)
-  }
-
-  return(pl)
-
-}
-
 
 
 #' @title visDimPlot_2D_ggplot
@@ -2139,7 +1853,6 @@ visDimPlot_2D_ggplot <- function(gobject,
 #' @export
 #' @examples
 #'     visDimPlot_2D_plotly(gobject)
-
 visDimPlot_2D_plotly <- function(gobject,
                                  dim_reduction_to_use = 'umap',
                                  dim_reduction_name = 'umap',
@@ -5414,6 +5127,1164 @@ FSV_show <- function(results,ms_results = NULL,size = c(4,2,1), color = c("blue"
 
 
 
+## FOR 2-D dimension reduction and spatial plots ##
+
+
+#' @title plot_network_layer_ggplot
+#' @name plot_network_layer_ggplot
+#' @description Visualize cells in network layer according to dimension reduction coordinates
+#' @param gobject giotto object
+#' @param annotated_network_DT annotated network data.table of selected cells
+#' @param edge_alpha alpha of network edges
+#' @param show_legend show legend
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     plot_network_layer_ggplot(gobject)
+plot_network_layer_ggplot = function(ggobject,
+                                     annotated_network_DT,
+                                     edge_alpha = NULL,
+                                     show_legend = T) {
+
+
+  from_dims = grep('from_Dim', colnames(annotated_network_DT), value = T)
+  to_dims = grep('to_Dim', colnames(annotated_network_DT), value = T)
+
+
+
+  pl <- ggobject
+
+  if(is.null(edge_alpha)) {
+    edge_alpha = 0.05
+    pl <- pl + ggplot2::geom_segment(data = annotated_network_DT, aes_string(x = from_dims[1], y = from_dims[2],
+                                                                             xend = to_dims[1], yend = to_dims[2]),
+                                     alpha = edge_alpha, show.legend = show_legend)
+
+  } else if(is.numeric(edge_alpha)) {
+    pl <- pl + ggplot2::geom_segment(data = annotated_network_DT, aes_string(x = from_dims[1], y = from_dims[2],
+                                                                             xend = to_dims[1], yend = to_dims[2]),
+                                     alpha = edge_alpha, show.legend = show_legend)
+  } else if(is.character(edge_alpha)) {
+
+    if(edge_alpha %in% colnames(annotated_network_DT)) {
+      pl <- pl + ggplot2::geom_segment(data = annotated_network_DT, aes_string(x = from_dims[1], y = from_dims[2],
+                                                                               xend = to_dims[1], yend = to_dims[2],
+                                                                               alpha = edge_alpha),
+                                       show.legend = show_legend)
+    }
+  }
+
+  return(pl)
+
+}
+
+
+
+
+#' @title plot_point_layer_ggplot
+#' @name plot_point_layer_ggplot
+#' @description Visualize cells in point layer according to dimension reduction coordinates
+#' @param gobject giotto object
+#' @param annotated_DT_selected annotated data.table of selected cells
+#' @param annotated_DT_other annotated data.table of not selected cells
+#' @param cell_color color for cells (see details)
+#' @param color_as_factor convert color column to factor
+#' @param cell_color_code named vector with colors
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param select_cells select subset of cells based on cell IDs
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color of not selected cells
+#' @param other_point_size size of not selected cells
+#' @param show_cluster_center plot center of selected clusters
+#' @param show_center_label plot label of selected clusters
+#' @param center_point_size size of center points
+#' @param label_size  size of labels
+#' @param label_fontface font of labels
+#' @param edge_alpha column to use for alpha of the edges
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param show_legend show legend
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     plot_point_layer_ggplot(gobject)
+plot_point_layer_ggplot = function(ggobject,
+                                   annotated_DT_selected,
+                                   annotated_DT_other,
+                                   cell_color = NULL,
+                                   color_as_factor = T,
+                                   cell_color_code = NULL,
+                                   select_cell_groups = NULL,
+                                   select_cells = NULL,
+                                   show_other_cells = T,
+                                   other_cell_color = 'lightgrey',
+                                   other_point_size = 0.5,
+                                   show_cluster_center = F,
+                                   show_center_label = T,
+                                   center_point_size = 4,
+                                   center_point_border_col = 'black',
+                                   center_point_border_stroke = 0.1,
+                                   label_size = 4,
+                                   label_fontface = 'bold',
+                                   edge_alpha = NULL,
+                                   point_size = 1,
+                                   point_border_col = 'black',
+                                   point_border_stroke = 0.1,
+                                   show_legend = T
+) {
+
+
+  pl = ggobject
+
+
+
+  ## first plot other non-selected cells
+  if((!is.null(select_cells) | !is.null(select_cell_groups)) & show_other_cells == TRUE) {
+
+    dims = grep('Dim.', colnames(annotated_DT_other), value = T)
+
+    pl <- pl + ggplot2::geom_point(data = annotated_DT_other, aes_string(x = dims[1], dims[2]),
+                                   color = other_cell_color, show.legend = F, size = other_point_size)
+
+
+  }
+
+
+
+
+  ## point layer
+  annotated_DT = annotated_DT_selected
+
+  dims = grep('Dim.', colnames(annotated_DT), value = T)
+
+  if(is.null(cell_color)) {
+    cell_color = 'lightblue'
+    pl <- pl + ggplot2::geom_point(data = annotated_DT, aes_string(x = dims[1], dims[2]),
+                                   color = cell_color, show.legend = show_legend, size = point_size)
+
+  } else if (is.character(cell_color)) {
+
+    if(cell_color %in% colnames(annotated_DT)) {
+
+      class_cell_color = class(annotated_DT[[cell_color]])
+
+
+
+      # convert numericals to factors
+      if(color_as_factor == TRUE) {
+        factor_data = factor(annotated_DT[[cell_color]])
+        annotated_DT[[cell_color]] <- factor_data
+        # for centers
+        if(show_cluster_center == TRUE | show_center_label == TRUE) {
+          annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dims[1])), center_2 = median(get(dims[2]))), by = cell_color]
+          factor_center_data = factor(annotated_DT_centers[[cell_color]])
+          annotated_DT_centers[[cell_color]] <- factor_center_data
+        }
+      } else {
+
+        # TEST: centers can only be shown for factors that are part of the metadata
+        if((show_cluster_center == TRUE | show_center_label == TRUE) & class_cell_color %in% c('character', 'factor')) {
+          annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dims[1])), center_2 = median(get(dims[2]))), by = cell_color]
+        }
+
+      }
+
+      pl <- pl + ggplot2::geom_point(data = annotated_DT, aes_string(x = dims[1], y = dims[2], fill = cell_color),
+                                     show.legend = show_legend, shape = 21, size = point_size,
+                                     color = point_border_col, stroke = point_border_stroke)
+
+      ## plot centers
+      if(show_cluster_center == TRUE & (color_as_factor == TRUE | class_cell_color %in% c('character', 'factor'))) {
+
+        pl <- pl + ggplot2::geom_point(data = annotated_DT_centers,
+                                       aes_string(x = 'center_1', y = 'center_2', fill = cell_color),
+                                       color = center_point_border_col, stroke = center_point_border_stroke,
+                                       size = center_point_size, shape = 21)
+      }
+
+      ## plot labels
+      if(show_center_label == TRUE) {
+        pl <- pl + ggrepel::geom_text_repel(data = annotated_DT_centers,
+                                            aes_string(x = 'center_1', y = 'center_2', label = cell_color),
+                                            size = label_size, fontface = label_fontface)
+      }
+
+
+      if(!is.null(cell_color_code)) {
+        pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
+      } else if(color_as_factor == T) {
+        number_colors = length(unique(factor_data))
+        cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+        names(cell_color_code) = unique(factor_data)
+        pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
+      } else if(color_as_factor == F){
+        pl <- pl + ggplot2::scale_fill_gradient(low = 'blue', high = 'red')
+      }
+
+    }
+
+  } else {
+    pl <- pl + ggplot2::geom_point(data = annotated_DT, aes_string(x = dims[1], y = dims[2]),
+                                   show.legend = show_legend, shape = 21, fill = cell_color,
+                                   size = point_size,
+                                   color = point_border_col, stroke = point_border_stroke)
+  }
+
+  return(pl)
+
+}
+
+
+
+
+
+#' @title dimPlot2D
+#' @name dimPlot2D
+#' @description Visualize cells according to dimension reduction coordinates
+#' @param gobject giotto object
+#' @param dim_reduction_to_use dimension reduction to use
+#' @param dim_reduction_name dimension reduction name
+#' @param dim1_to_use dimension to use on x-axis
+#' @param dim2_to_use dimension to use on y-axis
+#' @param show_NN_network show underlying NN network
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
+#' @param network_name name of NN network to use, if show_NN_network = TRUE
+#' @param cell_color color for cells (see details)
+#' @param color_as_factor convert color column to factor
+#' @param cell_color_code named vector with colors
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param select_cells select subset of cells based on cell IDs
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color of not selected cells
+#' @param other_point_size size of not selected cells
+#' @param show_cluster_center plot center of selected clusters
+#' @param show_center_label plot label of selected clusters
+#' @param center_point_size size of center points
+#' @param label_size  size of labels
+#' @param label_fontface font of labels
+#' @param edge_alpha column to use for alpha of the edges
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param show_legend show legend
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_dir directory to save the plot
+#' @param save_folder (optional) folder in directory to save the plot
+#' @param save_name name of plot
+#' @param save_format format of plot (e.g. tiff, png, pdf, ...)
+#' @param show_saved_plot load & display the saved plot
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     dimPlot2D(gobject)
+dimPlot2D <- function(gobject,
+                      dim_reduction_to_use = 'umap',
+                      dim_reduction_name = 'umap',
+                      dim1_to_use = 1,
+                      dim2_to_use = 2,
+                      show_NN_network = F,
+                      nn_network_to_use = 'sNN',
+                      network_name = 'sNN.pca',
+                      cell_color = NULL,
+                      color_as_factor = T,
+                      cell_color_code = NULL,
+                      select_cell_groups = NULL,
+                      select_cells = NULL,
+                      show_other_cells = T,
+                      other_cell_color = 'lightgrey',
+                      other_point_size = 0.5,
+                      show_cluster_center = F,
+                      show_center_label = T,
+                      center_point_size = 4,
+                      center_point_border_col = 'black',
+                      center_point_border_stroke = 0.1,
+                      label_size = 4,
+                      label_fontface = 'bold',
+                      edge_alpha = NULL,
+                      point_size = 1,
+                      point_border_col = 'black',
+                      point_border_stroke = 0.1,
+                      show_legend = T,
+                      show_plot = F,
+                      return_plot = TRUE,
+                      save_plot = F,
+                      save_dir = NULL,
+                      save_folder = NULL,
+                      save_name = NULL,
+                      save_format = NULL,
+                      show_saved_plot = F,
+                      ...){
+
+  ## dimension reduction ##
+  dim_dfr = gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$coordinates[,c(dim1_to_use, dim2_to_use)]
+  dim_names = colnames(dim_dfr)
+  dim_DT = data.table::as.data.table(dim_dfr); dim_DT[, cell_ID := rownames(dim_dfr)]
+
+  ## annotated cell metadata
+  cell_metadata = gobject@cell_metadata
+  annotated_DT = merge(cell_metadata, dim_DT, by = 'cell_ID')
+
+
+  # create input for network
+  if(show_NN_network == TRUE) {
+
+    # nn_network
+    selected_nn_network = gobject@nn_network[[nn_network_to_use]][[network_name]][['igraph']]
+    network_DT = data.table::as.data.table(igraph::as_data_frame(selected_nn_network, what = 'edges'))
+
+    # annotated network
+    old_dim_names = dim_names
+
+    annotated_network_DT <- merge(network_DT, dim_DT, by.x = 'from', by.y = 'cell_ID')
+    from_dim_names = paste0('from_', old_dim_names)
+    data.table::setnames(annotated_network_DT, old = old_dim_names, new = from_dim_names)
+
+    annotated_network_DT <- merge(annotated_network_DT, dim_DT, by.x = 'to', by.y = 'cell_ID')
+    to_dim_names = paste0('to_', old_dim_names)
+    data.table::setnames(annotated_network_DT, old = old_dim_names, new = to_dim_names)
+
+  }
+
+  # add % variance information if reduction is PCA
+  if(dim_reduction_to_use == "pca"){
+    eigenvaluesDT = data.table::as.data.table(gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$misc$eig)
+    var_expl_vec = eigenvaluesDT[c(dim1_to_use, dim2_to_use)][['percentage of variance']]
+    dim1_x_variance = var_expl_vec[1]
+    dim2_y_variance = var_expl_vec[2]
+  }
+
+
+
+  ## create subsets if needed
+  if(!is.null(select_cells) & !is.null(select_cell_groups)) {
+    if(is.null(cell_color)) {
+      stop('\n selection of cells is based on cell_color paramter, which is a metadata column \n')
+    }
+    cat('You have selected both individual cell IDs and a group of cells \n')
+    group_cell_IDs = annotated_DT[get(cell_color) %in% select_cell_groups][['cell_ID']]
+    select_cells = unique(c(select_cells, group_cell_IDs))
+  } else if(!is.null(select_cell_groups)) {
+    select_cells = annotated_DT[get(cell_color) %in% select_cell_groups][['cell_ID']]
+  }
+
+  if(!is.null(select_cells)) {
+    annotated_DT_other = annotated_DT[!annotated_DT$cell_ID %in% select_cells]
+    annotated_DT_selected = annotated_DT[annotated_DT$cell_ID %in% select_cells]
+
+    if(show_NN_network == TRUE) {
+      annotated_network_DT <- annotated_network_DT[annotated_network_DT$to %in% select_cells & annotated_network_DT$from %in% select_cells]
+    }
+
+    # if specific cells are selected
+    annotated_DT = annotated_DT_selected
+  }
+
+  ## if no subsets are required
+  if(is.null(select_cells) & is.null(select_cell_groups)) {
+    annotated_DT_selected = annotated_DT
+    annotated_DT_other    = NULL
+  }
+
+
+
+  pl <- ggplot2::ggplot()
+  pl <- pl + ggplot2::theme_classic()
+
+  ## add network layer
+  if(show_NN_network == TRUE) {
+    pl = plot_network_layer_ggplot(ggobject = pl,
+                                   annotated_network_DT = annotated_network_DT,
+                                   edge_alpha = edge_alpha,
+                                   show_legend = show_legend)
+  }
+
+
+  ## add point layer
+  pl = plot_point_layer_ggplot(ggobject = pl,
+                               annotated_DT_selected = annotated_DT_selected,
+                               annotated_DT_other = annotated_DT_other,
+                               cell_color = cell_color,
+                               color_as_factor = color_as_factor,
+                               cell_color_code = cell_color_code,
+                               select_cell_groups = select_cell_groups,
+                               select_cells = select_cells,
+                               show_other_cells = show_other_cells,
+                               other_cell_color = other_cell_color,
+                               other_point_size = other_point_size,
+                               show_cluster_center = show_cluster_center,
+                               show_center_label = show_center_label,
+                               center_point_size = center_point_size,
+                               center_point_border_col = center_point_border_col,
+                               center_point_border_stroke = center_point_border_stroke,
+                               label_size = label_size,
+                               label_fontface = label_fontface,
+                               edge_alpha = edge_alpha,
+                               point_size = point_size,
+                               point_border_col = point_border_col,
+                               point_border_stroke = point_border_stroke,
+                               show_legend = show_legend)
+
+
+  ## add % variance explained to names of plot for PCA ##
+  if(dim_reduction_to_use == 'pca') {
+    x_name = paste0('pca','-',dim_names[1])
+    y_name = paste0('pca','-',dim_names[2])
+
+    x_title = sprintf('%s explains %.02f%% of variance', x_name, var_expl_vec[1])
+    y_title = sprintf('%s explains %.02f%% of variance', y_name, var_expl_vec[2])
+
+    pl <- pl + ggplot2::labs(x = x_title, y = y_title)
+
+  } else {
+
+    x_title = paste0(dim_reduction_to_use,'-',dim_names[1])
+    y_title = paste0(dim_reduction_to_use,'-',dim_names[2])
+
+    pl <- pl + ggplot2::labs(x = x_title, y = y_title)
+
+  }
+
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+
+  ## save plot
+  if(save_plot == TRUE) {
+
+    ggplot_save_function(gobject = gobject,
+                         plot_object = pl,
+                         save_dir = save_dir,
+                         save_folder = save_folder,
+                         save_name = save_name,
+                         save_format = save_format,
+                         show_saved_plot = show_saved_plot,
+                         ...)
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
+
+}
+
+
+
+#' @title plotUMAP_2D
+#' @name plotUMAP_2D
+#' @description Short wrapper for UMAP visualization
+#' @param gobject giotto object
+#' @param dim1_to_use dimension to use on x-axis
+#' @param dim2_to_use dimension to use on y-axis
+#' @param dim3_to_use dimension to use on z-axis
+#' @param show_NN_network show underlying NN network
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
+#' @param network_name name of NN network to use, if show_NN_network = TRUE
+#' @param cell_color color for cells (see details)
+#' @param color_as_factor convert color column to factor
+#' @param cell_color_code named vector with colors
+#' @param show_cluster_center plot center of selected clusters
+#' @param show_center_label plot label of selected clusters
+#' @param center_point_size size of center points
+#' @param label_size  size of labels
+#' @param label_fontface font of labels
+#' @param edge_alpha column to use for alpha of the edges
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param show_legend show legend
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_dir directory to save the plot
+#' @param save_folder (optional) folder in directory to save the plot
+#' @param save_name name of plot
+#' @param save_format format of plot (e.g. tiff, png, pdf, ...)
+#' @param show_saved_plot load & display the saved plot
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @seealso \code{\link{dimPlot2D}}
+#' @examples
+#'     plotUMAP_2D(gobject)
+plotUMAP_2D = function(gobject, ...) {
+
+  dimPlot2D(gobject = gobject, dim_reduction_to_use = 'umap', dim_reduction_name = 'umap', ...)
+
+}
+
+#' @title plotTSNE_2D
+#' @name plotTSNE_2D
+#' @description Short wrapper for tSNE visualization
+#' @param gobject giotto object
+#' @param dim1_to_use dimension to use on x-axis
+#' @param dim2_to_use dimension to use on y-axis
+#' @param dim3_to_use dimension to use on z-axis
+#' @param show_NN_network show underlying NN network
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
+#' @param network_name name of NN network to use, if show_NN_network = TRUE
+#' @param cell_color color for cells (see details)
+#' @param color_as_factor convert color column to factor
+#' @param cell_color_code named vector with colors
+#' @param show_cluster_center plot center of selected clusters
+#' @param show_center_label plot label of selected clusters
+#' @param center_point_size size of center points
+#' @param label_size  size of labels
+#' @param label_fontface font of labels
+#' @param edge_alpha column to use for alpha of the edges
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param show_legend show legend
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_dir directory to save the plot
+#' @param save_folder (optional) folder in directory to save the plot
+#' @param save_name name of plot
+#' @param save_format format of plot (e.g. tiff, png, pdf, ...)
+#' @param show_saved_plot load & display the saved plot
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @seealso \code{\link{dimPlot2D}}
+#' @examples
+#'     plotTSNE_2D(gobject)
+plotTSNE_2D = function(gobject, ...) {
+
+  dimPlot2D(gobject = gobject, dim_reduction_to_use = 'tsne', dim_reduction_name = 'tsne', ...)
+
+}
+
+#' @title plotPCA_2D
+#' @name plotPCA_2D
+#' @description Short wrapper for PCA visualization
+#' @param gobject giotto object
+#' @param dim1_to_use dimension to use on x-axis
+#' @param dim2_to_use dimension to use on y-axis
+#' @param dim3_to_use dimension to use on z-axis
+#' @param show_NN_network show underlying NN network
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
+#' @param network_name name of NN network to use, if show_NN_network = TRUE
+#' @param cell_color color for cells (see details)
+#' @param color_as_factor convert color column to factor
+#' @param cell_color_code named vector with colors
+#' @param show_cluster_center plot center of selected clusters
+#' @param show_center_label plot label of selected clusters
+#' @param center_point_size size of center points
+#' @param label_size  size of labels
+#' @param label_fontface font of labels
+#' @param edge_alpha column to use for alpha of the edges
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param show_legend show legend
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_dir directory to save the plot
+#' @param save_folder (optional) folder in directory to save the plot
+#' @param save_name name of plot
+#' @param save_format format of plot (e.g. tiff, png, pdf, ...)
+#' @param show_saved_plot load & display the saved plot
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @seealso \code{\link{dimPlot2D}}
+#' @examples
+#'     plotPCA_2D(gobject)
+plotPCA_2D = function(gobject, ...) {
+
+  dimPlot2D(gobject = gobject, dim_reduction_to_use = 'pca', dim_reduction_name = 'pca', ...)
+
+}
+
+
+
+
+
+
+#' @title plot_spat_point_layer_ggplot
+#' @name plot_spat_point_layer_ggplot
+#' @description creat ggplot point layer for spatial coordinates
+#' @param gobject giotto object
+#' @param sdimx x-axis dimension name (default = 'sdimx')
+#' @param sdimy y-axis dimension name (default = 'sdimy')
+#' @param cell_locations_metadata_selected annotated location from selected cells
+#' @param cell_locations_metadata_other annotated location from non-selected cells
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param cell_color color for cells (see details)
+#' @param cell_color_code named vector with colors
+#' @param color_as_factor convert color column to factor
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param select_cells select subset of cells based on cell IDs
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color for not selected cells
+#' @param other_point_size point size for not selected cells
+#' @param show_legend show legend
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     plot_spat_point_layer_ggplot(gobject)
+plot_spat_point_layer_ggplot = function(ggobject,
+                                        sdimx = NULL,
+                                        sdimy = NULL,
+                                        cell_locations_metadata_selected,
+                                        cell_locations_metadata_other,
+                                        cell_color = NULL,
+                                        color_as_factor = T,
+                                        select_cell_groups = NULL,
+                                        select_cells = NULL,
+                                        cell_color_code = NULL,
+                                        show_legend = TRUE,
+                                        point_size = 2,
+                                        point_border_stroke = 0.1,
+                                        point_border_col = 'lightgrey',
+                                        show_other_cells = T,
+                                        other_cell_color = 'lightgrey',
+                                        other_point_size = 1
+) {
+
+  ## specify spatial dimensions first
+  if(is.null(sdimx) | is.null(sdimy)) {
+
+    warning("plot_method = ggplot, but spatial dimensions for sdimx and/or sdimy are not specified. \n
+            It will default to the 'sdimx' and 'sdimy' ")
+    sdimx = 'sdimx'
+    sdimy = 'sdimy'
+  }
+
+  ## ggplot object
+  pl = ggobject
+
+  ## first plot other non-selected cells
+  if((!is.null(select_cells) | !is.null(select_cell_groups)) & show_other_cells == TRUE) {
+    pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_other, aes_string(x = sdimx, sdimy),
+                                   color = other_cell_color, show.legend = F, size = other_point_size)
+  }
+
+
+  # cell color default
+  if(is.null(cell_color)) {
+
+    cell_color = 'lightblue'
+    pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_selected,
+                                   aes_string(x = sdimx, y = sdimy),
+                                   show.legend = show_legend, shape = 21,
+                                   fill = cell_color, size = point_size,
+                                   stroke = point_border_stroke, color = point_border_col)
+
+  } else if (is.character(cell_color)) {
+
+    if(cell_color %in% colnames(cell_locations_metadata_selected)) {
+
+      # cell_color is a column in the metadata
+
+      if(color_as_factor == TRUE) {
+        factor_data = factor(cell_locations_metadata_selected[[cell_color]])
+        cell_locations_metadata_selected[[cell_color]] <- factor_data
+      }
+
+      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_selected,
+                                     aes_string(x = sdimx, y = sdimy, fill = cell_color),
+                                     show.legend = show_legend, shape = 21, size = point_size,
+                                     stroke = point_border_stroke, color = point_border_col)
+
+      ## manually code colors
+      if(!is.null(cell_color_code)) {
+        pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
+      } else if(color_as_factor == T) {
+        number_colors = length(unique(factor_data))
+        cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+        names(cell_color_code) = unique(factor_data)
+        pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
+      } else if(color_as_factor == F){
+        pl <- pl + ggplot2::scale_fill_gradient(low = 'blue', high = 'red')
+      }
+
+    } else {
+
+      # cell_color is NOT a column in the metadata, but just a color like e.g. 'blue'
+      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_selected, aes_string(x = sdimx, y = sdimy),
+                                     show.legend = show_legend, shape = 21, fill = cell_color,
+                                     size = point_size, stroke = point_border_stroke, color = point_border_col)
+
+    }
+
+  }
+  return(pl)
+}
+
+
+
+#' @title spatPlot2D
+#' @name spatPlot2D
+#' @description Visualize cells according to spatial coordinates
+#' @param gobject giotto object
+#' @param sdimx x-axis dimension name (default = 'sdimx')
+#' @param sdimy y-axis dimension name (default = 'sdimy')
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param cell_color color for cells (see details)
+#' @param cell_color_code named vector with colors
+#' @param color_as_factor convert color column to factor
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param select_cells select subset of cells based on cell IDs
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color of not selected cells
+#' @param show_network show underlying spatial network
+#' @param network_color color of spatial network
+#' @param spatial_network_name name of spatial network to use
+#' @param show_grid show spatial grid
+#' @param grid_color color of spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param coord_fix_ratio fix ratio between x and y-axis
+#' @param title title of plot
+#' @param show_legend show legend
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_dir directory to save the plot
+#' @param save_folder (optional) folder in directory to save the plot
+#' @param save_name name of plot
+#' @param save_format format of plot (e.g. tiff, png, pdf, ...)
+#' @param show_saved_plot load & display the saved plot
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     spatPlot2D(gobject)
+spatPlot2D = function(gobject,
+                      sdimx = 'sdimx',
+                      sdimy = 'sdimy',
+                      point_size = 3,
+                      point_border_col = 'black',
+                      point_border_stroke = 0.1,
+                      cell_color = NULL,
+                      cell_color_code = NULL,
+                      color_as_factor = T,
+                      select_cell_groups = NULL,
+                      select_cells = NULL,
+                      show_other_cells = T,
+                      other_cell_color = 'lightgrey',
+                      other_point_size = 1,
+                      show_network = F,
+                      network_color = NULL,
+                      network_alpha = 1,
+                      other_cells_alpha = 0.1,
+                      spatial_network_name = 'spatial_network',
+                      show_grid = F,
+                      grid_color = NULL,
+                      spatial_grid_name = 'spatial_grid',
+                      coord_fix_ratio = 0.6,
+                      title = '',
+                      show_legend = T,
+                      show_plot = F,
+                      return_plot = TRUE,
+                      save_plot = F,
+                      save_dir = NULL,
+                      save_folder = NULL,
+                      save_name = NULL,
+                      save_format = NULL,
+                      show_saved_plot = F,
+                      ...) {
+
+
+  ## get spatial cell locations
+  cell_locations  = gobject@spatial_locs
+
+  ## extract spatial network
+  if(!is.null(spatial_network_name)) {
+    spatial_network = gobject@spatial_network[[spatial_network_name]]
+  } else {
+    spatial_network = NULL
+  }
+
+  ## extract spatial grid
+  if(!is.null(spatial_grid_name)) {
+    spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
+  } else {
+    spatial_grid = NULL
+  }
+
+  ## get cell metadata
+  cell_metadata   = gobject@cell_metadata
+  cell_metadata   = cell_metadata[, !grepl('cell_ID', colnames(cell_metadata)), with = F]
+
+  if(nrow(cell_metadata) == 0) {
+    cell_locations_metadata = cell_locations
+  } else {
+    cell_locations_metadata <- cbind(cell_locations, cell_metadata)
+  }
+
+  ## create subsets if needed
+  if(!is.null(select_cells) & !is.null(select_cell_groups)) {
+    cat('You have selected both individual cell IDs and a group of cells \n')
+    group_cell_IDs = cell_locations_metadata[get(cell_color) %in% select_cell_groups][['cell_ID']]
+    select_cells = unique(c(select_cells, group_cell_IDs))
+  } else if(!is.null(select_cell_groups)) {
+    select_cells = cell_locations_metadata[get(cell_color) %in% select_cell_groups][['cell_ID']]
+  }
+
+  if(!is.null(select_cells)) {
+    cell_locations_metadata_other = cell_locations_metadata[!cell_locations_metadata$cell_ID %in% select_cells]
+    cell_locations_metadata_selected = cell_locations_metadata[cell_locations_metadata$cell_ID %in% select_cells]
+    spatial_network <- spatial_network[spatial_network$to %in% select_cells & spatial_network$from %in% select_cells]
+
+    # if specific cells are selected
+    # cell_locations_metadata = cell_locations_metadata_selected
+
+  } else if(is.null(select_cells)) {
+
+    cell_locations_metadata_selected = cell_locations_metadata
+    cell_locations_metadata_other = NULL
+
+  }
+
+
+
+  ### create 2D plot with ggplot ###
+  cat('create 2D plot with ggplot \n')
+
+
+  pl <- ggplot2::ggplot()
+  pl <- pl + ggplot2::theme_bw()
+
+
+  ## plot spatial network
+  if(!is.null(spatial_network) & show_network == TRUE) {
+    if(is.null(network_color)) network_color = 'red'
+    pl <- pl + ggplot2::geom_segment(data = spatial_network, aes(x = sdimx_begin, y = sdimy_begin,
+                                                                 xend = sdimx_end, yend = sdimy_end),
+                                     color = network_color, size = 0.5, alpha = 0.5)
+  }
+
+
+  ## plot spatial grid
+  if(!is.null(spatial_grid) & show_grid == TRUE) {
+    if(is.null(grid_color)) grid_color = 'black'
+    pl <- pl + ggplot2::geom_rect(data = spatial_grid, aes(xmin = x_start, xmax = x_end,
+                                                           ymin = y_start, ymax = y_end),
+                                  color = grid_color, fill = NA)
+  }
+
+  ## plot point layer
+  pl = plot_spat_point_layer_ggplot(ggobject = pl,
+                                    sdimx = sdimx,
+                                    sdimy = sdimy,
+                                    cell_locations_metadata_selected = cell_locations_metadata_selected,
+                                    cell_locations_metadata_other = cell_locations_metadata_other,
+                                    cell_color = cell_color,
+                                    color_as_factor = color_as_factor,
+                                    select_cell_groups = select_cell_groups,
+                                    select_cells = select_cells,
+                                    cell_color_code = cell_color_code,
+                                    show_legend = show_legend,
+                                    point_size = point_size,
+                                    point_border_stroke = point_border_stroke,
+                                    point_border_col = point_border_col,
+                                    show_other_cells = show_other_cells,
+                                    other_cell_color = other_cell_color,
+                                    other_point_size = other_point_size
+  )
+
+
+  ## adjust titles
+  pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5),
+                            legend.title = element_text(size = 10),
+                            legend.text = element_text(size = 10))
+
+  # fix coord ratio
+  if(!is.null(coord_fix_ratio)) {
+    pl <- pl + ggplot2::coord_fixed(ratio = coord_fix_ratio)
+  }
+
+  pl <- pl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates', title = title)
+
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+
+    ggplot_save_function(gobject = gobject,
+                         plot_object = pl,
+                         save_dir = save_dir,
+                         save_folder = save_folder,
+                         save_name = save_name,
+                         save_format = save_format,
+                         show_saved_plot = show_saved_plot,
+                         ...)
+  }
+
+  ## return plot
+  if(return_plot == TRUE) return(pl)
+
+}
+
+
+
+
+
+
+
+#' @title spatDimPlot2D
+#' @name spatDimPlot2D
+#' @description Visualize cells according to spatial AND dimension reduction coordinates in ggplot2 mode
+#' @param gobject giotto object
+#' @param plot_alignment direction to align plot
+#' @param dim_reduction_to_use dimension reduction to use
+#' @param dim_reduction_name dimension reduction name
+#' @param dim1_to_use dimension to use on x-axis
+#' @param dim2_to_use dimension to use on y-axis
+#' @param sdimx = spatial dimension to use on x-axis
+#' @param sdimxy = spatial dimension to use on y-axis
+#' @param show_NN_network show underlying NN network
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
+#' @param network_name name of NN network to use, if show_NN_network = TRUE
+#' @param show_cluster_center show the center of each cluster
+#' @param show_center_label provide a label for each cluster
+#' @param center_point_size size of the center point
+#' @param label_size size of the center label
+#' @param label_fontface font of the center label
+#' @param cell_color color for cells (see details)
+#' @param color_as_factor convert color column to factor
+#' @param cell_color_code named vector with colors
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param select_cells select subset of cells based on cell IDs
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color of not selected cells
+#' @param other_point_size size of not selected cells
+#' @param dim_point_size size of points in dim. reduction space
+#' @param dim_point_border_col border color of points in dim. reduction space
+#' @param dim_point_border_stroke border stroke of points in dim. reduction space
+#' @param nn_network_alpha column to use for alpha of the edges
+#' @param show_spatial_network show spatial network
+#' @param spatial_network_name name of spatial network to use
+#' @param spatial_network_color color of spatial network
+#' @param show_spatial_grid show spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param spatial_grid_color color of spatial grid
+#' @param spatial_point_size size of spatial points
+#' @param spatial_point_border_col border color of spatial points
+#' @param spatial_point_border_stroke border stroke of spatial points
+#' @param spatial_other_point_size size of not selected spatial points
+#' @param spatial_network_alpha alpha of spatial network
+#' @param spatial_other_cells_alpha alpha of not selected spatial points
+#' @param dim_other_point_size size of not selected dim. reduction points
+#' @param show_legend show legend
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_dir directory to save the plot
+#' @param save_folder (optional) folder in directory to save the plot
+#' @param save_name name of plot
+#' @param save_format format of plot (e.g. tiff, png, pdf, ...)
+#' @param show_saved_plot load & display the saved plot
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     spatDimPlot2D(gobject)
+spatDimPlot2D <- function(gobject,
+                          plot_alignment = c('vertical', 'horizontal'),
+                          dim_reduction_to_use = 'umap',
+                          dim_reduction_name = 'umap',
+                          dim1_to_use = 1,
+                          dim2_to_use = 2,
+                          sdimx='sdimx',
+                          sdimy='sdimy',
+                          show_NN_network = F,
+                          nn_network_to_use = 'sNN',
+                          network_name = 'sNN.pca',
+                          show_cluster_center = F,
+                          show_center_label = T,
+                          center_point_size = 4,
+                          label_size = 4,
+                          label_fontface = 'bold',
+                          cell_color = NULL,
+                          color_as_factor = T,
+                          cell_color_code = NULL,
+                          select_cell_groups = NULL,
+                          select_cells = NULL,
+                          show_other_cells = T,
+                          other_cell_color = 'lightgrey',
+                          other_point_size = 1,
+                          dim_point_size = 1,
+                          dim_point_border_col = 'black',
+                          dim_point_border_stroke = 0.1,
+                          nn_network_alpha = 0.05,
+                          show_spatial_network = F,
+                          spatial_network_name = 'spatial_network',
+                          spatial_network_color = 'blue',
+                          show_spatial_grid = F,
+                          spatial_grid_name = 'spatial_grid',
+                          spatial_grid_color = 'blue',
+                          spatial_point_size = 1,
+                          spatial_point_border_col = 'black',
+                          spatial_point_border_stroke = 0.1,
+                          spatial_other_point_size = 1,
+                          spatial_network_alpha = 0.5,
+                          spatial_other_cells_alpha = 0.5,
+                          dim_other_point_size = 1,
+                          show_legend = T,
+                          show_plot = FALSE,
+                          return_plot = TRUE,
+                          save_plot = FALSE,
+                          save_dir = NULL,
+                          save_folder = NULL,
+                          save_name = NULL,
+                          save_format = NULL,
+                          show_saved_plot = FALSE,
+                          ...){
+
+  plot_alignment = match.arg(plot_alignment, choices = c( 'vertical','horizontal'))
+
+
+  # create matching cell_color_code
+  if(is.null(cell_color_code)) {
+    if(is.character(cell_color)) {
+
+      cell_metadata = pDataDT(gobject)
+      if(cell_color %in% colnames(cell_metadata)) {
+
+        if(color_as_factor == TRUE) {
+          number_colors = length(unique(cell_metadata[[cell_color]]))
+          cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+          names(cell_color_code) = unique(cell_metadata[[cell_color]])
+          cell_color_code = cell_color_code
+        }
+      }
+    }
+  }
+
+  # dimension reduction plot
+  dmpl = dimPlot2D(gobject = gobject,
+                   dim_reduction_to_use = dim_reduction_to_use,
+                   dim_reduction_name = dim_reduction_name,
+                   dim1_to_use = dim1_to_use,
+                   dim2_to_use = dim2_to_use,
+                   show_NN_network = show_NN_network,
+                   nn_network_to_use = nn_network_to_use,
+                   network_name = network_name,
+                   cell_color = cell_color,
+                   color_as_factor = color_as_factor,
+                   cell_color_code = cell_color_code,
+                   select_cell_groups = select_cell_groups,
+                   select_cells = select_cells,
+                   show_other_cells = show_other_cells,
+                   other_cell_color = other_cell_color,
+                   other_point_size = dim_other_point_size,
+                   show_cluster_center = show_cluster_center,
+                   show_center_label = show_center_label,
+                   center_point_size = center_point_size,
+                   center_point_border_col = center_point_border_col,
+                   center_point_border_stroke = center_point_border_stroke,
+                   label_size = label_size,
+                   label_fontface = label_fontface,
+                   edge_alpha = nn_network_alpha,
+                   point_size = dim_point_size,
+                   point_border_col = dim_point_border_col,
+                   point_border_stroke = dim_point_border_stroke,
+                   show_legend = show_legend,
+                   show_plot = FALSE,
+                   return_plot = TRUE,
+                   save_plot = FALSE,
+                   save_dir = NULL,
+                   save_folder = NULL,
+                   save_name = NULL,
+                   save_format = NULL,
+                   show_saved_plot = FALSE)
+
+  # spatial plot
+  spl = spatPlot2D(gobject = gobject,
+                   sdimx = sdimx,
+                   sdimy = sdimy,
+                   point_size = spatial_point_size,
+                   point_border_col = spatial_point_border_col,
+                   point_border_stroke = spatial_point_border_stroke,
+                   cell_color = cell_color,
+                   cell_color_code = cell_color_code,
+                   color_as_factor = color_as_factor,
+                   select_cell_groups = select_cell_groups,
+                   select_cells = select_cells,
+                   show_other_cells = show_other_cells,
+                   other_cell_color = other_cell_color,
+                   other_point_size = spatial_other_point_size,
+                   show_network = show_spatial_network,
+                   network_color = spatial_network_color,
+                   network_alpha = spatial_network_alpha,
+                   other_cells_alpha = spatial_other_cells_alpha,
+                   spatial_network_name = spatial_network_name,
+                   show_grid = show_spatial_grid,
+                   grid_color = spatial_grid_color,
+                   spatial_grid_name = spatial_grid_name,
+                   coord_fix_ratio = NULL,
+                   title = '',
+                   show_legend = show_legend,
+                   show_plot = FALSE,
+                   return_plot = TRUE,
+                   save_plot = FALSE,
+                   save_dir = NULL,
+                   save_folder = NULL,
+                   save_name = NULL,
+                   save_format = NULL,
+                   show_saved_plot = FALSE)
+
+
+  if(plot_alignment == 'vertical') {
+    ncol = 1
+    nrow = 2
+    combo_plot = cowplot::plot_grid(dmpl, spl, ncol = ncol, nrow = nrow, rel_heights = c(1), rel_widths = c(1), align = 'v')
+  } else {
+    ncol = 2
+    nrow = 1
+    combo_plot = cowplot::plot_grid(dmpl, spl, ncol = ncol, nrow = nrow, rel_heights = c(1), rel_widths = c(1), align = 'h')
+  }
+
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(combo_plot)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+
+    ggplot_save_function(gobject = gobject,
+                         plot_object = combo_plot,
+                         save_dir = save_dir,
+                         save_folder = save_folder,
+                         save_name = save_name,
+                         save_format = save_format,
+                         show_saved_plot = show_saved_plot,
+                         ncol = ncol,
+                         nrow = nrow,
+                         ...)
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(combo_plot)
+  }
+
+}
 
 
 
