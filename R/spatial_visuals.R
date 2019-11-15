@@ -5126,8 +5126,9 @@ FSV_show <- function(results,ms_results = NULL,size = c(4,2,1), color = c("blue"
 
 
 
-
-## FOR 2-D dimension reduction and spatial plots ##
+# ** ####
+## 2-D ggplots ####
+## ----------- ##
 
 
 #' @title plot_network_layer_ggplot
@@ -6288,3 +6289,671 @@ spatDimPlot2D <- function(gobject,
 
 
 
+
+
+
+#' @title spatGenePlot2D
+#' @name spatGenePlot2D
+#' @description Visualize cells and gene expression according to spatial coordinates
+#' @param gobject giotto object
+#' @param expression_values gene expression values to use
+#' @param genes genes to show
+#' @param genes_high_color color represents high gene expression
+#' @param genes_mid_color color represents middle gene expression
+#' @param genes_low_color color represents low gene expression
+#' @param show_network show underlying spatial network
+#' @param network_color color of spatial network
+#' @param spatial_network_name name of spatial network to use
+#' @param show_grid show spatial grid
+#' @param grid_color color of spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param midpoint expression midpoint
+#' @param scale_alpha_with_expression scale expression with ggplot alpha parameter
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param cow_n_col cowplot param: how many columns
+#' @param cow_rel_h cowplot param: relative height
+#' @param cow_rel_w cowplot param: relative width
+#' @param cow_align cowplot param: how to align
+#' @param show_legend show legend
+#' @param show_plots show plots
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_dir directory to save the plot
+#' @param save_folder (optional) folder in directory to save the plot
+#' @param save_name name of plot
+#' @param save_format format of plot (e.g. tiff, png, pdf, ...)
+#' @param show_saved_plot load & display the saved plot
+#' @param ... parameters for cowplot::save_plot()
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     spatGenePlot2D(gobject)
+spatGenePlot2D <- function(gobject,
+                           expression_values = c('normalized', 'scaled', 'custom'),
+                           genes,
+                           genes_high_color = 'darkred',
+                           genes_mid_color = "white",
+                           genes_low_color = "darkblue",
+                           show_network = F,
+                           network_color = NULL,
+                           spatial_network_name = 'spatial_network',
+                           edge_alpha = NULL,
+                           show_grid = F,
+                           grid_color = NULL,
+                           spatial_grid_name = 'spatial_grid',
+                           midpoint = 0,
+                           scale_alpha_with_expression = TRUE,
+                           point_size = 1,
+                           point_border_col = 'black',
+                           point_border_stroke = 0.1,
+                           show_legend = T,
+                           cow_n_col = 2,
+                           cow_rel_h = 1,
+                           cow_rel_w = 1,
+                           cow_align = 'h',
+                           show_plots = F,
+                           return_plot = TRUE,
+                           save_plot = FALSE,
+                           save_dir = NULL,
+                           save_folder = NULL,
+                           save_name = NULL,
+                           save_format = NULL,
+                           show_saved_plot = FALSE,
+                           ...) {
+  selected_genes = genes
+
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+
+  # only keep genes that are in the dataset
+  selected_genes = selected_genes[selected_genes %in% rownames(expr_values) ]
+
+  # get selected gene expression values in data.table format
+  if(length(selected_genes) == 1) {
+    subset_expr_data = expr_values[rownames(expr_values) %in% selected_genes, ]
+    t_sub_expr_data_DT = data.table::data.table('selected_gene' = subset_expr_data, 'cell_ID' = colnames(expr_values))
+    data.table::setnames(t_sub_expr_data_DT, 'selected_gene', selected_genes)
+  } else {
+    subset_expr_data = expr_values[rownames(expr_values) %in% selected_genes, ]
+    t_sub_expr_data = t(subset_expr_data)
+    t_sub_expr_data_DT = data.table::as.data.table(t_sub_expr_data)
+    t_sub_expr_data_DT[, cell_ID := rownames(t_sub_expr_data)]
+  }
+
+
+  ## extract cell locations
+  cell_locations  = gobject@spatial_locs
+
+  ## extract spatial network
+  if(!is.null(spatial_network_name)) {
+    spatial_network = gobject@spatial_network[[spatial_network_name]]
+  } else {
+    spatial_network = NULL
+  }
+
+  ## extract spatial grid
+  if(!is.null(spatial_grid_name)) {
+    spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
+  } else {
+    spatial_grid = NULL
+  }
+
+  ## extract cell metadata
+  cell_metadata   = gobject@cell_metadata
+  cell_metadata   = cell_metadata[, !grepl('cell_ID', colnames(cell_metadata)), with = F]
+
+  if(nrow(cell_metadata) == 0) {
+    cell_locations_metadata = cell_locations
+  } else {
+    cell_locations_metadata <- cbind(cell_locations, cell_metadata)
+  }
+
+  cell_locations_metadata_genes <- merge(cell_locations_metadata, t_sub_expr_data_DT, by = 'cell_ID')
+
+  ## plotting ##
+
+  savelist <- list()
+
+  for(gene in selected_genes) {
+
+    pl <- ggplot2::ggplot()
+    pl <- pl + ggplot2::theme_classic()
+
+    ## plot spatial network
+    if(!is.null(spatial_network) & show_network == TRUE) {
+      if(is.null(network_color)) {
+        network_color = 'red'
+      }
+      pl <- pl + ggplot2::geom_segment(data = spatial_network, aes(x = sdimx_begin, y = sdimy_begin,
+                                                                   xend = sdimx_end, yend = sdimy_end),
+                                       color = network_color, size = 0.5, alpha = 0.5)
+    }
+
+    ## plot spatial grid
+    if(!is.null(spatial_grid) & show_grid == TRUE) {
+      if(is.null(grid_color)) grid_color = 'black'
+      pl <- pl + ggplot2::geom_rect(data = spatial_grid, aes(xmin = x_start, xmax = x_end,
+                                                             ymin = y_start, ymax = y_end),
+                                    color = grid_color, fill = NA)
+    }
+
+
+    if(scale_alpha_with_expression == TRUE) {
+      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes, aes_string(x = 'sdimx', y = 'sdimy',
+                                                                                      fill = gene, alpha = gene),
+                                     shape = 21,
+                                     color = point_border_col, size = point_size, stroke = point_border_stroke,
+                                     show.legend = show_legend)
+    } else {
+      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes, aes_string(x = 'sdimx', y = 'sdimy',
+                                                                                      fill = gene),
+                                     shape = 21,
+                                     color = point_border_col, size = point_size, stroke = point_border_stroke,
+                                     show.legend = show_legend)
+    }
+    pl <- pl + ggplot2::scale_alpha_continuous(guide = 'none')
+    pl <- pl + ggplot2::scale_fill_gradient2(low = genes_low_color, mid = genes_mid_color, high = genes_high_color,
+                                             midpoint = midpoint, guide = guide_colorbar(title = ''))
+    pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y', title = gene)
+    pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5))
+
+    if(show_plots == TRUE) {
+      print(pl)
+    }
+
+    savelist[[gene]] <- pl
+  }
+
+  # combine plots with cowplot
+  combo_plot <- cowplot::plot_grid(plotlist = savelist,
+                                   ncol = cow_n_col,
+                                   rel_heights = cow_rel_h, rel_widths = cow_rel_w, align = cow_align)
+  #combined_cowplot = cowplot::plot_grid(combo_plot)
+
+  ## print plot
+  if(show_plots == TRUE) {
+    print(combo_plot)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+
+    ggplot_save_function(gobject = gobject,
+                         plot_object = combo_plot,
+                         save_dir = save_dir,
+                         save_folder = save_folder,
+                         save_name = save_name,
+                         save_format = save_format,
+                         show_saved_plot = show_saved_plot,
+                         ncol = cow_n_col,
+                         nrow = 1,
+                         ...)
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(combo_plot)
+  }
+}
+
+
+
+
+
+#' @title dimGenePlot2D
+#' @name dimGenePlot2D
+#' @description Visualize cells and gene expression according to dimension reduction coordinates
+#' @param gobject giotto object
+#' @param expression_values gene expression values to use
+#' @param genes genes to show
+#' @param dim_reduction_to_use dimension reduction to use
+#' @param dim_reduction_name dimension reduction name
+#' @param dim1_to_use dimension to use on x-axis
+#' @param dim2_to_use dimension to use on y-axis
+#' @param show_NN_network show underlying NN network
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
+#' @param network_name name of NN network to use, if show_NN_network = TRUE
+#' @param edge_alpha column to use for alpha of the edges
+#' @param scale_alpha_with_expression scale expression with ggplot alpha parameter
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param midpoint size of point (cell)
+#' @param cow_n_col cowplot param: how many columns
+#' @param cow_rel_h cowplot param: relative height
+#' @param cow_rel_w cowplot param: relative width
+#' @param cow_align cowplot param: how to align
+#' @param show_legend show legend
+#' @param show_plots show plots
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_dir directory to save the plot
+#' @param save_folder (optional) folder in directory to save the plot
+#' @param save_name name of plot
+#' @param save_format format of plot (e.g. tiff, png, pdf, ...)
+#' @param show_saved_plot load & display the saved plot
+#' @param ... parameters for cowplot::save_plot()
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     dimGenePlot2D(gobject)
+dimGenePlot2D <- function(gobject,
+                          expression_values = c('normalized', 'scaled', 'custom'),
+                          genes = NULL,
+                          dim_reduction_to_use = 'umap',
+                          dim_reduction_name = 'umap',
+                          dim1_to_use = 1,
+                          dim2_to_use = 2,
+                          show_NN_network = F,
+                          nn_network_to_use = 'sNN',
+                          network_name = 'sNN.pca',
+                          network_color = "lightgray",
+                          edge_alpha = NULL,
+                          scale_alpha_with_expression = TRUE,
+                          point_size = 1,
+                          genes_high_color = "red",
+                          genes_mid_color = "white",
+                          genes_low_color = "blue",
+                          point_border_col = 'black',
+                          point_border_stroke = 0.1,
+                          midpoint = 0,
+                          cow_n_col = 2,
+                          cow_rel_h = 1,
+                          cow_rel_w = 1,
+                          cow_align = 'h',
+                          show_legend = T,
+                          show_plots = F,
+                          return_plot = TRUE,
+                          save_plot = FALSE,
+                          save_dir = NULL,
+                          save_folder = NULL,
+                          save_name = NULL,
+                          save_format = NULL,
+                          show_saved_plot = FALSE,
+                          ...) {
+  ## select genes ##
+  selected_genes = genes
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+
+  # only keep genes that are in the dataset
+  selected_genes = selected_genes[selected_genes %in% rownames(expr_values) ]
+
+  #
+  if(length(selected_genes) == 1) {
+    subset_expr_data = expr_values[rownames(expr_values) %in% selected_genes, ]
+    t_sub_expr_data_DT = data.table('selected_gene' = subset_expr_data, 'cell_ID' = colnames(expr_values))
+    data.table::setnames(t_sub_expr_data_DT, 'selected_gene', selected_genes)
+  } else {
+    subset_expr_data = expr_values[rownames(expr_values) %in% selected_genes, ]
+    t_sub_expr_data = t(subset_expr_data)
+    t_sub_expr_data_DT = data.table::as.data.table(t_sub_expr_data)
+    t_sub_expr_data_DT[, cell_ID := rownames(t_sub_expr_data)]
+  }
+
+
+  ## dimension reduction ##
+  dim_dfr = gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$coordinates[,c(dim1_to_use, dim2_to_use)]
+  dim_names = colnames(dim_dfr)
+  dim_DT = data.table::as.data.table(dim_dfr); dim_DT[, cell_ID := rownames(dim_dfr)]
+
+  ## annotated cell metadata
+  cell_metadata = gobject@cell_metadata
+  annotated_DT = merge(cell_metadata, dim_DT, by = 'cell_ID')
+
+  ## merge gene info
+  annotated_gene_DT = merge(annotated_DT, t_sub_expr_data_DT, by = 'cell_ID')
+
+  # create input for network
+  if(show_NN_network == TRUE) {
+
+    # nn_network
+    selected_nn_network = gobject@nn_network[[nn_network_to_use]][[network_name]][['igraph']]
+    network_DT = data.table::as.data.table(igraph::as_data_frame(selected_nn_network, what = 'edges'))
+
+    # annotated network
+    old_dim_names = dim_names
+
+    annotated_network_DT <- merge(network_DT, dim_DT, by.x = 'from', by.y = 'cell_ID')
+    from_dim_names = paste0('from_', old_dim_names)
+    data.table::setnames(annotated_network_DT, old = old_dim_names, new = from_dim_names)
+
+    annotated_network_DT <- merge(annotated_network_DT, dim_DT, by.x = 'to', by.y = 'cell_ID')
+    to_dim_names = paste0('to_', old_dim_names)
+    data.table::setnames(annotated_network_DT, old = old_dim_names, new = to_dim_names)
+
+  }
+
+
+
+  ## visualize multipe plots ##
+  ## 2D plots ##
+  savelist <- list()
+
+  for(gene in selected_genes) {
+
+
+    ## OLD need to be combined ##
+    pl <- ggplot2::ggplot()
+    pl <- pl + ggplot2::theme_classic()
+
+    # network layer
+    if(show_NN_network == TRUE) {
+
+      if(is.null(edge_alpha)) {
+        edge_alpha = 0.5
+        pl <- pl + ggplot2::geom_segment(data = annotated_network_DT,
+                                         aes_string(x = from_dim_names[1], y = from_dim_names[2],
+                                                    xend = to_dim_names[1], yend = to_dim_names[2]),
+                                         alpha = edge_alpha, color=network_color,size = 0.1,
+                                         show.legend = F)
+      } else if(is.numeric(edge_alpha)) {
+        pl <- pl + ggplot2::geom_segment(data = annotated_network_DT,
+                                         aes_string(x = from_dim_names[1], y = from_dim_names[2],
+                                                    xend = to_dim_names[1], yend = to_dim_names[2]),
+                                         alpha = edge_alpha, color=network_color,size = 0.1,
+                                         show.legend = F)
+      } else if(is.character(edge_alpha)) {
+
+        if(edge_alpha %in% colnames(annotated_network_DT)) {
+          pl <- pl + ggplot2::geom_segment(data = annotated_network_DT,
+                                           aes_string(x = from_dim_names[1], y = from_dim_names[2],
+                                                      xend = to_dim_names[1],
+                                                      yend = to_dim_names[2], alpha = edge_alpha),
+                                           color=network_color,
+                                           show.legend = F)
+        }
+      }
+    }
+
+
+    # point layer
+    if(is.null(genes)) {
+      cell_color = 'lightblue'
+      pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string(x = dim_names[1], dim_names[2]),
+                                     fill = cell_color, show.legend = show_legend, size =  point_size)
+
+    } else {
+      if(scale_alpha_with_expression == TRUE) {
+        pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string(x = dim_names[1], y = dim_names[2], fill = gene, alpha = gene),
+                                       show.legend = show_legend, shape = 21, size = point_size,
+                                       color = point_border_col, stroke = point_border_stroke)
+      } else {
+        pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string(x = dim_names[1], y = dim_names[2], fill = gene),
+                                       show.legend = show_legend, shape = 21,
+                                       size =  point_size,
+                                       color = point_border_col, stroke = point_border_stroke)
+      }
+
+      pl <- pl + ggplot2::scale_fill_gradient2(low = genes_low_color, mid = genes_mid_color, high = genes_high_color, midpoint = midpoint)
+    }
+
+    pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y')
+
+    if(show_plots == TRUE) {
+      print(pl)
+    }
+
+    savelist[[gene]] <- pl
+  }
+
+  # combine plots with cowplot
+  combo_plot <- cowplot::plot_grid(plotlist = savelist,
+                                   ncol = cow_n_col,
+                                   rel_heights = cow_rel_h, rel_widths = cow_rel_w, align = cow_align)
+  #combined_cowplot = cowplot::plot_grid(combo_plot)
+
+
+  ## print plot
+  if(show_plots == TRUE) {
+    print(combo_plot)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+
+    ggplot_save_function(gobject = gobject,
+                         plot_object = combo_plot,
+                         save_dir = save_dir,
+                         save_folder = save_folder,
+                         save_name = save_name,
+                         save_format = save_format,
+                         show_saved_plot = show_saved_plot,
+                         ncol = cow_n_col,
+                         nrow = 1,
+                         ...)
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(combo_plot)
+  }
+
+}
+
+
+
+
+
+
+#' @title spatDimGenePlot2D
+#' @name spatDimGenePlot2D
+#' @description Visualize cells according to spatial AND dimension reduction coordinates in ggplot mode
+#' @param gobject giotto object
+#' @param expression_values gene expression values to use
+#' @param plot_alignment direction to align plot
+#' @param genes genes to show
+#' @param dim_reduction_to_use dimension reduction to use
+#' @param dim_reduction_name dimension reduction name
+#' @param dim1_to_use dimension to use on x-axis
+#' @param dim2_to_use dimension to use on y-axis
+#' @param dim_point_size dim reduction plot: point size
+#' @param dim_point_border_col color of border around points
+#' @param dim_point_border_stroke stroke size of border around points
+#' @param show_NN_network show underlying NN network
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
+#' @param network_name name of NN network to use, if show_NN_network = TRUE
+#' @param edge_alpha_dim dim reduction plot: column to use for alpha of the edges
+#' @param scale_alpha_with_expression scale expression with ggplot alpha parameter
+#' @param spatial_network_name name of spatial network to use
+#' @param spatial_grid_name name of spatial grid to use
+#' @param spatial_point_size spatial plot: point size
+#' @param spatial_point_border_col color of border around points
+#' @param spatial_point_border_stroke stroke size of border around points
+#' @param midpoint size of point (cell)
+#' @param point_size size of point (cell)
+#' @param cow_n_col cowplot param: how many columns
+#' @param cow_rel_h cowplot param: relative height
+#' @param cow_rel_w cowplot param: relative width
+#' @param cow_align cowplot param: how to align
+#' @param show_legend show legend
+#' @param show_plots show plots
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_dir directory to save the plot
+#' @param save_folder (optional) folder in directory to save the plot
+#' @param save_name name of plot
+#' @param save_format format of plot (e.g. tiff, png, pdf, ...)
+#' @param show_saved_plot load & display the saved plot
+#' @param ... parameters for cowplot::save_plot()
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     spatDimGenePlot2D(gobject)
+spatDimGenePlot2D <- function(gobject,
+                              expression_values = c('normalized', 'scaled', 'custom'),
+                              plot_alignment = c('vertical', 'horizontal'),
+                              genes,
+                              dim_reduction_to_use = 'umap',
+                              dim_reduction_name = 'umap',
+                              dim1_to_use = 1,
+                              dim2_to_use = 2,
+                              point_size = 1,
+                              dim_point_border_col = 'black',
+                              dim_point_border_stroke = 0.1,
+                              show_NN_network = F,
+                              show_spatial_network = F,
+                              show_spatial_grid = F,
+                              nn_network_to_use = 'sNN',
+                              network_name = 'sNN.pca',
+                              edge_alpha_dim = NULL,
+                              scale_alpha_with_expression = TRUE,
+                              spatial_network_name = 'spatial_network',
+                              spatial_grid_name = 'spatial_grid',
+                              spatial_point_size = 1,
+                              spatial_point_border_col = 'black',
+                              spatial_point_border_stroke = 0.1,
+                              midpoint = 0,
+                              genes_high_color = "red",
+                              genes_mid_color="white",
+                              genes_low_color = "blue",
+                              cow_n_col = 2,
+                              cow_rel_h = 1,
+                              cow_rel_w = 1,
+                              cow_align = 'h',
+                              axis_scale = c("cube","real","custom"),
+                              custom_ratio = NULL,
+                              x_ticks = NULL,
+                              y_ticks = NULL,
+                              show_legend = T,
+                              show_plots = F,
+                              return_plot = TRUE,
+                              save_plot = FALSE,
+                              save_dir = NULL,
+                              save_folder = NULL,
+                              save_name = NULL,
+                              save_format = NULL,
+                              show_saved_plot = FALSE,
+                              ...) {
+
+  plot_alignment = match.arg(plot_alignment, choices = c('vertical', 'horizontal'))
+
+  # dimension reduction plot
+  dmpl = dimGenePlot2D(gobject = gobject,
+                       expression_values = expression_values,
+                       genes = genes,
+                       dim_reduction_to_use = dim_reduction_to_use,
+                       dim_reduction_name = dim_reduction_name,
+                       dim1_to_use = dim1_to_use,
+                       dim2_to_use = dim2_to_use,
+                       show_NN_network = show_NN_network,
+                       nn_network_to_use = nn_network_to_use,
+                       network_name =network_name,
+                       network_color = network_color,
+                       edge_alpha = edge_alpha,
+                       scale_alpha_with_expression = scale_alpha_with_expression,
+                       point_size = point_size,
+                       genes_high_color = genes_high_color,
+                       genes_mid_color=genes_mid_color,
+                       genes_low_color = genes_low_color,
+                       point_border_col =dim_point_border_col,
+                       point_border_stroke =dim_point_border_stroke,
+                       midpoint = midpoint,
+                       cow_n_col = cow_n_col,
+                       cow_rel_h = cow_rel_h,
+                       cow_rel_w = cow_rel_w,
+                       cow_align = cow_align,
+                       show_legend = show_legend,
+                       show_plots = FALSE,
+                       return_plot = TRUE,
+                       save_plot = FALSE,
+                       save_dir = NULL,
+                       save_folder = NULL,
+                       save_name = NULL,
+                       save_format = NULL,
+                       show_saved_plot = FALSE,
+                       ...)
+
+  # spatial plot
+  spl = spatGenePlot2D(gobject=gobject,
+                       expression_values = expression_values,
+                       genes = genes,
+                       genes_high_color = genes_high_color,
+                       genes_mid_color = genes_mid_color,
+                       genes_low_color = genes_low_color,
+                       show_network = show_spatial_network,
+                       network_color = network_color,
+                       spatial_network_name = spatial_network_name,
+                       edge_alpha = edge_alpha,
+                       show_grid = show_spatial_grid,
+                       grid_color = grid_color,
+                       spatial_grid_name = spatial_grid_name,
+                       midpoint = midpoint,
+                       scale_alpha_with_expression = scale_alpha_with_expression,
+                       point_size = point_size,
+                       point_border_col =spatial_point_border_col,
+                       point_border_stroke = spatial_point_border_stroke,
+                       show_legend = show_legend,
+                       cow_n_col = cow_n_col,
+                       cow_rel_h = cow_rel_h,
+                       cow_rel_w = cow_rel_w,
+                       cow_align = cow_align,
+                       axis_scale = axis_scale,
+                       custom_ratio = custom_ratio,
+                       x_ticks = x_ticks,
+                       y_ticks = y_ticks,
+                       show_plots = FALSE,
+                       return_plot = TRUE,
+                       save_plot = FALSE,
+                       save_dir = NULL,
+                       save_folder = NULL,
+                       save_name = NULL,
+                       save_format = NULL,
+                       show_saved_plot = FALSE,
+                       ...)
+
+  print(plot_alignment)
+
+  if(plot_alignment == 'vertical') {
+    ncol = 1
+    nrow = 2
+    combo_plot = cowplot::plot_grid(dmpl, spl, ncol = ncol, nrow = nrow, rel_heights = c(1), rel_widths = c(1), align = 'v')
+  } else {
+    ncol = 2
+    nrow = 1
+    combo_plot = cowplot::plot_grid(dmpl, spl, ncol = ncol, nrow = nrow, rel_heights = c(1), rel_widths = c(1), align = 'h')
+  }
+
+
+  ## print plot
+  if(show_plots == TRUE) {
+    print(combo_plot)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+
+    ggplot_save_function(gobject = gobject,
+                         plot_object = combo_plot,
+                         save_dir = save_dir,
+                         save_folder = save_folder,
+                         save_name = save_name,
+                         save_format = save_format,
+                         show_saved_plot = show_saved_plot,
+                         ncol = ncol,
+                         nrow = nrow,
+                         ...)
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(combo_plot)
+  }
+
+}
+
+
+
+
+
+
+
+
+# ** ####
+## 3-D plotly ####
+## ----------- ##
