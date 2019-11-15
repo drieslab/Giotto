@@ -454,14 +454,21 @@ viewHMRFresults(gobject = osm_test,
 ## add HMRF result of interest to giotto object
 osm_test = addHMRF(gobject = osm_test,
                   HMRFoutput = HMRF_spatial_genes,
-                  k = 10, betas_to_add = 0.5,
+                  k = 10, betas_to_add = c(0, 0.5),
                   hmrf_name = 'HMRF')
 
 ## visualize
+# b = 0, no information from cell neighbors
+visPlot(gobject = osm_test, cell_color = 'HMRF_k10_b.0', point_size = 3)
+
+# b = 0.5
 visPlot(gobject = osm_test, cell_color = 'HMRF_k10_b.0.5', point_size = 3)
 ```
 
-![](./figures/10_final_hmrf.png)
+Without information from neighboring cells, b = 0:
+![](./figures/10_final_hmrf_b0.png)
+
+b = 0.5 ![](./figures/10_final_hmrf_b0.5.png)
 
 -----
 
