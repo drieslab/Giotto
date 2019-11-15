@@ -392,6 +392,11 @@ kmtest = binGetSpatialGenes(STAR_test, bin_method = 'kmeans',
 ranktest = binGetSpatialGenes(STAR_test, bin_method = 'rank',
                               do_fisher_test = F, community_expectation = 5,
                               spatial_network_name = 'spatial_network', verbose = T)
+
+spatial_genes = calculate_spatial_genes_python(gobject = STAR_test,
+                                               expression_values = 'scaled',
+                                               python_path = "/Users/rubendries/Bin/anaconda3/envs/py36/bin/pythonw",
+                                               rbp_p=0.99, examine_top=0.1)
 ```
 
 ``` r
@@ -413,7 +418,38 @@ Spatial genes:
 
 <summary>Expand</summary>  
 
-Not available at this time.
+``` r
+my_spatial_genes = spatial_genes[1:16]$genes
+showClusterHeatmap(gobject = STAR_test, cluster_column = 'cell_types', genes = my_spatial_genes)
+
+# do HMRF with different betas
+HMRF_spatial_genes = doHMRF(gobject = STAR_test, expression_values = 'normalized',
+                            spatial_genes = my_spatial_genes,
+                            k = 10,
+                            betas = c(0, 0.5, 10), 
+                            output_folder = 'Spatial_genes/SG_k10_scaled',
+                            python_path = my_python_path,
+                            zscore = "rowcol", tolerance=1e-5)
+
+## add HMRF of interest to giotto object
+STAR_test = addHMRF(gobject = STAR_test,
+                   HMRFoutput = HMRF_spatial_genes,
+                   k = 10, betas_to_add = c(0, 0.5, 1),
+                   hmrf_name = 'HMRF')
+
+## visualize
+# b = 0, no information from cell neighbors
+visPlot(gobject = STAR_test, cell_color = 'HMRF_k10_b.0', point_size = 1.5)
+
+# b = 0.5
+visPlot(gobject = STAR_test, cell_color = 'HMRF_k10_b.0.5', point_size = 1.5)
+```
+
+Without information from neighboring cells, b = 0:  
+![](./figures/10_hmrf_b0.png)
+
+b = 0.5:  
+![](./figures/10_hmrf_b0.5.png)
 
 -----
 
