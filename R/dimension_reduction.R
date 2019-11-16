@@ -153,7 +153,15 @@ signPCA <- function(gobject, method = c('screeplot', 'jackstraw'),
                     jack_iter = 10,
                     jack_threshold = 0.01,
                     jack_verbose = T,
-                    show_plot = T, ...) {
+                    show_plot = T,
+                    return_plot = TRUE,
+                    save_plot = F,
+                    save_dir = NULL,
+                    save_folder = NULL,
+                    save_name = NULL,
+                    save_format = NULL,
+                    show_saved_plot = F,
+                    ...) {
 
   # select method
   method = match.arg(method, choices = c('screeplot', 'jackstraw'))
@@ -178,8 +186,10 @@ signPCA <- function(gobject, method = c('screeplot', 'jackstraw'),
                                     scale.unit = scale_unit,
                                     ncp = ncp, graph = F, ...)
       screeplot = factoextra::fviz_eig(pca_object, addlabels = scree_labels, ylim = scree_ylim, ncp = ncp)
-
-      if(show_plot == TRUE) print(screeplot)
+      final_result_plot = screeplot
+      if(show_plot == TRUE) {
+        print(final_result_plot)
+      }
       return(screeplot)
 
     } else if(method == 'jackstraw') {
@@ -189,15 +199,16 @@ signPCA <- function(gobject, method = c('screeplot', 'jackstraw'),
       }
 
       jtest = jackstraw::permutationPA(dat = expr_values, B = jack_iter, threshold = jack_threshold, verbose = jack_verbose)
-      if(show_plot == TRUE) plot(jtest$p)
-
+      final_result_plot = jtest$p
+      if(show_plot == TRUE) {
+        print(final_result_plot)
+      }
       return(jtest)
     }
 
   } else {
     cat('gene reduction not yet implemented')
   }
-
 }
 
 

@@ -9,7 +9,9 @@ signPCA(gobject, method = c("screeplot", "jackstraw"),
   reduction = c("cells", "genes"), genes_to_use = NULL,
   scale_unit = T, ncp = 50, scree_labels = T, scree_ylim = c(0,
   10), jack_iter = 10, jack_threshold = 0.01, jack_verbose = T,
-  show_plot = T, ...)
+  show_plot = T, return_plot = TRUE, save_plot = F,
+  save_dir = NULL, save_folder = NULL, save_name = NULL,
+  save_format = NULL, show_saved_plot = F, ...)
 }
 \arguments{
 \item{gobject}{giotto object}
