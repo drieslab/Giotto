@@ -6,7 +6,9 @@
 \usage{
 showClusterDendrogram(gobject, expression_values = c("normalized",
   "scaled", "custom"), cluster_column, cor = c("pearson", "spearman"),
-  distance = "ward.D", h = NULL, h_color = "red")
+  distance = "ward.D", h = NULL, h_color = "red", rotate = FALSE,
+  show_plot = TRUE, return_plot = TRUE, save_plot = FALSE,
+  save_param = list(...), ...)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -22,6 +24,18 @@ showClusterDendrogram(gobject, expression_values = c("normalized",
 \item{h}{height of horizontal lines to plot}
 
 \item{h_color}{color of horizontal lines}
+
+\item{rotate}{rotate dendrogram 90 degrees}
+
+\item{show_plot}{print plot to console}
+
+\item{return_plot}{return plot}
+
+\item{save_plot}{save plot}
+
+\item{save_param}{list of saving parameters from all_plots_save_function()}
+
+\item{...}{additional parameters for ggdendrogram()}
 }
 \value{
 ggplot

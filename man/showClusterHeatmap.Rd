@@ -6,7 +6,8 @@
 \usage{
 showClusterHeatmap(gobject, expression_values = c("normalized", "scaled",
   "custom"), genes = "all", cluster_column, cor = c("pearson",
-  "spearman"), distance = "ward.D", ...)
+  "spearman"), distance = "ward.D", show_plot = TRUE,
+  return_plot = TRUE, save_plot = FALSE, save_param = list(...), ...)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -20,6 +21,14 @@ showClusterHeatmap(gobject, expression_values = c("normalized", "scaled",
 \item{cor}{correlation score to calculate distance}
 
 \item{distance}{distance method to use for hierarchical clustering}
+
+\item{show_plot}{print plot to console}
+
+\item{return_plot}{return plot}
+
+\item{save_plot}{save plot}
+
+\item{save_param}{list of saving parameters from all_plots_save_function()}
 
 \item{...}{additional parameters for the Heatmap function from ComplexHeatmap}
 }

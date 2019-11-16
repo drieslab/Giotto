@@ -35,7 +35,8 @@ Imports:
     magrittr,
     limma,
     png,
-    tiff
+    tiff,
+    ggdendro
 Suggests:
     knitr,
     rmarkdown,
