@@ -53,15 +53,7 @@ plotPCA_2D(gobject, ...)
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_dir}{directory to save the plot}
-
-\item{save_folder}{(optional) folder in directory to save the plot}
-
-\item{save_name}{name of plot}
-
-\item{save_format}{format of plot (e.g. tiff, png, pdf, ...)}
-
-\item{show_saved_plot}{load & display the saved plot}
+\item{save_param}{list of saving parameters from all_plots_save_function()}
 }
 \value{
 ggplot

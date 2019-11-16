@@ -23,9 +23,7 @@ spatDimPlot2D(gobject, plot_alignment = c("vertical", "horizontal"),
   spatial_point_border_stroke = 0.1, spatial_other_point_size = 1,
   spatial_network_alpha = 0.5, spatial_other_cells_alpha = 0.5,
   dim_other_point_size = 1, show_legend = T, show_plot = FALSE,
-  return_plot = TRUE, save_plot = FALSE, save_dir = NULL,
-  save_folder = NULL, save_name = NULL, save_format = NULL,
-  show_saved_plot = FALSE, ...)
+  return_plot = TRUE, save_plot = FALSE, save_param = list(...))
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -116,15 +114,7 @@ spatDimPlot2D(gobject, plot_alignment = c("vertical", "horizontal"),
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_dir}{directory to save the plot}
-
-\item{save_folder}{(optional) folder in directory to save the plot}
-
-\item{save_name}{name of plot}
-
-\item{save_format}{format of plot (e.g. tiff, png, pdf, ...)}
-
-\item{show_saved_plot}{load & display the saved plot}
+\item{save_param}{list of saving parameters from all_plots_save_function()}
 
 \item{sdimxy}{= spatial dimension to use on y-axis}
 }

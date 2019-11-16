@@ -5285,11 +5285,7 @@ plot_point_layer_ggplot = function(ggobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_dir directory to save the plot
-#' @param save_folder (optional) folder in directory to save the plot
-#' @param save_name name of plot
-#' @param save_format format of plot (e.g. tiff, png, pdf, ...)
-#' @param show_saved_plot load & display the saved plot
+#' @param save_param list of saving parameters from all_plots_save_function()
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -5326,12 +5322,8 @@ dimPlot2D <- function(gobject,
                       show_plot = F,
                       return_plot = TRUE,
                       save_plot = F,
-                      save_dir = NULL,
-                      save_folder = NULL,
-                      save_name = NULL,
-                      save_format = NULL,
-                      show_saved_plot = F,
-                      ...){
+                      save_param = list(...)
+                      ){
 
   ## dimension reduction ##
   dim_dfr = gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$coordinates[,c(dim1_to_use, dim2_to_use)]
@@ -5472,14 +5464,16 @@ dimPlot2D <- function(gobject,
   ## save plot
   if(save_plot == TRUE) {
 
-    ggplot_save_function(gobject = gobject,
-                         plot_object = pl,
-                         save_dir = save_dir,
-                         save_folder = save_folder,
-                         save_name = save_name,
-                         save_format = save_format,
-                         show_saved_plot = show_saved_plot,
-                         ...)
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl), save_param))
+
+    #ggplot_save_function(gobject = gobject,
+    #                     plot_object = pl,
+    #                     save_dir = save_dir,
+    #                     save_folder = save_folder,
+    #                     save_name = save_name,
+    #                     save_format = save_format,
+    #                     show_saved_plot = show_saved_plot,
+    #                     ...)
   }
 
   ## return plot
@@ -5517,11 +5511,7 @@ dimPlot2D <- function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_dir directory to save the plot
-#' @param save_folder (optional) folder in directory to save the plot
-#' @param save_name name of plot
-#' @param save_format format of plot (e.g. tiff, png, pdf, ...)
-#' @param show_saved_plot load & display the saved plot
+#' @param save_param list of saving parameters from all_plots_save_function()
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -5560,11 +5550,7 @@ plotUMAP_2D = function(gobject, ...) {
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_dir directory to save the plot
-#' @param save_folder (optional) folder in directory to save the plot
-#' @param save_name name of plot
-#' @param save_format format of plot (e.g. tiff, png, pdf, ...)
-#' @param show_saved_plot load & display the saved plot
+#' @param save_param list of saving parameters from all_plots_save_function()
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -5603,11 +5589,7 @@ plotTSNE_2D = function(gobject, ...) {
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_dir directory to save the plot
-#' @param save_folder (optional) folder in directory to save the plot
-#' @param save_name name of plot
-#' @param save_format format of plot (e.g. tiff, png, pdf, ...)
-#' @param show_saved_plot load & display the saved plot
+#' @param save_param list of saving parameters from all_plots_save_function()
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -5769,11 +5751,7 @@ plot_spat_point_layer_ggplot = function(ggobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_dir directory to save the plot
-#' @param save_folder (optional) folder in directory to save the plot
-#' @param save_name name of plot
-#' @param save_format format of plot (e.g. tiff, png, pdf, ...)
-#' @param show_saved_plot load & display the saved plot
+#' @param save_param list of saving parameters from all_plots_save_function()
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -5807,12 +5785,8 @@ spatPlot2D = function(gobject,
                       show_plot = F,
                       return_plot = TRUE,
                       save_plot = F,
-                      save_dir = NULL,
-                      save_folder = NULL,
-                      save_name = NULL,
-                      save_format = NULL,
-                      show_saved_plot = F,
-                      ...) {
+                      save_param = list(...)
+                      ) {
 
 
   ## get spatial cell locations
@@ -5935,14 +5909,16 @@ spatPlot2D = function(gobject,
   ## save plot
   if(save_plot == TRUE) {
 
-    ggplot_save_function(gobject = gobject,
-                         plot_object = pl,
-                         save_dir = save_dir,
-                         save_folder = save_folder,
-                         save_name = save_name,
-                         save_format = save_format,
-                         show_saved_plot = show_saved_plot,
-                         ...)
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl), save_param))
+
+    #ggplot_save_function(gobject = gobject,
+    #                     plot_object = pl,
+    #                     save_dir = save_dir,
+    #                     save_folder = save_folder,
+    #                     save_name = save_name,
+    #                     save_format = save_format,
+    #                     show_saved_plot = show_saved_plot,
+    #                     ...)
   }
 
   ## return plot
@@ -6004,11 +5980,7 @@ spatPlot2D = function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_dir directory to save the plot
-#' @param save_folder (optional) folder in directory to save the plot
-#' @param save_name name of plot
-#' @param save_format format of plot (e.g. tiff, png, pdf, ...)
-#' @param show_saved_plot load & display the saved plot
+#' @param save_param list of saving parameters from all_plots_save_function()
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -6059,12 +6031,8 @@ spatDimPlot2D <- function(gobject,
                           show_plot = FALSE,
                           return_plot = TRUE,
                           save_plot = FALSE,
-                          save_dir = NULL,
-                          save_folder = NULL,
-                          save_name = NULL,
-                          save_format = NULL,
-                          show_saved_plot = FALSE,
-                          ...){
+                          save_param = list(...)
+                          ){
 
   plot_alignment = match.arg(plot_alignment, choices = c( 'vertical','horizontal'))
 
@@ -6179,16 +6147,18 @@ spatDimPlot2D <- function(gobject,
   ## save plot
   if(save_plot == TRUE) {
 
-    ggplot_save_function(gobject = gobject,
-                         plot_object = combo_plot,
-                         save_dir = save_dir,
-                         save_folder = save_folder,
-                         save_name = save_name,
-                         save_format = save_format,
-                         show_saved_plot = show_saved_plot,
-                         ncol = ncol,
-                         nrow = nrow,
-                         ...)
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot), save_param))
+
+    #ggplot_save_function(gobject = gobject,
+    #                     plot_object = combo_plot,
+    #                     save_dir = save_dir,
+    #                     save_folder = save_folder,
+    #                     save_name = save_name,
+    #                     save_format = save_format,
+    #                     show_saved_plot = show_saved_plot,
+    #                     ncol = ncol,
+    #                     nrow = nrow,
+    #                     ...)
   }
 
   ## return plot
@@ -6231,11 +6201,7 @@ spatDimPlot2D <- function(gobject,
 #' @param show_plots show plots
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_dir directory to save the plot
-#' @param save_folder (optional) folder in directory to save the plot
-#' @param save_name name of plot
-#' @param save_format format of plot (e.g. tiff, png, pdf, ...)
-#' @param show_saved_plot load & display the saved plot
+#' @param save_param list of saving parameters from all_plots_save_function()
 #' @param ... parameters for cowplot::save_plot()
 #' @return ggplot
 #' @details Description of parameters.
@@ -6268,12 +6234,7 @@ spatGenePlot2D <- function(gobject,
                            show_plots = F,
                            return_plot = TRUE,
                            save_plot = FALSE,
-                           save_dir = NULL,
-                           save_folder = NULL,
-                           save_name = NULL,
-                           save_format = NULL,
-                           show_saved_plot = FALSE,
-                           ...) {
+                           save_param = list(...)) {
   selected_genes = genes
 
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
@@ -6392,16 +6353,19 @@ spatGenePlot2D <- function(gobject,
   ## save plot
   if(save_plot == TRUE) {
 
-    ggplot_save_function(gobject = gobject,
-                         plot_object = combo_plot,
-                         save_dir = save_dir,
-                         save_folder = save_folder,
-                         save_name = save_name,
-                         save_format = save_format,
-                         show_saved_plot = show_saved_plot,
-                         ncol = cow_n_col,
-                         nrow = 1,
-                         ...)
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot), save_param))
+
+
+    #ggplot_save_function(gobject = gobject,
+    #                     plot_object = combo_plot,
+    #                     save_dir = save_dir,
+    #                     save_folder = save_folder,
+    #                     save_name = save_name,
+    #                     save_format = save_format,
+    #                     show_saved_plot = show_saved_plot,
+    #                     ncol = cow_n_col,
+    #                     nrow = 1,
+    #                     ...)
   }
 
   ## return plot
@@ -6441,11 +6405,7 @@ spatGenePlot2D <- function(gobject,
 #' @param show_plots show plots
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_dir directory to save the plot
-#' @param save_folder (optional) folder in directory to save the plot
-#' @param save_name name of plot
-#' @param save_format format of plot (e.g. tiff, png, pdf, ...)
-#' @param show_saved_plot load & display the saved plot
+#' @param save_param list of saving parameters from all_plots_save_function()
 #' @param ... parameters for cowplot::save_plot()
 #' @return ggplot
 #' @details Description of parameters.
@@ -6480,12 +6440,7 @@ dimGenePlot2D <- function(gobject,
                           show_plots = F,
                           return_plot = TRUE,
                           save_plot = FALSE,
-                          save_dir = NULL,
-                          save_folder = NULL,
-                          save_name = NULL,
-                          save_format = NULL,
-                          show_saved_plot = FALSE,
-                          ...) {
+                          save_param = list(...)) {
   ## select genes ##
   selected_genes = genes
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
@@ -6627,16 +6582,18 @@ dimGenePlot2D <- function(gobject,
   ## save plot
   if(save_plot == TRUE) {
 
-    ggplot_save_function(gobject = gobject,
-                         plot_object = combo_plot,
-                         save_dir = save_dir,
-                         save_folder = save_folder,
-                         save_name = save_name,
-                         save_format = save_format,
-                         show_saved_plot = show_saved_plot,
-                         ncol = cow_n_col,
-                         nrow = 1,
-                         ...)
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot), save_param))
+
+    #ggplot_save_function(gobject = gobject,
+    #                     plot_object = combo_plot,
+    #                     save_dir = save_dir,
+    #                     save_folder = save_folder,
+    #                     save_name = save_name,
+    #                     save_format = save_format,
+    #                     show_saved_plot = show_saved_plot,
+    #                     ncol = cow_n_col,
+    #                     nrow = 1,
+    #                     ...)
   }
 
   ## return plot
@@ -6685,12 +6642,7 @@ dimGenePlot2D <- function(gobject,
 #' @param show_plots show plots
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_dir directory to save the plot
-#' @param save_folder (optional) folder in directory to save the plot
-#' @param save_name name of plot
-#' @param save_format format of plot (e.g. tiff, png, pdf, ...)
-#' @param show_saved_plot load & display the saved plot
-#' @param ... parameters for cowplot::save_plot()
+#' @param save_param list of saving parameters from all_plots_save_function()
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -6735,12 +6687,7 @@ spatDimGenePlot2D <- function(gobject,
                               show_plots = F,
                               return_plot = TRUE,
                               save_plot = FALSE,
-                              save_dir = NULL,
-                              save_folder = NULL,
-                              save_name = NULL,
-                              save_format = NULL,
-                              show_saved_plot = FALSE,
-                              ...) {
+                              save_param = list(...)) {
 
   plot_alignment = match.arg(plot_alignment, choices = c('vertical', 'horizontal'))
 
@@ -6839,16 +6786,18 @@ spatDimGenePlot2D <- function(gobject,
   ## save plot
   if(save_plot == TRUE) {
 
-    ggplot_save_function(gobject = gobject,
-                         plot_object = combo_plot,
-                         save_dir = save_dir,
-                         save_folder = save_folder,
-                         save_name = save_name,
-                         save_format = save_format,
-                         show_saved_plot = show_saved_plot,
-                         ncol = ncol,
-                         nrow = nrow,
-                         ...)
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot), save_param))
+
+    #ggplot_save_function(gobject = gobject,
+    #                     plot_object = combo_plot,
+    #                     save_dir = save_dir,
+    #                     save_folder = save_folder,
+    #                     save_name = save_name,
+    #                     save_format = save_format,
+    #                     show_saved_plot = show_saved_plot,
+    #                     ncol = ncol,
+    #                     nrow = nrow,
+    #                     ...)
   }
 
   ## return plot

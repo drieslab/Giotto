@@ -17,8 +17,7 @@ dimPlot2D(gobject, dim_reduction_to_use = "umap",
   label_fontface = "bold", edge_alpha = NULL, point_size = 1,
   point_border_col = "black", point_border_stroke = 0.1,
   show_legend = T, show_plot = F, return_plot = TRUE,
-  save_plot = F, save_dir = NULL, save_folder = NULL,
-  save_name = NULL, save_format = NULL, show_saved_plot = F, ...)
+  save_plot = F, save_param = list(...))
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -79,15 +78,7 @@ dimPlot2D(gobject, dim_reduction_to_use = "umap",
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_dir}{directory to save the plot}
-
-\item{save_folder}{(optional) folder in directory to save the plot}
-
-\item{save_name}{name of plot}
-
-\item{save_format}{format of plot (e.g. tiff, png, pdf, ...)}
-
-\item{show_saved_plot}{load & display the saved plot}
+\item{save_param}{list of saving parameters from all_plots_save_function()}
 }
 \value{
 ggplot

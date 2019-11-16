@@ -15,8 +15,7 @@ spatGenePlot2D(gobject, expression_values = c("normalized", "scaled",
   point_border_col = "black", point_border_stroke = 0.1,
   show_legend = T, cow_n_col = 2, cow_rel_h = 1, cow_rel_w = 1,
   cow_align = "h", show_plots = F, return_plot = TRUE,
-  save_plot = FALSE, save_dir = NULL, save_folder = NULL,
-  save_name = NULL, save_format = NULL, show_saved_plot = FALSE, ...)
+  save_plot = FALSE, save_param = list(...))
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -69,15 +68,7 @@ spatGenePlot2D(gobject, expression_values = c("normalized", "scaled",
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_dir}{directory to save the plot}
-
-\item{save_folder}{(optional) folder in directory to save the plot}
-
-\item{save_name}{name of plot}
-
-\item{save_format}{format of plot (e.g. tiff, png, pdf, ...)}
-
-\item{show_saved_plot}{load & display the saved plot}
+\item{save_param}{list of saving parameters from all_plots_save_function()}
 
 \item{...}{parameters for cowplot::save_plot()}
 }
