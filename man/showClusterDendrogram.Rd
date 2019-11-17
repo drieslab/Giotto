@@ -7,8 +7,9 @@
 showClusterDendrogram(gobject, expression_values = c("normalized",
   "scaled", "custom"), cluster_column, cor = c("pearson", "spearman"),
   distance = "ward.D", h = NULL, h_color = "red", rotate = FALSE,
-  show_plot = TRUE, return_plot = TRUE, save_plot = FALSE,
-  save_param = list(...), ...)
+  show_plot = NA, return_plot = NA, save_plot = NA,
+  save_param = list(), default_save_name = "showClusterDendrogram",
+  ...)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -27,13 +28,15 @@ showClusterDendrogram(gobject, expression_values = c("normalized",
 
 \item{rotate}{rotate dendrogram 90 degrees}
 
-\item{show_plot}{print plot to console}
+\item{show_plot}{show plot}
 
-\item{return_plot}{return plot}
+\item{return_plot}{return ggplot object}
 
-\item{save_plot}{save plot}
+\item{save_plot}{directly save the plot [boolean]}
 
 \item{save_param}{list of saving parameters from all_plots_save_function()}
+
+\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
 \item{...}{additional parameters for ggdendrogram()}
 }

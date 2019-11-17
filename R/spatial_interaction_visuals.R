@@ -8,10 +8,11 @@
 #' @param min_orig_ints filter on minimum original cell-cell interactions
 #' @param min_sim_ints filter on minimum simulated cell-cell interactions
 #' @param p_val p-value
-#' @param show_plot show plots
+#' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot barplot
 #' @details This function creates a barplot that shows the  spatial proximity
 #'  enrichment or depletion of cell type pairs.
@@ -26,7 +27,8 @@ cellProximityBarplot = function(gobject,
                                 show_plot = F,
                                 return_plot = TRUE,
                                 save_plot = FALSE,
-                                save_param = list(...)) {
+                                save_param = list(),
+                                default_save_name = 'cellProximityBarplot') {
 
 
   table_mean_results_dc = CPscore$enrichm_res
@@ -51,6 +53,12 @@ cellProximityBarplot = function(gobject,
 
   combo_plot <- cowplot::plot_grid(pl, bpl, ncol = 2, rel_heights = c(1), rel_widths = c(3,1.5), align = 'h')
 
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
   ## print plot
   if(show_plot == TRUE) {
     print(combo_plot)
@@ -58,9 +66,7 @@ cellProximityBarplot = function(gobject,
 
   ## save plot
   if(save_plot == TRUE) {
-
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot), save_param))
-
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot, default_save_name = default_save_name), save_param))
   }
 
   ## return plot
@@ -79,10 +85,11 @@ cellProximityBarplot = function(gobject,
 #' @param order_cell_types order cell types based on enrichment correlation
 #' @param color_breaks numerical vector of length 3 to represent min, mean and maximum
 #' @param color_names character color vector of length 3
-#' @param show_plot show plots
+#' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot heatmap
 #' @details This function creates a heatmap that shows the  spatial proximity
 #'  enrichment or depletion of cell type pairs.
@@ -98,7 +105,8 @@ cellProximityHeatmap = function(gobject,
                                 show_plot = F,
                                 return_plot = TRUE,
                                 save_plot = FALSE,
-                                save_param = list(...)) {
+                                save_param = list(),
+                                default_save_name = 'cellProximityHeatmap') {
 
 
   enrich_res = CPscore$enrichm_res
@@ -161,6 +169,12 @@ cellProximityHeatmap = function(gobject,
   }
 
 
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
   ## print plot
   if(show_plot == TRUE) {
     print(heatm)
@@ -168,9 +182,7 @@ cellProximityHeatmap = function(gobject,
 
   ## save plot
   if(save_plot == TRUE) {
-
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = heatm), save_param))
-
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = heatm, default_save_name = default_save_name), save_param))
   }
 
   ## return plot
@@ -198,10 +210,11 @@ cellProximityHeatmap = function(gobject,
 #' @param edge_width_range range of edge width
 #' @param node_size size of nodes
 #' @param node_text_size size of node labels
-#' @param show_plot show plots
+#' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return igraph plot
 #' @details This function creates a network that shows the  spatial proximity
 #'  enrichment or depletion of cell type pairs.
@@ -225,7 +238,8 @@ cellProximityNetwork = function(gobject,
                                 show_plot = F,
                                 return_plot = TRUE,
                                 save_plot = FALSE,
-                                save_param = list(...)) {
+                                save_param = list(),
+                                default_save_name = 'cellProximityNetwork') {
 
   # create coordinates
   layout = match.arg(arg = layout, choices = c('Fruchterman'))
@@ -296,14 +310,20 @@ cellProximityNetwork = function(gobject,
                                                    axis.text = element_blank(),
                                                    axis.ticks = element_blank())
 
-  ## print plot
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+    ## print plot
   if(show_plot == TRUE) {
     print(gpl)
   }
 
   ## save plot
   if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = gpl), save_param))
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = gpl, default_save_name = default_save_name), save_param))
   }
 
   ## return plot

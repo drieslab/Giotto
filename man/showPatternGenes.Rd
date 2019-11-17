@@ -5,8 +5,9 @@
 \title{showPatternGenes}
 \usage{
 showPatternGenes(gobject, spatPatObj, dimension = 1, top_pos_genes = 5,
-  top_neg_genes = 5, point_size = 1, show_plot = F,
-  return_plot = TRUE, save_plot = F, save_param = list(...))
+  top_neg_genes = 5, point_size = 1, show_plot = NA,
+  return_plot = NA, save_plot = NA, save_param = list(),
+  default_save_name = "showPatternGenes")
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -28,6 +29,8 @@ showPatternGenes(gobject, spatPatObj, dimension = 1, top_pos_genes = 5,
 \item{save_plot}{directly save the plot [boolean]}
 
 \item{save_param}{list of saving parameters from all_plots_save_function()}
+
+\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }
 \value{
 ggplot

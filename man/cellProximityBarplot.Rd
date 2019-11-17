@@ -6,7 +6,8 @@
 \usage{
 cellProximityBarplot(gobject, CPscore, min_orig_ints = 5,
   min_sim_ints = 5, p_val = 0.05, show_plot = F,
-  return_plot = TRUE, save_plot = FALSE, save_param = list(...))
+  return_plot = TRUE, save_plot = FALSE, save_param = list(),
+  default_save_name = "cellProximityBarplot")
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -19,13 +20,15 @@ cellProximityBarplot(gobject, CPscore, min_orig_ints = 5,
 
 \item{p_val}{p-value}
 
-\item{show_plot}{show plots}
+\item{show_plot}{show plot}
 
 \item{return_plot}{return ggplot object}
 
 \item{save_plot}{directly save the plot [boolean]}
 
 \item{save_param}{list of saving parameters from all_plots_save_function()}
+
+\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }
 \value{
 ggplot barplot
