@@ -6669,10 +6669,6 @@ spatDimGenePlot2D <- function(gobject,
                               cow_rel_h = 1,
                               cow_rel_w = 1,
                               cow_align = 'h',
-                              axis_scale = c("cube","real","custom"),
-                              custom_ratio = NULL,
-                              x_ticks = NULL,
-                              y_ticks = NULL,
                               show_legend = T,
                               show_plots = F,
                               return_plot = TRUE,
@@ -6735,10 +6731,6 @@ spatDimGenePlot2D <- function(gobject,
                        cow_rel_h = cow_rel_h,
                        cow_rel_w = cow_rel_w,
                        cow_align = cow_align,
-                       axis_scale = axis_scale,
-                       custom_ratio = custom_ratio,
-                       x_ticks = x_ticks,
-                       y_ticks = y_ticks,
                        show_plots = FALSE,
                        return_plot = TRUE,
                        save_plot = FALSE)
@@ -6766,16 +6758,6 @@ spatDimGenePlot2D <- function(gobject,
 
     do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot), save_param))
 
-    #ggplot_save_function(gobject = gobject,
-    #                     plot_object = combo_plot,
-    #                     save_dir = save_dir,
-    #                     save_folder = save_folder,
-    #                     save_name = save_name,
-    #                     save_format = save_format,
-    #                     show_saved_plot = show_saved_plot,
-    #                     ncol = ncol,
-    #                     nrow = nrow,
-    #                     ...)
   }
 
   ## return plot

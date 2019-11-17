@@ -5,7 +5,8 @@
 \title{cellProximityBarplot}
 \usage{
 cellProximityBarplot(CPscore, min_orig_ints = 5, min_sim_ints = 5,
-  p_val = 0.05)
+  p_val = 0.05, show_plot = F, return_plot = TRUE,
+  save_plot = FALSE, save_param = list(...))
 }
 \arguments{
 \item{CPscore}{CPscore, output from cellProximityEnrichment()}
@@ -15,6 +16,14 @@ cellProximityBarplot(CPscore, min_orig_ints = 5, min_sim_ints = 5,
 \item{min_sim_ints}{filter on minimum simulated cell-cell interactions}
 
 \item{p_val}{p-value}
+
+\item{show_plot}{show plots}
+
+\item{return_plot}{return ggplot object}
+
+\item{save_plot}{directly save the plot [boolean]}
+
+\item{save_param}{list of saving parameters from all_plots_save_function()}
 }
 \value{
 ggplot barplot

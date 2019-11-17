@@ -7,7 +7,9 @@
 cellProximityNetwork(CPscore, remove_self_edges = FALSE,
   color_depletion = "blue", color_enrichment = "red",
   rescale_edge_weights = TRUE, edge_weight_range_depletion = c(0.1, 1),
-  edge_weight_range_enrichment = c(1, 5), layout = "Fruchterman")
+  edge_weight_range_enrichment = c(1, 5), layout = "Fruchterman",
+  show_plot = F, return_plot = TRUE, save_plot = FALSE,
+  save_param = list(...))
 }
 \arguments{
 \item{CPscore}{CPscore, output from cellProximityEnrichment()}
@@ -25,6 +27,14 @@ cellProximityNetwork(CPscore, remove_self_edges = FALSE,
 \item{edge_weight_range_enrichment}{numerical vector of length 2 to rescale enriched edge weights}
 
 \item{layout}{layout algorithm to use to draw nodes and edges}
+
+\item{show_plot}{show plots}
+
+\item{return_plot}{return ggplot object}
+
+\item{save_plot}{directly save the plot [boolean]}
+
+\item{save_param}{list of saving parameters from all_plots_save_function()}
 }
 \value{
 igraph plot

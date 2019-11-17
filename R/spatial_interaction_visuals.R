@@ -9,6 +9,10 @@
 #' @param min_orig_ints filter on minimum original cell-cell interactions
 #' @param min_sim_ints filter on minimum simulated cell-cell interactions
 #' @param p_val p-value
+#' @param show_plot show plots
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
 #' @return ggplot barplot
 #' @details This function creates a barplot that shows the  spatial proximity
 #'  enrichment or depletion of cell type pairs.
@@ -18,7 +22,11 @@
 cellProximityBarplot = function(CPscore,
                                 min_orig_ints = 5,
                                 min_sim_ints = 5,
-                                p_val = 0.05) {
+                                p_val = 0.05,
+                                show_plot = F,
+                                return_plot = TRUE,
+                                save_plot = FALSE,
+                                save_param = list(...)) {
 
 
   table_mean_results_dc = CPscore$enrichm_res
@@ -42,7 +50,23 @@ cellProximityBarplot = function(CPscore,
   bpl
 
   combo_plot <- cowplot::plot_grid(pl, bpl, ncol = 2, rel_heights = c(1), rel_widths = c(3,1.5), align = 'h')
-  print(cowplot::plot_grid(combo_plot))
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(combo_plot)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot), save_param))
+
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(combo_plot)
+  }
 
 }
 
@@ -54,6 +78,10 @@ cellProximityBarplot = function(CPscore,
 #' @param order_cell_types order cell types based on enrichment correlation
 #' @param color_breaks numerical vector of length 3 to represent min, mean and maximum
 #' @param color_names character color vector of length 3
+#' @param show_plot show plots
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
 #' @return ggplot heatmap
 #' @details This function creates a heatmap that shows the  spatial proximity
 #'  enrichment or depletion of cell type pairs.
@@ -64,7 +92,11 @@ cellProximityHeatmap = function(CPscore,
                                 scale = T,
                                 order_cell_types = T,
                                 color_breaks = NULL,
-                                color_names = NULL) {
+                                color_names = NULL,
+                                show_plot = F,
+                                return_plot = TRUE,
+                                save_plot = FALSE,
+                                save_param = list(...)) {
 
 
   enrich_res = CPscore$enrichm_res
@@ -120,13 +152,29 @@ cellProximityHeatmap = function(CPscore,
       stop('\n color_names needs to be a character vector of length 3 \n')
     }
 
-    ComplexHeatmap::Heatmap(matrix = final_matrix, cluster_rows = F, cluster_columns = F,
+    heatm = ComplexHeatmap::Heatmap(matrix = final_matrix, cluster_rows = F, cluster_columns = F,
                             col = circlize::colorRamp2(breaks = color_breaks, colors = color_names))
   } else {
-    ComplexHeatmap::Heatmap(matrix = final_matrix, cluster_rows = F, cluster_columns = F)
+    heatm = ComplexHeatmap::Heatmap(matrix = final_matrix, cluster_rows = F, cluster_columns = F)
   }
 
 
+  ## print plot
+  if(show_plot == TRUE) {
+    print(heatm)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = heatm), save_param))
+
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(heatm)
+  }
 
 }
 
@@ -142,6 +190,10 @@ cellProximityHeatmap = function(CPscore,
 #' @param edge_weight_range_depletion numerical vector of length 2 to rescale depleted edge weights
 #' @param edge_weight_range_enrichment numerical vector of length 2 to rescale enriched edge weights
 #' @param layout layout algorithm to use to draw nodes and edges
+#' @param show_plot show plots
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
 #' @return igraph plot
 #' @details This function creates a network that shows the  spatial proximity
 #'  enrichment or depletion of cell type pairs.
@@ -155,7 +207,11 @@ cellProximityNetwork = function(CPscore,
                                 rescale_edge_weights = TRUE,
                                 edge_weight_range_depletion = c(0.1, 1),
                                 edge_weight_range_enrichment = c(1, 5),
-                                layout = 'Fruchterman') {
+                                layout = 'Fruchterman',
+                                show_plot = F,
+                                return_plot = TRUE,
+                                save_plot = FALSE,
+                                save_param = list(...)) {
 
   # create coordinates
   layout = match.arg(arg = layout, choices = c('Fruchterman'))
@@ -195,7 +251,25 @@ cellProximityNetwork = function(CPscore,
     stop('\n Currently no other layouts, except Fruchterman Reingold, have been implemented \n')
   }
 
-  igraph::plot.igraph(igd, edge.color = edges_colors, edge.width = edges_sizes_resc, layout = coords)
+  iplot = igraph::plot.igraph(igd, edge.color = edges_colors, edge.width = edges_sizes_resc, layout = coords)
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(iplot)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = iplot), save_param))
+
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(iplot)
+  }
+
 
 }
 
@@ -1778,4 +1852,233 @@ plotCPGscores <- function(CPGscores,
   return(pl)
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#' @title cellProximitySpatPlot2D
+#' @name cellProximitySpatPlot2D
+#' @description Visualize 2D cell-cell interactions according to spatial coordinates in ggplot mode
+#' @param gobject giotto object
+#' @param interaction_name cell-cell interaction name
+#' @param cluster_column cluster column with cell clusters
+#' @param sdimx x-axis dimension name (default = 'sdimx')
+#' @param sdimy y-axis dimension name (default = 'sdimy')
+#' @param cell_color color for cells (see details)
+#' @param cell_color_code named vector with colors
+#' @param color_as_factor convert color column to factor
+#' @param show_other_cells decide if show cells not in network
+#' @param show_network show underlying spatial network
+#' @param network_color color of spatial network
+#' @param spatial_network_name name of spatial network to use
+#' @param show_grid show spatial grid
+#' @param grid_color color of spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param coord_fix_ratio fix ratio between x and y-axis
+#' @param show_legend show legend
+#' @param point_size_select size of selected points
+#' @param point_select_border_col border color of selected points
+#' @param point_select_border_stroke stroke size of selected points
+#' @param point_size_other size of other points
+#' @param point_other_border_col border color of other points
+#' @param point_other_border_stroke stroke size of other points
+#' @param show_plot show plots
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     cellProximitySpatPlot2D(gobject)
+cellProximitySpatPlot2D <- function(gobject,
+                                    interaction_name = NULL,
+                                    cluster_column = NULL,
+                                    sdimx = NULL,
+                                    sdimy = NULL,
+                                    cell_color = NULL,
+                                    cell_color_code = NULL,
+                                    color_as_factor = T,
+                                    show_other_cells = F,
+                                    show_network = F,
+                                    show_other_network = F,
+                                    network_color = NULL,
+                                    spatial_network_name = 'spatial_network',
+                                    show_grid = F,
+                                    grid_color = NULL,
+                                    spatial_grid_name = 'spatial_grid',
+                                    coord_fix_ratio = 1,
+                                    show_legend = T,
+                                    point_size_select = 2,
+                                    point_select_border_col = 'black',
+                                    point_select_border_stroke = 0.05,
+                                    point_size_other = 1,
+                                    point_alpha_other = 0.3,
+                                    point_other_border_col = 'lightgrey',
+                                    point_other_border_stroke = 0.01,
+                                    show_plot = F,
+                                    return_plot = TRUE,
+                                    save_plot = FALSE,
+                                    save_param = list(...)) {
+  if(is.null(interaction_name)) {
+    stop('\n you need to specific at least one interaction name, run cellProximityEnrichment \n')
+  }
+
+
+  cell_locations  = gobject@spatial_locs
+  spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
+  cell_metadata   = gobject@cell_metadata
+
+
+
+  spatial_network = annotateSpatialNetwork(gobject = gobject,
+                                           spatial_network_name = spatial_network_name,
+                                           cluster_column = cluster_column)
+
+  cell_IDs_to_keep = unique(c(spatial_network[unified_int %in% interaction_name]$to,
+                              spatial_network[unified_int %in% interaction_name]$from))
+
+  print(cell_IDs_to_keep)
+
+  if(show_other_cells){
+    CellType <- strsplit(interaction_name,"--")
+    all_cell_IDs = cell_metadata[cell_metadata[[cluster_column]] == CellType[[1]][1] |
+                                   cell_metadata[[cluster_column]] == CellType[[1]][2],]$cell_ID
+    other_cell_IDs <- setdiff(all_cell_IDs, cell_IDs_to_keep)
+  }
+
+
+  # annotated cell data
+  if(nrow(cell_metadata) == 0) {
+    cell_locations_metadata = cell_locations
+  } else {
+    cell_locations_metadata <- merge(cell_locations, cell_metadata,by = "cell_ID")
+  }
+
+
+  # first 2 dimensions need to be defined
+  if(is.null(sdimx) | is.null(sdimy)) {
+    cat('first and second dimenion need to be defined, default is first 2 \n')
+    sdimx = 'sdimx'
+    sdimy = 'sdimy'
+  }
+
+  pl <- ggplot2::ggplot()
+  pl <- pl + ggplot2::theme_classic()
+
+  if(!is.null(spatial_network) & show_network == TRUE) {
+    if(is.null(network_color)) network_color = 'red'
+    if(show_other_network){
+      pl <- pl + ggplot2::geom_segment(data = spatial_network[!unified_int %in% interaction_name],
+                                       aes(x = sdimx_begin, y = sdimy_begin, xend = sdimx_end, yend = sdimy_end),
+                                       color = 'lightgrey', size = 0.5, alpha = 0.5)
+    }
+    pl <- pl + ggplot2::geom_segment(data = spatial_network[unified_int %in% interaction_name],
+                                     aes(x = sdimx_begin, y = sdimy_begin, xend = sdimx_end, yend = sdimy_end),
+                                     color = network_color, size = 0.5, alpha = 0.5)
+  }
+
+  if(!is.null(spatial_grid) & show_grid == TRUE) {
+    if(is.null(grid_color)) grid_color = 'black'
+    pl <- pl + ggplot2::geom_rect(data = spatial_grid, aes(xmin = x_start, xmax = x_end, ymin = y_start, ymax = y_end),
+                                  color = grid_color, fill = NA)
+  }
+
+  # cell color default
+  if(is.null(cell_color)) {
+    cell_color = 'lightblue'
+    pl <- pl + ggplot2::geom_point(data = cell_locations[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
+                                   show.legend = show_legend, shape = 21, fill = 'lightgrey', size = point_size_other)
+    pl <- pl + ggplot2::geom_point(data = cell_locations[cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
+                                   show.legend = show_legend, shape = 21, fill = cell_color, size = point_size_select)
+    if(show_other_cells){
+      pl <- pl + ggplot2::geom_point(data = cell_locations[cell_ID %in% other_cell_IDs], aes_string(x = sdimx, y = sdimy),
+                                     show.legend = show_legend, shape = 21, fill = cell_color, alpha = point_alpha_other,
+                                     size = point_size_select * 0.5)
+    }
+  }
+  else if (is.character(cell_color)) {
+    if(cell_color %in% colnames(cell_locations_metadata)) {
+
+      if(color_as_factor == TRUE) {
+        factor_data = factor(cell_locations_metadata[[cell_color]])
+        cell_locations_metadata[[cell_color]] <- factor_data
+      }
+
+      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
+                                     fill = 'lightgrey', shape = 21, size = point_size_other,
+                                     color = point_other_border_col, stroke = point_other_border_stroke)
+      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy, fill = cell_color),
+                                     show.legend = show_legend, shape = 21, size = point_size_select,
+                                     color = point_select_border_col, stroke = point_select_border_stroke)
+      if(show_other_cells){
+        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[cell_ID %in% other_cell_IDs], aes_string(x = sdimx, y = sdimy,fill = cell_color),
+                                       show.legend = show_legend, shape = 21, alpha = point_alpha_other,
+                                       size = point_size_select * 0.5)
+      }
+
+
+
+      if(!is.null(cell_color_code)) {
+        pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
+      } else if(color_as_factor == T) {
+        number_colors = length(unique(factor_data))
+        cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+        names(cell_color_code) = unique(factor_data)
+        pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
+      } else if(color_as_factor == F){
+        pl <- pl + ggplot2::scale_fill_gradient(low = 'blue', high = 'red')
+      }
+
+    } else {
+      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
+                                     show.legend = show_legend, shape = 21, fill = 'lightgrey', size = point_size_other,
+                                     color = point_other_border_col, stroke = point_other_border_stroke)
+      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
+                                     show.legend = show_legend, shape = 21, fill = cell_color, size = point_size_select,
+                                     color = point_select_border_col, stroke = point_select_border_stroke)
+    }
+
+  }
+
+  pl <- pl + ggplot2::theme_bw() + ggplot2::theme(plot.title = element_text(hjust = 0.5),
+                                                  legend.title = element_text(size = 10),
+                                                  legend.text = element_text(size = 10))
+
+  # fix coord ratio
+  if(!is.null(coord_fix_ratio)) {
+    pl <- pl + ggplot2::coord_fixed(ratio = coord_fix_ratio)
+  }
+
+  pl <- pl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates')
+
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl), save_param))
+
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
+}
+
 

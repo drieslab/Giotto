@@ -19,10 +19,8 @@ spatDimGenePlot2D(gobject, expression_values = c("normalized", "scaled",
   spatial_point_border_stroke = 0.1, midpoint = 0,
   genes_high_color = "red", genes_mid_color = "white",
   genes_low_color = "blue", cow_n_col = 2, cow_rel_h = 1,
-  cow_rel_w = 1, cow_align = "h", axis_scale = c("cube", "real",
-  "custom"), custom_ratio = NULL, x_ticks = NULL, y_ticks = NULL,
-  show_legend = T, show_plots = F, return_plot = TRUE,
-  save_plot = FALSE, save_param = list(...))
+  cow_rel_w = 1, cow_align = "h", show_legend = T, show_plots = F,
+  return_plot = TRUE, save_plot = FALSE, save_param = list(...))
 }
 \arguments{
 \item{gobject}{giotto object}

@@ -5,7 +5,8 @@
 \title{cellProximityHeatmap}
 \usage{
 cellProximityHeatmap(CPscore, scale = T, order_cell_types = T,
-  color_breaks = NULL, color_names = NULL)
+  color_breaks = NULL, color_names = NULL, show_plot = F,
+  return_plot = TRUE, save_plot = FALSE, save_param = list(...))
 }
 \arguments{
 \item{CPscore}{CPscore, output from cellProximityEnrichment()}
@@ -17,6 +18,14 @@ cellProximityHeatmap(CPscore, scale = T, order_cell_types = T,
 \item{color_breaks}{numerical vector of length 3 to represent min, mean and maximum}
 
 \item{color_names}{character color vector of length 3}
+
+\item{show_plot}{show plots}
+
+\item{return_plot}{return ggplot object}
+
+\item{save_plot}{directly save the plot [boolean]}
+
+\item{save_param}{list of saving parameters from all_plots_save_function()}
 }
 \value{
 ggplot heatmap
