@@ -641,6 +641,10 @@ createHeatmap_DT <- function(gobject,
 #' @param gene_label_selection subset of genes to show on y-axis
 #' @param axis_text_y_size size for y-axis text
 #' @param legend_nrows number of rows for the cluster legend
+#' @param show_plot print plot to console
+#' @param return_plot return plot
+#' @param save_plot save plot
+#' @param save_param list of saving parameters from all_plots_save_function()
 #' @return ggplot
 #' @details Creates heatmap for genes and clusters.
 #' @export
@@ -665,7 +669,10 @@ plotHeatmap <- function(gobject,
                         gene_label_selection = NULL,
                         axis_text_y_size = NULL,
                         legend_nrows = 1,
-                        show_plot = TRUE) {
+                        show_plot = TRUE,
+                        return_plot = TRUE,
+                        save_plot = FALSE,
+                        save_param = list(...)) {
 
   show_values = match.arg(show_values, choices = c('rescaled', 'z-scaled', 'original'))
 
@@ -756,8 +763,21 @@ plotHeatmap <- function(gobject,
                                   ncol = 2, rel_widths = c(1, 0.2),
                                   nrow = 2, rel_heights = c(0.2, 1))
 
-    if(show_plot == TRUE) print(combplot)
-    return(combplot)
+
+    ## print plot
+    if(show_plot == TRUE) {
+      print(combplot)
+    }
+
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combplot), save_param))
+    }
+
+    ## return plot
+    if(return_plot == TRUE) {
+      return(combplot)
+    }
 
 
   } else {
@@ -797,8 +817,20 @@ plotHeatmap <- function(gobject,
                                   ncol = 3, rel_widths = c(1, 0.2, 0.1),
                                   nrow = 2, rel_heights = c(0.2, 1))
 
-    if(show_plot == TRUE) print(combplot)
-    return(combplot)
+    ## print plot
+    if(show_plot == TRUE) {
+      print(combplot)
+    }
+
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combplot), save_param))
+    }
+
+    ## return plot
+    if(return_plot == TRUE) {
+      return(combplot)
+    }
 
   }
 
@@ -830,7 +862,10 @@ plotHeatmap <- function(gobject,
 #' @param x_text_angle angle of x-axis text
 #' @param y_text_size size of y-axis text
 #' @param strip_text_size size of strip text
-#' @param show_plot print plot (default = TRUE)
+#' @param show_plot print plot to console
+#' @param return_plot return plot
+#' @param save_plot save plot
+#' @param save_param list of saving parameters from all_plots_save_function()
 #' @return ggplot or data.table
 #' @details Creates heatmap for average the average expression of selected genes in the different annotation groups
 #' @export
@@ -854,7 +889,10 @@ plotMetaDataHeatmap = function(gobject,
                                x_text_angle = 45,
                                y_text_size = 8,
                                strip_text_size = 8,
-                               show_plot = T) {
+                               show_plot = TRUE,
+                               return_plot = TRUE,
+                               save_plot = FALSE,
+                               save_param = list(...)) {
 
 
   metaDT = calculateMetaTable(gobject = gobject,
@@ -936,8 +974,19 @@ plotMetaDataHeatmap = function(gobject,
                      legend.title=element_blank())
     pl <- pl + labs(x = metadata_cols, y = 'genes')
 
+    ## print plot
     if(show_plot == TRUE) {
       print(pl)
+    }
+
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl), save_param))
+    }
+
+    ## return plot
+    if(return_plot == TRUE) {
+      return(pl)
     }
   }
 
@@ -964,8 +1013,19 @@ plotMetaDataHeatmap = function(gobject,
                        legend.title=element_blank())
       pl <- pl + labs(x = first_meta_col, y = 'genes', title = second_meta_col)
 
+      ## print plot
       if(show_plot == TRUE) {
         print(pl)
+      }
+
+      ## save plot
+      if(save_plot == TRUE) {
+        do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl), save_param))
+      }
+
+      ## return plot
+      if(return_plot == TRUE) {
+        return(pl)
       }
     }
 
@@ -983,6 +1043,16 @@ plotMetaDataHeatmap = function(gobject,
 #' @param genes genes to plot
 #' @param cluster_column name of column to use for clusters
 #' @param color_violin color violinplots according to genes or clusters
+#' @param cluster_custom_order custom order of clusters
+#' @param color_violin color violin according to genes or clusters
+#' @param cluster_color_code color code for clusters
+#' @param strip_text size of strip text
+#' @param axis_text_x_size size of x-axis text
+#' @param axis_text_y_size size of y-axis text
+#' @param show_plot print plot to console
+#' @param return_plot return plot
+#' @param save_plot save plot
+#' @param save_param list of saving parameters from all_plots_save_function()
 #' @return ggplot
 #' @details Correlation heatmap of clusters vs genes.
 #' @export
@@ -997,7 +1067,11 @@ violinPlot <- function(gobject,
                        cluster_color_code = NULL,
                        strip_text = 7,
                        axis_text_x_size = 10,
-                       axis_text_y_size = 6) {
+                       axis_text_y_size = 6,
+                       show_plot = TRUE,
+                       return_plot = TRUE,
+                       save_plot = FALSE,
+                       save_param = list(...)) {
 
 
   ## color of violin plots
@@ -1061,8 +1135,21 @@ violinPlot <- function(gobject,
   pl <- pl + ggplot2::labs(x = '', y = 'normalized expression')
   pl
 
-  return(pl)
 
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
 
 }
 

@@ -12,7 +12,8 @@ plotMetaDataHeatmap(gobject, expression_values = c("normalized",
   clus_cluster_method = "complete", custom_gene_order = NULL,
   gene_cor_method = "pearson", gene_cluster_method = "complete",
   midpoint = 0, x_text_size = 8, x_text_angle = 45,
-  y_text_size = 8, strip_text_size = 8, show_plot = T)
+  y_text_size = 8, strip_text_size = 8, show_plot = TRUE,
+  return_plot = TRUE, save_plot = FALSE, save_param = list(...))
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -51,7 +52,13 @@ plotMetaDataHeatmap(gobject, expression_values = c("normalized",
 
 \item{strip_text_size}{size of strip text}
 
-\item{show_plot}{print plot (default = TRUE)}
+\item{show_plot}{print plot to console}
+
+\item{return_plot}{return plot}
+
+\item{save_plot}{save plot}
+
+\item{save_param}{list of saving parameters from all_plots_save_function()}
 }
 \value{
 ggplot or data.table

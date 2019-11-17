@@ -14,7 +14,8 @@ plotHeatmap(gobject, expression_values = c("normalized", "scaled",
   show_values = c("rescaled", "z-scaled", "original"),
   size_vertical_lines = 1.1, gradient_colors = c("blue", "yellow",
   "red"), gene_label_selection = NULL, axis_text_y_size = NULL,
-  legend_nrows = 1, show_plot = TRUE)
+  legend_nrows = 1, show_plot = TRUE, return_plot = TRUE,
+  save_plot = FALSE, save_param = list(...))
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -54,6 +55,14 @@ plotHeatmap(gobject, expression_values = c("normalized", "scaled",
 \item{axis_text_y_size}{size for y-axis text}
 
 \item{legend_nrows}{number of rows for the cluster legend}
+
+\item{show_plot}{print plot to console}
+
+\item{return_plot}{return plot}
+
+\item{save_plot}{save plot}
+
+\item{save_param}{list of saving parameters from all_plots_save_function()}
 }
 \value{
 ggplot

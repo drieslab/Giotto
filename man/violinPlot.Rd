@@ -7,7 +7,9 @@
 violinPlot(gobject, expression_values = c("normalized", "scaled",
   "custom"), genes, cluster_column, cluster_custom_order = NULL,
   color_violin = c("genes", "cluster"), cluster_color_code = NULL,
-  strip_text = 7, axis_text_x_size = 10, axis_text_y_size = 6)
+  strip_text = 7, axis_text_x_size = 10, axis_text_y_size = 6,
+  show_plot = TRUE, return_plot = TRUE, save_plot = FALSE,
+  save_param = list(...))
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -18,7 +20,27 @@ violinPlot(gobject, expression_values = c("normalized", "scaled",
 
 \item{cluster_column}{name of column to use for clusters}
 
+\item{cluster_custom_order}{custom order of clusters}
+
 \item{color_violin}{color violinplots according to genes or clusters}
+
+\item{cluster_color_code}{color code for clusters}
+
+\item{strip_text}{size of strip text}
+
+\item{axis_text_x_size}{size of x-axis text}
+
+\item{axis_text_y_size}{size of y-axis text}
+
+\item{show_plot}{print plot to console}
+
+\item{return_plot}{return plot}
+
+\item{save_plot}{save plot}
+
+\item{save_param}{list of saving parameters from all_plots_save_function()}
+
+\item{color_violin}{color violin according to genes or clusters}
 }
 \value{
 ggplot
