@@ -15,7 +15,7 @@ spatPlot2D(gobject, sdimx = "sdimx", sdimy = "sdimy", point_size = 3,
   grid_color = NULL, spatial_grid_name = "spatial_grid",
   coord_fix_ratio = 0.6, title = "", show_legend = T,
   show_plot = NA, return_plot = NA, save_plot = NA,
-  save_param = list(...), default_save_name = "spatPlot2D")
+  save_param = list(), default_save_name = "spatPlot2D")
 }
 \arguments{
 \item{gobject}{giotto object}

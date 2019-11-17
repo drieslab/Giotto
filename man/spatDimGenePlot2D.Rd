@@ -20,7 +20,7 @@ spatDimGenePlot2D(gobject, expression_values = c("normalized", "scaled",
   genes_high_color = "red", genes_mid_color = "white",
   genes_low_color = "blue", cow_n_col = 2, cow_rel_h = 1,
   cow_rel_w = 1, cow_align = "h", show_legend = T, show_plot = NA,
-  return_plot = NA, save_plot = NA, save_param = list(...),
+  return_plot = NA, save_plot = NA, save_param = list(),
   default_save_name = "spatDimGenePlot2D")
 }
 \arguments{

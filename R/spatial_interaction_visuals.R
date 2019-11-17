@@ -1963,7 +1963,7 @@ cellProximitySpatPlot2D <- function(gobject,
                                     show_plot = F,
                                     return_plot = TRUE,
                                     save_plot = FALSE,
-                                    save_param = list(...),
+                                    save_param =  list(),
                                     default_save_name = 'cellProximitySpatPlot2D') {
   if(is.null(interaction_name)) {
     stop('\n you need to specific at least one interaction name, run cellProximityEnrichment \n')
@@ -2111,7 +2111,7 @@ cellProximitySpatPlot2D <- function(gobject,
 
   ## save plot
   if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl), save_param, list(default_save_name = default_save_name)))
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
   }
 
   ## return plot

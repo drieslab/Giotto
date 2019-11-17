@@ -7,7 +7,7 @@
 showPattern2D(gobject, spatPatObj, dimension = 1, trim = c(0.02, 0.98),
   background_color = "white", grid_border_color = "grey",
   show_legend = T, point_size = 1, show_plot = F,
-  return_plot = TRUE, save_plot = F, save_param = list(...),
+  return_plot = TRUE, save_plot = F, save_param = list(),
   default_save_name = "showPattern2D")
 }
 \arguments{

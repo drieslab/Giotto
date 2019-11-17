@@ -758,7 +758,7 @@ showPattern2D <- function(gobject,
                           show_plot = F,
                           return_plot = TRUE,
                           save_plot = F,
-                          save_param = list(...),
+                          save_param =  list(),
                           default_save_name = 'showPattern2D') {
 
   if(!'spatPatObj' %in% class(spatPatObj)) {
@@ -814,7 +814,7 @@ showPattern2D <- function(gobject,
 
   ## save plot
   if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = dpl), save_param, list(default_save_name = default_save_name)))
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = dpl, default_save_name = default_save_name), save_param))
   }
 
   ## return plot

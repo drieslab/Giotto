@@ -5323,7 +5323,7 @@ dimPlot2D <- function(gobject,
                       show_plot = NA,
                       return_plot = NA,
                       save_plot = NA,
-                      save_param = list(...),
+                      save_param = list(),
                       default_save_name = 'dimPlot2D'
                       ){
 
@@ -5469,7 +5469,7 @@ dimPlot2D <- function(gobject,
 
   ## save plot
   if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl), save_param, list(default_save_name = default_save_name)))
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
   }
 
   ## return plot
@@ -5785,7 +5785,7 @@ spatPlot2D = function(gobject,
                       show_plot = NA,
                       return_plot = NA,
                       save_plot = NA,
-                      save_param = list(...),
+                      save_param =  list(),
                       default_save_name = 'spatPlot2D'
                       ) {
 
@@ -5914,7 +5914,7 @@ spatPlot2D = function(gobject,
 
   ## save plot
   if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl), save_param, list(default_save_name = default_save_name)))
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
   }
 
   ## return plot
@@ -6030,7 +6030,7 @@ spatDimPlot2D <- function(gobject,
                           show_plot = NA,
                           return_plot = NA,
                           save_plot = NA,
-                          save_param = list(...),
+                          save_param =  list(),
                           default_save_name = 'spatDimPlot2D'
                           ){
 
@@ -6141,7 +6141,7 @@ spatDimPlot2D <- function(gobject,
 
   ## save plot
   if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot), save_param, list(default_save_name = default_save_name)))
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot, default_save_name = default_save_name), save_param))
   }
 
   ## return plot
@@ -6218,7 +6218,7 @@ spatGenePlot2D <- function(gobject,
                            show_plot = NA,
                            return_plot = NA,
                            save_plot = NA,
-                           save_param = list(...),
+                           save_param =  list(),
                            default_save_name = 'spatGenePlot2D') {
   selected_genes = genes
 
@@ -6341,7 +6341,7 @@ spatGenePlot2D <- function(gobject,
 
   ## save plot
   if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot), save_param, list(default_save_name = default_save_name)))
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot, default_save_name = default_save_name), save_param))
   }
 
   ## return plot
@@ -6417,7 +6417,7 @@ dimGenePlot2D <- function(gobject,
                           show_plot = NA,
                           return_plot = NA,
                           save_plot = NA,
-                          save_param = list(...),
+                          save_param =  list(),
                           default_save_name = 'dimGenePlot2D') {
   ## select genes ##
   selected_genes = genes
@@ -6562,7 +6562,7 @@ dimGenePlot2D <- function(gobject,
 
   ## save plot
   if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot), save_param, list(default_save_name = default_save_name)))
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot, default_save_name = default_save_name), save_param))
   }
 
   ## return plot
@@ -6653,7 +6653,7 @@ spatDimGenePlot2D <- function(gobject,
                               show_plot = NA,
                               return_plot = NA,
                               save_plot = NA,
-                              save_param = list(...),
+                              save_param =  list(),
                               default_save_name = 'spatDimGenePlot2D') {
 
   plot_alignment = match.arg(plot_alignment, choices = c('vertical', 'horizontal'))
@@ -6740,7 +6740,7 @@ spatDimGenePlot2D <- function(gobject,
 
   ## save plot
   if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot), save_param, list(default_save_name = default_save_name)))
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot, default_save_name = default_save_name), save_param))
   }
 
   ## return plot

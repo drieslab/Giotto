@@ -16,7 +16,7 @@ cellProximitySpatPlot2D(gobject, interaction_name = NULL,
   point_size_other = 1, point_alpha_other = 0.3,
   point_other_border_col = "lightgrey",
   point_other_border_stroke = 0.01, show_plot = F,
-  return_plot = TRUE, save_plot = FALSE, save_param = list(...),
+  return_plot = TRUE, save_plot = FALSE, save_param = list(),
   default_save_name = "cellProximitySpatPlot2D")
 }
 \arguments{

@@ -17,7 +17,7 @@ dimPlot2D(gobject, dim_reduction_to_use = "umap",
   label_fontface = "bold", edge_alpha = NULL, point_size = 1,
   point_border_col = "black", point_border_stroke = 0.1,
   show_legend = T, show_plot = NA, return_plot = NA,
-  save_plot = NA, save_param = list(...),
+  save_plot = NA, save_param = list(),
   default_save_name = "dimPlot2D")
 }
 \arguments{

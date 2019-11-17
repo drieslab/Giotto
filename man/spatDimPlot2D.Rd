@@ -23,7 +23,7 @@ spatDimPlot2D(gobject, plot_alignment = c("vertical", "horizontal"),
   spatial_point_border_stroke = 0.1, spatial_other_point_size = 1,
   spatial_network_alpha = 0.5, spatial_other_cells_alpha = 0.5,
   dim_other_point_size = 1, show_legend = T, show_plot = NA,
-  return_plot = NA, save_plot = NA, save_param = list(...),
+  return_plot = NA, save_plot = NA, save_param = list(),
   default_save_name = "spatDimPlot2D")
 }
 \arguments{

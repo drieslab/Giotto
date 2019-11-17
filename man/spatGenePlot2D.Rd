@@ -15,7 +15,7 @@ spatGenePlot2D(gobject, expression_values = c("normalized", "scaled",
   point_border_col = "black", point_border_stroke = 0.1,
   show_legend = T, cow_n_col = 2, cow_rel_h = 1, cow_rel_w = 1,
   cow_align = "h", show_plot = NA, return_plot = NA,
-  save_plot = NA, save_param = list(...),
+  save_plot = NA, save_param = list(),
   default_save_name = "spatGenePlot2D")
 }
 \arguments{
