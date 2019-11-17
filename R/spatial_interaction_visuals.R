@@ -24,10 +24,10 @@ cellProximityBarplot = function(gobject,
                                 min_orig_ints = 5,
                                 min_sim_ints = 5,
                                 p_val = 0.05,
-                                show_plot = F,
-                                return_plot = TRUE,
-                                save_plot = FALSE,
-                                save_param = list(),
+                                show_plot = NA,
+                                return_plot = NA,
+                                save_plot = NA,
+                                save_param =  list(),
                                 default_save_name = 'cellProximityBarplot') {
 
 
@@ -102,10 +102,10 @@ cellProximityHeatmap = function(gobject,
                                 order_cell_types = T,
                                 color_breaks = NULL,
                                 color_names = NULL,
-                                show_plot = F,
-                                return_plot = TRUE,
-                                save_plot = FALSE,
-                                save_param = list(),
+                                show_plot = NA,
+                                return_plot = NA,
+                                save_plot = NA,
+                                save_param =  list(),
                                 default_save_name = 'cellProximityHeatmap') {
 
 
@@ -235,10 +235,10 @@ cellProximityNetwork = function(gobject,
                                 edge_width_range = c(0.1, 2),
                                 node_size = 4,
                                 node_text_size = 6,
-                                show_plot = F,
-                                return_plot = TRUE,
-                                save_plot = FALSE,
-                                save_param = list(),
+                                show_plot = NA,
+                                return_plot = NA,
+                                save_plot = NA,
+                                save_param =  list(),
                                 default_save_name = 'cellProximityNetwork') {
 
   # create coordinates
@@ -1980,9 +1980,9 @@ cellProximitySpatPlot2D <- function(gobject,
                                     point_alpha_other = 0.3,
                                     point_other_border_col = 'lightgrey',
                                     point_other_border_stroke = 0.01,
-                                    show_plot = F,
-                                    return_plot = TRUE,
-                                    save_plot = FALSE,
+                                    show_plot = NA,
+                                    return_plot = NA,
+                                    save_plot = NA,
                                     save_param =  list(),
                                     default_save_name = 'cellProximitySpatPlot2D') {
   if(is.null(interaction_name)) {

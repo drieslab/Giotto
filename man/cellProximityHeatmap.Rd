@@ -5,8 +5,8 @@
 \title{cellProximityHeatmap}
 \usage{
 cellProximityHeatmap(gobject, CPscore, scale = T, order_cell_types = T,
-  color_breaks = NULL, color_names = NULL, show_plot = F,
-  return_plot = TRUE, save_plot = FALSE, save_param = list(),
+  color_breaks = NULL, color_names = NULL, show_plot = NA,
+  return_plot = NA, save_plot = NA, save_param = list(),
   default_save_name = "cellProximityHeatmap")
 }
 \arguments{

@@ -10,8 +10,8 @@ cellProximityNetwork(gobject, CPscore, remove_self_edges = FALSE,
   edge_weight_range_depletion = c(0.1, 1),
   edge_weight_range_enrichment = c(1, 5), layout = "Fruchterman",
   only_show_enrichment_edges = F, edge_width_range = c(0.1, 2),
-  node_size = 4, node_text_size = 6, show_plot = F,
-  return_plot = TRUE, save_plot = FALSE, save_param = list(),
+  node_size = 4, node_text_size = 6, show_plot = NA,
+  return_plot = NA, save_plot = NA, save_param = list(),
   default_save_name = "cellProximityNetwork")
 }
 \arguments{

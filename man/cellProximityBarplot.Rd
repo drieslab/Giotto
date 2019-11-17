@@ -5,8 +5,8 @@
 \title{cellProximityBarplot}
 \usage{
 cellProximityBarplot(gobject, CPscore, min_orig_ints = 5,
-  min_sim_ints = 5, p_val = 0.05, show_plot = F,
-  return_plot = TRUE, save_plot = FALSE, save_param = list(),
+  min_sim_ints = 5, p_val = 0.05, show_plot = NA, return_plot = NA,
+  save_plot = NA, save_param = list(),
   default_save_name = "cellProximityBarplot")
 }
 \arguments{
