@@ -27,6 +27,7 @@ ggplot_save_function = function(gobject,
                                 save_dir = NULL,
                                 save_folder = NULL,
                                 save_name = NULL,
+                                default_save_name = 'giotto_plot',
                                 save_format = NULL,
                                 show_saved_plot = F,
                                 ncol = 1,
@@ -47,7 +48,7 @@ ggplot_save_function = function(gobject,
   ## get save information and set defaults
   if(is.null(save_dir)) save_dir = readGiottoInstructions(gobject, param = 'save_dir')
   if(is.null(save_folder)) save_folder = NULL
-  if(is.null(save_name)) save_name = "giotto_plot"
+  if(is.null(save_name)) save_name = default_save_name
   if(is.null(save_format)) save_format = readGiottoInstructions(gobject, param = 'plot_format')
   if(is.null(dpi)) dpi = readGiottoInstructions(gobject, param = 'dpi')
   if(is.null(base_width)) base_width = readGiottoInstructions(gobject, param = 'width')
@@ -114,6 +115,7 @@ general_save_function = function(gobject,
                                  save_dir = NULL,
                                  save_folder = NULL,
                                  save_name = NULL,
+                                 default_save_name = 'giotto_plot',
                                  save_format = c('png', 'tiff', 'pdf', 'svg'),
                                  show_saved_plot = F,
                                  base_width = NULL,
@@ -133,7 +135,7 @@ general_save_function = function(gobject,
   ## get save information and set defaults
   if(is.null(save_dir)) save_dir = readGiottoInstructions(gobject, param = 'save_dir')
   if(is.null(save_folder)) save_folder = NULL
-  if(is.null(save_name)) save_name = "giotto_plot"
+  if(is.null(save_name)) save_name = default_save_name
   if(is.null(save_format)) save_format = readGiottoInstructions(gobject, param = 'plot_format')
   if(is.null(dpi)) dpi = readGiottoInstructions(gobject, param = 'dpi')
   if(is.null(base_width)) base_width = readGiottoInstructions(gobject, param = 'width')
@@ -220,6 +222,7 @@ all_plots_save_function = function(gobject,
                                    save_dir = NULL,
                                    save_folder = NULL,
                                    save_name = NULL,
+                                   default_save_name = 'giotto_plot',
                                    save_format = NULL,
                                    show_saved_plot = F,
                                    ncol = 1,
@@ -241,6 +244,7 @@ all_plots_save_function = function(gobject,
                          save_dir = save_dir,
                          save_folder = save_folder,
                          save_name = save_name,
+                         default_save_name = default_save_name,
                          save_format = save_format,
                          show_saved_plot = show_saved_plot,
                          ncol = ncol,
@@ -261,6 +265,7 @@ all_plots_save_function = function(gobject,
                           save_dir = save_dir,
                           save_folder = save_folder,
                           save_name = save_name,
+                          default_save_name = default_save_name,
                           save_format = save_format,
                           show_saved_plot = show_saved_plot,
                           base_width = base_width,
@@ -1046,6 +1051,7 @@ plotMetaDataHeatmap = function(gobject,
 #' @param cluster_custom_order custom order of clusters
 #' @param color_violin color violin according to genes or clusters
 #' @param cluster_color_code color code for clusters
+#' @param strip_position position of gene labels
 #' @param strip_text size of strip text
 #' @param axis_text_x_size size of x-axis text
 #' @param axis_text_y_size size of y-axis text
@@ -1065,6 +1071,7 @@ violinPlot <- function(gobject,
                        cluster_custom_order = NULL,
                        color_violin = c('genes', 'cluster'),
                        cluster_color_code = NULL,
+                       strip_position = c('top', 'right', 'left', 'bottom'),
                        strip_text = 7,
                        axis_text_x_size = 10,
                        axis_text_y_size = 6,
@@ -1073,6 +1080,8 @@ violinPlot <- function(gobject,
                        save_plot = FALSE,
                        save_param = list(...)) {
 
+  ## strip position
+  strip_position = match.arg(strip_position, c('top', 'right', 'left', 'bottom'))
 
   ## color of violin plots
   color_violin = match.arg(color_violin, c('genes', 'cluster'))
@@ -1128,13 +1137,13 @@ violinPlot <- function(gobject,
       pl <- pl + ggplot2::scale_fill_manual(values = cluster_color_code)
     }
   }
-  pl <- pl + ggplot2::facet_wrap(~genes, ncol = 1)
+
+
+  pl <- pl + ggplot2::facet_wrap(.~genes, ncol = 1, strip.position = strip_position)
   pl <- pl + ggplot2::theme(strip.text = element_text(size = strip_text),
                             axis.text.x = element_text(size = axis_text_x_size, angle = 45, hjust = 1, vjust = 1),
                             axis.text.y = element_text(size = axis_text_y_size))
   pl <- pl + ggplot2::labs(x = '', y = 'normalized expression')
-  pl
-
 
   ## print plot
   if(show_plot == TRUE) {

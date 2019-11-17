@@ -137,6 +137,9 @@ setMethod(f = "print.giotto",
 #' @title createGiottoInstructions
 #' @description Function to create instructions for giotto functions
 #' @param python_path path to python bin to use
+#' @param show_plot print plot to console, default = TRUE
+#' @param return_plot return plot as object, default = TRUE
+#' @param save_plot automatically save plot, dafault = FALSE
 #' @param save_dir path of directory to use to save figures
 #' @param dpi resolution for raster images to save
 #' @param height height of the plots to save
@@ -146,6 +149,9 @@ setMethod(f = "print.giotto",
 #' @examples
 #'     createGiottoInstructions()
 createGiottoInstructions <- function(python_path =  NULL,
+                                     show_plot = NULL,
+                                     return_plot = NULL,
+                                     save_plot = NULL,
                                      save_dir = NULL,
                                      plot_format = NULL,
                                      dpi = NULL,
@@ -158,6 +164,21 @@ createGiottoInstructions <- function(python_path =  NULL,
     python_path = system('which python', intern = T)
   }
   python_path = as.character(python_path)
+
+  # print plot to console
+  if(is.null(show_plot)) {
+    show_plot = TRUE
+  }
+
+  # print plot to console
+  if(is.null(return_plot)) {
+    return_plot = TRUE
+  }
+
+  # print plot to console
+  if(is.null(save_plot)) {
+    save_plot = FALSE
+  }
 
   # directory to save results to
   if(is.null(save_dir)) {
@@ -195,8 +216,10 @@ createGiottoInstructions <- function(python_path =  NULL,
   }
   width = as.numeric(width)
 
-  instructions_list = list(python_path, save_dir, plot_format, dpi, units, height, width)
-  names(instructions_list) = c('python_path','save_dir', 'plot_format', 'dpi', 'units', 'height', 'width')
+  instructions_list = list(python_path, show_plot, return_plot,
+                           save_plot, save_dir, plot_format, dpi, units, height, width)
+  names(instructions_list) = c('python_path', 'show_plot', 'return_plot',
+                               'save_plot', 'save_dir', 'plot_format', 'dpi', 'units', 'height', 'width')
   return(instructions_list)
 
 }

@@ -1,10 +1,9 @@
 
 
-
-
 #' @title cellProximityBarplot
 #' @name cellProximityBarplot
 #' @description Create barplot from cell-cell proximity scores
+#' @param gobject giotto object
 #' @param CPscore CPscore, output from cellProximityEnrichment()
 #' @param min_orig_ints filter on minimum original cell-cell interactions
 #' @param min_sim_ints filter on minimum simulated cell-cell interactions
@@ -19,7 +18,8 @@
 #' @export
 #' @examples
 #'     cellProximityBarplot(CPscore)
-cellProximityBarplot = function(CPscore,
+cellProximityBarplot = function(gobject,
+                                CPscore,
                                 min_orig_ints = 5,
                                 min_sim_ints = 5,
                                 p_val = 0.05,
@@ -73,6 +73,7 @@ cellProximityBarplot = function(CPscore,
 #' @title cellProximityHeatmap
 #' @name cellProximityHeatmap
 #' @description Create heatmap from cell-cell proximity scores
+#' @param gobject giotto object
 #' @param CPscore CPscore, output from cellProximityEnrichment()
 #' @param scale scale cell-cell proximity interaction scores
 #' @param order_cell_types order cell types based on enrichment correlation
@@ -88,7 +89,8 @@ cellProximityBarplot = function(CPscore,
 #' @export
 #' @examples
 #'     cellProximityHeatmap(CPscore)
-cellProximityHeatmap = function(CPscore,
+cellProximityHeatmap = function(gobject,
+                                CPscore,
                                 scale = T,
                                 order_cell_types = T,
                                 color_breaks = NULL,
@@ -182,14 +184,20 @@ cellProximityHeatmap = function(CPscore,
 #' @title cellProximityNetwork
 #' @name cellProximityNetwork
 #' @description Create network from cell-cell proximity scores
+#' @param gobject giotto object
 #' @param CPscore CPscore, output from cellProximityEnrichment()
 #' @param remove_self_edges remove enrichment/depletion edges with itself
+#' @param self_loop_strength size of self-loops
 #' @param color_depletion color for depleted cell-cell interactions
 #' @param color_enrichment color for enriched cell-cell interactions
 #' @param rescale_edge_weights rescale edge weights (boolean)
 #' @param edge_weight_range_depletion numerical vector of length 2 to rescale depleted edge weights
 #' @param edge_weight_range_enrichment numerical vector of length 2 to rescale enriched edge weights
 #' @param layout layout algorithm to use to draw nodes and edges
+#' @param only_show_enrichment_edges show only the enriched pairwise scores
+#' @param edge_width_range range of edge width
+#' @param node_size size of nodes
+#' @param node_text_size size of node labels
 #' @param show_plot show plots
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -200,14 +208,20 @@ cellProximityHeatmap = function(CPscore,
 #' @export
 #' @examples
 #'     cellProximityNetwork(CPscore)
-cellProximityNetwork = function(CPscore,
+cellProximityNetwork = function(gobject,
+                                CPscore,
                                 remove_self_edges = FALSE,
-                                color_depletion = 'blue',
+                                self_loop_strength = 0.1,
+                                color_depletion = 'lightgreen',
                                 color_enrichment = 'red',
                                 rescale_edge_weights = TRUE,
                                 edge_weight_range_depletion = c(0.1, 1),
                                 edge_weight_range_enrichment = c(1, 5),
                                 layout = 'Fruchterman',
+                                only_show_enrichment_edges = F,
+                                edge_width_range = c(0.1, 2),
+                                node_size = 4,
+                                node_text_size = 6,
                                 show_plot = F,
                                 return_plot = TRUE,
                                 save_plot = FALSE,
@@ -242,7 +256,7 @@ cellProximityNetwork = function(CPscore,
   }
 
   # colors
-  edges_colors = ifelse(edges_sizes > 0, color_enrichment, color_depletion)
+  edges_colors = ifelse(edges_sizes > 0, 'enriched', 'depleted')
 
   # layout
   if(layout == 'Fruchterman') {
@@ -251,35 +265,54 @@ cellProximityNetwork = function(CPscore,
     stop('\n Currently no other layouts, except Fruchterman Reingold, have been implemented \n')
   }
 
-  iplot = igraph::plot.igraph(igd, edge.color = edges_colors, edge.width = edges_sizes_resc, layout = coords)
+  #iplot = igraph::plot.igraph(igd, edge.color = edges_colors, edge.width = edges_sizes_resc, layout = coords)
+
+  igd = igraph::set.edge.attribute(graph = igd, index = igraph::E(igd), name = 'color', value = edges_colors)
+  igd = igraph::set.edge.attribute(graph = igd, index = igraph::E(igd), name = 'size', value = as.numeric(edges_sizes_resc))
+
+  ## only show attractive edges
+  if(only_show_enrichment_edges == TRUE) {
+    colors = igraph::get.edge.attribute(igd, name = 'color')
+    subvertices_ids = which(colors == 'enriched')
+    igd = igraph::subgraph.edges(graph = igd, eids = subvertices_ids)
+  }
+
+  #longDT = as.data.table(igraph::as_long_data_frame(igd))
+  #return(longDT)
+  #return(list(igd, coords))
+
+  ## create plot
+  gpl = ggraph::ggraph(graph = igd, layout = coords)
+  gpl = gpl + ggraph::geom_edge_link(aes(color = factor(color), edge_width = size, edge_alpha = size), show.legend = F)
+  gpl = gpl + ggraph::geom_edge_loop(aes(color = factor(color), edge_width = size, edge_alpha = size, strength = self_loop_strength), show.legend = F)
+  gpl = gpl + ggraph::scale_edge_color_manual(values = c('enriched' = color_enrichment, 'depleted' = color_depletion))
+  gpl = gpl + ggraph::scale_edge_width(range = edge_width_range)
+  gpl = gpl + ggraph::scale_edge_alpha(range = c(0.1,1))
+  gpl = gpl + ggraph::geom_node_text(aes(label = name), repel = TRUE, size = node_text_size)
+  gpl = gpl + ggraph::geom_node_point(size = node_size)
+  gpl = gpl + ggplot2::theme_bw() + ggplot2::theme(panel.grid = element_blank(),
+                                                   panel.border = element_blank(),
+                                                   axis.title = element_blank(),
+                                                   axis.text = element_blank(),
+                                                   axis.ticks = element_blank())
 
   ## print plot
   if(show_plot == TRUE) {
-    print(iplot)
+    print(gpl)
   }
 
   ## save plot
   if(save_plot == TRUE) {
-
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = iplot), save_param))
-
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = gpl), save_param))
   }
 
   ## return plot
   if(return_plot == TRUE) {
-    return(iplot)
+    return(gpl)
   }
 
 
 }
-
-
-
-
-
-
-
-
 
 #' @title cellProximityVisPlot_2D_ggplot
 #' @name cellProximityVisPlot_2D_ggplot
@@ -1896,6 +1929,7 @@ plotCPGscores <- function(CPGscores,
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -1904,8 +1938,8 @@ plotCPGscores <- function(CPGscores,
 cellProximitySpatPlot2D <- function(gobject,
                                     interaction_name = NULL,
                                     cluster_column = NULL,
-                                    sdimx = NULL,
-                                    sdimy = NULL,
+                                    sdimx = 'sdimx',
+                                    sdimy = 'sdimy',
                                     cell_color = NULL,
                                     cell_color_code = NULL,
                                     color_as_factor = T,
@@ -1929,7 +1963,8 @@ cellProximitySpatPlot2D <- function(gobject,
                                     show_plot = F,
                                     return_plot = TRUE,
                                     save_plot = FALSE,
-                                    save_param = list(...)) {
+                                    save_param = list(...),
+                                    default_save_name = 'cellProximitySpatPlot2D') {
   if(is.null(interaction_name)) {
     stop('\n you need to specific at least one interaction name, run cellProximityEnrichment \n')
   }
@@ -1948,7 +1983,7 @@ cellProximitySpatPlot2D <- function(gobject,
   cell_IDs_to_keep = unique(c(spatial_network[unified_int %in% interaction_name]$to,
                               spatial_network[unified_int %in% interaction_name]$from))
 
-  print(cell_IDs_to_keep)
+  #print(cell_IDs_to_keep)
 
   if(show_other_cells){
     CellType <- strsplit(interaction_name,"--")
@@ -2063,6 +2098,12 @@ cellProximitySpatPlot2D <- function(gobject,
   pl <- pl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates')
 
 
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
   ## print plot
   if(show_plot == TRUE) {
     print(pl)
@@ -2070,9 +2111,7 @@ cellProximitySpatPlot2D <- function(gobject,
 
   ## save plot
   if(save_plot == TRUE) {
-
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl), save_param))
-
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl), save_param, list(default_save_name = default_save_name)))
   }
 
   ## return plot

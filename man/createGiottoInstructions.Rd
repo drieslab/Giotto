@@ -4,12 +4,19 @@
 \alias{createGiottoInstructions}
 \title{createGiottoInstructions}
 \usage{
-createGiottoInstructions(python_path = NULL, save_dir = NULL,
+createGiottoInstructions(python_path = NULL, show_plot = NULL,
+  return_plot = NULL, save_plot = NULL, save_dir = NULL,
   plot_format = NULL, dpi = NULL, units = NULL, height = NULL,
   width = NULL)
 }
 \arguments{
 \item{python_path}{path to python bin to use}
+
+\item{show_plot}{print plot to console, default = TRUE}
+
+\item{return_plot}{return plot as object, default = TRUE}
+
+\item{save_plot}{automatically save plot, dafault = FALSE}
 
 \item{save_dir}{path of directory to use to save figures}
 

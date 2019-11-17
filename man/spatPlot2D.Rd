@@ -14,8 +14,8 @@ spatPlot2D(gobject, sdimx = "sdimx", sdimy = "sdimy", point_size = 3,
   spatial_network_name = "spatial_network", show_grid = F,
   grid_color = NULL, spatial_grid_name = "spatial_grid",
   coord_fix_ratio = 0.6, title = "", show_legend = T,
-  show_plot = F, return_plot = TRUE, save_plot = F,
-  save_param = list(...))
+  show_plot = NA, return_plot = NA, save_plot = NA,
+  save_param = list(...), default_save_name = "spatPlot2D")
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -69,6 +69,8 @@ spatPlot2D(gobject, sdimx = "sdimx", sdimy = "sdimy", point_size = 3,
 \item{save_plot}{directly save the plot [boolean]}
 
 \item{save_param}{list of saving parameters from all_plots_save_function()}
+
+\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }
 \value{
 ggplot

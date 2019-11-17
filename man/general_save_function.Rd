@@ -5,8 +5,9 @@
 \title{general_save_function}
 \usage{
 general_save_function(gobject, plot_object, save_dir = NULL,
-  save_folder = NULL, save_name = NULL, save_format = c("png",
-  "tiff", "pdf", "svg"), show_saved_plot = F, base_width = NULL,
+  save_folder = NULL, save_name = NULL,
+  default_save_name = "giotto_plot", save_format = c("png", "tiff",
+  "pdf", "svg"), show_saved_plot = F, base_width = NULL,
   base_height = NULL, base_aspect_ratio = NULL, units = NULL,
   dpi = NULL, ...)
 }

@@ -14,8 +14,9 @@ spatGenePlot2D(gobject, expression_values = c("normalized", "scaled",
   scale_alpha_with_expression = TRUE, point_size = 1,
   point_border_col = "black", point_border_stroke = 0.1,
   show_legend = T, cow_n_col = 2, cow_rel_h = 1, cow_rel_w = 1,
-  cow_align = "h", show_plots = F, return_plot = TRUE,
-  save_plot = FALSE, save_param = list(...))
+  cow_align = "h", show_plot = NA, return_plot = NA,
+  save_plot = NA, save_param = list(...),
+  default_save_name = "spatGenePlot2D")
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -62,13 +63,15 @@ spatGenePlot2D(gobject, expression_values = c("normalized", "scaled",
 
 \item{cow_align}{cowplot param: how to align}
 
-\item{show_plots}{show plots}
+\item{show_plot}{show plots}
 
 \item{return_plot}{return ggplot object}
 
 \item{save_plot}{directly save the plot [boolean]}
 
 \item{save_param}{list of saving parameters from all_plots_save_function()}
+
+\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
 \item{...}{parameters for cowplot::save_plot()}
 }

@@ -5,7 +5,7 @@
 \title{cellProximitySpatPlot2D}
 \usage{
 cellProximitySpatPlot2D(gobject, interaction_name = NULL,
-  cluster_column = NULL, sdimx = NULL, sdimy = NULL,
+  cluster_column = NULL, sdimx = "sdimx", sdimy = "sdimy",
   cell_color = NULL, cell_color_code = NULL, color_as_factor = T,
   show_other_cells = F, show_network = F, show_other_network = F,
   network_color = NULL, spatial_network_name = "spatial_network",
@@ -16,7 +16,8 @@ cellProximitySpatPlot2D(gobject, interaction_name = NULL,
   point_size_other = 1, point_alpha_other = 0.3,
   point_other_border_col = "lightgrey",
   point_other_border_stroke = 0.01, show_plot = F,
-  return_plot = TRUE, save_plot = FALSE, save_param = list(...))
+  return_plot = TRUE, save_plot = FALSE, save_param = list(...),
+  default_save_name = "cellProximitySpatPlot2D")
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -72,6 +73,8 @@ cellProximitySpatPlot2D(gobject, interaction_name = NULL,
 \item{save_plot}{directly save the plot [boolean]}
 
 \item{save_param}{list of saving parameters from all_plots_save_function()}
+
+\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }
 \value{
 ggplot

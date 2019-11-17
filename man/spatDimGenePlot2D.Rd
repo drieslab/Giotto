@@ -19,8 +19,9 @@ spatDimGenePlot2D(gobject, expression_values = c("normalized", "scaled",
   spatial_point_border_stroke = 0.1, midpoint = 0,
   genes_high_color = "red", genes_mid_color = "white",
   genes_low_color = "blue", cow_n_col = 2, cow_rel_h = 1,
-  cow_rel_w = 1, cow_align = "h", show_legend = T, show_plots = F,
-  return_plot = TRUE, save_plot = FALSE, save_param = list(...))
+  cow_rel_w = 1, cow_align = "h", show_legend = T, show_plot = NA,
+  return_plot = NA, save_plot = NA, save_param = list(...),
+  default_save_name = "spatDimGenePlot2D")
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -77,13 +78,15 @@ spatDimGenePlot2D(gobject, expression_values = c("normalized", "scaled",
 
 \item{show_legend}{show legend}
 
-\item{show_plots}{show plots}
+\item{show_plot}{show plots}
 
 \item{return_plot}{return ggplot object}
 
 \item{save_plot}{directly save the plot [boolean]}
 
 \item{save_param}{list of saving parameters from all_plots_save_function()}
+
+\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
 \item{dim_point_size}{dim reduction plot: point size}
 }

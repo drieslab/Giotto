@@ -5286,6 +5286,7 @@ plot_point_layer_ggplot = function(ggobject,
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -5319,10 +5320,11 @@ dimPlot2D <- function(gobject,
                       point_border_col = 'black',
                       point_border_stroke = 0.1,
                       show_legend = T,
-                      show_plot = F,
-                      return_plot = TRUE,
-                      save_plot = F,
-                      save_param = list(...)
+                      show_plot = NA,
+                      return_plot = NA,
+                      save_plot = NA,
+                      save_param = list(...),
+                      default_save_name = 'dimPlot2D'
                       ){
 
   ## dimension reduction ##
@@ -5455,25 +5457,19 @@ dimPlot2D <- function(gobject,
   }
 
 
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
   ## print plot
   if(show_plot == TRUE) {
     print(pl)
   }
 
-
   ## save plot
   if(save_plot == TRUE) {
-
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl), save_param))
-
-    #ggplot_save_function(gobject = gobject,
-    #                     plot_object = pl,
-    #                     save_dir = save_dir,
-    #                     save_folder = save_folder,
-    #                     save_name = save_name,
-    #                     save_format = save_format,
-    #                     show_saved_plot = show_saved_plot,
-    #                     ...)
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl), save_param, list(default_save_name = default_save_name)))
   }
 
   ## return plot
@@ -5512,6 +5508,7 @@ dimPlot2D <- function(gobject,
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -5520,7 +5517,7 @@ dimPlot2D <- function(gobject,
 #'     plotUMAP_2D(gobject)
 plotUMAP_2D = function(gobject, ...) {
 
-  dimPlot2D(gobject = gobject, dim_reduction_to_use = 'umap', dim_reduction_name = 'umap', ...)
+  dimPlot2D(gobject = gobject, dim_reduction_to_use = 'umap', dim_reduction_name = 'umap', default_save_name = 'UMAP_2D', ...)
 
 }
 
@@ -5551,6 +5548,7 @@ plotUMAP_2D = function(gobject, ...) {
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -5559,7 +5557,7 @@ plotUMAP_2D = function(gobject, ...) {
 #'     plotTSNE_2D(gobject)
 plotTSNE_2D = function(gobject, ...) {
 
-  dimPlot2D(gobject = gobject, dim_reduction_to_use = 'tsne', dim_reduction_name = 'tsne', ...)
+  dimPlot2D(gobject = gobject, dim_reduction_to_use = 'tsne', dim_reduction_name = 'tsne', default_save_name = 'tSNE_2D', ...)
 
 }
 
@@ -5590,6 +5588,7 @@ plotTSNE_2D = function(gobject, ...) {
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -5598,7 +5597,7 @@ plotTSNE_2D = function(gobject, ...) {
 #'     plotPCA_2D(gobject)
 plotPCA_2D = function(gobject, ...) {
 
-  dimPlot2D(gobject = gobject, dim_reduction_to_use = 'pca', dim_reduction_name = 'pca', ...)
+  dimPlot2D(gobject = gobject, dim_reduction_to_use = 'pca', dim_reduction_name = 'pca', default_save_name = 'PCA_2D', ...)
 
 }
 
@@ -5752,6 +5751,7 @@ plot_spat_point_layer_ggplot = function(ggobject,
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -5782,10 +5782,11 @@ spatPlot2D = function(gobject,
                       coord_fix_ratio = 0.6,
                       title = '',
                       show_legend = T,
-                      show_plot = F,
-                      return_plot = TRUE,
-                      save_plot = F,
-                      save_param = list(...)
+                      show_plot = NA,
+                      return_plot = NA,
+                      save_plot = NA,
+                      save_param = list(...),
+                      default_save_name = 'spatPlot2D'
                       ) {
 
 
@@ -5901,6 +5902,11 @@ spatPlot2D = function(gobject,
   pl <- pl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates', title = title)
 
 
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
   ## print plot
   if(show_plot == TRUE) {
     print(pl)
@@ -5908,21 +5914,13 @@ spatPlot2D = function(gobject,
 
   ## save plot
   if(save_plot == TRUE) {
-
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl), save_param))
-
-    #ggplot_save_function(gobject = gobject,
-    #                     plot_object = pl,
-    #                     save_dir = save_dir,
-    #                     save_folder = save_folder,
-    #                     save_name = save_name,
-    #                     save_format = save_format,
-    #                     show_saved_plot = show_saved_plot,
-    #                     ...)
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl), save_param, list(default_save_name = default_save_name)))
   }
 
   ## return plot
-  if(return_plot == TRUE) return(pl)
+  if(return_plot == TRUE) {
+    return(pl)
+  }
 
 }
 
@@ -5981,6 +5979,7 @@ spatPlot2D = function(gobject,
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -6028,10 +6027,11 @@ spatDimPlot2D <- function(gobject,
                           spatial_other_cells_alpha = 0.5,
                           dim_other_point_size = 1,
                           show_legend = T,
-                          show_plot = FALSE,
-                          return_plot = TRUE,
-                          save_plot = FALSE,
-                          save_param = list(...)
+                          show_plot = NA,
+                          return_plot = NA,
+                          save_plot = NA,
+                          save_param = list(...),
+                          default_save_name = 'spatDimPlot2D'
                           ){
 
   plot_alignment = match.arg(plot_alignment, choices = c( 'vertical','horizontal'))
@@ -6129,6 +6129,11 @@ spatDimPlot2D <- function(gobject,
   }
 
 
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
   ## print plot
   if(show_plot == TRUE) {
     print(combo_plot)
@@ -6136,19 +6141,7 @@ spatDimPlot2D <- function(gobject,
 
   ## save plot
   if(save_plot == TRUE) {
-
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot), save_param))
-
-    #ggplot_save_function(gobject = gobject,
-    #                     plot_object = combo_plot,
-    #                     save_dir = save_dir,
-    #                     save_folder = save_folder,
-    #                     save_name = save_name,
-    #                     save_format = save_format,
-    #                     show_saved_plot = show_saved_plot,
-    #                     ncol = ncol,
-    #                     nrow = nrow,
-    #                     ...)
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot), save_param, list(default_save_name = default_save_name)))
   }
 
   ## return plot
@@ -6188,10 +6181,11 @@ spatDimPlot2D <- function(gobject,
 #' @param cow_rel_w cowplot param: relative width
 #' @param cow_align cowplot param: how to align
 #' @param show_legend show legend
-#' @param show_plots show plots
+#' @param show_plot show plots
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @param ... parameters for cowplot::save_plot()
 #' @return ggplot
 #' @details Description of parameters.
@@ -6221,10 +6215,11 @@ spatGenePlot2D <- function(gobject,
                            cow_rel_h = 1,
                            cow_rel_w = 1,
                            cow_align = 'h',
-                           show_plots = F,
-                           return_plot = TRUE,
-                           save_plot = FALSE,
-                           save_param = list(...)) {
+                           show_plot = NA,
+                           return_plot = NA,
+                           save_plot = NA,
+                           save_param = list(...),
+                           default_save_name = 'spatGenePlot2D') {
   selected_genes = genes
 
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
@@ -6322,7 +6317,7 @@ spatGenePlot2D <- function(gobject,
     pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y', title = gene)
     pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5))
 
-    if(show_plots == TRUE) {
+    if(show_plot == TRUE) {
       print(pl)
     }
 
@@ -6333,29 +6328,20 @@ spatGenePlot2D <- function(gobject,
   combo_plot <- cowplot::plot_grid(plotlist = savelist,
                                    ncol = cow_n_col,
                                    rel_heights = cow_rel_h, rel_widths = cow_rel_w, align = cow_align)
-  #combined_cowplot = cowplot::plot_grid(combo_plot)
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
   ## print plot
-  if(show_plots == TRUE) {
+  if(show_plot == TRUE) {
     print(combo_plot)
   }
 
   ## save plot
   if(save_plot == TRUE) {
-
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot), save_param))
-
-
-    #ggplot_save_function(gobject = gobject,
-    #                     plot_object = combo_plot,
-    #                     save_dir = save_dir,
-    #                     save_folder = save_folder,
-    #                     save_name = save_name,
-    #                     save_format = save_format,
-    #                     show_saved_plot = show_saved_plot,
-    #                     ncol = cow_n_col,
-    #                     nrow = 1,
-    #                     ...)
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot), save_param, list(default_save_name = default_save_name)))
   }
 
   ## return plot
@@ -6392,10 +6378,11 @@ spatGenePlot2D <- function(gobject,
 #' @param cow_rel_w cowplot param: relative width
 #' @param cow_align cowplot param: how to align
 #' @param show_legend show legend
-#' @param show_plots show plots
+#' @param show_plot show plots
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @param ... parameters for cowplot::save_plot()
 #' @return ggplot
 #' @details Description of parameters.
@@ -6427,10 +6414,11 @@ dimGenePlot2D <- function(gobject,
                           cow_rel_w = 1,
                           cow_align = 'h',
                           show_legend = T,
-                          show_plots = F,
-                          return_plot = TRUE,
-                          save_plot = FALSE,
-                          save_param = list(...)) {
+                          show_plot = NA,
+                          return_plot = NA,
+                          save_plot = NA,
+                          save_param = list(...),
+                          default_save_name = 'dimGenePlot2D') {
   ## select genes ##
   selected_genes = genes
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
@@ -6550,7 +6538,7 @@ dimGenePlot2D <- function(gobject,
 
     pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y')
 
-    if(show_plots == TRUE) {
+    if(show_plot == TRUE) {
       print(pl)
     }
 
@@ -6561,29 +6549,20 @@ dimGenePlot2D <- function(gobject,
   combo_plot <- cowplot::plot_grid(plotlist = savelist,
                                    ncol = cow_n_col,
                                    rel_heights = cow_rel_h, rel_widths = cow_rel_w, align = cow_align)
-  #combined_cowplot = cowplot::plot_grid(combo_plot)
 
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
   ## print plot
-  if(show_plots == TRUE) {
+  if(show_plot == TRUE) {
     print(combo_plot)
   }
 
   ## save plot
   if(save_plot == TRUE) {
-
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot), save_param))
-
-    #ggplot_save_function(gobject = gobject,
-    #                     plot_object = combo_plot,
-    #                     save_dir = save_dir,
-    #                     save_folder = save_folder,
-    #                     save_name = save_name,
-    #                     save_format = save_format,
-    #                     show_saved_plot = show_saved_plot,
-    #                     ncol = cow_n_col,
-    #                     nrow = 1,
-    #                     ...)
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot), save_param, list(default_save_name = default_save_name)))
   }
 
   ## return plot
@@ -6629,10 +6608,11 @@ dimGenePlot2D <- function(gobject,
 #' @param cow_rel_w cowplot param: relative width
 #' @param cow_align cowplot param: how to align
 #' @param show_legend show legend
-#' @param show_plots show plots
+#' @param show_plot show plots
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -6670,10 +6650,11 @@ spatDimGenePlot2D <- function(gobject,
                               cow_rel_w = 1,
                               cow_align = 'h',
                               show_legend = T,
-                              show_plots = F,
-                              return_plot = TRUE,
-                              save_plot = FALSE,
-                              save_param = list(...)) {
+                              show_plot = NA,
+                              return_plot = NA,
+                              save_plot = NA,
+                              save_param = list(...),
+                              default_save_name = 'spatDimGenePlot2D') {
 
   plot_alignment = match.arg(plot_alignment, choices = c('vertical', 'horizontal'))
 
@@ -6703,7 +6684,7 @@ spatDimGenePlot2D <- function(gobject,
                        cow_rel_w = cow_rel_w,
                        cow_align = cow_align,
                        show_legend = show_legend,
-                       show_plots = FALSE,
+                       show_plot = FALSE,
                        return_plot = TRUE,
                        save_plot = FALSE)
 
@@ -6731,7 +6712,7 @@ spatDimGenePlot2D <- function(gobject,
                        cow_rel_h = cow_rel_h,
                        cow_rel_w = cow_rel_w,
                        cow_align = cow_align,
-                       show_plots = FALSE,
+                       show_plot = FALSE,
                        return_plot = TRUE,
                        save_plot = FALSE)
 
@@ -6747,17 +6728,19 @@ spatDimGenePlot2D <- function(gobject,
     combo_plot = cowplot::plot_grid(dmpl, spl, ncol = ncol, nrow = nrow, rel_heights = c(1), rel_widths = c(1), align = 'h')
   }
 
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
   ## print plot
-  if(show_plots == TRUE) {
+  if(show_plot == TRUE) {
     print(combo_plot)
   }
 
   ## save plot
   if(save_plot == TRUE) {
-
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot), save_param))
-
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot), save_param, list(default_save_name = default_save_name)))
   }
 
   ## return plot

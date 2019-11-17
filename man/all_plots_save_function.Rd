@@ -5,7 +5,8 @@
 \title{all_plots_save_function}
 \usage{
 all_plots_save_function(gobject, plot_object, save_dir = NULL,
-  save_folder = NULL, save_name = NULL, save_format = NULL,
+  save_folder = NULL, save_name = NULL,
+  default_save_name = "giotto_plot", save_format = NULL,
   show_saved_plot = F, ncol = 1, nrow = 1, scale = 1,
   base_width = NULL, base_height = NULL, base_aspect_ratio = NULL,
   units = NULL, dpi = NULL, limitsize = TRUE, ...)

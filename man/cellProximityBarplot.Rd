@@ -4,11 +4,13 @@
 \alias{cellProximityBarplot}
 \title{cellProximityBarplot}
 \usage{
-cellProximityBarplot(CPscore, min_orig_ints = 5, min_sim_ints = 5,
-  p_val = 0.05, show_plot = F, return_plot = TRUE,
-  save_plot = FALSE, save_param = list(...))
+cellProximityBarplot(gobject, CPscore, min_orig_ints = 5,
+  min_sim_ints = 5, p_val = 0.05, show_plot = F,
+  return_plot = TRUE, save_plot = FALSE, save_param = list(...))
 }
 \arguments{
+\item{gobject}{giotto object}
+
 \item{CPscore}{CPscore, output from cellProximityEnrichment()}
 
 \item{min_orig_ints}{filter on minimum original cell-cell interactions}

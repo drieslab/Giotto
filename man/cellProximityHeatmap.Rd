@@ -4,11 +4,13 @@
 \alias{cellProximityHeatmap}
 \title{cellProximityHeatmap}
 \usage{
-cellProximityHeatmap(CPscore, scale = T, order_cell_types = T,
+cellProximityHeatmap(gobject, CPscore, scale = T, order_cell_types = T,
   color_breaks = NULL, color_names = NULL, show_plot = F,
   return_plot = TRUE, save_plot = FALSE, save_param = list(...))
 }
 \arguments{
+\item{gobject}{giotto object}
+
 \item{CPscore}{CPscore, output from cellProximityEnrichment()}
 
 \item{scale}{scale cell-cell proximity interaction scores}
