@@ -6085,12 +6085,7 @@ spatDimPlot2D <- function(gobject,
                    show_legend = show_legend,
                    show_plot = FALSE,
                    return_plot = TRUE,
-                   save_plot = FALSE,
-                   save_dir = NULL,
-                   save_folder = NULL,
-                   save_name = NULL,
-                   save_format = NULL,
-                   show_saved_plot = FALSE)
+                   save_plot = FALSE)
 
   # spatial plot
   spl = spatPlot2D(gobject = gobject,
@@ -6120,12 +6115,7 @@ spatDimPlot2D <- function(gobject,
                    show_legend = show_legend,
                    show_plot = FALSE,
                    return_plot = TRUE,
-                   save_plot = FALSE,
-                   save_dir = NULL,
-                   save_folder = NULL,
-                   save_name = NULL,
-                   save_format = NULL,
-                   show_saved_plot = FALSE)
+                   save_plot = FALSE)
 
 
   if(plot_alignment == 'vertical') {
@@ -6719,13 +6709,7 @@ spatDimGenePlot2D <- function(gobject,
                        show_legend = show_legend,
                        show_plots = FALSE,
                        return_plot = TRUE,
-                       save_plot = FALSE,
-                       save_dir = NULL,
-                       save_folder = NULL,
-                       save_name = NULL,
-                       save_format = NULL,
-                       show_saved_plot = FALSE,
-                       ...)
+                       save_plot = FALSE)
 
   # spatial plot
   spl = spatGenePlot2D(gobject=gobject,
@@ -6757,13 +6741,7 @@ spatDimGenePlot2D <- function(gobject,
                        y_ticks = y_ticks,
                        show_plots = FALSE,
                        return_plot = TRUE,
-                       save_plot = FALSE,
-                       save_dir = NULL,
-                       save_folder = NULL,
-                       save_name = NULL,
-                       save_format = NULL,
-                       show_saved_plot = FALSE,
-                       ...)
+                       save_plot = FALSE)
 
   print(plot_alignment)
 

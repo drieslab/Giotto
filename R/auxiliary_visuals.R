@@ -53,7 +53,7 @@ ggplot_save_function = function(gobject,
   if(is.null(base_width)) base_width = readGiottoInstructions(gobject, param = 'width')
   if(is.null(base_height)) base_height = readGiottoInstructions(gobject, param = 'height')
   if(is.null(base_aspect_ratio)) base_aspect_ratio = 1.1
-  if(is.null(units)) units = 'px'
+  if(is.null(units)) units = 'in'
 
   # create saving location
   file_location = paste0(save_dir,'/', save_folder)
