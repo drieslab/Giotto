@@ -21,7 +21,7 @@
 #'     calculateHVG(gobject)
 calculateHVG <- function(gobject,
                          expression_values = c('normalized', 'scaled', 'custom'),
-                         method = c('cov_loess', 'cov_groups', 'gini_loess'),
+                         method = c('cov_groups','cov_loess','gini_loess'),
                          reverse_log_scale = T,
                          logbase = 2,
                          expression_threshold = 0,
@@ -38,7 +38,7 @@ calculateHVG <- function(gobject,
   expr_values = select_expression_values(gobject = gobject, values = values)
 
   # method to use
-  method = match.arg(method, choices = c('cov_loess', 'cov_groups', 'gini_loess'))
+  method = match.arg(method, choices = c('cov_groups', 'cov_loess', 'gini_loess'))
 
   if(reverse_log_scale == TRUE) {
     expr_values = (logbase^expr_values)-1

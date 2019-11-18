@@ -755,9 +755,9 @@ showPattern2D <- function(gobject,
                           grid_border_color = 'grey',
                           show_legend = T,
                           point_size = 1,
-                          show_plot = F,
-                          return_plot = TRUE,
-                          save_plot = F,
+                          show_plot = NA,
+                          return_plot = NA,
+                          save_plot = NA,
                           save_param =  list(),
                           default_save_name = 'showPattern2D') {
 
