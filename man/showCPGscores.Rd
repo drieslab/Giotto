@@ -4,10 +4,12 @@
 \alias{showCPGscores}
 \title{showCPGscores}
 \usage{
-showCPGscores(CPGscore, method = c("cell_barplot", "cell-cell",
+showCPGscores(gobject, CPGscore, method = c("cell_barplot", "cell-cell",
   "cell_sankey"), min_cells = 5, min_pval = 0.05,
   min_spat_diff = 0.2, min_log2_fc = 0.5, direction = c("both", "up",
-  "down"), cell_color_code = NULL, show_plot = T, return_DT = F)
+  "down"), cell_color_code = NULL, return_DT = F, show_plot = NA,
+  return_plot = NA, save_plot = NA, save_param = list(),
+  default_save_name = "showCPGscores")
 }
 \arguments{
 \item{CPGscore}{CPGscore, output from getCellProximityGeneScores()}
@@ -26,9 +28,17 @@ showCPGscores(CPGscore, method = c("cell_barplot", "cell-cell",
 
 \item{cell_color_code}{color code for cell types}
 
-\item{show_plot}{print plot}
-
 \item{return_DT}{return filtered data.table (boolean)}
+
+\item{show_plot}{show plot}
+
+\item{return_plot}{return ggplot object}
+
+\item{save_plot}{directly save the plot [boolean]}
+
+\item{save_param}{list of saving parameters from all_plots_save_function()}
+
+\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }
 \value{
 Gene to gene scores in data.table format

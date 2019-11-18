@@ -402,8 +402,8 @@ get_cell_to_cell_sorted_name_conversion <- function(all_cell_types) {
   # create data.table
   mult_comb = do.call('rbind', list(first_combn, sec_combn, self_comb))
   mult_comb[, c('V1', 'V2') := list(as.character(V1), as.character(V2))]
-  mult_comb[, given_name := paste(c(V1,V2), collapse = '-'), by = 1:nrow(mult_comb)]
-  mult_comb[, uniq_name := paste(sort(c(V1,V2)), collapse = '-'), by = 1:nrow(mult_comb)]
+  mult_comb[, given_name := paste(c(V1,V2), collapse = '--'), by = 1:nrow(mult_comb)]
+  mult_comb[, uniq_name := paste(sort(c(V1,V2)), collapse = '--'), by = 1:nrow(mult_comb)]
 
   # named vector
   name_conversion = mult_comb$uniq_name
@@ -433,6 +433,7 @@ get_cell_to_cell_sorted_name_conversion <- function(all_cell_types) {
 getCellProximityGeneScores = function(gobject,
                                       spatial_network_name = 'spatial_network',
                                       cluster_column = 'louvain_clus.1',
+                                      selected_genes = NULL,
                                       expression_values = c('normalized', 'scaled', 'custom'),
                                       fold_change_addendum = 0.1,
                                       in_two_directions = TRUE,
@@ -448,6 +449,15 @@ getCellProximityGeneScores = function(gobject,
   # 2. get expression values
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = select_expression_values(gobject = gobject, values = values)
+
+  # subset expression values
+  if(!is.null(selected_genes)) {
+    non_detected_genes = selected_genes[!selected_genes %in% rownames(expr_values)]
+    if(length(non_detected_genes) > 0) {
+      cat('\t the following genes were not detected ', non_detected_genes, '\t')
+    }
+    expr_values = expr_values[rownames(expr_values) %in% selected_genes, ]
+  }
 
   # 3. get cell metadata
   cell_metadata = pDataDT(gobject)
@@ -493,7 +503,7 @@ getCellProximityGeneScores = function(gobject,
                                             'diff_spat', 'diff_spat_2', 'diff_spat_1',
                                             'log2fc_spat_1', 'log2fc_spat_2', 'log2fc_spat')
     CPGscore_second_direction = CPGscore_second_direction[, colnames(CPGscore_first_direction), with = F]
-    CPGscore_second_direction[, interaction := paste0(cell_type_1,'-', cell_type_2)]
+    CPGscore_second_direction[, interaction := paste0(cell_type_1,'--', cell_type_2)]
     CPGscore = rbind(CPGscore_first_direction, CPGscore_second_direction)
     CPGscore = unique(CPGscore)
 

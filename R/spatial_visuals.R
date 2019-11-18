@@ -6220,6 +6220,14 @@ spatGenePlot2D <- function(gobject,
                            save_plot = NA,
                            save_param =  list(),
                            default_save_name = 'spatGenePlot2D') {
+
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+
   selected_genes = genes
 
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
@@ -6329,10 +6337,6 @@ spatGenePlot2D <- function(gobject,
                                    ncol = cow_n_col,
                                    rel_heights = cow_rel_h, rel_widths = cow_rel_w, align = cow_align)
 
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
   ## print plot
   if(show_plot == TRUE) {
@@ -6419,6 +6423,13 @@ dimGenePlot2D <- function(gobject,
                           save_plot = NA,
                           save_param =  list(),
                           default_save_name = 'dimGenePlot2D') {
+
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
   ## select genes ##
   selected_genes = genes
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
@@ -6550,10 +6561,6 @@ dimGenePlot2D <- function(gobject,
                                    ncol = cow_n_col,
                                    rel_heights = cow_rel_h, rel_widths = cow_rel_w, align = cow_align)
 
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
   ## print plot
   if(show_plot == TRUE) {

@@ -6,7 +6,7 @@
 \usage{
 getCellProximityGeneScores(gobject,
   spatial_network_name = "spatial_network",
-  cluster_column = "louvain_clus.1",
+  cluster_column = "louvain_clus.1", selected_genes = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   fold_change_addendum = 0.1, in_two_directions = TRUE,
   exclude_selected_cells_from_test = F, verbose = T)

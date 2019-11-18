@@ -1358,14 +1358,19 @@ direction_test = function(x, min_pval = 0.05) {
 #' @param min_log2_fc min log2 fold-change
 #' @param direction up or downregulation or both
 #' @param cell_color_code color code for cell types
-#' @param show_plot print plot
 #' @param return_DT return filtered data.table (boolean)
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return Gene to gene scores in data.table format
 #' @details Give more details ...
 #' @export
 #' @examples
 #'     showCPGscores(CPGscore)
-showCPGscores = function(CPGscore,
+showCPGscores = function(gobject,
+                         CPGscore,
                          method = c('cell_barplot', 'cell-cell', 'cell_sankey'),
                          min_cells = 5,
                          min_pval = 0.05,
@@ -1373,8 +1378,19 @@ showCPGscores = function(CPGscore,
                          min_log2_fc = 0.5,
                          direction = c('both', 'up', 'down'),
                          cell_color_code = NULL,
-                         show_plot = T,
-                         return_DT = F) {
+                         return_DT = F,
+                         show_plot = NA,
+                         return_plot = NA,
+                         save_plot = NA,
+                         save_param =  list(),
+                         default_save_name = 'showCPGscores'
+                         ) {
+
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
 
   direction = match.arg(direction, choices = c('both', 'up', 'down'))
@@ -1420,9 +1436,21 @@ showCPGscores = function(CPGscore,
     pl <- pl + ggplot2::theme_classic() + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1))
     pl <- pl + ggplot2::coord_flip()
 
+    ## print plot
     if(show_plot == TRUE) {
       print(pl)
     }
+
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+    }
+
+    ## return plot
+    if(return_plot == TRUE) {
+      return(pl)
+    }
+
   } else if(method == 'cell_barplot') {
 
 
@@ -1448,8 +1476,21 @@ showCPGscores = function(CPGscore,
 
     pl <- pl + ggplot2::theme_classic() + ggplot2::theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
     pl <- pl + ggplot2::labs(x = '', y = '# of genes influenced by cell neighborhood')
+
+
+    ## print plot
     if(show_plot == TRUE) {
       print(pl)
+    }
+
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+    }
+
+    ## return plot
+    if(return_plot == TRUE) {
+      return(pl)
     }
 
   } else if(method == 'cell_sankey') {
@@ -1484,13 +1525,22 @@ showCPGscores = function(CPGscore,
       pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
     }
 
+    ## print plot
     if(show_plot == TRUE) {
       print(pl)
     }
 
-  }
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+    }
 
-  return(pl)
+    ## return plot
+    if(return_plot == TRUE) {
+      return(pl)
+    }
+
+  }
 
 }
 
