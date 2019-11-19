@@ -485,33 +485,33 @@ get_cell_to_cell_sorted_name_conversion <- function(all_cell_types) {
 #'  when they interact (according to physical proximity) with other cell types.
 #'  The results data.table contains the following columns:
 #' \itemize{
-#'  \item{"genes}{All or selected list of tested genes}
-#'  \item{"cell_expr_1"}{average gene expression in cell type 1 from unified_int cell-cell interaction}
-#'  \item{"cell_expr_2"}{average gene expression in cell type 2 from unified_int cell-cell interaction}
-#'  \item{"comb_expr"}{combined average gene expression in cell type 1 and 2 from unified_int cell-cell interaction}
-#'  \item{"all_cell_expr_1"}{average gene expression for all cells from cell type 1}
-#'  \item{"all_cell_expr_2"}{average gene expression for all cells from cell type 2}
-#'  \item{"all_comb_expr"}{combined average gene expression for all cells from cell type 1 and 2}
-#'  \item{"pval_1"}{p-value from test between interacting cells and all cells from cell type 1}
-#'  \item{"pval_2"}{p-value from test between interacting cells and all cells from cell type 2}
-#'  \item{"cell_type_1"}{first cell type of cell-cell interaction}
-#'  \item{"cell_type_2"}{second cell type of cell-cell interaction}
-#'  \item{"interaction"}{the cell-cell interaction, based on physical proximity}
-#'  \item{"nr_1"}{number of cell type 1 in the unified cell-cell interaction}
-#'  \item{"nr_2"}{number of cell type 2 in the unified cell-cell interaction}
-#'  \item{"all_nr_1"}{number of all cell type 1 in the whole dataset}
-#'  \item{"all_nr_2"}{number of all cell type 2 in the whole dataset}
-#'  \item{"diff_spat"}{difference between comb_expr and all_comb_expr}
-#'  \item{"diff_spat_1"}{difference between cell_expr_1 and all_cell_expr_1}
-#'  \item{"diff_spat_2"}{difference between cell_expr_1 and all_cell_expr_1}
-#'  \item{"log2fc_spat_1"}{fold-change of diff_spat_1}
-#'  \item{"log2fc_spat_2"}{fold-change of diff_spat_2}
-#'  \item{"log2fc_spat"}{fold-change of diff_spat}
-#'  \item{"type_int"}{type of interaction}
-#'  \item{"unified_int"}{interaction with alphabetically sorted cell type 1 and cell type 2}
-#'  \item{"unif_int_rank"}{1 or 2}
-#'  \item{"fdr_1"}{fdr from test between interacting cells and all cells from cell type 1}
-#'  \item{"fdr_2"}{fdr from test between interacting cells and all cells from cell type 1}
+#'  \item{genes:}{ All or selected list of tested genes}
+#'  \item{cell_expr_1:}{ average gene expression in cell type 1 from unified_int cell-cell interaction}
+#'  \item{cell_expr_2:}{ average gene expression in cell type 2 from unified_int cell-cell interaction}
+#'  \item{comb_expr:}{ combined average gene expression in cell type 1 and 2 from unified_int cell-cell interaction}
+#'  \item{all_cell_expr_1:}{ average gene expression for all cells from cell type 1}
+#'  \item{all_cell_expr_2:}{ average gene expression for all cells from cell type 2}
+#'  \item{all_comb_expr:}{ combined average gene expression for all cells from cell type 1 and 2}
+#'  \item{pval_1:}{ p-value from test between interacting cells and all cells from cell type 1}
+#'  \item{pval_2:}{ p-value from test between interacting cells and all cells from cell type 2}
+#'  \item{cell_type_1:}{ first cell type of cell-cell interaction}
+#'  \item{cell_type_2:}{ second cell type of cell-cell interaction}
+#'  \item{interaction:}{ the cell-cell interaction, based on physical proximity}
+#'  \item{nr_1:}{ number of cell type 1 in the unified cell-cell interaction}
+#'  \item{nr_2:}{ number of cell type 2 in the unified cell-cell interaction}
+#'  \item{all_nr_1:}{ number of all cell type 1 in the whole dataset}
+#'  \item{all_nr_2:}{ number of all cell type 2 in the whole dataset}
+#'  \item{diff_spat:}{ difference between comb_expr and all_comb_expr}
+#'  \item{diff_spat_1:}{ difference between cell_expr_1 and all_cell_expr_1}
+#'  \item{diff_spat_2:}{ difference between cell_expr_1 and all_cell_expr_1}
+#'  \item{log2fc_spat_1:}{ fold-change of diff_spat_1}
+#'  \item{log2fc_spat_2:}{ fold-change of diff_spat_2}
+#'  \item{log2fc_spat:}{ fold-change of diff_spat}
+#'  \item{type_int:}{ type of interaction}
+#'  \item{unified_int:}{ interaction with alphabetically sorted cell type 1 and cell type 2}
+#'  \item{unif_int_rank:}{ 1 or 2}
+#'  \item{fdr_1:}{ fdr from test between interacting cells and all cells from cell type 1}
+#'  \item{fdr_2:}{ fdr from test between interacting cells and all cells from cell type 2}
 #' }
 #' @export
 #' @examples
@@ -584,7 +584,7 @@ getCellProximityGeneScores = function(gobject,
 
   # expand scores to all possible cell-cell combinations
   # e.g. both astrocyte-NSC and NSC-astrocyte
-  if(in_two_directions == TRUE) {
+  if(in_two_directions == TRUE & do_diff_test == TRUE) {
     CPGscore_first_direction  = interaction_gene_scores
     CPGscore_second_direction = interaction_gene_scores
     colnames(CPGscore_second_direction) = c('genes', 'cell_expr_2', 'cell_expr_1', 'comb_expr',
@@ -593,7 +593,7 @@ getCellProximityGeneScores = function(gobject,
                                             'cell_type_2', 'cell_type_1', 'interaction',
                                             'nr_2', 'nr_1', 'all_nr_2', 'all_nr_1',
                                             'diff_spat', 'diff_spat_2', 'diff_spat_1',
-                                            'log2fc_spat_1', 'log2fc_spat_2', 'log2fc_spat')
+                                            'log2fc_spat_2', 'log2fc_spat_1', 'log2fc_spat')
     CPGscore_second_direction = CPGscore_second_direction[, colnames(CPGscore_first_direction), with = F]
     CPGscore_second_direction[, interaction := paste0(cell_type_1,'--', cell_type_2)]
     CPGscore = rbind(CPGscore_first_direction, CPGscore_second_direction)
@@ -618,13 +618,33 @@ getCellProximityGeneScores = function(gobject,
 
   }
 
-  ## add multiple hypothesis testing
-  total_comparisons_per_gene = length(unique(CPGscore[['unified_int']]))
-  CPGscore[, fdr_1 := as.numeric(pval_1) * total_comparisons_per_gene]
-  CPGscore[, fdr_2 := as.numeric(pval_2) * total_comparisons_per_gene]
+  ## add multiple hypothesis testing and set colomn classes manually
+  if(do_diff_test == TRUE) {
+    total_comparisons_per_gene = length(unique(CPGscore[['unified_int']]))
+    CPGscore[, fdr_1 := as.numeric(pval_1) * total_comparisons_per_gene]
+    CPGscore[, fdr_2 := as.numeric(pval_2) * total_comparisons_per_gene]
 
-  CPGscore[, fdr_1 := ifelse(fdr_1 > 1, 1, fdr_1)]
-  CPGscore[, fdr_2 := ifelse(fdr_2 > 1, 1, fdr_2)]
+    CPGscore[, fdr_1 := ifelse(fdr_1 > 1, 1, fdr_1)]
+    CPGscore[, fdr_2 := ifelse(fdr_2 > 1, 1, fdr_2)]
+
+    # set classes manually
+    changeCols = c('cell_expr_1', 'cell_expr_2', 'comb_expr',
+                   'all_cell_expr_1' , 'all_cell_expr_2',  'all_comb_expr',
+                   'pval_1', 'pval_2', 'diff_spat', 'diff_spat_1', 'diff_spat_2',
+                   'log2fc_spat_1', 'log2fc_spat_2', 'log2fc_spat',
+                   'fdr_1', 'fdr_2')
+    CPGscore[,(changeCols):= lapply(.SD, as.numeric), .SDcols = changeCols]
+
+  } else {
+    # set classes manually
+    changeCols = c('cell_expr_1', 'cell_expr_2', 'comb_expr',
+                   'all_cell_expr_1' , 'all_cell_expr_2',  'all_comb_expr',
+                   'diff_spat', 'diff_spat_1', 'diff_spat_2',
+                   'log2fc_spat_1', 'log2fc_spat_2', 'log2fc_spat')
+    CPGscore[,(changeCols):= lapply(.SD, as.numeric), .SDcols = changeCols]
+  }
+  changeCols = c('nr_1', 'nr_2', 'all_nr_1', 'all_nr_2')
+  CPGscore[,(changeCols):= lapply(.SD, as.integer), .SDcols = changeCols]
 
   return(CPGscore)
 

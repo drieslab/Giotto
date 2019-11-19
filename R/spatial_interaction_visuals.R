@@ -1313,19 +1313,19 @@ showTopGeneToGene = function(GTGscore,
 #' @description shows direction of change
 #' @examples
 #'     direction_test_CPG()
-direction_test = function(x, min_pval = 0.05) {
+direction_test = function(x, min_fdr = 0.05) {
 
-  pval_1 = as.numeric(x[['pval_1']])
-  if(is.na(pval_1) == TRUE) pval_1 = 1
-  pval_2 = as.numeric(x[['pval_2']])
-  if(is.na(pval_2) == TRUE) pval_2 = 1
+  fdr_1 = as.numeric(x[['fdr_1']])
+  if(is.na(fdr_1) == TRUE) fdr_1 = 1
+  fdr_2 = as.numeric(x[['fdr_2']])
+  if(is.na(fdr_2) == TRUE) fdr_2 = 1
 
   log2fc_1 = as.numeric(x[['log2fc_spat_1']])
   log2fc_2 = as.numeric(x[['log2fc_spat_2']])
 
-  if(pval_1 > min_pval & pval_2 > min_pval) {
+  if(fdr_1 > min_fdr & fdr_2 > min_fdr) {
     return('n.s.')
-  } else if(pval_1 <= min_pval & pval_2 <= min_pval) {
+  } else if(fdr_1 <= min_fdr & fdr_2 <= min_fdr) {
 
     if(log2fc_1 > 0 & log2fc_2 > 0) {
       return('both_up')
@@ -1335,13 +1335,77 @@ direction_test = function(x, min_pval = 0.05) {
       return('mixed')
     }
 
-  } else if((pval_1 <= min_pval & log2fc_1 > 0) | (pval_2 <= min_pval & log2fc_2 > 0)) {
+  } else if((fdr_1 <= min_fdr & log2fc_1 > 0) | (fdr_2 <= min_fdr & log2fc_2 > 0)) {
     return('up')
-  } else if((pval_1 <= min_pval & log2fc_1 < 0) | (pval_2 <= min_pval & log2fc_2 < 0)) {
+  } else if((fdr_1 <= min_fdr & log2fc_1 < 0) | (fdr_2 <= min_fdr & log2fc_2 < 0)) {
     return('down')
   } else {
     return('missing')
   }
+
+}
+
+
+
+#' @title filterCPGscores
+#' @name filterCPGscores
+#' @description visualize Cell Proximity Gene enrichment scores
+#' @param method visualization method
+#' @param min_cells min number of cells threshold
+#' @param min_fdr false_discovery threshold
+#' @param min_spat_diff spatial difference threshold
+#' @param min_log2_fc min log2 fold-change
+#' @param keep_int_duplicates keep both cell_A-cell_B and cell_B-cell_A
+#' @param direction expression changes to keep
+#' @return Gene to gene scores in data.table format
+#' @details This function filters the output from getCellProximityGeneScores based on
+#' false-discovery rate, minimum absolute difference, minimum log fold-change and
+#' direction of change.
+#' @export
+#' @examples
+#'     filterCPGscores(CPGscore)
+filterCPGscores = function(CPGscore,
+                           min_cells = 5,
+                           min_fdr = 0.05,
+                           min_spat_diff = 0.2,
+                           min_log2_fc = 0.5,
+                           keep_int_duplicates = TRUE,
+                           direction = c('both', 'up', 'down')) {
+
+
+
+  # other parameters
+  direction = match.arg(direction, choices = c('both', 'up', 'down'))
+
+  if(keep_int_duplicates == FALSE) {
+    selection_scores = data.table::copy(CPGscore[unif_int_rank == 1])
+  } else {
+    selection_scores = data.table::copy(CPGscore)
+  }
+
+  selection_scores = CPGscore[(nr_1 >= min_cells & fdr_1 <= min_fdr &
+                                 abs(diff_spat_1) >= min_spat_diff &
+                                 abs(log2fc_spat_1) >= min_log2_fc) |
+                                (nr_2 >= min_cells & fdr_2 <= min_fdr &
+                                   abs(diff_spat_2) >= min_spat_diff &
+                                   abs(log2fc_spat_2) >= min_log2_fc)]
+
+  if(direction == 'both') {
+    selection_scores = selection_scores
+  } else if(direction == 'up') {
+    selection_scores = selection_scores[(log2fc_spat_1 >= min_log2_fc & fdr_1 <= min_fdr & diff_spat_1 >= min_spat_diff) |
+                                          (log2fc_spat_2 >= min_log2_fc & fdr_2 <= min_fdr & diff_spat_2 >= min_spat_diff)]
+  } else if(direction == 'down') {
+    selection_scores = selection_scores[(log2fc_spat_1 <= -min_log2_fc & fdr_1 <= min_fdr & diff_spat_1 <= -min_spat_diff) |
+                                          (log2fc_spat_2 <= -min_log2_fc & fdr_2 <= min_fdr & diff_spat_2 <= -min_spat_diff)]
+  }
+
+
+  change_values = unlist(apply(selection_scores, MARGIN = 1, FUN = function(x) {
+    direction_test(x, min_fdr = min_fdr)
+  }))
+  selection_scores[, change := change_values]
+  return(selection_scores)
 
 }
 

@@ -5,7 +5,7 @@
 \alias{direction_test}
 \title{direction_test_CPG}
 \usage{
-direction_test(x, min_pval = 0.05)
+direction_test(x, min_fdr = 0.05)
 }
 \description{
 shows direction of change
