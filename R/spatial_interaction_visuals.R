@@ -1392,7 +1392,7 @@ showCPGscores = function(gobject,
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
-
+  # other parameters
   direction = match.arg(direction, choices = c('both', 'up', 'down'))
   method = match.arg(method, choices = c('cell_barplot', 'cell-cell', 'cell_sankey'))
 
