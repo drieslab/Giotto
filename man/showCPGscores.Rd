@@ -4,12 +4,12 @@
 \alias{showCPGscores}
 \title{showCPGscores}
 \usage{
-showCPGscores(gobject, CPGscore, method = c("cell_barplot", "cell-cell",
-  "cell_sankey"), min_cells = 5, min_pval = 0.05,
-  min_spat_diff = 0.2, min_log2_fc = 0.5, direction = c("both", "up",
-  "down"), cell_color_code = NULL, return_DT = F, show_plot = NA,
-  return_plot = NA, save_plot = NA, save_param = list(),
-  default_save_name = "showCPGscores")
+showCPGscores(gobject, CPGscore, method = c("volcano", "cell_barplot",
+  "cell-cell", "cell_sankey"), min_cells = 5, min_fdr = 0.05,
+  min_spat_diff = 0.2, min_log2_fc = 0.5, keep_int_duplicates = TRUE,
+  direction = c("both", "up", "down"), cell_color_code = NULL,
+  show_plot = NA, return_plot = NA, save_plot = NA,
+  save_param = list(), default_save_name = "showCPGscores")
 }
 \arguments{
 \item{CPGscore}{CPGscore, output from getCellProximityGeneScores()}
@@ -18,17 +18,17 @@ showCPGscores(gobject, CPGscore, method = c("cell_barplot", "cell-cell",
 
 \item{min_cells}{min number of cells threshold}
 
-\item{min_pval}{p-value threshold}
+\item{min_fdr}{fdr threshold}
 
 \item{min_spat_diff}{spatial difference threshold}
 
 \item{min_log2_fc}{min log2 fold-change}
 
+\item{keep_int_duplicates}{keep both cell_A-cell_B and cell_B-cell_A}
+
 \item{direction}{up or downregulation or both}
 
 \item{cell_color_code}{color code for cell types}
-
-\item{return_DT}{return filtered data.table (boolean)}
 
 \item{show_plot}{show plot}
 

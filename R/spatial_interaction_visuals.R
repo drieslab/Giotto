@@ -1417,12 +1417,12 @@ filterCPGscores = function(CPGscore,
 #' @param CPGscore CPGscore, output from getCellProximityGeneScores()
 #' @param method visualization method
 #' @param min_cells min number of cells threshold
-#' @param min_pval p-value threshold
+#' @param min_fdr fdr threshold
 #' @param min_spat_diff spatial difference threshold
 #' @param min_log2_fc min log2 fold-change
+#' @param keep_int_duplicates keep both cell_A-cell_B and cell_B-cell_A
 #' @param direction up or downregulation or both
 #' @param cell_color_code color code for cell types
-#' @param return_DT return filtered data.table (boolean)
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -1435,20 +1435,20 @@ filterCPGscores = function(CPGscore,
 #'     showCPGscores(CPGscore)
 showCPGscores = function(gobject,
                          CPGscore,
-                         method = c('cell_barplot', 'cell-cell', 'cell_sankey'),
+                         method = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey'),
                          min_cells = 5,
-                         min_pval = 0.05,
+                         min_fdr = 0.05,
                          min_spat_diff = 0.2,
                          min_log2_fc = 0.5,
+                         keep_int_duplicates = TRUE,
                          direction = c('both', 'up', 'down'),
                          cell_color_code = NULL,
-                         return_DT = F,
                          show_plot = NA,
                          return_plot = NA,
                          save_plot = NA,
                          save_param =  list(),
                          default_save_name = 'showCPGscores'
-                         ) {
+) {
 
 
   # print, return and save parameters
@@ -1456,47 +1456,64 @@ showCPGscores = function(gobject,
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
-  # other parameters
-  direction = match.arg(direction, choices = c('both', 'up', 'down'))
-  method = match.arg(method, choices = c('cell_barplot', 'cell-cell', 'cell_sankey'))
 
-  selection_scores = CPGscore[unif_int_rank == 1][(nr_1 >= min_cells & pval_1 <= min_pval &
-                                                     abs(diff_spat_1) >= min_spat_diff &
-                                                     abs(log2fc_spat_1) >= min_log2_fc) |
-                                                    (nr_2 >= min_cells & pval_2 <= min_pval &
-                                                       abs(diff_spat_2) >= min_spat_diff &
-                                                       abs(log2fc_spat_2) >= min_log2_fc)]
-
-  if(direction == 'both') {
-    selection_scores = selection_scores
-  } else if(direction == 'up') {
-    selection_scores = selection_scores[(log2fc_spat_1 >= min_log2_fc & pval_1 <= min_pval & diff_spat_1 >= min_spat_diff) |
-                                          (log2fc_spat_2 >= min_log2_fc & pval_2 <= min_pval & diff_spat_2 >= min_spat_diff)]
-  } else if(direction == 'down') {
-    selection_scores = selection_scores[(log2fc_spat_1 <= -min_log2_fc & pval_1 <= min_pval & diff_spat_1 <= -min_spat_diff) |
-                                          (log2fc_spat_2 <= -min_log2_fc & pval_2 <= min_pval & diff_spat_2 <= -min_spat_diff)]
-  }
+  ## first filter
+  filter_set = filterCPGscores(CPGscore = CPGscore,
+                               min_cells = min_cells,
+                               min_fdr = min_fdr,
+                               min_spat_diff = min_spat_diff,
+                               min_log2_fc = min_log2_fc,
+                               keep_int_duplicates = keep_int_duplicates,
+                               direction = direction)
 
 
-  if(return_DT == TRUE) {
+  ## other parameters
+  method = match.arg(method, choices = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey'))
 
-    change_values = unlist(apply(selection_scores, MARGIN = 1, FUN = function(x) {
-      direction_test(x, min_pval = min_pval)
-    }))
-    selection_scores[, change := change_values]
-    return(selection_scores)
-  }
+  ## create data.table for visualization
+  subset = filter_set[(fdr_1 <= min_fdr & unif_int_rank == 1) | (fdr_1 <= min_fdr & fdr_2 <= min_fdr & unif_int_rank == 2)]
+  part1 = subset[unif_int_rank == 1,.(genes, interaction, cell_type_1, cell_type_2, log2fc_spat_1, fdr_1)]
+  colnames(part1) = c('genes', 'interaction', 'source', 'neighbor', 'log2fc', 'fdr')
+  part2 = subset[unif_int_rank == 2,.(genes, interaction, cell_type_2, cell_type_1, log2fc_spat_2, fdr_2)]
+  colnames(part2) = c('genes', 'interaction', 'source', 'neighbor', 'log2fc', 'fdr')
+  complete_part = rbind(part1, part2)
 
 
-  if(method == 'cell-cell') {
 
-    nr_int_selection_scores = selection_scores[, .N, by = interaction]
+  if(method == 'volcano') {
+
+    ## volcanoplot
+    pl = ggplot()
+    pl = pl + geom_point(data = complete_part, aes(x = log2fc, y = -log10(fdr)))
+    pl = pl + theme_classic()
+    pl = pl + geom_vline(xintercept = 0, linetype = 2)
+
+
+    ## print plot
+    if(show_plot == TRUE) {
+      print(pl)
+    }
+
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+    }
+
+    ## return plot
+    if(return_plot == TRUE) {
+      return(pl)
+    }
+
+
+  } else if(method == 'cell-cell') {
+
+    nr_int_selection_scores = complete_part[, .N, by = interaction]
     order_interactions = nr_int_selection_scores[order(N)]$interaction
 
-    selection_scores[, interaction := factor(interaction, order_interactions)]
+    complete_part[, interaction := factor(interaction, order_interactions)]
 
     pl <- ggplot2::ggplot()
-    pl <- pl + ggplot2::geom_bar(data = selection_scores, aes(x = interaction, fill = type_int))
+    pl <- pl + ggplot2::geom_bar(data = complete_part, aes(x = interaction, fill = interaction))
     pl <- pl + ggplot2::theme_classic() + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1))
     pl <- pl + ggplot2::coord_flip()
 
@@ -1515,29 +1532,21 @@ showCPGscores = function(gobject,
       return(pl)
     }
 
+
   } else if(method == 'cell_barplot') {
 
 
-    part0 = selection_scores[pval_1 < min_pval & pval_2 < min_pval]
-    part0_a = part0[cell_type_1 == cell_type_2]
-    part0_b = part0[cell_type_1 != cell_type_2]
-    part1 = selection_scores[pval_1 < min_pval & pval_2 >= min_pval]
-    part2 = selection_scores[pval_2 < min_pval & pval_1 >= min_pval]
+    # by source cell type plot
+    nr_source_selection_scores = complete_part[, .N, by = source]
+    order_source = nr_source_selection_scores[order(N)]$source
 
-    part_full = data.table::data.table(changed_cell_type = c(part0_a$cell_type_1, part0_b$cell_type_1, part0_b$cell_type_2, part1$cell_type_1, part2$cell_type_2),
-                           neighb_cell_type = c(part0_a$cell_type_2, part0_b$cell_type_2, part0_b$cell_type_1, part1$cell_type_2, part2$cell_type_1))
-
-    total_genes = part_full[, .N, by = changed_cell_type]
-    order_cell_types = total_genes[order(N)]$changed_cell_type
-    part_full[, changed_cell_type := factor(changed_cell_type, levels = order_cell_types)]
+    complete_part[, source := factor(source, order_source)]
 
     pl <- ggplot2::ggplot()
-    pl <- pl + ggplot2::geom_bar(data = part_full, aes(x = changed_cell_type, fill = neighb_cell_type))
-
+    pl <- pl + ggplot2::geom_bar(data = complete_part, aes(x = source, fill = neighbor))
     if(!is.null(cell_color_code)) {
       pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
     }
-
     pl <- pl + ggplot2::theme_classic() + ggplot2::theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
     pl <- pl + ggplot2::labs(x = '', y = '# of genes influenced by cell neighborhood')
 
@@ -1559,27 +1568,13 @@ showCPGscores = function(gobject,
 
   } else if(method == 'cell_sankey') {
 
-    part0 = selection_scores[pval_1 < min_pval & pval_2 < min_pval]
-    part0_a = part0[cell_type_1 == cell_type_2]
-    part0_b = part0[cell_type_1 != cell_type_2]
-    part1 = selection_scores[pval_1 < min_pval & pval_2 >= min_pval]
-    part2 = selection_scores[pval_2 < min_pval & pval_1 >= min_pval]
+    testalluv = complete_part[, .N, by = c('neighbor', 'source')]
 
-    part_full = data.table::data.table(changed_cell_type = c(part0_a$cell_type_1, part0_b$cell_type_1, part0_b$cell_type_2, part1$cell_type_1, part2$cell_type_2),
-                           neighb_cell_type = c(part0_a$cell_type_2, part0_b$cell_type_2, part0_b$cell_type_1, part1$cell_type_2, part2$cell_type_1))
-
-    total_genes = part_full[, .N, by = changed_cell_type]
-    order_cell_types = total_genes[order(N)]$changed_cell_type
-    part_full[, changed_cell_type := factor(changed_cell_type, levels = order_cell_types)]
-
-
-    testalluv = part_full[, .N, by = c('changed_cell_type', 'neighb_cell_type')]
-    testalluv[, changed_cell_type := factor(changed_cell_type)]
-    testalluv[, neighb_cell_type := factor(neighb_cell_type)]
+    library(ggalluvial)
 
     pl <- ggplot2::ggplot(testalluv,
-                 aes(y = N, axis1 = changed_cell_type, axis2 = neighb_cell_type)) +
-      ggalluvial::geom_alluvium(aes(fill = changed_cell_type), width = 1/12) +
+                          aes(y = N, axis1 = source, axis2 = neighbor)) +
+      ggalluvial::geom_alluvium(aes(fill = source), width = 1/12) +
       ggalluvial::geom_stratum(width = 1/12, fill = "black", color = "grey") +
       ggplot2::scale_x_discrete(limits = c("cell type", "neighbours"), expand = c(.05, .05)) +
       ggplot2::geom_label(stat = "stratum", label.strata = TRUE, size = 3) +
@@ -1588,6 +1583,8 @@ showCPGscores = function(gobject,
     if(!is.null(cell_color_code)) {
       pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
     }
+
+
 
     ## print plot
     if(show_plot == TRUE) {
