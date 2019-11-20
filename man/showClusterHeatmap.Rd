@@ -5,19 +5,35 @@
 \title{showClusterHeatmap}
 \usage{
 showClusterHeatmap(gobject, expression_values = c("normalized", "scaled",
-  "custom"), cluster_column, cor = c("pearson", "spearman"),
-  distance = "ward.D")
+  "custom"), genes = "all", cluster_column, cor = c("pearson",
+  "spearman"), distance = "ward.D", show_plot = NA, return_plot = NA,
+  save_plot = NA, save_param = list(),
+  default_save_name = "showClusterHeatmap", ...)
 }
 \arguments{
 \item{gobject}{giotto object}
 
 \item{expression_values}{expression values to use}
 
+\item{genes}{vector of genes to use, default to 'all'}
+
 \item{cluster_column}{name of column to use for clusters}
 
 \item{cor}{correlation score to calculate distance}
 
 \item{distance}{distance method to use for hierarchical clustering}
+
+\item{show_plot}{show plot}
+
+\item{return_plot}{return ggplot object}
+
+\item{save_plot}{directly save the plot [boolean]}
+
+\item{save_param}{list of saving parameters from all_plots_save_function()}
+
+\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+
+\item{...}{additional parameters for the Heatmap function from ComplexHeatmap}
 }
 \value{
 ggplot
@@ -26,7 +42,7 @@ ggplot
 Creates heatmap based on identified clusters
 }
 \details{
-Correlation heatmap of selected clustering.
+Correlation heatmap of selected clusters.
 }
 \examples{
     showClusterHeatmap(gobject)

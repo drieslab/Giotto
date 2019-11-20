@@ -16,7 +16,10 @@ visDimPlot(gobject, dim_reduction_to_use = "umap",
   center_point_border_stroke = 0.1, label_size = 4,
   label_fontface = "bold", edge_alpha = NULL, point_size = 3,
   point_border_col = "black", point_border_stroke = 0.1,
-  plot_method = c("ggplot", "plotly"), show_legend = T)
+  plot_method = c("ggplot", "plotly"), show_legend = T,
+  show_plot = F, return_plot = TRUE, save_plot = F,
+  save_dir = NULL, save_folder = NULL, save_name = NULL,
+  save_format = NULL, show_saved_plot = F, ...)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -62,6 +65,22 @@ visDimPlot(gobject, dim_reduction_to_use = "umap",
 \item{point_border_stroke}{stroke size of border around points}
 
 \item{show_legend}{show legend}
+
+\item{show_plot}{show plot}
+
+\item{return_plot}{return ggplot object}
+
+\item{save_plot}{directly save the plot [boolean]}
+
+\item{save_dir}{directory to save the plot}
+
+\item{save_folder}{(optional) folder in directory to save the plot}
+
+\item{save_name}{name of plot}
+
+\item{save_format}{format of plot (e.g. tiff, png, pdf, ...)}
+
+\item{show_saved_plot}{load & display the saved plot}
 }
 \value{
 ggplot or plotly

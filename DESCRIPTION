@@ -33,7 +33,10 @@ Imports:
     plotly,
     reticulate,
     magrittr,
-    limma
+    limma,
+    png,
+    tiff,
+    ggdendro
 Suggests:
     knitr,
     rmarkdown,

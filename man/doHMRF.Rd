@@ -6,10 +6,12 @@
 \usage{
 doHMRF(gobject, expression_values = c("normalized", "scaled", "custom"),
   spatial_network_name = "spatial_network", spatial_genes = NULL,
+  spatial_dimensions = c("sdimx", "sdimy", "sdimz"),
   dim_reduction_to_use = NULL, dim_reduction_name = "pca",
   dimensions_to_use = 1:10, name = "test", k = 10, betas = c(0, 2,
   50), tolerance = 1e-10, zscore = c("none", "rowcol", "colrow"),
-  numinit = 100, python_path = NULL, output_folder = NULL)
+  numinit = 100, python_path = NULL, output_folder = NULL,
+  overwrite_output = TRUE)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -19,6 +21,8 @@ doHMRF(gobject, expression_values = c("normalized", "scaled", "custom"),
 \item{spatial_network_name}{name of spatial network to use for HMRF}
 
 \item{spatial_genes}{spatial genes to use for HMRF}
+
+\item{spatial_dimensions}{select spatial dimensions to use, default is all possible dimensions}
 
 \item{dim_reduction_to_use}{use another dimension reduction set as input}
 
@@ -41,6 +45,8 @@ doHMRF(gobject, expression_values = c("normalized", "scaled", "custom"),
 \item{python_path}{python path to use}
 
 \item{output_folder}{output folder to save results}
+
+\item{overwrite_output}{overwrite output folder}
 }
 \value{
 Creates a directory with results that can be viewed with viewHMRFresults

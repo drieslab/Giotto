@@ -31,26 +31,10 @@ library(Giotto)
   
 ![](./starmap_3D_data.png){width=20cm} .
 
-```{r, eval=TRUE, echo=FALSE, warning=FALSE}
-library(R.matlab)
+```{r, eval=FALSE}
 STARMAP_data_folder = '/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Data/Starmap_data/'
-gene_name <- read.csv(file = paste0(STARMAP_data_folder, '/', "gene_names.csv"),header =F)
-profile <- readMat(paste0(STARMAP_data_folder, '/', "20180123_BS10_light.mat"))
-
-expr <- t(profile$expr)
-cell_loc <- profile$goodLocs
-rownames(expr) <- gene_name[,2]
-colnames(expr) <- paste("cell", 1:dim(expr)[2],sep = "_")
-colnames(cell_loc) <- c("x","y","z")
-
-```
-
-```{r, eval=TRUE, echo=TRUE}
-# get STARMAP data and extract expression matrix and cell locations
-# expression:
-expr[1:4, 1:4]
-# location:
-cell_loc[1:4,]
+expr = read.table(paste0(STARMAP_data_folder, '/', 'STARmap_3D_data_expression.txt'))
+cell_loc = read.table(paste0(STARMAP_data_folder, '/', 'STARmap_3D_data_cell_locations.txt'))
 ```
 
 
@@ -58,7 +42,6 @@ cell_loc[1:4,]
 
 </details>
 
-\ 
 
 ### 1. Create Giotto object & process data
 
@@ -66,7 +49,7 @@ cell_loc[1:4,]
   <summary>Expand</summary>
   \ 
  
-```{r eval=FALSE, message=FALSE, warning=FALSE, fig.width=9, fig.height=6, out.width="75%", fig.align='center'}
+```{r eval=FALSE}
 # create
 STAR_test <- createGiottoObject(raw_exprs = expr, spatial_locs = cell_loc)
 
@@ -118,7 +101,6 @@ Cube scale 3D image:
 
 </details>
 
-\ 
 
 
 ### 2. dimension reduction
@@ -140,7 +122,6 @@ STAR_test <- runUMAP(STAR_test, dimensions_to_use = 1:8, n_components = 3, n_thr
 
 </details>
 
-\ 
 
 ### 3. cluster
 
@@ -178,7 +159,6 @@ htmlwidgets::saveWidget(plotly::as_widget(STAR_UMAP), file = paste0(cluster_fold
 
 </details>
 
-\ 
 
 ### 4. co-visualize ####
 
@@ -206,7 +186,6 @@ Co-visualzation:
 
 </details>
 
-\ 
 
 ### 5. differential expression ####
 
@@ -250,7 +229,6 @@ Heatmap clusters:
 
 </details>
 
-\  
 
 ### 6. cell-type annotation
 
@@ -355,7 +333,6 @@ Other cell types:
 
 </details>
 
-\ 
 
 ### 7. spatial grid ####
 
@@ -419,7 +396,6 @@ showPatternGenes(pattern_VC, dimension = 1)
 
 </details>
 
-\  
 
 
 ### 8. spatial network ####
@@ -453,7 +429,6 @@ Zoom in 3D network:
 
 </details>
 
-\  
 
 
 ### 9. spatial genes ####
@@ -470,6 +445,12 @@ kmtest = binGetSpatialGenes(STAR_test, bin_method = 'kmeans',
 ranktest = binGetSpatialGenes(STAR_test, bin_method = 'rank',
                               do_fisher_test = F, community_expectation = 5,
                               spatial_network_name = 'spatial_network', verbose = T)
+
+spatial_genes = calculate_spatial_genes_python(gobject = STAR_test,
+                                               expression_values = 'scaled',
+                                               python_path = "/Users/rubendries/Bin/anaconda3/envs/py36/bin/pythonw",
+                                               rbp_p=0.99, examine_top=0.1)
+
 ```
 
 ```{r eval=FALSE, message=FALSE, warning=FALSE, fig.width=12, fig.height=6, out.width="60%", fig.align='center'}
@@ -487,7 +468,6 @@ Spatial genes:
 
 </details>
 
-\ 
 
 ### 10. HMRF domains ####
 
@@ -495,14 +475,44 @@ Spatial genes:
   <summary>Expand</summary>
   \
 
-Not available at this time.
+
+```{r, eval=FALSE}
+my_spatial_genes = spatial_genes[1:16]$genes
+showClusterHeatmap(gobject = STAR_test, cluster_column = 'cell_types', genes = my_spatial_genes)
+
+# do HMRF with different betas
+HMRF_spatial_genes = doHMRF(gobject = STAR_test, expression_values = 'normalized',
+                            spatial_genes = my_spatial_genes,
+                            k = 10,
+                            betas = c(0, 0.5, 10), 
+                            output_folder = 'Spatial_genes/SG_k10_scaled',
+                            python_path = my_python_path,
+                            zscore = "rowcol", tolerance=1e-5)
+
+## add HMRF of interest to giotto object
+STAR_test = addHMRF(gobject = STAR_test,
+                   HMRFoutput = HMRF_spatial_genes,
+                   k = 10, betas_to_add = c(0, 0.5, 1),
+                   hmrf_name = 'HMRF')
+
+## visualize
+# b = 0, no information from cell neighbors
+visPlot(gobject = STAR_test, cell_color = 'HMRF_k10_b.0', point_size = 1.5)
+
+# b = 0.5
+visPlot(gobject = STAR_test, cell_color = 'HMRF_k10_b.0.5', point_size = 1.5)
+```
+
+Without information from neighboring cells, b = 0:  
+![](./figures/10_hmrf_b0.png){width=16cm} 
+
+b = 0.5:  
+![](./figures/10_hmrf_b0.5.png){width=16cm} 
 
 ***
 
 </details>
 
-
-\ 
 
 ### 11. Cell-cell preferential proximity 
 

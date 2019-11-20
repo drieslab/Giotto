@@ -250,7 +250,8 @@ calculate_spatial_genes_python <- function(gobject,
 
   # python path
   if(is.null(python_path)) {
-    python_path = system('which python', intern = T)
+    python_path = readGiottoInstructions(gobject, param = "python_path")
+    #python_path = system('which python', intern = T)
   }
 
   ## prepare python path and louvain script
@@ -646,11 +647,11 @@ showPattern <- function(spatPatObj,
                         y_ticks = NULL,
                         z_ticks = NULL,
                         show_plot = F) {
-  
+
   if(!'spatPatObj' %in% class(spatPatObj)) {
     stop('\n spatPatObj needs to be the output from detectSpatialPatterns \n')
   }
-  
+
   # select PC and subset data
   selected_PC = paste0('Dim.', dimension)
   PC_DT = spatPatObj$pca_matrix_DT
@@ -658,18 +659,18 @@ showPattern <- function(spatPatObj,
     stop('\n This dimension was not found in the spatial pattern object \n')
   }
   PC_DT = PC_DT[,c(selected_PC, 'loc_ID'), with = F]
-  
+
   # annotate grid with PC values
   annotated_grid = merge(spatPatObj$spatial_grid, by.x = 'gr_name', PC_DT, by.y = 'loc_ID')
-  
+
   # trim PC values
   if(!is.null(trim)) {
     boundaries = stats::quantile(annotated_grid[[selected_PC]], probs = trim)
     annotated_grid[[selected_PC]][annotated_grid[[selected_PC]] < boundaries[1]] = boundaries[1]
     annotated_grid[[selected_PC]][annotated_grid[[selected_PC]] > boundaries[2]] = boundaries[2]
-    
+
   }
-  
+
   # 2D-plot
   if(plot_dim == 2){
     dpl <- ggplot2::ggplot()
@@ -685,20 +686,20 @@ showPattern <- function(spatPatObj,
                                 plot.title = element_text(hjust = 0.5))
     dpl <- dpl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates')
   }
-  
+
   else if (plot_dim == 3){
-    
+
     annotated_grid <- data.table(annotated_grid)
     annotated_grid[,center_x:=(x_start+x_end)/2]
     annotated_grid[,center_y:=(y_start+y_end)/2]
     annotated_grid[,center_z:=(z_start+z_end)/2]
-    
-    
+
+
     axis_scale = match.arg(axis_scale, c("cube","real","custom"))
-    
+
     ratio = plotly_axis_scale_3D(annotated_grid,sdimx = "center_x",sdimy = "center_y",sdimz = "center_z",
                                  mode = axis_scale,custom_ratio = custom_ratio)
-    
+
     dpl <- plotly::plot_ly(type = 'scatter3d',
                            x = annotated_grid$center_x, y = annotated_grid$center_y, z = annotated_grid$center_z,
                            color = annotated_grid[[selected_PC]],marker = list(size = point_size),
@@ -712,39 +713,149 @@ showPattern <- function(spatPatObj,
                          y=ratio[[2]],
                          z=ratio[[3]])))
     dpl <- dpl %>% plotly::colorbar(title = paste(paste("dim.",dimension,sep = ""),"genes", sep = " "))
-    
+
   }
-  
-  
+
+
   if(show_plot == TRUE) {
     print(dpl)
   }
   return(dpl)
-  
+
+}
+
+
+
+
+#' @title showPattern2D
+#' @name showPattern2D
+#' @description show patterns for 2D spatial data
+#' @param gobject giotto object
+#' @param spatPatObj Output from detectSpatialPatterns
+#' @param dimension dimension to plot
+#' @param trim Trim ends of the PC values.
+#' @param background_color background color for plot
+#' @param grid_border_color color for grid
+#' @param show_legend show legend of ggplot
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @details Description.
+#' @export
+#' @examples
+#'     showPattern2D(gobject)
+showPattern2D <- function(gobject,
+                          spatPatObj,
+                          dimension = 1,
+                          trim = c(0.02, 0.98),
+                          background_color = 'white',
+                          grid_border_color = 'grey',
+                          show_legend = T,
+                          point_size = 1,
+                          show_plot = NA,
+                          return_plot = NA,
+                          save_plot = NA,
+                          save_param =  list(),
+                          default_save_name = 'showPattern2D') {
+
+  if(!'spatPatObj' %in% class(spatPatObj)) {
+    stop('\n spatPatObj needs to be the output from detectSpatialPatterns \n')
+  }
+
+  # select PC and subset data
+  selected_PC = paste0('Dim.', dimension)
+  PC_DT = spatPatObj$pca_matrix_DT
+  if(!selected_PC %in% colnames(PC_DT)) {
+    stop('\n This dimension was not found in the spatial pattern object \n')
+  }
+  PC_DT = PC_DT[,c(selected_PC, 'loc_ID'), with = F]
+
+  # annotate grid with PC values
+  annotated_grid = merge(spatPatObj$spatial_grid, by.x = 'gr_name', PC_DT, by.y = 'loc_ID')
+
+  # trim PC values
+  if(!is.null(trim)) {
+    boundaries = stats::quantile(annotated_grid[[selected_PC]], probs = trim)
+    annotated_grid[[selected_PC]][annotated_grid[[selected_PC]] < boundaries[1]] = boundaries[1]
+    annotated_grid[[selected_PC]][annotated_grid[[selected_PC]] > boundaries[2]] = boundaries[2]
+
+  }
+
+  # 2D-plot
+  #
+
+
+  dpl <- ggplot2::ggplot()
+  dpl <- dpl + ggplot2::theme_bw()
+  dpl <- dpl + ggplot2::geom_tile(data = annotated_grid,
+                                  aes_string(x = 'x_start', y = 'y_start', fill = selected_PC),
+                                  color = grid_border_color, show.legend = show_legend)
+  dpl <- dpl + ggplot2::scale_fill_gradient2('low' = 'darkblue', mid = 'white', high = 'darkred', midpoint = 0,
+                                             guide = guide_legend(title = ''))
+  dpl <- dpl + ggplot2::theme(axis.text.x = element_text(size = 8, angle = 45, vjust = 1, hjust = 1),
+                              panel.background = element_rect(fill = background_color),
+                              panel.grid = element_blank(),
+                              plot.title = element_text(hjust = 0.5))
+  dpl <- dpl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates')
+
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(dpl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = dpl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(dpl)
+  }
+
 }
 
 
 
 #' @title showPatternGenes
 #' @name showPatternGenes
-#' @description create a spatial grid
+#' @description show genes correlated with spatial patterns
+#' @param gobject giotto object
 #' @param spatPatObj Output from detectSpatialPatterns
 #' @param dimension dimension to plot genes for.
 #' @param top_pos_genes Top positively correlated genes.
 #' @param top_neg_genes Top negatively correlated genes.
 #' @param point_size size of points
-#' @param show_plot Show the plot.
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @details Description.
 #' @export
 #' @examples
 #'     showPatternGenes(gobject)
-showPatternGenes <- function(spatPatObj,
+showPatternGenes <- function(gobject,
+                             spatPatObj,
                              dimension = 1,
                              top_pos_genes = 5,
                              top_neg_genes = 5,
                              point_size = 1,
-                             show_plot = F) {
+                             show_plot = NA,
+                             return_plot = NA,
+                             save_plot = NA,
+                             save_param =  list(),
+                             default_save_name = 'showPatternGenes') {
 
   if(!'spatPatObj' %in% class(spatPatObj)) {
     stop('\n spatPatObj needs to be the output from detectSpatialPatterns \n')
@@ -772,20 +883,33 @@ showPatternGenes <- function(spatPatObj,
   pl <- pl + ggplot2::geom_vline(xintercept = 0, linetype = 2)
   pl <- pl + ggplot2::labs(x = 'correlation', y = '', title = selected_PC)
   pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5))
+
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
   if(show_plot == TRUE) {
     print(pl)
   }
-  return(pl)
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
 }
-
-
-
-
 
 
 #' @title selectPatternGenes
 #' @name selectPatternGenes
-#' @description create a spatial grid
+#' @description Select genes correlated with spatial patterns
 #' @param spatPatObj Output from detectSpatialPatterns
 #' @param dimensions dimensions to identify correlated genes for.
 #' @param top_pos_genes Top positively correlated genes.
@@ -844,8 +968,6 @@ selectPatternGenes <- function(spatPatObj,
 
 }
 
-
-
 #' @title Spatial_DE
 #' @name Spatial_DE
 #' @description calculate spatial varible genes with spatialDE method
@@ -867,7 +989,8 @@ Spatial_DE <- function(gobject = NULL,
 
   ## python path
   if(is.null(python_path)) {
-    python_path = system('which python', intern = T)
+    python_path = readGiottoInstructions(gobject, param = "python_path")
+    #python_path = system('which python', intern = T)
   }
 
   ## source python file
@@ -943,7 +1066,8 @@ Spatial_AEH <- function(gobject = NULL,
 
   ## python path
   if(is.null(python_path)) {
-    python_path = system('which python', intern = T)
+    python_path = readGiottoInstructions(gobject, param = "python_path")
+    #python_path = system('which python', intern = T)
   }
 
   ## source python file

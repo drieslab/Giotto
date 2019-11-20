@@ -1,24 +1,34 @@
 
 
-
-
 #' @title cellProximityBarplot
 #' @name cellProximityBarplot
 #' @description Create barplot from cell-cell proximity scores
+#' @param gobject giotto object
 #' @param CPscore CPscore, output from cellProximityEnrichment()
 #' @param min_orig_ints filter on minimum original cell-cell interactions
 #' @param min_sim_ints filter on minimum simulated cell-cell interactions
 #' @param p_val p-value
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot barplot
 #' @details This function creates a barplot that shows the  spatial proximity
 #'  enrichment or depletion of cell type pairs.
 #' @export
 #' @examples
 #'     cellProximityBarplot(CPscore)
-cellProximityBarplot = function(CPscore,
+cellProximityBarplot = function(gobject,
+                                CPscore,
                                 min_orig_ints = 5,
                                 min_sim_ints = 5,
-                                p_val = 0.05) {
+                                p_val = 0.05,
+                                show_plot = NA,
+                                return_plot = NA,
+                                save_plot = NA,
+                                save_param =  list(),
+                                default_save_name = 'cellProximityBarplot') {
 
 
   table_mean_results_dc = CPscore$enrichm_res
@@ -42,29 +52,61 @@ cellProximityBarplot = function(CPscore,
   bpl
 
   combo_plot <- cowplot::plot_grid(pl, bpl, ncol = 2, rel_heights = c(1), rel_widths = c(3,1.5), align = 'h')
-  print(cowplot::plot_grid(combo_plot))
+
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(combo_plot)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(combo_plot)
+  }
 
 }
 
 #' @title cellProximityHeatmap
 #' @name cellProximityHeatmap
 #' @description Create heatmap from cell-cell proximity scores
+#' @param gobject giotto object
 #' @param CPscore CPscore, output from cellProximityEnrichment()
 #' @param scale scale cell-cell proximity interaction scores
 #' @param order_cell_types order cell types based on enrichment correlation
 #' @param color_breaks numerical vector of length 3 to represent min, mean and maximum
 #' @param color_names character color vector of length 3
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot heatmap
 #' @details This function creates a heatmap that shows the  spatial proximity
 #'  enrichment or depletion of cell type pairs.
 #' @export
 #' @examples
 #'     cellProximityHeatmap(CPscore)
-cellProximityHeatmap = function(CPscore,
+cellProximityHeatmap = function(gobject,
+                                CPscore,
                                 scale = T,
                                 order_cell_types = T,
                                 color_breaks = NULL,
-                                color_names = NULL) {
+                                color_names = NULL,
+                                show_plot = NA,
+                                return_plot = NA,
+                                save_plot = NA,
+                                save_param =  list(),
+                                default_save_name = 'cellProximityHeatmap') {
 
 
   enrich_res = CPscore$enrichm_res
@@ -120,13 +162,33 @@ cellProximityHeatmap = function(CPscore,
       stop('\n color_names needs to be a character vector of length 3 \n')
     }
 
-    ComplexHeatmap::Heatmap(matrix = final_matrix, cluster_rows = F, cluster_columns = F,
+    heatm = ComplexHeatmap::Heatmap(matrix = final_matrix, cluster_rows = F, cluster_columns = F,
                             col = circlize::colorRamp2(breaks = color_breaks, colors = color_names))
   } else {
-    ComplexHeatmap::Heatmap(matrix = final_matrix, cluster_rows = F, cluster_columns = F)
+    heatm = ComplexHeatmap::Heatmap(matrix = final_matrix, cluster_rows = F, cluster_columns = F)
   }
 
 
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(heatm)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = heatm, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(heatm)
+  }
 
 }
 
@@ -134,28 +196,50 @@ cellProximityHeatmap = function(CPscore,
 #' @title cellProximityNetwork
 #' @name cellProximityNetwork
 #' @description Create network from cell-cell proximity scores
+#' @param gobject giotto object
 #' @param CPscore CPscore, output from cellProximityEnrichment()
 #' @param remove_self_edges remove enrichment/depletion edges with itself
+#' @param self_loop_strength size of self-loops
 #' @param color_depletion color for depleted cell-cell interactions
 #' @param color_enrichment color for enriched cell-cell interactions
 #' @param rescale_edge_weights rescale edge weights (boolean)
 #' @param edge_weight_range_depletion numerical vector of length 2 to rescale depleted edge weights
 #' @param edge_weight_range_enrichment numerical vector of length 2 to rescale enriched edge weights
 #' @param layout layout algorithm to use to draw nodes and edges
+#' @param only_show_enrichment_edges show only the enriched pairwise scores
+#' @param edge_width_range range of edge width
+#' @param node_size size of nodes
+#' @param node_text_size size of node labels
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return igraph plot
 #' @details This function creates a network that shows the  spatial proximity
 #'  enrichment or depletion of cell type pairs.
 #' @export
 #' @examples
 #'     cellProximityNetwork(CPscore)
-cellProximityNetwork = function(CPscore,
+cellProximityNetwork = function(gobject,
+                                CPscore,
                                 remove_self_edges = FALSE,
-                                color_depletion = 'blue',
+                                self_loop_strength = 0.1,
+                                color_depletion = 'lightgreen',
                                 color_enrichment = 'red',
                                 rescale_edge_weights = TRUE,
                                 edge_weight_range_depletion = c(0.1, 1),
                                 edge_weight_range_enrichment = c(1, 5),
-                                layout = 'Fruchterman') {
+                                layout = 'Fruchterman',
+                                only_show_enrichment_edges = F,
+                                edge_width_range = c(0.1, 2),
+                                node_size = 4,
+                                node_text_size = 6,
+                                show_plot = NA,
+                                return_plot = NA,
+                                save_plot = NA,
+                                save_param =  list(),
+                                default_save_name = 'cellProximityNetwork') {
 
   # create coordinates
   layout = match.arg(arg = layout, choices = c('Fruchterman'))
@@ -186,7 +270,7 @@ cellProximityNetwork = function(CPscore,
   }
 
   # colors
-  edges_colors = ifelse(edges_sizes > 0, color_enrichment, color_depletion)
+  edges_colors = ifelse(edges_sizes > 0, 'enriched', 'depleted')
 
   # layout
   if(layout == 'Fruchterman') {
@@ -195,17 +279,60 @@ cellProximityNetwork = function(CPscore,
     stop('\n Currently no other layouts, except Fruchterman Reingold, have been implemented \n')
   }
 
-  igraph::plot.igraph(igd, edge.color = edges_colors, edge.width = edges_sizes_resc, layout = coords)
+  #iplot = igraph::plot.igraph(igd, edge.color = edges_colors, edge.width = edges_sizes_resc, layout = coords)
+
+  igd = igraph::set.edge.attribute(graph = igd, index = igraph::E(igd), name = 'color', value = edges_colors)
+  igd = igraph::set.edge.attribute(graph = igd, index = igraph::E(igd), name = 'size', value = as.numeric(edges_sizes_resc))
+
+  ## only show attractive edges
+  if(only_show_enrichment_edges == TRUE) {
+    colors = igraph::get.edge.attribute(igd, name = 'color')
+    subvertices_ids = which(colors == 'enriched')
+    igd = igraph::subgraph.edges(graph = igd, eids = subvertices_ids)
+  }
+
+  #longDT = as.data.table(igraph::as_long_data_frame(igd))
+  #return(longDT)
+  #return(list(igd, coords))
+
+  ## create plot
+  gpl = ggraph::ggraph(graph = igd, layout = coords)
+  gpl = gpl + ggraph::geom_edge_link(aes(color = factor(color), edge_width = size, edge_alpha = size), show.legend = F)
+  gpl = gpl + ggraph::geom_edge_loop(aes(color = factor(color), edge_width = size, edge_alpha = size, strength = self_loop_strength), show.legend = F)
+  gpl = gpl + ggraph::scale_edge_color_manual(values = c('enriched' = color_enrichment, 'depleted' = color_depletion))
+  gpl = gpl + ggraph::scale_edge_width(range = edge_width_range)
+  gpl = gpl + ggraph::scale_edge_alpha(range = c(0.1,1))
+  gpl = gpl + ggraph::geom_node_text(aes(label = name), repel = TRUE, size = node_text_size)
+  gpl = gpl + ggraph::geom_node_point(size = node_size)
+  gpl = gpl + ggplot2::theme_bw() + ggplot2::theme(panel.grid = element_blank(),
+                                                   panel.border = element_blank(),
+                                                   axis.title = element_blank(),
+                                                   axis.text = element_blank(),
+                                                   axis.ticks = element_blank())
+
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+    ## print plot
+  if(show_plot == TRUE) {
+    print(gpl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = gpl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(gpl)
+  }
+
 
 }
-
-
-
-
-
-
-
-
 
 #' @title cellProximityVisPlot_2D_ggplot
 #' @name cellProximityVisPlot_2D_ggplot
@@ -1186,19 +1313,19 @@ showTopGeneToGene = function(GTGscore,
 #' @description shows direction of change
 #' @examples
 #'     direction_test_CPG()
-direction_test = function(x, min_pval = 0.05) {
+direction_test = function(x, min_fdr = 0.05) {
 
-  pval_1 = as.numeric(x[['pval_1']])
-  if(is.na(pval_1) == TRUE) pval_1 = 1
-  pval_2 = as.numeric(x[['pval_2']])
-  if(is.na(pval_2) == TRUE) pval_2 = 1
+  fdr_1 = as.numeric(x[['fdr_1']])
+  if(is.na(fdr_1) == TRUE) fdr_1 = 1
+  fdr_2 = as.numeric(x[['fdr_2']])
+  if(is.na(fdr_2) == TRUE) fdr_2 = 1
 
   log2fc_1 = as.numeric(x[['log2fc_spat_1']])
   log2fc_2 = as.numeric(x[['log2fc_spat_2']])
 
-  if(pval_1 > min_pval & pval_2 > min_pval) {
+  if(fdr_1 > min_fdr & fdr_2 > min_fdr) {
     return('n.s.')
-  } else if(pval_1 <= min_pval & pval_2 <= min_pval) {
+  } else if(fdr_1 <= min_fdr & fdr_2 <= min_fdr) {
 
     if(log2fc_1 > 0 & log2fc_2 > 0) {
       return('both_up')
@@ -1208,13 +1335,77 @@ direction_test = function(x, min_pval = 0.05) {
       return('mixed')
     }
 
-  } else if((pval_1 <= min_pval & log2fc_1 > 0) | (pval_2 <= min_pval & log2fc_2 > 0)) {
+  } else if((fdr_1 <= min_fdr & log2fc_1 > 0) | (fdr_2 <= min_fdr & log2fc_2 > 0)) {
     return('up')
-  } else if((pval_1 <= min_pval & log2fc_1 < 0) | (pval_2 <= min_pval & log2fc_2 < 0)) {
+  } else if((fdr_1 <= min_fdr & log2fc_1 < 0) | (fdr_2 <= min_fdr & log2fc_2 < 0)) {
     return('down')
   } else {
     return('missing')
   }
+
+}
+
+
+
+#' @title filterCPGscores
+#' @name filterCPGscores
+#' @description visualize Cell Proximity Gene enrichment scores
+#' @param method visualization method
+#' @param min_cells min number of cells threshold
+#' @param min_fdr false_discovery threshold
+#' @param min_spat_diff spatial difference threshold
+#' @param min_log2_fc min log2 fold-change
+#' @param keep_int_duplicates keep both cell_A-cell_B and cell_B-cell_A
+#' @param direction expression changes to keep
+#' @return Gene to gene scores in data.table format
+#' @details This function filters the output from getCellProximityGeneScores based on
+#' false-discovery rate, minimum absolute difference, minimum log fold-change and
+#' direction of change.
+#' @export
+#' @examples
+#'     filterCPGscores(CPGscore)
+filterCPGscores = function(CPGscore,
+                           min_cells = 5,
+                           min_fdr = 0.05,
+                           min_spat_diff = 0.2,
+                           min_log2_fc = 0.5,
+                           keep_int_duplicates = TRUE,
+                           direction = c('both', 'up', 'down')) {
+
+
+
+  # other parameters
+  direction = match.arg(direction, choices = c('both', 'up', 'down'))
+
+  if(keep_int_duplicates == FALSE) {
+    selection_scores = data.table::copy(CPGscore[unif_int_rank == 1])
+  } else {
+    selection_scores = data.table::copy(CPGscore)
+  }
+
+  selection_scores = CPGscore[(nr_1 >= min_cells & fdr_1 <= min_fdr &
+                                 abs(diff_spat_1) >= min_spat_diff &
+                                 abs(log2fc_spat_1) >= min_log2_fc) |
+                                (nr_2 >= min_cells & fdr_2 <= min_fdr &
+                                   abs(diff_spat_2) >= min_spat_diff &
+                                   abs(log2fc_spat_2) >= min_log2_fc)]
+
+  if(direction == 'both') {
+    selection_scores = selection_scores
+  } else if(direction == 'up') {
+    selection_scores = selection_scores[(log2fc_spat_1 >= min_log2_fc & fdr_1 <= min_fdr & diff_spat_1 >= min_spat_diff) |
+                                          (log2fc_spat_2 >= min_log2_fc & fdr_2 <= min_fdr & diff_spat_2 >= min_spat_diff)]
+  } else if(direction == 'down') {
+    selection_scores = selection_scores[(log2fc_spat_1 <= -min_log2_fc & fdr_1 <= min_fdr & diff_spat_1 <= -min_spat_diff) |
+                                          (log2fc_spat_2 <= -min_log2_fc & fdr_2 <= min_fdr & diff_spat_2 <= -min_spat_diff)]
+  }
+
+
+  change_values = unlist(apply(selection_scores, MARGIN = 1, FUN = function(x) {
+    direction_test(x, min_fdr = min_fdr)
+  }))
+  selection_scores[, change := change_values]
+  return(selection_scores)
 
 }
 
@@ -1226,128 +1417,164 @@ direction_test = function(x, min_pval = 0.05) {
 #' @param CPGscore CPGscore, output from getCellProximityGeneScores()
 #' @param method visualization method
 #' @param min_cells min number of cells threshold
-#' @param min_pval p-value threshold
+#' @param min_fdr fdr threshold
 #' @param min_spat_diff spatial difference threshold
 #' @param min_log2_fc min log2 fold-change
+#' @param keep_int_duplicates keep both cell_A-cell_B and cell_B-cell_A
 #' @param direction up or downregulation or both
 #' @param cell_color_code color code for cell types
-#' @param show_plot print plot
-#' @param return_DT return filtered data.table (boolean)
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return Gene to gene scores in data.table format
 #' @details Give more details ...
 #' @export
 #' @examples
 #'     showCPGscores(CPGscore)
-showCPGscores = function(CPGscore,
-                         method = c('cell_barplot', 'cell-cell', 'cell_sankey'),
+showCPGscores = function(gobject,
+                         CPGscore,
+                         method = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey'),
                          min_cells = 5,
-                         min_pval = 0.05,
+                         min_fdr = 0.05,
                          min_spat_diff = 0.2,
                          min_log2_fc = 0.5,
+                         keep_int_duplicates = TRUE,
                          direction = c('both', 'up', 'down'),
                          cell_color_code = NULL,
-                         show_plot = T,
-                         return_DT = F) {
+                         show_plot = NA,
+                         return_plot = NA,
+                         save_plot = NA,
+                         save_param =  list(),
+                         default_save_name = 'showCPGscores'
+) {
 
 
-  direction = match.arg(direction, choices = c('both', 'up', 'down'))
-  method = match.arg(method, choices = c('cell_barplot', 'cell-cell', 'cell_sankey'))
-
-  selection_scores = CPGscore[unif_int_rank == 1][(nr_1 >= min_cells & pval_1 <= min_pval &
-                                                     abs(diff_spat_1) >= min_spat_diff &
-                                                     abs(log2fc_spat_1) >= min_log2_fc) |
-                                                    (nr_2 >= min_cells & pval_2 <= min_pval &
-                                                       abs(diff_spat_2) >= min_spat_diff &
-                                                       abs(log2fc_spat_2) >= min_log2_fc)]
-
-  if(direction == 'both') {
-    selection_scores = selection_scores
-  } else if(direction == 'up') {
-    selection_scores = selection_scores[(log2fc_spat_1 >= min_log2_fc & pval_1 <= min_pval & diff_spat_1 >= min_spat_diff) |
-                                          (log2fc_spat_2 >= min_log2_fc & pval_2 <= min_pval & diff_spat_2 >= min_spat_diff)]
-  } else if(direction == 'down') {
-    selection_scores = selection_scores[(log2fc_spat_1 <= -min_log2_fc & pval_1 <= min_pval & diff_spat_1 <= -min_spat_diff) |
-                                          (log2fc_spat_2 <= -min_log2_fc & pval_2 <= min_pval & diff_spat_2 <= -min_spat_diff)]
-  }
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
 
-  if(return_DT == TRUE) {
+  ## first filter
+  filter_set = filterCPGscores(CPGscore = CPGscore,
+                               min_cells = min_cells,
+                               min_fdr = min_fdr,
+                               min_spat_diff = min_spat_diff,
+                               min_log2_fc = min_log2_fc,
+                               keep_int_duplicates = keep_int_duplicates,
+                               direction = direction)
 
-    change_values = unlist(apply(selection_scores, MARGIN = 1, FUN = function(x) {
-      direction_test(x, min_pval = min_pval)
-    }))
-    selection_scores[, change := change_values]
-    return(selection_scores)
-  }
+
+  ## other parameters
+  method = match.arg(method, choices = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey'))
+
+  ## create data.table for visualization
+  subset = filter_set[(fdr_1 <= min_fdr & unif_int_rank == 1) | (fdr_1 <= min_fdr & fdr_2 <= min_fdr & unif_int_rank == 2)]
+  part1 = subset[unif_int_rank == 1,.(genes, interaction, cell_type_1, cell_type_2, log2fc_spat_1, fdr_1)]
+  colnames(part1) = c('genes', 'interaction', 'source', 'neighbor', 'log2fc', 'fdr')
+  part2 = subset[unif_int_rank == 2,.(genes, interaction, cell_type_2, cell_type_1, log2fc_spat_2, fdr_2)]
+  colnames(part2) = c('genes', 'interaction', 'source', 'neighbor', 'log2fc', 'fdr')
+  complete_part = rbind(part1, part2)
 
 
-  if(method == 'cell-cell') {
 
-    nr_int_selection_scores = selection_scores[, .N, by = interaction]
+  if(method == 'volcano') {
+
+    ## volcanoplot
+    pl = ggplot()
+    pl = pl + geom_point(data = complete_part, aes(x = log2fc, y = -log10(fdr)))
+    pl = pl + theme_classic()
+    pl = pl + geom_vline(xintercept = 0, linetype = 2)
+
+
+    ## print plot
+    if(show_plot == TRUE) {
+      print(pl)
+    }
+
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+    }
+
+    ## return plot
+    if(return_plot == TRUE) {
+      return(pl)
+    }
+
+
+  } else if(method == 'cell-cell') {
+
+    nr_int_selection_scores = complete_part[, .N, by = interaction]
     order_interactions = nr_int_selection_scores[order(N)]$interaction
 
-    selection_scores[, interaction := factor(interaction, order_interactions)]
+    complete_part[, interaction := factor(interaction, order_interactions)]
 
     pl <- ggplot2::ggplot()
-    pl <- pl + ggplot2::geom_bar(data = selection_scores, aes(x = interaction, fill = type_int))
+    pl <- pl + ggplot2::geom_bar(data = complete_part, aes(x = interaction, fill = interaction))
     pl <- pl + ggplot2::theme_classic() + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1))
     pl <- pl + ggplot2::coord_flip()
 
+    ## print plot
     if(show_plot == TRUE) {
       print(pl)
     }
+
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+    }
+
+    ## return plot
+    if(return_plot == TRUE) {
+      return(pl)
+    }
+
+
   } else if(method == 'cell_barplot') {
 
 
-    part0 = selection_scores[pval_1 < min_pval & pval_2 < min_pval]
-    part0_a = part0[cell_type_1 == cell_type_2]
-    part0_b = part0[cell_type_1 != cell_type_2]
-    part1 = selection_scores[pval_1 < min_pval & pval_2 >= min_pval]
-    part2 = selection_scores[pval_2 < min_pval & pval_1 >= min_pval]
+    # by source cell type plot
+    nr_source_selection_scores = complete_part[, .N, by = source]
+    order_source = nr_source_selection_scores[order(N)]$source
 
-    part_full = data.table::data.table(changed_cell_type = c(part0_a$cell_type_1, part0_b$cell_type_1, part0_b$cell_type_2, part1$cell_type_1, part2$cell_type_2),
-                           neighb_cell_type = c(part0_a$cell_type_2, part0_b$cell_type_2, part0_b$cell_type_1, part1$cell_type_2, part2$cell_type_1))
-
-    total_genes = part_full[, .N, by = changed_cell_type]
-    order_cell_types = total_genes[order(N)]$changed_cell_type
-    part_full[, changed_cell_type := factor(changed_cell_type, levels = order_cell_types)]
+    complete_part[, source := factor(source, order_source)]
 
     pl <- ggplot2::ggplot()
-    pl <- pl + ggplot2::geom_bar(data = part_full, aes(x = changed_cell_type, fill = neighb_cell_type))
-
+    pl <- pl + ggplot2::geom_bar(data = complete_part, aes(x = source, fill = neighbor))
     if(!is.null(cell_color_code)) {
       pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
     }
-
     pl <- pl + ggplot2::theme_classic() + ggplot2::theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
     pl <- pl + ggplot2::labs(x = '', y = '# of genes influenced by cell neighborhood')
+
+
+    ## print plot
     if(show_plot == TRUE) {
       print(pl)
+    }
+
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+    }
+
+    ## return plot
+    if(return_plot == TRUE) {
+      return(pl)
     }
 
   } else if(method == 'cell_sankey') {
 
-    part0 = selection_scores[pval_1 < min_pval & pval_2 < min_pval]
-    part0_a = part0[cell_type_1 == cell_type_2]
-    part0_b = part0[cell_type_1 != cell_type_2]
-    part1 = selection_scores[pval_1 < min_pval & pval_2 >= min_pval]
-    part2 = selection_scores[pval_2 < min_pval & pval_1 >= min_pval]
+    testalluv = complete_part[, .N, by = c('neighbor', 'source')]
 
-    part_full = data.table::data.table(changed_cell_type = c(part0_a$cell_type_1, part0_b$cell_type_1, part0_b$cell_type_2, part1$cell_type_1, part2$cell_type_2),
-                           neighb_cell_type = c(part0_a$cell_type_2, part0_b$cell_type_2, part0_b$cell_type_1, part1$cell_type_2, part2$cell_type_1))
-
-    total_genes = part_full[, .N, by = changed_cell_type]
-    order_cell_types = total_genes[order(N)]$changed_cell_type
-    part_full[, changed_cell_type := factor(changed_cell_type, levels = order_cell_types)]
-
-
-    testalluv = part_full[, .N, by = c('changed_cell_type', 'neighb_cell_type')]
-    testalluv[, changed_cell_type := factor(changed_cell_type)]
-    testalluv[, neighb_cell_type := factor(neighb_cell_type)]
+    library(ggalluvial)
 
     pl <- ggplot2::ggplot(testalluv,
-                 aes(y = N, axis1 = changed_cell_type, axis2 = neighb_cell_type)) +
-      ggalluvial::geom_alluvium(aes(fill = changed_cell_type), width = 1/12) +
+                          aes(y = N, axis1 = source, axis2 = neighbor)) +
+      ggalluvial::geom_alluvium(aes(fill = source), width = 1/12) +
       ggalluvial::geom_stratum(width = 1/12, fill = "black", color = "grey") +
       ggplot2::scale_x_discrete(limits = c("cell type", "neighbours"), expand = c(.05, .05)) +
       ggplot2::geom_label(stat = "stratum", label.strata = TRUE, size = 3) +
@@ -1357,13 +1584,24 @@ showCPGscores = function(CPGscore,
       pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
     }
 
+
+
+    ## print plot
     if(show_plot == TRUE) {
       print(pl)
     }
 
-  }
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+    }
 
-  return(pl)
+    ## return plot
+    if(return_plot == TRUE) {
+      return(pl)
+    }
+
+  }
 
 }
 
@@ -1778,4 +2016,239 @@ plotCPGscores <- function(CPGscores,
   return(pl)
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#' @title cellProximitySpatPlot2D
+#' @name cellProximitySpatPlot2D
+#' @description Visualize 2D cell-cell interactions according to spatial coordinates in ggplot mode
+#' @param gobject giotto object
+#' @param interaction_name cell-cell interaction name
+#' @param cluster_column cluster column with cell clusters
+#' @param sdimx x-axis dimension name (default = 'sdimx')
+#' @param sdimy y-axis dimension name (default = 'sdimy')
+#' @param cell_color color for cells (see details)
+#' @param cell_color_code named vector with colors
+#' @param color_as_factor convert color column to factor
+#' @param show_other_cells decide if show cells not in network
+#' @param show_network show underlying spatial network
+#' @param network_color color of spatial network
+#' @param spatial_network_name name of spatial network to use
+#' @param show_grid show spatial grid
+#' @param grid_color color of spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param coord_fix_ratio fix ratio between x and y-axis
+#' @param show_legend show legend
+#' @param point_size_select size of selected points
+#' @param point_select_border_col border color of selected points
+#' @param point_select_border_stroke stroke size of selected points
+#' @param point_size_other size of other points
+#' @param point_other_border_col border color of other points
+#' @param point_other_border_stroke stroke size of other points
+#' @param show_plot show plots
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     cellProximitySpatPlot2D(gobject)
+cellProximitySpatPlot2D <- function(gobject,
+                                    interaction_name = NULL,
+                                    cluster_column = NULL,
+                                    sdimx = 'sdimx',
+                                    sdimy = 'sdimy',
+                                    cell_color = NULL,
+                                    cell_color_code = NULL,
+                                    color_as_factor = T,
+                                    show_other_cells = F,
+                                    show_network = F,
+                                    show_other_network = F,
+                                    network_color = NULL,
+                                    spatial_network_name = 'spatial_network',
+                                    show_grid = F,
+                                    grid_color = NULL,
+                                    spatial_grid_name = 'spatial_grid',
+                                    coord_fix_ratio = 1,
+                                    show_legend = T,
+                                    point_size_select = 2,
+                                    point_select_border_col = 'black',
+                                    point_select_border_stroke = 0.05,
+                                    point_size_other = 1,
+                                    point_alpha_other = 0.3,
+                                    point_other_border_col = 'lightgrey',
+                                    point_other_border_stroke = 0.01,
+                                    show_plot = NA,
+                                    return_plot = NA,
+                                    save_plot = NA,
+                                    save_param =  list(),
+                                    default_save_name = 'cellProximitySpatPlot2D') {
+  if(is.null(interaction_name)) {
+    stop('\n you need to specific at least one interaction name, run cellProximityEnrichment \n')
+  }
+
+
+  cell_locations  = gobject@spatial_locs
+  spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
+  cell_metadata   = gobject@cell_metadata
+
+
+
+  spatial_network = annotateSpatialNetwork(gobject = gobject,
+                                           spatial_network_name = spatial_network_name,
+                                           cluster_column = cluster_column)
+
+  cell_IDs_to_keep = unique(c(spatial_network[unified_int %in% interaction_name]$to,
+                              spatial_network[unified_int %in% interaction_name]$from))
+
+  #print(cell_IDs_to_keep)
+
+  if(show_other_cells){
+    CellType <- strsplit(interaction_name,"--")
+    all_cell_IDs = cell_metadata[cell_metadata[[cluster_column]] == CellType[[1]][1] |
+                                   cell_metadata[[cluster_column]] == CellType[[1]][2],]$cell_ID
+    other_cell_IDs <- setdiff(all_cell_IDs, cell_IDs_to_keep)
+  }
+
+
+  # annotated cell data
+  if(nrow(cell_metadata) == 0) {
+    cell_locations_metadata = cell_locations
+  } else {
+    cell_locations_metadata <- merge(cell_locations, cell_metadata,by = "cell_ID")
+  }
+
+
+  # first 2 dimensions need to be defined
+  if(is.null(sdimx) | is.null(sdimy)) {
+    cat('first and second dimenion need to be defined, default is first 2 \n')
+    sdimx = 'sdimx'
+    sdimy = 'sdimy'
+  }
+
+  pl <- ggplot2::ggplot()
+  pl <- pl + ggplot2::theme_classic()
+
+  if(!is.null(spatial_network) & show_network == TRUE) {
+    if(is.null(network_color)) network_color = 'red'
+    if(show_other_network){
+      pl <- pl + ggplot2::geom_segment(data = spatial_network[!unified_int %in% interaction_name],
+                                       aes(x = sdimx_begin, y = sdimy_begin, xend = sdimx_end, yend = sdimy_end),
+                                       color = 'lightgrey', size = 0.5, alpha = 0.5)
+    }
+    pl <- pl + ggplot2::geom_segment(data = spatial_network[unified_int %in% interaction_name],
+                                     aes(x = sdimx_begin, y = sdimy_begin, xend = sdimx_end, yend = sdimy_end),
+                                     color = network_color, size = 0.5, alpha = 0.5)
+  }
+
+  if(!is.null(spatial_grid) & show_grid == TRUE) {
+    if(is.null(grid_color)) grid_color = 'black'
+    pl <- pl + ggplot2::geom_rect(data = spatial_grid, aes(xmin = x_start, xmax = x_end, ymin = y_start, ymax = y_end),
+                                  color = grid_color, fill = NA)
+  }
+
+  # cell color default
+  if(is.null(cell_color)) {
+    cell_color = 'lightblue'
+    pl <- pl + ggplot2::geom_point(data = cell_locations[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
+                                   show.legend = show_legend, shape = 21, fill = 'lightgrey', size = point_size_other)
+    pl <- pl + ggplot2::geom_point(data = cell_locations[cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
+                                   show.legend = show_legend, shape = 21, fill = cell_color, size = point_size_select)
+    if(show_other_cells){
+      pl <- pl + ggplot2::geom_point(data = cell_locations[cell_ID %in% other_cell_IDs], aes_string(x = sdimx, y = sdimy),
+                                     show.legend = show_legend, shape = 21, fill = cell_color, alpha = point_alpha_other,
+                                     size = point_size_select * 0.5)
+    }
+  }
+  else if (is.character(cell_color)) {
+    if(cell_color %in% colnames(cell_locations_metadata)) {
+
+      if(color_as_factor == TRUE) {
+        factor_data = factor(cell_locations_metadata[[cell_color]])
+        cell_locations_metadata[[cell_color]] <- factor_data
+      }
+
+      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
+                                     fill = 'lightgrey', shape = 21, size = point_size_other,
+                                     color = point_other_border_col, stroke = point_other_border_stroke)
+      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy, fill = cell_color),
+                                     show.legend = show_legend, shape = 21, size = point_size_select,
+                                     color = point_select_border_col, stroke = point_select_border_stroke)
+      if(show_other_cells){
+        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[cell_ID %in% other_cell_IDs], aes_string(x = sdimx, y = sdimy,fill = cell_color),
+                                       show.legend = show_legend, shape = 21, alpha = point_alpha_other,
+                                       size = point_size_select * 0.5)
+      }
+
+
+
+      if(!is.null(cell_color_code)) {
+        pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
+      } else if(color_as_factor == T) {
+        number_colors = length(unique(factor_data))
+        cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+        names(cell_color_code) = unique(factor_data)
+        pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
+      } else if(color_as_factor == F){
+        pl <- pl + ggplot2::scale_fill_gradient(low = 'blue', high = 'red')
+      }
+
+    } else {
+      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[!cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
+                                     show.legend = show_legend, shape = 21, fill = 'lightgrey', size = point_size_other,
+                                     color = point_other_border_col, stroke = point_other_border_stroke)
+      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata[cell_ID %in% cell_IDs_to_keep], aes_string(x = sdimx, y = sdimy),
+                                     show.legend = show_legend, shape = 21, fill = cell_color, size = point_size_select,
+                                     color = point_select_border_col, stroke = point_select_border_stroke)
+    }
+
+  }
+
+  pl <- pl + ggplot2::theme_bw() + ggplot2::theme(plot.title = element_text(hjust = 0.5),
+                                                  legend.title = element_text(size = 10),
+                                                  legend.text = element_text(size = 10))
+
+  # fix coord ratio
+  if(!is.null(coord_fix_ratio)) {
+    pl <- pl + ggplot2::coord_fixed(ratio = coord_fix_ratio)
+  }
+
+  pl <- pl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates')
+
+
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
+}
+
 

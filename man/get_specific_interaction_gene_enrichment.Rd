@@ -9,6 +9,7 @@ get_specific_interaction_gene_enrichment(sub_spatial_network,
   neighb_col = "neighb_clus", neighb_IDs = "to", expression_matrix,
   interaction_name = "to_specify", cell_annotation,
   annotation_ID = "uniq_ID", cell_type_col, do_diff_test = T,
+  diff_test = c("t.test", "wilcox"), minimum_unique_cells = NA,
   exclude_selected_cells_from_test = T)
 }
 \description{

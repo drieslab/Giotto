@@ -8,17 +8,18 @@
 <!-- badges: end -->
 
 The goal of Giotto is to process, analyze and visualize **single-cell
-spatial transcriptomic** data. Simultaneously this package contains the
-data that was used in the recent
+spatial expression** data. It can be used on virtually all current
+spatial datasets, although not all implemented analyses work for each
+type of technology. Firstly Giotto provides a flexible framework for
+common single-cell processing steps such as quality control,
+normalization, dimension reduction, clustering and cell type annotation.
+Next, it incorporates spatial information through the formation of a
+spatial grid and a spatial proximity network, which will be used in
+subsequent analyses to identify spatial genes or patterns, cell-cell
+preferential interactions and ligand-receptor signaling. Simultaneously
+this package contains the data that was used in the recent
 [**seqFISH+**](https://www.nature.com/articles/s41586-019-1049-y) paper
-and can thus be used to explore or re-analyze this dataset. Firstly
-Giotto provides a flexible framework for common single-cell processing
-steps such as quality control, normalization, dimension reduction,
-clustering and cell type annotation. Next, it incorporates spatial
-information through the formation of a spatial grid or network, which
-will be used in subsequent analyses to identify spatial genes or
-patterns, cell-cell preferential interactions and ligand-receptor
-signaling.
+and can thus be used to explore or re-analyze this dataset.
 
  
 
@@ -67,7 +68,7 @@ Conda installation:
 # pandas:
 conda install -c anaconda pandas
 
-# python-igraph:
+# python-igraph, run on of the following:
 conda install -c conda-forge python-igraph
 conda install -c conda-forge/label/gcc7 python-igraph
 conda install -c conda-forge/label/cf201901 python-igraph 
@@ -75,7 +76,7 @@ conda install -c conda-forge/label/cf201901 python-igraph
 # networkx:
 conda install -c anaconda networkx
 
-# louvain:
+# louvain, run of the following:
 conda install -c conda-forge python-louvain
 conda install -c conda-forge/label/gcc7 python-louvain
 conda install -c conda-forge/label/cf201901 python-louvain
@@ -93,12 +94,16 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation
 
 ## Examples
 
+  - see <https://github.com/RubD/spatial-datasets> to find raw and
+    pre-processed input data and Giotto scripts (in progress).
   - typical run time for the cortex dataset on a personal computer is
     around 20\~30 mins.
 
 [![Cortex](./inst/images/cortex_image_summary.png)](./inst/examples/mouse_cortex_svz/seqfish_cortex_Giotto_v0.1.2.md)
-
 [![STARmap](./inst/images/starmap_cortex_image_summary.png)](./inst/examples/mouse_starmap_cortex/starmap_cortex_Giotto_v0.1.2.md)
+
+[![osmFISH](./inst/images/osmFISH_SS_cortex_image_summary.png)](./inst/examples/mouse_osmFISH_SS_cortex/osmFISH_SS_cortex_Giotto_v0.1.2.md)
+[![slideseq](./inst/images/slideseq_cerebellum_image_summary.png)](./inst/examples/mouse_slideseq_cerebellum/slideseq_cerebellum_Giotto_v0.1.2.md)
 
  
 
@@ -111,8 +116,14 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation
     [MAST](https://github.com/RGLab/MAST)
   - New example with 3D spatial data
     [STARmap](https://science.sciencemag.org/content/361/6400/eaat5691)
-
- 
+  - New example with the highly sensitive data from
+    [osmFISH](https://www.nature.com/articles/s41592-018-0175-z)
+  - New example on the Cerebellum with the scalable data from
+    [Slideseq](https://science.sciencemag.org/content/363/6434/1463)
+  - Updated osmFISH example by using global instructions to
+    automatically save all generated plots (**NEW**)
+  - New examples for merFISH, Spatial Transcriptomics, MIBI and others
+    will follow soon.  
 
 ## FAQ
 
@@ -125,6 +136,8 @@ Howto’s and faqs examples:
     dimensions reduction, … ?  
   - [How to add metadata and subset a Giotto
     object?](./inst/faqs/metadata_and_subset/metadata_and_subset_VC.md)
+  - [How to create global instructions and show or save your created
+    plots?](./inst/faqs/instructions_and_plotting/instructions_and_plotting.md)
   - How to test and store multiple parameters or analyses?
   - …
 
@@ -132,7 +145,7 @@ Howto’s and faqs examples:
 
 ## References
 
-  - 1.Dries, R. et al. Giotto, a pipeline for integrative analysis and
+  - Dries, R. et al. Giotto, a pipeline for integrative analysis and
     visualization of single-cell spatial transcriptomic data. bioRxiv
     701680 (2019). <doi:10.1101/701680>
     [link](https://www.biorxiv.org/content/10.1101/701680v1)

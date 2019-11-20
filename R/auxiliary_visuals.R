@@ -1,34 +1,350 @@
+
+#' @title ggplot_save_function
+#' @name ggplot_save_function
+#' @description Function to automatically save plots to directory of interest
+#' @param gobject giotto object
+#' @param plot_object ggplot object to plot
+#' @param save_dir directory to save to
+#' @param save_folder folder in save_dir to save to
+#' @param save_name name of plot
+#' @param save_format format (e.g. png, tiff, pdf, ...)
+#' @param show_saved_plot load & display the saved plot
+#' @param ncol number of columns
+#' @param nrow number of rows
+#' @param scale scale
+#' @param base_width width
+#' @param base_height height
+#' @param base_aspect_ratio aspect ratio
+#' @param units units
+#' @param dpi Plot resolution
+#' @param limitsize When TRUE (the default), ggsave will not save images larger than 50x50 inches, to prevent the common error of specifying dimensions in pixels.
+#' @seealso \code{\link{cowplot::save_plot}}
+#' @export
+#' @examples
+#'     ggplot_save_function(gobject)
+ggplot_save_function = function(gobject,
+                                plot_object,
+                                save_dir = NULL,
+                                save_folder = NULL,
+                                save_name = NULL,
+                                default_save_name = 'giotto_plot',
+                                save_format = NULL,
+                                show_saved_plot = F,
+                                ncol = 1,
+                                nrow = 1,
+                                scale = 1,
+                                base_width = NULL,
+                                base_height = NULL,
+                                base_aspect_ratio = NULL,
+                                units = NULL,
+                                dpi = NULL,
+                                limitsize = TRUE,
+                                ...) {
+
+  if(is.null(plot_object)) {
+    stop('\t there is no object to plot \t')
+  }
+
+  ## get save information and set defaults
+  if(is.null(save_dir)) save_dir = readGiottoInstructions(gobject, param = 'save_dir')
+  if(is.null(save_folder)) save_folder = NULL
+  if(is.null(save_name)) save_name = default_save_name
+  if(is.null(save_format)) save_format = readGiottoInstructions(gobject, param = 'plot_format')
+  if(is.null(dpi)) dpi = readGiottoInstructions(gobject, param = 'dpi')
+  if(is.null(base_width)) base_width = readGiottoInstructions(gobject, param = 'width')
+  if(is.null(base_height)) base_height = readGiottoInstructions(gobject, param = 'height')
+  if(is.null(base_aspect_ratio)) base_aspect_ratio = 1.1
+  if(is.null(units)) units = 'in'
+
+  ## checking
+  dpi = as.numeric(dpi)
+  base_width = as.numeric(base_width)
+  base_height = as.numeric(base_height)
+  base_aspect_ratio = as.numeric(base_aspect_ratio)
+
+  # create saving location
+  file_location = paste0(save_dir,'/', save_folder)
+  if(!file.exists(file_location)) dir.create(file_location, recursive = T)
+  file_name = paste0(save_name, ".", save_format)
+
+  cowplot::save_plot(plot = plot_object,
+                     filename = file_name,
+                     path = file_location,
+                     device = save_format,
+                     ncol = ncol,
+                     nrow = nrow,
+                     scale = scale,
+                     base_width = base_width,
+                     base_height = base_height,
+                     base_aspect_ratio = base_aspect_ratio,
+                     units = units,
+                     dpi = dpi,
+                     limitsize = limitsize)
+
+  # show saved plot if requested
+  if(show_saved_plot == TRUE) {
+
+    if(save_format == 'png') {
+      img <- png::readPNG(source = paste0(file_location, '/', file_name))
+      grid::grid.raster(img)
+    } else if(save_format == 'tiff') {
+      img <- tiff::readTIFF(source =  paste0(file_location, '/', file_name))
+      grid::grid.raster(img)
+    } else {
+      cat('\t only png & tiff are currently supported \t')
+    }
+  }
+}
+
+
+
+#' @title general_save_function
+#' @name general_save_function
+#' @description Function to automatically save plots to directory of interest
+#' @param gobject giotto object
+#' @param plot_object non-ggplot object to plot
+#' @param save_dir directory to save to
+#' @param save_folder folder in save_dir to save to
+#' @param save_name name of plot
+#' @param save_format format (e.g. png, tiff, pdf, ...)
+#' @param show_saved_plot load & display the saved plot
+#' @param base_width width
+#' @param base_height height
+#' @param base_aspect_ratio aspect ratio
+#' @param units units
+#' @param dpi Plot resolution
+#' @export
+#' @examples
+#'     general_save_function(gobject)
+general_save_function = function(gobject,
+                                 plot_object,
+                                 save_dir = NULL,
+                                 save_folder = NULL,
+                                 save_name = NULL,
+                                 default_save_name = 'giotto_plot',
+                                 save_format = c('png', 'tiff', 'pdf', 'svg'),
+                                 show_saved_plot = F,
+                                 base_width = NULL,
+                                 base_height = NULL,
+                                 base_aspect_ratio = NULL,
+                                 units = NULL,
+                                 dpi = NULL,
+                                 ...) {
+
+
+  save_format = match.arg(save_format, choices = c('png', 'tiff', 'pdf', 'svg'))
+
+  if(is.null(plot_object)) {
+    stop('\t there is no object to plot \t')
+  }
+
+  ## get save information and set defaults
+  if(is.null(save_dir)) save_dir = readGiottoInstructions(gobject, param = 'save_dir')
+  if(is.null(save_folder)) save_folder = NULL
+  if(is.null(save_name)) save_name = default_save_name
+  if(is.null(save_format)) save_format = readGiottoInstructions(gobject, param = 'plot_format')
+  if(is.null(dpi)) dpi = readGiottoInstructions(gobject, param = 'dpi')
+  if(is.null(base_width)) base_width = readGiottoInstructions(gobject, param = 'width')
+  if(is.null(base_height)) base_height = readGiottoInstructions(gobject, param = 'height')
+  if(is.null(base_aspect_ratio)) base_aspect_ratio = 1.1
+  if(is.null(units)) units = 'px'
+
+  ## checking
+  dpi = as.numeric(dpi)
+  base_width = as.numeric(base_width)
+  base_height = as.numeric(base_height)
+  base_aspect_ratio = as.numeric(base_aspect_ratio)
+
+  # create saving location
+  file_location = paste0(save_dir,'/', save_folder)
+  if(!file.exists(file_location)) dir.create(file_location, recursive = T)
+  file_name = paste0(save_name, ".", save_format)
+  full_location = paste0(file_location,'/', file_name)
+
+
+
+  if(save_format == 'png') {
+    grDevices::png(filename = full_location, width = base_width, height = base_height, res = dpi, units = units, ...)
+    print(plot_object)
+    grDevices::dev.off()
+  }
+
+  if(save_format == 'tiff') {
+    grDevices::tiff(filename = full_location, width = base_width, height = base_height, units = units, ...)
+    print(plot_object)
+    grDevices::dev.off()
+  }
+
+  if(save_format == 'pdf') {
+    grDevices::pdf(file = full_location, width = base_width, height = base_height, useDingbats = F, ...)
+    print(plot_object)
+    grDevices::dev.off()
+  }
+
+  if(save_format == 'svg') {
+    grDevices::svg(filename = full_location, width = base_width, height = base_height, ...)
+    print(plot_object)
+    grDevices::dev.off()
+  }
+
+
+  # show saved plot if requested
+  if(show_saved_plot == TRUE) {
+
+    if(save_format == 'png') {
+      img <- png::readPNG(source = full_location)
+      grid::grid.raster(img)
+    } else if(save_format == 'tiff') {
+      img <- tiff::readTIFF(source =  full_location)
+      grid::grid.raster(img)
+    } else {
+      cat('\t only png & tiff are currently supported \t')
+    }
+  }
+
+}
+
+
+#' @title all_plots_save_function
+#' @name all_plots_save_function
+#' @description Function to automatically save plots to directory of interest
+#' @param gobject giotto object
+#' @param plot_object object to plot
+#' @param save_dir directory to save to
+#' @param save_folder folder in save_dir to save to
+#' @param save_name name of plot
+#' @param save_format format (e.g. png, tiff, pdf, ...)
+#' @param show_saved_plot load & display the saved plot
+#' @param ncol number of columns
+#' @param nrow number of rows
+#' @param scale scale
+#' @param base_width width
+#' @param base_height height
+#' @param base_aspect_ratio aspect ratio
+#' @param units units
+#' @param dpi Plot resolution
+#' @param limitsize When TRUE (the default), ggsave will not save images larger than 50x50 inches, to prevent the common error of specifying dimensions in pixels.
+#' @param ...
+#' @seealso \code{\link{Giotto::general_save_function}}
+#' @export
+#' @examples
+#'     all_plots_save_function(gobject)
+all_plots_save_function = function(gobject,
+                                   plot_object,
+                                   save_dir = NULL,
+                                   save_folder = NULL,
+                                   save_name = NULL,
+                                   default_save_name = 'giotto_plot',
+                                   save_format = NULL,
+                                   show_saved_plot = F,
+                                   ncol = 1,
+                                   nrow = 1,
+                                   scale = 1,
+                                   base_width = NULL,
+                                   base_height = NULL,
+                                   base_aspect_ratio = NULL,
+                                   units = NULL,
+                                   dpi = NULL,
+                                   limitsize = TRUE,
+                                   ...) {
+
+
+  if(any('ggplot' %in% class(plot_object)) == TRUE) {
+
+    ggplot_save_function(gobject = gobject,
+                         plot_object = plot_object,
+                         save_dir = save_dir,
+                         save_folder = save_folder,
+                         save_name = save_name,
+                         default_save_name = default_save_name,
+                         save_format = save_format,
+                         show_saved_plot = show_saved_plot,
+                         ncol = ncol,
+                         nrow = nrow,
+                         scale = scale,
+                         base_width = base_width,
+                         base_height = base_height,
+                         base_aspect_ratio = base_aspect_ratio,
+                         units = units,
+                         dpi = dpi,
+                         limitsize = limitsize,
+                         ...)
+
+  } else {
+
+    general_save_function(gobject = gobject,
+                          plot_object = plot_object,
+                          save_dir = save_dir,
+                          save_folder = save_folder,
+                          save_name = save_name,
+                          default_save_name = default_save_name,
+                          save_format = save_format,
+                          show_saved_plot = show_saved_plot,
+                          base_width = base_width,
+                          base_height = base_height,
+                          base_aspect_ratio = base_aspect_ratio,
+                          units = units,
+                          dpi = dpi,
+                          ...)
+
+  }
+
+}
+
+
+
 #' @title showClusterHeatmap
 #' @name showClusterHeatmap
 #' @description Creates heatmap based on identified clusters
 #' @param gobject giotto object
 #' @param expression_values expression values to use
+#' @param genes vector of genes to use, default to 'all'
 #' @param cluster_column name of column to use for clusters
 #' @param cor correlation score to calculate distance
 #' @param distance distance method to use for hierarchical clustering
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @param ... additional parameters for the Heatmap function from ComplexHeatmap
 #' @return ggplot
-#' @details Correlation heatmap of selected clustering.
+#' @details Correlation heatmap of selected clusters.
 #' @export
 #' @examples
 #'     showClusterHeatmap(gobject)
 showClusterHeatmap <- function(gobject,
                                expression_values = c('normalized', 'scaled', 'custom'),
+                               genes = 'all',
                                cluster_column,
                                cor = c('pearson', 'spearman'),
-                               distance = 'ward.D') {
+                               distance = 'ward.D',
+                               show_plot = NA,
+                               return_plot = NA,
+                               save_plot = NA,
+                               save_param =  list(),
+                               default_save_name = 'showClusterHeatmap',
+                               ...) {
 
+  ## correlation
   cor = match.arg(cor, c('pearson', 'spearman'))
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
 
+  ## subset expression data
+  if(genes[1] != 'all') {
+    all_genes = gobject@gene_ID
+    detected_genes = genes[genes %in% all_genes]
+  } else {
+    # NULL = all genes in calculateMetaTable()
+    detected_genes = NULL
+  }
 
-  metatable = calculateMetaTable(gobject = gobject, expression_values = values, metadata_cols = cluster_column)
+  metatable = calculateMetaTable(gobject = gobject,
+                                 expression_values = values,
+                                 metadata_cols = cluster_column,
+                                 selected_genes = detected_genes)
   dcast_metatable = data.table::dcast.data.table(metatable, formula = variable~uniq_ID, value.var = 'value')
-  testmatrix = dt_to_matrix(x = dcast_metatable)
-
-
-  #testmatrix = create_cluster_matrix(gobject = gobject,
-  #                                   cluster_column = cluster_column,
-  #                                   expression_values = values)
+  testmatrix = Giotto:::dt_to_matrix(x = dcast_metatable)
 
   # correlation
   cormatrix = stats::cor(x = testmatrix, method = cor)
@@ -37,12 +353,29 @@ showClusterHeatmap <- function(gobject,
 
   hmap = ComplexHeatmap::Heatmap(matrix = cormatrix,
                                  cluster_rows = corclus,
-                                 cluster_columns = corclus)
+                                 cluster_columns = corclus, ...)
 
-  return(hmap)
 
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(hmap)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = hmap, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(hmap)
+  }
 }
-
 
 
 #' @title showClusterDendrogram
@@ -55,6 +388,13 @@ showClusterHeatmap <- function(gobject,
 #' @param distance distance method to use for hierarchical clustering
 #' @param h height of horizontal lines to plot
 #' @param h_color color of horizontal lines
+#' @param rotate rotate dendrogram 90 degrees
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @param ... additional parameters for ggdendrogram()
 #' @return ggplot
 #' @details Correlation dendrogram of selected clustering.
 #' @export
@@ -66,7 +406,14 @@ showClusterDendrogram <- function(gobject,
                                   cor = c('pearson', 'spearman'),
                                   distance = 'ward.D',
                                   h = NULL,
-                                  h_color = 'red') {
+                                  h_color = 'red',
+                                  rotate = FALSE,
+                                  show_plot = NA,
+                                  return_plot = NA,
+                                  save_plot = NA,
+                                  save_param =  list(),
+                                  default_save_name = 'showClusterDendrogram',
+                                  ...) {
 
   cor = match.arg(cor, c('pearson', 'spearman'))
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
@@ -74,12 +421,7 @@ showClusterDendrogram <- function(gobject,
 
   metatable = calculateMetaTable(gobject = gobject, expression_values = values, metadata_cols = cluster_column)
   dcast_metatable = data.table::dcast.data.table(metatable, formula = variable~uniq_ID, value.var = 'value')
-  testmatrix = dt_to_matrix(x = dcast_metatable)
-
-
-  #testmatrix = create_cluster_matrix(gobject = gobject,
-  #                                   cluster_column = cluster_column,
-  #                                   expression_values = values)
+  testmatrix = Giotto:::dt_to_matrix(x = dcast_metatable)
 
   # correlation
   cormatrix = stats::cor(x = testmatrix, method = cor)
@@ -89,15 +431,33 @@ showClusterDendrogram <- function(gobject,
   cordend = as.dendrogram(object = corclus)
 
   # plot dendrogram
-  graphics::plot(cordend)
+  pl = ggdendro::ggdendrogram(cordend, rotate = rotate, ...)
 
-  # add horizontal lines
+  # add horizontal or vertical lines
   if(!is.null(h)) {
-    graphics::abline(h = h, col = h_color)
+    pl = pl + ggplot2::geom_hline(yintercept = h, col = h_color)
   }
 
-}
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
+}
 
 
 
@@ -307,6 +667,11 @@ createHeatmap_DT <- function(gobject,
 #' @param gene_label_selection subset of genes to show on y-axis
 #' @param axis_text_y_size size for y-axis text
 #' @param legend_nrows number of rows for the cluster legend
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @details Creates heatmap for genes and clusters.
 #' @export
@@ -331,7 +696,11 @@ plotHeatmap <- function(gobject,
                         gene_label_selection = NULL,
                         axis_text_y_size = NULL,
                         legend_nrows = 1,
-                        show_plot = TRUE) {
+                        show_plot = NA,
+                        return_plot = NA,
+                        save_plot = NA,
+                        save_param =  list(),
+                        default_save_name = 'plotHeatmap') {
 
   show_values = match.arg(show_values, choices = c('rescaled', 'z-scaled', 'original'))
 
@@ -422,8 +791,27 @@ plotHeatmap <- function(gobject,
                                   ncol = 2, rel_widths = c(1, 0.2),
                                   nrow = 2, rel_heights = c(0.2, 1))
 
-    if(show_plot == TRUE) print(combplot)
-    return(combplot)
+
+
+    # print, return and save parameters
+    show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+    save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+    return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+    ## print plot
+    if(show_plot == TRUE) {
+      print(combplot)
+    }
+
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combplot, default_save_name = default_save_name), save_param))
+    }
+
+    ## return plot
+    if(return_plot == TRUE) {
+      return(combplot)
+    }
 
 
   } else {
@@ -463,8 +851,27 @@ plotHeatmap <- function(gobject,
                                   ncol = 3, rel_widths = c(1, 0.2, 0.1),
                                   nrow = 2, rel_heights = c(0.2, 1))
 
-    if(show_plot == TRUE) print(combplot)
-    return(combplot)
+
+    # print, return and save parameters
+    show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+    save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+    return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+
+    ## print plot
+    if(show_plot == TRUE) {
+      print(combplot)
+    }
+
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combplot, default_save_name = default_save_name), save_param))
+    }
+
+    ## return plot
+    if(return_plot == TRUE) {
+      return(combplot)
+    }
 
   }
 
@@ -496,7 +903,11 @@ plotHeatmap <- function(gobject,
 #' @param x_text_angle angle of x-axis text
 #' @param y_text_size size of y-axis text
 #' @param strip_text_size size of strip text
-#' @param show_plot print plot (default = TRUE)
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot or data.table
 #' @details Creates heatmap for average the average expression of selected genes in the different annotation groups
 #' @export
@@ -520,7 +931,11 @@ plotMetaDataHeatmap = function(gobject,
                                x_text_angle = 45,
                                y_text_size = 8,
                                strip_text_size = 8,
-                               show_plot = T) {
+                               show_plot = NA,
+                               return_plot = NA,
+                               save_plot = NA,
+                               save_param =  list(),
+                               default_save_name = 'plotMetaDataHeatmap') {
 
 
   metaDT = calculateMetaTable(gobject = gobject,
@@ -602,8 +1017,25 @@ plotMetaDataHeatmap = function(gobject,
                      legend.title=element_blank())
     pl <- pl + labs(x = metadata_cols, y = 'genes')
 
+
+    # print, return and save parameters
+    show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+    save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+    return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+    ## print plot
     if(show_plot == TRUE) {
       print(pl)
+    }
+
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+    }
+
+    ## return plot
+    if(return_plot == TRUE) {
+      return(pl)
     }
   }
 
@@ -630,8 +1062,26 @@ plotMetaDataHeatmap = function(gobject,
                        legend.title=element_blank())
       pl <- pl + labs(x = first_meta_col, y = 'genes', title = second_meta_col)
 
+
+      # print, return and save parameters
+      show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+      save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+      return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+
+      ## print plot
       if(show_plot == TRUE) {
         print(pl)
+      }
+
+      ## save plot
+      if(save_plot == TRUE) {
+        do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+      }
+
+      ## return plot
+      if(return_plot == TRUE) {
+        return(pl)
       }
     }
 
@@ -649,6 +1099,18 @@ plotMetaDataHeatmap = function(gobject,
 #' @param genes genes to plot
 #' @param cluster_column name of column to use for clusters
 #' @param color_violin color violinplots according to genes or clusters
+#' @param cluster_custom_order custom order of clusters
+#' @param color_violin color violin according to genes or clusters
+#' @param cluster_color_code color code for clusters
+#' @param strip_position position of gene labels
+#' @param strip_text size of strip text
+#' @param axis_text_x_size size of x-axis text
+#' @param axis_text_y_size size of y-axis text
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @details Correlation heatmap of clusters vs genes.
 #' @export
@@ -661,10 +1123,18 @@ violinPlot <- function(gobject,
                        cluster_custom_order = NULL,
                        color_violin = c('genes', 'cluster'),
                        cluster_color_code = NULL,
+                       strip_position = c('top', 'right', 'left', 'bottom'),
                        strip_text = 7,
                        axis_text_x_size = 10,
-                       axis_text_y_size = 6) {
+                       axis_text_y_size = 6,
+                       show_plot = NA,
+                       return_plot = NA,
+                       save_plot = NA,
+                       save_param =  list(),
+                       default_save_name = 'violinPlot') {
 
+  ## strip position
+  strip_position = match.arg(strip_position, c('top', 'right', 'left', 'bottom'))
 
   ## color of violin plots
   color_violin = match.arg(color_violin, c('genes', 'cluster'))
@@ -720,15 +1190,35 @@ violinPlot <- function(gobject,
       pl <- pl + ggplot2::scale_fill_manual(values = cluster_color_code)
     }
   }
-  pl <- pl + ggplot2::facet_wrap(~genes, ncol = 1)
+
+
+  pl <- pl + ggplot2::facet_wrap(.~genes, ncol = 1, strip.position = strip_position)
   pl <- pl + ggplot2::theme(strip.text = element_text(size = strip_text),
                             axis.text.x = element_text(size = axis_text_x_size, angle = 45, hjust = 1, vjust = 1),
                             axis.text.y = element_text(size = axis_text_y_size))
   pl <- pl + ggplot2::labs(x = '', y = 'normalized expression')
-  pl
 
-  return(pl)
 
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
 
 }
 

@@ -24,7 +24,7 @@ selectPatternGenes(spatPatObj, dimensions = 1:5, top_pos_genes = 10,
 ggplot
 }
 \description{
-create a spatial grid
+Select genes correlated with spatial patterns
 }
 \details{
 Description.

@@ -11,7 +11,7 @@ visGenePlot_2D_ggplot(gobject, expression_values = c("normalized",
   spatial_network_name = "spatial_network", edge_alpha = NULL,
   show_grid = F, grid_color = NULL,
   spatial_grid_name = "spatial_grid", midpoint = 0,
-  scale_alpha_with_expression = TRUE, point_size = 1,
+  scale_alpha_with_expression = FALSE, point_size = 1,
   point_border_col = "black", point_border_stroke = 0.1,
   show_legend = T, cow_n_col = 2, cow_rel_h = 1, cow_rel_w = 1,
   cow_align = "h", show_plots = F)

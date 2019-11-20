@@ -4,10 +4,14 @@
 \alias{cellProximityBarplot}
 \title{cellProximityBarplot}
 \usage{
-cellProximityBarplot(CPscore, min_orig_ints = 5, min_sim_ints = 5,
-  p_val = 0.05)
+cellProximityBarplot(gobject, CPscore, min_orig_ints = 5,
+  min_sim_ints = 5, p_val = 0.05, show_plot = NA, return_plot = NA,
+  save_plot = NA, save_param = list(),
+  default_save_name = "cellProximityBarplot")
 }
 \arguments{
+\item{gobject}{giotto object}
+
 \item{CPscore}{CPscore, output from cellProximityEnrichment()}
 
 \item{min_orig_ints}{filter on minimum original cell-cell interactions}
@@ -15,6 +19,16 @@ cellProximityBarplot(CPscore, min_orig_ints = 5, min_sim_ints = 5,
 \item{min_sim_ints}{filter on minimum simulated cell-cell interactions}
 
 \item{p_val}{p-value}
+
+\item{show_plot}{show plot}
+
+\item{return_plot}{return ggplot object}
+
+\item{save_plot}{directly save the plot [boolean]}
+
+\item{save_param}{list of saving parameters from all_plots_save_function()}
+
+\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }
 \value{
 ggplot barplot

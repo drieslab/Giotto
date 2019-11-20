@@ -51,7 +51,8 @@ doLeidenCluster = function(gobject,
   ## check or make paths
   # python path
   if(is.null(python_path)) {
-    python_path = system('which python', intern = T)
+    python_path = readGiottoInstructions(gobject, param = "python_path")
+    #python_path = system('which python', intern = T)
   }
 
   ## prepare python path and louvain script
@@ -187,7 +188,8 @@ doLouvainCluster_community <- function(gobject,
   ## check or make paths
   # python path
   if(is.null(python_path)) {
-    python_path = system('which python', intern = T)
+    python_path = readGiottoInstructions(gobject, param = "python_path")
+    #python_path = system('which python', intern = T)
   }
 
   # prepare python path and louvain script
@@ -2942,7 +2944,7 @@ getClusterSimilarity <- function(gobject,
 #' @return Giotto object
 #' @details Merge selected clusters based on pairwise correlation scores and size of cluster.
 #' To avoid large clusters to merge the max_group_size can be lowered. Small clusters can
-#' be forcibly merged with the their most similar pairwise cluster by adjusting the
+#' be forcibly merged with their most similar pairwise cluster by adjusting the
 #' force_min_group_size parameter. Clusters smaller than this value will be merged
 #' independent on the provided min_cor_score value. \cr
 #' A giotto object is returned by default, if FALSE then the merging vector will be returned.

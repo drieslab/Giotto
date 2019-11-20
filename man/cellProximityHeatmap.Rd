@@ -4,10 +4,14 @@
 \alias{cellProximityHeatmap}
 \title{cellProximityHeatmap}
 \usage{
-cellProximityHeatmap(CPscore, scale = T, order_cell_types = T,
-  color_breaks = NULL, color_names = NULL)
+cellProximityHeatmap(gobject, CPscore, scale = T, order_cell_types = T,
+  color_breaks = NULL, color_names = NULL, show_plot = NA,
+  return_plot = NA, save_plot = NA, save_param = list(),
+  default_save_name = "cellProximityHeatmap")
 }
 \arguments{
+\item{gobject}{giotto object}
+
 \item{CPscore}{CPscore, output from cellProximityEnrichment()}
 
 \item{scale}{scale cell-cell proximity interaction scores}
@@ -17,6 +21,16 @@ cellProximityHeatmap(CPscore, scale = T, order_cell_types = T,
 \item{color_breaks}{numerical vector of length 3 to represent min, mean and maximum}
 
 \item{color_names}{character color vector of length 3}
+
+\item{show_plot}{show plot}
+
+\item{return_plot}{return ggplot object}
+
+\item{save_plot}{directly save the plot [boolean]}
+
+\item{save_param}{list of saving parameters from all_plots_save_function()}
+
+\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }
 \value{
 ggplot heatmap
