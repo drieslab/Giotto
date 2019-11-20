@@ -161,7 +161,14 @@ createGiottoInstructions <- function(python_path =  NULL,
 
   # pyton path to use
   if(is.null(python_path)) {
-    python_path = system('which python', intern = T)
+    python_path = try(system('which python', intern = T))
+    if(class(python_path) == "try-error") {
+      python_path = try(system('where python', intern = T))
+      if(class(python_path) == "try-error") {
+        cat('\n no python path found, set it manually when needed \n')
+        python_path = '/set/python/path/manually/'
+      }
+    }
   }
   python_path = as.character(python_path)
 
