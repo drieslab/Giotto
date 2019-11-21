@@ -653,8 +653,8 @@ getCellProximityGeneScores = function(gobject,
 
 
 
-#' @title getGeneToGeneSelection
-#' @name getGeneToGeneSelection
+#' @title getGeneToGeneScores
+#' @name getGeneToGeneScores
 #' @description Compute gene-gene enrichment scores.
 #' @param CPGscore CPGscore, output from getCellProximityGeneScores()
 #' @param selected_genes select subset of genes
@@ -671,18 +671,18 @@ getCellProximityGeneScores = function(gobject,
 #' @details Give more details ...
 #' @export
 #' @examples
-#'     getGeneToGeneSelection(CPGscore)
-getGeneToGeneSelection <- function(CPGscore,
-                                   selected_genes = NULL,
-                                   specific_genes_1 = NULL,
-                                   specific_genes_2 = NULL,
-                                   min_cells = 5,
-                                   min_fdr = 0.05,
-                                   min_spat_diff = 0.2,
-                                   min_log2_fc = 0.5,
-                                   direction = c('both', 'up', 'down'),
-                                   fold_change_addendum = 0.1,
-                                   verbose = TRUE) {
+#'     getGeneToGeneScores(CPGscore)
+getGeneToGeneScores <- function(CPGscore,
+                                selected_genes = NULL,
+                                specific_genes_1 = NULL,
+                                specific_genes_2 = NULL,
+                                min_cells = 5,
+                                min_fdr = 0.05,
+                                min_spat_diff = 0.2,
+                                min_log2_fc = 0.5,
+                                direction = c('both', 'up', 'down'),
+                                fold_change_addendum = 0.1,
+                                verbose = TRUE) {
 
 
   direction = match.arg(direction, choices = c('both', 'up', 'down'))
@@ -777,8 +777,16 @@ getGeneToGeneSelection <- function(CPGscore,
   finalres = finalres[type_int == 'hetero' | (type_int == 'homo' & unif_gene_gene_int == 1)]
 
 
+  changeCols = c('cell_expr_1', 'cell_expr_2',
+                 'all_cell_expr_1' , 'all_cell_expr_2',
+                 'diff_spat_1', 'diff_spat_2',
+                 'log2fc_spat_1', 'log2fc_spat_2',
+                 'fdr_1', 'fdr_2')
+  finalres[,(changeCols):= lapply(.SD, as.numeric), .SDcols = changeCols]
+
   if(direction == 'both') {
-    finalres = finalres
+    finalres = finalres[(fdr_1 <= min_fdr & nr_1 >= min_cells & abs(diff_spat_1) >= min_spat_diff & abs(log2fc_spat_1) >= min_log2_fc) &
+                          (fdr_2 <= min_fdr & nr_2 >= min_cells & abs(diff_spat_2) >= min_spat_diff  & abs(log2fc_spat_2) >= min_log2_fc)]
   } else if(direction == 'up') {
     finalres = finalres[(fdr_1 <= min_fdr & nr_1 >= min_cells & diff_spat_1 >= min_spat_diff & log2fc_spat_1 >= min_log2_fc) &
                           (fdr_2 <= min_fdr & nr_2 >= min_cells & diff_spat_2 >= min_spat_diff  & log2fc_spat_2 >= min_log2_fc)]
@@ -801,11 +809,12 @@ getGeneToGeneSelection <- function(CPGscore,
   }))
   finalres[, change := change_values]
 
+  data.table::setorder(finalres, -log2fc_spatial_expr)
+
   return(finalres)
 
 
 }
-
 
 
 
