@@ -1806,6 +1806,7 @@ showGTGscores = function(GTGscore,
 #' @title plotGTGscores
 #' @name plotGTGscores
 #' @description Create heatmap from cell-cell proximity scores
+#' @param gobject giotto object
 #' @param GTGscore GTGscore, output from getGeneToGeneScores()
 #' @param selected_interactions interactions to show
 #' @param selected_genes genes to show
@@ -1826,7 +1827,8 @@ showGTGscores = function(GTGscore,
 #' @export
 #' @examples
 #'     plotGTGscores(GTGscore)
-plotGTGscores <- function(GTGscore,
+plotGTGscores <- function(gobject,
+                          GTGscore,
                           selected_interactions = NULL,
                           selected_gene_to_gene = NULL,
                           detail_plot = T,

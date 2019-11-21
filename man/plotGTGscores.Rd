@@ -4,7 +4,7 @@
 \alias{plotGTGscores}
 \title{plotGTGscores}
 \usage{
-plotGTGscores(GTGscore, selected_interactions = NULL,
+plotGTGscores(gobject, GTGscore, selected_interactions = NULL,
   selected_gene_to_gene = NULL, detail_plot = T, simple_plot = F,
   simple_plot_facet = c("interaction", "genes"),
   facet_scales = "fixed", facet_ncol = length(selected_gene_to_gene),
@@ -13,6 +13,8 @@ plotGTGscores(GTGscore, selected_interactions = NULL,
   save_param = list(), default_save_name = "plotGTGscores")
 }
 \arguments{
+\item{gobject}{giotto object}
+
 \item{GTGscore}{GTGscore, output from getGeneToGeneScores()}
 
 \item{selected_interactions}{interactions to show}
