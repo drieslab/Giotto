@@ -98,6 +98,9 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation [instructio
 [![slideseq](./inst/images/slideseq_cerebellum_image_summary.png){width=10cm}](./inst/examples/mouse_slideseq_cerebellum/slideseq_cerebellum_Giotto_v0.1.2.md)  
 
 [![Spatial Transcriptomics](./inst/images/SpatTx_OB_image_summary.png){width=10cm}]
+[![MIBI-TOF](./inst/images/MIBI_tumor_image_summary.png){width=10cm}]  
+
+[![merFISH](./inst/images/merFISH_hypothalam_image_summary.png){width=10cm}]  
 
 
 

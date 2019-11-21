@@ -108,6 +108,9 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation
 
 \[![Spatial
 Transcriptomics](./inst/images/SpatTx_OB_image_summary.png)\]
+\[![MIBI-TOF](./inst/images/MIBI_tumor_image_summary.png)\]
+
+\[![merFISH](./inst/images/merFISH_hypothalam_image_summary.png)\]
 
  
 

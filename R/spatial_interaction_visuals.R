@@ -1816,7 +1816,11 @@ showGTGscores = function(GTGscore,
 #' @param facet_ncol ggplot facet ncol parameter
 #' @param facet_nrow ggplot facet nrow parameter
 #' @param colors vector with 2 colors to represent respectively all and selected cells
-#' @param show_plot show plot
+#' @param show_plot show plots
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot barplot
 #' @details Give more details ...
 #' @export
@@ -1832,7 +1836,11 @@ plotGTGscores <- function(GTGscore,
                           facet_ncol = length(selected_gene_to_gene),
                           facet_nrow = length(selected_interactions),
                           colors = c('blue', 'red'),
-                          show_plot = F) {
+                          show_plot = NA,
+                          return_plot = NA,
+                          save_plot = NA,
+                          save_param =  list(),
+                          default_save_name = 'plotGTGscores') {
 
   if(is.null(selected_interactions) | is.null(selected_gene_to_gene)) {
     stop('\n You need to provide a selection of cell-cell interactions and genes-genes to plot \n')
@@ -1904,8 +1912,24 @@ plotGTGscores <- function(GTGscore,
     }
   }
 
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
   if(show_plot == TRUE) {
     print(pl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
   }
 
   return(pl)
