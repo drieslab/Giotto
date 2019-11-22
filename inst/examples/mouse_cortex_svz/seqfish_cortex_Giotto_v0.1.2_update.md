@@ -607,8 +607,6 @@ filter_CPGscores = filterCPGscores(CPGscore = CPGscores_wcox)
 
 </details>
 
- 
-
 ### 13\. double gene enrichment in cell neighborhood
 
 <details>

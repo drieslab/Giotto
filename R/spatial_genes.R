@@ -57,6 +57,12 @@ fish_function = function(x_to, x_from) {
 #' @description perform fisher exact test
 fish_function2 = function(A, B, C, D) {
 
+  # set NA's to 0
+  A = ifelse(is.na(A), 0, A)
+  B = ifelse(is.na(B), 0, B)
+  C = ifelse(is.na(C), 0, C)
+  D = ifelse(is.na(D), 0, D)
+
   fish_matrix = matrix(c(A, B, C, D), nrow = 2)
 
   fish_res = stats::fisher.test(fish_matrix)
@@ -835,6 +841,7 @@ showPattern2D <- function(gobject,
 #' @param top_pos_genes Top positively correlated genes.
 #' @param top_neg_genes Top negatively correlated genes.
 #' @param point_size size of points
+#' @param return_DT if TRUE, it will return the data.table used to generate the plots
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -851,6 +858,7 @@ showPatternGenes <- function(gobject,
                              top_pos_genes = 5,
                              top_neg_genes = 5,
                              point_size = 1,
+                             return_DT = FALSE,
                              show_plot = NA,
                              return_plot = NA,
                              save_plot = NA,
@@ -876,6 +884,11 @@ showPatternGenes <- function(gobject,
 
   subset = gene_cor_DT[c(1:top_neg_genes, (nrow(gene_cor_DT)-top_pos_genes):nrow(gene_cor_DT))]
   subset[, gene_ID := factor(gene_ID, gene_ID)]
+
+  ## return DT and make not plot ##
+  if(return_DT == TRUE) {
+    return(subset)
+  }
 
   pl <- ggplot()
   pl <- pl + ggplot2::theme_classic()
