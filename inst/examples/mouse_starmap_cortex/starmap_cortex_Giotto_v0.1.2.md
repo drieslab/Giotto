@@ -420,6 +420,12 @@ Spatial genes:
 
 ``` r
 my_spatial_genes = spatial_genes[1:16]$genes
+
+my_spatial_genes
+ [1] "Flt1"    "Mbp"     "Pcp4"    "Plcxd2"  "Cux2"    "Gja1"    "Ctgf"   
+ [8] "Egr1"    "Cck"     "Slc17a7" "Ctss"    "Egr2"    "Sst"     "Reln"   
+[15] "Rorb"    "Rasgrf2"
+
 showClusterHeatmap(gobject = STAR_test, cluster_column = 'cell_types', genes = my_spatial_genes)
 
 # do HMRF with different betas
@@ -434,22 +440,22 @@ HMRF_spatial_genes = doHMRF(gobject = STAR_test, expression_values = 'normalized
 ## add HMRF of interest to giotto object
 STAR_test = addHMRF(gobject = STAR_test,
                    HMRFoutput = HMRF_spatial_genes,
-                   k = 10, betas_to_add = c(0, 0.5, 1),
+                   k = 10, betas_to_add = c(0, 0.5, 1, 1.5, 2.0),
                    hmrf_name = 'HMRF')
 
 ## visualize
 # b = 0, no information from cell neighbors
-visPlot(gobject = STAR_test, cell_color = 'HMRF_k10_b.0', point_size = 1.5)
+visPlot(gobject = STAR_test, cell_color = 'HMRF_k10_b.0', point_size = 1)
 
-# b = 0.5
-visPlot(gobject = STAR_test, cell_color = 'HMRF_k10_b.0.5', point_size = 1.5)
+# b = 1.5
+visPlot(gobject = STAR_test, cell_color = 'HMRF_k10_b.1.5', point_size = 1)
 ```
 
 Without information from neighboring cells, b = 0:  
-![](./figures/10_hmrf_b0.png)
+![](./figures/10.starmap.k10.b0.png)
 
-b = 0.5:  
-![](./figures/10_hmrf_b0.5.png)
+b = 1.5:  
+![](./figures/10.starmap.k10.b1.5.png)
 
 -----
 
