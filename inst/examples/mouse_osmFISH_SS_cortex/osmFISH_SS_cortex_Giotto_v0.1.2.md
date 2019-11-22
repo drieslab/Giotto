@@ -449,6 +449,13 @@ Spatial genes:
 ``` r
 my_spatial_genes = spatial_genes[1:20]$genes
 
+my_spatial_genes
+
+ [1] "Rorb"    "Syt6"    "Gfap"    "Lamp5"   "Plp1"    "Sox10"   "Cpne5"  
+ [8] "Kcnip2"  "Foxj1"   "Tbr1"    "Cnr1"    "Slc32a1" "Hexb"    "Itpr2"  
+[15] "Ttr"     "Anln"    "Ctps"    "Gad2"    "Mfge8"   "Flt1"
+
+
 # do HMRF with different betas
 HMRF_spatial_genes = doHMRF(gobject = osm_test, expression_values = 'normalized',
                             spatial_genes = my_spatial_genes,
@@ -462,29 +469,34 @@ HMRF_spatial_genes = doHMRF(gobject = osm_test, expression_values = 'normalized'
 viewHMRFresults(gobject = osm_test,
                   HMRFoutput = HMRF_spatial_genes,
                   k = 10, betas_to_view = seq(0, 5, by = 0.5),
-                  point_size = 2)
+                  point_size = 1)
 
 ## add HMRF result of interest to giotto object
 osm_test = addHMRF(gobject = osm_test,
                   HMRFoutput = HMRF_spatial_genes,
-                  k = 10, betas_to_add = c(0, 0.5),
+                  k = 10, betas_to_add = c(0, 0.5, 1.0, 1.5, 2.0),
                   hmrf_name = 'HMRF')
 
 ## visualize
 # b = 0, no information from cell neighbors
-spatPlot2D(gobject = osm_test, cell_color = 'HMRF_k10_b.0', point_size = 3,
+spatPlot2D(gobject = osm_test, cell_color = 'HMRF_k10_b.0', point_size = 1,
            save_param = c(save_name = 'HMRF_k10_b.0', save_folder = '11_HMRF'))
-
-# b = 0.5
-spatPlot2D(gobject = osm_test, cell_color = 'HMRF_k10_b.0.5', point_size = 3,
-           save_param = c(save_name = 'HMRF_k10_b.0.5', save_folder = '11_HMRF'))
 ```
 
 Without information from neighboring cells, b = 0:  
-![](./figures/10_final_hmrf_b0.png)
+![](./figures/10.osmfish.beta0.png)
 
-b = 0.5:  
-![](./figures/10_final_hmrf_b0.5.png)
+
+
+```
+# b = 1.0
+spatPlot2D(gobject = osm_test, cell_color = 'HMRF_k10_b.1.0', point_size = 1,
+           save_param = c(save_name = 'HMRF_k10_b.1.0', save_folder = '11_HMRF'))
+```
+
+
+b = 1.0:  
+![](./figures/10.osmfish.beta1.png)
 
 -----
 
