@@ -138,14 +138,19 @@ general_save_function = function(gobject,
                                  units = NULL,
                                  dpi = NULL,
                                  ...) {
-
-
-  save_format = match.arg(save_format, choices = c('png', 'tiff', 'pdf', 'svg'))
-
+  
+  
+  
+  
   if(is.null(plot_object)) {
     stop('\t there is no object to plot \t')
   }
-
+  save_format = match.arg(save_format, choices = c('png', 'tiff', 'pdf', 'svg'))
+  
+  if(any('plotly' %in% class(plot_object)) == TRUE){
+    save_format = "html"
+  }
+  
   ## get save information and set defaults
   if(is.null(save_dir)) save_dir = readGiottoInstructions(gobject, param = 'save_dir')
   if(is.null(save_folder)) save_folder = NULL
@@ -156,62 +161,65 @@ general_save_function = function(gobject,
   if(is.null(base_height)) base_height = readGiottoInstructions(gobject, param = 'height')
   if(is.null(base_aspect_ratio)) base_aspect_ratio = 1.1
   if(is.null(units)) units = 'px'
-
+  
   ## checking
   dpi = as.numeric(dpi)
   base_width = as.numeric(base_width)
   base_height = as.numeric(base_height)
   base_aspect_ratio = as.numeric(base_aspect_ratio)
-
+  
   # create saving location
   file_location = paste0(save_dir,'/', save_folder)
   if(!file.exists(file_location)) dir.create(file_location, recursive = T)
   file_name = paste0(save_name, ".", save_format)
   full_location = paste0(file_location,'/', file_name)
-
-
-
-  if(save_format == 'png') {
-    grDevices::png(filename = full_location, width = base_width, height = base_height, res = dpi, units = units, ...)
-    print(plot_object)
-    grDevices::dev.off()
+  
+  if(any('plotly' %in% class(plot_object)) == TRUE){
+    htmlwidgets::saveWidget(plotly::as_widget(plot_object), file = full_location)
   }
-
-  if(save_format == 'tiff') {
-    grDevices::tiff(filename = full_location, width = base_width, height = base_height, units = units, ...)
-    print(plot_object)
-    grDevices::dev.off()
-  }
-
-  if(save_format == 'pdf') {
-    grDevices::pdf(file = full_location, width = base_width, height = base_height, useDingbats = F, ...)
-    print(plot_object)
-    grDevices::dev.off()
-  }
-
-  if(save_format == 'svg') {
-    grDevices::svg(filename = full_location, width = base_width, height = base_height, ...)
-    print(plot_object)
-    grDevices::dev.off()
-  }
-
-
-  # show saved plot if requested
-  if(show_saved_plot == TRUE) {
-
+  
+  else{
     if(save_format == 'png') {
-      img <- png::readPNG(source = full_location)
-      grid::grid.raster(img)
-    } else if(save_format == 'tiff') {
-      img <- tiff::readTIFF(source =  full_location)
-      grid::grid.raster(img)
-    } else {
-      cat('\t only png & tiff are currently supported \t')
+      grDevices::png(filename = full_location, width = base_width, height = base_height, res = dpi, units = units, ...)
+      print(plot_object)
+      grDevices::dev.off()
+    }
+    
+    if(save_format == 'tiff') {
+      grDevices::tiff(filename = full_location, width = base_width, height = base_height, units = units, ...)
+      print(plot_object)
+      grDevices::dev.off()
+    }
+    
+    if(save_format == 'pdf') {
+      grDevices::pdf(file = full_location, width = base_width, height = base_height, useDingbats = F, ...)
+      print(plot_object)
+      grDevices::dev.off()
+    }
+    
+    if(save_format == 'svg') {
+      grDevices::svg(filename = full_location, width = base_width, height = base_height, ...)
+      print(plot_object)
+      grDevices::dev.off()
+    }
+    
+    
+    # show saved plot if requested
+    if(show_saved_plot == TRUE) {
+      
+      if(save_format == 'png') {
+        img <- png::readPNG(source = full_location)
+        grid::grid.raster(img)
+      } else if(save_format == 'tiff') {
+        img <- tiff::readTIFF(source =  full_location)
+        grid::grid.raster(img)
+      } else {
+        cat('\t only png & tiff are currently supported \t')
+      }
     }
   }
-
+  
 }
-
 
 #' @title all_plots_save_function
 #' @name all_plots_save_function

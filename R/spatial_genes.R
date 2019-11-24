@@ -831,6 +831,122 @@ showPattern2D <- function(gobject,
 }
 
 
+#' @title showPattern3D
+#' @name showPattern3D
+#' @description show patterns for 3D spatial data
+#' @param gobject giotto object
+#' @param spatPatObj Output from detectSpatialPatterns
+#' @param dimension dimension to plot
+#' @param trim Trim ends of the PC values.
+#' @param background_color background color for plot
+#' @param grid_border_color color for grid
+#' @param show_legend show legend of plot
+#' @param point_size adjust the point size
+#' @param axis_scale scale the axis
+#' @param custom_ratio cutomize the scale of the axis
+#' @param x_ticks the tick number of x_axis
+#' @param y_ticks the tick number of y_axis
+#' @param z_ticks the tick number of z_axis
+#' @param show_plot show plot
+#' @param return_plot return plot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return plotly
+#' @details Description.
+#' @export
+#' @examples
+#'     showPattern3D(gobject)
+showPattern3D <- function(gobject,
+                          spatPatObj,
+                          dimension = 1,
+                          trim = c(0.02, 0.98),
+                          background_color = 'white',
+                          grid_border_color = 'grey',
+                          show_legend = T,
+                          point_size = 1,
+                          axis_scale = c("cube","real","custom"),
+                          custom_ratio = NULL,
+                          x_ticks = NULL,
+                          y_ticks = NULL,
+                          z_ticks = NULL,
+                          show_plot = NA,
+                          return_plot = NA,
+                          save_plot = NA,
+                          save_param =  list(),
+                          default_save_name = 'showPattern3D') {
+  
+  if(!'spatPatObj' %in% class(spatPatObj)) {
+    stop('\n spatPatObj needs to be the output from detectSpatialPatterns \n')
+  }
+  
+  # select PC and subset data
+  selected_PC = paste0('Dim.', dimension)
+  PC_DT = spatPatObj$pca_matrix_DT
+  if(!selected_PC %in% colnames(PC_DT)) {
+    stop('\n This dimension was not found in the spatial pattern object \n')
+  }
+  PC_DT = PC_DT[,c(selected_PC, 'loc_ID'), with = F]
+  
+  # annotate grid with PC values
+  annotated_grid = merge(spatPatObj$spatial_grid, by.x = 'gr_name', PC_DT, by.y = 'loc_ID')
+  
+  # trim PC values
+  if(!is.null(trim)) {
+    boundaries = stats::quantile(annotated_grid[[selected_PC]], probs = trim)
+    annotated_grid[[selected_PC]][annotated_grid[[selected_PC]] < boundaries[1]] = boundaries[1]
+    annotated_grid[[selected_PC]][annotated_grid[[selected_PC]] > boundaries[2]] = boundaries[2]
+    
+  }
+  
+  
+  annotated_grid <- data.table(annotated_grid)
+  annotated_grid[,center_x:=(x_start+x_end)/2]
+  annotated_grid[,center_y:=(y_start+y_end)/2]
+  annotated_grid[,center_z:=(z_start+z_end)/2]
+  
+  
+  axis_scale = match.arg(axis_scale, c("cube","real","custom"))
+  
+  ratio = plotly_axis_scale_3D(annotated_grid,sdimx = "center_x",sdimy = "center_y",sdimz = "center_z",
+                               mode = axis_scale,custom_ratio = custom_ratio)
+  
+  dpl <- plotly::plot_ly(type = 'scatter3d',
+                         x = annotated_grid$center_x, y = annotated_grid$center_y, z = annotated_grid$center_z,
+                         color = annotated_grid[[selected_PC]],marker = list(size = point_size),
+                         mode = 'markers', colors = c( 'darkblue','white','darkred'))
+  dpl <- dpl %>% plotly::layout(scene = list(
+    xaxis = list(title = "X",nticks = x_ticks),
+    yaxis = list(title = "Y",nticks = y_ticks),
+    zaxis = list(title = "Z",nticks = z_ticks),
+    aspectmode='manual',
+    aspectratio = list(x=ratio[[1]],
+                       y=ratio[[2]],
+                       z=ratio[[3]])))
+  dpl <- dpl %>% plotly::colorbar(title = paste(paste("dim.",dimension,sep = ""),"genes", sep = " "))
+  
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+  
+  ## print plot
+  if(show_plot == TRUE) {
+    print(dpl)
+  }
+  
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = dpl, default_save_name = default_save_name), save_param))
+  }
+  
+  ## return plot
+  if(return_plot == TRUE) {
+    return(dpl)
+  }
+  
+}
+
 
 #' @title showPatternGenes
 #' @name showPatternGenes
