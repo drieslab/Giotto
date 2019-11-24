@@ -43,6 +43,8 @@ all_plots_save_function(gobject, plot_object, save_dir = NULL,
 \item{dpi}{Plot resolution}
 
 \item{limitsize}{When TRUE (the default), ggsave will not save images larger than 50x50 inches, to prevent the common error of specifying dimensions in pixels.}
+
+\item{...}{additional parameters to ggplot_save_function or general_save_function}
 }
 \description{
 Function to automatically save plots to directory of interest

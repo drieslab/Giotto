@@ -4,10 +4,15 @@
 \alias{plotUMAP_2D}
 \title{plotUMAP_2D}
 \usage{
-plotUMAP_2D(gobject, ...)
+plotUMAP_2D(gobject, dim_reduction_name = "umap",
+  default_save_name = "UMAP_2D", ...)
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{dim_reduction_name}{name of umap reduction to use, default = 'umap'}
+
+\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
 \item{dim1_to_use}{dimension to use on x-axis}
 
@@ -54,8 +59,6 @@ plotUMAP_2D(gobject, ...)
 \item{save_plot}{directly save the plot [boolean]}
 
 \item{save_param}{list of saving parameters from all_plots_save_function()}
-
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }
 \value{
 ggplot

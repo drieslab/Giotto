@@ -41,6 +41,8 @@ spatDimPlot2D(gobject, plot_alignment = c("vertical", "horizontal"),
 
 \item{sdimx}{= spatial dimension to use on x-axis}
 
+\item{sdimy}{= spatial dimension to use on y-axis}
+
 \item{show_NN_network}{show underlying NN network}
 
 \item{nn_network_to_use}{type of NN network to use (kNN vs sNN)}
@@ -118,8 +120,6 @@ spatDimPlot2D(gobject, plot_alignment = c("vertical", "horizontal"),
 \item{save_param}{list of saving parameters from all_plots_save_function()}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-
-\item{sdimxy}{= spatial dimension to use on y-axis}
 }
 \value{
 ggplot

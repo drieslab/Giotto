@@ -4,10 +4,15 @@
 \alias{plotTSNE_2D}
 \title{plotTSNE_2D}
 \usage{
-plotTSNE_2D(gobject, ...)
+plotTSNE_2D(gobject, dim_reduction_name = "tsne",
+  default_save_name = "tSNE_2D", ...)
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{dim_reduction_name}{name of tsne reduction to use, default = 'tsne'}
+
+\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
 \item{dim1_to_use}{dimension to use on x-axis}
 
@@ -54,8 +59,6 @@ plotTSNE_2D(gobject, ...)
 \item{save_plot}{directly save the plot [boolean]}
 
 \item{save_param}{list of saving parameters from all_plots_save_function()}
-
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }
 \value{
 ggplot

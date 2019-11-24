@@ -6,11 +6,14 @@
 \usage{
 visDimPlot_3D_plotly(gobject, dim_reduction_to_use = "umap",
   dim_reduction_name = "umap", dim1_to_use = 1, dim2_to_use = 2,
-  dim3_to_use = 3, show_NN_network = F, nn_network_to_use = "sNN",
-  network_name = "sNN.pca", cell_color = NULL, color_as_factor = T,
-  cell_color_code = NULL, show_cluster_center = F,
-  show_center_label = T, center_point_size = 4, label_size = 4,
-  edge_alpha = NULL, point_size = 1, show_legend = T)
+  dim3_to_use = 3, select_cell_groups = NULL, select_cells = NULL,
+  show_other_cells = T, other_cell_color = "lightgrey",
+  other_point_size = 0.5, show_NN_network = F,
+  nn_network_to_use = "sNN", network_name = "sNN.pca",
+  color_as_factor = T, cell_color = NULL, cell_color_code = NULL,
+  show_cluster_center = F, show_center_label = T,
+  center_point_size = 4, label_size = 4, edge_alpha = NULL,
+  point_size = 1)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -31,9 +34,9 @@ visDimPlot_3D_plotly(gobject, dim_reduction_to_use = "umap",
 
 \item{network_name}{name of NN network to use, if show_NN_network = TRUE}
 
-\item{cell_color}{color for cells (see details)}
-
 \item{color_as_factor}{convert color column to factor}
+
+\item{cell_color}{color for cells (see details)}
 
 \item{cell_color_code}{named vector with colors}
 
@@ -48,8 +51,6 @@ visDimPlot_3D_plotly(gobject, dim_reduction_to_use = "umap",
 \item{edge_alpha}{column to use for alpha of the edges}
 
 \item{point_size}{size of point (cell)}
-
-\item{show_legend}{show legend}
 }
 \value{
 plotly

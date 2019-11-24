@@ -4,10 +4,15 @@
 \alias{plotPCA_2D}
 \title{plotPCA_2D}
 \usage{
-plotPCA_2D(gobject, ...)
+plotPCA_2D(gobject, dim_reduction_name = "pca",
+  default_save_name = "PCA_2D", ...)
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{dim_reduction_name}{name of pca reduction to use, default = 'pca'}
+
+\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
 \item{dim1_to_use}{dimension to use on x-axis}
 
@@ -54,8 +59,6 @@ plotPCA_2D(gobject, ...)
 \item{save_plot}{directly save the plot [boolean]}
 
 \item{save_param}{list of saving parameters from all_plots_save_function()}
-
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }
 \value{
 ggplot
