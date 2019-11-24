@@ -1,4 +1,12 @@
 
+#' @title aes_string2
+#' @name aes_string2
+#' @description makes sure aes_string can also be used with names that start with numeric values
+aes_string2 <- function(...){
+  args <- lapply(list(...), function(x) sprintf("`%s`", x))
+  do.call(aes_string, args)
+}
+
 #' @title ggplot_save_function
 #' @name ggplot_save_function
 #' @description Function to automatically save plots to directory of interest

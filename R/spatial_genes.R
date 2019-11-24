@@ -880,7 +880,7 @@ showPatternGenes <- function(gobject,
   gene_cor_DT = gene_cor_DT[,c(selected_PC, 'gene_ID'), with = F]
 
   # order and subset
-  gene_cor_DT = gene_cor_DT[order(get(selected_PC))]
+  gene_cor_DT = gene_cor_DT[!is.na(get(selected_PC))][order(get(selected_PC))]
 
   subset = gene_cor_DT[c(1:top_neg_genes, (nrow(gene_cor_DT)-top_pos_genes):nrow(gene_cor_DT))]
   subset[, gene_ID := factor(gene_ID, gene_ID)]
@@ -939,7 +939,8 @@ selectPatternGenes <- function(spatPatObj,
                                top_pos_genes = 10,
                                top_neg_genes = 10,
                                min_pos_cor = 0.5,
-                               min_neg_cor = -0.5) {
+                               min_neg_cor = -0.5,
+                               return_top_selection = FALSE) {
 
 
   if(!'spatPatObj' %in% class(spatPatObj)) {
@@ -964,6 +965,11 @@ selectPatternGenes <- function(spatPatObj,
   # filter on min correlation
   selection = selection[value > min_pos_cor | value < min_neg_cor]
 
+  # return all the top correlated genes + information
+  if(return_top_selection == TRUE) {
+    return(selection)
+  }
+
   # remove duplicated genes by only retaining the most correlated dimension
   selection[, topvalue := max(abs(value)), by = 'gene_ID']
   uniq_selection = selection[value == topvalue]
@@ -972,7 +978,6 @@ selectPatternGenes <- function(spatPatObj,
   output_selection = uniq_selection[,.(gene_ID, variable)]
   other_genes = gene_cor_DT[!gene_ID %in% output_selection$gene_ID][['gene_ID']]
   other_genes_DT = data.table::data.table(gene_ID = other_genes, variable = 'noDim')
-
 
   comb_output_genes = rbind(output_selection, other_genes_DT)
   setnames(comb_output_genes, 'variable', 'patDim')
