@@ -16,12 +16,38 @@ normalization, dimension reduction, clustering and cell type annotation.
 Next, it incorporates spatial information through the formation of a
 spatial grid and a spatial proximity network, which will be used in
 subsequent analyses to identify spatial genes or patterns, cell-cell
-preferential interactions and ligand-receptor signaling. Simultaneously
-this package contains the data that was used in the recent
+preferential interactions and ligand-receptor signaling. Furthermore,
+the outcome of Giotto can be interactivily explored using [Giotto
+Viewer](http://spatial.rc.fas.harvard.edu/giotto-viewer/), which allows
+you to overlay the obtained results with raw or additional images of the
+profiled tissue section(s). Simultaneously this package contains the
+data that was used in the recent
 [**seqFISH+**](https://www.nature.com/articles/s41586-019-1049-y) paper
 and can thus be used to explore or re-analyze this dataset.
 
  
+
+## Latest News
+
+  - Updated support for 3D spatial data (**NEW**)
+  - Added support for using global instructions and automatic plot
+    saving option (**NEW**)
+  - Implemented [SpatialDE](https://github.com/Teichlab/SpatialDE)
+  - Add wrapper for differential expression with
+    [MAST](https://github.com/RGLab/MAST)
+  - New example with 3D spatial data
+    [STARmap](https://science.sciencemag.org/content/361/6400/eaat5691)
+  - New example with the highly sensitive data from
+    [osmFISH](https://www.nature.com/articles/s41592-018-0175-z)
+  - New example on the Cerebellum with the scalable data from
+    [Slideseq](https://science.sciencemag.org/content/363/6434/1463)
+  - New example on mouse olfactory bulb using immobilized primers on
+    glass slides from [Spatial
+    Transcriptomics](https://science.sciencemag.org/content/353/6294/78)
+  - Updated seqFISH+ cortex example (**NEW**)
+  - Updated STARmap cortex example (**NEW**)
+  - New examples for merFISH (3D), MIBI (multiple patient tumor samples)
+    and others will follow soon.  
 
 ## Requirements
 
@@ -62,7 +88,8 @@ Required python modules:
 \- leidenalg  
 \- community
 
-Conda installation:
+Conda installation:  
+If conda install does not work, try ‘pip’
 
 ``` python
 # pandas:
@@ -113,25 +140,6 @@ Transcriptomics](./inst/images/SpatTx_OB_image_summary.png)](./inst/examples/mou
 \[![merFISH](./inst/images/merFISH_hypothalam_image_summary.png)\]
 
  
-
-## Latest News
-
-  - Release of v.0.1.2
-  - Add support for 3D spatial data
-  - Implemented [SpatialDE](https://github.com/Teichlab/SpatialDE)
-  - Add wrapper for differential expression with
-    [MAST](https://github.com/RGLab/MAST)
-  - New example with 3D spatial data
-    [STARmap](https://science.sciencemag.org/content/361/6400/eaat5691)
-  - New example with the highly sensitive data from
-    [osmFISH](https://www.nature.com/articles/s41592-018-0175-z)
-  - New example on the Cerebellum with the scalable data from
-    [Slideseq](https://science.sciencemag.org/content/363/6434/1463)
-  - Updated osmFISH example by using global instructions to
-    automatically save all generated plots (**NEW**)
-  - Updated seqFISH+ cortex example (**NEW**)
-  - New examples for merFISH, Spatial Transcriptomics, MIBI and others
-    will follow soon.  
 
 ## FAQ
 
