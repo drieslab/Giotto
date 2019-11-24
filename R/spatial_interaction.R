@@ -653,8 +653,8 @@ getCellProximityGeneScores = function(gobject,
 
 
 
-#' @title getGeneToGeneSelection
-#' @name getGeneToGeneSelection
+#' @title getGeneToGeneScores
+#' @name getGeneToGeneScores
 #' @description Compute gene-gene enrichment scores.
 #' @param CPGscore CPGscore, output from getCellProximityGeneScores()
 #' @param selected_genes select subset of genes
@@ -671,18 +671,18 @@ getCellProximityGeneScores = function(gobject,
 #' @details Give more details ...
 #' @export
 #' @examples
-#'     getGeneToGeneSelection(CPGscore)
-getGeneToGeneSelection <- function(CPGscore,
-                                   selected_genes = NULL,
-                                   specific_genes_1 = NULL,
-                                   specific_genes_2 = NULL,
-                                   min_cells = 5,
-                                   min_pval = 0.05,
-                                   min_spat_diff = 0.2,
-                                   min_log2_fc = 0.5,
-                                   direction = c('both', 'up', 'down'),
-                                   fold_change_addendum = 0.1,
-                                   verbose = TRUE) {
+#'     getGeneToGeneScores(CPGscore)
+getGeneToGeneScores <- function(CPGscore,
+                                selected_genes = NULL,
+                                specific_genes_1 = NULL,
+                                specific_genes_2 = NULL,
+                                min_cells = 5,
+                                min_fdr = 0.05,
+                                min_spat_diff = 0.2,
+                                min_log2_fc = 0.5,
+                                direction = c('both', 'up', 'down'),
+                                fold_change_addendum = 0.1,
+                                verbose = TRUE) {
 
 
   direction = match.arg(direction, choices = c('both', 'up', 'down'))
@@ -690,9 +690,9 @@ getGeneToGeneSelection <- function(CPGscore,
   # remove redundant data
   unif_gene_scores = CPGscore[unif_int_rank == 1]
 
-  # make sure p-value are numeric
-  unif_gene_scores[, pval_1 := as.numeric(pval_1)]
-  unif_gene_scores[, pval_2 := as.numeric(pval_2)]
+  # make sure fdr's are numeric
+  unif_gene_scores[, fdr_1 := as.numeric(fdr_1)]
+  unif_gene_scores[, fdr_2 := as.numeric(fdr_2)]
 
   ## first filtering CPGscores
   if((!is.null(specific_genes_1) & !is.null(specific_genes_2))) {
@@ -710,12 +710,11 @@ getGeneToGeneSelection <- function(CPGscore,
 
 
   # second filtering
-  all_ints_selection = unif_gene_scores[(pval_1 <= min_pval & nr_1 >= min_cells & abs(diff_spat_1) >= min_spat_diff & abs(log2fc_spat_1) >= min_log2_fc) |
-                                          (pval_2 <= min_pval & nr_2 >= min_cells & abs(diff_spat_2) >= min_spat_diff  & abs(log2fc_spat_2) >= min_log2_fc)]
+  all_ints_selection = unif_gene_scores[(fdr_1 <= min_fdr & nr_1 >= min_cells & abs(diff_spat_1) >= min_spat_diff & abs(log2fc_spat_1) >= min_log2_fc) |
+                                          (fdr_2 <= min_fdr & nr_2 >= min_cells & abs(diff_spat_2) >= min_spat_diff  & abs(log2fc_spat_2) >= min_log2_fc)]
 
   unif_gene_scores = all_ints_selection
   all_ints = unique(all_ints_selection[['unified_int']])
-
 
   savelist = list()
 
@@ -728,39 +727,40 @@ getGeneToGeneSelection <- function(CPGscore,
     }
 
     # cell types
-    sel_type_1 = strsplit(x = sel_int, split = '-')[[1]][1]
-    sel_type_2 = strsplit(x = sel_int, split = '-')[[1]][2]
+    sel_type_1 = strsplit(x = sel_int, split = '--')[[1]][1]
+    sel_type_2 = strsplit(x = sel_int, split = '--')[[1]][2]
 
     # subsets of the data
-    subset_type_1 = unif_gene_scores[cell_type_1 == sel_type_1][(pval_1 <= min_pval & nr_1 >= min_cells & abs(diff_spat_1) >= min_spat_diff & abs(log2fc_spat_1) >= min_log2_fc)][cell_type_2 == sel_type_2]
-    subset_type_2 = unif_gene_scores[cell_type_2 == sel_type_2][(pval_2 <= min_pval & nr_2 >= min_cells & abs(diff_spat_2) >= min_spat_diff & abs(log2fc_spat_2) >= min_log2_fc)][cell_type_1 == sel_type_1]
+    subset_type_1 = unif_gene_scores[cell_type_1 == sel_type_1][(fdr_1 <= min_fdr & nr_1 >= min_cells & abs(diff_spat_1) >= min_spat_diff & abs(log2fc_spat_1) >= min_log2_fc)][cell_type_2 == sel_type_2]
+    subset_type_2 = unif_gene_scores[cell_type_2 == sel_type_2][(fdr_2 <= min_fdr & nr_2 >= min_cells & abs(diff_spat_2) >= min_spat_diff & abs(log2fc_spat_2) >= min_log2_fc)][cell_type_1 == sel_type_1]
 
-    subset_type_1 = subset_type_1[,.(genes, cell_type_1, nr_1, cell_expr_1, all_nr_1, all_cell_expr_1, pval_1, diff_spat_1, log2fc_spat_1, unified_int)]
+    subset_type_1 = subset_type_1[,.(genes, cell_type_1, nr_1, cell_expr_1, all_nr_1, all_cell_expr_1, fdr_1, diff_spat_1, log2fc_spat_1, unified_int)]
     setnames(subset_type_1, 'genes', 'genes_1')
-    subset_type_2 = subset_type_2[,.(genes, cell_type_2, nr_2, cell_expr_2, all_nr_2, all_cell_expr_2, pval_2, diff_spat_2, log2fc_spat_2, unified_int)]
+    subset_type_2 = subset_type_2[,.(genes, cell_type_2, nr_2, cell_expr_2, all_nr_2, all_cell_expr_2, fdr_2, diff_spat_2, log2fc_spat_2, unified_int)]
     setnames(subset_type_2, 'genes', 'genes_2')
 
     # merge data again
     mergetest = merge(subset_type_1, subset_type_2, by = 'unified_int', allow.cartesian = T)
 
-
     if(nrow(mergetest) > 0) {
 
+
       # create additional columns
-      mergetest[, gene_gene := paste0(genes_1,'-',genes_2), by = 1:nrow(mergetest)]
-      #mergetest[, unif_gene_gene := paste(sort(c(genes_1, genes_2)), collapse = '-'), by = 1:nrow(mergetest)]
+      mergetest[, gene_gene := paste0(genes_1,'--',genes_2), by = 1:nrow(mergetest)]
 
       # only keep specific combinations
       if((!is.null(specific_genes_1) & !is.null(specific_genes_2))) {
 
-        LR_combo = paste0(specific_genes_1,'-', specific_genes_2)
-        RL_combo = paste0(specific_genes_2,'-', specific_genes_1)
+        LR_combo = paste0(specific_genes_1,'--', specific_genes_2)
+        RL_combo = paste0(specific_genes_2,'--', specific_genes_1)
         mergetest = mergetest[gene_gene %in% c(LR_combo, RL_combo)]
+
       }
 
-      mergetest[, unif_gene_gene := paste(sort(c(genes_1, genes_2)), collapse = '-'), by = 1:nrow(mergetest)]
-
-      savelist[[cell_int]] = mergetest
+      if(nrow(mergetest) > 0) {
+        mergetest[, unif_gene_gene := paste(sort(c(genes_1, genes_2)), collapse = '--'), by = 1:nrow(mergetest)]
+        savelist[[cell_int]] = mergetest
+      }
     }
 
 
@@ -777,15 +777,22 @@ getGeneToGeneSelection <- function(CPGscore,
   finalres = finalres[type_int == 'hetero' | (type_int == 'homo' & unif_gene_gene_int == 1)]
 
 
+  changeCols = c('cell_expr_1', 'cell_expr_2',
+                 'all_cell_expr_1' , 'all_cell_expr_2',
+                 'diff_spat_1', 'diff_spat_2',
+                 'log2fc_spat_1', 'log2fc_spat_2',
+                 'fdr_1', 'fdr_2')
+  finalres[,(changeCols):= lapply(.SD, as.numeric), .SDcols = changeCols]
 
   if(direction == 'both') {
-    finalres = finalres
+    finalres = finalres[(fdr_1 <= min_fdr & nr_1 >= min_cells & abs(diff_spat_1) >= min_spat_diff & abs(log2fc_spat_1) >= min_log2_fc) &
+                          (fdr_2 <= min_fdr & nr_2 >= min_cells & abs(diff_spat_2) >= min_spat_diff  & abs(log2fc_spat_2) >= min_log2_fc)]
   } else if(direction == 'up') {
-    finalres = finalres[(pval_1 <= min_pval & nr_1 >= min_cells & diff_spat_1 >= min_spat_diff & log2fc_spat_1 >= min_log2_fc) &
-                          (pval_2 <= min_pval & nr_2 >= min_cells & diff_spat_2 >= min_spat_diff  & log2fc_spat_2 >= min_log2_fc)]
+    finalres = finalres[(fdr_1 <= min_fdr & nr_1 >= min_cells & diff_spat_1 >= min_spat_diff & log2fc_spat_1 >= min_log2_fc) &
+                          (fdr_2 <= min_fdr & nr_2 >= min_cells & diff_spat_2 >= min_spat_diff  & log2fc_spat_2 >= min_log2_fc)]
   } else if(direction == 'down') {
-    finalres = finalres[(pval_1 <= min_pval & nr_1 >= min_cells & diff_spat_1 <= -min_spat_diff & log2fc_spat_1 <= -min_log2_fc) &
-                          (pval_2 <= min_pval & nr_2 >= min_cells & diff_spat_2 <= -min_spat_diff  & log2fc_spat_2 <= -min_log2_fc)]
+    finalres = finalres[(fdr_1 <= min_fdr & nr_1 >= min_cells & diff_spat_1 <= -min_spat_diff & log2fc_spat_1 <= -min_log2_fc) &
+                          (fdr_2 <= min_fdr & nr_2 >= min_cells & diff_spat_2 <= -min_spat_diff  & log2fc_spat_2 <= -min_log2_fc)]
   }
 
 
@@ -798,15 +805,16 @@ getGeneToGeneSelection <- function(CPGscore,
   finalres[, spatial_cell_rank := rank(-spatial_cell_expr), by = unif_gene_gene]
 
   change_values = unlist(apply(finalres, MARGIN = 1, FUN = function(x) {
-    direction_test(x, min_pval = min_pval)
+    Giotto:::direction_test(x, min_fdr = min_fdr)
   }))
   finalres[, change := change_values]
+
+  data.table::setorder(finalres, -log2fc_spatial_expr)
 
   return(finalres)
 
 
 }
-
 
 
 

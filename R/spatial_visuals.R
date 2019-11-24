@@ -5157,12 +5157,11 @@ plot_point_layer_ggplot = function(ggobject,
   if((!is.null(select_cells) | !is.null(select_cell_groups)) & show_other_cells == TRUE) {
 
     dims = grep('Dim.', colnames(annotated_DT_other), value = T)
-
     pl <- pl + ggplot2::geom_point(data = annotated_DT_other, aes_string(x = dims[1], dims[2]),
                                    color = other_cell_color, show.legend = F, size = other_point_size)
 
-
   }
+
 
 
 
@@ -5244,6 +5243,12 @@ plot_point_layer_ggplot = function(ggobject,
                                    size = point_size,
                                    color = point_border_col, stroke = point_border_stroke)
   }
+
+
+
+
+
+
 
   return(pl)
 
@@ -6228,12 +6233,13 @@ spatGenePlot2D <- function(gobject,
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
 
-  selected_genes = genes
+
 
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
 
   # only keep genes that are in the dataset
+  selected_genes = genes
   selected_genes = selected_genes[selected_genes %in% rownames(expr_values) ]
 
   # get selected gene expression values in data.table format
@@ -6307,13 +6313,13 @@ spatGenePlot2D <- function(gobject,
 
 
     if(scale_alpha_with_expression == TRUE) {
-      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes, aes_string(x = 'sdimx', y = 'sdimy',
+      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes, aes_string2(x = 'sdimx', y = 'sdimy',
                                                                                       fill = gene, alpha = gene),
                                      shape = 21,
                                      color = point_border_col, size = point_size, stroke = point_border_stroke,
                                      show.legend = show_legend)
     } else {
-      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes, aes_string(x = 'sdimx', y = 'sdimy',
+      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes, aes_string2(x = 'sdimx', y = 'sdimy',
                                                                                       fill = gene),
                                      shape = 21,
                                      color = point_border_col, size = point_size, stroke = point_border_stroke,
@@ -6534,11 +6540,11 @@ dimGenePlot2D <- function(gobject,
 
     } else {
       if(scale_alpha_with_expression == TRUE) {
-        pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string(x = dim_names[1], y = dim_names[2], fill = gene, alpha = gene),
+        pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string2(x = dim_names[1], y = dim_names[2], fill = gene, alpha = gene),
                                        show.legend = show_legend, shape = 21, size = point_size,
                                        color = point_border_col, stroke = point_border_stroke)
       } else {
-        pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string(x = dim_names[1], y = dim_names[2], fill = gene),
+        pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string2(x = dim_names[1], y = dim_names[2], fill = gene),
                                        show.legend = show_legend, shape = 21,
                                        size =  point_size,
                                        color = point_border_col, stroke = point_border_stroke)

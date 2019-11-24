@@ -97,13 +97,20 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation
   - see <https://github.com/RubD/spatial-datasets> to find raw and
     pre-processed input data and Giotto scripts (in progress).
   - typical run time for the cortex dataset on a personal computer is
-    around 20\~30 mins.
+    around 20\~30 mins.  
+  - click on the image and try them out yourself.
 
-[![Cortex](./inst/images/cortex_image_summary.png)](./inst/examples/mouse_cortex_svz/seqfish_cortex_Giotto_v0.1.2.md)
+[![Cortex](./inst/images/cortex_image_summary.png)](./inst/examples/mouse_cortex_svz/seqfish_cortex_Giotto_v0.1.2_update.md)
 [![STARmap](./inst/images/starmap_cortex_image_summary.png)](./inst/examples/mouse_starmap_cortex/starmap_cortex_Giotto_v0.1.2.md)
 
 [![osmFISH](./inst/images/osmFISH_SS_cortex_image_summary.png)](./inst/examples/mouse_osmFISH_SS_cortex/osmFISH_SS_cortex_Giotto_v0.1.2.md)
 [![slideseq](./inst/images/slideseq_cerebellum_image_summary.png)](./inst/examples/mouse_slideseq_cerebellum/slideseq_cerebellum_Giotto_v0.1.2.md)
+
+[![Spatial
+Transcriptomics](./inst/images/SpatTx_OB_image_summary.png)](./inst/examples/mouse_SpatTx_OB/mouse_SpatTx_OB_Giotto_v0.1.2.md)
+\[![MIBI-TOF](./inst/images/MIBI_tumor_image_summary.png)\]
+
+\[![merFISH](./inst/images/merFISH_hypothalam_image_summary.png)\]
 
  
 
@@ -122,6 +129,7 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation
     [Slideseq](https://science.sciencemag.org/content/363/6434/1463)
   - Updated osmFISH example by using global instructions to
     automatically save all generated plots (**NEW**)
+  - Updated seqFISH+ cortex example (**NEW**)
   - New examples for merFISH, Spatial Transcriptomics, MIBI and others
     will follow soon.  
 

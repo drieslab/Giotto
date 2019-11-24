@@ -5,9 +5,9 @@
 \title{showPatternGenes}
 \usage{
 showPatternGenes(gobject, spatPatObj, dimension = 1, top_pos_genes = 5,
-  top_neg_genes = 5, point_size = 1, show_plot = NA,
-  return_plot = NA, save_plot = NA, save_param = list(),
-  default_save_name = "showPatternGenes")
+  top_neg_genes = 5, point_size = 1, return_DT = FALSE,
+  show_plot = NA, return_plot = NA, save_plot = NA,
+  save_param = list(), default_save_name = "showPatternGenes")
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -21,6 +21,8 @@ showPatternGenes(gobject, spatPatObj, dimension = 1, top_pos_genes = 5,
 \item{top_neg_genes}{Top negatively correlated genes.}
 
 \item{point_size}{size of points}
+
+\item{return_DT}{if TRUE, it will return the data.table used to generate the plots}
 
 \item{show_plot}{show plot}
 

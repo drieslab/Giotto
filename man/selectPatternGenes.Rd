@@ -5,7 +5,8 @@
 \title{selectPatternGenes}
 \usage{
 selectPatternGenes(spatPatObj, dimensions = 1:5, top_pos_genes = 10,
-  top_neg_genes = 10, min_pos_cor = 0.5, min_neg_cor = -0.5)
+  top_neg_genes = 10, min_pos_cor = 0.5, min_neg_cor = -0.5,
+  return_top_selection = FALSE)
 }
 \arguments{
 \item{spatPatObj}{Output from detectSpatialPatterns}
