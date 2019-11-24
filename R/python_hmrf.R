@@ -569,3 +569,72 @@ viewHMRFresults2D <- function(gobject,
     spatPlot2D(gobject = gobject, cell_color = output, show_plot = T, save_plot = F, title = title_name, ...)
   }
 }
+
+
+#' @title viewHMRFresults3D
+#' @name viewHMRFresults3D
+#' @description View results from doHMRF.
+#' @param gobject giotto object
+#' @param HMRFoutput HMRF output from doHMRF
+#' @param k number of HMRF domains
+#' @param betas_to_view results from different betas that you want to view
+#' @param ... paramters to visPlot()
+#' @return spatial plots with HMRF domains
+#' @details Description ...
+#' @seealso \code{\link{spatPlot3D}}
+#' @export
+#' @examples
+#'     viewHMRFresults3D(gobject)
+viewHMRFresults3D <- function(gobject,
+                              HMRFoutput,
+                              k = NULL,
+                              betas_to_view = NULL,
+                              third_dim = NULL,
+                              ...) {
+  
+  
+  if(!'HMRFoutput' %in% class(HMRFoutput)) {
+    stop('\n HMRFoutput needs to be output from doHMRFextend \n')
+  }
+  
+  ## reader.py and get_result.py paths
+  # TODO: part of the package
+  get_result_path = system.file("python", "get_result2.py", package = 'Giotto')
+  
+  # paths and name
+  name = HMRFoutput$name
+  output_data = HMRFoutput$output_data
+  python_path = HMRFoutput$python_path
+  
+  # k-values
+  if(is.null(k)) {
+    stop('\n you need to select a k that was used with doHMRFextend \n')
+  }
+  k = HMRFoutput$k
+  
+  # betas
+  betas = HMRFoutput$betas
+  possible_betas = seq(betas[1], to = betas[1]+(betas[2]*(betas[3]-1)), by = betas[2])
+  
+  betas_to_view_detected = betas_to_view[betas_to_view %in% possible_betas]
+  
+  # plot betas
+  for(b in betas_to_view_detected) {
+    
+    ## get results part ##
+    result_command = paste0(python_path, ' ', get_result_path,
+                            ' -r ', output_data,
+                            ' -a ', name,
+                            ' -k ', k,
+                            ' -b ', b)
+    
+    print(result_command)
+    
+    output = system(command = result_command, intern = T)
+    
+    
+    title_name = paste0('k = ', k, ' b = ',b)
+    
+    spatPlot3D(gobject = gobject, cell_color = output, show_plot = T, save_plot = F, title = title_name, ...)
+  }
+}

@@ -2278,3 +2278,146 @@ cellProximitySpatPlot2D <- function(gobject,
 }
 
 
+
+#' @title cellProximitySpatPlot2D
+#' @name cellProximitySpatPlot3D
+#' @description Visualize 3D cell-cell interactions according to spatial coordinates in plotly mode
+#' @param gobject giotto object
+#' @param interaction_name cell-cell interaction name
+#' @param cluster_column cluster column with cell clusters
+#' @param sdimx x-axis dimension name (default = 'sdimx')
+#' @param sdimy y-axis dimension name (default = 'sdimy')
+#' @param sdimz z-axis dimension name (default = 'sdimz')
+#' @param cell_color color for cells (see details)
+#' @param cell_color_code named vector with colors
+#' @param color_as_factor convert color column to factor
+#' @param show_other_cells decide if show cells not in network
+#' @param show_network show underlying spatial network
+#' @param network_color color of spatial network
+#' @param spatial_network_name name of spatial network to use
+#' @param show_grid show spatial grid
+#' @param grid_color color of spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param show_legend show legend
+#' @param point_size_select size of selected points
+#' @param point_size_other size of other points
+#' @param show_plot show plots
+#' @param return_plot return plotly object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return plotly
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     cellProximitySpatPlot3D(gobject)
+
+cellProximitySpatPlot3D = function(gobject,
+                                   interaction_name = NULL,
+                                   cluster_column = NULL,
+                                   sdimx = "sdimx",
+                                   sdimy = "sdimy",
+                                   sdimz = "sdimz",
+                                   cell_color = NULL,
+                                   cell_color_code = NULL,
+                                   color_as_factor = T,
+                                   show_other_cells = T,
+                                   show_network = T,
+                                   show_other_network = F,
+                                   network_color = NULL,
+                                   spatial_network_name = 'spatial_network',
+                                   show_grid = F,
+                                   grid_color = NULL,
+                                   spatial_grid_name = 'spatial_grid',
+                                   show_legend = T,
+                                   point_size_select = 4,
+                                   point_size_other = 2,
+                                   point_alpha_other = 0.5,
+                                   axis_scale = c("cube","real","custom"),
+                                   custom_ratio = NULL,
+                                   x_ticks = NULL,
+                                   y_ticks = NULL,
+                                   z_ticks = NULL,
+                                   show_plot = NA,
+                                   return_plot = NA,
+                                   save_plot = NA,
+                                   save_param =  list(),
+                                   default_save_name = 'cellProximitySpatPlot3D',
+                                   ...){
+  if(is.null(sdimz)){
+    pl = cellProximityVisPlot_2D_plotly(gobject = gobject,
+                                        interaction_name = interaction_name,
+                                        cluster_column = cluster_column,
+                                        sdimx = sdimx,
+                                        sdimy = sdimy,
+                                        cell_color = cell_color,
+                                        cell_color_code = cell_color_code,
+                                        color_as_factor = color_as_factor,
+                                        show_other_cells = show_other_cells,
+                                        show_network = show_network,
+                                        show_other_network = show_other_network,
+                                        network_color = network_color,
+                                        spatial_network_name = spatial_network_name,
+                                        show_grid = show_grid,
+                                        grid_color = grid_color,
+                                        spatial_grid_name = spatial_grid_name,
+                                        show_legend = show_legend,
+                                        point_size_select = point_size_select,
+                                        point_size_other = point_size_other,
+                                        point_alpha_other = point_alpha_other,
+                                        axis_scale = axis_scale,
+                                        custom_ratio = custom_ratio,
+                                        x_ticks = x_ticks,
+                                        y_ticks = y_ticks,
+                                        ...)
+  }
+  else{
+    pl = cellProximityVisPlot_3D_plotly(gobject = gobject,
+                                        interaction_name = interaction_name,
+                                        cluster_column = cluster_column,
+                                        sdimx = sdimx,
+                                        sdimy = sdimy,
+                                        sdimz = sdimz,
+                                        cell_color = cell_color,
+                                        cell_color_code = cell_color_code,
+                                        color_as_factor = color_as_factor,
+                                        show_other_cells = show_other_cells,
+                                        show_network = show_network,
+                                        show_other_network = show_other_network,
+                                        network_color = network_color,
+                                        spatial_network_name = spatial_network_name,
+                                        show_grid = show_grid,
+                                        grid_color = grid_color,
+                                        spatial_grid_name = spatial_grid_name,
+                                        show_legend = show_legend,
+                                        point_size_select = point_size_select,
+                                        point_size_other = point_size_other,
+                                        point_alpha_other = point_alpha_other,
+                                        axis_scale = axis_scale,
+                                        custom_ratio = custom_ratio,
+                                        x_ticks = x_ticks,
+                                        y_ticks = y_ticks,
+                                        z_ticks = z_ticks,
+                                        ...)
+  }
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+  
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+  
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+  
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
+}
+
