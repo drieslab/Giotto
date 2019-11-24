@@ -106,8 +106,8 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation
 [![osmFISH](./inst/images/osmFISH_SS_cortex_image_summary.png)](./inst/examples/mouse_osmFISH_SS_cortex/osmFISH_SS_cortex_Giotto_v0.1.2.md)
 [![slideseq](./inst/images/slideseq_cerebellum_image_summary.png)](./inst/examples/mouse_slideseq_cerebellum/slideseq_cerebellum_Giotto_v0.1.2.md)
 
-\[![Spatial
-Transcriptomics](./inst/images/SpatTx_OB_image_summary.png)\]
+[![Spatial
+Transcriptomics](./inst/images/SpatTx_OB_image_summary.png)](./inst/examples/mouse_SpatTx_OB/mouse_SpatTx_OB_Giotto_v0.1.2.md)
 \[![MIBI-TOF](./inst/images/MIBI_tumor_image_summary.png)\]
 
 \[![merFISH](./inst/images/merFISH_hypothalam_image_summary.png)\]
