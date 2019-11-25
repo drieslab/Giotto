@@ -5603,6 +5603,51 @@ plotUMAP_2D = function(gobject, dim_reduction_name = 'umap', default_save_name =
 
 }
 
+
+#' @title plotUMAP
+#' @name plotUMAP
+#' @description Short wrapper for UMAP visualization
+#' @param gobject giotto object
+#' @param dim1_to_use dimension to use on x-axis
+#' @param dim2_to_use dimension to use on y-axis
+#' @param dim3_to_use dimension to use on z-axis
+#' @param dim_reduction_name name of umap reduction to use, default = 'umap'
+#' @param show_NN_network show underlying NN network
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
+#' @param network_name name of NN network to use, if show_NN_network = TRUE
+#' @param cell_color color for cells (see details)
+#' @param color_as_factor convert color column to factor
+#' @param cell_color_code named vector with colors
+#' @param show_cluster_center plot center of selected clusters
+#' @param show_center_label plot label of selected clusters
+#' @param center_point_size size of center points
+#' @param label_size  size of labels
+#' @param label_fontface font of labels
+#' @param edge_alpha column to use for alpha of the edges
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param show_legend show legend
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @seealso \code{\link{dimPlot2D}}
+#' @examples
+#'     plotUMAP(gobject)
+plotUMAP = function(gobject, dim_reduction_name = 'umap', default_save_name = 'UMAP', ...) {
+
+  dimPlot2D(gobject = gobject, dim_reduction_to_use = 'umap',  ...)
+
+}
+
+
+
+
 #' @title plotTSNE_2D
 #' @name plotTSNE_2D
 #' @description Short wrapper for tSNE visualization
@@ -5643,6 +5688,49 @@ plotTSNE_2D = function(gobject, dim_reduction_name = 'tsne', default_save_name =
   dimPlot2D(gobject = gobject, dim_reduction_to_use = 'tsne',  ...)
 
 }
+
+#' @title plotTSNE
+#' @name plotTSNE
+#' @description Short wrapper for tSNE visualization
+#' @param gobject giotto object
+#' @param dim1_to_use dimension to use on x-axis
+#' @param dim2_to_use dimension to use on y-axis
+#' @param dim3_to_use dimension to use on z-axis
+#' @param dim_reduction_name name of tsne reduction to use, default = 'tsne'
+#' @param show_NN_network show underlying NN network
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
+#' @param network_name name of NN network to use, if show_NN_network = TRUE
+#' @param cell_color color for cells (see details)
+#' @param color_as_factor convert color column to factor
+#' @param cell_color_code named vector with colors
+#' @param show_cluster_center plot center of selected clusters
+#' @param show_center_label plot label of selected clusters
+#' @param center_point_size size of center points
+#' @param label_size  size of labels
+#' @param label_fontface font of labels
+#' @param edge_alpha column to use for alpha of the edges
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param show_legend show legend
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @seealso \code{\link{dimPlot2D}}
+#' @examples
+#'     plotTSNE(gobject)
+plotTSNE = function(gobject, dim_reduction_name = 'tsne', default_save_name = 'tSNE', ...) {
+
+  dimPlot2D(gobject = gobject, dim_reduction_to_use = 'tsne',  ...)
+
+}
+
+
 
 #' @title plotPCA_2D
 #' @name plotPCA_2D
@@ -5686,6 +5774,47 @@ plotPCA_2D = function(gobject, dim_reduction_name = 'pca', default_save_name = '
 }
 
 
+
+#' @title plotPCA
+#' @name plotPCA
+#' @description Short wrapper for PCA visualization
+#' @param gobject giotto object
+#' @param dim1_to_use dimension to use on x-axis
+#' @param dim2_to_use dimension to use on y-axis
+#' @param dim3_to_use dimension to use on z-axis
+#' @param dim_reduction_name name of pca reduction to use, default = 'pca'
+#' @param show_NN_network show underlying NN network
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
+#' @param network_name name of NN network to use, if show_NN_network = TRUE
+#' @param cell_color color for cells (see details)
+#' @param color_as_factor convert color column to factor
+#' @param cell_color_code named vector with colors
+#' @param show_cluster_center plot center of selected clusters
+#' @param show_center_label plot label of selected clusters
+#' @param center_point_size size of center points
+#' @param label_size  size of labels
+#' @param label_fontface font of labels
+#' @param edge_alpha column to use for alpha of the edges
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param show_legend show legend
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @seealso \code{\link{dimPlot2D}}
+#' @examples
+#'     plotPCA(gobject)
+plotPCA = function(gobject, dim_reduction_name = 'pca', default_save_name = 'PCA', ...) {
+
+  dimPlot2D(gobject = gobject, dim_reduction_to_use = 'pca', ...)
+
+}
 
 
 

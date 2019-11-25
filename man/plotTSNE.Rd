@@ -4,10 +4,18 @@
 \alias{plotTSNE}
 \title{plotTSNE}
 \usage{
-plotTSNE(gobject, ...)
+plotTSNE(gobject, dim_reduction_name = "tsne",
+  default_save_name = "tSNE", ...)
+
+plotTSNE(gobject, dim_reduction_name = "tsne",
+  default_save_name = "tSNE", ...)
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{dim_reduction_name}{name of tsne reduction to use, default = 'tsne'}
+
+\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
 \item{dim1_to_use}{dimension to use on x-axis}
 
@@ -62,19 +70,76 @@ plotTSNE(gobject, ...)
 \item{save_format}{format of plot (e.g. tiff, png, pdf, ...)}
 
 \item{show_saved_plot}{load & display the saved plot}
+
+\item{gobject}{giotto object}
+
+\item{dim1_to_use}{dimension to use on x-axis}
+
+\item{dim2_to_use}{dimension to use on y-axis}
+
+\item{dim3_to_use}{dimension to use on z-axis}
+
+\item{show_NN_network}{show underlying NN network}
+
+\item{nn_network_to_use}{type of NN network to use (kNN vs sNN)}
+
+\item{network_name}{name of NN network to use, if show_NN_network = TRUE}
+
+\item{cell_color}{color for cells (see details)}
+
+\item{color_as_factor}{convert color column to factor}
+
+\item{cell_color_code}{named vector with colors}
+
+\item{show_cluster_center}{plot center of selected clusters}
+
+\item{show_center_label}{plot label of selected clusters}
+
+\item{center_point_size}{size of center points}
+
+\item{label_size}{size of labels}
+
+\item{label_fontface}{font of labels}
+
+\item{edge_alpha}{column to use for alpha of the edges}
+
+\item{point_size}{size of point (cell)}
+
+\item{point_border_col}{color of border around points}
+
+\item{point_border_stroke}{stroke size of border around points}
+
+\item{show_legend}{show legend}
+
+\item{show_plot}{show plot}
+
+\item{return_plot}{return ggplot object}
+
+\item{save_plot}{directly save the plot [boolean]}
+
+\item{save_param}{list of saving parameters from all_plots_save_function()}
 }
 \value{
+ggplot
+
 ggplot
 }
 \description{
 Short wrapper for tSNE visualization
+
+Short wrapper for tSNE visualization
 }
 \details{
+Description of parameters.
+
 Description of parameters.
 }
 \examples{
     plotTSNE(gobject)
+    plotTSNE(gobject)
 }
 \seealso{
 \code{\link{visDimPlot}}
+
+\code{\link{dimPlot2D}}
 }

@@ -6,7 +6,7 @@
 \usage{
 spatDimPlot3D(gobject, plot_alignment = c("horizontal", "vertical"),
   dim_reduction_to_use = "umap", dim_reduction_name = "umap",
-  dim1_to_use = 1, dim2_to_use = 2, dim3_to_use = NULL,
+  dim1_to_use = 1, dim2_to_use = 2, dim3_to_use = 3,
   sdimx = "sdimx", sdimy = "sdimy", sdimz = "sdimz",
   show_NN_network = F, nn_network_to_use = "sNN",
   network_name = "sNN.pca", show_cluster_center = F,
