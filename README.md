@@ -47,7 +47,9 @@ and can thus be used to explore or re-analyze this dataset.
   - Updated seqFISH+ cortex example (**NEW**)
   - Updated STARmap cortex example (**NEW**)
   - New examples for merFISH (3D), MIBI (multiple patient tumor samples)
-    and others will follow soon.  
+    and others will follow soon.
+
+ 
 
 ## Requirements
 
