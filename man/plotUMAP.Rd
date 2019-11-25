@@ -73,5 +73,5 @@ Description of parameters.
     plotUMAP(gobject)
 }
 \seealso{
-\code{\link{dimPlot2D}}
+\code{\link{dimPlot2D}} and \code{\link{plotUMAP_3D}}
 }

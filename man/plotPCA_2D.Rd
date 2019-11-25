@@ -73,5 +73,5 @@ Description of parameters.
     plotPCA_2D(gobject)
 }
 \seealso{
-\code{\link{dimPlot2D}}
+\code{\link{dimPlot2D}} and \code{\link{plotPCA_3D}}
 }

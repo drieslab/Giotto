@@ -73,5 +73,5 @@ Description of parameters.
     plotTSNE_2D(gobject)
 }
 \seealso{
-\code{\link{dimPlot2D}}
+\code{\link{dimPlot2D}} and \code{\link{plotTSNE_3D}}
 }
