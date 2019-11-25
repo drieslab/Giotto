@@ -5697,7 +5697,9 @@ dimPlot <- function(gobject,
 #'     plotUMAP_2D(gobject)
 plotUMAP_2D = function(gobject, dim_reduction_name = 'umap', default_save_name = 'UMAP_2D', ...) {
 
-  dimPlot2D(gobject = gobject, dim_reduction_to_use = 'umap',  ...)
+  dimPlot2D(gobject = gobject,
+            dim_reduction_to_use = 'umap',  dim_reduction_name = dim_reduction_name,
+            default_save_name = default_save_name, ...)
 
 }
 
@@ -5739,7 +5741,9 @@ plotUMAP_2D = function(gobject, dim_reduction_name = 'umap', default_save_name =
 #'     plotUMAP(gobject)
 plotUMAP = function(gobject, dim_reduction_name = 'umap', default_save_name = 'UMAP', ...) {
 
-  dimPlot2D(gobject = gobject, dim_reduction_to_use = 'umap',  ...)
+  dimPlot2D(gobject = gobject,
+            dim_reduction_to_use = 'umap',  dim_reduction_name = dim_reduction_name,
+            default_save_name = default_save_name, ...)
 
 }
 
@@ -5783,7 +5787,9 @@ plotUMAP = function(gobject, dim_reduction_name = 'umap', default_save_name = 'U
 #'     plotTSNE_2D(gobject)
 plotTSNE_2D = function(gobject, dim_reduction_name = 'tsne', default_save_name = 'tSNE_2D', ...) {
 
-  dimPlot2D(gobject = gobject, dim_reduction_to_use = 'tsne',  ...)
+  dimPlot2D(gobject = gobject,
+            dim_reduction_to_use = 'tsne', dim_reduction_name = dim_reduction_name,
+            default_save_name = default_save_name, ...)
 
 }
 
@@ -5824,7 +5830,9 @@ plotTSNE_2D = function(gobject, dim_reduction_name = 'tsne', default_save_name =
 #'     plotTSNE(gobject)
 plotTSNE = function(gobject, dim_reduction_name = 'tsne', default_save_name = 'tSNE', ...) {
 
-  dimPlot2D(gobject = gobject, dim_reduction_to_use = 'tsne',  ...)
+  dimPlot2D(gobject = gobject,
+            dim_reduction_to_use = 'tsne', dim_reduction_name = dim_reduction_name,
+            default_save_name = default_save_name, ...)
 
 }
 
@@ -5867,7 +5875,9 @@ plotTSNE = function(gobject, dim_reduction_name = 'tsne', default_save_name = 't
 #'     plotPCA_2D(gobject)
 plotPCA_2D = function(gobject, dim_reduction_name = 'pca', default_save_name = 'PCA_2D', ...) {
 
-  dimPlot2D(gobject = gobject, dim_reduction_to_use = 'pca', ...)
+  dimPlot2D(gobject = gobject,
+            dim_reduction_to_use = 'pca', dim_reduction_name = dim_reduction_name,
+            default_save_name = default_save_name, ...)
 
 }
 
@@ -5910,8 +5920,9 @@ plotPCA_2D = function(gobject, dim_reduction_name = 'pca', default_save_name = '
 #'     plotPCA(gobject)
 plotPCA = function(gobject, dim_reduction_name = 'pca', default_save_name = 'PCA', ...) {
 
-  dimPlot2D(gobject = gobject, dim_reduction_to_use = 'pca', ...)
-
+  dimPlot2D(gobject = gobject,
+            dim_reduction_to_use = 'pca', dim_reduction_name = dim_reduction_name,
+            default_save_name = default_save_name, ...)
 }
 
 

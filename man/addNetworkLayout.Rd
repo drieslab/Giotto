@@ -27,7 +27,7 @@ addNetworkLayout(gobject, nn_network_to_use = NULL,
 giotto object with updated layout for selected NN network
 }
 \description{
-Add a network layout for a select nearest neighbor network
+Add a network layout for a selected nearest neighbor network
 }
 \details{
 Description of layouts and options.

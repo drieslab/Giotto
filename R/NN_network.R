@@ -163,7 +163,7 @@ createNearestNetwork <- function(gobject,
 
 #' @title addNetworkLayout
 #' @name addNetworkLayout
-#' @description Add a network layout for a select nearest neighbor network
+#' @description Add a network layout for a selected nearest neighbor network
 #' @param gobject giotto object
 #' @param nn_network_to_use kNN or sNN
 #' @param network_name name of NN network to be used
