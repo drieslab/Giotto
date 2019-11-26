@@ -45,7 +45,7 @@ The goal of Giotto is to process, analyze and visualize **single-cell spatial ex
 
 - R (>= 3.5.1)
 - Python (>= 3.0)
-- Unix/Linux
+- Windows, MacOS, Linux
 
 \  
 

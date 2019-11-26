@@ -55,7 +55,7 @@ and can thus be used to explore or re-analyze this dataset.
 
   - R (\>= 3.5.1)
   - Python (\>= 3.0)
-  - Unix/Linux
+  - Windows, MacOS, Linux
 
  
 

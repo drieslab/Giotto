@@ -35,7 +35,8 @@ giotto <- setClass(
     nn_network = "ANY",
     parameters = "ANY",
     instructions = "ANY",
-    offset_file = "ANY"
+    offset_file = "ANY",
+    OS_platform = "ANY"
   ),
 
   prototype = list(
@@ -54,7 +55,8 @@ giotto <- setClass(
     nn_network = NULL,
     parameters = NULL,
     instructions = NULL,
-    offset_file = NULL
+    offset_file = NULL,
+    OS_platform = NULL
   ),
 
   validity = function(object) {
@@ -161,12 +163,14 @@ createGiottoInstructions <- function(python_path =  NULL,
 
   # pyton path to use
   if(is.null(python_path)) {
-    python_path = try(system('which python', intern = T))
-    if(class(python_path) == "try-error") {
+
+    if(.Platform[['OS.type']] == 'unix') {
+      python_path = try(system('which python', intern = T))
+    } else if(.Platform[['OS.type']] == 'windows') {
       python_path = try(system('where python', intern = T))
       if(class(python_path) == "try-error") {
         cat('\n no python path found, set it manually when needed \n')
-        python_path = '/set/python/path/manually/'
+        python_path = '/set/your/python/path/manually/please/'
       }
     }
   }
@@ -345,6 +349,7 @@ changeGiottoInstructions = function(gobject,
 #' @param dimension_reduction list of dimension reduction(s)
 #' @param nn_network list of nearest neighbor network(s)
 #' @param offset_file file used to stitch fields together (optional)
+#' @param instructions list of instructions or output result from createGiottoInstructions
 #' @return giotto object
 #' @keywords giotto
 #' @export
@@ -382,7 +387,8 @@ createGiottoObject <- function(raw_exprs,
                    nn_network = NULL,
                    parameters = NULL,
                    offset_file = offset_file,
-                   instructions = instructions)
+                   instructions = instructions,
+                   OS_platform = .Platform[['OS.type']])
 
   # prepare other slots
   gobject@cell_ID = colnames(raw_exprs)

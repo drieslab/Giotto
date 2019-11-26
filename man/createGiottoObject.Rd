@@ -39,6 +39,8 @@ createGiottoObject(raw_exprs, spatial_locs = NULL, norm_expr = NULL,
 \item{nn_network}{list of nearest neighbor network(s)}
 
 \item{offset_file}{file used to stitch fields together (optional)}
+
+\item{instructions}{list of instructions or output result from createGiottoInstructions}
 }
 \value{
 giotto object

@@ -7,7 +7,7 @@ output: github_document
 Each Giotto function that creates a plot as 3 important parameters:    
 - **show_plot**: to print the plot to the console, default is TRUE  
 - **return_plot**: to return the plot as an object, default is TRUE  
-- **save_plot**: to automatically save the plot, default is FALSE    
+- **save_plot**: to automatically save the plot, default is FALSE  (only for Unix based systems!)  
 
 These parameters are automatically provided by **createGiottoObject**, but can also be
 explicitely provided using **createGiottoInstructions** or a named list, which can be given to

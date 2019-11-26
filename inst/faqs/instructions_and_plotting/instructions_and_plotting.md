@@ -5,6 +5,7 @@ Each Giotto function that creates a plot as 3 important parameters:
 \- **show\_plot**: to print the plot to the console, default is TRUE  
 \- **return\_plot**: to return the plot as an object, default is TRUE  
 \- **save\_plot**: to automatically save the plot, default is FALSE
+(only for Unix based systems\!)
 
 These parameters are automatically provided by **createGiottoObject**,
 but can also be explicitely provided using **createGiottoInstructions**
