@@ -333,6 +333,33 @@ changeGiottoInstructions = function(gobject,
 }
 
 
+
+
+#' @title replaceGiottoInstructions
+#' @description Function to replace instructions of giotto object
+#' @param gobject giotto object
+#' @param instructions new instructions (e.g. result of createGiottoInstructions)
+#' @return named vector with giotto instructions
+#' @export
+#' @examples
+#'     replaceGiottoInstructions()
+replaceGiottoInstructions = function(gobject,
+                                     instructions = NULL) {
+
+  old_instrs_list = gobject@instructions
+
+  # validate new instructions
+  if(!all(names(instructions) %in% names(old_instrs_list)) | is.null(instructions)) {
+    stop('\n You need to provide a named list for all instructions, like the outcome of createGiottoInstructions \n')
+  } else {
+    gobject@instructions = instructions
+    return(gobject)
+  }
+
+}
+
+
+
 #' @title create Giotto object
 #' @description Function to create a giotto object
 #' @param raw_exprs matrix with raw expression counts [required]

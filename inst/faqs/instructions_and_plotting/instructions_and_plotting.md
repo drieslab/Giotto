@@ -13,11 +13,20 @@ or a named list, which can be given to **createGiottoObject**.
 
 Besides those 3 parameters **createGiottoInstructions** also allows to
 provide other general Giotto parameters, such as your python path and
-other information for automatically saving a plot. These instructions
-only need to be created once, but can be revisited by
-**showGiottoInstructions** or changed with **changeGiottoInstructions**.
+other information for automatically saving a plot, like size, plotting
+format, etc.
+
+In total there are 4 functions to work with setting instructions:  
+\- **createGiottoInstructions**: creates instructions that can be
+provided to createGiottoObject  
+\- **showGiottoInstructions**: to view the instructions of a Giotto
+object  
+\- **changeGiottoInstructions**: to replace 1 or more of the instruction
+parameters (e.g. plotting format)  
+\- **replaceGiottoInstructions**: to replace all instructions with new
+instructions (e.g after subsetting)  
 In addition, for each plot the parameters can be *manually overwritten*
-with in the plotting function itself.
+within the plotting function itself.
 
 Here we use the osmFISH as an example:
 

@@ -252,6 +252,13 @@ subsetGiotto <- function(gobject, cell_ids = NULL, gene_ids = NULL) {
       gobject@dimension_reduction[['cells']][['umap']][[umap_name]][['coordinates']] = new_coord
     }
 
+    # for tsne
+    for(tsne_name in names(gobject@dimension_reduction[['cells']][['tsne']]) ) {
+      old_coord = gobject@dimension_reduction[['cells']][['tsne']][[tsne_name]][['coordinates']]
+      new_coord = old_coord[rownames(old_coord) %in% cells_to_keep,]
+      gobject@dimension_reduction[['cells']][['tsne']][[tsne_name]][['coordinates']] = new_coord
+    }
+
   }
 
 
