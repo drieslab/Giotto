@@ -7,22 +7,28 @@
 spatDimPlot2D(gobject, plot_alignment = c("vertical", "horizontal"),
   dim_reduction_to_use = "umap", dim_reduction_name = "umap",
   dim1_to_use = 1, dim2_to_use = 2, sdimx = "sdimx",
-  sdimy = "sdimy", show_NN_network = F, nn_network_to_use = "sNN",
-  network_name = "sNN.pca", show_cluster_center = F,
-  show_center_label = T, center_point_size = 4, label_size = 4,
-  label_fontface = "bold", cell_color = NULL, color_as_factor = T,
-  cell_color_code = NULL, select_cell_groups = NULL,
-  select_cells = NULL, show_other_cells = T,
-  other_cell_color = "lightgrey", other_point_size = 1,
-  dim_point_size = 1, dim_point_border_col = "black",
-  dim_point_border_stroke = 0.1, nn_network_alpha = 0.05,
-  show_spatial_network = F, spatial_network_name = "spatial_network",
-  spatial_network_color = "blue", show_spatial_grid = F,
-  spatial_grid_name = "spatial_grid", spatial_grid_color = "blue",
-  spatial_point_size = 1, spatial_point_border_col = "black",
-  spatial_point_border_stroke = 0.1, spatial_other_point_size = 1,
-  spatial_network_alpha = 0.5, spatial_other_cells_alpha = 0.5,
-  dim_other_point_size = 1, show_legend = T, show_plot = NA,
+  sdimy = "sdimy", cell_color = NULL, color_as_factor = T,
+  cell_color_code = NULL, cell_color_gradient = c("blue", "white",
+  "red"), gradient_midpoint = 0, gradient_limits = NULL,
+  select_cell_groups = NULL, select_cells = NULL, dim_point_size = 1,
+  dim_point_border_col = "black", dim_point_border_stroke = 0.1,
+  spat_point_size = 1, spat_point_border_col = "black",
+  spat_point_border_stroke = 0.1, dim_show_cluster_center = F,
+  dim_show_center_label = T, dim_center_point_size = 4,
+  dim_center_point_border_col = "black",
+  dim_center_point_border_stroke = 0.1, dim_label_size = 4,
+  dim_label_fontface = "bold", spat_show_cluster_center = F,
+  spat_show_center_label = T, spat_center_point_size = 4,
+  spat_label_size = 4, spat_label_fontface = "bold",
+  show_NN_network = F, nn_network_to_use = "sNN",
+  network_name = "sNN.pca", nn_network_alpha = 0.05,
+  show_spatial_network = F, spat_network_name = "spatial_network",
+  spat_network_color = "blue", spat_network_alpha = 0.5,
+  show_spatial_grid = F, spat_grid_name = "spatial_grid",
+  spat_grid_color = "blue", show_other_cells = T,
+  other_cell_color = "lightgrey", dim_other_point_size = 1,
+  spat_other_point_size = 1, spat_other_cells_alpha = 0.5,
+  dim_show_legend = F, spat_show_legend = F, show_plot = NA,
   return_plot = NA, save_plot = NA, save_param = list(),
   default_save_name = "spatDimPlot2D")
 }
@@ -43,37 +49,21 @@ spatDimPlot2D(gobject, plot_alignment = c("vertical", "horizontal"),
 
 \item{sdimy}{= spatial dimension to use on y-axis}
 
-\item{show_NN_network}{show underlying NN network}
-
-\item{nn_network_to_use}{type of NN network to use (kNN vs sNN)}
-
-\item{network_name}{name of NN network to use, if show_NN_network = TRUE}
-
-\item{show_cluster_center}{show the center of each cluster}
-
-\item{show_center_label}{provide a label for each cluster}
-
-\item{center_point_size}{size of the center point}
-
-\item{label_size}{size of the center label}
-
-\item{label_fontface}{font of the center label}
-
 \item{cell_color}{color for cells (see details)}
 
 \item{color_as_factor}{convert color column to factor}
 
 \item{cell_color_code}{named vector with colors}
 
+\item{cell_color_gradient}{vector with 3 colors for numeric data}
+
+\item{gradient_midpoint}{midpoint for color gradient}
+
+\item{gradient_limits}{vector with lower and upper limits}
+
 \item{select_cell_groups}{select subset of cells/clusters based on cell_color parameter}
 
 \item{select_cells}{select subset of cells based on cell IDs}
-
-\item{show_other_cells}{display not selected cells}
-
-\item{other_cell_color}{color of not selected cells}
-
-\item{other_point_size}{size of not selected cells}
 
 \item{dim_point_size}{size of points in dim. reduction space}
 
@@ -81,35 +71,69 @@ spatDimPlot2D(gobject, plot_alignment = c("vertical", "horizontal"),
 
 \item{dim_point_border_stroke}{border stroke of points in dim. reduction space}
 
+\item{spat_point_size}{size of spatial points}
+
+\item{spat_point_border_col}{border color of spatial points}
+
+\item{spat_point_border_stroke}{border stroke of spatial points}
+
+\item{dim_show_cluster_center}{show the center of each cluster}
+
+\item{dim_show_center_label}{provide a label for each cluster}
+
+\item{dim_center_point_size}{size of the center point}
+
+\item{dim_center_point_border_col}{border color of center point}
+
+\item{dim_center_point_border_stroke}{stroke size of center point}
+
+\item{dim_label_size}{size of the center label}
+
+\item{dim_label_fontface}{font of the center label}
+
+\item{spat_show_cluster_center}{show the center of each cluster}
+
+\item{spat_show_center_label}{provide a label for each cluster}
+
+\item{spat_center_point_size}{size of the center point}
+
+\item{spat_label_size}{size of the center label}
+
+\item{spat_label_fontface}{font of the center label}
+
+\item{show_NN_network}{show underlying NN network}
+
+\item{nn_network_to_use}{type of NN network to use (kNN vs sNN)}
+
+\item{network_name}{name of NN network to use, if show_NN_network = TRUE}
+
 \item{nn_network_alpha}{column to use for alpha of the edges}
 
 \item{show_spatial_network}{show spatial network}
 
-\item{spatial_network_name}{name of spatial network to use}
+\item{spat_network_name}{name of spatial network to use}
 
-\item{spatial_network_color}{color of spatial network}
+\item{spat_network_color}{color of spatial network}
 
 \item{show_spatial_grid}{show spatial grid}
 
-\item{spatial_grid_name}{name of spatial grid to use}
+\item{spat_grid_name}{name of spatial grid to use}
 
-\item{spatial_grid_color}{color of spatial grid}
+\item{spat_grid_color}{color of spatial grid}
 
-\item{spatial_point_size}{size of spatial points}
+\item{show_other_cells}{display not selected cells}
 
-\item{spatial_point_border_col}{border color of spatial points}
+\item{other_cell_color}{color of not selected cells}
 
-\item{spatial_point_border_stroke}{border stroke of spatial points}
+\item{dim_other_point_size}{size of not selected dim cells}
 
-\item{spatial_other_point_size}{size of not selected spatial points}
+\item{spat_other_point_size}{size of not selected spat cells}
 
-\item{spatial_network_alpha}{alpha of spatial network}
+\item{spat_other_cells_alpha}{alpha of not selected spat cells}
 
-\item{spatial_other_cells_alpha}{alpha of not selected spatial points}
+\item{dim_show_legend}{show legend of dimension reduction plot}
 
-\item{dim_other_point_size}{size of not selected dim. reduction points}
-
-\item{show_legend}{show legend}
+\item{spat_show_legend}{show legend of spatial plot}
 
 \item{show_plot}{show plot}
 
@@ -125,7 +149,7 @@ spatDimPlot2D(gobject, plot_alignment = c("vertical", "horizontal"),
 ggplot
 }
 \description{
-Visualize cells according to spatial AND dimension reduction coordinates in ggplot2 mode
+Visualize cells according to spatial AND dimension reduction coordinates 2D
 }
 \details{
 Description of parameters.

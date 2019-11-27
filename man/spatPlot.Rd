@@ -4,18 +4,7 @@
 \alias{spatPlot}
 \title{spatPlot}
 \usage{
-spatPlot(gobject, sdimx = "sdimx", sdimy = "sdimy", point_size = 3,
-  point_border_col = "black", point_border_stroke = 0.1,
-  cell_color = NULL, cell_color_code = NULL, color_as_factor = T,
-  select_cell_groups = NULL, select_cells = NULL,
-  show_other_cells = T, other_cell_color = "lightgrey",
-  other_point_size = 1, show_network = F, network_color = NULL,
-  network_alpha = 1, other_cells_alpha = 0.1,
-  spatial_network_name = "spatial_network", show_grid = F,
-  grid_color = NULL, spatial_grid_name = "spatial_grid",
-  coord_fix_ratio = 0.6, title = "", show_legend = T,
-  show_plot = NA, return_plot = NA, save_plot = NA,
-  save_param = list(), default_save_name = "spatPlot")
+spatPlot(gobject, ...)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -24,37 +13,59 @@ spatPlot(gobject, sdimx = "sdimx", sdimy = "sdimy", point_size = 3,
 
 \item{sdimy}{y-axis dimension name (default = 'sdimy')}
 
+\item{cell_color}{color for cells (see details)}
+
+\item{color_as_factor}{convert color column to factor}
+
+\item{cell_color_code}{named vector with colors}
+
+\item{cell_color_gradient}{vector with 3 colors for numeric data}
+
+\item{gradient_midpoint}{midpoint for color gradient}
+
+\item{gradient_limits}{vector with lower and upper limits}
+
+\item{select_cell_groups}{select subset of cells/clusters based on cell_color parameter}
+
+\item{select_cells}{select subset of cells based on cell IDs}
+
 \item{point_size}{size of point (cell)}
 
 \item{point_border_col}{color of border around points}
 
 \item{point_border_stroke}{stroke size of border around points}
 
-\item{cell_color}{color for cells (see details)}
+\item{show_cluster_center}{plot center of selected clusters}
 
-\item{cell_color_code}{named vector with colors}
+\item{show_center_label}{plot label of selected clusters}
 
-\item{color_as_factor}{convert color column to factor}
+\item{center_point_size}{size of center points}
 
-\item{select_cell_groups}{select subset of cells/clusters based on cell_color parameter}
+\item{label_size}{size of labels}
 
-\item{select_cells}{select subset of cells based on cell IDs}
+\item{label_fontface}{font of labels}
+
+\item{show_network}{show underlying spatial network}
+
+\item{spatial_network_name}{name of spatial network to use}
+
+\item{network_color}{color of spatial network}
+
+\item{network_alpha}{alpha of spatial network}
+
+\item{show_grid}{show spatial grid}
+
+\item{spatial_grid_name}{name of spatial grid to use}
+
+\item{grid_color}{color of spatial grid}
 
 \item{show_other_cells}{display not selected cells}
 
 \item{other_cell_color}{color of not selected cells}
 
-\item{show_network}{show underlying spatial network}
+\item{other_point_size}{point size of not selected cells}
 
-\item{network_color}{color of spatial network}
-
-\item{spatial_network_name}{name of spatial network to use}
-
-\item{show_grid}{show spatial grid}
-
-\item{grid_color}{color of spatial grid}
-
-\item{spatial_grid_name}{name of spatial grid to use}
+\item{other_cells_alpha}{alpha of not selected cells}
 
 \item{coord_fix_ratio}{fix ratio between x and y-axis}
 
@@ -85,5 +96,5 @@ Description of parameters.
     spatPlot(gobject)
 }
 \seealso{
-\code{\link{spatPlot3D}}
+\code{\link{spatPlot2D}} and \code{\link{spatPlot3D}}
 }

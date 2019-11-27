@@ -4,27 +4,7 @@
 \alias{spatDimPlot}
 \title{spatDimPlot}
 \usage{
-spatDimPlot(gobject, plot_alignment = c("vertical", "horizontal"),
-  dim_reduction_to_use = "umap", dim_reduction_name = "umap",
-  dim1_to_use = 1, dim2_to_use = 2, sdimx = "sdimx",
-  sdimy = "sdimy", show_NN_network = F, nn_network_to_use = "sNN",
-  network_name = "sNN.pca", show_cluster_center = F,
-  show_center_label = T, center_point_size = 4, label_size = 4,
-  label_fontface = "bold", cell_color = NULL, color_as_factor = T,
-  cell_color_code = NULL, select_cell_groups = NULL,
-  select_cells = NULL, show_other_cells = T,
-  other_cell_color = "lightgrey", other_point_size = 1,
-  dim_point_size = 1, dim_point_border_col = "black",
-  dim_point_border_stroke = 0.1, nn_network_alpha = 0.05,
-  show_spatial_network = F, spatial_network_name = "spatial_network",
-  spatial_network_color = "blue", show_spatial_grid = F,
-  spatial_grid_name = "spatial_grid", spatial_grid_color = "blue",
-  spatial_point_size = 1, spatial_point_border_col = "black",
-  spatial_point_border_stroke = 0.1, spatial_other_point_size = 1,
-  spatial_network_alpha = 0.5, spatial_other_cells_alpha = 0.5,
-  dim_other_point_size = 1, show_legend = T, show_plot = NA,
-  return_plot = NA, save_plot = NA, save_param = list(),
-  default_save_name = "spatDimPlot")
+spatDimPlot(gobject, ...)
 }
 \arguments{
 \item{gobject}{giotto object}

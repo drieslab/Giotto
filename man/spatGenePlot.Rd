@@ -4,22 +4,12 @@
 \alias{spatGenePlot}
 \title{spatGenePlot}
 \usage{
-spatGenePlot(gobject, expression_values = c("normalized", "scaled",
-  "custom"), genes, genes_high_color = "darkred",
-  genes_mid_color = "white", genes_low_color = "darkblue",
-  show_network = F, network_color = NULL,
-  spatial_network_name = "spatial_network", edge_alpha = NULL,
-  show_grid = F, grid_color = NULL,
-  spatial_grid_name = "spatial_grid", midpoint = 0,
-  scale_alpha_with_expression = FALSE, point_size = 1,
-  point_border_col = "black", point_border_stroke = 0.1,
-  show_legend = T, cow_n_col = 2, cow_rel_h = 1, cow_rel_w = 1,
-  cow_align = "h", show_plot = NA, return_plot = NA,
-  save_plot = NA, save_param = list(),
-  default_save_name = "spatGenePlot")
+spatGenePlot(gobject, ...)
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{...}{parameters for cowplot::save_plot()}
 
 \item{expression_values}{gene expression values to use}
 
@@ -53,8 +43,6 @@ spatGenePlot(gobject, expression_values = c("normalized", "scaled",
 
 \item{point_border_stroke}{stroke size of border around points}
 
-\item{show_legend}{show legend}
-
 \item{cow_n_col}{cowplot param: how many columns}
 
 \item{cow_rel_h}{cowplot param: relative height}
@@ -62,6 +50,8 @@ spatGenePlot(gobject, expression_values = c("normalized", "scaled",
 \item{cow_rel_w}{cowplot param: relative width}
 
 \item{cow_align}{cowplot param: how to align}
+
+\item{show_legend}{show legend}
 
 \item{show_plot}{show plots}
 
@@ -72,8 +62,6 @@ spatGenePlot(gobject, expression_values = c("normalized", "scaled",
 \item{save_param}{list of saving parameters from all_plots_save_function()}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-
-\item{...}{parameters for cowplot::save_plot()}
 }
 \value{
 ggplot
@@ -85,8 +73,8 @@ Visualize cells and gene expression according to spatial coordinates
 Description of parameters.
 }
 \examples{
-    spatGenePlot2D(gobject)
+    spatGenePlot(gobject)
 }
 \seealso{
-\code{\link{spatGenePlot3D}}
+\code{\link{spatGenePlot3D}} and \code{\link{spatGenePlot2D}}
 }

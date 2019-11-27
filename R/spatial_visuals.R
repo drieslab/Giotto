@@ -5050,18 +5050,18 @@ plot_network_layer_ggplot = function(ggobject,
 #' @param gradient_limits vector with lower and upper limits
 #' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
 #' @param select_cells select subset of cells based on cell IDs
-#' @param show_other_cells display not selected cells
-#' @param other_cell_color color of not selected cells
-#' @param other_point_size size of not selected cells
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
 #' @param show_cluster_center plot center of selected clusters
 #' @param show_center_label plot label of selected clusters
 #' @param center_point_size size of center points
 #' @param label_size  size of labels
 #' @param label_fontface font of labels
 #' @param edge_alpha column to use for alpha of the edges
-#' @param point_size size of point (cell)
-#' @param point_border_col color of border around points
-#' @param point_border_stroke stroke size of border around points
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color of not selected cells
+#' @param other_point_size size of not selected cells
 #' @param show_legend show legend
 #' @return ggplot
 #' @details Description of parameters.
@@ -5079,9 +5079,9 @@ plot_point_layer_ggplot = function(ggobject,
                                    gradient_limits = NULL,
                                    select_cell_groups = NULL,
                                    select_cells = NULL,
-                                   show_other_cells = T,
-                                   other_cell_color = 'lightgrey',
-                                   other_point_size = 0.5,
+                                   point_size = 1,
+                                   point_border_col = 'black',
+                                   point_border_stroke = 0.1,
                                    show_cluster_center = F,
                                    show_center_label = T,
                                    center_point_size = 4,
@@ -5090,9 +5090,9 @@ plot_point_layer_ggplot = function(ggobject,
                                    label_size = 4,
                                    label_fontface = 'bold',
                                    edge_alpha = NULL,
-                                   point_size = 1,
-                                   point_border_col = 'black',
-                                   point_border_stroke = 0.1,
+                                   show_other_cells = T,
+                                   other_cell_color = 'lightgrey',
+                                   other_point_size = 0.5,
                                    show_legend = T
 ) {
 
@@ -5827,14 +5827,22 @@ plotPCA = function(gobject, dim_reduction_name = 'pca', default_save_name = 'PCA
 #' @param sdimy y-axis dimension name (default = 'sdimy')
 #' @param cell_locations_metadata_selected annotated location from selected cells
 #' @param cell_locations_metadata_other annotated location from non-selected cells
+#' @param cell_color color for cells (see details)
+#' @param color_as_factor convert color column to factor
+#' @param cell_color_code named vector with colors
+#' @param cell_color_gradient vector with 3 colors for numeric data
+#' @param gradient_midpoint midpoint for color gradient
+#' @param gradient_limits vector with lower and upper limits
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param select_cells select subset of cells based on cell IDs
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
-#' @param cell_color color for cells (see details)
-#' @param cell_color_code named vector with colors
-#' @param color_as_factor convert color column to factor
-#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
-#' @param select_cells select subset of cells based on cell IDs
+#' @param show_cluster_center plot center of selected clusters
+#' @param show_center_label plot label of selected clusters
+#' @param center_point_size size of center points
+#' @param label_size  size of labels
+#' @param label_fontface font of labels
 #' @param show_other_cells display not selected cells
 #' @param other_cell_color color for not selected cells
 #' @param other_point_size point size for not selected cells
@@ -5851,16 +5859,27 @@ plot_spat_point_layer_ggplot = function(ggobject,
                                         cell_locations_metadata_other,
                                         cell_color = NULL,
                                         color_as_factor = T,
+                                        cell_color_code = NULL,
+                                        cell_color_gradient = c('blue', 'white', 'red'),
+                                        gradient_midpoint = 0,
+                                        gradient_limits = NULL,
                                         select_cell_groups = NULL,
                                         select_cells = NULL,
-                                        cell_color_code = NULL,
-                                        show_legend = TRUE,
                                         point_size = 2,
-                                        point_border_stroke = 0.1,
                                         point_border_col = 'lightgrey',
+                                        point_border_stroke = 0.1,
+                                        show_cluster_center = F,
+                                        show_center_label = T,
+                                        center_point_size = 4,
+                                        center_point_border_col = 'black',
+                                        center_point_border_stroke = 0.1,
+                                        label_size = 4,
+                                        label_fontface = 'bold',
                                         show_other_cells = T,
                                         other_cell_color = 'lightgrey',
-                                        other_point_size = 1
+                                        other_point_size = 1,
+                                        show_legend = TRUE
+
 ) {
 
   ## specify spatial dimensions first
@@ -5882,6 +5901,16 @@ plot_spat_point_layer_ggplot = function(ggobject,
   }
 
 
+  ## order of color
+  # 1. if NULL then default to lightblue
+  # 2. if character vector
+  # 2.1 if length of cell_color is longer than 1 and has colors
+  # 2.2 if not part of metadata then suppose its color
+  # 2.3 part of metadata
+  # 2.3.1 numerical column
+  # 2.3.2 factor column or character to factor
+
+
   # cell color default
   if(is.null(cell_color)) {
 
@@ -5892,43 +5921,110 @@ plot_spat_point_layer_ggplot = function(ggobject,
                                    fill = cell_color, size = point_size,
                                    stroke = point_border_stroke, color = point_border_col)
 
-  } else if (is.character(cell_color)) {
 
-    if(cell_color %in% colnames(cell_locations_metadata_selected)) {
+  } else if(is.character(cell_color)) {
 
-      # cell_color is a column in the metadata
+    if(length(cell_color) > 1 & all(cell_color %in% grDevices::colors())) {
 
-      if(color_as_factor == TRUE) {
-        factor_data = factor(cell_locations_metadata_selected[[cell_color]])
-        cell_locations_metadata_selected[[cell_color]] <- factor_data
+      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_selected, aes_string(x = sdimx, y = sdimy),
+                                     show.legend = show_legend, shape = 21, fill = cell_color,
+                                     size = point_size,
+                                     color = point_border_col, stroke = point_border_stroke)
+
+
+    } else if(!cell_color %in% colnames(cell_locations_metadata_selected)) {
+
+      if(!cell_color %in% grDevices::colors()) stop(cell_color,' is not a color or a column name \n')
+
+      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_selected, aes_string(x = sdimx, y = sdimy),
+                                     show.legend = show_legend, shape = 21, fill = cell_color,
+                                     size = point_size,
+                                     color = point_border_col, stroke = point_border_stroke)
+
+    } else {
+
+      class_cell_color = class(cell_locations_metadata_selected[[cell_color]])
+
+      if((class_cell_color == 'integer' | class_cell_color == 'numeric') & color_as_factor == FALSE) {
+        # set upper and lower limits
+        if(!is.null(gradient_limits) & is.vector(gradient_limits) & length(gradient_limits) == 2) {
+          lower_lim = gradient_limits[[1]]
+          upper_lim = gradient_limits[[2]]
+
+          numeric_data = cell_locations_metadata_selected[[cell_color]]
+          limit_numeric_data = ifelse(numeric_data > upper_lim, upper_lim,
+                                      ifelse(numeric_data < lower_lim, lower_lim, numeric_data))
+          cell_locations_metadata_selected[[cell_color]] = limit_numeric_data
+        }
+
+        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_selected,
+                                       aes_string(x = sdimx, y = sdimy, fill = cell_color),
+                                       show.legend = show_legend, shape = 21,
+                                       size = point_size,
+                                       color = point_border_col, stroke = point_border_stroke)
+
+
+
+      } else {
+
+        # convert character or numeric to factor
+        if(color_as_factor == TRUE) {
+          factor_data = factor(cell_locations_metadata_selected[[cell_color]])
+          cell_locations_metadata_selected[[cell_color]] <- factor_data
+        }
+
+        # if you want to show centers or labels then calculate centers
+        if(show_cluster_center == TRUE | show_center_label == TRUE) {
+          annotated_DT_centers = cell_locations_metadata_selected[, .(center_1 = median(get('sdimx')), center_2 = median(get('sdimy'))), by = cell_color]
+          factor_center_data = factor(annotated_DT_centers[[cell_color]])
+          annotated_DT_centers[[cell_color]] <- factor_center_data
+        }
+
+        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_selected,
+                                       aes_string(x = sdimx, y = sdimy, fill = cell_color),
+                                       show.legend = show_legend, shape = 21, size = point_size,
+                                       color = point_border_col, stroke = point_border_stroke)
+
+
+        ## plot centers
+        if(show_cluster_center == TRUE & (color_as_factor == TRUE | class_cell_color %in% c('character', 'factor'))) {
+
+          pl <- pl + ggplot2::geom_point(data = annotated_DT_centers,
+                                         aes_string(x = 'center_1', y = 'center_2', fill = cell_color),
+                                         color = center_point_border_col, stroke = center_point_border_stroke,
+                                         size = center_point_size, shape = 21)
+        }
+
+        ## plot labels
+        if(show_center_label == TRUE) {
+          pl <- pl + ggrepel::geom_text_repel(data = annotated_DT_centers,
+                                              aes_string(x = 'center_1', y = 'center_2', label = cell_color),
+                                              size = label_size, fontface = label_fontface)
+        }
+
       }
 
-      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_selected,
-                                     aes_string(x = sdimx, y = sdimy, fill = cell_color),
-                                     show.legend = show_legend, shape = 21, size = point_size,
-                                     stroke = point_border_stroke, color = point_border_col)
-
-      ## manually code colors
+      ## specificy colors to use
       if(!is.null(cell_color_code)) {
+
         pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
+
       } else if(color_as_factor == T) {
+
         number_colors = length(unique(factor_data))
         cell_color_code = Giotto:::getDistinctColors(n = number_colors)
         names(cell_color_code) = unique(factor_data)
         pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
+
       } else if(color_as_factor == F){
-        pl <- pl + ggplot2::scale_fill_gradient(low = 'blue', high = 'red')
+
+        pl <- pl + ggplot2::scale_fill_gradient2(low = cell_color_gradient[[1]],
+                                                 mid = cell_color_gradient[[2]],
+                                                 high = cell_color_gradient[[3]],
+                                                 midpoint = gradient_midpoint)
+
       }
-
-    } else {
-
-      # cell_color is NOT a column in the metadata, but just a color like e.g. 'blue'
-      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_selected, aes_string(x = sdimx, y = sdimy),
-                                     show.legend = show_legend, shape = 21, fill = cell_color,
-                                     size = point_size, stroke = point_border_stroke, color = point_border_col)
-
     }
-
   }
   return(pl)
 }
@@ -5941,22 +6037,33 @@ plot_spat_point_layer_ggplot = function(ggobject,
 #' @param gobject giotto object
 #' @param sdimx x-axis dimension name (default = 'sdimx')
 #' @param sdimy y-axis dimension name (default = 'sdimy')
+#' @param cell_color color for cells (see details)
+#' @param color_as_factor convert color column to factor
+#' @param cell_color_code named vector with colors
+#' @param cell_color_gradient vector with 3 colors for numeric data
+#' @param gradient_midpoint midpoint for color gradient
+#' @param gradient_limits vector with lower and upper limits
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param select_cells select subset of cells based on cell IDs
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
-#' @param cell_color color for cells (see details)
-#' @param cell_color_code named vector with colors
-#' @param color_as_factor convert color column to factor
-#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
-#' @param select_cells select subset of cells based on cell IDs
+#' @param show_cluster_center plot center of selected clusters
+#' @param show_center_label plot label of selected clusters
+#' @param center_point_size size of center points
+#' @param label_size  size of labels
+#' @param label_fontface font of labels
+#' @param show_network show underlying spatial network
+#' @param spatial_network_name name of spatial network to use
+#' @param network_color color of spatial network
+#' @param network_alpha alpha of spatial network
+#' @param show_grid show spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param grid_color color of spatial grid
 #' @param show_other_cells display not selected cells
 #' @param other_cell_color color of not selected cells
-#' @param show_network show underlying spatial network
-#' @param network_color color of spatial network
-#' @param spatial_network_name name of spatial network to use
-#' @param show_grid show spatial grid
-#' @param grid_color color of spatial grid
-#' @param spatial_grid_name name of spatial grid to use
+#' @param other_point_size point size of not selected cells
+#' @param other_cells_alpha alpha of not selected cells
 #' @param coord_fix_ratio fix ratio between x and y-axis
 #' @param title title of plot
 #' @param show_legend show legend
@@ -5974,25 +6081,35 @@ plot_spat_point_layer_ggplot = function(ggobject,
 spatPlot2D = function(gobject,
                       sdimx = 'sdimx',
                       sdimy = 'sdimy',
+                      cell_color = NULL,
+                      color_as_factor = T,
+                      cell_color_code = NULL,
+                      cell_color_gradient = c('blue', 'white', 'red'),
+                      gradient_midpoint = 0,
+                      gradient_limits = NULL,
+                      select_cell_groups = NULL,
+                      select_cells = NULL,
                       point_size = 3,
                       point_border_col = 'black',
                       point_border_stroke = 0.1,
-                      cell_color = NULL,
-                      cell_color_code = NULL,
-                      color_as_factor = T,
-                      select_cell_groups = NULL,
-                      select_cells = NULL,
+                      show_cluster_center = F,
+                      show_center_label = F,
+                      center_point_size = 4,
+                      center_point_border_col = 'black',
+                      center_point_border_stroke = 0.1,
+                      label_size = 4,
+                      label_fontface = 'bold',
+                      show_network = F,
+                      spatial_network_name = 'spatial_network',
+                      network_color = NULL,
+                      network_alpha = 1,
+                      show_grid = F,
+                      spatial_grid_name = 'spatial_grid',
+                      grid_color = NULL,
                       show_other_cells = T,
                       other_cell_color = 'lightgrey',
                       other_point_size = 1,
-                      show_network = F,
-                      network_color = NULL,
-                      network_alpha = 1,
                       other_cells_alpha = 0.1,
-                      spatial_network_name = 'spatial_network',
-                      show_grid = F,
-                      grid_color = NULL,
-                      spatial_grid_name = 'spatial_grid',
                       coord_fix_ratio = 0.6,
                       title = '',
                       show_legend = T,
@@ -6001,7 +6118,7 @@ spatPlot2D = function(gobject,
                       save_plot = NA,
                       save_param =  list(),
                       default_save_name = 'spatPlot2D'
-                      ) {
+) {
 
 
   ## get spatial cell locations
@@ -6010,6 +6127,7 @@ spatPlot2D = function(gobject,
   ## extract spatial network
   if(!is.null(spatial_network_name)) {
     spatial_network = gobject@spatial_network[[spatial_network_name]]
+    if(is.null(spatial_network)) cat('\n The chosen spatial network does not exist. \n')
   } else {
     spatial_network = NULL
   }
@@ -6017,6 +6135,7 @@ spatPlot2D = function(gobject,
   ## extract spatial grid
   if(!is.null(spatial_grid_name)) {
     spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
+    if(is.null(spatial_grid)) cat('\n The chosen spatial grid does not exist. \n')
   } else {
     spatial_grid = NULL
   }
@@ -6090,16 +6209,26 @@ spatPlot2D = function(gobject,
                                     cell_locations_metadata_other = cell_locations_metadata_other,
                                     cell_color = cell_color,
                                     color_as_factor = color_as_factor,
+                                    cell_color_code = cell_color_code,
+                                    cell_color_gradient = cell_color_gradient,
+                                    gradient_midpoint = gradient_midpoint,
+                                    gradient_limits = gradient_limits,
                                     select_cell_groups = select_cell_groups,
                                     select_cells = select_cells,
-                                    cell_color_code = cell_color_code,
-                                    show_legend = show_legend,
                                     point_size = point_size,
                                     point_border_stroke = point_border_stroke,
                                     point_border_col = point_border_col,
+                                    show_cluster_center = show_cluster_center,
+                                    show_center_label = show_center_label,
+                                    center_point_size = center_point_size,
+                                    center_point_border_col = center_point_border_col,
+                                    center_point_border_stroke = center_point_border_stroke,
+                                    label_size = label_size,
+                                    label_fontface = label_fontface,
                                     show_other_cells = show_other_cells,
                                     other_cell_color = other_cell_color,
-                                    other_point_size = other_point_size
+                                    other_point_size = other_point_size,
+                                    show_legend = show_legend
   )
 
 
@@ -6139,28 +6268,40 @@ spatPlot2D = function(gobject,
 }
 
 
+
 #' @title spatPlot
 #' @name spatPlot
 #' @description Visualize cells according to spatial coordinates
 #' @param gobject giotto object
 #' @param sdimx x-axis dimension name (default = 'sdimx')
 #' @param sdimy y-axis dimension name (default = 'sdimy')
+#' @param cell_color color for cells (see details)
+#' @param color_as_factor convert color column to factor
+#' @param cell_color_code named vector with colors
+#' @param cell_color_gradient vector with 3 colors for numeric data
+#' @param gradient_midpoint midpoint for color gradient
+#' @param gradient_limits vector with lower and upper limits
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param select_cells select subset of cells based on cell IDs
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
-#' @param cell_color color for cells (see details)
-#' @param cell_color_code named vector with colors
-#' @param color_as_factor convert color column to factor
-#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
-#' @param select_cells select subset of cells based on cell IDs
+#' @param show_cluster_center plot center of selected clusters
+#' @param show_center_label plot label of selected clusters
+#' @param center_point_size size of center points
+#' @param label_size  size of labels
+#' @param label_fontface font of labels
+#' @param show_network show underlying spatial network
+#' @param spatial_network_name name of spatial network to use
+#' @param network_color color of spatial network
+#' @param network_alpha alpha of spatial network
+#' @param show_grid show spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param grid_color color of spatial grid
 #' @param show_other_cells display not selected cells
 #' @param other_cell_color color of not selected cells
-#' @param show_network show underlying spatial network
-#' @param network_color color of spatial network
-#' @param spatial_network_name name of spatial network to use
-#' @param show_grid show spatial grid
-#' @param grid_color color of spatial grid
-#' @param spatial_grid_name name of spatial grid to use
+#' @param other_point_size point size of not selected cells
+#' @param other_cells_alpha alpha of not selected cells
 #' @param coord_fix_ratio fix ratio between x and y-axis
 #' @param title title of plot
 #' @param show_legend show legend
@@ -6172,173 +6313,12 @@ spatPlot2D = function(gobject,
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
-#' @seealso \code{\link{spatPlot3D}}
+#' @seealso \code{\link{spatPlot2D}} and \code{\link{spatPlot3D}}
 #' @examples
 #'     spatPlot(gobject)
-spatPlot = function(gobject,
-                      sdimx = 'sdimx',
-                      sdimy = 'sdimy',
-                      point_size = 3,
-                      point_border_col = 'black',
-                      point_border_stroke = 0.1,
-                      cell_color = NULL,
-                      cell_color_code = NULL,
-                      color_as_factor = T,
-                      select_cell_groups = NULL,
-                      select_cells = NULL,
-                      show_other_cells = T,
-                      other_cell_color = 'lightgrey',
-                      other_point_size = 1,
-                      show_network = F,
-                      network_color = NULL,
-                      network_alpha = 1,
-                      other_cells_alpha = 0.1,
-                      spatial_network_name = 'spatial_network',
-                      show_grid = F,
-                      grid_color = NULL,
-                      spatial_grid_name = 'spatial_grid',
-                      coord_fix_ratio = 0.6,
-                      title = '',
-                      show_legend = T,
-                      show_plot = NA,
-                      return_plot = NA,
-                      save_plot = NA,
-                      save_param =  list(),
-                      default_save_name = 'spatPlot'
-) {
+spatPlot = function(gobject, ...) {
 
-
-  ## get spatial cell locations
-  cell_locations  = gobject@spatial_locs
-
-  ## extract spatial network
-  if(!is.null(spatial_network_name)) {
-    spatial_network = gobject@spatial_network[[spatial_network_name]]
-  } else {
-    spatial_network = NULL
-  }
-
-  ## extract spatial grid
-  if(!is.null(spatial_grid_name)) {
-    spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
-  } else {
-    spatial_grid = NULL
-  }
-
-  ## get cell metadata
-  cell_metadata   = gobject@cell_metadata
-  cell_metadata   = cell_metadata[, !grepl('cell_ID', colnames(cell_metadata)), with = F]
-
-  if(nrow(cell_metadata) == 0) {
-    cell_locations_metadata = cell_locations
-  } else {
-    cell_locations_metadata <- cbind(cell_locations, cell_metadata)
-  }
-
-  ## create subsets if needed
-  if(!is.null(select_cells) & !is.null(select_cell_groups)) {
-    cat('You have selected both individual cell IDs and a group of cells \n')
-    group_cell_IDs = cell_locations_metadata[get(cell_color) %in% select_cell_groups][['cell_ID']]
-    select_cells = unique(c(select_cells, group_cell_IDs))
-  } else if(!is.null(select_cell_groups)) {
-    select_cells = cell_locations_metadata[get(cell_color) %in% select_cell_groups][['cell_ID']]
-  }
-
-  if(!is.null(select_cells)) {
-    cell_locations_metadata_other = cell_locations_metadata[!cell_locations_metadata$cell_ID %in% select_cells]
-    cell_locations_metadata_selected = cell_locations_metadata[cell_locations_metadata$cell_ID %in% select_cells]
-    spatial_network <- spatial_network[spatial_network$to %in% select_cells & spatial_network$from %in% select_cells]
-
-    # if specific cells are selected
-    # cell_locations_metadata = cell_locations_metadata_selected
-
-  } else if(is.null(select_cells)) {
-
-    cell_locations_metadata_selected = cell_locations_metadata
-    cell_locations_metadata_other = NULL
-
-  }
-
-
-
-  ### create 2D plot with ggplot ###
-  cat('create 2D plot with ggplot \n')
-
-
-  pl <- ggplot2::ggplot()
-  pl <- pl + ggplot2::theme_bw()
-
-
-  ## plot spatial network
-  if(!is.null(spatial_network) & show_network == TRUE) {
-    if(is.null(network_color)) network_color = 'red'
-    pl <- pl + ggplot2::geom_segment(data = spatial_network, aes(x = sdimx_begin, y = sdimy_begin,
-                                                                 xend = sdimx_end, yend = sdimy_end),
-                                     color = network_color, size = 0.5, alpha = 0.5)
-  }
-
-
-  ## plot spatial grid
-  if(!is.null(spatial_grid) & show_grid == TRUE) {
-    if(is.null(grid_color)) grid_color = 'black'
-    pl <- pl + ggplot2::geom_rect(data = spatial_grid, aes(xmin = x_start, xmax = x_end,
-                                                           ymin = y_start, ymax = y_end),
-                                  color = grid_color, fill = NA)
-  }
-
-  ## plot point layer
-  pl = plot_spat_point_layer_ggplot(ggobject = pl,
-                                    sdimx = sdimx,
-                                    sdimy = sdimy,
-                                    cell_locations_metadata_selected = cell_locations_metadata_selected,
-                                    cell_locations_metadata_other = cell_locations_metadata_other,
-                                    cell_color = cell_color,
-                                    color_as_factor = color_as_factor,
-                                    select_cell_groups = select_cell_groups,
-                                    select_cells = select_cells,
-                                    cell_color_code = cell_color_code,
-                                    show_legend = show_legend,
-                                    point_size = point_size,
-                                    point_border_stroke = point_border_stroke,
-                                    point_border_col = point_border_col,
-                                    show_other_cells = show_other_cells,
-                                    other_cell_color = other_cell_color,
-                                    other_point_size = other_point_size
-  )
-
-
-  ## adjust titles
-  pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5),
-                            legend.title = element_text(size = 10),
-                            legend.text = element_text(size = 10))
-
-  # fix coord ratio
-  if(!is.null(coord_fix_ratio)) {
-    pl <- pl + ggplot2::coord_fixed(ratio = coord_fix_ratio)
-  }
-
-  pl <- pl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates', title = title)
-
-
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(pl)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(pl)
-  }
+  spatPlot2D(gobject = gobject, ...)
 
 }
 
@@ -6348,9 +6328,10 @@ spatPlot = function(gobject,
 
 
 
+
 #' @title spatDimPlot2D
 #' @name spatDimPlot2D
-#' @description Visualize cells according to spatial AND dimension reduction coordinates in ggplot2 mode
+#' @description Visualize cells according to spatial AND dimension reduction coordinates 2D
 #' @param gobject giotto object
 #' @param plot_alignment direction to align plot
 #' @param dim_reduction_to_use dimension reduction to use
@@ -6359,40 +6340,49 @@ spatPlot = function(gobject,
 #' @param dim2_to_use dimension to use on y-axis
 #' @param sdimx = spatial dimension to use on x-axis
 #' @param sdimy = spatial dimension to use on y-axis
-#' @param show_NN_network show underlying NN network
-#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
-#' @param network_name name of NN network to use, if show_NN_network = TRUE
-#' @param show_cluster_center show the center of each cluster
-#' @param show_center_label provide a label for each cluster
-#' @param center_point_size size of the center point
-#' @param label_size size of the center label
-#' @param label_fontface font of the center label
 #' @param cell_color color for cells (see details)
 #' @param color_as_factor convert color column to factor
 #' @param cell_color_code named vector with colors
+#' @param cell_color_gradient vector with 3 colors for numeric data
+#' @param gradient_midpoint midpoint for color gradient
+#' @param gradient_limits vector with lower and upper limits
 #' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
 #' @param select_cells select subset of cells based on cell IDs
-#' @param show_other_cells display not selected cells
-#' @param other_cell_color color of not selected cells
-#' @param other_point_size size of not selected cells
 #' @param dim_point_size size of points in dim. reduction space
 #' @param dim_point_border_col border color of points in dim. reduction space
 #' @param dim_point_border_stroke border stroke of points in dim. reduction space
+#' @param spat_point_size size of spatial points
+#' @param spat_point_border_col border color of spatial points
+#' @param spat_point_border_stroke border stroke of spatial points
+#' @param dim_show_cluster_center show the center of each cluster
+#' @param dim_show_center_label provide a label for each cluster
+#' @param dim_center_point_size size of the center point
+#' @param dim_center_point_border_col border color of center point
+#' @param dim_center_point_border_stroke stroke size of center point
+#' @param dim_label_size size of the center label
+#' @param dim_label_fontface font of the center label
+#' @param spat_show_cluster_center show the center of each cluster
+#' @param spat_show_center_label provide a label for each cluster
+#' @param spat_center_point_size size of the center point
+#' @param spat_label_size size of the center label
+#' @param spat_label_fontface font of the center label
+#' @param show_NN_network show underlying NN network
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
+#' @param network_name name of NN network to use, if show_NN_network = TRUE
 #' @param nn_network_alpha column to use for alpha of the edges
 #' @param show_spatial_network show spatial network
-#' @param spatial_network_name name of spatial network to use
-#' @param spatial_network_color color of spatial network
+#' @param spat_network_name name of spatial network to use
+#' @param spat_network_color color of spatial network
 #' @param show_spatial_grid show spatial grid
-#' @param spatial_grid_name name of spatial grid to use
-#' @param spatial_grid_color color of spatial grid
-#' @param spatial_point_size size of spatial points
-#' @param spatial_point_border_col border color of spatial points
-#' @param spatial_point_border_stroke border stroke of spatial points
-#' @param spatial_other_point_size size of not selected spatial points
-#' @param spatial_network_alpha alpha of spatial network
-#' @param spatial_other_cells_alpha alpha of not selected spatial points
-#' @param dim_other_point_size size of not selected dim. reduction points
-#' @param show_legend show legend
+#' @param spat_grid_name name of spatial grid to use
+#' @param spat_grid_color color of spatial grid
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color of not selected cells
+#' @param dim_other_point_size size of not selected dim cells
+#' @param spat_other_point_size size of not selected spat cells
+#' @param spat_other_cells_alpha alpha of not selected spat cells
+#' @param dim_show_legend show legend of dimension reduction plot
+#' @param spat_show_legend show legend of spatial plot
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -6410,42 +6400,52 @@ spatDimPlot2D <- function(gobject,
                           dim_reduction_name = 'umap',
                           dim1_to_use = 1,
                           dim2_to_use = 2,
-                          sdimx='sdimx',
-                          sdimy='sdimy',
-                          show_NN_network = F,
-                          nn_network_to_use = 'sNN',
-                          network_name = 'sNN.pca',
-                          show_cluster_center = F,
-                          show_center_label = T,
-                          center_point_size = 4,
-                          label_size = 4,
-                          label_fontface = 'bold',
+                          sdimx = 'sdimx',
+                          sdimy = 'sdimy',
                           cell_color = NULL,
                           color_as_factor = T,
                           cell_color_code = NULL,
+                          cell_color_gradient = c('blue', 'white', 'red'),
+                          gradient_midpoint = 0,
+                          gradient_limits = NULL,
                           select_cell_groups = NULL,
                           select_cells = NULL,
-                          show_other_cells = T,
-                          other_cell_color = 'lightgrey',
-                          other_point_size = 1,
                           dim_point_size = 1,
                           dim_point_border_col = 'black',
                           dim_point_border_stroke = 0.1,
+                          spat_point_size = 1,
+                          spat_point_border_col = 'black',
+                          spat_point_border_stroke = 0.1,
+                          dim_show_cluster_center = F,
+                          dim_show_center_label = T,
+                          dim_center_point_size = 4,
+                          dim_center_point_border_col = 'black',
+                          dim_center_point_border_stroke = 0.1,
+                          dim_label_size = 4,
+                          dim_label_fontface = 'bold',
+                          spat_show_cluster_center = F,
+                          spat_show_center_label = T,
+                          spat_center_point_size = 4,
+                          spat_label_size = 4,
+                          spat_label_fontface = 'bold',
+                          show_NN_network = F,
+                          nn_network_to_use = 'sNN',
+                          network_name = 'sNN.pca',
                           nn_network_alpha = 0.05,
                           show_spatial_network = F,
-                          spatial_network_name = 'spatial_network',
-                          spatial_network_color = 'blue',
+                          spat_network_name = 'spatial_network',
+                          spat_network_color = 'blue',
+                          spat_network_alpha = 0.5,
                           show_spatial_grid = F,
-                          spatial_grid_name = 'spatial_grid',
-                          spatial_grid_color = 'blue',
-                          spatial_point_size = 1,
-                          spatial_point_border_col = 'black',
-                          spatial_point_border_stroke = 0.1,
-                          spatial_other_point_size = 1,
-                          spatial_network_alpha = 0.5,
-                          spatial_other_cells_alpha = 0.5,
+                          spat_grid_name = 'spatial_grid',
+                          spat_grid_color = 'blue',
+                          show_other_cells = T,
+                          other_cell_color = 'lightgrey',
                           dim_other_point_size = 1,
-                          show_legend = T,
+                          spat_other_point_size = 1,
+                          spat_other_cells_alpha = 0.5,
+                          dim_show_legend = F,
+                          spat_show_legend = F,
                           show_plot = NA,
                           return_plot = NA,
                           save_plot = NA,
@@ -6479,59 +6479,73 @@ spatDimPlot2D <- function(gobject,
                    dim_reduction_name = dim_reduction_name,
                    dim1_to_use = dim1_to_use,
                    dim2_to_use = dim2_to_use,
-                   show_NN_network = show_NN_network,
-                   nn_network_to_use = nn_network_to_use,
-                   network_name = network_name,
                    cell_color = cell_color,
                    color_as_factor = color_as_factor,
                    cell_color_code = cell_color_code,
+                   cell_color_gradient = cell_color_gradient,
+                   gradient_midpoint = gradient_midpoint,
+                   gradient_limits = gradient_limits,
                    select_cell_groups = select_cell_groups,
                    select_cells = select_cells,
-                   show_other_cells = show_other_cells,
-                   other_cell_color = other_cell_color,
-                   other_point_size = dim_other_point_size,
-                   show_cluster_center = show_cluster_center,
-                   show_center_label = show_center_label,
-                   center_point_size = center_point_size,
-                   center_point_border_col = center_point_border_col,
-                   center_point_border_stroke = center_point_border_stroke,
-                   label_size = label_size,
-                   label_fontface = label_fontface,
-                   edge_alpha = nn_network_alpha,
                    point_size = dim_point_size,
                    point_border_col = dim_point_border_col,
                    point_border_stroke = dim_point_border_stroke,
-                   show_legend = show_legend,
+                   show_cluster_center = dim_show_cluster_center,
+                   show_center_label = dim_show_center_label,
+                   center_point_size = dim_center_point_size,
+                   center_point_border_col = dim_center_point_border_col,
+                   center_point_border_stroke = dim_center_point_border_stroke,
+                   label_size = dim_label_size,
+                   label_fontface = dim_label_fontface,
+                   show_NN_network = show_NN_network,
+                   nn_network_to_use = nn_network_to_use,
+                   network_name = network_name,
+                   edge_alpha = nn_network_alpha,
+                   show_other_cells = show_other_cells,
+                   other_cell_color = other_cell_color,
+                   other_point_size = dim_other_point_size,
+                   show_legend = dim_show_legend,
                    show_plot = FALSE,
                    return_plot = TRUE,
-                   save_plot = FALSE)
+                   save_plot = FALSE
+                   )
 
   # spatial plot
   spl = spatPlot2D(gobject = gobject,
                    sdimx = sdimx,
                    sdimy = sdimy,
-                   point_size = spatial_point_size,
-                   point_border_col = spatial_point_border_col,
-                   point_border_stroke = spatial_point_border_stroke,
                    cell_color = cell_color,
                    cell_color_code = cell_color_code,
                    color_as_factor = color_as_factor,
+                   cell_color_gradient = cell_color_gradient,
+                   gradient_midpoint = gradient_midpoint,
+                   gradient_limits = gradient_limits,
                    select_cell_groups = select_cell_groups,
                    select_cells = select_cells,
+                   point_size = spat_point_size,
+                   point_border_col = spat_point_border_col,
+                   point_border_stroke = spat_point_border_stroke,
+                   show_cluster_center = spat_show_cluster_center,
+                   show_center_label = spat_show_center_label,
+                   center_point_size = spat_center_point_size,
+                   center_point_border_col = spat_center_point_border_col,
+                   center_point_border_stroke = spat_center_point_border_stroke,
+                   label_size = spat_label_size,
+                   label_fontface = spat_label_fontface,
+                   show_network = show_spatial_network,
+                   spatial_network_name = spat_network_name,
+                   network_color = spat_network_color,
+                   network_alpha = spat_network_alpha,
+                   show_grid = show_spatial_grid,
+                   spatial_grid_name = spat_grid_name,
+                   grid_color = spat_grid_color,
                    show_other_cells = show_other_cells,
                    other_cell_color = other_cell_color,
-                   other_point_size = spatial_other_point_size,
-                   show_network = show_spatial_network,
-                   network_color = spatial_network_color,
-                   network_alpha = spatial_network_alpha,
-                   other_cells_alpha = spatial_other_cells_alpha,
-                   spatial_network_name = spatial_network_name,
-                   show_grid = show_spatial_grid,
-                   grid_color = spatial_grid_color,
-                   spatial_grid_name = spatial_grid_name,
+                   other_point_size = spat_other_point_size,
+                   other_cells_alpha = spat_other_cells_alpha,
                    coord_fix_ratio = NULL,
                    title = '',
-                   show_legend = show_legend,
+                   show_legend = spat_show_legend,
                    show_plot = FALSE,
                    return_plot = TRUE,
                    save_plot = FALSE)
@@ -6629,173 +6643,11 @@ spatDimPlot2D <- function(gobject,
 #' @seealso \code{\link{spatDimPlot3D}}
 #' @examples
 #'     spatDimPlot(gobject)
-spatDimPlot <- function(gobject,
-                          plot_alignment = c('vertical', 'horizontal'),
-                          dim_reduction_to_use = 'umap',
-                          dim_reduction_name = 'umap',
-                          dim1_to_use = 1,
-                          dim2_to_use = 2,
-                          sdimx='sdimx',
-                          sdimy='sdimy',
-                          show_NN_network = F,
-                          nn_network_to_use = 'sNN',
-                          network_name = 'sNN.pca',
-                          show_cluster_center = F,
-                          show_center_label = T,
-                          center_point_size = 4,
-                          label_size = 4,
-                          label_fontface = 'bold',
-                          cell_color = NULL,
-                          color_as_factor = T,
-                          cell_color_code = NULL,
-                          select_cell_groups = NULL,
-                          select_cells = NULL,
-                          show_other_cells = T,
-                          other_cell_color = 'lightgrey',
-                          other_point_size = 1,
-                          dim_point_size = 1,
-                          dim_point_border_col = 'black',
-                          dim_point_border_stroke = 0.1,
-                          nn_network_alpha = 0.05,
-                          show_spatial_network = F,
-                          spatial_network_name = 'spatial_network',
-                          spatial_network_color = 'blue',
-                          show_spatial_grid = F,
-                          spatial_grid_name = 'spatial_grid',
-                          spatial_grid_color = 'blue',
-                          spatial_point_size = 1,
-                          spatial_point_border_col = 'black',
-                          spatial_point_border_stroke = 0.1,
-                          spatial_other_point_size = 1,
-                          spatial_network_alpha = 0.5,
-                          spatial_other_cells_alpha = 0.5,
-                          dim_other_point_size = 1,
-                          show_legend = T,
-                          show_plot = NA,
-                          return_plot = NA,
-                          save_plot = NA,
-                          save_param =  list(),
-                          default_save_name = 'spatDimPlot'
-){
+spatDimPlot = function(gobject, ...) {
 
-  plot_alignment = match.arg(plot_alignment, choices = c( 'vertical','horizontal'))
-
-
-  # create matching cell_color_code
-  if(is.null(cell_color_code)) {
-    if(is.character(cell_color)) {
-
-      cell_metadata = pDataDT(gobject)
-      if(cell_color %in% colnames(cell_metadata)) {
-
-        if(color_as_factor == TRUE) {
-          number_colors = length(unique(cell_metadata[[cell_color]]))
-          cell_color_code = Giotto:::getDistinctColors(n = number_colors)
-          names(cell_color_code) = unique(cell_metadata[[cell_color]])
-          cell_color_code = cell_color_code
-        }
-      }
-    }
-  }
-
-  # dimension reduction plot
-  dmpl = dimPlot2D(gobject = gobject,
-                   dim_reduction_to_use = dim_reduction_to_use,
-                   dim_reduction_name = dim_reduction_name,
-                   dim1_to_use = dim1_to_use,
-                   dim2_to_use = dim2_to_use,
-                   show_NN_network = show_NN_network,
-                   nn_network_to_use = nn_network_to_use,
-                   network_name = network_name,
-                   cell_color = cell_color,
-                   color_as_factor = color_as_factor,
-                   cell_color_code = cell_color_code,
-                   select_cell_groups = select_cell_groups,
-                   select_cells = select_cells,
-                   show_other_cells = show_other_cells,
-                   other_cell_color = other_cell_color,
-                   other_point_size = dim_other_point_size,
-                   show_cluster_center = show_cluster_center,
-                   show_center_label = show_center_label,
-                   center_point_size = center_point_size,
-                   center_point_border_col = center_point_border_col,
-                   center_point_border_stroke = center_point_border_stroke,
-                   label_size = label_size,
-                   label_fontface = label_fontface,
-                   edge_alpha = nn_network_alpha,
-                   point_size = dim_point_size,
-                   point_border_col = dim_point_border_col,
-                   point_border_stroke = dim_point_border_stroke,
-                   show_legend = show_legend,
-                   show_plot = FALSE,
-                   return_plot = TRUE,
-                   save_plot = FALSE)
-
-  # spatial plot
-  spl = spatPlot2D(gobject = gobject,
-                   sdimx = sdimx,
-                   sdimy = sdimy,
-                   point_size = spatial_point_size,
-                   point_border_col = spatial_point_border_col,
-                   point_border_stroke = spatial_point_border_stroke,
-                   cell_color = cell_color,
-                   cell_color_code = cell_color_code,
-                   color_as_factor = color_as_factor,
-                   select_cell_groups = select_cell_groups,
-                   select_cells = select_cells,
-                   show_other_cells = show_other_cells,
-                   other_cell_color = other_cell_color,
-                   other_point_size = spatial_other_point_size,
-                   show_network = show_spatial_network,
-                   network_color = spatial_network_color,
-                   network_alpha = spatial_network_alpha,
-                   other_cells_alpha = spatial_other_cells_alpha,
-                   spatial_network_name = spatial_network_name,
-                   show_grid = show_spatial_grid,
-                   grid_color = spatial_grid_color,
-                   spatial_grid_name = spatial_grid_name,
-                   coord_fix_ratio = NULL,
-                   title = '',
-                   show_legend = show_legend,
-                   show_plot = FALSE,
-                   return_plot = TRUE,
-                   save_plot = FALSE)
-
-
-  if(plot_alignment == 'vertical') {
-    ncol = 1
-    nrow = 2
-    combo_plot = cowplot::plot_grid(dmpl, spl, ncol = ncol, nrow = nrow, rel_heights = c(1), rel_widths = c(1), align = 'v')
-  } else {
-    ncol = 2
-    nrow = 1
-    combo_plot = cowplot::plot_grid(dmpl, spl, ncol = ncol, nrow = nrow, rel_heights = c(1), rel_widths = c(1), align = 'h')
-  }
-
-
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(combo_plot)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(combo_plot)
-  }
+  spatDimPlot2D(gobject = gobject, ...)
 
 }
-
-
 
 
 
@@ -7037,172 +6889,14 @@ spatGenePlot2D <- function(gobject,
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
-#' @seealso \code{\link{spatGenePlot3D}}
+#' @seealso \code{\link{spatGenePlot3D}} and \code{\link{spatGenePlot2D}}
 #' @examples
-#'     spatGenePlot2D(gobject)
-spatGenePlot <- function(gobject,
-                           expression_values = c('normalized', 'scaled', 'custom'),
-                           genes,
-                           genes_high_color = 'darkred',
-                           genes_mid_color = "white",
-                           genes_low_color = "darkblue",
-                           show_network = F,
-                           network_color = NULL,
-                           spatial_network_name = 'spatial_network',
-                           edge_alpha = NULL,
-                           show_grid = F,
-                           grid_color = NULL,
-                           spatial_grid_name = 'spatial_grid',
-                           midpoint = 0,
-                           scale_alpha_with_expression = FALSE,
-                           point_size = 1,
-                           point_border_col = 'black',
-                           point_border_stroke = 0.1,
-                           show_legend = T,
-                           cow_n_col = 2,
-                           cow_rel_h = 1,
-                           cow_rel_w = 1,
-                           cow_align = 'h',
-                           show_plot = NA,
-                           return_plot = NA,
-                           save_plot = NA,
-                           save_param =  list(),
-                           default_save_name = 'spatGenePlot') {
+#'     spatGenePlot(gobject)
+spatGenePlot = function(gobject, ...) {
 
+  spatGenePlot2D(gobject = gobject, ...)
 
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-
-
-
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
-
-  # only keep genes that are in the dataset
-  selected_genes = genes
-  selected_genes = selected_genes[selected_genes %in% rownames(expr_values) ]
-
-  # get selected gene expression values in data.table format
-  if(length(selected_genes) == 1) {
-    subset_expr_data = expr_values[rownames(expr_values) %in% selected_genes, ]
-    t_sub_expr_data_DT = data.table::data.table('selected_gene' = subset_expr_data, 'cell_ID' = colnames(expr_values))
-    data.table::setnames(t_sub_expr_data_DT, 'selected_gene', selected_genes)
-  } else {
-    subset_expr_data = expr_values[rownames(expr_values) %in% selected_genes, ]
-    t_sub_expr_data = t(subset_expr_data)
-    t_sub_expr_data_DT = data.table::as.data.table(t_sub_expr_data)
-    t_sub_expr_data_DT[, cell_ID := rownames(t_sub_expr_data)]
-  }
-
-
-  ## extract cell locations
-  cell_locations  = gobject@spatial_locs
-
-  ## extract spatial network
-  if(!is.null(spatial_network_name)) {
-    spatial_network = gobject@spatial_network[[spatial_network_name]]
-  } else {
-    spatial_network = NULL
-  }
-
-  ## extract spatial grid
-  if(!is.null(spatial_grid_name)) {
-    spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
-  } else {
-    spatial_grid = NULL
-  }
-
-  ## extract cell metadata
-  cell_metadata   = gobject@cell_metadata
-  cell_metadata   = cell_metadata[, !grepl('cell_ID', colnames(cell_metadata)), with = F]
-
-  if(nrow(cell_metadata) == 0) {
-    cell_locations_metadata = cell_locations
-  } else {
-    cell_locations_metadata <- cbind(cell_locations, cell_metadata)
-  }
-
-  cell_locations_metadata_genes <- merge(cell_locations_metadata, t_sub_expr_data_DT, by = 'cell_ID')
-
-  ## plotting ##
-
-  savelist <- list()
-
-  for(gene in selected_genes) {
-
-    pl <- ggplot2::ggplot()
-    pl <- pl + ggplot2::theme_classic()
-
-    ## plot spatial network
-    if(!is.null(spatial_network) & show_network == TRUE) {
-      if(is.null(network_color)) {
-        network_color = 'red'
-      }
-      pl <- pl + ggplot2::geom_segment(data = spatial_network, aes(x = sdimx_begin, y = sdimy_begin,
-                                                                   xend = sdimx_end, yend = sdimy_end),
-                                       color = network_color, size = 0.5, alpha = 0.5)
-    }
-
-    ## plot spatial grid
-    if(!is.null(spatial_grid) & show_grid == TRUE) {
-      if(is.null(grid_color)) grid_color = 'black'
-      pl <- pl + ggplot2::geom_rect(data = spatial_grid, aes(xmin = x_start, xmax = x_end,
-                                                             ymin = y_start, ymax = y_end),
-                                    color = grid_color, fill = NA)
-    }
-
-
-    if(scale_alpha_with_expression == TRUE) {
-      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes, aes_string2(x = 'sdimx', y = 'sdimy',
-                                                                                       fill = gene, alpha = gene),
-                                     shape = 21,
-                                     color = point_border_col, size = point_size, stroke = point_border_stroke,
-                                     show.legend = show_legend)
-    } else {
-      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes, aes_string2(x = 'sdimx', y = 'sdimy',
-                                                                                       fill = gene),
-                                     shape = 21,
-                                     color = point_border_col, size = point_size, stroke = point_border_stroke,
-                                     show.legend = show_legend)
-    }
-    pl <- pl + ggplot2::scale_alpha_continuous(guide = 'none')
-    pl <- pl + ggplot2::scale_fill_gradient2(low = genes_low_color, mid = genes_mid_color, high = genes_high_color,
-                                             midpoint = midpoint, guide = guide_colorbar(title = ''))
-    pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y', title = gene)
-    pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5))
-
-    if(show_plot == TRUE) {
-      print(pl)
-    }
-
-    savelist[[gene]] <- pl
-  }
-
-  # combine plots with cowplot
-  combo_plot <- cowplot::plot_grid(plotlist = savelist,
-                                   ncol = cow_n_col,
-                                   rel_heights = cow_rel_h, rel_widths = cow_rel_w, align = cow_align)
-
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(combo_plot)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(combo_plot)
-  }
 }
-
 
 
 
@@ -7468,192 +7162,11 @@ dimGenePlot2D <- function(gobject,
 #' @seealso \code{\link{dimGenePlot3D}}
 #' @examples
 #'     dimGenePlot(gobject)
-dimGenePlot <- function(gobject,
-                          expression_values = c('normalized', 'scaled', 'custom'),
-                          genes = NULL,
-                          dim_reduction_to_use = 'umap',
-                          dim_reduction_name = 'umap',
-                          dim1_to_use = 1,
-                          dim2_to_use = 2,
-                          show_NN_network = F,
-                          nn_network_to_use = 'sNN',
-                          network_name = 'sNN.pca',
-                          network_color = "lightgray",
-                          edge_alpha = NULL,
-                          scale_alpha_with_expression = FALSE,
-                          point_size = 1,
-                          genes_high_color = "red",
-                          genes_mid_color = "white",
-                          genes_low_color = "blue",
-                          point_border_col = 'black',
-                          point_border_stroke = 0.1,
-                          midpoint = 0,
-                          cow_n_col = 2,
-                          cow_rel_h = 1,
-                          cow_rel_w = 1,
-                          cow_align = 'h',
-                          show_legend = T,
-                          show_plot = NA,
-                          return_plot = NA,
-                          save_plot = NA,
-                          save_param =  list(),
-                          default_save_name = 'dimGenePlot') {
+dimGenePlot = function(gobject, ...) {
 
-
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-  ## select genes ##
-  selected_genes = genes
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
-
-  # only keep genes that are in the dataset
-  selected_genes = selected_genes[selected_genes %in% rownames(expr_values) ]
-
-  #
-  if(length(selected_genes) == 1) {
-    subset_expr_data = expr_values[rownames(expr_values) %in% selected_genes, ]
-    t_sub_expr_data_DT = data.table('selected_gene' = subset_expr_data, 'cell_ID' = colnames(expr_values))
-    data.table::setnames(t_sub_expr_data_DT, 'selected_gene', selected_genes)
-  } else {
-    subset_expr_data = expr_values[rownames(expr_values) %in% selected_genes, ]
-    t_sub_expr_data = t(subset_expr_data)
-    t_sub_expr_data_DT = data.table::as.data.table(t_sub_expr_data)
-    t_sub_expr_data_DT[, cell_ID := rownames(t_sub_expr_data)]
-  }
-
-
-  ## dimension reduction ##
-  dim_dfr = gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$coordinates[,c(dim1_to_use, dim2_to_use)]
-  dim_names = colnames(dim_dfr)
-  dim_DT = data.table::as.data.table(dim_dfr); dim_DT[, cell_ID := rownames(dim_dfr)]
-
-  ## annotated cell metadata
-  cell_metadata = gobject@cell_metadata
-  annotated_DT = merge(cell_metadata, dim_DT, by = 'cell_ID')
-
-  ## merge gene info
-  annotated_gene_DT = merge(annotated_DT, t_sub_expr_data_DT, by = 'cell_ID')
-
-  # create input for network
-  if(show_NN_network == TRUE) {
-
-    # nn_network
-    selected_nn_network = gobject@nn_network[[nn_network_to_use]][[network_name]][['igraph']]
-    network_DT = data.table::as.data.table(igraph::as_data_frame(selected_nn_network, what = 'edges'))
-
-    # annotated network
-    old_dim_names = dim_names
-
-    annotated_network_DT <- merge(network_DT, dim_DT, by.x = 'from', by.y = 'cell_ID')
-    from_dim_names = paste0('from_', old_dim_names)
-    data.table::setnames(annotated_network_DT, old = old_dim_names, new = from_dim_names)
-
-    annotated_network_DT <- merge(annotated_network_DT, dim_DT, by.x = 'to', by.y = 'cell_ID')
-    to_dim_names = paste0('to_', old_dim_names)
-    data.table::setnames(annotated_network_DT, old = old_dim_names, new = to_dim_names)
-
-  }
-
-
-
-  ## visualize multipe plots ##
-  ## 2D plots ##
-  savelist <- list()
-
-  for(gene in selected_genes) {
-
-
-    ## OLD need to be combined ##
-    pl <- ggplot2::ggplot()
-    pl <- pl + ggplot2::theme_classic()
-
-    # network layer
-    if(show_NN_network == TRUE) {
-
-      if(is.null(edge_alpha)) {
-        edge_alpha = 0.5
-        pl <- pl + ggplot2::geom_segment(data = annotated_network_DT,
-                                         aes_string(x = from_dim_names[1], y = from_dim_names[2],
-                                                    xend = to_dim_names[1], yend = to_dim_names[2]),
-                                         alpha = edge_alpha, color=network_color,size = 0.1,
-                                         show.legend = F)
-      } else if(is.numeric(edge_alpha)) {
-        pl <- pl + ggplot2::geom_segment(data = annotated_network_DT,
-                                         aes_string(x = from_dim_names[1], y = from_dim_names[2],
-                                                    xend = to_dim_names[1], yend = to_dim_names[2]),
-                                         alpha = edge_alpha, color=network_color,size = 0.1,
-                                         show.legend = F)
-      } else if(is.character(edge_alpha)) {
-
-        if(edge_alpha %in% colnames(annotated_network_DT)) {
-          pl <- pl + ggplot2::geom_segment(data = annotated_network_DT,
-                                           aes_string(x = from_dim_names[1], y = from_dim_names[2],
-                                                      xend = to_dim_names[1],
-                                                      yend = to_dim_names[2], alpha = edge_alpha),
-                                           color=network_color,
-                                           show.legend = F)
-        }
-      }
-    }
-
-
-    # point layer
-    if(is.null(genes)) {
-      cell_color = 'lightblue'
-      pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string(x = dim_names[1], dim_names[2]),
-                                     fill = cell_color, show.legend = show_legend, size =  point_size)
-
-    } else {
-      if(scale_alpha_with_expression == TRUE) {
-        pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string2(x = dim_names[1], y = dim_names[2], fill = gene, alpha = gene),
-                                       show.legend = show_legend, shape = 21, size = point_size,
-                                       color = point_border_col, stroke = point_border_stroke)
-      } else {
-        pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string2(x = dim_names[1], y = dim_names[2], fill = gene),
-                                       show.legend = show_legend, shape = 21,
-                                       size =  point_size,
-                                       color = point_border_col, stroke = point_border_stroke)
-      }
-
-      pl <- pl + ggplot2::scale_fill_gradient2(low = genes_low_color, mid = genes_mid_color, high = genes_high_color, midpoint = midpoint)
-    }
-
-    pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y')
-
-    if(show_plot == TRUE) {
-      print(pl)
-    }
-
-    savelist[[gene]] <- pl
-  }
-
-  # combine plots with cowplot
-  combo_plot <- cowplot::plot_grid(plotlist = savelist,
-                                   ncol = cow_n_col,
-                                   rel_heights = cow_rel_h, rel_widths = cow_rel_w, align = cow_align)
-
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(combo_plot)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(combo_plot)
-  }
+  dimGenePlot2D(gobject = gobject, ...)
 
 }
-
 
 
 
@@ -7882,141 +7395,11 @@ spatDimGenePlot2D <- function(gobject,
 #' @seealso \code{\link{spatDimGenePlot3D}}
 #' @examples
 #'     spatDimGenePlot(gobject)
-spatDimGenePlot <- function(gobject,
-                            expression_values = c('normalized', 'scaled', 'custom'),
-                            plot_alignment = c('vertical', 'horizontal'),
-                            genes,
-                            dim_reduction_to_use = 'umap',
-                            dim_reduction_name = 'umap',
-                            dim1_to_use = 1,
-                            dim2_to_use = 2,
-                            point_size = 1,
-                            dim_point_border_col = 'black',
-                            dim_point_border_stroke = 0.1,
-                            show_NN_network = F,
-                            show_spatial_network = F,
-                            show_spatial_grid = F,
-                            nn_network_to_use = 'sNN',
-                            network_name = 'sNN.pca',
-                            edge_alpha_dim = NULL,
-                            scale_alpha_with_expression = FALSE,
-                            spatial_network_name = 'spatial_network',
-                            spatial_grid_name = 'spatial_grid',
-                            spatial_point_size = 1,
-                            spatial_point_border_col = 'black',
-                            spatial_point_border_stroke = 0.1,
-                            midpoint = 0,
-                            genes_high_color = "red",
-                            genes_mid_color="white",
-                            genes_low_color = "blue",
-                            cow_n_col = 2,
-                            cow_rel_h = 1,
-                            cow_rel_w = 1,
-                            cow_align = 'h',
-                            show_legend = T,
-                            show_plot = NA,
-                            return_plot = NA,
-                            save_plot = NA,
-                            save_param =  list(),
-                            default_save_name = 'spatDimGenePlot') {
+spatDimGenePlot = function(gobject, ...) {
 
-  plot_alignment = match.arg(plot_alignment, choices = c('vertical', 'horizontal'))
-
-  # dimension reduction plot
-  dmpl = dimGenePlot2D(gobject = gobject,
-                       expression_values = expression_values,
-                       genes = genes,
-                       dim_reduction_to_use = dim_reduction_to_use,
-                       dim_reduction_name = dim_reduction_name,
-                       dim1_to_use = dim1_to_use,
-                       dim2_to_use = dim2_to_use,
-                       show_NN_network = show_NN_network,
-                       nn_network_to_use = nn_network_to_use,
-                       network_name =network_name,
-                       network_color = network_color,
-                       edge_alpha = edge_alpha,
-                       scale_alpha_with_expression = scale_alpha_with_expression,
-                       point_size = point_size,
-                       genes_high_color = genes_high_color,
-                       genes_mid_color=genes_mid_color,
-                       genes_low_color = genes_low_color,
-                       point_border_col =dim_point_border_col,
-                       point_border_stroke =dim_point_border_stroke,
-                       midpoint = midpoint,
-                       cow_n_col = cow_n_col,
-                       cow_rel_h = cow_rel_h,
-                       cow_rel_w = cow_rel_w,
-                       cow_align = cow_align,
-                       show_legend = show_legend,
-                       show_plot = FALSE,
-                       return_plot = TRUE,
-                       save_plot = FALSE)
-
-  # spatial plot
-  spl = spatGenePlot2D(gobject=gobject,
-                       expression_values = expression_values,
-                       genes = genes,
-                       genes_high_color = genes_high_color,
-                       genes_mid_color = genes_mid_color,
-                       genes_low_color = genes_low_color,
-                       show_network = show_spatial_network,
-                       network_color = network_color,
-                       spatial_network_name = spatial_network_name,
-                       edge_alpha = edge_alpha,
-                       show_grid = show_spatial_grid,
-                       grid_color = grid_color,
-                       spatial_grid_name = spatial_grid_name,
-                       midpoint = midpoint,
-                       scale_alpha_with_expression = scale_alpha_with_expression,
-                       point_size = point_size,
-                       point_border_col =spatial_point_border_col,
-                       point_border_stroke = spatial_point_border_stroke,
-                       show_legend = show_legend,
-                       cow_n_col = cow_n_col,
-                       cow_rel_h = cow_rel_h,
-                       cow_rel_w = cow_rel_w,
-                       cow_align = cow_align,
-                       show_plot = FALSE,
-                       return_plot = TRUE,
-                       save_plot = FALSE)
-
-  print(plot_alignment)
-
-  if(plot_alignment == 'vertical') {
-    ncol = 1
-    nrow = 2
-    combo_plot = cowplot::plot_grid(dmpl, spl, ncol = ncol, nrow = nrow, rel_heights = c(1), rel_widths = c(1), align = 'v')
-  } else {
-    ncol = 2
-    nrow = 1
-    combo_plot = cowplot::plot_grid(dmpl, spl, ncol = ncol, nrow = nrow, rel_heights = c(1), rel_widths = c(1), align = 'h')
-  }
-
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(combo_plot)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(combo_plot)
-  }
+  spatDimGenePlot2D(gobject = gobject, ...)
 
 }
-
-
-
-
 
 
 
