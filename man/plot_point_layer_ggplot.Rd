@@ -6,15 +6,16 @@
 \usage{
 plot_point_layer_ggplot(ggobject, annotated_DT_selected,
   annotated_DT_other, cell_color = NULL, color_as_factor = T,
-  cell_color_code = NULL, select_cell_groups = NULL,
-  select_cells = NULL, show_other_cells = T,
-  other_cell_color = "lightgrey", other_point_size = 0.5,
-  show_cluster_center = F, show_center_label = T,
-  center_point_size = 4, center_point_border_col = "black",
-  center_point_border_stroke = 0.1, label_size = 4,
-  label_fontface = "bold", edge_alpha = NULL, point_size = 1,
-  point_border_col = "black", point_border_stroke = 0.1,
-  show_legend = T)
+  cell_color_code = NULL, cell_color_gradient = c("blue", "white",
+  "red"), gradient_midpoint = 0, gradient_limits = NULL,
+  select_cell_groups = NULL, select_cells = NULL,
+  show_other_cells = T, other_cell_color = "lightgrey",
+  other_point_size = 0.5, show_cluster_center = F,
+  show_center_label = T, center_point_size = 4,
+  center_point_border_col = "black", center_point_border_stroke = 0.1,
+  label_size = 4, label_fontface = "bold", edge_alpha = NULL,
+  point_size = 1, point_border_col = "black",
+  point_border_stroke = 0.1, show_legend = T)
 }
 \arguments{
 \item{annotated_DT_selected}{annotated data.table of selected cells}
@@ -26,6 +27,12 @@ plot_point_layer_ggplot(ggobject, annotated_DT_selected,
 \item{color_as_factor}{convert color column to factor}
 
 \item{cell_color_code}{named vector with colors}
+
+\item{cell_color_gradient}{vector with 3 colors for numeric data}
+
+\item{gradient_midpoint}{midpoint for color gradient}
+
+\item{gradient_limits}{vector with lower and upper limits}
 
 \item{select_cell_groups}{select subset of cells/clusters based on cell_color parameter}
 

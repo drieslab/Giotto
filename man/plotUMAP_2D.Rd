@@ -32,6 +32,12 @@ plotUMAP_2D(gobject, dim_reduction_name = "umap",
 
 \item{cell_color_code}{named vector with colors}
 
+\item{cell_color_gradient}{vector with 3 colors for numeric data}
+
+\item{gradient_midpoint}{midpoint for color gradient}
+
+\item{gradient_limits}{vector with lower and upper limits}
+
 \item{show_cluster_center}{plot center of selected clusters}
 
 \item{show_center_label}{plot label of selected clusters}
