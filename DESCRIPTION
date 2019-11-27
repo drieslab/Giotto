@@ -36,7 +36,8 @@ Imports:
     limma,
     png,
     tiff,
-    ggdendro
+    ggdendro,
+    smfishHmrf
 Suggests:
     knitr,
     rmarkdown,
@@ -44,3 +45,4 @@ Suggests:
     scran (>= 1.10.1)
 biocViews:
 VignetteBuilder: knitr
+Remotes: lambdamoses/smfishhmrf-r
