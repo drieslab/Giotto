@@ -6152,7 +6152,7 @@ spatPlot2D = function(gobject,
                       other_point_size = 1,
                       other_cells_alpha = 0.1,
                       coord_fix_ratio = 0.6,
-                      title = '',
+                      title = NULL,
                       show_legend = T,
                       show_plot = NA,
                       return_plot = NA,
@@ -6276,7 +6276,7 @@ spatPlot2D = function(gobject,
 
   ## adjust titles
   pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5),
-                            legend.title = element_text(size = 10),
+                            legend.title = element_blank(),
                             legend.text = element_text(size = 10))
 
   # fix coord ratio
@@ -6284,6 +6284,8 @@ spatPlot2D = function(gobject,
     pl <- pl + ggplot2::coord_fixed(ratio = coord_fix_ratio)
   }
 
+  # provide x, y and plot titles
+  if(is.null(title)) title = cell_color
   pl <- pl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates', title = title)
 
 
@@ -7457,6 +7459,193 @@ spatDimGenePlot = function(gobject, ...) {
 
 }
 
+
+
+
+
+
+
+#' @title spatCellPlot2D
+#' @name spatCellPlot2D
+#' @description Visualize cells according to spatial coordinates
+#' @param gobject giotto object
+#' @param sdimx x-axis dimension name (default = 'sdimx')
+#' @param sdimy y-axis dimension name (default = 'sdimy')
+#' @param spat_enr_names names of spatial enrichment results to include
+#' @param cell_annotation_values numeric cell annotation columns
+#' @param cell_color_gradient vector with 3 colors for numeric data
+#' @param gradient_midpoint midpoint for color gradient
+#' @param gradient_limits vector with lower and upper limits
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param select_cells select subset of cells based on cell IDs
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param show_cluster_center plot center of selected clusters
+#' @param show_center_label plot label of selected clusters
+#' @param center_point_size size of center points
+#' @param label_size  size of labels
+#' @param label_fontface font of labels
+#' @param show_network show underlying spatial network
+#' @param spatial_network_name name of spatial network to use
+#' @param network_color color of spatial network
+#' @param network_alpha alpha of spatial network
+#' @param show_grid show spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param grid_color color of spatial grid
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color of not selected cells
+#' @param other_point_size point size of not selected cells
+#' @param other_cells_alpha alpha of not selected cells
+#' @param coord_fix_ratio fix ratio between x and y-axis
+#' @param show_legend show legend
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     spatCellPlot2D(gobject)
+spatCellPlot2D = function(gobject,
+                          sdimx = 'sdimx',
+                          sdimy = 'sdimy',
+                          spat_enr_names = NULL,
+                          cell_annotation_values,
+                          cell_color_gradient = c('blue', 'white', 'red'),
+                          gradient_midpoint = NULL,
+                          gradient_limits = NULL,
+                          select_cell_groups = NULL,
+                          select_cells = NULL,
+                          point_size = 3,
+                          point_border_col = 'black',
+                          point_border_stroke = 0.1,
+                          show_cluster_center = F,
+                          show_center_label = F,
+                          center_point_size = 4,
+                          center_point_border_col = 'black',
+                          center_point_border_stroke = 0.1,
+                          label_size = 4,
+                          label_fontface = 'bold',
+                          show_network = F,
+                          spatial_network_name = 'spatial_network',
+                          network_color = NULL,
+                          network_alpha = 1,
+                          show_grid = F,
+                          spatial_grid_name = 'spatial_grid',
+                          grid_color = NULL,
+                          show_other_cells = T,
+                          other_cell_color = 'lightgrey',
+                          other_point_size = 1,
+                          other_cells_alpha = 0.1,
+                          coord_fix_ratio = NULL,
+                          show_legend = T,
+                          cow_n_col = 2,
+                          cow_rel_h = 1,
+                          cow_rel_w = 1,
+                          cow_align = 'h',
+                          show_plot = NA,
+                          return_plot = NA,
+                          save_plot = NA,
+                          save_param =  list(),
+                          default_save_name = 'spatCellPlot2D'
+) {
+
+
+  comb_metadata = combineMetadata(gobject = gobject,
+                                  spat_enr_names = spat_enr_names)
+
+  # keep only available columns
+  possible_value_cols = colnames(comb_metadata)
+  cell_annotation_values = cell_annotation_values[cell_annotation_values %in% possible_value_cols]
+
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## plotting ##
+  savelist <- list()
+
+  for(annot in cell_annotation_values) {
+
+    pl = spatPlot2D(gobject = gobject,
+                    sdimx = sdimx,
+                    sdimy = sdimy,
+                    spat_enr_names = spat_enr_names,
+                    cell_color = annot,
+                    color_as_factor = F,
+                    cell_color_gradient = cell_color_gradient,
+                    gradient_midpoint = gradient_midpoint,
+                    gradient_limits = gradient_limits,
+                    select_cell_groups = select_cell_groups,
+                    select_cells = select_cells,
+                    point_size = point_size,
+                    point_border_col = point_border_col,
+                    point_border_stroke = point_border_stroke,
+                    show_cluster_center = show_cluster_center,
+                    show_center_label = show_center_label,
+                    center_point_size = center_point_size,
+                    center_point_border_col = center_point_border_col,
+                    center_point_border_stroke = center_point_border_stroke,
+                    label_size = label_size,
+                    label_fontface = label_fontface,
+                    show_network = show_network,
+                    spatial_network_name = spatial_network_name,
+                    network_color = network_color,
+                    network_alpha = network_alpha,
+                    show_grid = show_grid,
+                    spatial_grid_name = spatial_grid_name,
+                    grid_color = grid_color,
+                    show_other_cells = show_other_cells,
+                    other_cell_color = other_cell_color,
+                    other_point_size = other_point_size,
+                    other_cells_alpha = other_cells_alpha,
+                    coord_fix_ratio = coord_fix_ratio,
+                    title = annot,
+                    show_legend = show_legend,
+                    show_plot = FALSE,
+                    return_plot = TRUE,
+                    save_plot = FALSE,
+                    save_param =  list(),
+                    default_save_name = 'spatPlot2D')
+
+
+    savelist[[annot]] <- pl
+
+  }
+
+
+  # combine plots with cowplot
+  combo_plot <- cowplot::plot_grid(plotlist = savelist,
+                                   ncol = cow_n_col,
+                                   rel_heights = cow_rel_h,
+                                   rel_widths = cow_rel_w,
+                                   align = cow_align)
+
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(combo_plot)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(combo_plot)
+  }
+
+
+
+
+}
 
 
 

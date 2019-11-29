@@ -186,7 +186,8 @@ combineMetadata = function(gobject,
     result_list = list()
     for(spatenr in 1:length(spat_enr_names)) {
 
-      temp_spat = copy(gobject@spatial_enrichment[[spatenr]])
+      spatenr_name = spat_enr_names[spatenr]
+      temp_spat = copy(gobject@spatial_enrichment[[spatenr_name]])
       temp_spat[, 'cell_ID' := NULL]
 
       result_list[[spatenr]] = temp_spat

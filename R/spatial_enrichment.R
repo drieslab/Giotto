@@ -221,6 +221,10 @@ hyperGeometricEnrich <- function(gobject,
   # output enrichment
   output_enrichment = match.arg(output_enrichment, choices = c('original', 'zscore'))
 
+  # calculate mean gene expression
+  if(reverse_log_scale == TRUE) {
+    expr_values = log(logbase^expr_values-1)+1
+  }
 
   expCutoff = (rowMeans(expr_values, dims = 1)) * 2
   expbinary = ifelse(expr_values > expCutoff, 1, 0)
