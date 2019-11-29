@@ -160,3 +160,51 @@ stitchFieldCoordinates <- function(location_file,
   return(copy_loc_file)
 }
 
+
+
+#' @title combineMetadata
+#' @description This function combines the cell metedata with spatial enrichment results from createSpatialEnrich
+#' @param gobject Giotto object
+#' @param spat_enr_names names of spatial enrichment results
+#' @return Extended cell metadata in data.table format.
+#' @export
+#' @examples
+#'     combineMetadata(gobject)
+combineMetadata = function(gobject,
+                           spat_enr_names = NULL) {
+
+  # cell metadata
+  metadata = pDataDT(gobject)
+
+  # cell/spot enrichment data
+  available_enr = names(gobject@spatial_enrichment)
+
+  spat_enr_names = spat_enr_names[spat_enr_names %in% available_enr]
+
+  if(!is.null(spat_enr_names) | length(spat_enr_names) > 0) {
+
+    result_list = list()
+    for(spatenr in 1:length(spat_enr_names)) {
+
+      temp_spat = copy(gobject@spatial_enrichment[[spatenr]])
+      temp_spat[, 'cell_ID' := NULL]
+
+      result_list[[spatenr]] = temp_spat
+    }
+    final_meta = do.call('cbind', c(list(metadata), result_list))
+
+    duplicates = sum(duplicated(colnames(final_meta)))
+    if(duplicates > 0) cat('Some column names are not unique.
+                           If you add results from multiple enrichments,
+                           consider giving the signatures unique names')
+
+  } else {
+
+    final_meta = metadata
+
+  }
+
+  return(final_meta)
+
+}
+

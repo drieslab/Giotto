@@ -4,9 +4,14 @@
 \alias{adjustGiottoMatrix}
 \title{adjustGiottoMatrix}
 \usage{
-adjustGiottoMatrix(gobject, expression_values = c("normalized", "scaled",
-  "custom"), batch_columns = NULL, covariate_columns = NULL,
-  return_gobject = TRUE, update_slot = c("custom"))
+adjustGiottoMatrix(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  batch_columns = NULL,
+  covariate_columns = NULL,
+  return_gobject = TRUE,
+  update_slot = c("custom")
+)
 }
 \arguments{
 \item{gobject}{giotto object}

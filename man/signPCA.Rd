@@ -4,13 +4,26 @@
 \alias{signPCA}
 \title{signPCA}
 \usage{
-signPCA(gobject, method = c("screeplot", "jackstraw"),
+signPCA(
+  gobject,
+  method = c("screeplot", "jackstraw"),
   expression_values = c("normalized", "scaled", "custom"),
-  reduction = c("cells", "genes"), genes_to_use = NULL,
-  scale_unit = T, ncp = 50, scree_labels = T, scree_ylim = c(0,
-  10), jack_iter = 10, jack_threshold = 0.01, jack_verbose = T,
-  show_plot = NA, return_plot = NA, save_plot = NA,
-  save_param = list(), default_save_name = "signPCA", ...)
+  reduction = c("cells", "genes"),
+  genes_to_use = NULL,
+  scale_unit = T,
+  ncp = 50,
+  scree_labels = T,
+  scree_ylim = c(0, 10),
+  jack_iter = 10,
+  jack_threshold = 0.01,
+  jack_verbose = T,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "signPCA",
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}

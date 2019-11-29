@@ -4,10 +4,14 @@
 \alias{filterGiotto}
 \title{filterGiotto}
 \usage{
-filterGiotto(gobject, expression_values = c("raw", "normalized",
-  "scaled", "custom"), expression_threshold = 1,
-  gene_det_in_min_cells = 100, min_det_genes_per_cell = 100,
-  verbose = F)
+filterGiotto(
+  gobject,
+  expression_values = c("raw", "normalized", "scaled", "custom"),
+  expression_threshold = 1,
+  gene_det_in_min_cells = 100,
+  min_det_genes_per_cell = 100,
+  verbose = F
+)
 }
 \arguments{
 \item{gobject}{giotto object}

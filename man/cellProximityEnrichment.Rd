@@ -4,9 +4,12 @@
 \alias{cellProximityEnrichment}
 \title{cellProximityEnrichment}
 \usage{
-cellProximityEnrichment(gobject,
-  spatial_network_name = "spatial_network", cluster_column,
-  number_of_simulations = 100)
+cellProximityEnrichment(
+  gobject,
+  spatial_network_name = "spatial_network",
+  cluster_column,
+  number_of_simulations = 100
+)
 }
 \arguments{
 \item{gobject}{giotto object}

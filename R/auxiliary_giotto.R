@@ -1336,3 +1336,56 @@ calculateMetaTable = function(gobject,
 
 }
 
+
+#' @title calculateMetaTableCells
+#' @description calculates the average metadata values for one or more (combined) annotation columns.
+#' @param gobject giotto object
+#' @param value_cols metadata or enrichment value columns to use
+#' @param metadata_cols annotation columns found in pDataDT(gobject)
+#' @param spat_enr_names which spatial enrichment results to include
+#' @return data.table with average metadata values per (combined) annotation
+#' @export
+#' @examples
+#'     calculateMetaTableCells(gobject)
+calculateMetaTableCells = function(gobject,
+                                   value_cols = NULL,
+                                   metadata_cols = NULL,
+                                   spat_enr_names = NULL) {
+
+
+  if(is.null(metadata_cols)) stop('\n You need to select one or more valid column names from pDataDT() \n')
+  if(is.null(value_cols)) stop('\n You need to select one or more valid value column names from pDataDT() \n')
+
+  cell_metadata = combineMetadata(gobject = gobject,
+                                  spat_enr_names = spat_enr_names)
+
+  ## only keep columns that exist
+  cell_metadata_cols = colnames(cell_metadata)
+
+  if(!all(value_cols %in% cell_metadata_cols)) {
+    missing_value_cols = value_cols[!value_cols %in% cell_metadata_cols]
+    cat('These value columns were not found: ', missing_value_cols)
+  }
+  value_cols = value_cols[value_cols %in% cell_metadata_cols]
+
+  if(!all(metadata_cols %in% cell_metadata_cols)) {
+    missing_metadata_cols = metadata_cols[!metadata_cols %in% cell_metadata_cols]
+    cat('These metadata columns were not found: ', missing_metadata_cols)
+  }
+  metadata_cols = metadata_cols[metadata_cols %in% cell_metadata_cols]
+
+  if(!length(metadata_cols) > 0 | !length(value_cols) > 0) {
+    stop('\n missing sufficient metadata or value columns \n')
+  }
+
+  workdt = cell_metadata[, lapply(.SD, mean), by = metadata_cols, .SDcols = value_cols]
+  workdtmelt = data.table::melt.data.table(workdt, measure.vars = value_columns)
+
+  return(workdtmelt)
+
+}
+
+
+
+
+

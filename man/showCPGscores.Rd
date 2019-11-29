@@ -4,12 +4,23 @@
 \alias{showCPGscores}
 \title{showCPGscores}
 \usage{
-showCPGscores(gobject, CPGscore, method = c("volcano", "cell_barplot",
-  "cell-cell", "cell_sankey"), min_cells = 5, min_fdr = 0.05,
-  min_spat_diff = 0.2, min_log2_fc = 0.5, keep_int_duplicates = TRUE,
-  direction = c("both", "up", "down"), cell_color_code = NULL,
-  show_plot = NA, return_plot = NA, save_plot = NA,
-  save_param = list(), default_save_name = "showCPGscores")
+showCPGscores(
+  gobject,
+  CPGscore,
+  method = c("volcano", "cell_barplot", "cell-cell", "cell_sankey"),
+  min_cells = 5,
+  min_fdr = 0.05,
+  min_spat_diff = 0.2,
+  min_log2_fc = 0.5,
+  keep_int_duplicates = TRUE,
+  direction = c("both", "up", "down"),
+  cell_color_code = NULL,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "showCPGscores"
+)
 }
 \arguments{
 \item{CPGscore}{CPGscore, output from getCellProximityGeneScores()}

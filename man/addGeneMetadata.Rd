@@ -4,8 +4,7 @@
 \alias{addGeneMetadata}
 \title{addGeneMetadata}
 \usage{
-addGeneMetadata(gobject, new_metadata, by_column = F,
-  column_gene_ID = NULL)
+addGeneMetadata(gobject, new_metadata, by_column = F, column_gene_ID = NULL)
 }
 \arguments{
 \item{gobject}{giotto object}

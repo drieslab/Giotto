@@ -4,15 +4,32 @@
 \alias{visForceLayoutPlot}
 \title{visForceLayoutPlot}
 \usage{
-visForceLayoutPlot(gobject, nn_network_to_use = "sNN",
-  network_name = "sNN.pca", layout_name = "layout", dim1_to_use = 1,
-  dim2_to_use = 2, show_NN_network = T, cell_color = NULL,
-  color_as_factor = F, cell_color_code = NULL, edge_alpha = NULL,
-  point_size = 1, point_border_col = "black",
-  point_border_stroke = 0.1, show_legend = T, show_plot = F,
-  return_plot = TRUE, save_plot = F, save_dir = NULL,
-  save_folder = NULL, save_name = NULL, save_format = NULL,
-  show_saved_plot = F, ...)
+visForceLayoutPlot(
+  gobject,
+  nn_network_to_use = "sNN",
+  network_name = "sNN.pca",
+  layout_name = "layout",
+  dim1_to_use = 1,
+  dim2_to_use = 2,
+  show_NN_network = T,
+  cell_color = NULL,
+  color_as_factor = F,
+  cell_color_code = NULL,
+  edge_alpha = NULL,
+  point_size = 1,
+  point_border_col = "black",
+  point_border_stroke = 0.1,
+  show_legend = T,
+  show_plot = F,
+  return_plot = TRUE,
+  save_plot = F,
+  save_dir = NULL,
+  save_folder = NULL,
+  save_name = NULL,
+  save_format = NULL,
+  show_saved_plot = F,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}

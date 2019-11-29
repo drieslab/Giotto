@@ -4,18 +4,38 @@
 \alias{spatGenePlot3D}
 \title{spatGenePlot3D}
 \usage{
-spatGenePlot3D(gobject, expression_values = c("normalized", "scaled",
-  "custom"), genes, show_network = F, network_color = NULL,
-  spatial_network_name = "spatial_network", edge_alpha = NULL,
-  show_grid = F, cluster_column = NULL, select_cell_groups = NULL,
-  select_cells = NULL, show_other_cells = T,
-  other_cell_color = "lightgrey", other_point_size = 1,
-  genes_high_color = NULL, genes_mid_color = "white",
-  genes_low_color = "blue", spatial_grid_name = "spatial_grid",
-  point_size = 2, show_legend = T, axis_scale = c("cube", "real",
-  "custom"), custom_ratio = NULL, x_ticks = NULL, y_ticks = NULL,
-  z_ticks = NULL, show_plot = NA, return_plot = NA, save_plot = NA,
-  save_param = list(), default_save_name = "spatGenePlot3D")
+spatGenePlot3D(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  genes,
+  show_network = F,
+  network_color = NULL,
+  spatial_network_name = "spatial_network",
+  edge_alpha = NULL,
+  show_grid = F,
+  cluster_column = NULL,
+  select_cell_groups = NULL,
+  select_cells = NULL,
+  show_other_cells = T,
+  other_cell_color = "lightgrey",
+  other_point_size = 1,
+  genes_high_color = NULL,
+  genes_mid_color = "white",
+  genes_low_color = "blue",
+  spatial_grid_name = "spatial_grid",
+  point_size = 2,
+  show_legend = T,
+  axis_scale = c("cube", "real", "custom"),
+  custom_ratio = NULL,
+  x_ticks = NULL,
+  y_ticks = NULL,
+  z_ticks = NULL,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "spatGenePlot3D"
+)
 }
 \arguments{
 \item{gobject}{giotto object}

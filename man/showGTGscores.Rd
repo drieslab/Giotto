@@ -4,13 +4,22 @@
 \alias{showGTGscores}
 \title{showGTGscores}
 \usage{
-showGTGscores(GTGscore, method = c("cell_barplot", "cell-cell",
-  "cell_sankey"), min_cells = 5, min_pval = 0.05,
-  min_spat_diff = 0.2, min_log2_fc = 0.5, direction = c("both", "up",
-  "down"), cell_color_code = NULL, show_plot = T,
-  specific_genes_1 = NULL, specific_genes_2 = NULL,
-  first_cell_name = "ligand cell", second_cell_name = "receptor cell",
-  return_DT = F)
+showGTGscores(
+  GTGscore,
+  method = c("cell_barplot", "cell-cell", "cell_sankey"),
+  min_cells = 5,
+  min_pval = 0.05,
+  min_spat_diff = 0.2,
+  min_log2_fc = 0.5,
+  direction = c("both", "up", "down"),
+  cell_color_code = NULL,
+  show_plot = T,
+  specific_genes_1 = NULL,
+  specific_genes_2 = NULL,
+  first_cell_name = "ligand cell",
+  second_cell_name = "receptor cell",
+  return_DT = F
+)
 }
 \arguments{
 \item{method}{visualization method}

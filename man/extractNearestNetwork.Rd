@@ -4,8 +4,11 @@
 \alias{extractNearestNetwork}
 \title{extractNearestNetwork}
 \usage{
-extractNearestNetwork(gobject, nn_network_to_use = "sNN",
-  network_name = "sNN.pca")
+extractNearestNetwork(
+  gobject,
+  nn_network_to_use = "sNN",
+  network_name = "sNN.pca"
+)
 }
 \arguments{
 \item{gobject}{giotto object}

@@ -4,8 +4,12 @@
 \alias{make_simulated_network}
 \title{make_simulated_network}
 \usage{
-make_simulated_network(gobject, spatial_network_name = "spatial_network",
-  cluster_column, number_of_simulations = 100)
+make_simulated_network(
+  gobject,
+  spatial_network_name = "spatial_network",
+  cluster_column,
+  number_of_simulations = 100
+)
 }
 \description{
 Simulate random network.

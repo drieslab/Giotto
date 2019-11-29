@@ -4,10 +4,20 @@
 \alias{doSNNCluster}
 \title{doSNNCluster}
 \usage{
-doSNNCluster(gobject, name = "sNN_clus", nn_network_to_use = "kNN",
-  network_name = "kNN.pca", k = 20, eps = 4, minPts = 16,
-  borderPoints = TRUE, return_gobject = TRUE, set_seed = F,
-  seed_number = 1234, ...)
+doSNNCluster(
+  gobject,
+  name = "sNN_clus",
+  nn_network_to_use = "kNN",
+  network_name = "kNN.pca",
+  k = 20,
+  eps = 4,
+  minPts = 16,
+  borderPoints = TRUE,
+  return_gobject = TRUE,
+  set_seed = F,
+  seed_number = 1234,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}

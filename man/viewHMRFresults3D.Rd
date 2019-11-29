@@ -4,8 +4,14 @@
 \alias{viewHMRFresults3D}
 \title{viewHMRFresults3D}
 \usage{
-viewHMRFresults3D(gobject, HMRFoutput, k = NULL, betas_to_view = NULL,
-  third_dim = NULL, ...)
+viewHMRFresults3D(
+  gobject,
+  HMRFoutput,
+  k = NULL,
+  betas_to_view = NULL,
+  third_dim = NULL,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}

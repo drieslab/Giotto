@@ -4,9 +4,15 @@
 \alias{createSpatialGrid}
 \title{createSpatialGrid2}
 \usage{
-createSpatialGrid(gobject, sdimx_stepsize = NULL,
-  sdimy_stepsize = NULL, sdimz_stepsize = NULL, minimum_padding = 1,
-  name = "spatial_grid", return_gobject = TRUE)
+createSpatialGrid(
+  gobject,
+  sdimx_stepsize = NULL,
+  sdimy_stepsize = NULL,
+  sdimz_stepsize = NULL,
+  minimum_padding = 1,
+  name = "spatial_grid",
+  return_gobject = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}

@@ -4,8 +4,12 @@
 \alias{plot_network_layer_ggplot}
 \title{plot_network_layer_ggplot}
 \usage{
-plot_network_layer_ggplot(ggobject, annotated_network_DT,
-  edge_alpha = NULL, show_legend = T)
+plot_network_layer_ggplot(
+  ggobject,
+  annotated_network_DT,
+  edge_alpha = NULL,
+  show_legend = T
+)
 }
 \arguments{
 \item{annotated_network_DT}{annotated network data.table of selected cells}

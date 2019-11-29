@@ -4,13 +4,12 @@
 \alias{plotPCA}
 \title{plotPCA}
 \usage{
-plotPCA(gobject, dim_reduction_name = "pca", default_save_name = "PCA",
-  ...)
+plotPCA(gobject, dim_reduction_name = "pca", default_save_name = "PCA", ...)
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{dim_reduction_name}{name of pca reduction to use, default = 'pca'}
+\item{dim_reduction_name}{dimension reduction name}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
@@ -18,7 +17,7 @@ plotPCA(gobject, dim_reduction_name = "pca", default_save_name = "PCA",
 
 \item{dim2_to_use}{dimension to use on y-axis}
 
-\item{dim3_to_use}{dimension to use on z-axis}
+\item{spat_enr_names}{names of spatial enrichment results to include}
 
 \item{show_NN_network}{show underlying NN network}
 
@@ -37,6 +36,16 @@ plotPCA(gobject, dim_reduction_name = "pca", default_save_name = "PCA",
 \item{gradient_midpoint}{midpoint for color gradient}
 
 \item{gradient_limits}{vector with lower and upper limits}
+
+\item{select_cell_groups}{select subset of cells/clusters based on cell_color parameter}
+
+\item{select_cells}{select subset of cells based on cell IDs}
+
+\item{show_other_cells}{display not selected cells}
+
+\item{other_cell_color}{color of not selected cells}
+
+\item{other_point_size}{size of not selected cells}
 
 \item{show_cluster_center}{plot center of selected clusters}
 
@@ -73,11 +82,8 @@ ggplot
 Short wrapper for PCA visualization
 }
 \details{
-Description of parameters.
+Description of parameters, see \code{\link{dimPlot2D}}. For 3D plots see \code{\link{plotPCA_3D}}
 }
 \examples{
     plotPCA(gobject)
-}
-\seealso{
-\code{\link{dimPlot2D}} and \code{\link{plotPCA_3D}}
 }

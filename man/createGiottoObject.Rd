@@ -4,12 +4,25 @@
 \alias{createGiottoObject}
 \title{create Giotto object}
 \usage{
-createGiottoObject(raw_exprs, spatial_locs = NULL, norm_expr = NULL,
-  norm_scaled_expr = NULL, custom_expr = NULL, cell_metadata = NULL,
-  gene_metadata = NULL, spatial_network = NULL,
-  spatial_network_name = NULL, spatial_grid = NULL,
-  spatial_grid_name = NULL, dimension_reduction = NULL,
-  nn_network = NULL, offset_file = NULL, instructions = NULL)
+createGiottoObject(
+  raw_exprs,
+  spatial_locs = NULL,
+  norm_expr = NULL,
+  norm_scaled_expr = NULL,
+  custom_expr = NULL,
+  cell_metadata = NULL,
+  gene_metadata = NULL,
+  spatial_network = NULL,
+  spatial_network_name = NULL,
+  spatial_grid = NULL,
+  spatial_grid_name = NULL,
+  spatial_enrichment = NULL,
+  spatial_enrichment_name = NULL,
+  dimension_reduction = NULL,
+  nn_network = NULL,
+  offset_file = NULL,
+  instructions = NULL
+)
 }
 \arguments{
 \item{raw_exprs}{matrix with raw expression counts [required]}
@@ -33,6 +46,10 @@ createGiottoObject(raw_exprs, spatial_locs = NULL, norm_expr = NULL,
 \item{spatial_grid}{list of spatial grid(s)}
 
 \item{spatial_grid_name}{list of spatial grid name(s)}
+
+\item{spatial_enrichment}{list of spatial enrichment score(s) for each spatial spot}
+
+\item{spatial_enrichment_name}{list of spatial enrichment name(s)}
 
 \item{dimension_reduction}{list of dimension reduction(s)}
 

@@ -4,14 +4,28 @@
 \alias{visGenePlot_3D_plotly}
 \title{visGenePlot_3D_plotly}
 \usage{
-visGenePlot_3D_plotly(gobject, expression_values = c("normalized",
-  "scaled", "custom"), genes, show_network = F, network_color = NULL,
-  spatial_network_name = "spatial_network", edge_alpha = NULL,
-  show_grid = F, genes_high_color = NULL, genes_mid_color = "white",
-  genes_low_color = "blue", spatial_grid_name = "spatial_grid",
-  point_size = 1, show_legend = T, axis_scale = c("cube", "real",
-  "custom"), custom_ratio = NULL, x_ticks = NULL, y_ticks = NULL,
-  z_ticks = NULL, show_plots = F)
+visGenePlot_3D_plotly(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  genes,
+  show_network = F,
+  network_color = NULL,
+  spatial_network_name = "spatial_network",
+  edge_alpha = NULL,
+  show_grid = F,
+  genes_high_color = NULL,
+  genes_mid_color = "white",
+  genes_low_color = "blue",
+  spatial_grid_name = "spatial_grid",
+  point_size = 1,
+  show_legend = T,
+  axis_scale = c("cube", "real", "custom"),
+  custom_ratio = NULL,
+  x_ticks = NULL,
+  y_ticks = NULL,
+  z_ticks = NULL,
+  show_plots = F
+)
 }
 \arguments{
 \item{gobject}{giotto object}

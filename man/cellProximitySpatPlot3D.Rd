@@ -4,19 +4,40 @@
 \alias{cellProximitySpatPlot3D}
 \title{cellProximitySpatPlot2D}
 \usage{
-cellProximitySpatPlot3D(gobject, interaction_name = NULL,
-  cluster_column = NULL, sdimx = "sdimx", sdimy = "sdimy",
-  sdimz = "sdimz", cell_color = NULL, cell_color_code = NULL,
-  color_as_factor = T, show_other_cells = T, show_network = T,
-  show_other_network = F, network_color = NULL,
-  spatial_network_name = "spatial_network", show_grid = F,
-  grid_color = NULL, spatial_grid_name = "spatial_grid",
-  show_legend = T, point_size_select = 4, point_size_other = 2,
-  point_alpha_other = 0.5, axis_scale = c("cube", "real", "custom"),
-  custom_ratio = NULL, x_ticks = NULL, y_ticks = NULL,
-  z_ticks = NULL, show_plot = NA, return_plot = NA, save_plot = NA,
-  save_param = list(), default_save_name = "cellProximitySpatPlot3D",
-  ...)
+cellProximitySpatPlot3D(
+  gobject,
+  interaction_name = NULL,
+  cluster_column = NULL,
+  sdimx = "sdimx",
+  sdimy = "sdimy",
+  sdimz = "sdimz",
+  cell_color = NULL,
+  cell_color_code = NULL,
+  color_as_factor = T,
+  show_other_cells = T,
+  show_network = T,
+  show_other_network = F,
+  network_color = NULL,
+  spatial_network_name = "spatial_network",
+  show_grid = F,
+  grid_color = NULL,
+  spatial_grid_name = "spatial_grid",
+  show_legend = T,
+  point_size_select = 4,
+  point_size_other = 2,
+  point_alpha_other = 0.5,
+  axis_scale = c("cube", "real", "custom"),
+  custom_ratio = NULL,
+  x_ticks = NULL,
+  y_ticks = NULL,
+  z_ticks = NULL,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "cellProximitySpatPlot3D",
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}

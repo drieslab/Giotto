@@ -4,14 +4,20 @@
 \alias{getCellProximityGeneScores}
 \title{getCellProximityGeneScores}
 \usage{
-getCellProximityGeneScores(gobject,
+getCellProximityGeneScores(
+  gobject,
   spatial_network_name = "spatial_network",
-  cluster_column = "louvain_clus.1", selected_genes = NULL,
+  cluster_column = "louvain_clus.1",
+  selected_genes = NULL,
   expression_values = c("normalized", "scaled", "custom"),
-  do_diff_test = TRUE, diff_test = c("t.test", "wilcox"),
-  minimum_unique_cells = NA, fold_change_addendum = 0.1,
-  in_two_directions = TRUE, exclude_selected_cells_from_test = F,
-  verbose = T)
+  do_diff_test = TRUE,
+  diff_test = c("t.test", "wilcox"),
+  minimum_unique_cells = NA,
+  fold_change_addendum = 0.1,
+  in_two_directions = TRUE,
+  exclude_selected_cells_from_test = F,
+  verbose = T
+)
 }
 \arguments{
 \item{gobject}{giotto object}

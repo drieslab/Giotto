@@ -4,8 +4,12 @@
 \alias{changeGiottoInstructions}
 \title{changeGiottoInstructions}
 \usage{
-changeGiottoInstructions(gobject, params = NULL, new_values = NULL,
-  return_gobject = TRUE)
+changeGiottoInstructions(
+  gobject,
+  params = NULL,
+  new_values = NULL,
+  return_gobject = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}

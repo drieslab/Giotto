@@ -4,10 +4,18 @@
 \alias{normalizeGiotto}
 \title{normalizeGiotto}
 \usage{
-normalizeGiotto(gobject, norm_methods = c("standard", "osmFISH"),
-  library_size_norm = TRUE, scalefactor = 6000, log_norm = TRUE,
-  logbase = 2, scale_genes = T, scale_cells = T,
-  scale_order = c("first_genes", "first_cells"), verbose = F)
+normalizeGiotto(
+  gobject,
+  norm_methods = c("standard", "osmFISH"),
+  library_size_norm = TRUE,
+  scalefactor = 6000,
+  log_norm = TRUE,
+  logbase = 2,
+  scale_genes = T,
+  scale_cells = T,
+  scale_order = c("first_genes", "first_cells"),
+  verbose = F
+)
 }
 \arguments{
 \item{gobject}{giotto object}

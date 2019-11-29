@@ -4,8 +4,12 @@
 \alias{plotTSNE_3D}
 \title{plotTSNE_3D}
 \usage{
-plotTSNE_3D(gobject, dim_reduction_name = "tsne",
-  default_save_name = "TSNE_3D", ...)
+plotTSNE_3D(
+  gobject,
+  dim_reduction_name = "tsne",
+  default_save_name = "TSNE_3D",
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}

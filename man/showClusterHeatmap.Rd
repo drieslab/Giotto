@@ -4,11 +4,20 @@
 \alias{showClusterHeatmap}
 \title{showClusterHeatmap}
 \usage{
-showClusterHeatmap(gobject, expression_values = c("normalized", "scaled",
-  "custom"), genes = "all", cluster_column, cor = c("pearson",
-  "spearman"), distance = "ward.D", show_plot = NA, return_plot = NA,
-  save_plot = NA, save_param = list(),
-  default_save_name = "showClusterHeatmap", ...)
+showClusterHeatmap(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  genes = "all",
+  cluster_column,
+  cor = c("pearson", "spearman"),
+  distance = "ward.D",
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "showClusterHeatmap",
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}

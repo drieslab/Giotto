@@ -13,6 +13,8 @@ spatPlot(gobject, ...)
 
 \item{sdimy}{y-axis dimension name (default = 'sdimy')}
 
+\item{spat_enr_names}{names of spatial enrichment results to include}
+
 \item{cell_color}{color for cells (see details)}
 
 \item{color_as_factor}{convert color column to factor}
@@ -96,5 +98,5 @@ Description of parameters.
     spatPlot(gobject)
 }
 \seealso{
-\code{\link{spatPlot2D}} and \code{\link{spatPlot3D}}
+\code{\link{spatPlot3D}}
 }

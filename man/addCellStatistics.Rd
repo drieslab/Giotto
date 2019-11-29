@@ -4,8 +4,12 @@
 \alias{addCellStatistics}
 \title{addCellStatistics}
 \usage{
-addCellStatistics(gobject, expression_values = c("normalized", "scaled",
-  "custom"), detection_threshold = 0, return_gobject = TRUE)
+addCellStatistics(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  detection_threshold = 0,
+  return_gobject = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}

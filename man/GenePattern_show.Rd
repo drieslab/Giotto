@@ -4,10 +4,18 @@
 \alias{GenePattern_show}
 \title{GenePattern_show}
 \usage{
-GenePattern_show(gobject = NULL, AEH_results = NULL, sdimx = NULL,
-  sdimy = NULL, point_size = 3, point_alpha = 1,
-  low_color = "blue", mid_color = "white", high_color = "red",
-  midpoint = 0)
+GenePattern_show(
+  gobject = NULL,
+  AEH_results = NULL,
+  sdimx = NULL,
+  sdimy = NULL,
+  point_size = 3,
+  point_alpha = 1,
+  low_color = "blue",
+  mid_color = "white",
+  high_color = "red",
+  midpoint = 0
+)
 }
 \arguments{
 \item{gobject}{giotto object}

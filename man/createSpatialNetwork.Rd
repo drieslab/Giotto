@@ -4,9 +4,16 @@
 \alias{createSpatialNetwork}
 \title{createSpatialNetwork}
 \usage{
-createSpatialNetwork(gobject, k = 4, dimensions = "all",
-  maximum_distance = NULL, minimum_k = 0, name = "spatial_network",
-  verbose = F, return_gobject = TRUE)
+createSpatialNetwork(
+  gobject,
+  k = 4,
+  dimensions = "all",
+  maximum_distance = NULL,
+  minimum_k = 0,
+  name = "spatial_network",
+  verbose = F,
+  return_gobject = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}

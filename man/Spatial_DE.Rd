@@ -4,9 +4,15 @@
 \alias{Spatial_DE}
 \title{Spatial_DE}
 \usage{
-Spatial_DE(gobject = NULL, show_plot = T, size = c(4, 2, 1),
-  color = c("blue", "green", "red"), sig_alpha = 0.5,
-  unsig_alpha = 0.5, python_path = NULL)
+Spatial_DE(
+  gobject = NULL,
+  show_plot = T,
+  size = c(4, 2, 1),
+  color = c("blue", "green", "red"),
+  sig_alpha = 0.5,
+  unsig_alpha = 0.5,
+  python_path = NULL
+)
 }
 \arguments{
 \item{gobject}{Giotto object}

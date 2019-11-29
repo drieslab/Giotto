@@ -4,8 +4,12 @@
 \alias{addGeneStatistics}
 \title{addGeneStatistics}
 \usage{
-addGeneStatistics(gobject, expression_values = c("normalized", "scaled",
-  "custom"), detection_threshold = 0, return_gobject = TRUE)
+addGeneStatistics(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  detection_threshold = 0,
+  return_gobject = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}

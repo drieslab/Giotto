@@ -23,21 +23,7 @@ spatDimPlot(gobject, ...)
 
 \item{sdimy}{= spatial dimension to use on y-axis}
 
-\item{show_NN_network}{show underlying NN network}
-
-\item{nn_network_to_use}{type of NN network to use (kNN vs sNN)}
-
-\item{network_name}{name of NN network to use, if show_NN_network = TRUE}
-
-\item{show_cluster_center}{show the center of each cluster}
-
-\item{show_center_label}{provide a label for each cluster}
-
-\item{center_point_size}{size of the center point}
-
-\item{label_size}{size of the center label}
-
-\item{label_fontface}{font of the center label}
+\item{spat_enr_names}{names of spatial enrichment results to include}
 
 \item{cell_color}{color for cells (see details)}
 
@@ -45,15 +31,15 @@ spatDimPlot(gobject, ...)
 
 \item{cell_color_code}{named vector with colors}
 
+\item{cell_color_gradient}{vector with 3 colors for numeric data}
+
+\item{gradient_midpoint}{midpoint for color gradient}
+
+\item{gradient_limits}{vector with lower and upper limits}
+
 \item{select_cell_groups}{select subset of cells/clusters based on cell_color parameter}
 
 \item{select_cells}{select subset of cells based on cell IDs}
-
-\item{show_other_cells}{display not selected cells}
-
-\item{other_cell_color}{color of not selected cells}
-
-\item{other_point_size}{size of not selected cells}
 
 \item{dim_point_size}{size of points in dim. reduction space}
 
@@ -61,35 +47,69 @@ spatDimPlot(gobject, ...)
 
 \item{dim_point_border_stroke}{border stroke of points in dim. reduction space}
 
+\item{spat_point_size}{size of spatial points}
+
+\item{spat_point_border_col}{border color of spatial points}
+
+\item{spat_point_border_stroke}{border stroke of spatial points}
+
+\item{dim_show_cluster_center}{show the center of each cluster}
+
+\item{dim_show_center_label}{provide a label for each cluster}
+
+\item{dim_center_point_size}{size of the center point}
+
+\item{dim_center_point_border_col}{border color of center point}
+
+\item{dim_center_point_border_stroke}{stroke size of center point}
+
+\item{dim_label_size}{size of the center label}
+
+\item{dim_label_fontface}{font of the center label}
+
+\item{spat_show_cluster_center}{show the center of each cluster}
+
+\item{spat_show_center_label}{provide a label for each cluster}
+
+\item{spat_center_point_size}{size of the center point}
+
+\item{spat_label_size}{size of the center label}
+
+\item{spat_label_fontface}{font of the center label}
+
+\item{show_NN_network}{show underlying NN network}
+
+\item{nn_network_to_use}{type of NN network to use (kNN vs sNN)}
+
+\item{network_name}{name of NN network to use, if show_NN_network = TRUE}
+
 \item{nn_network_alpha}{column to use for alpha of the edges}
 
 \item{show_spatial_network}{show spatial network}
 
-\item{spatial_network_name}{name of spatial network to use}
+\item{spat_network_name}{name of spatial network to use}
 
-\item{spatial_network_color}{color of spatial network}
+\item{spat_network_color}{color of spatial network}
 
 \item{show_spatial_grid}{show spatial grid}
 
-\item{spatial_grid_name}{name of spatial grid to use}
+\item{spat_grid_name}{name of spatial grid to use}
 
-\item{spatial_grid_color}{color of spatial grid}
+\item{spat_grid_color}{color of spatial grid}
 
-\item{spatial_point_size}{size of spatial points}
+\item{show_other_cells}{display not selected cells}
 
-\item{spatial_point_border_col}{border color of spatial points}
+\item{other_cell_color}{color of not selected cells}
 
-\item{spatial_point_border_stroke}{border stroke of spatial points}
+\item{dim_other_point_size}{size of not selected dim cells}
 
-\item{spatial_other_point_size}{size of not selected spatial points}
+\item{spat_other_point_size}{size of not selected spat cells}
 
-\item{spatial_network_alpha}{alpha of spatial network}
+\item{spat_other_cells_alpha}{alpha of not selected spat cells}
 
-\item{spatial_other_cells_alpha}{alpha of not selected spatial points}
+\item{dim_show_legend}{show legend of dimension reduction plot}
 
-\item{dim_other_point_size}{size of not selected dim. reduction points}
-
-\item{show_legend}{show legend}
+\item{spat_show_legend}{show legend of spatial plot}
 
 \item{show_plot}{show plot}
 
@@ -105,7 +125,7 @@ spatDimPlot(gobject, ...)
 ggplot
 }
 \description{
-Visualize cells according to spatial AND dimension reduction coordinates in ggplot2 mode
+Visualize cells according to spatial AND dimension reduction coordinates 2D
 }
 \details{
 Description of parameters.
@@ -114,5 +134,5 @@ Description of parameters.
     spatDimPlot(gobject)
 }
 \seealso{
-\code{\link{spatDimPlot3D}}
+\code{\link{spatDimPlot2D}} and \code{\link{spatDimPlot3D}} for 3D visualization.
 }

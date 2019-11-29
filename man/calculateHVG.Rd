@@ -4,11 +4,20 @@
 \alias{calculateHVG}
 \title{calculateHVG}
 \usage{
-calculateHVG(gobject, expression_values = c("normalized", "scaled",
-  "custom"), method = c("cov_groups", "cov_loess", "gini_loess"),
-  reverse_log_scale = T, logbase = 2, expression_threshold = 0,
-  nr_expression_groups = 20, zscore_threshold = 1.5, HVGname = "hvg",
-  difference_in_variance = 1, show_plot = T, return_gobject = T)
+calculateHVG(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  method = c("cov_groups", "cov_loess", "gini_loess"),
+  reverse_log_scale = T,
+  logbase = 2,
+  expression_threshold = 0,
+  nr_expression_groups = 20,
+  zscore_threshold = 1.5,
+  HVGname = "hvg",
+  difference_in_variance = 1,
+  show_plot = T,
+  return_gobject = T
+)
 }
 \arguments{
 \item{gobject}{giotto object}

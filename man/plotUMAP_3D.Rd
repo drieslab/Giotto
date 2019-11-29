@@ -4,8 +4,12 @@
 \alias{plotUMAP_3D}
 \title{plotUMAP_3D}
 \usage{
-plotUMAP_3D(gobject, dim_reduction_name = "umap",
-  default_save_name = "UMAP_3D", ...)
+plotUMAP_3D(
+  gobject,
+  dim_reduction_name = "umap",
+  default_save_name = "UMAP_3D",
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}

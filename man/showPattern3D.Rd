@@ -4,12 +4,26 @@
 \alias{showPattern3D}
 \title{showPattern3D}
 \usage{
-showPattern3D(gobject, spatPatObj, dimension = 1, trim = c(0.02, 0.98),
-  background_color = "white", grid_border_color = "grey",
-  show_legend = T, point_size = 1, axis_scale = c("cube", "real",
-  "custom"), custom_ratio = NULL, x_ticks = NULL, y_ticks = NULL,
-  z_ticks = NULL, show_plot = NA, return_plot = NA, save_plot = NA,
-  save_param = list(), default_save_name = "showPattern3D")
+showPattern3D(
+  gobject,
+  spatPatObj,
+  dimension = 1,
+  trim = c(0.02, 0.98),
+  background_color = "white",
+  grid_border_color = "grey",
+  show_legend = T,
+  point_size = 1,
+  axis_scale = c("cube", "real", "custom"),
+  custom_ratio = NULL,
+  x_ticks = NULL,
+  y_ticks = NULL,
+  z_ticks = NULL,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "showPattern3D"
+)
 }
 \arguments{
 \item{gobject}{giotto object}

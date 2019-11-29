@@ -4,11 +4,18 @@
 \alias{binGetSpatialGenes}
 \title{binGetSpatialGenes}
 \usage{
-binGetSpatialGenes(gobject, bin_method = c("kmeans", "rank"),
+binGetSpatialGenes(
+  gobject,
+  bin_method = c("kmeans", "rank"),
   expression_values = c("normalized", "scaled", "custom"),
-  spatial_network_name = "spatial_network", nstart = 3,
-  iter_max = 10, percentage_rank = 10, do_fisher_test = F,
-  community_expectation = 5, verbose = F)
+  spatial_network_name = "spatial_network",
+  nstart = 3,
+  iter_max = 10,
+  percentage_rank = 10,
+  do_fisher_test = F,
+  community_expectation = 5,
+  verbose = F
+)
 }
 \arguments{
 \item{gobject}{giotto object}

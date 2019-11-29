@@ -4,11 +4,18 @@
 \alias{mergeClusters}
 \title{mergeClusters}
 \usage{
-mergeClusters(gobject, expression_values = c("normalized", "scaled",
-  "custom"), cluster_column, cor = c("pearson", "spearman"),
-  new_cluster_name = "merged_cluster", min_cor_score = 0.8,
-  max_group_size = 20, force_min_group_size = 10,
-  return_gobject = TRUE, verbose = TRUE)
+mergeClusters(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  cluster_column,
+  cor = c("pearson", "spearman"),
+  new_cluster_name = "merged_cluster",
+  min_cor_score = 0.8,
+  max_group_size = 20,
+  force_min_group_size = 10,
+  return_gobject = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}

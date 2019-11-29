@@ -4,19 +4,32 @@
 \alias{plotHeatmap}
 \title{plotHeatmap}
 \usage{
-plotHeatmap(gobject, expression_values = c("normalized", "scaled",
-  "custom"), genes, cluster_column = NULL, cluster_order = c("size",
-  "correlation", "custom"), cluster_custom_order = NULL,
-  cluster_color_code = NULL, cluster_cor_method = "pearson",
-  cluster_hclust_method = "ward.D", gene_order = c("custom",
-  "correlation"), gene_custom_order = NULL,
-  gene_cor_method = "pearson", gene_hclust_method = "complete",
+plotHeatmap(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  genes,
+  cluster_column = NULL,
+  cluster_order = c("size", "correlation", "custom"),
+  cluster_custom_order = NULL,
+  cluster_color_code = NULL,
+  cluster_cor_method = "pearson",
+  cluster_hclust_method = "ward.D",
+  gene_order = c("custom", "correlation"),
+  gene_custom_order = NULL,
+  gene_cor_method = "pearson",
+  gene_hclust_method = "complete",
   show_values = c("rescaled", "z-scaled", "original"),
-  size_vertical_lines = 1.1, gradient_colors = c("blue", "yellow",
-  "red"), gene_label_selection = NULL, axis_text_y_size = NULL,
-  legend_nrows = 1, show_plot = NA, return_plot = NA,
-  save_plot = NA, save_param = list(),
-  default_save_name = "plotHeatmap")
+  size_vertical_lines = 1.1,
+  gradient_colors = c("blue", "yellow", "red"),
+  gene_label_selection = NULL,
+  axis_text_y_size = NULL,
+  legend_nrows = 1,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "plotHeatmap"
+)
 }
 \arguments{
 \item{gobject}{giotto object}

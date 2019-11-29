@@ -4,17 +4,35 @@
 \alias{visPlot_2D_plotly}
 \title{visPlot_2D_plotly}
 \usage{
-visPlot_2D_plotly(gobject, sdimx = NULL, sdimy = NULL,
-  point_size = 3, cell_color = NULL, cell_color_code = NULL,
-  color_as_factor = T, select_cell_groups = NULL,
-  select_cells = NULL, show_other_cells = T,
-  other_cell_color = "lightgrey", other_point_size = 0.5,
-  show_network = F, network_color = "lightgray", network_alpha = 1,
-  other_cell_alpha = 0.5, spatial_network_name = "spatial_network",
-  show_grid = F, grid_color = NULL, grid_alpha = 1,
-  spatial_grid_name = "spatial_grid", show_legend = T,
-  axis_scale = c("cube", "real", "custom"), custom_ratio = NULL,
-  x_ticks = NULL, y_ticks = NULL, show_plot = F)
+visPlot_2D_plotly(
+  gobject,
+  sdimx = NULL,
+  sdimy = NULL,
+  point_size = 3,
+  cell_color = NULL,
+  cell_color_code = NULL,
+  color_as_factor = T,
+  select_cell_groups = NULL,
+  select_cells = NULL,
+  show_other_cells = T,
+  other_cell_color = "lightgrey",
+  other_point_size = 0.5,
+  show_network = F,
+  network_color = "lightgray",
+  network_alpha = 1,
+  other_cell_alpha = 0.5,
+  spatial_network_name = "spatial_network",
+  show_grid = F,
+  grid_color = NULL,
+  grid_alpha = 1,
+  spatial_grid_name = "spatial_grid",
+  show_legend = T,
+  axis_scale = c("cube", "real", "custom"),
+  custom_ratio = NULL,
+  x_ticks = NULL,
+  y_ticks = NULL,
+  show_plot = F
+)
 }
 \arguments{
 \item{gobject}{giotto object}

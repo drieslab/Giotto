@@ -4,9 +4,14 @@
 \alias{plotly_axis_scale_3D}
 \title{plotly_axis_scale_3D}
 \usage{
-plotly_axis_scale_3D(cell_locations, sdimx = NULL, sdimy = NULL,
-  sdimz = NULL, mode = c("cube", "real", "custom"),
-  custom_ratio = NULL)
+plotly_axis_scale_3D(
+  cell_locations,
+  sdimx = NULL,
+  sdimy = NULL,
+  sdimz = NULL,
+  mode = c("cube", "real", "custom"),
+  custom_ratio = NULL
+)
 }
 \arguments{
 \item{cell_locations}{spatial_loc in giotto object}

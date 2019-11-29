@@ -4,11 +4,18 @@
 \alias{filterDistributions}
 \title{filterDistributions}
 \usage{
-filterDistributions(gobject, expression_values = c("raw", "normalized",
-  "scaled", "custom"), expression_threshold = 1, detection = c("genes",
-  "cells"), plot_type = c("histogram", "violin"), nr_bins = 30,
-  fill_color = "lightblue", scale_axis = "identity", axis_offset = 0,
-  show_plot = TRUE)
+filterDistributions(
+  gobject,
+  expression_values = c("raw", "normalized", "scaled", "custom"),
+  expression_threshold = 1,
+  detection = c("genes", "cells"),
+  plot_type = c("histogram", "violin"),
+  nr_bins = 30,
+  fill_color = "lightblue",
+  scale_axis = "identity",
+  axis_offset = 0,
+  show_plot = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}

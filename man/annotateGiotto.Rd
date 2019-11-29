@@ -4,8 +4,12 @@
 \alias{annotateGiotto}
 \title{annotateGiotto}
 \usage{
-annotateGiotto(gobject, annotation_vector = NULL,
-  cluster_column = NULL, name = "cell_types")
+annotateGiotto(
+  gobject,
+  annotation_vector = NULL,
+  cluster_column = NULL,
+  name = "cell_types"
+)
 }
 \arguments{
 \item{gobject}{giotto object}

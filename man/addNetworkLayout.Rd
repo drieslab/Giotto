@@ -4,9 +4,15 @@
 \alias{addNetworkLayout}
 \title{addNetworkLayout}
 \usage{
-addNetworkLayout(gobject, nn_network_to_use = NULL,
-  network_name = NULL, layout_type = c("drl"), options_list = NULL,
-  layout_name = "layout", return_gobject = TRUE)
+addNetworkLayout(
+  gobject,
+  nn_network_to_use = NULL,
+  network_name = NULL,
+  layout_type = c("drl"),
+  options_list = NULL,
+  layout_name = "layout",
+  return_gobject = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}

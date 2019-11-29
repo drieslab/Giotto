@@ -31,6 +31,7 @@ giotto <- setClass(
     gene_ID = "ANY",
     spatial_network = "ANY",
     spatial_grid = "ANY",
+    spatial_enrichment = "ANY",
     dimension_reduction = 'ANY',
     nn_network = "ANY",
     parameters = "ANY",
@@ -51,6 +52,7 @@ giotto <- setClass(
     gene_ID = NULL,
     spatial_network = NULL,
     spatial_grid = NULL,
+    spatial_enrichment = NULL,
     dimension_reduction = NULL,
     nn_network = NULL,
     parameters = NULL,
@@ -373,6 +375,8 @@ replaceGiottoInstructions = function(gobject,
 #' @param spatial_network_name list of spatial network name(s)
 #' @param spatial_grid list of spatial grid(s)
 #' @param spatial_grid_name list of spatial grid name(s)
+#' @param spatial_enrichment list of spatial enrichment score(s) for each spatial spot
+#' @param spatial_enrichment_name list of spatial enrichment name(s)
 #' @param dimension_reduction list of dimension reduction(s)
 #' @param nn_network list of nearest neighbor network(s)
 #' @param offset_file file used to stitch fields together (optional)
@@ -393,6 +397,8 @@ createGiottoObject <- function(raw_exprs,
                                spatial_network_name = NULL,
                                spatial_grid = NULL,
                                spatial_grid_name = NULL,
+                               spatial_enrichment = NULL,
+                               spatial_enrichment_name = NULL,
                                dimension_reduction = NULL,
                                nn_network = NULL,
                                offset_file = NULL,
@@ -410,6 +416,7 @@ createGiottoObject <- function(raw_exprs,
                    gene_ID = NULL,
                    spatial_network = NULL,
                    spatial_grid = NULL,
+                   spatial_enrichment = NULL,
                    dimension_reduction = NULL,
                    nn_network = NULL,
                    parameters = NULL,
@@ -555,7 +562,30 @@ createGiottoObject <- function(raw_exprs,
     }
   }
 
-  # dimension reduction
+  ## spatial enrichment
+  if(!is.null(spatial_enrichment)) {
+    if(is.null(spatial_enrichment_name) | length(spatial_enrichment) != length(spatial_enrichment_name)) {
+      stop('\n each spatial enrichment data.table or data.frame must be given a unique name \n')
+    } else {
+
+      for(spat_enrich_i in 1:length(spatial_enrichment)) {
+
+        spatenrichname = spatial_enrichment_name[[spat_enrich_i]]
+        spatenrich     = spatial_enrichment[[spat_enrich_i]]
+
+        if(nrow(spatenrich) != nrow(goject@cell_metadata)) {
+          stop('\n spatial enrichment ', spatenrichname, ' does not have the same number of rows as spots/cells, see details \n')
+        } else {
+
+          gobject@spatial_enrichment[[spatenrichname]] = spatenrich
+
+        }
+      }
+    }
+  }
+
+
+  ## dimension reduction
   if(!is.null(dimension_reduction)) {
 
     for(dim_i in 1:length(dimension_reduction)) {

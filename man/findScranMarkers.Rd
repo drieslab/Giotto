@@ -4,9 +4,15 @@
 \alias{findScranMarkers}
 \title{findScranMarkers}
 \usage{
-findScranMarkers(gobject, expression_values = c("normalized", "scaled",
-  "custom"), cluster_column, subset_clusters = NULL, group_1 = NULL,
-  group_2 = NULL, ...)
+findScranMarkers(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  cluster_column,
+  subset_clusters = NULL,
+  group_1 = NULL,
+  group_2 = NULL,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}

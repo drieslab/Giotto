@@ -4,8 +4,11 @@
 \alias{showGeneExpressionProximityScore}
 \title{showGeneExpressionProximityScore}
 \usage{
-showGeneExpressionProximityScore(scores, selected_gene,
-  sort_column = "diff_spat")
+showGeneExpressionProximityScore(
+  scores,
+  selected_gene,
+  sort_column = "diff_spat"
+)
 }
 \arguments{
 \item{scores}{CPscore, output from getAverageCellProximityGeneScores()}

@@ -4,18 +4,34 @@
 \alias{plot_point_layer_ggplot}
 \title{plot_point_layer_ggplot}
 \usage{
-plot_point_layer_ggplot(ggobject, annotated_DT_selected,
-  annotated_DT_other, cell_color = NULL, color_as_factor = T,
-  cell_color_code = NULL, cell_color_gradient = c("blue", "white",
-  "red"), gradient_midpoint = 0, gradient_limits = NULL,
-  select_cell_groups = NULL, select_cells = NULL, point_size = 1,
-  point_border_col = "black", point_border_stroke = 0.1,
-  show_cluster_center = F, show_center_label = T,
-  center_point_size = 4, center_point_border_col = "black",
-  center_point_border_stroke = 0.1, label_size = 4,
-  label_fontface = "bold", edge_alpha = NULL, show_other_cells = T,
-  other_cell_color = "lightgrey", other_point_size = 0.5,
-  show_legend = T)
+plot_point_layer_ggplot(
+  ggobject,
+  annotated_DT_selected,
+  annotated_DT_other,
+  cell_color = NULL,
+  color_as_factor = T,
+  cell_color_code = NULL,
+  cell_color_gradient = c("blue", "white", "red"),
+  gradient_midpoint = 0,
+  gradient_limits = NULL,
+  select_cell_groups = NULL,
+  select_cells = NULL,
+  point_size = 1,
+  point_border_col = "black",
+  point_border_stroke = 0.1,
+  show_cluster_center = F,
+  show_center_label = T,
+  center_point_size = 4,
+  center_point_border_col = "black",
+  center_point_border_stroke = 0.1,
+  label_size = 4,
+  label_fontface = "bold",
+  edge_alpha = NULL,
+  show_other_cells = T,
+  other_cell_color = "lightgrey",
+  other_point_size = 0.5,
+  show_legend = T
+)
 }
 \arguments{
 \item{annotated_DT_selected}{annotated data.table of selected cells}

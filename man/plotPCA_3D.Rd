@@ -4,8 +4,12 @@
 \alias{plotPCA_3D}
 \title{plotPCA_3D}
 \usage{
-plotPCA_3D(gobject, dim_reduction_name = "pca",
-  default_save_name = "PCA_3D", ...)
+plotPCA_3D(
+  gobject,
+  dim_reduction_name = "pca",
+  default_save_name = "PCA_3D",
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}

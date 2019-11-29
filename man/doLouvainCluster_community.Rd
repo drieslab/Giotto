@@ -4,11 +4,20 @@
 \alias{doLouvainCluster_community}
 \title{doLouvainCluster_community}
 \usage{
-doLouvainCluster_community(gobject, name = "louvain_clus",
-  nn_network_to_use = "sNN", network_name = "sNN.pca",
-  python_path = NULL, resolution = 1, weight_col = NULL,
-  louv_random = F, return_gobject = TRUE, set_seed = F,
-  seed_number = 1234, ...)
+doLouvainCluster_community(
+  gobject,
+  name = "louvain_clus",
+  nn_network_to_use = "sNN",
+  network_name = "sNN.pca",
+  python_path = NULL,
+  resolution = 1,
+  weight_col = NULL,
+  louv_random = F,
+  return_gobject = TRUE,
+  set_seed = F,
+  seed_number = 1234,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}

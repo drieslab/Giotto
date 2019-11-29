@@ -4,24 +4,49 @@
 \alias{spatPlot2D}
 \title{spatPlot2D}
 \usage{
-spatPlot2D(gobject, sdimx = "sdimx", sdimy = "sdimy",
-  cell_color = NULL, color_as_factor = T, cell_color_code = NULL,
+spatPlot2D(
+  gobject,
+  sdimx = "sdimx",
+  sdimy = "sdimy",
+  spat_enr_names = NULL,
+  cell_color = NULL,
+  color_as_factor = T,
+  cell_color_code = NULL,
   cell_color_gradient = c("blue", "white", "red"),
-  gradient_midpoint = 0, gradient_limits = NULL,
-  select_cell_groups = NULL, select_cells = NULL, point_size = 3,
-  point_border_col = "black", point_border_stroke = 0.1,
-  show_cluster_center = F, show_center_label = F,
-  center_point_size = 4, center_point_border_col = "black",
-  center_point_border_stroke = 0.1, label_size = 4,
-  label_fontface = "bold", show_network = F,
-  spatial_network_name = "spatial_network", network_color = NULL,
-  network_alpha = 1, show_grid = F,
-  spatial_grid_name = "spatial_grid", grid_color = NULL,
-  show_other_cells = T, other_cell_color = "lightgrey",
-  other_point_size = 1, other_cells_alpha = 0.1,
-  coord_fix_ratio = 0.6, title = "", show_legend = T,
-  show_plot = NA, return_plot = NA, save_plot = NA,
-  save_param = list(), default_save_name = "spatPlot2D")
+  gradient_midpoint = NULL,
+  gradient_limits = NULL,
+  select_cell_groups = NULL,
+  select_cells = NULL,
+  point_size = 3,
+  point_border_col = "black",
+  point_border_stroke = 0.1,
+  show_cluster_center = F,
+  show_center_label = F,
+  center_point_size = 4,
+  center_point_border_col = "black",
+  center_point_border_stroke = 0.1,
+  label_size = 4,
+  label_fontface = "bold",
+  show_network = F,
+  spatial_network_name = "spatial_network",
+  network_color = NULL,
+  network_alpha = 1,
+  show_grid = F,
+  spatial_grid_name = "spatial_grid",
+  grid_color = NULL,
+  show_other_cells = T,
+  other_cell_color = "lightgrey",
+  other_point_size = 1,
+  other_cells_alpha = 0.1,
+  coord_fix_ratio = 0.6,
+  title = "",
+  show_legend = T,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "spatPlot2D"
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -29,6 +54,8 @@ spatPlot2D(gobject, sdimx = "sdimx", sdimy = "sdimy",
 \item{sdimx}{x-axis dimension name (default = 'sdimx')}
 
 \item{sdimy}{y-axis dimension name (default = 'sdimy')}
+
+\item{spat_enr_names}{names of spatial enrichment results to include}
 
 \item{cell_color}{color for cells (see details)}
 

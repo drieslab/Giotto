@@ -4,19 +4,35 @@
 \alias{plot_spat_point_layer_ggplot}
 \title{plot_spat_point_layer_ggplot}
 \usage{
-plot_spat_point_layer_ggplot(ggobject, sdimx = NULL, sdimy = NULL,
-  cell_locations_metadata_selected, cell_locations_metadata_other,
-  cell_color = NULL, color_as_factor = T, cell_color_code = NULL,
+plot_spat_point_layer_ggplot(
+  ggobject,
+  sdimx = NULL,
+  sdimy = NULL,
+  cell_locations_metadata_selected,
+  cell_locations_metadata_other,
+  cell_color = NULL,
+  color_as_factor = T,
+  cell_color_code = NULL,
   cell_color_gradient = c("blue", "white", "red"),
-  gradient_midpoint = 0, gradient_limits = NULL,
-  select_cell_groups = NULL, select_cells = NULL, point_size = 2,
-  point_border_col = "lightgrey", point_border_stroke = 0.1,
-  show_cluster_center = F, show_center_label = T,
-  center_point_size = 4, center_point_border_col = "black",
-  center_point_border_stroke = 0.1, label_size = 4,
-  label_fontface = "bold", show_other_cells = T,
-  other_cell_color = "lightgrey", other_point_size = 1,
-  show_legend = TRUE)
+  gradient_midpoint = NULL,
+  gradient_limits = NULL,
+  select_cell_groups = NULL,
+  select_cells = NULL,
+  point_size = 2,
+  point_border_col = "lightgrey",
+  point_border_stroke = 0.1,
+  show_cluster_center = F,
+  show_center_label = T,
+  center_point_size = 4,
+  center_point_border_col = "black",
+  center_point_border_stroke = 0.1,
+  label_size = 4,
+  label_fontface = "bold",
+  show_other_cells = T,
+  other_cell_color = "lightgrey",
+  other_point_size = 1,
+  show_legend = TRUE
+)
 }
 \arguments{
 \item{sdimx}{x-axis dimension name (default = 'sdimx')}

@@ -4,10 +4,19 @@
 \alias{doLouvainCluster_multinet}
 \title{doLouvainCluster_multinet}
 \usage{
-doLouvainCluster_multinet(gobject, name = "louvain_clus",
-  nn_network_to_use = "sNN", network_name = "sNN.pca",
-  weight_col = NULL, gamma = 1, omega = 1, return_gobject = TRUE,
-  set_seed = F, seed_number = 1234, ...)
+doLouvainCluster_multinet(
+  gobject,
+  name = "louvain_clus",
+  nn_network_to_use = "sNN",
+  network_name = "sNN.pca",
+  weight_col = NULL,
+  gamma = 1,
+  omega = 1,
+  return_gobject = TRUE,
+  set_seed = F,
+  seed_number = 1234,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}

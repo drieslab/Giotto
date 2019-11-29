@@ -4,10 +4,16 @@
 \alias{detectSpatialPatterns}
 \title{detectSpatialPatterns}
 \usage{
-detectSpatialPatterns(gobject, expression_values = c("normalized",
-  "scaled", "custom"), spatial_grid_name = "spatial_grid",
-  min_cells_per_grid = 4, scale_unit = F, ncp = 100, show_plot = T,
-  PC_zscore = 1.5)
+detectSpatialPatterns(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  spatial_grid_name = "spatial_grid",
+  min_cells_per_grid = 4,
+  scale_unit = F,
+  ncp = 100,
+  show_plot = T,
+  PC_zscore = 1.5
+)
 }
 \arguments{
 \item{gobject}{giotto object}

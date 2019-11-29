@@ -4,16 +4,34 @@
 \alias{visPlot_3D_plotly}
 \title{visPlot_3D_plotly}
 \usage{
-visPlot_3D_plotly(gobject, sdimx = NULL, sdimy = NULL, sdimz = NULL,
-  point_size = 3, cell_color = NULL, cell_color_code = NULL,
-  select_cell_groups = NULL, select_cells = NULL,
-  show_other_cells = T, other_cell_color = "lightgrey",
-  other_point_size = 0.5, show_network = F, network_color = NULL,
-  network_alpha = 1, other_cell_alpha = 0.5,
+visPlot_3D_plotly(
+  gobject,
+  sdimx = NULL,
+  sdimy = NULL,
+  sdimz = NULL,
+  point_size = 3,
+  cell_color = NULL,
+  cell_color_code = NULL,
+  select_cell_groups = NULL,
+  select_cells = NULL,
+  show_other_cells = T,
+  other_cell_color = "lightgrey",
+  other_point_size = 0.5,
+  show_network = F,
+  network_color = NULL,
+  network_alpha = 1,
+  other_cell_alpha = 0.5,
   spatial_network_name = "spatial_network",
-  spatial_grid_name = "spatial_grid", title = "", show_legend = T,
-  axis_scale = c("cube", "real", "custom"), custom_ratio = NULL,
-  x_ticks = NULL, y_ticks = NULL, z_ticks = NULL, show_plot = F)
+  spatial_grid_name = "spatial_grid",
+  title = "",
+  show_legend = T,
+  axis_scale = c("cube", "real", "custom"),
+  custom_ratio = NULL,
+  x_ticks = NULL,
+  y_ticks = NULL,
+  z_ticks = NULL,
+  show_plot = F
+)
 }
 \arguments{
 \item{gobject}{giotto object}

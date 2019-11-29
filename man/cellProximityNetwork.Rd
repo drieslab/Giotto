@@ -4,15 +4,27 @@
 \alias{cellProximityNetwork}
 \title{cellProximityNetwork}
 \usage{
-cellProximityNetwork(gobject, CPscore, remove_self_edges = FALSE,
-  self_loop_strength = 0.1, color_depletion = "lightgreen",
-  color_enrichment = "red", rescale_edge_weights = TRUE,
+cellProximityNetwork(
+  gobject,
+  CPscore,
+  remove_self_edges = FALSE,
+  self_loop_strength = 0.1,
+  color_depletion = "lightgreen",
+  color_enrichment = "red",
+  rescale_edge_weights = TRUE,
   edge_weight_range_depletion = c(0.1, 1),
-  edge_weight_range_enrichment = c(1, 5), layout = "Fruchterman",
-  only_show_enrichment_edges = F, edge_width_range = c(0.1, 2),
-  node_size = 4, node_text_size = 6, show_plot = NA,
-  return_plot = NA, save_plot = NA, save_param = list(),
-  default_save_name = "cellProximityNetwork")
+  edge_weight_range_enrichment = c(1, 5),
+  layout = "Fruchterman",
+  only_show_enrichment_edges = F,
+  edge_width_range = c(0.1, 2),
+  node_size = 4,
+  node_text_size = 6,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "cellProximityNetwork"
+)
 }
 \arguments{
 \item{gobject}{giotto object}

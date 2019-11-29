@@ -4,8 +4,7 @@
 \alias{addCellMetadata}
 \title{addCellMetadata}
 \usage{
-addCellMetadata(gobject, new_metadata, by_column = F,
-  column_cell_ID = NULL)
+addCellMetadata(gobject, new_metadata, by_column = F, column_cell_ID = NULL)
 }
 \arguments{
 \item{gobject}{giotto object}

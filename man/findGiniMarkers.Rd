@@ -4,10 +4,18 @@
 \alias{findGiniMarkers}
 \title{findGiniMarkers}
 \usage{
-findGiniMarkers(gobject, expression_values = c("normalized", "scaled",
-  "custom"), cluster_column, subset_clusters = NULL, group_1 = NULL,
-  group_2 = NULL, min_expr_gini_score = 0.5,
-  min_det_gini_score = 0.5, detection_threshold = 0, rank_score = 1)
+findGiniMarkers(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  cluster_column,
+  subset_clusters = NULL,
+  group_1 = NULL,
+  group_2 = NULL,
+  min_expr_gini_score = 0.5,
+  min_det_gini_score = 0.5,
+  detection_threshold = 0,
+  rank_score = 1
+)
 }
 \arguments{
 \item{gobject}{giotto object}

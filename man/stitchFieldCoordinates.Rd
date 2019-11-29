@@ -4,10 +4,17 @@
 \alias{stitchFieldCoordinates}
 \title{stitchFieldCoordinates}
 \usage{
-stitchFieldCoordinates(location_file, offset_file, cumulate_offset_x = F,
-  cumulate_offset_y = F, field_col = "Field of View",
-  X_coord_col = "X", Y_coord_col = "Y", reverse_final_x = F,
-  reverse_final_y = T)
+stitchFieldCoordinates(
+  location_file,
+  offset_file,
+  cumulate_offset_x = F,
+  cumulate_offset_y = F,
+  field_col = "Field of View",
+  X_coord_col = "X",
+  Y_coord_col = "Y",
+  reverse_final_x = F,
+  reverse_final_y = T
+)
 }
 \arguments{
 \item{location_file}{location dataframe with X and Y coordinates}

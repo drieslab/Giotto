@@ -4,19 +4,40 @@
 \alias{spatPlot3D}
 \title{spatPlot3D}
 \usage{
-spatPlot3D(gobject, sdimx = "sdimx", sdimy = "sdimy",
-  sdimz = "sdimz", point_size = 3, cell_color = NULL,
-  cell_color_code = NULL, select_cell_groups = NULL,
-  select_cells = NULL, show_other_cells = T,
-  other_cell_color = "lightgrey", other_point_size = 0.5,
-  show_network = F, network_color = NULL, network_alpha = 1,
-  other_cell_alpha = 0.5, spatial_network_name = "spatial_network",
-  show_grid = F, grid_color = NULL,
-  spatial_grid_name = "spatial_grid", title = "", show_legend = T,
-  axis_scale = c("cube", "real", "custom"), custom_ratio = NULL,
-  x_ticks = NULL, y_ticks = NULL, z_ticks = NULL, show_plot = NA,
-  return_plot = NA, save_plot = NA, save_param = list(),
-  default_save_name = "spat3D")
+spatPlot3D(
+  gobject,
+  sdimx = "sdimx",
+  sdimy = "sdimy",
+  sdimz = "sdimz",
+  point_size = 3,
+  cell_color = NULL,
+  cell_color_code = NULL,
+  select_cell_groups = NULL,
+  select_cells = NULL,
+  show_other_cells = T,
+  other_cell_color = "lightgrey",
+  other_point_size = 0.5,
+  show_network = F,
+  network_color = NULL,
+  network_alpha = 1,
+  other_cell_alpha = 0.5,
+  spatial_network_name = "spatial_network",
+  show_grid = F,
+  grid_color = NULL,
+  spatial_grid_name = "spatial_grid",
+  title = "",
+  show_legend = T,
+  axis_scale = c("cube", "real", "custom"),
+  custom_ratio = NULL,
+  x_ticks = NULL,
+  y_ticks = NULL,
+  z_ticks = NULL,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "spat3D"
+)
 }
 \arguments{
 \item{gobject}{giotto object}

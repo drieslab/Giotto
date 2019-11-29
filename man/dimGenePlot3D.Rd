@@ -4,19 +4,37 @@
 \alias{dimGenePlot3D}
 \title{dimGenePlot3D}
 \usage{
-dimGenePlot3D(gobject, expression_values = c("normalized", "scaled",
-  "custom"), genes = NULL, dim_reduction_to_use = "umap",
-  dim_reduction_name = "umap", dim1_to_use = 1, dim2_to_use = 2,
-  dim3_to_use = 3, show_NN_network = F, nn_network_to_use = "sNN",
-  network_name = "sNN.pca", network_color = "lightgray",
-  cluster_column = NULL, select_cell_groups = NULL,
-  select_cells = NULL, show_other_cells = T,
-  other_cell_color = "lightgrey", other_point_size = 1,
-  edge_alpha = NULL, point_size = 2, genes_high_color = NULL,
-  genes_mid_color = "white", genes_low_color = "blue",
-  show_legend = T, show_plot = NA, return_plot = NA,
-  save_plot = NA, save_param = list(),
-  default_save_name = "dimGenePlot3D")
+dimGenePlot3D(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  genes = NULL,
+  dim_reduction_to_use = "umap",
+  dim_reduction_name = "umap",
+  dim1_to_use = 1,
+  dim2_to_use = 2,
+  dim3_to_use = 3,
+  show_NN_network = F,
+  nn_network_to_use = "sNN",
+  network_name = "sNN.pca",
+  network_color = "lightgray",
+  cluster_column = NULL,
+  select_cell_groups = NULL,
+  select_cells = NULL,
+  show_other_cells = T,
+  other_cell_color = "lightgrey",
+  other_point_size = 1,
+  edge_alpha = NULL,
+  point_size = 2,
+  genes_high_color = NULL,
+  genes_mid_color = "white",
+  genes_low_color = "blue",
+  show_legend = T,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "dimGenePlot3D"
+)
 }
 \arguments{
 \item{gobject}{giotto object}

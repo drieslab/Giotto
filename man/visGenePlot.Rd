@@ -4,19 +4,38 @@
 \alias{visGenePlot}
 \title{visGenePlot}
 \usage{
-visGenePlot(gobject, expression_values = c("normalized", "scaled",
-  "custom"), genes, genes_high_color = NULL, genes_mid_color = "white",
-  genes_low_color = "blue", show_network = F, network_color = NULL,
-  spatial_network_name = "spatial_network", edge_alpha = NULL,
-  show_grid = F, grid_color = NULL,
-  spatial_grid_name = "spatial_grid", midpoint = 0,
-  scale_alpha_with_expression = FALSE, point_size = 1,
-  point_border_col = "black", point_border_stroke = 0.1,
-  show_legend = T, cow_n_col = 2, cow_rel_h = 1, cow_rel_w = 1,
-  cow_align = "h", axis_scale = c("cube", "real", "custom"),
-  custom_ratio = NULL, x_ticks = NULL, y_ticks = NULL,
-  z_ticks = NULL, plot_method = c("ggplot", "plotly"),
-  show_plots = F)
+visGenePlot(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  genes,
+  genes_high_color = NULL,
+  genes_mid_color = "white",
+  genes_low_color = "blue",
+  show_network = F,
+  network_color = NULL,
+  spatial_network_name = "spatial_network",
+  edge_alpha = NULL,
+  show_grid = F,
+  grid_color = NULL,
+  spatial_grid_name = "spatial_grid",
+  midpoint = 0,
+  scale_alpha_with_expression = FALSE,
+  point_size = 1,
+  point_border_col = "black",
+  point_border_stroke = 0.1,
+  show_legend = T,
+  cow_n_col = 2,
+  cow_rel_h = 1,
+  cow_rel_w = 1,
+  cow_align = "h",
+  axis_scale = c("cube", "real", "custom"),
+  custom_ratio = NULL,
+  x_ticks = NULL,
+  y_ticks = NULL,
+  z_ticks = NULL,
+  plot_method = c("ggplot", "plotly"),
+  show_plots = F
+)
 }
 \arguments{
 \item{gobject}{giotto object}

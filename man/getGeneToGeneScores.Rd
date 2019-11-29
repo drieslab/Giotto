@@ -4,11 +4,19 @@
 \alias{getGeneToGeneScores}
 \title{getGeneToGeneScores}
 \usage{
-getGeneToGeneScores(CPGscore, selected_genes = NULL,
-  specific_genes_1 = NULL, specific_genes_2 = NULL, min_cells = 5,
-  min_fdr = 0.05, min_spat_diff = 0.2, min_log2_fc = 0.5,
-  direction = c("both", "up", "down"), fold_change_addendum = 0.1,
-  verbose = TRUE)
+getGeneToGeneScores(
+  CPGscore,
+  selected_genes = NULL,
+  specific_genes_1 = NULL,
+  specific_genes_2 = NULL,
+  min_cells = 5,
+  min_fdr = 0.05,
+  min_spat_diff = 0.2,
+  min_log2_fc = 0.5,
+  direction = c("both", "up", "down"),
+  fold_change_addendum = 0.1,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{CPGscore}{CPGscore, output from getCellProximityGeneScores()}

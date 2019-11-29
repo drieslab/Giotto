@@ -4,9 +4,15 @@
 \alias{plotly_network}
 \title{plotly_network}
 \usage{
-plotly_network(network, x = "sdimx_begin", y = "sdimy_begin",
-  z = "sdimz_begin", x_end = "sdimx_end", y_end = "sdimy_end",
-  z_end = "sdimz_end")
+plotly_network(
+  network,
+  x = "sdimx_begin",
+  y = "sdimy_begin",
+  z = "sdimz_begin",
+  x_end = "sdimx_end",
+  y_end = "sdimy_end",
+  z_end = "sdimz_end"
+)
 }
 \arguments{
 \item{gobject}{network in giotto object}

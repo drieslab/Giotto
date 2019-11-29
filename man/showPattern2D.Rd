@@ -4,11 +4,21 @@
 \alias{showPattern2D}
 \title{showPattern2D}
 \usage{
-showPattern2D(gobject, spatPatObj, dimension = 1, trim = c(0.02, 0.98),
-  background_color = "white", grid_border_color = "grey",
-  show_legend = T, point_size = 1, show_plot = NA,
-  return_plot = NA, save_plot = NA, save_param = list(),
-  default_save_name = "showPattern2D")
+showPattern2D(
+  gobject,
+  spatPatObj,
+  dimension = 1,
+  trim = c(0.02, 0.98),
+  background_color = "white",
+  grid_border_color = "grey",
+  show_legend = T,
+  point_size = 1,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "showPattern2D"
+)
 }
 \arguments{
 \item{gobject}{giotto object}
