@@ -566,7 +566,7 @@ viewHMRFresults2D <- function(gobject,
 
     title_name = paste0('k = ', k, ' b = ',b)
 
-    spatPlot2D(gobject = gobject, cell_color = output, show_plot = T, save_plot = F, title = title_name, ...)
+    spatPlot2D(gobject = gobject, cell_color = as.factor(output), show_plot = T, save_plot = F, title = title_name, ...)
   }
 }
 

@@ -250,7 +250,7 @@ cellProximityNetwork = function(gobject,
   CPscores[, cell_2 := strsplit(as.character(unified_int), split = '--')[[1]][2], by = 1:nrow(CPscores)]
 
   # create igraph with enrichm as weight edges
-  igd = igraph::graph_from_data_frame(d = CPscores[,.(cell_1, cell_2, enrichm)], directed = F)
+  igd = igraph::graph_from_data_frame(d = CPscores[,c('cell_1', 'cell_2', 'enrichm')], directed = F)
 
   if(remove_self_edges == TRUE) {
     igd = igraph::simplify(graph = igd, remove.loops = TRUE, remove.multiple = FALSE)

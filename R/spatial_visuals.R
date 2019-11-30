@@ -5131,21 +5131,30 @@ plot_point_layer_ggplot = function(ggobject,
                                    color = cell_color, show.legend = show_legend, size = point_size)
 
 
-  } else if (is.character(cell_color)) {
+  } else if(length(cell_color) > 1) {
 
-    if(length(cell_color) > 1 & all(cell_color %in% grDevices::colors())) {
+    if(is.numeric(cell_color) | is.factor(cell_color)) {
+      if(nrow(annotated_DT_selected) != length(cell_color)) stop('\n vector needs to be the same lengths as number of cells \n')
+      annotated_DT_selected[['temp_color']] = cell_color
 
-      pl <- pl + ggplot2::geom_point(data = annotated_DT_selected, aes_string(x = dims[1], y = dims[2]),
+      pl <- pl + ggplot2::geom_point(data = annotated_DT_selected, aes_string2(x = dims[1], y = dims[2], fill = 'temp_color'),
+                                     show.legend = show_legend, shape = 21,
+                                     size = point_size,
+                                     color = point_border_col, stroke = point_border_stroke)
+
+    } else if(is.character(cell_color)) {
+      if(!all(cell_color %in% grDevices::colors())) stop('cell_color is not numeric, a factor or vector of colors \n')
+      pl <- pl + ggplot2::geom_point(data = annotated_DT_selected, aes_string2(x = dims[1], y = dims[2]),
                                      show.legend = show_legend, shape = 21, fill = cell_color,
                                      size = point_size,
                                      color = point_border_col, stroke = point_border_stroke)
 
+    }
 
+  } else if (is.character(cell_color)) {
 
-    } else if(!cell_color %in% colnames(annotated_DT_selected)) {
-
+    if(!cell_color %in% colnames(annotated_DT_selected)) {
       if(!cell_color %in% grDevices::colors()) stop(cell_color,' is not a color or a column name \n')
-
       pl <- pl + ggplot2::geom_point(data = annotated_DT_selected, aes_string(x = dims[1], y = dims[2]),
                                      show.legend = show_legend, shape = 21, fill = cell_color,
                                      size = point_size,
@@ -5966,20 +5975,29 @@ plot_spat_point_layer_ggplot = function(ggobject,
                                    stroke = point_border_stroke, color = point_border_col)
 
 
-  } else if(is.character(cell_color)) {
+  } else if(length(cell_color) > 1) {
 
-    if(length(cell_color) > 1 & all(cell_color %in% grDevices::colors())) {
+    if(is.numeric(cell_color) | is.factor(cell_color)) {
+      if(nrow(cell_locations_metadata_selected) != length(cell_color)) stop('\n vector needs to be the same lengths as number of cells \n')
+      cell_locations_metadata_selected[['temp_color']] = cell_color
 
+      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_selected, aes_string2(x = sdimx, y = sdimy, fill = 'temp_color'),
+                                     show.legend = show_legend, shape = 21,
+                                     size = point_size,
+                                     color = point_border_col, stroke = point_border_stroke)
+
+    } else if(is.character(cell_color)) {
+      if(!all(cell_color %in% grDevices::colors())) stop('cell_color is not numeric, a factor or vector of colors \n')
       pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_selected, aes_string2(x = sdimx, y = sdimy),
                                      show.legend = show_legend, shape = 21, fill = cell_color,
                                      size = point_size,
                                      color = point_border_col, stroke = point_border_stroke)
 
+    }
 
-    } else if(!cell_color %in% colnames(cell_locations_metadata_selected)) {
-
+  } else if(is.character(cell_color)) {
+    if(!cell_color %in% colnames(cell_locations_metadata_selected)) {
       if(!cell_color %in% grDevices::colors()) stop(cell_color,' is not a color or a column name \n')
-
       pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_selected,
                                      aes_string2(x = sdimx, y = sdimy),
                                      show.legend = show_legend, shape = 21, fill = cell_color,
@@ -6077,7 +6095,6 @@ plot_spat_point_layer_ggplot = function(ggobject,
   }
   return(pl)
 }
-
 
 
 #' @title spatPlot2D
@@ -7156,7 +7173,12 @@ dimGenePlot2D <- function(gobject,
       pl <- pl + ggplot2::scale_fill_gradient2(low = genes_low_color, mid = genes_mid_color, high = genes_high_color, midpoint = midpoint)
     }
 
-    pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y')
+    ## add title
+    pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y', title = gene)
+    ## adjust titles
+    pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5),
+                              legend.title = element_blank(),
+                              legend.text = element_text(size = 10))
 
     if(show_plot == TRUE) {
       print(pl)
