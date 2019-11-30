@@ -105,8 +105,8 @@ VC_test <- adjustGiottoMatrix(gobject = VC_test, expression_values = c('normaliz
                               update_slot = c('custom'))
 
 ## visualize
-spatPlot2D(gobject = VC_test,
-           save_param = list(save_folder = '2_Gobject', save_name = 'spatial_locations'))
+spatPlot(gobject = VC_test,
+         save_param = list(save_folder = '2_Gobject', save_name = 'spatial_locations'))
 
 ```
   
@@ -132,17 +132,17 @@ featgenes = gene_metadata[hvg == 'yes' & perc_cells > 4 & mean_expr_det > 0.5]$g
 VC_test <- runPCA(gobject = VC_test, genes_to_use = featgenes, scale_unit = F)
 signPCA(VC_test, genes_to_use = featgenes, scale_unit = F)
 
-plotPCA_2D(gobject = VC_test,
-           save_param = list(save_folder = '3_DimRed', save_name = 'PCA_reduction'))
+plotPCA(gobject = VC_test,
+        save_param = list(save_folder = '3_DimRed', save_name = 'PCA_reduction'))
 
 ## run UMAP and tSNE on PCA space (default)
 VC_test <- runUMAP(VC_test, dimensions_to_use = 1:30)
-plotUMAP_2D(gobject = VC_test,
-            save_param = list(save_folder = '3_DimRed', save_name = 'UMAP_reduction'))
+plotUMAP(gobject = VC_test,
+         save_param = list(save_folder = '3_DimRed', save_name = 'UMAP_reduction'))
 
 VC_test <- runtSNE(VC_test, dimensions_to_use = 1:30)
-plotTSNE_2D(gobject = VC_test,
-            save_param = list(save_folder = '3_DimRed', save_name = 'tSNE_reduction'))
+plotTSNE(gobject = VC_test,
+         save_param = list(save_folder = '3_DimRed', save_name = 'tSNE_reduction'))
 
 ```
 
@@ -167,9 +167,9 @@ VC_test <- createNearestNetwork(gobject = VC_test, dimensions_to_use = 1:15, k =
 
 ## Leiden clustering
 VC_test <- doLeidenCluster(gobject = VC_test, resolution = 0.4, n_iterations = 1000)
-plotUMAP_2D(gobject = VC_test,
-            cell_color = 'leiden_clus', show_NN_network = T, point_size = 2.5,
-            save_param = list(save_folder = '4_Cluster', save_name = 'UMAP_leiden'))
+plotUMAP(gobject = VC_test,
+         cell_color = 'leiden_clus', show_NN_network = T, point_size = 2.5,
+         save_param = list(save_folder = '4_Cluster', save_name = 'UMAP_leiden'))
 
 ## Leiden subclustering for specified clusters
 VC_test = doLeidenSubCluster(gobject = VC_test, cluster_column = 'leiden_clus',
@@ -179,9 +179,9 @@ VC_test = doLeidenSubCluster(gobject = VC_test, cluster_column = 'leiden_clus',
                              nn_param = list(dimensions_to_use = 1:5),
                              selected_clusters = c(5, 7),
                              name = 'sub_leiden_clus_select')
-plotUMAP_2D(gobject = VC_test,
-            cell_color = 'sub_leiden_clus_select', show_NN_network = T, point_size = 2.5,
-            save_param = list(save_folder = '4_Cluster', save_name = 'UMAP_leiden_subcluster'))
+plotUMAP(gobject = VC_test,
+         cell_color = 'sub_leiden_clus_select', show_NN_network = T, point_size = 2.5,
+         save_param = list(save_folder = '4_Cluster', save_name = 'UMAP_leiden_subcluster'))
 
 ## show cluster relationships
 showClusterHeatmap(gobject = VC_test, cluster_column = 'sub_leiden_clus_select',
@@ -212,17 +212,17 @@ showClusterDendrogram(VC_test, h = 0.5, rotate = T, cluster_column = 'sub_leiden
   
 ```{r eval=FALSE}
 # expression and spatial
-spatDimPlot2D(gobject = VC_test, cell_color = 'sub_leiden_clus_select',
-              dim_point_size = 2, spatial_point_size = 2,
-              save_param = list(save_name = 'covis_leiden', save_folder = '5_Covisuals'))
+spatDimPlot(gobject = VC_test, cell_color = 'sub_leiden_clus_select',
+            dim_point_size = 2, spatial_point_size = 2,
+            save_param = list(save_name = 'covis_leiden', save_folder = '5_Covisuals'))
 
 # selected groups
 groups_of_interest = c(5.1, 6.1, 7.1)
 group_colors = c('red', 'green', 'blue'); names(group_colors) = groups_of_interest
-spatDimPlot2D(gobject = VC_test, cell_color = 'sub_leiden_clus_select', 
-              dim_point_size = 2, spatial_point_size = 2,
-              select_cell_groups = groups_of_interest, cell_color_code = group_colors,
-              save_param = list(save_name = 'covis_leiden_selected', save_folder = '5_Covisuals'))
+spatDimPlot(gobject = VC_test, cell_color = 'sub_leiden_clus_select', 
+            dim_point_size = 2, spatial_point_size = 2,
+            select_cell_groups = groups_of_interest, cell_color_code = group_colors,
+            save_param = list(save_name = 'covis_leiden_selected', save_folder = '5_Covisuals'))
 
 ```
 
@@ -345,13 +345,13 @@ plotHeatmap(gobject = VC_test,
             save_param = c(save_name = 'heatmap_selected', save_folder = '7_annotation'))
 
 ## co-visualization
-spatDimPlot2D(gobject = VC_test, cell_color = 'cell_types',
-               dim_point_size = 2, spatial_point_size = 2, show_cluster_center = F, show_center_label = T,
-              save_param = c(save_name = 'covisualization', save_folder = '7_annotation'))
+spatDimPlot(gobject = VC_test, cell_color = 'cell_types',
+            dim_point_size = 2, spatial_point_size = 2, show_cluster_center = F, show_center_label = T,
+            save_param = c(save_name = 'covisualization', save_folder = '7_annotation'))
 
-spatDimPlot2D(gobject = VC_test, cell_color = 'cell_types', select_cell_groups = c('astrocytes', 'Olig', 'OPC'),
-              dim_point_size = 2, spatial_point_size = 2, show_cluster_center = F, show_center_label = T,
-              save_param = c(save_name = 'covisualization_selection', save_folder = '7_annotation'))
+spatDimPlot(gobject = VC_test, cell_color = 'cell_types', select_cell_groups = c('astrocytes', 'Olig', 'OPC'),
+            dim_point_size = 2, spatial_point_size = 2, show_cluster_center = F, show_center_label = T,
+            save_param = c(save_name = 'covisualization_selection', save_folder = '7_annotation'))
 ```
 
 ![](./figures/6_violinplot.png){width=16cm} 
@@ -382,8 +382,8 @@ VC_test <- createSpatialGrid(gobject = VC_test,
                              sdimy_stepsize = 500,
                              minimum_padding = 50)
 
-spatPlot2D(gobject = VC_test, show_grid = T, point_size = 1.5,
-           save_param = c(save_name = 'grid', save_folder = '8_grid'))
+spatPlot(gobject = VC_test, show_grid = T, point_size = 1.5,
+         save_param = c(save_name = 'grid', save_folder = '8_grid'))
 
 ## identify spatial patterns
 pattern_VC = detectSpatialPatterns(gobject = VC_test,
@@ -431,20 +431,20 @@ VC_test <- createSpatialNetwork(gobject = VC_test, k = 100, maximum_distance = 2
 field1_ids = cell_metadata[Field_of_View == 0]$cell_ID
 subVC_test = subsetGiotto(VC_test, cell_ids = field1_ids)
 
-spatPlot2D(gobject = subVC_test, show_network = T,
+spatPlot(gobject = subVC_test, show_network = T,
         network_color = 'blue', spatial_network_name = 'spatial_network',
         point_size = 2.5, cell_color = 'cell_types',
         save_param = c(save_name = 'spatial_network_k3', save_folder = '9_spatial_network'))
 
-spatPlot2D(gobject = subVC_test, show_network = T,
-           network_color = 'blue', spatial_network_name = 'large_network',
-           point_size = 2.5, cell_color = 'cell_types',
-           save_param = c(save_name = 'spatial_network_k10', save_folder = '9_spatial_network'))
+spatPlot(gobject = subVC_test, show_network = T,
+         network_color = 'blue', spatial_network_name = 'large_network',
+         point_size = 2.5, cell_color = 'cell_types',
+         save_param = c(save_name = 'spatial_network_k10', save_folder = '9_spatial_network'))
 
-spatPlot2D(gobject = subVC_test, show_network = T,
-           network_color = 'blue', spatial_network_name = 'distance_network',
-           point_size = 2.5, cell_color = 'cell_types',
-           save_param = c(save_name = 'spatial_network_dist', save_folder = '9_spatial_network'))
+spatPlot(gobject = subVC_test, show_network = T,
+         network_color = 'blue', spatial_network_name = 'distance_network',
+         point_size = 2.5, cell_color = 'cell_types',
+         save_param = c(save_name = 'spatial_network_dist', save_folder = '9_spatial_network'))
            
 ```
 
@@ -479,11 +479,11 @@ spatial_genes = calculate_spatial_genes_python(gobject = VC_test,
                                                expression_values = 'scaled',
                                                rbp_p=0.99, examine_top=0.1)
 
-spatGenePlot2D(VC_test, expression_values = 'scaled', show_plot = F,
-               genes = head(ranktest_m$genes,8), point_size = 2, cow_n_col = 4,
-               genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue',
-               midpoint = 0, return_plot = F,
-               save_param = c(save_name = 'spatial_genes_scaled_both', save_folder = '10_spatial_genes', base_width = 18))
+spatGenePlot(VC_test, expression_values = 'scaled', show_plot = F,
+             genes = head(ranktest_m$genes,8), point_size = 2, cow_n_col = 4,
+             genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue',
+             midpoint = 0, return_plot = F,
+             save_param = c(save_name = 'spatial_genes_scaled_both', save_folder = '10_spatial_genes', base_width = 18))
 
 
 ```
@@ -531,8 +531,8 @@ VC_test = addHMRF(gobject = VC_test,
                    k = 9, betas_to_add = c(28),
                    hmrf_name = 'HMRF')
 ## visualize
-spatPlot2D(gobject = VC_test, cell_color = 'HMRF_k9_b.28', point_size = 3,
-           save_param = c(save_name = 'HMRF_k9_b.28', save_folder = '11_HMRF'))
+spatPlot(gobject = VC_test, cell_color = 'HMRF_k9_b.28', point_size = 3,
+         save_param = c(save_name = 'HMRF_k9_b.28', save_folder = '11_HMRF'))
 ```
 
 ![](./figures/10_HMRF_k9_b.28.png){width=16cm} 
@@ -571,12 +571,12 @@ cellProximityNetwork(gobject = VC_test, CPscore = cell_proximities, remove_self_
 
 ## visualization
 spec_interaction = "astrocytes--Olig"
-cellProximitySpatPlot2D(gobject = VC_test,
-                        interaction_name = spec_interaction,
-                        cluster_column = 'cell_types',
-                        cell_color = 'cell_types',
-                        point_size_select = 4, point_size_other = 2,
-                        save_param = c(save_name = 'cell_cell_enrichment_selected', save_folder = '12_cell_proxim'))
+cellProximitySpatPlot(gobject = VC_test,
+                      interaction_name = spec_interaction,
+                      cluster_column = 'cell_types',
+                      cell_color = 'cell_types',
+                      point_size_select = 4, point_size_other = 2,
+                      save_param = c(save_name = 'cell_cell_enrichment_selected', save_folder = '12_cell_proxim'))
 
 ```
 
@@ -673,13 +673,13 @@ plotGTGscores(gobject = VC_test,
                              save_folder = '14_neigh_two_gene_enrichment',
                              base_widt = 5, base_height = 3))
 
-cellProximitySpatPlot2D(gobject = VC_test, interaction_name = "astrocytes--OPC",
-                        spatial_network_name = 'spatial_network',
-                        cluster_column = 'cell_types', cell_color_code = NULL,
-                        cell_color = 'cell_types', show_network = T,
-                        network_color = 'blue', point_size_select = 3,
-                        save_param = c(save_name = 'spatial_interaction_selected',
-                                       save_folder = '14_neigh_two_gene_enrichment'))
+cellProximitySpatPlot(gobject = VC_test, interaction_name = "astrocytes--OPC",
+                      spatial_network_name = 'spatial_network',
+                      cluster_column = 'cell_types', cell_color_code = NULL,
+                      cell_color = 'cell_types', show_network = T,
+                      network_color = 'blue', point_size_select = 3,
+                      save_param = c(save_name = 'spatial_interaction_selected',
+                                     save_folder = '14_neigh_two_gene_enrichment'))
 
 ```
 

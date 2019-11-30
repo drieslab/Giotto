@@ -158,6 +158,8 @@ Howto’s and faqs examples:
     object?](./inst/faqs/metadata_and_subset/metadata_and_subset_VC.md)
   - [How to create global instructions and show or save your created
     plots?](./inst/faqs/instructions_and_plotting/instructions_and_plotting.md)
+  - [Different ways to visualize your spatial
+    data?](./inst/faqs/visualization_options/visualization_options.md)
   - How to test and store multiple parameters or analyses?
   - …
 
