@@ -5276,6 +5276,7 @@ plot_point_layer_ggplot = function(ggobject,
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
+#' @param title title for plot, defaults to cell_color parameter
 #' @param show_legend show legend
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
@@ -5318,6 +5319,7 @@ dimPlot2D <- function(gobject,
                       point_size = 1,
                       point_border_col = 'black',
                       point_border_stroke = 0.1,
+                      title = NULL,
                       show_legend = T,
                       show_plot = NA,
                       return_plot = NA,
@@ -5450,20 +5452,28 @@ dimPlot2D <- function(gobject,
     x_name = paste0('pca','-',dim_names[1])
     y_name = paste0('pca','-',dim_names[2])
 
+    # provide x, y and plot titles
     x_title = sprintf('%s explains %.02f%% of variance', x_name, var_expl_vec[1])
     y_title = sprintf('%s explains %.02f%% of variance', y_name, var_expl_vec[2])
 
-    pl <- pl + ggplot2::labs(x = x_title, y = y_title)
+    if(is.null(title)) title = cell_color
+    pl <- pl + ggplot2::labs(x = x_title, y = y_title, title = title)
 
   } else {
 
+    # provide x, y and plot titles
     x_title = paste0(dim_reduction_to_use,'-',dim_names[1])
     y_title = paste0(dim_reduction_to_use,'-',dim_names[2])
 
-    pl <- pl + ggplot2::labs(x = x_title, y = y_title)
+    if(is.null(title)) title = cell_color
+    pl <- pl + ggplot2::labs(x = x_title, y = y_title, title = title)
 
   }
 
+  ## adjust titles
+  pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5),
+                            legend.title = element_blank(),
+                            legend.text = element_text(size = 10))
 
   # print, return and save parameters
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
@@ -6168,7 +6178,6 @@ spatPlot2D = function(gobject,
   ## extract spatial network
   if(!is.null(spatial_network_name)) {
     spatial_network = gobject@spatial_network[[spatial_network_name]]
-    if(is.null(spatial_network)) cat('\n The chosen spatial network does not exist. \n')
   } else {
     spatial_network = NULL
   }
@@ -6176,7 +6185,6 @@ spatPlot2D = function(gobject,
   ## extract spatial grid
   if(!is.null(spatial_grid_name)) {
     spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
-    if(is.null(spatial_grid)) cat('\n The chosen spatial grid does not exist. \n')
   } else {
     spatial_grid = NULL
   }
@@ -6219,7 +6227,7 @@ spatPlot2D = function(gobject,
 
 
   ### create 2D plot with ggplot ###
-  cat('create 2D plot with ggplot \n')
+  #cat('create 2D plot with ggplot \n')
 
 
   pl <- ggplot2::ggplot()
@@ -7644,6 +7652,440 @@ spatCellPlot2D = function(gobject,
 
 
 
+
+}
+
+
+
+
+
+
+
+
+#' @title dimCellPlot2D
+#' @name dimCellPlot2D
+#' @description Visualize cells according to dimension reduction coordinates
+#' @param gobject giotto object
+#' @param dim_reduction_to_use dimension reduction to use
+#' @param dim_reduction_name dimension reduction name
+#' @param dim1_to_use dimension to use on x-axis
+#' @param dim2_to_use dimension to use on y-axis
+#' @param spat_enr_names names of spatial enrichment results to include
+#' @param cell_annotation_values numeric cell annotation columns
+#' @param show_NN_network show underlying NN network
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
+#' @param network_name name of NN network to use, if show_NN_network = TRUE
+#' @param cell_color color for cells (see details)
+#' @param color_as_factor convert color column to factor
+#' @param cell_color_code named vector with colors
+#' @param cell_color_gradient vector with 3 colors for numeric data
+#' @param gradient_midpoint midpoint for color gradient
+#' @param gradient_limits vector with lower and upper limits
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param select_cells select subset of cells based on cell IDs
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color of not selected cells
+#' @param other_point_size size of not selected cells
+#' @param show_cluster_center plot center of selected clusters
+#' @param show_center_label plot label of selected clusters
+#' @param center_point_size size of center points
+#' @param label_size  size of labels
+#' @param label_fontface font of labels
+#' @param edge_alpha column to use for alpha of the edges
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param title title for plot, defaults to cell_color parameter
+#' @param show_legend show legend
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @details Description of parameters. For 3D plots see \code{\link{dimPlot3D}}
+#' @export
+#' @examples
+#'     dimCellPlot2D(gobject)
+dimCellPlot2D = function(gobject,
+                         dim_reduction_to_use = 'umap',
+                         dim_reduction_name = 'umap',
+                         dim1_to_use = 1,
+                         dim2_to_use = 2,
+                         spat_enr_names = NULL,
+                         cell_annotation_values,
+                         show_NN_network = F,
+                         nn_network_to_use = 'sNN',
+                         network_name = 'sNN.pca',
+                         cell_color_gradient = c('blue', 'white', 'red'),
+                         gradient_midpoint = NULL,
+                         gradient_limits = NULL,
+                         select_cell_groups = NULL,
+                         select_cells = NULL,
+                         show_other_cells = T,
+                         other_cell_color = 'lightgrey',
+                         other_point_size = 0.5,
+                         show_cluster_center = F,
+                         show_center_label = T,
+                         center_point_size = 4,
+                         center_point_border_col = 'black',
+                         center_point_border_stroke = 0.1,
+                         label_size = 4,
+                         label_fontface = 'bold',
+                         edge_alpha = NULL,
+                         point_size = 1,
+                         point_border_col = 'black',
+                         point_border_stroke = 0.1,
+                         show_legend = T,
+                         cow_n_col = 2,
+                         cow_rel_h = 1,
+                         cow_rel_w = 1,
+                         cow_align = 'h',
+                         show_plot = NA,
+                         return_plot = NA,
+                         save_plot = NA,
+                         save_param = list(),
+                         default_save_name = 'dimCellPlot2D') {
+
+
+  comb_metadata = combineMetadata(gobject = gobject,
+                                  spat_enr_names = spat_enr_names)
+
+  # keep only available columns
+  possible_value_cols = colnames(comb_metadata)
+  cell_annotation_values = cell_annotation_values[cell_annotation_values %in% possible_value_cols]
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## plotting ##
+  savelist <- list()
+
+  for(annot in cell_annotation_values) {
+
+    pl = dimPlot2D(gobject = gobject,
+                   dim_reduction_to_use = dim_reduction_to_use,
+                   dim_reduction_name = dim_reduction_name,
+                   dim1_to_use = dim1_to_use,
+                   dim2_to_use = dim2_to_use,
+                   spat_enr_names = spat_enr_names,
+                   show_NN_network = show_NN_network,
+                   nn_network_to_use = nn_network_to_use,
+                   network_name = network_name,
+                   cell_color = annot,
+                   color_as_factor = FALSE,
+                   cell_color_gradient = cell_color_gradient,
+                   gradient_midpoint = gradient_midpoint,
+                   gradient_limits = gradient_limits,
+                   select_cell_groups = select_cell_groups,
+                   select_cells = select_cells,
+                   show_other_cells = show_other_cells,
+                   other_cell_color = other_cell_color,
+                   other_point_size = other_point_size,
+                   show_cluster_center = show_cluster_center,
+                   show_center_label = show_center_label,
+                   center_point_size = center_point_size,
+                   center_point_border_col = center_point_border_col,
+                   center_point_border_stroke = center_point_border_stroke,
+                   label_size = label_size,
+                   label_fontface = label_fontface,
+                   edge_alpha = edge_alpha,
+                   point_size = point_size,
+                   point_border_col = point_border_col,
+                   point_border_stroke = point_border_stroke,
+                   title = annot,
+                   show_legend = show_legend,
+                   show_plot = FALSE,
+                   return_plot = TRUE,
+                   save_plot = FALSE,
+                   save_param = list(),
+                   default_save_name = 'dimPlot2D')
+
+
+    savelist[[annot]] <- pl
+
+  }
+
+
+  # combine plots with cowplot
+  combo_plot <- cowplot::plot_grid(plotlist = savelist,
+                                   ncol = cow_n_col,
+                                   rel_heights = cow_rel_h,
+                                   rel_widths = cow_rel_w,
+                                   align = cow_align)
+
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(combo_plot)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(combo_plot)
+  }
+
+
+
+
+
+
+}
+
+
+
+
+#' @title spatDimCellPlot2D
+#' @name spatDimCellPlot2D
+#' @description Visualize numerical features of cells according to spatial AND dimension reduction coordinates in 2D
+#' @param gobject giotto object
+#' @param plot_alignment direction to align plot
+#' @param spat_enr_names names of spatial enrichment results to include
+#' @param cell_annotation_values numeric cell annotation columns
+#' @param dim_reduction_to_use dimension reduction to use
+#' @param dim_reduction_name dimension reduction name
+#' @param dim1_to_use dimension to use on x-axis
+#' @param dim2_to_use dimension to use on y-axis
+#' @param sdimx = spatial dimension to use on x-axis
+#' @param sdimy = spatial dimension to use on y-axis
+#' @param cell_color_gradient vector with 3 colors for numeric data
+#' @param gradient_midpoint midpoint for color gradient
+#' @param gradient_limits vector with lower and upper limits
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param select_cells select subset of cells based on cell IDs
+#' @param dim_point_size size of points in dim. reduction space
+#' @param dim_point_border_col border color of points in dim. reduction space
+#' @param dim_point_border_stroke border stroke of points in dim. reduction space
+#' @param spat_point_size size of spatial points
+#' @param spat_point_border_col border color of spatial points
+#' @param spat_point_border_stroke border stroke of spatial points
+#' @param dim_show_cluster_center show the center of each cluster
+#' @param dim_show_center_label provide a label for each cluster
+#' @param dim_center_point_size size of the center point
+#' @param dim_center_point_border_col border color of center point
+#' @param dim_center_point_border_stroke stroke size of center point
+#' @param dim_label_size size of the center label
+#' @param dim_label_fontface font of the center label
+#' @param spat_show_cluster_center show the center of each cluster
+#' @param spat_show_center_label provide a label for each cluster
+#' @param spat_center_point_size size of the center point
+#' @param spat_label_size size of the center label
+#' @param spat_label_fontface font of the center label
+#' @param show_NN_network show underlying NN network
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
+#' @param nn_network_name name of NN network to use, if show_NN_network = TRUE
+#' @param dim_edge_alpha column to use for alpha of the edges
+#' @param spat_show_network show spatial network
+#' @param spatial_network_name name of spatial network to use
+#' @param spat_network_color color of spatial network
+#' @param spat_show_grid show spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param spat_grid_color color of spatial grid
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color of not selected cells
+#' @param dim_other_point_size size of not selected dim cells
+#' @param spat_other_point_size size of not selected spat cells
+#' @param spat_other_cells_alpha alpha of not selected spat cells
+#' @param coord_fix_ratio ratio for coordinates
+#' @param cow_n_col cowplot param: how many columns
+#' @param cow_rel_h cowplot param: relative height
+#' @param cow_rel_w cowplot param: relative width
+#' @param cow_align cowplot param: how to align
+#' @param show_legend show legend
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     spatDimCellPlot2D(gobject)
+spatDimCellPlot2D <- function(gobject,
+                              plot_alignment = c('vertical', 'horizontal'),
+                              spat_enr_names = NULL,
+                              cell_annotation_values,
+                              dim_reduction_to_use = 'umap',
+                              dim_reduction_name = 'umap',
+                              dim1_to_use = 1,
+                              dim2_to_use = 2,
+                              sdimx = 'sdimx',
+                              sdimy = 'sdimy',
+                              cell_color_gradient = c('blue', 'white', 'red'),
+                              gradient_midpoint = NULL,
+                              gradient_limits = NULL,
+                              select_cell_groups = NULL,
+                              select_cells = NULL,
+                              dim_point_size = 1,
+                              dim_point_border_col = 'black',
+                              dim_point_border_stroke = 0.1,
+                              spat_point_size = 1,
+                              spat_point_border_col = 'black',
+                              spat_point_border_stroke = 0.1,
+                              dim_show_cluster_center = F,
+                              dim_show_center_label = T,
+                              dim_center_point_size = 4,
+                              dim_center_point_border_col = 'black',
+                              dim_center_point_border_stroke = 0.1,
+                              dim_label_size = 4,
+                              dim_label_fontface = 'bold',
+                              spat_show_cluster_center = F,
+                              spat_show_center_label = F,
+                              spat_center_point_size = 4,
+                              spat_center_point_border_col = 'black',
+                              spat_center_point_border_stroke = 0.1,
+                              spat_label_size = 4,
+                              spat_label_fontface = 'bold',
+                              show_NN_network = F,
+                              nn_network_to_use = 'sNN',
+                              nn_network_name = 'sNN.pca',
+                              dim_edge_alpha = 0.5,
+                              spat_show_network = F,
+                              spatial_network_name = 'spatial_network',
+                              spat_network_color = 'red',
+                              spat_network_alpha = 0.5,
+                              spat_show_grid = F,
+                              spatial_grid_name = 'spatial_grid',
+                              spat_grid_color = 'green',
+                              show_other_cells = TRUE,
+                              other_cell_color = 'grey',
+                              dim_other_point_size = 0.5,
+                              spat_other_point_size = 0.5,
+                              spat_other_cells_alpha = 0.5,
+                              coord_fix_ratio = NULL,
+                              cow_n_col = 2,
+                              cow_rel_h = 1,
+                              cow_rel_w = 1,
+                              cow_align = 'h',
+                              show_legend = T,
+                              show_plot = NA,
+                              return_plot = NA,
+                              save_plot = NA,
+                              save_param =  list(),
+                              default_save_name = 'spatDimCellPlot2D') {
+
+  plot_alignment = match.arg(plot_alignment, choices = c('vertical', 'horizontal'))
+
+  # dimension reduction plot
+  dmpl = dimCellPlot2D(gobject = gobject,
+                       dim_reduction_to_use = dim_reduction_to_use,
+                       dim_reduction_name = dim_reduction_name,
+                       dim1_to_use = dim1_to_use,
+                       dim2_to_use = dim2_to_use,
+                       spat_enr_names = spat_enr_names,
+                       cell_annotation_values = cell_annotation_values,
+                       cell_color_gradient = cell_color_gradient,
+                       gradient_midpoint = gradient_midpoint,
+                       gradient_limits = gradient_limits,
+                       select_cell_groups = select_cell_groups,
+                       select_cells = select_cells,
+                       point_size = dim_point_size,
+                       point_border_col = dim_point_border_col,
+                       point_border_stroke = dim_point_border_stroke,
+                       show_cluster_center = dim_show_cluster_center,
+                       show_center_label = dim_show_center_label,
+                       center_point_size = dim_center_point_size,
+                       center_point_border_col = dim_center_point_border_col,
+                       center_point_border_stroke = dim_center_point_border_stroke,
+                       label_size = dim_label_size,
+                       label_fontface = dim_label_fontface,
+                       show_NN_network = show_NN_network,
+                       nn_network_to_use = nn_network_to_use,
+                       network_name = nn_network_name,
+                       edge_alpha = dim_edge_alpha,
+                       show_other_cells = show_other_cells,
+                       other_cell_color = other_cell_color,
+                       other_point_size = dim_other_point_size,
+                       show_legend = show_legend,
+                       cow_n_col = cow_n_col,
+                       cow_rel_h = cow_rel_h,
+                       cow_rel_w = cow_rel_w,
+                       cow_align = cow_align,
+                       show_plot = FALSE,
+                       return_plot = TRUE,
+                       save_plot = FALSE)
+
+  # spatial plot
+  spl = spatCellPlot2D(gobject = gobject,
+                       sdimx = sdimx,
+                       sdimy = sdimy,
+                       spat_enr_names = spat_enr_names,
+                       cell_annotation_values = cell_annotation_values,
+                       cell_color_gradient = cell_color_gradient,
+                       gradient_midpoint = gradient_midpoint,
+                       gradient_limits = gradient_limits,
+                       select_cell_groups = select_cell_groups,
+                       select_cells = select_cells,
+                       point_size = spat_point_size,
+                       point_border_col = spat_point_border_col,
+                       point_border_stroke = spat_point_border_stroke,
+                       show_cluster_center = spat_show_cluster_center,
+                       show_center_label = spat_show_center_label,
+                       center_point_size = spat_center_point_size,
+                       center_point_border_col = spat_center_point_border_col,
+                       center_point_border_stroke = spat_center_point_border_stroke,
+                       label_size = spat_label_size,
+                       label_fontface = spat_label_fontface,
+                       show_network = spat_show_network,
+                       spatial_network_name = spatial_network_name,
+                       network_color = spat_network_color,
+                       network_alpha = spat_network_alpha,
+                       show_grid = spat_show_grid,
+                       spatial_grid_name = spatial_grid_name,
+                       grid_color = spat_grid_color,
+                       show_other_cells = show_other_cells,
+                       other_cell_color = other_cell_color,
+                       other_point_size = spat_other_point_size,
+                       other_cells_alpha = spat_other_cells_alpha,
+                       coord_fix_ratio = coord_fix_ratio,
+                       show_legend = show_legend,
+                       cow_n_col = cow_n_col,
+                       cow_rel_h = cow_rel_h,
+                       cow_rel_w = cow_rel_w,
+                       cow_align = cow_align,
+                       show_plot = FALSE,
+                       return_plot = TRUE,
+                       save_plot = FALSE)
+
+  print(plot_alignment)
+
+  if(plot_alignment == 'vertical') {
+    ncol = 1
+    nrow = 2
+    combo_plot = cowplot::plot_grid(dmpl, spl, ncol = ncol, nrow = nrow, rel_heights = c(1), rel_widths = c(1), align = 'v')
+  } else {
+    ncol = 2
+    nrow = 1
+    combo_plot = cowplot::plot_grid(dmpl, spl, ncol = ncol, nrow = nrow, rel_heights = c(1), rel_widths = c(1), align = 'h')
+  }
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(combo_plot)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(combo_plot)
+  }
 
 }
 
