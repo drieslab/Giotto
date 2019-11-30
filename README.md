@@ -29,6 +29,8 @@ and can thus be used to explore or re-analyze this dataset.
 
 ## Latest News
 
+  - Added tools to identify spatial enrichment based on cell-type (or
+    other) specific gene signature lists (**NEW**)
   - Updated support for 3D spatial data (**NEW**)
   - Added support for using global instructions and automatic plot
     saving option (**NEW**)
