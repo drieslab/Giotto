@@ -58,7 +58,7 @@ ST_test <- normalizeGiotto(gobject = ST_test)
 ST_test <- addStatistics(gobject = ST_test)
 
 ## visualize
-spatPlot2D(gobject = ST_test,
+spatPlot(gobject = ST_test,
            save_param = list(save_folder = '2_Gobject', save_name = 'spatial_locations'))
 ```
 
@@ -80,15 +80,18 @@ featgenes = gene_metadata[hvg == 'yes' & perc_cells > 4 & mean_expr_det > 0.25]$
 
 ## run PCA on expression values (default)
 ST_test <- runPCA(gobject = ST_test, genes_to_use = featgenes, expression_values = 'scaled', scale_unit = F)
-signPCA(gobject = ST_test, expression_values = 'scaled', scale_unit = F, scree_ylim = c(0,1))
-plotPCA_2D(ST_test,
+signPCA(gobject = ST_test, expression_values = 'scaled', scale_unit = F, scree_ylim = c(0,1),
+        save_param = list(save_folder = '3_DimRed', save_name = 'screeplot'))
+plotPCA(ST_test,
            save_param = list(save_folder = '3_DimRed', save_name = 'PCA_reduction'))
 
 ## run UMAP and tSNE on PCA space (default)
 ST_test <- runUMAP(ST_test, dimensions_to_use = 1:10, expression_values = 'scaled', n_threads = 2)
-plotUMAP_2D(gobject = ST_test,
+plotUMAP(gobject = ST_test,
             save_param = list(save_folder = '3_DimRed', save_name = 'UMAP_reduction'))
 ```
+
+![](./figures/2_screeplot.png)
 
 ![](./figures/2_PCA_reduction.png)
 
@@ -109,7 +112,7 @@ plotUMAP_2D(gobject = ST_test,
 ## Leiden clustering
 ST_test <- createNearestNetwork(gobject = ST_test, dimensions_to_use = 1:10, k = 10)
 ST_test <- doLeidenCluster(gobject = ST_test, resolution = 0.2, n_iterations = 200)
-plotUMAP_2D(gobject = ST_test, cell_color = 'leiden_clus', point_size = 3,
+plotUMAP(gobject = ST_test, cell_color = 'leiden_clus', point_size = 3,
             save_param = list(save_folder = '4_Cluster', save_name = 'UMAP_leiden'))
 ```
 
@@ -128,10 +131,10 @@ plotUMAP_2D(gobject = ST_test, cell_color = 'leiden_clus', point_size = 3,
 ``` r
 spatDimPlot2D(gobject = ST_test, cell_color = 'leiden_clus', 
                dim_point_size = 2, spatial_point_size = 6,
-              save_param = list(save_folder = '5_Covisuals', save_name = 'covisual_kmeans'))
+              save_param = list(save_folder = '5_Covisuals', save_name = 'covisual_leiden'))
 ```
 
-Co-visualzation: ![](./figures/4_covisual_kmeans.png)
+Co-visualzation: ![](./figures/4_covisual_leiden.png)
 
 -----
 
@@ -167,7 +170,7 @@ plotMetaDataHeatmap(ST_test, selected_genes = topgenes_gini,metadata_cols = c('l
 
 # visualize genes
 topgenes_gini = gini_markers_subclusters[, head(.SD, 1), by = 'cluster']$genes
-spatDimGenePlot2D(ST_test, expression_values = 'scaled',
+spatDimGenePlot(ST_test, expression_values = 'scaled',
                   genes = topgenes_gini,
                   plot_alignment = 'horizontal', cow_n_col = 1, point_size = 2,
                   genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue', midpoint = 0,
@@ -193,7 +196,7 @@ plotMetaDataHeatmap(ST_test, selected_genes = topgenes_scran, metadata_cols = c(
 
 # visualize genes
 topgenes_scran = scran_markers_subclusters[, head(.SD, 1), by = 'cluster_ID']$gene_ID
-spatDimGenePlot2D(ST_test, expression_values = 'scaled',
+spatDimGenePlot(ST_test, expression_values = 'scaled',
                   genes = topgenes_scran,
                   plot_alignment = 'horizontal', cow_n_col = 1, point_size = 2,
                   genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue', midpoint = 0,
@@ -222,12 +225,158 @@ Scran: - violinplot: ![](./figures/5_violinplot_scran.png)
 
 <summary>Expand</summary>  
 
+Spatial transcriptomics does not provide single-cell resolution, making
+cell type annotation a harder problem. Giotto provides 3 ways to
+calculate enrichment of specific cell-type signature gene list:  
+\- PAGE  
+\- rank  
+\- hypergeometric test
+
+To generate the cell-type specific gene lists for the olfactory bulb
+(OB) data we reanalyzed the paper from Zeisel et al, associated with the
+[mouse brain atlas](http://mousebrain.org/), and identified cell-type
+specific genes for cells from the OB.
+
+![paper](./Zeisel_paper.png)
+
 ``` r
 
-# not available at the moment
+## cell type identification based on individual marker genes is hard 
+# known markers for different interneuron subtypes
+spatDimGenePlot(ST_test, expression_values = 'scaled',
+                genes = c('Vip', 'Camk4', 'Th', 'Igfbpl1'),
+                plot_alignment = 'vertical', cow_n_col = 4, point_size = 3,
+                genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue', midpoint = 0,
+                save_param = c(save_folder = '7_annotation', save_name = 'interneuron_genes', base_width = 13, base_height = 5))
+
+
+
+
+## cell type identification based on signatures from single-cell RNAseq
+## for PAGE ##
+sig_matrix = fread('/path/to/sig_matrix_PAGE.txt')
+sig_matrix = Giotto:::dt_to_matrix(sig_matrix)
+
+## example to make PAGE signature matrix from list of 2 signature genesets
+OBDOP1_sig = sig_matrix[,'OBDOP1']; OBDOP1_sig_genes = names(OBDOP1_sig[OBDOP1_sig == 1])
+ACOB_sig = sig_matrix[,'ACOB'];ACOB_sig_genes = names(ACOB_sig[ACOB_sig == 1])
+small_sign_matrix = convertSignListToMatrix(sign_names = c('OBDOP1', 'ACOB'),
+                               sign_list = list(OBDOP1_sig_genes, ACOB_sig_genes))
+
+
+## for rank ##
+sig_rank_matrix = fread('/path/to/sig_matrix_rank.txt')
+sig_rank_matrix = Giotto:::dt_to_matrix(sig_rank_matrix)
+
+## enrichment tests 
+ST_test = createSpatialEnrich(ST_test, sign_matrix = sig_matrix) #default = 'PAGE' for method and name
+ST_test = createSpatialEnrich(ST_test, sign_matrix = sig_matrix, output_enrichment = 'zscore', name = 'PAGEz') 
+ST_test = createSpatialEnrich(ST_test, sign_matrix = sig_rank_matrix, enrich_method = 'rank', name = 'rank')
+
+
+## heatmap
+value_columns = c('ACOB', 'OBDOP1', 'OBDOP2-OBINH123', 'OBINH4', 'OBINH5', 'OBNBL12', 'OBNBL3', 'OBNBL45', 'OEC')
+meta_columns = c('leiden_clus')
+
+plotMetaDataCellsHeatmap(gobject = ST_test,
+                         metadata_cols = 'leiden_clus',
+                         value_cols = value_columns,
+                         spat_enr_names = 'PAGE',
+                         save_param = c(save_folder = '7_annotation', save_name = 'heatmap_PAGE',
+                                        base_width = 4, base_height = 4))
+
+plotMetaDataCellsHeatmap(gobject = ST_test,
+                         metadata_cols = 'leiden_clus',
+                         value_cols = value_columns,
+                         spat_enr_names = 'rank',
+                         save_param = c(save_folder = '7_annotation', save_name = 'heatmap_rank',
+                                        base_width = 4, base_height = 4))
+
+## visualize individual enrichments
+spatDimPlot(gobject = ST_test,
+            spat_enr_names = 'PAGE',
+            cell_color = 'OEC', color_as_factor = F,
+            spat_show_legend = T, dim_show_legend = T,
+            gradient_midpoint = 3, 
+            dim_point_size = 2, spat_point_size = 4, save_plot = F)
+
+spatDimPlot(gobject = ST_test,
+            spat_enr_names = 'PAGE',
+            cell_color = 'OBINH4', color_as_factor = F,
+            spat_show_legend = T, dim_show_legend = T,
+            gradient_midpoint = 1, 
+            dim_point_size = 2, spat_point_size = 4, save_plot = F)
+
+spatDimPlot(gobject = ST_test,
+            spat_enr_names = 'PAGE',
+            cell_color = 'OBNBL3', color_as_factor = F,
+            spat_show_legend = T, dim_show_legend = T,
+            gradient_midpoint = 1, gradient_limits = c(0,4), 
+            dim_point_size = 2, spat_point_size = 4, save_plot = F)
+
+
+
+## multiple value columns with spatPlot ##
+value_columns = c('ACOB', 'OBDOP1', 'OBDOP2-OBINH123', 'OBINH4', 'OBINH5', 'OBNBL12', 'OBNBL3', 'OBNBL45', 'OEC')
+
+spatCellPlot(gobject = ST_test, spat_enr_names = 'PAGE',
+             cell_annotation_values = value_columns,
+             cow_n_col = 3,coord_fix_ratio = NULL,
+             save_param = c(save_folder = '7_annotation', save_name = 'PAGE_spatplot',
+                            base_width = 10, base_height = 6))
+
+spatCellPlot(gobject = ST_test, spat_enr_names = 'PAGEz',
+             cell_annotation_values = value_columns,
+             cow_n_col = 3, coord_fix_ratio = NULL,
+             gradient_limits = c(-2,2),
+             save_param = c(save_folder = '7_annotation', save_name = 'PAGEz_spatplot',
+                            base_width = 10, base_height = 6))
+
+spatCellPlot(gobject = ST_test, spat_enr_names = 'rank',
+             cell_annotation_values = value_columns,
+             cow_n_col = 3, coord_fix_ratio = NULL,
+             save_param = c(save_folder = '7_annotation', save_name = 'rank_spatplot',
+                            base_width = 10, base_height = 6))
+
+
+## multiple value columns with spatDimPlot ##
+spatDimCellPlot(gobject = ST_test, spat_enr_names = 'PAGE',
+                cell_annotation_values = value_columns[1:4],
+                cow_n_col = 1, spat_point_size = 3, plot_alignment = 'horizontal',
+                save_param = c(save_folder = '7_annotation', save_name = 'PAGE_spatdimplot',
+                               base_width = 6, base_height = 10))
 ```
 
 Markers for interneuron genes: ![](./figures/6_interneuron_genes.png)
+
+Heatmap:
+
+PAGE
+
+![](./figures/6_heatmap_PAGE.png)
+
+rank
+
+![](./figures/6_heatmap_rank.png)
+
+Spatial enrichment plots for all cell types:
+
+PAGE enrichment:
+
+![](./figures/6_PAGE_spatplot.png)
+
+PAGE enrichment z-scores:
+
+![](./figures/6_PAGEz_spatplot.png)
+
+rank enrichment:
+
+![](./figures/6_rank_spatplot.png)
+
+Spatial and dimension reduction PAGE enrichment plots for first 4 cell
+types:
+
+![](./figures/6_PAGE_spatdimplot.png)
 
 -----
 
@@ -245,7 +394,7 @@ ST_test <- createSpatialGrid(gobject = ST_test,
                               sdimx_stepsize = 2,
                               sdimy_stepsize = 2,
                               minimum_padding = 0)
-spatPlot2D(ST_test, cell_color = 'leiden_clus', show_grid = T,
+spatPlot(ST_test, cell_color = 'leiden_clus', show_grid = T,
            grid_color = 'lightblue', spatial_grid_name = 'spatial_grid', 
            save_param = c(save_folder = '8_grid', save_name = 'grid'))
 
@@ -293,7 +442,7 @@ Dimension 2: ![](./figures/7_pattern2_PCA.png)
 
 ``` r
 ST_test <- createSpatialNetwork(gobject = ST_test, k = 5)
-spatPlot2D(gobject = ST_test, show_network = T,
+spatPlot(gobject = ST_test, show_network = T,
            network_color = 'blue', spatial_network_name = 'spatial_network',
            save_param = c(save_name = 'spatial_network_k5', save_folder = '9_spatial_network'))
 ```
@@ -316,7 +465,7 @@ kmtest = binGetSpatialGenes(ST_test, bin_method = 'kmeans',
                             do_fisher_test = T, community_expectation = 5,
                             spatial_network_name = 'spatial_network', verbose = T)
 
-spatGenePlot2D(ST_test, expression_values = 'scaled',
+spatGenePlot(ST_test, expression_values = 'scaled',
                genes = kmtest$genes[1:6], cow_n_col = 2, point_size = 3,
                genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue', midpoint = 0,
                save_param = c(save_name = 'spatial_genes_km', save_folder = '10_spatial_genes'))
@@ -326,27 +475,15 @@ ranktest = binGetSpatialGenes(ST_test, bin_method = 'rank',
                               do_fisher_test = T, community_expectation = 5,
                               spatial_network_name = 'spatial_network', verbose = T)
 
-spatGenePlot2D(ST_test, expression_values = 'scaled',
+spatGenePlot(ST_test, expression_values = 'scaled',
                genes = ranktest$genes[1:6], cow_n_col = 2, point_size = 3,
                genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue', midpoint = 0,
                save_param = c(save_name = 'spatial_genes_rank', save_folder = '10_spatial_genes'))
-
-# distance
-spatial_genes = calculate_spatial_genes_python(gobject = ST_test,
-                                               expression_values = 'scaled',
-                                               rbp_p=0.99, examine_top=0.1)
-
-spatGenePlot2D(ST_test, expression_values = 'scaled',
-                  genes = spatial_genes$genes[1:6], cow_n_col = 2, point_size = 3,
-                  genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue', midpoint = 0,
-                  save_param = c(save_name = 'spatial_genes', save_folder = '10_spatial_genes'))
 ```
 
 Spatial genes: - kmeans ![](./figures/9_spatial_genes_km.png)
 
   - rank ![](./figures/9_spatial_genes_rank.png)
-
-  - distance ![](./figures/9_spatial_genes.png)
 
 -----
 
