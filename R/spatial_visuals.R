@@ -7656,7 +7656,55 @@ spatCellPlot2D = function(gobject,
 }
 
 
+#' @title spatCellPlot
+#' @name spatCellPlot
+#' @description Visualize cells according to spatial coordinates
+#' @param gobject giotto object
+#' @param sdimx x-axis dimension name (default = 'sdimx')
+#' @param sdimy y-axis dimension name (default = 'sdimy')
+#' @param spat_enr_names names of spatial enrichment results to include
+#' @param cell_annotation_values numeric cell annotation columns
+#' @param cell_color_gradient vector with 3 colors for numeric data
+#' @param gradient_midpoint midpoint for color gradient
+#' @param gradient_limits vector with lower and upper limits
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param select_cells select subset of cells based on cell IDs
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param show_cluster_center plot center of selected clusters
+#' @param show_center_label plot label of selected clusters
+#' @param center_point_size size of center points
+#' @param label_size  size of labels
+#' @param label_fontface font of labels
+#' @param show_network show underlying spatial network
+#' @param spatial_network_name name of spatial network to use
+#' @param network_color color of spatial network
+#' @param network_alpha alpha of spatial network
+#' @param show_grid show spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param grid_color color of spatial grid
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color of not selected cells
+#' @param other_point_size point size of not selected cells
+#' @param other_cells_alpha alpha of not selected cells
+#' @param coord_fix_ratio fix ratio between x and y-axis
+#' @param show_legend show legend
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     spatCellPlot(gobject)
+spatCellPlot = function(gobject, ...) {
 
+  spatCellPlot2D(gobject = gobject, ...)
+
+}
 
 
 
@@ -7836,6 +7884,60 @@ dimCellPlot2D = function(gobject,
 
 
 
+
+}
+
+
+
+
+#' @title dimCellPlot
+#' @name dimCellPlot
+#' @description Visualize cells according to dimension reduction coordinates
+#' @param gobject giotto object
+#' @param dim_reduction_to_use dimension reduction to use
+#' @param dim_reduction_name dimension reduction name
+#' @param dim1_to_use dimension to use on x-axis
+#' @param dim2_to_use dimension to use on y-axis
+#' @param spat_enr_names names of spatial enrichment results to include
+#' @param cell_annotation_values numeric cell annotation columns
+#' @param show_NN_network show underlying NN network
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
+#' @param network_name name of NN network to use, if show_NN_network = TRUE
+#' @param cell_color color for cells (see details)
+#' @param color_as_factor convert color column to factor
+#' @param cell_color_code named vector with colors
+#' @param cell_color_gradient vector with 3 colors for numeric data
+#' @param gradient_midpoint midpoint for color gradient
+#' @param gradient_limits vector with lower and upper limits
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param select_cells select subset of cells based on cell IDs
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color of not selected cells
+#' @param other_point_size size of not selected cells
+#' @param show_cluster_center plot center of selected clusters
+#' @param show_center_label plot label of selected clusters
+#' @param center_point_size size of center points
+#' @param label_size  size of labels
+#' @param label_fontface font of labels
+#' @param edge_alpha column to use for alpha of the edges
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param title title for plot, defaults to cell_color parameter
+#' @param show_legend show legend
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @details Description of parameters. For 3D plots see \code{\link{dimCellPlot2D}}
+#' @export
+#' @examples
+#'     dimCellPlot(gobject)
+dimCellPlot = function(gobject, ...) {
+
+  dimCellPlot2D(gobject = gobject, ...)
 
 }
 
@@ -8086,6 +8188,82 @@ spatDimCellPlot2D <- function(gobject,
   if(return_plot == TRUE) {
     return(combo_plot)
   }
+
+}
+
+
+
+
+#' @title spatDimCellPlot
+#' @name spatDimCellPlot
+#' @description Visualize numerical features of cells according to spatial AND dimension reduction coordinates in 2D
+#' @param gobject giotto object
+#' @param plot_alignment direction to align plot
+#' @param spat_enr_names names of spatial enrichment results to include
+#' @param cell_annotation_values numeric cell annotation columns
+#' @param dim_reduction_to_use dimension reduction to use
+#' @param dim_reduction_name dimension reduction name
+#' @param dim1_to_use dimension to use on x-axis
+#' @param dim2_to_use dimension to use on y-axis
+#' @param sdimx = spatial dimension to use on x-axis
+#' @param sdimy = spatial dimension to use on y-axis
+#' @param cell_color_gradient vector with 3 colors for numeric data
+#' @param gradient_midpoint midpoint for color gradient
+#' @param gradient_limits vector with lower and upper limits
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param select_cells select subset of cells based on cell IDs
+#' @param dim_point_size size of points in dim. reduction space
+#' @param dim_point_border_col border color of points in dim. reduction space
+#' @param dim_point_border_stroke border stroke of points in dim. reduction space
+#' @param spat_point_size size of spatial points
+#' @param spat_point_border_col border color of spatial points
+#' @param spat_point_border_stroke border stroke of spatial points
+#' @param dim_show_cluster_center show the center of each cluster
+#' @param dim_show_center_label provide a label for each cluster
+#' @param dim_center_point_size size of the center point
+#' @param dim_center_point_border_col border color of center point
+#' @param dim_center_point_border_stroke stroke size of center point
+#' @param dim_label_size size of the center label
+#' @param dim_label_fontface font of the center label
+#' @param spat_show_cluster_center show the center of each cluster
+#' @param spat_show_center_label provide a label for each cluster
+#' @param spat_center_point_size size of the center point
+#' @param spat_label_size size of the center label
+#' @param spat_label_fontface font of the center label
+#' @param show_NN_network show underlying NN network
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
+#' @param nn_network_name name of NN network to use, if show_NN_network = TRUE
+#' @param dim_edge_alpha column to use for alpha of the edges
+#' @param spat_show_network show spatial network
+#' @param spatial_network_name name of spatial network to use
+#' @param spat_network_color color of spatial network
+#' @param spat_show_grid show spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param spat_grid_color color of spatial grid
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color of not selected cells
+#' @param dim_other_point_size size of not selected dim cells
+#' @param spat_other_point_size size of not selected spat cells
+#' @param spat_other_cells_alpha alpha of not selected spat cells
+#' @param coord_fix_ratio ratio for coordinates
+#' @param cow_n_col cowplot param: how many columns
+#' @param cow_rel_h cowplot param: relative height
+#' @param cow_rel_w cowplot param: relative width
+#' @param cow_align cowplot param: how to align
+#' @param show_legend show legend
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     spatDimCellPlot(gobject)
+spatDimCellPlot = function(gobject, ...) {
+
+  spatDimCellPlot2D(gobject = gobject, ...)
 
 }
 
