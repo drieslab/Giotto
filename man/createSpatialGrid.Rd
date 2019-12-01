@@ -2,7 +2,7 @@
 % Please edit documentation in R/spatial_structures.R
 \name{createSpatialGrid}
 \alias{createSpatialGrid}
-\title{createSpatialGrid2}
+\title{createSpatialGrid}
 \usage{
 createSpatialGrid(
   gobject,
@@ -33,11 +33,12 @@ createSpatialGrid(
 giotto object with updated spatial grid slot
 }
 \description{
-create a spatial grid
+Create a spatial grid.
 }
 \details{
 Creates a spatial grid with defined x, y (and z) dimensions.
+The dimension units are based on the provided spatial location units.
 }
 \examples{
-    createSpatialGrid2(gobject)
+    createSpatialGrid(gobject)
 }

@@ -1,5 +1,5 @@
 #' @title S4 giotto Class
-#' @description Framework of giotto object
+#' @description Framework of giotto object to store and work with spatial expression data
 #' @keywords giotto, object
 #' @slot raw_exprs raw expression counts
 #' @slot norm_expr normalized expression counts
@@ -15,7 +15,9 @@
 #' @slot dimension_reduction slot to save dimension reduction coordinates
 #' @slot nn_network nearest neighbor network in igraph format
 #' @slot parameters slot to save parameters that have been used
+#' @slot instructions slot for global function instructions
 #' @slot offset_file offset file used to stitch together image fields
+#' @slot OS_platform Operating System to run Giotto analysis on
 #' @export
 giotto <- setClass(
   "giotto",
@@ -139,15 +141,15 @@ setMethod(f = "print.giotto",
 
 
 #' @title createGiottoInstructions
-#' @description Function to create instructions for giotto functions
-#' @param python_path path to python bin to use
+#' @description Function to set global instructions for giotto functions
+#' @param python_path path to python binary to use
 #' @param show_plot print plot to console, default = TRUE
 #' @param return_plot return plot as object, default = TRUE
 #' @param save_plot automatically save plot, dafault = FALSE
-#' @param save_dir path of directory to use to save figures
-#' @param dpi resolution for raster images to save
-#' @param height height of the plots to save
-#' @param width width of the plots to save
+#' @param save_dir path to directory where to save plots
+#' @param dpi resolution for raster images
+#' @param height height of plots
+#' @param width width of  plots
 #' @return named vector with giotto instructions
 #' @export
 #' @examples
@@ -238,14 +240,15 @@ createGiottoInstructions <- function(python_path =  NULL,
 }
 
 #' @title readGiottoInstrunctions
-#' @description Function to read instructions for giotto functions
+#' @description Retrieves the instruction associated with the provided parameter
 #' @param giotto_instructions giotto object or result from createGiottoInstructions()
 #' @param param parameter to retrieve
 #' @return specific parameter
 #' @export
 #' @examples
 #'     readGiottoInstrunctions()
-readGiottoInstructions <- function(giotto_instructions, param = NULL) {
+readGiottoInstructions <- function(giotto_instructions,
+                                   param = NULL) {
 
   # get instructions if provided the giotto object
   if(class(giotto_instructions) == 'giotto') {
@@ -265,7 +268,7 @@ readGiottoInstructions <- function(giotto_instructions, param = NULL) {
 
 
 #' @title showGiottoInstructions
-#' @description Function to show instructions from giotto object
+#' @description Function to display all instructions from giotto object
 #' @param gobject giotto object
 #' @return named vector with giotto instructions
 #' @export
@@ -279,7 +282,7 @@ showGiottoInstructions = function(gobject) {
 
 
 #' @title changeGiottoInstructions
-#' @description Function to change instructions to giotto object
+#' @description Function to change one or more instructions from giotto object
 #' @param gobject giotto object
 #' @param params parameter(s) to change
 #' @param new_values new value(s) for parameter(s)
@@ -338,9 +341,9 @@ changeGiottoInstructions = function(gobject,
 
 
 #' @title replaceGiottoInstructions
-#' @description Function to replace instructions of giotto object
+#' @description Function to replace all instructions from giotto object
 #' @param gobject giotto object
-#' @param instructions new instructions (e.g. result of createGiottoInstructions)
+#' @param instructions new instructions (e.g. result from createGiottoInstructions)
 #' @return named vector with giotto instructions
 #' @export
 #' @examples
@@ -365,23 +368,53 @@ replaceGiottoInstructions = function(gobject,
 #' @title create Giotto object
 #' @description Function to create a giotto object
 #' @param raw_exprs matrix with raw expression counts [required]
-#' @param spatial_locs data.table with coordinates for cell centroids [required]
+#' @param spatial_locs data.table or data.frame with coordinates for cell centroids
 #' @param norm_expr normalized expression values
 #' @param norm_scaled_expr scaled expression values
 #' @param custom_expr custom expression values
-#' @param cell_metadata cell metadata
-#' @param gene_metadata gene metadata
+#' @param cell_metadata cell annotation metadata
+#' @param gene_metadata gene annotation metadata
 #' @param spatial_network list of spatial network(s)
 #' @param spatial_network_name list of spatial network name(s)
 #' @param spatial_grid list of spatial grid(s)
 #' @param spatial_grid_name list of spatial grid name(s)
-#' @param spatial_enrichment list of spatial enrichment score(s) for each spatial spot
+#' @param spatial_enrichment list of spatial enrichment score(s) for each spatial region
 #' @param spatial_enrichment_name list of spatial enrichment name(s)
 #' @param dimension_reduction list of dimension reduction(s)
 #' @param nn_network list of nearest neighbor network(s)
 #' @param offset_file file used to stitch fields together (optional)
 #' @param instructions list of instructions or output result from createGiottoInstructions
 #' @return giotto object
+#' @details
+#' [\strong{Requirements}] To create a giotto object you need to provide at least a matrix with genes as
+#' row names and cells as column names. To include spatial information about cells (or regions)
+#' you need to provide a data.table or data.frame with coordinates for all spatial dimensions.
+#' This can be 2D (x and y) or 3D (x, y, x).The row order for the cell coordinates should be
+#' the same as the column order for the provided expression data.
+#'
+#' [\strong{Instructions}] Additionally an instruction file, generated manually or with \code{\link{createGiottoInstructions}}
+#' can be provided to instructions, if not a default instruction file will be created
+#' for the Giotto object.
+#'
+#' [\strong{Multiple fields}] In case a dataset consists of multiple fields, like seqFISH+ for example,
+#' an offset file can be provided to stitch the different fields together. \code{\link{stitchFieldCoordinates}}
+#' can be used to generate such an offset file.
+#'
+#' [\strong{Processed data}] Processed count data, such as normalized data, can be provided using
+#' one of the different expression slots (norm_expr, norm_scaled_expr, custom_expr).
+#'
+#' [\strong{Metadata}] Cell and gene metadata can be provided using the cell and gene metadata slots.
+#' This data can also be added afterwards using the \code{\link{addGeneMetadata}} or \code{\link{addCellMetadata}} functions.
+#'
+#' [\strong{Other information}] Additional information can be provided through the appropriate slots:
+#' \itemize{
+#'   \item{spatial networks}
+#'   \item{spatial girds}
+#'   \item{spatial enrichments}
+#'   \item{dimensions reductions}
+#'   \item{nearest neighbours networks}
+#' }
+#'
 #' @keywords giotto
 #' @export
 #' @examples

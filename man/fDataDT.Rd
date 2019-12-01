@@ -10,7 +10,7 @@ fDataDT(gobject)
 \item{gobject}{giotto object}
 }
 \value{
-data.table
+data.table with gene metadata
 }
 \description{
 show gene metadata

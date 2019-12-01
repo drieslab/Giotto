@@ -25,6 +25,9 @@ data that was used in the recent
 [**seqFISH+**](https://www.nature.com/articles/s41586-019-1049-y) paper
 and can thus be used to explore or re-analyze this dataset.
 
+Make sure to check out the **Examples** and **FAQ** section to learn
+everything about the Giotto workflow.
+
  
 
 ## Latest News

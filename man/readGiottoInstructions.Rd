@@ -15,7 +15,7 @@ readGiottoInstructions(giotto_instructions, param = NULL)
 specific parameter
 }
 \description{
-Function to read instructions for giotto functions
+Retrieves the instruction associated with the provided parameter
 }
 \examples{
     readGiottoInstrunctions()

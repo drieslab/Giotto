@@ -2,7 +2,7 @@
 #' @title pDataDT
 #' @description show cell metadata
 #' @param gobject giotto object
-#' @return data.table
+#' @return data.table with cell metadata
 #' @export
 #' @examples
 #'     pDataDT(gobject)
@@ -27,7 +27,7 @@ pDataDT <- function(gobject) {
 #' @title fDataDT
 #' @description show gene metadata
 #' @param gobject giotto object
-#' @return data.table
+#' @return data.table with gene metadata
 #' @export
 #' @examples
 #'     pDataDT(gobject)
@@ -50,7 +50,6 @@ fDataDT <- function(gobject) {
 #' @param gobject giotto object
 #' @param values expression values to extract
 #' @return expression matrix
-#' @export
 select_expression_values <- function(gobject, values) {
 
   if(values == 'scaled' & is.null(gobject@norm_scaled_expr)) {
@@ -155,7 +154,7 @@ create_average_detection_DT <- function(gobject, meta_data_name,
 
 
 #' @title subsetGiotto
-#' @description subsets Giotto object including previous calculations
+#' @description subsets Giotto object including previous analyses.
 #' @param gobject giotto object
 #' @param cell_ids cell IDs to keep
 #' @param gene_ids gene IDs to keep
@@ -232,11 +231,9 @@ subsetGiotto <- function(gobject, cell_ids = NULL, gene_ids = NULL) {
 
 
   ## dimension reduction ##
-  # gene dim reduction
-  # TODO
-
   # cell dim reduction
   if(!is.null(gobject@dimension_reduction$cells)) {
+    print(' subset dimensions reductions ')
 
     # for pca
     for(pca_name in names(gobject@dimension_reduction[['cells']][['pca']]) ) {
@@ -264,7 +261,7 @@ subsetGiotto <- function(gobject, cell_ids = NULL, gene_ids = NULL) {
 
   ## nn network ##
   if(!is.null(gobject@nn_network$cells)) {
-    print('\n subset networks \n')
+    print(' subset networks ')
 
     for(knn_name in names(gobject@nn_network[['kNN']])) {
 
@@ -299,6 +296,14 @@ subsetGiotto <- function(gobject, cell_ids = NULL, gene_ids = NULL) {
   }
 
 
+  ## spatial enrichment ##
+  if(!is.null(gobject@spatial_enrichment)) {
+    print(' subset spatial enrichment results ')
+    for(spat_enrich_name in names(gobject@spatial_enrichment)) {
+      gobject@spatial_enrichment[[spat_enrich_name]] = gobject@spatial_enrichment[[spat_enrich_name]][filter_bool_cells]
+    }
+  }
+
 
   ## update parameters used ##
   parameters_list = gobject@parameters
@@ -323,7 +328,7 @@ subsetGiotto <- function(gobject, cell_ids = NULL, gene_ids = NULL) {
 #' @param gobject giotto object
 #' @param expression_values expression values to use
 #' @param expression_threshold threshold to consider a gene expressed
-#' @param detection look at genes or cells
+#' @param detection consider genes or cells
 #' @param plot_type type of plot
 #' @param nr_bins number of bins for histogram plot
 #' @param fill_color fill color for plots
@@ -759,7 +764,7 @@ adjustGiottoMatrix <- function(gobject,
                                update_slot = c('custom')) {
 
   # metadata
-  cell_metadata = Giotto::pDataDT(gobject)
+  cell_metadata = pDataDT(gobject)
 
   if(!is.null(batch_columns)) {
     if(!all(batch_columns %in% colnames(cell_metadata))) {
@@ -923,10 +928,6 @@ removeGeneAnnotation <- function(gobject, columns = NULL, return_gobject = TRUE)
   }
 
 }
-
-
-
-
 
 
 #' @title addCellMetadata

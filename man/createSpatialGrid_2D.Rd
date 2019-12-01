@@ -30,10 +30,11 @@ createSpatialGrid_2D(
 giotto object with updated spatial grid slot
 }
 \description{
-create a spatial grid
+create a spatial grid for 2D spatial data.
 }
 \details{
 Creates a spatial grid with defined x, y (and z) dimensions.
+The dimension units are based on the provided spatial location units.
 }
 \examples{
     createSpatialGrid_2D(gobject)

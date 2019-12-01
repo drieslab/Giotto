@@ -24,7 +24,7 @@ filterDistributions(
 
 \item{expression_threshold}{threshold to consider a gene expressed}
 
-\item{detection}{look at genes or cells}
+\item{detection}{consider genes or cells}
 
 \item{plot_type}{type of plot}
 

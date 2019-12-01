@@ -24,7 +24,7 @@ changeGiottoInstructions(
 named vector with giotto instructions
 }
 \description{
-Function to change instructions to giotto object
+Function to change one or more instructions from giotto object
 }
 \examples{
     changeGiottoInstructions()

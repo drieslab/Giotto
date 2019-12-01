@@ -2,7 +2,7 @@ Package: Giotto
 Title: Spatial single-cell transcriptomics pipeline.
 Version: 0.1.3
 Authors@R: person("Ruben", "Dries", email = "rubendries@gmail.com", role = c("aut", "cre"))
-Description: Pipeline to process, analyze and visualize (spatial) single-cell transcriptomic data.
+Description: Pipeline to process, analyze and visualize (spatial) single-cell expression data.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -34,17 +34,17 @@ Imports:
     reticulate,
     magrittr,
     limma,
-    png,
-    tiff,
     ggdendro,
     smfishHmrf,
-    matrixStats,
+    matrixStats (>= 0.55.0),
     IRanges
 Suggests:
     knitr,
     rmarkdown,
     MAST,
-    scran (>= 1.10.1)
+    scran (>= 1.10.1),
+    png,
+    tiff
 biocViews:
 VignetteBuilder: knitr
 Remotes: lambdamoses/smfishhmrf-r
