@@ -19,6 +19,9 @@ giotto object
 \description{
 removes cell annotation of giotto object
 }
+\details{
+if return_gobject = FALSE, it will return the cell metadata
+}
 \examples{
     removeCellAnnotation(gobject)
 }

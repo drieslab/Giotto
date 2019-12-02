@@ -30,7 +30,10 @@ filterGiotto(
 giotto object
 }
 \description{
-filter Giotto object
+filter Giotto object based on expression threshold
+}
+\details{
+The function \code{\link{filterCombinations}} can be used to explore the effect of different parameter values.
 }
 \examples{
     filterGiotto(gobject)

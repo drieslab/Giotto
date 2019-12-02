@@ -42,7 +42,7 @@ filterDistributions(
 ggplot object
 }
 \description{
-show gene or cell filter distributions
+show gene or cell distribution after filtering on expression threshold
 }
 \examples{
     filterDistributions(gobject)

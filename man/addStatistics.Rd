@@ -27,7 +27,7 @@ giotto object if return_gobject = TRUE, else a list with results
 adds genes and cells statistics to the giotto object
 }
 \details{
-Details about gene and cell statistics that are returned.
+See \code{\link{addGeneStatistics}} and \code{\link{addCellStatistics}}
 }
 \examples{
     addStatistics(gobject)

@@ -27,7 +27,12 @@ giotto object if return_gobject = TRUE
 adds cells statistics to the giotto object
 }
 \details{
-Details about cell statistics that are returned.
+This function will add the following statistics to cell metadata:
+\itemize{
+  \item{nr_genes: }{Denotes in how many genes are detected per cell}
+  \item{perc_genes: }{Denotes what percentage genes is detected per cell}
+  \item{total_expr: }{Shows the total sum of expression per cell}
+}
 }
 \examples{
     addCellStatistics(gobject)

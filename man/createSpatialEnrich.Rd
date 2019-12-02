@@ -41,6 +41,14 @@ Giotto object or enrichment results if return_gobject = FALSE
 \description{
 Function to calculate gene signature enrichment scores per spatial position using a hypergeometric test.
 }
+\details{
+For details see the individual functions:
+\itemize{
+  \item{PAGE: }{\code{\link{PAGEEnrich}}}
+  \item{PAGE: }{\code{\link{rankEnrich}}}
+  \item{PAGE: }{\code{\link{hyperGeometricEnrich}}}
+}
+}
 \examples{
     createSpatialEnrich(gobject)
 }

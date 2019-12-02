@@ -50,9 +50,6 @@ ggplot
 \description{
 show genes correlated with spatial patterns
 }
-\details{
-Description.
-}
 \examples{
     showPatternGenes(gobject)
 }

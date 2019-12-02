@@ -39,7 +39,12 @@ spatial pattern object 'spatPatObj'
 Identify spatial patterns through PCA on average expression in a spatial grid.
 }
 \details{
-Description of how we compute spatial pattern genes.
+Steps to identify spatial patterns:
+\itemize{
+  \item{1. average gene expression for cells within a grid, see createSpatialGrid}
+  \item{2. perform PCA on the average grid expression profiles}
+  \itme{3. convert variance of principlal components (PCs) to z-score and select PCs based on z-score threshold}
+}
 }
 \examples{
     detectSpatialPatterns(gobject)

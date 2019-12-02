@@ -12,10 +12,11 @@ convertSignListToMatrix(sign_names, sign_list)
 \item{sign_list}{list of gene signatures}
 }
 \value{
-Matrix
+matrix
 }
 \description{
-Function to convert list of signature genes (e.g. for cell types) into a binary matrix format
+Function to convert list of signature genes (e.g. for cell types) into
+a binary matrix format that can be used with the PAGE enrichment option.
 }
 \examples{
     convertSignListToMatrix()

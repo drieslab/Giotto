@@ -324,7 +324,7 @@ subsetGiotto <- function(gobject, cell_ids = NULL, gene_ids = NULL) {
 
 
 #' @title filterDistributions
-#' @description show gene or cell filter distributions
+#' @description show gene or cell distribution after filtering on expression threshold
 #' @param gobject giotto object
 #' @param expression_values expression values to use
 #' @param expression_threshold threshold to consider a gene expressed
@@ -532,7 +532,7 @@ filterCombinations <- function(gobject,
 
 
 #' @title filterGiotto
-#' @description filter Giotto object
+#' @description filter Giotto object based on expression threshold
 #' @param gobject giotto object
 #' @param expression_values expression values to use
 #' @param expression_threshold threshold to consider a gene expressed
@@ -540,6 +540,7 @@ filterCombinations <- function(gobject,
 #' @param min_det_genes_per_cell minimum # of genes that need to be detected in a cell
 #' @param verbose verbose
 #' @return giotto object
+#' @details The function \code{\link{filterCombinations}} can be used to explore the effect of different parameter values.
 #' @export
 #' @examples
 #'     filterGiotto(gobject)
@@ -617,15 +618,18 @@ filterGiotto <- function(gobject,
 #'
 #' A. The standard method follows the standard protocol which can be adjusted using
 #' the provided parameters and follows the following order: \cr
-#' 1. Data normalization for total library size and scaling by a custom scale-factor. \cr
-#' 2. Log transformation of data. \cr
-#' 3. Z-scoring of data by genes and/or cells.
-#'
+#' \itemize{
+#'   \item{1. Data normalization for total library size and scaling by a custom scale-factor.}
+#'   \item{2. Log transformation of data.}
+#'   \item{3. Z-scoring of data by genes and/or cells.}
+#' }
 #' B. The normalization method as provided by the osmFISH paper is also implemented: \cr
-#' 1. First normalize genes, for each gene divide the counts by the total gene count and
-#' multiply by the total number of genes. \cr
-#' 2. Next normalize cells, for each cell divide the normalized gene counts by the total
-#' counts per cell and multiply by the total number of cells. \cr
+#' \itemize{
+#'   \item{1. First normalize genes, for each gene divide the counts by the total gene count and
+#' multiply by the total number of genes.}
+#'   \item{2. Next normalize cells, for each cell divide the normalized gene counts by the total
+#' counts per cell and multiply by the total number of cells.}
+#' }
 #' This data will be saved in the Giotto slot for custom expression.
 #' @export
 #' @examples
@@ -747,12 +751,13 @@ normalizeGiotto <- function(gobject,
 #' @description normalize and/or scale expresion values of Giotto object
 #' @param gobject giotto object
 #' @param expression_values expression values to use
-#' @param batch_columns metadata columns that represent different batch
+#' @param batch_columns metadata columns that represent different batch (max = 2)
 #' @param covariate_columns metadata columns that represent covariates to regress out
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param update_slot expression slot that will be updated (default = custom)
 #' @return giotto object
-#' @details Description of adjusting steps ...
+#' @details This function implements the \code{\link{ limma::removeBatchEffect}} function to
+#' remove known batch effects and to adjust expression values according to provided covariates.
 #' @export
 #' @examples
 #'     adjustGiottoMatrix(gobject)
@@ -829,15 +834,20 @@ adjustGiottoMatrix <- function(gobject,
 }
 
 
-
 #' @title annotateGiotto
-#' @description adds cell annotation to giotto object based on clustering
+#' @description Converts cluster results into provided annotation.
 #' @param gobject giotto object
 #' @param annotation_vector named annotation vector (names = cluster ids)
 #' @param cluster_column cluster column to convert to annotation names
 #' @param name new name for annotation column
 #' @return giotto object
-#' @details Description of how to add cell metadata ...
+#' @details You need to specifify which (cluster) column you want to annotate
+#' and you need to provide an annotation vector like this:
+#' \itemize{
+#'   \item{1. identify the cell type of each cluster}
+#'   \item{2. create a vector of these cell types, e.g. cell_types =  c('T-cell', 'B-cell', 'Stromal')}
+#'   \item{3. provide original cluster names to previous vector, e.g. names(cell_types) = c(2, 1, 3)}
+#' }
 #' @export
 #' @examples
 #'     annotateGiotto(gobject)
@@ -846,7 +856,6 @@ annotateGiotto <- function(gobject, annotation_vector = NULL, cluster_column = N
   if(is.null(annotation_vector) | is.null(cluster_column)) {
     stop('\n You need to provide both a named annotation vector and the corresponding cluster column  \n')
   }
-
 
   cell_metadata = pDataDT(gobject)
 
@@ -884,6 +893,7 @@ annotateGiotto <- function(gobject, annotation_vector = NULL, cluster_column = N
 #' @param columns names of columns to remove
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @return giotto object
+#' @details if return_gobject = FALSE, it will return the cell metadata
 #' @export
 #' @examples
 #'     removeCellAnnotation(gobject)
@@ -910,6 +920,7 @@ removeCellAnnotation <- function(gobject, columns = NULL, return_gobject = TRUE)
 #' @param columns names of columns to remove
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @return giotto object
+#' @details if return_gobject = FALSE, it will return the gene metadata
 #' @export
 #' @examples
 #'     removeGeneAnnotation(gobject)
@@ -933,21 +944,26 @@ removeGeneAnnotation <- function(gobject, columns = NULL, return_gobject = TRUE)
 #' @title addCellMetadata
 #' @description adds cell metadata to the giotto object
 #' @param gobject giotto object
-#' @param new_metadata new metadata to use
-#' @param by_column merge metadata based on cell_ID column in pDataDT
+#' @param new_metadata new cell metadata to use (data.table, data.frame, ...)
+#' @param by_column merge metadata based on cell_ID column in pDataDT (default = FALSE)
 #' @param column_cell_ID column name of new metadata to use if by_column = TRUE
 #' @return giotto object
-#' @details Description of how to add cell metadata ...
+#' @details You can add additional cell metadata in two manners:
+#' 1. Provide a data.table or data.frame with cell annotations in the same order as the cell_ID column in pDataDT(gobject)
+#' 2. Provide a data.table or data.frame with cell annotations and specificy which column contains the cell IDs,
+#' these cell IDs need to match with the cell_ID column in pDataDT(gobject)
 #' @export
 #' @examples
 #'     addCellMetadata(gobject)
 addCellMetadata <- function(gobject,
                             new_metadata,
-                            by_column = F,
+                            by_column = FALSE,
                             column_cell_ID = NULL) {
 
   cell_metadata = gobject@cell_metadata
   ordered_cell_IDs = gobject@cell_ID
+
+  new_metadata = data.table::as.data.table(new_metadata)
 
   # overwrite columns with same name
   new_col_names = colnames(new_metadata)
@@ -988,7 +1004,10 @@ addCellMetadata <- function(gobject,
 #' @param by_column merge metadata based on gene_ID column in fDataDT
 #' @param column_cell_ID column name of new metadata to use if by_column = TRUE
 #' @return giotto object
-#' @details Description of how to add gene metadata ...
+#' @details You can add additional gene metadata in two manners:
+#' 1. Provide a data.table or data.frame with gene annotations in the same order as the gene_ID column in fDataDT(gobject)
+#' 2. Provide a data.table or data.frame with gene annotations and specificy which column contains the gene IDs,
+#' these gene IDs need to match with the gene_ID column in fDataDT(gobject)
 #' @export
 #' @examples
 #'     addGeneMetadata(gobject)
@@ -1025,7 +1044,15 @@ addGeneMetadata <- function(gobject,
 #' @param detection_threshold detection threshold to consider a gene detected
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @return giotto object if return_gobject = TRUE
-#' @details Details about gene statistics that are returned.
+#' @details
+#' This function will add the following statistics to gene metadata:
+#' \itemize{
+#'   \item{nr_cells: }{Denotes in how many cells the gene is detected}
+#'   \item{per_cells: }{Denotes in what percentage of cells the gene is detected}
+#'   \item{total_expr: }{Shows the total sum of expression in all cells}
+#'   \item{mean_expr: }{Average gene expression in all cells}
+#'   \item{mean_expr_det: }{Average gene expression in cells with detectable levels of the gene}
+#' }
 #' @export
 #' @examples
 #'     addGeneStatistics(gobject)
@@ -1092,7 +1119,13 @@ addGeneStatistics <- function(gobject,
 #' @param detection_threshold detection threshold to consider a gene detected
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @return giotto object if return_gobject = TRUE
-#' @details Details about cell statistics that are returned.
+#' @details
+#' This function will add the following statistics to cell metadata:
+#' \itemize{
+#'   \item{nr_genes: }{Denotes in how many genes are detected per cell}
+#'   \item{perc_genes: }{Denotes what percentage genes is detected per cell}
+#'   \item{total_expr: }{Shows the total sum of expression per cell}
+#' }
 #' @export
 #' @examples
 #'     addCellStatistics(gobject)
@@ -1154,7 +1187,7 @@ addCellStatistics <- function(gobject,
 #' @param detection_threshold detection threshold to consider a gene detected
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @return giotto object if return_gobject = TRUE, else a list with results
-#' @details Details about gene and cell statistics that are returned.
+#' @details See \code{\link{addGeneStatistics}} and \code{\link{addCellStatistics}}
 #' @export
 #' @examples
 #'     addStatistics(gobject)
@@ -1191,7 +1224,7 @@ addStatistics <- function(gobject,
 
 
 #' @title showProcessingSteps
-#' @description shows the sequential processing steps that were performed
+#' @description shows the sequential processing steps that were performed in a summarized format
 #' @param gobject giotto object
 #' @return list of processing steps and names
 #' @export

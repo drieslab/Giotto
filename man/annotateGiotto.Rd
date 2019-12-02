@@ -24,10 +24,16 @@ annotateGiotto(
 giotto object
 }
 \description{
-adds cell annotation to giotto object based on clustering
+Converts cluster results into provided annotation.
 }
 \details{
-Description of how to add cell metadata ...
+You need to specifify which (cluster) column you want to annotate
+and you need to provide an annotation vector like this:
+\itemize{
+  \item{1. identify the cell type of each cluster}
+  \item{2. create a vector of these cell types, e.g. cell_types =  c('T-cell', 'B-cell', 'Stromal')}
+  \item{3. provide original cluster names to previous vector, e.g. names(cell_types) = c(2, 1, 3)}
+}
 }
 \examples{
     annotateGiotto(gobject)

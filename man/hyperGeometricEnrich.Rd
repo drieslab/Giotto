@@ -32,6 +32,10 @@ data.table with enrichment results
 \description{
 Function to calculate gene signature enrichment scores per spatial position using a hypergeometric test.
 }
+\details{
+The enrichment score is calculated based on the p-value from the
+hypergeometric test, -log10(p-value).
+}
 \examples{
     hyperGeometricEnrich(gobject)
 }

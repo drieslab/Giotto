@@ -28,7 +28,7 @@ selectPatternGenes(
 \item{min_neg_cor}{Minimum negative correlation score to include a gene.}
 }
 \value{
-ggplot
+Data.table with genes associated with selected dimension (PC).
 }
 \description{
 Select genes correlated with spatial patterns

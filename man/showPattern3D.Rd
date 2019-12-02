@@ -68,9 +68,6 @@ plotly
 \description{
 show patterns for 3D spatial data
 }
-\details{
-Description.
-}
 \examples{
     showPattern3D(gobject)
 }

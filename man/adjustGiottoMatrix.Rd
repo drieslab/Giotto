@@ -18,7 +18,7 @@ adjustGiottoMatrix(
 
 \item{expression_values}{expression values to use}
 
-\item{batch_columns}{metadata columns that represent different batch}
+\item{batch_columns}{metadata columns that represent different batch (max = 2)}
 
 \item{covariate_columns}{metadata columns that represent covariates to regress out}
 
@@ -33,7 +33,8 @@ giotto object
 normalize and/or scale expresion values of Giotto object
 }
 \details{
-Description of adjusting steps ...
+This function implements the \code{\link{ limma::removeBatchEffect}} function to
+remove known batch effects and to adjust expression values according to provided covariates.
 }
 \examples{
     adjustGiottoMatrix(gobject)

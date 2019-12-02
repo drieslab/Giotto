@@ -1,9 +1,10 @@
 
 #' @title convertSignListToMatrix
-#' @description Function to convert list of signature genes (e.g. for cell types) into a binary matrix format
+#' @description Function to convert list of signature genes (e.g. for cell types) into
+#' a binary matrix format that can be used with the PAGE enrichment option.
 #' @param sign_names vector with names for each provided gene signature
 #' @param sign_list list of gene signatures
-#' @return Matrix
+#' @return matrix
 #' @export
 #' @examples
 #'     convertSignListToMatrix()
@@ -47,6 +48,11 @@ convertSignListToMatrix = function(sign_names,
 #' @param logbase log base to use if reverse_log_scale = TRUE
 #' @param output_enrichment how to return enrichment output
 #' @return data.table with enrichment results
+#' @details The enrichment Z score is calculated by using method (PAGE) from
+#' Kim SY et al., BMC bioinformatics, 2005 as Z = ((Sm – μ)*m^(1/2)) / δ.
+#' For each gene in each spot, μ is the fold change values versus the mean expression
+#' and δ is the standard deviation. Sm is the mean fold change value of a specific marker gene set
+#' and  m is the size of a given marker gene set.
 #' @export
 #' @examples
 #'     PAGEEnrich(gobject)
@@ -122,6 +128,10 @@ PAGEEnrich <- function(gobject,
 #' @param logbase log base to use if reverse_log_scale = TRUE
 #' @param output_enrichment how to return enrichment output
 #' @return data.table with enrichment results
+#' @details First a new rank is calculated as R = (R1*R2)^(1/2), where R1 is the rank of
+#' fold-change for each gene in each spot and R2 is the rank of each marker in each cell type.
+#' The Rank-Biased Precision is then calculated as: RBP = (1 - 0.99) * (0.99)^(R - 1)
+#' and the final enrichment score is then calculated as the sum of top 100 RBPs.
 #' @export
 #' @examples
 #'     rankEnrich(gobject)
@@ -204,6 +214,8 @@ rankEnrich <- function(gobject,
 #' @param logbase log base to use if reverse_log_scale = TRUE
 #' @param output_enrichment how to return enrichment output
 #' @return data.table with enrichment results
+#' @details The enrichment score is calculated based on the p-value from the
+#' hypergeometric test, -log10(p-value).
 #' @export
 #' @examples
 #'     hyperGeometricEnrich(gobject)
@@ -270,7 +282,6 @@ hyperGeometricEnrich <- function(gobject,
 
 
 
-
 #' @title createSpatialEnrich
 #' @description Function to calculate gene signature enrichment scores per spatial position using a hypergeometric test.
 #' @param gobject Giotto object
@@ -283,6 +294,14 @@ hyperGeometricEnrich <- function(gobject,
 #' @param name to give to spatial enrichment results, default = PAGE
 #' @param return_gobject return giotto object
 #' @return Giotto object or enrichment results if return_gobject = FALSE
+#' @details For details see the individual functions:
+#' \itemize{
+#'   \item{PAGE: }{\code{\link{PAGEEnrich}}}
+#'   \item{PAGE: }{\code{\link{rankEnrich}}}
+#'   \item{PAGE: }{\code{\link{hyperGeometricEnrich}}}
+#' }
+#'
+#'
 #' @export
 #' @examples
 #'     createSpatialEnrich(gobject)
