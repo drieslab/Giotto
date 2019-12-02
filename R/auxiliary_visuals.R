@@ -93,11 +93,20 @@ ggplot_save_function = function(gobject,
   if(show_saved_plot == TRUE) {
 
     if(save_format == 'png') {
-      img <- png::readPNG(source = paste0(file_location, '/', file_name))
-      grid::grid.raster(img)
+      if("png" %in% rownames(installed.packages()) == FALSE) {
+        cat("\n package 'png' is not yet installed \n")
+      } else {
+        img <- png::readPNG(source = paste0(file_location, '/', file_name))
+        grid::grid.raster(img)
+        }
+
     } else if(save_format == 'tiff') {
-      img <- tiff::readTIFF(source =  paste0(file_location, '/', file_name))
-      grid::grid.raster(img)
+      if("tiff" %in% rownames(installed.packages()) == FALSE) {
+        cat("\n package 'tiff' is not yet installed \n")
+      } else {
+        img <- tiff::readTIFF(source =  paste0(file_location, '/', file_name))
+        grid::grid.raster(img)
+      }
     } else {
       cat('\t only png & tiff are currently supported \t')
     }
@@ -208,15 +217,25 @@ general_save_function = function(gobject,
     if(show_saved_plot == TRUE) {
 
       if(save_format == 'png') {
-        img <- png::readPNG(source = full_location)
-        grid::grid.raster(img)
+        if("png" %in% rownames(installed.packages()) == FALSE) {
+          cat("\n package 'png' is not yet installed \n")
+        } else {
+          img <- png::readPNG(source = paste0(file_location, '/', file_name))
+          grid::grid.raster(img)
+        }
+
       } else if(save_format == 'tiff') {
-        img <- tiff::readTIFF(source =  full_location)
-        grid::grid.raster(img)
+        if("tiff" %in% rownames(installed.packages()) == FALSE) {
+          cat("\n package 'tiff' is not yet installed \n")
+        } else {
+          img <- tiff::readTIFF(source =  paste0(file_location, '/', file_name))
+          grid::grid.raster(img)
+        }
       } else {
         cat('\t only png & tiff are currently supported \t')
       }
     }
+
   }
 
 }

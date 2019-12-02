@@ -24,6 +24,10 @@ findScranMarkers <- function(gobject,
                              ...) {
 
 
+  if("scran" %in% rownames(installed.packages()) == FALSE) {
+    cat("\n package 'scran' is not yet installed \n")
+  }
+
   # expression data
   values = match.arg(expression_values, choices = c('normalized', 'scaled', 'custom'))
   expr_data = Giotto:::select_expression_values(gobject = gobject, values = values)
@@ -397,6 +401,10 @@ findMastMarkers <- function(gobject,
                             group_2_name = NULL,
                             adjust_columns = NULL,
                             ...) {
+
+  if("MAST" %in% rownames(installed.packages()) == FALSE) {
+    cat("\n package 'MAST' is not yet installed \n")
+  }
 
   ## select expression values to use
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
