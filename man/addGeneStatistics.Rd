@@ -31,7 +31,7 @@ This function will add the following statistics to gene metadata:
 \itemize{
   \item{nr_cells: }{Denotes in how many cells the gene is detected}
   \item{per_cells: }{Denotes in what percentage of cells the gene is detected}
-  \item{total_expr: }{Shows the total sum of expression in all cells}
+  \item{total_expr: }{Shows the total sum of gene expression in all cells}
   \item{mean_expr: }{Average gene expression in all cells}
   \item{mean_expr_det: }{Average gene expression in cells with detectable levels of the gene}
 }

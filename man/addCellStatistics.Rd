@@ -30,8 +30,8 @@ adds cells statistics to the giotto object
 This function will add the following statistics to cell metadata:
 \itemize{
   \item{nr_genes: }{Denotes in how many genes are detected per cell}
-  \item{perc_genes: }{Denotes what percentage genes is detected per cell}
-  \item{total_expr: }{Shows the total sum of expression per cell}
+  \item{perc_genes: }{Denotes what percentage of genes is detected per cell}
+  \item{total_expr: }{Shows the total sum of gene expression per cell}
 }
 }
 \examples{

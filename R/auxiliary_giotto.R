@@ -1049,7 +1049,7 @@ addGeneMetadata <- function(gobject,
 #' \itemize{
 #'   \item{nr_cells: }{Denotes in how many cells the gene is detected}
 #'   \item{per_cells: }{Denotes in what percentage of cells the gene is detected}
-#'   \item{total_expr: }{Shows the total sum of expression in all cells}
+#'   \item{total_expr: }{Shows the total sum of gene expression in all cells}
 #'   \item{mean_expr: }{Average gene expression in all cells}
 #'   \item{mean_expr_det: }{Average gene expression in cells with detectable levels of the gene}
 #' }
@@ -1123,8 +1123,8 @@ addGeneStatistics <- function(gobject,
 #' This function will add the following statistics to cell metadata:
 #' \itemize{
 #'   \item{nr_genes: }{Denotes in how many genes are detected per cell}
-#'   \item{perc_genes: }{Denotes what percentage genes is detected per cell}
-#'   \item{total_expr: }{Shows the total sum of expression per cell}
+#'   \item{perc_genes: }{Denotes what percentage of genes is detected per cell}
+#'   \item{total_expr: }{Shows the total sum of gene expression per cell}
 #' }
 #' @export
 #' @examples

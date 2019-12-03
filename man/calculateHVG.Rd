@@ -7,16 +7,20 @@
 calculateHVG(
   gobject,
   expression_values = c("normalized", "scaled", "custom"),
-  method = c("cov_groups", "cov_loess", "gini_loess"),
-  reverse_log_scale = T,
+  method = c("cov_groups", "cov_loess"),
+  reverse_log_scale = FALSE,
   logbase = 2,
   expression_threshold = 0,
   nr_expression_groups = 20,
   zscore_threshold = 1.5,
   HVGname = "hvg",
-  difference_in_variance = 1,
-  show_plot = T,
-  return_gobject = T
+  difference_in_cov = 0.1,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "HVGplot",
+  return_gobject = TRUE
 )
 }
 \arguments{
@@ -26,7 +30,7 @@ calculateHVG(
 
 \item{method}{method to calculate highly variable genes}
 
-\item{reverse_log_scale}{reverse log-scale of expression values}
+\item{reverse_log_scale}{reverse log-scale of expression values (default = FALSE)}
 
 \item{logbase}{if reverse_log_scale is TRUE, which log base was used?}
 
@@ -38,9 +42,17 @@ calculateHVG(
 
 \item{HVGname}{name for highly variable genes in cell metadata}
 
-\item{difference_in_variance}{minimum difference in variance required}
+\item{difference_in_cov}{minimum difference in coefficient of variance required}
 
-\item{show_plot}{show plots}
+\item{show_plot}{show plot}
+
+\item{return_plot}{return ggplot object}
+
+\item{save_plot}{directly save the plot [boolean]}
+
+\item{save_param}{list of saving parameters from all_plots_save_function()}
+
+\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 }
@@ -51,7 +63,15 @@ giotto object highly variable genes appended to gene metadata (fDataDT)
 compute highly variable genes
 }
 \details{
-Description of how we compute highly variable genes.
+Currently we provide 2 ways to calculate highly variable genes:
+\bold{1. high coeff of variance (COV) within groups: } \cr
+First genes are binned (\emph{nr_expression_groups}) into average expression groups and
+the COV for each gene is converted into a z-score within each bin. Genes with a z-score
+higher than the threshold (\emph{zscore_threshold}) are considered highly variable.  \cr
+
+\bold{2. high COV based on loess regression prediction: } \cr
+A predicted COV is calculated for each gene using loess regression (COV~log(mean expression))
+Genes that show a higher than predicted COV (\emph{difference_in_cov}) are considered highly variable. \cr
 }
 \examples{
     calculateHVG(gobject)
