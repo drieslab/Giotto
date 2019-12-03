@@ -534,6 +534,10 @@ createGiottoObject <- function(raw_exprs,
   } else {
     gobject@cell_metadata = data.table::as.data.table(gobject@cell_metadata)
     gobject@cell_metadata[, cell_ID := colnames(raw_exprs)]
+    # put cell_ID first
+    all_colnames = colnames(gobject@cell_metadata)
+    other_colnames = grep('cell_ID', all_colnames, invert = T, value = T)
+    gobject@cell_metadata = gobject@cell_metadata[, c('cell_ID', other_colnames), which = FALSE]
   }
 
   # gene metadata

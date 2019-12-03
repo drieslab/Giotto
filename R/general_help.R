@@ -245,6 +245,7 @@ get10Xmatrix = function(path_to_data) {
 convertEnsemblToGeneSymbol = function(matrix,
                                       species = c('mouse', 'human')) {
 
+
   if("biomaRt" %in% rownames(installed.packages()) == FALSE) {
     cat("\n package 'biomaRt' is not yet installed and is required for this function \n")
   }
@@ -272,6 +273,10 @@ convertEnsemblToGeneSymbol = function(matrix,
 
     # filter
     matrix = matrix[rownames(matrix) %in% gene_names_DT$ensembl_gene_id, ]
+
+    # create swapping vector
+    new_symbols = gene_names_DT[['gene_symbol']]
+    names(new_symbols) = gene_names_DT[['ensembl_gene_id']]
 
     # replace
     new_rownames = new_symbols[rownames(matrix)]
@@ -302,6 +307,10 @@ convertEnsemblToGeneSymbol = function(matrix,
 
     # filter
     matrix = matrix[rownames(matrix) %in% gene_names_DT$ensembl_gene_id, ]
+
+    # create swapping vector
+    new_symbols = gene_names_DT[['gene_symbol']]
+    names(new_symbols) = gene_names_DT[['ensembl_gene_id']]
 
     # replace
     new_rownames = new_symbols[rownames(matrix)]
