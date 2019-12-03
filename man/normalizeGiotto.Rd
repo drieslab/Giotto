@@ -4,10 +4,18 @@
 \alias{normalizeGiotto}
 \title{normalizeGiotto}
 \usage{
-normalizeGiotto(gobject, norm_methods = c("standard", "osmFISH"),
-  library_size_norm = TRUE, scalefactor = 6000, log_norm = TRUE,
-  logbase = 2, scale_genes = T, scale_cells = T,
-  scale_order = c("first_genes", "first_cells"), verbose = F)
+normalizeGiotto(
+  gobject,
+  norm_methods = c("standard", "osmFISH"),
+  library_size_norm = TRUE,
+  scalefactor = 6000,
+  log_norm = TRUE,
+  logbase = 2,
+  scale_genes = T,
+  scale_cells = T,
+  scale_order = c("first_genes", "first_cells"),
+  verbose = F
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -41,15 +49,18 @@ Currently there are two 'methods' to normalize your raw counts data.
 
 A. The standard method follows the standard protocol which can be adjusted using
 the provided parameters and follows the following order: \cr
-1. Data normalization for total library size and scaling by a custom scale-factor. \cr
-2. Log transformation of data. \cr
-3. Z-scoring of data by genes and/or cells.
-
+\itemize{
+  \item{1. Data normalization for total library size and scaling by a custom scale-factor.}
+  \item{2. Log transformation of data.}
+  \item{3. Z-scoring of data by genes and/or cells.}
+}
 B. The normalization method as provided by the osmFISH paper is also implemented: \cr
-1. First normalize genes, for each gene divide the counts by the total gene count and
-multiply by the total number of genes. \cr
-2. Next normalize cells, for each cell divide the normalized gene counts by the total
-counts per cell and multiply by the total number of cells. \cr
+\itemize{
+  \item{1. First normalize genes, for each gene divide the counts by the total gene count and
+multiply by the total number of genes.}
+  \item{2. Next normalize cells, for each cell divide the normalized gene counts by the total
+counts per cell and multiply by the total number of cells.}
+}
 This data will be saved in the Giotto slot for custom expression.
 }
 \examples{

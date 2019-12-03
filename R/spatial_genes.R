@@ -86,7 +86,7 @@ OR_function2 = function(A, B, C, D) {
 
 #' @title binGetSpatialGenes
 #' @name binGetSpatialGenes
-#' @description compute genes that are spatially clustered
+#' @description Rapid computation of genes that are spatially clustered
 #' @param gobject giotto object
 #' @param bin_method method to binarize gene expression
 #' @param expression_values expression values to use
@@ -97,8 +97,20 @@ OR_function2 = function(A, B, C, D) {
 #' @param do_fisher_test perform fisher test
 #' @param community_expectation cell degree expectation in spatial communities
 #' @param verbose be verbose
-#' @return giotto object spatial genes appended to fDataDT
-#' @details Description of how we compute spatial genes.
+#' @return data.table with results (see details)
+#' @details We provide two ways to identify spatial genes based on gene expression binarization.
+#' Both methods are identicial except for how binarization is performed.
+#' \itemize{
+#'   \item{1. binarize: }{Each gene is binarized (0 or 1) in each cell with \bold{kmeans} (k = 2) or based on \bold{rank} percentile}
+#'   \item{2. network: }{Alll cells are connected through a k-nearest neighbor network}
+#'   \item{3. contingency table: }{A contingency table is calculated based on all pairwise cell-cell interactions (0-0, 0-1, 1-0 or 1-1)}
+#'   \item{4. For each gene an odds-ratio (OR) and fisher.test (optional) is calculated}
+#' }
+#' Additionally 2 other statistics are provided:
+#' \itemize{
+#'   \item{Number of cells with high expression (binary = 1)}
+#'   \item{total and ratio of highly connected cells: }{ Cells with a connectivity higher than community_expectation}
+#' }
 #' @export
 #' @examples
 #'     binGetSpatialGenes(gobject)
@@ -213,7 +225,6 @@ binGetSpatialGenes = function(gobject,
 
 
 
-
 #' @title calculate_spatial_genes_python
 #' @name calculate_spatial_genes_python
 #' @description Calculate spatial genes using distance matrix.
@@ -289,207 +300,6 @@ calculate_spatial_genes_python <- function(gobject,
 
 
 
-
-
-
-
-#' @title calculateSpatialGenes
-#' @name calculateSpatialGenes
-#' @description compute genes that are spatially clustered
-#' @param gobject giotto object
-#' @param expression_values expression values to use
-#' @param method method to calculate spatial genes
-#' @param spatial_network_name name of spatial network to use (default = 'spatial_network')
-#' @param detection_threshold detection threshold to consider a gene detected
-#' @param loess_span loess span for loess regression
-#' @param pred_difference minimum difference between observed and predicted
-#' @param split_gene_groups number of groups to split genes in
-#' @param show_plot show plots
-#' @param rank_percentage percentage of top cells for binarization
-#' @param pvalue minimum p-value
-#' @param OddsRatio minimum odds ratio
-#' @param min_N minimum number of cells that need to display high expression upon binarization
-#' @param max_N maximum number of cells that can display high expression upon binarization
-#' @param SVname name for identified spatial genes (default = 'SV')
-#' @param show_genes show top genes on plot
-#' @param nr_genes # of genes to plot if show_genes = TRUE
-#' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @return giotto object spatial genes appended to fDataDT
-#' @details Description of how we compute spatial genes.
-#' @export
-#' @examples
-#'     calculateSpatialGenes(gobject)
-calculateSpatialGenes <- function(gobject,
-                                  expression_values = c('normalized', 'scaled', 'custom'),
-                                  method = c('kmeans',  'gini', 'rank'),
-                                  spatial_network_name = 'spatial_network',
-                                  simulations = 10,
-                                  detection_threshold = 0,
-                                  loess_span = 0.2,
-                                  pred_difference = 0.01,
-                                  split_gene_groups = 10,
-                                  show_plot = T,
-                                  rank_percentage = 10,
-                                  pvalue = 0.01,
-                                  OddsRatio = 2,
-                                  min_N = 20,
-                                  max_N = 5000,
-                                  SVname = 'SV',
-                                  show_genes = T,
-                                  nr_genes = 20,
-                                  return_gobject = T) {
-
-
-  # spatial network is required to run this function
-  if(is.null(gobject@spatial_network)) {
-    stop('\n This function requires a spatial network, run createSpatialNetwork() first \n')
-  } else if(is.null(gobject@spatial_network[[spatial_network_name]])) {
-    stop('\n This function requires an existing spatial network name, run names(your_giotto_object@spatial_network) or make it with createSpatialNetwork() \n')
-  }
-
-
-  method = match.arg(method, choices = c('kmeans', 'gini', 'rank'))
-
-  # split genes to run function in for loop OR in parallel
-  # TODO: write parallel function
-
-  # gini method
-  # high score between pairs of cells #
-  if(method == 'gini') {
-
-    geneids = gobject@gene_ID
-    mycut = cut(1:length(geneids), breaks = split_gene_groups, labels = paste0('group_', 1:split_gene_groups))
-    names(geneids) <- mycut
-
-
-    savelist <- list()
-    for(group in unique(names(geneids))) {
-
-      cat('\n \n START group ', group, '\n')
-
-      selected_genes = geneids[names(geneids) == group]
-      temp_giotto = subsetGiotto(gobject = gobject, gene_ids = selected_genes, cell_ids = NULL)
-      temp_spatial = calculate_spatial_genes(gobject = temp_giotto, expression_values = expression_values,
-                                             spatial_network_name = spatial_network_name,
-                                             method = method, simulations = simulations, detection_threshold = detection_threshold)
-
-      savelist[[group]] = temp_spatial
-
-    }
-
-    spatial_results = do.call('rbind', savelist)
-
-    # TEMP
-    #return(spatial_results)
-
-    if(simulations > 0) {
-      spatial_results[, gini_ratio := log2((spatial_gini_score+1)/(mean_score+1))]
-    }
-
-    # calculate prediction
-    loess_model = stats::loess(formula = spatial_gini_score~detection, data = spatial_results, span = loess_span)
-
-    # predict spatial gini ratio score based on detection
-    predicted_gini = stats::predict(object = loess_model, newdata = spatial_results$detection, se = T)
-    pred_gini = predicted_gini$fit
-    pred_se_gini = predicted_gini$se.fit
-    spatial_results[, c('pred_gini_score', 'pred_se_gini_score') := list(pred_gini, pred_se_gini)]
-    spatial_results[, pred_diff := spatial_gini_score - pred_gini_score]
-    spatial_results[, SVgenes := ifelse(spatial_gini_score > pred_gini_score + pred_difference, 'yes', 'no')]
-    setorder(spatial_results, -pred_diff)
-
-    if(show_plot == TRUE) {
-
-      pl <- ggplot2::ggplot()
-      pl <- pl + ggplot2::geom_point(data = spatial_results, aes(x = detection, y = spatial_gini_score, color = SVgenes))
-      pl <- pl + ggplot2::geom_line(data = spatial_results, aes(x = detection, y = pred_gini_score, group = 1), color = 'blue', size = 1.5)
-      pl <- pl + ggplot2::geom_line(data = spatial_results, aes(x = detection, y = pred_gini_score+pred_difference, group = 1), color = 'red', size = 1.5)
-      if(show_genes == TRUE) {
-        pl <- pl + ggrepel::geom_text_repel(data = spatial_results[SVgenes == 'yes'][1:nr_genes], aes(x = detection, y = spatial_gini_score, label = to_gene))
-      }
-      pl <- pl + ggplot2::labs(x = 'gene detection fraction', y = 'gini-score')
-      print(pl)
-    }
-
-
-
-
-  }
-
-  else if(method == 'kmeans') {
-    spatial_results = calculate_binarized_spatial_genes(gobject = gobject, spatial_network_name = spatial_network_name,
-                                                        bin_method = 'kmeans',
-                                                        expression_values = expression_values)
-    spatial_results[, SVgenes := ifelse(pval <= pvalue & OR > OddsRatio & N > min_N & N < max_N, 'yes', 'no')]
-  }
-
-  else if(method == 'rank') {
-    spatial_results = calculate_binarized_spatial_genes(gobject = gobject, spatial_network_name = spatial_network_name,
-                                                        bin_method = 'rank',
-                                                        percentage_rank = rank_percentage,
-                                                        expression_values = expression_values)
-    spatial_results[, SVgenes := ifelse(pval <= pvalue & OR > OddsRatio & N > min_N & N < max_N, 'yes', 'no')]
-  }
-
-
-
-
-
-  if(return_gobject == TRUE) {
-
-    gene_metadata = fDataDT(gobject)
-    column_names_gene_metadata = colnames(gene_metadata)
-    if(SVname %in% column_names_gene_metadata) {
-      cat('\n ', SVname, ' has already been used, will be overwritten \n')
-      gene_metadata[, eval(SVname) := NULL]
-      gobject@gene_metadata = gene_metadata
-    }
-
-    if(method == 'gini') {
-      SVgenes = spatial_results[,.(to_gene, SVgenes)]
-      setnames(SVgenes, 'SVgenes', SVname)
-      gobject <- addGeneMetadata(gobject = gobject, new_metadata = SVgenes, by_column = T, column_gene_ID = 'to_gene')
-    } else if(method %in% c('kmeans', 'rank')) {
-      SVgenes = spatial_results[,.(genes, SVgenes)]
-      setnames(SVgenes, 'SVgenes', SVname)
-      gobject <- addGeneMetadata(gobject = gobject, new_metadata = SVgenes, by_column = T, column_gene_ID = 'genes')
-    }
-
-
-
-    ## update parameters used ##
-    parameters_list = gobject@parameters
-    number_of_rounds = length(parameters_list)
-    update_name = paste0(number_of_rounds,'_sv')
-
-    # parameters to include
-    parameters_list[[update_name]] = c('method used' = method,
-                                       'expression values' = expression_values,
-                                       'simulations' = simulations,
-                                       'detection threshold' = detection_threshold,
-                                       'loess span' = loess_span,
-                                       'loess prediction difference' = pred_difference,
-                                       'rank percentage' = rank_percentage,
-                                       'pvalue' = pvalue,
-                                       'Odds-Ratio' = OddsRatio,
-                                       'min # of cells with high expression' = min_N,
-                                       'max # of cells with high expression' = max_N,
-                                       'Spatial Variable name' = SVname)
-    gobject@parameters = parameters_list
-
-    return(gobject)
-  } else {
-    return(spatial_results)
-  }
-
-}
-
-
-
-
-
-
-
 #' @title detectSpatialPatterns
 #' @name detectSpatialPatterns
 #' @description Identify spatial patterns through PCA on average expression in a spatial grid.
@@ -502,7 +312,13 @@ calculateSpatialGenes <- function(gobject,
 #' @param show_plot show plots
 #' @param PC_zscore minimum z-score of variance explained by a PC
 #' @return spatial pattern object 'spatPatObj'
-#' @details Description of how we compute spatial pattern genes.
+#' @details
+#' Steps to identify spatial patterns:
+#' \itemize{
+#'   \item{1. average gene expression for cells within a grid, see createSpatialGrid}
+#'   \item{2. perform PCA on the average grid expression profiles}
+#'   \item{3. convert variance of principlal components (PCs) to z-scores and select PCs based on a z-score threshold}
+#' }
 #' @export
 #' @examples
 #'     detectSpatialPatterns(gobject)
@@ -621,6 +437,10 @@ detectSpatialPatterns <- function(gobject,
 
   return(spatPatObject)
 }
+
+
+
+
 
 
 
@@ -749,7 +569,6 @@ showPattern <- function(spatPatObj,
 #' @param save_param list of saving parameters from all_plots_save_function()
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
-#' @details Description.
 #' @export
 #' @examples
 #'     showPattern2D(gobject)
@@ -830,6 +649,31 @@ showPattern2D <- function(gobject,
 
 }
 
+#' @title showPattern
+#' @name showPattern
+#' @description show patterns for 2D spatial data
+#' @param gobject giotto object
+#' @param spatPatObj Output from detectSpatialPatterns
+#' @param dimension dimension to plot
+#' @param trim Trim ends of the PC values.
+#' @param background_color background color for plot
+#' @param grid_border_color color for grid
+#' @param show_legend show legend of ggplot
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @seealso \code{\link{showPattern2D}}
+#' @export
+#' @examples
+#'     showPattern(gobject)
+showPattern = function(gobject, spatPatObj, ...) {
+
+  showPattern2D(gobject = gobject, spatPatObj = spatPatObj, ...)
+
+}
 
 #' @title showPattern3D
 #' @name showPattern3D
@@ -853,7 +697,6 @@ showPattern2D <- function(gobject,
 #' @param save_param list of saving parameters from all_plots_save_function()
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return plotly
-#' @details Description.
 #' @export
 #' @examples
 #'     showPattern3D(gobject)
@@ -875,11 +718,11 @@ showPattern3D <- function(gobject,
                           save_plot = NA,
                           save_param =  list(),
                           default_save_name = 'showPattern3D') {
-  
+
   if(!'spatPatObj' %in% class(spatPatObj)) {
     stop('\n spatPatObj needs to be the output from detectSpatialPatterns \n')
   }
-  
+
   # select PC and subset data
   selected_PC = paste0('Dim.', dimension)
   PC_DT = spatPatObj$pca_matrix_DT
@@ -887,30 +730,30 @@ showPattern3D <- function(gobject,
     stop('\n This dimension was not found in the spatial pattern object \n')
   }
   PC_DT = PC_DT[,c(selected_PC, 'loc_ID'), with = F]
-  
+
   # annotate grid with PC values
   annotated_grid = merge(spatPatObj$spatial_grid, by.x = 'gr_name', PC_DT, by.y = 'loc_ID')
-  
+
   # trim PC values
   if(!is.null(trim)) {
     boundaries = stats::quantile(annotated_grid[[selected_PC]], probs = trim)
     annotated_grid[[selected_PC]][annotated_grid[[selected_PC]] < boundaries[1]] = boundaries[1]
     annotated_grid[[selected_PC]][annotated_grid[[selected_PC]] > boundaries[2]] = boundaries[2]
-    
+
   }
-  
-  
+
+
   annotated_grid <- data.table(annotated_grid)
   annotated_grid[,center_x:=(x_start+x_end)/2]
   annotated_grid[,center_y:=(y_start+y_end)/2]
   annotated_grid[,center_z:=(z_start+z_end)/2]
-  
-  
+
+
   axis_scale = match.arg(axis_scale, c("cube","real","custom"))
-  
+
   ratio = plotly_axis_scale_3D(annotated_grid,sdimx = "center_x",sdimy = "center_y",sdimz = "center_z",
                                mode = axis_scale,custom_ratio = custom_ratio)
-  
+
   dpl <- plotly::plot_ly(type = 'scatter3d',
                          x = annotated_grid$center_x, y = annotated_grid$center_y, z = annotated_grid$center_z,
                          color = annotated_grid[[selected_PC]],marker = list(size = point_size),
@@ -924,28 +767,30 @@ showPattern3D <- function(gobject,
                        y=ratio[[2]],
                        z=ratio[[3]])))
   dpl <- dpl %>% plotly::colorbar(title = paste(paste("dim.",dimension,sep = ""),"genes", sep = " "))
-  
+
   # print, return and save parameters
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-  
+
   ## print plot
   if(show_plot == TRUE) {
     print(dpl)
   }
-  
+
   ## save plot
   if(save_plot == TRUE) {
     do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = dpl, default_save_name = default_save_name), save_param))
   }
-  
+
   ## return plot
   if(return_plot == TRUE) {
     return(dpl)
   }
-  
+
 }
+
+
 
 
 #' @title showPatternGenes
@@ -964,7 +809,6 @@ showPattern3D <- function(gobject,
 #' @param save_param list of saving parameters from all_plots_save_function()
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
-#' @details Description.
 #' @export
 #' @examples
 #'     showPatternGenes(gobject)
@@ -1045,7 +889,7 @@ showPatternGenes <- function(gobject,
 #' @param top_neg_genes Top negatively correlated genes.
 #' @param min_pos_cor Minimum positive correlation score to include a gene.
 #' @param min_neg_cor Minimum negative correlation score to include a gene.
-#' @return ggplot
+#' @return Data.table with genes associated with selected dimension (PC).
 #' @details Description.
 #' @export
 #' @examples
@@ -1101,6 +945,7 @@ selectPatternGenes <- function(spatPatObj,
   return(comb_output_genes)
 
 }
+
 
 #' @title Spatial_DE
 #' @name Spatial_DE
@@ -1166,7 +1011,6 @@ Spatial_DE <- function(gobject = NULL,
 
   return(spatial_genes_results)
 }
-
 
 
 #' @title Spatial_AEH

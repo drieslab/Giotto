@@ -4,19 +4,36 @@
 \alias{spatGenePlot2D}
 \title{spatGenePlot2D}
 \usage{
-spatGenePlot2D(gobject, expression_values = c("normalized", "scaled",
-  "custom"), genes, genes_high_color = "darkred",
-  genes_mid_color = "white", genes_low_color = "darkblue",
-  show_network = F, network_color = NULL,
-  spatial_network_name = "spatial_network", edge_alpha = NULL,
-  show_grid = F, grid_color = NULL,
-  spatial_grid_name = "spatial_grid", midpoint = 0,
-  scale_alpha_with_expression = FALSE, point_size = 1,
-  point_border_col = "black", point_border_stroke = 0.1,
-  show_legend = T, cow_n_col = 2, cow_rel_h = 1, cow_rel_w = 1,
-  cow_align = "h", show_plot = NA, return_plot = NA,
-  save_plot = NA, save_param = list(),
-  default_save_name = "spatGenePlot2D")
+spatGenePlot2D(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  genes,
+  genes_high_color = "darkred",
+  genes_mid_color = "white",
+  genes_low_color = "darkblue",
+  show_network = F,
+  network_color = NULL,
+  spatial_network_name = "spatial_network",
+  edge_alpha = NULL,
+  show_grid = F,
+  grid_color = NULL,
+  spatial_grid_name = "spatial_grid",
+  midpoint = 0,
+  scale_alpha_with_expression = FALSE,
+  point_size = 1,
+  point_border_col = "black",
+  point_border_stroke = 0.1,
+  show_legend = T,
+  cow_n_col = 2,
+  cow_rel_h = 1,
+  cow_rel_w = 1,
+  cow_align = "h",
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "spatGenePlot2D"
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -86,4 +103,7 @@ Description of parameters.
 }
 \examples{
     spatGenePlot2D(gobject)
+}
+\seealso{
+\code{\link{spatGenePlot3D}}
 }

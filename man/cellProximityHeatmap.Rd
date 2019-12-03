@@ -4,10 +4,19 @@
 \alias{cellProximityHeatmap}
 \title{cellProximityHeatmap}
 \usage{
-cellProximityHeatmap(gobject, CPscore, scale = T, order_cell_types = T,
-  color_breaks = NULL, color_names = NULL, show_plot = NA,
-  return_plot = NA, save_plot = NA, save_param = list(),
-  default_save_name = "cellProximityHeatmap")
+cellProximityHeatmap(
+  gobject,
+  CPscore,
+  scale = T,
+  order_cell_types = T,
+  color_breaks = NULL,
+  color_names = NULL,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "cellProximityHeatmap"
+)
 }
 \arguments{
 \item{gobject}{giotto object}

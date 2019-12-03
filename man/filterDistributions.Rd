@@ -4,11 +4,18 @@
 \alias{filterDistributions}
 \title{filterDistributions}
 \usage{
-filterDistributions(gobject, expression_values = c("raw", "normalized",
-  "scaled", "custom"), expression_threshold = 1, detection = c("genes",
-  "cells"), plot_type = c("histogram", "violin"), nr_bins = 30,
-  fill_color = "lightblue", scale_axis = "identity", axis_offset = 0,
-  show_plot = TRUE)
+filterDistributions(
+  gobject,
+  expression_values = c("raw", "normalized", "scaled", "custom"),
+  expression_threshold = 1,
+  detection = c("genes", "cells"),
+  plot_type = c("histogram", "violin"),
+  nr_bins = 30,
+  fill_color = "lightblue",
+  scale_axis = "identity",
+  axis_offset = 0,
+  show_plot = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -17,7 +24,7 @@ filterDistributions(gobject, expression_values = c("raw", "normalized",
 
 \item{expression_threshold}{threshold to consider a gene expressed}
 
-\item{detection}{look at genes or cells}
+\item{detection}{consider genes or cells}
 
 \item{plot_type}{type of plot}
 
@@ -35,7 +42,7 @@ filterDistributions(gobject, expression_values = c("raw", "normalized",
 ggplot object
 }
 \description{
-show gene or cell filter distributions
+show gene or cell distribution after filtering on expression threshold
 }
 \examples{
     filterDistributions(gobject)

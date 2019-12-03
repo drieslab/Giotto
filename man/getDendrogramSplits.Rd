@@ -4,10 +4,17 @@
 \alias{getDendrogramSplits}
 \title{getDendrogramSplits}
 \usage{
-getDendrogramSplits(gobject, expression_values = c("normalized",
-  "scaled", "custom"), cluster_column, cor = c("pearson", "spearman"),
-  distance = "ward.D", h = NULL, h_color = "red", show_dend = TRUE,
-  verbose = TRUE)
+getDendrogramSplits(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  cluster_column,
+  cor = c("pearson", "spearman"),
+  distance = "ward.D",
+  h = NULL,
+  h_color = "red",
+  show_dend = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}

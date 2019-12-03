@@ -4,14 +4,26 @@
 \alias{signPCA}
 \title{signPCA}
 \usage{
-signPCA(gobject, method = c("screeplot", "jackstraw"),
+signPCA(
+  gobject,
+  method = c("screeplot", "jackstraw"),
   expression_values = c("normalized", "scaled", "custom"),
-  reduction = c("cells", "genes"), genes_to_use = NULL,
-  scale_unit = T, ncp = 50, scree_labels = T, scree_ylim = c(0,
-  10), jack_iter = 10, jack_threshold = 0.01, jack_verbose = T,
-  show_plot = T, return_plot = TRUE, save_plot = F,
-  save_dir = NULL, save_folder = NULL, save_name = NULL,
-  save_format = NULL, show_saved_plot = F, ...)
+  reduction = c("cells", "genes"),
+  genes_to_use = NULL,
+  scale_unit = T,
+  ncp = 50,
+  scree_labels = T,
+  scree_ylim = c(0, 10),
+  jack_iter = 10,
+  jack_threshold = 0.01,
+  jack_verbose = T,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "signPCA",
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -38,7 +50,15 @@ signPCA(gobject, method = c("screeplot", "jackstraw"),
 
 \item{jack_verbose}{show progress of jackstraw method}
 
-\item{show_plot}{show plots}
+\item{show_plot}{show plot}
+
+\item{return_plot}{return ggplot object}
+
+\item{save_plot}{directly save the plot [boolean]}
+
+\item{save_param}{list of saving parameters from all_plots_save_function()}
+
+\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
 \item{...}{additional parameters for PCA}
 }
@@ -49,7 +69,12 @@ ggplot object for scree method and maxtrix of p-values for jackstraw
 identify significant prinicipal components (PCs)
 }
 \details{
-Description of PCA steps...
+Two different methods can be used to assess the number of relevant or significant
+ prinicipal components (PC's). Screeplot works by plotting the explained variance of each
+ individual PC in a barplot and then you can identify which PC does not contribute
+ anymore ( = 'elbow method').
+ The Jackstraw method used the permutationPA function from the jackstraw packages. By
+ systematically permuting genes it identifies robust, and thus significant, PCs.
 }
 \examples{
     signPCA(gobject)

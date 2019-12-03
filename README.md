@@ -16,10 +16,43 @@ normalization, dimension reduction, clustering and cell type annotation.
 Next, it incorporates spatial information through the formation of a
 spatial grid and a spatial proximity network, which will be used in
 subsequent analyses to identify spatial genes or patterns, cell-cell
-preferential interactions and ligand-receptor signaling. Simultaneously
-this package contains the data that was used in the recent
+preferential interactions and ligand-receptor signaling. Furthermore,
+the outcome of Giotto can be interactivily explored using [Giotto
+Viewer](http://spatial.rc.fas.harvard.edu/giotto-viewer/), which allows
+you to overlay the obtained results with raw or additional images of the
+profiled tissue section(s). Simultaneously this package contains the
+data that was used in the recent
 [**seqFISH+**](https://www.nature.com/articles/s41586-019-1049-y) paper
 and can thus be used to explore or re-analyze this dataset.
+
+Make sure to check out the **Examples** and **FAQ** section to learn
+everything about the Giotto workflow.
+
+ 
+
+## Latest News
+
+  - Added tools to identify spatial enrichment based on cell-type (or
+    other) specific gene signature lists (**NEW**)
+  - Updated support for 3D spatial data (**NEW**)
+  - Added support for using global instructions and automatic plot
+    saving option (**NEW**)
+  - Implemented [SpatialDE](https://github.com/Teichlab/SpatialDE)
+  - Add wrapper for differential expression with
+    [MAST](https://github.com/RGLab/MAST)
+  - New example with 3D spatial data
+    [STARmap](https://science.sciencemag.org/content/361/6400/eaat5691)
+  - New example with the highly sensitive data from
+    [osmFISH](https://www.nature.com/articles/s41592-018-0175-z)
+  - New example on the Cerebellum with the scalable data from
+    [Slideseq](https://science.sciencemag.org/content/363/6434/1463)
+  - New example on mouse olfactory bulb using immobilized primers on
+    glass slides from [Spatial
+    Transcriptomics](https://science.sciencemag.org/content/353/6294/78)
+  - Updated seqFISH+ cortex example (**NEW**)
+  - Updated STARmap cortex example (**NEW**)
+  - New examples for merFISH (3D), MIBI (multiple patient tumor samples)
+    and others will follow soon.
 
  
 
@@ -27,7 +60,7 @@ and can thus be used to explore or re-analyze this dataset.
 
   - R (\>= 3.5.1)
   - Python (\>= 3.0)
-  - Unix/Linux
+  - Windows, MacOS, Linux
 
  
 
@@ -62,7 +95,8 @@ Required python modules:
 \- leidenalg  
 \- community
 
-Conda installation:
+Conda installation:  
+If conda install does not work, try ‘pip’
 
 ``` python
 # pandas:
@@ -101,7 +135,7 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation
   - click on the image and try them out yourself.
 
 [![Cortex](./inst/images/cortex_image_summary.png)](./inst/examples/mouse_cortex_svz/seqfish_cortex_Giotto_v0.1.2_update.md)
-[![STARmap](./inst/images/starmap_cortex_image_summary.png)](./inst/examples/mouse_starmap_cortex/starmap_cortex_Giotto_v0.1.2.md)
+[![STARmap](./inst/images/starmap_cortex_image_summary.png)](./inst/examples/mouse_starmap_cortex/starmap_cortex_Giotto_v0.1.2_update.md)
 
 [![osmFISH](./inst/images/osmFISH_SS_cortex_image_summary.png)](./inst/examples/mouse_osmFISH_SS_cortex/osmFISH_SS_cortex_Giotto_v0.1.2.md)
 [![slideseq](./inst/images/slideseq_cerebellum_image_summary.png)](./inst/examples/mouse_slideseq_cerebellum/slideseq_cerebellum_Giotto_v0.1.2.md)
@@ -113,25 +147,6 @@ Transcriptomics](./inst/images/SpatTx_OB_image_summary.png)](./inst/examples/mou
 \[![merFISH](./inst/images/merFISH_hypothalam_image_summary.png)\]
 
  
-
-## Latest News
-
-  - Release of v.0.1.2
-  - Add support for 3D spatial data
-  - Implemented [SpatialDE](https://github.com/Teichlab/SpatialDE)
-  - Add wrapper for differential expression with
-    [MAST](https://github.com/RGLab/MAST)
-  - New example with 3D spatial data
-    [STARmap](https://science.sciencemag.org/content/361/6400/eaat5691)
-  - New example with the highly sensitive data from
-    [osmFISH](https://www.nature.com/articles/s41592-018-0175-z)
-  - New example on the Cerebellum with the scalable data from
-    [Slideseq](https://science.sciencemag.org/content/363/6434/1463)
-  - Updated osmFISH example by using global instructions to
-    automatically save all generated plots (**NEW**)
-  - Updated seqFISH+ cortex example (**NEW**)
-  - New examples for merFISH, Spatial Transcriptomics, MIBI and others
-    will follow soon.  
 
 ## FAQ
 
@@ -146,6 +161,8 @@ Howto’s and faqs examples:
     object?](./inst/faqs/metadata_and_subset/metadata_and_subset_VC.md)
   - [How to create global instructions and show or save your created
     plots?](./inst/faqs/instructions_and_plotting/instructions_and_plotting.md)
+  - [Different ways to visualize your spatial
+    data?](./inst/faqs/visualization_options/visualization_options.md)
   - How to test and store multiple parameters or analyses?
   - …
 

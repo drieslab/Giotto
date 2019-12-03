@@ -4,12 +4,22 @@
 \alias{createNearestNetwork}
 \title{createNearestNetwork}
 \usage{
-createNearestNetwork(gobject, expression_values = c("normalized",
-  "scaled", "custom"), type = c("sNN", "kNN"),
-  dim_reduction_to_use = "pca", dim_reduction_name = "pca",
-  dimensions_to_use = 1:10, genes_to_use = NULL, name = "sNN.pca",
-  return_gobject = TRUE, k = 30, minimum_shared = 5,
-  top_shared = 3, verbose = T, ...)
+createNearestNetwork(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  type = c("sNN", "kNN"),
+  dim_reduction_to_use = "pca",
+  dim_reduction_name = "pca",
+  dimensions_to_use = 1:10,
+  genes_to_use = NULL,
+  name = "sNN.pca",
+  return_gobject = TRUE,
+  k = 30,
+  minimum_shared = 5,
+  top_shared = 3,
+  verbose = T,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}

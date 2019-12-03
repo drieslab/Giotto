@@ -4,12 +4,20 @@
 \alias{createHeatmap_DT}
 \title{createHeatmap_DT}
 \usage{
-createHeatmap_DT(gobject, expression_values = c("normalized", "scaled",
-  "custom"), genes, cluster_column = NULL, cluster_order = c("size",
-  "correlation", "custom"), cluster_custom_order = NULL,
-  cluster_cor_method = "pearson", cluster_hclust_method = "ward.D",
-  gene_order = c("custom", "correlation"), gene_custom_order = NULL,
-  gene_cor_method = "pearson", gene_hclust_method = "complete")
+createHeatmap_DT(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  genes,
+  cluster_column = NULL,
+  cluster_order = c("size", "correlation", "custom"),
+  cluster_custom_order = NULL,
+  cluster_cor_method = "pearson",
+  cluster_hclust_method = "ward.D",
+  gene_order = c("custom", "correlation"),
+  gene_custom_order = NULL,
+  gene_cor_method = "pearson",
+  gene_hclust_method = "complete"
+)
 }
 \arguments{
 \item{gobject}{giotto object}

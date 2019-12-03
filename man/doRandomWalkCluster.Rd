@@ -4,10 +4,19 @@
 \alias{doRandomWalkCluster}
 \title{doRandomWalkCluster}
 \usage{
-doRandomWalkCluster(gobject, name = "random_walk_clus",
-  nn_network_to_use = "sNN", network_name = "sNN.pca",
-  walk_steps = 4, walk_clusters = 10, walk_weights = NA,
-  return_gobject = TRUE, set_seed = F, seed_number = 1234, ...)
+doRandomWalkCluster(
+  gobject,
+  name = "random_walk_clus",
+  nn_network_to_use = "sNN",
+  network_name = "sNN.pca",
+  walk_steps = 4,
+  walk_clusters = 10,
+  walk_weights = NA,
+  return_gobject = TRUE,
+  set_seed = F,
+  seed_number = 1234,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}

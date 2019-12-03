@@ -4,9 +4,14 @@
 \alias{showTopGeneToGene}
 \title{showTopGeneToGene}
 \usage{
-showTopGeneToGene(GTGscore, top_interactions = 10,
-  direction = c("increased", "decreased"), complement_data = T,
-  subset_cell_ints = NULL, subset_genes = NULL)
+showTopGeneToGene(
+  GTGscore,
+  top_interactions = 10,
+  direction = c("increased", "decreased"),
+  complement_data = T,
+  subset_cell_ints = NULL,
+  subset_genes = NULL
+)
 }
 \arguments{
 \item{GTGscore}{GTGscore, output from getGeneToGeneScores()}

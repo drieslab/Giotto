@@ -19,6 +19,9 @@ giotto object
 \description{
 removes gene annotation of giotto object
 }
+\details{
+if return_gobject = FALSE, it will return the gene metadata
+}
 \examples{
     removeGeneAnnotation(gobject)
 }

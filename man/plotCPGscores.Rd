@@ -4,11 +4,18 @@
 \alias{plotCPGscores}
 \title{plotCPGscores}
 \usage{
-plotCPGscores(CPGscores, selected_interactions = NULL,
-  selected_genes = NULL, detail_plot = T, simple_plot = F,
+plotCPGscores(
+  CPGscores,
+  selected_interactions = NULL,
+  selected_genes = NULL,
+  detail_plot = T,
+  simple_plot = F,
   simple_plot_facet = c("interaction", "genes"),
-  facet_scales = "fixed", facet_ncol = length(selected_genes),
-  facet_nrow = length(selected_interactions), show_plot = F)
+  facet_scales = "fixed",
+  facet_ncol = length(selected_genes),
+  facet_nrow = length(selected_interactions),
+  show_plot = F
+)
 }
 \arguments{
 \item{CPGscores}{CPGscores, output from getCellProximityGeneScores()}

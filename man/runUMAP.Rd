@@ -4,13 +4,26 @@
 \alias{runUMAP}
 \title{runUMAP}
 \usage{
-runUMAP(gobject, expression_values = c("normalized", "scaled", "custom"),
-  reduction = c("cells", "genes"), dim_reduction_to_use = "pca",
-  dim_reduction_name = "pca", dimensions_to_use = 1:10,
-  name = "umap", genes_to_use = NULL, return_gobject = TRUE,
-  n_neighbors = 40, n_components = 2, n_epochs = 400,
-  min_dist = 0.01, n_threads = 1, spread = 5, set_seed = T,
-  seed_number = 1234, ...)
+runUMAP(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  reduction = c("cells", "genes"),
+  dim_reduction_to_use = "pca",
+  dim_reduction_name = "pca",
+  dimensions_to_use = 1:10,
+  name = "umap",
+  genes_to_use = NULL,
+  return_gobject = TRUE,
+  n_neighbors = 40,
+  n_components = 2,
+  n_epochs = 400,
+  min_dist = 0.01,
+  n_threads = 1,
+  spread = 5,
+  set_seed = T,
+  seed_number = 1234,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}

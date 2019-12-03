@@ -89,7 +89,7 @@ extended_gini_fun <- function(x, weights = rep(1, length = length(x)), minimum_l
 #' @title stitchFieldCoordinates
 #' @description Helper function to stitch field coordinates together to form one complete picture
 #' @param location_file location dataframe with X and Y coordinates
-#' @param offset_file dataframe that describes to offset for each field (see details)
+#' @param offset_file dataframe that describes the offset for each field (see details)
 #' @param cumulate_offset_x (boolean) Do the x-axis offset values need to be cumulated?
 #' @param cumulate_offset_y (boolean) Do the y-axis offset values need to be cumulated?
 #' @param field_col column that indicates the field within the location_file
@@ -98,7 +98,14 @@ extended_gini_fun <- function(x, weights = rep(1, length = length(x)), minimum_l
 #' @param reverse_final_x (boolean) Do the final x coordinates need to be reversed?
 #' @param reverse_final_y (boolean) Do the final y coordinates need to be reversed?
 #' @return Updated location dataframe with new X ['X_final'] and Y ['Y_final'] coordinates
-#' @details Describe how stitching works.
+#' @details Stitching of fields:
+#' \itemize{
+#'   \item{1. have cell locations: }{at least 3 columns: field, X, Y}
+#'   \item{2. create offset file: }{offset file has 3 columns: field, x_offset, y_offset}
+#'   \item{3. create new cell location file by stitching original cell locations with stitchFieldCoordinates}
+#'   \item{4. provide new cell location file to \code{\link{createGiottoObject}}}
+#' }
+#'
 #' @export
 #' @examples
 #'     stitchFieldCoordinates(gobject)
@@ -158,5 +165,54 @@ stitchFieldCoordinates <- function(location_file,
   copy_loc_file[, c('X_final', 'Y_final') := list(new_x_coord, new_y_coord)]
 
   return(copy_loc_file)
+}
+
+
+
+#' @title combineMetadata
+#' @description This function combines the cell metedata with spatial enrichment results from createSpatialEnrich
+#' @param gobject Giotto object
+#' @param spat_enr_names names of spatial enrichment results
+#' @return Extended cell metadata in data.table format.
+#' @export
+#' @examples
+#'     combineMetadata(gobject)
+combineMetadata = function(gobject,
+                           spat_enr_names = NULL) {
+
+  # cell metadata
+  metadata = pDataDT(gobject)
+
+  # cell/spot enrichment data
+  available_enr = names(gobject@spatial_enrichment)
+
+  spat_enr_names = spat_enr_names[spat_enr_names %in% available_enr]
+
+  if(!is.null(spat_enr_names) | length(spat_enr_names) > 0) {
+
+    result_list = list()
+    for(spatenr in 1:length(spat_enr_names)) {
+
+      spatenr_name = spat_enr_names[spatenr]
+      temp_spat = copy(gobject@spatial_enrichment[[spatenr_name]])
+      temp_spat[, 'cell_ID' := NULL]
+
+      result_list[[spatenr]] = temp_spat
+    }
+    final_meta = do.call('cbind', c(list(metadata), result_list))
+
+    duplicates = sum(duplicated(colnames(final_meta)))
+    if(duplicates > 0) cat('Some column names are not unique.
+                           If you add results from multiple enrichments,
+                           consider giving the signatures unique names')
+
+  } else {
+
+    final_meta = metadata
+
+  }
+
+  return(final_meta)
+
 }
 

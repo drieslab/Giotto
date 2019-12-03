@@ -4,9 +4,17 @@
 \alias{runPCA}
 \title{runPCA}
 \usage{
-runPCA(gobject, expression_values = c("normalized", "scaled", "custom"),
-  reduction = c("cells", "genes"), name = "pca", genes_to_use = NULL,
-  return_gobject = TRUE, scale_unit = F, ncp = 200, ...)
+runPCA(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  reduction = c("cells", "genes"),
+  name = "pca",
+  genes_to_use = NULL,
+  return_gobject = TRUE,
+  scale_unit = F,
+  ncp = 200,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}

@@ -4,18 +4,34 @@
 \alias{visPlot_3D_plotly}
 \title{visPlot_3D_plotly}
 \usage{
-visPlot_3D_plotly(gobject, sdimx = NULL, sdimy = NULL, sdimz = NULL,
-  point_size = 3, point_border_col = "black",
-  point_border_stroke = 0.1, cell_color = NULL,
-  cell_color_code = NULL, color_as_factor = T,
-  select_cell_groups = NULL, select_cells = NULL,
-  show_other_cells = T, show_network = F, network_color = NULL,
-  network_alpha = 1, other_cells_alpha = 0.1,
-  spatial_network_name = "spatial_network", show_grid = F,
-  grid_color = NULL, spatial_grid_name = "spatial_grid",
-  coord_fix_ratio = 0.6, title = "", show_legend = T,
-  axis_scale = c("cube", "real", "custom"), custom_ratio = NULL,
-  x_ticks = NULL, y_ticks = NULL, z_ticks = NULL, show_plot = F)
+visPlot_3D_plotly(
+  gobject,
+  sdimx = NULL,
+  sdimy = NULL,
+  sdimz = NULL,
+  point_size = 3,
+  cell_color = NULL,
+  cell_color_code = NULL,
+  select_cell_groups = NULL,
+  select_cells = NULL,
+  show_other_cells = T,
+  other_cell_color = "lightgrey",
+  other_point_size = 0.5,
+  show_network = F,
+  network_color = NULL,
+  network_alpha = 1,
+  other_cell_alpha = 0.5,
+  spatial_network_name = "spatial_network",
+  spatial_grid_name = "spatial_grid",
+  title = "",
+  show_legend = T,
+  axis_scale = c("cube", "real", "custom"),
+  custom_ratio = NULL,
+  x_ticks = NULL,
+  y_ticks = NULL,
+  z_ticks = NULL,
+  show_plot = F
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -28,15 +44,9 @@ visPlot_3D_plotly(gobject, sdimx = NULL, sdimy = NULL, sdimz = NULL,
 
 \item{point_size}{size of point (cell)}
 
-\item{point_border_col}{color of border around points}
-
-\item{point_border_stroke}{stroke size of border around points}
-
 \item{cell_color}{color for cells (see details)}
 
 \item{cell_color_code}{named vector with colors}
-
-\item{color_as_factor}{convert color column to factor}
 
 \item{select_cell_groups}{select a subset of the groups from cell_color}
 
@@ -46,19 +56,25 @@ visPlot_3D_plotly(gobject, sdimx = NULL, sdimy = NULL, sdimz = NULL,
 
 \item{spatial_network_name}{name of spatial network to use}
 
-\item{show_grid}{show spatial grid}
-
-\item{grid_color}{color of spatial grid}
-
 \item{spatial_grid_name}{name of spatial grid to use}
-
-\item{coord_fix_ratio}{fix ratio between x and y-axis}
 
 \item{title}{title of plot}
 
 \item{show_legend}{show legend}
 
 \item{show_plot}{show plot}
+
+\item{point_border_col}{color of border around points}
+
+\item{point_border_stroke}{stroke size of border around points}
+
+\item{color_as_factor}{convert color column to factor}
+
+\item{show_grid}{show spatial grid}
+
+\item{grid_color}{color of spatial grid}
+
+\item{coord_fix_ratio}{fix ratio between x and y-axis}
 }
 \value{
 ggplot

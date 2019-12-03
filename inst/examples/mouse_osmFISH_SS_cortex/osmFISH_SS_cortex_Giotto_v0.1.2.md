@@ -77,10 +77,10 @@ osm_test <- addStatistics(gobject = osm_test)
 # save according to giotto instructions
 # - create subfolder
 # - provide your own plot name
-spatPlot2D(gobject = osm_test, cell_color = 'ClusterName',
+spatPlot(gobject = osm_test, cell_color = 'ClusterName',
            save_param = list(save_folder = '2_Gobject', save_name = 'original_clusters', units = 'in'))
 
-spatPlot2D(gobject = osm_test, cell_color = 'Region',
+spatPlot(gobject = osm_test, cell_color = 'Region',
            save_param = list(save_folder = '2_Gobject', save_name = 'original_regions', units = 'in'))
 ```
 
@@ -103,14 +103,14 @@ osmFISH regions from paper: ![](./figures/1_original_regions.png)
 ## run PCA on expression values (default)
 osm_test <- runPCA(gobject = osm_test, expression_values = 'custom', scale_unit = F)
 signPCA(gobject = osm_test, expression_values = 'custom')
-plotPCA_2D(osm_test, save_param = list(save_folder = '3_DimRed', save_name = 'PCA_reduction', units = 'in'))
+plotPCA(osm_test, save_param = list(save_folder = '3_DimRed', save_name = 'PCA_reduction', units = 'in'))
 
 ## run UMAP and tSNE on PCA space (default)
 osm_test <- runUMAP(osm_test, dimensions_to_use = 1:31, expression_values = 'custom', n_threads = 2)
-plotUMAP_2D(gobject = osm_test,  save_param = list(save_folder = '3_DimRed', save_name = 'UMAP_reduction', units = 'in'))
+plotUMAP(gobject = osm_test,  save_param = list(save_folder = '3_DimRed', save_name = 'UMAP_reduction', units = 'in'))
 
 osm_test <- runtSNE(osm_test, dimensions_to_use = 1:31, perplexity = 70, check_duplicates = F)
-plotTSNE_2D(gobject = osm_test,  save_param = list(save_folder = '3_DimRed', save_name = 'tSNE_reduction', units = 'in'))
+plotTSNE(gobject = osm_test,  save_param = list(save_folder = '3_DimRed', save_name = 'tSNE_reduction', units = 'in'))
 ```
 
 ![](./figures/2_PCA_screeplot.png)
@@ -133,13 +133,13 @@ plotTSNE_2D(gobject = osm_test,  save_param = list(save_folder = '3_DimRed', sav
 
 ## hierarchical clustering
 osm_test = doHclust(gobject = osm_test, expression_values = 'custom', k = 34)
-plotUMAP_2D(gobject = osm_test, cell_color = 'hclust', point_size = 2.5,
+plotUMAP(gobject = osm_test, cell_color = 'hclust', point_size = 2.5,
          show_NN_network = F, edge_alpha = 0.05,
          save_param = list(save_folder = '4_Cluster', save_name = 'UMAP_hclust', units = 'in'))
 
 ## kmeans clustering
 osm_test = doKmeans(gobject = osm_test, expression_values = 'custom', centers = 32, nstart = 500)
-plotUMAP_2D(gobject = osm_test, cell_color = 'kmeans',
+plotUMAP(gobject = osm_test, cell_color = 'kmeans',
          point_size = 2.5, show_NN_network = F, edge_alpha = 0.05, 
          save_param =  list(save_folder = '4_Cluster', save_name = 'UMAP_kmeans', units = 'in'))
 
@@ -147,7 +147,7 @@ plotUMAP_2D(gobject = osm_test, cell_color = 'kmeans',
 # sNN network (default)
 osm_test <- createNearestNetwork(gobject = osm_test, dimensions_to_use = 1:31, k = 15)
 osm_test <- doLeidenCluster(gobject = osm_test, resolution = 0.05, n_iterations = 100)
-plotUMAP_2D(gobject = osm_test, cell_color = 'leiden_clus', point_size = 2.5,
+plotUMAP(gobject = osm_test, cell_color = 'leiden_clus', point_size = 2.5,
          show_NN_network = F, edge_alpha = 0.05,
          save_param = list(save_folder = '4_Cluster', save_name = 'UMAP_leiden', units = 'in'))
 
@@ -159,7 +159,7 @@ osm_test = mergeClusters(osm_test, expression_values = 'custom',
                          cluster_column = 'leiden_clus',
                          new_cluster_name = 'leiden_clus_m',
                          max_group_size = 30, force_min_group_size = 20)
-plotUMAP_2D(gobject = osm_test, cell_color = 'leiden_clus_m', point_size = 2.5,
+plotUMAP(gobject = osm_test, cell_color = 'leiden_clus_m', point_size = 2.5,
          show_NN_network = F, edge_alpha = 0.05,
          save_param = list(save_folder = '4_Cluster', save_name = 'UMAP_leiden_merged', units = 'in'))
 
@@ -190,11 +190,11 @@ showClusterDendrogram(osm_test, cluster_column = 'leiden_clus_m', h = 1, rotate 
 
 ``` r
 # co-visualization
-spatDimPlot2D(gobject = osm_test, cell_color = 'leiden_clus_m',
+spatDimPlot(gobject = osm_test, cell_color = 'leiden_clus_m',
               save_param = list(save_name = 'covis_leiden_m', save_folder = '5_Covisuals'))
 
 # select group m_8 only
-spatDimPlot2D(gobject = osm_test, cell_color = 'leiden_clus_m', 
+spatDimPlot(gobject = osm_test, cell_color = 'leiden_clus_m', 
               dim_point_size = 2, spatial_point_size = 2, select_cell_groups = 'm_8',
               save_param = list(save_name = 'covis_leiden_merged_selected', save_folder = '5_Covisuals'))
 ```
@@ -278,7 +278,7 @@ names(clusters_SS_cortex) = c('m_1', '18', 'm_2', 'm_5', 'm_8',
                               'm_13', '8', 'm_9')
 osm_test = annotateGiotto(gobject = osm_test, annotation_vector = clusters_SS_cortex,
                           cluster_column = 'leiden_clus_m', name = 'leiden_clus_m_types')
-spatDimPlot2D(gobject = osm_test, cell_color = 'leiden_clus_m_types',dim_point_size = 2, spatial_point_size = 2,
+spatDimPlot(gobject = osm_test, cell_color = 'leiden_clus_m_types',dim_point_size = 2, spatial_point_size = 2,
               save_param = c(save_name = 'annotation_leiden_merged_first', save_folder = '7_annotation'))
 ```
 
@@ -302,7 +302,7 @@ names(clusters_det_SS_cortex) = c('m_1', '18', 'm_2', 'm_5', 'm_8',
                                   'm_13', '8', 'm_9')
 osm_test = annotateGiotto(gobject = osm_test, annotation_vector = clusters_det_SS_cortex,
                           cluster_column = 'leiden_clus_m', name = 'det_cell_types')
-spatDimPlot2D(gobject = osm_test, cell_color = 'det_cell_types',dim_point_size = 2, spatial_point_size = 2,
+spatDimPlot(gobject = osm_test, cell_color = 'det_cell_types',dim_point_size = 2, spatial_point_size = 2,
              save_param = c(save_name = 'annotation_leiden_merged_detailed', save_folder = '7_annotation'))
 ```
 
@@ -326,7 +326,7 @@ names(clusters_coarse_SS_cortex) = c('Olig_COP', 'Olig_NF', 'Olig_MF', 'Olig_mat
                                      'vEnd', 'Astro_Mfge8', 'Olig_precursor')
 osm_test = annotateGiotto(gobject = osm_test, annotation_vector = clusters_coarse_SS_cortex,
                           cluster_column = 'det_cell_types', name = 'coarse_cell_types')
-spatDimPlot2D(gobject = osm_test, cell_color = 'coarse_cell_types',dim_point_size = 2, spatial_point_size = 2,
+spatDimPlot(gobject = osm_test, cell_color = 'coarse_cell_types',dim_point_size = 2, spatial_point_size = 2,
               save_param = c(save_name = 'annotation_leiden_merged_coarse', save_folder = '7_annotation'))
 ```
 
@@ -348,7 +348,7 @@ osm_test <- createSpatialGrid(gobject = osm_test,
                                sdimx_stepsize = 2000,
                                sdimy_stepsize = 2000,
                                minimum_padding = 0)
-spatPlot2D(osm_test, cell_color = 'det_cell_types', show_grid = T,
+spatPlot(osm_test, cell_color = 'det_cell_types', show_grid = T,
            grid_color = 'lightblue', spatial_grid_name = 'spatial_grid',
            save_param = c(save_name = 'grid_det_cell_types', save_folder = '8_grid'))
 ```
@@ -388,7 +388,7 @@ pattern 1: ![](./figures/7_pattern1_pca.png)
 
 ``` r
 osm_test <- createSpatialNetwork(gobject = osm_test, k = 5)
-spatPlot2D(gobject = osm_test, show_network = T,
+spatPlot(gobject = osm_test, show_network = T,
         network_color = 'blue', spatial_network_name = 'spatial_network',
         point_size = 1, cell_color = 'det_cell_types',
         save_param = c(save_name = 'spatial_network_k10', save_folder = '9_spatial_network'))
@@ -420,13 +420,13 @@ spatial_genes = calculate_spatial_genes_python(gobject = osm_test,
                                                python_path = my_python_path,
                                                rbp_p=0.99, examine_top=0.1)
 
-spatDimGenePlot2D(osm_test, expression_values = 'normalized',
+spatDimGenePlot(osm_test, expression_values = 'normalized',
                   genes = c('Rorb', 'Syt6', 'Gfap', 'Kcnip2'),
                   plot_alignment = 'vertical', cow_n_col = 4,
                   genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue', midpoint = 4,
                   save_param = c(save_name = 'spatial_genes_norm', save_folder = '10_spatial_genes', base_width = 16))
 
-spatDimGenePlot2D(osm_test, expression_values = 'scaled',
+spatDimGenePlot(osm_test, expression_values = 'scaled',
                   genes = c('Rorb', 'Syt6', 'Gfap', 'Kcnip2'),
                   plot_alignment = 'vertical', cow_n_col = 4,
                   genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue', midpoint = 0,
@@ -472,11 +472,11 @@ osm_test = addHMRF(gobject = osm_test,
 
 ## visualize
 # b = 0, no information from cell neighbors
-spatPlot2D(gobject = osm_test, cell_color = 'HMRF_k10_b.0', point_size = 3,
+spatPlot(gobject = osm_test, cell_color = 'HMRF_k10_b.0', point_size = 3,
            save_param = c(save_name = 'HMRF_k10_b.0', save_folder = '11_HMRF'))
 
 # b = 0.5
-spatPlot2D(gobject = osm_test, cell_color = 'HMRF_k10_b.0.5', point_size = 3,
+spatPlot(gobject = osm_test, cell_color = 'HMRF_k10_b.0.5', point_size = 3,
            save_param = c(save_name = 'HMRF_k10_b.0.5', save_folder = '11_HMRF'))
 ```
 
@@ -534,7 +534,7 @@ networks:
 ``` r
 ## visualization
 spec_interaction = "Astro_Gfap--Olig_mat"
-cellProximitySpatPlot2D(gobject = osm_test,
+cellProximitySpatPlot(gobject = osm_test,
                         interaction_name = spec_interaction,
                         cluster_column = 'det_cell_types',
                         cell_color = 'det_cell_types', coord_fix_ratio = 0.5,

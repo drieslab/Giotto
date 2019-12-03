@@ -4,8 +4,13 @@
 \alias{writeHMRFresults}
 \title{writeHMRFresults}
 \usage{
-writeHMRFresults(gobject, HMRFoutput, k = NULL, betas_to_view = NULL,
-  print_command = F)
+writeHMRFresults(
+  gobject,
+  HMRFoutput,
+  k = NULL,
+  betas_to_view = NULL,
+  print_command = F
+)
 }
 \arguments{
 \item{gobject}{giotto object}

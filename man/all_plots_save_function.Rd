@@ -4,12 +4,26 @@
 \alias{all_plots_save_function}
 \title{all_plots_save_function}
 \usage{
-all_plots_save_function(gobject, plot_object, save_dir = NULL,
-  save_folder = NULL, save_name = NULL,
-  default_save_name = "giotto_plot", save_format = NULL,
-  show_saved_plot = F, ncol = 1, nrow = 1, scale = 1,
-  base_width = NULL, base_height = NULL, base_aspect_ratio = NULL,
-  units = NULL, dpi = NULL, limitsize = TRUE, ...)
+all_plots_save_function(
+  gobject,
+  plot_object,
+  save_dir = NULL,
+  save_folder = NULL,
+  save_name = NULL,
+  default_save_name = "giotto_plot",
+  save_format = NULL,
+  show_saved_plot = F,
+  ncol = 1,
+  nrow = 1,
+  scale = 1,
+  base_width = NULL,
+  base_height = NULL,
+  base_aspect_ratio = NULL,
+  units = NULL,
+  dpi = NULL,
+  limitsize = TRUE,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -43,6 +57,8 @@ all_plots_save_function(gobject, plot_object, save_dir = NULL,
 \item{dpi}{Plot resolution}
 
 \item{limitsize}{When TRUE (the default), ggsave will not save images larger than 50x50 inches, to prevent the common error of specifying dimensions in pixels.}
+
+\item{...}{additional parameters to ggplot_save_function or general_save_function}
 }
 \description{
 Function to automatically save plots to directory of interest

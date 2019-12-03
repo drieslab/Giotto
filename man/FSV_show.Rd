@@ -4,9 +4,14 @@
 \alias{FSV_show}
 \title{FSV_show}
 \usage{
-FSV_show(results, ms_results = NULL, size = c(4, 2, 1),
-  color = c("blue", "green", "red"), sig_alpha = 0.5,
-  unsig_alpha = 0.5)
+FSV_show(
+  results,
+  ms_results = NULL,
+  size = c(4, 2, 1),
+  color = c("blue", "green", "red"),
+  sig_alpha = 0.5,
+  unsig_alpha = 0.5
+)
 }
 \arguments{
 \item{results}{results caculated by spatial_DE}

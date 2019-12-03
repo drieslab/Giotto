@@ -4,16 +4,25 @@
 \alias{plotUMAP_2D}
 \title{plotUMAP_2D}
 \usage{
-plotUMAP_2D(gobject, ...)
+plotUMAP_2D(
+  gobject,
+  dim_reduction_name = "umap",
+  default_save_name = "UMAP_2D",
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{dim_reduction_name}{dimension reduction name}
+
+\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
 \item{dim1_to_use}{dimension to use on x-axis}
 
 \item{dim2_to_use}{dimension to use on y-axis}
 
-\item{dim3_to_use}{dimension to use on z-axis}
+\item{spat_enr_names}{names of spatial enrichment results to include}
 
 \item{show_NN_network}{show underlying NN network}
 
@@ -26,6 +35,22 @@ plotUMAP_2D(gobject, ...)
 \item{color_as_factor}{convert color column to factor}
 
 \item{cell_color_code}{named vector with colors}
+
+\item{cell_color_gradient}{vector with 3 colors for numeric data}
+
+\item{gradient_midpoint}{midpoint for color gradient}
+
+\item{gradient_limits}{vector with lower and upper limits}
+
+\item{select_cell_groups}{select subset of cells/clusters based on cell_color parameter}
+
+\item{select_cells}{select subset of cells based on cell IDs}
+
+\item{show_other_cells}{display not selected cells}
+
+\item{other_cell_color}{color of not selected cells}
+
+\item{other_point_size}{size of not selected cells}
 
 \item{show_cluster_center}{plot center of selected clusters}
 
@@ -54,8 +79,6 @@ plotUMAP_2D(gobject, ...)
 \item{save_plot}{directly save the plot [boolean]}
 
 \item{save_param}{list of saving parameters from all_plots_save_function()}
-
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }
 \value{
 ggplot
@@ -64,11 +87,8 @@ ggplot
 Short wrapper for UMAP visualization
 }
 \details{
-Description of parameters.
+Description of parameters, see \code{\link{dimPlot2D}}. For 3D plots see \code{\link{plotUMAP_3D}}
 }
 \examples{
     plotUMAP_2D(gobject)
-}
-\seealso{
-\code{\link{dimPlot2D}}
 }

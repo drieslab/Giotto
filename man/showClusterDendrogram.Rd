@@ -4,12 +4,22 @@
 \alias{showClusterDendrogram}
 \title{showClusterDendrogram}
 \usage{
-showClusterDendrogram(gobject, expression_values = c("normalized",
-  "scaled", "custom"), cluster_column, cor = c("pearson", "spearman"),
-  distance = "ward.D", h = NULL, h_color = "red", rotate = FALSE,
-  show_plot = NA, return_plot = NA, save_plot = NA,
-  save_param = list(), default_save_name = "showClusterDendrogram",
-  ...)
+showClusterDendrogram(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  cluster_column,
+  cor = c("pearson", "spearman"),
+  distance = "ward.D",
+  h = NULL,
+  h_color = "red",
+  rotate = FALSE,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "showClusterDendrogram",
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}

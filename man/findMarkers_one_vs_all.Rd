@@ -4,12 +4,23 @@
 \alias{findMarkers_one_vs_all}
 \title{findMarkers_one_vs_all}
 \usage{
-findMarkers_one_vs_all(gobject, expression_values = c("normalized",
-  "scaled", "custom"), cluster_column, subset_clusters = NULL,
-  method = c("scran", "gini", "mast"), pval = 0.01, logFC = 0.5,
-  min_genes = 10, min_expr_gini_score = 0.5,
-  min_det_gini_score = 0.5, detection_threshold = 0, rank_score = 1,
-  adjust_columns = NULL, verbose = TRUE, ...)
+findMarkers_one_vs_all(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  cluster_column,
+  subset_clusters = NULL,
+  method = c("scran", "gini", "mast"),
+  pval = 0.01,
+  logFC = 0.5,
+  min_genes = 10,
+  min_expr_gini_score = 0.5,
+  min_det_gini_score = 0.5,
+  detection_threshold = 0,
+  rank_score = 1,
+  adjust_columns = NULL,
+  verbose = TRUE,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}

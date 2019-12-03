@@ -4,13 +4,21 @@
 \alias{createGiottoInstructions}
 \title{createGiottoInstructions}
 \usage{
-createGiottoInstructions(python_path = NULL, show_plot = NULL,
-  return_plot = NULL, save_plot = NULL, save_dir = NULL,
-  plot_format = NULL, dpi = NULL, units = NULL, height = NULL,
-  width = NULL)
+createGiottoInstructions(
+  python_path = NULL,
+  show_plot = NULL,
+  return_plot = NULL,
+  save_plot = NULL,
+  save_dir = NULL,
+  plot_format = NULL,
+  dpi = NULL,
+  units = NULL,
+  height = NULL,
+  width = NULL
+)
 }
 \arguments{
-\item{python_path}{path to python bin to use}
+\item{python_path}{path to python binary to use}
 
 \item{show_plot}{print plot to console, default = TRUE}
 
@@ -18,19 +26,19 @@ createGiottoInstructions(python_path = NULL, show_plot = NULL,
 
 \item{save_plot}{automatically save plot, dafault = FALSE}
 
-\item{save_dir}{path of directory to use to save figures}
+\item{save_dir}{path to directory where to save plots}
 
-\item{dpi}{resolution for raster images to save}
+\item{dpi}{resolution for raster images}
 
-\item{height}{height of the plots to save}
+\item{height}{height of plots}
 
-\item{width}{width of the plots to save}
+\item{width}{width of  plots}
 }
 \value{
 named vector with giotto instructions
 }
 \description{
-Function to create instructions for giotto functions
+Function to set global instructions for giotto functions
 }
 \examples{
     createGiottoInstructions()

@@ -1,7 +1,7 @@
 
 
 #' @title createSpatialNetwork
-#' @description Create a spatial network based on cell centroid distances.
+#' @description Create a spatial network based on cell centroid physical distances.
 #' @param gobject giotto object
 #' @param k number of nearest neighbors based on physical distance
 #' @param dimensions which spatial dimensions to use (default = all)
@@ -14,6 +14,13 @@
 #' @details Creates a spatial network connecting single-cells based on their physical distance to each other.
 #' Number of neighbors can be determined by k, maximum distance from each cell with or without
 #' setting a minimum k for each cell.
+#'
+#' \strong{dimensions: } default = 'all' which takes all possible dimensions.
+#' Alternatively you can provide a character vector that specififies the spatial dimensions to use, e.g. c("sdimx', "sdimy")
+#' or a numerical vector, e.g. 2:3
+#'
+#' \strong{maximum_distance: } to create a network based on maximum distance only, you also need to set k to a very high value, e.g. k = 100
+#'
 #' @export
 #' @examples
 #'     createSpatialNetwork(gobject)
@@ -164,7 +171,7 @@ find_grid_z <- function(grid_DT, z_loc) {
 
 
 #' @title createSpatialGrid_3D
-#' @description create a spatial grid
+#' @description Create a spatial grid for 3D spatial data.
 #' @param gobject giotto object
 #' @param sdimx_stepsize stepsize along the x-axis
 #' @param sdimy_stepsize stepsize along the y-axis
@@ -174,7 +181,7 @@ find_grid_z <- function(grid_DT, z_loc) {
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @return giotto object with updated spatial grid slot
 #' @details Creates a spatial grid with defined x, y (and z) dimensions.
-#' @export
+#' The dimension units are based on the provided spatial location units.
 #' @examples
 #'     createSpatialGrid_3D(gobject)
 createSpatialGrid_3D <- function(gobject,
@@ -328,7 +335,7 @@ createSpatialGrid_3D <- function(gobject,
 }
 
 #' @title createSpatialGrid_2D
-#' @description create a spatial grid
+#' @description create a spatial grid for 2D spatial data.
 #' @param gobject giotto object
 #' @param sdimx_stepsize stepsize along the x-axis
 #' @param sdimy_stepsize stepsize along the y-axis
@@ -337,7 +344,7 @@ createSpatialGrid_3D <- function(gobject,
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @return giotto object with updated spatial grid slot
 #' @details Creates a spatial grid with defined x, y (and z) dimensions.
-#' @export
+#' The dimension units are based on the provided spatial location units.
 #' @examples
 #'     createSpatialGrid_2D(gobject)
 createSpatialGrid_2D <- function(gobject,
@@ -463,8 +470,8 @@ createSpatialGrid_2D <- function(gobject,
 }
 
 
-#' @title createSpatialGrid2
-#' @description create a spatial grid
+#' @title createSpatialGrid
+#' @description Create a spatial grid.
 #' @param gobject giotto object
 #' @param sdimx_stepsize stepsize along the x-axis
 #' @param sdimy_stepsize stepsize along the y-axis
@@ -474,9 +481,10 @@ createSpatialGrid_2D <- function(gobject,
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @return giotto object with updated spatial grid slot
 #' @details Creates a spatial grid with defined x, y (and z) dimensions.
+#' The dimension units are based on the provided spatial location units.
 #' @export
 #' @examples
-#'     createSpatialGrid2(gobject)
+#'     createSpatialGrid(gobject)
 createSpatialGrid <- function(gobject,
                               sdimx_stepsize = NULL,
                               sdimy_stepsize = NULL,

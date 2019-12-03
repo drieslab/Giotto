@@ -4,11 +4,17 @@
 \alias{allCellCellcommunicationsScores}
 \title{allCellCellcommunicationsScores}
 \usage{
-allCellCellcommunicationsScores(gobject,
+allCellCellcommunicationsScores(
+  gobject,
   spatial_network_name = "spatial_network",
-  cluster_column = "cell_types", random_iter = 100, gene_set_1,
-  gene_set_2, log2FC_addendum = 0.1, min_observations = 2,
-  verbose = c("a little", "a lot", "none"))
+  cluster_column = "cell_types",
+  random_iter = 100,
+  gene_set_1,
+  gene_set_2,
+  log2FC_addendum = 0.1,
+  min_observations = 2,
+  verbose = c("a little", "a lot", "none")
+)
 }
 \arguments{
 \item{gobject}{giotto object to use}

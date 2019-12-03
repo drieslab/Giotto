@@ -4,17 +4,31 @@
 \alias{plotMetaDataHeatmap}
 \title{plotMetaDataHeatmap}
 \usage{
-plotMetaDataHeatmap(gobject, expression_values = c("normalized",
-  "scaled", "custom"), metadata_cols = NULL, selected_genes = NULL,
-  first_meta_col = NULL, second_meta_col = NULL,
+plotMetaDataHeatmap(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  metadata_cols = NULL,
+  selected_genes = NULL,
+  first_meta_col = NULL,
+  second_meta_col = NULL,
   show_values = c("zscores", "original", "zscores_rescaled"),
-  custom_cluster_order = NULL, clus_cor_method = "pearson",
-  clus_cluster_method = "complete", custom_gene_order = NULL,
-  gene_cor_method = "pearson", gene_cluster_method = "complete",
-  midpoint = 0, x_text_size = 8, x_text_angle = 45,
-  y_text_size = 8, strip_text_size = 8, show_plot = NA,
-  return_plot = NA, save_plot = NA, save_param = list(),
-  default_save_name = "plotMetaDataHeatmap")
+  custom_cluster_order = NULL,
+  clus_cor_method = "pearson",
+  clus_cluster_method = "complete",
+  custom_gene_order = NULL,
+  gene_cor_method = "pearson",
+  gene_cluster_method = "complete",
+  midpoint = 0,
+  x_text_size = 10,
+  x_text_angle = 45,
+  y_text_size = 10,
+  strip_text_size = 8,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "plotMetaDataHeatmap"
+)
 }
 \arguments{
 \item{gobject}{giotto object}

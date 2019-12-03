@@ -4,10 +4,16 @@
 \alias{detectSpatialPatterns}
 \title{detectSpatialPatterns}
 \usage{
-detectSpatialPatterns(gobject, expression_values = c("normalized",
-  "scaled", "custom"), spatial_grid_name = "spatial_grid",
-  min_cells_per_grid = 4, scale_unit = F, ncp = 100, show_plot = T,
-  PC_zscore = 1.5)
+detectSpatialPatterns(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  spatial_grid_name = "spatial_grid",
+  min_cells_per_grid = 4,
+  scale_unit = F,
+  ncp = 100,
+  show_plot = T,
+  PC_zscore = 1.5
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -33,7 +39,12 @@ spatial pattern object 'spatPatObj'
 Identify spatial patterns through PCA on average expression in a spatial grid.
 }
 \details{
-Description of how we compute spatial pattern genes.
+Steps to identify spatial patterns:
+\itemize{
+  \item{1. average gene expression for cells within a grid, see createSpatialGrid}
+  \item{2. perform PCA on the average grid expression profiles}
+  \item{3. convert variance of principlal components (PCs) to z-scores and select PCs based on a z-score threshold}
+}
 }
 \examples{
     detectSpatialPatterns(gobject)

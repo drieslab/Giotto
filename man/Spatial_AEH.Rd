@@ -4,11 +4,22 @@
 \alias{Spatial_AEH}
 \title{Spatial_AEH}
 \usage{
-Spatial_AEH(gobject = NULL, results = NULL, pattern_num = 5,
-  l = 1.05, show_AEH = T, sdimx = NULL, sdimy = NULL,
-  point_size = 3, point_alpha = 1, low_color = "blue",
-  mid_color = "white", high_color = "red", midpoint = 0,
-  python_path = NULL)
+Spatial_AEH(
+  gobject = NULL,
+  results = NULL,
+  pattern_num = 5,
+  l = 1.05,
+  show_AEH = T,
+  sdimx = NULL,
+  sdimy = NULL,
+  point_size = 3,
+  point_alpha = 1,
+  low_color = "blue",
+  mid_color = "white",
+  high_color = "red",
+  midpoint = 0,
+  python_path = NULL
+)
 }
 \arguments{
 \item{gobject}{Giotto object}

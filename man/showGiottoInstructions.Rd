@@ -13,7 +13,7 @@ showGiottoInstructions(gobject)
 named vector with giotto instructions
 }
 \description{
-Function to show instructions from giotto object
+Function to display all instructions from giotto object
 }
 \examples{
     showGiottoInstructions()

@@ -4,12 +4,26 @@
 \alias{ggplot_save_function}
 \title{ggplot_save_function}
 \usage{
-ggplot_save_function(gobject, plot_object, save_dir = NULL,
-  save_folder = NULL, save_name = NULL,
-  default_save_name = "giotto_plot", save_format = NULL,
-  show_saved_plot = F, ncol = 1, nrow = 1, scale = 1,
-  base_width = NULL, base_height = NULL, base_aspect_ratio = NULL,
-  units = NULL, dpi = NULL, limitsize = TRUE, ...)
+ggplot_save_function(
+  gobject,
+  plot_object,
+  save_dir = NULL,
+  save_folder = NULL,
+  save_name = NULL,
+  default_save_name = "giotto_plot",
+  save_format = NULL,
+  show_saved_plot = F,
+  ncol = 1,
+  nrow = 1,
+  scale = 1,
+  base_width = NULL,
+  base_height = NULL,
+  base_aspect_ratio = NULL,
+  units = NULL,
+  dpi = NULL,
+  limitsize = TRUE,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}

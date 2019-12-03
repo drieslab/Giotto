@@ -4,10 +4,18 @@
 \alias{findMastMarkers_one_vs_all}
 \title{findMastMarkers_one_vs_all}
 \usage{
-findMastMarkers_one_vs_all(gobject, expression_values = c("normalized",
-  "scaled", "custom"), cluster_column, subset_clusters = NULL,
-  adjust_columns = NULL, pval = 0.001, logFC = 1, min_genes = 10,
-  verbose = TRUE, ...)
+findMastMarkers_one_vs_all(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  cluster_column,
+  subset_clusters = NULL,
+  adjust_columns = NULL,
+  pval = 0.001,
+  logFC = 1,
+  min_genes = 10,
+  verbose = TRUE,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}

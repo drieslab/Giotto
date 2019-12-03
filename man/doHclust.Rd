@@ -4,15 +4,24 @@
 \alias{doHclust}
 \title{doHclust}
 \usage{
-doHclust(gobject, expression_values = c("normalized", "scaled",
-  "custom"), genes_to_use = NULL, dim_reduction_to_use = c("cells",
-  "pca", "umap", "tsne"), dim_reduction_name = "pca",
-  dimensions_to_use = 1:10, distance_method = c("pearson", "spearman",
-  "original", "euclidean", "maximum", "manhattan", "canberra", "binary",
-  "minkowski"), agglomeration_method = c("ward.D2", "ward.D", "single",
-  "complete", "average", "mcquitty", "median", "centroid"), k = 10,
-  h = NULL, name = "hclust", return_gobject = TRUE, set_seed = T,
-  seed_number = 1234)
+doHclust(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  genes_to_use = NULL,
+  dim_reduction_to_use = c("cells", "pca", "umap", "tsne"),
+  dim_reduction_name = "pca",
+  dimensions_to_use = 1:10,
+  distance_method = c("pearson", "spearman", "original", "euclidean", "maximum",
+    "manhattan", "canberra", "binary", "minkowski"),
+  agglomeration_method = c("ward.D2", "ward.D", "single", "complete", "average",
+    "mcquitty", "median", "centroid"),
+  k = 10,
+  h = NULL,
+  name = "hclust",
+  return_gobject = TRUE,
+  set_seed = T,
+  seed_number = 1234
+)
 }
 \arguments{
 \item{gobject}{giotto object}

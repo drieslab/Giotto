@@ -4,10 +4,17 @@
 \alias{findGiniMarkers_one_vs_all}
 \title{findGiniMarkers_one_vs_all}
 \usage{
-findGiniMarkers_one_vs_all(gobject, expression_values = c("normalized",
-  "scaled", "custom"), cluster_column, subset_clusters = NULL,
-  min_expr_gini_score = 0.5, min_det_gini_score = 0.5,
-  detection_threshold = 0, min_genes = 10, verbose = TRUE)
+findGiniMarkers_one_vs_all(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  cluster_column,
+  subset_clusters = NULL,
+  min_expr_gini_score = 0.5,
+  min_det_gini_score = 0.5,
+  detection_threshold = 0,
+  min_genes = 10,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}

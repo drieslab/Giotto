@@ -4,8 +4,12 @@
 \alias{changeGiottoInstructions}
 \title{changeGiottoInstructions}
 \usage{
-changeGiottoInstructions(gobject, params = NULL, new_values = NULL,
-  return_gobject = TRUE)
+changeGiottoInstructions(
+  gobject,
+  params = NULL,
+  new_values = NULL,
+  return_gobject = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -20,7 +24,7 @@ changeGiottoInstructions(gobject, params = NULL, new_values = NULL,
 named vector with giotto instructions
 }
 \description{
-Function to change instructions to giotto object
+Function to change one or more instructions from giotto object
 }
 \examples{
     changeGiottoInstructions()

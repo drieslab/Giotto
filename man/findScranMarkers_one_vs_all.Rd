@@ -4,9 +4,17 @@
 \alias{findScranMarkers_one_vs_all}
 \title{findScranMarkers_one_vs_all}
 \usage{
-findScranMarkers_one_vs_all(gobject, expression_values = c("normalized",
-  "scaled", "custom"), cluster_column, subset_clusters = NULL,
-  pval = 0.01, logFC = 0.5, min_genes = 10, verbose = TRUE, ...)
+findScranMarkers_one_vs_all(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  cluster_column,
+  subset_clusters = NULL,
+  pval = 0.01,
+  logFC = 0.5,
+  min_genes = 10,
+  verbose = TRUE,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}

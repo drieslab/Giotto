@@ -24,6 +24,10 @@ findScranMarkers <- function(gobject,
                              ...) {
 
 
+  if("scran" %in% rownames(installed.packages()) == FALSE) {
+    cat("\n package 'scran' is not yet installed \n")
+  }
+
   # expression data
   values = match.arg(expression_values, choices = c('normalized', 'scaled', 'custom'))
   expr_data = Giotto:::select_expression_values(gobject = gobject, values = values)
@@ -67,8 +71,8 @@ findScranMarkers <- function(gobject,
   savelist = lapply(names(marker_results), FUN = function(x) {
     dfr = marker_results[[x]]
     DT = data.table::as.data.table(dfr)
-    DT[, gene_ID := rownames(dfr)]
-    DT[, cluster_ID := x]
+    DT[, genes := rownames(dfr)]
+    DT[, cluster := x]
 
   })
 
@@ -151,7 +155,7 @@ findScranMarkers_one_vs_all <- function(gobject,
 
     # identify list to continue with
     select_bool = unlist(lapply(markers, FUN = function(x) {
-      unique(x$cluster_ID) == selected_clus
+      unique(x$cluster) == selected_clus
     }))
     selected_table = data.table::as.data.table(markers[select_bool])
     data.table::setnames(selected_table, colnames(selected_table)[4], 'logFC')
@@ -397,6 +401,10 @@ findMastMarkers <- function(gobject,
                             group_2_name = NULL,
                             adjust_columns = NULL,
                             ...) {
+
+  if("MAST" %in% rownames(installed.packages()) == FALSE) {
+    cat("\n package 'MAST' is not yet installed \n")
+  }
 
   ## select expression values to use
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))

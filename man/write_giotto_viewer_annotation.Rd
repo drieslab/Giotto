@@ -4,8 +4,11 @@
 \alias{write_giotto_viewer_annotation}
 \title{write_giotto_viewer_annotation}
 \usage{
-write_giotto_viewer_annotation(annotation, annot_name = "test",
-  output_directory = getwd())
+write_giotto_viewer_annotation(
+  annotation,
+  annot_name = "test",
+  output_directory = getwd()
+)
 }
 \arguments{
 \item{annotation}{annotation from the data.table from giotto object}

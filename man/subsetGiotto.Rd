@@ -17,7 +17,7 @@ subsetGiotto(gobject, cell_ids = NULL, gene_ids = NULL)
 giotto object
 }
 \description{
-subsets Giotto object including previous calculations
+subsets Giotto object including previous analyses.
 }
 \examples{
     subsetGiotto(gobject)

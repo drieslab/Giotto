@@ -4,13 +4,22 @@
 \alias{doLeidenCluster}
 \title{doLeidenCluster}
 \usage{
-doLeidenCluster(gobject, name = "leiden_clus",
-  nn_network_to_use = "sNN", network_name = "sNN.pca",
-  python_path = NULL, resolution = 1, weight_col = "weight",
-  partition_type = c("RBConfigurationVertexPartition",
-  "ModularityVertexPartition"), init_membership = NULL,
-  n_iterations = 1000, return_gobject = TRUE, set_seed = T,
-  seed_number = 1234, ...)
+doLeidenCluster(
+  gobject,
+  name = "leiden_clus",
+  nn_network_to_use = "sNN",
+  network_name = "sNN.pca",
+  python_path = NULL,
+  resolution = 1,
+  weight_col = "weight",
+  partition_type = c("RBConfigurationVertexPartition", "ModularityVertexPartition"),
+  init_membership = NULL,
+  n_iterations = 1000,
+  return_gobject = TRUE,
+  set_seed = T,
+  seed_number = 1234,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}

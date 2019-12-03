@@ -4,9 +4,15 @@
 \alias{exprOnlyCellCellcommunicationScores}
 \title{exprOnlyCellCellcommunicationScores}
 \usage{
-exprOnlyCellCellcommunicationScores(gobject,
-  cluster_column = "cell_types", random_iter = 100, gene_set_1,
-  gene_set_2, log2FC_addendum = 0.1, verbose = T)
+exprOnlyCellCellcommunicationScores(
+  gobject,
+  cluster_column = "cell_types",
+  random_iter = 100,
+  gene_set_1,
+  gene_set_2,
+  log2FC_addendum = 0.1,
+  verbose = T
+)
 }
 \arguments{
 \item{gobject}{giotto object to use}

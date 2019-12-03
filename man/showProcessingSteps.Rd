@@ -13,7 +13,7 @@ showProcessingSteps(gobject)
 list of processing steps and names
 }
 \description{
-shows the sequential processing steps that were performed
+shows the sequential processing steps that were performed in a summarized format
 }
 \examples{
     showProcessingSteps(gobject)
