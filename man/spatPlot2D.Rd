@@ -38,7 +38,7 @@ spatPlot2D(
   other_cell_color = "lightgrey",
   other_point_size = 1,
   other_cells_alpha = 0.1,
-  coord_fix_ratio = 0.6,
+  coord_fix_ratio = NULL,
   title = NULL,
   show_legend = T,
   show_plot = NA,
