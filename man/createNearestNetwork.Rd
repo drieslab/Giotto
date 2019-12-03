@@ -6,12 +6,12 @@
 \usage{
 createNearestNetwork(
   gobject,
-  expression_values = c("normalized", "scaled", "custom"),
   type = c("sNN", "kNN"),
   dim_reduction_to_use = "pca",
   dim_reduction_name = "pca",
   dimensions_to_use = 1:10,
   genes_to_use = NULL,
+  expression_values = c("normalized", "scaled", "custom"),
   name = "sNN.pca",
   return_gobject = TRUE,
   k = 30,
@@ -24,9 +24,7 @@ createNearestNetwork(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{expression_values}{expression values to use}
-
-\item{type}{kNN or sNN}
+\item{type}{sNN or kNN}
 
 \item{dim_reduction_to_use}{dimension reduction method to use}
 
@@ -35,6 +33,8 @@ createNearestNetwork(
 \item{dimensions_to_use}{number of dimensions to use as input}
 
 \item{genes_to_use}{if dim_reduction_to_use = NULL, which genes to use}
+
+\item{expression_values}{expression values to use}
 
 \item{name}{arbitrary name for NN network}
 
@@ -54,8 +54,7 @@ createNearestNetwork(
 giotto object with updated NN network
 }
 \description{
-create a nearest neighbour network based on previously computed \cr
-dimension reductions
+create a nearest neighbour network
 }
 \details{
 Description of nearest neighbor network creation and filter steps.

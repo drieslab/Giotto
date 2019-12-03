@@ -42,6 +42,19 @@ getDistinctColors <- function(n) {
 }
 
 
+#' @title dt_to_matrix
+#' @description converts data.table to matrix
+#' @examples
+#'     dt_to_matrix(x)
+dt_to_matrix <- function(x) {
+  rownames = as.character(x[[1]])
+  mat = as.matrix(x[,-1])
+  rownames(mat) = rownames
+  return(mat)
+}
+
+
+
 #' @title mygini_fun
 #' @description calculate gini coefficient
 #' @return gini coefficient
@@ -169,50 +182,135 @@ stitchFieldCoordinates <- function(location_file,
 
 
 
-#' @title combineMetadata
-#' @description This function combines the cell metedata with spatial enrichment results from createSpatialEnrich
-#' @param gobject Giotto object
-#' @param spat_enr_names names of spatial enrichment results
-#' @return Extended cell metadata in data.table format.
+
+
+#' @title get10Xmatrix
+#' @description This function creates an expression matrix from a 10X structured folder
+#' @param path_to_data path to the 10X folder
+#' @return expression matrix from 10X
+#' @details A typical 10X folder is named raw_feature_bc_matrix or raw_feature_bc_matrix. It has 3 files:
+#' \itemize{
+#'   \item{barcodes}
+#'   \item{features.tsv.gz}
+#'   \item{matrix.mtx.gz}
+#' }
 #' @export
 #' @examples
-#'     combineMetadata(gobject)
-combineMetadata = function(gobject,
-                           spat_enr_names = NULL) {
+#'     get10Xmatrix(10Xmatrix)
+get10Xmatrix = function(path_to_data) {
 
-  # cell metadata
-  metadata = pDataDT(gobject)
+  # data directory
+  files_10X = list.files(path_to_data)
 
-  # cell/spot enrichment data
-  available_enr = names(gobject@spatial_enrichment)
+  # get barcodes and create vector
+  barcodes_file = grep(files_10X, pattern = 'barcodes', value = T)
+  barcodesDT = fread(input = paste0(path_to_data,'/',barcodes_file), header = F)
+  barcodes_vec = barcodesDT$V1
+  names(barcodes_vec) = 1:nrow(barcodesDT)
 
-  spat_enr_names = spat_enr_names[spat_enr_names %in% available_enr]
+  # get features and create vector
+  features_file = grep(files_10X, pattern = 'features', value = T)
+  featuresDT = fread(input = paste0(path_to_data,'/',features_file), header = F)
+  features_vec = featuresDT$V1
+  names(features_vec) = 1:nrow(featuresDT)
 
-  if(!is.null(spat_enr_names) | length(spat_enr_names) > 0) {
+  # get matrix
+  matrix_file = grep(files_10X, pattern = 'matrix', value = T)
+  matrixDT = fread(input = paste0(path_to_data,'/',matrix_file), header = F, skip = 3)
+  colnames(matrixDT) = c('gene_id_num', 'cell_id_num', 'umi')
 
-    result_list = list()
-    for(spatenr in 1:length(spat_enr_names)) {
+  # convert barcodes and features
+  matrixDT[, gene_id := features_vec[gene_id_num]]
+  matrixDT[, cell_id := barcodes_vec[cell_id_num]]
 
-      spatenr_name = spat_enr_names[spatenr]
-      temp_spat = copy(gobject@spatial_enrichment[[spatenr_name]])
-      temp_spat[, 'cell_ID' := NULL]
+  # create a final matrix
+  matrix_ab = data.table::dcast.data.table(data = matrixDT, gene_id~cell_id, value.var = 'umi')
+  matrix_ab_mat = dt_to_matrix(matrix_ab)
+  matrix_ab_mat[is.na(matrix_ab_mat)] = 0
 
-      result_list[[spatenr]] = temp_spat
-    }
-    final_meta = do.call('cbind', c(list(metadata), result_list))
+  return(matrix_ab_mat)
 
-    duplicates = sum(duplicated(colnames(final_meta)))
-    if(duplicates > 0) cat('Some column names are not unique.
-                           If you add results from multiple enrichments,
-                           consider giving the signatures unique names')
+}
 
-  } else {
 
-    final_meta = metadata
+#' @title convertEnsemblToGeneSymbol
+#' @description This function convert ensembl gene IDs from a matrix to official gene symbols
+#' @param matrix an expression matrix with ensembl gene IDs as rownames
+#' @param species species to use for gene symbol conversion
+#' @return expression matrix with gene symbols as rownames
+#' @details This function requires that the biomaRt library is installed
+#' @export
+#' @examples
+#'     convertEnsemblToGeneSymbol(matrix)
+convertEnsemblToGeneSymbol = function(matrix,
+                                      species = c('mouse', 'human')) {
+
+  if("biomaRt" %in% rownames(installed.packages()) == FALSE) {
+    cat("\n package 'biomaRt' is not yet installed and is required for this function \n")
+  }
+
+  species = match.arg(species, choices = c('mouse', 'human'))
+
+  if(species == 'mouse') {
+
+    # ensembl IDs to change
+    ensemblsIDS = rownames(matrix)
+
+    # prepare ensembl database
+    ensembl = useMart("ensembl",
+                      dataset = "mmusculus_gene_ensembl")
+    gene_names = getBM(attributes= c('mgi_symbol', 'ensembl_gene_id'),
+                       filters = 'ensembl_gene_id',
+                       values = ensemblsIDS,
+                       mart = ensembl)
+    gene_names_DT = as.data.table(gene_names)
+    gene_names_DT[, dupes := duplicated(mgi_symbol)]
+    gene_names_DT[, gene_symbol := ifelse(any(dupes) == FALSE, mgi_symbol,
+                                          ifelse(mgi_symbol == "", ensembl_gene_id, 'temporary')), by = mgi_symbol]
+    gene_names_DT[, gene_symbol := ifelse(mgi_symbol == '', ensembl_gene_id, gene_symbol)]
+    gene_names_DT[, gene_symbol := ifelse(gene_symbol == 'temporary', paste0(mgi_symbol,'--', 1:.N), gene_symbol), by = mgi_symbol]
+
+    # filter
+    matrix = matrix[rownames(matrix) %in% gene_names_DT$ensembl_gene_id, ]
+
+    # replace
+    new_rownames = new_symbols[rownames(matrix)]
+    rownames(matrix) = new_rownames
+
+    return(matrix)
 
   }
 
-  return(final_meta)
+  if(species == 'human') {
+
+    # ensembl IDs to change
+    ensemblsIDS = rownames(matrix)
+
+    # prepare ensembl database
+    ensembl = useMart("ensembl",
+                      dataset = "hsapiens_gene_ensembl")
+    gene_names = getBM(attributes= c('hgnc_symbol', 'ensembl_gene_id'),
+                       filters = 'ensembl_gene_id',
+                       values = ensemblsIDS,
+                       mart = ensembl)
+    gene_names_DT = as.data.table(gene_names)
+    gene_names_DT[, dupes := duplicated(hgnc_symbol)]
+    gene_names_DT[, gene_symbol := ifelse(any(dupes) == FALSE, hgnc_symbol,
+                                          ifelse(hgnc_symbol == "", ensembl_gene_id, 'temporary')), by = hgnc_symbol]
+    gene_names_DT[, gene_symbol := ifelse(hgnc_symbol == '', ensembl_gene_id, gene_symbol)]
+    gene_names_DT[, gene_symbol := ifelse(gene_symbol == 'temporary', paste0(hgnc_symbol,'--', 1:.N), gene_symbol), by = hgnc_symbol]
+
+    # filter
+    matrix = matrix[rownames(matrix) %in% gene_names_DT$ensembl_gene_id, ]
+
+    # replace
+    new_rownames = new_symbols[rownames(matrix)]
+    rownames(matrix) = new_rownames
+
+    return(matrix)
+
+  }
+
 
 }
 

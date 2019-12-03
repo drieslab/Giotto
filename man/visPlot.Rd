@@ -22,7 +22,7 @@ visPlot(
   show_network = F,
   network_color = NULL,
   network_alpha = 1,
-  other_cells_alpha = 0.1,
+  other_cell_alpha = 0.1,
   spatial_network_name = "spatial_network",
   show_grid = F,
   grid_color = NULL,

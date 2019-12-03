@@ -70,11 +70,13 @@ identify significant prinicipal components (PCs)
 }
 \details{
 Two different methods can be used to assess the number of relevant or significant
- prinicipal components (PC's). Screeplot works by plotting the explained variance of each
- individual PC in a barplot and then you can identify which PC does not contribute
- anymore ( = 'elbow method').
- The Jackstraw method used the permutationPA function from the jackstraw packages. By
+ prinicipal components (PC's). \cr
+ 1. Screeplot works by plotting the explained variance of each
+ individual PC in a barplot allowing you to identify which PC does not show a significant
+ contribution anymore ( = 'elbow method'). \cr
+ 2. The Jackstraw method uses the \code{\link[jackstraw]{permutationPA}} function. By
  systematically permuting genes it identifies robust, and thus significant, PCs.
+ \cr multiple PCA results can be stored by changing the \emph{name} parameter
 }
 \examples{
     signPCA(gobject)

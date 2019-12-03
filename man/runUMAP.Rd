@@ -69,7 +69,12 @@ giotto object with updated UMAP dimension recuction
 run UMAP
 }
 \details{
-Description of UMAP steps...
+See \code{\link[uwot]{umap}} for more information about these and other parameters.
+\itemize{
+  \item Input for UMAP dimension reduction can be another dimension reduction (default = 'pca')
+  \item To use gene expression as input set dim_reduction_to_use = NULL
+  \item multiple UMAP results can be stored by changing the \emph{name} of the analysis
+}
 }
 \examples{
     runUMAP(gobject)

@@ -33,16 +33,16 @@ runPCA(
 
 \item{ncp}{number of principal components to calculate}
 
-\item{...}{additional parameters for PCA}
+\item{...}{additional parameters for PCA (see details)}
 }
 \value{
 giotto object with updated PCA dimension recuction
 }
 \description{
-run PCA
+runs a Principal Component Analysis
 }
 \details{
-Description of PCA steps...
+See \code{\link[FactoMineR]{PCA}} for more information about other parameters.
 }
 \examples{
     runPCA(gobject)

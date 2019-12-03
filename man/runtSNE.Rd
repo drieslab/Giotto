@@ -63,7 +63,12 @@ giotto object with updated tSNE dimension recuction
 run tSNE
 }
 \details{
-Description of tSNE steps and params ...
+See \code{\link[Rtsne]{Rtsne}} for more information about these and other parameters. \cr
+\itemize{
+  \item Input for tSNE dimension reduction can be another dimension reduction (default = 'pca')
+  \item To use gene expression as input set dim_reduction_to_use = NULL
+  \item multiple tSNE results can be stored by changing the \emph{name} of the analysis
+}
 }
 \examples{
     runtSNE(gobject)

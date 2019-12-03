@@ -33,7 +33,7 @@ create_dimObject = function(name = 'test',
 
 #' @title runPCA
 #' @name runPCA
-#' @description run PCA
+#' @description runs a Principal Component Analysis
 #' @param gobject giotto object
 #' @param expression_values expression values to use
 #' @param reduction cells or genes
@@ -42,9 +42,9 @@ create_dimObject = function(name = 'test',
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param scale_unit scale features before PCA
 #' @param ncp number of principal components to calculate
-#' @param ... additional parameters for PCA
+#' @param ... additional parameters for PCA (see details)
 #' @return giotto object with updated PCA dimension recuction
-#' @details Description of PCA steps...
+#' @details See \code{\link[FactoMineR]{PCA}} for more information about other parameters.
 #' @export
 #' @examples
 #'     runPCA(gobject)
@@ -143,11 +143,13 @@ runPCA <- function(gobject,
 #' @param ... additional parameters for PCA
 #' @return ggplot object for scree method and maxtrix of p-values for jackstraw
 #' @details Two different methods can be used to assess the number of relevant or significant
-#'  prinicipal components (PC's). Screeplot works by plotting the explained variance of each
-#'  individual PC in a barplot and then you can identify which PC does not contribute
-#'  anymore ( = 'elbow method').
-#'  The Jackstraw method used the permutationPA function from the jackstraw packages. By
+#'  prinicipal components (PC's). \cr
+#'  1. Screeplot works by plotting the explained variance of each
+#'  individual PC in a barplot allowing you to identify which PC does not show a significant
+#'  contribution anymore ( = 'elbow method'). \cr
+#'  2. The Jackstraw method uses the \code{\link[jackstraw]{permutationPA}} function. By
 #'  systematically permuting genes it identifies robust, and thus significant, PCs.
+#'  \cr multiple PCA results can be stored by changing the \emph{name} parameter
 #' @export
 #' @examples
 #'     signPCA(gobject)
@@ -281,7 +283,12 @@ signPCA <- function(gobject,
 #' @param seed_number seed number to use
 #' @param ... additional UMAP parameters
 #' @return giotto object with updated UMAP dimension recuction
-#' @details Description of UMAP steps...
+#' @details See \code{\link[uwot]{umap}} for more information about these and other parameters.
+#' \itemize{
+#'   \item Input for UMAP dimension reduction can be another dimension reduction (default = 'pca')
+#'   \item To use gene expression as input set dim_reduction_to_use = NULL
+#'   \item multiple UMAP results can be stored by changing the \emph{name} of the analysis
+#' }
 #' @export
 #' @examples
 #'     runUMAP(gobject)
@@ -431,7 +438,12 @@ runUMAP <- function(gobject,
 #' @param seed_number seed number to use
 #' @param ... additional tSNE parameters
 #' @return giotto object with updated tSNE dimension recuction
-#' @details Description of tSNE steps and params ...
+#' @details See \code{\link[Rtsne]{Rtsne}} for more information about these and other parameters. \cr
+#' \itemize{
+#'   \item Input for tSNE dimension reduction can be another dimension reduction (default = 'pca')
+#'   \item To use gene expression as input set dim_reduction_to_use = NULL
+#'   \item multiple tSNE results can be stored by changing the \emph{name} of the analysis
+#' }
 #' @export
 #' @examples
 #'     runtSNE(gobject)
