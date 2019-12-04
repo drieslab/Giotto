@@ -32,6 +32,7 @@ everything about the Giotto workflow.
 
 ## Latest News
 
+  - New example on mouse kidney using the 10X Visium dataset (**NEW**)
   - Added tools to identify spatial enrichment based on cell-type (or
     other) specific gene signature lists (**NEW**)
   - Updated support for 3D spatial data (**NEW**)
@@ -51,8 +52,8 @@ everything about the Giotto workflow.
     Transcriptomics](https://science.sciencemag.org/content/353/6294/78)
   - Updated seqFISH+ cortex example (**NEW**)
   - Updated STARmap cortex example (**NEW**)
-  - New examples for merFISH (3D), MIBI (multiple patient tumor samples)
-    and others will follow soon.
+  - New examples for merFISH (3D) and MIBI (multiple patient tumor
+    samples) will follow soon.
 
  
 
