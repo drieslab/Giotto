@@ -323,6 +323,79 @@ subsetGiotto <- function(gobject, cell_ids = NULL, gene_ids = NULL) {
 
 
 
+
+
+#' @title subsetGiottoLocs
+#' @description subsets Giotto object based on spatial locations
+#' @param gobject giotto object
+#' @param x_max maximum x-coordinate
+#' @param x_min minimum x-coordinate
+#' @param y_max maximum y-coordinate
+#' @param y_min minimum y-coordinate
+#' @param z_max maximum z-coordinate
+#' @param z_min minimum z-coordinate
+#' @param return_gobject return Giotto object
+#' @return giotto object
+#' @details if return_gobject = FALSE, then a filtered combined metadata data.table will be returned
+#' @export
+#' @examples
+#'     subsetGiottoLocs(gobject)
+subsetGiottoLocs = function(gobject,
+                            x_max = NULL,
+                            x_min = NULL,
+                            y_max = NULL,
+                            y_min = NULL,
+                            z_max = NULL,
+                            z_min = NULL,
+                            return_gobject = T) {
+
+  comb_metadata = combineMetadata(gobject = gobject)
+  comb_colnames =  colnames(comb_metadata)
+
+  # x spatial dimension
+  if('sdimx' %in% comb_colnames) {
+    if(is.null(x_max)) x_max = max(comb_colnames[['sdimx']])
+    if(is.null(x_min)) x_min = min(comb_colnames[['sdimx']])
+
+    comb_metadata = comb_metadata[get('sdimx') < x_max & get('sdimx') > x_min]
+  }
+
+  # y spatial dimension
+  if('sdimy' %in% comb_colnames) {
+    if(is.null(y_max)) y_max = max(comb_colnames[['sdimy']])
+    if(is.null(y_min)) y_min = min(comb_colnames[['sdimy']])
+
+    comb_metadata = comb_metadata[get('sdimy') < y_max & get('sdimy') > y_min]
+  }
+
+  # z spatial dimension
+  if('sdimz' %in% comb_colnames) {
+    if(is.null(z_max)) z_max = max(comb_colnames[['sdimz']])
+    if(is.null(z_min)) z_min = min(comb_colnames[['sdimz']])
+
+    comb_metadata = comb_metadata[get('sdimz') < z_max & get('sdimz') > z_min]
+  }
+
+  if(return_gobject == TRUE) {
+
+    filtered_cell_IDs = comb_metadata[['cell_ID']]
+
+    subset_object = subsetGiotto(gobject = gobject, cell_ids = filtered_cell_IDs)
+
+    return(subset_object)
+
+  } else {
+    return(comb_metadata)
+  }
+
+}
+
+
+
+
+
+
+
 #' @title filterDistributions
 #' @description show gene or cell distribution after filtering on expression threshold
 #' @param gobject giotto object
@@ -1412,9 +1485,9 @@ calculateMetaTableCells = function(gobject,
 
 
 #' @title combineMetadata
-#' @description This function combines the cell metedata with spatial enrichment results from createSpatialEnrich
+#' @description This function combines the cell metadata with spatial locations and enrichment results from createSpatialEnrich
 #' @param gobject Giotto object
-#' @param spat_enr_names names of spatial enrichment results
+#' @param spat_enr_names names of spatial enrichment results to include
 #' @return Extended cell metadata in data.table format.
 #' @export
 #' @examples
@@ -1424,6 +1497,10 @@ combineMetadata = function(gobject,
 
   # cell metadata
   metadata = pDataDT(gobject)
+
+  # spatial locations
+  spatial_locs = copy(gobject@spatial_locs)
+  metadata = cbind(metadata, spatial_locs[, cell_ID := NULL])
 
   # cell/spot enrichment data
   available_enr = names(gobject@spatial_enrichment)

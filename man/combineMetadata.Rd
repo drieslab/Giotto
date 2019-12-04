@@ -9,13 +9,13 @@ combineMetadata(gobject, spat_enr_names = NULL)
 \arguments{
 \item{gobject}{Giotto object}
 
-\item{spat_enr_names}{names of spatial enrichment results}
+\item{spat_enr_names}{names of spatial enrichment results to include}
 }
 \value{
 Extended cell metadata in data.table format.
 }
 \description{
-This function combines the cell metedata with spatial enrichment results from createSpatialEnrich
+This function combines the cell metadata with spatial locations and enrichment results from createSpatialEnrich
 }
 \examples{
     combineMetadata(gobject)
