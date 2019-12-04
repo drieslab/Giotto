@@ -32,7 +32,8 @@ everything about the Giotto workflow.
 
 ## Latest News
 
-  - New example on mouse kidney using the 10X Visium dataset (**NEW**)
+  - New examples on mouse kidney and brain using the recently released
+    10X Visium datasets (**NEW**)
   - Added tools to identify spatial enrichment based on cell-type (or
     other) specific gene signature lists (**NEW**)
   - Updated support for 3D spatial data (**NEW**)
@@ -146,7 +147,9 @@ Transcriptomics](./inst/images/SpatTx_OB_image_summary.png)](./inst/examples/mou
 \[![MIBI-TOF](./inst/images/MIBI_tumor_image_summary.png)\]
 
 \[![merFISH](./inst/images/merFISH_hypothalam_image_summary.png)\]
+
 [![visium-kidney](./inst/images/visium_kidney_image_summary.png)](./inst/examples/mouse_visium_kidney/mouse_visium_kidney_Giotto_v0.1.3.md)
+[![visium-brain](./inst/images/visium_brain_image_summary.png)](./inst/examples/mouse_visium_brain/mouse_visium_brain_Giotto_v0.1.3.md)
 
  
 
