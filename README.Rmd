@@ -126,8 +126,8 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation [instructio
 [![Spatial Transcriptomics](./inst/images/SpatTx_OB_image_summary.png){width=10cm}](./inst/examples/mouse_SpatTx_OB/mouse_SpatTx_OB_Giotto_v0.1.2.md)
 [![MIBI-TOF](./inst/images/MIBI_tumor_image_summary.png){width=10cm}]  
 
-[![merFISH](./inst/images/merFISH_hypothalam_image_summary.png){width=10cm}]  
-
+[![merFISH](./inst/images/merFISH_hypothalam_image_summary.png){width=10cm}]
+[![visium-kidney](./inst/images/visium_kidney_image_summary.png){width=10cm}](./inst/examples/mouse_SpatTx_OB/mouse_visium_kidney_Giotto_v0.1.3.md)  
 
 
 \  

@@ -145,6 +145,7 @@ Transcriptomics](./inst/images/SpatTx_OB_image_summary.png)](./inst/examples/mou
 \[![MIBI-TOF](./inst/images/MIBI_tumor_image_summary.png)\]
 
 \[![merFISH](./inst/images/merFISH_hypothalam_image_summary.png)\]
+[![visium-kidney](./inst/images/visium_kidney_image_summary.png)](./inst/examples/mouse_SpatTx_OB/mouse_visium_kidney_Giotto_v0.1.3.md)
 
  
 
