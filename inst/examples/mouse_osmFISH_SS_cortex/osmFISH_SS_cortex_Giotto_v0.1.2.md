@@ -195,7 +195,7 @@ spatDimPlot(gobject = osm_test, cell_color = 'leiden_clus_m',
 
 # select group m_8 only
 spatDimPlot(gobject = osm_test, cell_color = 'leiden_clus_m', 
-              dim_point_size = 2, spatial_point_size = 2, select_cell_groups = 'm_8',
+              dim_point_size = 2, spat_point_size = 2, select_cell_groups = 'm_8',
               save_param = list(save_name = 'covis_leiden_merged_selected', save_folder = '5_Covisuals'))
 ```
 
@@ -278,7 +278,7 @@ names(clusters_SS_cortex) = c('m_1', '18', 'm_2', 'm_5', 'm_8',
                               'm_13', '8', 'm_9')
 osm_test = annotateGiotto(gobject = osm_test, annotation_vector = clusters_SS_cortex,
                           cluster_column = 'leiden_clus_m', name = 'leiden_clus_m_types')
-spatDimPlot(gobject = osm_test, cell_color = 'leiden_clus_m_types',dim_point_size = 2, spatial_point_size = 2,
+spatDimPlot(gobject = osm_test, cell_color = 'leiden_clus_m_types',dim_point_size = 2, spat_point_size = 2,
               save_param = c(save_name = 'annotation_leiden_merged_first', save_folder = '7_annotation'))
 ```
 
@@ -302,7 +302,7 @@ names(clusters_det_SS_cortex) = c('m_1', '18', 'm_2', 'm_5', 'm_8',
                                   'm_13', '8', 'm_9')
 osm_test = annotateGiotto(gobject = osm_test, annotation_vector = clusters_det_SS_cortex,
                           cluster_column = 'leiden_clus_m', name = 'det_cell_types')
-spatDimPlot(gobject = osm_test, cell_color = 'det_cell_types',dim_point_size = 2, spatial_point_size = 2,
+spatDimPlot(gobject = osm_test, cell_color = 'det_cell_types',dim_point_size = 2, spat_point_size = 2,
              save_param = c(save_name = 'annotation_leiden_merged_detailed', save_folder = '7_annotation'))
 ```
 
@@ -326,7 +326,7 @@ names(clusters_coarse_SS_cortex) = c('Olig_COP', 'Olig_NF', 'Olig_MF', 'Olig_mat
                                      'vEnd', 'Astro_Mfge8', 'Olig_precursor')
 osm_test = annotateGiotto(gobject = osm_test, annotation_vector = clusters_coarse_SS_cortex,
                           cluster_column = 'det_cell_types', name = 'coarse_cell_types')
-spatDimPlot(gobject = osm_test, cell_color = 'coarse_cell_types',dim_point_size = 2, spatial_point_size = 2,
+spatDimPlot(gobject = osm_test, cell_color = 'coarse_cell_types',dim_point_size = 2, spat_point_size = 2,
               save_param = c(save_name = 'annotation_leiden_merged_coarse', save_folder = '7_annotation'))
 ```
 

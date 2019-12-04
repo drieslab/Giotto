@@ -129,9 +129,9 @@ plotUMAP(gobject = ST_test, cell_color = 'leiden_clus', point_size = 3,
 <summary>Expand</summary>  
 
 ``` r
-spatDimPlot2D(gobject = ST_test, cell_color = 'leiden_clus', 
-               dim_point_size = 2, spatial_point_size = 6,
-              save_param = list(save_folder = '5_Covisuals', save_name = 'covisual_leiden'))
+spatDimPlot(gobject = ST_test, cell_color = 'leiden_clus', 
+            dim_point_size = 2, spat_point_size = 6,
+            save_param = list(save_folder = '5_Covisuals', save_name = 'covisual_leiden'))
 ```
 
 Co-visualzation: ![](./figures/4_covisual_leiden.png)
