@@ -457,6 +457,20 @@ createGiottoObject <- function(raw_exprs,
                    instructions = instructions,
                    OS_platform = .Platform[['OS.type']])
 
+
+  # check if all optional packages are installed
+  extra_packages = c("scran", "MAST", "png", "tiff", "biomaRt")
+  pack_index = extra_packages %in% rownames(installed.packages())
+  extra_installed_packages = extra_packages[pack_index]
+  extra_not_installed_packages = extra_packages[!pack_index]
+
+  if(any(pack_index == FALSE) == TRUE) {
+    cat("Consider to install these (optional) packages to run all possible Giotto commands: ",
+        extra_not_installed_packages)
+  }
+
+
+
   # prepare other slots
   gobject@cell_ID = colnames(raw_exprs)
   gobject@gene_ID = rownames(raw_exprs)
