@@ -27,7 +27,7 @@ a Visium Spatial Gene Expression slide.
 ![](./visium_technology.png)
 
 ``` r
-## 1.2 expression and cell location
+## expression and cell location
 ## expression data
 data_path = '/path/to/Visium_data/Kidney_data/raw_feature_bc_matrix/'
 raw_matrix = get10Xmatrix(path_to_data = data_path)
@@ -202,7 +202,7 @@ spatDimPlot(gobject = visium_kidney, cell_color = 'nr_genes', color_as_factor = 
 Co-visualzation: ![](./figures/4_covis_leiden.png)
 
 Co-visualzation overlaid with number of genes detected:  
-![](./figures/4_covis_leiden.png)
+![](./figures/4_nr_genes.png)
 
 -----
 
@@ -295,8 +295,8 @@ Scran: - violinplot: ![](./figures/5_violinplot_scran.png)
 
 <summary>Expand</summary>  
 
-Spatial transcriptomics does not provide single-cell resolution, making
-cell type annotation a harder problem. Giotto provides 3 ways to
+Visium spatial transcriptomics does not provide single-cell resolution,
+making cell type annotation a harder problem. Giotto provides 3 ways to
 calculate enrichment of specific cell-type signature gene list:  
 \- PAGE  
 \- rank  

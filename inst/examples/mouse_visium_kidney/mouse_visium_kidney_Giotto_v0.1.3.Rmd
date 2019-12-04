@@ -39,7 +39,7 @@ instrs = createGiottoInstructions(python_path = my_python_path,
 ![](./visium_technology.png){width=20cm} 
 
 ```{r, eval=FALSE}
-## 1.2 expression and cell location
+## expression and cell location
 ## expression data
 data_path = '/path/to/Visium_data/Kidney_data/raw_feature_bc_matrix/'
 raw_matrix = get10Xmatrix(path_to_data = data_path)
@@ -225,7 +225,7 @@ Co-visualzation:
 ![](./figures/4_covis_leiden.png){width=16cm} 
 
 Co-visualzation overlaid with number of genes detected:  
-![](./figures/4_covis_leiden.png){width=16cm} 
+![](./figures/4_nr_genes.png){width=16cm} 
 
 ***
 
@@ -330,7 +330,7 @@ Scran:
   \
   
 
-Spatial transcriptomics does not provide single-cell resolution, making cell type annotation a harder problem. Giotto provides 3 ways to calculate enrichment of specific cell-type signature gene list:    
+Visium spatial transcriptomics does not provide single-cell resolution, making cell type annotation a harder problem. Giotto provides 3 ways to calculate enrichment of specific cell-type signature gene list:    
 - PAGE  
 - rank  
 - hypergeometric test  
