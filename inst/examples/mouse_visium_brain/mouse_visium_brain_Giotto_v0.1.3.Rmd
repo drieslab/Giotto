@@ -534,7 +534,7 @@ spatGenePlot(visium_brain, expression_values = 'scaled',
 
 ```
 
-Spatial genes:
+Spatial genes:  
 - kmeans 
 ![](./figures/9_spatial_genes_km.png){width=16cm}  
 

@@ -485,7 +485,8 @@ spatGenePlot(visium_brain, expression_values = 'scaled',
              genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue', midpoint = 0)
 ```
 
-Spatial genes: - kmeans ![](./figures/9_spatial_genes_km.png)
+Spatial genes:  
+\- kmeans ![](./figures/9_spatial_genes_km.png)
 
   - rank ![](./figures/9_spatial_genes_rank.png)
 
