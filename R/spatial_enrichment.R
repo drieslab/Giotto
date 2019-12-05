@@ -1,16 +1,18 @@
 
-#' @title convertSignListToMatrix
-#' @description Function to convert list of signature genes (e.g. for cell types) into
+#' @title makeSignMatrixPAGE
+#' @description Function to convert list of signature genes (e.g. for cell types or processes) into
 #' a binary matrix format that can be used with the PAGE enrichment option.
 #' @param sign_names vector with names for each provided gene signature
-#' @param sign_list list of gene signatures
+#' @param sign_list list of genes (signature)
 #' @return matrix
+#' @seealso \code{\link{PAGEEnrich}}
 #' @export
 #' @examples
-#'     convertSignListToMatrix()
-convertSignListToMatrix = function(sign_names,
-                                   sign_list) {
+#'     makeSignMatrixPAGE()
+makeSignMatrixPAGE = function(sign_names,
+                              sign_list) {
 
+  ## check input
   if(!is.list(sign_list)) {
     stop('\n sign_list needs to be a list of signatures for each cell type / process \n')
   }
@@ -18,7 +20,7 @@ convertSignListToMatrix = function(sign_names,
     stop('\n the number of names needs to match the number of signatures provided \n')
   }
 
-  # create genes and signatures
+  ## create genes and signatures
   genes = do.call('c', sign_list)
   types = lapply(1:length(sign_names), FUN = function(x) {
 
@@ -35,6 +37,74 @@ convertSignListToMatrix = function(sign_names,
   final_sig_matrix = as.matrix(dtmatrix[,-1]); rownames(final_sig_matrix) = dtmatrix$genes
 
   return(final_sig_matrix)
+
+}
+
+
+
+#' @title makeSignMatrixRank
+#' @description Function to convert a single-cell count matrix
+#' and a corresponding single-cell cluster vector into
+#' a rank matrix that can be used with the Rank enrichment option.
+#' @param sign_names vector with names for each provided gene signature
+#' @param sign_list list of genes (signature)
+#' @return matrix
+#' @seealso \code{\link{rankEnrich}}
+#' @export
+#' @examples
+#'     makeSignMatrixRank()
+makeSignMatrixRank <- function(sc_matrix,
+                               sc_cluster_ids,
+                               gobject = NULL) {
+
+  # check input
+  if(length(sc_cluster_ids) != ncol(sc_matrix)) {
+    stop('Number of columns of the scRNAseq matrix needs to have the same length as the cluster ids')
+  }
+
+  mean_list = list()
+  group_list = list()
+  total_nr_genes = nrow(sc_matrix)
+
+  # calculate means for each cluster group
+  for(group in 1:length(unique(sc_cluster_ids))) {
+
+    group_id = unique(sc_cluster_ids)[group]
+    cell_ind = which(sc_cluster_ids == group_id)
+    cluster_rowmeans = rowMeans(sc_matrix[,cell_ind])
+    mean_list[[group_id]] = cluster_rowmeans
+    group_list[[group]] = rep(group_id, total_nr_genes)
+  }
+
+  mean_list_res = as.data.table(do.call('c', mean_list))
+  group_list_res = as.data.table(do.call('c', group_list))
+
+  # average expression for all cells
+  av_expression = rowMeans(sc_matrix)
+  av_expression_res = rep(av_expression, length(unique(sc_cluster_ids)))
+
+  gene_names = rownames(sc_matrix)
+  gene_names_res = rep(gene_names, length(unique(sc_cluster_ids)))
+
+  # create data.table with genes, mean expression per cluster, mean expression overall and cluster ids
+  comb_dt = data.table(genes = gene_names_res, mean_expr = mean_list_res[[1]], av_expr = av_expression_res, clusters = group_list_res[[1]])
+
+  # calculate fold change and rank of fold-change
+  comb_dt[, fold := log2(mean_expr+1)-log2(av_expr+1)]
+  comb_dt[, rankFold := frank(-fold, ties.method = 'first'), by = clusters]
+
+  # create matrix
+  comb_rank_mat = data.table::dcast.data.table(data = comb_dt, genes~clusters, value.var = 'rankFold')
+  comb_rank_matrix = Giotto:::dt_to_matrix(comb_rank_mat)
+  comb_rank_matrix = comb_rank_matrix[rownames(sc_matrix), unique(sc_cluster_ids)]
+
+
+  # intersect rank matrix with giotto object if given
+  if(!is.null(gobject) & class(gobject) %in% c('giotto')) {
+    comb_rank_matrix = comb_rank_matrix[intersect(rownames(comb_rank_matrix), gobject@gene_ID), ]
+  }
+
+  return(comb_rank_matrix)
 
 }
 
