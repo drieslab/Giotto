@@ -1475,7 +1475,7 @@ calculateMetaTableCells = function(gobject,
   }
 
   workdt = cell_metadata[, lapply(.SD, mean), by = metadata_cols, .SDcols = value_cols]
-  workdtmelt = data.table::melt.data.table(workdt, measure.vars = value_columns)
+  workdtmelt = data.table::melt.data.table(workdt, measure.vars = value_cols)
 
   return(workdtmelt)
 
