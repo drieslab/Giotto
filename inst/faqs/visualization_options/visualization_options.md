@@ -1,14 +1,14 @@
 
 ## Different ways to visualize your spatial data?
 
-Giotto provides ways to visualize your spatial data:
+Giotto provides different ways to visualize your spatial data:
 
 ##### 1\. Functions specific to a task or analysis:
 
   - **plotHeatmap**
   - **plotMetadataHeatmap**
   - **violinPlot**
-  - check out the different dataset examples to see the wide range of
+  - … check out the different dataset examples to see the wide range of
     visualization options
 
 ##### 2\. Functions that use the spatial coordinates of each cell or spot, they usually start with **spat**XXX
@@ -42,11 +42,18 @@ Giotto provides ways to visualize your spatial data:
 Most functions both have a 2D and 3D version, like **spatDimPlot2D** and
 **spatDimPlot3D**. In those cases the **spatDimPlot2D** is the same as
 **spatDimPlot**. So only in case you want to plot your spatial or
-dimension data in 3D, you need to specifically say so.
+dimension reduction data in 3D, you need to specifically say so.
 
 ##### 6\. ways to save plot
 
-Hypothetical example showing a number of options
+  - see also FAQ [How to create global instructions and show or save
+    your created
+    plots?](./inst/faqs/instructions_and_plotting/instructions_and_plotting.md)
+  - All parameters available to save\_param are found on the help page
+    of **?Giotto::all\_plots\_save\_function**
+  - Hypothetical example showing a number of options:
+
+<!-- end list -->
 
 ``` r
 # 1. standard R way
