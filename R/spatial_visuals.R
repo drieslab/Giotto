@@ -6201,12 +6201,13 @@ spatPlot2D = function(gobject,
   ## get cell metadata
   cell_metadata = combineMetadata(gobject = gobject,
                                   spat_enr_names = spat_enr_names)
-  cell_metadata   = cell_metadata[, !grepl('cell_ID', colnames(cell_metadata)), with = F]
+  #cell_metadata   = cell_metadata[, !grepl('cell_ID', colnames(cell_metadata)), with = F]
 
   if(nrow(cell_metadata) == 0) {
     cell_locations_metadata = cell_locations
   } else {
-    cell_locations_metadata <- cbind(cell_locations, cell_metadata)
+    #cell_locations_metadata <- cbind(cell_locations, cell_metadata)
+    cell_locations_metadata <- cell_metadata
   }
 
   ## create subsets if needed
@@ -6839,13 +6840,15 @@ spatGenePlot2D <- function(gobject,
   }
 
   ## extract cell metadata
-  cell_metadata   = gobject@cell_metadata
-  cell_metadata   = cell_metadata[, !grepl('cell_ID', colnames(cell_metadata)), with = F]
+  cell_metadata = combineMetadata(gobject = gobject)
+  #cell_metadata   = gobject@cell_metadata
+  #cell_metadata   = cell_metadata[, !grepl('cell_ID', colnames(cell_metadata)), with = F]
 
   if(nrow(cell_metadata) == 0) {
     cell_locations_metadata = cell_locations
   } else {
-    cell_locations_metadata <- cbind(cell_locations, cell_metadata)
+    cell_locations_metadata = cell_metadata
+    #cell_locations_metadata <- cbind(cell_locations, cell_metadata)
   }
 
   cell_locations_metadata_genes <- merge(cell_locations_metadata, t_sub_expr_data_DT, by = 'cell_ID')

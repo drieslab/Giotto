@@ -187,12 +187,19 @@ spatDimPlot(gobject = visium_brain, cell_color = 'leiden_clus',
 # number of genes detected per spot
 spatDimPlot(gobject = visium_brain, cell_color = 'nr_genes', color_as_factor = F,
             dim_point_size = 1.5, spat_point_size = 1.5)
+
+# zoom-in on Dentate Gyrus by subsetting giotto object based on spatial coordinates/locations
+DG_subset = subsetGiottoLocs(visium_brain, x_max = 6500, x_min = 3000, y_max = -2500, y_min = -5500, return_gobject = T)
+spatDimPlot(gobject = DG_subset, cell_color = 'leiden_clus', point_size = 5)
 ```
 
 Co-visualzation: ![](./figures/4_covis_leiden.png)
 
 Co-visualzation overlaid with number of genes detected:  
 ![](./figures/4_nr_genes.png)
+
+Zoom-in on Dentate Gyrus:  
+![](./figures/4_zoom_dentate_gyrus.png)
 
 -----
 
@@ -479,7 +486,7 @@ spatGenePlot(visium_brain, expression_values = 'scaled',
 ## distance
 spatial_genes = calculate_spatial_genes_python(gobject = visium_brain,
                                                expression_values = 'scaled',
-                                               rbp_p=0.99, examine_top=0.1)
+                                               rbp_p=0.95, examine_top=0.3)
 spatGenePlot(visium_brain, expression_values = 'scaled',
              genes = spatial_genes$genes[1:6], cow_n_col = 2, point_size = 1,
              genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue', midpoint = 0)
@@ -543,7 +550,7 @@ visium_brain = addHMRF(gobject = visium_brain,
 # b = 0
 spatPlot(gobject = visium_brain, cell_color = 'HMRF_k12_b.0', point_size = 2)
 
-# b = 0.5
+# b = 1
 spatPlot(gobject = visium_brain, cell_color = 'HMRF_k12_b.0.5', point_size = 2)
 ```
 
@@ -551,7 +558,7 @@ HMRF:
 b = 0  
 ![](./figures/10_HMRF_k12_b.0.png)
 
-b = 0.5 results in smoother spatial domains:  
+b = 1 results in smoother spatial domains:  
 ![](./figures/10_HMRF_k12_b.0.5.png)
 
 -----
