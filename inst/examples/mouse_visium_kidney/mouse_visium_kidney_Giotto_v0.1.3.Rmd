@@ -61,7 +61,7 @@ colnames(spatial_results) = c('barcode', 'in_tissue', 'array_row', 'array_col', 
 
 
 
-### 1. Create Giotto object & process data
+### # 1. Create Giotto object & process data
 <details>
   <summary>Expand</summary>
   \ 

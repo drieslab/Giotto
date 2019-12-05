@@ -1,7 +1,7 @@
 
   - [Giotto global instructions](#giotto-global-instructions)
   - [Data input](#data-input)
-  - [1. Create Giotto object & process
+  - [\# 1. Create Giotto object & process
     data](#create-giotto-object-process-data)
   - [2. dimension reduction](#dimension-reduction)
   - [3. cluster](#cluster)
@@ -58,7 +58,7 @@ colnames(spatial_results) = c('barcode', 'in_tissue', 'array_row', 'array_col', 
 
 -----
 
-### 1\. Create Giotto object & process data
+### \# 1. Create Giotto object & process data
 
 <details>
 
