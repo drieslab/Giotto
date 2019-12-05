@@ -33,12 +33,14 @@ everything about the Giotto workflow.
 ## Latest News
 
   - New examples on mouse kidney and brain using the recently released
-    10X Visium datasets (**NEW**)
+    [10X Visium
+    datasets](https://www.10xgenomics.com/spatial-transcriptomics/)
+    (**NEW**)
   - Added tools to identify spatial enrichment based on cell-type (or
     other) specific gene signature lists (**NEW**)
   - Updated support for 3D spatial data (**NEW**)
-  - Added support for using global instructions and automatic plot
-    saving option (**NEW**)
+  - Added support for the use of global instructions and automatically
+    saving your plots (**NEW**)
   - Implemented [SpatialDE](https://github.com/Teichlab/SpatialDE)
   - Add wrapper for differential expression with
     [MAST](https://github.com/RGLab/MAST)
