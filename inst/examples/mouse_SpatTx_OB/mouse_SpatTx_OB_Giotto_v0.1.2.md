@@ -1,13 +1,31 @@
 
+  - [Giotto global instructions](#giotto-global-instructions)
+  - [Data input](#data-input)
+  - [part 1: Create Giotto object & process
+    data](#part-1-create-giotto-object-process-data)
+  - [part 2: dimension reduction](#part-2-dimension-reduction)
+  - [part 3: cluster](#part-3-cluster)
+  - [part 4: co-visualize](#part-4-co-visualize)
+  - [part 5: differential expression](#part-5-differential-expression)
+  - [part 6: cell-type annotation](#part-6-cell-type-annotation)
+  - [part 7: spatial grid](#part-7-spatial-grid)
+  - [part 8: spatial network](#part-8-spatial-network)
+  - [part 9: spatial genes](#part-9-spatial-genes)
+  - [part 10: HMRF domains](#part-10-hmrf-domains)
+  - [part 11: Cell-cell preferential
+    proximity](#part-11-cell-cell-preferential-proximity)
+
 <!-- mouse_cortex_1_simple.md is generated from mouse_cortex_1_simple.Rmd Please edit that file -->
 
 ### Giotto global instructions
 
 ``` r
-# this example works with Giotto v.0.1.2
+# this example works with Giotto v.0.1.3
 library(Giotto)
 
 ## create instructions
+## setting save_plot = TRUE allows to automatically save all made plots to a predetermined save directory (save_dir)
+## changes in saving parameters for each plotting function can be made with the save_param parameter 
 my_python_path = "/Users/rubendries/Bin/anaconda3/envs/py36/bin/pythonw"
 results_folder = '/Path/to/Results/SpatTx_OB_results/'
 instrs = createGiottoInstructions(python_path = my_python_path,
@@ -34,7 +52,7 @@ cell_locs = fread(paste0(data_folder,'/','Rep11_MOB_0_location.txt'))
 
 -----
 
-### 1\. Create Giotto object & process data
+### part 1: Create Giotto object & process data
 
 <details>
 
@@ -59,14 +77,14 @@ ST_test <- addStatistics(gobject = ST_test)
 
 ## visualize
 spatPlot(gobject = ST_test,
-           save_param = list(save_folder = '2_Gobject', save_name = 'spatial_locations'))
+         save_param = list(save_folder = '2_Gobject', save_name = 'spatial_locations'))
 ```
 
 ![](./figures/1_spatial_locations.png)
 
 </details>
 
-### 2\. dimension reduction
+### part 2: dimension reduction
 
 <details>
 
@@ -101,7 +119,7 @@ plotUMAP(gobject = ST_test,
 
 </details>
 
-### 3\. cluster
+### part 3: cluster
 
 <details>
 
@@ -122,7 +140,7 @@ plotUMAP(gobject = ST_test, cell_color = 'leiden_clus', point_size = 3,
 
 </details>
 
-### 4\. co-visualize
+### part 4: co-visualize
 
 <details>
 
@@ -140,7 +158,7 @@ Co-visualzation: ![](./figures/4_covisual_leiden.png)
 
 </details>
 
-### 5\. differential expression
+### part 5: differential expression
 
 <details>
 
@@ -219,7 +237,7 @@ Scran: - violinplot: ![](./figures/5_violinplot_scran.png)
 
 </details>
 
-### 6\. cell-type annotation
+### part 6: cell-type annotation
 
 <details>
 
@@ -382,7 +400,7 @@ types:
 
 </details>
 
-### 7\. spatial grid
+### part 7: spatial grid
 
 <details>
 
@@ -434,7 +452,7 @@ Dimension 2: ![](./figures/7_pattern2_PCA.png)
 
 </details>
 
-### 8\. spatial network
+### part 8: spatial network
 
 <details>
 
@@ -453,7 +471,7 @@ spatPlot(gobject = ST_test, show_network = T,
 
 </details>
 
-### 9\. spatial genes
+### part 9: spatial genes
 
 <details>
 
@@ -489,7 +507,7 @@ Spatial genes: - kmeans ![](./figures/9_spatial_genes_km.png)
 
 </details>
 
-### 10\. HMRF domains
+### part 10: HMRF domains
 
 <details>
 
@@ -501,7 +519,7 @@ not available for this specific dataset
 
 </details>
 
-### 11\. Cell-cell preferential proximity
+### part 11: Cell-cell preferential proximity
 
 <details>
 

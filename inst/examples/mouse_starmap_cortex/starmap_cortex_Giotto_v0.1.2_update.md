@@ -1,4 +1,20 @@
 
+  - [Giotto global instructions](#giotto-global-instructions)
+  - [Data input](#data-input)
+  - [part 1: Create Giotto object & process
+    data](#part-1-create-giotto-object-process-data)
+  - [part 2: dimension reduction](#part-2-dimension-reduction)
+  - [part 3: cluster](#part-3-cluster)
+  - [part 4: co-visualize](#part-4-co-visualize)
+  - [part 5: differential expression](#part-5-differential-expression)
+  - [part 6: cell-type annotation](#part-6-cell-type-annotation)
+  - [part 7: spatial grid](#part-7-spatial-grid)
+  - [part 8: spatial network](#part-8-spatial-network)
+  - [part 9: spatial genes](#part-9-spatial-genes)
+  - [part 10: HMRF domains](#part-10-hmrf-domains)
+  - [part 11: Cell-cell preferential
+    proximity](#part-11-cell-cell-preferential-proximity)
+
 <!-- mouse_cortex_1_simple.md is generated from mouse_cortex_1_simple.Rmd Please edit that file -->
 
 ### Giotto global instructions
@@ -36,7 +52,7 @@ cell_loc = read.table(paste0(data_dir, '/', 'STARmap_3D_data_cell_locations.txt'
 
 -----
 
-### 1\. Create Giotto object & process data
+### part 1: Create Giotto object & process data
 
 <details>
 
@@ -81,7 +97,7 @@ spatPlot3D(gobject = STAR_test)
 
 </details>
 
-### 2\. dimension reduction
+### part 2: dimension reduction
 
 <details>
 
@@ -103,7 +119,7 @@ plotUMAP_3D(gobject = STAR_test,
 
 </details>
 
-### 3\. cluster
+### part 3: cluster
 
 <details>
 
@@ -125,7 +141,7 @@ plotUMAP_3D(gobject = STAR_test, cell_color = 'leiden_0.2',
 
 </details>
 
-### 4\. co-visualize
+### part 4: co-visualize
 
 <details>
 
@@ -143,7 +159,7 @@ Co-visualzation: ![](./figures/4_screenshot_covisualization.png)
 
 </details>
 
-### 5\. differential expression
+### part 5: differential expression
 
 <details>
 
@@ -182,7 +198,7 @@ Gini:
 
 </details>
 
-### 6\. cell-type annotation
+### part 6: cell-type annotation
 
 <details>
 
@@ -276,7 +292,7 @@ other type of cells:
 
 </details>
 
-### 7\. spatial grid
+### part 7: spatial grid
 
 <details>
 
@@ -340,7 +356,7 @@ Dimension 2: changes over z-axis
 
 </details>
 
-### 8\. spatial network
+### part 8: spatial network
 
 <details>
 
@@ -367,7 +383,7 @@ spatial network zoomed in:
 
 </details>
 
-### 9\. spatial genes
+### part 9: spatial genes
 
 <details>
 
@@ -417,7 +433,7 @@ Spatial genes:
 
 </details>
 
-### 10\. HMRF domains
+### part 10: HMRF domains
 
 <details>
 
@@ -487,7 +503,7 @@ spatPlot3D(gobject = STAR_test, cell_color = 'HMRF_k10_b.0.5', point_size = 2.5,
 
 </details>
 
-### 11\. Cell-cell preferential proximity
+### part 11: Cell-cell preferential proximity
 
 <details>
 

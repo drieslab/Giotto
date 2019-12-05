@@ -1,6 +1,9 @@
 ---
 #output: github_document
-output: github_document
+output:
+  github_document:
+    toc: true
+    toc_depth: 2
 ---
 
 <!-- mouse_cortex_1_simple.md is generated from mouse_cortex_1_simple.Rmd Please edit that file -->
@@ -49,7 +52,7 @@ cell_loc = read.table(paste0(data_dir, '/', 'STARmap_3D_data_cell_locations.txt'
 
 
 
-### 1. Create Giotto object & process data
+### part 1: Create Giotto object & process data
 <details>
   <summary>Expand</summary>
   \ 
@@ -95,7 +98,7 @@ spatPlot3D(gobject = STAR_test)
 
 </details>
 
-### 2. dimension reduction
+### part 2: dimension reduction
 
 <details>
   <summary>Expand</summary>
@@ -118,7 +121,7 @@ plotUMAP_3D(gobject = STAR_test,
 
 </details>
 
-### 3. cluster
+### part 3: cluster
 
 <details>
   <summary>Expand</summary>
@@ -143,7 +146,7 @@ plotUMAP_3D(gobject = STAR_test, cell_color = 'leiden_0.2',
 </details>
 
 
-### 4. co-visualize ####
+### part 4: co-visualize ####
 <details>
   <summary>Expand</summary>
   \ 
@@ -162,7 +165,7 @@ Co-visualzation:
 </details>
 
 
-### 5. differential expression ####
+### part 5: differential expression ####
 
 <details>
   <summary>Expand</summary>
@@ -204,7 +207,7 @@ Gini:
 </details>
 
 
-### 6. cell-type annotation
+### part 6: cell-type annotation
 
 <details>
   <summary>Expand</summary>
@@ -300,7 +303,7 @@ other type of cells:
 </details>
 
 
-### 7. spatial grid ####
+### part 7: spatial grid ####
 
 <details>
   <summary>Expand</summary>
@@ -370,7 +373,7 @@ Dimension 2:  changes over z-axis
 
 
 
-### 8. spatial network ####
+### part 8: spatial network ####
 
 <details>
   <summary>Expand</summary>
@@ -399,7 +402,7 @@ spatial network zoomed in:
 
 
 
-### 9. spatial genes ####
+### part 9: spatial genes ####
 
 <details>
   <summary>Expand</summary>
@@ -454,7 +457,7 @@ Spatial genes:
 </details>
 
 
-### 10. HMRF domains ####
+### part 10: HMRF domains ####
 
 <details>
   <summary>Expand</summary>
@@ -527,7 +530,7 @@ spatPlot3D(gobject = STAR_test, cell_color = 'HMRF_k10_b.0.5', point_size = 2.5,
 
 
 
-### 11. Cell-cell preferential proximity 
+### part 11: Cell-cell preferential proximity 
 
 <details>
   <summary>Expand</summary>

@@ -1,10 +1,37 @@
 
+  - [Giotto global instructions](#giotto-global-instructions)
+  - [Data input](#data-input)
+  - [part 1: Create Giotto object & process
+    data](#part-1-create-giotto-object-process-data)
+  - [part 2: dimension reduction](#part-2-dimension-reduction)
+  - [part 3: cluster](#part-3-cluster)
+  - [part 4: co-visualize](#part-4-co-visualize)
+  - [part 5: differential expression](#part-5-differential-expression)
+  - [part 6: cell-type annotation](#part-6-cell-type-annotation)
+  - [part 7: spatial grid](#part-7-spatial-grid)
+  - [part 8: spatial network](#part-8-spatial-network)
+  - [part 9: spatial genes](#part-9-spatial-genes)
+  - [part 10: HMRF domains](#part-10-hmrf-domains)
+  - [part 11: Cell-cell preferential
+    proximity](#part-11-cell-cell-preferential-proximity)
+
 <!-- mouse_cortex_1_simple.md is generated from mouse_cortex_1_simple.Rmd Please edit that file -->
 
 ### Giotto global instructions
 
+  - save\_plot = T : plots will be automatically saved in the designated
+    save\_dir (i.e. here provided as results\_folder)
+  - plot parameters: png formation, with resolution of 300 and height
+    and width of 9 in
+  - changes or additions to the plot parameters will be given through
+    the save\_param parameter: like this **save\_param =
+    list(save\_folder = ‘my\_subfolder’, save\_name =
+    ‘my\_own\_plotname’)**
+
+<!-- end list -->
+
 ``` r
-# this example works with Giotto v.0.1.2
+# this example was created with Giotto v.0.1.3
 library(Giotto)
 
 # create instructions
@@ -38,7 +65,7 @@ osm_locs = osm_locs[rownames(osm_locs) %in% colnames(osm_exprs),]
 
 -----
 
-### 1\. Create Giotto object & process data
+### part 1: Create Giotto object & process data
 
 <details>
 
@@ -90,7 +117,7 @@ osmFISH regions from paper: ![](./figures/1_original_regions.png)
 
 </details>
 
-### 2\. dimension reduction
+### part 2: dimension reduction
 
 <details>
 
@@ -123,7 +150,7 @@ plotTSNE(gobject = osm_test,  save_param = list(save_folder = '3_DimRed', save_n
 
 </details>
 
-### 3\. cluster
+### part 3: cluster
 
 <details>
 
@@ -182,7 +209,7 @@ showClusterDendrogram(osm_test, cluster_column = 'leiden_clus_m', h = 1, rotate 
 
 </details>
 
-### 4\. co-visualize
+### part 4: co-visualize
 
 <details>
 
@@ -204,7 +231,7 @@ Co-visualzation: ![](./figures/4_covis_leiden_merged.png) Selection:
 
 </details>
 
-### 5\. differential expression
+### part 5: differential expression
 
 <details>
 
@@ -253,7 +280,7 @@ Heatmap clusters: ![](./figures/5_cluster_heatmap_leiden_merged.png)
 
 </details>
 
-### 6\. cell-type annotation
+### part 6: cell-type annotation
 
 <details>
 
@@ -336,7 +363,7 @@ spatDimPlot(gobject = osm_test, cell_color = 'coarse_cell_types',dim_point_size 
 
 </details>
 
-### 7\. spatial grid
+### part 7: spatial grid
 
 <details>
 
@@ -380,7 +407,7 @@ pattern 1: ![](./figures/7_pattern1_pca.png)
 
 </details>
 
-### 8\. spatial network
+### part 8: spatial network
 
 <details>
 
@@ -400,7 +427,7 @@ spatPlot(gobject = osm_test, show_network = T,
 
 </details>
 
-### 9\. spatial genes
+### part 9: spatial genes
 
 <details>
 
@@ -440,7 +467,7 @@ Spatial genes:
 
 </details>
 
-### 10\. HMRF domains
+### part 10: HMRF domains
 
 <details>
 
@@ -490,7 +517,7 @@ b = 0.5:
 
 </details>
 
-### 11\. Cell-cell preferential proximity
+### part 11: Cell-cell preferential proximity
 
 <details>
 

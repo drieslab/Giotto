@@ -4,8 +4,6 @@ output:
   github_document:
     toc: true
     toc_depth: 2
-    fig_width: 5
-    fig_height: 5
 ---
 
 <!-- mouse_cortex_1_simple.md is generated from mouse_cortex_1_simple.Rmd Please edit that file -->
