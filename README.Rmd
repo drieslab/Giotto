@@ -64,11 +64,11 @@ You can install (~1-5 mins) the development version of Giotto with:
 
 ``` r
 library(remotes)
-# to install the latest stable version (advised)
+# to install the latest version (development)
 remotes::install_github("RubD/Giotto")
 
 # to install a specific release version (example)
-remotes::install_github("RubD/Giotto@v0.1.0")
+remotes::install_github("RubD/Giotto@v0.1.3")
 ```
 
 
