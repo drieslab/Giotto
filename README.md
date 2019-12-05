@@ -160,6 +160,9 @@ Howto’s and faqs examples:
   - Cortex/SVZ and olfactory bulb data availability?  
     **Expression and centroid information is part of Giotto, see
     examples.**
+  - Where to find other ready-to-use datasets?  
+    **Checkout <https://github.com/RubD/spatial-datasets> to find
+    already preprocessed datasets**
   - [How to add metadata and subset a Giotto
     object?](./inst/faqs/metadata_and_subset/metadata_and_subset_VC.md)
   - [How to create global instructions and show or save your created
@@ -169,6 +172,11 @@ Howto’s and faqs examples:
   - How to test and store multiple parameters or analyses?
   - How to create a giotto object with your own spatial network/grid,
     dimensions reduction, … ?
+  - Different ways to cluster data?
+  - Methods to identify differentially expressed genes?
+  - Algorithmes to find spatial genes, patterns or domains?
+  - Effect of neighboring cells on gene expression?
+  - How to switch between Giotto Analyzer and Viewer?
   - …
 
  
