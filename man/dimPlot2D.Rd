@@ -46,7 +46,46 @@ dimPlot2D(
   default_save_name = "dimPlot2D"
 )
 
-dimPlot(gobject, ...)
+dimPlot(
+  gobject,
+  dim_reduction_to_use = "umap",
+  dim_reduction_name = "umap",
+  dim1_to_use = 1,
+  dim2_to_use = 2,
+  spat_enr_names = NULL,
+  show_NN_network = F,
+  nn_network_to_use = "sNN",
+  network_name = "sNN.pca",
+  cell_color = NULL,
+  color_as_factor = T,
+  cell_color_code = NULL,
+  cell_color_gradient = c("blue", "white", "red"),
+  gradient_midpoint = NULL,
+  gradient_limits = NULL,
+  select_cell_groups = NULL,
+  select_cells = NULL,
+  show_other_cells = T,
+  other_cell_color = "lightgrey",
+  other_point_size = 0.5,
+  show_cluster_center = F,
+  show_center_label = T,
+  center_point_size = 4,
+  center_point_border_col = "black",
+  center_point_border_stroke = 0.1,
+  label_size = 4,
+  label_fontface = "bold",
+  edge_alpha = NULL,
+  point_size = 1,
+  point_border_col = "black",
+  point_border_stroke = 0.1,
+  title = NULL,
+  show_legend = T,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "dimPlot"
+)
 }
 \arguments{
 \item{gobject}{giotto object}
