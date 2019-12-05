@@ -1,19 +1,19 @@
 
   - [Giotto global instructions](#giotto-global-instructions)
   - [Data input](#data-input)
-  - [1. Create Giotto object & process
-    data](#create-giotto-object-process-data)
-  - [2. dimension reduction](#dimension-reduction)
-  - [3. cluster](#cluster)
-  - [4. co-visualize](#co-visualize)
-  - [5. differential expression](#differential-expression)
-  - [6. cell-type annotation](#cell-type-annotation)
-  - [7. spatial grid](#spatial-grid)
-  - [8. spatial network](#spatial-network)
-  - [9. spatial genes](#spatial-genes)
-  - [10. HMRF domains](#hmrf-domains)
-  - [11. Cell-cell preferential
-    proximity](#cell-cell-preferential-proximity)
+  - [part 1: Create Giotto object & process
+    data](#part-1-create-giotto-object-process-data)
+  - [part 2: dimension reduction](#part-2-dimension-reduction)
+  - [part 3: cluster](#part-3-cluster)
+  - [part 4: co-visualize](#part-4-co-visualize)
+  - [part 5: differential expression](#part-5-differential-expression)
+  - [part 6: cell-type annotation](#part-6-cell-type-annotation)
+  - [part 7: spatial grid](#part-7-spatial-grid)
+  - [part 8: spatial network](#part-8-spatial-network)
+  - [part 9: spatial genes](#part-9-spatial-genes)
+  - [part 10: HMRF domains](#part-10-hmrf-domains)
+  - [part 11: Cell-cell preferential
+    proximity](#part-11-cell-cell-preferential-proximity)
 
 <!-- mouse_cortex_1_simple.md is generated from mouse_cortex_1_simple.Rmd Please edit that file -->
 
@@ -56,7 +56,7 @@ colnames(spatial_results) = c('barcode', 'in_tissue', 'array_row', 'array_col', 
 
 -----
 
-### 1\. Create Giotto object & process data
+### part 1: Create Giotto object & process data
 
 <details>
 
@@ -118,7 +118,7 @@ Overlay with number of genes detected per spot:
 
 </details>
 
-### 2\. dimension reduction
+### part 2: dimension reduction
 
 <details>
 
@@ -165,7 +165,7 @@ tSNE:
 
 </details>
 
-### 3\. cluster
+### part 3: cluster
 
 <details>
 
@@ -189,7 +189,7 @@ Leiden clustering:
 
 </details>
 
-### 4\. co-visualize
+### part 4: co-visualize
 
 <details>
 
@@ -221,7 +221,7 @@ Zoom-in on Dentate Gyrus:
 
 </details>
 
-### 5\. differential expression
+### part 5: differential expression
 
 <details>
 
@@ -297,7 +297,7 @@ Scran: - violinplot: ![](./figures/5_violinplot_scran.png)
 
 </details>
 
-### 6\. cell-type annotation
+### part 6: cell-type annotation
 
 <details>
 
@@ -398,7 +398,7 @@ Dentate gyrus specific plot:
 
 </details>
 
-### 7\. spatial grid
+### part 7: spatial grid
 
 <details>
 
@@ -457,7 +457,7 @@ Dimension 2: ![](./figures/7_pattern3_PCA.png)
 
 </details>
 
-### 8\. spatial network
+### part 8: spatial network
 
 <details>
 
@@ -476,7 +476,7 @@ spatPlot(gobject = visium_brain, show_network = T, point_size = 1,
 
 </details>
 
-### 9\. spatial genes
+### part 9: spatial genes
 
 <details>
 
@@ -520,7 +520,7 @@ Spatial genes:
 
 </details>
 
-### 10\. HMRF domains
+### part 10: HMRF domains
 
 <details>
 
@@ -581,7 +581,7 @@ b = 1 results in smoother spatial domains:
 
 </details>
 
-### 11\. Cell-cell preferential proximity
+### part 11: Cell-cell preferential proximity
 
 <details>
 

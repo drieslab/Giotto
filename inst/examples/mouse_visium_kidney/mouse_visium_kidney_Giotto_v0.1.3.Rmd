@@ -4,8 +4,6 @@ output:
   github_document:
     toc: true
     toc_depth: 2
-    fig_width: 5
-    fig_height: 5
 ---
 
 <!-- mouse_cortex_1_simple.md is generated from mouse_cortex_1_simple.Rmd Please edit that file -->
@@ -61,7 +59,7 @@ colnames(spatial_results) = c('barcode', 'in_tissue', 'array_row', 'array_col', 
 
 
 
-### # 1. Create Giotto object & process data
+### part 1: Create Giotto object & process data
 <details>
   <summary>Expand</summary>
   \ 
@@ -140,7 +138,7 @@ Overlay with number of genes detected per spot:
 
 </details>
 
-### 2. dimension reduction
+### part 2: dimension reduction
 
 <details>
   <summary>Expand</summary>
@@ -192,7 +190,7 @@ tSNE:
 
 </details>
 
-### 3. cluster
+### part 3: cluster
 
 <details>
   <summary>Expand</summary>
@@ -218,7 +216,7 @@ Leiden clustering:
 </details>
 
 
-### 4. co-visualize ####
+### part 4: co-visualize ####
 <details>
   <summary>Expand</summary>
   \ 
@@ -246,7 +244,7 @@ Co-visualzation overlaid with number of genes detected:
 </details>
 
 
-### 5. differential expression ####
+### part 5: differential expression ####
 
 <details>
   <summary>Expand</summary>
@@ -337,7 +335,7 @@ Scran:
 </details>
 
 
-### 6. cell-type annotation
+### part 6: cell-type annotation
 
 <details>
   <summary>Expand</summary>
@@ -488,7 +486,7 @@ Co-visualization for selected subset:
 </details>
 
 
-### 7. spatial grid ####
+### part 7: spatial grid ####
 
 <details>
   <summary>Expand</summary>
@@ -568,7 +566,7 @@ Dimension 2:
 
 
 
-### 8. spatial network ####
+### part 8: spatial network ####
 
 <details>
   <summary>Expand</summary>
@@ -590,7 +588,7 @@ spatPlot(gobject = visium_kidney, show_network = T,
 
 
 
-### 9. spatial genes ####
+### part 9: spatial genes ####
 
 <details>
   <summary>Expand</summary>
@@ -641,7 +639,7 @@ Spatial genes:
 </details>
 
 
-### 10. HMRF domains ####
+### part 10: HMRF domains ####
 
 <details>
   <summary>Expand</summary>
@@ -705,7 +703,7 @@ b = 5
 
 
 
-### 11. Cell-cell preferential proximity 
+### part 11: Cell-cell preferential proximity 
 
 <details>
   <summary>Expand</summary>
