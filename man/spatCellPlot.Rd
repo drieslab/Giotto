@@ -4,7 +4,50 @@
 \alias{spatCellPlot}
 \title{spatCellPlot}
 \usage{
-spatCellPlot(gobject, ...)
+spatCellPlot(
+  gobject,
+  sdimx = "sdimx",
+  sdimy = "sdimy",
+  spat_enr_names = NULL,
+  cell_annotation_values,
+  cell_color_gradient = c("blue", "white", "red"),
+  gradient_midpoint = NULL,
+  gradient_limits = NULL,
+  select_cell_groups = NULL,
+  select_cells = NULL,
+  point_size = 3,
+  point_border_col = "black",
+  point_border_stroke = 0.1,
+  show_cluster_center = F,
+  show_center_label = F,
+  center_point_size = 4,
+  center_point_border_col = "black",
+  center_point_border_stroke = 0.1,
+  label_size = 4,
+  label_fontface = "bold",
+  show_network = F,
+  spatial_network_name = "spatial_network",
+  network_color = NULL,
+  network_alpha = 1,
+  show_grid = F,
+  spatial_grid_name = "spatial_grid",
+  grid_color = NULL,
+  show_other_cells = T,
+  other_cell_color = "lightgrey",
+  other_point_size = 1,
+  other_cells_alpha = 0.1,
+  coord_fix_ratio = NULL,
+  show_legend = T,
+  cow_n_col = 2,
+  cow_rel_h = 1,
+  cow_rel_w = 1,
+  cow_align = "h",
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "spatCellPlot"
+)
 }
 \arguments{
 \item{gobject}{giotto object}

@@ -25,9 +25,9 @@ spatDimGenePlot2D(
   scale_alpha_with_expression = FALSE,
   spatial_network_name = "spatial_network",
   spatial_grid_name = "spatial_grid",
-  spatial_point_size = 1,
-  spatial_point_border_col = "black",
-  spatial_point_border_stroke = 0.1,
+  spat_point_size = 1,
+  spat_point_border_col = "black",
+  spat_point_border_stroke = 0.1,
   midpoint = 0,
   genes_high_color = "red",
   genes_mid_color = "white",
@@ -81,11 +81,11 @@ spatDimGenePlot2D(
 
 \item{spatial_grid_name}{name of spatial grid to use}
 
-\item{spatial_point_size}{spatial plot: point size}
+\item{spat_point_size}{spatial plot: point size}
 
-\item{spatial_point_border_col}{color of border around points}
+\item{spat_point_border_col}{color of border around points}
 
-\item{spatial_point_border_stroke}{stroke size of border around points}
+\item{spat_point_border_stroke}{stroke size of border around points}
 
 \item{midpoint}{size of point (cell)}
 

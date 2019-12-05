@@ -4,7 +4,45 @@
 \alias{spatDimGenePlot}
 \title{spatDimGenePlot}
 \usage{
-spatDimGenePlot(gobject, ...)
+spatDimGenePlot(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  plot_alignment = c("vertical", "horizontal"),
+  genes,
+  dim_reduction_to_use = "umap",
+  dim_reduction_name = "umap",
+  dim1_to_use = 1,
+  dim2_to_use = 2,
+  point_size = 1,
+  dim_point_border_col = "black",
+  dim_point_border_stroke = 0.1,
+  show_NN_network = F,
+  show_spatial_network = F,
+  show_spatial_grid = F,
+  nn_network_to_use = "sNN",
+  network_name = "sNN.pca",
+  edge_alpha_dim = NULL,
+  scale_alpha_with_expression = FALSE,
+  spatial_network_name = "spatial_network",
+  spatial_grid_name = "spatial_grid",
+  spat_point_size = 1,
+  spat_point_border_col = "black",
+  spat_point_border_stroke = 0.1,
+  midpoint = 0,
+  genes_high_color = "red",
+  genes_mid_color = "white",
+  genes_low_color = "blue",
+  cow_n_col = 2,
+  cow_rel_h = 1,
+  cow_rel_w = 1,
+  cow_align = "h",
+  show_legend = T,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "spatDimGenePlot"
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -23,7 +61,7 @@ spatDimGenePlot(gobject, ...)
 
 \item{dim2_to_use}{dimension to use on y-axis}
 
-\item{dim_point_size}{dim reduction plot: point size}
+\item{point_size}{size of point (cell)}
 
 \item{dim_point_border_col}{color of border around points}
 
@@ -43,15 +81,13 @@ spatDimGenePlot(gobject, ...)
 
 \item{spatial_grid_name}{name of spatial grid to use}
 
-\item{spatial_point_size}{spatial plot: point size}
+\item{spat_point_size}{spatial plot: point size}
 
-\item{spatial_point_border_col}{color of border around points}
+\item{spat_point_border_col}{color of border around points}
 
-\item{spatial_point_border_stroke}{stroke size of border around points}
+\item{spat_point_border_stroke}{stroke size of border around points}
 
 \item{midpoint}{size of point (cell)}
-
-\item{point_size}{size of point (cell)}
 
 \item{cow_n_col}{cowplot param: how many columns}
 
@@ -72,6 +108,8 @@ spatDimGenePlot(gobject, ...)
 \item{save_param}{list of saving parameters from all_plots_save_function()}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+
+\item{dim_point_size}{dim reduction plot: point size}
 }
 \value{
 ggplot

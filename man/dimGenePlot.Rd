@@ -4,12 +4,41 @@
 \alias{dimGenePlot}
 \title{dimGenePlot}
 \usage{
-dimGenePlot(gobject, ...)
+dimGenePlot(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  genes = NULL,
+  dim_reduction_to_use = "umap",
+  dim_reduction_name = "umap",
+  dim1_to_use = 1,
+  dim2_to_use = 2,
+  show_NN_network = F,
+  nn_network_to_use = "sNN",
+  network_name = "sNN.pca",
+  network_color = "lightgray",
+  edge_alpha = NULL,
+  scale_alpha_with_expression = FALSE,
+  point_size = 1,
+  genes_high_color = "red",
+  genes_mid_color = "white",
+  genes_low_color = "blue",
+  point_border_col = "black",
+  point_border_stroke = 0.1,
+  midpoint = 0,
+  cow_n_col = 2,
+  cow_rel_h = 1,
+  cow_rel_w = 1,
+  cow_align = "h",
+  show_legend = T,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "dimGenePlot"
+)
 }
 \arguments{
 \item{gobject}{giotto object}
-
-\item{...}{parameters for cowplot::save_plot()}
 
 \item{expression_values}{gene expression values to use}
 
@@ -60,6 +89,8 @@ dimGenePlot(gobject, ...)
 \item{save_param}{list of saving parameters from all_plots_save_function()}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+
+\item{...}{parameters for cowplot::save_plot()}
 }
 \value{
 ggplot

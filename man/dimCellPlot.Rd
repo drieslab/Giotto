@@ -4,7 +4,47 @@
 \alias{dimCellPlot}
 \title{dimCellPlot}
 \usage{
-dimCellPlot(gobject, ...)
+dimCellPlot(
+  gobject,
+  dim_reduction_to_use = "umap",
+  dim_reduction_name = "umap",
+  dim1_to_use = 1,
+  dim2_to_use = 2,
+  spat_enr_names = NULL,
+  cell_annotation_values,
+  show_NN_network = F,
+  nn_network_to_use = "sNN",
+  network_name = "sNN.pca",
+  cell_color_gradient = c("blue", "white", "red"),
+  gradient_midpoint = NULL,
+  gradient_limits = NULL,
+  select_cell_groups = NULL,
+  select_cells = NULL,
+  show_other_cells = T,
+  other_cell_color = "lightgrey",
+  other_point_size = 0.5,
+  show_cluster_center = F,
+  show_center_label = T,
+  center_point_size = 4,
+  center_point_border_col = "black",
+  center_point_border_stroke = 0.1,
+  label_size = 4,
+  label_fontface = "bold",
+  edge_alpha = NULL,
+  point_size = 1,
+  point_border_col = "black",
+  point_border_stroke = 0.1,
+  show_legend = T,
+  cow_n_col = 2,
+  cow_rel_h = 1,
+  cow_rel_w = 1,
+  cow_align = "h",
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "dimCellPlot"
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -26,12 +66,6 @@ dimCellPlot(gobject, ...)
 \item{nn_network_to_use}{type of NN network to use (kNN vs sNN)}
 
 \item{network_name}{name of NN network to use, if show_NN_network = TRUE}
-
-\item{cell_color}{color for cells (see details)}
-
-\item{color_as_factor}{convert color column to factor}
-
-\item{cell_color_code}{named vector with colors}
 
 \item{cell_color_gradient}{vector with 3 colors for numeric data}
 
@@ -67,8 +101,6 @@ dimCellPlot(gobject, ...)
 
 \item{point_border_stroke}{stroke size of border around points}
 
-\item{title}{title for plot, defaults to cell_color parameter}
-
 \item{show_legend}{show legend}
 
 \item{show_plot}{show plot}
@@ -80,6 +112,14 @@ dimCellPlot(gobject, ...)
 \item{save_param}{list of saving parameters from all_plots_save_function()}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+
+\item{cell_color}{color for cells (see details)}
+
+\item{color_as_factor}{convert color column to factor}
+
+\item{cell_color_code}{named vector with colors}
+
+\item{title}{title for plot, defaults to cell_color parameter}
 }
 \value{
 ggplot

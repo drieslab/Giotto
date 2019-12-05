@@ -140,16 +140,16 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation
 [![STARmap](./inst/images/starmap_cortex_image_summary.png)](./inst/examples/mouse_starmap_cortex/starmap_cortex_Giotto_v0.1.2_update.md)
 
 [![osmFISH](./inst/images/osmFISH_SS_cortex_image_summary.png)](./inst/examples/mouse_osmFISH_SS_cortex/osmFISH_SS_cortex_Giotto_v0.1.2.md)
-[![slideseq](./inst/images/slideseq_cerebellum_image_summary.png)](./inst/examples/mouse_slideseq_cerebellum/slideseq_cerebellum_Giotto_v0.1.2.md)
-
 [![Spatial
 Transcriptomics](./inst/images/SpatTx_OB_image_summary.png)](./inst/examples/mouse_SpatTx_OB/mouse_SpatTx_OB_Giotto_v0.1.2.md)
-\[![MIBI-TOF](./inst/images/MIBI_tumor_image_summary.png)\]
-
-\[![merFISH](./inst/images/merFISH_hypothalam_image_summary.png)\]
 
 [![visium-kidney](./inst/images/visium_kidney_image_summary.png)](./inst/examples/mouse_visium_kidney/mouse_visium_kidney_Giotto_v0.1.3.md)
 [![visium-brain](./inst/images/visium_brain_image_summary.png)](./inst/examples/mouse_visium_brain/mouse_visium_brain_Giotto_v0.1.3.md)
+
+[![slideseq](./inst/images/slideseq_cerebellum_image_summary.png)](./inst/examples/mouse_slideseq_cerebellum/slideseq_cerebellum_Giotto_v0.1.2.md)
+
+\[![MIBI-TOF](./inst/images/MIBI_tumor_image_summary.png)\]
+\[![merFISH](./inst/images/merFISH_hypothalam_image_summary.png)\]
 
  
 
