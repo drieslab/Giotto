@@ -70,12 +70,21 @@ everything about the Giotto workflow.
 
 ## Installation
 
+#### Package development prerequisites
+
+If this is the first time you build and install an R package you can
+follow this
+[link](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites),
+which has simple installation instructios for Windows, Mac OS X and
+Linux.
+
 #### R installation
 
 You can install (\~1-5 mins) the development version of Giotto with:
 
 ``` r
-library(remotes)
+library(devtools) # if not installed: install.packages('devtools') 
+library(remotes)  # if not installed: install.packages('remotes')
 # to install the latest version (development)
 remotes::install_github("RubD/Giotto")
 

@@ -37,7 +37,8 @@ Imports:
     ggdendro,
     smfishHmrf,
     matrixStats (>= 0.55.0),
-    IRanges
+    IRanges,
+    devtools
 Suggests:
     knitr,
     rmarkdown,
