@@ -1,4 +1,20 @@
 
+  - [Giotto global instructions](#giotto-global-instructions)
+  - [Data input](#data-input)
+  - [1. Create Giotto object & process
+    data](#create-giotto-object-process-data)
+  - [2. dimension reduction](#dimension-reduction)
+  - [3. cluster](#cluster)
+  - [4. co-visualize](#co-visualize)
+  - [5. differential expression](#differential-expression)
+  - [6. cell-type annotation](#cell-type-annotation)
+  - [7. spatial grid](#spatial-grid)
+  - [8. spatial network](#spatial-network)
+  - [9. spatial genes](#spatial-genes)
+  - [10. HMRF domains](#hmrf-domains)
+  - [11. Cell-cell preferential
+    proximity](#cell-cell-preferential-proximity)
+
 <!-- mouse_cortex_1_simple.md is generated from mouse_cortex_1_simple.Rmd Please edit that file -->
 
 ### Giotto global instructions

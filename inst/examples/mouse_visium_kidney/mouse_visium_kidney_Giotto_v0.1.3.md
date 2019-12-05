@@ -1,4 +1,20 @@
 
+  - [Giotto global instructions](#giotto-global-instructions)
+  - [Data input](#data-input)
+  - [1. Create Giotto object & process
+    data](#create-giotto-object-process-data)
+  - [2. dimension reduction](#dimension-reduction)
+  - [3. cluster](#cluster)
+  - [4. co-visualize](#co-visualize)
+  - [5. differential expression](#differential-expression)
+  - [6. cell-type annotation](#cell-type-annotation)
+  - [7. spatial grid](#spatial-grid)
+  - [8. spatial network](#spatial-network)
+  - [9. spatial genes](#spatial-genes)
+  - [10. HMRF domains](#hmrf-domains)
+  - [11. Cell-cell preferential
+    proximity](#cell-cell-preferential-proximity)
+
 <!-- mouse_cortex_1_simple.md is generated from mouse_cortex_1_simple.Rmd Please edit that file -->
 
 ### Giotto global instructions
@@ -97,14 +113,29 @@ spatPlot2D(gobject = visium_kidney, cell_color = 'nr_genes', color_as_factor = F
 High resolution png from original tissue.  
 ![](./mouse_kidney_highres.png)
 
-Spots labeled according to whether they were covered by tissue or not:  
+Spots labeled according to whether they were covered by tissue or not:
+
+<div style="width:500px; height:500px">
+
 ![](./figures/1_in_tissue.png)
 
-Spots after subsetting and filtering:  
+</div>
+
+Spots after subsetting and filtering:
+
+<div style="width:500px; height:500px">
+
 ![](./figures/1_spatial_locations.png)
 
-Overlay with number of genes detected per spot:  
+</div>
+
+Overlay with number of genes detected per spot:
+
+<div style="width:500px; height:500px">
+
 ![](./figures/1_nr_genes.png)
+
+</div>
 
 </details>
 
@@ -489,15 +520,28 @@ view_pattern_genes = selectPatternGenes(pattern_osm, return_top_selection = TRUE
 ![](./figures/7_grid.png)
 
 Dimension 1: ![](./figures/7_pattern1_PCA.png)
+
+<div style="width:500px; height:500px">
+
 ![](./figures/7_pattern1_genes.png)
+
+</div>
 
 Dimension 2: ![](./figures/7_pattern2_PCA.png)
 
+<div style="width:500px; height:500px">
+
 ![](./figures/7_pattern2_genes.png)
+
+</div>
 
 Dimension 2: ![](./figures/7_pattern3_PCA.png)
 
+<div style="width:500px; height:500px">
+
 ![](./figures/7_pattern3_genes.png)
+
+</div>
 
 -----
 
@@ -614,8 +658,8 @@ visium_kidney = addHMRF(gobject = visium_kidney,
 spatPlot(gobject = visium_kidney, cell_color = 'HMRF_k5_b.0', point_size = 5,
          save_param = c(save_name = 'HMRF_k5_b.0', save_folder = '11_HMRF'))
 
-spatPlot(gobject = visium_kidney, cell_color = 'HMRF_k5_b.5', point_size = 5,
-         save_param = c(save_name = 'HMRF_k5_b.20', save_folder = '11_HMRF'))
+spatPlot(gobject = visium_kidney, cell_color = 'HMRF_k5_b.2', point_size = 5,
+         save_param = c(save_name = 'HMRF_k5_b.2', save_folder = '11_HMRF'))
 ```
 
 HMRF:  
@@ -623,7 +667,7 @@ b = 0
 ![](./figures/10_HMRF_k5_b.0.png)
 
 b = 5  
-![](./figures/10_HMRF_k5_b.20.png)
+![](./figures/10_HMRF_k5_b.2.png)
 
 -----
 

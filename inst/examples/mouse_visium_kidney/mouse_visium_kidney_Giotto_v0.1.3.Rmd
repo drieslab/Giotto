@@ -1,6 +1,11 @@
 ---
 #output: github_document
-output: github_document
+output:
+  github_document:
+    toc: true
+    toc_depth: 2
+    fig_width: 5
+    fig_height: 5
 ---
 
 <!-- mouse_cortex_1_simple.md is generated from mouse_cortex_1_simple.Rmd Please edit that file -->
@@ -10,8 +15,7 @@ output: github_document
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "100%"
+  fig.path = "man/figures/README-"
 )
 ```
 
@@ -111,16 +115,26 @@ spatPlot2D(gobject = visium_kidney, cell_color = 'nr_genes', color_as_factor = F
 ```
   
 High resolution png from original tissue.  
-![](./mouse_kidney_highres.png){width=16cm} 
+![](./mouse_kidney_highres.png){width=250px} 
 
 Spots labeled according to whether they were covered by tissue or not:  
-![](./figures/1_in_tissue.png){width=16cm} 
+
+<div style="width:500px; height:500px">
+![](./figures/1_in_tissue.png){width=25px} 
+</div>
+
 
 Spots after subsetting and filtering:  
-![](./figures/1_spatial_locations.png){width=16cm} 
 
-Overlay with number of genes detected per spot:    
-![](./figures/1_nr_genes.png){width=16cm} 
+<div style="width:500px; height:500px">
+![](./figures/1_spatial_locations.png){width=16cm}
+</div>
+
+Overlay with number of genes detected per spot:  
+
+<div style="width:500px; height:500px">  
+![](./figures/1_nr_genes.png)
+</div>
 
 
 
@@ -527,18 +541,25 @@ view_pattern_genes = selectPatternGenes(pattern_osm, return_top_selection = TRUE
 
 Dimension 1:
 ![](./figures/7_pattern1_PCA.png){width=16cm} 
-![](./figures/7_pattern1_genes.png){width=16cm} 
+
+<div style="width:500px; height:500px">
+![](./figures/7_pattern1_genes.png){width=16cm}
+</div>  
 
 Dimension 2:
 ![](./figures/7_pattern2_PCA.png){width=16cm} 
 
-![](./figures/7_pattern2_genes.png){width=16cm} 
+<div style="width:500px; height:500px">
+![](./figures/7_pattern2_genes.png){width=16cm}
+</div>  
 
 
 Dimension 2:
 ![](./figures/7_pattern3_PCA.png){width=16cm} 
 
-![](./figures/7_pattern3_genes.png){width=16cm} 
+<div style="width:500px; height:500px">
+![](./figures/7_pattern3_genes.png){width=16cm}
+</div>  
 
 
 ***  
@@ -666,8 +687,8 @@ visium_kidney = addHMRF(gobject = visium_kidney,
 spatPlot(gobject = visium_kidney, cell_color = 'HMRF_k5_b.0', point_size = 5,
          save_param = c(save_name = 'HMRF_k5_b.0', save_folder = '11_HMRF'))
 
-spatPlot(gobject = visium_kidney, cell_color = 'HMRF_k5_b.5', point_size = 5,
-         save_param = c(save_name = 'HMRF_k5_b.20', save_folder = '11_HMRF'))
+spatPlot(gobject = visium_kidney, cell_color = 'HMRF_k5_b.2', point_size = 5,
+         save_param = c(save_name = 'HMRF_k5_b.2', save_folder = '11_HMRF'))
 
 ```
 
@@ -676,7 +697,7 @@ b = 0
 ![](./figures/10_HMRF_k5_b.0.png){width=16cm} 
 
 b = 5  
-![](./figures/10_HMRF_k5_b.20.png){width=16cm} 
+![](./figures/10_HMRF_k5_b.2.png){width=16cm} 
 
 ***
 
