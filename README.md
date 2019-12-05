@@ -75,7 +75,7 @@ everything about the Giotto workflow.
 If this is the first time you build and install an R package you can
 follow this
 [link](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites),
-which has simple installation instructios for Windows, Mac OS X and
+which has simple installation instructions for Windows, Mac OS X and
 Linux.
 
 #### R installation
