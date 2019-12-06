@@ -167,6 +167,7 @@ exportGiottoViewer = function(gobject,
   }
 
 
+  if(verbose == TRUE) cat('\n write cell and gene IDs \n')
   ### output cell_IDs ###
   giotto_cell_ids = gobject@cell_ID
   write.table(giotto_cell_ids, file = paste0(output_directory,'/','giotto_cell_ids.txt'),
@@ -237,6 +238,25 @@ exportGiottoViewer = function(gobject,
                                            output_directory = output_directory)
 
   }
+
+
+  # numeric annotiation list #
+  text_file_names = list()
+  annot_names = list()
+  for(sel_annot_id in 1:length(found_numeric_annotations)) {
+
+    sel_annot_name = found_numeric_annotations[sel_annot_id]
+    annot_inf_name = paste0(sel_annot_name,'_num_annot_information')
+
+    annot_names[[sel_annot_id]] = sel_annot_name
+    text_file_names[[sel_annot_id]] = annot_inf_name
+
+  }
+
+  annot_list = data.table(txtfiles = unlist(text_file_names), names = unlist(annot_names))
+  write.table(annot_list, file = paste0(output_directory,'/','annotation_num_list.txt'),
+              quote = F, row.names = F, col.names = F, sep = ' ')
+
 
 
 
