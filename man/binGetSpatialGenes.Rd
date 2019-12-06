@@ -8,6 +8,7 @@ binGetSpatialGenes(
   gobject,
   bin_method = c("kmeans", "rank"),
   expression_values = c("normalized", "scaled", "custom"),
+  subset_genes = NULL,
   spatial_network_name = "spatial_network",
   nstart = 3,
   iter_max = 10,
@@ -23,6 +24,8 @@ binGetSpatialGenes(
 \item{bin_method}{method to binarize gene expression}
 
 \item{expression_values}{expression values to use}
+
+\item{subset_genes}{only select a subset of genes to test}
 
 \item{spatial_network_name}{name of spatial network to use (default = 'spatial_network')}
 
@@ -58,6 +61,7 @@ Additionally 2 other statistics are provided:
   \item{Number of cells with high expression (binary = 1)}
   \item{total and ratio of highly connected cells: }{ Cells with a connectivity higher than community_expectation}
 }
+By selecting a subset of likely spatial genes (e.g. highly variable genes) the function will be much faster.
 }
 \examples{
     binGetSpatialGenes(gobject)

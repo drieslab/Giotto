@@ -174,10 +174,7 @@ Howto’s and faqs examples:
 
 ##### Data availability
 
-  - Cortex/SVZ and olfactory bulb data availability?  
-    **Expression and centroid information is part of Giotto, see
-    examples.**
-  - Where to find other ready-to-use datasets?  
+  - Where to find seqFISH+ and other ready-to-use datasets?  
     **Checkout <https://github.com/RubD/spatial-datasets> to find
     already preprocessed datasets**
 
@@ -189,7 +186,8 @@ Howto’s and faqs examples:
     plots?](./inst/faqs/instructions_and_plotting/instructions_and_plotting.md)
   - [Different ways to visualize your spatial
     data?](./inst/faqs/visualization_options/visualization_options.md)
-  - How to test and store multiple parameters or analyses?
+  - [How to test and store multiple parameters or
+    analyses?](./inst/faqs/work_with_multiple_analyses/work_with_multiple_analyses.md)
   - How to create a giotto object with your own spatial network/grid,
     dimensions reduction, … ?
 

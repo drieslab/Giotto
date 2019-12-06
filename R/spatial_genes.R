@@ -90,6 +90,7 @@ OR_function2 = function(A, B, C, D) {
 #' @param gobject giotto object
 #' @param bin_method method to binarize gene expression
 #' @param expression_values expression values to use
+#' @param subset_genes only select a subset of genes to test
 #' @param spatial_network_name name of spatial network to use (default = 'spatial_network')
 #' @param nstart kmeans: nstart parameter
 #' @param iter_max kmeans: iter.max parameter
@@ -111,12 +112,14 @@ OR_function2 = function(A, B, C, D) {
 #'   \item{Number of cells with high expression (binary = 1)}
 #'   \item{total and ratio of highly connected cells: }{ Cells with a connectivity higher than community_expectation}
 #' }
+#' By selecting a subset of likely spatial genes (e.g. highly variable genes) the function will be much faster.
 #' @export
 #' @examples
 #'     binGetSpatialGenes(gobject)
 binGetSpatialGenes = function(gobject,
                               bin_method = c('kmeans', 'rank'),
                               expression_values = c('normalized', 'scaled', 'custom'),
+                              subset_genes = NULL,
                               spatial_network_name = 'spatial_network',
                               nstart = 3,
                               iter_max = 10,
@@ -134,6 +137,10 @@ binGetSpatialGenes = function(gobject,
   # expression
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = select_expression_values(gobject = gobject, values = values)
+
+  if(!is.null(subset_genes)) {
+    expr_values = expr_values[rownames(expr_values) %in% subset_genes, ]
+  }
 
   # binarize matrix
   if(bin_method == 'kmeans') {
