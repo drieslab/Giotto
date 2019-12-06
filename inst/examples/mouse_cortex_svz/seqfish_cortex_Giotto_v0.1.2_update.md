@@ -55,8 +55,9 @@ values are known or estimates based on the original raw image:
 
 ``` r
 ## expression and cell location
-VC_exprs = read.table(system.file("extdata", "cortex_svz_expression.txt", package = "Giotto"))
-VC_locs = fread(system.file("extdata", "cortex_svz_centroids_rotated.csv", package = "Giotto"))
+data_dir = '/path/to/data/Seqfish_SS_cortex/'
+VC_exprs = read.table(paste0(data_dir,"/", "cortex_svz_expression.txt"))
+VC_locs = fread(paste0(data_dir,"/", "cortex_svz_centroids_rotated.csv"))
 
 ## offset file to combine fields
 my_offset_file = data.table(field = c(0, 1, 2, 3, 4, 5, 6),
@@ -84,7 +85,7 @@ VC_test <- createGiottoObject(raw_exprs = VC_exprs, spatial_locs = stitch_file,
                               offset_file = my_offset_file, instructions = instrs)
 
 ## add known field annotation
-cortex_fields = fread(system.file("extdata", "cortex_fields_info.txt", package = "Giotto"))
+cortex_fields = fread(paste0(data_dir,"/", "cortex_fields_info.txt"))
 VC_test = addCellMetadata(VC_test, new_metadata = cortex_fields,
                           by_column = T, column_cell_ID = 'uniq_ID')
 
