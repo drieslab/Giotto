@@ -75,11 +75,11 @@ everything about the Giotto workflow.
 If this is the first time you build and install an R package you can
 follow this
 [link](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites),
-which has simple installation instructions for Windows, Mac OS X and
+which has simple installation instructions for Windows, Mac OSX and
 Linux.
 
-To specifically install the command-line tools of Xcode you might also
-need to run this line in terminal:
+To specifically install the command-line tools of Xcode for Mac OSX you
+might also need to run this line in terminal:
 
 ``` bash
 xcode-select --install
