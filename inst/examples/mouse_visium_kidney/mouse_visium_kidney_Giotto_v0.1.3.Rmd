@@ -382,64 +382,54 @@ for(clus in unique(kidney_sc_markers$cluster)) {
   genes = kidney_sc_markers[cluster == clus]$gene
   sign_list[[clus+1]] = genes
 }
-sig_matrix = convertSignListToMatrix(sign_names = paste0('clus_', unique(kidney_sc_markers$cluster)),
-                                            sign_list = sign_list)
+sig_matrix = makeSignMatrixPAGE(sign_names = paste0('clus_', unique(kidney_sc_markers$cluster)),
+                                sign_list = sign_list)
 
 ## enrichment tests 
 visium_kidney = createSpatialEnrich(visium_kidney, sign_matrix = sig_matrix, enrich_method = 'PAGE') #default = 'PAGE'
 visium_kidney = createSpatialEnrich(visium_kidney, sign_matrix = sig_matrix, output_enrichment = 'zscore', name = 'PAGEz') #default = 'PAGE'
 
 ## heatmap
-value_columns = paste0('clus_', 0:30)
-meta_columns = c('leiden_clus')
-
+cell_types = sort(colnames(sig_matrix))
 plotMetaDataCellsHeatmap(gobject = visium_kidney,
                          metadata_cols = 'leiden_clus',
-                         value_cols = value_columns,
-                         spat_enr_names = 'PAGE',
+                         value_cols = cell_types,
+                         spat_enr_names = 'PAGE',x_text_size = 8, y_text_size = 6,
                          save_param = c(save_folder = '7_annotation', save_name = 'heatmap_PAGE',
-                                        base_width = 8, base_height = 6, units = 'cm'))
+                                        base_width = 10, base_height = 9, units = 'cm'))
 
 
 
-## multiple value columns with spatPlot ##
-value_columns = paste0('clus_', 0:8)
+## multiple cell types enrichments with spatPlot ##
+cell_types_subset = cell_types[1:12]
 spatCellPlot(gobject = visium_kidney, spat_enr_names = 'PAGE',
-             cell_annotation_values = value_columns,
+             cell_annotation_values = cell_types_subset,
              cow_n_col = 3,coord_fix_ratio = NULL, point_size = 1,
-             save_param = c(save_folder = '7_annotation', save_name = 'PAGE_spatplot_0_8',
-                            base_width = 10, base_height = 6))
+             save_param = c(save_folder = '7_annotation', save_name = 'PAGE_spatplot_1',
+                            base_width = 10, base_height = 8))
 
-value_columns = paste0('clus_', 9:17)
+cell_types_subset = cell_types[13:24]
 spatCellPlot(gobject = visium_kidney, spat_enr_names = 'PAGE',
-             cell_annotation_values = value_columns,
+             cell_annotation_values = cell_types_subset,
              cow_n_col = 3,coord_fix_ratio = NULL, point_size = 1,
-             save_param = c(save_folder = '7_annotation', save_name = 'PAGE_spatplot_9_17',
-                            base_width = 10, base_height = 6))
+             save_param = c(save_folder = '7_annotation', save_name = 'PAGE_spatplot_2',
+                            base_width = 10, base_height = 8))
 
-value_columns = paste0('clus_', 18:26)
+cell_types_subset = cell_types[25:30]
 spatCellPlot(gobject = visium_kidney, spat_enr_names = 'PAGE',
-             cell_annotation_values = value_columns,
+             cell_annotation_values = cell_types_subset,
              cow_n_col = 3,coord_fix_ratio = NULL, point_size = 1,
-             save_param = c(save_folder = '7_annotation', save_name = 'PAGE_spatplot_18_26',
-                            base_width = 10, base_height = 6))
-
-value_columns = paste0('clus_', 27:30)
-spatCellPlot(gobject = visium_kidney, spat_enr_names = 'PAGE',
-             cell_annotation_values = value_columns,
-             cow_n_col = 2,coord_fix_ratio = NULL, point_size = 1.5,
-             save_param = c(save_folder = '7_annotation', save_name = 'PAGE_spatplot_27_30',
-                            base_width = 10, base_height = 6))
-
+             save_param = c(save_folder = '7_annotation', save_name = 'PAGE_spatplot_3',
+                            base_width = 10, base_height = 8))
 
 
 ## multiple value columns with dimPlot2D ##
-spatDimCellPlot(gobject = visium_kidney, spat_enr_names = 'PAGE',
+spatDimCellPlot(gobject = visium_kidney,
+                spat_enr_names = 'PAGE',
                 cell_annotation_values = c('clus_4', 'clus_6', 'clus_10', 'clus_20', 'clus_25'),
                 cow_n_col = 1, spat_point_size = 1.5, plot_alignment = 'horizontal',
                 save_param = c(save_folder = '7_annotation', save_name = 'PAGE_spatdimplot',
                                base_width = 6, base_height = 12))
-
 
 
 ## visualize individual enrichments
@@ -466,15 +456,13 @@ Heatmap:
 
 Spatial enrichment plots for all cell types/clusters:  
 
-![](./figures/6_PAGE_spatplot_0_8.png){width=16cm} 
+![](./figures/6_PAGE_spatplot_1.png){width=16cm} 
 
-![](./figures/6_PAGE_spatplot_9_17.png){width=16cm} 
-
-
-![](./figures/6_PAGE_spatplot_18_26.png){width=16cm} 
+![](./figures/6_PAGE_spatplot_2.png){width=16cm} 
 
 
-![](./figures/6_PAGE_spatplot_27_30.png){width=16cm} 
+![](./figures/6_PAGE_spatplot_3.png){width=16cm} 
+
 
 
 Co-visualization for selected subset:   

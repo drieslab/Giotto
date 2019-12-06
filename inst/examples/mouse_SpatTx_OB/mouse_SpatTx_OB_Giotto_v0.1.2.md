@@ -257,6 +257,11 @@ specific genes for cells from the OB.
 
 ![paper](./Zeisel_paper.png)
 
+#### part 6.1: using cell-type specific markers genes
+
+It’s hard to identify cell-type enrichment based on single gene markers
+only
+
 ``` r
 
 ## cell type identification based on individual marker genes is hard 
@@ -266,135 +271,129 @@ spatDimGenePlot(ST_test, expression_values = 'scaled',
                 plot_alignment = 'vertical', cow_n_col = 4, point_size = 3,
                 genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue', midpoint = 0,
                 save_param = c(save_folder = '7_annotation', save_name = 'interneuron_genes', base_width = 13, base_height = 5))
-
-
-
-
-## cell type identification based on signatures from single-cell RNAseq
-## for PAGE ##
-sig_matrix = fread('/path/to/sig_matrix_PAGE.txt')
-sig_matrix = Giotto:::dt_to_matrix(sig_matrix)
-
-## example to make PAGE signature matrix from list of 2 signature genesets
-OBDOP1_sig = sig_matrix[,'OBDOP1']; OBDOP1_sig_genes = names(OBDOP1_sig[OBDOP1_sig == 1])
-ACOB_sig = sig_matrix[,'ACOB'];ACOB_sig_genes = names(ACOB_sig[ACOB_sig == 1])
-small_sign_matrix = convertSignListToMatrix(sign_names = c('OBDOP1', 'ACOB'),
-                               sign_list = list(OBDOP1_sig_genes, ACOB_sig_genes))
-
-
-## for rank ##
-sig_rank_matrix = fread('/path/to/sig_matrix_rank.txt')
-sig_rank_matrix = Giotto:::dt_to_matrix(sig_rank_matrix)
-
-## enrichment tests 
-ST_test = createSpatialEnrich(ST_test, sign_matrix = sig_matrix) #default = 'PAGE' for method and name
-ST_test = createSpatialEnrich(ST_test, sign_matrix = sig_matrix, output_enrichment = 'zscore', name = 'PAGEz') 
-ST_test = createSpatialEnrich(ST_test, sign_matrix = sig_rank_matrix, enrich_method = 'rank', name = 'rank')
-
-
-## heatmap
-value_columns = c('ACOB', 'OBDOP1', 'OBDOP2-OBINH123', 'OBINH4', 'OBINH5', 'OBNBL12', 'OBNBL3', 'OBNBL45', 'OEC')
-meta_columns = c('leiden_clus')
-
-plotMetaDataCellsHeatmap(gobject = ST_test,
-                         metadata_cols = 'leiden_clus',
-                         value_cols = value_columns,
-                         spat_enr_names = 'PAGE',
-                         save_param = c(save_folder = '7_annotation', save_name = 'heatmap_PAGE',
-                                        base_width = 4, base_height = 4))
-
-plotMetaDataCellsHeatmap(gobject = ST_test,
-                         metadata_cols = 'leiden_clus',
-                         value_cols = value_columns,
-                         spat_enr_names = 'rank',
-                         save_param = c(save_folder = '7_annotation', save_name = 'heatmap_rank',
-                                        base_width = 4, base_height = 4))
-
-## visualize individual enrichments
-spatDimPlot(gobject = ST_test,
-            spat_enr_names = 'PAGE',
-            cell_color = 'OEC', color_as_factor = F,
-            spat_show_legend = T, dim_show_legend = T,
-            gradient_midpoint = 3, 
-            dim_point_size = 2, spat_point_size = 4, save_plot = F)
-
-spatDimPlot(gobject = ST_test,
-            spat_enr_names = 'PAGE',
-            cell_color = 'OBINH4', color_as_factor = F,
-            spat_show_legend = T, dim_show_legend = T,
-            gradient_midpoint = 1, 
-            dim_point_size = 2, spat_point_size = 4, save_plot = F)
-
-spatDimPlot(gobject = ST_test,
-            spat_enr_names = 'PAGE',
-            cell_color = 'OBNBL3', color_as_factor = F,
-            spat_show_legend = T, dim_show_legend = T,
-            gradient_midpoint = 1, gradient_limits = c(0,4), 
-            dim_point_size = 2, spat_point_size = 4, save_plot = F)
-
-
-
-## multiple value columns with spatPlot ##
-value_columns = c('ACOB', 'OBDOP1', 'OBDOP2-OBINH123', 'OBINH4', 'OBINH5', 'OBNBL12', 'OBNBL3', 'OBNBL45', 'OEC')
-
-spatCellPlot(gobject = ST_test, spat_enr_names = 'PAGE',
-             cell_annotation_values = value_columns,
-             cow_n_col = 3,coord_fix_ratio = NULL,
-             save_param = c(save_folder = '7_annotation', save_name = 'PAGE_spatplot',
-                            base_width = 10, base_height = 6))
-
-spatCellPlot(gobject = ST_test, spat_enr_names = 'PAGEz',
-             cell_annotation_values = value_columns,
-             cow_n_col = 3, coord_fix_ratio = NULL,
-             gradient_limits = c(-2,2),
-             save_param = c(save_folder = '7_annotation', save_name = 'PAGEz_spatplot',
-                            base_width = 10, base_height = 6))
-
-spatCellPlot(gobject = ST_test, spat_enr_names = 'rank',
-             cell_annotation_values = value_columns,
-             cow_n_col = 3, coord_fix_ratio = NULL,
-             save_param = c(save_folder = '7_annotation', save_name = 'rank_spatplot',
-                            base_width = 10, base_height = 6))
-
-
-## multiple value columns with spatDimPlot ##
-spatDimCellPlot(gobject = ST_test, spat_enr_names = 'PAGE',
-                cell_annotation_values = value_columns[1:4],
-                cow_n_col = 1, spat_point_size = 3, plot_alignment = 'horizontal',
-                save_param = c(save_folder = '7_annotation', save_name = 'PAGE_spatdimplot',
-                               base_width = 6, base_height = 10))
 ```
 
 Markers for interneuron genes: ![](./figures/6_interneuron_genes.png)
 
-Heatmap:
+#### part 6.2: PAGE gene signature enrichment
 
-PAGE
+  - based on list of cell-type specific marker genes
 
+<!-- end list -->
+
+``` r
+
+## full cell type signature
+PAGE_sign_matrix = read.table('/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Data/ST_data/PAGE_sign_matrix.txt')
+newcolnames = gsub('OBDOP2.OBINH123', 'OBDOP2-OBINH123', colnames(PAGE_sign_matrix)); colnames(PAGE_sign_matrix) = newcolnames
+
+## example to make small signature matrix from list of 2 signature genesets
+OBDOP1_sig = PAGE_sign_matrix[,'OBDOP1'];names(OBDOP1_sig) = rownames(PAGE_sign_matrix)
+OBDOP1_sig_genes = names(OBDOP1_sig[OBDOP1_sig == 1])
+ACOB_sig = PAGE_sign_matrix[,'ACOB'];names(ACOB_sig) = rownames(PAGE_sign_matrix)
+ACOB_sig_genes = names(ACOB_sig[ACOB_sig == 1])
+
+small_PAGE_matrix = makeSignMatrixPAGE(sign_names = c('OBDOP1', 'ACOB'),
+                                       sign_list = list(OBDOP1_sig_genes, ACOB_sig_genes))
+
+## enrichment tests 
+ST_test = createSpatialEnrich(ST_test, sign_matrix = PAGE_sign_matrix, enrich_method = 'PAGE') #default = 'PAGE'
+ST_test = createSpatialEnrich(ST_test, sign_matrix = PAGE_sign_matrix, output_enrichment = 'zscore', name = 'PAGEz') #default = 'PAGE'
+
+
+## heatmap
+cell_types = colnames(PAGE_sign_matrix)
+plotMetaDataCellsHeatmap(gobject = ST_test,
+                         metadata_cols = 'leiden_clus',
+                         value_cols = cell_types,
+                         spat_enr_names = 'PAGE',
+                         save_param = c(save_folder = '7_annotation', save_name = 'heatmap_PAGE',
+                                        base_width = 8, base_height = 6, units = 'cm'))
+
+## multiple value columns with spatPlot ##
+cell_types = colnames(PAGE_sign_matrix)
+spatCellPlot(gobject = ST_test, spat_enr_names = 'PAGE',
+             cell_annotation_values = cell_types,
+             cow_n_col = 3,coord_fix_ratio = NULL,
+             save_param = c(save_folder = '7_annotation', save_name = 'PAGE_spatplot',
+                            base_width = 10, base_height = 6))
+
+## visualize individual enrichments
+spatDimCellPlot(gobject = ST_test,
+                spat_enr_names = 'PAGE',
+                cell_annotation_values = c('OEC', 'OBINH4', 'OBNBL3'),
+                cow_n_col = 1, spat_point_size = 2.5, plot_alignment = 'horizontal',
+                save_param = c(save_folder = '7_annotation', save_name = 'PAGE_spatdimplot',
+                               base_width = 6, base_height = 7))
+```
+
+PAGE:
+
+Heatmap:  
 ![](./figures/6_heatmap_PAGE.png)
 
-rank
-
-![](./figures/6_heatmap_rank.png)
-
-Spatial enrichment plots for all cell types:
-
-PAGE enrichment:
-
+Spatial plots:  
 ![](./figures/6_PAGE_spatplot.png)
 
-PAGE enrichment z-scores:
-
-![](./figures/6_PAGEz_spatplot.png)
-
-rank enrichment:
-
-![](./figures/6_rank_spatplot.png)
-
-Spatial and dimension reduction PAGE enrichment plots for first 4 cell
-types:
-
+Spatial and dimension plots:  
 ![](./figures/6_PAGE_spatdimplot.png)
+
+#### part 6.3: Rank gene signature enrichment
+
+  - only requires a scRNAseq count matrix and corresponding clusters
+
+<!-- end list -->
+
+``` r
+
+## signature based on scRNAseq expression matrix and clusters
+sc_labels = read.table('/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Data/ST_data/scRNAseq_clusters.txt')
+sc_labels = as.character(sc_labels$V1)
+sc_matrix = readRDS('/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Data/ST_data/scRNAseq_matrix.RDS')
+
+rank_matrix = makeSignMatrixRank(sc_matrix = sc_matrix, sc_cluster_ids = sc_labels, gobject = ST_test)
+
+## enrichment test
+ST_test = createSpatialEnrich(ST_test, sign_matrix = rank_matrix, enrich_method = 'rank', name = 'rank')
+
+## heatmap 
+cell_types = colnames(rank_matrix)
+plotMetaDataCellsHeatmap(gobject = ST_test,
+                         metadata_cols = 'leiden_clus',
+                         value_cols = cell_types,
+                         spat_enr_names = 'rank',
+                         save_param = c(save_folder = '7_annotation', save_name = 'heatmap_rank',
+                                        base_width = 8, base_height = 6, units = 'cm'))
+
+
+## multiple value columns with spatPlot ##
+cell_types = colnames(rank_matrix)
+spatCellPlot(gobject = ST_test, 
+             spat_enr_names = 'rank',
+             cell_annotation_values = cell_types,
+             cow_n_col = 3,coord_fix_ratio = NULL,
+             save_param = c(save_folder = '7_annotation', save_name = 'Rank_spatplot',
+                            base_width = 10, base_height = 6))
+
+## visualize individual enrichments
+spatDimCellPlot(gobject = ST_test,
+                spat_enr_names = 'rank',
+                cell_annotation_values = c('OEC', 'OBINH4', 'OBNBL3'),
+                cow_n_col = 1, spat_point_size = 2.5, plot_alignment = 'horizontal',
+                save_param = c(save_folder = '7_annotation', save_name = 'rank_spatdimplot',
+                               base_width = 6, base_height = 7))
+```
+
+Rank:
+
+Heatmap:  
+![](./figures/6_heatmap_rank.png)
+
+Spatial plots:  
+![](./figures/6_Rank_spatplot.png)
+
+Spatial and dimension plots:  
+![](./figures/6_rank_spatdimplot.png)
 
 -----
 

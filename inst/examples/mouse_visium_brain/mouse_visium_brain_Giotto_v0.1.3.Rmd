@@ -347,28 +347,31 @@ sig_matrix = as.matrix(brain_sc_markers[,-1]); rownames(sig_matrix) = brain_sc_m
 visium_brain = createSpatialEnrich(visium_brain, sign_matrix = sig_matrix, enrich_method = 'PAGE') #default = 'PAGE'
 
 ## heatmap of enrichment versus annotation (e.g. clustering result)
-value_columns = colnames(sig_matrix)
-meta_columns = c('leiden_clus')
+cell_types = colnames(sig_matrix)
 plotMetaDataCellsHeatmap(gobject = visium_brain,
                          metadata_cols = 'leiden_clus',
-                         value_cols = value_columns,
-                         spat_enr_names = 'PAGE',x_text_size = 8, y_text_size = 8)
+                         value_cols = cell_types,
+                         spat_enr_names = 'PAGE',x_text_size = 8, y_text_size = 8,
+                         save_param = c(save_folder = '7_annotation', save_name = 'heatmap_PAGE',
+                                        base_width = 12, base_height = 8, units = 'cm'))
 
-
-
-## spatial enrichment results for all signatures ##
-value_columns = colnames(sig_matrix)[1:10]
+## spatial enrichment results for all cell type signatures ##
+cell_types_subset = colnames(sig_matrix)[1:10]
 spatCellPlot(gobject = visium_brain, spat_enr_names = 'PAGE',
-             cell_annotation_values = value_columns,
-             cow_n_col = 4,coord_fix_ratio = NULL, point_size = 0.75)
+             cell_annotation_values = cell_types_subset,
+             cow_n_col = 4,coord_fix_ratio = NULL, point_size = 0.75,
+             save_param = c(save_folder = '7_annotation', save_name = 'PAGE_spatplot_1_10',
+                            base_width = 10, base_height = 6))
 
-value_columns = colnames(sig_matrix)[11:20]
+cell_types_subset = colnames(sig_matrix)[11:20]
 spatCellPlot(gobject = visium_brain, spat_enr_names = 'PAGE',
-             cell_annotation_values = value_columns,
-             cow_n_col = 4,coord_fix_ratio = NULL, point_size = 0.75)
+             cell_annotation_values = cell_types_subset,
+             cow_n_col = 4,coord_fix_ratio = NULL, point_size = 0.75,
+             save_param = c(save_folder = '7_annotation', save_name = 'PAGE_spatplot_11_20',
+                            base_width = 10, base_height = 6))
 
 
-## spatial and dimension reduction visualization with dimPlot2D ##
+## spatial and dimension reduction visualization with
 spatDimCellPlot(gobject = visium_brain, spat_enr_names = 'PAGE',
                 cell_annotation_values = c('Cortex_hippocampus', 'Granule_neurons', 'di_mesencephalon_1', 'Oligo_dendrocyte', 'Vascular'),
                 cow_n_col = 1, spat_point_size = 1, plot_alignment = 'horizontal')
