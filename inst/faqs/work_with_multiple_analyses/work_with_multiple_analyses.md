@@ -16,7 +16,7 @@ example **spatial genes**)
 
 We will use the seqFish+ somatosensory cortex as an example dataset
 after creating and processing a [Giotto
-object](./inst/faqs/work_with_multiple_analyses/work_with_multiple_analyses.md).
+object](./inst/examples/mouse_cortex_svz/seqfish_cortex_Giotto_v0.1.2_update.md).
 
 ##### 1\. calculate highly variable genes in two different manners
 
