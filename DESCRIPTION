@@ -38,7 +38,8 @@ Imports:
     smfishHmrf,
     matrixStats (>= 0.55.0),
     IRanges,
-    devtools
+    devtools,
+    reshape2
 Suggests:
     knitr,
     rmarkdown,

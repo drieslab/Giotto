@@ -8,14 +8,15 @@ exportGiottoViewer(
   gobject,
   output_directory = NULL,
   spat_enr_names = NULL,
-  annotations,
+  factor_annotations,
+  numeric_annotations,
   dim_reductions,
   dim_reduction_names,
-  expression_values = c("normalized", "scaled", "custom"),
+  expression_values = c("scaled", "normalized", "custom"),
   dim_red_rounding = NULL,
   dim_red_rescale = c(-20, 20),
-  expression_rounding = NULL,
-  overwrite_dir = F,
+  expression_rounding = 2,
+  overwrite_dir = T,
   verbose = T
 )
 }
@@ -26,7 +27,9 @@ exportGiottoViewer(
 
 \item{spat_enr_names}{spatial enrichment results to include for annotations}
 
-\item{annotations}{giotto cell annotations to view}
+\item{factor_annotations}{giotto cell annotations to view as factor}
+
+\item{numeric_annotations}{giotto cell annotations to view as numeric}
 
 \item{dim_reductions}{high level dimension reductions to view}
 
@@ -51,7 +54,10 @@ writes the necessary output to use in Giotto Viewer
 compute highly variable genes
 }
 \details{
-Giotto Viewer expects the results from Giotto Analyzer in a specific format, which is provided by this function.
+Giotto Viewer expects the results from Giotto Analyzer in a specific format,
+which is provided by this function. To include enrichment results from {\code{\link{createSpatialEnrich}}}
+include the provided spatial enrichment name (default PAGE or rank)
+and add the gene signature names (.e.g cell types) to the numeric annotations parameter.
 }
 \examples{
     exportGiottoViewer(gobject)

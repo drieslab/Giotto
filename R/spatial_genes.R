@@ -154,7 +154,8 @@ binGetSpatialGenes = function(gobject,
   setorder(av_expr_DT, 'genes')
 
   # dcast
-  bin_matrix_DT = data.table::as.data.table(melt(bin_matrix, varnames = c('genes', 'cells'), value.name = 'value'))
+  #bin_matrix_DT = data.table::as.data.table(melt(bin_matrix, varnames = c('genes', 'cells'), value.name = 'value'))
+  bin_matrix_DT = data.table::as.data.table(reshape2::melt(bin_matrix, varnames = c('genes', 'cells'), value.name = 'value'))
 
   # extra info: nr of cells with high expression
   nr_high_cells = bin_matrix_DT[, .N, by = .(genes, value)][value == 1]

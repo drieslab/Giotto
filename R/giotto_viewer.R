@@ -3,7 +3,7 @@
 
 
 #' @title write_giotto_viewer_annotation
-#' @description write out annotation data from a giotto object for the Viewer
+#' @description write out factor-like annotation data from a giotto object for the Viewer
 #' @param annotation annotation from the data.table from giotto object
 #' @param annot_name name of the annotation
 #' @param output_directory directory where to save the files
@@ -12,17 +12,30 @@ write_giotto_viewer_annotation = function(annotation,
                                           annot_name = 'test',
                                           output_directory = getwd()) {
 
-  # factors to numerics
-  uniq_factors = unique(annotation)
-  uniq_numerics = 1:length(uniq_factors)
+  if(is.numeric(annotation) == TRUE) {
 
-  # create converter
-  uniq_factor_num_converter = uniq_numerics
-  names(uniq_factor_num_converter) = uniq_factors
+    # annotation information and mapping
+    sorted_unique_numbers = sort(unique(annotation))
+    annot_map = data.table::data.table(num = sorted_unique_numbers, fac = sorted_unique_numbers)
+    annot_information = annotation
 
-  # annotation information and mapping
-  annot_map = data.table::data.table(num = uniq_numerics, fac = uniq_factors)
-  annot_information = uniq_factor_num_converter[annotation]
+  } else {
+
+    # factors to numerics
+    uniq_factors = unique(annotation)
+    uniq_numerics = 1:length(uniq_factors)
+
+    # create converter
+    uniq_factor_num_converter = uniq_numerics
+    names(uniq_factor_num_converter) = uniq_factors
+
+    # annotation information and mapping
+    annot_map = data.table::data.table(num = uniq_numerics, fac = uniq_factors)
+    annot_information = uniq_factor_num_converter[annotation]
+
+  }
+
+
 
   # write to output directory
   annot_inf_name = paste0(annot_name,'_annot_information','.txt')
@@ -34,6 +47,26 @@ write_giotto_viewer_annotation = function(annotation,
               quote = F, row.names = F, col.names = F, sep = '\t')
 
 }
+
+
+
+#' @title write_giotto_viewer_numeric_annotation
+#' @description write out numeric annotation data from a giotto object for the Viewer
+#' @param annotation annotation from the data.table from giotto object
+#' @param annot_name name of the annotation
+#' @param output_directory directory where to save the files
+#' @return write a .txt and .annot file for the selection annotation
+write_giotto_viewer_numeric_annotation = function(annotation,
+                                                  annot_name = 'test',
+                                                  output_directory = getwd()) {
+
+  # write to output directory
+  annot_inf_map = paste0(annot_name,'_num_annot_information','.txt')
+  write.table(annotation,file = paste0(output_directory,'/', annot_inf_map),
+              quote = F, row.names = F, col.names = F, sep = '\t')
+
+}
+
 
 
 
@@ -86,7 +119,8 @@ write_giotto_viewer_dim_reduction = function(dim_reduction_cell,
 #' @param gobject giotto object
 #' @param output_directory directory where to save the files
 #' @param spat_enr_names spatial enrichment results to include for annotations
-#' @param annotations giotto cell annotations to view
+#' @param factor_annotations giotto cell annotations to view as factor
+#' @param numeric_annotations giotto cell annotations to view as numeric
 #' @param dim_reductions high level dimension reductions to view
 #' @param dim_reduction_names specific dimension reduction names
 #' @param expression_values expression values to use in Viewer
@@ -96,21 +130,25 @@ write_giotto_viewer_dim_reduction = function(dim_reduction_cell,
 #' @param overwrite_dir overwrite files in the directory if it already existed
 #' @param verbose be verbose
 #' @return writes the necessary output to use in Giotto Viewer
-#' @details Giotto Viewer expects the results from Giotto Analyzer in a specific format, which is provided by this function.
+#' @details Giotto Viewer expects the results from Giotto Analyzer in a specific format,
+#' which is provided by this function. To include enrichment results from {\code{\link{createSpatialEnrich}}}
+#' include the provided spatial enrichment name (default PAGE or rank)
+#' and add the gene signature names (.e.g cell types) to the numeric annotations parameter.
 #' @export
 #' @examples
 #'     exportGiottoViewer(gobject)
 exportGiottoViewer = function(gobject,
                               output_directory = NULL,
                               spat_enr_names = NULL,
-                              annotations,
+                              factor_annotations,
+                              numeric_annotations,
                               dim_reductions,
                               dim_reduction_names,
-                              expression_values = c('normalized', 'scaled', 'custom'),
+                              expression_values = c('scaled', 'normalized', 'custom'),
                               dim_red_rounding = NULL,
                               dim_red_rescale = c(-20,20),
-                              expression_rounding = NULL,
-                              overwrite_dir = F,
+                              expression_rounding = 2,
+                              overwrite_dir = T,
                               verbose = T) {
 
   ## output directory ##
@@ -127,6 +165,17 @@ exportGiottoViewer = function(gobject,
     cat('\n output directory is created \n')
     dir.create(output_directory, recursive = T)
   }
+
+
+  ### output cell_IDs ###
+  giotto_cell_ids = gobject@cell_ID
+  write.table(giotto_cell_ids, file = paste0(output_directory,'/','giotto_cell_ids.txt'),
+              quote = F, row.names = F, col.names = F, sep = ' ')
+
+  ### output gene_IDs ###
+  giotto_gene_ids = gobject@gene_ID
+  write.table(giotto_gene_ids, file = paste0(output_directory,'/','giotto_gene_ids.txt'),
+              quote = F, row.names = F, col.names = F, sep = ' ')
 
 
   ### physical location ###
@@ -146,10 +195,11 @@ exportGiottoViewer = function(gobject,
 
 
   ### annotations ###
-  #cell_metadata = pDataDT(gobject = gobject)
   cell_metadata = combineMetadata(gobject = gobject, spat_enr_names = spat_enr_names)
-  found_annotations = annotations[annotations %in% colnames(cell_metadata)]
-  for(sel_annot in found_annotations) {
+
+  # factor annotations #
+  found_factor_annotations = factor_annotations[factor_annotations %in% colnames(cell_metadata)]
+  for(sel_annot in found_factor_annotations) {
 
     if(verbose == TRUE) cat('\n write annotation data for: ', sel_annot,'\n')
 
@@ -158,6 +208,37 @@ exportGiottoViewer = function(gobject,
                                    output_directory = output_directory)
 
   }
+
+  # annotiation list #
+  text_file_names = list()
+  annot_names = list()
+  for(sel_annot_id in 1:length(found_factor_annotations)) {
+
+    sel_annot_name = found_factor_annotations[sel_annot_id]
+    annot_inf_name = paste0(sel_annot_name,'_annot_information')
+
+    annot_names[[sel_annot_id]] = sel_annot_name
+    text_file_names[[sel_annot_id]] = annot_inf_name
+
+  }
+
+  annot_list = data.table(txtfiles = unlist(text_file_names), names = unlist(annot_names))
+  write.table(annot_list, file = paste0(output_directory,'/','annotation_list.txt'),
+              quote = F, row.names = F, col.names = F, sep = ' ')
+
+
+  # numeric annotations #
+  found_numeric_annotations = numeric_annotations[numeric_annotations %in% colnames(cell_metadata)]
+  for(sel_annot in found_numeric_annotations) {
+
+    if(verbose == TRUE) cat('\n write annotation data for: ', sel_annot,'\n')
+    selected_annotation = cell_metadata[[sel_annot]]
+    write_giotto_viewer_numeric_annotation(annotation = selected_annotation, annot_name = sel_annot,
+                                           output_directory = output_directory)
+
+  }
+
+
 
   ### dimension reduction ###
   dim_reduction_cell = gobject@dimension_reduction$cells
@@ -183,23 +264,22 @@ exportGiottoViewer = function(gobject,
   ### expression data ###
   # expression values to be used
   if(verbose == TRUE) cat('\n write expression values \n')
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  values = match.arg(expression_values, c( 'scaled', 'normalized', 'custom'))
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
 
   # swap cell_IDs for numerical values
   colnames(expr_values) = 1:ncol(expr_values)
   # round values
-  if(!is.null(expression_rounding) & is.integer(expression_rounding)) {
+  if(!is.null(expression_rounding)) {
     expr_values = round(x = expr_values, digits = expression_rounding)
   }
-  #print(expr_values[1:10, 1:10])
   write.table(expr_values, quote = F, row.names = T, col.names = NA, sep = ',', file = paste0(output_directory,'/','giotto_expression.csv'))
-
 
 
   if(verbose == TRUE) cat('\n finished writing giotto viewer files to', output_directory , '\n')
 
 }
+
 
 
 
