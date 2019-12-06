@@ -85,6 +85,7 @@ write_giotto_viewer_dim_reduction = function(dim_reduction_cell,
 #' @description compute highly variable genes
 #' @param gobject giotto object
 #' @param output_directory directory where to save the files
+#' @param spat_enr_names spatial enrichment results to include for annotations
 #' @param annotations giotto cell annotations to view
 #' @param dim_reductions high level dimension reductions to view
 #' @param dim_reduction_names specific dimension reduction names
@@ -101,6 +102,7 @@ write_giotto_viewer_dim_reduction = function(dim_reduction_cell,
 #'     exportGiottoViewer(gobject)
 exportGiottoViewer = function(gobject,
                               output_directory = NULL,
+                              spat_enr_names = NULL,
                               annotations,
                               dim_reductions,
                               dim_reduction_names,
@@ -144,7 +146,8 @@ exportGiottoViewer = function(gobject,
 
 
   ### annotations ###
-  cell_metadata = pDataDT(gobject = gobject)
+  #cell_metadata = pDataDT(gobject = gobject)
+  cell_metadata = combineMetadata(gobject = gobject, spat_enr_names = spat_enr_names)
   found_annotations = annotations[annotations %in% colnames(cell_metadata)]
   for(sel_annot in found_annotations) {
 
@@ -183,7 +186,7 @@ exportGiottoViewer = function(gobject,
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = select_expression_values(gobject = gobject, values = values)
 
-    # swap cell_IDs for numerical values
+  # swap cell_IDs for numerical values
   colnames(expr_values) = 1:ncol(expr_values)
   # round values
   if(!is.null(expression_rounding) & is.integer(expression_rounding)) {
@@ -197,3 +200,6 @@ exportGiottoViewer = function(gobject,
   if(verbose == TRUE) cat('\n finished writing giotto viewer files to', output_directory , '\n')
 
 }
+
+
+

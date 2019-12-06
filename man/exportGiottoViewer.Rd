@@ -7,6 +7,7 @@
 exportGiottoViewer(
   gobject,
   output_directory = NULL,
+  spat_enr_names = NULL,
   annotations,
   dim_reductions,
   dim_reduction_names,
@@ -22,6 +23,8 @@ exportGiottoViewer(
 \item{gobject}{giotto object}
 
 \item{output_directory}{directory where to save the files}
+
+\item{spat_enr_names}{spatial enrichment results to include for annotations}
 
 \item{annotations}{giotto cell annotations to view}
 

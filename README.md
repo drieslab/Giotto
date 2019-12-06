@@ -98,8 +98,9 @@ This is necessary to run all available analyses, including Leiden /
 Louvain clustering and to build and use the interactive visualization
 tool. An alternative, but less flexible, R version for Louvain
 clustering is also available. It is advisable to install everything
-within a specific conda environment and specify the python path in the R
-function when required.
+within a specific conda environment and specify the python path at the
+beginning with createGiottoInstructions() or in the R function itself
+when required.
 
 Required python modules:  
 \- pandas  
@@ -139,8 +140,8 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation
 
   - see <https://github.com/RubD/spatial-datasets> to find raw and
     pre-processed input data and Giotto scripts (in progress).
-  - typical run time for the cortex dataset on a personal computer is
-    around 20\~30 mins.  
+  - typical run time range for the different datasets on a personal
+    computer is around 10\~45 mins.  
   - click on the image and try them out yourself.
 
 [![Cortex](./inst/images/cortex_image_summary.png)](./inst/examples/mouse_cortex_svz/seqfish_cortex_Giotto_v0.1.2_update.md)
@@ -164,12 +165,17 @@ Transcriptomics](./inst/images/SpatTx_OB_image_summary.png)](./inst/examples/mou
 
 Howto’s and faqs examples:
 
+##### Data availability
+
   - Cortex/SVZ and olfactory bulb data availability?  
     **Expression and centroid information is part of Giotto, see
     examples.**
   - Where to find other ready-to-use datasets?  
     **Checkout <https://github.com/RubD/spatial-datasets> to find
     already preprocessed datasets**
+
+##### Giotto tips & tricks
+
   - [How to add metadata and subset a Giotto
     object?](./inst/faqs/metadata_and_subset/metadata_and_subset_VC.md)
   - [How to create global instructions and show or save your created
@@ -179,10 +185,16 @@ Howto’s and faqs examples:
   - How to test and store multiple parameters or analyses?
   - How to create a giotto object with your own spatial network/grid,
     dimensions reduction, … ?
+
+##### Giotto analyses
+
   - Different ways to cluster data?
   - Methods to identify differentially expressed genes?
   - Algorithmes to find spatial genes, patterns or domains?
   - Effect of neighboring cells on gene expression?
+
+##### Giotto Analyzer and Viewer interaction
+
   - How to switch between Giotto Analyzer and Viewer?
   - …
 
