@@ -78,6 +78,13 @@ follow this
 which has simple installation instructions for Windows, Mac OS X and
 Linux.
 
+To specifically install the command-line tools of Xcode you might also
+need to run this line in terminal:
+
+``` bash
+xcode-select --install
+```
+
 #### R installation
 
 You can install (\~1-5 mins) the development version of Giotto with:
@@ -188,15 +195,18 @@ Howto’s and faqs examples:
 
 ##### Giotto analyses
 
+  - How to identify highly variable genes?  
   - Different ways to cluster data?
-  - Methods to identify differentially expressed genes?
+  - Methods to identify differentially expressed genes?  
+  - How to perform cell-type or cell-process gene signature spatial
+    enrichment analysis?
   - Algorithmes to find spatial genes, patterns or domains?
-  - Effect of neighboring cells on gene expression?
+  - Effect of neighboring cells on gene expression?  
+  - …
 
 ##### Giotto Analyzer and Viewer interaction
 
   - How to switch between Giotto Analyzer and Viewer?
-  - …
 
  
 
