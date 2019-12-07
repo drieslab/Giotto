@@ -12,7 +12,8 @@ subsetGiottoLocs(
   y_min = NULL,
   z_max = NULL,
   z_min = NULL,
-  return_gobject = T
+  return_gobject = T,
+  verbose = FALSE
 )
 }
 \arguments{

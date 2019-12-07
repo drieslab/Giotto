@@ -13,6 +13,8 @@ plotTSNE(gobject, dim_reduction_name = "tsne", default_save_name = "tSNE", ...)
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
+\item{groub_by}{create multiple plots based on cell annotation column}
+
 \item{dim1_to_use}{dimension to use on x-axis}
 
 \item{dim2_to_use}{dimension to use on y-axis}
@@ -66,6 +68,16 @@ plotTSNE(gobject, dim_reduction_name = "tsne", default_save_name = "tSNE", ...)
 \item{point_border_stroke}{stroke size of border around points}
 
 \item{show_legend}{show legend}
+
+\item{title}{title for plot, defaults to cell_color parameter}
+
+\item{cow_n_col}{cowplot param: how many columns}
+
+\item{cow_rel_h}{cowplot param: relative height}
+
+\item{cow_rel_w}{cowplot param: relative width}
+
+\item{cow_align}{cowplot param: how to align}
 
 \item{show_plot}{show plot}
 

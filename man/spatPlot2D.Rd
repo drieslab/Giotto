@@ -6,6 +6,7 @@
 \usage{
 spatPlot2D(
   gobject,
+  group_by = NULL,
   sdimx = "sdimx",
   sdimy = "sdimy",
   spat_enr_names = NULL,
@@ -39,8 +40,12 @@ spatPlot2D(
   other_point_size = 1,
   other_cells_alpha = 0.1,
   coord_fix_ratio = NULL,
-  title = NULL,
   show_legend = T,
+  title = NULL,
+  cow_n_col = 2,
+  cow_rel_h = 1,
+  cow_rel_w = 1,
+  cow_align = "h",
   show_plot = NA,
   return_plot = NA,
   save_plot = NA,
@@ -113,9 +118,17 @@ spatPlot2D(
 
 \item{coord_fix_ratio}{fix ratio between x and y-axis}
 
+\item{show_legend}{show legend}
+
 \item{title}{title of plot}
 
-\item{show_legend}{show legend}
+\item{cow_n_col}{cowplot param: how many columns}
+
+\item{cow_rel_h}{cowplot param: relative height}
+
+\item{cow_rel_w}{cowplot param: relative width}
+
+\item{cow_align}{cowplot param: how to align}
 
 \item{show_plot}{show plot}
 
@@ -126,6 +139,8 @@ spatPlot2D(
 \item{save_param}{list of saving parameters from all_plots_save_function()}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+
+\item{groub_by}{create multiple plots based on cell annotation column}
 }
 \value{
 ggplot

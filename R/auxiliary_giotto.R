@@ -158,11 +158,12 @@ create_average_detection_DT <- function(gobject, meta_data_name,
 #' @param gobject giotto object
 #' @param cell_ids cell IDs to keep
 #' @param gene_ids gene IDs to keep
+#' @param verbose be verbose
 #' @return giotto object
 #' @export
 #' @examples
 #'     subsetGiotto(gobject)
-subsetGiotto <- function(gobject, cell_ids = NULL, gene_ids = NULL) {
+subsetGiotto <- function(gobject, cell_ids = NULL, gene_ids = NULL, verbose = FALSE) {
 
 
   g_cell_IDs = gobject@cell_ID
@@ -233,7 +234,7 @@ subsetGiotto <- function(gobject, cell_ids = NULL, gene_ids = NULL) {
   ## dimension reduction ##
   # cell dim reduction
   if(!is.null(gobject@dimension_reduction$cells)) {
-    print(' subset dimensions reductions ')
+    if(verbose == TRUE) print(' subset dimensions reductions ')
 
     # for pca
     for(pca_name in names(gobject@dimension_reduction[['cells']][['pca']]) ) {
@@ -261,7 +262,7 @@ subsetGiotto <- function(gobject, cell_ids = NULL, gene_ids = NULL) {
 
   ## nn network ##
   if(!is.null(gobject@nn_network$cells)) {
-    print(' subset networks ')
+    if(verbose == TRUE) print(' subset networks ')
 
     for(knn_name in names(gobject@nn_network[['kNN']])) {
 
@@ -298,7 +299,7 @@ subsetGiotto <- function(gobject, cell_ids = NULL, gene_ids = NULL) {
 
   ## spatial enrichment ##
   if(!is.null(gobject@spatial_enrichment)) {
-    print(' subset spatial enrichment results ')
+    if(verbose == TRUE) print(' subset spatial enrichment results ')
     for(spat_enrich_name in names(gobject@spatial_enrichment)) {
       gobject@spatial_enrichment[[spat_enrich_name]] = gobject@spatial_enrichment[[spat_enrich_name]][filter_bool_cells]
     }
@@ -347,7 +348,8 @@ subsetGiottoLocs = function(gobject,
                             y_min = NULL,
                             z_max = NULL,
                             z_min = NULL,
-                            return_gobject = T) {
+                            return_gobject = T,
+                            verbose = FALSE) {
 
   comb_metadata = combineMetadata(gobject = gobject)
   comb_colnames =  colnames(comb_metadata)
@@ -380,7 +382,7 @@ subsetGiottoLocs = function(gobject,
 
     filtered_cell_IDs = comb_metadata[['cell_ID']]
 
-    subset_object = subsetGiotto(gobject = gobject, cell_ids = filtered_cell_IDs)
+    subset_object = subsetGiotto(gobject = gobject, cell_ids = filtered_cell_IDs, verbose = verbose)
 
     return(subset_object)
 
