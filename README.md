@@ -119,7 +119,7 @@ Required python modules:
 Conda installation:  
 If conda install does not work, try ‘pip’
 
-``` python
+``` bash
 # pandas:
 conda install -c anaconda pandas
 
@@ -140,6 +140,14 @@ conda install -c conda-forge leidenalg
 
 See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation
 [instructions](http://spatial.rc.fas.harvard.edu/install.html).
+
+#### Giotto Viewer
+
+``` bash
+pip3 install --user jsbeautifier
+pip3 install --user giotto-viewer --no-cache #add --no-deps if do not wish to upgrade dependency
+pip3 install --user smfish-image-processing --no-cache #add --no-deps if do not wish to upgrade dependency
+```
 
  
 

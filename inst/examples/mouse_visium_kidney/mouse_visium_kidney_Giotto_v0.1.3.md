@@ -720,6 +720,8 @@ selected enrichment:
 
 <summary>Expand</summary>  
 
+##### 1\. Export Giotto results to a specificied directory
+
   - export spot/cell annotations  
   - export dimension reduction coordinates (umap, tsne, …)  
   - export expression data
@@ -745,6 +747,88 @@ exportGiottoViewer(gobject = visium_kidney,
                    expression_rounding = 2,
                    overwrite_dir = T)
 ```
+
+##### 2\. Create a Giotto Viewer within the specified directory
+
+After installing the Giotto Viewer requirements (see README), you can
+create a viewer directly from the **terminal** using the following
+commands:
+
+``` bash
+#===========================================
+# 10X Genomics Visium specific instructions
+#===========================================
+
+# first go the working directory where you exported the Giotto results
+cd viewer_folder #should be the directory where files are exported to by giotto
+cp ~/Downloads/V1_Mouse_Kidney_image.tif . # copy the .tiff image provided by 10X Visium here to this directory
+
+## STEP 1: ##
+# create step1 json file
+~/.local/bin/giotto_setup_image --require-stitch=n --image=y --image-multi-channel=n --segmentation=n --multi-fov=n --output-json=step1.json
+
+# automatically fill in image dimension in the step1 json file
+~/.local/bin/giotto_step1_modify_json --add-image V1_Mouse_Kidney_image.tif --input step1.json --output step1.json
+
+# do the step1 actions
+~/.local/bin/smfish_step1_setup -c step1.json
+
+
+## STEP 2: ##
+# create step2 json file
+~/.local/bin/giotto_setup_viewer --num-panel=2 --input-preprocess-json=step1.json --panel-1=PanelPhysical10X --panel-2=PanelTsne --output-json=step2.json --input-annotation-list=annotation_list.txt
+
+# do the step2 actions
+~/.local/bin/smfish_read_config -c step2.json -o test.dec6.js -p test.dec6.html -q test.dec6.css
+
+# copy extra js and css folders
+~/.local/bin/giotto_copy_js_css --output .
+
+# LAUNCH viewer
+python3 -m http.server
+# the viewer is now launched and can be seen in a browser (e.g. Chrome) using the URL localhost:8000/test.dec6.html
+```
+
+##### 3\. Update the Giotto Viewer
+
+If you want to update the Viewer with new results (e.g. new
+annotations), you first need to call the **exportGiottoViewer** function
+again with the updated results.
+
+Then follow these instructions:
+
+``` bash
+#=================================
+# Updating annotations
+#=================================
+
+cd viewer_folder # should be the directory where files are exported to by giotto
+
+# no need to re-do step 1
+
+# re-create step2 json file
+~/.local/bin/giotto_setup_viewer --num-panel=2 --input-preprocess-json=step1.json --panel-1=PanelPhysical10X --panel-2=PanelTsne --output-json=step2.json --input-annotation-list=annotation_list.txt
+
+# re-do the step2 actions
+~/.local/bin/smfish_read_config -c step2.json -o test.dec6.js -p test.dec6.html -q test.dec6.css
+
+# no need to restart http.server
+# go back to localhost:8000/test.dec6.html (refresh the page) (recommend incognito mode in Chrome)
+```
+
+##### 4\. Customize the viewer
+
+If you want to customize the viewer output results, then modify the
+step2.json after the create step. Then re-do step2 actions. Things that
+can be modified at this stage:  
+\- map height  
+\- default annotation of each panel  
+\- umap or tsne in the PanelTsne
+
+To customize number of panels, what goes in each panel (PanelTsne,
+PanelPhysical, PanelPhysical10X, or PanelPhysicalSimple), and add
+annotations, please re-run the step2.json creation step because these
+changes are major.
 
 -----
 
