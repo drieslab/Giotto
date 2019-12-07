@@ -2001,7 +2001,7 @@ visDimPlot_3D_plotly <- function(gobject,
 
   ## annotated cell metadata
   cell_metadata = gobject@cell_metadata
-  annotated_DT = merge(cell_metadata, dim_DT, by = 'cell_ID')
+  annotated_DT = data.table::merge.data.table(cell_metadata, dim_DT, by = 'cell_ID')
 
   # create input for network
   if(show_NN_network == TRUE) {
@@ -10016,7 +10016,9 @@ dimPlot3D = function(gobject,
 #'
 plotUMAP_3D = function(gobject, dim_reduction_name = 'umap', default_save_name = 'UMAP_3D', ...) {
 
-  dimPlot3D(gobject = gobject, dim_reduction_to_use = 'umap', ...)
+  dimPlot3D(gobject = gobject,
+            dim_reduction_to_use = 'umap', dim_reduction_name = dim_reduction_name,
+            default_save_name = default_save_name, ...)
 
 }
 
@@ -10060,11 +10062,11 @@ plotUMAP_3D = function(gobject, dim_reduction_name = 'umap', default_save_name =
 #'
 plotTSNE_3D = function(gobject, dim_reduction_name = 'tsne', default_save_name = 'TSNE_3D', ...) {
 
-  dimPlot3D(gobject = gobject, dim_reduction_to_use = 'tsne', ...)
+  dimPlot3D(gobject = gobject,
+            dim_reduction_to_use = 'tsne', dim_reduction_name = dim_reduction_name,
+            default_save_name = default_save_name, ...)
 
 }
-
-
 
 
 #' @title plotPCA_3D
@@ -10106,9 +10108,12 @@ plotTSNE_3D = function(gobject, dim_reduction_name = 'tsne', default_save_name =
 #'
 plotPCA_3D = function(gobject, dim_reduction_name = 'pca', default_save_name = 'PCA_3D', ...) {
 
-  dimPlot3D(gobject = gobject, dim_reduction_to_use = 'pca',  ...)
+  dimPlot3D(gobject = gobject,
+            dim_reduction_to_use = 'pca', dim_reduction_name = dim_reduction_name,
+            default_save_name = default_save_name, ...)
 
 }
+
 
 #' @title spatPlot3D
 #' @name spatPlot3D
