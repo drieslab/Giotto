@@ -38,6 +38,9 @@ dimPlot2D_single(
   point_border_stroke = 0.1,
   title = NULL,
   show_legend = T,
+  legend_text = 8,
+  axis_text = 8,
+  axis_title = 8,
   show_plot = NA,
   return_plot = NA,
   save_plot = NA,
@@ -107,6 +110,12 @@ dimPlot2D_single(
 \item{title}{title for plot, defaults to cell_color parameter}
 
 \item{show_legend}{show legend}
+
+\item{legend_text}{size of legend text}
+
+\item{axis_text}{size of axis text}
+
+\item{axis_title}{size of axis title}
 
 \item{show_plot}{show plot}
 

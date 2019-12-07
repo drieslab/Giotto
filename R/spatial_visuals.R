@@ -5279,6 +5279,9 @@ plot_point_layer_ggplot = function(ggobject,
 #' @param point_border_stroke stroke size of border around points
 #' @param title title for plot, defaults to cell_color parameter
 #' @param show_legend show legend
+#' @param legend_text size of legend text
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -5322,6 +5325,9 @@ dimPlot2D_single <- function(gobject,
                              point_border_stroke = 0.1,
                              title = NULL,
                              show_legend = T,
+                             legend_text = 8,
+                             axis_text = 8,
+                             axis_title = 8,
                              show_plot = NA,
                              return_plot = NA,
                              save_plot = NA,
@@ -5474,7 +5480,9 @@ dimPlot2D_single <- function(gobject,
   ## adjust titles
   pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5),
                             legend.title = element_blank(),
-                            legend.text = element_text(size = 10))
+                            legend.text = element_text(size = legend_text),
+                            axis.text = element_text(size = axis_text),
+                            axis.title = element_text(size = axis_title))
 
   # print, return and save parameters
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
@@ -5506,6 +5514,7 @@ dimPlot2D_single <- function(gobject,
 #' @description Visualize cells according to dimension reduction coordinates
 #' @param gobject giotto object
 #' @param groub_by create multiple plots based on cell annotation column
+#' @param group_by_subset subset the group_by factor column
 #' @param dim_reduction_to_use dimension reduction to use
 #' @param dim_reduction_name dimension reduction name
 #' @param dim1_to_use dimension to use on x-axis
@@ -5536,6 +5545,9 @@ dimPlot2D_single <- function(gobject,
 #' @param point_border_stroke stroke size of border around points
 #' @param title title for plot, defaults to cell_color parameter
 #' @param show_legend show legend
+#' @param legend_text size of legend text
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
 #' @param cow_n_col cowplot param: how many columns
 #' @param cow_rel_h cowplot param: relative height
 #' @param cow_rel_w cowplot param: relative width
@@ -5552,6 +5564,7 @@ dimPlot2D_single <- function(gobject,
 #'     dimPlot2D(gobject)
 dimPlot2D = function(gobject,
                      group_by = NULL,
+                     group_by_subset = NULL,
                      dim_reduction_to_use = 'umap',
                      dim_reduction_name = 'umap',
                      dim1_to_use = 1,
@@ -5584,6 +5597,9 @@ dimPlot2D = function(gobject,
                      point_border_stroke = 0.1,
                      title = NULL,
                      show_legend = T,
+                     legend_text = 8,
+                     axis_text = 8,
+                     axis_title = 8,
                      cow_n_col = 2,
                      cow_rel_h = 1,
                      cow_rel_w = 1,
@@ -5631,6 +5647,9 @@ dimPlot2D = function(gobject,
                      point_border_stroke = point_border_stroke,
                      title = title,
                      show_legend = show_legend,
+                     legend_text = legend_text,
+                     axis_text = axis_text,
+                     axis_title = axis_title,
                      show_plot = show_plot,
                      return_plot = return_plot,
                      save_plot = save_plot,
@@ -5651,6 +5670,16 @@ dimPlot2D = function(gobject,
     }
 
     unique_groups = unique(comb_metadata[[group_by]])
+
+    # subset unique_groups
+    if(!is.null(group_by_subset)) {
+      not_found = group_by_subset[!group_by_subset %in% unique_groups]
+
+      if(length(not_found) > 0) {
+        cat('the following subset was not found: ', not_found)
+      }
+      unique_groups = unique_groups[unique_groups %in% group_by_subset]
+    }
 
 
     # create matching cell_color_code
@@ -5721,6 +5750,9 @@ dimPlot2D = function(gobject,
                             point_border_stroke = point_border_stroke,
                             title = group,
                             show_legend = show_legend,
+                            legend_text = legend_text,
+                            axis_text = axis_text,
+                            axis_title = axis_title,
                             show_plot = FALSE,
                             return_plot = TRUE,
                             save_plot = FALSE,
@@ -5770,6 +5802,7 @@ dimPlot2D = function(gobject,
 #' @description Visualize cells according to dimension reduction coordinates
 #' @param gobject giotto object
 #' @param groub_by create multiple plots based on cell annotation column
+#' @param group_by_subset subset the group_by factor column
 #' @param dim_reduction_to_use dimension reduction to use
 #' @param dim_reduction_name dimension reduction name
 #' @param dim1_to_use dimension to use on x-axis
@@ -5798,8 +5831,11 @@ dimPlot2D = function(gobject,
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
-#' @param show_legend show legend
 #' @param title title for plot, defaults to cell_color parameter
+#' @param show_legend show legend
+#' @param legend_text size of legend text
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
 #' @param cow_n_col cowplot param: how many columns
 #' @param cow_rel_h cowplot param: relative height
 #' @param cow_rel_w cowplot param: relative width
@@ -5816,6 +5852,7 @@ dimPlot2D = function(gobject,
 #'     dimPlot(gobject)
 dimPlot = function(gobject,
                    group_by = NULL,
+                   group_by_subset = NULL,
                    dim_reduction_to_use = 'umap',
                    dim_reduction_name = 'umap',
                    dim1_to_use = 1,
@@ -5847,6 +5884,9 @@ dimPlot = function(gobject,
                    point_border_col = 'black',
                    point_border_stroke = 0.1,
                    show_legend = T,
+                   legend_text = 8,
+                   axis_text = 8,
+                   axis_title = 8,
                    title = NULL,
                    cow_n_col = 2,
                    cow_rel_h = 1,
@@ -5860,6 +5900,7 @@ dimPlot = function(gobject,
 
   dimPlot2D(gobject = gobject,
             group_by = group_by,
+            group_by_subset = group_by_subset,
             dim_reduction_to_use = dim_reduction_to_use,
             dim_reduction_name = dim_reduction_name,
             dim1_to_use = dim1_to_use,
@@ -5892,6 +5933,9 @@ dimPlot = function(gobject,
             point_border_stroke = point_border_stroke,
             title = title,
             show_legend = show_legend,
+            legend_text = legend_text,
+            axis_text = axis_text,
+            axis_title = axis_title,
             cow_n_col = cow_n_col,
             cow_rel_h = cow_rel_h,
             cow_rel_w = cow_rel_w,
@@ -5914,6 +5958,7 @@ dimPlot = function(gobject,
 #' @description Short wrapper for UMAP visualization
 #' @param gobject giotto object
 #' @param groub_by create multiple plots based on cell annotation column
+#' @param group_by_subset subset the group_by factor column
 #' @param dim_reduction_name dimension reduction name
 #' @param dim1_to_use dimension to use on x-axis
 #' @param dim2_to_use dimension to use on y-axis
@@ -5941,8 +5986,11 @@ dimPlot = function(gobject,
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
-#' @param show_legend show legend
 #' @param title title for plot, defaults to cell_color parameter
+#' @param show_legend show legend
+#' @param legend_text size of legend text
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
 #' @param cow_n_col cowplot param: how many columns
 #' @param cow_rel_h cowplot param: relative height
 #' @param cow_rel_w cowplot param: relative width
@@ -5971,6 +6019,7 @@ plotUMAP_2D = function(gobject, dim_reduction_name = 'umap', default_save_name =
 #' @description Short wrapper for UMAP visualization
 #' @param gobject giotto object
 #' @param groub_by create multiple plots based on cell annotation column
+#' @param group_by_subset subset the group_by factor column
 #' @param dim_reduction_name dimension reduction name
 #' @param dim1_to_use dimension to use on x-axis
 #' @param dim2_to_use dimension to use on y-axis
@@ -5998,8 +6047,11 @@ plotUMAP_2D = function(gobject, dim_reduction_name = 'umap', default_save_name =
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
-#' @param show_legend show legend
 #' @param title title for plot, defaults to cell_color parameter
+#' @param show_legend show legend
+#' @param legend_text size of legend text
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
 #' @param cow_n_col cowplot param: how many columns
 #' @param cow_rel_h cowplot param: relative height
 #' @param cow_rel_w cowplot param: relative width
@@ -6031,6 +6083,7 @@ plotUMAP = function(gobject, dim_reduction_name = 'umap', default_save_name = 'U
 #' @description Short wrapper for tSNE visualization
 #' @param gobject giotto object
 #' @param groub_by create multiple plots based on cell annotation column
+#' @param group_by_subset subset the group_by factor column
 #' @param dim_reduction_name dimension reduction name
 #' @param dim1_to_use dimension to use on x-axis
 #' @param dim2_to_use dimension to use on y-axis
@@ -6058,8 +6111,11 @@ plotUMAP = function(gobject, dim_reduction_name = 'umap', default_save_name = 'U
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
-#' @param show_legend show legend
 #' @param title title for plot, defaults to cell_color parameter
+#' @param show_legend show legend
+#' @param legend_text size of legend text
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
 #' @param cow_n_col cowplot param: how many columns
 #' @param cow_rel_h cowplot param: relative height
 #' @param cow_rel_w cowplot param: relative width
@@ -6087,6 +6143,7 @@ plotTSNE_2D = function(gobject, dim_reduction_name = 'tsne', default_save_name =
 #' @description Short wrapper for tSNE visualization
 #' @param gobject giotto object
 #' @param groub_by create multiple plots based on cell annotation column
+#' @param group_by_subset subset the group_by factor column
 #' @param dim_reduction_name dimension reduction name
 #' @param dim1_to_use dimension to use on x-axis
 #' @param dim2_to_use dimension to use on y-axis
@@ -6114,8 +6171,11 @@ plotTSNE_2D = function(gobject, dim_reduction_name = 'tsne', default_save_name =
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
-#' @param show_legend show legend
 #' @param title title for plot, defaults to cell_color parameter
+#' @param show_legend show legend
+#' @param legend_text size of legend text
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
 #' @param cow_n_col cowplot param: how many columns
 #' @param cow_rel_h cowplot param: relative height
 #' @param cow_rel_w cowplot param: relative width
@@ -6145,6 +6205,7 @@ plotTSNE = function(gobject, dim_reduction_name = 'tsne', default_save_name = 't
 #' @description Short wrapper for PCA visualization
 #' @param gobject giotto object
 #' @param groub_by create multiple plots based on cell annotation column
+#' @param group_by_subset subset the group_by factor column
 #' @param dim_reduction_name dimension reduction name
 #' @param dim1_to_use dimension to use on x-axis
 #' @param dim2_to_use dimension to use on y-axis
@@ -6172,8 +6233,11 @@ plotTSNE = function(gobject, dim_reduction_name = 'tsne', default_save_name = 't
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
-#' @param show_legend show legend
 #' @param title title for plot, defaults to cell_color parameter
+#' @param show_legend show legend
+#' @param legend_text size of legend text
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
 #' @param cow_n_col cowplot param: how many columns
 #' @param cow_rel_h cowplot param: relative height
 #' @param cow_rel_w cowplot param: relative width
@@ -6203,6 +6267,7 @@ plotPCA_2D = function(gobject, dim_reduction_name = 'pca', default_save_name = '
 #' @description Short wrapper for PCA visualization
 #' @param gobject giotto object
 #' @param groub_by create multiple plots based on cell annotation column
+#' @param group_by_subset subset the group_by factor column
 #' @param dim_reduction_name dimension reduction name
 #' @param dim1_to_use dimension to use on x-axis
 #' @param dim2_to_use dimension to use on y-axis
@@ -6232,6 +6297,9 @@ plotPCA_2D = function(gobject, dim_reduction_name = 'pca', default_save_name = '
 #' @param point_border_stroke stroke size of border around points
 #' @param show_legend show legend
 #' @param title title for plot, defaults to cell_color parameter
+#' @param legend_text size of legend text
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
 #' @param cow_n_col cowplot param: how many columns
 #' @param cow_rel_h cowplot param: relative height
 #' @param cow_rel_w cowplot param: relative width
@@ -6518,6 +6586,9 @@ plot_spat_point_layer_ggplot = function(ggobject,
 #' @param coord_fix_ratio fix ratio between x and y-axis
 #' @param title title of plot
 #' @param show_legend show legend
+#' @param legend_text size of legend text
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -6565,6 +6636,9 @@ spatPlot2D_single = function(gobject,
                              coord_fix_ratio = NULL,
                              title = NULL,
                              show_legend = T,
+                             legend_text = 8,
+                             axis_text = 8,
+                             axis_title = 8,
                              show_plot = NA,
                              return_plot = NA,
                              save_plot = NA,
@@ -6687,7 +6761,9 @@ spatPlot2D_single = function(gobject,
   ## adjust titles
   pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5),
                             legend.title = element_blank(),
-                            legend.text = element_text(size = 10))
+                            legend.text = element_text(size = legend_text),
+                            axis.title = element_text(size = axis_title),
+                            axis.text = element_text(size = axis_text))
 
   # fix coord ratio
   if(!is.null(coord_fix_ratio)) {
@@ -6731,6 +6807,7 @@ spatPlot2D_single = function(gobject,
 #' @description Visualize cells according to spatial coordinates
 #' @param gobject giotto object
 #' @param groub_by create multiple plots based on cell annotation column
+#' @param group_by_subset subset the group_by factor column
 #' @param sdimx x-axis dimension name (default = 'sdimx')
 #' @param sdimy y-axis dimension name (default = 'sdimy')
 #' @param spat_enr_names names of spatial enrichment results to include
@@ -6764,6 +6841,9 @@ spatPlot2D_single = function(gobject,
 #' @param coord_fix_ratio fix ratio between x and y-axis
 #' @param title title of plot
 #' @param show_legend show legend
+#' @param legend_text size of legend text
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
 #' @param cow_n_col cowplot param: how many columns
 #' @param cow_rel_h cowplot param: relative height
 #' @param cow_rel_w cowplot param: relative width
@@ -6781,6 +6861,7 @@ spatPlot2D_single = function(gobject,
 #'     spatPlot2D(gobject)
 spatPlot2D = function(gobject,
                       group_by = NULL,
+                      group_by_subset = NULL,
                       sdimx = 'sdimx',
                       sdimy = 'sdimy',
                       spat_enr_names = NULL,
@@ -6814,8 +6895,11 @@ spatPlot2D = function(gobject,
                       other_point_size = 1,
                       other_cells_alpha = 0.1,
                       coord_fix_ratio = NULL,
-                      show_legend = T,
                       title = NULL,
+                      show_legend = T,
+                      legend_text = 8,
+                      axis_text = 8,
+                      axis_title = 8,
                       cow_n_col = 2,
                       cow_rel_h = 1,
                       cow_rel_w = 1,
@@ -6865,6 +6949,9 @@ spatPlot2D = function(gobject,
                       other_cells_alpha = other_cells_alpha,
                       coord_fix_ratio = coord_fix_ratio,
                       show_legend = show_legend,
+                      legend_text = legend_text,
+                      axis_text = axis_text,
+                      axis_title = axis_title,
                       title = title,
                       show_plot = show_plot,
                       return_plot = return_plot,
@@ -6887,6 +6974,14 @@ spatPlot2D = function(gobject,
 
     unique_groups = unique(comb_metadata[[group_by]])
 
+    # subset unique_groups
+    if(!is.null(group_by_subset)) {
+      not_found = group_by_subset[!group_by_subset %in% unique_groups]
+      if(length(not_found) > 0) {
+        cat('the following subset was not found: ', not_found)
+      }
+      unique_groups = unique_groups[unique_groups %in% group_by_subset]
+    }
 
     # create matching cell_color_code
     if(is.null(cell_color_code)) {
@@ -6957,6 +7052,9 @@ spatPlot2D = function(gobject,
                              coord_fix_ratio = coord_fix_ratio,
                              title = group,
                              show_legend = show_legend,
+                             legend_text = legend_text,
+                             axis_text = axis_text,
+                             axis_title = axis_title,
                              show_plot = FALSE,
                              return_plot = TRUE,
                              save_plot = FALSE,
@@ -7005,6 +7103,7 @@ spatPlot2D = function(gobject,
 #' @description Visualize cells according to spatial coordinates
 #' @param gobject giotto object
 #' @param groub_by create multiple plots based on cell annotation column
+#' @param group_by_subset subset the group_by factor column
 #' @param sdimx x-axis dimension name (default = 'sdimx')
 #' @param sdimy y-axis dimension name (default = 'sdimy')
 #' @param spat_enr_names names of spatial enrichment results to include
@@ -7038,6 +7137,9 @@ spatPlot2D = function(gobject,
 #' @param coord_fix_ratio fix ratio between x and y-axis
 #' @param title title of plot
 #' @param show_legend show legend
+#' @param legend_text size of legend text
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
 #' @param cow_n_col cowplot param: how many columns
 #' @param cow_rel_h cowplot param: relative height
 #' @param cow_rel_w cowplot param: relative width
@@ -7055,6 +7157,7 @@ spatPlot2D = function(gobject,
 #'     spatPlot(gobject)
 spatPlot = function(gobject,
                     group_by = NULL,
+                    group_by_subset = NULL,
                     sdimx = 'sdimx',
                     sdimy = 'sdimy',
                     spat_enr_names = NULL,
@@ -7090,6 +7193,9 @@ spatPlot = function(gobject,
                     coord_fix_ratio = NULL,
                     title = NULL,
                     show_legend = T,
+                    legend_text = 8,
+                    axis_text = 8,
+                    axis_title = 8,
                     cow_n_col = 2,
                     cow_rel_h = 1,
                     cow_rel_w = 1,
@@ -7102,6 +7208,7 @@ spatPlot = function(gobject,
 
   spatPlot2D(gobject = gobject,
              group_by = group_by,
+             group_by_subset = group_by_subset,
              sdimx = sdimx,
              sdimy = sdimy,
              spat_enr_names = spat_enr_names,
@@ -7137,6 +7244,9 @@ spatPlot = function(gobject,
              coord_fix_ratio = coord_fix_ratio,
              title = title,
              show_legend = show_legend,
+             legend_text = legend_text,
+             axis_text = axis_text,
+             axis_title = axis_title,
              cow_n_col = cow_n_col,
              cow_rel_h = cow_rel_h,
              cow_rel_w = cow_rel_w,
@@ -7211,6 +7321,9 @@ spatPlot = function(gobject,
 #' @param spat_other_cells_alpha alpha of not selected spat cells
 #' @param dim_show_legend show legend of dimension reduction plot
 #' @param spat_show_legend show legend of spatial plot
+#' @param legend_text size of legend text
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -7275,6 +7388,9 @@ spatDimPlot2D <- function(gobject,
                           spat_other_cells_alpha = 0.5,
                           dim_show_legend = F,
                           spat_show_legend = F,
+                          legend_text = 8,
+                          axis_text = 8,
+                          axis_title = 8,
                           show_plot = NA,
                           return_plot = NA,
                           save_plot = NA,
@@ -7305,6 +7421,7 @@ spatDimPlot2D <- function(gobject,
   # dimension reduction plot
   dmpl = dimPlot2D(gobject = gobject,
                    group_by = NULL,
+                   group_by_subset = NULL,
                    dim_reduction_to_use = dim_reduction_to_use,
                    dim_reduction_name = dim_reduction_name,
                    dim1_to_use = dim1_to_use,
@@ -7336,6 +7453,9 @@ spatDimPlot2D <- function(gobject,
                    other_cell_color = other_cell_color,
                    other_point_size = dim_other_point_size,
                    show_legend = dim_show_legend,
+                   legend_text = legend_text,
+                   axis_text = axis_text,
+                   axis_title = axis_title,
                    show_plot = FALSE,
                    return_plot = TRUE,
                    save_plot = FALSE
@@ -7344,6 +7464,7 @@ spatDimPlot2D <- function(gobject,
   # spatial plot
   spl = spatPlot2D(gobject = gobject,
                    group_by = NULL,
+                   group_by_subset = NULL,
                    sdimx = sdimx,
                    sdimy = sdimy,
                    spat_enr_names = spat_enr_names,
@@ -7379,6 +7500,9 @@ spatDimPlot2D <- function(gobject,
                    coord_fix_ratio = NULL,
                    title = '',
                    show_legend = spat_show_legend,
+                   legend_text = legend_text,
+                   axis_text = axis_text,
+                   axis_title = axis_title,
                    show_plot = FALSE,
                    return_plot = TRUE,
                    save_plot = FALSE)
@@ -7475,6 +7599,9 @@ spatDimPlot2D <- function(gobject,
 #' @param spat_other_cells_alpha alpha of not selected spat cells
 #' @param dim_show_legend show legend of dimension reduction plot
 #' @param spat_show_legend show legend of spatial plot
+#' @param legend_text size of legend text
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -7539,6 +7666,9 @@ spatDimPlot = function(gobject,
                        spat_other_cells_alpha = 0.5,
                        dim_show_legend = F,
                        spat_show_legend = F,
+                       legend_text = 8,
+                       axis_text = 8,
+                       axis_title = 8,
                        show_plot = NA,
                        return_plot = NA,
                        save_plot = NA,
@@ -7598,6 +7728,9 @@ spatDimPlot = function(gobject,
                 spat_other_cells_alpha = spat_other_cells_alpha,
                 dim_show_legend = dim_show_legend,
                 spat_show_legend = spat_show_legend,
+                legend_text = legend_text,
+                axis_text = axis_text,
+                axis_title = axis_title,
                 show_plot = show_plot,
                 return_plot = return_plot,
                 save_plot = save_plot,
@@ -8589,6 +8722,9 @@ spatDimGenePlot = function(gobject,
 #' @param other_cells_alpha alpha of not selected cells
 #' @param coord_fix_ratio fix ratio between x and y-axis
 #' @param show_legend show legend
+#' @param legend_text size of legend text
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -8632,6 +8768,9 @@ spatCellPlot2D = function(gobject,
                           other_cells_alpha = 0.1,
                           coord_fix_ratio = NULL,
                           show_legend = T,
+                          legend_text = 8,
+                          axis_text = 8,
+                          axis_title = 8,
                           cow_n_col = 2,
                           cow_rel_h = 1,
                           cow_rel_w = 1,
@@ -8664,6 +8803,7 @@ spatCellPlot2D = function(gobject,
 
     pl = spatPlot2D(gobject = gobject,
                     group_by = NULL,
+                    group_by_subset = NULL,
                     sdimx = sdimx,
                     sdimy = sdimy,
                     spat_enr_names = spat_enr_names,
@@ -8698,6 +8838,9 @@ spatCellPlot2D = function(gobject,
                     coord_fix_ratio = coord_fix_ratio,
                     title = annot,
                     show_legend = show_legend,
+                    legend_text = legend_text,
+                    axis_text = axis_text,
+                    axis_title = axis_title,
                     show_plot = FALSE,
                     return_plot = TRUE,
                     save_plot = FALSE,
@@ -8773,6 +8916,9 @@ spatCellPlot2D = function(gobject,
 #' @param other_cells_alpha alpha of not selected cells
 #' @param coord_fix_ratio fix ratio between x and y-axis
 #' @param show_legend show legend
+#' @param legend_text size of legend text
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -8816,6 +8962,9 @@ spatCellPlot = function(gobject,
                         other_cells_alpha = 0.1,
                         coord_fix_ratio = NULL,
                         show_legend = T,
+                        legend_text = 8,
+                        axis_text = 8,
+                        axis_title = 8,
                         cow_n_col = 2,
                         cow_rel_h = 1,
                         cow_rel_w = 1,
@@ -8859,6 +9008,9 @@ spatCellPlot = function(gobject,
                  other_cells_alpha = other_cells_alpha,
                  coord_fix_ratio = coord_fix_ratio,
                  show_legend = show_legend,
+                 legend_text = legend_text,
+                 axis_text = axis_text,
+                 axis_title = axis_title,
                  cow_n_col = cow_n_col,
                  cow_rel_h = cow_rel_h,
                  cow_rel_w = cow_rel_w,
@@ -8910,6 +9062,9 @@ spatCellPlot = function(gobject,
 #' @param point_border_stroke stroke size of border around points
 #' @param title title for plot, defaults to cell_color parameter
 #' @param show_legend show legend
+#' @param legend_text size of legend text
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -8950,6 +9105,9 @@ dimCellPlot2D = function(gobject,
                          point_border_col = 'black',
                          point_border_stroke = 0.1,
                          show_legend = T,
+                         legend_text = 8,
+                         axis_text = 8,
+                         axis_title = 8,
                          cow_n_col = 2,
                          cow_rel_h = 1,
                          cow_rel_w = 1,
@@ -8980,6 +9138,7 @@ dimCellPlot2D = function(gobject,
 
     pl = dimPlot2D(gobject = gobject,
                    group_by = NULL,
+                   group_by_subset = NULL,
                    dim_reduction_to_use = dim_reduction_to_use,
                    dim_reduction_name = dim_reduction_name,
                    dim1_to_use = dim1_to_use,
@@ -9011,6 +9170,9 @@ dimCellPlot2D = function(gobject,
                    point_border_stroke = point_border_stroke,
                    title = annot,
                    show_legend = show_legend,
+                   legend_text = legend_text,
+                   axis_text = axis_text,
+                   axis_title = axis_title,
                    show_plot = FALSE,
                    return_plot = TRUE,
                    save_plot = FALSE,
@@ -9091,6 +9253,9 @@ dimCellPlot2D = function(gobject,
 #' @param point_border_stroke stroke size of border around points
 #' @param title title for plot, defaults to cell_color parameter
 #' @param show_legend show legend
+#' @param legend_text size of legend text
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -9131,6 +9296,9 @@ dimCellPlot = function(gobject,
                        point_border_col = 'black',
                        point_border_stroke = 0.1,
                        show_legend = T,
+                       legend_text = 8,
+                       axis_text = 8,
+                       axis_title = 8,
                        cow_n_col = 2,
                        cow_rel_h = 1,
                        cow_rel_w = 1,
@@ -9171,6 +9339,9 @@ dimCellPlot = function(gobject,
                 point_border_col = point_border_col,
                 point_border_stroke = point_border_stroke,
                 show_legend = show_legend,
+                legend_text = legend_text,
+                axis_text = axis_text,
+                axis_title = axis_title,
                 cow_n_col = cow_n_col,
                 cow_rel_h = cow_rel_h,
                 cow_rel_w = cow_rel_w,
@@ -9243,6 +9414,9 @@ dimCellPlot = function(gobject,
 #' @param cow_rel_w cowplot param: relative width
 #' @param cow_align cowplot param: how to align
 #' @param show_legend show legend
+#' @param legend_text size of legend text
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -9310,6 +9484,9 @@ spatDimCellPlot2D <- function(gobject,
                               cow_rel_w = 1,
                               cow_align = 'h',
                               show_legend = T,
+                              legend_text = 8,
+                              axis_text = 8,
+                              axis_title = 8,
                               show_plot = NA,
                               return_plot = NA,
                               save_plot = NA,
@@ -9349,6 +9526,9 @@ spatDimCellPlot2D <- function(gobject,
                        other_cell_color = other_cell_color,
                        other_point_size = dim_other_point_size,
                        show_legend = show_legend,
+                       legend_text = legend_text,
+                       axis_text = axis_text,
+                       axis_title = axis_title,
                        cow_n_col = cow_n_col,
                        cow_rel_h = cow_rel_h,
                        cow_rel_w = cow_rel_w,
@@ -9391,6 +9571,9 @@ spatDimCellPlot2D <- function(gobject,
                        other_cells_alpha = spat_other_cells_alpha,
                        coord_fix_ratio = coord_fix_ratio,
                        show_legend = show_legend,
+                       legend_text = legend_text,
+                       axis_text = axis_text,
+                       axis_title = axis_title,
                        cow_n_col = cow_n_col,
                        cow_rel_h = cow_rel_h,
                        cow_rel_w = cow_rel_w,
@@ -9493,6 +9676,9 @@ spatDimCellPlot2D <- function(gobject,
 #' @param cow_rel_w cowplot param: relative width
 #' @param cow_align cowplot param: how to align
 #' @param show_legend show legend
+#' @param legend_text size of legend text
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -9560,6 +9746,9 @@ spatDimCellPlot = function(gobject,
                            cow_rel_w = 1,
                            cow_align = 'h',
                            show_legend = T,
+                           legend_text = 8,
+                           axis_text = 8,
+                           axis_title = 8,
                            show_plot = NA,
                            return_plot = NA,
                            save_plot = NA,
@@ -9623,6 +9812,9 @@ spatDimCellPlot = function(gobject,
                     cow_rel_w = cow_rel_w,
                     cow_align = cow_align,
                     show_legend = show_legend,
+                    legend_text = legend_text,
+                    axis_text = axis_text,
+                    axis_title = axis_title,
                     show_plot = show_plot,
                     return_plot = return_plot,
                     save_plot = save_plot,

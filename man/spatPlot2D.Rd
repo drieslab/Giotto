@@ -7,6 +7,7 @@
 spatPlot2D(
   gobject,
   group_by = NULL,
+  group_by_subset = NULL,
   sdimx = "sdimx",
   sdimy = "sdimy",
   spat_enr_names = NULL,
@@ -40,8 +41,11 @@ spatPlot2D(
   other_point_size = 1,
   other_cells_alpha = 0.1,
   coord_fix_ratio = NULL,
-  show_legend = T,
   title = NULL,
+  show_legend = T,
+  legend_text = 8,
+  axis_text = 8,
+  axis_title = 8,
   cow_n_col = 2,
   cow_rel_h = 1,
   cow_rel_w = 1,
@@ -55,6 +59,8 @@ spatPlot2D(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{group_by_subset}{subset the group_by factor column}
 
 \item{sdimx}{x-axis dimension name (default = 'sdimx')}
 
@@ -118,9 +124,15 @@ spatPlot2D(
 
 \item{coord_fix_ratio}{fix ratio between x and y-axis}
 
+\item{title}{title of plot}
+
 \item{show_legend}{show legend}
 
-\item{title}{title of plot}
+\item{legend_text}{size of legend text}
+
+\item{axis_text}{size of axis text}
+
+\item{axis_title}{size of axis title}
 
 \item{cow_n_col}{cowplot param: how many columns}
 

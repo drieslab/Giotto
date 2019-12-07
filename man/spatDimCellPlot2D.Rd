@@ -62,6 +62,9 @@ spatDimCellPlot2D(
   cow_rel_w = 1,
   cow_align = "h",
   show_legend = T,
+  legend_text = 8,
+  axis_text = 8,
+  axis_title = 8,
   show_plot = NA,
   return_plot = NA,
   save_plot = NA,
@@ -177,6 +180,12 @@ spatDimCellPlot2D(
 \item{cow_align}{cowplot param: how to align}
 
 \item{show_legend}{show legend}
+
+\item{legend_text}{size of legend text}
+
+\item{axis_text}{size of axis text}
+
+\item{axis_title}{size of axis title}
 
 \item{show_plot}{show plot}
 

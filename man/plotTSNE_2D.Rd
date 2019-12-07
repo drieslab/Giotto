@@ -20,6 +20,8 @@ plotTSNE_2D(
 
 \item{groub_by}{create multiple plots based on cell annotation column}
 
+\item{group_by_subset}{subset the group_by factor column}
+
 \item{dim1_to_use}{dimension to use on x-axis}
 
 \item{dim2_to_use}{dimension to use on y-axis}
@@ -72,9 +74,15 @@ plotTSNE_2D(
 
 \item{point_border_stroke}{stroke size of border around points}
 
+\item{title}{title for plot, defaults to cell_color parameter}
+
 \item{show_legend}{show legend}
 
-\item{title}{title for plot, defaults to cell_color parameter}
+\item{legend_text}{size of legend text}
+
+\item{axis_text}{size of axis text}
+
+\item{axis_title}{size of axis title}
 
 \item{cow_n_col}{cowplot param: how many columns}
 

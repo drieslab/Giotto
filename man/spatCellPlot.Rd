@@ -38,6 +38,9 @@ spatCellPlot(
   other_cells_alpha = 0.1,
   coord_fix_ratio = NULL,
   show_legend = T,
+  legend_text = 8,
+  axis_text = 8,
+  axis_title = 8,
   cow_n_col = 2,
   cow_rel_h = 1,
   cow_rel_w = 1,
@@ -111,6 +114,12 @@ spatCellPlot(
 \item{coord_fix_ratio}{fix ratio between x and y-axis}
 
 \item{show_legend}{show legend}
+
+\item{legend_text}{size of legend text}
+
+\item{axis_text}{size of axis text}
+
+\item{axis_title}{size of axis title}
 
 \item{show_plot}{show plot}
 

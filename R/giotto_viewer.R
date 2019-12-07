@@ -216,7 +216,7 @@ exportGiottoViewer = function(gobject,
   for(sel_annot_id in 1:length(found_factor_annotations)) {
 
     sel_annot_name = found_factor_annotations[sel_annot_id]
-    annot_inf_name = paste0(sel_annot_name,'_annot_information')
+    annot_inf_name = paste0(sel_annot_name,'_annot_information.txt')
 
     annot_names[[sel_annot_id]] = sel_annot_name
     text_file_names[[sel_annot_id]] = annot_inf_name
@@ -246,7 +246,7 @@ exportGiottoViewer = function(gobject,
   for(sel_annot_id in 1:length(found_numeric_annotations)) {
 
     sel_annot_name = found_numeric_annotations[sel_annot_id]
-    annot_inf_name = paste0(sel_annot_name,'_num_annot_information')
+    annot_inf_name = paste0(sel_annot_name,'_num_annot_information.txt')
 
     annot_names[[sel_annot_id]] = sel_annot_name
     text_file_names[[sel_annot_id]] = annot_inf_name

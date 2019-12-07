@@ -15,6 +15,8 @@ plotPCA(gobject, dim_reduction_name = "pca", default_save_name = "PCA", ...)
 
 \item{groub_by}{create multiple plots based on cell annotation column}
 
+\item{group_by_subset}{subset the group_by factor column}
+
 \item{dim1_to_use}{dimension to use on x-axis}
 
 \item{dim2_to_use}{dimension to use on y-axis}
@@ -70,6 +72,12 @@ plotPCA(gobject, dim_reduction_name = "pca", default_save_name = "PCA", ...)
 \item{show_legend}{show legend}
 
 \item{title}{title for plot, defaults to cell_color parameter}
+
+\item{legend_text}{size of legend text}
+
+\item{axis_text}{size of axis text}
+
+\item{axis_title}{size of axis title}
 
 \item{cow_n_col}{cowplot param: how many columns}
 

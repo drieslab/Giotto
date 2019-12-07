@@ -7,6 +7,7 @@
 spatPlot(
   gobject,
   group_by = NULL,
+  group_by_subset = NULL,
   sdimx = "sdimx",
   sdimy = "sdimy",
   spat_enr_names = NULL,
@@ -42,6 +43,9 @@ spatPlot(
   coord_fix_ratio = NULL,
   title = NULL,
   show_legend = T,
+  legend_text = 8,
+  axis_text = 8,
+  axis_title = 8,
   cow_n_col = 2,
   cow_rel_h = 1,
   cow_rel_w = 1,
@@ -55,6 +59,8 @@ spatPlot(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{group_by_subset}{subset the group_by factor column}
 
 \item{sdimx}{x-axis dimension name (default = 'sdimx')}
 
@@ -121,6 +127,12 @@ spatPlot(
 \item{title}{title of plot}
 
 \item{show_legend}{show legend}
+
+\item{legend_text}{size of legend text}
+
+\item{axis_text}{size of axis text}
+
+\item{axis_title}{size of axis title}
 
 \item{cow_n_col}{cowplot param: how many columns}
 

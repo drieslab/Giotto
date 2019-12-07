@@ -7,8 +7,9 @@ dataset
 object](./inst/examples/mouse_visium_brain/mouse_visium_brain_Giotto_v0.1.3.md)
 to:  
 \- show how to visualize a subset of cells  
-\- subset the dataset based on cell IDs (cluster name(s) or individual
-cell IDs)  
+\- show how to visualize data by group (example clustering, layers in 3D
+images, …) - subset the dataset based on cell IDs (cluster name(s) or
+individual cell IDs)  
 \- subset the dataset based on spatial locations/coordinates
 
 ##### 1\. the Visium 10X whole brain
@@ -43,7 +44,53 @@ spatDimPlot(visium_brain,
 
 ![](./figures/3_whole_brain_clus4_noOther.png)
 
-##### 4\. Create a new Giotto object by subsetting selected clusters
+##### 4\. create spatial plots grouped by the leiden clustering result
+
+``` r
+spatPlot(visium_brain,
+         group_by = 'leiden_clus', group_by_subset = c(1:8),
+         cell_color = 'leiden_clus', cow_n_col = 4,
+         point_size = 1, axis_text = 6, axis_title = 6, legend_text = 6,
+         save_param = list(save_name = '4_whole_brain_by_group_leiden_1', base_height = 4, base_width = 8))
+
+spatPlot(visium_brain,
+         group_by = 'leiden_clus', group_by_subset = c(9:16),
+         cell_color = 'leiden_clus', cow_n_col = 4,
+         point_size = 1, axis_text = 6, axis_title = 6, legend_text = 6,
+         save_param = list(save_name = '4_whole_brain_by_group_leiden_2', base_height = 4, base_width = 8))
+```
+
+![](./figures/4_whole_brain_by_group_leiden_1.png)
+
+![](./figures/4_whole_brain_by_group_leiden_2.png)
+
+##### 5\. create dimension plots grouped by the HMRF result
+
+``` r
+spatDimPlot(visium_brain, cell_color = 'HMRF_k12_b.1',
+            plot_alignment = 'horizontal', spat_point_size = 2,
+            save_param = list(save_name = '5_whole_brain_HMRF'))
+
+dimPlot(visium_brain,
+         group_by = 'HMRF_k12_b.1', group_by_subset = c(1:6),
+         cell_color = 'leiden_clus', cow_n_col = 3,
+         point_size = 1, axis_text = 6, axis_title = 6, legend_text = 6,
+         save_param = list(save_name = '5_whole_brain_by_group_HMRF_1', base_height = 4, base_width = 8))
+
+dimPlot(visium_brain,
+        group_by = 'HMRF_k12_b.1', group_by_subset = c(7:14),
+        cell_color = 'leiden_clus', cow_n_col = 3,
+        point_size = 1, axis_text = 6, axis_title = 6, legend_text = 6,
+        save_param = list(save_name = '5_whole_brain_by_group_HMRF_2', base_height = 4, base_width = 8))
+```
+
+![](./figures/5_whole_brain_HMRF.png)
+
+![](./figures/5_whole_brain_by_group_HMRF_1.png)
+
+![](./figures/5_whole_brain_by_group_HMRF_2.png)
+
+##### 6\. Create a new Giotto object by subsetting selected clusters
 
 ``` r
 metadata = pDataDT(visium_brain)
@@ -62,10 +109,10 @@ spatDimPlot(visium_brain_small,
 ```
 
 Show clusters:  
-![](./figures/4_subset_brain.png)
+![](./figures/6_subset_brain.png)
 
 Show number of genes detected per spot:  
-![](./figures/5_subset_brain_nr_genes.png)
+![](./figures/6_subset_brain_nr_genes.png)
 
 ##### 5\. Create a new Giotto object by subsetting based on spatial coordinates/locations
 
@@ -80,4 +127,4 @@ spatDimPlot(DG_subset,
             save_param = list(save_name = '6_DG_loc_subset', base_height = 4))
 ```
 
-![](./figures/6_DG_loc_subset.png)
+![](./figures/7_DG_loc_subset.png)

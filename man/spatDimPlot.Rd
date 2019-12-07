@@ -58,6 +58,9 @@ spatDimPlot(
   spat_other_cells_alpha = 0.5,
   dim_show_legend = F,
   spat_show_legend = F,
+  legend_text = 8,
+  axis_text = 8,
+  axis_title = 8,
   show_plot = NA,
   return_plot = NA,
   save_plot = NA,
@@ -169,6 +172,12 @@ spatDimPlot(
 \item{dim_show_legend}{show legend of dimension reduction plot}
 
 \item{spat_show_legend}{show legend of spatial plot}
+
+\item{legend_text}{size of legend text}
+
+\item{axis_text}{size of axis text}
+
+\item{axis_title}{size of axis title}
 
 \item{show_plot}{show plot}
 

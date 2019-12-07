@@ -35,6 +35,9 @@ dimCellPlot2D(
   point_border_col = "black",
   point_border_stroke = 0.1,
   show_legend = T,
+  legend_text = 8,
+  axis_text = 8,
+  axis_title = 8,
   cow_n_col = 2,
   cow_rel_h = 1,
   cow_rel_w = 1,
@@ -102,6 +105,12 @@ dimCellPlot2D(
 \item{point_border_stroke}{stroke size of border around points}
 
 \item{show_legend}{show legend}
+
+\item{legend_text}{size of legend text}
+
+\item{axis_text}{size of axis text}
+
+\item{axis_title}{size of axis title}
 
 \item{show_plot}{show plot}
 
