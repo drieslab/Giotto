@@ -8,8 +8,9 @@ object](./inst/examples/mouse_visium_brain/mouse_visium_brain_Giotto_v0.1.3.md)
 to:  
 \- show how to visualize a subset of cells  
 \- show how to visualize data by group (example clustering, layers in 3D
-images, …) - subset the dataset based on cell IDs (cluster name(s) or
-individual cell IDs)  
+images, …)  
+\- subset the dataset based on cell IDs (cluster name(s) or individual
+cell IDs)  
 \- subset the dataset based on spatial locations/coordinates
 
 ##### 1\. the Visium 10X whole brain
