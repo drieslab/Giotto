@@ -14,7 +14,7 @@
   - [part 10: HMRF domains](#part-10-hmrf-domains)
   - [part 11: Cell-cell preferential
     proximity](#part-11-cell-cell-preferential-proximity)
-  - [Export to Giotto Viewer](#export-to-giotto-viewer)
+  - [Export and create Giotto Viewer](#export-and-create-giotto-viewer)
 
 <!-- mouse_cortex_1_simple.md is generated from mouse_cortex_1_simple.Rmd Please edit that file -->
 
@@ -714,7 +714,7 @@ selected enrichment:
 
 </details>
 
-### Export to Giotto Viewer
+### Export and create Giotto Viewer
 
 <details>
 

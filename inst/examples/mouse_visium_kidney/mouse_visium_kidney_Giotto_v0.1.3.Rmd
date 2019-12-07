@@ -746,7 +746,7 @@ selected enrichment:
 </details>
 
 
-### Export to Giotto Viewer ####
+### Export and create Giotto Viewer ####
 <details>
   <summary>Expand</summary>
   \ 
