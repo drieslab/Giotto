@@ -14,6 +14,7 @@
   - [part 10: HMRF domains](#part-10-hmrf-domains)
   - [part 11: Cell-cell preferential
     proximity](#part-11-cell-cell-preferential-proximity)
+  - [Export to Giotto Viewer](#export-to-giotto-viewer)
 
 <!-- mouse_cortex_1_simple.md is generated from mouse_cortex_1_simple.Rmd Please edit that file -->
 
@@ -708,6 +709,42 @@ network:
 
 selected enrichment:  
 ![](./figures/11_selected_enrichment.png)
+
+-----
+
+</details>
+
+### Export to Giotto Viewer
+
+<details>
+
+<summary>Expand</summary>  
+
+  - export spot/cell annotations  
+  - export dimension reduction coordinates (umap, tsne, …)  
+  - export expression data
+
+This function will create a directory that, together with the 10X
+provided .tiff file, can be used to create an interactive Giotto Viewer
+
+``` r
+# select annotations, reductions and expression values to view in Giotto Viewer
+viewer_folder = paste0(results_folder, '/', 'mouse_visium_kidney_viewer')
+
+exportGiottoViewer(gobject = visium_kidney,
+                   output_directory = viewer_folder,
+                   spat_enr_names = 'PAGE', 
+                   factor_annotations = c('in_tissue',
+                                          'leiden_clus',
+                                          'MRF_k5_b.2'),
+                   numeric_annotations = c('nr_genes',
+                                           'clus_25'),
+                   dim_reductions = c('tsne', 'umap'),
+                   dim_reduction_names = c('tsne', 'umap'),
+                   expression_values = 'scaled',
+                   expression_rounding = 2,
+                   overwrite_dir = T)
+```
 
 -----
 
