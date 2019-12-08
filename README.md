@@ -109,30 +109,22 @@ within a specific conda environment and specify the python path at the
 beginning with createGiottoInstructions() or in the R function itself
 when required.
 
-Required python modules:  
-\- pandas  
-\- igraph  
-\- networkx  
-\- leidenalg  
-\- community
+Required python modules: pandas / igraph / networkx / leidenalg
 
-Conda installation:  
-If conda install does not work, try ‘pip’
+pip installation one-liner:
 
 ``` bash
-# pandas:
+pip3 install pandas python-igraph networkx python-louvain leidenalg
+```
+
+If pip install does not work, try installing within a [conda
+environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands):
+
+``` bash
 conda install -c anaconda pandas
-
-# python-igraph:
 conda install -c conda-forge python-igraph
-
-# networkx:
 conda install -c anaconda networkx
-
-# louvain:
 conda install -c conda-forge python-louvain
-
-# leidenalg:
 conda install -c conda-forge leidenalg
 ```
 
