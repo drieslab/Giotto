@@ -20,18 +20,18 @@
 ### Giotto global instructions
 
 ``` r
-# this example works with Giotto v.0.1.2
+# this example works with Giotto v.0.1.4
 library(Giotto)
 
-# create instructions
+## create instructions
+## instructions allow you to pre-set certain parameters 
+## instructions allow you to automatically save all plots into a chosen results folder
+## Here we will not automatically save plots, for an example see the osmFISH or Spat Transcriptomics dataset
+## We will only set the python path which is needed for certain analyses
 my_python_path = "/Users/rubendries/Bin/anaconda3/envs/py36/bin/pythonw"
 results_folder = '/path/to/Starmap_neocortex_results/'
 
-instrs = createGiottoInstructions(python_path = my_python_path,
-                                  show_plot = F, return_plot = T, save_plot = T,
-                                  save_dir = results_folder,
-                                  plot_format = 'png',
-                                  dpi = 300, height = 9, width = 9)
+instrs = createGiottoInstructions(python_path = my_python_path)
 ```
 
 ### Data input
@@ -79,15 +79,11 @@ STAR_test <- adjustGiottoMatrix(gobject = STAR_test, expression_values = c('norm
                                 return_gobject = TRUE,
                                 update_slot = c('custom'))
 
-# save according to giotto instructions
+# visualize
 # 2D
-spatPlot2D(gobject = STAR_test,
-           save_param = list(save_folder = '2_Gobject', save_name = 'spatial_locations2D', units = 'in'))
 spatPlot2D(gobject = STAR_test)
 
 # 3D
-spatPlot3D(gobject = STAR_test,
-           save_param = list(save_folder = '2_Gobject', save_name = 'spatial_locations3D', units = 'in'))
 spatPlot3D(gobject = STAR_test)
 ```
 
@@ -105,12 +101,12 @@ spatPlot3D(gobject = STAR_test)
 
 ``` r
 STAR_test <- calculateHVG(gobject = STAR_test, method = 'cov_groups', zscore_threshold = 0.5, nr_expression_groups = 3)
+
 STAR_test <- runPCA(gobject = STAR_test, genes_to_use = NULL, scale_unit = F)
 signPCA(STAR_test)
-STAR_test <- runUMAP(STAR_test, dimensions_to_use = 1:8, n_components = 3, n_threads = 4)
 
-plotUMAP_3D(gobject = STAR_test, 
-            save_param = list(save_folder = '3_DimRed', save_name = 'UMAP_reduction'))
+STAR_test <- runUMAP(STAR_test, dimensions_to_use = 1:8, n_components = 3, n_threads = 4)
+plotUMAP_3D(gobject = STAR_test)
 ```
 
 ![](./figures/2_screenshot_UMAP_reduction.png)
@@ -131,8 +127,7 @@ STAR_test <- createNearestNetwork(gobject = STAR_test, dimensions_to_use = 1:8, 
 ## Leiden clustering
 STAR_test <- doLeidenCluster(gobject = STAR_test, resolution = 0.2, n_iterations = 100,
                              name = 'leiden_0.2')
-plotUMAP_3D(gobject = STAR_test, cell_color = 'leiden_0.2', 
-            save_param = list(save_folder = '4_Cluster', save_name = 'UMAP_leiden'))
+plotUMAP_3D(gobject = STAR_test, cell_color = 'leiden_0.2')
 ```
 
 ![](./figures/3_screenshot_leiden.png)
@@ -149,8 +144,7 @@ plotUMAP_3D(gobject = STAR_test, cell_color = 'leiden_0.2',
 
 ``` r
 spatDimPlot3D(gobject = STAR_test,
-               cell_color = 'leiden_0.2', dim3_to_use = 3,
-              save_param = list(save_folder = '5_Covisuals', save_name = 'covis_leiden'))
+               cell_color = 'leiden_0.2', dim3_to_use = 3)
 ```
 
 Co-visualzation: ![](./figures/4_screenshot_covisualization.png)
@@ -176,14 +170,12 @@ markers[, head(.SD, 2), by = 'cluster']
 
 
 # violinplot
-violinPlot(STAR_test, genes = unique(markers$genes), cluster_column = 'leiden_0.2',
-           save_param = c(save_name = 'violinplot', save_folder = '6_DEG'))
+violinPlot(STAR_test, genes = unique(markers$genes), cluster_column = 'leiden_0.2')
 
 
 # cluster heatmap
 plotMetaDataHeatmap(STAR_test, expression_values = 'scaled',
-                    metadata_cols = c('leiden_0.2'),
-                    save_param = c(save_name = 'clusterheatmap', save_folder = '6_DEG'))
+                    metadata_cols = c('leiden_0.2'))
 ```
 
 Gini:
@@ -214,8 +206,7 @@ STAR_test = annotateGiotto(gobject = STAR_test, annotation_vector = clusters_cel
                            cluster_column = 'leiden_0.2', name = 'general_cell_types')
 
 plotMetaDataHeatmap(STAR_test, expression_values = 'scaled',
-                    metadata_cols = c('general_cell_types'),
-                    save_param = c(save_name = 'heatmap_general_cell_type', save_folder = '7_annotation'))
+                    metadata_cols = c('general_cell_types'))
 
 
 ## detailed cell types
@@ -225,12 +216,10 @@ names(clusters_cell_types_cortex) = c(1:10)
 STAR_test = annotateGiotto(gobject = STAR_test, annotation_vector = clusters_cell_types_cortex,
                            cluster_column = 'leiden_0.2', name = 'cell_types')
 
-plotUMAP_3D(STAR_test, cell_color = 'cell_types', point_size = 1.5,
-            save_param = c(save_name = 'umap_cell_types', save_folder = '7_annotation'))
+plotUMAP_3D(STAR_test, cell_color = 'cell_types', point_size = 1.5)
 
 plotMetaDataHeatmap(STAR_test, expression_values = 'scaled',
-                    metadata_cols = c('cell_types'),
-                    save_param = c(save_name = 'heatmap_cell_types', save_folder = '7_annotation'))
+                    metadata_cols = c('cell_types'))
 
 
 # create consistent color code
@@ -241,8 +230,7 @@ names(mycolorcode) = mynames
 spatPlot3D(STAR_test, 
            cell_color = 'cell_types', axis_scale = 'real',
            sdimx = 'sdimx', sdimy = 'sdimy', sdimz = 'sdimz',
-           show_grid = F, cell_color_code = mycolorcode,
-           save_param = c(save_name = 'spatPlot_cell_types_all', save_folder = '7_annotation'))
+           show_grid = F, cell_color_code = mycolorcode)
 
 
 ## subsets
@@ -250,22 +238,19 @@ spatPlot3D(STAR_test,
            cell_color = 'cell_types', axis_scale = 'real',
            sdimx = 'sdimx', sdimy = 'sdimy', sdimz = 'sdimz',
            show_grid = F, cell_color_code = mycolorcode,
-           select_cell_groups = c('L6','L5','L4','L2/3'),
-           save_param = c(save_name = 'spatPlot_cell_types_excit', save_folder = '7_annotation'))
+           select_cell_groups = c('L6','L5','L4','L2/3'))
 
 spatPlot3D(STAR_test, 
            cell_color = 'cell_types', axis_scale = 'real',
            sdimx = 'sdimx', sdimy = 'sdimy', sdimz = 'sdimz',
            show_grid = F, cell_color_code = mycolorcode,
-           select_cell_groups = c('PV','Calretinin', 'SST'),
-           save_param = c(save_name = 'spatPlot_cell_types_inhib', save_folder = '7_annotation'))
+           select_cell_groups = c('PV','Calretinin', 'SST'))
 
 spatPlot3D(STAR_test, 
            cell_color = 'cell_types', axis_scale = 'real',
            sdimx = 'sdimx', sdimy = 'sdimy', sdimz = 'sdimz',
            show_grid = F, cell_color_code = mycolorcode,
-           select_cell_groups = c('Astro', 'Olig1', 'Olig2'),
-           save_param = c(save_name = 'spatPlot_cell_types_other', save_folder = '7_annotation'))
+           select_cell_groups = c('Astro', 'Olig1', 'Olig2'))
 ```
 
 cluster heatmap for general cell types
@@ -312,8 +297,7 @@ names(mycolorcode) = c("L2/3", "L6")
 spatPlot3D(STAR_test, cell_color = 'cell_types', 
         show_grid = T, grid_color = 'green', spatial_grid_name = 'spatial_grid',
         point_size = 1.5, 
-        select_cell_groups = c("L2/3", "L6"), cell_color_code = mycolorcode,
-        save_param = c(save_name = 'grid', save_folder = '8_grid'))
+        select_cell_groups = c("L2/3", "L6"), cell_color_code = mycolorcode)
 
 #### spatial patterns ##
 pattern_VC = detectSpatialPatterns(gobject = STAR_test, 
@@ -328,17 +312,13 @@ pattern_VC = detectSpatialPatterns(gobject = STAR_test,
 showPattern3D(gobject = STAR_test,spatPatObj = pattern_VC,
               dimension = 1, point_size = 4,
               save_param = c(save_name = 'dimension1', save_folder = '8_grid'))
-showPatternGenes(gobject = STAR_test, spatPatObj = pattern_VC, dimension = 1,
-                 save_param = c(save_name = 'dimension1_genes', save_folder = '8_grid',
-                                base_height = 3, base_width = 3, dpi = 100))
+showPatternGenes(gobject = STAR_test, spatPatObj = pattern_VC, dimension = 1)
 
 # dimension 2
 showPattern3D(gobject = STAR_test,spatPatObj = pattern_VC,
               dimension = 2, point_size = 4,
               save_param = c(save_name = 'dimension2', save_folder = '8_grid'))
-showPatternGenes(gobject = STAR_test, spatPatObj = pattern_VC, dimension = 2,
-                 save_param = c(save_name = 'dimension2_genes', save_folder = '8_grid',
-                                base_height = 3, base_width = 3, dpi = 100))
+showPatternGenes(gobject = STAR_test, spatPatObj = pattern_VC, dimension = 2)
 ```
 
 Dimension 1: no changes over z-axis
@@ -369,8 +349,7 @@ spatPlot3D(gobject = STAR_test,
            show_network = T,
            network_color = 'blue', spatial_network_name = 'spatial_network',
            axis_scale = "real", z_ticks = 2,
-           point_size = 4, cell_color = 'cell_types',
-           save_param = c(save_name = 'network', save_folder = '9_spatial_network'))
+           point_size = 4, cell_color = 'cell_types')
 ```
 
 spatial network:  
@@ -397,8 +376,7 @@ kmtest = binGetSpatialGenes(STAR_test, bin_method = 'kmeans',
 spatGenePlot2D(STAR_test, expression_values = 'scaled', show_plot = F,
                genes = head(kmtest$genes, 4), point_size = 2, cow_n_col = 2, 
                genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue',
-               midpoint = 0, return_plot = F,
-               save_param = c(save_name = 'spatial_genes_scaled_km', save_folder = '10_spatial_genes', base_width = 16))
+               midpoint = 0)
 
 # rank binarization
 ranktest = binGetSpatialGenes(STAR_test, bin_method = 'rank',
@@ -407,8 +385,7 @@ ranktest = binGetSpatialGenes(STAR_test, bin_method = 'rank',
 spatGenePlot2D(STAR_test, expression_values = 'scaled', show_plot = F,
                genes = head(ranktest$genes, 4), point_size = 2, cow_n_col = 2, 
                genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue',
-               midpoint = 0, return_plot = F,
-               save_param = c(save_name = 'spatial_genes_scaled_rank', save_folder = '10_spatial_genes', base_width = 16))
+               midpoint = 0)
 
 # distance
 spatial_genes = calculate_spatial_genes_python(gobject = STAR_test,
@@ -417,8 +394,7 @@ spatial_genes = calculate_spatial_genes_python(gobject = STAR_test,
 spatGenePlot2D(STAR_test, expression_values = 'scaled', show_plot = F,
                genes = head(spatial_genes$genes, 4), point_size = 2, cow_n_col = 2, 
                genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue',
-               midpoint = 0, return_plot = F,
-               save_param = c(save_name = 'spatial_genes_scaled_distance', save_folder = '10_spatial_genes', base_width = 16))
+               midpoint = 0)
 ```
 
 Spatial genes:
@@ -469,14 +445,11 @@ STAR_test = addHMRF(gobject = STAR_test,
                   hmrf_name = 'HMRF')
 
 ## visualize
-spatPlot2D(gobject = STAR_test, cell_color = 'HMRF_k10_b.0', point_size = 1.5,
-           save_param = c(save_name = 'HMRF_k10_b.0', save_folder = '11_HMRF'))
-spatPlot3D(gobject = STAR_test, cell_color = 'HMRF_k10_b.0', point_size = 2.5,
-           save_param = c(save_name = 'HMRF_k10_b.0_3D', save_folder = '11_HMRF'))
+spatPlot2D(gobject = STAR_test, cell_color = 'HMRF_k10_b.0', point_size = 1.5)
+spatPlot3D(gobject = STAR_test, cell_color = 'HMRF_k10_b.0', point_size = 2.5)
 
-spatPlot2D(gobject = STAR_test, cell_color = 'HMRF_k10_b.0.5', point_size = 1.5,
-           save_param = c(save_name = 'HMRF_k10_b.0.5', save_folder = '11_HMRF'))
-spatPlot3D(gobject = STAR_test, cell_color = 'HMRF_k10_b.0.5', point_size = 2.5,
+spatPlot2D(gobject = STAR_test, cell_color = 'HMRF_k10_b.0.5', point_size = 1.5)
+spatPlot3D(gobject = STAR_test, cell_color = 'HMRF_k10_b.0.5', point_size = 2.5)
 ```
 
 -----
@@ -518,15 +491,12 @@ cell_proximities = cellProximityEnrichment(gobject = STAR_test,
                                            spatial_network_name = 'spatial_network',
                                            number_of_simulations = 400)
 ## barplot
-cellProximityBarplot(gobject = STAR_test, CPscore = cell_proximities, min_orig_ints = 25, min_sim_ints = 25, 
-                     save_param = c(save_name = 'barplot_cell_cell_enrichment', save_folder = '12_cell_proxim'))
+cellProximityBarplot(gobject = STAR_test, CPscore = cell_proximities, min_orig_ints = 25, min_sim_ints = 25)
 ## heatmap
 cellProximityHeatmap(gobject = STAR_test, CPscore = cell_proximities, order_cell_types = T, scale = T,
-                     color_breaks = c(-1.5, 0, 1.5), color_names = c('blue', 'white', 'red'),
-                     save_param = c(save_name = 'heatmap_cell_cell_enrichment', save_folder = '12_cell_proxim', unit = 'in'))
+                     color_breaks = c(-1.5, 0, 1.5), color_names = c('blue', 'white', 'red'))
 ## network
-cellProximityNetwork(gobject = STAR_test, CPscore = cell_proximities, remove_self_edges = T, only_show_enrichment_edges = T,
-                     save_param = c(save_name = 'network_cell_cell_enrichment', save_folder = '12_cell_proxim'))
+cellProximityNetwork(gobject = STAR_test, CPscore = cell_proximities, remove_self_edges = T, only_show_enrichment_edges = T)
 
 
 ## visualization
@@ -537,16 +507,14 @@ cellProximitySpatPlot3D(gobject = STAR_test,
                         interaction_name = spec_interaction,
                         cluster_column = 'cell_types',
                         cell_color = 'cell_types', coord_fix_ratio = 0.5,
-                        point_size_select = 4, point_size_other = 2,
-                        save_param = c(save_name = 'cell_cell_enrichment_selected', save_folder = '12_cell_proxim'))
+                        point_size_select = 4, point_size_other = 2)
 
 # real spatial dimensions
 cellProximitySpatPlot3D(gobject = STAR_test,
                         interaction_name = spec_interaction,
                         cluster_column = 'cell_types',
                         cell_color = 'cell_types', coord_fix_ratio = 0.5,
-                        point_size_select = 4, point_size_other = 2, axis_scale = 'real',
-                        save_param = c(save_name = 'cell_cell_enrichment_selected_real', save_folder = '12_cell_proxim'))
+                        point_size_select = 4, point_size_other = 2, axis_scale = 'real')
 ```
 
 barplot:  
