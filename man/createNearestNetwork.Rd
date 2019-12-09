@@ -77,7 +77,7 @@ Output for sNN:
   \item{from: }{cell_ID for source cell}
   \item{to: }{cell_ID for target cell}
   \item{distance: }{distance between cells}
-  \item{weight: }{weight = 1/(1 + distance)}
+  \item{weight: }{1/(1 + distance)}
   \item{shared: }{number of shared neighbours}
   \item{rank: }{ranking of pairwise cell neighbours}
 }

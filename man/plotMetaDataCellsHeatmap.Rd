@@ -81,11 +81,14 @@ plotMetaDataCellsHeatmap(
 ggplot or data.table
 }
 \description{
-creates order for clusters
+Creates heatmap for numeric cell metadata within aggregated clusters.
 }
 \details{
-Creates heatmap for the average values of selected value columns in the different annotation groups
+Creates heatmap for the average values of selected value columns in the different annotation groups.
 }
 \examples{
     plotMetaDataCellsHeatmap(gobject)
+}
+\seealso{
+\code{\link{plotMetaDataHeatmap}} for gene expression instead of numeric cell annotation data.
 }

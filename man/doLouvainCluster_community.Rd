@@ -32,26 +32,30 @@ doLouvainCluster_community(
 
 \item{resolution}{resolution}
 
-\item{weight_col}{weight column}
+\item{weight_col}{weight column to use for edges}
 
-\item{louv_random}{random}
+\item{louv_random}{Will randomize the node evaluation order and the community evaluation
+order to get different partitions at each call}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
 \item{set_seed}{set seed}
 
 \item{seed_number}{number for seed}
-
-\item{...}{additional parameters}
 }
 \value{
-giotto object appended with new cluster
+giotto object with new clusters appended to cell metadata
 }
 \description{
 cluster cells using a NN-network and the Louvain algorithm from the community module in Python
 }
 \details{
-Description of Leiden clustering method.
+This function is a wrapper for the Louvain algorithm implemented in Python,
+which can detect communities in graphs of nodes (cells).
+See the \url{https://python-louvain.readthedocs.io/en/latest/index.html}{readthedocs}
+page for more information.
+
+Set \emph{weight_col = NULL} to give equal weight (=1) to each edge.
 }
 \examples{
     doLouvainCluster_community(gobject)

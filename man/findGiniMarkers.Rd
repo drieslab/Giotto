@@ -32,7 +32,7 @@ findGiniMarkers(
 
 \item{min_expr_gini_score}{filter on minimum gini coefficient for expression}
 
-\item{min_det_gini_score}{filter minimum gini coefficient for detection}
+\item{min_det_gini_score}{filter on minimum gini coefficient for detection}
 
 \item{detection_threshold}{detection threshold for gene expression}
 
@@ -45,7 +45,24 @@ data.table with marker genes
 Identify marker genes for selected clusters based on gini detection and expression scores.
 }
 \details{
-Description of parameters.
+Detection of marker genes using the \url{https://en.wikipedia.org/wiki/Gini_coefficient}{gini}
+coefficient is based on the following steps/principles per gene:
+\itemize{
+  \item{1. calculate average expression per cluster}
+  \item{2. calculate detection fraction per cluster}
+  \item{3. calculate gini-coefficient for av. expression values over all clusters}
+  \item{4. calculate gini-coefficient for detection fractions over all clusters}
+  \item{5. convert gini-scores to rank scores}
+  \item{6. for each gene create combined gini score = av. expr gini x detection gini}
+  \item{7. for each gene create  and sort on combined rank score = expr rank x detection rank}
+}
+
+As a results "top gini" genes are genes that are very selectivily expressed in a specific cluster,
+however not always expressed in all cells of that cluster. In other words highly specific, but
+not necessarily sensitive at the single-cell level.
+
+To perform differential expression between cluster groups you need to specificy cluster IDs
+to the parameters \emph{group_1} and \emph{group_2}.
 }
 \examples{
     findGiniMarkers(gobject)

@@ -46,8 +46,7 @@ clusterCells(
   hc_h = NULL,
   return_gobject = TRUE,
   set_seed = T,
-  seed_number = 1234,
-  ...
+  seed_number = 1234
 )
 }
 \arguments{
@@ -128,18 +127,21 @@ clusterCells(
 \item{set_seed}{set seed}
 
 \item{seed_number}{number for seed}
-
-\item{...}{additional parameters}
 }
 \value{
-giotto object appended with new cluster
+giotto object with new clusters appended to cell metadata
 }
 \description{
-cluster cells using a NN-network and community detection algorithms
+cluster cells using a variety of different methods
 }
 \details{
-Description of different clustering methods.
+Wrapper for the different clustering methods.
 }
 \examples{
     clusterCells(gobject)
+}
+\seealso{
+\code{\link{doLeidenCluster}}, \code{\link{doLouvainCluster_community}}, \code{\link{doLouvainCluster_multinet}},
+\code{\link{doLouvainCluster}}, \code{\link{doRandomWalkCluster}}, \code{\link{doSNNCluster}},
+\code{\link{doKmeans}}, \code{\link{doHclust}}
 }

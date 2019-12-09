@@ -42,7 +42,8 @@ data.table with marker genes
 Identify marker genes for selected clusters based on the MAST package.
 }
 \details{
-This is a minimal convenience wrapper around the MAST functions to detect differentially expressed genes.
+This is a minimal convenience wrapper around the \code{\link[MAST]{zlm}}
+from the MAST package to detect differentially expressed genes.
 }
 \examples{
     findMastMarkers(gobject)

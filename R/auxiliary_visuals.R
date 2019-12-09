@@ -415,7 +415,7 @@ showClusterHeatmap <- function(gobject,
 
 #' @title showClusterDendrogram
 #' @name showClusterDendrogram
-#' @description Creates dendrogram based on identified clusters
+#' @description Creates dendrogram for selected clusters.
 #' @param gobject giotto object
 #' @param expression_values expression values to use
 #' @param cluster_column name of column to use for clusters
@@ -431,7 +431,7 @@ showClusterHeatmap <- function(gobject,
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @param ... additional parameters for ggdendrogram()
 #' @return ggplot
-#' @details Correlation dendrogram of selected clustering.
+#' @details Expression correlation dendrogram for selected clusters.
 #' @export
 #' @examples
 #'     showClusterDendrogram(gobject)
@@ -682,7 +682,7 @@ createHeatmap_DT <- function(gobject,
 
 #' @title plotHeatmap
 #' @name plotHeatmap
-#' @description creates order for clusters
+#' @description Creates heatmap for genes and clusters.
 #' @param gobject giotto object
 #' @param expression_values expression values to use
 #' @param genes genes to use
@@ -706,9 +706,13 @@ createHeatmap_DT <- function(gobject,
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from all_plots_save_function()
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @param default_save_name default save name
 #' @return ggplot
-#' @details Creates heatmap for genes and clusters.
+#' @details If you want to display many genes there are 2 ways to proceed:
+#' \itemize{
+#'   \item{1. set axis_text_y_size to a really small value and show all genes}
+#'   \item{2. provide a subset of genes to display to gene_label_selection}
+#' }
 #' @export
 #' @examples
 #'     plotHeatmap(gobject)
@@ -919,7 +923,7 @@ plotHeatmap <- function(gobject,
 
 #' @title plotMetaDataHeatmap
 #' @name plotMetaDataHeatmap
-#' @description creates order for clusters
+#' @description Creates heatmap for genes within aggregated clusters.
 #' @param gobject giotto object
 #' @param expression_values expression values to use
 #' @param metadata_cols annotation columns found in pDataDT(gobject)
@@ -942,9 +946,10 @@ plotHeatmap <- function(gobject,
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from all_plots_save_function()
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @param default_save_name default save name
 #' @return ggplot or data.table
-#' @details Creates heatmap for average the average expression of selected genes in the different annotation groups
+#' @details Creates heatmap for the average expression of selected genes in the different annotation/cluster groups
+#' @seealso \code{\link{plotMetaDataCellsHeatmap}} for numeric cell annotation instead of gene expression.
 #' @export
 #' @examples
 #'     plotMetaDataHeatmap(gobject)
@@ -1128,7 +1133,7 @@ plotMetaDataHeatmap = function(gobject,
 
 #' @title plotMetaDataCellsHeatmap
 #' @name plotMetaDataCellsHeatmap
-#' @description creates order for clusters
+#' @description Creates heatmap for numeric cell metadata within aggregated clusters.
 #' @param gobject giotto object
 #' @param metadata_cols annotation columns found in pDataDT(gobject)
 #' @param spat_enr_names spatial enrichment results to include
@@ -1153,7 +1158,8 @@ plotMetaDataHeatmap = function(gobject,
 #' @param save_param list of saving parameters from all_plots_save_function()
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot or data.table
-#' @details Creates heatmap for the average values of selected value columns in the different annotation groups
+#' @details Creates heatmap for the average values of selected value columns in the different annotation groups.
+#' @seealso \code{\link{plotMetaDataHeatmap}} for gene expression instead of numeric cell annotation data.
 #' @export
 #' @examples
 #'     plotMetaDataCellsHeatmap(gobject)
@@ -1337,7 +1343,7 @@ plotMetaDataCellsHeatmap = function(gobject,
 
 #' @title violinPlot
 #' @name violinPlot
-#' @description Creates heatmap based on identified clusters
+#' @description Creates violinplot for selected clusters
 #' @param gobject giotto object
 #' @param expression_values expression values to use
 #' @param genes genes to plot
@@ -1356,7 +1362,6 @@ plotMetaDataCellsHeatmap = function(gobject,
 #' @param save_param list of saving parameters from all_plots_save_function()
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
-#' @details Correlation heatmap of clusters vs genes.
 #' @export
 #' @examples
 #'     violinPlot(gobject)

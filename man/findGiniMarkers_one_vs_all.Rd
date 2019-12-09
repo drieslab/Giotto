@@ -39,11 +39,11 @@ findGiniMarkers_one_vs_all(
 data.table with marker genes
 }
 \description{
-Identify marker genes for all clusters based on gini detection and expression scores.
-}
-\details{
-Description of parameters.
+Identify marker genes for all clusters in a one vs all manner based on gini detection and expression scores.
 }
 \examples{
     findGiniMarkers_one_vs_all(gobject)
+}
+\seealso{
+\code{\link{findGiniMarkers}}
 }

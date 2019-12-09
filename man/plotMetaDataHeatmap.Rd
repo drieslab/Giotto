@@ -75,17 +75,20 @@ plotMetaDataHeatmap(
 
 \item{save_param}{list of saving parameters from all_plots_save_function()}
 
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+\item{default_save_name}{default save name}
 }
 \value{
 ggplot or data.table
 }
 \description{
-creates order for clusters
+Creates heatmap for genes within aggregated clusters.
 }
 \details{
-Creates heatmap for average the average expression of selected genes in the different annotation groups
+Creates heatmap for the average expression of selected genes in the different annotation/cluster groups
 }
 \examples{
     plotMetaDataHeatmap(gobject)
+}
+\seealso{
+\code{\link{plotMetaDataCellsHeatmap}} for numeric cell annotation instead of gene expression.
 }

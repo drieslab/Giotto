@@ -38,17 +38,16 @@ doRandomWalkCluster(
 \item{set_seed}{set seed}
 
 \item{seed_number}{number for seed}
-
-\item{...}{additional parameters}
 }
 \value{
-giotto object appended with new cluster
+giotto object with new clusters appended to cell metadata
 }
 \description{
 Cluster cells using a random walk approach.
 }
 \details{
-See random walk algorithm from the igraph package in R.
+See \code{\link[igraph]{cluster_walktrap}} function from the igraph
+package in R for more information.
 }
 \examples{
     doRandomWalkCluster(gobject)

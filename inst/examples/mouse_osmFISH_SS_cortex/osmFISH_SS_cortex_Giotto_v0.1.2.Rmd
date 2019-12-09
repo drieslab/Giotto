@@ -258,7 +258,7 @@ markers = findMarkers_one_vs_all(gobject = osm_test,
                                  cluster_column = 'leiden_clus_m',
                                  min_genes = 2, rank_score = 2)
 ## violinplot
-topgenes = markers[, head(.SD, 1), by = 'cluster_ID']$gene_ID
+topgenes = markers[, head(.SD, 1), by = 'cluster']$genes
 violinPlot(osm_test, genes = unique(topgenes), cluster_column = 'leiden_clus_m', expression_values = 'custom',
            strip_text = 5, strip_position = 'right',
            save_param = c(save_name = 'violinplot', save_folder = '6_DEG'))

@@ -51,11 +51,9 @@ doHclust(
 \item{set_seed}{set seed}
 
 \item{seed_number}{number for seed}
-
-\item{...}{additional parameters}
 }
 \value{
-giotto object appended with new cluster
+giotto object with new clusters appended to cell metadata
 }
 \description{
 cluster cells using hierarchical clustering algorithm
@@ -65,4 +63,7 @@ Description on how to use Kmeans clustering method.
 }
 \examples{
     doHclust(gobject)
+}
+\seealso{
+\code{\link[stats]{hclust}}
 }

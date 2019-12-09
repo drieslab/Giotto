@@ -60,10 +60,7 @@ violinPlot(
 ggplot
 }
 \description{
-Creates heatmap based on identified clusters
-}
-\details{
-Correlation heatmap of clusters vs genes.
+Creates violinplot for selected clusters
 }
 \examples{
     violinPlot(gobject)

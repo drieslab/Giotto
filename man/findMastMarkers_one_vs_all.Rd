@@ -42,11 +42,11 @@ findMastMarkers_one_vs_all(
 data.table with marker genes
 }
 \description{
-Identify marker genes for all clusters based on the MAST package.
-}
-\details{
-This is a minimal convenience wrapper around the MAST functions to detect differentially expressed genes.
+Identify marker genes for all clusters in a one vs all manner based on the MAST package.
 }
 \examples{
     findMastMarkers_one_vs_all(gobject)
+}
+\seealso{
+\code{\link{findMastMarkers}}
 }

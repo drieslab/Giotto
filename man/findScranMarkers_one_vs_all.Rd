@@ -41,9 +41,9 @@ data.table with marker genes
 \description{
 Identify marker genes for all clusters in a one vs all manner based on scran's implementation of findMarkers.
 }
-\details{
-This is a minimal convenience wrapper around the findMarkers function from the scran package.
-}
 \examples{
     findScranMarkers_one_vs_all(gobject)
+}
+\seealso{
+\code{\link{findScranMarkers}}
 }

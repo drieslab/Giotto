@@ -88,16 +88,16 @@ create_average_DT <- function(gobject, meta_data_name,
   expr_data = select_expression_values(gobject = gobject, values = values)
 
   # metadata
-  cell_metadata <- pDataDT(gobject)
-  myrownames <- rownames(expr_data)
+  cell_metadata = pDataDT(gobject)
+  myrownames = rownames(expr_data)
 
   savelist <- list()
   for(group in unique(cell_metadata[[meta_data_name]])) {
 
     name = paste0('cluster_', group)
 
-    temp <- expr_data[, cell_metadata[[meta_data_name]] == group]
-    temp_DT <- rowMeans(as.matrix(temp))
+    temp = expr_data[, cell_metadata[[meta_data_name]] == group]
+    temp_DT = rowMeans(as.matrix(temp))
 
     savelist[[name]] <- temp_DT
   }
@@ -132,7 +132,7 @@ create_average_detection_DT <- function(gobject, meta_data_name,
 
     name = paste0('cluster_', group)
 
-    temp <- expr_data[, cell_metadata[[meta_data_name]] == group]
+    temp = expr_data[, cell_metadata[[meta_data_name]] == group]
 
     if(is.matrix(temp)) {
       temp_DT = rowSums(as.matrix(temp) > detection_threshold)/ncol(temp)
@@ -143,8 +143,8 @@ create_average_detection_DT <- function(gobject, meta_data_name,
     savelist[[name]] <- temp_DT
   }
 
-  finalDF <- do.call('cbind', savelist)
-  rownames(finalDF) <- myrownames
+  finalDF = do.call('cbind', savelist)
+  rownames(finalDF) = myrownames
 
   return(as.data.frame(finalDF))
 }

@@ -78,16 +78,20 @@ plotHeatmap(
 
 \item{save_param}{list of saving parameters from all_plots_save_function()}
 
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+\item{default_save_name}{default save name}
 }
 \value{
 ggplot
 }
 \description{
-creates order for clusters
+Creates heatmap for genes and clusters.
 }
 \details{
-Creates heatmap for genes and clusters.
+If you want to display many genes there are 2 ways to proceed:
+\itemize{
+  \item{1. set axis_text_y_size to a really small value and show all genes}
+  \item{2. provide a subset of genes to display to gene_label_selection}
+}
 }
 \examples{
     plotHeatmap(gobject)

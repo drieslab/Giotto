@@ -41,17 +41,15 @@ doSNNCluster(
 \item{set_seed}{set seed}
 
 \item{seed_number}{number for seed}
-
-\item{...}{additional parameters}
 }
 \value{
-giotto object appended with new cluster
+giotto object with new clusters appended to cell metadata
 }
 \description{
 Cluster cells using a SNN cluster approach.
 }
 \details{
-See sNNclust algorithm from dbscan package
+See \code{\link[dbscan]{sNNclust}} from dbscan package
 }
 \examples{
     doSNNCluster(gobject)

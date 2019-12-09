@@ -54,10 +54,10 @@ showClusterDendrogram(
 ggplot
 }
 \description{
-Creates dendrogram based on identified clusters
+Creates dendrogram for selected clusters.
 }
 \details{
-Correlation dendrogram of selected clustering.
+Expression correlation dendrogram for selected clusters.
 }
 \examples{
     showClusterDendrogram(gobject)

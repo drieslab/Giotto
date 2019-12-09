@@ -57,11 +57,14 @@ findMarkers_one_vs_all(
 data.table with marker genes
 }
 \description{
-Identify marker genes for all clusters.
+Identify marker genes for all clusters in a one vs all manner.
 }
 \details{
-Wrapper for findScranMarkers_one_vs_all, findGiniMarkers_one_vs_all and FindMastMarkers_one_vs_all.
+Wrapper for all one vs all functions to detect marker genes for clusters.
 }
 \examples{
     findMarkers_one_vs_all(gobject)
+}
+\seealso{
+\code{\link{findScranMarkers_one_vs_all}}, \code{\link{findGiniMarkers_one_vs_all}} and \code{\link{findMastMarkers_one_vs_all}}
 }

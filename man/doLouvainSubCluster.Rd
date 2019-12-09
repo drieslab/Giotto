@@ -26,8 +26,7 @@ doLouvainSubCluster(
   nn_network_to_use = "sNN",
   network_name = "sNN.pca",
   return_gobject = TRUE,
-  verbose = T,
-  ...
+  verbose = T
 )
 }
 \arguments{
@@ -72,18 +71,27 @@ doLouvainSubCluster(
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
 \item{verbose}{verbose}
-
-\item{...}{additional parameters}
 }
 \value{
-giotto object appended with new cluster
+giotto object with new subclusters appended to cell metadata
 }
 \description{
 subcluster cells using a NN-network and the Louvain algorithm
 }
 \details{
-Description of Louvain clustering method.
+This function performs subclustering using the Louvain algorithm on selected clusters.
+The systematic steps are:
+\itemize{
+  \item{1. subset Giotto object}
+  \item{2. identify highly variable genes}
+  \item{3. run PCA}
+  \item{4. create nearest neighbouring network}
+  \item{5. do Louvain clustering}
+}
 }
 \examples{
     doLouvainSubCluster(gobject)
+}
+\seealso{
+\code{\link{doLouvainCluster_multinet}} and \code{\link{doLouvainCluster_community}}
 }

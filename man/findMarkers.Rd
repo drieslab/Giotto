@@ -60,8 +60,11 @@ data.table with marker genes
 Identify marker genes for selected clusters.
 }
 \details{
-Wrapper for findScranMarkers, findGiniMarkers and FindMastMarkers.
+Wrapper for all individual functions to detect marker genes for clusters.
 }
 \examples{
     findMarkers(gobject)
+}
+\seealso{
+\code{\link{findScranMarkers}}, \code{\link{findGiniMarkers}} and \code{\link{findMastMarkers}}
 }

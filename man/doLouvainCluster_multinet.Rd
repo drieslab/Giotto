@@ -9,7 +9,6 @@ doLouvainCluster_multinet(
   name = "louvain_clus",
   nn_network_to_use = "sNN",
   network_name = "sNN.pca",
-  weight_col = NULL,
   gamma = 1,
   omega = 1,
   return_gobject = TRUE,
@@ -27,28 +26,25 @@ doLouvainCluster_multinet(
 
 \item{network_name}{name of NN network to use}
 
-\item{gamma}{gamma}
+\item{gamma}{Resolution parameter for modularity in the generalized louvain method.}
 
-\item{omega}{omega}
+\item{omega}{Inter-layer weight parameter in the generalized louvain method.}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
 \item{set_seed}{set seed}
 
 \item{seed_number}{number for seed}
-
-\item{...}{additional parameters}
-
-\item{python_path}{specify specific path to python if required}
 }
 \value{
-giotto object appended with new cluster
+giotto object with new clusters appended to cell metadata
 }
 \description{
 cluster cells using a NN-network and the Louvain algorithm from the multinet package in R.
 }
 \details{
-See louvain algorithm from the multinet package in R.
+See \code{\link[multinet]{glouvain_ml}} from the multinet package in R for
+more information.
 }
 \examples{
     doLouvainCluster_multinet(gobject)

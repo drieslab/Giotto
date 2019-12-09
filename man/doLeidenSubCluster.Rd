@@ -24,8 +24,7 @@ doLeidenSubCluster(
   nn_network_to_use = "sNN",
   network_name = "sNN.pca",
   return_gobject = TRUE,
-  verbose = T,
-  ...
+  verbose = T
 )
 }
 \arguments{
@@ -55,7 +54,7 @@ doLeidenSubCluster(
 
 \item{resolution}{resolution of Leiden clustering}
 
-\item{n_iterations}{number of iterations}
+\item{n_iterations}{number of interations to run the Leiden algorithm.}
 
 \item{python_path}{specify specific path to python if required}
 
@@ -66,18 +65,27 @@ doLeidenSubCluster(
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
 \item{verbose}{verbose}
-
-\item{...}{additional parameters}
 }
 \value{
-giotto object appended with new cluster
+giotto object with new subclusters appended to cell metadata
 }
 \description{
-subcluster cells using a NN-network and the Leiden algorithm
+Further subcluster cells using a NN-network and the Leiden algorithm
 }
 \details{
-Description of Leiden clustering method.
+This function performs subclustering using the Leiden algorithm on selected clusters.
+The systematic steps are:
+\itemize{
+  \item{1. subset Giotto object}
+  \item{2. identify highly variable genes}
+  \item{3. run PCA}
+  \item{4. create nearest neighbouring network}
+  \item{5. do Leiden clustering}
+}
 }
 \examples{
     doLeidenSubCluster(gobject)
+}
+\seealso{
+\code{\link{doLeidenCluster}}
 }

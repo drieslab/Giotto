@@ -33,24 +33,22 @@ doLouvainCluster(
 
 \item{network_name}{name of NN network to use}
 
-\item{python_path}{specify specific path to python if required}
+\item{python_path}{[community] specify specific path to python if required}
 
-\item{resolution}{resolution}
+\item{resolution}{[community] resolution}
 
-\item{gamma}{gamma}
+\item{gamma}{[multinet] Resolution parameter for modularity in the generalized louvain method.}
 
-\item{omega}{omega}
+\item{omega}{[multinet] Inter-layer weight parameter in the generalized louvain method.}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
 \item{set_seed}{set seed}
 
 \item{seed_number}{number for seed}
-
-\item{...}{additional parameters}
 }
 \value{
-giotto object appended with new cluster
+giotto object with new clusters appended to cell metadata
 }
 \description{
 cluster cells using a NN-network and the Louvain algorithm.
@@ -60,4 +58,7 @@ Louvain clustering using the community or multinet implementation of the louvain
 }
 \examples{
     doLouvainCluster(gobject)
+}
+\seealso{
+\code{\link{doLouvainCluster_community}} and \code{\link{doLouvainCluster_multinet}}
 }
