@@ -7,7 +7,8 @@
 extractNearestNetwork(
   gobject,
   nn_network_to_use = "sNN",
-  network_name = "sNN.pca"
+  network_name = "sNN.pca",
+  output = c("igraph", "data.table")
 )
 }
 \arguments{
@@ -16,12 +17,14 @@ extractNearestNetwork(
 \item{nn_network_to_use}{kNN or sNN}
 
 \item{network_name}{name of NN network to be used}
+
+\item{output}{return a igraph or data.table object}
 }
 \value{
-igraph object
+igraph or data.table object
 }
 \description{
-Extracts a NN-network from a Giotto object as an igraph object
+Extracts a NN-network from a Giotto object
 }
 \examples{
     extractNearestNetwork(gobject)

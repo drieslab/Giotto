@@ -36,7 +36,8 @@ data.table with marker genes
 Identify marker genes for selected clusters based on scran's implementation of findMarkers.
 }
 \details{
-This is a minimal convenience wrapper around the findMarkers function from the scran package.
+This is a minimal convenience wrapper around
+the findMarkers function from the scran package.
 }
 \examples{
     findScranMarkers(gobject)

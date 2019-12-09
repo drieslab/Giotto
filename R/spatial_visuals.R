@@ -2402,7 +2402,7 @@ visForceLayoutPlot <- function(gobject,
                                dim2_to_use = 2,
                                show_NN_network = T,
                                cell_color = NULL,
-                               color_as_factor = F,
+                               color_as_factor = TRUE,
                                cell_color_code = NULL,
                                edge_alpha = NULL,
                                point_size = 1,
@@ -2425,7 +2425,7 @@ visForceLayoutPlot <- function(gobject,
   dim_dfr = as.data.frame(co)
   colnames(dim_dfr) = paste0('Dim.', 1:ncol(dim_dfr))
   dim_names = colnames(dim_dfr)
-  dim_DT = data.table::as.data.table(dim_dfr); dim_DT[, cell_ID := paste0('cell_', rownames(dim_dfr))]
+  dim_DT = data.table::as.data.table(dim_dfr); dim_DT[, cell_ID := gobject@cell_ID]
 
   ## annotated cell metadata
   cell_metadata = gobject@cell_metadata
@@ -2502,7 +2502,7 @@ visForceLayoutPlot <- function(gobject,
         pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
       } else if(color_as_factor == T) {
         number_colors = length(unique(factor_data))
-        cell_color_code = getDistinctColors(n = number_colors)
+        cell_color_code = Giotto:::getDistinctColors(n = number_colors)
         names(cell_color_code) = unique(factor_data)
         pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
       } else if(color_as_factor == F){

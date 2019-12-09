@@ -13,7 +13,7 @@ visForceLayoutPlot(
   dim2_to_use = 2,
   show_NN_network = T,
   cell_color = NULL,
-  color_as_factor = F,
+  color_as_factor = TRUE,
   cell_color_code = NULL,
   edge_alpha = NULL,
   point_size = 1,

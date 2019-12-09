@@ -11,7 +11,8 @@
 #' @param group_2 group 2 cluster IDs from cluster_column for pairwise comparison
 #' @param ... additional parameters for the findMarkers function in scran
 #' @return data.table with marker genes
-#' @details This is a minimal convenience wrapper around the findMarkers function from the scran package.
+#' @details This is a minimal convenience wrapper around
+#' the findMarkers function from the scran package.
 #' @export
 #' @examples
 #'     findScranMarkers(gobject)

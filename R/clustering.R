@@ -28,7 +28,8 @@ doLeidenCluster = function(gobject,
                            python_path = NULL,
                            resolution = 1,
                            weight_col = 'weight',
-                           partition_type = c('RBConfigurationVertexPartition', 'ModularityVertexPartition'),
+                           partition_type = c('RBConfigurationVertexPartition',
+                                              'ModularityVertexPartition'),
                            init_membership = NULL,
                            n_iterations = 1000,
                            return_gobject = TRUE,
@@ -52,7 +53,6 @@ doLeidenCluster = function(gobject,
   # python path
   if(is.null(python_path)) {
     python_path = readGiottoInstructions(gobject, param = "python_path")
-    #python_path = system('which python', intern = T)
   }
 
   ## prepare python path and louvain script

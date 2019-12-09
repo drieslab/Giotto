@@ -6,8 +6,8 @@
 \usage{
 addNetworkLayout(
   gobject,
-  nn_network_to_use = NULL,
-  network_name = NULL,
+  nn_network_to_use = "sNN",
+  network_name = "sNN.pca",
   layout_type = c("drl"),
   options_list = NULL,
   layout_name = "layout",
@@ -36,7 +36,9 @@ giotto object with updated layout for selected NN network
 Add a network layout for a selected nearest neighbor network
 }
 \details{
-Description of layouts and options.
+This function creates layout coordinates based on the provided kNN or sNN.
+Currently only the force-directed graph layout "drl", see \code{\link[igraph]{layout_with_drl}},
+is implemented. This provides an alternative to tSNE or UMAP based visualizations.
 }
 \examples{
     addNetworkLayout(gobject)

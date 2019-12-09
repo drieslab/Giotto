@@ -48,16 +48,44 @@ createNearestNetwork(
 
 \item{verbose}{be verbose}
 
-\item{...}{additional parameters}
+\item{...}{additional parameters for kNN and sNN functions from dbscan}
 }
 \value{
 giotto object with updated NN network
 }
 \description{
-create a nearest neighbour network
+create a nearest neighbour (NN) network
 }
 \details{
-Description of nearest neighbor network creation and filter steps.
+This function creates a k-nearest neighbour (kNN) or shared nearest neighbour (sNN) network
+based on the provided dimension reduction space. To run it directly on the gene expression matrix
+set \emph{dim_reduction_to_use = NULL}.
+
+See also \code{\link[dbscan]{kNN}} and \code{\link[dbscan]{sNN}} for more information about
+how the networks are created.
+
+Output for kNN:
+\itemize{
+  \item{from: }{cell_ID for source cell}
+  \item{to: }{cell_ID for target cell}
+  \item{distance: }{distance between cells}
+  \item{weight: }{weight = 1/(1 + distance)}
+}
+
+Output for sNN:
+\itemize{
+  \item{from: }{cell_ID for source cell}
+  \item{to: }{cell_ID for target cell}
+  \item{distance: }{distance between cells}
+  \item{weight: }{weight = 1/(1 + distance)}
+  \item{shared: }{number of shared neighbours}
+  \item{rank: }{ranking of pairwise cell neighbours}
+}
+For sNN networks two additional parameters can be set:
+\itemize{
+  \item{minimum_shared: }{minimum number of shared neighbours needed}
+  \item{top_shared: }{keep this number of the top shared neighbours, irrespective of minimum_shared setting}
+}
 }
 \examples{
     createNearestNetwork(gobject)
