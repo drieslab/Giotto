@@ -22,8 +22,8 @@ instrs = createGiottoInstructions(python_path = my_python_path,
 ### Data input
 
 [Moffitt et
-al.](https://science.sciencemag.org/content/362/6416/eaau5324) created a
-3D spatial expression dataset consisting of 155 genes from \~1 million
+al.](https://science.sciencemag.org/content/362/6416/eaau5324/) created
+a 3D spatial expression dataset consisting of 155 genes from \~1 million
 single cells acquired over the mouse hypothalamic preoptic regions.
 
 ![](./merfish_3D_data.png) .
