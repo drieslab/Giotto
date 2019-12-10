@@ -36,7 +36,10 @@ Cell-Cell communication scores for gene pairs based on expression only
 Cell-Cell communication scores based on expression only
 }
 \details{
-Details will follow.
+Statistical framework to identify if pairs of genes (such as ligand-receptor combinations)
+are expressed at higher levels than expected based on a reshuffled null distribution of gene expression values,
+without considering the spatial position of cells.
+More details will follow soon.
 }
 \examples{
     exprOnlyCellCellcommunicationScores(gobject)

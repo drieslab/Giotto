@@ -668,7 +668,9 @@ getCellProximityGeneScores = function(gobject,
 #' @param fold_change_addendum constant to add when calculating log2 fold-change
 #' @param verbose verbose
 #' @return Gene to gene scores in data.table format
-#' @details Give more details ...
+#' @details This converts the single gene cell proximityscores into pairwise combinations
+#' of genes, which allows you to determine if 2 genes are differentially expressed in interacting
+#' cell types.
 #' @export
 #' @examples
 #'     getGeneToGeneScores(CPGscore)
@@ -831,7 +833,10 @@ getGeneToGeneScores <- function(CPGscore,
 #' @param log2FC_addendum addendum to add when calculating log2FC
 #' @param verbose verbose
 #' @return Cell-Cell communication scores for gene pairs based on expression only
-#' @details Details will follow.
+#' @details Statistical framework to identify if pairs of genes (such as ligand-receptor combinations)
+#' are expressed at higher levels than expected based on a reshuffled null distribution of gene expression values,
+#' without considering the spatial position of cells.
+#' More details will follow soon.
 #' @export
 #' @examples
 #'     exprOnlyCellCellcommunicationScores(gobject)
@@ -920,7 +925,7 @@ exprOnlyCellCellcommunicationScores = function(gobject,
 #' @param gene_set_1 first specific gene set from gene pairs
 #' @param gene_set_2 second specific gene set from gene pairs
 #' @return data.table with average expression scores for each cluster
-#' @details Details will follow.
+#' @details Details will follow soon.
 #' @examples
 #'     average_gene_gene_expression_in_groups(gobject)
 average_gene_gene_expression_in_groups = function(gobject,
@@ -1032,7 +1037,10 @@ create_cell_type_random_cell_IDs = function(gobject,
 #' @param min_observations minimum number of interactions needed to be considered
 #' @param verbose verbose
 #' @return Cell-Cell communication scores for gene pairs based on spatial interaction
-#' @details Details will follow.
+#' @details Statistical framework to identify if pairs of genes (such as ligand-receptor combinations)
+#' are expressed at higher levels than expected based on a reshuffled null distribution
+#' of gene expression values in cells that are spatially in proximity to eachother..
+#' More details will follow soon.
 #' @export
 #' @examples
 #'     specificCellCellcommunicationScores(gobject)
@@ -1156,7 +1164,10 @@ specificCellCellcommunicationScores = function(gobject,
 #' @param min_observations minimum number of interactions needed to be considered
 #' @param verbose verbose
 #' @return Cell-Cell communication scores for gene pairs based on spatial interaction
-#' @details Details will follow.
+#' @details Statistical framework to identify if pairs of genes (such as ligand-receptor combinations)
+#' are expressed at higher levels than expected based on a reshuffled null distribution
+#' of gene expression values in cells that are spatially in proximity to eachother..
+#' More details will follow soon.
 #' @export
 #' @examples
 #'     allCellCellcommunicationsScores(gobject)

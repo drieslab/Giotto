@@ -33,7 +33,7 @@ Spatial proximity enrichment or depletion between pairs of cell types
 is calculated by calculating the observed over the expected frequency
 of cell-cell proximity interactions. The expected frequency is the average frequency
 calculated from a number of spatial network simulations. Each individual simulation is
-obtained by random permutations of the cell type labels of each node (cell)
+obtained by reshuffling the cell type labels of each node (cell)
 in the spatial network.
 }
 \examples{

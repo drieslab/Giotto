@@ -2058,7 +2058,7 @@ getClusterSimilarity <- function(gobject,
 
   # correlation matrix
   cormatrix = stats::cor(x = testmatrix, method = cor)
-  cor_table = as.data.table(melt(cormatrix))
+  cor_table = as.data.table(reshape2::melt(cormatrix))
   setnames(cor_table, old = c('Var1', 'Var2'), c('group1', 'group2'))
   cor_table[, c('group1', 'group2') := list(as.character(group1), as.character(group2))]
   cor_table[, unified_group := paste(sort(c(group1, group2)), collapse = '--'), by = 1:nrow(cor_table)]

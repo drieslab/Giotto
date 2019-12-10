@@ -48,7 +48,9 @@ Gene to gene scores in data.table format
 Compute gene-gene enrichment scores.
 }
 \details{
-Give more details ...
+This converts the single gene cell proximityscores into pairwise combinations
+of genes, which allows you to determine if 2 genes are differentially expressed in interacting
+cell types.
 }
 \examples{
     getGeneToGeneScores(CPGscore)
