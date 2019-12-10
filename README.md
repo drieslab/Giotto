@@ -32,13 +32,17 @@ everything about the Giotto workflow.
 
 ## Latest News
 
+  - New example with 3D-like spatial data of the mouse hypothalamic
+    preoptic region
+    [merFISH](https://science.sciencemag.org/content/362/6416/eaau5324)
+    (**NEW**)  
   - New examples on mouse kidney and brain using the recently released
     [10X Visium
     datasets](https://www.10xgenomics.com/spatial-transcriptomics/)
     (**NEW**)
   - Added tools to identify spatial enrichment based on cell-type (or
     other) specific gene signature lists (**NEW**)
-  - Updated support for 3D spatial data (**NEW**)
+  - Updated support for 3D spatial data  
   - Added support for the use of global instructions and automatically
     saving your plots (**NEW**)
   - Implemented [SpatialDE](https://github.com/Teichlab/SpatialDE)
