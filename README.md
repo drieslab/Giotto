@@ -16,11 +16,21 @@ although not all implemented analyses work for each type of technology.
 Firstly Giotto provides a flexible framework for common single-cell
 processing steps such as quality control, normalization, dimension
 reduction, clustering and cell type annotation. Next, it incorporates
-spatial information through the formation of a spatial grid and a
-spatial proximity network, which will be used in subsequent analyses to
-identify spatial genes or patterns, cell-cell preferential interactions
-and ligand-receptor signaling. Furthermore, the outcome of Giotto can be
-interactivily explored using [**Giotto
+spatial information through the formation of a *spatial grid* and a
+*spatial proximity network*, which will be used in subsequent analyses
+to:  
+\- identify spatial genes (4 different methods)  
+\- identify spatial patterns  
+\- identify spatial domains using an HMRF method  
+\- perform spatial gene enrichment analysis by integrating your
+single-cell RNAseq data or lists of genes  
+\- explore spatial cell-cell interactions  
+\- find differentially expressed genes associated with neighboring cell
+types  
+\- perform ligand-receptor enrichment analysis between cell types
+
+Furthermore, both 2D and 3D data can be visualized and the outcome of
+Giotto can be interactivily explored using [**Giotto
 Viewer**](http://spatial.rc.fas.harvard.edu/giotto-viewer/), which
 allows you to overlay the obtained results with raw or additional images
 of the profiled tissue section(s).
@@ -166,9 +176,9 @@ Transcriptomics](./inst/images/SpatTx_OB_image_summary.png)](./inst/examples/mou
 [![visium-brain](./inst/images/visium_brain_image_summary.png)](./inst/examples/mouse_visium_brain/mouse_visium_brain_Giotto_v0.1.3.md)
 
 [![slideseq](./inst/images/slideseq_cerebellum_image_summary.png)](./inst/examples/mouse_slideseq_cerebellum/slideseq_cerebellum_Giotto_v0.1.2.md)
+[![merFISH](./inst/images/merFISH_hypothalam_image_summary.png)](./inst/examples/mouse_hypothalamic_preoptic_region/merfish_hypo_Giotto_v0.1.2_update.md)
 
 \[![MIBI-TOF](./inst/images/MIBI_tumor_image_summary.png)\]
-[![merFISH](./inst/images/merFISH_hypothalam_image_summary.png)](./inst/examples/mouse_hypothalamic_preoptic_region/merfish_hypo_Giotto_v0.1.2_update.md)
 
  
 
