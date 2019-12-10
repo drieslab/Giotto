@@ -27,7 +27,7 @@ Make sure to check out the **Examples** and **FAQ** section to learn everything 
 
 ## Latest News
 
-- New example with 3D-like spatial data of the mouse hypothalamic preoptic region [merFISH](https://science.sciencemag.org/content/362/6416/eaau5324) (**NEW**)  
+- New example with 3D-like spatial data of the mouse hypothalamic preoptic region using [merFISH](https://science.sciencemag.org/content/362/6416/eaau5324) (**NEW**)  
 - New examples on mouse kidney and brain using the recently released [10X Visium datasets](https://www.10xgenomics.com/spatial-transcriptomics/) (**NEW**)
 - Added tools to identify spatial enrichment based on cell-type (or other) specific gene signature lists  (**NEW**)
 - Updated support for 3D spatial data  

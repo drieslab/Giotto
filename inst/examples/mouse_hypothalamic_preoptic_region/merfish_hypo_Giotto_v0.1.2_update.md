@@ -4,14 +4,13 @@
 ### Giotto global instructions
 
 ``` r
-# this example works with Giotto v.0.1.2
+# this example works with Giotto v.0.1.4
 library(Giotto)
 
 # create instructions
-# my_python_path = "/Users/rubendries/Bin/anaconda3/envs/py36/bin/pythonw"
-my_python_path = "/homes6/kanliu/miniconda3/bin/python"
-# results_folder = '/path/to/merFISH_neohypo_results/'
-results_folder = '/gcdata/kliu/Datasets/spatial-datasets-result/merfish'
+# instructions are set up to immediately save generated plots to your results directory
+my_python_path = "/path/to/your/bin/python"
+results_folder = '/path/to/results/merfish'
 
 instrs = createGiottoInstructions(python_path = my_python_path,
                                   show_plot = F, return_plot = T, save_plot = T,
@@ -31,9 +30,8 @@ single cells acquired over the mouse hypothalamic preoptic regions.
 
 ``` r
 ## select the directory where you have saved the Spatial Transcriptomics data
-# data_dir = '/path/to/merFISH_data/'
-data_dir = '/gcdata/kliu/Datasets/spatial-datasets-master/data/2019_merFISH_PNAS'
-# data_dir = '/gcdata/kliu/Datasets/spatial-datasets-master/data/2019_merFISH_PNAS_ds_3'
+data_dir = '/path/to/merFISH_data/'
+
 expr = read.table(paste0(data_dir, '/', 'count_matrix/merFISH_3D_data_expression.txt'))
 cell_loc = read.table(paste0(data_dir, '/', 'cell_locations/merFISH_3D_data_cell_locations.txt'))
 cell_type = read.table(paste0(data_dir, '/', 'cell_types/merFISH_3D_data_cell_types.txt'))
@@ -52,7 +50,8 @@ type_level = read.table(paste0(data_dir, '/', 'cell_types/merFISH_3D_data_type_l
 ## create
 merFISH_test <- createGiottoObject(raw_exprs = expr, spatial_locs = cell_loc, instructions = instrs)
 
-## add layer annotation
+## create layer annotation
+## each layer is brain slice from anterior to posterior
 layer_ID = data.table(merFISH_test@cell_metadata$cell_ID)
 colnames(layer_ID) = 'layer_ID'
 layers = unique(merFISH_test@spatial_locs$sdimz)
@@ -62,6 +61,8 @@ for(i in 1:length(layers)){
 }
 layer_ID = as.data.frame(sapply(layer_ID, as.numeric))
 layer_ID = cbind(merFISH_test@cell_metadata, layer_ID)
+
+## add layer annotation
 merFISH_test = addCellMetadata(merFISH_test, new_metadata = layer_ID,
                                by_column = T, column_cell_ID = 'cell_ID')
 
@@ -70,6 +71,7 @@ merFISH_test = addCellMetadata(merFISH_test, new_metadata = layer_ID,
 filterDistributions(merFISH_test, detection = 'genes')
 filterDistributions(merFISH_test, detection = 'cells')
 filterCombinations(merFISH_test, expression_thresholds = c(0,1e-6,1e-5), gene_det_in_min_cells = c(500, 1000, 1500), min_det_genes_per_cell = c(1, 5, 10))
+
 # 2. filter data
 merFISH_test <- filterGiotto(gobject = merFISH_test,
                           gene_det_in_min_cells = 0,

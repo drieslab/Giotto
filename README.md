@@ -33,7 +33,7 @@ everything about the Giotto workflow.
 ## Latest News
 
   - New example with 3D-like spatial data of the mouse hypothalamic
-    preoptic region
+    preoptic region using
     [merFISH](https://science.sciencemag.org/content/362/6416/eaau5324)
     (**NEW**)  
   - New examples on mouse kidney and brain using the recently released
