@@ -164,7 +164,7 @@ Transcriptomics](./inst/images/SpatTx_OB_image_summary.png)](./inst/examples/mou
 [![slideseq](./inst/images/slideseq_cerebellum_image_summary.png)](./inst/examples/mouse_slideseq_cerebellum/slideseq_cerebellum_Giotto_v0.1.2.md)
 
 \[![MIBI-TOF](./inst/images/MIBI_tumor_image_summary.png)\]
-\[![merFISH](./inst/images/merFISH_hypothalam_image_summary.png)\]
+[![merFISH](./inst/images/merFISH_hypothalam_image_summary.png)](./inst/examples/mouse_hypothalamic_preoptic_region/merfish_hypo_Giotto_v0.1.2_update.md)
 
  
 

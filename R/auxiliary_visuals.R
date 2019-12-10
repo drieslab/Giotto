@@ -630,7 +630,7 @@ createHeatmap_DT <- function(gobject,
                                          hclust_method = cluster_hclust_method)
 
   ## data.table ##
-  subset_values_DT <- data.table::as.data.table(melt(subset_values, varnames = c('genes', 'cells'), value.name = 'expression'))
+  subset_values_DT <- data.table::as.data.table(reshape2::melt(subset_values, varnames = c('genes', 'cells'), value.name = 'expression'))
   subset_values_DT <- merge(subset_values_DT, by.x = 'cells', cell_metadata[, c('cell_ID', cluster_column), with = F], by.y = 'cell_ID')
   subset_values_DT[[cluster_column]] <- factor(subset_values_DT[[cluster_column]], levels = clus_sort_names)
 

@@ -135,7 +135,7 @@ pip3 install --user smfish-image-processing --no-cache #add --no-deps if do not 
 [![slideseq](./inst/images/slideseq_cerebellum_image_summary.png){width=10cm}](./inst/examples/mouse_slideseq_cerebellum/slideseq_cerebellum_Giotto_v0.1.2.md)  
 
 [![MIBI-TOF](./inst/images/MIBI_tumor_image_summary.png){width=10cm}]
-[![merFISH](./inst/images/merFISH_hypothalam_image_summary.png){width=10cm}]  
+[![merFISH](./inst/images/merFISH_hypothalam_image_summary.png){width=10cm}](./inst/examples/mouse_hypothalamic_preoptic_region/merfish_hypo_Giotto_v0.1.2_update.md)    
 
 
 
