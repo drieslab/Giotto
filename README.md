@@ -19,7 +19,8 @@ reduction, clustering and cell type annotation. Next, it incorporates
 spatial information through the formation of a *spatial grid* and a
 *spatial proximity network*, which will be used in subsequent analyses
 to:  
-\- identify spatial genes (4 different methods)  
+\- identify spatial genes (4 different methods) & spatial co-expressed
+genes  
 \- identify spatial patterns  
 \- identify spatial domains using an HMRF method  
 \- perform spatial gene enrichment analysis by integrating your

@@ -305,7 +305,7 @@ hyperGeometricEnrich <- function(gobject,
 
   # calculate mean gene expression
   if(reverse_log_scale == TRUE) {
-    expr_values = log(logbase^expr_values-1)+1
+    expr_values = logbase^expr_values-1
   }
 
   expCutoff = (rowMeans(expr_values, dims = 1)) * 2
