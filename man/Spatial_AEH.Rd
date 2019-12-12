@@ -42,5 +42,5 @@ calculate automatic expression histology with spatialDE method
 Description.
 }
 \examples{
-    Spatial_DE(gobject)
+    Spatial_AEH(gobject)
 }

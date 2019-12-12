@@ -1033,7 +1033,7 @@ Spatial_DE <- function(gobject = NULL,
 #' @details Description.
 #' @export
 #' @examples
-#'     Spatial_DE(gobject)
+#'     Spatial_AEH(gobject)
 Spatial_AEH <- function(gobject = NULL,
                         results = NULL,
                         pattern_num = 5,
@@ -1103,6 +1103,723 @@ Spatial_AEH <- function(gobject = NULL,
 }
 
 
+
+
+# ** ####
+## Spatial co-expression ####
+## ----------- ##
+
+#' @title do_spatial_knn_smoothing
+#' @name do_spatial_knn_smoothing
+#' @description smooth gene expression over a kNN spatial network
+#' @param gobject giotto object
+#' @param expression_values gene expression values to use
+#' @param subset_genes subset of genes to use
+#' @param spatial_network_name name of spatial network to use
+#' @param b smoothing factor beteen 0 and 1 (default: automatic)
+#' @return matrix with smoothened gene expression values based on kNN spatial network
+#' @details This function will smoothen the gene expression values per cell according to
+#' its neighbors in the selected spatial network. \cr
+#' b is a smoothening factor that defaults to 1 - 1/k, where k is the median number of
+#' k-neighbors in the selected spatial network. Setting b = 0 means no smoothing and b = 1
+#' means no contribution from its own expression.
+#' @examples
+#'     do_spatial_knn_smoothing(gobject)
+do_spatial_knn_smoothing = function(gobject,
+                                    expression_values = c('normalized', 'scaled', 'custom'),
+                                    subset_genes = NULL,
+                                    spatial_network_name = 'spatial_network',
+                                    b = NULL) {
+
+  # checks
+  if(!is.null(b)) {
+    if(b > 1 | b < 0) {
+      stop('b needs to be between 0 (no spatial contribution) and 1 (only spatial contribution)')
+    }
+  }
+
+  # get spatial network
+  spatial_network = gobject@spatial_network[[spatial_network_name]]
+
+  # get expression matrix
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+
+  if(!is.null(subset_genes)) {
+    expr_values = expr_values[rownames(expr_values) %in% subset_genes,]
+  }
+
+  # merge spatial network with expression data
+  expr_values_dt = data.table::as.data.table(expr_values); expr_values_dt[, gene_ID := rownames(expr_values)]
+  expr_values_dt_m = data.table::melt.data.table(expr_values_dt, id.vars = 'gene_ID', variable.name = 'cell_ID')
+  spatial_network_ext = merge.data.table(spatial_network, expr_values_dt_m, by.x = 'to', by.y = 'cell_ID', allow.cartesian = T)
+
+  # calculate mean over all k-neighbours
+  spatial_network_ext_smooth = spatial_network_ext[, mean(value), by = c('from', 'gene_ID')]
+
+  # convert back to matrix
+  spatial_smooth_dc = dcast.data.table(data = spatial_network_ext_smooth, formula = gene_ID~from, value.var = 'V1')
+  spatial_smooth_matrix = Giotto:::dt_to_matrix(spatial_smooth_dc)
+  spatial_smooth_matrix = spatial_smooth_matrix[rownames(expr_values), colnames(expr_values)]
+
+  # combine original and smoothed values according to smoothening b
+  # create best guess for b if not given
+  if(is.null(b)) {
+    k = median(table(spatial_network$from))
+    smooth_b = 1 - 1/k
+  } else {
+    smooth_b = b
+  }
+
+  expr_b = 1 - smooth_b
+  spatsmooth_expr_values = ((smooth_b*spatial_smooth_matrix) + (expr_b*expr_values))
+
+  return(spatsmooth_expr_values)
+
+}
+
+
+#' @title do_spatial_grid_averaging
+#' @name do_spatial_grid_averaging
+#' @description smooth gene expression over a defined spatial grid
+#' @param gobject giotto object
+#' @param expression_values gene expression values to use
+#' @param subset_genes subset of genes to use
+#' @param spatial_grid_name name of spatial grid to use
+#' @param min_cells_per_grid minimum number of cells to consider a grid
+#' @return matrix with smoothened gene expression values based on spatial grid
+#' @examples
+#'     do_spatial_grid_averaging(gobject)
+do_spatial_grid_averaging = function(gobject,
+                                     expression_values = c('normalized', 'scaled', 'custom'),
+                                     subset_genes = NULL,
+                                     spatial_grid_name = 'spatial_grid',
+                                     min_cells_per_grid = 4) {
+
+
+  # get expression matrix
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+
+  if(!is.null(subset_genes)) {
+    expr_values = expr_values[rownames(expr_values) %in% subset_genes,]
+  }
+
+  # spatial grid and spatial locations
+  if(is.null(gobject@spatial_grid)) {
+    stop("\n you need to create a spatial grid, see createSpatialGrid(), for this function to work \n")
+  }
+  if(!spatial_grid_name %in% names(gobject@spatial_grid)) {
+    stop("\n you need to provide an existing spatial grid name for this function to work \n")
+  }
+  spatial_grid = gobject@spatial_grid[[spatial_grid_name]]
+
+
+  # annotate spatial locations with spatial grid information
+  spatial_locs = copy(gobject@spatial_locs)
+
+  if(all(c('sdimx', 'sdimy', 'sdimz') %in% colnames(spatial_locs))) {
+    spatial_locs = Giotto:::annotate_spatlocs_with_spatgrid_3D(spatloc = spatial_locs, spatgrid = spatial_grid)
+  } else if(all(c('sdimx', 'sdimy') %in% colnames(spatial_locs))) {
+    spatial_locs = Giotto:::annotate_spatlocs_with_spatgrid_2D(spatloc = spatial_locs, spatgrid = spatial_grid)
+  }
+
+
+  # filter grid, minimum number of cells per grid
+  cells_per_grid = sort(table(spatial_locs$gr_loc))
+  cells_per_grid = cells_per_grid[cells_per_grid >= min_cells_per_grid]
+  loc_names = names(cells_per_grid)
+
+  # average expression per grid
+  loc_av_expr_list <- list()
+  for(loc_name in loc_names) {
+
+    loc_cell_IDs = spatial_locs[gr_loc == loc_name]$cell_ID
+    subset_expr = expr_values[, colnames(expr_values) %in% loc_cell_IDs]
+    if(is.vector(subset_expr) == TRUE) {
+      loc_av_expr = subset_expr
+    } else {
+      loc_av_expr = rowMeans(subset_expr)
+    }
+    loc_av_expr_list[[loc_name]] <- loc_av_expr
+  }
+  loc_av_expr_matrix = do.call('cbind', loc_av_expr_list)
+  loc_av_expr_matrix = as.matrix(loc_av_expr_matrix)
+
+  return(loc_av_expr_matrix)
+}
+
+
+#' @title detectSpatialCorGenes
+#' @name detectSpatialCorGenes
+#' @description Detect genes that are spatially correlated
+#' @param gobject giotto object
+#' @param method method to use for spatial averaging
+#' @param expression_values gene expression values to use
+#' @param subset_genes subset of genes to use
+#' @param spatial_network_name name of spatial network to use
+#' @param network_smoothing  smoothing factor beteen 0 and 1 (default: automatic)
+#' @param spatial_grid_name name of spatial grid to use
+#' @param min_cells_per_grid minimum number of cells to consider a grid
+#' @param b smoothing factor beteen 0 and 1 (default: automatic)
+#' @return returns a spatial correlation object: "spatCorObject"
+#' @details
+#' \itemize{
+#'  \item{1. grid-averaging: }{average gene expression values within a predefined spatial grid}
+#'  \item{2. network-averaging: }{smoothens the gene expression matrix by averaging the expression within one cell
+#'  by using the neighbours within the predefined spatial network. b is a smoothening factor
+#'  that defaults to 1 - 1/k, where k is the median number of  k-neighbors in the
+#'  selected spatial network. Setting b = 0 means no smoothing and b = 1 means no contribution
+#'  from its own expression.}
+#' }
+#' The spatCorObject can be further explored with showSpatialCorGenes()
+#' @seealso \code{\link{showSpatialCorGenes}}
+#' @export
+#' @examples
+#'     detectSpatialCorGenes(gobject)
+detectSpatialCorGenes <- function(gobject,
+                                  method = c('grid', 'network'),
+                                  expression_values = c('normalized', 'scaled', 'custom'),
+                                  subset_genes = NULL,
+                                  spatial_network_name = 'spatial_network',
+                                  network_smoothing = NULL,
+                                  spatial_grid_name = 'spatial_grid',
+                                  min_cells_per_grid = 4,
+                                  cor_method = c('pearson', 'kendall', 'spearman')) {
+
+
+  ## correlation method to be used
+  cor_method = match.arg(cor_method, choices = c('pearson', 'kendall', 'spearman'))
+
+  ## method to be used
+  method = match.arg(method, choices = c('grid', 'network'))
+
+  ## spatial averaging or smoothing
+  if(method == 'grid') {
+
+    loc_av_expr_matrix = do_spatial_grid_averaging(gobject = gobject,
+                                                   expression_values = expression_values,
+                                                   subset_genes = subset_genes,
+                                                   spatial_grid_name = spatial_grid_name,
+                                                   min_cells_per_grid = min_cells_per_grid)
+
+    cor_spat_matrix = stats::cor(t(loc_av_expr_matrix), method = cor_method)
+    cor_spat_matrixDT = as.data.table(cor_spat_matrix)
+    cor_spat_matrixDT[, gene_ID := rownames(cor_spat_matrix)]
+    cor_spat_DT = data.table::melt.data.table(data = cor_spat_matrixDT,
+                                              id.vars = 'gene_ID', value.name = 'spat_cor')
+  }
+
+  if(method == 'network') {
+
+    knn_av_expr_matrix = do_spatial_knn_smoothing(gobject = gobject,
+                                                  expression_values = expression_values,
+                                                  subset_genes = subset_genes,
+                                                  spatial_network_name = spatial_network_name,
+                                                  b = network_smoothing)
+
+    cor_spat_matrix = stats::cor(t(knn_av_expr_matrix), method = cor_method)
+    cor_spat_matrixDT = as.data.table(cor_spat_matrix)
+    cor_spat_matrixDT[, gene_ID := rownames(cor_spat_matrix)]
+    cor_spat_DT = data.table::melt.data.table(data = cor_spat_matrixDT,
+                                              id.vars = 'gene_ID', value.name = 'spat_cor')
+
+
+  }
+
+
+
+  ## 2. perform expression correlation at single-cell level without spatial information
+  cor_matrix = stats::cor(t(expr_values), method = cor_method)
+  cor_matrixDT = data.table::as.data.table(cor_matrix)
+  cor_matrixDT[, gene_ID := rownames(cor_matrix)]
+  cor_DT = data.table::melt.data.table(data = cor_matrixDT,
+                                       id.vars = 'gene_ID', value.name = 'expr_cor')
+
+  ## 3. merge spatial and expression correlation
+  data.table::setorder(cor_spat_DT, gene_ID, variable)
+  data.table::setorder(cor_DT, gene_ID, variable)
+  doubleDT = cbind(cor_spat_DT, expr_cor = cor_DT[['expr_cor']])
+
+  # difference in correlation scores
+  doubleDT[, cordiff := spat_cor - expr_cor]
+
+  # difference in rank scores
+  doubleDT[, spatrank := frank(spat_cor, ties.method = 'first'), by = gene_ID]
+  doubleDT[, exprrank := frank(expr_cor, ties.method = 'first'), by = gene_ID]
+  doubleDT[, rankdiff := spatrank - exprrank]
+
+  # sort data
+  data.table::setorder(doubleDT, gene_ID, -spat_cor)
+
+  spatCorObject = list(cor_DT = doubleDT,
+                       gene_order = rownames(cor_spat_matrix),
+                       cor_hclust = list(),
+                       cor_clusters = list())
+
+  class(spatCorObject) = append(class(spatCorObject), 'spatCorObject')
+
+  return(spatCorObject)
+
+}
+
+
+
+
+#' @title showSpatialCorGenes
+#' @name showSpatialCorGenes
+#' @description Shows and filters spatially correlated genes
+#' @param spatCorObject spatial correlation object
+#' @param use_clus_name cluster information to show
+#' @param selected_clusters subset of clusters to show
+#' @param genes subset of genes to show
+#' @param min_spat_cor filter on minimum spatial correlation
+#' @param min_expr_cor filter on minimum single-cell expression correlation
+#' @param min_cor_diff filter on minimum correlation difference (spatial vs expression)
+#' @param min_rank_diff filter on minimum correlation rank difference (spatial vs expression)
+#' @param show_top_genes show top genes per gene
+#' @return data.table with filtered information
+#' @export
+#' @examples
+#'     showSpatialCorGenes(gobject)
+showSpatialCorGenes = function(spatCorObject,
+                               use_clus_name = NULL,
+                               selected_clusters = NULL,
+                               genes = NULL,
+                               min_spat_cor = 0.5,
+                               min_expr_cor = NULL,
+                               min_cor_diff = NULL,
+                               min_rank_diff = NULL,
+                               show_top_genes = NULL) {
+
+  if(!'spatCorObject' %in% class(spatCorObject)) {
+    stop('\n spatCorObject needs to be the output from detectSpatialCorGenes() \n')
+  }
+
+  filter_DT = copy(spatCorObject[['cor_DT']])
+
+  if(!is.null(use_clus_name)) {
+
+    clusters_part = spatCorObject[['cor_clusters']][[use_clus_name]]
+
+    # combine spatial correlation info and clusters
+    clusters = clusters_part
+    names_clusters = names(clusters_part)
+    clusters_DT = data.table::data.table('gene_ID' = names_clusters, 'clus' = clusters)
+    filter_DT = data.table::merge.data.table(filter_DT, clusters_DT, by = 'gene_ID')
+  }
+
+  ## 0. subset clusters
+  if(!is.null(selected_clusters)) {
+    filter_DT = filter_DT[clus %in% selected_clusters]
+  }
+
+
+  ## 1. subset genes
+  if(!is.null(genes)) {
+    filter_DT = filter_DT[gene_ID %in% genes]
+  }
+
+  ## 2. select spatial correlation
+  if(!is.null(min_spat_cor)) {
+    filter_DT = filter_DT[spat_cor >= min_spat_cor]
+  }
+
+  ## 3. minimum expression correlation
+  if(!is.null(min_expr_cor)) {
+    filter_DT = filter_DT[spat_cor >= min_expr_cor]
+  }
+
+  ## 4. minimum correlation difference
+  if(!is.null(min_cor_diff)) {
+    filter_DT = filter_DT[cor_diff >= min_cor_diff]
+  }
+
+  ## 5. minimum correlation difference
+  if(!is.null(min_rank_diff)) {
+    filter_DT = filter_DT[rankdiff >= min_rank_diff]
+  }
+
+  ## 6. show only top genes
+  if(!is.null(show_top_genes)) {
+    filter_DT = filter_DT[, head(.SD, show_top_genes), by = gene_ID]
+  }
+
+  return(filter_DT)
+
+}
+
+
+
+#' @title clusterSpatialCorGenes
+#' @name clusterSpatialCorGenes
+#' @description Cluster based on spatially correlated genes
+#' @param name name for spatial clustering results
+#' @param hclust_method method for hierarchical clustering
+#' @param k number of clusters to extract
+#' @param return_obj return spatial correlation object (spatCorObject)
+#' @return spatCorObject or cluster results
+#' @export
+#' @examples
+#'     clusterSpatialCorGenes(gobject)
+clusterSpatialCorGenes = function(spatCorObject,
+                                  name = 'spat_clus',
+                                  hclust_method = 'ward.D',
+                                  k = 10,
+                                  return_obj = TRUE) {
+
+
+  # check input
+  if(!'spatCorObject' %in% class(spatCorObject)) {
+    stop('\n spatCorObject needs to be the output from detectSpatialCorGenes() \n')
+  }
+
+  # create correlation matrix
+  cor_DT = spatCorObject[['cor_DT']]
+  cor_DT_dc = data.table::dcast.data.table(cor_DT, formula = gene_ID~variable, value.var = 'spat_cor')
+  cor_matrix = Giotto:::dt_to_matrix(cor_DT_dc)
+
+  # re-ordering matrix
+  my_gene_order = spatCorObject[['gene_order']]
+  cor_matrix = cor_matrix[my_gene_order, my_gene_order]
+
+  # cluster
+  cor_dist = as.dist(1-cor_matrix)
+  cor_h = hclust(d = cor_dist, method = hclust_method)
+  cor_clus = cutree(cor_h, k = k)
+
+  if(return_obj == TRUE) {
+    spatCorObject[['cor_hclust']][[name]] = cor_h
+    spatCorObject[['cor_clusters']][[name]] = cor_clus
+    spatCorObject[['cor_coexpr_groups']][[name]] = NA
+
+    return(spatCorObject)
+
+  } else {
+    return(list('hclust' = cor_h, 'clusters' = cor_clus))
+  }
+
+}
+
+
+#' @title heatmSpatialCorGenes
+#' @name heatmSpatialCorGenes
+#' @description Create heatmap of spatially correlated genes
+#' @param use_clus_name name of clusters to visualize (from clusterSpatialCorGenes())
+#' @param show_cluster_annot show cluster annotation on top of heatmap
+#' @param ... additional parameters to the \code{\link[ComplexHeatmap]{Heatmap}} function from ComplexHeatmap
+#' @return Heatmap generated by ComplexHeatmap
+#' @export
+#' @examples
+#'     heatmSpatialCorGenes(gobject)
+heatmSpatialCorGenes = function(spatCorObject,
+                                use_clus_name = NULL,
+                                show_cluster_annot = TRUE,
+                                ...) {
+
+  ## check input
+  if(!'spatCorObject' %in% class(spatCorObject)) {
+    stop('\n spatCorObject needs to be the output from detectSpatialCorGenes() \n')
+  }
+
+  ## create correlation matrix
+  cor_DT = spatCorObject[['cor_DT']]
+  cor_DT_dc = data.table::dcast.data.table(cor_DT, formula = gene_ID~variable, value.var = 'spat_cor')
+  cor_matrix = Giotto:::dt_to_matrix(cor_DT_dc)
+
+  # re-ordering matrix
+  my_gene_order = spatCorObject[['gene_order']]
+  cor_matrix = cor_matrix[my_gene_order, my_gene_order]
+
+
+  ## fix row and column names
+  cor_matrix = cor_matrix[rownames(cor_matrix), rownames(cor_matrix)]
+
+  ## default top annotation
+  ha = NULL
+
+  if(!is.null(use_clus_name)) {
+    hclust_part = spatCorObject[['cor_hclust']][[use_clus_name]]
+
+    if(is.null(hclust_part)) {
+      cat(use_clus_name, ' does not exist, make one with spatCorCluster \n')
+      hclust_part = TRUE
+
+    } else {
+      clusters_part = spatCorObject[['cor_clusters']][[use_clus_name]]
+
+      if(show_cluster_annot) {
+        uniq_clusters = unique(clusters_part)
+
+        # color vector
+        mycolors = Giotto:::getDistinctColors(length(uniq_clusters))
+        names(mycolors) = uniq_clusters
+        ha = ComplexHeatmap::HeatmapAnnotation(bar = as.vector(clusters_part),
+                                               col = list(bar = mycolors))
+      }
+
+    }
+  } else {
+    hclust_part = TRUE
+  }
+
+
+  ## create heatmap
+  heatm = ComplexHeatmap::Heatmap(matrix = cor_matrix,
+                                  cluster_rows = hclust_part,
+                                  cluster_columns = hclust_part,
+                                  show_row_dend = T, show_column_dend = F,
+                                  show_row_names = F, show_column_names = F,
+                                  top_annotation = ha, ...)
+
+  return(heatm)
+
+}
+
+
+
+#' @title rankSpatialCorGroups
+#' @name rankSpatialCorGroups
+#' @description Rank spatial correlated clusters according to correlation structure
+#' @param use_clus_name name of clusters to visualize (from clusterSpatialCorGenes())
+#' @param show_plot show the accompanying scatter plot
+#' @return data.table with positive (within group) and negative (outside group) scores
+#' @export
+#' @examples
+#'     rankSpatialCorGroups(gobject)
+rankSpatialCorGroups = function(spatCorObject,
+                                use_clus_name = NULL,
+                                show_plot = TRUE) {
+
+
+  ## check input
+  if(!'spatCorObject' %in% class(spatCorObject)) {
+    stop('\n spatCorObject needs to be the output from detectSpatialCorGenes() \n')
+  }
+
+  ## check if cluster exist
+  if(is.null(use_clus_name)) {
+    stop('use_clus_name does not exist \n')
+  }
+  clusters_part = spatCorObject[['cor_clusters']][[use_clus_name]]
+
+  if(is.null(clusters_part)) {
+    stop('use_clus_name does not exist \n')
+  }
+
+  ## create correlation matrix
+  cor_DT = spatCorObject[['cor_DT']]
+  cor_DT_dc = data.table::dcast.data.table(cor_DT, formula = gene_ID~variable, value.var = 'spat_cor')
+  cor_matrix = Giotto:::dt_to_matrix(cor_DT_dc)
+
+  # re-ordering matrix
+  my_gene_order = spatCorObject[['gene_order']]
+  cor_matrix = cor_matrix[my_gene_order, my_gene_order]
+
+
+
+  res_cor_list = list()
+  res_neg_cor_list = list()
+  nr_genes_list = list()
+
+  for(id in 1:length(unique(clusters_part))) {
+
+    clus_id = unique(clusters_part)[id]
+    selected_genes = names(clusters_part[clusters_part == clus_id])
+    nr_genes_list[[id]] = length(selected_genes)
+
+    sub_cor_matrix = cor_matrix[rownames(cor_matrix) %in% selected_genes, colnames(cor_matrix) %in% selected_genes]
+    mean_score = mean(sub_cor_matrix)
+    res_cor_list[[id]] = mean_score
+
+    sub_neg_cor_matrix = cor_matrix[rownames(cor_matrix) %in% selected_genes, !colnames(cor_matrix) %in% selected_genes]
+    mean_neg_score = mean(sub_neg_cor_matrix)
+    res_neg_cor_list[[id]] = mean_neg_score
+  }
+
+  res_cor_DT = data.table('clusters' = paste0('V', unique(clusters_part)),
+                          cor_score = unlist(res_cor_list),
+                          cor_neg_score = unlist(res_neg_cor_list),
+                          nr_genes = unlist(nr_genes_list))
+  res_cor_DT[, cor_neg_adj := 1-(cor_neg_score-min(cor_neg_score))]
+  res_cor_DT[, adj_cor_score := cor_neg_adj * cor_score]
+  setorder(res_cor_DT, -adj_cor_score)
+  res_cor_DT[, clusters := factor(x = clusters, levels = rev(clusters))]
+
+
+  if(show_plot == TRUE) {
+    pl = ggplot()
+    pl = pl + geom_point(data = res_cor_DT, aes(x = clusters, y = adj_cor_score, size = nr_genes))
+    pl = pl + theme_classic()
+    pl = pl + labs(x = 'clusters', y = 'pos r x (1 - (neg_r - min(neg_r)))')
+    print(pl)
+  }
+
+  return(res_cor_DT)
+
+}
+
+
+
+#' @title enrichSpatialCorGroups
+#' @name enrichSpatialCorGroups
+#' @description Create enrichment scores based on the metagene expression of the spatially correlated gene groups.
+#' @param gobject giotto object
+#' @param spatCorObject show the accompanying scatter plot
+#' @param expression_values gene expression values to use
+#' @param use_clus_name name of clusters to visualize (from clusterSpatialCorGenes())
+#' @param select_clusters subset of clusters to use
+#' @param name name of the spatial enrichment results
+#' @param convert_enrich_to_cluster create clusters based on enrichment scores
+#' @param enrich_to_cluster_name name for clusters based on enrichment scores
+#' @param return_gobject return giotto object
+#' @return giotto object
+#' @details This function calculates the metagene expression for each identified cluster
+#' of spatially correlated genes (use_clus_name) and provides a new enrichment score
+#' (name) that can be visualized. Additionally, these spatial gene correlation enrichment
+#' scores can be converted into clusters by selecting the highest z-score per cell after
+#' z-scoring first columns and then rows.
+#' @export
+#' @examples
+#'     enrichSpatialCorGroups(gobject)
+enrichSpatialCorGroups = function(gobject,
+                                  spatCorObject,
+                                  expression_values = c('normalized', 'scaled', 'custom'),
+                                  use_clus_name = NULL,
+                                  select_clusters = NULL,
+                                  name = 'spatclus_enr',
+                                  convert_enrich_to_cluster = FALSE,
+                                  enrich_to_cluster_name = 'enrich_cluster',
+                                  return_gobject = TRUE) {
+
+  ## check input
+  if(!'spatCorObject' %in% class(spatCorObject)) {
+    stop('\n spatCorObject needs to be the output from detectSpatialCorGenes() \n')
+  }
+
+  if(!'giotto' %in% class(gobject)) {
+    stop('\n gobject needs to be a giotto object \n')
+  }
+
+  if(is.null(use_clus_name)) {
+    stop(' you need to provide a known cluster name, created by clusterSpatialCorGenes \n')
+  }
+  potential_clus_names = names(spatCorObject[['cor_clusters']])
+  if(!use_clus_name %in% potential_clus_names) {
+    stop(' you need to provide a known cluster name, created by clusterSpatialCorGenes \n')
+  }
+
+  # expression values to be used
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+
+  # clusters to be used
+  clusters_part = spatCorObject[['cor_clusters']][[use_clus_name]]
+
+  if(!is.null(select_clusters)) {
+    clusters_part = clusters_part[clusters_part %in% select_clusters]
+  }
+
+  res_list = list()
+
+  for(id in unique(clusters_part)) {
+
+    clus_id = id
+
+    selected_genes = names(clusters_part[clusters_part == clus_id])
+    sub_mat = expr_values[rownames(expr_values) %in% selected_genes,]
+
+    # calculate mean
+    mean_score = colMeans(sub_mat)
+    res_list[[id]] = mean_score
+  }
+
+  res_final = data.table::as.data.table(t(do.call('rbind', res_list)))
+  colnames(res_final) = paste0('V', unique(clusters_part))
+  res_final[, cell_ID := colnames(expr_values)]
+
+
+  ## convert enrichment to cluster ##
+  if(convert_enrich_to_cluster == TRUE) {
+
+    score_matrix = t(do.call('rbind', res_list))
+    score_matrix = scale(score_matrix)
+    score_matrix = t(scale(t(score_matrix)))
+
+    rank_matrix = matrixStats::rowRanks(score_matrix)
+    colnames(rank_matrix) = paste0('group', 1:ncol(rank_matrix))
+
+    rank_matrixDT = as.data.table(rank_matrix)
+    rank_matrixDT[, cell_ID := rownames(score_matrix)]
+    rank_matrixDT = melt.data.table(rank_matrixDT, id.vars = 'cell_ID', variable.name = enrich_to_cluster_name)
+    rank_matrixDT[, max_val := max(value), by = cell_ID]
+
+    clus_matrixDT = rank_matrixDT[value == max_val]
+
+  }
+
+
+
+
+
+  if(return_gobject == TRUE) {
+
+
+    ## enrichment scores
+    spenr_names = names(gobject@spatial_enrichment)
+
+    if(name %in% spenr_names) {
+      cat('\n ', name, ' has already been used, will be overwritten \n')
+    }
+
+    ## clusters
+    if(convert_enrich_to_cluster == TRUE) {
+
+      cluster_names = names(gobject@cell_metadata)
+      if(enrich_to_cluster_name %in% cluster_names) {
+        cat('\n ', enrich_to_cluster_name, ' has already been used, will be overwritten \n')
+        cell_metadata = gobject@cell_metadata
+        cell_metadata[, eval(enrich_to_cluster_name) := NULL]
+        gobject@cell_metadata = cell_metadata
+      }
+
+      gobject = addCellMetadata(gobject = gobject, new_metadata = clus_matrixDT[, c('cell_ID', enrich_to_cluster_name), with = F],
+                                by_column = T, column_cell_ID = 'cell_ID')
+
+    }
+
+
+
+    ## update parameters used ##
+    parameters_list = gobject@parameters
+    number_of_rounds = length(parameters_list)
+    update_name = paste0(number_of_rounds,'_spatial_correlation')
+
+    # parameters to include
+    parameters_list[[update_name]] = c('clusters used' = use_clus_name,
+                                       'expression values' = values,
+                                       'enrichment name' = name,
+                                       'selected clusters:' = select_clusters,
+                                       'enrichment cluster name' = enrich_to_cluster_name)
+    gobject@parameters = parameters_list
+
+    gobject@spatial_enrichment[[name]] = res_final
+
+    return(gobject)
+
+
+
+  } else {
+
+    if(convert_enrich_to_cluster == TRUE) {
+      return(list(scores = res_final, clusters = clus_matrixDT))
+    } else {
+      return(res_final)
+    }
+
+  }
+
+}
 
 
 
