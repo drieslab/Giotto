@@ -1294,6 +1294,15 @@ detectSpatialCorGenes <- function(gobject,
   ## method to be used
   method = match.arg(method, choices = c('grid', 'network'))
 
+  # get expression matrix
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+
+  if(!is.null(subset_genes)) {
+    expr_values = expr_values[rownames(expr_values) %in% subset_genes,]
+  }
+
+
   ## spatial averaging or smoothing
   if(method == 'grid') {
 
