@@ -5,6 +5,7 @@
 \title{heatmSpatialCorGenes}
 \usage{
 heatmSpatialCorGenes(
+  gobject,
   spatCorObject,
   use_clus_name = NULL,
   show_cluster_annot = TRUE,
@@ -21,6 +22,10 @@ heatmSpatialCorGenes(
 )
 }
 \arguments{
+\item{gobject}{giotto object}
+
+\item{spatCorObject}{spatial correlation object}
+
 \item{use_clus_name}{name of clusters to visualize (from clusterSpatialCorGenes())}
 
 \item{show_cluster_annot}{show cluster annotation on top of heatmap}
@@ -32,6 +37,16 @@ heatmSpatialCorGenes(
 \item{show_row_names}{show row names}
 
 \item{show_column_names}{show column names}
+
+\item{show_plot}{show plot}
+
+\item{return_plot}{return ggplot object}
+
+\item{save_plot}{directly save the plot [boolean]}
+
+\item{save_param}{list of saving parameters from all_plots_save_function()}
+
+\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
 \item{...}{additional parameters to the \code{\link[ComplexHeatmap]{Heatmap}} function from ComplexHeatmap}
 }

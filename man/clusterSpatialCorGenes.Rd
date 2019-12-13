@@ -13,6 +13,8 @@ clusterSpatialCorGenes(
 )
 }
 \arguments{
+\item{spatCorObject}{spatial correlation object}
+
 \item{name}{name for spatial clustering results}
 
 \item{hclust_method}{method for hierarchical clustering}

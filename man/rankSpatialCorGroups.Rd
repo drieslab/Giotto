@@ -5,6 +5,7 @@
 \title{rankSpatialCorGroups}
 \usage{
 rankSpatialCorGroups(
+  gobject,
   spatCorObject,
   use_clus_name = NULL,
   show_plot = NA,
@@ -15,9 +16,21 @@ rankSpatialCorGroups(
 )
 }
 \arguments{
+\item{gobject}{giotto object}
+
+\item{spatCorObject}{spatial correlation object}
+
 \item{use_clus_name}{name of clusters to visualize (from clusterSpatialCorGenes())}
 
-\item{show_plot}{show the accompanying scatter plot}
+\item{show_plot}{show plot}
+
+\item{return_plot}{return ggplot object}
+
+\item{save_plot}{directly save the plot [boolean]}
+
+\item{save_param}{list of saving parameters from all_plots_save_function()}
+
+\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }
 \value{
 data.table with positive (within group) and negative (outside group) scores
