@@ -67,5 +67,5 @@ Function to automatically save plots to directory of interest
     all_plots_save_function(gobject)
 }
 \seealso{
-\code{\link{Giotto::general_save_function}}
+\code{\link{general_save_function}}
 }

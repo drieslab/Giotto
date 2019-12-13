@@ -448,119 +448,6 @@ detectSpatialPatterns <- function(gobject,
 
 
 
-
-
-
-
-#' @title showPattern
-#' @name showPattern
-#' @description create a spatial grid
-#' @param spatPatObj Output from detectSpatialPatterns
-#' @param dimension dimension to plot
-#' @param trim Trim ends of the PC values.
-#' @param background_color background color for plot
-#' @param grid_border_color color for grid
-#' @param show_legend show legend of ggplot
-#' @param show_plot Show the plot.
-#' @return ggplot
-#' @details Description.
-#' @export
-#' @examples
-#'     showPattern(gobject)
-showPattern <- function(spatPatObj,
-                        dimension = 1,
-                        trim = c(0.02, 0.98),
-                        background_color = 'white',
-                        grid_border_color = 'grey',
-                        show_legend = T,
-                        plot_dim = 2,
-                        point_size = 1,
-                        axis_scale = c("cube","real","custom"),
-                        custom_ratio = NULL,
-                        x_ticks = NULL,
-                        y_ticks = NULL,
-                        z_ticks = NULL,
-                        show_plot = F) {
-
-  if(!'spatPatObj' %in% class(spatPatObj)) {
-    stop('\n spatPatObj needs to be the output from detectSpatialPatterns \n')
-  }
-
-  # select PC and subset data
-  selected_PC = paste0('Dim.', dimension)
-  PC_DT = spatPatObj$pca_matrix_DT
-  if(!selected_PC %in% colnames(PC_DT)) {
-    stop('\n This dimension was not found in the spatial pattern object \n')
-  }
-  PC_DT = PC_DT[,c(selected_PC, 'loc_ID'), with = F]
-
-  # annotate grid with PC values
-  annotated_grid = merge(spatPatObj$spatial_grid, by.x = 'gr_name', PC_DT, by.y = 'loc_ID')
-
-  # trim PC values
-  if(!is.null(trim)) {
-    boundaries = stats::quantile(annotated_grid[[selected_PC]], probs = trim)
-    annotated_grid[[selected_PC]][annotated_grid[[selected_PC]] < boundaries[1]] = boundaries[1]
-    annotated_grid[[selected_PC]][annotated_grid[[selected_PC]] > boundaries[2]] = boundaries[2]
-
-  }
-
-  # 2D-plot
-  if(plot_dim == 2){
-    dpl <- ggplot2::ggplot()
-    dpl <- dpl + ggplot2::theme_bw()
-    dpl <- dpl + ggplot2::geom_tile(data = annotated_grid,
-                                    aes_string(x = 'x_start', y = 'y_start', fill = selected_PC),
-                                    color = grid_border_color, show.legend = show_legend)
-    dpl <- dpl + ggplot2::scale_fill_gradient2('low' = 'darkblue', mid = 'white', high = 'darkred', midpoint = 0,
-                                               guide = guide_legend(title = ''))
-    dpl <- dpl + ggplot2::theme(axis.text.x = element_text(size = 8, angle = 45, vjust = 1, hjust = 1),
-                                panel.background = element_rect(fill = background_color),
-                                panel.grid = element_blank(),
-                                plot.title = element_text(hjust = 0.5))
-    dpl <- dpl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates')
-  }
-
-  else if (plot_dim == 3){
-
-    annotated_grid <- data.table(annotated_grid)
-    annotated_grid[,center_x:=(x_start+x_end)/2]
-    annotated_grid[,center_y:=(y_start+y_end)/2]
-    annotated_grid[,center_z:=(z_start+z_end)/2]
-
-
-    axis_scale = match.arg(axis_scale, c("cube","real","custom"))
-
-    ratio = plotly_axis_scale_3D(annotated_grid,sdimx = "center_x",sdimy = "center_y",sdimz = "center_z",
-                                 mode = axis_scale,custom_ratio = custom_ratio)
-
-    dpl <- plotly::plot_ly(type = 'scatter3d',
-                           x = annotated_grid$center_x, y = annotated_grid$center_y, z = annotated_grid$center_z,
-                           color = annotated_grid[[selected_PC]],marker = list(size = point_size),
-                           mode = 'markers', colors = c( 'darkblue','white','darkred'))
-    dpl <- dpl %>% plotly::layout(scene = list(
-      xaxis = list(title = "X",nticks = x_ticks),
-      yaxis = list(title = "Y",nticks = y_ticks),
-      zaxis = list(title = "Z",nticks = z_ticks),
-      aspectmode='manual',
-      aspectratio = list(x=ratio[[1]],
-                         y=ratio[[2]],
-                         z=ratio[[3]])))
-    dpl <- dpl %>% plotly::colorbar(title = paste(paste("dim.",dimension,sep = ""),"genes", sep = " "))
-
-  }
-
-
-  if(show_plot == TRUE) {
-    print(dpl)
-  }
-  return(dpl)
-
-}
-
-
-
-
 #' @title showPattern2D
 #' @name showPattern2D
 #' @description show patterns for 2D spatial data
@@ -574,7 +461,7 @@ showPattern <- function(spatPatObj,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
@@ -670,7 +557,7 @@ showPattern2D <- function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @seealso \code{\link{showPattern2D}}
@@ -702,7 +589,7 @@ showPattern = function(gobject, spatPatObj, ...) {
 #' @param show_plot show plot
 #' @param return_plot return plot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return plotly
 #' @export
@@ -1526,7 +1413,7 @@ clusterSpatialCorGenes = function(spatCorObject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @param ... additional parameters to the \code{\link[ComplexHeatmap]{Heatmap}} function from ComplexHeatmap
 #' @return Heatmap generated by ComplexHeatmap
@@ -1586,7 +1473,8 @@ heatmSpatialCorGenes = function(gobject,
         mycolors = Giotto:::getDistinctColors(length(uniq_clusters))
         names(mycolors) = uniq_clusters
         ha = ComplexHeatmap::HeatmapAnnotation(bar = as.vector(clusters_part),
-                                               col = list(bar = mycolors))
+                                               col = list(bar = mycolors),
+                                               annotation_legend_param = list(title = NULL))
       }
 
     }
@@ -1638,7 +1526,7 @@ heatmSpatialCorGenes = function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return data.table with positive (within group) and negative (outside group) scores
 #' @export

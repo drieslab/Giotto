@@ -33,6 +33,10 @@ data.table with enrichment results
 Function to calculate gene signature enrichment scores per spatial position using PAGE.
 }
 \details{
+sign_matrix: a binary matrix with genes as row names and cell-types as column names.
+Alternatively a list of signature genes can be provided to makeSignMatrixPAGE, which will create
+the matrix for you. \cr
+
 The enrichment Z score is calculated by using method (PAGE) from
 Kim SY et al., BMC bioinformatics, 2005 as \eqn{Z = ((Sm – mu)*m^(1/2)) / delta}.
 For each gene in each spot, mu is the fold change values versus the mean expression
@@ -41,4 +45,7 @@ and  m is the size of a given marker gene set.
 }
 \examples{
     PAGEEnrich(gobject)
+}
+\seealso{
+\code{\link{makeSignMatrixPAGE}}
 }

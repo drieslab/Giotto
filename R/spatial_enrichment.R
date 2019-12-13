@@ -1,6 +1,6 @@
 
 #' @title makeSignMatrixPAGE
-#' @description Function to convert list of signature genes (e.g. for cell types or processes) into
+#' @description Function to convert a list of signature genes (e.g. for cell types or processes) into
 #' a binary matrix format that can be used with the PAGE enrichment option.
 #' @param sign_names vector with names for each provided gene signature
 #' @param sign_list list of genes (signature)
@@ -118,11 +118,17 @@ makeSignMatrixRank <- function(sc_matrix,
 #' @param logbase log base to use if reverse_log_scale = TRUE
 #' @param output_enrichment how to return enrichment output
 #' @return data.table with enrichment results
-#' @details The enrichment Z score is calculated by using method (PAGE) from
+#' @details
+#' sign_matrix: a binary matrix with genes as row names and cell-types as column names.
+#' Alternatively a list of signature genes can be provided to makeSignMatrixPAGE, which will create
+#' the matrix for you. \cr
+#'
+#' The enrichment Z score is calculated by using method (PAGE) from
 #' Kim SY et al., BMC bioinformatics, 2005 as \eqn{Z = ((Sm – mu)*m^(1/2)) / delta}.
 #' For each gene in each spot, mu is the fold change values versus the mean expression
 #' and delta is the standard deviation. Sm is the mean fold change value of a specific marker gene set
 #' and  m is the size of a given marker gene set.
+#' @seealso \code{\link{makeSignMatrixPAGE}}
 #' @export
 #' @examples
 #'     PAGEEnrich(gobject)
@@ -198,10 +204,16 @@ PAGEEnrich <- function(gobject,
 #' @param logbase log base to use if reverse_log_scale = TRUE
 #' @param output_enrichment how to return enrichment output
 #' @return data.table with enrichment results
-#' @details First a new rank is calculated as R = (R1*R2)^(1/2), where R1 is the rank of
+#' @details
+#' sign_matrix: a rank-fold matrix with genes as row names and cell-types as column names.
+#' Alternatively a scRNA-seq matrix and vector with clusters can be provided to makeSignMatrixRank, which will create
+#' the matrix for you. \cr
+#'
+#' First a new rank is calculated as R = (R1*R2)^(1/2), where R1 is the rank of
 #' fold-change for each gene in each spot and R2 is the rank of each marker in each cell type.
 #' The Rank-Biased Precision is then calculated as: RBP = (1 - 0.99) * (0.99)^(R - 1)
 #' and the final enrichment score is then calculated as the sum of top 100 RBPs.
+#' @seealso \code{\link{makeSignMatrixRank}}
 #' @export
 #' @examples
 #'     rankEnrich(gobject)

@@ -15,7 +15,7 @@
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @return giotto object highly variable genes appended to gene metadata (fDataDT)
