@@ -664,7 +664,7 @@ filterGiotto <- function(gobject,
   number_of_rounds = length(parameters_list)
   update_name      = paste0(number_of_rounds,'_filter')
   # parameters to include
-  parameters_list[[update_name]] = c('used expression values' = expression_values,
+  parameters_list[[update_name]] = c('used expression values' = values,
                                      'gene expression threshold' = expression_threshold,
                                      'minimum # of genes detected per cell' = min_det_genes_per_cell,
                                      'minimum times a gene is detected over all cells' = gene_det_in_min_cells)
