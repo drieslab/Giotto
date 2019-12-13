@@ -471,7 +471,7 @@ createGiottoObject <- function(raw_exprs,
 
 
   # check input of raw_exprs
-  if(!'matrix' %in% class(raw_exprs)) {
+  if(all(c('matrix','data.frame') %in% class(expr) == FALSE)) {
     stop("raw_exprs needs to be of class 'matrix', check class(raw_exprs)")
   }
 
