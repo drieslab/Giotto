@@ -8,6 +8,15 @@ heatmSpatialCorGenes(
   spatCorObject,
   use_clus_name = NULL,
   show_cluster_annot = TRUE,
+  show_row_dend = T,
+  show_column_dend = F,
+  show_row_names = F,
+  show_column_names = F,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "heatmSpatialCorGenes",
   ...
 )
 }
@@ -15,6 +24,14 @@ heatmSpatialCorGenes(
 \item{use_clus_name}{name of clusters to visualize (from clusterSpatialCorGenes())}
 
 \item{show_cluster_annot}{show cluster annotation on top of heatmap}
+
+\item{show_row_dend}{show row dendrogram}
+
+\item{show_column_dend}{show column dendrogram}
+
+\item{show_row_names}{show row names}
+
+\item{show_column_names}{show column names}
 
 \item{...}{additional parameters to the \code{\link[ComplexHeatmap]{Heatmap}} function from ComplexHeatmap}
 }

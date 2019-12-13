@@ -4,7 +4,15 @@
 \alias{rankSpatialCorGroups}
 \title{rankSpatialCorGroups}
 \usage{
-rankSpatialCorGroups(spatCorObject, use_clus_name = NULL, show_plot = TRUE)
+rankSpatialCorGroups(
+  spatCorObject,
+  use_clus_name = NULL,
+  show_plot = NA,
+  return_plot = FALSE,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "rankSpatialCorGroups"
+)
 }
 \arguments{
 \item{use_clus_name}{name of clusters to visualize (from clusterSpatialCorGenes())}
