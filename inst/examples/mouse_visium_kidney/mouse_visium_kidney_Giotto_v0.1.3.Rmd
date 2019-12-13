@@ -581,6 +581,8 @@ spatPlot(gobject = visium_kidney, show_network = T,
 <details>
   <summary>Expand</summary>
   \
+ 
+##### 9.1. calculate spatial genes
   
 ```{r eval=FALSE}
 ## kmeans binarization
@@ -621,6 +623,84 @@ Spatial genes:
 
 - distance  
 ![](./figures/9_spatial_genes.png){width=16cm} 
+
+##### 9.2. identify spatially co-expressed genes  
+
+```{r eval=FALSE}
+# use top 500 spatial genes
+ext_spatial_genes = kmtest[1:500]$genes
+
+# calculate gene correlation at the single-level
+# calculate gene correlation by aggregating cells within a grid or network
+# this creates a spatCorObject (spatial correlation object) 
+spat_cor_netw_DT = detectSpatialCorGenes(visium_kidney, method = 'network', subset_genes = ext_spatial_genes)
+
+# show top10 that are correlated with the gene Napsa
+Napsa_top10_genes = showSpatialCorGenes(spat_cor_netw_DT, genes = 'Napsa', show_top_genes = 10)
+
+# visualize the top 4 genes and automatically save plot (save_param) 
+spatGenePlot(visium_kidney, expression_values = 'scaled',
+             genes = c('Napsa', 'Kap', 'Defb29', 'Mep1a'), point_size = 3,
+             save_param = c(save_name = 'Napsa_correlated_genes', save_folder = '10_spatial_genes'))
+
+```
+
+Napsa-like genes:    
+![](./figures/9_Napsa_correlated_genes.png)
+
+
+##### 9.2. identify spatial co-expression clusters 
+
+```{r eval=FALSE}
+# cluster the spatial correlation object in 10 groups
+spat_cor_netw_DT = clusterSpatialCorGenes(spat_cor_netw_DT, name = 'spat_netw_clus', k = 10)
+
+# visualize the co-expression pattern and groups
+# automatically save the heatmap using the save_param option
+heatmSpatialCorGenes(visium_kidney, spatCorObject = spat_cor_netw_DT, use_clus_name = 'spat_netw_clus',
+                     save_param = c(save_name = 'heatmap_correlated_genes', save_folder = '10_spatial_genes',
+                                    base_height = 6, base_width = 8, units = 'cm'), 
+                     heatmap_legend_param = list(title = NULL))
+
+# rank the spatial co-expression clusters and save
+netw_ranks = rankSpatialCorGroups(visium_kidney, spatCorObject = spat_cor_netw_DT, use_clus_name = 'spat_netw_clus',
+                                  save_param = c(save_name = 'rank_correlated_groups', save_folder = '10_spatial_genes',
+                                                 base_height = 3, base_width = 5))
+
+# show all genes associated with the co-expression cluster number 6
+top_netw_spat_cluster = showSpatialCorGenes(spat_cor_netw_DT, use_clus_name = 'spat_netw_clus',
+                                            selected_clusters = 6, show_top_genes = 1)
+
+```
+
+Heatmap of spatial correlated genes:    
+![](./figures/9_heatmap_correlated_genes.png)
+
+Scores for co-expression clusters:    
+![](./figures/9_rank_correlated_groups.png)
+
+
+##### 9.3. create enrichment score for co-expression cluster and visualize spatial expression patterns
+
+```{r eval=FALSE}
+# create enrichment
+visium_kidney = enrichSpatialCorGroups(visium_kidney, spat_cor_netw_DT,
+                                       use_clus_name = 'spat_netw_clus',
+                                       name = 'spat_netw_enr')
+
+# visualize all clusters ranked by their score
+# automatically save plot
+spatCellPlot(visium_kidney,
+             spat_enr_names = 'spat_netw_enr',
+             cell_annotation_values = netw_ranks$clusters,
+             point_size = 2, cow_n_col = 4,
+             save_param = c(save_name = 'spat_enrichment_score_plots', save_folder = '10_spatial_genes',
+                            base_width = 11))
+
+```
+
+Spatial co-expression patterns:      
+![](./figures/9_spat_enrichment_score_plots.png)
 
 ***
 
