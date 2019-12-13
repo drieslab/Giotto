@@ -13,12 +13,16 @@
 create_dimObject = function(name = 'test',
                             reduction_method = NULL,
                             coordinates = NULL,
-                            misc = NULL) {
+                            misc = NULL,
+                            my_rownames = NULL) {
 
 
   number_of_dimensions = ncol(coordinates)
   colnames(coordinates) <- paste0('Dim.',1:number_of_dimensions)
 
+  if(!is.null(my_rownames)) {
+    rownames(coordinates) = my_rownames
+  }
 
   dimObj = list(name = name,
                 reduction_method = reduction_method,
@@ -61,7 +65,7 @@ runPCA <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
 
 
   # subset expression matrix
@@ -90,7 +94,7 @@ runPCA <- function(gobject,
 
     dimObject = create_dimObject(name = name, reduction_method = 'pca',
                                  coordinates = pca_object$ind$coord,
-                                 misc = pca_object)
+                                 misc = pca_object, my_rownames = colnames(expr_values))
 
     gobject@dimension_reduction[[reduction]][['pca']][[name]] <- dimObject
 
@@ -116,8 +120,6 @@ runPCA <- function(gobject,
     return(pca_object)
   }
 }
-
-
 
 
 #' @title signPCA

@@ -470,10 +470,14 @@ createGiottoObject <- function(raw_exprs,
   }
 
 
-  # check input of raw_exprs
+  # check input of raw_exprs & force it as matrix
   if(all(c('matrix','data.frame') %in% class(expr) == FALSE)) {
     stop("raw_exprs needs to be of class 'matrix', check class(raw_exprs)")
   }
+
+  raw_exprs = as.matrix(raw_exprs)
+  gobject@raw_exprs = raw_exprs
+
 
   # prepare other slots
   gobject@cell_ID = colnames(raw_exprs)
@@ -514,7 +518,7 @@ createGiottoObject <- function(raw_exprs,
        all(colnames(norm_expr) == colnames(raw_exprs)) &
        all(rownames(norm_expr) == rownames(raw_exprs))) {
 
-      gobject@norm_expr = norm_expr
+      gobject@norm_expr = as.matrix(norm_expr)
     } else {
       stop('\n dimensions, row or column names are not the same between normalized and raw expression \n')
     }
@@ -527,7 +531,7 @@ createGiottoObject <- function(raw_exprs,
        all(colnames(norm_scaled_expr) == colnames(raw_exprs)) &
        all(rownames(norm_scaled_expr) == rownames(raw_exprs))) {
 
-      gobject@norm_scaled_expr = norm_scaled_expr
+      gobject@norm_scaled_expr = as.matrix(norm_scaled_expr)
     } else {
       stop('\n dimensions, row or column names are not the same between normalized + scaled and raw expression \n')
     }
@@ -540,7 +544,7 @@ createGiottoObject <- function(raw_exprs,
        all(colnames(custom_expr) == colnames(raw_exprs)) &
        all(rownames(custom_expr) == rownames(raw_exprs))) {
 
-      gobject@custom_expr = custom_expr
+      gobject@custom_expr = as.matrix(custom_expr)
     } else {
       stop('\n dimensions, row or column names are not the same between custom normalized and raw expression \n')
     }

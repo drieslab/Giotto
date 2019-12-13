@@ -8,7 +8,8 @@ create_dimObject(
   name = "test",
   reduction_method = NULL,
   coordinates = NULL,
-  misc = NULL
+  misc = NULL,
+  my_rownames = NULL
 )
 }
 \arguments{
