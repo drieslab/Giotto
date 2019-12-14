@@ -1568,7 +1568,7 @@ createMetagenes = function(gobject,
   ## calculate metagene ##
   res_list = list()
 
-  for(id in unique(gene_clusters)) {
+  for(id in sort(unique(gene_clusters))) {
 
     clus_id = id
 
@@ -1581,7 +1581,7 @@ createMetagenes = function(gobject,
   }
 
   res_final = data.table::as.data.table(t(do.call('rbind', res_list)))
-  colnames(res_final) = paste0('V', unique(gene_clusters))
+  colnames(res_final) = paste0('V', sort(unique(gene_clusters)))
   res_final[, cell_ID := colnames(expr_values)]
 
 

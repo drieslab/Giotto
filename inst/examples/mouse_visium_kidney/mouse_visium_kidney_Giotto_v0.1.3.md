@@ -654,15 +654,18 @@ Scores for co-expression clusters:
 ##### 9.3. create enrichment score for co-expression cluster and visualize spatial expression patterns
 
 ``` r
-# create enrichment
-visium_kidney = enrichSpatialCorGroups(visium_kidney, spat_cor_netw_DT,
-                                       use_clus_name = 'spat_netw_clus',
-                                       name = 'spat_netw_enr')
+# create metagene enrichment scores for gene clusters
+# gene clusters
+cluster_genes_DT = showSpatialCorGenes(spat_cor_netw_DT, use_clus_name = 'spat_netw_clus', show_top_genes = 1)
+cluster_genes = cluster_genes_DT$clus; names(cluster_genes) = cluster_genes_DT$gene_ID
+
+# metagene
+visium_kidney = createMetagenes(visium_kidney, gene_clusters = cluster_genes, name = 'cluster_metagene')
 
 # visualize all clusters ranked by their score
 # automatically save plot
 spatCellPlot(visium_kidney,
-             spat_enr_names = 'spat_netw_enr',
+             spat_enr_names = 'cluster_metagene',
              cell_annotation_values = netw_ranks$clusters,
              point_size = 2, cow_n_col = 4,
              save_param = c(save_name = 'spat_enrichment_score_plots', save_folder = '10_spatial_genes',
