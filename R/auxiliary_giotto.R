@@ -1539,3 +1539,80 @@ combineMetadata = function(gobject,
 
 
 
+
+
+#' @title createMetagenes
+#' @description This function creates an average metagene for gene clusters.
+#' @param gobject Giotto object
+#' @param expression_values expression values to use
+#' @param gene_clusters numerical vector with genes as names
+#' @param name name of the metagene results
+#' @param return_gobject return giotto object
+#' @return giotto object
+#' @details An example for the 'gene_clusters' could be like this:
+#' cluster_vector = c(1, 1, 2, 2); names(cluster_vector) = c('geneA', 'geneB', 'geneC', 'geneD')
+#' @export
+#' @examples
+#'     createMetagenes(gobject)
+createMetagenes = function(gobject,
+                           expression_values = c('normalized', 'scaled', 'custom'),
+                           gene_clusters,
+                           name = 'metagene',
+                           return_gobject = TRUE) {
+
+  # expression values to be used
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+
+
+  ## calculate metagene ##
+  res_list = list()
+
+  for(id in unique(gene_clusters)) {
+
+    clus_id = id
+
+    selected_genes = names(gene_clusters[gene_clusters == clus_id])
+    sub_mat = expr_values[rownames(expr_values) %in% selected_genes,]
+
+    # calculate mean
+    mean_score = colMeans(sub_mat)
+    res_list[[id]] = mean_score
+  }
+
+  res_final = data.table::as.data.table(t(do.call('rbind', res_list)))
+  colnames(res_final) = paste0('V', unique(gene_clusters))
+  res_final[, cell_ID := colnames(expr_values)]
+
+
+  if(return_gobject == TRUE) {
+
+    ## enrichment scores
+    spenr_names = names(gobject@spatial_enrichment)
+
+    if(name %in% spenr_names) {
+      cat('\n ', name, ' has already been used, will be overwritten \n')
+    }
+
+    ## update parameters used ##
+    parameters_list = gobject@parameters
+    number_of_rounds = length(parameters_list)
+    update_name = paste0(number_of_rounds,'_create_metagene')
+
+    # parameters to include
+    parameters_list[[update_name]] = c('expression values' = values,
+                                       'metagene name' = name)
+    gobject@parameters = parameters_list
+
+    gobject@spatial_enrichment[[name]] = res_final
+
+    return(gobject)
+
+
+
+  } else {
+    return(res_final)
+  }
+
+}
+
