@@ -49,7 +49,7 @@ Make sure to check out the **Examples** and **FAQ** section to learn everything 
 - New example on mouse olfactory bulb using immobilized primers on glass slides from [Spatial Transcriptomics](https://science.sciencemag.org/content/353/6294/78)
 - Updated seqFISH+ cortex example (**NEW**)
 - Updated STARmap cortex example (**NEW**)
-- New examples for merFISH (3D) and MIBI (multiple patient tumor samples) will follow soon.
+- New examples for Ab-based large-scale systems such as cyCIF, CODEX and MIBI will follow soon.
 
 \  
 
