@@ -1151,6 +1151,8 @@ do_spatial_grid_averaging = function(gobject,
 #' @param b smoothing factor beteen 0 and 1 (default: automatic)
 #' @return returns a spatial correlation object: "spatCorObject"
 #' @details
+#' For method = network, it expects a fully connected spatial network. You can make sure to create a
+#' fully connected network by setting minimal_k > 0 in the \code{\link{createSpatialNetwork}} function.
 #' \itemize{
 #'  \item{1. grid-averaging: }{average gene expression values within a predefined spatial grid}
 #'  \item{2. network-averaging: }{smoothens the gene expression matrix by averaging the expression within one cell

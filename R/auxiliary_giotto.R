@@ -1576,7 +1576,12 @@ createMetagenes = function(gobject,
     sub_mat = expr_values[rownames(expr_values) %in% selected_genes,]
 
     # calculate mean
-    mean_score = colMeans(sub_mat)
+    if(length(selected_genes) == 1) {
+      mean_score = mean(x = sub_mat)
+    } else{
+      mean_score = colMeans(sub_mat)
+    }
+
     res_list[[id]] = mean_score
   }
 

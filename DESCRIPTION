@@ -39,7 +39,8 @@ Imports:
     matrixStats (>= 0.55.0),
     IRanges,
     devtools,
-    reshape2
+    reshape2,
+    ggraph
 Suggests:
     knitr,
     rmarkdown,
