@@ -63,6 +63,8 @@ plotTSNE(gobject, dim_reduction_name = "tsne", default_save_name = "tSNE", ...)
 
 \item{edge_alpha}{column to use for alpha of the edges}
 
+\item{point_shape}{point with border or not (border or no_border)}
+
 \item{point_size}{size of point (cell)}
 
 \item{point_border_col}{color of border around points}

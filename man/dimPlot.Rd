@@ -35,6 +35,7 @@ dimPlot(
   label_size = 4,
   label_fontface = "bold",
   edge_alpha = NULL,
+  point_shape = c("border", "no_border"),
   point_size = 1,
   point_border_col = "black",
   point_border_stroke = 0.1,
@@ -108,6 +109,8 @@ dimPlot(
 \item{label_fontface}{font of labels}
 
 \item{edge_alpha}{column to use for alpha of the edges}
+
+\item{point_shape}{point with border or not (border or no_border)}
 
 \item{point_size}{size of point (cell)}
 

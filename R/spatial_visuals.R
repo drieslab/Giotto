@@ -5245,6 +5245,208 @@ plot_point_layer_ggplot = function(ggobject,
 
 
 
+#' @title plot_point_layer_ggplot_noFILL
+#' @name plot_point_layer_ggplot_noFILL
+#' @description Visualize cells in point layer according to dimension reduction coordinates without borders
+#' @param gobject giotto object
+#' @param annotated_DT_selected annotated data.table of selected cells
+#' @param annotated_DT_other annotated data.table of not selected cells
+#' @param cell_color color for cells (see details)
+#' @param color_as_factor convert color column to factor
+#' @param cell_color_code named vector with colors
+#' @param cell_color_gradient vector with 3 colors for numeric data
+#' @param gradient_midpoint midpoint for color gradient
+#' @param gradient_limits vector with lower and upper limits
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param select_cells select subset of cells based on cell IDs
+#' @param point_size size of point (cell)
+#' @param show_cluster_center plot center of selected clusters
+#' @param show_center_label plot label of selected clusters
+#' @param center_point_size size of center points
+#' @param label_size  size of labels
+#' @param label_fontface font of labels
+#' @param edge_alpha column to use for alpha of the edges
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color of not selected cells
+#' @param other_point_size size of not selected cells
+#' @param show_legend show legend
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     plot_point_layer_ggplot_noFILL(gobject)
+plot_point_layer_ggplot_noFILL = function(ggobject,
+                                   annotated_DT_selected,
+                                   annotated_DT_other,
+                                   cell_color = NULL,
+                                   color_as_factor = T,
+                                   cell_color_code = NULL,
+                                   cell_color_gradient = c('blue', 'white', 'red'),
+                                   gradient_midpoint = 0,
+                                   gradient_limits = NULL,
+                                   select_cell_groups = NULL,
+                                   select_cells = NULL,
+                                   point_size = 1,
+                                   show_cluster_center = F,
+                                   show_center_label = T,
+                                   center_point_size = 4,
+                                   label_size = 4,
+                                   label_fontface = 'bold',
+                                   edge_alpha = NULL,
+                                   show_other_cells = T,
+                                   other_cell_color = 'lightgrey',
+                                   other_point_size = 0.5,
+                                   show_legend = T
+) {
+
+
+  pl = ggobject
+
+
+
+  ## first plot other non-selected cells
+  if((!is.null(select_cells) | !is.null(select_cell_groups)) & show_other_cells == TRUE) {
+
+    dims = grep('Dim.', colnames(annotated_DT_other), value = T)
+    pl = pl + ggplot2::geom_point(data = annotated_DT_other, aes_string(x = dims[1], dims[2]),
+                                  color = other_cell_color, show.legend = F, size = other_point_size)
+
+  }
+
+
+  ## order of color
+  # 1. if NULL then default to lightblue
+  # 2. if character vector
+  # 2.1 if length of cell_color is longer than 1 and has colors
+  # 2.2 if not part of metadata then suppose its color
+  # 2.3 part of metadata
+  # 2.3.1 numerical column
+  # 2.3.2 factor column or character to factor
+
+
+  ## point layer
+  dims = grep('Dim.', colnames(annotated_DT_selected), value = T)
+
+  if(is.null(cell_color)) {
+
+    cell_color = 'lightblue'
+    pl <- pl + ggplot2::geom_point(data = annotated_DT_selected, aes_string(x = dims[1], dims[2]),
+                                   color = cell_color, show.legend = show_legend, size = point_size)
+
+
+  } else if(length(cell_color) > 1) {
+
+    if(is.numeric(cell_color) | is.factor(cell_color)) {
+      if(nrow(annotated_DT_selected) != length(cell_color)) stop('\n vector needs to be the same lengths as number of cells \n')
+      annotated_DT_selected[['temp_color']] = cell_color
+
+      pl <- pl + ggplot2::geom_point(data = annotated_DT_selected, aes_string2(x = dims[1], y = dims[2], color = 'temp_color'),
+                                     show.legend = show_legend, shape = 19, size = point_size)
+
+    } else if(is.character(cell_color)) {
+      if(!all(cell_color %in% grDevices::colors())) stop('cell_color is not numeric, a factor or vector of colors \n')
+      pl <- pl + ggplot2::geom_point(data = annotated_DT_selected, aes_string2(x = dims[1], y = dims[2]),
+                                     show.legend = show_legend, shape = 19, fill = cell_color, size = point_size)
+
+    }
+
+  } else if (is.character(cell_color)) {
+
+    if(!cell_color %in% colnames(annotated_DT_selected)) {
+      if(!cell_color %in% grDevices::colors()) stop(cell_color,' is not a color or a column name \n')
+      pl <- pl + ggplot2::geom_point(data = annotated_DT_selected, aes_string(x = dims[1], y = dims[2]),
+                                     show.legend = show_legend, shape = 19, color = cell_color, size = point_size)
+
+    } else {
+
+      class_cell_color = class(annotated_DT_selected[[cell_color]])
+
+      if((class_cell_color == 'integer' | class_cell_color == 'numeric') & color_as_factor == FALSE) {
+
+        # set upper and lower limits
+        if(!is.null(gradient_limits) & is.vector(gradient_limits) & length(gradient_limits) == 2) {
+          lower_lim = gradient_limits[[1]]
+          upper_lim = gradient_limits[[2]]
+
+          numeric_data = annotated_DT_selected[[cell_color]]
+          limit_numeric_data = ifelse(numeric_data > upper_lim, upper_lim,
+                                      ifelse(numeric_data < lower_lim, lower_lim, numeric_data))
+          annotated_DT_selected[[cell_color]] = limit_numeric_data
+        }
+
+        pl <- pl + ggplot2::geom_point(data = annotated_DT_selected,
+                                       aes_string2(x = dims[1], y = dims[2], color = cell_color),
+                                       show.legend = show_legend, shape = 19, size = point_size)
+
+      } else {
+
+        # convert character or numeric to factor
+        if(color_as_factor == TRUE) {
+          factor_data = factor(annotated_DT_selected[[cell_color]])
+          annotated_DT_selected[[cell_color]] <- factor_data
+        }
+
+        # if you want to show centers or labels then calculate centers
+        if(show_cluster_center == TRUE | show_center_label == TRUE) {
+          annotated_DT_centers = annotated_DT_selected[, .(center_1 = median(get(dims[1])), center_2 = median(get(dims[2]))), by = cell_color]
+          factor_center_data = factor(annotated_DT_centers[[cell_color]])
+          annotated_DT_centers[[cell_color]] <- factor_center_data
+        }
+
+        pl <- pl + ggplot2::geom_point(data = annotated_DT_selected,
+                                       aes_string2(x = dims[1], y = dims[2], color = cell_color),
+                                       show.legend = show_legend, shape = 19, size = point_size)
+
+
+        ## plot centers
+        if(show_cluster_center == TRUE & (color_as_factor == TRUE | class_cell_color %in% c('character', 'factor'))) {
+
+          pl <- pl + ggplot2::geom_point(data = annotated_DT_centers,
+                                         aes_string2(x = 'center_1', y = 'center_2', color = cell_color),
+                                         size = center_point_size, shape = 19)
+        }
+
+        ## plot labels
+        if(show_center_label == TRUE) {
+          pl <- pl + ggrepel::geom_text_repel(data = annotated_DT_centers,
+                                              aes_string2(x = 'center_1', y = 'center_2', label = cell_color),
+                                              size = label_size, fontface = label_fontface)
+        }
+
+      }
+
+
+      ## specificy colors to use
+      if(!is.null(cell_color_code)) {
+
+        pl <- pl + ggplot2::scale_color_manual(values = cell_color_code)
+
+      } else if(color_as_factor == T) {
+
+        number_colors = length(unique(factor_data))
+        cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+        names(cell_color_code) = unique(factor_data)
+        pl <- pl + ggplot2::scale_color_manual(values = cell_color_code)
+
+      } else if(color_as_factor == F){
+
+        if(is.null(gradient_midpoint)) {
+          gradient_midpoint = median(annotated_DT_selected[[cell_color]])
+        }
+        pl <- pl + ggplot2::scale_color_gradient2(low = cell_color_gradient[[1]],
+                                                 mid = cell_color_gradient[[2]],
+                                                 high = cell_color_gradient[[3]],
+                                                 midpoint = gradient_midpoint)
+
+      }
+    }
+  }
+  return(pl)
+}
+
+
+
+
 #' @title dimPlot2D_single
 #' @name dimPlot2D_single
 #' @description Visualize cells according to dimension reduction coordinates
@@ -5274,6 +5476,7 @@ plot_point_layer_ggplot = function(ggobject,
 #' @param label_size  size of labels
 #' @param label_fontface font of labels
 #' @param edge_alpha column to use for alpha of the edges
+#' @param point_shape point with border or not (border or no_border)
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
@@ -5320,6 +5523,7 @@ dimPlot2D_single <- function(gobject,
                              label_size = 4,
                              label_fontface = 'bold',
                              edge_alpha = NULL,
+                             point_shape = c('border', 'no_border'),
                              point_size = 1,
                              point_border_col = 'black',
                              point_border_stroke = 0.1,
@@ -5334,6 +5538,10 @@ dimPlot2D_single <- function(gobject,
                              save_param = list(),
                              default_save_name = 'dimPlot2D_single'
 ){
+
+
+  ## point shape ##
+  point_shape = match.arg(point_shape, c('border', 'no_border'))
 
   ## dimension reduction ##
   # test if dimension reduction was performed
@@ -5425,33 +5633,63 @@ dimPlot2D_single <- function(gobject,
 
   #return(list(pl, annotated_DT_selected, annotated_DT_other))
 
-  ## add point layer
-  pl = plot_point_layer_ggplot(ggobject = pl,
-                               annotated_DT_selected = annotated_DT_selected,
-                               annotated_DT_other = annotated_DT_other,
-                               cell_color = cell_color,
-                               color_as_factor = color_as_factor,
-                               cell_color_code = cell_color_code,
-                               cell_color_gradient = cell_color_gradient,
-                               gradient_midpoint = gradient_midpoint,
-                               gradient_limits = gradient_limits,
-                               select_cell_groups = select_cell_groups,
-                               select_cells = select_cells,
-                               show_other_cells = show_other_cells,
-                               other_cell_color = other_cell_color,
-                               other_point_size = other_point_size,
-                               show_cluster_center = show_cluster_center,
-                               show_center_label = show_center_label,
-                               center_point_size = center_point_size,
-                               center_point_border_col = center_point_border_col,
-                               center_point_border_stroke = center_point_border_stroke,
-                               label_size = label_size,
-                               label_fontface = label_fontface,
-                               edge_alpha = edge_alpha,
-                               point_size = point_size,
-                               point_border_col = point_border_col,
-                               point_border_stroke = point_border_stroke,
-                               show_legend = show_legend)
+  if(point_shape == 'border') {
+    ## add point layer
+    pl = plot_point_layer_ggplot(ggobject = pl,
+                                 annotated_DT_selected = annotated_DT_selected,
+                                 annotated_DT_other = annotated_DT_other,
+                                 cell_color = cell_color,
+                                 color_as_factor = color_as_factor,
+                                 cell_color_code = cell_color_code,
+                                 cell_color_gradient = cell_color_gradient,
+                                 gradient_midpoint = gradient_midpoint,
+                                 gradient_limits = gradient_limits,
+                                 select_cell_groups = select_cell_groups,
+                                 select_cells = select_cells,
+                                 show_other_cells = show_other_cells,
+                                 other_cell_color = other_cell_color,
+                                 other_point_size = other_point_size,
+                                 show_cluster_center = show_cluster_center,
+                                 show_center_label = show_center_label,
+                                 center_point_size = center_point_size,
+                                 center_point_border_col = center_point_border_col,
+                                 center_point_border_stroke = center_point_border_stroke,
+                                 label_size = label_size,
+                                 label_fontface = label_fontface,
+                                 edge_alpha = edge_alpha,
+                                 point_size = point_size,
+                                 point_border_col = point_border_col,
+                                 point_border_stroke = point_border_stroke,
+                                 show_legend = show_legend)
+
+  } else if(point_shape == 'no_border') {
+
+    pl = plot_point_layer_ggplot_noFILL(ggobject = pl,
+                                        annotated_DT_selected = annotated_DT_selected,
+                                        annotated_DT_other = annotated_DT_other,
+                                        cell_color = cell_color,
+                                        color_as_factor = color_as_factor,
+                                        cell_color_code = cell_color_code,
+                                        cell_color_gradient = cell_color_gradient,
+                                        gradient_midpoint = gradient_midpoint,
+                                        gradient_limits = gradient_limits,
+                                        select_cell_groups = select_cell_groups,
+                                        select_cells = select_cells,
+                                        show_other_cells = show_other_cells,
+                                        other_cell_color = other_cell_color,
+                                        other_point_size = other_point_size,
+                                        show_cluster_center = show_cluster_center,
+                                        show_center_label = show_center_label,
+                                        center_point_size = center_point_size,
+                                        label_size = label_size,
+                                        label_fontface = label_fontface,
+                                        edge_alpha = edge_alpha,
+                                        point_size = point_size,
+                                        show_legend = show_legend)
+
+  }
+
+
 
 
   ## add % variance explained to names of plot for PCA ##
@@ -5540,6 +5778,7 @@ dimPlot2D_single <- function(gobject,
 #' @param label_size  size of labels
 #' @param label_fontface font of labels
 #' @param edge_alpha column to use for alpha of the edges
+#' @param point_shape point with border or not (border or no_border)
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
@@ -5592,6 +5831,7 @@ dimPlot2D = function(gobject,
                      label_size = 4,
                      label_fontface = 'bold',
                      edge_alpha = NULL,
+                     point_shape = c('border', 'no_border'),
                      point_size = 1,
                      point_border_col = 'black',
                      point_border_stroke = 0.1,
@@ -5642,6 +5882,7 @@ dimPlot2D = function(gobject,
                      label_size = label_size,
                      label_fontface = label_fontface,
                      edge_alpha = edge_alpha,
+                     point_shape = point_shape,
                      point_size = point_size,
                      point_border_col = point_border_col,
                      point_border_stroke = point_border_stroke,
@@ -5745,6 +5986,7 @@ dimPlot2D = function(gobject,
                             label_size = label_size,
                             label_fontface = label_fontface,
                             edge_alpha = edge_alpha,
+                            point_shape = point_shape,
                             point_size = point_size,
                             point_border_col = point_border_col,
                             point_border_stroke = point_border_stroke,
@@ -5828,6 +6070,7 @@ dimPlot2D = function(gobject,
 #' @param label_size  size of labels
 #' @param label_fontface font of labels
 #' @param edge_alpha column to use for alpha of the edges
+#' @param point_shape point with border or not (border or no_border)
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
@@ -5880,6 +6123,7 @@ dimPlot = function(gobject,
                    label_size = 4,
                    label_fontface = 'bold',
                    edge_alpha = NULL,
+                   point_shape = c('border', 'no_border'),
                    point_size = 1,
                    point_border_col = 'black',
                    point_border_stroke = 0.1,
@@ -5928,6 +6172,7 @@ dimPlot = function(gobject,
             label_size = label_size,
             label_fontface = label_fontface,
             edge_alpha = edge_alpha,
+            point_shape = point_shape,
             point_size = point_size,
             point_border_col = point_border_col,
             point_border_stroke = point_border_stroke,
@@ -5983,6 +6228,7 @@ dimPlot = function(gobject,
 #' @param label_size  size of labels
 #' @param label_fontface font of labels
 #' @param edge_alpha column to use for alpha of the edges
+#' @param point_shape point with border or not (border or no_border)
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
@@ -6044,6 +6290,7 @@ plotUMAP_2D = function(gobject, dim_reduction_name = 'umap', default_save_name =
 #' @param label_size  size of labels
 #' @param label_fontface font of labels
 #' @param edge_alpha column to use for alpha of the edges
+#' @param point_shape point with border or not (border or no_border)
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
@@ -6108,6 +6355,7 @@ plotUMAP = function(gobject, dim_reduction_name = 'umap', default_save_name = 'U
 #' @param label_size  size of labels
 #' @param label_fontface font of labels
 #' @param edge_alpha column to use for alpha of the edges
+#' @param point_shape point with border or not (border or no_border)
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
@@ -6168,6 +6416,7 @@ plotTSNE_2D = function(gobject, dim_reduction_name = 'tsne', default_save_name =
 #' @param label_size  size of labels
 #' @param label_fontface font of labels
 #' @param edge_alpha column to use for alpha of the edges
+#' @param point_shape point with border or not (border or no_border)
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
@@ -6230,6 +6479,7 @@ plotTSNE = function(gobject, dim_reduction_name = 'tsne', default_save_name = 't
 #' @param label_size  size of labels
 #' @param label_fontface font of labels
 #' @param edge_alpha column to use for alpha of the edges
+#' @param point_shape point with border or not (border or no_border)
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
@@ -6292,6 +6542,7 @@ plotPCA_2D = function(gobject, dim_reduction_name = 'pca', default_save_name = '
 #' @param label_size  size of labels
 #' @param label_fontface font of labels
 #' @param edge_alpha column to use for alpha of the edges
+#' @param point_shape point with border or not (border or no_border)
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
@@ -7537,9 +7788,11 @@ spatPlot = function(gobject,
 #' @param gradient_limits vector with lower and upper limits
 #' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
 #' @param select_cells select subset of cells based on cell IDs
+#' @param dim_point_shape point with border or not (border or no_border)
 #' @param dim_point_size size of points in dim. reduction space
 #' @param dim_point_border_col border color of points in dim. reduction space
 #' @param dim_point_border_stroke border stroke of points in dim. reduction space
+#' @param spat_point_shape point with border or not (border or no_border)
 #' @param spat_point_size size of spatial points
 #' @param spat_point_border_col border color of spatial points
 #' @param spat_point_border_stroke border stroke of spatial points
@@ -7603,9 +7856,11 @@ spatDimPlot2D <- function(gobject,
                           gradient_limits = NULL,
                           select_cell_groups = NULL,
                           select_cells = NULL,
+                          dim_point_shape = c('border', 'no_border'),
                           dim_point_size = 1,
                           dim_point_border_col = 'black',
                           dim_point_border_stroke = 0.1,
+                          spat_point_shape = c('border', 'no_border'),
                           spat_point_size = 1,
                           spat_point_border_col = 'black',
                           spat_point_border_stroke = 0.1,
@@ -7686,6 +7941,7 @@ spatDimPlot2D <- function(gobject,
                    gradient_limits = gradient_limits,
                    select_cell_groups = select_cell_groups,
                    select_cells = select_cells,
+                   point_shape = dim_point_shape,
                    point_size = dim_point_size,
                    point_border_col = dim_point_border_col,
                    point_border_stroke = dim_point_border_stroke,
@@ -7727,6 +7983,7 @@ spatDimPlot2D <- function(gobject,
                    gradient_limits = gradient_limits,
                    select_cell_groups = select_cell_groups,
                    select_cells = select_cells,
+                   point_shape = spat_point_shape,
                    point_size = spat_point_size,
                    point_border_col = spat_point_border_col,
                    point_border_stroke = spat_point_border_stroke,
@@ -7815,9 +8072,11 @@ spatDimPlot2D <- function(gobject,
 #' @param gradient_limits vector with lower and upper limits
 #' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
 #' @param select_cells select subset of cells based on cell IDs
+#' @param dim_point_shape point with border or not (border or no_border)
 #' @param dim_point_size size of points in dim. reduction space
 #' @param dim_point_border_col border color of points in dim. reduction space
 #' @param dim_point_border_stroke border stroke of points in dim. reduction space
+#' @param spat_point_shape point with border or not (border or no_border)
 #' @param spat_point_size size of spatial points
 #' @param spat_point_border_col border color of spatial points
 #' @param spat_point_border_stroke border stroke of spatial points
@@ -7881,9 +8140,11 @@ spatDimPlot = function(gobject,
                        gradient_limits = NULL,
                        select_cell_groups = NULL,
                        select_cells = NULL,
+                       dim_point_shape = c('border', 'no_border'),
                        dim_point_size = 1,
                        dim_point_border_col = 'black',
                        dim_point_border_stroke = 0.1,
+                       spat_point_shape = c('border', 'no_border'),
                        spat_point_size = 1,
                        spat_point_border_col = 'black',
                        spat_point_border_stroke = 0.1,
