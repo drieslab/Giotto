@@ -6776,7 +6776,7 @@ plot_spat_point_layer_ggplot_noFILL = function(ggobject,
 #' @param gradient_limits vector with lower and upper limits
 #' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
 #' @param select_cells select subset of cells based on cell IDs
-#' @param point_shape point shape: 21 (default with borders) or 19
+#' @param point_shape point with border or not (border or no_border)
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
@@ -6825,7 +6825,7 @@ spatPlot2D_single = function(gobject,
                              gradient_limits = NULL,
                              select_cell_groups = NULL,
                              select_cells = NULL,
-                             point_shape = 21,
+                             point_shape = c('border', 'no_border'),
                              point_size = 3,
                              point_border_col = 'black',
                              point_border_stroke = 0.1,
@@ -6862,7 +6862,7 @@ spatPlot2D_single = function(gobject,
 
 
   ## point shape ##
-  point_shape = match.arg(point_shape, choices = c(21, 19))
+  point_shape = match.arg(point_shape, choices = c('border', 'no_border'))
 
   ## get spatial cell locations
   cell_locations  = gobject@spatial_locs
@@ -6945,7 +6945,7 @@ spatPlot2D_single = function(gobject,
   }
 
   ## plot point layer
-  if(point_shape == 21) {
+  if(point_shape == 'border') {
     pl = plot_spat_point_layer_ggplot(ggobject = pl,
                                       sdimx = sdimx,
                                       sdimy = sdimy,
@@ -6973,7 +6973,7 @@ spatPlot2D_single = function(gobject,
                                       other_cell_color = other_cell_color,
                                       other_point_size = other_point_size,
                                       show_legend = show_legend)
-  } else if(point_shape == 19) {
+  } else if(point_shape == 'no_border') {
     pl = plot_spat_point_layer_ggplot_noFILL(ggobject = pl,
                                              sdimx = sdimx,
                                              sdimy = sdimy,
@@ -7063,7 +7063,7 @@ spatPlot2D_single = function(gobject,
 #' @param gradient_limits vector with lower and upper limits
 #' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
 #' @param select_cells select subset of cells based on cell IDs
-#' @param point_shape point shape: 21 (default with borders) or 19
+#' @param point_shape point with border or not (border or no_border)
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
@@ -7118,7 +7118,7 @@ spatPlot2D = function(gobject,
                       gradient_limits = NULL,
                       select_cell_groups = NULL,
                       select_cells = NULL,
-                      point_shape = 21,
+                      point_shape = c('border', 'no_border'),
                       point_size = 3,
                       point_border_col = 'black',
                       point_border_stroke = 0.1,
@@ -7363,7 +7363,7 @@ spatPlot2D = function(gobject,
 #' @param gradient_limits vector with lower and upper limits
 #' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
 #' @param select_cells select subset of cells based on cell IDs
-#' @param point_shape point shape: 21 (default with borders) or 19
+#' @param point_shape point with border or not (border or no_border)
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
@@ -7418,7 +7418,7 @@ spatPlot = function(gobject,
                     gradient_limits = NULL,
                     select_cell_groups = NULL,
                     select_cells = NULL,
-                    point_shape = 21,
+                    point_shape = c('border', 'no_border'),
                     point_size = 3,
                     point_border_col = 'black',
                     point_border_stroke = 0.1,
