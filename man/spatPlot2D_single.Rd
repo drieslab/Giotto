@@ -17,6 +17,7 @@ spatPlot2D_single(
   gradient_limits = NULL,
   select_cell_groups = NULL,
   select_cells = NULL,
+  point_shape = 21,
   point_size = 3,
   point_border_col = "black",
   point_border_stroke = 0.1,
@@ -75,6 +76,8 @@ spatPlot2D_single(
 \item{select_cell_groups}{select subset of cells/clusters based on cell_color parameter}
 
 \item{select_cells}{select subset of cells based on cell IDs}
+
+\item{point_shape}{point shape: 21 (default with borders) or 19}
 
 \item{point_size}{size of point (cell)}
 
