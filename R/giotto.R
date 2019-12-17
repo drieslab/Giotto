@@ -478,6 +478,13 @@ createGiottoObject <- function(raw_exprs,
   raw_exprs = as.matrix(raw_exprs)
   gobject@raw_exprs = raw_exprs
 
+  if(any(duplicated(rownames(raw_exprs)))) {
+    stop("row names contain duplicates, please remove or rename")
+  }
+
+  if(any(duplicated(colnames(raw_exprs)))) {
+    stop("column names contain duplicates, please remove or rename")
+  }
 
   # prepare other slots
   gobject@cell_ID = colnames(raw_exprs)

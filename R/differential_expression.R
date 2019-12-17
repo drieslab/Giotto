@@ -191,7 +191,8 @@ findScranMarkers_one_vs_all <- function(gobject,
 #' @param min_expr_gini_score filter on minimum gini coefficient for expression
 #' @param min_det_gini_score filter on minimum gini coefficient for detection
 #' @param detection_threshold detection threshold for gene expression
-#' @param rank_score rank scores to include
+#' @param rank_score rank scores for both detection and expression to include
+#' @param min_genes minimum number of top genes to return
 #' @return data.table with marker genes
 #' @details
 #' Detection of marker genes using the \url{https://en.wikipedia.org/wiki/Gini_coefficient}{gini}
@@ -202,8 +203,8 @@ findScranMarkers_one_vs_all <- function(gobject,
 #'   \item{3. calculate gini-coefficient for av. expression values over all clusters}
 #'   \item{4. calculate gini-coefficient for detection fractions over all clusters}
 #'   \item{5. convert gini-scores to rank scores}
-#'   \item{6. for each gene create combined gini score = av. expr gini x detection gini}
-#'   \item{7. for each gene create  and sort on combined rank score = expr rank x detection rank}
+#'   \item{6. for each gene create combined score = detection rank x expression rank x expr gini-coefficient x detection gini-coefficient}
+#'   \item{7. for each gene sort on expression and detection rank and combined score}
 #' }
 #'
 #' As a results "top gini" genes are genes that are very selectivily expressed in a specific cluster,
@@ -222,10 +223,11 @@ findGiniMarkers <- function(gobject,
                             subset_clusters = NULL,
                             group_1 = NULL,
                             group_2 = NULL,
-                            min_expr_gini_score = 0.5,
-                            min_det_gini_score = 0.5,
+                            min_expr_gini_score = 0.2,
+                            min_det_gini_score = 0.2,
                             detection_threshold = 0,
-                            rank_score = 1) {
+                            rank_score = 1,
+                            min_genes = 5) {
 
   ## select expression values
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
@@ -289,20 +291,27 @@ findGiniMarkers <- function(gobject,
 
   ## gini
   aggr_sc_clusters_DT_melt[, expression_gini := Giotto:::mygini_fun(expression), by = genes]
-  aggr_detection_sc_clusters_DT_melt[, detection_gini := Giotto:::mygini_fun(detection), by = genes]
+  aggr_detection_sc_clusters_DT_melt[, detection_gini := Giotto:::mygini_fun(detection)+1, by = genes]
 
 
   ## combine
   aggr_sc = cbind(aggr_sc_clusters_DT_melt, aggr_detection_sc_clusters_DT_melt[,.(detection, detection_gini)])
-  aggr_sc[, expression_rank := rank(-expression), by = genes]
-  aggr_sc[, detection_rank := rank(-detection), by = genes]
 
-  top_genes_scores = aggr_sc[expression_rank <= rank_score & detection_rank <= rank_score]
-  top_genes_scores_filtered = top_genes_scores[expression > min_expr_gini_score & detection > min_det_gini_score]
-  top_genes_scores_filtered[, comb_gini := expression_gini*detection_gini]
-  top_genes_scores_filtered[, comb_rank := rank(-comb_gini), by = cluster]
+  # create combined rank
+  # - high on expression rank
+  # - high on detection rank
+  # comb score = multiply rank with gini scores
+  aggr_sc[, expression_rank := rank(expression), by = genes]
+  aggr_sc[, detection_rank := rank(detection), by = genes]
+  aggr_sc[, comb_score := expression_gini*detection_gini*expression_rank*detection_rank]
+  #aggr_sc[, comb_rank := rank(-comb_score), by = cluster]
+
+  setorder(aggr_sc, cluster, -expression_rank, -detection_rank, -comb_score)
+  aggr_sc[, comb_rank := 1:.N, by = cluster]
+
+  top_genes_scores = aggr_sc[comb_rank <= min_genes | (expression_rank <= rank_score & detection_rank <= rank_score)]
+  top_genes_scores_filtered = top_genes_scores[comb_rank <= min_genes | (expression > min_expr_gini_score & detection > min_det_gini_score)]
   setorder(top_genes_scores_filtered, cluster, comb_rank)
-
 
   return(top_genes_scores_filtered)
 
@@ -321,7 +330,8 @@ findGiniMarkers <- function(gobject,
 #' @param min_expr_gini_score filter on minimum gini coefficient on expression
 #' @param min_det_gini_score filter on minimum gini coefficient on detection
 #' @param detection_threshold detection threshold for gene expression
-#' @param min_genes minimum genes to keep per cluster, overrides pval and logFC
+#' @param rank_score rank scores for both detection and expression to include
+#' @param min_genes minimum number of top genes to return
 #' @param verbose be verbose
 #' @return data.table with marker genes
 #' @seealso \code{\link{findGiniMarkers}}
@@ -335,7 +345,8 @@ findGiniMarkers_one_vs_all <- function(gobject,
                                        min_expr_gini_score = 0.5,
                                        min_det_gini_score = 0.5,
                                        detection_threshold = 0,
-                                       min_genes = 10,
+                                       rank_score = 1,
+                                       min_genes = 4,
                                        verbose = TRUE) {
 
 
@@ -381,12 +392,14 @@ findGiniMarkers_one_vs_all <- function(gobject,
                               group_2 = other_clus,
                               min_expr_gini_score = min_expr_gini_score,
                               min_det_gini_score = min_det_gini_score,
-                              detection_threshold = detection_threshold)
+                              detection_threshold = detection_threshold,
+                              rank_score = rank_score,
+                              min_genes = min_genes)
 
     # filter steps
     clus_name = paste0('cluster_', selected_clus)
     filtered_table = markers[cluster == clus_name]
-    filtered_table = filtered_table[comb_rank <= min_genes]
+    #filtered_table = filtered_table[comb_rank <= min_genes]
 
 
     result_list[[clus_i]] = filtered_table
@@ -621,6 +634,7 @@ findMastMarkers_one_vs_all = function(gobject,
 #' @param min_det_gini_score gini: filter minimum gini coefficient for detection
 #' @param detection_threshold gini: detection threshold for gene expression
 #' @param rank_score gini: rank scores to include
+#' @param min_genes minimum number of top genes to return (for gini)
 #' @param group_1_name mast: custom name for group_1 clusters
 #' @param group_2_name mast: custom name for group_2 clusters
 #' @param adjust_columns mast: column in pDataDT to adjust for (e.g. detection rate)
@@ -642,6 +656,7 @@ findMarkers <- function(gobject,
                         min_det_gini_score = 0.5,
                         detection_threshold = 0,
                         rank_score = 1,
+                        min_genes = 4,
                         group_1_name = NULL,
                         group_2_name = NULL,
                         adjust_columns = NULL,
@@ -670,7 +685,8 @@ findMarkers <- function(gobject,
                                        min_expr_gini_score = min_expr_gini_score,
                                        min_det_gini_score = min_det_gini_score,
                                        detection_threshold = detection_threshold,
-                                       rank_score = rank_score)
+                                       rank_score = rank_score,
+                                       min_genes = min_genes)
 
   } else if(method == 'mast') {
 

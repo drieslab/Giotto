@@ -16,6 +16,7 @@ findMarkers(
   min_det_gini_score = 0.5,
   detection_threshold = 0,
   rank_score = 1,
+  min_genes = 4,
   group_1_name = NULL,
   group_2_name = NULL,
   adjust_columns = NULL,
@@ -44,6 +45,8 @@ findMarkers(
 \item{detection_threshold}{gini: detection threshold for gene expression}
 
 \item{rank_score}{gini: rank scores to include}
+
+\item{min_genes}{minimum number of top genes to return (for gini)}
 
 \item{group_1_name}{mast: custom name for group_1 clusters}
 

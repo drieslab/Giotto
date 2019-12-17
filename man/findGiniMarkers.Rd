@@ -11,10 +11,11 @@ findGiniMarkers(
   subset_clusters = NULL,
   group_1 = NULL,
   group_2 = NULL,
-  min_expr_gini_score = 0.5,
-  min_det_gini_score = 0.5,
+  min_expr_gini_score = 0.2,
+  min_det_gini_score = 0.2,
   detection_threshold = 0,
-  rank_score = 1
+  rank_score = 1,
+  min_genes = 5
 )
 }
 \arguments{
@@ -36,7 +37,9 @@ findGiniMarkers(
 
 \item{detection_threshold}{detection threshold for gene expression}
 
-\item{rank_score}{rank scores to include}
+\item{rank_score}{rank scores for both detection and expression to include}
+
+\item{min_genes}{minimum number of top genes to return}
 }
 \value{
 data.table with marker genes
@@ -53,8 +56,8 @@ coefficient is based on the following steps/principles per gene:
   \item{3. calculate gini-coefficient for av. expression values over all clusters}
   \item{4. calculate gini-coefficient for detection fractions over all clusters}
   \item{5. convert gini-scores to rank scores}
-  \item{6. for each gene create combined gini score = av. expr gini x detection gini}
-  \item{7. for each gene create  and sort on combined rank score = expr rank x detection rank}
+  \item{6. for each gene create combined score = detection rank x expression rank x expr gini-coefficient x detection gini-coefficient}
+  \item{7. for each gene sort on expression and detection rank and combined score}
 }
 
 As a results "top gini" genes are genes that are very selectivily expressed in a specific cluster,

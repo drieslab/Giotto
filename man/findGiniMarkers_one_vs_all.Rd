@@ -12,7 +12,8 @@ findGiniMarkers_one_vs_all(
   min_expr_gini_score = 0.5,
   min_det_gini_score = 0.5,
   detection_threshold = 0,
-  min_genes = 10,
+  rank_score = 1,
+  min_genes = 4,
   verbose = TRUE
 )
 }
@@ -31,7 +32,9 @@ findGiniMarkers_one_vs_all(
 
 \item{detection_threshold}{detection threshold for gene expression}
 
-\item{min_genes}{minimum genes to keep per cluster, overrides pval and logFC}
+\item{rank_score}{rank scores for both detection and expression to include}
+
+\item{min_genes}{minimum number of top genes to return}
 
 \item{verbose}{be verbose}
 }

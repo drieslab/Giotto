@@ -46,8 +46,9 @@ makeSignMatrixPAGE = function(sign_names,
 #' @description Function to convert a single-cell count matrix
 #' and a corresponding single-cell cluster vector into
 #' a rank matrix that can be used with the Rank enrichment option.
-#' @param sign_names vector with names for each provided gene signature
-#' @param sign_list list of genes (signature)
+#' @param sc_matrix matrix of single-cell RNAseq expression data
+#' @param sc_cluster_ids vector of cluster ids
+#' @param gobject if giotto object is given then only genes present in both datasets will be considered
 #' @return matrix
 #' @seealso \code{\link{rankEnrich}}
 #' @export
@@ -66,12 +67,15 @@ makeSignMatrixRank <- function(sc_matrix,
   group_list = list()
   total_nr_genes = nrow(sc_matrix)
 
-  # calculate means for each cluster group
-  for(group in 1:length(unique(sc_cluster_ids))) {
+  uniq_cluster_ids = sort(unique(sc_cluster_ids))
 
-    group_id = unique(sc_cluster_ids)[group]
+  # calculate means for each cluster group
+  for(group in 1:length(uniq_cluster_ids)) {
+
+    group_id = uniq_cluster_ids[group]
     cell_ind = which(sc_cluster_ids == group_id)
     cluster_rowmeans = rowMeans(sc_matrix[,cell_ind])
+
     mean_list[[group_id]] = cluster_rowmeans
     group_list[[group]] = rep(group_id, total_nr_genes)
   }
@@ -81,10 +85,10 @@ makeSignMatrixRank <- function(sc_matrix,
 
   # average expression for all cells
   av_expression = rowMeans(sc_matrix)
-  av_expression_res = rep(av_expression, length(unique(sc_cluster_ids)))
+  av_expression_res = rep(av_expression, length(uniq_cluster_ids))
 
   gene_names = rownames(sc_matrix)
-  gene_names_res = rep(gene_names, length(unique(sc_cluster_ids)))
+  gene_names_res = rep(gene_names, length(uniq_cluster_ids))
 
   # create data.table with genes, mean expression per cluster, mean expression overall and cluster ids
   comb_dt = data.table(genes = gene_names_res, mean_expr = mean_list_res[[1]], av_expr = av_expression_res, clusters = group_list_res[[1]])

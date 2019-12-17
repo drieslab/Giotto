@@ -7,9 +7,11 @@
 makeSignMatrixRank(sc_matrix, sc_cluster_ids, gobject = NULL)
 }
 \arguments{
-\item{sign_names}{vector with names for each provided gene signature}
+\item{sc_matrix}{matrix of single-cell RNAseq expression data}
 
-\item{sign_list}{list of genes (signature)}
+\item{sc_cluster_ids}{vector of cluster ids}
+
+\item{gobject}{if giotto object is given then only genes present in both datasets will be considered}
 }
 \value{
 matrix
