@@ -291,6 +291,97 @@ rankEnrich <- function(gobject,
 }
 
 
+#' @title rankEnrichDT
+#' @description Function to calculate gene signature enrichment scores per spatial position using a rank based approach.
+#' @param gobject Giotto object
+#' @param sign_matrix Matrix of signature genes for each cell type / process
+#' @param expression_values expression values to use
+#' @param reverse_log_scale reverse expression values from log scale
+#' @param logbase log base to use if reverse_log_scale = TRUE
+#' @param output_enrichment how to return enrichment output
+#' @return data.table with enrichment results
+#' @details
+#' sign_matrix: a rank-fold matrix with genes as row names and cell-types as column names.
+#' Alternatively a scRNA-seq matrix and vector with clusters can be provided to makeSignMatrixRank, which will create
+#' the matrix for you. \cr
+#'
+#' First a new rank is calculated as R = (R1*R2)^(1/2), where R1 is the rank of
+#' fold-change for each gene in each spot and R2 is the rank of each marker in each cell type.
+#' The Rank-Biased Precision is then calculated as: RBP = (1 - 0.99) * (0.99)^(R - 1)
+#' and the final enrichment score is then calculated as the sum of top 100 RBPs.
+#' @seealso \code{\link{makeSignMatrixRank}}
+#' @export
+#' @examples
+#'     rankEnrichDT(gobject)
+rankEnrichDT = function(gobject,
+                        sign_matrix,
+                        expression_values = c('normalized', 'scaled', 'custom'),
+                        reverse_log_scale = TRUE,
+                        logbase = 2,
+                        output_enrichment = c('original', 'zscore')) {
+
+
+  # expression values to be used
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+
+  # output enrichment
+  output_enrichment = match.arg(output_enrichment, choices = c('original', 'zscore'))
+
+  # calculate mean gene expression
+  if(reverse_log_scale == TRUE) {
+    mean_gene_expr = log(rowMeans(logbase^expr_values-1, dims = 1)+1)
+  } else {
+    mean_gene_expr = rowMeans(expr_values)
+  }
+
+  # fold change and ranking
+  geneFold = expr_values - mean_gene_expr
+  rankFold = t(matrixStats::colRanks(-geneFold, ties.method = "first"))
+  rownames(rankFold) = rownames(expr_values)
+  colnames(rankFold) = colnames(expr_values)
+
+
+  # filter expr matrix and sign matrix for common genes
+  interGene = intersect(rownames(sign_matrix), rownames(rankFold))
+  filterSig = sign_matrix[interGene,]
+  filterRankFold = rankFold[interGene,]
+
+  ## merge sign matrix and expr matrix ##
+  # convert rankfold matrix to data.table
+  filterRankFold_DT = data.table::as.data.table(filterRankFold)
+  filterRankFold_DT = cbind(gene_ID = rownames(filterRankFold), filterRankFold_DT)
+
+  # convert signature matrix to data.table
+  filterSig_DT = data.table::as.data.table(filterSig)
+  filterSig_DT = cbind(gene_ID = rownames(filterSig), filterSig_DT)
+  filterRankFold_DT = data.table::merge.data.table(filterSig_DT, filterRankFold_DT, by = 'gene_ID')
+  filterRankFold_DT_m = melt.data.table(filterRankFold_DT, id.vars = c('gene_ID', colnames(filterRankFold)), measure.vars = colnames(filterSig), variable.name = 'group', value.name = 'rank')
+
+  # create rank enrichment score
+  test = filterRankFold_DT_m[, c('gene_ID', 'group', 'rank', colnames(filterRankFold)), with = F]
+  test[, (colnames(filterRankFold)) := lapply(.SD, function(x) (x*test[['rank']])^(1/2) ), .SDcols = colnames(filterRankFold)]
+  test[, (colnames(filterRankFold)) := lapply(.SD, function(x) (0.01*(0.99^(x-1)))), .SDcols = colnames(filterRankFold)]
+  summ_test = test[ , lapply(.SD, function(x) sum(sort(x, decreasing = TRUE)[1:100])), .SDcols = colnames(filterRankFold), by = group]
+
+  # convert to a data.table format
+  summ_test_mat = t(as.matrix(summ_test[,-1]))
+  colnames(summ_test_mat) = summ_test[['group']]
+
+  if(output_enrichment == 'zscore') {
+    enrichment = t(scale(t(summ_test_mat)))
+  }
+
+  summ_test_mat_DT = as.data.table(summ_test_mat)
+  enrichmentDT = cbind(cell_ID = rownames(summ_test_mat), summ_test_mat_DT)
+
+  return(enrichmentDT)
+
+}
+
+
+
+
 #' @title hyperGeometricEnrich
 #' @description Function to calculate gene signature enrichment scores per spatial position using a hypergeometric test.
 #' @param gobject Giotto object
@@ -383,8 +474,9 @@ hyperGeometricEnrich <- function(gobject,
 #' @details For details see the individual functions:
 #' \itemize{
 #'   \item{PAGE: }{\code{\link{PAGEEnrich}}}
-#'   \item{PAGE: }{\code{\link{rankEnrich}}}
-#'   \item{PAGE: }{\code{\link{hyperGeometricEnrich}}}
+#'   \item{rank: }{\code{\link{rankEnrich}}}
+#'   \item{rankDT: }{\code{\link{rankEnrichDT}}}
+#'   \item{hypergeometric: }{\code{\link{hyperGeometricEnrich}}}
 #' }
 #'
 #'
@@ -392,7 +484,7 @@ hyperGeometricEnrich <- function(gobject,
 #' @examples
 #'     createSpatialEnrich(gobject)
 createSpatialEnrich = function(gobject,
-                               enrich_method = c('PAGE', 'rank', 'hypergeometric'),
+                               enrich_method = c('PAGE', 'rank', 'rankDT', 'hypergeometric'),
                                sign_matrix,
                                expression_values = c('normalized', 'scaled', 'custom'),
                                reverse_log_scale = TRUE,
@@ -402,7 +494,7 @@ createSpatialEnrich = function(gobject,
                                return_gobject = TRUE) {
 
 
-  enrich_method = match.arg(enrich_method, choices = c('PAGE', 'rank', 'hypergeometric'))
+  enrich_method = match.arg(enrich_method, choices = c('PAGE', 'rank', 'rankDT', 'hypergeometric'))
   expression_values = match.arg(expression_values, choices = c('normalized', 'scaled', 'custom'))
   output_enrichment = match.arg(output_enrichment, choices = c('original', 'zscore'))
 
@@ -429,6 +521,17 @@ createSpatialEnrich = function(gobject,
     # default name for page enrichment
     if(is.null(name)) name = 'rank'
 
+
+  } else if(enrich_method == 'rankDT'){
+
+    enrich_results_DT =  rankEnrichDT(gobject = gobject,
+                                      sign_matrix = sign_matrix,
+                                      expression_values = expression_values,
+                                      reverse_log_scale = reverse_log_scale,
+                                      logbase = logbase,
+                                      output_enrichment = output_enrichment)
+    # default name for page enrichment
+    if(is.null(name)) name = 'rankDT'
 
   } else if(enrich_method == 'hypergeometric'){
 

@@ -6,7 +6,7 @@
 \usage{
 createSpatialEnrich(
   gobject,
-  enrich_method = c("PAGE", "rank", "hypergeometric"),
+  enrich_method = c("PAGE", "rank", "rankDT", "hypergeometric"),
   sign_matrix,
   expression_values = c("normalized", "scaled", "custom"),
   reverse_log_scale = TRUE,
@@ -45,8 +45,9 @@ Function to calculate gene signature enrichment scores per spatial position usin
 For details see the individual functions:
 \itemize{
   \item{PAGE: }{\code{\link{PAGEEnrich}}}
-  \item{PAGE: }{\code{\link{rankEnrich}}}
-  \item{PAGE: }{\code{\link{hyperGeometricEnrich}}}
+  \item{rank: }{\code{\link{rankEnrich}}}
+  \item{rankDT: }{\code{\link{rankEnrichDT}}}
+  \item{hypergeometric: }{\code{\link{hyperGeometricEnrich}}}
 }
 }
 \examples{
