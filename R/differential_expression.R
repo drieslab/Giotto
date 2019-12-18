@@ -522,7 +522,8 @@ findMastMarkers <- function(gobject,
                     summaryDt[contrast==sample & component=='logFC', .(primerid, coef, ci.hi, ci.lo)], by='primerid') #logFC coefficients
   fcHurdle[,fdr := p.adjust(`Pr(>Chisq)`, 'fdr')]
   data.table::setorder(fcHurdle, fdr)
-  fcHurdle[, test := paste0(group_1_name,'_vs_', group_2_name)]
+  fcHurdle[, cluster := paste0(group_1_name,'_vs_', group_2_name)]
+  data.table::setnames(fcHurdle, old = 'primerid', new = 'genes')
 
   return(fcHurdle)
 
@@ -607,7 +608,7 @@ findMastMarkers_one_vs_all = function(gobject,
 
   # filter or retain only selected marker genes
   result_dt = do.call('rbind', result_list)
-  result_dt[, ranking := 1:.N, by = 'test']
+  result_dt[, ranking := 1:.N, by = 'cluster']
   filtered_result_dt = result_dt[ranking <= min_genes | (fdr < pval & coef > logFC)]
 
   return(filtered_result_dt)

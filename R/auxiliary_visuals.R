@@ -949,7 +949,9 @@ plotHeatmap <- function(gobject,
 #' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name
 #' @return ggplot or data.table
-#' @details Creates heatmap for the average expression of selected genes in the different annotation/cluster groups
+#' @details Creates heatmap for the average expression of selected genes in the different annotation/cluster groups.
+#' Calculation of cluster or gene order is done on the provided expression values, but visualization
+#' is by default on the z-scores. Other options are the original values or z-scores rescaled per gene (-1 to 1).
 #' @seealso \code{\link{plotMetaDataCellsHeatmap}} for numeric cell annotation instead of gene expression.
 #' @export
 #' @examples
