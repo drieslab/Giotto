@@ -7051,6 +7051,8 @@ plot_spat_point_layer_ggplot_noFILL = function(ggobject,
 #' @param title title of plot
 #' @param show_legend show legend
 #' @param legend_text size of legend text
+#' @param legend_symbol_size size of legend symbols
+#' @param background_color color of plot background
 #' @param axis_text size of axis text
 #' @param axis_title size of axis title
 #' @param show_plot show plot
@@ -7102,6 +7104,8 @@ spatPlot2D_single = function(gobject,
                              title = NULL,
                              show_legend = T,
                              legend_text = 8,
+                             legend_symbol_size = 1,
+                             background_color = 'white',
                              axis_text = 8,
                              axis_title = 8,
                              show_plot = NA,
@@ -7253,12 +7257,21 @@ spatPlot2D_single = function(gobject,
 
 
 
-  ## adjust titles
+  ## adjust theme settings
   pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5),
                             legend.title = element_blank(),
                             legend.text = element_text(size = legend_text),
                             axis.title = element_text(size = axis_title),
-                            axis.text = element_text(size = axis_text))
+                            axis.text = element_text(size = axis_text),
+                            panel.grid = element_blank(),
+                            panel.background = element_rect(fill = background_color))
+
+  ## change symbol size of legend
+  if(point_shape == 'border') {
+    pl = pl + guides(fill = guide_legend(override.aes = list(size = legend_symbol_size)))
+  } else if(point_shape == 'no_border') {
+    pl = pl + guides(color = guide_legend(override.aes = list(size = legend_symbol_size)))
+  }
 
   # fix coord ratio
   if(!is.null(coord_fix_ratio)) {
@@ -7338,6 +7351,8 @@ spatPlot2D_single = function(gobject,
 #' @param title title of plot
 #' @param show_legend show legend
 #' @param legend_text size of legend text
+#' @param legend_symbol_size size of legend symbols
+#' @param background_color color of plot background
 #' @param axis_text size of axis text
 #' @param axis_title size of axis title
 #' @param cow_n_col cowplot param: how many columns
@@ -7395,6 +7410,8 @@ spatPlot2D = function(gobject,
                       title = NULL,
                       show_legend = T,
                       legend_text = 8,
+                      legend_symbol_size = 1,
+                      background_color = 'white',
                       axis_text = 8,
                       axis_title = 8,
                       cow_n_col = 2,
@@ -7448,6 +7465,8 @@ spatPlot2D = function(gobject,
                       coord_fix_ratio = coord_fix_ratio,
                       show_legend = show_legend,
                       legend_text = legend_text,
+                      legend_symbol_size = legend_symbol_size,
+                      background_color = background_color,
                       axis_text = axis_text,
                       axis_title = axis_title,
                       title = title,
@@ -7552,6 +7571,8 @@ spatPlot2D = function(gobject,
                              title = group,
                              show_legend = show_legend,
                              legend_text = legend_text,
+                             legend_symbol_size = legend_symbol_size,
+                             background_color = background_color,
                              axis_text = axis_text,
                              axis_title = axis_title,
                              show_plot = FALSE,
@@ -7638,6 +7659,8 @@ spatPlot2D = function(gobject,
 #' @param title title of plot
 #' @param show_legend show legend
 #' @param legend_text size of legend text
+#' @param legend_symbol_size size of legend symbols
+#' @param background_color color of plot background
 #' @param axis_text size of axis text
 #' @param axis_title size of axis title
 #' @param cow_n_col cowplot param: how many columns
@@ -7695,6 +7718,8 @@ spatPlot = function(gobject,
                     title = NULL,
                     show_legend = T,
                     legend_text = 8,
+                    legend_symbol_size = 1,
+                    background_color = 'white',
                     axis_text = 8,
                     axis_title = 8,
                     cow_n_col = 2,
@@ -7747,6 +7772,8 @@ spatPlot = function(gobject,
              title = title,
              show_legend = show_legend,
              legend_text = legend_text,
+             legend_symbol_size = legend_symbol_size,
+             background_color = background_color,
              axis_text = axis_text,
              axis_title = axis_title,
              cow_n_col = cow_n_col,
@@ -9237,6 +9264,8 @@ spatDimGenePlot = function(gobject,
 #' @param coord_fix_ratio fix ratio between x and y-axis
 #' @param show_legend show legend
 #' @param legend_text size of legend text
+#' @param legend_symbol_size size of legend symbols
+#' @param background_color color of plot background
 #' @param axis_text size of axis text
 #' @param axis_title size of axis title
 #' @param show_plot show plot
@@ -9283,6 +9312,8 @@ spatCellPlot2D = function(gobject,
                           coord_fix_ratio = NULL,
                           show_legend = T,
                           legend_text = 8,
+                          legend_symbol_size = 1,
+                          background_color = 'white',
                           axis_text = 8,
                           axis_title = 8,
                           cow_n_col = 2,
@@ -9353,6 +9384,8 @@ spatCellPlot2D = function(gobject,
                     title = annot,
                     show_legend = show_legend,
                     legend_text = legend_text,
+                    legend_symbol_size = legend_symbol_size,
+                    background_color = background_color,
                     axis_text = axis_text,
                     axis_title = axis_title,
                     show_plot = FALSE,
@@ -9389,9 +9422,6 @@ spatCellPlot2D = function(gobject,
   if(return_plot == TRUE) {
     return(combo_plot)
   }
-
-
-
 
 }
 
@@ -9431,6 +9461,8 @@ spatCellPlot2D = function(gobject,
 #' @param coord_fix_ratio fix ratio between x and y-axis
 #' @param show_legend show legend
 #' @param legend_text size of legend text
+#' @param legend_symbol_size size of legend symbols
+#' @param background_color color of plot background
 #' @param axis_text size of axis text
 #' @param axis_title size of axis title
 #' @param show_plot show plot
@@ -9477,6 +9509,8 @@ spatCellPlot = function(gobject,
                         coord_fix_ratio = NULL,
                         show_legend = T,
                         legend_text = 8,
+                        legend_symbol_size = 1,
+                        background_color = 'white',
                         axis_text = 8,
                         axis_title = 8,
                         cow_n_col = 2,
@@ -9523,6 +9557,8 @@ spatCellPlot = function(gobject,
                  coord_fix_ratio = coord_fix_ratio,
                  show_legend = show_legend,
                  legend_text = legend_text,
+                 legend_symbol_size = legend_symbol_size,
+                 background_color = background_color,
                  axis_text = axis_text,
                  axis_title = axis_title,
                  cow_n_col = cow_n_col,

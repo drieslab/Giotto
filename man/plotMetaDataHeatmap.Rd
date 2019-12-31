@@ -84,7 +84,9 @@ ggplot or data.table
 Creates heatmap for genes within aggregated clusters.
 }
 \details{
-Creates heatmap for the average expression of selected genes in the different annotation/cluster groups
+Creates heatmap for the average expression of selected genes in the different annotation/cluster groups.
+Calculation of cluster or gene order is done on the provided expression values, but visualization
+is by default on the z-scores. Other options are the original values or z-scores rescaled per gene (-1 to 1).
 }
 \examples{
     plotMetaDataHeatmap(gobject)

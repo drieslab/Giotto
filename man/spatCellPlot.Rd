@@ -39,6 +39,8 @@ spatCellPlot(
   coord_fix_ratio = NULL,
   show_legend = T,
   legend_text = 8,
+  legend_symbol_size = 1,
+  background_color = "white",
   axis_text = 8,
   axis_title = 8,
   cow_n_col = 2,
@@ -116,6 +118,10 @@ spatCellPlot(
 \item{show_legend}{show legend}
 
 \item{legend_text}{size of legend text}
+
+\item{legend_symbol_size}{size of legend symbols}
+
+\item{background_color}{color of plot background}
 
 \item{axis_text}{size of axis text}
 
