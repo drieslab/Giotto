@@ -63,6 +63,9 @@ spatDimCellPlot2D(
   cow_align = "h",
   show_legend = T,
   legend_text = 8,
+  legend_symbol_size = 1,
+  dim_background_color = "white",
+  spat_background_color = "white",
   axis_text = 8,
   axis_title = 8,
   show_plot = NA,
@@ -182,6 +185,12 @@ spatDimCellPlot2D(
 \item{show_legend}{show legend}
 
 \item{legend_text}{size of legend text}
+
+\item{legend_symbol_size}{size of legend symbols}
+
+\item{dim_background_color}{background color of points in dim. reduction space}
+
+\item{spat_background_color}{background color of spatial points}
 
 \item{axis_text}{size of axis text}
 

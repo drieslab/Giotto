@@ -61,6 +61,9 @@ spatDimPlot2D(
   dim_show_legend = F,
   spat_show_legend = F,
   legend_text = 8,
+  legend_symbol_size = 1,
+  dim_background_color = "white",
+  spat_background_color = "white",
   axis_text = 8,
   axis_title = 8,
   show_plot = NA,
@@ -180,6 +183,12 @@ spatDimPlot2D(
 \item{spat_show_legend}{show legend of spatial plot}
 
 \item{legend_text}{size of legend text}
+
+\item{legend_symbol_size}{size of legend symbols}
+
+\item{dim_background_color}{background color of points in dim. reduction space}
+
+\item{spat_background_color}{background color of spatial points}
 
 \item{axis_text}{size of axis text}
 

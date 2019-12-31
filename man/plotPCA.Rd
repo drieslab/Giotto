@@ -77,6 +77,10 @@ plotPCA(gobject, dim_reduction_name = "pca", default_save_name = "PCA", ...)
 
 \item{legend_text}{size of legend text}
 
+\item{legend_symbol_size}{size of legend symbols}
+
+\item{background_color}{color of plot background}
+
 \item{axis_text}{size of axis text}
 
 \item{axis_title}{size of axis title}

@@ -5483,6 +5483,8 @@ plot_point_layer_ggplot_noFILL = function(ggobject,
 #' @param title title for plot, defaults to cell_color parameter
 #' @param show_legend show legend
 #' @param legend_text size of legend text
+#' @param legend_symbol_size size of legend symbols
+#' @param background_color color of plot background
 #' @param axis_text size of axis text
 #' @param axis_title size of axis title
 #' @param show_plot show plot
@@ -5530,6 +5532,8 @@ dimPlot2D_single <- function(gobject,
                              title = NULL,
                              show_legend = T,
                              legend_text = 8,
+                             legend_symbol_size = 1,
+                             background_color = 'white',
                              axis_text = 8,
                              axis_title = 8,
                              show_plot = NA,
@@ -5720,7 +5724,18 @@ dimPlot2D_single <- function(gobject,
                             legend.title = element_blank(),
                             legend.text = element_text(size = legend_text),
                             axis.text = element_text(size = axis_text),
-                            axis.title = element_text(size = axis_title))
+                            axis.title = element_text(size = axis_title),
+                            panel.grid = element_blank(),
+                            panel.background = element_rect(fill = background_color))
+
+  ## change symbol size of legend
+  if(color_as_factor == TRUE) {
+    if(point_shape == 'border') {
+      pl = pl + guides(fill = guide_legend(override.aes = list(size = legend_symbol_size)))
+    } else if(point_shape == 'no_border') {
+      pl = pl + guides(color = guide_legend(override.aes = list(size = legend_symbol_size)))
+    }
+  }
 
   # print, return and save parameters
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
@@ -5785,6 +5800,8 @@ dimPlot2D_single <- function(gobject,
 #' @param title title for plot, defaults to cell_color parameter
 #' @param show_legend show legend
 #' @param legend_text size of legend text
+#' @param legend_symbol_size size of legend symbols
+#' @param background_color color of plot background
 #' @param axis_text size of axis text
 #' @param axis_title size of axis title
 #' @param cow_n_col cowplot param: how many columns
@@ -5838,6 +5855,8 @@ dimPlot2D = function(gobject,
                      title = NULL,
                      show_legend = T,
                      legend_text = 8,
+                     legend_symbol_size = 1,
+                     background_color = 'white',
                      axis_text = 8,
                      axis_title = 8,
                      cow_n_col = 2,
@@ -5889,6 +5908,8 @@ dimPlot2D = function(gobject,
                      title = title,
                      show_legend = show_legend,
                      legend_text = legend_text,
+                     legend_symbol_size = legend_symbol_size,
+                     background_color = background_color,
                      axis_text = axis_text,
                      axis_title = axis_title,
                      show_plot = show_plot,
@@ -5993,6 +6014,8 @@ dimPlot2D = function(gobject,
                             title = group,
                             show_legend = show_legend,
                             legend_text = legend_text,
+                            legend_symbol_size = legend_symbol_size,
+                            background_color = background_color,
                             axis_text = axis_text,
                             axis_title = axis_title,
                             show_plot = FALSE,
@@ -6077,6 +6100,8 @@ dimPlot2D = function(gobject,
 #' @param title title for plot, defaults to cell_color parameter
 #' @param show_legend show legend
 #' @param legend_text size of legend text
+#' @param legend_symbol_size size of legend symbols
+#' @param background_color color of plot background
 #' @param axis_text size of axis text
 #' @param axis_title size of axis title
 #' @param cow_n_col cowplot param: how many columns
@@ -6129,6 +6154,8 @@ dimPlot = function(gobject,
                    point_border_stroke = 0.1,
                    show_legend = T,
                    legend_text = 8,
+                   legend_symbol_size = 1,
+                   background_color = 'white',
                    axis_text = 8,
                    axis_title = 8,
                    title = NULL,
@@ -6179,6 +6206,8 @@ dimPlot = function(gobject,
             title = title,
             show_legend = show_legend,
             legend_text = legend_text,
+            legend_symbol_size = legend_symbol_size,
+            background_color = background_color,
             axis_text = axis_text,
             axis_title = axis_title,
             cow_n_col = cow_n_col,
@@ -6235,6 +6264,8 @@ dimPlot = function(gobject,
 #' @param title title for plot, defaults to cell_color parameter
 #' @param show_legend show legend
 #' @param legend_text size of legend text
+#' @param legend_symbol_size size of legend symbols
+#' @param background_color color of plot background
 #' @param axis_text size of axis text
 #' @param axis_title size of axis title
 #' @param cow_n_col cowplot param: how many columns
@@ -6297,6 +6328,8 @@ plotUMAP_2D = function(gobject, dim_reduction_name = 'umap', default_save_name =
 #' @param title title for plot, defaults to cell_color parameter
 #' @param show_legend show legend
 #' @param legend_text size of legend text
+#' @param legend_symbol_size size of legend symbols
+#' @param background_color color of plot background
 #' @param axis_text size of axis text
 #' @param axis_title size of axis title
 #' @param cow_n_col cowplot param: how many columns
@@ -6362,6 +6395,8 @@ plotUMAP = function(gobject, dim_reduction_name = 'umap', default_save_name = 'U
 #' @param title title for plot, defaults to cell_color parameter
 #' @param show_legend show legend
 #' @param legend_text size of legend text
+#' @param legend_symbol_size size of legend symbols
+#' @param background_color color of plot background
 #' @param axis_text size of axis text
 #' @param axis_title size of axis title
 #' @param cow_n_col cowplot param: how many columns
@@ -6423,6 +6458,8 @@ plotTSNE_2D = function(gobject, dim_reduction_name = 'tsne', default_save_name =
 #' @param title title for plot, defaults to cell_color parameter
 #' @param show_legend show legend
 #' @param legend_text size of legend text
+#' @param legend_symbol_size size of legend symbols
+#' @param background_color color of plot background
 #' @param axis_text size of axis text
 #' @param axis_title size of axis title
 #' @param cow_n_col cowplot param: how many columns
@@ -6486,6 +6523,8 @@ plotTSNE = function(gobject, dim_reduction_name = 'tsne', default_save_name = 't
 #' @param title title for plot, defaults to cell_color parameter
 #' @param show_legend show legend
 #' @param legend_text size of legend text
+#' @param legend_symbol_size size of legend symbols
+#' @param background_color color of plot background
 #' @param axis_text size of axis text
 #' @param axis_title size of axis title
 #' @param cow_n_col cowplot param: how many columns
@@ -6549,6 +6588,8 @@ plotPCA_2D = function(gobject, dim_reduction_name = 'pca', default_save_name = '
 #' @param show_legend show legend
 #' @param title title for plot, defaults to cell_color parameter
 #' @param legend_text size of legend text
+#' @param legend_symbol_size size of legend symbols
+#' @param background_color color of plot background
 #' @param axis_text size of axis text
 #' @param axis_title size of axis title
 #' @param cow_n_col cowplot param: how many columns
@@ -6684,14 +6725,16 @@ plot_spat_point_layer_ggplot = function(ggobject,
       if(nrow(cell_locations_metadata_selected) != length(cell_color)) stop('\n vector needs to be the same lengths as number of cells \n')
       cell_locations_metadata_selected[['temp_color']] = cell_color
 
-      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_selected, aes_string2(x = sdimx, y = sdimy, fill = 'temp_color'),
+      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_selected,
+                                     aes_string2(x = sdimx, y = sdimy, fill = 'temp_color'),
                                      show.legend = show_legend, shape = 21,
                                      size = point_size,
                                      color = point_border_col, stroke = point_border_stroke)
 
     } else if(is.character(cell_color)) {
       if(!all(cell_color %in% grDevices::colors())) stop('cell_color is not numeric, a factor or vector of colors \n')
-      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_selected, aes_string2(x = sdimx, y = sdimy),
+      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_selected,
+                                     aes_string2(x = sdimx, y = sdimy),
                                      show.legend = show_legend, shape = 21, fill = cell_color,
                                      size = point_size,
                                      color = point_border_col, stroke = point_border_stroke)
@@ -7267,11 +7310,14 @@ spatPlot2D_single = function(gobject,
                             panel.background = element_rect(fill = background_color))
 
   ## change symbol size of legend
-  if(point_shape == 'border') {
-    pl = pl + guides(fill = guide_legend(override.aes = list(size = legend_symbol_size)))
-  } else if(point_shape == 'no_border') {
-    pl = pl + guides(color = guide_legend(override.aes = list(size = legend_symbol_size)))
+  if(color_as_factor == TRUE) {
+    if(point_shape == 'border') {
+      pl = pl + guides(fill = guide_legend(override.aes = list(size = legend_symbol_size)))
+    } else if(point_shape == 'no_border') {
+      pl = pl + guides(color = guide_legend(override.aes = list(size = legend_symbol_size)))
+    }
   }
+
 
   # fix coord ratio
   if(!is.null(coord_fix_ratio)) {
@@ -7853,6 +7899,9 @@ spatPlot = function(gobject,
 #' @param dim_show_legend show legend of dimension reduction plot
 #' @param spat_show_legend show legend of spatial plot
 #' @param legend_text size of legend text
+#' @param legend_symbol_size size of legend symbols
+#' @param dim_background_color background color of points in dim. reduction space
+#' @param spat_background_color background color of spatial points
 #' @param axis_text size of axis text
 #' @param axis_title size of axis title
 #' @param show_plot show plot
@@ -7922,6 +7971,9 @@ spatDimPlot2D <- function(gobject,
                           dim_show_legend = F,
                           spat_show_legend = F,
                           legend_text = 8,
+                          legend_symbol_size = 1,
+                          dim_background_color = 'white',
+                          spat_background_color = 'white',
                           axis_text = 8,
                           axis_title = 8,
                           show_plot = NA,
@@ -7988,6 +8040,8 @@ spatDimPlot2D <- function(gobject,
                    other_point_size = dim_other_point_size,
                    show_legend = dim_show_legend,
                    legend_text = legend_text,
+                   legend_symbol_size = legend_symbol_size,
+                   background_color = dim_background_color,
                    axis_text = axis_text,
                    axis_title = axis_title,
                    show_plot = FALSE,
@@ -8036,6 +8090,8 @@ spatDimPlot2D <- function(gobject,
                    title = '',
                    show_legend = spat_show_legend,
                    legend_text = legend_text,
+                   legend_symbol_size = legend_symbol_size,
+                   background_color = spat_background_color,
                    axis_text = axis_text,
                    axis_title = axis_title,
                    show_plot = FALSE,
@@ -8137,6 +8193,9 @@ spatDimPlot2D <- function(gobject,
 #' @param dim_show_legend show legend of dimension reduction plot
 #' @param spat_show_legend show legend of spatial plot
 #' @param legend_text size of legend text
+#' @param legend_symbol_size size of legend symbols
+#' @param dim_background_color background color of points in dim. reduction space
+#' @param spat_background_color background color of spatial points
 #' @param axis_text size of axis text
 #' @param axis_title size of axis title
 #' @param show_plot show plot
@@ -8206,6 +8265,9 @@ spatDimPlot = function(gobject,
                        dim_show_legend = F,
                        spat_show_legend = F,
                        legend_text = 8,
+                       legend_symbol_size = 1,
+                       dim_background_color = 'white',
+                       spat_background_color = 'white',
                        axis_text = 8,
                        axis_title = 8,
                        show_plot = NA,
@@ -8270,6 +8332,9 @@ spatDimPlot = function(gobject,
                 dim_show_legend = dim_show_legend,
                 spat_show_legend = spat_show_legend,
                 legend_text = legend_text,
+                legend_symbol_size = legend_symbol_size,
+                dim_background_color = dim_background_color,
+                spat_background_color = spat_background_color,
                 axis_text = axis_text,
                 axis_title = axis_title,
                 show_plot = show_plot,
@@ -9613,6 +9678,8 @@ spatCellPlot = function(gobject,
 #' @param title title for plot, defaults to cell_color parameter
 #' @param show_legend show legend
 #' @param legend_text size of legend text
+#' @param legend_symbol_size size of legend symbols
+#' @param background_color color of plot background
 #' @param axis_text size of axis text
 #' @param axis_title size of axis title
 #' @param show_plot show plot
@@ -9656,6 +9723,8 @@ dimCellPlot2D = function(gobject,
                          point_border_stroke = 0.1,
                          show_legend = T,
                          legend_text = 8,
+                         legend_symbol_size = 1,
+                         background_color = 'white',
                          axis_text = 8,
                          axis_title = 8,
                          cow_n_col = 2,
@@ -9721,6 +9790,8 @@ dimCellPlot2D = function(gobject,
                    title = annot,
                    show_legend = show_legend,
                    legend_text = legend_text,
+                   legend_symbol_size = legend_symbol_size,
+                   background_color = background_color,
                    axis_text = axis_text,
                    axis_title = axis_title,
                    show_plot = FALSE,
@@ -9804,6 +9875,8 @@ dimCellPlot2D = function(gobject,
 #' @param title title for plot, defaults to cell_color parameter
 #' @param show_legend show legend
 #' @param legend_text size of legend text
+#' @param legend_symbol_size size of legend symbols
+#' @param background_color color of plot background
 #' @param axis_text size of axis text
 #' @param axis_title size of axis title
 #' @param show_plot show plot
@@ -9847,6 +9920,8 @@ dimCellPlot = function(gobject,
                        point_border_stroke = 0.1,
                        show_legend = T,
                        legend_text = 8,
+                       legend_symbol_size = 1,
+                       background_color = 'white',
                        axis_text = 8,
                        axis_title = 8,
                        cow_n_col = 2,
@@ -9890,6 +9965,8 @@ dimCellPlot = function(gobject,
                 point_border_stroke = point_border_stroke,
                 show_legend = show_legend,
                 legend_text = legend_text,
+                legend_symbol_size = legend_symbol_size,
+                background_color = background_color,
                 axis_text = axis_text,
                 axis_title = axis_title,
                 cow_n_col = cow_n_col,
@@ -9965,6 +10042,9 @@ dimCellPlot = function(gobject,
 #' @param cow_align cowplot param: how to align
 #' @param show_legend show legend
 #' @param legend_text size of legend text
+#' @param legend_symbol_size size of legend symbols
+#' @param dim_background_color background color of points in dim. reduction space
+#' @param spat_background_color background color of spatial points
 #' @param axis_text size of axis text
 #' @param axis_title size of axis title
 #' @param show_plot show plot
@@ -10035,6 +10115,9 @@ spatDimCellPlot2D <- function(gobject,
                               cow_align = 'h',
                               show_legend = T,
                               legend_text = 8,
+                              legend_symbol_size = 1,
+                              dim_background_color = 'white',
+                              spat_background_color = 'white',
                               axis_text = 8,
                               axis_title = 8,
                               show_plot = NA,
@@ -10077,6 +10160,8 @@ spatDimCellPlot2D <- function(gobject,
                        other_point_size = dim_other_point_size,
                        show_legend = show_legend,
                        legend_text = legend_text,
+                       legend_symbol_size = legend_symbol_size,
+                       background_color = dim_background_color,
                        axis_text = axis_text,
                        axis_title = axis_title,
                        cow_n_col = cow_n_col,
@@ -10122,6 +10207,8 @@ spatDimCellPlot2D <- function(gobject,
                        coord_fix_ratio = coord_fix_ratio,
                        show_legend = show_legend,
                        legend_text = legend_text,
+                       legend_symbol_size = legend_symbol_size,
+                       background_color = spat_background_color,
                        axis_text = axis_text,
                        axis_title = axis_title,
                        cow_n_col = cow_n_col,
@@ -10227,6 +10314,9 @@ spatDimCellPlot2D <- function(gobject,
 #' @param cow_align cowplot param: how to align
 #' @param show_legend show legend
 #' @param legend_text size of legend text
+#' @param legend_symbol_size size of legend symbols
+#' @param dim_background_color background color of points in dim. reduction space
+#' @param spat_background_color background color of spatial points
 #' @param axis_text size of axis text
 #' @param axis_title size of axis title
 #' @param show_plot show plot
@@ -10297,6 +10387,9 @@ spatDimCellPlot = function(gobject,
                            cow_align = 'h',
                            show_legend = T,
                            legend_text = 8,
+                           legend_symbol_size = 1,
+                           dim_background_color = 'white',
+                           spat_background_color = 'white',
                            axis_text = 8,
                            axis_title = 8,
                            show_plot = NA,
@@ -10363,6 +10456,9 @@ spatDimCellPlot = function(gobject,
                     cow_align = cow_align,
                     show_legend = show_legend,
                     legend_text = legend_text,
+                    legend_symbol_size = legend_symbol_size,
+                    dim_background_color = dim_background_color,
+                    spat_background_color = spat_background_color,
                     axis_text = axis_text,
                     axis_title = axis_title,
                     show_plot = show_plot,
