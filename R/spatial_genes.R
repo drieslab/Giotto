@@ -1589,7 +1589,7 @@ rankSpatialCorGroups = function(gobject,
     res_neg_cor_list[[id]] = mean_neg_score
   }
 
-  res_cor_DT = data.table('clusters' = paste0('V', unique(clusters_part)),
+  res_cor_DT = data.table('clusters' = unique(clusters_part),
                           cor_score = unlist(res_cor_list),
                           cor_neg_score = unlist(res_neg_cor_list),
                           nr_genes = unlist(nr_genes_list))

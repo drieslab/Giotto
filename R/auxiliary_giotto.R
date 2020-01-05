@@ -1588,7 +1588,7 @@ createMetagenes = function(gobject,
 
     # calculate mean
     if(length(selected_genes) == 1) {
-      mean_score = mean(x = sub_mat)
+      mean_score = sub_mat
     } else{
       mean_score = colMeans(sub_mat)
     }
@@ -1597,7 +1597,7 @@ createMetagenes = function(gobject,
   }
 
   res_final = data.table::as.data.table(t(do.call('rbind', res_list)))
-  colnames(res_final) = paste0('V', sort(unique(gene_clusters)))
+  colnames(res_final) = as.character(sort(unique(gene_clusters)))
   res_final[, cell_ID := colnames(expr_values)]
 
 
