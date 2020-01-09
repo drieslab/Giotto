@@ -501,7 +501,7 @@ Dimension 2:
 # create spatial network
 visium_brain <- createSpatialNetwork(gobject = visium_brain, k = 5, maximum_distance = 400)
 spatPlot(gobject = visium_brain, show_network = T, point_size = 1,
-         network_color = 'blue', spatial_network_name = 'spatial_network'))
+         network_color = 'blue', spatial_network_name = 'spatial_network')
 
 ```
 

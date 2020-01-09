@@ -133,6 +133,9 @@ binGetSpatialGenes = function(gobject,
 
   # spatial network
   spatial_network = gobject@spatial_network[[spatial_network_name]]
+  if(is.null(spatial_network)) {
+    stop('spatial_network_name: ', spatial_network_name, ' does not exist, create a spatial network first')
+  }
 
   # expression
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
