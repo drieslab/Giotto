@@ -1632,3 +1632,233 @@ createMetagenes = function(gobject,
 
 }
 
+
+
+
+
+
+#' @title spatNetwDistributionsDistance
+#' @description This function return histograms displaying the distance distribution for each spatial k-neighbor
+#' @param gobject Giotto object
+#' @param spatial_network_name name of spatial network
+#' @param hist_bins number of binds to use for the histogram
+#' @param test_distance_limit effect of different distance threshold on k-neighbors
+#' @param ncol number of columns to visualize the histograms in
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, alternatively change save_name in save_param
+#' @return ggplot plot
+#' @export
+#' @examples
+#'     spatNetwDistributionsDistance(gobject)
+spatNetwDistributionsDistance <- function(gobject,
+                                          spatial_network_name = 'spatial_network',
+                                          hist_bins = 30,
+                                          test_distance_limit =  NULL,
+                                          ncol = 1,
+                                          show_plot = NA,
+                                          return_plot = NA,
+                                          save_plot = NA,
+                                          save_param =  list(),
+                                          default_save_name = 'spatNetwDistributionsDistance') {
+
+
+  ## spatial network
+  spatial_network = gobject@spatial_network[[spatial_network_name]]
+  if(is.null(spatial_network)) {
+    stop('spatial network ', spatial_network_name, ' was not found')
+  }
+
+  if(!is.null(test_distance_limit)) {
+    removed_neighbors = spatial_network[distance > test_distance_limit, .N, by = rank_int]
+    removed_neighbors[, status := 'remove']
+    keep_neighbors = spatial_network[distance <= test_distance_limit, .N, by = rank_int]
+    keep_neighbors[, status := 'keep']
+
+    dist_removal_dt = rbind(removed_neighbors, keep_neighbors)
+    setorder(dist_removal_dt, rank_int)
+
+    dist_removal_dt_dcast = dcast.data.table(data = dist_removal_dt, rank_int~status, value.var = 'N', fill = 0)
+    dist_removal_dt_dcast[, label := paste0('keep:',keep, '\n remove:',remove)]
+  }
+
+  # text location coordinates
+  middle_distance = max(spatial_network$distance)/(3/2)
+  freq_dt = spatial_network[, table(cut(distance, breaks = 30)), by = rank_int]
+  middle_height = max(freq_dt$V1)/(3/2)
+
+  pl = ggplot()
+  pl = pl + labs(title = 'distance distribution per k-neighbor')
+  pl = pl + theme_classic()
+  pl = pl + geom_histogram(data = spatial_network, aes(x = distance), color = 'white', fill = 'black', bins = hist_bins)
+  pl = pl + facet_wrap(~rank_int, ncol = ncol)
+  if(!is.null(test_distance_limit)) {
+    pl = pl + geom_vline(xintercept = test_distance_limit, color = 'red')
+    pl = pl + geom_text(data = dist_removal_dt_dcast, aes(x = middle_distance, y = middle_height, label = label))
+  }
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
+
+
+}
+
+
+
+
+#' @title spatNetwDistributionsKneighbors
+#' @description This function returns a histogram displaying the number of k-neighbors distribution for each cell
+#' @param gobject Giotto object
+#' @param spatial_network_name name of spatial network
+#' @param hist_bins number of binds to use for the histogram
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, alternatively change save_name in save_param
+#' @return ggplot plot
+#' @export
+#' @examples
+#'     spatNetwDistributionsKneighbors(gobject)
+spatNetwDistributionsKneighbors = function(gobject,
+                                           spatial_network_name = 'spatial_network',
+                                           hist_bins = 30,
+                                           show_plot = NA,
+                                           return_plot = NA,
+                                           save_plot = NA,
+                                           save_param =  list(),
+                                           default_save_name = 'spatNetwDistributionsKneighbors') {
+
+  ## spatial network
+  spatial_network = gobject@spatial_network[[spatial_network_name]]
+  if(is.null(spatial_network)) {
+    stop('spatial network ', spatial_network_name, ' was not found')
+  }
+
+  spatial_network_dt = as.data.table(spatial_network[, table(from)])
+
+  pl = ggplot()
+  pl = pl + labs(title = 'k-neighbor distribution for all cells', x = 'k-neighbors/cell')
+  pl = pl + theme_classic()
+  pl = pl + geom_histogram(data = spatial_network_dt, aes(x = N), color = 'white', fill = 'black', bins = hist_bins)
+
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
+
+
+}
+
+
+
+#' @title spatNetwDistributionsDistance
+#' @description This function return histograms displaying the distance distribution for each spatial k-neighbor
+#' @param gobject Giotto object
+#' @param spatial_network_name name of spatial network
+#' @param distribution show the distribution of cell-to-cell distance or number of k neighbors
+#' @param hist_bins number of binds to use for the histogram
+#' @param test_distance_limit effect of different distance threshold on k-neighbors
+#' @param ncol number of columns to visualize the histograms in
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, alternatively change save_name in save_param
+#' @details The \strong{distance} option shows the spatial distance distribution for each nearest neighbor rank (1st, 2nd, 3th, ... neigbor).
+#' With this option the user can also test the effect of a distance limit on the spatial network. This distance limit can be used to remove neigbor
+#' cells that are considered to far away. \cr
+#' The \strong{k_neighbors} option shows the number of k neighbors distribution over all cells.
+#' @return ggplot plot
+#' @export
+#' @examples
+#'     spatNetwDistributionsDistance(gobject)
+spatNetwDistributions <- function(gobject,
+                                  spatial_network_name = 'spatial_network',
+                                  distribution = c('distance', 'k_neighbors'),
+                                  hist_bins = 30,
+                                  test_distance_limit =  NULL,
+                                  ncol = 1,
+                                  show_plot = NA,
+                                  return_plot = NA,
+                                  save_plot = NA,
+                                  save_param =  list(),
+                                  default_save_name = 'spatNetwDistributions') {
+
+  ## histogram to show
+  distribution = match.arg(distribution, choices = distribution)
+
+  ## spatial network
+  spatial_network = gobject@spatial_network[[spatial_network_name]]
+  if(is.null(spatial_network)) {
+    stop('spatial network ', spatial_network_name, ' was not found')
+  }
+
+
+  if(distribution == 'distance') {
+
+    spatNetwDistributionsDistance(gobject = gobject,
+                                  spatial_network_name = spatial_network_name,
+                                  hist_bins = hist_bins,
+                                  test_distance_limit =  test_distance_limit,
+                                  ncol = ncol,
+                                  show_plot = show_plot,
+                                  return_plot = return_plot,
+                                  save_plot = save_plot,
+                                  save_param =  save_param,
+                                  default_save_name = default_save_name)
+
+  } else if(distribution == 'k_neighbors') {
+
+    spatNetwDistributionsKneighbors(gobject = gobject,
+                                    spatial_network_name = spatial_network_name,
+                                    hist_bins = hist_bins,
+                                    show_plot = show_plot,
+                                    return_plot = return_plot,
+                                    save_plot = save_plot,
+                                    save_param =  save_param,
+                                    default_save_name = default_save_name)
+
+  }
+
+}
+
+
+
+
+
