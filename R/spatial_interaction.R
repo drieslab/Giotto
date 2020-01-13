@@ -885,7 +885,7 @@ exprOnlyCellCellcommunicationScores = function(gobject,
 
     # get random communication scores
     randomScore = average_gene_gene_expression_in_groups(gobject = tempGiotto,
-                                                         cluster_column = 'new_metadata',
+                                                         cluster_column = 'random_cell_types',
                                                          gene_set_1 = gene_set_1, gene_set_2 = gene_set_2)
 
     # average random score
@@ -958,7 +958,7 @@ average_gene_gene_expression_in_groups = function(gobject,
   receptor_match = average_DT[match(gene_set_2, rownames(average_DT)), ,drop = F]
 
   all_ligand_cols = colnames(ligand_match)
-  lig_test = data.table::as.data.table(melt(ligand_match, measure.vars = all_ligand_cols))
+  lig_test = data.table::as.data.table(reshape2::melt(ligand_match, measure.vars = all_ligand_cols))
   lig_test[, ligand := rep(rownames(ligand_match), ncol(ligand_match))]
   lig_test[, ligand := strsplit(ligand,'\\.')[[1]][1] , by = 1:nrow(lig_test)]
   lig_test[, LR_comb := rep(LR_pairs, ncol(ligand_match))]
@@ -966,7 +966,7 @@ average_gene_gene_expression_in_groups = function(gobject,
   setnames(lig_test, 'variable', 'lig_cell_type')
 
   all_receptor_cols = colnames(receptor_match)
-  rec_test = data.table::as.data.table(melt(receptor_match, measure.vars = all_receptor_cols))
+  rec_test = data.table::as.data.table(reshape2::melt(receptor_match, measure.vars = all_receptor_cols))
   rec_test[, receptor := rep(rownames(receptor_match), ncol(receptor_match))]
   rec_test[, receptor := strsplit(receptor,'\\.')[[1]][1] , by = 1:nrow(rec_test)]
   rec_test[, LR_comb := rep(LR_pairs, ncol(receptor_match))]
