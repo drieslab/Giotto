@@ -1218,7 +1218,7 @@ trendSceek <- function(gobject,
 
 
   ## initial locations
-  spatial_locations = gobject@spatial_locs
+  spatial_locations = copy(gobject@spatial_locs)
   spatial_locations[, cell_ID := NULL]
   pp = trendsceek::pos2pp(spatial_locations)
 
