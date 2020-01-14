@@ -230,7 +230,7 @@ cellProximityNetwork = function(gobject,
                                 rescale_edge_weights = TRUE,
                                 edge_weight_range_depletion = c(0.1, 1),
                                 edge_weight_range_enrichment = c(1, 5),
-                                layout = 'Fruchterman',
+                                layout = c('Fruchterman', 'DrL', 'Kamada-Kawai'),
                                 only_show_enrichment_edges = F,
                                 edge_width_range = c(0.1, 2),
                                 node_size = 4,
@@ -240,9 +240,6 @@ cellProximityNetwork = function(gobject,
                                 save_plot = NA,
                                 save_param =  list(),
                                 default_save_name = 'cellProximityNetwork') {
-
-  # create coordinates
-  layout = match.arg(arg = layout, choices = c('Fruchterman'))
 
   # extract scores
   CPscores = CPscore[['enrichm_res']]
@@ -272,11 +269,30 @@ cellProximityNetwork = function(gobject,
   # colors
   edges_colors = ifelse(edges_sizes > 0, 'enriched', 'depleted')
 
-  # layout
+
+  # create coordinates for layout
+  if(class(layout) %in% c('data.frame', 'data.table')) {
+    if(ncol(layout) < 2) {
+      stop('custom layout needs to have at least 2 columns')
+    }
+
+    if(nrow(layout) != length(igraph::E(igd))) {
+      stop('rows of custom layout need to be the same as number of edges')
+    }
+
+  } else {
+    layout = match.arg(arg = layout, choices = c('Fruchterman', 'DrL', 'Kamada-Kawai'))
+  }
+
+
   if(layout == 'Fruchterman') {
     coords = igraph::layout_with_fr(graph = igd, weights = edges_sizes_resc)
+  } else if(layout == 'DrL') {
+    coords = igraph::layout_with_drl(graph = igd, weights = edges_sizes_resc)
+  } else if(layout == 'Kamada-Kawai') {
+    coords = igraph::layout_with_kk(graph = igd, weights = edges_sizes_resc)
   } else {
-    stop('\n Currently no other layouts, except Fruchterman Reingold, have been implemented \n')
+    stop('\n Currently no other layouts have been implemented \n')
   }
 
   #iplot = igraph::plot.igraph(igd, edge.color = edges_colors, edge.width = edges_sizes_resc, layout = coords)
