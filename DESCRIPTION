@@ -48,7 +48,8 @@ Suggests:
     scran (>= 1.10.1),
     png,
     tiff,
-    biomaRt
+    biomaRt,
+    trendsceek
 biocViews:
 VignetteBuilder: knitr
 Remotes: lambdamoses/smfishhmrf-r
