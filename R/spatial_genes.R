@@ -993,8 +993,8 @@ Spatial_AEH <- function(gobject = NULL,
 ## SpatialDE ####
 ## ----------- ##
 
-#' @title SpatialDE
-#' @name SpatialDE
+#' @title spatialDE
+#' @name spatialDE
 #' @description Compute spatial variable genes with spatialDE method
 #' @param gobject Giotto object
 #' @param expression_values gene expression values to use
@@ -1012,8 +1012,8 @@ Spatial_AEH <- function(gobject = NULL,
 #' @details This function is a wrapper for the SpatialDE method implemented in the ...
 #' @export
 #' @examples
-#'     SpatialDE(gobject)
-SpatialDE <- function(gobject = NULL,
+#'     spatialDE(gobject)
+spatialDE <- function(gobject = NULL,
                       expression_values = c('raw', 'normalized', 'scaled', 'custom'),
                       size = c(4,2,1),
                       color = c("blue", "green", "red"),
@@ -1096,8 +1096,8 @@ SpatialDE <- function(gobject = NULL,
 }
 
 
-#' @title SpatialAEH
-#' @name SpatialAEH
+#' @title spatialAEH
+#' @name spatialAEH
 #' @description Compute spatial variable genes with spatialDE method
 #' @param gobject Giotto object
 #' @param SpatialDE_results results of \code{\link{SpatialDE}} function
@@ -1111,8 +1111,8 @@ SpatialDE <- function(gobject = NULL,
 #' @details This function is a wrapper for the SpatialAEH method implemented in the ...
 #' @export
 #' @examples
-#'     SpatialAEH(gobject)
-SpatialAEH <- function(gobject = NULL,
+#'     spatialAEH(gobject)
+spatialAEH <- function(gobject = NULL,
                        SpatialDE_results = NULL,
                        name_pattern = 'AEH_patterns',
                        expression_values = c('raw', 'normalized', 'scaled', 'custom'),
@@ -1171,6 +1171,71 @@ SpatialAEH <- function(gobject = NULL,
   }
 }
 
+
+
+# ** ####
+## trendsceek ####
+## ------------ ##
+
+
+#' @title trendSceek
+#' @name trendSceek
+#' @description Compute spatial variable genes with trendsceek method
+#' @param gobject Giotto object
+#' @param expression_values gene expression values to use
+#' @param subset_genes subset of genes to run trendsceek on
+#' @param nrand An integer specifying the number of random resamplings of the mark distribution as to create the null-distribution.
+#' @param ncores An integer specifying the number of cores to be used by BiocParallel
+#' @param ... Additional parameters to the \code{\link[dbscan]{trendsceek_test}} function
+#' @return data.frame with trendsceek spatial genes results
+#' @details This function is a wrapper for the trendsceek_test method implemented in the trendsceek package
+#' @export
+#' @examples
+#'     trendSceek(gobject)
+trendSceek <- function(gobject,
+                       expression_values = c("normalized", "raw"),
+                       subset_genes = NULL,
+                       nrand = 100,
+                       ncores = 8,
+                       ...) {
+  ## expression data
+  values = match.arg(expression_values, c("normalized", "raw"))
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+
+  ## normalization function
+  if (values == "normalized") {
+    log.fcn = NA
+  }
+  else if (values == "raw") {
+    log.fcn = log10
+  }
+
+  ## subset genes
+  if (!is.null(subset_genes)) {
+    subset_genes = subset_genes[subset_genes %in% gobject@gene_ID]
+    expr_values = expr_values[rownames(expr_values) %in% subset_genes, ]
+  }
+
+
+  ## initial locations
+  spatial_locations = gobject@spatial_locs
+  spatial_locations[, cell_ID := NULL]
+  pp = trendsceek::pos2pp(spatial_locations)
+
+  ## initial gene counts
+  pp = trendsceek::set_marks(pp, expr_values, log.fcn = log.fcn)
+
+  # eliminates running errors caused by too many zeros
+  pp[["marks"]] = pp[["marks"]] + 1e-7
+
+  ## run trendsceek
+  trendsceektest = trendsceek::trendsceek_test(pp, nrand = nrand, ncores = ncores, ...)
+
+  ## get final results
+  trendsceektest = trendsceektest$supstats_wide
+
+  return(trendsceektest)
+}
 
 
 

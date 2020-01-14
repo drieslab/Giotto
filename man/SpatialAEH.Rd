@@ -2,9 +2,10 @@
 % Please edit documentation in R/spatial_genes.R
 \name{SpatialAEH}
 \alias{SpatialAEH}
+\alias{spatialAEH}
 \title{SpatialAEH}
 \usage{
-SpatialAEH(
+spatialAEH(
   gobject = NULL,
   SpatialDE_results = NULL,
   name_pattern = "AEH_patterns",

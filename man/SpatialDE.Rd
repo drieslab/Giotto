@@ -2,9 +2,10 @@
 % Please edit documentation in R/spatial_genes.R
 \name{SpatialDE}
 \alias{SpatialDE}
+\alias{spatialDE}
 \title{SpatialDE}
 \usage{
-SpatialDE(
+spatialDE(
   gobject = NULL,
   expression_values = c("raw", "normalized", "scaled", "custom"),
   size = c(4, 2, 1),
