@@ -140,8 +140,8 @@ write_giotto_viewer_dim_reduction = function(dim_reduction_cell,
 exportGiottoViewer = function(gobject,
                               output_directory = NULL,
                               spat_enr_names = NULL,
-                              factor_annotations,
-                              numeric_annotations,
+                              factor_annotations = NULL,
+                              numeric_annotations = NULL,
                               dim_reductions,
                               dim_reduction_names,
                               expression_values = c('scaled', 'normalized', 'custom'),
@@ -199,65 +199,68 @@ exportGiottoViewer = function(gobject,
   cell_metadata = combineMetadata(gobject = gobject, spat_enr_names = spat_enr_names)
 
   # factor annotations #
-  found_factor_annotations = factor_annotations[factor_annotations %in% colnames(cell_metadata)]
-  for(sel_annot in found_factor_annotations) {
+  if(!is.null(factor_annotations)) {
+    found_factor_annotations = factor_annotations[factor_annotations %in% colnames(cell_metadata)]
+    for(sel_annot in found_factor_annotations) {
 
-    if(verbose == TRUE) cat('\n write annotation data for: ', sel_annot,'\n')
+      if(verbose == TRUE) cat('\n write annotation data for: ', sel_annot,'\n')
 
-    selected_annotation = cell_metadata[[sel_annot]]
-    write_giotto_viewer_annotation(annotation = selected_annotation, annot_name = sel_annot,
-                                   output_directory = output_directory)
+      selected_annotation = cell_metadata[[sel_annot]]
+      write_giotto_viewer_annotation(annotation = selected_annotation, annot_name = sel_annot,
+                                     output_directory = output_directory)
 
+    }
+
+    # annotiation list #
+    text_file_names = list()
+    annot_names = list()
+    for(sel_annot_id in 1:length(found_factor_annotations)) {
+
+      sel_annot_name = found_factor_annotations[sel_annot_id]
+      annot_inf_name = paste0(sel_annot_name,'_annot_information.txt')
+
+      annot_names[[sel_annot_id]] = sel_annot_name
+      text_file_names[[sel_annot_id]] = annot_inf_name
+
+    }
+
+    annot_list = data.table(txtfiles = unlist(text_file_names), names = unlist(annot_names))
+    write.table(annot_list, file = paste0(output_directory,'/','annotation_list.txt'),
+                quote = F, row.names = F, col.names = F, sep = ' ')
   }
 
-  # annotiation list #
-  text_file_names = list()
-  annot_names = list()
-  for(sel_annot_id in 1:length(found_factor_annotations)) {
-
-    sel_annot_name = found_factor_annotations[sel_annot_id]
-    annot_inf_name = paste0(sel_annot_name,'_annot_information.txt')
-
-    annot_names[[sel_annot_id]] = sel_annot_name
-    text_file_names[[sel_annot_id]] = annot_inf_name
-
-  }
-
-  annot_list = data.table(txtfiles = unlist(text_file_names), names = unlist(annot_names))
-  write.table(annot_list, file = paste0(output_directory,'/','annotation_list.txt'),
-              quote = F, row.names = F, col.names = F, sep = ' ')
 
 
   # numeric annotations #
-  found_numeric_annotations = numeric_annotations[numeric_annotations %in% colnames(cell_metadata)]
-  for(sel_annot in found_numeric_annotations) {
+  if(!is.null(numeric_annotations)) {
+    found_numeric_annotations = numeric_annotations[numeric_annotations %in% colnames(cell_metadata)]
+    for(sel_annot in found_numeric_annotations) {
 
-    if(verbose == TRUE) cat('\n write annotation data for: ', sel_annot,'\n')
-    selected_annotation = cell_metadata[[sel_annot]]
-    write_giotto_viewer_numeric_annotation(annotation = selected_annotation, annot_name = sel_annot,
-                                           output_directory = output_directory)
+      if(verbose == TRUE) cat('\n write annotation data for: ', sel_annot,'\n')
+      selected_annotation = cell_metadata[[sel_annot]]
+      write_giotto_viewer_numeric_annotation(annotation = selected_annotation, annot_name = sel_annot,
+                                             output_directory = output_directory)
 
+    }
+
+
+    # numeric annotiation list #
+    text_file_names = list()
+    annot_names = list()
+    for(sel_annot_id in 1:length(found_numeric_annotations)) {
+
+      sel_annot_name = found_numeric_annotations[sel_annot_id]
+      annot_inf_name = paste0(sel_annot_name,'_num_annot_information.txt')
+
+      annot_names[[sel_annot_id]] = sel_annot_name
+      text_file_names[[sel_annot_id]] = annot_inf_name
+
+    }
+
+    annot_list = data.table(txtfiles = unlist(text_file_names), names = unlist(annot_names))
+    write.table(annot_list, file = paste0(output_directory,'/','annotation_num_list.txt'),
+                quote = F, row.names = F, col.names = F, sep = ' ')
   }
-
-
-  # numeric annotiation list #
-  text_file_names = list()
-  annot_names = list()
-  for(sel_annot_id in 1:length(found_numeric_annotations)) {
-
-    sel_annot_name = found_numeric_annotations[sel_annot_id]
-    annot_inf_name = paste0(sel_annot_name,'_num_annot_information.txt')
-
-    annot_names[[sel_annot_id]] = sel_annot_name
-    text_file_names[[sel_annot_id]] = annot_inf_name
-
-  }
-
-  annot_list = data.table(txtfiles = unlist(text_file_names), names = unlist(annot_names))
-  write.table(annot_list, file = paste0(output_directory,'/','annotation_num_list.txt'),
-              quote = F, row.names = F, col.names = F, sep = ' ')
-
-
 
 
   ### dimension reduction ###

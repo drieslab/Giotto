@@ -2147,8 +2147,6 @@ cellProximitySpatPlot2D <- function(gobject,
   spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
   cell_metadata   = gobject@cell_metadata
 
-
-
   spatial_network = annotateSpatialNetwork(gobject = gobject,
                                            spatial_network_name = spatial_network_name,
                                            cluster_column = cluster_column)
