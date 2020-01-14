@@ -8,7 +8,7 @@ spatDimCellPlot(
   gobject,
   plot_alignment = c("vertical", "horizontal"),
   spat_enr_names = NULL,
-  cell_annotation_values,
+  cell_annotation_values = NULL,
   dim_reduction_to_use = "umap",
   dim_reduction_name = "umap",
   dim1_to_use = 1,

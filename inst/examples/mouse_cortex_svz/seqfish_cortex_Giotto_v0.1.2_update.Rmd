@@ -120,7 +120,7 @@ spatPlot(gobject = VC_test)
  
 ```{r eval=FALSE}
 ## highly variable genes (HVG)
-VC_test <- calculateHVG(gobject = VC_test, method = 'cov_loess', difference_in_variance = 0.5)
+VC_test <- calculateHVG(gobject = VC_test, method = 'cov_loess', difference_in_cov = 0.1)
 
 ## select genes based on HVG and gene statistics, both found in gene metadata
 gene_metadata = fDataDT(VC_test)
@@ -167,10 +167,10 @@ plotUMAP(gobject = VC_test, cell_color = 'leiden_clus', show_NN_network = T, poi
 ## Leiden subclustering for specified clusters
 VC_test = doLeidenSubCluster(gobject = VC_test, cluster_column = 'leiden_clus',
                              resolution = 0.2, k_neighbors = 10,
-                             hvg_param = list(method = 'cov_loess', difference_in_variance = 1),
+                             hvg_param = list(method = 'cov_loess', difference_in_cov = 0.1),
                              pca_param = list(expression_values = 'normalized', scale_unit = F),
                              nn_param = list(dimensions_to_use = 1:5),
-                             selected_clusters = c(5, 7),
+                             selected_clusters = c(4, 6, 7),
                              name = 'sub_leiden_clus_select')
 plotUMAP(gobject = VC_test,
          cell_color = 'sub_leiden_clus_select', show_NN_network = T, point_size = 2.5)
@@ -255,7 +255,7 @@ scran_markers_subclusters = findMarkers_one_vs_all(gobject = VC_test,
                                                    method = 'scran',
                                                    expression_values = 'normalized',
                                                    cluster_column = 'sub_leiden_clus_select')
-topgenes_scran = scran_markers_subclusters[, head(.SD, 1), by = 'cluster_ID']$gene_ID
+topgenes_scran = scran_markers_subclusters[, head(.SD, 1), by = 'cluster']$genes
 
 # violinplot
 violinPlot(VC_test, genes = unique(topgenes_scran), cluster_column = 'sub_leiden_clus_select',
@@ -327,10 +327,10 @@ plotHeatmap(gobject = VC_test,
 
 ## co-visualization
 spatDimPlot(gobject = VC_test, cell_color = 'cell_types',
-            dim_point_size = 2, spat_point_size = 2, show_cluster_center = F, show_center_label = T)
+            dim_point_size = 2, spat_point_size = 2, dim_show_cluster_center = F, dim_show_center_label = T)
 
 spatDimPlot(gobject = VC_test, cell_color = 'cell_types', select_cell_groups = c('astrocytes', 'Olig', 'OPC'),
-            dim_point_size = 2, spat_point_size = 2, show_cluster_center = F, show_center_label = T)
+            dim_point_size = 2, spat_point_size = 2, dim_show_cluster_center = F, dim_show_center_label = T)
 ```
 
 ![](./figures/6_violinplot.png){width=16cm} 

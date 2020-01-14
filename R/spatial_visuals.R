@@ -4922,8 +4922,12 @@ GenePattern_show <- function(gobject = NULL,
 #' @export
 #' @examples
 #'     FSV_show(results)
-FSV_show <- function(results,ms_results = NULL,size = c(4,2,1), color = c("blue", "green", "red"),
-                     sig_alpha = 0.5, unsig_alpha = 0.5){
+FSV_show <- function(results,
+                     ms_results = NULL,
+                     size = c(4,2,1),
+                     color = c("blue", "green", "red"),
+                     sig_alpha = 0.5,
+                     unsig_alpha = 0.5){
 
   results$FSV95conf = 2 * sqrt(results$s2_FSV)
   results$intervals <- cut(results$FSV95conf,c(0, 1e-1, 1e0, Inf),label = F)
@@ -9347,7 +9351,7 @@ spatCellPlot2D = function(gobject,
                           sdimx = 'sdimx',
                           sdimy = 'sdimy',
                           spat_enr_names = NULL,
-                          cell_annotation_values,
+                          cell_annotation_values = NULL,
                           cell_color_gradient = c('blue', 'white', 'red'),
                           gradient_midpoint = NULL,
                           gradient_limits = NULL,
@@ -9398,6 +9402,9 @@ spatCellPlot2D = function(gobject,
 
   # keep only available columns
   possible_value_cols = colnames(comb_metadata)
+  if(is.null(cell_annotation_values)) {
+    stop('you need to choose which continuous/numerical cell annotations or enrichments you want to visualize')
+  }
   cell_annotation_values = cell_annotation_values[cell_annotation_values %in% possible_value_cols]
 
 
@@ -9544,7 +9551,7 @@ spatCellPlot = function(gobject,
                         sdimx = 'sdimx',
                         sdimy = 'sdimy',
                         spat_enr_names = NULL,
-                        cell_annotation_values,
+                        cell_annotation_values = NULL,
                         cell_color_gradient = c('blue', 'white', 'red'),
                         gradient_midpoint = NULL,
                         gradient_limits = NULL,
@@ -9698,7 +9705,7 @@ dimCellPlot2D = function(gobject,
                          dim1_to_use = 1,
                          dim2_to_use = 2,
                          spat_enr_names = NULL,
-                         cell_annotation_values,
+                         cell_annotation_values = NULL,
                          show_NN_network = F,
                          nn_network_to_use = 'sNN',
                          network_name = 'sNN.pca',
@@ -9743,6 +9750,9 @@ dimCellPlot2D = function(gobject,
 
   # keep only available columns
   possible_value_cols = colnames(comb_metadata)
+  if(is.null(cell_annotation_values)) {
+    stop('you need to choose which continuous/numerical cell annotations or enrichments you want to visualize')
+  }
   cell_annotation_values = cell_annotation_values[cell_annotation_values %in% possible_value_cols]
 
   # print, return and save parameters
@@ -9895,7 +9905,7 @@ dimCellPlot = function(gobject,
                        dim1_to_use = 1,
                        dim2_to_use = 2,
                        spat_enr_names = NULL,
-                       cell_annotation_values,
+                       cell_annotation_values = NULL,
                        show_NN_network = F,
                        nn_network_to_use = 'sNN',
                        network_name = 'sNN.pca',
@@ -10060,7 +10070,7 @@ dimCellPlot = function(gobject,
 spatDimCellPlot2D <- function(gobject,
                               plot_alignment = c('vertical', 'horizontal'),
                               spat_enr_names = NULL,
-                              cell_annotation_values,
+                              cell_annotation_values = NULL,
                               dim_reduction_to_use = 'umap',
                               dim_reduction_name = 'umap',
                               dim1_to_use = 1,
@@ -10332,7 +10342,7 @@ spatDimCellPlot2D <- function(gobject,
 spatDimCellPlot = function(gobject,
                            plot_alignment = c('vertical', 'horizontal'),
                            spat_enr_names = NULL,
-                           cell_annotation_values,
+                           cell_annotation_values = NULL,
                            dim_reduction_to_use = 'umap',
                            dim_reduction_name = 'umap',
                            dim1_to_use = 1,
@@ -10468,6 +10478,7 @@ spatDimCellPlot = function(gobject,
                     default_save_name = default_save_name)
 
 }
+
 
 
 

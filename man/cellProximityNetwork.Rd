@@ -14,7 +14,7 @@ cellProximityNetwork(
   rescale_edge_weights = TRUE,
   edge_weight_range_depletion = c(0.1, 1),
   edge_weight_range_enrichment = c(1, 5),
-  layout = "Fruchterman",
+  layout = c("Fruchterman", "DrL", "Kamada-Kawai"),
   only_show_enrichment_edges = F,
   edge_width_range = c(0.1, 2),
   node_size = 4,

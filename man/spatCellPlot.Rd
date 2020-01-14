@@ -9,7 +9,7 @@ spatCellPlot(
   sdimx = "sdimx",
   sdimy = "sdimy",
   spat_enr_names = NULL,
-  cell_annotation_values,
+  cell_annotation_values = NULL,
   cell_color_gradient = c("blue", "white", "red"),
   gradient_midpoint = NULL,
   gradient_limits = NULL,

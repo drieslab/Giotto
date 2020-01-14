@@ -911,6 +911,7 @@ Spatial_DE <- function(gobject = NULL,
 }
 
 
+
 #' @title Spatial_AEH
 #' @name Spatial_AEH
 #' @description calculate automatic expression histology with spatialDE method
@@ -943,7 +944,6 @@ Spatial_AEH <- function(gobject = NULL,
   ## python path
   if(is.null(python_path)) {
     python_path = readGiottoInstructions(gobject, param = "python_path")
-    #python_path = system('which python', intern = T)
   }
 
   ## source python file
@@ -951,9 +951,6 @@ Spatial_AEH <- function(gobject = NULL,
   reader_path = system.file("python", "SpatialDE_wrapper.py", package = 'Giotto')
   reticulate::source_python(file = reader_path)
 
-
-  #reader_path = system.file("python", "SpatialDE_wrapper.py", package = 'Giotto')
-  #source_python(reader_path)
 
 
   if(is.null(sdimx)|is.null(sdimy)){
@@ -991,6 +988,189 @@ Spatial_AEH <- function(gobject = NULL,
 
   return(spatial_pattern_results)
 }
+
+# ** ####
+## SpatialDE ####
+## ----------- ##
+
+#' @title SpatialDE
+#' @name SpatialDE
+#' @description Compute spatial variable genes with spatialDE method
+#' @param gobject Giotto object
+#' @param expression_values gene expression values to use
+#' @param size size of plot
+#' @param color low/medium/high color scheme for plot
+#' @param sig_alpha alpha value for significance
+#' @param unsig_alpha alpha value for unsignificance
+#' @param python_path specify specific path to python if required
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return a list of data.frames with results and plot (optional)
+#' @details This function is a wrapper for the SpatialDE method implemented in the ...
+#' @export
+#' @examples
+#'     SpatialDE(gobject)
+SpatialDE <- function(gobject = NULL,
+                      expression_values = c('raw', 'normalized', 'scaled', 'custom'),
+                      size = c(4,2,1),
+                      color = c("blue", "green", "red"),
+                      sig_alpha = 0.5,
+                      unsig_alpha = 0.5,
+                      python_path = NULL,
+                      show_plot = NA,
+                      return_plot = NA,
+                      save_plot = NA,
+                      save_param = list(),
+                      default_save_name = 'SpatialDE'){
+
+
+  # expression
+  values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+
+  ## python path
+  if(is.null(python_path)) {
+    python_path = readGiottoInstructions(gobject, param = "python_path")
+  }
+
+  ## source python file
+  reticulate::use_python(required = T, python = python_path)
+  reader_path = system.file("python", "SpatialDE_wrapper.py", package = 'Giotto')
+  reticulate::source_python(file = reader_path)
+
+  ## get spatial locations
+  spatial_locs <- as.data.frame(gobject@spatial_locs)
+  rownames(spatial_locs) <- spatial_locs$cell_ID
+  spatial_locs <- subset(spatial_locs, select = -cell_ID)
+
+  ## run spatialDE
+  Spatial_DE_results = Spatial_DE(as.data.frame(t(expr_values)), spatial_locs)
+
+  results <- as.data.frame(reticulate::py_to_r(Spatial_DE_results[[1]]))
+
+  if(length(Spatial_DE_results) == 2){
+    ms_results = as.data.frame(reticulate::py_to_r(Spatial_DE_results[[2]]))
+    spatial_genes_results = list(results, ms_results)
+    names(spatial_genes_results) = c("results", "ms_results")
+  } else{
+    spatial_genes_results =  results
+    ms_results = NULL
+  }
+
+
+  ## create plot
+  FSV_plot = FSV_show(results = results,
+                      ms_results = ms_results,
+                      size =size,
+                      color = color,
+                      sig_alpha = sig_alpha,
+                      unsig_alpha = unsig_alpha)
+
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(FSV_plot)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = FSV_plot, default_save_name = default_save_name), save_param))
+  }
+
+  ## return results and plot (optional)
+  if(return_plot == TRUE) {
+    return(list(results = spatial_genes_results, plot = FSV_plot))
+  } else {
+    return(list(results =  spatial_genes_results))
+  }
+
+}
+
+
+#' @title SpatialAEH
+#' @name SpatialAEH
+#' @description Compute spatial variable genes with spatialDE method
+#' @param gobject Giotto object
+#' @param SpatialDE_results results of \code{\link{SpatialDE}} function
+#' @param name_pattern name for the computed spatial patterns
+#' @param expression_values gene expression values to use
+#' @param pattern_num number of spatial patterns to look for
+#' @param l lengthscale
+#' @param python_path specify specific path to python if required
+#' @param return_gobject show plot
+#' @return An updated giotto object
+#' @details This function is a wrapper for the SpatialAEH method implemented in the ...
+#' @export
+#' @examples
+#'     SpatialAEH(gobject)
+SpatialAEH <- function(gobject = NULL,
+                       SpatialDE_results = NULL,
+                       name_pattern = 'AEH_patterns',
+                       expression_values = c('raw', 'normalized', 'scaled', 'custom'),
+                       pattern_num = 6,
+                       l = 1.05,
+                       python_path = NULL,
+                       return_gobject = TRUE) {
+
+  # expression
+  values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+
+  ## python path
+  if(is.null(python_path)) {
+    python_path = readGiottoInstructions(gobject, param = "python_path")
+  }
+
+  ## source python file
+  reticulate::use_python(required = T, python = python_path)
+  reader_path = system.file("python", "SpatialDE_wrapper.py", package = 'Giotto')
+  reticulate::source_python(file = reader_path)
+
+
+  ## spatial locations
+  spatial_locs <- as.data.frame(gobject@spatial_locs)
+  rownames(spatial_locs) <- spatial_locs$cell_ID
+  spatial_locs <- subset(spatial_locs, select = -cell_ID)
+
+  # extract results you need
+  results = SpatialDE_results[['results']][['results']]
+
+  ## automatic expression histology
+  AEH_results = Spatial_DE_AEH(filterd_exprs = as.data.frame(t(expr_values)),
+                               coordinates = spatial_locs,
+                               results = as.data.frame(results),
+                               pattern_num = pattern_num,
+                               l = l)
+  histology_results <- as.data.frame(reticulate::py_to_r(AEH_results[[1]]))
+  cell_pattern_score <- as.data.frame((reticulate::py_to_r(AEH_results[[2]])))
+
+  spatial_pattern_results <- list(histology_results, cell_pattern_score)
+  names(spatial_pattern_results) <- c("histology_results","cell_pattern_score")
+
+
+  if(return_gobject == TRUE) {
+
+    dt_res = as.data.table(spatial_pattern_results[['cell_pattern_score']])
+    dt_res[['cell_ID']] = rownames(spatial_pattern_results[['cell_pattern_score']])
+    gobject@spatial_enrichment[[name_pattern]] = dt_res
+    return(gobject)
+
+  } else {
+
+    return(list(results = spatial_pattern_results))
+
+  }
+}
+
 
 
 
