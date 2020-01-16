@@ -1445,13 +1445,14 @@ filterCPGscores = function(CPGscore,
 #' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return Gene to gene scores in data.table format
-#' @details Give more details ...
+#' @details Different ways to visualize how many genes are differentially regulated
+#' within a source cell type due to the proximity of another neighboring cell type.
 #' @export
 #' @examples
 #'     showCPGscores(CPGscore)
 showCPGscores = function(gobject,
                          CPGscore,
-                         method = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey'),
+                         method = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey', 'heatmap', 'dotplot'),
                          min_cells = 5,
                          min_fdr = 0.05,
                          min_spat_diff = 0.2,
@@ -1484,7 +1485,7 @@ showCPGscores = function(gobject,
 
 
   ## other parameters
-  method = match.arg(method, choices = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey'))
+  method = match.arg(method, choices = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey', 'heatmap', 'dotplot'))
 
   ## create data.table for visualization
   subset = filter_set[(fdr_1 <= min_fdr & unif_int_rank == 1) | (fdr_1 <= min_fdr & fdr_2 <= min_fdr & unif_int_rank == 2)]
@@ -1493,6 +1494,7 @@ showCPGscores = function(gobject,
   part2 = subset[unif_int_rank == 2,.(genes, interaction, cell_type_2, cell_type_1, log2fc_spat_2, fdr_2)]
   colnames(part2) = c('genes', 'interaction', 'source', 'neighbor', 'log2fc', 'fdr')
   complete_part = rbind(part1, part2)
+
 
 
 
@@ -1617,7 +1619,68 @@ showCPGscores = function(gobject,
       return(pl)
     }
 
+  } else if(method == 'dotplot') {
+
+    changed_genes = complete_part[, .N, by = c('source', 'neighbor')]
+
+    changed_genes[, source := factor(source, unique(source))]
+    changed_genes[, neighbor := factor(neighbor, unique(neighbor))]
+
+    pl = ggplot()
+    pl = pl + theme_classic()
+    pl = pl + geom_point(data = changed_genes, aes(x = source, y = neighbor, size = N))
+    pl = pl + scale_size_continuous(guide=guide_legend(title = '# of DEGs'))
+    pl = pl + theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1))
+    pl = pl + labs(x = 'source cell type', y = 'neighbor cell type')
+
+    ## print plot
+    if(show_plot == TRUE) {
+      print(pl)
+    }
+
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+    }
+
+    ## return plot
+    if(return_plot == TRUE) {
+      return(pl)
+    }
+
+  } else if(method == 'heatmap') {
+
+    changed_genes = complete_part[, .N, by = c('source', 'neighbor')]
+
+    changed_genes[, source := factor(source, unique(source))]
+    changed_genes[, neighbor := factor(neighbor, unique(neighbor))]
+
+    changed_genes_d = data.table::dcast.data.table(changed_genes, source~neighbor, value.var = 'N', fill = 0)
+    changed_genes_m = Giotto:::dt_to_matrix(changed_genes_d)
+
+    col_fun = circlize::colorRamp2(breaks = quantile(log2(changed_genes_m+1)),
+                                   colors =  c("white", 'white', "blue", "yellow", "red"))
+
+    heatm = ComplexHeatmap::Heatmap(log2(changed_genes_m+1), col = col_fun,
+                                    row_title = 'source', column_title = 'neighbor', heatmap_legend_param = list(title = 'log2(# DEGs)'))
+
+    ## print plot
+    if(show_plot == TRUE) {
+      print(heatm)
+    }
+
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = heatm, default_save_name = default_save_name), save_param))
+    }
+
+    ## return plot
+    if(return_plot == TRUE) {
+      return(heatm)
+    }
+
   }
+
 
 }
 

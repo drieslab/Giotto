@@ -7,7 +7,8 @@
 showCPGscores(
   gobject,
   CPGscore,
-  method = c("volcano", "cell_barplot", "cell-cell", "cell_sankey"),
+  method = c("volcano", "cell_barplot", "cell-cell", "cell_sankey", "heatmap",
+    "dotplot"),
   min_cells = 5,
   min_fdr = 0.05,
   min_spat_diff = 0.2,
@@ -58,7 +59,8 @@ Gene to gene scores in data.table format
 visualize Cell Proximity Gene enrichment scores
 }
 \details{
-Give more details ...
+Different ways to visualize how many genes are differentially regulated
+within a source cell type due to the proximity of another neighboring cell type.
 }
 \examples{
     showCPGscores(CPGscore)
