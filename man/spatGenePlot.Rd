@@ -20,10 +20,15 @@ spatGenePlot(
   spatial_grid_name = "spatial_grid",
   midpoint = 0,
   scale_alpha_with_expression = FALSE,
+  point_shape = c("border", "no_border"),
   point_size = 1,
   point_border_col = "black",
   point_border_stroke = 0.1,
   show_legend = T,
+  legend_text = 8,
+  background_color = "white",
+  axis_text = 8,
+  axis_title = 8,
   cow_n_col = 2,
   cow_rel_h = 1,
   cow_rel_w = 1,
@@ -64,6 +69,8 @@ spatGenePlot(
 
 \item{scale_alpha_with_expression}{scale expression with ggplot alpha parameter}
 
+\item{point_shape}{point with border or not (border or no_border)}
+
 \item{point_size}{size of point (cell)}
 
 \item{point_border_col}{color of border around points}
@@ -71,6 +78,14 @@ spatGenePlot(
 \item{point_border_stroke}{stroke size of border around points}
 
 \item{show_legend}{show legend}
+
+\item{legend_text}{size of legend text}
+
+\item{background_color}{color of plot background}
+
+\item{axis_text}{size of axis text}
+
+\item{axis_title}{size of axis title}
 
 \item{cow_n_col}{cowplot param: how many columns}
 

@@ -18,6 +18,7 @@ dimGenePlot2D(
   network_color = "lightgray",
   edge_alpha = NULL,
   scale_alpha_with_expression = FALSE,
+  point_shape = c("border", "no_border"),
   point_size = 1,
   genes_high_color = "red",
   genes_mid_color = "white",
@@ -25,11 +26,15 @@ dimGenePlot2D(
   point_border_col = "black",
   point_border_stroke = 0.1,
   midpoint = 0,
+  show_legend = T,
+  legend_text = 8,
+  background_color = "white",
+  axis_text = 8,
+  axis_title = 8,
   cow_n_col = 2,
   cow_rel_h = 1,
   cow_rel_w = 1,
   cow_align = "h",
-  show_legend = T,
   show_plot = NA,
   return_plot = NA,
   save_plot = NA,
@@ -62,6 +67,8 @@ dimGenePlot2D(
 
 \item{scale_alpha_with_expression}{scale expression with ggplot alpha parameter}
 
+\item{point_shape}{point with border or not (border or no_border)}
+
 \item{point_size}{size of point (cell)}
 
 \item{point_border_col}{color of border around points}
@@ -70,6 +77,16 @@ dimGenePlot2D(
 
 \item{midpoint}{size of point (cell)}
 
+\item{show_legend}{show legend}
+
+\item{legend_text}{size of legend text}
+
+\item{background_color}{color of plot background}
+
+\item{axis_text}{size of axis text}
+
+\item{axis_title}{size of axis title}
+
 \item{cow_n_col}{cowplot param: how many columns}
 
 \item{cow_rel_h}{cowplot param: relative height}
@@ -77,8 +94,6 @@ dimGenePlot2D(
 \item{cow_rel_w}{cowplot param: relative width}
 
 \item{cow_align}{cowplot param: how to align}
-
-\item{show_legend}{show legend}
 
 \item{show_plot}{show plots}
 

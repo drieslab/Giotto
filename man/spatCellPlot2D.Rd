@@ -15,6 +15,7 @@ spatCellPlot2D(
   gradient_limits = NULL,
   select_cell_groups = NULL,
   select_cells = NULL,
+  point_shape = c("border", "no_border"),
   point_size = 3,
   point_border_col = "black",
   point_border_stroke = 0.1,
@@ -74,6 +75,8 @@ spatCellPlot2D(
 \item{select_cell_groups}{select subset of cells/clusters based on cell_color parameter}
 
 \item{select_cells}{select subset of cells based on cell IDs}
+
+\item{point_shape}{point with border or not (border or no_border)}
 
 \item{point_size}{size of point (cell)}
 

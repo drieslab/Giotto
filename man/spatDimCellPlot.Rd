@@ -20,9 +20,11 @@ spatDimCellPlot(
   gradient_limits = NULL,
   select_cell_groups = NULL,
   select_cells = NULL,
+  dim_point_shape = c("border", "no_border"),
   dim_point_size = 1,
   dim_point_border_col = "black",
   dim_point_border_stroke = 0.1,
+  spat_point_shape = c("border", "no_border"),
   spat_point_size = 1,
   spat_point_border_col = "black",
   spat_point_border_stroke = 0.1,
@@ -106,11 +108,15 @@ spatDimCellPlot(
 
 \item{select_cells}{select subset of cells based on cell IDs}
 
+\item{dim_point_shape}{spatial points with border or not (border or no_border)}
+
 \item{dim_point_size}{size of points in dim. reduction space}
 
 \item{dim_point_border_col}{border color of points in dim. reduction space}
 
 \item{dim_point_border_stroke}{border stroke of points in dim. reduction space}
+
+\item{spat_point_shape}{spatial points with border or not (border or no_border)}
 
 \item{spat_point_size}{size of spatial points}
 

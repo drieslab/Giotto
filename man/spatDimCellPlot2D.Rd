@@ -20,9 +20,11 @@ spatDimCellPlot2D(
   gradient_limits = NULL,
   select_cell_groups = NULL,
   select_cells = NULL,
+  dim_point_shape = c("border", "no_border"),
   dim_point_size = 1,
   dim_point_border_col = "black",
   dim_point_border_stroke = 0.1,
+  spat_point_shape = c("border", "no_border"),
   spat_point_size = 1,
   spat_point_border_col = "black",
   spat_point_border_stroke = 0.1,
@@ -56,11 +58,6 @@ spatDimCellPlot2D(
   dim_other_point_size = 0.5,
   spat_other_point_size = 0.5,
   spat_other_cells_alpha = 0.5,
-  coord_fix_ratio = NULL,
-  cow_n_col = 2,
-  cow_rel_h = 1,
-  cow_rel_w = 1,
-  cow_align = "h",
   show_legend = T,
   legend_text = 8,
   legend_symbol_size = 1,
@@ -68,6 +65,11 @@ spatDimCellPlot2D(
   spat_background_color = "white",
   axis_text = 8,
   axis_title = 8,
+  coord_fix_ratio = NULL,
+  cow_n_col = 2,
+  cow_rel_h = 1,
+  cow_rel_w = 1,
+  cow_align = "h",
   show_plot = NA,
   return_plot = NA,
   save_plot = NA,
@@ -106,11 +108,15 @@ spatDimCellPlot2D(
 
 \item{select_cells}{select subset of cells based on cell IDs}
 
+\item{dim_point_shape}{dim reduction points with border or not (border or no_border)}
+
 \item{dim_point_size}{size of points in dim. reduction space}
 
 \item{dim_point_border_col}{border color of points in dim. reduction space}
 
 \item{dim_point_border_stroke}{border stroke of points in dim. reduction space}
+
+\item{spat_point_shape}{spatial points with border or not (border or no_border)}
 
 \item{spat_point_size}{size of spatial points}
 
@@ -172,16 +178,6 @@ spatDimCellPlot2D(
 
 \item{spat_other_cells_alpha}{alpha of not selected spat cells}
 
-\item{coord_fix_ratio}{ratio for coordinates}
-
-\item{cow_n_col}{cowplot param: how many columns}
-
-\item{cow_rel_h}{cowplot param: relative height}
-
-\item{cow_rel_w}{cowplot param: relative width}
-
-\item{cow_align}{cowplot param: how to align}
-
 \item{show_legend}{show legend}
 
 \item{legend_text}{size of legend text}
@@ -195,6 +191,16 @@ spatDimCellPlot2D(
 \item{axis_text}{size of axis text}
 
 \item{axis_title}{size of axis title}
+
+\item{coord_fix_ratio}{ratio for coordinates}
+
+\item{cow_n_col}{cowplot param: how many columns}
+
+\item{cow_rel_h}{cowplot param: relative height}
+
+\item{cow_rel_w}{cowplot param: relative width}
+
+\item{cow_align}{cowplot param: how to align}
 
 \item{show_plot}{show plot}
 

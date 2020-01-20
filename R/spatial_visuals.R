@@ -8368,6 +8368,7 @@ spatDimPlot = function(gobject,
 #' @param spatial_grid_name name of spatial grid to use
 #' @param midpoint expression midpoint
 #' @param scale_alpha_with_expression scale expression with ggplot alpha parameter
+#' @param point_shape point with border or not (border or no_border)
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
@@ -8376,6 +8377,10 @@ spatDimPlot = function(gobject,
 #' @param cow_rel_w cowplot param: relative width
 #' @param cow_align cowplot param: how to align
 #' @param show_legend show legend
+#' @param legend_text size of legend text
+#' @param background_color color of plot background
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
 #' @param show_plot show plots
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -8403,10 +8408,15 @@ spatGenePlot2D <- function(gobject,
                            spatial_grid_name = 'spatial_grid',
                            midpoint = 0,
                            scale_alpha_with_expression = FALSE,
+                           point_shape = c('border', 'no_border'),
                            point_size = 1,
                            point_border_col = 'black',
                            point_border_stroke = 0.1,
                            show_legend = T,
+                           legend_text = 8,
+                           background_color = 'white',
+                           axis_text = 8,
+                           axis_title = 8,
                            cow_n_col = 2,
                            cow_rel_h = 1,
                            cow_rel_w = 1,
@@ -8423,9 +8433,10 @@ spatGenePlot2D <- function(gobject,
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
+  # point shape
+  point_shape = match.arg(point_shape, choices = c('border', 'no_border'))
 
-
-
+  # expression values
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
 
@@ -8505,28 +8516,62 @@ spatGenePlot2D <- function(gobject,
     }
 
 
-    if(scale_alpha_with_expression == TRUE) {
-      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes, aes_string2(x = 'sdimx', y = 'sdimy',
-                                                                                      fill = gene, alpha = gene),
-                                     shape = 21,
-                                     color = point_border_col, size = point_size, stroke = point_border_stroke,
-                                     show.legend = show_legend)
-    } else {
-      pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes, aes_string2(x = 'sdimx', y = 'sdimy',
-                                                                                      fill = gene),
-                                     shape = 21,
-                                     color = point_border_col, size = point_size, stroke = point_border_stroke,
-                                     show.legend = show_legend)
-    }
-    pl <- pl + ggplot2::scale_alpha_continuous(guide = 'none')
-    pl <- pl + ggplot2::scale_fill_gradient2(low = genes_low_color, mid = genes_mid_color, high = genes_high_color,
-                                             midpoint = midpoint, guide = guide_colorbar(title = ''))
-    pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y', title = gene)
-    pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5))
+    ### plot cells ###
 
-    if(show_plot == TRUE) {
-      print(pl)
+    ## with border ##
+    if(point_shape == 'border') {
+
+      if(scale_alpha_with_expression == TRUE) {
+        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes, aes_string2(x = 'sdimx', y = 'sdimy',
+                                                                                         fill = gene, alpha = gene),
+                                       shape = 21,
+                                       color = point_border_col, size = point_size, stroke = point_border_stroke,
+                                       show.legend = show_legend)
+      } else {
+        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes, aes_string2(x = 'sdimx', y = 'sdimy',
+                                                                                         fill = gene),
+                                       shape = 21,
+                                       color = point_border_col, size = point_size, stroke = point_border_stroke,
+                                       show.legend = show_legend)
+      }
+      pl <- pl + ggplot2::scale_alpha_continuous(guide = 'none')
+      pl <- pl + ggplot2::scale_fill_gradient2(low = genes_low_color, mid = genes_mid_color, high = genes_high_color,
+                                               midpoint = midpoint, guide = guide_colorbar(title = ''))
+      pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y', title = gene)
+
     }
+
+
+    ## no border ##
+    if(point_shape == 'no_border') {
+
+      if(scale_alpha_with_expression == TRUE) {
+        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes, aes_string2(x = 'sdimx', y = 'sdimy',
+                                                                                         color = gene, alpha = gene),
+                                       shape = 19, size = point_size,  show.legend = show_legend)
+      } else {
+        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes, aes_string2(x = 'sdimx', y = 'sdimy',
+                                                                                         color = gene),
+                                       shape = 19, size = point_size, show.legend = show_legend)
+      }
+      pl <- pl + ggplot2::scale_alpha_continuous(guide = 'none')
+      pl <- pl + ggplot2::scale_color_gradient2(low = genes_low_color, mid = genes_mid_color, high = genes_high_color,
+                                               midpoint = midpoint, guide = guide_colorbar(title = ''))
+      pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y', title = gene)
+
+    }
+
+
+
+
+    pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5),
+                              legend.title = element_blank(),
+                              legend.text = element_text(size = legend_text),
+                              axis.title = element_text(size = axis_title),
+                              axis.text = element_text(size = axis_text),
+                              panel.grid = element_blank(),
+                              panel.background = element_rect(fill = background_color))
+
 
     savelist[[gene]] <- pl
   }
@@ -8574,6 +8619,7 @@ spatGenePlot2D <- function(gobject,
 #' @param spatial_grid_name name of spatial grid to use
 #' @param midpoint expression midpoint
 #' @param scale_alpha_with_expression scale expression with ggplot alpha parameter
+#' @param point_shape point with border or not (border or no_border)
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
@@ -8582,6 +8628,10 @@ spatGenePlot2D <- function(gobject,
 #' @param cow_rel_w cowplot param: relative width
 #' @param cow_align cowplot param: how to align
 #' @param show_legend show legend
+#' @param legend_text size of legend text
+#' @param background_color color of plot background
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
 #' @param show_plot show plots
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -8609,10 +8659,15 @@ spatGenePlot = function(gobject,
                         spatial_grid_name = 'spatial_grid',
                         midpoint = 0,
                         scale_alpha_with_expression = FALSE,
+                        point_shape = c('border', 'no_border'),
                         point_size = 1,
                         point_border_col = 'black',
                         point_border_stroke = 0.1,
                         show_legend = T,
+                        legend_text = 8,
+                        background_color = 'white',
+                        axis_text = 8,
+                        axis_title = 8,
                         cow_n_col = 2,
                         cow_rel_h = 1,
                         cow_rel_w = 1,
@@ -8638,10 +8693,15 @@ spatGenePlot = function(gobject,
                  spatial_grid_name = spatial_grid_name,
                  midpoint = midpoint,
                  scale_alpha_with_expression = scale_alpha_with_expression,
+                 point_shape = point_shape,
                  point_size = point_size,
                  point_border_col = point_border_col,
                  point_border_stroke = point_border_stroke,
                  show_legend = show_legend,
+                 legend_text = legend_text,
+                 background_color = background_color,
+                 axis_text = axis_text,
+                 axis_title = axis_title,
                  cow_n_col = cow_n_col,
                  cow_rel_h = cow_rel_h,
                  cow_rel_w = cow_rel_w,
@@ -8671,15 +8731,20 @@ spatGenePlot = function(gobject,
 #' @param network_name name of NN network to use, if show_NN_network = TRUE
 #' @param edge_alpha column to use for alpha of the edges
 #' @param scale_alpha_with_expression scale expression with ggplot alpha parameter
+#' @param point_shape point with border or not (border or no_border)
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
 #' @param midpoint size of point (cell)
+#' @param show_legend show legend
+#' @param legend_text size of legend text
+#' @param background_color color of plot background
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
 #' @param cow_n_col cowplot param: how many columns
 #' @param cow_rel_h cowplot param: relative height
 #' @param cow_rel_w cowplot param: relative width
 #' @param cow_align cowplot param: how to align
-#' @param show_legend show legend
 #' @param show_plot show plots
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -8705,6 +8770,7 @@ dimGenePlot2D <- function(gobject,
                           network_color = "lightgray",
                           edge_alpha = NULL,
                           scale_alpha_with_expression = FALSE,
+                          point_shape = c('border', 'no_border'),
                           point_size = 1,
                           genes_high_color = "red",
                           genes_mid_color = "white",
@@ -8712,11 +8778,15 @@ dimGenePlot2D <- function(gobject,
                           point_border_col = 'black',
                           point_border_stroke = 0.1,
                           midpoint = 0,
+                          show_legend = T,
+                          legend_text = 8,
+                          background_color = 'white',
+                          axis_text = 8,
+                          axis_title = 8,
                           cow_n_col = 2,
                           cow_rel_h = 1,
                           cow_rel_w = 1,
                           cow_align = 'h',
-                          show_legend = T,
                           show_plot = NA,
                           return_plot = NA,
                           save_plot = NA,
@@ -8728,6 +8798,9 @@ dimGenePlot2D <- function(gobject,
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  # point shape
+  point_shape = match.arg(point_shape, choices = c('border', 'no_border'))
 
   ## select genes ##
   selected_genes = genes
@@ -8825,6 +8898,7 @@ dimGenePlot2D <- function(gobject,
     }
 
 
+
     # point layer
     if(is.null(genes)) {
       cell_color = 'lightblue'
@@ -8832,33 +8906,63 @@ dimGenePlot2D <- function(gobject,
                                      fill = cell_color, show.legend = show_legend, size =  point_size)
 
     } else {
-      if(scale_alpha_with_expression == TRUE) {
-        pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string2(x = dim_names[1], y = dim_names[2], fill = gene, alpha = gene),
-                                       show.legend = show_legend, shape = 21, size = point_size,
-                                       color = point_border_col, stroke = point_border_stroke)
-      } else {
-        pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string2(x = dim_names[1], y = dim_names[2], fill = gene),
-                                       show.legend = show_legend, shape = 21,
-                                       size =  point_size,
-                                       color = point_border_col, stroke = point_border_stroke)
+
+      # with border
+      if(point_shape == 'border') {
+
+        if(scale_alpha_with_expression == TRUE) {
+          pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string2(x = dim_names[1], y = dim_names[2], fill = gene, alpha = gene),
+                                         show.legend = show_legend, shape = 21, size = point_size,
+                                         color = point_border_col, stroke = point_border_stroke)
+        } else {
+          pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string2(x = dim_names[1], y = dim_names[2], fill = gene),
+                                         show.legend = show_legend, shape = 21,
+                                         size =  point_size,
+                                         color = point_border_col, stroke = point_border_stroke)
+        }
+
+        pl <- pl + ggplot2::scale_fill_gradient2(low = genes_low_color, mid = genes_mid_color, high = genes_high_color, midpoint = midpoint)
+
       }
 
-      pl <- pl + ggplot2::scale_fill_gradient2(low = genes_low_color, mid = genes_mid_color, high = genes_high_color, midpoint = midpoint)
+
+      # without border
+      # with border
+      if(point_shape == 'no_border') {
+
+        if(scale_alpha_with_expression == TRUE) {
+          pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string2(x = dim_names[1], y = dim_names[2], color = gene, alpha = gene),
+                                         show.legend = show_legend, shape = 19, size = point_size)
+        } else {
+          pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string2(x = dim_names[1], y = dim_names[2], color = gene),
+                                         show.legend = show_legend, shape = 19, size =  point_size)
+        }
+
+        pl <- pl + ggplot2::scale_color_gradient2(low = genes_low_color, mid = genes_mid_color, high = genes_high_color, midpoint = midpoint)
+
+      }
+
+
     }
+
 
     ## add title
     pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y', title = gene)
-    ## adjust titles
+
+    ## aesthetics
     pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5),
                               legend.title = element_blank(),
-                              legend.text = element_text(size = 10))
-
-    if(show_plot == TRUE) {
-      print(pl)
-    }
+                              legend.text = element_text(size = legend_text),
+                              axis.title = element_text(size = axis_title),
+                              axis.text = element_text(size = axis_text),
+                              panel.grid = element_blank(),
+                              panel.background = element_rect(fill = background_color))
 
     savelist[[gene]] <- pl
   }
+
+
+
 
   # combine plots with cowplot
   combo_plot <- cowplot::plot_grid(plotlist = savelist,
@@ -8936,6 +9040,7 @@ dimGenePlot = function(gobject,
                        network_color = "lightgray",
                        edge_alpha = NULL,
                        scale_alpha_with_expression = FALSE,
+                       point_shape = c('border', 'no_border'),
                        point_size = 1,
                        genes_high_color = "red",
                        genes_mid_color = "white",
@@ -8943,11 +9048,15 @@ dimGenePlot = function(gobject,
                        point_border_col = 'black',
                        point_border_stroke = 0.1,
                        midpoint = 0,
+                       show_legend = T,
+                       legend_text = 8,
+                       background_color = 'white',
+                       axis_text = 8,
+                       axis_title = 8,
                        cow_n_col = 2,
                        cow_rel_h = 1,
                        cow_rel_w = 1,
                        cow_align = 'h',
-                       show_legend = T,
                        show_plot = NA,
                        return_plot = NA,
                        save_plot = NA,
@@ -8967,6 +9076,7 @@ dimGenePlot = function(gobject,
                 network_color = network_color,
                 edge_alpha = edge_alpha,
                 scale_alpha_with_expression = scale_alpha_with_expression,
+                point_shape = point_shape,
                 point_size = point_size,
                 genes_high_color = genes_high_color,
                 genes_mid_color = genes_mid_color,
@@ -8974,11 +9084,15 @@ dimGenePlot = function(gobject,
                 point_border_col = point_border_col,
                 point_border_stroke = point_border_stroke,
                 midpoint = midpoint,
+                show_legend = show_legend,
+                legend_text = legend_text,
+                background_color = background_color,
+                axis_text = axis_text,
+                axis_title = axis_title,
                 cow_n_col = cow_n_col,
                 cow_rel_h = cow_rel_h,
                 cow_rel_w = cow_rel_w,
                 cow_align = cow_align,
-                show_legend = show_legend,
                 show_plot = show_plot,
                 return_plot = return_plot,
                 save_plot = save_plot,
@@ -9003,6 +9117,7 @@ dimGenePlot = function(gobject,
 #' @param dim_reduction_name dimension reduction name
 #' @param dim1_to_use dimension to use on x-axis
 #' @param dim2_to_use dimension to use on y-axis
+#' @param dim_point_shape dim reduction points with border or not (border or no_border)
 #' @param dim_point_size dim reduction plot: point size
 #' @param dim_point_border_col color of border around points
 #' @param dim_point_border_stroke stroke size of border around points
@@ -9013,16 +9128,21 @@ dimGenePlot = function(gobject,
 #' @param scale_alpha_with_expression scale expression with ggplot alpha parameter
 #' @param spatial_network_name name of spatial network to use
 #' @param spatial_grid_name name of spatial grid to use
+#' @param spat_point_shape spatial points with border or not (border or no_border)
 #' @param spat_point_size spatial plot: point size
 #' @param spat_point_border_col color of border around points
 #' @param spat_point_border_stroke stroke size of border around points
 #' @param midpoint size of point (cell)
-#' @param point_size size of point (cell)
+#' @param show_legend show legend
+#' @param legend_text size of legend text
+#' @param dim_background_color color of plot background for dimension plot
+#' @param spat_background_color color of plot background for spatial plot
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
 #' @param cow_n_col cowplot param: how many columns
 #' @param cow_rel_h cowplot param: relative height
 #' @param cow_rel_w cowplot param: relative width
 #' @param cow_align cowplot param: how to align
-#' @param show_legend show legend
 #' @param show_plot show plots
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -9042,7 +9162,8 @@ spatDimGenePlot2D <- function(gobject,
                               dim_reduction_name = 'umap',
                               dim1_to_use = 1,
                               dim2_to_use = 2,
-                              point_size = 1,
+                              dim_point_shape = c('border', 'no_border'),
+                              dim_point_size = 1,
                               dim_point_border_col = 'black',
                               dim_point_border_stroke = 0.1,
                               show_NN_network = F,
@@ -9054,18 +9175,24 @@ spatDimGenePlot2D <- function(gobject,
                               scale_alpha_with_expression = FALSE,
                               spatial_network_name = 'spatial_network',
                               spatial_grid_name = 'spatial_grid',
+                              spat_point_shape = c('border', 'no_border'),
                               spat_point_size = 1,
                               spat_point_border_col = 'black',
                               spat_point_border_stroke = 0.1,
                               midpoint = 0,
                               genes_high_color = "red",
-                              genes_mid_color="white",
+                              genes_mid_color= "white",
                               genes_low_color = "blue",
                               cow_n_col = 2,
                               cow_rel_h = 1,
                               cow_rel_w = 1,
                               cow_align = 'h',
                               show_legend = T,
+                              legend_text = 8,
+                              dim_background_color = 'white',
+                              spat_background_color = 'white',
+                              axis_text = 8,
+                              axis_title = 8,
                               show_plot = NA,
                               return_plot = NA,
                               save_plot = NA,
@@ -9088,18 +9215,23 @@ spatDimGenePlot2D <- function(gobject,
                        network_color = network_color,
                        edge_alpha = edge_alpha,
                        scale_alpha_with_expression = scale_alpha_with_expression,
-                       point_size = point_size,
+                       point_shape = dim_point_shape,
+                       point_size = dim_point_size,
                        genes_high_color = genes_high_color,
-                       genes_mid_color=genes_mid_color,
+                       genes_mid_color= genes_mid_color,
                        genes_low_color = genes_low_color,
-                       point_border_col =dim_point_border_col,
-                       point_border_stroke =dim_point_border_stroke,
+                       point_border_col = dim_point_border_col,
+                       point_border_stroke = dim_point_border_stroke,
                        midpoint = midpoint,
+                       show_legend = show_legend,
+                       legend_text = legend_text,
+                       background_color = dim_background_color,
+                       axis_text = axis_text,
+                       axis_title = axis_title,
                        cow_n_col = cow_n_col,
                        cow_rel_h = cow_rel_h,
                        cow_rel_w = cow_rel_w,
                        cow_align = cow_align,
-                       show_legend = show_legend,
                        show_plot = FALSE,
                        return_plot = TRUE,
                        save_plot = FALSE)
@@ -9120,10 +9252,15 @@ spatDimGenePlot2D <- function(gobject,
                        spatial_grid_name = spatial_grid_name,
                        midpoint = midpoint,
                        scale_alpha_with_expression = scale_alpha_with_expression,
-                       point_size = point_size,
+                       point_shape = spat_point_shape,
+                       point_size = spat_point_size,
                        point_border_col =spat_point_border_col,
                        point_border_stroke = spat_point_border_stroke,
                        show_legend = show_legend,
+                       legend_text = legend_text,
+                       background_color = spat_background_color,
+                       axis_text = axis_text,
+                       axis_title = axis_title,
                        cow_n_col = cow_n_col,
                        cow_rel_h = cow_rel_h,
                        cow_rel_w = cow_rel_w,
@@ -9132,7 +9269,6 @@ spatDimGenePlot2D <- function(gobject,
                        return_plot = TRUE,
                        save_plot = FALSE)
 
-  print(plot_alignment)
 
   if(plot_alignment == 'vertical') {
     ncol = 1
@@ -9183,6 +9319,7 @@ spatDimGenePlot2D <- function(gobject,
 #' @param dim_reduction_name dimension reduction name
 #' @param dim1_to_use dimension to use on x-axis
 #' @param dim2_to_use dimension to use on y-axis
+#' @param dim_point_shape dimension points with border or not (border or no_border)
 #' @param dim_point_size dim reduction plot: point size
 #' @param dim_point_border_col color of border around points
 #' @param dim_point_border_stroke stroke size of border around points
@@ -9193,16 +9330,21 @@ spatDimGenePlot2D <- function(gobject,
 #' @param scale_alpha_with_expression scale expression with ggplot alpha parameter
 #' @param spatial_network_name name of spatial network to use
 #' @param spatial_grid_name name of spatial grid to use
+#' @param spat_point_shape spatial points with border or not (border or no_border)
 #' @param spat_point_size spatial plot: point size
 #' @param spat_point_border_col color of border around points
 #' @param spat_point_border_stroke stroke size of border around points
 #' @param midpoint size of point (cell)
-#' @param point_size size of point (cell)
+#' @param show_legend show legend
+#' @param legend_text size of legend text
+#' @param dim_background_color color of plot background for dimension plot
+#' @param spat_background_color color of plot background for spatial plot
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
 #' @param cow_n_col cowplot param: how many columns
 #' @param cow_rel_h cowplot param: relative height
 #' @param cow_rel_w cowplot param: relative width
 #' @param cow_align cowplot param: how to align
-#' @param show_legend show legend
 #' @param show_plot show plots
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -9222,7 +9364,8 @@ spatDimGenePlot = function(gobject,
                            dim_reduction_name = 'umap',
                            dim1_to_use = 1,
                            dim2_to_use = 2,
-                           point_size = 1,
+                           dim_point_shape = c('border', 'no_border'),
+                           dim_point_size = 1,
                            dim_point_border_col = 'black',
                            dim_point_border_stroke = 0.1,
                            show_NN_network = F,
@@ -9234,6 +9377,7 @@ spatDimGenePlot = function(gobject,
                            scale_alpha_with_expression = FALSE,
                            spatial_network_name = 'spatial_network',
                            spatial_grid_name = 'spatial_grid',
+                           spat_point_shape = c('border', 'no_border'),
                            spat_point_size = 1,
                            spat_point_border_col = 'black',
                            spat_point_border_stroke = 0.1,
@@ -9241,11 +9385,16 @@ spatDimGenePlot = function(gobject,
                            genes_high_color = "red",
                            genes_mid_color="white",
                            genes_low_color = "blue",
+                           show_legend = T,
+                           legend_text = 8,
+                           dim_background_color = 'white',
+                           spat_background_color = 'white',
+                           axis_text = 8,
+                           axis_title = 8,
                            cow_n_col = 2,
                            cow_rel_h = 1,
                            cow_rel_w = 1,
                            cow_align = 'h',
-                           show_legend = T,
                            show_plot = NA,
                            return_plot = NA,
                            save_plot = NA,
@@ -9260,7 +9409,8 @@ spatDimGenePlot = function(gobject,
                     dim_reduction_name = dim_reduction_name,
                     dim1_to_use = dim1_to_use,
                     dim2_to_use = dim2_to_use,
-                    point_size = point_size,
+                    dim_point_shape = dim_point_shape,
+                    dim_point_size = dim_point_size,
                     dim_point_border_col = dim_point_border_col,
                     dim_point_border_stroke = dim_point_border_stroke,
                     show_NN_network = show_NN_network,
@@ -9272,6 +9422,7 @@ spatDimGenePlot = function(gobject,
                     scale_alpha_with_expression = scale_alpha_with_expression,
                     spatial_network_name = spatial_network_name,
                     spatial_grid_name = spatial_grid_name,
+                    spat_point_shape = spat_point_shape,
                     spat_point_size = spat_point_size,
                     spat_point_border_col = spat_point_border_col,
                     spat_point_border_stroke = spat_point_border_stroke,
@@ -9279,11 +9430,16 @@ spatDimGenePlot = function(gobject,
                     genes_high_color = genes_high_color,
                     genes_mid_color = genes_mid_color,
                     genes_low_color = genes_low_color,
+                    show_legend = show_legend,
+                    legend_text = legend_text,
+                    dim_background_color = dim_background_color,
+                    spat_background_color = spat_background_color,
+                    axis_text = axis_text,
+                    axis_title = axis_title,
                     cow_n_col = cow_n_col,
                     cow_rel_h = cow_rel_h,
                     cow_rel_w = cow_rel_w,
                     cow_align = cow_align,
-                    show_legend = show_legend,
                     show_plot = show_plot,
                     return_plot = return_plot,
                     save_plot = save_plot,
@@ -9311,6 +9467,7 @@ spatDimGenePlot = function(gobject,
 #' @param gradient_limits vector with lower and upper limits
 #' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
 #' @param select_cells select subset of cells based on cell IDs
+#' @param point_shape point with border or not (border or no_border)
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
@@ -9357,6 +9514,7 @@ spatCellPlot2D = function(gobject,
                           gradient_limits = NULL,
                           select_cell_groups = NULL,
                           select_cells = NULL,
+                          point_shape = c('border', 'no_border'),
                           point_size = 3,
                           point_border_col = 'black',
                           point_border_stroke = 0.1,
@@ -9431,6 +9589,7 @@ spatCellPlot2D = function(gobject,
                     gradient_limits = gradient_limits,
                     select_cell_groups = select_cell_groups,
                     select_cells = select_cells,
+                    point_shape = point_shape,
                     point_size = point_size,
                     point_border_col = point_border_col,
                     point_border_stroke = point_border_stroke,
@@ -9511,6 +9670,7 @@ spatCellPlot2D = function(gobject,
 #' @param gradient_limits vector with lower and upper limits
 #' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
 #' @param select_cells select subset of cells based on cell IDs
+#' @param point_shape point with border or not (border or no_border)
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
@@ -9557,6 +9717,7 @@ spatCellPlot = function(gobject,
                         gradient_limits = NULL,
                         select_cell_groups = NULL,
                         select_cells = NULL,
+                        point_shape = c('border', 'no_border'),
                         point_size = 3,
                         point_border_col = 'black',
                         point_border_stroke = 0.1,
@@ -9605,6 +9766,7 @@ spatCellPlot = function(gobject,
                  gradient_limits = gradient_limits,
                  select_cell_groups = select_cell_groups,
                  select_cells = select_cells,
+                 point_shape = point_shape,
                  point_size = point_size,
                  point_border_col = point_border_col,
                  point_border_stroke = point_border_stroke,
@@ -9679,6 +9841,7 @@ spatCellPlot = function(gobject,
 #' @param label_size  size of labels
 #' @param label_fontface font of labels
 #' @param edge_alpha column to use for alpha of the edges
+#' @param point_shape point with border or not (border or no_border)
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
@@ -9725,6 +9888,7 @@ dimCellPlot2D = function(gobject,
                          label_size = 4,
                          label_fontface = 'bold',
                          edge_alpha = NULL,
+                         point_shape = c('border', 'no_border'),
                          point_size = 1,
                          point_border_col = 'black',
                          point_border_stroke = 0.1,
@@ -9794,6 +9958,7 @@ dimCellPlot2D = function(gobject,
                    label_size = label_size,
                    label_fontface = label_fontface,
                    edge_alpha = edge_alpha,
+                   point_shape = point_shape,
                    point_size = point_size,
                    point_border_col = point_border_col,
                    point_border_stroke = point_border_stroke,
@@ -9879,6 +10044,7 @@ dimCellPlot2D = function(gobject,
 #' @param label_size  size of labels
 #' @param label_fontface font of labels
 #' @param edge_alpha column to use for alpha of the edges
+#' @param point_shape point with border or not (border or no_border)
 #' @param point_size size of point (cell)
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
@@ -9925,6 +10091,7 @@ dimCellPlot = function(gobject,
                        label_size = 4,
                        label_fontface = 'bold',
                        edge_alpha = NULL,
+                       point_shape = c('border', 'no_border'),
                        point_size = 1,
                        point_border_col = 'black',
                        point_border_stroke = 0.1,
@@ -9970,6 +10137,7 @@ dimCellPlot = function(gobject,
                 label_size = label_size,
                 label_fontface = label_fontface,
                 edge_alpha = edge_alpha,
+                point_shape = point_shape,
                 point_size = point_size,
                 point_border_col = point_border_col,
                 point_border_stroke = point_border_stroke,
@@ -10012,9 +10180,11 @@ dimCellPlot = function(gobject,
 #' @param gradient_limits vector with lower and upper limits
 #' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
 #' @param select_cells select subset of cells based on cell IDs
+#' @param dim_point_shape dim reduction points with border or not (border or no_border)
 #' @param dim_point_size size of points in dim. reduction space
 #' @param dim_point_border_col border color of points in dim. reduction space
 #' @param dim_point_border_stroke border stroke of points in dim. reduction space
+#' @param spat_point_shape spatial points with border or not (border or no_border)
 #' @param spat_point_size size of spatial points
 #' @param spat_point_border_col border color of spatial points
 #' @param spat_point_border_stroke border stroke of spatial points
@@ -10082,9 +10252,11 @@ spatDimCellPlot2D <- function(gobject,
                               gradient_limits = NULL,
                               select_cell_groups = NULL,
                               select_cells = NULL,
+                              dim_point_shape = c('border', 'no_border'),
                               dim_point_size = 1,
                               dim_point_border_col = 'black',
                               dim_point_border_stroke = 0.1,
+                              spat_point_shape = c('border', 'no_border'),
                               spat_point_size = 1,
                               spat_point_border_col = 'black',
                               spat_point_border_stroke = 0.1,
@@ -10118,11 +10290,6 @@ spatDimCellPlot2D <- function(gobject,
                               dim_other_point_size = 0.5,
                               spat_other_point_size = 0.5,
                               spat_other_cells_alpha = 0.5,
-                              coord_fix_ratio = NULL,
-                              cow_n_col = 2,
-                              cow_rel_h = 1,
-                              cow_rel_w = 1,
-                              cow_align = 'h',
                               show_legend = T,
                               legend_text = 8,
                               legend_symbol_size = 1,
@@ -10130,6 +10297,11 @@ spatDimCellPlot2D <- function(gobject,
                               spat_background_color = 'white',
                               axis_text = 8,
                               axis_title = 8,
+                              coord_fix_ratio = NULL,
+                              cow_n_col = 2,
+                              cow_rel_h = 1,
+                              cow_rel_w = 1,
+                              cow_align = 'h',
                               show_plot = NA,
                               return_plot = NA,
                               save_plot = NA,
@@ -10151,6 +10323,7 @@ spatDimCellPlot2D <- function(gobject,
                        gradient_limits = gradient_limits,
                        select_cell_groups = select_cell_groups,
                        select_cells = select_cells,
+                       point_shape = dim_point_shape,
                        point_size = dim_point_size,
                        point_border_col = dim_point_border_col,
                        point_border_stroke = dim_point_border_stroke,
@@ -10193,6 +10366,7 @@ spatDimCellPlot2D <- function(gobject,
                        gradient_limits = gradient_limits,
                        select_cell_groups = select_cell_groups,
                        select_cells = select_cells,
+                       point_shape = spat_point_shape,
                        point_size = spat_point_size,
                        point_border_col = spat_point_border_col,
                        point_border_stroke = spat_point_border_stroke,
@@ -10229,7 +10403,6 @@ spatDimCellPlot2D <- function(gobject,
                        return_plot = TRUE,
                        save_plot = FALSE)
 
-  print(plot_alignment)
 
   if(plot_alignment == 'vertical') {
     ncol = 1
@@ -10284,9 +10457,11 @@ spatDimCellPlot2D <- function(gobject,
 #' @param gradient_limits vector with lower and upper limits
 #' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
 #' @param select_cells select subset of cells based on cell IDs
+#' @param dim_point_shape spatial points with border or not (border or no_border)
 #' @param dim_point_size size of points in dim. reduction space
 #' @param dim_point_border_col border color of points in dim. reduction space
 #' @param dim_point_border_stroke border stroke of points in dim. reduction space
+#' @param spat_point_shape spatial points with border or not (border or no_border)
 #' @param spat_point_size size of spatial points
 #' @param spat_point_border_col border color of spatial points
 #' @param spat_point_border_stroke border stroke of spatial points
@@ -10317,11 +10492,6 @@ spatDimCellPlot2D <- function(gobject,
 #' @param dim_other_point_size size of not selected dim cells
 #' @param spat_other_point_size size of not selected spat cells
 #' @param spat_other_cells_alpha alpha of not selected spat cells
-#' @param coord_fix_ratio ratio for coordinates
-#' @param cow_n_col cowplot param: how many columns
-#' @param cow_rel_h cowplot param: relative height
-#' @param cow_rel_w cowplot param: relative width
-#' @param cow_align cowplot param: how to align
 #' @param show_legend show legend
 #' @param legend_text size of legend text
 #' @param legend_symbol_size size of legend symbols
@@ -10329,6 +10499,11 @@ spatDimCellPlot2D <- function(gobject,
 #' @param spat_background_color background color of spatial points
 #' @param axis_text size of axis text
 #' @param axis_title size of axis title
+#' @param coord_fix_ratio ratio for coordinates
+#' @param cow_n_col cowplot param: how many columns
+#' @param cow_rel_h cowplot param: relative height
+#' @param cow_rel_w cowplot param: relative width
+#' @param cow_align cowplot param: how to align
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -10354,9 +10529,11 @@ spatDimCellPlot = function(gobject,
                            gradient_limits = NULL,
                            select_cell_groups = NULL,
                            select_cells = NULL,
+                           dim_point_shape = c('border', 'no_border'),
                            dim_point_size = 1,
                            dim_point_border_col = 'black',
                            dim_point_border_stroke = 0.1,
+                           spat_point_shape = c('border', 'no_border'),
                            spat_point_size = 1,
                            spat_point_border_col = 'black',
                            spat_point_border_stroke = 0.1,
@@ -10423,9 +10600,11 @@ spatDimCellPlot = function(gobject,
                     gradient_limits = gradient_limits,
                     select_cell_groups = select_cell_groups,
                     select_cells = select_cells,
+                    dim_point_shape = dim_point_shape,
                     dim_point_size = dim_point_size,
                     dim_point_border_col = dim_point_border_col,
                     dim_point_border_stroke = dim_point_border_stroke,
+                    spat_point_shape = spat_point_shape,
                     spat_point_size = spat_point_size,
                     spat_point_border_col = spat_point_border_col,
                     spat_point_border_stroke = spat_point_border_stroke,
@@ -10478,6 +10657,9 @@ spatDimCellPlot = function(gobject,
                     default_save_name = default_save_name)
 
 }
+
+
+
 
 
 

@@ -13,7 +13,8 @@ spatDimGenePlot2D(
   dim_reduction_name = "umap",
   dim1_to_use = 1,
   dim2_to_use = 2,
-  point_size = 1,
+  dim_point_shape = c("border", "no_border"),
+  dim_point_size = 1,
   dim_point_border_col = "black",
   dim_point_border_stroke = 0.1,
   show_NN_network = F,
@@ -25,6 +26,7 @@ spatDimGenePlot2D(
   scale_alpha_with_expression = FALSE,
   spatial_network_name = "spatial_network",
   spatial_grid_name = "spatial_grid",
+  spat_point_shape = c("border", "no_border"),
   spat_point_size = 1,
   spat_point_border_col = "black",
   spat_point_border_stroke = 0.1,
@@ -37,6 +39,11 @@ spatDimGenePlot2D(
   cow_rel_w = 1,
   cow_align = "h",
   show_legend = T,
+  legend_text = 8,
+  dim_background_color = "white",
+  spat_background_color = "white",
+  axis_text = 8,
+  axis_title = 8,
   show_plot = NA,
   return_plot = NA,
   save_plot = NA,
@@ -61,7 +68,9 @@ spatDimGenePlot2D(
 
 \item{dim2_to_use}{dimension to use on y-axis}
 
-\item{point_size}{size of point (cell)}
+\item{dim_point_shape}{dim reduction points with border or not (border or no_border)}
+
+\item{dim_point_size}{dim reduction plot: point size}
 
 \item{dim_point_border_col}{color of border around points}
 
@@ -81,6 +90,8 @@ spatDimGenePlot2D(
 
 \item{spatial_grid_name}{name of spatial grid to use}
 
+\item{spat_point_shape}{spatial points with border or not (border or no_border)}
+
 \item{spat_point_size}{spatial plot: point size}
 
 \item{spat_point_border_col}{color of border around points}
@@ -99,6 +110,16 @@ spatDimGenePlot2D(
 
 \item{show_legend}{show legend}
 
+\item{legend_text}{size of legend text}
+
+\item{dim_background_color}{color of plot background for dimension plot}
+
+\item{spat_background_color}{color of plot background for spatial plot}
+
+\item{axis_text}{size of axis text}
+
+\item{axis_title}{size of axis title}
+
 \item{show_plot}{show plots}
 
 \item{return_plot}{return ggplot object}
@@ -108,8 +129,6 @@ spatDimGenePlot2D(
 \item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-
-\item{dim_point_size}{dim reduction plot: point size}
 }
 \value{
 ggplot
