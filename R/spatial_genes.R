@@ -1443,11 +1443,11 @@ detectSpatialCorGenes <- function(gobject,
   ## spatial averaging or smoothing
   if(method == 'grid') {
 
-    loc_av_expr_matrix = do_spatial_grid_averaging(gobject = gobject,
-                                                   expression_values = expression_values,
-                                                   subset_genes = subset_genes,
-                                                   spatial_grid_name = spatial_grid_name,
-                                                   min_cells_per_grid = min_cells_per_grid)
+    loc_av_expr_matrix = Giotto:::do_spatial_grid_averaging(gobject = gobject,
+                                                            expression_values = expression_values,
+                                                            subset_genes = subset_genes,
+                                                            spatial_grid_name = spatial_grid_name,
+                                                            min_cells_per_grid = min_cells_per_grid)
 
     cor_spat_matrix = stats::cor(t(loc_av_expr_matrix), method = cor_method)
     cor_spat_matrixDT = as.data.table(cor_spat_matrix)
@@ -1458,11 +1458,11 @@ detectSpatialCorGenes <- function(gobject,
 
   if(method == 'network') {
 
-    knn_av_expr_matrix = do_spatial_knn_smoothing(gobject = gobject,
-                                                  expression_values = expression_values,
-                                                  subset_genes = subset_genes,
-                                                  spatial_network_name = spatial_network_name,
-                                                  b = network_smoothing)
+    knn_av_expr_matrix = Giotto:::do_spatial_knn_smoothing(gobject = gobject,
+                                                           expression_values = expression_values,
+                                                           subset_genes = subset_genes,
+                                                           spatial_network_name = spatial_network_name,
+                                                           b = network_smoothing)
 
     cor_spat_matrix = stats::cor(t(knn_av_expr_matrix), method = cor_method)
     cor_spat_matrixDT = as.data.table(cor_spat_matrix)
@@ -1491,8 +1491,8 @@ detectSpatialCorGenes <- function(gobject,
   doubleDT[, cordiff := spat_cor - expr_cor]
 
   # difference in rank scores
-  doubleDT[, spatrank := frank(spat_cor, ties.method = 'first'), by = gene_ID]
-  doubleDT[, exprrank := frank(expr_cor, ties.method = 'first'), by = gene_ID]
+  doubleDT[, spatrank := frank(-spat_cor, ties.method = 'first'), by = gene_ID]
+  doubleDT[, exprrank := frank(-expr_cor, ties.method = 'first'), by = gene_ID]
   doubleDT[, rankdiff := spatrank - exprrank]
 
   # sort data
@@ -1508,6 +1508,7 @@ detectSpatialCorGenes <- function(gobject,
   return(spatCorObject)
 
 }
+
 
 
 
