@@ -187,6 +187,7 @@ stitchFieldCoordinates <- function(location_file,
 #' @title get10Xmatrix
 #' @description This function creates an expression matrix from a 10X structured folder
 #' @param path_to_data path to the 10X folder
+#' @param row_ids row ids to use (gene symbols or ensembl ids)
 #' @return expression matrix from 10X
 #' @details A typical 10X folder is named raw_feature_bc_matrix or raw_feature_bc_matrix. It has 3 files:
 #' \itemize{
@@ -197,7 +198,9 @@ stitchFieldCoordinates <- function(location_file,
 #' @export
 #' @examples
 #'     get10Xmatrix(10Xmatrix)
-get10Xmatrix = function(path_to_data) {
+get10Xmatrix = function(path_to_data, row_ids = c('gene_symbols', 'ensembl_ids')) {
+
+  row_ids = match.arg(row_ids, c('gene_symbols', 'ensembl_ids'))
 
   # data directory
   files_10X = list.files(path_to_data)
@@ -211,8 +214,17 @@ get10Xmatrix = function(path_to_data) {
   # get features and create vector
   features_file = grep(files_10X, pattern = 'features', value = T)
   featuresDT = fread(input = paste0(path_to_data,'/',features_file), header = F)
-  features_vec = featuresDT$V1
-  names(features_vec) = 1:nrow(featuresDT)
+
+  if(row_ids == 'gene_symbols') {
+    featuresDT[, total := .N, by = V2]
+    featuresDT[, gene_symbol := ifelse(total > 1, paste0(V2,'--',1:.N), V2), by = V2]
+    features_vec = featuresDT$gene_symbol
+    names(features_vec) = 1:nrow(featuresDT)
+  } else if(row_ids == 'ensembl_ids') {
+    features_vec = featuresDT$V1
+    names(features_vec) = 1:nrow(featuresDT)
+
+  }
 
   # get matrix
   matrix_file = grep(files_10X, pattern = 'matrix', value = T)
@@ -225,7 +237,7 @@ get10Xmatrix = function(path_to_data) {
 
   # create a final matrix
   matrix_ab = data.table::dcast.data.table(data = matrixDT, gene_id~cell_id, value.var = 'umi')
-  matrix_ab_mat = dt_to_matrix(matrix_ab)
+  matrix_ab_mat = Giotto:::dt_to_matrix(matrix_ab)
   matrix_ab_mat[is.na(matrix_ab_mat)] = 0
 
   return(matrix_ab_mat)
