@@ -223,7 +223,6 @@ get10Xmatrix = function(path_to_data, row_ids = c('gene_symbols', 'ensembl_ids')
   } else if(row_ids == 'ensembl_ids') {
     features_vec = featuresDT$V1
     names(features_vec) = 1:nrow(featuresDT)
-
   }
 
   # get matrix

@@ -4,10 +4,12 @@
 \alias{get10Xmatrix}
 \title{get10Xmatrix}
 \usage{
-get10Xmatrix(path_to_data)
+get10Xmatrix(path_to_data, row_ids = c("gene_symbols", "ensembl_ids"))
 }
 \arguments{
 \item{path_to_data}{path to the 10X folder}
+
+\item{row_ids}{row ids to use (gene symbols or ensembl ids)}
 }
 \value{
 expression matrix from 10X
