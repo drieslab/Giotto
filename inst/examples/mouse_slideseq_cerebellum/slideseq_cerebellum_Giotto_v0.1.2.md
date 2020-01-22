@@ -39,16 +39,21 @@ expr_mat = as.matrix(expr_matrix[,-1]);rownames(expr_mat) = expr_matrix$Row
 
 ``` r
 Slide_test <- createGiottoObject(raw_exprs = expr_mat, spatial_locs = bead_positions[,.(xcoord, ycoord)])
-filterDistributions(Slide_test, detection = 'genes', nr_bins = 100, scale_axis = 'log2')
-filterDistributions(Slide_test, detection = 'cells', nr_bins = 100, scale_axis = 'log2')
-filterCombinations(Slide_test, expression_thresholds = c(1, 1), gene_det_in_min_cells = c(10, 20), min_det_genes_per_cell = c(100, 200))
+filterCombinations(Slide_test, expression_thresholds = c(1, 1), gene_det_in_min_cells = c(20, 20, 20), min_det_genes_per_cell = c(20, 32, 100))
+```
 
-# spatial data before filtering
-visPlot(gobject = Slide_test)
+![](./figures/slideseq.filterComb.png)
 
-Slide_test <- filterGiotto(gobject = Slide_test,
-                           gene_det_in_min_cells = 30,
-                           min_det_genes_per_cell = 150)
+
+``` r
+#slideseq before filtering
+visPlot(gobject = Slide_test, point_size=0.5)
+```
+
+![](./figures/slideseq.2.visPlot.png)
+
+``` r
+Slide_test<-filterGiotto(gobject=Slide_test, gene_det_in_min_cells=20, min_det_genes_per_cell=20)
 
 # remove mt-genes and blood genes (contamination)
 non_mito_genes = grep(pattern = 'mt-', Slide_test@gene_ID, value = T, invert = T)
@@ -56,59 +61,55 @@ non_mito_or_blood_genes = grep(pattern = 'Hb[ab]', non_mito_genes, value = T, in
 
 Slide_test = subsetGiotto(gobject = Slide_test, gene_ids = non_mito_or_blood_genes)
 
-## normalize & adjust
+#slideseq after filtering
+visPlot(gobject = Slide_test, point_size=0.5)
+```
+
+![](./figures/slideseq.3.visplot.png)
+
+``` r
+dim(Slide_test@raw_exprs)
 Slide_test <- normalizeGiotto(gobject = Slide_test, scalefactor = 10000, verbose = T)
 Slide_test <- addStatistics(gobject = Slide_test)
-Slide_test <- adjustGiottoMatrix(gobject = Slide_test, expression_values = c('normalized'),
-                                batch_columns = NULL, covariate_columns = c('nr_genes', 'total_expr'),
-                                return_gobject = TRUE,
-                                update_slot = c('custom'))
-
-# spatial data after filtering
-visPlot(gobject = Slide_test)
+Slide_test <- calculateHVG(gobject = Slide_test, method = 'cov_groups', zscore_threshold = 0.5, nr_expression_groups = 10)
 ```
+Highly variable genes 
+![](./figures/slideseq.calculateHVG.png)
 
-Slide-seq data before filter steps: ![](./figures/1_before_filter.png)
-
-Slide-seq data after filter steps: ![](./figures/1_after_filter.png)
-
-</details>
-
-### 2\. dimension reduction
-
-<details>
-
-<summary>Expand</summary>  
 
 ``` r
-Slide_test <- calculateHVG(gobject = Slide_test, method = 'cov_groups', 
-                           zscore_threshold = 0.5, nr_expression_groups = 10)
 gene_metadata = fDataDT(Slide_test)
-featgenes = gene_metadata[hvg == 'yes' & perc_cells > 0.5 & mean_expr_det > 1]$gene_ID
 
-# PCA
-Slide_test <- runPCA(gobject = Slide_test,
-                     expression_values = 'custom', genes_to_use = featgenes,
-                     scale_unit = F)
+#filter by HVG
+featgenes = gene_metadata[hvg == 'yes' & perc_cells > 0.5 & mean_expr_det > 1]$gene_ID
+featgenes
+featgenes = gene_metadata[hvg == 'yes']$gene_ID
+featgenes
+
+#adjust matrix to make sure technical artifacts (library size, total_expr) are removed
+Slide_test <- adjustGiottoMatrix(gobject = Slide_test, expression_values = c('normalized'), batch_columns = NULL, covariate_columns = c('nr_genes', 'total_expr'),  return_gobject = TRUE, update_slot = c('custom'))
+
+#Run PCA analysis
+Slide_test <- runPCA(gobject = Slide_test, expression_values = 'custom', genes_to_use = featgenes, scale_unit = F)
 signPCA(Slide_test, genes_to_use = featgenes, scale_unit = F, scree_ylim = c(0,0.3))
-plotPCA(gobject = Slide_test)
+plotPCA(gobject=Slide_test)
 ```
 
-![](./figures/2_PCA_screeplot.png) ![](./figures/2_PCA_reduction.png)
+![](./figures/slideseq.plotPCA.png) ![](./figures/slideseq.signPCA.png)
 
 ``` r
-# UMAP
-Slide_test <- runUMAP(Slide_test, dimensions_to_use = 1:9, n_components = 2, n_threads = 4)
-plotUMAP(gobject = Slide_test)
+#run UMAP
+Slide_test <- runUMAP(Slide_test, dimensions_to_use=1:9, n_components=2)
+plotUMAP(gobject=Slide_test, point_size=1)
 ```
 
-![](./figures/2_UMAP_reduction.png)
+![](./figures/slideseq.umap.1.png)
 
 -----
 
 </details>
 
-### 3\. cluster
+### 3\. Clustering and differential expression 
 
 <details>
 
@@ -119,152 +120,69 @@ plotUMAP(gobject = Slide_test)
 Slide_test <- createNearestNetwork(gobject = Slide_test, dimensions_to_use = 1:9, k = 20)
 
 ## Leiden clustering
-## 0.2 resolution
-Slide_test <- doLeidenCluster(gobject = Slide_test, resolution = 0.2, n_iterations = 500,
-                             name = 'leiden_0.2',
-                             python_path = "/Users/rubendries/Bin/anaconda3/envs/py36/bin/python")
+## 0.5 resolution
+Slide_test<-doLeidenCluster(gobject=Slide_test, resolution=0.5, n_iterations=10, name="leiden", python_path="/n/app/python/3.6.0/bin/python3")
 
-plotUMAP(gobject = Slide_test,
-         cell_color = 'leiden_0.2', 
-         point_size = 1.5,
-         plot_method = "ggplot",
-         show_NN_network = F, 
-         edge_alpha = 0.05)
-showClusterHeatmap(gobject = Slide_test, cluster_column = 'leiden_0.2')
-showClusterDendrogram(Slide_test, cluster_column = 'leiden_0.2')
+plotUMAP(gobject=Slide_test, cell_color="leiden", point_size=1, plot_method="ggplot")
 ```
 
-![](./figures/3_UMAP_leiden.png)
 
-![](./figures/3_heatmap_leiden_clusters.png)
+![](./figures/slideseq.umap.2.png)
 
-![](./figures/3_dendrogram_leiden_clusters.png)
+``` r
+#find markers per cluster
+markers_scarn=findMarkers_one_vs_all(gobject=Slide_test, method="scran", expression_values="normalized", cluster_column="leiden", min_genes=5)
+markergenes_scran = unique(markers_scarn[, head(.SD, 8), by="cluster_ID"][["gene_ID"]])
+plotMetaDataHeatmap(Slide_test, expression_values="normalized", metadata_cols=c("leiden"), selected_genes=markergenes_scran)
+```
+
+![](./figures/slideseq.plotmetadataheatmap.normalized.png)
+
+``` r
+plotMetaDataHeatmap(Slide_test, expression_values="custom", metadata_cols=c("leiden"), selected_genes=markergenes_scran)
+```
+![](./figures/slideseq.plotmetadataheatmap.custom.png)
 
 -----
 
 </details>
 
-### 4\. co-visualize
+### 4\. Co-visualize
 
 <details>
 
 <summary>Expand</summary>  
 
 ``` r
-# co-visualization
-visSpatDimPlot(gobject = Slide_test, plot_method = 'ggplot',
-               sdimx = 'sdimx', sdimy = 'sdimy',
-               cell_color = 'leiden_0.2',
-               spatial_point_size = 1.5,
-               dim_point_size = 1.5,
-               show_NN_network = F)
+#not available
 ```
-
-Co-visualzation: ![](./figures/4_covisual_leiden.png)
 
 -----
 
 </details>
 
-### 5\. differential expression
+
+### 6\. Cell-type annotation
 
 <details>
 
 <summary>Expand</summary>  
 
 ``` r
-# markers with scran
-markers_scran = findMarkers_one_vs_all(gobject = Slide_test,
-                                 method = 'scran',
-                                 expression_values = 'normalized',
-                                 cluster_column = 'leiden_0.2',
-                                 min_genes = 5, rank_score = 2)
-
-# markers with gini
-markers_gini = findMarkers_one_vs_all(gobject = Slide_test,
-                                       method = 'gini',
-                                       expression_values = 'normalized',
-                                       cluster_column = 'leiden_0.2',
-                                       min_genes = 5, rank_score = 2)
-
-# cluster heatmap with combined markers
-markergenes_scran = unique(markers_scran[, head(.SD, 4), by = 'cluster_ID'][['gene_ID']])
-markergenes_gini = unique(markers_gini[, head(.SD, 4), by = 'cluster'][['genes']])
-
-plotMetaDataHeatmap(Slide_test,
-                    selected_genes = unique(c(markergenes_scran, markergenes_gini)),
-                    expression_values = 'scaled',
-                    metadata_cols = c('leiden_0.2'))
+#not available at this time
 ```
-
-cluster heatmap: ![](./figures/5_DEG_heatmap_clusters.png)
-
 -----
 
 </details>
 
-### 6\. cell-type annotation
+### 7\. Spatial grid
 
 <details>
 
 <summary>Expand</summary>  
 
 ``` r
-## create vector with names
-clusters_cerebellum = c('Granule', 'Oligo', 'Purkinje', 'Astrocyte', 'Oligo_mature', 'OPC')
-names(clusters_cerebellum) = 1:6
-Slide_test = annotateGiotto(gobject = Slide_test, annotation_vector = clusters_cerebellum,
-                          cluster_column = 'leiden_0.2', name = 'cell_types')
-
-# all cell types
-visSpatDimPlot(gobject = Slide_test, cell_color = 'cell_types', sdimx = 'sdimx', sdimy = 'sdimy',
-               dim_point_size = 2, spatial_point_size = 2)
-
-# only Granule cells
-visSpatDimPlot(gobject = Slide_test, plot_method = 'ggplot',
-               sdimx = 'sdimx', sdimy = 'sdimy',
-               cell_color = 'cell_types',
-               spatial_point_size = 1.5,
-               dim_point_size = 1.5,
-               show_NN_network = F,
-               select_cell_groups = c('Granule'))
-
-# only Purkinje cells
-visSpatDimPlot(gobject = Slide_test, plot_method = 'ggplot',
-               sdimx = 'sdimx', sdimy = 'sdimy',
-               cell_color = 'cell_types',
-               spatial_point_size = 1.5,
-               dim_point_size = 1.5,
-               show_NN_network = F,
-               select_cell_groups = c('Purkinje'))
-
-# only Oligodendrocytes
-visSpatDimPlot(gobject = Slide_test, plot_method = 'ggplot',
-               sdimx = 'sdimx', sdimy = 'sdimy',
-               cell_color = 'cell_types',
-               spatial_point_size = 1.5,
-               dim_point_size = 1.5,
-               show_NN_network = F,
-               select_cell_groups = c('Oligo'))
-```
-
-![](./figures/6_annotation_cell_types.png)
-![](./figures/6_annotation_cell_types_Granule.png)
-![](./figures/6_annotation_cell_types_Purkinje.png)
-![](./figures/6_annotation_cell_types_Oligo.png)
-
------
-
-</details>
-
-### 7\. spatial grid
-
-<details>
-
-<summary>Expand</summary>  
-
-``` r
-## spatial grid
+## Spatial grid
 Slide_test <- createSpatialGrid(gobject = Slide_test,
                               sdimx_stepsize = 200,
                               sdimy_stepsize = 200,
@@ -302,7 +220,7 @@ pattern 2: ![](./figures/7_pattern2_pca.png)
 
 </details>
 
-### 8\. spatial network
+### 8\. Spatial network
 
 <details>
 
@@ -310,41 +228,28 @@ pattern 2: ![](./figures/7_pattern2_pca.png)
 
 ``` r
 # network
-Slide_test <- createSpatialNetwork(gobject = Slide_test, k = 5)
-visPlot(gobject = Slide_test, show_network = T,
-        sdimx = "sdimx",sdimy = "sdimy",
-        network_color = 'blue', spatial_network_name = 'spatial_network',
-        point_size = 1, cell_color = 'cell_types')
+Slide_test<-createSpatialNetwork(gobject=Slide_test, k=7, maximum_distance=100, minimum_k=1)
+visPlot(gobject=Slide_test, show_network=T, sdimx="sdimx", sdimy="sdimy", point_size=1, network_color="blue")
 ```
 
-![](./figures/8_spatial_network_k5.png)
+![](./figures/slideseq.createspatialnetwork.k7.png)
 
-``` r
-# distance restricted
-Slide_test <- createSpatialNetwork(gobject = Slide_test, k = 5, maximum_distance = 100, name = 'res_spatial_network')
-visPlot(gobject = Slide_test, show_network = T,
-        sdimx = "sdimx",sdimy = "sdimy",
-        network_color = 'blue', spatial_network_name = 'res_spatial_network',
-        point_size = 1, cell_color = 'cell_types')
-```
-
-![](./figures/8_spatial_network_k5_restricted.png)
 
 -----
 
 </details>
 
-### 9\. spatial genes
+### 9\. Spatial genes
 
 <details>
 
 <summary>Expand</summary>  
 
 ``` r
-ranktest = binGetSpatialGenes(Slide_test, bin_method = 'rank',
-                              do_fisher_test = F, community_expectation = 5,
-                              spatial_network_name = 'res_spatial_network', verbose = T)
-ranktest[N > 100]
+spatial_genes<-calculate_spatial_genes_python(gobject=Slide_test, expression_values="scaled", python_path="/n/app/python/3.6.0/bin/python3", rbp_p=0.99, examine_top=0.1)
+
+spatial_genes_0_95<-calculate_spatial_genes_python(gobject=Slide_test, expression_values="scaled", python_path="/n/app/python/3.6.0/bin/python3", rbp_p=0.95, examine_top=0.1)
+
 visGenePlot(Slide_test, plot_method = 'ggplot', expression_values = 'scaled',
             genes = c('Aldoc', 'Pcp4', 'Nnat'), point_size = 2,
             cow_n_col = 3, scale_alpha_with_expression = F,
