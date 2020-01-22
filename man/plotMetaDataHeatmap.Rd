@@ -4,17 +4,31 @@
 \alias{plotMetaDataHeatmap}
 \title{plotMetaDataHeatmap}
 \usage{
-plotMetaDataHeatmap(gobject, expression_values = c("normalized",
-  "scaled", "custom"), metadata_cols = NULL, selected_genes = NULL,
-  first_meta_col = NULL, second_meta_col = NULL,
+plotMetaDataHeatmap(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  metadata_cols = NULL,
+  selected_genes = NULL,
+  first_meta_col = NULL,
+  second_meta_col = NULL,
   show_values = c("zscores", "original", "zscores_rescaled"),
-  custom_cluster_order = NULL, clus_cor_method = "pearson",
-  clus_cluster_method = "complete", custom_gene_order = NULL,
-  gene_cor_method = "pearson", gene_cluster_method = "complete",
-  midpoint = 0, x_text_size = 8, x_text_angle = 45,
-  y_text_size = 8, strip_text_size = 8, show_plot = NA,
-  return_plot = NA, save_plot = NA, save_param = list(),
-  default_save_name = "plotMetaDataHeatmap")
+  custom_cluster_order = NULL,
+  clus_cor_method = "pearson",
+  clus_cluster_method = "complete",
+  custom_gene_order = NULL,
+  gene_cor_method = "pearson",
+  gene_cluster_method = "complete",
+  midpoint = 0,
+  x_text_size = 10,
+  x_text_angle = 45,
+  y_text_size = 10,
+  strip_text_size = 8,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "plotMetaDataHeatmap"
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -59,19 +73,24 @@ plotMetaDataHeatmap(gobject, expression_values = c("normalized",
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters from all_plots_save_function()}
+\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
 
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+\item{default_save_name}{default save name}
 }
 \value{
 ggplot or data.table
 }
 \description{
-creates order for clusters
+Creates heatmap for genes within aggregated clusters.
 }
 \details{
-Creates heatmap for average the average expression of selected genes in the different annotation groups
+Creates heatmap for the average expression of selected genes in the different annotation/cluster groups.
+Calculation of cluster or gene order is done on the provided expression values, but visualization
+is by default on the z-scores. Other options are the original values or z-scores rescaled per gene (-1 to 1).
 }
 \examples{
     plotMetaDataHeatmap(gobject)
+}
+\seealso{
+\code{\link{plotMetaDataCellsHeatmap}} for numeric cell annotation instead of gene expression.
 }

@@ -4,9 +4,14 @@
 \alias{write_giotto_viewer_dim_reduction}
 \title{write_giotto_viewer_dim_reduction}
 \usage{
-write_giotto_viewer_dim_reduction(dim_reduction_cell, dim_red = NULL,
-  dim_red_name = NULL, dim_red_rounding = NULL,
-  dim_red_rescale = c(-20, 20), output_directory = getwd())
+write_giotto_viewer_dim_reduction(
+  dim_reduction_cell,
+  dim_red = NULL,
+  dim_red_name = NULL,
+  dim_red_rounding = NULL,
+  dim_red_rescale = c(-20, 20),
+  output_directory = getwd()
+)
 }
 \arguments{
 \item{dim_reduction_cell}{dimension reduction slot from giotto object}

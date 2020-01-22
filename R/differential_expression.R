@@ -2,7 +2,7 @@
 
 #' @title findScranMarkers
 #' @name findScranMarkers
-#' @description Identify marker genes for selected clusters based on scran's implementation of findMarkers.
+#' @description Identify marker genes for all or selected clusters based on scran's implementation of findMarkers.
 #' @param gobject giotto object
 #' @param expression_values gene expression values to use
 #' @param cluster_column clusters to use
@@ -11,7 +11,12 @@
 #' @param group_2 group 2 cluster IDs from cluster_column for pairwise comparison
 #' @param ... additional parameters for the findMarkers function in scran
 #' @return data.table with marker genes
-#' @details This is a minimal convenience wrapper around the findMarkers function from the scran package.
+#' @details This is a minimal convenience wrapper around
+#' the \code{\link[scran]{findMarkers}} function from the scran package.
+#'
+#' To perform differential expression between cluster groups you need to specificy cluster IDs
+#' to the parameters \emph{group_1} and \emph{group_2}.
+#'
 #' @export
 #' @examples
 #'     findScranMarkers(gobject)
@@ -23,6 +28,10 @@ findScranMarkers <- function(gobject,
                              group_2 = NULL,
                              ...) {
 
+
+  if("scran" %in% rownames(installed.packages()) == FALSE) {
+    cat("\n package 'scran' is not yet installed \n")
+  }
 
   # expression data
   values = match.arg(expression_values, choices = c('normalized', 'scaled', 'custom'))
@@ -67,8 +76,8 @@ findScranMarkers <- function(gobject,
   savelist = lapply(names(marker_results), FUN = function(x) {
     dfr = marker_results[[x]]
     DT = data.table::as.data.table(dfr)
-    DT[, gene_ID := rownames(dfr)]
-    DT[, cluster_ID := x]
+    DT[, genes := rownames(dfr)]
+    DT[, cluster := x]
 
   })
 
@@ -91,7 +100,7 @@ findScranMarkers <- function(gobject,
 #' @param verbose be verbose
 #' @param ...  additional parameters for the findMarkers function in scran
 #' @return data.table with marker genes
-#' @details This is a minimal convenience wrapper around the findMarkers function from the scran package.
+#' @seealso \code{\link{findScranMarkers}}
 #' @export
 #' @examples
 #'     findScranMarkers_one_vs_all(gobject)
@@ -151,7 +160,7 @@ findScranMarkers_one_vs_all <- function(gobject,
 
     # identify list to continue with
     select_bool = unlist(lapply(markers, FUN = function(x) {
-      unique(x$cluster_ID) == selected_clus
+      unique(x$cluster) == selected_clus
     }))
     selected_table = data.table::as.data.table(markers[select_bool])
     data.table::setnames(selected_table, colnames(selected_table)[4], 'logFC')
@@ -180,11 +189,31 @@ findScranMarkers_one_vs_all <- function(gobject,
 #' @param group_1 group 1 cluster IDs from cluster_column for pairwise comparison
 #' @param group_2 group 2 cluster IDs from cluster_column for pairwise comparison
 #' @param min_expr_gini_score filter on minimum gini coefficient for expression
-#' @param min_det_gini_score filter minimum gini coefficient for detection
+#' @param min_det_gini_score filter on minimum gini coefficient for detection
 #' @param detection_threshold detection threshold for gene expression
-#' @param rank_score rank scores to include
+#' @param rank_score rank scores for both detection and expression to include
+#' @param min_genes minimum number of top genes to return
 #' @return data.table with marker genes
-#' @details Description of parameters.
+#' @details
+#' Detection of marker genes using the \url{https://en.wikipedia.org/wiki/Gini_coefficient}{gini}
+#' coefficient is based on the following steps/principles per gene:
+#' \itemize{
+#'   \item{1. calculate average expression per cluster}
+#'   \item{2. calculate detection fraction per cluster}
+#'   \item{3. calculate gini-coefficient for av. expression values over all clusters}
+#'   \item{4. calculate gini-coefficient for detection fractions over all clusters}
+#'   \item{5. convert gini-scores to rank scores}
+#'   \item{6. for each gene create combined score = detection rank x expression rank x expr gini-coefficient x detection gini-coefficient}
+#'   \item{7. for each gene sort on expression and detection rank and combined score}
+#' }
+#'
+#' As a results "top gini" genes are genes that are very selectivily expressed in a specific cluster,
+#' however not always expressed in all cells of that cluster. In other words highly specific, but
+#' not necessarily sensitive at the single-cell level.
+#'
+#' To perform differential expression between cluster groups you need to specificy cluster IDs
+#' to the parameters \emph{group_1} and \emph{group_2}.
+#'
 #' @export
 #' @examples
 #'     findGiniMarkers(gobject)
@@ -194,10 +223,11 @@ findGiniMarkers <- function(gobject,
                             subset_clusters = NULL,
                             group_1 = NULL,
                             group_2 = NULL,
-                            min_expr_gini_score = 0.5,
-                            min_det_gini_score = 0.5,
+                            min_expr_gini_score = 0.2,
+                            min_det_gini_score = 0.2,
                             detection_threshold = 0,
-                            rank_score = 1) {
+                            rank_score = 1,
+                            min_genes = 5) {
 
   ## select expression values
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
@@ -210,7 +240,7 @@ findGiniMarkers <- function(gobject,
   }
 
 
-  # subset
+  # subset clusters
   if(!is.null(subset_clusters)) {
 
     cell_metadata = cell_metadata[get(cluster_column) %in% subset_clusters]
@@ -247,7 +277,6 @@ findGiniMarkers <- function(gobject,
                                                           value.name = 'expression')
 
 
-
   ## detection per cluster
   aggr_detection_sc_clusters <- Giotto:::create_average_detection_DT(gobject = gobject,
                                                                      meta_data_name = cluster_column,
@@ -262,19 +291,27 @@ findGiniMarkers <- function(gobject,
 
   ## gini
   aggr_sc_clusters_DT_melt[, expression_gini := Giotto:::mygini_fun(expression), by = genes]
-  aggr_detection_sc_clusters_DT_melt[, detection_gini := Giotto:::mygini_fun(detection), by = genes]
+  aggr_detection_sc_clusters_DT_melt[, detection_gini := Giotto:::mygini_fun(detection)+1, by = genes]
+
 
   ## combine
   aggr_sc = cbind(aggr_sc_clusters_DT_melt, aggr_detection_sc_clusters_DT_melt[,.(detection, detection_gini)])
-  aggr_sc[, expression_rank := rank(-expression), by = genes]
-  aggr_sc[, detection_rank := rank(-detection), by = genes]
 
-  top_genes_scores = aggr_sc[expression_rank <= rank_score & detection_rank <= rank_score]
-  top_genes_scores_filtered = top_genes_scores[expression > min_expr_gini_score & detection > min_det_gini_score]
-  top_genes_scores_filtered[, comb_gini := expression_gini*detection_gini]
-  top_genes_scores_filtered[, comb_rank := rank(-comb_gini), by = cluster]
+  # create combined rank
+  # - high on expression rank
+  # - high on detection rank
+  # comb score = multiply rank with gini scores
+  aggr_sc[, expression_rank := rank(expression), by = genes]
+  aggr_sc[, detection_rank := rank(detection), by = genes]
+  aggr_sc[, comb_score := expression_gini*detection_gini*expression_rank*detection_rank]
+  #aggr_sc[, comb_rank := rank(-comb_score), by = cluster]
+
+  setorder(aggr_sc, cluster, -expression_rank, -detection_rank, -comb_score)
+  aggr_sc[, comb_rank := 1:.N, by = cluster]
+
+  top_genes_scores = aggr_sc[comb_rank <= min_genes | (expression_rank <= rank_score & detection_rank <= rank_score)]
+  top_genes_scores_filtered = top_genes_scores[comb_rank <= min_genes | (expression > min_expr_gini_score & detection > min_det_gini_score)]
   setorder(top_genes_scores_filtered, cluster, comb_rank)
-
 
   return(top_genes_scores_filtered)
 
@@ -285,7 +322,7 @@ findGiniMarkers <- function(gobject,
 
 #' @title findGiniMarkers_one_vs_all
 #' @name findGiniMarkers_one_vs_all
-#' @description Identify marker genes for all clusters based on gini detection and expression scores.
+#' @description Identify marker genes for all clusters in a one vs all manner based on gini detection and expression scores.
 #' @param gobject giotto object
 #' @param expression_values gene expression values to use
 #' @param cluster_column clusters to use
@@ -293,10 +330,11 @@ findGiniMarkers <- function(gobject,
 #' @param min_expr_gini_score filter on minimum gini coefficient on expression
 #' @param min_det_gini_score filter on minimum gini coefficient on detection
 #' @param detection_threshold detection threshold for gene expression
-#' @param min_genes minimum genes to keep per cluster, overrides pval and logFC
+#' @param rank_score rank scores for both detection and expression to include
+#' @param min_genes minimum number of top genes to return
 #' @param verbose be verbose
 #' @return data.table with marker genes
-#' @details Description of parameters.
+#' @seealso \code{\link{findGiniMarkers}}
 #' @export
 #' @examples
 #'     findGiniMarkers_one_vs_all(gobject)
@@ -307,7 +345,8 @@ findGiniMarkers_one_vs_all <- function(gobject,
                                        min_expr_gini_score = 0.5,
                                        min_det_gini_score = 0.5,
                                        detection_threshold = 0,
-                                       min_genes = 10,
+                                       rank_score = 1,
+                                       min_genes = 4,
                                        verbose = TRUE) {
 
 
@@ -353,12 +392,14 @@ findGiniMarkers_one_vs_all <- function(gobject,
                               group_2 = other_clus,
                               min_expr_gini_score = min_expr_gini_score,
                               min_det_gini_score = min_det_gini_score,
-                              detection_threshold = detection_threshold)
+                              detection_threshold = detection_threshold,
+                              rank_score = rank_score,
+                              min_genes = min_genes)
 
     # filter steps
     clus_name = paste0('cluster_', selected_clus)
     filtered_table = markers[cluster == clus_name]
-    filtered_table = filtered_table[comb_rank <= min_genes]
+    #filtered_table = filtered_table[comb_rank <= min_genes]
 
 
     result_list[[clus_i]] = filtered_table
@@ -384,7 +425,8 @@ findGiniMarkers_one_vs_all <- function(gobject,
 #' @param adjust_columns column in pDataDT to adjust for (e.g. detection rate)
 #' @param ... additional parameters for the zlm function in MAST
 #' @return data.table with marker genes
-#' @details This is a minimal convenience wrapper around the MAST functions to detect differentially expressed genes.
+#' @details This is a minimal convenience wrapper around the \code{\link[MAST]{zlm}}
+#' from the MAST package to detect differentially expressed genes.
 #' @export
 #' @examples
 #'     findMastMarkers(gobject)
@@ -397,6 +439,10 @@ findMastMarkers <- function(gobject,
                             group_2_name = NULL,
                             adjust_columns = NULL,
                             ...) {
+
+  if("MAST" %in% rownames(installed.packages()) == FALSE) {
+    cat("\n package 'MAST' is not yet installed \n")
+  }
 
   ## select expression values to use
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
@@ -476,7 +522,8 @@ findMastMarkers <- function(gobject,
                     summaryDt[contrast==sample & component=='logFC', .(primerid, coef, ci.hi, ci.lo)], by='primerid') #logFC coefficients
   fcHurdle[,fdr := p.adjust(`Pr(>Chisq)`, 'fdr')]
   data.table::setorder(fcHurdle, fdr)
-  fcHurdle[, test := paste0(group_1_name,'_vs_', group_2_name)]
+  fcHurdle[, cluster := paste0(group_1_name,'_vs_', group_2_name)]
+  data.table::setnames(fcHurdle, old = 'primerid', new = 'genes')
 
   return(fcHurdle)
 
@@ -484,9 +531,10 @@ findMastMarkers <- function(gobject,
 
 
 
+
 #' @title findMastMarkers_one_vs_all
 #' @name findMastMarkers_one_vs_all
-#' @description Identify marker genes for all clusters based on the MAST package.
+#' @description Identify marker genes for all clusters in a one vs all manner based on the MAST package.
 #' @param gobject giotto object
 #' @param expression_values gene expression values to use
 #' @param cluster_column clusters to use
@@ -498,7 +546,7 @@ findMastMarkers <- function(gobject,
 #' @param verbose be verbose
 #' @param ... additional parameters for the zlm function in MAST
 #' @return data.table with marker genes
-#' @details This is a minimal convenience wrapper around the MAST functions to detect differentially expressed genes.
+#' @seealso \code{\link{findMastMarkers}}
 #' @export
 #' @examples
 #'     findMastMarkers_one_vs_all(gobject)
@@ -560,7 +608,7 @@ findMastMarkers_one_vs_all = function(gobject,
 
   # filter or retain only selected marker genes
   result_dt = do.call('rbind', result_list)
-  result_dt[, ranking := 1:.N, by = 'test']
+  result_dt[, ranking := 1:.N, by = 'cluster']
   filtered_result_dt = result_dt[ranking <= min_genes | (fdr < pval & coef > logFC)]
 
   return(filtered_result_dt)
@@ -587,12 +635,14 @@ findMastMarkers_one_vs_all = function(gobject,
 #' @param min_det_gini_score gini: filter minimum gini coefficient for detection
 #' @param detection_threshold gini: detection threshold for gene expression
 #' @param rank_score gini: rank scores to include
+#' @param min_genes minimum number of top genes to return (for gini)
 #' @param group_1_name mast: custom name for group_1 clusters
 #' @param group_2_name mast: custom name for group_2 clusters
 #' @param adjust_columns mast: column in pDataDT to adjust for (e.g. detection rate)
 #' @param ... additional parameters for the findMarkers function in scran or zlm function in MAST
 #' @return data.table with marker genes
-#' @details Wrapper for findScranMarkers, findGiniMarkers and FindMastMarkers.
+#' @details Wrapper for all individual functions to detect marker genes for clusters.
+#' @seealso \code{\link{findScranMarkers}}, \code{\link{findGiniMarkers}} and \code{\link{findMastMarkers}}
 #' @export
 #' @examples
 #'     findMarkers(gobject)
@@ -607,6 +657,7 @@ findMarkers <- function(gobject,
                         min_det_gini_score = 0.5,
                         detection_threshold = 0,
                         rank_score = 1,
+                        min_genes = 4,
                         group_1_name = NULL,
                         group_2_name = NULL,
                         adjust_columns = NULL,
@@ -635,7 +686,8 @@ findMarkers <- function(gobject,
                                        min_expr_gini_score = min_expr_gini_score,
                                        min_det_gini_score = min_det_gini_score,
                                        detection_threshold = detection_threshold,
-                                       rank_score = rank_score)
+                                       rank_score = rank_score,
+                                       min_genes = min_genes)
 
   } else if(method == 'mast') {
 
@@ -658,7 +710,7 @@ findMarkers <- function(gobject,
 
 #' @title findMarkers_one_vs_all
 #' @name findMarkers_one_vs_all
-#' @description Identify marker genes for all clusters.
+#' @description Identify marker genes for all clusters in a one vs all manner.
 #' @param gobject giotto object
 #' @param expression_values gene expression values to use
 #' @param cluster_column clusters to use
@@ -675,7 +727,8 @@ findMarkers <- function(gobject,
 #' @param verbose be verbose
 #' @param ... additional parameters for the findMarkers function in scran or zlm function in MAST
 #' @return data.table with marker genes
-#' @details Wrapper for findScranMarkers_one_vs_all, findGiniMarkers_one_vs_all and FindMastMarkers_one_vs_all.
+#' @details Wrapper for all one vs all functions to detect marker genes for clusters.
+#' @seealso \code{\link{findScranMarkers_one_vs_all}}, \code{\link{findGiniMarkers_one_vs_all}} and \code{\link{findMastMarkers_one_vs_all}}
 #' @export
 #' @examples
 #'     findMarkers_one_vs_all(gobject)

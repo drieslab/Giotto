@@ -4,10 +4,14 @@
 \alias{filterGiotto}
 \title{filterGiotto}
 \usage{
-filterGiotto(gobject, expression_values = c("raw", "normalized",
-  "scaled", "custom"), expression_threshold = 1,
-  gene_det_in_min_cells = 100, min_det_genes_per_cell = 100,
-  verbose = F)
+filterGiotto(
+  gobject,
+  expression_values = c("raw", "normalized", "scaled", "custom"),
+  expression_threshold = 1,
+  gene_det_in_min_cells = 100,
+  min_det_genes_per_cell = 100,
+  verbose = F
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -26,7 +30,10 @@ filterGiotto(gobject, expression_values = c("raw", "normalized",
 giotto object
 }
 \description{
-filter Giotto object
+filter Giotto object based on expression threshold
+}
+\details{
+The function \code{\link{filterCombinations}} can be used to explore the effect of different parameter values.
 }
 \examples{
     filterGiotto(gobject)

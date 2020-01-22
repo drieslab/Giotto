@@ -4,12 +4,24 @@
 \alias{showCPGscores}
 \title{showCPGscores}
 \usage{
-showCPGscores(gobject, CPGscore, method = c("volcano", "cell_barplot",
-  "cell-cell", "cell_sankey"), min_cells = 5, min_fdr = 0.05,
-  min_spat_diff = 0.2, min_log2_fc = 0.5, keep_int_duplicates = TRUE,
-  direction = c("both", "up", "down"), cell_color_code = NULL,
-  show_plot = NA, return_plot = NA, save_plot = NA,
-  save_param = list(), default_save_name = "showCPGscores")
+showCPGscores(
+  gobject,
+  CPGscore,
+  method = c("volcano", "cell_barplot", "cell-cell", "cell_sankey", "heatmap",
+    "dotplot"),
+  min_cells = 5,
+  min_fdr = 0.05,
+  min_spat_diff = 0.2,
+  min_log2_fc = 0.5,
+  keep_int_duplicates = TRUE,
+  direction = c("both", "up", "down"),
+  cell_color_code = NULL,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "showCPGscores"
+)
 }
 \arguments{
 \item{CPGscore}{CPGscore, output from getCellProximityGeneScores()}
@@ -36,7 +48,7 @@ showCPGscores(gobject, CPGscore, method = c("volcano", "cell_barplot",
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters from all_plots_save_function()}
+\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }
@@ -47,7 +59,8 @@ Gene to gene scores in data.table format
 visualize Cell Proximity Gene enrichment scores
 }
 \details{
-Give more details ...
+Different ways to visualize how many genes are differentially regulated
+within a source cell type due to the proximity of another neighboring cell type.
 }
 \examples{
     showCPGscores(CPGscore)

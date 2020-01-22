@@ -4,13 +4,35 @@
 \alias{plot_spat_point_layer_ggplot}
 \title{plot_spat_point_layer_ggplot}
 \usage{
-plot_spat_point_layer_ggplot(ggobject, sdimx = NULL, sdimy = NULL,
-  cell_locations_metadata_selected, cell_locations_metadata_other,
-  cell_color = NULL, color_as_factor = T, select_cell_groups = NULL,
-  select_cells = NULL, cell_color_code = NULL, show_legend = TRUE,
-  point_size = 2, point_border_stroke = 0.1,
-  point_border_col = "lightgrey", show_other_cells = T,
-  other_cell_color = "lightgrey", other_point_size = 1)
+plot_spat_point_layer_ggplot(
+  ggobject,
+  sdimx = NULL,
+  sdimy = NULL,
+  cell_locations_metadata_selected,
+  cell_locations_metadata_other,
+  cell_color = NULL,
+  color_as_factor = T,
+  cell_color_code = NULL,
+  cell_color_gradient = c("blue", "white", "red"),
+  gradient_midpoint = NULL,
+  gradient_limits = NULL,
+  select_cell_groups = NULL,
+  select_cells = NULL,
+  point_size = 2,
+  point_border_col = "lightgrey",
+  point_border_stroke = 0.1,
+  show_cluster_center = F,
+  show_center_label = T,
+  center_point_size = 4,
+  center_point_border_col = "black",
+  center_point_border_stroke = 0.1,
+  label_size = 4,
+  label_fontface = "bold",
+  show_other_cells = T,
+  other_cell_color = "lightgrey",
+  other_point_size = 1,
+  show_legend = TRUE
+)
 }
 \arguments{
 \item{sdimx}{x-axis dimension name (default = 'sdimx')}
@@ -25,25 +47,41 @@ plot_spat_point_layer_ggplot(ggobject, sdimx = NULL, sdimy = NULL,
 
 \item{color_as_factor}{convert color column to factor}
 
+\item{cell_color_code}{named vector with colors}
+
+\item{cell_color_gradient}{vector with 3 colors for numeric data}
+
+\item{gradient_midpoint}{midpoint for color gradient}
+
+\item{gradient_limits}{vector with lower and upper limits}
+
 \item{select_cell_groups}{select subset of cells/clusters based on cell_color parameter}
 
 \item{select_cells}{select subset of cells based on cell IDs}
 
-\item{cell_color_code}{named vector with colors}
-
-\item{show_legend}{show legend}
-
 \item{point_size}{size of point (cell)}
+
+\item{point_border_col}{color of border around points}
 
 \item{point_border_stroke}{stroke size of border around points}
 
-\item{point_border_col}{color of border around points}
+\item{show_cluster_center}{plot center of selected clusters}
+
+\item{show_center_label}{plot label of selected clusters}
+
+\item{center_point_size}{size of center points}
+
+\item{label_size}{size of labels}
+
+\item{label_fontface}{font of labels}
 
 \item{show_other_cells}{display not selected cells}
 
 \item{other_cell_color}{color for not selected cells}
 
 \item{other_point_size}{point size for not selected cells}
+
+\item{show_legend}{show legend}
 
 \item{gobject}{giotto object}
 }

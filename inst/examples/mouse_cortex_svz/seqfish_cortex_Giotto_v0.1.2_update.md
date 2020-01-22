@@ -1,31 +1,43 @@
 
+  - [Giotto global instructions](#giotto-global-instructions)
+  - [Data input](#data-input)
+  - [part 1: Create Giotto object & process
+    data](#part-1-create-giotto-object-process-data)
+  - [part 2: dimension reduction](#part-2-dimension-reduction)
+  - [part 3: cluster](#part-3-cluster)
+  - [part 4: co-visualize](#part-4-co-visualize)
+  - [part 5: differential expression](#part-5-differential-expression)
+  - [part 6: cell-type annotation](#part-6-cell-type-annotation)
+  - [part 7: spatial grid](#part-7-spatial-grid)
+  - [part 8: spatial network](#part-8-spatial-network)
+  - [part 9: spatial genes](#part-9-spatial-genes)
+  - [part 10: HMRF domains](#part-10-hmrf-domains)
+  - [part 11: Cell-cell preferential
+    proximity](#part-11-cell-cell-preferential-proximity)
+  - [part 12: single gene enrichment in cell
+    neighborhood](#part-12-single-gene-enrichment-in-cell-neighborhood)
+  - [part 13: double gene enrichment in cell
+    neighborhood](#part-13-double-gene-enrichment-in-cell-neighborhood)
+  - [part 14: Ligand receptor statistical enrichment
+    analysis](#part-14-ligand-receptor-statistical-enrichment-analysis)
+  - [part 15: export results to view in Giotto
+    viewer](#part-15-export-results-to-view-in-giotto-viewer)
+
 <!-- mouse_cortex_1_simple.md is generated from mouse_cortex_1_simple.Rmd Please edit that file -->
 
 ### Giotto global instructions
 
-  - save\_plot = T : plots will be automatically saved in the designated
-    save\_dir (i.e. here provided as results\_folder)
-  - plot parameters: png formation, with resolution of 300 and height
-    and width of 9 in
-  - changes or additions to the plot parameters will be given through
-    the save\_param parameter: like this **save\_param =
-    list(save\_folder = ‘my\_subfolder’, save\_name =
-    ‘my\_own\_plotname’)**
-
-<!-- end list -->
-
 ``` r
-# this example works with Giotto v.0.1.2
+# this example works with Giotto v.0.1.3
 library(Giotto)
 
-# create instructions
+## create instructions
+## instructions allow us to automatically save all plots into a chosen results folder
+## Here we will not automatically save plots, for an example see the osmFISH dataset
+## We will only set the python path which is needed for certain analyses
 my_python_path = "/Users/rubendries/Bin/anaconda3/envs/py36/bin/pythonw"
 results_folder = '/my/results/folder/path/'
-instrs = createGiottoInstructions(python_path = my_python_path,
-                                  show_plot = F, return_plot = T, save_plot = T,
-                                  save_dir = results_folder,
-                                  plot_format = 'png',
-                                  dpi = 300, height = 9, width = 9)
+instrs = createGiottoInstructions(python_path = my_python_path)
 ```
 
 ### Data input
@@ -43,8 +55,9 @@ values are known or estimates based on the original raw image:
 
 ``` r
 ## expression and cell location
-VC_exprs = read.table(system.file("extdata", "cortex_svz_expression.txt", package = "Giotto"))
-VC_locs = fread(system.file("extdata", "cortex_svz_centroids_rotated.csv", package = "Giotto"))
+data_dir = '/path/to/data/Seqfish_SS_cortex/'
+VC_exprs = read.table(paste0(data_dir,"/", "cortex_svz_expression.txt"))
+VC_locs = fread(paste0(data_dir,"/", "cortex_svz_centroids_rotated.csv"))
 
 ## offset file to combine fields
 my_offset_file = data.table(field = c(0, 1, 2, 3, 4, 5, 6),
@@ -60,7 +73,7 @@ my_offset_file = my_offset_file[,.(field, x_offset_final, y_offset_final)]
 
 -----
 
-### 1\. Create Giotto object & process data
+### part 1: Create Giotto object & process data
 
 <details>
 
@@ -72,7 +85,7 @@ VC_test <- createGiottoObject(raw_exprs = VC_exprs, spatial_locs = stitch_file,
                               offset_file = my_offset_file, instructions = instrs)
 
 ## add known field annotation
-cortex_fields = fread(system.file("extdata", "cortex_fields_info.txt", package = "Giotto"))
+cortex_fields = fread(paste0(data_dir,"/", "cortex_fields_info.txt"))
 VC_test = addCellMetadata(VC_test, new_metadata = cortex_fields,
                           by_column = T, column_cell_ID = 'uniq_ID')
 
@@ -102,15 +115,14 @@ VC_test <- adjustGiottoMatrix(gobject = VC_test, expression_values = c('normaliz
                               update_slot = c('custom'))
 
 ## visualize
-spatPlot2D(gobject = VC_test,
-           save_param = list(save_folder = '2_Gobject', save_name = 'spatial_locations'))
+spatPlot(gobject = VC_test)
 ```
 
 ![](./figures/1_spatial_locations.png)
 
 </details>
 
-### 2\. dimension reduction
+### part 2: dimension reduction
 
 <details>
 
@@ -118,7 +130,7 @@ spatPlot2D(gobject = VC_test,
 
 ``` r
 ## highly variable genes (HVG)
-VC_test <- calculateHVG(gobject = VC_test, method = 'cov_loess', difference_in_variance = 0.5)
+VC_test <- calculateHVG(gobject = VC_test, method = 'cov_loess', difference_in_cov = 0.1)
 
 ## select genes based on HVG and gene statistics, both found in gene metadata
 gene_metadata = fDataDT(VC_test)
@@ -128,17 +140,14 @@ featgenes = gene_metadata[hvg == 'yes' & perc_cells > 4 & mean_expr_det > 0.5]$g
 VC_test <- runPCA(gobject = VC_test, genes_to_use = featgenes, scale_unit = F)
 signPCA(VC_test, genes_to_use = featgenes, scale_unit = F)
 
-plotPCA_2D(gobject = VC_test,
-           save_param = list(save_folder = '3_DimRed', save_name = 'PCA_reduction'))
+plotPCA(gobject = VC_test)
 
 ## run UMAP and tSNE on PCA space (default)
 VC_test <- runUMAP(VC_test, dimensions_to_use = 1:30)
-plotUMAP_2D(gobject = VC_test,
-            save_param = list(save_folder = '3_DimRed', save_name = 'UMAP_reduction'))
+plotUMAP(gobject = VC_test)
 
 VC_test <- runtSNE(VC_test, dimensions_to_use = 1:30)
-plotTSNE_2D(gobject = VC_test,
-            save_param = list(save_folder = '3_DimRed', save_name = 'tSNE_reduction'))
+plotTSNE(gobject = VC_test)
 ```
 
 ![](./figures/2_PCA_reduction.png)
@@ -149,7 +158,7 @@ plotTSNE_2D(gobject = VC_test,
 
 </details>
 
-### 3\. cluster
+### part 3: cluster
 
 <details>
 
@@ -161,29 +170,24 @@ VC_test <- createNearestNetwork(gobject = VC_test, dimensions_to_use = 1:15, k =
 
 ## Leiden clustering
 VC_test <- doLeidenCluster(gobject = VC_test, resolution = 0.4, n_iterations = 1000)
-plotUMAP_2D(gobject = VC_test,
-            cell_color = 'leiden_clus', show_NN_network = T, point_size = 2.5,
-            save_param = list(save_folder = '4_Cluster', save_name = 'UMAP_leiden'))
+plotUMAP(gobject = VC_test, cell_color = 'leiden_clus', show_NN_network = T, point_size = 2.5)
 
 ## Leiden subclustering for specified clusters
 VC_test = doLeidenSubCluster(gobject = VC_test, cluster_column = 'leiden_clus',
                              resolution = 0.2, k_neighbors = 10,
-                             hvg_param = list(method = 'cov_loess', difference_in_variance = 1),
+                             hvg_param = list(method = 'cov_loess', difference_in_cov = 0.1),
                              pca_param = list(expression_values = 'normalized', scale_unit = F),
                              nn_param = list(dimensions_to_use = 1:5),
-                             selected_clusters = c(5, 7),
+                             selected_clusters = c(4, 6, 7),
                              name = 'sub_leiden_clus_select')
-plotUMAP_2D(gobject = VC_test,
-            cell_color = 'sub_leiden_clus_select', show_NN_network = T, point_size = 2.5,
-            save_param = list(save_folder = '4_Cluster', save_name = 'UMAP_leiden_subcluster'))
+plotUMAP(gobject = VC_test,
+         cell_color = 'sub_leiden_clus_select', show_NN_network = T, point_size = 2.5)
 
 ## show cluster relationships
 showClusterHeatmap(gobject = VC_test, cluster_column = 'sub_leiden_clus_select',
-                   save_param = list(save_name = 'heatmap', save_folder = '4_Cluster', units = 'cm'),
                    row_names_gp = grid::gpar(fontsize = 9), column_names_gp = grid::gpar(fontsize = 9))
 
-showClusterDendrogram(VC_test, h = 0.5, rotate = T, cluster_column = 'sub_leiden_clus_select',
-                      save_param = list(save_name = 'dendro', save_folder = '4_Cluster', units = 'cm'))
+showClusterDendrogram(VC_test, h = 0.5, rotate = T, cluster_column = 'sub_leiden_clus_select')
 ```
 
 ![](./figures/3_UMAP_leiden.png)
@@ -194,7 +198,7 @@ showClusterDendrogram(VC_test, h = 0.5, rotate = T, cluster_column = 'sub_leiden
 
 </details>
 
-### 4\. co-visualize
+### part 4: co-visualize
 
 <details>
 
@@ -202,17 +206,15 @@ showClusterDendrogram(VC_test, h = 0.5, rotate = T, cluster_column = 'sub_leiden
 
 ``` r
 # expression and spatial
-spatDimPlot2D(gobject = VC_test, cell_color = 'sub_leiden_clus_select',
-              dim_point_size = 2, spatial_point_size = 2,
-              save_param = list(save_name = 'covis_leiden', save_folder = '5_Covisuals'))
+spatDimPlot(gobject = VC_test, cell_color = 'sub_leiden_clus_select',
+            dim_point_size = 2, spat_point_size = 2)
 
 # selected groups
 groups_of_interest = c(5.1, 6.1, 7.1)
 group_colors = c('red', 'green', 'blue'); names(group_colors) = groups_of_interest
-spatDimPlot2D(gobject = VC_test, cell_color = 'sub_leiden_clus_select', 
-              dim_point_size = 2, spatial_point_size = 2,
-              select_cell_groups = groups_of_interest, cell_color_code = group_colors,
-              save_param = list(save_name = 'covis_leiden_selected', save_folder = '5_Covisuals'))
+spatDimPlot(gobject = VC_test, cell_color = 'sub_leiden_clus_select', 
+            dim_point_size = 2, spat_point_size = 2,
+            select_cell_groups = groups_of_interest, cell_color_code = group_colors)
 ```
 
 Co-visualzation: ![](./figures/4_covis_leiden.png) Selection:
@@ -220,7 +222,7 @@ Co-visualzation: ![](./figures/4_covis_leiden.png) Selection:
 
 </details>
 
-### 5\. differential expression
+### part 5: differential expression
 
 <details>
 
@@ -239,14 +241,12 @@ topgenes_gini = gini_markers_subclusters[, head(.SD, 2), by = 'cluster']$genes
 
 # violinplot
 violinPlot(VC_test, genes = unique(topgenes_gini), cluster_column = 'sub_leiden_clus_select',
-           strip_text = 8, strip_position = 'right',
-           save_param = c(save_name = 'violinplot_gini', save_folder = '6_DEG', base_width = 5, base_height = 10))
+           strip_text = 8, strip_position = 'right')
 
 # cluster heatmap
 my_cluster_order = c(9.1, 3.1, 6.1, 8.1, 5.2, 5.1, 1.1, 4.1, 2.1, 7.1, 7.2)
 plotMetaDataHeatmap(VC_test, selected_genes = topgenes_gini, custom_cluster_order = my_cluster_order,
-                    metadata_cols = c('sub_leiden_clus_select'), 
-                    save_param = c(save_name = 'metaheatmap_gini', save_folder = '6_DEG'))
+                    metadata_cols = c('sub_leiden_clus_select'))
 
 
 ## scran ##
@@ -254,17 +254,15 @@ scran_markers_subclusters = findMarkers_one_vs_all(gobject = VC_test,
                                                    method = 'scran',
                                                    expression_values = 'normalized',
                                                    cluster_column = 'sub_leiden_clus_select')
-topgenes_scran = scran_markers_subclusters[, head(.SD, 1), by = 'cluster_ID']$gene_ID
+topgenes_scran = scran_markers_subclusters[, head(.SD, 1), by = 'cluster']$genes
 
 # violinplot
 violinPlot(VC_test, genes = unique(topgenes_scran), cluster_column = 'sub_leiden_clus_select',
-           strip_text = 10, strip_position = 'right',
-           save_param = c(save_name = 'violinplot_scran', save_folder = '6_DEG', base_width = 5))
+           strip_text = 10, strip_position = 'right')
 
 # cluster heatmap
 plotMetaDataHeatmap(VC_test, selected_genes = topgenes_scran, custom_cluster_order = my_cluster_order,
-                    metadata_cols = c('sub_leiden_clus_select'),
-                    save_param = c(save_name = 'metaheatmap_scran', save_folder = '6_DEG'))
+                    metadata_cols = c('sub_leiden_clus_select'))
 ```
 
 violinplot gini: ![](./figures/5_violinplot_gini.png)
@@ -279,7 +277,7 @@ Heatmap clusters scran: ![](./figures/5_metaheatmap_scran.png)
 
 </details>
 
-### 6\. cell-type annotation
+### part 6: cell-type annotation
 
 <details>
 
@@ -304,8 +302,7 @@ cell_type_order = c('L6 eNeuron', 'L5 eNeuron', 'L4 eNeuron', 'L2/3 eNeuron',
 
 violinPlot(gobject = VC_test, genes = unique(topgenes_gini),
            strip_text = 7, strip_position = 'right', cluster_custom_order = cell_type_order,
-           cluster_column = 'cell_types', color_violin = 'cluster',
-           save_param = c(save_name = 'violinplot', save_folder = '7_annotation', base_width = 5))
+           cluster_column = 'cell_types', color_violin = 'cluster')
 
 
 ## heatmap genes vs cells
@@ -313,25 +310,21 @@ plotHeatmap(gobject = VC_test,
             genes = gini_markers_subclusters[, head(.SD, 3), by = 'cluster']$genes,
             gene_custom_order = unique(gini_markers_subclusters[, head(.SD, 3), by = 'cluster']$genes),
             cluster_column = 'cell_types', cluster_order = 'custom',
-            cluster_custom_order = cell_type_order, legend_nrows = 2,
-            save_param = c(save_name = 'heatmap', save_folder = '7_annotation'))
+            cluster_custom_order = cell_type_order, legend_nrows = 2)
 
 plotHeatmap(gobject = VC_test,
             genes = gini_markers_subclusters[, head(.SD, 6), by = 'cluster']$genes,
             gene_label_selection = gini_markers_subclusters[, head(.SD, 2), by = 'cluster']$genes,
             gene_custom_order = unique(gini_markers_subclusters[, head(.SD, 6), by = 'cluster']$genes),
             cluster_column = 'cell_types', cluster_order = 'custom',
-            cluster_custom_order = cell_type_order, legend_nrows = 2,
-            save_param = c(save_name = 'heatmap_selected', save_folder = '7_annotation'))
+            cluster_custom_order = cell_type_order, legend_nrows = 2)
 
 ## co-visualization
-spatDimPlot2D(gobject = VC_test, cell_color = 'cell_types',
-               dim_point_size = 2, spatial_point_size = 2, show_cluster_center = F, show_center_label = T,
-              save_param = c(save_name = 'covisualization', save_folder = '7_annotation'))
+spatDimPlot(gobject = VC_test, cell_color = 'cell_types',
+            dim_point_size = 2, spat_point_size = 2, dim_show_cluster_center = F, dim_show_center_label = T)
 
-spatDimPlot2D(gobject = VC_test, cell_color = 'cell_types', select_cell_groups = c('astrocytes', 'Olig', 'OPC'),
-              dim_point_size = 2, spatial_point_size = 2, show_cluster_center = F, show_center_label = T,
-              save_param = c(save_name = 'covisualization_selection', save_folder = '7_annotation'))
+spatDimPlot(gobject = VC_test, cell_color = 'cell_types', select_cell_groups = c('astrocytes', 'Olig', 'OPC'),
+            dim_point_size = 2, spat_point_size = 2, dim_show_cluster_center = F, dim_show_center_label = T)
 ```
 
 ![](./figures/6_violinplot.png)
@@ -348,7 +341,7 @@ spatDimPlot2D(gobject = VC_test, cell_color = 'cell_types', select_cell_groups =
 
 </details>
 
-### 7\. spatial grid
+### part 7: spatial grid
 
 <details>
 
@@ -361,8 +354,7 @@ VC_test <- createSpatialGrid(gobject = VC_test,
                              sdimy_stepsize = 500,
                              minimum_padding = 50)
 
-spatPlot2D(gobject = VC_test, show_grid = T, point_size = 1.5,
-           save_param = c(save_name = 'grid', save_folder = '8_grid'))
+spatPlot(gobject = VC_test, show_grid = T, point_size = 1.5)
 
 ## identify spatial patterns
 pattern_VC = detectSpatialPatterns(gobject = VC_test,
@@ -372,11 +364,8 @@ pattern_VC = detectSpatialPatterns(gobject = VC_test,
                                    show_plot = T)
 
 ## show pattern and genes for first identified principal component
-showPattern2D(VC_test, pattern_VC, dimension = 1, point_size = 4,
-              save_param = c(save_name = 'pattern1_pca', save_folder = '8_grid'))
-showPatternGenes(VC_test, pattern_VC, dimension = 1, save_plot = T,
-                 save_param = c(save_name = 'pattern1_genes', save_folder = '8_grid',
-                                base_height = 3, base_width = 3, dpi = 100))
+showPattern2D(VC_test, pattern_VC, dimension = 1, point_size = 4)
+showPatternGenes(VC_test, pattern_VC, dimension = 1, save_plot = T)
 ```
 
 ![](./figures/7_grid.png)
@@ -389,7 +378,7 @@ pattern 1: ![](./figures/7_pattern1_pca.png)
 
 </details>
 
-### 8\. spatial network
+### part 8: spatial network
 
 <details>
 
@@ -406,20 +395,17 @@ VC_test <- createSpatialNetwork(gobject = VC_test, k = 100, maximum_distance = 2
 field1_ids = cell_metadata[Field_of_View == 0]$cell_ID
 subVC_test = subsetGiotto(VC_test, cell_ids = field1_ids)
 
-spatPlot2D(gobject = subVC_test, show_network = T,
+spatPlot(gobject = subVC_test, show_network = T,
         network_color = 'blue', spatial_network_name = 'spatial_network',
-        point_size = 2.5, cell_color = 'cell_types',
-        save_param = c(save_name = 'spatial_network_k3', save_folder = '9_spatial_network'))
+        point_size = 2.5, cell_color = 'cell_types')
 
-spatPlot2D(gobject = subVC_test, show_network = T,
-           network_color = 'blue', spatial_network_name = 'large_network',
-           point_size = 2.5, cell_color = 'cell_types',
-           save_param = c(save_name = 'spatial_network_k10', save_folder = '9_spatial_network'))
+spatPlot(gobject = subVC_test, show_network = T,
+         network_color = 'blue', spatial_network_name = 'large_network',
+         point_size = 2.5, cell_color = 'cell_types')
 
-spatPlot2D(gobject = subVC_test, show_network = T,
-           network_color = 'blue', spatial_network_name = 'distance_network',
-           point_size = 2.5, cell_color = 'cell_types',
-           save_param = c(save_name = 'spatial_network_dist', save_folder = '9_spatial_network'))
+spatPlot(gobject = subVC_test, show_network = T,
+         network_color = 'blue', spatial_network_name = 'distance_network',
+         point_size = 2.5, cell_color = 'cell_types')
            
 ```
 
@@ -433,7 +419,7 @@ spatPlot2D(gobject = subVC_test, show_network = T,
 
 </details>
 
-### 9\. spatial genes
+### part 9: spatial genes
 
 <details>
 
@@ -452,11 +438,10 @@ spatial_genes = calculate_spatial_genes_python(gobject = VC_test,
                                                expression_values = 'scaled',
                                                rbp_p=0.99, examine_top=0.1)
 
-spatGenePlot2D(VC_test, expression_values = 'scaled', show_plot = F,
-               genes = head(ranktest_m$genes,8), point_size = 2, cow_n_col = 4,
-               genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue',
-               midpoint = 0, return_plot = F,
-               save_param = c(save_name = 'spatial_genes_scaled_both', save_folder = '10_spatial_genes', base_width = 18))
+spatGenePlot(VC_test, expression_values = 'scaled', show_plot = F,
+             genes = head(ranktest_m$genes,8), point_size = 2, cow_n_col = 4,
+             genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue',
+             midpoint = 0, return_plot = F)
 ```
 
 Spatial genes:  
@@ -466,7 +451,7 @@ Spatial genes:
 
 </details>
 
-### 10\. HMRF domains
+### part 10: HMRF domains
 
 <details>
 
@@ -500,8 +485,7 @@ VC_test = addHMRF(gobject = VC_test,
                    k = 9, betas_to_add = c(28),
                    hmrf_name = 'HMRF')
 ## visualize
-spatPlot2D(gobject = VC_test, cell_color = 'HMRF_k9_b.28', point_size = 3,
-           save_param = c(save_name = 'HMRF_k9_b.28', save_folder = '11_HMRF'))
+spatPlot(gobject = VC_test, cell_color = 'HMRF_k9_b.28', point_size = 3)
 ```
 
 ![](./figures/10_HMRF_k9_b.28.png)
@@ -510,7 +494,7 @@ spatPlot2D(gobject = VC_test, cell_color = 'HMRF_k9_b.28', point_size = 3,
 
 </details>
 
-### 11\. Cell-cell preferential proximity
+### part 11: Cell-cell preferential proximity
 
 <details>
 
@@ -525,25 +509,20 @@ cell_proximities = cellProximityEnrichment(gobject = VC_test,
                                            spatial_network_name = 'spatial_network',
                                            number_of_simulations = 1000)
 ## barplot
-cellProximityBarplot(gobject = VC_test, CPscore = cell_proximities, min_orig_ints = 5, min_sim_ints = 5, 
-                     save_param = c(save_name = 'barplot_cell_cell_enrichment', save_folder = '12_cell_proxim'))
+cellProximityBarplot(gobject = VC_test, CPscore = cell_proximities, min_orig_ints = 5, min_sim_ints = 5)
 ## heatmap
 cellProximityHeatmap(gobject = VC_test, CPscore = cell_proximities, order_cell_types = T, scale = T,
-                     color_breaks = c(-1.5, 0, 1.5), color_names = c('blue', 'white', 'red'),
-                     save_param = c(save_name = 'heatmap_cell_cell_enrichment', save_folder = '12_cell_proxim',
-                                    unit = 'in'))
+                     color_breaks = c(-1.5, 0, 1.5), color_names = c('blue', 'white', 'red'))
 ## network
-cellProximityNetwork(gobject = VC_test, CPscore = cell_proximities, remove_self_edges = T, only_show_enrichment_edges = T,
-                     save_param = c(save_name = 'network_cell_cell_enrichment', save_folder = '12_cell_proxim'))
+cellProximityNetwork(gobject = VC_test, CPscore = cell_proximities, remove_self_edges = T, only_show_enrichment_edges = T)
 
 ## visualization
 spec_interaction = "astrocytes--Olig"
-cellProximitySpatPlot2D(gobject = VC_test,
-                        interaction_name = spec_interaction,
-                        cluster_column = 'cell_types',
-                        cell_color = 'cell_types',
-                        point_size_select = 4, point_size_other = 2,
-                        save_param = c(save_name = 'cell_cell_enrichment_selected', save_folder = '12_cell_proxim'))
+cellProximitySpatPlot(gobject = VC_test,
+                      interaction_name = spec_interaction,
+                      cluster_column = 'cell_types',
+                      cell_color = 'cell_types',
+                      point_size_select = 4, point_size_other = 2)
 ```
 
 ![](./figures/11_barplot_cell_cell_enrichment.png)
@@ -558,7 +537,7 @@ cellProximitySpatPlot2D(gobject = VC_test,
 
 </details>
 
-### 12\. single gene enrichment in cell neighborhood
+### part 12: single gene enrichment in cell neighborhood
 
 <details>
 
@@ -577,19 +556,14 @@ CPGscores_wcox =  getCellProximityGeneScores(gobject = VC_test,
 
 ## visualize
 # volcano plot
-volcano = showCPGscores(VC_test, CPGscore = CPGscores_wcox, method = 'volcano',
-                        save_param = c(save_name = 'neighb_enrichment_volcano', save_folder = '13_neigh_gene_enrichment'))
+volcano = showCPGscores(VC_test, CPGscore = CPGscores_wcox, method = 'volcano')
 # barplot
-barplot = showCPGscores(VC_test, CPGscore = CPGscores_wcox, method = 'cell_barplot',
-                        save_param = c(save_name = 'neighb_enrichment_barplot', save_folder = '13_neigh_gene_enrichment'))
+barplot = showCPGscores(VC_test, CPGscore = CPGscores_wcox, method = 'cell_barplot')
 # cell-cell plot
-cell_cell_barplot = showCPGscores(VC_test, CPGscore = CPGscores_wcox, method = 'cell-cell',
-                                  save_param = c(save_name = 'neighb_enrichment_cell_cell',
-                                                 save_folder = '13_neigh_gene_enrichment'))
+cell_cell_barplot = showCPGscores(VC_test, CPGscore = CPGscores_wcox, method = 'cell-cell')
 # sankey plot
 library(ggalluvial)
-sankey = showCPGscores(VC_test, CPGscore = CPGscores_wcox, method = 'cell_sankey',
-                       save_param = c(save_name = 'neighb_enrichment_sankey', save_folder = '13_neigh_gene_enrichment'))
+sankey = showCPGscores(VC_test, CPGscore = CPGscores_wcox, method = 'cell_sankey')
 
 ## filter CPG scores
 filter_CPGscores = filterCPGscores(CPGscore = CPGscores_wcox)
@@ -607,7 +581,7 @@ filter_CPGscores = filterCPGscores(CPGscore = CPGscores_wcox)
 
 </details>
 
-### 13\. double gene enrichment in cell neighborhood
+### part 13: double gene enrichment in cell neighborhood
 
 <details>
 
@@ -630,18 +604,13 @@ plotGTGscores(gobject = VC_test,
               GTGscore = selected_LR,
               selected_interactions = c('astrocytes--OPC'),
               selected_gene_to_gene = 'Anxa6--Tmem98',
-              simple_plot = F, detail_plot = T,
-              save_param = c(save_name = 'interaction_selected',
-                             save_folder = '14_neigh_two_gene_enrichment',
-                             base_widt = 5, base_height = 3))
+              simple_plot = F, detail_plot = T)
 
-cellProximitySpatPlot2D(gobject = VC_test, interaction_name = "astrocytes--OPC",
-                        spatial_network_name = 'spatial_network',
-                        cluster_column = 'cell_types', cell_color_code = NULL,
-                        cell_color = 'cell_types', show_network = T,
-                        network_color = 'blue', point_size_select = 3,
-                        save_param = c(save_name = 'spatial_interaction_selected',
-                                       save_folder = '14_neigh_two_gene_enrichment'))
+cellProximitySpatPlot(gobject = VC_test, interaction_name = "astrocytes--OPC",
+                      spatial_network_name = 'spatial_network',
+                      cluster_column = 'cell_types', cell_color_code = NULL,
+                      cell_color = 'cell_types', show_network = T,
+                      network_color = 'blue', point_size_select = 3)
 ```
 
 ![](./figures/13_interaction_selected.png)
@@ -652,7 +621,7 @@ cellProximitySpatPlot2D(gobject = VC_test, interaction_name = "astrocytes--OPC",
 
 </details>
 
-### 14\. Ligand receptor statistical enrichment analysis
+### part 14: Ligand receptor statistical enrichment analysis
 
 <details>
 
@@ -719,7 +688,7 @@ pl
 
 </details>
 
-### 15\. export results to view in Giotto viewer
+### part 15: export results to view in Giotto viewer
 
 <details>
 

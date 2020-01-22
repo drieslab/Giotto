@@ -4,9 +4,17 @@
 \alias{findMastMarkers}
 \title{findMastMarkers}
 \usage{
-findMastMarkers(gobject, expression_values = c("normalized", "scaled",
-  "custom"), cluster_column, group_1 = NULL, group_1_name = NULL,
-  group_2 = NULL, group_2_name = NULL, adjust_columns = NULL, ...)
+findMastMarkers(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  cluster_column,
+  group_1 = NULL,
+  group_1_name = NULL,
+  group_2 = NULL,
+  group_2_name = NULL,
+  adjust_columns = NULL,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -34,7 +42,8 @@ data.table with marker genes
 Identify marker genes for selected clusters based on the MAST package.
 }
 \details{
-This is a minimal convenience wrapper around the MAST functions to detect differentially expressed genes.
+This is a minimal convenience wrapper around the \code{\link[MAST]{zlm}}
+from the MAST package to detect differentially expressed genes.
 }
 \examples{
     findMastMarkers(gobject)

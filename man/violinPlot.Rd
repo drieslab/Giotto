@@ -4,13 +4,24 @@
 \alias{violinPlot}
 \title{violinPlot}
 \usage{
-violinPlot(gobject, expression_values = c("normalized", "scaled",
-  "custom"), genes, cluster_column, cluster_custom_order = NULL,
-  color_violin = c("genes", "cluster"), cluster_color_code = NULL,
-  strip_position = c("top", "right", "left", "bottom"), strip_text = 7,
-  axis_text_x_size = 10, axis_text_y_size = 6, show_plot = NA,
-  return_plot = NA, save_plot = NA, save_param = list(),
-  default_save_name = "violinPlot")
+violinPlot(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  genes,
+  cluster_column,
+  cluster_custom_order = NULL,
+  color_violin = c("genes", "cluster"),
+  cluster_color_code = NULL,
+  strip_position = c("top", "right", "left", "bottom"),
+  strip_text = 7,
+  axis_text_x_size = 10,
+  axis_text_y_size = 6,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "violinPlot"
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -23,7 +34,7 @@ violinPlot(gobject, expression_values = c("normalized", "scaled",
 
 \item{cluster_custom_order}{custom order of clusters}
 
-\item{color_violin}{color violinplots according to genes or clusters}
+\item{color_violin}{color violin according to genes or clusters}
 
 \item{cluster_color_code}{color code for clusters}
 
@@ -41,20 +52,15 @@ violinPlot(gobject, expression_values = c("normalized", "scaled",
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters from all_plots_save_function()}
+\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-
-\item{color_violin}{color violin according to genes or clusters}
 }
 \value{
 ggplot
 }
 \description{
-Creates heatmap based on identified clusters
-}
-\details{
-Correlation heatmap of clusters vs genes.
+Creates violinplot for selected clusters
 }
 \examples{
     violinPlot(gobject)

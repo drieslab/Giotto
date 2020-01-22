@@ -4,19 +4,43 @@
 \alias{dimGenePlot2D}
 \title{dimGenePlot2D}
 \usage{
-dimGenePlot2D(gobject, expression_values = c("normalized", "scaled",
-  "custom"), genes = NULL, dim_reduction_to_use = "umap",
-  dim_reduction_name = "umap", dim1_to_use = 1, dim2_to_use = 2,
-  show_NN_network = F, nn_network_to_use = "sNN",
-  network_name = "sNN.pca", network_color = "lightgray",
-  edge_alpha = NULL, scale_alpha_with_expression = FALSE,
-  point_size = 1, genes_high_color = "red",
-  genes_mid_color = "white", genes_low_color = "blue",
-  point_border_col = "black", point_border_stroke = 0.1,
-  midpoint = 0, cow_n_col = 2, cow_rel_h = 1, cow_rel_w = 1,
-  cow_align = "h", show_legend = T, show_plot = NA,
-  return_plot = NA, save_plot = NA, save_param = list(),
-  default_save_name = "dimGenePlot2D")
+dimGenePlot2D(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  genes = NULL,
+  dim_reduction_to_use = "umap",
+  dim_reduction_name = "umap",
+  dim1_to_use = 1,
+  dim2_to_use = 2,
+  show_NN_network = F,
+  nn_network_to_use = "sNN",
+  network_name = "sNN.pca",
+  network_color = "lightgray",
+  edge_alpha = NULL,
+  scale_alpha_with_expression = FALSE,
+  point_shape = c("border", "no_border"),
+  point_size = 1,
+  genes_high_color = "red",
+  genes_mid_color = "white",
+  genes_low_color = "blue",
+  point_border_col = "black",
+  point_border_stroke = 0.1,
+  midpoint = 0,
+  show_legend = T,
+  legend_text = 8,
+  background_color = "white",
+  axis_text = 8,
+  axis_title = 8,
+  cow_n_col = 2,
+  cow_rel_h = 1,
+  cow_rel_w = 1,
+  cow_align = "h",
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "dimGenePlot2D"
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -43,6 +67,8 @@ dimGenePlot2D(gobject, expression_values = c("normalized", "scaled",
 
 \item{scale_alpha_with_expression}{scale expression with ggplot alpha parameter}
 
+\item{point_shape}{point with border or not (border or no_border)}
+
 \item{point_size}{size of point (cell)}
 
 \item{point_border_col}{color of border around points}
@@ -50,6 +76,16 @@ dimGenePlot2D(gobject, expression_values = c("normalized", "scaled",
 \item{point_border_stroke}{stroke size of border around points}
 
 \item{midpoint}{size of point (cell)}
+
+\item{show_legend}{show legend}
+
+\item{legend_text}{size of legend text}
+
+\item{background_color}{color of plot background}
+
+\item{axis_text}{size of axis text}
+
+\item{axis_title}{size of axis title}
 
 \item{cow_n_col}{cowplot param: how many columns}
 
@@ -59,15 +95,13 @@ dimGenePlot2D(gobject, expression_values = c("normalized", "scaled",
 
 \item{cow_align}{cowplot param: how to align}
 
-\item{show_legend}{show legend}
-
 \item{show_plot}{show plots}
 
 \item{return_plot}{return ggplot object}
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters from all_plots_save_function()}
+\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
@@ -84,4 +118,7 @@ Description of parameters.
 }
 \examples{
     dimGenePlot2D(gobject)
+}
+\seealso{
+\code{\link{dimGenePlot3D}}
 }

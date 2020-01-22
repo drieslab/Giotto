@@ -2,3 +2,6 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^README\.Rmd$
+^inst/examples$
+^inst/faqs$
+^inst/images$

@@ -4,9 +4,13 @@
 \alias{showIntExpressionProximityScore}
 \title{showIntExpressionProximityScore}
 \usage{
-showIntExpressionProximityScore(scores, selected_interaction,
-  sort_column = "diff_spat", show_enriched_n = 5,
-  show_depleted_n = 5)
+showIntExpressionProximityScore(
+  scores,
+  selected_interaction,
+  sort_column = "diff_spat",
+  show_enriched_n = 5,
+  show_depleted_n = 5
+)
 }
 \arguments{
 \item{scores}{scores, output from getAverageCellProximityGeneScores()}

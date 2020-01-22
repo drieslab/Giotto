@@ -11,7 +11,7 @@
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot barplot
 #' @details This function creates a barplot that shows the  spatial proximity
@@ -88,7 +88,7 @@ cellProximityBarplot = function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot heatmap
 #' @details This function creates a heatmap that shows the  spatial proximity
@@ -213,7 +213,7 @@ cellProximityHeatmap = function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return igraph plot
 #' @details This function creates a network that shows the  spatial proximity
@@ -230,7 +230,7 @@ cellProximityNetwork = function(gobject,
                                 rescale_edge_weights = TRUE,
                                 edge_weight_range_depletion = c(0.1, 1),
                                 edge_weight_range_enrichment = c(1, 5),
-                                layout = 'Fruchterman',
+                                layout = c('Fruchterman', 'DrL', 'Kamada-Kawai'),
                                 only_show_enrichment_edges = F,
                                 edge_width_range = c(0.1, 2),
                                 node_size = 4,
@@ -241,16 +241,13 @@ cellProximityNetwork = function(gobject,
                                 save_param =  list(),
                                 default_save_name = 'cellProximityNetwork') {
 
-  # create coordinates
-  layout = match.arg(arg = layout, choices = c('Fruchterman'))
-
   # extract scores
   CPscores = CPscore[['enrichm_res']]
   CPscores[, cell_1 := strsplit(as.character(unified_int), split = '--')[[1]][1], by = 1:nrow(CPscores)]
   CPscores[, cell_2 := strsplit(as.character(unified_int), split = '--')[[1]][2], by = 1:nrow(CPscores)]
 
   # create igraph with enrichm as weight edges
-  igd = igraph::graph_from_data_frame(d = CPscores[,.(cell_1, cell_2, enrichm)], directed = F)
+  igd = igraph::graph_from_data_frame(d = CPscores[,c('cell_1', 'cell_2', 'enrichm')], directed = F)
 
   if(remove_self_edges == TRUE) {
     igd = igraph::simplify(graph = igd, remove.loops = TRUE, remove.multiple = FALSE)
@@ -272,11 +269,30 @@ cellProximityNetwork = function(gobject,
   # colors
   edges_colors = ifelse(edges_sizes > 0, 'enriched', 'depleted')
 
-  # layout
+
+  # create coordinates for layout
+  if(class(layout) %in% c('data.frame', 'data.table')) {
+    if(ncol(layout) < 2) {
+      stop('custom layout needs to have at least 2 columns')
+    }
+
+    if(nrow(layout) != length(igraph::E(igd))) {
+      stop('rows of custom layout need to be the same as number of edges')
+    }
+
+  } else {
+    layout = match.arg(arg = layout, choices = c('Fruchterman', 'DrL', 'Kamada-Kawai'))
+  }
+
+
   if(layout == 'Fruchterman') {
     coords = igraph::layout_with_fr(graph = igd, weights = edges_sizes_resc)
+  } else if(layout == 'DrL') {
+    coords = igraph::layout_with_drl(graph = igd, weights = edges_sizes_resc)
+  } else if(layout == 'Kamada-Kawai') {
+    coords = igraph::layout_with_kk(graph = igd, weights = edges_sizes_resc)
   } else {
-    stop('\n Currently no other layouts, except Fruchterman Reingold, have been implemented \n')
+    stop('\n Currently no other layouts have been implemented \n')
   }
 
   #iplot = igraph::plot.igraph(igd, edge.color = edges_colors, edge.width = edges_sizes_resc, layout = coords)
@@ -1426,16 +1442,17 @@ filterCPGscores = function(CPGscore,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return Gene to gene scores in data.table format
-#' @details Give more details ...
+#' @details Different ways to visualize how many genes are differentially regulated
+#' within a source cell type due to the proximity of another neighboring cell type.
 #' @export
 #' @examples
 #'     showCPGscores(CPGscore)
 showCPGscores = function(gobject,
                          CPGscore,
-                         method = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey'),
+                         method = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey', 'heatmap', 'dotplot'),
                          min_cells = 5,
                          min_fdr = 0.05,
                          min_spat_diff = 0.2,
@@ -1468,7 +1485,7 @@ showCPGscores = function(gobject,
 
 
   ## other parameters
-  method = match.arg(method, choices = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey'))
+  method = match.arg(method, choices = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey', 'heatmap', 'dotplot'))
 
   ## create data.table for visualization
   subset = filter_set[(fdr_1 <= min_fdr & unif_int_rank == 1) | (fdr_1 <= min_fdr & fdr_2 <= min_fdr & unif_int_rank == 2)]
@@ -1477,6 +1494,7 @@ showCPGscores = function(gobject,
   part2 = subset[unif_int_rank == 2,.(genes, interaction, cell_type_2, cell_type_1, log2fc_spat_2, fdr_2)]
   colnames(part2) = c('genes', 'interaction', 'source', 'neighbor', 'log2fc', 'fdr')
   complete_part = rbind(part1, part2)
+
 
 
 
@@ -1601,7 +1619,68 @@ showCPGscores = function(gobject,
       return(pl)
     }
 
+  } else if(method == 'dotplot') {
+
+    changed_genes = complete_part[, .N, by = c('source', 'neighbor')]
+
+    changed_genes[, source := factor(source, unique(source))]
+    changed_genes[, neighbor := factor(neighbor, unique(neighbor))]
+
+    pl = ggplot()
+    pl = pl + theme_classic()
+    pl = pl + geom_point(data = changed_genes, aes(x = source, y = neighbor, size = N))
+    pl = pl + scale_size_continuous(guide=guide_legend(title = '# of DEGs'))
+    pl = pl + theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1))
+    pl = pl + labs(x = 'source cell type', y = 'neighbor cell type')
+
+    ## print plot
+    if(show_plot == TRUE) {
+      print(pl)
+    }
+
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+    }
+
+    ## return plot
+    if(return_plot == TRUE) {
+      return(pl)
+    }
+
+  } else if(method == 'heatmap') {
+
+    changed_genes = complete_part[, .N, by = c('source', 'neighbor')]
+
+    changed_genes[, source := factor(source, unique(source))]
+    changed_genes[, neighbor := factor(neighbor, unique(neighbor))]
+
+    changed_genes_d = data.table::dcast.data.table(changed_genes, source~neighbor, value.var = 'N', fill = 0)
+    changed_genes_m = Giotto:::dt_to_matrix(changed_genes_d)
+
+    col_fun = circlize::colorRamp2(breaks = quantile(log2(changed_genes_m+1)),
+                                   colors =  c("white", 'white', "blue", "yellow", "red"))
+
+    heatm = ComplexHeatmap::Heatmap(log2(changed_genes_m+1), col = col_fun,
+                                    row_title = 'source', column_title = 'neighbor', heatmap_legend_param = list(title = 'log2(# DEGs)'))
+
+    ## print plot
+    if(show_plot == TRUE) {
+      print(heatm)
+    }
+
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = heatm, default_save_name = default_save_name), save_param))
+    }
+
+    ## return plot
+    if(return_plot == TRUE) {
+      return(heatm)
+    }
+
   }
+
 
 }
 
@@ -1820,7 +1899,7 @@ showGTGscores = function(GTGscore,
 #' @param show_plot show plots
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot barplot
 #' @details Give more details ...
@@ -2085,7 +2164,7 @@ plotCPGscores <- function(CPGscores,
 #' @param show_plot show plots
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @details Description of parameters.
@@ -2130,8 +2209,6 @@ cellProximitySpatPlot2D <- function(gobject,
   cell_locations  = gobject@spatial_locs
   spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
   cell_metadata   = gobject@cell_metadata
-
-
 
   spatial_network = annotateSpatialNetwork(gobject = gobject,
                                            spatial_network_name = spatial_network_name,
@@ -2277,4 +2354,191 @@ cellProximitySpatPlot2D <- function(gobject,
   }
 }
 
+
+
+#' @title cellProximitySpatPlot
+#' @name cellProximitySpatPlot
+#' @description Visualize 2D cell-cell interactions according to spatial coordinates in ggplot mode
+#' @param gobject giotto object
+#' @param interaction_name cell-cell interaction name
+#' @param cluster_column cluster column with cell clusters
+#' @param sdimx x-axis dimension name (default = 'sdimx')
+#' @param sdimy y-axis dimension name (default = 'sdimy')
+#' @param cell_color color for cells (see details)
+#' @param cell_color_code named vector with colors
+#' @param color_as_factor convert color column to factor
+#' @param show_other_cells decide if show cells not in network
+#' @param show_network show underlying spatial network
+#' @param network_color color of spatial network
+#' @param spatial_network_name name of spatial network to use
+#' @param show_grid show spatial grid
+#' @param grid_color color of spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param coord_fix_ratio fix ratio between x and y-axis
+#' @param show_legend show legend
+#' @param point_size_select size of selected points
+#' @param point_select_border_col border color of selected points
+#' @param point_select_border_stroke stroke size of selected points
+#' @param point_size_other size of other points
+#' @param point_other_border_col border color of other points
+#' @param point_other_border_stroke stroke size of other points
+#' @param show_plot show plots
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @seealso  \code{\link{cellProximitySpatPlot2D}} and \code{\link{cellProximitySpatPlot3D}} for 3D
+#' @examples
+#'     cellProximitySpatPlot(gobject)
+cellProximitySpatPlot = function(gobject, ...) {
+
+  cellProximitySpatPlot2D(gobject = gobject, ...)
+
+}
+
+
+#' @title cellProximitySpatPlot2D
+#' @name cellProximitySpatPlot3D
+#' @description Visualize 3D cell-cell interactions according to spatial coordinates in plotly mode
+#' @param gobject giotto object
+#' @param interaction_name cell-cell interaction name
+#' @param cluster_column cluster column with cell clusters
+#' @param sdimx x-axis dimension name (default = 'sdimx')
+#' @param sdimy y-axis dimension name (default = 'sdimy')
+#' @param sdimz z-axis dimension name (default = 'sdimz')
+#' @param cell_color color for cells (see details)
+#' @param cell_color_code named vector with colors
+#' @param color_as_factor convert color column to factor
+#' @param show_other_cells decide if show cells not in network
+#' @param show_network show underlying spatial network
+#' @param network_color color of spatial network
+#' @param spatial_network_name name of spatial network to use
+#' @param show_grid show spatial grid
+#' @param grid_color color of spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param show_legend show legend
+#' @param point_size_select size of selected points
+#' @param point_size_other size of other points
+#' @param show_plot show plots
+#' @param return_plot return plotly object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return plotly
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     cellProximitySpatPlot3D(gobject)
+
+cellProximitySpatPlot3D = function(gobject,
+                                   interaction_name = NULL,
+                                   cluster_column = NULL,
+                                   sdimx = "sdimx",
+                                   sdimy = "sdimy",
+                                   sdimz = "sdimz",
+                                   cell_color = NULL,
+                                   cell_color_code = NULL,
+                                   color_as_factor = T,
+                                   show_other_cells = T,
+                                   show_network = T,
+                                   show_other_network = F,
+                                   network_color = NULL,
+                                   spatial_network_name = 'spatial_network',
+                                   show_grid = F,
+                                   grid_color = NULL,
+                                   spatial_grid_name = 'spatial_grid',
+                                   show_legend = T,
+                                   point_size_select = 4,
+                                   point_size_other = 2,
+                                   point_alpha_other = 0.5,
+                                   axis_scale = c("cube","real","custom"),
+                                   custom_ratio = NULL,
+                                   x_ticks = NULL,
+                                   y_ticks = NULL,
+                                   z_ticks = NULL,
+                                   show_plot = NA,
+                                   return_plot = NA,
+                                   save_plot = NA,
+                                   save_param =  list(),
+                                   default_save_name = 'cellProximitySpatPlot3D',
+                                   ...){
+  if(is.null(sdimz)){
+    pl = cellProximityVisPlot_2D_plotly(gobject = gobject,
+                                        interaction_name = interaction_name,
+                                        cluster_column = cluster_column,
+                                        sdimx = sdimx,
+                                        sdimy = sdimy,
+                                        cell_color = cell_color,
+                                        cell_color_code = cell_color_code,
+                                        color_as_factor = color_as_factor,
+                                        show_other_cells = show_other_cells,
+                                        show_network = show_network,
+                                        show_other_network = show_other_network,
+                                        network_color = network_color,
+                                        spatial_network_name = spatial_network_name,
+                                        show_grid = show_grid,
+                                        grid_color = grid_color,
+                                        spatial_grid_name = spatial_grid_name,
+                                        show_legend = show_legend,
+                                        point_size_select = point_size_select,
+                                        point_size_other = point_size_other,
+                                        point_alpha_other = point_alpha_other,
+                                        axis_scale = axis_scale,
+                                        custom_ratio = custom_ratio,
+                                        x_ticks = x_ticks,
+                                        y_ticks = y_ticks,
+                                        ...)
+  }
+  else{
+    pl = cellProximityVisPlot_3D_plotly(gobject = gobject,
+                                        interaction_name = interaction_name,
+                                        cluster_column = cluster_column,
+                                        sdimx = sdimx,
+                                        sdimy = sdimy,
+                                        sdimz = sdimz,
+                                        cell_color = cell_color,
+                                        cell_color_code = cell_color_code,
+                                        color_as_factor = color_as_factor,
+                                        show_other_cells = show_other_cells,
+                                        show_network = show_network,
+                                        show_other_network = show_other_network,
+                                        network_color = network_color,
+                                        spatial_network_name = spatial_network_name,
+                                        show_grid = show_grid,
+                                        grid_color = grid_color,
+                                        spatial_grid_name = spatial_grid_name,
+                                        show_legend = show_legend,
+                                        point_size_select = point_size_select,
+                                        point_size_other = point_size_other,
+                                        point_alpha_other = point_alpha_other,
+                                        axis_scale = axis_scale,
+                                        custom_ratio = custom_ratio,
+                                        x_ticks = x_ticks,
+                                        y_ticks = y_ticks,
+                                        z_ticks = z_ticks,
+                                        ...)
+  }
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
+}
 

@@ -4,8 +4,13 @@
 \alias{plotly_grid}
 \title{plotly_grid}
 \usage{
-plotly_grid(spatial_grid, x_start = "x_start", y_start = "y_start",
-  x_end = "x_end", y_end = "y_end")
+plotly_grid(
+  spatial_grid,
+  x_start = "x_start",
+  y_start = "y_start",
+  x_end = "x_end",
+  y_end = "y_end"
+)
 }
 \arguments{
 \item{spatial_grid}{spatial_grid in giotto object}

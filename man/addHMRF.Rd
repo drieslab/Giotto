@@ -4,8 +4,7 @@
 \alias{addHMRF}
 \title{addHMRF}
 \usage{
-addHMRF(gobject, HMRFoutput, k = NULL, betas_to_add = NULL,
-  hmrf_name = NULL)
+addHMRF(gobject, HMRFoutput, k = NULL, betas_to_add = NULL, hmrf_name = NULL)
 }
 \arguments{
 \item{gobject}{giotto object}

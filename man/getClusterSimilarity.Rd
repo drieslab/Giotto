@@ -4,8 +4,12 @@
 \alias{getClusterSimilarity}
 \title{getClusterSimilarity}
 \usage{
-getClusterSimilarity(gobject, expression_values = c("normalized",
-  "scaled", "custom"), cluster_column, cor = c("pearson", "spearman"))
+getClusterSimilarity(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  cluster_column,
+  cor = c("pearson", "spearman")
+)
 }
 \arguments{
 \item{gobject}{giotto object}

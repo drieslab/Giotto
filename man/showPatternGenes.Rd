@@ -4,10 +4,20 @@
 \alias{showPatternGenes}
 \title{showPatternGenes}
 \usage{
-showPatternGenes(gobject, spatPatObj, dimension = 1, top_pos_genes = 5,
-  top_neg_genes = 5, point_size = 1, return_DT = FALSE,
-  show_plot = NA, return_plot = NA, save_plot = NA,
-  save_param = list(), default_save_name = "showPatternGenes")
+showPatternGenes(
+  gobject,
+  spatPatObj,
+  dimension = 1,
+  top_pos_genes = 5,
+  top_neg_genes = 5,
+  point_size = 1,
+  return_DT = FALSE,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "showPatternGenes"
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -39,9 +49,6 @@ ggplot
 }
 \description{
 show genes correlated with spatial patterns
-}
-\details{
-Description.
 }
 \examples{
     showPatternGenes(gobject)

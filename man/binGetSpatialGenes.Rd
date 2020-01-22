@@ -4,11 +4,19 @@
 \alias{binGetSpatialGenes}
 \title{binGetSpatialGenes}
 \usage{
-binGetSpatialGenes(gobject, bin_method = c("kmeans", "rank"),
+binGetSpatialGenes(
+  gobject,
+  bin_method = c("kmeans", "rank"),
   expression_values = c("normalized", "scaled", "custom"),
-  spatial_network_name = "spatial_network", nstart = 3,
-  iter_max = 10, percentage_rank = 10, do_fisher_test = F,
-  community_expectation = 5, verbose = F)
+  subset_genes = NULL,
+  spatial_network_name = "spatial_network",
+  nstart = 3,
+  iter_max = 10,
+  percentage_rank = 10,
+  do_fisher_test = F,
+  community_expectation = 5,
+  verbose = F
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -16,6 +24,8 @@ binGetSpatialGenes(gobject, bin_method = c("kmeans", "rank"),
 \item{bin_method}{method to binarize gene expression}
 
 \item{expression_values}{expression values to use}
+
+\item{subset_genes}{only select a subset of genes to test}
 
 \item{spatial_network_name}{name of spatial network to use (default = 'spatial_network')}
 
@@ -32,13 +42,26 @@ binGetSpatialGenes(gobject, bin_method = c("kmeans", "rank"),
 \item{rank_percentage}{percentage of top cells for binarization}
 }
 \value{
-giotto object spatial genes appended to fDataDT
+data.table with results (see details)
 }
 \description{
-compute genes that are spatially clustered
+Rapid computation of genes that are spatially clustered
 }
 \details{
-Description of how we compute spatial genes.
+We provide two ways to identify spatial genes based on gene expression binarization.
+Both methods are identicial except for how binarization is performed.
+\itemize{
+  \item{1. binarize: }{Each gene is binarized (0 or 1) in each cell with \bold{kmeans} (k = 2) or based on \bold{rank} percentile}
+  \item{2. network: }{Alll cells are connected through a k-nearest neighbor network}
+  \item{3. contingency table: }{A contingency table is calculated based on all pairwise cell-cell interactions (0-0, 0-1, 1-0 or 1-1)}
+  \item{4. For each gene an odds-ratio (OR) and fisher.test (optional) is calculated}
+}
+Additionally 2 other statistics are provided:
+\itemize{
+  \item{Number of cells with high expression (binary = 1)}
+  \item{total and ratio of highly connected cells: }{ Cells with a connectivity higher than community_expectation}
+}
+By selecting a subset of likely spatial genes (e.g. highly variable genes) the function will be much faster.
 }
 \examples{
     binGetSpatialGenes(gobject)

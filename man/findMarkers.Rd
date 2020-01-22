@@ -4,12 +4,24 @@
 \alias{findMarkers}
 \title{findMarkers}
 \usage{
-findMarkers(gobject, expression_values = c("normalized", "scaled",
-  "custom"), cluster_column, method = c("scran", "gini", "mast"),
-  subset_clusters = NULL, group_1 = NULL, group_2 = NULL,
-  min_expr_gini_score = 0.5, min_det_gini_score = 0.5,
-  detection_threshold = 0, rank_score = 1, group_1_name = NULL,
-  group_2_name = NULL, adjust_columns = NULL, ...)
+findMarkers(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  cluster_column,
+  method = c("scran", "gini", "mast"),
+  subset_clusters = NULL,
+  group_1 = NULL,
+  group_2 = NULL,
+  min_expr_gini_score = 0.5,
+  min_det_gini_score = 0.5,
+  detection_threshold = 0,
+  rank_score = 1,
+  min_genes = 4,
+  group_1_name = NULL,
+  group_2_name = NULL,
+  adjust_columns = NULL,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -34,6 +46,8 @@ findMarkers(gobject, expression_values = c("normalized", "scaled",
 
 \item{rank_score}{gini: rank scores to include}
 
+\item{min_genes}{minimum number of top genes to return (for gini)}
+
 \item{group_1_name}{mast: custom name for group_1 clusters}
 
 \item{group_2_name}{mast: custom name for group_2 clusters}
@@ -49,8 +63,11 @@ data.table with marker genes
 Identify marker genes for selected clusters.
 }
 \details{
-Wrapper for findScranMarkers, findGiniMarkers and FindMastMarkers.
+Wrapper for all individual functions to detect marker genes for clusters.
 }
 \examples{
     findMarkers(gobject)
+}
+\seealso{
+\code{\link{findScranMarkers}}, \code{\link{findGiniMarkers}} and \code{\link{findMastMarkers}}
 }

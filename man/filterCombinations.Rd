@@ -4,11 +4,18 @@
 \alias{filterCombinations}
 \title{filterCombinations}
 \usage{
-filterCombinations(gobject, expression_values = c("raw", "normalized",
-  "scaled", "custom"), expression_thresholds = c(1, 2),
-  gene_det_in_min_cells = c(5, 50), min_det_genes_per_cell = c(200,
-  400), scale_x_axis = "identity", x_axis_offset = 0,
-  scale_y_axis = "identity", y_axis_offset = 0, show_plot = TRUE)
+filterCombinations(
+  gobject,
+  expression_values = c("raw", "normalized", "scaled", "custom"),
+  expression_thresholds = c(1, 2),
+  gene_det_in_min_cells = c(5, 50),
+  min_det_genes_per_cell = c(200, 400),
+  scale_x_axis = "identity",
+  x_axis_offset = 0,
+  scale_y_axis = "identity",
+  y_axis_offset = 0,
+  show_plot = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}

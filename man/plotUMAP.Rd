@@ -4,16 +4,24 @@
 \alias{plotUMAP}
 \title{plotUMAP}
 \usage{
-plotUMAP(gobject, ...)
+plotUMAP(gobject, dim_reduction_name = "umap", default_save_name = "UMAP", ...)
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{dim_reduction_name}{dimension reduction name}
+
+\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+
+\item{groub_by}{create multiple plots based on cell annotation column}
+
+\item{group_by_subset}{subset the group_by factor column}
 
 \item{dim1_to_use}{dimension to use on x-axis}
 
 \item{dim2_to_use}{dimension to use on y-axis}
 
-\item{dim3_to_use}{dimension to use on z-axis}
+\item{spat_enr_names}{names of spatial enrichment results to include}
 
 \item{show_NN_network}{show underlying NN network}
 
@@ -27,6 +35,22 @@ plotUMAP(gobject, ...)
 
 \item{cell_color_code}{named vector with colors}
 
+\item{cell_color_gradient}{vector with 3 colors for numeric data}
+
+\item{gradient_midpoint}{midpoint for color gradient}
+
+\item{gradient_limits}{vector with lower and upper limits}
+
+\item{select_cell_groups}{select subset of cells/clusters based on cell_color parameter}
+
+\item{select_cells}{select subset of cells based on cell IDs}
+
+\item{show_other_cells}{display not selected cells}
+
+\item{other_cell_color}{color of not selected cells}
+
+\item{other_point_size}{size of not selected cells}
+
 \item{show_cluster_center}{plot center of selected clusters}
 
 \item{show_center_label}{plot label of selected clusters}
@@ -39,13 +63,35 @@ plotUMAP(gobject, ...)
 
 \item{edge_alpha}{column to use for alpha of the edges}
 
+\item{point_shape}{point with border or not (border or no_border)}
+
 \item{point_size}{size of point (cell)}
 
 \item{point_border_col}{color of border around points}
 
 \item{point_border_stroke}{stroke size of border around points}
 
+\item{title}{title for plot, defaults to cell_color parameter}
+
 \item{show_legend}{show legend}
+
+\item{legend_text}{size of legend text}
+
+\item{legend_symbol_size}{size of legend symbols}
+
+\item{background_color}{color of plot background}
+
+\item{axis_text}{size of axis text}
+
+\item{axis_title}{size of axis title}
+
+\item{cow_n_col}{cowplot param: how many columns}
+
+\item{cow_rel_h}{cowplot param: relative height}
+
+\item{cow_rel_w}{cowplot param: relative width}
+
+\item{cow_align}{cowplot param: how to align}
 
 \item{show_plot}{show plot}
 
@@ -53,15 +99,7 @@ plotUMAP(gobject, ...)
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_dir}{directory to save the plot}
-
-\item{save_folder}{(optional) folder in directory to save the plot}
-
-\item{save_name}{name of plot}
-
-\item{save_format}{format of plot (e.g. tiff, png, pdf, ...)}
-
-\item{show_saved_plot}{load & display the saved plot}
+\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
 }
 \value{
 ggplot
@@ -70,11 +108,8 @@ ggplot
 Short wrapper for UMAP visualization
 }
 \details{
-Description of parameters.
+Description of parameters, see \code{\link{dimPlot2D}}. For 3D plots see \code{\link{plotUMAP_3D}}
 }
 \examples{
     plotUMAP(gobject)
-}
-\seealso{
-\code{\link{visDimPlot}}
 }

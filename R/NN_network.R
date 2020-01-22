@@ -3,34 +3,62 @@
 
 #' @title createNearestNetwork
 #' @name createNearestNetwork
-#' @description create a nearest neighbour network based on previously computed \cr
-#' dimension reductions
+#' @description create a nearest neighbour (NN) network
 #' @param gobject giotto object
-#' @param expression_values expression values to use
-#' @param type kNN or sNN
+#' @param type sNN or kNN
 #' @param dim_reduction_to_use dimension reduction method to use
 #' @param dim_reduction_name name of dimension reduction set to use
 #' @param dimensions_to_use number of dimensions to use as input
 #' @param name arbitrary name for NN network
 #' @param genes_to_use if dim_reduction_to_use = NULL, which genes to use
+#' @param expression_values expression values to use
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param k number of k neighbors to use
 #' @param minimum_shared minimum shared neighbors
 #' @param top_shared keep at ...
 #' @param verbose be verbose
-#' @param ... additional parameters
+#' @param ... additional parameters for kNN and sNN functions from dbscan
 #' @return giotto object with updated NN network
-#' @details Description of nearest neighbor network creation and filter steps.
+#' @details This function creates a k-nearest neighbour (kNN) or shared nearest neighbour (sNN) network
+#' based on the provided dimension reduction space. To run it directly on the gene expression matrix
+#' set \emph{dim_reduction_to_use = NULL}.
+#'
+#' See also \code{\link[dbscan]{kNN}} and \code{\link[dbscan]{sNN}} for more information about
+#' how the networks are created.
+#'
+#' Output for kNN:
+#' \itemize{
+#'   \item{from: }{cell_ID for source cell}
+#'   \item{to: }{cell_ID for target cell}
+#'   \item{distance: }{distance between cells}
+#'   \item{weight: }{weight = 1/(1 + distance)}
+#' }
+#'
+#' Output for sNN:
+#' \itemize{
+#'   \item{from: }{cell_ID for source cell}
+#'   \item{to: }{cell_ID for target cell}
+#'   \item{distance: }{distance between cells}
+#'   \item{weight: }{1/(1 + distance)}
+#'   \item{shared: }{number of shared neighbours}
+#'   \item{rank: }{ranking of pairwise cell neighbours}
+#' }
+#' For sNN networks two additional parameters can be set:
+#' \itemize{
+#'   \item{minimum_shared: }{minimum number of shared neighbours needed}
+#'   \item{top_shared: }{keep this number of the top shared neighbours, irrespective of minimum_shared setting}
+#' }
+#'
 #' @export
 #' @examples
 #'     createNearestNetwork(gobject)
 createNearestNetwork <- function(gobject,
-                                 expression_values = c('normalized', 'scaled', 'custom'),
                                  type = c('sNN', 'kNN'),
                                  dim_reduction_to_use = 'pca',
                                  dim_reduction_name = 'pca',
                                  dimensions_to_use = 1:10,
                                  genes_to_use = NULL,
+                                 expression_values = c('normalized', 'scaled', 'custom'),
                                  name = 'sNN.pca',
                                  return_gobject = TRUE,
                                  k = 30,
@@ -45,7 +73,10 @@ createNearestNetwork <- function(gobject,
   ## using dimension reduction ##
   if(!is.null(dim_reduction_to_use)) {
 
-    ## TODO: check if reduction exists
+    ## check if reduction exists
+    check = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]]
+    if(is.null(check)) stop('dimension reduction does not exist, check if you did ', dim_reduction_to_use,
+                            ' and if ', dim_reduction_name, ' was the name used')
 
     # use only available dimensions if dimensions < dimensions_to_use
     dim_coord = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']]
@@ -54,6 +85,7 @@ createNearestNetwork <- function(gobject,
 
 
   } else {
+
     ## using original matrix ##
     values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
     expr_values = select_expression_values(gobject = gobject, values = values)
@@ -63,8 +95,7 @@ createNearestNetwork <- function(gobject,
       expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
     }
 
-    # features as columns
-    # cells as rows
+    # features as columns & cells as rows
     matrix_to_use = t(expr_values)
 
   }
@@ -73,11 +104,10 @@ createNearestNetwork <- function(gobject,
   cell_names = rownames(matrix_to_use)
   names(cell_names) = 1:nrow(matrix_to_use)
 
-
   ## run nearest-neighbour algorithm ##
   if(k >= nrow(matrix_to_use)) {
     k = (nrow(matrix_to_use)-1)
-    if(verbose == TRUE) cat('\n k is too high, adjusted to nrow(matrix)-1 \n')
+    if(verbose == TRUE) cat('\n k is higher than total number of cells, adjusted to (total number of cells - 1) \n')
   }
 
   nn_network = dbscan::kNN(x = matrix_to_use, k = k, sort = TRUE, ...)
@@ -161,9 +191,10 @@ createNearestNetwork <- function(gobject,
 }
 
 
+
 #' @title addNetworkLayout
 #' @name addNetworkLayout
-#' @description Add a network layout for a select nearest neighbor network
+#' @description Add a network layout for a selected nearest neighbor network
 #' @param gobject giotto object
 #' @param nn_network_to_use kNN or sNN
 #' @param network_name name of NN network to be used
@@ -172,21 +203,25 @@ createNearestNetwork <- function(gobject,
 #' @param layout_name name for layout
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @return giotto object with updated layout for selected NN network
-#' @details Description of layouts and options.
+#' @details This function creates layout coordinates based on the provided kNN or sNN.
+#' Currently only the force-directed graph layout "drl", see \code{\link[igraph]{layout_with_drl}},
+#' is implemented. This provides an alternative to tSNE or UMAP based visualizations.
 #' @export
 #' @examples
 #'     addNetworkLayout(gobject)
 addNetworkLayout = function(gobject,
-                            nn_network_to_use = NULL,
-                            network_name = NULL,
+                            nn_network_to_use = "sNN",
+                            network_name = "sNN.pca",
                             layout_type = c('drl'),
                             options_list = NULL,
                             layout_name = 'layout',
                             return_gobject = TRUE) {
 
+  ## checks
   if(is.null(nn_network_to_use) | is.null(network_name)) {
     stop('\n first create a nearest network \n')
   }
+
   ig_object = gobject@nn_network[[nn_network_to_use]][[network_name]][['igraph']]
 
   layout_type = match.arg(arg = layout_type, c('drl'))
@@ -204,10 +239,8 @@ addNetworkLayout = function(gobject,
   if(return_gobject == TRUE) {
 
     nn_names = names(gobject@nn_network[[nn_network_to_use]])
-
     if(layout_name %in% nn_names) {
       cat('\n ', layout_name, ' has already been used, will be overwritten \n')
-
     }
 
     gobject@nn_network[[nn_network_to_use]][[network_name]][['layout']] <- layout_coord
@@ -225,12 +258,9 @@ addNetworkLayout = function(gobject,
 
     return(gobject)
 
-
   } else {
     return(layout_coord)
   }
-
-
 
 }
 
@@ -268,17 +298,21 @@ nnDT_to_kNN <- function(nnDT) {
 
 #' @title extractNearestNetwork
 #' @name extractNearestNetwork
-#' @description Extracts a NN-network from a Giotto object as an igraph object
+#' @description Extracts a NN-network from a Giotto object
 #' @param gobject giotto object
 #' @param nn_network_to_use kNN or sNN
 #' @param network_name name of NN network to be used
-#' @return igraph object
+#' @param output return a igraph or data.table object
+#' @return igraph or data.table object
 #' @export
 #' @examples
 #'     extractNearestNetwork(gobject)
 extractNearestNetwork = function(gobject,
                                  nn_network_to_use = 'sNN',
-                                 network_name = 'sNN.pca') {
+                                 network_name = 'sNN.pca',
+                                 output = c('igraph', 'data.table')) {
+
+  output = match.arg(arg = output, choices = c('igraph', 'data.table'))
 
   ## select network to use
   if(is.null(nn_network_to_use) | is.null(network_name)) {
@@ -287,9 +321,15 @@ extractNearestNetwork = function(gobject,
   } else {
     igraph_object = gobject@nn_network[[nn_network_to_use]][[network_name]][['igraph']]
     if(is.null(igraph_object)) {
-      stop('\n nn_network_to_use or network_name does not exist, \n
+      cat('\n nn_network_to_use or network_name does not exist, \n
            create a nearest-neighbor network first \n')
     }
+  }
+
+  ## convert igraph to data.table
+  if(output == 'data.table') {
+    igraph_object = data.table::as.data.table(igraph::get.data.frame(x = igraph_object))
+    return(igraph_object)
   }
 
   return(igraph_object)

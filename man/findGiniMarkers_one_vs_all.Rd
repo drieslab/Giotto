@@ -4,10 +4,18 @@
 \alias{findGiniMarkers_one_vs_all}
 \title{findGiniMarkers_one_vs_all}
 \usage{
-findGiniMarkers_one_vs_all(gobject, expression_values = c("normalized",
-  "scaled", "custom"), cluster_column, subset_clusters = NULL,
-  min_expr_gini_score = 0.5, min_det_gini_score = 0.5,
-  detection_threshold = 0, min_genes = 10, verbose = TRUE)
+findGiniMarkers_one_vs_all(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  cluster_column,
+  subset_clusters = NULL,
+  min_expr_gini_score = 0.5,
+  min_det_gini_score = 0.5,
+  detection_threshold = 0,
+  rank_score = 1,
+  min_genes = 4,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -24,7 +32,9 @@ findGiniMarkers_one_vs_all(gobject, expression_values = c("normalized",
 
 \item{detection_threshold}{detection threshold for gene expression}
 
-\item{min_genes}{minimum genes to keep per cluster, overrides pval and logFC}
+\item{rank_score}{rank scores for both detection and expression to include}
+
+\item{min_genes}{minimum number of top genes to return}
 
 \item{verbose}{be verbose}
 }
@@ -32,11 +42,11 @@ findGiniMarkers_one_vs_all(gobject, expression_values = c("normalized",
 data.table with marker genes
 }
 \description{
-Identify marker genes for all clusters based on gini detection and expression scores.
-}
-\details{
-Description of parameters.
+Identify marker genes for all clusters in a one vs all manner based on gini detection and expression scores.
 }
 \examples{
     findGiniMarkers_one_vs_all(gobject)
+}
+\seealso{
+\code{\link{findGiniMarkers}}
 }

@@ -4,8 +4,11 @@
 \alias{annotateSpatialNetwork}
 \title{annotateSpatialNetwork}
 \usage{
-annotateSpatialNetwork(gobject, spatial_network_name = "spatial_network",
-  cluster_column)
+annotateSpatialNetwork(
+  gobject,
+  spatial_network_name = "spatial_network",
+  cluster_column
+)
 }
 \arguments{
 \item{gobject}{giotto object}

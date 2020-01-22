@@ -4,11 +4,20 @@
 \alias{showClusterHeatmap}
 \title{showClusterHeatmap}
 \usage{
-showClusterHeatmap(gobject, expression_values = c("normalized", "scaled",
-  "custom"), genes = "all", cluster_column, cor = c("pearson",
-  "spearman"), distance = "ward.D", show_plot = NA, return_plot = NA,
-  save_plot = NA, save_param = list(),
-  default_save_name = "showClusterHeatmap", ...)
+showClusterHeatmap(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  genes = "all",
+  cluster_column,
+  cor = c("pearson", "spearman"),
+  distance = "ward.D",
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "showClusterHeatmap",
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -29,7 +38,7 @@ showClusterHeatmap(gobject, expression_values = c("normalized", "scaled",
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters from all_plots_save_function()}
+\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 

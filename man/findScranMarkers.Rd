@@ -4,9 +4,15 @@
 \alias{findScranMarkers}
 \title{findScranMarkers}
 \usage{
-findScranMarkers(gobject, expression_values = c("normalized", "scaled",
-  "custom"), cluster_column, subset_clusters = NULL, group_1 = NULL,
-  group_2 = NULL, ...)
+findScranMarkers(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  cluster_column,
+  subset_clusters = NULL,
+  group_1 = NULL,
+  group_2 = NULL,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -27,10 +33,14 @@ findScranMarkers(gobject, expression_values = c("normalized", "scaled",
 data.table with marker genes
 }
 \description{
-Identify marker genes for selected clusters based on scran's implementation of findMarkers.
+Identify marker genes for all or selected clusters based on scran's implementation of findMarkers.
 }
 \details{
-This is a minimal convenience wrapper around the findMarkers function from the scran package.
+This is a minimal convenience wrapper around
+the \code{\link[scran]{findMarkers}} function from the scran package.
+
+To perform differential expression between cluster groups you need to specificy cluster IDs
+to the parameters \emph{group_1} and \emph{group_2}.
 }
 \examples{
     findScranMarkers(gobject)

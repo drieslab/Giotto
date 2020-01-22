@@ -4,9 +4,15 @@
 \alias{filterCPGscores}
 \title{filterCPGscores}
 \usage{
-filterCPGscores(CPGscore, min_cells = 5, min_fdr = 0.05,
-  min_spat_diff = 0.2, min_log2_fc = 0.5, keep_int_duplicates = TRUE,
-  direction = c("both", "up", "down"))
+filterCPGscores(
+  CPGscore,
+  min_cells = 5,
+  min_fdr = 0.05,
+  min_spat_diff = 0.2,
+  min_log2_fc = 0.5,
+  keep_int_duplicates = TRUE,
+  direction = c("both", "up", "down")
+)
 }
 \arguments{
 \item{min_cells}{min number of cells threshold}

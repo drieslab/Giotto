@@ -4,8 +4,12 @@
 \alias{calculateMetaTable}
 \title{calculateMetaTable}
 \usage{
-calculateMetaTable(gobject, expression_values = c("normalized", "scaled",
-  "custom"), metadata_cols = NULL, selected_genes = NULL)
+calculateMetaTable(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  metadata_cols = NULL,
+  selected_genes = NULL
+)
 }
 \arguments{
 \item{gobject}{giotto object}

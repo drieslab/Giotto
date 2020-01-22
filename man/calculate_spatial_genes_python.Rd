@@ -4,10 +4,15 @@
 \alias{calculate_spatial_genes_python}
 \title{calculate_spatial_genes_python}
 \usage{
-calculate_spatial_genes_python(gobject,
+calculate_spatial_genes_python(
+  gobject,
   expression_values = c("normalized", "scaled", "custom"),
-  metric = "euclidean", subset_genes = NULL, rbp_p = 0.95,
-  examine_top = 0.3, python_path = NULL)
+  metric = "euclidean",
+  subset_genes = NULL,
+  rbp_p = 0.95,
+  examine_top = 0.3,
+  python_path = NULL
+)
 }
 \arguments{
 \item{gobject}{giotto object}

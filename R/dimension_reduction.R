@@ -13,12 +13,16 @@
 create_dimObject = function(name = 'test',
                             reduction_method = NULL,
                             coordinates = NULL,
-                            misc = NULL) {
+                            misc = NULL,
+                            my_rownames = NULL) {
 
 
   number_of_dimensions = ncol(coordinates)
   colnames(coordinates) <- paste0('Dim.',1:number_of_dimensions)
 
+  if(!is.null(my_rownames)) {
+    rownames(coordinates) = my_rownames
+  }
 
   dimObj = list(name = name,
                 reduction_method = reduction_method,
@@ -33,7 +37,7 @@ create_dimObject = function(name = 'test',
 
 #' @title runPCA
 #' @name runPCA
-#' @description run PCA
+#' @description runs a Principal Component Analysis
 #' @param gobject giotto object
 #' @param expression_values expression values to use
 #' @param reduction cells or genes
@@ -42,9 +46,9 @@ create_dimObject = function(name = 'test',
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param scale_unit scale features before PCA
 #' @param ncp number of principal components to calculate
-#' @param ... additional parameters for PCA
+#' @param ... additional parameters for PCA (see details)
 #' @return giotto object with updated PCA dimension recuction
-#' @details Description of PCA steps...
+#' @details See \code{\link[FactoMineR]{PCA}} for more information about other parameters.
 #' @export
 #' @examples
 #'     runPCA(gobject)
@@ -61,7 +65,7 @@ runPCA <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
 
 
   # subset expression matrix
@@ -90,7 +94,7 @@ runPCA <- function(gobject,
 
     dimObject = create_dimObject(name = name, reduction_method = 'pca',
                                  coordinates = pca_object$ind$coord,
-                                 misc = pca_object)
+                                 misc = pca_object, my_rownames = colnames(expr_values))
 
     gobject@dimension_reduction[[reduction]][['pca']][[name]] <- dimObject
 
@@ -118,8 +122,6 @@ runPCA <- function(gobject,
 }
 
 
-
-
 #' @title signPCA
 #' @name signPCA
 #' @description identify significant prinicipal components (PCs)
@@ -135,14 +137,26 @@ runPCA <- function(gobject,
 #' @param jack_iter number of interations for jackstraw
 #' @param jack_threshold p-value threshold to call a PC significant
 #' @param jack_verbose show progress of jackstraw method
-#' @param show_plot show plots
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @param ... additional parameters for PCA
 #' @return ggplot object for scree method and maxtrix of p-values for jackstraw
-#' @details Description of PCA steps...
+#' @details Two different methods can be used to assess the number of relevant or significant
+#'  prinicipal components (PC's). \cr
+#'  1. Screeplot works by plotting the explained variance of each
+#'  individual PC in a barplot allowing you to identify which PC does not show a significant
+#'  contribution anymore ( = 'elbow method'). \cr
+#'  2. The Jackstraw method uses the \code{\link[jackstraw]{permutationPA}} function. By
+#'  systematically permuting genes it identifies robust, and thus significant, PCs.
+#'  \cr multiple PCA results can be stored by changing the \emph{name} parameter
 #' @export
 #' @examples
 #'     signPCA(gobject)
-signPCA <- function(gobject, method = c('screeplot', 'jackstraw'),
+signPCA <- function(gobject,
+                    method = c('screeplot', 'jackstraw'),
                     expression_values = c("normalized", "scaled", "custom"),
                     reduction = c("cells", "genes"),
                     genes_to_use = NULL,
@@ -153,14 +167,11 @@ signPCA <- function(gobject, method = c('screeplot', 'jackstraw'),
                     jack_iter = 10,
                     jack_threshold = 0.01,
                     jack_verbose = T,
-                    show_plot = T,
-                    return_plot = TRUE,
-                    save_plot = F,
-                    save_dir = NULL,
-                    save_folder = NULL,
-                    save_name = NULL,
-                    save_format = NULL,
-                    show_saved_plot = F,
+                    show_plot = NA,
+                    return_plot = NA,
+                    save_plot = NA,
+                    save_param = list(),
+                    default_save_name = 'signPCA',
                     ...) {
 
   # select method
@@ -172,6 +183,12 @@ signPCA <- function(gobject, method = c('screeplot', 'jackstraw'),
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = select_expression_values(gobject = gobject, values = values)
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
 
   # subset expression matrix
   if(!is.null(genes_to_use)) {
@@ -187,10 +204,22 @@ signPCA <- function(gobject, method = c('screeplot', 'jackstraw'),
                                     ncp = ncp, graph = F, ...)
       screeplot = factoextra::fviz_eig(pca_object, addlabels = scree_labels, ylim = scree_ylim, ncp = ncp)
       final_result_plot = screeplot
+
+      ## print plot
       if(show_plot == TRUE) {
-        print(final_result_plot)
+        print(screeplot)
       }
-      return(screeplot)
+
+      ## save plot
+      if(save_plot == TRUE) {
+        do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = screeplot, default_save_name = default_save_name), save_param))
+      }
+
+      ## return plot
+      if(return_plot == TRUE) {
+        return(screeplot)
+      }
+
 
     } else if(method == 'jackstraw') {
 
@@ -200,10 +229,24 @@ signPCA <- function(gobject, method = c('screeplot', 'jackstraw'),
 
       jtest = jackstraw::permutationPA(dat = expr_values, B = jack_iter, threshold = jack_threshold, verbose = jack_verbose)
       final_result_plot = jtest$p
+
+      ## print plot
       if(show_plot == TRUE) {
         print(final_result_plot)
       }
-      return(jtest)
+
+      ## save plot
+      if(save_plot == TRUE) {
+        do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = final_result_plot, default_save_name = default_save_name), save_param))
+      }
+
+      ## return plot
+      if(return_plot == TRUE) {
+        return(final_result_plot)
+      } else {
+        return(jtest)
+      }
+
     }
 
   } else {
@@ -242,7 +285,12 @@ signPCA <- function(gobject, method = c('screeplot', 'jackstraw'),
 #' @param seed_number seed number to use
 #' @param ... additional UMAP parameters
 #' @return giotto object with updated UMAP dimension recuction
-#' @details Description of UMAP steps...
+#' @details See \code{\link[uwot]{umap}} for more information about these and other parameters.
+#' \itemize{
+#'   \item Input for UMAP dimension reduction can be another dimension reduction (default = 'pca')
+#'   \item To use gene expression as input set dim_reduction_to_use = NULL
+#'   \item multiple UMAP results can be stored by changing the \emph{name} of the analysis
+#' }
 #' @export
 #' @examples
 #'     runUMAP(gobject)
@@ -392,7 +440,12 @@ runUMAP <- function(gobject,
 #' @param seed_number seed number to use
 #' @param ... additional tSNE parameters
 #' @return giotto object with updated tSNE dimension recuction
-#' @details Description of tSNE steps and params ...
+#' @details See \code{\link[Rtsne]{Rtsne}} for more information about these and other parameters. \cr
+#' \itemize{
+#'   \item Input for tSNE dimension reduction can be another dimension reduction (default = 'pca')
+#'   \item To use gene expression as input set dim_reduction_to_use = NULL
+#'   \item multiple tSNE results can be stored by changing the \emph{name} of the analysis
+#' }
 #' @export
 #' @examples
 #'     runtSNE(gobject)

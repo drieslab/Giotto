@@ -4,13 +4,23 @@
 \alias{get_interaction_gene_enrichment}
 \title{get_interaction_gene_enrichment}
 \usage{
-get_interaction_gene_enrichment(spatial_network,
-  unified_int_col = "unified_int", source_col = "source_clus",
-  source_IDs = "from", neighb_col = "neighb_clus", neighb_IDs = "to",
-  expression_matrix, cell_annotation, annotation_ID = "uniq_ID",
-  cell_type_col, do_diff_test = T, diff_test = c("t.test", "wilcox"),
-  minimum_unique_cells = NA, exclude_selected_cells_from_test = T,
-  verbose = T)
+get_interaction_gene_enrichment(
+  spatial_network,
+  unified_int_col = "unified_int",
+  source_col = "source_clus",
+  source_IDs = "from",
+  neighb_col = "neighb_clus",
+  neighb_IDs = "to",
+  expression_matrix,
+  cell_annotation,
+  annotation_ID = "uniq_ID",
+  cell_type_col,
+  do_diff_test = T,
+  diff_test = c("t.test", "wilcox"),
+  minimum_unique_cells = NA,
+  exclude_selected_cells_from_test = T,
+  verbose = T
+)
 }
 \description{
 Computes gene enrichment between all interactions

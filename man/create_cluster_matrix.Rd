@@ -4,8 +4,12 @@
 \alias{create_cluster_matrix}
 \title{create_cluster_matrix}
 \usage{
-create_cluster_matrix(gobject, expression_values = c("normalized",
-  "scaled", "custom"), cluster_column, gene_subset = NULL)
+create_cluster_matrix(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  cluster_column,
+  gene_subset = NULL
+)
 }
 \description{
 creates aggregated matrix for a given clustering

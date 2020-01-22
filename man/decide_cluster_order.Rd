@@ -4,11 +4,16 @@
 \alias{decide_cluster_order}
 \title{decide_cluster_order}
 \usage{
-decide_cluster_order(gobject, expression_values = c("normalized",
-  "scaled", "custom"), genes, cluster_column = NULL,
+decide_cluster_order(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  genes,
+  cluster_column = NULL,
   cluster_order = c("size", "correlation", "custom"),
-  cluster_custom_order = NULL, cor_method = "pearson",
-  hclust_method = "ward.D")
+  cluster_custom_order = NULL,
+  cor_method = "pearson",
+  hclust_method = "ward.D"
+)
 }
 \arguments{
 \item{gobject}{giotto object}

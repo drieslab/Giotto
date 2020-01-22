@@ -1,4 +1,12 @@
 
+#' @title aes_string2
+#' @name aes_string2
+#' @description makes sure aes_string can also be used with names that start with numeric values
+aes_string2 <- function(...){
+  args <- lapply(list(...), function(x) sprintf("`%s`", x))
+  do.call(aes_string, args)
+}
+
 #' @title ggplot_save_function
 #' @name ggplot_save_function
 #' @description Function to automatically save plots to directory of interest
@@ -85,11 +93,20 @@ ggplot_save_function = function(gobject,
   if(show_saved_plot == TRUE) {
 
     if(save_format == 'png') {
-      img <- png::readPNG(source = paste0(file_location, '/', file_name))
-      grid::grid.raster(img)
+      if("png" %in% rownames(installed.packages()) == FALSE) {
+        cat("\n package 'png' is not yet installed \n")
+      } else {
+        img <- png::readPNG(source = paste0(file_location, '/', file_name))
+        grid::grid.raster(img)
+        }
+
     } else if(save_format == 'tiff') {
-      img <- tiff::readTIFF(source =  paste0(file_location, '/', file_name))
-      grid::grid.raster(img)
+      if("tiff" %in% rownames(installed.packages()) == FALSE) {
+        cat("\n package 'tiff' is not yet installed \n")
+      } else {
+        img <- tiff::readTIFF(source =  paste0(file_location, '/', file_name))
+        grid::grid.raster(img)
+      }
     } else {
       cat('\t only png & tiff are currently supported \t')
     }
@@ -132,10 +149,15 @@ general_save_function = function(gobject,
                                  ...) {
 
 
-  save_format = match.arg(save_format, choices = c('png', 'tiff', 'pdf', 'svg'))
+
 
   if(is.null(plot_object)) {
     stop('\t there is no object to plot \t')
+  }
+  save_format = match.arg(save_format, choices = c('png', 'tiff', 'pdf', 'svg'))
+
+  if(any('plotly' %in% class(plot_object)) == TRUE){
+    save_format = "html"
   }
 
   ## get save information and set defaults
@@ -161,49 +183,62 @@ general_save_function = function(gobject,
   file_name = paste0(save_name, ".", save_format)
   full_location = paste0(file_location,'/', file_name)
 
-
-
-  if(save_format == 'png') {
-    grDevices::png(filename = full_location, width = base_width, height = base_height, res = dpi, units = units, ...)
-    print(plot_object)
-    grDevices::dev.off()
+  if(any('plotly' %in% class(plot_object)) == TRUE){
+    htmlwidgets::saveWidget(plotly::as_widget(plot_object), file = full_location)
   }
 
-  if(save_format == 'tiff') {
-    grDevices::tiff(filename = full_location, width = base_width, height = base_height, units = units, ...)
-    print(plot_object)
-    grDevices::dev.off()
-  }
-
-  if(save_format == 'pdf') {
-    grDevices::pdf(file = full_location, width = base_width, height = base_height, useDingbats = F, ...)
-    print(plot_object)
-    grDevices::dev.off()
-  }
-
-  if(save_format == 'svg') {
-    grDevices::svg(filename = full_location, width = base_width, height = base_height, ...)
-    print(plot_object)
-    grDevices::dev.off()
-  }
-
-
-  # show saved plot if requested
-  if(show_saved_plot == TRUE) {
-
+  else{
     if(save_format == 'png') {
-      img <- png::readPNG(source = full_location)
-      grid::grid.raster(img)
-    } else if(save_format == 'tiff') {
-      img <- tiff::readTIFF(source =  full_location)
-      grid::grid.raster(img)
-    } else {
-      cat('\t only png & tiff are currently supported \t')
+      grDevices::png(filename = full_location, width = base_width, height = base_height, res = dpi, units = units, ...)
+      print(plot_object)
+      grDevices::dev.off()
     }
+
+    if(save_format == 'tiff') {
+      grDevices::tiff(filename = full_location, width = base_width, height = base_height, units = units, ...)
+      print(plot_object)
+      grDevices::dev.off()
+    }
+
+    if(save_format == 'pdf') {
+      grDevices::pdf(file = full_location, width = base_width, height = base_height, useDingbats = F, ...)
+      print(plot_object)
+      grDevices::dev.off()
+    }
+
+    if(save_format == 'svg') {
+      grDevices::svg(filename = full_location, width = base_width, height = base_height, ...)
+      print(plot_object)
+      grDevices::dev.off()
+    }
+
+
+    # show saved plot if requested
+    if(show_saved_plot == TRUE) {
+
+      if(save_format == 'png') {
+        if("png" %in% rownames(installed.packages()) == FALSE) {
+          cat("\n package 'png' is not yet installed \n")
+        } else {
+          img <- png::readPNG(source = paste0(file_location, '/', file_name))
+          grid::grid.raster(img)
+        }
+
+      } else if(save_format == 'tiff') {
+        if("tiff" %in% rownames(installed.packages()) == FALSE) {
+          cat("\n package 'tiff' is not yet installed \n")
+        } else {
+          img <- tiff::readTIFF(source =  paste0(file_location, '/', file_name))
+          grid::grid.raster(img)
+        }
+      } else {
+        cat('\t only png & tiff are currently supported \t')
+      }
+    }
+
   }
 
 }
-
 
 #' @title all_plots_save_function
 #' @name all_plots_save_function
@@ -224,8 +259,8 @@ general_save_function = function(gobject,
 #' @param units units
 #' @param dpi Plot resolution
 #' @param limitsize When TRUE (the default), ggsave will not save images larger than 50x50 inches, to prevent the common error of specifying dimensions in pixels.
-#' @param ...
-#' @seealso \code{\link{Giotto::general_save_function}}
+#' @param ... additional parameters to ggplot_save_function or general_save_function
+#' @seealso \code{\link{general_save_function}}
 #' @export
 #' @examples
 #'     all_plots_save_function(gobject)
@@ -305,7 +340,7 @@ all_plots_save_function = function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @param ... additional parameters for the Heatmap function from ComplexHeatmap
 #' @return ggplot
@@ -378,9 +413,10 @@ showClusterHeatmap <- function(gobject,
 }
 
 
+
 #' @title showClusterDendrogram
 #' @name showClusterDendrogram
-#' @description Creates dendrogram based on identified clusters
+#' @description Creates dendrogram for selected clusters.
 #' @param gobject giotto object
 #' @param expression_values expression values to use
 #' @param cluster_column name of column to use for clusters
@@ -392,11 +428,11 @@ showClusterHeatmap <- function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @param ... additional parameters for ggdendrogram()
 #' @return ggplot
-#' @details Correlation dendrogram of selected clustering.
+#' @details Expression correlation dendrogram for selected clusters.
 #' @export
 #' @examples
 #'     showClusterDendrogram(gobject)
@@ -595,7 +631,7 @@ createHeatmap_DT <- function(gobject,
                                          hclust_method = cluster_hclust_method)
 
   ## data.table ##
-  subset_values_DT <- data.table::as.data.table(melt(subset_values, varnames = c('genes', 'cells'), value.name = 'expression'))
+  subset_values_DT <- data.table::as.data.table(reshape2::melt(subset_values, varnames = c('genes', 'cells'), value.name = 'expression'))
   subset_values_DT <- merge(subset_values_DT, by.x = 'cells', cell_metadata[, c('cell_ID', cluster_column), with = F], by.y = 'cell_ID')
   subset_values_DT[[cluster_column]] <- factor(subset_values_DT[[cluster_column]], levels = clus_sort_names)
 
@@ -647,7 +683,7 @@ createHeatmap_DT <- function(gobject,
 
 #' @title plotHeatmap
 #' @name plotHeatmap
-#' @description creates order for clusters
+#' @description Creates heatmap for genes and clusters.
 #' @param gobject giotto object
 #' @param expression_values expression values to use
 #' @param genes genes to use
@@ -670,10 +706,14 @@ createHeatmap_DT <- function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from all_plots_save_function()
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name
 #' @return ggplot
-#' @details Creates heatmap for genes and clusters.
+#' @details If you want to display many genes there are 2 ways to proceed:
+#' \itemize{
+#'   \item{1. set axis_text_y_size to a really small value and show all genes}
+#'   \item{2. provide a subset of genes to display to gene_label_selection}
+#' }
 #' @export
 #' @examples
 #'     plotHeatmap(gobject)
@@ -884,7 +924,7 @@ plotHeatmap <- function(gobject,
 
 #' @title plotMetaDataHeatmap
 #' @name plotMetaDataHeatmap
-#' @description creates order for clusters
+#' @description Creates heatmap for genes within aggregated clusters.
 #' @param gobject giotto object
 #' @param expression_values expression values to use
 #' @param metadata_cols annotation columns found in pDataDT(gobject)
@@ -906,10 +946,13 @@ plotHeatmap <- function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from all_plots_save_function()
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name
 #' @return ggplot or data.table
-#' @details Creates heatmap for average the average expression of selected genes in the different annotation groups
+#' @details Creates heatmap for the average expression of selected genes in the different annotation/cluster groups.
+#' Calculation of cluster or gene order is done on the provided expression values, but visualization
+#' is by default on the z-scores. Other options are the original values or z-scores rescaled per gene (-1 to 1).
+#' @seealso \code{\link{plotMetaDataCellsHeatmap}} for numeric cell annotation instead of gene expression.
 #' @export
 #' @examples
 #'     plotMetaDataHeatmap(gobject)
@@ -927,9 +970,9 @@ plotMetaDataHeatmap = function(gobject,
                                gene_cor_method = 'pearson',
                                gene_cluster_method = 'complete',
                                midpoint = 0,
-                               x_text_size = 8,
+                               x_text_size = 10,
                                x_text_angle = 45,
-                               y_text_size = 8,
+                               y_text_size = 10,
                                strip_text_size = 8,
                                show_plot = NA,
                                return_plot = NA,
@@ -1091,9 +1134,219 @@ plotMetaDataHeatmap = function(gobject,
 
 
 
+#' @title plotMetaDataCellsHeatmap
+#' @name plotMetaDataCellsHeatmap
+#' @description Creates heatmap for numeric cell metadata within aggregated clusters.
+#' @param gobject giotto object
+#' @param metadata_cols annotation columns found in pDataDT(gobject)
+#' @param spat_enr_names spatial enrichment results to include
+#' @param value_cols value columns to use
+#' @param first_meta_col if more than 1 metadata column, select the x-axis factor
+#' @param second_meta_col if more than 1 metadata column, select the facetting factor
+#' @param show_values which values to show on heatmap
+#' @param custom_cluster_order custom cluster order (default = NULL)
+#' @param clus_cor_method correlation method for clusters
+#' @param clus_cluster_method hierarchical cluster method for the clusters
+#' @param custom_gene_order custom gene order (default = NULL)
+#' @param gene_cor_method correlation method for genes
+#' @param gene_cluster_method hierarchical cluster method for the genes
+#' @param midpoint midpoint of show_values
+#' @param x_text_size size of x-axis text
+#' @param x_text_angle angle of x-axis text
+#' @param y_text_size size of y-axis text
+#' @param strip_text_size size of strip text
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot or data.table
+#' @details Creates heatmap for the average values of selected value columns in the different annotation groups.
+#' @seealso \code{\link{plotMetaDataHeatmap}} for gene expression instead of numeric cell annotation data.
+#' @export
+#' @examples
+#'     plotMetaDataCellsHeatmap(gobject)
+plotMetaDataCellsHeatmap = function(gobject,
+                                    metadata_cols = NULL,
+                                    spat_enr_names = NULL,
+                                    value_cols = NULL,
+                                    first_meta_col = NULL,
+                                    second_meta_col = NULL,
+                                    show_values = c('zscores', 'original', 'zscores_rescaled'),
+                                    custom_cluster_order = NULL,
+                                    clus_cor_method = 'pearson',
+                                    clus_cluster_method = 'complete',
+                                    custom_values_order = NULL,
+                                    values_cor_method = 'pearson',
+                                    values_cluster_method = 'complete',
+                                    midpoint = 0,
+                                    x_text_size = 8,
+                                    x_text_angle = 45,
+                                    y_text_size = 8,
+                                    strip_text_size = 8,
+                                    show_plot = NA,
+                                    return_plot = NA,
+                                    save_plot = NA,
+                                    save_param =  list(),
+                                    default_save_name = 'plotMetaDataCellsHeatmap') {
+
+
+  metaDT = calculateMetaTableCells(gobject = gobject,
+                                   value_cols = value_cols,
+                                   metadata_cols = metadata_cols,
+                                   spat_enr_names = spat_enr_names)
+
+  metaDT[, zscores := scale(value), by = c('variable')]
+  metaDT[, zscores_rescaled_per_gene := scales::rescale(zscores, to = c(-1,1)), by = c('variable')]
+
+  show_values = match.arg(show_values, choices = c('zscores', 'original', 'zscores_rescaled'))
+  if(show_values == 'zscores') {
+    show_values = 'zscores'
+  } else if(show_values == 'original') {
+    show_values = 'value'
+  } else {
+    show_values = 'zscores_rescaled_per_gene'
+  }
+
+  ## visualization
+  if(length(metadata_cols) > 2) {
+    cat('\n visualization is only possible for 1 or 2 metadata annotations, data.table is returned \n')
+    return(metaDT)
+  }
+
+
+  ## order of genes and clusters
+
+  main_factor = ifelse(length(metadata_cols) == 1, metadata_cols, first_meta_col)
+  testmain = metaDT[, mean(value), by = c('variable', main_factor)]
+  dfunction <- function(d, col_name1, col_name2, value.var) {
+    data.table::dcast.data.table(d, paste(col_name1, "~", col_name2), value.var = value.var)
+  }
+  testmain_matrix = dfunction(d = testmain, col_name1 = 'variable', col_name2 = main_factor, value.var = 'V1')
+  testmain_mat = as.matrix(testmain_matrix[,-1]); rownames(testmain_mat) = testmain_matrix$variable
+
+  # for clusters
+  if(is.null(custom_cluster_order)) {
+    cormatrix = stats::cor(x = testmain_mat, method = clus_cor_method)
+    cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
+    corclus = stats::hclust(d = cordist, method = clus_cluster_method)
+    clus_names = rownames(cormatrix)
+    names(clus_names) = 1:length(clus_names)
+    clus_sort_names = clus_names[corclus$order]
+  } else {
+    clus_sort_names = unique(as.character(custom_cluster_order))
+    if(all(colnames(testmain_mat) %in% clus_sort_names) == FALSE) {
+      stop('\n custom cluster order is given, but not all clusters are represented \n')
+    }
+  }
+
+
+  # for genes
+  if(is.null(custom_values_order)) {
+    values_cormatrix = stats::cor(x = t(testmain_mat), method = values_cor_method)
+    values_cordist = stats::as.dist(1 - values_cormatrix, diag = T, upper = T)
+    values_corclus = stats::hclust(d = values_cordist, method = values_cluster_method)
+    values_names = rownames(values_cormatrix)
+    names(values_names) = 1:length(values_names)
+    values_sort_names = values_names[values_corclus$order]
+  }  else {
+    values_sort_names = unique(as.character(custom_values_order))
+    if(all(rownames(testmain_mat) %in% values_sort_names) == FALSE) {
+      stop('\n custom values order is given, but not all values are represented \n')
+    }
+  }
+
+  if(length(metadata_cols) == 1) {
+
+    metaDT[, factor_column := factor(get(metadata_cols), levels = clus_sort_names)]
+    metaDT[, variable := factor(get('variable'), levels = values_sort_names)]
+
+    pl <- ggplot2::ggplot()
+    pl <- pl + geom_tile(data = metaDT, aes_string(x = 'factor_column', y = 'variable', fill = show_values), color = 'black')
+    pl <- pl + scale_fill_gradient2(low = 'blue', mid = 'white', high = 'red', midpoint = midpoint)
+    pl <- pl + theme_classic()
+    pl <- pl + theme(axis.text.x = element_text(size = x_text_size, angle = x_text_angle, hjust = 1, vjust = 1),
+                     axis.text.y = element_text(size = y_text_size),
+                     legend.title=element_blank())
+    pl <- pl + labs(x = metadata_cols, y = 'genes')
+
+
+    # print, return and save parameters
+    show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+    save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+    return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+    ## print plot
+    if(show_plot == TRUE) {
+      print(pl)
+    }
+
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+    }
+
+    ## return plot
+    if(return_plot == TRUE) {
+      return(pl)
+    }
+  }
+
+
+  else {
+
+    if(is.null(first_meta_col) | is.null(second_meta_col)) {
+      cat('\n both first_meta_col and second_meta_col need to be defined, return data.table \n')
+      return(metaDT)
+    } else {
+
+      metaDT[, factor_1_column := factor(get(first_meta_col), clus_sort_names)]
+      metaDT[, factor_2_column := as.factor(get(second_meta_col))]
+      metaDT[, variable := factor(get('variable'), levels = values_sort_names)]
+
+      pl <- ggplot()
+      pl <- pl + geom_tile(data = metaDT, aes_string(x = 'factor_1_column', y = 'variable', fill = show_values), color = 'black')
+      pl <- pl + scale_fill_gradient2(low = 'blue', mid = 'white', high = 'red', midpoint = midpoint)
+      pl <- pl + facet_grid(stats::reformulate('factor_2_column'))
+      pl <- pl + theme_classic()
+      pl <- pl + theme(axis.text.x = element_text(size = x_text_size, angle = x_text_angle, hjust = 1, vjust = 1),
+                       axis.text.y = element_text(size = y_text_size),
+                       strip.text = element_text(size = strip_text_size),
+                       legend.title=element_blank())
+      pl <- pl + labs(x = first_meta_col, y = 'genes', title = second_meta_col)
+
+
+      # print, return and save parameters
+      show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+      save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+      return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+
+      ## print plot
+      if(show_plot == TRUE) {
+        print(pl)
+      }
+
+      ## save plot
+      if(save_plot == TRUE) {
+        do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+      }
+
+      ## return plot
+      if(return_plot == TRUE) {
+        return(pl)
+      }
+    }
+
+  }
+
+}
+
+
+
 #' @title violinPlot
 #' @name violinPlot
-#' @description Creates heatmap based on identified clusters
+#' @description Creates violinplot for selected clusters
 #' @param gobject giotto object
 #' @param expression_values expression values to use
 #' @param genes genes to plot
@@ -1109,10 +1362,9 @@ plotMetaDataHeatmap = function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
-#' @details Correlation heatmap of clusters vs genes.
 #' @export
 #' @examples
 #'     violinPlot(gobject)

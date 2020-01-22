@@ -4,10 +4,18 @@
 \alias{findMastMarkers_one_vs_all}
 \title{findMastMarkers_one_vs_all}
 \usage{
-findMastMarkers_one_vs_all(gobject, expression_values = c("normalized",
-  "scaled", "custom"), cluster_column, subset_clusters = NULL,
-  adjust_columns = NULL, pval = 0.001, logFC = 1, min_genes = 10,
-  verbose = TRUE, ...)
+findMastMarkers_one_vs_all(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  cluster_column,
+  subset_clusters = NULL,
+  adjust_columns = NULL,
+  pval = 0.001,
+  logFC = 1,
+  min_genes = 10,
+  verbose = TRUE,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -34,11 +42,11 @@ findMastMarkers_one_vs_all(gobject, expression_values = c("normalized",
 data.table with marker genes
 }
 \description{
-Identify marker genes for all clusters based on the MAST package.
-}
-\details{
-This is a minimal convenience wrapper around the MAST functions to detect differentially expressed genes.
+Identify marker genes for all clusters in a one vs all manner based on the MAST package.
 }
 \examples{
     findMastMarkers_one_vs_all(gobject)
+}
+\seealso{
+\code{\link{findMastMarkers}}
 }

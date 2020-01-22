@@ -4,8 +4,7 @@
 \alias{extended_gini_fun}
 \title{extended_gini_fun}
 \usage{
-extended_gini_fun(x, weights = rep(1, length = length(x)),
-  minimum_length = 16)
+extended_gini_fun(x, weights = rep(1, length = length(x)), minimum_length = 16)
 }
 \value{
 gini coefficient

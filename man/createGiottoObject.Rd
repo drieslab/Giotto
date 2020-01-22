@@ -4,17 +4,30 @@
 \alias{createGiottoObject}
 \title{create Giotto object}
 \usage{
-createGiottoObject(raw_exprs, spatial_locs = NULL, norm_expr = NULL,
-  norm_scaled_expr = NULL, custom_expr = NULL, cell_metadata = NULL,
-  gene_metadata = NULL, spatial_network = NULL,
-  spatial_network_name = NULL, spatial_grid = NULL,
-  spatial_grid_name = NULL, dimension_reduction = NULL,
-  nn_network = NULL, offset_file = NULL, instructions = NULL)
+createGiottoObject(
+  raw_exprs,
+  spatial_locs = NULL,
+  norm_expr = NULL,
+  norm_scaled_expr = NULL,
+  custom_expr = NULL,
+  cell_metadata = NULL,
+  gene_metadata = NULL,
+  spatial_network = NULL,
+  spatial_network_name = NULL,
+  spatial_grid = NULL,
+  spatial_grid_name = NULL,
+  spatial_enrichment = NULL,
+  spatial_enrichment_name = NULL,
+  dimension_reduction = NULL,
+  nn_network = NULL,
+  offset_file = NULL,
+  instructions = NULL
+)
 }
 \arguments{
 \item{raw_exprs}{matrix with raw expression counts [required]}
 
-\item{spatial_locs}{data.table with coordinates for cell centroids [required]}
+\item{spatial_locs}{data.table or data.frame with coordinates for cell centroids}
 
 \item{norm_expr}{normalized expression values}
 
@@ -22,9 +35,9 @@ createGiottoObject(raw_exprs, spatial_locs = NULL, norm_expr = NULL,
 
 \item{custom_expr}{custom expression values}
 
-\item{cell_metadata}{cell metadata}
+\item{cell_metadata}{cell annotation metadata}
 
-\item{gene_metadata}{gene metadata}
+\item{gene_metadata}{gene annotation metadata}
 
 \item{spatial_network}{list of spatial network(s)}
 
@@ -34,17 +47,53 @@ createGiottoObject(raw_exprs, spatial_locs = NULL, norm_expr = NULL,
 
 \item{spatial_grid_name}{list of spatial grid name(s)}
 
+\item{spatial_enrichment}{list of spatial enrichment score(s) for each spatial region}
+
+\item{spatial_enrichment_name}{list of spatial enrichment name(s)}
+
 \item{dimension_reduction}{list of dimension reduction(s)}
 
 \item{nn_network}{list of nearest neighbor network(s)}
 
 \item{offset_file}{file used to stitch fields together (optional)}
+
+\item{instructions}{list of instructions or output result from createGiottoInstructions}
 }
 \value{
 giotto object
 }
 \description{
 Function to create a giotto object
+}
+\details{
+[\strong{Requirements}] To create a giotto object you need to provide at least a matrix with genes as
+row names and cells as column names. To include spatial information about cells (or regions)
+you need to provide a data.table or data.frame with coordinates for all spatial dimensions.
+This can be 2D (x and y) or 3D (x, y, x).The row order for the cell coordinates should be
+the same as the column order for the provided expression data.
+
+[\strong{Instructions}] Additionally an instruction file, generated manually or with \code{\link{createGiottoInstructions}}
+can be provided to instructions, if not a default instruction file will be created
+for the Giotto object.
+
+[\strong{Multiple fields}] In case a dataset consists of multiple fields, like seqFISH+ for example,
+an offset file can be provided to stitch the different fields together. \code{\link{stitchFieldCoordinates}}
+can be used to generate such an offset file.
+
+[\strong{Processed data}] Processed count data, such as normalized data, can be provided using
+one of the different expression slots (norm_expr, norm_scaled_expr, custom_expr).
+
+[\strong{Metadata}] Cell and gene metadata can be provided using the cell and gene metadata slots.
+This data can also be added afterwards using the \code{\link{addGeneMetadata}} or \code{\link{addCellMetadata}} functions.
+
+[\strong{Other information}] Additional information can be provided through the appropriate slots:
+\itemize{
+  \item{spatial networks}
+  \item{spatial girds}
+  \item{spatial enrichments}
+  \item{dimensions reductions}
+  \item{nearest neighbours networks}
+}
 }
 \examples{
     createGiottoObject(raw_exprs, spatial_locs)
