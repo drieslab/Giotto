@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 ### Giotto global instructions
 
 ```{r eval=FALSE, message=FALSE, warning=FALSE}
-# this example was tested with Giotto v.0.1.3
+# this example was tested with Giotto v.0.1.4
 library(Giotto)
 
 ## create instructions
@@ -129,7 +129,6 @@ featgenes = gene_metadata[hvg == 'yes' & perc_cells > 4 & mean_expr_det > 0.5]$g
 ## run PCA on expression values (default)
 VC_test <- runPCA(gobject = VC_test, genes_to_use = featgenes, scale_unit = F)
 signPCA(VC_test, genes_to_use = featgenes, scale_unit = F)
-
 plotPCA(gobject = VC_test)
 
 ## run UMAP and tSNE on PCA space (default)
@@ -140,6 +139,10 @@ VC_test <- runtSNE(VC_test, dimensions_to_use = 1:30)
 plotTSNE(gobject = VC_test)
 
 ```
+
+![](./figures/2_HVGplot.png){width=16cm} 
+
+![](./figures/2_screeplot.png){width=16cm} 
 
 ![](./figures/2_PCA_reduction.png){width=16cm} 
 
@@ -172,8 +175,17 @@ VC_test = doLeidenSubCluster(gobject = VC_test, cluster_column = 'leiden_clus',
                              nn_param = list(dimensions_to_use = 1:5),
                              selected_clusters = c(4, 6, 7),
                              name = 'sub_leiden_clus_select')
+
+## create color vector for clusters
+subleiden_order = c( 1.1, 5.1,  2.1, 3.1,
+                     4.1,  4.2, 4.3, 6.2, 6.1,
+                     7.1,  7.2, 8.1)
+subleiden_colors = Giotto:::getDistinctColors(length(subleiden_order)) 
+names(subleiden_colors) = subleiden_order
+
 plotUMAP(gobject = VC_test,
-         cell_color = 'sub_leiden_clus_select', show_NN_network = T, point_size = 2.5)
+         cell_color = 'sub_leiden_clus_select', cell_color_code = subleiden_colors,
+         show_NN_network = T, point_size = 2.5)
 
 ## show cluster relationships
 showClusterHeatmap(gobject = VC_test, cluster_column = 'sub_leiden_clus_select',
@@ -202,12 +214,14 @@ showClusterDendrogram(VC_test, h = 0.5, rotate = T, cluster_column = 'sub_leiden
   
 ```{r eval=FALSE}
 # expression and spatial
-spatDimPlot(gobject = VC_test, cell_color = 'sub_leiden_clus_select',
+spatDimPlot(gobject = VC_test,
+            cell_color = 'sub_leiden_clus_select', cell_color_code = subleiden_colors,
             dim_point_size = 2, spat_point_size = 2)
 
 # selected groups
 groups_of_interest = c(5.1, 6.1, 7.1)
 group_colors = c('red', 'green', 'blue'); names(group_colors) = groups_of_interest
+
 spatDimPlot(gobject = VC_test, cell_color = 'sub_leiden_clus_select', 
             dim_point_size = 2, spat_point_size = 2,
             select_cell_groups = groups_of_interest, cell_color_code = group_colors)
@@ -245,7 +259,7 @@ violinPlot(VC_test, genes = unique(topgenes_gini), cluster_column = 'sub_leiden_
            strip_text = 8, strip_position = 'right')
 
 # cluster heatmap
-my_cluster_order = c(9.1, 3.1, 6.1, 8.1, 5.2, 5.1, 1.1, 4.1, 2.1, 7.1, 7.2)
+my_cluster_order = c(2.1, 5.1, 1.1, 6.1, 6.2, 4.1, 3.1, 8.1, 4.2, 4.3, 7.1, 7.2)
 plotMetaDataHeatmap(VC_test, selected_genes = topgenes_gini, custom_cluster_order = my_cluster_order,
                     metadata_cols = c('sub_leiden_clus_select'))
 
@@ -293,19 +307,25 @@ Heatmap clusters scran:
 
 ## general cell types
 # create vector with names
-clusters_cell_types_cortex = c('microglia', 'L2/3 eNeuron', 'endothelial',
+clusters_cell_types_cortex = c('microglia', 'L4 eNeuron', 'endothelial',
                                'astrocytes', 'Adarb2 iNeuron', 'Lhx6 iNeuron',
-                               'L6 eNeuron', 'L5 eNeuron', 'L4 eNeuron',
-                               'OPC', 'Olig')
-names(clusters_cell_types_cortex) = c(9.1, 3.1, 6.1, 8.1, 5.2, 5.1, 1.1, 4.1, 2.1, 7.1, 7.2)
+                               'L6 eNeuron', 'L5 eNeuron', 'L2/3 eNeuron',
+                               'OPC', 'Olig', 'mural')
+names(clusters_cell_types_cortex) = c(8.1, 2.1, 7.1,
+                                      4.1, 6.2, 6.1,
+                                      1.1, 5.1, 3.1,
+                                      4.3, 4.2, 7.2)
 VC_test = annotateGiotto(gobject = VC_test, annotation_vector = clusters_cell_types_cortex,
                          cluster_column = 'sub_leiden_clus_select', name = 'cell_types')
 
-## violinplot
+# cell type order and colors
 cell_type_order = c('L6 eNeuron', 'L5 eNeuron', 'L4 eNeuron', 'L2/3 eNeuron',
-                    'Adarb2 iNeuron', 'Lhx6 iNeuron','endothelial',
-                    'OPC', 'Olig', 'astrocytes',  'microglia')
+                    'astrocytes', 'Olig', 'OPC','Adarb2 iNeuron', 'Lhx6 iNeuron',
+                    'endothelial', 'mural', 'microglia')
+cell_type_colors = Giotto:::getDistinctColors(length(cell_type_order)) 
+names(cell_type_colors) = cell_type_order
 
+## violinplot
 violinPlot(gobject = VC_test, genes = unique(topgenes_gini),
            strip_text = 7, strip_position = 'right', cluster_custom_order = cell_type_order,
            cluster_column = 'cell_types', color_violin = 'cluster')
@@ -326,10 +346,11 @@ plotHeatmap(gobject = VC_test,
             cluster_custom_order = cell_type_order, legend_nrows = 2)
 
 ## co-visualization
-spatDimPlot(gobject = VC_test, cell_color = 'cell_types',
+spatDimPlot(gobject = VC_test, cell_color = 'cell_types', cell_color_code = cell_type_colors,
             dim_point_size = 2, spat_point_size = 2, dim_show_cluster_center = F, dim_show_center_label = T)
 
-spatDimPlot(gobject = VC_test, cell_color = 'cell_types', select_cell_groups = c('astrocytes', 'Olig', 'OPC'),
+spatDimPlot(gobject = VC_test, cell_color = 'cell_types', cell_color_code = cell_type_colors,
+            select_cell_groups = c('astrocytes', 'Olig', 'OPC'),
             dim_point_size = 2, spat_point_size = 2, dim_show_cluster_center = F, dim_show_center_label = T)
 ```
 
@@ -437,7 +458,9 @@ spatPlot(gobject = subVC_test, show_network = T,
 <details>
   <summary>Expand</summary>
   \
-  
+
+Single spatial genes:  
+
 ```{r eval=FALSE}
 kmtest = binGetSpatialGenes(VC_test, bin_method = 'kmeans',
                             do_fisher_test = T, community_expectation = 5,
@@ -462,6 +485,56 @@ spatGenePlot(VC_test, expression_values = 'scaled', show_plot = F,
 Spatial genes:  
 ![](./figures/9_spatial_genes_scaled_both.png){width=16cm} 
 
+
+Gene co-expression of multiple genes:  
+
+
+```{r eval=FALSE}
+## spatial co-expression patterns ##
+ext_spatial_genes = kmtest[1:500]$genes
+
+# 1. calculate gene spatial correlation and single-cell correlation 
+# create spatial correlation object
+spat_cor_netw_DT = detectSpatialCorGenes(VC_test, 
+                                         method = 'network', spatial_network_name = 'large_network',
+                                         subset_genes = ext_spatial_genes)
+
+# 2. cluster correlated genes & visualize
+spat_cor_netw_DT = clusterSpatialCorGenes(spat_cor_netw_DT, name = 'spat_netw_clus', k = 8)
+
+heatmSpatialCorGenes(VC_test, spatCorObject = spat_cor_netw_DT, use_clus_name = 'spat_netw_clus', 
+                     heatmap_legend_param = list(title = NULL))
+
+# 3. rank spatial correlated clusters and show genes for selected clusters
+netw_ranks = rankSpatialCorGroups(VC_test, spatCorObject = spat_cor_netw_DT, use_clus_name = 'spat_netw_clus')
+
+top_netw_spat_cluster = showSpatialCorGenes(spat_cor_netw_DT, use_clus_name = 'spat_netw_clus',
+                                            selected_clusters = 6, show_top_genes = 1)
+
+
+# 5. create metagene enrichment score for clusters
+cluster_genes_DT = showSpatialCorGenes(spat_cor_netw_DT, use_clus_name = 'spat_netw_clus', show_top_genes = 1)
+cluster_genes = cluster_genes_DT$clus; names(cluster_genes) = cluster_genes_DT$gene_ID
+
+VC_test = createMetagenes(VC_test, gene_clusters = cluster_genes, name = 'cluster_metagene')
+
+spatCellPlot(VC_test,
+             spat_enr_names = 'cluster_metagene',
+             cell_annotation_values = netw_ranks$clusters,
+             point_size = 1.5, cow_n_col = 3)
+
+
+
+```
+
+spatial co-expression heatmap:    
+![](./figures/9_heatmap_correlated_genes.png){width=16cm} 
+
+spatial co-expression cluster ranking:    
+![](./figures/9_rank_correlated_groups.png){width=16cm} 
+
+spatial co-expression metagene plots:  
+![](./figures/9_spat_enrichment_score_plots.png){width=16cm} 
 
 ***
 
@@ -569,26 +642,39 @@ cellProximitySpatPlot(gobject = VC_test,
 
 ```{r eval=FALSE}
 ## get cell proximity scores (CPG scores)
-CPGscores_wcox =  getCellProximityGeneScores(gobject = VC_test,
-                                             cluster_column = 'cell_types',
-                                             spatial_network_name = 'spatial_network',
-                                             minimum_unique_cells = 5,
-                                             diff_test = 'wilcox',
-                                             exclude_selected_cells_from_test = T)
+CPGscores_ttest =  getCellProximityGeneScores(gobject = VC_test,
+                                              cluster_column = 'cell_types',
+                                              spatial_network_name = 'spatial_network',
+                                              minimum_unique_cells = 5,
+                                              diff_test = 't.test',
+                                              false_discovery_test = 'bonferroni',
+                                              false_discovery_target = 'cell_interactions',
+                                              exclude_selected_cells_from_test = T)
 
 ## visualize
 # volcano plot
-volcano = showCPGscores(VC_test, CPGscore = CPGscores_wcox, method = 'volcano')
+volcano = showCPGscores(VC_test, CPGscore = CPGscores_ttest, method = 'volcano')
 # barplot
-barplot = showCPGscores(VC_test, CPGscore = CPGscores_wcox, method = 'cell_barplot')
-# cell-cell plot
-cell_cell_barplot = showCPGscores(VC_test, CPGscore = CPGscores_wcox, method = 'cell-cell')
+barplot = showCPGscores(VC_test, CPGscore = CPGscores_ttest, method = 'cell_barplot')
+# cell-cell barplot
+cell_cell_barplot = showCPGscores(VC_test, CPGscore = CPGscores_ttest, method = 'cell-cell')
 # sankey plot
 library(ggalluvial)
-sankey = showCPGscores(VC_test, CPGscore = CPGscores_wcox, method = 'cell_sankey')
+sankey = showCPGscores(VC_test, CPGscore = CPGscores_ttest, method = 'cell_sankey')
+# heatmap
+heatmap = showCPGscores(VC_test, CPGscore = CPGscores_ttest, method = 'heatmap')
+# dotplot
+dotplot = showCPGscores(VC_test, CPGscore = CPGscores_ttest, method = 'dotplot')
 
 ## filter CPG scores
-filter_CPGscores = filterCPGscores(CPGscore = CPGscores_wcox)
+filter_CPGscores_ttest = filterCPGscores(CPGscore = CPGscores_ttest,
+                                         min_cells = 5,
+                                         min_fdr = 0.05,
+                                         min_spat_diff = 0.25,
+                                         min_log2_fc = 1,
+                                         keep_int_duplicates = TRUE,
+                                         direction = c("both"))
+
 ```
 
 ![](./figures/12_neighb_enrichment_volcano.png){width=16cm} 
@@ -613,26 +699,37 @@ filter_CPGscores = filterCPGscores(CPGscore = CPGscores_wcox)
 
 ```{r eval=FALSE}
 ## get gene-to-gene scores from the CPG scores
-GTG_scores = getGeneToGeneScores(CPGscore = filter_CPGscores,
-                                    specific_genes_1 = NULL,
-                                    specific_genes_2 = NULL,
-                                    min_cells = 5, min_fdr = 0.05,
-                                    min_spat_diff = 0, min_log2_fc = 0,
-                                    verbose = T,
-                                    direction = 'both')
+GTG_scores_ttest = getGeneToGeneScores(CPGscore = filter_CPGscores_ttest,
+                                       specific_genes_1 = NULL,
+                                       specific_genes_2 = NULL,
+                                       min_cells = 5,
+                                       min_fdr = 0.05,
+                                       min_spat_diff = 0,
+                                       min_log2_fc = 0,
+                                       verbose = T,
+                                       direction = 'both')
 
-## Anxa6 vs Tmem98 in astrocyte - inh neuron is one of the top pairs and biologically interesting!
-selected_LR = GTG_scores[unif_gene_gene == 'Anxa6--Tmem98' & unified_int == 'astrocytes--OPC']
+# look at selection
+selected_LR = GTG_scores_ttest[unified_int == 'astrocytes--Olig' & change == 'both_up']
+
+# look at two gene-gene pairs
+plotGTGscores(gobject = VC_test,
+              GTGscore = selected_LR,
+              selected_interactions = c('astrocytes--Olig'),
+              selected_gene_to_gene = 'Slc39a4--Tpp1',
+              simple_plot = F, detail_plot = T)
 
 plotGTGscores(gobject = VC_test,
               GTGscore = selected_LR,
-              selected_interactions = c('astrocytes--OPC'),
-              selected_gene_to_gene = 'Anxa6--Tmem98',
+              selected_interactions = c('astrocytes--Olig'),
+              selected_gene_to_gene = 'Ctnna1--Scarb1',
               simple_plot = F, detail_plot = T)
 
-cellProximitySpatPlot(gobject = VC_test, interaction_name = "astrocytes--OPC",
+# show interacting astrocytes and oligodendrocytes
+cellProximitySpatPlot(gobject = VC_test, interaction_name = 'astrocytes--Olig',
                       spatial_network_name = 'spatial_network',
-                      cluster_column = 'cell_types', cell_color_code = NULL,
+                      cluster_column = 'cell_types',
+                      cell_color_code = c(astrocytes = 'lightblue', Olig = 'red'),
                       cell_color = 'cell_types', show_network = T,
                       network_color = 'blue', point_size_select = 3)
 
@@ -680,20 +777,20 @@ spatial_all_scores = allCellCellcommunicationsScores(VC_test,
                                                      gene_set_2 = select_receptors,
                                                      verbose = 'a little')
 
-
 ## filter
 selected_spat = spatial_all_scores[pvalue <= 0.01 & abs(log2fc) > 0.25 &
                                      lig_nr >= 5 & rec_nr >= 5]
 selected_spat[, lig_rec_cell_types := paste0(lig_cell_type,'-',rec_cell_type)]
 setorder(selected_spat, -log2fc)
 
-## visualize top ints ##
-top_ints = unique(selected_spat[order(-abs(log2fc))]$LR_comb)[1:30]
-gdt = spatial_all_scores[LR_comb %in% top_ints]
-gdt[, lig_rec_cell_types := paste0(lig_cell_type,' - ',rec_cell_type)]
-gdt = gdt[pvalue < 0.01]
+## select top 30
+top_LR_ints = unique(selected_spat[order(-abs(log2fc))]$LR_comb)[1:30]
+top_cell_ints = unique(selected_spat[order(-abs(log2fc))]$lig_rec_cell_types)[1:30]
 
-## ggplot visualization of L-R usage enrichment of depletion between cell-types
+spatial_all_scores[, lig_rec_cell_types := paste0(lig_cell_type,'-',rec_cell_type)]
+gdt = spatial_all_scores[LR_comb %in% top_LR_ints & lig_rec_cell_types %in% top_cell_ints]
+
+## visualize ##
 pl <- ggplot()
 pl <- pl + geom_point(data = gdt, aes(x = lig_rec_cell_types,
                                       y = LR_comb, size = pvalue, color = log2fc))
@@ -702,10 +799,10 @@ pl <- pl + theme_classic() + theme(axis.text.x = element_text(angle = 90,
                                                               vjust = 1,
                                                               hjust = 1),
                                    axis.text.y = element_text(size = 10))
-pl <- pl + scale_size_continuous(range = c(2, 1)) 
-pl <- pl + scale_color_gradientn(colours = c('darkblue', 'blue', 'white', 'red', 'darkred'))
+pl <- pl + scale_size_continuous(range = c(5, 0.5)) + scale_color_gradientn(colours = c('darkblue', 'blue', 'white', 'red', 'darkred'))
 pl <- pl + labs(x = '', y = '')
 pl
+
 ```
 
 ![](./figures/14_heatmap_LR_enrichment.png){width=16cm}
@@ -725,14 +822,16 @@ viewer_folder = paste0(results_folder, '/', 'Mouse_cortex_viewer')
 
 # select annotations, reductions and expression values to view in Giotto Viewer
 exportGiottoViewer(gobject = VC_test, output_directory = viewer_folder,
-                   annotations = c('cell_types', 'kmeans',
-                                   'cell_types',
-                                   'HMRF_k9_b.28'),
+                   factor_annotations = c('cell_types',
+                                          'leiden_clus',
+                                          'sub_leiden_clus_select'),
+                   numeric_annotations = 'total_expr',
                    dim_reductions = c('tsne', 'umap'),
                    dim_reduction_names = c('tsne', 'umap'),
                    expression_values = 'scaled',
                    expression_rounding = 3,
                    overwrite_dir = T)
+
 ```
 
 *** 

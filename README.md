@@ -56,7 +56,8 @@ everything about the Giotto workflow.
   - Updated support for 3D spatial data  
   - Added support for the use of global instructions and automatically
     saving your plots (**NEW**)
-  - Implemented [SpatialDE](https://github.com/Teichlab/SpatialDE)
+  - Implemented [SpatialDE](https://github.com/Teichlab/SpatialDE) and
+    [trendsceek](https://github.com/edsgard/trendsceek)
   - Add wrapper for differential expression with
     [MAST](https://github.com/RGLab/MAST)
   - New example with 3D spatial data
@@ -70,8 +71,8 @@ everything about the Giotto workflow.
     Transcriptomics](https://science.sciencemag.org/content/353/6294/78)
   - Updated seqFISH+ cortex example (**NEW**)
   - Updated STARmap cortex example (**NEW**)
-  - New examples for merFISH (3D) and MIBI (multiple patient tumor
-    samples) will follow soon.
+  - New examples for Ab-based large-scale systems such as cyCIF, CODEX
+    and MIBI will follow soon.
 
  
 
@@ -166,7 +167,7 @@ pip3 install --user smfish-image-processing --no-cache #add --no-deps if do not 
     computer is around 10\~45 mins.  
   - click on the image and try them out yourself.
 
-[![Cortex](./inst/images/cortex_image_summary.png)](./inst/examples/mouse_cortex_svz/seqfish_cortex_Giotto_v0.1.2_update.md)
+[![Cortex](./inst/images/cortex_image_summary.png)](./inst/examples/mouse_cortex_svz/seqfish_cortex_Giotto_v0.1.4.md)
 [![STARmap](./inst/images/starmap_cortex_image_summary.png)](./inst/examples/mouse_starmap_cortex/starmap_cortex_Giotto_v0.1.2_update.md)
 
 [![osmFISH](./inst/images/osmFISH_SS_cortex_image_summary.png)](./inst/examples/mouse_osmFISH_SS_cortex/osmFISH_SS_cortex_Giotto_v0.1.2.md)
