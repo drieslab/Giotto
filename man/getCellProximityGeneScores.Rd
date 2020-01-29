@@ -12,6 +12,9 @@ getCellProximityGeneScores(
   expression_values = c("normalized", "scaled", "custom"),
   do_diff_test = TRUE,
   diff_test = c("t.test", "wilcox"),
+  false_discovery_test = c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY",
+    "fdr", "none"),
+  false_discovery_target = c("cell_interactions", "genes"),
   minimum_unique_cells = NA,
   fold_change_addendum = 0.1,
   in_two_directions = TRUE,
@@ -33,6 +36,10 @@ getCellProximityGeneScores(
 \item{do_diff_test}{perform differential test}
 
 \item{diff_test}{which differential expression test}
+
+\item{false_discovery_test}{test to adjust p-values for multiple hypothesis testing}
+
+\item{false_discovery_target}{adjust p-values per cell-cell pair or per gene}
 
 \item{minimum_unique_cells}{minimum number of cells needed to proceed}
 

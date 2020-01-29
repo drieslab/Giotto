@@ -475,6 +475,8 @@ get_cell_to_cell_sorted_name_conversion <- function(all_cell_types) {
 #' @param expression_values expression values to use
 #' @param do_diff_test perform differential test
 #' @param diff_test which differential expression test
+#' @param false_discovery_test test to adjust p-values for multiple hypothesis testing
+#' @param false_discovery_target adjust p-values per cell-cell pair or per gene
 #' @param minimum_unique_cells minimum number of cells needed to proceed
 #' @param fold_change_addendum constant to add when calculating log2 fold-change
 #' @param in_two_directions shows enrichment in both directions: cell1-cell2, cell2-cell1
@@ -523,6 +525,9 @@ getCellProximityGeneScores = function(gobject,
                                       expression_values = c('normalized', 'scaled', 'custom'),
                                       do_diff_test = TRUE,
                                       diff_test = c('t.test', 'wilcox'),
+                                      false_discovery_test = c("holm", "hochberg", "hommel", "bonferroni",
+                                                               "BH", "BY", "fdr", "none"),
+                                      false_discovery_target = c('cell_interactions', 'genes'),
                                       minimum_unique_cells = NA,
                                       fold_change_addendum = 0.1,
                                       in_two_directions = TRUE,
@@ -537,7 +542,7 @@ getCellProximityGeneScores = function(gobject,
 
   # 2. get expression values
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
 
   # subset expression values
   if(!is.null(selected_genes)) {
@@ -555,19 +560,19 @@ getCellProximityGeneScores = function(gobject,
   }
 
   # 4. calculate cell-cell interaction gene scores
-  interaction_gene_scores = get_interaction_gene_enrichment(spatial_network = annot_spatial_network,
-                                                            unified_int_col = 'unified_int',
-                                                            source_col = 'from_cell_type', source_IDs = 'from',
-                                                            neighb_col = 'to_cell_type', neighb_IDs = 'to',
-                                                            expression_matrix = expr_values,
-                                                            cell_annotation = cell_metadata,
-                                                            annotation_ID = 'cell_ID',
-                                                            cell_type_col = cluster_column,
-                                                            do_diff_test = do_diff_test,
-                                                            minimum_unique_cells = minimum_unique_cells,
-                                                            diff_test = diff_test,
-                                                            exclude_selected_cells_from_test = exclude_selected_cells_from_test,
-                                                            verbose = verbose)
+  interaction_gene_scores = Giotto:::get_interaction_gene_enrichment(spatial_network = annot_spatial_network,
+                                                                     unified_int_col = 'unified_int',
+                                                                     source_col = 'from_cell_type', source_IDs = 'from',
+                                                                     neighb_col = 'to_cell_type', neighb_IDs = 'to',
+                                                                     expression_matrix = expr_values,
+                                                                     cell_annotation = cell_metadata,
+                                                                     annotation_ID = 'cell_ID',
+                                                                     cell_type_col = cluster_column,
+                                                                     do_diff_test = do_diff_test,
+                                                                     minimum_unique_cells = minimum_unique_cells,
+                                                                     diff_test = diff_test,
+                                                                     exclude_selected_cells_from_test = exclude_selected_cells_from_test,
+                                                                     verbose = verbose)
 
   # difference with spatial
   interaction_gene_scores[, diff_spat := as.numeric(comb_expr)-as.numeric(all_comb_expr)]
@@ -604,8 +609,8 @@ getCellProximityGeneScores = function(gobject,
     CPGscore[, type_int := ifelse(cell_type_1 == cell_type_2, 'homo', 'hetero')]
 
     # create unique cell-cell interaction names
-    name_conversion = get_cell_to_cell_sorted_name_conversion(all_cell_types = unique(c(CPGscore$cell_type_1,
-                                                                                        CPGscore$cell_type_2)))
+    name_conversion = Giotto:::get_cell_to_cell_sorted_name_conversion(all_cell_types = unique(c(CPGscore$cell_type_1,
+                                                                                                 CPGscore$cell_type_2)))
     CPGscore[, unified_int := name_conversion[[interaction]], by = 1:nrow(CPGscore)]
     CPGscore[, unif_int_rank := ifelse(interaction == unified_int, 1, 2)]
 
@@ -620,12 +625,43 @@ getCellProximityGeneScores = function(gobject,
 
   ## add multiple hypothesis testing and set colomn classes manually
   if(do_diff_test == TRUE) {
-    total_comparisons_per_gene = length(unique(CPGscore[['unified_int']]))
-    CPGscore[, fdr_1 := as.numeric(pval_1) * total_comparisons_per_gene]
-    CPGscore[, fdr_2 := as.numeric(pval_2) * total_comparisons_per_gene]
 
-    CPGscore[, fdr_1 := ifelse(fdr_1 > 1, 1, fdr_1)]
-    CPGscore[, fdr_2 := ifelse(fdr_2 > 1, 1, fdr_2)]
+    false_discovery_test = match.arg(false_discovery_test,  c("holm", "hochberg", "hommel", "bonferroni",
+                                                              "BH", "BY", "fdr", "none"))
+
+    false_discovery_target = match.arg(false_discovery_target, c('cell_interactions', 'genes'))
+    false_discovery_other = ifelse(false_discovery_target == 'cell_interactions', 'genes', 'unified_int')
+
+    # don't calculate fdr in two ways
+    # set N to include missing values
+    rank1_scores = unique(CPGscore[unif_int_rank == 1])
+    rank1_scores[,fdr_1 := p.adjust(p = pval_1, method = false_discovery_test, n = .N), by = false_discovery_other]
+    rank1_scores[,fdr_2 := p.adjust(p = pval_2, method = false_discovery_test, n = .N), by = false_discovery_other]
+
+
+    part1 = rank1_scores[,.(genes, cell_type_1, cell_type_2, fdr_1, fdr_2)]
+    part2 = rank1_scores[,.(genes, cell_type_2, cell_type_1, fdr_2, fdr_1)]
+    setnames(part2, c('cell_type_2', 'cell_type_1', 'fdr_2', 'fdr_1'), c('cell_type_1', 'cell_type_2', 'fdr_1', 'fdr_2'))
+    part_12 = unique(rbind(part1, part2))
+
+    CPGscore_1 = merge.data.table(CPGscore[unif_int_rank == 1], part_12[,.(genes, cell_type_1, cell_type_2, fdr_1, fdr_2)],
+                                  by.x = c('genes', 'cell_type_1', 'cell_type_2'),
+                                  by.y = c('genes', 'cell_type_1', 'cell_type_2'))
+    CPGscore_2 = merge.data.table(CPGscore[unif_int_rank == 2], part_12[,.(genes, cell_type_1, cell_type_2, fdr_1, fdr_2)],
+                                  by.x = c('genes', 'cell_type_1', 'cell_type_2'),
+                                  by.y = c('genes', 'cell_type_1', 'cell_type_2'))
+    CPGscore = rbind(CPGscore_1, CPGscore_2)
+
+    #return(list(CPGscore, rank1_scores))
+
+    # bonferroni
+    #total_comparisons_per_gene = length(unique(CPGscore[['unified_int']]))
+    #CPGscore[, fdr_1_a := as.numeric(pval_1) * total_comparisons_per_gene]
+    #CPGscore[, fdr_2_a := as.numeric(pval_2) * total_comparisons_per_gene]
+
+    #CPGscore[, fdr_1_a := ifelse(fdr_1_a > 1, 1, fdr_1_a)]
+    #CPGscore[, fdr_2_a := ifelse(fdr_2_a > 1, 1, fdr_2_a)]
+
 
     # set classes manually
     changeCols = c('cell_expr_1', 'cell_expr_2', 'comb_expr',
