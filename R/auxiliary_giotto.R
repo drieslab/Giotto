@@ -670,6 +670,145 @@ normalizeGiotto <- function(gobject,
 }
 
 
+
+
+#' @title normalizeGiotto2
+#' @description fast normalize and/or scale expresion values of Giotto object
+#' @param gobject giotto object
+#' @param library_size_norm normalize cells by library size
+#' @param scalefactor scale factor to use after library size normalization
+#' @param logbase log base to use to log normalize expression values
+#' @param scale_genes z-score genes over all cells
+#' @param scale_cells z-score cells over all genes
+#' @param scale_order order to scale genes and cells
+#' @param verbose be verbose
+#' @return giotto object
+#' @details Description of normalization steps ...
+#' @export
+#' @examples
+#'     normalizeGiotto2(gobject)
+normalizeGiotto2 <- function(gobject,
+                             norm_methods = c('standard', 'osmFISH'),
+                             library_size_norm = TRUE,
+                             scalefactor = 6e3,
+                             log_norm = TRUE,
+                             logbase = 2,
+                             scale_genes = T,
+                             scale_cells = T,
+                             scale_order = c('first_genes', 'first_cells'),
+                             verbose = F) {
+
+  raw_expr = gobject@raw_exprs
+  gene_names = rownames(raw_expr)
+  col_names = colnames(raw_expr)
+
+  norm_methods = match.arg(arg = norm_methods, choices = c('standard', 'osmFISH'))
+
+  # normalization according to standard methods
+  if(norm_methods == 'standard') {
+
+    ## 1. library size normalize
+    if(library_size_norm == TRUE) {
+      norm_expr = libNormFast(raw_matrix = raw_expr, scalefactor = rep(scalefactor, ncol(raw_expr)))
+    } else {
+      norm_expr = raw_expr
+    }
+
+    ## 2. lognormalize
+    if(log_norm == TRUE) {
+      norm_expr = logNormFast(mymatrix = norm_expr)
+    } else {
+      norm_expr = norm_expr
+    }
+
+    ## 3. scale
+    if(scale_genes == TRUE & scale_cells == TRUE) {
+
+      scale_order = match.arg(arg = scale_order, choices = c('first_genes', 'first_cells'))
+
+      if(scale_order == 'first_genes') {
+        if(verbose == TRUE) cat('\n first scale genes and then cells \n')
+        norm_scaled_expr = armaScaleRow(Z = norm_expr)
+        norm_scaled_expr = armaScale(Z = norm_scaled_expr)
+      } else if(scale_order == 'first_cells') {
+        if(verbose == TRUE) cat('\n first scale cells and then genes \n')
+        norm_scaled_expr = armaScale(Z = norm_expr)
+        norm_scaled_expr = armaScaleRow(Z = norm_scaled_expr)
+      } else {
+        stop('\n scale order must be given \n')
+      }
+
+    } else if(scale_genes == TRUE) {
+      norm_scaled_expr = armaScaleRow(Z = norm_expr)
+    } else if(scale_cells == TRUE) {
+      norm_scaled_expr = armaScale(Z = norm_expr)
+    } else {
+      norm_scaled_expr = NULL
+    }
+
+
+    ## 4. add cell and gene names back
+    if(!is.null(norm_expr)) {
+      rownames(norm_expr) = gene_names
+      colnames(norm_expr) = col_names
+    }
+    if(!is.null(norm_scaled_expr)) {
+      rownames(norm_scaled_expr) = gene_names
+      colnames(norm_scaled_expr) = col_names
+    }
+
+    # return Giotto object
+    gobject@norm_expr = norm_expr
+    gobject@norm_scaled_expr = norm_scaled_expr
+
+  }
+
+  # normalization according to osmFISH method
+  else if(norm_methods == 'osmFISH') {
+    # 1. normalize per gene with scale-factor equal to number of genes
+    norm_genes = (raw_expr/rowSums(raw_expr)) * nrow(raw_expr)
+    # 2. normalize per cells with scale-factor equal to number of cells
+    norm_genes_cells = t((t(norm_genes)/colSums(norm_genes)) * ncol(raw_expr))
+
+    # return results to Giotto object
+    cat('\n osmFISH-like normalized data will be returned to the custom Giotto slot \n')
+    gobject@custom_expr = norm_genes_cells
+
+  }
+
+
+
+
+  ## update parameters used ##
+  parameters_list  = gobject@parameters
+  number_of_rounds = length(parameters_list)
+  update_name      = paste0(number_of_rounds,'_normalize')
+
+  # parameters to include
+  if(norm_methods == 'standard') {
+    parameters_list[[update_name]] = c('normalization method' = norm_methods,
+                                       'normalized to library size' = ifelse(library_size_norm == T, 'yes', 'no'),
+                                       'scalefactor' = scalefactor,
+                                       'log-normalized' =  ifelse(log_norm == T, 'yes', 'no'),
+                                       'logbase' = ifelse(is.null(logbase), NA, logbase),
+                                       'genes scaled' = ifelse(scale_genes == T, 'yes', 'no'),
+                                       'cell scaled' = ifelse(scale_cells == T, 'yes', 'no'),
+                                       'if both, order of scaling' = scale_order)
+  }
+
+  if(norm_methods == 'osmFISH') {
+    parameters_list[[update_name]] = c('normalization method' = norm_methods)
+  }
+
+  gobject@parameters = parameters_list
+
+  return(gobject)
+}
+
+
+
+
+
 #' @title adjustGiottoMatrix
 #' @description normalize and/or scale expresion values of Giotto object
 #' @param gobject giotto object
