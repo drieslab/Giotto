@@ -839,7 +839,7 @@ normalizeGiotto <- function(gobject,
 #' @export
 #' @examples
 #'     normalizeGiotto2(gobject)
-normalizeGiotto2 <- function(gobject,
+normalizeGiotto2fast <- function(gobject,
                              norm_methods = c('standard', 'osmFISH'),
                              library_size_norm = TRUE,
                              scalefactor = 6e3,
