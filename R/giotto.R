@@ -18,6 +18,8 @@
 #' @slot instructions slot for global function instructions
 #' @slot offset_file offset file used to stitch together image fields
 #' @slot OS_platform Operating System to run Giotto analysis on
+#' @useDynLib Giotto
+#' @importFrom Rcpp sourceCpp
 #' @export
 giotto <- setClass(
   "giotto",
