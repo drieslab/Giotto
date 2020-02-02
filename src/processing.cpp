@@ -1,5 +1,5 @@
-#include <Rcpp.h>
 #include <RcppArmadillo.h>
+#include <Rcpp.h>
 
 using namespace Rcpp;
 using namespace arma;
@@ -56,7 +56,6 @@ arma::mat armaScale(arma::mat Z)
 
   return res;
 }
-
 
 
 
