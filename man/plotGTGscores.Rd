@@ -4,13 +4,28 @@
 \alias{plotGTGscores}
 \title{plotGTGscores}
 \usage{
-plotGTGscores(GTGscore, selected_interactions = NULL,
-  selected_gene_to_gene = NULL, detail_plot = T, simple_plot = F,
+plotGTGscores(
+  gobject,
+  GTGscore,
+  selected_interactions = NULL,
+  selected_gene_to_gene = NULL,
+  detail_plot = T,
+  simple_plot = F,
   simple_plot_facet = c("interaction", "genes"),
-  facet_scales = "fixed", facet_ncol = length(selected_gene_to_gene),
-  facet_nrow = length(selected_interactions), show_plot = F)
+  facet_scales = "fixed",
+  facet_ncol = length(selected_gene_to_gene),
+  facet_nrow = length(selected_interactions),
+  colors = c("blue", "red"),
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "plotGTGscores"
+)
 }
 \arguments{
+\item{gobject}{giotto object}
+
 \item{GTGscore}{GTGscore, output from getGeneToGeneScores()}
 
 \item{selected_interactions}{interactions to show}
@@ -27,7 +42,17 @@ plotGTGscores(GTGscore, selected_interactions = NULL,
 
 \item{facet_nrow}{ggplot facet nrow parameter}
 
-\item{show_plot}{show plot}
+\item{colors}{vector with 2 colors to represent respectively all and selected cells}
+
+\item{show_plot}{show plots}
+
+\item{return_plot}{return ggplot object}
+
+\item{save_plot}{directly save the plot [boolean]}
+
+\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+
+\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
 \item{selected_genes}{genes to show}
 }

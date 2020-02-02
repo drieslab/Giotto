@@ -4,20 +4,57 @@
 \alias{visSpatDimPlot}
 \title{visSpatDimPlot}
 \usage{
-visSpatDimPlot(gobject, plot_alignment = c("vertical", "horizontal"),
-  dim_reduction_to_use = "umap", dim_reduction_name = "umap",
-  dim1_to_use = 1, dim2_to_use = 2, show_NN_network = F,
-  nn_network_to_use = "sNN", network_name = "sNN.pca",
-  show_cluster_center = F, show_center_label = T,
-  center_point_size = 4, label_size = 4, label_fontface = "bold",
-  cell_color = NULL, color_as_factor = T, cell_color_code = NULL,
-  dim_point_size = 1, dim_point_border_col = "black",
-  dim_point_border_stroke = 0.1, edge_alpha = 0.05,
-  show_spatial_network = F, spatial_network_name = "spatial_network",
-  spatial_network_color = NULL, show_spatial_grid = F,
-  spatial_grid_name = "spatial_grid", spatial_grid_color = NULL,
-  spatial_point_size = 1, spatial_point_border_col = "black",
-  spatial_point_border_stroke = 0.1, show_legend = T, show_plot = F)
+visSpatDimPlot(
+  gobject,
+  plot_method = c("ggplot", "plotly"),
+  plot_alignment = NULL,
+  dim_reduction_to_use = "umap",
+  dim_reduction_name = "umap",
+  dim1_to_use = 1,
+  dim2_to_use = 2,
+  dim3_to_use = NULL,
+  sdimx = NULL,
+  sdimy = NULL,
+  sdimz = NULL,
+  show_NN_network = F,
+  nn_network_to_use = "sNN",
+  network_name = "sNN.pca",
+  show_cluster_center = F,
+  show_center_label = T,
+  center_point_size = 4,
+  label_size = NULL,
+  label_fontface = "bold",
+  cell_color = NULL,
+  color_as_factor = T,
+  cell_color_code = NULL,
+  select_cell_groups = NULL,
+  select_cells = NULL,
+  show_other_cells = T,
+  other_cell_color = "lightgrey",
+  dim_point_size = 3,
+  dim_point_border_col = "black",
+  dim_point_border_stroke = 0.1,
+  nn_network_alpha = NULL,
+  show_spatial_network = F,
+  spatial_network_name = "spatial_network",
+  network_color = "lightgray",
+  spatial_network_alpha = 0.5,
+  show_spatial_grid = F,
+  spatial_grid_name = "spatial_grid",
+  spatial_grid_color = NULL,
+  spatial_grid_alpha = 0.5,
+  spatial_point_size = 3,
+  legend_text_size = 12,
+  spatial_point_border_col = "black",
+  spatial_point_border_stroke = 0.1,
+  show_legend = T,
+  axis_scale = c("cube", "real", "custom"),
+  custom_ratio = NULL,
+  x_ticks = NULL,
+  y_ticks = NULL,
+  z_ticks = NULL,
+  show_plot = F
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -32,6 +69,8 @@ visSpatDimPlot(gobject, plot_alignment = c("vertical", "horizontal"),
 
 \item{dim2_to_use}{dimension to use on y-axis}
 
+\item{dim3_to_use}{dimension to use on z-axis}
+
 \item{show_NN_network}{show underlying NN network}
 
 \item{nn_network_to_use}{type of NN network to use (kNN vs sNN)}
@@ -44,13 +83,21 @@ visSpatDimPlot(gobject, plot_alignment = c("vertical", "horizontal"),
 
 \item{cell_color_code}{named vector with colors}
 
-\item{edge_alpha}{column to use for alpha of the edges}
+\item{select_cell_groups}{select subset of cells/clusters based on cell_color parameter}
+
+\item{select_cells}{select subset of cells based on cell IDs}
+
+\item{show_other_cells}{display not selected cells}
+
+\item{other_cell_color}{color of not selected cells}
+
+\item{nn_network_alpha}{column to use for alpha of the edges}
 
 \item{show_spatial_network}{show spatial network}
 
 \item{spatial_network_name}{name of spatial network to use}
 
-\item{spatial_network_color}{color of spatial network}
+\item{spatial_network_alpha}{alpha of spatial network}
 
 \item{show_spatial_grid}{show spatial grid}
 
@@ -58,15 +105,23 @@ visSpatDimPlot(gobject, plot_alignment = c("vertical", "horizontal"),
 
 \item{spatial_grid_color}{color of spatial grid}
 
+\item{spatial_grid_alpha}{alpha of spatial grid}
+
+\item{legend_text_size}{text size of legend}
+
 \item{show_legend}{show legend}
 
 \item{show_plot}{show plot}
+
+\item{plot_mode}{choose the mode to draw plot : ggplot or plotly}
+
+\item{spatial_network_color}{color of spatial network}
 }
 \value{
-ggplot
+ggplot or plotly
 }
 \description{
-Visualize cells according to spatial AND dimension reduction coordinates
+integration of visSpatDimPlot_2D and visSpatDimPlot_3D
 }
 \details{
 Description of parameters.

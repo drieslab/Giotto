@@ -4,10 +4,24 @@
 \alias{violinPlot}
 \title{violinPlot}
 \usage{
-violinPlot(gobject, expression_values = c("normalized", "scaled",
-  "custom"), genes, cluster_column, cluster_custom_order = NULL,
-  color_violin = c("genes", "cluster"), cluster_color_code = NULL,
-  strip_text = 7, axis_text_x_size = 10, axis_text_y_size = 6)
+violinPlot(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  genes,
+  cluster_column,
+  cluster_custom_order = NULL,
+  color_violin = c("genes", "cluster"),
+  cluster_color_code = NULL,
+  strip_position = c("top", "right", "left", "bottom"),
+  strip_text = 7,
+  axis_text_x_size = 10,
+  axis_text_y_size = 6,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "violinPlot"
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -18,16 +32,35 @@ violinPlot(gobject, expression_values = c("normalized", "scaled",
 
 \item{cluster_column}{name of column to use for clusters}
 
-\item{color_violin}{color violinplots according to genes or clusters}
+\item{cluster_custom_order}{custom order of clusters}
+
+\item{color_violin}{color violin according to genes or clusters}
+
+\item{cluster_color_code}{color code for clusters}
+
+\item{strip_position}{position of gene labels}
+
+\item{strip_text}{size of strip text}
+
+\item{axis_text_x_size}{size of x-axis text}
+
+\item{axis_text_y_size}{size of y-axis text}
+
+\item{show_plot}{show plot}
+
+\item{return_plot}{return ggplot object}
+
+\item{save_plot}{directly save the plot [boolean]}
+
+\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+
+\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }
 \value{
 ggplot
 }
 \description{
-Creates heatmap based on identified clusters
-}
-\details{
-Correlation heatmap of clusters vs genes.
+Creates violinplot for selected clusters
 }
 \examples{
     violinPlot(gobject)

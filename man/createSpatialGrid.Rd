@@ -4,9 +4,15 @@
 \alias{createSpatialGrid}
 \title{createSpatialGrid}
 \usage{
-createSpatialGrid(gobject, sdimx_stepsize = NULL,
-  sdimy_stepsize = NULL, sdimz_stepsize = NULL, minimum_padding = 1,
-  name = "spatial_grid", return_gobject = TRUE)
+createSpatialGrid(
+  gobject,
+  sdimx_stepsize = NULL,
+  sdimy_stepsize = NULL,
+  sdimz_stepsize = NULL,
+  minimum_padding = 1,
+  name = "spatial_grid",
+  return_gobject = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -27,10 +33,11 @@ createSpatialGrid(gobject, sdimx_stepsize = NULL,
 giotto object with updated spatial grid slot
 }
 \description{
-create a spatial grid
+Create a spatial grid.
 }
 \details{
 Creates a spatial grid with defined x, y (and z) dimensions.
+The dimension units are based on the provided spatial location units.
 }
 \examples{
     createSpatialGrid(gobject)

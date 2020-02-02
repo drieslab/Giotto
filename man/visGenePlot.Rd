@@ -4,14 +4,38 @@
 \alias{visGenePlot}
 \title{visGenePlot}
 \usage{
-visGenePlot(gobject, expression_values = c("normalized", "scaled",
-  "custom"), genes, show_network = F, network_color = NULL,
-  spatial_network_name = "spatial_network", show_grid = F,
-  grid_color = NULL, spatial_grid_name = "spatial_grid",
-  midpoint = 0, scale_alpha_with_expression = TRUE, point_size = 1,
-  point_border_col = "black", point_border_stroke = 0.1,
-  show_legend = T, cow_n_col = 2, cow_rel_h = 1, cow_rel_w = 1,
-  cow_align = "h", show_plots = F)
+visGenePlot(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  genes,
+  genes_high_color = NULL,
+  genes_mid_color = "white",
+  genes_low_color = "blue",
+  show_network = F,
+  network_color = NULL,
+  spatial_network_name = "spatial_network",
+  edge_alpha = NULL,
+  show_grid = F,
+  grid_color = NULL,
+  spatial_grid_name = "spatial_grid",
+  midpoint = 0,
+  scale_alpha_with_expression = FALSE,
+  point_size = 1,
+  point_border_col = "black",
+  point_border_stroke = 0.1,
+  show_legend = T,
+  cow_n_col = 2,
+  cow_rel_h = 1,
+  cow_rel_w = 1,
+  cow_align = "h",
+  axis_scale = c("cube", "real", "custom"),
+  custom_ratio = NULL,
+  x_ticks = NULL,
+  y_ticks = NULL,
+  z_ticks = NULL,
+  plot_method = c("ggplot", "plotly"),
+  show_plots = F
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -19,6 +43,12 @@ visGenePlot(gobject, expression_values = c("normalized", "scaled",
 \item{expression_values}{gene expression values to use}
 
 \item{genes}{genes to show}
+
+\item{genes_high_color}{color represents high gene expression}
+
+\item{genes_mid_color}{color represents middle gene expression}
+
+\item{genes_low_color}{color represents low gene expression}
 
 \item{show_network}{show underlying spatial network}
 
@@ -52,10 +82,20 @@ visGenePlot(gobject, expression_values = c("normalized", "scaled",
 
 \item{cow_align}{cowplot param: how to align}
 
+\item{axis_scale}{three mode to adjust axis scale}
+
+\item{x_ticks}{number of ticks on x axis}
+
+\item{y_ticks}{number of ticks on y axis}
+
+\item{z_ticks}{number of ticks on z axis}
+
+\item{plot_method}{two methods of plot}
+
 \item{show_plots}{show plots}
 }
 \value{
-ggplot
+ggplot or plotly
 }
 \description{
 Visualize cells and gene expression according to spatial coordinates

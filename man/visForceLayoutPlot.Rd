@@ -4,12 +4,32 @@
 \alias{visForceLayoutPlot}
 \title{visForceLayoutPlot}
 \usage{
-visForceLayoutPlot(gobject, nn_network_to_use = "sNN",
-  network_name = "sNN.pca", layout_name = "layout", dim1_to_use = 1,
-  dim2_to_use = 2, show_NN_network = T, cell_color = NULL,
-  color_as_factor = F, cell_color_code = NULL, edge_alpha = NULL,
-  point_size = 1, point_border_col = "black",
-  point_border_stroke = 0.1, show_legend = T)
+visForceLayoutPlot(
+  gobject,
+  nn_network_to_use = "sNN",
+  network_name = "sNN.pca",
+  layout_name = "layout",
+  dim1_to_use = 1,
+  dim2_to_use = 2,
+  show_NN_network = T,
+  cell_color = NULL,
+  color_as_factor = TRUE,
+  cell_color_code = NULL,
+  edge_alpha = NULL,
+  point_size = 1,
+  point_border_col = "black",
+  point_border_stroke = 0.1,
+  show_legend = T,
+  show_plot = F,
+  return_plot = TRUE,
+  save_plot = F,
+  save_dir = NULL,
+  save_folder = NULL,
+  save_name = NULL,
+  save_format = NULL,
+  show_saved_plot = F,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -41,6 +61,22 @@ visForceLayoutPlot(gobject, nn_network_to_use = "sNN",
 \item{point_border_stroke}{stroke size of border around points}
 
 \item{show_legend}{show legend}
+
+\item{show_plot}{show plot}
+
+\item{return_plot}{return ggplot object}
+
+\item{save_plot}{directly save the plot [boolean]}
+
+\item{save_dir}{directory to save the plot}
+
+\item{save_folder}{(optional) folder in directory to save the plot}
+
+\item{save_name}{name of plot}
+
+\item{save_format}{format of plot (e.g. tiff, png, pdf, ...)}
+
+\item{show_saved_plot}{load & display the saved plot}
 }
 \value{
 ggplot

@@ -4,15 +4,49 @@
 \alias{visPlot}
 \title{visPlot}
 \usage{
-visPlot(gobject, sdimx = NULL, sdimy = NULL, sdimz = NULL,
-  point_size = 1, point_border_col = "black",
-  point_border_stroke = 0.1, cell_color = NULL,
-  cell_color_code = NULL, color_as_factor = T,
-  select_cell_groups = NULL, show_network = F, network_color = NULL,
-  spatial_network_name = "spatial_network", show_grid = F,
-  grid_color = NULL, spatial_grid_name = "spatial_grid",
-  coord_fix_ratio = 0.6, title = "", show_legend = T,
-  show_plot = F)
+visPlot(
+  gobject,
+  sdimx = NULL,
+  sdimy = NULL,
+  sdimz = NULL,
+  point_size = 3,
+  point_border_col = "black",
+  point_border_stroke = 0.1,
+  cell_color = NULL,
+  cell_color_code = NULL,
+  color_as_factor = T,
+  select_cell_groups = NULL,
+  select_cells = NULL,
+  show_other_cells = T,
+  other_cell_color = "lightgrey",
+  show_network = F,
+  network_color = NULL,
+  network_alpha = 1,
+  other_cell_alpha = 0.1,
+  spatial_network_name = "spatial_network",
+  show_grid = F,
+  grid_color = NULL,
+  grid_alpha = 1,
+  spatial_grid_name = "spatial_grid",
+  coord_fix_ratio = 0.6,
+  title = "",
+  show_legend = T,
+  axis_scale = c("cube", "real", "custom"),
+  custom_ratio = NULL,
+  x_ticks = NULL,
+  y_ticks = NULL,
+  z_ticks = NULL,
+  plot_method = c("ggplot", "plotly"),
+  show_plot = F,
+  return_plot = TRUE,
+  save_plot = F,
+  save_dir = NULL,
+  save_folder = NULL,
+  save_name = NULL,
+  save_format = NULL,
+  show_saved_plot = F,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -35,7 +69,13 @@ visPlot(gobject, sdimx = NULL, sdimy = NULL, sdimz = NULL,
 
 \item{color_as_factor}{convert color column to factor}
 
-\item{select_cell_groups}{select a subset of the groups from cell_color}
+\item{select_cell_groups}{select subset of cells/clusters based on cell_color parameter}
+
+\item{select_cells}{select subset of cells based on cell IDs}
+
+\item{show_other_cells}{display not selected cells}
+
+\item{other_cell_color}{color of not selected cells}
 
 \item{show_network}{show underlying spatial network}
 
@@ -56,6 +96,20 @@ visPlot(gobject, sdimx = NULL, sdimy = NULL, sdimz = NULL,
 \item{show_legend}{show legend}
 
 \item{show_plot}{show plot}
+
+\item{return_plot}{return ggplot object}
+
+\item{save_plot}{directly save the plot [boolean]}
+
+\item{save_dir}{directory to save the plot}
+
+\item{save_folder}{(optional) folder in directory to save the plot}
+
+\item{save_name}{name of plot}
+
+\item{save_format}{format of plot (e.g. tiff, png, pdf, ...)}
+
+\item{show_saved_plot}{load & display the saved plot}
 }
 \value{
 ggplot

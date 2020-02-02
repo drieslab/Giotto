@@ -4,20 +4,59 @@
 \alias{visSpatDimGenePlot}
 \title{visSpatDimGenePlot}
 \usage{
-visSpatDimGenePlot(gobject, expression_values = c("normalized", "scaled",
-  "custom"), plot_alignment = c("horizontal", "vertical"), genes,
-  dim_reduction_to_use = "umap", dim_reduction_name = "umap",
-  dim1_to_use = 1, dim2_to_use = 2, dim_point_size = 1,
-  dim_point_border_col = "black", dim_point_border_stroke = 0.1,
-  show_NN_network = F, nn_network_to_use = "sNN",
-  network_name = "sNN.pca", edge_alpha_dim = NULL,
-  scale_alpha_with_expression = TRUE,
+visSpatDimGenePlot(
+  gobject,
+  plot_method = c("ggplot", "plotly"),
+  expression_values = c("normalized", "scaled", "custom"),
+  plot_alignment = c("horizontal", "vertical"),
+  dim_reduction_to_use = "umap",
+  dim_reduction_name = "umap",
+  dim1_to_use = 1,
+  dim2_to_use = 2,
+  dim3_to_use = NULL,
+  sdimx = NULL,
+  sdimy = NULL,
+  sdimz = NULL,
+  genes,
+  dim_point_border_col = "black",
+  dim_point_border_stroke = 0.1,
+  show_NN_network = F,
+  nn_network_to_use = "sNN",
+  network_name = "sNN.pca",
+  edge_alpha_dim = NULL,
+  scale_alpha_with_expression = FALSE,
+  label_size = 16,
+  genes_low_color = "blue",
+  genes_mid_color = "white",
+  genes_high_color = "red",
+  dim_point_size = 3,
+  nn_network_alpha = 0.5,
+  show_spatial_network = F,
   spatial_network_name = "spatial_network",
-  spatial_grid_name = "spatial_grid", spatial_point_size = 1,
+  network_color = "lightgray",
+  spatial_network_alpha = 0.5,
+  show_spatial_grid = F,
+  spatial_grid_name = "spatial_grid",
+  spatial_grid_color = NULL,
+  spatial_grid_alpha = 0.5,
+  spatial_point_size = 3,
   spatial_point_border_col = "black",
-  spatial_point_border_stroke = 0.1, midpoint = 0, point_size = 1,
-  cow_n_col = 2, cow_rel_h = 1, cow_rel_w = 1, cow_align = "h",
-  show_legend = T, show_plots = F)
+  spatial_point_border_stroke = 0.1,
+  legend_text_size = 12,
+  axis_scale = c("cube", "real", "custom"),
+  custom_ratio = NULL,
+  x_ticks = NULL,
+  y_ticks = NULL,
+  z_ticks = NULL,
+  midpoint = 0,
+  point_size = 1,
+  cow_n_col = 2,
+  cow_rel_h = 1,
+  cow_rel_w = 1,
+  cow_align = "h",
+  show_legend = T,
+  show_plots = F
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -25,8 +64,6 @@ visSpatDimGenePlot(gobject, expression_values = c("normalized", "scaled",
 \item{expression_values}{gene expression values to use}
 
 \item{plot_alignment}{direction to align plot}
-
-\item{genes}{genes to show}
 
 \item{dim_reduction_to_use}{dimension reduction to use}
 
@@ -36,7 +73,15 @@ visSpatDimGenePlot(gobject, expression_values = c("normalized", "scaled",
 
 \item{dim2_to_use}{dimension to use on y-axis}
 
-\item{dim_point_size}{dim reduction plot: point size}
+\item{dim3_to_use}{dimension to use on z-axis}
+
+\item{sdimx}{x-axis dimension name (default = 'sdimx')}
+
+\item{sdimy}{y-axis dimension name (default = 'sdimy')}
+
+\item{sdimz}{z-axis dimension name (default = 'sdimz')}
+
+\item{genes}{genes to show}
 
 \item{dim_point_border_col}{color of border around points}
 
@@ -52,6 +97,14 @@ visSpatDimGenePlot(gobject, expression_values = c("normalized", "scaled",
 
 \item{scale_alpha_with_expression}{scale expression with ggplot alpha parameter}
 
+\item{label_size}{size for the label}
+
+\item{genes_low_color}{color to represent low expression of gene}
+
+\item{genes_high_color}{color to represent high expression of gene}
+
+\item{dim_point_size}{dim reduction plot: point size}
+
 \item{spatial_network_name}{name of spatial network to use}
 
 \item{spatial_grid_name}{name of spatial grid to use}
@@ -61,6 +114,18 @@ visSpatDimGenePlot(gobject, expression_values = c("normalized", "scaled",
 \item{spatial_point_border_col}{color of border around points}
 
 \item{spatial_point_border_stroke}{stroke size of border around points}
+
+\item{legend_text_size}{the size of the text in legend}
+
+\item{axis_scale}{three modes to adjust axis scale ratio}
+
+\item{custom_ratio}{set the axis scale ratio on custom}
+
+\item{x_ticks}{number of ticks on x axis}
+
+\item{y_ticks}{number of ticks on y axis}
+
+\item{z_ticks}{number of ticks on z axis}
 
 \item{midpoint}{size of point (cell)}
 
@@ -79,10 +144,10 @@ visSpatDimGenePlot(gobject, expression_values = c("normalized", "scaled",
 \item{show_plot}{show plot}
 }
 \value{
-ggplot
+ggplot or plotly
 }
 \description{
-Visualize cells according to spatial AND dimension reduction coordinates
+integration of visSpatDimGenePlot_2D(ggplot) and visSpatDimGenePlot_3D(plotly)
 }
 \details{
 Description of parameters.

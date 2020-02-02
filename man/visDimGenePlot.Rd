@@ -4,15 +4,36 @@
 \alias{visDimGenePlot}
 \title{visDimGenePlot}
 \usage{
-visDimGenePlot(gobject, expression_values = c("normalized", "scaled",
-  "custom"), genes = NULL, dim_reduction_to_use = "umap",
-  dim_reduction_name = "umap", dim1_to_use = 1, dim2_to_use = 2,
-  show_NN_network = T, nn_network_to_use = "sNN",
-  network_name = "sNN.pca", edge_alpha = NULL,
-  scale_alpha_with_expression = TRUE, point_size = 1,
-  point_border_col = "black", point_border_stroke = 0.1,
-  midpoint = 0, cow_n_col = 2, cow_rel_h = 1, cow_rel_w = 1,
-  cow_align = "h", show_legend = T, show_plots = T)
+visDimGenePlot(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  genes = NULL,
+  dim_reduction_to_use = "umap",
+  dim_reduction_name = "umap",
+  dim1_to_use = 1,
+  dim2_to_use = 2,
+  dim3_to_use = NULL,
+  show_NN_network = F,
+  nn_network_to_use = "sNN",
+  network_name = "sNN.pca",
+  network_color = "lightgray",
+  edge_alpha = NULL,
+  scale_alpha_with_expression = FALSE,
+  point_size = 1,
+  genes_high_color = NULL,
+  genes_mid_color = "white",
+  genes_low_color = "blue",
+  point_border_col = "black",
+  point_border_stroke = 0.1,
+  midpoint = 0,
+  cow_n_col = 2,
+  cow_rel_h = 1,
+  cow_rel_w = 1,
+  cow_align = "h",
+  show_legend = T,
+  plot_method = c("ggplot", "plotly"),
+  show_plots = F
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -28,6 +49,8 @@ visDimGenePlot(gobject, expression_values = c("normalized", "scaled",
 \item{dim1_to_use}{dimension to use on x-axis}
 
 \item{dim2_to_use}{dimension to use on y-axis}
+
+\item{dim3_to_use}{dimension to use on z-axis}
 
 \item{show_NN_network}{show underlying NN network}
 

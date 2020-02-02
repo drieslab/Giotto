@@ -10,7 +10,7 @@ pDataDT(gobject)
 \item{gobject}{giotto object}
 }
 \value{
-data.table
+data.table with cell metadata
 }
 \description{
 show cell metadata

@@ -4,11 +4,17 @@
 \alias{allCellCellcommunicationsScores}
 \title{allCellCellcommunicationsScores}
 \usage{
-allCellCellcommunicationsScores(gobject,
+allCellCellcommunicationsScores(
+  gobject,
   spatial_network_name = "spatial_network",
-  cluster_column = "cell_types", random_iter = 100, gene_set_1,
-  gene_set_2, log2FC_addendum = 0.1, min_observations = 2,
-  verbose = c("a little", "a lot", "none"))
+  cluster_column = "cell_types",
+  random_iter = 100,
+  gene_set_1,
+  gene_set_2,
+  log2FC_addendum = 0.1,
+  min_observations = 2,
+  verbose = c("a little", "a lot", "none")
+)
 }
 \arguments{
 \item{gobject}{giotto object to use}
@@ -36,7 +42,10 @@ Cell-Cell communication scores for gene pairs based on spatial interaction
 All Cell-Cell communication scores based on spatial expression of interacting cells
 }
 \details{
-Details will follow.
+Statistical framework to identify if pairs of genes (such as ligand-receptor combinations)
+are expressed at higher levels than expected based on a reshuffled null distribution
+of gene expression values in cells that are spatially in proximity to eachother..
+More details will follow soon.
 }
 \examples{
     allCellCellcommunicationsScores(gobject)

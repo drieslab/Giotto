@@ -4,9 +4,17 @@
 \alias{runPCA}
 \title{runPCA}
 \usage{
-runPCA(gobject, expression_values = c("normalized", "scaled", "custom"),
-  reduction = c("cells", "genes"), name = "pca", genes_to_use = NULL,
-  return_gobject = TRUE, scale_unit = F, ncp = 200, ...)
+runPCA(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  reduction = c("cells", "genes"),
+  name = "pca",
+  genes_to_use = NULL,
+  return_gobject = TRUE,
+  scale_unit = F,
+  ncp = 200,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -25,16 +33,16 @@ runPCA(gobject, expression_values = c("normalized", "scaled", "custom"),
 
 \item{ncp}{number of principal components to calculate}
 
-\item{...}{additional parameters for PCA}
+\item{...}{additional parameters for PCA (see details)}
 }
 \value{
 giotto object with updated PCA dimension recuction
 }
 \description{
-run PCA
+runs a Principal Component Analysis
 }
 \details{
-Description of PCA steps...
+See \code{\link[FactoMineR]{PCA}} for more information about other parameters.
 }
 \examples{
     runPCA(gobject)

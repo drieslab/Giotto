@@ -4,7 +4,7 @@
 \alias{subsetGiotto}
 \title{subsetGiotto}
 \usage{
-subsetGiotto(gobject, cell_ids = NULL, gene_ids = NULL)
+subsetGiotto(gobject, cell_ids = NULL, gene_ids = NULL, verbose = FALSE)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -12,12 +12,14 @@ subsetGiotto(gobject, cell_ids = NULL, gene_ids = NULL)
 \item{cell_ids}{cell IDs to keep}
 
 \item{gene_ids}{gene IDs to keep}
+
+\item{verbose}{be verbose}
 }
 \value{
 giotto object
 }
 \description{
-subsets Giotto object including previous calculations
+subsets Giotto object including previous analyses.
 }
 \examples{
     subsetGiotto(gobject)

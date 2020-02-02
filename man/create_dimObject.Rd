@@ -4,8 +4,13 @@
 \alias{create_dimObject}
 \title{create_dimObject}
 \usage{
-create_dimObject(name = "test", reduction_method = NULL,
-  coordinates = NULL, misc = NULL)
+create_dimObject(
+  name = "test",
+  reduction_method = NULL,
+  coordinates = NULL,
+  misc = NULL,
+  my_rownames = NULL
+)
 }
 \arguments{
 \item{name}{arbitrary name for object}

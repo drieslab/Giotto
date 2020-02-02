@@ -5,41 +5,60 @@
 #' @param gobject giotto object
 #' @param expression_values expression values to use
 #' @param method method to calculate highly variable genes
-#' @param reverse_log_scale reverse log-scale of expression values
+#' @param reverse_log_scale reverse log-scale of expression values (default = FALSE)
 #' @param logbase if reverse_log_scale is TRUE, which log base was used?
 #' @param expression_threshold expression threshold to consider a gene detected
 #' @param nr_expression_groups number of expression groups for cov_groups
 #' @param zscore_threshold zscore to select hvg for cov_groups
 #' @param HVGname name for highly variable genes in cell metadata
-#' @param difference_in_variance minimum difference in variance required
-#' @param show_plot show plots
+#' @param difference_in_cov minimum difference in coefficient of variance required
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @return giotto object highly variable genes appended to gene metadata (fDataDT)
-#' @details Description of how we compute highly variable genes.
+#' @details
+#' Currently we provide 2 ways to calculate highly variable genes:
+#' \bold{1. high coeff of variance (COV) within groups: } \cr
+#' First genes are binned (\emph{nr_expression_groups}) into average expression groups and
+#' the COV for each gene is converted into a z-score within each bin. Genes with a z-score
+#' higher than the threshold (\emph{zscore_threshold}) are considered highly variable.  \cr
+#'
+#' \bold{2. high COV based on loess regression prediction: } \cr
+#' A predicted COV is calculated for each gene using loess regression (COV~log(mean expression))
+#' Genes that show a higher than predicted COV (\emph{difference_in_cov}) are considered highly variable. \cr
+#'
 #' @export
 #' @examples
 #'     calculateHVG(gobject)
 calculateHVG <- function(gobject,
                          expression_values = c('normalized', 'scaled', 'custom'),
-                         method = c('cov_loess', 'cov_groups', 'gini_loess'),
-                         reverse_log_scale = T,
+                         method = c('cov_groups','cov_loess'),
+                         reverse_log_scale = FALSE,
                          logbase = 2,
                          expression_threshold = 0,
                          nr_expression_groups = 20,
                          zscore_threshold = 1.5,
                          HVGname = 'hvg',
-                         difference_in_variance = 1,
-                         show_plot = T,
-                         return_gobject = T) {
+                         difference_in_cov = 0.1,
+                         show_plot = NA,
+                         return_plot = NA,
+                         save_plot = NA,
+                         save_param = list(),
+                         default_save_name = 'HVGplot',
+                         return_gobject = TRUE) {
 
 
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
 
   # method to use
-  method = match.arg(method, choices = c('cov_loess', 'cov_groups', 'gini_loess'))
+  method = match.arg(method, choices = c('cov_groups', 'cov_loess'))
 
+  # not advised
   if(reverse_log_scale == TRUE) {
     expr_values = (logbase^expr_values)-1
   }
@@ -53,7 +72,7 @@ calculateHVG <- function(gobject,
   gene_in_cells_detected[, cov := (sd/mean_expr)]
   gini_level <- unlist(apply(expr_values, MARGIN = 1, FUN = function(x) {
 
-    gini = mygini_fun(x)
+    gini = Giotto:::mygini_fun(x)
     return(gini)
 
   }))
@@ -66,52 +85,92 @@ calculateHVG <- function(gobject,
     prob_sequence = seq(0, 1, steps)
     prob_sequence[length(prob_sequence)] = 1
     expr_group_breaks = stats::quantile(gene_in_cells_detected$mean_expr, probs = prob_sequence)
+
+    ## remove zero's from cuts if there are too many and make first group zero
+    if(any(duplicated(expr_group_breaks))) {
+      m_expr_vector = gene_in_cells_detected$mean_expr
+      expr_group_breaks = stats::quantile(m_expr_vector[m_expr_vector > 0], probs = prob_sequence)
+      expr_group_breaks[[1]] = 0
+    }
+
     expr_groups = cut(x = gene_in_cells_detected$mean_expr, breaks = expr_group_breaks,
                       labels = paste0('group_', 1:nr_expression_groups), include.lowest = T)
     gene_in_cells_detected[, expr_groups := expr_groups]
     gene_in_cells_detected[, cov_group_zscore := scale(cov), by =  expr_groups]
     gene_in_cells_detected[, selected := ifelse(cov_group_zscore > zscore_threshold, 'yes', 'no')]
 
-    if(show_plot == TRUE) {
-      pl <- ggplot2::ggplot()
-      pl <- pl + ggplot2::theme_classic()
-      pl <- pl + ggplot2::geom_point(data = gene_in_cells_detected, aes(x = mean_expr, y = cov, color = selected))
-      pl <- pl + ggplot2::facet_wrap(~expr_groups, ncol = nr_expression_groups, scales = 'free_x')
-      pl <- pl + ggplot2::theme(axis.text.x = element_blank(), strip.text = element_text(size = 4))
-      pl <- pl + ggplot2::labs(x = 'expression groups', y = 'cov')
-      print(pl)
-    }
+    pl <- ggplot2::ggplot()
+    pl <- pl + ggplot2::theme_classic() + theme(axis.title = element_text(size = 14),
+                                                axis.text = element_text(size = 12))
+    pl <- pl + ggplot2::geom_point(data = gene_in_cells_detected, aes(x = mean_expr, y = cov, color = selected))
+    pl <- pl + scale_color_manual(values = c(no = 'lightgrey', yes = 'orange'), guide = guide_legend(title = 'HVG',
+                                                                                                     override.aes = list(size=5)))
+    pl <- pl + ggplot2::facet_wrap(~expr_groups, ncol = nr_expression_groups, scales = 'free_x')
+    pl <- pl + ggplot2::theme(axis.text.x = element_blank(), strip.text = element_text(size = 4))
+    pl <- pl + ggplot2::labs(x = 'expression groups', y = 'cov')
+
   } else {
 
 
     if(method == 'cov_loess') {
-      loess_formula = paste0('cov~mean_expr')
+      loess_formula = paste0('cov~log(mean_expr)')
       var_col = 'cov'
-    } else if(method == 'gini_loess') {
-      loess_formula = paste0('gini~mean_expr')
-      var_col = 'gini'
     }
 
     loess_model_sample <- stats::loess(loess_formula, data = gene_in_cells_detected)
-    gene_in_cells_detected$pred_var_genes <- predict(loess_model_sample, newdata = gene_in_cells_detected)
-    gene_in_cells_detected[, var_diff := get(var_col)-pred_var_genes, by = 1:nrow(gene_in_cells_detected)]
-    setorder(gene_in_cells_detected, -var_diff)
-    gene_in_cells_detected[, selected := ifelse(var_diff > difference_in_variance, 'yes', 'no')]
+    gene_in_cells_detected$pred_cov_genes <- predict(loess_model_sample, newdata = gene_in_cells_detected)
+    gene_in_cells_detected[, cov_diff := get(var_col)-pred_cov_genes, by = 1:nrow(gene_in_cells_detected)]
+    setorder(gene_in_cells_detected, -cov_diff)
+    gene_in_cells_detected[, selected := ifelse(cov_diff > difference_in_cov, 'yes', 'no')]
 
 
-    if(show_plot == TRUE) {
-      pl <- ggplot2::ggplot()
-      pl <- pl + ggplot2::theme_classic()
-      pl <- pl + ggplot2::geom_point(data = gene_in_cells_detected, aes_string(x = 'mean_expr', y = var_col, color = 'selected'))
-      pl <- pl + ggplot2::geom_line(data = gene_in_cells_detected, aes_string(x = 'mean_expr', y = 'pred_var_genes'), color = 'blue')
-      hvg_line = paste0('pred_var_genes+',difference_in_variance)
-      pl <- pl + ggplot2::geom_line(data = gene_in_cells_detected, aes_string(x = 'mean_expr', y = hvg_line), linetype = 2)
-      pl <- pl + ggplot2::labs(x = 'mean expression', y = var_col)
-      print(pl)
-    }
+    pl <- ggplot2::ggplot()
+    pl <- pl + ggplot2::theme_classic() + theme(axis.title = element_text(size = 14),
+                                                axis.text = element_text(size = 12))
+    pl <- pl + ggplot2::geom_point(data = gene_in_cells_detected, aes_string(x = 'log(mean_expr)', y = var_col, color = 'selected'))
+    pl <- pl + ggplot2::geom_line(data = gene_in_cells_detected, aes_string(x = 'log(mean_expr)', y = 'pred_cov_genes'), color = 'blue')
+    hvg_line = paste0('pred_cov_genes+',difference_in_cov)
+    pl <- pl + ggplot2::geom_line(data = gene_in_cells_detected, aes_string(x = 'log(mean_expr)', y = hvg_line), linetype = 2)
+    pl <- pl + ggplot2::labs(x = 'log(mean expression)', y = var_col)
+    pl <- pl + scale_color_manual(values = c(no = 'lightgrey', yes = 'orange'), guide = guide_legend(title = 'HVG',
+                                                                                                     override.aes = list(size=5)))
 
 
   }
+
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    if(return_gobject == TRUE) {
+      cat('return_plot = TRUE and return_gobject = TRUE \n
+          plot will not be returned to object, but can still be saved with save_plot = TRUE or manually')
+    } else {
+      return(pl)
+    }
+
+  }
+
+
+
+
+
+
 
 
   if(return_gobject == TRUE) {
@@ -143,7 +202,7 @@ calculateHVG <- function(gobject,
                                        'expression threshold' = expression_threshold,
                                        'number of expression groups ' = nr_expression_groups,
                                        'threshold for z-score ' = zscore_threshold,
-                                       'difference in variance' = difference_in_variance,
+                                       'difference in variance' = difference_in_cov,
                                        'name for HVGs' = HVGname)
     gobject@parameters = parameters_list
 
@@ -153,6 +212,8 @@ calculateHVG <- function(gobject,
     return(gene_in_cells_detected)
   }
 
-}
+  }
+
+
 
 

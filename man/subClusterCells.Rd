@@ -4,16 +4,30 @@
 \alias{subClusterCells}
 \title{subClusterCells}
 \usage{
-subClusterCells(gobject, name = "sub_clus",
+subClusterCells(
+  gobject,
+  name = "sub_clus",
   cluster_method = c("leiden", "louvain_community", "louvain_multinet"),
-  cluster_column = NULL, selected_clusters = NULL,
-  hvg_param = list(reverse_log_scale = T, difference_in_variance = 1,
-  expression_values = "normalized"), hvg_min_perc_cells = 5,
-  hvg_mean_expr_det = 1, pca_param = list(expression_values =
-  "normalized", scale_unit = T), nn_param = list(dimensions_to_use =
-  1:20), k_neighbors = 10, resolution = 1, gamma = 1, omega = 1,
-  python_path = NULL, nn_network_to_use = "sNN",
-  network_name = "sNN.pca", return_gobject = TRUE, verbose = T, ...)
+  cluster_column = NULL,
+  selected_clusters = NULL,
+  hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values
+    = "normalized"),
+  hvg_min_perc_cells = 5,
+  hvg_mean_expr_det = 1,
+  use_all_genes_as_hvg = FALSE,
+  min_nr_of_hvg = 5,
+  pca_param = list(expression_values = "normalized", scale_unit = T),
+  nn_param = list(dimensions_to_use = 1:20),
+  k_neighbors = 10,
+  resolution = 1,
+  gamma = 1,
+  omega = 1,
+  python_path = NULL,
+  nn_network_to_use = "sNN",
+  network_name = "sNN.pca",
+  return_gobject = TRUE,
+  verbose = T
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -31,6 +45,10 @@ subClusterCells(gobject, name = "sub_clus",
 \item{hvg_min_perc_cells}{threshold for detection in min percentage of cells}
 
 \item{hvg_mean_expr_det}{threshold for mean expression level in cells with detection}
+
+\item{use_all_genes_as_hvg}{forces all genes to be HVG and to be used as input for PCA}
+
+\item{min_nr_of_hvg}{minimum number of HVG, or all genes will be used as input for PCA}
 
 \item{pca_param}{parameters for runPCA}
 
@@ -53,18 +71,28 @@ subClusterCells(gobject, name = "sub_clus",
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
 \item{verbose}{verbose}
-
-\item{...}{additional parameters}
 }
 \value{
-giotto object appended with new cluster
+giotto object with new subclusters appended to cell metadata
 }
 \description{
 subcluster cells
 }
 \details{
-Description of Louvain clustering method.
+This function performs subclustering on selected clusters.
+The systematic steps are:
+\itemize{
+  \item{1. subset Giotto object}
+  \item{2. identify highly variable genes}
+  \item{3. run PCA}
+  \item{4. create nearest neighbouring network}
+  \item{5. do clustering}
+}
 }
 \examples{
     subClusterCells(gobject)
+}
+\seealso{
+\code{\link{doLouvainCluster_multinet}}, \code{\link{doLouvainCluster_community}}
+and  @seealso \code{\link{doLeidenCluster}}
 }

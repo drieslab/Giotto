@@ -4,9 +4,15 @@
 \alias{exprOnlyCellCellcommunicationScores}
 \title{exprOnlyCellCellcommunicationScores}
 \usage{
-exprOnlyCellCellcommunicationScores(gobject,
-  cluster_column = "cell_types", random_iter = 100, gene_set_1,
-  gene_set_2, log2FC_addendum = 0.1, verbose = T)
+exprOnlyCellCellcommunicationScores(
+  gobject,
+  cluster_column = "cell_types",
+  random_iter = 100,
+  gene_set_1,
+  gene_set_2,
+  log2FC_addendum = 0.1,
+  verbose = T
+)
 }
 \arguments{
 \item{gobject}{giotto object to use}
@@ -30,7 +36,10 @@ Cell-Cell communication scores for gene pairs based on expression only
 Cell-Cell communication scores based on expression only
 }
 \details{
-Details will follow.
+Statistical framework to identify if pairs of genes (such as ligand-receptor combinations)
+are expressed at higher levels than expected based on a reshuffled null distribution of gene expression values,
+without considering the spatial position of cells.
+More details will follow soon.
 }
 \examples{
     exprOnlyCellCellcommunicationScores(gobject)

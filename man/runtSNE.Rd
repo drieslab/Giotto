@@ -4,12 +4,24 @@
 \alias{runtSNE}
 \title{runtSNE}
 \usage{
-runtSNE(gobject, expression_values = c("normalized", "scaled", "custom"),
-  reduction = c("cells", "genes"), dim_reduction_to_use = "pca",
-  dim_reduction_name = "pca", dimensions_to_use = 1:10,
-  name = "tsne", genes_to_use = NULL, return_gobject = TRUE,
-  dims = 2, perplexity = 30, theta = 0.5, do_PCA_first = F,
-  set_seed = T, seed_number = 1234, ...)
+runtSNE(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  reduction = c("cells", "genes"),
+  dim_reduction_to_use = "pca",
+  dim_reduction_name = "pca",
+  dimensions_to_use = 1:10,
+  name = "tsne",
+  genes_to_use = NULL,
+  return_gobject = TRUE,
+  dims = 2,
+  perplexity = 30,
+  theta = 0.5,
+  do_PCA_first = F,
+  set_seed = T,
+  seed_number = 1234,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -51,7 +63,12 @@ giotto object with updated tSNE dimension recuction
 run tSNE
 }
 \details{
-Description of tSNE steps and params ...
+See \code{\link[Rtsne]{Rtsne}} for more information about these and other parameters. \cr
+\itemize{
+  \item Input for tSNE dimension reduction can be another dimension reduction (default = 'pca')
+  \item To use gene expression as input set dim_reduction_to_use = NULL
+  \item multiple tSNE results can be stored by changing the \emph{name} of the analysis
+}
 }
 \examples{
     runtSNE(gobject)

@@ -4,40 +4,94 @@
 \alias{plotHeatmap}
 \title{plotHeatmap}
 \usage{
-plotHeatmap(gobject, expression_values = c("normalized", "scaled",
-  "custom"), genes, cluster_column = NULL, cluster_order = c("size",
-  "correlation", "custom"), cluster_custom_order = NULL,
-  cluster_color_code = NULL, gene_order = c("custom", "correlation"),
+plotHeatmap(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  genes,
+  cluster_column = NULL,
+  cluster_order = c("size", "correlation", "custom"),
+  cluster_custom_order = NULL,
+  cluster_color_code = NULL,
+  cluster_cor_method = "pearson",
+  cluster_hclust_method = "ward.D",
+  gene_order = c("custom", "correlation"),
+  gene_custom_order = NULL,
+  gene_cor_method = "pearson",
+  gene_hclust_method = "complete",
   show_values = c("rescaled", "z-scaled", "original"),
-  legend_nrows = 1)
+  size_vertical_lines = 1.1,
+  gradient_colors = c("blue", "yellow", "red"),
+  gene_label_selection = NULL,
+  axis_text_y_size = NULL,
+  legend_nrows = 1,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "plotHeatmap"
+)
 }
 \arguments{
 \item{gobject}{giotto object}
 
 \item{expression_values}{expression values to use}
 
-\item{genes}{genes to plot}
+\item{genes}{genes to use}
 
 \item{cluster_column}{name of column to use for clusters}
 
-\item{cluster_order}{method to order the clusters (see details)}
+\item{cluster_order}{method to determine cluster order}
 
-\item{cluster_custom_order}{vector with custom order of clusters}
+\item{cluster_custom_order}{custom order for clusters}
 
-\item{gene_order}{order of genes (see details)}
+\item{cluster_color_code}{color code for clusters}
 
-\item{show_values}{values to plot on heatmap (see details)}
+\item{cluster_cor_method}{method for cluster correlation}
 
-\item{legend_nrows}{number of rows for legend on top}
+\item{cluster_hclust_method}{method for hierarchical clustering of clusters}
+
+\item{gene_order}{method to determine gene order}
+
+\item{gene_custom_order}{custom order for genes}
+
+\item{gene_cor_method}{method for gene correlation}
+
+\item{gene_hclust_method}{method for hierarchical clustering of genes}
+
+\item{show_values}{which values to show on heatmap}
+
+\item{size_vertical_lines}{sizes for vertical lines}
+
+\item{gradient_colors}{colors for heatmap gradient}
+
+\item{gene_label_selection}{subset of genes to show on y-axis}
+
+\item{axis_text_y_size}{size for y-axis text}
+
+\item{legend_nrows}{number of rows for the cluster legend}
+
+\item{show_plot}{show plot}
+
+\item{return_plot}{return ggplot object}
+
+\item{save_plot}{directly save the plot [boolean]}
+
+\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+
+\item{default_save_name}{default save name}
 }
 \value{
 ggplot
 }
 \description{
-Creates heatmap based on identified clusters
+Creates heatmap for genes and clusters.
 }
 \details{
-Correlation heatmap of clusters vs genes.
+If you want to display many genes there are 2 ways to proceed:
+\itemize{
+  \item{1. set axis_text_y_size to a really small value and show all genes}
+  \item{2. provide a subset of genes to display to gene_label_selection}
+}
 }
 \examples{
     plotHeatmap(gobject)

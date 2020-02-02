@@ -41,11 +41,12 @@ annotateSpatialNetwork = function(gobject,
   spatial_network_annot[, from_to := paste0(from_cell_type,'-',to_cell_type)]
 
   # unified direction, due to 'sort'
-  spatial_network_annot[, unified_int := paste(sort(c(from_cell_type, to_cell_type)), collapse = '-'), by = 1:nrow(spatial_network_annot)]
+  spatial_network_annot[, unified_int := paste(sort(c(from_cell_type, to_cell_type)), collapse = '--'), by = 1:nrow(spatial_network_annot)]
 
   return(spatial_network_annot)
 
 }
+
 
 
 #' @title make_simulated_network
@@ -53,6 +54,7 @@ annotateSpatialNetwork = function(gobject,
 #' @description Simulate random network.
 #' @examples
 #'     make_simulated_network(gobject)
+
 make_simulated_network = function(gobject,
                                   spatial_network_name = 'spatial_network',
                                   cluster_column,
@@ -64,19 +66,27 @@ make_simulated_network = function(gobject,
                                                  cluster_column = cluster_column)
 
   # remove double edges between same cells #
-  spatial_network_annot[, unified_cells := paste(sort(c(to,from)), collapse = '-'), by = 1:nrow(spatial_network_annot)]
+  spatial_network_annot[, unified_cells := paste(sort(c(to,from)), collapse = '--'), by = 1:nrow(spatial_network_annot)]
   spatial_network_annot = spatial_network_annot[!duplicated(unified_cells)]
 
   # create a simulated network
   length_ints = nrow(spatial_network_annot)
   s1_list = list()
   s2_list = list()
-  for(sim in 1:number_of_simulations) {
-    s1 = sample(spatial_network_annot$from_cell_type, size = length_ints)
-    s1_list[[sim]] = s1
 
-    s2 = sample(spatial_network_annot$to_cell_type, size = length_ints)
-    s2_list[[sim]] = s2
+  all_cell_type = c(spatial_network_annot$from_cell_type, spatial_network_annot$to_cell_type)
+  middle_point = length(all_cell_type)/2
+
+  for(sim in 1:number_of_simulations) {
+
+    reshuffled_all_cell_type = sample(x = all_cell_type, size = length(all_cell_type), replace = F)
+
+    new_from_cell_type = reshuffled_all_cell_type[1:middle_point]
+    s1_list[[sim]] = new_from_cell_type
+
+    new_to_cell_type = reshuffled_all_cell_type[(middle_point+1):length(all_cell_type)]
+    s2_list[[sim]] = new_to_cell_type
+
   }
 
   s1_vector = do.call('c', s1_list)
@@ -86,13 +96,14 @@ make_simulated_network = function(gobject,
   sample_dt = data.table::data.table(s1 = s1_vector, s2 = s2_vector, round = round_vector)
 
   uniq_sim_comb = unique(sample_dt[,.(s1,s2)])
-  uniq_sim_comb[, unified_int := paste(sort(c(s1,s2)), collapse = '-'), by  = 1:nrow(uniq_sim_comb)]
+  uniq_sim_comb[, unified_int := paste(sort(c(s1,s2)), collapse = '--'), by  = 1:nrow(uniq_sim_comb)]
   sample_dt[uniq_sim_comb, unified_int := unified_int, on = c(s1 = 's1', s2 = 's2')]
   sample_dt[, type_int := ifelse(s1 == s2, 'homo', 'hetero')]
 
   return(sample_dt)
 
 }
+
 
 
 #' @title cellProximityEnrichment
@@ -102,7 +113,15 @@ make_simulated_network = function(gobject,
 #' @param spatial_network_name name of spatial network to use
 #' @param cluster_column name of column to use for clusters
 #' @param number_of_simulations number of simulations to create expected observations
-#' @return Cell Proximity scores (CPscores) in data.table format
+#' @return List of cell Proximity scores (CPscores) in data.table format. The first
+#' data.table (raw_sim_table) shows the raw observations of both the original and
+#' simulated networks. The second data.table (enrichm_res) shows the enrichment results.
+#' @details Spatial proximity enrichment or depletion between pairs of cell types
+#' is calculated by calculating the observed over the expected frequency
+#' of cell-cell proximity interactions. The expected frequency is the average frequency
+#' calculated from a number of spatial network simulations. Each individual simulation is
+#' obtained by reshuffling the cell type labels of each node (cell)
+#' in the spatial network.
 #' @export
 #' @examples
 #'     cellProximityEnrichment(gobject)
@@ -117,7 +136,7 @@ cellProximityEnrichment <- function(gobject,
                                                  cluster_column = cluster_column)
 
   # remove double edges between same cells #
-  spatial_network_annot[, unified_cells := paste(sort(c(to,from)), collapse = '-'), by = 1:nrow(spatial_network_annot)]
+  spatial_network_annot[, unified_cells := paste(sort(c(to,from)), collapse = '--'), by = 1:nrow(spatial_network_annot)]
   spatial_network_annot = spatial_network_annot[!duplicated(unified_cells)]
 
   sample_dt = make_simulated_network(gobject = gobject,
@@ -187,7 +206,9 @@ cellProximityEnrichment <- function(gobject,
   table_mean_results_dc <- merge(table_mean_results_dc, res_pvalue_DT, by = 'unified_int')
   data.table::setorder(table_mean_results_dc, enrichm)
   table_mean_results_dc[, unified_int := factor(unified_int, unified_int)]
-  table_mean_results_dc[, PI_value := ifelse(p_higher_orig <= p_lower_orig, -log10(p_higher_orig+(1/number_of_simulations))*enrichm, -log10(p_lower_orig+(1/number_of_simulations))*enrichm)]
+  table_mean_results_dc[, PI_value := ifelse(p_higher_orig <= p_lower_orig,
+                                             -log10(p_higher_orig+(1/number_of_simulations))*enrichm,
+                                             -log10(p_lower_orig+(1/number_of_simulations))*enrichm)]
   data.table::setorder(table_mean_results_dc, PI_value)
 
   # order
@@ -215,30 +236,40 @@ get_specific_interaction_gene_enrichment <- function(sub_spatial_network,
                                                      annotation_ID = 'uniq_ID',
                                                      cell_type_col,
                                                      do_diff_test = T,
+                                                     diff_test = c('t.test', 'wilcox'),
+                                                     minimum_unique_cells = NA,
                                                      exclude_selected_cells_from_test = T) {
 
-  int_cell_types = sort(unique(c(sub_spatial_network[[source_col]], sub_spatial_network[[neighb_col]])))
 
+  fast_check1 = sub_spatial_network[, c(neighb_IDs, neighb_col), with = F]
+  colnames(fast_check1) = c('cell_ID', 'cell_type')
+  fast_check2 = sub_spatial_network[, c(source_IDs, source_col), with = F]
+  colnames(fast_check2) = c('cell_ID', 'cell_type')
+  fast_check = unique(rbind(fast_check1, fast_check2))
+  test = fast_check[, .N, by = cell_type]
+
+  if(!is.na(minimum_unique_cells) & is.numeric(minimum_unique_cells) & any(test$N < minimum_unique_cells) == TRUE) {
+    # not enough cells, do not continue
+    return(NULL)
+  }
+
+  ## get unique cell IDs for all cells that belong to the cell type
+  int_cell_types = sort(unique(fast_check[['cell_type']]))
   cell_type_1 = int_cell_types[[1]]
-  set1 = as.character(sub_spatial_network[get(neighb_col) == cell_type_1][[neighb_IDs]])
-  set2 = as.character(sub_spatial_network[get(source_col) == cell_type_1][[source_IDs]])
-  cell_type_1_ids = unique(c(set1, set2))
-
-  # if the interaction is homotypic you can take the same cell ids
+  cell_type_1_ids = fast_check[cell_type == cell_type_1][['cell_ID']]
   if(length(int_cell_types) > 1) {
     cell_type_2 = int_cell_types[[2]]
-    set3 = as.character(sub_spatial_network[get(neighb_col) == cell_type_2][[neighb_IDs]])
-    set4 = as.character(sub_spatial_network[get(source_col) == cell_type_2][[source_IDs]])
-    cell_type_2_ids = unique(c(set3, set4))
+    cell_type_2_ids = fast_check[cell_type == cell_type_2][['cell_ID']]
   } else {
     cell_type_2 = cell_type_1
     cell_type_2_ids = cell_type_1_ids
   }
 
+
   nr_cell_type_1 = length(cell_type_1_ids)
   nr_cell_type_2 = length(cell_type_2_ids)
 
-  # create average scores
+  ## create average scores to calculate fold-changes
   if(nr_cell_type_1 == 1) {
     cell_type_1_ids_matrix = expression_matrix[, colnames(expression_matrix) %in% cell_type_1_ids]
     average_cell_type_1_ids = cell_type_1_ids_matrix
@@ -256,7 +287,7 @@ get_specific_interaction_gene_enrichment <- function(sub_spatial_network,
   combined_1_2_ids = (average_cell_type_1_ids+average_cell_type_2_ids)/2
 
 
-  # global expression
+  ## global expression with or without selected cell IDs
   all_cell_type_1_ids = as.character(cell_annotation[get(cell_type_col) == cell_type_1][[annotation_ID]])
   all_cell_type_2_ids = as.character(cell_annotation[get(cell_type_col) == cell_type_2][[annotation_ID]])
 
@@ -273,21 +304,48 @@ get_specific_interaction_gene_enrichment <- function(sub_spatial_network,
 
 
 
+  ## stats test and averages
+  diff_test = match.arg(diff_test, c('t.test', 'wilcox'))
 
-  # wilcox test and averages ###(parallel)
   if(nr_cell_type_1 == 1) {
-    if(do_diff_test == T) cell_type_1_test =  stats::wilcox.test(x = as.vector(cell_type_1_ids_matrix), y = as.vector(all_cell_type_1_ids_matrix),exact = F)$p.value
+    if(do_diff_test == T) {
+      if(diff_test == 't.test') {
+        cell_type_1_test =  stats::t.test(x = as.vector(cell_type_1_ids_matrix), y = as.vector(all_cell_type_1_ids_matrix),exact = F)$p.value
+      } else if(diff_test == 'wilcox') {
+        cell_type_1_test =  stats::wilcox.test(x = as.vector(cell_type_1_ids_matrix), y = as.vector(all_cell_type_1_ids_matrix),exact = F)$p.value
+      }
+    }
     average_all_cell_type_1_ids = rowMeans(all_cell_type_1_ids_matrix)
   } else {
-    if(do_diff_test == T) cell_type_1_test = sapply(1:nrow(cell_type_1_ids_matrix), function(i) stats::wilcox.test(as.vector(cell_type_1_ids_matrix[i,]), as.vector(all_cell_type_1_ids_matrix[i,]),exact = F)$p.value)
+    if(do_diff_test == T) {
+
+      if(diff_test == 't.test') {
+        cell_type_1_test = sapply(1:nrow(cell_type_1_ids_matrix), function(i) stats::t.test(as.vector(cell_type_1_ids_matrix[i,]), as.vector(all_cell_type_1_ids_matrix[i,]),exact = F)$p.value)
+      } else if(diff_test == 'wilcox') {
+        cell_type_1_test = sapply(1:nrow(cell_type_1_ids_matrix), function(i) stats::wilcox.test(as.vector(cell_type_1_ids_matrix[i,]), as.vector(all_cell_type_1_ids_matrix[i,]),exact = F)$p.value)
+      }
+
+    }
     average_all_cell_type_1_ids = rowMeans(all_cell_type_1_ids_matrix)
   }
 
   if(nr_cell_type_2 == 1) {
-    if(do_diff_test == T) cell_type_2_test =  stats::wilcox.test(x = as.vector(cell_type_2_ids_matrix), y = as.vector(all_cell_type_2_ids_matrix))$p.value
+    if(do_diff_test == T){
+      if(diff_test == 't.test') {
+        cell_type_2_test =  stats::t.test(x = as.vector(cell_type_2_ids_matrix), y = as.vector(all_cell_type_2_ids_matrix),exact = F)$p.value
+      } else if(diff_test == 'wilcox') {
+        cell_type_2_test =  stats::wilcox.test(x = as.vector(cell_type_2_ids_matrix), y = as.vector(all_cell_type_2_ids_matrix),exact = F)$p.value
+      }
+    }
     average_all_cell_type_2_ids = rowMeans(all_cell_type_2_ids_matrix)
   } else {
-    if(do_diff_test == T) cell_type_2_test = sapply(1:nrow(cell_type_2_ids_matrix), function(i) stats::wilcox.test(as.vector(cell_type_2_ids_matrix[i,]), as.vector(all_cell_type_2_ids_matrix[i,]))$p.value)
+    if(do_diff_test == T) {
+      if(diff_test == 't.test') {
+        cell_type_2_test = sapply(1:nrow(cell_type_2_ids_matrix), function(i) stats::t.test(as.vector(cell_type_2_ids_matrix[i,]), as.vector(all_cell_type_2_ids_matrix[i,]),exact = F)$p.value)
+      } else if(diff_test == 'wilcox') {
+        cell_type_2_test = sapply(1:nrow(cell_type_2_ids_matrix), function(i) stats::wilcox.test(as.vector(cell_type_2_ids_matrix[i,]), as.vector(all_cell_type_2_ids_matrix[i,]),exact = F)$p.value)
+      }
+    }
     average_all_cell_type_2_ids = rowMeans(all_cell_type_2_ids_matrix)
   }
 
@@ -298,17 +356,17 @@ get_specific_interaction_gene_enrichment <- function(sub_spatial_network,
 
   if(do_diff_test == T) {
     res_DT = data.table::as.data.table(do.call('cbind', list(genes = gene_names,
-                                                 cell_expr_1 = average_cell_type_1_ids, cell_expr_2 = average_cell_type_2_ids,
-                                                 comb_expr = combined_1_2_ids,
-                                                 all_cell_expr_1 = average_all_cell_type_1_ids, all_cell_expr_2 = average_all_cell_type_2_ids,
-                                                 all_comb_expr = combined_all_1_2_ids,
-                                                 pval_1 = cell_type_1_test, pval_2 = cell_type_2_test)))
+                                                             cell_expr_1 = average_cell_type_1_ids, cell_expr_2 = average_cell_type_2_ids,
+                                                             comb_expr = combined_1_2_ids,
+                                                             all_cell_expr_1 = average_all_cell_type_1_ids, all_cell_expr_2 = average_all_cell_type_2_ids,
+                                                             all_comb_expr = combined_all_1_2_ids,
+                                                             pval_1 = cell_type_1_test, pval_2 = cell_type_2_test)))
   } else {
     res_DT = data.table::as.data.table(do.call('cbind', list(genes = gene_names,
-                                                 cell_expr_1 = average_cell_type_1_ids, cell_expr_2 = average_cell_type_2_ids,
-                                                 comb_expr = combined_1_2_ids,
-                                                 all_cell_expr_1 = average_all_cell_type_1_ids, all_cell_expr_2 = average_all_cell_type_2_ids,
-                                                 all_comb_expr = combined_all_1_2_ids)))
+                                                             cell_expr_1 = average_cell_type_1_ids, cell_expr_2 = average_cell_type_2_ids,
+                                                             comb_expr = combined_1_2_ids,
+                                                             all_cell_expr_1 = average_all_cell_type_1_ids, all_cell_expr_2 = average_all_cell_type_2_ids,
+                                                             all_comb_expr = combined_all_1_2_ids)))
   }
 
 
@@ -336,11 +394,14 @@ get_interaction_gene_enrichment <- function(spatial_network,
                                             annotation_ID = 'uniq_ID',
                                             cell_type_col,
                                             do_diff_test = T,
+                                            diff_test = c('t.test', 'wilcox'),
+                                            minimum_unique_cells = NA,
                                             exclude_selected_cells_from_test = T,
                                             verbose = T) {
 
   interactions = unique(as.character(spatial_network[[unified_int_col]]))
 
+  ## can be parallelized!!
   result_list <- list()
   for(selected_int in interactions) {
 
@@ -353,13 +414,24 @@ get_interaction_gene_enrichment <- function(spatial_network,
     tempres = get_specific_interaction_gene_enrichment(sub_spatial_network = sub_int_netw,
                                                        source_col = source_col, source_IDs = source_IDs,
                                                        neighb_col = neighb_col, neighb_IDs = neighb_IDs,
-                                                       expression_matrix = expression_matrix, interaction_name = selected_int,
-                                                       cell_annotation = cell_annotation, annotation_ID = annotation_ID, cell_type_col = cell_type_col,
-                                                       do_diff_test = do_diff_test, exclude_selected_cells_from_test = exclude_selected_cells_from_test)
+                                                       expression_matrix = expression_matrix,
+                                                       interaction_name = selected_int,
+                                                       cell_annotation = cell_annotation,
+                                                       annotation_ID = annotation_ID,
+                                                       cell_type_col = cell_type_col,
+                                                       do_diff_test = do_diff_test,
+                                                       diff_test = diff_test,
+                                                       minimum_unique_cells = minimum_unique_cells,
+                                                       exclude_selected_cells_from_test = exclude_selected_cells_from_test)
     result_list[[selected_int]] <- tempres
   }
 
   final_res = do.call('rbind', result_list)
+
+  if(verbose == TRUE){
+    cat('\n interaction calculation is finished  \n')
+  }
+
   return(final_res)
 
 }
@@ -381,8 +453,8 @@ get_cell_to_cell_sorted_name_conversion <- function(all_cell_types) {
   # create data.table
   mult_comb = do.call('rbind', list(first_combn, sec_combn, self_comb))
   mult_comb[, c('V1', 'V2') := list(as.character(V1), as.character(V2))]
-  mult_comb[, given_name := paste(c(V1,V2), collapse = '-'), by = 1:nrow(mult_comb)]
-  mult_comb[, uniq_name := paste(sort(c(V1,V2)), collapse = '-'), by = 1:nrow(mult_comb)]
+  mult_comb[, given_name := paste(c(V1,V2), collapse = '--'), by = 1:nrow(mult_comb)]
+  mult_comb[, uniq_name := paste(sort(c(V1,V2)), collapse = '--'), by = 1:nrow(mult_comb)]
 
   # named vector
   name_conversion = mult_comb$uniq_name
@@ -399,20 +471,64 @@ get_cell_to_cell_sorted_name_conversion <- function(all_cell_types) {
 #' @param gobject giotto object
 #' @param spatial_network_name name of spatial network to use
 #' @param cluster_column name of column to use for clusters
+#' @param selected_genes selection of genes to perform calculations for
 #' @param expression_values expression values to use
+#' @param do_diff_test perform differential test
+#' @param diff_test which differential expression test
+#' @param false_discovery_test test to adjust p-values for multiple hypothesis testing
+#' @param false_discovery_target adjust p-values per cell-cell pair or per gene
+#' @param minimum_unique_cells minimum number of cells needed to proceed
 #' @param fold_change_addendum constant to add when calculating log2 fold-change
 #' @param in_two_directions shows enrichment in both directions: cell1-cell2, cell2-cell1
 #' @param exclude_selected_cells_from_test exclude certain cells from test
 #' @param verbose verbose
 #' @return Cell Proximity Gene scores (CPGscores) in data.table format
-#' @details Give more details ...
+#' @details Function to calculate if genes are differentially expressed in cell types
+#'  when they interact (according to physical proximity) with other cell types.
+#'  The results data.table contains the following columns:
+#' \itemize{
+#'  \item{genes:}{ All or selected list of tested genes}
+#'  \item{cell_expr_1:}{ average gene expression in cell type 1 from unified_int cell-cell interaction}
+#'  \item{cell_expr_2:}{ average gene expression in cell type 2 from unified_int cell-cell interaction}
+#'  \item{comb_expr:}{ combined average gene expression in cell type 1 and 2 from unified_int cell-cell interaction}
+#'  \item{all_cell_expr_1:}{ average gene expression for all cells from cell type 1}
+#'  \item{all_cell_expr_2:}{ average gene expression for all cells from cell type 2}
+#'  \item{all_comb_expr:}{ combined average gene expression for all cells from cell type 1 and 2}
+#'  \item{pval_1:}{ p-value from test between interacting cells and all cells from cell type 1}
+#'  \item{pval_2:}{ p-value from test between interacting cells and all cells from cell type 2}
+#'  \item{cell_type_1:}{ first cell type of cell-cell interaction}
+#'  \item{cell_type_2:}{ second cell type of cell-cell interaction}
+#'  \item{interaction:}{ the cell-cell interaction, based on physical proximity}
+#'  \item{nr_1:}{ number of cell type 1 in the unified cell-cell interaction}
+#'  \item{nr_2:}{ number of cell type 2 in the unified cell-cell interaction}
+#'  \item{all_nr_1:}{ number of all cell type 1 in the whole dataset}
+#'  \item{all_nr_2:}{ number of all cell type 2 in the whole dataset}
+#'  \item{diff_spat:}{ difference between comb_expr and all_comb_expr}
+#'  \item{diff_spat_1:}{ difference between cell_expr_1 and all_cell_expr_1}
+#'  \item{diff_spat_2:}{ difference between cell_expr_1 and all_cell_expr_1}
+#'  \item{log2fc_spat_1:}{ fold-change of diff_spat_1}
+#'  \item{log2fc_spat_2:}{ fold-change of diff_spat_2}
+#'  \item{log2fc_spat:}{ fold-change of diff_spat}
+#'  \item{type_int:}{ type of interaction}
+#'  \item{unified_int:}{ interaction with alphabetically sorted cell type 1 and cell type 2}
+#'  \item{unif_int_rank:}{ 1 or 2}
+#'  \item{fdr_1:}{ fdr from test between interacting cells and all cells from cell type 1}
+#'  \item{fdr_2:}{ fdr from test between interacting cells and all cells from cell type 2}
+#' }
 #' @export
 #' @examples
 #'     getCellProximityGeneScores(gobject)
 getCellProximityGeneScores = function(gobject,
                                       spatial_network_name = 'spatial_network',
                                       cluster_column = 'louvain_clus.1',
+                                      selected_genes = NULL,
                                       expression_values = c('normalized', 'scaled', 'custom'),
+                                      do_diff_test = TRUE,
+                                      diff_test = c('t.test', 'wilcox'),
+                                      false_discovery_test = c("holm", "hochberg", "hommel", "bonferroni",
+                                                               "BH", "BY", "fdr", "none"),
+                                      false_discovery_target = c('cell_interactions', 'genes'),
+                                      minimum_unique_cells = NA,
                                       fold_change_addendum = 0.1,
                                       in_two_directions = TRUE,
                                       exclude_selected_cells_from_test = F,
@@ -426,7 +542,16 @@ getCellProximityGeneScores = function(gobject,
 
   # 2. get expression values
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+
+  # subset expression values
+  if(!is.null(selected_genes)) {
+    non_detected_genes = selected_genes[!selected_genes %in% rownames(expr_values)]
+    if(length(non_detected_genes) > 0) {
+      cat('\t the following genes were not detected ', non_detected_genes, '\t')
+    }
+    expr_values = expr_values[rownames(expr_values) %in% selected_genes, ]
+  }
 
   # 3. get cell metadata
   cell_metadata = pDataDT(gobject)
@@ -435,14 +560,17 @@ getCellProximityGeneScores = function(gobject,
   }
 
   # 4. calculate cell-cell interaction gene scores
-  interaction_gene_scores = get_interaction_gene_enrichment(spatial_network = annot_spatial_network,
+  interaction_gene_scores = Giotto:::get_interaction_gene_enrichment(spatial_network = annot_spatial_network,
                                                                      unified_int_col = 'unified_int',
                                                                      source_col = 'from_cell_type', source_IDs = 'from',
                                                                      neighb_col = 'to_cell_type', neighb_IDs = 'to',
                                                                      expression_matrix = expr_values,
                                                                      cell_annotation = cell_metadata,
-                                                                     annotation_ID = 'cell_ID', cell_type_col = cluster_column,
-                                                                     do_diff_test = TRUE,
+                                                                     annotation_ID = 'cell_ID',
+                                                                     cell_type_col = cluster_column,
+                                                                     do_diff_test = do_diff_test,
+                                                                     minimum_unique_cells = minimum_unique_cells,
+                                                                     diff_test = diff_test,
                                                                      exclude_selected_cells_from_test = exclude_selected_cells_from_test,
                                                                      verbose = verbose)
 
@@ -461,7 +589,7 @@ getCellProximityGeneScores = function(gobject,
 
   # expand scores to all possible cell-cell combinations
   # e.g. both astrocyte-NSC and NSC-astrocyte
-  if(in_two_directions == TRUE) {
+  if(in_two_directions == TRUE & do_diff_test == TRUE) {
     CPGscore_first_direction  = interaction_gene_scores
     CPGscore_second_direction = interaction_gene_scores
     colnames(CPGscore_second_direction) = c('genes', 'cell_expr_2', 'cell_expr_1', 'comb_expr',
@@ -470,9 +598,9 @@ getCellProximityGeneScores = function(gobject,
                                             'cell_type_2', 'cell_type_1', 'interaction',
                                             'nr_2', 'nr_1', 'all_nr_2', 'all_nr_1',
                                             'diff_spat', 'diff_spat_2', 'diff_spat_1',
-                                            'log2fc_spat_1', 'log2fc_spat_2', 'log2fc_spat')
+                                            'log2fc_spat_2', 'log2fc_spat_1', 'log2fc_spat')
     CPGscore_second_direction = CPGscore_second_direction[, colnames(CPGscore_first_direction), with = F]
-    CPGscore_second_direction[, interaction := paste0(cell_type_1,'-', cell_type_2)]
+    CPGscore_second_direction[, interaction := paste0(cell_type_1,'--', cell_type_2)]
     CPGscore = rbind(CPGscore_first_direction, CPGscore_second_direction)
     CPGscore = unique(CPGscore)
 
@@ -481,8 +609,8 @@ getCellProximityGeneScores = function(gobject,
     CPGscore[, type_int := ifelse(cell_type_1 == cell_type_2, 'homo', 'hetero')]
 
     # create unique cell-cell interaction names
-    name_conversion = get_cell_to_cell_sorted_name_conversion(all_cell_types = unique(c(CPGscore$cell_type_1,
-                                                                                         CPGscore$cell_type_2)))
+    name_conversion = Giotto:::get_cell_to_cell_sorted_name_conversion(all_cell_types = unique(c(CPGscore$cell_type_1,
+                                                                                                 CPGscore$cell_type_2)))
     CPGscore[, unified_int := name_conversion[[interaction]], by = 1:nrow(CPGscore)]
     CPGscore[, unif_int_rank := ifelse(interaction == unified_int, 1, 2)]
 
@@ -495,6 +623,65 @@ getCellProximityGeneScores = function(gobject,
 
   }
 
+  ## add multiple hypothesis testing and set colomn classes manually
+  if(do_diff_test == TRUE) {
+
+    false_discovery_test = match.arg(false_discovery_test,  c("holm", "hochberg", "hommel", "bonferroni",
+                                                              "BH", "BY", "fdr", "none"))
+
+    false_discovery_target = match.arg(false_discovery_target, c('cell_interactions', 'genes'))
+    false_discovery_other = ifelse(false_discovery_target == 'cell_interactions', 'genes', 'unified_int')
+
+    # don't calculate fdr in two ways
+    # set N to include missing values
+    rank1_scores = unique(CPGscore[unif_int_rank == 1])
+    rank1_scores[,fdr_1 := p.adjust(p = pval_1, method = false_discovery_test, n = .N), by = false_discovery_other]
+    rank1_scores[,fdr_2 := p.adjust(p = pval_2, method = false_discovery_test, n = .N), by = false_discovery_other]
+
+
+    part1 = rank1_scores[,.(genes, cell_type_1, cell_type_2, fdr_1, fdr_2)]
+    part2 = rank1_scores[,.(genes, cell_type_2, cell_type_1, fdr_2, fdr_1)]
+    setnames(part2, c('cell_type_2', 'cell_type_1', 'fdr_2', 'fdr_1'), c('cell_type_1', 'cell_type_2', 'fdr_1', 'fdr_2'))
+    part_12 = unique(rbind(part1, part2))
+
+    CPGscore_1 = merge.data.table(CPGscore[unif_int_rank == 1], part_12[,.(genes, cell_type_1, cell_type_2, fdr_1, fdr_2)],
+                                  by.x = c('genes', 'cell_type_1', 'cell_type_2'),
+                                  by.y = c('genes', 'cell_type_1', 'cell_type_2'))
+    CPGscore_2 = merge.data.table(CPGscore[unif_int_rank == 2], part_12[,.(genes, cell_type_1, cell_type_2, fdr_1, fdr_2)],
+                                  by.x = c('genes', 'cell_type_1', 'cell_type_2'),
+                                  by.y = c('genes', 'cell_type_1', 'cell_type_2'))
+    CPGscore = rbind(CPGscore_1, CPGscore_2)
+
+    #return(list(CPGscore, rank1_scores))
+
+    # bonferroni
+    #total_comparisons_per_gene = length(unique(CPGscore[['unified_int']]))
+    #CPGscore[, fdr_1_a := as.numeric(pval_1) * total_comparisons_per_gene]
+    #CPGscore[, fdr_2_a := as.numeric(pval_2) * total_comparisons_per_gene]
+
+    #CPGscore[, fdr_1_a := ifelse(fdr_1_a > 1, 1, fdr_1_a)]
+    #CPGscore[, fdr_2_a := ifelse(fdr_2_a > 1, 1, fdr_2_a)]
+
+
+    # set classes manually
+    changeCols = c('cell_expr_1', 'cell_expr_2', 'comb_expr',
+                   'all_cell_expr_1' , 'all_cell_expr_2',  'all_comb_expr',
+                   'pval_1', 'pval_2', 'diff_spat', 'diff_spat_1', 'diff_spat_2',
+                   'log2fc_spat_1', 'log2fc_spat_2', 'log2fc_spat',
+                   'fdr_1', 'fdr_2')
+    CPGscore[,(changeCols):= lapply(.SD, as.numeric), .SDcols = changeCols]
+
+  } else {
+    # set classes manually
+    changeCols = c('cell_expr_1', 'cell_expr_2', 'comb_expr',
+                   'all_cell_expr_1' , 'all_cell_expr_2',  'all_comb_expr',
+                   'diff_spat', 'diff_spat_1', 'diff_spat_2',
+                   'log2fc_spat_1', 'log2fc_spat_2', 'log2fc_spat')
+    CPGscore[,(changeCols):= lapply(.SD, as.numeric), .SDcols = changeCols]
+  }
+  changeCols = c('nr_1', 'nr_2', 'all_nr_1', 'all_nr_2')
+  CPGscore[,(changeCols):= lapply(.SD, as.integer), .SDcols = changeCols]
+
   return(CPGscore)
 
 }
@@ -502,8 +689,8 @@ getCellProximityGeneScores = function(gobject,
 
 
 
-#' @title getGeneToGeneSelection
-#' @name getGeneToGeneSelection
+#' @title getGeneToGeneScores
+#' @name getGeneToGeneScores
 #' @description Compute gene-gene enrichment scores.
 #' @param CPGscore CPGscore, output from getCellProximityGeneScores()
 #' @param selected_genes select subset of genes
@@ -517,21 +704,23 @@ getCellProximityGeneScores = function(gobject,
 #' @param fold_change_addendum constant to add when calculating log2 fold-change
 #' @param verbose verbose
 #' @return Gene to gene scores in data.table format
-#' @details Give more details ...
+#' @details This converts the single gene cell proximityscores into pairwise combinations
+#' of genes, which allows you to determine if 2 genes are differentially expressed in interacting
+#' cell types.
 #' @export
 #' @examples
-#'     getGeneToGeneSelection(CPGscore)
-getGeneToGeneSelection <- function(CPGscore,
-                                   selected_genes = NULL,
-                                   specific_genes_1 = NULL,
-                                   specific_genes_2 = NULL,
-                                   min_cells = 5,
-                                   min_pval = 0.05,
-                                   min_spat_diff = 0.2,
-                                   min_log2_fc = 0.5,
-                                   direction = c('both', 'up', 'down'),
-                                   fold_change_addendum = 0.1,
-                                   verbose = TRUE) {
+#'     getGeneToGeneScores(CPGscore)
+getGeneToGeneScores <- function(CPGscore,
+                                selected_genes = NULL,
+                                specific_genes_1 = NULL,
+                                specific_genes_2 = NULL,
+                                min_cells = 5,
+                                min_fdr = 0.05,
+                                min_spat_diff = 0.2,
+                                min_log2_fc = 0.5,
+                                direction = c('both', 'up', 'down'),
+                                fold_change_addendum = 0.1,
+                                verbose = TRUE) {
 
 
   direction = match.arg(direction, choices = c('both', 'up', 'down'))
@@ -539,9 +728,9 @@ getGeneToGeneSelection <- function(CPGscore,
   # remove redundant data
   unif_gene_scores = CPGscore[unif_int_rank == 1]
 
-  # make sure p-value are numeric
-  unif_gene_scores[, pval_1 := as.numeric(pval_1)]
-  unif_gene_scores[, pval_2 := as.numeric(pval_2)]
+  # make sure fdr's are numeric
+  unif_gene_scores[, fdr_1 := as.numeric(fdr_1)]
+  unif_gene_scores[, fdr_2 := as.numeric(fdr_2)]
 
   ## first filtering CPGscores
   if((!is.null(specific_genes_1) & !is.null(specific_genes_2))) {
@@ -559,12 +748,11 @@ getGeneToGeneSelection <- function(CPGscore,
 
 
   # second filtering
-  all_ints_selection = unif_gene_scores[(pval_1 <= min_pval & nr_1 >= min_cells & abs(diff_spat_1) >= min_spat_diff & abs(log2fc_spat_1) >= min_log2_fc) |
-                                          (pval_2 <= min_pval & nr_2 >= min_cells & abs(diff_spat_2) >= min_spat_diff  & abs(log2fc_spat_2) >= min_log2_fc)]
+  all_ints_selection = unif_gene_scores[(fdr_1 <= min_fdr & nr_1 >= min_cells & abs(diff_spat_1) >= min_spat_diff & abs(log2fc_spat_1) >= min_log2_fc) |
+                                          (fdr_2 <= min_fdr & nr_2 >= min_cells & abs(diff_spat_2) >= min_spat_diff  & abs(log2fc_spat_2) >= min_log2_fc)]
 
   unif_gene_scores = all_ints_selection
   all_ints = unique(all_ints_selection[['unified_int']])
-
 
   savelist = list()
 
@@ -577,39 +765,40 @@ getGeneToGeneSelection <- function(CPGscore,
     }
 
     # cell types
-    sel_type_1 = strsplit(x = sel_int, split = '-')[[1]][1]
-    sel_type_2 = strsplit(x = sel_int, split = '-')[[1]][2]
+    sel_type_1 = strsplit(x = sel_int, split = '--')[[1]][1]
+    sel_type_2 = strsplit(x = sel_int, split = '--')[[1]][2]
 
     # subsets of the data
-    subset_type_1 = unif_gene_scores[cell_type_1 == sel_type_1][(pval_1 <= min_pval & nr_1 >= min_cells & abs(diff_spat_1) >= min_spat_diff & abs(log2fc_spat_1) >= min_log2_fc)][cell_type_2 == sel_type_2]
-    subset_type_2 = unif_gene_scores[cell_type_2 == sel_type_2][(pval_2 <= min_pval & nr_2 >= min_cells & abs(diff_spat_2) >= min_spat_diff & abs(log2fc_spat_2) >= min_log2_fc)][cell_type_1 == sel_type_1]
+    subset_type_1 = unif_gene_scores[cell_type_1 == sel_type_1][(fdr_1 <= min_fdr & nr_1 >= min_cells & abs(diff_spat_1) >= min_spat_diff & abs(log2fc_spat_1) >= min_log2_fc)][cell_type_2 == sel_type_2]
+    subset_type_2 = unif_gene_scores[cell_type_2 == sel_type_2][(fdr_2 <= min_fdr & nr_2 >= min_cells & abs(diff_spat_2) >= min_spat_diff & abs(log2fc_spat_2) >= min_log2_fc)][cell_type_1 == sel_type_1]
 
-    subset_type_1 = subset_type_1[,.(genes, cell_type_1, nr_1, cell_expr_1, all_nr_1, all_cell_expr_1, pval_1, diff_spat_1, log2fc_spat_1, unified_int)]
+    subset_type_1 = subset_type_1[,.(genes, cell_type_1, nr_1, cell_expr_1, all_nr_1, all_cell_expr_1, fdr_1, diff_spat_1, log2fc_spat_1, unified_int)]
     setnames(subset_type_1, 'genes', 'genes_1')
-    subset_type_2 = subset_type_2[,.(genes, cell_type_2, nr_2, cell_expr_2, all_nr_2, all_cell_expr_2, pval_2, diff_spat_2, log2fc_spat_2, unified_int)]
+    subset_type_2 = subset_type_2[,.(genes, cell_type_2, nr_2, cell_expr_2, all_nr_2, all_cell_expr_2, fdr_2, diff_spat_2, log2fc_spat_2, unified_int)]
     setnames(subset_type_2, 'genes', 'genes_2')
 
     # merge data again
     mergetest = merge(subset_type_1, subset_type_2, by = 'unified_int', allow.cartesian = T)
 
-
     if(nrow(mergetest) > 0) {
 
+
       # create additional columns
-      mergetest[, gene_gene := paste0(genes_1,'-',genes_2), by = 1:nrow(mergetest)]
-      #mergetest[, unif_gene_gene := paste(sort(c(genes_1, genes_2)), collapse = '-'), by = 1:nrow(mergetest)]
+      mergetest[, gene_gene := paste0(genes_1,'--',genes_2), by = 1:nrow(mergetest)]
 
       # only keep specific combinations
       if((!is.null(specific_genes_1) & !is.null(specific_genes_2))) {
 
-        LR_combo = paste0(specific_genes_1,'-', specific_genes_2)
-        RL_combo = paste0(specific_genes_2,'-', specific_genes_1)
+        LR_combo = paste0(specific_genes_1,'--', specific_genes_2)
+        RL_combo = paste0(specific_genes_2,'--', specific_genes_1)
         mergetest = mergetest[gene_gene %in% c(LR_combo, RL_combo)]
+
       }
 
-      mergetest[, unif_gene_gene := paste(sort(c(genes_1, genes_2)), collapse = '-'), by = 1:nrow(mergetest)]
-
-      savelist[[cell_int]] = mergetest
+      if(nrow(mergetest) > 0) {
+        mergetest[, unif_gene_gene := paste(sort(c(genes_1, genes_2)), collapse = '--'), by = 1:nrow(mergetest)]
+        savelist[[cell_int]] = mergetest
+      }
     }
 
 
@@ -626,15 +815,22 @@ getGeneToGeneSelection <- function(CPGscore,
   finalres = finalres[type_int == 'hetero' | (type_int == 'homo' & unif_gene_gene_int == 1)]
 
 
+  changeCols = c('cell_expr_1', 'cell_expr_2',
+                 'all_cell_expr_1' , 'all_cell_expr_2',
+                 'diff_spat_1', 'diff_spat_2',
+                 'log2fc_spat_1', 'log2fc_spat_2',
+                 'fdr_1', 'fdr_2')
+  finalres[,(changeCols):= lapply(.SD, as.numeric), .SDcols = changeCols]
 
   if(direction == 'both') {
-    finalres = finalres
+    finalres = finalres[(fdr_1 <= min_fdr & nr_1 >= min_cells & abs(diff_spat_1) >= min_spat_diff & abs(log2fc_spat_1) >= min_log2_fc) &
+                          (fdr_2 <= min_fdr & nr_2 >= min_cells & abs(diff_spat_2) >= min_spat_diff  & abs(log2fc_spat_2) >= min_log2_fc)]
   } else if(direction == 'up') {
-    finalres = finalres[(pval_1 <= min_pval & nr_1 >= min_cells & diff_spat_1 >= min_spat_diff & log2fc_spat_1 >= min_log2_fc) &
-                          (pval_2 <= min_pval & nr_2 >= min_cells & diff_spat_2 >= min_spat_diff  & log2fc_spat_2 >= min_log2_fc)]
+    finalres = finalres[(fdr_1 <= min_fdr & nr_1 >= min_cells & diff_spat_1 >= min_spat_diff & log2fc_spat_1 >= min_log2_fc) &
+                          (fdr_2 <= min_fdr & nr_2 >= min_cells & diff_spat_2 >= min_spat_diff  & log2fc_spat_2 >= min_log2_fc)]
   } else if(direction == 'down') {
-    finalres = finalres[(pval_1 <= min_pval & nr_1 >= min_cells & diff_spat_1 <= -min_spat_diff & log2fc_spat_1 <= -min_log2_fc) &
-                          (pval_2 <= min_pval & nr_2 >= min_cells & diff_spat_2 <= -min_spat_diff  & log2fc_spat_2 <= -min_log2_fc)]
+    finalres = finalres[(fdr_1 <= min_fdr & nr_1 >= min_cells & diff_spat_1 <= -min_spat_diff & log2fc_spat_1 <= -min_log2_fc) &
+                          (fdr_2 <= min_fdr & nr_2 >= min_cells & diff_spat_2 <= -min_spat_diff  & log2fc_spat_2 <= -min_log2_fc)]
   }
 
 
@@ -647,15 +843,16 @@ getGeneToGeneSelection <- function(CPGscore,
   finalres[, spatial_cell_rank := rank(-spatial_cell_expr), by = unif_gene_gene]
 
   change_values = unlist(apply(finalres, MARGIN = 1, FUN = function(x) {
-    direction_test(x, min_pval = min_pval)
+    Giotto:::direction_test(x, min_fdr = min_fdr)
   }))
   finalres[, change := change_values]
+
+  data.table::setorder(finalres, -log2fc_spatial_expr)
 
   return(finalres)
 
 
 }
-
 
 
 
@@ -672,7 +869,10 @@ getGeneToGeneSelection <- function(CPGscore,
 #' @param log2FC_addendum addendum to add when calculating log2FC
 #' @param verbose verbose
 #' @return Cell-Cell communication scores for gene pairs based on expression only
-#' @details Details will follow.
+#' @details Statistical framework to identify if pairs of genes (such as ligand-receptor combinations)
+#' are expressed at higher levels than expected based on a reshuffled null distribution of gene expression values,
+#' without considering the spatial position of cells.
+#' More details will follow soon.
 #' @export
 #' @examples
 #'     exprOnlyCellCellcommunicationScores(gobject)
@@ -721,7 +921,7 @@ exprOnlyCellCellcommunicationScores = function(gobject,
 
     # get random communication scores
     randomScore = average_gene_gene_expression_in_groups(gobject = tempGiotto,
-                                                         cluster_column = 'new_metadata',
+                                                         cluster_column = 'random_cell_types',
                                                          gene_set_1 = gene_set_1, gene_set_2 = gene_set_2)
 
     # average random score
@@ -761,7 +961,7 @@ exprOnlyCellCellcommunicationScores = function(gobject,
 #' @param gene_set_1 first specific gene set from gene pairs
 #' @param gene_set_2 second specific gene set from gene pairs
 #' @return data.table with average expression scores for each cluster
-#' @details Details will follow.
+#' @details Details will follow soon.
 #' @examples
 #'     average_gene_gene_expression_in_groups(gobject)
 average_gene_gene_expression_in_groups = function(gobject,
@@ -794,7 +994,7 @@ average_gene_gene_expression_in_groups = function(gobject,
   receptor_match = average_DT[match(gene_set_2, rownames(average_DT)), ,drop = F]
 
   all_ligand_cols = colnames(ligand_match)
-  lig_test = data.table::as.data.table(melt(ligand_match, measure.vars = all_ligand_cols))
+  lig_test = data.table::as.data.table(reshape2::melt(ligand_match, measure.vars = all_ligand_cols))
   lig_test[, ligand := rep(rownames(ligand_match), ncol(ligand_match))]
   lig_test[, ligand := strsplit(ligand,'\\.')[[1]][1] , by = 1:nrow(lig_test)]
   lig_test[, LR_comb := rep(LR_pairs, ncol(ligand_match))]
@@ -802,7 +1002,7 @@ average_gene_gene_expression_in_groups = function(gobject,
   setnames(lig_test, 'variable', 'lig_cell_type')
 
   all_receptor_cols = colnames(receptor_match)
-  rec_test = data.table::as.data.table(melt(receptor_match, measure.vars = all_receptor_cols))
+  rec_test = data.table::as.data.table(reshape2::melt(receptor_match, measure.vars = all_receptor_cols))
   rec_test[, receptor := rep(rownames(receptor_match), ncol(receptor_match))]
   rec_test[, receptor := strsplit(receptor,'\\.')[[1]][1] , by = 1:nrow(rec_test)]
   rec_test[, LR_comb := rep(LR_pairs, ncol(receptor_match))]
@@ -873,7 +1073,10 @@ create_cell_type_random_cell_IDs = function(gobject,
 #' @param min_observations minimum number of interactions needed to be considered
 #' @param verbose verbose
 #' @return Cell-Cell communication scores for gene pairs based on spatial interaction
-#' @details Details will follow.
+#' @details Statistical framework to identify if pairs of genes (such as ligand-receptor combinations)
+#' are expressed at higher levels than expected based on a reshuffled null distribution
+#' of gene expression values in cells that are spatially in proximity to eachother..
+#' More details will follow soon.
 #' @export
 #' @examples
 #'     specificCellCellcommunicationScores(gobject)
@@ -997,7 +1200,10 @@ specificCellCellcommunicationScores = function(gobject,
 #' @param min_observations minimum number of interactions needed to be considered
 #' @param verbose verbose
 #' @return Cell-Cell communication scores for gene pairs based on spatial interaction
-#' @details Details will follow.
+#' @details Statistical framework to identify if pairs of genes (such as ligand-receptor combinations)
+#' are expressed at higher levels than expected based on a reshuffled null distribution
+#' of gene expression values in cells that are spatially in proximity to eachother..
+#' More details will follow soon.
 #' @export
 #' @examples
 #'     allCellCellcommunicationsScores(gobject)

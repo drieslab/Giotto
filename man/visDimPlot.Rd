@@ -4,16 +4,47 @@
 \alias{visDimPlot}
 \title{visDimPlot}
 \usage{
-visDimPlot(gobject, dim_reduction_to_use = "umap",
-  dim_reduction_name = "umap", dim1_to_use = 1, dim2_to_use = 2,
-  show_NN_network = F, nn_network_to_use = "sNN",
-  network_name = "sNN.pca", cell_color = NULL, color_as_factor = T,
-  cell_color_code = NULL, show_cluster_center = F,
-  show_center_label = T, center_point_size = 4,
-  center_point_border_col = "black", center_point_border_stroke = 0.1,
-  label_size = 4, label_fontface = "bold", edge_alpha = NULL,
-  point_size = 1, point_border_col = "black",
-  point_border_stroke = 0.1, show_legend = T)
+visDimPlot(
+  gobject,
+  dim_reduction_to_use = "umap",
+  dim_reduction_name = "umap",
+  dim1_to_use = 1,
+  dim2_to_use = 2,
+  dim3_to_use = NULL,
+  show_NN_network = F,
+  nn_network_to_use = "sNN",
+  network_name = "sNN.pca",
+  cell_color = NULL,
+  color_as_factor = T,
+  cell_color_code = NULL,
+  select_cell_groups = NULL,
+  select_cells = NULL,
+  show_other_cells = T,
+  other_cell_color = "lightgrey",
+  other_point_size = 0.5,
+  show_cluster_center = F,
+  show_center_label = T,
+  center_point_size = 4,
+  center_point_border_col = "black",
+  center_point_border_stroke = 0.1,
+  label_size = 4,
+  label_fontface = "bold",
+  edge_alpha = NULL,
+  point_size = 3,
+  point_border_col = "black",
+  point_border_stroke = 0.1,
+  plot_method = c("ggplot", "plotly"),
+  show_legend = T,
+  show_plot = F,
+  return_plot = TRUE,
+  save_plot = F,
+  save_dir = NULL,
+  save_folder = NULL,
+  save_name = NULL,
+  save_format = NULL,
+  show_saved_plot = F,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -25,6 +56,8 @@ visDimPlot(gobject, dim_reduction_to_use = "umap",
 \item{dim1_to_use}{dimension to use on x-axis}
 
 \item{dim2_to_use}{dimension to use on y-axis}
+
+\item{dim3_to_use}{dimension to use on z-axis}
 
 \item{show_NN_network}{show underlying NN network}
 
@@ -57,9 +90,25 @@ visDimPlot(gobject, dim_reduction_to_use = "umap",
 \item{point_border_stroke}{stroke size of border around points}
 
 \item{show_legend}{show legend}
+
+\item{show_plot}{show plot}
+
+\item{return_plot}{return ggplot object}
+
+\item{save_plot}{directly save the plot [boolean]}
+
+\item{save_dir}{directory to save the plot}
+
+\item{save_folder}{(optional) folder in directory to save the plot}
+
+\item{save_name}{name of plot}
+
+\item{save_format}{format of plot (e.g. tiff, png, pdf, ...)}
+
+\item{show_saved_plot}{load & display the saved plot}
 }
 \value{
-ggplot
+ggplot or plotly
 }
 \description{
 Visualize cells according to dimension reduction coordinates

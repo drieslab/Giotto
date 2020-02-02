@@ -4,8 +4,7 @@
 \alias{addGeneMetadata}
 \title{addGeneMetadata}
 \usage{
-addGeneMetadata(gobject, new_metadata, by_column = F,
-  column_gene_ID = NULL)
+addGeneMetadata(gobject, new_metadata, by_column = F, column_gene_ID = NULL)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -23,7 +22,10 @@ giotto object
 adds gene metadata to the giotto object
 }
 \details{
-Description of how to add gene metadata ...
+You can add additional gene metadata in two manners:
+1. Provide a data.table or data.frame with gene annotations in the same order as the gene_ID column in fDataDT(gobject)
+2. Provide a data.table or data.frame with gene annotations and specificy which column contains the gene IDs,
+these gene IDs need to match with the gene_ID column in fDataDT(gobject)
 }
 \examples{
     addGeneMetadata(gobject)

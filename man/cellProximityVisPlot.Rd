@@ -4,16 +4,41 @@
 \alias{cellProximityVisPlot}
 \title{cellProximityVisPlot}
 \usage{
-cellProximityVisPlot(gobject, interaction_name = NULL,
-  cluster_column = NULL, sdimx = NULL, sdimy = NULL, sdimz = NULL,
-  cell_color = NULL, cell_color_code = NULL, color_as_factor = T,
-  show_network = F, network_color = NULL,
-  spatial_network_name = "spatial_network", show_grid = F,
-  grid_color = NULL, spatial_grid_name = "spatial_grid",
-  coord_fix_ratio = 0.6, show_legend = T, point_size_select = 2,
-  point_select_border_col = "black", point_select_border_stroke = 0.05,
-  point_size_other = 1, point_other_border_col = "lightgrey",
-  point_other_border_stroke = 0.01, ...)
+cellProximityVisPlot(
+  gobject,
+  interaction_name = NULL,
+  cluster_column = NULL,
+  sdimx = NULL,
+  sdimy = NULL,
+  sdimz = NULL,
+  cell_color = NULL,
+  cell_color_code = NULL,
+  color_as_factor = T,
+  show_other_cells = F,
+  show_network = F,
+  show_other_network = F,
+  network_color = NULL,
+  spatial_network_name = "spatial_network",
+  show_grid = F,
+  grid_color = NULL,
+  spatial_grid_name = "spatial_grid",
+  coord_fix_ratio = 1,
+  show_legend = T,
+  point_size_select = 2,
+  point_select_border_col = "black",
+  point_select_border_stroke = 0.05,
+  point_size_other = 1,
+  point_alpha_other = 0.3,
+  point_other_border_col = "lightgrey",
+  point_other_border_stroke = 0.01,
+  axis_scale = c("cube", "real", "custom"),
+  custom_ratio = NULL,
+  x_ticks = NULL,
+  y_ticks = NULL,
+  z_ticks = NULL,
+  plot_method = c("ggplot", "plotly"),
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -63,7 +88,7 @@ cellProximityVisPlot(gobject, interaction_name = NULL,
 \item{point_other_border_stroke}{stroke size of other points}
 }
 \value{
-ggplot
+ggplot or plotly
 }
 \description{
 Visualize cell-cell interactions according to spatial coordinates

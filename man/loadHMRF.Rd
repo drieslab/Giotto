@@ -4,8 +4,13 @@
 \alias{loadHMRF}
 \title{loadHMRF}
 \usage{
-loadHMRF(name_used = "test", output_folder_used, k_used = 10,
-  betas_used, python_path_used)
+loadHMRF(
+  name_used = "test",
+  output_folder_used,
+  k_used = 10,
+  betas_used,
+  python_path_used
+)
 }
 \arguments{
 \item{name_used}{name of HMRF that was run}

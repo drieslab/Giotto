@@ -6,7 +6,7 @@
 \alias{giotto}
 \title{S4 giotto Class}
 \description{
-Framework of giotto object
+Framework of giotto object to store and work with spatial expression data
 }
 \section{Slots}{
 
@@ -39,7 +39,11 @@ Framework of giotto object
 
 \item{\code{parameters}}{slot to save parameters that have been used}
 
+\item{\code{instructions}}{slot for global function instructions}
+
 \item{\code{offset_file}}{offset file used to stitch together image fields}
+
+\item{\code{OS_platform}}{Operating System to run Giotto analysis on}
 }}
 
 \keyword{giotto,}
