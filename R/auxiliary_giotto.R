@@ -824,26 +824,46 @@ normalizeGiotto <- function(gobject,
 
 
 
-#' @title normalizeGiotto2
+#' @title normalizeGiottoFast
 #' @description fast normalize and/or scale expresion values of Giotto object
 #' @param gobject giotto object
+#' @param norm_methods normalization method to use
 #' @param library_size_norm normalize cells by library size
 #' @param scalefactor scale factor to use after library size normalization
+#' @param log_norm transform values to log-scale
+#' @param log_offset offset value to add to expression matrix, default = 1
 #' @param logbase log base to use to log normalize expression values
 #' @param scale_genes z-score genes over all cells
 #' @param scale_cells z-score cells over all genes
 #' @param scale_order order to scale genes and cells
 #' @param verbose be verbose
 #' @return giotto object
-#' @details Description of normalization steps ...
+#' @details Currently there are two 'methods' to normalize your raw counts data.
+#'
+#' A. The standard method follows the standard protocol which can be adjusted using
+#' the provided parameters and follows the following order: \cr
+#' \itemize{
+#'   \item{1. Data normalization for total library size and scaling by a custom scale-factor.}
+#'   \item{2. Log transformation of data.}
+#'   \item{3. Z-scoring of data by genes and/or cells.}
+#' }
+#' B. The normalization method as provided by the osmFISH paper is also implemented: \cr
+#' \itemize{
+#'   \item{1. First normalize genes, for each gene divide the counts by the total gene count and
+#' multiply by the total number of genes.}
+#'   \item{2. Next normalize cells, for each cell divide the normalized gene counts by the total
+#' counts per cell and multiply by the total number of cells.}
+#' }
+#' This data will be saved in the Giotto slot for custom expression.
 #' @export
 #' @examples
-#'     normalizeGiotto2(gobject)
-normalizeGiotto2fast <- function(gobject,
+#'     normalizeGiottoFast(gobject)
+normalizeGiottoFast <- function(gobject,
                              norm_methods = c('standard', 'osmFISH'),
                              library_size_norm = TRUE,
                              scalefactor = 6e3,
                              log_norm = TRUE,
+                             log_offset = 1,
                              logbase = 2,
                              scale_genes = T,
                              scale_cells = T,
@@ -868,7 +888,7 @@ normalizeGiotto2fast <- function(gobject,
 
     ## 2. lognormalize
     if(log_norm == TRUE) {
-      norm_expr = logNormFast(mymatrix = norm_expr)
+      norm_expr = logNormFast(mymatrix = norm_expr,  base = logbase, offset = log_offset)
     } else {
       norm_expr = norm_expr
     }
@@ -881,10 +901,10 @@ normalizeGiotto2fast <- function(gobject,
       if(scale_order == 'first_genes') {
         if(verbose == TRUE) cat('\n first scale genes and then cells \n')
         norm_scaled_expr = armaScaleRow(Z = norm_expr)
-        norm_scaled_expr = armaScale(Z = norm_scaled_expr)
+        norm_scaled_expr = armaScaleCol(Z = norm_scaled_expr)
       } else if(scale_order == 'first_cells') {
         if(verbose == TRUE) cat('\n first scale cells and then genes \n')
-        norm_scaled_expr = armaScale(Z = norm_expr)
+        norm_scaled_expr = armaScaleCol(Z = norm_expr)
         norm_scaled_expr = armaScaleRow(Z = norm_scaled_expr)
       } else {
         stop('\n scale order must be given \n')
@@ -893,7 +913,7 @@ normalizeGiotto2fast <- function(gobject,
     } else if(scale_genes == TRUE) {
       norm_scaled_expr = armaScaleRow(Z = norm_expr)
     } else if(scale_cells == TRUE) {
-      norm_scaled_expr = armaScale(Z = norm_expr)
+      norm_scaled_expr = armaScaleCol(Z = norm_expr)
     } else {
       norm_scaled_expr = NULL
     }
@@ -917,6 +937,7 @@ normalizeGiotto2fast <- function(gobject,
 
   # normalization according to osmFISH method
   else if(norm_methods == 'osmFISH') {
+
     # 1. normalize per gene with scale-factor equal to number of genes
     norm_genes = (raw_expr/rowSums(raw_expr)) * nrow(raw_expr)
     # 2. normalize per cells with scale-factor equal to number of cells
@@ -943,6 +964,7 @@ normalizeGiotto2fast <- function(gobject,
                                        'scalefactor' = scalefactor,
                                        'log-normalized' =  ifelse(log_norm == T, 'yes', 'no'),
                                        'logbase' = ifelse(is.null(logbase), NA, logbase),
+                                       'log offset' = log_offset,
                                        'genes scaled' = ifelse(scale_genes == T, 'yes', 'no'),
                                        'cell scaled' = ifelse(scale_cells == T, 'yes', 'no'),
                                        'if both, order of scaling' = scale_order)

@@ -19,13 +19,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // logNormFast
-arma::mat logNormFast(arma::mat mymatrix);
-RcppExport SEXP _Giotto_logNormFast(SEXP mymatrixSEXP) {
+arma::mat logNormFast(arma::mat mymatrix, int base, int offset);
+RcppExport SEXP _Giotto_logNormFast(SEXP mymatrixSEXP, SEXP baseSEXP, SEXP offsetSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat >::type mymatrix(mymatrixSEXP);
-    rcpp_result_gen = Rcpp::wrap(logNormFast(mymatrix));
+    Rcpp::traits::input_parameter< int >::type base(baseSEXP);
+    Rcpp::traits::input_parameter< int >::type offset(offsetSEXP);
+    rcpp_result_gen = Rcpp::wrap(logNormFast(mymatrix, base, offset));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -40,23 +42,23 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// armaScale
-arma::mat armaScale(arma::mat Z);
-RcppExport SEXP _Giotto_armaScale(SEXP ZSEXP) {
+// armaScaleCol
+arma::mat armaScaleCol(arma::mat Z);
+RcppExport SEXP _Giotto_armaScaleCol(SEXP ZSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat >::type Z(ZSEXP);
-    rcpp_result_gen = Rcpp::wrap(armaScale(Z));
+    rcpp_result_gen = Rcpp::wrap(armaScaleCol(Z));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
     {"_Giotto_libNormFast", (DL_FUNC) &_Giotto_libNormFast, 2},
-    {"_Giotto_logNormFast", (DL_FUNC) &_Giotto_logNormFast, 1},
+    {"_Giotto_logNormFast", (DL_FUNC) &_Giotto_logNormFast, 3},
     {"_Giotto_armaScaleRow", (DL_FUNC) &_Giotto_armaScaleRow, 1},
-    {"_Giotto_armaScale", (DL_FUNC) &_Giotto_armaScale, 1},
+    {"_Giotto_armaScaleCol", (DL_FUNC) &_Giotto_armaScaleCol, 1},
     {NULL, NULL, 0}
 };
 

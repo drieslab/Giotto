@@ -13,9 +13,10 @@ arma::mat libNormFast(arma::mat raw_matrix, arma::rowvec scalefactor)
   }
 
 // [[Rcpp::export]]
-arma::mat logNormFast(arma::mat mymatrix)
+arma::mat logNormFast(arma::mat mymatrix, int base, int offset)
   {
-    arma::mat lognormmatrix = arma::log1p(mymatrix);
+    // arma::mat lognormmatrix = arma::log1p(mymatrix); old
+    arma::mat lognormmatrix = log(mymatrix+offset)/log(base);
     return lognormmatrix;
   }
 
@@ -39,7 +40,7 @@ arma::mat armaScaleRow(arma::mat Z)
 }
 
 // [[Rcpp::export]]
-arma::mat armaScale(arma::mat Z)
+arma::mat armaScaleCol(arma::mat Z)
   {
   unsigned int j, n = Z.n_rows, k = Z.n_cols;
   double avg, sd;

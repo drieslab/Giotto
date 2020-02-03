@@ -5,15 +5,15 @@ libNormFast <- function(raw_matrix, scalefactor) {
     .Call('_Giotto_libNormFast', PACKAGE = 'Giotto', raw_matrix, scalefactor)
 }
 
-logNormFast <- function(mymatrix) {
-    .Call('_Giotto_logNormFast', PACKAGE = 'Giotto', mymatrix)
+logNormFast <- function(mymatrix, base, offset) {
+    .Call('_Giotto_logNormFast', PACKAGE = 'Giotto', mymatrix, base, offset)
 }
 
 armaScaleRow <- function(Z) {
     .Call('_Giotto_armaScaleRow', PACKAGE = 'Giotto', Z)
 }
 
-armaScale <- function(Z) {
-    .Call('_Giotto_armaScale', PACKAGE = 'Giotto', Z)
+armaScaleCol <- function(Z) {
+    .Call('_Giotto_armaScaleCol', PACKAGE = 'Giotto', Z)
 }
 
