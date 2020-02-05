@@ -1198,6 +1198,14 @@ trendSceek <- function(gobject,
                        nrand = 100,
                        ncores = 8,
                        ...) {
+
+  if("trendsceek" %in% rownames(installed.packages()) == FALSE) {
+    stop("\n package 'trendsceek' is not yet installed \n",
+         "To install: \n",
+         "See https://github.com/edsgard/trendsceek"
+    )
+  }
+
   ## expression data
   values = match.arg(expression_values, c("normalized", "raw"))
   expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)

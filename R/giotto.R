@@ -461,7 +461,7 @@ createGiottoObject <- function(raw_exprs,
 
 
   # check if all optional packages are installed
-  extra_packages = c("scran", "MAST", "png", "tiff", "biomaRt", "trendsceek")
+  extra_packages = c("scran", "MAST", "png", "tiff", "biomaRt", "trendsceek", "multinet")
   pack_index = extra_packages %in% rownames(installed.packages())
   extra_installed_packages = extra_packages[pack_index]
   extra_not_installed_packages = extra_packages[!pack_index]
@@ -469,6 +469,7 @@ createGiottoObject <- function(raw_exprs,
   if(any(pack_index == FALSE) == TRUE) {
     cat("Consider to install these (optional) packages to run all possible Giotto commands: ",
         extra_not_installed_packages)
+    cat("\n Giotto does not automatically install all these packages as they are not absolutely required and this reduces the number of dependencies")
   }
 
 
