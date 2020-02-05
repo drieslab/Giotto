@@ -467,6 +467,7 @@ createGiottoObject <- function(raw_exprs,
   if(any(pack_index == FALSE) == TRUE) {
     cat("Consider to install these (optional) packages to run all possible Giotto commands: ",
         extra_not_installed_packages)
+    cat("\n Giotto does not automatically install all these packages as they are not absolutely required and this reduces the number of dependencies")
   }
 
 

@@ -30,7 +30,11 @@ findScranMarkers <- function(gobject,
 
 
   if("scran" %in% rownames(installed.packages()) == FALSE) {
-    cat("\n package 'scran' is not yet installed \n")
+    stop("\n package 'scran' is not yet installed \n",
+         "To install: \n",
+         "if (!requireNamespace('BiocManager', quietly = TRUE)) install.packages('BiocManager');
+         BiocManager::install('scran')"
+    )
   }
 
   # expression data
@@ -113,6 +117,15 @@ findScranMarkers_one_vs_all <- function(gobject,
                                         min_genes = 10,
                                         verbose = TRUE,
                                         ...) {
+
+
+  if("scran" %in% rownames(installed.packages()) == FALSE) {
+    stop("\n package 'scran' is not yet installed \n",
+         "To install: \n",
+         "if (!requireNamespace('BiocManager', quietly = TRUE)) install.packages('BiocManager');
+         BiocManager::install('scran')"
+    )
+  }
 
   # expression data
   values = match.arg(expression_values, choices = c('normalized', 'scaled', 'custom'))
@@ -441,7 +454,11 @@ findMastMarkers <- function(gobject,
                             ...) {
 
   if("MAST" %in% rownames(installed.packages()) == FALSE) {
-    stop("\n package 'MAST' is not yet installed \n")
+    stop("\n package 'MAST' is not yet installed \n",
+         "To install: \n",
+         "if (!requireNamespace('BiocManager', quietly = TRUE)) install.packages('BiocManager');
+         BiocManager::install('MAST')"
+    )
   }
 
   ## select expression values to use
@@ -561,6 +578,14 @@ findMastMarkers_one_vs_all = function(gobject,
                                       verbose = TRUE,
                                       ...) {
 
+
+  if("MAST" %in% rownames(installed.packages()) == FALSE) {
+    stop("\n package 'MAST' is not yet installed \n",
+         "To install: \n",
+         "if (!requireNamespace('BiocManager', quietly = TRUE)) install.packages('BiocManager');
+         BiocManager::install('MAST')"
+    )
+  }
 
 
   ## cluster column
