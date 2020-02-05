@@ -459,7 +459,7 @@ createGiottoObject <- function(raw_exprs,
 
 
   # check if all optional packages are installed
-  extra_packages = c("scran", "MAST", "png", "tiff", "biomaRt", "trendsceek")
+  extra_packages = c("scran", "MAST", "png", "tiff", "biomaRt", "trendsceek", "multinet")
   pack_index = extra_packages %in% rownames(installed.packages())
   extra_installed_packages = extra_packages[pack_index]
   extra_not_installed_packages = extra_packages[!pack_index]

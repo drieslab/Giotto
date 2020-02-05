@@ -441,7 +441,7 @@ findMastMarkers <- function(gobject,
                             ...) {
 
   if("MAST" %in% rownames(installed.packages()) == FALSE) {
-    cat("\n package 'MAST' is not yet installed \n")
+    stop("\n package 'MAST' is not yet installed \n")
   }
 
   ## select expression values to use

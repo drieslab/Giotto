@@ -328,6 +328,10 @@ doLouvainCluster_multinet <- function(gobject,
                                       seed_number = 1234,
                                       ...) {
 
+  if("multinet" %in% rownames(installed.packages()) == FALSE) {
+    stop("\n package 'multinet' is not yet installed \n")
+  }
+
 
   ## get cell IDs ##
   cell_ID_vec = gobject@cell_ID
@@ -1644,6 +1648,10 @@ doLouvainSubCluster_multinet =  function(gobject,
                                          return_gobject = TRUE,
                                          verbose = T) {
 
+
+  if("multinet" %in% rownames(installed.packages()) == FALSE) {
+    stop("\n package 'multinet' is not yet installed \n")
+  }
 
   iter_list = list()
 
