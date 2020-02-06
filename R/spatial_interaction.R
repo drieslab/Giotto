@@ -397,35 +397,68 @@ get_interaction_gene_enrichment <- function(spatial_network,
                                             diff_test = c('t.test', 'wilcox'),
                                             minimum_unique_cells = NA,
                                             exclude_selected_cells_from_test = T,
+                                            do_parallel = TRUE,
+                                            cores = NA,
                                             verbose = T) {
 
   interactions = unique(as.character(spatial_network[[unified_int_col]]))
 
-  ## can be parallelized!!
-  result_list <- list()
-  for(selected_int in interactions) {
-
-    if(verbose == TRUE){
-      cat('start ', selected_int, '\n')
-    }
-
-    sub_int_netw = spatial_network[get(unified_int_col) == selected_int]
-
-    tempres = get_specific_interaction_gene_enrichment(sub_spatial_network = sub_int_netw,
-                                                       source_col = source_col, source_IDs = source_IDs,
-                                                       neighb_col = neighb_col, neighb_IDs = neighb_IDs,
-                                                       expression_matrix = expression_matrix,
-                                                       interaction_name = selected_int,
-                                                       cell_annotation = cell_annotation,
-                                                       annotation_ID = annotation_ID,
-                                                       cell_type_col = cell_type_col,
-                                                       do_diff_test = do_diff_test,
-                                                       diff_test = diff_test,
-                                                       minimum_unique_cells = minimum_unique_cells,
-                                                       exclude_selected_cells_from_test = exclude_selected_cells_from_test)
-    result_list[[selected_int]] <- tempres
+  # set number of cores
+  if(is.na(cores) | !is.numeric(cores)) {
+    cores = parallel::detectCores() - 1
   }
 
+
+  ## parallel option
+  if(do_parallel == TRUE) {
+    result_list = parallel::mclapply(X = interactions, mc.cores = cores, FUN = function(selected_int) {
+
+      sub_int_netw = spatial_network[get(unified_int_col) == selected_int]
+
+      tempres = get_specific_interaction_gene_enrichment(sub_spatial_network = sub_int_netw,
+                                                         source_col = source_col, source_IDs = source_IDs,
+                                                         neighb_col = neighb_col, neighb_IDs = neighb_IDs,
+                                                         expression_matrix = expression_matrix,
+                                                         interaction_name = selected_int,
+                                                         cell_annotation = cell_annotation,
+                                                         annotation_ID = annotation_ID,
+                                                         cell_type_col = cell_type_col,
+                                                         do_diff_test = do_diff_test,
+                                                         diff_test = diff_test,
+                                                         minimum_unique_cells = minimum_unique_cells,
+                                                         exclude_selected_cells_from_test = exclude_selected_cells_from_test)
+    })
+  } else {
+
+    ## for-loop
+    result_list <- list()
+    for(selected_int in interactions) {
+
+      if(verbose == TRUE){
+        cat('start ', selected_int, '\n')
+      }
+
+      sub_int_netw = spatial_network[get(unified_int_col) == selected_int]
+
+      tempres = get_specific_interaction_gene_enrichment(sub_spatial_network = sub_int_netw,
+                                                         source_col = source_col, source_IDs = source_IDs,
+                                                         neighb_col = neighb_col, neighb_IDs = neighb_IDs,
+                                                         expression_matrix = expression_matrix,
+                                                         interaction_name = selected_int,
+                                                         cell_annotation = cell_annotation,
+                                                         annotation_ID = annotation_ID,
+                                                         cell_type_col = cell_type_col,
+                                                         do_diff_test = do_diff_test,
+                                                         diff_test = diff_test,
+                                                         minimum_unique_cells = minimum_unique_cells,
+                                                         exclude_selected_cells_from_test = exclude_selected_cells_from_test)
+      result_list[[selected_int]] <- tempres
+    }
+
+
+  }
+
+  # combine results
   final_res = do.call('rbind', result_list)
 
   if(verbose == TRUE){
@@ -481,6 +514,8 @@ get_cell_to_cell_sorted_name_conversion <- function(all_cell_types) {
 #' @param fold_change_addendum constant to add when calculating log2 fold-change
 #' @param in_two_directions shows enrichment in both directions: cell1-cell2, cell2-cell1
 #' @param exclude_selected_cells_from_test exclude certain cells from test
+#' @param do_parallel run enrichment calculations in parallel with mclapply
+#' @param cores number of cores to use if do_parallel = TRUE
 #' @param verbose verbose
 #' @return Cell Proximity Gene scores (CPGscores) in data.table format
 #' @details Function to calculate if genes are differentially expressed in cell types
@@ -532,6 +567,8 @@ getCellProximityGeneScores = function(gobject,
                                       fold_change_addendum = 0.1,
                                       in_two_directions = TRUE,
                                       exclude_selected_cells_from_test = F,
+                                      do_parallel = TRUE,
+                                      cores = NA,
                                       verbose = T) {
 
 
@@ -572,6 +609,8 @@ getCellProximityGeneScores = function(gobject,
                                                                      minimum_unique_cells = minimum_unique_cells,
                                                                      diff_test = diff_test,
                                                                      exclude_selected_cells_from_test = exclude_selected_cells_from_test,
+                                                                     do_parallel = do_parallel,
+                                                                     cores = cores,
                                                                      verbose = verbose)
 
   # difference with spatial
@@ -689,6 +728,74 @@ getCellProximityGeneScores = function(gobject,
 
 
 
+
+#' @title combine_ints_f
+#' @name combine_ints_f
+#' @description function to combine gene enrichment interactions
+#' @param cell_int selected cell interaction
+#' @param all_ints all interactions
+#' @param unif_gene_scores unif_gene_scores results
+#' @param specific_genes_1 specific source genes (see details)
+#' @param specific_genes_2 specific target genes (see details)
+#' @param min_cells min number of cells threshold
+#' @param min_pval p-value threshold
+#' @param min_spat_diff spatial difference threshold
+#' @param min_log2_fc log2 fold-change threshold
+#' @return Gene to gene scores in data.table format
+combine_ints_f = function(cell_int,
+                          all_ints,
+                          unif_gene_scores,
+                          specific_genes_1 = NULL,
+                          specific_genes_2 = NULL,
+                          min_cells = 5,
+                          min_fdr = 0.05,
+                          min_spat_diff = 0.2,
+                          min_log2_fc = 0.5) {
+
+
+  sel_int = all_ints[cell_int]
+
+  # cell types
+  sel_type_1 = strsplit(x = sel_int, split = '--')[[1]][1]
+  sel_type_2 = strsplit(x = sel_int, split = '--')[[1]][2]
+
+  # subsets of the data
+  subset_type_1 = unif_gene_scores[cell_type_1 == sel_type_1][(fdr_1 <= min_fdr & nr_1 >= min_cells & abs(diff_spat_1) >= min_spat_diff & abs(log2fc_spat_1) >= min_log2_fc)][cell_type_2 == sel_type_2]
+  subset_type_2 = unif_gene_scores[cell_type_2 == sel_type_2][(fdr_2 <= min_fdr & nr_2 >= min_cells & abs(diff_spat_2) >= min_spat_diff & abs(log2fc_spat_2) >= min_log2_fc)][cell_type_1 == sel_type_1]
+
+  subset_type_1 = subset_type_1[,.(genes, cell_type_1, nr_1, cell_expr_1, all_nr_1, all_cell_expr_1, fdr_1, diff_spat_1, log2fc_spat_1, unified_int)]
+  setnames(subset_type_1, 'genes', 'genes_1')
+  subset_type_2 = subset_type_2[,.(genes, cell_type_2, nr_2, cell_expr_2, all_nr_2, all_cell_expr_2, fdr_2, diff_spat_2, log2fc_spat_2, unified_int)]
+  setnames(subset_type_2, 'genes', 'genes_2')
+
+  # merge data again
+  mergetest = merge(subset_type_1, subset_type_2, by = 'unified_int', allow.cartesian = T)
+
+  if(nrow(mergetest) > 0) {
+
+
+    # create additional columns
+    mergetest[, gene_gene := paste0(genes_1,'--',genes_2), by = 1:nrow(mergetest)]
+
+    # only keep specific combinations
+    if((!is.null(specific_genes_1) & !is.null(specific_genes_2))) {
+
+      LR_combo = paste0(specific_genes_1,'--', specific_genes_2)
+      RL_combo = paste0(specific_genes_2,'--', specific_genes_1)
+      mergetest = mergetest[gene_gene %in% c(LR_combo, RL_combo)]
+
+    }
+
+    if(nrow(mergetest) > 0) {
+      mergetest[, unif_gene_gene := paste(sort(c(genes_1, genes_2)), collapse = '--'), by = 1:nrow(mergetest)]
+    }
+  }
+
+  return(mergetest)
+}
+
+
+
 #' @title getGeneToGeneScores
 #' @name getGeneToGeneScores
 #' @description Compute gene-gene enrichment scores.
@@ -702,6 +809,8 @@ getCellProximityGeneScores = function(gobject,
 #' @param min_log2_fc log2 fold-change threshold
 #' @param direction up or downregulation or both
 #' @param fold_change_addendum constant to add when calculating log2 fold-change
+#' @param do_parallel run enrichment calculations in parallel with mclapply
+#' @param cores number of cores to use if do_parallel = TRUE
 #' @param verbose verbose
 #' @return Gene to gene scores in data.table format
 #' @details This converts the single gene cell proximityscores into pairwise combinations
@@ -720,6 +829,8 @@ getGeneToGeneScores <- function(CPGscore,
                                 min_log2_fc = 0.5,
                                 direction = c('both', 'up', 'down'),
                                 fold_change_addendum = 0.1,
+                                do_parallel = TRUE,
+                                cores = NA,
                                 verbose = TRUE) {
 
 
@@ -754,56 +865,86 @@ getGeneToGeneScores <- function(CPGscore,
   unif_gene_scores = all_ints_selection
   all_ints = unique(all_ints_selection[['unified_int']])
 
-  savelist = list()
+  # parallel option
+  if(do_parallel == TRUE) {
 
-  for(cell_int in 1:length(all_ints)) {
-
-    sel_int = all_ints[cell_int]
-
-    if(verbose == TRUE) {
-      cat('\n', sel_int, '\n')
+    # set number of cores
+    if(is.na(cores) | !is.numeric(cores)) {
+      cores = parallel::detectCores() - 1
     }
 
-    # cell types
-    sel_type_1 = strsplit(x = sel_int, split = '--')[[1]][1]
-    sel_type_2 = strsplit(x = sel_int, split = '--')[[1]][2]
+    savelist = parallel::mclapply(X = 1:length(all_ints), mc.cores = cores, FUN = function(x) {
 
-    # subsets of the data
-    subset_type_1 = unif_gene_scores[cell_type_1 == sel_type_1][(fdr_1 <= min_fdr & nr_1 >= min_cells & abs(diff_spat_1) >= min_spat_diff & abs(log2fc_spat_1) >= min_log2_fc)][cell_type_2 == sel_type_2]
-    subset_type_2 = unif_gene_scores[cell_type_2 == sel_type_2][(fdr_2 <= min_fdr & nr_2 >= min_cells & abs(diff_spat_2) >= min_spat_diff & abs(log2fc_spat_2) >= min_log2_fc)][cell_type_1 == sel_type_1]
+      combine_ints_f(cell_int = x,
+                     all_ints = all_ints,
+                     unif_gene_scores = unif_gene_scores,
+                     min_cells = min_cells,
+                     min_fdr = min_fdr,
+                     min_spat_diff = min_spat_diff,
+                     min_log2_fc = min_log2_fc)
 
-    subset_type_1 = subset_type_1[,.(genes, cell_type_1, nr_1, cell_expr_1, all_nr_1, all_cell_expr_1, fdr_1, diff_spat_1, log2fc_spat_1, unified_int)]
-    setnames(subset_type_1, 'genes', 'genes_1')
-    subset_type_2 = subset_type_2[,.(genes, cell_type_2, nr_2, cell_expr_2, all_nr_2, all_cell_expr_2, fdr_2, diff_spat_2, log2fc_spat_2, unified_int)]
-    setnames(subset_type_2, 'genes', 'genes_2')
-
-    # merge data again
-    mergetest = merge(subset_type_1, subset_type_2, by = 'unified_int', allow.cartesian = T)
-
-    if(nrow(mergetest) > 0) {
+    })
 
 
-      # create additional columns
-      mergetest[, gene_gene := paste0(genes_1,'--',genes_2), by = 1:nrow(mergetest)]
 
-      # only keep specific combinations
-      if((!is.null(specific_genes_1) & !is.null(specific_genes_2))) {
 
-        LR_combo = paste0(specific_genes_1,'--', specific_genes_2)
-        RL_combo = paste0(specific_genes_2,'--', specific_genes_1)
-        mergetest = mergetest[gene_gene %in% c(LR_combo, RL_combo)]
+  } else {
 
+    # for loop
+    savelist = list()
+
+    for(cell_int in 1:length(all_ints)) {
+
+      sel_int = all_ints[cell_int]
+
+      if(verbose == TRUE) {
+        cat('\n', sel_int, '\n')
       }
+
+      # cell types
+      sel_type_1 = strsplit(x = sel_int, split = '--')[[1]][1]
+      sel_type_2 = strsplit(x = sel_int, split = '--')[[1]][2]
+
+      # subsets of the data
+      subset_type_1 = unif_gene_scores[cell_type_1 == sel_type_1][(fdr_1 <= min_fdr & nr_1 >= min_cells & abs(diff_spat_1) >= min_spat_diff & abs(log2fc_spat_1) >= min_log2_fc)][cell_type_2 == sel_type_2]
+      subset_type_2 = unif_gene_scores[cell_type_2 == sel_type_2][(fdr_2 <= min_fdr & nr_2 >= min_cells & abs(diff_spat_2) >= min_spat_diff & abs(log2fc_spat_2) >= min_log2_fc)][cell_type_1 == sel_type_1]
+
+      subset_type_1 = subset_type_1[,.(genes, cell_type_1, nr_1, cell_expr_1, all_nr_1, all_cell_expr_1, fdr_1, diff_spat_1, log2fc_spat_1, unified_int)]
+      setnames(subset_type_1, 'genes', 'genes_1')
+      subset_type_2 = subset_type_2[,.(genes, cell_type_2, nr_2, cell_expr_2, all_nr_2, all_cell_expr_2, fdr_2, diff_spat_2, log2fc_spat_2, unified_int)]
+      setnames(subset_type_2, 'genes', 'genes_2')
+
+      # merge data again
+      mergetest = merge(subset_type_1, subset_type_2, by = 'unified_int', allow.cartesian = T)
 
       if(nrow(mergetest) > 0) {
-        mergetest[, unif_gene_gene := paste(sort(c(genes_1, genes_2)), collapse = '--'), by = 1:nrow(mergetest)]
-        savelist[[cell_int]] = mergetest
+
+
+        # create additional columns
+        mergetest[, gene_gene := paste0(genes_1,'--',genes_2), by = 1:nrow(mergetest)]
+
+        # only keep specific combinations
+        if((!is.null(specific_genes_1) & !is.null(specific_genes_2))) {
+
+          LR_combo = paste0(specific_genes_1,'--', specific_genes_2)
+          RL_combo = paste0(specific_genes_2,'--', specific_genes_1)
+          mergetest = mergetest[gene_gene %in% c(LR_combo, RL_combo)]
+
+        }
+
+        if(nrow(mergetest) > 0) {
+          mergetest[, unif_gene_gene := paste(sort(c(genes_1, genes_2)), collapse = '--'), by = 1:nrow(mergetest)]
+          savelist[[cell_int]] = mergetest
+        }
       }
+
     }
 
-
-
   }
+
+
+
+
 
   finalres = do.call('rbind', savelist)
 
@@ -853,6 +994,9 @@ getGeneToGeneScores <- function(CPGscore,
 
 
 }
+
+
+
 
 
 

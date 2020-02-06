@@ -19,6 +19,8 @@ getCellProximityGeneScores(
   fold_change_addendum = 0.1,
   in_two_directions = TRUE,
   exclude_selected_cells_from_test = F,
+  do_parallel = TRUE,
+  cores = NA,
   verbose = T
 )
 }
@@ -48,6 +50,10 @@ getCellProximityGeneScores(
 \item{in_two_directions}{shows enrichment in both directions: cell1-cell2, cell2-cell1}
 
 \item{exclude_selected_cells_from_test}{exclude certain cells from test}
+
+\item{do_parallel}{run enrichment calculations in parallel with mclapply}
+
+\item{cores}{number of cores to use if do_parallel = TRUE}
 
 \item{verbose}{verbose}
 }

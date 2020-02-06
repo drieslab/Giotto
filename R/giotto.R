@@ -217,19 +217,19 @@ createGiottoInstructions <- function(python_path =  NULL,
 
   # units for height and width
   if(is.null(units)) {
-    units = 'cm'
+    units = 'in'
   }
   units = as.character(units)
 
   # height of plot
   if(is.null(height)) {
-    height = 600
+    height = 9
   }
   height = as.numeric(height)
 
   # width of plot
   if(is.null(width)) {
-    width = 600
+    width = 9
   }
   width = as.numeric(width)
 

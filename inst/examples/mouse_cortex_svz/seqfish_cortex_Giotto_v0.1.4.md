@@ -56,8 +56,8 @@ values are known or estimates based on the original raw image:
 ``` r
 ## expression and cell location
 data_dir = '/path/to/data/Seqfish_SS_cortex/'
-VC_exprs = read.table(paste0(data_dir,"/", "cortex_svz_expression.txt"))
-VC_locs = fread(paste0(data_dir,"/", "cortex_svz_centroids_rotated.csv"))
+VC_exprs = read.table(paste0(data_dir,"/", "count_matrix/cortex_svz_expression.txt"))
+VC_locs = fread(paste0(data_dir,"/", "cell_locations/cortex_svz_centroids_rotated.csv"))
 
 ## offset file to combine fields
 my_offset_file = data.table(field = c(0, 1, 2, 3, 4, 5, 6),

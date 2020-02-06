@@ -40,7 +40,8 @@ Imports:
     devtools,
     reshape2,
     ggraph,
-    Rcpp
+    Rcpp,
+    rlang (>= 0.4.3)
 Suggests:
     knitr,
     rmarkdown,

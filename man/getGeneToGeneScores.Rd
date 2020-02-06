@@ -15,6 +15,8 @@ getGeneToGeneScores(
   min_log2_fc = 0.5,
   direction = c("both", "up", "down"),
   fold_change_addendum = 0.1,
+  do_parallel = TRUE,
+  cores = NA,
   verbose = TRUE
 )
 }
@@ -36,6 +38,10 @@ getGeneToGeneScores(
 \item{direction}{up or downregulation or both}
 
 \item{fold_change_addendum}{constant to add when calculating log2 fold-change}
+
+\item{do_parallel}{run enrichment calculations in parallel with mclapply}
+
+\item{cores}{number of cores to use if do_parallel = TRUE}
 
 \item{verbose}{verbose}
 

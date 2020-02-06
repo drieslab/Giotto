@@ -19,6 +19,8 @@ get_interaction_gene_enrichment(
   diff_test = c("t.test", "wilcox"),
   minimum_unique_cells = NA,
   exclude_selected_cells_from_test = T,
+  do_parallel = TRUE,
+  cores = NA,
   verbose = T
 )
 }

@@ -38,6 +38,17 @@ rank_binarize = function(x, max_rank = 200) {
 
 }
 
+
+#' @title DT_removeNA
+#' @name DT_removeNA
+#' @description set NA values to 0
+DT_removeNA = function(DT) {
+  for (i in names(DT))
+    DT[is.na(get(i)), (i):=0]
+  return(DT)
+}
+
+
 #' @title fish_function
 #' @name fish_function
 #' @description perform fisher exact test
@@ -58,10 +69,10 @@ fish_function = function(x_to, x_from) {
 fish_function2 = function(A, B, C, D) {
 
   # set NA's to 0
-  A = ifelse(is.na(A), 0, A)
-  B = ifelse(is.na(B), 0, B)
-  C = ifelse(is.na(C), 0, C)
-  D = ifelse(is.na(D), 0, D)
+  #A = ifelse(is.na(A), 0, A)
+  #B = ifelse(is.na(B), 0, B)
+  #C = ifelse(is.na(C), 0, C)
+  #D = ifelse(is.na(D), 0, D)
 
   fish_matrix = matrix(c(A, B, C, D), nrow = 2)
 
@@ -139,7 +150,7 @@ binGetSpatialGenes = function(gobject,
 
   # expression
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
 
   if(!is.null(subset_genes)) {
     expr_values = expr_values[rownames(expr_values) %in% subset_genes, ]
@@ -164,7 +175,6 @@ binGetSpatialGenes = function(gobject,
   setorder(av_expr_DT, 'genes')
 
   # dcast
-  #bin_matrix_DT = data.table::as.data.table(melt(bin_matrix, varnames = c('genes', 'cells'), value.name = 'value'))
   bin_matrix_DT = data.table::as.data.table(reshape2::melt(bin_matrix, varnames = c('genes', 'cells'), value.name = 'value'))
 
   # extra info: nr of cells with high expression
@@ -178,19 +188,22 @@ binGetSpatialGenes = function(gobject,
   spatial_network_min = data.table:::merge.data.table(x = spatial_network_min, by.x = 'to', y = bin_matrix_DT, by.y = 'cells', allow.cartesian = T)
   setnames(spatial_network_min, 'value', 'to_value')
   spatial_network_min[bin_matrix_DT, from_value := value, on = c(genes = 'genes', from = 'cells')]
-  spatial_network_min[, comb := paste0(to_value,'-',from_value)]
-  tablecomb = spatial_network_min[, .N, by = .(genes, comb)]
+
+  tablecomb = spatial_network_min[, .N, by = .(genes, to_value, from_value)]
+  tablecomb[, comb := paste0(to_value,'-',from_value)]
   setorder(tablecomb, genes, comb)
   dtablecomb = dcast.data.table(tablecomb, formula = genes ~ comb, value.var = 'N')
 
+
   ## fisher test or odds-ratio only ##
+  dtablecomb = DT_removeNA(dtablecomb)
 
   if(do_fisher_test == TRUE) {
     dtablecomb = dtablecomb[, fish_function2(A = `0-0`, B = `0-1`, C = `1-0`, D = `1-1`), by = genes]
+
   } else {
     # OR only
     dtablecomb = dtablecomb[, OR_function2(A = `0-0`, B = `0-1`, C = `1-0`, D = `1-1`), by = genes]
-    #dtablecomb[, OR := ((`0-0`* `1-1`)/(`0-1`*`1-0`)), by = genes]
   }
 
   if(verbose == TRUE) cat('\n 3. fisher test or odds-ratio calculation complete \n')
@@ -198,25 +211,26 @@ binGetSpatialGenes = function(gobject,
 
   ## estimate for community ##
   # create count table for individual cells for all conditions
-  tocells = spatial_network_min[, .(to, genes, comb)]
+  tocells = spatial_network_min[, .(to, genes, to_value, from_value)]
   setnames(tocells, 'to', 'cells')
-  fromcells = spatial_network_min[, .(from, genes, comb)]
+  fromcells = spatial_network_min[, .(from, genes,  to_value, from_value)]
   setnames(fromcells, 'from', 'cells')
   allcells = rbind(tocells, fromcells)
-  counttable_cells = allcells[, .N, by = .(genes, comb, cells)]
+  counttable_cells = allcells[, .N, by = .(genes, to_value, from_value, cells)]
 
   # uniq cells per combination (0-0, 1-1, ...)
-  count_uniq_cells = counttable_cells[, length(unique(cells)), by = .(genes, comb)]
-  setorder(count_uniq_cells, genes, comb)
+  count_uniq_cells = counttable_cells[, length(unique(cells)), by = .(genes, to_value, from_value)]
+  setorder(count_uniq_cells, genes, to_value, from_value)
 
   # cells with higher connectivity per combination
-  count_comm_cells = counttable_cells[, sum(N >= community_expectation), by = .(genes, comb)]
-  setorder(count_comm_cells, genes, comb)
+  count_comm_cells = counttable_cells[, sum(N >= community_expectation), by = .(genes, to_value, from_value)]
+  setorder(count_comm_cells, genes, to_value, from_value)
   setnames(count_comm_cells, 'V1', 'comm')
 
   count_comm_cells[, total := count_uniq_cells$V1]
   count_comm_cells[, ratio := round(comm/total, 2)]
-  count_comm_cells = count_comm_cells[comb == '1-1']
+  count_comm_cells = count_comm_cells[to_value == 1 & from_value == 1]
+
 
   if(verbose == TRUE) cat('\n 4. community estimate complete, start merging results \n')
 
@@ -233,6 +247,7 @@ binGetSpatialGenes = function(gobject,
   #return(list(av_expr_DT, nr_high_cells, dtablecomb, count_comm_cells))
 
 }
+
 
 
 
