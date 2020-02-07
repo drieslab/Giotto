@@ -44,8 +44,8 @@ instrs = createGiottoInstructions(python_path = my_python_path)
 ```{r, eval=FALSE}
 ## select the directory where you have saved the Spatial Transcriptomics data
 data_dir = '/path/to/Starmap_data/'
-expr = read.table(paste0(data_dir, '/', 'STARmap_3D_data_expression.txt'))
-cell_loc = read.table(paste0(data_dir, '/', 'STARmap_3D_data_cell_locations.txt'))
+expr = read.table(paste0(data_dir, '/', 'count_matrix/STARmap_3D_data_expression.txt'))
+cell_loc = read.table(paste0(data_dir, '/', 'cell_locations/STARmap_3D_data_cell_locations.txt'))
 ```
 
 ***

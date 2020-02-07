@@ -43,13 +43,14 @@ instrs = createGiottoInstructions(python_path = my_python_path,
 ```{r, eval=FALSE}
 ## expression and cell location
 ## expression data
-data_path = '/path/to/Visium_data/Kidney_data/raw_feature_bc_matrix/'
+data_dir = "path/to/Visum_data/"
+data_path = paste0(data_dir,'raw_feature_bc_matrix/')
 raw_matrix = get10Xmatrix(path_to_data = data_path)
 library("biomaRt") # convert ensembl to gene names
 raw_matrix = convertEnsemblToGeneSymbol(matrix = raw_matrix, species = 'mouse')
 
 ## spatial results
-spatial_results = fread('/path/to/Visium_data/Kidney_data/spatial/tissue_positions_list.csv')
+spatial_results = fread(paste0(data_dir,'spatial/tissue_positions_list.csv'))
 spatial_results = spatial_results[match(colnames(raw_matrix), V1)]
 colnames(spatial_results) = c('barcode', 'in_tissue', 'array_row', 'array_col', 'col_pxl', 'row_pxl') # name columns
 
@@ -202,6 +203,11 @@ visium_kidney <- createNearestNetwork(gobject = visium_kidney, dimensions_to_use
 
 ## Leiden clustering
 visium_kidney <- doLeidenCluster(gobject = visium_kidney, resolution = 0.4, n_iterations = 1000)
+# warning message: 
+# sys:1: FutureWarning: RangeIndex._start is deprecated and will be removed in a future version. Use RangeIndex.start instead
+# sys:1: FutureWarning: RangeIndex._stop is deprecated and will be removed in a future version. Use RangeIndex.stop instead
+# sys:1: FutureWarning: RangeIndex._step is deprecated and will be removed in a future version. Use RangeIndex.step instead
+
 plotUMAP(gobject = visium_kidney,
          cell_color = 'leiden_clus', show_NN_network = T, point_size = 2.5,
          save_param = list(save_folder = '4_Cluster', save_name = 'UMAP_leiden'))
@@ -363,19 +369,27 @@ spatDimGenePlot(visium_kidney, expression_values = 'scaled',
                 genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue', midpoint = 0,
                 save_param = c(save_folder = '7_annotation', save_name = 'kidney_specific_genes1', base_width = 12, base_height = 5))
 
+# error message
+# Error in spatDimGenePlot(visium_kidney, expression_values = "scaled",  : 
+#   unused argument (point_size = 1)
+
 spatDimGenePlot(visium_kidney, expression_values = 'scaled',
                 genes = c('Aqp2', 'Kdr', 'Thy1', 'Dcn'),
                 plot_alignment = 'vertical', cow_n_col = 4, point_size = 1,
                 genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue', midpoint = 0,
                 save_param = c(save_folder = '7_annotation', save_name = 'kidney_specific_genes2', base_width = 12, base_height = 5))
 
-
+# error message
+# Error in spatDimGenePlot(visium_kidney, expression_values = "scaled",  : 
+#   unused argument (point_size = 1)
 
 ## cell type signatures ##
 ## for PAGE ##
 
 ## example to make signature matrix from list of signature genesets
-kidney_sc_markers = as.data.table(readxl::read_excel(sheet = 'Seurat_markers.top50', '/path/to/Visium_data/Kidney_data/scRNAseq_kidney/1-s2.0-S1534580719308147-mmc2.xlsx'))
+kidney_sc_markers = as.data.table(readxl::read_excel(sheet = 'Seurat_markers.top50', '/path/to/Visium_data/Kidney_data/scRNAseq_kidney/1-s2.0-S1534580719308147-mmc2.xlsx')) # data not provided
+
+# to continue from here
  
 sign_list = list()
 for(clus in unique(kidney_sc_markers$cluster)) {

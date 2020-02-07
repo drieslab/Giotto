@@ -393,7 +393,7 @@ pattern_VC = detectSpatialPatterns(gobject = VC_test,
 
 ## show pattern and genes for first identified principal component
 showPattern2D(VC_test, pattern_VC, dimension = 1, point_size = 4)
-showPatternGenes(VC_test, pattern_VC, dimension = 1, save_plot = T)
+showPatternGenes(VC_test, pattern_VC, dimension = 1, save_plot = F)
 
 ```
 
@@ -475,7 +475,7 @@ spatial_genes = calculate_spatial_genes_python(gobject = VC_test,
                                                rbp_p=0.99, examine_top=0.1)
 
 spatGenePlot(VC_test, expression_values = 'scaled', show_plot = F,
-             genes = head(ranktest_m$genes,8), point_size = 2, cow_n_col = 4,
+             genes = head(ranktest$genes,8), point_size = 2, cow_n_col = 4,
              genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue',
              midpoint = 0, return_plot = F)
 
