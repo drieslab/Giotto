@@ -26,7 +26,7 @@ library(Giotto)
 ## create instructions
 ## setting save_plot = TRUE allows to automatically save all made plots to a predetermined save directory (save_dir)
 ## changes in saving parameters for each plotting function can be made with the save_param parameter 
-my_python_path = "/Users/rubendries/Bin/anaconda3/envs/py36/bin/pythonw"
+my_python_path = "/Users/rubendries/Bin/anaconda3/envs/py36/bin/pythonw" # need to give a general template
 results_folder = '/Path/to/Results/SpatTx_OB_results/'
 instrs = createGiottoInstructions(python_path = my_python_path,
                                   show_plot = F, return_plot = T, save_plot = T,
@@ -45,8 +45,8 @@ instrs = createGiottoInstructions(python_path = my_python_path,
 ```{r, eval=FALSE}
 ## select the directory where you have saved the Spatial Transcriptomics data
 data_folder = '/path/to/ST_data/'
-expr = read.table(paste0(data_folder,'/','Rep11_MOB_0_expr.txt'))
-cell_locs = fread(paste0(data_folder,'/','Rep11_MOB_0_location.txt'))
+expr = read.table(paste0(data_folder,'/','count_matrix/Rep11_MOB_0_expr.txt'))
+cell_locs = fread(paste0(data_folder,'/','cell_locations/Rep11_MOB_0_location.txt'))
 ```
 
 ***
@@ -200,14 +200,24 @@ spatDimGenePlot(ST_test, expression_values = 'scaled',
                   genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue', midpoint = 0,
                   save_param = c(save_folder = '6_DEG', save_name = 'genes_gini', base_width = 6, base_height = 14))
 
-
+# error message: 
+# Error in spatDimGenePlot(ST_test, expression_values = "scaled", genes = topgenes_gini,  : 
+# unused argument (point_size = 2)
 
 ## scran ##
 scran_markers_subclusters = findMarkers_one_vs_all(gobject = ST_test,
                                                    method = 'scran',
                                                    expression_values = 'normalized',
                                                    cluster_column = 'leiden_clus')
+# warning message: 
+# 'clusters=' is deprecated.
+# Use 'groups=' instead.
+# See help("Deprecated")
+
 topgenes_scran = scran_markers_subclusters[, head(.SD, 2), by = 'cluster_ID']$gene_ID
+# error message: 
+# Error in eval(bysub, x, parent.frame()) : object 'cluster_ID' not found
+
 
 # violinplot
 violinPlot(ST_test, genes = unique(topgenes_scran), cluster_column = 'leiden_clus',
@@ -281,6 +291,11 @@ spatDimGenePlot(ST_test, expression_values = 'scaled',
                 genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue', midpoint = 0,
                 save_param = c(save_folder = '7_annotation', save_name = 'interneuron_genes', base_width = 13, base_height = 5))
 
+# error message: 
+# Error in spatDimGenePlot(ST_test, expression_values = "scaled", genes = c("Vip",  : 
+#   unused argument (point_size = 3)
+
+# to continue error testing from here
 
 ```
 
