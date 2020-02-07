@@ -709,7 +709,7 @@ filterGiotto <- function(gobject,
 #' @export
 #' @examples
 #'     normalizeGiotto(gobject)
-normalizeGiotto <- function(gobject,
+normalizeGiottoOld <- function(gobject,
                             norm_methods = c('standard', 'osmFISH'),
                             library_size_norm = TRUE,
                             scalefactor = 6e3,
@@ -824,7 +824,7 @@ normalizeGiotto <- function(gobject,
 
 
 
-#' @title normalizeGiottoFast
+#' @title normalizeGiotto
 #' @description fast normalize and/or scale expresion values of Giotto object
 #' @param gobject giotto object
 #' @param norm_methods normalization method to use
@@ -857,8 +857,8 @@ normalizeGiotto <- function(gobject,
 #' This data will be saved in the Giotto slot for custom expression.
 #' @export
 #' @examples
-#'     normalizeGiottoFast(gobject)
-normalizeGiottoFast <- function(gobject,
+#'     normalizeGiotto(gobject)
+normalizeGiotto <- function(gobject,
                              norm_methods = c('standard', 'osmFISH'),
                              library_size_norm = TRUE,
                              scalefactor = 6e3,
