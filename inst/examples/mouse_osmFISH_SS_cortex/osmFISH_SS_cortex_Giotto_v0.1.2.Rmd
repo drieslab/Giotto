@@ -49,9 +49,9 @@ instrs = createGiottoInstructions(python_path = my_python_path,
 ## select the directory where you have saved the osmFISH data
 data_dir = '/path/to/directory/of/osmFISH_data/'
 ## ss cortex expression DATA ##
-osm_exprs = read.table(file = paste0(data_dir,'/','osmFISH_prep_expression.txt'))
+osm_exprs = read.table(file = paste0(data_dir,'/','count_matrix/osmFISH_prep_expression.txt'))
 ## prepare cell locations
-osm_locs = read.table(file = paste0(data_dir,'/','osmFISH_prep_cell_coordinates.txt'))
+osm_locs = read.table(file = paste0(data_dir,'/','cell_locations/osmFISH_prep_cell_coordinates.txt'))
 osm_locs = osm_locs[rownames(osm_locs) %in% colnames(osm_exprs),]
 ```
 
@@ -70,7 +70,7 @@ osm_test <- createGiottoObject(raw_exprs = osm_exprs, spatial_locs = osm_locs, i
 showGiottoInstructions(osm_test)
 
 ## add field annotation
-metadata = fread(file = paste0(data_dir,'/','osmFISH_prep_cell_metadata.txt'))
+metadata = fread(file = paste0(data_dir,'/','raw_data/osmFISH_prep_cell_metadata.txt'))
 osm_test = addCellMetadata(osm_test, new_metadata = metadata,
                            by_column = T, column_cell_ID = 'CellID')
 ## filter
@@ -260,6 +260,11 @@ markers = findMarkers_one_vs_all(gobject = osm_test,
                                  expression_values = 'custom',
                                  cluster_column = 'leiden_clus_m',
                                  min_genes = 2, rank_score = 2)
+# warning message:
+# 'clusters=' is deprecated.
+# Use 'groups=' instead.
+# See help("Deprecated")
+
 ## violinplot
 topgenes = markers[, head(.SD, 1), by = 'cluster']$genes
 violinPlot(osm_test, genes = unique(topgenes), cluster_column = 'leiden_clus_m', expression_values = 'custom',
@@ -455,6 +460,10 @@ spatial_genes = calculate_spatial_genes_python(gobject = osm_test,
                                                expression_values = 'scaled',
                                                python_path = my_python_path,
                                                rbp_p=0.99, examine_top=0.1)
+# warning message: 
+# sys:1: FutureWarning: RangeIndex._start is deprecated and will be removed in a future version. Use RangeIndex.start instead
+# sys:1: FutureWarning: RangeIndex._stop is deprecated and will be removed in a future version. Use RangeIndex.stop instead
+# sys:1: FutureWarning: RangeIndex._step is deprecated and will be removed in a future version. Use RangeIndex.step instead
 
 spatDimGenePlot(osm_test, expression_values = 'normalized',
                   genes = c('Rorb', 'Syt6', 'Gfap', 'Kcnip2'),
@@ -496,6 +505,9 @@ HMRF_spatial_genes = doHMRF(gobject = osm_test, expression_values = 'normalized'
                             output_folder = paste0(hmrf_folder, '/', 'Spatial_genes/SG_top10_k10_scaled'),
                             python_path = my_python_path,
                             zscore="rowcol", tolerance=1e-5)
+# error message: 
+# Error in paste0(hmrf_folder, "/", "Spatial_genes/SG_top10_k10_scaled") : 
+#  object 'hmrf_folder' not found
 
 ## view results of HMRF
 viewHMRFresults(gobject = osm_test,
@@ -549,6 +561,8 @@ cell_proximities = cellProximityEnrichment(gobject = osm_test,
 ## barplot
 cellProximityBarplot(gobject = osm_test, CPscore = cell_proximities, min_orig_ints = 25, min_sim_ints = 25, 
                      save_param = c(save_name = 'barplot_cell_cell_enrichment', save_folder = '12_cell_proxim'))
+# warning message: 
+# Don't know how to automatically pick scale for object of type table. Defaulting to continuous.
 ```
 barplot:  
 ![](./figures/11_barplot_cell_cell_enrichment.png){width=16cm} 
