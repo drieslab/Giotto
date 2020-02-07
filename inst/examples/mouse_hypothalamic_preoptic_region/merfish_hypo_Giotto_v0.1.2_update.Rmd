@@ -43,10 +43,10 @@ instrs = createGiottoInstructions(python_path = my_python_path,
 ## select the directory where you have saved the Spatial Transcriptomics data
 data_dir = '/path/to/merFISH_data/'
 
-expr = read.table(paste0(data_dir, '/', 'count_matrix/merFISH_3D_data_expression.txt'))
+expr = read.table(paste0(data_dir, '/', 'count_matrix/merFISH_3D_data_expression.txt')) # file in zip format: merFISH_3D_data_expression.txt.zip
 cell_loc = read.table(paste0(data_dir, '/', 'cell_locations/merFISH_3D_data_cell_locations.txt'))
 cell_type = read.table(paste0(data_dir, '/', 'cell_types/merFISH_3D_data_cell_types.txt'))
-type_level = read.table(paste0(data_dir, '/', 'cell_types/merFISH_3D_data_type_levels.txt'))
+type_level = read.table(paste0(data_dir, '/', 'cell_types/merFISH_3D_data_type_levels.txt')) # file missing
 ```
 
 ***
