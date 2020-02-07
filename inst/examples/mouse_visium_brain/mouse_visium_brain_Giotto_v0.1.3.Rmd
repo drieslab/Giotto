@@ -42,13 +42,14 @@ instrs = createGiottoInstructions(python_path = my_python_path)
 ```{r, eval=FALSE}
 ## expression and cell location
 ## expression data
-data_path = '/path/to/Visium_data/Brain_data/raw_feature_bc_matrix//'
+data_dir = "path/to/Visum_data/"
+data_path = paste0(data_dir,'raw_feature_bc_matrix/')
 raw_matrix = get10Xmatrix(path_to_data = data_path)
 library("biomaRt") # convert ensembl to gene names
-raw_matrix = convertEnsemblToGeneSymbol(matrix = raw_matrix, species = 'mouse')
+raw_matrix = convertEnsemblToGeneSymbol(matrix = raw_matrix, species = 'mouse') # slow, not finishing within 3 min
 
 ## spatial results
-spatial_results = fread('/path/to/Visium_data/Brain_data/spatial/tissue_positions_list.csv')
+spatial_results = fread(paste0(data_dir,'spatial/tissue_positions_list.csv'))
 spatial_results = spatial_results[match(colnames(raw_matrix), V1)]
 colnames(spatial_results) = c('barcode', 'in_tissue', 'array_row', 'array_col', 'col_pxl', 'row_pxl')
 ```
@@ -214,6 +215,10 @@ spatDimPlot(gobject = visium_brain, cell_color = 'nr_genes', color_as_factor = F
 DG_subset = subsetGiottoLocs(visium_brain, x_max = 6500, x_min = 3000, y_max = -2500, y_min = -5500, return_gobject = T)
 spatDimPlot(gobject = DG_subset, cell_color = 'leiden_clus', point_size = 5)
 
+# error message
+# Error in spatDimPlot(gobject = DG_subset, cell_color = "leiden_clus",  : 
+#   unused argument (point_size = 5)
+
 ```
 
 Co-visualzation:
@@ -264,14 +269,17 @@ dimGenePlot2D(visium_brain, expression_values = 'scaled',
               cow_n_col = 3, point_size = 1,
               genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue', midpoint = 0)
 
-
-
 ## scran ##
 ## ----- ##
 scran_markers_subclusters = findMarkers_one_vs_all(gobject = visium_brain,
                                                    method = 'scran',
                                                    expression_values = 'normalized',
                                                    cluster_column = 'leiden_clus')
+
+# warning messages
+# 'clusters=' is deprecated.
+# Use 'groups=' instead.
+# See help("Deprecated")
 
 # violinplot
 topgenes_scran = scran_markers_subclusters[, head(.SD, 1), by = 'cluster']$genes
@@ -340,7 +348,7 @@ To generate the cell-type specific gene lists for the mouse brain data we used c
 
 ## cell type signatures ##
 ## combination of all marker genes identified in Zeisel et al
-brain_sc_markers = fread('/path/to/Visium_data/Brain_data/sig_matrix.txt')
+brain_sc_markers = fread('/path/to/Visium_data/Brain_data/sig_matrix.txt') # file don't exist in data folder
 sig_matrix = as.matrix(brain_sc_markers[,-1]); rownames(sig_matrix) = brain_sc_markers$Event
   
 ## enrichment tests 
@@ -531,7 +539,7 @@ spatGenePlot(visium_brain, expression_values = 'scaled',
 ## rank binarization
 ranktest = binGetSpatialGenes(visium_brain, bin_method = 'rank',
                               do_fisher_test = T, community_expectation = 5,
-                              spatial_network_name = 'spatial_network', verbose = T)
+                              spatial_network_name = 'spatial_network', verbose = T) # not finishing within 10 min
 spatGenePlot(visium_brain, expression_values = 'scaled',
              genes = ranktest$genes[1:6], cow_n_col = 2, point_size = 1,
              genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue', midpoint = 0)
@@ -544,6 +552,7 @@ spatGenePlot(visium_brain, expression_values = 'scaled',
              genes = spatial_genes$genes[1:6], cow_n_col = 2, point_size = 1,
              genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue', midpoint = 0)
 
+# to continue from here
 
 ```
 

@@ -33,9 +33,9 @@ library(Giotto)
 
 ```{r, eval=FALSE}
 ## select the directory where you have saved the osmFISH data
-Slideseq_data_folder = '/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Data/Slideseq_data/Puck_180430_6/'
-bead_positions <- fread(file = paste0(Slideseq_data_folder, '/', "BeadLocationsForR.csv"))
-expr_matrix <- fread(paste0(Slideseq_data_folder, '/', "MappedDGEForR.csv"))
+Slideseq_data_folder = '/path/to/data/Slideseq_data'
+bead_positions <- fread(file = paste0(Slideseq_data_folder, '/', "count_matrix/BeadLocationsForR.csv")) # file exist in both cell_locations folder and count_matrix folder
+expr_matrix <- fread(paste0(Slideseq_data_folder, '/', "raw_data/MappedDGEForR.csv")) # file in zip format
 expr_mat = as.matrix(expr_matrix[,-1]);rownames(expr_mat) = expr_matrix$Row
 ```
 
