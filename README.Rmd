@@ -3,7 +3,6 @@ output: github_document
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-<!-- This is a line from RStudio -->
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
