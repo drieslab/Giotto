@@ -49,6 +49,9 @@ DT_removeNA = function(DT) {
 }
 
 
+# * ####
+## old spatial gene detection ####
+
 #' @title fish_function
 #' @name fish_function
 #' @description perform fisher exact test
@@ -95,8 +98,8 @@ OR_function2 = function(A, B, C, D) {
 }
 
 
-#' @title binGetSpatialGenes
-#' @name binGetSpatialGenes
+#' @title binGetSpatialGenesOld
+#' @name binGetSpatialGenesOld
 #' @description Rapid computation of genes that are spatially clustered
 #' @param gobject giotto object
 #' @param bin_method method to binarize gene expression
@@ -126,8 +129,8 @@ OR_function2 = function(A, B, C, D) {
 #' By selecting a subset of likely spatial genes (e.g. highly variable genes) the function will be much faster.
 #' @export
 #' @examples
-#'     binGetSpatialGenes(gobject)
-binGetSpatialGenes = function(gobject,
+#'     binGetSpatialGenesOld(gobject)
+binGetSpatialGenesOld = function(gobject,
                               bin_method = c('kmeans', 'rank'),
                               expression_values = c('normalized', 'scaled', 'custom'),
                               subset_genes = NULL,
@@ -249,6 +252,255 @@ binGetSpatialGenes = function(gobject,
 }
 
 
+# * ####
+## new spatial gene detection ####
+
+#' @title spat_fish_func
+#' @name spat_fish_func
+#' @description performs fisher exact test
+spat_fish_func = function(gene,
+                          bin_matrix,
+                          spat_mat) {
+
+  gene_vector = bin_matrix[rownames(bin_matrix) == gene,]
+
+  gene_vectorA = gene_vector[names(gene_vector) %in% rownames(spat_mat)]
+  gene_vectorA = gene_vectorA[match(rownames(spat_mat), names(gene_vectorA))]
+
+  gene_vectorB = gene_vector[names(gene_vector) %in% colnames(spat_mat)]
+  gene_vectorB = gene_vectorB[match(colnames(spat_mat), names(gene_vectorB))]
+
+  test1 = spat_mat*gene_vectorA
+  test2 = t(t(spat_mat)*gene_vectorB)
+
+  sourcevalues = test1[spat_mat == 1]
+  targetvalues = test2[spat_mat == 1]
+
+  # option 1
+  test = paste0(sourcevalues,'-',targetvalues)
+
+
+  if(length(unique(test)) < 4) {
+
+    possibs = c("1-1","0-1","1-0","0-0")
+    missings_possibs = possibs[!possibs %in% unique(test)]
+    missings_vec = rep(1, length(missings_possibs))
+    names(missings_vec) = missings_possibs
+
+    test = c(test, missings_vec)
+  }
+
+  return(fisher.test(matrix(table(test), byrow = T, nrow = 2))[c('p.value','estimate')])
+
+}
+
+#' @title spat_OR_func
+#' @name spat_OR_func
+#' @description calculate odds-ratio
+spat_OR_func = function(gene,
+                        bin_matrix,
+                        spat_mat) {
+
+  gene_vector = bin_matrix[rownames(bin_matrix) == gene,]
+
+  gene_vectorA = gene_vector[names(gene_vector) %in% rownames(spat_mat)]
+  gene_vectorA = gene_vectorA[match(rownames(spat_mat), names(gene_vectorA))]
+
+  gene_vectorB = gene_vector[names(gene_vector) %in% colnames(spat_mat)]
+  gene_vectorB = gene_vectorB[match(colnames(spat_mat), names(gene_vectorB))]
+
+  test1 = spat_mat*gene_vectorA
+  test2 = t(t(spat_mat)*gene_vectorB)
+
+  sourcevalues = test1[spat_mat == 1]
+  targetvalues = test2[spat_mat == 1]
+
+  # option 1
+  test = paste0(sourcevalues,'-',targetvalues)
+
+
+  if(length(unique(test)) < 4) {
+
+    possibs = c("1-1","0-1","1-0","0-0")
+    missings_possibs = possibs[!possibs %in% unique(test)]
+    missings_vec = rep(1, length(missings_possibs))
+    names(missings_vec) = missings_possibs
+
+    test = c(test, missings_vec)
+  }
+
+
+  fish_matrix = matrix(table(test), byrow = T, nrow = 2)
+  fish_matrix = fish_matrix/1000
+  OR = ((fish_matrix[1]*fish_matrix[4]) / (fish_matrix[2]*fish_matrix[3]))
+  return(OR)
+
+}
+
+#' @title binGetSpatialGenes
+#' @name binGetSpatialGenes
+#' @description Rapid computation of genes that are spatially clustered
+#' @param gobject giotto object
+#' @param bin_method method to binarize gene expression
+#' @param expression_values expression values to use
+#' @param subset_genes only select a subset of genes to test
+#' @param spatial_network_name name of spatial network to use (default = 'spatial_network')
+#' @param nstart kmeans: nstart parameter
+#' @param iter_max kmeans: iter.max parameter
+#' @param percentage_rank percentage of top cells for binarization
+#' @param do_fisher_test perform fisher test
+#' @param get_av_expr calculate the average expression per gene of the high expressing cells
+#' @param get_high_expr calculate the number of high expressing cells  per gene
+#' @param do_parallel run calculations in parallel with mclapply
+#' @param cores number of cores to use if do_parallel = TRUE
+#' @param verbose be verbose
+#' @return data.table with results (see details)
+#' @details We provide two ways to identify spatial genes based on gene expression binarization.
+#' Both methods are identicial except for how binarization is performed.
+#' \itemize{
+#'   \item{1. binarize: }{Each gene is binarized (0 or 1) in each cell with \bold{kmeans} (k = 2) or based on \bold{rank} percentile}
+#'   \item{2. network: }{Alll cells are connected through a k-nearest neighbor network}
+#'   \item{3. contingency table: }{A contingency table is calculated based on all pairwise cell-cell interactions (0-0, 0-1, 1-0 or 1-1)}
+#'   \item{4. For each gene an odds-ratio (OR) and fisher.test (optional) is calculated}
+#' }
+#' Additionally 2 other statistics are provided (optional):
+#' \itemize{
+#'   \item{Number of cells with high expression (binary = 1)}
+#'   \item{total of high expressing cells }
+#' }
+#' By selecting a subset of likely spatial genes (e.g. highly variable genes) or using multiple cores the function will be much faster.
+#' @export
+#' @examples
+#'     binGetSpatialGenes(gobject)
+binGetSpatialGenes = function(gobject,
+                              bin_method = c('kmeans', 'rank'),
+                              expression_values = c('normalized', 'scaled', 'custom'),
+                              subset_genes = NULL,
+                              spatial_network_name = 'spatial_network',
+                              nstart = 3,
+                              iter_max = 10,
+                              percentage_rank = 10,
+                              do_fisher_test = TRUE,
+                              get_av_expr = TRUE,
+                              get_high_expr = TRUE,
+                              do_parallel = TRUE,
+                              cores = NA,
+                              verbose = T) {
+
+
+  # set binarization method
+  bin_method = match.arg(bin_method, choices = c('kmeans', 'rank'))
+
+  # spatial network
+  spatial_network = gobject@spatial_network[[spatial_network_name]]
+  if(is.null(spatial_network)) {
+    stop('spatial_network_name: ', spatial_network_name, ' does not exist, create a spatial network first')
+  }
+
+  # expression
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+
+  if(!is.null(subset_genes)) {
+    expr_values = expr_values[rownames(expr_values) %in% subset_genes, ]
+  }
+
+  # binarize matrix
+  if(bin_method == 'kmeans') {
+    bin_matrix = t(apply(X = expr_values, MARGIN = 1, FUN = Giotto:::kmeans_binarize, nstart = nstart, iter.max = iter_max))
+  } else if(bin_method == 'rank') {
+    max_rank = (ncol(expr_values)/100)*percentage_rank
+    bin_matrix = t(apply(X = expr_values, MARGIN = 1, FUN = Giotto:::rank_binarize, max_rank = max_rank))
+  }
+
+  if(verbose == TRUE) cat('\n 1. matrix binarization complete \n')
+
+
+  # spatial matrix
+  dc_spat_network = dcast.data.table(spatial_network, formula = to~from, value.var = 'rank_int', fill = 0)
+  spat_mat = Giotto:::dt_to_matrix(dc_spat_network)
+  spat_mat[spat_mat > 0] = 1
+
+
+  ## parallel
+  if(do_parallel == TRUE) {
+
+    # set number of cores
+    if(is.na(cores) | !is.numeric(cores)) {
+      cores = parallel::detectCores() - 1
+    }
+
+    if(do_fisher_test == TRUE) {
+      save_list = parallel::mclapply(X = rownames(bin_matrix), mc.cores = cores,
+                                     FUN = spat_fish_func, bin_matrix = bin_matrix, spat_mat = spat_mat)
+    } else {
+      save_list = parallel::mclapply(X = rownames(bin_matrix), mc.cores = cores,
+                                     FUN = spat_OR_func, bin_matrix = bin_matrix, spat_mat = spat_mat)
+    }
+
+  } else {
+
+    ## serial
+    save_list = list()
+
+    if(do_fisher_test == TRUE) {
+      for(gene in rownames(bin_matrix)) {
+        if(verbose == TRUE) print(gene)
+        save_list[[gene]] = spat_fish_func(gene = gene, bin_matrix = bin_matrix, spat_mat = spat_mat)
+      }
+    } else {
+      for(gene in rownames(bin_matrix)) {
+        if(verbose == TRUE) print(gene)
+        save_list[[gene]] = spat_OR_func(gene = gene, bin_matrix = bin_matrix, spat_mat = spat_mat)
+      }
+    }
+
+  }
+
+  if(verbose == TRUE) cat('\n 2. spatial enrichment test completed \n')
+
+  result = as.data.table(do.call('rbind', save_list))
+  result[, genes := rownames(bin_matrix)]
+
+  ## extra info: average expression of high expression group
+  if(get_av_expr == TRUE) {
+    sel_expr_values = expr_values * bin_matrix
+    av_expr = apply(sel_expr_values, MARGIN = 1, FUN = function(x) {
+      mean(x[x > 0])
+    })
+    av_expr_DT = data.table::data.table(genes = names(av_expr), av_expr = av_expr)
+    result = merge(result, av_expr_DT, by = 'genes')
+
+    if(verbose == TRUE) cat('\n 3. average expression of high expressing cells calculated \n')
+  }
+
+  ## extra info: number of high expressing cells
+  if(get_high_expr == TRUE) {
+    high_expr = rowSums(bin_matrix)
+    high_expr_DT = data.table::data.table(genes = names(high_expr), high_expr = high_expr)
+    result = merge(result, high_expr_DT, by = 'genes')
+
+    if(verbose == TRUE) cat('\n 4. number of high expressing cells calculated \n')
+  }
+
+
+  ## order data.table
+  if(do_fisher_test == TRUE) {
+    result[, c('p.value', 'estimate') := list(as.numeric(p.value), as.numeric(estimate))]
+    result[, score := -log(p.value) * estimate]
+    data.table::setorder(result, -score)
+  } else {
+    data.table::setnames(result, 'V1', 'estimate')
+    data.table::setorder(result, -estimate)
+  }
+
+  return(result)
+
+}
+
+
+
+
 
 
 #' @title calculate_spatial_genes_python
@@ -325,6 +577,9 @@ calculate_spatial_genes_python <- function(gobject,
 }
 
 
+
+# * ####
+## PCA spatial patterns ####
 
 #' @title detectSpatialPatterns
 #' @name detectSpatialPatterns
