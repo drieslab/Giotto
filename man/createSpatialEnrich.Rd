@@ -6,11 +6,15 @@
 \usage{
 createSpatialEnrich(
   gobject,
-  enrich_method = c("PAGE", "rank", "rankDT", "hypergeometric"),
+  enrich_method = c("PAGE", "rank", "hypergeometric"),
   sign_matrix,
   expression_values = c("normalized", "scaled", "custom"),
   reverse_log_scale = TRUE,
   logbase = 2,
+  p_value = TRUE,
+  n_genes = 100,
+  n_times = 1000,
+  top_percentage = 5,
   output_enrichment = c("original", "zscore"),
   name = "PAGE",
   return_gobject = TRUE
@@ -29,6 +33,14 @@ createSpatialEnrich(
 
 \item{logbase}{log base to use if reverse_log_scale = TRUE}
 
+\item{p_value}{calculate p-value (default = TRUE)}
+
+\item{n_genes}{(page/rank) number of randomly selected genes for each permuation}
+
+\item{n_times}{(page/rank) number of permutation iterations to calculate p-value}
+
+\item{top_percentage}{(hyper) percentage of cells that will be considered to have gene expression with matrix binarization}
+
 \item{output_enrichment}{how to return enrichment output}
 
 \item{name}{to give to spatial enrichment results, default = PAGE}
@@ -45,9 +57,8 @@ Function to calculate gene signature enrichment scores per spatial position usin
 For details see the individual functions:
 \itemize{
   \item{PAGE: }{\code{\link{PAGEEnrich}}}
-  \item{rank: }{\code{\link{rankEnrich}}}
-  \item{rankDT: }{\code{\link{rankEnrichDT}}}
-  \item{hypergeometric: }{\code{\link{hyperGeometricEnrich}}}
+  \item{PAGE: }{\code{\link{rankEnrich}}}
+  \item{PAGE: }{\code{\link{hyperGeometricEnrich}}}
 }
 }
 \examples{
