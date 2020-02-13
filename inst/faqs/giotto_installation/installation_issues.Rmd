@@ -1,11 +1,22 @@
 ---
-output: github_document
+#output: github_document
+output:
+  github_document:
+    toc: true
+    toc_depth: 2
 ---
 
 
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
 
-
-## First time R package installation
+## 1. First time R package installation
 
 #### Package development prerequisites
 If this is the first time you build and install an R package you can follow this [link](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites),
@@ -21,7 +32,7 @@ xcode-select --install
 
 
 
-## Clang error on MacOS
+## 2. Clang error on MacOS
 
 If you see this error on your MacOS:  
 ``` bash

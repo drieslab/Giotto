@@ -1,5 +1,9 @@
 
-## First time R package installation
+  - [1. First time R package
+    installation](#first-time-r-package-installation)
+  - [2. Clang error on MacOS](#clang-error-on-macos)
+
+## 1\. First time R package installation
 
 #### Package development prerequisites
 
@@ -18,7 +22,7 @@ xcode-select --install
 
  
 
-## Clang error on MacOS
+## 2\. Clang error on MacOS
 
 If you see this error on your MacOS:
 
