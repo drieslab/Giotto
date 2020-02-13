@@ -1,6 +1,8 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+<!-- This line is from RStudio -->
+
 # Giotto
 
 <!-- badges: start -->
@@ -86,20 +88,7 @@ everything about the Giotto workflow.
 
 ## Installation
 
-#### Package development prerequisites
-
-If this is the first time you build and install an R package you can
-follow this
-[link](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites),
-which has simple installation instructions for Windows, Mac OSX and
-Linux.
-
-To specifically install the command-line tools of Xcode for Mac OSX you
-might also need to run this line in terminal:
-
-``` bash
-xcode-select --install
-```
+See FAQs for additional information.
 
 #### R installation
 
@@ -187,6 +176,13 @@ Transcriptomics](./inst/images/SpatTx_OB_image_summary.png)](./inst/examples/mou
 ## FAQ
 
 Howto’s and faqs examples:
+
+##### Installation
+
+  - [First time R package
+    installation](./inst/faqs/giotto_installation/installation_issues.md)
+  - [Clang error on
+    MacOS](./inst/faqs/giotto_installation/installation_issues.md)
 
 ##### Data availability
 
