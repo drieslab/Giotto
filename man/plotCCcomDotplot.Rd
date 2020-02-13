@@ -12,6 +12,9 @@ plotCCcomDotplot(
   show_LR_names = TRUE,
   show_cell_LR_names = TRUE,
   cluster_on = c("PI", "LR_expr", "log2fc"),
+  cor_method = c("pearson", "kendall", "spearman"),
+  dist_method = c("euclidean", "maximum", "manhattan", "canberra", "binary",
+    "minkowski"),
   show_plot = NA,
   return_plot = NA,
   save_plot = NA,
@@ -31,6 +34,12 @@ plotCCcomDotplot(
 \item{show_LR_names}{show ligand-receptor names}
 
 \item{show_cell_LR_names}{show cell-cell names}
+
+\item{cluster_on}{values to use for clustering of cell-cell and ligand-receptor pairs}
+
+\item{cor_method}{correlation method used for clustering}
+
+\item{dist_method}{distance method used for clustering}
 
 \item{show_plot}{show plots}
 

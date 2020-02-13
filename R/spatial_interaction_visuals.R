@@ -2656,6 +2656,8 @@ plotCombineCPG <- function(gobject,
 #' @param show_LR_names show ligand-receptor names
 #' @param show_cell_LR_names show cell-cell names
 #' @param show values to show on heatmap
+#' @param cor_method correlation method used for clustering
+#' @param dist_method distance method used for clustering
 #' @param show_plot show plots
 #' @param return_plot return plotting object
 #' @param save_plot directly save the plot [boolean]
@@ -2672,11 +2674,19 @@ plotCCcomHeatmap = function(gobject,
                             show_LR_names = TRUE,
                             show_cell_LR_names = TRUE,
                             show = c('PI', 'LR_expr', 'log2fc'),
+                            cor_method = c("pearson", "kendall", "spearman"),
+                            dist_method = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
                             show_plot = NA,
                             return_plot = NA,
                             save_plot = NA,
                             save_param =  list(),
                             default_save_name = 'plotCCcomHeatmap') {
+
+
+  # get parameters
+  cor_method = match.arg(cor_method, choices = c("pearson", "kendall", "spearman"))
+  dist_method = match.arg(dist_method, choices = c("euclidean", "maximum", "manhattan",
+                                                   "canberra", "binary", "minkowski"))
 
 
   # plot method
@@ -2696,16 +2706,16 @@ plotCCcomHeatmap = function(gobject,
   selDT_m = Giotto:::dt_to_matrix(selDT_d)
 
   ## cells
-  corclus_cells_dist = as.dist(1-cor(x = t(selDT_m)))
-  hclusters_cells = stats::hclust(d = corclus_cells_dist)
+  corclus_cells_dist = as.dist(1-cor(x = t(selDT_m), method = cor_method))
+  hclusters_cells = stats::hclust(d = corclus_cells_dist, method = dist_method)
   clus_names = rownames(selDT_m)
   names(clus_names) = 1:length(clus_names)
   clus_sort_names = clus_names[hclusters_cells$order]
   selDT[, LR_cell_comb := factor(LR_cell_comb, clus_sort_names)]
 
   ## genes
-  corclus_genes_dist = as.dist(1-cor(x = selDT_m))
-  hclusters_genes = stats::hclust(d = corclus_genes_dist)
+  corclus_genes_dist = as.dist(1-cor(x = selDT_m, method = cor_method))
+  hclusters_genes = stats::hclust(d = corclus_genes_dist, method = dist_method)
   clus_names = colnames(selDT_m)
   names(clus_names) = 1:length(clus_names)
   clus_sort_names = clus_names[hclusters_genes$order]
@@ -2761,6 +2771,9 @@ plotCCcomHeatmap = function(gobject,
 #' @param selected_cell_LR selected cell-cell combinations for ligand-receptor combinations
 #' @param show_LR_names show ligand-receptor names
 #' @param show_cell_LR_names show cell-cell names
+#' @param cluster_on values to use for clustering of cell-cell and ligand-receptor pairs
+#' @param cor_method correlation method used for clustering
+#' @param dist_method distance method used for clustering
 #' @param show values to show on heatmap
 #' @param show_plot show plots
 #' @param return_plot return plotting object
@@ -2778,11 +2791,18 @@ plotCCcomDotplot = function(gobject,
                             show_LR_names = TRUE,
                             show_cell_LR_names = TRUE,
                             cluster_on = c('PI', 'LR_expr', 'log2fc'),
+                            cor_method = c("pearson", "kendall", "spearman"),
+                            dist_method = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
                             show_plot = NA,
                             return_plot = NA,
                             save_plot = NA,
                             save_param =  list(),
                             default_save_name = 'plotCCcomDotplot') {
+
+  # get parameters
+  cor_method = match.arg(cor_method, choices = c("pearson", "kendall", "spearman"))
+  dist_method = match.arg(dist_method, choices = c("euclidean", "maximum", "manhattan",
+                                                   "canberra", "binary", "minkowski"))
 
 
   # plot method
@@ -2801,17 +2821,28 @@ plotCCcomDotplot = function(gobject,
   selDT_d = data.table::dcast.data.table(selDT, LR_cell_comb~LR_comb, value.var = cluster_on, fill = 0)
   selDT_m = Giotto:::dt_to_matrix(selDT_d)
 
+  # remove zero variance
+  sd_rows = apply(selDT_m, 1, sd)
+  sd_rows_zero = names(sd_rows[sd_rows == 0])
+  if(length(sd_rows_zero) > 0) selDT_m = selDT_m[!rownames(selDT_m) %in% sd_rows_zero, ]
+
+  sd_cols = apply(selDT_m, 2, sd)
+  sd_cols_zero = names(sd_cols[sd_cols == 0])
+  if(length(sd_cols_zero) > 0) selDT_m = selDT_m[, !colnames(selDT_m) %in% sd_cols_zero]
+
+
+
   ## cells
-  corclus_cells_dist = as.dist(1-cor(x = t(selDT_m)))
-  hclusters_cells = stats::hclust(d = corclus_cells_dist)
+  corclus_cells_dist = as.dist(1-cor(x = t(selDT_m), method = cor_method))
+  hclusters_cells = stats::hclust(d = corclus_cells_dist, method = dist_method)
   clus_names = rownames(selDT_m)
   names(clus_names) = 1:length(clus_names)
   clus_sort_names = clus_names[hclusters_cells$order]
   selDT[, LR_cell_comb := factor(LR_cell_comb, clus_sort_names)]
 
   ## genes
-  corclus_genes_dist = as.dist(1-cor(x = selDT_m))
-  hclusters_genes = stats::hclust(d = corclus_genes_dist)
+  corclus_genes_dist = as.dist(1-cor(x = selDT_m, method = cor_method))
+  hclusters_genes = stats::hclust(d = corclus_genes_dist, method = dist_method)
   clus_names = colnames(selDT_m)
   names(clus_names) = 1:length(clus_names)
   clus_sort_names = clus_names[hclusters_genes$order]

@@ -12,6 +12,9 @@ plotCCcomHeatmap(
   show_LR_names = TRUE,
   show_cell_LR_names = TRUE,
   show = c("PI", "LR_expr", "log2fc"),
+  cor_method = c("pearson", "kendall", "spearman"),
+  dist_method = c("euclidean", "maximum", "manhattan", "canberra", "binary",
+    "minkowski"),
   show_plot = NA,
   return_plot = NA,
   save_plot = NA,
@@ -33,6 +36,10 @@ plotCCcomHeatmap(
 \item{show_cell_LR_names}{show cell-cell names}
 
 \item{show}{values to show on heatmap}
+
+\item{cor_method}{correlation method used for clustering}
+
+\item{dist_method}{distance method used for clustering}
 
 \item{show_plot}{show plots}
 
