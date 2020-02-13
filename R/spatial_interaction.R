@@ -1,7 +1,7 @@
 
 
 
-
+# cell type proximity enrichment ####
 
 #' @title annotateSpatialNetwork
 #' @name annotateSpatialNetwork
@@ -221,6 +221,1240 @@ cellProximityEnrichment <- function(gobject,
 
 
 
+
+# * ####
+# NEW CPGscores ####
+
+#' @title do_ttest
+#' @name do_ttest
+#' @description Performs t.test on subsets of a matrix
+#' @examples
+#'     do_ttest()
+do_ttest = function(expr_values, select_ind, other_ind, adjust_method) {
+
+  if(length(select_ind) == 1){mean_sel = expr_values[,select_ind]} else{mean_sel = rowMeans(expr_values[,select_ind])}
+  if(length(other_ind) == 1){mean_all = expr_values[,other_ind]} else{mean_all = rowMeans(expr_values[,other_ind])}
+
+  if(length(select_ind) == 1 | length(other_ind) == 1) {
+    results = NaN
+  } else {
+    results = apply(expr_values, MARGIN = 1, function(x) {
+      p.value = stats::t.test(x[select_ind], x[other_ind])$p.value
+    })
+  }
+
+  # other info
+  log2fc = log2((mean_sel+1)/(mean_all+1))
+  diff = mean_sel - mean_all
+
+  resultsDT = data.table('genes' = rownames(expr_values), 'sel' = mean_sel, 'other' = mean_all, 'log2fc' = log2fc, 'diff' = diff, 'p.value' = unlist(results))
+  resultsDT[, p.value := ifelse(is.nan(p.value), 1, p.value)]
+  resultsDT[, p.adj := p.adjust(p.value, method = adjust_method)]
+  setorder(resultsDT, p.adj)
+
+  return(resultsDT)
+}
+
+#' @title do_limmatest
+#' @name do_limmatest
+#' @description Performs limma t.test on subsets of a matrix
+#' @examples
+#'     do_limmatest()
+do_limmatest = function(expr_values, select_ind, other_ind) {
+
+  expr_values_subset = cbind(expr_values[,select_ind], expr_values[,other_ind])
+  mygroups = c(rep('sel', length(select_ind)), rep('other', length(other_ind)))
+  mygroups = factor(mygroups, levels = unique(mygroups))
+
+  design = stats::model.matrix(~0+mygroups)
+  colnames(design) = levels(mygroups)
+  fit = limma::lmFit(expr_values_subset, design = design)
+
+
+  cont.matrix = limma::makeContrasts(
+    sel_vs_other =  sel-other,
+    levels = design
+  )
+
+  fitcontrast = limma::contrasts.fit(fit,  cont.matrix)
+  fitc_ebayes = limma::eBayes(fitcontrast)
+
+  # limma to DT
+  limma_result = limma::topTable(fitc_ebayes, coef = 1,number = 100000, confint = T)
+  limmaDT = data.table::as.data.table(limma_result); limmaDT[, genes := rownames(limma_result)]
+
+  # other info
+  if(length(select_ind) == 1){mean_sel = expr_values[,select_ind]} else{mean_sel = rowMeans(expr_values[,select_ind])}
+  if(length(other_ind) == 1){mean_all = expr_values[,other_ind]} else{mean_all = rowMeans(expr_values[,other_ind])}
+
+  log2fc = log2((mean_sel+1)/(mean_all+1))
+  diff = mean_sel - mean_all
+
+  tempDT = data.table::data.table('genes' = rownames(expr_values),
+                                  'sel'= mean_sel,
+                                  'other' = mean_all,
+                                  'log2fc' = log2fc,
+                                  'diff' =  diff)
+  limmaDT = data.table::merge.data.table(limmaDT, tempDT, by = 'genes')
+  limmaDT = limmaDT[,.(genes, sel, other, log2fc, diff, P.Value, adj.P.Val)]
+  colnames(limmaDT) = c('genes', 'sel', 'other', 'log2fc', 'diff', 'p.value', 'p.adj')
+
+  setorder(limmaDT, p.adj)
+
+  return(limmaDT)
+
+}
+
+#' @title do_ttest
+#' @name do_ttest
+#' @description Performs wilcoxon on subsets of a matrix
+#' @examples
+#'     do_ttest()
+do_wilctest = function(expr_values, select_ind, other_ind, adjust_method) {
+
+  if(length(select_ind) == 1){mean_sel = expr_values[,select_ind]} else{mean_sel = rowMeans(expr_values[,select_ind])}
+  if(length(other_ind) == 1){mean_all = expr_values[,other_ind]} else{mean_all = rowMeans(expr_values[,other_ind])}
+
+  if(length(select_ind) == 1 | length(other_ind) == 1) {
+    results = NaN
+  } else {
+    results = apply(expr_values, MARGIN = 1, function(x) {
+      p.value = stats::wilcox.test(x[select_ind], x[other_ind])$p.value
+    })
+  }
+
+  # other info
+  log2fc = log2((mean_sel+1)/(mean_all+1))
+  diff = mean_sel - mean_all
+
+  resultsDT = data.table('genes' = rownames(expr_values), 'sel' = mean_sel, 'other' = mean_all, 'log2fc' = log2fc, 'diff' = diff, 'p.value' = unlist(results))
+  resultsDT[, p.value := ifelse(is.nan(p.value), 1, p.value)]
+  resultsDT[, p.adj := p.adjust(p.value, method = adjust_method)]
+  setorder(resultsDT, p.adj)
+
+  return(resultsDT)
+
+}
+
+#' @title do_permuttest_original
+#' @name do_permuttest_original
+#' @description calculate original values
+#' @examples
+#'     do_permuttest_original()
+do_permuttest_original = function(expr_values, select_ind, other_ind, name = 'orig') {
+
+  if(length(select_ind) == 1){mean_sel = expr_values[,select_ind]} else{mean_sel = rowMeans(expr_values[,select_ind])}
+  if(length(other_ind) == 1){mean_all = expr_values[,other_ind]} else{mean_all = rowMeans(expr_values[,other_ind])}
+
+  log2fc = log2((mean_sel+1)/(mean_all+1))
+  diff = mean_sel - mean_all
+
+  resultsDT = data.table('sel' = mean_sel, 'other' = mean_all, 'log2fc' = log2fc, 'diff' =  diff)
+  resultsDT[, genes := rownames(expr_values)]
+  resultsDT[, name := name]
+
+  return(resultsDT)
+
+}
+
+#' @title do_permuttest_random
+#' @name do_permuttest_random
+#' @description calculate random values
+#' @examples
+#'     do_permuttest_random()
+do_permuttest_random = function(expr_values, select_ind, other_ind, name = 'perm_1') {
+
+  l_select_ind = length(select_ind)
+  l_other_ind = length(other_ind)
+
+  all_ind = c(select_ind, other_ind)
+
+  random_select = sample(all_ind, size = l_select_ind, replace = F)
+  random_other = all_ind[!all_ind %in% random_select]
+
+  # alternative
+  if(length(select_ind) == 1){mean_sel = expr_values[,random_select]} else{mean_sel = rowMeans(expr_values[,random_select])}
+  if(length(other_ind) == 1){mean_all = expr_values[,random_other]} else{mean_all = rowMeans(expr_values[,random_other])}
+
+  log2fc = log2((mean_sel+1)/(mean_all+1))
+  diff = mean_sel - mean_all
+
+  resultsDT = data.table('sel' = mean_sel, 'other' = mean_all, 'log2fc' = log2fc, 'diff' = diff)
+  resultsDT[, genes := rownames(expr_values)]
+  resultsDT[, name := name]
+
+  return(resultsDT)
+
+}
+
+#' @title do_multi_permuttest_random
+#' @name do_multi_permuttest_random
+#' @description calculate multiple random values
+#' @examples
+#'     do_multi_permuttest_random()
+do_multi_permuttest_random = function(expr_values, select_ind, other_ind, n = 100, cores = 2) {
+
+  result = parallel::mclapply(mc.cores = cores, X = 1:n, FUN = function(x) {
+
+    perm_rand = do_permuttest_random(expr_values = expr_values, select_ind = select_ind, other_ind = other_ind, name = paste0('perm_', x))
+
+  })
+
+  final_result = do.call('rbind', result)
+
+}
+
+#' @title do_permuttest_random
+#' @name do_permuttest_random
+#' @description Performs permutation test on subsets of a matrix
+#' @examples
+#'     do_permuttest_random()
+do_permuttest = function(expr_values, select_ind, other_ind, n_perm = 100, adjust_method = 'fdr', cores = 2) {
+
+
+  ## original data
+  original = do_permuttest_original(expr_values = expr_values, select_ind = select_ind, other_ind = other_ind, name = 'orig')
+
+  ## random permutations
+  random_perms = do_multi_permuttest_random(expr_values = expr_values, n = n_perm,
+                                            select_ind = select_ind, other_ind = other_ind, cores = cores)
+
+  ##
+  random_perms[, log2fc_diff := rep(original$log2fc, n_perm) - log2fc]
+  random_perms[, c('perm_sel', 'perm_other', 'perm_log2fc', 'perm_diff') := list(mean(sel), mean(other), mean(log2fc), mean(diff)), by = genes]
+
+  ## get p-values
+  random_perms[, p_higher := sum(log2fc_diff > 0), by = genes]
+  random_perms[, p_higher := 1-(p_higher/n_perm)]
+  random_perms[, p_lower := sum(log2fc_diff < 0), by = genes]
+  random_perms[, p_lower := 1-(p_lower/n_perm)]
+
+  ## combine results permutation and original
+  random_perms_res = unique(random_perms[,.(genes, perm_sel, perm_other, perm_log2fc, perm_diff, p_higher, p_lower)])
+  results_m = data.table::merge.data.table(random_perms_res, original[,.(genes, sel, other, log2fc, diff)], by = 'genes')
+
+  # select lowest p-value and perform p.adj
+  results_m[, p.value := ifelse(p_higher <= p_lower, p_higher, p_lower)]
+  results_m[, p.adj := p.adjust(p.value, method = adjust_method)]
+
+  results_m = results_m[,.(genes, sel, other, log2fc, diff, p.value, p.adj, perm_sel, perm_other, perm_log2fc, perm_diff)]
+  setorder(results_m, p.adj, -log2fc)
+
+  return(results_m)
+
+}
+
+
+#' @title do_cell_proximity_test
+#' @name do_cell_proximity_test
+#' @description Performs a selected differential test on subsets of a matrix
+#' @examples
+#'     do_cell_proximity_test()
+do_cell_proximity_test = function(expr_values,
+                                  select_ind, other_ind,
+                                  diff_test = c('permutation', 'limma', 't.test', 'wilcox'),
+                                  n_perm = 100,
+                                  adjust_method = c("bonferroni","BH", "holm", "hochberg", "hommel",
+                                                    "BY", "fdr", "none"),
+                                  cores = 2) {
+
+  # get parameters
+  diff_test = match.arg(diff_test, choices = c('permutation', 'limma', 't.test', 'wilcox'))
+  adjust_method = match.arg(adjust_method, choices = c("bonferroni","BH", "holm", "hochberg", "hommel",
+                                                       "BY", "fdr", "none"))
+
+
+  if(diff_test == 'permutation') {
+    result = do_permuttest(expr_values = expr_values,
+                           select_ind = select_ind, other_ind = other_ind,
+                           n_perm = n_perm, adjust_method = adjust_method, cores = cores)
+
+  } else if(diff_test == 'limma') {
+    result = do_limmatest(expr_values = expr_values, select_ind = select_ind, other_ind = other_ind)
+
+  } else if(diff_test == 't.test') {
+    result = do_ttest(expr_values = expr_values, select_ind = select_ind, other_ind = other_ind, adjust_method = adjust_method)
+
+  } else if(diff_test == 'wilcox') {
+    result = do_wilctest(expr_values = expr_values, select_ind = select_ind, other_ind = other_ind, adjust_method = adjust_method)
+
+  }
+
+  return(result)
+
+}
+
+
+
+#' @title findCellProximityGenes_per_interaction
+#' @name findCellProximityGenes_per_interaction
+#' @description Identifies genes that are differentially expressed due to proximity to other cell types.
+#' @examples
+#'     findCellProximityGenes_per_interaction()
+findCellProximityGenes_per_interaction = function(expr_values,
+                                                  cell_metadata,
+                                                  annot_spatnetwork,
+                                                  sel_int,
+                                                  minimum_unique_cells = 1,
+                                                  minimum_unique_int_cells = 1,
+                                                  exclude_selected_cells_from_test = T,
+                                                  diff_test = c('permutation', 'limma', 't.test', 'wilcox'),
+                                                  adjust_method = 'bonferroni',
+                                                  nr_permutations = 100,
+                                                  cores = 1) {
+
+  # select test to perform
+  diff_test = match.arg(arg = diff_test, choices = c('permutation', 'limma', 't.test', 'wilcox'))
+
+  # select subnetwork
+  sub_spatnetwork = annot_spatnetwork[unified_int == sel_int]
+
+  # unique cell types
+  unique_cell_types = unique(c(sub_spatnetwork$to_cell_type, sub_spatnetwork$from_cell_type))
+
+  if(length(unique_cell_types) == 2) {
+
+    first_cell_type = unique_cell_types[1]
+    second_cell_type = unique_cell_types[2]
+
+    # first cell type ids
+    to1 = sub_spatnetwork[to_cell_type == first_cell_type][['to']]
+    from1 = sub_spatnetwork[from_cell_type == first_cell_type][['from']]
+    cell1_ids = unique(c(to1, from1))
+
+    # second cell type ids
+    to2 = sub_spatnetwork[to_cell_type == second_cell_type][['to']]
+    from2 = sub_spatnetwork[from_cell_type == second_cell_type][['from']]
+    cell2_ids = unique(c(to2, from2))
+
+    ## all cell ids
+    all_cell1 = cell_metadata[cell_types == first_cell_type][['cell_ID']]
+    all_cell2 = cell_metadata[cell_types == second_cell_type][['cell_ID']]
+
+    ## exclude selected
+    if(exclude_selected_cells_from_test == TRUE) {
+      all_cell1 = all_cell1[!all_cell1 %in% cell1_ids]
+      all_cell2 = all_cell2[!all_cell2 %in% cell2_ids]
+    }
+
+    ## FOR CELL TYPE 1
+    sel_ind1 = which(colnames(expr_values) %in% cell1_ids)
+    all_ind1 = which(colnames(expr_values) %in% all_cell1)
+
+    ## FOR CELL TYPE 2
+    sel_ind2 = which(colnames(expr_values) %in% cell2_ids)
+    all_ind2 = which(colnames(expr_values) %in% all_cell2)
+
+
+    ## do not continue if too few cells ##
+    if(length(sel_ind1) < minimum_unique_cells | length(all_ind1) < minimum_unique_cells |
+       length(sel_ind2) < minimum_unique_int_cells) {
+      result_cell_1 = NULL
+    } else {
+      result_cell_1 = do_cell_proximity_test(expr_values = expr_values,
+                                             select_ind = sel_ind1,
+                                             other_ind = all_ind1,
+                                             diff_test = diff_test,
+                                             n_perm = nr_permutations,
+                                             adjust_method = adjust_method,
+                                             cores = cores)
+      result_cell_1[, cell_type := first_cell_type]
+      result_cell_1[, int_cell_type := second_cell_type]
+      result_cell_1[, nr_select := length(sel_ind1)]
+      result_cell_1[, int_nr_select := length(sel_ind2)]
+      result_cell_1[, nr_other := length(all_ind1)]
+      result_cell_1[, int_nr_other := length(all_ind2)]
+
+    }
+
+
+    ## do not continue if too few cells ##
+    if(length(sel_ind2) < minimum_unique_cells | length(all_ind2) < minimum_unique_cells |
+       length(sel_ind1) < minimum_unique_int_cells) {
+      result_cell_2 = NULL
+    } else {
+      result_cell_2 = do_cell_proximity_test(expr_values = expr_values,
+                                             select_ind = sel_ind2, other_ind = all_ind2,
+                                             diff_test = diff_test,
+                                             n_perm = nr_permutations,
+                                             adjust_method = adjust_method,
+                                             cores = cores)
+      result_cell_2[, cell_type := second_cell_type]
+      result_cell_2[, int_cell_type := first_cell_type]
+      result_cell_2[, nr_select := length(sel_ind2)]
+      result_cell_2[, int_nr_select := length(sel_ind1)]
+      result_cell_2[, nr_other := length(all_ind2)]
+      result_cell_2[, int_nr_other := length(all_ind1)]
+
+    }
+
+
+    ## COMBINE
+
+    if(is.null(result_cell_1) & is.null(result_cell_2)) {
+      return(NULL)
+    } else {
+      result_cells = rbind(result_cell_1, result_cell_2)
+    }
+
+  } else if(length(unique_cell_types) == 1) {
+
+    first_cell_type = unique_cell_types[1]
+
+    # first cell type ids
+    to1 = sub_spatnetwork[to_cell_type == first_cell_type][['to']]
+    from1 = sub_spatnetwork[from_cell_type == first_cell_type][['from']]
+    cell1_ids = unique(c(to1, from1))
+
+    ## all cell ids
+    all_cell1 = cell_metadata[cell_types == first_cell_type][['cell_ID']]
+
+    ## exclude selected
+    if(exclude_selected_cells_from_test == TRUE) {
+      all_cell1 = all_cell1[!all_cell1 %in% cell1_ids]
+    }
+
+    ## FOR CELL TYPE 1
+    sel_ind1 = which(colnames(expr_values) %in% cell1_ids)
+    all_ind1 = which(colnames(expr_values) %in% all_cell1)
+
+
+    ## do not continue if too few cells ##
+    if(length(sel_ind1) < minimum_unique_cells | length(all_ind1) < minimum_unique_cells) {
+      return(NULL)
+    }
+
+    result_cells = do_cell_proximity_test(expr_values = expr_values,
+                                          select_ind = sel_ind1, other_ind = all_ind1,
+                                          diff_test = diff_test,
+                                          n_perm = nr_permutations,
+                                          adjust_method = adjust_method,
+                                          cores = cores)
+
+    result_cells[, cell_type := first_cell_type]
+    result_cells[, int_cell_type := first_cell_type]
+    result_cells[, nr_select := length(sel_ind1)]
+    result_cells[, int_nr_select := length(sel_ind1)]
+    result_cells[, nr_other := length(all_ind1)]
+    result_cells[, int_nr_other := length(all_ind1)]
+
+  }
+
+  result_cells[, unif_int := sel_int]
+
+  return(result_cells)
+
+}
+
+
+
+
+
+#' @title findCellProximityGenes
+#' @name findCellProximityGenes
+#' @description Identifies genes that are differentially expressed due to proximity to other cell types.
+#' @param gobject giotto object
+#' @param expression_values expression values to use
+#' @param cluster_column name of column to use for cell types
+#' @param spatial_network_name name of spatial network to use
+#' @param minimum_unique_cells minimum number of target cells required
+#' @param minimum_unique_int_cells minimum number of interacting cells required
+#' @param diff_test which differential expression test
+#' @param adjust_method which method to adjust p-values
+#' @param nr_permutations number of permutations if diff_test = permutation
+#' @param exclude_selected_cells_from_test exclude interacting cells other cells
+#' @param do_parallel run calculations in parallel with mclapply
+#' @param cores number of cores to use if do_parallel = TRUE
+#' @return cpgObject that contains the differential gene scores
+#' @details Function to calculate if genes are differentially expressed in cell types
+#'  when they interact (approximated by physical proximity) with other cell types.
+#'  The results data.table in the cpgObject contains - at least - the following columns:
+#' \itemize{
+#'  \item{genes:}{ All or selected list of tested genes}
+#'  \item{sel:}{ average gene expression in the interacting cells from the target cell type }
+#'  \item{other:}{ average gene expression in the NOT-interacting cells from the target cell type }
+#'  \item{log2fc:}{ log2 fold-change between sel and other}
+#'  \item{diff:}{ spatial expression difference between sel and other}
+#'  \item{p.value:}{ associated p-value}
+#'  \item{p.adj:}{ adjusted p-value}
+#'  \item{cell_type:}{ target cell type}
+#'  \item{int_cell_type:}{ interacting cell type}
+#'  \item{nr_select:}{ number of cells for selected target cell type}
+#'  \item{int_nr_select:}{ number of cells for interacting cell type}
+#'  \item{nr_other:}{ number of other cells of selected target cell type}
+#'  \item{int_nr_other:}{ number of other cells for interacting cell type}
+#'  \item{unif_int:}{ cell-cell interaction}
+#' }
+#' @export
+#' @examples
+#'     findCellProximityGenes(gobject)
+findCellProximityGenes = function(gobject,
+                                  expression_values = 'normalized',
+                                  cluster_column,
+                                  spatial_network_name = 'spatial_network',
+                                  minimum_unique_cells = 1,
+                                  minimum_unique_int_cells = 1,
+                                  diff_test = c('permutation', 'limma', 't.test', 'wilcox'),
+                                  adjust_method = c("bonferroni","BH", "holm", "hochberg", "hommel",
+                                                    "BY", "fdr", "none"),
+                                  nr_permutations = 100,
+                                  exclude_selected_cells_from_test = T,
+                                  do_parallel = TRUE,
+                                  cores = NA) {
+
+
+
+  # expression values to be used
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+
+  # difference test
+  diff_test = match.arg(diff_test, choices = c('permutation', 'limma', 't.test', 'wilcox'))
+
+  # p.adj test
+  adjust_method = match.arg(adjust_method, choices = c("bonferroni","BH", "holm", "hochberg", "hommel",
+                                                       "BY", "fdr", "none"))
+
+  ## metadata
+  cell_metadata = pDataDT(gobject)
+
+  ## annotated spatial network
+  annot_spatnetwork = annotateSpatialNetwork(gobject,
+                                             spatial_network_name = spatial_network_name,
+                                             cluster_column = cluster_column)
+
+
+  all_interactions = unique(annot_spatnetwork$unified_int)
+
+  if(do_parallel == TRUE) {
+
+    # set number of cores
+    if(is.na(cores) | !is.numeric(cores)) {
+      cores = parallel::detectCores() - 1
+    }
+
+    fin_result = parallel::mclapply(mc.cores = cores, X = all_interactions, FUN = function(x) {
+
+      tempres = findCellProximityGenes_per_interaction(expr_values = expr_values,
+                                                       cell_metadata = cell_metadata,
+                                                       annot_spatnetwork = annot_spatnetwork,
+                                                       minimum_unique_cells = minimum_unique_cells,
+                                                       minimum_unique_int_cells = minimum_unique_int_cells,
+                                                       sel_int = x,
+                                                       exclude_selected_cells_from_test = exclude_selected_cells_from_test,
+                                                       diff_test = diff_test,
+                                                       adjust_method = adjust_method,
+                                                       nr_permutations = nr_permutations,
+                                                       cores = 2)
+
+
+    })
+
+  } else {
+
+    fin_result = list()
+
+    for(i in 1:length(all_interactions)) {
+
+      x = all_interactions[i]
+      print(x)
+
+      tempres = findCellProximityGenes_per_interaction(expr_values = expr_values,
+                                                       cell_metadata = cell_metadata,
+                                                       annot_spatnetwork = annot_spatnetwork,
+                                                       minimum_unique_cells = minimum_unique_cells,
+                                                       minimum_unique_int_cells = minimum_unique_int_cells,
+                                                       sel_int = x,
+                                                       exclude_selected_cells_from_test = exclude_selected_cells_from_test,
+                                                       diff_test = diff_test,
+                                                       adjust_method = adjust_method,
+                                                       nr_permutations = nr_permutations,
+                                                       cores = 2)
+
+      fin_result[[i]] = tempres
+
+    }
+
+
+  }
+
+  final_result = do.call('rbind', fin_result)
+
+  final_result[, spec_int := paste0(cell_type,'--',int_cell_type)]
+  final_result[, type_int := ifelse(cell_type == int_cell_type, 'homo', 'hetero')]
+
+
+  #return(final_result)
+
+  permutation_test = ifelse(diff_test == 'permutation', nr_permutations, 'no permutations')
+
+  cpgObject = list(CPGscores = final_result,
+                   Giotto_info = list('values' = values, 'cluster' = cluster_column,
+                                      'spatial network' = spatial_network_name),
+                   test_info = list('test' = diff_test,
+                                    'p.adj' = adjust_method,
+                                    'min cells' = minimum_unique_cells,
+                                    'min interacting cells' = minimum_unique_int_cells,
+                                    'exclude selected cells' = exclude_selected_cells_from_test,
+                                    'perm' = permutation_test))
+  class(cpgObject) = append(class(cpgObject), 'cpgObject')
+  return(cpgObject)
+
+}
+
+#' @title findCPG
+#' @name findCPG
+#' @description Identifies genes that are differentially expressed due to proximity to other cell types.
+#' @param gobject giotto object
+#' @param expression_values expression values to use
+#' @param cluster_column name of column to use for cell types
+#' @param spatial_network_name name of spatial network to use
+#' @param minimum_unique_cells minimum number of target cells required
+#' @param minimum_unique_int_cells minimum number of interacting cells required
+#' @param diff_test which differential expression test
+#' @param adjust_method which method to adjust p-values
+#' @param nr_permutations number of permutations if diff_test = permutation
+#' @param exclude_selected_cells_from_test exclude interacting cells other cells
+#' @param do_parallel run calculations in parallel with mclapply
+#' @param cores number of cores to use if do_parallel = TRUE
+#' @return cpgObject that contains the differential gene scores
+#' @details Function to calculate if genes are differentially expressed in cell types
+#'  when they interact (approximated by physical proximity) with other cell types.
+#'  The results data.table in the cpgObject contains - at least - the following columns:
+#' \itemize{
+#'  \item{genes:}{ All or selected list of tested genes}
+#'  \item{sel:}{ average gene expression in the interacting cells from the target cell type }
+#'  \item{other:}{ average gene expression in the NOT-interacting cells from the target cell type }
+#'  \item{log2fc:}{ log2 fold-change between sel and other}
+#'  \item{diff:}{ spatial expression difference between sel and other}
+#'  \item{p.value:}{ associated p-value}
+#'  \item{p.adj:}{ adjusted p-value}
+#'  \item{cell_type:}{ target cell type}
+#'  \item{int_cell_type:}{ interacting cell type}
+#'  \item{nr_select:}{ number of cells for selected target cell type}
+#'  \item{int_nr_select:}{ number of cells for interacting cell type}
+#'  \item{nr_other:}{ number of other cells of selected target cell type}
+#'  \item{int_nr_other:}{ number of other cells for interacting cell type}
+#'  \item{unif_int:}{ cell-cell interaction}
+#' }
+#' @export
+#' @examples
+#'     findCPG(gobject)
+findCPG = function(gobject,
+                   expression_values = 'normalized',
+                   cluster_column,
+                   spatial_network_name = 'spatial_network',
+                   minimum_unique_cells = 1,
+                   minimum_unique_int_cells = 1,
+                   diff_test = c('permutation', 'limma', 't.test', 'wilcox'),
+                   adjust_method = c("bonferroni","BH", "holm", "hochberg", "hommel",
+                                     "BY", "fdr", "none"),
+                   nr_permutations = 100,
+                   exclude_selected_cells_from_test = T,
+                   do_parallel = TRUE,
+                   cores = NA) {
+
+
+  findCellProximityGenes(gobject = gobject,
+                         expression_values = expression_values,
+                         cluster_column = cluster_column,
+                         spatial_network_name = spatial_network_name,
+                         minimum_unique_cells = minimum_unique_cells,
+                         minimum_unique_int_cells = minimum_unique_int_cells,
+                         diff_test = diff_test,
+                         adjust_method = adjust_method,
+                         nr_permutations = nr_permutations,
+                         exclude_selected_cells_from_test = exclude_selected_cells_from_test,
+                         do_parallel = do_parallel,
+                         cores = cores)
+
+
+}
+
+
+
+
+
+#' @title filterCellProximityGenes
+#' @name filterCellProximityGenes
+#' @description Filter cell proximity gene scores.
+#' @param cpgObject cell proximity gene score object
+#' @param min_cells minimum number of target cell type
+#' @param min_int_cells minimum number of interacting cell type
+#' @param min_fdr minimum adjusted p-value
+#' @param min_spat_diff minimum absolute spatial expression difference
+#' @param min_log2_fc minimum absolute log2 fold-change
+#' @param direction differential expression directions to keep
+#' @return cpgObject that contains the filtered differential gene scores
+#' @export
+#' @examples
+#'     filterCellProximityGenes(gobject)
+filterCellProximityGenes = function(cpgObject,
+                                    min_cells = 5,
+                                    min_int_cells = 3,
+                                    min_fdr = 0.05,
+                                    min_spat_diff = 0.2,
+                                    min_log2_fc = 0.5,
+                                    direction = c('both', 'up', 'down')) {
+
+
+  if(!'cpgObject' %in% class(cpgObject)) {
+    stop('\n cpgObject needs to be the output from findCellProximityGenes() or findCPG() \n')
+  }
+
+  CPGscore = copy(cpgObject[['CPGscores']])
+
+  # other parameters
+  direction = match.arg(direction, choices = c('both', 'up', 'down'))
+
+  selection_scores = CPGscore[(nr_select >= min_cells & int_nr_select >= min_int_cells &
+                                 p.adj <= min_fdr &  abs(diff) >= min_spat_diff & abs(log2fc) >= min_log2_fc)]
+
+  if(direction == 'both') {
+    selection_scores = selection_scores
+  } else if(direction == 'up') {
+    selection_scores = selection_scores[log2fc >= min_log2_fc]
+  } else if(direction == 'down') {
+    selection_scores = selection_scores[log2fc <= -min_log2_fc]
+  }
+
+
+  newobj = copy(cpgObject)
+  newobj[['CPGscores']] = selection_scores
+
+  return(newobj)
+
+}
+
+
+
+#' @title filterCPG
+#' @name filterCPG
+#' @description Filter cell proximity gene scores.
+#' @param cpgObject cell proximity gene score object
+#' @param min_cells minimum number of target cell type
+#' @param min_int_cells minimum number of interacting cell type
+#' @param min_fdr minimum adjusted p-value
+#' @param min_spat_diff minimum absolute spatial expression difference
+#' @param min_log2_fc minimum absolute log2 fold-change
+#' @param direction differential expression directions to keep
+#' @return cpgObject that contains the filtered differential gene scores
+#' @export
+#' @examples
+#'     filterCPG(gobject)
+filterCPG = function(cpgObject,
+                     min_cells = 5,
+                     min_int_cells = 3,
+                     min_fdr = 0.05,
+                     min_spat_diff = 0.2,
+                     min_log2_fc = 0.5,
+                     direction = c('both', 'up', 'down')) {
+
+  filterCellProximityGenes(cpgObject = cpgObject,
+                           min_cells = min_cells,
+                           min_int_cells = min_int_cells,
+                           min_fdr = min_fdr,
+                           min_spat_diff = min_spat_diff,
+                           min_log2_fc = min_log2_fc,
+                           direction = direction)
+
+}
+
+
+
+# * ####
+# NEW GTGscores ####
+
+#' @title combineCellProximityGenes_per_interaction
+#' @name combineCellProximityGenes_per_interaction
+#' @description Combine CPG scores per interaction
+#' @examples
+#'     combineCellProximityGenes_per_interaction()
+combineCellProximityGenes_per_interaction =  function(cpgObject,
+                                                      sel_int,
+                                                      selected_genes = NULL,
+                                                      specific_genes_1 = NULL,
+                                                      specific_genes_2 = NULL,
+                                                      min_cells = 5,
+                                                      min_int_cells = 3,
+                                                      min_fdr = 0.05,
+                                                      min_spat_diff = 0,
+                                                      min_log2_fc = 0.5) {
+
+  if(!'cpgObject' %in% class(cpgObject)) {
+    stop('\n cpgObject needs to be the output from findCellProximityGenes() or findCPG() \n')
+  }
+
+  CPGscore = copy(cpgObject[['CPGscores']])
+
+  test_used = cpgObject[['test_info']][['test']]
+
+  ## subset on selected interaction
+  subset = CPGscore[unif_int == sel_int]
+
+  ##  type of interactions
+  type_interaction = unique(subset[['type_int']])
+
+  ## first filtering CPGscores on genes
+  if((!is.null(specific_genes_1) & !is.null(specific_genes_2))) {
+    if(length(specific_genes_1) != length(specific_genes_2)) {
+      stop('\n specific_genes_1 must have the same length as specific_genes_2')
+    }
+    subset = subset[genes %in% c(specific_genes_1, specific_genes_2)]
+  } else if(!is.null(selected_genes)) {
+    subset = subset[genes %in% c(selected_genes)]
+  }
+
+  ## find number of unique cell types
+  unique_cell_types = unique(c(subset$cell_type, subset$int_cell_type))
+
+  if(length(unique_cell_types) == 2) {
+
+    ## CELL TYPE 1
+    subset_cell_1 = subset[cell_type == unique_cell_types[1]]
+
+    if(nrow(subset_cell_1) == 0) {
+
+      if(test_used == 'permutation') {
+
+        subset_cell_1 = data.table::data.table('genes_1' = subset[['genes']],
+                                               'sel_1' = NA,
+                                               'other_1' = NA,
+                                               'log2fc_1' = NA,
+                                               'diff_1' = NA,
+                                               'p.value_1' = NA,
+                                               'p.adj_1' = NA,
+                                               'perm_sel_1' = NA,
+                                               'perm_other_1' = NA,
+                                               'perm_log2fc_1' = NA,
+                                               'perm_diff_1' = NA,
+                                               'cell_type_1' = unique_cell_types[1],
+                                               'int_cell_type_1' = unique_cell_types[2],
+                                               'nr_select_1' = NA,
+                                               'nr_other_1' = NA,
+                                               'unif_int' = subset[['unif_int']])
+
+      } else {
+
+        subset_cell_1 = data.table::data.table('genes_1' = subset[['genes']],
+                                               'sel_1' = NA,
+                                               'other_1' = NA,
+                                               'log2fc_1' = NA,
+                                               'diff_1' = NA,
+                                               'p.value_1' = NA,
+                                               'p.adj_1' = NA,
+                                               'cell_type_1' = unique_cell_types[1],
+                                               'int_cell_type_1' = unique_cell_types[2],
+                                               'nr_select_1' = NA,
+                                               'nr_other_1' = NA,
+                                               'unif_int' = subset[['unif_int']])
+      }
+
+
+    } else {
+
+
+      # filter on statistics
+      subset_cell_1 = subset_cell_1[p.adj <= min_fdr]
+      subset_cell_1 = subset_cell_1[nr_select >= min_cells]
+      subset_cell_1 = subset_cell_1[int_nr_select >= min_int_cells]
+      subset_cell_1 = subset_cell_1[abs(log2fc) >= min_log2_fc]
+      subset_cell_1 = subset_cell_1[abs(diff) >= min_spat_diff]
+
+      if(test_used == 'permutation') {
+        # make it specific
+        subset_cell_1 = subset_cell_1[,.(genes, sel, other, log2fc, diff, p.value, p.adj,
+                                         perm_sel, perm_other, perm_log2fc, perm_diff,
+                                         cell_type, int_cell_type, nr_select, nr_other, unif_int)]
+        data.table::setnames(subset_cell_1, old = c('genes', 'sel', 'other', 'log2fc', 'diff', 'p.value', 'p.adj',
+                                                    'perm_sel', 'perm_other', 'perm_log2fc', 'perm_diff',
+                                                    'cell_type', 'int_cell_type', 'nr_select', 'nr_other'),
+                             new = c('genes_1', 'sel_1', 'other_1', 'log2fc_1', 'diff_1', 'p.value_1', 'p.adj_1',
+                                     'perm_sel_1', 'perm_other_1',  'perm_log2fc_1', 'perm_diff_1',
+                                     'cell_type_1', 'int_cell_type_1', 'nr_select_1', 'nr_other_1'))
+
+      } else {
+        # make it specific
+        subset_cell_1 = subset_cell_1[,.(genes, sel, other, log2fc, diff, p.value, p.adj, cell_type, int_cell_type, nr_select, nr_other, unif_int)]
+        data.table::setnames(subset_cell_1, old = c('genes', 'sel', 'other', 'log2fc', 'diff', 'p.value', 'p.adj', 'cell_type', 'int_cell_type', 'nr_select', 'nr_other'),
+                             new = c('genes_1', 'sel_1', 'other_1', 'log2fc_1', 'diff_1', 'p.value_1', 'p.adj_1', 'cell_type_1', 'int_cell_type_1', 'nr_select_1', 'nr_other_1'))
+
+      }
+
+
+    }
+
+
+
+
+    ## CELL TYPE 2
+    subset_cell_2 = subset[cell_type == unique_cell_types[2]]
+
+    if(nrow(subset_cell_2) == 0) {
+
+      if(test_used == 'permutation') {
+
+        subset_cell_2 = data.table::data.table('genes_2' = subset[['genes']],
+                                               'sel_2' = NA,
+                                               'other_2' = NA,
+                                               'log2fc_2' = NA,
+                                               'diff_2' = NA,
+                                               'p.value_2' = NA,
+                                               'p.adj_2' = NA,
+                                               'perm_sel_2' = NA,
+                                               'perm_other_2' = NA,
+                                               'perm_log2fc_2' = NA,
+                                               'perm_diff_2' = NA,
+                                               'cell_type_2' = unique_cell_types[2],
+                                               'int_cell_type_2' = unique_cell_types[1],
+                                               'nr_select_2' = NA,
+                                               'nr_other_2' = NA,
+                                               'unif_int' = subset[['unif_int']])
+      } else {
+
+        subset_cell_2 = data.table::data.table('genes_2' = subset[['genes']],
+                                               'sel_2' = NA,
+                                               'other_2' = NA,
+                                               'log2fc_2' = NA,
+                                               'diff_2' = NA,
+                                               'p.value_2' = NA,
+                                               'p.adj_2' = NA,
+                                               'cell_type_2' = unique_cell_types[2],
+                                               'int_cell_type_2' = unique_cell_types[1],
+                                               'nr_select_2' = NA,
+                                               'nr_other_2' = NA,
+                                               'unif_int' = subset[['unif_int']])
+      }
+
+
+
+    } else {
+
+      # filter on statistics
+      subset_cell_2 = subset_cell_2[p.adj <= min_fdr]
+      subset_cell_2 = subset_cell_2[nr_select >= min_cells]
+      subset_cell_2 = subset_cell_2[int_nr_select >= min_int_cells]
+      subset_cell_2 = subset_cell_2[abs(log2fc) >= min_log2_fc]
+      subset_cell_2 = subset_cell_2[abs(diff) >= min_spat_diff]
+
+      if(test_used == 'permutation') {
+
+        subset_cell_2 = subset_cell_2[,.(genes, sel, other, log2fc, diff, p.value, p.adj,
+                                         perm_sel, perm_other, perm_log2fc, perm_diff,
+                                         cell_type, int_cell_type, nr_select, nr_other, unif_int)]
+        data.table::setnames(subset_cell_2, old = c('genes', 'sel', 'other', 'log2fc', 'diff', 'p.value', 'p.adj',
+                                                    'perm_sel', 'perm_other', 'perm_log2fc', 'perm_diff',
+                                                    'cell_type', 'int_cell_type', 'nr_select', 'nr_other'),
+                             new = c('genes_2', 'sel_2', 'other_2', 'log2fc_2', 'diff_2', 'p.value_2', 'p.adj_2',
+                                     'perm_sel_2', 'perm_other_2', 'perm_log2fc_2', 'perm_diff_2',
+                                     'cell_type_2', 'int_cell_type_2', 'nr_select_2', 'nr_other_2'))
+
+
+      } else {
+        subset_cell_2 = subset_cell_2[,.(genes, sel, other, log2fc, diff, p.value, p.adj, cell_type, int_cell_type, nr_select, nr_other, unif_int)]
+        data.table::setnames(subset_cell_2, old = c('genes', 'sel', 'other', 'log2fc', 'diff', 'p.value', 'p.adj', 'cell_type', 'int_cell_type', 'nr_select', 'nr_other'),
+                             new = c('genes_2', 'sel_2', 'other_2', 'log2fc_2', 'diff_2', 'p.value_2', 'p.adj_2', 'cell_type_2', 'int_cell_type_2', 'nr_select_2', 'nr_other_2'))
+
+      }
+
+
+
+    }
+
+    merge_subsets = data.table::merge.data.table(subset_cell_1, subset_cell_2, by = c('unif_int'), allow.cartesian = TRUE)
+
+  } else if(length(unique_cell_types) == 1) {
+
+    ## CELL TYPE 1
+    subset_cell_1 = subset[cell_type == unique_cell_types[1]]
+
+    # filter on statistics
+    subset_cell_1 = subset_cell_1[p.adj <= min_fdr]
+    subset_cell_1 = subset_cell_1[nr_select >= min_cells]
+    subset_cell_1 = subset_cell_1[int_nr_select >= min_int_cells]
+    subset_cell_1 = subset_cell_1[abs(log2fc) >= min_log2_fc]
+    subset_cell_1 = subset_cell_1[abs(diff) >= min_spat_diff]
+
+    # make it specific
+
+    if(test_used == 'permutation') {
+      subset_cell_1A = subset_cell_1[,.(genes, sel, other, log2fc, diff, p.value, p.adj,
+                                        perm_sel, perm_other, perm_log2fc, perm_diff,
+                                        cell_type, int_cell_type, nr_select, nr_other, unif_int)]
+      data.table::setnames(subset_cell_1A, old = c('genes', 'sel', 'other', 'log2fc', 'diff', 'p.value', 'p.adj',
+                                                   'perm_sel', 'perm_other', 'perm_log2fc', 'perm_diff',
+                                                   'cell_type', 'int_cell_type', 'nr_select', 'nr_other'),
+                           new = c('genes_1', 'sel_1', 'other_1', 'log2fc_1', 'diff_1', 'p.value_1', 'p.adj_1',
+                                   'perm_sel_1', 'perm_other_1', 'perm_log2fc_1', 'perm_diff_1',
+                                   'cell_type_1', 'int_cell_type_1', 'nr_select_1', 'nr_other_1'))
+
+    } else {
+      subset_cell_1A = subset_cell_1[,.(genes, sel, other, log2fc, diff, p.value, p.adj, cell_type, int_cell_type, nr_select, nr_other, unif_int)]
+      data.table::setnames(subset_cell_1A, old = c('genes', 'sel', 'other', 'log2fc', 'diff', 'p.value', 'p.adj', 'cell_type', 'int_cell_type', 'nr_select', 'nr_other'),
+                           new = c('genes_1', 'sel_1', 'other_1', 'log2fc_1', 'diff_1', 'p.value_1', 'p.adj_1', 'cell_type_1', 'int_cell_type_1', 'nr_select_1', 'nr_other_1'))
+
+    }
+
+
+    ## CELL TYPE 2
+
+    if(test_used == 'permutation') {
+      subset_cell_1B = subset_cell_1[,.(genes, sel, other, log2fc, diff, p.value, p.adj,
+                                        perm_sel, perm_other, perm_log2fc, perm_diff,
+                                        cell_type, int_cell_type, nr_select, nr_other, unif_int)]
+      data.table::setnames(subset_cell_1B, old = c('genes', 'sel', 'other', 'log2fc', 'diff', 'p.value', 'p.adj',
+                                                   'perm_sel', 'perm_other', 'perm_log2fc', 'perm_diff',
+                                                   'cell_type', 'int_cell_type', 'nr_select', 'nr_other'),
+                           new = c('genes_2', 'sel_2', 'other_2', 'log2fc_2', 'diff_2', 'p.value_2', 'p.adj_2',
+                                   'perm_sel_2', 'perm_other_2', 'perm_log2fc_2', 'perm_diff_2',
+                                   'cell_type_2', 'int_cell_type_2', 'nr_select_2', 'nr_other_2'))
+
+    } else {
+      subset_cell_1B = subset_cell_1[,.(genes, sel, other, log2fc, diff, p.value, p.adj, cell_type, int_cell_type, nr_select, nr_other, unif_int)]
+      data.table::setnames(subset_cell_1B, old = c('genes', 'sel', 'other', 'log2fc', 'diff', 'p.value', 'p.adj', 'cell_type', 'int_cell_type', 'nr_select', 'nr_other'),
+                           new = c('genes_2', 'sel_2', 'other_2', 'log2fc_2', 'diff_2', 'p.value_2', 'p.adj_2', 'cell_type_2', 'int_cell_type_2', 'nr_select_2', 'nr_other_2'))
+
+    }
+
+    merge_subsets = data.table::merge.data.table(subset_cell_1A, subset_cell_1B, by = c('unif_int'), allow.cartesian = TRUE)
+
+
+  }
+
+  # restrict to gene combinations if needed
+  if((!is.null(specific_genes_1) & !is.null(specific_genes_2))) {
+    merge_subsets[, genes_combo := paste0(genes_1,'--',genes_2)]
+    all_combos = c(paste0(specific_genes_1,'--', specific_genes_2),
+                   paste0(specific_genes_2,'--', specific_genes_1))
+    merge_subsets = merge_subsets[genes_combo %in% all_combos]
+    merge_subsets[, genes_combo := NULL]
+  }
+
+  merge_subsets[, type_int := type_interaction]
+  return(merge_subsets)
+
+}
+
+
+#' @title sort_combine_two_DT_columns
+#' @name sort_combine_two_DT_columns
+#' @description fast sorting and pasting of 2 character columns
+#' @examples
+#'     sort_combine_two_DT_columns()
+sort_combine_two_DT_columns = function(DT, column1, column2, myname = 'unif_gene_gene') {
+
+
+  # maybe faster with converting to factors??
+
+  # make sure columns are character
+  selected_columns = c(column1, column2)
+  DT[,(selected_columns):= lapply(.SD, as.character), .SDcols = selected_columns]
+
+  # convert characters into numeric values
+  uniq_values = sort(unique(c(DT[[column1]], DT[[column2]])))
+  uniq_values_num = 1:length(uniq_values)
+  names(uniq_values_num) = uniq_values
+
+
+  DT[,values_1_num := uniq_values_num[get(column1)]]
+  DT[,values_2_num := uniq_values_num[get(column2)]]
+
+
+  DT[, scolumn_1 := ifelse(values_1_num < values_2_num, get(column1), get(column2))]
+  DT[, scolumn_2 := ifelse(values_1_num < values_2_num, get(column2), get(column1))]
+
+  DT[, unif_sort_column := paste0(scolumn_1,'--',scolumn_2)]
+  DT[, c('values_1_num', 'values_2_num', 'scolumn_1', 'scolumn_2') := NULL]
+  data.table::setnames(DT, 'unif_sort_column', myname)
+
+  return(DT)
+}
+
+
+#' @title combineCellProximityGenes
+#' @name combineCellProximityGenes
+#' @description Combine CPG scores in a pairwise manner.
+#' @param cpgObject cell proximity gene score object
+#' @param selected_ints subset of selected cell-cell interactions (optional)
+#' @param selected_genes subset of selected genes (optional)
+#' @param specific_genes_1 specific geneset combo (need to position match specific_genes_2)
+#' @param specific_genes_2 specific geneset combo (need to position match specific_genes_1)
+#' @param min_cells minimum number of target cell type
+#' @param min_int_cells minimum number of interacting cell type
+#' @param min_fdr minimum adjusted p-value
+#' @param min_spat_diff minimum absolute spatial expression difference
+#' @param min_log2_fc minimum absolute log2 fold-change
+#' @param do_parallel run calculations in parallel with mclapply
+#' @param cores number of cores to use if do_parallel = TRUE
+#' @param verbose verbose
+#' @return cpgObject that contains the filtered differential gene scores
+#' @export
+#' @examples
+#'     combineCellProximityGenes(gobject)
+combineCellProximityGenes = function(cpgObject,
+                                     selected_ints = NULL,
+                                     selected_genes = NULL,
+                                     specific_genes_1 = NULL,
+                                     specific_genes_2 = NULL,
+                                     min_cells = 5,
+                                     min_int_cells = 3,
+                                     min_fdr = 0.05,
+                                     min_spat_diff = 0,
+                                     min_log2_fc = 0.5,
+                                     do_parallel = TRUE,
+                                     cores = NA,
+                                     verbose = T) {
+
+  ## check validity
+  if(!'cpgObject' %in% class(cpgObject)) {
+    stop('\n cpgObject needs to be the output from findCellProximityGenes() or findCPG() \n')
+  }
+  CPGscore = copy(cpgObject[['CPGscores']])
+
+  if(!is.null(selected_ints)) {
+    CPGscore = CPGscore[unif_int %in% selected_ints]
+  }
+
+  all_ints = unique(CPGscore[['unif_int']])
+
+  # parallel
+  if(do_parallel == TRUE) {
+
+    # set number of cores
+    if(is.na(cores) | !is.numeric(cores)) {
+      cores = parallel::detectCores() - 1
+    }
+
+    GTGresults = parallel::mclapply(mc.cores = cores, X = all_ints, FUN = function(x) {
+
+      tempres =  combineCellProximityGenes_per_interaction(cpgObject = cpgObject,
+                                                           sel_int = x,
+                                                           selected_genes = selected_genes,
+                                                           specific_genes_1 = specific_genes_1,
+                                                           specific_genes_2 = specific_genes_2,
+                                                           min_cells = min_cells,
+                                                           min_int_cells = min_int_cells,
+                                                           min_fdr = min_fdr,
+                                                           min_spat_diff = min_spat_diff,
+                                                           min_log2_fc = min_log2_fc)
+
+    })
+
+  } else {
+    # for loop
+    GTGresults = list()
+
+    for(i in 1:length(all_ints)) {
+
+      x = all_ints[[i]]
+
+      if(verbose == TRUE) print(x)
+
+      tempres =  combineCellProximityGenes_per_interaction(cpgObject = cpgObject,
+                                                           sel_int = x,
+                                                           selected_genes = selected_genes,
+                                                           specific_genes_1 = specific_genes_1,
+                                                           specific_genes_2 = specific_genes_2,
+                                                           min_cells = min_cells,
+                                                           min_int_cells = min_int_cells,
+                                                           min_fdr = min_fdr,
+                                                           min_spat_diff = min_spat_diff,
+                                                           min_log2_fc = min_log2_fc)
+      GTGresults[[i]] = tempres
+    }
+
+  }
+
+  final_results = do.call('rbind', GTGresults)
+
+  final_results[, gene1_gene2 := paste0(genes_1,'--',genes_2)]
+
+  final_results = sort_combine_two_DT_columns(final_results,
+                                              column1 = 'genes_1', column2 = 'genes_2',
+                                              myname = 'unif_gene_gene')
+  #return(final_results)
+
+  combCpgObject = list(combCPGscores = final_results,
+                       Giotto_info = list('values' = cpgObject[['Giotto_info']][['values']],
+                                          'cluster' = cpgObject[['Giotto_info']][['cluster']],
+                                          'spatial network' = cpgObject[['Giotto_info']][['spatial network']]),
+                       test_info = list('test' = cpgObject[['test_info']][['test']],
+                                        'p.adj' = cpgObject[['test_info']][['p.adj']],
+                                        'min cells' = cpgObject[['test_info']][['min cells']],
+                                        'min interacting cells' = cpgObject[['test_info']][['min interacting cells']],
+                                        'exclude selected cells' = cpgObject[['test_info']][['exclude selected cells']],
+                                        'perm' = cpgObject[['test_info']][['perm']]))
+  class(combCpgObject) = append(class(combCpgObject), 'combCpgObject')
+  return(combCpgObject)
+
+
+}
+
+
+#' @title combineCPG
+#' @name combineCPG
+#' @description Combine CPG scores in a pairwise manner.
+#' @param cpgObject cell proximity gene score object
+#' @param selected_ints subset of selected cell-cell interactions (optional)
+#' @param selected_genes subset of selected genes (optional)
+#' @param specific_genes_1 specific geneset combo (need to position match specific_genes_2)
+#' @param specific_genes_2 specific geneset combo (need to position match specific_genes_1)
+#' @param min_cells minimum number of target cell type
+#' @param min_int_cells minimum number of interacting cell type
+#' @param min_fdr minimum adjusted p-value
+#' @param min_spat_diff minimum absolute spatial expression difference
+#' @param min_log2_fc minimum absolute log2 fold-change
+#' @param do_parallel run calculations in parallel with mclapply
+#' @param cores number of cores to use if do_parallel = TRUE
+#' @param verbose verbose
+#' @return cpgObject that contains the filtered differential gene scores
+#' @export
+#' @examples
+#'     combineCPG(gobject)
+combineCPG = function(cpgObject,
+                      selected_ints = NULL,
+                      selected_genes = NULL,
+                      specific_genes_1 = NULL,
+                      specific_genes_2 = NULL,
+                      min_cells = 5,
+                      min_int_cells = 3,
+                      min_fdr = 0.05,
+                      min_spat_diff = 0,
+                      min_log2_fc = 0.5,
+                      do_parallel = TRUE,
+                      cores = NA,
+                      verbose = T) {
+
+
+  combineCellProximityGenes(cpgObject = cpgObject,
+                            selected_ints = selected_ints,
+                            selected_genes = selected_genes,
+                            specific_genes_1 = specific_genes_1,
+                            specific_genes_2 = specific_genes_2,
+                            min_cells = min_cells,
+                            min_int_cells = min_int_cells,
+                            min_fdr = min_fdr,
+                            min_spat_diff = min_spat_diff,
+                            min_log2_fc = min_log2_fc,
+                            do_parallel = do_parallel,
+                            cores = cores,
+                            verbose = verbose)
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+# * ####
+# OLD CPGscores ####
 
 #' @title get_specific_interaction_gene_enrichment
 #' @name get_specific_interaction_gene_enrichment
@@ -727,7 +1961,8 @@ getCellProximityGeneScores = function(gobject,
 
 
 
-
+# * ####
+# OLD GTGscores ####
 
 #' @title combine_ints_f
 #' @name combine_ints_f
@@ -999,102 +2234,8 @@ getGeneToGeneScores <- function(CPGscore,
 
 
 
-
-
-
-#' @title exprOnlyCellCellcommunicationScores
-#' @name exprOnlyCellCellcommunicationScores
-#' @description Cell-Cell communication scores based on expression only
-#' @param gobject giotto object to use
-#' @param cluster_column cluster column with cell type information
-#' @param random_iter number of iterations
-#' @param gene_set_1 first specific gene set from gene pairs
-#' @param gene_set_2 second specific gene set from gene pairs
-#' @param log2FC_addendum addendum to add when calculating log2FC
-#' @param verbose verbose
-#' @return Cell-Cell communication scores for gene pairs based on expression only
-#' @details Statistical framework to identify if pairs of genes (such as ligand-receptor combinations)
-#' are expressed at higher levels than expected based on a reshuffled null distribution of gene expression values,
-#' without considering the spatial position of cells.
-#' More details will follow soon.
-#' @export
-#' @examples
-#'     exprOnlyCellCellcommunicationScores(gobject)
-exprOnlyCellCellcommunicationScores = function(gobject,
-                                               cluster_column = 'cell_types',
-                                               random_iter = 100,
-                                               gene_set_1,
-                                               gene_set_2,
-                                               log2FC_addendum = 0.1,
-                                               verbose = T) {
-
-
-  # get information about number of cells
-  cell_metadata = pDataDT(gobject)
-  nr_cell_types = cell_metadata[,.N, by = c(cluster_column)]
-  nr_cells = nr_cell_types$N
-  names(nr_cells) = nr_cell_types$cluster_column
-
-
-  comScore = average_gene_gene_expression_in_groups(gobject = gobject,
-                                                    cluster_column = cluster_column,
-                                                    gene_set_1 = gene_set_1, gene_set_2 = gene_set_2)
-
-  comScore[, lig_nr := nr_cells[lig_cell_type]]
-  comScore[, rec_nr := nr_cells[rec_cell_type]]
-
-  # prepare for randomized scores
-  total_av = rep(0, nrow(comScore))
-  total_sum = rep(0, nrow(comScore))
-  total_bool = rep(0, nrow(comScore))
-
-
-
-  for(sim in 1:random_iter) {
-
-    if(verbose == TRUE) cat('simulation ', sim, '\n')
-
-
-    # create temporary giotto
-    tempGiotto = subsetGiotto(gobject = gobject)
-
-    # randomize annoation
-    cell_types = cell_metadata[[cluster_column]]
-    random_cell_types = sample(x = cell_types, size = length(cell_types))
-    tempGiotto = addCellMetadata(gobject = tempGiotto, new_metadata = random_cell_types, by_column = F)
-
-    # get random communication scores
-    randomScore = average_gene_gene_expression_in_groups(gobject = tempGiotto,
-                                                         cluster_column = 'random_cell_types',
-                                                         gene_set_1 = gene_set_1, gene_set_2 = gene_set_2)
-
-    # average random score
-    total_av = total_av + randomScore[['LR_expr']]
-
-    # difference between observed and random
-    difference = comScore[['LR_expr']] - randomScore[['LR_expr']]
-
-    # calculate total difference
-    total_sum = total_sum+difference
-
-    # calculate p-values
-    difference[difference > 0] = 1
-    difference[difference < 0] = -1
-    total_bool = total_bool + difference
-
-  }
-
-  comScore[, rand_expr := total_av/random_iter]
-  comScore[, av_diff := total_sum/random_iter]
-  comScore[, log2fc := log2((LR_expr+log2FC_addendum)/(rand_expr+log2FC_addendum))]
-  comScore[, pvalue := total_bool/random_iter]
-  comScore[, pvalue := ifelse(pvalue > 0, 1-pvalue, 1+pvalue)]
-
-  return(comScore)
-
-}
-
-
+# * ####
+# cell communication ####
 
 
 #' @title average_gene_gene_expression_in_groups
@@ -1166,6 +2307,122 @@ average_gene_gene_expression_in_groups = function(gobject,
 }
 
 
+#' @title exprCellCellcom
+#' @name exprCellCellcom
+#' @description Cell-Cell communication scores based on expression only
+#' @param gobject giotto object to use
+#' @param cluster_column cluster column with cell type information
+#' @param random_iter number of iterations
+#' @param gene_set_1 first specific gene set from gene pairs
+#' @param gene_set_2 second specific gene set from gene pairs
+#' @param log2FC_addendum addendum to add when calculating log2FC
+#' @param adjust_method which method to adjust p-values
+#' @param adjust_target adjust multiple hypotheses at the cell or gene level
+#' @param verbose verbose
+#' @return Cell-Cell communication scores for gene pairs based on expression only
+#' @details Statistical framework to identify if pairs of genes (such as ligand-receptor combinations)
+#' are expressed at higher levels than expected based on a reshuffled null distribution of gene expression values,
+#' without considering the spatial position of cells.
+#' More details will follow soon.
+#' @export
+#' @examples
+#'     exprCellCellcom(gobject)
+exprCellCellcom = function(gobject,
+                           cluster_column = 'cell_types',
+                           random_iter = 100,
+                           gene_set_1,
+                           gene_set_2,
+                           log2FC_addendum = 0.1,
+                           adjust_method = c("fdr", "bonferroni","BH", "holm", "hochberg", "hommel",
+                                             "BY", "none"),
+                           adjust_target = c('genes', 'cells'),
+                           verbose = T) {
+
+
+  # get parameters
+  adjust_method = match.arg(adjust_method, choices = c("fdr", "bonferroni","BH", "holm", "hochberg", "hommel",
+                                                       "BY", "none"))
+  adjust_target = match.arg(adjust_target, choices = c('genes', 'cells'))
+
+    # get information about number of cells
+  cell_metadata = pDataDT(gobject)
+  nr_cell_types = cell_metadata[,.N, by = c(cluster_column)]
+  nr_cells = nr_cell_types$N
+  names(nr_cells) = nr_cell_types$cluster_column
+
+
+  comScore = average_gene_gene_expression_in_groups(gobject = gobject,
+                                                    cluster_column = cluster_column,
+                                                    gene_set_1 = gene_set_1, gene_set_2 = gene_set_2)
+
+  comScore[, lig_nr := nr_cells[lig_cell_type]]
+  comScore[, rec_nr := nr_cells[rec_cell_type]]
+
+  # prepare for randomized scores
+  total_av = rep(0, nrow(comScore))
+  total_sum = rep(0, nrow(comScore))
+  total_bool = rep(0, nrow(comScore))
+
+
+  ## parallel option ##
+  # not yet available
+
+
+  for(sim in 1:random_iter) {
+
+    if(verbose == TRUE) cat('simulation ', sim, '\n')
+
+
+    # create temporary giotto
+    tempGiotto = subsetGiotto(gobject = gobject)
+
+    # randomize annoation
+    cell_types = cell_metadata[[cluster_column]]
+    random_cell_types = sample(x = cell_types, size = length(cell_types))
+    tempGiotto = addCellMetadata(gobject = tempGiotto, new_metadata = random_cell_types, by_column = F)
+
+    # get random communication scores
+    randomScore = average_gene_gene_expression_in_groups(gobject = tempGiotto,
+                                                         cluster_column = 'random_cell_types',
+                                                         gene_set_1 = gene_set_1, gene_set_2 = gene_set_2)
+
+    # average random score
+    total_av = total_av + randomScore[['LR_expr']]
+
+    # difference between observed and random
+    difference = comScore[['LR_expr']] - randomScore[['LR_expr']]
+
+    # calculate total difference
+    total_sum = total_sum+difference
+
+    # calculate p-values
+    difference[difference > 0] = 1
+    difference[difference < 0] = -1
+    total_bool = total_bool + difference
+
+  }
+
+  comScore[, rand_expr := total_av/random_iter]
+  comScore[, av_diff := total_sum/random_iter]
+  comScore[, log2fc := log2((LR_expr+log2FC_addendum)/(rand_expr+log2FC_addendum))]
+  comScore[, pvalue := total_bool/random_iter]
+  comScore[, pvalue := ifelse(pvalue > 0, 1-pvalue, 1+pvalue)]
+  comScore[, LR_cell_comb := paste0(lig_cell_type,'--',rec_cell_type)]
+
+  if(adjust_target == 'genes') {
+    comScore[, p.adj := p.adjust(pvalue, method = adjust_method), by = .(LR_cell_comb)]
+  } else if(adjust_target == 'cells'){
+    comScore[, p.adj := p.adjust(pvalue, method = adjust_method), by = .(LR_comb)]
+  }
+  comScore[, PI := log2fc*(1-p.adj)]
+  data.table::setorder(comScore, LR_comb, -LR_expr)
+
+  return(comScore)
+
+}
+
+
+
 #' @title create_cell_type_random_cell_IDs
 #' @name create_cell_type_random_cell_IDs
 #' @description creates randomized cell ids within a selection of cell types
@@ -1215,6 +2472,8 @@ create_cell_type_random_cell_IDs = function(gobject,
 #' @param gene_set_2 second specific gene set from gene pairs
 #' @param log2FC_addendum addendum to add when calculating log2FC
 #' @param min_observations minimum number of interactions needed to be considered
+#' @param adjust_method which method to adjust p-values
+#' @param adjust_target adjust multiple hypotheses at the cell or gene level
 #' @param verbose verbose
 #' @return Cell-Cell communication scores for gene pairs based on spatial interaction
 #' @details Statistical framework to identify if pairs of genes (such as ligand-receptor combinations)
@@ -1234,7 +2493,15 @@ specificCellCellcommunicationScores = function(gobject,
                                                gene_set_2,
                                                log2FC_addendum = 0.1,
                                                min_observations = 2,
+                                               adjust_method = c("fdr", "bonferroni","BH", "holm", "hochberg", "hommel",
+                                                                 "BY", "none"),
+                                               adjust_target = c('genes', 'cells'),
                                                verbose = T) {
+
+  # get parameters
+  adjust_method = match.arg(adjust_method, choices = c("fdr", "bonferroni","BH", "holm", "hochberg", "hommel",
+                                                       "BY", "none"))
+  adjust_target = match.arg(adjust_target, choices = c('genes', 'cells'))
 
   # metadata
   cell_metadata = pDataDT(gobject = gobject)
@@ -1323,7 +2590,15 @@ specificCellCellcommunicationScores = function(gobject,
     comScore[, log2fc := log2((LR_expr+log2FC_addendum)/(rand_expr+log2FC_addendum))]
     comScore[, pvalue := total_bool/random_iter]
     comScore[, pvalue := ifelse(pvalue > 0, 1-pvalue, 1+pvalue)]
+    comScore[, LR_cell_comb := paste0(lig_cell_type,'--',rec_cell_type)]
 
+    if(adjust_target == 'genes') {
+      comScore[, p.adj := p.adjust(pvalue, method = adjust_method), by = .(LR_cell_comb)]
+    } else if(adjust_target == 'cells'){
+      comScore[, p.adj := p.adjust(pvalue, method = adjust_method), by = .(LR_comb)]
+    }
+
+    comScore[, PI := log2fc*(1-p.adj)]
 
     return(comScore)
 
@@ -1331,9 +2606,9 @@ specificCellCellcommunicationScores = function(gobject,
 }
 
 
-#' @title allCellCellcommunicationsScores
-#' @name allCellCellcommunicationsScores
-#' @description All Cell-Cell communication scores based on spatial expression of interacting cells
+#' @title spatCellCellcom
+#' @name spatCellCellcom
+#' @description Spatial Cell-Cell communication scores based on spatial expression of interacting cells
 #' @param gobject giotto object to use
 #' @param spatial_network_name spatial network to use for identifying interacting cells
 #' @param cluster_column cluster column with cell type information
@@ -1342,6 +2617,10 @@ specificCellCellcommunicationScores = function(gobject,
 #' @param gene_set_2 second specific gene set from gene pairs
 #' @param log2FC_addendum addendum to add when calculating log2FC
 #' @param min_observations minimum number of interactions needed to be considered
+#' @param adjust_method which method to adjust p-values
+#' @param adjust_target adjust multiple hypotheses at the cell or gene level
+#' @param do_parallel run calculations in parallel with mclapply
+#' @param cores number of cores to use if do_parallel = TRUE
 #' @param verbose verbose
 #' @return Cell-Cell communication scores for gene pairs based on spatial interaction
 #' @details Statistical framework to identify if pairs of genes (such as ligand-receptor combinations)
@@ -1350,16 +2629,21 @@ specificCellCellcommunicationScores = function(gobject,
 #' More details will follow soon.
 #' @export
 #' @examples
-#'     allCellCellcommunicationsScores(gobject)
-allCellCellcommunicationsScores = function(gobject,
-                                           spatial_network_name = 'spatial_network',
-                                           cluster_column = 'cell_types',
-                                           random_iter = 100,
-                                           gene_set_1,
-                                           gene_set_2,
-                                           log2FC_addendum = 0.1,
-                                           min_observations = 2,
-                                           verbose = c('a little', 'a lot', 'none')) {
+#'     spatCellCellcom(gobject)
+spatCellCellcom = function(gobject,
+                           spatial_network_name = 'spatial_network',
+                           cluster_column = 'cell_types',
+                           random_iter = 100,
+                           gene_set_1,
+                           gene_set_2,
+                           log2FC_addendum = 0.1,
+                           min_observations = 2,
+                           adjust_method = c("fdr", "bonferroni","BH", "holm", "hochberg", "hommel",
+                                             "BY", "none"),
+                           adjust_target = c('genes', 'cells'),
+                           do_parallel = TRUE,
+                           cores = NA,
+                           verbose = c('a little', 'a lot', 'none')) {
 
   verbose = match.arg(verbose, choices = c('a little', 'a lot', 'none'))
 
@@ -1371,42 +2655,124 @@ allCellCellcommunicationsScores = function(gobject,
   combn_DT = as.data.table(t(combn(all_uniq_values, m = 2)))
   combn_DT = rbind(same_DT, combn_DT)
 
-  savelist = list()
-  countdown = nrow(combn_DT)
+  ## parallel option ##
+  if(do_parallel == TRUE) {
 
-  # loop over all combinations
-  for(row in 1:nrow(combn_DT)) {
-
-    cell_type_1 = combn_DT[row][['V1']]
-    cell_type_2 = combn_DT[row][['V2']]
-
-    if(verbose == 'a little' | verbose == 'a lot') cat('\n\n PROCESS nr ', countdown,': ', cell_type_1, ' and ', cell_type_2, '\n\n')
-
-    if(verbose %in% c('a little', 'none')) {
-      specific_verbose = F
-    } else {
-      specific_verbose = T
+    # set number of cores
+    if(is.na(cores) | !is.numeric(cores)) {
+      cores = parallel::detectCores() - 1
     }
 
-    specific_scores = specificCellCellcommunicationScores(gobject = gobject,
-                                                          cluster_column = cluster_column,
-                                                          random_iter = random_iter,
-                                                          cell_type_1 = cell_type_1,
-                                                          cell_type_2 = cell_type_2,
-                                                          gene_set_1 = gene_set_1,
-                                                          gene_set_2 = gene_set_2,
-                                                          spatial_network_name = spatial_network_name,
-                                                          log2FC_addendum = log2FC_addendum,
-                                                          min_observations = min_observations,
-                                                          verbose = specific_verbose)
-    savelist[[row]] = specific_scores
-    countdown = countdown - 1
+    savelist = parallel::mclapply(mc.cores = cores, X = 1:nrow(combn_DT), FUN = function(row) {
+
+      cell_type_1 = combn_DT[row][['V1']]
+      cell_type_2 = combn_DT[row][['V2']]
+
+      specific_scores = specificCellCellcommunicationScores(gobject = gobject,
+                                                            cluster_column = cluster_column,
+                                                            random_iter = random_iter,
+                                                            cell_type_1 = cell_type_1,
+                                                            cell_type_2 = cell_type_2,
+                                                            gene_set_1 = gene_set_1,
+                                                            gene_set_2 = gene_set_2,
+                                                            spatial_network_name = spatial_network_name,
+                                                            log2FC_addendum = log2FC_addendum,
+                                                            min_observations = min_observations,
+                                                            adjust_method = adjust_method,
+                                                            adjust_target = adjust_target)
+
+    })
+
+  } else {
+
+    ## for loop over all combinations ##
+    savelist = list()
+    countdown = nrow(combn_DT)
+
+    for(row in 1:nrow(combn_DT)) {
+
+      cell_type_1 = combn_DT[row][['V1']]
+      cell_type_2 = combn_DT[row][['V2']]
+
+      if(verbose == 'a little' | verbose == 'a lot') cat('\n\n PROCESS nr ', countdown,': ', cell_type_1, ' and ', cell_type_2, '\n\n')
+
+      if(verbose %in% c('a little', 'none')) {
+        specific_verbose = F
+      } else {
+        specific_verbose = T
+      }
+
+      specific_scores = specificCellCellcommunicationScores(gobject = gobject,
+                                                            cluster_column = cluster_column,
+                                                            random_iter = random_iter,
+                                                            cell_type_1 = cell_type_1,
+                                                            cell_type_2 = cell_type_2,
+                                                            gene_set_1 = gene_set_1,
+                                                            gene_set_2 = gene_set_2,
+                                                            spatial_network_name = spatial_network_name,
+                                                            log2FC_addendum = log2FC_addendum,
+                                                            min_observations = min_observations,
+                                                            adjust_method = adjust_method,
+                                                            adjust_target = adjust_target,
+                                                            verbose = specific_verbose)
+      savelist[[row]] = specific_scores
+      countdown = countdown - 1
+    }
+
   }
 
   finalDT = do.call('rbind', savelist)
+  data.table::setorder(finalDT, LR_comb, -LR_expr)
+
   return(finalDT)
 }
 
 
+#' @title combCCcom
+#' @name combCCcom
+#' @description Combine spatial and expression based cell-cell communication data.tables
+#' @param spatialCC spatial cell-cell communication scores
+#' @param exprCC expression cell-cell communication scores
+#' @param min_lig_nr minimum number of ligand cells
+#' @param min_rec_nr minimum number of receptor cells
+#' @param min_padj_value minimum adjusted p-value
+#' @param min_log2fc minimum log2 fold-change
+#' @param min_av_diff minimum average expression difference
+#' @return combined data.table with spatial and expression communication data
+#' @export
+#' @examples
+#'     combCCcom(gobject)
+combCCcom = function(spatialCC,
+                     exprCC,
+                     min_lig_nr = 3,
+                     min_rec_nr = 3,
+                     min_padj_value = 1,
+                     min_log2fc = 0,
+                     min_av_diff = 0) {
 
+
+  spatialCC = spatialCC[lig_nr >= min_lig_nr & rec_nr >= min_rec_nr &
+                          p.adj <= min_padj_value & abs(log2fc) >= min_log2fc & abs(av_diff) >= min_av_diff]
+
+  data.table::setnames(x = spatialCC,
+                       old = c('lig_expr', 'rec_expr', 'LR_expr', 'lig_nr', 'rec_nr',
+                               'rand_expr', 'av_diff', 'log2fc', 'pvalue', 'p.adj', 'PI'),
+                       new = c('lig_expr_spat', 'rec_expr_spat', 'LR_expr_spat', 'lig_nr_spat', 'rec_nr_spat',
+                               'rand_expr_spat', 'av_diff_spat', 'log2fc_spat', 'pvalue_spat', 'p.adj_spat', 'PI_spat'))
+
+  merge_DT = data.table::merge.data.table(spatialCC, exprCC, by = c('LR_comb', 'LR_cell_comb',
+                                                                    'lig_cell_type', 'rec_cell_type',
+                                                                    'ligand', 'receptor'))
+
+  # rank for expression levels
+  merge_DT[, LR_expr_rnk := rank(-LR_expr), by = LR_comb]
+  merge_DT[, LR_spat_rnk := rank(-LR_expr_spat), by = LR_comb]
+
+  # rank for differential activity levels
+  merge_DT[, exprPI_rnk := rank(-PI), by = LR_comb]
+  merge_DT[, spatPI_rnk := rank(-PI_spat), by = LR_comb]
+
+  return(merge_DT)
+
+}
 

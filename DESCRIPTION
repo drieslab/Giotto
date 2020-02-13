@@ -1,6 +1,6 @@
 Package: Giotto
 Title: Spatial single-cell transcriptomics pipeline.
-Version: 0.1.5
+Version: 0.2.0
 Authors@R: person("Ruben", "Dries", email = "rubendries@gmail.com", role = c("aut", "cre"))
 Description: Pipeline to process, analyze and visualize (spatial) single-cell expression data.
 License: MIT + file LICENSE

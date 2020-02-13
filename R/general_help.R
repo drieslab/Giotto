@@ -181,6 +181,31 @@ stitchFieldCoordinates <- function(location_file,
 }
 
 
+#' @title stitchTileCoordinates
+#' @description Helper function to stitch tile coordinates together to form one complete picture
+#' @param location_file location dataframe with X and Y coordinates
+#' @param Xtilespan numerical value specifying the width of each tile
+#' @param Ytilespan numerical value specifying the height of each tile
+#' @details ...
+#' @export
+#' @examples
+#'     stitchTileCoordinates(gobject)
+stitchTileCoordinates <- function (location_file, Xtilespan, Ytilespan) {
+  if (is.null(location_file$X.X)){
+    print("X coordinates missing in input file.")
+  }else if (is.null(location_file$Y.Y)){
+    print("Y coordinates missing in input file.")
+  } else if (is.null(location_file$XtileIndex)){
+    print("X tile index missing in input file.")
+  }else if (is.null(location_file$YtileIndex)){
+    print("Y tile index missing in input file.")
+  }else{
+    copy_loc_file = data.table::copy(location_file)
+    copy_loc_file[,Xcoord := X.X + Xtilespan*(XtileIndex-1)]
+    copy_loc_file[,Ycoord := Y.Y + Ytilespan*(YtileIndex-1)]
+    return(copy_loc_file)
+  }
+}
 
 
 

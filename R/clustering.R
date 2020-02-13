@@ -160,7 +160,6 @@ doLeidenCluster = function(gobject,
 }
 
 
-
 #' @title doLouvainCluster_community
 #' @name doLouvainCluster_community
 #' @description cluster cells using a NN-network and the Louvain algorithm from the community module in Python

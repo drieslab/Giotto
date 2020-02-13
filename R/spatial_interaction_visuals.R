@@ -2126,6 +2126,964 @@ plotCPGscores <- function(CPGscores,
 
 
 
+# * ####
+# NEW plots ####
+
+#' @title plotCellProximityGenes
+#' @name plotCellProximityGenes
+#' @description Create visualization for cell proximity gene scores
+#' @param gobject giotto object
+#' @param cpgObject cell proximity gene score object
+#' @param method plotting method to use
+#' @param min_cells minimum number of target cell type
+#' @param min_int_cells minimum number of interacting cell type
+#' @param min_fdr minimum adjusted p-value
+#' @param min_spat_diff minimum absolute spatial expression difference
+#' @param min_log2_fc minimum absolute log2 fold-change#' @param facet_scales ggplot facet scales paramter
+#' @param direction differential expression directions to keep
+#' @param cell_color_code vector of colors with cell types as names
+#' @param show_plot show plots
+#' @param return_plot return plotting object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return plot
+#' @export
+#' @examples
+#'     plotCPG(CPGscores)
+plotCellProximityGenes = function(gobject,
+                                  cpgObject,
+                                  method = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey', 'heatmap', 'dotplot'),
+                                  min_cells = 5,
+                                  min_int_cells = 3,
+                                  min_fdr = 0.05,
+                                  min_spat_diff = 0.2,
+                                  min_log2_fc = 0.5,
+                                  direction = c('both', 'up', 'down'),
+                                  cell_color_code = NULL,
+                                  show_plot = NA,
+                                  return_plot = NA,
+                                  save_plot = NA,
+                                  save_param =  list(),
+                                  default_save_name = 'showCPGscores'
+) {
+
+
+  if(!'cpgObject' %in% class(cpgObject)) {
+    stop('\n cpgObject needs to be the output from findCellProximityGenes() or findCPG() \n')
+  }
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+
+  ## first filter
+  filter_cpg = filterCellProximityGenes(cpgObject = cpgObject,
+                                        min_cells = min_cells,
+                                        min_int_cells = min_int_cells,
+                                        min_fdr = min_fdr,
+                                        min_spat_diff = min_spat_diff,
+                                        min_log2_fc = min_log2_fc,
+                                        direction = direction)
+
+  complete_part = filter_cpg[['CPGscores']]
+
+  ## other parameters
+  method = match.arg(method, choices = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey', 'heatmap', 'dotplot'))
+
+  ## create data.table for visualization
+
+  if(method == 'volcano') {
+
+    ## volcanoplot
+    pl = ggplot()
+    pl = pl + geom_point(data = complete_part, aes(x = log2fc, y = ifelse(is.infinite(-log10(p.adj)), 1000, -log10(p.adj))))
+    pl = pl + theme_classic()
+    pl = pl + geom_vline(xintercept = 0, linetype = 2)
+    pl = pl + labs(x = 'log2 fold-change', y = '-log10(p.adjusted)')
+
+
+    ## print plot
+    if(show_plot == TRUE) {
+      print(pl)
+    }
+
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+    }
+
+    ## return plot
+    if(return_plot == TRUE) {
+      return(pl)
+    }
+
+
+  } else if(method == 'cell-cell') {
+
+    nr_int_selection_scores = complete_part[, .N, by = unif_int]
+    order_interactions = nr_int_selection_scores[order(N)]$unif_int
+
+    complete_part[, unif_int := factor(unif_int, order_interactions)]
+
+    pl <- ggplot2::ggplot()
+    pl <- pl + ggplot2::geom_bar(data = complete_part, aes(x = unif_int, fill = unif_int))
+    pl <- pl + ggplot2::theme_classic() + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1))
+    pl <- pl + ggplot2::coord_flip()
+
+    ## print plot
+    if(show_plot == TRUE) {
+      print(pl)
+    }
+
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+    }
+
+    ## return plot
+    if(return_plot == TRUE) {
+      return(pl)
+    }
+
+
+  } else if(method == 'cell_barplot') {
+
+
+    # by source cell type plot
+    nr_source_selection_scores = complete_part[, .N, by = cell_type]
+    order_source = nr_source_selection_scores[order(N)]$cell_type
+
+    complete_part[, cell_type := factor(cell_type, order_source)]
+
+    pl <- ggplot2::ggplot()
+    pl <- pl + ggplot2::geom_bar(data = complete_part, aes(x = cell_type, fill = int_cell_type))
+    if(!is.null(cell_color_code)) {
+      pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
+    }
+    pl <- pl + ggplot2::theme_classic() + ggplot2::theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+    pl <- pl + ggplot2::labs(x = '', y = '# of genes influenced by cell neighborhood')
+
+
+    ## print plot
+    if(show_plot == TRUE) {
+      print(pl)
+    }
+
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+    }
+
+    ## return plot
+    if(return_plot == TRUE) {
+      return(pl)
+    }
+
+  } else if(method == 'cell_sankey') {
+
+    testalluv = complete_part[, .N, by = c('int_cell_type', 'cell_type')]
+
+    library(ggalluvial)
+
+    pl <- ggplot2::ggplot(testalluv,
+                          aes(y = N, axis1 = cell_type, axis2 = int_cell_type)) +
+      ggalluvial::geom_alluvium(aes(fill = cell_type), width = 1/12) +
+      ggalluvial::geom_stratum(width = 1/12, fill = "black", color = "grey") +
+      ggplot2::scale_x_discrete(limits = c("cell type", "neighbours"), expand = c(.05, .05)) +
+      ggplot2::geom_label(stat = "stratum", label.strata = TRUE, size = 3) +
+      ggplot2::theme_classic() + ggplot2::labs(x = '', y = '# of genes influenced by cell neighborhood')
+
+    if(!is.null(cell_color_code)) {
+      pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
+    }
+
+
+
+    ## print plot
+    if(show_plot == TRUE) {
+      print(pl)
+    }
+
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+    }
+
+    ## return plot
+    if(return_plot == TRUE) {
+      return(pl)
+    }
+
+  } else if(method == 'dotplot') {
+
+    changed_genes = complete_part[, .N, by = c('cell_type', 'int_cell_type')]
+
+    changed_genes[, cell_type := factor(cell_type, unique(cell_type))]
+    changed_genes[, int_cell_type := factor(int_cell_type, unique(int_cell_type))]
+
+    pl = ggplot()
+    pl = pl + theme_classic()
+    pl = pl + geom_point(data = changed_genes, aes(x = cell_type, y = int_cell_type, size = N))
+    pl = pl + scale_size_continuous(guide=guide_legend(title = '# of DEGs'))
+    pl = pl + theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1))
+    pl = pl + labs(x = 'source cell type', y = 'neighbor cell type')
+
+    ## print plot
+    if(show_plot == TRUE) {
+      print(pl)
+    }
+
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+    }
+
+    ## return plot
+    if(return_plot == TRUE) {
+      return(pl)
+    }
+
+  } else if(method == 'heatmap') {
+
+    changed_genes = complete_part[, .N, by = c('cell_type', 'int_cell_type')]
+
+    changed_genes[, cell_type := factor(cell_type, unique(cell_type))]
+    changed_genes[, int_cell_type := factor(int_cell_type, unique(int_cell_type))]
+
+    changed_genes_d = data.table::dcast.data.table(changed_genes, cell_type~int_cell_type, value.var = 'N', fill = 0)
+    changed_genes_m = Giotto:::dt_to_matrix(changed_genes_d)
+
+    col_fun = circlize::colorRamp2(breaks = quantile(log2(changed_genes_m+1)),
+                                   colors =  c("white", 'white', "blue", "yellow", "red"))
+
+    heatm = ComplexHeatmap::Heatmap(log2(changed_genes_m+1), col = col_fun,
+                                    row_title = 'cell_type', column_title = 'int_cell_type', heatmap_legend_param = list(title = 'log2(# DEGs)'))
+
+    ## print plot
+    if(show_plot == TRUE) {
+      print(heatm)
+    }
+
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = heatm, default_save_name = default_save_name), save_param))
+    }
+
+    ## return plot
+    if(return_plot == TRUE) {
+      return(heatm)
+    }
+
+  }
+
+
+}
+
+
+#' @title plotCPG
+#' @name plotCPG
+#' @description Create visualization for cell proximity gene scores
+#' @param gobject giotto object
+#' @param cpgObject cell proximity gene score object
+#' @param method plotting method to use
+#' @param min_cells minimum number of target cell type
+#' @param min_int_cells minimum number of interacting cell type
+#' @param min_fdr minimum adjusted p-value
+#' @param min_spat_diff minimum absolute spatial expression difference
+#' @param min_log2_fc minimum absolute log2 fold-change#' @param facet_scales ggplot facet scales paramter
+#' @param direction differential expression directions to keep
+#' @param cell_color_code vector of colors with cell types as names
+#' @param show_plot show plots
+#' @param return_plot return plotting object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return plot
+#' @export
+#' @examples
+#'     plotCPG(CPGscores)
+plotCPG = function(gobject,
+                   cpgObject,
+                   method = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey', 'heatmap', 'dotplot'),
+                   min_cells = 5,
+                   min_int_cells = 3,
+                   min_fdr = 0.05,
+                   min_spat_diff = 0.2,
+                   min_log2_fc = 0.2,
+                   direction = c('both', 'up', 'down'),
+                   cell_color_code = NULL,
+                   show_plot = NA,
+                   return_plot = NA,
+                   save_plot = NA,
+                   save_param =  list(),
+                   default_save_name = 'showCPGscores'
+) {
+
+
+  plotCellProximityGenes(gobject = gobject,
+                         cpgObject = cpgObject,
+                         method = method,
+                         min_cells = min_cells,
+                         min_int_cells = min_int_cells,
+                         min_fdr = min_fdr,
+                         min_spat_diff = min_spat_diff,
+                         min_log2_fc = min_log2_fc,
+                         direction = direction,
+                         cell_color_code = cell_color_code,
+                         show_plot = show_plot,
+                         return_plot = return_plot,
+                         save_plot = save_plot,
+                         save_param =  save_param,
+                         default_save_name = default_save_name)
+
+
+}
+
+
+
+#' @title plotCombineCellProximityGenes
+#' @name plotCombineCellProximityGenes
+#' @description Create visualization for combined (pairwise) cell proximity gene scores
+#' @param gobject giotto object
+#' @param combCpgObject CPGscores, output from combineCellProximityGenes()
+#' @param selected_interactions interactions to show
+#' @param selected_gene_to_gene pairwise gene combinations to show
+#' @param detail_plot show detailed info in both interacting cell types
+#' @param simple_plot show a simplified plot
+#' @param simple_plot_facet facet on interactions or genes with simple plot
+#' @param facet_scales ggplot facet scales paramter
+#' @param facet_ncol ggplot facet ncol parameter
+#' @param facet_nrow ggplot facet nrow parameter
+#' @param colors vector with two colors to use
+#' @param show_plot show plots
+#' @param return_plot return plotting object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @export
+#' @examples
+#'     plotCombineCellProximityGenes(CPGscores)
+plotCombineCellProximityGenes <- function(gobject,
+                                          combCpgObject,
+                                          selected_interactions = NULL,
+                                          selected_gene_to_gene = NULL,
+                                          detail_plot = T,
+                                          simple_plot = F,
+                                          simple_plot_facet = c('interaction', 'genes'),
+                                          facet_scales = 'fixed',
+                                          facet_ncol = length(selected_gene_to_gene),
+                                          facet_nrow = length(selected_interactions),
+                                          colors = c('blue', 'red'),
+                                          show_plot = NA,
+                                          return_plot = NA,
+                                          save_plot = NA,
+                                          save_param =  list(),
+                                          default_save_name = 'plotCombineCPG') {
+
+
+
+  ## check validity
+  if(!'combCpgObject' %in% class(combCpgObject)) {
+    stop('\n combCpgObject needs to be the output from combineCellProximityGenes() or combineCPG() \n')
+  }
+  combCPGscore = copy(combCpgObject[['combCPGscores']])
+
+  if(is.null(selected_interactions) | is.null(selected_gene_to_gene)) {
+    stop('\n You need to provide a selection of cell-cell interactions and genes-genes to plot \n')
+  }
+
+
+
+
+  subDT = combCPGscore[unif_gene_gene %in% selected_gene_to_gene & unif_int %in% selected_interactions]
+
+  # order interactions and gene-to-gene according to input
+  subDT[, unif_gene_gene := factor(unif_gene_gene, levels = selected_gene_to_gene)]
+  subDT[, unif_int := factor(unif_int, levels = selected_interactions)]
+
+  if(simple_plot == F) {
+
+    pl <- ggplot2::ggplot()
+    pl <- pl + ggplot2::theme_bw()
+
+    if(detail_plot == TRUE) {
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = 0, y = other_2, colour = "all cell expression"),shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = 0, y = sel_2, colour = "selected cell expression"), shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = other_1, y = 0, colour = "all cell expression"), shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sel_1, y = 0,colour ="selected cell expression"), shape = 1)
+    }
+
+    pl <- pl + ggplot2::geom_point(data = subDT, aes(x = other_1, y = other_2, colour = "all cell expression"),size = 2)
+    pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sel_1, y = sel_2, colour ="selected cell expression"), size = 2)
+    pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = other_1, xend = sel_1,
+                                                       y = other_2, yend = sel_2), linetype = 2)
+    #pl <- pl + ggplot2::labs(x = 'gene 1 in celltype 1', y = 'gene 2 in celltype 2')
+    pl <- pl + ggplot2::labs(x = paste(subDT$genes_1, subDT$cell_type_1, sep = " in ")
+                             , y = paste(subDT$genes_2, subDT$cell_type_2, sep = " in "))
+    pl <- pl + ggplot2::scale_colour_manual(name="expression source",values = colors)
+    pl <- pl + ggplot2::facet_wrap(~unif_gene_gene+unif_int, nrow = facet_nrow, ncol = facet_ncol,
+                                   scales = facet_scales)
+
+  }else {
+
+    simple_plot_facet = match.arg(arg = simple_plot_facet, choices = c('interaction', 'genes'))
+
+    if(simple_plot_facet == 'interaction') {
+      pl <- ggplot2::ggplot()
+      pl <- pl + ggplot2::theme_bw()
+      pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = sum(c(other_1, other_2)), xend = sum(c(sel_1, sel_2)),
+                                                         y = unif_gene_gene, yend = unif_gene_gene), linetype = 2)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sum(c(other_1, other_2)), y = unif_gene_gene,colour = "all cell expression"))
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sum(c(sel_1, sel_2)), y = unif_gene_gene,colour ="selected cell expression"))
+      pl <- pl + ggplot2::scale_colour_manual(name="expression source",values=cols)
+      pl <- pl + ggplot2::facet_wrap(~unif_int, scales = facet_scales)
+      pl <- pl + ggplot2::labs(x = 'interactions', y = 'gene-gene')
+    } else {
+      pl <- ggplot2::ggplot()
+      pl <- pl + ggplot2::theme_bw()
+      pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = sum(c(other_1, other_2)), xend = sum(c(sel_1, sel_2)),
+                                                         y = unif_int, yend = unif_int), linetype = 2)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sum(c(other_1, other_2)), y = unif_int, colour = "all cell expression"))
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sum(c(sel_1, sel_2)), y = unif_int, colour ="selected cell expression"))
+      pl <- pl + ggplot2::scale_colour_manual(name="expression source",values=cols)
+      pl <- pl + ggplot2::facet_wrap(~unif_gene_gene, scales = facet_scales)
+      pl <- pl + ggplot2::labs(x = 'gene-gene', y = 'interactions')
+    }
+  }
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
+
+}
+
+
+
+#' @title plotCombineCPG
+#' @name plotCombineCPG
+#' @description Create visualization for combined (pairwise) cell proximity gene scores
+#' @param gobject giotto object
+#' @param combCpgObject CPGscores, output from combineCellProximityGenes()
+#' @param selected_interactions interactions to show
+#' @param selected_gene_to_gene pairwise gene combinations to show
+#' @param detail_plot show detailed info in both interacting cell types
+#' @param simple_plot show a simplified plot
+#' @param simple_plot_facet facet on interactions or genes with simple plot
+#' @param facet_scales ggplot facet scales paramter
+#' @param facet_ncol ggplot facet ncol parameter
+#' @param facet_nrow ggplot facet nrow parameter
+#' @param colors vector with two colors to use
+#' @param show_plot show plots
+#' @param return_plot return plotting object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @export
+#' @examples
+#'     plotCombineCPG(CPGscores)
+plotCombineCPG <- function(gobject,
+                           combCpgObject,
+                           selected_interactions = NULL,
+                           selected_gene_to_gene = NULL,
+                           detail_plot = T,
+                           simple_plot = F,
+                           simple_plot_facet = c('interaction', 'genes'),
+                           facet_scales = 'fixed',
+                           facet_ncol = length(selected_gene_to_gene),
+                           facet_nrow = length(selected_interactions),
+                           colors = c('blue', 'red'),
+                           show_plot = NA,
+                           return_plot = NA,
+                           save_plot = NA,
+                           save_param =  list(),
+                           default_save_name = 'plotCombineCPG') {
+
+
+  plotCombineCellProximityGenes(gobject = gobject,
+                                combCpgObject = combCpgObject,
+                                selected_interactions = selected_interactions,
+                                selected_gene_to_gene = selected_gene_to_gene,
+                                detail_plot = detail_plot,
+                                simple_plot = simple_plot,
+                                simple_plot_facet = simple_plot_facet,
+                                facet_scales = facet_scales,
+                                facet_ncol = facet_ncol,
+                                facet_nrow = facet_nrow,
+                                colors = colors,
+                                show_plot = show_plot,
+                                return_plot = return_plot,
+                                save_plot = save_plot,
+                                save_param =  save_param,
+                                default_save_name = default_save_name)
+
+
+}
+
+
+
+# * ####
+# cell communication plots ####
+
+
+#' @title plotCCcomHeatmap
+#' @name plotCCcomHeatmap
+#' @description Plots heatmap for ligand-receptor communication scores in cell-cell interactions
+#' @param gobject giotto object
+#' @param comScores communinication scores from \code{\link{exprCellCellcom}} or \code{\link{spatCellCellcom}}
+#' @param selected_LR selected ligand-receptor combinations
+#' @param selected_cell_LR selected cell-cell combinations for ligand-receptor combinations
+#' @param show_LR_names show ligand-receptor names
+#' @param show_cell_LR_names show cell-cell names
+#' @param show values to show on heatmap
+#' @param show_plot show plots
+#' @param return_plot return plotting object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @export
+#' @examples
+#'     plotCCcomHeatmap(CPGscores)
+plotCCcomHeatmap = function(gobject,
+                            comScores,
+                            selected_LR = NULL,
+                            selected_cell_LR = NULL,
+                            show_LR_names = TRUE,
+                            show_cell_LR_names = TRUE,
+                            show = c('PI', 'LR_expr', 'log2fc'),
+                            show_plot = NA,
+                            return_plot = NA,
+                            save_plot = NA,
+                            save_param =  list(),
+                            default_save_name = 'plotCCcomHeatmap') {
+
+
+  # plot method
+  if(!is.null(selected_LR) & !is.null(selected_cell_LR)) {
+    selDT = comScores[LR_comb %in% selected_LR & LR_cell_comb %in% selected_cell_LR]
+  } else if(!is.null(selected_LR)) {
+    selDT = comScores[LR_comb %in% selected_LR]
+  } else if(!is.null(selected_cell_LR)) {
+    selDT = comScores[LR_cell_comb %in% selected_cell_LR]
+  } else {
+    selDT = comScores
+  }
+
+  # creat matrix
+  show = match.arg(show, choices = c('PI', 'LR_expr', 'log2fc'))
+  selDT_d = data.table::dcast.data.table(selDT, LR_cell_comb~LR_comb, value.var = show, fill = 0)
+  selDT_m = Giotto:::dt_to_matrix(selDT_d)
+
+  ## cells
+  corclus_cells_dist = as.dist(1-cor(x = t(selDT_m)))
+  hclusters_cells = stats::hclust(d = corclus_cells_dist)
+  clus_names = rownames(selDT_m)
+  names(clus_names) = 1:length(clus_names)
+  clus_sort_names = clus_names[hclusters_cells$order]
+  selDT[, LR_cell_comb := factor(LR_cell_comb, clus_sort_names)]
+
+  ## genes
+  corclus_genes_dist = as.dist(1-cor(x = selDT_m))
+  hclusters_genes = stats::hclust(d = corclus_genes_dist)
+  clus_names = colnames(selDT_m)
+  names(clus_names) = 1:length(clus_names)
+  clus_sort_names = clus_names[hclusters_genes$order]
+  selDT[, LR_comb := factor(LR_comb, clus_sort_names)]
+
+
+
+  pl = ggplot2::ggplot()
+  pl = pl + ggplot2::geom_raster(data = selDT, aes_string(x = 'LR_cell_comb',
+                                                  y = 'LR_comb', fill = show))
+
+  pl = pl + ggplot2::theme_classic() + ggplot2::theme(axis.text.x = element_blank(),
+                                     axis.ticks = element_blank(),
+                                     axis.text.y = element_blank())
+  if(show_LR_names == TRUE) pl <- pl + ggplot2::theme(axis.text.y = element_text(),
+                                             axis.ticks.y = element_line())
+  if(show_cell_LR_names == TRUE) pl <- pl + ggplot2::theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1),
+                                                  axis.ticks.x = element_line())
+  pl = pl + ggplot2::scale_fill_gradientn(colours = c('darkblue', 'blue', 'white', 'red', 'darkred'))
+  pl = pl + ggplot2::labs(x = 'cell-cell', y = 'ligand-receptor')
+
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
+
+}
+
+
+
+#' @title plotCCcomDotplot
+#' @name plotCCcomDotplot
+#' @description Plots dotplot for ligand-receptor communication scores in cell-cell interactions
+#' @param gobject giotto object
+#' @param comScores communinication scores from \code{\link{exprCellCellcom}} or \code{\link{spatCellCellcom}}
+#' @param selected_LR selected ligand-receptor combinations
+#' @param selected_cell_LR selected cell-cell combinations for ligand-receptor combinations
+#' @param show_LR_names show ligand-receptor names
+#' @param show_cell_LR_names show cell-cell names
+#' @param show values to show on heatmap
+#' @param show_plot show plots
+#' @param return_plot return plotting object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @export
+#' @examples
+#'     plotCCcomDotplot(CPGscores)
+plotCCcomDotplot = function(gobject,
+                            comScores,
+                            selected_LR = NULL,
+                            selected_cell_LR = NULL,
+                            show_LR_names = TRUE,
+                            show_cell_LR_names = TRUE,
+                            cluster_on = c('PI', 'LR_expr', 'log2fc'),
+                            show_plot = NA,
+                            return_plot = NA,
+                            save_plot = NA,
+                            save_param =  list(),
+                            default_save_name = 'plotCCcomDotplot') {
+
+
+  # plot method
+  if(!is.null(selected_LR) & !is.null(selected_cell_LR)) {
+    selDT = comScores[LR_comb %in% selected_LR & LR_cell_comb %in% selected_cell_LR]
+  } else if(!is.null(selected_LR)) {
+    selDT = comScores[LR_comb %in% selected_LR]
+  } else if(!is.null(selected_cell_LR)) {
+    selDT = comScores[LR_cell_comb %in% selected_cell_LR]
+  } else {
+    selDT = comScores
+  }
+
+  # creat matrix
+  cluster_on = match.arg(cluster_on, choices = c('PI', 'LR_expr', 'log2fc'))
+  selDT_d = data.table::dcast.data.table(selDT, LR_cell_comb~LR_comb, value.var = cluster_on, fill = 0)
+  selDT_m = Giotto:::dt_to_matrix(selDT_d)
+
+  ## cells
+  corclus_cells_dist = as.dist(1-cor(x = t(selDT_m)))
+  hclusters_cells = stats::hclust(d = corclus_cells_dist)
+  clus_names = rownames(selDT_m)
+  names(clus_names) = 1:length(clus_names)
+  clus_sort_names = clus_names[hclusters_cells$order]
+  selDT[, LR_cell_comb := factor(LR_cell_comb, clus_sort_names)]
+
+  ## genes
+  corclus_genes_dist = as.dist(1-cor(x = selDT_m))
+  hclusters_genes = stats::hclust(d = corclus_genes_dist)
+  clus_names = colnames(selDT_m)
+  names(clus_names) = 1:length(clus_names)
+  clus_sort_names = clus_names[hclusters_genes$order]
+  selDT[, LR_comb := factor(LR_comb, clus_sort_names)]
+
+
+
+  pl = ggplot2::ggplot()
+  pl = pl + ggplot2::geom_point(data = selDT, aes_string(x = 'LR_cell_comb',
+                                                 y = 'LR_comb', size = 'pvalue', color = 'log2fc'))
+
+  if(show_LR_names == TRUE) pl = pl + ggplot2::theme(axis.text.y = element_text(),
+                                             axis.ticks.y = element_line())
+  if(show_cell_LR_names == TRUE) pl = pl + ggplot2::theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1),
+                                                  axis.ticks.x = element_line())
+  pl = pl + ggplot2::scale_fill_gradientn(colours = c('darkblue', 'blue', 'white', 'red', 'darkred'))
+  pl = pl + ggplot2::scale_size_continuous(range = c(5, 0.5)) + scale_color_gradientn(colours = c('darkblue', 'blue', 'white', 'red', 'darkred'))
+  pl = pl + ggplot2::labs(x = 'cell-cell', y = 'ligand-receptor')
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
+
+}
+
+
+
+#' @title plotRankSpatvsExpr
+#' @name plotRankSpatvsExpr
+#' @description Plots dotplot to compare ligand-receptor rankings from spatial and expression information
+#' @param gobject giotto object
+#' @param combCC combined communinication scores from \code{\link{combCCcom}}
+#' @param expr_rnk_column column with expression rank information to use
+#' @param spat_rnk_column column with spatial rank information to use
+#' @param midpoint midpoint of colors
+#' @param size_range size ranges of dotplot
+#' @param xlims x-limits, numerical vector of 2
+#' @param ylims y-limits, numerical vector of 2
+#' @param selected_ranks numerical vector, will be used to print out the percentage of top spatial ranks are recovered
+#' @param show_plot show plots
+#' @param return_plot return plotting object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @export
+#' @examples
+#'     plotRankSpatvsExpr(CPGscores)
+plotRankSpatvsExpr = function(gobject,
+                              combCC,
+                              expr_rnk_column = 'LR_expr_rnk',
+                              spat_rnk_column = 'LR_spat_rnk',
+                              midpoint = 10,
+                              size_range = c(0.01, 1.5),
+                              xlims = NULL,
+                              ylims = NULL,
+                              selected_ranks = c(1, 10, 20),
+                              show_plot = NA,
+                              return_plot = NA,
+                              save_plot = NA,
+                              save_param =  list(),
+                              default_save_name = 'plotRankSpatvsExpr') {
+
+
+  total_rnks = max(unique(combCC[[expr_rnk_column]]))
+
+  rnk_list = list()
+  spt_list = list()
+  for(rnk in 1:total_rnks) {
+
+    mytab = table(cut(sort(combCC[get(expr_rnk_column) == rnk][[spat_rnk_column]]), breaks = seq(0,total_rnks,1), labels = c(1:total_rnks)))
+    rnk_list[[rnk]] = mytab
+    spt_list[[rnk]] = names(mytab)
+  }
+
+  rnk_res = as.data.table(do.call('rbind', rnk_list))
+  rnk_res[, spt_rank := 1:total_rnks]
+
+  rnk_res_m = melt.data.table(rnk_res, id.vars = 'spt_rank')
+  rnk_res_m[, spt_rank := as.numeric(spt_rank)]
+  rnk_res_m[, variable := as.numeric(variable)]
+
+  rnk_res_m[, diff := variable - spt_rank]
+
+  for(i in selected_ranks) {
+    perc_recovered = 100*(sum(rnk_res_m[abs(diff) < i]$value)/sum(rnk_res_m$value))
+    cat('for top ', i, ' expression ranks, you recover ', round(perc_recovered, 2), '% of the highest spatial rank \n')
+  }
+
+
+  # full plot
+  pl = ggplot2::ggplot()
+  pl = pl + ggplot2::theme_classic() + ggplot2::theme(axis.text = element_blank())
+  pl = pl + ggplot2::geom_point(data = rnk_res_m, aes(x = variable, y = spt_rank, size = value, color = value))
+  pl = pl + ggplot2::scale_color_gradient2(low = 'blue', mid = 'yellow', high = 'red', midpoint = midpoint, guide = guide_legend(title = ''))
+  pl = pl + ggplot2::scale_size_continuous(range = size_range, guide = F)
+  pl = pl + ggplot2::labs(x = 'expression rank', y = 'spatial rank')
+
+  if(!is.null(xlims)) {
+    pl = pl + xlim(xlims)
+  }
+
+  if(!is.null(ylims)) {
+    pl = pl + ylim(ylims)
+  }
+
+
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
+
+}
+
+
+
+
+#' @title plotRecovery_sub
+#' @name plotRecovery_sub
+#' @description Plots recovery plot to compare ligand-receptor rankings from spatial and expression information
+#' @param combCC combined communinication scores from \code{\link{combCCcom}}
+#' @param first_col first column to use
+#' @param second_col second column to use
+#' @examples
+#'     plotRecovery_sub(CPGscores)
+plotRecovery_sub = function(combCC,
+                            first_col = 'LR_expr_rnk',
+                            second_col = 'LR_spat_rnk') {
+
+  mergeDT_filt = combCC[get(first_col) == 1]
+
+  mymat = matrix(data = NA, nrow = max(combCC[[second_col]]), ncol = 2)
+  for(i in 1:max(combCC[[second_col]])) {
+
+    mergeDT_filt[, concord := ifelse(get(second_col) <= i, 'yes', 'no')]
+    mytable = table(mergeDT_filt$concord)
+
+    matching = mytable['yes']
+    if(is.na(matching)) matching = 0
+    mymat[i, 1] = matching
+
+    non_matching = mytable['no']
+    if(is.na(non_matching)) non_matching = 0
+    mymat[i, 2] = non_matching
+
+  }
+
+  mymatDT = data.table::as.data.table(mymat); colnames(mymatDT) = c('concord', 'not_concord')
+  mymatDT[, perc := 100*(concord / (concord+not_concord))]
+  mymatDT[, secondrank := 1:nrow(mymatDT)]
+  mymatDT[, secondrank_perc := (secondrank/max(secondrank))*100]
+
+  # percentage explained
+  perc_explained = mymatDT[, sum(perc)]/(100*nrow(mymat))
+  cat('percentage explained = ', perc_explained)
+
+
+  pl = ggplot2::ggplot()
+  pl = pl + ggplot2::theme_classic()
+  pl = pl + ggplot2::geom_point(data = mymatDT, aes(x = secondrank_perc, y = perc))
+  pl = pl + ggplot2::scale_x_continuous(expand = c(0,0), limits = c(0,100))
+  pl = pl + ggplot2::scale_y_continuous(expand = c(0,0), limits = c(0, 100))
+  pl = pl + ggplot2::geom_abline(slope = 1, intercept = 0, color = 'blue')
+
+  return(pl)
+
+}
+
+
+
+
+
+#' @title plotRecovery
+#' @name plotRecovery
+#' @description Plots recovery plot to compare ligand-receptor rankings from spatial and expression information
+#' @param gobject giotto object
+#' @param combCC combined communinication scores from \code{\link{combCCcom}}
+#' @param expr_rnk_column column with expression rank information to use
+#' @param spat_rnk_column column with spatial rank information to use
+#' @param ground_truth what to consider as ground truth (default: spatial)
+#' @param show_plot show plots
+#' @param return_plot return plotting object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @export
+#' @examples
+#'     plotRecovery(CPGscores)
+plotRecovery = function(gobject,
+                        combCC,
+                        expr_rnk_column = 'exprPI_rnk',
+                        spat_rnk_column = 'spatPI_rnk',
+                        ground_truth = c('spatial', 'expression'),
+                        show_plot = NA,
+                        return_plot = NA,
+                        save_plot = NA,
+                        save_param =  list(),
+                        default_save_name = 'plotRecovery') {
+
+  ground_truth = match.arg(ground_truth, choices = c('spatial', 'expression'))
+
+
+  if(ground_truth == 'spatial') {
+
+    pl = plotRecovery_sub(combCC = combCC,
+                          first_col = spat_rnk_column,
+                          second_col = expr_rnk_column)
+    pl = pl + ggplot2::labs(x = '% expression rank included', y = '% highest spatial rank recovered')
+
+  } else if(ground_truth == 'expression') {
+
+    pl = plotRecovery_sub(combCC = combCC,
+                          first_col = expr_rnk_column,
+                          second_col = spat_rnk_column)
+    pl = pl + ggplot2::labs(x = '% spatial rank included', y = '% highest expression rank recovered')
+
+  }
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
+
+}
 
 
 
@@ -2134,6 +3092,9 @@ plotCPGscores <- function(CPGscores,
 
 
 
+
+# * ####
+# cell proximity spatplots ####
 
 #' @title cellProximitySpatPlot2D
 #' @name cellProximitySpatPlot2D
