@@ -1565,7 +1565,7 @@ do_spatial_knn_smoothing = function(gobject,
   # merge spatial network with expression data
   expr_values_dt = data.table::as.data.table(expr_values); expr_values_dt[, gene_ID := rownames(expr_values)]
   expr_values_dt_m = data.table::melt.data.table(expr_values_dt, id.vars = 'gene_ID', variable.name = 'cell_ID')
-  spatial_network_ext = merge.data.table(spatial_network, expr_values_dt_m, by.x = 'to', by.y = 'cell_ID', allow.cartesian = T)
+  spatial_network_ext = data.table:::merge.data.table(spatial_network, expr_values_dt_m, by.x = 'to', by.y = 'cell_ID', allow.cartesian = T)
 
   # calculate mean over all k-neighbours
   spatial_network_ext_smooth = spatial_network_ext[, mean(value), by = c('from', 'gene_ID')]
@@ -1728,7 +1728,7 @@ detectSpatialCorGenes <- function(gobject,
                                                             min_cells_per_grid = min_cells_per_grid)
 
     cor_spat_matrix = stats::cor(t(loc_av_expr_matrix), method = cor_method)
-    cor_spat_matrixDT = as.data.table(cor_spat_matrix)
+    cor_spat_matrixDT = data.table::as.data.table(cor_spat_matrix)
     cor_spat_matrixDT[, gene_ID := rownames(cor_spat_matrix)]
     cor_spat_DT = data.table::melt.data.table(data = cor_spat_matrixDT,
                                               id.vars = 'gene_ID', value.name = 'spat_cor')
@@ -1743,7 +1743,7 @@ detectSpatialCorGenes <- function(gobject,
                                                            b = network_smoothing)
 
     cor_spat_matrix = stats::cor(t(knn_av_expr_matrix), method = cor_method)
-    cor_spat_matrixDT = as.data.table(cor_spat_matrix)
+    cor_spat_matrixDT = data.table::as.data.table(cor_spat_matrix)
     cor_spat_matrixDT[, gene_ID := rownames(cor_spat_matrix)]
     cor_spat_DT = data.table::melt.data.table(data = cor_spat_matrixDT,
                                               id.vars = 'gene_ID', value.name = 'spat_cor')
@@ -1831,7 +1831,7 @@ showSpatialCorGenes = function(spatCorObject,
     clusters = clusters_part
     names_clusters = names(clusters_part)
     clusters_DT = data.table::data.table('gene_ID' = names_clusters, 'clus' = clusters)
-    filter_DT = data.table::merge.data.table(filter_DT, clusters_DT, by = 'gene_ID')
+    filter_DT = data.table:::merge.data.table(filter_DT, clusters_DT, by = 'gene_ID')
   }
 
   ## 0. subset clusters
