@@ -15,7 +15,7 @@ plotCombineCellProximityGenes(
   facet_scales = "fixed",
   facet_ncol = length(selected_gene_to_gene),
   facet_nrow = length(selected_interactions),
-  colors = c("blue", "red"),
+  colors = c("#9932CC", "#FF8C00"),
   show_plot = NA,
   return_plot = NA,
   save_plot = NA,

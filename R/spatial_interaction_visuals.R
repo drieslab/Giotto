@@ -1977,7 +1977,7 @@ plotGTGscores <- function(gobject,
                                                 y = unif_gene_gene, yend = unif_gene_gene), linetype = 2)
       pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_cell_expr, y = unif_gene_gene,colour = "all cell expression"))
       pl <- pl + ggplot2::geom_point(data = subDT, aes(x = spatial_cell_expr, y = unif_gene_gene,colour ="selected cell expression"))
-      pl <- pl + ggplot2::scale_colour_manual(name="expression source",values=cols)
+      pl <- pl + ggplot2::scale_colour_manual(name="expression source",values=colors)
       pl <- pl + ggplot2::facet_wrap(~unified_int, scales = facet_scales)
       pl <- pl + ggplot2::labs(x = 'interactions', y = 'gene-gene')
     } else {
@@ -1987,7 +1987,7 @@ plotGTGscores <- function(gobject,
                                                 y = unified_int, yend = unified_int), linetype = 2)
       pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_cell_expr, y = unified_int,colour = "all cell expression"))
       pl <- pl + ggplot2::geom_point(data = subDT, aes(x = spatial_cell_expr, y = unified_int,colour ="selected cell expression"))
-      pl <- pl + ggplot2::scale_colour_manual(name="expression source",values=cols)
+      pl <- pl + ggplot2::scale_colour_manual(name="expression source",values=colors)
       pl <- pl + ggplot2::facet_wrap(~unif_gene_gene, scales = facet_scales)
       pl <- pl + ggplot2::labs(x = 'gene-gene', y = 'interactions')
     }
@@ -2165,8 +2165,7 @@ plotCellProximityGenes = function(gobject,
                                   return_plot = NA,
                                   save_plot = NA,
                                   save_param =  list(),
-                                  default_save_name = 'showCPGscores'
-) {
+                                  default_save_name = 'showCPGscores') {
 
 
   if(!'cpgObject' %in% class(cpgObject)) {
@@ -2419,8 +2418,7 @@ plotCPG = function(gobject,
                    return_plot = NA,
                    save_plot = NA,
                    save_param =  list(),
-                   default_save_name = 'showCPGscores'
-) {
+                   default_save_name = 'showCPGscores') {
 
 
   plotCellProximityGenes(gobject = gobject,
@@ -2477,7 +2475,7 @@ plotCombineCellProximityGenes <- function(gobject,
                                           facet_scales = 'fixed',
                                           facet_ncol = length(selected_gene_to_gene),
                                           facet_nrow = length(selected_interactions),
-                                          colors = c('blue', 'red'),
+                                          colors = c('#9932CC', '#FF8C00'),
                                           show_plot = NA,
                                           return_plot = NA,
                                           save_plot = NA,
@@ -2511,13 +2509,13 @@ plotCombineCellProximityGenes <- function(gobject,
     pl <- pl + ggplot2::theme_bw()
 
     if(detail_plot == TRUE) {
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = 0, y = other_2, colour = "all cell expression"),shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = 0, y = other_2, colour = "other cell expression"),shape = 1)
       pl <- pl + ggplot2::geom_point(data = subDT, aes(x = 0, y = sel_2, colour = "selected cell expression"), shape = 1)
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = other_1, y = 0, colour = "all cell expression"), shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = other_1, y = 0, colour = "other cell expression"), shape = 1)
       pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sel_1, y = 0,colour ="selected cell expression"), shape = 1)
     }
 
-    pl <- pl + ggplot2::geom_point(data = subDT, aes(x = other_1, y = other_2, colour = "all cell expression"),size = 2)
+    pl <- pl + ggplot2::geom_point(data = subDT, aes(x = other_1, y = other_2, colour = "other cell expression"),size = 2)
     pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sel_1, y = sel_2, colour ="selected cell expression"), size = 2)
     pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = other_1, xend = sel_1,
                                                        y = other_2, yend = sel_2), linetype = 2)
@@ -2537,7 +2535,7 @@ plotCombineCellProximityGenes <- function(gobject,
       pl <- pl + ggplot2::theme_bw()
       pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = sum(c(other_1, other_2)), xend = sum(c(sel_1, sel_2)),
                                                          y = unif_gene_gene, yend = unif_gene_gene), linetype = 2)
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sum(c(other_1, other_2)), y = unif_gene_gene,colour = "all cell expression"))
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sum(c(other_1, other_2)), y = unif_gene_gene,colour = "other cell expression"))
       pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sum(c(sel_1, sel_2)), y = unif_gene_gene,colour ="selected cell expression"))
       pl <- pl + ggplot2::scale_colour_manual(name="expression source",values=cols)
       pl <- pl + ggplot2::facet_wrap(~unif_int, scales = facet_scales)
@@ -2547,7 +2545,7 @@ plotCombineCellProximityGenes <- function(gobject,
       pl <- pl + ggplot2::theme_bw()
       pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = sum(c(other_1, other_2)), xend = sum(c(sel_1, sel_2)),
                                                          y = unif_int, yend = unif_int), linetype = 2)
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sum(c(other_1, other_2)), y = unif_int, colour = "all cell expression"))
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sum(c(other_1, other_2)), y = unif_int, colour = "other cell expression"))
       pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sum(c(sel_1, sel_2)), y = unif_int, colour ="selected cell expression"))
       pl <- pl + ggplot2::scale_colour_manual(name="expression source",values=cols)
       pl <- pl + ggplot2::facet_wrap(~unif_gene_gene, scales = facet_scales)
@@ -2612,7 +2610,7 @@ plotCombineCPG <- function(gobject,
                            facet_scales = 'fixed',
                            facet_ncol = length(selected_gene_to_gene),
                            facet_nrow = length(selected_interactions),
-                           colors = c('blue', 'red'),
+                           colors = c('#9932CC', '#FF8C00'),
                            show_plot = NA,
                            return_plot = NA,
                            save_plot = NA,
@@ -2644,6 +2642,197 @@ plotCombineCPG <- function(gobject,
 
 # * ####
 # cell communication plots ####
+
+
+#' @title plotCombineCellCellCommunication
+#' @name plotCombineCellCellCommunication
+#' @description Create visualization for combined (pairwise) cell proximity gene scores
+#' @param gobject giotto object
+#' @param combCCcom combined communcation scores, output from combCCcom()
+#' @param selected_LR selected ligand-receptor pair
+#' @param selected_cell_LR selected cell-cell interaction pair for ligand-receptor pair
+#' @param detail_plot show detailed info in both interacting cell types
+#' @param simple_plot show a simplified plot
+#' @param simple_plot_facet facet on interactions or genes with simple plot
+#' @param facet_scales ggplot facet scales paramter
+#' @param facet_ncol ggplot facet ncol parameter
+#' @param facet_nrow ggplot facet nrow parameter
+#' @param colors vector with two colors to use
+#' @param show_plot show plots
+#' @param return_plot return plotting object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @export
+#' @examples
+#'     plotCombineCellCellCommunication(CPGscores)
+plotCombineCellCellCommunication <- function(gobject,
+                                             combCCcom,
+                                             selected_LR = NULL,
+                                             selected_cell_LR = NULL,
+                                             detail_plot = T,
+                                             simple_plot = F,
+                                             simple_plot_facet = c('interaction', 'genes'),
+                                             facet_scales = 'fixed',
+                                             facet_ncol = length(selected_LR),
+                                             facet_nrow = length(selected_cell_LR),
+                                             colors = c('#9932CC', '#FF8C00'),
+                                             show_plot = NA,
+                                             return_plot = NA,
+                                             save_plot = NA,
+                                             save_param =  list(),
+                                             default_save_name = 'plotCombineCellCellCommunication') {
+
+
+
+  ## check validity
+  if(is.null(selected_cell_LR) | is.null(selected_LR)) {
+    stop('\n You need to provide a selection of cell-cell interactions and genes-genes to plot \n')
+  }
+
+  subDT = combCCcom[LR_comb %in% selected_LR & LR_cell_comb %in% selected_cell_LR]
+
+  # order interactions and gene-to-gene according to input
+  subDT[, LR_comb := factor(LR_comb, levels = selected_LR)]
+  subDT[, LR_cell_comb := factor(LR_cell_comb, levels = selected_cell_LR)]
+
+  if(simple_plot == F) {
+
+    pl <- ggplot2::ggplot()
+    pl <- pl + ggplot2::theme_bw()
+
+    if(detail_plot == TRUE) {
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = 0, y = lig_expr, colour = "overall cell expression"),shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = 0, y = lig_expr_spat, colour = "spatial cell expression"), shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = rec_expr, y = 0, colour = "overall cell expression"), shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = rec_expr_spat, y = 0,colour ="spatial cell expression"), shape = 1)
+    }
+
+    pl <- pl + ggplot2::geom_point(data = subDT, aes(x = rec_expr, y = lig_expr, colour = "overall cell expression"),size = 2)
+    pl <- pl + ggplot2::geom_point(data = subDT, aes(x = rec_expr_spat, y = lig_expr_spat, colour ="spatial cell expression"), size = 2)
+    pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = rec_expr, xend = rec_expr_spat,
+                                                       y = lig_expr, yend = lig_expr_spat), linetype = 2)
+    #pl <- pl + ggplot2::labs(x = 'gene 1 in celltype 1', y = 'gene 2 in celltype 2')
+    pl <- pl + ggplot2::labs(x = paste(subDT$receptor, subDT$rec_cell_type, sep = " in ")
+                             , y = paste(subDT$ligand, subDT$lig_cell_type, sep = " in "))
+    pl <- pl + ggplot2::scale_colour_manual(name="expression source",values = colors)
+    pl <- pl + ggplot2::facet_wrap(~LR_comb+LR_cell_comb, nrow = facet_nrow, ncol = facet_ncol,
+                                   scales = facet_scales)
+
+  }else {
+
+    simple_plot_facet = match.arg(arg = simple_plot_facet, choices = c('interaction', 'genes'))
+
+    if(simple_plot_facet == 'interaction') {
+      pl <- ggplot2::ggplot()
+      pl <- pl + ggplot2::theme_bw()
+      pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = LR_expr, xend = LR_expr_spat,
+                                                         y = LR_comb, yend = LR_comb), linetype = 2)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = LR_expr, y = LR_comb, colour = "overall cell expression"))
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = LR_expr_spat, y = LR_comb,colour ="spatial cell expression"))
+      pl <- pl + ggplot2::scale_colour_manual(name="expression source",values=colors)
+      pl <- pl + ggplot2::facet_wrap(~LR_cell_comb, scales = 'fixed')
+      pl <- pl + ggplot2::labs(x = 'interactions', y = 'gene-gene')
+      pl
+
+    } else {
+      pl <- ggplot2::ggplot()
+      pl <- pl + ggplot2::theme_bw()
+      pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = LR_expr, xend = LR_expr_spat,
+                                                         y = LR_cell_comb, yend = LR_cell_comb), linetype = 2)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = LR_expr, y = LR_cell_comb, colour = "overall cell expression"))
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = LR_expr_spat, y = LR_cell_comb, colour ="spatial cell expression"))
+      pl <- pl + ggplot2::scale_colour_manual(name="expression source",values=colors)
+      pl <- pl + ggplot2::facet_wrap(~LR_comb, scales = facet_scales)
+      pl <- pl + ggplot2::labs(x = 'gene-gene', y = 'interactions')
+    }
+  }
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
+
+}
+
+
+
+#' @title plotCombineCCcom
+#' @name plotCombineCCcom
+#' @description Create visualization for combined (pairwise) cell proximity gene scores
+#' @param gobject giotto object
+#' @param combCCcom combined communcation scores, output from combCCcom()
+#' @param selected_LR selected ligand-receptor pair
+#' @param selected_cell_LR selected cell-cell interaction pair for ligand-receptor pair
+#' @param detail_plot show detailed info in both interacting cell types
+#' @param simple_plot show a simplified plot
+#' @param simple_plot_facet facet on interactions or genes with simple plot
+#' @param facet_scales ggplot facet scales paramter
+#' @param facet_ncol ggplot facet ncol parameter
+#' @param facet_nrow ggplot facet nrow parameter
+#' @param colors vector with two colors to use
+#' @param show_plot show plots
+#' @param return_plot return plotting object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @export
+#' @examples
+#'     plotCombineCCcom(CPGscores)
+plotCombineCCcom = function(gobject,
+                            combCCcom,
+                            selected_LR = NULL,
+                            selected_cell_LR = NULL,
+                            detail_plot = T,
+                            simple_plot = F,
+                            simple_plot_facet = c('interaction', 'genes'),
+                            facet_scales = 'fixed',
+                            facet_ncol = length(selected_LR),
+                            facet_nrow = length(selected_cell_LR),
+                            colors = c('#9932CC', '#FF8C00'),
+                            show_plot = NA,
+                            return_plot = NA,
+                            save_plot = NA,
+                            save_param =  list(),
+                            default_save_name = 'plotCombineCCcom') {
+
+
+  plotCombineCellCellCommunication(gobject = gobject,
+                                   combCCcom = combCCcom,
+                                   selected_LR = selected_LR,
+                                   selected_cell_LR = selected_cell_LR,
+                                   detail_plot = detail_plot,
+                                   simple_plot = simple_plot,
+                                   simple_plot_facet = simple_plot_facet,
+                                   facet_scales = facet_scales,
+                                   facet_ncol = facet_ncol,
+                                   facet_nrow = facet_nrow,
+                                   colors = colors,
+                                   show_plot = show_plot,
+                                   return_plot = return_plot,
+                                   save_plot = save_plot,
+                                   save_param =  save_param,
+                                   default_save_name = default_save_name)
+
+}
+
 
 
 #' @title plotCCcomHeatmap
