@@ -2657,7 +2657,7 @@ plotCombineCPG <- function(gobject,
 #' @param show_cell_LR_names show cell-cell names
 #' @param show values to show on heatmap
 #' @param cor_method correlation method used for clustering
-#' @param dist_method distance method used for clustering
+#' @param aggl_method agglomeration method used by hclust
 #' @param show_plot show plots
 #' @param return_plot return plotting object
 #' @param save_plot directly save the plot [boolean]
@@ -2675,7 +2675,7 @@ plotCCcomHeatmap = function(gobject,
                             show_cell_LR_names = TRUE,
                             show = c('PI', 'LR_expr', 'log2fc'),
                             cor_method = c("pearson", "kendall", "spearman"),
-                            dist_method = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
+                            aggl_method = c("ward.D", "ward.D2", "single", "complete", "average", "mcquitty", "median", "centroid"),
                             show_plot = NA,
                             return_plot = NA,
                             save_plot = NA,
@@ -2685,8 +2685,8 @@ plotCCcomHeatmap = function(gobject,
 
   # get parameters
   cor_method = match.arg(cor_method, choices = c("pearson", "kendall", "spearman"))
-  dist_method = match.arg(dist_method, choices = c("euclidean", "maximum", "manhattan",
-                                                   "canberra", "binary", "minkowski"))
+  aggl_method = match.arg(aggl_method, choices = c("ward.D", "ward.D2", "single", "complete",
+                                                   "average", "mcquitty", "median", "centroid"))
 
 
   # plot method
@@ -2707,7 +2707,7 @@ plotCCcomHeatmap = function(gobject,
 
   ## cells
   corclus_cells_dist = as.dist(1-cor(x = t(selDT_m), method = cor_method))
-  hclusters_cells = stats::hclust(d = corclus_cells_dist, method = dist_method)
+  hclusters_cells = stats::hclust(d = corclus_cells_dist, method = aggl_method)
   clus_names = rownames(selDT_m)
   names(clus_names) = 1:length(clus_names)
   clus_sort_names = clus_names[hclusters_cells$order]
@@ -2715,7 +2715,7 @@ plotCCcomHeatmap = function(gobject,
 
   ## genes
   corclus_genes_dist = as.dist(1-cor(x = selDT_m, method = cor_method))
-  hclusters_genes = stats::hclust(d = corclus_genes_dist, method = dist_method)
+  hclusters_genes = stats::hclust(d = corclus_genes_dist, method = aggl_method)
   clus_names = colnames(selDT_m)
   names(clus_names) = 1:length(clus_names)
   clus_sort_names = clus_names[hclusters_genes$order]
@@ -2773,7 +2773,7 @@ plotCCcomHeatmap = function(gobject,
 #' @param show_cell_LR_names show cell-cell names
 #' @param cluster_on values to use for clustering of cell-cell and ligand-receptor pairs
 #' @param cor_method correlation method used for clustering
-#' @param dist_method distance method used for clustering
+#' @param aggl_method agglomeration method used by hclust
 #' @param show values to show on heatmap
 #' @param show_plot show plots
 #' @param return_plot return plotting object
@@ -2792,7 +2792,7 @@ plotCCcomDotplot = function(gobject,
                             show_cell_LR_names = TRUE,
                             cluster_on = c('PI', 'LR_expr', 'log2fc'),
                             cor_method = c("pearson", "kendall", "spearman"),
-                            dist_method = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
+                            aggl_method = c("ward.D", "ward.D2", "single", "complete", "average", "mcquitty", "median", "centroid"),
                             show_plot = NA,
                             return_plot = NA,
                             save_plot = NA,
@@ -2801,8 +2801,8 @@ plotCCcomDotplot = function(gobject,
 
   # get parameters
   cor_method = match.arg(cor_method, choices = c("pearson", "kendall", "spearman"))
-  dist_method = match.arg(dist_method, choices = c("euclidean", "maximum", "manhattan",
-                                                   "canberra", "binary", "minkowski"))
+  aggl_method = match.arg(aggl_method, choices = c("ward.D", "ward.D2", "single", "complete",
+                                                   "average", "mcquitty", "median", "centroid"))
 
 
   # plot method
@@ -2834,7 +2834,7 @@ plotCCcomDotplot = function(gobject,
 
   ## cells
   corclus_cells_dist = as.dist(1-cor(x = t(selDT_m), method = cor_method))
-  hclusters_cells = stats::hclust(d = corclus_cells_dist, method = dist_method)
+  hclusters_cells = stats::hclust(d = corclus_cells_dist, method = aggl_method)
   clus_names = rownames(selDT_m)
   names(clus_names) = 1:length(clus_names)
   clus_sort_names = clus_names[hclusters_cells$order]
@@ -2842,7 +2842,7 @@ plotCCcomDotplot = function(gobject,
 
   ## genes
   corclus_genes_dist = as.dist(1-cor(x = selDT_m, method = cor_method))
-  hclusters_genes = stats::hclust(d = corclus_genes_dist, method = dist_method)
+  hclusters_genes = stats::hclust(d = corclus_genes_dist, method = aggl_method)
   clus_names = colnames(selDT_m)
   names(clus_names) = 1:length(clus_names)
   clus_sort_names = clus_names[hclusters_genes$order]

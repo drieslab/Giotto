@@ -92,7 +92,7 @@ See FAQs for additional information.
 
 #### R installation
 
-You can install (\~1-5 mins) the development version of Giotto with:
+You can install (\~1-5 mins) Giotto with:
 
 ``` r
 library(devtools) # if not installed: install.packages('devtools') 

@@ -13,8 +13,8 @@ plotCCcomHeatmap(
   show_cell_LR_names = TRUE,
   show = c("PI", "LR_expr", "log2fc"),
   cor_method = c("pearson", "kendall", "spearman"),
-  dist_method = c("euclidean", "maximum", "manhattan", "canberra", "binary",
-    "minkowski"),
+  aggl_method = c("ward.D", "ward.D2", "single", "complete", "average", "mcquitty",
+    "median", "centroid"),
   show_plot = NA,
   return_plot = NA,
   save_plot = NA,
@@ -39,7 +39,7 @@ plotCCcomHeatmap(
 
 \item{cor_method}{correlation method used for clustering}
 
-\item{dist_method}{distance method used for clustering}
+\item{aggl_method}{agglomeration method used by hclust}
 
 \item{show_plot}{show plots}
 
