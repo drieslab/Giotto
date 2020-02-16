@@ -274,7 +274,6 @@ rankEnrich <- function(gobject,
   # output enrichment
   output_enrichment = match.arg(output_enrichment, choices = c('original', 'zscore'))
 
-
   enrichment = matrix(data = NA,
                       nrow = dim(sign_matrix)[2],
                       ncol = dim(expr_values)[2])
@@ -289,7 +288,6 @@ rankEnrich <- function(gobject,
   # fold change and ranking
   geneFold = expr_values - mean_gene_expr
   rankFold = t(matrixStats::colRanks(-geneFold, ties.method = "first"))
-
 
   rownames(rankFold) = rownames(expr_values)
   colnames(rankFold) = colnames(expr_values)

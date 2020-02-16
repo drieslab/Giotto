@@ -3042,7 +3042,7 @@ plotCCcomDotplot = function(gobject,
   pl = ggplot2::ggplot()
   pl = pl + ggplot2::geom_point(data = selDT, aes_string(x = 'LR_cell_comb',
                                                  y = 'LR_comb', size = 'pvalue', color = 'log2fc'))
-
+  pl = pl + ggplot2::theme_classic()
   if(show_LR_names == TRUE) pl = pl + ggplot2::theme(axis.text.y = element_text(),
                                              axis.ticks.y = element_line())
   if(show_cell_LR_names == TRUE) pl = pl + ggplot2::theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1),

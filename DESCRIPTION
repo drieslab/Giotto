@@ -41,7 +41,8 @@ Imports:
     reshape2,
     ggraph,
     Rcpp,
-    rlang (>= 0.4.3)
+    rlang (>= 0.4.3),
+    fitdistrplus
 Suggests:
     knitr,
     rmarkdown,

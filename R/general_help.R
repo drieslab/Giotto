@@ -212,20 +212,20 @@ stitchTileCoordinates <- function (location_file, Xtilespan, Ytilespan) {
 #' @title get10Xmatrix
 #' @description This function creates an expression matrix from a 10X structured folder
 #' @param path_to_data path to the 10X folder
-#' @param row_ids row ids to use (gene symbols or ensembl ids)
+#' @param gene_column_index which column from the features or genes .tsv file to use for row ids
 #' @return expression matrix from 10X
-#' @details A typical 10X folder is named raw_feature_bc_matrix or raw_feature_bc_matrix. It has 3 files:
+#' @details A typical 10X folder is named raw_feature_bc_matrix or raw_feature_bc_matrix and tt has 3 files:
 #' \itemize{
-#'   \item{barcodes}
-#'   \item{features.tsv.gz}
-#'   \item{matrix.mtx.gz}
+#'   \item{barcodes.tsv(.gz)}
+#'   \item{features.tsv(.gz) or genes.tsv(.gz)}
+#'   \item{matrix.mtx(.gz)}
 #' }
+#' By default the first column of the features or genes .tsv file will be used, however if multiple
+#' annotations are provided (e.g. ensembl gene ids and gene symbols) the user can select another column.
 #' @export
 #' @examples
 #'     get10Xmatrix(10Xmatrix)
-get10Xmatrix = function(path_to_data, row_ids = c('gene_symbols', 'ensembl_ids')) {
-
-  row_ids = match.arg(row_ids, c('gene_symbols', 'ensembl_ids'))
+get10Xmatrix = function(path_to_data, gene_column_index = 1) {
 
   # data directory
   files_10X = list.files(path_to_data)
@@ -237,18 +237,17 @@ get10Xmatrix = function(path_to_data, row_ids = c('gene_symbols', 'ensembl_ids')
   names(barcodes_vec) = 1:nrow(barcodesDT)
 
   # get features and create vector
-  features_file = grep(files_10X, pattern = 'features', value = T)
+  features_file = grep(files_10X, pattern = 'features|genes', value = T)
   featuresDT = fread(input = paste0(path_to_data,'/',features_file), header = F)
 
-  if(row_ids == 'gene_symbols') {
-    featuresDT[, total := .N, by = V2]
-    featuresDT[, gene_symbol := ifelse(total > 1, paste0(V2,'--',1:.N), V2), by = V2]
-    features_vec = featuresDT$gene_symbol
-    names(features_vec) = 1:nrow(featuresDT)
-  } else if(row_ids == 'ensembl_ids') {
-    features_vec = featuresDT$V1
-    names(features_vec) = 1:nrow(featuresDT)
-  }
+  g_name = colnames(featuresDT)[gene_column_index]
+  ## convert ensembl gene id to gene symbol ##
+  ## TODO
+
+  featuresDT[, total := .N, by = get(g_name)]
+  featuresDT[, gene_symbol := ifelse(total > 1, paste0(get(g_name),'--',1:.N), get(g_name)), by = get(g_name)]
+  features_vec = featuresDT$gene_symbol
+  names(features_vec) = 1:nrow(featuresDT)
 
   # get matrix
   matrix_file = grep(files_10X, pattern = 'matrix', value = T)
