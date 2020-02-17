@@ -193,7 +193,7 @@ if __name__=="__main__":
 		if not os.path.isdir(outdir):
 			os.mkdir(outdir)
 		edge_file = os.path.join(outdir, "edges.txt")
-		block_file = os.path.join(outdir "blocks.txt")
+		block_file = os.path.join(outdir, "blocks.txt")
 		#edge_file = "/tmp/edges.txt"
 		#block_file = "/tmp/blocks.txt"
 		fw = open(edge_file, "w")
