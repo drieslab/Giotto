@@ -221,6 +221,72 @@ cellProximityEnrichment <- function(gobject,
 
 
 
+#' @title addCellIntMetadata
+#' @name addCellIntMetadata
+#' @description Creates an additional metadata column with information about interacting and non-interacting cell types of the
+#' selected cell-cell interaction.
+#' @param gobject giotto object
+#' @param spatial_network name of spatial network to use
+#' @param cluster_column column of cell types
+#' @param cell_interaction cell-cell interaction to use
+#' @param name name for the new metadata column
+#' @param return_gobject return an updated giotto object
+#' @return Giotto object
+#' @details This function will create an additional metadata column which selects interacting cell types for a specific cell-cell
+#' interaction. For example, if you want to color interacting astrocytes and oligodendrocytes it will create a new metadata column with
+#' the values "select_astrocytes", "select_oligodendrocytes", "other_astrocytes", "other_oligodendroyctes" and "other". Where "other" is all
+#' other cell types found within the selected cell type column.
+#' @export
+#' @examples
+#'     addCellIntMetadata(gobject)
+addCellIntMetadata = function(gobject,
+                              spatial_network = 'spatial_network',
+                              cluster_column,
+                              cell_interaction,
+                              name = 'select_int',
+                              return_gobject = TRUE) {
+
+  if(is.null(spatial_network)) {
+    stop('spatial_network must be provided, this must be an existing spatial network \n')
+  }
+
+  if(is.null(cluster_column)) {
+    stop('cluster_column must be provided, this must be an existing cell metadata column, see pData(your_giotto_object) \n')
+  }
+
+  if(is.null(cell_interaction)) {
+    stop('cell_interaction must be provided, this must be cell--cell interaction between cell types in cluster_column \n')
+  }
+
+  # create spatial network
+  spatial_network_annot = annotateSpatialNetwork(gobject = gobject,
+                                                 spatial_network_name = spatial_network,
+                                                 cluster_column = cluster_column)
+
+  # selected vs other cells
+  selected_cells = unique(c(spatial_network_annot[unified_int == cell_interaction]$to,
+                            spatial_network_annot[unified_int == cell_interaction]$from))
+
+  cell_metadata = data.table::copy(pDataDT(gobject))
+  cell_type_1 = strsplit(cell_interaction, split = '--')[[1]][1]
+  cell_type_2 = strsplit(cell_interaction, split = '--')[[1]][2]
+
+  cell_metadata[, c(name) := ifelse(!get(cluster_column) %in% c(cell_type_1, cell_type_2), 'other',
+                                    ifelse(get(cluster_column) == cell_type_1 & cell_ID %in% selected_cells, paste0("select_", cell_type_1),
+                                           ifelse(get(cluster_column) == cell_type_2 & cell_ID %in% selected_cells, paste0("select_", cell_type_2),
+                                                  ifelse(get(cluster_column) == cell_type_1, paste0("other_", cell_type_1), paste0("other_", cell_type_2)))))]
+
+  if(return_gobject == TRUE) {
+    gobject@cell_metadata = cell_metadata
+    return(gobject)
+  } else {
+    return(cell_metadata)
+  }
+
+}
+
+
+
 
 # * ####
 # NEW CPGscores ####
