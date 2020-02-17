@@ -260,7 +260,9 @@ binGetSpatialGenesOld = function(gobject,
 #' @description performs fisher exact test
 spat_fish_func = function(gene,
                           bin_matrix,
-                          spat_mat) {
+                          spat_mat,
+                          calc_hub = F,
+                          hub_min_int = 3) {
 
   gene_vector = bin_matrix[rownames(bin_matrix) == gene,]
 
@@ -284,13 +286,25 @@ spat_fish_func = function(gene,
 
     possibs = c("1-1","0-1","1-0","0-0")
     missings_possibs = possibs[!possibs %in% unique(test)]
-    missings_vec = rep(1, length(missings_possibs))
-    names(missings_vec) = missings_possibs
-
-    test = c(test, missings_vec)
+    test = c(test, missings_possibs)
   }
 
-  return(fisher.test(matrix(table(test), byrow = T, nrow = 2))[c('p.value','estimate')])
+  if(calc_hub == TRUE) {
+    high_cells = names(gene_vector[gene_vector == 1])
+    subset_spat_mat = spat_mat[rownames(spat_mat) %in% high_cells, colnames(spat_mat) %in% high_cells]
+    rowhubs = rowSums(subset_spat_mat)
+    colhubs = colSums(subset_spat_mat)
+    hub_nr = length(unique(c(names(colhubs[colhubs > hub_min_int]), names(rowhubs[colhubs > hub_min_int]))))
+   fish_res = fisher.test(matrix(table(test), byrow = T, nrow = 2))[c('p.value','estimate')]
+
+   return(c(fish_res, hubs = list(hub_nr)))
+
+  } else {
+
+     return(fisher.test(matrix(table(test), byrow = T, nrow = 2))[c('p.value','estimate')])
+  }
+
+
 
 }
 
@@ -299,7 +313,9 @@ spat_fish_func = function(gene,
 #' @description calculate odds-ratio
 spat_OR_func = function(gene,
                         bin_matrix,
-                        spat_mat) {
+                        spat_mat,
+                        calc_hub = F,
+                        hub_min_int = 3) {
 
   gene_vector = bin_matrix[rownames(bin_matrix) == gene,]
 
@@ -323,12 +339,24 @@ spat_OR_func = function(gene,
 
     possibs = c("1-1","0-1","1-0","0-0")
     missings_possibs = possibs[!possibs %in% unique(test)]
-    missings_vec = rep(1, length(missings_possibs))
-    names(missings_vec) = missings_possibs
-
-    test = c(test, missings_vec)
+    test = c(test, missings_possibs)
   }
 
+
+  if(calc_hub == TRUE) {
+    high_cells = names(gene_vector[gene_vector == 1])
+    subset_spat_mat = spat_mat[rownames(spat_mat) %in% high_cells, colnames(spat_mat) %in% high_cells]
+    rowhubs = rowSums(subset_spat_mat)
+    colhubs = colSums(subset_spat_mat)
+    hub_nr = length(unique(c(names(colhubs[colhubs > hub_min_int]), names(rowhubs[colhubs > hub_min_int]))))
+
+    fish_matrix = matrix(table(test), byrow = T, nrow = 2)
+    fish_matrix = fish_matrix/1000
+    OR = ((fish_matrix[1]*fish_matrix[4]) / (fish_matrix[2]*fish_matrix[3]))
+
+    return(c(OR, hubs = list(hub_nr)))
+
+  }
 
   fish_matrix = matrix(table(test), byrow = T, nrow = 2)
   fish_matrix = fish_matrix/1000
@@ -349,6 +377,8 @@ spat_OR_func = function(gene,
 #' @param iter_max kmeans: iter.max parameter
 #' @param percentage_rank percentage of top cells for binarization
 #' @param do_fisher_test perform fisher test
+#' @param calc_hub calculate the number of hub cells
+#' @param hub_min_int minimum number of cell-cell interactions for a hub cell
 #' @param get_av_expr calculate the average expression per gene of the high expressing cells
 #' @param get_high_expr calculate the number of high expressing cells  per gene
 #' @param do_parallel run calculations in parallel with mclapply
@@ -381,6 +411,8 @@ binGetSpatialGenes = function(gobject,
                               iter_max = 10,
                               percentage_rank = 10,
                               do_fisher_test = TRUE,
+                              calc_hub = FALSE,
+                              hub_min_int = 3,
                               get_av_expr = TRUE,
                               get_high_expr = TRUE,
                               do_parallel = TRUE,
@@ -432,10 +464,12 @@ binGetSpatialGenes = function(gobject,
 
     if(do_fisher_test == TRUE) {
       save_list = parallel::mclapply(X = rownames(bin_matrix), mc.cores = cores,
-                                     FUN = spat_fish_func, bin_matrix = bin_matrix, spat_mat = spat_mat)
+                                     FUN = spat_fish_func, bin_matrix = bin_matrix, spat_mat = spat_mat,
+                                     calc_hub = calc_hub, hub_min_int = hub_min_int)
     } else {
       save_list = parallel::mclapply(X = rownames(bin_matrix), mc.cores = cores,
-                                     FUN = spat_OR_func, bin_matrix = bin_matrix, spat_mat = spat_mat)
+                                     FUN = spat_OR_func, bin_matrix = bin_matrix, spat_mat = spat_mat,
+                                     calc_hub = calc_hub, hub_min_int = hub_min_int)
     }
 
   } else {
@@ -446,12 +480,14 @@ binGetSpatialGenes = function(gobject,
     if(do_fisher_test == TRUE) {
       for(gene in rownames(bin_matrix)) {
         if(verbose == TRUE) print(gene)
-        save_list[[gene]] = spat_fish_func(gene = gene, bin_matrix = bin_matrix, spat_mat = spat_mat)
+        save_list[[gene]] = spat_fish_func(gene = gene, bin_matrix = bin_matrix, spat_mat = spat_mat,
+                                           calc_hub = calc_hub, hub_min_int = hub_min_int)
       }
     } else {
       for(gene in rownames(bin_matrix)) {
         if(verbose == TRUE) print(gene)
-        save_list[[gene]] = spat_OR_func(gene = gene, bin_matrix = bin_matrix, spat_mat = spat_mat)
+        save_list[[gene]] = spat_OR_func(gene = gene, bin_matrix = bin_matrix, spat_mat = spat_mat,
+                                         calc_hub = calc_hub, hub_min_int = hub_min_int)
       }
     }
 

@@ -4,7 +4,7 @@
 \alias{spat_OR_func}
 \title{spat_OR_func}
 \usage{
-spat_OR_func(gene, bin_matrix, spat_mat)
+spat_OR_func(gene, bin_matrix, spat_mat, calc_hub = F, hub_min_int = 3)
 }
 \description{
 calculate odds-ratio

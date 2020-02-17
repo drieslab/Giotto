@@ -14,6 +14,8 @@ binGetSpatialGenes(
   iter_max = 10,
   percentage_rank = 10,
   do_fisher_test = TRUE,
+  calc_hub = FALSE,
+  hub_min_int = 3,
   get_av_expr = TRUE,
   get_high_expr = TRUE,
   do_parallel = TRUE,
@@ -39,6 +41,10 @@ binGetSpatialGenes(
 \item{percentage_rank}{percentage of top cells for binarization}
 
 \item{do_fisher_test}{perform fisher test}
+
+\item{calc_hub}{calculate the number of hub cells}
+
+\item{hub_min_int}{minimum number of cell-cell interactions for a hub cell}
 
 \item{get_av_expr}{calculate the average expression per gene of the high expressing cells}
 
