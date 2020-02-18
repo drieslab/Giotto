@@ -9,19 +9,30 @@
 #' @param gobject giotto object
 #' @param spatial_network_name name of spatial network to use
 #' @param cluster_column name of column to use for clusters
+#' @param create_full_network convert from reduced to full network representation
 #' @return annotated network in data.table format
 #' @export
 #' @examples
 #'     annotateSpatialNetwork(gobject)
 annotateSpatialNetwork = function(gobject,
                                   spatial_network_name = 'spatial_network',
-                                  cluster_column) {
+                                  cluster_column,
+                                  create_full_network = F) {
 
   # get network
   if(!spatial_network_name %in% names(gobject@spatial_network)) {
     stop('\n spatial network with name: ', spatial_network_name, ' does not exist \n')
   }
   spatial_network = gobject@spatial_network[[spatial_network_name]]
+
+  if(create_full_network == TRUE) {
+    spatial_network = Giotto:::convert_to_full_spatial_network(spatial_network)
+    setnames(spatial_network,
+             old = c('source', 'target', 'source_begin', 'source_end', 'target_begin', 'target_end'),
+             new = c('from', 'to', 'sdimx_begin', 'sdimy_begin', 'sdimx_end', 'sdimy_end'))
+  }
+
+
 
   # cell metadata
   cell_metadata = pDataDT(gobject)
@@ -41,7 +52,11 @@ annotateSpatialNetwork = function(gobject,
   spatial_network_annot[, from_to := paste0(from_cell_type,'-',to_cell_type)]
 
   # unified direction, due to 'sort'
-  spatial_network_annot[, unified_int := paste(sort(c(from_cell_type, to_cell_type)), collapse = '--'), by = 1:nrow(spatial_network_annot)]
+  spatial_network_annot = Giotto:::sort_combine_two_DT_columns(spatial_network_annot,
+                                                               column1 = 'from_cell_type', column2 = 'to_cell_type',
+                                                               myname = 'unified_int')
+
+  #spatial_network_annot[, unified_int := paste(sort(c(from_cell_type, to_cell_type)), collapse = '--'), by = 1:nrow(spatial_network_annot)]
 
   return(spatial_network_annot)
 
@@ -54,7 +69,6 @@ annotateSpatialNetwork = function(gobject,
 #' @description Simulate random network.
 #' @examples
 #'     make_simulated_network(gobject)
-
 make_simulated_network = function(gobject,
                                   spatial_network_name = 'spatial_network',
                                   cluster_column,
@@ -66,7 +80,9 @@ make_simulated_network = function(gobject,
                                                  cluster_column = cluster_column)
 
   # remove double edges between same cells #
-  spatial_network_annot[, unified_cells := paste(sort(c(to,from)), collapse = '--'), by = 1:nrow(spatial_network_annot)]
+  spatial_network_annot = Giotto:::sort_combine_two_DT_columns(spatial_network_annot,
+                                                               column1 = 'from', column2 = 'to',
+                                                               myname = 'unified_cells')
   spatial_network_annot = spatial_network_annot[!duplicated(unified_cells)]
 
   # create a simulated network
@@ -103,7 +119,6 @@ make_simulated_network = function(gobject,
   return(sample_dt)
 
 }
-
 
 
 #' @title cellProximityEnrichment
