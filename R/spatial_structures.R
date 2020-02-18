@@ -332,38 +332,32 @@ plotStatDelaunayNetwork <- function(gobject,
 #' @export
 #' @examples
 #'     createDelaunayNetwork(gobject)
-plotStatDelaunayNetwork <- function(gobject,
-                                    dimensions = c("sdimx", "sdimy"),
-                                    name = 'delaunay_network',
-                                    maximum_distance = "auto",
-                                    minimum_k = 0,
-                                    Y = TRUE,
-                                    j = TRUE,
-                                    S = 0,
-                                    show_plot = NA,
-                                    return_plot = NA,
-                                    save_plot = NA,
-                                    save_param =  list(),
-                                    default_save_name = 'plotStatDelaunayNetwork',
-                                    ...){
-
+createDelaunayNetwork <- function(gobject,
+                                  dimensions = c("sdimx", "sdimy"),
+                                  name = 'delaunay_network',
+                                  maximum_distance = "auto",
+                                  minimum_k = 0,
+                                  Y = TRUE,
+                                  j = TRUE,
+                                  S = 0,
+                                  verbose = T,
+                                  return_gobject = TRUE,
+                                  ...) {
 
   # spatial information
   spatial_locations = gobject@spatial_locs
   spatial_locations = spatial_locations[, grepl('sdim', colnames(spatial_locations)), with = F]
-
   if(length(dimensions) != 2) {
     stop('A Delaunay network can only be computed on 2 dimensions \n')
   } else {
     spatial_locations = spatial_locations[, dimensions, with = F]
   }
-
   spatial_locations = as.matrix(spatial_locations)
   rownames(spatial_locations) = gobject@cell_ID
 
   # vector matching cell_ID and order
-  cell_ID_vec <- c(1:nrow(spatial_locations))
-  names(cell_ID_vec) <- rownames(spatial_locations)
+  cell_ID_vec = c(1:nrow(spatial_locations))
+  names(cell_ID_vec) = rownames(spatial_locations)
 
   # delaunay network
   RTriangle_obj = RTriangle::triangulate(RTriangle::pslg(spatial_locations),
@@ -374,7 +368,6 @@ plotStatDelaunayNetwork <- function(gobject,
                                                sdimy_begin=RTriangle_obj$P[RTriangle_obj$E[,1],2],
                                                sdimx_end=RTriangle_obj$P[RTriangle_obj$E[,2],1],
                                                sdimy_end=RTriangle_obj$P[RTriangle_obj$E[,2],2]);
-
   delaunay_network_DT[, distance := dist(x = matrix(c(sdimx_begin, sdimy_begin, sdimx_end, sdimy_end), nrow = 2, byrow = T)), by = 1:nrow(delaunay_network_DT)]
   delaunay_network_DT[, distance := as.numeric(distance)]
   delaunay_network_DT[, weight := 1/distance]
@@ -383,9 +376,7 @@ plotStatDelaunayNetwork <- function(gobject,
   delaunay_network_DT = delaunay_network_DT[,.(to, from, weight, distance, sdimx_begin, sdimy_begin, sdimx_end, sdimy_end)]
 
   # select on full network
-  temp_fullnetwork = Giotto:::convert_to_full_spatial_network(delaunay_network_DT)
-
-  print(temp_fullnetwork)
+  temp_fullnetwork = convert_to_full_spatial_network(delaunay_network_DT)
 
   if (maximum_distance == "auto"){
     temp_fullnetwork = temp_fullnetwork[distance <= boxplot.stats(temp_fullnetwork$distance)$stats[5]]
@@ -393,66 +384,37 @@ plotStatDelaunayNetwork <- function(gobject,
     temp_fullnetwork = temp_fullnetwork[distance <= maximum_distance | rank_int <= minimum_k]
   }
 
-  delaunay_network_DT = Giotto:::convert_to_reduced_spatial_network(temp_fullnetwork)
+  delaunay_network_DT = convert_to_reduced_spatial_network(temp_fullnetwork)
 
-  print(delaunay_network_DT)
+  if(return_gobject == TRUE) {
 
-  delaunay_network_DT_c = Giotto:::convert_to_full_spatial_network(reduced_spatial_network_DT = delaunay_network_DT)
+    spn_names = names(gobject@spatial_network[[name]])
 
-  #data.table::setorder(delaunay_network_DT_c, source, distance)
-  #delaunay_network_DT_c[, rank_int := 1:.N, by = 'source']
+    if(name %in% spn_names) {
+      cat('\n ', name, ' has already been used, will be overwritten \n')
+      }
 
-  # create visuals
-  pl1 = ggplot(delaunay_network_DT, aes(x=factor(""), y=distance))
-  pl1 = pl1 + theme_classic() + theme(plot.title = element_text(hjust=0.5))
-  pl1 = pl1 + geom_boxplot(outlier.colour = "red", outlier.shape = 1)
-  pl1 = pl1 + labs(title = 'Delaunay network', y = 'cell-cell distances', x = '')
+    ## update parameters used ##
+    parameters_list = gobject@parameters
+    number_of_rounds = length(parameters_list)
+    update_name = paste0(number_of_rounds,'_delaunay_spatial_network')
 
+    # parameters to include
+    parameters_list[[update_name]] = c('dimensions used' = paste(dimensions, collapse = '-'),
+                                       'maximum distance threshold' = ifelse(is.null(maximum_distance), NA, maximum_distance),
+                                       'RTriangle Y:' = Y,
+                                       'RTriangle j:' = j,
+                                       'RTriangle S:' = S,
+                                       'name of spatial network' = name)
+    gobject@parameters = parameters_list
+    gobject@spatial_network[[name]] = delaunay_network_DT
+    return(gobject)
 
-  pl2 = ggplot(delaunay_network_DT_c, aes(x=factor(rank_int), y=distance))
-  pl2 = pl2 + theme_classic() + theme(plot.title = element_text(hjust=0.5))
-  pl2 = pl2 + geom_boxplot(outlier.colour = "red", outlier.shape = 1)
-  pl2 = pl2 + labs(title = 'Delaunay network by neigbor ranking', y = 'cell-cell distances', x = '')
-
-  neighbors = delaunay_network_DT_c[, .N, by = source]
-  pl3 = ggplot()
-  pl3 = pl3 + theme_classic() + theme(plot.title = element_text(hjust=0.5))
-  pl3 = pl3 + geom_histogram(data = neighbors, aes(x = as.factor(N)), stat = 'count')
-  pl3 = pl3 + labs(title = 'Delaunay network neigbors per cell', y = 'count', x = '')
-  pl3
-
-  savelist = list(pl1, pl2, pl3)
-
-
-
-  # combine plots with cowplot
-  combo_plot <- cowplot::plot_grid(pl1, pl2, NULL, pl3,
-                                   ncol = 2,
-                                   rel_heights = c(1, 1), rel_widths = c(1, 2), align = 'v')
-
-
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(combo_plot)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(combo_plot)
+  } else {
+    return(delaunay_network_DT)
   }
 
 }
-
 
 
 
