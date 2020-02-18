@@ -1601,20 +1601,31 @@ do_spatial_knn_smoothing = function(gobject,
   # merge spatial network with expression data
   expr_values_dt = data.table::as.data.table(expr_values); expr_values_dt[, gene_ID := rownames(expr_values)]
   expr_values_dt_m = data.table::melt.data.table(expr_values_dt, id.vars = 'gene_ID', variable.name = 'cell_ID')
-  spatial_network_ext = data.table:::merge.data.table(spatial_network, expr_values_dt_m, by.x = 'to', by.y = 'cell_ID', allow.cartesian = T)
+
+  ## test ##
+  spatial_network = Giotto:::convert_to_full_spatial_network(spatial_network)
+  ## stop test ##
+
+  #print(spatial_network)
+
+  spatial_network_ext = data.table:::merge.data.table(spatial_network, expr_values_dt_m, by.x = 'target', by.y = 'cell_ID', allow.cartesian = T)
+
+  #print(spatial_network_ext)
 
   # calculate mean over all k-neighbours
-  spatial_network_ext_smooth = spatial_network_ext[, mean(value), by = c('from', 'gene_ID')]
+  # exclude 0's?
+  # trimmed mean?
+  spatial_network_ext_smooth = spatial_network_ext[, mean(value), by = c('source', 'gene_ID')]
 
   # convert back to matrix
-  spatial_smooth_dc = dcast.data.table(data = spatial_network_ext_smooth, formula = gene_ID~from, value.var = 'V1')
+  spatial_smooth_dc = dcast.data.table(data = spatial_network_ext_smooth, formula = gene_ID~source, value.var = 'V1')
   spatial_smooth_matrix = Giotto:::dt_to_matrix(spatial_smooth_dc)
   spatial_smooth_matrix = spatial_smooth_matrix[rownames(expr_values), colnames(expr_values)]
 
   # combine original and smoothed values according to smoothening b
   # create best guess for b if not given
   if(is.null(b)) {
-    k = median(table(spatial_network$from))
+    k = median(table(spatial_network$source))
     smooth_b = 1 - 1/k
   } else {
     smooth_b = b
