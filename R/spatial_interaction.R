@@ -151,12 +151,15 @@ cellProximityEnrichment <- function(gobject,
                                                  cluster_column = cluster_column)
 
   # remove double edges between same cells #
-  spatial_network_annot[, unified_cells := paste(sort(c(to,from)), collapse = '--'), by = 1:nrow(spatial_network_annot)]
+  # a simplified network does not have double edges between cells #
+  # spatial_network_annot[, unified_cells := paste(sort(c(to,from)), collapse = '--'), by = 1:nrow(spatial_network_annot)]
+  spatial_network_annot = sort_combine_two_DT_columns(spatial_network_annot, 'to', 'from', 'unified_cells')
   spatial_network_annot = spatial_network_annot[!duplicated(unified_cells)]
 
   sample_dt = make_simulated_network(gobject = gobject,
                                      spatial_network_name = spatial_network_name,
-                                     cluster_column = cluster_column, number_of_simulations = number_of_simulations)
+                                     cluster_column = cluster_column,
+                                     number_of_simulations = number_of_simulations)
 
   # combine original and simulated network
   table_sim_results <- sample_dt[, table(round), by = c('unified_int', 'type_int')]
@@ -736,6 +739,7 @@ findCellProximityGenes_per_interaction = function(expr_values,
 #' @description Identifies genes that are differentially expressed due to proximity to other cell types.
 #' @param gobject giotto object
 #' @param expression_values expression values to use
+#' @param selected_genes subset of selected genes (optional)
 #' @param cluster_column name of column to use for cell types
 #' @param spatial_network_name name of spatial network to use
 #' @param minimum_unique_cells minimum number of target cells required
@@ -771,6 +775,7 @@ findCellProximityGenes_per_interaction = function(expr_values,
 #'     findCellProximityGenes(gobject)
 findCellProximityGenes = function(gobject,
                                   expression_values = 'normalized',
+                                  selected_genes = NULL,
                                   cluster_column,
                                   spatial_network_name = 'spatial_network',
                                   minimum_unique_cells = 1,
@@ -788,6 +793,13 @@ findCellProximityGenes = function(gobject,
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+
+  ## test selected genes ##
+  if(!is.null(selected_genes)) {
+    expr_values = expr_values[rownames(expr_values) %in% selected_genes, ]
+  }
+
+  ## stop test selected genes ##
 
   # difference test
   diff_test = match.arg(diff_test, choices = c('permutation', 'limma', 't.test', 'wilcox'))
@@ -888,6 +900,7 @@ findCellProximityGenes = function(gobject,
 #' @description Identifies genes that are differentially expressed due to proximity to other cell types.
 #' @param gobject giotto object
 #' @param expression_values expression values to use
+#' @param selected_genes subset of selected genes (optional)
 #' @param cluster_column name of column to use for cell types
 #' @param spatial_network_name name of spatial network to use
 #' @param minimum_unique_cells minimum number of target cells required
@@ -923,6 +936,7 @@ findCellProximityGenes = function(gobject,
 #'     findCPG(gobject)
 findCPG = function(gobject,
                    expression_values = 'normalized',
+                   selected_genes = NULL,
                    cluster_column,
                    spatial_network_name = 'spatial_network',
                    minimum_unique_cells = 1,
@@ -938,6 +952,7 @@ findCPG = function(gobject,
 
   findCellProximityGenes(gobject = gobject,
                          expression_values = expression_values,
+                         selected_genes = selected_genes,
                          cluster_column = cluster_column,
                          spatial_network_name = spatial_network_name,
                          minimum_unique_cells = minimum_unique_cells,

@@ -7,6 +7,7 @@
 findCellProximityGenes(
   gobject,
   expression_values = "normalized",
+  selected_genes = NULL,
   cluster_column,
   spatial_network_name = "spatial_network",
   minimum_unique_cells = 1,
@@ -24,6 +25,8 @@ findCellProximityGenes(
 \item{gobject}{giotto object}
 
 \item{expression_values}{expression values to use}
+
+\item{selected_genes}{subset of selected genes (optional)}
 
 \item{cluster_column}{name of column to use for cell types}
 

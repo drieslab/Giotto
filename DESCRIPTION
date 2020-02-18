@@ -42,7 +42,8 @@ Imports:
     ggraph,
     Rcpp,
     rlang (>= 0.4.3),
-    fitdistrplus
+    fitdistrplus,
+    RTriangle (>= 1.6-0.10)
 Suggests:
     knitr,
     rmarkdown,
