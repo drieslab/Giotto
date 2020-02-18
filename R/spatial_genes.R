@@ -449,7 +449,7 @@ binGetSpatialGenes = function(gobject,
 
 
   # spatial matrix
-  dc_spat_network = dcast.data.table(spatial_network, formula = to~from, value.var = 'rank_int', fill = 0)
+  dc_spat_network = dcast.data.table(spatial_network, formula = to~from, value.var = 'distance', fill = 0)
   spat_mat = Giotto:::dt_to_matrix(dc_spat_network)
   spat_mat[spat_mat > 0] = 1
 
