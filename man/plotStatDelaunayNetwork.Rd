@@ -20,6 +20,23 @@ plotStatDelaunayNetwork(
   default_save_name = "plotStatDelaunayNetwork",
   ...
 )
+
+plotStatDelaunayNetwork(
+  gobject,
+  dimensions = c("sdimx", "sdimy"),
+  name = "delaunay_network",
+  maximum_distance = "auto",
+  minimum_k = 0,
+  Y = TRUE,
+  j = TRUE,
+  S = 0,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "plotStatDelaunayNetwork",
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -49,17 +66,28 @@ plotStatDelaunayNetwork(
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
 \item{...}{Other parameters of the \code{\link[RTriangle]{triangulate}} function}
+
+\item{verbose}{verbose}
+
+\item{return_gobject}{boolean: return giotto object (default = TRUE)}
 }
 \value{
+giotto object with updated spatial network slot
+
 giotto object with updated spatial network slot
 }
 \description{
 Plots network statistics for a Delaunay network..
+
+Create a spatial Delaunay network based on cell centroid physical distances.
 }
 \details{
 Plots statistics for a spatial Delaunay network as explained in \code{\link[RTriangle]{triangulate}}.
 This can be used to further finetune the \code{\link{createDelaunayNetwork}} function.
+
+Creates a spatial Delaunay network as explained in \code{\link[RTriangle]{triangulate}}.
 }
 \examples{
     plotStatDelaunayNetwork(gobject)
+    createDelaunayNetwork(gobject)
 }

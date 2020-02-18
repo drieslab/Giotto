@@ -332,17 +332,20 @@ plotStatDelaunayNetwork <- function(gobject,
 #' @export
 #' @examples
 #'     createDelaunayNetwork(gobject)
-createDelaunayNetwork <- function(gobject,
-                                  dimensions = c("sdimx", "sdimy"),
-                                  name = 'delaunay_network',
-                                  maximum_distance = "auto",
-                                  minimum_k = 0,
-                                  Y = TRUE,
-                                  j = TRUE,
-                                  S = 0,
-                                  verbose = T,
-                                  return_gobject = TRUE,
-                                  ...) {
+plotStatDelaunayNetwork <- function(gobject,
+                                    dimensions = c("sdimx", "sdimy"),
+                                    name = 'delaunay_network',
+                                    maximum_distance = "auto",
+                                    minimum_k = 0,
+                                    Y = TRUE,
+                                    j = TRUE,
+                                    S = 0,
+                                    show_plot = NA,
+                                    return_plot = NA,
+                                    save_plot = NA,
+                                    save_param =  list(),
+                                    default_save_name = 'plotStatDelaunayNetwork',
+                                    ...){
 
 
   # spatial information
@@ -359,8 +362,8 @@ createDelaunayNetwork <- function(gobject,
   rownames(spatial_locations) = gobject@cell_ID
 
   # vector matching cell_ID and order
-  cell_ID_vec = c(1:nrow(spatial_locations))
-  names(cell_ID_vec) = rownames(spatial_locations)
+  cell_ID_vec <- c(1:nrow(spatial_locations))
+  names(cell_ID_vec) <- rownames(spatial_locations)
 
   # delaunay network
   RTriangle_obj = RTriangle::triangulate(RTriangle::pslg(spatial_locations),
@@ -377,22 +380,12 @@ createDelaunayNetwork <- function(gobject,
   delaunay_network_DT[, weight := 1/distance]
   data.table::setorder(delaunay_network_DT, from, distance)
 
-  #delaunay_network_DT[, rank_int := 1:.N, by = 'from']
-
-  # apply maximum_distance threshold
-  #if (maximum_distance == "auto"){
-  #  delaunay_network_DT = delaunay_network_DT[distance <= boxplot.stats(delaunay_network_DT$distance)$stats[5]]
-  #} else if (!is.null(maximum_distance)) {
-  #  start_rows = nrow(delaunay_network_DT)
-  #  delaunay_network_DT = delaunay_network_DT[distance <= maximum_distance]
-  #  end_rows = nrow(delaunay_network_DT)
-  #  if(verbose == TRUE) cat('\n', start_rows - end_rows, 'were removed after maximum distance thresholding \n')
-  #}
-
   delaunay_network_DT = delaunay_network_DT[,.(to, from, weight, distance, sdimx_begin, sdimy_begin, sdimx_end, sdimy_end)]
 
   # select on full network
-  temp_fullnetwork = convert_to_full_spatial_network(delaunay_network_DT)
+  temp_fullnetwork = Giotto:::convert_to_full_spatial_network(delaunay_network_DT)
+
+  print(temp_fullnetwork)
 
   if (maximum_distance == "auto"){
     temp_fullnetwork = temp_fullnetwork[distance <= boxplot.stats(temp_fullnetwork$distance)$stats[5]]
@@ -400,42 +393,65 @@ createDelaunayNetwork <- function(gobject,
     temp_fullnetwork = temp_fullnetwork[distance <= maximum_distance | rank_int <= minimum_k]
   }
 
-  delaunay_network_DT = convert_to_reduced_spatial_network(temp_fullnetwork)
+  delaunay_network_DT = Giotto:::convert_to_reduced_spatial_network(temp_fullnetwork)
+
+  print(delaunay_network_DT)
+
+  delaunay_network_DT_c = Giotto:::convert_to_full_spatial_network(reduced_spatial_network_DT = delaunay_network_DT)
+
+  #data.table::setorder(delaunay_network_DT_c, source, distance)
+  #delaunay_network_DT_c[, rank_int := 1:.N, by = 'source']
+
+  # create visuals
+  pl1 = ggplot(delaunay_network_DT, aes(x=factor(""), y=distance))
+  pl1 = pl1 + theme_classic() + theme(plot.title = element_text(hjust=0.5))
+  pl1 = pl1 + geom_boxplot(outlier.colour = "red", outlier.shape = 1)
+  pl1 = pl1 + labs(title = 'Delaunay network', y = 'cell-cell distances', x = '')
+
+
+  pl2 = ggplot(delaunay_network_DT_c, aes(x=factor(rank_int), y=distance))
+  pl2 = pl2 + theme_classic() + theme(plot.title = element_text(hjust=0.5))
+  pl2 = pl2 + geom_boxplot(outlier.colour = "red", outlier.shape = 1)
+  pl2 = pl2 + labs(title = 'Delaunay network by neigbor ranking', y = 'cell-cell distances', x = '')
+
+  neighbors = delaunay_network_DT_c[, .N, by = source]
+  pl3 = ggplot()
+  pl3 = pl3 + theme_classic() + theme(plot.title = element_text(hjust=0.5))
+  pl3 = pl3 + geom_histogram(data = neighbors, aes(x = as.factor(N)), stat = 'count')
+  pl3 = pl3 + labs(title = 'Delaunay network neigbors per cell', y = 'count', x = '')
+  pl3
+
+  savelist = list(pl1, pl2, pl3)
 
 
 
+  # combine plots with cowplot
+  combo_plot <- cowplot::plot_grid(pl1, pl2, NULL, pl3,
+                                   ncol = 2,
+                                   rel_heights = c(1, 1), rel_widths = c(1, 2), align = 'v')
 
-  if(return_gobject == TRUE) {
 
-    spn_names = names(gobject@spatial_network[[name]])
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
-    if(name %in% spn_names) {
-      cat('\n ', name, ' has already been used, will be overwritten \n')
+  ## print plot
+  if(show_plot == TRUE) {
+    print(combo_plot)
+  }
 
-    }
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot, default_save_name = default_save_name), save_param))
+  }
 
-    ## update parameters used ##
-    parameters_list = gobject@parameters
-    number_of_rounds = length(parameters_list)
-    update_name = paste0(number_of_rounds,'_delaunay_spatial_network')
-
-    # parameters to include
-    parameters_list[[update_name]] = c('dimensions used' = paste(dimensions, collapse = '-'),
-                                       'maximum distance threshold' = ifelse(is.null(maximum_distance), NA, maximum_distance),
-                                       'RTriangle Y:' = Y,
-                                       'RTriangle j:' = j,
-                                       'RTriangle S:' = S,
-                                       'name of spatial network' = name)
-    gobject@parameters = parameters_list
-    gobject@spatial_network[[name]] = delaunay_network_DT
-    return(gobject)
-
-  } else {
-    return(delaunay_network_DT)
+  ## return plot
+  if(return_plot == TRUE) {
+    return(combo_plot)
   }
 
 }
-
 
 
 
