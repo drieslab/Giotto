@@ -1828,6 +1828,10 @@ spatNetwDistributionsDistance <- function(gobject,
 
   ## spatial network
   spatial_network = gobject@spatial_network[[spatial_network_name]]
+
+  ## convert to full network with rank_int column
+  spatial_network = Giotto:::convert_to_full_spatial_network(spatial_network)
+
   if(is.null(spatial_network)) {
     stop('spatial network ', spatial_network_name, ' was not found')
   }
@@ -1911,11 +1915,15 @@ spatNetwDistributionsKneighbors = function(gobject,
 
   ## spatial network
   spatial_network = gobject@spatial_network[[spatial_network_name]]
+
+  ## convert to full network with rank_int column
+  spatial_network = Giotto:::convert_to_full_spatial_network(spatial_network)
+
   if(is.null(spatial_network)) {
     stop('spatial network ', spatial_network_name, ' was not found')
   }
 
-  spatial_network_dt = as.data.table(spatial_network[, table(from)])
+  spatial_network_dt = as.data.table(spatial_network[, table(source)])
 
   pl = ggplot()
   pl = pl + labs(title = 'k-neighbor distribution for all cells', x = 'k-neighbors/cell')
