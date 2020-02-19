@@ -523,8 +523,16 @@ binGetSpatialGenes = function(gobject,
   ## order data.table
   if(do_fisher_test == TRUE) {
     result[, c('p.value', 'estimate') := list(as.numeric(p.value), as.numeric(estimate))]
+
+    # convert p.value = 0 to lowest p-value
+    min_pvalue = min(result$p.value[result$p.value > 0])
+    result[, p.value := ifelse(p.value == 0, min_pvalue, p.value)]
+
     result[, score := -log(p.value) * estimate]
     data.table::setorder(result, -score)
+
+
+
   } else {
     data.table::setnames(result, 'V1', 'estimate')
     data.table::setorder(result, -estimate)
