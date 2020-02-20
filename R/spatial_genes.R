@@ -291,10 +291,15 @@ spat_fish_func = function(gene,
 
   if(calc_hub == TRUE) {
     high_cells = names(gene_vector[gene_vector == 1])
-    subset_spat_mat = spat_mat[rownames(spat_mat) %in% high_cells, colnames(spat_mat) %in% high_cells]
-    rowhubs = rowSums(subset_spat_mat)
-    colhubs = colSums(subset_spat_mat)
-    hub_nr = length(unique(c(names(colhubs[colhubs > hub_min_int]), names(rowhubs[colhubs > hub_min_int]))))
+
+    if(length(high_cells) == 1) {
+      hub_nr = 0
+    } else {
+      subset_spat_mat = spat_mat[rownames(spat_mat) %in% high_cells, colnames(spat_mat) %in% high_cells]
+      rowhubs = rowSums(subset_spat_mat)
+      colhubs = colSums(subset_spat_mat)
+      hub_nr = length(unique(c(names(colhubs[colhubs > hub_min_int]), names(rowhubs[colhubs > hub_min_int]))))
+    }
    fish_res = fisher.test(matrix(table(test), byrow = T, nrow = 2))[c('p.value','estimate')]
 
    return(c(fish_res, hubs = list(hub_nr)))
@@ -345,10 +350,15 @@ spat_OR_func = function(gene,
 
   if(calc_hub == TRUE) {
     high_cells = names(gene_vector[gene_vector == 1])
-    subset_spat_mat = spat_mat[rownames(spat_mat) %in% high_cells, colnames(spat_mat) %in% high_cells]
-    rowhubs = rowSums(subset_spat_mat)
-    colhubs = colSums(subset_spat_mat)
-    hub_nr = length(unique(c(names(colhubs[colhubs > hub_min_int]), names(rowhubs[colhubs > hub_min_int]))))
+
+    if(length(high_cells) == 1) {
+      hub_nr = 0
+    } else {
+      subset_spat_mat = spat_mat[rownames(spat_mat) %in% high_cells, colnames(spat_mat) %in% high_cells]
+      rowhubs = rowSums(subset_spat_mat)
+      colhubs = colSums(subset_spat_mat)
+      hub_nr = length(unique(c(names(colhubs[colhubs > hub_min_int]), names(rowhubs[colhubs > hub_min_int]))))
+    }
 
     fish_matrix = matrix(table(test), byrow = T, nrow = 2)
     fish_matrix = fish_matrix/1000

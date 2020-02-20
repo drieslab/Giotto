@@ -12,7 +12,7 @@ binGetSpatialGenes(
   spatial_network_name = "spatial_network",
   nstart = 3,
   iter_max = 10,
-  percentage_rank = 10,
+  percentage_rank = 30,
   do_fisher_test = TRUE,
   calc_hub = FALSE,
   hub_min_int = 3,
