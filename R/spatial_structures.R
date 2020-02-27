@@ -134,6 +134,8 @@ createSpatialNetwork <- function(gobject,
   }
   spatial_network_DT = convert_to_reduced_spatial_network(temp_fullnetwork)
 
+
+
   # return object
   if(return_gobject == TRUE) {
 

@@ -1994,6 +1994,7 @@ clusterSpatialCorGenes = function(spatCorObject,
 }
 
 
+
 #' @title heatmSpatialCorGenes
 #' @name heatmSpatialCorGenes
 #' @description Create heatmap of spatially correlated genes

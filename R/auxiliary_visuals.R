@@ -600,7 +600,7 @@ createHeatmap_DT <- function(gobject,
                              cluster_custom_order = NULL,
                              cluster_cor_method = 'pearson',
                              cluster_hclust_method = 'ward.D',
-                             gene_order = c('custom', 'correlation'),
+                             gene_order = c('correlation', 'custom'),
                              gene_custom_order = NULL,
                              gene_cor_method = 'pearson',
                              gene_hclust_method = 'complete') {
@@ -617,7 +617,7 @@ createHeatmap_DT <- function(gobject,
   cell_metadata = pDataDT(gobject)
 
   # gene order
-  gene_order = match.arg(gene_order, c('custom', 'correlation'))
+  gene_order = match.arg(gene_order, c('correlation', 'custom'))
 
 
   ### cluster order ###
@@ -726,7 +726,7 @@ plotHeatmap <- function(gobject,
                         cluster_color_code = NULL,
                         cluster_cor_method = 'pearson',
                         cluster_hclust_method = 'ward.D',
-                        gene_order = c('custom', 'correlation'),
+                        gene_order = c('correlation', 'custom'),
                         gene_custom_order = NULL,
                         gene_cor_method = 'pearson',
                         gene_hclust_method = 'complete',

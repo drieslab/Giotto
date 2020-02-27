@@ -14,7 +14,7 @@ plotHeatmap(
   cluster_color_code = NULL,
   cluster_cor_method = "pearson",
   cluster_hclust_method = "ward.D",
-  gene_order = c("custom", "correlation"),
+  gene_order = c("correlation", "custom"),
   gene_custom_order = NULL,
   gene_cor_method = "pearson",
   gene_hclust_method = "complete",
