@@ -304,27 +304,39 @@ findGiniMarkers <- function(gobject,
 
   ## gini
   aggr_sc_clusters_DT_melt[, expression_gini := Giotto:::mygini_fun(expression), by = genes]
-  aggr_detection_sc_clusters_DT_melt[, detection_gini := Giotto:::mygini_fun(detection)+1, by = genes]
+  aggr_detection_sc_clusters_DT_melt[, detection_gini := Giotto:::mygini_fun(detection), by = genes]
 
 
   ## combine
   aggr_sc = cbind(aggr_sc_clusters_DT_melt, aggr_detection_sc_clusters_DT_melt[,.(detection, detection_gini)])
 
-  # create combined rank
-  # - high on expression rank
-  # - high on detection rank
-  # comb score = multiply rank with gini scores
-  aggr_sc[, expression_rank := rank(expression), by = genes]
-  aggr_sc[, detection_rank := rank(detection), by = genes]
-  aggr_sc[, comb_score := expression_gini*detection_gini*expression_rank*detection_rank]
-  #aggr_sc[, comb_rank := rank(-comb_score), by = cluster]
+  ## create combined rank
 
-  setorder(aggr_sc, cluster, -expression_rank, -detection_rank, -comb_score)
+  # expression rank for each gene in all samples
+  # rescale expression rank range between 1 and 0.1
+  aggr_sc[, expression_rank := rank(-expression), by = genes]
+  aggr_sc[, expression_rank := scales::rescale(expression_rank, to = c(1, 0.1)), by = cluster]
+
+  # detection rank for each gene in all samples
+  # rescale detection rank range between 1 and 0.1
+  aggr_sc[, detection_rank := rank(-detection), by = genes]
+  aggr_sc[, detection_rank := scales::rescale(detection_rank, to = c(1, 0.1)), by = cluster]
+
+  # create combine score based on rescaled ranks and gini scores
+  aggr_sc[, comb_score := (expression_gini*expression_rank)*(detection_gini*detection_rank)]
+  setorder(aggr_sc, cluster, -comb_score)
   aggr_sc[, comb_rank := 1:.N, by = cluster]
 
   top_genes_scores = aggr_sc[comb_rank <= min_genes | (expression_rank <= rank_score & detection_rank <= rank_score)]
   top_genes_scores_filtered = top_genes_scores[comb_rank <= min_genes | (expression > min_expr_gini_score & detection > min_det_gini_score)]
   setorder(top_genes_scores_filtered, cluster, comb_rank)
+
+
+  # remove 'cluster_' part if this is not part of the original cluster names
+  original_uniq_cluster_names = unique(cell_metadata[[cluster_column]])
+  if(sum(grepl('cluster_', original_uniq_cluster_names)) == 0) {
+    top_genes_scores_filtered[, cluster := gsub(x = cluster, 'cluster_', '')]
+  }
 
   return(top_genes_scores_filtered)
 
@@ -410,10 +422,8 @@ findGiniMarkers_one_vs_all <- function(gobject,
                               min_genes = min_genes)
 
     # filter steps
-    clus_name = paste0('cluster_', selected_clus)
-    filtered_table = markers[cluster == clus_name]
-    #filtered_table = filtered_table[comb_rank <= min_genes]
-
+    #clus_name = paste0('cluster_', selected_clus)
+    filtered_table = markers[cluster == selected_clus]
 
     result_list[[clus_i]] = filtered_table
   }
