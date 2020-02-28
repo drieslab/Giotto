@@ -150,7 +150,7 @@ cellProximityEnrichment <- function(gobject,
 
 
   # p.adj test
-  adjust_method = match.arg(adjust_method, choices = c("none", "fdr", "bonferroni","BH",
+  sel_adjust_method = match.arg(adjust_method, choices = c("none", "fdr", "bonferroni","BH",
                                                        "holm", "hochberg", "hommel",
                                                        "BY"))
 
@@ -234,8 +234,8 @@ cellProximityEnrichment <- function(gobject,
   table_mean_results_dc[, unified_int := factor(unified_int, unified_int)]
 
   # adjust p-values for mht
-  table_mean_results_dc[, p.adj_higher := p.adjust(p_higher_orig, method = adjust_method)]
-  table_mean_results_dc[, p.adj_lower := p.adjust(p_lower_orig, method = adjust_method)]
+  table_mean_results_dc[, p.adj_higher := p.adjust(p_higher_orig, method = sel_adjust_method)]
+  table_mean_results_dc[, p.adj_lower := p.adjust(p_lower_orig, method = sel_adjust_method)]
 
 
   table_mean_results_dc[, PI_value := ifelse(p.adj_higher <= p.adj_lower,
