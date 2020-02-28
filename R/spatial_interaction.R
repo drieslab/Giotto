@@ -143,8 +143,14 @@ make_simulated_network = function(gobject,
 cellProximityEnrichment <- function(gobject,
                                     spatial_network_name = 'spatial_network',
                                     cluster_column,
-                                    number_of_simulations = 100) {
+                                    number_of_simulations = 1000,
+                                    adjust_method = c("fdr", "bonferroni","BH", "holm", "hochberg", "hommel",
+                                                      "BY", "none")) {
 
+
+  # p.adj test
+  adjust_method = match.arg(adjust_method, choices = c("bonferroni","BH", "holm", "hochberg", "hommel",
+                                                       "BY", "fdr", "none"))
 
   spatial_network_annot = annotateSpatialNetwork(gobject = gobject,
                                                  spatial_network_name = spatial_network_name,
@@ -224,9 +230,15 @@ cellProximityEnrichment <- function(gobject,
   table_mean_results_dc <- merge(table_mean_results_dc, res_pvalue_DT, by = 'unified_int')
   data.table::setorder(table_mean_results_dc, enrichm)
   table_mean_results_dc[, unified_int := factor(unified_int, unified_int)]
-  table_mean_results_dc[, PI_value := ifelse(p_higher_orig <= p_lower_orig,
-                                             -log10(p_higher_orig+(1/number_of_simulations))*enrichm,
-                                             -log10(p_lower_orig+(1/number_of_simulations))*enrichm)]
+
+  # adjust p-values for mht
+  table_mean_results_dc[, p.adj_higher := p.adjust(p_higher_orig, method = adjust_method)]
+  table_mean_results_dc[, p.adj_lower := p.adjust(p_lower_orig, method = adjust_method)]
+
+
+  table_mean_results_dc[, PI_value := ifelse(p.adj_higher <= p.adj_lower,
+                                             -log10(p.adj_higher+(1/number_of_simulations))*enrichm,
+                                             -log10(p.adj_lower+(1/number_of_simulations))*enrichm)]
   data.table::setorder(table_mean_results_dc, PI_value)
 
   # order
@@ -493,7 +505,7 @@ do_multi_permuttest_random = function(expr_values, select_ind, other_ind, n = 10
 #' @description Performs permutation test on subsets of a matrix
 #' @examples
 #'     do_permuttest_random()
-do_permuttest = function(expr_values, select_ind, other_ind, n_perm = 100, adjust_method = 'fdr', cores = 2) {
+do_permuttest = function(expr_values, select_ind, other_ind, n_perm = 1000, adjust_method = 'fdr', cores = 2) {
 
 
   ## original data
@@ -783,7 +795,7 @@ findCellProximityGenes = function(gobject,
                                   diff_test = c('permutation', 'limma', 't.test', 'wilcox'),
                                   adjust_method = c("bonferroni","BH", "holm", "hochberg", "hommel",
                                                     "BY", "fdr", "none"),
-                                  nr_permutations = 100,
+                                  nr_permutations = 1000,
                                   exclude_selected_cells_from_test = T,
                                   do_parallel = TRUE,
                                   cores = NA) {
@@ -823,7 +835,7 @@ findCellProximityGenes = function(gobject,
 
     # set number of cores
     if(is.na(cores) | !is.numeric(cores)) {
-      cores = parallel::detectCores() - 1
+      cores = 4
     }
 
     fin_result = parallel::mclapply(mc.cores = cores, X = all_interactions, FUN = function(x) {
@@ -1418,7 +1430,7 @@ combineCellProximityGenes = function(cpgObject,
 
     # set number of cores
     if(is.na(cores) | !is.numeric(cores)) {
-      cores = parallel::detectCores() - 1
+      cores = 4
     }
 
     GTGresults = parallel::mclapply(mc.cores = cores, X = all_ints, FUN = function(x) {
@@ -1735,7 +1747,7 @@ get_interaction_gene_enrichment <- function(spatial_network,
 
   # set number of cores
   if(is.na(cores) | !is.numeric(cores)) {
-    cores = parallel::detectCores() - 1
+    cores = 4
   }
 
 
@@ -2201,7 +2213,7 @@ getGeneToGeneScores <- function(CPGscore,
 
     # set number of cores
     if(is.na(cores) | !is.numeric(cores)) {
-      cores = parallel::detectCores() - 1
+      cores = 4
     }
 
     savelist = parallel::mclapply(X = 1:length(all_ints), mc.cores = cores, FUN = function(x) {
@@ -2425,7 +2437,7 @@ average_gene_gene_expression_in_groups = function(gobject,
 #'     exprCellCellcom(gobject)
 exprCellCellcom = function(gobject,
                            cluster_column = 'cell_types',
-                           random_iter = 100,
+                           random_iter = 1000,
                            gene_set_1,
                            gene_set_2,
                            log2FC_addendum = 0.1,
@@ -2729,7 +2741,7 @@ specificCellCellcommunicationScores = function(gobject,
 spatCellCellcom = function(gobject,
                            spatial_network_name = 'spatial_network',
                            cluster_column = 'cell_types',
-                           random_iter = 100,
+                           random_iter = 1000,
                            gene_set_1,
                            gene_set_2,
                            log2FC_addendum = 0.1,
@@ -2756,7 +2768,7 @@ spatCellCellcom = function(gobject,
 
     # set number of cores
     if(is.na(cores) | !is.numeric(cores)) {
-      cores = parallel::detectCores() - 1
+      cores = 4
     }
 
     savelist = parallel::mclapply(mc.cores = cores, X = 1:nrow(combn_DT), FUN = function(row) {

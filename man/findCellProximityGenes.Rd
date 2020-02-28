@@ -15,7 +15,7 @@ findCellProximityGenes(
   diff_test = c("permutation", "limma", "t.test", "wilcox"),
   adjust_method = c("bonferroni", "BH", "holm", "hochberg", "hommel", "BY", "fdr",
     "none"),
-  nr_permutations = 100,
+  nr_permutations = 1000,
   exclude_selected_cells_from_test = T,
   do_parallel = TRUE,
   cores = NA

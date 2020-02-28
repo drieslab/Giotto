@@ -7,7 +7,7 @@
 exprCellCellcom(
   gobject,
   cluster_column = "cell_types",
-  random_iter = 100,
+  random_iter = 1000,
   gene_set_1,
   gene_set_2,
   log2FC_addendum = 0.1,

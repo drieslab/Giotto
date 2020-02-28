@@ -8,7 +8,9 @@ cellProximityEnrichment(
   gobject,
   spatial_network_name = "spatial_network",
   cluster_column,
-  number_of_simulations = 100
+  number_of_simulations = 1000,
+  adjust_method = c("fdr", "bonferroni", "BH", "holm", "hochberg", "hommel", "BY",
+    "none")
 )
 }
 \arguments{

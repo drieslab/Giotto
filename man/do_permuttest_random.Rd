@@ -11,7 +11,7 @@ do_permuttest(
   expr_values,
   select_ind,
   other_ind,
-  n_perm = 100,
+  n_perm = 1000,
   adjust_method = "fdr",
   cores = 2
 )
