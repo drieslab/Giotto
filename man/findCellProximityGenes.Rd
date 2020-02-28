@@ -13,6 +13,8 @@ findCellProximityGenes(
   minimum_unique_cells = 1,
   minimum_unique_int_cells = 1,
   diff_test = c("permutation", "limma", "t.test", "wilcox"),
+  mean_method = c("arithmic", "geometric"),
+  offset = 0.1,
   adjust_method = c("bonferroni", "BH", "holm", "hochberg", "hommel", "BY", "fdr",
     "none"),
   nr_permutations = 1000,
@@ -37,6 +39,10 @@ findCellProximityGenes(
 \item{minimum_unique_int_cells}{minimum number of interacting cells required}
 
 \item{diff_test}{which differential expression test}
+
+\item{mean_method}{method to use to calculate the mean}
+
+\item{offset}{offset value to use when calculating log2 ratio}
 
 \item{adjust_method}{which method to adjust p-values}
 

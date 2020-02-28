@@ -5,9 +5,23 @@
 \alias{do_wilctest}
 \title{do_ttest}
 \usage{
-do_ttest(expr_values, select_ind, other_ind, adjust_method)
+do_ttest(
+  expr_values,
+  select_ind,
+  other_ind,
+  adjust_method,
+  mean_method,
+  offset = 0.1
+)
 
-do_wilctest(expr_values, select_ind, other_ind, adjust_method)
+do_wilctest(
+  expr_values,
+  select_ind,
+  other_ind,
+  adjust_method,
+  mean_method,
+  offset = 0.1
+)
 }
 \description{
 Performs t.test on subsets of a matrix

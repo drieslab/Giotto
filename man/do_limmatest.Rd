@@ -4,7 +4,7 @@
 \alias{do_limmatest}
 \title{do_limmatest}
 \usage{
-do_limmatest(expr_values, select_ind, other_ind)
+do_limmatest(expr_values, select_ind, other_ind, mean_method, offset = 0.1)
 }
 \description{
 Performs limma t.test on subsets of a matrix

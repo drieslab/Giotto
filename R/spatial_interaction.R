@@ -328,10 +328,13 @@ addCellIntMetadata = function(gobject,
 #' @description Performs t.test on subsets of a matrix
 #' @examples
 #'     do_ttest()
-do_ttest = function(expr_values, select_ind, other_ind, adjust_method) {
+do_ttest = function(expr_values, select_ind, other_ind, adjust_method, mean_method, offset = 0.1) {
 
-  if(length(select_ind) == 1){mean_sel = expr_values[,select_ind]} else{mean_sel = rowMeans(expr_values[,select_ind])}
-  if(length(other_ind) == 1){mean_all = expr_values[,other_ind]} else{mean_all = rowMeans(expr_values[,other_ind])}
+  mean_sel = my_rowMeans(expr_values[,select_ind], method = mean_method, offset = offset)
+  mean_all = my_rowMeans(expr_values[,other_ind], method = mean_method, offset = offset)
+
+  #if(length(select_ind) == 1){mean_sel = expr_values[,select_ind]} else{mean_sel = rowMeans(expr_values[,select_ind])}
+  #if(length(other_ind) == 1){mean_all = expr_values[,other_ind]} else{mean_all = rowMeans(expr_values[,other_ind])}
 
   if(length(select_ind) == 1 | length(other_ind) == 1) {
     results = NaN
@@ -342,7 +345,7 @@ do_ttest = function(expr_values, select_ind, other_ind, adjust_method) {
   }
 
   # other info
-  log2fc = log2((mean_sel+1)/(mean_all+1))
+  log2fc = log2((mean_sel+offset)/(mean_all+offset))
   diff = mean_sel - mean_all
 
   resultsDT = data.table('genes' = rownames(expr_values), 'sel' = mean_sel, 'other' = mean_all, 'log2fc' = log2fc, 'diff' = diff, 'p.value' = unlist(results))
@@ -358,7 +361,7 @@ do_ttest = function(expr_values, select_ind, other_ind, adjust_method) {
 #' @description Performs limma t.test on subsets of a matrix
 #' @examples
 #'     do_limmatest()
-do_limmatest = function(expr_values, select_ind, other_ind) {
+do_limmatest = function(expr_values, select_ind, other_ind, mean_method, offset = 0.1) {
 
   expr_values_subset = cbind(expr_values[,select_ind], expr_values[,other_ind])
   mygroups = c(rep('sel', length(select_ind)), rep('other', length(other_ind)))
@@ -382,10 +385,13 @@ do_limmatest = function(expr_values, select_ind, other_ind) {
   limmaDT = data.table::as.data.table(limma_result); limmaDT[, genes := rownames(limma_result)]
 
   # other info
-  if(length(select_ind) == 1){mean_sel = expr_values[,select_ind]} else{mean_sel = rowMeans(expr_values[,select_ind])}
-  if(length(other_ind) == 1){mean_all = expr_values[,other_ind]} else{mean_all = rowMeans(expr_values[,other_ind])}
+  mean_sel = my_rowMeans(expr_values[,select_ind], method = mean_method, offset = offset)
+  mean_all = my_rowMeans(expr_values[,other_ind], method = mean_method, offset = offset)
 
-  log2fc = log2((mean_sel+1)/(mean_all+1))
+  #if(length(select_ind) == 1){mean_sel = expr_values[,select_ind]} else{mean_sel = rowMeans(expr_values[,select_ind])}
+  #if(length(other_ind) == 1){mean_all = expr_values[,other_ind]} else{mean_all = rowMeans(expr_values[,other_ind])}
+
+  log2fc = log2((mean_sel+offset)/(mean_all+offset))
   diff = mean_sel - mean_all
 
   tempDT = data.table::data.table('genes' = rownames(expr_values),
@@ -408,10 +414,13 @@ do_limmatest = function(expr_values, select_ind, other_ind) {
 #' @description Performs wilcoxon on subsets of a matrix
 #' @examples
 #'     do_ttest()
-do_wilctest = function(expr_values, select_ind, other_ind, adjust_method) {
+do_wilctest = function(expr_values, select_ind, other_ind, adjust_method, mean_method, offset = 0.1) {
 
-  if(length(select_ind) == 1){mean_sel = expr_values[,select_ind]} else{mean_sel = rowMeans(expr_values[,select_ind])}
-  if(length(other_ind) == 1){mean_all = expr_values[,other_ind]} else{mean_all = rowMeans(expr_values[,other_ind])}
+  mean_sel = my_rowMeans(expr_values[,select_ind], method = mean_method, offset = offset)
+  mean_all = my_rowMeans(expr_values[,other_ind], method = mean_method, offset = offset)
+
+  #if(length(select_ind) == 1){mean_sel = expr_values[,select_ind]} else{mean_sel = rowMeans(expr_values[,select_ind])}
+  #if(length(other_ind) == 1){mean_all = expr_values[,other_ind]} else{mean_all = rowMeans(expr_values[,other_ind])}
 
   if(length(select_ind) == 1 | length(other_ind) == 1) {
     results = NaN
@@ -422,7 +431,7 @@ do_wilctest = function(expr_values, select_ind, other_ind, adjust_method) {
   }
 
   # other info
-  log2fc = log2((mean_sel+1)/(mean_all+1))
+  log2fc = log2((mean_sel+offset)/(mean_all+offset))
   diff = mean_sel - mean_all
 
   resultsDT = data.table('genes' = rownames(expr_values), 'sel' = mean_sel, 'other' = mean_all, 'log2fc' = log2fc, 'diff' = diff, 'p.value' = unlist(results))
@@ -439,12 +448,15 @@ do_wilctest = function(expr_values, select_ind, other_ind, adjust_method) {
 #' @description calculate original values
 #' @examples
 #'     do_permuttest_original()
-do_permuttest_original = function(expr_values, select_ind, other_ind, name = 'orig') {
+do_permuttest_original = function(expr_values, select_ind, other_ind, name = 'orig', mean_method, offset = 0.1) {
 
-  if(length(select_ind) == 1){mean_sel = expr_values[,select_ind]} else{mean_sel = rowMeans(expr_values[,select_ind])}
-  if(length(other_ind) == 1){mean_all = expr_values[,other_ind]} else{mean_all = rowMeans(expr_values[,other_ind])}
+  mean_sel = my_rowMeans(expr_values[,select_ind], method = mean_method, offset = offset)
+  mean_all = my_rowMeans(expr_values[,other_ind], method = mean_method, offset = offset)
 
-  log2fc = log2((mean_sel+1)/(mean_all+1))
+  #if(length(select_ind) == 1){mean_sel = expr_values[,select_ind]} else{mean_sel = rowMeans(expr_values[,select_ind])}
+  #if(length(other_ind) == 1){mean_all = expr_values[,other_ind]} else{mean_all = rowMeans(expr_values[,other_ind])}
+
+  log2fc = log2((mean_sel+offset)/(mean_all+offset))
   diff = mean_sel - mean_all
 
   resultsDT = data.table('sel' = mean_sel, 'other' = mean_all, 'log2fc' = log2fc, 'diff' =  diff)
@@ -460,7 +472,7 @@ do_permuttest_original = function(expr_values, select_ind, other_ind, name = 'or
 #' @description calculate random values
 #' @examples
 #'     do_permuttest_random()
-do_permuttest_random = function(expr_values, select_ind, other_ind, name = 'perm_1') {
+do_permuttest_random = function(expr_values, select_ind, other_ind, name = 'perm_1', mean_method, offset = 0.1) {
 
   l_select_ind = length(select_ind)
   l_other_ind = length(other_ind)
@@ -471,10 +483,12 @@ do_permuttest_random = function(expr_values, select_ind, other_ind, name = 'perm
   random_other = all_ind[!all_ind %in% random_select]
 
   # alternative
-  if(length(select_ind) == 1){mean_sel = expr_values[,random_select]} else{mean_sel = rowMeans(expr_values[,random_select])}
-  if(length(other_ind) == 1){mean_all = expr_values[,random_other]} else{mean_all = rowMeans(expr_values[,random_other])}
+  mean_sel = my_rowMeans(expr_values[,random_select], method = mean_method, offset = offset)
+  mean_all = my_rowMeans(expr_values[,random_other], method = mean_method, offset = offset)
+  #if(length(select_ind) == 1){mean_sel = expr_values[,random_select]} else{mean_sel = rowMeans(expr_values[,random_select])}
+  #if(length(other_ind) == 1){mean_all = expr_values[,random_other]} else{mean_all = rowMeans(expr_values[,random_other])}
 
-  log2fc = log2((mean_sel+1)/(mean_all+1))
+  log2fc = log2((mean_sel+offset)/(mean_all+offset))
   diff = mean_sel - mean_all
 
   resultsDT = data.table('sel' = mean_sel, 'other' = mean_all, 'log2fc' = log2fc, 'diff' = diff)
@@ -490,11 +504,15 @@ do_permuttest_random = function(expr_values, select_ind, other_ind, name = 'perm
 #' @description calculate multiple random values
 #' @examples
 #'     do_multi_permuttest_random()
-do_multi_permuttest_random = function(expr_values, select_ind, other_ind, n = 100, cores = 2) {
+do_multi_permuttest_random = function(expr_values,
+                                      select_ind, other_ind,
+                                      mean_method, offset = 0.1, n = 100, cores = 2) {
 
   result = parallel::mclapply(mc.cores = cores, X = 1:n, FUN = function(x) {
 
-    perm_rand = do_permuttest_random(expr_values = expr_values, select_ind = select_ind, other_ind = other_ind, name = paste0('perm_', x))
+    perm_rand = do_permuttest_random(expr_values = expr_values,
+                                     select_ind = select_ind, other_ind = other_ind,
+                                     name = paste0('perm_', x), mean_method = mean_method, offset = offset)
 
   })
 
@@ -507,15 +525,23 @@ do_multi_permuttest_random = function(expr_values, select_ind, other_ind, n = 10
 #' @description Performs permutation test on subsets of a matrix
 #' @examples
 #'     do_permuttest_random()
-do_permuttest = function(expr_values, select_ind, other_ind, n_perm = 1000, adjust_method = 'fdr', cores = 2) {
+do_permuttest = function(expr_values,
+                         select_ind, other_ind,
+                         n_perm = 1000, adjust_method = 'fdr',
+                         mean_method, offset = 0.1, cores = 2) {
 
 
   ## original data
-  original = do_permuttest_original(expr_values = expr_values, select_ind = select_ind, other_ind = other_ind, name = 'orig')
+  original = do_permuttest_original(expr_values = expr_values,
+                                    select_ind = select_ind, other_ind = other_ind,
+                                    name = 'orig',
+                                    mean_method = mean_method, offset = offset)
 
   ## random permutations
   random_perms = do_multi_permuttest_random(expr_values = expr_values, n = n_perm,
-                                            select_ind = select_ind, other_ind = other_ind, cores = cores)
+                                            select_ind = select_ind, other_ind = other_ind,
+                                            mean_method = mean_method, offset = offset,
+                                            cores = cores)
 
   ##
   random_perms[, log2fc_diff := rep(original$log2fc, n_perm) - log2fc]
@@ -551,6 +577,8 @@ do_permuttest = function(expr_values, select_ind, other_ind, n_perm = 1000, adju
 do_cell_proximity_test = function(expr_values,
                                   select_ind, other_ind,
                                   diff_test = c('permutation', 'limma', 't.test', 'wilcox'),
+                                  mean_method = c('arithmic', 'geometric'),
+                                  offset = 0.1,
                                   n_perm = 100,
                                   adjust_method = c("bonferroni","BH", "holm", "hochberg", "hommel",
                                                     "BY", "fdr", "none"),
@@ -560,21 +588,31 @@ do_cell_proximity_test = function(expr_values,
   diff_test = match.arg(diff_test, choices = c('permutation', 'limma', 't.test', 'wilcox'))
   adjust_method = match.arg(adjust_method, choices = c("bonferroni","BH", "holm", "hochberg", "hommel",
                                                        "BY", "fdr", "none"))
+  mean_method = match.arg(mean_method, choices = c('arithmic', 'geometric'))
 
 
   if(diff_test == 'permutation') {
     result = do_permuttest(expr_values = expr_values,
                            select_ind = select_ind, other_ind = other_ind,
-                           n_perm = n_perm, adjust_method = adjust_method, cores = cores)
+                           n_perm = n_perm, adjust_method = adjust_method, cores = cores,
+                           mean_method = mean_method, offset = offset)
 
   } else if(diff_test == 'limma') {
-    result = do_limmatest(expr_values = expr_values, select_ind = select_ind, other_ind = other_ind)
+    result = do_limmatest(expr_values = expr_values,
+                          select_ind = select_ind, other_ind = other_ind,
+                          mean_method = mean_method, offset = offset)
 
   } else if(diff_test == 't.test') {
-    result = do_ttest(expr_values = expr_values, select_ind = select_ind, other_ind = other_ind, adjust_method = adjust_method)
+    result = do_ttest(expr_values = expr_values,
+                      select_ind = select_ind, other_ind = other_ind,
+                      mean_method = mean_method, offset = offset,
+                      adjust_method = adjust_method)
 
   } else if(diff_test == 'wilcox') {
-    result = do_wilctest(expr_values = expr_values, select_ind = select_ind, other_ind = other_ind, adjust_method = adjust_method)
+    result = do_wilctest(expr_values = expr_values,
+                         select_ind = select_ind, other_ind = other_ind,
+                         mean_method = mean_method, offset = offset,
+                         adjust_method = adjust_method)
 
   }
 
@@ -597,6 +635,8 @@ findCellProximityGenes_per_interaction = function(expr_values,
                                                   minimum_unique_int_cells = 1,
                                                   exclude_selected_cells_from_test = T,
                                                   diff_test = c('permutation', 'limma', 't.test', 'wilcox'),
+                                                  mean_method = c('arithmic', 'geometric'),
+                                                  offset = 0.1,
                                                   adjust_method = 'bonferroni',
                                                   nr_permutations = 100,
                                                   cores = 1) {
@@ -654,6 +694,8 @@ findCellProximityGenes_per_interaction = function(expr_values,
                                              other_ind = all_ind1,
                                              diff_test = diff_test,
                                              n_perm = nr_permutations,
+                                             mean_method = mean_method,
+                                             offset = offset,
                                              adjust_method = adjust_method,
                                              cores = cores)
       result_cell_1[, cell_type := first_cell_type]
@@ -675,6 +717,8 @@ findCellProximityGenes_per_interaction = function(expr_values,
                                              select_ind = sel_ind2, other_ind = all_ind2,
                                              diff_test = diff_test,
                                              n_perm = nr_permutations,
+                                             mean_method = mean_method,
+                                             offset = offset,
                                              adjust_method = adjust_method,
                                              cores = cores)
       result_cell_2[, cell_type := second_cell_type]
@@ -726,6 +770,8 @@ findCellProximityGenes_per_interaction = function(expr_values,
                                           select_ind = sel_ind1, other_ind = all_ind1,
                                           diff_test = diff_test,
                                           n_perm = nr_permutations,
+                                          mean_method = mean_method,
+                                          offset = offset,
                                           adjust_method = adjust_method,
                                           cores = cores)
 
@@ -759,6 +805,8 @@ findCellProximityGenes_per_interaction = function(expr_values,
 #' @param minimum_unique_cells minimum number of target cells required
 #' @param minimum_unique_int_cells minimum number of interacting cells required
 #' @param diff_test which differential expression test
+#' @param mean_method method to use to calculate the mean
+#' @param offset offset value to use when calculating log2 ratio
 #' @param adjust_method which method to adjust p-values
 #' @param nr_permutations number of permutations if diff_test = permutation
 #' @param exclude_selected_cells_from_test exclude interacting cells other cells
@@ -795,6 +843,8 @@ findCellProximityGenes = function(gobject,
                                   minimum_unique_cells = 1,
                                   minimum_unique_int_cells = 1,
                                   diff_test = c('permutation', 'limma', 't.test', 'wilcox'),
+                                  mean_method = c('arithmic', 'geometric'),
+                                  offset = 0.1,
                                   adjust_method = c("bonferroni","BH", "holm", "hochberg", "hommel",
                                                     "BY", "fdr", "none"),
                                   nr_permutations = 1000,
@@ -821,6 +871,8 @@ findCellProximityGenes = function(gobject,
   # p.adj test
   adjust_method = match.arg(adjust_method, choices = c("bonferroni","BH", "holm", "hochberg", "hommel",
                                                        "BY", "fdr", "none"))
+  # how to calculate mean
+  mean_method = match.arg(mean_method, choices = c('arithmic', 'geometric'))
 
   ## metadata
   cell_metadata = pDataDT(gobject)
@@ -850,6 +902,8 @@ findCellProximityGenes = function(gobject,
                                                        sel_int = x,
                                                        exclude_selected_cells_from_test = exclude_selected_cells_from_test,
                                                        diff_test = diff_test,
+                                                       mean_method = mean_method,
+                                                       offset = offset,
                                                        adjust_method = adjust_method,
                                                        nr_permutations = nr_permutations,
                                                        cores = 2)
@@ -874,6 +928,8 @@ findCellProximityGenes = function(gobject,
                                                        sel_int = x,
                                                        exclude_selected_cells_from_test = exclude_selected_cells_from_test,
                                                        diff_test = diff_test,
+                                                       mean_method = mean_method,
+                                                       offset = offset,
                                                        adjust_method = adjust_method,
                                                        nr_permutations = nr_permutations,
                                                        cores = 2)
@@ -920,6 +976,8 @@ findCellProximityGenes = function(gobject,
 #' @param minimum_unique_cells minimum number of target cells required
 #' @param minimum_unique_int_cells minimum number of interacting cells required
 #' @param diff_test which differential expression test
+#' @param mean_method method to use to calculate the mean
+#' @param offset offset value to use when calculating log2 ratio
 #' @param adjust_method which method to adjust p-values
 #' @param nr_permutations number of permutations if diff_test = permutation
 #' @param exclude_selected_cells_from_test exclude interacting cells other cells
@@ -956,6 +1014,8 @@ findCPG = function(gobject,
                    minimum_unique_cells = 1,
                    minimum_unique_int_cells = 1,
                    diff_test = c('permutation', 'limma', 't.test', 'wilcox'),
+                   mean_method = c('arithmic', 'geometric'),
+                   offset = 0.1,
                    adjust_method = c("bonferroni","BH", "holm", "hochberg", "hommel",
                                      "BY", "fdr", "none"),
                    nr_permutations = 100,
@@ -972,6 +1032,8 @@ findCPG = function(gobject,
                          minimum_unique_cells = minimum_unique_cells,
                          minimum_unique_int_cells = minimum_unique_int_cells,
                          diff_test = diff_test,
+                         mean_method = mean_method,
+                         offset = offset,
                          adjust_method = adjust_method,
                          nr_permutations = nr_permutations,
                          exclude_selected_cells_from_test = exclude_selected_cells_from_test,

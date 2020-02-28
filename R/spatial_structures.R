@@ -410,6 +410,7 @@ createDelaunayNetwork <- function(gobject,
     # parameters to include
     parameters_list[[update_name]] = c('dimensions used' = paste(dimensions, collapse = '-'),
                                        'maximum distance threshold' = ifelse(is.null(maximum_distance), NA, maximum_distance),
+                                       'mininum k' = minimum_k,
                                        'RTriangle Y:' = Y,
                                        'RTriangle j:' = j,
                                        'RTriangle S:' = S,

@@ -8,6 +8,8 @@ do_multi_permuttest_random(
   expr_values,
   select_ind,
   other_ind,
+  mean_method,
+  offset = 0.1,
   n = 100,
   cores = 2
 )

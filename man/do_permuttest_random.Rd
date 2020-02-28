@@ -5,7 +5,14 @@
 \alias{do_permuttest}
 \title{do_permuttest_random}
 \usage{
-do_permuttest_random(expr_values, select_ind, other_ind, name = "perm_1")
+do_permuttest_random(
+  expr_values,
+  select_ind,
+  other_ind,
+  name = "perm_1",
+  mean_method,
+  offset = 0.1
+)
 
 do_permuttest(
   expr_values,
@@ -13,6 +20,8 @@ do_permuttest(
   other_ind,
   n_perm = 1000,
   adjust_method = "fdr",
+  mean_method,
+  offset = 0.1,
   cores = 2
 )
 }

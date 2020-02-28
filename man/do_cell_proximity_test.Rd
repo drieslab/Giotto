@@ -9,6 +9,8 @@ do_cell_proximity_test(
   select_ind,
   other_ind,
   diff_test = c("permutation", "limma", "t.test", "wilcox"),
+  mean_method = c("arithmic", "geometric"),
+  offset = 0.1,
   n_perm = 100,
   adjust_method = c("bonferroni", "BH", "holm", "hochberg", "hommel", "BY", "fdr",
     "none"),

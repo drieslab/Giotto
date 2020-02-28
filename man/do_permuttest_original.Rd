@@ -4,7 +4,14 @@
 \alias{do_permuttest_original}
 \title{do_permuttest_original}
 \usage{
-do_permuttest_original(expr_values, select_ind, other_ind, name = "orig")
+do_permuttest_original(
+  expr_values,
+  select_ind,
+  other_ind,
+  name = "orig",
+  mean_method,
+  offset = 0.1
+)
 }
 \description{
 calculate original values

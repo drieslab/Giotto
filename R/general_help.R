@@ -358,3 +358,42 @@ convertEnsemblToGeneSymbol = function(matrix,
 
 }
 
+
+
+#' @title my_arowMeans
+#' @description arithmic rowMeans that works for a single column
+#' @examples
+#'     my_arowMeans(x)
+my_arowMeans = function(x) {
+  if(is.null(nrow(x))) {
+    x # if only one column is selected
+    #mean(x)
+  } else {
+    rowMeans(x)
+  }
+}
+
+#' @title my_growMeans
+#' @description geometric rowMeans that works for a single column
+#' @examples
+#'     my_growMeans(x)
+my_growMeans = function(x, offset = 0.1) {
+  if(is.null(nrow(x))) {
+    x # if only one column is selected
+    #exp(mean(log(x+offset)))-offset
+  } else {
+    exp(rowMeans(log(x+offset)))-offset
+  }
+}
+
+#' @title my_rowMeans
+#' @description arithmic or geometric rowMeans that works for a single column
+#' @examples
+#'     my_rowMeans(x)
+my_rowMeans = function(x, method = c('arithmic', 'geometric'), offset = 0.1) {
+  method = match.arg(method, c('arithmic', 'geometric'))
+  if(method == 'arithmic') return(my_arowMeans(x))
+  if(method == 'geometric') return(my_growMeans(x))
+}
+
+
