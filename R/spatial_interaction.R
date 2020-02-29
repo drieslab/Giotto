@@ -1544,6 +1544,12 @@ combineCellProximityGenes = function(cpgObject,
   final_results = sort_combine_two_DT_columns(final_results,
                                               column1 = 'genes_1', column2 = 'genes_2',
                                               myname = 'unif_gene_gene')
+
+  final_results[, comb_logfc := abs(log2fc_1) + abs(log2fc_2)]
+  setorder(final_results, -comb_logfc)
+  final_results[, direction := ifelse(log2fc_1 > 0 & log2fc_2 > 0, 'both_up',
+                               ifelse(log2fc_1 < 0 & log2fc_2 < 0, 'both_down', 'mixed'))]
+
   #return(final_results)
 
   combCpgObject = list(combCPGscores = final_results,
