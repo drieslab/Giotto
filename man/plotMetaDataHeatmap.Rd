@@ -18,7 +18,7 @@ plotMetaDataHeatmap(
   custom_gene_order = NULL,
   gene_cor_method = "pearson",
   gene_cluster_method = "complete",
-  cell_color_gradient = c("blue", "white", "red"),
+  gradient_color = c("blue", "white", "red"),
   gradient_midpoint = 0,
   gradient_limits = NULL,
   x_text_size = 10,
@@ -59,7 +59,7 @@ plotMetaDataHeatmap(
 
 \item{gene_cluster_method}{hierarchical cluster method for the genes}
 
-\item{cell_color_gradient}{vector with 3 colors for numeric data}
+\item{gradient_color}{vector with 3 colors for numeric data}
 
 \item{gradient_midpoint}{midpoint for color gradient}
 
