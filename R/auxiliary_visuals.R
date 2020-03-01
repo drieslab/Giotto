@@ -938,7 +938,9 @@ plotHeatmap <- function(gobject,
 #' @param custom_gene_order custom gene order (default = NULL)
 #' @param gene_cor_method correlation method for genes
 #' @param gene_cluster_method hierarchical cluster method for the genes
-#' @param midpoint midpoint of show_values
+#' @param cell_color_gradient vector with 3 colors for numeric data
+#' @param gradient_midpoint midpoint for color gradient
+#' @param gradient_limits vector with lower and upper limits
 #' @param x_text_size size of x-axis text
 #' @param x_text_angle angle of x-axis text
 #' @param y_text_size size of y-axis text
@@ -969,7 +971,9 @@ plotMetaDataHeatmap = function(gobject,
                                custom_gene_order = NULL,
                                gene_cor_method = 'pearson',
                                gene_cluster_method = 'complete',
-                               midpoint = 0,
+                               cell_color_gradient = c('blue', 'white', 'red'),
+                               gradient_midpoint = 0,
+                               gradient_limits = NULL,
                                x_text_size = 10,
                                x_text_angle = 45,
                                y_text_size = 10,
@@ -1051,9 +1055,24 @@ plotMetaDataHeatmap = function(gobject,
     metaDT[, factor_column := factor(get(metadata_cols), levels = clus_sort_names)]
     metaDT[, variable := factor(get('variable'), levels = gene_sort_names)]
 
+    # set gradient information
+    if(!is.null(gradient_limits) & is.vector(gradient_limits) & length(gradient_limits) == 2) {
+      lower_lim = gradient_limits[[1]]
+      upper_lim = gradient_limits[[2]]
+
+      numeric_data = metaDT[['variable']]
+      limit_numeric_data = ifelse(numeric_data > upper_lim, upper_lim,
+                                  ifelse(numeric_data < lower_lim, lower_lim, numeric_data))
+      numeric_data[['variable']] = limit_numeric_data
+    }
+
+
     pl <- ggplot2::ggplot()
     pl <- pl + geom_tile(data = metaDT, aes_string(x = 'factor_column', y = 'variable', fill = show_values), color = 'black')
-    pl <- pl + scale_fill_gradient2(low = 'blue', mid = 'white', high = 'red', midpoint = midpoint)
+    pl <- pl + scale_fill_gradient2(low = cell_color_gradient[[1]],
+                                    mid = cell_color_gradient[[2]],
+                                    high = cell_color_gradient[[3]],
+                                    midpoint = gradient_midpoint)
     pl <- pl + theme_classic()
     pl <- pl + theme(axis.text.x = element_text(size = x_text_size, angle = x_text_angle, hjust = 1, vjust = 1),
                      axis.text.y = element_text(size = y_text_size),
@@ -1094,9 +1113,23 @@ plotMetaDataHeatmap = function(gobject,
       metaDT[, factor_2_column := as.factor(get(second_meta_col))]
       metaDT[, variable := factor(get('variable'), levels = gene_sort_names)]
 
+      # set gradient information
+      if(!is.null(gradient_limits) & is.vector(gradient_limits) & length(gradient_limits) == 2) {
+        lower_lim = gradient_limits[[1]]
+        upper_lim = gradient_limits[[2]]
+
+        numeric_data = metaDT[['variable']]
+        limit_numeric_data = ifelse(numeric_data > upper_lim, upper_lim,
+                                    ifelse(numeric_data < lower_lim, lower_lim, numeric_data))
+        numeric_data[['variable']] = limit_numeric_data
+      }
+
       pl <- ggplot()
       pl <- pl + geom_tile(data = metaDT, aes_string(x = 'factor_1_column', y = 'variable', fill = show_values), color = 'black')
-      pl <- pl + scale_fill_gradient2(low = 'blue', mid = 'white', high = 'red', midpoint = midpoint)
+      pl <- pl + scale_fill_gradient2(low = cell_color_gradient[[1]],
+                                      mid = cell_color_gradient[[2]],
+                                      high = cell_color_gradient[[3]],
+                                      midpoint = gradient_midpoint)
       pl <- pl + facet_grid(stats::reformulate('factor_2_column'))
       pl <- pl + theme_classic()
       pl <- pl + theme(axis.text.x = element_text(size = x_text_size, angle = x_text_angle, hjust = 1, vjust = 1),
