@@ -114,11 +114,11 @@ makeSignMatrixRank <- function(sc_matrix,
 }
 
 
-#' @title rankPermutation
+#' @title do_rank_permutation
 #' @description creates permutation for the rankEnrich test
 #' @examples
-#'     rankPermutation()
-rankPermutation <- function(sc_gene, n){
+#'     do_rank_permutation()
+do_rank_permutation <- function(sc_gene, n){
   random_df <- data.frame(matrix(ncol = n, nrow = length(sc_gene)))
   for (i in 1:n){
     set.seed(i)
@@ -130,25 +130,43 @@ rankPermutation <- function(sc_gene, n){
 }
 
 
-
-#' @title pagePermutation
+#' @title do_page_permutation
 #' @description creates permutation for the PAGEEnrich test
 #' @examples
-#'     pagePermutation()
-pagePermutation <- function(sc_gene, gene_number, n){
-  all_sample_names<-NULL
-  all_sample_list<-NULL
-  for (i in 1:n){
-    set.seed(i)
-    random_gene=sample(sc_gene,gene_number,replace=FALSE)
-    ct_name<-paste("ct",i,sep="")
-    all_sample_names<-c(all_sample_names,ct_name)
-    all_sample_list<-c(all_sample_list,list(random_gene))
+#'     do_page_permutation()
+do_page_permutation<-function(gobject,
+                          sig_gene,
+                          ntimes){
+  ct_gene_counts<-NULL
+  for (i in 1:dim(sig_gene)[2]){
+    a<-length(which(sig_gene[,i]==1))
+    ct_gene_counts<-c(ct_gene_counts,a)
   }
-  random_sig<-makeSignMatrixPAGE(all_sample_names,all_sample_list)
-  return(random_sig)
+  uniq_ct_gene_counts<-unique(ct_gene_counts)
+  background_mean_sd<-matrix(data=NA,nrow = length(uniq_ct_gene_counts)+1,ncol=3)
+  for (i in 1:length(uniq_ct_gene_counts)){
+    gene_num<-uniq_ct_gene_counts[i]
+    all_sample_names<-NULL
+    all_sample_list<-NULL
+    for (j in 1:ntimes){
+      set.seed(j)
+      random_gene=sample(rownames(gobject@norm_expr),gene_num,replace=FALSE)
+      ct_name<-paste("ct",j,sep="")
+      all_sample_names<-c(all_sample_names,ct_name)
+      all_sample_list<-c(all_sample_list,list(random_gene))
+    }
+    random_sig<-makeSignMatrixPAGE(all_sample_names,all_sample_list)
+    random_DT = PAGEEnrich(gobject,sign_matrix = random_sig)
+    background<-unlist(random_DT[,2:dim(random_DT)[2]])
+    df_row_name<-paste("gene_num_",uniq_ct_gene_counts[i],sep="")
+    list_back_i<-c(df_row_name,mean(background),sd(background))
+    background_mean_sd[i,]<-list_back_i
+  }
+  background_mean_sd[length(uniq_ct_gene_counts)+1,]<-c("temp","0","1")
+  df_back<-data.frame(background_mean_sd,row.names = 1)
+  colnames(df_back)<-c("mean","sd")
+  return(df_back)
 }
-
 
 
 
@@ -422,7 +440,6 @@ hyperGeometricEnrich <- function(gobject,
 #' @param logbase log base to use if reverse_log_scale = TRUE
 #' @param p_value calculate p-value (default = FALSE)
 #' @param n_times (page/rank) number of permutation iterations to calculate p-value
-#' @param n_genes (page/rank) number of randomly selected genes for each permuation
 #' @param top_percentage (hyper) percentage of cells that will be considered to have gene expression with matrix binarization
 #' @param output_enrichment how to return enrichment output
 #' @param name to give to spatial enrichment results, default = PAGE
@@ -445,7 +462,7 @@ createSpatialEnrich = function(gobject,
                                expression_values = c('normalized', 'scaled', 'custom'),
                                reverse_log_scale = TRUE,
                                logbase = 2,
-                               p_value = FALSE,
+                               p_value = TRUE,
                                n_genes = 100,
                                n_times = 1000,
                                top_percentage = 5,
@@ -468,19 +485,17 @@ createSpatialEnrich = function(gobject,
                                     output_enrichment = output_enrichment)
     # default name for page enrichment
     if(is.null(name)) name = 'PAGE'
-
     if (p_value==TRUE){
-        random_sig = pagePermutation(rownames(gobject@norm_expr),n_genes,n_times)
-        random_DT = PAGEEnrich(gobject,
-                               sign_matrix = random_sig,
-                               expression_values = expression_values,
-                               reverse_log_scale = reverse_log_scale,
-                               logbase = logbase,
-                               output_enrichment = output_enrichment)
-        background<-unlist(random_DT[,2:dim(random_DT)[2]])
-        pvalue_DT<-enrich_results_DT
-        pvalue_DT[,2:dim(pvalue_DT)[2]]<- lapply(pvalue_DT[,2:dim(pvalue_DT)[2]], function(x)
-          {pnorm(x, mean = mean(background), sd = sd(background), lower.tail = FALSE,log.p = FALSE)})
+      background_mean_sd = do_page_permutation(gobject,sign_matrix,n_times)
+      pvalue_DT<-enrich_results_DT
+      for (i in 1:dim(sign_matrix)[2]){
+        length_gene<-length(which(sign_matrix[,i]==1))
+        join_gene_with_length<-paste("gene_num_",length_gene,sep="")
+        mean_i<-as.numeric(as.character(background_mean_sd[join_gene_with_length,][[1]]))
+        sd_i<-as.numeric(as.character(background_mean_sd[join_gene_with_length,][[2]]))
+        j<-i+1
+        pvalue_DT[[j]]<-pnorm(pvalue_DT[[j]],mean = mean_i, sd = sd_i, lower.tail = FALSE,log.p = FALSE)
+      }
     }
 
   } else if(enrich_method == 'rank') {
@@ -493,20 +508,19 @@ createSpatialEnrich = function(gobject,
                                     output_enrichment = output_enrichment)
     # default name for page enrichment
     if(is.null(name)) name = 'rank'
-
     if (p_value==TRUE){
-        random_rank = rankPermutation(rownames(sign_matrix),n_times)
-        random_DT = rankEnrich(gobject,
-                               sign_matrix = random_rank,
-                               expression_values = expression_values,
-                               reverse_log_scale = reverse_log_scale,
-                               logbase = logbase,
-                               output_enrichment = output_enrichment)
-        background<-unlist(random_DT[,2:dim(random_DT)[2]])
-        fit.gamma <- fitdist(background, distr = "gamma", method = "mle")
-        pvalue_DT<-enrich_results_DT
-        pvalue_DT[,2:dim(pvalue_DT)[2]]<- lapply(pvalue_DT[,2:dim(pvalue_DT)[2]],function(x)
-          {pgamma(x, fit.gamma$estimate[1], rate = fit.gamma$estimate[2], lower.tail = FALSE,log.p = FALSE)})
+      random_rank = do_rank_permutation(rownames(sign_matrix),n_times)
+      random_DT = rankEnrich(gobject,
+                             sign_matrix = random_rank,
+                             expression_values = expression_values,
+                             reverse_log_scale = reverse_log_scale,
+                             logbase = logbase,
+                             output_enrichment = output_enrichment)
+      background<-unlist(random_DT[,2:dim(random_DT)[2]])
+      fit.gamma <- fitdist(background, distr = "gamma", method = "mle")
+      pvalue_DT<-enrich_results_DT
+      pvalue_DT[,2:dim(pvalue_DT)[2]]<- lapply(pvalue_DT[,2:dim(pvalue_DT)[2]],function(x)
+      {pgamma(x, fit.gamma$estimate[1], rate = fit.gamma$estimate[2], lower.tail = FALSE,log.p = FALSE)})
     }
 
 
@@ -521,10 +535,9 @@ createSpatialEnrich = function(gobject,
                                               output_enrichment = output_enrichment)
     # default name for page enrichment
     if(is.null(name)) name = 'hypergeometric'
-
     if (p_value==TRUE){
-        pvalue_DT<-enrich_results_DT
-        pvalue_DT[,2:dim(pvalue_DT)[2]]<- lapply(pvalue_DT[,2:dim(pvalue_DT)[2]],function(x){10^(-x)})
+      pvalue_DT<-enrich_results_DT
+      pvalue_DT[,2:dim(pvalue_DT)[2]]<- lapply(pvalue_DT[,2:dim(pvalue_DT)[2]],function(x){10^(-x)})
     }
   }
 
@@ -552,8 +565,8 @@ createSpatialEnrich = function(gobject,
 
     gobject@spatial_enrichment[[name]] = enrich_results_DT
     if (p_value==TRUE){
-        pvalue_name=paste(name,"pvalue",sep="_")
-        gobject@spatial_enrichment[[pvalue_name]] = pvalue_DT
+      pvalue_name=paste(name,"pvalue",sep="_")
+      gobject@spatial_enrichment[[pvalue_name]] = pvalue_DT
     }
 
     return(gobject)
@@ -562,6 +575,4 @@ createSpatialEnrich = function(gobject,
     return(enrich_results_DT)
   }
 }
-
-
 
