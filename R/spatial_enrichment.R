@@ -420,7 +420,7 @@ hyperGeometricEnrich <- function(gobject,
 #' @param expression_values expression values to use
 #' @param reverse_log_scale reverse expression values from log scale
 #' @param logbase log base to use if reverse_log_scale = TRUE
-#' @param p_value calculate p-value (default = TRUE)
+#' @param p_value calculate p-value (default = FALSE)
 #' @param n_times (page/rank) number of permutation iterations to calculate p-value
 #' @param n_genes (page/rank) number of randomly selected genes for each permuation
 #' @param top_percentage (hyper) percentage of cells that will be considered to have gene expression with matrix binarization
@@ -445,7 +445,7 @@ createSpatialEnrich = function(gobject,
                                expression_values = c('normalized', 'scaled', 'custom'),
                                reverse_log_scale = TRUE,
                                logbase = 2,
-                               p_value = TRUE,
+                               p_value = FALSE,
                                n_genes = 100,
                                n_times = 1000,
                                top_percentage = 5,
@@ -468,6 +468,7 @@ createSpatialEnrich = function(gobject,
                                     output_enrichment = output_enrichment)
     # default name for page enrichment
     if(is.null(name)) name = 'PAGE'
+
     if (p_value==TRUE){
         random_sig = pagePermutation(rownames(gobject@norm_expr),n_genes,n_times)
         random_DT = PAGEEnrich(gobject,
@@ -492,6 +493,7 @@ createSpatialEnrich = function(gobject,
                                     output_enrichment = output_enrichment)
     # default name for page enrichment
     if(is.null(name)) name = 'rank'
+
     if (p_value==TRUE){
         random_rank = rankPermutation(rownames(sign_matrix),n_times)
         random_DT = rankEnrich(gobject,
@@ -519,6 +521,7 @@ createSpatialEnrich = function(gobject,
                                               output_enrichment = output_enrichment)
     # default name for page enrichment
     if(is.null(name)) name = 'hypergeometric'
+
     if (p_value==TRUE){
         pvalue_DT<-enrich_results_DT
         pvalue_DT[,2:dim(pvalue_DT)[2]]<- lapply(pvalue_DT[,2:dim(pvalue_DT)[2]],function(x){10^(-x)})

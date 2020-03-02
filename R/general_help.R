@@ -396,4 +396,53 @@ my_rowMeans = function(x, method = c('arithmic', 'geometric'), offset = 0.1) {
   if(method == 'geometric') return(my_growMeans(x))
 }
 
+#' @title DT_removeNA
+#' @name DT_removeNA
+#' @description set NA values to 0 in a data.table object
+DT_removeNA = function(DT) {
+  for (i in names(DT))
+    DT[is.na(get(i)), (i):=0]
+  return(DT)
+}
+
+#' @title kmeans_binarize
+#' @name kmeans_binarize
+#' @description create binarized scores from a vector using kmeans
+kmeans_binarize = function(x, nstart = 3, iter.max = 10) {
+
+  sel_gene_km = stats::kmeans(x, centers = 2, nstart = nstart, iter.max = iter.max)$cluster
+  mean_1 = mean(x[sel_gene_km == 1])
+  mean_2 = mean(x[sel_gene_km == 2])
+
+  if(mean_1 > mean_2) {
+    mean_1_value = 1
+    mean_2_value = 0
+  } else {
+    mean_1_value = 0
+    mean_2_value = 1
+  }
+
+  sel_gene_bin = x
+  sel_gene_bin[sel_gene_km == 1] = mean_1_value
+  sel_gene_bin[sel_gene_km == 2] = mean_2_value
+
+  return(sel_gene_bin)
+
+}
+
+#' @title rank_binarize
+#' @name rank_binarize
+#' @description create binarized scores from a vector using arbitrary rank
+rank_binarize = function(x, max_rank = 200) {
+
+  sel_gene_rank = rank(-x, ties.method = 'average')
+
+  sel_gene_bin = x
+  sel_gene_bin[sel_gene_rank <= max_rank] = 1
+  sel_gene_bin[sel_gene_rank > max_rank] = 0
+
+  return(sel_gene_bin)
+
+}
+
 

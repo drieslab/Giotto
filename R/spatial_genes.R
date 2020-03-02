@@ -1,259 +1,6 @@
-#' @title kmeans_binarize
-#' @name kmeans_binarize
-#' @description create binarized scores using kmeans
-kmeans_binarize = function(x, nstart = 3, iter.max = 10) {
-
-  sel_gene_km = stats::kmeans(x, centers = 2, nstart = nstart, iter.max = iter.max)$cluster
-  mean_1 = mean(x[sel_gene_km == 1])
-  mean_2 = mean(x[sel_gene_km == 2])
-
-  if(mean_1 > mean_2) {
-    mean_1_value = 1
-    mean_2_value = 0
-  } else {
-    mean_1_value = 0
-    mean_2_value = 1
-  }
-
-  sel_gene_bin = x
-  sel_gene_bin[sel_gene_km == 1] = mean_1_value
-  sel_gene_bin[sel_gene_km == 2] = mean_2_value
-
-  return(sel_gene_bin)
-
-}
-
-#' @title rank_binarize
-#' @name rank_binarize
-#' @description create binarized scores using arbitrary rank of top genes
-rank_binarize = function(x, max_rank = 200) {
-
-  sel_gene_rank = rank(-x, ties.method = 'average')
-
-  sel_gene_bin = x
-  sel_gene_bin[sel_gene_rank <= max_rank] = 1
-  sel_gene_bin[sel_gene_rank > max_rank] = 0
-
-  return(sel_gene_bin)
-
-}
 
 
-#' @title DT_removeNA
-#' @name DT_removeNA
-#' @description set NA values to 0
-DT_removeNA = function(DT) {
-  for (i in names(DT))
-    DT[is.na(get(i)), (i):=0]
-  return(DT)
-}
-
-
-# * ####
-## old spatial gene detection ####
-
-#' @title fish_function
-#' @name fish_function
-#' @description perform fisher exact test
-fish_function = function(x_to, x_from) {
-
-  fish_table = table(x_to == '1',
-                     x_from == '1')
-
-  fish_res = stats::fisher.test(fish_table)
-
-  return(list(pval = fish_res$p.value, OR = fish_res$estimate))
-}
-
-
-#' @title fish_function2
-#' @name fish_function2
-#' @description perform fisher exact test
-fish_function2 = function(A, B, C, D) {
-
-  # set NA's to 0
-  #A = ifelse(is.na(A), 0, A)
-  #B = ifelse(is.na(B), 0, B)
-  #C = ifelse(is.na(C), 0, C)
-  #D = ifelse(is.na(D), 0, D)
-
-  fish_matrix = matrix(c(A, B, C, D), nrow = 2)
-
-  fish_res = stats::fisher.test(fish_matrix)
-
-  return(list(pval = fish_res$p.value, OR = fish_res$estimate))
-}
-
-
-#' @title OR_function2
-#' @name OR_function2
-#' @description calculate odds-ratio
-OR_function2 = function(A, B, C, D) {
-
-  fish_matrix = matrix(c(A, B, C, D), nrow = 2)
-  fish_matrix = fish_matrix/1000 # to prevent overflow
-
-  OR = ((fish_matrix[1]*fish_matrix[4]) / (fish_matrix[2]*fish_matrix[3]))
-  return(list(OR = OR))
-}
-
-
-#' @title binGetSpatialGenesOld
-#' @name binGetSpatialGenesOld
-#' @description Rapid computation of genes that are spatially clustered
-#' @param gobject giotto object
-#' @param bin_method method to binarize gene expression
-#' @param expression_values expression values to use
-#' @param subset_genes only select a subset of genes to test
-#' @param spatial_network_name name of spatial network to use (default = 'spatial_network')
-#' @param nstart kmeans: nstart parameter
-#' @param iter_max kmeans: iter.max parameter
-#' @param rank_percentage percentage of top cells for binarization
-#' @param do_fisher_test perform fisher test
-#' @param community_expectation cell degree expectation in spatial communities
-#' @param verbose be verbose
-#' @return data.table with results (see details)
-#' @details We provide two ways to identify spatial genes based on gene expression binarization.
-#' Both methods are identicial except for how binarization is performed.
-#' \itemize{
-#'   \item{1. binarize: }{Each gene is binarized (0 or 1) in each cell with \bold{kmeans} (k = 2) or based on \bold{rank} percentile}
-#'   \item{2. network: }{Alll cells are connected through a k-nearest neighbor network}
-#'   \item{3. contingency table: }{A contingency table is calculated based on all pairwise cell-cell interactions (0-0, 0-1, 1-0 or 1-1)}
-#'   \item{4. For each gene an odds-ratio (OR) and fisher.test (optional) is calculated}
-#' }
-#' Additionally 2 other statistics are provided:
-#' \itemize{
-#'   \item{Number of cells with high expression (binary = 1)}
-#'   \item{total and ratio of highly connected cells: }{ Cells with a connectivity higher than community_expectation}
-#' }
-#' By selecting a subset of likely spatial genes (e.g. highly variable genes) the function will be much faster.
-#' @export
-#' @examples
-#'     binGetSpatialGenesOld(gobject)
-binGetSpatialGenesOld = function(gobject,
-                              bin_method = c('kmeans', 'rank'),
-                              expression_values = c('normalized', 'scaled', 'custom'),
-                              subset_genes = NULL,
-                              spatial_network_name = 'spatial_network',
-                              nstart = 3,
-                              iter_max = 10,
-                              percentage_rank = 10,
-                              do_fisher_test = F,
-                              community_expectation = 5,
-                              verbose = F) {
-
-  # set binarization method
-  bin_method = match.arg(bin_method, choices = c('kmeans', 'rank'))
-
-  # spatial network
-  spatial_network = gobject@spatial_network[[spatial_network_name]]
-  if(is.null(spatial_network)) {
-    stop('spatial_network_name: ', spatial_network_name, ' does not exist, create a spatial network first')
-  }
-
-  # expression
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
-
-  if(!is.null(subset_genes)) {
-    expr_values = expr_values[rownames(expr_values) %in% subset_genes, ]
-  }
-
-  # binarize matrix
-  if(bin_method == 'kmeans') {
-    bin_matrix = t(apply(X = expr_values, MARGIN = 1, FUN = kmeans_binarize, nstart = nstart, iter.max = iter_max))
-  } else if(bin_method == 'rank') {
-    max_rank = (ncol(expr_values)/100)*percentage_rank
-    bin_matrix = t(apply(X = expr_values, MARGIN = 1, FUN = function(x) rank_binarize(x = x, max_rank = max_rank)))
-  }
-
-  if(verbose == TRUE) cat('\n 1. matrix binarization complete \n')
-
-  # extra info: average expression of high expression group
-  sel_expr_values = expr_values * bin_matrix
-  av_expr = apply(sel_expr_values, MARGIN = 1, FUN = function(x) {
-    mean(x[x > 0])
-  })
-  av_expr_DT = data.table(genes = names(av_expr), av_expr = av_expr)
-  setorder(av_expr_DT, 'genes')
-
-  # dcast
-  bin_matrix_DT = data.table::as.data.table(reshape2::melt(bin_matrix, varnames = c('genes', 'cells'), value.name = 'value'))
-
-  # extra info: nr of cells with high expression
-  nr_high_cells = bin_matrix_DT[, .N, by = .(genes, value)][value == 1]
-  nr_high_cells = nr_high_cells[,.(genes,N)]
-
-  if(verbose == TRUE) cat('\n 2. average expression and number of high expression cells complete \n')
-
-  # combine binarized matrix with spatial network
-  spatial_network_min = spatial_network[,.(to, from)]
-  spatial_network_min = data.table:::merge.data.table(x = spatial_network_min, by.x = 'to', y = bin_matrix_DT, by.y = 'cells', allow.cartesian = T)
-  setnames(spatial_network_min, 'value', 'to_value')
-  spatial_network_min[bin_matrix_DT, from_value := value, on = c(genes = 'genes', from = 'cells')]
-
-  tablecomb = spatial_network_min[, .N, by = .(genes, to_value, from_value)]
-  tablecomb[, comb := paste0(to_value,'-',from_value)]
-  setorder(tablecomb, genes, comb)
-  dtablecomb = dcast.data.table(tablecomb, formula = genes ~ comb, value.var = 'N')
-
-
-  ## fisher test or odds-ratio only ##
-  dtablecomb = DT_removeNA(dtablecomb)
-
-  if(do_fisher_test == TRUE) {
-    dtablecomb = dtablecomb[, fish_function2(A = `0-0`, B = `0-1`, C = `1-0`, D = `1-1`), by = genes]
-
-  } else {
-    # OR only
-    dtablecomb = dtablecomb[, OR_function2(A = `0-0`, B = `0-1`, C = `1-0`, D = `1-1`), by = genes]
-  }
-
-  if(verbose == TRUE) cat('\n 3. fisher test or odds-ratio calculation complete \n')
-
-
-  ## estimate for community ##
-  # create count table for individual cells for all conditions
-  tocells = spatial_network_min[, .(to, genes, to_value, from_value)]
-  setnames(tocells, 'to', 'cells')
-  fromcells = spatial_network_min[, .(from, genes,  to_value, from_value)]
-  setnames(fromcells, 'from', 'cells')
-  allcells = rbind(tocells, fromcells)
-  counttable_cells = allcells[, .N, by = .(genes, to_value, from_value, cells)]
-
-  # uniq cells per combination (0-0, 1-1, ...)
-  count_uniq_cells = counttable_cells[, length(unique(cells)), by = .(genes, to_value, from_value)]
-  setorder(count_uniq_cells, genes, to_value, from_value)
-
-  # cells with higher connectivity per combination
-  count_comm_cells = counttable_cells[, sum(N >= community_expectation), by = .(genes, to_value, from_value)]
-  setorder(count_comm_cells, genes, to_value, from_value)
-  setnames(count_comm_cells, 'V1', 'comm')
-
-  count_comm_cells[, total := count_uniq_cells$V1]
-  count_comm_cells[, ratio := round(comm/total, 2)]
-  count_comm_cells = count_comm_cells[to_value == 1 & from_value == 1]
-
-
-  if(verbose == TRUE) cat('\n 4. community estimate complete, start merging results \n')
-
-
-  # merge different information
-  mergeDT = merge(av_expr_DT, nr_high_cells, by = 'genes')
-  mergeDT = merge(mergeDT, dtablecomb, by = 'genes')
-  mergeDT = merge(mergeDT, count_comm_cells[,.(genes, ratio)], by = 'genes')
-
-  mergeDT[, total_score := av_expr*ratio*log2(OR+1)]
-  setorder(mergeDT, -total_score)
-
-  return(mergeDT)
-  #return(list(av_expr_DT, nr_high_cells, dtablecomb, count_comm_cells))
-
-}
-
-
-# * ####
-## new spatial gene detection ####
+## spatial gene detection ####
 
 #' @title spat_fish_func
 #' @name spat_fish_func
@@ -376,9 +123,10 @@ spat_OR_func = function(gene,
 
 }
 
-#' @title binGetSpatialGenes
-#' @name binGetSpatialGenes
-#' @description Rapid computation of genes that are spatially clustered
+#' @title binSpect
+#' @name binSpect
+#' @description BinSpect (Binary Spatial Extraction of genes) is a fast computational method
+#' that identifies genes with a spatially coherent expression pattern.
 #' @param gobject giotto object
 #' @param bin_method method to binarize gene expression
 #' @param expression_values expression values to use
@@ -400,35 +148,36 @@ spat_OR_func = function(gene,
 #' Both methods are identicial except for how binarization is performed.
 #' \itemize{
 #'   \item{1. binarize: }{Each gene is binarized (0 or 1) in each cell with \bold{kmeans} (k = 2) or based on \bold{rank} percentile}
-#'   \item{2. network: }{Alll cells are connected through a k-nearest neighbor network}
-#'   \item{3. contingency table: }{A contingency table is calculated based on all pairwise cell-cell interactions (0-0, 0-1, 1-0 or 1-1)}
+#'   \item{2. network: }{Alll cells are connected through a spatial network based on the physical coordinates}
+#'   \item{3. contingency table: }{A contingency table is calculated based on all edges of neighboring cells and the binarized expression (0-0, 0-1, 1-0 or 1-1)}
 #'   \item{4. For each gene an odds-ratio (OR) and fisher.test (optional) is calculated}
 #' }
-#' Additionally 2 other statistics are provided (optional):
+#' Other statistics are provided (optional):
 #' \itemize{
 #'   \item{Number of cells with high expression (binary = 1)}
-#'   \item{total of high expressing cells }
+#'   \item{Average expression of each gene within high expressing cells }
+#'   \item{Number of hub cells, these are high expressing cells that have a user defined number of high expressing neighbors}
 #' }
-#' By selecting a subset of likely spatial genes (e.g. highly variable genes) or using multiple cores the function will be much faster.
+#' By selecting a subset of likely spatial genes (e.g. soft thresholding highly variable genes) or using multiple cores can accelerate the speed.
 #' @export
 #' @examples
-#'     binGetSpatialGenes(gobject)
-binGetSpatialGenes = function(gobject,
-                              bin_method = c('kmeans', 'rank'),
-                              expression_values = c('normalized', 'scaled', 'custom'),
-                              subset_genes = NULL,
-                              spatial_network_name = 'spatial_network',
-                              nstart = 3,
-                              iter_max = 10,
-                              percentage_rank = 30,
-                              do_fisher_test = TRUE,
-                              calc_hub = FALSE,
-                              hub_min_int = 3,
-                              get_av_expr = TRUE,
-                              get_high_expr = TRUE,
-                              do_parallel = TRUE,
-                              cores = NA,
-                              verbose = T) {
+#'     binSpect(gobject)
+binSpect = function(gobject,
+                    bin_method = c('kmeans', 'rank'),
+                    expression_values = c('normalized', 'scaled', 'custom'),
+                    subset_genes = NULL,
+                    spatial_network_name = 'spatial_network',
+                    nstart = 3,
+                    iter_max = 10,
+                    percentage_rank = 30,
+                    do_fisher_test = TRUE,
+                    calc_hub = FALSE,
+                    hub_min_int = 3,
+                    get_av_expr = TRUE,
+                    get_high_expr = TRUE,
+                    do_parallel = TRUE,
+                    cores = NA,
+                    verbose = T) {
 
 
   # set binarization method
@@ -558,9 +307,12 @@ binGetSpatialGenes = function(gobject,
 
 
 
-#' @title calculate_spatial_genes_python
-#' @name calculate_spatial_genes_python
-#' @description Calculate spatial genes using distance matrix.
+#' @title silhouetteRank
+#' @name silhouetteRank
+#' @description This method computes a silhouette score per gene based on the
+#' spatial distribution of two partitions of cells (expressed L1, and non-expressed L0).
+#' Here, rather than L2 Euclidean norm, it uses a rank-transformed, exponentially weighted
+#' function to represent the local physical distance between two cells.
 #' @param gobject giotto object
 #' @param expression_values expression values to use
 #' @param metric distance metric to use
@@ -569,17 +321,16 @@ binGetSpatialGenes = function(gobject,
 #' @param examine_top top fraction to evaluate with silhouette
 #' @param python_path specify specific path to python if required
 #' @return data.table with spatial scores
-#' @details Description of how we compute spatial pattern genes.
 #' @export
 #' @examples
-#'     calculate_spatial_genes_python(gobject)
-calculate_spatial_genes_python <- function(gobject,
-                                           expression_values = c('normalized', 'scaled', 'custom'),
-                                           metric = "euclidean",
-                                           subset_genes = NULL,
-                                           rbp_p = 0.95,
-                                           examine_top = 0.3,
-                                           python_path = NULL) {
+#'     silhouetteRank(gobject)
+silhouetteRank <- function(gobject,
+                           expression_values = c('normalized', 'scaled', 'custom'),
+                           metric = "euclidean",
+                           subset_genes = NULL,
+                           rbp_p = 0.95,
+                           examine_top = 0.3,
+                           python_path = NULL) {
 
 
   # expression values
@@ -601,7 +352,6 @@ calculate_spatial_genes_python <- function(gobject,
   # python path
   if(is.null(python_path)) {
     python_path = readGiottoInstructions(gobject, param = "python_path")
-    #python_path = system('which python', intern = T)
   }
 
   ## prepare python path and louvain script
@@ -630,6 +380,258 @@ calculate_spatial_genes_python <- function(gobject,
 
 
 }
+
+
+
+#' @title spatialDE
+#' @name spatialDE
+#' @description Compute spatial variable genes with spatialDE method
+#' @param gobject Giotto object
+#' @param expression_values gene expression values to use
+#' @param size size of plot
+#' @param color low/medium/high color scheme for plot
+#' @param sig_alpha alpha value for significance
+#' @param unsig_alpha alpha value for unsignificance
+#' @param python_path specify specific path to python if required
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return a list of data.frames with results and plot (optional)
+#' @details This function is a wrapper for the SpatialDE method implemented in the ...
+#' @export
+#' @examples
+#'     spatialDE(gobject)
+spatialDE <- function(gobject = NULL,
+                      expression_values = c('raw', 'normalized', 'scaled', 'custom'),
+                      size = c(4,2,1),
+                      color = c("blue", "green", "red"),
+                      sig_alpha = 0.5,
+                      unsig_alpha = 0.5,
+                      python_path = NULL,
+                      show_plot = NA,
+                      return_plot = NA,
+                      save_plot = NA,
+                      save_param = list(),
+                      default_save_name = 'SpatialDE'){
+
+
+  # expression
+  values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+
+  ## python path
+  if(is.null(python_path)) {
+    python_path = readGiottoInstructions(gobject, param = "python_path")
+  }
+
+  ## source python file
+  reticulate::use_python(required = T, python = python_path)
+  reader_path = system.file("python", "SpatialDE_wrapper.py", package = 'Giotto')
+  reticulate::source_python(file = reader_path)
+
+  ## get spatial locations
+  spatial_locs <- as.data.frame(gobject@spatial_locs)
+  rownames(spatial_locs) <- spatial_locs$cell_ID
+  spatial_locs <- subset(spatial_locs, select = -cell_ID)
+
+  ## run spatialDE
+  Spatial_DE_results = Spatial_DE(as.data.frame(t(expr_values)), spatial_locs)
+
+  results <- as.data.frame(reticulate::py_to_r(Spatial_DE_results[[1]]))
+
+  if(length(Spatial_DE_results) == 2){
+    ms_results = as.data.frame(reticulate::py_to_r(Spatial_DE_results[[2]]))
+    spatial_genes_results = list(results, ms_results)
+    names(spatial_genes_results) = c("results", "ms_results")
+  } else{
+    spatial_genes_results =  results
+    ms_results = NULL
+  }
+
+
+  ## create plot
+  FSV_plot = FSV_show(results = results,
+                      ms_results = ms_results,
+                      size =size,
+                      color = color,
+                      sig_alpha = sig_alpha,
+                      unsig_alpha = unsig_alpha)
+
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(FSV_plot)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = FSV_plot, default_save_name = default_save_name), save_param))
+  }
+
+  ## return results and plot (optional)
+  if(return_plot == TRUE) {
+    return(list(results = spatial_genes_results, plot = FSV_plot))
+  } else {
+    return(list(results =  spatial_genes_results))
+  }
+
+}
+
+
+#' @title spatialAEH
+#' @name spatialAEH
+#' @description Compute spatial variable genes with spatialDE method
+#' @param gobject Giotto object
+#' @param SpatialDE_results results of \code{\link{SpatialDE}} function
+#' @param name_pattern name for the computed spatial patterns
+#' @param expression_values gene expression values to use
+#' @param pattern_num number of spatial patterns to look for
+#' @param l lengthscale
+#' @param python_path specify specific path to python if required
+#' @param return_gobject show plot
+#' @return An updated giotto object
+#' @details This function is a wrapper for the SpatialAEH method implemented in the ...
+#' @export
+#' @examples
+#'     spatialAEH(gobject)
+spatialAEH <- function(gobject = NULL,
+                       SpatialDE_results = NULL,
+                       name_pattern = 'AEH_patterns',
+                       expression_values = c('raw', 'normalized', 'scaled', 'custom'),
+                       pattern_num = 6,
+                       l = 1.05,
+                       python_path = NULL,
+                       return_gobject = TRUE) {
+
+  # expression
+  values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+
+  ## python path
+  if(is.null(python_path)) {
+    python_path = readGiottoInstructions(gobject, param = "python_path")
+  }
+
+  ## source python file
+  reticulate::use_python(required = T, python = python_path)
+  reader_path = system.file("python", "SpatialDE_wrapper.py", package = 'Giotto')
+  reticulate::source_python(file = reader_path)
+
+
+  ## spatial locations
+  spatial_locs <- as.data.frame(gobject@spatial_locs)
+  rownames(spatial_locs) <- spatial_locs$cell_ID
+  spatial_locs <- subset(spatial_locs, select = -cell_ID)
+
+  # extract results you need
+  results = SpatialDE_results[['results']][['results']]
+
+  ## automatic expression histology
+  AEH_results = Spatial_DE_AEH(filterd_exprs = as.data.frame(t(expr_values)),
+                               coordinates = spatial_locs,
+                               results = as.data.frame(results),
+                               pattern_num = pattern_num,
+                               l = l)
+  histology_results <- as.data.frame(reticulate::py_to_r(AEH_results[[1]]))
+  cell_pattern_score <- as.data.frame((reticulate::py_to_r(AEH_results[[2]])))
+
+  spatial_pattern_results <- list(histology_results, cell_pattern_score)
+  names(spatial_pattern_results) <- c("histology_results","cell_pattern_score")
+
+
+  if(return_gobject == TRUE) {
+
+    dt_res = as.data.table(spatial_pattern_results[['cell_pattern_score']])
+    dt_res[['cell_ID']] = rownames(spatial_pattern_results[['cell_pattern_score']])
+    gobject@spatial_enrichment[[name_pattern]] = dt_res
+    return(gobject)
+
+  } else {
+
+    return(list(results = spatial_pattern_results))
+
+  }
+}
+
+
+
+#' @title trendSceek
+#' @name trendSceek
+#' @description Compute spatial variable genes with trendsceek method
+#' @param gobject Giotto object
+#' @param expression_values gene expression values to use
+#' @param subset_genes subset of genes to run trendsceek on
+#' @param nrand An integer specifying the number of random resamplings of the mark distribution as to create the null-distribution.
+#' @param ncores An integer specifying the number of cores to be used by BiocParallel
+#' @param ... Additional parameters to the \code{\link[dbscan]{trendsceek_test}} function
+#' @return data.frame with trendsceek spatial genes results
+#' @details This function is a wrapper for the trendsceek_test method implemented in the trendsceek package
+#' @export
+#' @examples
+#'     trendSceek(gobject)
+trendSceek <- function(gobject,
+                       expression_values = c("normalized", "raw"),
+                       subset_genes = NULL,
+                       nrand = 100,
+                       ncores = 8,
+                       ...) {
+
+  if("trendsceek" %in% rownames(installed.packages()) == FALSE) {
+    stop("\n package 'trendsceek' is not yet installed \n",
+         "To install: \n",
+         "See https://github.com/edsgard/trendsceek"
+    )
+  }
+
+  ## expression data
+  values = match.arg(expression_values, c("normalized", "raw"))
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+
+  ## normalization function
+  if (values == "normalized") {
+    log.fcn = NA
+  }
+  else if (values == "raw") {
+    log.fcn = log10
+  }
+
+  ## subset genes
+  if (!is.null(subset_genes)) {
+    subset_genes = subset_genes[subset_genes %in% gobject@gene_ID]
+    expr_values = expr_values[rownames(expr_values) %in% subset_genes, ]
+  }
+
+
+  ## initial locations
+  spatial_locations = copy(gobject@spatial_locs)
+  spatial_locations[, cell_ID := NULL]
+  pp = trendsceek::pos2pp(spatial_locations)
+
+  ## initial gene counts
+  pp = trendsceek::set_marks(pp, expr_values, log.fcn = log.fcn)
+
+  # eliminates running errors caused by too many zeros
+  pp[["marks"]] = pp[["marks"]] + 1e-7
+
+  ## run trendsceek
+  trendsceektest = trendsceek::trendsceek_test(pp, nrand = nrand, ncores = ncores, ...)
+
+  ## get final results
+  trendsceektest = trendsceektest$supstats_wide
+
+  return(trendsceektest)
+}
+
+
+
 
 
 
@@ -1313,263 +1315,6 @@ Spatial_AEH <- function(gobject = NULL,
 
   return(spatial_pattern_results)
 }
-
-# ** ####
-## SpatialDE ####
-## ----------- ##
-
-#' @title spatialDE
-#' @name spatialDE
-#' @description Compute spatial variable genes with spatialDE method
-#' @param gobject Giotto object
-#' @param expression_values gene expression values to use
-#' @param size size of plot
-#' @param color low/medium/high color scheme for plot
-#' @param sig_alpha alpha value for significance
-#' @param unsig_alpha alpha value for unsignificance
-#' @param python_path specify specific path to python if required
-#' @param show_plot show plot
-#' @param return_plot return ggplot object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from all_plots_save_function()
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
-#' @return a list of data.frames with results and plot (optional)
-#' @details This function is a wrapper for the SpatialDE method implemented in the ...
-#' @export
-#' @examples
-#'     spatialDE(gobject)
-spatialDE <- function(gobject = NULL,
-                      expression_values = c('raw', 'normalized', 'scaled', 'custom'),
-                      size = c(4,2,1),
-                      color = c("blue", "green", "red"),
-                      sig_alpha = 0.5,
-                      unsig_alpha = 0.5,
-                      python_path = NULL,
-                      show_plot = NA,
-                      return_plot = NA,
-                      save_plot = NA,
-                      save_param = list(),
-                      default_save_name = 'SpatialDE'){
-
-
-  # expression
-  values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
-
-  ## python path
-  if(is.null(python_path)) {
-    python_path = readGiottoInstructions(gobject, param = "python_path")
-  }
-
-  ## source python file
-  reticulate::use_python(required = T, python = python_path)
-  reader_path = system.file("python", "SpatialDE_wrapper.py", package = 'Giotto')
-  reticulate::source_python(file = reader_path)
-
-  ## get spatial locations
-  spatial_locs <- as.data.frame(gobject@spatial_locs)
-  rownames(spatial_locs) <- spatial_locs$cell_ID
-  spatial_locs <- subset(spatial_locs, select = -cell_ID)
-
-  ## run spatialDE
-  Spatial_DE_results = Spatial_DE(as.data.frame(t(expr_values)), spatial_locs)
-
-  results <- as.data.frame(reticulate::py_to_r(Spatial_DE_results[[1]]))
-
-  if(length(Spatial_DE_results) == 2){
-    ms_results = as.data.frame(reticulate::py_to_r(Spatial_DE_results[[2]]))
-    spatial_genes_results = list(results, ms_results)
-    names(spatial_genes_results) = c("results", "ms_results")
-  } else{
-    spatial_genes_results =  results
-    ms_results = NULL
-  }
-
-
-  ## create plot
-  FSV_plot = FSV_show(results = results,
-                      ms_results = ms_results,
-                      size =size,
-                      color = color,
-                      sig_alpha = sig_alpha,
-                      unsig_alpha = unsig_alpha)
-
-
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(FSV_plot)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = FSV_plot, default_save_name = default_save_name), save_param))
-  }
-
-  ## return results and plot (optional)
-  if(return_plot == TRUE) {
-    return(list(results = spatial_genes_results, plot = FSV_plot))
-  } else {
-    return(list(results =  spatial_genes_results))
-  }
-
-}
-
-
-#' @title spatialAEH
-#' @name spatialAEH
-#' @description Compute spatial variable genes with spatialDE method
-#' @param gobject Giotto object
-#' @param SpatialDE_results results of \code{\link{SpatialDE}} function
-#' @param name_pattern name for the computed spatial patterns
-#' @param expression_values gene expression values to use
-#' @param pattern_num number of spatial patterns to look for
-#' @param l lengthscale
-#' @param python_path specify specific path to python if required
-#' @param return_gobject show plot
-#' @return An updated giotto object
-#' @details This function is a wrapper for the SpatialAEH method implemented in the ...
-#' @export
-#' @examples
-#'     spatialAEH(gobject)
-spatialAEH <- function(gobject = NULL,
-                       SpatialDE_results = NULL,
-                       name_pattern = 'AEH_patterns',
-                       expression_values = c('raw', 'normalized', 'scaled', 'custom'),
-                       pattern_num = 6,
-                       l = 1.05,
-                       python_path = NULL,
-                       return_gobject = TRUE) {
-
-  # expression
-  values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
-
-  ## python path
-  if(is.null(python_path)) {
-    python_path = readGiottoInstructions(gobject, param = "python_path")
-  }
-
-  ## source python file
-  reticulate::use_python(required = T, python = python_path)
-  reader_path = system.file("python", "SpatialDE_wrapper.py", package = 'Giotto')
-  reticulate::source_python(file = reader_path)
-
-
-  ## spatial locations
-  spatial_locs <- as.data.frame(gobject@spatial_locs)
-  rownames(spatial_locs) <- spatial_locs$cell_ID
-  spatial_locs <- subset(spatial_locs, select = -cell_ID)
-
-  # extract results you need
-  results = SpatialDE_results[['results']][['results']]
-
-  ## automatic expression histology
-  AEH_results = Spatial_DE_AEH(filterd_exprs = as.data.frame(t(expr_values)),
-                               coordinates = spatial_locs,
-                               results = as.data.frame(results),
-                               pattern_num = pattern_num,
-                               l = l)
-  histology_results <- as.data.frame(reticulate::py_to_r(AEH_results[[1]]))
-  cell_pattern_score <- as.data.frame((reticulate::py_to_r(AEH_results[[2]])))
-
-  spatial_pattern_results <- list(histology_results, cell_pattern_score)
-  names(spatial_pattern_results) <- c("histology_results","cell_pattern_score")
-
-
-  if(return_gobject == TRUE) {
-
-    dt_res = as.data.table(spatial_pattern_results[['cell_pattern_score']])
-    dt_res[['cell_ID']] = rownames(spatial_pattern_results[['cell_pattern_score']])
-    gobject@spatial_enrichment[[name_pattern]] = dt_res
-    return(gobject)
-
-  } else {
-
-    return(list(results = spatial_pattern_results))
-
-  }
-}
-
-
-
-# ** ####
-## trendsceek ####
-## ------------ ##
-
-
-#' @title trendSceek
-#' @name trendSceek
-#' @description Compute spatial variable genes with trendsceek method
-#' @param gobject Giotto object
-#' @param expression_values gene expression values to use
-#' @param subset_genes subset of genes to run trendsceek on
-#' @param nrand An integer specifying the number of random resamplings of the mark distribution as to create the null-distribution.
-#' @param ncores An integer specifying the number of cores to be used by BiocParallel
-#' @param ... Additional parameters to the \code{\link[dbscan]{trendsceek_test}} function
-#' @return data.frame with trendsceek spatial genes results
-#' @details This function is a wrapper for the trendsceek_test method implemented in the trendsceek package
-#' @export
-#' @examples
-#'     trendSceek(gobject)
-trendSceek <- function(gobject,
-                       expression_values = c("normalized", "raw"),
-                       subset_genes = NULL,
-                       nrand = 100,
-                       ncores = 8,
-                       ...) {
-
-  if("trendsceek" %in% rownames(installed.packages()) == FALSE) {
-    stop("\n package 'trendsceek' is not yet installed \n",
-         "To install: \n",
-         "See https://github.com/edsgard/trendsceek"
-    )
-  }
-
-  ## expression data
-  values = match.arg(expression_values, c("normalized", "raw"))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
-
-  ## normalization function
-  if (values == "normalized") {
-    log.fcn = NA
-  }
-  else if (values == "raw") {
-    log.fcn = log10
-  }
-
-  ## subset genes
-  if (!is.null(subset_genes)) {
-    subset_genes = subset_genes[subset_genes %in% gobject@gene_ID]
-    expr_values = expr_values[rownames(expr_values) %in% subset_genes, ]
-  }
-
-
-  ## initial locations
-  spatial_locations = copy(gobject@spatial_locs)
-  spatial_locations[, cell_ID := NULL]
-  pp = trendsceek::pos2pp(spatial_locations)
-
-  ## initial gene counts
-  pp = trendsceek::set_marks(pp, expr_values, log.fcn = log.fcn)
-
-  # eliminates running errors caused by too many zeros
-  pp[["marks"]] = pp[["marks"]] + 1e-7
-
-  ## run trendsceek
-  trendsceektest = trendsceek::trendsceek_test(pp, nrand = nrand, ncores = ncores, ...)
-
-  ## get final results
-  trendsceektest = trendsceektest$supstats_wide
-
-  return(trendsceektest)
-}
-
 
 
 

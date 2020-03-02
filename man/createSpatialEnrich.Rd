@@ -11,7 +11,7 @@ createSpatialEnrich(
   expression_values = c("normalized", "scaled", "custom"),
   reverse_log_scale = TRUE,
   logbase = 2,
-  p_value = TRUE,
+  p_value = FALSE,
   n_genes = 100,
   n_times = 1000,
   top_percentage = 5,
@@ -33,7 +33,7 @@ createSpatialEnrich(
 
 \item{logbase}{log base to use if reverse_log_scale = TRUE}
 
-\item{p_value}{calculate p-value (default = TRUE)}
+\item{p_value}{calculate p-value (default = FALSE)}
 
 \item{n_genes}{(page/rank) number of randomly selected genes for each permuation}
 
