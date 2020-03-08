@@ -2592,7 +2592,14 @@ exprCellCellcom = function(gobject,
   } else if(adjust_target == 'cells'){
     comScore[, p.adj := p.adjust(pvalue, method = adjust_method), by = .(LR_comb)]
   }
-  comScore[, PI := log2fc*(1-p.adj)]
+
+
+  # get minimum adjusted p.value that is not zero
+  all_p.adj = comScore[['p.adj']]
+  lowest_p.adj = min(all_p.adj[all_p.adj != 0])
+  comScore[, PI := ifelse(p.adj == 0, log2fc*(-log10(lowest_p.adj)), log2fc*(-log10(p.adj)))]
+  #comScore[, PI := log2fc*(1-p.adj)]
+
   data.table::setorder(comScore, LR_comb, -LR_expr)
 
   return(comScore)
@@ -2776,7 +2783,11 @@ specificCellCellcommunicationScores = function(gobject,
       comScore[, p.adj := p.adjust(pvalue, method = adjust_method), by = .(LR_comb)]
     }
 
-    comScore[, PI := log2fc*(1-p.adj)]
+    # get minimum adjusted p.value that is not zero
+    all_p.adj = comScore[['p.adj']]
+    lowest_p.adj = min(all_p.adj[all_p.adj != 0])
+    comScore[, PI := ifelse(p.adj == 0, log2fc*(-log10(lowest_p.adj)), log2fc*(-log10(p.adj)))]
+    #comScore[, PI := log2fc*(-log10(p.adj))]
 
     return(comScore)
 
