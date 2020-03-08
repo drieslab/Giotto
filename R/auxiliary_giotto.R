@@ -1106,12 +1106,12 @@ annotateGiotto <- function(gobject, annotation_vector = NULL, cluster_column = N
     cat('\n annotation name ', name,' was already used \n',
         'and will be overwritten \n')
 
-    cell_metadata[, temp_cluster_name := annotation_vector[[get(cluster_column)]], by = 1:nrow(cell_metadata)]
+    cell_metadata[, temp_cluster_name := annotation_vector[[as.character(get(cluster_column))]], by = 1:nrow(cell_metadata)]
     cell_metadata[, (name) := NULL]
 
   } else {
 
-    cell_metadata[, temp_cluster_name := annotation_vector[[get(cluster_column)]], by = 1:nrow(cell_metadata)]
+    cell_metadata[, temp_cluster_name := annotation_vector[[as.character(get(cluster_column))]], by = 1:nrow(cell_metadata)]
   }
 
   setnames(cell_metadata, old = 'temp_cluster_name', new = name)
