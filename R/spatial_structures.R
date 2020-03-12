@@ -4,12 +4,25 @@
 #' @description convert to a full spatial network
 convert_to_full_spatial_network =  function(reduced_spatial_network_DT) {
 
-  part1 = data.table::copy(reduced_spatial_network_DT)
-  part1 = part1[, c('from', 'to', 'sdimx_begin', 'sdimy_begin', 'sdimx_end', 'sdimy_end', 'distance', 'weight'), with = F]
-  colnames(part1) = c('source', 'target', 'source_begin', 'source_end', 'target_begin', 'target_end', 'distance', 'weight')
+  # find location coordinates
+  coordinates = grep('sdim', colnames(reduced_spatial_network_DT), value = T)
 
-  part2 = data.table::copy(reduced_spatial_network_DT[,.(to, from, sdimx_end, sdimy_end, sdimx_begin, sdimy_begin, distance, weight)])
-  colnames(part2) = c('source', 'target', 'source_begin', 'source_end', 'target_begin', 'target_end', 'distance', 'weight')
+  begin_coordinates = grep('begin', coordinates, value = T)
+  new_begin_coordinates = gsub(x = begin_coordinates, pattern = '_begin', replacement = '')
+  new_begin_coordinates = gsub(x = new_begin_coordinates, pattern = 'sdim', replacement = 'source_')
+
+  end_coordinates = grep('end', coordinates, value = T)
+  new_end_coordinates = gsub(x = end_coordinates, pattern = '_end', replacement = '')
+  new_end_coordinates = gsub(x = new_end_coordinates, pattern = 'sdim', replacement = 'target_')
+
+  # create normal source --> target
+  part1 = data.table::copy(reduced_spatial_network_DT)
+  part1 = part1[, c('from', 'to', begin_coordinates, end_coordinates, 'distance', 'weight'), with = F]
+  colnames(part1) = c('source', 'target', new_begin_coordinates, new_end_coordinates, 'distance', 'weight')
+
+  # revert order target (now source) --> source (now target)
+  part2 = data.table::copy(reduced_spatial_network_DT[, c('to', 'from', end_coordinates, begin_coordinates, 'distance', 'weight'), with = F])
+  colnames(part2) = c('source', 'target', new_begin_coordinates, new_end_coordinates, 'distance', 'weight')
 
   # combine and remove duplicates
   full_spatial_network_DT = rbind(part1, part2)
@@ -32,12 +45,21 @@ convert_to_full_spatial_network =  function(reduced_spatial_network_DT) {
 convert_to_reduced_spatial_network =  function(full_spatial_network_DT) {
 
 
-
-  #full_spatial_network_DT = Giotto:::sort_combine_two_DT_columns(full_spatial_network_DT, 'source', 'target', 'rnk_src_trgt')
+  # remove duplicates
   reduced_spatial_network_DT = full_spatial_network_DT[!duplicated(rnk_src_trgt)]
-  reduced_spatial_network_DT[, c('rank_int', 'rnk_src_trgt') := NULL]
-  reduced_spatial_network_DT = reduced_spatial_network_DT[,.(source, target, source_begin, source_end, target_begin, target_end, distance, weight)]
-  colnames(reduced_spatial_network_DT) = c('from', 'to', 'sdimx_begin', 'sdimy_begin', 'sdimx_end', 'sdimy_end', 'distance', 'weight')
+  reduced_spatial_network_DT[, c('rank_int', 'rnk_src_trgt') := NULL] # don't make sense in a reduced network
+
+  # convert to names for a reduced network
+  source_coordinates = grep('source_', colnames(reduced_spatial_network_DT), value = T)
+  new_source_coordinates = gsub(x = source_coordinates, pattern = 'source_', replacement = 'sdim')
+  new_source_coordinates = paste0(new_source_coordinates,'_begin')
+
+  target_coordinates = grep('target_', colnames(reduced_spatial_network_DT), value = T)
+  new_target_coordinates = gsub(x = target_coordinates, pattern = 'target_', replacement = 'sdim')
+  new_target_coordinates = paste0(new_target_coordinates,'_end')
+
+  reduced_spatial_network_DT = reduced_spatial_network_DT[, c('source', 'target', source_coordinates, target_coordinates, 'distance', 'weight'), with = F]
+  colnames(reduced_spatial_network_DT) = c('from', 'to', new_source_coordinates, new_target_coordinates, 'distance', 'weight')
   return(reduced_spatial_network_DT)
 
 }

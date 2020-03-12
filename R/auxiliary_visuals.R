@@ -1428,7 +1428,13 @@ violinPlot <- function(gobject,
   expr_data = select_expression_values(gobject = gobject, values = values)
 
   # only keep genes that are in the dataset
-  selected_genes = genes[genes %in% rownames(expr_data) ]
+  selected_genes = genes[genes %in% rownames(expr_data)]
+  if(length(selected_genes[duplicated(selected_genes)]) != 0) {
+    cat('These genes have duplicates and will be removed: \n',
+        selected_genes[duplicated(selected_genes)])
+
+    selected_genes = unique(selected_genes)
+  }
   subset_data = as.matrix(expr_data[rownames(expr_data) %in% selected_genes, ])
 
   if(length(genes) == 1) {
