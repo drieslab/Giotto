@@ -23,14 +23,25 @@ annotateSpatialNetwork = function(gobject,
   if(!spatial_network_name %in% names(gobject@spatial_network)) {
     stop('\n spatial network with name: ', spatial_network_name, ' does not exist \n')
   }
-  #spatial_network = gobject@spatial_network[[spatial_network_name]]
-  spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
+  spatial_network = gobject@spatial_network[[spatial_network_name]]
+
 
   if(create_full_network == TRUE) {
+
     spatial_network = Giotto:::convert_to_full_spatial_network(spatial_network)
-    setnames(spatial_network,
-             old = c('source', 'target', 'source_begin', 'source_end', 'target_begin', 'target_end'),
-             new = c('from', 'to', 'sdimx_begin', 'sdimy_begin', 'sdimx_end', 'sdimy_end'))
+
+    # convert to names for a reduced network
+    source_coordinates = grep('source_', colnames(spatial_network), value = T)
+    new_source_coordinates = gsub(x = source_coordinates, pattern = 'source_', replacement = 'sdim')
+    new_source_coordinates = paste0(new_source_coordinates,'_begin')
+
+    target_coordinates = grep('target_', colnames(spatial_network), value = T)
+    new_target_coordinates = gsub(x = target_coordinates, pattern = 'target_', replacement = 'sdim')
+    new_target_coordinates = paste0(new_target_coordinates,'_end')
+
+    data.table::setnames(spatial_network,
+                         old = c('source', 'target', source_coordinates, target_coordinates),
+                         new = c('from', 'to', new_source_coordinates, new_target_coordinates))
   }
 
 
@@ -42,7 +53,6 @@ annotateSpatialNetwork = function(gobject,
   }
   cluster_type_vector = cell_metadata[[cluster_column]]
   names(cluster_type_vector) = cell_metadata[['cell_ID']]
-
 
   spatial_network_annot = data.table::copy(spatial_network)
   spatial_network_annot[, to_cell_type := cluster_type_vector[to]]
@@ -56,8 +66,6 @@ annotateSpatialNetwork = function(gobject,
   spatial_network_annot = Giotto:::sort_combine_two_DT_columns(spatial_network_annot,
                                                                column1 = 'from_cell_type', column2 = 'to_cell_type',
                                                                myname = 'unified_int')
-
-  #spatial_network_annot[, unified_int := paste(sort(c(from_cell_type, to_cell_type)), collapse = '--'), by = 1:nrow(spatial_network_annot)]
 
   return(spatial_network_annot)
 

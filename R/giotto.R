@@ -595,7 +595,8 @@ createGiottoObject <- function(raw_exprs,
 
         if(any(c('data.frame', 'data.table') %in% class(network))) {
           if(all(c('to', 'from', 'weight', 'sdimx_begin', 'sdimy_begin', 'sdimx_end', 'sdimy_end') %in% colnames(network))) {
-            gobject@spatial_network[[networkname]] = network
+            spatial_network_Obj = create_spatialNetworkObject(name = networkname,networkDT = network)
+            gobject@spatial_network[[networkname]] = spatial_network_Obj
           } else {
             stop('\n network ', networkname, ' does not have all necessary column names, see details \n')
           }
