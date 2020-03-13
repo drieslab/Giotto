@@ -184,7 +184,7 @@ binSpect = function(gobject,
   bin_method = match.arg(bin_method, choices = c('kmeans', 'rank'))
 
   # spatial network
-  spatial_network = gobject@spatial_network[[spatial_network_name]]
+  spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
   if(is.null(spatial_network)) {
     stop('spatial_network_name: ', spatial_network_name, ' does not exist, create a spatial network first')
   }
@@ -1352,7 +1352,7 @@ do_spatial_knn_smoothing = function(gobject,
   }
 
   # get spatial network
-  spatial_network = gobject@spatial_network[[spatial_network_name]]
+  spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
 
   # get expression matrix
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))

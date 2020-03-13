@@ -223,7 +223,7 @@ subsetGiotto <- function(gobject, cell_ids = NULL, gene_ids = NULL, verbose = FA
   # cell spatial network
   if(!is.null(gobject@spatial_network)) {
     for(network in names(gobject@spatial_network)) {
-      gobject@spatial_network[[network]] =   gobject@spatial_network[[network]][to %in% cells_to_keep & from %in% cells_to_keep]
+      gobject@spatial_network[[network]]$networkDT =   gobject@spatial_network[[network]]$networkDT[to %in% cells_to_keep & from %in% cells_to_keep]
     }
   }
 
@@ -1827,7 +1827,8 @@ spatNetwDistributionsDistance <- function(gobject,
 
 
   ## spatial network
-  spatial_network = gobject@spatial_network[[spatial_network_name]]
+  #spatial_network = gobject@spatial_network[[spatial_network_name]]
+  spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
 
   ## convert to full network with rank_int column
   spatial_network = Giotto:::convert_to_full_spatial_network(spatial_network)
@@ -1914,7 +1915,8 @@ spatNetwDistributionsKneighbors = function(gobject,
                                            default_save_name = 'spatNetwDistributionsKneighbors') {
 
   ## spatial network
-  spatial_network = gobject@spatial_network[[spatial_network_name]]
+  #spatial_network = gobject@spatial_network[[spatial_network_name]]
+  spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
 
   ## convert to full network with rank_int column
   spatial_network = Giotto:::convert_to_full_spatial_network(spatial_network)
@@ -1993,7 +1995,8 @@ spatNetwDistributions <- function(gobject,
   distribution = match.arg(distribution, choices = distribution)
 
   ## spatial network
-  spatial_network = gobject@spatial_network[[spatial_network_name]]
+  #spatial_network = gobject@spatial_network[[spatial_network_name]]
+  spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
   if(is.null(spatial_network)) {
     stop('spatial network ', spatial_network_name, ' was not found')
   }
