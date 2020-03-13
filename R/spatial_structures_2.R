@@ -40,8 +40,42 @@ select_spatialNetwork <- function(gobject,
   }
 }
 
-createSpatialNetwork <- function (gobject, k = 4, dimensions = "all", maximum_distance = NULL,
-          minimum_k = 0, name = "spatial_network", verbose = F, return_gobject = TRUE,method="knn")
+createSpatialNetwork <- function(gobject,dimensions = "all",
+                                 method=c('Delaunay', 'kNN'),
+                                 delaunay_method=c("delaunayn_geometry","RTriangle","deldir"),
+                                 knn_method="knn",
+                                 maximum_distance_delaunay="auto",
+                                 name=NULL,k=4,minimum_k=0,maximum_distance_knn = NULL,
+                                 verbose=F,return_gobject=TRUE){
+
+      method = match.arg(method, c('Delaunay', 'kNN'))
+      if(method=="kNN"){
+          if(is.null(name)){
+            name = paste0(method,"_","network")
+          }
+          out = createSpatialKNNnetwork(gobject=gobject, method=knn_method,
+                                        dimensions = dimensions,
+                                        k = k, maximum_distance = maximum_distance_knn,
+                                        minimum_k = minimum_k,
+                                        name = name, verbose = verbose, return_gobject = return_gobject)
+      }else if (method=="Delaunay"){
+          delaunay_method = match.arg(delaunay_method,c("delaunayn_geometry","RTriangle","deldir"))
+          if(is.null(name)){
+            name = paste0(method,"_","network")
+          }
+          out = createSpatialDelaunayNetwork(gobject=gobject,method = delaunay_method,
+                                             dimensions = dimensions,
+                                             name = name,
+                                             maximum_distance = maximum_distance_delaunay,
+                                             minimum_k = minimum_k, Y = Y, j = j,S = S,
+                                             verbose = verbose, return_gobject = return_gobject)
+      }
+
+    return(out)
+}
+
+createSpatialKNNnetwork <- function (gobject, k = 4, dimensions = "all", maximum_distance = NULL,
+          minimum_k = 0, name = "knn_network", verbose = F, return_gobject = TRUE,method="knn")
 {
   spatial_locations = gobject@spatial_locs
   spatial_locations = spatial_locations[, grepl("sdim", colnames(spatial_locations)),
@@ -51,6 +85,7 @@ createSpatialNetwork <- function (gobject, k = 4, dimensions = "all", maximum_di
   }
   spatial_locations <- as.matrix(spatial_locations)
   rownames(spatial_locations) <- gobject@cell_ID
+
   cell_ID_vec <- c(1:nrow(spatial_locations))
   names(cell_ID_vec) <- rownames(spatial_locations)
   knn_spatial <- dbscan::kNN(x = spatial_locations, k = k)
@@ -127,6 +162,47 @@ createSpatialNetwork <- function (gobject, k = 4, dimensions = "all", maximum_di
   else {
     return(spatial_network_DT)
   }
+}
+
+createSpatialDelaunayNetwork <-function(gobject, method = "delaunayn_geometry",
+                                        dimensions = "all",
+                                        name = "delaunay_network",
+                                        maximum_distance = "auto",
+                                        minimum_k = 0, Y = TRUE, j = TRUE,S = 0,
+                                        verbose = T, return_gobject = TRUE, ...){
+
+  # determine the network dimesions
+  spatial_locations = gobject@spatial_locs
+  spatial_locations = spatial_locations[, grepl("sdim", colnames(spatial_locations)),
+                                        with = F]
+  if (dimensions != "all") {
+    spatial_locations = spatial_locations[, dimensions, with = FALSE]
+  }
+  spatial_locations <- as.matrix(spatial_locations)
+  d2_or_d3 = dim(spatial_locations)[2]
+
+  # create 2D or 3D delaunay network
+  if (d2_or_d3 == 2){
+
+  out = create_delaunayNetwork2D(gobject=gobject, method = method,
+                                 dimensions = names(spatial_locations),
+                                 name = name,
+                                 maximum_distance = maximum_distance, minimum_k = minimum_k,
+                                 Y = Y, j =  j, S = S,
+                                 verbose = verbose, return_gobject=return_gobject)
+  }else if(d2_or_d3 == 3){
+    if (method!="delaunayn_geometry"){
+       stop(method, ' method only applies to 2D data, see details \n')
+    }else{
+        out = create_delaunayNetwork3D(gobject=gobject, method = method,
+                                       dimensions = names(spatial_locations),
+                                       name = name,
+                                       maximum_distance = maximum_distance,
+                                       return_gobject=return_gobject)
+    }
+  }
+  return(out)
+
 }
 
 create_delaunayNetwork_geometry <- function(spatial_locations){
@@ -241,7 +317,7 @@ create_delaunayNetwork_deldir <- function(spatial_locations){
   return(out_object)
 }
 
-createDelaunayNetwork <- function (gobject, method = "delaunayn_geometry", dimensions = c("sdimx", "sdimy"), name = "delaunay_network",
+create_delaunayNetwork2D <- function (gobject, method = "delaunayn_geometry", dimensions = c("sdimx", "sdimy"), name = "delaunay_network",
           maximum_distance = "auto", minimum_k = 0, Y = TRUE, j = TRUE,
           S = 0, verbose = T, return_gobject = TRUE, ...)
 {
@@ -363,7 +439,7 @@ createDelaunayNetwork <- function (gobject, method = "delaunayn_geometry", dimen
   }
 }
 
-createDelaunayNetwork3D <- function (gobject, method = "delaunayn_geometry", dimensions = c("sdimx", "sdimy","sdimz"), name = "delaunay_network_3D",
+create_delaunayNetwork3D <- function (gobject, method = "delaunayn_geometry", dimensions = c("sdimx", "sdimy","sdimz"), name = "delaunay_network_3D",
                                    maximum_distance = "auto", return_gobject = TRUE, ...)
 {
   spatial_locations = gobject@spatial_locs
