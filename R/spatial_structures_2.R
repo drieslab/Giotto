@@ -282,13 +282,13 @@ createDelaunayNetwork <- function (gobject, method = "delaunayn_geometry", dimen
 
 
   delaunay_network_DT[, `:=`(distance, dist(x = matrix(c(sdimx_begin,
-                                                         sdimy_begin, sdimx_end, sdimy_end), nrow = 2, byrow = T))),
+                                                         sdimy_begin, sdimz_begin,sdimx_end, sdimy_end,sdimz_end), nrow = 2, byrow = T))),
                       by = 1:nrow(delaunay_network_DT)]
   delaunay_network_DT[, `:=`(distance, as.numeric(distance))]
   delaunay_network_DT[, `:=`(weight, 1/distance)]
   data.table::setorder(delaunay_network_DT, from, distance)
   delaunay_network_DT = delaunay_network_DT[, .(to, from, weight,
-                                                distance, sdimx_begin, sdimy_begin, sdimx_end, sdimy_end)]
+                                                distance, sdimx_begin, sdimy_begin, sdimz_begin, sdimx_end, sdimy_end,sdimz_end)]
   temp_fullnetwork = Giotto:::convert_to_full_spatial_network(delaunay_network_DT)
   if (maximum_distance == "auto") {
     temp_fullnetwork = temp_fullnetwork[distance <= boxplot.stats(temp_fullnetwork$distance)$stats[5]]
