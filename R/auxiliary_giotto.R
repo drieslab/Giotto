@@ -223,7 +223,7 @@ subsetGiotto <- function(gobject, cell_ids = NULL, gene_ids = NULL, verbose = FA
   # cell spatial network
   if(!is.null(gobject@spatial_network)) {
     for(network in names(gobject@spatial_network)) {
-      gobject@spatial_network[[network]] =   gobject@spatial_network[[network]][to %in% cells_to_keep & from %in% cells_to_keep]
+      gobject@spatial_network[[network]]$networkDT =   gobject@spatial_network[[network]]$networkDT[to %in% cells_to_keep & from %in% cells_to_keep]
     }
   }
 
