@@ -26,6 +26,7 @@ annotateSpatialNetwork = function(gobject,
   spatial_network = gobject@spatial_network[[spatial_network_name]]
 
 
+
   if(create_full_network == TRUE) {
 
     spatial_network = Giotto:::convert_to_full_spatial_network(spatial_network)
