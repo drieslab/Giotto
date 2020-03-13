@@ -90,7 +90,7 @@ plotDelaunayNeighbors <- function(gobject,
                                   default_save_name = "delaunayNeighborsPlot"){
 
   # get delaunay neighbors of selected cell
-  sp_network = annotateSpatialNetwork(gobject, spatial_network_name = "delaunay_network", cluster_column = color_by,create_full_network = T)
+  sp_network = annotateSpatialNetwork(gobject, spatial_network_name = "Delaunay_network", cluster_column = color_by,create_full_network = T)
   sp_network_select = sp_network[is.element(sp_network$from,gobject@cell_metadata$cell_ID[select_vec]),]
   sp_network_select_neighboring_cells = unique(sp_network_select$to)
   df_select = df[select_vec,]

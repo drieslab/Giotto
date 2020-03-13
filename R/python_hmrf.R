@@ -26,7 +26,7 @@
 #'     doHMRF(gobject)
 doHMRF <- function(gobject,
                    expression_values = c('normalized', 'scaled', 'custom'),
-                   spatial_network_name = 'spatial_network',
+                   spatial_network_name = 'Delaunay_network',
                    spatial_genes = NULL,
                    spatial_dimensions = c('sdimx', 'sdimy', 'sdimz'),
                    dim_reduction_to_use = NULL,

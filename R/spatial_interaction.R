@@ -15,7 +15,7 @@
 #' @examples
 #'     annotateSpatialNetwork(gobject)
 annotateSpatialNetwork = function(gobject,
-                                  spatial_network_name = 'spatial_network',
+                                  spatial_network_name = 'Delaunay_network',
                                   cluster_column,
                                   create_full_network = F) {
 
@@ -23,7 +23,7 @@ annotateSpatialNetwork = function(gobject,
   if(!spatial_network_name %in% names(gobject@spatial_network)) {
     stop('\n spatial network with name: ', spatial_network_name, ' does not exist \n')
   }
-  spatial_network = gobject@spatial_network[[spatial_network_name]]
+  spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
 
 
 
@@ -80,7 +80,7 @@ annotateSpatialNetwork = function(gobject,
 #' @examples
 #'     make_simulated_network(gobject)
 make_simulated_network = function(gobject,
-                                  spatial_network_name = 'spatial_network',
+                                  spatial_network_name = 'Delaunay_network',
                                   cluster_column,
                                   number_of_simulations = 100) {
 
@@ -151,7 +151,7 @@ make_simulated_network = function(gobject,
 #' @examples
 #'     cellProximityEnrichment(gobject)
 cellProximityEnrichment <- function(gobject,
-                                    spatial_network_name = 'spatial_network',
+                                    spatial_network_name = 'Delaunay_network',
                                     cluster_column,
                                     number_of_simulations = 1000,
                                     adjust_method = c("none", "fdr", "bonferroni","BH",
@@ -849,7 +849,7 @@ findCellProximityGenes = function(gobject,
                                   expression_values = 'normalized',
                                   selected_genes = NULL,
                                   cluster_column,
-                                  spatial_network_name = 'spatial_network',
+                                  spatial_network_name = 'Delaunay_network',
                                   minimum_unique_cells = 1,
                                   minimum_unique_int_cells = 1,
                                   diff_test = c('permutation', 'limma', 't.test', 'wilcox'),
@@ -1020,7 +1020,7 @@ findCPG = function(gobject,
                    expression_values = 'normalized',
                    selected_genes = NULL,
                    cluster_column,
-                   spatial_network_name = 'spatial_network',
+                   spatial_network_name = 'Delaunay_network',
                    minimum_unique_cells = 1,
                    minimum_unique_int_cells = 1,
                    diff_test = c('permutation', 'limma', 't.test', 'wilcox'),
@@ -1976,7 +1976,7 @@ get_cell_to_cell_sorted_name_conversion <- function(all_cell_types) {
 #' @examples
 #'     getCellProximityGeneScores(gobject)
 getCellProximityGeneScores = function(gobject,
-                                      spatial_network_name = 'spatial_network',
+                                      spatial_network_name = 'Delaunay_network',
                                       cluster_column = 'louvain_clus.1',
                                       selected_genes = NULL,
                                       expression_values = c('normalized', 'scaled', 'custom'),
@@ -2679,7 +2679,7 @@ create_cell_type_random_cell_IDs = function(gobject,
 #' @examples
 #'     specificCellCellcommunicationScores(gobject)
 specificCellCellcommunicationScores = function(gobject,
-                                               spatial_network_name = 'spatial_network',
+                                               spatial_network_name = 'Delaunay_network',
                                                cluster_column = 'cell_types',
                                                random_iter = 100,
                                                cell_type_1 = 'astrocyte',
@@ -2830,7 +2830,7 @@ specificCellCellcommunicationScores = function(gobject,
 #' @examples
 #'     spatCellCellcom(gobject)
 spatCellCellcom = function(gobject,
-                           spatial_network_name = 'spatial_network',
+                           spatial_network_name = 'Delaunay_network',
                            cluster_column = 'cell_types',
                            random_iter = 1000,
                            gene_set_1,
