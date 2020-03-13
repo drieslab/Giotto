@@ -131,6 +131,10 @@ createSpatialNetwork <- function (gobject, k = 4, dimensions = "all", maximum_di
 
 create_delaunayNetwork_geometry <- function(spatial_locations){
 
+  cell_ID_vec = c(1:nrow(spatial_locations))
+  names(cell_ID_vec) = rownames(spatial_locations)
+
+
   delaunay_triangle = geometry::delaunayn(spatial_locations[,c("sdimx","sdimy")], options = "Pp")
   geometry_obj = list("delaunay_triangle"=delaunay_triangle)
   delaunay_edges <- rbind(delaunay_triangle[,c(1,2)],
@@ -139,10 +143,10 @@ create_delaunayNetwork_geometry <- function(spatial_locations){
 
   ### making sure of no duplication ###
   delaunay_edges_dedup = dplyr::distinct(as.data.frame(delaunay_edges))
-  igraph_obj = graph_from_edgelist(as.matrix(delaunay_edges_dedup))
-  adj_obj = as_adjacency_matrix(igraph_obj)
-  igraph_obj2 = graph.adjacency(adj_obj)
-  delaunay_edges_dedup2 = get.data.frame(igraph_obj2)
+  igraph_obj = igraph::graph_from_edgelist(as.matrix(delaunay_edges_dedup))
+  adj_obj = igraph::as_adjacency_matrix(igraph_obj)
+  igraph_obj2 = igraph::graph.adjacency(adj_obj)
+  delaunay_edges_dedup2 = igraph::get.data.frame(igraph_obj2)
   delaunay_edges_dedup = delaunay_edges_dedup2
   ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
   ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
@@ -160,6 +164,10 @@ create_delaunayNetwork_geometry <- function(spatial_locations){
 
 create_delaunayNetwork_geometry_3D <- function(spatial_locations){
 
+  cell_ID_vec = c(1:nrow(spatial_locations))
+  names(cell_ID_vec) = rownames(spatial_locations)
+
+
   delaunay_tetrahedra <- geometry::delaunayn(spatial_locations)
   geometry_obj = list("delaunay_tetrahedra"=delaunay_tetrahedra)
   delaunay_edges <- rbind(delaunay_tetrahedra[,c(1,2)],
@@ -171,10 +179,10 @@ create_delaunayNetwork_geometry_3D <- function(spatial_locations){
 
   ### making sure of no duplication ###
   delaunay_edges_dedup = dplyr::distinct(as.data.frame(delaunay_edges))
-  igraph_obj = graph_from_edgelist(as.matrix(delaunay_edges_dedup))
-  adj_obj = as_adjacency_matrix(igraph_obj)
-  igraph_obj2 = graph.adjacency(adj_obj)
-  delaunay_edges_dedup2 = get.data.frame(igraph_obj2)
+  igraph_obj = igraph::graph_from_edgelist(as.matrix(delaunay_edges_dedup))
+  adj_obj = igraph::as_adjacency_matrix(igraph_obj)
+  igraph_obj2 = igraph::graph.adjacency(adj_obj)
+  delaunay_edges_dedup2 = igraph::get.data.frame(igraph_obj2)
   delaunay_edges_dedup = delaunay_edges_dedup2
   ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
   ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
@@ -195,6 +203,10 @@ create_delaunayNetwork_geometry_3D <- function(spatial_locations){
 
 create_delaunayNetwork_RTriangle <- function(spatial_locations,Y=TRUE,j=TRUE,S=0){
 
+  cell_ID_vec = c(1:nrow(spatial_locations))
+  names(cell_ID_vec) = rownames(spatial_locations)
+
+
   RTriangle_obj = RTriangle::triangulate(RTriangle::pslg(spatial_locations),
                                          Y = Y, j = j, S = S, ...)
 
@@ -212,6 +224,9 @@ create_delaunayNetwork_RTriangle <- function(spatial_locations,Y=TRUE,j=TRUE,S=0
 }
 
 create_delaunayNetwork_deldir <- function(spatial_locations){
+
+  cell_ID_vec = c(1:nrow(spatial_locations))
+  names(cell_ID_vec) = rownames(spatial_locations)
 
   deldir_obj = deldir::deldir(x = spatial_locations[,"sdimx"],y = spatial_locations[,"sdimy"])
 
@@ -282,13 +297,13 @@ createDelaunayNetwork <- function (gobject, method = "delaunayn_geometry", dimen
 
 
   delaunay_network_DT[, `:=`(distance, dist(x = matrix(c(sdimx_begin,
-                                                         sdimy_begin, sdimz_begin,sdimx_end, sdimy_end,sdimz_end), nrow = 2, byrow = T))),
+                                                         sdimy_begin, sdimx_end, sdimy_end), nrow = 2, byrow = T))),
                       by = 1:nrow(delaunay_network_DT)]
   delaunay_network_DT[, `:=`(distance, as.numeric(distance))]
   delaunay_network_DT[, `:=`(weight, 1/distance)]
   data.table::setorder(delaunay_network_DT, from, distance)
   delaunay_network_DT = delaunay_network_DT[, .(to, from, weight,
-                                                distance, sdimx_begin, sdimy_begin, sdimz_begin, sdimx_end, sdimy_end,sdimz_end)]
+                                                distance, sdimx_begin, sdimy_begin, sdimx_end, sdimy_end)]
   temp_fullnetwork = Giotto:::convert_to_full_spatial_network(delaunay_network_DT)
   if (maximum_distance == "auto") {
     temp_fullnetwork = temp_fullnetwork[distance <= boxplot.stats(temp_fullnetwork$distance)$stats[5]]
@@ -356,8 +371,6 @@ createDelaunayNetwork3D <- function (gobject, method = "delaunayn_geometry", dim
                                         with = F]
   spatial_locations = as.matrix(spatial_locations)
   rownames(spatial_locations) = gobject@cell_ID
-  cell_ID_vec = c(1:nrow(spatial_locations))
-  names(cell_ID_vec) = rownames(spatial_locations)
 
 ##
   if (method == "delaunayn_geometry"){
@@ -369,13 +382,13 @@ createDelaunayNetwork3D <- function (gobject, method = "delaunayn_geometry", dim
 
   }
   delaunay_network_DT[, `:=`(distance, dist(x = matrix(c(sdimx_begin,
-                                                         sdimy_begin, sdimx_end, sdimy_end), nrow = 2, byrow = T))),
+                                                         sdimy_begin, sdimz_begin, sdimx_end, sdimy_end, sdimz_end), nrow = 2, byrow = T))),
                       by = 1:nrow(delaunay_network_DT)]
   delaunay_network_DT[, `:=`(distance, as.numeric(distance))]
   delaunay_network_DT[, `:=`(weight, 1/distance)]
   data.table::setorder(delaunay_network_DT, from, distance)
   delaunay_network_DT = delaunay_network_DT[, .(to, from, weight,
-                                                distance, sdimx_begin, sdimy_begin, sdimx_end, sdimy_end)]
+                                                distance, sdimx_begin, sdimy_begin, sdimz_begin, sdimx_end, sdimy_end, sdimz_end)]
   temp_fullnetwork = Giotto:::convert_to_full_spatial_network(delaunay_network_DT)
   if (maximum_distance == "auto") {
     temp_fullnetwork = temp_fullnetwork[distance <= boxplot.stats(temp_fullnetwork$distance)$stats[5]]
@@ -428,3 +441,5 @@ createDelaunayNetwork3D <- function (gobject, method = "delaunayn_geometry", dim
     return(delaunay_network_DT)
   }
 }
+
+
