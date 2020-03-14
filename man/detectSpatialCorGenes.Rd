@@ -9,7 +9,7 @@ detectSpatialCorGenes(
   method = c("grid", "network"),
   expression_values = c("normalized", "scaled", "custom"),
   subset_genes = NULL,
-  spatial_network_name = "spatial_network",
+  spatial_network_name = "Delaunay_network",
   network_smoothing = NULL,
   spatial_grid_name = "spatial_grid",
   min_cells_per_grid = 4,

@@ -57,6 +57,11 @@ plotVoronoiTile <- function(gobject,
   pl = pl + geom_point(data = df_subset,
                            aes(x = sdimx, y = sdimy), size = 0.5)
 
+  
+  
+  
+  
+  
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject,
                                                               param = "show_plot"), show_plot)
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject,
@@ -78,6 +83,8 @@ plotVoronoiTile <- function(gobject,
 
 
 }
+
+
 
 plotDelaunayNeighbors <- function(gobject,
                                   color_by = NULL,

@@ -21,7 +21,7 @@ visPlot_2D_plotly(
   network_color = "lightgray",
   network_alpha = 1,
   other_cell_alpha = 0.5,
-  spatial_network_name = "spatial_network",
+  spatial_network_name = "Delaunay_network",
   show_grid = F,
   grid_color = NULL,
   grid_alpha = 1,

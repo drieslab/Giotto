@@ -23,7 +23,7 @@ visSpatDimGenePlot_2D(
   network_name = "sNN.pca",
   edge_alpha_dim = NULL,
   scale_alpha_with_expression = FALSE,
-  spatial_network_name = "spatial_network",
+  spatial_network_name = "Delaunay_network",
   spatial_grid_name = "spatial_grid",
   spatial_point_size = 1,
   spatial_point_border_col = "black",

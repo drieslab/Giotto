@@ -13,7 +13,7 @@ visGenePlot(
   genes_low_color = "blue",
   show_network = F,
   network_color = NULL,
-  spatial_network_name = "spatial_network",
+  spatial_network_name = "Delaunay_network",
   edge_alpha = NULL,
   show_grid = F,
   grid_color = NULL,

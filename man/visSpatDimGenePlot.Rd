@@ -32,7 +32,7 @@ visSpatDimGenePlot(
   dim_point_size = 3,
   nn_network_alpha = 0.5,
   show_spatial_network = F,
-  spatial_network_name = "spatial_network",
+  spatial_network_name = "Delaunay_network",
   network_color = "lightgray",
   spatial_network_alpha = 0.5,
   show_spatial_grid = F,

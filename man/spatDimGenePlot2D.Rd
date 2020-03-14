@@ -24,7 +24,7 @@ spatDimGenePlot2D(
   network_name = "sNN.pca",
   edge_alpha_dim = NULL,
   scale_alpha_with_expression = FALSE,
-  spatial_network_name = "spatial_network",
+  spatial_network_name = "Delaunay_network",
   spatial_grid_name = "spatial_grid",
   spat_point_shape = c("border", "no_border"),
   spat_point_size = 1,

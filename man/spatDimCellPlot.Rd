@@ -47,7 +47,7 @@ spatDimCellPlot(
   nn_network_name = "sNN.pca",
   dim_edge_alpha = 0.5,
   spat_show_network = F,
-  spatial_network_name = "spatial_network",
+  spatial_network_name = "Delaunay_network",
   spat_network_color = "red",
   spat_network_alpha = 0.5,
   spat_show_grid = F,

@@ -9,7 +9,7 @@ binSpect(
   bin_method = c("kmeans", "rank"),
   expression_values = c("normalized", "scaled", "custom"),
   subset_genes = NULL,
-  spatial_network_name = "spatial_network",
+  spatial_network_name = "Delaunay_network",
   nstart = 3,
   iter_max = 10,
   percentage_rank = 30,

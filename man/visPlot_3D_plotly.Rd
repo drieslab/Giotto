@@ -21,7 +21,7 @@ visPlot_3D_plotly(
   network_color = NULL,
   network_alpha = 1,
   other_cell_alpha = 0.5,
-  spatial_network_name = "spatial_network",
+  spatial_network_name = "Delaunay_network",
   spatial_grid_name = "spatial_grid",
   title = "",
   show_legend = T,

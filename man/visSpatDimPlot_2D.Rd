@@ -34,7 +34,7 @@ visSpatDimPlot_2D(
   dim_point_border_stroke = 0.1,
   nn_network_alpha = 0.05,
   show_spatial_network = F,
-  spatial_network_name = "spatial_network",
+  spatial_network_name = "Delaunay_network",
   spatial_network_color = NULL,
   show_spatial_grid = F,
   spatial_grid_name = "spatial_grid",

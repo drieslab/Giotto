@@ -22,7 +22,7 @@ visPlot_2D_ggplot(
   network_color = NULL,
   network_alpha = 1,
   other_cells_alpha = 0.1,
-  spatial_network_name = "spatial_network",
+  spatial_network_name = "Delaunay_network",
   show_grid = F,
   grid_color = NULL,
   spatial_grid_name = "spatial_grid",
