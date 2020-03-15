@@ -27,7 +27,9 @@ select_spatialNetwork <- function(gobject,
                                   name = NULL,
                                   return_network_Obj = FALSE) {
   if (!is.element(name,names(gobject@spatial_network))){
-    stop(sprintf("spatial network %s has not been created.",name))
+    # stop(sprintf("spatial network %s has not been created.",name))
+    sprintf("spatial network %s has not been created.Returning NULL",name)
+    return(NULL)
   }else{
     networkObj = gobject@spatial_network[[name]]
     networkDT = networkObj$networkDT

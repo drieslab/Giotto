@@ -106,18 +106,18 @@ plotDelaunayNeighbors <- function(gobject,
   sp_network = annotateSpatialNetwork(gobject, spatial_network_name = "Delaunay_network", cluster_column = color_by,create_full_network = T)
   sp_network_select = sp_network[is.element(sp_network$from,gobject@cell_metadata$cell_ID[select_vec]),]
   sp_network_select_neighboring_cells = unique(sp_network_select$to)
-  df_select = df[select_vec,]
 
   subset_vec = is.element(gobject@cell_metadata$cell_ID,sp_network_select_neighboring_cells)
   # create input data frame
   df = as.data.frame(cbind(gobject@spatial_locs,
                            gobject@cell_metadata[[color_by]]))
   names(df)[4] = "det_cell_type"
-  if (is.null(subset_vec)){
-    df_subset = df
-  }else{
-    df_subset = df[subset_vec,]
-  }
+  df_select = df[select_vec,]
+  # if (is.null(subset_vec)){
+  #   df_subset = df
+  # }else{
+  #   df_subset = df[subset_vec,]
+  # }
   # calculate a proper rectangular bound
   if (is.null(bound)){
     bound_to_use = c(min(df$sdimx),
