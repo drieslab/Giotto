@@ -2195,7 +2195,7 @@ spatPlot2D_single = function(gobject,
 
   ## extract spatial network
   if(!is.null(spatial_network_name)) {
-    spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
+    spatial_network = select_spatialNetwork(gobject, name = spatial_network_name, return_network_Obj = FALSE)
   } else {
     spatial_network = NULL
   }
