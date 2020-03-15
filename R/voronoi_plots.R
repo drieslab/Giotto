@@ -1,5 +1,11 @@
-### plot voronoi tile and cell neighbors
 
+
+
+
+
+
+
+### plot voronoi tile and cell neighbors
 plotVoronoiTile <- function(gobject,
                             color_by = NULL,
                             bound = NULL,
