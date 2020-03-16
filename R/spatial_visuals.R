@@ -63,7 +63,8 @@ visPlot_3D_plotly = function(gobject,
   
   ## extract spatial network
   if(!is.null(spatial_network_name)) {
-    spatial_network = gobject@spatial_network[[spatial_network_name]]
+    #spatial_network = gobject@spatial_network[[spatial_network_name]]
+    spatial_network = select_spatialNetwork(gobject, name = spatial_network_name, return_network_Obj = FALSE)
   } else {
     spatial_network = NULL
   }
@@ -275,7 +276,7 @@ visPlot_2D_ggplot = function(gobject,
   
   ## extract spatial network
   if(!is.null(spatial_network_name)) {
-    spatial_network = gobject@spatial_network[[spatial_network_name]]
+    spatial_network = select_spatialNetwork(gobject, name = spatial_network_name, return_network_Obj = FALSE)
   } else {
     spatial_network = NULL
   }
@@ -538,7 +539,7 @@ visPlot_2D_plotly = function(gobject,
   
   ## extract spatial network
   if(!is.null(spatial_network_name)) {
-    spatial_network = gobject@spatial_network[[spatial_network_name]]
+    spatial_network = select_spatialNetwork(gobject, name = spatial_network_name, return_network_Obj = FALSE)
   } else {
     spatial_network = NULL
   }
@@ -1001,7 +1002,7 @@ visGenePlot_2D_ggplot <- function(gobject,
   
   ## extract spatial network
   if(!is.null(spatial_network_name)) {
-    spatial_network = gobject@spatial_network[[spatial_network_name]]
+    spatial_network = select_spatialNetwork(gobject, name = spatial_network_name, return_network_Obj = FALSE)
   } else {
     spatial_network = NULL
   }
@@ -1167,7 +1168,7 @@ visGenePlot_3D_plotly <- function(gobject,
   
   ## extract spatial network
   if(!is.null(spatial_network_name)) {
-    spatial_network = gobject@spatial_network[[spatial_network_name]]
+    spatial_network = select_spatialNetwork(gobject, name = spatial_network_name, return_network_Obj = FALSE)
   } else {
     spatial_network = NULL
   }
@@ -2823,7 +2824,7 @@ visSpatDimPlot_3D <- function(gobject,
   
   ## extract spatial network
   if(!is.null(spatial_network_name)) {
-    spatial_network = gobject@spatial_network[[spatial_network_name]]
+    spatial_network = select_spatialNetwork(gobject, name = spatial_network_name, return_network_Obj = FALSE)
   } else {
     spatial_network = NULL
   }
@@ -4317,7 +4318,7 @@ visSpatDimGenePlot_3D <- function(gobject,
   
   ## extract spatial network
   if(!is.null(spatial_network_name)) {
-    spatial_network = gobject@spatial_network[[spatial_network_name]]
+    spatial_network = select_spatialNetwork(gobject, name = spatial_network_name, return_network_Obj = FALSE)
   } else {
     spatial_network = NULL
   }
