@@ -9,9 +9,9 @@ createSpatialNetwork(
   dimensions = "all",
   method = c("Delaunay", "kNN"),
   delaunay_method = c("delaunayn_geometry", "RTriangle", "deldir"),
-  knn_method = "knn",
   maximum_distance_delaunay = "auto",
   name = NULL,
+  knn_method = "knn",
   k = 4,
   minimum_k = 0,
   maximum_distance_knn = NULL,
@@ -28,11 +28,11 @@ createSpatialNetwork(
 
 \item{delaunay_method}{Delaunay method to use}
 
-\item{knn_method}{method to create kNN network}
-
 \item{maximum_distance_delaunay}{distance cuttof for nearest neighbors to consider for Delaunay network}
 
 \item{name}{name for spatial network (default = 'spatial_network')}
+
+\item{knn_method}{method to create kNN network}
 
 \item{k}{number of nearest neighbors based on physical distance}
 

@@ -6,14 +6,14 @@
 \usage{
 createSpatialKNNnetwork(
   gobject,
+  method = "knn",
+  name = "knn_network",
   k = 4,
   dimensions = "all",
   maximum_distance = NULL,
   minimum_k = 0,
-  name = "knn_network",
   verbose = F,
-  return_gobject = TRUE,
-  method = "knn"
+  return_gobject = TRUE
 )
 }
 \arguments{
