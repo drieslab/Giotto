@@ -967,7 +967,7 @@ create_delaunayNetwork3D_v2 <- function (gobject,
   method = match.arg(method, c("delaunayn_geometry", "RTriangle", "deldir"))
   
   spatial_locations = gobject@spatial_locs
-  spatial_locations = spatial_locations[, c('cell_ID', sdimx, sdimy), with = F]
+  spatial_locations = spatial_locations[, c('cell_ID', sdimx, sdimy, sdimz), with = F]
   
   
   ## delaunay geometry method ##
@@ -1416,7 +1416,6 @@ createSpatialNetwork_v2 <- function(gobject,
                                     S = 0,
                                     knn_method = "dbscan",
                                     k = 4,
-                                    
                                     maximum_distance_knn = NULL,
                                     verbose = F,
                                     return_gobject = TRUE,
