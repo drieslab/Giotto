@@ -4,7 +4,7 @@
 \alias{create_delaunayNetwork_geometry}
 \title{create_delaunayNetwork_geometry}
 \usage{
-create_delaunayNetwork_geometry(spatial_locations)
+create_delaunayNetwork_geometry(spatial_locations, options = "Pp")
 }
 \description{
 create delaunay network based on package geometry
