@@ -604,6 +604,7 @@ create_delaunayNetwork_geometry_3D_v2 <- function(spatial_locations,
                                                   sdimx = 'sdimx',
                                                   sdimy = 'sdimy',
                                                   sdimz = 'sdimz',
+                                                  options = options,
                                                   ...){
   
   ## vector with original cell names ##
@@ -977,6 +978,7 @@ create_delaunayNetwork3D_v2 <- function (gobject,
                                                             sdimx = sdimx,
                                                             sdimy = sdimy,
                                                             sdimz = sdimz,
+                                                            options = options,
                                                             ...)
     
     outputObj = delaunay_output$geometry_obj

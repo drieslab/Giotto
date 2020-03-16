@@ -9,6 +9,7 @@ create_delaunayNetwork_geometry_3D_v2(
   sdimx = "sdimx",
   sdimy = "sdimy",
   sdimz = "sdimz",
+  options = options,
   ...
 )
 }
