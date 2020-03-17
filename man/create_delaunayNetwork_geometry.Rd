@@ -4,8 +4,17 @@
 \alias{create_delaunayNetwork_geometry}
 \title{create_delaunayNetwork_geometry}
 \usage{
-create_delaunayNetwork_geometry(spatial_locations, options = "Pp")
+create_delaunayNetwork_geometry(
+  spatial_locations,
+  sdimx = "sdimx",
+  sdimy = "sdimy",
+  options = "Pp",
+  ...
+)
 }
 \description{
-create delaunay network based on package geometry
+Create a spatial Delaunay network.
+}
+\examples{
+    create_delaunayNetwork_geometry(gobject)
 }

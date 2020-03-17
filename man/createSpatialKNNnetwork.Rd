@@ -6,14 +6,15 @@
 \usage{
 createSpatialKNNnetwork(
   gobject,
-  method = "knn",
+  method = "dbscan",
+  dimensions = "all",
   name = "knn_network",
   k = 4,
-  dimensions = "all",
   maximum_distance = NULL,
   minimum_k = 0,
   verbose = F,
-  return_gobject = TRUE
+  return_gobject = TRUE,
+  ...
 )
 }
 \arguments{
@@ -25,7 +26,7 @@ createSpatialKNNnetwork(
 giotto object with updated spatial network slot
 }
 \description{
-Create a spatial kNN network.
+Create a spatial knn network.
 }
 \examples{
     createSpatialKNNnetwork(gobject)

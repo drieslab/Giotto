@@ -2135,11 +2135,15 @@ plotCPGscores <- function(CPGscores,
 #' @param gobject giotto object
 #' @param cpgObject cell proximity gene score object
 #' @param method plotting method to use
-#' @param min_cells minimum number of target cell type
-#' @param min_int_cells minimum number of interacting cell type
+#' @param min_cells minimum number of source cell type
+#' @param min_cells_expr minimum expression level for source cell type 
+#' @param min_int_cells minimum number of interacting neighbor cell type
+#' @param min_int_cells_expr minimum expression level for interacting neighbor cell type
 #' @param min_fdr minimum adjusted p-value
 #' @param min_spat_diff minimum absolute spatial expression difference
-#' @param min_log2_fc minimum absolute log2 fold-change#' @param facet_scales ggplot facet scales paramter
+#' @param min_log2_fc minimum log2 fold-change
+#' @param min_zscore minimum z-score change
+#' @param zscores_column calculate z-scores over cell types or genes
 #' @param direction differential expression directions to keep
 #' @param cell_color_code vector of colors with cell types as names
 #' @param show_plot show plots
@@ -2154,18 +2158,22 @@ plotCPGscores <- function(CPGscores,
 plotCellProximityGenes = function(gobject,
                                   cpgObject,
                                   method = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey', 'heatmap', 'dotplot'),
-                                  min_cells = 5,
-                                  min_int_cells = 3,
-                                  min_fdr = 0.05,
+                                  min_cells = 4,
+                                  min_cells_expr = 1,
+                                  min_int_cells = 4,
+                                  min_int_cells_expr = 1,
+                                  min_fdr = 0.1,
                                   min_spat_diff = 0.2,
-                                  min_log2_fc = 0.5,
+                                  min_log2_fc = 0.2,
+                                  min_zscore = 2,
+                                  zscores_column = c('cell_type', 'genes'),
                                   direction = c('both', 'up', 'down'),
                                   cell_color_code = NULL,
                                   show_plot = NA,
                                   return_plot = NA,
                                   save_plot = NA,
                                   save_param =  list(),
-                                  default_save_name = 'showCPGscores') {
+                                  default_save_name = 'plotCellProximityGenes') {
 
 
   if(!'cpgObject' %in% class(cpgObject)) {
@@ -2181,10 +2189,14 @@ plotCellProximityGenes = function(gobject,
   ## first filter
   filter_cpg = filterCellProximityGenes(cpgObject = cpgObject,
                                         min_cells = min_cells,
+                                        min_cells_expr = min_cells_expr,
                                         min_int_cells = min_int_cells,
+                                        min_int_cells_expr = min_int_cells_expr,
                                         min_fdr = min_fdr,
                                         min_spat_diff = min_spat_diff,
                                         min_log2_fc = min_log2_fc,
+                                        min_zscore = min_zscore,
+                                        zscores_column = zscores_column,
                                         direction = direction)
 
   complete_part = filter_cpg[['CPGscores']]
@@ -2326,7 +2338,7 @@ plotCellProximityGenes = function(gobject,
     pl = ggplot()
     pl = pl + theme_classic()
     pl = pl + geom_point(data = changed_genes, aes(x = cell_type, y = int_cell_type, size = N))
-    pl = pl + scale_size_continuous(guide=guide_legend(title = '# of DEGs'))
+    pl = pl + scale_size_continuous(guide=guide_legend(title = '# of ICGs'))
     pl = pl + theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1))
     pl = pl + labs(x = 'source cell type', y = 'neighbor cell type')
 
@@ -2388,11 +2400,15 @@ plotCellProximityGenes = function(gobject,
 #' @param gobject giotto object
 #' @param cpgObject cell proximity gene score object
 #' @param method plotting method to use
-#' @param min_cells minimum number of target cell type
-#' @param min_int_cells minimum number of interacting cell type
+#' @param min_cells minimum number of source cell type
+#' @param min_cells_expr minimum expression level for source cell type 
+#' @param min_int_cells minimum number of interacting neighbor cell type
+#' @param min_int_cells_expr minimum expression level for interacting neighbor cell type
 #' @param min_fdr minimum adjusted p-value
 #' @param min_spat_diff minimum absolute spatial expression difference
-#' @param min_log2_fc minimum absolute log2 fold-change#' @param facet_scales ggplot facet scales paramter
+#' @param min_log2_fc minimum log2 fold-change
+#' @param min_zscore minimum z-score change
+#' @param zscores_column calculate z-scores over cell types or genes
 #' @param direction differential expression directions to keep
 #' @param cell_color_code vector of colors with cell types as names
 #' @param show_plot show plots
@@ -2408,27 +2424,35 @@ plotCPG = function(gobject,
                    cpgObject,
                    method = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey', 'heatmap', 'dotplot'),
                    min_cells = 5,
+                   min_cells_expr = 1,
                    min_int_cells = 3,
+                   min_int_cells_expr = 1,
                    min_fdr = 0.05,
                    min_spat_diff = 0.2,
                    min_log2_fc = 0.2,
+                   min_zscore = 2,
+                   zscores_column = c('cell_type', 'genes'),
                    direction = c('both', 'up', 'down'),
                    cell_color_code = NULL,
                    show_plot = NA,
                    return_plot = NA,
                    save_plot = NA,
                    save_param =  list(),
-                   default_save_name = 'showCPGscores') {
+                   default_save_name = 'plotCPG') {
 
 
   plotCellProximityGenes(gobject = gobject,
                          cpgObject = cpgObject,
                          method = method,
                          min_cells = min_cells,
+                         min_cells_expr = min_cells_expr,
                          min_int_cells = min_int_cells,
+                         min_int_cells_expr = min_int_cells_expr,
                          min_fdr = min_fdr,
                          min_spat_diff = min_spat_diff,
                          min_log2_fc = min_log2_fc,
+                         min_zscore = min_zscore,
+                         zscores_column = zscores_column,
                          direction = direction,
                          cell_color_code = cell_color_code,
                          show_plot = show_plot,
@@ -2439,6 +2463,151 @@ plotCPG = function(gobject,
 
 
 }
+
+
+
+
+
+#' @title plotInteractionChangedGenes
+#' @name plotInteractionChangedGenes
+#' @description Create barplot to visualize interaction changed genes
+#' @param gobject giotto object
+#' @param cpgObject cell proximity gene score object
+#' @param source_type cell type of the source cell
+#' @param source_markers markers for the source cell type
+#' @param ICG_genes named character vector of ICG genes
+#' @param cell_color_code cell color code for the interacting cell types
+#' @param show_plot show plots
+#' @param return_plot return plotting object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return plot
+#' @export
+#' @examples
+#'     plotCPG(CPGscores)
+plotInteractionChangedGenes = function(gobject,
+                                       cpgObject,
+                                       source_type,
+                                       source_markers,
+                                       ICG_genes,
+                                       cell_color_code = NULL,
+                                       show_plot = NA,
+                                       return_plot = NA,
+                                       save_plot = NA,
+                                       save_param =  list(),
+                                       default_save_name = 'plotInteractionChangedGenes') {
+  
+  
+  
+  if(!'cpgObject' %in% class(cpgObject)) {
+    stop('\n cpgObject needs to be the output from findCellProximityGenes() or findCPG() \n')
+  }
+  
+  CPGscores = cpgObject[['CPGscores']]
+  
+  # combine genes
+  names(source_markers) = rep('marker', length(source_markers))
+  neighbor_types = names(ICG_genes)
+  names(ICG_genes) = ICG_genes_types
+  all_genes = c(source_markers, ICG_genes)
+  
+  tempDT = CPGscores[genes %in% all_genes][cell_type == source_type][int_cell_type %in% neighbor_types]
+  tempDT[, genes := factor(genes, levels = all_genes)]
+  tempDT[, group := names(all_genes[all_genes == genes]), by = 1:nrow(tempDT)]
+  
+  
+  if(is.null(cell_color_code)) {
+    mycolors = Giotto:::getDistinctColors(n = length(unique(tempDT$int_cell_type)))
+    names(mycolors) = unique(tempDT$int_cell_type)
+  } else {
+    mycolors = cell_color_code
+  }
+  
+  
+  pl = ggplot()
+  pl = pl + theme_classic() + theme(axis.text.x = element_text(size = 14, angle = 45, vjust = 1, hjust = 1),
+                                    axis.text.y = element_text(size = 14),
+                                    axis.title = element_text(size = 14))
+  pl = pl + geom_bar(data = tempDT, aes(x = genes, y = log2fc, fill = int_cell_type), stat = 'identity', position = position_dodge())
+  pl = pl + scale_fill_manual(values = mycolors)
+  pl = pl + labs(x = '', title = paste0('fold-change z-scores in ' ,source_type))
+  
+  
+  
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+  
+  
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+  
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+  
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
+  
+  
+}
+
+
+
+#' @title plotICG
+#' @name plotICG
+#' @description Create barplot to visualize interaction changed genes
+#' @param gobject giotto object
+#' @param cpgObject cell proximity gene score object
+#' @param source_type cell type of the source cell
+#' @param source_markers markers for the source cell type
+#' @param ICG_genes named character vector of ICG genes
+#' @param cell_color_code cell color code for the interacting cell types
+#' @param show_plot show plots
+#' @param return_plot return plotting object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return plot
+#' @export
+#' @examples
+#'     plotICG(CPGscores)
+plotICG = function(gobject,
+                   cpgObject,
+                   source_type,
+                   source_markers,
+                   ICG_genes,
+                   cell_color_code = NULL,
+                   show_plot = NA,
+                   return_plot = NA,
+                   save_plot = NA,
+                   save_param =  list(),
+                   default_save_name = 'plotICG') {
+  
+  
+  plotInteractionChangedGene(gobject = gobject,
+                             cpgObject = cpgObject,
+                             source_type = source_type,
+                             source_markers = source_markers,
+                             ICG_genes = ICG_genes,
+                             cell_color_code = cell_color_code,
+                             show_plot = show_plot,
+                             return_plot = return_plot,
+                             save_plot = save_plot,
+                             save_param =  save_param,
+                             default_save_name = default_save_name)
+  
+}
+
+
+
 
 
 
@@ -2640,9 +2809,12 @@ plotCombineCPG <- function(gobject,
 
 
 
+
+
+
+
 # * ####
 # cell communication plots ####
-
 
 #' @title plotCombineCellCellCommunication
 #' @name plotCombineCellCellCommunication

@@ -7,13 +7,20 @@
 create_delaunayNetwork3D(
   gobject,
   method = "delaunayn_geometry",
-  dimensions = c("sdimx", "sdimy", "sdimz"),
+  sdimx = "sdimx",
+  sdimy = "sdimy",
+  sdimz = "sdimz",
   name = "delaunay_network_3D",
   maximum_distance = "auto",
+  minimum_k = 0,
+  options = "Pp",
   return_gobject = TRUE,
   ...
 )
 }
 \description{
-create delaunay network for 3D data
+Create a spatial Delaunay network.
+}
+\examples{
+    create_delaunayNetwork3D(gobject)
 }

@@ -4,8 +4,19 @@
 \alias{create_delaunayNetwork_RTriangle}
 \title{create_delaunayNetwork_RTriangle}
 \usage{
-create_delaunayNetwork_RTriangle(spatial_locations, Y = TRUE, j = TRUE, S = 0)
+create_delaunayNetwork_RTriangle(
+  spatial_locations,
+  sdimx = "sdimx",
+  sdimy = "sdimy",
+  Y = TRUE,
+  j = TRUE,
+  S = 0,
+  ...
+)
 }
 \description{
-create delaunay network based on package RTriangle
+Create a spatial Delaunay network.
+}
+\examples{
+    create_delaunayNetwork_RTriangle(gobject)
 }

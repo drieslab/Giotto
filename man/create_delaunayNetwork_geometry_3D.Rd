@@ -4,8 +4,18 @@
 \alias{create_delaunayNetwork_geometry_3D}
 \title{create_delaunayNetwork_geometry_3D}
 \usage{
-create_delaunayNetwork_geometry_3D(spatial_locations)
+create_delaunayNetwork_geometry_3D(
+  spatial_locations,
+  sdimx = "sdimx",
+  sdimy = "sdimy",
+  sdimz = "sdimz",
+  options = options,
+  ...
+)
 }
 \description{
-create delaunay network based on package geometry for 3D data
+Create a spatial Delaunay network.
+}
+\examples{
+    create_delaunayNetwork_geometry_3D(gobject)
 }

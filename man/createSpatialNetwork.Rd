@@ -6,21 +6,28 @@
 \usage{
 createSpatialNetwork(
   gobject,
+  name = NULL,
   dimensions = "all",
   method = c("Delaunay", "kNN"),
   delaunay_method = c("delaunayn_geometry", "RTriangle", "deldir"),
   maximum_distance_delaunay = "auto",
-  name = NULL,
-  knn_method = "knn",
-  k = 4,
   minimum_k = 0,
+  options = "Pp",
+  Y = TRUE,
+  j = TRUE,
+  S = 0,
+  knn_method = "dbscan",
+  k = 4,
   maximum_distance_knn = NULL,
   verbose = F,
-  return_gobject = TRUE
+  return_gobject = TRUE,
+  ...
 )
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{name}{name for spatial network (default = 'spatial_network')}
 
 \item{dimensions}{which spatial dimensions to use (default = all)}
 
@@ -30,13 +37,11 @@ createSpatialNetwork(
 
 \item{maximum_distance_delaunay}{distance cuttof for nearest neighbors to consider for Delaunay network}
 
-\item{name}{name for spatial network (default = 'spatial_network')}
+\item{minimum_k}{minimum nearest neigbhours if maximum_distance != NULL}
 
 \item{knn_method}{method to create kNN network}
 
 \item{k}{number of nearest neighbors based on physical distance}
-
-\item{minimum_k}{minimum nearest neigbhours if maximum_distance != NULL}
 
 \item{maximum_distance_knn}{distance cuttof for nearest neighbors to consider for kNN network}
 

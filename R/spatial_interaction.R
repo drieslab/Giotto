@@ -1061,37 +1061,60 @@ findCPG = function(gobject,
 #' @name filterCellProximityGenes
 #' @description Filter cell proximity gene scores.
 #' @param cpgObject cell proximity gene score object
-#' @param min_cells minimum number of target cell type
-#' @param min_int_cells minimum number of interacting cell type
+#' @param min_cells minimum number of source cell type
+#' @param min_cells_expr minimum expression level for source cell type 
+#' @param min_int_cells minimum number of interacting neighbor cell type
+#' @param min_int_cells_expr minimum expression level for interacting neighbor cell type
 #' @param min_fdr minimum adjusted p-value
 #' @param min_spat_diff minimum absolute spatial expression difference
-#' @param min_log2_fc minimum absolute log2 fold-change
+#' @param min_log2_fc minimum log2 fold-change
+#' @param min_zscore minimum z-score change
+#' @param zscores_column calculate z-scores over cell types or genes
 #' @param direction differential expression directions to keep
 #' @return cpgObject that contains the filtered differential gene scores
 #' @export
 #' @examples
 #'     filterCellProximityGenes(gobject)
 filterCellProximityGenes = function(cpgObject,
-                                    min_cells = 5,
-                                    min_int_cells = 3,
-                                    min_fdr = 0.05,
+                                    min_cells = 4,
+                                    min_cells_expr = 1,
+                                    min_int_cells = 4,
+                                    min_int_cells_expr = 1,
+                                    min_fdr = 0.1,
                                     min_spat_diff = 0.2,
-                                    min_log2_fc = 0.5,
+                                    min_log2_fc = 0.2,
+                                    min_zscore = 2,
+                                    zscores_column = c('cell_type', 'genes'),
                                     direction = c('both', 'up', 'down')) {
-
-
+  
+  
   if(!'cpgObject' %in% class(cpgObject)) {
     stop('\n cpgObject needs to be the output from findCellProximityGenes() or findCPG() \n')
   }
-
+  
+  zscores_column = match.arg(zscores_column, choices = c('cell_type', 'genes'))
+  
   CPGscore = copy(cpgObject[['CPGscores']])
-
+  
   # other parameters
   direction = match.arg(direction, choices = c('both', 'up', 'down'))
-
-  selection_scores = CPGscore[(nr_select >= min_cells & int_nr_select >= min_int_cells &
-                                 p.adj <= min_fdr &  abs(diff) >= min_spat_diff & abs(log2fc) >= min_log2_fc)]
-
+  
+  
+  ## sequential filter steps ##
+  # 1. minimum number of source and target cells
+  selection_scores = CPGscore[nr_select >= min_cells & int_nr_select >= min_int_cells]
+  
+  # 2. create z-scores for log2fc per cell type
+  selection_scores[, zscores := scale(log2fc), by = c(zscores_column)]
+  
+  # 3. filter based on z-scores and minimum levels
+  comb_DT = rbind(selection_scores[zscores >= min_zscore & abs(diff) >= min_spat_diff & log2fc >= min_log2_fc & sel >= min_cells_expr], 
+                  selection_scores[zscores <= -min_zscore & abs(diff) >= min_spat_diff & log2fc <= -min_log2_fc & other >= min_int_cells_expr])
+  
+  # 4. filter based on adjusted p-value (fdr)
+  comb_DT = comb_DT[p.adj < min_fdr]
+  
+  
   if(direction == 'both') {
     selection_scores = selection_scores
   } else if(direction == 'up') {
@@ -1099,13 +1122,13 @@ filterCellProximityGenes = function(cpgObject,
   } else if(direction == 'down') {
     selection_scores = selection_scores[log2fc <= -min_log2_fc]
   }
-
-
+  
+  
   newobj = copy(cpgObject)
-  newobj[['CPGscores']] = selection_scores
-
+  newobj[['CPGscores']] = comb_DT
+  
   return(newobj)
-
+  
 }
 
 
@@ -1114,33 +1137,48 @@ filterCellProximityGenes = function(cpgObject,
 #' @name filterCPG
 #' @description Filter cell proximity gene scores.
 #' @param cpgObject cell proximity gene score object
-#' @param min_cells minimum number of target cell type
-#' @param min_int_cells minimum number of interacting cell type
+#' @param min_cells minimum number of source cell type
+#' @param min_cells_expr minimum expression level for source cell type 
+#' @param min_int_cells minimum number of interacting neighbor cell type
+#' @param min_int_cells_expr minimum expression level for interacting neighbor cell type
 #' @param min_fdr minimum adjusted p-value
 #' @param min_spat_diff minimum absolute spatial expression difference
-#' @param min_log2_fc minimum absolute log2 fold-change
+#' @param min_log2_fc minimum log2 fold-change
+#' @param min_zscore minimum z-score change
+#' @param zscores_column calculate z-scores over cell types or genes
 #' @param direction differential expression directions to keep
 #' @return cpgObject that contains the filtered differential gene scores
 #' @export
 #' @examples
 #'     filterCPG(gobject)
 filterCPG = function(cpgObject,
-                     min_cells = 5,
-                     min_int_cells = 3,
-                     min_fdr = 0.05,
+                     min_cells = 4,
+                     min_cells_expr = 1,
+                     min_int_cells = 4,
+                     min_int_cells_expr = 1,
+                     min_fdr = 0.1,
                      min_spat_diff = 0.2,
-                     min_log2_fc = 0.5,
+                     min_log2_fc = 0.2,
+                     min_zscore = 2,
+                     zscores_column = c('cell_type', 'genes'),
                      direction = c('both', 'up', 'down')) {
 
   filterCellProximityGenes(cpgObject = cpgObject,
                            min_cells = min_cells,
+                           min_cells_expr = min_cells_expr,
                            min_int_cells = min_int_cells,
+                           min_int_cells_expr = min_int_cells_expr,
                            min_fdr = min_fdr,
                            min_spat_diff = min_spat_diff,
                            min_log2_fc = min_log2_fc,
+                           min_zscore = min_zscore,
+                           zscores_column = zscores_column,
                            direction = direction)
 
 }
+
+
+
 
 
 

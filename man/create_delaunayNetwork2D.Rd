@@ -6,11 +6,13 @@
 \usage{
 create_delaunayNetwork2D(
   gobject,
-  method = "delaunayn_geometry",
-  dimensions = c("sdimx", "sdimy"),
+  method = c("delaunayn_geometry", "RTriangle", "deldir"),
+  sdimx = "sdimx",
+  sdimy = "sdimy",
   name = "delaunay_network",
   maximum_distance = "auto",
   minimum_k = 0,
+  options = "Pp",
   Y = TRUE,
   j = TRUE,
   S = 0,
@@ -20,5 +22,8 @@ create_delaunayNetwork2D(
 )
 }
 \description{
-create delaunay network for 2D data
+Create a spatial Delaunay network.
+}
+\examples{
+    create_delaunayNetwork2D(gobject)
 }

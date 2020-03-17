@@ -4,8 +4,16 @@
 \alias{create_delaunayNetwork_deldir}
 \title{create_delaunayNetwork_deldir}
 \usage{
-create_delaunayNetwork_deldir(spatial_locations)
+create_delaunayNetwork_deldir(
+  spatial_locations,
+  sdimx = "sdimx",
+  sdimy = "sdimy",
+  ...
+)
 }
 \description{
-create delaunay network based on package deldir
+Create a spatial Delaunay network.
+}
+\examples{
+    create_delaunayNetwork_deldir(gobject)
 }

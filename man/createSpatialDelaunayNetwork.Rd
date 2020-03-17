@@ -11,6 +11,7 @@ createSpatialDelaunayNetwork(
   name = "delaunay_network",
   maximum_distance = "auto",
   minimum_k = 0,
+  options = "Pp",
   Y = TRUE,
   j = TRUE,
   S = 0,
@@ -22,15 +23,34 @@ createSpatialDelaunayNetwork(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{dimensions}{which spatial dimensions to use (maximum 2 dimensions)}
+
+\item{name}{name for spatial network (default = 'delaunay_network')}
+
+\item{maximum_distance}{distance cuttof for Delaunay neighbors to consider}
+
+\item{minimum_k}{minimum neigbhours if maximum_distance != NULL}
+
+\item{Y}{(RTriangle) If TRUE prohibits the insertion of Steiner points on the mesh boundary.}
+
+\item{j}{(RTriangle) If TRUE jettisons vertices that are not part of the final triangulation from the output.}
+
+\item{S}{(RTriangle) Specifies the maximum number of added Steiner points.}
+
+\item{verbose}{verbose}
+
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
+
+\item{...}{Other parameters of the \code{\link[RTriangle]{triangulate}} function}
 }
 \value{
 giotto object with updated spatial network slot
 }
 \description{
-Create a spatial Delaunay network.
-
-Create a spatial Delaunay network.
+Create a spatial Delaunay network based on cell centroid physical distances.
+}
+\details{
+Creates a spatial Delaunay network as explained in \code{\link[RTriangle]{triangulate}}.
 }
 \examples{
     createSpatialDelaunayNetwork(gobject)
