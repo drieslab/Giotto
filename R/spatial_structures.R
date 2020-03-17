@@ -1472,6 +1472,99 @@ createSpatialNetwork_v2 <- function(gobject,
 
 
 
+#' @title plotStatDelaunayNetwork_v2
+#' @description Plot Delaunay network stats.
+#' @param gobject giotto object
+#' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @return ggplot 
+#' @export
+#' @examples
+#'     plotStatDelaunayNetwork_v2(gobject)
+plotStatDelaunayNetwork_v2 = function(gobject,
+                                      method = c("delaunayn_geometry", "RTriangle", "deldir"),
+                                      dimensions = "all",
+                                      maximum_distance = "auto", # all
+                                      minimum_k = 0, # all
+                                      options = "Pp", # geometry
+                                      Y = TRUE, # RTriange
+                                      j = TRUE, # RTriange
+                                      S = 0, # RTriange
+                                      show_plot = NA,
+                                      return_plot = NA,
+                                      save_plot = NA,
+                                      save_param =  list(),
+                                      default_save_name = 'plotStatDelaunayNetwork',
+                                      ...
+) {
+  
+  
+  delaunay_network_DT = createSpatialDelaunayNetwork_v2(gobject = VC_test,
+                                                        method = method,
+                                                        dimensions = dimensions,
+                                                        name = 'temp_network',
+                                                        maximum_distance = maximum_distance, # all
+                                                        minimum_k = minimum_k, # all
+                                                        options = options, # geometry
+                                                        Y = Y, # RTriange
+                                                        j = j, # RTriange
+                                                        S = S, # RTriange
+                                                        return_gobject = F,
+                                                        ...)
+  
+  delaunay_network_DT_c = Giotto:::convert_to_full_spatial_network(reduced_spatial_network_DT = delaunay_network_DT)
+  
+  
+  ## create visuals
+  pl1 = ggplot(delaunay_network_DT, aes(x=factor(""), y=distance))
+  pl1 = pl1 + theme_classic() + theme(plot.title = element_text(hjust=0.5))
+  pl1 = pl1 + geom_boxplot(outlier.colour = "red", outlier.shape = 1)
+  pl1 = pl1 + labs(title = 'Delaunay network', y = 'cell-cell distances', x = '')
+  
+  pl2 = ggplot(delaunay_network_DT_c, aes(x=factor(rank_int), y=distance))
+  pl2 = pl2 + theme_classic() + theme(plot.title = element_text(hjust=0.5))
+  pl2 = pl2 + geom_boxplot(outlier.colour = "red", outlier.shape = 1)
+  pl2 = pl2 + labs(title = 'Delaunay network by neigbor ranking', y = 'cell-cell distances', x = '')
+  
+  neighbors = delaunay_network_DT_c[, .N, by = source]
+  pl3 = ggplot()
+  pl3 = pl3 + theme_classic() + theme(plot.title = element_text(hjust=0.5))
+  pl3 = pl3 + geom_histogram(data = neighbors, aes(x = as.factor(N)), stat = 'count')
+  pl3 = pl3 + labs(title = 'Delaunay network neigbors per cell', y = 'count', x = '')
+  pl3
+  
+  savelist = list(pl1, pl2, pl3)
+  
+  
+  
+  ## combine plots with cowplot
+  combo_plot <- cowplot::plot_grid(pl1, pl2, NULL, pl3,
+                                   ncol = 2,
+                                   rel_heights = c(1, 1), rel_widths = c(1, 2), align = 'v')
+  
+  
+  ## print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+  
+  ## print plot
+  if(show_plot == TRUE) {
+    print(combo_plot)
+  }
+  
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot, default_save_name = default_save_name), save_param))
+  }
+  
+  ## return plot
+  if(return_plot == TRUE) {
+    return(combo_plot)
+  }
+  
+  
+}
+
 
 
 ## kNN network ####
