@@ -901,7 +901,8 @@ create_delaunayNetwork2D_v2 <- function (gobject,
   ###
   
   if (return_gobject == TRUE) {
-    spn_names = names(gobject@spatial_network[[name]])
+    
+    spn_names = names(gobject@spatial_network)
     if (name %in% spn_names) {
       cat("\n ", name, " has already been used, will be overwritten \n")
     }
@@ -1030,7 +1031,7 @@ create_delaunayNetwork3D_v2 <- function (gobject,
   
   
   if (return_gobject == TRUE) {
-    spn_names = names(gobject@spatial_network[[name]])
+    spn_names = names(gobject@spatial_network)
     if (name %in% spn_names) {
       cat("\n ", name, " has already been used, will be overwritten \n")
     }
@@ -1370,7 +1371,7 @@ createSpatialKNNnetwork_v2 <- function (gobject,
   ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
   
   if (return_gobject == TRUE) {
-    spn_names = names(gobject@spatial_network[[name]])
+    spn_names = names(gobject@spatial_network)
     if (name %in% spn_names) {
       cat("\n ", name, " has already been used, will be overwritten \n")
     }
