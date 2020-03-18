@@ -410,6 +410,10 @@ subsetGiottoLocs = function(gobject,
 #' @param scale_axis ggplot transformation for axis (e.g. log2)
 #' @param axis_offset offset to be used together with the scaling transformation
 #' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot object
 #' @export
 #' @examples
@@ -423,7 +427,11 @@ filterDistributions <- function(gobject,
                                 fill_color = 'lightblue',
                                 scale_axis = 'identity',
                                 axis_offset = 0,
-                                show_plot = TRUE) {
+                                show_plot = NA,
+                                return_plot = NA,
+                                save_plot = NA,
+                                save_param =  list(),
+                                default_save_name = 'filterDistributions') {
 
   # expression values to be used
   values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
@@ -486,11 +494,25 @@ filterDistributions <- function(gobject,
     }
   }
 
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+  
+  ## print plot
   if(show_plot == TRUE) {
     print(pl)
   }
-
-  return(pl)
+  
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+  
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
 
 }
 
@@ -508,6 +530,10 @@ filterDistributions <- function(gobject,
 #' @param scale_y_axis ggplot transformation for y-axis (e.g. log2)
 #' @param y_axis_offset y-axis offset to be used together with the scaling transformation
 #' @param show_plot show plot
+#' @param return_plot return only ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return list of data.table and ggplot object
 #' @details Creates a scatterplot that visualizes the number of genes and cells that are
 #' lost with a specific combination of a gene and cell threshold given an arbitrary cutoff
@@ -525,7 +551,11 @@ filterCombinations <- function(gobject,
                                x_axis_offset = 0,
                                scale_y_axis = 'identity',
                                y_axis_offset = 0,
-                               show_plot = TRUE) {
+                               show_plot = TRUE,
+                               return_plot = FALSE,
+                               save_plot = NA,
+                               save_param =  list(),
+                               default_save_name = 'filterCombinations') {
 
 
   # expression values to be used
@@ -597,11 +627,29 @@ filterCombinations <- function(gobject,
   pl <- pl + ggplot2::scale_x_continuous(trans = scale_x_axis, limits = c(0, maximum_x_value))
   pl <- pl + ggplot2::scale_y_continuous(trans = scale_y_axis, limits = c(0, maximum_y_value))
   pl <- pl + ggplot2::labs(x = 'number of removed cells', y = 'number of removed genes')
+  
+  
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+  
+  ## print plot
   if(show_plot == TRUE) {
     print(pl)
   }
-
-  return(list(results = result_DT, ggplot = pl))
+  
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+  
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  } else {
+    return(list(results = result_DT, ggplot = pl))
+  }
 
 }
 
