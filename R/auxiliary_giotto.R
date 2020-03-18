@@ -1247,7 +1247,7 @@ addCellMetadata <- function(gobject,
   cell_metadata = gobject@cell_metadata
   ordered_cell_IDs = gobject@cell_ID
 
-  if(is.vector(new_metadata)) {
+  if(is.vector(new_metadata) | is.factor(new_metadata)) {
     original_name = deparse(substitute(new_metadata))
     new_metadata = data.table::as.data.table(new_metadata)
     colnames(new_metadata) = original_name
