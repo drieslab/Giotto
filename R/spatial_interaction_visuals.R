@@ -2154,7 +2154,7 @@ plotCPGscores <- function(CPGscores,
 #' @return plot
 #' @export
 #' @examples
-#'     plotCPG(CPGscores)
+#'     plotCellProximityGenes(CPGscores)
 plotCellProximityGenes = function(gobject,
                                   cpgObject,
                                   method = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey', 'heatmap', 'dotplot'),
@@ -2485,7 +2485,7 @@ plotCPG = function(gobject,
 #' @return plot
 #' @export
 #' @examples
-#'     plotCPG(CPGscores)
+#'     plotInteractionChangedGenes(CPGscores)
 plotInteractionChangedGenes = function(gobject,
                                        cpgObject,
                                        source_type,
@@ -2592,7 +2592,7 @@ plotICG = function(gobject,
                    default_save_name = 'plotICG') {
   
   
-  plotInteractionChangedGene(gobject = gobject,
+  plotInteractionChangedGenes(gobject = gobject,
                              cpgObject = cpgObject,
                              source_type = source_type,
                              source_markers = source_markers,

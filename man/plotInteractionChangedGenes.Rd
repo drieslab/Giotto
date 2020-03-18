@@ -48,5 +48,5 @@ plot
 Create barplot to visualize interaction changed genes
 }
 \examples{
-    plotCPG(CPGscores)
+    plotInteractionChangedGenes(CPGscores)
 }
