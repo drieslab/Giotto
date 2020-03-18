@@ -863,6 +863,7 @@ plotStatDelaunayNetwork = function(gobject,
 
 
 
+
 ## kNN network ####
 
 #' @title create_KNNnetwork_dbscan
