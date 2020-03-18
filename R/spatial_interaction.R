@@ -1183,7 +1183,7 @@ filterCPG = function(cpgObject,
 
 
 # * ####
-# GTG gene-to-gene (pairs of CPG)
+# GTG gene-to-gene (pairs of CPG) ####
 
 #' @title combineCellProximityGenes_per_interaction
 #' @name combineCellProximityGenes_per_interaction

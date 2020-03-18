@@ -5,3 +5,6 @@
 ^inst/examples$
 ^inst/faqs$
 ^inst/images$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
