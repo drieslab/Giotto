@@ -66,6 +66,10 @@ reference:
     - pDataDT
     - fDataDT
     - showProcessingSteps
+    - calculateMetaTable
+    - calculateMetaTableCells
+    - combineMetadata
+    - createMetagenes
     
   - title: Giotto processing functions
     desc: Functions that will (help to) add, update or change the Giotto object when processing spatial data
@@ -122,6 +126,16 @@ reference:
     - findMastMarkers
     - findMastMarkers_one_vs_all
     
+  - title: Auxiliary visualizations
+    desc: Different visualization options to explore gene, cell or cluster characteristics
+    contents:
+    - showClusterHeatmap
+    - showClusterDendrogram
+    - plotHeatmap
+    - plotMetaDataHeatmap
+    - plotMetaDataCellsHeatmap
+    - violinPlot
+    
   - title: Spatial enrichment
     desc: algorithms to compute spatial enrichment of gene signatures or single-cell RNAseq annotation
     contents:
@@ -142,6 +156,7 @@ reference:
     - plotStatDelaunayNetwork
     - createSpatialKNNnetwork
     - createSpatialNetwork
+    - annotateSpatialNetwork
     - createSpatialGrid
     
   - title: Spatial genes
@@ -169,6 +184,87 @@ reference:
     - addHMRF
     - viewHMRFresults2D
     - viewHMRFresults3D
+    
+  - title: 2D visualization in expression space
+    desc: Visualization of expression space (e.g. UMAP) in 2D
+    contents: 
+    - dimPlot
+    - plotUMAP
+    - plotTSNE
+    - plotPCA
+    - dimGenePlot
+    - dimCellPlot
+    
+  - title: 2D visualization in spatial space
+    desc: Visualization in 2D spatial space
+    contents:
+    - spatPlot
+    - spatGenePlot
+    - spatCellPlot
+    
+  - title: 2D visualization in spatial and expression space
+    desc: Visualization in both 2D spatial and expression space
+    contents:
+    - spatDimPlot
+    - spatDimGenePlot
+    - spatDimCellPlot
+    
+  - title: 3D dimension reduction visualization 
+    desc: Visualization of expression space (e.g. UMAP) in 3D
+    contents:
+    - dimPlot3D
+    - plotUMAP_3D
+    - plotTSNE_3D
+    - plotPCA_3D
+    - dimGenePlot3D
+    
+  - title: 3D visualization in spatial space
+    desc: Visualization in 3D spatial space
+    contents:
+    - spatPlot3D
+    - spatGenePlot3D
+    
+  - title: 3D visualization in spatial and expression space
+    desc: Visualization in both 3D spatial and expression space
+    contents:
+    - spatDimPlot3D
+    - spatDimGenePlot3D
+    
+  - title: In silico cross sections
+    desc: create in silico 2D cross sections from 3D data
+    contents:
+    - createCrossSection
+    
+  - title: cell neighborhood; cell-type/cell-type enrichment
+    desc: calculate and visualize cell-type/cell-type spatial enrichment or depletion
+    contents:
+    - cellProximityEnrichment
+    - cellProximityBarplot
+    - cellProximityHeatmap
+    - cellProximityNetwork
+    - cellProximitySpatPlot
+    - cellProximitySpatPlot3D
+    
+  - title: cell neighborhood; spatial interaction changed genes
+    desc: Identify and visualize genes that change in a source cell type due to interaction with another neighboring cell type
+    contents:
+    - findCellProximityGenes
+    - findCPG
+    - filterCellProximityGenes
+    - filterCPG
+    - plotCellProximityGenes
+    - plotCPG
+    - plotInteractionChangedGenes
+    - plotICG
+    
+  - title: cell neighborhood; ligand-receptor cell communication
+    desc: Find putative increased spatial ligand-receptor activity between cells of pairs of cell types
+    contents:
+    - exprCellCellcom
+    - spatCellCellcom
+    - plotCCcomDotplot
+    - plotRankSpatvsExpr
+    - plotRecovery
 
 destination: docs
 
