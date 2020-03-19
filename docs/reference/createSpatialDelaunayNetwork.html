@@ -145,7 +145,7 @@
     </tr>
     <tr>
       <th>dimensions</th>
-      <td><p>which spatial dimensions to use (maximum 2 dimensions)</p></td>
+      <td><p>which spatial dimensions to use (default = all)</p></td>
     </tr>
     <tr>
       <th>name</th>
@@ -153,11 +153,15 @@
     </tr>
     <tr>
       <th>maximum_distance</th>
-      <td><p>distance cuttof for Delaunay neighbors to consider</p></td>
+      <td><p>distance cuttof for Delaunay neighbors to consider. If "auto", "upper wisker" value of the distance vector between neighbors is used; see the boxplotgraphics documentation for more details.(default = "auto")</p></td>
     </tr>
     <tr>
       <th>minimum_k</th>
-      <td><p>minimum neigbhours if maximum_distance != NULL</p></td>
+      <td><p>minimum number of neigbhours if maximum_distance != NULL</p></td>
+    </tr>
+    <tr>
+      <th>options</th>
+      <td><p>(geometry) String containing extra control options for the underlying Qhull command; see the Qhull documentation (../doc/qhull/html/qdelaun.html) for the available options. (default = 'Pp', do not report precision problems)</p></td>
     </tr>
     <tr>
       <th>Y</th>
@@ -190,7 +194,7 @@
     <p>giotto object with updated spatial network slot</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Creates a spatial Delaunay network as explained in <code><a href='https://rdrr.io/pkg/RTriangle/man/triangulate.html'>triangulate</a></code>.</p>
+    <p>Creates a spatial Delaunay network as explained in <code><a href='https://rdrr.io/pkg/geometry/man/delaunayn.html'>delaunayn</a></code> (default), <code><a href='https://rdrr.io/pkg/deldir/man/deldir.html'>deldir</a></code>, or <code><a href='https://rdrr.io/pkg/RTriangle/man/triangulate.html'>triangulate</a></code>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples">    <span class='fu'>createSpatialDelaunayNetwork</span>(<span class='no'>gobject</span>)</pre>

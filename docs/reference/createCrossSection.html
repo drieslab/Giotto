@@ -36,7 +36,7 @@
 
 
 <meta property="og:title" content="createCrossSection — createCrossSection" />
-<meta property="og:description" content="Create a cross section." />
+<meta property="og:description" content="Create a virtural 2D cross section." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -117,7 +117,7 @@
     </div>
 
     <div class="ref-description">
-    <p>Create a cross section.</p>
+    <p>Create a virtural 2D cross section.</p>
     </div>
 
     <pre class="usage"><span class='fu'>createCrossSection</span>(
@@ -129,13 +129,13 @@
   <span class='kw'>extend_ratio</span> <span class='kw'>=</span> <span class='fl'>0.2</span>,
   <span class='kw'>method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"equation"</span>, <span class='st'>"3 points"</span>, <span class='st'>"point and norm vector"</span>,
     <span class='st'>"point and two plane vectors"</span>),
+  <span class='kw'>equation</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>point1</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>point2</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>point3</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>normVector</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>planeVector1</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>planeVector2</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>equation</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>mesh_grid_n</span> <span class='kw'>=</span> <span class='fl'>20</span>,
   <span class='kw'>return_gobject</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
 )</pre>
@@ -148,6 +148,63 @@
       <td><p>giotto object</p></td>
     </tr>
     <tr>
+      <th>name</th>
+      <td><p>name of cress section object. (default = cross_sectino)</p></td>
+    </tr>
+    <tr>
+      <th>spatial_network_name</th>
+      <td><p>name of spatial network object. (default = Delaunay_network)</p></td>
+    </tr>
+    <tr>
+      <th>thickness_unit</th>
+      <td><p>unit of the virtual section thickness. If "cell", average size of the observed cells is used as length unit. If "natural", the unit of cell location coordinates is used.(default = cell)</p></td>
+    </tr>
+    <tr>
+      <th>extend_ratio</th>
+      <td><p>deciding the span of the cross section meshgrid, as a ratio of extension compared to the borders of the vitural tissue section. (default = 0.2)</p></td>
+    </tr>
+    <tr>
+      <th>method</th>
+      <td><p>method to define the cross section plane.
+If equation, the plane is defined by a four element numerical vector (equation) in the form of c(A,B,C,D), corresponding to a plane with equation Ax+By+Cz=D.
+If 3 points, the plane is define by the coordinates of 3 points, as given by point1, point2, and point3.
+If point and norm vector, the plane is defined by the coordinates of one point (point1) in the plane and the coordinates of one norm vector (normVector) to the plane.
+If point and two plane vector, the plane is defined by the coordinates of one point (point1) in the plane and the coordinates of two vectors (planeVector1, planeVector2) in the plane.
+(default = equation)</p></td>
+    </tr>
+    <tr>
+      <th>equation</th>
+      <td><p>equation required by method "equation".equations needs to be a numerical vector of length 4, in the form of c(A,B,C,D), which defines plane Ax+By+Cz=D.</p></td>
+    </tr>
+    <tr>
+      <th>point1</th>
+      <td><p>coordinates of the first point required by method "3 points","point and norm vector", and "point and two plane vectors".</p></td>
+    </tr>
+    <tr>
+      <th>point2</th>
+      <td><p>coordinates of the second point required by method "3 points"</p></td>
+    </tr>
+    <tr>
+      <th>point3</th>
+      <td><p>coordinates of the third point required by method "3 points"</p></td>
+    </tr>
+    <tr>
+      <th>normVector</th>
+      <td><p>coordinates of the norm vector required by method "point and norm vector"</p></td>
+    </tr>
+    <tr>
+      <th>planeVector1</th>
+      <td><p>coordinates of the first plane vector required by method "point and two plane vectors"</p></td>
+    </tr>
+    <tr>
+      <th>planeVector2</th>
+      <td><p>coordinates of the second plane vector required by method "point and two plane vectors"</p></td>
+    </tr>
+    <tr>
+      <th>mesh_grid_n</th>
+      <td><p>numer of meshgrid lines to generate along both directions for the cross section plane.</p></td>
+    </tr>
+    <tr>
       <th>return_gobject</th>
       <td><p>boolean: return giotto object (default = TRUE)</p></td>
     </tr>
@@ -156,6 +213,9 @@
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>giotto object with updated spatial network slot</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Creates a virtual 2D cross section object for a given spatial network object. The users need to provide the definition of the cross section plane (see method).</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples">
@@ -166,6 +226,7 @@
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
+      <li><a href="#details">Details</a></li>
       <li><a href="#examples">Examples</a></li>
     </ul>
 

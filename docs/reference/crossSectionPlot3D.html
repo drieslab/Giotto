@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>plotStatDelaunayNetwork — plotStatDelaunayNetwork • Giotto</title>
+<title>crossSectionPlot3D — crossSectionPlot3D • Giotto</title>
 
 
 <!-- jquery -->
@@ -35,8 +35,8 @@
 
 
 
-<meta property="og:title" content="plotStatDelaunayNetwork — plotStatDelaunayNetwork" />
-<meta property="og:description" content="Plots network statistics for a Delaunay network.." />
+<meta property="og:title" content="crossSectionPlot3D — crossSectionPlot3D" />
+<meta property="og:description" content="Visualize cells in a virtual cross section according to spatial coordinates" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -111,31 +111,49 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>plotStatDelaunayNetwork</h1>
+    <h1>crossSectionPlot3D</h1>
     
-    <div class="hidden name"><code>plotStatDelaunayNetwork.Rd</code></div>
+    <div class="hidden name"><code>crossSectionPlot3D.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Plots network statistics for a Delaunay network..</p>
+    <p>Visualize cells in a virtual cross section according to spatial coordinates</p>
     </div>
 
-    <pre class="usage"><span class='fu'>plotStatDelaunayNetwork</span>(
+    <pre class="usage"><span class='fu'>crossSectionPlot3D</span>(
   <span class='no'>gobject</span>,
-  <span class='kw'>method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"delaunayn_geometry"</span>, <span class='st'>"RTriangle"</span>, <span class='st'>"deldir"</span>),
-  <span class='kw'>dimensions</span> <span class='kw'>=</span> <span class='st'>"all"</span>,
-  <span class='kw'>maximum_distance</span> <span class='kw'>=</span> <span class='st'>"auto"</span>,
-  <span class='kw'>minimum_k</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>options</span> <span class='kw'>=</span> <span class='st'>"Pp"</span>,
-  <span class='kw'>Y</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>j</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>S</span> <span class='kw'>=</span> <span class='fl'>0</span>,
+  <span class='kw'>crossSection_obj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>spatial_network_name</span> <span class='kw'>=</span> <span class='st'>"Delaunay_network"</span>,
+  <span class='kw'>sdimx</span> <span class='kw'>=</span> <span class='st'>"sdimx"</span>,
+  <span class='kw'>sdimy</span> <span class='kw'>=</span> <span class='st'>"sdimy"</span>,
+  <span class='kw'>sdimz</span> <span class='kw'>=</span> <span class='st'>"sdimz"</span>,
+  <span class='kw'>point_size</span> <span class='kw'>=</span> <span class='fl'>3</span>,
+  <span class='kw'>cell_color</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>cell_color_code</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>select_cell_groups</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>show_other_cells</span> <span class='kw'>=</span> <span class='no'>T</span>,
+  <span class='kw'>other_cell_color</span> <span class='kw'>=</span> <span class='fu'>alpha</span>(<span class='st'>"lightgrey"</span>, <span class='fl'>0</span>),
+  <span class='kw'>other_point_size</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
+  <span class='kw'>show_network</span> <span class='kw'>=</span> <span class='no'>F</span>,
+  <span class='kw'>network_color</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>network_alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>other_cell_alpha</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
+  <span class='kw'>show_grid</span> <span class='kw'>=</span> <span class='no'>F</span>,
+  <span class='kw'>grid_color</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>spatial_grid_name</span> <span class='kw'>=</span> <span class='st'>"spatial_grid"</span>,
+  <span class='kw'>title</span> <span class='kw'>=</span> <span class='st'>""</span>,
+  <span class='kw'>show_legend</span> <span class='kw'>=</span> <span class='no'>T</span>,
+  <span class='kw'>axis_scale</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"cube"</span>, <span class='st'>"real"</span>, <span class='st'>"custom"</span>),
+  <span class='kw'>custom_ratio</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>x_ticks</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>y_ticks</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>z_ticks</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>show_plot</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
   <span class='kw'>return_plot</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
   <span class='kw'>save_plot</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
   <span class='kw'>save_param</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
-  <span class='kw'>default_save_name</span> <span class='kw'>=</span> <span class='st'>"plotStatDelaunayNetwork"</span>,
-  <span class='no'>...</span>
+  <span class='kw'>default_save_name</span> <span class='kw'>=</span> <span class='st'>"crossSection3D"</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -146,36 +164,100 @@
       <td><p>giotto object</p></td>
     </tr>
     <tr>
-      <th>dimensions</th>
-      <td><p>which spatial dimensions to use (maximum 2 dimensions)</p></td>
+      <th>name</th>
+      <td><p>name of virtual cross section to use</p></td>
     </tr>
     <tr>
-      <th>maximum_distance</th>
-      <td><p>distance cuttof for Delaunay neighbors to consider</p></td>
+      <th>spatial_network_name</th>
+      <td><p>name of spatial network to use</p></td>
     </tr>
     <tr>
-      <th>minimum_k</th>
-      <td><p>minimum neigbhours if maximum_distance != NULL</p></td>
+      <th>sdimx</th>
+      <td><p>x-axis dimension name (default = 'sdimx')</p></td>
     </tr>
     <tr>
-      <th>options</th>
-      <td><p>(geometry) String containing extra control options for the underlying Qhull command; see the Qhull documentation (../doc/qhull/html/qdelaun.html) for the available options. (default = 'Pp', do not report precision problems)</p></td>
+      <th>sdimy</th>
+      <td><p>y-axis dimension name (default = 'sdimy')</p></td>
     </tr>
     <tr>
-      <th>Y</th>
-      <td><p>(RTriangle) If TRUE prohibits the insertion of Steiner points on the mesh boundary.</p></td>
+      <th>sdimz</th>
+      <td><p>z-axis dimension name (default = 'sdimy')</p></td>
     </tr>
     <tr>
-      <th>j</th>
-      <td><p>(RTriangle) If TRUE jettisons vertices that are not part of the final triangulation from the output.</p></td>
+      <th>point_size</th>
+      <td><p>size of point (cell)</p></td>
     </tr>
     <tr>
-      <th>S</th>
-      <td><p>(RTriangle) Specifies the maximum number of added Steiner points.</p></td>
+      <th>cell_color</th>
+      <td><p>color for cells (see details)</p></td>
+    </tr>
+    <tr>
+      <th>cell_color_code</th>
+      <td><p>named vector with colors</p></td>
+    </tr>
+    <tr>
+      <th>select_cell_groups</th>
+      <td><p>select subset of cells/clusters based on cell_color parameter</p></td>
+    </tr>
+    <tr>
+      <th>show_other_cells</th>
+      <td><p>display not selected cells</p></td>
+    </tr>
+    <tr>
+      <th>other_cell_color</th>
+      <td><p>color of not selected cells</p></td>
+    </tr>
+    <tr>
+      <th>other_point_size</th>
+      <td><p>point size of not selected cells</p></td>
+    </tr>
+    <tr>
+      <th>network_color</th>
+      <td><p>color of spatial network</p></td>
+    </tr>
+    <tr>
+      <th>show_grid</th>
+      <td><p>show spatial grid</p></td>
+    </tr>
+    <tr>
+      <th>grid_color</th>
+      <td><p>color of spatial grid</p></td>
+    </tr>
+    <tr>
+      <th>spatial_grid_name</th>
+      <td><p>name of spatial grid to use</p></td>
+    </tr>
+    <tr>
+      <th>title</th>
+      <td><p>title of plot</p></td>
+    </tr>
+    <tr>
+      <th>show_legend</th>
+      <td><p>show legend</p></td>
+    </tr>
+    <tr>
+      <th>axis_scale</th>
+      <td><p>the way to scale the axis</p></td>
+    </tr>
+    <tr>
+      <th>custom_ratio</th>
+      <td><p>customize the scale of the plot</p></td>
+    </tr>
+    <tr>
+      <th>x_ticks</th>
+      <td><p>set the number of ticks on the x-axis</p></td>
+    </tr>
+    <tr>
+      <th>y_ticks</th>
+      <td><p>set the number of ticks on the y-axis</p></td>
+    </tr>
+    <tr>
+      <th>z_ticks</th>
+      <td><p>set the number of ticks on the z-axis</p></td>
     </tr>
     <tr>
       <th>show_plot</th>
-      <td><p>show plots</p></td>
+      <td><p>show plot</p></td>
     </tr>
     <tr>
       <th>return_plot</th>
@@ -193,26 +275,17 @@
       <th>default_save_name</th>
       <td><p>default save name for saving, don't change, change save_name in save_param</p></td>
     </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Other parameters of the <code><a href='https://rdrr.io/pkg/RTriangle/man/triangulate.html'>triangulate</a></code> function</p></td>
-    </tr>
-    <tr>
-      <th>name</th>
-      <td><p>name for spatial network (default = 'delaunay_network')</p></td>
-    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>giotto object with updated spatial network slot</p>
+    <p>ggplot</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Plots statistics for a spatial Delaunay network as explained in <code><a href='https://rdrr.io/pkg/RTriangle/man/triangulate.html'>triangulate</a></code>.
-This can be used to further finetune the <code>createDelaunayNetwork</code> function.</p>
+    <p>Description of parameters.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples">    <span class='fu'>plotStatDelaunayNetwork</span>(<span class='no'>gobject</span>)</pre>
+    <pre class="examples">    <span class='fu'>crossSectionPlot3D</span>(<span class='no'>gobject</span>)</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

@@ -127,11 +127,11 @@
   <span class='kw'>method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Delaunay"</span>, <span class='st'>"kNN"</span>),
   <span class='kw'>delaunay_method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"delaunayn_geometry"</span>, <span class='st'>"RTriangle"</span>, <span class='st'>"deldir"</span>),
   <span class='kw'>maximum_distance_delaunay</span> <span class='kw'>=</span> <span class='st'>"auto"</span>,
-  <span class='kw'>minimum_k</span> <span class='kw'>=</span> <span class='fl'>0</span>,
   <span class='kw'>options</span> <span class='kw'>=</span> <span class='st'>"Pp"</span>,
   <span class='kw'>Y</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>j</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>S</span> <span class='kw'>=</span> <span class='fl'>0</span>,
+  <span class='kw'>minimum_k</span> <span class='kw'>=</span> <span class='fl'>0</span>,
   <span class='kw'>knn_method</span> <span class='kw'>=</span> <span class='st'>"dbscan"</span>,
   <span class='kw'>k</span> <span class='kw'>=</span> <span class='fl'>4</span>,
   <span class='kw'>maximum_distance_knn</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -157,7 +157,7 @@
     </tr>
     <tr>
       <th>method</th>
-      <td><p>which method to use to create a spatial network</p></td>
+      <td><p>which method to use to create a spatial network. (default = Delaunay)</p></td>
     </tr>
     <tr>
       <th>delaunay_method</th>
@@ -166,6 +166,22 @@
     <tr>
       <th>maximum_distance_delaunay</th>
       <td><p>distance cuttof for nearest neighbors to consider for Delaunay network</p></td>
+    </tr>
+    <tr>
+      <th>options</th>
+      <td><p>(geometry) String containing extra control options for the underlying Qhull command; see the Qhull documentation (../doc/qhull/html/qdelaun.html) for the available options. (default = 'Pp', do not report precision problems)</p></td>
+    </tr>
+    <tr>
+      <th>Y</th>
+      <td><p>(RTriangle) If TRUE prohibits the insertion of Steiner points on the mesh boundary.</p></td>
+    </tr>
+    <tr>
+      <th>j</th>
+      <td><p>(RTriangle) If TRUE jettisons vertices that are not part of the final triangulation from the output.</p></td>
+    </tr>
+    <tr>
+      <th>S</th>
+      <td><p>(RTriangle) Specifies the maximum number of added Steiner points.</p></td>
     </tr>
     <tr>
       <th>minimum_k</th>
@@ -199,12 +215,11 @@
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>Creates a spatial network connecting single-cells based on their physical distance to each other.
-Number of neighbors can be determined by k, maximum distance from each cell with or without
+For Delaunay method, neighbors will be decided by delaunay triangulation and a maximum distance criteria. For kNN method, number of neighbors can be determined by k, or maximum distance from each cell with or without
 setting a minimum k for each cell.</p>
 <p><strong>dimensions: </strong> default = 'all' which takes all possible dimensions.
 Alternatively you can provide a character vector that specififies the spatial dimensions to use, e.g. c("sdimx', "sdimy")
 or a numerical vector, e.g. 2:3</p>
-<p><strong>maximum_distance: </strong> to create a network based on maximum distance only, you also need to set k to a very high value, e.g. k = 100</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples">    <span class='fu'>createSpatialNetwork</span>(<span class='no'>gobject</span>)</pre>
