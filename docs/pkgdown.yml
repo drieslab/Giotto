@@ -4,4 +4,5 @@ pkgdown_sha: ~
 articles:
   faqs: faqs.html
   getting_started: getting_started.html
+  test_dataset: test_dataset.html
 
