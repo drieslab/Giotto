@@ -1,5 +1,7 @@
 
-
+---
+output: github_document
+---
 
 # Giotto 0.2.4
 

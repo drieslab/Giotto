@@ -1,4 +1,4 @@
-destination: docs
+
 
 navbar:
   title: ~
@@ -9,4 +9,8 @@ navbar:
     - text: Datasets
       href: articles/index.html
     - text: Getting Started
-      href: articles/test.html
+      href: articles/getting_started.html
+    - text: News
+      href: news/index.html
+
+destination: docs
