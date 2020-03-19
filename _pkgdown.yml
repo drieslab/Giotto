@@ -235,6 +235,12 @@ reference:
     desc: create in silico 2D cross sections from 3D data
     contents:
     - createCrossSection
+    - crossSectionGenePlot
+    - crossSectionPlot
+    - crossSectionGenePlot3D
+    - crossSectionPlot3D
+    - insertCrossSectionSpatPlot3D
+    - insertCrossSectionGenePlot3D
     
   - title: cell neighborhood; cell-type/cell-type enrichment
     desc: calculate and visualize cell-type/cell-type spatial enrichment or depletion

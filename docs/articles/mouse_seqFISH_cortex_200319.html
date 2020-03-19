@@ -99,9 +99,9 @@
 <a class="sourceLine" id="cb1-11" title="11">                                  <span class="dt">plot_format =</span> <span class="st">'png'</span>,</a>
 <a class="sourceLine" id="cb1-12" title="12">                                  <span class="dt">dpi =</span> <span class="dv">300</span>, <span class="dt">height =</span> <span class="dv">9</span>, <span class="dt">width =</span> <span class="dv">9</span>)</a></code></pre></div>
 </div>
-<div id="data-input" class="section level3">
+<div id="part-1-data-input" class="section level3">
 <h3 class="hasAnchor">
-<a href="#data-input" class="anchor"></a>Data input</h3>
+<a href="#part-1-data-input" class="anchor"></a>part 1: Data input</h3>
 <ul>
 <li>load cortex/svz gene expression matrix<br>
 </li>
@@ -128,9 +128,9 @@
 <a class="sourceLine" id="cb2-15" title="15">my_offset_file =<span class="st"> </span>my_offset_file[,.(field, x_offset_final, y_offset_final)]</a></code></pre></div>
 <hr>
 </div>
-<div id="part-1-create-giotto-object-process-data" class="section level3">
+<div id="part-2-create-giotto-object-process-data" class="section level3">
 <h3 class="hasAnchor">
-<a href="#part-1-create-giotto-object-process-data" class="anchor"></a>part 1: Create Giotto object &amp; process data</h3>
+<a href="#part-2-create-giotto-object-process-data" class="anchor"></a>part 2: Create Giotto object &amp; process data</h3>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="co">## create</span></a>
 <a class="sourceLine" id="cb3-2" title="2">VC_test &lt;-<span class="st"> </span><span class="kw"><a href="../reference/createGiottoObject.html">createGiottoObject</a></span>(<span class="dt">raw_exprs =</span> VC_exprs, <span class="dt">spatial_locs =</span> stitch_file,</a>
 <a class="sourceLine" id="cb3-3" title="3">                              <span class="dt">offset_file =</span> my_offset_file, <span class="dt">instructions =</span> instrs)</a>
@@ -167,12 +167,52 @@
 <a class="sourceLine" id="cb3-34" title="34"></a>
 <a class="sourceLine" id="cb3-35" title="35"><span class="co">## visualize</span></a>
 <a class="sourceLine" id="cb3-36" title="36"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(<span class="dt">gobject =</span> VC_test)</a></code></pre></div>
-<p><img src="../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/2_spatial_locations.png" style="width:10cm"></p>
+<center>
+<img src="../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/2_spatial_locations.png" style="width:10cm">
+</center>
 </div>
-<div id="part-2-dimension-reduction" class="section level3">
+<div id="part-3-dimension-reduction" class="section level3">
 <h3 class="hasAnchor">
-<a href="#part-2-dimension-reduction" class="anchor"></a>part 2: dimension reduction</h3>
-<p><img src="../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/3_HVGplot.png" style="width:10cm"></p>
+<a href="#part-3-dimension-reduction" class="anchor"></a>part 3: dimension reduction</h3>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"></a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="co">## highly variable genes (HVG)</span></a>
+<a class="sourceLine" id="cb4-3" title="3">VC_test &lt;-<span class="st"> </span><span class="kw"><a href="../reference/calculateHVG.html">calculateHVG</a></span>(<span class="dt">gobject =</span> VC_test, <span class="dt">method =</span> <span class="st">'cov_loess'</span>, <span class="dt">difference_in_cov =</span> <span class="fl">0.1</span>,</a>
+<a class="sourceLine" id="cb4-4" title="4">                        <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'3_HVGplot'</span>, <span class="dt">base_height =</span> <span class="dv">5</span>, <span class="dt">base_width =</span> <span class="dv">5</span>))</a></code></pre></div>
+<center>
+<img src="../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/3_HVGplot.png" style="width:10cm">
+</center>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="co">## select genes based on HVG and gene statistics, both found in gene metadata</span></a>
+<a class="sourceLine" id="cb5-2" title="2">gene_metadata =<span class="st"> </span><span class="kw"><a href="../reference/fDataDT.html">fDataDT</a></span>(VC_test)</a>
+<a class="sourceLine" id="cb5-3" title="3">featgenes =<span class="st"> </span>gene_metadata[hvg <span class="op">==</span><span class="st"> 'yes'</span> <span class="op">&amp;</span><span class="st"> </span>perc_cells <span class="op">&gt;</span><span class="st"> </span><span class="dv">4</span> <span class="op">&amp;</span><span class="st"> </span>mean_expr_det <span class="op">&gt;</span><span class="st"> </span><span class="fl">0.5</span>]<span class="op">$</span>gene_ID</a>
+<a class="sourceLine" id="cb5-4" title="4"></a>
+<a class="sourceLine" id="cb5-5" title="5"><span class="co">## run PCA on expression values (default)</span></a>
+<a class="sourceLine" id="cb5-6" title="6">VC_test &lt;-<span class="st"> </span><span class="kw"><a href="../reference/runPCA.html">runPCA</a></span>(<span class="dt">gobject =</span> VC_test, <span class="dt">genes_to_use =</span> featgenes, <span class="dt">scale_unit =</span> F)</a>
+<a class="sourceLine" id="cb5-7" title="7"></a>
+<a class="sourceLine" id="cb5-8" title="8"><span class="kw"><a href="../reference/signPCA.html">signPCA</a></span>(VC_test, <span class="dt">genes_to_use =</span> featgenes, <span class="dt">scale_unit =</span> F,</a>
+<a class="sourceLine" id="cb5-9" title="9">        <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'3_screeplot'</span>))</a>
+<a class="sourceLine" id="cb5-10" title="10"></a>
+<a class="sourceLine" id="cb5-11" title="11"><span class="kw"><a href="../reference/plotPCA.html">plotPCA</a></span>(<span class="dt">gobject =</span> VC_test,</a>
+<a class="sourceLine" id="cb5-12" title="12">        <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'3_PCA_reduction'</span>))</a></code></pre></div>
+<center>
+<img src="../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/3_screeplot.png" style="width:10cm">
+</center>
+<center>
+<img src="../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/3_PCA_reduction.png" style="width:10cm">
+</center>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="co">## run UMAP and tSNE on PCA space (default)</span></a>
+<a class="sourceLine" id="cb6-2" title="2">VC_test &lt;-<span class="st"> </span><span class="kw"><a href="../reference/runUMAP.html">runUMAP</a></span>(VC_test, <span class="dt">dimensions_to_use =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">15</span>, <span class="dt">n_threads =</span> <span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="kw"><a href="../reference/plotUMAP.html">plotUMAP</a></span>(<span class="dt">gobject =</span> VC_test,</a>
+<a class="sourceLine" id="cb6-4" title="4">         <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'3_UMAP_reduction'</span>))</a>
+<a class="sourceLine" id="cb6-5" title="5"></a>
+<a class="sourceLine" id="cb6-6" title="6">VC_test &lt;-<span class="st"> </span><span class="kw"><a href="../reference/runtSNE.html">runtSNE</a></span>(VC_test, <span class="dt">dimensions_to_use =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">30</span>)</a>
+<a class="sourceLine" id="cb6-7" title="7"><span class="kw"><a href="../reference/plotTSNE.html">plotTSNE</a></span>(<span class="dt">gobject =</span> VC_test,</a>
+<a class="sourceLine" id="cb6-8" title="8">         <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'3_tSNE_reduction'</span>))</a></code></pre></div>
+<center>
+<img src="../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/3_UMAP_reduction.png" style="width:10cm">
+</center>
+<center>
+<img src="../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/3_tSNE_reduction.png" style="width:10cm">
+</center>
 </div>
   </div>
 
