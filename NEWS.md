@@ -1,7 +1,12 @@
 
 # Giotto 0.2.4
 
-  - test
+  - New examples on mouse kidney and brain using the recently released
+    [10X Visium
+    datasets](https://www.10xgenomics.com/spatial-transcriptomics/)
+    (**NEW**)
+  - Added tools to identify spatial enrichment based on cell-type (or
+    other) specific gene signature lists (**NEW**)
 
 # Giotto 0.2.3
 
@@ -9,19 +14,6 @@
     preoptic region using
     [merFISH](https://science.sciencemag.org/content/362/6416/eaau5324)
     (**NEW**)  
-  - New examples on mouse kidney and brain using the recently released
-    [10X Visium
-    datasets](https://www.10xgenomics.com/spatial-transcriptomics/)
-    (**NEW**)
-  - Added tools to identify spatial enrichment based on cell-type (or
-    other) specific gene signature lists (**NEW**)
-  - Updated support for 3D spatial data  
-  - Added support for the use of global instructions and automatically
-    saving your plots (**NEW**)
-  - Implemented [SpatialDE](https://github.com/Teichlab/SpatialDE) and
-    [trendsceek](https://github.com/edsgard/trendsceek)
-  - Add wrapper for differential expression with
-    [MAST](https://github.com/RGLab/MAST)
   - New example with 3D spatial data
     [STARmap](https://science.sciencemag.org/content/361/6400/eaat5691)
   - New example with the highly sensitive data from
@@ -33,5 +25,14 @@
     Transcriptomics](https://science.sciencemag.org/content/353/6294/78)
   - Updated seqFISH+ cortex example (**NEW**)
   - Updated STARmap cortex example (**NEW**)
-  - New examples for Ab-based large-scale systems such as cyCIF, CODEX
-    and MIBI will follow soon.
+
+# Giotto 0.2.2
+
+  - Implemented [SpatialDE](https://github.com/Teichlab/SpatialDE) and
+    [trendsceek](https://github.com/edsgard/trendsceek)
+  - Updated support for 3D spatial data  
+  - Added support for the use of global instructions and automatically
+    saving your plots (**NEW**)
+  - Add wrapper for differential expression with
+    [MAST](https://github.com/RGLab/MAST) and
+    [SCRAN](https://bioconductor.org/packages/release/bioc/html/scran.html)
