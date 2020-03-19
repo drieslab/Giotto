@@ -171,6 +171,7 @@ adapt_aspect_ratio <-function(current_ratio,cell_locations,
 }
 
 # mesh grid line helper functions ####
+
 #' @title extend_vector
 #' @name extend_vector
 #' @description extend the range of a vector by a given ratio
@@ -318,10 +319,29 @@ create_mesh_grid_lines <- function(cell_subset_projection_locations,extend_ratio
 # cross section creation function ####
 
 #' @title createCrossSection
-#' @description Create a cross section.
+#' @description Create a virtural 2D cross section.
 #' @param gobject giotto object
+#' @param name name of cress section object. (default = cross_sectino)
+#' @param spatial_network_name name of spatial network object. (default = Delaunay_network)
+#' @param thickness_unit unit of the virtual section thickness. If "cell", average size of the observed cells is used as length unit. If "natural", the unit of cell location coordinates is used.(default = cell)
+#' @param extend_ratio deciding the span of the cross section meshgrid, as a ratio of extension compared to the borders of the vitural tissue section. (default = 0.2)
+#' @param method method to define the cross section plane.
+#' If equation, the plane is defined by a four element numerical vector (equation) in the form of c(A,B,C,D), corresponding to a plane with equation Ax+By+Cz=D.
+#' If 3 points, the plane is define by the coordinates of 3 points, as given by point1, point2, and point3.
+#' If point and norm vector, the plane is defined by the coordinates of one point (point1) in the plane and the coordinates of one norm vector (normVector) to the plane.
+#' If point and two plane vector, the plane is defined by the coordinates of one point (point1) in the plane and the coordinates of two vectors (planeVector1, planeVector2) in the plane.
+#' (default = equation)
+#' @param equation equation required by method "equation".equations needs to be a numerical vector of length 4, in the form of c(A,B,C,D), which defines plane Ax+By+Cz=D.
+#' @param point1 coordinates of the first point required by method "3 points","point and norm vector", and "point and two plane vectors".
+#' @param point2 coordinates of the second point required by method "3 points"
+#' @param point3 coordinates of the third point required by method "3 points"
+#' @param normVector coordinates of the norm vector required by method "point and norm vector"
+#' @param planeVector1 coordinates of the first plane vector required by method "point and two plane vectors"
+#' @param planeVector2 coordinates of the second plane vector required by method "point and two plane vectors"
+#' @param mesh_grid_n numer of meshgrid lines to generate along both directions for the cross section plane.
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @return giotto object with updated spatial network slot
+#' @details Creates a virtual 2D cross section object for a given spatial network object. The users need to provide the definition of the cross section plane (see method).
 #' @export
 #' @examples
 #'
@@ -332,10 +352,10 @@ createCrossSection <- function(gobject,
                                slice_thickness = 2,
                                extend_ratio = 0.2,
                                method=c("equation","3 points","point and norm vector","point and two plane vectors"),
+                               equation=NULL,
                                point1=NULL,point2=NULL,point3=NULL,
                                normVector=NULL,
                                planeVector1=NULL,planeVector2=NULL,
-                               equation=NULL,
                                mesh_grid_n = 20,
                                return_gobject = TRUE
 ){
@@ -462,6 +482,50 @@ createCrossSection <- function(gobject,
 # cross section visual functions ####
 
 ####
+#' @title crossSectionGenePlot
+#' @name crossSectionGenePlot
+#' @description Visualize cells and gene expression in a virtual cross section according to spatial coordinates
+#' @param gobject giotto object
+#' @param name name of virtual cross section to use
+#' @param spatial_network_name name of spatial network to use
+#' @param expression_values gene expression values to use
+#' @param genes genes to show
+#' @param genes_high_color color represents high gene expression
+#' @param genes_mid_color color represents middle gene expression
+#' @param genes_low_color color represents low gene expression
+#' @param show_network show underlying spatial network
+#' @param network_color color of spatial network
+#' @param show_grid show spatial grid
+#' @param grid_color color of spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param midpoint expression midpoint
+#' @param scale_alpha_with_expression scale expression with ggplot alpha parameter
+#' @param point_shape point with border or not (border or no_border)
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param cow_n_col cowplot param: how many columns
+#' @param cow_rel_h cowplot param: relative height
+#' @param cow_rel_w cowplot param: relative width
+#' @param cow_align cowplot param: how to align
+#' @param show_legend show legend
+#' @param legend_text size of legend text
+#' @param background_color color of plot background
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
+#' @param show_plot show plots
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @param ... parameters for cowplot::save_plot()
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @seealso \code{\link{spatGenePlot3D}} and \code{\link{spatGenePlot2D}}
+#' @examples
+#'     crossSectionGenePlot(gobject)
+#'
 crossSectionGenePlot <-function(gobject=NULL,
                                 crossSection_obj=NULL,
                                 name=NULL,
@@ -530,6 +594,67 @@ crossSectionGenePlot <-function(gobject=NULL,
                  save_param = save_param, default_save_name = default_save_name)
 }
 ####
+#' @title crossSectionPlot
+#' @name crossSectionPlot
+#' @description Visualize cells in a virtual cross section according to spatial coordinates
+#' @param gobject giotto object
+#' @param name name of virtual cross section to use
+#' @param spatial_network_name name of spatial network to use
+#' @param groub_by create multiple plots based on cell annotation column
+#' @param group_by_subset subset the group_by factor column
+#' @param sdimx x-axis dimension name (default = 'sdimx')
+#' @param sdimy y-axis dimension name (default = 'sdimy')
+#' @param spat_enr_names names of spatial enrichment results to include
+#' @param cell_color color for cells (see details)
+#' @param color_as_factor convert color column to factor
+#' @param cell_color_code named vector with colors
+#' @param cell_color_gradient vector with 3 colors for numeric data
+#' @param gradient_midpoint midpoint for color gradient
+#' @param gradient_limits vector with lower and upper limits
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param select_cells select subset of cells based on cell IDs
+#' @param point_shape point with border or not (border or no_border)
+#' @param point_size size of point (cell)
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param show_cluster_center plot center of selected clusters
+#' @param show_center_label plot label of selected clusters
+#' @param center_point_size size of center points
+#' @param label_size  size of labels
+#' @param label_fontface font of labels
+#' @param show_network show underlying spatial network
+#' @param network_color color of spatial network
+#' @param network_alpha alpha of spatial network
+#' @param show_grid show spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param grid_color color of spatial grid
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color of not selected cells
+#' @param other_point_size point size of not selected cells
+#' @param other_cells_alpha alpha of not selected cells
+#' @param coord_fix_ratio fix ratio between x and y-axis
+#' @param title title of plot
+#' @param show_legend show legend
+#' @param legend_text size of legend text
+#' @param legend_symbol_size size of legend symbols
+#' @param background_color color of plot background
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
+#' @param cow_n_col cowplot param: how many columns
+#' @param cow_rel_h cowplot param: relative height
+#' @param cow_rel_w cowplot param: relative width
+#' @param cow_align cowplot param: how to align
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @seealso \code{\link{crossSectionPlot}}
+#' @examples
+#'
 crossSectionPlot <-function(gobject,
                             crossSection_obj = NULL,
                             name=NULL,
@@ -605,7 +730,40 @@ crossSectionPlot <-function(gobject,
 
 
 }
+
 ####
+#' @title crossSectionGenePlot3D
+#' @name crossSectionGenePlot3D
+#' @description Visualize cells and gene expression in a virtual cross section according to spatial coordinates
+#' @param gobject giotto object
+#' @param name name of virtual cross section to use
+#' @param spatial_network_name name of spatial network to use
+#' @param expression_values gene expression values to use
+#' @param genes genes to show
+#' @param genes_high_color color represents high gene expression
+#' @param genes_mid_color color represents middle gene expression
+#' @param genes_low_color color represents low gene expression
+#' @param show_network show underlying spatial network
+#' @param network_color color of spatial network
+#' @param show_grid show spatial grid
+#' @param grid_color color of spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param midpoint expression midpoint
+#' @param scale_alpha_with_expression scale expression with ggplot alpha parameter
+#' @param point_size size of point (cell)
+#' @param show_legend show legend
+#' @param show_plot show plots
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @param ... parameters for cowplot::save_plot()
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     crossSectionGenePlot3D(gobject)
+#'
 crossSectionGenePlot3D <-function(gobject,
                                   crossSection_obj = NULL,
                                   name=NULL,
@@ -660,6 +818,44 @@ crossSectionGenePlot3D <-function(gobject,
                  save_param = save_param, default_save_name = default_save_name)
 }
 ####
+#' @title crossSectionPlot3D
+#' @name crossSectionPlot3D
+#' @description Visualize cells in a virtual cross section according to spatial coordinates
+#' @param gobject giotto object
+#' @param name name of virtual cross section to use
+#' @param spatial_network_name name of spatial network to use
+#' @param sdimx x-axis dimension name (default = 'sdimx')
+#' @param sdimy y-axis dimension name (default = 'sdimy')
+#' @param sdimz z-axis dimension name (default = 'sdimy')
+#' @param point_size size of point (cell)
+#' @param cell_color color for cells (see details)
+#' @param cell_color_code named vector with colors
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color of not selected cells
+#' @param other_point_size point size of not selected cells
+#' @param network_color color of spatial network
+#' @param show_grid show spatial grid
+#' @param grid_color color of spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param title title of plot
+#' @param axis_scale the way to scale the axis
+#' @param custom_ratio customize the scale of the plot
+#' @param x_ticks set the number of ticks on the x-axis
+#' @param y_ticks set the number of ticks on the y-axis
+#' @param z_ticks set the number of ticks on the z-axis
+#' @param show_legend show legend
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     crossSectionPlot3D(gobject)
+#'
 crossSectionPlot3D <-function(gobject,
                               crossSection_obj = NULL,
                               name=NULL,
@@ -667,7 +863,6 @@ crossSectionPlot3D <-function(gobject,
                               sdimx = "sdimx", sdimy = "sdimy", sdimz = "sdimz",
                               point_size = 3, cell_color = NULL, cell_color_code = NULL,
                               select_cell_groups = NULL,
-                              #select_cells = NULL,
                               show_other_cells = T,
                               other_cell_color = alpha("lightgrey", 0),
                               other_point_size = 0.5, show_network = F,
@@ -717,23 +912,48 @@ crossSectionPlot3D <-function(gobject,
              default_save_name = default_save_name)
 }
 
+
 ####
-insert_crossSection <- function(pl,crossSection_obj){
-
-  for (i in 1:dim(crossSection_obj$mesh_obj$mesh_grid_lines$mesh_grid_lines_X)[2]){
-
-    pl = pl %>% plotly::add_trace(x = crossSection_obj$mesh_obj$mesh_grid_lines$mesh_grid_lines_X[,i],
-                                  y = crossSection_obj$mesh_obj$mesh_grid_lines$mesh_grid_lines_Y[,i],
-                                  z = crossSection_obj$mesh_obj$mesh_grid_lines$mesh_grid_lines_Z[,i],
-                                  mode = 'lines',type = 'scatter3d',
-                                  line = list(color = mesh_grid_color, width = mesh_grid_width,dash = mesh_grid_style))
-  }
-  print("1")
-  pl = pl %>% plotly::layout(showlegend = FALSE)
-  return(pl)
-}
-
-
+#' @title insertCrossSectionSpatPlot3D
+#' @name insertCrossSectionSpatPlot3D
+#' @description Visualize the meshgrid lines of cross section together with cells
+#' @param gobject giotto object
+#' @param name name of virtual cross section to use
+#' @param spatial_network_name name of spatial network to use
+#' @param mesh_grid_color color for the meshgrid lines
+#' @param mesh_grid_width width for the meshgrid lines
+#' @param mesh_grid_style style for the meshgrid lines
+#' @param sdimx x-axis dimension name (default = 'sdimx')
+#' @param sdimy y-axis dimension name (default = 'sdimy')
+#' @param sdimz z-axis dimension name (default = 'sdimy')
+#' @param point_size size of point (cell)
+#' @param cell_color color for cells (see details)
+#' @param cell_color_code named vector with colors
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color of not selected cells
+#' @param other_point_size point size of not selected cells
+#' @param network_color color of spatial network
+#' @param show_grid show spatial grid
+#' @param grid_color color of spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param title title of plot
+#' @param axis_scale the way to scale the axis
+#' @param custom_ratio customize the scale of the plot
+#' @param x_ticks set the number of ticks on the x-axis
+#' @param y_ticks set the number of ticks on the y-axis
+#' @param z_ticks set the number of ticks on the z-axis
+#' @param show_legend show legend
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     insertCrossSectionSpatPlot3D(gobject)
 insertCrossSectionSpatPlot3D <- function(gobject,
                                          crossSection_obj=NULL,
                                          name=NULL,
@@ -806,7 +1026,43 @@ insertCrossSectionSpatPlot3D <- function(gobject,
 
 }
 ####
-
+#' @title crossSectionGenePlot3D
+#' @name crossSectionGenePlot3D
+#' @description Visualize cells and gene expression in a virtual cross section according to spatial coordinates
+#' @param gobject giotto object
+#' @param name name of virtual cross section to use
+#' @param spatial_network_name name of spatial network to use
+#' @param mesh_grid_color color for the meshgrid lines
+#' @param mesh_grid_width width for the meshgrid lines
+#' @param mesh_grid_style style for the meshgrid lines
+#' @param sdimx x-axis dimension name (default = 'sdimx')
+#' @param sdimy y-axis dimension name (default = 'sdimy')
+#' @param sdimz z-axis dimension name (default = 'sdimy')
+#' @param expression_values gene expression values to use
+#' @param genes genes to show
+#' @param genes_high_color color represents high gene expression
+#' @param genes_mid_color color represents middle gene expression
+#' @param genes_low_color color represents low gene expression
+#' @param show_network show underlying spatial network
+#' @param network_color color of spatial network
+#' @param show_grid show spatial grid
+#' @param grid_color color of spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param midpoint expression midpoint
+#' @param scale_alpha_with_expression scale expression with ggplot alpha parameter
+#' @param point_size size of point (cell)
+#' @param show_legend show legend
+#' @param show_plot show plots
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @param ... parameters for cowplot::save_plot()
+#' @return ggplot
+#' @details Description of parameters.
+#' @export
+#' @examples
+#'     insertCrossSectionGenePlot3D(gobject)
 insertCrossSectionGenePlot3D <- function(gobject,
                                          crossSection_obj=NULL,
                                          name=NULL,
