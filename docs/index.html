@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="Spatial single-cell transcriptomics pipeline.">
-<meta property="og:description" content="Pipeline to process, analyze and visualize (spatial) single-cell expression data.">
+<meta property="og:description" content="Pipeline to process, analyze and visualize spatial single-cell expression data.">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -64,17 +64,43 @@
 <a href="#giotto" class="anchor"></a>Giotto</h1></div>
 <!-- badges: start -->
 <!-- badges: end -->
-<p>The goal of Giotto is to process, analyze and visualize <strong>single-cell spatial expression</strong> data and was originally developed to help analyze the recent <a href="https://www.nature.com/articles/s41586-019-1049-y"><strong>seqFISH+</strong></a> datasets. It can be used on virtually all current spatial datasets, although not all implemented analyses work for each type of technology. Firstly Giotto provides a flexible framework for common single-cell processing steps such as quality control, normalization, dimension reduction, clustering and cell type annotation. Next, it incorporates spatial information through the formation of a <em>spatial grid</em> and a <em>spatial proximity network</em>, which will be used in subsequent analyses to:<br>
-- identify spatial genes (4 different methods) &amp; spatial co-expressed genes<br>
-- identify spatial patterns<br>
-- identify spatial domains using an HMRF method<br>
-- perform spatial gene enrichment analysis by integrating your single-cell RNAseq data or lists of genes<br>
-- explore spatial cell-cell interactions<br>
-- find differentially expressed genes associated with neighboring cell types<br>
-- perform ligand-receptor enrichment analysis between cell types</p>
-<p>Furthermore, both 2D and 3D data can be visualized and the outcome of Giotto can be interactivily explored using <a href="http://spatial.rc.fas.harvard.edu/giotto-viewer/"><strong>Giotto Viewer</strong></a>, which allows you to overlay the obtained results with raw or additional images of the profiled tissue section(s).</p>
+<p>The Giotto package provides tools to process, analyze and visualize <strong>single-cell spatial expression</strong> data. The underlying framework is generalizable to virtually all currently available spatial datasets. We recently demonstrated the general applicability on 10 different datasets created by 9 different state-of-the-art spatial technologies, including <em>in situ</em> hybridization (seqFISH+, merFISH, osmFISH), sequencing (Slide-seq, Visium, STARmap) and imaging-based multiplexing/proteomics (CyCIF, MIBI, CODEX). These technologies differ in terms of resolution (single cell vs multiple cells), spatial dimension (2D vs 3D), molecular modality (protein vs RNA), and throughput (number of cells and genes).</p>
+<div id="description" class="section level2">
+<h2 class="hasAnchor">
+<a href="#description" class="anchor"></a>Description</h2>
+<ol>
+<li>Giotto provides a flexible framework for common single-cell processing steps such as:</li>
+</ol>
+<!-- end list --><ul>
+<li>quality control<br>
+</li>
+<li>normalization<br>
+</li>
+<li>dimension reduction<br>
+</li>
+<li>clustering and cell type annotation</li>
+</ul>
+<!-- end list --><ol>
+<li><p>To facilitate the analysis of recently emerging high-throughput, but lower-resolution spatial transcriptomic technologies, such as 10X Genomics Visium and Slide-seq, Giotto has 3 implemented algorithms for estimating the spatial enrichment of different cell types by integration of known gene signatures or single-cell RNAseq expression and annotation data.</p></li>
+<li><p>Spatial information is retained through the formation of a <em>spatial grid</em> and/or a <em>spatial proximity network</em>, which is used to:</p></li>
+</ol>
+<!-- end list --><ul>
+<li>identify spatial genes<br>
+</li>
+<li>extract continuous spatial-expression patterns<br>
+</li>
+<li>identify discrete spatial domains using HMRF<br>
+</li>
+<li>explore cell-type/cell-type spatial interaction enrichment or depletion</li>
+<li>calculate spatially increased ligand-receptor expression in cells of interacting cell type pairs</li>
+<li>find interaction changed genes (ICG): genes that change expression in one cell type due to interaction with a neighboring cell type</li>
+</ul>
+<!-- end list --><ol>
+<li>Giotto provides a number of options to visualize both 2D and 3D data and the outcome of Giotto can be interactivily explored using <a href="http://spatial.rc.fas.harvard.edu/giotto-viewer/"><strong>Giotto Viewer</strong></a>, which allows you to overlay the obtained results with raw or additional images of the profiled tissue section(s).</li>
+</ol>
 <p>Make sure to check out the <strong>Examples</strong> and <strong>FAQ</strong> section to learn everything about the Giotto workflow.</p>
 <p> </p>
+</div>
 <div id="latest-news" class="section level2">
 <h2 class="hasAnchor">
 <a href="#latest-news" class="anchor"></a>Latest News</h2>
@@ -255,6 +281,7 @@
 <h2>Developers</h2>
 <ul class="list-unstyled">
 <li>Ruben Dries <br><small class="roles"> Author, maintainer </small>  </li>
+<li>Huipeng Li <br><small class="roles"> Author </small>  </li>
 </ul>
 </div>
 
@@ -263,7 +290,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Ruben Dries.</p>
+  <p>Developed by Ruben Dries, Huipeng Li.</p>
 </div>
 
 <div class="pkgdown">

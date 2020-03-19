@@ -9,34 +9,49 @@
 
 <!-- badges: end -->
 
-The goal of Giotto is to process, analyze and visualize **single-cell
-spatial expression** data and was originally developed to help analyze
-the recent
-[**seqFISH+**](https://www.nature.com/articles/s41586-019-1049-y)
-datasets. It can be used on virtually all current spatial datasets,
-although not all implemented analyses work for each type of technology.
-Firstly Giotto provides a flexible framework for common single-cell
-processing steps such as quality control, normalization, dimension
-reduction, clustering and cell type annotation. Next, it incorporates
-spatial information through the formation of a *spatial grid* and a
-*spatial proximity network*, which will be used in subsequent analyses
-to:  
-\- identify spatial genes (4 different methods) & spatial co-expressed
-genes  
-\- identify spatial patterns  
-\- identify spatial domains using an HMRF method  
-\- perform spatial gene enrichment analysis by integrating your
-single-cell RNAseq data or lists of genes  
-\- explore spatial cell-cell interactions  
-\- find differentially expressed genes associated with neighboring cell
-types  
-\- perform ligand-receptor enrichment analysis between cell types
+The Giotto package provides tools to process, analyze and visualize
+**single-cell spatial expression** data. The underlying framework is
+generalizable to virtually all currently available spatial datasets. We
+recently demonstrated the general applicability on 10 different datasets
+created by 9 different state-of-the-art spatial technologies, including
+*in situ* hybridization (seqFISH+, merFISH, osmFISH), sequencing
+(Slide-seq, Visium, STARmap) and imaging-based multiplexing/proteomics
+(CyCIF, MIBI, CODEX). These technologies differ in terms of resolution
+(single cell vs multiple cells), spatial dimension (2D vs 3D), molecular
+modality (protein vs RNA), and throughput (number of cells and genes).
 
-Furthermore, both 2D and 3D data can be visualized and the outcome of
-Giotto can be interactivily explored using [**Giotto
-Viewer**](http://spatial.rc.fas.harvard.edu/giotto-viewer/), which
-allows you to overlay the obtained results with raw or additional images
-of the profiled tissue section(s).
+## Description
+
+  - Giotto provides a flexible framework for common single-cell
+    processing steps such as:
+      - quality control
+      - normalization
+      - dimension reduction
+      - clustering and cell type annotation
+  - To facilitate the analysis of recently emerging high-throughput, but
+    lower-resolution spatial transcriptomic technologies, such as 10X
+    Genomics Visium and Slide-seq, Giotto has 3 implemented algorithms
+    for estimating the spatial enrichment of different cell types by
+    integration of known gene signatures or single-cell RNAseq
+    expression and annotation data.
+  - Spatial information is retained through the formation of a *spatial
+    grid* and/or a *spatial proximity network*, which is used to:
+      - identify spatial genes
+      - extract continuous spatial-expression patterns
+      - identify discrete spatial domains using HMRF
+      - explore cell-type/cell-type spatial interaction enrichment or
+        depletion
+      - calculate spatially increased ligand-receptor expression in
+        cells of interacting cell type pairs
+      - find interaction changed genes (ICG): genes that change
+        expression in one cell type due to interaction with a
+        neighboring cell type
+  - Giotto provides a number of options to visualize both 2D and 3D data
+    and the outcome of Giotto can be interactivily explored using
+    [**Giotto
+    Viewer**](http://spatial.rc.fas.harvard.edu/giotto-viewer/), which
+    allows you to overlay the obtained results with raw or additional
+    images of the profiled tissue section(s).
 
 Make sure to check out the **Examples** and **FAQ** section to learn
 everything about the Giotto workflow.
