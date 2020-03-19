@@ -1,1 +1,12 @@
 destination: docs
+
+navbar:
+  title: ~
+  type: default
+  left:
+    - text: Documentation
+      href: reference/index.html
+    - text: Datasets
+      href: articles/index.html
+    - text: Getting Started
+      href: articles/test.html

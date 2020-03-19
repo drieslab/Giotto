@@ -38,13 +38,13 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
+  <a href="reference/index.html">Documentation</a>
 </li>
 <li>
-  <a href="reference/index.html">Reference</a>
+  <a href="articles/index.html">Datasets</a>
+</li>
+<li>
+  <a href="articles/test.html">Getting Started</a>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right"></ul>
@@ -68,36 +68,28 @@
 <div id="description" class="section level2">
 <h2 class="hasAnchor">
 <a href="#description" class="anchor"></a>Description</h2>
-<ol>
-<li>Giotto provides a flexible framework for common single-cell processing steps such as:</li>
-</ol>
-<!-- end list --><ul>
-<li>quality control<br>
-</li>
-<li>normalization<br>
-</li>
-<li>dimension reduction<br>
-</li>
+<ul>
+<li>Giotto provides a flexible framework for common single-cell processing steps such as:
+<ul>
+<li>quality control</li>
+<li>normalization</li>
+<li>dimension reduction</li>
 <li>clustering and cell type annotation</li>
 </ul>
-<!-- end list --><ol>
-<li><p>To facilitate the analysis of recently emerging high-throughput, but lower-resolution spatial transcriptomic technologies, such as 10X Genomics Visium and Slide-seq, Giotto has 3 implemented algorithms for estimating the spatial enrichment of different cell types by integration of known gene signatures or single-cell RNAseq expression and annotation data.</p></li>
-<li><p>Spatial information is retained through the formation of a <em>spatial grid</em> and/or a <em>spatial proximity network</em>, which is used to:</p></li>
-</ol>
-<!-- end list --><ul>
-<li>identify spatial genes<br>
 </li>
-<li>extract continuous spatial-expression patterns<br>
-</li>
-<li>identify discrete spatial domains using HMRF<br>
-</li>
+<li>To facilitate the analysis of recently emerging high-throughput, but lower-resolution spatial transcriptomic technologies, such as 10X Genomics Visium and Slide-seq, Giotto has 3 implemented algorithms for estimating the spatial enrichment of different cell types by integration of known gene signatures or single-cell RNAseq expression and annotation data.</li>
+<li>Spatial information is retained through the formation of a <em>spatial grid</em> and/or a <em>spatial proximity network</em>, which is used to:
+<ul>
+<li>identify spatial genes</li>
+<li>extract continuous spatial-expression patterns</li>
+<li>identify discrete spatial domains using HMRF</li>
 <li>explore cell-type/cell-type spatial interaction enrichment or depletion</li>
 <li>calculate spatially increased ligand-receptor expression in cells of interacting cell type pairs</li>
 <li>find interaction changed genes (ICG): genes that change expression in one cell type due to interaction with a neighboring cell type</li>
 </ul>
-<!-- end list --><ol>
+</li>
 <li>Giotto provides a number of options to visualize both 2D and 3D data and the outcome of Giotto can be interactivily explored using <a href="http://spatial.rc.fas.harvard.edu/giotto-viewer/"><strong>Giotto Viewer</strong></a>, which allows you to overlay the obtained results with raw or additional images of the profiled tissue section(s).</li>
-</ol>
+</ul>
 <p>Make sure to check out the <strong>Examples</strong> and <strong>FAQ</strong> section to learn everything about the Giotto workflow.</p>
 <p> </p>
 </div>
