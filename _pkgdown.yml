@@ -23,4 +23,13 @@ navbar:
     - icon: fa-github
       href: https://github.com/RubD/Gdev
 
+
+articles:
+  - title: "Datasets"
+    desc: >
+      These vignettes provide an simple example analysis for multiple datasets.
+    contents:
+      - test_dataset
+
+
 destination: docs

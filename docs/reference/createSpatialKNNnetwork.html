@@ -141,6 +141,34 @@
       <td><p>giotto object</p></td>
     </tr>
     <tr>
+      <th>method</th>
+      <td><p>method to create kNN network</p></td>
+    </tr>
+    <tr>
+      <th>dimensions</th>
+      <td><p>which spatial dimensions to use (default = all)</p></td>
+    </tr>
+    <tr>
+      <th>name</th>
+      <td><p>name for spatial network (default = 'spatial_network')</p></td>
+    </tr>
+    <tr>
+      <th>k</th>
+      <td><p>number of nearest neighbors based on physical distance</p></td>
+    </tr>
+    <tr>
+      <th>maximum_distance</th>
+      <td><p>distance cuttof for nearest neighbors to consider for kNN network</p></td>
+    </tr>
+    <tr>
+      <th>minimum_k</th>
+      <td><p>minimum nearest neigbhours if maximum_distance != NULL</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>verbose</p></td>
+    </tr>
+    <tr>
       <th>return_gobject</th>
       <td><p>boolean: return giotto object (default = TRUE)</p></td>
     </tr>
@@ -149,6 +177,10 @@
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>giotto object with updated spatial network slot</p>
+<p><strong>dimensions: </strong> default = 'all' which takes all possible dimensions.
+Alternatively you can provide a character vector that specififies the spatial dimensions to use, e.g. c("sdimx', "sdimy")
+or a numerical vector, e.g. 2:3</p>
+<p><strong>maximum_distance: </strong> to create a network based on maximum distance only, you also need to set k to a very high value, e.g. k = 100</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples">    <span class='fu'>createSpatialKNNnetwork</span>(<span class='no'>gobject</span>)</pre>
