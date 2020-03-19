@@ -31,6 +31,8 @@ plotStatDelaunayNetwork(
 
 \item{minimum_k}{minimum neigbhours if maximum_distance != NULL}
 
+\item{options}{(geometry) String containing extra control options for the underlying Qhull command; see the Qhull documentation (../doc/qhull/html/qdelaun.html) for the available options. (default = 'Pp', do not report precision problems)}
+
 \item{Y}{(RTriangle) If TRUE prohibits the insertion of Steiner points on the mesh boundary.}
 
 \item{j}{(RTriangle) If TRUE jettisons vertices that are not part of the final triangulation from the output.}

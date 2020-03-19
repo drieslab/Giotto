@@ -1,18 +1,26 @@
 
 
+template:
+  params:
+    bootswatch: cosmo
+
 navbar:
   title: ~
   type: default
   left:
-    - text: Get Started
+    - text: Start
       href: articles/getting_started.html
     - text: Documentation
       href: reference/index.html
     - text: Datasets
       href: articles/index.html
-    - test: FAQ
+    - text: FAQ
       href: articles/faqs.html
     - text: News
       href: news/index.html
+
+  right:
+    - icon: fa-github
+      href: https://github.com/RubD/Gdev
 
 destination: docs

@@ -1,5 +1,4 @@
 ---
-title: "Get started"
 output: html_document
 ---
 

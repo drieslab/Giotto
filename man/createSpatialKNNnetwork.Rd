@@ -20,10 +20,30 @@ createSpatialKNNnetwork(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{method}{method to create kNN network}
+
+\item{dimensions}{which spatial dimensions to use (default = all)}
+
+\item{name}{name for spatial network (default = 'spatial_network')}
+
+\item{k}{number of nearest neighbors based on physical distance}
+
+\item{maximum_distance}{distance cuttof for nearest neighbors to consider for kNN network}
+
+\item{minimum_k}{minimum nearest neigbhours if maximum_distance != NULL}
+
+\item{verbose}{verbose}
+
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 }
 \value{
 giotto object with updated spatial network slot
+
+\strong{dimensions: } default = 'all' which takes all possible dimensions.
+Alternatively you can provide a character vector that specififies the spatial dimensions to use, e.g. c("sdimx', "sdimy")
+or a numerical vector, e.g. 2:3
+
+\strong{maximum_distance: } to create a network based on maximum distance only, you also need to set k to a very high value, e.g. k = 100
 }
 \description{
 Create a spatial knn network.
