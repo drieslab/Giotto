@@ -20,13 +20,13 @@ created by 9 different state-of-the-art spatial technologies, including
 (single cell vs multiple cells), spatial dimension (2D vs 3D), molecular
 modality (protein vs RNA), and throughput (number of cells and genes).
 
+<img src="inst/images/general_figs/overview_datasets.png" />
+
 ## Requirements
 
   - R (\>= 3.5.1)
   - Python (\>= 3.0)
   - Windows, MacOS, Linux
-
- 
 
 ## Installation
 
@@ -37,13 +37,9 @@ See FAQs for additional information.
 You can install (\~1-5 mins) Giotto with:
 
 ``` r
-library(devtools) # if not installed: install.packages('devtools') 
 library(remotes)  # if not installed: install.packages('remotes')
 # to install the latest version (development)
 remotes::install_github("RubD/Giotto")
-
-# to install a specific release version (example)
-remotes::install_github("RubD/Giotto@v0.1.3")
 ```
 
 #### Python tools (optional)

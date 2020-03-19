@@ -33,6 +33,7 @@ articles:
     desc: >
       These vignettes provide a simple example analysis for multiple datasets.
     contents:
+      - mouse_seqFISH_cortex_200319
       - test_dataset
 
 reference:

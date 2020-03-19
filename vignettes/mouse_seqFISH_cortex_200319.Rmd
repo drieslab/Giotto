@@ -1,0 +1,125 @@
+---
+title: "seqFISH+ cortex"
+output:
+  github_document:
+    toc: true
+    toc_depth: 2
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+### Giotto global instructions
+
+```{r eval=FALSE, message=FALSE, warning=FALSE}
+# this example was tested with Giotto v.0.3.0
+library(Giotto)
+
+## create instructions
+## instructions allow us to automatically save all plots into a chosen results folder
+my_python_path = "/your/python/path/python"
+results_folder = '/your/results/path/'
+instrs = createGiottoInstructions(python_path = my_python_path,
+                                  show_plot = F, return_plot = T, save_plot = T,
+                                  save_dir = results_folder,
+                                  plot_format = 'png',
+                                  dpi = 300, height = 9, width = 9)
+```
+
+
+
+### Data input
+  
+- load cortex/svz gene expression matrix  
+- prepare cell coordinates by stitching imaging fields  
+
+Several fields - containing 100's of cells - in the mouse cortex and subventricular zone were imaged. The coordinates of the cells within each field are independent of eachother, so in order to visualize and process all cells together imaging fields will be stitched together by providing x and y-offset values specific to each field. These offset values are known or estimates based on the original raw image:  
+
+<center>
+![](../inst/images/general_figs/cortex_svz_location_fields.png){ width=50% }
+</center>
+
+
+  
+```{r, eval=FALSE}
+## A. expression and cell location
+data_dir = '/path/to/data/Seqfish_SS_cortex/'
+VC_exprs = read.table(paste0(data_dir,"/", "count_matrix/cortex_svz_expression.txt"))
+VC_locs = fread(paste0(data_dir,"/", "cell_locations/cortex_svz_centroids_rotated.csv"))
+
+## B. offset file to combine fields
+my_offset_file = data.table(field = c(0, 1, 2, 3, 4, 5, 6),
+                            x_offset = c(0, 1654.97, 1750.75, 1674.35, 675.5, 2048, 675),
+                            y_offset = c(0, 0, 0, 0, -1438.02, -1438.02, 0))
+stitch_file = stitchFieldCoordinates(location_file = VC_locs, offset_file = my_offset_file,
+                                     cumulate_offset_x = T, cumulate_offset_y = F,
+                                     field_col = 'Field of View',
+                                     reverse_final_x = F, reverse_final_y = T)
+stitch_file    = stitch_file[,.(X_final, Y_final)]
+my_offset_file = my_offset_file[,.(field, x_offset_final, y_offset_final)]
+```
+
+***
+
+
+
+### part 1: Create Giotto object & process data
+ 
+```{r eval=FALSE}
+## create
+VC_test <- createGiottoObject(raw_exprs = VC_exprs, spatial_locs = stitch_file,
+                              offset_file = my_offset_file, instructions = instrs)
+
+## add known field annotation
+cortex_fields = fread(paste0(data_dir,"/", "cortex_fields_info.txt"))
+VC_test = addCellMetadata(VC_test, new_metadata = cortex_fields,
+                          by_column = T, column_cell_ID = 'uniq_ID')
+
+## subset for cortex only (first 5 fields)
+cell_metadata = pDataDT(VC_test)
+cortex_cell_ids = cell_metadata[Field_of_View %in% 0:4]$cell_ID
+VC_test = subsetGiotto(VC_test, cell_ids = cortex_cell_ids)
+
+## filter
+VC_test <- filterGiotto(gobject = VC_test,
+                        expression_threshold = 1,
+                        gene_det_in_min_cells = 10,
+                        min_det_genes_per_cell = 10,
+                        expression_values = c('raw'),
+                        verbose = T)
+
+## normalize
+VC_test <- normalizeGiotto(gobject = VC_test, scalefactor = 6000, verbose = T)
+
+## add gene & cell statistics
+VC_test <- addStatistics(gobject = VC_test)
+
+## adjust expression matrix for technical or known variables
+VC_test <- adjustGiottoMatrix(gobject = VC_test, expression_values = c('normalized'),
+                              batch_columns = NULL, covariate_columns = c('nr_genes', 'total_expr'),
+                              return_gobject = TRUE,
+                              update_slot = c('custom'))
+
+## visualize
+spatPlot(gobject = VC_test)
+
+```
+  
+![](../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/2_spatial_locations.png){width=10cm} 
+
+
+### part 2: dimension reduction
+
+
+![](../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/3_HVGplot.png){width=10cm} 
+
+
+
+
+
