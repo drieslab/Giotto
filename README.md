@@ -9,74 +9,16 @@
 
 <!-- badges: end -->
 
-The goal of Giotto is to process, analyze and visualize **single-cell
-spatial expression** data and was originally developed to help analyze
-the recent
-[**seqFISH+**](https://www.nature.com/articles/s41586-019-1049-y)
-datasets. It can be used on virtually all current spatial datasets,
-although not all implemented analyses work for each type of technology.
-Firstly Giotto provides a flexible framework for common single-cell
-processing steps such as quality control, normalization, dimension
-reduction, clustering and cell type annotation. Next, it incorporates
-spatial information through the formation of a *spatial grid* and a
-*spatial proximity network*, which will be used in subsequent analyses
-to:  
-\- identify spatial genes (4 different methods) & spatial co-expressed
-genes  
-\- identify spatial patterns  
-\- identify spatial domains using an HMRF method  
-\- perform spatial gene enrichment analysis by integrating your
-single-cell RNAseq data or lists of genes  
-\- explore spatial cell-cell interactions  
-\- find differentially expressed genes associated with neighboring cell
-types  
-\- perform ligand-receptor enrichment analysis between cell types
-
-Furthermore, both 2D and 3D data can be visualized and the outcome of
-Giotto can be interactivily explored using [**Giotto
-Viewer**](http://spatial.rc.fas.harvard.edu/giotto-viewer/), which
-allows you to overlay the obtained results with raw or additional images
-of the profiled tissue section(s).
-
-Make sure to check out the **Examples** and **FAQ** section to learn
-everything about the Giotto workflow.
-
- 
-
-## Latest News
-
-  - New example with 3D-like spatial data of the mouse hypothalamic
-    preoptic region using
-    [merFISH](https://science.sciencemag.org/content/362/6416/eaau5324)
-    (**NEW**)  
-  - New examples on mouse kidney and brain using the recently released
-    [10X Visium
-    datasets](https://www.10xgenomics.com/spatial-transcriptomics/)
-    (**NEW**)
-  - Added tools to identify spatial enrichment based on cell-type (or
-    other) specific gene signature lists (**NEW**)
-  - Updated support for 3D spatial data  
-  - Added support for the use of global instructions and automatically
-    saving your plots (**NEW**)
-  - Implemented [SpatialDE](https://github.com/Teichlab/SpatialDE) and
-    [trendsceek](https://github.com/edsgard/trendsceek)
-  - Add wrapper for differential expression with
-    [MAST](https://github.com/RGLab/MAST)
-  - New example with 3D spatial data
-    [STARmap](https://science.sciencemag.org/content/361/6400/eaat5691)
-  - New example with the highly sensitive data from
-    [osmFISH](https://www.nature.com/articles/s41592-018-0175-z)
-  - New example on the Cerebellum with the scalable data from
-    [Slideseq](https://science.sciencemag.org/content/363/6434/1463)
-  - New example on mouse olfactory bulb using immobilized primers on
-    glass slides from [Spatial
-    Transcriptomics](https://science.sciencemag.org/content/353/6294/78)
-  - Updated seqFISH+ cortex example (**NEW**)
-  - Updated STARmap cortex example (**NEW**)
-  - New examples for Ab-based large-scale systems such as cyCIF, CODEX
-    and MIBI will follow soon.
-
- 
+The Giotto package provides tools to process, analyze and visualize
+**single-cell spatial expression** data. The underlying framework is
+generalizable to virtually all currently available spatial datasets. We
+recently demonstrated the general applicability on 10 different datasets
+created by 9 different state-of-the-art spatial technologies, including
+*in situ* hybridization (seqFISH+, merFISH, osmFISH), sequencing
+(Slide-seq, Visium, STARmap) and imaging-based multiplexing/proteomics
+(CyCIF, MIBI, CODEX). These technologies differ in terms of resolution
+(single cell vs multiple cells), spatial dimension (2D vs 3D), molecular
+modality (protein vs RNA), and throughput (number of cells and genes).
 
 ## Requirements
 
@@ -170,55 +112,6 @@ Transcriptomics](./inst/images/SpatTx_OB_image_summary.png)](./inst/examples/mou
 [![merFISH](./inst/images/merFISH_hypothalam_image_summary.png)](./inst/examples/mouse_hypothalamic_preoptic_region/merfish_hypo_Giotto_v0.1.2_update.md)
 
 \[![MIBI-TOF](./inst/images/MIBI_tumor_image_summary.png)\]
-
- 
-
-## FAQ
-
-Howto’s and faqs examples:
-
-##### Installation
-
-  - [First time R package
-    installation](./inst/faqs/giotto_installation/installation_issues.md)
-  - [Clang error on
-    MacOS](./inst/faqs/giotto_installation/installation_issues.md)
-
-##### Data availability
-
-  - Where to find seqFISH+ and other ready-to-use datasets?  
-    **Checkout <https://github.com/RubD/spatial-datasets> to find
-    already preprocessed datasets**
-
-##### Giotto tips & tricks
-
-  - [How to add metadata and subset a Giotto
-    object?](./inst/faqs/metadata_and_subset/metadata_and_subset_VC.md)
-  - [Different ways of subsetting Giotto
-    results?](./inst/faqs/subset_giotto/subset_giotto.md)
-  - [How to create global instructions and show or save your created
-    plots?](./inst/faqs/instructions_and_plotting/instructions_and_plotting.md)
-  - [Different ways to visualize your spatial
-    data?](./inst/faqs/visualization_options/visualization_options.md)
-  - [How to test and store multiple parameters or
-    analyses?](./inst/faqs/work_with_multiple_analyses/work_with_multiple_analyses.md)
-  - How to create a giotto object with your own spatial network/grid,
-    dimensions reduction, … ?
-
-##### Giotto analyses
-
-  - How to identify highly variable genes?  
-  - Different ways to cluster data?
-  - Methods to identify differentially expressed genes?  
-  - How to perform cell-type or cell-process gene signature spatial
-    enrichment analysis?
-  - Algorithmes to find spatial genes, patterns or domains?
-  - Effect of neighboring cells on gene expression?  
-  - …
-
-##### Giotto Analyzer and Viewer interaction
-
-  - How to switch between Giotto Analyzer and Viewer?
 
  
 

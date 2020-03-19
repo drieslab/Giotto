@@ -1,0 +1,18 @@
+
+
+navbar:
+  title: ~
+  type: default
+  left:
+    - text: Get Started
+      href: articles/getting_started.html
+    - text: Documentation
+      href: reference/index.html
+    - text: Datasets
+      href: articles/index.html
+    - test: FAQ
+      href: articles/faqs.html
+    - text: News
+      href: news/index.html
+
+destination: docs
