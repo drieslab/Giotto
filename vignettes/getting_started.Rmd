@@ -1,5 +1,5 @@
 ---
-title: "Getting started"
+title: "Get started"
 output: html_document
 ---
 
@@ -24,17 +24,9 @@ Make sure to check out the **Examples** and **FAQ** section to learn everything 
 \  
 
 
-## FAQ  
+## HOWTOs  
 
-Howto's and faqs examples:  
-
-##### Installation  
-- [First time R package installation](./inst/faqs/giotto_installation/installation_issues.md)
-- [Clang error on MacOS](./inst/faqs/giotto_installation/installation_issues.md)
-
-##### Data availability  
-- Where to find seqFISH+ and other ready-to-use datasets?  
-**Checkout https://github.com/RubD/spatial-datasets to find already preprocessed datasets**  
+Howto's examples:  
 
 ##### Giotto tips & tricks 
 - [How to add metadata and subset a Giotto object?](./inst/faqs/metadata_and_subset/metadata_and_subset_VC.md)

@@ -38,13 +38,16 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
+  <a href="articles/getting_started.html">Get Started</a>
+</li>
+<li>
   <a href="reference/index.html">Documentation</a>
 </li>
 <li>
   <a href="articles/index.html">Datasets</a>
 </li>
 <li>
-  <a href="articles/getting_started.html">Getting Started</a>
+  <a href="articles/faqs.html"></a>
 </li>
 <li>
   <a href="news/index.html">News</a>
@@ -68,63 +71,6 @@
 <!-- badges: start -->
 <!-- badges: end -->
 <p>The Giotto package provides tools to process, analyze and visualize <strong>single-cell spatial expression</strong> data. The underlying framework is generalizable to virtually all currently available spatial datasets. We recently demonstrated the general applicability on 10 different datasets created by 9 different state-of-the-art spatial technologies, including <em>in situ</em> hybridization (seqFISH+, merFISH, osmFISH), sequencing (Slide-seq, Visium, STARmap) and imaging-based multiplexing/proteomics (CyCIF, MIBI, CODEX). These technologies differ in terms of resolution (single cell vs multiple cells), spatial dimension (2D vs 3D), molecular modality (protein vs RNA), and throughput (number of cells and genes).</p>
-<div id="description" class="section level2">
-<h2 class="hasAnchor">
-<a href="#description" class="anchor"></a>Description</h2>
-<ul>
-<li>Giotto provides a flexible framework for common single-cell processing steps such as:
-<ul>
-<li>quality control</li>
-<li>normalization</li>
-<li>dimension reduction</li>
-<li>clustering and cell type annotation</li>
-</ul>
-</li>
-<li>To facilitate the analysis of recently emerging high-throughput, but lower-resolution spatial transcriptomic technologies, such as 10X Genomics Visium and Slide-seq, Giotto has 3 implemented algorithms for estimating the spatial enrichment of different cell types by integration of known gene signatures or single-cell RNAseq expression and annotation data.</li>
-<li>Spatial information is retained through the formation of a <em>spatial grid</em> and/or a <em>spatial proximity network</em>, which is used to:
-<ul>
-<li>identify spatial genes</li>
-<li>extract continuous spatial-expression patterns</li>
-<li>identify discrete spatial domains using HMRF</li>
-<li>explore cell-type/cell-type spatial interaction enrichment or depletion</li>
-<li>calculate spatially increased ligand-receptor expression in cells of interacting cell type pairs</li>
-<li>find interaction changed genes (ICG): genes that change expression in one cell type due to interaction with a neighboring cell type</li>
-</ul>
-</li>
-<li>Giotto provides a number of options to visualize both 2D and 3D data and the outcome of Giotto can be interactivily explored using <a href="http://spatial.rc.fas.harvard.edu/giotto-viewer/"><strong>Giotto Viewer</strong></a>, which allows you to overlay the obtained results with raw or additional images of the profiled tissue section(s).</li>
-</ul>
-<p>Make sure to check out the <strong>Examples</strong> and <strong>FAQ</strong> section to learn everything about the Giotto workflow.</p>
-<p> </p>
-</div>
-<div id="latest-news" class="section level2">
-<h2 class="hasAnchor">
-<a href="#latest-news" class="anchor"></a>Latest News</h2>
-<ul>
-<li>New example with 3D-like spatial data of the mouse hypothalamic preoptic region using <a href="https://science.sciencemag.org/content/362/6416/eaau5324">merFISH</a> (<strong>NEW</strong>)<br>
-</li>
-<li>New examples on mouse kidney and brain using the recently released <a href="https://www.10xgenomics.com/spatial-transcriptomics/">10X Visium datasets</a> (<strong>NEW</strong>)</li>
-<li>Added tools to identify spatial enrichment based on cell-type (or other) specific gene signature lists (<strong>NEW</strong>)</li>
-<li>Updated support for 3D spatial data<br>
-</li>
-<li>Added support for the use of global instructions and automatically saving your plots (<strong>NEW</strong>)</li>
-<li>Implemented <a href="https://github.com/Teichlab/SpatialDE">SpatialDE</a> and <a href="https://github.com/edsgard/trendsceek">trendsceek</a>
-</li>
-<li>Add wrapper for differential expression with <a href="https://github.com/RGLab/MAST">MAST</a>
-</li>
-<li>New example with 3D spatial data <a href="https://science.sciencemag.org/content/361/6400/eaat5691">STARmap</a>
-</li>
-<li>New example with the highly sensitive data from <a href="https://www.nature.com/articles/s41592-018-0175-z">osmFISH</a>
-</li>
-<li>New example on the Cerebellum with the scalable data from <a href="https://science.sciencemag.org/content/363/6434/1463">Slideseq</a>
-</li>
-<li>New example on mouse olfactory bulb using immobilized primers on glass slides from <a href="https://science.sciencemag.org/content/353/6294/78">Spatial Transcriptomics</a>
-</li>
-<li>Updated seqFISH+ cortex example (<strong>NEW</strong>)</li>
-<li>Updated STARmap cortex example (<strong>NEW</strong>)</li>
-<li>New examples for Ab-based large-scale systems such as cyCIF, CODEX and MIBI will follow soon.</li>
-</ul>
-<p> </p>
-</div>
 <div id="requirements" class="section level2">
 <h2 class="hasAnchor">
 <a href="#requirements" class="anchor"></a>Requirements</h2>
@@ -194,63 +140,6 @@
 <p><a href="./inst/examples/mouse_slideseq_cerebellum/slideseq_cerebellum_Giotto_v0.1.2.html"><img src="./inst/images/slideseq_cerebellum_image_summary.png" alt="slideseq"></a> <a href="./inst/examples/mouse_hypothalamic_preoptic_region/merfish_hypo_Giotto_v0.1.2_update.html"><img src="./inst/images/merFISH_hypothalam_image_summary.png" alt="merFISH"></a></p>
 <p>[<img src="./inst/images/MIBI_tumor_image_summary.png" alt="MIBI-TOF">]</p>
 <p> </p>
-</div>
-<div id="faq" class="section level2">
-<h2 class="hasAnchor">
-<a href="#faq" class="anchor"></a>FAQ</h2>
-<p>Howto’s and faqs examples:</p>
-<div id="installation-1" class="section level5">
-<h5 class="hasAnchor">
-<a href="#installation-1" class="anchor"></a>Installation</h5>
-<ul>
-<li><a href="./inst/faqs/giotto_installation/installation_issues.html">First time R package installation</a></li>
-<li><a href="./inst/faqs/giotto_installation/installation_issues.html">Clang error on MacOS</a></li>
-</ul>
-</div>
-<div id="data-availability" class="section level5">
-<h5 class="hasAnchor">
-<a href="#data-availability" class="anchor"></a>Data availability</h5>
-<ul>
-<li>Where to find seqFISH+ and other ready-to-use datasets?<br><strong>Checkout <a href="https://github.com/RubD/spatial-datasets" class="uri">https://github.com/RubD/spatial-datasets</a> to find already preprocessed datasets</strong>
-</li>
-</ul>
-</div>
-<div id="giotto-tips--tricks" class="section level5">
-<h5 class="hasAnchor">
-<a href="#giotto-tips--tricks" class="anchor"></a>Giotto tips &amp; tricks</h5>
-<ul>
-<li><a href="./inst/faqs/metadata_and_subset/metadata_and_subset_VC.html">How to add metadata and subset a Giotto object?</a></li>
-<li><a href="./inst/faqs/subset_giotto/subset_giotto.html">Different ways of subsetting Giotto results?</a></li>
-<li><a href="./inst/faqs/instructions_and_plotting/instructions_and_plotting.html">How to create global instructions and show or save your created plots?</a></li>
-<li><a href="./inst/faqs/visualization_options/visualization_options.html">Different ways to visualize your spatial data?</a></li>
-<li><a href="./inst/faqs/work_with_multiple_analyses/work_with_multiple_analyses.html">How to test and store multiple parameters or analyses?</a></li>
-<li>How to create a giotto object with your own spatial network/grid, dimensions reduction, … ?</li>
-</ul>
-</div>
-<div id="giotto-analyses" class="section level5">
-<h5 class="hasAnchor">
-<a href="#giotto-analyses" class="anchor"></a>Giotto analyses</h5>
-<ul>
-<li>How to identify highly variable genes?<br>
-</li>
-<li>Different ways to cluster data?</li>
-<li>Methods to identify differentially expressed genes?<br>
-</li>
-<li>How to perform cell-type or cell-process gene signature spatial enrichment analysis?</li>
-<li>Algorithmes to find spatial genes, patterns or domains?</li>
-<li>Effect of neighboring cells on gene expression?<br>
-</li>
-<li>…</li>
-</ul>
-</div>
-<div id="giotto-analyzer-and-viewer-interaction" class="section level5">
-<h5 class="hasAnchor">
-<a href="#giotto-analyzer-and-viewer-interaction" class="anchor"></a>Giotto Analyzer and Viewer interaction</h5>
-<ul>
-<li>How to switch between Giotto Analyzer and Viewer?</li>
-</ul>
-<p> </p>
-</div>
 </div>
 <div id="references" class="section level2">
 <h2 class="hasAnchor">
