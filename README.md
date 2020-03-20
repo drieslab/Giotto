@@ -99,7 +99,8 @@ pip3 install --user smfish-image-processing --no-cache #add --no-deps if do not 
     computer is around 10\~45 mins.  
   - click on the image and try them out yourself.
 
-[![Cortex](./inst/images/cortex_image_summary.png)](https://rubd.github.io/Giotto/articles/mouse_seqFISH_cortex_200319.html)
+[![seqFISH](./inst/images/general_figs/cortex_image_summary.png)](https://rubd.github.io/Giotto/articles/mouse_seqFISH_cortex_200319.html)
+[![STARmap](./inst/images/general_figs/starmap_cortex_image_summary.png)](https://rubd.github.io/Giotto/articles/mouse_starmap_cortex.html)
 
 ## References
 
