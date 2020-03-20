@@ -273,6 +273,11 @@ reference:
     - plotRankSpatvsExpr
     - plotRecovery
 
+  - title: export from Giotto Analyzer to Viewer
+    desc: Export selected annotations to a folder that can be used as input for Giotto Viewer
+    contents:
+    - exportGiottoViewer
+
 destination: docs
 
 
