@@ -1026,8 +1026,8 @@ insertCrossSectionSpatPlot3D <- function(gobject,
 
 }
 ####
-#' @title crossSectionGenePlot3D
-#' @name crossSectionGenePlot3D
+#' @title insertCrossSectionGenePlot3D
+#' @name insertCrossSectionGenePlot3D
 #' @description Visualize cells and gene expression in a virtual cross section according to spatial coordinates
 #' @param gobject giotto object
 #' @param name name of virtual cross section to use
