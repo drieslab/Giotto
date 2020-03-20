@@ -9,16 +9,19 @@
 
 <!-- badges: end -->
 
-The Giotto package provides tools to process, analyze and visualize
-**single-cell spatial expression** data. The underlying framework is
-generalizable to virtually all currently available spatial datasets. We
-recently demonstrated the general applicability on 10 different datasets
-created by 9 different state-of-the-art spatial technologies, including
-*in situ* hybridization (seqFISH+, merFISH, osmFISH), sequencing
-(Slide-seq, Visium, STARmap) and imaging-based multiplexing/proteomics
-(CyCIF, MIBI, CODEX). These technologies differ in terms of resolution
-(single cell vs multiple cells), spatial dimension (2D vs 3D), molecular
-modality (protein vs RNA), and throughput (number of cells and genes).
+The Giotto package (see www.spatialgiotto.com) provides tools to
+process, analyze and visualize **single-cell spatial expression** data.
+The underlying framework is generalizable to virtually all currently
+available spatial datasets. We recently demonstrated the general
+applicability on 10 different datasets created by 9 different
+state-of-the-art spatial technologies, including *in situ* hybridization
+(seqFISH+, merFISH, osmFISH), sequencing (Slide-seq, Visium, STARmap)
+and imaging-based multiplexing/proteomics (CyCIF, MIBI, CODEX). These
+technologies differ in terms of resolution (single cell vs multiple
+cells), spatial dimension (2D vs 3D), molecular modality (protein vs
+RNA), and throughput (number of cells and genes). More information about
+the latest (developmental) version of Giotto Analyzer can be found at
+<https://rubd.github.io/Giotto/index.html>.
 
 <img src="inst/images/general_figs/overview_datasets.png" />
 
@@ -39,7 +42,7 @@ You can install (\~1-5 mins) Giotto with:
 
 ``` r
 library(remotes)  # if not installed: install.packages('remotes')
-# to install the latest version (development)
+# to install the latest version
 remotes::install_github("RubD/Giotto")
 ```
 
@@ -95,22 +98,7 @@ pip3 install --user smfish-image-processing --no-cache #add --no-deps if do not 
     computer is around 10\~45 mins.  
   - click on the image and try them out yourself.
 
-[![Cortex](./inst/images/cortex_image_summary.png)](./inst/examples/mouse_cortex_svz/seqfish_cortex_Giotto_v0.1.4.md)
-[![STARmap](./inst/images/starmap_cortex_image_summary.png)](./inst/examples/mouse_starmap_cortex/starmap_cortex_Giotto_v0.1.2_update.md)
-
-[![osmFISH](./inst/images/osmFISH_SS_cortex_image_summary.png)](./inst/examples/mouse_osmFISH_SS_cortex/osmFISH_SS_cortex_Giotto_v0.1.2.md)
-[![Spatial
-Transcriptomics](./inst/images/SpatTx_OB_image_summary.png)](./inst/examples/mouse_SpatTx_OB/mouse_SpatTx_OB_Giotto_v0.1.2.md)
-
-[![visium-kidney](./inst/images/visium_kidney_image_summary.png)](./inst/examples/mouse_visium_kidney/mouse_visium_kidney_Giotto_v0.1.3.md)
-[![visium-brain](./inst/images/visium_brain_image_summary.png)](./inst/examples/mouse_visium_brain/mouse_visium_brain_Giotto_v0.1.3.md)
-
-[![slideseq](./inst/images/slideseq_cerebellum_image_summary.png)](./inst/examples/mouse_slideseq_cerebellum/slideseq_cerebellum_Giotto_v0.1.2.md)
-[![merFISH](./inst/images/merFISH_hypothalam_image_summary.png)](./inst/examples/mouse_hypothalamic_preoptic_region/merfish_hypo_Giotto_v0.1.2_update.md)
-
-\[![MIBI-TOF](./inst/images/MIBI_tumor_image_summary.png)\]
-
- 
+[![Cortex](./inst/images/cortex_image_summary.png)](https://rubd.github.io/Giotto/articles/mouse_seqFISH_cortex_200319.html)
 
 ## References
 

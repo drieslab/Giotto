@@ -77,7 +77,7 @@
 <a href="#giotto" class="anchor"></a>Giotto</h1></div>
 <!-- badges: start -->
 <!-- badges: end -->
-<p>The Giotto package provides tools to process, analyze and visualize <strong>single-cell spatial expression</strong> data. The underlying framework is generalizable to virtually all currently available spatial datasets. We recently demonstrated the general applicability on 10 different datasets created by 9 different state-of-the-art spatial technologies, including <em>in situ</em> hybridization (seqFISH+, merFISH, osmFISH), sequencing (Slide-seq, Visium, STARmap) and imaging-based multiplexing/proteomics (CyCIF, MIBI, CODEX). These technologies differ in terms of resolution (single cell vs multiple cells), spatial dimension (2D vs 3D), molecular modality (protein vs RNA), and throughput (number of cells and genes).</p>
+<p>The Giotto package (see www.spatialgiotto.com) provides tools to process, analyze and visualize <strong>single-cell spatial expression</strong> data. The underlying framework is generalizable to virtually all currently available spatial datasets. We recently demonstrated the general applicability on 10 different datasets created by 9 different state-of-the-art spatial technologies, including <em>in situ</em> hybridization (seqFISH+, merFISH, osmFISH), sequencing (Slide-seq, Visium, STARmap) and imaging-based multiplexing/proteomics (CyCIF, MIBI, CODEX). These technologies differ in terms of resolution (single cell vs multiple cells), spatial dimension (2D vs 3D), molecular modality (protein vs RNA), and throughput (number of cells and genes). More information about the latest (developmental) version of Giotto Analyzer can be found at <a href="https://rubd.github.io/Giotto/index.html" class="uri">https://rubd.github.io/Giotto/index.html</a>.</p>
 <p><img src="inst/images/general_figs/overview_datasets.png"></p>
 <div id="requirements" class="section level2">
 <h2 class="hasAnchor">
@@ -97,7 +97,7 @@
 <a href="#r-installation" class="anchor"></a>R installation</h4>
 <p>You can install (~1-5 mins) Giotto with:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(remotes)  <span class="co"># if not installed: install.packages('remotes')</span></a>
-<a class="sourceLine" id="cb1-2" title="2"><span class="co"># to install the latest version (development)</span></a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="co"># to install the latest version</span></a>
 <a class="sourceLine" id="cb1-3" title="3">remotes<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/remotes/man/install_github.html">install_github</a></span>(<span class="st">"RubD/Giotto"</span>)</a></code></pre></div>
 </div>
 <div id="python-tools-optional" class="section level4">
@@ -137,12 +137,7 @@
 </li>
 <li>click on the image and try them out yourself.</li>
 </ul>
-<p><a href="./inst/examples/mouse_cortex_svz/seqfish_cortex_Giotto_v0.1.4.html"><img src="./inst/images/cortex_image_summary.png" alt="Cortex"></a> <a href="./inst/examples/mouse_starmap_cortex/starmap_cortex_Giotto_v0.1.2_update.html"><img src="./inst/images/starmap_cortex_image_summary.png" alt="STARmap"></a></p>
-<p><a href="./inst/examples/mouse_osmFISH_SS_cortex/osmFISH_SS_cortex_Giotto_v0.1.2.html"><img src="./inst/images/osmFISH_SS_cortex_image_summary.png" alt="osmFISH"></a> <a href="./inst/examples/mouse_SpatTx_OB/mouse_SpatTx_OB_Giotto_v0.1.2.html"><img src="./inst/images/SpatTx_OB_image_summary.png" alt="Spatial Transcriptomics"></a></p>
-<p><a href="./inst/examples/mouse_visium_kidney/mouse_visium_kidney_Giotto_v0.1.3.html"><img src="./inst/images/visium_kidney_image_summary.png" alt="visium-kidney"></a> <a href="./inst/examples/mouse_visium_brain/mouse_visium_brain_Giotto_v0.1.3.html"><img src="./inst/images/visium_brain_image_summary.png" alt="visium-brain"></a></p>
-<p><a href="./inst/examples/mouse_slideseq_cerebellum/slideseq_cerebellum_Giotto_v0.1.2.html"><img src="./inst/images/slideseq_cerebellum_image_summary.png" alt="slideseq"></a> <a href="./inst/examples/mouse_hypothalamic_preoptic_region/merfish_hypo_Giotto_v0.1.2_update.html"><img src="./inst/images/merFISH_hypothalam_image_summary.png" alt="merFISH"></a></p>
-<p>[<img src="./inst/images/MIBI_tumor_image_summary.png" alt="MIBI-TOF">]</p>
-<p> </p>
+<p><a href="https://rubd.github.io/Giotto/articles/mouse_seqFISH_cortex_200319.html"><img src="./inst/images/cortex_image_summary.png" alt="Cortex"></a></p>
 </div>
 <div id="references" class="section level2">
 <h2 class="hasAnchor">
@@ -177,6 +172,9 @@
 <li>
 <a href="https://www.rubendries.com/">Ruben Dries</a> <br><small class="roles"> Author, maintainer </small>  </li>
 <li>Huipeng Li <br><small class="roles"> Author </small>  </li>
+<li>Qian Zhu <br><small class="roles"> Author </small>  </li>
+<li>Rui Dong <br><small class="roles"> Author </small>  </li>
+<li>Guo-Cheng Yuan <br><small class="roles"> Author </small>  </li>
 </ul>
 </div>
 
@@ -185,7 +183,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by <a href="https://www.rubendries.com/">Ruben Dries</a>, Huipeng Li.</p>
+  <p>Developed by <a href="https://www.rubendries.com/">Ruben Dries</a>, Huipeng Li, Qian Zhu, Rui Dong, Guo-Cheng Yuan.</p>
 </div>
 
 <div class="pkgdown">
