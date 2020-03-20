@@ -1,9 +1,10 @@
-pandoc: 2.7.2
+pandoc: 2.3.1
 pkgdown: 1.4.1
 pkgdown_sha: ~
 articles:
   faqs: faqs.html
   getting_started: getting_started.html
   mouse_seqFISH_cortex_200319: mouse_seqFISH_cortex_200319.html
+  mouse_starmap_cortex: mouse_starmap_cortex.html
   test_dataset: test_dataset.html
 

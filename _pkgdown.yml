@@ -34,6 +34,7 @@ articles:
       These vignettes provide a simple example analysis for multiple datasets.
     contents:
       - mouse_seqFISH_cortex_200319
+      - mouse_starmap_cortex
 
 reference:
   - title: Giotto object
