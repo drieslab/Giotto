@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.4</span>
       </span>
     </div>
 
@@ -78,6 +78,7 @@
 <!-- badges: start -->
 <!-- badges: end -->
 <p>The Giotto package provides tools to process, analyze and visualize <strong>single-cell spatial expression</strong> data. The underlying framework is generalizable to virtually all currently available spatial datasets. We recently demonstrated the general applicability on 10 different datasets created by 9 different state-of-the-art spatial technologies, including <em>in situ</em> hybridization (seqFISH+, merFISH, osmFISH), sequencing (Slide-seq, Visium, STARmap) and imaging-based multiplexing/proteomics (CyCIF, MIBI, CODEX). These technologies differ in terms of resolution (single cell vs multiple cells), spatial dimension (2D vs 3D), molecular modality (protein vs RNA), and throughput (number of cells and genes).</p>
+<p><img src="inst/images/general_figs/overview_datasets.png"></p>
 <div id="requirements" class="section level2">
 <h2 class="hasAnchor">
 <a href="#requirements" class="anchor"></a>Requirements</h2>
@@ -86,7 +87,6 @@
 <li>Python (&gt;= 3.0)</li>
 <li>Windows, MacOS, Linux</li>
 </ul>
-<p> </p>
 </div>
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
@@ -96,6 +96,7 @@
 <h4 class="hasAnchor">
 <a href="#r-installation" class="anchor"></a>R installation</h4>
 <p>You can install (~1-5 mins) Giotto with:</p>
+<<<<<<< HEAD
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(devtools) <span class="co"># if not installed: install.packages('devtools') </span></a>
 <a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(remotes)  <span class="co"># if not installed: install.packages('remotes')</span></a>
 <a class="sourceLine" id="cb1-3" data-line-number="3"><span class="co"># to install the latest version (development)</span></a>
@@ -103,6 +104,11 @@
 <a class="sourceLine" id="cb1-5" data-line-number="5"></a>
 <a class="sourceLine" id="cb1-6" data-line-number="6"><span class="co"># to install a specific release version (example)</span></a>
 <a class="sourceLine" id="cb1-7" data-line-number="7">remotes<span class="op">::</span><span class="kw"><a href="https://remotes.r-lib.org/reference/install_github.html">install_github</a></span>(<span class="st">"RubD/Giotto@v0.1.3"</span>)</a></code></pre></div>
+=======
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(remotes)  <span class="co"># if not installed: install.packages('remotes')</span></a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="co"># to install the latest version (development)</span></a>
+<a class="sourceLine" id="cb1-3" title="3">remotes<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/remotes/man/install_github.html">install_github</a></span>(<span class="st">"RubD/Giotto"</span>)</a></code></pre></div>
+>>>>>>> origin/master
 </div>
 <div id="python-tools-optional" class="section level4">
 <h4 class="hasAnchor">
@@ -171,7 +177,8 @@
 <div class="developers">
 <h2>Developers</h2>
 <ul class="list-unstyled">
-<li>Ruben Dries <br><small class="roles"> Author, maintainer </small>  </li>
+<li>
+<a href="https://www.rubendries.com/">Ruben Dries</a> <br><small class="roles"> Author, maintainer </small>  </li>
 <li>Huipeng Li <br><small class="roles"> Author </small>  </li>
 </ul>
 </div>
@@ -181,7 +188,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Ruben Dries, Huipeng Li.</p>
+  <p>Developed by <a href="https://www.rubendries.com/">Ruben Dries</a>, Huipeng Li.</p>
 </div>
 
 <div class="pkgdown">

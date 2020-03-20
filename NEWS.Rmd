@@ -6,7 +6,7 @@ output: github_document
 # Giotto 0.2.4
 
 - New examples on mouse kidney and brain using the recently released [10X Visium datasets](https://www.10xgenomics.com/spatial-transcriptomics/) (**NEW**)
-- Added tools to identify spatial enrichment based on cell-type (or other) specific gene signature lists  (**NEW**)
+- Added tools to identify spatial enrichment based on cell-type specific gene signature lists  (**NEW**)
 
 
 # Giotto 0.2.3

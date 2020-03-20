@@ -4,6 +4,10 @@ template:
   params:
     bootswatch: cosmo
 
+authors:
+  Ruben Dries:
+    href: https://www.rubendries.com/
+
 navbar:
   title: ~
   type: default
@@ -27,9 +31,257 @@ navbar:
 articles:
   - title: "Datasets"
     desc: >
-      These vignettes provide an simple example analysis for multiple datasets.
+      These vignettes provide a simple example analysis for multiple datasets.
     contents:
+      - mouse_seqFISH_cortex_200319
+
+reference:
+  - title: Giotto object
+    desc: Create and operate on Giotto object
+    contents:
+    - createGiottoObject
+    - filterGiotto
+    - subsetGiotto
+    - subsetGiottoLocs
+  
+  - title: import raw data
+    desc: functions to help to import raw spatial data
+    contents:
+    - get10Xmatrix
+    - stitchFieldCoordinates
+    - stitchTileCoordinates
+    
+  - title: Giotto instructions
+    desc: Create or change Giotto instructions (e.g. defaults, plotting, saving, ...)
+    contents:
+    - createGiottoInstructions
+    - readGiottoInstructions
+    - showGiottoInstructions
+    - changeGiottoInstructions
+    - replaceGiottoInstructions
+    
+  - title: Giotto helper functions
+    desc: Common functions to help working with Giotto objects
+    contents:
+    - pDataDT
+    - fDataDT
+    - showProcessingSteps
+    - calculateMetaTable
+    - calculateMetaTableCells
+    - combineMetadata
+    - createMetagenes
+    
+  - title: Giotto processing functions
+    desc: Functions that will (help to) add, update or change the Giotto object when processing spatial data
+    contents:
+    - filterDistributions
+    - filterCombinations
+    - normalizeGiotto
+    - adjustGiottoMatrix
+    - annotateGiotto
+    - removeCellAnnotation
+    - removeGeneAnnotation
+    - addCellMetadata
+    - addGeneMetadata
+    - addGeneStatistics
+    - addCellStatistics
+    - addStatistics
+    
+  - title: dimension reduction
+    desc: Functions to reduce dimensions
+    contents:
+<<<<<<< HEAD
       - test_dataset
       - mouse_starmap_cortex
+=======
+    - calculateHVG
+    - signPCA
+    - runPCA
+    - runUMAP
+    - runtSNE
+    
+  - title: Clustering
+    desc: Functions to cluster cells
+    contents:
+    - createNearestNetwork
+    - addNetworkLayout
+    - extractNearestNetwork
+    - clusterCells
+    - doLeidenCluster
+    - doLouvainCluster
+    - doKmeans
+    - doHclust
+    - subClusterCells
+    - doLeidenSubCluster
+    - doLouvainSubCluster
+    - getClusterSimilarity
+    - mergeClusters
+    - getDendrogramSplits
+    
+  - title: Marker genes
+    desc: Functions to detect cell type / cluster specific marker genes
+    contents:
+    - findMarkers
+    - findMarkers_one_vs_all
+    - findGiniMarkers
+    - findGiniMarkers_one_vs_all
+    - findScranMarkers
+    - findScranMarkers_one_vs_all
+    - findMastMarkers
+    - findMastMarkers_one_vs_all
+    
+  - title: Auxiliary visualizations
+    desc: Different visualization options to explore gene, cell or cluster characteristics
+    contents:
+    - showClusterHeatmap
+    - showClusterDendrogram
+    - plotHeatmap
+    - plotMetaDataHeatmap
+    - plotMetaDataCellsHeatmap
+    - violinPlot
+    
+  - title: Spatial enrichment
+    desc: algorithms to compute spatial enrichment of gene signatures or single-cell RNAseq annotation
+    contents:
+    - makeSignMatrixPAGE
+    - makeSignMatrixRank
+    - createSpatialEnrich
+    - PAGEEnrich
+    - rankEnrich
+    - hyperGeometricEnrich
+    
+  - title: Spatial network or grid
+    desc: Function to (help) create a spatial network or grid
+    contents:
+    - spatNetwDistributionsDistance
+    - spatNetwDistributionsKneighbors
+    - spatNetwDistributions
+    - createSpatialDelaunayNetwork
+    - plotStatDelaunayNetwork
+    - createSpatialKNNnetwork
+    - createSpatialNetwork
+    - annotateSpatialNetwork
+    - createSpatialGrid
+    
+  - title: Spatial genes
+    desc: Functions to identify spatial genes
+    contents:
+    - binSpect
+    - silhouetteRank
+    - spatialDE
+    - spatialAEH
+    - trendSceek
+    
+  - title: Spatial co-expression patterns / modules
+    desc: Functions to identify spatial co-expression patterns
+    contents:
+    - ends_with("SpatialCorGenes")
+    - rankSpatialCorGroups
+
+  - title: HMRF
+    desc: Functions to identify spatial domains with HMRF
+    contents:
+    - doHMRF
+    - loadHMRF
+    - viewHMRFresults
+    - writeHMRFresults
+    - addHMRF
+    - viewHMRFresults2D
+    - viewHMRFresults3D
+    
+  - title: 2D visualization in expression space
+    desc: Visualization of expression space (e.g. UMAP) in 2D
+    contents: 
+    - dimPlot
+    - plotUMAP
+    - plotTSNE
+    - plotPCA
+    - dimGenePlot
+    - dimCellPlot
+    
+  - title: 2D visualization in spatial space
+    desc: Visualization in 2D spatial space
+    contents:
+    - spatPlot
+    - spatGenePlot
+    - spatCellPlot
+    
+  - title: 2D visualization in spatial and expression space
+    desc: Visualization in both 2D spatial and expression space
+    contents:
+    - spatDimPlot
+    - spatDimGenePlot
+    - spatDimCellPlot
+    
+  - title: 3D dimension reduction visualization 
+    desc: Visualization of expression space (e.g. UMAP) in 3D
+    contents:
+    - dimPlot3D
+    - plotUMAP_3D
+    - plotTSNE_3D
+    - plotPCA_3D
+    - dimGenePlot3D
+    
+  - title: 3D visualization in spatial space
+    desc: Visualization in 3D spatial space
+    contents:
+    - spatPlot3D
+    - spatGenePlot3D
+    
+  - title: 3D visualization in spatial and expression space
+    desc: Visualization in both 3D spatial and expression space
+    contents:
+    - spatDimPlot3D
+    - spatDimGenePlot3D
+    
+  - title: In silico cross sections
+    desc: create in silico 2D cross sections from 3D data
+    contents:
+    - createCrossSection
+    - crossSectionGenePlot
+    - crossSectionPlot
+    - crossSectionGenePlot3D
+    - crossSectionPlot3D
+    - insertCrossSectionSpatPlot3D
+    - insertCrossSectionGenePlot3D
+    
+  - title: cell neighborhood; cell-type/cell-type enrichment
+    desc: calculate and visualize cell-type/cell-type spatial enrichment or depletion
+    contents:
+    - cellProximityEnrichment
+    - cellProximityBarplot
+    - cellProximityHeatmap
+    - cellProximityNetwork
+    - cellProximitySpatPlot
+    - cellProximitySpatPlot3D
+    
+  - title: cell neighborhood; spatial interaction changed genes
+    desc: Identify and visualize genes that change in a source cell type due to interaction with another neighboring cell type
+    contents:
+    - findCellProximityGenes
+    - findCPG
+    - filterCellProximityGenes
+    - filterCPG
+    - plotCellProximityGenes
+    - plotCPG
+    - plotInteractionChangedGenes
+    - plotICG
+    
+  - title: cell neighborhood; ligand-receptor cell communication
+    desc: Find putative increased spatial ligand-receptor activity between cells of pairs of cell types
+    contents:
+    - exprCellCellcom
+    - spatCellCellcom
+    - plotCCcomDotplot
+    - plotRankSpatvsExpr
+    - plotRecovery
+>>>>>>> origin/master
 
 destination: docs
+
+
+
+
+
+
+

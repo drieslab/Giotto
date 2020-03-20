@@ -4,6 +4,10 @@ pkgdown_sha: ~
 articles:
   faqs: faqs.html
   getting_started: getting_started.html
+<<<<<<< HEAD
   mouse_starmap_cortex: mouse_starmap_cortex.html
+=======
+  mouse_seqFISH_cortex_200319: mouse_seqFISH_cortex_200319.html
+>>>>>>> origin/master
   test_dataset: test_dataset.html
 
