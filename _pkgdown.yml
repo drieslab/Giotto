@@ -30,6 +30,6 @@ articles:
       These vignettes provide an simple example analysis for multiple datasets.
     contents:
       - test_dataset
-
+      - mouse_starmap_cortex
 
 destination: docs
