@@ -27,7 +27,7 @@ The Giotto package provides tools to process, analyze and visualize **single-cel
 
 ## Installation
 
-See FAQs for additional information.
+See [FAQs](https://rubd.github.io/Giotto/articles/faqs.html) for additional information.
 
 #### R installation
 You can install (~1-5 mins) Giotto with:

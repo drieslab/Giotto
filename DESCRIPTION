@@ -1,5 +1,5 @@
 Package: Giotto
-Title: Spatial single-cell transcriptomics pipeline.
+Title: Spatial single-cell transcriptomics toolbox.
 Version: 0.2.4
 Authors@R: c(
 	person("Ruben", "Dries", email = "rubendries@gmail.com",
@@ -7,10 +7,11 @@ Authors@R: c(
 	person("Huipeng", "Li", email = "Huipeng_Li@DFCI.HARVARD.EDU",
 		role = c("aut"))
 	)
-Description: Pipeline to process, analyze and visualize spatial single-cell expression data.
+Description: Toolbox to process, analyze and visualize spatial single-cell expression data.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+URL: https://rubd.github.io/Giotto/, https://github.com/RubD/Giotto
 RoxygenNote: 7.0.1
 Depends:
     data.table (>= 1.12.2),

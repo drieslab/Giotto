@@ -30,7 +30,8 @@ modality (protein vs RNA), and throughput (number of cells and genes).
 
 ## Installation
 
-See FAQs for additional information.
+See [FAQs](https://rubd.github.io/Giotto/articles/faqs.html) for
+additional information.
 
 #### R installation
 
