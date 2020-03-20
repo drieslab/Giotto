@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.4</span>
       </span>
     </div>
 
@@ -105,7 +105,9 @@
 <h3 class="hasAnchor">
 <a href="#part-1-data-input" class="anchor"></a>part 1: Data input</h3>
 <p><a href="https://science.sciencemag.org/content/361/6400/eaat5691">Wang et al.</a> created a 3D spatial expression dataset consisting of 28 genes from 32,845 single cells acquired over multiple rounds in visual cortex STARmap volumes.</p>
-<p><img src="../inst/images/starmap_cortex_image_summary.png"></p>
+<center>
+<img src="../inst/images/starmap_cortex_image_summary.png">
+</center>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co">## A. expression and cell location</span></a>
 <a class="sourceLine" id="cb2-2" data-line-number="2">data_dir =<span class="st"> '/path/to/data/STARmap_3D/'</span></a>
 <a class="sourceLine" id="cb2-3" data-line-number="3">expr =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/utils/read.table.html">read.table</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(data_dir, <span class="st">'/'</span>, <span class="st">'count_matrix/STARmap_3D_data_expression.txt'</span>))</a>
@@ -371,7 +373,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Ruben Dries, Huipeng Li.</p>
+  <p>Developed by <a href="https://www.rubendries.com/">Ruben Dries</a>, Huipeng Li.</p>
 </div>
 
 <div class="pkgdown">
