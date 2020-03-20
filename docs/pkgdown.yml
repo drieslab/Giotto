@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   faqs: faqs.html
   getting_started: getting_started.html
+  metadata_and_subset_VC: metadata_and_subset_VC.html
   mouse_seqFISH_cortex_200319: mouse_seqFISH_cortex_200319.html
   mouse_starmap_cortex: mouse_starmap_cortex.html
-  test_dataset: test_dataset.html
 
