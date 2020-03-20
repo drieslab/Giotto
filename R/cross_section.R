@@ -109,12 +109,14 @@ estimate_CellCellDistance <- function(gobject,
 get_sectionThickness <- function(gobject,thickness_unit=c("cell","natural"),
                                  slice_thickness = 2,
                                  spatial_network_name="Delaunay_network",
+                                 cell_distance_estimate_method = c("mean","median"),
                                  plane_equation=NULL){
 
   thickness_unit = match.arg(thickness_unit, c("cell", "natural"))
 
   if (thickness_unit == "cell"){
     CellCellDistance = estimate_CellCellDistance(gobject,
+                                                 method = cell_distance_estimate_method,
                                             spatial_network_name = spatial_network_name,
                                             plane_equation = plane_equation)
     sectionThickness = CellCellDistance*slice_thickness
@@ -335,6 +337,7 @@ create_mesh_grid_lines <- function(cell_subset_projection_locations,extend_ratio
 #' @param name name of cress section object. (default = cross_sectino)
 #' @param spatial_network_name name of spatial network object. (default = Delaunay_network)
 #' @param thickness_unit unit of the virtual section thickness. If "cell", average size of the observed cells is used as length unit. If "natural", the unit of cell location coordinates is used.(default = cell)
+#' @param cell_distance_estimate_method method to estimate average distance between neighobring cells. (default = mean)
 #' @param extend_ratio deciding the span of the cross section meshgrid, as a ratio of extension compared to the borders of the vitural tissue section. (default = 0.2)
 #' @param method method to define the cross section plane.
 #' If equation, the plane is defined by a four element numerical vector (equation) in the form of c(A,B,C,D), corresponding to a plane with equation Ax+By+Cz=D.
@@ -361,6 +364,7 @@ createCrossSection <- function(gobject,
                                spatial_network_name = "Delaunay_network",
                                thickness_unit = c("cell","natural"),
                                slice_thickness = 2,
+                               cell_distance_estimate_method = "mean",
                                extend_ratio = 0.2,
                                method=c("equation","3 points","point and norm vector","point and two plane vectors"),
                                equation=NULL,
@@ -425,6 +429,7 @@ createCrossSection <- function(gobject,
   sectionThickness = get_sectionThickness(gobject,thickness_unit=thickness_unit,
                                           slice_thickness = slice_thickness,
                                           spatial_network_name=spatial_network_name,
+                                          cell_distance_estimate_method = cell_distance_estimate_method,
                                           plane_equation=plane_equation)
 
   max_distance_to_section_plane = sectionThickness/2

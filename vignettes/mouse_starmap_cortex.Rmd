@@ -25,10 +25,10 @@ library(Giotto)
 ## Here we will not automatically save plots, for an example see the seqFISH+ or Visium dataset
 
 ## instructions allow us to automatically save all plots into a chosen results folder
-# my_python_path = "/your/python/path/python"
-# results_folder = '/your/results/path/'
+my_python_path = "/your/python/path/python"
+results_folder = '/your/results/path/'
 instrs = createGiottoInstructions(python_path = my_python_path,
-                                  show_plot = F,
+                                  show_plot = T,
                                   return_plot = F,
                                   save_plot = F)
 
@@ -87,7 +87,7 @@ spatPlot3D(gobject = STAR_test,point_size = 2)
 
 ```{r eval=FALSE}
 STAR_test <- calculateHVG(gobject = STAR_test, method = 'cov_groups', 
-                          zscore_threshold = 0.5, nr_expression_groups = 3)
+                          zscore_threshold = 0.5, nr_expression_groups = 3,show_plot = T)
 
 ```
 
