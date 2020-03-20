@@ -67,10 +67,14 @@ proj_dist <- function(x,direction){
   return(pdist)
 }
 
-#' @title get_meanCellDistance
-#' @name get_meanCellDistance
+#' @title estimate_CellCellDistance
+#' @name estimate_CellCellDistance
 #' @description get mean distance between neighboring cells
-get_meanCellDistance <- function(gobject,spatial_network_name="Delaunay_network",plane_equation=NULL){
+estimate_CellCellDistance <- function(gobject,
+                                      spatial_network_name="Delaunay_network",
+                                      plane_equation=NULL,
+                                      method=c("mean","median")
+                                      ){
 
   delaunay_network_DT = gobject@spatial_network[[spatial_network_name]]$networkDT
   ## make it dynamic for all possible coordinates combinations ##
@@ -87,9 +91,16 @@ get_meanCellDistance <- function(gobject,spatial_network_name="Delaunay_network"
   delaunay_network_DT[, `:=`(projection_distance, proj_dist(x = matrix(.SD, nrow = 2, byrow = T),
                                                             direction = plane_equation[1:3])),
                       by = 1:nrow(delaunay_network_DT), .SDcols = mycols]
-  meanCellDistance = mean(delaunay_network_DT$projection_distance)
 
-  return(meanCellDistance)
+  method = match.arg(method,c("median","mean"))
+  if (method=="median"){
+    CellCellDistance = median(delaunay_network_DT$projection_distance)
+  }else if(method=="mean"){
+    CellCellDistance = mean(delaunay_network_DT$projection_distance)
+  }
+
+
+  return(CellCellDistance)
 }
 
 #' @title get_sectionThickness
@@ -103,10 +114,10 @@ get_sectionThickness <- function(gobject,thickness_unit=c("cell","natural"),
   thickness_unit = match.arg(thickness_unit, c("cell", "natural"))
 
   if (thickness_unit == "cell"){
-    meanCellDistance = get_meanCellDistance(gobject,
+    CellCellDistance = estimate_CellCellDistance(gobject,
                                             spatial_network_name = spatial_network_name,
                                             plane_equation = plane_equation)
-    sectionThickness = meanCellDistance*slice_thickness
+    sectionThickness = CellCellDistance*slice_thickness
   }else if (thickness_unit=="natural"){
     sectionThickness = slice_thickness
   }
