@@ -6,7 +6,7 @@
 \usage{
 annotateSpatialNetwork(
   gobject,
-  spatial_network_name = "spatial_network",
+  spatial_network_name = "Delaunay_network",
   cluster_column,
   create_full_network = F
 )

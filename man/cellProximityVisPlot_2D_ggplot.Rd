@@ -17,7 +17,7 @@ cellProximityVisPlot_2D_ggplot(
   show_network = F,
   show_other_network = F,
   network_color = NULL,
-  spatial_network_name = "spatial_network",
+  spatial_network_name = "Delaunay_network",
   show_grid = F,
   grid_color = NULL,
   spatial_grid_name = "spatial_grid",

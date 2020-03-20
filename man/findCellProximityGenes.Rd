@@ -9,7 +9,7 @@ findCellProximityGenes(
   expression_values = "normalized",
   selected_genes = NULL,
   cluster_column,
-  spatial_network_name = "spatial_network",
+  spatial_network_name = "Delaunay_network",
   minimum_unique_cells = 1,
   minimum_unique_int_cells = 1,
   diff_test = c("permutation", "limma", "t.test", "wilcox"),

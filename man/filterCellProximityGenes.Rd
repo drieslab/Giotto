@@ -6,26 +6,38 @@
 \usage{
 filterCellProximityGenes(
   cpgObject,
-  min_cells = 5,
-  min_int_cells = 3,
-  min_fdr = 0.05,
+  min_cells = 4,
+  min_cells_expr = 1,
+  min_int_cells = 4,
+  min_int_cells_expr = 1,
+  min_fdr = 0.1,
   min_spat_diff = 0.2,
-  min_log2_fc = 0.5,
+  min_log2_fc = 0.2,
+  min_zscore = 2,
+  zscores_column = c("cell_type", "genes"),
   direction = c("both", "up", "down")
 )
 }
 \arguments{
 \item{cpgObject}{cell proximity gene score object}
 
-\item{min_cells}{minimum number of target cell type}
+\item{min_cells}{minimum number of source cell type}
 
-\item{min_int_cells}{minimum number of interacting cell type}
+\item{min_cells_expr}{minimum expression level for source cell type}
+
+\item{min_int_cells}{minimum number of interacting neighbor cell type}
+
+\item{min_int_cells_expr}{minimum expression level for interacting neighbor cell type}
 
 \item{min_fdr}{minimum adjusted p-value}
 
 \item{min_spat_diff}{minimum absolute spatial expression difference}
 
-\item{min_log2_fc}{minimum absolute log2 fold-change}
+\item{min_log2_fc}{minimum log2 fold-change}
+
+\item{min_zscore}{minimum z-score change}
+
+\item{zscores_column}{calculate z-scores over cell types or genes}
 
 \item{direction}{differential expression directions to keep}
 }

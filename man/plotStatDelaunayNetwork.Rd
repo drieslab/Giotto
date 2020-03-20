@@ -6,10 +6,11 @@
 \usage{
 plotStatDelaunayNetwork(
   gobject,
-  dimensions = c("sdimx", "sdimy"),
-  name = "delaunay_network",
+  method = c("delaunayn_geometry", "RTriangle", "deldir"),
+  dimensions = "all",
   maximum_distance = "auto",
   minimum_k = 0,
+  options = "Pp",
   Y = TRUE,
   j = TRUE,
   S = 0,
@@ -26,11 +27,11 @@ plotStatDelaunayNetwork(
 
 \item{dimensions}{which spatial dimensions to use (maximum 2 dimensions)}
 
-\item{name}{name for spatial network (default = 'delaunay_network')}
-
 \item{maximum_distance}{distance cuttof for Delaunay neighbors to consider}
 
 \item{minimum_k}{minimum neigbhours if maximum_distance != NULL}
+
+\item{options}{(geometry) String containing extra control options for the underlying Qhull command; see the Qhull documentation (../doc/qhull/html/qdelaun.html) for the available options. (default = 'Pp', do not report precision problems)}
 
 \item{Y}{(RTriangle) If TRUE prohibits the insertion of Steiner points on the mesh boundary.}
 
@@ -49,6 +50,8 @@ plotStatDelaunayNetwork(
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
 \item{...}{Other parameters of the \code{\link[RTriangle]{triangulate}} function}
+
+\item{name}{name for spatial network (default = 'delaunay_network')}
 }
 \value{
 giotto object with updated spatial network slot

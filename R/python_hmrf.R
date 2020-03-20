@@ -26,7 +26,7 @@
 #'     doHMRF(gobject)
 doHMRF <- function(gobject,
                    expression_values = c('normalized', 'scaled', 'custom'),
-                   spatial_network_name = 'spatial_network',
+                   spatial_network_name = 'Delaunay_network',
                    spatial_genes = NULL,
                    spatial_dimensions = c('sdimx', 'sdimy', 'sdimz'),
                    dim_reduction_to_use = NULL,
@@ -131,7 +131,7 @@ doHMRF <- function(gobject,
 
 
   ## 3. spatial network
-  spatial_network = gobject@spatial_network[[spatial_network_name]]
+  spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
   spatial_network = spatial_network[,.(to,from)]
   spatial_network_file = paste0(output_folder,'/', 'spatial_network.txt')
 

@@ -6,7 +6,7 @@
 \usage{
 specificCellCellcommunicationScores(
   gobject,
-  spatial_network_name = "spatial_network",
+  spatial_network_name = "Delaunay_network",
   cluster_column = "cell_types",
   random_iter = 100,
   cell_type_1 = "astrocyte",
