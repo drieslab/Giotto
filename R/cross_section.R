@@ -319,7 +319,7 @@ create_mesh_grid_lines <- function(cell_subset_projection_locations,extend_ratio
 # cross section creation function ####
 
 #' @title createCrossSection
-#' @description Create a virtural 2D cross section.
+#' @description Create a virtual 2D cross section.
 #' @param gobject giotto object
 #' @param name name of cress section object. (default = cross_sectino)
 #' @param spatial_network_name name of spatial network object. (default = Delaunay_network)
