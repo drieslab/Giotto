@@ -22,6 +22,11 @@ Make sure to check out the [**Datasets**](https://rubd.github.io/Giotto/articles
 
 \  
 
+## Workflow diagram 
+
+<img src="inst/images/general_figs/diagram_giotto_workflow.png" />
+
+\  
 
 ## HOWTOs  
 
