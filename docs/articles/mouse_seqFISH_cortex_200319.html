@@ -579,41 +579,41 @@
 <div id="part-12-cell-neighborhood-cell-typecell-type-interactions" class="section level3">
 <h3 class="hasAnchor">
 <a href="#part-12-cell-neighborhood-cell-typecell-type-interactions" class="anchor"></a>part 12: cell neighborhood: cell-type/cell-type interactions</h3>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" title="1">cell_proximities =<span class="st"> </span><span class="kw"><a href="../reference/cellProximityEnrichment.html">cellProximityEnrichment</a></span>(<span class="dt">gobject =</span> VC_test,</a>
-<a class="sourceLine" id="cb32-2" title="2">                                           <span class="dt">cluster_column =</span> <span class="st">'cell_types'</span>,</a>
-<a class="sourceLine" id="cb32-3" title="3">                                           <span class="dt">spatial_network_name =</span> <span class="st">'Delaunay_network'</span>,</a>
-<a class="sourceLine" id="cb32-4" title="4">                                           <span class="dt">adjust_method =</span> <span class="st">'fdr'</span>,</a>
-<a class="sourceLine" id="cb32-5" title="5">                                           <span class="dt">number_of_simulations =</span> <span class="dv">2000</span>)</a>
-<a class="sourceLine" id="cb32-6" title="6"></a>
-<a class="sourceLine" id="cb32-7" title="7"><span class="co">## barplot</span></a>
-<a class="sourceLine" id="cb32-8" title="8"><span class="kw"><a href="../reference/cellProximityBarplot.html">cellProximityBarplot</a></span>(<span class="dt">gobject =</span> VC_test, <span class="dt">CPscore =</span> cell_proximities, <span class="dt">min_orig_ints =</span> <span class="dv">5</span>, <span class="dt">min_sim_ints =</span> <span class="dv">5</span>, </a>
-<a class="sourceLine" id="cb32-9" title="9">                     <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'12_barplot_cell_cell_enrichment'</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" data-line-number="1">cell_proximities =<span class="st"> </span><span class="kw"><a href="../reference/cellProximityEnrichment.html">cellProximityEnrichment</a></span>(<span class="dt">gobject =</span> VC_test,</a>
+<a class="sourceLine" id="cb32-2" data-line-number="2">                                           <span class="dt">cluster_column =</span> <span class="st">'cell_types'</span>,</a>
+<a class="sourceLine" id="cb32-3" data-line-number="3">                                           <span class="dt">spatial_network_name =</span> <span class="st">'Delaunay_network'</span>,</a>
+<a class="sourceLine" id="cb32-4" data-line-number="4">                                           <span class="dt">adjust_method =</span> <span class="st">'fdr'</span>,</a>
+<a class="sourceLine" id="cb32-5" data-line-number="5">                                           <span class="dt">number_of_simulations =</span> <span class="dv">2000</span>)</a>
+<a class="sourceLine" id="cb32-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb32-7" data-line-number="7"><span class="co">## barplot</span></a>
+<a class="sourceLine" id="cb32-8" data-line-number="8"><span class="kw"><a href="../reference/cellProximityBarplot.html">cellProximityBarplot</a></span>(<span class="dt">gobject =</span> VC_test, <span class="dt">CPscore =</span> cell_proximities, <span class="dt">min_orig_ints =</span> <span class="dv">5</span>, <span class="dt">min_sim_ints =</span> <span class="dv">5</span>, </a>
+<a class="sourceLine" id="cb32-9" data-line-number="9">                     <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'12_barplot_cell_cell_enrichment'</span>))</a></code></pre></div>
 <center>
 <img src="../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/12_barplot_cell_cell_enrichment.png" style="width:10cm">
 </center>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1"><span class="co">## heatmap</span></a>
-<a class="sourceLine" id="cb33-2" title="2"><span class="kw"><a href="../reference/cellProximityHeatmap.html">cellProximityHeatmap</a></span>(<span class="dt">gobject =</span> VC_test, <span class="dt">CPscore =</span> cell_proximities, <span class="dt">order_cell_types =</span> T, <span class="dt">scale =</span> T,</a>
-<a class="sourceLine" id="cb33-3" title="3">                     <span class="dt">color_breaks =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="op">-</span><span class="fl">1.5</span>, <span class="dv">0</span>, <span class="fl">1.5</span>), <span class="dt">color_names =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'blue'</span>, <span class="st">'white'</span>, <span class="st">'red'</span>),</a>
-<a class="sourceLine" id="cb33-4" title="4">                     <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'12_heatmap_cell_cell_enrichment'</span>, <span class="dt">unit =</span> <span class="st">'in'</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="co">## heatmap</span></a>
+<a class="sourceLine" id="cb33-2" data-line-number="2"><span class="kw"><a href="../reference/cellProximityHeatmap.html">cellProximityHeatmap</a></span>(<span class="dt">gobject =</span> VC_test, <span class="dt">CPscore =</span> cell_proximities, <span class="dt">order_cell_types =</span> T, <span class="dt">scale =</span> T,</a>
+<a class="sourceLine" id="cb33-3" data-line-number="3">                     <span class="dt">color_breaks =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="op">-</span><span class="fl">1.5</span>, <span class="dv">0</span>, <span class="fl">1.5</span>), <span class="dt">color_names =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'blue'</span>, <span class="st">'white'</span>, <span class="st">'red'</span>),</a>
+<a class="sourceLine" id="cb33-4" data-line-number="4">                     <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'12_heatmap_cell_cell_enrichment'</span>, <span class="dt">unit =</span> <span class="st">'in'</span>))</a></code></pre></div>
 <center>
 <img src="../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/12_heatmap_cell_cell_enrichment.png" style="width:10cm">
 </center>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" title="1"><span class="co">## network</span></a>
-<a class="sourceLine" id="cb34-2" title="2"><span class="kw"><a href="../reference/cellProximityNetwork.html">cellProximityNetwork</a></span>(<span class="dt">gobject =</span> VC_test, <span class="dt">CPscore =</span> cell_proximities, <span class="dt">remove_self_edges =</span> T, <span class="dt">only_show_enrichment_edges =</span> T,</a>
-<a class="sourceLine" id="cb34-3" title="3">                     <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'12_network_cell_cell_enrichment'</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" data-line-number="1"><span class="co">## network</span></a>
+<a class="sourceLine" id="cb34-2" data-line-number="2"><span class="kw"><a href="../reference/cellProximityNetwork.html">cellProximityNetwork</a></span>(<span class="dt">gobject =</span> VC_test, <span class="dt">CPscore =</span> cell_proximities, <span class="dt">remove_self_edges =</span> T, <span class="dt">only_show_enrichment_edges =</span> T,</a>
+<a class="sourceLine" id="cb34-3" data-line-number="3">                     <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'12_network_cell_cell_enrichment'</span>))</a></code></pre></div>
 <center>
 <img src="../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/12_network_cell_cell_enrichment.png" style="width:10cm">
 </center>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" title="1"><span class="co">## network with self-edges</span></a>
-<a class="sourceLine" id="cb35-2" title="2"><span class="kw"><a href="../reference/cellProximityNetwork.html">cellProximityNetwork</a></span>(<span class="dt">gobject =</span> VC_test, <span class="dt">CPscore =</span> cell_proximities,</a>
-<a class="sourceLine" id="cb35-3" title="3">                     <span class="dt">remove_self_edges =</span> F, <span class="dt">self_loop_strength =</span> <span class="fl">0.3</span>,</a>
-<a class="sourceLine" id="cb35-4" title="4">                     <span class="dt">only_show_enrichment_edges =</span> F,</a>
-<a class="sourceLine" id="cb35-5" title="5">                     <span class="dt">rescale_edge_weights =</span> T,</a>
-<a class="sourceLine" id="cb35-6" title="6">                     <span class="dt">node_size =</span> <span class="dv">8</span>,</a>
-<a class="sourceLine" id="cb35-7" title="7">                     <span class="dt">edge_weight_range_depletion =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1</span>, <span class="dv">2</span>),</a>
-<a class="sourceLine" id="cb35-8" title="8">                     <span class="dt">edge_weight_range_enrichment =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">2</span>,<span class="dv">5</span>),</a>
-<a class="sourceLine" id="cb35-9" title="9">                     <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'12_network_cell_cell_enrichment_self'</span>,</a>
-<a class="sourceLine" id="cb35-10" title="10">                                    <span class="dt">base_height =</span> <span class="dv">5</span>, <span class="dt">base_width =</span> <span class="dv">5</span>, <span class="dt">save_format =</span> <span class="st">'pdf'</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" data-line-number="1"><span class="co">## network with self-edges</span></a>
+<a class="sourceLine" id="cb35-2" data-line-number="2"><span class="kw"><a href="../reference/cellProximityNetwork.html">cellProximityNetwork</a></span>(<span class="dt">gobject =</span> VC_test, <span class="dt">CPscore =</span> cell_proximities,</a>
+<a class="sourceLine" id="cb35-3" data-line-number="3">                     <span class="dt">remove_self_edges =</span> F, <span class="dt">self_loop_strength =</span> <span class="fl">0.3</span>,</a>
+<a class="sourceLine" id="cb35-4" data-line-number="4">                     <span class="dt">only_show_enrichment_edges =</span> F,</a>
+<a class="sourceLine" id="cb35-5" data-line-number="5">                     <span class="dt">rescale_edge_weights =</span> T,</a>
+<a class="sourceLine" id="cb35-6" data-line-number="6">                     <span class="dt">node_size =</span> <span class="dv">8</span>,</a>
+<a class="sourceLine" id="cb35-7" data-line-number="7">                     <span class="dt">edge_weight_range_depletion =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1</span>, <span class="dv">2</span>),</a>
+<a class="sourceLine" id="cb35-8" data-line-number="8">                     <span class="dt">edge_weight_range_enrichment =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">2</span>,<span class="dv">5</span>),</a>
+<a class="sourceLine" id="cb35-9" data-line-number="9">                     <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'12_network_cell_cell_enrichment_self'</span>,</a>
+<a class="sourceLine" id="cb35-10" data-line-number="10">                                    <span class="dt">base_height =</span> <span class="dv">5</span>, <span class="dt">base_width =</span> <span class="dv">5</span>, <span class="dt">save_format =</span> <span class="st">'pdf'</span>))</a></code></pre></div>
 <center>
 <img src="../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/12_network_cell_cell_enrichment_self.png" style="width:10cm">
 </center>
