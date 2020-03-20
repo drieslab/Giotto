@@ -1,5 +1,5 @@
 ---
-output: github_document
+output: html_document
 ---
 
 <!-- mouse_cortex_example.md is generated from mouse_cortex_example.Rmd Please edit that file -->
@@ -13,11 +13,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r eval=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+```{r eval=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
 library(Giotto)
 ```
 
-```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+```{r eval=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
 ## visual cortex expression DATA ##
 VC_exprs = read.table(system.file("extdata", "cortex_svz_expression.txt", package = "Giotto"))
 
@@ -36,7 +36,7 @@ my_offset_file = my_offset_file[,.(field, x_offset_final, y_offset_final)]
 ```
 
 
-```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+```{r eval=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
 ## create
 VC_test <- createGiottoObject(raw_exprs = VC_exprs, spatial_locs = stitch_file, offset_file = my_offset_file)
 ## filter
@@ -59,13 +59,13 @@ VC_test = adjustGiottoMatrix(gobject = VC_test, expression_values = c('normalize
 
 Start from Giotto object from the Mouse Visual Cortex and SVZ:  
 
-```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, fig.width=9, fig.height=6, out.width="75%", fig.align='center'}
+```{r eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE, fig.width=9, fig.height=6, out.width="75%", fig.align='center'}
 spatPlot2D(gobject = VC_test, point_size = 2, return_plot = F)
 ```
 
 ### 1. add annotation
 
-```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, fig.width=9, fig.height=6, out.width="75%", fig.align='center'}
+```{r eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE, fig.width=9, fig.height=6, out.width="75%", fig.align='center'}
 # cell metadata before 
 print(pDataDT(VC_test))
 
@@ -82,7 +82,7 @@ print(cell_metadata)
 
 - subset first 500 cells  
 
-```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, fig.width=9, fig.height=6, out.width="75%", fig.align='center'}
+```{r eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE, fig.width=9, fig.height=6, out.width="75%", fig.align='center'}
 first_500_cells = cell_metadata[1:500][['cell_ID']]
 VC_subset = subsetGiotto(VC_test, cell_ids = first_500_cells)
 spatPlot2D(gobject = VC_subset, point_size = 2, cell_color = 'cell_types', return_plot = F)
@@ -91,7 +91,7 @@ spatPlot2D(gobject = VC_subset, point_size = 2, cell_color = 'cell_types', retur
 
 - subset for SVZ cells (located in field 5) 
 
-```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, fig.width=9, fig.height=6, out.width="75%", fig.align='center'}
+```{r eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE, fig.width=9, fig.height=6, out.width="75%", fig.align='center'}
 SVZ_cells = cell_metadata[Field_of_View == 5][['cell_ID']]
 VC_SVZ = subsetGiotto(VC_test, cell_ids = SVZ_cells)
 spatPlot2D(gobject = VC_SVZ, point_size = 4, cell_color = 'cell_types', return_plot = F)
@@ -101,7 +101,7 @@ spatPlot2D(gobject = VC_SVZ, point_size = 4, cell_color = 'cell_types', return_p
 
 - subset for all interneurons  
 
-```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, fig.width=9, fig.height=6, out.width="75%", fig.align='center'}
+```{r eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE, fig.width=9, fig.height=6, out.width="75%", fig.align='center'}
 interneuron_cells = cell_metadata[cell_types == 'Interneuron'][['cell_ID']]
 VC_interneuron = subsetGiotto(VC_test, cell_ids = interneuron_cells)
 spatPlot2D(gobject = VC_interneuron, point_size = 2, cell_color = 'cell_types', return_plot = F)
