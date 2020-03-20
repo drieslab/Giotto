@@ -1,5 +1,5 @@
 ---
-title: "STARmap cortex"
+title: "STARmap mouse cortex"
 output:
   github_document:
     toc: true
@@ -38,7 +38,9 @@ instrs = createGiottoInstructions(python_path = my_python_path,
 
 [Wang et al.](https://science.sciencemag.org/content/361/6400/eaat5691) created a 3D spatial expression dataset consisting of 28 genes from 32,845 single cells acquired over multiple rounds in visual cortex STARmap volumes.
   
-![](./starmap_3D_data.png){width=20cm} .
+<center>
+![](../inst/images/starmap_cortex_image_summary.png)
+</center> 
 
 ```{r, eval=FALSE}
 ## A. expression and cell location
@@ -78,7 +80,7 @@ spatPlot3D(gobject = STAR_test,point_size = 2)
 ```
   
 <center>
-![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/1_spatial_locations.png){width=10cm} 
+![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/1_spatial_locations.png)
 </center> 
 
 ### part 3: dimension reduction
@@ -90,7 +92,7 @@ STAR_test <- calculateHVG(gobject = STAR_test, method = 'cov_groups',
 ```
 
 <center>
-![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/2_hvg.png){width=10cm} 
+![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/2_hvg.png)
 </center> 
 
 
@@ -100,7 +102,7 @@ signPCA(STAR_test)
 ```
 
 <center>
-![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/3_pca_scree_plot.png){width=10cm} 
+![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/3_pca_scree_plot.png)
 </center> 
 
 
@@ -111,7 +113,7 @@ plotUMAP_3D(gobject = STAR_test)
 ```
 
 <center>
-![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/4_umap.png){width=10cm} 
+![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/4_umap.png)
 </center> 
 
 ***
@@ -130,7 +132,7 @@ plotUMAP_3D(gobject = STAR_test, cell_color = 'leiden_0.2',show_center_label = F
 ```
 
 <center>
-![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/5_leiden_0.2.png){width=10cm} 
+![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/5_leiden_0.2.png)
 </center> 
 
 
@@ -144,7 +146,7 @@ spatDimPlot3D(gobject = STAR_test,
 ```
 
 <center>
-![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/6_covisualize_leiden_0.2.png){width=10cm} 
+![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/6_covisualize_leiden_0.2.png)
 </center> 
 
 ***
@@ -159,19 +161,13 @@ markers = findMarkers_one_vs_all(gobject = STAR_test,
                                  min_genes = 5, rank_score = 2)
 markers[, head(.SD, 2), by = 'cluster']
 
-```
-
-Gini:  
-
-```{r eval=FALSE}
-
 # violinplot
-violinPlot(STAR_test, genes = unique(markers$genes), cluster_column = 'leiden_0.2',save_plot = T,default_save_name = "violin_plot.png")
+violinPlot(STAR_test, genes = unique(markers$genes), cluster_column = 'leiden_0.2')
 
 ```
 
 <center>
-![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/violin_plot.png){width=10cm} 
+![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/violinplot.png)
 </center> 
 
 
@@ -184,7 +180,7 @@ plotMetaDataHeatmap(STAR_test, expression_values = 'scaled',
 ```
 
 <center>
-![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/7_heatmap_leiden_0.2.png){width=10cm} 
+![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/7_heatmap_leiden_0.2.png)
 </center> 
 ***
 
@@ -205,7 +201,7 @@ plotMetaDataHeatmap(STAR_test, expression_values = 'scaled',
 ```
 
 <center>
-![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/8_general_cell_type.png){width=10cm} 
+![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/8_general_cell_type.png)
 </center> 
 
 ```{r eval=FALSE}
@@ -222,7 +218,7 @@ plotUMAP_3D(STAR_test, cell_color = 'cell_types', point_size = 1.5,show_center_l
 ```
 
 <center>
-![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/9_cell_type_umap.png){width=10cm} 
+![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/9_cell_type_umap.png)
 </center> 
 
 
@@ -235,7 +231,7 @@ plotMetaDataHeatmap(STAR_test, expression_values = 'scaled',
 
 
 <center>
-![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/10_cluster_annotation_heatmap.png){width=10cm} 
+![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/10_cluster_annotation_heatmap.png)
 </center> 
 
 ***
@@ -253,7 +249,7 @@ spatDimPlot3D(gobject = STAR_test,
 ```
 
 <center>
-![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/12_cell_type_co_vis.png){width=10cm} 
+![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/12_cell_type_co_vis.png) 
 </center> 
 
 ***
@@ -272,7 +268,8 @@ spatGenePlot3D(STAR_test,
                   genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue')
 ```
 <center>
-![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/Rorb_dim_plot.png){width=5cm}![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/Rorb_spat_plot.png){width=5cm}  
+![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/Rorb_dim_plot.png)
+![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/Rorb_spat_plot.png)
 </center> 
 
 
@@ -290,7 +287,8 @@ spatGenePlot3D(STAR_test,
 ```
 
 <center>
-![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/Pcp4_dim_plot.png){width=5cm}![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/Pcp4_spat_plot.png){width=5cm}  
+![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/Pcp4_dim_plot.png)
+![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/Pcp4_spat_plot.png)
 </center> 
 
 
@@ -308,7 +306,8 @@ spatGenePlot3D(STAR_test,
 ```
 
 <center>
-![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/Cux2_dim_plot.png){width=5cm}![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/Cux2_spat_plot.png){width=5cm}  
+![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/Cux2_dim_plot.png)
+![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/Cux2_spat_plot.png)
 </center> 
 
 ```{r eval=FALSE}
@@ -325,12 +324,13 @@ spatGenePlot3D(STAR_test,
 
 
 <center>
-![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/Ctgf_dim_plot.png){width=5cm}![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/Ctgf_spat_plot.png){width=5cm}  
+![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/Ctgf_dim_plot.png)
+![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/Ctgf_spat_plot.png)
 </center> 
 
 
 ***
-### part 9: virtural cross section
+### part 9: virtual cross section
 
 ```{r eval=FALSE}
 
@@ -341,7 +341,7 @@ STAR_test = createCrossSection(STAR_test,method="equation",equation=c(0,1,0,600)
 ```
 
 
-```{r}
+```{r eval=FALSE}
 
 insertCrossSectionSpatPlot3D(STAR_test, cell_color = 'cell_types', axis_scale = 'cube',
            point_size = 2,
@@ -353,7 +353,8 @@ insertCrossSectionGenePlot3D(STAR_test, expression_values = 'scaled',axis_scale 
 ```
 
 <center>
-![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/insert_cross_section_cell_types.png){width=5cm}![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/insert_cross_section_Slc17a7.png){width=5cm}  
+![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/insert_cross_section_cell_types.png)
+![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/insert_cross_section_Slc17a7.png)
 </center> 
 
 
@@ -369,7 +370,8 @@ crossSectionPlot3D(STAR_test,
 ```
 
 <center>
-![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/cross_section_spat.png){width=5cm}![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/cross_section_spat3d.png){width=5cm}  
+![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/cross_section_spat.png)
+![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/cross_section_spat3d.png)
 </center> 
 
 
@@ -380,7 +382,6 @@ crossSectionGenePlot(STAR_test,
                      point_size = 2,
                      cow_n_col = 1.5,
                      expression_values = 'scaled')
-  
 
 crossSectionGenePlot3D(STAR_test,
                        point_size = 2,
@@ -391,5 +392,6 @@ crossSectionGenePlot3D(STAR_test,
 
 
 <center>
-![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/Slc17a7_cross_section_gene.png){width=5cm}![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/Slc17a7_cross_section_gene3d.png){width=5cm}  
+![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/Slc17a7_cross_section_gene.png)
+![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/Slc17a7_cross_section_gene3d.png)
 </center> 
