@@ -158,11 +158,14 @@ markers = findMarkers_one_vs_all(gobject = STAR_test,
                                  method = 'gini',
                                  expression_values = 'normalized',
                                  cluster_column = 'leiden_0.2',
+                                  min_expr_gini_score = 2,
+                                  min_det_gini_score = 2,
                                  min_genes = 5, rank_score = 2)
 markers[, head(.SD, 2), by = 'cluster']
 
 # violinplot
-violinPlot(STAR_test, genes = unique(markers$genes), cluster_column = 'leiden_0.2')
+violinPlot(STAR_test, genes = unique(markers$genes), cluster_column = 'leiden_0.2',
+           strip_position = "right")
 
 ```
 
