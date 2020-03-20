@@ -94,10 +94,10 @@
 <a class="sourceLine" id="cb1-6" title="6"><span class="co">## Here we will not automatically save plots, for an example see the seqFISH+ or Visium dataset</span></a>
 <a class="sourceLine" id="cb1-7" title="7"></a>
 <a class="sourceLine" id="cb1-8" title="8"><span class="co">## instructions allow us to automatically save all plots into a chosen results folder</span></a>
-<a class="sourceLine" id="cb1-9" title="9"><span class="co"># my_python_path = "/your/python/path/python"</span></a>
-<a class="sourceLine" id="cb1-10" title="10"><span class="co"># results_folder = '/your/results/path/'</span></a>
+<a class="sourceLine" id="cb1-9" title="9">my_python_path =<span class="st"> "/your/python/path/python"</span></a>
+<a class="sourceLine" id="cb1-10" title="10">results_folder =<span class="st"> '/your/results/path/'</span></a>
 <a class="sourceLine" id="cb1-11" title="11">instrs =<span class="st"> </span><span class="kw"><a href="../reference/createGiottoInstructions.html">createGiottoInstructions</a></span>(<span class="dt">python_path =</span> my_python_path,</a>
-<a class="sourceLine" id="cb1-12" title="12">                                  <span class="dt">show_plot =</span> F,</a>
+<a class="sourceLine" id="cb1-12" title="12">                                  <span class="dt">show_plot =</span> T,</a>
 <a class="sourceLine" id="cb1-13" title="13">                                  <span class="dt">return_plot =</span> F,</a>
 <a class="sourceLine" id="cb1-14" title="14">                                  <span class="dt">save_plot =</span> F)</a></code></pre></div>
 </div>
@@ -148,7 +148,7 @@
 <h3 class="hasAnchor">
 <a href="#part-3-dimension-reduction" class="anchor"></a>part 3: dimension reduction</h3>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">STAR_test &lt;-<span class="st"> </span><span class="kw"><a href="../reference/calculateHVG.html">calculateHVG</a></span>(<span class="dt">gobject =</span> STAR_test, <span class="dt">method =</span> <span class="st">'cov_groups'</span>, </a>
-<a class="sourceLine" id="cb4-2" title="2">                          <span class="dt">zscore_threshold =</span> <span class="fl">0.5</span>, <span class="dt">nr_expression_groups =</span> <span class="dv">3</span>)</a></code></pre></div>
+<a class="sourceLine" id="cb4-2" title="2">                          <span class="dt">zscore_threshold =</span> <span class="fl">0.5</span>, <span class="dt">nr_expression_groups =</span> <span class="dv">3</span>,<span class="dt">show_plot =</span> T)</a></code></pre></div>
 <center>
 <img src="../inst/images/mouse_starmap_cortex/vignette_0.3.0/2_hvg.png">
 </center>
