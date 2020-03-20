@@ -16,9 +16,9 @@ output: html_document
     + explore cell-type/cell-type spatial interaction enrichment or depletion
     + calculate spatially increased ligand-receptor expression in cells of interacting cell type pairs
     + find interaction changed genes (ICG): genes that change expression in one cell type due to interaction with a neighboring cell type
-* Giotto provides a number of options to visualize both 2D and 3D data and the outcome of Giotto can be interactivily explored using [**Giotto Viewer**](http://spatial.rc.fas.harvard.edu/giotto-viewer/), which allows you to overlay the obtained results with raw or additional images of the profiled tissue section(s). 
+* Giotto provides a number of options to visualize both 2D and 3D data and the outcome of Giotto can be interactively explored using [**Giotto Viewer**](http://spatial.rc.fas.harvard.edu/giotto-viewer/), which allows you to overlay the obtained results with raw or additional images of the profiled tissue section(s). 
 
-Make sure to check out the **Examples** and **FAQ** section to learn everything about the Giotto workflow.
+Make sure to check out the [**Datasets**](https://rubd.github.io/Giotto/articles/index.html) section to examples of the Giotto workflow.
 
 \  
 
