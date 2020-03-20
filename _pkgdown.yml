@@ -3,6 +3,7 @@
 template:
   params:
     bootswatch: cosmo
+    ganalytics: UA-109153024-2
 
 authors:
   Ruben Dries:

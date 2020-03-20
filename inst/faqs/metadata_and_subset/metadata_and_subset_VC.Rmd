@@ -1,5 +1,5 @@
 ---
-output: html_document
+output: github_document
 ---
 
 <!-- mouse_cortex_example.md is generated from mouse_cortex_example.Rmd Please edit that file -->
