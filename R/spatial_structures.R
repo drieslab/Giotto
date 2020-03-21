@@ -29,37 +29,37 @@ spatNetwDistributionsDistance <- function(gobject,
                                           save_plot = NA,
                                           save_param =  list(),
                                           default_save_name = 'spatNetwDistributionsDistance') {
-  
-  
+
+
   ## spatial network
   #spatial_network = gobject@spatial_network[[spatial_network_name]]
   spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
-  
+
   ## convert to full network with rank_int column
   spatial_network = Giotto:::convert_to_full_spatial_network(spatial_network)
-  
+
   if(is.null(spatial_network)) {
     stop('spatial network ', spatial_network_name, ' was not found')
   }
-  
+
   if(!is.null(test_distance_limit)) {
     removed_neighbors = spatial_network[distance > test_distance_limit, .N, by = rank_int]
     removed_neighbors[, status := 'remove']
     keep_neighbors = spatial_network[distance <= test_distance_limit, .N, by = rank_int]
     keep_neighbors[, status := 'keep']
-    
+
     dist_removal_dt = rbind(removed_neighbors, keep_neighbors)
     setorder(dist_removal_dt, rank_int)
-    
+
     dist_removal_dt_dcast = dcast.data.table(data = dist_removal_dt, rank_int~status, value.var = 'N', fill = 0)
     dist_removal_dt_dcast[, label := paste0('keep:',keep, '\n remove:',remove)]
   }
-  
+
   # text location coordinates
   middle_distance = max(spatial_network$distance)/(3/2)
   freq_dt = spatial_network[, table(cut(distance, breaks = 30)), by = rank_int]
   middle_height = max(freq_dt$V1)/(3/2)
-  
+
   pl = ggplot()
   pl = pl + labs(title = 'distance distribution per k-neighbor')
   pl = pl + theme_classic()
@@ -69,28 +69,28 @@ spatNetwDistributionsDistance <- function(gobject,
     pl = pl + geom_vline(xintercept = test_distance_limit, color = 'red')
     pl = pl + geom_text(data = dist_removal_dt_dcast, aes(x = middle_distance, y = middle_height, label = label))
   }
-  
+
   # print, return and save parameters
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-  
+
   ## print plot
   if(show_plot == TRUE) {
     print(pl)
   }
-  
+
   ## save plot
   if(save_plot == TRUE) {
     do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
   }
-  
+
   ## return plot
   if(return_plot == TRUE) {
     return(pl)
   }
-  
-  
+
+
 }
 
 
@@ -118,47 +118,47 @@ spatNetwDistributionsKneighbors = function(gobject,
                                            save_plot = NA,
                                            save_param =  list(),
                                            default_save_name = 'spatNetwDistributionsKneighbors') {
-  
+
   ## spatial network
   #spatial_network = gobject@spatial_network[[spatial_network_name]]
   spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
-  
+
   ## convert to full network with rank_int column
   spatial_network = Giotto:::convert_to_full_spatial_network(spatial_network)
-  
+
   if(is.null(spatial_network)) {
     stop('spatial network ', spatial_network_name, ' was not found')
   }
-  
+
   spatial_network_dt = as.data.table(spatial_network[, table(source)])
-  
+
   pl = ggplot()
   pl = pl + labs(title = 'k-neighbor distribution for all cells', x = 'k-neighbors/cell')
   pl = pl + theme_classic()
   pl = pl + geom_histogram(data = spatial_network_dt, aes(x = N), color = 'white', fill = 'black', bins = hist_bins)
-  
-  
+
+
   # print, return and save parameters
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-  
+
   ## print plot
   if(show_plot == TRUE) {
     print(pl)
   }
-  
+
   ## save plot
   if(save_plot == TRUE) {
     do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
   }
-  
+
   ## return plot
   if(return_plot == TRUE) {
     return(pl)
   }
-  
-  
+
+
 }
 
 
@@ -195,20 +195,20 @@ spatNetwDistributions <- function(gobject,
                                   save_plot = NA,
                                   save_param =  list(),
                                   default_save_name = 'spatNetwDistributions') {
-  
+
   ## histogram to show
   distribution = match.arg(distribution, choices = distribution)
-  
+
   ## spatial network
   #spatial_network = gobject@spatial_network[[spatial_network_name]]
   spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
   if(is.null(spatial_network)) {
     stop('spatial network ', spatial_network_name, ' was not found')
   }
-  
-  
+
+
   if(distribution == 'distance') {
-    
+
     spatNetwDistributionsDistance(gobject = gobject,
                                   spatial_network_name = spatial_network_name,
                                   hist_bins = hist_bins,
@@ -219,9 +219,9 @@ spatNetwDistributions <- function(gobject,
                                   save_plot = save_plot,
                                   save_param =  save_param,
                                   default_save_name = default_save_name)
-    
+
   } else if(distribution == 'k_neighbors') {
-    
+
     spatNetwDistributionsKneighbors(gobject = gobject,
                                     spatial_network_name = spatial_network_name,
                                     hist_bins = hist_bins,
@@ -230,9 +230,9 @@ spatNetwDistributions <- function(gobject,
                                     save_plot = save_plot,
                                     save_param =  save_param,
                                     default_save_name = default_save_name)
-    
+
   }
-  
+
 }
 
 
@@ -1032,7 +1032,7 @@ plotStatDelaunayNetwork = function(gobject,
 ) {
 
 
-  delaunay_network_DT = createSpatialDelaunayNetwork(gobject = VC_test,
+  delaunay_network_DT = createSpatialDelaunayNetwork(gobject = gobject,
                                                         method = method,
                                                         dimensions = dimensions,
                                                         name = 'temp_network',
