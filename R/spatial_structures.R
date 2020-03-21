@@ -315,6 +315,7 @@ create_spatialNetworkObject <- function(name = NULL,
                                         outputObj = NULL,
                                         networkDT = NULL,
                                         cellShapeObj = NULL,
+                                        networkDT_before_filter = NULL,
                                         crossSectionObjects = NULL,
                                         misc = NULL) {
 
@@ -323,6 +324,7 @@ create_spatialNetworkObject <- function(name = NULL,
                     parameters = parameters,
                     outputObj = outputObj,
                     networkDT = networkDT,
+                    networkDT_before_filter = networkDT_before_filter,
                     cellShapeObj = cellShapeObj,
                     crossSectionObjects = crossSectionObjects,
                     misc = misc)
@@ -352,6 +354,70 @@ select_spatialNetwork <- function(gobject,
   }else{
     return(networkDT)
   }
+}
+
+#' @title calculate_distance_and_weight
+#' @name calculate_distance_and_weight
+#' @description calculate_distance_and_weight
+calculate_distance_and_weight <- function(networkDT,
+                                          sdimx = "sdimx",
+                                          sdimy = "sdimy",
+                                          sdimz = "sdimz",
+                                          d2_or_d3=c(2,3)){
+
+
+  if (d2_or_d3==3){
+    ## make it dynamic for all possible coordinates combinations ##
+    xbegin_name = paste0(sdimx,'_begin')
+    ybegin_name = paste0(sdimy,'_begin')
+    zbegin_name =  paste0(sdimz,'_begin')
+    xend_name = paste0(sdimx,'_end')
+    yend_name = paste0(sdimy,'_end')
+    zend_name = paste0(sdimz,'_end')
+    mycols = c(xbegin_name, ybegin_name, zbegin_name,
+               xend_name, yend_name, zend_name)
+  }else if (d2_or_d3==2){
+    xbegin_name = paste0(sdimx,'_begin')
+    ybegin_name = paste0(sdimy,'_begin')
+    xend_name = paste0(sdimx,'_end')
+    yend_name = paste0(sdimy,'_end')
+    mycols = c(xbegin_name, ybegin_name,
+               xend_name, yend_name)
+  }
+
+  ## calculate distance and weight + filter ##
+  networkDT[, `:=`(distance, dist(x = matrix(.SD, nrow = 2, byrow = T))),
+            by = 1:nrow(networkDT), .SDcols = mycols]
+
+  networkDT[, `:=`(distance, as.numeric(distance))]
+  networkDT[, `:=`(weight, 1/distance)]
+  data.table::setorder(networkDT, from, distance)
+
+  networkDT = networkDT[, c('to', 'from', 'weight',
+                            'distance', mycols), with = F]
+
+  return(networkDT)
+}
+
+#' @title filter_network
+#' @name filter_network
+#' @description function to filter a spatial network
+filter_network <- function(networkDT,
+                           maximum_distance = NULL,
+                           minimum_k = NULL){
+
+  temp_fullnetwork = Giotto:::convert_to_full_spatial_network(networkDT)
+
+  ## filter based on distance or minimum number of neighbors
+  if (maximum_distance == "auto") {
+    temp_fullnetwork = temp_fullnetwork[distance <= boxplot.stats(temp_fullnetwork$distance)$stats[5]]
+  }
+  else if (!is.null(maximum_distance)) {
+    temp_fullnetwork = temp_fullnetwork[distance <= maximum_distance | rank_int <= minimum_k]
+  }
+  networkDT = Giotto:::convert_to_reduced_spatial_network(temp_fullnetwork)
+
+  return(networkDT)
 }
 
 ## Delaunay network ####
@@ -666,43 +732,22 @@ create_delaunayNetwork2D <- function (gobject,
   }
 
 
-  ## make it dynamic for all possible coordinates combinations ##
-  xbegin_name = paste0(sdimx,'_begin')
-  ybegin_name = paste0(sdimy,'_begin')
-  xend_name = paste0(sdimx,'_end')
-  yend_name = paste0(sdimy,'_end')
-
   ## calculate distance and weight + filter ##
-  mycols = c(xbegin_name, ybegin_name,
-             xend_name, yend_name)
-  delaunay_network_DT[, `:=`(distance, dist(x = matrix(.SD, nrow = 2, byrow = T))),
-                      by = 1:nrow(delaunay_network_DT), .SDcols = mycols]
+  delaunay_network_DT = calculate_distance_and_weight(delaunay_network_DT,
+                                                      sdimx = sdimx,
+                                                      sdimy = sdimy,
+                                                      d2_or_d3=2)
+  networkDT_before_filter = delaunay_network_DT
+  delaunay_network_DT = filter_network(delaunay_network_DT,
+                                       maximum_distance=maximum_distance,
+                                       minimum_k=minimum_k)
 
-  delaunay_network_DT[, `:=`(distance, as.numeric(distance))]
-  delaunay_network_DT[, `:=`(weight, 1/distance)]
-  data.table::setorder(delaunay_network_DT, from, distance)
+  ## calculate cell shape parameters ##
+  meanCellDistance = get_distance(networkDT,method="mean")
+  medianCellDistance = get_distance(networkDT,method="median")
 
-  delaunay_network_DT = delaunay_network_DT[, c('to', 'from', 'weight',
-                                                'distance', mycols), with = F]
-  temp_fullnetwork = Giotto:::convert_to_full_spatial_network(delaunay_network_DT)
-
-  if (maximum_distance == "auto") {
-    temp_fullnetwork = temp_fullnetwork[distance <= boxplot.stats(temp_fullnetwork$distance)$stats[5]]
-  }
-  else if (!is.null(maximum_distance)) {
-    temp_fullnetwork = temp_fullnetwork[distance <= maximum_distance | rank_int <= minimum_k]
-  }
-
-  delaunay_network_DT = Giotto:::convert_to_reduced_spatial_network(temp_fullnetwork)
-
-  ### calcualte cell diameter ###
-  cellDiameter_mean = mean(delaunay_network_DT$distance)
-  cellDiameter_median = median(delaunay_network_DT$distance)
-
-  cellShapeObj = list("cellDiameter_mean" = cellDiameter_mean,
-                      "cellDiameter_median" = cellDiameter_median
-  )
-
+  cellShapeObj = list("meanCellDistance" = meanCellDistance,
+                      "medianCellDistance" = medianCellDistance)
 
   ###
   ###
@@ -711,6 +756,7 @@ create_delaunayNetwork2D <- function (gobject,
                                                               parameters = parameters,
                                                               outputObj = outputObj,
                                                               networkDT = delaunay_network_DT,
+                                                              networkDT_before_filter = networkDT_before_filter,
                                                               cellShapeObj = cellShapeObj,
                                                               misc = NULL)
   ###
@@ -808,43 +854,23 @@ create_delaunayNetwork3D <- function (gobject,
 
   }
 
-  ## make it dynamic for all possible coordinates combinations ##
-  xbegin_name = paste0(sdimx,'_begin')
-  ybegin_name = paste0(sdimy,'_begin')
-  zbegin_name =  paste0(sdimz,'_begin')
-  xend_name = paste0(sdimx,'_end')
-  yend_name = paste0(sdimy,'_end')
-  zend_name = paste0(sdimz,'_end')
-
   ## calculate distance and weight + filter ##
-  mycols = c(xbegin_name, ybegin_name, zbegin_name,
-             xend_name, yend_name, zend_name)
-  delaunay_network_DT[, `:=`(distance, dist(x = matrix(.SD, nrow = 2, byrow = T))),
-                      by = 1:nrow(delaunay_network_DT), .SDcols = mycols]
+  networkDT_before_filter = calculate_distance_and_weight(delaunay_network_DT,
+                                                          sdimx = sdimx,
+                                                          sdimy = sdimy,
+                                                          sdimz = sdimz,
+                                                          d2_or_d3=3)
+  delaunay_network_DT = filter_network(networkDT_before_filter,
+                                       maximum_distance=maximum_distance,
+                                       minimum_k=minimum_k)
 
-  delaunay_network_DT[, `:=`(distance, as.numeric(distance))]
-  delaunay_network_DT[, `:=`(weight, 1/distance)]
-  data.table::setorder(delaunay_network_DT, from, distance)
+  ## calculate cell shape parameters ##
+  meanCellDistance = get_distance(delaunay_network_DT,method="mean")
+  medianCellDistance = get_distance(delaunay_network_DT,method="median")
 
-  delaunay_network_DT = delaunay_network_DT[, c('to', 'from', 'weight',
-                                                'distance', mycols), with = F]
-  temp_fullnetwork = Giotto:::convert_to_full_spatial_network(delaunay_network_DT)
-
-  ## filter based on distance or minimum number of neighbors
-  if (maximum_distance == "auto") {
-    temp_fullnetwork = temp_fullnetwork[distance <= boxplot.stats(temp_fullnetwork$distance)$stats[5]]
-  }
-  else if (!is.null(maximum_distance)) {
-    temp_fullnetwork = temp_fullnetwork[distance <= maximum_distance | rank_int <= minimum_k]
-  }
-  delaunay_network_DT = Giotto:::convert_to_reduced_spatial_network(temp_fullnetwork)
-  cellDiameter_mean = mean(delaunay_network_DT$distance)
-  cellDiameter_median = median(delaunay_network_DT$distance)
-
-  cellShapeObj = list("cellDiameter_mean" = cellDiameter_mean,
-                      "cellDiameter_median" = cellDiameter_median
+  cellShapeObj = list("meanCellDistance" = meanCellDistance,
+                      "medianCellDistance" = medianCellDistance
   )
-
 
   if (return_gobject == TRUE) {
     spn_names = names(gobject@spatial_network)
@@ -871,6 +897,7 @@ create_delaunayNetwork3D <- function (gobject,
                                                        parameters = parameters,
                                                        outputObj = outputObj,
                                                        networkDT = delaunay_network_DT,
+                                                       networkDT_before_filter = networkDT_before_filter,
                                                        cellShapeObj = cellShapeObj,
                                                        misc = NULL)
     ###
