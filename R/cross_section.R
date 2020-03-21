@@ -58,51 +58,36 @@ read_crossSection <- function(gobject,
   return(crossSection_obj)
 }
 
-#' @title proj_dist
-#' @name proj_dist
-#' @description get distance along a given direction
-proj_dist <- function(x,direction){
-  y <- as.matrix(x)
-  pdist = abs((as.numeric(y[1,])-as.numeric(y[2,])) %*% direction/sqrt(sum(direction^2)))
-  return(pdist)
+#' @title get_distance
+#' @name get_distance
+#' @description estimate average distance between neighboring cells with network table as input
+get_distance <- function(networkDT,
+                         method=c("mean","median")
+                         ){
+
+  if (method=="median"){
+    distance = median(networkDT$distance)
+  }else if(method=="mean"){
+    distance = mean(networkDT$distance)
+  }
+  return(distance)
 }
 
-#' @title estimate_CellCellDistance
-#' @name estimate_CellCellDistance
-#' @description get mean distance between neighboring cells
-estimate_CellCellDistance <- function(gobject,
-                                      spatial_network_name="Delaunay_network",
-                                      plane_equation=NULL,
-                                      method=c("mean","median")
-                                      ){
+#' @title estimateCellCellDistance
+#' @name estimateCellCellDistance
+#' @description estimate average distance between neighboring cells
+estimateCellCellDistance <- function(gobject,
+                                     spatial_network_name="Delaunay_network",
+                                     method=c("mean","median")
+                                     ){
 
   delaunay_network_DT = gobject@spatial_network[[spatial_network_name]]$networkDT
-  ## make it dynamic for all possible coordinates combinations ##
-  xbegin_name = paste0("sdimx",'_begin')
-  ybegin_name = paste0("sdimy",'_begin')
-  zbegin_name = paste0("sdimz",'_begin')
-  xend_name = paste0("sdimx",'_end')
-  yend_name = paste0("sdimy",'_end')
-  zend_name = paste0("sdimz",'_end')
 
-  mycols = c(xbegin_name, ybegin_name,zbegin_name,
-             xend_name, yend_name,zend_name)
-
-  delaunay_network_DT[, `:=`(projection_distance, proj_dist(x = matrix(.SD, nrow = 2, byrow = T),
-                                                            direction = plane_equation[1:3])),
-                      by = 1:nrow(delaunay_network_DT), .SDcols = mycols]
-
-  method = match.arg(method,c("median","mean"))
-  if (method=="median"){
-    CellCellDistance = median(delaunay_network_DT$projection_distance)
-  }else if(method=="mean"){
-    CellCellDistance = mean(delaunay_network_DT$projection_distance)
-  }
-
-
+  CellCellDistance = get_distance(networkDT= delaunay_network_DT,
+                                              method=method)
   return(CellCellDistance)
-}
 
+}
 #' @title get_sectionThickness
 #' @name get_sectionThickness
 #' @description get section thickness
@@ -115,10 +100,9 @@ get_sectionThickness <- function(gobject,thickness_unit=c("cell","natural"),
   thickness_unit = match.arg(thickness_unit, c("cell", "natural"))
 
   if (thickness_unit == "cell"){
-    CellCellDistance = estimate_CellCellDistance(gobject,
+    CellCellDistance = estimateCellCellDistance(gobject,
                                                  method = cell_distance_estimate_method,
-                                            spatial_network_name = spatial_network_name,
-                                            plane_equation = plane_equation)
+                                            spatial_network_name = spatial_network_name)
     sectionThickness = CellCellDistance*slice_thickness
   }else if (thickness_unit=="natural"){
     sectionThickness = slice_thickness
