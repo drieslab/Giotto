@@ -36,6 +36,7 @@ articles:
     contents:
       - mouse_seqFISH_cortex_200319
       - mouse_starmap_cortex
+      - human_cycif_PDAC_200322
 
 reference:
   - title: Giotto object
