@@ -40,20 +40,7 @@ navbar:
 
   right:
     - icon: fa-github
-<<<<<<< HEAD
-      href: https://github.com/RubD/Gdev
-
-
-articles:
-  - title: "Datasets"
-    desc: >
-      These vignettes provide a simple example analysis for multiple datasets.
-    contents:
-      - mouse_seqFISH_cortex_200319
-      - mouse_starmap_cortex
-=======
       href: https://github.com/RubD/Giotto
->>>>>>> origin
 
 reference:
   - title: Giotto object
