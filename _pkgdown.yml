@@ -13,12 +13,26 @@ navbar:
   title: ~
   type: default
   left:
-    - text: Start
-      href: articles/getting_started.html
+    - text: "Start"
+      menu:
+      - text: Description
+        href: articles/getting_started.html#description
+      - text: Workflow
+        href: articles/getting_started.html#workflow-diagram
+      - text: HOWTOs
+        href: articles/getting_started.html#howtos
     - text: Documentation
       href: reference/index.html
     - text: Datasets
-      href: articles/index.html
+      menu:
+      - text: "mouse seqFISH cortex"
+        href: articles/mouse_seqFISH_cortex_200319.html
+      - text: "mouse STARmap cortex"
+        href: articles/mouse_starmap_cortex.html
+      - text: "human CyCIF PDAC"
+        href: articles/human_cycif_PDAC_200322.html
+      - text: "mouse Visium brain"
+        href: articles/mouse_visium_brain_200325.html
     - text: FAQ
       href: articles/faqs.html
     - text: News
@@ -26,6 +40,7 @@ navbar:
 
   right:
     - icon: fa-github
+<<<<<<< HEAD
       href: https://github.com/RubD/Gdev
 
 
@@ -36,6 +51,9 @@ articles:
     contents:
       - mouse_seqFISH_cortex_200319
       - mouse_starmap_cortex
+=======
+      href: https://github.com/RubD/Giotto
+>>>>>>> origin
 
 reference:
   - title: Giotto object

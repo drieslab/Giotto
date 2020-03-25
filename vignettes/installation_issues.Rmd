@@ -34,6 +34,7 @@ xcode-select --install
 
 ## 2. Clang error on MacOS
 
+### 2.1 issue 1
 If you see this error on your MacOS:  
 ``` bash
 clang: error: unsupported option ‘-fopenmp’
@@ -68,6 +69,28 @@ LDFLAGS=-L/usr/local/opt/gettext/lib -L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/l
 CPPFLAGS=-I/usr/local/opt/gettext/include -I/usr/local/opt/llvm/include
 ```
 
+
+### 2.2 issue 2
+
+If you see this error on your MacOS, most likely with the latest macOS Mojave: 
+```{bash, eval = FALSE}
+Error message: 
+ld: warning: directory not found for option '-L/usr/local/gfortran/lib/gcc/x86_64-apple-darwin15/6.1.0'
+ld: warning: directory not found for option '-L/usr/local/gfortran/lib'
+ld: library not found for -lgfortran
+clang-9: error: linker command failed with exit code 1 (use -v to see invocation)
+```
+
+solution: 
+Installing the latest version of gofortran. 
+https://github.com/fxcoudert/gfortran-for-macOS/releases/download/8.2/gfortran-8.2-Mojave.dmg
+  
+  
+Reference: 
+https://stackoverflow.com/questions/35999874/mac-os-x-r-error-ld-warning-directory-not-found-for-option
+"I am having Mac OS Catalina and in my case installation of Homebrew, the newest gcc and Gfortran 8.2.0 solved the issue." -- Magda Orzechowska
+"This worked for me in Mac OS Catalina as well! I used the gfortran 8.2 Mojave installation github.com/fxcoudert/gfortran-for-macOS/releases" -- Danny
+```
 
 
 
