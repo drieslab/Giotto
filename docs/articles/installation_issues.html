@@ -43,14 +43,47 @@
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Start
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
 <li>
-  <a href="../articles/getting_started.html">Start</a>
+      <a href="../articles/getting_started.html#description">Description</a>
+    </li>
+    <li>
+      <a href="../articles/getting_started.html#workflow-diagram">Workflow</a>
+    </li>
+    <li>
+      <a href="../articles/getting_started.html#howtos">HOWTOs</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="../reference/index.html">Documentation</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Datasets
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
 <li>
-  <a href="../articles/index.html">Datasets</a>
+      <a href="../articles/mouse_seqFISH_cortex_200319.html">mouse seqFISH cortex</a>
+    </li>
+    <li>
+      <a href="../articles/mouse_starmap_cortex.html">mouse STARmap cortex</a>
+    </li>
+    <li>
+      <a href="../articles/human_cycif_PDAC_200322.html">human CyCIF PDAC</a>
+    </li>
+    <li>
+      <a href="../articles/mouse_visium_brain_200325.html">mouse Visium brain</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="../articles/faqs.html">FAQ</a>
@@ -61,7 +94,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/RubD/Gdev">
+  <a href="https://github.com/RubD/Giotto">
     <span class="fa fa-github"></span>
      
   </a>
@@ -104,6 +137,9 @@
 <div id="clang-error-on-macos" class="section level2">
 <h2 class="hasAnchor">
 <a href="#clang-error-on-macos" class="anchor"></a>2. Clang error on MacOS</h2>
+<div id="issue-1" class="section level3">
+<h3 class="hasAnchor">
+<a href="#issue-1" class="anchor"></a>2.1 issue 1</h3>
 <p>If you see this error on your MacOS:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1"><span class="ex">clang</span>: error: unsupported option ‘-fopenmp’</a></code></pre></div>
 <p>You can install another clang and point R to use that clang, which supports the -fopenmp paramter. This solution was provided on <a href="https://stackoverflow.com/questions/43595457/alternate-compiler-for-installing-r-packages-clang-error-unsupported-option">stackoverflow</a></p>
@@ -130,6 +166,19 @@
 <a class="sourceLine" id="cb5-10" title="10"><span class="va">CXXFLAGS=</span>-g <span class="ex">-O3</span> -Wall -pedantic -std=c++11 -mtune=native -pipe</a>
 <a class="sourceLine" id="cb5-11" title="11"><span class="va">LDFLAGS=</span>-L/usr/local/opt/gettext/lib <span class="ex">-L/usr/local/opt/llvm/lib</span> -Wl,-rpath,/usr/local/opt/llvm/lib</a>
 <a class="sourceLine" id="cb5-12" title="12"><span class="va">CPPFLAGS=</span>-I/usr/local/opt/gettext/include <span class="ex">-I/usr/local/opt/llvm/include</span></a></code></pre></div>
+</div>
+<div id="issue-2" class="section level3">
+<h3 class="hasAnchor">
+<a href="#issue-2" class="anchor"></a>2.2 issue 2</h3>
+<p>If you see this error on your MacOS, most likely with the latest macOS Mojave:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb6-1" title="1"><span class="ex">Error</span> message: </a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="ex">ld</span>: warning: directory not found for option <span class="st">'-L/usr/local/gfortran/lib/gcc/x86_64-apple-darwin15/6.1.0'</span></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="ex">ld</span>: warning: directory not found for option <span class="st">'-L/usr/local/gfortran/lib'</span></a>
+<a class="sourceLine" id="cb6-4" title="4"><span class="ex">ld</span>: library not found for -lgfortran</a>
+<a class="sourceLine" id="cb6-5" title="5"><span class="ex">clang-9</span>: error: linker command failed with exit code 1 (use -v to see invocation)</a></code></pre></div>
+<p>solution: Installing the latest version of gofortran. <a href="https://github.com/fxcoudert/gfortran-for-macOS/releases/download/8.2/gfortran-8.2-Mojave.dmg" class="uri">https://github.com/fxcoudert/gfortran-for-macOS/releases/download/8.2/gfortran-8.2-Mojave.dmg</a></p>
+<p>Reference: <a href="https://stackoverflow.com/questions/35999874/mac-os-x-r-error-ld-warning-directory-not-found-for-option" class="uri">https://stackoverflow.com/questions/35999874/mac-os-x-r-error-ld-warning-directory-not-found-for-option</a> “I am having Mac OS Catalina and in my case installation of Homebrew, the newest gcc and Gfortran 8.2.0 solved the issue.” – Magda Orzechowska “This worked for me in Mac OS Catalina as well! I used the gfortran 8.2 Mojave installation github.com/fxcoudert/gfortran-for-macOS/releases” – Danny ```</p>
+</div>
 </div>
   </div>
 
