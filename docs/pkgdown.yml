@@ -5,7 +5,13 @@ articles:
   faqs: faqs.html
   getting_started: getting_started.html
   human_cycif_PDAC_200322: human_cycif_PDAC_200322.html
+  installation_issues: installation_issues.html
+  instructions_and_plotting: instructions_and_plotting.html
   metadata_and_subset_VC: metadata_and_subset_VC.html
   mouse_seqFISH_cortex_200319: mouse_seqFISH_cortex_200319.html
   mouse_starmap_cortex: mouse_starmap_cortex.html
+  mouse_visium_brain_200325: mouse_visium_brain_200325.html
+  subset_giotto: subset_giotto.html
+  visualization_options: visualization_options.html
+  work_with_multiple_analyses: work_with_multiple_analyses.html
 
