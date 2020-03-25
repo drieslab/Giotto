@@ -4,8 +4,8 @@ output: html_document
 ---
 
 ##### Installation  
-- [First time R package installation](./inst/faqs/giotto_installation/installation_issues.md)
-- [Clang error on MacOS](./inst/faqs/giotto_installation/installation_issues.md)
+- [First time R package installation](./installation_issues.html)
+- [Clang error on MacOS](./installation_issues.html)
 
 ##### Data availability  
 - Where to find seqFISH+ and other ready-to-use datasets?  

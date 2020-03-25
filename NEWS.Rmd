@@ -3,6 +3,22 @@
 output: github_document
 ---
 
+
+# Giotto 0.3.0
+
+- Default spatial network created with **createSpatialNetwork** is now a Delaunay spatial network.
+```{r, eval=FALSE}
+# to create the old default kNN spatial network use:
+createSpatialKNNnetwork(gobject)
+
+# or use this function with the following setting
+createSpatialNetwork(gobject, method = 'kNN')
+```
+- Fixed multiple bugs
+- Improved speed by changing code to Rcpp and implementing parallelization options
+- updated [howto's](./docs/getting_started.html) tutorials in Start section
+- Finished the analysis of 10 different spatial datasets (tutorials are a work-in-progress)
+
 # Giotto 0.2.4
 
 - New examples on mouse kidney and brain using the recently released [10X Visium datasets](https://www.10xgenomics.com/spatial-transcriptomics/) (**NEW**)
