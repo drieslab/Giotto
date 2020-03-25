@@ -165,8 +165,7 @@ spatPlot(gobject = codex_test, cell_color = 'leiden', point_shape = 'no_border',
          legend_text = 5,legend_symbol_size = 2)
 
 ```
-```{r eval=FALSE}
-```
+
 
 <center>
 ![](../inst/images/mouse_codex_spleen/vignette_200325/leiden_clustering.png)
@@ -195,38 +194,33 @@ markers_scran = findMarkers_one_vs_all(gobject=codex_test, method="scran",
                                        expression_values="norm", cluster_column=cluster_column, min_genes=3)
 markergenes_scran = unique(markers_scran[, head(.SD, 5), by="cluster"][["genes"]])
 
-plotMetaDataHeatmap(codex_test, expression_values = "norm", metadata_cols = c(cluster_column), selected_genes = markergenes_scran,
-                    save_param = list(save_name = '5_heatmap_scran_0.2'), y_text_size = 8, show_values = 'zscores_rescaled',save_plot = FALSE)
-
-plotMetaDataHeatmap(codex_test, expression_values = "norm", metadata_cols = c(cluster_column), selected_genes = markergenes_scran, 
-                    custom_cluster_order = c(8, 2, 12, 3, 4, 11, 5, 13, 6, 9, 1, 7, 10),
-                    save_param = list(save_name = '5_heatmap_scran_0.2_custom_order'), y_text_size = 8, show_values = 'zscores_rescaled')
+plotMetaDataHeatmap(codex_test, expression_values = "norm", metadata_cols = c(cluster_column), 
+                    selected_genes = markergenes_scran,
+                    y_text_size = 8, show_values = 'zscores_rescaled')
 
 topgenes_scran = markers_scran[, head(.SD, 1), by = 'cluster']$genes
-violinPlot(codex_test, genes = unique(topgenes_scran), cluster_column = cluster_column,
-           strip_text = 8, strip_position = 'right',
-           show_plot = F,
-           save_param = c(save_name = '5_violinplot_scran', base_width = 5, base_height = 10))
+violinPlot(codex_test, genes = unique(topgenes_scran)[1:8], cluster_column = cluster_column,
+           strip_text = 8, strip_position = 'right')
 
 # gini
 markers_gini = findMarkers_one_vs_all(gobject=codex_test, method="gini", expression_values="norm",
                                       cluster_column=cluster_column, min_genes=5)
 markergenes_gini = unique(markers_gini[, head(.SD, 5), by="cluster"][["genes"]])
 plotMetaDataHeatmap(codex_test, expression_values = "norm", metadata_cols = c(cluster_column), selected_genes = markergenes_gini,
-                    show_plot = F,
-                    save_param = list(save_name = '5_heatmap_gini'), show_values = 'zscores_rescaled')
-
-plotMetaDataHeatmap(codex_test, expression_values = "norm", metadata_cols = c(cluster_column), selected_genes = markergenes_gini, 
-                    custom_cluster_order = c(1, 10, 3, 12, 8, 2, 9, 6, 11, 13, 4, 5, 7),
-                    show_plot = F,
-                    save_param = list(save_name = '5_heatmap_gini_custom_order'), y_text_size = 8, show_values = 'zscores_rescaled')
+                    show_values = 'zscores_rescaled')
 
 topgenes_gini = markers_gini[, head(.SD, 1), by = 'cluster']$genes
 violinPlot(codex_test, genes = unique(topgenes_gini), cluster_column = cluster_column,
-           strip_text = 8, strip_position = 'right',
-           show_plot = F,
-           save_param = c(save_name = '5_violinplot_gini', base_width = 5, base_height = 10))
+           strip_text = 8, strip_position = 'right')
 ```
+<center>
+![](../inst/images/mouse_codex_spleen/vignette_200325/scran_de.png)
+![](../inst/images/mouse_codex_spleen/vignette_200325/scran_violin.png)
+![](../inst/images/mouse_codex_spleen/vignette_200325/gini_heatmap.png)
+![](../inst/images/mouse_codex_spleen/vignette_200325/gini_violin.pn)
+</center> 
+
+
 ```{r eval=FALSE}
 ## 7. cell type annotation ####
 # --------------------------- #
@@ -242,486 +236,102 @@ codex_test = annotateGiotto(gobject = codex_test, annotation_vector = clusters_c
                            cluster_column = 'leiden', name = 'cell_types')
 
 plotMetaDataHeatmap(codex_test, expression_values = 'scaled',
-                    metadata_cols = c('cell_types'))
-
-
-
-# spatPlot(gobject = codex_test, cell_color = 'cell_types', point_shape = 'no_border', point_size = 0.2, 
-#         cell_color_code = leiden_colors, coord_fix_ratio = 1,
-#          show_plot = F,
-#          label_size =2,
-#          legend_text = 5,
-#          legend_symbol_size = 2,
-#         save_param = list(save_name = '4_spatplot_leiden'))
+                    metadata_cols = c('cell_types'),y_text_size = 6)
 
 # create consistent color code
 mynames = unique(pDataDT(codex_test)$cell_types)
 mycolorcode = Giotto:::getDistinctColors(n = length(mynames))
 names(mycolorcode) = mynames
 
-
 plotUMAP(gobject = codex_test, cell_color = 'cell_types',point_shape = 'no_border',   point_size = 0.2,
-         show_plot = F,
          cell_color_code = mycolorcode,
          show_center_label = F,
          label_size =2,
          legend_text = 5,
-         legend_symbol_size = 2,
-         save_param = list(save_name = '3_UMAP_cell_type_annotation'),)
+         legend_symbol_size = 2)
 
 spatPlot(gobject = codex_test, cell_color = 'cell_types', point_shape = 'no_border', point_size = 0.2, 
-        #cell_color_code = leiden_colors, 
         cell_color_code = mycolorcode,
         coord_fix_ratio = 1,
-         show_plot = F,
          label_size =2,
          legend_text = 5,
-         legend_symbol_size = 2,
-        save_param = list(save_name = '4_spatplot_leiden'))
+         legend_symbol_size = 2)
 
 ```
 
-```{r}
+<center>
+![](../inst/images/mouse_codex_spleen/vignette_200325/cell_type_annotation_heatmap.png)
+![](../inst/images/mouse_codex_spleen/vignette_200325/cell_types_umap.png)
+![](../inst/images/mouse_codex_spleen/vignette_200325/cell_types_spat.png)
+</center> 
 
-codex_test_subset1 = subsetGiotto(codex_test, cell_ids = #codex_test@cell_metadata$cell_ID[codex_test@cell_metadata$sample_Xtile_Ytile=="BALBc-3_X04_Y08"])
-codex_test@cell_metadata$cell_ID[codex_test@cell_metadata$sample_Xtile_Ytile=="BALBc-3_X04_Y03"])
+```{r eval=FALSE}
+## 8. visualize cell types and gene expression in selected zones ####
 
+codex_test_zone1 = subsetGiotto(codex_test, cell_ids = codex_test@cell_metadata$cell_ID[codex_test@cell_metadata$sample_Xtile_Ytile=="BALBc-3_X04_Y08"])
 
-plotUMAP(gobject = codex_test_subset1, cell_color = 'cell_types',point_shape = 'no_border',   point_size = 1,
-         show_plot = F,
+plotUMAP(gobject = codex_test_zone1, cell_color = 'cell_types',point_shape = 'no_border',   point_size = 1,
          cell_color_code = mycolorcode,
          show_center_label = F,
          label_size =2,
          legend_text = 5,
-         legend_symbol_size = 2,
-         save_param = list(save_name = '3_UMAP_cell_type_annotation'),)
+         legend_symbol_size = 2)
 
-spatPlot(gobject = codex_test_subset1, cell_color = 'cell_types', point_shape = 'no_border', point_size = 1, 
-        #cell_color_code = leiden_colors, 
+spatPlot(gobject = codex_test_zone1, cell_color = 'cell_types', point_shape = 'no_border', point_size = 1, 
         cell_color_code = mycolorcode,
         coord_fix_ratio = 1,
-         show_plot = F,
          label_size =2,
          legend_text = 5,
-         legend_symbol_size = 2,
-        save_param = list(save_name = '4_spatplot_leiden'))
+         legend_symbol_size = 2)
 
-
-
-
-
-```
-
-```{r}
-
-# CD8a, CD4, CD19, CD106
-
-gene_to_use = "CD4"
-spatDimGenePlot(codex_test_subset1, 
+spatDimGenePlot(codex_test_zone1, 
                 expression_values = 'scaled',
-                  #genes = c('Slc17a7', 'Nov', 'Cux2', 'Rorb'),
-                  genes = gene_to_use,
-                  spat_point_shape = 'no_border',
-                  dim_point_shape = 'no_border',
-                  # plot_alignment = 'vertical', 
-                  #cow_n_col = 4,
-                  genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue', 
-                  #midpoint = 4,
-                  save_param = c(save_name = 'spatial_genes_norm', save_folder = '10_spatial_genes', base_width = 16))
+                genes = c("CD8a","CD19"),
+                spat_point_shape = 'no_border',
+                dim_point_shape = 'no_border',
+                genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue')
 
-
-# 
-# spatGenePlot(codex_test_subset1, expression_values = 'scaled',
-#                   #genes = c('Slc17a7', 'Nov', 'Cux2', 'Rorb'),
-#                   #genes = 'Pcp4',
-#                   #genes = 'Rorb',
-#                   genes = gene_to_use,
-#                   show_other_cells = F,
-#                   # plot_alignment = 'vertical', 
-#                   #cow_n_col = 4,
-#                   #genes_high_color = alpha('red',0.01), genes_mid_color = alpha('white',0.01), genes_low_color = alpha('darkblue',0.01),
-#                   genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue', 
-#                   #midpoint = 4,
-#                   save_param = c(save_name = 'spatial_genes_norm', save_folder = '10_spatial_genes', base_width = 16))
 
 ```
 
-```{r}
-# plotMetaDataHeatmap(codex_test, expression_values = 'scaled',
-#                     metadata_cols = c('cell_types'),custom_cluster_order = c(9, 10, 2, 3, 4, 1, 5, 6, 8, 7))
-
-# plotMetaDataHeatmap(codex_test, expression_values = 'scaled',
-#                     metadata_cols = c('cell_types'),custom_cluster_order = c("Calretinin", "SST", "L4", "L2/3", "PV", "L5", "L6", "Astro", "Olig2", "Olig1"))
-# 
-
-
-
-
-# ## all genes heatmap
-# plotMetaDataHeatmap(codex_test, expression_values = "norm", metadata_cols = 'leiden', 
-#                     custom_cluster_order = c(1, 10, 3, 12, 8, 2, 9, 6, 11, 13, 4, 5, 7),
-#                     save_param = list(save_name = '6_heatmap_all_genes_custom_order'),
-#                     y_text_size = 8, show_values = 'zscores_rescaled')
-# 
-# plotMetaDataHeatmap(codex_test, expression_values = "norm", metadata_cols = 'leiden', midpoint = 8,
-#                     save_param = list(save_name = '6_heatmap_all_genes_correlation_order_original'),
-#                     y_text_size = 8, show_values = 'original')
-# 
-# plotMetaDataHeatmap(codex_test, expression_values = "norm", metadata_cols = 'leiden', midpoint = 0,
-#                     save_param = list(save_name = '6_heatmap_all_genes_correlation_order_zscores'),
-#                     y_text_size = 8, show_values = 'zscores')
-# 
-# plotMetaDataHeatmap(codex_test, expression_values = "norm", metadata_cols = 'leiden', 
-#                     save_param = list(save_name = '6_heatmap_all_genes_correlation_order'),
-#                     y_text_size = 8, show_values = 'zscores_rescaled')
-# 
-# plotMetaDataHeatmap(codex_test, expression_values = "norm", metadata_cols = c('leiden','sample_Xtile_Ytile'), 
-#                     first_meta_col = 'leiden', second_meta_col = 'sample_Xtile_Ytile',
-#                     save_param = list(save_name = '6_heatmap_facet'),
-#                     y_text_size = 8, show_values = 'zscores_rescaled')
-# 
-# 
-# plotMetaDataHeatmap(codex_test, expression_values = "norm", metadata_cols = c('leiden','Imaging phenotype cluster ID'), 
-#                     first_meta_col = 'leiden', second_meta_col = 'Imaging phenotype cluster ID',
-#                     save_param = list(save_name = '6_heatmap_facet'),
-#                     y_text_size = 8, show_values = 'zscores_rescaled')
-# 
-# # specify colors
-# codex_metadata = pDataDT(codex_test)
-# leiden_colors = Giotto:::getDistinctColors(length(unique(codex_metadata$leiden)))
-# names(leiden_colors) = unique(codex_metadata$leiden)
-# 
-# spatPlot(codex_test, cell_color = 'leiden', cell_color_code = leiden_colors, point_shape = 'no_border', point_size = 0.3, group_by = 'sample_Xtile_Ytile',
-#          save_param = list(save_name = '6_subset_histologies'))
-# 
-# 
-# # spatial enrichment of groups
-# for(group in unique(pDataDT(codex_test)$leiden)) {
-# 
-#   groupname = as.character(group)
-#   temp_color_code = 'red';names(temp_color_code) = groupname
-#   spatPlot(codex_test, cell_color = 'leiden', point_shape = 'no_border', point_size = 0.3, other_point_size = 0.1,
-#            select_cell_groups = group, cell_color_code = temp_color_code,
-#            save_param = list(save_name = paste0('6_leiden_subset_',groupname)))
-# 
-# }
-# 
-# 
-# cell_metadata =  pDataDT(codex_test)
-# cluster_data = cell_metadata[, .N, by = c('leiden', 'sample_Xtile_Ytile')]
-```
-
-
-
-```{r eval=FALSE}
-## 8. spatial grid ####
-# ------------------- #
-codex_test <- createSpatialGrid(gobject = codex_test,
-                               sdimx_stepsize = 150,
-                               sdimy_stepsize = 150,
-                               minimum_padding = 0)
-spatPlot(codex_test, cell_color = 'leiden', show_grid = T, point_size = 0.75, point_shape = 'no_border',
-         grid_color = 'red', spatial_grid_name = 'spatial_grid', 
-         show_plot = F,
-         save_param = c(save_name = '7_grid'))
-
-### spatial patterns ###
-pattern_codex = detectSpatialPatterns(gobject = codex_test, 
-                                    spatial_grid_name = 'spatial_grid',
-                                    min_cells_per_grid = 5, 
-                                    scale_unit = T, 
-                                    PC_zscore = 1, 
-                                    show_plot = F)
-# dimension 1
-PC_dim = 1
-showPattern2D(codex_test, pattern_codex, dimension = PC_dim, point_size = 0.5,
-              show_plot = F,
-              save_param = c(save_name = paste0('7_pattern',PC_dim,'_PCA')))
-showPatternGenes(codex_test, pattern_codex, dimension = PC_dim,
-                 show_plot = F,
-                 save_param = c(save_name = paste0('7_pattern',PC_dim,'_genes')))
-
-# dimension 2
-PC_dim = 2
-showPattern2D(codex_test, pattern_codex, dimension = PC_dim, point_size = 0.5,
-              show_plot = F,
-              save_param = c(save_name = paste0('7_pattern',PC_dim,'_PCA')))
-showPatternGenes(codex_test, pattern_codex, dimension = PC_dim,
-                 show_plot = F,
-                 save_param = c(save_name = paste0('7_pattern',PC_dim,'_genes')))
-# dimension 3
-PC_dim = 3
-showPattern2D(codex_test, pattern_codex, dimension = PC_dim, point_size = 0.5,
-              show_plot = F,
-              save_param = c(save_name = paste0('7_pattern',PC_dim,'_PCA')))
-showPatternGenes(codex_test, pattern_codex, dimension = PC_dim,
-                 show_plot = F,
-                 save_param = c(save_name = paste0('7_pattern',PC_dim,'_genes')))
-
-# view_pattern_genes = selectPatternGenes(pattern_codex, return_top_selection = TRUE)
-# view_pattern_genes = selectPatternGenes(pattern_codex, return_top_selection = NULL)
-```
+<center>
+![](../inst/images/mouse_codex_spleen/vignette_200325/zone1_cell_type_spat.png)
+![](../inst/images/mouse_codex_spleen/vignette_200325/zone1_cell_type_umap.png)
+![](../inst/images/mouse_codex_spleen/vignette_200325/zone1_gene.png)
+</center> 
 
 ```{r eval=FALSE}
 
-## 9. spatial network ####
-## ---------------------##
-codex_test <- createSpatialNetwork(gobject = codex_test, k = 10, maximum_distance = 150, minimum_k = 2)
-spatPlot(gobject = codex_test, show_network = T, point_size = 0.75, point_shape = 'no_border',
-         network_color = 'blue', spatial_network_name = 'spatial_network',
-         show_plot = F,
-         save_param = c(save_name = '8_spatial_network'))
+codex_test_zone2 = subsetGiotto(codex_test, cell_ids = codex_test@cell_metadata$cell_ID[codex_test@cell_metadata$sample_Xtile_Ytile=="BALBc-3_X04_Y03"])
 
-#library(RTriangle)
-plotStatDelaunayNetwork(codex_test,show_plot = F)
+plotUMAP(gobject = codex_test_zone2, cell_color = 'cell_types',point_shape = 'no_border',   point_size = 1,
+         cell_color_code = mycolorcode,
+         show_center_label = F,
+         label_size =2,
+         legend_text = 5,
+         legend_symbol_size = 2)
 
-codex_test = createDelaunayNetwork(gobject = codex_test, 
-                                   name = 'delaunay_network')
-
-spatPlot(gobject = codex_test, show_network = T, point_size = 0.75, point_shape = 'no_border',
-         network_color = 'blue', spatial_network_name = 'delaunay_network',
-         show_plot=F,
-         save_param = c(save_name = '8_delaubay_network'))
-
-```
-```{r eval=FALSE}
-
-bound = c(xtilespan*4,xtilespan*5,
-          ytilespan*3,ytilespan*4)
-
-# plotVoronoiTile(gobject = codex_test,
-#                 #color_by = "Imaging_phenotype_annotation", 
-#                 color_by = "leiden", bound = bound,
-#                 subset_vec = NULL)
-
-plotVoronoiTile(gobject = codex_test,
-                #color_by = "Imaging_phenotype_annotation", 
-                color_by = "Imaging_phenotype_annotation", bound = bound,
-                subset_vec = NULL)
-# 
-# plotVoronoiTile(gobject = codex_test,
-#                 #color_by = "Imaging_phenotype_annotation", 
-#                 color_by = "leiden", bound = bound,
-#                 subset_vec = codex_test@cell_metadata$leiden==1)
-# plotVoronoiTile(gobject = codex_test,
-#                 #color_by = "Imaging_phenotype_annotation", 
-#                 color_by = "leiden", bound = bound,
-#                 subset_vec = codex_test@cell_metadata$leiden==2)
-# 
-# plotVoronoiTile(gobject = codex_test,
-#                 #color_by = "Imaging_phenotype_annotation", 
-#                 color_by = "leiden", bound = bound,
-#                 subset_vec = codex_test@cell_metadata$leiden==3)
-
-codex_test@cell_metadata$niche_cluster_ID[is.na(codex_test@cell_metadata$niche_cluster_ID)]=0
-plotVoronoiTile(gobject = codex_test,
-                #color_by = "Imaging_phenotype_annotation", 
-                color_by = "Imaging_phenotype_annotation", bound = bound,
-                subset_vec = codex_test@cell_metadata$niche_cluster_ID==66)
-
-plotDelaunayNeighbors(gobject = codex_test,
-                #color_by = "Imaging_phenotype_annotation", 
-                color_by = "Imaging_phenotype_annotation", bound = bound,
-                select_vec = codex_test@cell_metadata$niche_cluster_ID==66)
-
-# df <- data.frame(x = rnorm(5000), y = rnorm(5000))
-# h  <- ggplot(df, aes(x,y))
-# h + geom_point()
-# h + geom_point(alpha = 0.5)
-# h + geom_point(alpha = 1/10)
-
-```
-
-```{r eval=FALSE}
-
-## 9.1 neighborhood structure/community structure ####
-
-# 
-# cell_locations = copy(osm_test@spatial_locs)
-# cell_metadata = copy(osm_test@cell_metadata)
-# cell_metadata[, cell_ID := NULL]
-# cell_locations_metadata <- cbind(cell_locations, cell_metadata)
-# library(ggforce)
-# mypl = ggplot()
-# mypl = mypl + theme_classic()
-# mypl = mypl + geom_voronoi_tile(data = cell_locations_metadata,
-#                                 aes(x = sdimx, y = sdimy, group = -1L, fill = as.factor(det_cell_types)),
-#                                 colour = 'black', max.radius = 300)
-# mypl = mypl + geom_point(data = cell_locations_metadata,
-#                          aes(x = sdimx, y = sdimy), size = 0.5)
-# mypl
-# 
-
-spatPlot(gobject = codex_test, cell_color = 'i_niche', point_shape = 'no_border', point_size = 0.2, 
-        #cell_color_code = leiden_colors, 
-        show_legend = F,
-        show_plot = F,
+spatPlot(gobject = codex_test_zone2, cell_color = 'cell_types', point_shape = 'no_border', point_size = 1, 
+        cell_color_code = mycolorcode,
         coord_fix_ratio = 1,
-        show_voronoi_cell = T,
-        save_param = list(save_name = '4_spatplot_iniche'),legend_text = 0.01,legend_symbol_size = 0.01)
+         label_size =2,
+         legend_text = 5,
+         legend_symbol_size = 2)
 
-spatPlot(gobject = codex_test, cell_color = 'i_niche', point_shape = 'no_border', point_size = 0.2, 
-        #cell_color_code = leiden_colors, 
-        show_legend = F,
-        show_plot = F,
-        coord_fix_ratio = 1,
-        show_voronoi_cell = T,
-        save_param = list(save_name = '4_spatplot_iniche'),legend_text = 0.01,legend_symbol_size = 0.01)
+spatDimGenePlot(codex_test_zone2, 
+                expression_values = 'scaled',
+                genes = c("CD4", "CD106"),
+                spat_point_shape = 'no_border',
+                dim_point_shape = 'no_border',
+                genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue')
 
-codex_test <- detectNeighborhoodStructure(gobject = codex_test, spatial_network_name = "delaunay_network",
-                                         cluster_column = "leiden",python_path = my_python_path,partition_type = );
 
-spatPlot(gobject = codex_test, cell_color = 'i_niche', point_shape = 'no_border', point_size = 0.2, 
-        #cell_color_code = leiden_colors, 
-        show_legend = F,
-        show_plot = F,
-        coord_fix_ratio = 1,
-        save_param = list(save_name = '4_spatplot_iniche'),legend_text = 0.01,legend_symbol_size = 0.01)
 
-spatPlot(gobject = codex_test, cell_color = 'community', point_shape = 'no_border', point_size = 0.2, 
-        #cell_color_code = leiden_colors, 
-        coord_fix_ratio = 1,
-        show_plot = F,
-        save_param = list(save_name = '4_spatplot_community'))
-
-spatPlot(gobject = codex_test, cell_color = 'community_cluster', point_shape = 'no_border', point_size = 0.2, 
-        #cell_color_code = leiden_colors, 
-        coord_fix_ratio = 1,
-        show_plot = F,
-        save_param = list(save_name = '4_spatplot_cluster'))
-
-spatDimPlot2D(gobject = codex_test, cell_color = 'i_niche', spat_point_shape = 'border', spat_point_size = 0.2, spat_point_border_stroke = 0.01,
-              dim_point_shape = 'border', dim_point_size = 0.2, dim_point_border_stroke = 0.01,
-              spat_show_legend = F,
-              dim_show_legend = F,
-              dim_show_center_label = F,
-              show_plot = F,
-              save_param = list(save_name = '4_covis_iniche'))
-
-spatDimPlot2D(gobject = codex_test, cell_color = 'community', spat_point_shape = 'border', spat_point_size = 0.2, spat_point_border_stroke = 0.01,
-              dim_point_shape = 'border', dim_point_size = 0.2, dim_point_border_stroke = 0.01,
-              show_plot = F,
-              save_param = list(save_name = '4_covis_community'))
-
-spatDimPlot2D(gobject = codex_test, cell_color = 'community_cluster', spat_point_shape = 'border', spat_point_size = 0.2, spat_point_border_stroke = 0.01,
-              dim_point_shape = 'border', dim_point_size = 0.2, dim_point_border_stroke = 0.01,
-              show_plot = F,
-              save_param = list(save_name = '4_covis_community_cluster'))
 
 ```
 
-
-
-```{r eval=FALSE}
-
-## 10. spatial genes ####
-## ---------------------##
-## kmeans binarization
-kmtest = binGetSpatialGenes(codex_test, bin_method = 'kmeans',
-                            do_fisher_test = T,
-                            spatial_network_name = 'spatial_network', verbose = T,cores = 8)
-spatGenePlot(codex_test, expression_values = 'norm',
-             genes = kmtest$genes[1:4], cow_n_col = 2, point_size = 0.3, point_border_stroke = 0,
-             genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue', midpoint = 0,
-             save_param = c(save_name = '9_km_spatial_genes'))
-
-## rank binarization
-ranktest = binGetSpatialGenes(codex_test, bin_method = 'rank', 
-                              do_fisher_test = T,
-                              spatial_network_name = 'spatial_network', verbose = T,cores = 8)
-spatGenePlot(codex_test, expression_values = 'norm',
-             genes = ranktest$genes[1:4], cow_n_col = 2, point_size = 0.3, point_border_stroke = 0,
-             genes_high_color = 'red', genes_mid_color = 'white', genes_low_color = 'darkblue', midpoint = 0,
-             save_param = c(save_name = '9_rank_spatial_genes'))
-
-
-# 1. calculate gene spatial correlation and single-cell correlation 
-# create spatial correlation object
-spat_cor_netw_DT = detectSpatialCorGenes(codex_test, method = 'network')
-
-# 2. identify most similar spatially correlated genes for one gene
-CD45_genes = showSpatialCorGenes(spat_cor_netw_DT, genes = 'CD45', min_spat_cor = NULL)
-
-spatGenePlot(codex_test, expression_values = 'norm',
-             genes = CD45_genes$variable, point_size = 0.3, point_border_stroke = 0,
-             save_param = c(save_name = '9_CD45_correlated_genes'))
-
-# 3. cluster correlated genes & visualize
-spat_cor_netw_DT = clusterSpatialCorGenes(spat_cor_netw_DT, name = 'spat_netw_clus', k = 6)
-
-heatmSpatialCorGenes(codex_test, spatCorObject = spat_cor_netw_DT, use_clus_name = 'spat_netw_clus', show_column_names = T, 
-                     save_param = c(save_name = '9_heatmap_correlated_genes',base_height = 6, base_width = 8, units = 'cm'), 
-                     heatmap_legend_param = list(title = NULL), column_names_gp = grid::gpar(fontsize = 6))
-
-
-# 4. rank spatial correlated clusters and show genes for selected clusters
-netw_ranks = rankSpatialCorGroups(codex_test, spatCorObject = spat_cor_netw_DT, use_clus_name = 'spat_netw_clus',
-                                  save_param = c(save_name = '9_rank_correlated_groups', base_height = 3, base_width = 5))
-
-# 5. create metagene enrichment score for clusters
-cluster_genes_DT = showSpatialCorGenes(spat_cor_netw_DT, use_clus_name = 'spat_netw_clus', show_top_genes = 1)
-cluster_genes = cluster_genes_DT$clus; names(cluster_genes) = cluster_genes_DT$gene_ID
-
-codex_test = createMetagenes(codex_test, gene_clusters = cluster_genes, name = 'cluster_metagene')
-
-spatCellPlot(codex_test,
-             spat_enr_names = 'cluster_metagene',
-             cell_annotation_values = netw_ranks$clusters,
-             point_size = 0.3, cow_n_col = 3, point_border_stroke = 0, 
-             save_param = c(save_name = '9_spat_enrichment_score_plots', base_width = 11, base_height = 6))
-
-spatCellPlot(codex_test,
-             spat_enr_names = 'cluster_metagene',
-             cell_annotation_values = netw_ranks$clusters,
-             point_size = 0.3, cow_n_col = 3, point_border_stroke = 0, background_color = 'black',
-             save_param = c(save_name = '9_spat_enrichment_score_plots_black_bg', base_width = 11, base_height = 6))
-
-pDataDT(codex_test)
-```
-
-
-
-```{r eval=FALSE}
-## 12. cell-cell preferential proximity ####
-## ---------------------------------------##
-
-## calculate frequently seen proximities
-cell_proximities = cellProximityEnrichment(gobject = codex_test,
-                                           #cluster_column = 'cell_types',
-                                           cluster_column = 'leiden',
-                                           spatial_network_name = 'spatial_network',
-                                           number_of_simulations = 200)
-saveRDS(cell_proximities, file = paste0(results_folder,'/', 'cell_proximities_cell_types.RDS'), compress = F)
-
-## barplot
-cellProximityBarplot(gobject = codex_test, CPscore = cell_proximities, min_orig_ints = 5, min_sim_ints = 5, 
-                     save_param = c(save_name = '11_barplot_cell_cell_enrichment'))
-## heatmap
-cellProximityHeatmap(gobject = codex_test, CPscore = cell_proximities, order_cell_types = T, scale = T,
-                     color_breaks = c(-1.5, 0, 1.5), color_names = c('blue', 'white', 'red'),
-                     save_param = c(save_name = '11_heatmap_cell_cell_enrichment', unit = 'in'))
-## network
-cellProximityNetwork(gobject = codex_test, CPscore = cell_proximities, remove_self_edges = T, only_show_enrichment_edges = F,
-                     save_param = c(save_name = '11_network_cell_cell_enrichment'))
-
-## visualization
-spec_interaction = "1--5"
-cellProximitySpatPlot2D(gobject = codex_test, point_select_border_stroke = 0,
-                        interaction_name = spec_interaction,
-                        cluster_column = 'leiden', show_network = T,
-                        cell_color = 'leiden', coord_fix_ratio = NULL,
-                        point_size_select = 0.3, point_size_other = 0.1,
-                        save_param = c(save_name = '11_selected_enrichment'))
-
-## SAVE ####
-#results_folder = '/gcdata/gcproj/Ruben/GCLAB/R_DRIES/Giotto_project/Datasets/CyCIF_data/PDAC/Results/200118_results/'
-saveRDS(codex_test, file = paste0(results_folder,'/', 'codex_test.RDS'), compress = F)
-codex_test = readRDS(file = paste0(results_folder,'/', 'codex_test.RDS'))
-
-# agreed clusters!
-codex_metadata = pDataDT(codex_test)
-leiden_colors = Giotto:::getDistinctColors(length(leiden_colors))
-names(leiden_colors) = unique(codex_metadata$leiden)
-
-```
-
+<center>
+![](../inst/images/mouse_codex_spleen/vignette_200325/zone2_spat.png)
+![](../inst/images/mouse_codex_spleen/vignette_200325/zone2_umap.png)
+![](../inst/images/mouse_codex_spleen/vignette_200325/zone2_gene.png)
+</center> 
