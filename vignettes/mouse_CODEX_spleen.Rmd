@@ -39,7 +39,7 @@ instrs = createGiottoInstructions(python_path = my_python_path,
 [Goltsev et al.](https://www.cell.com/cell/pdf/S0092-8674(18)30904-8.pdf) created a multiplexed datasets of normal and lupus (MRL/lpr) murine spleens using CODEX technique. The dataset consists of 30 protein markers from 734,101 single cells. In this tutorial, 83,787 cells from sampel "BALBc-3" were selected for the analysis. 
   
 <center>
-![](../inst/images/codex_spleen_image_summary.png)
+![](../inst/images/cortex_image_demo.png)
 </center> 
 
 ```{r, eval=FALSE}
