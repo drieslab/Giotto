@@ -30,17 +30,20 @@ Make sure to check out the [**Datasets**](https://rubd.github.io/Giotto/articles
 
 ## HOWTOs  
 
+Giotto provides a lot of analyses, visualizations and other options to facilitate your spatial dataset analysis.
+We are working on providing easy-to-understand examples or tutorials, but if anything is not clear or if there is something you
+would like to see in particular, then do not hesitate to contact is.
+
 Howto's examples:  
 
-##### Giotto tips & tricks 
-- [How to add metadata and subset a Giotto object?](./inst/faqs/metadata_and_subset/metadata_and_subset_VC.md)
-- [Different ways of subsetting Giotto results?](./inst/faqs/subset_giotto/subset_giotto.md)
-- [How to create global instructions and show or save your created plots?](./inst/faqs/instructions_and_plotting/instructions_and_plotting.md)
-- [Different ways to visualize your spatial data?](./inst/faqs/visualization_options/visualization_options.md)
-- [How to test and store multiple parameters or analyses?](./inst/faqs/work_with_multiple_analyses/work_with_multiple_analyses.md)
+##### Giotto tips & tricks [work in progress]
+- [Different ways of subsetting Giotto results?](./subset_giotto.html)
+- [How to create global instructions and show or save your created plots?](./instructions_and_plotting.html)
+- [Different ways to visualize your spatial data?](./visualization_options.html)
+- [How to test and store multiple parameters or analyses?](./work_with_multiple_analyses.html)
 - How to create a giotto object with your own spatial network/grid, dimensions reduction, ... ?  
 
-##### Giotto analyses 
+##### Giotto analyses [work in progress]
 - How to identify highly variable genes?  
 - Different ways to cluster data?
 - Methods to identify differentially expressed genes?  
@@ -49,7 +52,7 @@ Howto's examples:
 - Effect of neighboring cells on gene expression?  
 - ...
 
-##### Giotto Analyzer and Viewer interaction  
+##### Giotto Analyzer and Viewer interaction [work in progress]
 - How to switch between Giotto Analyzer and Viewer?
 
 

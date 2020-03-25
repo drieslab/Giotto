@@ -29,37 +29,37 @@ spatNetwDistributionsDistance <- function(gobject,
                                           save_plot = NA,
                                           save_param =  list(),
                                           default_save_name = 'spatNetwDistributionsDistance') {
-  
-  
+
+
   ## spatial network
   #spatial_network = gobject@spatial_network[[spatial_network_name]]
   spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
-  
+
   ## convert to full network with rank_int column
   spatial_network = Giotto:::convert_to_full_spatial_network(spatial_network)
-  
+
   if(is.null(spatial_network)) {
     stop('spatial network ', spatial_network_name, ' was not found')
   }
-  
+
   if(!is.null(test_distance_limit)) {
     removed_neighbors = spatial_network[distance > test_distance_limit, .N, by = rank_int]
     removed_neighbors[, status := 'remove']
     keep_neighbors = spatial_network[distance <= test_distance_limit, .N, by = rank_int]
     keep_neighbors[, status := 'keep']
-    
+
     dist_removal_dt = rbind(removed_neighbors, keep_neighbors)
     setorder(dist_removal_dt, rank_int)
-    
+
     dist_removal_dt_dcast = dcast.data.table(data = dist_removal_dt, rank_int~status, value.var = 'N', fill = 0)
     dist_removal_dt_dcast[, label := paste0('keep:',keep, '\n remove:',remove)]
   }
-  
+
   # text location coordinates
   middle_distance = max(spatial_network$distance)/(3/2)
   freq_dt = spatial_network[, table(cut(distance, breaks = 30)), by = rank_int]
   middle_height = max(freq_dt$V1)/(3/2)
-  
+
   pl = ggplot()
   pl = pl + labs(title = 'distance distribution per k-neighbor')
   pl = pl + theme_classic()
@@ -69,28 +69,28 @@ spatNetwDistributionsDistance <- function(gobject,
     pl = pl + geom_vline(xintercept = test_distance_limit, color = 'red')
     pl = pl + geom_text(data = dist_removal_dt_dcast, aes(x = middle_distance, y = middle_height, label = label))
   }
-  
+
   # print, return and save parameters
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-  
+
   ## print plot
   if(show_plot == TRUE) {
     print(pl)
   }
-  
+
   ## save plot
   if(save_plot == TRUE) {
     do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
   }
-  
+
   ## return plot
   if(return_plot == TRUE) {
     return(pl)
   }
-  
-  
+
+
 }
 
 
@@ -118,47 +118,47 @@ spatNetwDistributionsKneighbors = function(gobject,
                                            save_plot = NA,
                                            save_param =  list(),
                                            default_save_name = 'spatNetwDistributionsKneighbors') {
-  
+
   ## spatial network
   #spatial_network = gobject@spatial_network[[spatial_network_name]]
   spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
-  
+
   ## convert to full network with rank_int column
   spatial_network = Giotto:::convert_to_full_spatial_network(spatial_network)
-  
+
   if(is.null(spatial_network)) {
     stop('spatial network ', spatial_network_name, ' was not found')
   }
-  
+
   spatial_network_dt = as.data.table(spatial_network[, table(source)])
-  
+
   pl = ggplot()
   pl = pl + labs(title = 'k-neighbor distribution for all cells', x = 'k-neighbors/cell')
   pl = pl + theme_classic()
   pl = pl + geom_histogram(data = spatial_network_dt, aes(x = N), color = 'white', fill = 'black', bins = hist_bins)
-  
-  
+
+
   # print, return and save parameters
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-  
+
   ## print plot
   if(show_plot == TRUE) {
     print(pl)
   }
-  
+
   ## save plot
   if(save_plot == TRUE) {
     do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
   }
-  
+
   ## return plot
   if(return_plot == TRUE) {
     return(pl)
   }
-  
-  
+
+
 }
 
 
@@ -195,20 +195,20 @@ spatNetwDistributions <- function(gobject,
                                   save_plot = NA,
                                   save_param =  list(),
                                   default_save_name = 'spatNetwDistributions') {
-  
+
   ## histogram to show
   distribution = match.arg(distribution, choices = distribution)
-  
+
   ## spatial network
   #spatial_network = gobject@spatial_network[[spatial_network_name]]
   spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
   if(is.null(spatial_network)) {
     stop('spatial network ', spatial_network_name, ' was not found')
   }
-  
-  
+
+
   if(distribution == 'distance') {
-    
+
     spatNetwDistributionsDistance(gobject = gobject,
                                   spatial_network_name = spatial_network_name,
                                   hist_bins = hist_bins,
@@ -219,9 +219,9 @@ spatNetwDistributions <- function(gobject,
                                   save_plot = save_plot,
                                   save_param =  save_param,
                                   default_save_name = default_save_name)
-    
+
   } else if(distribution == 'k_neighbors') {
-    
+
     spatNetwDistributionsKneighbors(gobject = gobject,
                                     spatial_network_name = spatial_network_name,
                                     hist_bins = hist_bins,
@@ -230,9 +230,9 @@ spatNetwDistributions <- function(gobject,
                                     save_plot = save_plot,
                                     save_param =  save_param,
                                     default_save_name = default_save_name)
-    
+
   }
-  
+
 }
 
 
@@ -315,6 +315,7 @@ create_spatialNetworkObject <- function(name = NULL,
                                         outputObj = NULL,
                                         networkDT = NULL,
                                         cellShapeObj = NULL,
+                                        networkDT_before_filter = NULL,
                                         crossSectionObjects = NULL,
                                         misc = NULL) {
 
@@ -323,6 +324,7 @@ create_spatialNetworkObject <- function(name = NULL,
                     parameters = parameters,
                     outputObj = outputObj,
                     networkDT = networkDT,
+                    networkDT_before_filter = networkDT_before_filter,
                     cellShapeObj = cellShapeObj,
                     crossSectionObjects = crossSectionObjects,
                     misc = misc)
@@ -352,6 +354,70 @@ select_spatialNetwork <- function(gobject,
   }else{
     return(networkDT)
   }
+}
+
+#' @title calculate_distance_and_weight
+#' @name calculate_distance_and_weight
+#' @description calculate_distance_and_weight
+calculate_distance_and_weight <- function(networkDT,
+                                          sdimx = "sdimx",
+                                          sdimy = "sdimy",
+                                          sdimz = "sdimz",
+                                          d2_or_d3=c(2,3)){
+
+
+  if (d2_or_d3==3){
+    ## make it dynamic for all possible coordinates combinations ##
+    xbegin_name = paste0(sdimx,'_begin')
+    ybegin_name = paste0(sdimy,'_begin')
+    zbegin_name =  paste0(sdimz,'_begin')
+    xend_name = paste0(sdimx,'_end')
+    yend_name = paste0(sdimy,'_end')
+    zend_name = paste0(sdimz,'_end')
+    mycols = c(xbegin_name, ybegin_name, zbegin_name,
+               xend_name, yend_name, zend_name)
+  }else if (d2_or_d3==2){
+    xbegin_name = paste0(sdimx,'_begin')
+    ybegin_name = paste0(sdimy,'_begin')
+    xend_name = paste0(sdimx,'_end')
+    yend_name = paste0(sdimy,'_end')
+    mycols = c(xbegin_name, ybegin_name,
+               xend_name, yend_name)
+  }
+
+  ## calculate distance and weight + filter ##
+  networkDT[, `:=`(distance, dist(x = matrix(.SD, nrow = 2, byrow = T))),
+            by = 1:nrow(networkDT), .SDcols = mycols]
+
+  networkDT[, `:=`(distance, as.numeric(distance))]
+  networkDT[, `:=`(weight, 1/distance)]
+  data.table::setorder(networkDT, from, distance)
+
+  networkDT = networkDT[, c('to', 'from', 'weight',
+                            'distance', mycols), with = F]
+
+  return(networkDT)
+}
+
+#' @title filter_network
+#' @name filter_network
+#' @description function to filter a spatial network
+filter_network <- function(networkDT,
+                           maximum_distance = NULL,
+                           minimum_k = NULL){
+
+  temp_fullnetwork = Giotto:::convert_to_full_spatial_network(networkDT)
+
+  ## filter based on distance or minimum number of neighbors
+  if (maximum_distance == "auto") {
+    temp_fullnetwork = temp_fullnetwork[distance <= boxplot.stats(temp_fullnetwork$distance)$stats[5]]
+  }
+  else if (!is.null(maximum_distance)) {
+    temp_fullnetwork = temp_fullnetwork[distance <= maximum_distance | rank_int <= minimum_k]
+  }
+  networkDT = Giotto:::convert_to_reduced_spatial_network(temp_fullnetwork)
+
+  return(networkDT)
 }
 
 ## Delaunay network ####
@@ -666,43 +732,22 @@ create_delaunayNetwork2D <- function (gobject,
   }
 
 
-  ## make it dynamic for all possible coordinates combinations ##
-  xbegin_name = paste0(sdimx,'_begin')
-  ybegin_name = paste0(sdimy,'_begin')
-  xend_name = paste0(sdimx,'_end')
-  yend_name = paste0(sdimy,'_end')
-
   ## calculate distance and weight + filter ##
-  mycols = c(xbegin_name, ybegin_name,
-             xend_name, yend_name)
-  delaunay_network_DT[, `:=`(distance, dist(x = matrix(.SD, nrow = 2, byrow = T))),
-                      by = 1:nrow(delaunay_network_DT), .SDcols = mycols]
+  delaunay_network_DT = calculate_distance_and_weight(delaunay_network_DT,
+                                                      sdimx = sdimx,
+                                                      sdimy = sdimy,
+                                                      d2_or_d3=2)
+  networkDT_before_filter = delaunay_network_DT
+  delaunay_network_DT = filter_network(delaunay_network_DT,
+                                       maximum_distance=maximum_distance,
+                                       minimum_k=minimum_k)
 
-  delaunay_network_DT[, `:=`(distance, as.numeric(distance))]
-  delaunay_network_DT[, `:=`(weight, 1/distance)]
-  data.table::setorder(delaunay_network_DT, from, distance)
+  ## calculate cell shape parameters ##
+  meanCellDistance = get_distance(networkDT,method="mean")
+  medianCellDistance = get_distance(networkDT,method="median")
 
-  delaunay_network_DT = delaunay_network_DT[, c('to', 'from', 'weight',
-                                                'distance', mycols), with = F]
-  temp_fullnetwork = Giotto:::convert_to_full_spatial_network(delaunay_network_DT)
-
-  if (maximum_distance == "auto") {
-    temp_fullnetwork = temp_fullnetwork[distance <= boxplot.stats(temp_fullnetwork$distance)$stats[5]]
-  }
-  else if (!is.null(maximum_distance)) {
-    temp_fullnetwork = temp_fullnetwork[distance <= maximum_distance | rank_int <= minimum_k]
-  }
-
-  delaunay_network_DT = Giotto:::convert_to_reduced_spatial_network(temp_fullnetwork)
-
-  ### calcualte cell diameter ###
-  cellDiameter_mean = mean(delaunay_network_DT$distance)
-  cellDiameter_median = median(delaunay_network_DT$distance)
-
-  cellShapeObj = list("cellDiameter_mean" = cellDiameter_mean,
-                      "cellDiameter_median" = cellDiameter_median
-  )
-
+  cellShapeObj = list("meanCellDistance" = meanCellDistance,
+                      "medianCellDistance" = medianCellDistance)
 
   ###
   ###
@@ -711,6 +756,7 @@ create_delaunayNetwork2D <- function (gobject,
                                                               parameters = parameters,
                                                               outputObj = outputObj,
                                                               networkDT = delaunay_network_DT,
+                                                              networkDT_before_filter = networkDT_before_filter,
                                                               cellShapeObj = cellShapeObj,
                                                               misc = NULL)
   ###
@@ -808,43 +854,23 @@ create_delaunayNetwork3D <- function (gobject,
 
   }
 
-  ## make it dynamic for all possible coordinates combinations ##
-  xbegin_name = paste0(sdimx,'_begin')
-  ybegin_name = paste0(sdimy,'_begin')
-  zbegin_name =  paste0(sdimz,'_begin')
-  xend_name = paste0(sdimx,'_end')
-  yend_name = paste0(sdimy,'_end')
-  zend_name = paste0(sdimz,'_end')
-
   ## calculate distance and weight + filter ##
-  mycols = c(xbegin_name, ybegin_name, zbegin_name,
-             xend_name, yend_name, zend_name)
-  delaunay_network_DT[, `:=`(distance, dist(x = matrix(.SD, nrow = 2, byrow = T))),
-                      by = 1:nrow(delaunay_network_DT), .SDcols = mycols]
+  networkDT_before_filter = calculate_distance_and_weight(delaunay_network_DT,
+                                                          sdimx = sdimx,
+                                                          sdimy = sdimy,
+                                                          sdimz = sdimz,
+                                                          d2_or_d3=3)
+  delaunay_network_DT = filter_network(networkDT_before_filter,
+                                       maximum_distance=maximum_distance,
+                                       minimum_k=minimum_k)
 
-  delaunay_network_DT[, `:=`(distance, as.numeric(distance))]
-  delaunay_network_DT[, `:=`(weight, 1/distance)]
-  data.table::setorder(delaunay_network_DT, from, distance)
+  ## calculate cell shape parameters ##
+  meanCellDistance = get_distance(delaunay_network_DT,method="mean")
+  medianCellDistance = get_distance(delaunay_network_DT,method="median")
 
-  delaunay_network_DT = delaunay_network_DT[, c('to', 'from', 'weight',
-                                                'distance', mycols), with = F]
-  temp_fullnetwork = Giotto:::convert_to_full_spatial_network(delaunay_network_DT)
-
-  ## filter based on distance or minimum number of neighbors
-  if (maximum_distance == "auto") {
-    temp_fullnetwork = temp_fullnetwork[distance <= boxplot.stats(temp_fullnetwork$distance)$stats[5]]
-  }
-  else if (!is.null(maximum_distance)) {
-    temp_fullnetwork = temp_fullnetwork[distance <= maximum_distance | rank_int <= minimum_k]
-  }
-  delaunay_network_DT = Giotto:::convert_to_reduced_spatial_network(temp_fullnetwork)
-  cellDiameter_mean = mean(delaunay_network_DT$distance)
-  cellDiameter_median = median(delaunay_network_DT$distance)
-
-  cellShapeObj = list("cellDiameter_mean" = cellDiameter_mean,
-                      "cellDiameter_median" = cellDiameter_median
+  cellShapeObj = list("meanCellDistance" = meanCellDistance,
+                      "medianCellDistance" = medianCellDistance
   )
-
 
   if (return_gobject == TRUE) {
     spn_names = names(gobject@spatial_network)
@@ -871,6 +897,7 @@ create_delaunayNetwork3D <- function (gobject,
                                                        parameters = parameters,
                                                        outputObj = outputObj,
                                                        networkDT = delaunay_network_DT,
+                                                       networkDT_before_filter = networkDT_before_filter,
                                                        cellShapeObj = cellShapeObj,
                                                        misc = NULL)
     ###
@@ -1032,7 +1059,7 @@ plotStatDelaunayNetwork = function(gobject,
 ) {
 
 
-  delaunay_network_DT = createSpatialDelaunayNetwork(gobject = VC_test,
+  delaunay_network_DT = createSpatialDelaunayNetwork(gobject = gobject,
                                                         method = method,
                                                         dimensions = dimensions,
                                                         name = 'temp_network',

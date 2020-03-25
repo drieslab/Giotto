@@ -9,9 +9,9 @@
 
 <!-- badges: end -->
 
-The Giotto package (see
-[www.spatialgiotto.com](http://spatial.rc.fas.harvard.edu/)) provides
-tools to process, analyze and visualize **single-cell spatial
+The Giotto package consists of two modules, Giotto Analyzer and Viewer
+(see [www.spatialgiotto.com](http://spatial.rc.fas.harvard.edu/)), which
+provide tools to process, analyze and visualize **single-cell spatial
 expression** data. The underlying framework is generalizable to
 virtually all currently available spatial datasets. We recently
 demonstrated the general applicability on 10 different datasets created
@@ -21,8 +21,8 @@ Visium, STARmap) and imaging-based multiplexing/proteomics (CyCIF, MIBI,
 CODEX). These technologies differ in terms of resolution (single cell vs
 multiple cells), spatial dimension (2D vs 3D), molecular modality
 (protein vs RNA), and throughput (number of cells and genes). More
-information about the latest (developmental) version of Giotto Analyzer
-can be found at <https://rubd.github.io/Giotto/index.html>.
+information and documentation about the latest (developmental) version
+of Giotto Analyzer can be found at <https://rubd.github.io/Giotto/>.
 
 <img src="inst/images/general_figs/overview_datasets.png" />
 
@@ -99,22 +99,24 @@ pip3 install --user smfish-image-processing --no-cache #add --no-deps if do not 
     computer is around 10\~45 mins.  
   - click on the image and try them out yourself.
 
-[![Cortex](./inst/images/cortex_image_summary.png)](https://rubd.github.io/Giotto/articles/mouse_seqFISH_cortex_200319.html)
+[![seqFISH](./inst/images/general_figs/cortex_image_summary.png)](https://rubd.github.io/Giotto/articles/mouse_seqFISH_cortex_200319.html)
+[![STARmap](./inst/images/general_figs/starmap_cortex_image_summary.png)](https://rubd.github.io/Giotto/articles/mouse_starmap_cortex.html)
 
 ## References
 
-  - Dries, R. et al. Giotto, a pipeline for integrative analysis and
-    visualization of single-cell spatial transcriptomic data. bioRxiv
-    701680 (2019). <doi:10.1101/701680>
-    [link](https://www.biorxiv.org/content/10.1101/701680v1)
+  - [Dries, R. et al. Giotto, a pipeline for integrative analysis and
+    visualization of single-cell spatial transcriptomic data.
+    bioRxiv 701680
+    (2019).](https://www.biorxiv.org/content/10.1101/701680v1)
+    <doi:10.1101/701680>
 
-  - Eng, C.-H. L. et al. Transcriptome-scale super-resolved imaging in
-    tissues by RNA seqFISH+. Nature 1 (2019).
+  - [Eng, C.-H. L. et al. Transcriptome-scale super-resolved imaging in
+    tissues by RNA seqFISH+. Nature 1
+    (2019).](https://www.nature.com/articles/s41586-019-1049-y)
     <doi:10.1038/s41586-019-1049-y>
-    [link](https://www.nature.com/articles/s41586-019-1049-y)
 
-  - Zhu, Q., Shah, S., Dries, R., Cai, L. & Yuan, G.-C. Identification
+  - [Zhu, Q., Shah, S., Dries, R., Cai, L. & Yuan, G.-C. Identification
     of spatially associated subpopulations by combining scRNAseq and
     sequential fluorescence in situ hybridization data. Nature
-    Biotechnology (2018). <doi:10.1038/nbt.4260>
-    [link](https://www.nature.com/articles/nbt.4260)
+    Biotechnology (2018).](https://www.nature.com/articles/nbt.4260)
+    <doi:10.1038/nbt.4260>
