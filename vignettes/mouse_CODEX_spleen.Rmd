@@ -6,9 +6,6 @@ output:
     toc_depth: 2
 ---
 
-<!-- codex_1_simple.md is generated from codex_1_simple.Rmd Please edit that file -->
-
-
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -57,6 +54,7 @@ cell_loc_dedup = cell_loc[!duplicated_locs,]
 expr_dedup = expr[!duplicated_locs,]
 expr_dedup_transpose = t(expr_dedup)
 colnames(expr_dedup_transpose)=cell_loc_dedup$cellID
+
 ## stitch x.y tile coordinates to global coordinates 
 xtilespan = 1344;
 ytilespan = 1008;
@@ -78,9 +76,9 @@ sub_set = cell_loc_dedup$Imaging_phenotype_annotation != "dirt" & cell_loc_dedup
 ```{r eval=FALSE}
 ## create
 
-codex_test <- createGiottoObject(raw_exprs = expr_dedup_transpose[,sample_vec], spatial_locs = stitch_file[sample_vec,],
+codex_test <- createGiottoObject(raw_exprs = expr_dedup_transpose[,sub_set], spatial_locs = stitch_file[sub_set,],
                               offset_file = NULL, instructions = instrs)
-codex_test = addCellMetadata(codex_test, new_metadata = codex_locs_dedup[sample_vec,])
+codex_test = addCellMetadata(codex_test, new_metadata = cell_loc_dedup[sub_set,])
 
 ## filter
 codex_test <- filterGiotto(gobject = codex_test,
