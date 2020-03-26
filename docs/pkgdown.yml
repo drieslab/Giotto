@@ -4,14 +4,11 @@ pkgdown_sha: ~
 articles:
   faqs: faqs.html
   getting_started: getting_started.html
-<<<<<<< HEAD
-  mouse_CODEX_spleen: mouse_CODEX_spleen.html
-=======
   human_cycif_PDAC_200322: human_cycif_PDAC_200322.html
   installation_issues: installation_issues.html
   instructions_and_plotting: instructions_and_plotting.html
   metadata_and_subset_VC: metadata_and_subset_VC.html
->>>>>>> origin
+  mouse_CODEX_spleen: mouse_CODEX_spleen.html
   mouse_seqFISH_cortex_200319: mouse_seqFISH_cortex_200319.html
   mouse_starmap_cortex: mouse_starmap_cortex.html
   mouse_visium_brain_200325: mouse_visium_brain_200325.html
