@@ -194,25 +194,25 @@
 </li>
 <li>Hypothetical example showing a number of options:</li>
 </ul>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="co"># 1. standard R way</span></a>
-<a class="sourceLine" id="cb1-2" title="2">pl =<span class="st"> </span><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(mygobject, <span class="dt">cell_color =</span> <span class="st">'cell_types'</span>)</a>
-<a class="sourceLine" id="cb1-3" title="3"><span class="kw"><a href="https://rdrr.io/r/grDevices/pdf.html">pdf</a></span>(<span class="dt">file =</span> <span class="st">'path/to/save/to/plot.pdf'</span>)</a>
-<a class="sourceLine" id="cb1-4" title="4"><span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(pl)</a>
-<a class="sourceLine" id="cb1-5" title="5"><span class="kw"><a href="https://rdrr.io/r/grDevices/dev.html">dev.off</a></span>()</a>
-<a class="sourceLine" id="cb1-6" title="6"></a>
-<a class="sourceLine" id="cb1-7" title="7"><span class="co"># 2. indicate to save plot, this will save the plot according to Giotto instructions file</span></a>
-<a class="sourceLine" id="cb1-8" title="8"><span class="co"># If the instruction file is not provided in the beginning, it uses the defaults (e.g. working directory)</span></a>
-<a class="sourceLine" id="cb1-9" title="9"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(mygobject, <span class="dt">cell_color =</span> <span class="st">'cell_types'</span>, <span class="dt">save_plot =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb1-10" title="10"></a>
-<a class="sourceLine" id="cb1-11" title="11"><span class="co"># 3. indicate to save plot and specifiy specific saving parameters by providing a list to save_param</span></a>
-<a class="sourceLine" id="cb1-12" title="12"><span class="co"># they will overrule the giotto instructions</span></a>
-<a class="sourceLine" id="cb1-13" title="13"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(mygobject, <span class="dt">cell_color =</span> <span class="st">'cell_types'</span>, <span class="dt">save_plot =</span> <span class="ot">TRUE</span>,</a>
-<a class="sourceLine" id="cb1-14" title="14">         <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_folder =</span> <span class="st">'my_subfolder'</span>, <span class="dt">save_name =</span> <span class="st">'my_name'</span>, <span class="dt">save_format =</span> <span class="st">'png'</span>, <span class="dt">units =</span> <span class="st">'in'</span>))</a>
-<a class="sourceLine" id="cb1-15" title="15"></a>
-<a class="sourceLine" id="cb1-16" title="16"><span class="co"># 4. don't save or return plot, but just view plot</span></a>
-<a class="sourceLine" id="cb1-17" title="17"><span class="co"># defaults are: save_plot = F, return_plot = T and show_plot = T</span></a>
-<a class="sourceLine" id="cb1-18" title="18"><span class="co"># this can be changed in the instructions file or at each specific plotting function</span></a>
-<a class="sourceLine" id="cb1-19" title="19"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(mygobject, <span class="dt">cell_color =</span> <span class="st">'cell_types'</span>, <span class="dt">save_plot =</span> F, <span class="dt">return_plot =</span> F <span class="dt">show_plot =</span> T)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="co"># 1. standard R way</span></a>
+<a class="sourceLine" id="cb1-2" data-line-number="2">pl =<span class="st"> </span><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(mygobject, <span class="dt">cell_color =</span> <span class="st">'cell_types'</span>)</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw"><a href="https://rdrr.io/r/grDevices/pdf.html">pdf</a></span>(<span class="dt">file =</span> <span class="st">'path/to/save/to/plot.pdf'</span>)</a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(pl)</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="kw"><a href="https://rdrr.io/r/grDevices/dev.html">dev.off</a></span>()</a>
+<a class="sourceLine" id="cb1-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="co"># 2. indicate to save plot, this will save the plot according to Giotto instructions file</span></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="co"># If the instruction file is not provided in the beginning, it uses the defaults (e.g. working directory)</span></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(mygobject, <span class="dt">cell_color =</span> <span class="st">'cell_types'</span>, <span class="dt">save_plot =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb1-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="co"># 3. indicate to save plot and specifiy specific saving parameters by providing a list to save_param</span></a>
+<a class="sourceLine" id="cb1-12" data-line-number="12"><span class="co"># they will overrule the giotto instructions</span></a>
+<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(mygobject, <span class="dt">cell_color =</span> <span class="st">'cell_types'</span>, <span class="dt">save_plot =</span> <span class="ot">TRUE</span>,</a>
+<a class="sourceLine" id="cb1-14" data-line-number="14">         <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_folder =</span> <span class="st">'my_subfolder'</span>, <span class="dt">save_name =</span> <span class="st">'my_name'</span>, <span class="dt">save_format =</span> <span class="st">'png'</span>, <span class="dt">units =</span> <span class="st">'in'</span>))</a>
+<a class="sourceLine" id="cb1-15" data-line-number="15"></a>
+<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="co"># 4. don't save or return plot, but just view plot</span></a>
+<a class="sourceLine" id="cb1-17" data-line-number="17"><span class="co"># defaults are: save_plot = F, return_plot = T and show_plot = T</span></a>
+<a class="sourceLine" id="cb1-18" data-line-number="18"><span class="co"># this can be changed in the instructions file or at each specific plotting function</span></a>
+<a class="sourceLine" id="cb1-19" data-line-number="19"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(mygobject, <span class="dt">cell_color =</span> <span class="st">'cell_types'</span>, <span class="dt">save_plot =</span> F, <span class="dt">return_plot =</span> F <span class="dt">show_plot =</span> T)</a></code></pre></div>
 </div>
 </div>
   </div>

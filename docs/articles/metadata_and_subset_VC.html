@@ -127,21 +127,21 @@
     
 <!-- mouse_cortex_example.md is generated from mouse_cortex_example.Rmd Please edit that file -->
 <p>Start from Giotto object from the Mouse Visual Cortex and SVZ:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(<span class="dt">gobject =</span> VC_test, <span class="dt">point_size =</span> <span class="dv">2</span>, <span class="dt">return_plot =</span> F)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(<span class="dt">gobject =</span> VC_test, <span class="dt">point_size =</span> <span class="dv">2</span>, <span class="dt">return_plot =</span> F)</a></code></pre></div>
 <p><img src="../inst/faqs/metadata_and_subset/README-unnamed-chunk-5-1.png"></p>
 <div id="add-annotation" class="section level3">
 <h3 class="hasAnchor">
 <a href="#add-annotation" class="anchor"></a>1. add annotation</h3>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="co"># cell metadata before </span></a>
-<a class="sourceLine" id="cb2-2" title="2"><span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(<span class="kw"><a href="../reference/pDataDT.html">pDataDT</a></span>(VC_test))</a>
-<a class="sourceLine" id="cb2-3" title="3"></a>
-<a class="sourceLine" id="cb2-4" title="4"><span class="co"># add metadata by column name</span></a>
-<a class="sourceLine" id="cb2-5" title="5">cortex_annotation =<span class="st"> </span><span class="kw">fread</span>(<span class="kw"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"extdata"</span>, <span class="st">"cortex_annotation.txt"</span>, <span class="dt">package =</span> <span class="st">"Giotto"</span>))</a>
-<a class="sourceLine" id="cb2-6" title="6">VC_test =<span class="st"> </span><span class="kw"><a href="../reference/addCellMetadata.html">addCellMetadata</a></span>(<span class="dt">gobject =</span> VC_test, <span class="dt">new_metadata =</span> cortex_annotation, <span class="dt">by_column =</span> T, <span class="dt">column_cell_ID =</span> <span class="st">'uniq_ID'</span>)</a>
-<a class="sourceLine" id="cb2-7" title="7"></a>
-<a class="sourceLine" id="cb2-8" title="8"><span class="co"># cell metadata after</span></a>
-<a class="sourceLine" id="cb2-9" title="9">cell_metadata =<span class="st"> </span><span class="kw"><a href="../reference/pDataDT.html">pDataDT</a></span>(VC_test)</a>
-<a class="sourceLine" id="cb2-10" title="10"><span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(cell_metadata)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co"># cell metadata before </span></a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(<span class="kw"><a href="../reference/pDataDT.html">pDataDT</a></span>(VC_test))</a>
+<a class="sourceLine" id="cb2-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co"># add metadata by column name</span></a>
+<a class="sourceLine" id="cb2-5" data-line-number="5">cortex_annotation =<span class="st"> </span><span class="kw">fread</span>(<span class="kw"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"extdata"</span>, <span class="st">"cortex_annotation.txt"</span>, <span class="dt">package =</span> <span class="st">"Giotto"</span>))</a>
+<a class="sourceLine" id="cb2-6" data-line-number="6">VC_test =<span class="st"> </span><span class="kw"><a href="../reference/addCellMetadata.html">addCellMetadata</a></span>(<span class="dt">gobject =</span> VC_test, <span class="dt">new_metadata =</span> cortex_annotation, <span class="dt">by_column =</span> T, <span class="dt">column_cell_ID =</span> <span class="st">'uniq_ID'</span>)</a>
+<a class="sourceLine" id="cb2-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="co"># cell metadata after</span></a>
+<a class="sourceLine" id="cb2-9" data-line-number="9">cell_metadata =<span class="st"> </span><span class="kw"><a href="../reference/pDataDT.html">pDataDT</a></span>(VC_test)</a>
+<a class="sourceLine" id="cb2-10" data-line-number="10"><span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(cell_metadata)</a></code></pre></div>
 </div>
 <div id="subset-giotto" class="section level3">
 <h3 class="hasAnchor">
@@ -149,24 +149,24 @@
 <ul>
 <li>subset first 500 cells</li>
 </ul>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1">first_<span class="dv">500</span>_cells =<span class="st"> </span>cell_metadata[<span class="dv">1</span><span class="op">:</span><span class="dv">500</span>][[<span class="st">'cell_ID'</span>]]</a>
-<a class="sourceLine" id="cb3-2" title="2">VC_subset =<span class="st"> </span><span class="kw"><a href="../reference/subsetGiotto.html">subsetGiotto</a></span>(VC_test, <span class="dt">cell_ids =</span> first_<span class="dv">500</span>_cells)</a>
-<a class="sourceLine" id="cb3-3" title="3"><span class="kw"><a href="../reference/spatPlot2D.html">spatPlot2D</a></span>(<span class="dt">gobject =</span> VC_subset, <span class="dt">point_size =</span> <span class="dv">2</span>, <span class="dt">cell_color =</span> <span class="st">'cell_types'</span>, <span class="dt">return_plot =</span> F)</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">first_<span class="dv">500</span>_cells =<span class="st"> </span>cell_metadata[<span class="dv">1</span><span class="op">:</span><span class="dv">500</span>][[<span class="st">'cell_ID'</span>]]</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">VC_subset =<span class="st"> </span><span class="kw"><a href="../reference/subsetGiotto.html">subsetGiotto</a></span>(VC_test, <span class="dt">cell_ids =</span> first_<span class="dv">500</span>_cells)</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="kw"><a href="../reference/spatPlot2D.html">spatPlot2D</a></span>(<span class="dt">gobject =</span> VC_subset, <span class="dt">point_size =</span> <span class="dv">2</span>, <span class="dt">cell_color =</span> <span class="st">'cell_types'</span>, <span class="dt">return_plot =</span> F)</a></code></pre></div>
 <center>
 <img src="../inst/faqs/metadata_and_subset/README-unnamed-chunk-8-1.png" style="width:50.0%">
 </center>
 <ul>
 <li>subset for SVZ cells (located in field 5)</li>
 </ul>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">SVZ_cells =<span class="st"> </span>cell_metadata[Field_of_View <span class="op">==</span><span class="st"> </span><span class="dv">5</span>][[<span class="st">'cell_ID'</span>]]</a>
-<a class="sourceLine" id="cb4-2" title="2">VC_SVZ =<span class="st"> </span><span class="kw"><a href="../reference/subsetGiotto.html">subsetGiotto</a></span>(VC_test, <span class="dt">cell_ids =</span> SVZ_cells)</a>
-<a class="sourceLine" id="cb4-3" title="3"><span class="kw"><a href="../reference/spatPlot2D.html">spatPlot2D</a></span>(<span class="dt">gobject =</span> VC_SVZ, <span class="dt">point_size =</span> <span class="dv">4</span>, <span class="dt">cell_color =</span> <span class="st">'cell_types'</span>, <span class="dt">return_plot =</span> F)</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">SVZ_cells =<span class="st"> </span>cell_metadata[Field_of_View <span class="op">==</span><span class="st"> </span><span class="dv">5</span>][[<span class="st">'cell_ID'</span>]]</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">VC_SVZ =<span class="st"> </span><span class="kw"><a href="../reference/subsetGiotto.html">subsetGiotto</a></span>(VC_test, <span class="dt">cell_ids =</span> SVZ_cells)</a>
+<a class="sourceLine" id="cb4-3" data-line-number="3"><span class="kw"><a href="../reference/spatPlot2D.html">spatPlot2D</a></span>(<span class="dt">gobject =</span> VC_SVZ, <span class="dt">point_size =</span> <span class="dv">4</span>, <span class="dt">cell_color =</span> <span class="st">'cell_types'</span>, <span class="dt">return_plot =</span> F)</a></code></pre></div>
 <ul>
 <li>subset for all interneurons</li>
 </ul>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">interneuron_cells =<span class="st"> </span>cell_metadata[cell_types <span class="op">==</span><span class="st"> 'Interneuron'</span>][[<span class="st">'cell_ID'</span>]]</a>
-<a class="sourceLine" id="cb5-2" title="2">VC_interneuron =<span class="st"> </span><span class="kw"><a href="../reference/subsetGiotto.html">subsetGiotto</a></span>(VC_test, <span class="dt">cell_ids =</span> interneuron_cells)</a>
-<a class="sourceLine" id="cb5-3" title="3"><span class="kw"><a href="../reference/spatPlot2D.html">spatPlot2D</a></span>(<span class="dt">gobject =</span> VC_interneuron, <span class="dt">point_size =</span> <span class="dv">2</span>, <span class="dt">cell_color =</span> <span class="st">'cell_types'</span>, <span class="dt">return_plot =</span> F)</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">interneuron_cells =<span class="st"> </span>cell_metadata[cell_types <span class="op">==</span><span class="st"> 'Interneuron'</span>][[<span class="st">'cell_ID'</span>]]</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">VC_interneuron =<span class="st"> </span><span class="kw"><a href="../reference/subsetGiotto.html">subsetGiotto</a></span>(VC_test, <span class="dt">cell_ids =</span> interneuron_cells)</a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="kw"><a href="../reference/spatPlot2D.html">spatPlot2D</a></span>(<span class="dt">gobject =</span> VC_interneuron, <span class="dt">point_size =</span> <span class="dv">2</span>, <span class="dt">cell_color =</span> <span class="st">'cell_types'</span>, <span class="dt">return_plot =</span> F)</a></code></pre></div>
 </div>
   </div>
 
