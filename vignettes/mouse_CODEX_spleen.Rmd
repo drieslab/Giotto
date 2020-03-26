@@ -34,7 +34,7 @@ instrs = createGiottoInstructions(python_path = my_python_path,
 
 ```
 
-### part 1: Data input
+### Part 1: Data input
 
 [Goltsev et al.](https://www.cell.com/cell/pdf/S0092-8674(18)30904-8.pdf) created a multiplexed datasets of normal and lupus (MRL/lpr) murine spleens using CODEX technique. The dataset consists of 30 protein markers from 734,101 single cells. In this tutorial, 83,787 cells from sampel "BALBc-3" were selected for the analysis. 
   
@@ -43,7 +43,7 @@ instrs = createGiottoInstructions(python_path = my_python_path,
 </center> 
 
 ```{r, eval=FALSE}
-## A. expression and cell location
+## load expression and cell location
 data_dir = '/path/to/data/CODEX_3D/'
 expr = fread(paste0(data_dir, '/', 'count_matrix/codex_BALBc_3_expression.csv.gz'))
 cell_loc = fread(paste0(data_dir, '/', 'cell_locations/codex_BALBc_3_coord_annot.csv'))
@@ -68,11 +68,8 @@ sub_set = cell_loc_dedup$Imaging_phenotype_annotation != "dirt" & cell_loc_dedup
 ```
 
 
-### part 1: Create Giotto object & process data
-<details>
-  <summary>Expand</summary>
-  \ 
- 
+### Part 2: Create Giotto object & process data
+
 ```{r eval=FALSE}
 ## create
 
@@ -117,14 +114,9 @@ spatPlot(gobject = codex_test, point_size = 0.2, coord_fix_ratio = 1, cell_color
 </center> 
 
 
-### part 2: dimension reduction
-
-<details>
-  <summary>Expand</summary>
-  \ 
+### Part 3: Dimension reduction
  
 ```{r eval=FALSE}
-## 3. Dimension reduction ####
 # use all Abs
 # PCA
 codex_test <- runPCA(gobject = codex_test, expression_values = 'normalized', scale_unit = T)
@@ -143,9 +135,9 @@ plotUMAP(gobject = codex_test, point_shape = 'no_border', point_size = 0.2)
 ![](../inst/images/mouse_codex_spleen/vignette_200325/umap_plot.png)
 </center> 
 
+### Part 4: Cluster 
 
 ```{r eval=FALSE}
-## 4. Cluster ####
 ## sNN network (default)
 codex_test <- createNearestNetwork(gobject = codex_test, dimensions_to_use = 1:14, k = 20)
 
@@ -170,9 +162,10 @@ spatPlot(gobject = codex_test, cell_color = 'leiden', point_shape = 'no_border',
 ![](../inst/images/mouse_codex_spleen/vignette_200325/spat_leiden.png)
 </center> 
 
+### Part 5: Co-visualize
 
 ```{r eval=FALSE}
-### 5. co-visualize ####
+
 spatDimPlot2D(gobject = codex_test, cell_color = 'leiden', spat_point_shape = 'no_border', 
               spat_point_size = 0.2, dim_point_shape = 'no_border', dim_point_size = 0.2, 
               cell_color_code = leiden_colors,plot_alignment = c("horizontal"))
@@ -182,9 +175,9 @@ spatDimPlot2D(gobject = codex_test, cell_color = 'leiden', spat_point_shape = 'n
 ![](../inst/images/mouse_codex_spleen/vignette_200325/covis_leiden.png)
 </center> 
 
+### Part 6: Differential expression
 
 ```{r eval=FALSE}
-## 6. differential expression ####
 
 # resolution 0.5
 cluster_column = 'leiden'
@@ -215,13 +208,13 @@ violinPlot(codex_test, genes = unique(topgenes_gini), cluster_column = cluster_c
 ![](../inst/images/mouse_codex_spleen/vignette_200325/scran_de.png)
 ![](../inst/images/mouse_codex_spleen/vignette_200325/scran_violin.png)
 ![](../inst/images/mouse_codex_spleen/vignette_200325/gini_heatmap.png)
-![](../inst/images/mouse_codex_spleen/vignette_200325/gini_violin.pn)
+![](../inst/images/mouse_codex_spleen/vignette_200325/gini_violin.png)
 </center> 
 
+### Part 7: Cell type annotation
 
 ```{r eval=FALSE}
-## 7. cell type annotation ####
-# --------------------------- #
+
 clusters_cell_types = c('erythroblasts-F4/80(+) mphs','B cells','CD8(+) T cells', 
                         'CD4(+) T cells', 'B cells','CD11c(+)MHCII(+) cells',
                         'CD4(+) T cells','Ter119(+)', 'marginal zone mphs', 
@@ -263,8 +256,9 @@ spatPlot(gobject = codex_test, cell_color = 'cell_types', point_shape = 'no_bord
 ![](../inst/images/mouse_codex_spleen/vignette_200325/cell_types_spat.png)
 </center> 
 
+### part 8: Visualize cell types and gene expression in selected zones
+
 ```{r eval=FALSE}
-## 8. visualize cell types and gene expression in selected zones ####
 
 codex_test_zone1 = subsetGiotto(codex_test, cell_ids = codex_test@cell_metadata$cell_ID[codex_test@cell_metadata$sample_Xtile_Ytile=="BALBc-3_X04_Y08"])
 

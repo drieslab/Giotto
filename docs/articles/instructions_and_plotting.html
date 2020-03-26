@@ -151,21 +151,21 @@ In addition, for each plot the parameters can always be <em>manually overwritten
 <li>we set save_plot = TRUE to automatically saving each plot</li>
 </ul>
 <p>We also specify some other plotting parameters for the automatic saving functionality, such as the save_dir whose default is the current working directory.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(Giotto)</a>
-<a class="sourceLine" id="cb1-2" title="2"></a>
-<a class="sourceLine" id="cb1-3" title="3"><span class="co"># create instructions for your python path, how to view your plots and</span></a>
-<a class="sourceLine" id="cb1-4" title="4"><span class="co"># parameters to save your plot if wanted</span></a>
-<a class="sourceLine" id="cb1-5" title="5">my_python_path =<span class="st"> "/your/python/path/"</span></a>
-<a class="sourceLine" id="cb1-6" title="6">results_folder =<span class="st"> '/path/to/your/results/'</span></a>
-<a class="sourceLine" id="cb1-7" title="7">instrs =<span class="st"> </span><span class="kw"><a href="../reference/createGiottoInstructions.html">createGiottoInstructions</a></span>(<span class="dt">python_path =</span> my_python_path,</a>
-<a class="sourceLine" id="cb1-8" title="8">                                  <span class="dt">show_plot =</span> <span class="ot">FALSE</span>,  </a>
-<a class="sourceLine" id="cb1-9" title="9">                                  <span class="dt">return_plot =</span> <span class="ot">TRUE</span>,</a>
-<a class="sourceLine" id="cb1-10" title="10">                                  <span class="dt">save_plot =</span> <span class="ot">TRUE</span>,</a>
-<a class="sourceLine" id="cb1-11" title="11">                                  <span class="dt">save_dir =</span> results_folder,</a>
-<a class="sourceLine" id="cb1-12" title="12">                                  <span class="dt">plot_format =</span> <span class="st">'png'</span>,</a>
-<a class="sourceLine" id="cb1-13" title="13">                                  <span class="dt">dpi =</span> <span class="dv">200</span>,</a>
-<a class="sourceLine" id="cb1-14" title="14">                                  <span class="dt">height =</span> <span class="dv">9</span>,</a>
-<a class="sourceLine" id="cb1-15" title="15">                                  <span class="dt">width =</span> <span class="dv">9</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(Giotto)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="co"># create instructions for your python path, how to view your plots and</span></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="co"># parameters to save your plot if wanted</span></a>
+<a class="sourceLine" id="cb1-5" data-line-number="5">my_python_path =<span class="st"> "/your/python/path/"</span></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6">results_folder =<span class="st"> '/path/to/your/results/'</span></a>
+<a class="sourceLine" id="cb1-7" data-line-number="7">instrs =<span class="st"> </span><span class="kw"><a href="../reference/createGiottoInstructions.html">createGiottoInstructions</a></span>(<span class="dt">python_path =</span> my_python_path,</a>
+<a class="sourceLine" id="cb1-8" data-line-number="8">                                  <span class="dt">show_plot =</span> <span class="ot">FALSE</span>,  </a>
+<a class="sourceLine" id="cb1-9" data-line-number="9">                                  <span class="dt">return_plot =</span> <span class="ot">TRUE</span>,</a>
+<a class="sourceLine" id="cb1-10" data-line-number="10">                                  <span class="dt">save_plot =</span> <span class="ot">TRUE</span>,</a>
+<a class="sourceLine" id="cb1-11" data-line-number="11">                                  <span class="dt">save_dir =</span> results_folder,</a>
+<a class="sourceLine" id="cb1-12" data-line-number="12">                                  <span class="dt">plot_format =</span> <span class="st">'png'</span>,</a>
+<a class="sourceLine" id="cb1-13" data-line-number="13">                                  <span class="dt">dpi =</span> <span class="dv">200</span>,</a>
+<a class="sourceLine" id="cb1-14" data-line-number="14">                                  <span class="dt">height =</span> <span class="dv">9</span>,</a>
+<a class="sourceLine" id="cb1-15" data-line-number="15">                                  <span class="dt">width =</span> <span class="dv">9</span>)</a></code></pre></div>
 </div>
 <div id="create-giotto-object" class="section level3">
 <h3 class="hasAnchor">
@@ -176,31 +176,31 @@ In addition, for each plot the parameters can always be <em>manually overwritten
 <li>provide the cell locations</li>
 <li>provide the previously generated instructions file (named list)</li>
 </ul>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="co">## PREPARE osmFISH DATA ####</span></a>
-<a class="sourceLine" id="cb2-2" title="2">data_dir =<span class="st"> '/directory/for/osmFISH_data/'</span></a>
-<a class="sourceLine" id="cb2-3" title="3">osm_exprs =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/utils/read.table.html">read.table</a></span>(<span class="dt">file =</span> <span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(data_dir,<span class="st">'/'</span>,<span class="st">'osmFISH_prep_expression.txt'</span>))</a>
-<a class="sourceLine" id="cb2-4" title="4">osm_locs =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/utils/read.table.html">read.table</a></span>(<span class="dt">file =</span> <span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(data_dir,<span class="st">'/'</span>,<span class="st">'osmFISH_prep_cell_coordinates.txt'</span>))</a>
-<a class="sourceLine" id="cb2-5" title="5">osm_locs =<span class="st"> </span>osm_locs[<span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(osm_locs) <span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(osm_exprs),]</a>
-<a class="sourceLine" id="cb2-6" title="6"></a>
-<a class="sourceLine" id="cb2-7" title="7"><span class="co">## CREATE GIOTTO OBJECT with expression data, location data and instructions</span></a>
-<a class="sourceLine" id="cb2-8" title="8">osm_test &lt;-<span class="st"> </span><span class="kw"><a href="../reference/createGiottoObject.html">createGiottoObject</a></span>(<span class="dt">raw_exprs =</span> osm_exprs,</a>
-<a class="sourceLine" id="cb2-9" title="9">                               <span class="dt">spatial_locs =</span> osm_locs,</a>
-<a class="sourceLine" id="cb2-10" title="10">                               <span class="dt">instructions =</span> instrs)</a>
-<a class="sourceLine" id="cb2-11" title="11"></a>
-<a class="sourceLine" id="cb2-12" title="12"><span class="co">## add provided annotation and filter + normalize</span></a>
-<a class="sourceLine" id="cb2-13" title="13">metadata =<span class="st"> </span><span class="kw">fread</span>(<span class="dt">file =</span> <span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(data_dir,<span class="st">'/'</span>,<span class="st">'osmFISH_prep_cell_metadata.txt'</span>))</a>
-<a class="sourceLine" id="cb2-14" title="14">osm_test =<span class="st"> </span><span class="kw"><a href="../reference/addCellMetadata.html">addCellMetadata</a></span>(osm_test, <span class="dt">new_metadata =</span> metadata,</a>
-<a class="sourceLine" id="cb2-15" title="15">                           <span class="dt">by_column =</span> T, <span class="dt">column_cell_ID =</span> <span class="st">'CellID'</span>)</a>
-<a class="sourceLine" id="cb2-16" title="16">osm_test &lt;-<span class="st"> </span><span class="kw"><a href="../reference/filterGiotto.html">filterGiotto</a></span>(<span class="dt">gobject =</span> osm_test)</a>
-<a class="sourceLine" id="cb2-17" title="17">osm_test &lt;-<span class="st"> </span><span class="kw"><a href="../reference/normalizeGiotto.html">normalizeGiotto</a></span>(<span class="dt">gobject =</span> osm_test)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co">## PREPARE osmFISH DATA ####</span></a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">data_dir =<span class="st"> '/directory/for/osmFISH_data/'</span></a>
+<a class="sourceLine" id="cb2-3" data-line-number="3">osm_exprs =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/utils/read.table.html">read.table</a></span>(<span class="dt">file =</span> <span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(data_dir,<span class="st">'/'</span>,<span class="st">'osmFISH_prep_expression.txt'</span>))</a>
+<a class="sourceLine" id="cb2-4" data-line-number="4">osm_locs =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/utils/read.table.html">read.table</a></span>(<span class="dt">file =</span> <span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(data_dir,<span class="st">'/'</span>,<span class="st">'osmFISH_prep_cell_coordinates.txt'</span>))</a>
+<a class="sourceLine" id="cb2-5" data-line-number="5">osm_locs =<span class="st"> </span>osm_locs[<span class="kw"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span>(osm_locs) <span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(osm_exprs),]</a>
+<a class="sourceLine" id="cb2-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="co">## CREATE GIOTTO OBJECT with expression data, location data and instructions</span></a>
+<a class="sourceLine" id="cb2-8" data-line-number="8">osm_test &lt;-<span class="st"> </span><span class="kw"><a href="../reference/createGiottoObject.html">createGiottoObject</a></span>(<span class="dt">raw_exprs =</span> osm_exprs,</a>
+<a class="sourceLine" id="cb2-9" data-line-number="9">                               <span class="dt">spatial_locs =</span> osm_locs,</a>
+<a class="sourceLine" id="cb2-10" data-line-number="10">                               <span class="dt">instructions =</span> instrs)</a>
+<a class="sourceLine" id="cb2-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb2-12" data-line-number="12"><span class="co">## add provided annotation and filter + normalize</span></a>
+<a class="sourceLine" id="cb2-13" data-line-number="13">metadata =<span class="st"> </span><span class="kw">fread</span>(<span class="dt">file =</span> <span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(data_dir,<span class="st">'/'</span>,<span class="st">'osmFISH_prep_cell_metadata.txt'</span>))</a>
+<a class="sourceLine" id="cb2-14" data-line-number="14">osm_test =<span class="st"> </span><span class="kw"><a href="../reference/addCellMetadata.html">addCellMetadata</a></span>(osm_test, <span class="dt">new_metadata =</span> metadata,</a>
+<a class="sourceLine" id="cb2-15" data-line-number="15">                           <span class="dt">by_column =</span> T, <span class="dt">column_cell_ID =</span> <span class="st">'CellID'</span>)</a>
+<a class="sourceLine" id="cb2-16" data-line-number="16">osm_test &lt;-<span class="st"> </span><span class="kw"><a href="../reference/filterGiotto.html">filterGiotto</a></span>(<span class="dt">gobject =</span> osm_test)</a>
+<a class="sourceLine" id="cb2-17" data-line-number="17">osm_test &lt;-<span class="st"> </span><span class="kw"><a href="../reference/normalizeGiotto.html">normalizeGiotto</a></span>(<span class="dt">gobject =</span> osm_test)</a></code></pre></div>
 </div>
 <div id="work-with-giotto-instructions" class="section level3">
 <h3 class="hasAnchor">
 <a href="#work-with-giotto-instructions" class="anchor"></a>2. work with Giotto instructions</h3>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="co"># show the provided Giotto instructions</span></a>
-<a class="sourceLine" id="cb3-2" title="2"><span class="kw"><a href="../reference/showGiottoInstructions.html">showGiottoInstructions</a></span>(osm_test)</a>
-<a class="sourceLine" id="cb3-3" title="3"><span class="co"># change a previously set parameter, e.g. change dpi = 200 to dpi = 300</span></a>
-<a class="sourceLine" id="cb3-4" title="4">osm_test =<span class="st"> </span><span class="kw"><a href="../reference/changeGiottoInstructions.html">changeGiottoInstructions</a></span>(osm_test, <span class="dt">param =</span> <span class="st">'dpi'</span>, <span class="dt">new_value =</span> <span class="dv">300</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="co"># show the provided Giotto instructions</span></a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="kw"><a href="../reference/showGiottoInstructions.html">showGiottoInstructions</a></span>(osm_test)</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="co"># change a previously set parameter, e.g. change dpi = 200 to dpi = 300</span></a>
+<a class="sourceLine" id="cb3-4" data-line-number="4">osm_test =<span class="st"> </span><span class="kw"><a href="../reference/changeGiottoInstructions.html">changeGiottoInstructions</a></span>(osm_test, <span class="dt">param =</span> <span class="st">'dpi'</span>, <span class="dt">new_value =</span> <span class="dv">300</span>)</a></code></pre></div>
 </div>
 <div id="different-ways-of-saving-a-plot" class="section level3">
 <h3 class="hasAnchor">
@@ -211,36 +211,36 @@ In addition, for each plot the parameters can always be <em>manually overwritten
 <li>changing default parameters by by providing a named list to save_param parameter (2 &amp; 3)</li>
 <li>block automatic saving, but modify the created ggplot object and save that one (4)</li>
 </ul>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="co"># 1. default instructions from Giotto object</span></a>
-<a class="sourceLine" id="cb4-2" title="2"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(<span class="dt">gobject =</span> osm_test, <span class="dt">cell_color =</span> <span class="st">'ClusterName'</span>)</a>
-<a class="sourceLine" id="cb4-3" title="3"></a>
-<a class="sourceLine" id="cb4-4" title="4"><span class="co"># 2. overwrite save_name instruction by providing a named list for save_param</span></a>
-<a class="sourceLine" id="cb4-5" title="5"><span class="co"># save_param takes all parameters of all_plots_save_function</span></a>
-<a class="sourceLine" id="cb4-6" title="6"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(<span class="dt">gobject =</span> osm_test, <span class="dt">cell_color =</span> <span class="st">'ClusterName'</span>, <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'myplot'</span>))</a>
-<a class="sourceLine" id="cb4-7" title="7"></a>
-<a class="sourceLine" id="cb4-8" title="8"><span class="co"># 3. overwrite save_name instruction and add specific subfolder</span></a>
-<a class="sourceLine" id="cb4-9" title="9"><span class="co"># save_folder creates a specific subfolder in the provided directory</span></a>
-<a class="sourceLine" id="cb4-10" title="10"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(<span class="dt">gobject =</span> osm_test, <span class="dt">cell_color =</span> <span class="st">'ClusterName'</span>, <span class="dt">point_size =</span> <span class="fl">1.5</span>,</a>
-<a class="sourceLine" id="cb4-11" title="11">         <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_folder =</span> <span class="st">'2_Gobject'</span>, <span class="dt">save_name =</span> <span class="st">'original_clusters'</span>, <span class="dt">units =</span> <span class="st">'in'</span>, <span class="dt">base_height =</span> <span class="dv">6</span>, <span class="dt">base_width =</span> <span class="dv">6</span>))</a>
-<a class="sourceLine" id="cb4-12" title="12"></a>
-<a class="sourceLine" id="cb4-13" title="13"><span class="co"># 4. do not save, but return as object, modify and save</span></a>
-<a class="sourceLine" id="cb4-14" title="14"><span class="co"># for example to create a black background:</span></a>
-<a class="sourceLine" id="cb4-15" title="15"><span class="co"># we can change the parameter 'background_color' to black in the spatPlot function </span></a>
-<a class="sourceLine" id="cb4-16" title="16"><span class="co"># OR return the ggplot object and change the panel.background to black within theme</span></a>
-<a class="sourceLine" id="cb4-17" title="17"></a>
-<a class="sourceLine" id="cb4-18" title="18">mypl =<span class="st"> </span><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(<span class="dt">gobject =</span> osm_test, <span class="dt">cell_color =</span> <span class="st">'ClusterName'</span>, <span class="dt">save_plot =</span> F)</a>
-<a class="sourceLine" id="cb4-19" title="19">mypl =<span class="st"> </span>mypl <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">panel.background =</span> <span class="kw">element_rect</span>(<span class="dt">fill =</span><span class="st">'black'</span>),</a>
-<a class="sourceLine" id="cb4-20" title="20">                    <span class="dt">panel.grid =</span> <span class="kw">element_blank</span>())</a>
-<a class="sourceLine" id="cb4-21" title="21">mypl =<span class="st"> </span>mypl <span class="op">+</span><span class="st"> </span><span class="kw">guides</span>(<span class="dt">fill =</span> <span class="kw">guide_legend</span>(<span class="dt">override.aes =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">size=</span><span class="dv">5</span>)))</a>
-<a class="sourceLine" id="cb4-22" title="22">mypl</a>
-<a class="sourceLine" id="cb4-23" title="23"></a>
-<a class="sourceLine" id="cb4-24" title="24"><span class="co"># save in specified folder</span></a>
-<a class="sourceLine" id="cb4-25" title="25">gobject_folder =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(results_folder,<span class="st">'/'</span>,<span class="st">'2_Gobject/'</span>)</a>
-<a class="sourceLine" id="cb4-26" title="26"><span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/files.html">file.exists</a></span>(gobject_folder)) <span class="kw"><a href="https://rdrr.io/r/base/files2.html">dir.create</a></span>(gobject_folder, <span class="dt">recursive =</span> T)</a>
-<a class="sourceLine" id="cb4-27" title="27">cowplot<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/save_plot.html">save_plot</a></span>(<span class="dt">plot =</span> mypl,</a>
-<a class="sourceLine" id="cb4-28" title="28">                   <span class="dt">filename =</span> <span class="st">'original_clusters_black.png'</span>, <span class="dt">path =</span> gobject_folder,</a>
-<a class="sourceLine" id="cb4-29" title="29">                   <span class="dt">device =</span> <span class="kw"><a href="https://rdrr.io/r/grDevices/png.html">png</a></span>(),</a>
-<a class="sourceLine" id="cb4-30" title="30">                   <span class="dt">dpi =</span> <span class="dv">300</span>, <span class="dt">base_height =</span> <span class="dv">10</span>, <span class="dt">base_width =</span> <span class="dv">10</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="co"># 1. default instructions from Giotto object</span></a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(<span class="dt">gobject =</span> osm_test, <span class="dt">cell_color =</span> <span class="st">'ClusterName'</span>)</a>
+<a class="sourceLine" id="cb4-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb4-4" data-line-number="4"><span class="co"># 2. overwrite save_name instruction by providing a named list for save_param</span></a>
+<a class="sourceLine" id="cb4-5" data-line-number="5"><span class="co"># save_param takes all parameters of all_plots_save_function</span></a>
+<a class="sourceLine" id="cb4-6" data-line-number="6"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(<span class="dt">gobject =</span> osm_test, <span class="dt">cell_color =</span> <span class="st">'ClusterName'</span>, <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'myplot'</span>))</a>
+<a class="sourceLine" id="cb4-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb4-8" data-line-number="8"><span class="co"># 3. overwrite save_name instruction and add specific subfolder</span></a>
+<a class="sourceLine" id="cb4-9" data-line-number="9"><span class="co"># save_folder creates a specific subfolder in the provided directory</span></a>
+<a class="sourceLine" id="cb4-10" data-line-number="10"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(<span class="dt">gobject =</span> osm_test, <span class="dt">cell_color =</span> <span class="st">'ClusterName'</span>, <span class="dt">point_size =</span> <span class="fl">1.5</span>,</a>
+<a class="sourceLine" id="cb4-11" data-line-number="11">         <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_folder =</span> <span class="st">'2_Gobject'</span>, <span class="dt">save_name =</span> <span class="st">'original_clusters'</span>, <span class="dt">units =</span> <span class="st">'in'</span>, <span class="dt">base_height =</span> <span class="dv">6</span>, <span class="dt">base_width =</span> <span class="dv">6</span>))</a>
+<a class="sourceLine" id="cb4-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb4-13" data-line-number="13"><span class="co"># 4. do not save, but return as object, modify and save</span></a>
+<a class="sourceLine" id="cb4-14" data-line-number="14"><span class="co"># for example to create a black background:</span></a>
+<a class="sourceLine" id="cb4-15" data-line-number="15"><span class="co"># we can change the parameter 'background_color' to black in the spatPlot function </span></a>
+<a class="sourceLine" id="cb4-16" data-line-number="16"><span class="co"># OR return the ggplot object and change the panel.background to black within theme</span></a>
+<a class="sourceLine" id="cb4-17" data-line-number="17"></a>
+<a class="sourceLine" id="cb4-18" data-line-number="18">mypl =<span class="st"> </span><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(<span class="dt">gobject =</span> osm_test, <span class="dt">cell_color =</span> <span class="st">'ClusterName'</span>, <span class="dt">save_plot =</span> F)</a>
+<a class="sourceLine" id="cb4-19" data-line-number="19">mypl =<span class="st"> </span>mypl <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">panel.background =</span> <span class="kw">element_rect</span>(<span class="dt">fill =</span><span class="st">'black'</span>),</a>
+<a class="sourceLine" id="cb4-20" data-line-number="20">                    <span class="dt">panel.grid =</span> <span class="kw">element_blank</span>())</a>
+<a class="sourceLine" id="cb4-21" data-line-number="21">mypl =<span class="st"> </span>mypl <span class="op">+</span><span class="st"> </span><span class="kw">guides</span>(<span class="dt">fill =</span> <span class="kw">guide_legend</span>(<span class="dt">override.aes =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">size=</span><span class="dv">5</span>)))</a>
+<a class="sourceLine" id="cb4-22" data-line-number="22">mypl</a>
+<a class="sourceLine" id="cb4-23" data-line-number="23"></a>
+<a class="sourceLine" id="cb4-24" data-line-number="24"><span class="co"># save in specified folder</span></a>
+<a class="sourceLine" id="cb4-25" data-line-number="25">gobject_folder =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(results_folder,<span class="st">'/'</span>,<span class="st">'2_Gobject/'</span>)</a>
+<a class="sourceLine" id="cb4-26" data-line-number="26"><span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/files.html">file.exists</a></span>(gobject_folder)) <span class="kw"><a href="https://rdrr.io/r/base/files2.html">dir.create</a></span>(gobject_folder, <span class="dt">recursive =</span> T)</a>
+<a class="sourceLine" id="cb4-27" data-line-number="27">cowplot<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/save_plot.html">save_plot</a></span>(<span class="dt">plot =</span> mypl,</a>
+<a class="sourceLine" id="cb4-28" data-line-number="28">                   <span class="dt">filename =</span> <span class="st">'original_clusters_black.png'</span>, <span class="dt">path =</span> gobject_folder,</a>
+<a class="sourceLine" id="cb4-29" data-line-number="29">                   <span class="dt">device =</span> <span class="kw"><a href="https://rdrr.io/r/grDevices/png.html">png</a></span>(),</a>
+<a class="sourceLine" id="cb4-30" data-line-number="30">                   <span class="dt">dpi =</span> <span class="dv">300</span>, <span class="dt">base_height =</span> <span class="dv">10</span>, <span class="dt">base_width =</span> <span class="dv">10</span>)</a></code></pre></div>
 <p><img src="../inst/howtos/instructions_and_plotting/vignette_1/original_clusters_black.png" style="width:50.0%"></p>
 </div>
 </div>
