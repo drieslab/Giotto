@@ -486,7 +486,7 @@ create_delaunayNetwork_geometry_3D <- function(spatial_locations,
                                                   sdimx = 'sdimx',
                                                   sdimy = 'sdimy',
                                                   sdimz = 'sdimz',
-                                                  options = options,
+                                                  options = "Pp",
                                                   ...){
 
   ## vector with original cell names ##
