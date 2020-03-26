@@ -27,7 +27,7 @@ In addition, for each plot the parameters can always be *manually overwritten* w
 
 Here we use the osmFISH as an example:  
 
-### 1. create Giotto instructions and Giotto object  
+## 1. create Giotto instructions and Giotto object  
 - we will override automatically showing plots by setting show_plot = FALSE 
 - we keep return_plot = TRUE, to store plots and modify them if necessary  
 - we set save_plot = TRUE to automatically saving each plot  
@@ -53,7 +53,7 @@ instrs = createGiottoInstructions(python_path = my_python_path,
 ```
 
 
-### 2. create Giotto object  
+## 2. create Giotto object  
 - provide an expression matrix  
 - provide the cell locations
 - provide the previously generated instructions file (named list)  
@@ -79,7 +79,7 @@ osm_test <- normalizeGiotto(gobject = osm_test)
 ```
 
 
-### 2. work with Giotto instructions   
+## 3. work with Giotto instructions   
 ```{r eval=FALSE}
 # show the provided Giotto instructions
 showGiottoInstructions(osm_test)
@@ -88,7 +88,7 @@ osm_test = changeGiottoInstructions(osm_test, param = 'dpi', new_value = 300)
 ```
 
 
-### 3. Different ways of saving a plot  
+## 4. Different ways of saving a plot  
 Here we will show a couple of ways to save plots.
 
 - default way according to Giotto instructions, if save_plot = TRUE (1)

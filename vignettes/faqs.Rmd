@@ -3,11 +3,11 @@ title: "FAQs"
 output: html_document
 ---
 
-##### Installation  
+## Installation  
 - [First time R package installation](./installation_issues.html)
 - [Clang error on MacOS](./installation_issues.html)
 
-##### Data availability  
+## Data availability  
 - Where to find seqFISH+ and other ready-to-use datasets?  
 **Checkout https://github.com/RubD/spatial-datasets to find already preprocessed datasets**  
 

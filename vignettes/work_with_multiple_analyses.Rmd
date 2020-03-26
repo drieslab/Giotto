@@ -2,7 +2,7 @@
 output: github_document
 ---
 
-## How to run and store multiple analyses?
+# How to run and store multiple analyses?
 
 The default Giotto workflow is similar to other scRNA-seq workflows and does not require you to provide a custom name for each analysis (e.g. PCA, UMAP, ...), but running an analysis twice will overwrite the previous results with a warning. However, there are situations where being able to run and store multiple analyses can be advantageous:  
 - test multiple parameters for a single analysis  
@@ -15,7 +15,7 @@ The default Giotto workflow is similar to other scRNA-seq workflows and does not
 We will use the seqFish+ somatosensory cortex as an example dataset after creating and processing a [Giotto object](./mouse_seqFISH_cortex_200319.html).
 
 
-##### 1. calculate highly variable genes in two different manners   
+## 1. calculate highly variable genes in two different manners   
 ```{r, eval=FALSE}
 
 # using the loess method
@@ -46,7 +46,7 @@ mytable = table(loess = gene_metadata$loess_hvg, group = gene_metadata$group_hvg
 ![](../inst/howtos/work_with_multiple_analyses/vignette_1/1_hvg_table.png){ width=50% }
 
 
-##### 2. perform PCA 
+## 2. perform multiple PCAs 
 - using the 2 different HVG sets  (loess_genes and group_genes)
 - store PCA results using custom names  ('pca_loess' and 'pca_group')
 - plot PCA results  
@@ -71,7 +71,7 @@ plotPCA(gobject = VC_test, dim_reduction_name = 'pca_group')
 ![](../inst/howtos/work_with_multiple_analyses/vignette_1/2_group_pca.png){ width=50% }
 
 
-##### 3. perform UMAP 
+## 3. create multiple UMAPs
 - using the 2 different PCA results  ('pca_loess' and 'pca_group')  
 - store UMAP results using custom names ('umap_loess' and 'umap_group')  
 - plot UMAP results  
@@ -93,7 +93,7 @@ plotUMAP(gobject = VC_test, dim_reduction_name = 'umap_group')
 ![](../inst/howtos/work_with_multiple_analyses/vignette_1/3_group_umap.png){ width=50% } 
 
 
-##### 4. Create spatial network 
+## 4. Create multiple spatial networks
 - create spatial with multiple k's and other parameters  (k=5, k=10, k=100 & maximum_distance=200)
 - subset field 1  
 - visualize network on field 1  ('spatial_network', 'large_network', 'distance_work')
@@ -136,7 +136,7 @@ distance network:
 
 
 
-##### 5. Find spatial genes
+## 5. Find spatial genes in mulitple ways
 - use the different spatial networks as input to identify spatial genes with the rank method 
 - visualize top spatial genes for 2 methods
 ```{r, eval=FALSE}

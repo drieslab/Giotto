@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-### Giotto global instructions
+## Giotto global instructions
 
 ```{r eval=FALSE, message=FALSE, warning=FALSE}
 # this example was tested with Giotto v.0.3.0
@@ -34,7 +34,7 @@ instrs = createGiottoInstructions(python_path = my_python_path,
 
 
 
-### part 1: Data input
+## part 1: Data input
   
 - load cortex/svz gene expression matrix  
 - prepare cell coordinates by stitching imaging fields  
@@ -69,7 +69,7 @@ my_offset_file = my_offset_file[,.(field, x_offset_final, y_offset_final)]
 
 
 
-### part 2: Create Giotto object & process data
+## part 2: Create Giotto object & process data
  
 ```{r eval=FALSE}
 ## create
@@ -116,7 +116,7 @@ spatPlot(gobject = VC_test)
 </center>
 
 
-### part 3: dimension reduction
+## part 3: dimension reduction
 
 
 ```{r eval=FALSE}
@@ -179,7 +179,7 @@ plotTSNE(gobject = VC_test,
 
 
 
-### part 4: cluster
+## part 4: cluster
 
 
 ```{r eval=FALSE}
@@ -254,7 +254,7 @@ showClusterDendrogram(VC_test, h = 0.5, rotate = T, cluster_column = 'sub_leiden
 
 
 
-### part 5: visualize spatial and expression space
+## part 5: visualize spatial and expression space
 
 ```{r eval=FALSE}
 # expression and spatial
@@ -288,7 +288,7 @@ spatDimPlot(gobject = VC_test, cell_color = 'sub_leiden_clus_select',
 
 
 
-### part 6: cell type marker gene detection
+## part 6: cell type marker gene detection
 
 
 ```{r eval=FALSE}
@@ -330,7 +330,7 @@ plotMetaDataHeatmap(VC_test, selected_genes = unique(topgenes_gini2$genes),
 
 
 
-### part 7: cell type annotation
+## part 7: cell type annotation
 
 ```{r eval=FALSE}
 ## general cell types
@@ -423,7 +423,7 @@ plotHeatmap(gobject = VC_test, cluster_color_code = cell_type_colors,
 
 
 
-### part 8: spatial grid
+## part 8: spatial grid
 
 ```{r eval=FALSE}
 ## spatial grid
@@ -444,7 +444,7 @@ spatPlot(gobject = VC_test, show_grid = T, point_size = 1.5,
 
 
 
-### part 9: spatial network
+## part 9: spatial network
 
 ```{r eval=FALSE}
 
@@ -522,10 +522,10 @@ spatPlot(gobject = subVC_test, show_network = T,
 
 
 
-### part 10: spatial genes
+## part 10: spatial genes
 
 
-#### Individual spatial genes  
+### Individual spatial genes  
 
 ```{r eval=FALSE}
 # 3 new methods to identify spatial genes
@@ -573,7 +573,7 @@ spatGenePlot(VC_test, expression_values = 'scaled', genes = silh_spatialgenes[1:
 
 
 
-#### Spatial genes co-expression modules  
+### Spatial genes co-expression modules  
 
 ```{r eval=FALSE}
 ## spatial co-expression patterns ##
@@ -640,7 +640,7 @@ spatCellPlot(VC_test,
 
 
 
-### part 11: HMRF spatial domains
+## part 11: HMRF spatial domains
 
 ```{r eval=FALSE}
 hmrf_folder = paste0(results_folder,'/','11_HMRF/')
@@ -687,7 +687,7 @@ spatPlot(gobject = VC_test, cell_color = 'HMRF_2_k9_b.28', point_size = 3, coord
 
 
 
-### part 12: cell neighborhood: cell-type/cell-type interactions
+## part 12: cell neighborhood: cell-type/cell-type interactions
 
 ```{r eval=FALSE}
 cell_proximities = cellProximityEnrichment(gobject = VC_test,
@@ -788,7 +788,7 @@ spatPlot(VC_test, cell_color = 'astro_olig_ints',
 
 
 
-### part 13: cell neighborhood: interaction changed genes
+## part 13: cell neighborhood: interaction changed genes
 
 ```{r eval=FALSE}
 ## select top 25th highest expressing genes
@@ -845,7 +845,7 @@ plotICG(gobject = VC_test,
 
 
 
-### part 14: cell neighborhood: ligand-receptor cell-cell communication
+## part 14: cell neighborhood: ligand-receptor cell-cell communication
 
 ```{r eval=FALSE}
 # LR expression
@@ -939,7 +939,7 @@ plotRecovery(gobject = VC_test,
 
 
 
-### part 15: export Giotto Analyzer to Viewer
+## part 15: export Giotto Analyzer to Viewer
 
 ```{r eval=FALSE}
 viewer_folder = paste0(results_folder, '/', 'Mouse_cortex_viewer')

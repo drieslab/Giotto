@@ -2,7 +2,7 @@
 output: github_document
 ---
 
-## How to subset a Giotto object?
+# How to subset a Giotto object?
 
 There are several ways to subset a Giotto object or visualize a subset of the data. Here we will use the already analyzed [Visium 10X brain dataset object](./mouse_visium_brain_200325.html) to:
 
@@ -13,7 +13,7 @@ There are several ways to subset a Giotto object or visualize a subset of the da
 
 
 
-##### 1. the Visium 10X whole brain  
+## 1. the Visium 10X whole brain  
 ```{r, eval=FALSE}
 spatDimPlot(visium_brain, cell_color = 'leiden_clus',
             plot_alignment = 'horizontal', spat_point_size = 2)
@@ -22,7 +22,7 @@ spatDimPlot(visium_brain, cell_color = 'leiden_clus',
 ![](../inst/howtos/subset_giotto/vignette_1/1_whole_brain.png){ width=50% }
 
 
-##### 2. show only a subset of the clusters 
+## 2. show only a subset of the clusters 
 ```{r, eval=FALSE}
 spatDimPlot(visium_brain,
             cell_color = 'leiden_clus',  select_cell_groups = '4',
@@ -33,7 +33,7 @@ spatDimPlot(visium_brain,
 
 
 
-##### 3. show only a subset of the clusters, excluding not selected cells
+## 3. show only a subset of the clusters, excluding not selected cells
 ```{r, eval=FALSE}
 spatDimPlot(visium_brain,
             cell_color = 'leiden_clus',  select_cell_groups = '4', show_other_cells = F,
@@ -45,7 +45,7 @@ spatDimPlot(visium_brain,
 
 
 
-##### 4. create spatial plots grouped by the leiden clustering result
+## 4. create spatial plots grouped by the leiden clustering result
 ```{r, eval=FALSE}
 spatPlot(visium_brain,
          group_by = 'leiden_clus', group_by_subset = c(1:8),
@@ -66,7 +66,7 @@ spatPlot(visium_brain,
 ![](../inst/howtos/subset_giotto/vignette_1/4_whole_brain_by_group_leiden_2.png){ width=50% }
 
 
-##### 5. create dimension plots grouped by the HMRF result
+## 5. create dimension plots grouped by the HMRF result
 ```{r, eval=FALSE}
 spatDimPlot(visium_brain, cell_color = 'HMRF_k12_b.1',
             plot_alignment = 'horizontal', spat_point_size = 2)
@@ -96,7 +96,7 @@ dimPlot(visium_brain,
  
 
 
-##### 6. Create a new Giotto object by subsetting selected clusters
+## 6. Create a new Giotto object by subsetting selected clusters
 ```{r, eval=FALSE}
 metadata = pDataDT(visium_brain)
 subset_cell_IDs = metadata[leiden_clus %in% c(4, 5, 8, 13)]$cell_ID
@@ -121,7 +121,7 @@ spatDimPlot(visium_brain_small,
 
 
 
-##### 5.  Create a new Giotto object by subsetting based on spatial coordinates/locations
+## 7.  Create a new Giotto object by subsetting based on spatial coordinates/locations
 ```{r, eval=FALSE}
 DG_subset = subsetGiottoLocs(visium_brain,
                              x_max = 6500, x_min = 3000,
