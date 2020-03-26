@@ -33,6 +33,8 @@ navbar:
         href: articles/human_cycif_PDAC_200322.html
       - text: "mouse Visium brain"
         href: articles/mouse_visium_brain_200325.html
+      - text: "mouse CODEX spleen"
+        href: articles/mouse_CODEX_spleen.html
     - text: FAQ
       href: articles/faqs.html
     - text: News
