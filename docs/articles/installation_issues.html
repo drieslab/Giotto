@@ -133,7 +133,7 @@
 <a href="#package-development-prerequisites" class="anchor"></a>Package development prerequisites</h4>
 <p>If this is the first time you build and install an R package you can follow this <a href="https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites">link</a>, which has simple installation instructions for Windows, Mac OSX and Linux.</p>
 <p>To specifically install the command-line tools of Xcode for Mac OSX you might also need to run this line in terminal:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="ex">xcode-select</span> --install</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" title="1"><span class="ex">xcode-select</span> --install</a></code></pre></div>
 <p> </p>
 </div>
 </div>
@@ -144,41 +144,41 @@
 <h3 class="hasAnchor">
 <a href="#issue-1" class="anchor"></a>2.1 issue 1</h3>
 <p>If you see this error on your MacOS:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="ex">clang</span>: error: unsupported option ‘-fopenmp’</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1"><span class="ex">clang</span>: error: unsupported option ‘-fopenmp’</a></code></pre></div>
 <p>You can install another clang and point R to use that clang, which supports the -fopenmp paramter. This solution was provided on <a href="https://stackoverflow.com/questions/43595457/alternate-compiler-for-installing-r-packages-clang-error-unsupported-option">stackoverflow</a></p>
 <ol style="list-style-type: decimal">
 <li>Install llvm on your mac</li>
 </ol>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="ex">brew</span> install llvm</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" title="1"><span class="ex">brew</span> install llvm</a></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
 <li>create a Makevars file</li>
 </ol>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="fu">touch</span> ~/.R/Makevars</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" title="1"><span class="fu">touch</span> ~/.R/Makevars</a></code></pre></div>
 <ol start="3" style="list-style-type: decimal">
 <li>Add these lines to the Makevars file</li>
 </ol>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co"># comment out first line 'CC= ... if there are errors with compiling a package</span></a>
-<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="va">CC=</span>/usr/local/opt/llvm/bin/clang <span class="ex">-fopenmp</span></a>
-<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="va">CXX=</span>/usr/local/opt/llvm/bin/clang++</a>
-<a class="sourceLine" id="cb5-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="co"># Also potentially CXX11 (for C++11 compiler)</span></a>
-<a class="sourceLine" id="cb5-6" data-line-number="6"><span class="va">CXX11=</span>/usr/local/opt/llvm/bin/clang++</a>
-<a class="sourceLine" id="cb5-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="co"># -O3 should be faster than -O2 (default) level optimisation ..</span></a>
-<a class="sourceLine" id="cb5-9" data-line-number="9"><span class="va">CFLAGS=</span>-g <span class="ex">-O3</span> -Wall -pedantic -std=gnu99 -mtune=native -pipe</a>
-<a class="sourceLine" id="cb5-10" data-line-number="10"><span class="va">CXXFLAGS=</span>-g <span class="ex">-O3</span> -Wall -pedantic -std=c++11 -mtune=native -pipe</a>
-<a class="sourceLine" id="cb5-11" data-line-number="11"><span class="va">LDFLAGS=</span>-L/usr/local/opt/gettext/lib <span class="ex">-L/usr/local/opt/llvm/lib</span> -Wl,-rpath,/usr/local/opt/llvm/lib</a>
-<a class="sourceLine" id="cb5-12" data-line-number="12"><span class="va">CPPFLAGS=</span>-I/usr/local/opt/gettext/include <span class="ex">-I/usr/local/opt/llvm/include</span></a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb5-1" title="1"><span class="co"># comment out first line 'CC= ... if there are errors with compiling a package</span></a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="va">CC=</span>/usr/local/opt/llvm/bin/clang <span class="ex">-fopenmp</span></a>
+<a class="sourceLine" id="cb5-3" title="3"><span class="va">CXX=</span>/usr/local/opt/llvm/bin/clang++</a>
+<a class="sourceLine" id="cb5-4" title="4"></a>
+<a class="sourceLine" id="cb5-5" title="5"><span class="co"># Also potentially CXX11 (for C++11 compiler)</span></a>
+<a class="sourceLine" id="cb5-6" title="6"><span class="va">CXX11=</span>/usr/local/opt/llvm/bin/clang++</a>
+<a class="sourceLine" id="cb5-7" title="7"></a>
+<a class="sourceLine" id="cb5-8" title="8"><span class="co"># -O3 should be faster than -O2 (default) level optimisation ..</span></a>
+<a class="sourceLine" id="cb5-9" title="9"><span class="va">CFLAGS=</span>-g <span class="ex">-O3</span> -Wall -pedantic -std=gnu99 -mtune=native -pipe</a>
+<a class="sourceLine" id="cb5-10" title="10"><span class="va">CXXFLAGS=</span>-g <span class="ex">-O3</span> -Wall -pedantic -std=c++11 -mtune=native -pipe</a>
+<a class="sourceLine" id="cb5-11" title="11"><span class="va">LDFLAGS=</span>-L/usr/local/opt/gettext/lib <span class="ex">-L/usr/local/opt/llvm/lib</span> -Wl,-rpath,/usr/local/opt/llvm/lib</a>
+<a class="sourceLine" id="cb5-12" title="12"><span class="va">CPPFLAGS=</span>-I/usr/local/opt/gettext/include <span class="ex">-I/usr/local/opt/llvm/include</span></a></code></pre></div>
 </div>
 <div id="issue-2" class="section level3">
 <h3 class="hasAnchor">
 <a href="#issue-2" class="anchor"></a>2.2 issue 2</h3>
 <p>If you see this error on your MacOS, most likely with the latest macOS Mojave:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="ex">Error</span> message: </a>
-<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="ex">ld</span>: warning: directory not found for option <span class="st">'-L/usr/local/gfortran/lib/gcc/x86_64-apple-darwin15/6.1.0'</span></a>
-<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="ex">ld</span>: warning: directory not found for option <span class="st">'-L/usr/local/gfortran/lib'</span></a>
-<a class="sourceLine" id="cb6-4" data-line-number="4"><span class="ex">ld</span>: library not found for -lgfortran</a>
-<a class="sourceLine" id="cb6-5" data-line-number="5"><span class="ex">clang-9</span>: error: linker command failed with exit code 1 (use -v to see invocation)</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb6-1" title="1"><span class="ex">Error</span> message: </a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="ex">ld</span>: warning: directory not found for option <span class="st">'-L/usr/local/gfortran/lib/gcc/x86_64-apple-darwin15/6.1.0'</span></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="ex">ld</span>: warning: directory not found for option <span class="st">'-L/usr/local/gfortran/lib'</span></a>
+<a class="sourceLine" id="cb6-4" title="4"><span class="ex">ld</span>: library not found for -lgfortran</a>
+<a class="sourceLine" id="cb6-5" title="5"><span class="ex">clang-9</span>: error: linker command failed with exit code 1 (use -v to see invocation)</a></code></pre></div>
 <p>solution: Installing the latest version of gofortran. <a href="https://github.com/fxcoudert/gfortran-for-macOS/releases/download/8.2/gfortran-8.2-Mojave.dmg" class="uri">https://github.com/fxcoudert/gfortran-for-macOS/releases/download/8.2/gfortran-8.2-Mojave.dmg</a></p>
 <p>Reference: <a href="https://stackoverflow.com/questions/35999874/mac-os-x-r-error-ld-warning-directory-not-found-for-option" class="uri">https://stackoverflow.com/questions/35999874/mac-os-x-r-error-ld-warning-directory-not-found-for-option</a> “I am having Mac OS Catalina and in my case installation of Homebrew, the newest gcc and Gfortran 8.2.0 solved the issue.” – Magda Orzechowska “This worked for me in Mac OS Catalina as well! I used the gfortran 8.2 Mojave installation github.com/fxcoudert/gfortran-for-macOS/releases” – Danny ```</p>
 </div>

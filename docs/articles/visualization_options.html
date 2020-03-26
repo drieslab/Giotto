@@ -125,13 +125,13 @@
 
     
     
-<div id="different-ways-to-visualize-your-spatial-data" class="section level2">
-<h2 class="hasAnchor">
-<a href="#different-ways-to-visualize-your-spatial-data" class="anchor"></a>Different ways to visualize your spatial data?</h2>
+<div id="different-ways-to-visualize-your-spatial-data" class="section level1">
+<h1 class="hasAnchor">
+<a href="#different-ways-to-visualize-your-spatial-data" class="anchor"></a>Different ways to visualize your spatial data?</h1>
 <p>Giotto provides different ways to visualize your spatial data:</p>
-<div id="functions-specific-to-a-task-or-analysis" class="section level5">
-<h5 class="hasAnchor">
-<a href="#functions-specific-to-a-task-or-analysis" class="anchor"></a>1. Functions specific to a task or analysis:</h5>
+<div id="functions-specific-to-a-task-or-analysis" class="section level3">
+<h3 class="hasAnchor">
+<a href="#functions-specific-to-a-task-or-analysis" class="anchor"></a>1. Functions specific to a task or analysis:</h3>
 <ul>
 <li><strong>plotHeatmap</strong></li>
 <li><strong>plotMetadataHeatmap</strong></li>
@@ -139,9 +139,9 @@
 <li>… check out the different dataset examples to see the wide range of visualization options</li>
 </ul>
 </div>
-<div id="functions-that-use-the-spatial-coordinates-of-each-cell-or-spot-they-usually-start-with-spatxxx" class="section level5">
-<h5 class="hasAnchor">
-<a href="#functions-that-use-the-spatial-coordinates-of-each-cell-or-spot-they-usually-start-with-spatxxx" class="anchor"></a>2. Functions that use the spatial coordinates of each cell or spot, they usually start with <strong>spat</strong>XXX</h5>
+<div id="functions-that-use-the-spatial-coordinates-of-each-cell-or-spot-they-usually-start-with-spatxxx" class="section level3">
+<h3 class="hasAnchor">
+<a href="#functions-that-use-the-spatial-coordinates-of-each-cell-or-spot-they-usually-start-with-spatxxx" class="anchor"></a>2. Functions that use the spatial coordinates of each cell or spot, they usually start with <strong>spat</strong>XXX</h3>
 <ul>
 <li>
 <strong>spatPlot</strong>, to plot cell annotation information (e.g. cluster or cell type)</li>
@@ -151,9 +151,9 @@
 <strong>spatCellPlot</strong>, to overlay (multiple) numerical cell values (e.g. spatial enrichment)</li>
 </ul>
 </div>
-<div id="functions-that-use-the-dimension-reduction-coordinates-of-each-cell-or-spot-they-usually-start-with-dimxxx" class="section level5">
-<h5 class="hasAnchor">
-<a href="#functions-that-use-the-dimension-reduction-coordinates-of-each-cell-or-spot-they-usually-start-with-dimxxx" class="anchor"></a>3. Functions that use the dimension reduction coordinates of each cell or spot, they usually start with <strong>dim</strong>XXX</h5>
+<div id="functions-that-use-the-dimension-reduction-coordinates-of-each-cell-or-spot-they-usually-start-with-dimxxx" class="section level3">
+<h3 class="hasAnchor">
+<a href="#functions-that-use-the-dimension-reduction-coordinates-of-each-cell-or-spot-they-usually-start-with-dimxxx" class="anchor"></a>3. Functions that use the dimension reduction coordinates of each cell or spot, they usually start with <strong>dim</strong>XXX</h3>
 <ul>
 <li>
 <strong>dimPlot</strong>, to plot cell annotation information (e.g. cluster or cell type)</li>
@@ -167,9 +167,9 @@
 </li>
 </ul>
 </div>
-<div id="functions-for-co-visualization-that-combine-spat-2-and-dim-3" class="section level5">
-<h5 class="hasAnchor">
-<a href="#functions-for-co-visualization-that-combine-spat-2-and-dim-3" class="anchor"></a>4. Functions for co-visualization that combine <strong>spat</strong> (2) and <strong>dim</strong> (3)</h5>
+<div id="functions-for-co-visualization-that-combine-spat-2-and-dim-3" class="section level3">
+<h3 class="hasAnchor">
+<a href="#functions-for-co-visualization-that-combine-spat-2-and-dim-3" class="anchor"></a>4. Functions for co-visualization that combine <strong>spat</strong> (2) and <strong>dim</strong> (3)</h3>
 <ul>
 <li>
 <strong>spatDimPlot</strong>, to plot cell annotation information (e.g. cluster or cell type)</li>
@@ -179,14 +179,14 @@
 <strong>spatDimCellPlot</strong>, to overlay (multiple) numerical cell values (e.g. spatial enrichment)</li>
 </ul>
 </div>
-<div id="both-in-2d-and-3d" class="section level5">
-<h5 class="hasAnchor">
-<a href="#both-in-2d-and-3d" class="anchor"></a>5. Both in 2D and 3D</h5>
+<div id="both-in-2d-and-3d" class="section level3">
+<h3 class="hasAnchor">
+<a href="#both-in-2d-and-3d" class="anchor"></a>5. Both in 2D and 3D</h3>
 <p>Most functions both have a 2D and 3D version, like <strong>spatDimPlot2D</strong> and <strong>spatDimPlot3D</strong>. In those cases the <strong>spatDimPlot2D</strong> is the same as <strong>spatDimPlot</strong>. So only in case you want to plot your spatial or dimension reduction data in 3D, you need to specifically say so.</p>
 </div>
-<div id="ways-to-save-plot" class="section level5">
-<h5 class="hasAnchor">
-<a href="#ways-to-save-plot" class="anchor"></a>6. ways to save plot</h5>
+<div id="ways-to-save-plot" class="section level3">
+<h3 class="hasAnchor">
+<a href="#ways-to-save-plot" class="anchor"></a>6. ways to save plot</h3>
 <ul>
 <li>see also FAQ <a href="./instructions_and_plotting.html">How to create global instructions and show or save your created plots?</a>
 </li>
@@ -194,25 +194,25 @@
 </li>
 <li>Hypothetical example showing a number of options:</li>
 </ul>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="co"># 1. standard R way</span></a>
-<a class="sourceLine" id="cb1-2" data-line-number="2">pl =<span class="st"> </span><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(mygobject, <span class="dt">cell_color =</span> <span class="st">'cell_types'</span>)</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw"><a href="https://rdrr.io/r/grDevices/pdf.html">pdf</a></span>(<span class="dt">file =</span> <span class="st">'path/to/save/to/plot.pdf'</span>)</a>
-<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(pl)</a>
-<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="kw"><a href="https://rdrr.io/r/grDevices/dev.html">dev.off</a></span>()</a>
-<a class="sourceLine" id="cb1-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="co"># 2. indicate to save plot, this will save the plot according to Giotto instructions file</span></a>
-<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="co"># If the instruction file is not provided in the beginning, it uses the defaults (e.g. working directory)</span></a>
-<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(mygobject, <span class="dt">cell_color =</span> <span class="st">'cell_types'</span>, <span class="dt">save_plot =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb1-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="co"># 3. indicate to save plot and specifiy specific saving parameters by providing a list to save_param</span></a>
-<a class="sourceLine" id="cb1-12" data-line-number="12"><span class="co"># they will overrule the giotto instructions</span></a>
-<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(mygobject, <span class="dt">cell_color =</span> <span class="st">'cell_types'</span>, <span class="dt">save_plot =</span> <span class="ot">TRUE</span>,</a>
-<a class="sourceLine" id="cb1-14" data-line-number="14">         <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_folder =</span> <span class="st">'my_subfolder'</span>, <span class="dt">save_name =</span> <span class="st">'my_name'</span>, <span class="dt">save_format =</span> <span class="st">'png'</span>, <span class="dt">units =</span> <span class="st">'in'</span>))</a>
-<a class="sourceLine" id="cb1-15" data-line-number="15"></a>
-<a class="sourceLine" id="cb1-16" data-line-number="16"><span class="co"># 4. don't save or return plot, but just view plot</span></a>
-<a class="sourceLine" id="cb1-17" data-line-number="17"><span class="co"># defaults are: save_plot = F, return_plot = T and show_plot = T</span></a>
-<a class="sourceLine" id="cb1-18" data-line-number="18"><span class="co"># this can be changed in the instructions file or at each specific plotting function</span></a>
-<a class="sourceLine" id="cb1-19" data-line-number="19"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(mygobject, <span class="dt">cell_color =</span> <span class="st">'cell_types'</span>, <span class="dt">save_plot =</span> F, <span class="dt">return_plot =</span> F <span class="dt">show_plot =</span> T)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="co"># 1. standard R way</span></a>
+<a class="sourceLine" id="cb1-2" title="2">pl =<span class="st"> </span><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(mygobject, <span class="dt">cell_color =</span> <span class="st">'cell_types'</span>)</a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="kw"><a href="https://rdrr.io/r/grDevices/pdf.html">pdf</a></span>(<span class="dt">file =</span> <span class="st">'path/to/save/to/plot.pdf'</span>)</a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(pl)</a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="kw"><a href="https://rdrr.io/r/grDevices/dev.html">dev.off</a></span>()</a>
+<a class="sourceLine" id="cb1-6" title="6"></a>
+<a class="sourceLine" id="cb1-7" title="7"><span class="co"># 2. indicate to save plot, this will save the plot according to Giotto instructions file</span></a>
+<a class="sourceLine" id="cb1-8" title="8"><span class="co"># If the instruction file is not provided in the beginning, it uses the defaults (e.g. working directory)</span></a>
+<a class="sourceLine" id="cb1-9" title="9"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(mygobject, <span class="dt">cell_color =</span> <span class="st">'cell_types'</span>, <span class="dt">save_plot =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb1-10" title="10"></a>
+<a class="sourceLine" id="cb1-11" title="11"><span class="co"># 3. indicate to save plot and specifiy specific saving parameters by providing a list to save_param</span></a>
+<a class="sourceLine" id="cb1-12" title="12"><span class="co"># they will overrule the giotto instructions</span></a>
+<a class="sourceLine" id="cb1-13" title="13"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(mygobject, <span class="dt">cell_color =</span> <span class="st">'cell_types'</span>, <span class="dt">save_plot =</span> <span class="ot">TRUE</span>,</a>
+<a class="sourceLine" id="cb1-14" title="14">         <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_folder =</span> <span class="st">'my_subfolder'</span>, <span class="dt">save_name =</span> <span class="st">'my_name'</span>, <span class="dt">save_format =</span> <span class="st">'png'</span>, <span class="dt">units =</span> <span class="st">'in'</span>))</a>
+<a class="sourceLine" id="cb1-15" title="15"></a>
+<a class="sourceLine" id="cb1-16" title="16"><span class="co"># 4. don't save or return plot, but just view plot</span></a>
+<a class="sourceLine" id="cb1-17" title="17"><span class="co"># defaults are: save_plot = F, return_plot = T and show_plot = T</span></a>
+<a class="sourceLine" id="cb1-18" title="18"><span class="co"># this can be changed in the instructions file or at each specific plotting function</span></a>
+<a class="sourceLine" id="cb1-19" title="19"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(mygobject, <span class="dt">cell_color =</span> <span class="st">'cell_types'</span>, <span class="dt">save_plot =</span> F, <span class="dt">return_plot =</span> F <span class="dt">show_plot =</span> T)</a></code></pre></div>
 </div>
 </div>
   </div>
