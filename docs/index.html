@@ -125,7 +125,7 @@
 <a href="#giotto" class="anchor"></a>Giotto</h1></div>
 <!-- badges: start -->
 <!-- badges: end -->
-<p>The Giotto package consists of two modules, Giotto Analyzer and Viewer (see <a href="http://spatial.rc.fas.harvard.edu/">www.spatialgiotto.com</a>), which provide tools to process, analyze and visualize <strong>single-cell spatial expression</strong> data. The underlying framework is generalizable to virtually all currently available spatial datasets. We recently demonstrated the general applicability on 10 different datasets created by 9 different state-of-the-art spatial technologies, including <em>in situ</em> hybridization (seqFISH+, merFISH, osmFISH), sequencing (Slide-seq, Visium, STARmap) and imaging-based multiplexing/proteomics (CyCIF, MIBI, CODEX). These technologies differ in terms of resolution (single cell vs multiple cells), spatial dimension (2D vs 3D), molecular modality (protein vs RNA), and throughput (number of cells and genes). More information and documentation about the latest (developmental) version of Giotto Analyzer can be found at <a href="https://rubd.github.io/Giotto/" class="uri">https://rubd.github.io/Giotto/</a>.</p>
+<p>The Giotto package consists of two modules, Giotto Analyzer and Viewer (see <a href="http://spatial.rc.fas.harvard.edu/spatialgiotto/giotto.html">www.spatialgiotto.com</a>), which provide tools to process, analyze and visualize <strong>single-cell spatial expression</strong> data. The underlying framework is generalizable to virtually all currently available spatial datasets. We recently demonstrated the general applicability on 10 different datasets created by 9 different state-of-the-art spatial technologies, including <em>in situ</em> hybridization (seqFISH+, merFISH, osmFISH), sequencing (Slide-seq, Visium, STARmap) and imaging-based multiplexing/proteomics (CyCIF, MIBI, CODEX). These technologies differ in terms of resolution (single cell vs multiple cells), spatial dimension (2D vs 3D), molecular modality (protein vs RNA), and throughput (number of cells and genes). More information and documentation about the latest (developmental) version of Giotto Analyzer can be found at <a href="https://rubd.github.io/Giotto/" class="uri">https://rubd.github.io/Giotto/</a>.</p>
 <p><img src="inst/images/general_figs/overview_datasets.png"></p>
 <div id="requirements" class="section level2">
 <h2 class="hasAnchor">
@@ -151,7 +151,8 @@
 <div id="python-tools-optional" class="section level4">
 <h4 class="hasAnchor">
 <a href="#python-tools-optional" class="anchor"></a>Python tools (optional)</h4>
-<p>This is necessary to run all available analyses, including Leiden / Louvain clustering and to build and use the interactive visualization tool. An alternative, but less flexible, R version for Louvain clustering is also available. It is advisable to install everything within a specific conda environment and specify the python path at the beginning with createGiottoInstructions() or in the R function itself when required.</p>
+<p>This is necessary to run all available analyses, including Leiden / Louvain clustering and to build and use the interactive visualization tool.</p>
+<p>We are working on building a one-line install command via bioconda [work in progress].</p>
 <p>Required python modules: pandas / igraph / networkx / leidenalg</p>
 <p>pip installation one-liner:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1"><span class="ex">pip3</span> install pandas python-igraph networkx python-louvain leidenalg</a></code></pre></div>
@@ -170,9 +171,7 @@
 <div id="giotto-viewer" class="section level4">
 <h4 class="hasAnchor">
 <a href="#giotto-viewer" class="anchor"></a>Giotto Viewer</h4>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" title="1"><span class="ex">pip3</span> install --user jsbeautifier</a>
-<a class="sourceLine" id="cb4-2" title="2"><span class="ex">pip3</span> install --user giotto-viewer --no-cache <span class="co">#add --no-deps if do not wish to upgrade dependency</span></a>
-<a class="sourceLine" id="cb4-3" title="3"><span class="ex">pip3</span> install --user smfish-image-processing --no-cache <span class="co">#add --no-deps if do not wish to upgrade dependency</span></a></code></pre></div>
+<p>See <a href="http://spatial.rc.fas.harvard.edu/spatialgiotto/giotto.install.native.html">link</a></p>
 <p> </p>
 </div>
 </div>
@@ -185,7 +184,7 @@
 </li>
 <li>click on the image and try them out yourself.</li>
 </ul>
-<p><a href="https://rubd.github.io/Giotto/articles/mouse_seqFISH_cortex_200319.html"><img src="./inst/images/general_figs/cortex_image_summary.png" alt="seqFISH"></a> <a href="https://rubd.github.io/Giotto/articles/mouse_starmap_cortex.html"><img src="./inst/images/general_figs/starmap_cortex_image_summary.png" alt="STARmap"></a></p>
+<p><a href="./articles/mouse_seqFISH_cortex_200319.html"><img src="./inst/images/general_figs/cortex_image_summary.png" alt="seqFISH"></a> <a href="./articles/mouse_merFISH_hypoth_preoptic_region_200326.html"><img src="./inst/images/general_figs/merFISH_hypoth_image_summary.png" alt="merFISH"></a> <a href="./articles/mouse_starmap_cortex.html"><img src="./inst/images/general_figs/starmap_cortex_image_summary.png" alt="STARmap"></a> <a href="./articles/mouse_visium_brain_200325.html"><img src="./inst/images/general_figs/visium_brain_image_summary.png" alt="Visium_brain"></a> <a href="./articles/mouse_visium_kidney_200326.html"><img src="./inst/images/general_figs/visium_kidney_image_summary.png" alt="Visium_kidney"></a> <a href="./articles/human_cycif_PDAC_200322.html"><img src="./inst/images/general_figs/cyCIF_PDAC_image_summary.png" alt="CyCIF"></a> [<img src="./inst/images/general_figs/osmFISH_SS_cortex_image_summary.png" alt="osmFISH">] <a href="./articles/mouse_CODEX_spleen.html"><img src="./inst/images/general_figs/CODEX_spleen_image_summary.png" alt="CODEX"></a></p>
 </div>
 <div id="references" class="section level2">
 <h2 class="hasAnchor">
