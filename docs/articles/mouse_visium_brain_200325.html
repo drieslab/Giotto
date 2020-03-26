@@ -75,6 +75,9 @@
       <a href="../articles/mouse_seqFISH_cortex_200319.html">mouse seqFISH cortex</a>
     </li>
     <li>
+      <a href="../articles/mouse_merFISH_hypoth_preoptic_region_200326.html">mouse hypoth. preopt. region</a>
+    </li>
+    <li>
       <a href="../articles/mouse_starmap_cortex.html">mouse STARmap cortex</a>
     </li>
     <li>
@@ -82,6 +85,12 @@
     </li>
     <li>
       <a href="../articles/mouse_visium_brain_200325.html">mouse Visium brain</a>
+    </li>
+    <li>
+      <a href="../articles/mouse_visium_kidney_200326.html">mouse Visium kidney</a>
+    </li>
+    <li>
+      <a href="../articles/mouse_CODEX_spleen.html">mouse CODEX spleen</a>
     </li>
   </ul>
 </li>
@@ -123,9 +132,9 @@
     
     
 <!-- mouse_cortex_1_simple.md is generated from mouse_cortex_1_simple.Rmd Please edit that file -->
-<div id="giotto-global-instructions" class="section level3">
-<h3 class="hasAnchor">
-<a href="#giotto-global-instructions" class="anchor"></a>Giotto global instructions</h3>
+<div id="giotto-global-instructions" class="section level2">
+<h2 class="hasAnchor">
+<a href="#giotto-global-instructions" class="anchor"></a>Giotto global instructions</h2>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(Giotto)</a>
 <a class="sourceLine" id="cb1-2" title="2"></a>
 <a class="sourceLine" id="cb1-3" title="3"><span class="co">## create instructions</span></a>
@@ -136,9 +145,9 @@
 <a class="sourceLine" id="cb1-8" title="8">results_folder =<span class="st"> '/your/results/path/'</span></a>
 <a class="sourceLine" id="cb1-9" title="9">instrs =<span class="st"> </span><span class="kw"><a href="../reference/createGiottoInstructions.html">createGiottoInstructions</a></span>(<span class="dt">python_path =</span> my_python_path)</a></code></pre></div>
 </div>
-<div id="part-1-data-input" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-1-data-input" class="anchor"></a>part 1: Data input</h3>
+<div id="part-1-data-input" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-1-data-input" class="anchor"></a>part 1: Data input</h2>
 <p><a href="https://www.10xgenomics.com/spatial-transcriptomics/">10X genomics</a> recently launched a new platform to obtain spatial expression data using a Visium Spatial Gene Expression slide.</p>
 <p><img src="../inst/images/general_figs/visium_technology.png" style="width:50.0%"></p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="co">## expression and cell location</span></a>
@@ -153,9 +162,9 @@
 <a class="sourceLine" id="cb2-10" title="10"><span class="kw"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(spatial_locations) =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'barcode'</span>, <span class="st">'in_tissue'</span>, <span class="st">'array_row'</span>, <span class="st">'array_col'</span>, <span class="st">'col_pxl'</span>, <span class="st">'row_pxl'</span>)</a></code></pre></div>
 <p>High resolution png from original tissue.<br><img src="../inst/images/mouse_Visium_brain/mouse_brain_highres.png" style="width:50.0%"></p>
 </div>
-<div id="part-2-create-giotto-object-process-data" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-2-create-giotto-object-process-data" class="anchor"></a>part 2: Create Giotto object &amp; process data</h3>
+<div id="part-2-create-giotto-object-process-data" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-2-create-giotto-object-process-data" class="anchor"></a>part 2: Create Giotto object &amp; process data</h2>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="co">## create</span></a>
 <a class="sourceLine" id="cb3-2" title="2"><span class="co">## we need to reverse the column pixel column (col_pxl) to get the same .jpg image as provided by 10X</span></a>
 <a class="sourceLine" id="cb3-3" title="3">visium_brain &lt;-<span class="st"> </span><span class="kw"><a href="../reference/createGiottoObject.html">createGiottoObject</a></span>(<span class="dt">raw_exprs =</span> raw_matrix,</a>
@@ -197,9 +206,9 @@
 <a class="sourceLine" id="cb5-2" title="2"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(<span class="dt">gobject =</span> visium_brain, <span class="dt">cell_color =</span> <span class="st">'nr_genes'</span>, <span class="dt">color_as_factor =</span> F,  <span class="dt">point_size =</span> <span class="dv">2</span>)</a></code></pre></div>
 <p>Overlay with number of genes detected per spot:<br><img src="../inst/images/mouse_Visium_brain/vignette_200325/1_nr_genes.png" style="width:50.0%"></p>
 </div>
-<div id="part-3-dimension-reduction" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-3-dimension-reduction" class="anchor"></a>part 3: dimension reduction</h3>
+<div id="part-3-dimension-reduction" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-3-dimension-reduction" class="anchor"></a>part 3: dimension reduction</h2>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="co">## highly variable genes (HVG)</span></a>
 <a class="sourceLine" id="cb6-2" title="2">visium_brain &lt;-<span class="st"> </span><span class="kw"><a href="../reference/calculateHVG.html">calculateHVG</a></span>(<span class="dt">gobject =</span> visium_brain)</a></code></pre></div>
 <p>highly variable genes:<br><img src="../inst/images/mouse_Visium_brain/vignette_200325/2_HVGplot.png" style="width:50.0%"></p>
@@ -224,9 +233,9 @@
 <a class="sourceLine" id="cb10-3" title="3"><span class="kw"><a href="../reference/plotTSNE.html">plotTSNE</a></span>(<span class="dt">gobject =</span> visium_brain)</a></code></pre></div>
 <p>tSNE: <img src="../inst/images/mouse_Visium_brain/vignette_200325/2_tSNE_reduction.png" style="width:50.0%"></p>
 </div>
-<div id="part-4-cluster" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-4-cluster" class="anchor"></a>part 4: cluster</h3>
+<div id="part-4-cluster" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-4-cluster" class="anchor"></a>part 4: cluster</h2>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1"><span class="co">## sNN network (default)</span></a>
 <a class="sourceLine" id="cb11-2" title="2">visium_brain &lt;-<span class="st"> </span><span class="kw"><a href="../reference/createNearestNetwork.html">createNearestNetwork</a></span>(<span class="dt">gobject =</span> visium_brain, <span class="dt">dimensions_to_use =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, <span class="dt">k =</span> <span class="dv">15</span>)</a>
 <a class="sourceLine" id="cb11-3" title="3"></a>
@@ -237,9 +246,9 @@
 <a class="sourceLine" id="cb11-8" title="8"><span class="kw"><a href="../reference/plotUMAP.html">plotUMAP</a></span>(<span class="dt">gobject =</span> visium_brain, <span class="dt">cell_color =</span> <span class="st">'leiden_clus'</span>, <span class="dt">show_NN_network =</span> T, <span class="dt">point_size =</span> <span class="dv">2</span>)</a></code></pre></div>
 <p>Leiden clustering:<br><img src="../inst/images/mouse_Visium_brain/vignette_200325/3_UMAP_leiden.png" style="width:50.0%"></p>
 </div>
-<div id="part-5-co-visualize" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-5-co-visualize" class="anchor"></a>part 5: co-visualize</h3>
+<div id="part-5-co-visualize" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-5-co-visualize" class="anchor"></a>part 5: co-visualize</h2>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1"><span class="co"># leiden clustering results</span></a>
 <a class="sourceLine" id="cb12-2" title="2"><span class="kw"><a href="../reference/spatDimPlot.html">spatDimPlot</a></span>(<span class="dt">gobject =</span> visium_brain, <span class="dt">cell_color =</span> <span class="st">'leiden_clus'</span>,</a>
 <a class="sourceLine" id="cb12-3" title="3">            <span class="dt">dim_point_size =</span> <span class="fl">1.5</span>, <span class="dt">spat_point_size =</span> <span class="fl">1.5</span>)</a></code></pre></div>
@@ -253,12 +262,12 @@
 <a class="sourceLine" id="cb14-3" title="3"><span class="kw"><a href="../reference/spatDimPlot.html">spatDimPlot</a></span>(<span class="dt">gobject =</span> DG_subset, <span class="dt">cell_color =</span> <span class="st">'leiden_clus'</span>, <span class="dt">spat_point_size =</span> <span class="dv">5</span>)</a></code></pre></div>
 <p>Zoom-in on Dentate Gyrus:<br><img src="../inst/images/mouse_Visium_brain/vignette_200325/4_zoom_dentate_gyrus.png" style="width:50.0%"></p>
 </div>
-<div id="part-6-cell-type-marker-gene-detection" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-6-cell-type-marker-gene-detection" class="anchor"></a>part 6: cell type marker gene detection</h3>
-<div id="gini-marker-genes" class="section level5">
-<h5 class="hasAnchor">
-<a href="#gini-marker-genes" class="anchor"></a>Gini marker genes</h5>
+<div id="part-6-cell-type-marker-gene-detection" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-6-cell-type-marker-gene-detection" class="anchor"></a>part 6: cell type marker gene detection</h2>
+<div id="gini-marker-genes" class="section level4">
+<h4 class="hasAnchor">
+<a href="#gini-marker-genes" class="anchor"></a>Gini marker genes</h4>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1"><span class="co">## gini ##</span></a>
 <a class="sourceLine" id="cb15-2" title="2"><span class="co">## ---- ##</span></a>
 <a class="sourceLine" id="cb15-3" title="3">gini_markers_subclusters =<span class="st"> </span><span class="kw"><a href="../reference/findMarkers_one_vs_all.html">findMarkers_one_vs_all</a></span>(<span class="dt">gobject =</span> visium_brain,</a>
@@ -293,9 +302,9 @@
 </li>
 </ul>
 </div>
-<div id="scran-marker-genes" class="section level5">
-<h5 class="hasAnchor">
-<a href="#scran-marker-genes" class="anchor"></a>Scran marker genes</h5>
+<div id="scran-marker-genes" class="section level4">
+<h4 class="hasAnchor">
+<a href="#scran-marker-genes" class="anchor"></a>Scran marker genes</h4>
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" title="1">scran_markers_subclusters =<span class="st"> </span><span class="kw"><a href="../reference/findMarkers_one_vs_all.html">findMarkers_one_vs_all</a></span>(<span class="dt">gobject =</span> visium_brain,</a>
 <a class="sourceLine" id="cb18-2" title="2">                                                   <span class="dt">method =</span> <span class="st">'scran'</span>,</a>
 <a class="sourceLine" id="cb18-3" title="3">                                                   <span class="dt">expression_values =</span> <span class="st">'normalized'</span>,</a>
@@ -324,9 +333,9 @@
 </ul>
 </div>
 </div>
-<div id="part-7-cell-type-annotation" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-7-cell-type-annotation" class="anchor"></a>part 7: cell-type annotation</h3>
+<div id="part-7-cell-type-annotation" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-7-cell-type-annotation" class="anchor"></a>part 7: cell-type annotation</h2>
 <p>Visium spatial transcriptomics does not provide single-cell resolution, making cell type annotation a harder problem. Giotto provides 3 ways to calculate enrichment of specific cell-type signature gene list:<br>
 - PAGE<br>
 - rank<br>
@@ -384,9 +393,9 @@
 <a class="sourceLine" id="cb26-6" title="6">            <span class="dt">dim_point_size =</span> <span class="fl">1.5</span>, <span class="dt">spat_point_size =</span> <span class="fl">1.5</span></a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_brain/vignette_200325/6_PAGE_spatdimplot_gc.png" style="width:50.0%"></p>
 </div>
-<div id="part-8-spatial-grid" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-8-spatial-grid" class="anchor"></a>part 8: spatial grid</h3>
+<div id="part-8-spatial-grid" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-8-spatial-grid" class="anchor"></a>part 8: spatial grid</h2>
 <div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" title="1"><span class="co"># create spatial grid</span></a>
 <a class="sourceLine" id="cb27-2" title="2">visium_brain &lt;-<span class="st"> </span><span class="kw"><a href="../reference/createSpatialGrid.html">createSpatialGrid</a></span>(<span class="dt">gobject =</span> visium_brain,</a>
 <a class="sourceLine" id="cb27-3" title="3">                                   <span class="dt">sdimx_stepsize =</span> <span class="dv">400</span>,</a>
@@ -396,18 +405,18 @@
 <a class="sourceLine" id="cb27-7" title="7">         <span class="dt">grid_color =</span> <span class="st">'red'</span>, <span class="dt">spatial_grid_name =</span> <span class="st">'spatial_grid'</span>)</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_brain/vignette_200325/7_grid.png" style="width:50.0%"></p>
 </div>
-<div id="part-9-spatial-network" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-9-spatial-network" class="anchor"></a>part 9: spatial network</h3>
+<div id="part-9-spatial-network" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-9-spatial-network" class="anchor"></a>part 9: spatial network</h2>
 <div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" title="1"><span class="co"># create spatial network</span></a>
 <a class="sourceLine" id="cb28-2" title="2">visium_brain &lt;-<span class="st"> </span><span class="kw"><a href="../reference/createSpatialNetwork.html">createSpatialNetwork</a></span>(<span class="dt">gobject =</span> visium_brain, <span class="dt">method =</span> <span class="st">'kNN'</span>, <span class="dt">k =</span> <span class="dv">5</span>, <span class="dt">maximum_distance_knn =</span> <span class="dv">400</span>, <span class="dt">name =</span> <span class="st">'spatial_network'</span>)</a>
 <a class="sourceLine" id="cb28-3" title="3"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(<span class="dt">gobject =</span> visium_brain, <span class="dt">show_network =</span> T, <span class="dt">point_size =</span> <span class="dv">1</span>,</a>
 <a class="sourceLine" id="cb28-4" title="4">         <span class="dt">network_color =</span> <span class="st">'blue'</span>, <span class="dt">spatial_network_name =</span> <span class="st">'spatial_network'</span>)</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_brain/vignette_200325/8_spatial_network_k5.png" style="width:50.0%"></p>
 </div>
-<div id="part-10-spatial-genes" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-10-spatial-genes" class="anchor"></a>part 10: spatial genes</h3>
+<div id="part-10-spatial-genes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-10-spatial-genes" class="anchor"></a>part 10: spatial genes</h2>
 <div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" title="1"><span class="co">## kmeans binarization</span></a>
 <a class="sourceLine" id="cb29-2" title="2">kmtest =<span class="st"> </span><span class="kw"><a href="../reference/binSpect.html">binSpect</a></span>(visium_brain, <span class="dt">calc_hub =</span> T, <span class="dt">hub_min_int =</span> <span class="dv">5</span>,</a>
 <a class="sourceLine" id="cb29-3" title="3">                  <span class="dt">spatial_network_name =</span> <span class="st">'spatial_network'</span>)</a>
@@ -431,9 +440,9 @@
 <a class="sourceLine" id="cb31-7" title="7">             <span class="dt">genes_high_color =</span> <span class="st">'red'</span>, <span class="dt">genes_mid_color =</span> <span class="st">'white'</span>, <span class="dt">genes_low_color =</span> <span class="st">'darkblue'</span>, <span class="dt">midpoint =</span> <span class="dv">0</span>)</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_brain/vignette_200325/9_spatial_genes.png" style="width:50.0%"></p>
 </div>
-<div id="part-11-hmrf-domains" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-11-hmrf-domains" class="anchor"></a>part 11: HMRF domains</h3>
+<div id="part-11-hmrf-domains" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-11-hmrf-domains" class="anchor"></a>part 11: HMRF domains</h2>
 <div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" title="1"><span class="co"># spatial genes</span></a>
 <a class="sourceLine" id="cb32-2" title="2">my_spatial_genes &lt;-<span class="st"> </span>spatial_genes[<span class="dv">1</span><span class="op">:</span><span class="dv">100</span>]<span class="op">$</span>genes</a>
 <a class="sourceLine" id="cb32-3" title="3"></a>
@@ -477,12 +486,12 @@
 <a class="sourceLine" id="cb33-2" title="2"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(<span class="dt">gobject =</span> visium_brain, <span class="dt">cell_color =</span> <span class="st">'HMRF_k12_b.0.5'</span>, <span class="dt">point_size =</span> <span class="dv">2</span>)</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_brain/vignette_200325/10_HMRF_k12_b.0.5.png" style="width:50.0%"></p>
 </div>
-<div id="export-and-create-giotto-viewer" class="section level3">
-<h3 class="hasAnchor">
-<a href="#export-and-create-giotto-viewer" class="anchor"></a>Export and create Giotto Viewer</h3>
-<div id="export-giotto-results-to-a-specificied-directory" class="section level5">
-<h5 class="hasAnchor">
-<a href="#export-giotto-results-to-a-specificied-directory" class="anchor"></a>1. Export Giotto results to a specificied directory</h5>
+<div id="export-and-create-giotto-viewer" class="section level2">
+<h2 class="hasAnchor">
+<a href="#export-and-create-giotto-viewer" class="anchor"></a>Export and create Giotto Viewer</h2>
+<div id="export-giotto-results-to-a-specificied-directory" class="section level4">
+<h4 class="hasAnchor">
+<a href="#export-giotto-results-to-a-specificied-directory" class="anchor"></a>1. Export Giotto results to a specificied directory</h4>
 <ul>
 <li>export spot/cell annotations<br>
 </li>
@@ -513,6 +522,25 @@
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
 
+        <div id="tocnav">
+      <h2 class="hasAnchor">
+<a href="#tocnav" class="anchor"></a>Contents</h2>
+      <ul class="nav nav-pills nav-stacked">
+<li><a href="#giotto-global-instructions">Giotto global instructions</a></li>
+      <li><a href="#part-1-data-input">part 1: Data input</a></li>
+      <li><a href="#part-2-create-giotto-object-process-data">part 2: Create Giotto object &amp; process data</a></li>
+      <li><a href="#part-3-dimension-reduction">part 3: dimension reduction</a></li>
+      <li><a href="#part-4-cluster">part 4: cluster</a></li>
+      <li><a href="#part-5-co-visualize">part 5: co-visualize</a></li>
+      <li><a href="#part-6-cell-type-marker-gene-detection">part 6: cell type marker gene detection</a></li>
+      <li><a href="#part-7-cell-type-annotation">part 7: cell-type annotation</a></li>
+      <li><a href="#part-8-spatial-grid">part 8: spatial grid</a></li>
+      <li><a href="#part-9-spatial-network">part 9: spatial network</a></li>
+      <li><a href="#part-10-spatial-genes">part 10: spatial genes</a></li>
+      <li><a href="#part-11-hmrf-domains">part 11: HMRF domains</a></li>
+      <li><a href="#export-and-create-giotto-viewer">Export and create Giotto Viewer</a></li>
+      </ul>
+</div>
       </div>
 
 </div>

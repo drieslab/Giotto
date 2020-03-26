@@ -75,6 +75,9 @@
       <a href="../articles/mouse_seqFISH_cortex_200319.html">mouse seqFISH cortex</a>
     </li>
     <li>
+      <a href="../articles/mouse_merFISH_hypoth_preoptic_region_200326.html">mouse hypoth. preopt. region</a>
+    </li>
+    <li>
       <a href="../articles/mouse_starmap_cortex.html">mouse STARmap cortex</a>
     </li>
     <li>
@@ -82,6 +85,12 @@
     </li>
     <li>
       <a href="../articles/mouse_visium_brain_200325.html">mouse Visium brain</a>
+    </li>
+    <li>
+      <a href="../articles/mouse_visium_kidney_200326.html">mouse Visium kidney</a>
+    </li>
+    <li>
+      <a href="../articles/mouse_CODEX_spleen.html">mouse CODEX spleen</a>
     </li>
   </ul>
 </li>
@@ -122,9 +131,9 @@
 
     
     
-<div id="giotto-global-instructions" class="section level3">
-<h3 class="hasAnchor">
-<a href="#giotto-global-instructions" class="anchor"></a>Giotto global instructions</h3>
+<div id="giotto-global-instructions" class="section level2">
+<h2 class="hasAnchor">
+<a href="#giotto-global-instructions" class="anchor"></a>Giotto global instructions</h2>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="co"># this example was tested with Giotto v.0.3.0</span></a>
 <a class="sourceLine" id="cb1-2" title="2"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(Giotto)</a>
 <a class="sourceLine" id="cb1-3" title="3"></a>
@@ -138,9 +147,9 @@
 <a class="sourceLine" id="cb1-11" title="11">                                  <span class="dt">plot_format =</span> <span class="st">'png'</span>,</a>
 <a class="sourceLine" id="cb1-12" title="12">                                  <span class="dt">dpi =</span> <span class="dv">300</span>, <span class="dt">height =</span> <span class="dv">9</span>, <span class="dt">width =</span> <span class="dv">9</span>)</a></code></pre></div>
 </div>
-<div id="part-1-data-input" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-1-data-input" class="anchor"></a>part 1: Data input</h3>
+<div id="part-1-data-input" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-1-data-input" class="anchor"></a>part 1: Data input</h2>
 <ul>
 <li>load cortex/svz gene expression matrix<br>
 </li>
@@ -167,9 +176,9 @@
 <a class="sourceLine" id="cb2-15" title="15">my_offset_file =<span class="st"> </span>my_offset_file[,.(field, x_offset_final, y_offset_final)]</a></code></pre></div>
 <hr>
 </div>
-<div id="part-2-create-giotto-object-process-data" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-2-create-giotto-object-process-data" class="anchor"></a>part 2: Create Giotto object &amp; process data</h3>
+<div id="part-2-create-giotto-object-process-data" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-2-create-giotto-object-process-data" class="anchor"></a>part 2: Create Giotto object &amp; process data</h2>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="co">## create</span></a>
 <a class="sourceLine" id="cb3-2" title="2">VC_test &lt;-<span class="st"> </span><span class="kw"><a href="../reference/createGiottoObject.html">createGiottoObject</a></span>(<span class="dt">raw_exprs =</span> VC_exprs, <span class="dt">spatial_locs =</span> stitch_file,</a>
 <a class="sourceLine" id="cb3-3" title="3">                              <span class="dt">offset_file =</span> my_offset_file, <span class="dt">instructions =</span> instrs)</a>
@@ -210,9 +219,9 @@
 <img src="../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/2_spatial_locations.png" style="width:10cm">
 </center>
 </div>
-<div id="part-3-dimension-reduction" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-3-dimension-reduction" class="anchor"></a>part 3: dimension reduction</h3>
+<div id="part-3-dimension-reduction" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-3-dimension-reduction" class="anchor"></a>part 3: dimension reduction</h2>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="co">## highly variable genes (HVG)</span></a>
 <a class="sourceLine" id="cb4-2" title="2">VC_test &lt;-<span class="st"> </span><span class="kw"><a href="../reference/calculateHVG.html">calculateHVG</a></span>(<span class="dt">gobject =</span> VC_test, <span class="dt">method =</span> <span class="st">'cov_loess'</span>, <span class="dt">difference_in_cov =</span> <span class="fl">0.1</span>,</a>
 <a class="sourceLine" id="cb4-3" title="3">                        <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'3_HVGplot'</span>, <span class="dt">base_height =</span> <span class="dv">5</span>, <span class="dt">base_width =</span> <span class="dv">5</span>))</a></code></pre></div>
@@ -251,9 +260,9 @@
 <img src="../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/3_tSNE_reduction.png" style="width:10cm">
 </center>
 </div>
-<div id="part-4-cluster" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-4-cluster" class="anchor"></a>part 4: cluster</h3>
+<div id="part-4-cluster" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-4-cluster" class="anchor"></a>part 4: cluster</h2>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"></a>
 <a class="sourceLine" id="cb8-2" title="2"><span class="co">## sNN network (default)</span></a>
 <a class="sourceLine" id="cb8-3" title="3">VC_test &lt;-<span class="st"> </span><span class="kw"><a href="../reference/createNearestNetwork.html">createNearestNetwork</a></span>(<span class="dt">gobject =</span> VC_test, <span class="dt">dimensions_to_use =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">15</span>, <span class="dt">k =</span> <span class="dv">15</span>)</a>
@@ -302,9 +311,9 @@
 <img src="../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/4_dendro.png" style="width:10cm">
 </center>
 </div>
-<div id="part-5-visualize-spatial-and-expression-space" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-5-visualize-spatial-and-expression-space" class="anchor"></a>part 5: visualize spatial and expression space</h3>
+<div id="part-5-visualize-spatial-and-expression-space" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-5-visualize-spatial-and-expression-space" class="anchor"></a>part 5: visualize spatial and expression space</h2>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1"><span class="co"># expression and spatial</span></a>
 <a class="sourceLine" id="cb12-2" title="2"><span class="kw"><a href="../reference/spatDimPlot.html">spatDimPlot</a></span>(<span class="dt">gobject =</span> VC_test, <span class="dt">cell_color =</span> <span class="st">'sub_leiden_clus_select'</span>, <span class="dt">cell_color_code =</span> subleiden_colors,</a>
 <a class="sourceLine" id="cb12-3" title="3">            <span class="dt">dim_point_size =</span> <span class="dv">2</span>, <span class="dt">spat_point_size =</span> <span class="dv">2</span>,</a>
@@ -324,9 +333,9 @@
 <img src="../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/5_covis_leiden_selected.png" style="width:10cm">
 </center>
 </div>
-<div id="part-6-cell-type-marker-gene-detection" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-6-cell-type-marker-gene-detection" class="anchor"></a>part 6: cell type marker gene detection</h3>
+<div id="part-6-cell-type-marker-gene-detection" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-6-cell-type-marker-gene-detection" class="anchor"></a>part 6: cell type marker gene detection</h2>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1"><span class="co">## gini ##</span></a>
 <a class="sourceLine" id="cb14-2" title="2">gini_markers_subclusters =<span class="st"> </span><span class="kw"><a href="../reference/findMarkers_one_vs_all.html">findMarkers_one_vs_all</a></span>(<span class="dt">gobject =</span> VC_test,</a>
 <a class="sourceLine" id="cb14-3" title="3">                                                  <span class="dt">method =</span> <span class="st">'gini'</span>,</a>
@@ -355,9 +364,9 @@
 <img src="../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/6_metaheatmap_gini2.png" style="width:10cm">
 </center>
 </div>
-<div id="part-7-cell-type-annotation" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-7-cell-type-annotation" class="anchor"></a>part 7: cell type annotation</h3>
+<div id="part-7-cell-type-annotation" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-7-cell-type-annotation" class="anchor"></a>part 7: cell type annotation</h2>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1"><span class="co">## general cell types</span></a>
 <a class="sourceLine" id="cb16-2" title="2"><span class="co"># create vector with names</span></a>
 <a class="sourceLine" id="cb16-3" title="3">clusters_cell_types_cortex =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'microglia'</span>, <span class="st">'L4 eNeuron'</span>, <span class="st">'endothelial'</span>,</a>
@@ -424,9 +433,9 @@
 <img src="../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/7_heatmap_selected.png" style="width:10cm">
 </center>
 </div>
-<div id="part-8-spatial-grid" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-8-spatial-grid" class="anchor"></a>part 8: spatial grid</h3>
+<div id="part-8-spatial-grid" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-8-spatial-grid" class="anchor"></a>part 8: spatial grid</h2>
 <div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" title="1"><span class="co">## spatial grid</span></a>
 <a class="sourceLine" id="cb20-2" title="2">VC_test &lt;-<span class="st"> </span><span class="kw"><a href="../reference/createSpatialGrid.html">createSpatialGrid</a></span>(<span class="dt">gobject =</span> VC_test,</a>
 <a class="sourceLine" id="cb20-3" title="3">                             <span class="dt">sdimx_stepsize =</span> <span class="dv">500</span>,</a>
@@ -439,9 +448,9 @@
 <img src="../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/8_grid.png" style="width:10cm">
 </center>
 </div>
-<div id="part-9-spatial-network" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-9-spatial-network" class="anchor"></a>part 9: spatial network</h3>
+<div id="part-9-spatial-network" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-9-spatial-network" class="anchor"></a>part 9: spatial network</h2>
 <div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" title="1"></a>
 <a class="sourceLine" id="cb21-2" title="2"><span class="co">## delaunay network: stats + creation</span></a>
 <a class="sourceLine" id="cb21-3" title="3"><span class="kw"><a href="../reference/plotStatDelaunayNetwork.html">plotStatDelaunayNetwork</a></span>(<span class="dt">gobject =</span> VC_test, <span class="dt">maximum_distance =</span> <span class="dv">400</span>, <span class="dt">save_plot =</span> F)</a>
@@ -487,12 +496,12 @@
 <img src="../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/9_spatial_network_dist.png" style="width:10cm">
 </center>
 </div>
-<div id="part-10-spatial-genes" class="section level3">
+<div id="part-10-spatial-genes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-10-spatial-genes" class="anchor"></a>part 10: spatial genes</h2>
+<div id="individual-spatial-genes" class="section level3">
 <h3 class="hasAnchor">
-<a href="#part-10-spatial-genes" class="anchor"></a>part 10: spatial genes</h3>
-<div id="individual-spatial-genes" class="section level4">
-<h4 class="hasAnchor">
-<a href="#individual-spatial-genes" class="anchor"></a>Individual spatial genes</h4>
+<a href="#individual-spatial-genes" class="anchor"></a>Individual spatial genes</h3>
 <div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" title="1"><span class="co"># 3 new methods to identify spatial genes</span></a>
 <a class="sourceLine" id="cb25-2" title="2">km_spatialgenes =<span class="st"> </span><span class="kw"><a href="../reference/binSpect.html">binSpect</a></span>(VC_test)</a>
 <a class="sourceLine" id="cb25-3" title="3"><span class="kw"><a href="../reference/spatGenePlot.html">spatGenePlot</a></span>(VC_test, <span class="dt">expression_values =</span> <span class="st">'scaled'</span>, <span class="dt">genes =</span> km_spatialgenes[<span class="dv">1</span><span class="op">:</span><span class="dv">6</span>]<span class="op">$</span>genes,</a>
@@ -525,9 +534,9 @@
 <img src="../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/10_spatialgenes_silh.png" style="width:10cm">
 </center>
 </div>
-<div id="spatial-genes-co-expression-modules" class="section level4">
-<h4 class="hasAnchor">
-<a href="#spatial-genes-co-expression-modules" class="anchor"></a>Spatial genes co-expression modules</h4>
+<div id="spatial-genes-co-expression-modules" class="section level3">
+<h3 class="hasAnchor">
+<a href="#spatial-genes-co-expression-modules" class="anchor"></a>Spatial genes co-expression modules</h3>
 <div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" title="1"><span class="co">## spatial co-expression patterns ##</span></a>
 <a class="sourceLine" id="cb28-2" title="2">ext_spatial_genes =<span class="st"> </span>kmtest[<span class="dv">1</span><span class="op">:</span><span class="dv">500</span>]<span class="op">$</span>genes</a>
 <a class="sourceLine" id="cb28-3" title="3"></a>
@@ -575,9 +584,9 @@
 </center>
 </div>
 </div>
-<div id="part-11-hmrf-spatial-domains" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-11-hmrf-spatial-domains" class="anchor"></a>part 11: HMRF spatial domains</h3>
+<div id="part-11-hmrf-spatial-domains" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-11-hmrf-spatial-domains" class="anchor"></a>part 11: HMRF spatial domains</h2>
 <div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" title="1">hmrf_folder =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(results_folder,<span class="st">'/'</span>,<span class="st">'11_HMRF/'</span>)</a>
 <a class="sourceLine" id="cb31-2" title="2"><span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/files.html">file.exists</a></span>(hmrf_folder)) <span class="kw"><a href="https://rdrr.io/r/base/files2.html">dir.create</a></span>(hmrf_folder, <span class="dt">recursive =</span> T)</a>
 <a class="sourceLine" id="cb31-3" title="3"></a>
@@ -615,9 +624,9 @@
 <img src="../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/11_HMRF_2_k9_b.28.png" style="width:10cm">
 </center>
 </div>
-<div id="part-12-cell-neighborhood-cell-typecell-type-interactions" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-12-cell-neighborhood-cell-typecell-type-interactions" class="anchor"></a>part 12: cell neighborhood: cell-type/cell-type interactions</h3>
+<div id="part-12-cell-neighborhood-cell-typecell-type-interactions" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-12-cell-neighborhood-cell-typecell-type-interactions" class="anchor"></a>part 12: cell neighborhood: cell-type/cell-type interactions</h2>
 <div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" title="1">cell_proximities =<span class="st"> </span><span class="kw"><a href="../reference/cellProximityEnrichment.html">cellProximityEnrichment</a></span>(<span class="dt">gobject =</span> VC_test,</a>
 <a class="sourceLine" id="cb32-2" title="2">                                           <span class="dt">cluster_column =</span> <span class="st">'cell_types'</span>,</a>
 <a class="sourceLine" id="cb32-3" title="3">                                           <span class="dt">spatial_network_name =</span> <span class="st">'Delaunay_network'</span>,</a>
@@ -683,9 +692,9 @@
 <img src="../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/12_cell_cell_enrichment_sel_vs_not.png" style="width:10cm">
 </center>
 </div>
-<div id="part-13-cell-neighborhood-interaction-changed-genes" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-13-cell-neighborhood-interaction-changed-genes" class="anchor"></a>part 13: cell neighborhood: interaction changed genes</h3>
+<div id="part-13-cell-neighborhood-interaction-changed-genes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-13-cell-neighborhood-interaction-changed-genes" class="anchor"></a>part 13: cell neighborhood: interaction changed genes</h2>
 <div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" title="1"><span class="co">## select top 25th highest expressing genes</span></a>
 <a class="sourceLine" id="cb38-2" title="2">gene_metadata =<span class="st"> </span><span class="kw"><a href="../reference/fDataDT.html">fDataDT</a></span>(VC_test)</a>
 <a class="sourceLine" id="cb38-3" title="3"><span class="kw"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span>(gene_metadata<span class="op">$</span>nr_cells, gene_metadata<span class="op">$</span>mean_expr)</a>
@@ -728,9 +737,9 @@
 <img src="../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/13_ICG_barplot.png" style="width:10cm">
 </center>
 </div>
-<div id="part-14-cell-neighborhood-ligand-receptor-cell-cell-communication" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-14-cell-neighborhood-ligand-receptor-cell-cell-communication" class="anchor"></a>part 14: cell neighborhood: ligand-receptor cell-cell communication</h3>
+<div id="part-14-cell-neighborhood-ligand-receptor-cell-cell-communication" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-14-cell-neighborhood-ligand-receptor-cell-cell-communication" class="anchor"></a>part 14: cell neighborhood: ligand-receptor cell-cell communication</h2>
 <div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" title="1"><span class="co"># LR expression</span></a>
 <a class="sourceLine" id="cb40-2" title="2"><span class="co"># LR activity changes</span></a>
 <a class="sourceLine" id="cb40-3" title="3">LR_data =<span class="st"> </span><span class="kw">fread</span>(<span class="kw"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"extdata"</span>, <span class="st">"mouse_ligand_receptors.txt"</span>, <span class="dt">package =</span> <span class="st">'Giotto'</span>))</a>
@@ -806,9 +815,9 @@
 <img src="../inst/images/mouse_seqFISH_SS_cortex/vignette_200319/14_spatial_recovery_activity.png" style="width:10cm">
 </center>
 </div>
-<div id="part-15-export-giotto-analyzer-to-viewer" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-15-export-giotto-analyzer-to-viewer" class="anchor"></a>part 15: export Giotto Analyzer to Viewer</h3>
+<div id="part-15-export-giotto-analyzer-to-viewer" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-15-export-giotto-analyzer-to-viewer" class="anchor"></a>part 15: export Giotto Analyzer to Viewer</h2>
 <div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" title="1">viewer_folder =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(results_folder, <span class="st">'/'</span>, <span class="st">'Mouse_cortex_viewer'</span>)</a>
 <a class="sourceLine" id="cb43-2" title="2"></a>
 <a class="sourceLine" id="cb43-3" title="3"><span class="co"># select annotations, reductions and expression values to view in Giotto Viewer</span></a>
@@ -829,6 +838,28 @@
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
 
+        <div id="tocnav">
+      <h2 class="hasAnchor">
+<a href="#tocnav" class="anchor"></a>Contents</h2>
+      <ul class="nav nav-pills nav-stacked">
+<li><a href="#giotto-global-instructions">Giotto global instructions</a></li>
+      <li><a href="#part-1-data-input">part 1: Data input</a></li>
+      <li><a href="#part-2-create-giotto-object-process-data">part 2: Create Giotto object &amp; process data</a></li>
+      <li><a href="#part-3-dimension-reduction">part 3: dimension reduction</a></li>
+      <li><a href="#part-4-cluster">part 4: cluster</a></li>
+      <li><a href="#part-5-visualize-spatial-and-expression-space">part 5: visualize spatial and expression space</a></li>
+      <li><a href="#part-6-cell-type-marker-gene-detection">part 6: cell type marker gene detection</a></li>
+      <li><a href="#part-7-cell-type-annotation">part 7: cell type annotation</a></li>
+      <li><a href="#part-8-spatial-grid">part 8: spatial grid</a></li>
+      <li><a href="#part-9-spatial-network">part 9: spatial network</a></li>
+      <li><a href="#part-10-spatial-genes">part 10: spatial genes</a></li>
+      <li><a href="#part-11-hmrf-spatial-domains">part 11: HMRF spatial domains</a></li>
+      <li><a href="#part-12-cell-neighborhood-cell-typecell-type-interactions">part 12: cell neighborhood: cell-type/cell-type interactions</a></li>
+      <li><a href="#part-13-cell-neighborhood-interaction-changed-genes">part 13: cell neighborhood: interaction changed genes</a></li>
+      <li><a href="#part-14-cell-neighborhood-ligand-receptor-cell-cell-communication">part 14: cell neighborhood: ligand-receptor cell-cell communication</a></li>
+      <li><a href="#part-15-export-giotto-analyzer-to-viewer">part 15: export Giotto Analyzer to Viewer</a></li>
+      </ul>
+</div>
       </div>
 
 </div>

@@ -75,6 +75,9 @@
       <a href="../articles/mouse_seqFISH_cortex_200319.html">mouse seqFISH cortex</a>
     </li>
     <li>
+      <a href="../articles/mouse_merFISH_hypoth_preoptic_region_200326.html">mouse hypoth. preopt. region</a>
+    </li>
+    <li>
       <a href="../articles/mouse_starmap_cortex.html">mouse STARmap cortex</a>
     </li>
     <li>
@@ -82,6 +85,12 @@
     </li>
     <li>
       <a href="../articles/mouse_visium_brain_200325.html">mouse Visium brain</a>
+    </li>
+    <li>
+      <a href="../articles/mouse_visium_kidney_200326.html">mouse Visium kidney</a>
+    </li>
+    <li>
+      <a href="../articles/mouse_CODEX_spleen.html">mouse CODEX spleen</a>
     </li>
   </ul>
 </li>
@@ -138,9 +147,9 @@
 - <strong>replaceGiottoInstructions</strong>: to replace all instructions with new instructions (e.g after subsetting)<br>
 In addition, for each plot the parameters can always be <em>manually overwritten</em> within the plotting function itself.</p>
 <p>Here we use the osmFISH as an example:</p>
-<div id="create-giotto-instructions-and-giotto-object" class="section level3">
-<h3 class="hasAnchor">
-<a href="#create-giotto-instructions-and-giotto-object" class="anchor"></a>1. create Giotto instructions and Giotto object</h3>
+<div id="create-giotto-instructions-and-giotto-object" class="section level2">
+<h2 class="hasAnchor">
+<a href="#create-giotto-instructions-and-giotto-object" class="anchor"></a>1. create Giotto instructions and Giotto object</h2>
 <ul>
 <li>we will override automatically showing plots by setting show_plot = FALSE</li>
 <li>we keep return_plot = TRUE, to store plots and modify them if necessary<br>
@@ -164,9 +173,9 @@ In addition, for each plot the parameters can always be <em>manually overwritten
 <a class="sourceLine" id="cb1-14" title="14">                                  <span class="dt">height =</span> <span class="dv">9</span>,</a>
 <a class="sourceLine" id="cb1-15" title="15">                                  <span class="dt">width =</span> <span class="dv">9</span>)</a></code></pre></div>
 </div>
-<div id="create-giotto-object" class="section level3">
-<h3 class="hasAnchor">
-<a href="#create-giotto-object" class="anchor"></a>2. create Giotto object</h3>
+<div id="create-giotto-object" class="section level2">
+<h2 class="hasAnchor">
+<a href="#create-giotto-object" class="anchor"></a>2. create Giotto object</h2>
 <ul>
 <li>provide an expression matrix<br>
 </li>
@@ -191,17 +200,17 @@ In addition, for each plot the parameters can always be <em>manually overwritten
 <a class="sourceLine" id="cb2-16" title="16">osm_test &lt;-<span class="st"> </span><span class="kw"><a href="../reference/filterGiotto.html">filterGiotto</a></span>(<span class="dt">gobject =</span> osm_test)</a>
 <a class="sourceLine" id="cb2-17" title="17">osm_test &lt;-<span class="st"> </span><span class="kw"><a href="../reference/normalizeGiotto.html">normalizeGiotto</a></span>(<span class="dt">gobject =</span> osm_test)</a></code></pre></div>
 </div>
-<div id="work-with-giotto-instructions" class="section level3">
-<h3 class="hasAnchor">
-<a href="#work-with-giotto-instructions" class="anchor"></a>2. work with Giotto instructions</h3>
+<div id="work-with-giotto-instructions" class="section level2">
+<h2 class="hasAnchor">
+<a href="#work-with-giotto-instructions" class="anchor"></a>3. work with Giotto instructions</h2>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="co"># show the provided Giotto instructions</span></a>
 <a class="sourceLine" id="cb3-2" title="2"><span class="kw"><a href="../reference/showGiottoInstructions.html">showGiottoInstructions</a></span>(osm_test)</a>
 <a class="sourceLine" id="cb3-3" title="3"><span class="co"># change a previously set parameter, e.g. change dpi = 200 to dpi = 300</span></a>
 <a class="sourceLine" id="cb3-4" title="4">osm_test =<span class="st"> </span><span class="kw"><a href="../reference/changeGiottoInstructions.html">changeGiottoInstructions</a></span>(osm_test, <span class="dt">param =</span> <span class="st">'dpi'</span>, <span class="dt">new_value =</span> <span class="dv">300</span>)</a></code></pre></div>
 </div>
-<div id="different-ways-of-saving-a-plot" class="section level3">
-<h3 class="hasAnchor">
-<a href="#different-ways-of-saving-a-plot" class="anchor"></a>3. Different ways of saving a plot</h3>
+<div id="different-ways-of-saving-a-plot" class="section level2">
+<h2 class="hasAnchor">
+<a href="#different-ways-of-saving-a-plot" class="anchor"></a>4. Different ways of saving a plot</h2>
 <p>Here we will show a couple of ways to save plots.</p>
 <ul>
 <li>default way according to Giotto instructions, if save_plot = TRUE (1)</li>
@@ -249,7 +258,14 @@ In addition, for each plot the parameters can always be <em>manually overwritten
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#how-to-visualize-and-save-plots-in-giotto">How to visualize and save plots in Giotto?</a></li>
+<li>
+<a href="#how-to-visualize-and-save-plots-in-giotto">How to visualize and save plots in Giotto?</a><ul class="nav nav-pills nav-stacked">
+<li><a href="#create-giotto-instructions-and-giotto-object">1. create Giotto instructions and Giotto object</a></li>
+      <li><a href="#create-giotto-object">2. create Giotto object</a></li>
+      <li><a href="#work-with-giotto-instructions">3. work with Giotto instructions</a></li>
+      <li><a href="#different-ways-of-saving-a-plot">4. Different ways of saving a plot</a></li>
+      </ul>
+</li>
       </ul>
 </div>
       </div>

@@ -75,6 +75,9 @@
       <a href="../articles/mouse_seqFISH_cortex_200319.html">mouse seqFISH cortex</a>
     </li>
     <li>
+      <a href="../articles/mouse_merFISH_hypoth_preoptic_region_200326.html">mouse hypoth. preopt. region</a>
+    </li>
+    <li>
       <a href="../articles/mouse_starmap_cortex.html">mouse STARmap cortex</a>
     </li>
     <li>
@@ -82,6 +85,12 @@
     </li>
     <li>
       <a href="../articles/mouse_visium_brain_200325.html">mouse Visium brain</a>
+    </li>
+    <li>
+      <a href="../articles/mouse_visium_kidney_200326.html">mouse Visium kidney</a>
+    </li>
+    <li>
+      <a href="../articles/mouse_CODEX_spleen.html">mouse CODEX spleen</a>
     </li>
   </ul>
 </li>
@@ -122,13 +131,13 @@
 
     
     
-<div id="different-ways-to-visualize-your-spatial-data" class="section level2">
-<h2 class="hasAnchor">
-<a href="#different-ways-to-visualize-your-spatial-data" class="anchor"></a>Different ways to visualize your spatial data?</h2>
+<div id="different-ways-to-visualize-your-spatial-data" class="section level1">
+<h1 class="hasAnchor">
+<a href="#different-ways-to-visualize-your-spatial-data" class="anchor"></a>Different ways to visualize your spatial data?</h1>
 <p>Giotto provides different ways to visualize your spatial data:</p>
-<div id="functions-specific-to-a-task-or-analysis" class="section level5">
-<h5 class="hasAnchor">
-<a href="#functions-specific-to-a-task-or-analysis" class="anchor"></a>1. Functions specific to a task or analysis:</h5>
+<div id="functions-specific-to-a-task-or-analysis" class="section level3">
+<h3 class="hasAnchor">
+<a href="#functions-specific-to-a-task-or-analysis" class="anchor"></a>1. Functions specific to a task or analysis:</h3>
 <ul>
 <li><strong>plotHeatmap</strong></li>
 <li><strong>plotMetadataHeatmap</strong></li>
@@ -136,9 +145,9 @@
 <li>… check out the different dataset examples to see the wide range of visualization options</li>
 </ul>
 </div>
-<div id="functions-that-use-the-spatial-coordinates-of-each-cell-or-spot-they-usually-start-with-spatxxx" class="section level5">
-<h5 class="hasAnchor">
-<a href="#functions-that-use-the-spatial-coordinates-of-each-cell-or-spot-they-usually-start-with-spatxxx" class="anchor"></a>2. Functions that use the spatial coordinates of each cell or spot, they usually start with <strong>spat</strong>XXX</h5>
+<div id="functions-that-use-the-spatial-coordinates-of-each-cell-or-spot-they-usually-start-with-spatxxx" class="section level3">
+<h3 class="hasAnchor">
+<a href="#functions-that-use-the-spatial-coordinates-of-each-cell-or-spot-they-usually-start-with-spatxxx" class="anchor"></a>2. Functions that use the spatial coordinates of each cell or spot, they usually start with <strong>spat</strong>XXX</h3>
 <ul>
 <li>
 <strong>spatPlot</strong>, to plot cell annotation information (e.g. cluster or cell type)</li>
@@ -148,9 +157,9 @@
 <strong>spatCellPlot</strong>, to overlay (multiple) numerical cell values (e.g. spatial enrichment)</li>
 </ul>
 </div>
-<div id="functions-that-use-the-dimension-reduction-coordinates-of-each-cell-or-spot-they-usually-start-with-dimxxx" class="section level5">
-<h5 class="hasAnchor">
-<a href="#functions-that-use-the-dimension-reduction-coordinates-of-each-cell-or-spot-they-usually-start-with-dimxxx" class="anchor"></a>3. Functions that use the dimension reduction coordinates of each cell or spot, they usually start with <strong>dim</strong>XXX</h5>
+<div id="functions-that-use-the-dimension-reduction-coordinates-of-each-cell-or-spot-they-usually-start-with-dimxxx" class="section level3">
+<h3 class="hasAnchor">
+<a href="#functions-that-use-the-dimension-reduction-coordinates-of-each-cell-or-spot-they-usually-start-with-dimxxx" class="anchor"></a>3. Functions that use the dimension reduction coordinates of each cell or spot, they usually start with <strong>dim</strong>XXX</h3>
 <ul>
 <li>
 <strong>dimPlot</strong>, to plot cell annotation information (e.g. cluster or cell type)</li>
@@ -164,9 +173,9 @@
 </li>
 </ul>
 </div>
-<div id="functions-for-co-visualization-that-combine-spat-2-and-dim-3" class="section level5">
-<h5 class="hasAnchor">
-<a href="#functions-for-co-visualization-that-combine-spat-2-and-dim-3" class="anchor"></a>4. Functions for co-visualization that combine <strong>spat</strong> (2) and <strong>dim</strong> (3)</h5>
+<div id="functions-for-co-visualization-that-combine-spat-2-and-dim-3" class="section level3">
+<h3 class="hasAnchor">
+<a href="#functions-for-co-visualization-that-combine-spat-2-and-dim-3" class="anchor"></a>4. Functions for co-visualization that combine <strong>spat</strong> (2) and <strong>dim</strong> (3)</h3>
 <ul>
 <li>
 <strong>spatDimPlot</strong>, to plot cell annotation information (e.g. cluster or cell type)</li>
@@ -176,14 +185,14 @@
 <strong>spatDimCellPlot</strong>, to overlay (multiple) numerical cell values (e.g. spatial enrichment)</li>
 </ul>
 </div>
-<div id="both-in-2d-and-3d" class="section level5">
-<h5 class="hasAnchor">
-<a href="#both-in-2d-and-3d" class="anchor"></a>5. Both in 2D and 3D</h5>
+<div id="both-in-2d-and-3d" class="section level3">
+<h3 class="hasAnchor">
+<a href="#both-in-2d-and-3d" class="anchor"></a>5. Both in 2D and 3D</h3>
 <p>Most functions both have a 2D and 3D version, like <strong>spatDimPlot2D</strong> and <strong>spatDimPlot3D</strong>. In those cases the <strong>spatDimPlot2D</strong> is the same as <strong>spatDimPlot</strong>. So only in case you want to plot your spatial or dimension reduction data in 3D, you need to specifically say so.</p>
 </div>
-<div id="ways-to-save-plot" class="section level5">
-<h5 class="hasAnchor">
-<a href="#ways-to-save-plot" class="anchor"></a>6. ways to save plot</h5>
+<div id="ways-to-save-plot" class="section level3">
+<h3 class="hasAnchor">
+<a href="#ways-to-save-plot" class="anchor"></a>6. ways to save plot</h3>
 <ul>
 <li>see also FAQ <a href="./instructions_and_plotting.html">How to create global instructions and show or save your created plots?</a>
 </li>

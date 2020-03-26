@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-### Giotto global instructions
+## Giotto global instructions
 ```{r eval=FALSE, message=FALSE, warning=FALSE}
 # this example works with Giotto v.0.3.0
 library(Giotto)
@@ -34,7 +34,7 @@ instrs = createGiottoInstructions(python_path = my_python_path,
 
 ```
 
-### part 1: Data input
+## part 1: Data input
 
 [Wang et al.](https://science.sciencemag.org/content/361/6400/eaat5691) created a 3D spatial expression dataset consisting of 28 genes from 32,845 single cells acquired over multiple rounds in visual cortex STARmap volumes.
   
@@ -51,7 +51,7 @@ cell_loc = read.table(paste0(data_dir, '/', 'cell_locations/STARmap_3D_data_cell
 
 ***
 
-### part 2: Create Giotto object & process data
+## part 2: Create Giotto object & process data
 
 ```{r eval=FALSE}
 ## create
@@ -83,7 +83,7 @@ spatPlot3D(gobject = STAR_test,point_size = 2)
 ![](../inst/images/mouse_starmap_cortex/vignette_0.3.0/1_spatial_locations.png)
 </center> 
 
-### part 3: dimension reduction
+## part 3: dimension reduction
 
 ```{r eval=FALSE}
 STAR_test <- calculateHVG(gobject = STAR_test, method = 'cov_groups', 
@@ -118,7 +118,7 @@ plotUMAP_3D(gobject = STAR_test)
 
 ***
 
-### part 4: cluster
+## part 4: cluster
 
 ```{r eval=FALSE}
 ## sNN network (default)
@@ -138,7 +138,7 @@ plotUMAP_3D(gobject = STAR_test, cell_color = 'leiden_0.2',show_center_label = F
 
 ***
 
-### part 5: co-visualize ####
+## part 5: co-visualize ####
 
 ```{r eval=FALSE}
 spatDimPlot3D(gobject = STAR_test,
@@ -151,7 +151,7 @@ spatDimPlot3D(gobject = STAR_test,
 
 ***
 
-### part 6: differential expression ####
+## part 6: differential expression ####
   
 ```{r eval=FALSE}
 markers = findMarkers_one_vs_all(gobject = STAR_test,
@@ -188,7 +188,7 @@ plotMetaDataHeatmap(STAR_test, expression_values = 'scaled',
 ***
 
 
-### part 7: cell-type annotation
+## part 7: cell-type annotation
 
 ```{r eval=FALSE}
 
@@ -238,7 +238,7 @@ plotMetaDataHeatmap(STAR_test, expression_values = 'scaled',
 </center> 
 
 ***
-### part 8: co-visualize cell types
+## part 8: co-visualize cell types
 
 
 ```{r eval=FALSE}
@@ -256,7 +256,7 @@ spatDimPlot3D(gobject = STAR_test,
 </center> 
 
 ***
-### part 8: visualize gene expression
+## part 9: visualize gene expression
 
 
 ```{r eval=FALSE}
@@ -333,7 +333,7 @@ spatGenePlot3D(STAR_test,
 
 
 ***
-### part 9: virtual cross section
+## part 10: virtual cross section
 
 ```{r eval=FALSE}
 

@@ -75,6 +75,9 @@
       <a href="../articles/mouse_seqFISH_cortex_200319.html">mouse seqFISH cortex</a>
     </li>
     <li>
+      <a href="../articles/mouse_merFISH_hypoth_preoptic_region_200326.html">mouse hypoth. preopt. region</a>
+    </li>
+    <li>
       <a href="../articles/mouse_starmap_cortex.html">mouse STARmap cortex</a>
     </li>
     <li>
@@ -82,6 +85,12 @@
     </li>
     <li>
       <a href="../articles/mouse_visium_brain_200325.html">mouse Visium brain</a>
+    </li>
+    <li>
+      <a href="../articles/mouse_visium_kidney_200326.html">mouse Visium kidney</a>
+    </li>
+    <li>
+      <a href="../articles/mouse_CODEX_spleen.html">mouse CODEX spleen</a>
     </li>
   </ul>
 </li>
@@ -122,9 +131,9 @@
 
     
     
-<div id="how-to-subset-a-giotto-object" class="section level2">
-<h2 class="hasAnchor">
-<a href="#how-to-subset-a-giotto-object" class="anchor"></a>How to subset a Giotto object?</h2>
+<div id="how-to-subset-a-giotto-object" class="section level1">
+<h1 class="hasAnchor">
+<a href="#how-to-subset-a-giotto-object" class="anchor"></a>How to subset a Giotto object?</h1>
 <p>There are several ways to subset a Giotto object or visualize a subset of the data. Here we will use the already analyzed <a href="./mouse_visium_brain_200325.html">Visium 10X brain dataset object</a> to:</p>
 <ul>
 <li>show how to visualize a subset of cells<br>
@@ -135,32 +144,32 @@
 </li>
 <li>subset the dataset based on spatial locations/coordinates</li>
 </ul>
-<div id="the-visium-10x-whole-brain" class="section level5">
-<h5 class="hasAnchor">
-<a href="#the-visium-10x-whole-brain" class="anchor"></a>1. the Visium 10X whole brain</h5>
+<div id="the-visium-10x-whole-brain" class="section level2">
+<h2 class="hasAnchor">
+<a href="#the-visium-10x-whole-brain" class="anchor"></a>1. the Visium 10X whole brain</h2>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw"><a href="../reference/spatDimPlot.html">spatDimPlot</a></span>(visium_brain, <span class="dt">cell_color =</span> <span class="st">'leiden_clus'</span>,</a>
 <a class="sourceLine" id="cb1-2" title="2">            <span class="dt">plot_alignment =</span> <span class="st">'horizontal'</span>, <span class="dt">spat_point_size =</span> <span class="dv">2</span>)</a></code></pre></div>
 <p><img src="../inst/howtos/subset_giotto/vignette_1/1_whole_brain.png" style="width:50.0%"></p>
 </div>
-<div id="show-only-a-subset-of-the-clusters" class="section level5">
-<h5 class="hasAnchor">
-<a href="#show-only-a-subset-of-the-clusters" class="anchor"></a>2. show only a subset of the clusters</h5>
+<div id="show-only-a-subset-of-the-clusters" class="section level2">
+<h2 class="hasAnchor">
+<a href="#show-only-a-subset-of-the-clusters" class="anchor"></a>2. show only a subset of the clusters</h2>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="kw"><a href="../reference/spatDimPlot.html">spatDimPlot</a></span>(visium_brain,</a>
 <a class="sourceLine" id="cb2-2" title="2">            <span class="dt">cell_color =</span> <span class="st">'leiden_clus'</span>,  <span class="dt">select_cell_groups =</span> <span class="st">'4'</span>,</a>
 <a class="sourceLine" id="cb2-3" title="3">            <span class="dt">plot_alignment =</span> <span class="st">'horizontal'</span>, <span class="dt">spat_point_size =</span> <span class="dv">2</span>)</a></code></pre></div>
 <p><img src="../inst/howtos/subset_giotto/vignette_1/2_whole_brain_clus4.png" style="width:50.0%"></p>
 </div>
-<div id="show-only-a-subset-of-the-clusters-excluding-not-selected-cells" class="section level5">
-<h5 class="hasAnchor">
-<a href="#show-only-a-subset-of-the-clusters-excluding-not-selected-cells" class="anchor"></a>3. show only a subset of the clusters, excluding not selected cells</h5>
+<div id="show-only-a-subset-of-the-clusters-excluding-not-selected-cells" class="section level2">
+<h2 class="hasAnchor">
+<a href="#show-only-a-subset-of-the-clusters-excluding-not-selected-cells" class="anchor"></a>3. show only a subset of the clusters, excluding not selected cells</h2>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="kw"><a href="../reference/spatDimPlot.html">spatDimPlot</a></span>(visium_brain,</a>
 <a class="sourceLine" id="cb3-2" title="2">            <span class="dt">cell_color =</span> <span class="st">'leiden_clus'</span>,  <span class="dt">select_cell_groups =</span> <span class="st">'4'</span>, <span class="dt">show_other_cells =</span> F,</a>
 <a class="sourceLine" id="cb3-3" title="3">            <span class="dt">plot_alignment =</span> <span class="st">'horizontal'</span>, <span class="dt">spat_point_size =</span> <span class="dv">2</span>)</a></code></pre></div>
 <p><img src="../inst/howtos/subset_giotto/vignette_1/3_whole_brain_clus4_noOther.png" style="width:50.0%"></p>
 </div>
-<div id="create-spatial-plots-grouped-by-the-leiden-clustering-result" class="section level5">
-<h5 class="hasAnchor">
-<a href="#create-spatial-plots-grouped-by-the-leiden-clustering-result" class="anchor"></a>4. create spatial plots grouped by the leiden clustering result</h5>
+<div id="create-spatial-plots-grouped-by-the-leiden-clustering-result" class="section level2">
+<h2 class="hasAnchor">
+<a href="#create-spatial-plots-grouped-by-the-leiden-clustering-result" class="anchor"></a>4. create spatial plots grouped by the leiden clustering result</h2>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(visium_brain,</a>
 <a class="sourceLine" id="cb4-2" title="2">         <span class="dt">group_by =</span> <span class="st">'leiden_clus'</span>, <span class="dt">group_by_subset =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1</span><span class="op">:</span><span class="dv">8</span>),</a>
 <a class="sourceLine" id="cb4-3" title="3">         <span class="dt">cell_color =</span> <span class="st">'leiden_clus'</span>, <span class="dt">cow_n_col =</span> <span class="dv">4</span>,</a>
@@ -172,9 +181,9 @@
 <a class="sourceLine" id="cb5-4" title="4">         <span class="dt">point_size =</span> <span class="dv">1</span>, <span class="dt">axis_text =</span> <span class="dv">6</span>, <span class="dt">axis_title =</span> <span class="dv">6</span>, <span class="dt">legend_text =</span> <span class="dv">6</span>)</a></code></pre></div>
 <p><img src="../inst/howtos/subset_giotto/vignette_1/4_whole_brain_by_group_leiden_2.png" style="width:50.0%"></p>
 </div>
-<div id="create-dimension-plots-grouped-by-the-hmrf-result" class="section level5">
-<h5 class="hasAnchor">
-<a href="#create-dimension-plots-grouped-by-the-hmrf-result" class="anchor"></a>5. create dimension plots grouped by the HMRF result</h5>
+<div id="create-dimension-plots-grouped-by-the-hmrf-result" class="section level2">
+<h2 class="hasAnchor">
+<a href="#create-dimension-plots-grouped-by-the-hmrf-result" class="anchor"></a>5. create dimension plots grouped by the HMRF result</h2>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="kw"><a href="../reference/spatDimPlot.html">spatDimPlot</a></span>(visium_brain, <span class="dt">cell_color =</span> <span class="st">'HMRF_k12_b.1'</span>,</a>
 <a class="sourceLine" id="cb6-2" title="2">            <span class="dt">plot_alignment =</span> <span class="st">'horizontal'</span>, <span class="dt">spat_point_size =</span> <span class="dv">2</span>)</a></code></pre></div>
 <p><img src="../inst/howtos/subset_giotto/vignette_1/5_whole_brain_HMRF.png" style="width:50.0%"></p>
@@ -189,9 +198,9 @@
 <a class="sourceLine" id="cb8-4" title="4">        <span class="dt">point_size =</span> <span class="dv">1</span>, <span class="dt">axis_text =</span> <span class="dv">6</span>, <span class="dt">axis_title =</span> <span class="dv">6</span>, <span class="dt">legend_text =</span> <span class="dv">6</span>)</a></code></pre></div>
 <p><img src="../inst/howtos/subset_giotto/vignette_1/5_whole_brain_by_group_HMRF_2.png" style="width:50.0%"></p>
 </div>
-<div id="create-a-new-giotto-object-by-subsetting-selected-clusters" class="section level5">
-<h5 class="hasAnchor">
-<a href="#create-a-new-giotto-object-by-subsetting-selected-clusters" class="anchor"></a>6. Create a new Giotto object by subsetting selected clusters</h5>
+<div id="create-a-new-giotto-object-by-subsetting-selected-clusters" class="section level2">
+<h2 class="hasAnchor">
+<a href="#create-a-new-giotto-object-by-subsetting-selected-clusters" class="anchor"></a>6. Create a new Giotto object by subsetting selected clusters</h2>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1">metadata =<span class="st"> </span><span class="kw"><a href="../reference/pDataDT.html">pDataDT</a></span>(visium_brain)</a>
 <a class="sourceLine" id="cb9-2" title="2">subset_cell_IDs =<span class="st"> </span>metadata[leiden_clus <span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">8</span>, <span class="dv">13</span>)]<span class="op">$</span>cell_ID</a>
 <a class="sourceLine" id="cb9-3" title="3">visium_brain_small =<span class="st"> </span><span class="kw"><a href="../reference/subsetGiotto.html">subsetGiotto</a></span>(visium_brain, <span class="dt">cell_ids =</span> subset_cell_IDs)</a>
@@ -205,9 +214,9 @@
 <a class="sourceLine" id="cb10-3" title="3">            <span class="dt">plot_alignment =</span> <span class="st">'horizontal'</span>, <span class="dt">spat_point_size =</span> <span class="fl">2.5</span>)</a></code></pre></div>
 <p><img src="../inst/howtos/subset_giotto/vignette_1/6_subset_brain_nr_genes.png" style="width:50.0%"></p>
 </div>
-<div id="create-a-new-giotto-object-by-subsetting-based-on-spatial-coordinateslocations" class="section level5">
-<h5 class="hasAnchor">
-<a href="#create-a-new-giotto-object-by-subsetting-based-on-spatial-coordinateslocations" class="anchor"></a>5. Create a new Giotto object by subsetting based on spatial coordinates/locations</h5>
+<div id="create-a-new-giotto-object-by-subsetting-based-on-spatial-coordinateslocations" class="section level2">
+<h2 class="hasAnchor">
+<a href="#create-a-new-giotto-object-by-subsetting-based-on-spatial-coordinateslocations" class="anchor"></a>7. Create a new Giotto object by subsetting based on spatial coordinates/locations</h2>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1">DG_subset =<span class="st"> </span><span class="kw"><a href="../reference/subsetGiottoLocs.html">subsetGiottoLocs</a></span>(visium_brain,</a>
 <a class="sourceLine" id="cb11-2" title="2">                             <span class="dt">x_max =</span> <span class="dv">6500</span>, <span class="dt">x_min =</span> <span class="dv">3000</span>,</a>
 <a class="sourceLine" id="cb11-3" title="3">                             <span class="dt">y_max =</span> <span class="dv">-2500</span>, <span class="dt">y_min =</span> <span class="dv">-5500</span>)</a>
@@ -227,7 +236,17 @@
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#how-to-subset-a-giotto-object">How to subset a Giotto object?</a></li>
+<li>
+<a href="#how-to-subset-a-giotto-object">How to subset a Giotto object?</a><ul class="nav nav-pills nav-stacked">
+<li><a href="#the-visium-10x-whole-brain">1. the Visium 10X whole brain</a></li>
+      <li><a href="#show-only-a-subset-of-the-clusters">2. show only a subset of the clusters</a></li>
+      <li><a href="#show-only-a-subset-of-the-clusters-excluding-not-selected-cells">3. show only a subset of the clusters, excluding not selected cells</a></li>
+      <li><a href="#create-spatial-plots-grouped-by-the-leiden-clustering-result">4. create spatial plots grouped by the leiden clustering result</a></li>
+      <li><a href="#create-dimension-plots-grouped-by-the-hmrf-result">5. create dimension plots grouped by the HMRF result</a></li>
+      <li><a href="#create-a-new-giotto-object-by-subsetting-selected-clusters">6. Create a new Giotto object by subsetting selected clusters</a></li>
+      <li><a href="#create-a-new-giotto-object-by-subsetting-based-on-spatial-coordinateslocations">7. Create a new Giotto object by subsetting based on spatial coordinates/locations</a></li>
+      </ul>
+</li>
       </ul>
 </div>
       </div>

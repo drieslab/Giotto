@@ -27,12 +27,18 @@ navbar:
       menu:
       - text: "mouse seqFISH cortex"
         href: articles/mouse_seqFISH_cortex_200319.html
+      - text: "mouse hypoth. preopt. region"
+        href: articles/mouse_merFISH_hypoth_preoptic_region_200326.html
       - text: "mouse STARmap cortex"
         href: articles/mouse_starmap_cortex.html
       - text: "human CyCIF PDAC"
         href: articles/human_cycif_PDAC_200322.html
       - text: "mouse Visium brain"
         href: articles/mouse_visium_brain_200325.html
+      - text: "mouse Visium kidney"
+        href: articles/mouse_visium_kidney_200326.html
+      - text: "mouse CODEX spleen"
+        href: articles/mouse_CODEX_spleen.html
     - text: FAQ
       href: articles/faqs.html
     - text: News

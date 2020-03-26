@@ -75,6 +75,9 @@
       <a href="../articles/mouse_seqFISH_cortex_200319.html">mouse seqFISH cortex</a>
     </li>
     <li>
+      <a href="../articles/mouse_merFISH_hypoth_preoptic_region_200326.html">mouse hypoth. preopt. region</a>
+    </li>
+    <li>
       <a href="../articles/mouse_starmap_cortex.html">mouse STARmap cortex</a>
     </li>
     <li>
@@ -82,6 +85,12 @@
     </li>
     <li>
       <a href="../articles/mouse_visium_brain_200325.html">mouse Visium brain</a>
+    </li>
+    <li>
+      <a href="../articles/mouse_visium_kidney_200326.html">mouse Visium kidney</a>
+    </li>
+    <li>
+      <a href="../articles/mouse_CODEX_spleen.html">mouse CODEX spleen</a>
     </li>
   </ul>
 </li>
@@ -122,18 +131,18 @@
 
     
     
-<div id="how-to-run-and-store-multiple-analyses" class="section level2">
-<h2 class="hasAnchor">
-<a href="#how-to-run-and-store-multiple-analyses" class="anchor"></a>How to run and store multiple analyses?</h2>
+<div id="how-to-run-and-store-multiple-analyses" class="section level1">
+<h1 class="hasAnchor">
+<a href="#how-to-run-and-store-multiple-analyses" class="anchor"></a>How to run and store multiple analyses?</h1>
 <p>The default Giotto workflow is similar to other scRNA-seq workflows and does not require you to provide a custom name for each analysis (e.g. PCA, UMAP, …), but running an analysis twice will overwrite the previous results with a warning. However, there are situations where being able to run and store multiple analyses can be advantageous:<br>
 - test multiple parameters for a single analysis<br>
 - test multiple combinations across functions (see example <strong>hvg-&gt;pca-&gt;umap</strong>)<br>
 - use different output results as input for downstream analyses (see example <strong>spatial genes</strong>)</p>
 <p><img src="../inst/howtos/work_with_multiple_analyses/ppt_store_multiple_analyses2.png" style="height:100.0%"></p>
 <p>We will use the seqFish+ somatosensory cortex as an example dataset after creating and processing a <a href="./mouse_seqFISH_cortex_200319.html">Giotto object</a>.</p>
-<div id="calculate-highly-variable-genes-in-two-different-manners" class="section level5">
-<h5 class="hasAnchor">
-<a href="#calculate-highly-variable-genes-in-two-different-manners" class="anchor"></a>1. calculate highly variable genes in two different manners</h5>
+<div id="calculate-highly-variable-genes-in-two-different-manners" class="section level2">
+<h2 class="hasAnchor">
+<a href="#calculate-highly-variable-genes-in-two-different-manners" class="anchor"></a>1. calculate highly variable genes in two different manners</h2>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="co"># using the loess method</span></a>
 <a class="sourceLine" id="cb1-2" title="2">VC_test &lt;-<span class="st"> </span><span class="kw"><a href="../reference/calculateHVG.html">calculateHVG</a></span>(<span class="dt">gobject =</span> VC_test,</a>
 <a class="sourceLine" id="cb1-3" title="3">                        <span class="dt">method =</span> <span class="st">'cov_loess'</span>, <span class="dt">difference_in_cov =</span> <span class="fl">0.1</span>,</a>
@@ -149,9 +158,9 @@
 <a class="sourceLine" id="cb3-3" title="3">mytable =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/table.html">table</a></span>(<span class="dt">loess =</span> gene_metadata<span class="op">$</span>loess_hvg, <span class="dt">group =</span> gene_metadata<span class="op">$</span>group_hvg)</a></code></pre></div>
 <p><img src="../inst/howtos/work_with_multiple_analyses/vignette_1/1_hvg_table.png" style="width:50.0%"></p>
 </div>
-<div id="perform-pca" class="section level5">
-<h5 class="hasAnchor">
-<a href="#perform-pca" class="anchor"></a>2. perform PCA</h5>
+<div id="perform-multiple-pcas" class="section level2">
+<h2 class="hasAnchor">
+<a href="#perform-multiple-pcas" class="anchor"></a>2. perform multiple PCAs</h2>
 <ul>
 <li>using the 2 different HVG sets (loess_genes and group_genes)</li>
 <li>store PCA results using custom names (‘pca_loess’ and ‘pca_group’)</li>
@@ -169,9 +178,9 @@
 <a class="sourceLine" id="cb5-4" title="4"><span class="kw"><a href="../reference/plotPCA.html">plotPCA</a></span>(<span class="dt">gobject =</span> VC_test, <span class="dt">dim_reduction_name =</span> <span class="st">'pca_group'</span>)</a></code></pre></div>
 <p><img src="../inst/howtos/work_with_multiple_analyses/vignette_1/2_group_pca.png" style="width:50.0%"></p>
 </div>
-<div id="perform-umap" class="section level5">
-<h5 class="hasAnchor">
-<a href="#perform-umap" class="anchor"></a>3. perform UMAP</h5>
+<div id="create-multiple-umaps" class="section level2">
+<h2 class="hasAnchor">
+<a href="#create-multiple-umaps" class="anchor"></a>3. create multiple UMAPs</h2>
 <ul>
 <li>using the 2 different PCA results (‘pca_loess’ and ‘pca_group’)<br>
 </li>
@@ -189,9 +198,9 @@
 <a class="sourceLine" id="cb7-3" title="3"><span class="kw"><a href="../reference/plotUMAP.html">plotUMAP</a></span>(<span class="dt">gobject =</span> VC_test, <span class="dt">dim_reduction_name =</span> <span class="st">'umap_group'</span>)</a></code></pre></div>
 <p><img src="../inst/howtos/work_with_multiple_analyses/vignette_1/3_group_umap.png" style="width:50.0%"></p>
 </div>
-<div id="create-spatial-network" class="section level5">
-<h5 class="hasAnchor">
-<a href="#create-spatial-network" class="anchor"></a>4. Create spatial network</h5>
+<div id="create-multiple-spatial-networks" class="section level2">
+<h2 class="hasAnchor">
+<a href="#create-multiple-spatial-networks" class="anchor"></a>4. Create multiple spatial networks</h2>
 <ul>
 <li>create spatial with multiple k’s and other parameters (k=5, k=10, k=100 &amp; maximum_distance=200)</li>
 <li>subset field 1<br>
@@ -221,9 +230,9 @@
 <p>distance network:</p>
 <p><img src="../inst/howtos/work_with_multiple_analyses/vignette_1/4_distance_network.png" style="width:50.0%"></p>
 </div>
-<div id="find-spatial-genes" class="section level5">
-<h5 class="hasAnchor">
-<a href="#find-spatial-genes" class="anchor"></a>5. Find spatial genes</h5>
+<div id="find-spatial-genes-in-mulitple-ways" class="section level2">
+<h2 class="hasAnchor">
+<a href="#find-spatial-genes-in-mulitple-ways" class="anchor"></a>5. Find spatial genes in mulitple ways</h2>
 <ul>
 <li>use the different spatial networks as input to identify spatial genes with the rank method</li>
 <li>visualize top spatial genes for 2 methods</li>
@@ -265,7 +274,15 @@
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#how-to-run-and-store-multiple-analyses">How to run and store multiple analyses?</a></li>
+<li>
+<a href="#how-to-run-and-store-multiple-analyses">How to run and store multiple analyses?</a><ul class="nav nav-pills nav-stacked">
+<li><a href="#calculate-highly-variable-genes-in-two-different-manners">1. calculate highly variable genes in two different manners</a></li>
+      <li><a href="#perform-multiple-pcas">2. perform multiple PCAs</a></li>
+      <li><a href="#create-multiple-umaps">3. create multiple UMAPs</a></li>
+      <li><a href="#create-multiple-spatial-networks">4. Create multiple spatial networks</a></li>
+      <li><a href="#find-spatial-genes-in-mulitple-ways">5. Find spatial genes in mulitple ways</a></li>
+      </ul>
+</li>
       </ul>
 </div>
       </div>

@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-### Giotto global instructions
+## Giotto global instructions
 ```{r eval=FALSE, message=FALSE, warning=FALSE}
 library(Giotto)
 
@@ -32,7 +32,7 @@ instrs = createGiottoInstructions(python_path = my_python_path)
 
 ```
 
-### part 1: Data input
+## part 1: Data input
 
 [10X genomics](https://www.10xgenomics.com/spatial-transcriptomics/) recently launched a new platform to obtain spatial expression data using a Visium Spatial Gene Expression slide.
   
@@ -56,7 +56,7 @@ High resolution png from original tissue.
 ![](../inst/images/mouse_Visium_brain/mouse_brain_highres.png){ width=50% } 
 
 
-### part 2: Create Giotto object & process data
+## part 2: Create Giotto object & process data
 
  
 ```{r eval=FALSE}
@@ -116,7 +116,7 @@ Overlay with number of genes detected per spot:
 
 
 
-### part 3: dimension reduction
+## part 3: dimension reduction
 
  
 ```{r eval=FALSE}
@@ -170,7 +170,7 @@ tSNE:
 
 
 
-### part 4:  cluster
+## part 4:  cluster
 
 ```{r eval=FALSE}
 ## sNN network (default)
@@ -187,7 +187,7 @@ Leiden clustering:
 ![](../inst/images/mouse_Visium_brain/vignette_200325/3_UMAP_leiden.png){ width=50% }
 
 
-### part 5: co-visualize ####
+## part 5: co-visualize ####
 
 ```{r eval=FALSE}
 # leiden clustering results
@@ -218,9 +218,9 @@ Zoom-in on Dentate Gyrus:
 
 
 
-### part 6: cell type marker gene detection
+## part 6: cell type marker gene detection
   
-##### Gini marker genes
+#### Gini marker genes
 ```{r eval=FALSE}
 ## gini ##
 ## ---- ##
@@ -266,7 +266,7 @@ dimGenePlot2D(visium_brain, expression_values = 'scaled',
 
 
 
-##### Scran marker genes
+#### Scran marker genes
 ```{r eval=FALSE}
 scran_markers_subclusters = findMarkers_one_vs_all(gobject = visium_brain,
                                                    method = 'scran',
@@ -309,7 +309,7 @@ dimGenePlot2D(visium_brain, expression_values = 'scaled',
 
 
 
-### part 7: cell-type annotation
+## part 7: cell-type annotation
 
 Visium spatial transcriptomics does not provide single-cell resolution, making cell type annotation a harder problem. Giotto provides 3 ways to calculate enrichment of specific cell-type signature gene list:    
 - PAGE  
@@ -408,7 +408,7 @@ spatDimPlot(gobject = visium_brain,
 
 
 
-### part 8: spatial grid ####
+## part 8: spatial grid ####
 
 ```{r eval=FALSE}
 # create spatial grid
@@ -422,7 +422,7 @@ spatPlot(visium_brain, cell_color = 'leiden_clus', show_grid = T,
 
  ![](../inst/images/mouse_Visium_brain/vignette_200325/7_grid.png){ width=50% } 
 
-### part 9: spatial network ####
+## part 9: spatial network ####
 
   
 ```{r eval=FALSE}
@@ -435,7 +435,7 @@ spatPlot(gobject = visium_brain, show_network = T, point_size = 1,
 
  ![](../inst/images/mouse_Visium_brain/vignette_200325/8_spatial_network_k5.png){ width=50% } 
 
-### part 10: spatial genes ####
+## part 10: spatial genes ####
 
 ```{r eval=FALSE}
 ## kmeans binarization
@@ -474,7 +474,7 @@ spatGenePlot(visium_brain, expression_values = 'scaled',
 
 
 
-### part 11: HMRF domains ####
+## part 11: HMRF domains ####
 
 ```{r, eval=FALSE}
 # spatial genes
@@ -532,9 +532,9 @@ spatPlot(gobject = visium_brain, cell_color = 'HMRF_k12_b.0.5', point_size = 2)
 
 
 
-### Export and create Giotto Viewer ####
+## Export and create Giotto Viewer ####
 
-##### 1. Export Giotto results to a specificied directory  
+#### 1. Export Giotto results to a specificied directory  
 
 - export spot/cell annotations  
 - export dimension reduction coordinates (umap, tsne, ...)  
