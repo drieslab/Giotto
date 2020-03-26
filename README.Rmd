@@ -11,7 +11,7 @@ output: github_document
 <!-- badges: start -->
 <!-- badges: end -->
 
-The Giotto package consists of two modules, Giotto Analyzer and Viewer (see [www.spatialgiotto.com](http://spatial.rc.fas.harvard.edu/)), which provide tools to process, analyze and visualize **single-cell spatial expression** data. The underlying framework is generalizable to virtually all currently available spatial datasets. We recently demonstrated the general applicability on 10 different datasets created by 9 different state-of-the-art spatial technologies, including *in situ* hybridization (seqFISH+, merFISH, osmFISH), sequencing (Slide-seq, Visium, STARmap) and imaging-based multiplexing/proteomics (CyCIF, MIBI, CODEX). These technologies differ in terms of resolution (single cell vs multiple cells), spatial dimension (2D vs 3D), molecular modality (protein vs RNA), and throughput (number of cells and genes). More information and documentation about the latest (developmental) version of Giotto Analyzer can be found at https://rubd.github.io/Giotto/.
+The Giotto package consists of two modules, Giotto Analyzer and Viewer (see [www.spatialgiotto.com](http://spatial.rc.fas.harvard.edu/spatialgiotto/giotto.html)), which provide tools to process, analyze and visualize **single-cell spatial expression** data. The underlying framework is generalizable to virtually all currently available spatial datasets. We recently demonstrated the general applicability on 10 different datasets created by 9 different state-of-the-art spatial technologies, including *in situ* hybridization (seqFISH+, merFISH, osmFISH), sequencing (Slide-seq, Visium, STARmap) and imaging-based multiplexing/proteomics (CyCIF, MIBI, CODEX). These technologies differ in terms of resolution (single cell vs multiple cells), spatial dimension (2D vs 3D), molecular modality (protein vs RNA), and throughput (number of cells and genes). More information and documentation about the latest (developmental) version of Giotto Analyzer can be found at https://rubd.github.io/Giotto/.
 
 <img src="inst/images/general_figs/overview_datasets.png" />
 
@@ -40,7 +40,9 @@ remotes::install_github("RubD/Giotto")
 
 
 #### Python tools (optional)  
-This is necessary to run all available analyses, including Leiden / Louvain clustering and to build and use the interactive visualization tool. An alternative, but less flexible, R version for Louvain clustering is also available. It is advisable to install everything within a specific conda environment and specify the python path at the beginning with createGiottoInstructions() or in the R function itself when required.
+This is necessary to run all available analyses, including Leiden / Louvain clustering and to build and use the interactive visualization tool.
+
+We are working on building a one-line install command via bioconda [work in progress].
 
 Required python modules: pandas / igraph / networkx / leidenalg  
 
@@ -64,14 +66,9 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation [instructio
   
   
 #### Giotto Viewer  
+See [link](http://spatial.rc.fas.harvard.edu/spatialgiotto/giotto.install.native.html)
 
-``` bash
-pip3 install --user jsbeautifier
-pip3 install --user giotto-viewer --no-cache #add --no-deps if do not wish to upgrade dependency
-pip3 install --user smfish-image-processing --no-cache #add --no-deps if do not wish to upgrade dependency
-```
 
-  
 \   
 
 
@@ -81,9 +78,14 @@ pip3 install --user smfish-image-processing --no-cache #add --no-deps if do not 
 - click on the image and try them out yourself.
 
 
-[![seqFISH](./inst/images/general_figs/cortex_image_summary.png){width=10cm}](https://rubd.github.io/Giotto/articles/mouse_seqFISH_cortex_200319.html)
-[![STARmap](./inst/images/general_figs/starmap_cortex_image_summary.png){width=10cm}](https://rubd.github.io/Giotto/articles/mouse_starmap_cortex.html)
-
+[![seqFISH](./inst/images/general_figs/cortex_image_summary.png){width=10cm}](./articles/mouse_seqFISH_cortex_200319.html)
+[![merFISH](./inst/images/general_figs/merFISH_hypoth_image_summary.png){width=10cm}](./articles/mouse_merFISH_hypoth_preoptic_region_200326.html)
+[![STARmap](./inst/images/general_figs/starmap_cortex_image_summary.png){width=10cm}](./articles/mouse_starmap_cortex.html)
+[![Visium_brain](./inst/images/general_figs/visium_brain_image_summary.png){width=10cm}](./articles/mouse_visium_brain_200325.html)
+[![Visium_kidney](./inst/images/general_figs/visium_kidney_image_summary.png){width=10cm}](./articles/mouse_visium_kidney_200326.html)
+[![CyCIF](./inst/images/general_figs/cyCIF_PDAC_image_summary.png){width=10cm}](./articles/human_cycif_PDAC_200322.html)
+[![osmFISH](./inst/images/general_figs/osmFISH_SS_cortex_image_summary.png){width=10cm}]
+[![CODEX](./inst/images/general_figs/CODEX_spleen_image_summary.png){width=10cm}](./articles/mouse_CODEX_spleen.html)
 
 
 ## References

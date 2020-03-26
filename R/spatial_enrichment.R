@@ -319,12 +319,13 @@ rankEnrich <- function(gobject,
 
     multiplyRank = (filterRankFold*filterSig[,i])^(1/2)
     rpb = 0.01*(0.99^(multiplyRank-1))
-    vectorX = NULL
+    
+    vectorX = rep(NA, dim(filterRankFold)[2])
 
     for (j in (1:dim(filterRankFold)[2])){
       toprpb = sort(rpb[,j],decreasing = T)
       zscore = sum(toprpb[1:100])
-      vectorX = IRanges::append(vectorX, zscore)
+      vectorX[j] = zscore
     }
     enrichment[i,] = vectorX
   }
