@@ -125,27 +125,30 @@
 
     
     
-<div id="giotto-global-instructions" class="section level3">
-<h3 class="hasAnchor">
-<a href="#giotto-global-instructions" class="anchor"></a>Giotto global instructions</h3>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="co"># this example works with Giotto v.0.3.0</span></a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(Giotto)</a>
+<div id="giotto-global-instructions" class="section level2">
+<h2 class="hasAnchor">
+<a href="#giotto-global-instructions" class="anchor"></a>Giotto global instructions</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"></a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="co">## 0. Giotto global instructions ####</span></a>
 <a class="sourceLine" id="cb1-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="co">## create instructions</span></a>
-<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="co">## instructions allow you to automatically save all plots into a chosen results folder</span></a>
-<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="co">## Here we will not automatically save plots, for an example see the seqFISH+ or Visium dataset</span></a>
-<a class="sourceLine" id="cb1-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="co">## instructions allow us to automatically save all plots into a chosen results folder</span></a>
-<a class="sourceLine" id="cb1-9" data-line-number="9">my_python_path =<span class="st"> "/your/python/path/python"</span></a>
-<a class="sourceLine" id="cb1-10" data-line-number="10">results_folder =<span class="st"> '/your/results/path/'</span></a>
-<a class="sourceLine" id="cb1-11" data-line-number="11">instrs =<span class="st"> </span><span class="kw"><a href="../reference/createGiottoInstructions.html">createGiottoInstructions</a></span>(<span class="dt">python_path =</span> my_python_path,</a>
-<a class="sourceLine" id="cb1-12" data-line-number="12">                                  <span class="dt">show_plot =</span> T,</a>
-<a class="sourceLine" id="cb1-13" data-line-number="13">                                  <span class="dt">return_plot =</span> F,</a>
-<a class="sourceLine" id="cb1-14" data-line-number="14">                                  <span class="dt">save_plot =</span> F)</a></code></pre></div>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="co"># this example works with Giotto v.0.3.0</span></a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(Giotto)</a>
+<a class="sourceLine" id="cb1-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="co">## create instructions</span></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="co">## instructions allow you to automatically save all plots into a chosen results folder</span></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="co">## Here we will not automatically save plots, for an example see the seqFISH+ or Visium dataset</span></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="co">## instructions allow us to automatically save all plots into a chosen results folder</span></a>
+<a class="sourceLine" id="cb1-12" data-line-number="12">my_python_path =<span class="st"> "/your/python/path/python"</span></a>
+<a class="sourceLine" id="cb1-13" data-line-number="13">results_folder =<span class="st"> '/your/results/path/'</span></a>
+<a class="sourceLine" id="cb1-14" data-line-number="14">instrs =<span class="st"> </span><span class="kw"><a href="../reference/createGiottoInstructions.html">createGiottoInstructions</a></span>(<span class="dt">python_path =</span> my_python_path,</a>
+<a class="sourceLine" id="cb1-15" data-line-number="15">                                  <span class="dt">show_plot =</span> T,</a>
+<a class="sourceLine" id="cb1-16" data-line-number="16">                                  <span class="dt">return_plot =</span> F,</a>
+<a class="sourceLine" id="cb1-17" data-line-number="17">                                  <span class="dt">save_plot =</span> F)</a></code></pre></div>
 </div>
-<div id="part-1-data-input" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-1-data-input" class="anchor"></a>Part 1: Data input</h3>
+<div id="part-1-data-input" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-1-data-input" class="anchor"></a>Part 1: Data input</h2>
 <p><a href="https://www.cell.com/cell/pdf/S0092-8674(18)30904-8.pdf">Goltsev et al.</a> created a multiplexed datasets of normal and lupus (MRL/lpr) murine spleens using CODEX technique. The dataset consists of 30 protein markers from 734,101 single cells. In this tutorial, 83,787 cells from sampel “BALBc-3” were selected for the analysis.</p>
 <center>
 <img src="../inst/images/cortex_image_demo.png">
@@ -172,9 +175,9 @@
 <a class="sourceLine" id="cb2-20" data-line-number="20"><span class="co">## exlude ambiguous cells from analysis ##</span></a>
 <a class="sourceLine" id="cb2-21" data-line-number="21">sub_set =<span class="st"> </span>cell_loc_dedup<span class="op">$</span>Imaging_phenotype_annotation <span class="op">!=</span><span class="st"> "dirt"</span> <span class="op">&amp;</span><span class="st"> </span>cell_loc_dedup<span class="op">$</span>Imaging_phenotype_annotation <span class="op">!=</span><span class="st"> "noid"</span> <span class="op">&amp;</span><span class="st"> </span>cell_loc_dedup<span class="op">$</span>Imaging_phenotype_annotation <span class="op">!=</span><span class="st"> "capsule"</span></a></code></pre></div>
 </div>
-<div id="part-2-create-giotto-object-process-data" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-2-create-giotto-object-process-data" class="anchor"></a>Part 2: Create Giotto object &amp; process data</h3>
+<div id="part-2-create-giotto-object-process-data" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-2-create-giotto-object-process-data" class="anchor"></a>Part 2: Create Giotto object &amp; process data</h2>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="co">## create</span></a>
 <a class="sourceLine" id="cb3-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb3-3" data-line-number="3">codex_test &lt;-<span class="st"> </span><span class="kw"><a href="../reference/createGiottoObject.html">createGiottoObject</a></span>(<span class="dt">raw_exprs =</span> expr_dedup_transpose[,sub_set], <span class="dt">spatial_locs =</span> stitch_file[sub_set,],</a>
@@ -213,9 +216,9 @@
 <img src="../inst/images/mouse_codex_spleen/vignette_200325/cell_loc.png"><img src="../inst/images/mouse_codex_spleen/vignette_200325/sample_tile.png">
 </center>
 </div>
-<div id="part-3-dimension-reduction" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-3-dimension-reduction" class="anchor"></a>Part 3: Dimension reduction</h3>
+<div id="part-3-dimension-reduction" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-3-dimension-reduction" class="anchor"></a>Part 3: Dimension reduction</h2>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="co"># use all Abs</span></a>
 <a class="sourceLine" id="cb4-2" data-line-number="2"><span class="co"># PCA</span></a>
 <a class="sourceLine" id="cb4-3" data-line-number="3">codex_test &lt;-<span class="st"> </span><span class="kw"><a href="../reference/runPCA.html">runPCA</a></span>(<span class="dt">gobject =</span> codex_test, <span class="dt">expression_values =</span> <span class="st">'normalized'</span>, <span class="dt">scale_unit =</span> T)</a>
@@ -229,9 +232,9 @@
 <img src="../inst/images/mouse_codex_spleen/vignette_200325/scree_plot.png"><img src="../inst/images/mouse_codex_spleen/vignette_200325/pca_plot.png"><img src="../inst/images/mouse_codex_spleen/vignette_200325/umap_plot.png">
 </center>
 </div>
-<div id="part-4-cluster" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-4-cluster" class="anchor"></a>Part 4: Cluster</h3>
+<div id="part-4-cluster" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-4-cluster" class="anchor"></a>Part 4: Cluster</h2>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co">## sNN network (default)</span></a>
 <a class="sourceLine" id="cb5-2" data-line-number="2">codex_test &lt;-<span class="st"> </span><span class="kw"><a href="../reference/createNearestNetwork.html">createNearestNetwork</a></span>(<span class="dt">gobject =</span> codex_test, <span class="dt">dimensions_to_use =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">14</span>, <span class="dt">k =</span> <span class="dv">20</span>)</a>
 <a class="sourceLine" id="cb5-3" data-line-number="3"></a>
@@ -251,9 +254,9 @@
 <img src="../inst/images/mouse_codex_spleen/vignette_200325/leiden_clustering.png"><img src="../inst/images/mouse_codex_spleen/vignette_200325/spat_leiden.png">
 </center>
 </div>
-<div id="part-5-co-visualize" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-5-co-visualize" class="anchor"></a>Part 5: Co-visualize</h3>
+<div id="part-5-co-visualize" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-5-co-visualize" class="anchor"></a>Part 5: Co-visualize</h2>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"></a>
 <a class="sourceLine" id="cb6-2" data-line-number="2"><span class="kw"><a href="../reference/spatDimPlot2D.html">spatDimPlot2D</a></span>(<span class="dt">gobject =</span> codex_test, <span class="dt">cell_color =</span> <span class="st">'leiden'</span>, <span class="dt">spat_point_shape =</span> <span class="st">'no_border'</span>, </a>
 <a class="sourceLine" id="cb6-3" data-line-number="3">              <span class="dt">spat_point_size =</span> <span class="fl">0.2</span>, <span class="dt">dim_point_shape =</span> <span class="st">'no_border'</span>, <span class="dt">dim_point_size =</span> <span class="fl">0.2</span>, </a>
@@ -262,9 +265,9 @@
 <img src="../inst/images/mouse_codex_spleen/vignette_200325/covis_leiden.png">
 </center>
 </div>
-<div id="part-6-differential-expression" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-6-differential-expression" class="anchor"></a>Part 6: Differential expression</h3>
+<div id="part-6-differential-expression" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-6-differential-expression" class="anchor"></a>Part 6: Differential expression</h2>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"></a>
 <a class="sourceLine" id="cb7-2" data-line-number="2"><span class="co"># resolution 0.5</span></a>
 <a class="sourceLine" id="cb7-3" data-line-number="3">cluster_column =<span class="st"> 'leiden'</span></a>
@@ -294,9 +297,9 @@
 <img src="../inst/images/mouse_codex_spleen/vignette_200325/scran_de.png"><img src="../inst/images/mouse_codex_spleen/vignette_200325/scran_violin.png"><img src="../inst/images/mouse_codex_spleen/vignette_200325/gini_heatmap.png"><img src="../inst/images/mouse_codex_spleen/vignette_200325/gini_violin.png">
 </center>
 </div>
-<div id="part-7-cell-type-annotation" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-7-cell-type-annotation" class="anchor"></a>Part 7: Cell type annotation</h3>
+<div id="part-7-cell-type-annotation" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-7-cell-type-annotation" class="anchor"></a>Part 7: Cell type annotation</h2>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"></a>
 <a class="sourceLine" id="cb8-2" data-line-number="2">clusters_cell_types =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'erythroblasts-F4/80(+) mphs'</span>,<span class="st">'B cells'</span>,<span class="st">'CD8(+) T cells'</span>, </a>
 <a class="sourceLine" id="cb8-3" data-line-number="3">                        <span class="st">'CD4(+) T cells'</span>, <span class="st">'B cells'</span>,<span class="st">'CD11c(+)MHCII(+) cells'</span>,</a>
@@ -334,9 +337,9 @@
 <img src="../inst/images/mouse_codex_spleen/vignette_200325/cell_type_annotation_heatmap.png"><img src="../inst/images/mouse_codex_spleen/vignette_200325/cell_types_umap.png"><img src="../inst/images/mouse_codex_spleen/vignette_200325/cell_types_spat.png">
 </center>
 </div>
-<div id="part-8-visualize-cell-types-and-gene-expression-in-selected-zones" class="section level3">
-<h3 class="hasAnchor">
-<a href="#part-8-visualize-cell-types-and-gene-expression-in-selected-zones" class="anchor"></a>part 8: Visualize cell types and gene expression in selected zones</h3>
+<div id="part-8-visualize-cell-types-and-gene-expression-in-selected-zones" class="section level2">
+<h2 class="hasAnchor">
+<a href="#part-8-visualize-cell-types-and-gene-expression-in-selected-zones" class="anchor"></a>part 8: Visualize cell types and gene expression in selected zones</h2>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"></a>
 <a class="sourceLine" id="cb9-2" data-line-number="2">codex_test_zone1 =<span class="st"> </span><span class="kw"><a href="../reference/subsetGiotto.html">subsetGiotto</a></span>(codex_test, <span class="dt">cell_ids =</span> codex_test<span class="op">@</span>cell_metadata<span class="op">$</span>cell_ID[codex_test<span class="op">@</span>cell_metadata<span class="op">$</span>sample_Xtile_Ytile<span class="op">==</span><span class="st">"BALBc-3_X04_Y08"</span>])</a>
 <a class="sourceLine" id="cb9-3" data-line-number="3"></a>
@@ -394,6 +397,21 @@
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
 
+        <div id="tocnav">
+      <h2 class="hasAnchor">
+<a href="#tocnav" class="anchor"></a>Contents</h2>
+      <ul class="nav nav-pills nav-stacked">
+<li><a href="#giotto-global-instructions">Giotto global instructions</a></li>
+      <li><a href="#part-1-data-input">Part 1: Data input</a></li>
+      <li><a href="#part-2-create-giotto-object-process-data">Part 2: Create Giotto object &amp; process data</a></li>
+      <li><a href="#part-3-dimension-reduction">Part 3: Dimension reduction</a></li>
+      <li><a href="#part-4-cluster">Part 4: Cluster</a></li>
+      <li><a href="#part-5-co-visualize">Part 5: Co-visualize</a></li>
+      <li><a href="#part-6-differential-expression">Part 6: Differential expression</a></li>
+      <li><a href="#part-7-cell-type-annotation">Part 7: Cell type annotation</a></li>
+      <li><a href="#part-8-visualize-cell-types-and-gene-expression-in-selected-zones">part 8: Visualize cell types and gene expression in selected zones</a></li>
+      </ul>
+</div>
       </div>
 
 </div>

@@ -15,8 +15,12 @@ knitr::opts_chunk$set(
 )
 ```
 
-### Giotto global instructions
+## Giotto global instructions
+   
 ```{r eval=FALSE, message=FALSE, warning=FALSE}
+
+## 0. Giotto global instructions ####
+
 # this example works with Giotto v.0.3.0
 library(Giotto)
 
@@ -34,7 +38,7 @@ instrs = createGiottoInstructions(python_path = my_python_path,
 
 ```
 
-### Part 1: Data input
+## Part 1: Data input
 
 [Goltsev et al.](https://www.cell.com/cell/pdf/S0092-8674(18)30904-8.pdf) created a multiplexed datasets of normal and lupus (MRL/lpr) murine spleens using CODEX technique. The dataset consists of 30 protein markers from 734,101 single cells. In this tutorial, 83,787 cells from sampel "BALBc-3" were selected for the analysis. 
   
@@ -68,7 +72,7 @@ sub_set = cell_loc_dedup$Imaging_phenotype_annotation != "dirt" & cell_loc_dedup
 ```
 
 
-### Part 2: Create Giotto object & process data
+## Part 2: Create Giotto object & process data
 
 ```{r eval=FALSE}
 ## create
@@ -114,7 +118,7 @@ spatPlot(gobject = codex_test, point_size = 0.2, coord_fix_ratio = 1, cell_color
 </center> 
 
 
-### Part 3: Dimension reduction
+## Part 3: Dimension reduction
  
 ```{r eval=FALSE}
 # use all Abs
@@ -135,7 +139,7 @@ plotUMAP(gobject = codex_test, point_shape = 'no_border', point_size = 0.2)
 ![](../inst/images/mouse_codex_spleen/vignette_200325/umap_plot.png)
 </center> 
 
-### Part 4: Cluster 
+## Part 4: Cluster 
 
 ```{r eval=FALSE}
 ## sNN network (default)
@@ -162,7 +166,7 @@ spatPlot(gobject = codex_test, cell_color = 'leiden', point_shape = 'no_border',
 ![](../inst/images/mouse_codex_spleen/vignette_200325/spat_leiden.png)
 </center> 
 
-### Part 5: Co-visualize
+## Part 5: Co-visualize
 
 ```{r eval=FALSE}
 
@@ -175,7 +179,7 @@ spatDimPlot2D(gobject = codex_test, cell_color = 'leiden', spat_point_shape = 'n
 ![](../inst/images/mouse_codex_spleen/vignette_200325/covis_leiden.png)
 </center> 
 
-### Part 6: Differential expression
+## Part 6: Differential expression
 
 ```{r eval=FALSE}
 
@@ -211,7 +215,7 @@ violinPlot(codex_test, genes = unique(topgenes_gini), cluster_column = cluster_c
 ![](../inst/images/mouse_codex_spleen/vignette_200325/gini_violin.png)
 </center> 
 
-### Part 7: Cell type annotation
+## Part 7: Cell type annotation
 
 ```{r eval=FALSE}
 
@@ -256,7 +260,7 @@ spatPlot(gobject = codex_test, cell_color = 'cell_types', point_shape = 'no_bord
 ![](../inst/images/mouse_codex_spleen/vignette_200325/cell_types_spat.png)
 </center> 
 
-### part 8: Visualize cell types and gene expression in selected zones
+## part 8: Visualize cell types and gene expression in selected zones
 
 ```{r eval=FALSE}
 
