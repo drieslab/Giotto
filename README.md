@@ -10,9 +10,10 @@
 <!-- badges: end -->
 
 The Giotto package consists of two modules, Giotto Analyzer and Viewer
-(see [www.spatialgiotto.com](http://spatial.rc.fas.harvard.edu/)), which
-provide tools to process, analyze and visualize **single-cell spatial
-expression** data. The underlying framework is generalizable to
+(see
+[www.spatialgiotto.com](http://spatial.rc.fas.harvard.edu/spatialgiotto/giotto.html)),
+which provide tools to process, analyze and visualize **single-cell
+spatial expression** data. The underlying framework is generalizable to
 virtually all currently available spatial datasets. We recently
 demonstrated the general applicability on 10 different datasets created
 by 9 different state-of-the-art spatial technologies, including *in
@@ -51,11 +52,10 @@ remotes::install_github("RubD/Giotto")
 
 This is necessary to run all available analyses, including Leiden /
 Louvain clustering and to build and use the interactive visualization
-tool. An alternative, but less flexible, R version for Louvain
-clustering is also available. It is advisable to install everything
-within a specific conda environment and specify the python path at the
-beginning with createGiottoInstructions() or in the R function itself
-when required.
+tool.
+
+We are working on building a one-line install command via bioconda
+\[work in progress\].
 
 Required python modules: pandas / igraph / networkx / leidenalg
 
@@ -83,11 +83,8 @@ See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation
 
 #### Giotto Viewer
 
-``` bash
-pip3 install --user jsbeautifier
-pip3 install --user giotto-viewer --no-cache #add --no-deps if do not wish to upgrade dependency
-pip3 install --user smfish-image-processing --no-cache #add --no-deps if do not wish to upgrade dependency
-```
+See
+[link](http://spatial.rc.fas.harvard.edu/spatialgiotto/giotto.install.native.html)
 
  
 
@@ -99,8 +96,14 @@ pip3 install --user smfish-image-processing --no-cache #add --no-deps if do not 
     computer is around 10\~45 mins.  
   - click on the image and try them out yourself.
 
-[![seqFISH](./inst/images/general_figs/cortex_image_summary.png)](https://rubd.github.io/Giotto/articles/mouse_seqFISH_cortex_200319.html)
-[![STARmap](./inst/images/general_figs/starmap_cortex_image_summary.png)](https://rubd.github.io/Giotto/articles/mouse_starmap_cortex.html)
+[![seqFISH](./inst/images/general_figs/cortex_image_summary.png)](./articles/mouse_seqFISH_cortex_200319.html)
+[![merFISH](./inst/images/general_figs/merFISH_hypoth_image_summary.png)](./articles/mouse_merFISH_hypoth_preoptic_region_200326.html)
+[![STARmap](./inst/images/general_figs/starmap_cortex_image_summary.png)](./articles/mouse_starmap_cortex.html)
+[![Visium\_brain](./inst/images/general_figs/visium_brain_image_summary.png)](./articles/mouse_visium_brain_200325.html)
+[![Visium\_kidney](./inst/images/general_figs/visium_kidney_image_summary.png)](./articles/mouse_visium_kidney_200326.html)
+[![CyCIF](./inst/images/general_figs/cyCIF_PDAC_image_summary.png)](./articles/human_cycif_PDAC_200322.html)
+\[![osmFISH](./inst/images/general_figs/osmFISH_SS_cortex_image_summary.png)\]
+[![CODEX](./inst/images/general_figs/CODEX_spleen_image_summary.png)](./articles/mouse_CODEX_spleen.html)
 
 ## References
 
