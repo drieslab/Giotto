@@ -9,9 +9,11 @@ articles:
   instructions_and_plotting: instructions_and_plotting.html
   metadata_and_subset_VC: metadata_and_subset_VC.html
   mouse_CODEX_spleen: mouse_CODEX_spleen.html
+  mouse_merFISH_hypoth_preoptic_region_200326: mouse_merFISH_hypoth_preoptic_region_200326.html
   mouse_seqFISH_cortex_200319: mouse_seqFISH_cortex_200319.html
   mouse_starmap_cortex: mouse_starmap_cortex.html
   mouse_visium_brain_200325: mouse_visium_brain_200325.html
+  mouse_visium_kidney_200326: mouse_visium_kidney_200326.html
   subset_giotto: subset_giotto.html
   visualization_options: visualization_options.html
   work_with_multiple_analyses: work_with_multiple_analyses.html
