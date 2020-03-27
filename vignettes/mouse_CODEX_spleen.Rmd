@@ -50,7 +50,7 @@ instrs = createGiottoInstructions(python_path = my_python_path,
 ## load expression and cell location
 data_dir = '/path/to/data/CODEX_3D/'
 expr = fread(paste0(data_dir, '/', 'count_matrix/codex_BALBc_3_expression.csv.gz'))
-cell_loc = fread(paste0(data_dir, '/', 'cell_locations/codex_BALBc_3_coord_annot.csv'))
+cell_loc = fread(paste0(data_dir, '/', 'cell_locations/codex_BALBc_3_coord_annot.csv.gz'))
 
 ## remove duplicated locations
 duplicated_locs = duplicated(cell_loc[,c("X.X", "Y.Y", "sample_Xtile_Ytile")])
