@@ -92,6 +92,9 @@
     <li>
       <a href="articles/mouse_CODEX_spleen.html">mouse CODEX spleen</a>
     </li>
+    <li>
+      <a href="articles/mouse_osmFISH_SScortex.html">mouse osmFISH SScortex</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -144,9 +147,9 @@
 <h4 class="hasAnchor">
 <a href="#r-installation" class="anchor"></a>R installation</h4>
 <p>You can install (~1-5 mins) Giotto with:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(remotes)  <span class="co"># if not installed: install.packages('remotes')</span></a>
-<a class="sourceLine" id="cb1-2" title="2"><span class="co"># to install the latest version</span></a>
-<a class="sourceLine" id="cb1-3" title="3">remotes<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/remotes/man/install_github.html">install_github</a></span>(<span class="st">"RubD/Giotto"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(remotes)  <span class="co"># if not installed: install.packages('remotes')</span></a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="co"># to install the latest version</span></a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">remotes<span class="op">::</span><span class="kw"><a href="https://remotes.r-lib.org/reference/install_github.html">install_github</a></span>(<span class="st">"RubD/Giotto"</span>)</a></code></pre></div>
 </div>
 <div id="python-tools-optional" class="section level4">
 <h4 class="hasAnchor">
@@ -155,13 +158,13 @@
 <p>We are working on building a one-line install command via bioconda [work in progress].</p>
 <p>Required python modules: pandas / igraph / networkx / leidenalg</p>
 <p>pip installation one-liner:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1"><span class="ex">pip3</span> install pandas python-igraph networkx python-louvain leidenalg</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="ex">pip3</span> install pandas python-igraph networkx python-louvain leidenalg</a></code></pre></div>
 <p>If pip install does not work, try installing within a <a href="https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands">conda environment</a>:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" title="1"><span class="ex">conda</span> install -c anaconda pandas</a>
-<a class="sourceLine" id="cb3-2" title="2"><span class="ex">conda</span> install -c conda-forge python-igraph</a>
-<a class="sourceLine" id="cb3-3" title="3"><span class="ex">conda</span> install -c anaconda networkx</a>
-<a class="sourceLine" id="cb3-4" title="4"><span class="ex">conda</span> install -c conda-forge python-louvain</a>
-<a class="sourceLine" id="cb3-5" title="5"><span class="ex">conda</span> install -c conda-forge leidenalg</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="ex">conda</span> install -c anaconda pandas</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="ex">conda</span> install -c conda-forge python-igraph</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="ex">conda</span> install -c anaconda networkx</a>
+<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="ex">conda</span> install -c conda-forge python-louvain</a>
+<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="ex">conda</span> install -c conda-forge leidenalg</a></code></pre></div>
 </div>
 <div id="hmrf" class="section level4">
 <h4 class="hasAnchor">
