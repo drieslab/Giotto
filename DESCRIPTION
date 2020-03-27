@@ -53,8 +53,7 @@ Imports:
     ggraph,
     Rcpp,
     rlang (>= 0.4.3),
-    fitdistrplus,
-    RTriangle (>= 1.6-0.10)
+    fitdistrplus
 Suggests:
     knitr,
     rmarkdown,
@@ -64,7 +63,8 @@ Suggests:
     tiff,
     biomaRt,
     trendsceek,
-    multinet (>= 3.0.2)
+    multinet (>= 3.0.2),
+    RTriangle (>= 1.6-0.10)
 biocViews:
 VignetteBuilder: knitr
 LinkingTo: 
