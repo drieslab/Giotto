@@ -394,7 +394,7 @@ spatDimGenePlot2D(osm_test, expression_values = 'normalized',
 
 ## Part 9: Subset cells based on spatial locations
 
-```{r}
+```{r eval=FALSE}
 ## Subset 1###
 
 osm_test_subset1 = subsetGiottoLocs(osm_test,

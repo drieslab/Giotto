@@ -39,6 +39,8 @@ navbar:
         href: articles/mouse_visium_kidney_200326.html
       - text: "mouse CODEX spleen"
         href: articles/mouse_CODEX_spleen.html
+      - text: "mouse osmFISH SScortex"
+        href: articles/mouse_osmFISH_SScortex.html
     - text: FAQ
       href: articles/faqs.html
     - text: News

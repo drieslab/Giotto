@@ -1,4 +1,4 @@
-pandoc: 2.7.2
+pandoc: 2.3.1
 pkgdown: 1.4.1
 pkgdown_sha: ~
 articles:
@@ -10,6 +10,7 @@ articles:
   metadata_and_subset_VC: metadata_and_subset_VC.html
   mouse_CODEX_spleen: mouse_CODEX_spleen.html
   mouse_merFISH_hypoth_preoptic_region_200326: mouse_merFISH_hypoth_preoptic_region_200326.html
+  mouse_osmFISH_SScortex: mouse_osmFISH_SScortex.html
   mouse_seqFISH_cortex_200319: mouse_seqFISH_cortex_200319.html
   mouse_starmap_cortex: mouse_starmap_cortex.html
   mouse_visium_brain_200325: mouse_visium_brain_200325.html
