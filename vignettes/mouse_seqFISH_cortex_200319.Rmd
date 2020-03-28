@@ -15,6 +15,8 @@ knitr::opts_chunk$set(
 )
 ```
 
+The seqFISH+ data to run this tutorial can be found [here](https://github.com/RubD/spatial-datasets/tree/master/data/2019_seqfish_plus_SScortex)
+
 ## Giotto global instructions
 
 ```{r eval=FALSE, message=FALSE, warning=FALSE}

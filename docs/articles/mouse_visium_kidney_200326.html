@@ -135,133 +135,134 @@
     
     
 <!-- mouse_cortex_1_simple.md is generated from mouse_cortex_1_simple.Rmd Please edit that file -->
+<p>The Visium kidney data to run this tutorial can be found <a href="https://support.10xgenomics.com/spatial-gene-expression/datasets/1.0.0/V1_Mouse_Kidney">here</a></p>
 <div id="giotto-global-instructions" class="section level2">
 <h2 class="hasAnchor">
 <a href="#giotto-global-instructions" class="anchor"></a>Giotto global instructions</h2>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(Giotto)</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="co">## create instructions</span></a>
-<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="co">## instructions allow us to automatically save all plots into a chosen results folder</span></a>
-<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="co">## Here we will automatically save plots, for an example without automatic saving see the visium brain dataset</span></a>
-<a class="sourceLine" id="cb1-6" data-line-number="6">my_python_path =<span class="st"> "/your/python/path/python"</span></a>
-<a class="sourceLine" id="cb1-7" data-line-number="7">results_folder =<span class="st"> '/your/results/path/'</span></a>
-<a class="sourceLine" id="cb1-8" data-line-number="8">instrs =<span class="st"> </span><span class="kw"><a href="../reference/createGiottoInstructions.html">createGiottoInstructions</a></span>(<span class="dt">python_path =</span> my_python_path,</a>
-<a class="sourceLine" id="cb1-9" data-line-number="9">                                  <span class="dt">save_dir =</span> results_folder,</a>
-<a class="sourceLine" id="cb1-10" data-line-number="10">                                  <span class="dt">show_plot =</span> F, <span class="dt">return_plot =</span> T, <span class="dt">save_plot =</span> T,</a>
-<a class="sourceLine" id="cb1-11" data-line-number="11">                                  <span class="dt">plot_format =</span> <span class="st">'png'</span>, <span class="dt">dpi =</span> <span class="dv">300</span>, <span class="dt">height =</span> <span class="dv">9</span>, <span class="dt">width =</span> <span class="dv">9</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(Giotto)</a>
+<a class="sourceLine" id="cb1-2" title="2"></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="co">## create instructions</span></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="co">## instructions allow us to automatically save all plots into a chosen results folder</span></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="co">## Here we will automatically save plots, for an example without automatic saving see the visium brain dataset</span></a>
+<a class="sourceLine" id="cb1-6" title="6">my_python_path =<span class="st"> "/your/python/path/python"</span></a>
+<a class="sourceLine" id="cb1-7" title="7">results_folder =<span class="st"> '/your/results/path/'</span></a>
+<a class="sourceLine" id="cb1-8" title="8">instrs =<span class="st"> </span><span class="kw"><a href="../reference/createGiottoInstructions.html">createGiottoInstructions</a></span>(<span class="dt">python_path =</span> my_python_path,</a>
+<a class="sourceLine" id="cb1-9" title="9">                                  <span class="dt">save_dir =</span> results_folder,</a>
+<a class="sourceLine" id="cb1-10" title="10">                                  <span class="dt">show_plot =</span> F, <span class="dt">return_plot =</span> T, <span class="dt">save_plot =</span> T,</a>
+<a class="sourceLine" id="cb1-11" title="11">                                  <span class="dt">plot_format =</span> <span class="st">'png'</span>, <span class="dt">dpi =</span> <span class="dv">300</span>, <span class="dt">height =</span> <span class="dv">9</span>, <span class="dt">width =</span> <span class="dv">9</span>)</a></code></pre></div>
 </div>
 <div id="part-1-data-input" class="section level2">
 <h2 class="hasAnchor">
 <a href="#part-1-data-input" class="anchor"></a>part 1: Data input</h2>
 <p><a href="https://www.10xgenomics.com/spatial-transcriptomics/">10X genomics</a> recently launched a new platform to obtain spatial expression data using a Visium Spatial Gene Expression slide.</p>
 <p><img src="../inst/images/general_figs/visium_technology.png" style="width:50.0%"></p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co">## expression and cell location</span></a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="co">## expression data</span></a>
-<a class="sourceLine" id="cb2-3" data-line-number="3">data_dir =<span class="st"> "path/to/Visum_data/"</span></a>
-<a class="sourceLine" id="cb2-4" data-line-number="4">data_path =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(data_dir,<span class="st">'raw_feature_bc_matrix/'</span>)</a>
-<a class="sourceLine" id="cb2-5" data-line-number="5">raw_matrix =<span class="st"> </span><span class="kw"><a href="../reference/get10Xmatrix.html">get10Xmatrix</a></span>(<span class="dt">path_to_data =</span> data_path, <span class="dt">gene_column_index =</span> <span class="dv">2</span>) <span class="co"># gene symbol is in the 2nd column</span></a>
-<a class="sourceLine" id="cb2-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="co">## spatial locations and metadata</span></a>
-<a class="sourceLine" id="cb2-8" data-line-number="8">spatial_locations =<span class="st"> </span><span class="kw">fread</span>(<span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(data_dir,<span class="st">'spatial/tissue_positions_list.csv'</span>))</a>
-<a class="sourceLine" id="cb2-9" data-line-number="9">spatial_locations =<span class="st"> </span>spatial_locations[<span class="kw"><a href="https://rdrr.io/r/base/match.html">match</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(raw_matrix), V1)]</a>
-<a class="sourceLine" id="cb2-10" data-line-number="10"><span class="kw"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(spatial_locations) =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'barcode'</span>, <span class="st">'in_tissue'</span>, <span class="st">'array_row'</span>, <span class="st">'array_col'</span>, <span class="st">'col_pxl'</span>, <span class="st">'row_pxl'</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="co">## expression and cell location</span></a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="co">## expression data</span></a>
+<a class="sourceLine" id="cb2-3" title="3">data_dir =<span class="st"> "path/to/Visum_data/"</span></a>
+<a class="sourceLine" id="cb2-4" title="4">data_path =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(data_dir,<span class="st">'raw_feature_bc_matrix/'</span>)</a>
+<a class="sourceLine" id="cb2-5" title="5">raw_matrix =<span class="st"> </span><span class="kw"><a href="../reference/get10Xmatrix.html">get10Xmatrix</a></span>(<span class="dt">path_to_data =</span> data_path, <span class="dt">gene_column_index =</span> <span class="dv">2</span>) <span class="co"># gene symbol is in the 2nd column</span></a>
+<a class="sourceLine" id="cb2-6" title="6"></a>
+<a class="sourceLine" id="cb2-7" title="7"><span class="co">## spatial locations and metadata</span></a>
+<a class="sourceLine" id="cb2-8" title="8">spatial_locations =<span class="st"> </span><span class="kw">fread</span>(<span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(data_dir,<span class="st">'spatial/tissue_positions_list.csv'</span>))</a>
+<a class="sourceLine" id="cb2-9" title="9">spatial_locations =<span class="st"> </span>spatial_locations[<span class="kw"><a href="https://rdrr.io/r/base/match.html">match</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(raw_matrix), V1)]</a>
+<a class="sourceLine" id="cb2-10" title="10"><span class="kw"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span>(spatial_locations) =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'barcode'</span>, <span class="st">'in_tissue'</span>, <span class="st">'array_row'</span>, <span class="st">'array_col'</span>, <span class="st">'col_pxl'</span>, <span class="st">'row_pxl'</span>)</a></code></pre></div>
 <p>High resolution png from original tissue.<br><img src="../inst/images/mouse_Visium_kidney/mouse_kidney_highres.png" style="width:50.0%"></p>
 </div>
 <div id="part-2-create-giotto-object-process-data" class="section level2">
 <h2 class="hasAnchor">
 <a href="#part-2-create-giotto-object-process-data" class="anchor"></a>part 2: Create Giotto object &amp; process data</h2>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="co">## we need to reverse the column pixel to get the same .jpg image as provided by 10X</span></a>
-<a class="sourceLine" id="cb3-2" data-line-number="2">visium_kidney &lt;-<span class="st"> </span><span class="kw"><a href="../reference/createGiottoObject.html">createGiottoObject</a></span>(<span class="dt">raw_exprs =</span> raw_matrix,</a>
-<a class="sourceLine" id="cb3-3" data-line-number="3">                                    <span class="dt">spatial_locs =</span> spatial_results[,.(row_pxl,<span class="op">-</span>col_pxl)],</a>
-<a class="sourceLine" id="cb3-4" data-line-number="4">                                    <span class="dt">instructions =</span> instrs,</a>
-<a class="sourceLine" id="cb3-5" data-line-number="5">                                    <span class="dt">cell_metadata =</span> spatial_results[,.(in_tissue, array_row, array_col)])</a>
-<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="co">## check metadata</span></a>
-<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="kw"><a href="../reference/pDataDT.html">pDataDT</a></span>(visium_kidney)</a>
-<a class="sourceLine" id="cb3-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb3-9" data-line-number="9"><span class="co">## compare in tissue with provided jpg</span></a>
-<a class="sourceLine" id="cb3-10" data-line-number="10"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">cell_color =</span> <span class="st">'in_tissue'</span>, <span class="dt">point_size =</span> <span class="dv">2</span>,</a>
-<a class="sourceLine" id="cb3-11" data-line-number="11">         <span class="dt">cell_color_code =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'0'</span> =<span class="st"> 'lightgrey'</span>, <span class="st">'1'</span> =<span class="st"> 'blue'</span>),</a>
-<a class="sourceLine" id="cb3-12" data-line-number="12">         <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'2_in_tissue'</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="co">## we need to reverse the column pixel to get the same .jpg image as provided by 10X</span></a>
+<a class="sourceLine" id="cb3-2" title="2">visium_kidney &lt;-<span class="st"> </span><span class="kw"><a href="../reference/createGiottoObject.html">createGiottoObject</a></span>(<span class="dt">raw_exprs =</span> raw_matrix,</a>
+<a class="sourceLine" id="cb3-3" title="3">                                    <span class="dt">spatial_locs =</span> spatial_results[,.(row_pxl,<span class="op">-</span>col_pxl)],</a>
+<a class="sourceLine" id="cb3-4" title="4">                                    <span class="dt">instructions =</span> instrs,</a>
+<a class="sourceLine" id="cb3-5" title="5">                                    <span class="dt">cell_metadata =</span> spatial_results[,.(in_tissue, array_row, array_col)])</a>
+<a class="sourceLine" id="cb3-6" title="6"><span class="co">## check metadata</span></a>
+<a class="sourceLine" id="cb3-7" title="7"><span class="kw"><a href="../reference/pDataDT.html">pDataDT</a></span>(visium_kidney)</a>
+<a class="sourceLine" id="cb3-8" title="8"></a>
+<a class="sourceLine" id="cb3-9" title="9"><span class="co">## compare in tissue with provided jpg</span></a>
+<a class="sourceLine" id="cb3-10" title="10"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">cell_color =</span> <span class="st">'in_tissue'</span>, <span class="dt">point_size =</span> <span class="dv">2</span>,</a>
+<a class="sourceLine" id="cb3-11" title="11">         <span class="dt">cell_color_code =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'0'</span> =<span class="st"> 'lightgrey'</span>, <span class="st">'1'</span> =<span class="st"> 'blue'</span>),</a>
+<a class="sourceLine" id="cb3-12" title="12">         <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'2_in_tissue'</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/2_in_tissue.png" style="width:50.0%"></p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="co">## subset on spots that were covered by tissue</span></a>
-<a class="sourceLine" id="cb4-2" data-line-number="2">metadata =<span class="st"> </span><span class="kw"><a href="../reference/pDataDT.html">pDataDT</a></span>(visium_kidney)</a>
-<a class="sourceLine" id="cb4-3" data-line-number="3">in_tissue_barcodes =<span class="st"> </span>metadata[in_tissue <span class="op">==</span><span class="st"> </span><span class="dv">1</span>]<span class="op">$</span>cell_ID</a>
-<a class="sourceLine" id="cb4-4" data-line-number="4">visium_kidney =<span class="st"> </span><span class="kw"><a href="../reference/subsetGiotto.html">subsetGiotto</a></span>(visium_kidney, <span class="dt">cell_ids =</span> in_tissue_barcodes)</a>
-<a class="sourceLine" id="cb4-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb4-6" data-line-number="6"><span class="co">## filter</span></a>
-<a class="sourceLine" id="cb4-7" data-line-number="7">visium_kidney &lt;-<span class="st"> </span><span class="kw"><a href="../reference/filterGiotto.html">filterGiotto</a></span>(<span class="dt">gobject =</span> visium_kidney,</a>
-<a class="sourceLine" id="cb4-8" data-line-number="8">                              <span class="dt">expression_threshold =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb4-9" data-line-number="9">                              <span class="dt">gene_det_in_min_cells =</span> <span class="dv">50</span>,</a>
-<a class="sourceLine" id="cb4-10" data-line-number="10">                              <span class="dt">min_det_genes_per_cell =</span> <span class="dv">1000</span>,</a>
-<a class="sourceLine" id="cb4-11" data-line-number="11">                              <span class="dt">expression_values =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'raw'</span>),</a>
-<a class="sourceLine" id="cb4-12" data-line-number="12">                              <span class="dt">verbose =</span> T)</a>
-<a class="sourceLine" id="cb4-13" data-line-number="13"></a>
-<a class="sourceLine" id="cb4-14" data-line-number="14"><span class="co">## normalize</span></a>
-<a class="sourceLine" id="cb4-15" data-line-number="15">visium_kidney &lt;-<span class="st"> </span><span class="kw"><a href="../reference/normalizeGiotto.html">normalizeGiotto</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">scalefactor =</span> <span class="dv">6000</span>, <span class="dt">verbose =</span> T)</a>
-<a class="sourceLine" id="cb4-16" data-line-number="16"></a>
-<a class="sourceLine" id="cb4-17" data-line-number="17"><span class="co">## add gene &amp; cell statistics</span></a>
-<a class="sourceLine" id="cb4-18" data-line-number="18">visium_kidney &lt;-<span class="st"> </span><span class="kw"><a href="../reference/addStatistics.html">addStatistics</a></span>(<span class="dt">gobject =</span> visium_kidney)</a>
-<a class="sourceLine" id="cb4-19" data-line-number="19"></a>
-<a class="sourceLine" id="cb4-20" data-line-number="20"><span class="co">## visualize</span></a>
-<a class="sourceLine" id="cb4-21" data-line-number="21"><span class="kw"><a href="../reference/spatPlot2D.html">spatPlot2D</a></span>(<span class="dt">gobject =</span> visium_kidney, </a>
-<a class="sourceLine" id="cb4-22" data-line-number="22">           <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'2_spatial_locations'</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="co">## subset on spots that were covered by tissue</span></a>
+<a class="sourceLine" id="cb4-2" title="2">metadata =<span class="st"> </span><span class="kw"><a href="../reference/pDataDT.html">pDataDT</a></span>(visium_kidney)</a>
+<a class="sourceLine" id="cb4-3" title="3">in_tissue_barcodes =<span class="st"> </span>metadata[in_tissue <span class="op">==</span><span class="st"> </span><span class="dv">1</span>]<span class="op">$</span>cell_ID</a>
+<a class="sourceLine" id="cb4-4" title="4">visium_kidney =<span class="st"> </span><span class="kw"><a href="../reference/subsetGiotto.html">subsetGiotto</a></span>(visium_kidney, <span class="dt">cell_ids =</span> in_tissue_barcodes)</a>
+<a class="sourceLine" id="cb4-5" title="5"></a>
+<a class="sourceLine" id="cb4-6" title="6"><span class="co">## filter</span></a>
+<a class="sourceLine" id="cb4-7" title="7">visium_kidney &lt;-<span class="st"> </span><span class="kw"><a href="../reference/filterGiotto.html">filterGiotto</a></span>(<span class="dt">gobject =</span> visium_kidney,</a>
+<a class="sourceLine" id="cb4-8" title="8">                              <span class="dt">expression_threshold =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb4-9" title="9">                              <span class="dt">gene_det_in_min_cells =</span> <span class="dv">50</span>,</a>
+<a class="sourceLine" id="cb4-10" title="10">                              <span class="dt">min_det_genes_per_cell =</span> <span class="dv">1000</span>,</a>
+<a class="sourceLine" id="cb4-11" title="11">                              <span class="dt">expression_values =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'raw'</span>),</a>
+<a class="sourceLine" id="cb4-12" title="12">                              <span class="dt">verbose =</span> T)</a>
+<a class="sourceLine" id="cb4-13" title="13"></a>
+<a class="sourceLine" id="cb4-14" title="14"><span class="co">## normalize</span></a>
+<a class="sourceLine" id="cb4-15" title="15">visium_kidney &lt;-<span class="st"> </span><span class="kw"><a href="../reference/normalizeGiotto.html">normalizeGiotto</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">scalefactor =</span> <span class="dv">6000</span>, <span class="dt">verbose =</span> T)</a>
+<a class="sourceLine" id="cb4-16" title="16"></a>
+<a class="sourceLine" id="cb4-17" title="17"><span class="co">## add gene &amp; cell statistics</span></a>
+<a class="sourceLine" id="cb4-18" title="18">visium_kidney &lt;-<span class="st"> </span><span class="kw"><a href="../reference/addStatistics.html">addStatistics</a></span>(<span class="dt">gobject =</span> visium_kidney)</a>
+<a class="sourceLine" id="cb4-19" title="19"></a>
+<a class="sourceLine" id="cb4-20" title="20"><span class="co">## visualize</span></a>
+<a class="sourceLine" id="cb4-21" title="21"><span class="kw"><a href="../reference/spatPlot2D.html">spatPlot2D</a></span>(<span class="dt">gobject =</span> visium_kidney, </a>
+<a class="sourceLine" id="cb4-22" title="22">           <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'2_spatial_locations'</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/2_spatial_locations.png" style="width:50.0%"></p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw"><a href="../reference/spatPlot2D.html">spatPlot2D</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">cell_color =</span> <span class="st">'nr_genes'</span>, <span class="dt">color_as_factor =</span> F,</a>
-<a class="sourceLine" id="cb5-2" data-line-number="2">           <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'2_nr_genes'</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="kw"><a href="../reference/spatPlot2D.html">spatPlot2D</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">cell_color =</span> <span class="st">'nr_genes'</span>, <span class="dt">color_as_factor =</span> F,</a>
+<a class="sourceLine" id="cb5-2" title="2">           <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'2_nr_genes'</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/2_nr_genes.png" style="width:50.0%"></p>
 </div>
 <div id="part-3-dimension-reduction" class="section level2">
 <h2 class="hasAnchor">
 <a href="#part-3-dimension-reduction" class="anchor"></a>part 3: dimension reduction</h2>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="co">## highly variable genes (HVG)</span></a>
-<a class="sourceLine" id="cb6-2" data-line-number="2">visium_kidney &lt;-<span class="st"> </span><span class="kw"><a href="../reference/calculateHVG.html">calculateHVG</a></span>(<span class="dt">gobject =</span> visium_kidney,</a>
-<a class="sourceLine" id="cb6-3" data-line-number="3">                              <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'3_HVGplot'</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="co">## highly variable genes (HVG)</span></a>
+<a class="sourceLine" id="cb6-2" title="2">visium_kidney &lt;-<span class="st"> </span><span class="kw"><a href="../reference/calculateHVG.html">calculateHVG</a></span>(<span class="dt">gobject =</span> visium_kidney,</a>
+<a class="sourceLine" id="cb6-3" title="3">                              <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'3_HVGplot'</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/3_HVGplot.png" style="width:50.0%"></p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="co">## select genes based on HVG and gene statistics, both found in gene metadata</span></a>
-<a class="sourceLine" id="cb7-2" data-line-number="2">gene_metadata =<span class="st"> </span><span class="kw"><a href="../reference/fDataDT.html">fDataDT</a></span>(visium_kidney)</a>
-<a class="sourceLine" id="cb7-3" data-line-number="3">featgenes =<span class="st"> </span>gene_metadata[hvg <span class="op">==</span><span class="st"> 'yes'</span> <span class="op">&amp;</span><span class="st"> </span>perc_cells <span class="op">&gt;</span><span class="st"> </span><span class="dv">4</span> <span class="op">&amp;</span><span class="st"> </span>mean_expr_det <span class="op">&gt;</span><span class="st"> </span><span class="fl">0.5</span>]<span class="op">$</span>gene_ID</a>
-<a class="sourceLine" id="cb7-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb7-5" data-line-number="5"><span class="co">## run PCA on expression values (default)</span></a>
-<a class="sourceLine" id="cb7-6" data-line-number="6">visium_kidney &lt;-<span class="st"> </span><span class="kw"><a href="../reference/runPCA.html">runPCA</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">genes_to_use =</span> featgenes, <span class="dt">scale_unit =</span> F)</a>
-<a class="sourceLine" id="cb7-7" data-line-number="7"><span class="kw"><a href="../reference/signPCA.html">signPCA</a></span>(visium_kidney, <span class="dt">genes_to_use =</span> featgenes, <span class="dt">scale_unit =</span> F,</a>
-<a class="sourceLine" id="cb7-8" data-line-number="8">        <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'3_screeplot'</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="co">## select genes based on HVG and gene statistics, both found in gene metadata</span></a>
+<a class="sourceLine" id="cb7-2" title="2">gene_metadata =<span class="st"> </span><span class="kw"><a href="../reference/fDataDT.html">fDataDT</a></span>(visium_kidney)</a>
+<a class="sourceLine" id="cb7-3" title="3">featgenes =<span class="st"> </span>gene_metadata[hvg <span class="op">==</span><span class="st"> 'yes'</span> <span class="op">&amp;</span><span class="st"> </span>perc_cells <span class="op">&gt;</span><span class="st"> </span><span class="dv">4</span> <span class="op">&amp;</span><span class="st"> </span>mean_expr_det <span class="op">&gt;</span><span class="st"> </span><span class="fl">0.5</span>]<span class="op">$</span>gene_ID</a>
+<a class="sourceLine" id="cb7-4" title="4"></a>
+<a class="sourceLine" id="cb7-5" title="5"><span class="co">## run PCA on expression values (default)</span></a>
+<a class="sourceLine" id="cb7-6" title="6">visium_kidney &lt;-<span class="st"> </span><span class="kw"><a href="../reference/runPCA.html">runPCA</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">genes_to_use =</span> featgenes, <span class="dt">scale_unit =</span> F)</a>
+<a class="sourceLine" id="cb7-7" title="7"><span class="kw"><a href="../reference/signPCA.html">signPCA</a></span>(visium_kidney, <span class="dt">genes_to_use =</span> featgenes, <span class="dt">scale_unit =</span> F,</a>
+<a class="sourceLine" id="cb7-8" title="8">        <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'3_screeplot'</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/3_screeplot.png" style="width:50.0%"></p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw"><a href="../reference/plotPCA.html">plotPCA</a></span>(<span class="dt">gobject =</span> visium_kidney,</a>
-<a class="sourceLine" id="cb8-2" data-line-number="2">        <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'3_PCA_reduction'</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="kw"><a href="../reference/plotPCA.html">plotPCA</a></span>(<span class="dt">gobject =</span> visium_kidney,</a>
+<a class="sourceLine" id="cb8-2" title="2">        <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'3_PCA_reduction'</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/3_PCA_reduction.png" style="width:50.0%"></p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="co">## run UMAP and tSNE on PCA space (default)</span></a>
-<a class="sourceLine" id="cb9-2" data-line-number="2">visium_kidney &lt;-<span class="st"> </span><span class="kw"><a href="../reference/runUMAP.html">runUMAP</a></span>(visium_kidney, <span class="dt">dimensions_to_use =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">10</span>)</a>
-<a class="sourceLine" id="cb9-3" data-line-number="3"><span class="kw"><a href="../reference/plotUMAP.html">plotUMAP</a></span>(<span class="dt">gobject =</span> visium_kidney,</a>
-<a class="sourceLine" id="cb9-4" data-line-number="4">         <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'3_UMAP_reduction'</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="co">## run UMAP and tSNE on PCA space (default)</span></a>
+<a class="sourceLine" id="cb9-2" title="2">visium_kidney &lt;-<span class="st"> </span><span class="kw"><a href="../reference/runUMAP.html">runUMAP</a></span>(visium_kidney, <span class="dt">dimensions_to_use =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="kw"><a href="../reference/plotUMAP.html">plotUMAP</a></span>(<span class="dt">gobject =</span> visium_kidney,</a>
+<a class="sourceLine" id="cb9-4" title="4">         <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'3_UMAP_reduction'</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/3_UMAP_reduction.png" style="width:50.0%"></p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1">visium_kidney &lt;-<span class="st"> </span><span class="kw"><a href="../reference/runtSNE.html">runtSNE</a></span>(visium_kidney, <span class="dt">dimensions_to_use =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">10</span>)</a>
-<a class="sourceLine" id="cb10-2" data-line-number="2"><span class="kw"><a href="../reference/plotTSNE.html">plotTSNE</a></span>(<span class="dt">gobject =</span> visium_kidney,</a>
-<a class="sourceLine" id="cb10-3" data-line-number="3">         <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'3_tSNE_reduction'</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1">visium_kidney &lt;-<span class="st"> </span><span class="kw"><a href="../reference/runtSNE.html">runtSNE</a></span>(visium_kidney, <span class="dt">dimensions_to_use =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb10-2" title="2"><span class="kw"><a href="../reference/plotTSNE.html">plotTSNE</a></span>(<span class="dt">gobject =</span> visium_kidney,</a>
+<a class="sourceLine" id="cb10-3" title="3">         <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'3_tSNE_reduction'</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/3_tSNE_reduction.png" style="width:50.0%"></p>
 </div>
 <div id="part-4-cluster" class="section level2">
 <h2 class="hasAnchor">
 <a href="#part-4-cluster" class="anchor"></a>part 4: cluster</h2>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="co">## sNN network (default)</span></a>
-<a class="sourceLine" id="cb11-2" data-line-number="2">visium_kidney &lt;-<span class="st"> </span><span class="kw"><a href="../reference/createNearestNetwork.html">createNearestNetwork</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">dimensions_to_use =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, <span class="dt">k =</span> <span class="dv">15</span>)</a>
-<a class="sourceLine" id="cb11-3" data-line-number="3"><span class="co">## Leiden clustering</span></a>
-<a class="sourceLine" id="cb11-4" data-line-number="4">visium_kidney &lt;-<span class="st"> </span><span class="kw"><a href="../reference/doLeidenCluster.html">doLeidenCluster</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">resolution =</span> <span class="fl">0.4</span>, <span class="dt">n_iterations =</span> <span class="dv">1000</span>)</a>
-<a class="sourceLine" id="cb11-5" data-line-number="5"><span class="kw"><a href="../reference/plotUMAP.html">plotUMAP</a></span>(<span class="dt">gobject =</span> visium_kidney,</a>
-<a class="sourceLine" id="cb11-6" data-line-number="6">         <span class="dt">cell_color =</span> <span class="st">'leiden_clus'</span>, <span class="dt">show_NN_network =</span> T, <span class="dt">point_size =</span> <span class="fl">2.5</span>,</a>
-<a class="sourceLine" id="cb11-7" data-line-number="7">         <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'4_UMAP_leiden'</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1"><span class="co">## sNN network (default)</span></a>
+<a class="sourceLine" id="cb11-2" title="2">visium_kidney &lt;-<span class="st"> </span><span class="kw"><a href="../reference/createNearestNetwork.html">createNearestNetwork</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">dimensions_to_use =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, <span class="dt">k =</span> <span class="dv">15</span>)</a>
+<a class="sourceLine" id="cb11-3" title="3"><span class="co">## Leiden clustering</span></a>
+<a class="sourceLine" id="cb11-4" title="4">visium_kidney &lt;-<span class="st"> </span><span class="kw"><a href="../reference/doLeidenCluster.html">doLeidenCluster</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">resolution =</span> <span class="fl">0.4</span>, <span class="dt">n_iterations =</span> <span class="dv">1000</span>)</a>
+<a class="sourceLine" id="cb11-5" title="5"><span class="kw"><a href="../reference/plotUMAP.html">plotUMAP</a></span>(<span class="dt">gobject =</span> visium_kidney,</a>
+<a class="sourceLine" id="cb11-6" title="6">         <span class="dt">cell_color =</span> <span class="st">'leiden_clus'</span>, <span class="dt">show_NN_network =</span> T, <span class="dt">point_size =</span> <span class="fl">2.5</span>,</a>
+<a class="sourceLine" id="cb11-7" title="7">         <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'4_UMAP_leiden'</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/4_UMAP_leiden.png" style="width:50.0%"></p>
 </div>
 <div id="part-5-co-visualize" class="section level2">
 <h2 class="hasAnchor">
 <a href="#part-5-co-visualize" class="anchor"></a>part 5: co-visualize</h2>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="co"># expression and spatial</span></a>
-<a class="sourceLine" id="cb12-2" data-line-number="2"><span class="kw"><a href="../reference/spatDimPlot.html">spatDimPlot</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">cell_color =</span> <span class="st">'leiden_clus'</span>,</a>
-<a class="sourceLine" id="cb12-3" data-line-number="3">            <span class="dt">dim_point_size =</span> <span class="dv">2</span>, <span class="dt">spat_point_size =</span> <span class="fl">2.5</span>,</a>
-<a class="sourceLine" id="cb12-4" data-line-number="4">            <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'5_covis_leiden'</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1"><span class="co"># expression and spatial</span></a>
+<a class="sourceLine" id="cb12-2" title="2"><span class="kw"><a href="../reference/spatDimPlot.html">spatDimPlot</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">cell_color =</span> <span class="st">'leiden_clus'</span>,</a>
+<a class="sourceLine" id="cb12-3" title="3">            <span class="dt">dim_point_size =</span> <span class="dv">2</span>, <span class="dt">spat_point_size =</span> <span class="fl">2.5</span>,</a>
+<a class="sourceLine" id="cb12-4" title="4">            <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'5_covis_leiden'</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/5_covis_leiden.png" style="width:50.0%"></p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw"><a href="../reference/spatDimPlot.html">spatDimPlot</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">cell_color =</span> <span class="st">'nr_genes'</span>, <span class="dt">color_as_factor =</span> F,</a>
-<a class="sourceLine" id="cb13-2" data-line-number="2">            <span class="dt">dim_point_size =</span> <span class="dv">2</span>, <span class="dt">spat_point_size =</span> <span class="fl">2.5</span>,</a>
-<a class="sourceLine" id="cb13-3" data-line-number="3">            <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'5_nr_genes'</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1"><span class="kw"><a href="../reference/spatDimPlot.html">spatDimPlot</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">cell_color =</span> <span class="st">'nr_genes'</span>, <span class="dt">color_as_factor =</span> F,</a>
+<a class="sourceLine" id="cb13-2" title="2">            <span class="dt">dim_point_size =</span> <span class="dv">2</span>, <span class="dt">spat_point_size =</span> <span class="fl">2.5</span>,</a>
+<a class="sourceLine" id="cb13-3" title="3">            <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">save_name =</span> <span class="st">'5_nr_genes'</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/5_nr_genes.png" style="width:50.0%"></p>
 </div>
 <div id="part-6-cell-type-marker-gene-detection" class="section level2">
@@ -270,61 +271,61 @@
 <div id="gini" class="section level4">
 <h4 class="hasAnchor">
 <a href="#gini" class="anchor"></a>gini</h4>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="co">## ---- ##</span></a>
-<a class="sourceLine" id="cb14-2" data-line-number="2">gini_markers_subclusters =<span class="st"> </span><span class="kw"><a href="../reference/findMarkers_one_vs_all.html">findMarkers_one_vs_all</a></span>(<span class="dt">gobject =</span> visium_kidney,</a>
-<a class="sourceLine" id="cb14-3" data-line-number="3">                                                  <span class="dt">method =</span> <span class="st">'gini'</span>,</a>
-<a class="sourceLine" id="cb14-4" data-line-number="4">                                                  <span class="dt">expression_values =</span> <span class="st">'normalized'</span>,</a>
-<a class="sourceLine" id="cb14-5" data-line-number="5">                                                  <span class="dt">cluster_column =</span> <span class="st">'leiden_clus'</span>,</a>
-<a class="sourceLine" id="cb14-6" data-line-number="6">                                                  <span class="dt">min_genes =</span> <span class="dv">20</span>,</a>
-<a class="sourceLine" id="cb14-7" data-line-number="7">                                                  <span class="dt">min_expr_gini_score =</span> <span class="fl">0.5</span>,</a>
-<a class="sourceLine" id="cb14-8" data-line-number="8">                                                  <span class="dt">min_det_gini_score =</span> <span class="fl">0.5</span>)</a>
-<a class="sourceLine" id="cb14-9" data-line-number="9">topgenes_gini =<span class="st"> </span>gini_markers_subclusters[, <span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(.SD, <span class="dv">2</span>), by =<span class="st"> 'cluster'</span>]<span class="op">$</span>genes</a>
-<a class="sourceLine" id="cb14-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb14-11" data-line-number="11"><span class="co"># violinplot</span></a>
-<a class="sourceLine" id="cb14-12" data-line-number="12"><span class="kw"><a href="../reference/violinPlot.html">violinPlot</a></span>(visium_kidney, <span class="dt">genes =</span> <span class="kw"><a href="https://rdrr.io/r/base/unique.html">unique</a></span>(topgenes_gini), <span class="dt">cluster_column =</span> <span class="st">'leiden_clus'</span>,</a>
-<a class="sourceLine" id="cb14-13" data-line-number="13">           <span class="dt">strip_text =</span> <span class="dv">8</span>, <span class="dt">strip_position =</span> <span class="st">'right'</span>,</a>
-<a class="sourceLine" id="cb14-14" data-line-number="14">           <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'6_violinplot_gini'</span>, <span class="dt">base_width =</span> <span class="dv">5</span>, <span class="dt">base_height =</span> <span class="dv">10</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1"><span class="co">## ---- ##</span></a>
+<a class="sourceLine" id="cb14-2" title="2">gini_markers_subclusters =<span class="st"> </span><span class="kw"><a href="../reference/findMarkers_one_vs_all.html">findMarkers_one_vs_all</a></span>(<span class="dt">gobject =</span> visium_kidney,</a>
+<a class="sourceLine" id="cb14-3" title="3">                                                  <span class="dt">method =</span> <span class="st">'gini'</span>,</a>
+<a class="sourceLine" id="cb14-4" title="4">                                                  <span class="dt">expression_values =</span> <span class="st">'normalized'</span>,</a>
+<a class="sourceLine" id="cb14-5" title="5">                                                  <span class="dt">cluster_column =</span> <span class="st">'leiden_clus'</span>,</a>
+<a class="sourceLine" id="cb14-6" title="6">                                                  <span class="dt">min_genes =</span> <span class="dv">20</span>,</a>
+<a class="sourceLine" id="cb14-7" title="7">                                                  <span class="dt">min_expr_gini_score =</span> <span class="fl">0.5</span>,</a>
+<a class="sourceLine" id="cb14-8" title="8">                                                  <span class="dt">min_det_gini_score =</span> <span class="fl">0.5</span>)</a>
+<a class="sourceLine" id="cb14-9" title="9">topgenes_gini =<span class="st"> </span>gini_markers_subclusters[, <span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(.SD, <span class="dv">2</span>), by =<span class="st"> 'cluster'</span>]<span class="op">$</span>genes</a>
+<a class="sourceLine" id="cb14-10" title="10"></a>
+<a class="sourceLine" id="cb14-11" title="11"><span class="co"># violinplot</span></a>
+<a class="sourceLine" id="cb14-12" title="12"><span class="kw"><a href="../reference/violinPlot.html">violinPlot</a></span>(visium_kidney, <span class="dt">genes =</span> <span class="kw"><a href="https://rdrr.io/r/base/unique.html">unique</a></span>(topgenes_gini), <span class="dt">cluster_column =</span> <span class="st">'leiden_clus'</span>,</a>
+<a class="sourceLine" id="cb14-13" title="13">           <span class="dt">strip_text =</span> <span class="dv">8</span>, <span class="dt">strip_position =</span> <span class="st">'right'</span>,</a>
+<a class="sourceLine" id="cb14-14" title="14">           <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'6_violinplot_gini'</span>, <span class="dt">base_width =</span> <span class="dv">5</span>, <span class="dt">base_height =</span> <span class="dv">10</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/6_violinplot_gini.png" style="width:50.0%"></p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="co"># cluster heatmap</span></a>
-<a class="sourceLine" id="cb15-2" data-line-number="2">my_cluster_order =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">3</span>, <span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">10</span>, <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb15-3" data-line-number="3"><span class="kw"><a href="../reference/plotMetaDataHeatmap.html">plotMetaDataHeatmap</a></span>(visium_kidney, <span class="dt">selected_genes =</span> topgenes_gini, <span class="dt">custom_cluster_order =</span> my_cluster_order,</a>
-<a class="sourceLine" id="cb15-4" data-line-number="4">                    <span class="dt">metadata_cols =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'leiden_clus'</span>), <span class="dt">x_text_size =</span> <span class="dv">10</span>, <span class="dt">y_text_size =</span> <span class="dv">10</span>,</a>
-<a class="sourceLine" id="cb15-5" data-line-number="5">                    <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'6_metaheatmap_gini'</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1"><span class="co"># cluster heatmap</span></a>
+<a class="sourceLine" id="cb15-2" title="2">my_cluster_order =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">3</span>, <span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">10</span>, <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb15-3" title="3"><span class="kw"><a href="../reference/plotMetaDataHeatmap.html">plotMetaDataHeatmap</a></span>(visium_kidney, <span class="dt">selected_genes =</span> topgenes_gini, <span class="dt">custom_cluster_order =</span> my_cluster_order,</a>
+<a class="sourceLine" id="cb15-4" title="4">                    <span class="dt">metadata_cols =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'leiden_clus'</span>), <span class="dt">x_text_size =</span> <span class="dv">10</span>, <span class="dt">y_text_size =</span> <span class="dv">10</span>,</a>
+<a class="sourceLine" id="cb15-5" title="5">                    <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'6_metaheatmap_gini'</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/6_metaheatmap_gini.png" style="width:50.0%"></p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="co"># umap plots</span></a>
-<a class="sourceLine" id="cb16-2" data-line-number="2"><span class="kw"><a href="../reference/dimGenePlot2D.html">dimGenePlot2D</a></span>(visium_kidney, <span class="dt">expression_values =</span> <span class="st">'scaled'</span>,</a>
-<a class="sourceLine" id="cb16-3" data-line-number="3">              <span class="dt">genes =</span> gini_markers_subclusters[, <span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(.SD, <span class="dv">1</span>), <span class="dt">by =</span> <span class="st">'cluster'</span>]<span class="op">$</span>genes,</a>
-<a class="sourceLine" id="cb16-4" data-line-number="4">              <span class="dt">cow_n_col =</span> <span class="dv">3</span>, <span class="dt">point_size =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb16-5" data-line-number="5">              <span class="dt">genes_high_color =</span> <span class="st">'red'</span>, <span class="dt">genes_mid_color =</span> <span class="st">'white'</span>, <span class="dt">genes_low_color =</span> <span class="st">'darkblue'</span>, <span class="dt">midpoint =</span> <span class="dv">0</span>,</a>
-<a class="sourceLine" id="cb16-6" data-line-number="6">              <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'6_gini_umap'</span>, <span class="dt">base_width =</span> <span class="dv">8</span>, <span class="dt">base_height =</span> <span class="dv">5</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1"><span class="co"># umap plots</span></a>
+<a class="sourceLine" id="cb16-2" title="2"><span class="kw"><a href="../reference/dimGenePlot2D.html">dimGenePlot2D</a></span>(visium_kidney, <span class="dt">expression_values =</span> <span class="st">'scaled'</span>,</a>
+<a class="sourceLine" id="cb16-3" title="3">              <span class="dt">genes =</span> gini_markers_subclusters[, <span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(.SD, <span class="dv">1</span>), <span class="dt">by =</span> <span class="st">'cluster'</span>]<span class="op">$</span>genes,</a>
+<a class="sourceLine" id="cb16-4" title="4">              <span class="dt">cow_n_col =</span> <span class="dv">3</span>, <span class="dt">point_size =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb16-5" title="5">              <span class="dt">genes_high_color =</span> <span class="st">'red'</span>, <span class="dt">genes_mid_color =</span> <span class="st">'white'</span>, <span class="dt">genes_low_color =</span> <span class="st">'darkblue'</span>, <span class="dt">midpoint =</span> <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb16-6" title="6">              <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'6_gini_umap'</span>, <span class="dt">base_width =</span> <span class="dv">8</span>, <span class="dt">base_height =</span> <span class="dv">5</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/6_gini_umap.png" style="width:50.0%"></p>
 </div>
 <div id="scran" class="section level4">
 <h4 class="hasAnchor">
 <a href="#scran" class="anchor"></a>scran</h4>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1"><span class="co">## ----- ##</span></a>
-<a class="sourceLine" id="cb17-2" data-line-number="2">scran_markers_subclusters =<span class="st"> </span><span class="kw"><a href="../reference/findMarkers_one_vs_all.html">findMarkers_one_vs_all</a></span>(<span class="dt">gobject =</span> visium_kidney,</a>
-<a class="sourceLine" id="cb17-3" data-line-number="3">                                                   <span class="dt">method =</span> <span class="st">'scran'</span>,</a>
-<a class="sourceLine" id="cb17-4" data-line-number="4">                                                   <span class="dt">expression_values =</span> <span class="st">'normalized'</span>,</a>
-<a class="sourceLine" id="cb17-5" data-line-number="5">                                                   <span class="dt">cluster_column =</span> <span class="st">'leiden_clus'</span>)</a>
-<a class="sourceLine" id="cb17-6" data-line-number="6">topgenes_scran =<span class="st"> </span>scran_markers_subclusters[, <span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(.SD, <span class="dv">2</span>), by =<span class="st"> 'cluster'</span>]<span class="op">$</span>genes</a>
-<a class="sourceLine" id="cb17-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb17-8" data-line-number="8"><span class="co"># violinplot</span></a>
-<a class="sourceLine" id="cb17-9" data-line-number="9"><span class="kw"><a href="../reference/violinPlot.html">violinPlot</a></span>(visium_kidney, <span class="dt">genes =</span> <span class="kw"><a href="https://rdrr.io/r/base/unique.html">unique</a></span>(topgenes_scran), <span class="dt">cluster_column =</span> <span class="st">'leiden_clus'</span>,</a>
-<a class="sourceLine" id="cb17-10" data-line-number="10">           <span class="dt">strip_text =</span> <span class="dv">10</span>, <span class="dt">strip_position =</span> <span class="st">'right'</span>,</a>
-<a class="sourceLine" id="cb17-11" data-line-number="11">           <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'6_violinplot_scran'</span>, <span class="dt">base_width =</span> <span class="dv">5</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1"><span class="co">## ----- ##</span></a>
+<a class="sourceLine" id="cb17-2" title="2">scran_markers_subclusters =<span class="st"> </span><span class="kw"><a href="../reference/findMarkers_one_vs_all.html">findMarkers_one_vs_all</a></span>(<span class="dt">gobject =</span> visium_kidney,</a>
+<a class="sourceLine" id="cb17-3" title="3">                                                   <span class="dt">method =</span> <span class="st">'scran'</span>,</a>
+<a class="sourceLine" id="cb17-4" title="4">                                                   <span class="dt">expression_values =</span> <span class="st">'normalized'</span>,</a>
+<a class="sourceLine" id="cb17-5" title="5">                                                   <span class="dt">cluster_column =</span> <span class="st">'leiden_clus'</span>)</a>
+<a class="sourceLine" id="cb17-6" title="6">topgenes_scran =<span class="st"> </span>scran_markers_subclusters[, <span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(.SD, <span class="dv">2</span>), by =<span class="st"> 'cluster'</span>]<span class="op">$</span>genes</a>
+<a class="sourceLine" id="cb17-7" title="7"></a>
+<a class="sourceLine" id="cb17-8" title="8"><span class="co"># violinplot</span></a>
+<a class="sourceLine" id="cb17-9" title="9"><span class="kw"><a href="../reference/violinPlot.html">violinPlot</a></span>(visium_kidney, <span class="dt">genes =</span> <span class="kw"><a href="https://rdrr.io/r/base/unique.html">unique</a></span>(topgenes_scran), <span class="dt">cluster_column =</span> <span class="st">'leiden_clus'</span>,</a>
+<a class="sourceLine" id="cb17-10" title="10">           <span class="dt">strip_text =</span> <span class="dv">10</span>, <span class="dt">strip_position =</span> <span class="st">'right'</span>,</a>
+<a class="sourceLine" id="cb17-11" title="11">           <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'6_violinplot_scran'</span>, <span class="dt">base_width =</span> <span class="dv">5</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/6_violinplot_scran.png" style="width:50.0%"></p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="co"># cluster heatmap</span></a>
-<a class="sourceLine" id="cb18-2" data-line-number="2"><span class="kw"><a href="../reference/plotMetaDataHeatmap.html">plotMetaDataHeatmap</a></span>(visium_kidney, <span class="dt">selected_genes =</span> topgenes_scran, <span class="dt">custom_cluster_order =</span> my_cluster_order,</a>
-<a class="sourceLine" id="cb18-3" data-line-number="3">                    <span class="dt">metadata_cols =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'leiden_clus'</span>),</a>
-<a class="sourceLine" id="cb18-4" data-line-number="4">                    <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'6_metaheatmap_scran'</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" title="1"><span class="co"># cluster heatmap</span></a>
+<a class="sourceLine" id="cb18-2" title="2"><span class="kw"><a href="../reference/plotMetaDataHeatmap.html">plotMetaDataHeatmap</a></span>(visium_kidney, <span class="dt">selected_genes =</span> topgenes_scran, <span class="dt">custom_cluster_order =</span> my_cluster_order,</a>
+<a class="sourceLine" id="cb18-3" title="3">                    <span class="dt">metadata_cols =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'leiden_clus'</span>),</a>
+<a class="sourceLine" id="cb18-4" title="4">                    <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'6_metaheatmap_scran'</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/6_metaheatmap_scran.png" style="width:50.0%"></p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1"><span class="co"># umap plots</span></a>
-<a class="sourceLine" id="cb19-2" data-line-number="2"><span class="kw"><a href="../reference/dimGenePlot.html">dimGenePlot</a></span>(visium_kidney, <span class="dt">expression_values =</span> <span class="st">'scaled'</span>,</a>
-<a class="sourceLine" id="cb19-3" data-line-number="3">            <span class="dt">genes =</span> scran_markers_subclusters[, <span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(.SD, <span class="dv">1</span>), <span class="dt">by =</span> <span class="st">'cluster'</span>]<span class="op">$</span>genes,</a>
-<a class="sourceLine" id="cb19-4" data-line-number="4">            <span class="dt">cow_n_col =</span> <span class="dv">3</span>, <span class="dt">point_size =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb19-5" data-line-number="5">            <span class="dt">genes_high_color =</span> <span class="st">'red'</span>, <span class="dt">genes_mid_color =</span> <span class="st">'white'</span>, <span class="dt">genes_low_color =</span> <span class="st">'darkblue'</span>, <span class="dt">midpoint =</span> <span class="dv">0</span>,</a>
-<a class="sourceLine" id="cb19-6" data-line-number="6">            <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'6_scran_umap'</span>, <span class="dt">base_width =</span> <span class="dv">8</span>, <span class="dt">base_height =</span> <span class="dv">5</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1"><span class="co"># umap plots</span></a>
+<a class="sourceLine" id="cb19-2" title="2"><span class="kw"><a href="../reference/dimGenePlot.html">dimGenePlot</a></span>(visium_kidney, <span class="dt">expression_values =</span> <span class="st">'scaled'</span>,</a>
+<a class="sourceLine" id="cb19-3" title="3">            <span class="dt">genes =</span> scran_markers_subclusters[, <span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(.SD, <span class="dv">1</span>), <span class="dt">by =</span> <span class="st">'cluster'</span>]<span class="op">$</span>genes,</a>
+<a class="sourceLine" id="cb19-4" title="4">            <span class="dt">cow_n_col =</span> <span class="dv">3</span>, <span class="dt">point_size =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb19-5" title="5">            <span class="dt">genes_high_color =</span> <span class="st">'red'</span>, <span class="dt">genes_mid_color =</span> <span class="st">'white'</span>, <span class="dt">genes_low_color =</span> <span class="st">'darkblue'</span>, <span class="dt">midpoint =</span> <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb19-6" title="6">            <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'6_scran_umap'</span>, <span class="dt">base_width =</span> <span class="dv">8</span>, <span class="dt">base_height =</span> <span class="dv">5</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/6_scran_umap.png" style="width:50.0%"></p>
 </div>
 </div>
@@ -340,31 +341,31 @@
 <div id="part-8-spatial-grid" class="section level2">
 <h2 class="hasAnchor">
 <a href="#part-8-spatial-grid" class="anchor"></a>part 8: spatial grid</h2>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">visium_kidney &lt;-<span class="st"> </span><span class="kw"><a href="../reference/createSpatialGrid.html">createSpatialGrid</a></span>(<span class="dt">gobject =</span> visium_kidney,</a>
-<a class="sourceLine" id="cb20-2" data-line-number="2">                                   <span class="dt">sdimx_stepsize =</span> <span class="dv">400</span>,</a>
-<a class="sourceLine" id="cb20-3" data-line-number="3">                                   <span class="dt">sdimy_stepsize =</span> <span class="dv">400</span>,</a>
-<a class="sourceLine" id="cb20-4" data-line-number="4">                                   <span class="dt">minimum_padding =</span> <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb20-5" data-line-number="5"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(visium_kidney, <span class="dt">cell_color =</span> <span class="st">'leiden_clus'</span>, <span class="dt">show_grid =</span> T,</a>
-<a class="sourceLine" id="cb20-6" data-line-number="6">         <span class="dt">grid_color =</span> <span class="st">'red'</span>, <span class="dt">spatial_grid_name =</span> <span class="st">'spatial_grid'</span>, </a>
-<a class="sourceLine" id="cb20-7" data-line-number="7">         <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'8_grid'</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" title="1">visium_kidney &lt;-<span class="st"> </span><span class="kw"><a href="../reference/createSpatialGrid.html">createSpatialGrid</a></span>(<span class="dt">gobject =</span> visium_kidney,</a>
+<a class="sourceLine" id="cb20-2" title="2">                                   <span class="dt">sdimx_stepsize =</span> <span class="dv">400</span>,</a>
+<a class="sourceLine" id="cb20-3" title="3">                                   <span class="dt">sdimy_stepsize =</span> <span class="dv">400</span>,</a>
+<a class="sourceLine" id="cb20-4" title="4">                                   <span class="dt">minimum_padding =</span> <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb20-5" title="5"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(visium_kidney, <span class="dt">cell_color =</span> <span class="st">'leiden_clus'</span>, <span class="dt">show_grid =</span> T,</a>
+<a class="sourceLine" id="cb20-6" title="6">         <span class="dt">grid_color =</span> <span class="st">'red'</span>, <span class="dt">spatial_grid_name =</span> <span class="st">'spatial_grid'</span>, </a>
+<a class="sourceLine" id="cb20-7" title="7">         <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'8_grid'</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/8_grid.png" style="width:50.0%"></p>
 </div>
 <div id="part-9-spatial-network" class="section level2">
 <h2 class="hasAnchor">
 <a href="#part-9-spatial-network" class="anchor"></a>part 9: spatial network</h2>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1"><span class="co">## (default) delaunay network: stats + creation</span></a>
-<a class="sourceLine" id="cb21-2" data-line-number="2"><span class="kw"><a href="../reference/plotStatDelaunayNetwork.html">plotStatDelaunayNetwork</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">maximum_distance =</span> <span class="dv">400</span>, <span class="dt">save_plot =</span> F)</a>
-<a class="sourceLine" id="cb21-3" data-line-number="3">visium_kidney =<span class="st"> </span><span class="kw"><a href="../reference/createSpatialNetwork.html">createSpatialNetwork</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">maximum_distance_delaunay =</span> <span class="dv">400</span>, <span class="dt">minimum_k =</span> <span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb21-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb21-5" data-line-number="5"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">show_network =</span> T,</a>
-<a class="sourceLine" id="cb21-6" data-line-number="6">         <span class="dt">network_color =</span> <span class="st">'blue'</span>, <span class="dt">spatial_network_name =</span> <span class="st">'delaunay_network'</span>,</a>
-<a class="sourceLine" id="cb21-7" data-line-number="7">         <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'9_delaunay_network'</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" title="1"><span class="co">## (default) delaunay network: stats + creation</span></a>
+<a class="sourceLine" id="cb21-2" title="2"><span class="kw"><a href="../reference/plotStatDelaunayNetwork.html">plotStatDelaunayNetwork</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">maximum_distance =</span> <span class="dv">400</span>, <span class="dt">save_plot =</span> F)</a>
+<a class="sourceLine" id="cb21-3" title="3">visium_kidney =<span class="st"> </span><span class="kw"><a href="../reference/createSpatialNetwork.html">createSpatialNetwork</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">maximum_distance_delaunay =</span> <span class="dv">400</span>, <span class="dt">minimum_k =</span> <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb21-4" title="4"></a>
+<a class="sourceLine" id="cb21-5" title="5"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">show_network =</span> T,</a>
+<a class="sourceLine" id="cb21-6" title="6">         <span class="dt">network_color =</span> <span class="st">'blue'</span>, <span class="dt">spatial_network_name =</span> <span class="st">'delaunay_network'</span>,</a>
+<a class="sourceLine" id="cb21-7" title="7">         <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'9_delaunay_network'</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/9_delaunay_network.png" style="width:50.0%"></p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1"><span class="co">## kNN network</span></a>
-<a class="sourceLine" id="cb22-2" data-line-number="2">visium_kidney &lt;-<span class="st"> </span><span class="kw"><a href="../reference/createSpatialNetwork.html">createSpatialNetwork</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">method =</span> <span class="st">'kNN'</span>, <span class="dt">k =</span> <span class="dv">5</span>, <span class="dt">maximum_distance_knn =</span> <span class="dv">400</span>)</a>
-<a class="sourceLine" id="cb22-3" data-line-number="3"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">show_network =</span> T,</a>
-<a class="sourceLine" id="cb22-4" data-line-number="4">         <span class="dt">network_color =</span> <span class="st">'blue'</span>, <span class="dt">spatial_network_name =</span> <span class="st">'spatial_network'</span>,</a>
-<a class="sourceLine" id="cb22-5" data-line-number="5">         <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'9_spatial_network_k5'</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" title="1"><span class="co">## kNN network</span></a>
+<a class="sourceLine" id="cb22-2" title="2">visium_kidney &lt;-<span class="st"> </span><span class="kw"><a href="../reference/createSpatialNetwork.html">createSpatialNetwork</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">method =</span> <span class="st">'kNN'</span>, <span class="dt">k =</span> <span class="dv">5</span>, <span class="dt">maximum_distance_knn =</span> <span class="dv">400</span>)</a>
+<a class="sourceLine" id="cb22-3" title="3"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">show_network =</span> T,</a>
+<a class="sourceLine" id="cb22-4" title="4">         <span class="dt">network_color =</span> <span class="st">'blue'</span>, <span class="dt">spatial_network_name =</span> <span class="st">'spatial_network'</span>,</a>
+<a class="sourceLine" id="cb22-5" title="5">         <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'9_spatial_network_k5'</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/9_spatial_network_k5.png" style="width:50.0%"></p>
 </div>
 <div id="part-10-spatial-genes" class="section level2">
@@ -373,163 +374,163 @@
 <div id="spatial-genes" class="section level3">
 <h3 class="hasAnchor">
 <a href="#spatial-genes" class="anchor"></a>Spatial genes</h3>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="co">## kmeans binarization</span></a>
-<a class="sourceLine" id="cb23-2" data-line-number="2">kmtest =<span class="st"> </span><span class="kw"><a href="../reference/binSpect.html">binSpect</a></span>(visium_kidney, <span class="dt">bin_method =</span> <span class="st">'kmeans'</span>,</a>
-<a class="sourceLine" id="cb23-3" data-line-number="3">                            <span class="dt">do_fisher_test =</span> T, </a>
-<a class="sourceLine" id="cb23-4" data-line-number="4">                            <span class="dt">spatial_network_name =</span> <span class="st">'delaunay_network'</span>, <span class="dt">verbose =</span> T)</a>
-<a class="sourceLine" id="cb23-5" data-line-number="5"><span class="kw"><a href="../reference/spatGenePlot.html">spatGenePlot</a></span>(visium_kidney, <span class="dt">expression_values =</span> <span class="st">'scaled'</span>,</a>
-<a class="sourceLine" id="cb23-6" data-line-number="6">             <span class="dt">genes =</span> kmtest<span class="op">$</span>genes[<span class="dv">1</span><span class="op">:</span><span class="dv">6</span>], <span class="dt">cow_n_col =</span> <span class="dv">2</span>, <span class="dt">point_size =</span> <span class="fl">1.5</span>,</a>
-<a class="sourceLine" id="cb23-7" data-line-number="7">             <span class="dt">genes_high_color =</span> <span class="st">'red'</span>, <span class="dt">genes_mid_color =</span> <span class="st">'white'</span>, <span class="dt">genes_low_color =</span> <span class="st">'darkblue'</span>, <span class="dt">midpoint =</span> <span class="dv">0</span>,</a>
-<a class="sourceLine" id="cb23-8" data-line-number="8">             <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'10_spatial_genes_km'</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" title="1"><span class="co">## kmeans binarization</span></a>
+<a class="sourceLine" id="cb23-2" title="2">kmtest =<span class="st"> </span><span class="kw"><a href="../reference/binSpect.html">binSpect</a></span>(visium_kidney, <span class="dt">bin_method =</span> <span class="st">'kmeans'</span>,</a>
+<a class="sourceLine" id="cb23-3" title="3">                            <span class="dt">do_fisher_test =</span> T, </a>
+<a class="sourceLine" id="cb23-4" title="4">                            <span class="dt">spatial_network_name =</span> <span class="st">'delaunay_network'</span>, <span class="dt">verbose =</span> T)</a>
+<a class="sourceLine" id="cb23-5" title="5"><span class="kw"><a href="../reference/spatGenePlot.html">spatGenePlot</a></span>(visium_kidney, <span class="dt">expression_values =</span> <span class="st">'scaled'</span>,</a>
+<a class="sourceLine" id="cb23-6" title="6">             <span class="dt">genes =</span> kmtest<span class="op">$</span>genes[<span class="dv">1</span><span class="op">:</span><span class="dv">6</span>], <span class="dt">cow_n_col =</span> <span class="dv">2</span>, <span class="dt">point_size =</span> <span class="fl">1.5</span>,</a>
+<a class="sourceLine" id="cb23-7" title="7">             <span class="dt">genes_high_color =</span> <span class="st">'red'</span>, <span class="dt">genes_mid_color =</span> <span class="st">'white'</span>, <span class="dt">genes_low_color =</span> <span class="st">'darkblue'</span>, <span class="dt">midpoint =</span> <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb23-8" title="8">             <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'10_spatial_genes_km'</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/10_spatial_genes_km.png" style="width:50.0%"></p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1"><span class="co">## rank binarization</span></a>
-<a class="sourceLine" id="cb24-2" data-line-number="2">ranktest =<span class="st"> </span><span class="kw"><a href="../reference/binSpect.html">binSpect</a></span>(visium_kidney, <span class="dt">bin_method =</span> <span class="st">'rank'</span>, </a>
-<a class="sourceLine" id="cb24-3" data-line-number="3">                              <span class="dt">do_fisher_test =</span> T, <span class="dt">percentage_rank =</span> <span class="dv">30</span>,</a>
-<a class="sourceLine" id="cb24-4" data-line-number="4">                              <span class="dt">spatial_network_name =</span> <span class="st">'delaunay_network'</span>, <span class="dt">verbose =</span> T)</a>
-<a class="sourceLine" id="cb24-5" data-line-number="5"><span class="kw"><a href="../reference/spatGenePlot.html">spatGenePlot</a></span>(visium_kidney, <span class="dt">expression_values =</span> <span class="st">'scaled'</span>,</a>
-<a class="sourceLine" id="cb24-6" data-line-number="6">             <span class="dt">genes =</span> ranktest<span class="op">$</span>genes[<span class="dv">1</span><span class="op">:</span><span class="dv">6</span>], <span class="dt">cow_n_col =</span> <span class="dv">2</span>, <span class="dt">point_size =</span> <span class="fl">1.5</span>,</a>
-<a class="sourceLine" id="cb24-7" data-line-number="7">             <span class="dt">genes_high_color =</span> <span class="st">'red'</span>, <span class="dt">genes_mid_color =</span> <span class="st">'white'</span>, <span class="dt">genes_low_color =</span> <span class="st">'darkblue'</span>, <span class="dt">midpoint =</span> <span class="dv">0</span>,</a>
-<a class="sourceLine" id="cb24-8" data-line-number="8">             <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'10_spatial_genes_rank'</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" title="1"><span class="co">## rank binarization</span></a>
+<a class="sourceLine" id="cb24-2" title="2">ranktest =<span class="st"> </span><span class="kw"><a href="../reference/binSpect.html">binSpect</a></span>(visium_kidney, <span class="dt">bin_method =</span> <span class="st">'rank'</span>, </a>
+<a class="sourceLine" id="cb24-3" title="3">                              <span class="dt">do_fisher_test =</span> T, <span class="dt">percentage_rank =</span> <span class="dv">30</span>,</a>
+<a class="sourceLine" id="cb24-4" title="4">                              <span class="dt">spatial_network_name =</span> <span class="st">'delaunay_network'</span>, <span class="dt">verbose =</span> T)</a>
+<a class="sourceLine" id="cb24-5" title="5"><span class="kw"><a href="../reference/spatGenePlot.html">spatGenePlot</a></span>(visium_kidney, <span class="dt">expression_values =</span> <span class="st">'scaled'</span>,</a>
+<a class="sourceLine" id="cb24-6" title="6">             <span class="dt">genes =</span> ranktest<span class="op">$</span>genes[<span class="dv">1</span><span class="op">:</span><span class="dv">6</span>], <span class="dt">cow_n_col =</span> <span class="dv">2</span>, <span class="dt">point_size =</span> <span class="fl">1.5</span>,</a>
+<a class="sourceLine" id="cb24-7" title="7">             <span class="dt">genes_high_color =</span> <span class="st">'red'</span>, <span class="dt">genes_mid_color =</span> <span class="st">'white'</span>, <span class="dt">genes_low_color =</span> <span class="st">'darkblue'</span>, <span class="dt">midpoint =</span> <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb24-8" title="8">             <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'10_spatial_genes_rank'</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/10_spatial_genes_rank.png" style="width:50.0%"></p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="co">## silhouette</span></a>
-<a class="sourceLine" id="cb25-2" data-line-number="2">spatial_genes =<span class="st"> </span><span class="kw"><a href="../reference/silhouetteRank.html">silhouetteRank</a></span>(<span class="dt">gobject =</span> visium_kidney,</a>
-<a class="sourceLine" id="cb25-3" data-line-number="3">                               <span class="dt">expression_values =</span> <span class="st">'scaled'</span>,</a>
-<a class="sourceLine" id="cb25-4" data-line-number="4">                               <span class="dt">rbp_p=</span><span class="fl">0.95</span>, <span class="dt">examine_top=</span><span class="fl">0.3</span>)</a>
-<a class="sourceLine" id="cb25-5" data-line-number="5"><span class="kw"><a href="../reference/spatGenePlot.html">spatGenePlot</a></span>(visium_kidney, <span class="dt">expression_values =</span> <span class="st">'scaled'</span>,</a>
-<a class="sourceLine" id="cb25-6" data-line-number="6">             <span class="dt">genes =</span> spatial_genes<span class="op">$</span>genes[<span class="dv">1</span><span class="op">:</span><span class="dv">6</span>], <span class="dt">cow_n_col =</span> <span class="dv">2</span>, <span class="dt">point_size =</span> <span class="fl">1.5</span>,</a>
-<a class="sourceLine" id="cb25-7" data-line-number="7">             <span class="dt">genes_high_color =</span> <span class="st">'red'</span>, <span class="dt">genes_mid_color =</span> <span class="st">'white'</span>, <span class="dt">genes_low_color =</span> <span class="st">'darkblue'</span>, <span class="dt">midpoint =</span> <span class="dv">0</span>,</a>
-<a class="sourceLine" id="cb25-8" data-line-number="8">             <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'10_spatial_genes'</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" title="1"><span class="co">## silhouette</span></a>
+<a class="sourceLine" id="cb25-2" title="2">spatial_genes =<span class="st"> </span><span class="kw"><a href="../reference/silhouetteRank.html">silhouetteRank</a></span>(<span class="dt">gobject =</span> visium_kidney,</a>
+<a class="sourceLine" id="cb25-3" title="3">                               <span class="dt">expression_values =</span> <span class="st">'scaled'</span>,</a>
+<a class="sourceLine" id="cb25-4" title="4">                               <span class="dt">rbp_p=</span><span class="fl">0.95</span>, <span class="dt">examine_top=</span><span class="fl">0.3</span>)</a>
+<a class="sourceLine" id="cb25-5" title="5"><span class="kw"><a href="../reference/spatGenePlot.html">spatGenePlot</a></span>(visium_kidney, <span class="dt">expression_values =</span> <span class="st">'scaled'</span>,</a>
+<a class="sourceLine" id="cb25-6" title="6">             <span class="dt">genes =</span> spatial_genes<span class="op">$</span>genes[<span class="dv">1</span><span class="op">:</span><span class="dv">6</span>], <span class="dt">cow_n_col =</span> <span class="dv">2</span>, <span class="dt">point_size =</span> <span class="fl">1.5</span>,</a>
+<a class="sourceLine" id="cb25-7" title="7">             <span class="dt">genes_high_color =</span> <span class="st">'red'</span>, <span class="dt">genes_mid_color =</span> <span class="st">'white'</span>, <span class="dt">genes_low_color =</span> <span class="st">'darkblue'</span>, <span class="dt">midpoint =</span> <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb25-8" title="8">             <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'10_spatial_genes'</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/10_spatial_genes.png" style="width:50.0%"></p>
 </div>
 <div id="spatial-co-expression-patterns" class="section level3">
 <h3 class="hasAnchor">
 <a href="#spatial-co-expression-patterns" class="anchor"></a>Spatial co-expression patterns</h3>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="co">## spatially correlated genes ##</span></a>
-<a class="sourceLine" id="cb26-2" data-line-number="2">ext_spatial_genes =<span class="st"> </span>kmtest[<span class="dv">1</span><span class="op">:</span><span class="dv">500</span>]<span class="op">$</span>genes</a>
-<a class="sourceLine" id="cb26-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb26-4" data-line-number="4"><span class="co"># 1. calculate gene spatial correlation and single-cell correlation </span></a>
-<a class="sourceLine" id="cb26-5" data-line-number="5"><span class="co"># create spatial correlation object</span></a>
-<a class="sourceLine" id="cb26-6" data-line-number="6">spat_cor_netw_DT =<span class="st"> </span><span class="kw"><a href="../reference/detectSpatialCorGenes.html">detectSpatialCorGenes</a></span>(visium_kidney, </a>
-<a class="sourceLine" id="cb26-7" data-line-number="7">                                         <span class="dt">method =</span> <span class="st">'network'</span>, <span class="dt">spatial_network_name =</span> <span class="st">'delaunay_network'</span>,</a>
-<a class="sourceLine" id="cb26-8" data-line-number="8">                                         <span class="dt">subset_genes =</span> ext_spatial_genes)</a>
-<a class="sourceLine" id="cb26-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb26-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb26-11" data-line-number="11"><span class="co"># 2. identify most similar spatially correlated genes for one gene</span></a>
-<a class="sourceLine" id="cb26-12" data-line-number="12">Napsa_top10_genes =<span class="st"> </span><span class="kw"><a href="../reference/showSpatialCorGenes.html">showSpatialCorGenes</a></span>(spat_cor_netw_DT, <span class="dt">genes =</span> <span class="st">'Napsa'</span>, <span class="dt">show_top_genes =</span> <span class="dv">10</span>)</a>
-<a class="sourceLine" id="cb26-13" data-line-number="13"><span class="kw"><a href="../reference/spatGenePlot.html">spatGenePlot</a></span>(visium_kidney, <span class="dt">expression_values =</span> <span class="st">'scaled'</span>,</a>
-<a class="sourceLine" id="cb26-14" data-line-number="14">             <span class="dt">genes =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'Napsa'</span>, <span class="st">'Kap'</span>, <span class="st">'Defb29'</span>, <span class="st">'Prdx1'</span>), <span class="dt">point_size =</span> <span class="dv">3</span>,</a>
-<a class="sourceLine" id="cb26-15" data-line-number="15">             <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'10_Napsa_correlated_genes'</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1"><span class="co">## spatially correlated genes ##</span></a>
+<a class="sourceLine" id="cb26-2" title="2">ext_spatial_genes =<span class="st"> </span>kmtest[<span class="dv">1</span><span class="op">:</span><span class="dv">500</span>]<span class="op">$</span>genes</a>
+<a class="sourceLine" id="cb26-3" title="3"></a>
+<a class="sourceLine" id="cb26-4" title="4"><span class="co"># 1. calculate gene spatial correlation and single-cell correlation </span></a>
+<a class="sourceLine" id="cb26-5" title="5"><span class="co"># create spatial correlation object</span></a>
+<a class="sourceLine" id="cb26-6" title="6">spat_cor_netw_DT =<span class="st"> </span><span class="kw"><a href="../reference/detectSpatialCorGenes.html">detectSpatialCorGenes</a></span>(visium_kidney, </a>
+<a class="sourceLine" id="cb26-7" title="7">                                         <span class="dt">method =</span> <span class="st">'network'</span>, <span class="dt">spatial_network_name =</span> <span class="st">'delaunay_network'</span>,</a>
+<a class="sourceLine" id="cb26-8" title="8">                                         <span class="dt">subset_genes =</span> ext_spatial_genes)</a>
+<a class="sourceLine" id="cb26-9" title="9"></a>
+<a class="sourceLine" id="cb26-10" title="10"></a>
+<a class="sourceLine" id="cb26-11" title="11"><span class="co"># 2. identify most similar spatially correlated genes for one gene</span></a>
+<a class="sourceLine" id="cb26-12" title="12">Napsa_top10_genes =<span class="st"> </span><span class="kw"><a href="../reference/showSpatialCorGenes.html">showSpatialCorGenes</a></span>(spat_cor_netw_DT, <span class="dt">genes =</span> <span class="st">'Napsa'</span>, <span class="dt">show_top_genes =</span> <span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb26-13" title="13"><span class="kw"><a href="../reference/spatGenePlot.html">spatGenePlot</a></span>(visium_kidney, <span class="dt">expression_values =</span> <span class="st">'scaled'</span>,</a>
+<a class="sourceLine" id="cb26-14" title="14">             <span class="dt">genes =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'Napsa'</span>, <span class="st">'Kap'</span>, <span class="st">'Defb29'</span>, <span class="st">'Prdx1'</span>), <span class="dt">point_size =</span> <span class="dv">3</span>,</a>
+<a class="sourceLine" id="cb26-15" title="15">             <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'10_Napsa_correlated_genes'</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/10_Napsa_correlated_genes.png" style="width:50.0%"></p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1"><span class="co"># 3. cluster correlated genes &amp; visualize</span></a>
-<a class="sourceLine" id="cb27-2" data-line-number="2">spat_cor_netw_DT =<span class="st"> </span><span class="kw"><a href="../reference/clusterSpatialCorGenes.html">clusterSpatialCorGenes</a></span>(spat_cor_netw_DT, <span class="dt">name =</span> <span class="st">'spat_netw_clus'</span>, <span class="dt">k =</span> <span class="dv">8</span>)</a>
-<a class="sourceLine" id="cb27-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb27-4" data-line-number="4"><span class="kw"><a href="../reference/heatmSpatialCorGenes.html">heatmSpatialCorGenes</a></span>(visium_kidney, <span class="dt">spatCorObject =</span> spat_cor_netw_DT, <span class="dt">use_clus_name =</span> <span class="st">'spat_netw_clus'</span>,</a>
-<a class="sourceLine" id="cb27-5" data-line-number="5">                     <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'10_heatmap_correlated_genes'</span>, <span class="dt">save_format =</span> <span class="st">'pdf'</span>,</a>
-<a class="sourceLine" id="cb27-6" data-line-number="6">                                    <span class="dt">base_height =</span> <span class="dv">6</span>, <span class="dt">base_width =</span> <span class="dv">8</span>, <span class="dt">units =</span> <span class="st">'cm'</span>), </a>
-<a class="sourceLine" id="cb27-7" data-line-number="7">                     <span class="dt">heatmap_legend_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">title =</span> <span class="ot">NULL</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" title="1"><span class="co"># 3. cluster correlated genes &amp; visualize</span></a>
+<a class="sourceLine" id="cb27-2" title="2">spat_cor_netw_DT =<span class="st"> </span><span class="kw"><a href="../reference/clusterSpatialCorGenes.html">clusterSpatialCorGenes</a></span>(spat_cor_netw_DT, <span class="dt">name =</span> <span class="st">'spat_netw_clus'</span>, <span class="dt">k =</span> <span class="dv">8</span>)</a>
+<a class="sourceLine" id="cb27-3" title="3"></a>
+<a class="sourceLine" id="cb27-4" title="4"><span class="kw"><a href="../reference/heatmSpatialCorGenes.html">heatmSpatialCorGenes</a></span>(visium_kidney, <span class="dt">spatCorObject =</span> spat_cor_netw_DT, <span class="dt">use_clus_name =</span> <span class="st">'spat_netw_clus'</span>,</a>
+<a class="sourceLine" id="cb27-5" title="5">                     <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'10_heatmap_correlated_genes'</span>, <span class="dt">save_format =</span> <span class="st">'pdf'</span>,</a>
+<a class="sourceLine" id="cb27-6" title="6">                                    <span class="dt">base_height =</span> <span class="dv">6</span>, <span class="dt">base_width =</span> <span class="dv">8</span>, <span class="dt">units =</span> <span class="st">'cm'</span>), </a>
+<a class="sourceLine" id="cb27-7" title="7">                     <span class="dt">heatmap_legend_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">title =</span> <span class="ot">NULL</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/10_heatmap_correlated_genes.png" style="width:50.0%"></p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" data-line-number="1"><span class="co"># 4. rank spatial correlated clusters and show genes for selected clusters</span></a>
-<a class="sourceLine" id="cb28-2" data-line-number="2">netw_ranks =<span class="st"> </span><span class="kw"><a href="../reference/rankSpatialCorGroups.html">rankSpatialCorGroups</a></span>(visium_kidney, <span class="dt">spatCorObject =</span> spat_cor_netw_DT, <span class="dt">use_clus_name =</span> <span class="st">'spat_netw_clus'</span>,</a>
-<a class="sourceLine" id="cb28-3" data-line-number="3">                                  <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'10_rank_correlated_groups'</span>,</a>
-<a class="sourceLine" id="cb28-4" data-line-number="4">                                                 <span class="dt">base_height =</span> <span class="dv">3</span>, <span class="dt">base_width =</span> <span class="dv">5</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" title="1"><span class="co"># 4. rank spatial correlated clusters and show genes for selected clusters</span></a>
+<a class="sourceLine" id="cb28-2" title="2">netw_ranks =<span class="st"> </span><span class="kw"><a href="../reference/rankSpatialCorGroups.html">rankSpatialCorGroups</a></span>(visium_kidney, <span class="dt">spatCorObject =</span> spat_cor_netw_DT, <span class="dt">use_clus_name =</span> <span class="st">'spat_netw_clus'</span>,</a>
+<a class="sourceLine" id="cb28-3" title="3">                                  <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'10_rank_correlated_groups'</span>,</a>
+<a class="sourceLine" id="cb28-4" title="4">                                                 <span class="dt">base_height =</span> <span class="dv">3</span>, <span class="dt">base_width =</span> <span class="dv">5</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/10_rank_correlated_groups.png" style="width:50.0%"></p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1">top_netw_spat_cluster =<span class="st"> </span><span class="kw"><a href="../reference/showSpatialCorGenes.html">showSpatialCorGenes</a></span>(spat_cor_netw_DT, <span class="dt">use_clus_name =</span> <span class="st">'spat_netw_clus'</span>,</a>
-<a class="sourceLine" id="cb29-2" data-line-number="2">                                            <span class="dt">selected_clusters =</span> <span class="dv">6</span>, <span class="dt">show_top_genes =</span> <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb29-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb29-4" data-line-number="4"><span class="co"># 5. create metagene enrichment score for clusters</span></a>
-<a class="sourceLine" id="cb29-5" data-line-number="5">cluster_genes_DT =<span class="st"> </span><span class="kw"><a href="../reference/showSpatialCorGenes.html">showSpatialCorGenes</a></span>(spat_cor_netw_DT, <span class="dt">use_clus_name =</span> <span class="st">'spat_netw_clus'</span>, <span class="dt">show_top_genes =</span> <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb29-6" data-line-number="6">cluster_genes =<span class="st"> </span>cluster_genes_DT<span class="op">$</span>clus; <span class="kw"><a href="https://rdrr.io/r/base/names.html">names</a></span>(cluster_genes) =<span class="st"> </span>cluster_genes_DT<span class="op">$</span>gene_ID</a>
-<a class="sourceLine" id="cb29-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb29-8" data-line-number="8">visium_kidney =<span class="st"> </span><span class="kw"><a href="../reference/createMetagenes.html">createMetagenes</a></span>(visium_kidney, <span class="dt">gene_clusters =</span> cluster_genes, <span class="dt">name =</span> <span class="st">'cluster_metagene'</span>)</a>
-<a class="sourceLine" id="cb29-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb29-10" data-line-number="10"><span class="kw"><a href="../reference/spatCellPlot.html">spatCellPlot</a></span>(visium_kidney,</a>
-<a class="sourceLine" id="cb29-11" data-line-number="11">             <span class="dt">spat_enr_names =</span> <span class="st">'cluster_metagene'</span>,</a>
-<a class="sourceLine" id="cb29-12" data-line-number="12">             <span class="dt">cell_annotation_values =</span> netw_ranks<span class="op">$</span>clusters,</a>
-<a class="sourceLine" id="cb29-13" data-line-number="13">             <span class="dt">point_size =</span> <span class="fl">1.5</span>, <span class="dt">cow_n_col =</span> <span class="dv">4</span>, </a>
-<a class="sourceLine" id="cb29-14" data-line-number="14">             <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'10_spat_enrichment_score_plots'</span>,</a>
-<a class="sourceLine" id="cb29-15" data-line-number="15">                            <span class="dt">base_width =</span> <span class="dv">13</span>, <span class="dt">base_height =</span> <span class="dv">6</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" title="1">top_netw_spat_cluster =<span class="st"> </span><span class="kw"><a href="../reference/showSpatialCorGenes.html">showSpatialCorGenes</a></span>(spat_cor_netw_DT, <span class="dt">use_clus_name =</span> <span class="st">'spat_netw_clus'</span>,</a>
+<a class="sourceLine" id="cb29-2" title="2">                                            <span class="dt">selected_clusters =</span> <span class="dv">6</span>, <span class="dt">show_top_genes =</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb29-3" title="3"></a>
+<a class="sourceLine" id="cb29-4" title="4"><span class="co"># 5. create metagene enrichment score for clusters</span></a>
+<a class="sourceLine" id="cb29-5" title="5">cluster_genes_DT =<span class="st"> </span><span class="kw"><a href="../reference/showSpatialCorGenes.html">showSpatialCorGenes</a></span>(spat_cor_netw_DT, <span class="dt">use_clus_name =</span> <span class="st">'spat_netw_clus'</span>, <span class="dt">show_top_genes =</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb29-6" title="6">cluster_genes =<span class="st"> </span>cluster_genes_DT<span class="op">$</span>clus; <span class="kw"><a href="https://rdrr.io/r/base/names.html">names</a></span>(cluster_genes) =<span class="st"> </span>cluster_genes_DT<span class="op">$</span>gene_ID</a>
+<a class="sourceLine" id="cb29-7" title="7"></a>
+<a class="sourceLine" id="cb29-8" title="8">visium_kidney =<span class="st"> </span><span class="kw"><a href="../reference/createMetagenes.html">createMetagenes</a></span>(visium_kidney, <span class="dt">gene_clusters =</span> cluster_genes, <span class="dt">name =</span> <span class="st">'cluster_metagene'</span>)</a>
+<a class="sourceLine" id="cb29-9" title="9"></a>
+<a class="sourceLine" id="cb29-10" title="10"><span class="kw"><a href="../reference/spatCellPlot.html">spatCellPlot</a></span>(visium_kidney,</a>
+<a class="sourceLine" id="cb29-11" title="11">             <span class="dt">spat_enr_names =</span> <span class="st">'cluster_metagene'</span>,</a>
+<a class="sourceLine" id="cb29-12" title="12">             <span class="dt">cell_annotation_values =</span> netw_ranks<span class="op">$</span>clusters,</a>
+<a class="sourceLine" id="cb29-13" title="13">             <span class="dt">point_size =</span> <span class="fl">1.5</span>, <span class="dt">cow_n_col =</span> <span class="dv">4</span>, </a>
+<a class="sourceLine" id="cb29-14" title="14">             <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'10_spat_enrichment_score_plots'</span>,</a>
+<a class="sourceLine" id="cb29-15" title="15">                            <span class="dt">base_width =</span> <span class="dv">13</span>, <span class="dt">base_height =</span> <span class="dv">6</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/10_spat_enrichment_score_plots.png" style="width:50.0%"></p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" data-line-number="1"><span class="co"># example for gene per cluster</span></a>
-<a class="sourceLine" id="cb30-2" data-line-number="2">top_netw_spat_cluster =<span class="st"> </span><span class="kw"><a href="../reference/showSpatialCorGenes.html">showSpatialCorGenes</a></span>(spat_cor_netw_DT, <span class="dt">use_clus_name =</span> <span class="st">'spat_netw_clus'</span>,</a>
-<a class="sourceLine" id="cb30-3" data-line-number="3">                                            <span class="dt">selected_clusters =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">8</span>, <span class="dt">show_top_genes =</span> <span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb30-4" data-line-number="4">first_genes =<span class="st"> </span>top_netw_spat_cluster[, <span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(.SD, <span class="dv">1</span>), by =<span class="st"> </span>clus]<span class="op">$</span>gene_ID</a>
-<a class="sourceLine" id="cb30-5" data-line-number="5">cluster_names =<span class="st"> </span>top_netw_spat_cluster[, <span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(.SD, <span class="dv">1</span>), by =<span class="st"> </span>clus]<span class="op">$</span>clus</a>
-<a class="sourceLine" id="cb30-6" data-line-number="6"><span class="kw"><a href="https://rdrr.io/r/base/names.html">names</a></span>(first_genes) =<span class="st"> </span>cluster_names</a>
-<a class="sourceLine" id="cb30-7" data-line-number="7">first_genes =<span class="st"> </span>first_genes[<span class="kw"><a href="https://rdrr.io/r/base/character.html">as.character</a></span>(netw_ranks<span class="op">$</span>clusters)]</a>
-<a class="sourceLine" id="cb30-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb30-9" data-line-number="9"><span class="kw"><a href="../reference/spatGenePlot.html">spatGenePlot</a></span>(visium_kidney, <span class="dt">genes =</span> first_genes, <span class="dt">expression_values =</span> <span class="st">'scaled'</span>, <span class="dt">cow_n_col =</span> <span class="dv">4</span>, <span class="dt">midpoint =</span> <span class="dv">0</span>, <span class="dt">point_size =</span> <span class="dv">2</span>,</a>
-<a class="sourceLine" id="cb30-10" data-line-number="10">             <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'10_spat_enrichment_score_plots_genes'</span>,</a>
-<a class="sourceLine" id="cb30-11" data-line-number="11">                            <span class="dt">base_width =</span> <span class="dv">11</span>, <span class="dt">base_height =</span> <span class="dv">6</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" title="1"><span class="co"># example for gene per cluster</span></a>
+<a class="sourceLine" id="cb30-2" title="2">top_netw_spat_cluster =<span class="st"> </span><span class="kw"><a href="../reference/showSpatialCorGenes.html">showSpatialCorGenes</a></span>(spat_cor_netw_DT, <span class="dt">use_clus_name =</span> <span class="st">'spat_netw_clus'</span>,</a>
+<a class="sourceLine" id="cb30-3" title="3">                                            <span class="dt">selected_clusters =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">8</span>, <span class="dt">show_top_genes =</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb30-4" title="4">first_genes =<span class="st"> </span>top_netw_spat_cluster[, <span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(.SD, <span class="dv">1</span>), by =<span class="st"> </span>clus]<span class="op">$</span>gene_ID</a>
+<a class="sourceLine" id="cb30-5" title="5">cluster_names =<span class="st"> </span>top_netw_spat_cluster[, <span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(.SD, <span class="dv">1</span>), by =<span class="st"> </span>clus]<span class="op">$</span>clus</a>
+<a class="sourceLine" id="cb30-6" title="6"><span class="kw"><a href="https://rdrr.io/r/base/names.html">names</a></span>(first_genes) =<span class="st"> </span>cluster_names</a>
+<a class="sourceLine" id="cb30-7" title="7">first_genes =<span class="st"> </span>first_genes[<span class="kw"><a href="https://rdrr.io/r/base/character.html">as.character</a></span>(netw_ranks<span class="op">$</span>clusters)]</a>
+<a class="sourceLine" id="cb30-8" title="8"></a>
+<a class="sourceLine" id="cb30-9" title="9"><span class="kw"><a href="../reference/spatGenePlot.html">spatGenePlot</a></span>(visium_kidney, <span class="dt">genes =</span> first_genes, <span class="dt">expression_values =</span> <span class="st">'scaled'</span>, <span class="dt">cow_n_col =</span> <span class="dv">4</span>, <span class="dt">midpoint =</span> <span class="dv">0</span>, <span class="dt">point_size =</span> <span class="dv">2</span>,</a>
+<a class="sourceLine" id="cb30-10" title="10">             <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'10_spat_enrichment_score_plots_genes'</span>,</a>
+<a class="sourceLine" id="cb30-11" title="11">                            <span class="dt">base_width =</span> <span class="dv">11</span>, <span class="dt">base_height =</span> <span class="dv">6</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/10_spat_enrichment_score_plots_genes.png" style="width:50.0%"></p>
 </div>
 </div>
 <div id="part-11-hmrf-domains" class="section level2">
 <h2 class="hasAnchor">
 <a href="#part-11-hmrf-domains" class="anchor"></a>part 11: HMRF domains</h2>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1"><span class="co"># spatial genes</span></a>
-<a class="sourceLine" id="cb31-2" data-line-number="2">my_spatial_genes &lt;-<span class="st"> </span>kmtest[<span class="dv">1</span><span class="op">:</span><span class="dv">100</span>]<span class="op">$</span>genes</a>
-<a class="sourceLine" id="cb31-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb31-4" data-line-number="4"><span class="co"># do HMRF with different betas</span></a>
-<a class="sourceLine" id="cb31-5" data-line-number="5">hmrf_folder =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(results_folder,<span class="st">'/'</span>,<span class="st">'11_HMRF/'</span>)</a>
-<a class="sourceLine" id="cb31-6" data-line-number="6"><span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/files.html">file.exists</a></span>(hmrf_folder)) <span class="kw"><a href="https://rdrr.io/r/base/files2.html">dir.create</a></span>(hmrf_folder, <span class="dt">recursive =</span> T)</a>
-<a class="sourceLine" id="cb31-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb31-8" data-line-number="8">HMRF_spatial_genes =<span class="st"> </span><span class="kw"><a href="../reference/doHMRF.html">doHMRF</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">expression_values =</span> <span class="st">'scaled'</span>, </a>
-<a class="sourceLine" id="cb31-9" data-line-number="9">                            <span class="dt">spatial_network_name =</span> <span class="st">'delaunay_network'</span>,</a>
-<a class="sourceLine" id="cb31-10" data-line-number="10">                            <span class="dt">spatial_genes =</span> my_spatial_genes,</a>
-<a class="sourceLine" id="cb31-11" data-line-number="11">                            <span class="dt">k =</span> <span class="dv">5</span>,</a>
-<a class="sourceLine" id="cb31-12" data-line-number="12">                            <span class="dt">betas =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">6</span>), </a>
-<a class="sourceLine" id="cb31-13" data-line-number="13">                            <span class="dt">output_folder =</span> <span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(hmrf_folder, <span class="st">'/'</span>, <span class="st">'Spatial_genes/SG_topgenes_k5_scaled'</span>))</a>
-<a class="sourceLine" id="cb31-14" data-line-number="14"></a>
-<a class="sourceLine" id="cb31-15" data-line-number="15"><span class="co">## view results of HMRF</span></a>
-<a class="sourceLine" id="cb31-16" data-line-number="16"><span class="co">## results not displayed</span></a>
-<a class="sourceLine" id="cb31-17" data-line-number="17"><span class="cf">for</span>(i <span class="cf">in</span> <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="dv">0</span>, <span class="dv">5</span>, <span class="dt">by =</span> <span class="dv">1</span>)) {</a>
-<a class="sourceLine" id="cb31-18" data-line-number="18">  <span class="kw"><a href="../reference/viewHMRFresults2D.html">viewHMRFresults2D</a></span>(<span class="dt">gobject =</span> visium_kidney,</a>
-<a class="sourceLine" id="cb31-19" data-line-number="19">                    <span class="dt">HMRFoutput =</span> HMRF_spatial_genes,</a>
-<a class="sourceLine" id="cb31-20" data-line-number="20">                    <span class="dt">k =</span> <span class="dv">5</span>, <span class="dt">betas_to_view =</span> i,</a>
-<a class="sourceLine" id="cb31-21" data-line-number="21">                    <span class="dt">point_size =</span> <span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb31-22" data-line-number="22">}</a></code></pre></div>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" data-line-number="1"><span class="co">## alternative way to view HMRF results</span></a>
-<a class="sourceLine" id="cb32-2" data-line-number="2"><span class="co">#results = writeHMRFresults(gobject = ST_test,</span></a>
-<a class="sourceLine" id="cb32-3" data-line-number="3"><span class="co">#                           HMRFoutput = HMRF_spatial_genes,</span></a>
-<a class="sourceLine" id="cb32-4" data-line-number="4"><span class="co">#                           k = 5, betas_to_view = seq(0, 25, by = 5))</span></a>
-<a class="sourceLine" id="cb32-5" data-line-number="5"><span class="co">#ST_test = addCellMetadata(ST_test, new_metadata = results, by_column = T, column_cell_ID = 'cell_ID')</span></a>
-<a class="sourceLine" id="cb32-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb32-7" data-line-number="7"><span class="co">## add HMRF of interest to giotto object</span></a>
-<a class="sourceLine" id="cb32-8" data-line-number="8">visium_kidney =<span class="st"> </span><span class="kw"><a href="../reference/addHMRF.html">addHMRF</a></span>(<span class="dt">gobject =</span> visium_kidney,</a>
-<a class="sourceLine" id="cb32-9" data-line-number="9">                        <span class="dt">HMRFoutput =</span> HMRF_spatial_genes,</a>
-<a class="sourceLine" id="cb32-10" data-line-number="10">                        <span class="dt">k =</span> <span class="dv">5</span>, <span class="dt">betas_to_add =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">0</span>, <span class="dv">2</span>),</a>
-<a class="sourceLine" id="cb32-11" data-line-number="11">                        <span class="dt">hmrf_name =</span> <span class="st">'HMRF'</span>)</a>
-<a class="sourceLine" id="cb32-12" data-line-number="12"></a>
-<a class="sourceLine" id="cb32-13" data-line-number="13"><span class="co">## visualize</span></a>
-<a class="sourceLine" id="cb32-14" data-line-number="14"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">cell_color =</span> <span class="st">'HMRF_k5_b.0'</span>, <span class="dt">point_size =</span> <span class="dv">5</span>,</a>
-<a class="sourceLine" id="cb32-15" data-line-number="15">         <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'11_HMRF_k5_b.0'</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" title="1"><span class="co"># spatial genes</span></a>
+<a class="sourceLine" id="cb31-2" title="2">my_spatial_genes &lt;-<span class="st"> </span>kmtest[<span class="dv">1</span><span class="op">:</span><span class="dv">100</span>]<span class="op">$</span>genes</a>
+<a class="sourceLine" id="cb31-3" title="3"></a>
+<a class="sourceLine" id="cb31-4" title="4"><span class="co"># do HMRF with different betas</span></a>
+<a class="sourceLine" id="cb31-5" title="5">hmrf_folder =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(results_folder,<span class="st">'/'</span>,<span class="st">'11_HMRF/'</span>)</a>
+<a class="sourceLine" id="cb31-6" title="6"><span class="cf">if</span>(<span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/files.html">file.exists</a></span>(hmrf_folder)) <span class="kw"><a href="https://rdrr.io/r/base/files2.html">dir.create</a></span>(hmrf_folder, <span class="dt">recursive =</span> T)</a>
+<a class="sourceLine" id="cb31-7" title="7"></a>
+<a class="sourceLine" id="cb31-8" title="8">HMRF_spatial_genes =<span class="st"> </span><span class="kw"><a href="../reference/doHMRF.html">doHMRF</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">expression_values =</span> <span class="st">'scaled'</span>, </a>
+<a class="sourceLine" id="cb31-9" title="9">                            <span class="dt">spatial_network_name =</span> <span class="st">'delaunay_network'</span>,</a>
+<a class="sourceLine" id="cb31-10" title="10">                            <span class="dt">spatial_genes =</span> my_spatial_genes,</a>
+<a class="sourceLine" id="cb31-11" title="11">                            <span class="dt">k =</span> <span class="dv">5</span>,</a>
+<a class="sourceLine" id="cb31-12" title="12">                            <span class="dt">betas =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">6</span>), </a>
+<a class="sourceLine" id="cb31-13" title="13">                            <span class="dt">output_folder =</span> <span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(hmrf_folder, <span class="st">'/'</span>, <span class="st">'Spatial_genes/SG_topgenes_k5_scaled'</span>))</a>
+<a class="sourceLine" id="cb31-14" title="14"></a>
+<a class="sourceLine" id="cb31-15" title="15"><span class="co">## view results of HMRF</span></a>
+<a class="sourceLine" id="cb31-16" title="16"><span class="co">## results not displayed</span></a>
+<a class="sourceLine" id="cb31-17" title="17"><span class="cf">for</span>(i <span class="cf">in</span> <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="dv">0</span>, <span class="dv">5</span>, <span class="dt">by =</span> <span class="dv">1</span>)) {</a>
+<a class="sourceLine" id="cb31-18" title="18">  <span class="kw"><a href="../reference/viewHMRFresults2D.html">viewHMRFresults2D</a></span>(<span class="dt">gobject =</span> visium_kidney,</a>
+<a class="sourceLine" id="cb31-19" title="19">                    <span class="dt">HMRFoutput =</span> HMRF_spatial_genes,</a>
+<a class="sourceLine" id="cb31-20" title="20">                    <span class="dt">k =</span> <span class="dv">5</span>, <span class="dt">betas_to_view =</span> i,</a>
+<a class="sourceLine" id="cb31-21" title="21">                    <span class="dt">point_size =</span> <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb31-22" title="22">}</a></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" title="1"><span class="co">## alternative way to view HMRF results</span></a>
+<a class="sourceLine" id="cb32-2" title="2"><span class="co">#results = writeHMRFresults(gobject = ST_test,</span></a>
+<a class="sourceLine" id="cb32-3" title="3"><span class="co">#                           HMRFoutput = HMRF_spatial_genes,</span></a>
+<a class="sourceLine" id="cb32-4" title="4"><span class="co">#                           k = 5, betas_to_view = seq(0, 25, by = 5))</span></a>
+<a class="sourceLine" id="cb32-5" title="5"><span class="co">#ST_test = addCellMetadata(ST_test, new_metadata = results, by_column = T, column_cell_ID = 'cell_ID')</span></a>
+<a class="sourceLine" id="cb32-6" title="6"></a>
+<a class="sourceLine" id="cb32-7" title="7"><span class="co">## add HMRF of interest to giotto object</span></a>
+<a class="sourceLine" id="cb32-8" title="8">visium_kidney =<span class="st"> </span><span class="kw"><a href="../reference/addHMRF.html">addHMRF</a></span>(<span class="dt">gobject =</span> visium_kidney,</a>
+<a class="sourceLine" id="cb32-9" title="9">                        <span class="dt">HMRFoutput =</span> HMRF_spatial_genes,</a>
+<a class="sourceLine" id="cb32-10" title="10">                        <span class="dt">k =</span> <span class="dv">5</span>, <span class="dt">betas_to_add =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">0</span>, <span class="dv">2</span>),</a>
+<a class="sourceLine" id="cb32-11" title="11">                        <span class="dt">hmrf_name =</span> <span class="st">'HMRF'</span>)</a>
+<a class="sourceLine" id="cb32-12" title="12"></a>
+<a class="sourceLine" id="cb32-13" title="13"><span class="co">## visualize</span></a>
+<a class="sourceLine" id="cb32-14" title="14"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">cell_color =</span> <span class="st">'HMRF_k5_b.0'</span>, <span class="dt">point_size =</span> <span class="dv">5</span>,</a>
+<a class="sourceLine" id="cb32-15" title="15">         <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'11_HMRF_k5_b.0'</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/11_HMRF_k5_b.0.png" style="width:50.0%"></p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">cell_color =</span> <span class="st">'HMRF_k5_b.2'</span>, <span class="dt">point_size =</span> <span class="dv">5</span>,</a>
-<a class="sourceLine" id="cb33-2" data-line-number="2">         <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'11_HMRF_k5_b.2'</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1"><span class="kw"><a href="../reference/spatPlot.html">spatPlot</a></span>(<span class="dt">gobject =</span> visium_kidney, <span class="dt">cell_color =</span> <span class="st">'HMRF_k5_b.2'</span>, <span class="dt">point_size =</span> <span class="dv">5</span>,</a>
+<a class="sourceLine" id="cb33-2" title="2">         <span class="dt">save_param =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dt">save_name =</span> <span class="st">'11_HMRF_k5_b.2'</span>))</a></code></pre></div>
 <p><img src="../inst/images/mouse_Visium_kidney/vignette_200326/11_HMRF_k5_b.2.png" style="width:50.0%"></p>
 </div>
 <div id="export-and-create-giotto-viewer" class="section level2">
 <h2 class="hasAnchor">
 <a href="#export-and-create-giotto-viewer" class="anchor"></a>Export and create Giotto Viewer</h2>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" data-line-number="1"><span class="co"># check which annotations are available</span></a>
-<a class="sourceLine" id="cb34-2" data-line-number="2"><span class="kw"><a href="../reference/combineMetadata.html">combineMetadata</a></span>(visium_kidney, <span class="dt">spat_enr_names =</span> <span class="st">'PAGE'</span>)</a>
-<a class="sourceLine" id="cb34-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb34-4" data-line-number="4"><span class="co"># select annotations, reductions and expression values to view in Giotto Viewer</span></a>
-<a class="sourceLine" id="cb34-5" data-line-number="5">viewer_folder =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(results_folder, <span class="st">'/'</span>, <span class="st">'mouse_visium_kidney_viewer'</span>)</a>
-<a class="sourceLine" id="cb34-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb34-7" data-line-number="7"><span class="kw"><a href="../reference/exportGiottoViewer.html">exportGiottoViewer</a></span>(<span class="dt">gobject =</span> visium_kidney,</a>
-<a class="sourceLine" id="cb34-8" data-line-number="8">                   <span class="dt">output_directory =</span> viewer_folder,</a>
-<a class="sourceLine" id="cb34-9" data-line-number="9">                   <span class="dt">spat_enr_names =</span> <span class="st">'PAGE'</span>, </a>
-<a class="sourceLine" id="cb34-10" data-line-number="10">                   <span class="dt">factor_annotations =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'in_tissue'</span>,</a>
-<a class="sourceLine" id="cb34-11" data-line-number="11">                                          <span class="st">'leiden_clus'</span>,</a>
-<a class="sourceLine" id="cb34-12" data-line-number="12">                                          <span class="st">'MRF_k5_b.2'</span>),</a>
-<a class="sourceLine" id="cb34-13" data-line-number="13">                   <span class="dt">numeric_annotations =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'nr_genes'</span>,</a>
-<a class="sourceLine" id="cb34-14" data-line-number="14">                                           <span class="st">'clus_25'</span>),</a>
-<a class="sourceLine" id="cb34-15" data-line-number="15">                   <span class="dt">dim_reductions =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'tsne'</span>, <span class="st">'umap'</span>),</a>
-<a class="sourceLine" id="cb34-16" data-line-number="16">                   <span class="dt">dim_reduction_names =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'tsne'</span>, <span class="st">'umap'</span>),</a>
-<a class="sourceLine" id="cb34-17" data-line-number="17">                   <span class="dt">expression_values =</span> <span class="st">'scaled'</span>,</a>
-<a class="sourceLine" id="cb34-18" data-line-number="18">                   <span class="dt">expression_rounding =</span> <span class="dv">2</span>,</a>
-<a class="sourceLine" id="cb34-19" data-line-number="19">                   <span class="dt">overwrite_dir =</span> T)</a></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" title="1"><span class="co"># check which annotations are available</span></a>
+<a class="sourceLine" id="cb34-2" title="2"><span class="kw"><a href="../reference/combineMetadata.html">combineMetadata</a></span>(visium_kidney, <span class="dt">spat_enr_names =</span> <span class="st">'PAGE'</span>)</a>
+<a class="sourceLine" id="cb34-3" title="3"></a>
+<a class="sourceLine" id="cb34-4" title="4"><span class="co"># select annotations, reductions and expression values to view in Giotto Viewer</span></a>
+<a class="sourceLine" id="cb34-5" title="5">viewer_folder =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(results_folder, <span class="st">'/'</span>, <span class="st">'mouse_visium_kidney_viewer'</span>)</a>
+<a class="sourceLine" id="cb34-6" title="6"></a>
+<a class="sourceLine" id="cb34-7" title="7"><span class="kw"><a href="../reference/exportGiottoViewer.html">exportGiottoViewer</a></span>(<span class="dt">gobject =</span> visium_kidney,</a>
+<a class="sourceLine" id="cb34-8" title="8">                   <span class="dt">output_directory =</span> viewer_folder,</a>
+<a class="sourceLine" id="cb34-9" title="9">                   <span class="dt">spat_enr_names =</span> <span class="st">'PAGE'</span>, </a>
+<a class="sourceLine" id="cb34-10" title="10">                   <span class="dt">factor_annotations =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'in_tissue'</span>,</a>
+<a class="sourceLine" id="cb34-11" title="11">                                          <span class="st">'leiden_clus'</span>,</a>
+<a class="sourceLine" id="cb34-12" title="12">                                          <span class="st">'MRF_k5_b.2'</span>),</a>
+<a class="sourceLine" id="cb34-13" title="13">                   <span class="dt">numeric_annotations =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'nr_genes'</span>,</a>
+<a class="sourceLine" id="cb34-14" title="14">                                           <span class="st">'clus_25'</span>),</a>
+<a class="sourceLine" id="cb34-15" title="15">                   <span class="dt">dim_reductions =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'tsne'</span>, <span class="st">'umap'</span>),</a>
+<a class="sourceLine" id="cb34-16" title="16">                   <span class="dt">dim_reduction_names =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'tsne'</span>, <span class="st">'umap'</span>),</a>
+<a class="sourceLine" id="cb34-17" title="17">                   <span class="dt">expression_values =</span> <span class="st">'scaled'</span>,</a>
+<a class="sourceLine" id="cb34-18" title="18">                   <span class="dt">expression_rounding =</span> <span class="dv">2</span>,</a>
+<a class="sourceLine" id="cb34-19" title="19">                   <span class="dt">overwrite_dir =</span> T)</a></code></pre></div>
 </div>
   </div>
 

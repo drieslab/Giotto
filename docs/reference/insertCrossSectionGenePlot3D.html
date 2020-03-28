@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>binSpect — binSpect • Giotto</title>
+<title>insertCrossSectionGenePlot3D — insertCrossSectionGenePlot3D • Giotto</title>
 
 
 <!-- jquery -->
@@ -35,9 +35,8 @@
 
 
 
-<meta property="og:title" content="binSpect — binSpect" />
-<meta property="og:description" content="Previously: binGetSpatialGenes. BinSpect (Binary Spatial Extraction of genes) is a fast computational method
-that identifies genes with a spatially coherent expression pattern." />
+<meta property="og:title" content="insertCrossSectionGenePlot3D — insertCrossSectionGenePlot3D" />
+<meta property="og:description" content="Visualize cells and gene expression in a virtual cross section according to spatial coordinates" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -167,33 +166,54 @@ that identifies genes with a spatially coherent expression pattern." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>binSpect</h1>
-    <small class="dont-index">Source: <a href='https://github.com/RubD/Giotto/blob/master/R/spatial_genes.R'><code>R/spatial_genes.R</code></a></small>
-    <div class="hidden name"><code>binSpect.Rd</code></div>
+    <h1>insertCrossSectionGenePlot3D</h1>
+    <small class="dont-index">Source: <a href='https://github.com/RubD/Giotto/blob/master/R/cross_section.R'><code>R/cross_section.R</code></a></small>
+    <div class="hidden name"><code>insertCrossSectionGenePlot3D.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Previously: binGetSpatialGenes. BinSpect (Binary Spatial Extraction of genes) is a fast computational method
-that identifies genes with a spatially coherent expression pattern.</p>
+    <p>Visualize cells and gene expression in a virtual cross section according to spatial coordinates</p>
     </div>
 
-    <pre class="usage"><span class='fu'>binSpect</span>(
+    <pre class="usage"><span class='fu'><a href='crossSectionGenePlot3D.html'>insertCrossSectionGenePlot3D</a></span>(
   <span class='no'>gobject</span>,
-  <span class='kw'>bin_method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"kmeans"</span>, <span class='st'>"rank"</span>),
-  <span class='kw'>expression_values</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"normalized"</span>, <span class='st'>"scaled"</span>, <span class='st'>"custom"</span>),
-  <span class='kw'>subset_genes</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>crossSection_obj</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>spatial_network_name</span> <span class='kw'>=</span> <span class='st'>"Delaunay_network"</span>,
-  <span class='kw'>nstart</span> <span class='kw'>=</span> <span class='fl'>3</span>,
-  <span class='kw'>iter_max</span> <span class='kw'>=</span> <span class='fl'>10</span>,
-  <span class='kw'>percentage_rank</span> <span class='kw'>=</span> <span class='fl'>30</span>,
-  <span class='kw'>do_fisher_test</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>calc_hub</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>hub_min_int</span> <span class='kw'>=</span> <span class='fl'>3</span>,
-  <span class='kw'>get_av_expr</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>get_high_expr</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>do_parallel</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>cores</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
-  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='no'>T</span>
+  <span class='kw'>mesh_grid_color</span> <span class='kw'>=</span> <span class='st'>"#1f77b4"</span>,
+  <span class='kw'>mesh_grid_width</span> <span class='kw'>=</span> <span class='fl'>3</span>,
+  <span class='kw'>mesh_grid_style</span> <span class='kw'>=</span> <span class='st'>"dot"</span>,
+  <span class='kw'>sdimx</span> <span class='kw'>=</span> <span class='st'>"sdimx"</span>,
+  <span class='kw'>sdimy</span> <span class='kw'>=</span> <span class='st'>"sdimy"</span>,
+  <span class='kw'>sdimz</span> <span class='kw'>=</span> <span class='st'>"sdimz"</span>,
+  <span class='kw'>expression_values</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"normalized"</span>, <span class='st'>"scaled"</span>, <span class='st'>"custom"</span>),
+  <span class='no'>genes</span>,
+  <span class='kw'>show_network</span> <span class='kw'>=</span> <span class='no'>F</span>,
+  <span class='kw'>network_color</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>edge_alpha</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>show_grid</span> <span class='kw'>=</span> <span class='no'>F</span>,
+  <span class='kw'>cluster_column</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>select_cell_groups</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>select_cells</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>show_other_cells</span> <span class='kw'>=</span> <span class='no'>F</span>,
+  <span class='kw'>other_cell_color</span> <span class='kw'>=</span> <span class='st'>"lightgrey"</span>,
+  <span class='kw'>other_point_size</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>genes_high_color</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>genes_mid_color</span> <span class='kw'>=</span> <span class='st'>"white"</span>,
+  <span class='kw'>genes_low_color</span> <span class='kw'>=</span> <span class='st'>"darkblue"</span>,
+  <span class='kw'>spatial_grid_name</span> <span class='kw'>=</span> <span class='st'>"spatial_grid"</span>,
+  <span class='kw'>point_size</span> <span class='kw'>=</span> <span class='fl'>2</span>,
+  <span class='kw'>show_legend</span> <span class='kw'>=</span> <span class='no'>T</span>,
+  <span class='kw'>axis_scale</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"cube"</span>, <span class='st'>"real"</span>, <span class='st'>"custom"</span>),
+  <span class='kw'>custom_ratio</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>x_ticks</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>y_ticks</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>z_ticks</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>show_plot</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
+  <span class='kw'>return_plot</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
+  <span class='kw'>save_plot</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
+  <span class='kw'>save_param</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
+  <span class='kw'>default_save_name</span> <span class='kw'>=</span> <span class='st'>"spatGenePlot3D_with_cross_section"</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -204,86 +224,128 @@ that identifies genes with a spatially coherent expression pattern.</p>
       <td><p>giotto object</p></td>
     </tr>
     <tr>
-      <th>bin_method</th>
-      <td><p>method to binarize gene expression</p></td>
-    </tr>
-    <tr>
-      <th>expression_values</th>
-      <td><p>expression values to use</p></td>
-    </tr>
-    <tr>
-      <th>subset_genes</th>
-      <td><p>only select a subset of genes to test</p></td>
+      <th>name</th>
+      <td><p>name of virtual cross section to use</p></td>
     </tr>
     <tr>
       <th>spatial_network_name</th>
-      <td><p>name of spatial network to use (default = 'spatial_network')</p></td>
+      <td><p>name of spatial network to use</p></td>
     </tr>
     <tr>
-      <th>nstart</th>
-      <td><p>kmeans: nstart parameter</p></td>
+      <th>mesh_grid_color</th>
+      <td><p>color for the meshgrid lines</p></td>
     </tr>
     <tr>
-      <th>iter_max</th>
-      <td><p>kmeans: iter.max parameter</p></td>
+      <th>mesh_grid_width</th>
+      <td><p>width for the meshgrid lines</p></td>
     </tr>
     <tr>
-      <th>percentage_rank</th>
-      <td><p>percentage of top cells for binarization</p></td>
+      <th>mesh_grid_style</th>
+      <td><p>style for the meshgrid lines</p></td>
     </tr>
     <tr>
-      <th>do_fisher_test</th>
-      <td><p>perform fisher test</p></td>
+      <th>sdimx</th>
+      <td><p>x-axis dimension name (default = 'sdimx')</p></td>
     </tr>
     <tr>
-      <th>calc_hub</th>
-      <td><p>calculate the number of hub cells</p></td>
+      <th>sdimy</th>
+      <td><p>y-axis dimension name (default = 'sdimy')</p></td>
     </tr>
     <tr>
-      <th>hub_min_int</th>
-      <td><p>minimum number of cell-cell interactions for a hub cell</p></td>
+      <th>sdimz</th>
+      <td><p>z-axis dimension name (default = 'sdimy')</p></td>
     </tr>
     <tr>
-      <th>get_av_expr</th>
-      <td><p>calculate the average expression per gene of the high expressing cells</p></td>
+      <th>expression_values</th>
+      <td><p>gene expression values to use</p></td>
     </tr>
     <tr>
-      <th>get_high_expr</th>
-      <td><p>calculate the number of high expressing cells  per gene</p></td>
+      <th>genes</th>
+      <td><p>genes to show</p></td>
     </tr>
     <tr>
-      <th>do_parallel</th>
-      <td><p>run calculations in parallel with mclapply</p></td>
+      <th>show_network</th>
+      <td><p>show underlying spatial network</p></td>
     </tr>
     <tr>
-      <th>cores</th>
-      <td><p>number of cores to use if do_parallel = TRUE</p></td>
+      <th>network_color</th>
+      <td><p>color of spatial network</p></td>
     </tr>
     <tr>
-      <th>verbose</th>
-      <td><p>be verbose</p></td>
+      <th>show_grid</th>
+      <td><p>show spatial grid</p></td>
+    </tr>
+    <tr>
+      <th>genes_high_color</th>
+      <td><p>color represents high gene expression</p></td>
+    </tr>
+    <tr>
+      <th>genes_mid_color</th>
+      <td><p>color represents middle gene expression</p></td>
+    </tr>
+    <tr>
+      <th>genes_low_color</th>
+      <td><p>color represents low gene expression</p></td>
+    </tr>
+    <tr>
+      <th>spatial_grid_name</th>
+      <td><p>name of spatial grid to use</p></td>
+    </tr>
+    <tr>
+      <th>point_size</th>
+      <td><p>size of point (cell)</p></td>
+    </tr>
+    <tr>
+      <th>show_legend</th>
+      <td><p>show legend</p></td>
+    </tr>
+    <tr>
+      <th>show_plot</th>
+      <td><p>show plots</p></td>
+    </tr>
+    <tr>
+      <th>return_plot</th>
+      <td><p>return ggplot object</p></td>
+    </tr>
+    <tr>
+      <th>save_plot</th>
+      <td><p>directly save the plot [boolean]</p></td>
+    </tr>
+    <tr>
+      <th>save_param</th>
+      <td><p>list of saving parameters from <code><a href='all_plots_save_function.html'>all_plots_save_function</a></code></p></td>
+    </tr>
+    <tr>
+      <th>default_save_name</th>
+      <td><p>default save name for saving, don't change, change save_name in save_param</p></td>
+    </tr>
+    <tr>
+      <th>grid_color</th>
+      <td><p>color of spatial grid</p></td>
+    </tr>
+    <tr>
+      <th>midpoint</th>
+      <td><p>expression midpoint</p></td>
+    </tr>
+    <tr>
+      <th>scale_alpha_with_expression</th>
+      <td><p>scale expression with ggplot alpha parameter</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>parameters for cowplot::save_plot()</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>data.table with results (see details)</p>
+    <p>ggplot</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>We provide two ways to identify spatial genes based on gene expression binarization.
-Both methods are identicial except for how binarization is performed.</p><ul>
-<li><p>1. binarize: Each gene is binarized (0 or 1) in each cell with <b>kmeans</b> (k = 2) or based on <b>rank</b> percentile</p></li>
-<li><p>2. network: Alll cells are connected through a spatial network based on the physical coordinates</p></li>
-<li><p>3. contingency table: A contingency table is calculated based on all edges of neighboring cells and the binarized expression (0-0, 0-1, 1-0 or 1-1)</p></li>
-<li><p>4. For each gene an odds-ratio (OR) and fisher.test (optional) is calculated</p></li>
-</ul><p>Other statistics are provided (optional):</p><ul>
-<li><p>Number of cells with high expression (binary = 1)</p></li>
-<li><p>Average expression of each gene within high expressing cells</p></li>
-<li><p>Number of hub cells, these are high expressing cells that have a user defined number of high expressing neighbors</p></li>
-</ul><p>By selecting a subset of likely spatial genes (e.g. soft thresholding highly variable genes) or using multiple cores can accelerate the speed.</p>
+    <p>Description of parameters.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples">    <span class='fu'>binSpect</span>(<span class='no'>gobject</span>)</pre>
+    <pre class="examples">    <span class='fu'><a href='crossSectionGenePlot3D.html'>insertCrossSectionGenePlot3D</a></span>(<span class='no'>gobject</span>)</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

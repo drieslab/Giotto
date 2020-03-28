@@ -36,7 +36,7 @@
 
 
 <meta property="og:title" content="createCrossSection — createCrossSection" />
-<meta property="og:description" content="Create a virtural 2D cross section." />
+<meta property="og:description" content="Create a virtual 2D cross section." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -172,7 +172,7 @@
     </div>
 
     <div class="ref-description">
-    <p>Create a virtural 2D cross section.</p>
+    <p>Create a virtual 2D cross section.</p>
     </div>
 
     <pre class="usage"><span class='fu'>createCrossSection</span>(
@@ -181,6 +181,7 @@
   <span class='kw'>spatial_network_name</span> <span class='kw'>=</span> <span class='st'>"Delaunay_network"</span>,
   <span class='kw'>thickness_unit</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"cell"</span>, <span class='st'>"natural"</span>),
   <span class='kw'>slice_thickness</span> <span class='kw'>=</span> <span class='fl'>2</span>,
+  <span class='kw'>cell_distance_estimate_method</span> <span class='kw'>=</span> <span class='st'>"mean"</span>,
   <span class='kw'>extend_ratio</span> <span class='kw'>=</span> <span class='fl'>0.2</span>,
   <span class='kw'>method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"equation"</span>, <span class='st'>"3 points"</span>, <span class='st'>"point and norm vector"</span>,
     <span class='st'>"point and two plane vectors"</span>),
@@ -213,6 +214,10 @@
     <tr>
       <th>thickness_unit</th>
       <td><p>unit of the virtual section thickness. If "cell", average size of the observed cells is used as length unit. If "natural", the unit of cell location coordinates is used.(default = cell)</p></td>
+    </tr>
+    <tr>
+      <th>cell_distance_estimate_method</th>
+      <td><p>method to estimate average distance between neighobring cells. (default = mean)</p></td>
     </tr>
     <tr>
       <th>extend_ratio</th>

@@ -18,6 +18,8 @@ knitr::opts_chunk$set(
 )
 ```
 
+The Visium brain data to run this tutorial can be found [here](https://support.10xgenomics.com/spatial-gene-expression/datasets/1.0.0/V1_Adult_Mouse_Brain)
+
 ## Giotto global instructions
 ```{r eval=FALSE, message=FALSE, warning=FALSE}
 library(Giotto)

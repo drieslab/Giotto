@@ -9,6 +9,7 @@ get_sectionThickness(
   thickness_unit = c("cell", "natural"),
   slice_thickness = 2,
   spatial_network_name = "Delaunay_network",
+  cell_distance_estimate_method = c("mean", "median"),
   plane_equation = NULL
 )
 }

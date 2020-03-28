@@ -15,6 +15,9 @@ knitr::opts_chunk$set(
 )
 ```
 
+The CODEX data to run this tutorial can be found [here](https://github.com/RubD/spatial-datasets/tree/master/data/2018_codex_spleen)
+
+
 ## Giotto global instructions
    
 ```{r eval=FALSE, message=FALSE, warning=FALSE}

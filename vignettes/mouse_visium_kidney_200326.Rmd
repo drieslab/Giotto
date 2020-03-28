@@ -17,6 +17,8 @@ knitr::opts_chunk$set(
 )
 ```
 
+The Visium kidney data to run this tutorial can be found [here](https://support.10xgenomics.com/spatial-gene-expression/datasets/1.0.0/V1_Mouse_Kidney)
+
 ## Giotto global instructions
 ```{r eval=FALSE, message=FALSE, warning=FALSE}
 library(Giotto)
