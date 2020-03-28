@@ -125,7 +125,7 @@ spat_OR_func = function(gene,
 
 #' @title binSpect
 #' @name binSpect
-#' @description BinSpect (Binary Spatial Extraction of genes) is a fast computational method
+#' @description Previously: binGetSpatialGenes. BinSpect (Binary Spatial Extraction of genes) is a fast computational method
 #' that identifies genes with a spatially coherent expression pattern.
 #' @param gobject giotto object
 #' @param bin_method method to binarize gene expression
@@ -309,7 +309,7 @@ binSpect = function(gobject,
 
 #' @title silhouetteRank
 #' @name silhouetteRank
-#' @description This method computes a silhouette score per gene based on the
+#' @description Previously: calculate_spatial_genes_python. This method computes a silhouette score per gene based on the
 #' spatial distribution of two partitions of cells (expressed L1, and non-expressed L0).
 #' Here, rather than L2 Euclidean norm, it uses a rank-transformed, exponentially weighted
 #' function to represent the local physical distance between two cells.

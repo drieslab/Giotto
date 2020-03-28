@@ -10,6 +10,7 @@ createCrossSection(
   spatial_network_name = "Delaunay_network",
   thickness_unit = c("cell", "natural"),
   slice_thickness = 2,
+  cell_distance_estimate_method = "mean",
   extend_ratio = 0.2,
   method = c("equation", "3 points", "point and norm vector",
     "point and two plane vectors"),
@@ -32,6 +33,8 @@ createCrossSection(
 \item{spatial_network_name}{name of spatial network object. (default = Delaunay_network)}
 
 \item{thickness_unit}{unit of the virtual section thickness. If "cell", average size of the observed cells is used as length unit. If "natural", the unit of cell location coordinates is used.(default = cell)}
+
+\item{cell_distance_estimate_method}{method to estimate average distance between neighobring cells. (default = mean)}
 
 \item{extend_ratio}{deciding the span of the cross section meshgrid, as a ratio of extension compared to the borders of the vitural tissue section. (default = 0.2)}
 
@@ -64,7 +67,7 @@ If point and two plane vector, the plane is defined by the coordinates of one po
 giotto object with updated spatial network slot
 }
 \description{
-Create a virtural 2D cross section.
+Create a virtual 2D cross section.
 }
 \details{
 Creates a virtual 2D cross section object for a given spatial network object. The users need to provide the definition of the cross section plane (see method).

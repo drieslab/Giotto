@@ -11,6 +11,7 @@ create_spatialNetworkObject(
   outputObj = NULL,
   networkDT = NULL,
   cellShapeObj = NULL,
+  networkDT_before_filter = NULL,
   crossSectionObjects = NULL,
   misc = NULL
 )

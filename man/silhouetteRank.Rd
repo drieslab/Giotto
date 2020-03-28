@@ -33,7 +33,7 @@ silhouetteRank(
 data.table with spatial scores
 }
 \description{
-This method computes a silhouette score per gene based on the
+Previously: calculate_spatial_genes_python. This method computes a silhouette score per gene based on the
 spatial distribution of two partitions of cells (expressed L1, and non-expressed L0).
 Here, rather than L2 Euclidean norm, it uses a rank-transformed, exponentially weighted
 function to represent the local physical distance between two cells.

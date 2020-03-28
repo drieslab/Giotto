@@ -60,7 +60,7 @@ binSpect(
 data.table with results (see details)
 }
 \description{
-BinSpect (Binary Spatial Extraction of genes) is a fast computational method
+Previously: binGetSpatialGenes. BinSpect (Binary Spatial Extraction of genes) is a fast computational method
 that identifies genes with a spatially coherent expression pattern.
 }
 \details{

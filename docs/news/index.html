@@ -180,6 +180,14 @@
 <a class="sourceLine" id="cb1-4" title="4"><span class="co"># or use this function with the following setting</span></a>
 <a class="sourceLine" id="cb1-5" title="5"><span class="kw"><a href="../reference/createSpatialNetwork.html">createSpatialNetwork</a></span>(gobject, <span class="dt">method =</span> <span class="st">'kNN'</span>)</a></code></pre></div>
 <ul>
+<li>The functions for extracting spatial genes have changed:</li>
+</ul>
+<!-- end list --><div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="co"># binGetSpatialGenes is now:</span></a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="kw"><a href="../reference/binSpect.html">binSpect</a></span>(gobject) <span class="co"># binary Spatial extraction</span></a>
+<a class="sourceLine" id="cb2-3" title="3"></a>
+<a class="sourceLine" id="cb2-4" title="4"><span class="co"># spatial_genes_python is now:</span></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="kw"><a href="../reference/silhouetteRank.html">silhouetteRank</a></span>(gobject)</a></code></pre></div>
+<ul>
 <li>Fixed multiple bugs</li>
 <li>Improved speed by changing code to Rcpp and implementing parallelization options</li>
 <li>updated <a href="./docs/getting_started.html">howto’s</a> tutorials in Start section</li>

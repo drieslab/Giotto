@@ -14,6 +14,18 @@ createSpatialKNNnetwork(gobject)
 createSpatialNetwork(gobject, method = 'kNN')
 ```
 
+  - The functions for extracting spatial genes have changed:
+
+<!-- end list -->
+
+``` r
+# binGetSpatialGenes is now:
+binSpect(gobject) # binary Spatial extraction
+
+# spatial_genes_python is now:
+silhouetteRank(gobject)
+```
+
   - Fixed multiple bugs
   - Improved speed by changing code to Rcpp and implementing
     parallelization options
