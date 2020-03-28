@@ -217,9 +217,10 @@ binSpect = function(gobject,
   ## parallel
   if(do_parallel == TRUE) {
 
-    # set number of cores
+    # set number of cores automatically, but with limit of 10
     if(is.na(cores) | !is.numeric(cores)) {
-      cores = parallel::detectCores() - 1
+      cores = parallel::detectCores() - 2
+      cores = ifelse(cores > 10, 10, cores) 
     }
 
     if(do_fisher_test == TRUE) {
