@@ -241,6 +241,7 @@ createGiottoInstructions <- function(python_path =  NULL,
 
 }
 
+
 #' @title readGiottoInstrunctions
 #' @description Retrieves the instruction associated with the provided parameter
 #' @param giotto_instructions giotto object or result from createGiottoInstructions()
