@@ -168,8 +168,14 @@ createGiottoInstructions <- function(python_path =  NULL,
                                      width = NULL) {
 
   # pyton path to use
+  # 1. specified path by the user
+  # 2. run reticulate command to initialize python
+  # 3. run which command to decide what is going to be used
   if(is.null(python_path)) {
 
+    # this will initialize python for reticulate and suggest to install miniconda if not present
+    reticulate::py_config()
+    
     if(.Platform[['OS.type']] == 'unix') {
       python_path = try(system('which python', intern = T))
     } else if(.Platform[['OS.type']] == 'windows') {
@@ -181,7 +187,7 @@ createGiottoInstructions <- function(python_path =  NULL,
     }
   }
   python_path = as.character(python_path)
-
+  
   # print plot to console
   if(is.null(show_plot)) {
     show_plot = TRUE
@@ -500,6 +506,18 @@ createGiottoObject <- function(raw_exprs,
     gobject@instructions = createGiottoInstructions()
   }
 
+  ## test if python modules are available
+  python_modules = c('pandas', 'igraph', 'leidenalg', 'community', 'networkx', 'smfishHmrf')
+  my_python_path = gobject@instructions$python_path 
+  for(module in python_modules) {
+    if(reticulate::py_module_available(module) == FALSE) {
+      cat('module: ', module, ' was not found with python path: ', my_python_path, '\n')
+    }
+  }
+  
+  
+  
+  
   ## if no spatial information is given; create dummy spatial data
   if(is.null(spatial_locs)) {
     cat('\n spatial locations are not given, dummy 3D data will be created \n')
