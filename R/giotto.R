@@ -201,7 +201,6 @@ createGiottoInstructions <- function(python_path =  NULL,
   python_path = as.character(python_path)
   reticulate::use_python(required = T, python = python_path)
   
-  
   # print plot to console
   if(is.null(show_plot)) {
     show_plot = TRUE
