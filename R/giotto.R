@@ -526,12 +526,11 @@ createGiottoObject <- function(raw_exprs,
   for(module in python_modules) {
     if(reticulate::py_module_available(module) == FALSE) {
       cat('module: ', module, ' was not found with python path: ', my_python_path, '\n')
+      cat("you could try: ", "reticulate::py_install(", module, ", ", my_python_path,") \n")
     }
   }
   
-  
-  
-  
+
   ## if no spatial information is given; create dummy spatial data
   if(is.null(spatial_locs)) {
     cat('\n spatial locations are not given, dummy 3D data will be created \n')
