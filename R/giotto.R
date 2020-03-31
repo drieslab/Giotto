@@ -175,7 +175,13 @@ createGiottoInstructions <- function(python_path =  NULL,
 
     # see if r miniconda and reticulate environment is installed
     putative_path = reticulate::miniconda_path()
-    full_path = paste0(putative_path, "/envs/r-reticulate/bin/python")
+    
+    if(.Platform[['OS.type']] == 'unix') {
+      full_path = paste0(putative_path, "/envs/r-reticulate/bin/python")
+    } else if(.Platform[['OS.type']] == 'windows') {
+      full_path = paste0(putative_path, "\\envs\\r-reticulate\\python.exe")
+    }
+    
     if(file.exists(full_path)) {
       python_path = full_path
     } else {
