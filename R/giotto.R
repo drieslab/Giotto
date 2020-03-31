@@ -169,21 +169,27 @@ createGiottoInstructions <- function(python_path =  NULL,
 
   # pyton path to use
   # 1. specified path by the user
-  # 2. run reticulate command to initialize python
+  # 2. see if reticulate r-miniconda exists
   # 3. run which command to decide what is going to be used
   if(is.null(python_path)) {
 
-    # this will initialize python for reticulate and suggest to install miniconda if not present
-    reticulate::py_config()
-    
-    if(.Platform[['OS.type']] == 'unix') {
-      python_path = try(system('which python', intern = T))
-    } else if(.Platform[['OS.type']] == 'windows') {
-      python_path = try(system('where python', intern = T))
-      if(class(python_path) == "try-error") {
-        cat('\n no python path found, set it manually when needed \n')
-        python_path = '/set/your/python/path/manually/please/'
+    # see if r miniconda and reticulate environment is installed
+    putative_path = reticulate::miniconda_path()
+    full_path = paste0(putative_path, "/envs/r-reticulate/bin/python")
+    if(file.exists(full_path)) {
+      python_path = full_path
+    } else {
+      
+      if(.Platform[['OS.type']] == 'unix') {
+        python_path = try(system('which python', intern = T))
+      } else if(.Platform[['OS.type']] == 'windows') {
+        python_path = try(system('where python', intern = T))
+        if(class(python_path) == "try-error") {
+          cat('\n no python path found, set it manually when needed \n')
+          python_path = '/set/your/python/path/manually/please/'
+        }
       }
+      
     }
   }
   python_path = as.character(python_path)
