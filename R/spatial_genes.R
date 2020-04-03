@@ -230,7 +230,7 @@ binSpect = function(gobject,
                                        FUN = spat_fish_func, bin_matrix = bin_matrix, spat_mat = spat_mat,
                                        calc_hub = calc_hub, hub_min_int = hub_min_int)
       }else if(os=="windows"){
-        cl <- makeCluster(cores)
+        cl <- parallel::makeCluster(cores)
         save_list = parallel::parLapply(cl=cl, X = rownames(bin_matrix),
                                        FUN = spat_fish_func, bin_matrix = bin_matrix, spat_mat = spat_mat,
                                        calc_hub = calc_hub, hub_min_int = hub_min_int)
@@ -243,7 +243,7 @@ binSpect = function(gobject,
                                      FUN = spat_OR_func, bin_matrix = bin_matrix, spat_mat = spat_mat,
                                      calc_hub = calc_hub, hub_min_int = hub_min_int)
       }else if(os=="windows"){
-        cl <- makeCluster(cores)
+        cl <- parallel::makeCluster(cores)
         save_list = parallel::mclapply(cl=cl,X = rownames(bin_matrix),
                                        FUN = spat_OR_func, bin_matrix = bin_matrix, spat_mat = spat_mat,
                                        calc_hub = calc_hub, hub_min_int = hub_min_int)
