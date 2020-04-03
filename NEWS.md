@@ -3,19 +3,24 @@
 
   - (optional) automatic installation of python modules through
     reticulate:
-      - provide your preferred python path
-      - install giotto environment (automatic)
+      - you can provide your preferred python path
+      - the giotto environment can be installed automatic
       - if you do not provide the python path and do not choose to
         install the giotto environment, then it will take the default
         python path  
   - several bug fixes
-  - several mini-datasets are now included with Giotto for quick
-    testing, example:
+  - several mini-datasets are now included within Giotto for quick
+    testing:
+      - field 1 of seqFISH+ (single-cell)
+      - the visium brain Dentate Gyrus subset (spots)
+      - subset of starMAP (3D)
 
-<!-- end list -->
+example to acces the seqFISH+ mini dataset:
 
 ``` r
+# raw counts
 small_seqfish_expr_matrix = read.table(system.file("extdata", "seqfish_field_expr.txt", package = 'Giotto'))
+# cell locations
 small_seqfish_locations = read.table(system.file("extdata", "seqfish_field_locs.txt", package = 'Giotto'))
 ```
 

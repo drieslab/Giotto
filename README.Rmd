@@ -46,18 +46,17 @@ This is necessary to run all available analyses.
 
 Required python modules:  
 - pandas  
-- igraph (python igraph)  
+- python-igraph (igraph)  
 - networkx  
 - leidenalg  
-- community (python-louvain)  
+- python-louvain (community)  
 - smfishHmrf  
 
 ##### Automatic installation  
-The python modules will be installed automatically in a miniconda environment when installing Giotto. However, it will ask you whether you want to install them and you can opt out and go for a manual installation if that is preferred. In that case you need to specify your python path in the Giotto workflow.
-
+The python modules will be installed automatically in a miniconda environment when installing Giotto. However, it will ask you whether you want to install them and you can opt out and select your preferred python path. In that case you need to do a manual installation of the python modules.
 
 ##### Manual installation  
-Install with pip
+Install with pip in python 3
 ``` bash
 pip3 install pandas python-igraph networkx python-louvain leidenalg smfishHmrf
 ```
