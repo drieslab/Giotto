@@ -743,8 +743,8 @@ create_delaunayNetwork2D <- function (gobject,
                                        minimum_k=minimum_k)
 
   ## calculate cell shape parameters ##
-  meanCellDistance = get_distance(networkDT,method="mean")
-  medianCellDistance = get_distance(networkDT,method="median")
+  meanCellDistance = get_distance(delaunay_network_DT,method="mean")
+  medianCellDistance = get_distance(delaunay_network_DT,method="median")
 
   cellShapeObj = list("meanCellDistance" = meanCellDistance,
                       "medianCellDistance" = medianCellDistance)
