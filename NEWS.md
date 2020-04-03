@@ -1,4 +1,24 @@
 
+# Giotto 0.3.1
+
+  - (optional) automatic installation of python modules through
+    reticulate:
+      - provide your preferred python path
+      - install giotto environment (automatic)
+      - if you do not provide the python path and do not choose to
+        install the giotto environment, then it will take the default
+        python path  
+  - several bug fixes
+  - several mini-datasets are now included with Giotto for quick
+    testing, example:
+
+<!-- end list -->
+
+``` r
+small_seqfish_expr_matrix = read.table(system.file("extdata", "seqfish_field_expr.txt", package = 'Giotto'))
+small_seqfish_locations = read.table(system.file("extdata", "seqfish_field_locs.txt", package = 'Giotto'))
+```
+
 # Giotto 0.3.0
 
   - Default spatial network created with **createSpatialNetwork** is now
@@ -14,7 +34,7 @@ createSpatialKNNnetwork(gobject)
 createSpatialNetwork(gobject, method = 'kNN')
 ```
 
-  - The functions for extracting spatial genes have changed:
+  - The function names for extracting spatial genes have changed:
 
 <!-- end list -->
 
