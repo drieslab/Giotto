@@ -33,6 +33,8 @@ of Giotto Analyzer can be found at <https://rubd.github.io/Giotto/>.
   - Python (\>= 3.0)
   - Windows, MacOS, Linux
 
+ 
+
 ## Installation
 
 See [FAQs](https://rubd.github.io/Giotto/articles/faqs.html) for
@@ -48,24 +50,36 @@ library(remotes)  # if not installed: install.packages('remotes')
 remotes::install_github("RubD/Giotto")
 ```
 
-#### Python tools (optional)
+#### Required python modules
 
-This is necessary to run all available analyses, including Leiden /
-Louvain clustering and to build and use the interactive visualization
-tool.
+This is necessary to run all available analyses.
 
-We are working on building a one-line install command via bioconda
-\[work in progress\].
+Required python modules:  
+\- pandas  
+\- python-igraph (igraph)  
+\- networkx  
+\- leidenalg  
+\- python-louvain (community)  
+\- smfishHmrf
 
-Required python modules: pandas / igraph / networkx / leidenalg
+##### Automatic installation
 
-pip installation one-liner:
+The python modules will be installed automatically in a miniconda
+environment when installing Giotto. However, it will ask you whether you
+want to install them and you can opt out and select your preferred
+python path. In that case you need to do a manual installation of the
+python modules.
+
+##### Manual installation
+
+Install with pip in python 3
 
 ``` bash
-pip3 install pandas python-igraph networkx python-louvain leidenalg
+pip3 install pandas python-igraph networkx python-louvain leidenalg smfishHmrf
 ```
 
-If pip install does not work, try installing within a [conda
+If pip install does not work, try installing them with conda within a
+[conda
 environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands):
 
 ``` bash
@@ -75,11 +89,6 @@ conda install -c anaconda networkx
 conda install -c conda-forge python-louvain
 conda install -c conda-forge leidenalg
 ```
-
-#### HMRF
-
-See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation
-[instructions](http://spatial.rc.fas.harvard.edu/install.html).
 
 #### Giotto Viewer
 

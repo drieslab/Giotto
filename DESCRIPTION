@@ -1,6 +1,6 @@
 Package: Giotto
 Title: Spatial single-cell transcriptomics toolbox.
-Version: 0.3.0
+Version: 0.3.1
 Authors@R: c(
 	person("Ruben", "Dries", email = "rubendries@gmail.com",
 		 role = c("aut", "cre")),
@@ -18,7 +18,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 URL: https://rubd.github.io/Giotto/, https://github.com/RubD/Giotto
-RoxygenNote: 7.0.1
+RoxygenNote: 7.1.0
 Depends:
     data.table (>= 1.12.2),
     ggplot2 (>= 3.1.1),
@@ -42,7 +42,7 @@ Imports:
     lfa (>= 1.12.0),
     igraph (>= 1.2.4.1),
     plotly,
-    reticulate,
+    reticulate (>= 1.14),
     magrittr,
     limma,
     ggdendro,

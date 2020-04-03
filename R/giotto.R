@@ -141,6 +141,95 @@ setMethod(f = "print.giotto",
           })
 
 
+#' @title set_giotto_python_path
+#' @name set_giotto_python_path
+#' @description sets the python path and/or install miniconda and the python modules
+set_giotto_python_path = function(python_path = NULL,
+                                  packages_to_install = c('pandas', 'networkx', 'python-igraph', 'leidenalg', 'python-louvain')) {
+  
+  if(!is.null(python_path)) {
+    cat('\n python path provided \n')
+    python_path = as.character(python_path)
+    reticulate::use_python(required = T, python = python_path)
+  } else {
+    
+    # check if giotto environment is already installed 
+    conda_path = reticulate::miniconda_path()
+    if(.Platform[['OS.type']] == 'unix') {
+      full_path = paste0(conda_path, "/envs/giotto_env/bin/python")
+    } else if(.Platform[['OS.type']] == 'windows') {
+      full_path = paste0(conda_path, "\\envs\\giotto_env\\python.exe")
+    }
+    
+    if(file.exists(full_path)) {
+      cat('\n giotto environment found \n')
+      python_path = full_path
+      reticulate::use_python(required = T, python = python_path)
+    } else {
+      
+      install_giotto = utils::askYesNo(msg = 'Install a miniconda Python environment for Giotto?')
+      
+      if(install_giotto == TRUE) {
+        
+        conda_path = reticulate::miniconda_path()
+       
+        if(!file.exists(conda_path)) {
+          reticulate::install_miniconda()
+        }
+
+        cat('\n install giotto environment \n')
+        
+        conda_path = reticulate::miniconda_path()
+        if(.Platform[['OS.type']] == 'unix') {
+          python_full_path = paste0(conda_path, "/envs/giotto_env/bin/python")
+          conda_full_path = paste0(conda_path, '/bin/python')
+          full_envname = paste0(conda_path,'/envs/giotto_env')
+        } else if(.Platform[['OS.type']] == 'windows') {
+          python_full_path = paste0(conda_path, "\\envs\\giotto_env\\python.exe")
+          conda_full_path = paste0(conda_path, '\\python.exe')
+          full_envname = paste0(conda_path,'\\envs\\giotto_env')
+        }
+        
+        reticulate::py_install(packages = packages_to_install,
+                               envname = 'giotto_env',
+                               method = 'conda',
+                               conda = conda_full_path,
+                               python_version = '3.6')
+        
+        reticulate::py_install(packages = 'smfishhmrf',
+                               envname = full_envname,
+                               method = 'conda',
+                               conda = conda_full_path,
+                               pip = TRUE,
+                               python_version = '3.6')
+        
+        python_path = python_full_path
+        reticulate::use_python(required = T, python = python_path)
+        
+      } else {
+        
+        if(.Platform[['OS.type']] == 'unix') {
+          python_path = try(system('which python', intern = T))
+        } else if(.Platform[['OS.type']] == 'windows') {
+          python_path = try(system('where python', intern = T))
+        }
+        
+        if(class(python_path) == "try-error") {
+          cat('\n no python path found, set it manually when needed \n')
+          python_path = '/need/to/set/path/to/python'
+        } else {
+          cat('\n try default python \n')
+          python_path = python_path
+          reticulate::use_python(required = T, python = python_path)
+        }
+      }
+    }
+  }
+  return(python_path)
+}
+
+
+
 
 #' @title createGiottoInstructions
 #' @description Function to set global instructions for giotto functions
@@ -168,20 +257,8 @@ createGiottoInstructions <- function(python_path =  NULL,
                                      width = NULL) {
 
   # pyton path to use
-  if(is.null(python_path)) {
-
-    if(.Platform[['OS.type']] == 'unix') {
-      python_path = try(system('which python', intern = T))
-    } else if(.Platform[['OS.type']] == 'windows') {
-      python_path = try(system('where python', intern = T))
-      if(class(python_path) == "try-error") {
-        cat('\n no python path found, set it manually when needed \n')
-        python_path = '/set/your/python/path/manually/please/'
-      }
-    }
-  }
-  python_path = as.character(python_path)
-
+  python_path = set_giotto_python_path(python_path = python_path)
+  
   # print plot to console
   if(is.null(show_plot)) {
     show_plot = TRUE
@@ -240,6 +317,7 @@ createGiottoInstructions <- function(python_path =  NULL,
   return(instructions_list)
 
 }
+
 
 #' @title readGiottoInstrunctions
 #' @description Retrieves the instruction associated with the provided parameter
@@ -494,11 +572,21 @@ createGiottoObject <- function(raw_exprs,
   gobject@gene_ID = rownames(raw_exprs)
   gobject@parameters = list()
 
+  #
   if(is.null(instructions)) {
     # create all default instructions
     gobject@instructions = createGiottoInstructions()
   }
 
+  ## test if python modules are available
+  python_modules = c('pandas', 'igraph', 'leidenalg', 'community', 'networkx', 'smfishHmrf')
+  my_python_path = gobject@instructions$python_path 
+  for(module in python_modules) {
+    if(reticulate::py_module_available(module) == FALSE) {
+      cat('module: ', module, ' was not found with python path: ', my_python_path, '\n')
+    }
+  }
+  
   ## if no spatial information is given; create dummy spatial data
   if(is.null(spatial_locs)) {
     cat('\n spatial locations are not given, dummy 3D data will be created \n')

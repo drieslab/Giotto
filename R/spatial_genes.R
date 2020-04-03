@@ -216,20 +216,38 @@ binSpect = function(gobject,
 
   ## parallel
   if(do_parallel == TRUE) {
-
-    # set number of cores
+    # get type of os
+    os <- .Platform$OS.type
+    # set number of cores automatically, but with limit of 10
     if(is.na(cores) | !is.numeric(cores)) {
-      cores = parallel::detectCores() - 1
+      cores = parallel::detectCores() - 2
+      cores = ifelse(cores > 10, 10, cores)
     }
 
     if(do_fisher_test == TRUE) {
-      save_list = parallel::mclapply(X = rownames(bin_matrix), mc.cores = cores,
-                                     FUN = spat_fish_func, bin_matrix = bin_matrix, spat_mat = spat_mat,
-                                     calc_hub = calc_hub, hub_min_int = hub_min_int)
+      if (os=="unix"){
+        save_list = parallel::mclapply(X = rownames(bin_matrix), mc.cores = cores,
+                                       FUN = spat_fish_func, bin_matrix = bin_matrix, spat_mat = spat_mat,
+                                       calc_hub = calc_hub, hub_min_int = hub_min_int)
+      }else if(os=="windows"){
+        cl <- parallel::makeCluster(cores)
+        save_list = parallel::parLapply(cl=cl, X = rownames(bin_matrix),
+                                       FUN = spat_fish_func, bin_matrix = bin_matrix, spat_mat = spat_mat,
+                                       calc_hub = calc_hub, hub_min_int = hub_min_int)
+      }
+
     } else {
+
+      if (os=="unix"){
       save_list = parallel::mclapply(X = rownames(bin_matrix), mc.cores = cores,
                                      FUN = spat_OR_func, bin_matrix = bin_matrix, spat_mat = spat_mat,
                                      calc_hub = calc_hub, hub_min_int = hub_min_int)
+      }else if(os=="windows"){
+        cl <- parallel::makeCluster(cores)
+        save_list = parallel::mclapply(cl=cl,X = rownames(bin_matrix),
+                                       FUN = spat_OR_func, bin_matrix = bin_matrix, spat_mat = spat_mat,
+                                       calc_hub = calc_hub, hub_min_int = hub_min_int)
+      }
     }
 
   } else {
