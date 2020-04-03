@@ -18,18 +18,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 URL: https://rubd.github.io/Giotto/, https://github.com/RubD/Giotto
-RoxygenNote: 7.0.1
-Config/reticulate:
-  list(
-    packages = list(
-      list(package = "pandas"),
-      list(package = "networkx"),
-      list(package = "python-igraph"),
-      list(package = "leidenalg"),
-      list(package = "python-louvain"),
-      list(package = "smfishHmrf")
-    )
-  )
+RoxygenNote: 7.1.0
 Depends:
     data.table (>= 1.12.2),
     ggplot2 (>= 3.1.1),
