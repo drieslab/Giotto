@@ -7,7 +7,7 @@
 set_giotto_python_path(
   python_path = NULL,
   packages_to_install = c("pandas", "networkx", "python-igraph", "leidenalg",
-    "python-louvain", "smfishHmrf")
+    "python-louvain")
 )
 }
 \description{

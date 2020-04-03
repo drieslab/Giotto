@@ -171,12 +171,13 @@ set_giotto_python_path = function(python_path = NULL,
       
       if(install_giotto == TRUE) {
         
-        
-        
-        cat('\n install giotto environment \n')
-        reticulate::install_miniconda()
         conda_path = reticulate::miniconda_path()
-        
+       
+        if(!file.exists(conda_path)) {
+          reticulate::install_miniconda()
+        }
+
+        cat('\n install giotto environment \n')
         
         conda_path = reticulate::miniconda_path()
         if(.Platform[['OS.type']] == 'unix') {
