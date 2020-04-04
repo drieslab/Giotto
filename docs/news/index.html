@@ -77,7 +77,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1</span>
       </span>
     </div>
 
@@ -168,25 +168,52 @@
       <small>Source: <a href='https://github.com/RubD/Giotto/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
+    <div id="giotto-031" class="section level1">
+<h1 class="page-header">
+<a href="#giotto-031" class="anchor"></a>Giotto 0.3.1</h1>
+<ul>
+<li>(optional) automatic installation of python modules through reticulate:
+<ul>
+<li>you can provide your preferred python path</li>
+<li>the giotto environment can be installed automatic</li>
+<li>if you do not provide the python path and do not choose to install the giotto environment, then it will take the default python path<br>
+</li>
+</ul>
+</li>
+<li>several bug fixes</li>
+<li>several mini-datasets are now included within Giotto for quick testing:
+<ul>
+<li>field 1 of seqFISH+ (single-cell)</li>
+<li>the visium brain Dentate Gyrus subset (spots)</li>
+<li>subset of starMAP (3D)</li>
+</ul>
+</li>
+</ul>
+<p>example to acces the seqFISH+ mini dataset:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="co"># raw counts</span></a>
+<a class="sourceLine" id="cb1-2" title="2">small_seqfish_expr_matrix =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/utils/read.table.html">read.table</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"extdata"</span>, <span class="st">"seqfish_field_expr.txt"</span>, <span class="dt">package =</span> <span class="st">'Giotto'</span>))</a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="co"># cell locations</span></a>
+<a class="sourceLine" id="cb1-4" title="4">small_seqfish_locations =<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/utils/read.table.html">read.table</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"extdata"</span>, <span class="st">"seqfish_field_locs.txt"</span>, <span class="dt">package =</span> <span class="st">'Giotto'</span>))</a></code></pre></div>
+</div>
     <div id="giotto-030" class="section level1">
 <h1 class="page-header">
 <a href="#giotto-030" class="anchor"></a>Giotto 0.3.0</h1>
 <ul>
 <li>Default spatial network created with <strong>createSpatialNetwork</strong> is now a Delaunay spatial network.</li>
 </ul>
-<!-- end list --><div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="co"># to create the old default kNN spatial network use:</span></a>
-<a class="sourceLine" id="cb1-2" title="2"><span class="kw"><a href="../reference/createSpatialKNNnetwork.html">createSpatialKNNnetwork</a></span>(gobject)</a>
-<a class="sourceLine" id="cb1-3" title="3"></a>
-<a class="sourceLine" id="cb1-4" title="4"><span class="co"># or use this function with the following setting</span></a>
-<a class="sourceLine" id="cb1-5" title="5"><span class="kw"><a href="../reference/createSpatialNetwork.html">createSpatialNetwork</a></span>(gobject, <span class="dt">method =</span> <span class="st">'kNN'</span>)</a></code></pre></div>
-<ul>
-<li>The functions for extracting spatial genes have changed:</li>
-</ul>
-<!-- end list --><div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="co"># binGetSpatialGenes is now:</span></a>
-<a class="sourceLine" id="cb2-2" title="2"><span class="kw"><a href="../reference/binSpect.html">binSpect</a></span>(gobject) <span class="co"># binary Spatial extraction</span></a>
+<!-- end list --><div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="co"># to create the old default kNN spatial network use:</span></a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="kw"><a href="../reference/createSpatialKNNnetwork.html">createSpatialKNNnetwork</a></span>(gobject)</a>
 <a class="sourceLine" id="cb2-3" title="3"></a>
-<a class="sourceLine" id="cb2-4" title="4"><span class="co"># spatial_genes_python is now:</span></a>
-<a class="sourceLine" id="cb2-5" title="5"><span class="kw"><a href="../reference/silhouetteRank.html">silhouetteRank</a></span>(gobject)</a></code></pre></div>
+<a class="sourceLine" id="cb2-4" title="4"><span class="co"># or use this function with the following setting</span></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="kw"><a href="../reference/createSpatialNetwork.html">createSpatialNetwork</a></span>(gobject, <span class="dt">method =</span> <span class="st">'kNN'</span>)</a></code></pre></div>
+<ul>
+<li>The function names for extracting spatial genes have changed:</li>
+</ul>
+<!-- end list --><div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="co"># binGetSpatialGenes is now:</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="kw"><a href="../reference/binSpect.html">binSpect</a></span>(gobject) <span class="co"># binary Spatial extraction</span></a>
+<a class="sourceLine" id="cb3-3" title="3"></a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="co"># spatial_genes_python is now:</span></a>
+<a class="sourceLine" id="cb3-5" title="5"><span class="kw"><a href="../reference/silhouetteRank.html">silhouetteRank</a></span>(gobject)</a></code></pre></div>
 <ul>
 <li>Fixed multiple bugs</li>
 <li>Improved speed by changing code to Rcpp and implementing parallelization options</li>
@@ -239,6 +266,7 @@
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
+        <li><a href="#giotto-031">0.3.1</a></li>
         <li><a href="#giotto-030">0.3.0</a></li>
         <li><a href="#giotto-024">0.2.4</a></li>
         <li><a href="#giotto-023">0.2.3</a></li>

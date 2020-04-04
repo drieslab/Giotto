@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>reshape_to_mesh_grid_obj — reshape_to_mesh_grid_obj • Giotto</title>
+<title>set_giotto_python_path — set_giotto_python_path • Giotto</title>
 
 
 <!-- jquery -->
@@ -35,8 +35,8 @@
 
 
 
-<meta property="og:title" content="reshape_to_mesh_grid_obj — reshape_to_mesh_grid_obj" />
-<meta property="og:description" content="reshape a data point matrix to a mesh grid line object" />
+<meta property="og:title" content="set_giotto_python_path — set_giotto_python_path" />
+<meta property="og:description" content="sets the python path and/or install miniconda and the python modules" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -166,16 +166,20 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>reshape_to_mesh_grid_obj</h1>
-    <small class="dont-index">Source: <a href='https://github.com/RubD/Giotto/blob/master/R/cross_section.R'><code>R/cross_section.R</code></a></small>
-    <div class="hidden name"><code>reshape_to_mesh_grid_obj.Rd</code></div>
+    <h1>set_giotto_python_path</h1>
+    <small class="dont-index">Source: <a href='https://github.com/RubD/Giotto/blob/master/R/giotto.R'><code>R/giotto.R</code></a></small>
+    <div class="hidden name"><code>set_giotto_python_path.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>reshape a data point matrix to a mesh grid line object</p>
+    <p>sets the python path and/or install miniconda and the python modules</p>
     </div>
 
-    <pre class="usage"><span class='fu'>reshape_to_mesh_grid_obj</span>(<span class='no'>data_points</span>, <span class='no'>mesh_grid_n</span>)</pre>
+    <pre class="usage"><span class='fu'>set_giotto_python_path</span>(
+  <span class='kw'>python_path</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>packages_to_install</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"pandas"</span>, <span class='st'>"networkx"</span>, <span class='st'>"python-igraph"</span>, <span class='st'>"leidenalg"</span>,
+    <span class='st'>"python-louvain"</span>)
+)</pre>
 
 
 
