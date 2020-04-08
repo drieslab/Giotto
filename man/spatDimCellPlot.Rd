@@ -24,7 +24,7 @@ spatDimCellPlot(
   dim_point_size = 1,
   dim_point_border_col = "black",
   dim_point_border_stroke = 0.1,
-  spat_point_shape = c("border", "no_border"),
+  spat_point_shape = c("border", "no_border", "voronoi"),
   spat_point_size = 1,
   spat_point_border_col = "black",
   spat_point_border_stroke = 0.1,
@@ -68,6 +68,8 @@ spatDimCellPlot(
   legend_symbol_size = 1,
   dim_background_color = "white",
   spat_background_color = "white",
+  vor_border_color = "white",
+  vor_max_radius = 200,
   axis_text = 8,
   axis_title = 8,
   show_plot = NA,
@@ -116,7 +118,7 @@ spatDimCellPlot(
 
 \item{dim_point_border_stroke}{border stroke of points in dim. reduction space}
 
-\item{spat_point_shape}{spatial points with border or not (border or no_border)}
+\item{spat_point_shape}{shape of points (border, no_border or voronoi)}
 
 \item{spat_point_size}{size of spatial points}
 
@@ -197,6 +199,10 @@ spatDimCellPlot(
 \item{dim_background_color}{background color of points in dim. reduction space}
 
 \item{spat_background_color}{background color of spatial points}
+
+\item{vor_border_color}{border colorr for voronoi plot}
+
+\item{vor_max_radius}{maximum radius for voronoi 'cells'}
 
 \item{axis_text}{size of axis text}
 
