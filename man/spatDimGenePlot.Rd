@@ -24,20 +24,23 @@ spatDimGenePlot(
   network_name = "sNN.pca",
   edge_alpha_dim = NULL,
   scale_alpha_with_expression = FALSE,
+  sdimx = "sdimx",
+  sdimy = "sdimy",
   spatial_network_name = "Delaunay_network",
   spatial_grid_name = "spatial_grid",
-  spat_point_shape = c("border", "no_border"),
+  spat_point_shape = c("border", "no_border", "voronoi"),
   spat_point_size = 1,
   spat_point_border_col = "black",
   spat_point_border_stroke = 0.1,
-  midpoint = 0,
-  genes_high_color = "red",
-  genes_mid_color = "white",
-  genes_low_color = "blue",
+  cell_color_gradient = c("blue", "white", "red"),
+  gradient_midpoint = NULL,
+  gradient_limits = NULL,
   show_legend = T,
   legend_text = 8,
   dim_background_color = "white",
   spat_background_color = "white",
+  vor_border_color = "white",
+  vor_max_radius = 200,
   axis_text = 8,
   axis_title = 8,
   cow_n_col = 2,
@@ -68,7 +71,7 @@ spatDimGenePlot(
 
 \item{dim2_to_use}{dimension to use on y-axis}
 
-\item{dim_point_shape}{dimension points with border or not (border or no_border)}
+\item{dim_point_shape}{dim reduction points with border or not (border or no_border)}
 
 \item{dim_point_size}{dim reduction plot: point size}
 
@@ -86,6 +89,10 @@ spatDimGenePlot(
 
 \item{scale_alpha_with_expression}{scale expression with ggplot alpha parameter}
 
+\item{sdimx}{spatial x-axis dimension name (default = 'sdimx')}
+
+\item{sdimy}{spatial y-axis dimension name (default = 'sdimy')}
+
 \item{spatial_network_name}{name of spatial network to use}
 
 \item{spatial_grid_name}{name of spatial grid to use}
@@ -98,7 +105,11 @@ spatDimGenePlot(
 
 \item{spat_point_border_stroke}{stroke size of border around points}
 
-\item{midpoint}{size of point (cell)}
+\item{cell_color_gradient}{vector with 3 colors for numeric data}
+
+\item{gradient_midpoint}{midpoint for color gradient}
+
+\item{gradient_limits}{vector with lower and upper limits}
 
 \item{show_legend}{show legend}
 
@@ -107,6 +118,10 @@ spatDimGenePlot(
 \item{dim_background_color}{color of plot background for dimension plot}
 
 \item{spat_background_color}{color of plot background for spatial plot}
+
+\item{vor_border_color}{border colorr for voronoi plot}
+
+\item{vor_max_radius}{maximum radius for voronoi 'cells'}
 
 \item{axis_text}{size of axis text}
 

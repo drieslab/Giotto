@@ -20,12 +20,11 @@ dimGenePlot(
   scale_alpha_with_expression = FALSE,
   point_shape = c("border", "no_border"),
   point_size = 1,
-  genes_high_color = "red",
-  genes_mid_color = "white",
-  genes_low_color = "blue",
+  cell_color_gradient = c("blue", "white", "red"),
+  gradient_midpoint = NULL,
+  gradient_limits = NULL,
   point_border_col = "black",
   point_border_stroke = 0.1,
-  midpoint = 0,
   show_legend = T,
   legend_text = 8,
   background_color = "white",
@@ -69,11 +68,15 @@ dimGenePlot(
 
 \item{point_size}{size of point (cell)}
 
+\item{cell_color_gradient}{vector with 3 colors for numeric data}
+
+\item{gradient_midpoint}{midpoint for color gradient}
+
+\item{gradient_limits}{vector with lower and upper limits}
+
 \item{point_border_col}{color of border around points}
 
 \item{point_border_stroke}{stroke size of border around points}
-
-\item{midpoint}{size of point (cell)}
 
 \item{show_legend}{show legend}
 

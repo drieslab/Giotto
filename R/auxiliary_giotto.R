@@ -1842,7 +1842,52 @@ createMetagenes = function(gobject,
 }
 
 
-
+#' @title findNetworkNeighbors
+#' @description Find the spatial neighbors for a selected group of cells within the selected spatial network.
+#' @param gobject Giotto object
+#' @param spatial_network_name name of spatial network
+#' @param source_cell_ids cell ids for which you want to know the spatial neighbors
+#' @param name name of the results
+#' @return data.table
+#' @export
+#' @examples
+#'     findNetworkNeighbors(gobject)
+findNetworkNeighbors = function(gobject,
+                                spatial_network_name,
+                                source_cell_ids = NULL,
+                                name = 'nb_cells') {
+  
+  # get spatial network
+  if(!is.null(spatial_network_name)) {
+    spatial_network = Giotto:::select_spatialNetwork(gobject, name = spatial_network_name, return_network_Obj = FALSE)
+  } else {
+    stop('You need to select a spatial network')
+  }
+  
+  # source cell ids that are found back
+  all_cell_ids = gobject@cell_ID
+  source_cells = all_cell_ids[all_cell_ids %in% source_cell_ids]
+  
+  if(length(source_cells) == 0) {
+    stop('No source cell ids were selected or found')
+  }
+  
+  
+  full_network_DT = Giotto:::convert_to_full_spatial_network(spatial_network)
+  potential_target_cells = full_network_DT[source %in% source_cells][['target']]
+  source_and_target_cells = potential_target_cells[potential_target_cells %in% source_cells]
+  target_cells = potential_target_cells[!potential_target_cells %in% source_and_target_cells]
+  
+  cell_meta = pDataDT(gobject)
+  cell_meta[, nb_cells := ifelse(cell_ID %in% source_and_target_cells, 'both',
+                                 ifelse(cell_ID %in% source_cells, 'source',
+                                        ifelse(cell_ID %in% target_cells, 'target', 'others')))]
+  nb_annot = cell_meta[, c('cell_ID', 'nb_cells'), with = FALSE]
+  data.table::setnames(nb_annot, 'nb_cells', name)
+  
+  return(nb_annot)
+  
+}
 
 
 
