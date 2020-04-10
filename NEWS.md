@@ -1,4 +1,10 @@
 
+# Giotto 0.3.2
+
+  - added voronoi plots to use in spatial plotting. See
+    [howto’s](./docs/articles/howto_voronoi_plots.html)
+  - generalized visualization parameters between functions
+
 # Giotto 0.3.1
 
   - (optional) automatic installation of python modules through
