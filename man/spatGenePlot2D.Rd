@@ -6,11 +6,13 @@
 \usage{
 spatGenePlot2D(
   gobject,
+  sdimx = "sdimx",
+  sdimy = "sdimy",
   expression_values = c("normalized", "scaled", "custom"),
   genes,
-  genes_high_color = "darkred",
-  genes_mid_color = "white",
-  genes_low_color = "darkblue",
+  cell_color_gradient = c("blue", "white", "red"),
+  gradient_midpoint = NULL,
+  gradient_limits = NULL,
   show_network = F,
   network_color = NULL,
   spatial_network_name = "Delaunay_network",
@@ -20,13 +22,15 @@ spatGenePlot2D(
   spatial_grid_name = "spatial_grid",
   midpoint = 0,
   scale_alpha_with_expression = FALSE,
-  point_shape = c("border", "no_border"),
+  point_shape = c("border", "no_border", "voronoi"),
   point_size = 1,
   point_border_col = "black",
   point_border_stroke = 0.1,
   show_legend = T,
   legend_text = 8,
   background_color = "white",
+  vor_border_color = "white",
+  vor_max_radius = 200,
   axis_text = 8,
   axis_title = 8,
   cow_n_col = 2,
@@ -43,15 +47,19 @@ spatGenePlot2D(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{sdimx}{x-axis dimension name (default = 'sdimx')}
+
+\item{sdimy}{y-axis dimension name (default = 'sdimy')}
+
 \item{expression_values}{gene expression values to use}
 
 \item{genes}{genes to show}
 
-\item{genes_high_color}{color represents high gene expression}
+\item{cell_color_gradient}{vector with 3 colors for numeric data}
 
-\item{genes_mid_color}{color represents middle gene expression}
+\item{gradient_midpoint}{midpoint for color gradient}
 
-\item{genes_low_color}{color represents low gene expression}
+\item{gradient_limits}{vector with lower and upper limits}
 
 \item{show_network}{show underlying spatial network}
 
@@ -69,7 +77,7 @@ spatGenePlot2D(
 
 \item{scale_alpha_with_expression}{scale expression with ggplot alpha parameter}
 
-\item{point_shape}{point with border or not (border or no_border)}
+\item{point_shape}{shape of points (border, no_border or voronoi)}
 
 \item{point_size}{size of point (cell)}
 
@@ -82,6 +90,10 @@ spatGenePlot2D(
 \item{legend_text}{size of legend text}
 
 \item{background_color}{color of plot background}
+
+\item{vor_border_color}{border colorr for voronoi plot}
+
+\item{vor_max_radius}{maximum radius for voronoi 'cells'}
 
 \item{axis_text}{size of axis text}
 

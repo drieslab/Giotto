@@ -4,6 +4,7 @@ pkgdown_sha: ~
 articles:
   faqs: faqs.html
   getting_started: getting_started.html
+  howto_voronoi_plots: howto_voronoi_plots.html
   human_cycif_PDAC_200322: human_cycif_PDAC_200322.html
   installation_issues: installation_issues.html
   instructions_and_plotting: instructions_and_plotting.html

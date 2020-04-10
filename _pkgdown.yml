@@ -85,6 +85,7 @@ reference:
     - calculateMetaTableCells
     - combineMetadata
     - createMetagenes
+    - findNetworkNeighbors
 
   - title: Giotto processing functions
     desc: Functions that will (help to) add, update or change the Giotto object when processing spatial data
