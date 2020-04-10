@@ -48,32 +48,28 @@ VC_small = createSpatialGrid(gobject = VC_small, sdimx_stepsize = 500, sdimy_ste
 
 ```{r, eval=FALSE}
 # spatial voronoi plot with selected clusters
-spatPlot(VC_small, point_shape = 'voronoi', cell_color ='leiden_clus', select_cell_groups = c(1,2,3),
-         save_plot = T, save_param = list(save_name = '1_voronoi'))
+spatPlot(VC_small, point_shape = 'voronoi', cell_color ='leiden_clus', select_cell_groups = c(1,2,3))
 ```
 
 ![](../inst/howtos/voronoi_plots/vignette_1/1_voronoi.png){ width=50% } 
 
 ```{r, eval=FALSE}
 # spatial voronoi plot without showing not selected clusters
-spatPlot(VC_small, point_shape = 'voronoi', cell_color ='leiden_clus', select_cell_groups = c(1,2,3), show_other_cells = F,
-         save_plot = T, save_param = list(save_name = '2_voronoi_no_others'))
+spatPlot(VC_small, point_shape = 'voronoi', cell_color ='leiden_clus', select_cell_groups = c(1,2,3), show_other_cells = F)
 ```
 
 ![](../inst/howtos/voronoi_plots/vignette_1/2_voronoi_no_others.png){ width=50% } 
 
 ```{r, eval=FALSE}
 # spatial voronoi plot without showing not selected cells, but showing the voronoi borders
-spatPlot(VC_small, point_shape = 'voronoi', cell_color ='leiden_clus', select_cell_groups = c(1,2,3), show_other_cells = F, vor_border_color = 'black',
-         save_plot = T, save_param = list(save_name = '3_voronoi_no_others_black_border'))
+spatPlot(VC_small, point_shape = 'voronoi', cell_color ='leiden_clus', select_cell_groups = c(1,2,3), show_other_cells = F, vor_border_color = 'black')
 ```
 
 ![](../inst/howtos/voronoi_plots/vignette_1/3_voronoi_no_others_black_border.png){ width=50% } 
 
 ```{r, eval=FALSE}
 # visualization of both dimension reduction and spatial results
-spatDimPlot(gobject = VC_small, cell_color = 'leiden_clus', spat_point_shape = 'voronoi', dim_point_size = 3,
-            save_plot = T, save_param = list(save_name = '4_voronoi_spat_dim', base_height = 8))
+spatDimPlot(gobject = VC_small, cell_color = 'leiden_clus', spat_point_shape = 'voronoi', dim_point_size = 3)
 ```
 
 ![](../inst/howtos/voronoi_plots/vignette_1/4_voronoi_spat_dim.png){ width=50% } 
@@ -89,8 +85,7 @@ nb_annot = findNetworkNeighbors(VC_small,
 VC_small = addCellMetadata(VC_small, new_metadata = nb_annot, by_column = T, column_cell_ID = 'cell_ID')
 
 spatPlot(VC_small, point_shape = 'voronoi', cell_color ='nb_cells',
-         cell_color_code = c(source = 'blue', target = 'red', both = 'yellow', others = 'lightgrey'),
-         save_plot = T, save_param = list(save_name = '5_voronoi_neighbors'))
+         cell_color_code = c(source = 'blue', target = 'red', both = 'yellow', others = 'lightgrey'))
 ```
 
 ![](../inst/howtos/voronoi_plots/vignette_1/5_voronoi_neighbors.png){ width=50% } 
@@ -103,8 +98,7 @@ spatPlot(VC_small, point_shape = 'voronoi', cell_color ='nb_cells',
 selected_genes = c('Cldn5', 'Soga3')
 
 # selected genes original
-spatGenePlot(gobject = VC_small, expression_values = 'scaled', genes = selected_genes, point_size = 3,
-             save_plot = T, save_param = list(save_name = '6_original_points', base_width = 10, base_heigth = 5))
+spatGenePlot(gobject = VC_small, expression_values = 'scaled', genes = selected_genes, point_size = 3)
 ```
 
 ![](../inst/howtos/voronoi_plots/vignette_1/6_original_points.png){ width=50% } 
@@ -112,8 +106,7 @@ spatGenePlot(gobject = VC_small, expression_values = 'scaled', genes = selected_
 ```{r, eval=FALSE}
 # selected genes voronoi
 spatGenePlot(gobject = VC_small, genes = selected_genes, point_shape = 'voronoi',
-             expression_values = 'scaled', vor_border_color = 'black',
-             save_plot = T, save_param = list(save_name = '7_voronoi_genes', base_width = 10, base_heigth = 5))
+             expression_values = 'scaled', vor_border_color = 'black')
 ```
 
 ![](../inst/howtos/voronoi_plots/vignette_1/7_voronoi_genes.png){ width=50% } 
@@ -122,8 +115,7 @@ spatGenePlot(gobject = VC_small, genes = selected_genes, point_shape = 'voronoi'
 # one gene + black background and white borders
 spatGenePlot(gobject = VC_small, genes = 'Cldn5', point_size = 3, point_shape = 'voronoi',
              expression_values = 'scaled', vor_border_color = 'white', show_network = T, network_color = 'green',
-             background_color = 'black', cell_color_gradient = c('blue', 'black', 'red'), gradient_midpoint = 1, cow_n_col = 1,
-             save_plot = T, save_param = list(save_name = '8_voronoi_gene_black_bg'))
+             background_color = 'black', cell_color_gradient = c('blue', 'black', 'red'), gradient_midpoint = 1, cow_n_col = 1)
 ```
 
 ![](../inst/howtos/voronoi_plots/vignette_1/8_voronoi_gene_black_bg.png){ width=50% } 
