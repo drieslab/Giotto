@@ -1881,7 +1881,7 @@ findNetworkNeighbors = function(gobject,
   cell_meta = pDataDT(gobject)
   cell_meta[, nb_cells := ifelse(cell_ID %in% source_and_target_cells, 'both',
                                  ifelse(cell_ID %in% source_cells, 'source',
-                                        ifelse(cell_ID %in% target_cells, 'target', 'others')))]
+                                        ifelse(cell_ID %in% target_cells, 'neighbor', 'others')))]
   nb_annot = cell_meta[, c('cell_ID', 'nb_cells'), with = FALSE]
   data.table::setnames(nb_annot, 'nb_cells', name)
   

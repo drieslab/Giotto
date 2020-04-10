@@ -79,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1</span>
       </span>
     </div>
 
@@ -195,16 +195,17 @@
   <span class='kw'>network_name</span> <span class='kw'>=</span> <span class='st'>"sNN.pca"</span>,
   <span class='kw'>edge_alpha_dim</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>scale_alpha_with_expression</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>sdimx</span> <span class='kw'>=</span> <span class='st'>"sdimx"</span>,
+  <span class='kw'>sdimy</span> <span class='kw'>=</span> <span class='st'>"sdimy"</span>,
   <span class='kw'>spatial_network_name</span> <span class='kw'>=</span> <span class='st'>"Delaunay_network"</span>,
   <span class='kw'>spatial_grid_name</span> <span class='kw'>=</span> <span class='st'>"spatial_grid"</span>,
-  <span class='kw'>spat_point_shape</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"border"</span>, <span class='st'>"no_border"</span>),
+  <span class='kw'>spat_point_shape</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"border"</span>, <span class='st'>"no_border"</span>, <span class='st'>"voronoi"</span>),
   <span class='kw'>spat_point_size</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>spat_point_border_col</span> <span class='kw'>=</span> <span class='st'>"black"</span>,
   <span class='kw'>spat_point_border_stroke</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
-  <span class='kw'>midpoint</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>genes_high_color</span> <span class='kw'>=</span> <span class='st'>"red"</span>,
-  <span class='kw'>genes_mid_color</span> <span class='kw'>=</span> <span class='st'>"white"</span>,
-  <span class='kw'>genes_low_color</span> <span class='kw'>=</span> <span class='st'>"blue"</span>,
+  <span class='kw'>cell_color_gradient</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"blue"</span>, <span class='st'>"white"</span>, <span class='st'>"red"</span>),
+  <span class='kw'>gradient_midpoint</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>gradient_limits</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>cow_n_col</span> <span class='kw'>=</span> <span class='fl'>2</span>,
   <span class='kw'>cow_rel_h</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>cow_rel_w</span> <span class='kw'>=</span> <span class='fl'>1</span>,
@@ -213,6 +214,8 @@
   <span class='kw'>legend_text</span> <span class='kw'>=</span> <span class='fl'>8</span>,
   <span class='kw'>dim_background_color</span> <span class='kw'>=</span> <span class='st'>"white"</span>,
   <span class='kw'>spat_background_color</span> <span class='kw'>=</span> <span class='st'>"white"</span>,
+  <span class='kw'>vor_border_color</span> <span class='kw'>=</span> <span class='st'>"white"</span>,
+  <span class='kw'>vor_max_radius</span> <span class='kw'>=</span> <span class='fl'>200</span>,
   <span class='kw'>axis_text</span> <span class='kw'>=</span> <span class='fl'>8</span>,
   <span class='kw'>axis_title</span> <span class='kw'>=</span> <span class='fl'>8</span>,
   <span class='kw'>show_plot</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
@@ -294,6 +297,14 @@
       <td><p>scale expression with ggplot alpha parameter</p></td>
     </tr>
     <tr>
+      <th>sdimx</th>
+      <td><p>spatial x-axis dimension name (default = 'sdimx')</p></td>
+    </tr>
+    <tr>
+      <th>sdimy</th>
+      <td><p>spatial y-axis dimension name (default = 'sdimy')</p></td>
+    </tr>
+    <tr>
       <th>spatial_network_name</th>
       <td><p>name of spatial network to use</p></td>
     </tr>
@@ -318,8 +329,16 @@
       <td><p>stroke size of border around points</p></td>
     </tr>
     <tr>
-      <th>midpoint</th>
-      <td><p>size of point (cell)</p></td>
+      <th>cell_color_gradient</th>
+      <td><p>vector with 3 colors for numeric data</p></td>
+    </tr>
+    <tr>
+      <th>gradient_midpoint</th>
+      <td><p>midpoint for color gradient</p></td>
+    </tr>
+    <tr>
+      <th>gradient_limits</th>
+      <td><p>vector with lower and upper limits</p></td>
     </tr>
     <tr>
       <th>cow_n_col</th>
@@ -352,6 +371,14 @@
     <tr>
       <th>spat_background_color</th>
       <td><p>color of plot background for spatial plot</p></td>
+    </tr>
+    <tr>
+      <th>vor_border_color</th>
+      <td><p>border colorr for voronoi plot</p></td>
+    </tr>
+    <tr>
+      <th>vor_max_radius</th>
+      <td><p>maximum radius for voronoi 'cells'</p></td>
     </tr>
     <tr>
       <th>axis_text</th>

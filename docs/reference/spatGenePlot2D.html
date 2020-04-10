@@ -79,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1</span>
       </span>
     </div>
 
@@ -177,11 +177,13 @@
 
     <pre class="usage"><span class='fu'>spatGenePlot2D</span>(
   <span class='no'>gobject</span>,
+  <span class='kw'>sdimx</span> <span class='kw'>=</span> <span class='st'>"sdimx"</span>,
+  <span class='kw'>sdimy</span> <span class='kw'>=</span> <span class='st'>"sdimy"</span>,
   <span class='kw'>expression_values</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"normalized"</span>, <span class='st'>"scaled"</span>, <span class='st'>"custom"</span>),
   <span class='no'>genes</span>,
-  <span class='kw'>genes_high_color</span> <span class='kw'>=</span> <span class='st'>"darkred"</span>,
-  <span class='kw'>genes_mid_color</span> <span class='kw'>=</span> <span class='st'>"white"</span>,
-  <span class='kw'>genes_low_color</span> <span class='kw'>=</span> <span class='st'>"darkblue"</span>,
+  <span class='kw'>cell_color_gradient</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"blue"</span>, <span class='st'>"white"</span>, <span class='st'>"red"</span>),
+  <span class='kw'>gradient_midpoint</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>gradient_limits</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>show_network</span> <span class='kw'>=</span> <span class='no'>F</span>,
   <span class='kw'>network_color</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>spatial_network_name</span> <span class='kw'>=</span> <span class='st'>"Delaunay_network"</span>,
@@ -191,13 +193,15 @@
   <span class='kw'>spatial_grid_name</span> <span class='kw'>=</span> <span class='st'>"spatial_grid"</span>,
   <span class='kw'>midpoint</span> <span class='kw'>=</span> <span class='fl'>0</span>,
   <span class='kw'>scale_alpha_with_expression</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>point_shape</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"border"</span>, <span class='st'>"no_border"</span>),
+  <span class='kw'>point_shape</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"border"</span>, <span class='st'>"no_border"</span>, <span class='st'>"voronoi"</span>),
   <span class='kw'>point_size</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>point_border_col</span> <span class='kw'>=</span> <span class='st'>"black"</span>,
   <span class='kw'>point_border_stroke</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
   <span class='kw'>show_legend</span> <span class='kw'>=</span> <span class='no'>T</span>,
   <span class='kw'>legend_text</span> <span class='kw'>=</span> <span class='fl'>8</span>,
   <span class='kw'>background_color</span> <span class='kw'>=</span> <span class='st'>"white"</span>,
+  <span class='kw'>vor_border_color</span> <span class='kw'>=</span> <span class='st'>"white"</span>,
+  <span class='kw'>vor_max_radius</span> <span class='kw'>=</span> <span class='fl'>200</span>,
   <span class='kw'>axis_text</span> <span class='kw'>=</span> <span class='fl'>8</span>,
   <span class='kw'>axis_title</span> <span class='kw'>=</span> <span class='fl'>8</span>,
   <span class='kw'>cow_n_col</span> <span class='kw'>=</span> <span class='fl'>2</span>,
@@ -219,6 +223,14 @@
       <td><p>giotto object</p></td>
     </tr>
     <tr>
+      <th>sdimx</th>
+      <td><p>x-axis dimension name (default = 'sdimx')</p></td>
+    </tr>
+    <tr>
+      <th>sdimy</th>
+      <td><p>y-axis dimension name (default = 'sdimy')</p></td>
+    </tr>
+    <tr>
       <th>expression_values</th>
       <td><p>gene expression values to use</p></td>
     </tr>
@@ -227,16 +239,16 @@
       <td><p>genes to show</p></td>
     </tr>
     <tr>
-      <th>genes_high_color</th>
-      <td><p>color represents high gene expression</p></td>
+      <th>cell_color_gradient</th>
+      <td><p>vector with 3 colors for numeric data</p></td>
     </tr>
     <tr>
-      <th>genes_mid_color</th>
-      <td><p>color represents middle gene expression</p></td>
+      <th>gradient_midpoint</th>
+      <td><p>midpoint for color gradient</p></td>
     </tr>
     <tr>
-      <th>genes_low_color</th>
-      <td><p>color represents low gene expression</p></td>
+      <th>gradient_limits</th>
+      <td><p>vector with lower and upper limits</p></td>
     </tr>
     <tr>
       <th>show_network</th>
@@ -272,7 +284,7 @@
     </tr>
     <tr>
       <th>point_shape</th>
-      <td><p>point with border or not (border or no_border)</p></td>
+      <td><p>shape of points (border, no_border or voronoi)</p></td>
     </tr>
     <tr>
       <th>point_size</th>
@@ -297,6 +309,14 @@
     <tr>
       <th>background_color</th>
       <td><p>color of plot background</p></td>
+    </tr>
+    <tr>
+      <th>vor_border_color</th>
+      <td><p>border colorr for voronoi plot</p></td>
+    </tr>
+    <tr>
+      <th>vor_max_radius</th>
+      <td><p>maximum radius for voronoi 'cells'</p></td>
     </tr>
     <tr>
       <th>axis_text</th>

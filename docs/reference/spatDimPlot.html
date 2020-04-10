@@ -79,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1</span>
       </span>
     </div>
 
@@ -197,7 +197,7 @@
   <span class='kw'>dim_point_size</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>dim_point_border_col</span> <span class='kw'>=</span> <span class='st'>"black"</span>,
   <span class='kw'>dim_point_border_stroke</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
-  <span class='kw'>spat_point_shape</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"border"</span>, <span class='st'>"no_border"</span>),
+  <span class='kw'>spat_point_shape</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"border"</span>, <span class='st'>"no_border"</span>, <span class='st'>"voronoi"</span>),
   <span class='kw'>spat_point_size</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>spat_point_border_col</span> <span class='kw'>=</span> <span class='st'>"black"</span>,
   <span class='kw'>spat_point_border_stroke</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
@@ -235,6 +235,8 @@
   <span class='kw'>legend_symbol_size</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>dim_background_color</span> <span class='kw'>=</span> <span class='st'>"white"</span>,
   <span class='kw'>spat_background_color</span> <span class='kw'>=</span> <span class='st'>"white"</span>,
+  <span class='kw'>vor_border_color</span> <span class='kw'>=</span> <span class='st'>"white"</span>,
+  <span class='kw'>vor_max_radius</span> <span class='kw'>=</span> <span class='fl'>200</span>,
   <span class='kw'>axis_text</span> <span class='kw'>=</span> <span class='fl'>8</span>,
   <span class='kw'>axis_title</span> <span class='kw'>=</span> <span class='fl'>8</span>,
   <span class='kw'>show_plot</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
@@ -333,7 +335,7 @@
     </tr>
     <tr>
       <th>spat_point_shape</th>
-      <td><p>point with border or not (border or no_border)</p></td>
+      <td><p>shape of points (border, no_border or voronoi)</p></td>
     </tr>
     <tr>
       <th>spat_point_size</th>
@@ -478,6 +480,14 @@
     <tr>
       <th>spat_background_color</th>
       <td><p>background color of spatial points</p></td>
+    </tr>
+    <tr>
+      <th>vor_border_color</th>
+      <td><p>border colorr for voronoi plot</p></td>
+    </tr>
+    <tr>
+      <th>vor_max_radius</th>
+      <td><p>maximum radius for voronoi 'cells'</p></td>
     </tr>
     <tr>
       <th>axis_text</th>

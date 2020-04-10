@@ -37,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1</span>
       </span>
     </div>
 
@@ -138,6 +138,7 @@
 <li>Python (&gt;= 3.0)</li>
 <li>Windows, MacOS, Linux</li>
 </ul>
+<p> </p>
 </div>
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
@@ -149,27 +150,36 @@
 <p>You can install (~1-5 mins) Giotto with:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(remotes)  <span class="co"># if not installed: install.packages('remotes')</span></a>
 <a class="sourceLine" id="cb1-2" title="2"><span class="co"># to install the latest version</span></a>
-<a class="sourceLine" id="cb1-3" title="3">remotes<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/remotes/man/install_github.html">install_github</a></span>(<span class="st">"RubD/Giotto"</span>)</a></code></pre></div>
+<a class="sourceLine" id="cb1-3" title="3">remotes<span class="op">::</span><span class="kw"><a href="https://remotes.r-lib.org/reference/install_github.html">install_github</a></span>(<span class="st">"RubD/Giotto"</span>)</a></code></pre></div>
 </div>
-<div id="python-tools-optional" class="section level4">
+<div id="required-python-modules" class="section level4">
 <h4 class="hasAnchor">
-<a href="#python-tools-optional" class="anchor"></a>Python tools (optional)</h4>
-<p>This is necessary to run all available analyses, including Leiden / Louvain clustering and to build and use the interactive visualization tool.</p>
-<p>We are working on building a one-line install command via bioconda [work in progress].</p>
-<p>Required python modules: pandas / igraph / networkx / leidenalg</p>
-<p>pip installation one-liner:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1"><span class="ex">pip3</span> install pandas python-igraph networkx python-louvain leidenalg</a></code></pre></div>
-<p>If pip install does not work, try installing within a <a href="https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands">conda environment</a>:</p>
+<a href="#required-python-modules" class="anchor"></a>Required python modules</h4>
+<p>This is necessary to run all available analyses.</p>
+<p>Required python modules:<br>
+- pandas<br>
+- python-igraph (igraph)<br>
+- networkx<br>
+- leidenalg<br>
+- python-louvain (community)<br>
+- smfishHmrf</p>
+<div id="automatic-installation" class="section level5">
+<h5 class="hasAnchor">
+<a href="#automatic-installation" class="anchor"></a>Automatic installation</h5>
+<p>The python modules will be installed automatically in a miniconda environment when installing Giotto. However, it will ask you whether you want to install them and you can opt out and select your preferred python path. In that case you need to do a manual installation of the python modules.</p>
+</div>
+<div id="manual-installation" class="section level5">
+<h5 class="hasAnchor">
+<a href="#manual-installation" class="anchor"></a>Manual installation</h5>
+<p>Install with pip in python 3</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1"><span class="ex">pip3</span> install pandas python-igraph networkx python-louvain leidenalg smfishHmrf</a></code></pre></div>
+<p>If pip install does not work, try installing them with conda within a <a href="https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands">conda environment</a>:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" title="1"><span class="ex">conda</span> install -c anaconda pandas</a>
 <a class="sourceLine" id="cb3-2" title="2"><span class="ex">conda</span> install -c conda-forge python-igraph</a>
 <a class="sourceLine" id="cb3-3" title="3"><span class="ex">conda</span> install -c anaconda networkx</a>
 <a class="sourceLine" id="cb3-4" title="4"><span class="ex">conda</span> install -c conda-forge python-louvain</a>
 <a class="sourceLine" id="cb3-5" title="5"><span class="ex">conda</span> install -c conda-forge leidenalg</a></code></pre></div>
 </div>
-<div id="hmrf" class="section level4">
-<h4 class="hasAnchor">
-<a href="#hmrf" class="anchor"></a>HMRF</h4>
-<p>See <a href="http://www.nature.com/articles/nbt.4260"><strong>HMRF</strong></a> installation <a href="http://spatial.rc.fas.harvard.edu/install.html">instructions</a>.</p>
 </div>
 <div id="giotto-viewer" class="section level4">
 <h4 class="hasAnchor">
