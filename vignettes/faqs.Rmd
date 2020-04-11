@@ -13,6 +13,6 @@ output: html_document
 - Where to find seqFISH+ and other ready-to-use datasets?  
 **Checkout https://github.com/RubD/spatial-datasets to find already preprocessed datasets**  
 
-- Where to find other spatial datasets?
+- Where to find other spatial datasets?  
 **Checkout https://www.spatialomics.org/SpatialDB/ to download expression matrix and location information**
 
