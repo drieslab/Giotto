@@ -90,7 +90,19 @@ Reference:
 https://stackoverflow.com/questions/35999874/mac-os-x-r-error-ld-warning-directory-not-found-for-option
 "I am having Mac OS Catalina and in my case installation of Homebrew, the newest gcc and Gfortran 8.2.0 solved the issue." -- Magda Orzechowska
 "This worked for me in Mac OS Catalina as well! I used the gfortran 8.2 Mojave installation github.com/fxcoudert/gfortran-for-macOS/releases" -- Danny
+
+
+## 3. 'Make' not found error
+
+If you encounter this error:
+```{bash, eval = FALSE}
+Error in system(cmd) : (converted from warning) ‘make’ not found
 ```
+
+Solution:  
+Install the necessary [package development tools](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites).
+
+
 
 
 
