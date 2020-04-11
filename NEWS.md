@@ -2,8 +2,11 @@
 # Giotto 0.3.2
 
   - added voronoi plots to use in spatial plotting. See
-    [howto’s](./howto_voronoi_plots.htm)
+    [howto’s](./docs/articles/howto_voronoi_plots.html)
   - generalized visualization parameters between functions
+
+[test1](./howto_voronoi_plots.html)  
+[test2](../articles/howto_voronoi_plots.html)
 
 # Giotto 0.3.1
 
@@ -60,7 +63,8 @@ silhouetteRank(gobject)
   - Fixed multiple bugs
   - Improved speed by changing code to Rcpp and implementing
     parallelization options
-  - updated [howto’s](./getting_started.html) tutorials in Start section
+  - updated [howto’s](./docs/articles/getting_started.html) tutorials in
+    Start section
   - Finished the analysis of 10 different spatial datasets (tutorials
     are a work-in-progress)
 
