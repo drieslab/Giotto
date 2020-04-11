@@ -196,9 +196,29 @@
 <h2 class="hasAnchor">
 <a href="#make-not-found-error" class="anchor"></a>3. ‘Make’ not found error</h2>
 <p>If you encounter this error:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb7-1" title="1"><span class="ex">Error</span> in system(cmd) <span class="bu">:</span> (converted from warning) ‘<span class="ex">make</span>’ not found</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1">Error <span class="cf">in</span> <span class="kw"><a href="https://rdrr.io/r/base/system.html">system</a></span>(cmd) <span class="op">:</span><span class="st"> </span>(converted from warning) ‘make’ not found</a></code></pre></div>
 <p>Solution:<br>
 Install the necessary <a href="https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites">package development tools</a>.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="co">## make sure Rtools is visible (from within R)</span></a>
+<a class="sourceLine" id="cb8-2" title="2"><span class="co">## you can set the paths manually</span></a>
+<a class="sourceLine" id="cb8-3" title="3"><span class="kw"><a href="https://rdrr.io/r/base/Sys.setenv.html">Sys.setenv</a></span>(<span class="dt">PATH =</span> <span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(<span class="st">"C:/Rtools/bin"</span>,<span class="st">"C:/Rtools/mingw_64/bin"</span>, <span class="kw"><a href="https://rdrr.io/r/base/Sys.getenv.html">Sys.getenv</a></span>(<span class="st">"PATH"</span>), <span class="dt">sep=</span><span class="st">";"</span>))</a>
+<a class="sourceLine" id="cb8-4" title="4"><span class="kw"><a href="https://rdrr.io/r/base/Sys.setenv.html">Sys.setenv</a></span>(<span class="dt">BINPREF =</span> <span class="st">"C:/Rtools/mingw_$(WIN)/bin/"</span>)</a></code></pre></div>
+</div>
+<div id="error-converted-from-warning" class="section level2">
+<h2 class="hasAnchor">
+<a href="#error-converted-from-warning" class="anchor"></a>4. Error converted from warning</h2>
+<p>If you encounter this or similar error:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1">Error<span class="op">:</span><span class="st"> </span>Failed to install <span class="st">'Giotto'</span> from GitHub<span class="op">:</span></a>
+<a class="sourceLine" id="cb9-2" title="2"><span class="st">  </span>(converted from warning) ...</a></code></pre></div>
+<ul>
+<li>make sure Rtools is installed, see point 3</li>
+</ul>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1"><span class="co">## avoid converting warnings to errors by setting this environment variable to true (from within R)</span></a>
+<a class="sourceLine" id="cb10-2" title="2"><span class="kw"><a href="https://rdrr.io/r/base/Sys.setenv.html">Sys.setenv</a></span>(<span class="st">"R_REMOTES_NO_ERRORS_FROM_WARNINGS"</span>=<span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb10-3" title="3"></a>
+<a class="sourceLine" id="cb10-4" title="4"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(devtools) <span class="co"># if not installed do install.package('devtools')</span></a>
+<a class="sourceLine" id="cb10-5" title="5"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(remotes) <span class="co"># if not installed do install.package('remotes')</span></a>
+<a class="sourceLine" id="cb10-6" title="6">remotes<span class="op">::</span><span class="kw"><a href="https://remotes.r-lib.org/reference/install_github.html">install_github</a></span>(<span class="st">"RubD/Giotto"</span>, <span class="dt">build_vignettes =</span> F)</a></code></pre></div>
 </div>
   </div>
 
@@ -211,6 +231,7 @@ Install the necessary <a href="https://support.rstudio.com/hc/en-us/articles/200
 <li><a href="#first-time-r-package-installation">1. First time R package installation</a></li>
       <li><a href="#clang-error-on-macos">2. Clang error on MacOS</a></li>
       <li><a href="#make-not-found-error">3. ‘Make’ not found error</a></li>
+      <li><a href="#error-converted-from-warning">4. Error converted from warning</a></li>
       </ul>
 </div>
       </div>

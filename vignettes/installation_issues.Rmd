@@ -92,17 +92,43 @@ https://stackoverflow.com/questions/35999874/mac-os-x-r-error-ld-warning-directo
 "This worked for me in Mac OS Catalina as well! I used the gfortran 8.2 Mojave installation github.com/fxcoudert/gfortran-for-macOS/releases" -- Danny
 
 
+
+
 ## 3. 'Make' not found error
 
 If you encounter this error:
-```{bash, eval = FALSE}
+```{r, eval = FALSE}
 Error in system(cmd) : (converted from warning) ‘make’ not found
 ```
 
 Solution:  
 Install the necessary [package development tools](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites).
 
+```{r, eval = FALSE}
+## make sure Rtools is visible (from within R)
+## you can set the paths manually
+Sys.setenv(PATH = paste("C:/Rtools/bin","C:/Rtools/mingw_64/bin", Sys.getenv("PATH"), sep=";"))
+Sys.setenv(BINPREF = "C:/Rtools/mingw_$(WIN)/bin/")
+
+```
 
 
+## 4. Error converted from warning
+
+If you encounter this or similar error:
+```{r, eval = FALSE}
+Error: Failed to install 'Giotto' from GitHub:
+  (converted from warning) ...
+```
+
+- make sure Rtools is installed, see point 3  
+```{r, eval = FALSE}
+## avoid converting warnings to errors by setting this environment variable to true (from within R)
+Sys.setenv("R_REMOTES_NO_ERRORS_FROM_WARNINGS"=TRUE)
+
+library(devtools) # if not installed do install.package('devtools')
+library(remotes) # if not installed do install.package('remotes')
+remotes::install_github("RubD/Giotto", build_vignettes = F)
+```
 
 

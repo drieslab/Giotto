@@ -46,8 +46,8 @@ additional information.
 You can install (\~1-5 mins) Giotto with:
 
 ``` r
+library(devtools)  # if not installed: install.packages('devtools')
 library(remotes)  # if not installed: install.packages('remotes')
-# to install the latest version
 remotes::install_github("RubD/Giotto")
 ```
 
@@ -112,7 +112,7 @@ See
 [![Visium\_brain](./inst/images/general_figs/visium_brain_image_summary.png)](https://rubd.github.io/Giotto/articles/mouse_visium_brain_200325.html)
 [![Visium\_kidney](./inst/images/general_figs/visium_kidney_image_summary.png)](https://rubd.github.io/Giotto/articles/mouse_visium_kidney_200326.html)
 [![CyCIF](./inst/images/general_figs/cyCIF_PDAC_image_summary.png)](https://rubd.github.io/Giotto/articles/human_cycif_PDAC_200322.html)
-[![osmFISH](./inst/images/general_figs/osmFISH_SS_cortex_image_summary.png)](https://rubd.github.io/Giotto/articles/mouse_osmFISH_SScortex.html)
+[![osmFISH](./inst/images/general_figs/osmFISH_SS_cortex_image_summary.png)](../articles/mouse_osmFISH_SScortex.html)
 [![CODEX](./inst/images/general_figs/CODEX_spleen_image_summary.png)](https://rubd.github.io/Giotto/articles/mouse_CODEX_spleen.html)
 
 ## References

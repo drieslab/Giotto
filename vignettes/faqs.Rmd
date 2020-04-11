@@ -7,6 +7,7 @@ output: html_document
 - [First time R package installation](./installation_issues.html)
 - [Clang error on MacOS](./installation_issues.html)
 - [Error: 'make' not found](./installation_issues.html)
+- [Error converted from warning](./installation_issues.html)
 
 ## Data availability  
 - Where to find seqFISH+ and other ready-to-use datasets?  
