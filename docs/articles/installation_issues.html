@@ -189,8 +189,16 @@
 <a class="sourceLine" id="cb6-4" title="4"><span class="ex">ld</span>: library not found for -lgfortran</a>
 <a class="sourceLine" id="cb6-5" title="5"><span class="ex">clang-9</span>: error: linker command failed with exit code 1 (use -v to see invocation)</a></code></pre></div>
 <p>solution: Installing the latest version of gofortran. <a href="https://github.com/fxcoudert/gfortran-for-macOS/releases/download/8.2/gfortran-8.2-Mojave.dmg" class="uri">https://github.com/fxcoudert/gfortran-for-macOS/releases/download/8.2/gfortran-8.2-Mojave.dmg</a></p>
-<p>Reference: <a href="https://stackoverflow.com/questions/35999874/mac-os-x-r-error-ld-warning-directory-not-found-for-option" class="uri">https://stackoverflow.com/questions/35999874/mac-os-x-r-error-ld-warning-directory-not-found-for-option</a> “I am having Mac OS Catalina and in my case installation of Homebrew, the newest gcc and Gfortran 8.2.0 solved the issue.” – Magda Orzechowska “This worked for me in Mac OS Catalina as well! I used the gfortran 8.2 Mojave installation github.com/fxcoudert/gfortran-for-macOS/releases” – Danny ```</p>
+<p>Reference: <a href="https://stackoverflow.com/questions/35999874/mac-os-x-r-error-ld-warning-directory-not-found-for-option" class="uri">https://stackoverflow.com/questions/35999874/mac-os-x-r-error-ld-warning-directory-not-found-for-option</a> “I am having Mac OS Catalina and in my case installation of Homebrew, the newest gcc and Gfortran 8.2.0 solved the issue.” – Magda Orzechowska “This worked for me in Mac OS Catalina as well! I used the gfortran 8.2 Mojave installation github.com/fxcoudert/gfortran-for-macOS/releases” – Danny</p>
 </div>
+</div>
+<div id="make-not-found-error" class="section level2">
+<h2 class="hasAnchor">
+<a href="#make-not-found-error" class="anchor"></a>3. ‘Make’ not found error</h2>
+<p>If you encounter this error:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb7-1" title="1"><span class="ex">Error</span> in system(cmd) <span class="bu">:</span> (converted from warning) ‘<span class="ex">make</span>’ not found</a></code></pre></div>
+<p>Solution:<br>
+Install the necessary <a href="https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites">package development tools</a>.</p>
 </div>
   </div>
 
@@ -202,6 +210,7 @@
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#first-time-r-package-installation">1. First time R package installation</a></li>
       <li><a href="#clang-error-on-macos">2. Clang error on MacOS</a></li>
+      <li><a href="#make-not-found-error">3. ‘Make’ not found error</a></li>
       </ul>
 </div>
       </div>
