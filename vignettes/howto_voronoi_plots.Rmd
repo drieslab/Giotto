@@ -23,7 +23,7 @@ VC_exprs_small = read.table(system.file("extdata", "seqfish_field_expr.txt", pac
 VC_locs_small = read.table(system.file("extdata", "seqfish_field_locs.txt", package = 'Giotto'))
 
 # giotto object
-VC_small <- createGiottoObject(raw_exprs = VC_exprs_small, spatial_locs = VC_locs_small, instructions = instrs)
+VC_small <- createGiottoObject(raw_exprs = VC_exprs_small, spatial_locs = VC_locs_small)
 VC_small <- filterGiotto(gobject = VC_small, expression_threshold = 0.5, gene_det_in_min_cells = 0, min_det_genes_per_cell = 0)
 VC_small <- normalizeGiotto(gobject = VC_small, scalefactor = 6000, verbose = T)
 VC_small <- addStatistics(gobject = VC_small)

@@ -31,7 +31,8 @@ of Giotto Analyzer can be found at <https://rubd.github.io/Giotto/>.
 
   - R (\>= 3.5.1)
   - Python (\>= 3.0)
-  - Windows, MacOS, Linux
+  - Windows, MacOS or Linux specific installation tools. See
+    [link](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites).
 
  
 
