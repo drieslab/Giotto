@@ -185,24 +185,40 @@ set_giotto_python_path = function(python_path = NULL,
           conda_full_path = reticulate::conda_binary()
           full_envname = paste0(conda_path,'/envs/giotto_env')
           python_full_path = paste0(conda_path, "/envs/giotto_env/bin/python")
+
+          reticulate::py_install(packages = packages_to_install,
+                                 envname = 'giotto_env',
+                                 method = 'conda',
+                                 conda = conda_full_path,
+                                 python_version = '3.6')
+
+          reticulate::py_install(packages = 'smfishhmrf',
+                                 envname = full_envname,
+                                 method = 'conda',
+                                 conda = conda_full_path,
+                                 pip = TRUE,
+                                 python_version = '3.6')
+
         } else if(.Platform[['OS.type']] == 'windows') {
           conda_full_path = reticulate::conda_binary()
           full_envname = paste0(conda_path,'/envs/giotto_env')
           python_full_path = paste0(conda_path, "/envs/giotto_env/python.exe")
+
+          reticulate::py_install(packages = packages_to_install,
+                                 envname = 'giotto_env',
+                                 method = 'conda',
+                                 conda = conda_full_path,
+                                 python_version = '3.6',
+                                 channel = c('conda-forge', 'vtraag'))
+
+          reticulate::py_install(packages = 'smfishhmrf',
+                                 envname = full_envname,
+                                 method = 'conda',
+                                 conda = conda_full_path,
+                                 pip = TRUE,
+                                 python_version = '3.6')
         }
 
-        reticulate::py_install(packages = packages_to_install,
-                               envname = 'giotto_env',
-                               method = 'conda',
-                               conda = conda_full_path,
-                               python_version = '3.6')
-
-        reticulate::py_install(packages = 'smfishhmrf',
-                               envname = full_envname,
-                               method = 'conda',
-                               conda = conda_full_path,
-                               pip = TRUE,
-                               python_version = '3.6')
 
         python_path = python_full_path
         reticulate::use_python(required = T, python = python_path)
