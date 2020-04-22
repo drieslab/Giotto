@@ -10,23 +10,27 @@
 
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -63,7 +67,7 @@
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-article-index">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -77,7 +81,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.2</span>
       </span>
     </div>
 
@@ -171,25 +175,42 @@
       <h3>All vignettes</h3>
       <p class="section-desc"></p>
 
-      <ul>
-        <li><a href="faqs.html">FAQs</a></li>
-        <li><a href="getting_started.html">UNKNOWN TITLE</a></li>
-        <li><a href="howto_voronoi_plots.html">UNKNOWN TITLE</a></li>
-        <li><a href="human_cycif_PDAC_200322.html">CyCIF PDAC</a></li>
-        <li><a href="installation_issues.html">UNKNOWN TITLE</a></li>
-        <li><a href="instructions_and_plotting.html">UNKNOWN TITLE</a></li>
-        <li><a href="metadata_and_subset_VC.html">UNKNOWN TITLE</a></li>
-        <li><a href="mouse_CODEX_spleen.html">CODEX mouse spleen</a></li>
-        <li><a href="mouse_merFISH_hypoth_preoptic_region_200326.html">merFISH hypoth. preopt. region</a></li>
-        <li><a href="mouse_osmFISH_SScortex.html">osmFISH mouse SS cortex</a></li>
-        <li><a href="mouse_seqFISH_cortex_200319.html">seqFISH+ cortex</a></li>
-        <li><a href="mouse_starmap_cortex.html">STARmap mouse cortex</a></li>
-        <li><a href="mouse_visium_brain_200325.html">Visium Brain</a></li>
-        <li><a href="mouse_visium_kidney_200326.html">Visium Kidney</a></li>
-        <li><a href="subset_giotto.html">UNKNOWN TITLE</a></li>
-        <li><a href="visualization_options.html">UNKNOWN TITLE</a></li>
-        <li><a href="work_with_multiple_analyses.html">UNKNOWN TITLE</a></li>
-      </ul>
+      <dl>
+        <dt><a href="faqs.html">FAQs</a></dt>
+        <dd></dt>
+        <dt><a href="getting_started.html">UNKNOWN TITLE</a></dt>
+        <dd></dt>
+        <dt><a href="howto_voronoi_plots.html">UNKNOWN TITLE</a></dt>
+        <dd></dt>
+        <dt><a href="human_cycif_PDAC_200322.html">CyCIF PDAC</a></dt>
+        <dd></dt>
+        <dt><a href="installation_issues.html">UNKNOWN TITLE</a></dt>
+        <dd></dt>
+        <dt><a href="instructions_and_plotting.html">UNKNOWN TITLE</a></dt>
+        <dd></dt>
+        <dt><a href="metadata_and_subset_VC.html">UNKNOWN TITLE</a></dt>
+        <dd></dt>
+        <dt><a href="mouse_CODEX_spleen.html">CODEX mouse spleen</a></dt>
+        <dd></dt>
+        <dt><a href="mouse_merFISH_hypoth_preoptic_region_200326.html">merFISH hypoth. preopt. region</a></dt>
+        <dd></dt>
+        <dt><a href="mouse_osmFISH_SScortex.html">osmFISH mouse SS cortex</a></dt>
+        <dd></dt>
+        <dt><a href="mouse_seqFISH_cortex_200319.html">seqFISH+ cortex</a></dt>
+        <dd></dt>
+        <dt><a href="mouse_starmap_cortex.html">STARmap mouse cortex</a></dt>
+        <dd></dt>
+        <dt><a href="mouse_visium_brain_200325.html">Visium Brain</a></dt>
+        <dd></dt>
+        <dt><a href="mouse_visium_kidney_200326.html">Visium Kidney</a></dt>
+        <dd></dt>
+        <dt><a href="subset_giotto.html">UNKNOWN TITLE</a></dt>
+        <dd></dt>
+        <dt><a href="visualization_options.html">UNKNOWN TITLE</a></dt>
+        <dd></dt>
+        <dt><a href="work_with_multiple_analyses.html">UNKNOWN TITLE</a></dt>
+        <dd></dt>
+      </dl>
     </div>
   </div>
 </div>
@@ -201,7 +222,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

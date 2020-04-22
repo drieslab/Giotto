@@ -31,7 +31,8 @@ of Giotto Analyzer can be found at <https://rubd.github.io/Giotto/>.
 
   - R (\>= 3.5.1)
   - Python (\>= 3.0)
-  - Windows, MacOS, Linux
+  - Windows, MacOS or Linux specific installation tools. See
+    [link](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites).
 
  
 
@@ -45,8 +46,8 @@ additional information.
 You can install (\~1-5 mins) Giotto with:
 
 ``` r
+library(devtools)  # if not installed: install.packages('devtools')
 library(remotes)  # if not installed: install.packages('remotes')
-# to install the latest version
 remotes::install_github("RubD/Giotto")
 ```
 
@@ -105,14 +106,14 @@ See
     computer is around 10\~45 mins.  
   - click on the image and try them out yourself.
 
-[![seqFISH](./inst/images/general_figs/cortex_image_summary.png)](./articles/mouse_seqFISH_cortex_200319.html)
-[![merFISH](./inst/images/general_figs/merFISH_hypoth_image_summary.png)](./articles/mouse_merFISH_hypoth_preoptic_region_200326.html)
-[![STARmap](./inst/images/general_figs/starmap_cortex_image_summary.png)](./articles/mouse_starmap_cortex.html)
-[![Visium\_brain](./inst/images/general_figs/visium_brain_image_summary.png)](./articles/mouse_visium_brain_200325.html)
-[![Visium\_kidney](./inst/images/general_figs/visium_kidney_image_summary.png)](./articles/mouse_visium_kidney_200326.html)
-[![CyCIF](./inst/images/general_figs/cyCIF_PDAC_image_summary.png)](./articles/human_cycif_PDAC_200322.html)
-[![osmFISH](./inst/images/general_figs/osmFISH_SS_cortex_image_summary.png)](./articles/mouse_osmFISH_SScortex.html)
-[![CODEX](./inst/images/general_figs/CODEX_spleen_image_summary.png)](./articles/mouse_CODEX_spleen.html)
+[![seqFISH](./inst/images/general_figs/cortex_image_summary.png)](https://rubd.github.io/Giotto/articles/mouse_seqFISH_cortex_200319.html)
+[![merFISH](./inst/images/general_figs/merFISH_hypoth_image_summary.png)](https://rubd.github.io/Giotto/articles/mouse_merFISH_hypoth_preoptic_region_200326.html)
+[![STARmap](./inst/images/general_figs/starmap_cortex_image_summary.png)](https://rubd.github.io/Giotto/articles/mouse_starmap_cortex.html)
+[![Visium\_brain](./inst/images/general_figs/visium_brain_image_summary.png)](https://rubd.github.io/Giotto/articles/mouse_visium_brain_200325.html)
+[![Visium\_kidney](./inst/images/general_figs/visium_kidney_image_summary.png)](https://rubd.github.io/Giotto/articles/mouse_visium_kidney_200326.html)
+[![CyCIF](./inst/images/general_figs/cyCIF_PDAC_image_summary.png)](https://rubd.github.io/Giotto/articles/human_cycif_PDAC_200322.html)
+[![osmFISH](./inst/images/general_figs/osmFISH_SS_cortex_image_summary.png)](../articles/mouse_osmFISH_SScortex.html)
+[![CODEX](./inst/images/general_figs/CODEX_spleen_image_summary.png)](https://rubd.github.io/Giotto/articles/mouse_CODEX_spleen.html)
 
 ## References
 

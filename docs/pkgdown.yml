@@ -1,5 +1,5 @@
 pandoc: 2.7.2
-pkgdown: 1.4.1
+pkgdown: 1.5.1
 pkgdown_sha: ~
 articles:
   faqs: faqs.html
@@ -19,4 +19,5 @@ articles:
   subset_giotto: subset_giotto.html
   visualization_options: visualization_options.html
   work_with_multiple_analyses: work_with_multiple_analyses.html
+last_built: 2020-04-22T03:32Z
 

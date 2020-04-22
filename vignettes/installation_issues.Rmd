@@ -32,9 +32,9 @@ xcode-select --install
 
 
 
-## 2. Clang error on MacOS
+## 2. errors on MacOS
 
-### 2.1 issue 1
+### 2.1 issue 1: clang error
 If you see this error on your MacOS:  
 ``` bash
 clang: error: unsupported option ‘-fopenmp’
@@ -72,7 +72,7 @@ CPPFLAGS=-I/usr/local/opt/gettext/include -I/usr/local/opt/llvm/include
 
 ### 2.2 issue 2
 
-If you see this error on your MacOS, most likely with the latest macOS Mojave: 
+If you see this error on your MacOS, most likely with the macOS Mojave: 
 ```{bash, eval = FALSE}
 Error message: 
 ld: warning: directory not found for option '-L/usr/local/gfortran/lib/gcc/x86_64-apple-darwin15/6.1.0'
@@ -90,7 +90,62 @@ Reference:
 https://stackoverflow.com/questions/35999874/mac-os-x-r-error-ld-warning-directory-not-found-for-option
 "I am having Mac OS Catalina and in my case installation of Homebrew, the newest gcc and Gfortran 8.2.0 solved the issue." -- Magda Orzechowska
 "This worked for me in Mac OS Catalina as well! I used the gfortran 8.2 Mojave installation github.com/fxcoudert/gfortran-for-macOS/releases" -- Danny
+
+
+### 2.3 issue 3 (R 3.6.3 and MacOS Catalina)
+
+If you use the latest MacOS 'Catalina' and the latest R version 3.6.3 then you need to install
+Clang 7.0.0 and GNU Fortran 6.1 as per [instructions](https://cran.rstudio.com/bin/macosx/).
+
+Additionally, you might have to specify some flags in "~/.R/Makevars"
+
+```{bash, eval = FALSE}
+# clang: start
+CFLAGS=-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
+CCFLAGS=-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
+CXXFLAGS=-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
+CPPFLAGS=-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
+# clang: end
 ```
 
+We hope that these issues will be resolved soon.
+
+
+## 3. 'Make' not found error on windows
+
+If you encounter this error:
+```{r, eval = FALSE}
+Error in system(cmd) : (converted from warning) ‘make’ not found
+```
+
+Solution:  
+Install the necessary [package development tools](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites).
+
+```{r, eval = FALSE}
+## make sure Rtools is visible (from within R)
+## you can set the paths manually
+Sys.setenv(PATH = paste("C:/Rtools/bin","C:/Rtools/mingw_64/bin", Sys.getenv("PATH"), sep=";"))
+Sys.setenv(BINPREF = "C:/Rtools/mingw_$(WIN)/bin/")
+
+```
+
+
+## 4. Error converted from warning
+
+If you encounter this or similar error:
+```{r, eval = FALSE}
+Error: Failed to install 'Giotto' from GitHub:
+  (converted from warning) ...
+```
+
+- make sure Rtools is installed, see point 3  
+```{r, eval = FALSE}
+## avoid converting warnings to errors by setting this environment variable to true (from within R)
+Sys.setenv("R_REMOTES_NO_ERRORS_FROM_WARNINGS"=TRUE)
+
+library(devtools) # if not installed do install.package('devtools')
+library(remotes) # if not installed do install.package('remotes')
+remotes::install_github("RubD/Giotto", build_vignettes = F)
+```
 
 
