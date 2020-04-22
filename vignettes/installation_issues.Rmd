@@ -32,9 +32,9 @@ xcode-select --install
 
 
 
-## 2. Clang error on MacOS
+## 2. errors on MacOS
 
-### 2.1 issue 1
+### 2.1 issue 1: clang error
 If you see this error on your MacOS:  
 ``` bash
 clang: error: unsupported option ‘-fopenmp’
@@ -72,7 +72,7 @@ CPPFLAGS=-I/usr/local/opt/gettext/include -I/usr/local/opt/llvm/include
 
 ### 2.2 issue 2
 
-If you see this error on your MacOS, most likely with the latest macOS Mojave: 
+If you see this error on your MacOS, most likely with the macOS Mojave: 
 ```{bash, eval = FALSE}
 Error message: 
 ld: warning: directory not found for option '-L/usr/local/gfortran/lib/gcc/x86_64-apple-darwin15/6.1.0'
@@ -92,9 +92,26 @@ https://stackoverflow.com/questions/35999874/mac-os-x-r-error-ld-warning-directo
 "This worked for me in Mac OS Catalina as well! I used the gfortran 8.2 Mojave installation github.com/fxcoudert/gfortran-for-macOS/releases" -- Danny
 
 
+### 2.3 issue 3 (R 3.6.3 and MacOS Catalina)
+
+If you use the latest MacOS 'Catalina' and the latest R version 3.6.3 then you need to install
+Clang 7.0.0 and GNU Fortran 6.1 as per [instructions](https://cran.rstudio.com/bin/macosx/).
+
+Additionally, you might have to specify some flags in "~/.R/Makevars"
+
+```{bash, eval = FALSE}
+# clang: start
+CFLAGS=-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
+CCFLAGS=-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
+CXXFLAGS=-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
+CPPFLAGS=-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
+# clang: end
+```
+
+We hope that these issues will be resolved soon.
 
 
-## 3. 'Make' not found error
+## 3. 'Make' not found error on windows
 
 If you encounter this error:
 ```{r, eval = FALSE}
