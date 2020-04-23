@@ -137,7 +137,7 @@ create_average_DT <- function(gobject, meta_data_name,
     name = paste0('cluster_', group)
 
     temp = expr_data[, cell_metadata[[meta_data_name]] == group]
-    temp_DT = rowMeans(as.matrix(temp))
+    temp_DT = rowMeans_giotto(temp)
 
     savelist[[name]] <- temp_DT
   }
@@ -175,7 +175,7 @@ create_average_detection_DT <- function(gobject, meta_data_name,
     temp = expr_data[, cell_metadata[[meta_data_name]] == group]
 
     if(is.matrix(temp)) {
-      temp_DT = rowSums(as.matrix(temp) > detection_threshold)/ncol(temp)
+      temp_DT = rowSums_giotto(temp > detection_threshold)/ncol(temp)
     } else {
       temp_DT = as.numeric(temp > detection_threshold)
     }
