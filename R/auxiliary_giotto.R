@@ -1,4 +1,44 @@
 
+#' @title rowSums_giotto
+#' @export
+rowSums_giotto = function(mymatrix) {
+  
+  if(is(mymatrix, 'dgCMatrix')) {
+    return(Matrix::rowSums(mymatrix)) # replace with sparseMatrixStats
+  } else if(is(mymatrix, 'Matrix')) {
+    return(Matrix::rowSums(mymatrix)) 
+  } else {
+    return(matrixStats::rowSums2(as.matrix(mymatrix)))
+  }
+}
+
+#' @title rowMeans_giotto
+#' @export
+rowMeans_giotto = function(mymatrix) {
+  
+  if(is(mymatrix, 'dgCMatrix')) {
+    return(Matrix::rowMeans(mymatrix)) # replace with sparseMatrixStats
+  } else if(is(mymatrix, 'Matrix')) {
+    return(Matrix::rowMeans(mymatrix)) 
+  } else {
+    return(matrixStats::rowMeans2(as.matrix(mymatrix)))
+  }
+}
+
+#' @title colSums_giotto
+#' @export
+colSums_giotto = function(mymatrix) {
+  
+  if(is(mymatrix, 'dgCMatrix')) {
+    return(Matrix::colSums(mymatrix)) # replace with sparseMatrixStats
+  } else if(is(mymatrix, 'Matrix')) {
+    return(Matrix::colSums(mymatrix))
+  } else {
+    return(matrixStats::colSums2(as.matrix(mymatrix)))
+  }
+}
+
+
 #' @title pDataDT
 #' @description show cell metadata
 #' @param gobject giotto object
@@ -673,40 +713,40 @@ filterGiotto <- function(gobject,
                          gene_det_in_min_cells = 100,
                          min_det_genes_per_cell = 100,
                          verbose = F) {
-
+  
   # expression values to be used
   values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
   expr_values = select_expression_values(gobject = gobject, values = values)
-
+  
   # approach:
   # 1. first remove genes that are not frequently detected
   # 2. then remove cells that do not have sufficient detected genes
-
+  
   ## filter genes
-  filter_index_genes = rowSums(expr_values >= expression_threshold) >= gene_det_in_min_cells
+  filter_index_genes = rowSums_giotto(expr_values >= expression_threshold) >= gene_det_in_min_cells
   selected_gene_ids = gobject@gene_ID[filter_index_genes]
-
+  
   ## filter cells
-  filter_index_cells = colSums(expr_values[filter_index_genes, ] >= expression_threshold) >= min_det_genes_per_cell
+  filter_index_cells = colSums_giotto(expr_values[filter_index_genes, ] >= expression_threshold) >= min_det_genes_per_cell
   selected_cell_ids = gobject@cell_ID[filter_index_cells]
-
+  
   newGiottoObject = subsetGiotto(gobject = gobject,
                                  cell_ids = selected_cell_ids,
                                  gene_ids = selected_gene_ids)
-
+  
   ## print output ##
   removed_genes = length(filter_index_genes[filter_index_genes == FALSE])
   total_genes   = length(filter_index_genes)
-
+  
   removed_cells = length(filter_index_cells[filter_index_cells == FALSE])
   total_cells   = length(filter_index_cells)
-
+  
   if(verbose == TRUE) {
     cat('Number of cells removed: ', removed_cells, ' out of ', total_cells, '\n')
     cat('Number of genes removed: ', removed_genes, ' out of ', total_genes, '\n')
   }
-
-
+  
+  
   ## update parameters used ##
   parameters_list  = newGiottoObject@parameters
   number_of_rounds = length(parameters_list)
@@ -717,10 +757,10 @@ filterGiotto <- function(gobject,
                                      'minimum # of genes detected per cell' = min_det_genes_per_cell,
                                      'minimum times a gene is detected over all cells' = gene_det_in_min_cells)
   newGiottoObject@parameters = parameters_list
-
+  
   return(newGiottoObject)
-
-
+  
+  
 }
 
 

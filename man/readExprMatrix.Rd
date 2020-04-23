@@ -4,7 +4,7 @@
 \alias{readExprMatrix}
 \title{readExprMatrix}
 \usage{
-readExprMatrix(path)
+readExprMatrix(path, cores = NA)
 }
 \arguments{
 \item{path}{path to the expression matrix}

@@ -470,12 +470,21 @@ replaceGiottoInstructions = function(gobject,
 #' @export
 #' @examples
 #'     readExprMatrix()
-readExprMatrix = function(path) {
+readExprMatrix = function(path, cores = NA) {
   
   # check if path is a character vector and exists
   if(!is.character(path)) stop('path needs to be character vector')
   if(!file.exists(path)) stop('the path: ', path, ' does not exist')
-  DT = suppressWarnings(data.table::fread(path))
+  
+  # set number of cores automatically, but with limit of 10
+  if(is.na(cores) | !is.numeric(cores)) {
+    cores = parallel::detectCores() - 2
+    cores = ifelse(cores > 10, 10, cores)
+    data.table::setDTthreads(threads = cores)
+  }
+  
+  # read and convert
+  DT = suppressWarnings(data.table::fread(input = path, nThread = cores))
   spM = Matrix::Matrix(as.matrix(DT[,-1]), dimnames = list(DT[[1]], colnames(DT[,-1])), sparse = T)
   return(spM)
 }
@@ -489,13 +498,13 @@ readExprMatrix = function(path) {
 #' @details The inputmatrix can be a matrix, sparse matrix, data.frame, data.table or path to any of these.
 #' @examples
 #'     evaluate_expr_matrix()
-evaluate_expr_matrix = function(inputmatrix, sparse = TRUE) {
+evaluate_expr_matrix = function(inputmatrix, sparse = TRUE, cores = NA) {
   
-  if(class(inputmatrix) == 'character') {
-    mymatrix = readExprMatrix(inputmatrix)
-  } else if(class(inputmatrix) == 'Matrix') {
+  if(is(inputmatrix, 'character')) {
+    mymatrix = readExprMatrix(inputmatrix, cores =  cores)
+  } else if(is(inputmatrix, 'Matrix')) {
     mymatrix = inputmatrix
-  } else if(class(inputmatrix) == 'data.table') {
+  } else if(is(inputmatrix, 'data.table')) {
     if(sparse == TRUE) {
       # force sparse class
       mymatrix = Matrix::Matrix(as.matrix(inputmatrix[,-1]),
@@ -509,7 +518,7 @@ evaluate_expr_matrix = function(inputmatrix, sparse = TRUE) {
     }
     
   } else if(class(inputmatrix) %in% c('data.frame', 'matrix')) {
-    mymatrix = as(inputmatrix, "sparseMatrix")
+    mymatrix = as(as.matrix(inputmatrix), "sparseMatrix")
   } else {
     stop("raw_exprs needs to be a path or an object of class 'Matrix', 'data.table', 'data.frame' or 'matrix'")
   }
@@ -539,15 +548,15 @@ evaluate_expr_matrix = function(inputmatrix, sparse = TRUE) {
 #' @param nn_network list of nearest neighbor network(s)
 #' @param offset_file file used to stitch fields together (optional)
 #' @param instructions list of instructions or output result from createGiottoInstructions
+#' @param cores how many cores or threads to use to read data if paths are provided
 #' @return giotto object
 #' @details
 #' [\strong{Requirements}] To create a giotto object you need to provide at least a matrix with genes as
 #' row names and cells as column names. This matrix can be provided as a base matrix, sparse Matrix, data.frame,
 #' data.table or as a path to any of those. 
-#' To include spatial information about cells (or regions)
-#' you need to provide a data.table or data.frame with coordinates for all spatial dimensions.
-#' This can be 2D (x and y) or 3D (x, y, x).The row order for the cell coordinates should be
-#' the same as the column order for the provided expression data.
+#' To include spatial information about cells (or regions) you need to provide a matrix, data.table or data.frame (or path to them)
+#' with coordinates for all spatial dimensions. This can be 2D (x and y) or 3D (x, y, x).
+#' The row order for the cell coordinates should be the same as the column order for the provided expression data.
 #'
 #' [\strong{Instructions}] Additionally an instruction file, generated manually or with \code{\link{createGiottoInstructions}}
 #' can be provided to instructions, if not a default instruction file will be created
@@ -592,7 +601,8 @@ createGiottoObject <- function(raw_exprs,
                                dimension_reduction = NULL,
                                nn_network = NULL,
                                offset_file = NULL,
-                               instructions = NULL) {
+                               instructions = NULL,
+                               cores = NA) {
 
   # create minimum giotto
   gobject = giotto(raw_exprs = raw_exprs,
@@ -628,12 +638,19 @@ createGiottoObject <- function(raw_exprs,
   }
 
 
+  # set number of cores automatically, but with limit of 10
+  if(is.na(cores) | !is.numeric(cores)) {
+    cores = parallel::detectCores() - 2
+    cores = ifelse(cores > 10, 10, cores)
+    data.table::setDTthreads(threads = cores)
+  }
+  
+
   ## read expression matrix
-  raw_exprs = evaluate_expr_matrix(raw_exprs, sparse = TRUE)
+  raw_exprs = evaluate_expr_matrix(raw_exprs, cores = cores, sparse = TRUE)
   gobject@raw_exprs = raw_exprs
 
-  
-  ## check rownames and colnames
+  # check rownames and colnames
   if(any(duplicated(rownames(raw_exprs)))) {
     stop("row names contain duplicates, please remove or rename")
   }
@@ -642,7 +659,7 @@ createGiottoObject <- function(raw_exprs,
     stop("column names contain duplicates, please remove or rename")
   }
 
-  # prepare other slots
+  # prepare other slots related to matrix
   gobject@cell_ID = colnames(raw_exprs)
   gobject@gene_ID = rownames(raw_exprs)
   gobject@parameters = list()
@@ -663,36 +680,51 @@ createGiottoObject <- function(raw_exprs,
     }
   }
 
-  ## if no spatial information is given; create dummy spatial data
+  
+  ## spatial locations 
+  
+  # create dummy spatial data if no information is given
   if(is.null(spatial_locs)) {
     warning('\n spatial locations are not given, dummy 3D data will be created \n')
-    spatial_locs = data.table::data.table(x = 1:ncol(raw_exprs),
-                                          y = 1:ncol(raw_exprs),
-                                          z = 1:ncol(raw_exprs))
-    gobject@spatial_locs = spatial_locs
-  }
+    spatial_locs = data.table::data.table(sdimx = 1:ncol(raw_exprs),
+                                          sdimy = 1:ncol(raw_exprs),
+                                          sdimz = 1:ncol(raw_exprs))
+    #gobject@spatial_locs = spatial_locs
+  } 
 
 
   ## spatial
-  if(!class(spatial_locs) %in% c('data.table', 'data.frame', 'matrix')) {
-    stop('spatial_locs needs to be a data.table or data.frame-like object')
+  if(!class(spatial_locs) %in% c('data.table', 'data.frame', 'matrix', 'character')) {
+    stop('spatial_locs needs to be a data.table or data.frame-like object or a path to one of these')
   }
+  if(is(spatial_locs, 'character')) {
+    if(!file.exists(spatial_locs)) stop('path to spatial locations does not exist')
+    spatial_locs = data.table::fread(input = spatial_locs, nThread = cores)
+  } else {
+    spatial_locs = data.table::as.data.table(spatial_locs)
+  }
+  
+  # check if dimensions agree
   if(nrow(spatial_locs) != ncol(raw_exprs)) {
     stop('\n Number of rows of spatial location must equal number of columns of expression matrix \n')
-  } else {
-    ## force dimension names
-    spatial_dimensions = c('x', 'y', 'z')
-    colnames(gobject@spatial_locs) <- paste0('sdim', spatial_dimensions[1:ncol(gobject@spatial_locs)])
-    gobject@spatial_locs = data.table::as.data.table(gobject@spatial_locs)
-    gobject@spatial_locs[, cell_ID := colnames(raw_exprs)]
-  }
+  } 
+  
+  ## force dimension names
+  spatial_dimensions = c('x', 'y', 'z')
+  colnames(spatial_locs) = paste0('sdim', spatial_dimensions[1:ncol(spatial_locs)])
 
+  # add cell_ID column
+  gobject@spatial_locs = spatial_locs
+  gobject@spatial_locs[, cell_ID := colnames(raw_exprs)]
+  
 
+  
+  
   ## OPTIONAL:
   # add other normalized expression data
   if(!is.null(norm_expr)) {
     
-    norm_expr = evaluate_expr_matrix(norm_expr, sparse = F)
+    norm_expr = evaluate_expr_matrix(norm_expr, cores = cores, sparse = F)
 
     if(all(dim(norm_expr) == dim(raw_exprs)) &
        all(colnames(norm_expr) == colnames(raw_exprs)) &
@@ -707,7 +739,7 @@ createGiottoObject <- function(raw_exprs,
   # add other normalized and scaled expression data
   if(!is.null(norm_scaled_expr)) {
 
-    norm_scaled_expr = evaluate_expr_matrix(norm_scaled_expr, sparse = F)
+    norm_scaled_expr = evaluate_expr_matrix(norm_scaled_expr, cores = cores, sparse = F)
     
     if(all(dim(norm_scaled_expr) == dim(raw_exprs)) &
        all(colnames(norm_scaled_expr) == colnames(raw_exprs)) &
@@ -722,7 +754,7 @@ createGiottoObject <- function(raw_exprs,
   # add other custom normalized expression data
   if(!is.null(custom_expr)) {
 
-    custom_expr = evaluate_expr_matrix(custom_expr, sparse = F)
+    custom_expr = evaluate_expr_matrix(custom_expr, cores = cores, sparse = F)
     
     if(all(dim(custom_expr) == dim(raw_exprs)) &
        all(colnames(custom_expr) == colnames(raw_exprs)) &

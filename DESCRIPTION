@@ -27,6 +27,7 @@ Depends:
     utils (>= 3.5.1),
     R (>= 3.5.1)
 Imports:
+    Matrix,
     Rtsne (>= 0.15),
     uwot (>= 0.0.0.9010),
     FactoMineR (>= 1.34),
