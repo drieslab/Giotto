@@ -38,6 +38,22 @@ colSums_giotto = function(mymatrix) {
   }
 }
 
+#' @title colMeans_giotto
+#' @export
+colMeans_giotto = function(mymatrix) {
+  
+  if(is(mymatrix, 'dgCMatrix')) {
+    return(Matrix::colMeans(mymatrix)) # replace with sparseMatrixStats
+  } else if(is(mymatrix, 'Matrix')) {
+    return(Matrix::colMeans(mymatrix))
+  } else {
+    return(matrixStats::colMeans2(as.matrix(mymatrix)))
+  }
+}
+
+
+
+
 #' @title mean_expr_det_test
 #' @export
 mean_expr_det_test = function(mymatrix, detection_threshold = 1) {
@@ -1464,7 +1480,8 @@ create_cluster_matrix <- function(gobject,
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
 
   # average expression per cluster
-  aggr_sc_clusters <- create_average_DT(gobject = gobject, meta_data_name = cluster_column,
+  aggr_sc_clusters <- create_average_DT(gobject = gobject,
+                                        meta_data_name = cluster_column,
                                         expression_values = values)
   aggr_sc_clusters_DT <- data.table::as.data.table(aggr_sc_clusters)
   aggr_sc_clusters_DT[, genes := rownames(aggr_sc_clusters)]
@@ -1475,9 +1492,11 @@ create_cluster_matrix <- function(gobject,
 
   # create matrix
   testmat = data.table::dcast.data.table(aggr_sc_clusters_DT_melt,
-                                         formula = genes~cluster, value.var = 'expression')
-  testmatrix = as.matrix(testmat[,-1])
-  rownames(testmatrix) = testmat[['genes']]
+                                         formula = genes~cluster,
+                                         value.var = 'expression')
+  testmatrix = dt_to_matrix(testmat)
+  #testmatrix = as.matrix(testmat[,-1])
+  #rownames(testmatrix) = testmat[['genes']]
 
   # create subset if required
   if(!is.null(gene_subset)) {
@@ -1542,7 +1561,7 @@ calculateMetaTable = function(gobject,
     selected_cell_IDs = metadata[uniq_ID == uniq_identifiier][['cell_ID']]
     sub_expr_values = expr_values[, colnames(expr_values) %in% selected_cell_IDs]
     if(is.vector(sub_expr_values) == FALSE) {
-      subvec = rowMeans(sub_expr_values)
+      subvec = rowMeans_giotto(sub_expr_values)
     } else {
       subvec = sub_expr_values
     }
@@ -1701,7 +1720,7 @@ createMetagenes = function(gobject,
     if(length(selected_genes) == 1) {
       mean_score = sub_mat
     } else{
-      mean_score = colMeans(sub_mat)
+      mean_score = colMeans_giotto(sub_mat)
     }
 
     res_list[[id]] = mean_score

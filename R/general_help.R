@@ -48,7 +48,7 @@ getDistinctColors <- function(n) {
 #'     dt_to_matrix(x)
 dt_to_matrix <- function(x) {
   rownames = as.character(x[[1]])
-  mat = as.matrix(x[,-1])
+  mat = as(as.matrix(x[,-1]), 'Matrix')
   rownames(mat) = rownames
   return(mat)
 }
