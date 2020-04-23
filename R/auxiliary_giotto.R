@@ -38,6 +38,14 @@ colSums_giotto = function(mymatrix) {
   }
 }
 
+#' @title mean_expr_det_test
+#' @export
+mean_expr_det_test = function(mymatrix, detection_threshold = 1) {
+  mean_expr_detected = unlist(apply(X = mymatrix, MARGIN = 1, FUN = function(x) {
+    detected_x = x[x > detection_threshold]
+    mean(detected_x)
+  }))
+}
 
 #' @title pDataDT
 #' @description show cell metadata
@@ -1259,15 +1267,12 @@ addGeneStatistics <- function(gobject,
 
   # calculate stats
   gene_stats = data.table::data.table(genes = rownames(expr_data),
-                          nr_cells = rowSums(expr_data > detection_threshold),
-                          perc_cells = (rowSums(expr_data > detection_threshold)/ncol(expr_data))*100,
-                          total_expr = rowSums(expr_data),
-                          mean_expr = rowMeans(expr_data))
+                          nr_cells = rowSums_giotto(expr_data > detection_threshold),
+                          perc_cells = (rowSums_giotto(expr_data > detection_threshold)/ncol(expr_data))*100,
+                          total_expr = rowSums_giotto(expr_data),
+                          mean_expr = rowMeans_giotto(expr_data))
 
-    mean_expr_detected = unlist(apply(X = expr_data, MARGIN = 1, FUN = function(x) {
-    detected_x = x[x > detection_threshold]
-    mean(detected_x)
-  }))
+  mean_expr_detected = mean_expr_det_test(expr_data, detection_threshold = detection_threshold)
   gene_stats[, mean_expr_det := mean_expr_detected]
 
 
@@ -1332,9 +1337,9 @@ addCellStatistics <- function(gobject,
 
   # calculate stats
   cell_stats = data.table::data.table(cells = colnames(expr_data),
-                          nr_genes = colSums(expr_data > detection_threshold),
-                          perc_genes = (colSums(expr_data > detection_threshold)/nrow(expr_data))*100,
-                          total_expr = colSums(expr_data))
+                          nr_genes = colSums_giotto(expr_data > detection_threshold),
+                          perc_genes = (colSums_giotto(expr_data > detection_threshold)/nrow(expr_data))*100,
+                          total_expr = colSums_giotto(expr_data))
 
 
 
