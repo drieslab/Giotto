@@ -52,8 +52,6 @@ colMeans_giotto = function(mymatrix) {
 }
 
 
-
-
 #' @title mean_expr_det_test
 #' @export
 mean_expr_det_test = function(mymatrix, detection_threshold = 1) {
@@ -61,6 +59,33 @@ mean_expr_det_test = function(mymatrix, detection_threshold = 1) {
     detected_x = x[x > detection_threshold]
     mean(detected_x)
   }))
+}
+
+#' @title libNorm_giotto
+#' @export
+libNorm_giotto <- function(mymatrix, scalefactor){
+  libsizes = colSums_giotto(mymatrix)
+  
+  if(is(mymatrix, 'dgCMatrix')) {
+    norm_expr = Matrix::t(Matrix::t(mymatrix)/ libsizes)*scalefactor # replace with sparseMatrixStats
+  } else if(is(mymatrix, 'Matrix')) {
+    norm_expr = Matrix::t(Matrix::t(mymatrix)/ libsizes)*scalefactor
+  } else {
+    norm_expr = t(t(as.matrix(mymatrix))/ libsizes)*scalefactor
+  }
+}
+
+#' @title logNorm_giotto
+#' @export
+logNorm_giotto = function(mymatrix, base, offset) {
+  
+  if(is(mymatrix, 'dgCMatrix')) {
+    log(mymatrix@x + offset)/log(base) # replace with sparseMatrixStats
+  } else if(is(mymatrix, 'Matrix')) {
+    log(mymatrix@x + offset)/log(base)
+  } else {
+    log(as.matrix(mymatrix) + offset)/log(base)
+  }
 }
 
 #' @title pDataDT
@@ -850,14 +875,14 @@ normalizeGiotto <- function(gobject,
 
     ## 1. library size normalize
     if(library_size_norm == TRUE) {
-      norm_expr = libNormFast(raw_matrix = raw_expr, scalefactor = rep(scalefactor, ncol(raw_expr)))
+      norm_expr = libNorm_giotto(mymatrix = raw_expr, scalefactor = scalefactor)
     } else {
       norm_expr = raw_expr
     }
 
     ## 2. lognormalize
     if(log_norm == TRUE) {
-      norm_expr = logNormFast(mymatrix = norm_expr,  base = logbase, offset = log_offset)
+      norm_expr = logNorm_giotto(mymatrix = norm_expr,  base = logbase, offset = log_offset)
     } else {
       norm_expr = norm_expr
     }
@@ -869,10 +894,12 @@ normalizeGiotto <- function(gobject,
 
       if(scale_order == 'first_genes') {
         if(verbose == TRUE) cat('\n first scale genes and then cells \n')
+        if(!is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr) 
         norm_scaled_expr = armaScaleRow(Z = norm_expr)
         norm_scaled_expr = armaScaleCol(Z = norm_scaled_expr)
       } else if(scale_order == 'first_cells') {
         if(verbose == TRUE) cat('\n first scale cells and then genes \n')
+        if(!is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr) 
         norm_scaled_expr = armaScaleCol(Z = norm_expr)
         norm_scaled_expr = armaScaleRow(Z = norm_scaled_expr)
       } else {
@@ -880,8 +907,10 @@ normalizeGiotto <- function(gobject,
       }
 
     } else if(scale_genes == TRUE) {
+      if(!is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr) 
       norm_scaled_expr = armaScaleRow(Z = norm_expr)
     } else if(scale_cells == TRUE) {
+      if(!is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr) 
       norm_scaled_expr = armaScaleCol(Z = norm_expr)
     } else {
       norm_scaled_expr = NULL
@@ -908,9 +937,9 @@ normalizeGiotto <- function(gobject,
   else if(norm_methods == 'osmFISH') {
 
     # 1. normalize per gene with scale-factor equal to number of genes
-    norm_genes = (raw_expr/rowSums(raw_expr)) * nrow(raw_expr)
+    norm_genes = (raw_expr/rowSums_giotto(raw_expr)) * nrow(raw_expr)
     # 2. normalize per cells with scale-factor equal to number of cells
-    norm_genes_cells = t((t(norm_genes)/colSums(norm_genes)) * ncol(raw_expr))
+    norm_genes_cells = t((t(norm_genes)/colSums_giotto(norm_genes)) * ncol(raw_expr))
 
     # return results to Giotto object
     cat('\n osmFISH-like normalized data will be returned to the custom Giotto slot \n')
@@ -947,8 +976,6 @@ normalizeGiotto <- function(gobject,
 
   return(gobject)
 }
-
-
 
 
 
