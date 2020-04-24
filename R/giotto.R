@@ -626,7 +626,7 @@ createGiottoObject <- function(raw_exprs,
 
 
   # check if all optional packages are installed
-  extra_packages = c("scran", "MAST", "png", "tiff", "biomaRt", "trendsceek", "multinet")
+  extra_packages = c("scran", "MAST", "png", "tiff", "biomaRt", "trendsceek", "multinet", "RTriangle")
   pack_index = extra_packages %in% rownames(installed.packages())
   extra_installed_packages = extra_packages[pack_index]
   extra_not_installed_packages = extra_packages[!pack_index]
@@ -714,8 +714,9 @@ createGiottoObject <- function(raw_exprs,
   colnames(spatial_locs) = paste0('sdim', spatial_dimensions[1:ncol(spatial_locs)])
 
   # add cell_ID column
+  spatial_locs[, cell_ID := colnames(raw_exprs)]
   gobject@spatial_locs = spatial_locs
-  gobject@spatial_locs[, cell_ID := colnames(raw_exprs)]
+  #gobject@spatial_locs[, cell_ID := colnames(raw_exprs)]
   
 
   

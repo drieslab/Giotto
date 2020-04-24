@@ -6,7 +6,7 @@
 \usage{
 plotStatDelaunayNetwork(
   gobject,
-  method = c("delaunayn_geometry", "RTriangle", "deldir"),
+  method = c("deldir", "delaunayn_geometry", "RTriangle", ),
   dimensions = "all",
   maximum_distance = "auto",
   minimum_k = 0,

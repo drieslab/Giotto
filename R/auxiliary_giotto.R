@@ -80,12 +80,14 @@ libNorm_giotto <- function(mymatrix, scalefactor){
 logNorm_giotto = function(mymatrix, base, offset) {
   
   if(is(mymatrix, 'dgCMatrix')) {
-    log(mymatrix@x + offset)/log(base) # replace with sparseMatrixStats
+    mymatrix@x = log(mymatrix@x + offset)/log(base) # replace with sparseMatrixStats
   } else if(is(mymatrix, 'Matrix')) {
-    log(mymatrix@x + offset)/log(base)
+    mymatrix@x =log(mymatrix@x + offset)/log(base)
   } else {
-    log(as.matrix(mymatrix) + offset)/log(base)
+    mymatrix = log(as.matrix(mymatrix) + offset)/log(base)
   }
+  
+  return(mymatrix)
 }
 
 #' @title pDataDT

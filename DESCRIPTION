@@ -30,8 +30,7 @@ Imports:
     Matrix,
     Rtsne (>= 0.15),
     uwot (>= 0.0.0.9010),
-    FactoMineR (>= 1.34),
-    factoextra (>= 1.0.5),
+    Rfast,
     cowplot (>= 0.9.4),
     grDevices,
     RColorBrewer (>= 1.1-2),
@@ -55,7 +54,8 @@ Imports:
     ggraph,
     Rcpp,
     rlang (>= 0.4.3),
-    fitdistrplus
+    fitdistrplus,
+    deldir
 Suggests:
     knitr,
     rmarkdown,

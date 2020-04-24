@@ -940,7 +940,7 @@ create_delaunayNetwork3D <- function (gobject,
 #' @examples
 #'     createSpatialDelaunayNetwork(gobject)
 createSpatialDelaunayNetwork <- function(gobject,
-                                            method = c("delaunayn_geometry", "RTriangle", "deldir"),
+                                            method = c("deldir", "delaunayn_geometry", "RTriangle"),
                                             dimensions = "all",
                                             name = "delaunay_network",
                                             maximum_distance = "auto", # all
@@ -1042,7 +1042,7 @@ createSpatialDelaunayNetwork <- function(gobject,
 #' @examples
 #'     plotStatDelaunayNetwork(gobject)
 plotStatDelaunayNetwork = function(gobject,
-                                      method = c("delaunayn_geometry", "RTriangle", "deldir"),
+                                      method = c("deldir", "delaunayn_geometry", "RTriangle",),
                                       dimensions = "all",
                                       maximum_distance = "auto", # all
                                       minimum_k = 0, # all

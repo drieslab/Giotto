@@ -65,17 +65,12 @@ calculateHVG <- function(gobject,
 
   ## create data.table with relevant statistics ##
   gene_in_cells_detected <- data.table(genes = rownames(expr_values),
-                                       nr_cells = rowSums(expr_values > expression_threshold),
-                                       total_expr = rowSums(expr_values),
-                                       mean_expr = rowMeans(expr_values),
+                                       nr_cells = rowSums_giotto(expr_values > expression_threshold),
+                                       total_expr = rowSums_giotto(expr_values),
+                                       mean_expr = rowMeans_giotto(expr_values),
                                        sd = unlist(apply(expr_values, 1, sd)))
   gene_in_cells_detected[, cov := (sd/mean_expr)]
-  gini_level <- unlist(apply(expr_values, MARGIN = 1, FUN = function(x) {
-
-    gini = Giotto:::mygini_fun(x)
-    return(gini)
-
-  }))
+  gini_level <- unlist(apply(expr_values, MARGIN = 1, mygini_fun))
   gene_in_cells_detected[, gini := gini_level]
 
 
@@ -117,8 +112,8 @@ calculateHVG <- function(gobject,
       var_col = 'cov'
     }
 
-    loess_model_sample <- stats::loess(loess_formula, data = gene_in_cells_detected)
-    gene_in_cells_detected$pred_cov_genes <- predict(loess_model_sample, newdata = gene_in_cells_detected)
+    loess_model_sample = stats::loess(loess_formula, data = gene_in_cells_detected)
+    gene_in_cells_detected$pred_cov_genes = stats::predict(loess_model_sample, newdata = gene_in_cells_detected)
     gene_in_cells_detected[, cov_diff := get(var_col)-pred_cov_genes, by = 1:nrow(gene_in_cells_detected)]
     setorder(gene_in_cells_detected, -cov_diff)
     gene_in_cells_detected[, selected := ifelse(cov_diff > difference_in_cov, 'yes', 'no')]

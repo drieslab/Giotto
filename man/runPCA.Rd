@@ -11,8 +11,9 @@ runPCA(
   name = "pca",
   genes_to_use = NULL,
   return_gobject = TRUE,
+  center = F,
   scale_unit = F,
-  ncp = 200,
+  ncp = 100,
   ...
 )
 }
@@ -28,6 +29,8 @@ runPCA(
 \item{genes_to_use}{subset of genes to use for PCA}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
+
+\item{center}{center data first (default = FALSE)}
 
 \item{scale_unit}{scale features before PCA}
 

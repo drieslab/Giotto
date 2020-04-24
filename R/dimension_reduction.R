@@ -18,7 +18,7 @@ create_dimObject = function(name = 'test',
 
 
   number_of_dimensions = ncol(coordinates)
-  colnames(coordinates) <- paste0('Dim.',1:number_of_dimensions)
+  colnames(coordinates) = paste0('Dim.',1:number_of_dimensions)
 
   if(!is.null(my_rownames)) {
     rownames(coordinates) = my_rownames
@@ -35,6 +35,62 @@ create_dimObject = function(name = 'test',
 }
 
 
+#' @title standardise_giotto
+#' @name standardise_giotto
+#' @description standardises a matrix
+#' @param x matrix 
+#' @param center center data
+#' @param scale scale data
+#' @return standardized matrix
+standardise_giotto = function (x, center = TRUE, scale = TRUE) 
+{
+  if (center & scale) {
+    y <- t(x) - Rfast::colmeans(x)
+    y <- y/sqrt(Rfast::rowsums(y^2)) * sqrt((dim(x)[1] - 
+                                               1))
+    y <- t(y)
+  }
+  else if (center & !scale) {
+    m <- Rfast::colmeans(x)
+    y <- eachrow(x, m, oper = "-")
+  }
+  else if (!center & scale) {
+    s <- Rfast::colVars(x, std = TRUE)
+    y <- eachrow(x, s, oper = "/")
+  } else {
+    y = x
+  }
+}
+
+#' @title pca_giotto
+#' @name pca_giotto
+#' @description performs PCA based on Rfast
+#' @param mymatrix matrix or object that can be converted to matrix
+#' @param center center data
+#' @param scale scale features
+#' @param k number of principal components to calculate
+#' @return list of eigenvalues, eigenvectors and pca coordinates
+pca_giotto = function(mymatrix, center = T, scale = T, k = 50) {
+  
+  if(!is.null(k) & k > ncol(mymatrix)) {
+    warning('k > ncol(matrix), will be set to ncol(matrix)')
+    k = ncol(mymatrix)
+  }
+  
+  if(!is.matrix(mymatrix)) mymatrix = as.matrix(mymatrix)
+  my_t_matrix = t(mymatrix)
+  pca_f = Rfast::hd.eigen(x = my_t_matrix, center = center, scale = scale, k = k, vectors = TRUE)
+  
+  # calculate pca coordinates
+  rotated_mat = standardise_giotto(x = my_t_matrix, center = center, scale = scale)
+  coords = rotated_mat %*% pca_f$vectors
+  colnames(coords) = paste0('Dim.', 1:ncol(coords))
+  
+  return(list(eigenvalues = pca_f$values, eigenvectors = pca_f$vectors, coords = coords))
+  
+}
+
+
 #' @title runPCA
 #' @name runPCA
 #' @description runs a Principal Component Analysis
@@ -44,6 +100,7 @@ create_dimObject = function(name = 'test',
 #' @param name arbitrary name for PCA run
 #' @param genes_to_use subset of genes to use for PCA
 #' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @param center center data first (default = FALSE)
 #' @param scale_unit scale features before PCA
 #' @param ncp number of principal components to calculate
 #' @param ... additional parameters for PCA (see details)
@@ -58,8 +115,9 @@ runPCA <- function(gobject,
                    name = 'pca',
                    genes_to_use = NULL,
                    return_gobject = TRUE,
+                   center = F,
                    scale_unit = F,
-                   ncp = 200,
+                   ncp = 100,
                    ...) {
 
 
@@ -76,11 +134,9 @@ runPCA <- function(gobject,
   # do PCA dimension reduction
   reduction = match.arg(reduction, c('cells', 'genes'))
   if(reduction == 'cells') {
-    pca_object <- FactoMineR::PCA(X = t(expr_values),
-                                  scale.unit = scale_unit, ncp = ncp, graph = F, ...)
+    pca_object = pca_giotto(mymatrix = expr_values, center = center, scale = scale_unit, k = ncp)
   } else {
-    pca_object <- FactoMineR::PCA(X = expr_values,
-                                  scale.unit = scale_unit, ncp = ncp, graph = F, ...)
+    pca_object = pca_giotto(mymatrix = t(expr_values), center = center, scale = scale_unit, k = ncp)
   }
 
   if(return_gobject == TRUE) {
@@ -93,7 +149,7 @@ runPCA <- function(gobject,
     }
 
     dimObject = create_dimObject(name = name, reduction_method = 'pca',
-                                 coordinates = pca_object$ind$coord,
+                                 coordinates = pca_object$coords,
                                  misc = pca_object, my_rownames = colnames(expr_values))
 
     gobject@dimension_reduction[[reduction]][['pca']][[name]] <- dimObject
@@ -109,6 +165,7 @@ runPCA <- function(gobject,
                                        'expression values' = expression_values,
                                        'number of genes used:' = length(genes_to_use),
                                        'ncp' = ncp,
+                                       'center' = center,
                                        'scale_unit' = scale_unit,
                                        'name for pca' = name)
     gobject@parameters = parameters_list
@@ -323,7 +380,6 @@ runUMAP <- function(gobject,
     if(!is.null(dim_reduction_to_use)) {
 
       ## TODO: check if reduction exists
-
       matrix_to_use = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']][, dimensions_to_use]
 
 
@@ -336,9 +392,7 @@ runUMAP <- function(gobject,
       if(!is.null(genes_to_use)) {
         expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
       }
-
       matrix_to_use = t(expr_values)
-
     }
 
 

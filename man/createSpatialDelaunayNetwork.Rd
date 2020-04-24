@@ -6,7 +6,7 @@
 \usage{
 createSpatialDelaunayNetwork(
   gobject,
-  method = c("delaunayn_geometry", "RTriangle", "deldir"),
+  method = c("deldir", "delaunayn_geometry", "RTriangle"),
   dimensions = "all",
   name = "delaunay_network",
   maximum_distance = "auto",
