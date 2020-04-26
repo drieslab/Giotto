@@ -179,27 +179,308 @@ runPCA <- function(gobject,
 }
 
 
+
+#' @title create_screeplot
+#' @name create_screeplot
+#' @description create screeplot with ggplot
+#' @param pca_obj pca dimension reduction object
+#' @param ncp number of principal components to calculate
+#' @param ylim y-axis limits on scree plot
+#' @return ggplot
+create_screeplot = function(pca_obj, ncp = 20, ylim = c(0, 20)) {
+  
+  eigs = pca_obj$misc$eigenvalues
+  
+  # variance explained
+  var_expl = eigs/sum(eigs)*100
+  var_expl_cum = cumsum(eigs)/sum(eigs)*100
+  
+  # create data.table
+  screeDT = data.table('PC' = paste0('PC.', 1:length(var_expl)),
+                       'var_expl' = var_expl,
+                       'var_expl_cum' = var_expl_cum)
+  screeDT[, PC := factor(PC, levels = PC)]
+  
+  pl = ggplot()
+  pl = pl + theme_bw()
+  pl = pl + geom_bar(data = screeDT[1:ncp], aes(x = PC, y = var_expl), stat = 'identity')
+  pl = pl + coord_cartesian(ylim = ylim)
+  pl = pl + theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+  pl = pl + labs(x = '', y = '% of variance explained per PC')
+  
+  cpl = ggplot()
+  cpl = cpl + theme_bw()
+  cpl = cpl + geom_bar(data = screeDT[1:ncp], aes(x = PC, y = var_expl_cum), stat = 'identity')
+  cpl = cpl + theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+  cpl = cpl + labs(x = '', y = 'cumulative % of variance explained')
+  
+  savelist = list(pl, cpl)
+  
+  ## combine plots with cowplot
+  combo_plot <- cowplot::plot_grid(plotlist = savelist,
+                                   ncol = 1,
+                                   rel_heights = c(1),
+                                   rel_widths = c(1),
+                                   align = 'v')
+  
+  return(combo_plot)
+  
+}
+
+
+
+#' @title screePlot
+#' @name screePlot
+#' @description identify significant prinicipal components (PCs) using an screeplot (a.k.a. elbowplot)
+#' @param gobject giotto object
+#' @param name name of PCA object if available
+#' @param expression_values expression values to use
+#' @param reduction cells or genes
+#' @param genes_to_use subset of genes to use for PCA
+#' @param center center data before PCA
+#' @param scale_unit scale features before PCA
+#' @param ncp number of principal components to calculate
+#' @param ylim y-axis limits on scree plot
+#' @param verbose verobsity
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot object for scree method 
+#' @details 
+#'  Screeplot works by plotting the explained variance of each
+#'  individual PC in a barplot allowing you to identify which PC does not show a significant
+#'  contribution anymore ( = 'elbow method'). \cr
+#' @export
+#' @examples
+#'     screePlot(gobject)
+screePlot = function(gobject,
+                     name = 'pca',
+                     expression_values = c('normalized', 'scaled', 'custom'),
+                     reduction = c('cells', 'genes'),
+                     genes_to_use = NULL,
+                     center = F,
+                     scale_unit = F,
+                     ncp = 100,
+                     ylim = c(0, 20),
+                     verbose = T,
+                     show_plot = NA,
+                     return_plot = NA,
+                     save_plot = NA,
+                     save_param = list(),
+                     default_save_name = 'screePlot') {
+  
+  
+  # select direction of reduction
+  reduction = match.arg(reduction, c('cells', 'genes'))
+  pca_obj = gobject@dimension_reduction[[reduction]]$pca[[name]]
+  
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+  
+  
+  # if pca already exists plot
+  if(!is.null(pca_obj)) {
+    if(verbose == TRUE) cat('PCA with name: ', name, ' already exists and will be used for the screeplot \n')
+    
+    screeplot = create_screeplot(pca_obj = pca_obj, ncp = ncp, ylim = ylim)
+    
+  } else {
+    # if pca doesn't exists, then create pca and then plot
+    if(verbose == TRUE) cat('PCA with name: ', name, ' does NOT exists, PCA will be done first \n')
+    
+    # expression values to be used
+    values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+    expr_values = select_expression_values(gobject = gobject, values = values)
+    
+    # subset expression matrix
+    if(!is.null(genes_to_use)) {
+      expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
+    }
+    
+    # reduction of cells
+    if(reduction == 'cells') {
+      pca_object = pca_giotto(mymatrix = expr_values, center = center, scale = scale_unit, k = ncp)
+      
+      dimObject = create_dimObject(name = name, reduction_method = 'pca',
+                                   coordinates = pca_object$coords,
+                                   misc = pca_object, my_rownames = colnames(expr_values))
+      
+      screeplot = create_screeplot(pca_obj = dimObject, ncp = ncp, ylim = ylim)
+    }
+    
+  }
+  
+  ## print plot
+  if(show_plot == TRUE) {
+    print(screeplot)
+  }
+  
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = screeplot, default_save_name = default_save_name), save_param))
+  }
+  
+  ## return plot
+  if(return_plot == TRUE) {
+    return(screeplot)
+  } 
+}
+
+
+#' @title create_jackstrawplot
+#' @name create_jackstrawplot
+#' @description create jackstrawplot with ggplot
+#' @param jackstraw_data result from jackstraw function
+#' @param ncp number of principal components to calculate
+#' @param ylim y-axis limits on jackstraw plot
+#' @param p-value threshold to call a PC significant
+#' @return ggplot
+create_jackstrawplot = function(jackstraw_data, ncp = 20, ylim = c(0, 1), threshold = 0.01) {
+  
+  
+  testDT = data.table(PC = paste0('PC.', 1:length(jackstraw_data)),
+                      p.val = jackstraw_data)
+  testDT[, PC := factor(PC, levels = PC)]
+  testDT[, sign := ifelse(p.val <= threshold, 'sign', 'n.s.')]
+  
+  pl = ggplot()
+  pl = pl + theme_bw()
+  pl = pl + geom_point(data = testDT[1:ncp], aes(x = PC, y = p.val, fill = sign), shape = 21)
+  pl = pl + scale_fill_manual(values  = c('n.s.' = 'lightgrey', 'sign' = 'darkorange'))
+  pl = pl + theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+  pl = pl + coord_cartesian(ylim = ylim)
+  pl = pl + theme(panel.grid.major.x = element_blank())
+  pl = pl + labs(x = '', y = 'p-value per PC')
+  
+  return(pl)
+  
+}
+
+
+#' @title jackstrawPlot
+#' @name jackstrawPlot
+#' @description identify significant prinicipal components (PCs)
+#' @param gobject giotto object
+#' @param expression_values expression values to use
+#' @param reduction cells or genes
+#' @param genes_to_use subset of genes to use for PCA
+#' @param center center data before PCA
+#' @param scale_unit scale features before PCA
+#' @param ncp number of principal components to calculate
+#' @param ylim y-axis limits on jackstraw plot
+#' @param iter number of interations for jackstraw
+#' @param threshold p-value threshold to call a PC significant
+#' @param verbose show progress of jackstraw method
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot object for jackstraw method
+#' @details 
+#'  The Jackstraw method uses the \code{\link[jackstraw]{permutationPA}} function. By
+#'  systematically permuting genes it identifies robust, and thus significant, PCs.
+#'  \cr multiple PCA results can be stored by changing the \emph{name} parameter
+#' @export
+#' @examples
+#'     jackstrawPlot(gobject)
+jackstrawPlot = function(gobject,
+                         expression_values = c('normalized', 'scaled', 'custom'),
+                         reduction = c('cells', 'genes'),
+                         genes_to_use = NULL,
+                         center = F,
+                         scale_unit = F,
+                         ncp = 20,
+                         ylim = c(0, 1),
+                         iter = 10,
+                         threshold = 0.01,
+                         verbose = T,
+                         show_plot = NA,
+                         return_plot = NA,
+                         save_plot = NA,
+                         save_param = list(),
+                         default_save_name = 'jackstrawPlot') {
+  
+  
+  # select direction of reduction
+  reduction = match.arg(reduction, c('cells', 'genes'))
+  
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+  
+  # expression values to be used
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_values = select_expression_values(gobject = gobject, values = values)
+  
+  # subset expression matrix
+  if(!is.null(genes_to_use)) {
+    expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
+  }
+  
+  # reduction of cells
+  if(reduction == 'cells') {
+    
+    if(scale_unit == TRUE | center == TRUE) {
+      expr_values = t(scale(t(expr_values), center = center, scale = scale_unit))
+    }
+    
+    jtest = jackstraw::permutationPA(dat = expr_values, B = iter, threshold = threshold, verbose = verbose)
+    
+    ## results ##
+    nr_sign_components = jtest$r
+    cat('number of estimated significant components: ', nr_sign_components, '\n')
+    final_results = jtest$p
+    jackplot = create_jackstrawplot(jackstraw_data = final_results, ncp = ncp, ylim = ylim, threshold = threshold)
+    
+  }
+  
+  ## print plot
+  if(show_plot == TRUE) {
+    print(jackplot)
+  }
+  
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = jackplot, default_save_name = default_save_name), save_param))
+  }
+  
+  ## return plot
+  if(return_plot == TRUE) {
+    return(jackplot)
+  } 
+  
+}
+
+
+
 #' @title signPCA
 #' @name signPCA
 #' @description identify significant prinicipal components (PCs)
 #' @param gobject giotto object
+#' @param name name of PCA object if available
 #' @param method method to use to identify significant PCs
 #' @param expression_values expression values to use
 #' @param reduction cells or genes
 #' @param genes_to_use subset of genes to use for PCA
+#' @param center center data before PCA
 #' @param scale_unit scale features before PCA
 #' @param ncp number of principal components to calculate
-#' @param scree_labels show labels on scree plot
 #' @param scree_ylim y-axis limits on scree plot
 #' @param jack_iter number of interations for jackstraw
 #' @param jack_threshold p-value threshold to call a PC significant
+#' @param jack_ylim y-axis limits on jackstraw plot
 #' @param jack_verbose show progress of jackstraw method
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from all_plots_save_function()
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
-#' @param ... additional parameters for PCA
 #' @return ggplot object for scree method and maxtrix of p-values for jackstraw
 #' @details Two different methods can be used to assess the number of relevant or significant
 #'  prinicipal components (PC's). \cr
@@ -213,23 +494,24 @@ runPCA <- function(gobject,
 #' @examples
 #'     signPCA(gobject)
 signPCA <- function(gobject,
+                    name = 'pca',
                     method = c('screeplot', 'jackstraw'),
                     expression_values = c("normalized", "scaled", "custom"),
                     reduction = c("cells", "genes"),
                     genes_to_use = NULL,
+                    center = T,
                     scale_unit = T,
                     ncp = 50,
-                    scree_labels = T,
                     scree_ylim = c(0,10),
                     jack_iter = 10,
                     jack_threshold = 0.01,
+                    jack_ylim = c(0, 1),
                     jack_verbose = T,
                     show_plot = NA,
                     return_plot = NA,
                     save_plot = NA,
                     save_param = list(),
-                    default_save_name = 'signPCA',
-                    ...) {
+                    default_save_name = 'signPCA') {
 
   # select method
   method = match.arg(method, choices = c('screeplot', 'jackstraw'))
@@ -256,12 +538,23 @@ signPCA <- function(gobject,
   if(reduction == 'cells') {
 
     if(method == 'screeplot') {
-      pca_object <- FactoMineR::PCA(X = t(expr_values),
-                                    scale.unit = scale_unit,
-                                    ncp = ncp, graph = F, ...)
-      screeplot = factoextra::fviz_eig(pca_object, addlabels = scree_labels, ylim = scree_ylim, ncp = ncp)
-      final_result_plot = screeplot
-
+      
+      screeplot = screePlot(gobject = gobject,
+                            name = name,
+                            expression_values = values,
+                            reduction = reduction,
+                            genes_to_use = genes_to_use,
+                            center = center,
+                            scale_unit = scale_unit,
+                            ncp = ncp,
+                            ylim = scree_ylim,
+                            verbose = verbose,
+                            show_plot = FALSE,
+                            return_plot = TRUE,
+                            save_plot = FALSE,
+                            save_param = list(),
+                            default_save_name = 'screePlot')
+      
       ## print plot
       if(show_plot == TRUE) {
         print(screeplot)
@@ -280,28 +573,39 @@ signPCA <- function(gobject,
 
     } else if(method == 'jackstraw') {
 
-      if(scale_unit == TRUE) {
-        expr_values = t(scale(t(expr_values)))
-      }
-
-      jtest = jackstraw::permutationPA(dat = expr_values, B = jack_iter, threshold = jack_threshold, verbose = jack_verbose)
-      final_result_plot = jtest$p
-
+      
+      jackplot = jackstrawPlot(gobject = gobject,
+                               expression_values = values,
+                               reduction = reduction,
+                               genes_to_use = genes_to_use,
+                               center = center,
+                               scale_unit = scale_unit,
+                               ncp = ncp,
+                               ylim = jack_ylim,
+                               iter = jack_iter,
+                               threshold = jack_threshold,
+                               verbose = verbose,
+                               show_plot = FALSE,
+                               return_plot = TRUE,
+                               save_plot = FALSE,
+                               save_param = list(),
+                               default_save_name = 'jackstrawPlot')
+ 
       ## print plot
       if(show_plot == TRUE) {
-        print(final_result_plot)
+        print(jackplot)
       }
 
       ## save plot
       if(save_plot == TRUE) {
-        do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = final_result_plot, default_save_name = default_save_name), save_param))
+        do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = jackplot, default_save_name = default_save_name), save_param))
       }
 
       ## return plot
       if(return_plot == TRUE) {
-        return(final_result_plot)
+        return(jackplot)
       } else {
-        return(jtest)
+        return(jackplot) # poentially return all results instead
       }
 
     }
