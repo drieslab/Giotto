@@ -475,7 +475,7 @@ jackstrawPlot = function(gobject,
 #' @param jack_iter number of interations for jackstraw
 #' @param jack_threshold p-value threshold to call a PC significant
 #' @param jack_ylim y-axis limits on jackstraw plot
-#' @param jack_verbose show progress of jackstraw method
+#' @param verbose verbosity
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -506,7 +506,7 @@ signPCA <- function(gobject,
                     jack_iter = 10,
                     jack_threshold = 0.01,
                     jack_ylim = c(0, 1),
-                    jack_verbose = T,
+                    verbose = TRUE,
                     show_plot = NA,
                     return_plot = NA,
                     save_plot = NA,

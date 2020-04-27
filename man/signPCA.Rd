@@ -18,7 +18,7 @@ signPCA(
   jack_iter = 10,
   jack_threshold = 0.01,
   jack_ylim = c(0, 1),
-  jack_verbose = T,
+  verbose = TRUE,
   show_plot = NA,
   return_plot = NA,
   save_plot = NA,
@@ -53,7 +53,7 @@ signPCA(
 
 \item{jack_ylim}{y-axis limits on jackstraw plot}
 
-\item{jack_verbose}{show progress of jackstraw method}
+\item{verbose}{verbosity}
 
 \item{show_plot}{show plot}
 
