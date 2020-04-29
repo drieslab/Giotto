@@ -12,7 +12,7 @@ get10Xmatrix(path_to_data, gene_column_index = 1)
 \item{gene_column_index}{which column from the features or genes .tsv file to use for row ids}
 }
 \value{
-expression matrix from 10X
+sparse expression matrix from 10X
 }
 \description{
 This function creates an expression matrix from a 10X structured folder

@@ -54,6 +54,7 @@ Imports:
     Rfast,
     Rtsne (>= 0.15),
     rlang (>= 0.4.3),
+    R.utils,
     fitdistrplus,
     deldir
 Suggests:

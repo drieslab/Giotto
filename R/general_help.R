@@ -212,7 +212,7 @@ stitchTileCoordinates <- function (location_file, Xtilespan, Ytilespan) {
 #' @description This function creates an expression matrix from a 10X structured folder
 #' @param path_to_data path to the 10X folder
 #' @param gene_column_index which column from the features or genes .tsv file to use for row ids
-#' @return expression matrix from 10X
+#' @return sparse expression matrix from 10X
 #' @details A typical 10X folder is named raw_feature_bc_matrix or raw_feature_bc_matrix and tt has 3 files:
 #' \itemize{
 #'   \item{barcodes.tsv(.gz)}
@@ -225,44 +225,52 @@ stitchTileCoordinates <- function (location_file, Xtilespan, Ytilespan) {
 #' @examples
 #'     get10Xmatrix(10Xmatrix)
 get10Xmatrix = function(path_to_data, gene_column_index = 1) {
-
+  
   # data directory
   files_10X = list.files(path_to_data)
-
+  
   # get barcodes and create vector
   barcodes_file = grep(files_10X, pattern = 'barcodes', value = T)
   barcodesDT = fread(input = paste0(path_to_data,'/',barcodes_file), header = F)
   barcodes_vec = barcodesDT$V1
   names(barcodes_vec) = 1:nrow(barcodesDT)
-
+  
   # get features and create vector
   features_file = grep(files_10X, pattern = 'features|genes', value = T)
   featuresDT = fread(input = paste0(path_to_data,'/',features_file), header = F)
-
+  
   g_name = colnames(featuresDT)[gene_column_index]
   ## convert ensembl gene id to gene symbol ##
   ## TODO
-
+  
   featuresDT[, total := .N, by = get(g_name)]
   featuresDT[, gene_symbol := ifelse(total > 1, paste0(get(g_name),'--',1:.N), get(g_name)), by = get(g_name)]
   features_vec = featuresDT$gene_symbol
   names(features_vec) = 1:nrow(featuresDT)
-
+  
   # get matrix
   matrix_file = grep(files_10X, pattern = 'matrix', value = T)
   matrixDT = fread(input = paste0(path_to_data,'/',matrix_file), header = F, skip = 3)
   colnames(matrixDT) = c('gene_id_num', 'cell_id_num', 'umi')
-
+  
   # convert barcodes and features
   matrixDT[, gene_id := features_vec[gene_id_num]]
   matrixDT[, cell_id := barcodes_vec[cell_id_num]]
-
+  
+  # make sure that gene id are consecutive
+  sort_gene_id_vec = 1:length(unique(matrixDT$gene_id))
+  names(sort_gene_id_vec) = unique(matrixDT$gene_id)
+  matrixDT[, sort_gene_id_num := sort_gene_id_vec[gene_id]]
+  
+  sparsemat = Matrix::sparseMatrix(i = matrixDT$sort_gene_id_num, j = matrixDT$cell_id_num, x = matrixDT$umi,
+                                   dimnames = list(unique(matrixDT$gene_id), unique(matrixDT$cell_id)))
+  
+  return(sparsemat)
+  
   # create a final matrix
-  matrix_ab = data.table::dcast.data.table(data = matrixDT, gene_id~cell_id, value.var = 'umi')
-  matrix_ab_mat = Giotto:::dt_to_matrix(matrix_ab)
-  matrix_ab_mat[is.na(matrix_ab_mat)] = 0
-
-  return(matrix_ab_mat)
+  #matrix_ab = data.table::dcast.data.table(data = matrixDT, gene_id~cell_id, value.var = 'umi')
+  #matrix_ab_mat = Giotto:::dt_to_matrix(matrix_ab)
+  #matrix_ab_mat[is.na(matrix_ab_mat)] = 0
 
 }
 
