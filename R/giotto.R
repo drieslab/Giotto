@@ -38,6 +38,7 @@ giotto <- setClass(
     spatial_enrichment = "ANY",
     dimension_reduction = 'ANY',
     nn_network = "ANY",
+    images = "ANY",
     parameters = "ANY",
     instructions = "ANY",
     offset_file = "ANY",
@@ -59,6 +60,7 @@ giotto <- setClass(
     spatial_enrichment = NULL,
     dimension_reduction = NULL,
     nn_network = NULL,
+    images = NULL,
     parameters = NULL,
     instructions = NULL,
     offset_file = NULL,
@@ -546,6 +548,7 @@ evaluate_expr_matrix = function(inputmatrix, sparse = TRUE, cores = NA) {
 #' @param spatial_enrichment_name list of spatial enrichment name(s)
 #' @param dimension_reduction list of dimension reduction(s)
 #' @param nn_network list of nearest neighbor network(s)
+#' @param images list of images
 #' @param offset_file file used to stitch fields together (optional)
 #' @param instructions list of instructions or output result from createGiottoInstructions
 #' @param cores how many cores or threads to use to read data if paths are provided
@@ -579,6 +582,7 @@ evaluate_expr_matrix = function(inputmatrix, sparse = TRUE, cores = NA) {
 #'   \item{spatial enrichments}
 #'   \item{dimensions reductions}
 #'   \item{nearest neighbours networks}
+#'   \item{images}
 #' }
 #'
 #' @keywords giotto
@@ -600,6 +604,7 @@ createGiottoObject <- function(raw_exprs,
                                spatial_enrichment_name = NULL,
                                dimension_reduction = NULL,
                                nn_network = NULL,
+                               images = NULL,
                                offset_file = NULL,
                                instructions = NULL,
                                cores = NA) {
@@ -619,6 +624,7 @@ createGiottoObject <- function(raw_exprs,
                    spatial_enrichment = NULL,
                    dimension_reduction = NULL,
                    nn_network = NULL,
+                   images = NULL,
                    parameters = NULL,
                    offset_file = offset_file,
                    instructions = instructions,
@@ -694,7 +700,7 @@ createGiottoObject <- function(raw_exprs,
 
 
   ## spatial
-  if(!class(spatial_locs) %in% c('data.table', 'data.frame', 'matrix', 'character')) {
+  if(!any(class(spatial_locs) %in% c('data.table', 'data.frame', 'matrix', 'character'))) {
     stop('spatial_locs needs to be a data.table or data.frame-like object or a path to one of these')
   }
   if(is(spatial_locs, 'character')) {
@@ -923,6 +929,31 @@ createGiottoObject <- function(raw_exprs,
 
   }
 
+  ## images ##
+  # expect a list of giotto object images
+  if(!is.null(images)) {
+    
+    if(is.null(names(images))) {
+      names(images) = paste0('image.', 1:length(images))
+    }
+    
+    for(image_i in 1:length(images)) {
+      
+      im = images[[image_i]]
+      im_name = names(images)[[image_i]]
+      
+      if(is(im, 'imageGiottoObj')) {
+        gobject@images[[im_name]] = im
+      } else {
+        warning('image: ', im, ' is not a giotto image object')
+      }
+      
+    }
+    
+  }
+  
+  
+  
   # other information
   # TODO
 

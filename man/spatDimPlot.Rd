@@ -6,6 +6,9 @@
 \usage{
 spatDimPlot(
   gobject,
+  show_image = F,
+  gimage = NULL,
+  image_name = "image",
   plot_alignment = c("vertical", "horizontal"),
   dim_reduction_to_use = "umap",
   dim_reduction_name = "umap",
@@ -77,6 +80,12 @@ spatDimPlot(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{show_image}{show a tissue background image}
+
+\item{gimage}{a giotto image}
+
+\item{image_name}{name of a giotto image}
 
 \item{plot_alignment}{direction to align plot}
 

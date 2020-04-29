@@ -6,6 +6,9 @@
 \usage{
 spatCellPlot(
   gobject,
+  show_image = F,
+  gimage = NULL,
+  image_name = "image",
   sdimx = "sdimx",
   sdimy = "sdimy",
   spat_enr_names = NULL,
@@ -59,6 +62,12 @@ spatCellPlot(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{show_image}{show a tissue background image}
+
+\item{gimage}{a giotto image}
+
+\item{image_name}{name of a giotto image}
 
 \item{sdimx}{x-axis dimension name (default = 'sdimx')}
 

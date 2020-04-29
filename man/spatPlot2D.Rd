@@ -6,6 +6,9 @@
 \usage{
 spatPlot2D(
   gobject,
+  show_image = F,
+  gimage = NULL,
+  image_name = "image",
   group_by = NULL,
   group_by_subset = NULL,
   sdimx = "sdimx",
@@ -64,6 +67,12 @@ spatPlot2D(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{show_image}{show a tissue background image}
+
+\item{gimage}{a giotto image}
+
+\item{image_name}{name of a giotto image}
 
 \item{group_by_subset}{subset the group_by factor column}
 

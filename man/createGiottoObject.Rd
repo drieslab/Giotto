@@ -20,6 +20,7 @@ createGiottoObject(
   spatial_enrichment_name = NULL,
   dimension_reduction = NULL,
   nn_network = NULL,
+  images = NULL,
   offset_file = NULL,
   instructions = NULL,
   cores = NA
@@ -55,6 +56,8 @@ createGiottoObject(
 \item{dimension_reduction}{list of dimension reduction(s)}
 
 \item{nn_network}{list of nearest neighbor network(s)}
+
+\item{images}{list of images}
 
 \item{offset_file}{file used to stitch fields together (optional)}
 
@@ -97,6 +100,7 @@ This data can also be added afterwards using the \code{\link{addGeneMetadata}} o
   \item{spatial enrichments}
   \item{dimensions reductions}
   \item{nearest neighbours networks}
+  \item{images}
 }
 }
 \examples{

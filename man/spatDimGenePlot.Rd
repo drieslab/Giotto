@@ -6,6 +6,9 @@
 \usage{
 spatDimGenePlot(
   gobject,
+  show_image = F,
+  gimage = NULL,
+  image_name = "image",
   expression_values = c("normalized", "scaled", "custom"),
   plot_alignment = c("vertical", "horizontal"),
   genes,
@@ -56,6 +59,12 @@ spatDimGenePlot(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{show_image}{show a tissue background image}
+
+\item{gimage}{a giotto image}
+
+\item{image_name}{name of a giotto image}
 
 \item{expression_values}{gene expression values to use}
 

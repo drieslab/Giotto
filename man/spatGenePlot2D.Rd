@@ -6,6 +6,9 @@
 \usage{
 spatGenePlot2D(
   gobject,
+  show_image = F,
+  gimage = NULL,
+  image_name = "image",
   sdimx = "sdimx",
   sdimy = "sdimy",
   expression_values = c("normalized", "scaled", "custom"),
@@ -46,6 +49,12 @@ spatGenePlot2D(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{show_image}{show a tissue background image}
+
+\item{gimage}{a giotto image}
+
+\item{image_name}{name of a giotto image}
 
 \item{sdimx}{x-axis dimension name (default = 'sdimx')}
 
