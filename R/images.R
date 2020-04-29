@@ -94,8 +94,8 @@ changeImageBg = function(mg_object, bg_color, perc_range = 10, new_color = '#FFF
   data.table::setorder(arrayDT, y, x)
   
   # convert array_dt to array and then to magick image object
-  original_width = image_info(mg_img)[2]
-  original_heigth = image_info(mg_img)[3]
+  original_width = magick::image_info(mg_img)[2]
+  original_heigth = magick::image_info(mg_img)[3]
   myarray = array(as.vector(as.matrix(arrayDT[,.(c1, c2, c3)])), dim = c(original_width, original_heigth, 3))
   new_mg_object = magick::image_read(myarray)
   return(new_mg_object)
