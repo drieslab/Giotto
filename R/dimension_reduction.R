@@ -103,6 +103,7 @@ pca_giotto = function(mymatrix, center = T, scale = T, k = 50) {
 #' @param center center data first (default = FALSE)
 #' @param scale_unit scale features before PCA
 #' @param ncp number of principal components to calculate
+#' @param verbose verbosity of the function
 #' @param ... additional parameters for PCA (see details)
 #' @return giotto object with updated PCA dimension recuction
 #' @details See \code{\link[FactoMineR]{PCA}} for more information about other parameters.
@@ -113,11 +114,12 @@ runPCA <- function(gobject,
                    expression_values = c('normalized', 'scaled', 'custom'),
                    reduction = c('cells', 'genes'),
                    name = 'pca',
-                   genes_to_use = NULL,
+                   genes_to_use = 'hvg',
                    return_gobject = TRUE,
                    center = F,
                    scale_unit = F,
                    ncp = 100,
+                   verbose = TRUE,
                    ...) {
 
 
@@ -125,10 +127,23 @@ runPCA <- function(gobject,
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
 
-
+  # cell metadata
+  gene_metadata = fDataDT(gobject)
+  
   # subset expression matrix
   if(!is.null(genes_to_use)) {
-    expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
+    if(is.character(genes_to_use) & length(genes_to_use) == 1) {
+      if(genes_to_use %in% colnames(gene_metadata)) {
+        if(verbose == TRUE) cat(genes_to_use, ' was found in the gene metadata information and will be used to select highly variable genes')
+        genes_to_use = gene_metadata[get(genes_to_use) == 'yes'][['gene_ID']]
+        expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
+      } else {
+        if(verbose == TRUE) cat(genes_to_use, ' was not found in the gene metadata information, all genes will be used')
+      }
+    } else {
+      if(verbose == TRUE) cat('a custom vector of genes will be used to subset the matrix')
+      expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
+    }
   }
 
   # do PCA dimension reduction
