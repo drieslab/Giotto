@@ -91,6 +91,38 @@ pca_giotto = function(mymatrix, center = T, scale = T, k = 50) {
 }
 
 
+#' @title create_genes_to_use_matrix
+#' @name create_genes_to_use_matrix
+#' @description subsets matrix based on vector of genes or hvg column
+#' @param gobject giotto object
+#' @param sel_matrix selected expression matrix
+#' @param genes_to_use genes to use, character or vector of genes
+#' @param verbose verbosity
+#' @return subsetted matrix based on selected genes
+create_genes_to_use_matrix = function(gobject, sel_matrix, genes_to_use, verbose = TRUE) {
+  
+  # cell metadata
+  gene_metadata = fDataDT(gobject)
+  
+  # for hvg genes
+  if(is.character(genes_to_use) & length(genes_to_use) == 1) {
+    if(genes_to_use %in% colnames(gene_metadata)) {
+      if(verbose == TRUE) cat(genes_to_use, ' was found in the gene metadata information and will be used to select highly variable genes \n')
+      genes_to_use = gene_metadata[get(genes_to_use) == 'yes'][['gene_ID']]
+      sel_matrix = sel_matrix[rownames(sel_matrix) %in% genes_to_use, ]
+    } else {
+      if(verbose == TRUE) cat(genes_to_use, ' was not found in the gene metadata information, all genes will be used \n')
+    }
+  } else {
+    if(verbose == TRUE) cat('a custom vector of genes will be used to subset the matrix \n')
+    sel_matrix = expr_values[rownames(sel_matrix) %in% genes_to_use, ]
+  }
+  
+  return(expr_values)
+
+}
+
+
 #' @title runPCA
 #' @name runPCA
 #' @description runs a Principal Component Analysis
@@ -133,24 +165,14 @@ runPCA <- function(gobject,
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
 
-  # cell metadata
-  gene_metadata = fDataDT(gobject)
-  
-  # subset expression matrix
+  ## subset matrix
   if(!is.null(genes_to_use)) {
-    if(is.character(genes_to_use) & length(genes_to_use) == 1) {
-      if(genes_to_use %in% colnames(gene_metadata)) {
-        if(verbose == TRUE) cat(genes_to_use, ' was found in the gene metadata information and will be used to select highly variable genes')
-        genes_to_use = gene_metadata[get(genes_to_use) == 'yes'][['gene_ID']]
-        expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
-      } else {
-        if(verbose == TRUE) cat(genes_to_use, ' was not found in the gene metadata information, all genes will be used')
-      }
-    } else {
-      if(verbose == TRUE) cat('a custom vector of genes will be used to subset the matrix')
-      expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
-    }
+    expr_values = create_genes_to_use_matrix(gobject = gobject,
+                                             sel_matrix = expr_values,
+                                             genes_to_use = genes_to_use,
+                                             verbose = verbose)
   }
+  
 
   # do PCA dimension reduction
   reduction = match.arg(reduction, c('cells', 'genes'))
@@ -317,23 +339,12 @@ screePlot = function(gobject,
     values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
     expr_values = select_expression_values(gobject = gobject, values = values)
     
-    # cell metadata
-    gene_metadata = fDataDT(gobject)
-    
-    # subset expression matrix
+    ## subset matrix
     if(!is.null(genes_to_use)) {
-      if(is.character(genes_to_use) & length(genes_to_use) == 1) {
-        if(genes_to_use %in% colnames(gene_metadata)) {
-          if(verbose == TRUE) cat(genes_to_use, ' was found in the gene metadata information and will be used to select highly variable genes')
-          genes_to_use = gene_metadata[get(genes_to_use) == 'yes'][['gene_ID']]
-          expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
-        } else {
-          if(verbose == TRUE) cat(genes_to_use, ' was not found in the gene metadata information, all genes will be used')
-        }
-      } else {
-        if(verbose == TRUE) cat('a custom vector of genes will be used to subset the matrix')
-        expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
-      }
+      expr_values = create_genes_to_use_matrix(gobject = gobject,
+                                               sel_matrix = expr_values,
+                                               genes_to_use = genes_to_use,
+                                               verbose = verbose)
     }
     
     # reduction of cells
@@ -453,23 +464,12 @@ jackstrawPlot = function(gobject,
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = select_expression_values(gobject = gobject, values = values)
   
-  # cell metadata
-  gene_metadata = fDataDT(gobject)
-  
-  # subset expression matrix
+  ## subset matrix
   if(!is.null(genes_to_use)) {
-    if(is.character(genes_to_use) & length(genes_to_use) == 1) {
-      if(genes_to_use %in% colnames(gene_metadata)) {
-        if(verbose == TRUE) cat(genes_to_use, ' was found in the gene metadata information and will be used to select highly variable genes')
-        genes_to_use = gene_metadata[get(genes_to_use) == 'yes'][['gene_ID']]
-        expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
-      } else {
-        if(verbose == TRUE) cat(genes_to_use, ' was not found in the gene metadata information, all genes will be used')
-      }
-    } else {
-      if(verbose == TRUE) cat('a custom vector of genes will be used to subset the matrix')
-      expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
-    }
+    expr_values = create_genes_to_use_matrix(gobject = gobject,
+                                             sel_matrix = expr_values,
+                                             genes_to_use = genes_to_use,
+                                             verbose = verbose)
   }
   
   # reduction of cells
@@ -578,9 +578,12 @@ signPCA <- function(gobject,
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
 
-  # subset expression matrix
+  ## subset matrix
   if(!is.null(genes_to_use)) {
-    expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
+    expr_values = create_genes_to_use_matrix(gobject = gobject,
+                                             sel_matrix = expr_values,
+                                             genes_to_use = genes_to_use,
+                                             verbose = verbose)
   }
 
   # reduction of cells
@@ -745,24 +748,14 @@ runUMAP <- function(gobject,
       values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
       expr_values = select_expression_values(gobject = gobject, values = values)
 
-      # cell metadata
-      gene_metadata = fDataDT(gobject)
-      
-      # subset expression matrix
+      ## subset matrix
       if(!is.null(genes_to_use)) {
-        if(is.character(genes_to_use) & length(genes_to_use) == 1) {
-          if(genes_to_use %in% colnames(gene_metadata)) {
-            if(verbose == TRUE) cat(genes_to_use, ' was found in the gene metadata information and will be used to select highly variable genes')
-            genes_to_use = gene_metadata[get(genes_to_use) == 'yes'][['gene_ID']]
-            expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
-          } else {
-            if(verbose == TRUE) cat(genes_to_use, ' was not found in the gene metadata information, all genes will be used')
-          }
-        } else {
-          if(verbose == TRUE) cat('a custom vector of genes will be used to subset the matrix')
-          expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
-        }
+        expr_values = create_genes_to_use_matrix(gobject = gobject,
+                                                 sel_matrix = expr_values,
+                                                 genes_to_use = genes_to_use,
+                                                 verbose = verbose)
       }
+      
       matrix_to_use = t(expr_values)
     }
 
@@ -913,23 +906,12 @@ runtSNE <- function(gobject,
       values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
       expr_values = select_expression_values(gobject = gobject, values = values)
 
-      # cell metadata
-      gene_metadata = fDataDT(gobject)
-      
-      # subset expression matrix
+      ## subset matrix
       if(!is.null(genes_to_use)) {
-        if(is.character(genes_to_use) & length(genes_to_use) == 1) {
-          if(genes_to_use %in% colnames(gene_metadata)) {
-            if(verbose == TRUE) cat(genes_to_use, ' was found in the gene metadata information and will be used to select highly variable genes')
-            genes_to_use = gene_metadata[get(genes_to_use) == 'yes'][['gene_ID']]
-            expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
-          } else {
-            if(verbose == TRUE) cat(genes_to_use, ' was not found in the gene metadata information, all genes will be used')
-          }
-        } else {
-          if(verbose == TRUE) cat('a custom vector of genes will be used to subset the matrix')
-          expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
-        }
+        expr_values = create_genes_to_use_matrix(gobject = gobject,
+                                                 sel_matrix = expr_values,
+                                                 genes_to_use = genes_to_use,
+                                                 verbose = verbose)
       }
 
       matrix_to_use = t(expr_values)

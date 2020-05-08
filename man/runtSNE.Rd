@@ -20,6 +20,7 @@ runtSNE(
   do_PCA_first = F,
   set_seed = T,
   seed_number = 1234,
+  verbose = TRUE,
   ...
 )
 }
@@ -54,6 +55,8 @@ runtSNE(
 
 \item{seed_number}{seed number to use}
 
+\item{verbose}{verbosity of the function}
+
 \item{...}{additional tSNE parameters}
 }
 \value{
@@ -67,6 +70,8 @@ See \code{\link[Rtsne]{Rtsne}} for more information about these and other parame
 \itemize{
   \item Input for tSNE dimension reduction can be another dimension reduction (default = 'pca')
   \item To use gene expression as input set dim_reduction_to_use = NULL
+  \item If dim_reduction_to_use = NULL, genes_to_use can be used to select a column name of
+  highly variable genes (see \code{\link{calculateHVG}}) or simply provide a vector of genes
   \item multiple tSNE results can be stored by changing the \emph{name} of the analysis
 }
 }

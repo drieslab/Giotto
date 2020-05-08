@@ -9,11 +9,12 @@ runPCA(
   expression_values = c("normalized", "scaled", "custom"),
   reduction = c("cells", "genes"),
   name = "pca",
-  genes_to_use = NULL,
+  genes_to_use = "hvg",
   return_gobject = TRUE,
   center = F,
   scale_unit = F,
   ncp = 100,
+  verbose = TRUE,
   ...
 )
 }
@@ -36,6 +37,8 @@ runPCA(
 
 \item{ncp}{number of principal components to calculate}
 
+\item{verbose}{verbosity of the function}
+
 \item{...}{additional parameters for PCA (see details)}
 }
 \value{
@@ -46,6 +49,12 @@ runs a Principal Component Analysis
 }
 \details{
 See \code{\link[FactoMineR]{PCA}} for more information about other parameters.
+\itemize{
+  \item genes_to_use = NULL: will use all genes from the selected matrix
+  \item genes_to_use = <hvg name>: can be used to select a column name of
+  highly variable genes (see \code{\link{calculateHVG}})
+  \item genes_to_use = c('geneA', 'geneB', ...): will use all manually provided genes
+}
 }
 \examples{
     runPCA(gobject)
