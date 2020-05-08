@@ -107,6 +107,12 @@ pca_giotto = function(mymatrix, center = T, scale = T, k = 50) {
 #' @param ... additional parameters for PCA (see details)
 #' @return giotto object with updated PCA dimension recuction
 #' @details See \code{\link[FactoMineR]{PCA}} for more information about other parameters.
+#' \itemize{
+#'   \item genes_to_use = NULL: will use all genes from the selected matrix
+#'   \item genes_to_use = <hvg name>: can be used to select a column name of
+#'   highly variable genes (see \code{\link{calculateHVG}})
+#'   \item genes_to_use = c('geneA', 'geneB', ...): will use all manually provided genes
+#' }
 #' @export
 #' @examples
 #'     runPCA(gobject)
@@ -311,9 +317,23 @@ screePlot = function(gobject,
     values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
     expr_values = select_expression_values(gobject = gobject, values = values)
     
+    # cell metadata
+    gene_metadata = fDataDT(gobject)
+    
     # subset expression matrix
     if(!is.null(genes_to_use)) {
-      expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
+      if(is.character(genes_to_use) & length(genes_to_use) == 1) {
+        if(genes_to_use %in% colnames(gene_metadata)) {
+          if(verbose == TRUE) cat(genes_to_use, ' was found in the gene metadata information and will be used to select highly variable genes')
+          genes_to_use = gene_metadata[get(genes_to_use) == 'yes'][['gene_ID']]
+          expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
+        } else {
+          if(verbose == TRUE) cat(genes_to_use, ' was not found in the gene metadata information, all genes will be used')
+        }
+      } else {
+        if(verbose == TRUE) cat('a custom vector of genes will be used to subset the matrix')
+        expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
+      }
     }
     
     # reduction of cells
@@ -433,9 +453,23 @@ jackstrawPlot = function(gobject,
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = select_expression_values(gobject = gobject, values = values)
   
+  # cell metadata
+  gene_metadata = fDataDT(gobject)
+  
   # subset expression matrix
   if(!is.null(genes_to_use)) {
-    expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
+    if(is.character(genes_to_use) & length(genes_to_use) == 1) {
+      if(genes_to_use %in% colnames(gene_metadata)) {
+        if(verbose == TRUE) cat(genes_to_use, ' was found in the gene metadata information and will be used to select highly variable genes')
+        genes_to_use = gene_metadata[get(genes_to_use) == 'yes'][['gene_ID']]
+        expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
+      } else {
+        if(verbose == TRUE) cat(genes_to_use, ' was not found in the gene metadata information, all genes will be used')
+      }
+    } else {
+      if(verbose == TRUE) cat('a custom vector of genes will be used to subset the matrix')
+      expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
+    }
   }
   
   # reduction of cells
@@ -659,12 +693,15 @@ signPCA <- function(gobject,
 #' @param spread UMAP param: spread
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
+#' @param verbose verbosity of function
 #' @param ... additional UMAP parameters
 #' @return giotto object with updated UMAP dimension recuction
 #' @details See \code{\link[uwot]{umap}} for more information about these and other parameters.
 #' \itemize{
 #'   \item Input for UMAP dimension reduction can be another dimension reduction (default = 'pca')
 #'   \item To use gene expression as input set dim_reduction_to_use = NULL
+#'   \item If dim_reduction_to_use = NULL, genes_to_use can be used to select a column name of
+#'   highly variable genes (see \code{\link{calculateHVG}}) or simply provide a vector of genes
 #'   \item multiple UMAP results can be stored by changing the \emph{name} of the analysis
 #' }
 #' @export
@@ -687,6 +724,7 @@ runUMAP <- function(gobject,
                     spread = 5,
                     set_seed = T,
                     seed_number = 1234,
+                    verbose = T,
                     ...) {
 
   reduction = match.arg(reduction, choices = c('cells', 'genes'))
@@ -707,9 +745,23 @@ runUMAP <- function(gobject,
       values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
       expr_values = select_expression_values(gobject = gobject, values = values)
 
+      # cell metadata
+      gene_metadata = fDataDT(gobject)
+      
       # subset expression matrix
       if(!is.null(genes_to_use)) {
-        expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
+        if(is.character(genes_to_use) & length(genes_to_use) == 1) {
+          if(genes_to_use %in% colnames(gene_metadata)) {
+            if(verbose == TRUE) cat(genes_to_use, ' was found in the gene metadata information and will be used to select highly variable genes')
+            genes_to_use = gene_metadata[get(genes_to_use) == 'yes'][['gene_ID']]
+            expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
+          } else {
+            if(verbose == TRUE) cat(genes_to_use, ' was not found in the gene metadata information, all genes will be used')
+          }
+        } else {
+          if(verbose == TRUE) cat('a custom vector of genes will be used to subset the matrix')
+          expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
+        }
       }
       matrix_to_use = t(expr_values)
     }
@@ -811,12 +863,15 @@ runUMAP <- function(gobject,
 #' @param do_PCA_first tSNE param: do PCA before tSNE (default = FALSE)
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
+#' @param verbose verbosity of the function
 #' @param ... additional tSNE parameters
 #' @return giotto object with updated tSNE dimension recuction
 #' @details See \code{\link[Rtsne]{Rtsne}} for more information about these and other parameters. \cr
 #' \itemize{
 #'   \item Input for tSNE dimension reduction can be another dimension reduction (default = 'pca')
 #'   \item To use gene expression as input set dim_reduction_to_use = NULL
+#'   \item If dim_reduction_to_use = NULL, genes_to_use can be used to select a column name of
+#'   highly variable genes (see \code{\link{calculateHVG}}) or simply provide a vector of genes
 #'   \item multiple tSNE results can be stored by changing the \emph{name} of the analysis
 #' }
 #' @export
@@ -837,6 +892,7 @@ runtSNE <- function(gobject,
                     do_PCA_first = F,
                     set_seed = T,
                     seed_number = 1234,
+                    verbose = TRUE,
                     ...) {
 
   reduction = match.arg(reduction, choices = c('cells', 'genes'))
@@ -857,9 +913,23 @@ runtSNE <- function(gobject,
       values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
       expr_values = select_expression_values(gobject = gobject, values = values)
 
+      # cell metadata
+      gene_metadata = fDataDT(gobject)
+      
       # subset expression matrix
       if(!is.null(genes_to_use)) {
-        expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
+        if(is.character(genes_to_use) & length(genes_to_use) == 1) {
+          if(genes_to_use %in% colnames(gene_metadata)) {
+            if(verbose == TRUE) cat(genes_to_use, ' was found in the gene metadata information and will be used to select highly variable genes')
+            genes_to_use = gene_metadata[get(genes_to_use) == 'yes'][['gene_ID']]
+            expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
+          } else {
+            if(verbose == TRUE) cat(genes_to_use, ' was not found in the gene metadata information, all genes will be used')
+          }
+        } else {
+          if(verbose == TRUE) cat('a custom vector of genes will be used to subset the matrix')
+          expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
+        }
       }
 
       matrix_to_use = t(expr_values)
