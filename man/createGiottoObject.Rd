@@ -61,7 +61,7 @@ createGiottoObject(
 
 \item{offset_file}{file used to stitch fields together (optional)}
 
-\item{instructions}{list of instructions or output result from createGiottoInstructions}
+\item{instructions}{list of instructions or output result from \code{\link{createGiottoInstructions}}}
 
 \item{cores}{how many cores or threads to use to read data if paths are provided}
 }

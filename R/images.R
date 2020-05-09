@@ -122,7 +122,7 @@ createGiottoImage = function(gobject = NULL,
                              mg_object,
                              name = 'image',
                              xmax_adj = 0, xmin_adj = 0, ymax_adj = 0, ymin_adj = 0) {
-  if(!is(mg_img, 'magick-image')) {
+  if(!is(mg_object, 'magick-image')) {
     stop("mg_object needs to be an image object 'magick-image'' from the magick package")
   }
   
@@ -234,5 +234,67 @@ addImageToSpatPlot = function(spatpl = NULL,
 }
 
 
+#' @title showImageNames
+#' @name showImageNames
+#' @description Show wich images are attached to the Giotto object (prints the names)
+#' @param gobject a giotto object
+#' @param verbose verbosity of function
+#' @return a vector of giotto image names attached to the giotto object
+#' @export
+#' @examples
+#'     showImageNames(gobject)
+showImageNames = function(gobject,
+                          verbose = TRUE) {
+  if(is.null(gobject)) stop('A giotto object needs to be provided \n')
+  g_image_names = names(gobject@images)
+  
+  if(verbose == TRUE) {
+    cat('The following images are available: ',
+        g_image_names, '\n')
+  }
+  
+  return(g_image_names)
+  
+}
+
+
+#' @title updateImage
+#' @name updateImage
+#' @description Updates the boundaries of a giotto image attached to a giotto object
+#' @param gobject giotto object
+#' @param image_name spatial locations
+#' @param xmax_adj adjustment of the maximum x-value to align the image
+#' @param xmin_adj adjustment of the minimum x-value to align the image
+#' @param ymax_adj adjustment of the maximum y-value to align the image
+#' @param ymin_adj adjustment of the minimum y-value to align the image
+#' @param return_gobject return a giotto object
+#' @return a giotto object or an updated giotto image if return_gobject = F
+#' @export
+#' @examples
+#'     updateImage(gobject)
+updateImage = function(gobject,
+                       image_name, 
+                       xmax_adj = 0,
+                       xmin_adj = 0,
+                       ymax_adj = 0,
+                       ymin_adj = 0,
+                       return_gobject = TRUE) {
+  
+  if(is.null(gobject)) stop('The giotto object that will be updated needs to be provided \n')
+  if(is.null(image_name)) stop('The name of the giotto image that will be updated needs to be provided \n')
+  
+  g_image_names = names(gobject@images)
+  if(!image_name %in% g_image_names) stop(image_name, ' was not found among the image names, see showImageNames()')
+  
+  # if image name is found, update the boundaries
+  gobject@images[[image_name]]$boundaries = c(xmax_adj, xmin_adj, ymax_adj, ymin_adj)
+  
+  if(return_gobject == TRUE) {
+    return(gobject)
+  } else {
+    return(gobject@images[[image_name]])
+  }
+  
+}
 
 

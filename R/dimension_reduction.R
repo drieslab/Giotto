@@ -99,7 +99,10 @@ pca_giotto = function(mymatrix, center = T, scale = T, k = 50) {
 #' @param genes_to_use genes to use, character or vector of genes
 #' @param verbose verbosity
 #' @return subsetted matrix based on selected genes
-create_genes_to_use_matrix = function(gobject, sel_matrix, genes_to_use, verbose = TRUE) {
+create_genes_to_use_matrix = function(gobject,
+                                      sel_matrix,
+                                      genes_to_use,
+                                      verbose = TRUE) {
   
   # cell metadata
   gene_metadata = fDataDT(gobject)
@@ -115,10 +118,10 @@ create_genes_to_use_matrix = function(gobject, sel_matrix, genes_to_use, verbose
     }
   } else {
     if(verbose == TRUE) cat('a custom vector of genes will be used to subset the matrix \n')
-    sel_matrix = expr_values[rownames(sel_matrix) %in% genes_to_use, ]
+    sel_matrix = sel_matrix[rownames(sel_matrix) %in% genes_to_use, ]
   }
   
-  return(expr_values)
+  return(sel_matrix)
 
 }
 

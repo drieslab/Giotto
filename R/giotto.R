@@ -565,7 +565,7 @@ evaluate_expr_matrix = function(inputmatrix, sparse = TRUE, cores = NA) {
 #' @param nn_network list of nearest neighbor network(s)
 #' @param images list of images
 #' @param offset_file file used to stitch fields together (optional)
-#' @param instructions list of instructions or output result from createGiottoInstructions
+#' @param instructions list of instructions or output result from \code{\link{createGiottoInstructions}}
 #' @param cores how many cores or threads to use to read data if paths are provided
 #' @return giotto object
 #' @details
@@ -978,6 +978,95 @@ createGiottoObject <- function(raw_exprs,
 
 
 
+
+#' @title createGiottoVisiumObject
+#' @description creates Giotto object directly from a 10X visium folder
+#' @param visium_dir path to the 10X visium directory [required]
+#' @param expr_data raw or filtered data (see details)
+#' @param gene_column_index which column index to select (see details)
+#' @param png_name select name of png to use (see details)
+#' @param xmax_adj adjustment of the maximum x-value to align the image
+#' @param xmin_adj adjustment of the minimum x-value to align the image
+#' @param ymax_adj adjustment of the maximum y-value to align the image
+#' @param ymin_adj adjustment of the minimum y-value to align the image
+#' @param instructions list of instructions or output result from \code{\link{createGiottoInstructions}}
+#' @param cores how many cores or threads to use to read data if paths are provided
+#' @return giotto object
+#' @details
+#' \itemize{
+#'   \item{expr_data: raw will take expression data from raw_feature_bc_matrix and filter from filtered_feature_bc_matrix} 
+#'   \item{gene_column_index: which gene identifiers (names) to use if there are multiple columns (e.g. ensemble and gene symbol)}
+#'   \item{png_name: by default the first png will be selected, provide the png name to override this (e.g. myimage.png)}
+#' }
+#' @export
+#' @examples
+#'     createGiottoVisiumObject(visium_dir)
+createGiottoVisiumObject = function(visium_dir = NULL,
+                                    expr_data = c('raw', 'filter'),
+                                    gene_column_index = 1,
+                                    png_name = NULL,
+                                    xmax_adj = 0,
+                                    xmin_adj = 0,
+                                    ymax_adj = 0,
+                                    ymin_adj = 0,
+                                    instructions = NULL,
+                                    cores = NA) {
+  
+  ## check arguments
+  if(is.null(visium_dir)) stop('visium_dir needs to be a path to a visium directory \n')
+  if(!file.exists(visium_dir)) stop(visium_dir, ' does not exist \n')
+  expr_data = match.arg(expr_data, choices = c('raw', 'filter'))
+  
+  # set number of cores automatically, but with limit of 10
+  if(is.na(cores) | !is.numeric(cores)) {
+    cores = parallel::detectCores() - 2
+    cores = ifelse(cores > 10, 10, cores)
+    data.table::setDTthreads(threads = cores)
+  }
+  
+  ## matrix
+  if(expr_data == 'raw') {
+    data_path = paste0(visium_dir, '/', 'raw_feature_bc_matrix/')
+    raw_matrix = get10Xmatrix(path_to_data = data_path, gene_column_index = gene_column_index)
+  } else if(expr_data == 'filter') {
+    data_path = paste0(visium_dir, '/', 'filtered_feature_bc_matrix/')
+    raw_matrix = get10Xmatrix(path_to_data = data_path, gene_column_index = gene_column_index)
+  }
+  
+  ## spatial locations and image
+  spatial_path = paste0(visium_dir, '/', 'spatial/')
+  spatial_results = fread(paste0(spatial_path, '/','tissue_positions_list.csv'))
+  spatial_results = spatial_results[match(colnames(raw_matrix), V1)]
+  colnames(spatial_results) = c('barcode', 'in_tissue', 'array_row', 'array_col', 'col_pxl', 'row_pxl')
+  spatial_locs = spatial_results[,.(row_pxl,-col_pxl)]
+  colnames(spatial_locs) = c('sdimx', 'sdimy')
+  
+  ## spatial image
+  if(is.null(png_name)) {
+    png_list = list.files(spatial_path, pattern = "*.png")
+    png_name = png_list[1]
+  }
+  png_path = paste0(spatial_path,'/',png_name)
+  if(!file.exists(png_path)) stop(png_path, ' does not exist! \n')
+  
+  mg_img = magick::image_read(png_path)
+  
+  
+  visium_png = createGiottoImage(gobject = NULL, spatial_locs =  spatial_locs,
+                                 mg_object = mg_img, name = 'image',
+                                 xmax_adj = xmax_adj, xmin_adj = xmin_adj,
+                                 ymax_adj = ymax_adj, ymin_adj = ymin_adj)
+  visium_png_list = list(visium_png)
+  names(visium_png_list) = c('image')
+  
+  giotto_object = createGiottoObject(raw_exprs = raw_matrix,
+                                     spatial_locs = spatial_locs,
+                                     instructions = instructions,
+                                     cell_metadata = spatial_results[,.(in_tissue, array_row, array_col)],
+                                     images = visium_png_list)
+  return(giotto_object)
+  
+}
 
 
 
