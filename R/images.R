@@ -22,13 +22,17 @@ convert_mgImage_to_array_DT = function(mg_object) {
 #' @title estimateImageBg
 #' @name estimateImageBg
 #' @description helps to estimate which color is the background color of your plot
-#' @param mg_object magick image object
+#' @param mg_object magick image or Giotto image object
 #' @param top_color_range top possible background colors to return
 #' @return vector of pixel color frequencies and an associated barplot
 #' @export
 #' @examples
 #'     estimateImageBg(mg_object)
 estimateImageBg = function(mg_object, top_color_range = 1:50) {
+  
+  if(is(mg_object, 'imageGiottoObj')) {
+    mg_object = mg_object$mg_object
+  }
   
   arrayDT = convert_mgImage_to_array_DT(mg_object = mg_object)
   sort_table = sort(table(arrayDT$RGB), decreasing = T)
@@ -42,17 +46,23 @@ estimateImageBg = function(mg_object, top_color_range = 1:50) {
 #' @title changeImageBg
 #' @name changeImageBg
 #' @description Function to change the background color of a magick image plot to another color
-#' @param mg_object magick image object
+#' @param mg_object magick image or giotto image object
 #' @param bg_color estimated current background color
 #' @param perc_range range around estimated background color to include (percentage)
 #' @param new_color new background color 
-#' @return vector of pixel color frequencies and an associated barplot
+#' @return magick image or giotto image object with updated background color
 #' @export
 #' @examples
 #'     changeImageBg(mg_object)
 changeImageBg = function(mg_object, bg_color, perc_range = 10, new_color = '#FFFFFF') {
   
-  if(!is(mg_img, 'magick-image')) {
+  if(is(mg_object, 'imageGiottoObj')) {
+    is_g_image = TRUE
+    g_image = mg_object
+    mg_object = mg_object$mg_object
+  }
+  
+  if(!is(mg_object, 'magick-image')) {
     stop("mg_object needs to be an image object 'magick-image'' from the magick package")
   }
   
@@ -94,11 +104,18 @@ changeImageBg = function(mg_object, bg_color, perc_range = 10, new_color = '#FFF
   data.table::setorder(arrayDT, y, x)
   
   # convert array_dt to array and then to magick image object
-  original_width = magick::image_info(mg_img)[2]
-  original_heigth = magick::image_info(mg_img)[3]
+  original_width = magick::image_info(mg_object)[2]
+  original_heigth = magick::image_info(mg_object)[3]
   myarray = array(as.vector(as.matrix(arrayDT[,.(c1, c2, c3)])), dim = c(original_width, original_heigth, 3))
   new_mg_object = magick::image_read(myarray)
-  return(new_mg_object)
+  
+  # return magick or giotto image object
+  if(is_g_image == TRUE) {
+    g_image$mg_object = new_mg_object
+    return(g_image)
+  } else {
+    return(new_mg_object)
+  }
 }
 
 
@@ -106,7 +123,7 @@ changeImageBg = function(mg_object, bg_color, perc_range = 10, new_color = '#FFF
 #' @name createGiottoImage
 #' @description Creates a giotto image that can be added to a Giotto object and/or used to add an image to the spatial plotting functions
 #' @param gobject giotto object
-#' @param spatial_locs spatial locations
+#' @param spatial_locs spatial locations (alternative if giobject = NULL)
 #' @param mg_object magick image object
 #' @param name name for the image
 #' @param xmax_adj adjustment of the maximum x-value to align the image
@@ -123,7 +140,15 @@ createGiottoImage = function(gobject = NULL,
                              name = 'image',
                              xmax_adj = 0, xmin_adj = 0, ymax_adj = 0, ymin_adj = 0) {
   if(!is(mg_object, 'magick-image')) {
-    stop("mg_object needs to be an image object 'magick-image'' from the magick package")
+    if(file.exists(mg_object)) {
+      mg_object = try(magick::image_read(mg_object))
+      if(class(mg_object) == 'try-error') {
+        stop(mg_object, ' can not be read by magick::image_read() \n')
+      }
+    } else {
+      stop("mg_object needs to be an image object 'magick-image'' from the magick package or \n
+           an existig path that can be read by magick::image_read()")
+    }
   }
   
   # min and max
@@ -296,5 +321,30 @@ updateImage = function(gobject,
   }
   
 }
+
+
+
+#' @title getGiottoImage
+#' @name getGiottoImage
+#' @descriptionget get a giotto image from a giotto object
+#' @param gobject giotto object
+#' @param image_name name of giotto image \code{\link{showImageNames}}
+#' @return a giotto image
+#' @export
+#' @examples
+#'     getGiottoImage(gobject)
+getGiottoImage = function(gobject,
+                          image_name) {
+  
+  if(is.null(gobject)) stop('The giotto object that will be updated needs to be provided \n')
+  if(is.null(image_name)) stop('The name of the giotto image that will be updated needs to be provided \n')
+  
+  g_image_names = names(gobject@images)
+  if(!image_name %in% g_image_names) stop(image_name, ' was not found among the image names, see showImageNames()')
+  
+  return(gobject@images[[image_name]])
+}
+
+
 
 
