@@ -7,7 +7,7 @@
 estimateImageBg(mg_object, top_color_range = 1:50)
 }
 \arguments{
-\item{mg_object}{magick image object}
+\item{mg_object}{magick image or Giotto image object}
 
 \item{top_color_range}{top possible background colors to return}
 }

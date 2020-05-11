@@ -3,9 +3,13 @@
 #' @title convert_mgImage_to_array_DT
 #' @name convert_mgImage_to_array_DT
 #' @description converts a magick image object to a data.table
-#' @param mg_object magick image object
+#' @param mg_object magick image or Giotto image object
 #' @return data.table with image pixel information
 convert_mgImage_to_array_DT = function(mg_object) {
+  
+  if(is(mg_object, 'imageGiottoObj')) {
+    mg_object = mg_object$mg_object
+  }
   
   # convert magick object to an array
   num_res = as.numeric(mg_object[[1]])

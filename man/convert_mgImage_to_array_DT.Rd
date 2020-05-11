@@ -7,7 +7,7 @@
 convert_mgImage_to_array_DT(mg_object)
 }
 \arguments{
-\item{mg_object}{magick image object}
+\item{mg_object}{magick image or Giotto image object}
 }
 \value{
 data.table with image pixel information

@@ -18,7 +18,7 @@ createGiottoImage(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spatial_locs}{spatial locations}
+\item{spatial_locs}{spatial locations (alternative if giobject = NULL)}
 
 \item{mg_object}{magick image object}
 

@@ -7,7 +7,7 @@
 changeImageBg(mg_object, bg_color, perc_range = 10, new_color = "#FFFFFF")
 }
 \arguments{
-\item{mg_object}{magick image object}
+\item{mg_object}{magick image or giotto image object}
 
 \item{bg_color}{estimated current background color}
 
@@ -16,7 +16,7 @@ changeImageBg(mg_object, bg_color, perc_range = 10, new_color = "#FFFFFF")
 \item{new_color}{new background color}
 }
 \value{
-vector of pixel color frequencies and an associated barplot
+magick image or giotto image object with updated background color
 }
 \description{
 Function to change the background color of a magick image plot to another color
