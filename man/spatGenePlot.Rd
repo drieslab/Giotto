@@ -27,6 +27,7 @@ spatGenePlot(
   scale_alpha_with_expression = FALSE,
   point_shape = c("border", "no_border", "voronoi"),
   point_size = 1,
+  point_alpha = 1,
   point_border_col = "black",
   point_border_stroke = 0.1,
   show_legend = T,
@@ -34,6 +35,7 @@ spatGenePlot(
   background_color = "white",
   vor_border_color = "white",
   vor_max_radius = 200,
+  vor_alpha = 1,
   axis_text = 8,
   axis_title = 8,
   cow_n_col = 2,
@@ -90,6 +92,8 @@ spatGenePlot(
 
 \item{point_size}{size of point (cell)}
 
+\item{point_alpha}{transparancy of points}
+
 \item{point_border_col}{color of border around points}
 
 \item{point_border_stroke}{stroke size of border around points}
@@ -103,6 +107,8 @@ spatGenePlot(
 \item{vor_border_color}{border colorr for voronoi plot}
 
 \item{vor_max_radius}{maximum radius for voronoi 'cells'}
+
+\item{vor_alpha}{transparancy of voronoi 'cells'}
 
 \item{axis_text}{size of axis text}
 

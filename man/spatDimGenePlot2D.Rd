@@ -18,6 +18,7 @@ spatDimGenePlot2D(
   dim2_to_use = 2,
   dim_point_shape = c("border", "no_border"),
   dim_point_size = 1,
+  dim_point_alpha = 1,
   dim_point_border_col = "black",
   dim_point_border_stroke = 0.1,
   show_NN_network = F,
@@ -33,6 +34,7 @@ spatDimGenePlot2D(
   spatial_grid_name = "spatial_grid",
   spat_point_shape = c("border", "no_border", "voronoi"),
   spat_point_size = 1,
+  spat_point_alpha = 1,
   spat_point_border_col = "black",
   spat_point_border_stroke = 0.1,
   cell_color_gradient = c("blue", "white", "red"),
@@ -48,6 +50,7 @@ spatDimGenePlot2D(
   spat_background_color = "white",
   vor_border_color = "white",
   vor_max_radius = 200,
+  vor_alpha = 1,
   axis_text = 8,
   axis_title = 8,
   show_plot = NA,
@@ -84,6 +87,8 @@ spatDimGenePlot2D(
 
 \item{dim_point_size}{dim reduction plot: point size}
 
+\item{dim_point_alpha}{transparancy of dim. reduction points}
+
 \item{dim_point_border_col}{color of border around points}
 
 \item{dim_point_border_stroke}{stroke size of border around points}
@@ -109,6 +114,8 @@ spatDimGenePlot2D(
 \item{spat_point_shape}{spatial points with border or not (border or no_border)}
 
 \item{spat_point_size}{spatial plot: point size}
+
+\item{spat_point_alpha}{transparancy of spatial points}
 
 \item{spat_point_border_col}{color of border around points}
 
@@ -139,6 +146,8 @@ spatDimGenePlot2D(
 \item{vor_border_color}{border colorr for voronoi plot}
 
 \item{vor_max_radius}{maximum radius for voronoi 'cells'}
+
+\item{vor_alpha}{transparancy of voronoi 'cells'}
 
 \item{axis_text}{size of axis text}
 

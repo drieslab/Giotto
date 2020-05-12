@@ -25,10 +25,12 @@ spatDimCellPlot2D(
   select_cells = NULL,
   dim_point_shape = c("border", "no_border"),
   dim_point_size = 1,
+  dim_point_alpha = 1,
   dim_point_border_col = "black",
   dim_point_border_stroke = 0.1,
   spat_point_shape = c("border", "no_border", "voronoi"),
   spat_point_size = 1,
+  spat_point_alpha = 1,
   spat_point_border_col = "black",
   spat_point_border_stroke = 0.1,
   dim_show_cluster_center = F,
@@ -68,6 +70,7 @@ spatDimCellPlot2D(
   spat_background_color = "white",
   vor_border_color = "white",
   vor_max_radius = 200,
+  vor_alpha = 1,
   axis_text = 8,
   axis_title = 8,
   coord_fix_ratio = NULL,
@@ -123,6 +126,8 @@ spatDimCellPlot2D(
 
 \item{dim_point_size}{size of points in dim. reduction space}
 
+\item{dim_point_alpha}{transparancy of dim. reduction points}
+
 \item{dim_point_border_col}{border color of points in dim. reduction space}
 
 \item{dim_point_border_stroke}{border stroke of points in dim. reduction space}
@@ -130,6 +135,8 @@ spatDimCellPlot2D(
 \item{spat_point_shape}{shape of points (border, no_border or voronoi)}
 
 \item{spat_point_size}{size of spatial points}
+
+\item{spat_point_alpha}{transparancy of spatial points}
 
 \item{spat_point_border_col}{border color of spatial points}
 
@@ -202,6 +209,8 @@ spatDimCellPlot2D(
 \item{vor_border_color}{border colorr for voronoi plot}
 
 \item{vor_max_radius}{maximum radius for voronoi 'cells'}
+
+\item{vor_alpha}{transparancy of voronoi 'cells'}
 
 \item{axis_text}{size of axis text}
 

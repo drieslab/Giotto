@@ -4,7 +4,13 @@
 \alias{changeImageBg}
 \title{changeImageBg}
 \usage{
-changeImageBg(mg_object, bg_color, perc_range = 10, new_color = "#FFFFFF")
+changeImageBg(
+  mg_object,
+  bg_color,
+  perc_range = 10,
+  new_color = "#FFFFFF",
+  new_name = NULL
+)
 }
 \arguments{
 \item{mg_object}{magick image or giotto image object}

@@ -20,6 +20,7 @@ dimGenePlot(
   scale_alpha_with_expression = FALSE,
   point_shape = c("border", "no_border"),
   point_size = 1,
+  point_alpha = 1,
   cell_color_gradient = c("blue", "white", "red"),
   gradient_midpoint = NULL,
   gradient_limits = NULL,
@@ -67,6 +68,8 @@ dimGenePlot(
 \item{scale_alpha_with_expression}{scale expression with ggplot alpha parameter}
 
 \item{point_size}{size of point (cell)}
+
+\item{point_alpha}{transparancy of points}
 
 \item{cell_color_gradient}{vector with 3 colors for numeric data}
 

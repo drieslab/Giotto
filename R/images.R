@@ -58,7 +58,7 @@ estimateImageBg = function(mg_object, top_color_range = 1:50) {
 #' @export
 #' @examples
 #'     changeImageBg(mg_object)
-changeImageBg = function(mg_object, bg_color, perc_range = 10, new_color = '#FFFFFF') {
+changeImageBg = function(mg_object, bg_color, perc_range = 10, new_color = '#FFFFFF', new_name = NULL) {
   
   if(is(mg_object, 'imageGiottoObj')) {
     is_g_image = TRUE
@@ -115,6 +115,7 @@ changeImageBg = function(mg_object, bg_color, perc_range = 10, new_color = '#FFF
   
   # return magick or giotto image object
   if(is_g_image == TRUE) {
+    if(!is.null(new_name)) g_image$name = new_name
     g_image$mg_object = new_mg_object
     return(g_image)
   } else {
@@ -180,16 +181,16 @@ createGiottoImage = function(gobject = NULL,
 }
 
 
-#' @title addImage
-#' @name addImage
+#' @title addGiottoImage
+#' @name addGiottoImage
 #' @description Adds giotto image objects to your giotto object
 #' @param gobject giotto object
 #' @param images list of giotto image objects, see \code{\link{createGiottoImage}}
 #' @return an updated Giotto object with access to the list of images 
 #' @export
 #' @examples
-#'     addImage(mg_object)
-addImage = function(gobject,
+#'     addGiottoImage(mg_object)
+addGiottoImage = function(gobject,
                     images) {
   
   if(is.null(gobject)) stop('The giotto object that will be updated needs to be provided')
@@ -218,16 +219,16 @@ addImage = function(gobject,
 
 
 
-#' @title addImageToSpatPlot
-#' @name addImageToSpatPlot
+#' @title addGiottoImageToSpatPlot
+#' @name addGiottoImageToSpatPlot
 #' @description Add a giotto image to a spatial ggplot object post creation
 #' @param spatpl a spatial ggplot object
 #' @param gimage a giotto image, see \code{\link{createGiottoImage}}
 #' @return an updated spatial ggplot object
 #' @export
 #' @examples
-#'     addImageToSpatPlot(mg_object)
-addImageToSpatPlot = function(spatpl = NULL,
+#'     addGiottoImageToSpatPlot(mg_object)
+addGiottoImageToSpatPlot = function(spatpl = NULL,
                               gimage = NULL) {
   
   
@@ -263,16 +264,16 @@ addImageToSpatPlot = function(spatpl = NULL,
 }
 
 
-#' @title showImageNames
-#' @name showImageNames
+#' @title showGiottoImageNames
+#' @name showGiottoImageNames
 #' @description Show wich images are attached to the Giotto object (prints the names)
 #' @param gobject a giotto object
 #' @param verbose verbosity of function
 #' @return a vector of giotto image names attached to the giotto object
 #' @export
 #' @examples
-#'     showImageNames(gobject)
-showImageNames = function(gobject,
+#'     showGiottoImageNames(gobject)
+showGiottoImageNames = function(gobject,
                           verbose = TRUE) {
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
   g_image_names = names(gobject@images)
@@ -287,8 +288,8 @@ showImageNames = function(gobject,
 }
 
 
-#' @title updateImage
-#' @name updateImage
+#' @title updateGiottoImage
+#' @name updateGiottoImage
 #' @description Updates the boundaries of a giotto image attached to a giotto object
 #' @param gobject giotto object
 #' @param image_name spatial locations
@@ -300,8 +301,8 @@ showImageNames = function(gobject,
 #' @return a giotto object or an updated giotto image if return_gobject = F
 #' @export
 #' @examples
-#'     updateImage(gobject)
-updateImage = function(gobject,
+#'     updateGiottoImage(gobject)
+updateGiottoImage = function(gobject,
                        image_name, 
                        xmax_adj = 0,
                        xmin_adj = 0,
@@ -330,7 +331,7 @@ updateImage = function(gobject,
 
 #' @title getGiottoImage
 #' @name getGiottoImage
-#' @descriptionget get a giotto image from a giotto object
+#' @description get get a giotto image from a giotto object
 #' @param gobject giotto object
 #' @param image_name name of giotto image \code{\link{showImageNames}}
 #' @return a giotto image
@@ -350,5 +351,25 @@ getGiottoImage = function(gobject,
 }
 
 
+#' @title plotGiottoImage
+#' @name plotGiottoImage
+#' @description get plot a giotto image from a giotto object
+#' @param gobject giotto object
+#' @param image_name name of giotto image \code{\link{showImageNames}}
+#' @return plot
+#' @export
+#' @examples
+#'     plotGiottoImage(gobject)
+plotGiottoImage = function(gobject,
+                           image_name) {
+  
+  if(is.null(gobject)) stop('The giotto object that will be updated needs to be provided \n')
+  if(is.null(image_name)) stop('The name of the giotto image that will be updated needs to be provided \n')
+  
+  g_image_names = names(gobject@images)
+  if(!image_name %in% g_image_names) stop(image_name, ' was not found among the image names, see showImageNames()')
+  
+  plot(gobject@images[[image_name]]$mg_object)
+}
 
 

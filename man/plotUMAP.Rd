@@ -67,6 +67,8 @@ plotUMAP(gobject, dim_reduction_name = "umap", default_save_name = "UMAP", ...)
 
 \item{point_size}{size of point (cell)}
 
+\item{point_alpha}{transparancy of point}
+
 \item{point_border_col}{color of border around points}
 
 \item{point_border_stroke}{stroke size of border around points}

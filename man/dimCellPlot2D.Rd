@@ -33,6 +33,7 @@ dimCellPlot2D(
   edge_alpha = NULL,
   point_shape = c("border", "no_border"),
   point_size = 1,
+  point_alpha = 1,
   point_border_col = "black",
   point_border_stroke = 0.1,
   show_legend = T,
@@ -104,6 +105,8 @@ dimCellPlot2D(
 \item{point_shape}{point with border or not (border or no_border)}
 
 \item{point_size}{size of point (cell)}
+
+\item{point_alpha}{transparancy of dim. reduction points}
 
 \item{point_border_col}{color of border around points}
 
