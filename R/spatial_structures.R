@@ -954,7 +954,7 @@ createSpatialDelaunayNetwork <- function(gobject,
                                             ...) {
 
   # get parameter values
-  method = match.arg(method, c("delaunayn_geometry", "RTriangle", "deldir"))
+  method = match.arg(method, c("deldir", "delaunayn_geometry", "RTriangle"))
 
   # determine the network dimesions
   spatial_locations = gobject@spatial_locs
@@ -1042,7 +1042,7 @@ createSpatialDelaunayNetwork <- function(gobject,
 #' @examples
 #'     plotStatDelaunayNetwork(gobject)
 plotStatDelaunayNetwork = function(gobject,
-                                      method = c("deldir", "delaunayn_geometry", "RTriangle",),
+                                      method = c("deldir", "delaunayn_geometry", "RTriangle"),
                                       dimensions = "all",
                                       maximum_distance = "auto", # all
                                       minimum_k = 0, # all
@@ -1423,7 +1423,7 @@ createSpatialNetwork <- function(gobject,
                                  name = NULL,
                                  dimensions = "all",
                                  method = c('Delaunay', 'kNN'),
-                                 delaunay_method = c("delaunayn_geometry", "RTriangle", "deldir"),
+                                 delaunay_method = c("deldir", "delaunayn_geometry", "RTriangle"),
                                  maximum_distance_delaunay = "auto",
                                  options = "Pp",
                                  Y = TRUE,
@@ -1461,7 +1461,7 @@ createSpatialNetwork <- function(gobject,
 
   } else if (method=="Delaunay"){
 
-    delaunay_method = match.arg(delaunay_method,c("delaunayn_geometry", "RTriangle", "deldir"))
+    delaunay_method = match.arg(delaunay_method, c("deldir", "delaunayn_geometry", "RTriangle"))
     if(is.null(name)){
       name = paste0(method,"_","network")
     }

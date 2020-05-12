@@ -9,7 +9,7 @@ createSpatialNetwork(
   name = NULL,
   dimensions = "all",
   method = c("Delaunay", "kNN"),
-  delaunay_method = c("delaunayn_geometry", "RTriangle", "deldir"),
+  delaunay_method = c("deldir", "delaunayn_geometry", "RTriangle"),
   maximum_distance_delaunay = "auto",
   options = "Pp",
   Y = TRUE,
