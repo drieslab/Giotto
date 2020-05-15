@@ -7586,7 +7586,7 @@ spatPlot2D_single = function(gobject,
     if(is.null(network_color)) network_color = 'red'
     pl <- pl + ggplot2::geom_segment(data = spatial_network, aes(x = sdimx_begin, y = sdimy_begin,
                                                                  xend = sdimx_end, yend = sdimy_end),
-                                     color = network_color, size = 0.5, alpha = 0.5)
+                                     color = network_color, size = 0.5, alpha = network_alpha)
   }
   
   

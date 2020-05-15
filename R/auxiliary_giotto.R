@@ -8,7 +8,10 @@ rowSums_giotto = function(mymatrix) {
   } else if(is(mymatrix, 'Matrix')) {
     return(Matrix::rowSums(mymatrix)) 
   } else {
-    return(matrixStats::rowSums2(as.matrix(mymatrix)))
+    temp_matrix = as.matrix(mymatrix)
+    temp_res = matrixStats::rowSums2(temp_matrix)
+    names(temp_res) = rownames(temp_matrix)
+    return(temp_res)
   }
 }
 
@@ -21,7 +24,11 @@ rowMeans_giotto = function(mymatrix) {
   } else if(is(mymatrix, 'Matrix')) {
     return(Matrix::rowMeans(mymatrix)) 
   } else {
-    return(matrixStats::rowMeans2(as.matrix(mymatrix)))
+    temp_matrix = as.matrix(mymatrix)
+    temp_res = matrixStats::rowMeans2(temp_matrix)
+    names(temp_res) = rownames(temp_matrix)
+    return(temp_res)
+    
   }
 }
 
@@ -34,7 +41,10 @@ colSums_giotto = function(mymatrix) {
   } else if(is(mymatrix, 'Matrix')) {
     return(Matrix::colSums(mymatrix))
   } else {
-    return(matrixStats::colSums2(as.matrix(mymatrix)))
+    temp_matrix = as.matrix(mymatrix)
+    temp_res = matrixStats::colSums2(temp_matrix)
+    names(temp_res) = colnames(temp_matrix)
+    return(temp_res)
   }
 }
 
@@ -47,7 +57,10 @@ colMeans_giotto = function(mymatrix) {
   } else if(is(mymatrix, 'Matrix')) {
     return(Matrix::colMeans(mymatrix))
   } else {
-    return(matrixStats::colMeans2(as.matrix(mymatrix)))
+    temp_matrix = as.matrix(mymatrix)
+    temp_res = matrixStats::colMeans2(temp_matrix)
+    names(temp_res) = colnames(temp_matrix)
+    return(temp_res)
   }
 }
 
