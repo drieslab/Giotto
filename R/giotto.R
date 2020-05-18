@@ -147,7 +147,9 @@ setMethod(f = "print.giotto",
 #' @name set_giotto_python_path
 #' @description sets the python path and/or install miniconda and the python modules
 set_giotto_python_path = function(python_path = NULL,
-                                  packages_to_install = c('pandas', 'networkx', 'python-igraph', 'leidenalg', 'python-louvain')) {
+                                  packages_to_install = c('pandas', 'networkx', 'python-igraph',
+                                                          'leidenalg', 'python-louvain', 'python.app',
+                                                          'scikit-learn')) {
 
   if(!is.null(python_path)) {
     cat('\n python path provided \n')
@@ -158,7 +160,7 @@ set_giotto_python_path = function(python_path = NULL,
     # check if giotto environment is already installed
     conda_path = reticulate::miniconda_path()
     if(.Platform[['OS.type']] == 'unix') {
-      full_path = paste0(conda_path, "/envs/giotto_env/bin/python")
+      full_path = paste0(conda_path, "/envs/giotto_env/bin/pythonw")
     } else if(.Platform[['OS.type']] == 'windows') {
       full_path = paste0(conda_path, "\\envs\\giotto_env\\python.exe")
     }
@@ -194,7 +196,7 @@ set_giotto_python_path = function(python_path = NULL,
           }
           
           full_envname = paste0(conda_path,'/envs/giotto_env')
-          python_full_path = paste0(conda_path, "/envs/giotto_env/bin/python")
+          python_full_path = paste0(conda_path, "/envs/giotto_env/bin/pythonw")
 
           reticulate::py_install(packages = packages_to_install,
                                  envname = 'giotto_env',
