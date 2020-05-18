@@ -45,10 +45,10 @@ create_dimObject = function(name = 'test',
 standardise_giotto = function (x, center = TRUE, scale = TRUE) 
 {
   if (center & scale) {
-    y <- t(x) - Rfast::colmeans(x)
+    y <- t_giotto(x) - Rfast::colmeans(x)
     y <- y/sqrt(Rfast::rowsums(y^2)) * sqrt((dim(x)[1] - 
                                                1))
-    y <- t(y)
+    y <- t_giotto(y)
   }
   else if (center & !scale) {
     m <- Rfast::colmeans(x)
@@ -78,7 +78,7 @@ pca_giotto = function(mymatrix, center = T, scale = T, k = 50) {
   }
   
   if(!is.matrix(mymatrix)) mymatrix = as.matrix(mymatrix)
-  my_t_matrix = t(mymatrix)
+  my_t_matrix = t_giotto(mymatrix)
   pca_f = Rfast::hd.eigen(x = my_t_matrix, center = center, scale = scale, k = k, vectors = TRUE)
   
   # calculate pca coordinates
@@ -182,7 +182,7 @@ runPCA <- function(gobject,
   if(reduction == 'cells') {
     pca_object = pca_giotto(mymatrix = expr_values, center = center, scale = scale_unit, k = ncp)
   } else {
-    pca_object = pca_giotto(mymatrix = t(expr_values), center = center, scale = scale_unit, k = ncp)
+    pca_object = pca_giotto(mymatrix = t_giotto(expr_values), center = center, scale = scale_unit, k = ncp)
   }
 
   if(return_gobject == TRUE) {
@@ -479,7 +479,7 @@ jackstrawPlot = function(gobject,
   if(reduction == 'cells') {
     
     if(scale_unit == TRUE | center == TRUE) {
-      expr_values = t(scale(t(expr_values), center = center, scale = scale_unit))
+      expr_values = t_giotto(scale(t_giotto(expr_values), center = center, scale = scale_unit))
     }
     
     jtest = jackstraw::permutationPA(dat = expr_values, B = iter, threshold = threshold, verbose = verbose)
@@ -759,7 +759,7 @@ runUMAP <- function(gobject,
                                                  verbose = verbose)
       }
       
-      matrix_to_use = t(expr_values)
+      matrix_to_use = t_giotto(expr_values)
     }
 
 
@@ -917,7 +917,7 @@ runtSNE <- function(gobject,
                                                  verbose = verbose)
       }
 
-      matrix_to_use = t(expr_values)
+      matrix_to_use = t_giotto(expr_values)
 
     }
 
