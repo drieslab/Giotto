@@ -341,7 +341,7 @@ select_spatialNetwork <- function(gobject,
                                   name = NULL,
                                   return_network_Obj = FALSE) {
 
-  if (!is.element(name,names(gobject@spatial_network))){
+  if (!is.element(name, names(gobject@spatial_network))){
     message = sprintf("spatial network %s has not been created.Returning NULL", name)
     warning(message) 
     return(NULL)

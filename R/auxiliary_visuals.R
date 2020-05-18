@@ -1440,7 +1440,7 @@ violinPlot <- function(gobject,
   if(length(genes) == 1) {
     t_subset_data = subset_data
   } else {
-    t_subset_data = t(subset_data)
+    t_subset_data = t_giotto(subset_data)
   }
 
   # metadata
@@ -1459,6 +1459,7 @@ violinPlot <- function(gobject,
   metadata_expr_m[[cluster_column]] = as.factor(metadata_expr_m[[cluster_column]])
 
   if(!is.null(cluster_custom_order)) {
+    cluster_custom_order = unique(cluster_custom_order)
     metadata_expr_m[[cluster_column]] = factor(x = metadata_expr_m[[cluster_column]], levels = cluster_custom_order)
   }
 

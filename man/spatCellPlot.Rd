@@ -20,6 +20,7 @@ spatCellPlot(
   select_cells = NULL,
   point_shape = c("border", "no_border", "voronoi"),
   point_size = 3,
+  point_alpha = 1,
   point_border_col = "black",
   point_border_stroke = 0.1,
   show_cluster_center = F,
@@ -91,6 +92,8 @@ spatCellPlot(
 
 \item{point_size}{size of point (cell)}
 
+\item{point_alpha}{transparancy of spatial points}
+
 \item{point_border_col}{color of border around points}
 
 \item{point_border_stroke}{stroke size of border around points}
@@ -154,8 +157,6 @@ spatCellPlot(
 \item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-
-\item{point_alpha}{transparancy of spatial points}
 
 \item{vor_alpha}{transparancy of voronoi 'cells'}
 }

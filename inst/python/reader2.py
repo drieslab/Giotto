@@ -13,9 +13,9 @@ from scipy.stats import zscore
 from scipy.spatial.distance import euclidean, squareform, pdist
 import smfishHmrf.reader as reader
 import pandas as pd
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import seaborn as sns
+#import matplotlib as mpl
+#import matplotlib.pyplot as plt
+#import seaborn as sns
 from smfishHmrf.bias_correction import calc_bias_moving, do_pca, plot_pca
 from scipy.cluster.vq import kmeans2
 import argparse

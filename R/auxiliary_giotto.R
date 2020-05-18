@@ -1,4 +1,18 @@
 
+#' @title mean_giotto
+#' @export
+mean_giotto = function(x, ...) {
+  
+  if(is(x, 'dgCMatrix')) {
+    return(Matrix::mean(x, ...)) # replace with sparseMatrixStats
+  } else if(is(x, 'Matrix')) {
+    return(Matrix::mean(x, ...)) 
+  } else {
+    return(base::mean(x, ...))
+  }
+}
+
+
 #' @title rowSums_giotto
 #' @export
 rowSums_giotto = function(mymatrix) {
@@ -62,6 +76,39 @@ colMeans_giotto = function(mymatrix) {
     names(temp_res) = colnames(temp_matrix)
     return(temp_res)
   }
+}
+
+#' @title t_giotto
+#' @export
+t_giotto = function(mymatrix) {
+  
+  if(is(mymatrix, 'dgCMatrix')) {
+    return(Matrix::t(mymatrix)) # replace with sparseMatrixStats
+  } else if(is(mymatrix, 'Matrix')) {
+    return(Matrix::t(mymatrix))
+  } else {
+    mymatrix = as.matrix(mymatrix)
+    mymatrix = base::t(mymatrix)
+    return(mymatrix)
+  }
+}
+
+
+
+#' @title cor_sparse adapted from wydr package
+#' @export
+cor_sparse <- function(x) {
+  n <- nrow(x)
+  covmat <- (as.matrix(Matrix::crossprod(x)) - n * Matrix::tcrossprod(Matrix::colMeans(x))) / (n - 1)
+  cormat <- covmat / base::tcrossprod(base::sqrt(base::diag(covmat)))
+  cormat
+}
+
+#' @title cor_giotto
+#' @export
+cor_giotto = function(mymatrix, ...) {
+  mymatrix = as.matrix(mymatrix)
+  return(stats::cor(mymatrix, ...))
 }
 
 
@@ -1192,18 +1239,21 @@ removeGeneAnnotation <- function(gobject, columns = NULL, return_gobject = TRUE)
 #' @description adds cell metadata to the giotto object
 #' @param gobject giotto object
 #' @param new_metadata new cell metadata to use (data.table, data.frame, ...)
+#' @param vector_name (optional) custom name if you provide a single vector
 #' @param by_column merge metadata based on cell_ID column in pDataDT (default = FALSE)
 #' @param column_cell_ID column name of new metadata to use if by_column = TRUE
 #' @return giotto object
 #' @details You can add additional cell metadata in two manners:
-#' 1. Provide a data.table or data.frame with cell annotations in the same order as the cell_ID column in pDataDT(gobject)
-#' 2. Provide a data.table or data.frame with cell annotations and specificy which column contains the cell IDs,
-#' these cell IDs need to match with the cell_ID column in pDataDT(gobject)
+#' \itemize{
+#'   \item{1. Provide a data.table or data.frame with cell annotations in the same order as the cell_ID column in pDataDT(gobject) }
+#'   \item{2. Provide a data.table or data.frame with cell annotations and specificy which column contains the cell IDs, these cell IDs need to match with the cell_ID column in pDataDT(gobject)}
+#' }
 #' @export
 #' @examples
 #'     addCellMetadata(gobject)
 addCellMetadata <- function(gobject,
                             new_metadata,
+                            vector_name = NULL,
                             by_column = FALSE,
                             column_cell_ID = NULL) {
 
@@ -1213,7 +1263,13 @@ addCellMetadata <- function(gobject,
   if(is.vector(new_metadata) | is.factor(new_metadata)) {
     original_name = deparse(substitute(new_metadata))
     new_metadata = data.table::as.data.table(new_metadata)
-    colnames(new_metadata) = original_name
+    
+    if(!is.null(vector_name) & is.character(vector_name)) {
+      colnames(new_metadata) = vector_name
+    } else {
+      colnames(new_metadata) = original_name
+    }
+    
   } else {
     new_metadata = data.table::as.data.table(new_metadata)
   }
@@ -1474,6 +1530,54 @@ addStatistics <- function(gobject,
     return(gene_stats = gene_stats, cell_stats = cell_stats)
   }
 
+}
+
+
+#' @title addGenesPerc
+#' @description calculates the total percentage of (normalized) counts for a subset of selected genes
+#' @param gobject giotto object
+#' @param expression_values expression values to use
+#' @param genes vector of selected genes
+#' @param vector_name column name as seen in pDataDT()
+#' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @return giotto object if return_gobject = TRUE, else a vector with % results
+#' @export
+#' @examples
+#'     addGenesPerc(gobject)
+addGenesPerc = function(gobject,
+                        expression_values = c('normalized', 'scaled', 'custom'),
+                        genes = NULL,
+                        vector_name = 'gene_perc',
+                        return_gobject = TRUE) {
+  
+  # tests
+  if(is.null(genes)) {
+    stop('You need to provide a vector of gene names \n')
+  }
+  
+  if(!is(gobject, 'giotto')) {
+    stop('You need to provide a giotto object \n')
+  }
+  
+  
+  # expression values to be used
+  expression_values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_data = select_expression_values(gobject = gobject, values = expression_values)
+  
+  totalsum = colSums_giotto(expr_data)
+  gene_sum = colSums_giotto(expr_data[rownames(expr_data) %in% genes,])
+  perc_genes = round((gene_sum/totalsum)*100, 2)
+  
+  if(return_gobject == TRUE) {
+    temp_gobj = addCellMetadata(gobject = gobject,
+                                new_metadata = perc_genes, 
+                                vector_name = vector_name,
+                                by_column = F)
+    return(temp_gobj)
+  } else {
+    return(perc_genes)
+  }
+  
 }
 
 
