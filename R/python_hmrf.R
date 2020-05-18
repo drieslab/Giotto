@@ -74,7 +74,7 @@ doHMRF <- function(gobject,
   ## 1. expression values
   if(!is.null(dim_reduction_to_use)) {
     expr_values = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']][, dimensions_to_use]
-    expr_values = t(expr_values)
+    expr_values = t_giotto(expr_values)
   } else {
     values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
     expr_values = select_expression_values(gobject = gobject, values = values)

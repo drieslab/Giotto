@@ -52,7 +52,7 @@ spatDimPlot(
   network_name = "sNN.pca",
   nn_network_alpha = 0.05,
   show_spatial_network = F,
-  spat_network_name = "spatial_network",
+  spat_network_name = NULL,
   spat_network_color = "blue",
   spat_network_alpha = 0.5,
   show_spatial_grid = F,
