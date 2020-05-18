@@ -782,7 +782,7 @@ doKmeans <- function(gobject,
 
     # features as columns
     # cells as rows
-    matrix_to_use = t(expr_values)
+    matrix_to_use = t_giotto(expr_values)
 
   }
 
@@ -790,7 +790,7 @@ doKmeans <- function(gobject,
   if(distance_method == 'original') {
     celldist = matrix_to_use
   } else if(distance_method %in% c('spearman', 'pearson')) {
-    celldist = stats::as.dist(1-cor(x = t(matrix_to_use), method = distance_method))
+    celldist = stats::as.dist(1-cor_giotto(x = t_giotto(matrix_to_use), method = distance_method))
   } else if(distance_method %in% c("euclidean", "maximum", "manhattan",
                                    "canberra", "binary", "minkowski")) {
     celldist = stats::dist(x = matrix_to_use, method = distance_method)
@@ -940,7 +940,7 @@ doHclust <- function(gobject,
 
     # features as columns
     # cells as rows
-    matrix_to_use = t(expr_values)
+    matrix_to_use = t_giotto(expr_values)
 
   }
 
@@ -948,7 +948,7 @@ doHclust <- function(gobject,
   if(distance_method == 'original') {
     celldist = matrix_to_use
   } else if(distance_method %in% c('spearman', 'pearson')) {
-    celldist = stats::as.dist(1-cor(x = t(matrix_to_use), method = distance_method))
+    celldist = stats::as.dist(1-cor_giotto(x = t_giotto(matrix_to_use), method = distance_method))
   } else if(distance_method %in% c("euclidean", "maximum", "manhattan",
                                    "canberra", "binary", "minkowski")) {
     celldist = stats::dist(x = matrix_to_use, method = distance_method)
@@ -2071,7 +2071,7 @@ getClusterSimilarity <- function(gobject,
   testmatrix = dt_to_matrix(x = dcast_metatable)
 
   # correlation matrix
-  cormatrix = stats::cor(x = testmatrix, method = cor)
+  cormatrix = cor_giotto(x = testmatrix, method = cor)
   cor_table = as.data.table(reshape2::melt(cormatrix))
   setnames(cor_table, old = c('Var1', 'Var2'), c('group1', 'group2'))
   cor_table[, c('group1', 'group2') := list(as.character(group1), as.character(group2))]
@@ -2364,7 +2364,7 @@ getDendrogramSplits = function(gobject,
   testmatrix = dt_to_matrix(x = dcast_metatable)
 
   # correlation
-  cormatrix = stats::cor(x = testmatrix, method = cor)
+  cormatrix = cor_giotto(x = testmatrix, method = cor)
   cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
   corclus = stats::hclust(d = cordist, method = distance)
 

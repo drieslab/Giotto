@@ -284,7 +284,8 @@ create_average_detection_DT <- function(gobject, meta_data_name,
     name = paste0('cluster_', group)
 
     temp = expr_data[, cell_metadata[[meta_data_name]] == group]
-
+    temp = as.matrix(temp)
+    
     if(is.matrix(temp)) {
       temp_DT = rowSums_giotto(temp > detection_threshold)/ncol(temp)
     } else {
