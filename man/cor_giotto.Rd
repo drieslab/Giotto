@@ -4,7 +4,7 @@
 \alias{cor_giotto}
 \title{cor_giotto}
 \usage{
-cor_giotto(mymatrix, ...)
+cor_giotto(x, ...)
 }
 \description{
 cor_giotto

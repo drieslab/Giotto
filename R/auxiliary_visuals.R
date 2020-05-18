@@ -382,7 +382,7 @@ showClusterHeatmap <- function(gobject,
   testmatrix = Giotto:::dt_to_matrix(x = dcast_metatable)
 
   # correlation
-  cormatrix = stats::cor(x = testmatrix, method = cor)
+  cormatrix = cor_giotto(x = testmatrix, method = cor)
   cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
   corclus = stats::hclust(d = cordist, method = distance)
 
@@ -460,7 +460,7 @@ showClusterDendrogram <- function(gobject,
   testmatrix = Giotto:::dt_to_matrix(x = dcast_metatable)
 
   # correlation
-  cormatrix = stats::cor(x = testmatrix, method = cor)
+  cormatrix = cor_giotto(x = testmatrix, method = cor)
   cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
   corclus = stats::hclust(d = cordist, method = distance)
 
@@ -1430,7 +1430,7 @@ violinPlot <- function(gobject,
   # only keep genes that are in the dataset
   selected_genes = genes[genes %in% rownames(expr_data)]
   if(length(selected_genes[duplicated(selected_genes)]) != 0) {
-    cat('These genes have duplicates and will be removed: \n',
+    cat('These genes have duplicates: \n',
         selected_genes[duplicated(selected_genes)])
 
     selected_genes = unique(selected_genes)

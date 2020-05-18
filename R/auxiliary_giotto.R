@@ -106,9 +106,9 @@ cor_sparse <- function(x) {
 
 #' @title cor_giotto
 #' @export
-cor_giotto = function(mymatrix, ...) {
-  mymatrix = as.matrix(mymatrix)
-  return(stats::cor(mymatrix, ...))
+cor_giotto = function(x, ...) {
+  x = as.matrix(x)
+  return(stats::cor(x, ...))
 }
 
 
