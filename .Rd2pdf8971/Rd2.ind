@@ -1,0 +1,608 @@
+\begin{theindex}
+
+  \item $*$Topic{\large  \ \textbf  {giotto,}}
+    \subitem \texttt  {giotto-class}, \hyperpage{178}
+    \subitem \texttt  {print.giotto}, \hyperpage{250}
+    \subitem \texttt  {show,giotto-method}, \hyperpage{265}
+  \item $*$Topic{\large  \ \textbf  {giotto}}
+    \subitem \texttt  {createGiottoObject}, \hyperpage{61}
+  \item $*$Topic{\large  \ \textbf  {object}}
+    \subitem \texttt  {giotto-class}, \hyperpage{178}
+    \subitem \texttt  {print.giotto}, \hyperpage{250}
+    \subitem \texttt  {show,giotto-method}, \hyperpage{265}
+
+  \indexspace
+
+  \item \texttt  { limma::removeBatchEffect}, 
+		\hyperindexformat{\textit}{18}
+
+  \indexspace
+
+  \item \texttt  {adapt\_aspect\_ratio}, \hyperpage{9}
+  \item \texttt  {addCellIntMetadata}, \hyperpage{9}
+  \item \texttt  {addCellMetadata}, \hyperpage{10}, 
+		\hyperindexformat{\textit}{62}
+  \item \texttt  {addCellStatistics}, \hyperpage{11}, 
+		\hyperindexformat{\textit}{17}
+  \item \texttt  {addGeneMetadata}, \hyperpage{12}, 
+		\hyperindexformat{\textit}{62}
+  \item \texttt  {addGenesPerc}, \hyperpage{12}
+  \item \texttt  {addGeneStatistics}, \hyperpage{13}, 
+		\hyperindexformat{\textit}{17}
+  \item \texttt  {addGiottoImage}, \hyperpage{14}
+  \item \texttt  {addGiottoImageToSpatPlot}, \hyperpage{14}
+  \item \texttt  {addHMRF}, \hyperpage{15}
+  \item \texttt  {addNetworkLayout}, \hyperpage{16}
+  \item \texttt  {addStatistics}, \hyperpage{17}
+  \item \texttt  {adjustGiottoMatrix}, \hyperpage{17}
+  \item \texttt  {aes\_string2}, \hyperpage{18}
+  \item \texttt  {all\_plots\_save\_function}, \hyperpage{19}, 
+		\hyperindexformat{\textit}{26}, 
+		\hyperindexformat{\textit}{29}, 
+		\hyperindexformat{\textit}{31}, 
+		\hyperindexformat{\textit}{33, 34}, 
+		\hyperindexformat{\textit}{36}, 
+		\hyperindexformat{\textit}{38}, 
+		\hyperindexformat{\textit}{87}, 
+		\hyperindexformat{\textit}{89}, 
+		\hyperindexformat{\textit}{92}, 
+		\hyperindexformat{\textit}{94}, 
+		\hyperindexformat{\textit}{100}, 
+		\hyperindexformat{\textit}{103}, 
+		\hyperindexformat{\textit}{105}, 
+		\hyperindexformat{\textit}{108, 109}, 
+		\hyperindexformat{\textit}{112}, 
+		\hyperindexformat{\textit}{115}, 
+		\hyperindexformat{\textit}{118}, 
+		\hyperindexformat{\textit}{120}, 
+		\hyperindexformat{\textit}{152}, 
+		\hyperindexformat{\textit}{154}, 
+		\hyperindexformat{\textit}{180}, 
+		\hyperindexformat{\textit}{182}, 
+		\hyperindexformat{\textit}{185}, 
+		\hyperindexformat{\textit}{198--200}, 
+		\hyperindexformat{\textit}{202--205}, 
+		\hyperindexformat{\textit}{207}, 
+		\hyperindexformat{\textit}{209--211}, 
+		\hyperindexformat{\textit}{215}, 
+		\hyperindexformat{\textit}{217}, 
+		\hyperindexformat{\textit}{220}, 
+		\hyperindexformat{\textit}{222, 223}, 
+		\hyperindexformat{\textit}{225}, 
+		\hyperindexformat{\textit}{227}, 
+		\hyperindexformat{\textit}{229}, 
+		\hyperindexformat{\textit}{231}, 
+		\hyperindexformat{\textit}{233}, 
+		\hyperindexformat{\textit}{235}, 
+		\hyperindexformat{\textit}{237}, 
+		\hyperindexformat{\textit}{239}, 
+		\hyperindexformat{\textit}{253}, 
+		\hyperindexformat{\textit}{266, 267}, 
+		\hyperindexformat{\textit}{269, 270}, 
+		\hyperindexformat{\textit}{272}, 
+		\hyperindexformat{\textit}{281}, 
+		\hyperindexformat{\textit}{284}, 
+		\hyperindexformat{\textit}{289}, 
+		\hyperindexformat{\textit}{294}, 
+		\hyperindexformat{\textit}{297}, 
+		\hyperindexformat{\textit}{300}, 
+		\hyperindexformat{\textit}{303}, 
+		\hyperindexformat{\textit}{307}, 
+		\hyperindexformat{\textit}{312}, 
+		\hyperindexformat{\textit}{315}, 
+		\hyperindexformat{\textit}{318}, 
+		\hyperindexformat{\textit}{320}, 
+		\hyperindexformat{\textit}{322}, 
+		\hyperindexformat{\textit}{327--329}, 
+		\hyperindexformat{\textit}{333}, 
+		\hyperindexformat{\textit}{336}, 
+		\hyperindexformat{\textit}{339}, 
+		\hyperindexformat{\textit}{341}, 
+		\hyperindexformat{\textit}{356}
+  \item \texttt  {annotate\_spatlocs\_with\_spatgrid\_2D}, 
+		\hyperpage{21}
+  \item \texttt  {annotate\_spatlocs\_with\_spatgrid\_3D}, 
+		\hyperpage{22}
+  \item \texttt  {annotateGiotto}, \hyperpage{20}
+  \item \texttt  {annotateSpatialNetwork}, \hyperpage{21}
+  \item \texttt  {average\_gene\_gene\_expression\_in\_groups}, 
+		\hyperpage{23}
+
+  \indexspace
+
+  \item \texttt  {binSpect}, \hyperpage{23}
+
+  \indexspace
+
+  \item \texttt  {calculate\_distance\_and\_weight}, \hyperpage{28}
+  \item \texttt  {calculateHVG}, \hyperpage{25}, 
+		\hyperindexformat{\textit}{258}, 
+		\hyperindexformat{\textit}{260, 261}
+  \item \texttt  {calculateMetaTable}, \hyperpage{27}
+  \item \texttt  {calculateMetaTableCells}, \hyperpage{27}
+  \item \texttt  {cellProximityBarplot}, \hyperpage{28}
+  \item \texttt  {cellProximityEnrichment}, \hyperpage{30}
+  \item \texttt  {cellProximityHeatmap}, \hyperpage{31}
+  \item \texttt  {cellProximityNetwork}, \hyperpage{32}
+  \item \texttt  {cellProximitySpatPlot}, \hyperpage{33}
+  \item \texttt  {cellProximitySpatPlot2D}, 
+		\hyperindexformat{\textit}{34}, \hyperpage{35}
+  \item \texttt  {cellProximitySpatPlot3D}, 
+		\hyperindexformat{\textit}{34}, \hyperpage{37}
+  \item \texttt  {cellProximityVisPlot}, \hyperpage{39}
+  \item \texttt  {cellProximityVisPlot\_2D\_ggplot}, \hyperpage{41}
+  \item \texttt  {cellProximityVisPlot\_2D\_plotly}, \hyperpage{43}
+  \item \texttt  {cellProximityVisPlot\_3D\_plotly}, \hyperpage{44}
+  \item \texttt  {changeGiottoInstructions}, \hyperpage{46}
+  \item \texttt  {changeImageBg}, \hyperpage{47}
+  \item \texttt  {cluster\_walktrap}, \hyperindexformat{\textit}{137}
+  \item \texttt  {clusterCells}, \hyperpage{47}
+  \item \texttt  {clusterSpatialCorGenes}, \hyperpage{50}
+  \item \texttt  {colMeans\_giotto}, \hyperpage{51}
+  \item \texttt  {colSums\_giotto}, \hyperpage{51}
+  \item \texttt  {combCCcom}, \hyperpage{51}, 
+		\hyperindexformat{\textit}{224--226}
+  \item \texttt  {combineCellProximityGenes}, \hyperpage{52}
+  \item \texttt  {combineCellProximityGenes\_per\_interaction}, 
+		\hyperpage{53}
+  \item \texttt  {combineCPG}, \hyperpage{53}
+  \item \texttt  {combineMetadata}, \hyperpage{55}
+  \item \texttt  {convert\_mgImage\_to\_array\_DT}, \hyperpage{56}
+  \item \texttt  {convert\_to\_full\_spatial\_network}, \hyperpage{56}
+  \item \texttt  {convert\_to\_reduced\_spatial\_network}, 
+		\hyperpage{56}
+  \item \texttt  {convertEnsemblToGeneSymbol}, \hyperpage{55}
+  \item \texttt  {cor\_giotto}, \hyperpage{57}
+  \item \texttt  {cor\_sparse}, \hyperpage{57}
+  \item \texttt  {cowplot::save\_plot}, \hyperindexformat{\textit}{178}
+  \item \texttt  {create\_2d\_mesh\_grid\_line\_obj}, \hyperpage{75}
+  \item \texttt  {create\_average\_detection\_DT}, \hyperpage{76}
+  \item \texttt  {create\_average\_DT}, \hyperpage{76}
+  \item \texttt  {create\_cell\_type\_random\_cell\_IDs}, 
+		\hyperpage{77}
+  \item \texttt  {create\_cluster\_matrix}, \hyperpage{78}
+  \item \texttt  {create\_crossSection\_object}, \hyperpage{78}
+  \item \texttt  {create\_delaunayNetwork2D}, \hyperpage{79}
+  \item \texttt  {create\_delaunayNetwork3D}, \hyperpage{79}
+  \item \texttt  {create\_delaunayNetwork\_deldir}, \hyperpage{80}
+  \item \texttt  {create\_delaunayNetwork\_geometry}, \hyperpage{80}
+  \item \texttt  {create\_delaunayNetwork\_geometry\_3D}, 
+		\hyperpage{81}
+  \item \texttt  {create\_delaunayNetwork\_RTriangle}, \hyperpage{81}
+  \item \texttt  {create\_dimObject}, \hyperpage{82}
+  \item \texttt  {create\_genes\_to\_use\_matrix}, \hyperpage{82}
+  \item \texttt  {create\_jackstrawplot}, \hyperpage{83}
+  \item \texttt  {create\_KNNnetwork\_dbscan}, \hyperpage{83}
+  \item \texttt  {create\_mesh\_grid\_lines}, \hyperpage{84}
+  \item \texttt  {create\_screeplot}, \hyperpage{84}
+  \item \texttt  {create\_spatialNetworkObject}, \hyperpage{85}
+  \item \texttt  {createCrossSection}, \hyperpage{57}
+  \item \texttt  {createDelaunayNetwork}, 
+		\hyperindexformat{\textit}{227}
+  \item \texttt  {createGiottoImage}, \hyperindexformat{\textit}{14}, 
+		\hyperpage{59}
+  \item \texttt  {createGiottoInstructions}, \hyperpage{60}, 
+		\hyperindexformat{\textit}{62, 63}
+  \item \texttt  {createGiottoObject}, \hyperpage{61}, 
+		\hyperindexformat{\textit}{346}
+  \item \texttt  {createGiottoVisiumObject}, \hyperpage{63}
+  \item \texttt  {createHeatmap\_DT}, \hyperpage{64}
+  \item \texttt  {createMetagenes}, \hyperpage{65}
+  \item \texttt  {createNearestNetwork}, \hyperpage{66}
+  \item \texttt  {createSpatialDelaunayNetwork}, \hyperpage{67}
+  \item \texttt  {createSpatialEnrich}, \hyperpage{69}, 
+		\hyperindexformat{\textit}{147}
+  \item \texttt  {createSpatialGrid}, \hyperpage{70}
+  \item \texttt  {createSpatialGrid\_2D}, \hyperpage{71}
+  \item \texttt  {createSpatialGrid\_3D}, \hyperpage{72}
+  \item \texttt  {createSpatialKNNnetwork}, \hyperpage{73}
+  \item \texttt  {createSpatialNetwork}, \hyperpage{74}, 
+		\hyperindexformat{\textit}{96}
+  \item \texttt  {crossSectionGenePlot}, \hyperpage{85}
+  \item \texttt  {crossSectionGenePlot3D}, \hyperpage{87}
+  \item \texttt  {crossSectionPlot}, \hyperpage{89}, 
+		\hyperindexformat{\textit}{92}
+  \item \texttt  {crossSectionPlot3D}, \hyperpage{93}
+
+  \indexspace
+
+  \item \texttt  {decide\_cluster\_order}, \hyperpage{95}
+  \item \texttt  {delaunayn}, \hyperindexformat{\textit}{68}
+  \item \texttt  {deldir}, \hyperindexformat{\textit}{68}
+  \item \texttt  {detectSpatialCorGenes}, \hyperpage{96}
+  \item \texttt  {detectSpatialPatterns}, \hyperpage{97}
+  \item \texttt  {dimCellPlot}, \hyperpage{98}
+  \item \texttt  {dimCellPlot2D}, \hyperindexformat{\textit}{100}, 
+		\hyperpage{101}
+  \item \texttt  {dimGenePlot}, \hyperpage{104}
+  \item \texttt  {dimGenePlot2D}, \hyperpage{106}
+  \item \texttt  {dimGenePlot3D}, \hyperindexformat{\textit}{106}, 
+		\hyperindexformat{\textit}{108}, \hyperpage{108}
+  \item \texttt  {dimPlot}, \hyperpage{110}
+  \item \texttt  {dimPlot2D}, \hyperindexformat{\textit}{113}, 
+		\hyperpage{113}, \hyperindexformat{\textit}{220}, 
+		\hyperindexformat{\textit}{222}, 
+		\hyperindexformat{\textit}{229}, 
+		\hyperindexformat{\textit}{231}, 
+		\hyperindexformat{\textit}{235}, 
+		\hyperindexformat{\textit}{237}
+  \item \texttt  {dimPlot2D\_single}, \hyperpage{116}
+  \item \texttt  {dimPlot3D}, \hyperindexformat{\textit}{103}, 
+		\hyperindexformat{\textit}{113}, 
+		\hyperindexformat{\textit}{116}, 
+		\hyperindexformat{\textit}{118}, \hyperpage{119}
+  \item \texttt  {do\_cell\_proximity\_test}, \hyperpage{139}
+  \item \texttt  {do\_limmatest}, \hyperpage{139}
+  \item \texttt  {do\_multi\_permuttest\_random}, \hyperpage{140}
+  \item \texttt  {do\_page\_permutation}, \hyperpage{140}
+  \item \texttt  {do\_permuttest} \textit  {(\texttt  {do\_permuttest\_random})}, 
+		\hyperpage{141}
+  \item \texttt  {do\_permuttest\_original}, \hyperpage{141}
+  \item \texttt  {do\_permuttest\_random}, \hyperpage{141}
+  \item \texttt  {do\_rank\_permutation}, \hyperpage{142}
+  \item \texttt  {do\_spatial\_grid\_averaging}, \hyperpage{142}
+  \item \texttt  {do\_spatial\_knn\_smoothing}, \hyperpage{143}
+  \item \texttt  {do\_ttest}, \hyperpage{144}
+  \item \texttt  {do\_wilctest} \textit  {(\texttt  {do\_ttest})}, 
+		\hyperpage{144}
+  \item \texttt  {doHclust}, \hyperindexformat{\textit}{50}, 
+		\hyperpage{121}
+  \item \texttt  {doHMRF}, \hyperpage{122}
+  \item \texttt  {doKmeans}, \hyperindexformat{\textit}{50}, 
+		\hyperpage{123}
+  \item \texttt  {doLeidenCluster}, \hyperindexformat{\textit}{50}, 
+		\hyperpage{125}, \hyperindexformat{\textit}{128}, 
+		\hyperindexformat{\textit}{348}
+  \item \texttt  {doLeidenSubCluster}, \hyperpage{126}
+  \item \texttt  {doLouvainCluster}, \hyperindexformat{\textit}{50}, 
+		\hyperpage{128}
+  \item \texttt  {doLouvainCluster\_community}, 
+		\hyperindexformat{\textit}{50}, 
+		\hyperindexformat{\textit}{129}, \hyperpage{129}, 
+		\hyperindexformat{\textit}{133, 134}, 
+		\hyperindexformat{\textit}{348}
+  \item \texttt  {doLouvainCluster\_multinet}, 
+		\hyperindexformat{\textit}{50}, 
+		\hyperindexformat{\textit}{129}, \hyperpage{130}, 
+		\hyperindexformat{\textit}{133}, 
+		\hyperindexformat{\textit}{136}, 
+		\hyperindexformat{\textit}{348}
+  \item \texttt  {doLouvainSubCluster}, \hyperpage{131}
+  \item \texttt  {doLouvainSubCluster\_community}, \hyperpage{133}
+  \item \texttt  {doLouvainSubCluster\_multinet}, \hyperpage{135}
+  \item \texttt  {doRandomWalkCluster}, \hyperindexformat{\textit}{50}, 
+		\hyperpage{136}
+  \item \texttt  {doSNNCluster}, \hyperindexformat{\textit}{50}, 
+		\hyperpage{138}
+  \item \texttt  {DT\_removeNA}, \hyperpage{144}
+  \item \texttt  {dt\_to\_matrix}, \hyperpage{145}
+
+  \indexspace
+
+  \item \texttt  {estimateCellCellDistance}, \hyperpage{145}
+  \item \texttt  {estimateImageBg}, \hyperpage{145}
+  \item \texttt  {evaluate\_expr\_matrix}, \hyperpage{146}
+  \item \texttt  {exportGiottoViewer}, \hyperpage{146}
+  \item \texttt  {exprCellCellcom}, \hyperpage{148}, 
+		\hyperindexformat{\textit}{198, 199}
+  \item \texttt  {extend\_vector}, \hyperpage{149}
+  \item \texttt  {extended\_gini\_fun}, \hyperpage{149}
+  \item \texttt  {extractNearestNetwork}, \hyperpage{149}
+
+  \indexspace
+
+  \item \texttt  {fDataDT}, \hyperpage{150}
+  \item \texttt  {filter\_network}, \hyperpage{156}
+  \item \texttt  {filterCellProximityGenes}, \hyperpage{150}
+  \item \texttt  {filterCombinations}, \hyperpage{151}, 
+		\hyperindexformat{\textit}{155}
+  \item \texttt  {filterCPG}, \hyperpage{152}
+  \item \texttt  {filterDistributions}, \hyperpage{153}
+  \item \texttt  {filterGiotto}, \hyperpage{155}
+  \item \texttt  {find\_grid\_2D}, \hyperpage{170}
+  \item \texttt  {find\_grid\_3D}, \hyperpage{170}
+  \item \texttt  {find\_grid\_x}, \hyperpage{171}
+  \item \texttt  {find\_grid\_y}, \hyperpage{171}
+  \item \texttt  {find\_grid\_z}, \hyperpage{171}
+  \item \texttt  {find\_x\_y\_ranges}, \hyperpage{171}
+  \item \texttt  {findCellProximityGenes}, \hyperpage{156}
+  \item \texttt  {findCellProximityGenes\_per\_interaction}, 
+		\hyperpage{158}
+  \item \texttt  {findCPG}, \hyperpage{158}
+  \item \texttt  {findGiniMarkers}, \hyperpage{160}, 
+		\hyperindexformat{\textit}{162}, 
+		\hyperindexformat{\textit}{164}
+  \item \texttt  {findGiniMarkers\_one\_vs\_all}, \hyperpage{161}, 
+		\hyperindexformat{\textit}{165}
+  \item \texttt  {findMarkers}, \hyperpage{163}, 
+		\hyperindexformat{\textit}{169}
+  \item \texttt  {findMarkers\_one\_vs\_all}, \hyperpage{164}
+  \item \texttt  {findMastMarkers}, \hyperindexformat{\textit}{164}, 
+		\hyperpage{166}, \hyperindexformat{\textit}{167}
+  \item \texttt  {findMastMarkers\_one\_vs\_all}, 
+		\hyperindexformat{\textit}{165}, \hyperpage{167}
+  \item \texttt  {findNetworkNeighbors}, \hyperpage{168}
+  \item \texttt  {findScranMarkers}, \hyperindexformat{\textit}{164}, 
+		\hyperpage{168}, \hyperindexformat{\textit}{170}
+  \item \texttt  {findScranMarkers\_one\_vs\_all}, 
+		\hyperindexformat{\textit}{165}, \hyperpage{169}
+
+  \indexspace
+
+  \item \texttt  {general\_save\_function}, 
+		\hyperindexformat{\textit}{20}, \hyperpage{172}
+  \item \texttt  {get10Xmatrix}, \hyperpage{173}
+  \item \texttt  {get\_cross\_section\_coordinates}, \hyperpage{176}
+  \item \texttt  {get\_distance}, \hyperpage{176}
+  \item \texttt  {get\_sectionThickness}, \hyperpage{177}
+  \item \texttt  {getClusterSimilarity}, \hyperpage{173}
+  \item \texttt  {getDendrogramSplits}, \hyperpage{174}
+  \item \texttt  {getDistinctColors}, \hyperpage{175}
+  \item \texttt  {getGiottoImage}, \hyperpage{176}
+  \item \texttt  {ggplot\_save\_function}, \hyperpage{177}
+  \item \texttt  {giotto} \textit  {(\texttt  {giotto-class})}, 
+		\hyperpage{178}
+  \item \texttt  {giotto-class}, \hyperpage{178}
+  \item \texttt  {glouvain\_ml}, \hyperindexformat{\textit}{131}
+
+  \indexspace
+
+  \item \texttt  {hclust}, \hyperindexformat{\textit}{122}
+  \item \texttt  {Heatmap}, \hyperindexformat{\textit}{180}
+  \item \texttt  {heatmSpatialCorGenes}, \hyperpage{179}
+  \item \texttt  {hyperGeometricEnrich}, \hyperindexformat{\textit}{70}, 
+		\hyperpage{180}
+
+  \indexspace
+
+  \item \texttt  {insertCrossSectionGenePlot3D}, \hyperpage{181}
+  \item \texttt  {insertCrossSectionSpatPlot3D}, \hyperpage{183}
+
+  \indexspace
+
+  \item \texttt  {jackstrawPlot}, \hyperpage{185}
+
+  \indexspace
+
+  \item \texttt  {kmeans}, \hyperindexformat{\textit}{124}
+  \item \texttt  {kmeans\_binarize}, \hyperpage{187}
+  \item \texttt  {kNN}, \hyperindexformat{\textit}{67}
+
+  \indexspace
+
+  \item \texttt  {layout\_with\_drl}, \hyperindexformat{\textit}{16}
+  \item \texttt  {libNorm\_giotto}, \hyperpage{187}
+  \item \texttt  {loadHMRF}, \hyperpage{187}
+  \item \texttt  {logNorm\_giotto}, \hyperpage{188}
+
+  \indexspace
+
+  \item \texttt  {make\_simulated\_network}, \hyperpage{189}
+  \item \texttt  {makeSignMatrixPAGE}, \hyperpage{188}, 
+		\hyperindexformat{\textit}{196}
+  \item \texttt  {makeSignMatrixRank}, \hyperpage{189}, 
+		\hyperindexformat{\textit}{252}
+  \item \texttt  {mean\_expr\_det\_test}, \hyperpage{190}
+  \item \texttt  {mean\_giotto}, \hyperpage{190}
+  \item \texttt  {mergeClusters}, \hyperpage{190}
+  \item \texttt  {my\_arowMeans}, \hyperpage{192}
+  \item \texttt  {my\_growMeans}, \hyperpage{192}
+  \item \texttt  {my\_rowMeans}, \hyperpage{192}
+  \item \texttt  {mygini\_fun}, \hyperpage{191}
+
+  \indexspace
+
+  \item \texttt  {nnDT\_to\_kNN}, \hyperpage{193}
+  \item \texttt  {node\_clusters}, \hyperpage{193}
+  \item \texttt  {normalizeGiotto}, \hyperpage{194}
+
+  \indexspace
+
+  \item \texttt  {PAGEEnrich}, \hyperindexformat{\textit}{70}, 
+		\hyperindexformat{\textit}{188}, \hyperpage{195}
+  \item \texttt  {PCA}, \hyperindexformat{\textit}{258}
+  \item \texttt  {pca\_giotto}, \hyperpage{196}
+  \item \texttt  {pDataDT}, \hyperpage{197}
+  \item \texttt  {permutationPA}, \hyperindexformat{\textit}{186}, 
+		\hyperindexformat{\textit}{276}
+  \item \texttt  {plot\_network\_layer\_ggplot}, \hyperpage{239}
+  \item \texttt  {plot\_point\_layer\_ggplot}, \hyperpage{240}
+  \item \texttt  {plot\_point\_layer\_ggplot\_noFILL}, \hyperpage{242}
+  \item \texttt  {plot\_spat\_image\_layer\_ggplot}, \hyperpage{244}
+  \item \texttt  {plot\_spat\_point\_layer\_ggplot}, \hyperpage{244}
+  \item \texttt  {plot\_spat\_point\_layer\_ggplot\_noFILL}, 
+		\hyperpage{246}
+  \item \texttt  {plot\_spat\_voronoi\_layer\_ggplot}, \hyperpage{248}
+  \item \texttt  {plotCCcomDotplot}, \hyperpage{197}
+  \item \texttt  {plotCCcomHeatmap}, \hyperpage{198}
+  \item \texttt  {plotCellProximityGenes}, \hyperpage{199}
+  \item \texttt  {plotCombineCCcom}, \hyperpage{201}
+  \item \texttt  {plotCombineCellCellCommunication}, \hyperpage{202}
+  \item \texttt  {plotCombineCellProximityGenes}, \hyperpage{203}
+  \item \texttt  {plotCombineCPG}, \hyperpage{205}
+  \item \texttt  {plotCPG}, \hyperpage{206}
+  \item \texttt  {plotGiottoImage}, \hyperpage{207}
+  \item \texttt  {plotHeatmap}, \hyperpage{208}
+  \item \texttt  {plotICG}, \hyperpage{210}
+  \item \texttt  {plotInteractionChangedGenes}, \hyperpage{211}
+  \item \texttt  {plotly\_axis\_scale\_2D}, \hyperpage{212}
+  \item \texttt  {plotly\_axis\_scale\_3D}, \hyperpage{212}
+  \item \texttt  {plotly\_grid}, \hyperpage{213}
+  \item \texttt  {plotly\_network}, \hyperpage{214}
+  \item \texttt  {plotMetaDataCellsHeatmap}, \hyperpage{214}, 
+		\hyperindexformat{\textit}{218}
+  \item \texttt  {plotMetaDataHeatmap}, \hyperindexformat{\textit}{216}, 
+		\hyperpage{216}
+  \item \texttt  {plotPCA}, \hyperpage{218}
+  \item \texttt  {plotPCA\_2D}, \hyperpage{220}
+  \item \texttt  {plotPCA\_3D}, \hyperindexformat{\textit}{220}, 
+		\hyperindexformat{\textit}{222}, \hyperpage{222}
+  \item \texttt  {plotRankSpatvsExpr}, \hyperpage{224}
+  \item \texttt  {plotRecovery}, \hyperpage{225}
+  \item \texttt  {plotRecovery\_sub}, \hyperpage{226}
+  \item \texttt  {plotStatDelaunayNetwork}, \hyperpage{226}
+  \item \texttt  {plotTSNE}, \hyperpage{228}
+  \item \texttt  {plotTSNE\_2D}, \hyperpage{230}
+  \item \texttt  {plotTSNE\_3D}, \hyperindexformat{\textit}{229}, 
+		\hyperindexformat{\textit}{231}, \hyperpage{232}
+  \item \texttt  {plotUMAP}, \hyperpage{233}
+  \item \texttt  {plotUMAP\_2D}, \hyperpage{236}
+  \item \texttt  {plotUMAP\_3D}, \hyperindexformat{\textit}{235}, 
+		\hyperindexformat{\textit}{237}, \hyperpage{238}
+  \item \texttt  {print.giotto}, \hyperpage{250}
+  \item \texttt  {projection\_fun}, \hyperpage{251}
+
+  \indexspace
+
+  \item \texttt  {rank\_binarize}, \hyperpage{253}
+  \item \texttt  {rankEnrich}, \hyperindexformat{\textit}{70}, 
+		\hyperindexformat{\textit}{189}, \hyperpage{251}
+  \item \texttt  {rankSpatialCorGroups}, \hyperpage{252}
+  \item \texttt  {read\_crossSection}, \hyperpage{254}
+  \item \texttt  {readExprMatrix}, \hyperpage{253}
+  \item \texttt  {readGiottoInstructions}, \hyperpage{254}
+  \item \texttt  {removeCellAnnotation}, \hyperpage{255}
+  \item \texttt  {removeGeneAnnotation}, \hyperpage{255}
+  \item \texttt  {replaceGiottoInstructions}, \hyperpage{256}
+  \item \texttt  {reshape\_to\_data\_point}, \hyperpage{256}
+  \item \texttt  {reshape\_to\_mesh\_grid\_obj}, \hyperpage{257}
+  \item \texttt  {rowMeans\_giotto}, \hyperpage{257}
+  \item \texttt  {rowSums\_giotto}, \hyperpage{257}
+  \item \texttt  {Rtsne}, \hyperindexformat{\textit}{260}
+  \item \texttt  {runPCA}, \hyperpage{258}
+  \item \texttt  {runtSNE}, \hyperpage{259}
+  \item \texttt  {runUMAP}, \hyperpage{260}
+
+  \indexspace
+
+  \item \texttt  {screePlot}, \hyperpage{262}
+  \item \texttt  {select\_expression\_values}, \hyperpage{264}
+  \item \texttt  {select\_spatialNetwork}, \hyperpage{264}
+  \item \texttt  {selectPatternGenes}, \hyperpage{263}
+  \item \texttt  {set\_giotto\_python\_path}, \hyperpage{265}
+  \item \texttt  {show,giotto-method}, \hyperpage{265}
+  \item \texttt  {showClusterDendrogram}, \hyperpage{265}
+  \item \texttt  {showClusterHeatmap}, \hyperpage{266}
+  \item \texttt  {showGiottoImageNames}, \hyperpage{268}
+  \item \texttt  {showGiottoInstructions}, \hyperpage{268}
+  \item \texttt  {showImageNames}, \hyperindexformat{\textit}{176}, 
+		\hyperindexformat{\textit}{207}
+  \item \texttt  {showPattern}, \hyperpage{269}
+  \item \texttt  {showPattern2D}, \hyperindexformat{\textit}{269}, 
+		\hyperpage{270}
+  \item \texttt  {showPattern3D}, \hyperpage{271}
+  \item \texttt  {showPatternGenes}, \hyperpage{272}
+  \item \texttt  {showProcessingSteps}, \hyperpage{273}
+  \item \texttt  {showSpatialCorGenes}, \hyperindexformat{\textit}{97}, 
+		\hyperpage{274}
+  \item \texttt  {signPCA}, \hyperpage{275}
+  \item \texttt  {silhouetteRank}, \hyperpage{276}
+  \item \texttt  {sNN}, \hyperindexformat{\textit}{67}
+  \item \texttt  {sNNclust}, \hyperindexformat{\textit}{138}
+  \item \texttt  {sort\_combine\_two\_DT\_columns}, \hyperpage{277}
+  \item \texttt  {spat\_fish\_func}, \hyperpage{342}
+  \item \texttt  {spat\_OR\_func}, \hyperpage{342}
+  \item \texttt  {spatCellCellcom}, 
+		\hyperindexformat{\textit}{198, 199}, \hyperpage{277}
+  \item \texttt  {spatCellPlot}, \hyperpage{279}
+  \item \texttt  {spatCellPlot2D}, \hyperpage{282}
+  \item \texttt  {spatDimCellPlot}, \hyperpage{285}
+  \item \texttt  {spatDimCellPlot2D}, \hyperpage{290}
+  \item \texttt  {spatDimGenePlot}, \hyperpage{294}
+  \item \texttt  {spatDimGenePlot2D}, \hyperpage{298}
+  \item \texttt  {spatDimGenePlot3D}, \hyperindexformat{\textit}{297}, 
+		\hyperindexformat{\textit}{301}, \hyperpage{301}
+  \item \texttt  {spatDimPlot}, \hyperpage{303}
+  \item \texttt  {spatDimPlot2D}, \hyperindexformat{\textit}{307}, 
+		\hyperpage{308}
+  \item \texttt  {spatDimPlot3D}, \hyperindexformat{\textit}{307}, 
+		\hyperindexformat{\textit}{312}, \hyperpage{312}
+  \item \texttt  {spatGenePlot}, \hyperpage{315}
+  \item \texttt  {spatGenePlot2D}, \hyperindexformat{\textit}{87}, 
+		\hyperindexformat{\textit}{318}, \hyperpage{318}
+  \item \texttt  {spatGenePlot3D}, \hyperindexformat{\textit}{87}, 
+		\hyperindexformat{\textit}{318}, 
+		\hyperindexformat{\textit}{321}, \hyperpage{321}
+  \item \texttt  {Spatial\_AEH}, \hyperpage{325}
+  \item \texttt  {Spatial\_DE}, \hyperpage{326}
+  \item \texttt  {spatialAEH}, \hyperpage{323}
+  \item \texttt  {SpatialDE}, \hyperindexformat{\textit}{323}
+  \item \texttt  {spatialDE}, \hyperpage{324}
+  \item \texttt  {spatNetwDistributions}, \hyperpage{326}
+  \item \texttt  {spatNetwDistributionsDistance}, \hyperpage{328}
+  \item \texttt  {spatNetwDistributionsKneighbors}, \hyperpage{329}
+  \item \texttt  {spatPlot}, \hyperpage{330}
+  \item \texttt  {spatPlot2D}, \hyperpage{333}, 
+		\hyperindexformat{\textit}{353}
+  \item \texttt  {spatPlot2D\_single}, \hyperpage{337}
+  \item \texttt  {spatPlot3D}, \hyperindexformat{\textit}{333}, 
+		\hyperindexformat{\textit}{336}, 
+		\hyperindexformat{\textit}{340}, \hyperpage{340}, 
+		\hyperindexformat{\textit}{354}
+  \item \texttt  {specificCellCellcommunicationScores}, \hyperpage{343}
+  \item \texttt  {split\_dendrogram\_in\_two}, \hyperpage{344}
+  \item \texttt  {standardise\_giotto}, \hyperpage{344}
+  \item \texttt  {stitchFieldCoordinates}, 
+		\hyperindexformat{\textit}{62}, \hyperpage{345}
+  \item \texttt  {stitchTileCoordinates}, \hyperpage{346}
+  \item \texttt  {subClusterCells}, \hyperpage{347}
+  \item \texttt  {subsetGiotto}, \hyperpage{348}
+  \item \texttt  {subsetGiottoLocs}, \hyperpage{349}
+
+  \indexspace
+
+  \item \texttt  {t\_giotto}, \hyperpage{351}
+  \item \texttt  {transform\_2d\_mesh\_to\_3d\_mesh}, \hyperpage{350}
+  \item \texttt  {trendSceek}, \hyperpage{350}
+  \item \texttt  {trendsceek\_test}, \hyperindexformat{\textit}{351}
+  \item \texttt  {triangulate}, \hyperindexformat{\textit}{68}, 
+		\hyperindexformat{\textit}{227}
+
+  \indexspace
+
+  \item \texttt  {umap}, \hyperindexformat{\textit}{261}
+  \item \texttt  {updateGiottoImage}, \hyperpage{351}
+
+  \indexspace
+
+  \item \texttt  {viewHMRFresults}, \hyperpage{352}
+  \item \texttt  {viewHMRFresults2D}, \hyperpage{353}
+  \item \texttt  {viewHMRFresults3D}, \hyperpage{354}
+  \item \texttt  {violinPlot}, \hyperpage{355}
+  \item \texttt  {visDimGenePlot}, \hyperpage{356}
+  \item \texttt  {visDimGenePlot\_2D\_ggplot}, \hyperpage{358}
+  \item \texttt  {visDimGenePlot\_3D\_plotly}, \hyperpage{359}
+  \item \texttt  {visDimPlot}, \hyperpage{361}
+  \item \texttt  {visDimPlot\_2D\_ggplot}, \hyperpage{363}
+  \item \texttt  {visDimPlot\_2D\_plotly}, \hyperpage{365}
+  \item \texttt  {visDimPlot\_3D\_plotly}, \hyperpage{367}
+  \item \texttt  {visForceLayoutPlot}, \hyperpage{368}
+  \item \texttt  {visGenePlot}, \hyperpage{370}
+  \item \texttt  {visGenePlot\_2D\_ggplot}, \hyperpage{372}
+  \item \texttt  {visGenePlot\_3D\_plotly}, \hyperpage{373}
+  \item \texttt  {visPlot}, \hyperindexformat{\textit}{353}, 
+		\hyperpage{375}
+  \item \texttt  {visPlot\_2D\_ggplot}, \hyperpage{377}
+  \item \texttt  {visPlot\_2D\_plotly}, \hyperpage{380}
+  \item \texttt  {visPlot\_3D\_plotly}, \hyperpage{381}
+  \item \texttt  {visSpatDimGenePlot}, \hyperpage{383}
+  \item \texttt  {visSpatDimGenePlot\_2D}, \hyperpage{386}
+  \item \texttt  {visSpatDimGenePlot\_3D}, \hyperpage{388}
+  \item \texttt  {visSpatDimPlot}, \hyperpage{390}
+  \item \texttt  {visSpatDimPlot\_2D}, \hyperpage{392}
+  \item \texttt  {visSpatDimPlot\_3D}, \hyperpage{395}
+
+  \indexspace
+
+  \item \texttt  {write\_giotto\_viewer\_annotation}, \hyperpage{397}
+  \item \texttt  {write\_giotto\_viewer\_dim\_reduction}, 
+		\hyperpage{398}
+  \item \texttt  {write\_giotto\_viewer\_numeric\_annotation}, 
+		\hyperpage{399}
+  \item \texttt  {writeHMRFresults}, \hyperpage{397}
+
+  \indexspace
+
+  \item \texttt  {zlm}, \hyperindexformat{\textit}{166}
+
+\end{theindex}

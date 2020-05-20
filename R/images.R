@@ -64,6 +64,8 @@ changeImageBg = function(mg_object, bg_color, perc_range = 10, new_color = '#FFF
     is_g_image = TRUE
     g_image = mg_object
     mg_object = mg_object$mg_object
+  } else {
+    is_g_image = FALSE
   }
   
   if(!is(mg_object, 'magick-image')) {
