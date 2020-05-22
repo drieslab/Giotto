@@ -484,12 +484,14 @@ replaceGiottoInstructions = function(gobject,
 #' @title readExprMatrix
 #' @description Function to read an expression matrix into a sparse matrix.
 #' @param path path to the expression matrix
+#' @param cores number of cores to use
+#' @param transpose transpose matrix
 #' @return sparse matrix
 #' @details The expression matrix needs to have both unique column names and row names
 #' @export
 #' @examples
 #'     readExprMatrix()
-readExprMatrix = function(path, cores = NA) {
+readExprMatrix = function(path, cores = NA, transpose = FALSE) {
   
   # check if path is a character vector and exists
   if(!is.character(path)) stop('path needs to be character vector')
@@ -649,7 +651,7 @@ createGiottoObject <- function(raw_exprs,
 
 
   # check if all optional packages are installed
-  extra_packages = c("scran", "MAST", "png", "tiff", "biomaRt", "trendsceek", "multinet", "RTriangle")
+  extra_packages = c("scran", "MAST", "png", "tiff", "biomaRt", "trendsceek", "multinet", "RTriangle", "FactoMiner")
   pack_index = extra_packages %in% rownames(installed.packages())
   extra_installed_packages = extra_packages[pack_index]
   extra_not_installed_packages = extra_packages[!pack_index]
