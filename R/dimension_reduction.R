@@ -162,13 +162,11 @@ runPCA_prcomp_irlba = function(x,
 #' @description performs PCA based on the factominer package
 #' @param x matrix or object that can be converted to matrix
 #' @param ncp number of principal components to calculate
-#' @param center center data
 #' @param scale scale features
 #' @param rev reverse PCA
 #' @return list of eigenvalues, loadings and pca coordinates
 runPCA_factominer = function(x,
                              ncp = 100,
-                             center = TRUE,
                              scale = TRUE,
                              rev = FALSE,
                              ...) {
@@ -333,21 +331,25 @@ runPCA <- function(gobject,
   method = match.arg(method, c('irlba','factominer'))
   
   if(reduction == 'cells') {
-    
+    # PCA on cells
     if(method == 'irlba') {
       pca_object = runPCA_prcomp_irlba(x = t_giotto(expr_values), center = center, scale = scale_unit, ncp = ncp, rev = rev, ...)
     } else if(method == 'factominer') {
-      
-      pca_object = runPCA_factominer(x = t_giotto(expr_values), center = center, scale = scale_unit, ncp = ncp, rev = rev, ...)
-      
+      pca_object = runPCA_factominer(x = t_giotto(expr_values), scale = scale_unit, ncp = ncp, rev = rev, ...)
     } else {
-      
       stop('only PCA methods from the irlba and factominer package have been implemented \n')
-      
     }
     
   } else {
-    pca_object = runPCA_prcomp_irlba(x = expr_values, center = center, scale = scale_unit, ncp = ncp, rev = rev, ...)
+    # PCA on genes
+    if(method == 'irlba') {
+      pca_object = runPCA_prcomp_irlba(x = expr_values, center = center, scale = scale_unit, ncp = ncp, rev = rev, ...)
+    } else if(method == 'factominer') {
+      pca_object = runPCA_factominer(x = expr_values, scale = scale_unit, ncp = ncp, rev = rev, ...)
+    } else {
+      stop('only PCA methods from the irlba and factominer package have been implemented \n')
+    }
+  
   }
   
   
