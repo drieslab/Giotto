@@ -19,11 +19,11 @@ create_dimObject = function(name = 'test',
 
   number_of_dimensions = ncol(coordinates)
   colnames(coordinates) = paste0('Dim.',1:number_of_dimensions)
-
+  
   if(!is.null(my_rownames)) {
     rownames(coordinates) = my_rownames
   }
-
+  
   dimObj = list(name = name,
                 reduction_method = reduction_method,
                 coordinates = coordinates,
@@ -91,6 +91,151 @@ pca_giotto = function(mymatrix, center = T, scale = T, k = 50) {
 }
 
 
+#' @title runPCA_prcomp_irlba
+#' @name runPCA_prcomp_irlba
+#' @description performs PCA based on the irlba package
+#' @param x matrix or object that can be converted to matrix
+#' @param ncp number of principal components to calculate
+#' @param center center data
+#' @param scale scale features
+#' @param rev reverse PCA
+#' @return list of eigenvalues, loadings and pca coordinates
+runPCA_prcomp_irlba = function(x,
+                               ncp = 100,
+                               center = TRUE,
+                               scale = TRUE,
+                               rev = FALSE,
+                               ...) {
+  
+  if(rev == TRUE) {
+    
+    x = t_giotto(x)
+    
+    if(ncp >= nrow(x)) {
+      warning("ncp >= nrow(x), will be set to nrow(x)-1")
+      ncp = nrow(x)-1
+    }
+    
+    pca_res = irlba::prcomp_irlba(x = x, n = ncp, center = center, scale. = scale, ...)
+    # eigenvalues
+    eigenvalues = pca_res$sdev^2
+    # PC loading
+    loadings = pca_res$x
+    rownames(loadings) = rownames(x)
+    colnames(loadings) = paste0('Dim.', 1:ncol(loadings))
+    # coordinates
+    coords = pca_res$rotation
+    rownames(coords) = colnames(x)
+    colnames(coords) = paste0('Dim.', 1:ncol(coords))
+    result = list(eigenvalues = eigenvalues, loadings = loadings, coords = coords)
+    
+  } else {
+    
+    if(ncp >= ncol(x)) {
+      warning("ncp >= ncol(x), will be set to ncol(x)-1")
+      ncp = ncol(x)-1
+    }
+    
+    pca_res = irlba::prcomp_irlba(x = x, n = ncp, center = center, scale. = scale, ...)
+    # eigenvalues
+    eigenvalues = pca_res$sdev^2
+    # PC loading
+    loadings = pca_res$rotation
+    rownames(loadings) = colnames(x)
+    colnames(loadings) = paste0('Dim.', 1:ncol(loadings))
+    # coordinates
+    coords = pca_res$x
+    rownames(coords) = rownames(x)
+    colnames(coords) = paste0('Dim.', 1:ncol(coords))
+    result = list(eigenvalues = eigenvalues, loadings = loadings, coords = coords)
+    
+  }
+  
+  return(result)
+  
+}
+
+
+
+#' @title runPCA_factominer
+#' @name runPCA_factominer
+#' @description performs PCA based on the factominer package
+#' @param x matrix or object that can be converted to matrix
+#' @param ncp number of principal components to calculate
+#' @param center center data
+#' @param scale scale features
+#' @param rev reverse PCA
+#' @return list of eigenvalues, loadings and pca coordinates
+runPCA_factominer = function(x,
+                             ncp = 100,
+                             center = TRUE,
+                             scale = TRUE,
+                             rev = FALSE,
+                             ...) {
+  
+  if(!is(x, 'matrix')) {
+    x = as.matrix(x)
+  }
+  
+  if(rev == TRUE) {
+    
+    x = t_giotto(x)
+    
+    if(ncp >= nrow(x)) {
+      warning("ncp >= nrow(x), will be set to nrow(x)-1")
+      ncp = nrow(x)-1
+    }
+    
+    pca_res = FactoMineR::PCA(X = x, ncp = ncp, scale.unit = scale, graph = F, ...)
+    
+    # eigenvalues
+    eigenvalues = pca_res$eig[,1]
+    
+    # PC loading
+    loadings = pca_res$ind$coord
+    rownames(loadings) = rownames(x)
+    colnames(loadings) = paste0('Dim.', 1:ncol(loadings))
+    
+    # coordinates
+    coords = sweep(pca_res$var$coord, 2, sqrt(pca_res$eig[1:ncp,1]), FUN = "/")
+    rownames(coords) = colnames(x)
+    colnames(coords) = paste0('Dim.', 1:ncol(coords))
+    
+    result = list(eigenvalues = eigenvalues, loadings = loadings, coords = coords)
+    
+  } else {
+    
+    if(ncp >= ncol(x)) {
+      warning("ncp >= ncol(x), will be set to ncol(x)-1")
+      ncp = ncol(x)-1
+    }
+    
+    pca_res = FactoMineR::PCA(X = x, ncp = ncp, scale.unit = scale, graph = F, ...)
+    
+    # eigenvalues
+    eigenvalues = pca_res$eig[,1]
+    
+    # PC loading
+    loadings = sweep(pca_res$var$coord, 2, sqrt(pca_res$eig[1:ncp,1]), FUN = "/")
+    rownames(loadings) = colnames(x)
+    colnames(loadings) = paste0('Dim.', 1:ncol(loadings))
+    
+    # coordinates
+    coords = pca_res$ind$coord
+    rownames(coords) = rownames(x)
+    colnames(coords) = paste0('Dim.', 1:ncol(coords))
+    
+    result = list(eigenvalues = eigenvalues, loadings = loadings, coords = coords)
+    
+  }
+  
+  return(result)
+  
+}
+
+
+
+
 #' @title create_genes_to_use_matrix
 #' @name create_genes_to_use_matrix
 #' @description subsets matrix based on vector of genes or hvg column
@@ -137,11 +282,13 @@ create_genes_to_use_matrix = function(gobject,
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param center center data first (default = FALSE)
 #' @param scale_unit scale features before PCA
+#' @param rev do a reverse PCA
 #' @param ncp number of principal components to calculate
+#' @param method which implementation to use
 #' @param verbose verbosity of the function
 #' @param ... additional parameters for PCA (see details)
 #' @return giotto object with updated PCA dimension recuction
-#' @details See \code{\link[FactoMineR]{PCA}} for more information about other parameters.
+#' @details See \code{\link[irlba]{prcomp_irlba}} and \code{\link[FactoMineR]{PCA}} for more information about other parameters.
 #' \itemize{
 #'   \item genes_to_use = NULL: will use all genes from the selected matrix
 #'   \item genes_to_use = <hvg name>: can be used to select a column name of
@@ -160,48 +307,70 @@ runPCA <- function(gobject,
                    center = F,
                    scale_unit = F,
                    ncp = 100,
+                   method = c('irlba','factominer'),
+                   rev = FALSE,
                    verbose = TRUE,
                    ...) {
-
-
+  
+  
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
-
+  
   ## subset matrix
   if(!is.null(genes_to_use)) {
-    expr_values = create_genes_to_use_matrix(gobject = gobject,
-                                             sel_matrix = expr_values,
-                                             genes_to_use = genes_to_use,
-                                             verbose = verbose)
+    expr_values = Giotto:::create_genes_to_use_matrix(gobject = gobject,
+                                                      sel_matrix = expr_values,
+                                                      genes_to_use = genes_to_use,
+                                                      verbose = verbose)
   }
   
-
+  
   # do PCA dimension reduction
   reduction = match.arg(reduction, c('cells', 'genes'))
+  
+  # PCA implementation
+  method = match.arg(method, c('irlba','factominer'))
+  
   if(reduction == 'cells') {
-    pca_object = pca_giotto(mymatrix = expr_values, center = center, scale = scale_unit, k = ncp)
+    
+    if(method == 'irlba') {
+      pca_object = runPCA_prcomp_irlba(x = t_giotto(expr_values), center = center, scale = scale_unit, ncp = ncp, rev = rev, ...)
+    } else if(method == 'factominer') {
+      
+      pca_object = runPCA_factominer(x = t_giotto(expr_values), center = center, scale = scale_unit, ncp = ncp, rev = rev, ...)
+      
+    } else {
+      
+      stop('only PCA methods from the irlba and factominer package have been implemented \n')
+      
+    }
+    
   } else {
-    pca_object = pca_giotto(mymatrix = t_giotto(expr_values), center = center, scale = scale_unit, k = ncp)
+    pca_object = runPCA_prcomp_irlba(x = expr_values, center = center, scale = scale_unit, ncp = ncp, rev = rev, ...)
   }
-
+  
+  
   if(return_gobject == TRUE) {
-
+    
     pca_names = names(gobject@dimension_reduction[[reduction]][['pca']])
-
+    
     if(name %in% pca_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
-
+      
     }
-
-    dimObject = create_dimObject(name = name, reduction_method = 'pca',
-                                 coordinates = pca_object$coords,
-                                 misc = pca_object, my_rownames = colnames(expr_values))
-
+    
+    dimObject = Giotto:::create_dimObject(name = name,
+                                          reduction_method = 'pca',
+                                          coordinates = pca_object$coords,
+                                          misc = list(eigenvalues = pca_object$eigenvalues,
+                                                      loadings = pca_object$loadings),
+                                          my_rownames = colnames(expr_values))
+    
     gobject@dimension_reduction[[reduction]][['pca']][[name]] <- dimObject
-
-
-
+    
+    
+    
     ## update parameters used ##
     parameters_list = gobject@parameters
     number_of_rounds = length(parameters_list)
@@ -211,14 +380,15 @@ runPCA <- function(gobject,
                                        'expression values' = expression_values,
                                        'number of genes used:' = length(genes_to_use),
                                        'ncp' = ncp,
+                                       'package' = method,
                                        'center' = center,
                                        'scale_unit' = scale_unit,
                                        'name for pca' = name)
     gobject@parameters = parameters_list
-
+    
     return(gobject)
-
-
+    
+    
   } else {
     return(pca_object)
   }
@@ -246,6 +416,9 @@ create_screeplot = function(pca_obj, ncp = 20, ylim = c(0, 20)) {
                        'var_expl' = var_expl,
                        'var_expl_cum' = var_expl_cum)
   screeDT[, PC := factor(PC, levels = PC)]
+  
+  max_ncp = length(eigs)
+  ncp = ifelse(ncp > max_ncp, max_ncp, ncp)
   
   pl = ggplot()
   pl = pl + theme_bw()

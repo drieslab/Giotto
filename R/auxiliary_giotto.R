@@ -1147,38 +1147,52 @@ adjustGiottoMatrix <- function(gobject,
 #' @examples
 #'     annotateGiotto(gobject)
 annotateGiotto <- function(gobject, annotation_vector = NULL, cluster_column = NULL, name = 'cell_types') {
-
+  
   if(is.null(annotation_vector) | is.null(cluster_column)) {
     stop('\n You need to provide both a named annotation vector and the corresponding cluster column  \n')
   }
-
+  
   cell_metadata = pDataDT(gobject)
-
+  
   # 1. verify if cluster column exist
   if(!cluster_column %in% colnames(cell_metadata)) {
     stop('\n Cluster column is not found in cell metadata \n')
   }
-
-  # 2. remove previous annotation name if it's the same
+  
+  # 2. verify if each cluster has an annotation
+  uniq_names = names(annotation_vector)
+  uniq_clusters = unique(cell_metadata[[cluster_column]])
+  missing_annotations = uniq_clusters[!uniq_clusters %in% uniq_names]
+  no_matching_annotations = uniq_names[!uniq_names %in% uniq_clusters]
+  
+  if(length(missing_annotations) > 0) {
+    cat('Not all clusters have an accompanying annotation in the annotation_vector: \n',
+        'These names are missing: ', as.character(missing_annotations), '\n',
+        'These annotations have no match: ', as.character(no_matching_annotations), '\n')
+    stop('Annotation interrupted \n')
+  }
+  
+  
+  # 3. remove previous annotation name if it's the same
   # but only if new name is not the same as cluster to be used
   if(name %in% colnames(cell_metadata)) {
     cat('\n annotation name ', name,' was already used \n',
         'and will be overwritten \n')
-
+    
     cell_metadata[, temp_cluster_name := annotation_vector[[as.character(get(cluster_column))]], by = 1:nrow(cell_metadata)]
     cell_metadata[, (name) := NULL]
-
+    
   } else {
-
+    
     cell_metadata[, temp_cluster_name := annotation_vector[[as.character(get(cluster_column))]], by = 1:nrow(cell_metadata)]
   }
-
+  
   setnames(cell_metadata, old = 'temp_cluster_name', new = name)
   gobject@cell_metadata = cell_metadata
-
+  
   return(gobject)
-
-
+  
+  
 }
 
 

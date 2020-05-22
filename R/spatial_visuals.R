@@ -5477,10 +5477,17 @@ dimPlot2D_single <- function(gobject,
 
   # add % variance information if reduction is PCA
   if(dim_reduction_to_use == "pca"){
-    eigenvaluesDT = data.table::as.data.table(gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$misc$eig)
-    var_expl_vec = eigenvaluesDT[c(dim1_to_use, dim2_to_use)][['percentage of variance']]
-    dim1_x_variance = var_expl_vec[1]
-    dim2_y_variance = var_expl_vec[2]
+    
+    eigenvalues = gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$misc$eigenvalues
+    total = sum(eigenvalues)
+    var_expl_vec = (eigenvalues/total) * 100
+    dim1_x_variance = var_expl_vec[dim1_to_use]
+    dim2_y_variance = var_expl_vec[dim2_to_use]
+
+    #eigenvaluesDT = data.table::as.data.table(gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$misc$eig)
+    #var_expl_vec = eigenvaluesDT[c(dim1_to_use, dim2_to_use)][['percentage of variance']]
+    #dim1_x_variance = var_expl_vec[1]
+    #dim2_y_variance = var_expl_vec[2]
   }
 
 
