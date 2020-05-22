@@ -14,7 +14,7 @@ runPCA(
   center = F,
   scale_unit = F,
   ncp = 100,
-  method = "irlba",
+  method = c("irlba", "factominer"),
   rev = FALSE,
   verbose = TRUE,
   ...
@@ -41,6 +41,8 @@ runPCA(
 
 \item{method}{which implementation to use}
 
+\item{rev}{do a reverse PCA}
+
 \item{verbose}{verbosity of the function}
 
 \item{...}{additional parameters for PCA (see details)}
@@ -52,7 +54,7 @@ giotto object with updated PCA dimension recuction
 runs a Principal Component Analysis
 }
 \details{
-See \code{\link[irlba]{prcomp_irlba}} for more information about other parameters.
+See \code{\link[irlba]{prcomp_irlba}} and \code{\link[FactoMineR]{PCA}} for more information about other parameters.
 \itemize{
   \item genes_to_use = NULL: will use all genes from the selected matrix
   \item genes_to_use = <hvg name>: can be used to select a column name of
