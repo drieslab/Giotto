@@ -4,10 +4,14 @@
 \alias{readExprMatrix}
 \title{readExprMatrix}
 \usage{
-readExprMatrix(path, cores = NA)
+readExprMatrix(path, cores = NA, transpose = FALSE)
 }
 \arguments{
 \item{path}{path to the expression matrix}
+
+\item{cores}{number of cores to use}
+
+\item{transpose}{transpose matrix}
 }
 \value{
 sparse matrix

@@ -403,7 +403,7 @@ showGiottoInstructions = function(gobject) {
 #' @param params parameter(s) to change
 #' @param new_values new value(s) for parameter(s)
 #' @param return_gobject (boolean) return giotto object
-#' @return named vector with giotto instructions
+#' @return giotto object with one or more changed instructions
 #' @export
 #' @examples
 #'     changeGiottoInstructions()
@@ -460,7 +460,7 @@ changeGiottoInstructions = function(gobject,
 #' @description Function to replace all instructions from giotto object
 #' @param gobject giotto object
 #' @param instructions new instructions (e.g. result from createGiottoInstructions)
-#' @return named vector with giotto instructions
+#' @return giotto object with replaces instructions
 #' @export
 #' @examples
 #'     replaceGiottoInstructions()
@@ -507,6 +507,11 @@ readExprMatrix = function(path, cores = NA, transpose = FALSE) {
   # read and convert
   DT = suppressWarnings(data.table::fread(input = path, nThread = cores))
   spM = Matrix::Matrix(as.matrix(DT[,-1]), dimnames = list(DT[[1]], colnames(DT[,-1])), sparse = T)
+  
+  if(transpose == TRUE) {
+    spM = t_giotto(spM)
+  }
+  
   return(spM)
 }
 
