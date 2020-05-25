@@ -192,7 +192,7 @@ runPCA_factominer = function(x,
     colnames(loadings) = paste0('Dim.', 1:ncol(loadings))
     
     # coordinates
-    coords = sweep(pca_res$var$coord, 2, sqrt(pca_res$eig[1:ncp,1]), FUN = "/")
+    coords = sweep(pca_res$var$coord, 2, sqrt(eigenvalues[1:ncp]), FUN = "/")
     rownames(coords) = colnames(x)
     colnames(coords) = paste0('Dim.', 1:ncol(coords))
     
@@ -211,7 +211,7 @@ runPCA_factominer = function(x,
     eigenvalues = pca_res$eig[,1]
     
     # PC loading
-    loadings = sweep(pca_res$var$coord, 2, sqrt(pca_res$eig[1:ncp,1]), FUN = "/")
+    loadings = sweep(pca_res$var$coord, 2, sqrt(eigenvalues[1:ncp]), FUN = "/")
     rownames(loadings) = colnames(x)
     colnames(loadings) = paste0('Dim.', 1:ncol(loadings))
     
