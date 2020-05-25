@@ -107,15 +107,17 @@ runPCA_prcomp_irlba = function(x,
                                rev = FALSE,
                                ...) {
   
+  min_ncp = min(dim(x))
+  
+  if(ncp >= min_ncp) {
+    warning("ncp >= minimum dimension of x, will be set to minimum dimension of x - 1")
+    ncp = min_ncp-1
+  }
+  
   if(rev == TRUE) {
     
     x = t_giotto(x)
-    
-    if(ncp >= nrow(x)) {
-      warning("ncp >= nrow(x), will be set to nrow(x)-1")
-      ncp = nrow(x)-1
-    }
-    
+
     pca_res = irlba::prcomp_irlba(x = x, n = ncp, center = center, scale. = scale, ...)
     # eigenvalues
     eigenvalues = pca_res$sdev^2
@@ -130,11 +132,6 @@ runPCA_prcomp_irlba = function(x,
     result = list(eigenvalues = eigenvalues, loadings = loadings, coords = coords)
     
   } else {
-    
-    if(ncp >= ncol(x)) {
-      warning("ncp >= ncol(x), will be set to ncol(x)-1")
-      ncp = ncol(x)-1
-    }
     
     pca_res = irlba::prcomp_irlba(x = x, n = ncp, center = center, scale. = scale, ...)
     # eigenvalues
@@ -179,9 +176,9 @@ runPCA_factominer = function(x,
     
     x = t_giotto(x)
     
-    if(ncp >= nrow(x)) {
-      warning("ncp >= nrow(x), will be set to nrow(x)-1")
-      ncp = nrow(x)-1
+    if(ncp > nrow(x)) {
+      warning("ncp > nrow(x), will be set to nrow(x)")
+      ncp = nrow(x)
     }
     
     pca_res = FactoMineR::PCA(X = x, ncp = ncp, scale.unit = scale, graph = F, ...)
@@ -203,9 +200,9 @@ runPCA_factominer = function(x,
     
   } else {
     
-    if(ncp >= ncol(x)) {
-      warning("ncp >= ncol(x), will be set to ncol(x)-1")
-      ncp = ncol(x)-1
+    if(ncp > ncol(x)) {
+      warning("ncp > ncol(x), will be set to ncol(x)")
+      ncp = ncol(x)
     }
     
     pca_res = FactoMineR::PCA(X = x, ncp = ncp, scale.unit = scale, graph = F, ...)
@@ -457,6 +454,8 @@ create_screeplot = function(pca_obj, ncp = 20, ylim = c(0, 20)) {
 #' @param name name of PCA object if available
 #' @param expression_values expression values to use
 #' @param reduction cells or genes
+#' @param method which implementation to use
+#' @param rev do a reverse PCA
 #' @param genes_to_use subset of genes to use for PCA
 #' @param center center data before PCA
 #' @param scale_unit scale features before PCA
@@ -480,6 +479,8 @@ screePlot = function(gobject,
                      name = 'pca',
                      expression_values = c('normalized', 'scaled', 'custom'),
                      reduction = c('cells', 'genes'),
+                     method = c('irlba','factominer'),
+                     rev = FALSE,
                      genes_to_use = NULL,
                      center = F,
                      scale_unit = F,
@@ -517,6 +518,9 @@ screePlot = function(gobject,
     values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
     expr_values = select_expression_values(gobject = gobject, values = values)
     
+    # PCA implementation
+    method = match.arg(method, c('irlba','factominer'))
+    
     ## subset matrix
     if(!is.null(genes_to_use)) {
       expr_values = create_genes_to_use_matrix(gobject = gobject,
@@ -527,11 +531,22 @@ screePlot = function(gobject,
     
     # reduction of cells
     if(reduction == 'cells') {
-      pca_object = pca_giotto(mymatrix = expr_values, center = center, scale = scale_unit, k = ncp)
       
-      dimObject = create_dimObject(name = name, reduction_method = 'pca',
-                                   coordinates = pca_object$coords,
-                                   misc = pca_object, my_rownames = colnames(expr_values))
+      # PCA on cells
+      if(method == 'irlba') {
+        pca_object = runPCA_prcomp_irlba(x = t_giotto(expr_values), center = center, scale = scale_unit, ncp = ncp, rev = rev, ...)
+      } else if(method == 'factominer') {
+        pca_object = runPCA_factominer(x = t_giotto(expr_values), scale = scale_unit, ncp = ncp, rev = rev, ...)
+      } else {
+        stop('only PCA methods from the irlba and factominer package have been implemented \n')
+      }
+      
+      dimObject = Giotto:::create_dimObject(name = name,
+                                            reduction_method = 'pca',
+                                            coordinates = pca_object$coords,
+                                            misc = list(eigenvalues = pca_object$eigenvalues,
+                                                        loadings = pca_object$loadings),
+                                            my_rownames = colnames(expr_values))
       
       screeplot = create_screeplot(pca_obj = dimObject, ncp = ncp, ylim = ylim)
     }

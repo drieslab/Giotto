@@ -9,6 +9,8 @@ screePlot(
   name = "pca",
   expression_values = c("normalized", "scaled", "custom"),
   reduction = c("cells", "genes"),
+  method = c("irlba", "factominer"),
+  rev = FALSE,
   genes_to_use = NULL,
   center = F,
   scale_unit = F,
@@ -30,6 +32,10 @@ screePlot(
 \item{expression_values}{expression values to use}
 
 \item{reduction}{cells or genes}
+
+\item{method}{which implementation to use}
+
+\item{rev}{do a reverse PCA}
 
 \item{genes_to_use}{subset of genes to use for PCA}
 
