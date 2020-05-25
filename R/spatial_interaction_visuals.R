@@ -1536,6 +1536,15 @@ plotInteractionChangedGenes = function(gobject,
   names(ICG_genes) = ICG_genes_types
   all_genes = c(source_markers, ICG_genes)
   
+  # warning if there are genes selected that are not detected
+  detected_genes = unique(CPGscores[['genes']])
+  not_detected_genes = all_genes[!all_genes %in% detected_genes]
+  if(length(not_detected_genes) > 0) {
+    cat('These selected genes are not in the cpgObject: \n',
+        not_detected_genes, '\n')
+  }
+  
+  
   tempDT = CPGscores[genes %in% all_genes][cell_type == source_type][int_cell_type %in% neighbor_types]
   tempDT[, genes := factor(genes, levels = all_genes)]
   tempDT[, group := names(all_genes[all_genes == genes]), by = 1:nrow(tempDT)]

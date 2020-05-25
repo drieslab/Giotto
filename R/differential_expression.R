@@ -75,7 +75,7 @@ findScranMarkers <- function(gobject,
 
 
   ## SCRAN ##
-  marker_results = scran::findMarkers(x = expr_data, clusters = cell_metadata[[cluster_column]], ...)
+  marker_results = scran::findMarkers(x = expr_data, groups = cell_metadata[[cluster_column]], ...)
 
   savelist = lapply(names(marker_results), FUN = function(x) {
     dfr = marker_results[[x]]

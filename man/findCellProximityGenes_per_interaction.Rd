@@ -9,6 +9,7 @@ findCellProximityGenes_per_interaction(
   cell_metadata,
   annot_spatnetwork,
   sel_int,
+  cluster_column = NULL,
   minimum_unique_cells = 1,
   minimum_unique_int_cells = 1,
   exclude_selected_cells_from_test = T,
