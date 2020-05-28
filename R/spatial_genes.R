@@ -254,6 +254,7 @@ binSpect = function(gobject,
   if(verbose == TRUE) cat('\n 2. spatial enrichment test completed \n')
 
   result = as.data.table(do.call('rbind', save_list))
+  result[, genes := unlist(genes)]
   #result[, genes := rownames(bin_matrix)]
 
   ## extra info: average expression of high expression group
