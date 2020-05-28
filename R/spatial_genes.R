@@ -20,7 +20,7 @@ spat_fish_func = function(gene,
   gene_vectorB = gene_vectorB[match(colnames(spat_mat), names(gene_vectorB))]
 
   test1 = spat_mat*gene_vectorA
-  test2 = t_giotto(t_giotto(spat_mat)*gene_vectorB)
+  test2 = Giotto:::t_giotto(Giotto:::t_giotto(spat_mat)*gene_vectorB)
 
   sourcevalues = test1[spat_mat == 1]
   targetvalues = test2[spat_mat == 1]
@@ -44,22 +44,21 @@ spat_fish_func = function(gene,
       hub_nr = 0
     } else {
       subset_spat_mat = spat_mat[rownames(spat_mat) %in% high_cells, colnames(spat_mat) %in% high_cells]
-      rowhubs = rowSums_giotto(subset_spat_mat)
-      colhubs = colSums_giotto(subset_spat_mat)
+      rowhubs = Giotto:::rowSums_giotto(subset_spat_mat)
+      colhubs = Giotto:::colSums_giotto(subset_spat_mat)
       hub_nr = length(unique(c(names(colhubs[colhubs > hub_min_int]), names(rowhubs[colhubs > hub_min_int]))))
     }
-   fish_res = fisher.test(matrix(table(test), byrow = T, nrow = 2))[c('p.value','estimate')]
-
-   return(c(fish_res, hubs = list(hub_nr)))
+    fish_res = fisher.test(matrix(table(test), byrow = T, nrow = 2))[c('p.value','estimate')]
+    return(c(genes = list(gene), fish_res, hubs = list(hub_nr)))
 
   } else {
 
-     return(fisher.test(matrix(table(test), byrow = T, nrow = 2))[c('p.value','estimate')])
+    fish_res = fisher.test(matrix(table(test), byrow = T, nrow = 2))[c('p.value','estimate')]
+    return(c(genes = list(gene), fish_res))
   }
 
-
-
 }
+
 
 #' @title spat_OR_func
 #' @name spat_OR_func
@@ -112,14 +111,14 @@ spat_OR_func = function(gene,
     fish_matrix = fish_matrix/1000
     OR = ((fish_matrix[1]*fish_matrix[4]) / (fish_matrix[2]*fish_matrix[3]))
 
-    return(c(OR, hubs = list(hub_nr)))
+    return(c(genes = list(gene), OR, hubs = list(hub_nr)))
 
   }
 
   fish_matrix = matrix(table(test), byrow = T, nrow = 2)
   fish_matrix = fish_matrix/1000
   OR = ((fish_matrix[1]*fish_matrix[4]) / (fish_matrix[2]*fish_matrix[3]))
-  return(OR)
+  return(c(genes = list(gene), OR))
 
 }
 
@@ -217,14 +216,6 @@ binSpect = function(gobject,
   ## parallel
   if(do_parallel == TRUE) {
 
-    # get type of os
-    os = .Platform$OS.type
-    # set number of cores automatically, but with limit of 10
-    if(is.na(cores) | !is.numeric(cores)) {
-      cores = parallel::detectCores() - 2
-      cores = ifelse(cores > 10, 10, cores)
-    }
-
     if(do_fisher_test == TRUE) {
 
       save_list = giotto_lapply(X = rownames(bin_matrix), cores = cores, fun = spat_fish_func,
@@ -263,7 +254,7 @@ binSpect = function(gobject,
   if(verbose == TRUE) cat('\n 2. spatial enrichment test completed \n')
 
   result = as.data.table(do.call('rbind', save_list))
-  result[, genes := rownames(bin_matrix)]
+  #result[, genes := rownames(bin_matrix)]
 
   ## extra info: average expression of high expression group
   if(get_av_expr == TRUE) {

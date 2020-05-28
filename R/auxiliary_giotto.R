@@ -130,9 +130,14 @@ giotto_lapply = function(X, cores = NA, fun, ...) {
     save_list = parallel::mclapply(X = X, mc.cores = cores,
                                    FUN = fun, ...)
   } else if(os == 'windows') {
-    cl <- parallel::makeCluster(cores)
-    save_list = parallel::parLapply(cl = cl, X = X,
-                                    fun = fun, ...)
+    save_list = parallel::mclapply(X = X, mc.cores = cores,
+                                   FUN = fun, ...)
+
+    # !! unexplainable errors are returned for some nodes !! #
+    # currently disabled #
+    #cl <- parallel::makeCluster(cores)
+    #save_list = parallel::parLapply(cl = cl, X = X,
+    #                                fun = fun, ...)
   }
 
   return(save_list)
