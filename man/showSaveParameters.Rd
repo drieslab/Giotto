@@ -7,7 +7,7 @@
 showSaveParameters()
 }
 \value{
-text
+Instruction on how to use the automatic plot saving options within Giotto
 }
 \description{
 Description of Giotto saving options, links to \code{\link{all_plots_save_function}}

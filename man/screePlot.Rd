@@ -67,8 +67,10 @@ identify significant prinicipal components (PCs) using an screeplot (a.k.a. elbo
 }
 \details{
 Screeplot works by plotting the explained variance of each
- individual PC in a barplot allowing you to identify which PC does not show a significant
- contribution anymore ( = 'elbow method'). \cr
+ individual PC in a barplot allowing you to identify which PC provides a significant
+ contribution (a.k.a 'elbow method'). \cr
+ Screeplot will use an available pca object, based on the parameter 'name', or it will
+ create it if it's not available (see \code{\link{runPCA}})
 }
 \examples{
     screePlot(gobject)

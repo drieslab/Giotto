@@ -223,7 +223,7 @@ stitchTileCoordinates <- function (location_file, Xtilespan, Ytilespan) {
 #' annotations are provided (e.g. ensembl gene ids and gene symbols) the user can select another column.
 #' @export
 #' @examples
-#'     get10Xmatrix(10Xmatrix)
+#'     get10Xmatrix(path_to_data)
 get10Xmatrix = function(path_to_data, gene_column_index = 1) {
   
   # data directory

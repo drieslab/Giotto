@@ -82,7 +82,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.5</span>
       </span>
     </div>
 
@@ -183,10 +183,14 @@
   <span class='kw'>expression_values</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"normalized"</span>, <span class='st'>"scaled"</span>, <span class='st'>"custom"</span>),
   <span class='kw'>reduction</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"cells"</span>, <span class='st'>"genes"</span>),
   <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"pca"</span>,
-  <span class='kw'>genes_to_use</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>genes_to_use</span> <span class='kw'>=</span> <span class='st'>"hvg"</span>,
   <span class='kw'>return_gobject</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>center</span> <span class='kw'>=</span> <span class='no'>F</span>,
   <span class='kw'>scale_unit</span> <span class='kw'>=</span> <span class='no'>F</span>,
-  <span class='kw'>ncp</span> <span class='kw'>=</span> <span class='fl'>200</span>,
+  <span class='kw'>ncp</span> <span class='kw'>=</span> <span class='fl'>100</span>,
+  <span class='kw'>method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"irlba"</span>, <span class='st'>"factominer"</span>),
+  <span class='kw'>rev</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='no'>...</span>
 )</pre>
 
@@ -218,12 +222,28 @@
       <td><p>boolean: return giotto object (default = TRUE)</p></td>
     </tr>
     <tr>
+      <th>center</th>
+      <td><p>center data first (default = FALSE)</p></td>
+    </tr>
+    <tr>
       <th>scale_unit</th>
       <td><p>scale features before PCA</p></td>
     </tr>
     <tr>
       <th>ncp</th>
       <td><p>number of principal components to calculate</p></td>
+    </tr>
+    <tr>
+      <th>method</th>
+      <td><p>which implementation to use</p></td>
+    </tr>
+    <tr>
+      <th>rev</th>
+      <td><p>do a reverse PCA</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>verbosity of the function</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -236,10 +256,29 @@
     <p>giotto object with updated PCA dimension recuction</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>See <code><a href='https://rdrr.io/pkg/FactoMineR/man/PCA.html'>PCA</a></code> for more information about other parameters.</p>
+    <p>See <code><a href='https://rdrr.io/pkg/irlba/man/prcomp_irlba.html'>prcomp_irlba</a></code> and <code><a href='https://rdrr.io/pkg/FactoMineR/man/PCA.html'>PCA</a></code> for more information about other parameters.</p><ul>
+<li><p>genes_to_use = NULL: will use all genes from the selected matrix</p></li>
+<li><p>genes_to_use = &lt;hvg name&gt;: can be used to select a column name of
+  highly variable genes, created by (see <code><a href='calculateHVG.html'>calculateHVG</a></code>)</p></li>
+<li><p>genes_to_use = c('geneA', 'geneB', ...): will use all manually provided genes</p></li>
+</ul>
+
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples">    <span class='fu'>runPCA</span>(<span class='no'>gobject</span>)</pre>
+    <pre class="examples">
+<span class='co'># 1. create giotto object</span>
+<span class='no'>expr_path</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/system.file.html'>system.file</a></span>(<span class='st'>"extdata"</span>, <span class='st'>"seqfish_field_expr.txt"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>'Giotto'</span>)
+<span class='no'>loc_path</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/system.file.html'>system.file</a></span>(<span class='st'>"extdata"</span>, <span class='st'>"seqfish_field_locs.txt"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>'Giotto'</span>)
+<span class='no'>VC_small</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='createGiottoObject.html'>createGiottoObject</a></span>(<span class='kw'>raw_exprs</span> <span class='kw'>=</span> <span class='no'>expr_path</span>, <span class='kw'>spatial_locs</span> <span class='kw'>=</span> <span class='no'>loc_path</span>)
+
+<span class='co'># 2. normalize giotto</span>
+<span class='no'>VC_small</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='normalizeGiotto.html'>normalizeGiotto</a></span>(<span class='kw'>gobject</span> <span class='kw'>=</span> <span class='no'>VC_small</span>, <span class='kw'>scalefactor</span> <span class='kw'>=</span> <span class='fl'>6000</span>)
+<span class='no'>VC_small</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='addStatistics.html'>addStatistics</a></span>(<span class='kw'>gobject</span> <span class='kw'>=</span> <span class='no'>VC_small</span>)
+
+<span class='co'># 3. dimension reduction</span>
+<span class='no'>VC_small</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='calculateHVG.html'>calculateHVG</a></span>(<span class='kw'>gobject</span> <span class='kw'>=</span> <span class='no'>VC_small</span>)
+<span class='no'>VC_small</span> <span class='kw'>&lt;-</span> <span class='fu'>runPCA</span>(<span class='kw'>gobject</span> <span class='kw'>=</span> <span class='no'>VC_small</span>)
+<span class='fu'><a href='plotPCA.html'>plotPCA</a></span>(<span class='no'>VC_small</span>)</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

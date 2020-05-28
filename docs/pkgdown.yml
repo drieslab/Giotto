@@ -4,6 +4,7 @@ pkgdown_sha: ~
 articles:
   faqs: faqs.html
   getting_started: getting_started.html
+  howto_images: howto_images.html
   howto_voronoi_plots: howto_voronoi_plots.html
   human_cycif_PDAC_200322: human_cycif_PDAC_200322.html
   installation_issues: installation_issues.html
@@ -19,5 +20,5 @@ articles:
   subset_giotto: subset_giotto.html
   visualization_options: visualization_options.html
   work_with_multiple_analyses: work_with_multiple_analyses.html
-last_built: 2020-04-22T03:32Z
+last_built: 2020-05-28T01:31Z
 

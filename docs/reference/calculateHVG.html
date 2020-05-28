@@ -82,7 +82,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.5</span>
       </span>
     </div>
 
@@ -281,7 +281,17 @@ A predicted COV is calculated for each gene using loess regression (COV~log(mean
 Genes that show a higher than predicted COV (<em>difference_in_cov</em>) are considered highly variable. <br /></p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples">    <span class='fu'>calculateHVG</span>(<span class='no'>gobject</span>)</pre>
+    <pre class="examples"><span class='co'># 1. create giotto object</span>
+<span class='no'>expr_path</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/system.file.html'>system.file</a></span>(<span class='st'>"extdata"</span>, <span class='st'>"seqfish_field_expr.txt"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>'Giotto'</span>)
+<span class='no'>loc_path</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/system.file.html'>system.file</a></span>(<span class='st'>"extdata"</span>, <span class='st'>"seqfish_field_locs.txt"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>'Giotto'</span>)
+<span class='no'>VC_small</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='createGiottoObject.html'>createGiottoObject</a></span>(<span class='kw'>raw_exprs</span> <span class='kw'>=</span> <span class='no'>expr_path</span>, <span class='kw'>spatial_locs</span> <span class='kw'>=</span> <span class='no'>loc_path</span>)
+
+<span class='co'># 2. normalize giotto</span>
+<span class='no'>VC_small</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='normalizeGiotto.html'>normalizeGiotto</a></span>(<span class='kw'>gobject</span> <span class='kw'>=</span> <span class='no'>VC_small</span>, <span class='kw'>scalefactor</span> <span class='kw'>=</span> <span class='fl'>6000</span>)
+<span class='no'>VC_small</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='addStatistics.html'>addStatistics</a></span>(<span class='kw'>gobject</span> <span class='kw'>=</span> <span class='no'>VC_small</span>)
+
+<span class='co'># 3. highly variable genes detection</span>
+<span class='no'>VC_small</span> <span class='kw'>&lt;-</span> <span class='fu'>calculateHVG</span>(<span class='kw'>gobject</span> <span class='kw'>=</span> <span class='no'>VC_small</span>)</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

@@ -9,8 +9,8 @@ jackstrawPlot(
   expression_values = c("normalized", "scaled", "custom"),
   reduction = c("cells", "genes"),
   genes_to_use = NULL,
-  center = F,
-  scale_unit = F,
+  center = FALSE,
+  scale_unit = FALSE,
   ncp = 20,
   ylim = c(0, 1),
   iter = 10,
@@ -65,7 +65,7 @@ identify significant prinicipal components (PCs)
 \details{
 The Jackstraw method uses the \code{\link[jackstraw]{permutationPA}} function. By
  systematically permuting genes it identifies robust, and thus significant, PCs.
- \cr multiple PCA results can be stored by changing the \emph{name} parameter
+ \cr
 }
 \examples{
     jackstrawPlot(gobject)

@@ -82,7 +82,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.5</span>
       </span>
     </div>
 
@@ -180,6 +180,9 @@
 
     <pre class="usage"><span class='fu'>spatDimCellPlot2D</span>(
   <span class='no'>gobject</span>,
+  <span class='kw'>show_image</span> <span class='kw'>=</span> <span class='no'>F</span>,
+  <span class='kw'>gimage</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>image_name</span> <span class='kw'>=</span> <span class='st'>"image"</span>,
   <span class='kw'>plot_alignment</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"vertical"</span>, <span class='st'>"horizontal"</span>),
   <span class='kw'>spat_enr_names</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>cell_annotation_values</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -196,10 +199,12 @@
   <span class='kw'>select_cells</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>dim_point_shape</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"border"</span>, <span class='st'>"no_border"</span>),
   <span class='kw'>dim_point_size</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>dim_point_alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>dim_point_border_col</span> <span class='kw'>=</span> <span class='st'>"black"</span>,
   <span class='kw'>dim_point_border_stroke</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
   <span class='kw'>spat_point_shape</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"border"</span>, <span class='st'>"no_border"</span>, <span class='st'>"voronoi"</span>),
   <span class='kw'>spat_point_size</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>spat_point_alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>spat_point_border_col</span> <span class='kw'>=</span> <span class='st'>"black"</span>,
   <span class='kw'>spat_point_border_stroke</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
   <span class='kw'>dim_show_cluster_center</span> <span class='kw'>=</span> <span class='no'>F</span>,
@@ -239,6 +244,7 @@
   <span class='kw'>spat_background_color</span> <span class='kw'>=</span> <span class='st'>"white"</span>,
   <span class='kw'>vor_border_color</span> <span class='kw'>=</span> <span class='st'>"white"</span>,
   <span class='kw'>vor_max_radius</span> <span class='kw'>=</span> <span class='fl'>200</span>,
+  <span class='kw'>vor_alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>axis_text</span> <span class='kw'>=</span> <span class='fl'>8</span>,
   <span class='kw'>axis_title</span> <span class='kw'>=</span> <span class='fl'>8</span>,
   <span class='kw'>coord_fix_ratio</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -259,6 +265,18 @@
     <tr>
       <th>gobject</th>
       <td><p>giotto object</p></td>
+    </tr>
+    <tr>
+      <th>show_image</th>
+      <td><p>show a tissue background image</p></td>
+    </tr>
+    <tr>
+      <th>gimage</th>
+      <td><p>a giotto image</p></td>
+    </tr>
+    <tr>
+      <th>image_name</th>
+      <td><p>name of a giotto image</p></td>
     </tr>
     <tr>
       <th>plot_alignment</th>
@@ -325,6 +343,10 @@
       <td><p>size of points in dim. reduction space</p></td>
     </tr>
     <tr>
+      <th>dim_point_alpha</th>
+      <td><p>transparancy of dim. reduction points</p></td>
+    </tr>
+    <tr>
       <th>dim_point_border_col</th>
       <td><p>border color of points in dim. reduction space</p></td>
     </tr>
@@ -339,6 +361,10 @@
     <tr>
       <th>spat_point_size</th>
       <td><p>size of spatial points</p></td>
+    </tr>
+    <tr>
+      <th>spat_point_alpha</th>
+      <td><p>transparancy of spatial points</p></td>
     </tr>
     <tr>
       <th>spat_point_border_col</th>
@@ -483,6 +509,10 @@
     <tr>
       <th>vor_max_radius</th>
       <td><p>maximum radius for voronoi 'cells'</p></td>
+    </tr>
+    <tr>
+      <th>vor_alpha</th>
+      <td><p>transparancy of voronoi 'cells'</p></td>
     </tr>
     <tr>
       <th>axis_text</th>

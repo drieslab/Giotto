@@ -58,10 +58,24 @@ See \code{\link[irlba]{prcomp_irlba}} and \code{\link[FactoMineR]{PCA}} for more
 \itemize{
   \item genes_to_use = NULL: will use all genes from the selected matrix
   \item genes_to_use = <hvg name>: can be used to select a column name of
-  highly variable genes (see \code{\link{calculateHVG}})
+  highly variable genes, created by (see \code{\link{calculateHVG}})
   \item genes_to_use = c('geneA', 'geneB', ...): will use all manually provided genes
 }
 }
 \examples{
-    runPCA(gobject)
+
+# 1. create giotto object
+expr_path = system.file("extdata", "seqfish_field_expr.txt", package = 'Giotto')
+loc_path = system.file("extdata", "seqfish_field_locs.txt", package = 'Giotto')
+VC_small <- createGiottoObject(raw_exprs = expr_path, spatial_locs = loc_path)
+
+# 2. normalize giotto
+VC_small <- normalizeGiotto(gobject = VC_small, scalefactor = 6000)
+VC_small <- addStatistics(gobject = VC_small)
+
+# 3. dimension reduction
+VC_small <- calculateHVG(gobject = VC_small)
+VC_small <- runPCA(gobject = VC_small)
+plotPCA(VC_small)
+  
 }

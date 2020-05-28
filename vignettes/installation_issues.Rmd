@@ -16,7 +16,12 @@ knitr::opts_chunk$set(
 )
 ```
 
-## 1. First time R package installation
+
+
+
+
+
+## 0. First time R package installation
 
 #### Package development prerequisites
 If this is the first time you build and install an R package you can follow this [link](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites),
@@ -30,6 +35,48 @@ xcode-select --install
 
 \  
 
+
+## 1. Python manual installation  
+
+### Install with pip in python 3  
+``` bash
+pip3 install pandas python-igraph networkx python-louvain leidenalg python.app scikit-learn smfishHmrf
+```
+
+### Conda install   
+If pip install does not work, try installing them within a conda [conda environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands). Something
+like this might work, see also this [link](https://heartbeat.fritz.ai/creating-python-virtual-environments-with-conda-why-and-how-180ebd02d1db)
+
+##### 1. create yaml file (e.g. environment.yml) with the following information:  
+
+``` 
+name: giotto_env
+channels:
+ — defaults
+dependencies:
+ — pip=3.4
+ — pandas
+ — networkx
+ - python-igraph
+ - leidenalg
+ - python-louvain
+ - python.app
+ - scikit-learn
+prefix: /Users/your_username/anaconda3/envs/giotto_env
+```
+
+##### 2. create conda environment based on yaml file:  
+ 
+ ```python
+ conda env create -f environment.yml
+ ```
+
+##### 3. Use the path to this environment when you create the Giotto instructions or Giotto object  
+``` 
+/Users/your_username/anaconda3/envs/giotto_env
+```
+
+\  
 
 
 ## 2. errors on MacOS

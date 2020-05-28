@@ -287,12 +287,26 @@ create_genes_to_use_matrix = function(gobject,
 #' \itemize{
 #'   \item genes_to_use = NULL: will use all genes from the selected matrix
 #'   \item genes_to_use = <hvg name>: can be used to select a column name of
-#'   highly variable genes (see \code{\link{calculateHVG}})
+#'   highly variable genes, created by (see \code{\link{calculateHVG}})
 #'   \item genes_to_use = c('geneA', 'geneB', ...): will use all manually provided genes
 #' }
 #' @export
 #' @examples
-#'     runPCA(gobject)
+#' 
+#' # 1. create giotto object
+#' expr_path = system.file("extdata", "seqfish_field_expr.txt", package = 'Giotto')
+#' loc_path = system.file("extdata", "seqfish_field_locs.txt", package = 'Giotto')
+#' VC_small <- createGiottoObject(raw_exprs = expr_path, spatial_locs = loc_path)
+#' 
+#' # 2. normalize giotto
+#' VC_small <- normalizeGiotto(gobject = VC_small, scalefactor = 6000)
+#' VC_small <- addStatistics(gobject = VC_small)
+#' 
+#' # 3. dimension reduction
+#' VC_small <- calculateHVG(gobject = VC_small)
+#' VC_small <- runPCA(gobject = VC_small)
+#' plotPCA(VC_small)
+#'   
 runPCA <- function(gobject,
                    expression_values = c('normalized', 'scaled', 'custom'),
                    reduction = c('cells', 'genes'),
@@ -470,8 +484,10 @@ create_screeplot = function(pca_obj, ncp = 20, ylim = c(0, 20)) {
 #' @return ggplot object for scree method 
 #' @details 
 #'  Screeplot works by plotting the explained variance of each
-#'  individual PC in a barplot allowing you to identify which PC does not show a significant
-#'  contribution anymore ( = 'elbow method'). \cr
+#'  individual PC in a barplot allowing you to identify which PC provides a significant
+#'  contribution (a.k.a 'elbow method'). \cr
+#'  Screeplot will use an available pca object, based on the parameter 'name', or it will
+#'  create it if it's not available (see \code{\link{runPCA}})
 #' @export
 #' @examples
 #'     screePlot(gobject)
@@ -623,7 +639,7 @@ create_jackstrawplot = function(jackstraw_data, ncp = 20, ylim = c(0, 1), thresh
 #' @details 
 #'  The Jackstraw method uses the \code{\link[jackstraw]{permutationPA}} function. By
 #'  systematically permuting genes it identifies robust, and thus significant, PCs.
-#'  \cr multiple PCA results can be stored by changing the \emph{name} parameter
+#'  \cr
 #' @export
 #' @examples
 #'     jackstrawPlot(gobject)
@@ -631,8 +647,8 @@ jackstrawPlot = function(gobject,
                          expression_values = c('normalized', 'scaled', 'custom'),
                          reduction = c('cells', 'genes'),
                          genes_to_use = NULL,
-                         center = F,
-                         scale_unit = F,
+                         center = FALSE,
+                         scale_unit = FALSE,
                          ncp = 20,
                          ylim = c(0, 1),
                          iter = 10,
@@ -709,6 +725,8 @@ jackstrawPlot = function(gobject,
 #' @param method method to use to identify significant PCs
 #' @param expression_values expression values to use
 #' @param reduction cells or genes
+#' @param pca_method which implementation to use
+#' @param rev do a reverse PCA
 #' @param genes_to_use subset of genes to use for PCA
 #' @param center center data before PCA
 #' @param scale_unit scale features before PCA
@@ -727,11 +745,11 @@ jackstrawPlot = function(gobject,
 #' @details Two different methods can be used to assess the number of relevant or significant
 #'  prinicipal components (PC's). \cr
 #'  1. Screeplot works by plotting the explained variance of each
-#'  individual PC in a barplot allowing you to identify which PC does not show a significant
-#'  contribution anymore ( = 'elbow method'). \cr
+#'  individual PC in a barplot allowing you to identify which PC provides a significant
+#'  contribution  (a.k.a. 'elbow method'). \cr
 #'  2. The Jackstraw method uses the \code{\link[jackstraw]{permutationPA}} function. By
 #'  systematically permuting genes it identifies robust, and thus significant, PCs.
-#'  \cr multiple PCA results can be stored by changing the \emph{name} parameter
+#'  \cr 
 #' @export
 #' @examples
 #'     signPCA(gobject)
@@ -740,6 +758,8 @@ signPCA <- function(gobject,
                     method = c('screeplot', 'jackstraw'),
                     expression_values = c("normalized", "scaled", "custom"),
                     reduction = c("cells", "genes"),
+                    pca_method = c('irlba', 'factominer'),
+                    rev = FALSE,
                     genes_to_use = NULL,
                     center = T,
                     scale_unit = T,
@@ -792,6 +812,8 @@ signPCA <- function(gobject,
                             center = center,
                             scale_unit = scale_unit,
                             ncp = ncp,
+                            rev = rev,
+                            method = pca_method,
                             ylim = scree_ylim,
                             verbose = verbose,
                             show_plot = FALSE,
@@ -902,7 +924,22 @@ signPCA <- function(gobject,
 #' }
 #' @export
 #' @examples
-#'     runUMAP(gobject)
+#' 
+#' # 1. create giotto object
+#' expr_path = system.file("extdata", "seqfish_field_expr.txt", package = 'Giotto')
+#' loc_path = system.file("extdata", "seqfish_field_locs.txt", package = 'Giotto')
+#' VC_small <- createGiottoObject(raw_exprs = expr_path, spatial_locs = loc_path)
+#' 
+#' # 2. normalize giotto
+#' VC_small <- normalizeGiotto(gobject = VC_small, scalefactor = 6000)
+#' VC_small <- addStatistics(gobject = VC_small)
+#' 
+#' # 3. dimension reduction
+#' VC_small <- calculateHVG(gobject = VC_small)
+#' VC_small <- runPCA(gobject = VC_small)
+#' VC_small <- runUMAP(VC_small, dimensions_to_use = 1:5, n_threads = 2)
+#' plotUMAP(gobject = VC_small)
+#'   
 runUMAP <- function(gobject,
                     expression_values = c('normalized', 'scaled', 'custom'),
                     reduction = c('cells', 'genes'),
@@ -1062,7 +1099,22 @@ runUMAP <- function(gobject,
 #' }
 #' @export
 #' @examples
-#'     runtSNE(gobject)
+#' 
+#' # 1. create giotto object
+#' expr_path = system.file("extdata", "seqfish_field_expr.txt", package = 'Giotto')
+#' loc_path = system.file("extdata", "seqfish_field_locs.txt", package = 'Giotto')
+#' VC_small <- createGiottoObject(raw_exprs = expr_path, spatial_locs = loc_path)
+#' 
+#' # 2. normalize giotto
+#' VC_small <- normalizeGiotto(gobject = VC_small, scalefactor = 6000)
+#' VC_small <- addStatistics(gobject = VC_small)
+#' 
+#' # 3. dimension reduction
+#' VC_small <- calculateHVG(gobject = VC_small)
+#' VC_small <- runPCA(gobject = VC_small)
+#' VC_small <- runTSNE(VC_small, dimensions_to_use = 1:5, n_threads = 2)
+#' plotTSNE(gobject = VC_small)
+#'   
 runtSNE <- function(gobject,
                     expression_values = c('normalized', 'scaled', 'custom'),
                     reduction = c('cells', 'genes'),

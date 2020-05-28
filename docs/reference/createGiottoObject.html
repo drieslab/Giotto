@@ -82,7 +82,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.5</span>
       </span>
     </div>
 
@@ -194,8 +194,10 @@
   <span class='kw'>spatial_enrichment_name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>dimension_reduction</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>nn_network</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>images</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>offset_file</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>instructions</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
+  <span class='kw'>instructions</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>cores</span> <span class='kw'>=</span> <span class='fl'>NA</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -262,12 +264,20 @@
       <td><p>list of nearest neighbor network(s)</p></td>
     </tr>
     <tr>
+      <th>images</th>
+      <td><p>list of images</p></td>
+    </tr>
+    <tr>
       <th>offset_file</th>
       <td><p>file used to stitch fields together (optional)</p></td>
     </tr>
     <tr>
       <th>instructions</th>
-      <td><p>list of instructions or output result from createGiottoInstructions</p></td>
+      <td><p>list of instructions or output result from <code><a href='createGiottoInstructions.html'>createGiottoInstructions</a></code></p></td>
+    </tr>
+    <tr>
+      <th>cores</th>
+      <td><p>how many cores or threads to use to read data if paths are provided</p></td>
     </tr>
     </table>
 
@@ -277,10 +287,11 @@
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>[<strong>Requirements</strong>] To create a giotto object you need to provide at least a matrix with genes as
-row names and cells as column names. To include spatial information about cells (or regions)
-you need to provide a data.table or data.frame with coordinates for all spatial dimensions.
-This can be 2D (x and y) or 3D (x, y, x).The row order for the cell coordinates should be
-the same as the column order for the provided expression data.</p>
+row names and cells as column names. This matrix can be provided as a base matrix, sparse Matrix, data.frame,
+data.table or as a path to any of those. 
+To include spatial information about cells (or regions) you need to provide a matrix, data.table or data.frame (or path to them)
+with coordinates for all spatial dimensions. This can be 2D (x and y) or 3D (x, y, x).
+The row order for the cell coordinates should be the same as the column order for the provided expression data.</p>
 <p>[<strong>Instructions</strong>] Additionally an instruction file, generated manually or with <code><a href='createGiottoInstructions.html'>createGiottoInstructions</a></code>
 can be provided to instructions, if not a default instruction file will be created
 for the Giotto object.</p>
@@ -297,6 +308,7 @@ This data can also be added afterwards using the <code><a href='addGeneMetadata.
 <li><p>spatial enrichments</p></li>
 <li><p>dimensions reductions</p></li>
 <li><p>nearest neighbours networks</p></li>
+<li><p>images</p></li>
 </ul>
 
 

@@ -55,6 +55,7 @@ reference:
     desc: Create and operate on Giotto object
     contents:
     - createGiottoObject
+    - createGiottoVisiumObject
     - filterGiotto
     - subsetGiotto
     - subsetGiottoLocs
@@ -62,10 +63,24 @@ reference:
   - title: import raw data
     desc: functions to help to import raw spatial data
     contents:
+    - readExprMatrix
     - get10Xmatrix
     - stitchFieldCoordinates
     - stitchTileCoordinates
 
+  - title: add images
+    desc: functions to work with images for a Giotto object
+    contents:
+    - estimateImageBg
+    - changeImageBg
+    - createGiottoImage
+    - addGiottoImage
+    - addGiottoImageToSpatPlot
+    - showGiottoImageNames
+    - updateGiottoImage
+    - getGiottoImage
+    - plotGiottoImage
+    
   - title: Giotto instructions
     desc: Create or change Giotto instructions (e.g. defaults, plotting, saving, ...)
     contents:
@@ -102,12 +117,15 @@ reference:
     - addGeneStatistics
     - addCellStatistics
     - addStatistics
+    - addGenesPerc
 
   - title: dimension reduction
     desc: Functions to reduce dimensions
     contents:
     - calculateHVG
     - signPCA
+    - screePlot
+    - jackstrawPlot
     - runPCA
     - runUMAP
     - runtSNE

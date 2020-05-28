@@ -145,7 +145,10 @@ createGiottoImage = function(gobject = NULL,
                              spatial_locs = NULL,
                              mg_object,
                              name = 'image',
-                             xmax_adj = 0, xmin_adj = 0, ymax_adj = 0, ymin_adj = 0) {
+                             xmax_adj = 0,
+                             xmin_adj = 0,
+                             ymax_adj = 0,
+                             ymin_adj = 0) {
   if(!is(mg_object, 'magick-image')) {
     if(file.exists(mg_object)) {
       mg_object = try(magick::image_read(mg_object))

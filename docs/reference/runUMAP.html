@@ -82,7 +82,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.5</span>
       </span>
     </div>
 
@@ -196,6 +196,7 @@
   <span class='kw'>spread</span> <span class='kw'>=</span> <span class='fl'>5</span>,
   <span class='kw'>set_seed</span> <span class='kw'>=</span> <span class='no'>T</span>,
   <span class='kw'>seed_number</span> <span class='kw'>=</span> <span class='fl'>1234</span>,
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='no'>T</span>,
   <span class='no'>...</span>
 )</pre>
 
@@ -271,6 +272,10 @@
       <td><p>seed number to use</p></td>
     </tr>
     <tr>
+      <th>verbose</th>
+      <td><p>verbosity of function</p></td>
+    </tr>
+    <tr>
       <th>...</th>
       <td><p>additional UMAP parameters</p></td>
     </tr>
@@ -284,12 +289,28 @@
     <p>See <code><a href='https://rdrr.io/pkg/uwot/man/umap.html'>umap</a></code> for more information about these and other parameters.</p><ul>
 <li><p>Input for UMAP dimension reduction can be another dimension reduction (default = 'pca')</p></li>
 <li><p>To use gene expression as input set dim_reduction_to_use = NULL</p></li>
+<li><p>If dim_reduction_to_use = NULL, genes_to_use can be used to select a column name of
+  highly variable genes (see <code><a href='calculateHVG.html'>calculateHVG</a></code>) or simply provide a vector of genes</p></li>
 <li><p>multiple UMAP results can be stored by changing the <em>name</em> of the analysis</p></li>
 </ul>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples">    <span class='fu'>runUMAP</span>(<span class='no'>gobject</span>)</pre>
+    <pre class="examples">
+<span class='co'># 1. create giotto object</span>
+<span class='no'>expr_path</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/system.file.html'>system.file</a></span>(<span class='st'>"extdata"</span>, <span class='st'>"seqfish_field_expr.txt"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>'Giotto'</span>)
+<span class='no'>loc_path</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/system.file.html'>system.file</a></span>(<span class='st'>"extdata"</span>, <span class='st'>"seqfish_field_locs.txt"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>'Giotto'</span>)
+<span class='no'>VC_small</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='createGiottoObject.html'>createGiottoObject</a></span>(<span class='kw'>raw_exprs</span> <span class='kw'>=</span> <span class='no'>expr_path</span>, <span class='kw'>spatial_locs</span> <span class='kw'>=</span> <span class='no'>loc_path</span>)
+
+<span class='co'># 2. normalize giotto</span>
+<span class='no'>VC_small</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='normalizeGiotto.html'>normalizeGiotto</a></span>(<span class='kw'>gobject</span> <span class='kw'>=</span> <span class='no'>VC_small</span>, <span class='kw'>scalefactor</span> <span class='kw'>=</span> <span class='fl'>6000</span>)
+<span class='no'>VC_small</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='addStatistics.html'>addStatistics</a></span>(<span class='kw'>gobject</span> <span class='kw'>=</span> <span class='no'>VC_small</span>)
+
+<span class='co'># 3. dimension reduction</span>
+<span class='no'>VC_small</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='calculateHVG.html'>calculateHVG</a></span>(<span class='kw'>gobject</span> <span class='kw'>=</span> <span class='no'>VC_small</span>)
+<span class='no'>VC_small</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='runPCA.html'>runPCA</a></span>(<span class='kw'>gobject</span> <span class='kw'>=</span> <span class='no'>VC_small</span>)
+<span class='no'>VC_small</span> <span class='kw'>&lt;-</span> <span class='fu'>runUMAP</span>(<span class='no'>VC_small</span>, <span class='kw'>dimensions_to_use</span> <span class='kw'>=</span> <span class='fl'>1</span>:<span class='fl'>5</span>, <span class='kw'>n_threads</span> <span class='kw'>=</span> <span class='fl'>2</span>)
+<span class='fu'><a href='plotUMAP.html'>plotUMAP</a></span>(<span class='kw'>gobject</span> <span class='kw'>=</span> <span class='no'>VC_small</span>)</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

@@ -32,7 +32,7 @@ The Giotto package consists of two modules, Giotto Analyzer and Viewer (see [www
 See [FAQs](https://rubd.github.io/Giotto/articles/faqs.html) for additional information.
 
 #### R installation
-You can install (~1-5 mins) Giotto with:
+You can install Giotto with (~1-5 mins):
 
 ``` r
 library(devtools)  # if not installed: install.packages('devtools')
@@ -42,34 +42,27 @@ remotes::install_github("RubD/Giotto")
 
 
 #### Required python modules
-This is necessary to run all available analyses.
+These are necessary to run all available analyses, but can be installed automatically.
 
 Required python modules:  
 - pandas  
 - python-igraph (igraph)  
 - networkx  
 - leidenalg  
-- python-louvain (community)  
-- smfishHmrf  
+- python-louvain (community)   
+- smfishHmrf    
+- python.app  
+- scikit-learn  
+                                                        
 
 ##### Automatic installation  
 The python modules will be installed automatically in a miniconda environment when installing Giotto. However, it will ask you whether you want to install them and you can opt out and select your preferred python path. In that case you need to do a manual installation of the python modules.
 
 ##### Manual installation  
-Install with pip in python 3
-``` bash
-pip3 install pandas python-igraph networkx python-louvain leidenalg smfishHmrf
-```
- 
-If pip install does not work, try installing them with conda within a [conda environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands):
-``` bash
-conda install -c anaconda pandas
-conda install -c conda-forge python-igraph
-conda install -c anaconda networkx
-conda install -c conda-forge python-louvain
-conda install -c conda-forge leidenalg
-```
-  
+See [python installation](https://rubd.github.io/Giotto/articles/installation_issues.html#python-manual-installation)
+
+
+
 #### Giotto Viewer  
 See [link](http://spatial.rc.fas.harvard.edu/spatialgiotto/giotto.install.native.html)
 
@@ -80,7 +73,8 @@ See [link](http://spatial.rc.fas.harvard.edu/spatialgiotto/giotto.install.native
 ## Examples 
 - see https://github.com/RubD/spatial-datasets to find raw and pre-processed input data and Giotto scripts (in progress). 
 - typical run time range for the different datasets on a personal computer is around 10~45 mins.  
-- click on the image and try them out yourself.
+- click on the image and try them out yourself.  
+- all examples are gradually updated to the latest Giotto version  [work in progress]
 
 
 [![seqFISH](./inst/images/general_figs/cortex_image_summary.png){width=10cm}](https://rubd.github.io/Giotto/articles/mouse_seqFISH_cortex_200319.html)

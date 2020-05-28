@@ -82,7 +82,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.5</span>
       </span>
     </div>
 
@@ -180,6 +180,9 @@
 
     <pre class="usage"><span class='fu'>spatGenePlot2D</span>(
   <span class='no'>gobject</span>,
+  <span class='kw'>show_image</span> <span class='kw'>=</span> <span class='no'>F</span>,
+  <span class='kw'>gimage</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>image_name</span> <span class='kw'>=</span> <span class='st'>"image"</span>,
   <span class='kw'>sdimx</span> <span class='kw'>=</span> <span class='st'>"sdimx"</span>,
   <span class='kw'>sdimy</span> <span class='kw'>=</span> <span class='st'>"sdimy"</span>,
   <span class='kw'>expression_values</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"normalized"</span>, <span class='st'>"scaled"</span>, <span class='st'>"custom"</span>),
@@ -189,7 +192,7 @@
   <span class='kw'>gradient_limits</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>show_network</span> <span class='kw'>=</span> <span class='no'>F</span>,
   <span class='kw'>network_color</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>spatial_network_name</span> <span class='kw'>=</span> <span class='st'>"Delaunay_network"</span>,
+  <span class='kw'>spatial_network_name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>edge_alpha</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>show_grid</span> <span class='kw'>=</span> <span class='no'>F</span>,
   <span class='kw'>grid_color</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -198,12 +201,14 @@
   <span class='kw'>scale_alpha_with_expression</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>point_shape</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"border"</span>, <span class='st'>"no_border"</span>, <span class='st'>"voronoi"</span>),
   <span class='kw'>point_size</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>point_alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>point_border_col</span> <span class='kw'>=</span> <span class='st'>"black"</span>,
   <span class='kw'>point_border_stroke</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
   <span class='kw'>show_legend</span> <span class='kw'>=</span> <span class='no'>T</span>,
   <span class='kw'>legend_text</span> <span class='kw'>=</span> <span class='fl'>8</span>,
   <span class='kw'>background_color</span> <span class='kw'>=</span> <span class='st'>"white"</span>,
   <span class='kw'>vor_border_color</span> <span class='kw'>=</span> <span class='st'>"white"</span>,
+  <span class='kw'>vor_alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>vor_max_radius</span> <span class='kw'>=</span> <span class='fl'>200</span>,
   <span class='kw'>axis_text</span> <span class='kw'>=</span> <span class='fl'>8</span>,
   <span class='kw'>axis_title</span> <span class='kw'>=</span> <span class='fl'>8</span>,
@@ -224,6 +229,18 @@
     <tr>
       <th>gobject</th>
       <td><p>giotto object</p></td>
+    </tr>
+    <tr>
+      <th>show_image</th>
+      <td><p>show a tissue background image</p></td>
+    </tr>
+    <tr>
+      <th>gimage</th>
+      <td><p>a giotto image</p></td>
+    </tr>
+    <tr>
+      <th>image_name</th>
+      <td><p>name of a giotto image</p></td>
     </tr>
     <tr>
       <th>sdimx</th>
@@ -294,6 +311,10 @@
       <td><p>size of point (cell)</p></td>
     </tr>
     <tr>
+      <th>point_alpha</th>
+      <td><p>transparancy of points</p></td>
+    </tr>
+    <tr>
       <th>point_border_col</th>
       <td><p>color of border around points</p></td>
     </tr>
@@ -316,6 +337,10 @@
     <tr>
       <th>vor_border_color</th>
       <td><p>border colorr for voronoi plot</p></td>
+    </tr>
+    <tr>
+      <th>vor_alpha</th>
+      <td><p>transparancy of voronoi 'cells'</p></td>
     </tr>
     <tr>
       <th>vor_max_radius</th>

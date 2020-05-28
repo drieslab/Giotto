@@ -82,7 +82,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.5</span>
       </span>
     </div>
 
@@ -180,23 +180,26 @@
 
     <pre class="usage"><span class='fu'>signPCA</span>(
   <span class='no'>gobject</span>,
+  <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"pca"</span>,
   <span class='kw'>method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"screeplot"</span>, <span class='st'>"jackstraw"</span>),
   <span class='kw'>expression_values</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"normalized"</span>, <span class='st'>"scaled"</span>, <span class='st'>"custom"</span>),
   <span class='kw'>reduction</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"cells"</span>, <span class='st'>"genes"</span>),
+  <span class='kw'>pca_method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"irlba"</span>, <span class='st'>"factominer"</span>),
+  <span class='kw'>rev</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>genes_to_use</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>center</span> <span class='kw'>=</span> <span class='no'>T</span>,
   <span class='kw'>scale_unit</span> <span class='kw'>=</span> <span class='no'>T</span>,
   <span class='kw'>ncp</span> <span class='kw'>=</span> <span class='fl'>50</span>,
-  <span class='kw'>scree_labels</span> <span class='kw'>=</span> <span class='no'>T</span>,
   <span class='kw'>scree_ylim</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>10</span>),
   <span class='kw'>jack_iter</span> <span class='kw'>=</span> <span class='fl'>10</span>,
   <span class='kw'>jack_threshold</span> <span class='kw'>=</span> <span class='fl'>0.01</span>,
-  <span class='kw'>jack_verbose</span> <span class='kw'>=</span> <span class='no'>T</span>,
+  <span class='kw'>jack_ylim</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0</span>, <span class='fl'>1</span>),
+  <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>show_plot</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
   <span class='kw'>return_plot</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
   <span class='kw'>save_plot</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
   <span class='kw'>save_param</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
-  <span class='kw'>default_save_name</span> <span class='kw'>=</span> <span class='st'>"signPCA"</span>,
-  <span class='no'>...</span>
+  <span class='kw'>default_save_name</span> <span class='kw'>=</span> <span class='st'>"signPCA"</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -205,6 +208,10 @@
     <tr>
       <th>gobject</th>
       <td><p>giotto object</p></td>
+    </tr>
+    <tr>
+      <th>name</th>
+      <td><p>name of PCA object if available</p></td>
     </tr>
     <tr>
       <th>method</th>
@@ -219,8 +226,20 @@
       <td><p>cells or genes</p></td>
     </tr>
     <tr>
+      <th>pca_method</th>
+      <td><p>which implementation to use</p></td>
+    </tr>
+    <tr>
+      <th>rev</th>
+      <td><p>do a reverse PCA</p></td>
+    </tr>
+    <tr>
       <th>genes_to_use</th>
       <td><p>subset of genes to use for PCA</p></td>
+    </tr>
+    <tr>
+      <th>center</th>
+      <td><p>center data before PCA</p></td>
     </tr>
     <tr>
       <th>scale_unit</th>
@@ -229,10 +248,6 @@
     <tr>
       <th>ncp</th>
       <td><p>number of principal components to calculate</p></td>
-    </tr>
-    <tr>
-      <th>scree_labels</th>
-      <td><p>show labels on scree plot</p></td>
     </tr>
     <tr>
       <th>scree_ylim</th>
@@ -247,8 +262,12 @@
       <td><p>p-value threshold to call a PC significant</p></td>
     </tr>
     <tr>
-      <th>jack_verbose</th>
-      <td><p>show progress of jackstraw method</p></td>
+      <th>jack_ylim</th>
+      <td><p>y-axis limits on jackstraw plot</p></td>
+    </tr>
+    <tr>
+      <th>verbose</th>
+      <td><p>verbosity</p></td>
     </tr>
     <tr>
       <th>show_plot</th>
@@ -270,10 +289,6 @@
       <th>default_save_name</th>
       <td><p>default save name for saving, don't change, change save_name in save_param</p></td>
     </tr>
-    <tr>
-      <th>...</th>
-      <td><p>additional parameters for PCA</p></td>
-    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -284,11 +299,11 @@
     <p>Two different methods can be used to assess the number of relevant or significant
  prinicipal components (PC's). <br />
  1. Screeplot works by plotting the explained variance of each
- individual PC in a barplot allowing you to identify which PC does not show a significant
- contribution anymore ( = 'elbow method'). <br />
+ individual PC in a barplot allowing you to identify which PC provides a significant
+ contribution  (a.k.a. 'elbow method'). <br />
  2. The Jackstraw method uses the <code><a href='https://rdrr.io/pkg/jackstraw/man/permutationPA.html'>permutationPA</a></code> function. By
  systematically permuting genes it identifies robust, and thus significant, PCs.
- <br /> multiple PCA results can be stored by changing the <em>name</em> parameter</p>
+ <br /></p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples">    <span class='fu'>signPCA</span>(<span class='no'>gobject</span>)</pre>

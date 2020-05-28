@@ -10,6 +10,8 @@ signPCA(
   method = c("screeplot", "jackstraw"),
   expression_values = c("normalized", "scaled", "custom"),
   reduction = c("cells", "genes"),
+  pca_method = c("irlba", "factominer"),
+  rev = FALSE,
   genes_to_use = NULL,
   center = T,
   scale_unit = T,
@@ -36,6 +38,10 @@ signPCA(
 \item{expression_values}{expression values to use}
 
 \item{reduction}{cells or genes}
+
+\item{pca_method}{which implementation to use}
+
+\item{rev}{do a reverse PCA}
 
 \item{genes_to_use}{subset of genes to use for PCA}
 
@@ -75,11 +81,11 @@ identify significant prinicipal components (PCs)
 Two different methods can be used to assess the number of relevant or significant
  prinicipal components (PC's). \cr
  1. Screeplot works by plotting the explained variance of each
- individual PC in a barplot allowing you to identify which PC does not show a significant
- contribution anymore ( = 'elbow method'). \cr
+ individual PC in a barplot allowing you to identify which PC provides a significant
+ contribution  (a.k.a. 'elbow method'). \cr
  2. The Jackstraw method uses the \code{\link[jackstraw]{permutationPA}} function. By
  systematically permuting genes it identifies robust, and thus significant, PCs.
- \cr multiple PCA results can be stored by changing the \emph{name} parameter
+ \cr
 }
 \examples{
     signPCA(gobject)

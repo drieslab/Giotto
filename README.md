@@ -43,7 +43,7 @@ additional information.
 
 #### R installation
 
-You can install (\~1-5 mins) Giotto with:
+You can install Giotto with (\~1-5 mins):
 
 ``` r
 library(devtools)  # if not installed: install.packages('devtools')
@@ -53,7 +53,8 @@ remotes::install_github("RubD/Giotto")
 
 #### Required python modules
 
-This is necessary to run all available analyses.
+These are necessary to run all available analyses, but can be installed
+automatically.
 
 Required python modules:  
 \- pandas  
@@ -61,7 +62,9 @@ Required python modules:
 \- networkx  
 \- leidenalg  
 \- python-louvain (community)  
-\- smfishHmrf
+\- smfishHmrf  
+\- python.app  
+\- scikit-learn
 
 ##### Automatic installation
 
@@ -73,23 +76,8 @@ python modules.
 
 ##### Manual installation
 
-Install with pip in python 3
-
-``` bash
-pip3 install pandas python-igraph networkx python-louvain leidenalg smfishHmrf
-```
-
-If pip install does not work, try installing them with conda within a
-[conda
-environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands):
-
-``` bash
-conda install -c anaconda pandas
-conda install -c conda-forge python-igraph
-conda install -c anaconda networkx
-conda install -c conda-forge python-louvain
-conda install -c conda-forge leidenalg
-```
+See [python
+installation](https://rubd.github.io/Giotto/articles/installation_issues.html#python-manual-installation)
 
 #### Giotto Viewer
 
@@ -104,7 +92,9 @@ See
     pre-processed input data and Giotto scripts (in progress).
   - typical run time range for the different datasets on a personal
     computer is around 10\~45 mins.  
-  - click on the image and try them out yourself.
+  - click on the image and try them out yourself.  
+  - all examples are gradually updated to the latest Giotto version
+    \[work in progress\]
 
 [![seqFISH](./inst/images/general_figs/cortex_image_summary.png)](https://rubd.github.io/Giotto/articles/mouse_seqFISH_cortex_200319.html)
 [![merFISH](./inst/images/general_figs/merFISH_hypoth_image_summary.png)](https://rubd.github.io/Giotto/articles/mouse_merFISH_hypoth_preoptic_region_200326.html)

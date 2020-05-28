@@ -32,7 +32,18 @@
 #'
 #' @export
 #' @examples
-#'     calculateHVG(gobject)
+#' # 1. create giotto object
+#' expr_path = system.file("extdata", "seqfish_field_expr.txt", package = 'Giotto')
+#' loc_path = system.file("extdata", "seqfish_field_locs.txt", package = 'Giotto')
+#' VC_small <- createGiottoObject(raw_exprs = expr_path, spatial_locs = loc_path)
+#' 
+#' # 2. normalize giotto
+#' VC_small <- normalizeGiotto(gobject = VC_small, scalefactor = 6000)
+#' VC_small <- addStatistics(gobject = VC_small)
+#' 
+#' # 3. highly variable genes detection
+#' VC_small <- calculateHVG(gobject = VC_small)
+#' 
 calculateHVG <- function(gobject,
                          expression_values = c('normalized', 'scaled', 'custom'),
                          method = c('cov_groups','cov_loess'),
@@ -154,7 +165,7 @@ calculateHVG <- function(gobject,
   if(return_plot == TRUE) {
     if(return_gobject == TRUE) {
       cat('return_plot = TRUE and return_gobject = TRUE \n
-          plot will not be returned to object, but can still be saved with save_plot = TRUE or manually')
+          plot will not be returned to object, but can still be saved with save_plot = TRUE or manually \n')
     } else {
       return(pl)
     }

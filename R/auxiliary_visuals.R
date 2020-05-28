@@ -332,7 +332,7 @@ all_plots_save_function = function(gobject,
 #' @title showSaveParameters
 #' @name showSaveParameters
 #' @description Description of Giotto saving options, links to \code{\link{all_plots_save_function}}
-#' @return text
+#' @return Instruction on how to use the automatic plot saving options within Giotto
 #' @export
 #' @examples
 #'     showSaveParameters()
@@ -386,7 +386,7 @@ showSaveParameters = function() {
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @param ... additional parameters for the Heatmap function from ComplexHeatmap
 #' @return ggplot
@@ -474,7 +474,7 @@ showClusterHeatmap <- function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @param ... additional parameters for ggdendrogram()
 #' @return ggplot
@@ -752,7 +752,7 @@ createHeatmap_DT <- function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name
 #' @return ggplot
 #' @details If you want to display many genes there are 2 ways to proceed:
@@ -994,7 +994,7 @@ plotHeatmap <- function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name
 #' @return ggplot or data.table
 #' @details Creates heatmap for the average expression of selected genes in the different annotation/cluster groups.
@@ -1236,7 +1236,7 @@ plotMetaDataHeatmap = function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot or data.table
 #' @details Creates heatmap for the average values of selected value columns in the different annotation groups.
@@ -1440,7 +1440,7 @@ plotMetaDataCellsHeatmap = function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export

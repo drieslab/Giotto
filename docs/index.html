@@ -37,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.5</span>
       </span>
     </div>
 
@@ -147,7 +147,7 @@
 <div id="r-installation" class="section level4">
 <h4 class="hasAnchor">
 <a href="#r-installation" class="anchor"></a>R installation</h4>
-<p>You can install (~1-5 mins) Giotto with:</p>
+<p>You can install Giotto with (~1-5 mins):</p>
 <div class="sourceCode" id="cb1"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">devtools</span>)  <span class="co"># if not installed: install.packages('devtools')</span>
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">remotes</span>)  <span class="co"># if not installed: install.packages('remotes')</span>
 <span class="kw pkg">remotes</span><span class="kw ns">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html">install_github</a></span>(<span class="st">"RubD/Giotto"</span>)</pre></div>
@@ -155,14 +155,16 @@
 <div id="required-python-modules" class="section level4">
 <h4 class="hasAnchor">
 <a href="#required-python-modules" class="anchor"></a>Required python modules</h4>
-<p>This is necessary to run all available analyses.</p>
+<p>These are necessary to run all available analyses, but can be installed automatically.</p>
 <p>Required python modules:<br>
 - pandas<br>
 - python-igraph (igraph)<br>
 - networkx<br>
 - leidenalg<br>
 - python-louvain (community)<br>
-- smfishHmrf</p>
+- smfishHmrf<br>
+- python.app<br>
+- scikit-learn</p>
 <div id="automatic-installation" class="section level5">
 <h5 class="hasAnchor">
 <a href="#automatic-installation" class="anchor"></a>Automatic installation</h5>
@@ -171,14 +173,7 @@
 <div id="manual-installation" class="section level5">
 <h5 class="hasAnchor">
 <a href="#manual-installation" class="anchor"></a>Manual installation</h5>
-<p>Install with pip in python 3</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1"><span class="ex">pip3</span> install pandas python-igraph networkx python-louvain leidenalg smfishHmrf</a></code></pre></div>
-<p>If pip install does not work, try installing them with conda within a <a href="https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands">conda environment</a>:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" title="1"><span class="ex">conda</span> install -c anaconda pandas</a>
-<a class="sourceLine" id="cb3-2" title="2"><span class="ex">conda</span> install -c conda-forge python-igraph</a>
-<a class="sourceLine" id="cb3-3" title="3"><span class="ex">conda</span> install -c anaconda networkx</a>
-<a class="sourceLine" id="cb3-4" title="4"><span class="ex">conda</span> install -c conda-forge python-louvain</a>
-<a class="sourceLine" id="cb3-5" title="5"><span class="ex">conda</span> install -c conda-forge leidenalg</a></code></pre></div>
+<p>See <a href="https://rubd.github.io/Giotto/articles/faqs.html">FAQs</a></p>
 </div>
 </div>
 <div id="giotto-viewer" class="section level4">
@@ -195,7 +190,10 @@
 <li>see <a href="https://github.com/RubD/spatial-datasets" class="uri">https://github.com/RubD/spatial-datasets</a> to find raw and pre-processed input data and Giotto scripts (in progress).</li>
 <li>typical run time range for the different datasets on a personal computer is around 10~45 mins.<br>
 </li>
-<li>click on the image and try them out yourself.</li>
+<li>click on the image and try them out yourself.<br>
+</li>
+<li>all examples are gradually updated to the latest Giotto version <br><span class="math display"><em>w</em><em>o</em><em>r</em><em>k</em><em>i</em><em>n</em><em>p</em><em>r</em><em>o</em><em>g</em><em>r</em><em>e</em><em>s</em><em>s</em></span><br>
+</li>
 </ul>
 <p><a href="https://rubd.github.io/Giotto/articles/mouse_seqFISH_cortex_200319.html"><img src="./inst/images/general_figs/cortex_image_summary.png" alt="seqFISH"></a> <a href="https://rubd.github.io/Giotto/articles/mouse_merFISH_hypoth_preoptic_region_200326.html"><img src="./inst/images/general_figs/merFISH_hypoth_image_summary.png" alt="merFISH"></a> <a href="https://rubd.github.io/Giotto/articles/mouse_starmap_cortex.html"><img src="./inst/images/general_figs/starmap_cortex_image_summary.png" alt="STARmap"></a> <a href="https://rubd.github.io/Giotto/articles/mouse_visium_brain_200325.html"><img src="./inst/images/general_figs/visium_brain_image_summary.png" alt="Visium_brain"></a> <a href="https://rubd.github.io/Giotto/articles/mouse_visium_kidney_200326.html"><img src="./inst/images/general_figs/visium_kidney_image_summary.png" alt="Visium_kidney"></a> <a href="https://rubd.github.io/Giotto/articles/human_cycif_PDAC_200322.html"><img src="./inst/images/general_figs/cyCIF_PDAC_image_summary.png" alt="CyCIF"></a> <a href="../articles/mouse_osmFISH_SScortex.html"><img src="./inst/images/general_figs/osmFISH_SS_cortex_image_summary.png" alt="osmFISH"></a> <a href="https://rubd.github.io/Giotto/articles/mouse_CODEX_spleen.html"><img src="./inst/images/general_figs/CODEX_spleen_image_summary.png" alt="CODEX"></a></p>
 </div>

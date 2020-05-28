@@ -1,4 +1,17 @@
 
+# Giotto 0.3.5 (development)
+
+  - background images See [howto’s](../articles/howto_images.html)
+  - support for sparse matrices  
+  - PCA can be calculated with the packages irlba (default) or
+    factominer (old default)
+  - complemented PCA with separate functions for a scree plot and
+    jackstraw plot
+  - addition of **readExprMatrix** to read an expression matrix
+  - addition of **addGenesPerc** to add information about genesets
+    (e.g. mitochondrial genes)
+  - several bug fixes
+
 # Giotto 0.3.2
 
   - added voronoi plots to use in spatial plotting. See

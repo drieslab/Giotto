@@ -82,7 +82,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.5</span>
       </span>
     </div>
 
@@ -181,6 +181,7 @@
     <pre class="usage"><span class='fu'>addCellMetadata</span>(
   <span class='no'>gobject</span>,
   <span class='no'>new_metadata</span>,
+  <span class='kw'>vector_name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>by_column</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>column_cell_ID</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
 )</pre>
@@ -197,6 +198,10 @@
       <td><p>new cell metadata to use (data.table, data.frame, ...)</p></td>
     </tr>
     <tr>
+      <th>vector_name</th>
+      <td><p>(optional) custom name if you provide a single vector</p></td>
+    </tr>
+    <tr>
       <th>by_column</th>
       <td><p>merge metadata based on cell_ID column in pDataDT (default = FALSE)</p></td>
     </tr>
@@ -211,10 +216,11 @@
     <p>giotto object</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>You can add additional cell metadata in two manners:
-1. Provide a data.table or data.frame with cell annotations in the same order as the cell_ID column in pDataDT(gobject)
-2. Provide a data.table or data.frame with cell annotations and specificy which column contains the cell IDs,
-these cell IDs need to match with the cell_ID column in pDataDT(gobject)</p>
+    <p>You can add additional cell metadata in two manners:</p><ul>
+<li><p>1. Provide a data.table or data.frame with cell annotations in the same order as the cell_ID column in pDataDT(gobject)</p></li>
+<li><p>2. Provide a data.table or data.frame with cell annotations and specificy which column contains the cell IDs, these cell IDs need to match with the cell_ID column in pDataDT(gobject)</p></li>
+</ul>
+
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples">    <span class='fu'>addCellMetadata</span>(<span class='no'>gobject</span>)</pre>

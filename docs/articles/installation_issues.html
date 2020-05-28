@@ -37,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.5</span>
       </span>
     </div>
 
@@ -136,7 +136,7 @@
     
 <div id="first-time-r-package-installation" class="section level2">
 <h2 class="hasAnchor">
-<a href="#first-time-r-package-installation" class="anchor"></a>1. First time R package installation</h2>
+<a href="#first-time-r-package-installation" class="anchor"></a>0. First time R package installation</h2>
 <div id="package-development-prerequisites" class="section level4">
 <h4 class="hasAnchor">
 <a href="#package-development-prerequisites" class="anchor"></a>Package development prerequisites</h4>
@@ -146,6 +146,48 @@
 <p> </p>
 </div>
 </div>
+<div id="python-manual-installation" class="section level2">
+<h2 class="hasAnchor">
+<a href="#python-manual-installation" class="anchor"></a>1. Python manual installation</h2>
+<div id="install-with-pip-in-python-3" class="section level3">
+<h3 class="hasAnchor">
+<a href="#install-with-pip-in-python-3" class="anchor"></a>Install with pip in python 3</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1"><span class="ex">pip3</span> install pandas python-igraph networkx python-louvain leidenalg python.app scikit-learn smfishHmrf</a></code></pre></div>
+</div>
+<div id="conda-install" class="section level3">
+<h3 class="hasAnchor">
+<a href="#conda-install" class="anchor"></a>Conda install</h3>
+<p>If pip install does not work, try installing them within a conda <a href="https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands">conda environment</a>. Something like this might work, see also this <a href="https://heartbeat.fritz.ai/creating-python-virtual-environments-with-conda-why-and-how-180ebd02d1db">link</a></p>
+<div id="create-yaml-file-e-g--environment-yml-with-the-following-information" class="section level5">
+<h5 class="hasAnchor">
+<a href="#create-yaml-file-e-g--environment-yml-with-the-following-information" class="anchor"></a>1. create yaml file (e.g. environment.yml) with the following information:</h5>
+<pre><code>name: giotto_env
+channels:
+ — defaults
+dependencies:
+ — pip=3.4
+ — pandas
+ — networkx
+ - python-igraph
+ - leidenalg
+ - python-louvain
+ - python.app
+ - scikit-learn
+prefix: /Users/your_username/anaconda3/envs/giotto_env</code></pre>
+</div>
+<div id="create-conda-environment-based-on-yaml-file" class="section level5">
+<h5 class="hasAnchor">
+<a href="#create-conda-environment-based-on-yaml-file" class="anchor"></a>2. create conda environment based on yaml file:</h5>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" title="1">conda env create <span class="op">-</span>f environment.yml</a></code></pre></div>
+</div>
+<div id="use-the-path-to-this-environment-when-you-create-the-giotto-instructions-or-giotto-object" class="section level5">
+<h5 class="hasAnchor">
+<a href="#use-the-path-to-this-environment-when-you-create-the-giotto-instructions-or-giotto-object" class="anchor"></a>3. Use the path to this environment when you create the Giotto instructions or Giotto object</h5>
+<pre><code>/Users/your_username/anaconda3/envs/giotto_env</code></pre>
+<p> </p>
+</div>
+</div>
+</div>
 <div id="errors-on-macos" class="section level2">
 <h2 class="hasAnchor">
 <a href="#errors-on-macos" class="anchor"></a>2. errors on MacOS</h2>
@@ -153,41 +195,41 @@
 <h3 class="hasAnchor">
 <a href="#issue-1-clang-error" class="anchor"></a>2.1 issue 1: clang error</h3>
 <p>If you see this error on your MacOS:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1"><span class="ex">clang</span>: error: unsupported option ‘-fopenmp’</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb6-1" title="1"><span class="ex">clang</span>: error: unsupported option ‘-fopenmp’</a></code></pre></div>
 <p>You can install another clang and point R to use that clang, which supports the -fopenmp paramter. This solution was provided on <a href="https://stackoverflow.com/questions/43595457/alternate-compiler-for-installing-r-packages-clang-error-unsupported-option">stackoverflow</a></p>
 <ol style="list-style-type: decimal">
 <li>Install llvm on your mac</li>
 </ol>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" title="1"><span class="ex">brew</span> install llvm</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb7-1" title="1"><span class="ex">brew</span> install llvm</a></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
 <li>create a Makevars file</li>
 </ol>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" title="1"><span class="fu">touch</span> ~/.R/Makevars</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb8-1" title="1"><span class="fu">touch</span> ~/.R/Makevars</a></code></pre></div>
 <ol start="3" style="list-style-type: decimal">
 <li>Add these lines to the Makevars file</li>
 </ol>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb5-1" title="1"><span class="co"># comment out first line 'CC= ... if there are errors with compiling a package</span></a>
-<a class="sourceLine" id="cb5-2" title="2"><span class="va">CC=</span>/usr/local/opt/llvm/bin/clang <span class="ex">-fopenmp</span></a>
-<a class="sourceLine" id="cb5-3" title="3"><span class="va">CXX=</span>/usr/local/opt/llvm/bin/clang++</a>
-<a class="sourceLine" id="cb5-4" title="4"></a>
-<a class="sourceLine" id="cb5-5" title="5"><span class="co"># Also potentially CXX11 (for C++11 compiler)</span></a>
-<a class="sourceLine" id="cb5-6" title="6"><span class="va">CXX11=</span>/usr/local/opt/llvm/bin/clang++</a>
-<a class="sourceLine" id="cb5-7" title="7"></a>
-<a class="sourceLine" id="cb5-8" title="8"><span class="co"># -O3 should be faster than -O2 (default) level optimisation ..</span></a>
-<a class="sourceLine" id="cb5-9" title="9"><span class="va">CFLAGS=</span>-g <span class="ex">-O3</span> -Wall -pedantic -std=gnu99 -mtune=native -pipe</a>
-<a class="sourceLine" id="cb5-10" title="10"><span class="va">CXXFLAGS=</span>-g <span class="ex">-O3</span> -Wall -pedantic -std=c++11 -mtune=native -pipe</a>
-<a class="sourceLine" id="cb5-11" title="11"><span class="va">LDFLAGS=</span>-L/usr/local/opt/gettext/lib <span class="ex">-L/usr/local/opt/llvm/lib</span> -Wl,-rpath,/usr/local/opt/llvm/lib</a>
-<a class="sourceLine" id="cb5-12" title="12"><span class="va">CPPFLAGS=</span>-I/usr/local/opt/gettext/include <span class="ex">-I/usr/local/opt/llvm/include</span></a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb9-1" title="1"><span class="co"># comment out first line 'CC= ... if there are errors with compiling a package</span></a>
+<a class="sourceLine" id="cb9-2" title="2"><span class="va">CC=</span>/usr/local/opt/llvm/bin/clang <span class="ex">-fopenmp</span></a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="va">CXX=</span>/usr/local/opt/llvm/bin/clang++</a>
+<a class="sourceLine" id="cb9-4" title="4"></a>
+<a class="sourceLine" id="cb9-5" title="5"><span class="co"># Also potentially CXX11 (for C++11 compiler)</span></a>
+<a class="sourceLine" id="cb9-6" title="6"><span class="va">CXX11=</span>/usr/local/opt/llvm/bin/clang++</a>
+<a class="sourceLine" id="cb9-7" title="7"></a>
+<a class="sourceLine" id="cb9-8" title="8"><span class="co"># -O3 should be faster than -O2 (default) level optimisation ..</span></a>
+<a class="sourceLine" id="cb9-9" title="9"><span class="va">CFLAGS=</span>-g <span class="ex">-O3</span> -Wall -pedantic -std=gnu99 -mtune=native -pipe</a>
+<a class="sourceLine" id="cb9-10" title="10"><span class="va">CXXFLAGS=</span>-g <span class="ex">-O3</span> -Wall -pedantic -std=c++11 -mtune=native -pipe</a>
+<a class="sourceLine" id="cb9-11" title="11"><span class="va">LDFLAGS=</span>-L/usr/local/opt/gettext/lib <span class="ex">-L/usr/local/opt/llvm/lib</span> -Wl,-rpath,/usr/local/opt/llvm/lib</a>
+<a class="sourceLine" id="cb9-12" title="12"><span class="va">CPPFLAGS=</span>-I/usr/local/opt/gettext/include <span class="ex">-I/usr/local/opt/llvm/include</span></a></code></pre></div>
 </div>
 <div id="issue-2" class="section level3">
 <h3 class="hasAnchor">
 <a href="#issue-2" class="anchor"></a>2.2 issue 2</h3>
 <p>If you see this error on your MacOS, most likely with the macOS Mojave:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb6-1" title="1"><span class="ex">Error</span> message: </a>
-<a class="sourceLine" id="cb6-2" title="2"><span class="ex">ld</span>: warning: directory not found for option <span class="st">'-L/usr/local/gfortran/lib/gcc/x86_64-apple-darwin15/6.1.0'</span></a>
-<a class="sourceLine" id="cb6-3" title="3"><span class="ex">ld</span>: warning: directory not found for option <span class="st">'-L/usr/local/gfortran/lib'</span></a>
-<a class="sourceLine" id="cb6-4" title="4"><span class="ex">ld</span>: library not found for -lgfortran</a>
-<a class="sourceLine" id="cb6-5" title="5"><span class="ex">clang-9</span>: error: linker command failed with exit code 1 (use -v to see invocation)</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb10-1" title="1"><span class="ex">Error</span> message: </a>
+<a class="sourceLine" id="cb10-2" title="2"><span class="ex">ld</span>: warning: directory not found for option <span class="st">'-L/usr/local/gfortran/lib/gcc/x86_64-apple-darwin15/6.1.0'</span></a>
+<a class="sourceLine" id="cb10-3" title="3"><span class="ex">ld</span>: warning: directory not found for option <span class="st">'-L/usr/local/gfortran/lib'</span></a>
+<a class="sourceLine" id="cb10-4" title="4"><span class="ex">ld</span>: library not found for -lgfortran</a>
+<a class="sourceLine" id="cb10-5" title="5"><span class="ex">clang-9</span>: error: linker command failed with exit code 1 (use -v to see invocation)</a></code></pre></div>
 <p>solution: Installing the latest version of gofortran. <a href="https://github.com/fxcoudert/gfortran-for-macOS/releases/download/8.2/gfortran-8.2-Mojave.dmg" class="uri">https://github.com/fxcoudert/gfortran-for-macOS/releases/download/8.2/gfortran-8.2-Mojave.dmg</a></p>
 <p>Reference: <a href="https://stackoverflow.com/questions/35999874/mac-os-x-r-error-ld-warning-directory-not-found-for-option" class="uri">https://stackoverflow.com/questions/35999874/mac-os-x-r-error-ld-warning-directory-not-found-for-option</a> “I am having Mac OS Catalina and in my case installation of Homebrew, the newest gcc and Gfortran 8.2.0 solved the issue.” – Magda Orzechowska “This worked for me in Mac OS Catalina as well! I used the gfortran 8.2 Mojave installation github.com/fxcoudert/gfortran-for-macOS/releases” – Danny</p>
 </div>
@@ -196,12 +238,12 @@
 <a href="#issue-3-r-3-6-3-and-macos-catalina" class="anchor"></a>2.3 issue 3 (R 3.6.3 and MacOS Catalina)</h3>
 <p>If you use the latest MacOS ‘Catalina’ and the latest R version 3.6.3 then you need to install Clang 7.0.0 and GNU Fortran 6.1 as per <a href="https://cran.rstudio.com/bin/macosx/">instructions</a>.</p>
 <p>Additionally, you might have to specify some flags in “~/.R/Makevars”</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb7-1" title="1"><span class="co"># clang: start</span></a>
-<a class="sourceLine" id="cb7-2" title="2"><span class="va">CFLAGS=</span>-isysroot <span class="ex">/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk</span></a>
-<a class="sourceLine" id="cb7-3" title="3"><span class="va">CCFLAGS=</span>-isysroot <span class="ex">/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk</span></a>
-<a class="sourceLine" id="cb7-4" title="4"><span class="va">CXXFLAGS=</span>-isysroot <span class="ex">/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk</span></a>
-<a class="sourceLine" id="cb7-5" title="5"><span class="va">CPPFLAGS=</span>-isysroot <span class="ex">/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk</span></a>
-<a class="sourceLine" id="cb7-6" title="6"><span class="co"># clang: end</span></a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb11-1" title="1"><span class="co"># clang: start</span></a>
+<a class="sourceLine" id="cb11-2" title="2"><span class="va">CFLAGS=</span>-isysroot <span class="ex">/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk</span></a>
+<a class="sourceLine" id="cb11-3" title="3"><span class="va">CCFLAGS=</span>-isysroot <span class="ex">/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk</span></a>
+<a class="sourceLine" id="cb11-4" title="4"><span class="va">CXXFLAGS=</span>-isysroot <span class="ex">/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk</span></a>
+<a class="sourceLine" id="cb11-5" title="5"><span class="va">CPPFLAGS=</span>-isysroot <span class="ex">/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk</span></a>
+<a class="sourceLine" id="cb11-6" title="6"><span class="co"># clang: end</span></a></code></pre></div>
 <p>We hope that these issues will be resolved soon.</p>
 </div>
 </div>
@@ -209,10 +251,10 @@
 <h2 class="hasAnchor">
 <a href="#make-not-found-error-on-windows" class="anchor"></a>3. ‘Make’ not found error on windows</h2>
 <p>If you encounter this error:</p>
-<div class="sourceCode" id="cb8"><html><body><pre class="r">Error in system(cmd) : (converted from warning) ‘make’ not found</pre></body></html></div>
+<div class="sourceCode" id="cb12"><html><body><pre class="r">Error in system(cmd) : (converted from warning) ‘make’ not found</pre></body></html></div>
 <p>Solution:<br>
 Install the necessary <a href="https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites">package development tools</a>.</p>
-<div class="sourceCode" id="cb9"><html><body><pre class="r"><span class="co">## make sure Rtools is visible (from within R)</span>
+<div class="sourceCode" id="cb13"><html><body><pre class="r"><span class="co">## make sure Rtools is visible (from within R)</span>
 <span class="co">## you can set the paths manually</span>
 <span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html">Sys.setenv</a></span>(<span class="kw">PATH</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(<span class="st">"C:/Rtools/bin"</span>,<span class="st">"C:/Rtools/mingw_64/bin"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html">Sys.getenv</a></span>(<span class="st">"PATH"</span>), <span class="kw">sep</span><span class="kw">=</span><span class="st">";"</span>))
 <span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html">Sys.setenv</a></span>(<span class="kw">BINPREF</span> <span class="kw">=</span> <span class="st">"C:/Rtools/mingw_$(WIN)/bin/"</span>)</pre></body></html></div>
@@ -221,12 +263,12 @@ Install the necessary <a href="https://support.rstudio.com/hc/en-us/articles/200
 <h2 class="hasAnchor">
 <a href="#error-converted-from-warning" class="anchor"></a>4. Error converted from warning</h2>
 <p>If you encounter this or similar error:</p>
-<div class="sourceCode" id="cb10"><html><body><pre class="r">Error: Failed to install 'Giotto' from GitHub:
+<div class="sourceCode" id="cb14"><html><body><pre class="r">Error: Failed to install 'Giotto' from GitHub:
   (converted from warning) ...</pre></body></html></div>
 <ul>
 <li>make sure Rtools is installed, see point 3</li>
 </ul>
-<div class="sourceCode" id="cb11"><html><body><pre class="r"><span class="co">## avoid converting warnings to errors by setting this environment variable to true (from within R)</span>
+<div class="sourceCode" id="cb15"><html><body><pre class="r"><span class="co">## avoid converting warnings to errors by setting this environment variable to true (from within R)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html">Sys.setenv</a></span>(<span class="st">"R_REMOTES_NO_ERRORS_FROM_WARNINGS"</span><span class="kw">=</span><span class="fl">TRUE</span>)
 
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">devtools</span>) <span class="co"># if not installed do install.package('devtools')</span>

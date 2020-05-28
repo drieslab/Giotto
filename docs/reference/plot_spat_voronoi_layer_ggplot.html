@@ -82,7 +82,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.5</span>
       </span>
     </div>
 
@@ -193,6 +193,7 @@
   <span class='kw'>select_cell_groups</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>select_cells</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>point_size</span> <span class='kw'>=</span> <span class='fl'>2</span>,
+  <span class='kw'>point_alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>show_cluster_center</span> <span class='kw'>=</span> <span class='no'>F</span>,
   <span class='kw'>show_center_label</span> <span class='kw'>=</span> <span class='no'>T</span>,
   <span class='kw'>center_point_size</span> <span class='kw'>=</span> <span class='fl'>4</span>,
@@ -204,6 +205,7 @@
   <span class='kw'>background_color</span> <span class='kw'>=</span> <span class='st'>"white"</span>,
   <span class='kw'>vor_border_color</span> <span class='kw'>=</span> <span class='st'>"white"</span>,
   <span class='kw'>vor_max_radius</span> <span class='kw'>=</span> <span class='fl'>200</span>,
+  <span class='kw'>vor_alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>show_legend</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
 )</pre>
 
@@ -263,6 +265,10 @@
       <td><p>size of point (cell)</p></td>
     </tr>
     <tr>
+      <th>point_alpha</th>
+      <td><p>transparancy of point</p></td>
+    </tr>
+    <tr>
       <th>show_cluster_center</th>
       <td><p>plot center of selected clusters</p></td>
     </tr>
@@ -305,6 +311,10 @@
     <tr>
       <th>vor_max_radius</th>
       <td><p>maximum radius for voronoi 'cells'</p></td>
+    </tr>
+    <tr>
+      <th>vor_alpha</th>
+      <td><p>transparancy of voronoi 'cells'</p></td>
     </tr>
     <tr>
       <th>show_legend</th>

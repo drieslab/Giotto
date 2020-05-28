@@ -5,6 +5,7 @@ output: html_document
 
 ## Installation  
 - [First time R package installation](./installation_issues.html#first-time-r-package-installation)
+- [Manual python installation](./installation_issues.html#python-manual-installation)
 - [Clang error on MacOS](./installation_issues.html#errors-on-macos)
 - [Error: 'make' not found](./installation_issues.html#make-not-found-error)
 - [Error converted from warning](./installation_issues.html#error-converted-from-warning)

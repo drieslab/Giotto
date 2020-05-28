@@ -82,7 +82,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Giotto</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.5</span>
       </span>
     </div>
 
@@ -180,6 +180,9 @@
 
     <pre class="usage"><span class='fu'>spatPlot2D</span>(
   <span class='no'>gobject</span>,
+  <span class='kw'>show_image</span> <span class='kw'>=</span> <span class='no'>F</span>,
+  <span class='kw'>gimage</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>image_name</span> <span class='kw'>=</span> <span class='st'>"image"</span>,
   <span class='kw'>group_by</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>group_by_subset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>sdimx</span> <span class='kw'>=</span> <span class='st'>"sdimx"</span>,
@@ -195,6 +198,7 @@
   <span class='kw'>select_cells</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>point_shape</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"border"</span>, <span class='st'>"no_border"</span>, <span class='st'>"voronoi"</span>),
   <span class='kw'>point_size</span> <span class='kw'>=</span> <span class='fl'>3</span>,
+  <span class='kw'>point_alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>point_border_col</span> <span class='kw'>=</span> <span class='st'>"black"</span>,
   <span class='kw'>point_border_stroke</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
   <span class='kw'>show_cluster_center</span> <span class='kw'>=</span> <span class='no'>F</span>,
@@ -223,6 +227,7 @@
   <span class='kw'>background_color</span> <span class='kw'>=</span> <span class='st'>"white"</span>,
   <span class='kw'>vor_border_color</span> <span class='kw'>=</span> <span class='st'>"white"</span>,
   <span class='kw'>vor_max_radius</span> <span class='kw'>=</span> <span class='fl'>200</span>,
+  <span class='kw'>vor_alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>axis_text</span> <span class='kw'>=</span> <span class='fl'>8</span>,
   <span class='kw'>axis_title</span> <span class='kw'>=</span> <span class='fl'>8</span>,
   <span class='kw'>cow_n_col</span> <span class='kw'>=</span> <span class='fl'>2</span>,
@@ -242,6 +247,18 @@
     <tr>
       <th>gobject</th>
       <td><p>giotto object</p></td>
+    </tr>
+    <tr>
+      <th>show_image</th>
+      <td><p>show a tissue background image</p></td>
+    </tr>
+    <tr>
+      <th>gimage</th>
+      <td><p>a giotto image</p></td>
+    </tr>
+    <tr>
+      <th>image_name</th>
+      <td><p>name of a giotto image</p></td>
     </tr>
     <tr>
       <th>group_by_subset</th>
@@ -298,6 +315,10 @@
     <tr>
       <th>point_size</th>
       <td><p>size of point (cell)</p></td>
+    </tr>
+    <tr>
+      <th>point_alpha</th>
+      <td><p>transparancy of point</p></td>
     </tr>
     <tr>
       <th>point_border_col</th>
@@ -402,6 +423,10 @@
     <tr>
       <th>vor_max_radius</th>
       <td><p>maximum radius for voronoi 'cells'</p></td>
+    </tr>
+    <tr>
+      <th>vor_alpha</th>
+      <td><p>transparancy of voronoi 'cells'</p></td>
     </tr>
     <tr>
       <th>axis_text</th>

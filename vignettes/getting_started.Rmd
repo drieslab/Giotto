@@ -42,6 +42,7 @@ Howto's examples:
 - [Different ways to visualize your spatial data?](./visualization_options.html)
 - [How to test and store multiple parameters or analyses?](./work_with_multiple_analyses.html)
 - [Visualize spatial data with voronoi plots](./howto_voronoi_plots.html)
+- [Adding and working with images in Giotto](./howto_images.html)
 - How to create a giotto object with your own spatial network/grid, dimensions reduction, ... ?  
 
 ##### Giotto analyses [work in progress]
