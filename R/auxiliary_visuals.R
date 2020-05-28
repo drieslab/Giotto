@@ -71,7 +71,11 @@ ggplot_save_function = function(gobject,
   base_aspect_ratio = as.numeric(base_aspect_ratio)
 
   # create saving location
-  file_location = paste0(save_dir,'/', save_folder)
+  if(!is.null(save_folder)) {
+    file_location = paste0(save_dir,'/', save_folder)
+  } else {
+    file_location = save_dir
+  }
   if(!file.exists(file_location)) dir.create(file_location, recursive = T)
   file_name = paste0(save_name, ".", save_format)
 
@@ -178,7 +182,11 @@ general_save_function = function(gobject,
   base_aspect_ratio = as.numeric(base_aspect_ratio)
 
   # create saving location
-  file_location = paste0(save_dir,'/', save_folder)
+  if(!is.null(save_folder)) {
+    file_location = paste0(save_dir,'/', save_folder)
+  } else {
+    file_location = save_dir
+  }
   if(!file.exists(file_location)) dir.create(file_location, recursive = T)
   file_name = paste0(save_name, ".", save_format)
   full_location = paste0(file_location,'/', file_name)
@@ -337,17 +345,17 @@ all_plots_save_function = function(gobject,
 #' @examples
 #'     showSaveParameters()
 showSaveParameters = function() {
-  
+
   cat("This is a simple guide to help you with automatically saving plots \n")
-  
+
   cat("Each plotting function in Giotto has 4 important parameters for showing and/or saving a plot: \n
-      - show_plot: TRUE or FALSE, show the plot to the console 
-      - return_plot: TRUE or FALSE, return the plot to the console (e.g. to further modify or save the plot 
-      - save_plot: TRUE or FALSE, automatically save the plot 
+      - show_plot: TRUE or FALSE, show the plot to the console
+      - return_plot: TRUE or FALSE, return the plot to the console (e.g. to further modify or save the plot
+      - save_plot: TRUE or FALSE, automatically save the plot
       - save_param: a list of parameters that can be set \n")
-  
+
   cat('\n')
-  
+
   cat("The following list of parameters can be provided to save_param: \n
       - save_dir: directory to save the plot to
       - save_folder: if not NULL, a subfolder within save_dir that will be created to save the plot to
@@ -361,14 +369,14 @@ showSaveParameters = function() {
       - base_aspect_ratio: ratio of plot
       - units: plotting units (e.g. in)
       - dpi: dpi for each plot if plot is in raster format\n")
-  
+
   cat('\n')
-  
+
   cat("Example: \n
       plotfunction(...,
                    save_plot = TRUE,
                    save_param = list(save_name = 'favorite_name', units = 'png'))")
-  
+
 }
 
 

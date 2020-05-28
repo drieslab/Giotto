@@ -157,12 +157,23 @@ set_giotto_python_path = function(python_path = NULL,
     reticulate::use_python(required = T, python = python_path)
   } else {
 
+    os_specific_system = get_os()
+
+    # exclude python.app for windows and linux
+    if(os_specific_system != 'osx') {
+      packages_to_install = packages_to_install[packages_to_install != 'python.app']
+    }
+
+
+
     # check if giotto environment is already installed
     conda_path = reticulate::miniconda_path()
-    if(.Platform[['OS.type']] == 'unix') {
+    if(os_specific_system == 'osx') {
       full_path = paste0(conda_path, "/envs/giotto_env/bin/pythonw")
-    } else if(.Platform[['OS.type']] == 'windows') {
+    } else if(os_specific_system == 'windows') {
       full_path = paste0(conda_path, "\\envs\\giotto_env\\python.exe")
+    } else if(os_specific_system == 'linux') {
+      full_path = paste0(conda_path, "/envs/giotto_env/bin/python")
     }
 
     if(file.exists(full_path)) {
@@ -185,6 +196,7 @@ set_giotto_python_path = function(python_path = NULL,
 
         conda_path = reticulate::miniconda_path()
 
+        ## for unix-like systems ##
         if(.Platform[['OS.type']] == 'unix') {
           # conda_full_path = paste0(conda_path, '/bin/python')
           conda_full_path = reticulate::conda_binary()
@@ -196,7 +208,13 @@ set_giotto_python_path = function(python_path = NULL,
           }
 
           full_envname = paste0(conda_path,'/envs/giotto_env')
-          python_full_path = paste0(conda_path, "/envs/giotto_env/bin/pythonw")
+
+          if(os_specific_system == 'osx') {
+            python_full_path = paste0(conda_path, "/envs/giotto_env/bin/pythonw")
+          } else if(os_specific_system == 'linux') {
+            python_full_path = paste0(conda_path, "/envs/giotto_env/bin/python")
+          }
+
 
           reticulate::py_install(packages = packages_to_install,
                                  envname = 'giotto_env',
@@ -211,6 +229,7 @@ set_giotto_python_path = function(python_path = NULL,
                                  pip = TRUE,
                                  python_version = '3.6')
 
+          ## for windows systems ##
         } else if(.Platform[['OS.type']] == 'windows') {
           conda_full_path = reticulate::conda_binary()
           expected_conda_full_path = paste0(conda_path,'/','condabin/conda.bat')
@@ -219,9 +238,6 @@ set_giotto_python_path = function(python_path = NULL,
                     'expected: ', expected_conda_full_path, '\n',
                     'received: ', conda_full_path, '\n')
           }
-
-          # exclude python.app for windows
-          packages_to_install = packages_to_install[packages_to_install != 'python.app']
 
           full_envname = paste0(conda_path,'/envs/giotto_env')
           python_full_path = paste0(conda_path, "/envs/giotto_env/python.exe")
