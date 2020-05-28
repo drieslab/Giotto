@@ -60,7 +60,7 @@ dependencies:
  - python-igraph
  - leidenalg
  - python-louvain
- - python.app
+ - python.app (!!only for OSX!!)
  - scikit-learn
 prefix: /Users/your_username/anaconda3/envs/giotto_env
 ```
@@ -72,8 +72,17 @@ prefix: /Users/your_username/anaconda3/envs/giotto_env
  ```
 
 ##### 3. Use the path to this environment when you create the Giotto instructions or Giotto object  
+for OSX: 
 ``` 
-/Users/your_username/anaconda3/envs/giotto_env
+/Users/your_username/anaconda3/envs/giotto_env/bin/pythonw
+```
+for linux: 
+``` 
+/Users/your_username/anaconda3/envs/giotto_env/bin/python
+```
+for windows:
+```
+/Users/your_username/anaconda3/envs/giotto_env/python.exe
 ```
 
 \  

@@ -51,7 +51,7 @@ Required python modules:
 - leidenalg  
 - python-louvain (community)   
 - smfishHmrf    
-- python.app  
+- python.app (OSX only)
 - scikit-learn  
                                                         
 
