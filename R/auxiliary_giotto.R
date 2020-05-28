@@ -130,7 +130,7 @@ giotto_lapply = function(X, cores = NA, fun, ...) {
     save_list = parallel::mclapply(X = X, mc.cores = cores,
                                    FUN = fun, ...)
   } else if(os == 'windows') {
-    save_list = parallel::mclapply(X = X, mc.cores = cores,
+    save_list = parallel::mclapply(X = X, mc.cores = 1,
                                    FUN = fun, ...)
 
     # !! unexplainable errors are returned for some nodes !! #
