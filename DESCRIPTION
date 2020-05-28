@@ -43,6 +43,7 @@ Imports:
     igraph (>= 1.2.4.1),
     irlba,
     plotly,
+    parallel,
     reticulate (>= 1.14),
     magrittr,
     limma,

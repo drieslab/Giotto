@@ -217,7 +217,7 @@ binSpect = function(gobject,
   ## parallel
   if(do_parallel == TRUE) {
     # get type of os
-    os <- .Platform$OS.type
+    os = .Platform$OS.type
     # set number of cores automatically, but with limit of 10
     if(is.na(cores) | !is.numeric(cores)) {
       cores = parallel::detectCores() - 2
@@ -232,7 +232,7 @@ binSpect = function(gobject,
       }else if(os=="windows"){
         cl <- parallel::makeCluster(cores)
         save_list = parallel::parLapply(cl=cl, X = rownames(bin_matrix),
-                                       FUN = spat_fish_func, bin_matrix = bin_matrix, spat_mat = spat_mat,
+                                       fun = spat_fish_func, bin_matrix = bin_matrix, spat_mat = spat_mat,
                                        calc_hub = calc_hub, hub_min_int = hub_min_int)
       }
 
@@ -245,7 +245,7 @@ binSpect = function(gobject,
       }else if(os=="windows"){
         cl <- parallel::makeCluster(cores)
         save_list = parallel::mclapply(cl=cl,X = rownames(bin_matrix),
-                                       FUN = spat_OR_func, bin_matrix = bin_matrix, spat_mat = spat_mat,
+                                       fun = spat_OR_func, bin_matrix = bin_matrix, spat_mat = spat_mat,
                                        calc_hub = calc_hub, hub_min_int = hub_min_int)
       }
     }
@@ -1530,92 +1530,92 @@ detectSpatialCorGenes <- function(gobject,
                                   spatial_grid_name = 'spatial_grid',
                                   min_cells_per_grid = 4,
                                   cor_method = c('pearson', 'kendall', 'spearman')) {
-  
-  
+
+
   ## correlation method to be used
   cor_method = match.arg(cor_method, choices = c('pearson', 'kendall', 'spearman'))
-  
+
   ## method to be used
   method = match.arg(method, choices = c('grid', 'network'))
-  
+
   # get expression matrix
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
-  
+
   if(!is.null(subset_genes)) {
     expr_values = expr_values[rownames(expr_values) %in% subset_genes,]
   }
-  
-  
+
+
   ## spatial averaging or smoothing
   if(method == 'grid') {
-    
+
     loc_av_expr_matrix = Giotto:::do_spatial_grid_averaging(gobject = gobject,
                                                             expression_values = expression_values,
                                                             subset_genes = subset_genes,
                                                             spatial_grid_name = spatial_grid_name,
                                                             min_cells_per_grid = min_cells_per_grid)
-    
+
     cor_spat_matrix = cor_giotto(t_giotto(as.matrix(loc_av_expr_matrix)), method = cor_method)
     cor_spat_matrixDT = data.table::as.data.table(cor_spat_matrix)
     cor_spat_matrixDT[, gene_ID := rownames(cor_spat_matrix)]
     cor_spat_DT = data.table::melt.data.table(data = cor_spat_matrixDT,
                                               id.vars = 'gene_ID', value.name = 'spat_cor')
   }
-  
+
   if(method == 'network') {
-    
+
     knn_av_expr_matrix = Giotto:::do_spatial_knn_smoothing(gobject = gobject,
                                                            expression_values = expression_values,
                                                            subset_genes = subset_genes,
                                                            spatial_network_name = spatial_network_name,
                                                            b = network_smoothing)
-    
+
     #print(knn_av_expr_matrix[1:4, 1:4])
-    
+
     cor_spat_matrix = cor_giotto(t_giotto(as.matrix(knn_av_expr_matrix)), method = cor_method)
     cor_spat_matrixDT = data.table::as.data.table(cor_spat_matrix)
     cor_spat_matrixDT[, gene_ID := rownames(cor_spat_matrix)]
     cor_spat_DT = data.table::melt.data.table(data = cor_spat_matrixDT,
                                               id.vars = 'gene_ID', value.name = 'spat_cor')
-    
-    
+
+
   }
-  
-  
-  
+
+
+
   ## 2. perform expression correlation at single-cell level without spatial information
   cor_matrix = cor_giotto(t_giotto(expr_values), method = cor_method)
   cor_matrixDT = data.table::as.data.table(cor_matrix)
   cor_matrixDT[, gene_ID := rownames(cor_matrix)]
   cor_DT = data.table::melt.data.table(data = cor_matrixDT,
                                        id.vars = 'gene_ID', value.name = 'expr_cor')
-  
+
   ## 3. merge spatial and expression correlation
   data.table::setorder(cor_spat_DT, gene_ID, variable)
   data.table::setorder(cor_DT, gene_ID, variable)
   doubleDT = cbind(cor_spat_DT, expr_cor = cor_DT[['expr_cor']])
-  
+
   # difference in correlation scores
   doubleDT[, cordiff := spat_cor - expr_cor]
-  
+
   # difference in rank scores
   doubleDT[, spatrank := frank(-spat_cor, ties.method = 'first'), by = gene_ID]
   doubleDT[, exprrank := frank(-expr_cor, ties.method = 'first'), by = gene_ID]
   doubleDT[, rankdiff := spatrank - exprrank]
-  
+
   # sort data
   data.table::setorder(doubleDT, gene_ID, -spat_cor)
-  
+
   spatCorObject = list(cor_DT = doubleDT,
                        gene_order = rownames(cor_spat_matrix),
                        cor_hclust = list(),
                        cor_clusters = list())
-  
+
   class(spatCorObject) = append(class(spatCorObject), 'spatCorObject')
-  
+
   return(spatCorObject)
-  
+
 }
 
 
