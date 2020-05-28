@@ -4,3 +4,4 @@ inst/examples/mouse_cortex_svz/VC_test.RDS
 .Rhistory
 inst/doc
 .DS_Store
+.Rproj
