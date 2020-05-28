@@ -46,7 +46,7 @@ creates Giotto object directly from a 10X visium folder
 }
 \details{
 \itemize{
-  \item{expr_data: raw will take expression data from raw_feature_bc_matrix and filter from filtered_feature_bc_matrix} 
+  \item{expr_data: raw will take expression data from raw_feature_bc_matrix and filter from filtered_feature_bc_matrix}
   \item{gene_column_index: which gene identifiers (names) to use if there are multiple columns (e.g. ensemble and gene symbol)}
   \item{png_name: by default the first png will be selected, provide the png name to override this (e.g. myimage.png)}
 }

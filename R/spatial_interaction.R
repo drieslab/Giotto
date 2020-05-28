@@ -482,7 +482,11 @@ do_permuttest_original = function(expr_values, select_ind, other_ind, name = 'or
 #' @description calculate random values
 #' @examples
 #'     do_permuttest_random()
-do_permuttest_random = function(expr_values, select_ind, other_ind, name = 'perm_1', mean_method, offset = 0.1) {
+do_permuttest_random = function(expr_values,
+                                select_ind,
+                                other_ind,
+                                name = 'perm_1',
+                                mean_method, offset = 0.1) {
 
   l_select_ind = length(select_ind)
   l_other_ind = length(other_ind)
@@ -515,14 +519,23 @@ do_permuttest_random = function(expr_values, select_ind, other_ind, name = 'perm
 #' @examples
 #'     do_multi_permuttest_random()
 do_multi_permuttest_random = function(expr_values,
-                                      select_ind, other_ind,
-                                      mean_method, offset = 0.1, n = 100, cores = 2) {
+                                      select_ind,
+                                      other_ind,
+                                      mean_method,
+                                      offset = 0.1,
+                                      n = 100,
+                                      cores = 2) {
 
-  result = parallel::mclapply(mc.cores = cores, X = 1:n, FUN = function(x) {
+
+
+  result = giotto_lapply(X = 1:n, cores = cores, fun = function(x) {
 
     perm_rand = do_permuttest_random(expr_values = expr_values,
-                                     select_ind = select_ind, other_ind = other_ind,
-                                     name = paste0('perm_', x), mean_method = mean_method, offset = offset)
+                                     select_ind = select_ind,
+                                     other_ind = other_ind,
+                                     name = paste0('perm_', x),
+                                     mean_method = mean_method,
+                                     offset = offset)
 
   })
 
@@ -651,50 +664,50 @@ findCellProximityGenes_per_interaction = function(expr_values,
                                                   adjust_method = 'bonferroni',
                                                   nr_permutations = 100,
                                                   cores = 1) {
-  
+
   # select test to perform
   diff_test = match.arg(arg = diff_test, choices = c('permutation', 'limma', 't.test', 'wilcox'))
-  
+
   # select subnetwork
   sub_spatnetwork = annot_spatnetwork[unified_int == sel_int]
-  
+
   # unique cell types
   unique_cell_types = unique(c(sub_spatnetwork$to_cell_type, sub_spatnetwork$from_cell_type))
-  
+
   if(length(unique_cell_types) == 2) {
-    
+
     first_cell_type = unique_cell_types[1]
     second_cell_type = unique_cell_types[2]
-    
+
     # first cell type ids
     to1 = sub_spatnetwork[to_cell_type == first_cell_type][['to']]
     from1 = sub_spatnetwork[from_cell_type == first_cell_type][['from']]
     cell1_ids = unique(c(to1, from1))
-    
+
     # second cell type ids
     to2 = sub_spatnetwork[to_cell_type == second_cell_type][['to']]
     from2 = sub_spatnetwork[from_cell_type == second_cell_type][['from']]
     cell2_ids = unique(c(to2, from2))
-    
+
     ## all cell ids
     all_cell1 = cell_metadata[get(cluster_column) == first_cell_type][['cell_ID']]
     all_cell2 = cell_metadata[get(cluster_column) == second_cell_type][['cell_ID']]
-    
+
     ## exclude selected
     if(exclude_selected_cells_from_test == TRUE) {
       all_cell1 = all_cell1[!all_cell1 %in% cell1_ids]
       all_cell2 = all_cell2[!all_cell2 %in% cell2_ids]
     }
-    
+
     ## FOR CELL TYPE 1
     sel_ind1 = which(colnames(expr_values) %in% cell1_ids)
     all_ind1 = which(colnames(expr_values) %in% all_cell1)
-    
+
     ## FOR CELL TYPE 2
     sel_ind2 = which(colnames(expr_values) %in% cell2_ids)
     all_ind2 = which(colnames(expr_values) %in% all_cell2)
-    
-    
+
+
     ## do not continue if too few cells ##
     if(length(sel_ind1) < minimum_unique_cells | length(all_ind1) < minimum_unique_cells |
        length(sel_ind2) < minimum_unique_int_cells) {
@@ -715,10 +728,10 @@ findCellProximityGenes_per_interaction = function(expr_values,
       result_cell_1[, int_nr_select := length(sel_ind2)]
       result_cell_1[, nr_other := length(all_ind1)]
       result_cell_1[, int_nr_other := length(all_ind2)]
-      
+
     }
-    
-    
+
+
     ## do not continue if too few cells ##
     if(length(sel_ind2) < minimum_unique_cells | length(all_ind2) < minimum_unique_cells |
        length(sel_ind1) < minimum_unique_int_cells) {
@@ -738,45 +751,45 @@ findCellProximityGenes_per_interaction = function(expr_values,
       result_cell_2[, int_nr_select := length(sel_ind1)]
       result_cell_2[, nr_other := length(all_ind2)]
       result_cell_2[, int_nr_other := length(all_ind1)]
-      
+
     }
-    
-    
+
+
     ## COMBINE
-    
+
     if(is.null(result_cell_1) & is.null(result_cell_2)) {
       return(NULL)
     } else {
       result_cells = rbind(result_cell_1, result_cell_2)
     }
-    
+
   } else if(length(unique_cell_types) == 1) {
-    
+
     first_cell_type = unique_cell_types[1]
-    
+
     # first cell type ids
     to1 = sub_spatnetwork[to_cell_type == first_cell_type][['to']]
     from1 = sub_spatnetwork[from_cell_type == first_cell_type][['from']]
     cell1_ids = unique(c(to1, from1))
-    
+
     ## all cell ids
     all_cell1 = cell_metadata[get(cluster_column) == first_cell_type][['cell_ID']]
-    
+
     ## exclude selected
     if(exclude_selected_cells_from_test == TRUE) {
       all_cell1 = all_cell1[!all_cell1 %in% cell1_ids]
     }
-    
+
     ## FOR CELL TYPE 1
     sel_ind1 = which(colnames(expr_values) %in% cell1_ids)
     all_ind1 = which(colnames(expr_values) %in% all_cell1)
-    
-    
+
+
     ## do not continue if too few cells ##
     if(length(sel_ind1) < minimum_unique_cells | length(all_ind1) < minimum_unique_cells) {
       return(NULL)
     }
-    
+
     result_cells = Giotto:::do_cell_proximity_test(expr_values = expr_values,
                                                    select_ind = sel_ind1, other_ind = all_ind1,
                                                    diff_test = diff_test,
@@ -785,20 +798,20 @@ findCellProximityGenes_per_interaction = function(expr_values,
                                                    offset = offset,
                                                    adjust_method = adjust_method,
                                                    cores = cores)
-    
+
     result_cells[, cell_type := first_cell_type]
     result_cells[, int_cell_type := first_cell_type]
     result_cells[, nr_select := length(sel_ind1)]
     result_cells[, int_nr_select := length(sel_ind1)]
     result_cells[, nr_other := length(all_ind1)]
     result_cells[, int_nr_other := length(all_ind1)]
-    
+
   }
-  
+
   result_cells[, unif_int := sel_int]
-  
+
   return(result_cells)
-  
+
 }
 
 
@@ -861,49 +874,45 @@ findCellProximityGenes = function(gobject,
                                   exclude_selected_cells_from_test = T,
                                   do_parallel = TRUE,
                                   cores = NA) {
-  
-  
-  
+
+
+
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
-  
+
   ## test selected genes ##
   if(!is.null(selected_genes)) {
     expr_values = expr_values[rownames(expr_values) %in% selected_genes, ]
   }
-  
+
   ## stop test selected genes ##
-  
+
   # difference test
   diff_test = match.arg(diff_test, choices = c('permutation', 'limma', 't.test', 'wilcox'))
-  
+
   # p.adj test
   adjust_method = match.arg(adjust_method, choices = c("bonferroni","BH", "holm", "hochberg", "hommel",
                                                        "BY", "fdr", "none"))
   # how to calculate mean
   mean_method = match.arg(mean_method, choices = c('arithmic', 'geometric'))
-  
+
   ## metadata
   cell_metadata = pDataDT(gobject)
-  
+
   ## annotated spatial network
   annot_spatnetwork = annotateSpatialNetwork(gobject,
                                              spatial_network_name = spatial_network_name,
                                              cluster_column = cluster_column)
-  
-  
+
+
   all_interactions = unique(annot_spatnetwork$unified_int)
-  
+
   if(do_parallel == TRUE) {
-    
-    # set number of cores
-    if(is.na(cores) | !is.numeric(cores)) {
-      cores = 4
-    }
-    
-    fin_result = parallel::mclapply(mc.cores = cores, X = all_interactions, FUN = function(x) {
-      
+
+
+    fin_result = giotto_lapply(X = all_interactions, cores = cores, fun = function(x) {
+
       tempres = findCellProximityGenes_per_interaction(expr_values = expr_values,
                                                        cell_metadata = cell_metadata,
                                                        annot_spatnetwork = annot_spatnetwork,
@@ -918,19 +927,20 @@ findCellProximityGenes = function(gobject,
                                                        adjust_method = adjust_method,
                                                        nr_permutations = nr_permutations,
                                                        cores = 2)
-      
-      
+
+
     })
-    
+
+
   } else {
-    
+
     fin_result = list()
-    
+
     for(i in 1:length(all_interactions)) {
-      
+
       x = all_interactions[i]
       print(x)
-      
+
       tempres = findCellProximityGenes_per_interaction(expr_values = expr_values,
                                                        cell_metadata = cell_metadata,
                                                        annot_spatnetwork = annot_spatnetwork,
@@ -945,24 +955,24 @@ findCellProximityGenes = function(gobject,
                                                        adjust_method = adjust_method,
                                                        nr_permutations = nr_permutations,
                                                        cores = 2)
-      
+
       fin_result[[i]] = tempres
-      
+
     }
-    
-    
+
+
   }
-  
+
   final_result = do.call('rbind', fin_result)
-  
+
   final_result[, spec_int := paste0(cell_type,'--',int_cell_type)]
   final_result[, type_int := ifelse(cell_type == int_cell_type, 'homo', 'hetero')]
-  
-  
+
+
   #return(final_result)
-  
+
   permutation_test = ifelse(diff_test == 'permutation', nr_permutations, 'no permutations')
-  
+
   cpgObject = list(CPGscores = final_result,
                    Giotto_info = list('values' = values, 'cluster' = cluster_column,
                                       'spatial network' = spatial_network_name),
@@ -974,7 +984,7 @@ findCellProximityGenes = function(gobject,
                                     'perm' = permutation_test))
   class(cpgObject) = append(class(cpgObject), 'cpgObject')
   return(cpgObject)
-  
+
 }
 
 
@@ -1065,7 +1075,7 @@ findCPG = function(gobject,
 #' @description Filter cell proximity gene scores.
 #' @param cpgObject cell proximity gene score object
 #' @param min_cells minimum number of source cell type
-#' @param min_cells_expr minimum expression level for source cell type 
+#' @param min_cells_expr minimum expression level for source cell type
 #' @param min_int_cells minimum number of interacting neighbor cell type
 #' @param min_int_cells_expr minimum expression level for interacting neighbor cell type
 #' @param min_fdr minimum adjusted p-value
@@ -1089,35 +1099,35 @@ filterCellProximityGenes = function(cpgObject,
                                     min_zscore = 2,
                                     zscores_column = c('cell_type', 'genes'),
                                     direction = c('both', 'up', 'down')) {
-  
-  
+
+
   if(!'cpgObject' %in% class(cpgObject)) {
     stop('\n cpgObject needs to be the output from findCellProximityGenes() or findCPG() \n')
   }
-  
+
   zscores_column = match.arg(zscores_column, choices = c('cell_type', 'genes'))
-  
+
   CPGscore = copy(cpgObject[['CPGscores']])
-  
+
   # other parameters
   direction = match.arg(direction, choices = c('both', 'up', 'down'))
-  
-  
+
+
   ## sequential filter steps ##
   # 1. minimum number of source and target cells
   selection_scores = CPGscore[nr_select >= min_cells & int_nr_select >= min_int_cells]
-  
+
   # 2. create z-scores for log2fc per cell type
   selection_scores[, zscores := scale(log2fc), by = c(zscores_column)]
-  
+
   # 3. filter based on z-scores and minimum levels
-  comb_DT = rbind(selection_scores[zscores >= min_zscore & abs(diff) >= min_spat_diff & log2fc >= min_log2_fc & sel >= min_cells_expr], 
+  comb_DT = rbind(selection_scores[zscores >= min_zscore & abs(diff) >= min_spat_diff & log2fc >= min_log2_fc & sel >= min_cells_expr],
                   selection_scores[zscores <= -min_zscore & abs(diff) >= min_spat_diff & log2fc <= -min_log2_fc & other >= min_int_cells_expr])
-  
+
   # 4. filter based on adjusted p-value (fdr)
   comb_DT = comb_DT[p.adj < min_fdr]
-  
-  
+
+
   if(direction == 'both') {
     selection_scores = selection_scores
   } else if(direction == 'up') {
@@ -1125,13 +1135,13 @@ filterCellProximityGenes = function(cpgObject,
   } else if(direction == 'down') {
     selection_scores = selection_scores[log2fc <= -min_log2_fc]
   }
-  
-  
+
+
   newobj = copy(cpgObject)
   newobj[['CPGscores']] = comb_DT
-  
+
   return(newobj)
-  
+
 }
 
 
@@ -1141,7 +1151,7 @@ filterCellProximityGenes = function(cpgObject,
 #' @description Filter cell proximity gene scores.
 #' @param cpgObject cell proximity gene score object
 #' @param min_cells minimum number of source cell type
-#' @param min_cells_expr minimum expression level for source cell type 
+#' @param min_cells_expr minimum expression level for source cell type
 #' @param min_int_cells minimum number of interacting neighbor cell type
 #' @param min_int_cells_expr minimum expression level for interacting neighbor cell type
 #' @param min_fdr minimum adjusted p-value
@@ -1543,12 +1553,7 @@ combineCellProximityGenes = function(cpgObject,
   # parallel
   if(do_parallel == TRUE) {
 
-    # set number of cores
-    if(is.na(cores) | !is.numeric(cores)) {
-      cores = 4
-    }
-
-    GTGresults = parallel::mclapply(mc.cores = cores, X = all_ints, FUN = function(x) {
+    GTGresults = giotto_lapply(X = all_ints, cores = cores, fun = function(x) {
 
       tempres =  combineCellProximityGenes_per_interaction(cpgObject = cpgObject,
                                                            sel_int = x,
@@ -1562,6 +1567,7 @@ combineCellProximityGenes = function(cpgObject,
                                                            min_log2_fc = min_log2_fc)
 
     })
+
 
   } else {
     # for loop
@@ -2111,12 +2117,8 @@ spatCellCellcom = function(gobject,
   ## parallel option ##
   if(do_parallel == TRUE) {
 
-    # set number of cores
-    if(is.na(cores) | !is.numeric(cores)) {
-      cores = 4
-    }
 
-    savelist = parallel::mclapply(mc.cores = cores, X = 1:nrow(combn_DT), FUN = function(row) {
+    savelist = giotto_lapply(X = 1:nrow(combn_DT), cores = cores, fun = function(row) {
 
       cell_type_1 = combn_DT[row][['V1']]
       cell_type_2 = combn_DT[row][['V2']]
@@ -2135,6 +2137,7 @@ spatCellCellcom = function(gobject,
                                                             adjust_target = adjust_target)
 
     })
+
 
   } else {
 

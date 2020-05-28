@@ -74,7 +74,7 @@ Function to create a giotto object
 \details{
 [\strong{Requirements}] To create a giotto object you need to provide at least a matrix with genes as
 row names and cells as column names. This matrix can be provided as a base matrix, sparse Matrix, data.frame,
-data.table or as a path to any of those. 
+data.table or as a path to any of those.
 To include spatial information about cells (or regions) you need to provide a matrix, data.table or data.frame (or path to them)
 with coordinates for all spatial dimensions. This can be 2D (x and y) or 3D (x, y, x).
 The row order for the cell coordinates should be the same as the column order for the provided expression data.

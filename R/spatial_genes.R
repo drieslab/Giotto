@@ -216,6 +216,7 @@ binSpect = function(gobject,
 
   ## parallel
   if(do_parallel == TRUE) {
+
     # get type of os
     os = .Platform$OS.type
     # set number of cores automatically, but with limit of 10
@@ -225,29 +226,17 @@ binSpect = function(gobject,
     }
 
     if(do_fisher_test == TRUE) {
-      if (os=="unix"){
-        save_list = parallel::mclapply(X = rownames(bin_matrix), mc.cores = cores,
-                                       FUN = spat_fish_func, bin_matrix = bin_matrix, spat_mat = spat_mat,
-                                       calc_hub = calc_hub, hub_min_int = hub_min_int)
-      }else if(os=="windows"){
-        cl <- parallel::makeCluster(cores)
-        save_list = parallel::parLapply(cl=cl, X = rownames(bin_matrix),
-                                       fun = spat_fish_func, bin_matrix = bin_matrix, spat_mat = spat_mat,
-                                       calc_hub = calc_hub, hub_min_int = hub_min_int)
-      }
+
+      save_list = giotto_lapply(X = rownames(bin_matrix), cores = cores, fun = spat_fish_func,
+                                bin_matrix = bin_matrix, spat_mat = spat_mat,
+                                calc_hub = calc_hub, hub_min_int = hub_min_int)
 
     } else {
 
-      if (os=="unix"){
-      save_list = parallel::mclapply(X = rownames(bin_matrix), mc.cores = cores,
-                                     FUN = spat_OR_func, bin_matrix = bin_matrix, spat_mat = spat_mat,
-                                     calc_hub = calc_hub, hub_min_int = hub_min_int)
-      }else if(os=="windows"){
-        cl <- parallel::makeCluster(cores)
-        save_list = parallel::mclapply(cl=cl,X = rownames(bin_matrix),
-                                       fun = spat_OR_func, bin_matrix = bin_matrix, spat_mat = spat_mat,
-                                       calc_hub = calc_hub, hub_min_int = hub_min_int)
-      }
+      save_list = giotto_lapply(X = rownames(bin_matrix), cores = cores, fun = spat_OR_func,
+                                bin_matrix = bin_matrix, spat_mat = spat_mat,
+                                calc_hub = calc_hub, hub_min_int = hub_min_int)
+
     }
 
   } else {

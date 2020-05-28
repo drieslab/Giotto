@@ -1,0 +1,78 @@
+\documentclass[a4paper]{book}
+\usepackage[times,inconsolata,hyper]{Rd}
+\usepackage{makeidx}
+\usepackage[utf8]{inputenc} % @SET ENCODING@
+% \usepackage{graphicx} % @USE GRAPHICX@
+\makeindex{}
+\begin{document}
+\chapter*{}
+\begin{center}
+{\textbf{\huge Package `Giotto'}}
+\par\bigskip{\large \today}
+\end{center}
+\begin{description}
+\raggedright{}
+\inputencoding{utf8}
+\item[Title]\AsIs{Spatial single-cell transcriptomics toolbox.}
+\item[Version]\AsIs{0.3.5}
+\item[Description]\AsIs{Toolbox to process, analyze and visualize spatial single-cell expression data.}
+\item[License]\AsIs{MIT + file LICENSE}
+\item[Encoding]\AsIs{UTF-8}
+\item[LazyData]\AsIs{true}
+\item[URL]\AsIs{}\url{https://rubd.github.io/Giotto/}\AsIs{, }\url{https://github.com/RubD/Giotto}\AsIs{}
+\item[BugReports]\AsIs{}\url{https://github.com/RubD/Giotto/issues}\AsIs{}
+\item[RoxygenNote]\AsIs{7.1.0}
+\item[Depends]\AsIs{data.table (>= 1.12.2),
+ggplot2 (>= 3.1.1),
+base (>= 3.5.1),
+utils (>= 3.5.1),
+R (>= 3.5.1)}
+\item[Imports]\AsIs{Matrix,
+magick,
+matrixStats (>= 0.55.0),
+uwot (>= 0.0.0.9010),
+cowplot (>= 0.9.4),
+grDevices,
+RColorBrewer (>= 1.1-2),
+dbscan (>= 1.1-3),
+ggalluvial (>= 0.9.1),
+scales (>= 1.0.0),
+ComplexHeatmap (>= 1.20.0),
+qvalue (>= 2.14.1),
+lfa (>= 1.12.0),
+igraph (>= 1.2.4.1),
+irlba,
+plotly,
+parallel,
+reticulate (>= 1.14),
+magrittr,
+limma,
+ggdendro,
+smfishHmrf,
+devtools,
+reshape2,
+ggraph,
+Rcpp,
+Rfast,
+Rtsne (>= 0.15),
+rlang (>= 0.4.3),
+R.utils,
+fitdistrplus,
+deldir}
+\item[Suggests]\AsIs{knitr,
+rmarkdown,
+MAST,
+scran (>= 1.10.1),
+png,
+FactoMineR,
+tiff,
+biomaRt,
+trendsceek,
+multinet (>= 3.0.2),
+RTriangle (>= 1.6-0.10)}
+\item[biocViews]\AsIs{}
+\item[VignetteBuilder]\AsIs{knitr}
+\item[LinkingTo]\AsIs{Rcpp,
+RcppArmadillo}
+\item[Remotes]\AsIs{lambdamoses/smfishhmrf-r}
+\end{description}

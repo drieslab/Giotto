@@ -28,5 +28,5 @@ By default the first column of the features or genes .tsv file will be used, how
 annotations are provided (e.g. ensembl gene ids and gene symbols) the user can select another column.
 }
 \examples{
-    get10Xmatrix(10Xmatrix)
+    get10Xmatrix(path_to_data)
 }
