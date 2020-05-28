@@ -184,7 +184,7 @@ set_giotto_python_path = function(python_path = NULL,
         cat('\n install giotto environment \n')
 
         conda_path = reticulate::miniconda_path()
-        
+
         if(.Platform[['OS.type']] == 'unix') {
           # conda_full_path = paste0(conda_path, '/bin/python')
           conda_full_path = reticulate::conda_binary()
@@ -194,7 +194,7 @@ set_giotto_python_path = function(python_path = NULL,
                     'expected: ', expected_conda_full_path, '\n',
                     'received: ', conda_full_path, '\n')
           }
-          
+
           full_envname = paste0(conda_path,'/envs/giotto_env')
           python_full_path = paste0(conda_path, "/envs/giotto_env/bin/pythonw")
 
@@ -219,7 +219,10 @@ set_giotto_python_path = function(python_path = NULL,
                     'expected: ', expected_conda_full_path, '\n',
                     'received: ', conda_full_path, '\n')
           }
-          
+
+          # exclude python.app for windows
+          packages_to_install = packages_to_install[packages_to_install != 'python.app']
+
           full_envname = paste0(conda_path,'/envs/giotto_env')
           python_full_path = paste0(conda_path, "/envs/giotto_env/python.exe")
 
@@ -492,26 +495,26 @@ replaceGiottoInstructions = function(gobject,
 #' @examples
 #'     readExprMatrix()
 readExprMatrix = function(path, cores = NA, transpose = FALSE) {
-  
+
   # check if path is a character vector and exists
   if(!is.character(path)) stop('path needs to be character vector')
   if(!file.exists(path)) stop('the path: ', path, ' does not exist')
-  
+
   # set number of cores automatically, but with limit of 10
   if(is.na(cores) | !is.numeric(cores)) {
     cores = parallel::detectCores() - 2
     cores = ifelse(cores > 10, 10, cores)
     data.table::setDTthreads(threads = cores)
   }
-  
+
   # read and convert
   DT = suppressWarnings(data.table::fread(input = path, nThread = cores))
   spM = Matrix::Matrix(as.matrix(DT[,-1]), dimnames = list(DT[[1]], colnames(DT[,-1])), sparse = T)
-  
+
   if(transpose == TRUE) {
     spM = t_giotto(spM)
   }
-  
+
   return(spM)
 }
 
@@ -525,7 +528,7 @@ readExprMatrix = function(path, cores = NA, transpose = FALSE) {
 #' @examples
 #'     evaluate_expr_matrix()
 evaluate_expr_matrix = function(inputmatrix, sparse = TRUE, cores = NA) {
-  
+
   if(is(inputmatrix, 'character')) {
     mymatrix = readExprMatrix(inputmatrix, cores =  cores)
   } else if(is(inputmatrix, 'Matrix')) {
@@ -542,13 +545,13 @@ evaluate_expr_matrix = function(inputmatrix, sparse = TRUE, cores = NA) {
                                 dimnames = list(inputmatrix[[1]],
                                                 colnames(inputmatrix[,-1])))
     }
-    
+
   } else if(class(inputmatrix) %in% c('data.frame', 'matrix')) {
     mymatrix = as(as.matrix(inputmatrix), "sparseMatrix")
   } else {
     stop("raw_exprs needs to be a path or an object of class 'Matrix', 'data.table', 'data.frame' or 'matrix'")
   }
-  
+
   return(mymatrix)
 }
 
@@ -580,7 +583,7 @@ evaluate_expr_matrix = function(inputmatrix, sparse = TRUE, cores = NA) {
 #' @details
 #' [\strong{Requirements}] To create a giotto object you need to provide at least a matrix with genes as
 #' row names and cells as column names. This matrix can be provided as a base matrix, sparse Matrix, data.frame,
-#' data.table or as a path to any of those. 
+#' data.table or as a path to any of those.
 #' To include spatial information about cells (or regions) you need to provide a matrix, data.table or data.frame (or path to them)
 #' with coordinates for all spatial dimensions. This can be 2D (x and y) or 3D (x, y, x).
 #' The row order for the cell coordinates should be the same as the column order for the provided expression data.
@@ -674,7 +677,7 @@ createGiottoObject <- function(raw_exprs,
     cores = ifelse(cores > 10, 10, cores)
     data.table::setDTthreads(threads = cores)
   }
-  
+
 
   ## read expression matrix
   raw_exprs = evaluate_expr_matrix(raw_exprs, cores = cores, sparse = TRUE)
@@ -694,7 +697,7 @@ createGiottoObject <- function(raw_exprs,
   gobject@gene_ID = rownames(raw_exprs)
   gobject@parameters = list()
 
-  
+
   ## set instructions
   if(is.null(instructions)) {
     # create all default instructions
@@ -710,9 +713,9 @@ createGiottoObject <- function(raw_exprs,
     }
   }
 
-  
-  ## spatial locations 
-  
+
+  ## spatial locations
+
   # create dummy spatial data if no information is given
   if(is.null(spatial_locs)) {
     warning('\n spatial locations are not given, dummy 3D data will be created \n')
@@ -720,7 +723,7 @@ createGiottoObject <- function(raw_exprs,
                                           sdimy = 1:ncol(raw_exprs),
                                           sdimz = 1:ncol(raw_exprs))
     #gobject@spatial_locs = spatial_locs
-  } 
+  }
 
 
   ## spatial
@@ -733,12 +736,12 @@ createGiottoObject <- function(raw_exprs,
   } else {
     spatial_locs = data.table::as.data.table(spatial_locs)
   }
-  
+
   # check if dimensions agree
   if(nrow(spatial_locs) != ncol(raw_exprs)) {
     stop('\n Number of rows of spatial location must equal number of columns of expression matrix \n')
-  } 
-  
+  }
+
   ## force dimension names
   spatial_dimensions = c('x', 'y', 'z')
   colnames(spatial_locs) = paste0('sdim', spatial_dimensions[1:ncol(spatial_locs)])
@@ -747,14 +750,14 @@ createGiottoObject <- function(raw_exprs,
   spatial_locs[, cell_ID := colnames(raw_exprs)]
   gobject@spatial_locs = spatial_locs
   #gobject@spatial_locs[, cell_ID := colnames(raw_exprs)]
-  
 
-  
-  
+
+
+
   ## OPTIONAL:
   # add other normalized expression data
   if(!is.null(norm_expr)) {
-    
+
     norm_expr = evaluate_expr_matrix(norm_expr, cores = cores, sparse = F)
 
     if(all(dim(norm_expr) == dim(raw_exprs)) &
@@ -771,7 +774,7 @@ createGiottoObject <- function(raw_exprs,
   if(!is.null(norm_scaled_expr)) {
 
     norm_scaled_expr = evaluate_expr_matrix(norm_scaled_expr, cores = cores, sparse = F)
-    
+
     if(all(dim(norm_scaled_expr) == dim(raw_exprs)) &
        all(colnames(norm_scaled_expr) == colnames(raw_exprs)) &
        all(rownames(norm_scaled_expr) == rownames(raw_exprs))) {
@@ -786,7 +789,7 @@ createGiottoObject <- function(raw_exprs,
   if(!is.null(custom_expr)) {
 
     custom_expr = evaluate_expr_matrix(custom_expr, cores = cores, sparse = F)
-    
+
     if(all(dim(custom_expr) == dim(raw_exprs)) &
        all(colnames(custom_expr) == colnames(raw_exprs)) &
        all(rownames(custom_expr) == rownames(raw_exprs))) {
@@ -797,7 +800,7 @@ createGiottoObject <- function(raw_exprs,
     }
   }
 
-  
+
   ## cell metadata
   if(is.null(cell_metadata)) {
     gobject@cell_metadata = data.table::data.table(cell_ID = colnames(raw_exprs))
@@ -956,28 +959,28 @@ createGiottoObject <- function(raw_exprs,
   ## images ##
   # expect a list of giotto object images
   if(!is.null(images)) {
-    
+
     if(is.null(names(images))) {
       names(images) = paste0('image.', 1:length(images))
     }
-    
+
     for(image_i in 1:length(images)) {
-      
+
       im = images[[image_i]]
       im_name = names(images)[[image_i]]
-      
+
       if(is(im, 'imageGiottoObj')) {
         gobject@images[[im_name]] = im
       } else {
         warning('image: ', im, ' is not a giotto image object')
       }
-      
+
     }
-    
+
   }
-  
-  
-  
+
+
+
   # other information
   # TODO
 
@@ -1003,7 +1006,7 @@ createGiottoObject <- function(raw_exprs,
 #' @return giotto object
 #' @details
 #' \itemize{
-#'   \item{expr_data: raw will take expression data from raw_feature_bc_matrix and filter from filtered_feature_bc_matrix} 
+#'   \item{expr_data: raw will take expression data from raw_feature_bc_matrix and filter from filtered_feature_bc_matrix}
 #'   \item{gene_column_index: which gene identifiers (names) to use if there are multiple columns (e.g. ensemble and gene symbol)}
 #'   \item{png_name: by default the first png will be selected, provide the png name to override this (e.g. myimage.png)}
 #' }
@@ -1020,19 +1023,19 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                     ymin_adj = 0,
                                     instructions = NULL,
                                     cores = NA) {
-  
+
   ## check arguments
   if(is.null(visium_dir)) stop('visium_dir needs to be a path to a visium directory \n')
   if(!file.exists(visium_dir)) stop(visium_dir, ' does not exist \n')
   expr_data = match.arg(expr_data, choices = c('raw', 'filter'))
-  
+
   # set number of cores automatically, but with limit of 10
   if(is.na(cores) | !is.numeric(cores)) {
     cores = parallel::detectCores() - 2
     cores = ifelse(cores > 10, 10, cores)
     data.table::setDTthreads(threads = cores)
   }
-  
+
   ## matrix
   if(expr_data == 'raw') {
     data_path = paste0(visium_dir, '/', 'raw_feature_bc_matrix/')
@@ -1041,7 +1044,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
     data_path = paste0(visium_dir, '/', 'filtered_feature_bc_matrix/')
     raw_matrix = get10Xmatrix(path_to_data = data_path, gene_column_index = gene_column_index)
   }
-  
+
   ## spatial locations and image
   spatial_path = paste0(visium_dir, '/', 'spatial/')
   spatial_results = fread(paste0(spatial_path, '/','tissue_positions_list.csv'))
@@ -1049,7 +1052,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
   colnames(spatial_results) = c('barcode', 'in_tissue', 'array_row', 'array_col', 'col_pxl', 'row_pxl')
   spatial_locs = spatial_results[,.(row_pxl,-col_pxl)]
   colnames(spatial_locs) = c('sdimx', 'sdimy')
-  
+
   ## spatial image
   if(is.null(png_name)) {
     png_list = list.files(spatial_path, pattern = "*.png")
@@ -1057,24 +1060,24 @@ createGiottoVisiumObject = function(visium_dir = NULL,
   }
   png_path = paste0(spatial_path,'/',png_name)
   if(!file.exists(png_path)) stop(png_path, ' does not exist! \n')
-  
+
   mg_img = magick::image_read(png_path)
-  
-  
+
+
   visium_png = createGiottoImage(gobject = NULL, spatial_locs =  spatial_locs,
                                  mg_object = mg_img, name = 'image',
                                  xmax_adj = xmax_adj, xmin_adj = xmin_adj,
                                  ymax_adj = ymax_adj, ymin_adj = ymin_adj)
   visium_png_list = list(visium_png)
   names(visium_png_list) = c('image')
-  
+
   giotto_object = createGiottoObject(raw_exprs = raw_matrix,
                                      spatial_locs = spatial_locs,
                                      instructions = instructions,
                                      cell_metadata = spatial_results[,.(in_tissue, array_row, array_col)],
                                      images = visium_png_list)
   return(giotto_object)
-  
+
 }
 
 
