@@ -218,12 +218,12 @@ binSpect = function(gobject,
 
     if(do_fisher_test == TRUE) {
 
-      save_list = suppressWarnings(giotto_lapply(X = rownames(bin_matrix), cores = cores, fun = spat_fish_func,
+      save_list = suppressMessages(giotto_lapply(X = rownames(bin_matrix), cores = cores, fun = spat_fish_func,
                                                  bin_matrix = bin_matrix, spat_mat = spat_mat,
                                                  calc_hub = calc_hub, hub_min_int = hub_min_int))
 
     } else {
-      save_list =  suppressWarnings(giotto_lapply(X = rownames(bin_matrix), cores = cores, fun = spat_OR_func,
+      save_list =  suppressMessages(giotto_lapply(X = rownames(bin_matrix), cores = cores, fun = spat_OR_func,
                                                   bin_matrix = bin_matrix, spat_mat = spat_mat,
                                                   calc_hub = calc_hub, hub_min_int = hub_min_int))
 
@@ -238,7 +238,7 @@ binSpect = function(gobject,
       for(gene in rownames(bin_matrix)) {
         if(verbose == TRUE) print(gene)
 
-          save_list[[gene]] = suppressWarnings(spat_fish_func(gene = gene, bin_matrix = bin_matrix, spat_mat = spat_mat,
+          save_list[[gene]] = suppressMessages(spat_fish_func(gene = gene, bin_matrix = bin_matrix, spat_mat = spat_mat,
                                              calc_hub = calc_hub, hub_min_int = hub_min_int))
 
       }
@@ -246,7 +246,7 @@ binSpect = function(gobject,
       for(gene in rownames(bin_matrix)) {
         if(verbose == TRUE) print(gene)
 
-          save_list[[gene]] = suppressWarnings(spat_OR_func(gene = gene, bin_matrix = bin_matrix, spat_mat = spat_mat,
+          save_list[[gene]] = suppressMessages(spat_OR_func(gene = gene, bin_matrix = bin_matrix, spat_mat = spat_mat,
                                            calc_hub = calc_hub, hub_min_int = hub_min_int))
 
       }
