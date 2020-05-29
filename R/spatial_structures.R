@@ -343,7 +343,7 @@ select_spatialNetwork <- function(gobject,
 
   if (!is.element(name, names(gobject@spatial_network))){
     message = sprintf("spatial network %s has not been created.Returning NULL", name)
-    warning(message) 
+    warning(message)
     return(NULL)
   }else{
     networkObj = gobject@spatial_network[[name]]
@@ -1486,6 +1486,30 @@ createSpatialNetwork <- function(gobject,
 
 
 
+#' @title showNetworks
+#' @description Prints the available spatial networks that are attached to the Giotto object
+#' @param gobject a giotto object
+#' @param verbose verbosity of function#'
+#' @return vector
+#' @export
+#' @examples
+#'     showNetworks()
+showNetworks = function(gobject,
+                        verbose = TRUE) {
+
+  if(is.null(gobject)) stop('A giotto object needs to be provided \n')
+  g_network_names = names(gobject@spatial_network)
+
+  if(verbose == TRUE) {
+    cat('The following images are available: ',
+        g_network_names, '\n')
+  }
+
+  return(g_network_names)
+}
+
+
+
 
 ## Spatial grid ####
 
@@ -1889,6 +1913,30 @@ createSpatialGrid <- function(gobject,
   }
   return(result)
 }
+
+
+#' @title showGrids
+#' @description Prints the available spatial grids that are attached to the Giotto object
+#' @param gobject a giotto object
+#' @param verbose verbosity of function#'
+#' @return vector
+#' @export
+#' @examples
+#'     showGrids()
+showGrids = function(gobject,
+                     verbose = TRUE) {
+
+  if(is.null(gobject)) stop('A giotto object needs to be provided \n')
+  g_grid_names = names(gobject@spatial_grid)
+
+  if(verbose == TRUE) {
+    cat('The following images are available: ',
+        g_grid_names, '\n')
+  }
+
+  return(g_grid_names)
+}
+
 
 
 
