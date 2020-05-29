@@ -151,12 +151,15 @@ set_giotto_python_path = function(python_path = NULL,
                                                           'leidenalg', 'python-louvain', 'python.app',
                                                           'scikit-learn')) {
 
+  ## if a python path is provided, use that path
   if(!is.null(python_path)) {
     cat('\n python path provided \n')
     python_path = as.character(python_path)
     reticulate::use_python(required = T, python = python_path)
+
   } else {
 
+    ## identify operating system and adjust the necessary packages
     os_specific_system = get_os()
 
     # exclude python.app for windows and linux
@@ -166,7 +169,7 @@ set_giotto_python_path = function(python_path = NULL,
 
 
 
-    # check if giotto environment is already installed
+    ## check if giotto environment is already installed
     conda_path = reticulate::miniconda_path()
     if(os_specific_system == 'osx') {
       full_path = paste0(conda_path, "/envs/giotto_env/bin/pythonw")
@@ -180,33 +183,30 @@ set_giotto_python_path = function(python_path = NULL,
       cat('\n giotto environment found \n')
       python_path = full_path
       reticulate::use_python(required = T, python = python_path)
+
+
     } else {
 
+      ## if giotto environment is not found, ask to install miniconda and giotto environment
       install_giotto = utils::askYesNo(msg = 'Install a miniconda Python environment for Giotto?')
 
       if(install_giotto == TRUE) {
 
+        ## check and install miniconda locally if necessary
         conda_path = reticulate::miniconda_path()
 
         if(!file.exists(conda_path)) {
+          cat('\n install loccal miniconda \n')
           reticulate::install_miniconda()
         }
 
         cat('\n install giotto environment \n')
-
         conda_path = reticulate::miniconda_path()
 
         ## for unix-like systems ##
         if(.Platform[['OS.type']] == 'unix') {
-          # conda_full_path = paste0(conda_path, '/bin/python')
-          conda_full_path = reticulate::conda_binary()
-          expected_conda_full_path = paste0(conda_path,'/','bin/conda')
-          if(!identical(x = conda_full_path, y = expected_conda_full_path)) {
-            warning('conda binary is not what was expected: ',
-                    'expected: ', expected_conda_full_path, '\n',
-                    'received: ', conda_full_path, '\n')
-          }
 
+          conda_full_path = paste0(conda_path,'/','bin/conda')
           full_envname = paste0(conda_path,'/envs/giotto_env')
 
           if(os_specific_system == 'osx') {
@@ -229,16 +229,11 @@ set_giotto_python_path = function(python_path = NULL,
                                  pip = TRUE,
                                  python_version = '3.6')
 
+
           ## for windows systems ##
         } else if(.Platform[['OS.type']] == 'windows') {
-          conda_full_path = reticulate::conda_binary()
-          expected_conda_full_path = paste0(conda_path,'/','condabin/conda.bat')
-          if(!identical(x = conda_full_path, y = expected_conda_full_path)) {
-            warning('conda binary is not what was expected: ',
-                    'expected: ', expected_conda_full_path, '\n',
-                    'received: ', conda_full_path, '\n')
-          }
 
+          conda_full_path = paste0(conda_path,'/','condabin/conda.bat')
           full_envname = paste0(conda_path,'/envs/giotto_env')
           python_full_path = paste0(conda_path, "/envs/giotto_env/python.exe")
 
