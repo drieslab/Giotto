@@ -2106,6 +2106,15 @@ spatCellCellcom = function(gobject,
 
   verbose = match.arg(verbose, choices = c('a little', 'a lot', 'none'))
 
+  ## check if spatial network exists ##
+  spat_networks = showNetworks(gobject = gobject, verbose = F)
+  if(!spatial_network_name %in% spat_networks) {
+    stop(spatial_network_name, ' is not an existing spatial network \n',
+         'use showNetworks() to see the available networks \n',
+         'or create a new spatial network with createSpatialNetwork() \n')
+  }
+
+
   cell_metadata = pDataDT(gobject)
 
   ## get all combinations between cell types
