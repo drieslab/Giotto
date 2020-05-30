@@ -196,17 +196,21 @@ set_giotto_python_path = function(python_path = NULL,
         conda_path = reticulate::miniconda_path()
 
         if(!file.exists(conda_path)) {
-          cat('\n install loccal miniconda \n')
+          cat('\n |---- install local miniconda ----| \n')
           reticulate::install_miniconda()
         }
 
-        cat('\n install giotto environment \n')
+        cat('\n |---- install giotto environment ----| \n')
         conda_path = reticulate::miniconda_path()
 
         ## for unix-like systems ##
         if(.Platform[['OS.type']] == 'unix') {
 
           conda_full_path = paste0(conda_path,'/','bin/conda')
+          reticulate::conda_create(envname = 'giotto_env',
+                                   conda = conda_full_path)
+
+
           full_envname = paste0(conda_path,'/envs/giotto_env')
 
           if(os_specific_system == 'osx') {
@@ -234,6 +238,10 @@ set_giotto_python_path = function(python_path = NULL,
         } else if(.Platform[['OS.type']] == 'windows') {
 
           conda_full_path = paste0(conda_path,'/','condabin/conda.bat')
+          reticulate::conda_create(envname = 'giotto_env',
+                                   conda = conda_full_path)
+
+
           full_envname = paste0(conda_path,'/envs/giotto_env')
           python_full_path = paste0(conda_path, "/envs/giotto_env/python.exe")
 
@@ -716,7 +724,7 @@ createGiottoObject <- function(raw_exprs,
   }
 
   ## test if python modules are available
-  python_modules = c('pandas', 'igraph', 'leidenalg', 'community', 'networkx', 'smfishHmrf')
+  python_modules = c('pandas', 'igraph', 'leidenalg', 'community', 'networkx', 'sklearn')
   my_python_path = gobject@instructions$python_path
   for(module in python_modules) {
     if(reticulate::py_module_available(module) == FALSE) {
