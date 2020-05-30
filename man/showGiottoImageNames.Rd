@@ -15,7 +15,7 @@ showGiottoImageNames(gobject, verbose = TRUE)
 a vector of giotto image names attached to the giotto object
 }
 \description{
-Show wich images are attached to the Giotto object (prints the names)
+Prints the available giotto images that are attached to the Giotto object
 }
 \examples{
     showGiottoImageNames(gobject)
