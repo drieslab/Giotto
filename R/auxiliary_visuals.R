@@ -346,7 +346,9 @@ all_plots_save_function = function(gobject,
 #'     showSaveParameters()
 showSaveParameters = function() {
 
-  cat("This is a simple guide to help you with automatically saving plots \n")
+  cat("This is a simple guide to help you with automatically saving plots. \n")
+  cat("Importantly, defaults for all these parameters can be set at the beginning with createGiottoInstructions() \n")
+  cat("See https://rubd.github.io/Giotto/articles/instructions_and_plotting.html for more information and examples \n \n")
 
   cat("Each plotting function in Giotto has 4 important parameters for showing and/or saving a plot: \n
       - show_plot: TRUE or FALSE, show the plot to the console
