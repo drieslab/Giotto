@@ -80,7 +80,7 @@ reference:
     - updateGiottoImage
     - getGiottoImage
     - plotGiottoImage
-    
+
   - title: Giotto instructions
     desc: Create or change Giotto instructions (e.g. defaults, plotting, saving, ...)
     contents:
@@ -192,6 +192,8 @@ reference:
     - createSpatialNetwork
     - annotateSpatialNetwork
     - createSpatialGrid
+    - showNetworks
+    - showGrids
 
   - title: Spatial genes
     desc: Functions to identify spatial genes
