@@ -1180,6 +1180,10 @@ adjustGiottoMatrix <- function(gobject,
 #'     annotateGiotto(gobject)
 annotateGiotto <- function(gobject, annotation_vector = NULL, cluster_column = NULL, name = 'cell_types') {
 
+
+  # data.table: set global variable
+  temp_cluster_name = NULL
+
   if(is.null(annotation_vector) | is.null(cluster_column)) {
     stop('\n You need to provide both a named annotation vector and the corresponding cluster column  \n')
   }
@@ -1219,7 +1223,7 @@ annotateGiotto <- function(gobject, annotation_vector = NULL, cluster_column = N
     cell_metadata[, temp_cluster_name := annotation_vector[[as.character(get(cluster_column))]], by = 1:nrow(cell_metadata)]
   }
 
-  setnames(cell_metadata, old = 'temp_cluster_name', new = name)
+  data.table::setnames(cell_metadata, old = 'temp_cluster_name', new = name)
   gobject@cell_metadata = cell_metadata
 
   return(gobject)

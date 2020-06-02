@@ -476,14 +476,14 @@ addHMRF <- function(gobject,
     output = system(command = result_command, intern = T)
 
     # create unique name
-    annot_DT = data.table(temp_name = output)
+    annot_DT = data.table::data.table(temp_name = output)
 
     if(!is.null(hmrf_name)) {
       annot_name = paste0(hmrf_name,'_k', k, '_b.',b)
       setnames(annot_DT, old = 'temp_name', new = annot_name)
     } else {
       annot_name = paste0('hmrf_k.', k, '_b.',b)
-      setnames(annot_DT, old = 'temp_name', new = annot_name)
+      data.table::setnames(annot_DT, old = 'temp_name', new = annot_name)
     }
 
 

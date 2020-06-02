@@ -4,7 +4,7 @@
 #' @description makes sure aes_string can also be used with names that start with numeric values
 aes_string2 <- function(...){
   args <- lapply(list(...), function(x) sprintf("`%s`", x))
-  do.call(aes_string, args)
+  do.call(ggplot2::aes_string, args)
 }
 
 #' @title ggplot_save_function

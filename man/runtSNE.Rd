@@ -91,5 +91,5 @@ VC_small <- calculateHVG(gobject = VC_small)
 VC_small <- runPCA(gobject = VC_small)
 VC_small <- runTSNE(VC_small, dimensions_to_use = 1:5, n_threads = 2)
 plotTSNE(gobject = VC_small)
-  
+
 }

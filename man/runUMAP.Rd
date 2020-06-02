@@ -97,5 +97,5 @@ VC_small <- calculateHVG(gobject = VC_small)
 VC_small <- runPCA(gobject = VC_small)
 VC_small <- runUMAP(VC_small, dimensions_to_use = 1:5, n_threads = 2)
 plotUMAP(gobject = VC_small)
-  
+
 }

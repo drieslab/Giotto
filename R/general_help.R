@@ -315,6 +315,8 @@ get10Xmatrix = function(path_to_data, gene_column_index = 1) {
 convertEnsemblToGeneSymbol = function(matrix,
                                       species = c('mouse', 'human')) {
 
+  # data.table: set global variable
+  dupes = mgi_symbol = gene_symbol = ensembl_gene_id = hgnc_symbol = NULL
 
   if("biomaRt" %in% rownames(installed.packages()) == FALSE) {
     cat("\n package 'biomaRt' is not yet installed and is required for this function \n")
@@ -328,13 +330,13 @@ convertEnsemblToGeneSymbol = function(matrix,
     ensemblsIDS = rownames(matrix)
 
     # prepare ensembl database
-    ensembl = useMart("ensembl",
+    ensembl = biomaRt::useMart("ensembl",
                       dataset = "mmusculus_gene_ensembl")
-    gene_names = getBM(attributes= c('mgi_symbol', 'ensembl_gene_id'),
+    gene_names = biomaRt::getBM(attributes= c('mgi_symbol', 'ensembl_gene_id'),
                        filters = 'ensembl_gene_id',
                        values = ensemblsIDS,
                        mart = ensembl)
-    gene_names_DT = as.data.table(gene_names)
+    gene_names_DT = data.table::as.data.table(gene_names)
     gene_names_DT[, dupes := duplicated(mgi_symbol)]
     gene_names_DT[, gene_symbol := ifelse(any(dupes) == FALSE, mgi_symbol,
                                           ifelse(mgi_symbol == "", ensembl_gene_id, 'temporary')), by = mgi_symbol]
@@ -362,13 +364,13 @@ convertEnsemblToGeneSymbol = function(matrix,
     ensemblsIDS = rownames(matrix)
 
     # prepare ensembl database
-    ensembl = useMart("ensembl",
+    ensembl = biomaRt::useMart("ensembl",
                       dataset = "hsapiens_gene_ensembl")
-    gene_names = getBM(attributes= c('hgnc_symbol', 'ensembl_gene_id'),
+    gene_names = biomaRt::getBM(attributes= c('hgnc_symbol', 'ensembl_gene_id'),
                        filters = 'ensembl_gene_id',
                        values = ensemblsIDS,
                        mart = ensembl)
-    gene_names_DT = as.data.table(gene_names)
+    gene_names_DT = data.table::as.data.table(gene_names)
     gene_names_DT[, dupes := duplicated(hgnc_symbol)]
     gene_names_DT[, gene_symbol := ifelse(any(dupes) == FALSE, hgnc_symbol,
                                           ifelse(hgnc_symbol == "", ensembl_gene_id, 'temporary')), by = hgnc_symbol]

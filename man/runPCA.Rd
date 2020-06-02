@@ -77,5 +77,5 @@ VC_small <- addStatistics(gobject = VC_small)
 VC_small <- calculateHVG(gobject = VC_small)
 VC_small <- runPCA(gobject = VC_small)
 plotPCA(VC_small)
-  
+
 }
