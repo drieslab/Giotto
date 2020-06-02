@@ -20,7 +20,7 @@ spat_fish_func = function(gene,
   gene_vectorB = gene_vectorB[match(colnames(spat_mat), names(gene_vectorB))]
 
   test1 = spat_mat*gene_vectorA
-  test2 = Giotto:::t_giotto(Giotto:::t_giotto(spat_mat)*gene_vectorB)
+  test2 = t_giotto(t_giotto(spat_mat)*gene_vectorB)
 
   sourcevalues = test1[spat_mat == 1]
   targetvalues = test2[spat_mat == 1]
@@ -44,8 +44,8 @@ spat_fish_func = function(gene,
       hub_nr = 0
     } else {
       subset_spat_mat = spat_mat[rownames(spat_mat) %in% high_cells, colnames(spat_mat) %in% high_cells]
-      rowhubs = Giotto:::rowSums_giotto(subset_spat_mat)
-      colhubs = Giotto:::colSums_giotto(subset_spat_mat)
+      rowhubs = rowSums_giotto(subset_spat_mat)
+      colhubs = colSums_giotto(subset_spat_mat)
       hub_nr = length(unique(c(names(colhubs[colhubs > hub_min_int]), names(rowhubs[colhubs > hub_min_int]))))
     }
     fish_res = fisher.test(matrix(table(test), byrow = T, nrow = 2))[c('p.value','estimate')]
@@ -179,6 +179,9 @@ binSpect = function(gobject,
                     verbose = T) {
 
 
+  # data.table: set global variable
+  genes = p.value = estimate = score = NULL
+
   # set binarization method
   bin_method = match.arg(bin_method, choices = c('kmeans', 'rank'))
 
@@ -190,7 +193,7 @@ binSpect = function(gobject,
 
   # expression
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_values = select_expression_values(gobject = gobject, values = values)
 
   if(!is.null(subset_genes)) {
     expr_values = expr_values[rownames(expr_values) %in% subset_genes, ]
@@ -198,18 +201,18 @@ binSpect = function(gobject,
 
   # binarize matrix
   if(bin_method == 'kmeans') {
-    bin_matrix = t_giotto(apply(X = expr_values, MARGIN = 1, FUN = Giotto:::kmeans_binarize, nstart = nstart, iter.max = iter_max))
+    bin_matrix = t_giotto(apply(X = expr_values, MARGIN = 1, FUN = kmeans_binarize, nstart = nstart, iter.max = iter_max))
   } else if(bin_method == 'rank') {
     max_rank = (ncol(expr_values)/100)*percentage_rank
-    bin_matrix = t_giotto(apply(X = expr_values, MARGIN = 1, FUN = Giotto:::rank_binarize, max_rank = max_rank))
+    bin_matrix = t_giotto(apply(X = expr_values, MARGIN = 1, FUN = rank_binarize, max_rank = max_rank))
   }
 
   if(verbose == TRUE) cat('\n 1. matrix binarization complete \n')
 
 
   # spatial matrix
-  dc_spat_network = dcast.data.table(spatial_network, formula = to~from, value.var = 'distance', fill = 0)
-  spat_mat = Giotto:::dt_to_matrix(dc_spat_network)
+  dc_spat_network = data.table::dcast.data.table(spatial_network, formula = to~from, value.var = 'distance', fill = 0)
+  spat_mat = dt_to_matrix(dc_spat_network)
   spat_mat[spat_mat > 0] = 1
 
 
@@ -256,7 +259,7 @@ binSpect = function(gobject,
 
   if(verbose == TRUE) cat('\n 2. spatial enrichment test completed \n')
 
-  result = as.data.table(do.call('rbind', save_list))
+  result = data.table::as.data.table(do.call('rbind', save_list))
   result[, genes := unlist(genes)]
   #result[, genes := rownames(bin_matrix)]
 
@@ -421,7 +424,7 @@ spatialDE <- function(gobject = NULL,
 
   # expression
   values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_values = select_expression_values(gobject = gobject, values = values)
 
   ## python path
   if(is.null(python_path)) {
@@ -515,7 +518,7 @@ spatialAEH <- function(gobject = NULL,
 
   # expression
   values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_values = select_expression_values(gobject = gobject, values = values)
 
   ## python path
   if(is.null(python_path)) {
@@ -595,7 +598,7 @@ trendSceek <- function(gobject,
 
   ## expression data
   values = match.arg(expression_values, c("normalized", "raw"))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_values = select_expression_values(gobject = gobject, values = values)
 
   ## normalization function
   if (values == "normalized") {
@@ -1358,7 +1361,7 @@ do_spatial_knn_smoothing = function(gobject,
 
   # get expression matrix
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_values = select_expression_values(gobject = gobject, values = values)
 
   if(!is.null(subset_genes)) {
     expr_values = expr_values[rownames(expr_values) %in% subset_genes,]
@@ -1369,7 +1372,7 @@ do_spatial_knn_smoothing = function(gobject,
   expr_values_dt_m = data.table::melt.data.table(expr_values_dt, id.vars = 'gene_ID', variable.name = 'cell_ID')
 
   ## test ##
-  spatial_network = Giotto:::convert_to_full_spatial_network(spatial_network)
+  spatial_network = convert_to_full_spatial_network(spatial_network)
   ## stop test ##
 
   #print(spatial_network)
@@ -1385,7 +1388,7 @@ do_spatial_knn_smoothing = function(gobject,
 
   # convert back to matrix
   spatial_smooth_dc = dcast.data.table(data = spatial_network_ext_smooth, formula = gene_ID~source, value.var = 'V1')
-  spatial_smooth_matrix = Giotto:::dt_to_matrix(spatial_smooth_dc)
+  spatial_smooth_matrix = dt_to_matrix(spatial_smooth_dc)
   spatial_smooth_matrix = spatial_smooth_matrix[rownames(expr_values), colnames(expr_values)]
 
   # combine original and smoothed values according to smoothening b
@@ -1425,7 +1428,7 @@ do_spatial_grid_averaging = function(gobject,
 
   # get expression matrix
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_values = select_expression_values(gobject = gobject, values = values)
 
   if(!is.null(subset_genes)) {
     expr_values = expr_values[rownames(expr_values) %in% subset_genes,]
@@ -1445,9 +1448,9 @@ do_spatial_grid_averaging = function(gobject,
   spatial_locs = copy(gobject@spatial_locs)
 
   if(all(c('sdimx', 'sdimy', 'sdimz') %in% colnames(spatial_locs))) {
-    spatial_locs = Giotto:::annotate_spatlocs_with_spatgrid_3D(spatloc = spatial_locs, spatgrid = spatial_grid)
+    spatial_locs = annotate_spatlocs_with_spatgrid_3D(spatloc = spatial_locs, spatgrid = spatial_grid)
   } else if(all(c('sdimx', 'sdimy') %in% colnames(spatial_locs))) {
-    spatial_locs = Giotto:::annotate_spatlocs_with_spatgrid_2D(spatloc = spatial_locs, spatgrid = spatial_grid)
+    spatial_locs = annotate_spatlocs_with_spatgrid_2D(spatloc = spatial_locs, spatgrid = spatial_grid)
   }
 
 
@@ -1524,7 +1527,7 @@ detectSpatialCorGenes <- function(gobject,
 
   # get expression matrix
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_values = select_expression_values(gobject = gobject, values = values)
 
   if(!is.null(subset_genes)) {
     expr_values = expr_values[rownames(expr_values) %in% subset_genes,]
@@ -1534,7 +1537,7 @@ detectSpatialCorGenes <- function(gobject,
   ## spatial averaging or smoothing
   if(method == 'grid') {
 
-    loc_av_expr_matrix = Giotto:::do_spatial_grid_averaging(gobject = gobject,
+    loc_av_expr_matrix = do_spatial_grid_averaging(gobject = gobject,
                                                             expression_values = expression_values,
                                                             subset_genes = subset_genes,
                                                             spatial_grid_name = spatial_grid_name,
@@ -1549,7 +1552,7 @@ detectSpatialCorGenes <- function(gobject,
 
   if(method == 'network') {
 
-    knn_av_expr_matrix = Giotto:::do_spatial_knn_smoothing(gobject = gobject,
+    knn_av_expr_matrix = do_spatial_knn_smoothing(gobject = gobject,
                                                            expression_values = expression_values,
                                                            subset_genes = subset_genes,
                                                            spatial_network_name = spatial_network_name,
@@ -1718,7 +1721,7 @@ clusterSpatialCorGenes = function(spatCorObject,
   # create correlation matrix
   cor_DT = spatCorObject[['cor_DT']]
   cor_DT_dc = data.table::dcast.data.table(cor_DT, formula = gene_ID~variable, value.var = 'spat_cor')
-  cor_matrix = Giotto:::dt_to_matrix(cor_DT_dc)
+  cor_matrix = dt_to_matrix(cor_DT_dc)
 
   # re-ordering matrix
   my_gene_order = spatCorObject[['gene_order']]
@@ -1788,7 +1791,7 @@ heatmSpatialCorGenes = function(gobject,
   ## create correlation matrix
   cor_DT = spatCorObject[['cor_DT']]
   cor_DT_dc = data.table::dcast.data.table(cor_DT, formula = gene_ID~variable, value.var = 'spat_cor')
-  cor_matrix = Giotto:::dt_to_matrix(cor_DT_dc)
+  cor_matrix = dt_to_matrix(cor_DT_dc)
 
   # re-ordering matrix
   my_gene_order = spatCorObject[['gene_order']]
@@ -1815,7 +1818,7 @@ heatmSpatialCorGenes = function(gobject,
         uniq_clusters = unique(clusters_part)
 
         # color vector
-        mycolors = Giotto:::getDistinctColors(length(uniq_clusters))
+        mycolors = getDistinctColors(length(uniq_clusters))
         names(mycolors) = uniq_clusters
         ha = ComplexHeatmap::HeatmapAnnotation(bar = as.vector(clusters_part),
                                                col = list(bar = mycolors),
@@ -1907,7 +1910,7 @@ rankSpatialCorGroups = function(gobject,
   ## create correlation matrix
   cor_DT = spatCorObject[['cor_DT']]
   cor_DT_dc = data.table::dcast.data.table(cor_DT, formula = gene_ID~variable, value.var = 'spat_cor')
-  cor_matrix = Giotto:::dt_to_matrix(cor_DT_dc)
+  cor_matrix = dt_to_matrix(cor_DT_dc)
 
   # re-ordering matrix
   my_gene_order = spatCorObject[['gene_order']]
@@ -1973,7 +1976,6 @@ rankSpatialCorGroups = function(gobject,
   }
 
 }
-
 
 
 

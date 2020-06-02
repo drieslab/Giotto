@@ -548,11 +548,11 @@ readExprMatrix = function(path, cores = NA, transpose = FALSE) {
 #'     evaluate_expr_matrix()
 evaluate_expr_matrix = function(inputmatrix, sparse = TRUE, cores = NA) {
 
-  if(is(inputmatrix, 'character')) {
+  if(methods::is(inputmatrix, 'character')) {
     mymatrix = readExprMatrix(inputmatrix, cores =  cores)
-  } else if(is(inputmatrix, 'Matrix')) {
+  } else if(methods::is(inputmatrix, 'Matrix')) {
     mymatrix = inputmatrix
-  } else if(is(inputmatrix, 'data.table')) {
+  } else if(methods::is(inputmatrix, 'data.table')) {
     if(sparse == TRUE) {
       # force sparse class
       mymatrix = Matrix::Matrix(as.matrix(inputmatrix[,-1]),
@@ -677,9 +677,12 @@ createGiottoObject <- function(raw_exprs,
                    OS_platform = .Platform[['OS.type']])
 
 
+  # data.table: set global variable
+  cell_ID = gene_ID = NULL
+
   # check if all optional packages are installed
   extra_packages = c("scran", "MAST", "png", "tiff", "biomaRt", "trendsceek", "multinet", "RTriangle", "FactoMiner")
-  pack_index = extra_packages %in% rownames(installed.packages())
+  pack_index = extra_packages %in% rownames(utils::installed.packages())
   extra_installed_packages = extra_packages[pack_index]
   extra_not_installed_packages = extra_packages[!pack_index]
 
@@ -749,7 +752,7 @@ createGiottoObject <- function(raw_exprs,
   if(!any(class(spatial_locs) %in% c('data.table', 'data.frame', 'matrix', 'character'))) {
     stop('spatial_locs needs to be a data.table or data.frame-like object or a path to one of these')
   }
-  if(is(spatial_locs, 'character')) {
+  if(methods::is(spatial_locs, 'character')) {
     if(!file.exists(spatial_locs)) stop('path to spatial locations does not exist')
     spatial_locs = data.table::fread(input = spatial_locs, nThread = cores)
   } else {
@@ -903,7 +906,7 @@ createGiottoObject <- function(raw_exprs,
         spatenrichname = spatial_enrichment_name[[spat_enrich_i]]
         spatenrich     = spatial_enrichment[[spat_enrich_i]]
 
-        if(nrow(spatenrich) != nrow(goject@cell_metadata)) {
+        if(nrow(spatenrich) != nrow(gobject@cell_metadata)) {
           stop('\n spatial enrichment ', spatenrichname, ' does not have the same number of rows as spots/cells, see details \n')
         } else {
 
@@ -957,7 +960,7 @@ createGiottoObject <- function(raw_exprs,
 
         igraph_data = nn_netw[['igraph']]
 
-        if(all(names(V(igraph_data)) %in% gobject@cell_ID)) {
+        if(all(names(igraph::V(igraph_data)) %in% gobject@cell_ID)) {
 
           type_value = nn_netw[['type']] # sNN or kNN
           name_value = nn_netw[['name']]  # uniq name
@@ -988,7 +991,7 @@ createGiottoObject <- function(raw_exprs,
       im = images[[image_i]]
       im_name = names(images)[[image_i]]
 
-      if(is(im, 'imageGiottoObj')) {
+      if(methods::is(im, 'imageGiottoObj')) {
         gobject@images[[im_name]] = im
       } else {
         warning('image: ', im, ' is not a giotto image object')
@@ -1043,6 +1046,9 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                     instructions = NULL,
                                     cores = NA) {
 
+  # data.table: set global variable
+  V1 = row_pxl = col_pxl = in_tissue = array_row = array_col = NULL
+
   ## check arguments
   if(is.null(visium_dir)) stop('visium_dir needs to be a path to a visium directory \n')
   if(!file.exists(visium_dir)) stop(visium_dir, ' does not exist \n')
@@ -1066,7 +1072,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 
   ## spatial locations and image
   spatial_path = paste0(visium_dir, '/', 'spatial/')
-  spatial_results = fread(paste0(spatial_path, '/','tissue_positions_list.csv'))
+  spatial_results = data.table::fread(paste0(spatial_path, '/','tissue_positions_list.csv'))
   spatial_results = spatial_results[match(colnames(raw_matrix), V1)]
   colnames(spatial_results) = c('barcode', 'in_tissue', 'array_row', 'array_col', 'col_pxl', 'row_pxl')
   spatial_locs = spatial_results[,.(row_pxl,-col_pxl)]

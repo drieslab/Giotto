@@ -13,7 +13,7 @@ Authors@R: c(
 	person("Guo-Cheng", "Yuan", email = "gcyuan@ds.dfci.harvard.edu",
 		 role = c("aut"))
 	)
-Description: Toolbox to process, analyze and visualize spatial single-cell expression data.
+Description: Toolbox to process, analyze and visualize spatial single-cell expression data
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -21,15 +21,17 @@ URL: https://rubd.github.io/Giotto/, https://github.com/RubD/Giotto
 BugReports: https://github.com/RubD/Giotto/issues
 RoxygenNote: 7.1.0
 Depends:
-    data.table (>= 1.12.2),
-    ggplot2 (>= 3.1.1),
     base (>= 3.5.1),
     utils (>= 3.5.1),
     R (>= 3.5.1)
 Imports:
+    data.table (>= 1.12.2),
+    deldir,
+    ggplot2 (>= 3.1.1),
     Matrix,
     magick,
     matrixStats (>= 0.55.0),
+    methods,
     uwot (>= 0.0.0.9010),
     cowplot (>= 0.9.4),
     grDevices,
@@ -59,7 +61,6 @@ Imports:
     rlang (>= 0.4.3),
     R.utils,
     fitdistrplus,
-    deldir
 Suggests:
     knitr,
     rmarkdown,
