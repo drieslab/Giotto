@@ -2,6 +2,8 @@
 
 library(Giotto)
 
+# createGiottoInstructions(python_path = '/your/path')
+
 ## Giotto 0.3.5 ##
 ## mini-test seqFish Giotto 0.3.5 ##
 
@@ -10,7 +12,12 @@ temp_dir = '/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_sp
 ## 1. giotto object ####
 expr_path = system.file("extdata", "seqfish_field_expr.txt", package = 'Giotto')
 loc_path = system.file("extdata", "seqfish_field_locs.txt", package = 'Giotto')
+
+# default
 VC_small <- createGiottoObject(raw_exprs = expr_path, spatial_locs = loc_path)
+# with instructions (e.g. specific python path)
+# myinstructions = createGiottoInstructions(python_path = '/your/path')
+# VC_small <- createGiottoObject(raw_exprs = expr_path, spatial_locs = loc_path, instructions = myinstructions)
 showGiottoInstructions(VC_small)
 
 ## 2. processing steps ####
@@ -30,6 +37,7 @@ VC_small <- runUMAP(VC_small, dimensions_to_use = 1:5, n_threads = 2)
 plotUMAP(gobject = VC_small)
 VC_small <- runtSNE(VC_small, dimensions_to_use = 1:5)
 plotTSNE(gobject = VC_small)
+
 
 ## 4. clustering ####
 VC_small <- createNearestNetwork(gobject = VC_small, dimensions_to_use = 1:5, k = 5)
@@ -171,7 +179,7 @@ cell_proximities = cellProximityEnrichment(gobject = VC_small,
                                            cluster_column = 'cell_types',
                                            spatial_network_name = 'Delaunay_network',
                                            adjust_method = 'fdr',
-                                           number_of_simulations = 2000)
+                                           number_of_simulations = 1000)
 # barplot
 cellProximityBarplot(gobject = VC_small, CPscore = cell_proximities, min_orig_ints = 5, min_sim_ints = 5)
 ## heatmap
@@ -231,7 +239,7 @@ CPGscoresHighGenes =  findCPG(gobject = VC_small,
                               cluster_column = 'cell_types',
                               diff_test = 'permutation',
                               adjust_method = 'fdr',
-                              nr_permutations = 1000,
+                              nr_permutations = 500,
                               do_parallel = T, cores = 2)
 
 ## visualize all genes
@@ -257,7 +265,7 @@ plotICG(gobject = VC_small,
 
 ##### 14. cell neighborhood:  ligand-receptor cell-cell communication ####
 
-LR_data = fread(system.file("extdata", "mouse_ligand_receptors.txt", package = 'Giotto'))
+LR_data = data.table::fread(system.file("extdata", "mouse_ligand_receptors.txt", package = 'Giotto'))
 
 LR_data[, ligand_det := ifelse(mouseLigand %in% VC_small@gene_ID, T, F)]
 LR_data[, receptor_det := ifelse(mouseReceptor %in% VC_small@gene_ID, T, F)]
@@ -282,7 +290,7 @@ spatial_all_scores = spatCellCellcom(VC_small,
                                      gene_set_2 = select_receptors,
                                      adjust_method = 'fdr',
                                      do_parallel = T,
-                                     cores = 12,
+                                     cores = 4,
                                      verbose = 'none')
 
 
@@ -290,7 +298,7 @@ spatial_all_scores = spatCellCellcom(VC_small,
 
 ## select top LR ##
 selected_spat = spatial_all_scores[p.adj <= 0.5 & abs(log2fc) > 0.1 & lig_nr >= 2 & rec_nr >= 2]
-setorder(selected_spat, -PI)
+data.table::setorder(selected_spat, -PI)
 
 top_LR_ints = unique(selected_spat[order(-abs(PI))]$LR_comb)[1:33]
 top_LR_cell_ints = unique(selected_spat[order(-abs(PI))]$LR_cell_comb)[1:33]
@@ -345,5 +353,8 @@ exportGiottoViewer(gobject = VC_small, output_directory = viewer_folder,
                    expression_rounding = 3,
                    overwrite_dir = T)
 
+
+
+reticulate::miniconda_path()
 
 
