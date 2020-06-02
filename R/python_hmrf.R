@@ -42,6 +42,9 @@ doHMRF <- function(gobject,
                    output_folder = NULL,
                    overwrite_output = TRUE) {
 
+  # data.table set global variable
+  to = from = NULL
+
   ## check or make paths
   # python path
   if(is.null(python_path)) {
