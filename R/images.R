@@ -60,7 +60,7 @@ estimateImageBg = function(mg_object, top_color_range = 1:50) {
 #'     changeImageBg(mg_object)
 changeImageBg = function(mg_object, bg_color, perc_range = 10, new_color = '#FFFFFF', new_name = NULL) {
 
-  if(is(mg_object, 'imageGiottoObj')) {
+  if(methods::is(mg_object, 'imageGiottoObj')) {
     is_g_image = TRUE
     g_image = mg_object
     mg_object = mg_object$mg_object
@@ -68,7 +68,7 @@ changeImageBg = function(mg_object, bg_color, perc_range = 10, new_color = '#FFF
     is_g_image = FALSE
   }
 
-  if(!is(mg_object, 'magick-image')) {
+  if(!methods::is(mg_object, 'magick-image')) {
     stop("mg_object needs to be an image object 'magick-image'' from the magick package")
   }
 
@@ -96,15 +96,26 @@ changeImageBg = function(mg_object, bg_color, perc_range = 10, new_color = '#FFF
   c3_new = new_rbg_color[3,1]
 
   # find background color pixels
+
+  # data.table variables
+  c.1 = c.2 = c.3 = NULL
+
   c1_ind = arrayDT[['c.1']] > c1_min & arrayDT[['c.1']] < c1_max
   c2_ind = arrayDT[['c.2']] > c2_min & arrayDT[['c.2']] < c2_max
   c3_ind = arrayDT[['c.3']] > c3_min & arrayDT[['c.3']] < c3_max
   c_ind = c1_ind*c2_ind*c3_ind
 
+  # data.table variables
+  c1 = c2 = c3 = NULL
+
   # replace old background with new background
   arrayDT[, 'c1' := ifelse(c_ind == T, c1_new, c.1)]
   arrayDT[, 'c2' := ifelse(c_ind == T, c2_new, c.2)]
   arrayDT[, 'c3' := ifelse(c_ind == T, c3_new, c.3)]
+
+
+  # data.table variables
+  x = y = NULL
 
   # setorder for x and y coordinates
   data.table::setorder(arrayDT, y, x)
