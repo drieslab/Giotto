@@ -3,9 +3,9 @@
 #' @export
 mean_giotto = function(x, ...) {
 
-  if(is(x, 'dgCMatrix')) {
+  if(methods::is(x, 'dgCMatrix')) {
     return(Matrix::mean(x, ...)) # replace with sparseMatrixStats
-  } else if(is(x, 'Matrix')) {
+  } else if(methods::is(x, 'Matrix')) {
     return(Matrix::mean(x, ...))
   } else {
     return(base::mean(x, ...))
