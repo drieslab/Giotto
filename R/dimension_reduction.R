@@ -665,6 +665,13 @@ jackstrawPlot = function(gobject,
                          default_save_name = 'jackstrawPlot') {
 
 
+  if("jackstraw" %in% rownames(installed.packages()) == FALSE) {
+    stop("\n package 'jackstraw' is not yet installed \n",
+         "To install: \n",
+         "install.packages('jackstraw') \n"
+    )
+  }
+
   # select direction of reduction
   reduction = match.arg(reduction, c('cells', 'genes'))
 
