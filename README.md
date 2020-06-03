@@ -110,7 +110,7 @@ See
   - [Dries, R. et al. Giotto, a pipeline for integrative analysis and
     visualization of single-cell spatial transcriptomic data.
     bioRxiv 701680
-    (2019).](https://www.biorxiv.org/content/10.1101/701680v1)
+    (2019).](https://www.biorxiv.org/content/10.1101/701680v2)
     <doi:10.1101/701680>
 
   - [Eng, C.-H. L. et al. Transcriptome-scale super-resolved imaging in
