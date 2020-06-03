@@ -11,7 +11,7 @@ output: github_document
 <!-- badges: start -->
 <!-- badges: end -->
 
-The Giotto package consists of two modules, Giotto Analyzer and Viewer (see [www.spatialgiotto.com](http://spatial.rc.fas.harvard.edu/spatialgiotto/giotto.html)), which provide tools to process, analyze and visualize **single-cell spatial expression** data. The underlying framework is generalizable to virtually all currently available spatial datasets. We recently demonstrated the general applicability on 10 different datasets created by 9 different state-of-the-art spatial technologies, including *in situ* hybridization (seqFISH+, merFISH, osmFISH), sequencing (Slide-seq, Visium, STARmap) and imaging-based multiplexing/proteomics (CyCIF, MIBI, CODEX). These technologies differ in terms of resolution (single cell vs multiple cells), spatial dimension (2D vs 3D), molecular modality (protein vs RNA), and throughput (number of cells and genes). More information and documentation about the latest (developmental) version of Giotto Analyzer can be found at https://rubd.github.io/Giotto_site/.
+The Giotto package consists of two modules, Giotto Analyzer and Viewer (see [www.spatialgiotto.com](http://spatial.rc.fas.harvard.edu/spatialgiotto/giotto.html)), which provide tools to process, analyze and visualize **single-cell spatial expression** data. The underlying framework is generalizable to virtually all currently available spatial datasets. We recently demonstrated the general applicability on 10 different datasets created by 9 different state-of-the-art spatial technologies, including *in situ* hybridization (seqFISH+, merFISH, osmFISH), sequencing (Slide-seq, Visium, STARmap) and imaging-based multiplexing/proteomics (CyCIF, MIBI, CODEX). These technologies differ in terms of resolution (single cell vs multiple cells), spatial dimension (2D vs 3D), molecular modality (protein vs RNA), and throughput (number of cells and genes). More information and documentation about the latest (developmental) version of Giotto Analyzer can be found at https://rubd.github.io/Giotto_site/ (**URL change !!**).
 
 <img src="inst/images/general_figs/overview_datasets.png" />
 
@@ -29,7 +29,7 @@ The Giotto package consists of two modules, Giotto Analyzer and Viewer (see [www
 
 ## Installation
 
-See [FAQs](https://rubd.github.io/Giotto/articles/faqs.html) for additional information.
+See [FAQs](https://rubd.github.io/Giotto_site/articles/faqs.html) for additional information.
 
 #### R installation
 You can install Giotto with (~1-5 mins):
@@ -59,7 +59,7 @@ Required python modules:
 The python modules will be installed automatically in a miniconda environment when installing Giotto. However, it will ask you whether you want to install them and you can opt out and select your preferred python path. In that case you need to do a manual installation of the python modules.
 
 ##### Manual installation  
-See [python installation](https://rubd.github.io/Giotto/articles/installation_issues.html#python-manual-installation)
+See [python installation](https://rubd.github.io/Giotto_site/articles/installation_issues.html#python-manual-installation)
 
 
 
@@ -77,14 +77,14 @@ See [link](http://spatial.rc.fas.harvard.edu/spatialgiotto/giotto.install.native
 - all examples are gradually updated to the latest Giotto version  [work in progress]
 
 
-[![seqFISH](./inst/images/general_figs/cortex_image_summary.png){width=10cm}](https://rubd.github.io/Giotto/articles/mouse_seqFISH_cortex_200319.html)
-[![merFISH](./inst/images/general_figs/merFISH_hypoth_image_summary.png){width=10cm}](https://rubd.github.io/Giotto/articles/mouse_merFISH_hypoth_preoptic_region_200326.html)
-[![STARmap](./inst/images/general_figs/starmap_cortex_image_summary.png){width=10cm}](https://rubd.github.io/Giotto/articles/mouse_starmap_cortex.html)
-[![Visium_brain](./inst/images/general_figs/visium_brain_image_summary.png){width=10cm}](https://rubd.github.io/Giotto/articles/mouse_visium_brain_200325.html)
-[![Visium_kidney](./inst/images/general_figs/visium_kidney_image_summary.png){width=10cm}](https://rubd.github.io/Giotto/articles/mouse_visium_kidney_200326.html)
-[![CyCIF](./inst/images/general_figs/cyCIF_PDAC_image_summary.png){width=10cm}](https://rubd.github.io/Giotto/articles/human_cycif_PDAC_200322.html)
-[![osmFISH](./inst/images/general_figs/osmFISH_SS_cortex_image_summary.png){width=10cm}](../articles/mouse_osmFISH_SScortex.html)
-[![CODEX](./inst/images/general_figs/CODEX_spleen_image_summary.png){width=10cm}](https://rubd.github.io/Giotto/articles/mouse_CODEX_spleen.html)
+[![seqFISH](./inst/images/general_figs/cortex_image_summary.png){width=10cm}](https://rubd.github.io/Giotto_site/articles/mouse_seqFISH_cortex_200319.html)
+[![merFISH](./inst/images/general_figs/merFISH_hypoth_image_summary.png){width=10cm}](https://rubd.github.io/Giotto_site/articles/mouse_merFISH_hypoth_preoptic_region_200326.html)
+[![STARmap](./inst/images/general_figs/starmap_cortex_image_summary.png){width=10cm}](https://rubd.github.io/Giotto_site/articles/mouse_starmap_cortex.html)
+[![Visium_brain](./inst/images/general_figs/visium_brain_image_summary.png){width=10cm}](https://rubd.github.io/Giotto_site/articles/mouse_visium_brain_200325.html)
+[![Visium_kidney](./inst/images/general_figs/visium_kidney_image_summary.png){width=10cm}](https://rubd.github.io/Giotto_site/articles/mouse_visium_kidney_200326.html)
+[![CyCIF](./inst/images/general_figs/cyCIF_PDAC_image_summary.png){width=10cm}](https://rubd.github.io/Giotto_site/articles/human_cycif_PDAC_200322.html)
+[![osmFISH](./inst/images/general_figs/osmFISH_SS_cortex_image_summary.png){width=10cm}](https://rubd.github.io/Giotto_site/articles/mouse_osmFISH_SScortex.html)
+[![CODEX](./inst/images/general_figs/CODEX_spleen_image_summary.png){width=10cm}](https://rubd.github.io/Giotto_site/articles/mouse_CODEX_spleen.html)
 
 
 ## References
