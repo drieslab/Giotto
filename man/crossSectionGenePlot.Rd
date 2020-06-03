@@ -11,9 +11,9 @@ crossSectionGenePlot(
   spatial_network_name = "Delaunay_network",
   expression_values = c("normalized", "scaled", "custom"),
   genes,
-  genes_high_color = "red",
-  genes_mid_color = "white",
-  genes_low_color = "darkblue",
+  cell_color_gradient = c("blue", "white", "red"),
+  gradient_midpoint = NULL,
+  gradient_limits = NULL,
   show_network = F,
   network_color = NULL,
   edge_alpha = NULL,
@@ -53,11 +53,11 @@ crossSectionGenePlot(
 
 \item{genes}{genes to show}
 
-\item{genes_high_color}{color represents high gene expression}
+\item{cell_color_gradient}{vector with 3 colors for numeric data}
 
-\item{genes_mid_color}{color represents middle gene expression}
+\item{gradient_midpoint}{midpoint for color gradient}
 
-\item{genes_low_color}{color represents low gene expression}
+\item{gradient_limits}{vector with lower and upper limits}
 
 \item{show_network}{show underlying spatial network}
 

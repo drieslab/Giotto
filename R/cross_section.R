@@ -490,9 +490,9 @@ createCrossSection <- function(gobject,
 #' @param spatial_network_name name of spatial network to use
 #' @param expression_values gene expression values to use
 #' @param genes genes to show
-#' @param genes_high_color color represents high gene expression
-#' @param genes_mid_color color represents middle gene expression
-#' @param genes_low_color color represents low gene expression
+#' @param cell_color_gradient vector with 3 colors for numeric data
+#' @param gradient_midpoint midpoint for color gradient
+#' @param gradient_limits vector with lower and upper limits
 #' @param show_network show underlying spatial network
 #' @param network_color color of spatial network
 #' @param show_grid show spatial grid
@@ -532,9 +532,9 @@ crossSectionGenePlot <-function(gobject=NULL,
                                 spatial_network_name = "Delaunay_network",
                                 expression_values = c("normalized", "scaled", "custom"),
                                 genes,
-                                genes_high_color = "red",
-                                genes_mid_color = "white",
-                                genes_low_color = "darkblue",
+                                cell_color_gradient = c('blue', 'white', 'red'),
+                                gradient_midpoint = NULL,
+                                gradient_limits = NULL,
                                 show_network = F,
                                 network_color = NULL,
                                 edge_alpha = NULL,
@@ -578,9 +578,13 @@ crossSectionGenePlot <-function(gobject=NULL,
   temp_gobject@spatial_locs$sdimy=cell_subset_projection_coords[,2]
   temp_gobject@spatial_locs$sdimz=rep(0,dim(cell_subset_projection_coords)[1])
   # call spatGenePlot2D to generate the plots
-  spatGenePlot2D(gobject = temp_gobject, expression_values = expression_values,
-                 genes = genes, genes_high_color = genes_high_color, genes_mid_color = genes_mid_color,
-                 genes_low_color = genes_low_color, show_network = show_network,
+  spatGenePlot2D(gobject = temp_gobject,
+                 expression_values = expression_values,
+                 genes = genes,
+                 cell_color_gradient = cell_color_gradient,
+                 gradient_midpoint = gradient_midpoint,
+                 gradient_limits = gradient_limits,
+                 show_network = show_network,
                  network_color = network_color, spatial_network_name = spatial_network_name,
                  edge_alpha = edge_alpha, show_grid = show_grid, grid_color = grid_color,
                  spatial_grid_name = spatial_grid_name, midpoint = midpoint,
@@ -594,6 +598,7 @@ crossSectionGenePlot <-function(gobject=NULL,
                  save_param = save_param, default_save_name = default_save_name)
 }
 ####
+
 #' @title crossSectionPlot
 #' @name crossSectionPlot
 #' @description Visualize cells in a virtual cross section according to spatial coordinates
