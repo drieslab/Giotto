@@ -411,7 +411,7 @@ filter_network <- function(networkDT,
 
   ## filter based on distance or minimum number of neighbors
   if (maximum_distance == "auto") {
-    temp_fullnetwork = temp_fullnetwork[distance <= boxplot.stats(temp_fullnetwork$distance)$stats[5]]
+    temp_fullnetwork = temp_fullnetwork[distance <= boxplot.stats(temp_fullnetwork$distance)$stats[5] | rank_int <= minimum_k]
   }
   else if (!is.null(maximum_distance)) {
     temp_fullnetwork = temp_fullnetwork[distance <= maximum_distance | rank_int <= minimum_k]
@@ -740,8 +740,8 @@ create_delaunayNetwork2D <- function (gobject,
                                                       d2_or_d3=2)
   networkDT_before_filter = delaunay_network_DT
   delaunay_network_DT = filter_network(delaunay_network_DT,
-                                       maximum_distance=maximum_distance,
-                                       minimum_k=minimum_k)
+                                       maximum_distance = maximum_distance,
+                                       minimum_k = minimum_k)
 
   ## calculate cell shape parameters ##
   meanCellDistance = get_distance(delaunay_network_DT,method="mean")

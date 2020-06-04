@@ -1389,6 +1389,18 @@ do_spatial_knn_smoothing = function(gobject,
   # convert back to matrix
   spatial_smooth_dc = dcast.data.table(data = spatial_network_ext_smooth, formula = gene_ID~source, value.var = 'V1')
   spatial_smooth_matrix = dt_to_matrix(spatial_smooth_dc)
+
+
+  # if network was not fully connected, some cells might be missing and are not smoothed
+  # add the original values for those cells back
+  all_cells = colnames(expr_values)
+  smoothed_cells = colnames(spatial_smooth_matrix)
+  missing_cells = all_cells[!all_cells %in% smoothed_cells]
+  if(length(missing_cells) > 0) {
+    missing_matrix = expr_values[, missing_cells]
+    spatial_smooth_matrix = cbind(spatial_smooth_matrix[rownames(expr_values),], missing_matrix)
+  }
+
   spatial_smooth_matrix = spatial_smooth_matrix[rownames(expr_values), colnames(expr_values)]
 
   # combine original and smoothed values according to smoothening b
