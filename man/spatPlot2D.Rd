@@ -35,7 +35,7 @@ spatPlot2D(
   label_size = 4,
   label_fontface = "bold",
   show_network = F,
-  spatial_network_name = NULL,
+  spatial_network_name = "Delaunay_network",
   network_color = NULL,
   network_alpha = 1,
   show_grid = F,

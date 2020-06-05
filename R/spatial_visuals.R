@@ -5477,7 +5477,7 @@ dimPlot2D_single <- function(gobject,
 
   # add % variance information if reduction is PCA
   if(dim_reduction_to_use == "pca"){
-    
+
     eigenvalues = gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$misc$eigenvalues
     total = sum(eigenvalues)
     var_expl_vec = (eigenvalues/total) * 100
@@ -7343,45 +7343,45 @@ plot_spat_image_layer_ggplot = function(ggplot,
                                         gimage,
                                         sdimx = NULL,
                                         sdimy = NULL) {
-  
-  
+
+
   if(is.null(gobject) | is.null(gimage)) {
     stop('A giotto object and a giotto image need to be provided')
   }
-  
+
   if(is.null(sdimx) | is.null(sdimy)) {
     warning("plot_method = ggplot, but spatial dimensions for sdimx and/or sdimy are not specified. \n
             It will default to the 'sdimx' and 'sdimy' ")
     sdimx = 'sdimx'
     sdimy = 'sdimy'
   }
-  
+
   # spatial locations
   spatlocs = gobject@spatial_locs
-  
+
   # extract min and max from object
   my_xmax = gimage$minmax[1]
   my_xmin = gimage$minmax[2]
   my_ymax = gimage$minmax[3]
   my_ymin = gimage$minmax[4]
-  
+
   # convert giotto image object into array
   img_array = as.numeric(gimage$mg_object[[1]])
-  
+
   # extract adjustments from object
   xmax_b = gimage$boundaries[1]
   xmin_b = gimage$boundaries[2]
   ymax_b = gimage$boundaries[3]
   ymin_b = gimage$boundaries[4]
-  
-  
+
+
   ggplot = ggplot + geom_blank(data = spatlocs, aes_string(sdimx, sdimy))
   ggplot = ggplot + annotation_raster(img_array,
                                       xmin = my_xmin-xmin_b, xmax = my_xmax+xmax_b,
                                       ymin = my_ymin-ymin_b, ymax = my_ymax+ymax_b)
-  
+
   return(ggplot)
-  
+
 }
 
 
@@ -7474,7 +7474,7 @@ spatPlot2D_single = function(gobject,
                              label_size = 4,
                              label_fontface = 'bold',
                              show_network = F,
-                             spatial_network_name = NULL,
+                             spatial_network_name = 'Delaunay_network',
                              network_color = NULL,
                              network_alpha = 1,
                              show_grid = F,
@@ -7501,8 +7501,8 @@ spatPlot2D_single = function(gobject,
                              save_param =  list(),
                              default_save_name = 'spatPlot2D_single'
 ) {
-  
-  
+
+
   ## giotto image ##
   if(show_image == TRUE) {
     if(!is.null(gimage)) gimage = gimage
@@ -7511,40 +7511,40 @@ spatPlot2D_single = function(gobject,
       if(is.null(gimage)) warning('image_name: ', image_name, ' does not exists')
     }
   }
-  
-  
+
+
   ## point shape ##
   point_shape = match.arg(point_shape, choices = c('border', 'no_border', 'voronoi'))
-  
+
   ## get spatial cell locations
   cell_locations  = gobject@spatial_locs
-  
+
   ## extract spatial network
-  if(!is.null(spatial_network_name)) {
+  if(show_network == TRUE) {
     spatial_network = select_spatialNetwork(gobject, name = spatial_network_name, return_network_Obj = FALSE)
   } else {
     spatial_network = NULL
   }
-  
+
   ## extract spatial grid
-  if(!is.null(spatial_grid_name)) {
+  if(show_grid == TRUE) {
     spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
   } else {
     spatial_grid = NULL
   }
-  
+
   ## get cell metadata
   cell_metadata = combineMetadata(gobject = gobject,
                                   spat_enr_names = spat_enr_names)
   #cell_metadata   = cell_metadata[, !grepl('cell_ID', colnames(cell_metadata)), with = F]
-  
+
   if(nrow(cell_metadata) == 0) {
     cell_locations_metadata = cell_locations
   } else {
     #cell_locations_metadata <- cbind(cell_locations, cell_metadata)
     cell_locations_metadata <- cell_metadata
   }
-  
+
   ## create subsets if needed
   if(!is.null(select_cells) & !is.null(select_cell_groups)) {
     cat('You have selected both individual cell IDs and a group of cells \n')
@@ -7553,32 +7553,32 @@ spatPlot2D_single = function(gobject,
   } else if(!is.null(select_cell_groups)) {
     select_cells = cell_locations_metadata[get(cell_color) %in% select_cell_groups][['cell_ID']]
   }
-  
+
   if(!is.null(select_cells)) {
     cell_locations_metadata_other = cell_locations_metadata[!cell_locations_metadata$cell_ID %in% select_cells]
     cell_locations_metadata_selected = cell_locations_metadata[cell_locations_metadata$cell_ID %in% select_cells]
     spatial_network <- spatial_network[spatial_network$to %in% select_cells & spatial_network$from %in% select_cells]
-    
+
     # if specific cells are selected
     # cell_locations_metadata = cell_locations_metadata_selected
-    
+
   } else if(is.null(select_cells)) {
-    
+
     cell_locations_metadata_selected = cell_locations_metadata
     cell_locations_metadata_other = NULL
-    
+
   }
-  
-  
-  
+
+
+
   ### create 2D plot with ggplot ###
   #cat('create 2D plot with ggplot \n')
-  
-  
+
+
   pl <- ggplot2::ggplot()
   pl <- pl + ggplot2::theme_bw()
-  
-  
+
+
   ## plot image ##
   if(show_image == TRUE & !is.null(gimage)) {
     pl = plot_spat_image_layer_ggplot(ggplot = pl,
@@ -7587,7 +7587,7 @@ spatPlot2D_single = function(gobject,
                                       sdimx = sdimx,
                                       sdimy = sdimy)
   }
-  
+
   ## plot spatial network
   if(!is.null(spatial_network) & show_network == TRUE) {
     if(is.null(network_color)) network_color = 'red'
@@ -7595,8 +7595,8 @@ spatPlot2D_single = function(gobject,
                                                                  xend = sdimx_end, yend = sdimy_end),
                                      color = network_color, size = 0.5, alpha = network_alpha)
   }
-  
-  
+
+
   ## plot spatial grid
   if(!is.null(spatial_grid) & show_grid == TRUE) {
     if(is.null(grid_color)) grid_color = 'black'
@@ -7604,7 +7604,7 @@ spatPlot2D_single = function(gobject,
                                                            ymin = y_start, ymax = y_end),
                                   color = grid_color, fill = NA)
   }
-  
+
   ## plot point layer
   if(point_shape == 'border') {
     pl = plot_spat_point_layer_ggplot(ggobject = pl,
@@ -7660,9 +7660,9 @@ spatPlot2D_single = function(gobject,
                                              other_cell_color = other_cell_color,
                                              other_point_size = other_point_size,
                                              show_legend = show_legend)
-    
+
   } else if(point_shape == 'voronoi') {
-    
+
     pl = plot_spat_voronoi_layer_ggplot(ggobject = pl,
                                         sdimx = sdimx,
                                         sdimy = sdimy,
@@ -7691,11 +7691,11 @@ spatPlot2D_single = function(gobject,
                                         vor_max_radius = vor_max_radius,
                                         vor_alpha = vor_alpha,
                                         show_legend = show_legend)
-    
+
   }
-  
-  
-  
+
+
+
   ## adjust theme settings
   pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5),
                             legend.title = element_blank(),
@@ -7704,7 +7704,7 @@ spatPlot2D_single = function(gobject,
                             axis.text = element_text(size = axis_text),
                             panel.grid = element_blank(),
                             panel.background = element_rect(fill = background_color))
-  
+
   ## change symbol size of legend
   if(color_as_factor == TRUE) {
     if(point_shape %in% c('border', 'voronoi')) {
@@ -7713,38 +7713,38 @@ spatPlot2D_single = function(gobject,
       pl = pl + guides(color = guide_legend(override.aes = list(size = legend_symbol_size)))
     }
   }
-  
-  
+
+
   # fix coord ratio
   if(!is.null(coord_fix_ratio)) {
     pl <- pl + ggplot2::coord_fixed(ratio = coord_fix_ratio)
   }
-  
+
   # provide x, y and plot titles
   if(is.null(title)) title = cell_color
   pl <- pl + ggplot2::labs(x = 'x coordinates', y = 'y coordinates', title = title)
-  
-  
+
+
   # print, return and save parameters
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-  
+
   ## print plot
   if(show_plot == TRUE) {
     print(pl)
   }
-  
+
   ## save plot
   if(save_plot == TRUE) {
     do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
   }
-  
+
   ## return plot
   if(return_plot == TRUE) {
     return(pl)
   }
-  
+
 }
 
 
@@ -7849,7 +7849,7 @@ spatPlot2D = function(gobject,
                       label_size = 4,
                       label_fontface = 'bold',
                       show_network = F,
-                      spatial_network_name = NULL,
+                      spatial_network_name = 'Delaunay_network',
                       network_color = NULL,
                       network_alpha = 1,
                       show_grid = F,
@@ -8185,7 +8185,7 @@ spatPlot = function(gobject,
                     label_size = 4,
                     label_fontface = 'bold',
                     show_network = F,
-                    spatial_network_name = NULL,
+                    spatial_network_name = 'Delaunay_network',
                     network_color = NULL,
                     network_alpha = 1,
                     show_grid = F,
@@ -8415,7 +8415,7 @@ spatDimPlot2D <- function(gobject,
                           network_name = 'sNN.pca',
                           nn_network_alpha = 0.05,
                           show_spatial_network = F,
-                          spat_network_name = NULL,
+                          spat_network_name = 'Delaunay_network',
                           spat_network_color = 'blue',
                           spat_network_alpha = 0.5,
                           show_spatial_grid = F,
@@ -8733,7 +8733,7 @@ spatDimPlot = function(gobject,
                        network_name = 'sNN.pca',
                        nn_network_alpha = 0.05,
                        show_spatial_network = F,
-                       spat_network_name = NULL,
+                       spat_network_name = 'Delaunay_network',
                        spat_network_color = 'blue',
                        spat_network_alpha = 0.5,
                        show_spatial_grid = F,
@@ -8904,7 +8904,7 @@ spatGenePlot2D <- function(gobject,
                            gradient_limits = NULL,
                            show_network = F,
                            network_color = NULL,
-                           spatial_network_name = NULL,
+                           spatial_network_name = 'Delaunay_network',
                            edge_alpha = NULL,
                            show_grid = F,
                            grid_color = NULL,
@@ -8948,7 +8948,7 @@ spatGenePlot2D <- function(gobject,
       if(is.null(gimage)) warning('image_name: ', image_name, ' does not exists')
     }
   }
-  
+
   # point shape
   point_shape = match.arg(point_shape, choices = c('border', 'no_border', 'voronoi'))
 
@@ -9011,7 +9011,7 @@ spatGenePlot2D <- function(gobject,
     pl <- ggplot2::ggplot()
     pl <- pl + ggplot2::theme_classic()
 
-    
+
     ## plot image ## TODO
     ## plot image ##
     if(show_image == TRUE & !is.null(gimage)) {
@@ -9270,7 +9270,7 @@ spatGenePlot = function(gobject,
                         gradient_limits = NULL,
                         show_network = F,
                         network_color = NULL,
-                        spatial_network_name = NULL,
+                        spatial_network_name = 'Delaunay_network',
                         edge_alpha = NULL,
                         show_grid = F,
                         grid_color = NULL,
@@ -10265,7 +10265,7 @@ spatCellPlot2D = function(gobject,
                           label_size = 4,
                           label_fontface = 'bold',
                           show_network = F,
-                          spatial_network_name = NULL,
+                          spatial_network_name = 'Delaunay_network',
                           network_color = NULL,
                           network_alpha = 1,
                           show_grid = F,
@@ -10489,7 +10489,7 @@ spatCellPlot = function(gobject,
                         label_size = 4,
                         label_fontface = 'bold',
                         show_network = F,
-                        spatial_network_name = NULL,
+                        spatial_network_name = 'Delaunay_network',
                         network_color = NULL,
                         network_alpha = 1,
                         show_grid = F,

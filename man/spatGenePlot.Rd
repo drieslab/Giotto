@@ -18,7 +18,7 @@ spatGenePlot(
   gradient_limits = NULL,
   show_network = F,
   network_color = NULL,
-  spatial_network_name = NULL,
+  spatial_network_name = "Delaunay_network",
   edge_alpha = NULL,
   show_grid = F,
   grid_color = NULL,
