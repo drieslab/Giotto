@@ -29,51 +29,51 @@ cellProximityBarplot = function(gobject,
                                 save_plot = NA,
                                 save_param =  list(),
                                 default_save_name = 'cellProximityBarplot') {
-  
-  
+
+
   table_mean_results_dc = CPscore$enrichm_res
-  
+
   ## filter to remove low number of cell-cell proximity interactions ##
   table_mean_results_dc_filter = table_mean_results_dc[original >= min_orig_ints & simulations >= min_sim_ints]
   table_mean_results_dc_filter = table_mean_results_dc_filter[p_higher_orig <= p_val | p_lower_orig <= p_val]
-  
+
   pl <- ggplot2::ggplot()
   pl <- pl + ggplot2::geom_bar(data = table_mean_results_dc_filter, aes(x = unified_int, y = enrichm, fill = type_int), stat = 'identity', show.legend = F)
   pl <- pl + ggplot2::coord_flip()
   pl <- pl + ggplot2::theme_bw()
   pl <- pl + ggplot2::labs(y = 'enrichment/depletion')
   pl
-  
+
   bpl <- ggplot2::ggplot()
   bpl <- bpl + ggplot2::geom_bar(data = table_mean_results_dc_filter, aes(x = unified_int, y = original, fill = type_int), stat = 'identity', show.legend = T)
   bpl <- bpl + ggplot2::coord_flip()
   bpl <- bpl + ggplot2::theme_bw() + theme(axis.text.y = element_blank())
   bpl <- bpl + ggplot2::labs(y = '# of interactions')
   bpl
-  
+
   combo_plot <- cowplot::plot_grid(pl, bpl, ncol = 2, rel_heights = c(1), rel_widths = c(3,1.5), align = 'h')
-  
-  
+
+
   # print, return and save parameters
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-  
+
   ## print plot
   if(show_plot == TRUE) {
     print(combo_plot)
   }
-  
+
   ## save plot
   if(save_plot == TRUE) {
     do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot, default_save_name = default_save_name), save_param))
   }
-  
+
   ## return plot
   if(return_plot == TRUE) {
     return(combo_plot)
   }
-  
+
 }
 
 #' @title cellProximityHeatmap
@@ -107,89 +107,89 @@ cellProximityHeatmap = function(gobject,
                                 save_plot = NA,
                                 save_param =  list(),
                                 default_save_name = 'cellProximityHeatmap') {
-  
-  
+
+
   enrich_res = CPscore$enrichm_res
   enrich_res[, first_type := strsplit(x = as.character(unified_int), split = '--')[[1]][1], by = 1:nrow(enrich_res)]
   enrich_res[, second_type := strsplit(x = as.character(unified_int), split = '--')[[1]][2], by = 1:nrow(enrich_res)]
-  
+
   # create matrix
   enrich_mat = data.table::dcast.data.table(data = enrich_res,formula = first_type~second_type, value.var = 'enrichm')
   matrix_d <- as.matrix(enrich_mat[,-1]); rownames(matrix_d) = as.vector(enrich_mat[[1]])
   t_matrix_d <- t_giotto(matrix_d)
-  
+
   # fill in NAs based on values in upper and lower matrix triangle
   t_matrix_d[upper.tri(t_matrix_d)][is.na(t_matrix_d[upper.tri(t_matrix_d)])] = matrix_d[upper.tri(matrix_d)][is.na(t_matrix_d[upper.tri(t_matrix_d)])]
   t_matrix_d[lower.tri(t_matrix_d)][is.na(t_matrix_d[lower.tri(t_matrix_d)])] = matrix_d[lower.tri(matrix_d)][is.na(t_matrix_d[lower.tri(t_matrix_d)])]
   t_matrix_d[is.na(t_matrix_d)] = 0
   final_matrix = t_matrix_d
-  
+
   # scale data
   if(scale == TRUE) {
     final_matrix <- t_giotto(scale(t_giotto(final_matrix)))
     final_matrix <- t_giotto(final_matrix)
     final_matrix[lower.tri(final_matrix)] <- t_giotto(final_matrix)[lower.tri(final_matrix)]
   }
-  
+
   # # if NA values, impute as mean
   #if(any(is.na(final_matrix)) == TRUE) {
   #  myrowmeans = apply(X = final_matrix, MARGIN = 1, FUN = function(x) mean(na.omit(x)))
   #  mymatrixmeans = matrix(data = rep(myrowmeans, ncol(final_matrix)), nrow = nrow(final_matrix), ncol = ncol(final_matrix))
   #  final_matrix[is.na(final_matrix)] = mymatrixmeans[which(is.na(final_matrix))]
   #}
-  
+
   # order cell types
   if(order_cell_types == TRUE) {
-    
+
     cordist = stats::as.dist(1-cor_giotto(final_matrix))
     clus = stats::hclust(cordist)
     myorder = clus$order
     mylabels = clus$labels
     names(mylabels) = 1:length(mylabels)
     sample_order = mylabels[myorder]
-    
+
     final_matrix = final_matrix[sample_order, sample_order]
   }
-  
+
   # create custom colors or not
   if(!is.null(color_breaks) & !is.null(color_names)) {
-    
+
     if(length(color_breaks) != 3 | !is.numeric(color_breaks)) {
       stop('\n color_breaks needs to be a numerical vector of length 3 \n')
     }
-    
+
     if(length(color_names) != 3 | !is.character(color_names)) {
       stop('\n color_names needs to be a character vector of length 3 \n')
     }
-    
+
     heatm = ComplexHeatmap::Heatmap(matrix = final_matrix, cluster_rows = F, cluster_columns = F,
                                     col = circlize::colorRamp2(breaks = color_breaks, colors = color_names))
   } else {
     heatm = ComplexHeatmap::Heatmap(matrix = final_matrix, cluster_rows = F, cluster_columns = F)
   }
-  
-  
-  
+
+
+
   # print, return and save parameters
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-  
+
   ## print plot
   if(show_plot == TRUE) {
     print(heatm)
   }
-  
+
   ## save plot
   if(save_plot == TRUE) {
     do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = heatm, default_save_name = default_save_name), save_param))
   }
-  
+
   ## return plot
   if(return_plot == TRUE) {
     return(heatm)
   }
-  
+
 }
 
 
@@ -240,23 +240,23 @@ cellProximityNetwork = function(gobject,
                                 save_plot = NA,
                                 save_param =  list(),
                                 default_save_name = 'cellProximityNetwork') {
-  
+
   # extract scores
   CPscores = CPscore[['enrichm_res']]
   CPscores[, cell_1 := strsplit(as.character(unified_int), split = '--')[[1]][1], by = 1:nrow(CPscores)]
   CPscores[, cell_2 := strsplit(as.character(unified_int), split = '--')[[1]][2], by = 1:nrow(CPscores)]
-  
+
   # create igraph with enrichm as weight edges
   igd = igraph::graph_from_data_frame(d = CPscores[,c('cell_1', 'cell_2', 'enrichm')], directed = F)
-  
+
   if(remove_self_edges == TRUE) {
     igd = igraph::simplify(graph = igd, remove.loops = TRUE, remove.multiple = FALSE)
   }
-  
+
   edges_sizes = igraph::get.edge.attribute(igd, 'enrichm')
   post_edges_sizes = edges_sizes[edges_sizes > 0]
   neg_edges_sizes = edges_sizes[edges_sizes <= 0]
-  
+
   # rescale if wanted
   if(rescale_edge_weights == TRUE) {
     pos_edges_sizes_resc = scales::rescale(x = post_edges_sizes, to = edge_weight_range_enrichment)
@@ -265,26 +265,26 @@ cellProximityNetwork = function(gobject,
   } else {
     edges_sizes_resc = c(post_edges_sizes, neg_edges_sizes)
   }
-  
+
   # colors
   edges_colors = ifelse(edges_sizes > 0, 'enriched', 'depleted')
-  
-  
+
+
   # create coordinates for layout
   if(class(layout) %in% c('data.frame', 'data.table')) {
     if(ncol(layout) < 2) {
       stop('custom layout needs to have at least 2 columns')
     }
-    
+
     if(nrow(layout) != length(igraph::E(igd))) {
       stop('rows of custom layout need to be the same as number of edges')
     }
-    
+
   } else {
     layout = match.arg(arg = layout, choices = c('Fruchterman', 'DrL', 'Kamada-Kawai'))
   }
-  
-  
+
+
   if(layout == 'Fruchterman') {
     coords = igraph::layout_with_fr(graph = igd, weights = edges_sizes_resc)
   } else if(layout == 'DrL') {
@@ -294,23 +294,23 @@ cellProximityNetwork = function(gobject,
   } else {
     stop('\n Currently no other layouts have been implemented \n')
   }
-  
+
   #iplot = igraph::plot.igraph(igd, edge.color = edges_colors, edge.width = edges_sizes_resc, layout = coords)
-  
+
   igd = igraph::set.edge.attribute(graph = igd, index = igraph::E(igd), name = 'color', value = edges_colors)
   igd = igraph::set.edge.attribute(graph = igd, index = igraph::E(igd), name = 'size', value = as.numeric(edges_sizes_resc))
-  
+
   ## only show attractive edges
   if(only_show_enrichment_edges == TRUE) {
     colors = igraph::get.edge.attribute(igd, name = 'color')
     subvertices_ids = which(colors == 'enriched')
     igd = igraph::subgraph.edges(graph = igd, eids = subvertices_ids)
   }
-  
+
   #longDT = as.data.table(igraph::as_long_data_frame(igd))
   #return(longDT)
   #return(list(igd, coords))
-  
+
   ## create plot
   gpl = ggraph::ggraph(graph = igd, layout = coords)
   gpl = gpl + ggraph::geom_edge_link(aes(color = factor(color), edge_width = size, edge_alpha = size), show.legend = F)
@@ -325,29 +325,29 @@ cellProximityNetwork = function(gobject,
                                                    axis.title = element_blank(),
                                                    axis.text = element_blank(),
                                                    axis.ticks = element_blank())
-  
-  
+
+
   # print, return and save parameters
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-  
+
   ## print plot
   if(show_plot == TRUE) {
     print(gpl)
   }
-  
+
   ## save plot
   if(save_plot == TRUE) {
     do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = gpl, default_save_name = default_save_name), save_param))
   }
-  
+
   ## return plot
   if(return_plot == TRUE) {
     return(gpl)
   }
-  
-  
+
+
 }
 
 
@@ -1160,7 +1160,7 @@ cellProximityVisPlot <- function(gobject,
 #' @param cpgObject cell proximity gene score object
 #' @param method plotting method to use
 #' @param min_cells minimum number of source cell type
-#' @param min_cells_expr minimum expression level for source cell type 
+#' @param min_cells_expr minimum expression level for source cell type
 #' @param min_int_cells minimum number of interacting neighbor cell type
 #' @param min_int_cells_expr minimum expression level for interacting neighbor cell type
 #' @param min_fdr minimum adjusted p-value
@@ -1425,7 +1425,7 @@ plotCellProximityGenes = function(gobject,
 #' @param cpgObject cell proximity gene score object
 #' @param method plotting method to use
 #' @param min_cells minimum number of source cell type
-#' @param min_cells_expr minimum expression level for source cell type 
+#' @param min_cells_expr minimum expression level for source cell type
 #' @param min_int_cells minimum number of interacting neighbor cell type
 #' @param min_int_cells_expr minimum expression level for interacting neighbor cell type
 #' @param min_fdr minimum adjusted p-value
@@ -1521,21 +1521,20 @@ plotInteractionChangedGenes = function(gobject,
                                        save_plot = NA,
                                        save_param =  list(),
                                        default_save_name = 'plotInteractionChangedGenes') {
-  
-  
-  
+
+
+
   if(!'cpgObject' %in% class(cpgObject)) {
     stop('\n cpgObject needs to be the output from findCellProximityGenes() or findCPG() \n')
   }
-  
+
   CPGscores = cpgObject[['CPGscores']]
-  
+
   # combine genes
   names(source_markers) = rep('marker', length(source_markers))
   neighbor_types = names(ICG_genes)
-  names(ICG_genes) = ICG_genes_types
   all_genes = c(source_markers, ICG_genes)
-  
+
   # warning if there are genes selected that are not detected
   detected_genes = unique(CPGscores[['genes']])
   not_detected_genes = all_genes[!all_genes %in% detected_genes]
@@ -1543,55 +1542,56 @@ plotInteractionChangedGenes = function(gobject,
     cat('These selected genes are not in the cpgObject: \n',
         not_detected_genes, '\n')
   }
-  
-  
+
+  # data.table set column names
+  genes = group = NULL
+
   tempDT = CPGscores[genes %in% all_genes][cell_type == source_type][int_cell_type %in% neighbor_types]
   tempDT[, genes := factor(genes, levels = all_genes)]
   tempDT[, group := names(all_genes[all_genes == genes]), by = 1:nrow(tempDT)]
-  
-  
+
+
   if(is.null(cell_color_code)) {
-    mycolors = Giotto:::getDistinctColors(n = length(unique(tempDT$int_cell_type)))
+    mycolors = getDistinctColors(n = length(unique(tempDT$int_cell_type)))
     names(mycolors) = unique(tempDT$int_cell_type)
   } else {
     mycolors = cell_color_code
   }
-  
-  
-  pl = ggplot()
-  pl = pl + theme_classic() + theme(axis.text.x = element_text(size = 14, angle = 45, vjust = 1, hjust = 1),
-                                    axis.text.y = element_text(size = 14),
-                                    axis.title = element_text(size = 14))
-  pl = pl + geom_bar(data = tempDT, aes(x = genes, y = log2fc, fill = int_cell_type), stat = 'identity', position = position_dodge())
-  pl = pl + scale_fill_manual(values = mycolors)
-  pl = pl + labs(x = '', title = paste0('fold-change z-scores in ' ,source_type))
-  
-  
-  
+
+
+  pl = ggplot2::ggplot()
+  pl = pl + ggplot2::theme_classic() + ggplot2::theme(axis.text.x = ggplot2::element_text(size = 14, angle = 45, vjust = 1, hjust = 1),
+                                                      axis.text.y = ggplot2::element_text(size = 14),
+                                                      axis.title = ggplot2::element_text(size = 14))
+  pl = pl + ggplot2::geom_bar(data = tempDT, ggplot2::aes(x = genes, y = log2fc, fill = int_cell_type), stat = 'identity', position = ggplot2::position_dodge())
+  pl = pl + ggplot2::scale_fill_manual(values = mycolors)
+  pl = pl + ggplot2::labs(x = '', title = paste0('fold-change z-scores in ' ,source_type))
+
+
+
   # print, return and save parameters
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-  
-  
+
+
   ## print plot
   if(show_plot == TRUE) {
     print(pl)
   }
-  
+
   ## save plot
   if(save_plot == TRUE) {
     do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
   }
-  
+
   ## return plot
   if(return_plot == TRUE) {
     return(pl)
   }
-  
-  
-}
 
+
+}
 
 
 #' @title plotICG
@@ -1623,8 +1623,8 @@ plotICG = function(gobject,
                    save_plot = NA,
                    save_param =  list(),
                    default_save_name = 'plotICG') {
-  
-  
+
+
   plotInteractionChangedGenes(gobject = gobject,
                              cpgObject = cpgObject,
                              source_type = source_type,
@@ -1636,7 +1636,7 @@ plotICG = function(gobject,
                              save_plot = save_plot,
                              save_param =  save_param,
                              default_save_name = default_save_name)
-  
+
 }
 
 

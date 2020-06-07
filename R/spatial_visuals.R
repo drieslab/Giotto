@@ -8978,14 +8978,14 @@ spatGenePlot2D <- function(gobject,
   cell_locations  = gobject@spatial_locs
 
   ## extract spatial network
-  if(!is.null(spatial_network_name)) {
+  if(show_network == TRUE) {
     spatial_network = Giotto:::select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
   } else {
     spatial_network = NULL
   }
 
   ## extract spatial grid
-  if(!is.null(spatial_grid_name)) {
+  if(show_grid == TRUE) {
     spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
   } else {
     spatial_grid = NULL
