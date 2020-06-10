@@ -1006,7 +1006,7 @@ runUMAP <- function(gobject,
       set.seed(seed = seed_number)
     }
 
-    uwot_clus <- uwot::umap(X = matrix_to_use, n_neighbors = n_neighbors, n_components = n_components,
+    uwot_clus <- uwot::umap(X = as.matrix(matrix_to_use), n_neighbors = n_neighbors, n_components = n_components,
                             n_epochs = n_epochs, min_dist = min_dist, n_threads = n_threads, spread = spread, ...)
     uwot_clus_pos_DT <- data.table::as.data.table(uwot_clus)
     uwot_clus_pos_DT[, cell_ID := rownames(matrix_to_use)]
