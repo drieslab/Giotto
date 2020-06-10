@@ -285,15 +285,7 @@ cellProximityNetwork = function(gobject,
   }
 
 
-  if(layout == 'Fruchterman') {
-    coords = igraph::layout_with_fr(graph = igd, weights = edges_sizes_resc)
-  } else if(layout == 'DrL') {
-    coords = igraph::layout_with_drl(graph = igd, weights = edges_sizes_resc)
-  } else if(layout == 'Kamada-Kawai') {
-    coords = igraph::layout_with_kk(graph = igd, weights = edges_sizes_resc)
-  } else {
-    stop('\n Currently no other layouts have been implemented \n')
-  }
+
 
   #iplot = igraph::plot.igraph(igd, edge.color = edges_colors, edge.width = edges_sizes_resc, layout = coords)
 
@@ -305,7 +297,22 @@ cellProximityNetwork = function(gobject,
     colors = igraph::get.edge.attribute(igd, name = 'color')
     subvertices_ids = which(colors == 'enriched')
     igd = igraph::subgraph.edges(graph = igd, eids = subvertices_ids)
+
+    # get new rescale vector (in case vector id is lost)
+    edges_sizes_resc = igraph::E(igd)$size
   }
+
+  ## get coordinates layouts
+  if(layout == 'Fruchterman') {
+    coords = igraph::layout_with_fr(graph = igd, weights = edges_sizes_resc)
+  } else if(layout == 'DrL') {
+    coords = igraph::layout_with_drl(graph = igd, weights = edges_sizes_resc)
+  } else if(layout == 'Kamada-Kawai') {
+    coords = igraph::layout_with_kk(graph = igd, weights = edges_sizes_resc)
+  } else {
+    stop('\n Currently no other layouts have been implemented \n')
+  }
+
 
   #longDT = as.data.table(igraph::as_long_data_frame(igd))
   #return(longDT)
@@ -313,18 +320,18 @@ cellProximityNetwork = function(gobject,
 
   ## create plot
   gpl = ggraph::ggraph(graph = igd, layout = coords)
-  gpl = gpl + ggraph::geom_edge_link(aes(color = factor(color), edge_width = size, edge_alpha = size), show.legend = F)
-  gpl = gpl + ggraph::geom_edge_loop(aes(color = factor(color), edge_width = size, edge_alpha = size, strength = self_loop_strength), show.legend = F)
+  gpl = gpl + ggraph::geom_edge_link(ggplot2::aes(color = factor(color), edge_width = size, edge_alpha = size), show.legend = F)
+  gpl = gpl + ggraph::geom_edge_loop(ggplot2::aes(color = factor(color), edge_width = size, edge_alpha = size, strength = self_loop_strength), show.legend = F)
   gpl = gpl + ggraph::scale_edge_color_manual(values = c('enriched' = color_enrichment, 'depleted' = color_depletion))
   gpl = gpl + ggraph::scale_edge_width(range = edge_width_range)
   gpl = gpl + ggraph::scale_edge_alpha(range = c(0.1,1))
-  gpl = gpl + ggraph::geom_node_text(aes(label = name), repel = TRUE, size = node_text_size)
+  gpl = gpl + ggraph::geom_node_text(ggplot2::aes(label = name), repel = TRUE, size = node_text_size)
   gpl = gpl + ggraph::geom_node_point(size = node_size)
-  gpl = gpl + ggplot2::theme_bw() + ggplot2::theme(panel.grid = element_blank(),
-                                                   panel.border = element_blank(),
-                                                   axis.title = element_blank(),
-                                                   axis.text = element_blank(),
-                                                   axis.ticks = element_blank())
+  gpl = gpl + ggplot2::theme_bw() + ggplot2::theme(panel.grid = ggplot2::element_blank(),
+                                                   panel.border = ggplot2::element_blank(),
+                                                   axis.title = ggplot2::element_blank(),
+                                                   axis.text = ggplot2::element_blank(),
+                                                   axis.ticks = ggplot2::element_blank())
 
 
   # print, return and save parameters
