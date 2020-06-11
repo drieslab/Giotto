@@ -10,10 +10,9 @@
 <!-- badges: end -->
 
 The Giotto package consists of two modules, Giotto Analyzer and Viewer
-(see
-[www.spatialgiotto.com](http://spatial.rc.fas.harvard.edu/spatialgiotto/giotto.html)),
-which provide tools to process, analyze and visualize **single-cell
-spatial expression** data. The underlying framework is generalizable to
+(see [www.spatialgiotto.com](http://www.spatialgiotto.com)), which
+provide tools to process, analyze and visualize **single-cell spatial
+expression** data. The underlying framework is generalizable to
 virtually all currently available spatial datasets. We recently
 demonstrated the general applicability on 10 different datasets created
 by 9 different state-of-the-art spatial technologies, including *in
@@ -107,9 +106,8 @@ See
 
 ## References
 
-  - [Dries, R. et al. Giotto, a pipeline for integrative analysis and
-    visualization of single-cell spatial transcriptomic data.
-    bioRxiv 701680
+  - [Dries, R. et al. Giotto, a toolbox for integrative analysis and
+    visualization of spatial expression data. bioRxiv 701680
     (2019).](https://www.biorxiv.org/content/10.1101/701680v2)
     <doi:10.1101/701680>
 

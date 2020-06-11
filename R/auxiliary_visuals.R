@@ -609,7 +609,8 @@ decide_cluster_order = function(gobject,
                                           cluster_column = cluster_column,
                                           gene_subset = detected_genes,
                                           expression_values = values)
-    cormatrix = stats::cor(x = subset_matrix, method = cor_method)
+
+    cormatrix = cor_giotto(x = subset_matrix, method = cor_method)
     cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
     corclus = stats::hclust(d = cordist, method = hclust_method)
     clus_names = rownames(cormatrix)
@@ -687,7 +688,7 @@ createHeatmap_DT <- function(gobject,
                                          hclust_method = cluster_hclust_method)
 
   ## data.table ##
-  subset_values_DT <- data.table::as.data.table(reshape2::melt(subset_values, varnames = c('genes', 'cells'), value.name = 'expression'))
+  subset_values_DT <- data.table::as.data.table(reshape2::melt(as.matrix(subset_values), varnames = c('genes', 'cells'), value.name = 'expression'))
   subset_values_DT <- merge(subset_values_DT, by.x = 'cells', cell_metadata[, c('cell_ID', cluster_column), with = F], by.y = 'cell_ID')
   subset_values_DT[[cluster_column]] <- factor(subset_values_DT[[cluster_column]], levels = clus_sort_names)
 
@@ -712,7 +713,7 @@ createHeatmap_DT <- function(gobject,
     test_mat = data.table::dcast.data.table(data = genesum_per_clus, formula = my_formula, value.var = 'V1')
     test_matrix = as.matrix(test_mat[,-1]); rownames(test_matrix) = test_mat$genes
 
-    gene_dist = stats::as.dist(1-cor(t(test_matrix), method = gene_cor_method))
+    gene_dist = stats::as.dist(1 - cor_giotto(t_giotto(test_matrix), method = gene_cor_method))
     gene_clus = stats::hclust(gene_dist, method = gene_hclust_method)
 
     gene_labels = rownames(test_matrix)
@@ -829,14 +830,14 @@ plotHeatmap <- function(gobject,
 
   ## bar on top ##
   clus_pl <- ggplot2::ggplot()
-  clus_pl <- clus_pl + ggplot2::geom_raster(data = cell_order_DT, aes_string(x = 'cells', y = '1', fill = cluster_column))
+  clus_pl <- clus_pl + ggplot2::geom_raster(data = cell_order_DT, ggplot2::aes_string(x = 'cells', y = '1', fill = cluster_column))
   clus_pl <- clus_pl + ggplot2::geom_vline(xintercept = x_lines, color = 'white', size = size_vertical_lines)
-  clus_pl <- clus_pl + ggplot2::scale_fill_manual(values = clus_colors, guide = guide_legend(title = '', nrow = legend_nrows))
-  clus_pl <- clus_pl + ggplot2::theme(axis.text = element_blank(),
-                                      axis.ticks = element_blank(),
-                                      axis.line = element_blank(),
+  clus_pl <- clus_pl + ggplot2::scale_fill_manual(values = clus_colors, guide = ggplot2::guide_legend(title = '', nrow = legend_nrows))
+  clus_pl <- clus_pl + ggplot2::theme(axis.text = ggplot2::element_blank(),
+                                      axis.ticks = ggplot2::element_blank(),
+                                      axis.line = ggplot2::element_blank(),
                                       legend.position = 'top',
-                                      plot.margin = margin(0, 0, 0, 5.5, "pt"))
+                                      plot.margin = ggplot2::margin(0, 0, 0, 5.5, "pt"))
   clus_pl <- clus_pl + ggplot2::labs(x = '', y = 'clusters')
 
   ## rescale values ##
@@ -852,12 +853,12 @@ plotHeatmap <- function(gobject,
   }
 
   # create empty plot
-  empty = ggplot()
-  empty = empty + theme_classic()
-  empty = empty  + ggplot2::theme(axis.text = element_blank(),
-                                  axis.ticks = element_blank(),
-                                  axis.line = element_blank(),
-                                  plot.margin = margin(0, 0, 0, 0, "cm"))
+  empty = ggplot2::ggplot()
+  empty = empty + ggplot2::theme_classic()
+  empty = empty  + ggplot2::theme(axis.text = ggplot2::element_blank(),
+                                  axis.ticks = ggplot2::element_blank(),
+                                  axis.line = ggplot2::element_blank(),
+                                  plot.margin = ggplot2::margin(0, 0, 0, 0, "cm"))
 
   ## parse gradient colors
   if(length(gradient_colors) > 3) cat('\n only first 3 colors will be used for gradient \n')
@@ -871,17 +872,17 @@ plotHeatmap <- function(gobject,
   hmap <- hmap + ggplot2::geom_vline(xintercept = x_lines, color = 'white', size = size_vertical_lines)
   hmap <- hmap + ggplot2::scale_fill_gradient2(low = low_color, mid = mid_color, high = high_color,
                                                midpoint = midpoint,
-                                               guide = guide_colorbar(title = ''))
+                                               guide = ggplot2::guide_colorbar(title = ''))
 
   if(is.null(gene_label_selection)) {
 
-    hmap <- hmap + ggplot2::theme(axis.text.x = element_blank(),
-                                  axis.ticks.x = element_blank(),
-                                  axis.text.y = element_text(size = axis_text_y_size),
-                                  plot.margin = margin(0, 0, 5.5, 5.5, "pt"))
+    hmap <- hmap + ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                                  axis.ticks.x = ggplot2::element_blank(),
+                                  axis.text.y = ggplot2::element_text(size = axis_text_y_size),
+                                  plot.margin = ggplot2::margin(0, 0, 5.5, 5.5, "pt"))
 
     ## align and combine
-    aligned <- cowplot::align_plots(clus_pl, empty, hmap + theme(legend.position = "none"),  align = "v", axis = "l")
+    aligned <- cowplot::align_plots(clus_pl, empty, hmap + ggplot2::theme(legend.position = "none"),  align = "v", axis = "l")
     aligned <- append(aligned, list(cowplot::get_legend(hmap)))
     combplot = cowplot::plot_grid(plotlist = aligned,
                                   ncol = 2, rel_widths = c(1, 0.2),
@@ -916,9 +917,9 @@ plotHeatmap <- function(gobject,
     if(is.null(axis_text_y_size)) axis_text_y_size = 0.8*11/ggplot2::.pt
 
     # finish heatmap
-    hmap <- hmap + ggplot2::theme(axis.text = element_blank(),
-                                  axis.ticks = element_blank(),
-                                  plot.margin = margin(0, 0, 5.5, 5.5, "pt"))
+    hmap <- hmap + ggplot2::theme(axis.text = ggplot2::element_blank(),
+                                  axis.ticks = ggplot2::element_blank(),
+                                  plot.margin = ggplot2::margin(0, 0, 5.5, 5.5, "pt"))
     ### axis ###
     geneDT = subset_values_DT[,c('genes'), with = F]
     geneDT = unique(setorder(geneDT, genes))
@@ -930,12 +931,12 @@ plotHeatmap <- function(gobject,
                                             color = "grey30",  ## ggplot2 theme_grey() axis text
                                             size = axis_text_y_size  ## default ggplot2 theme_grey() axis text
     )
-    axis <- axis + scale_x_continuous(limits = c(0, 1), expand = c(0, 0),
+    axis <- axis + ggplot2::scale_x_continuous(limits = c(0, 1), expand = c(0, 0),
                                       breaks = NULL, labels = NULL, name = NULL)
-    axis <- axis + scale_y_continuous(limits = c(0, nrow(geneDT)), expand = c(0, 0),
+    axis <- axis + ggplot2::scale_y_continuous(limits = c(0, nrow(geneDT)), expand = c(0, 0),
                                       breaks = NULL, labels = NULL, name = NULL)
-    axis <- axis + theme(panel.background = element_blank(),
-                         plot.margin = margin(0, 0, 0, 0, "cm"))
+    axis <- axis + ggplot2::theme(panel.background = ggplot2::element_blank(),
+                         plot.margin = ggplot2::margin(0, 0, 0, 0, "cm"))
 
 
     #return(list(hmap, clus_pl, axis, empty))
