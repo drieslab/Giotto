@@ -18,7 +18,9 @@ plotMetaDataHeatmap(
   custom_gene_order = NULL,
   gene_cor_method = "pearson",
   gene_cluster_method = "complete",
-  midpoint = 0,
+  gradient_color = c("blue", "white", "red"),
+  gradient_midpoint = 0,
+  gradient_limits = NULL,
   x_text_size = 10,
   x_text_angle = 45,
   y_text_size = 10,
@@ -57,7 +59,11 @@ plotMetaDataHeatmap(
 
 \item{gene_cluster_method}{hierarchical cluster method for the genes}
 
-\item{midpoint}{midpoint of show_values}
+\item{gradient_color}{vector with 3 colors for numeric data}
+
+\item{gradient_midpoint}{midpoint for color gradient}
+
+\item{gradient_limits}{vector with lower and upper limits}
 
 \item{x_text_size}{size of x-axis text}
 
@@ -73,7 +79,7 @@ plotMetaDataHeatmap(
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name}
 }

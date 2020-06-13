@@ -6,9 +6,11 @@
 \usage{
 cellProximityEnrichment(
   gobject,
-  spatial_network_name = "spatial_network",
+  spatial_network_name = "Delaunay_network",
   cluster_column,
-  number_of_simulations = 100
+  number_of_simulations = 1000,
+  adjust_method = c("none", "fdr", "bonferroni", "BH", "holm", "hochberg", "hommel",
+    "BY")
 )
 }
 \arguments{

@@ -1,19 +1,1259 @@
 
+## Spatial structure helper functions ####
 
-#' @title createSpatialNetwork
-#' @description Create a spatial network based on cell centroid physical distances.
+
+
+#' @title spatNetwDistributionsDistance
+#' @description This function return histograms displaying the distance distribution for each spatial k-neighbor
+#' @param gobject Giotto object
+#' @param spatial_network_name name of spatial network
+#' @param hist_bins number of binds to use for the histogram
+#' @param test_distance_limit effect of different distance threshold on k-neighbors
+#' @param ncol number of columns to visualize the histograms in
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, alternatively change save_name in save_param
+#' @return ggplot plot
+#' @export
+#' @examples
+#'     spatNetwDistributionsDistance(gobject)
+spatNetwDistributionsDistance <- function(gobject,
+                                          spatial_network_name = 'spatial_network',
+                                          hist_bins = 30,
+                                          test_distance_limit =  NULL,
+                                          ncol = 1,
+                                          show_plot = NA,
+                                          return_plot = NA,
+                                          save_plot = NA,
+                                          save_param =  list(),
+                                          default_save_name = 'spatNetwDistributionsDistance') {
+
+
+  ## spatial network
+  #spatial_network = gobject@spatial_network[[spatial_network_name]]
+  spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
+
+  ## convert to full network with rank_int column
+  spatial_network = Giotto:::convert_to_full_spatial_network(spatial_network)
+
+  if(is.null(spatial_network)) {
+    stop('spatial network ', spatial_network_name, ' was not found')
+  }
+
+  if(!is.null(test_distance_limit)) {
+    removed_neighbors = spatial_network[distance > test_distance_limit, .N, by = rank_int]
+    removed_neighbors[, status := 'remove']
+    keep_neighbors = spatial_network[distance <= test_distance_limit, .N, by = rank_int]
+    keep_neighbors[, status := 'keep']
+
+    dist_removal_dt = rbind(removed_neighbors, keep_neighbors)
+    setorder(dist_removal_dt, rank_int)
+
+    dist_removal_dt_dcast = dcast.data.table(data = dist_removal_dt, rank_int~status, value.var = 'N', fill = 0)
+    dist_removal_dt_dcast[, label := paste0('keep:',keep, '\n remove:',remove)]
+  }
+
+  # text location coordinates
+  middle_distance = max(spatial_network$distance)/(3/2)
+  freq_dt = spatial_network[, table(cut(distance, breaks = 30)), by = rank_int]
+  middle_height = max(freq_dt$V1)/(3/2)
+
+  pl = ggplot()
+  pl = pl + labs(title = 'distance distribution per k-neighbor')
+  pl = pl + theme_classic()
+  pl = pl + geom_histogram(data = spatial_network, aes(x = distance), color = 'white', fill = 'black', bins = hist_bins)
+  pl = pl + facet_wrap(~rank_int, ncol = ncol)
+  if(!is.null(test_distance_limit)) {
+    pl = pl + geom_vline(xintercept = test_distance_limit, color = 'red')
+    pl = pl + geom_text(data = dist_removal_dt_dcast, aes(x = middle_distance, y = middle_height, label = label))
+  }
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
+
+
+}
+
+
+
+
+#' @title spatNetwDistributionsKneighbors
+#' @description This function returns a histogram displaying the number of k-neighbors distribution for each cell
+#' @param gobject Giotto object
+#' @param spatial_network_name name of spatial network
+#' @param hist_bins number of binds to use for the histogram
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, alternatively change save_name in save_param
+#' @return ggplot plot
+#' @export
+#' @examples
+#'     spatNetwDistributionsKneighbors(gobject)
+spatNetwDistributionsKneighbors = function(gobject,
+                                           spatial_network_name = 'spatial_network',
+                                           hist_bins = 30,
+                                           show_plot = NA,
+                                           return_plot = NA,
+                                           save_plot = NA,
+                                           save_param =  list(),
+                                           default_save_name = 'spatNetwDistributionsKneighbors') {
+
+  ## spatial network
+  #spatial_network = gobject@spatial_network[[spatial_network_name]]
+  spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
+
+  ## convert to full network with rank_int column
+  spatial_network = Giotto:::convert_to_full_spatial_network(spatial_network)
+
+  if(is.null(spatial_network)) {
+    stop('spatial network ', spatial_network_name, ' was not found')
+  }
+
+  spatial_network_dt = as.data.table(spatial_network[, table(source)])
+
+  pl = ggplot()
+  pl = pl + labs(title = 'k-neighbor distribution for all cells', x = 'k-neighbors/cell')
+  pl = pl + theme_classic()
+  pl = pl + geom_histogram(data = spatial_network_dt, aes(x = N), color = 'white', fill = 'black', bins = hist_bins)
+
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
+
+
+}
+
+
+
+#' @title spatNetwDistributionsDistance
+#' @description This function return histograms displaying the distance distribution for each spatial k-neighbor
+#' @param gobject Giotto object
+#' @param spatial_network_name name of spatial network
+#' @param distribution show the distribution of cell-to-cell distance or number of k neighbors
+#' @param hist_bins number of binds to use for the histogram
+#' @param test_distance_limit effect of different distance threshold on k-neighbors
+#' @param ncol number of columns to visualize the histograms in
+#' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, alternatively change save_name in save_param
+#' @details The \strong{distance} option shows the spatial distance distribution for each nearest neighbor rank (1st, 2nd, 3th, ... neigbor).
+#' With this option the user can also test the effect of a distance limit on the spatial network. This distance limit can be used to remove neigbor
+#' cells that are considered to far away. \cr
+#' The \strong{k_neighbors} option shows the number of k neighbors distribution over all cells.
+#' @return ggplot plot
+#' @export
+#' @examples
+#'     spatNetwDistributionsDistance(gobject)
+spatNetwDistributions <- function(gobject,
+                                  spatial_network_name = 'spatial_network',
+                                  distribution = c('distance', 'k_neighbors'),
+                                  hist_bins = 30,
+                                  test_distance_limit =  NULL,
+                                  ncol = 1,
+                                  show_plot = NA,
+                                  return_plot = NA,
+                                  save_plot = NA,
+                                  save_param =  list(),
+                                  default_save_name = 'spatNetwDistributions') {
+
+  ## histogram to show
+  distribution = match.arg(distribution, choices = distribution)
+
+  ## spatial network
+  #spatial_network = gobject@spatial_network[[spatial_network_name]]
+  spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
+  if(is.null(spatial_network)) {
+    stop('spatial network ', spatial_network_name, ' was not found')
+  }
+
+
+  if(distribution == 'distance') {
+
+    spatNetwDistributionsDistance(gobject = gobject,
+                                  spatial_network_name = spatial_network_name,
+                                  hist_bins = hist_bins,
+                                  test_distance_limit =  test_distance_limit,
+                                  ncol = ncol,
+                                  show_plot = show_plot,
+                                  return_plot = return_plot,
+                                  save_plot = save_plot,
+                                  save_param =  save_param,
+                                  default_save_name = default_save_name)
+
+  } else if(distribution == 'k_neighbors') {
+
+    spatNetwDistributionsKneighbors(gobject = gobject,
+                                    spatial_network_name = spatial_network_name,
+                                    hist_bins = hist_bins,
+                                    show_plot = show_plot,
+                                    return_plot = return_plot,
+                                    save_plot = save_plot,
+                                    save_param =  save_param,
+                                    default_save_name = default_save_name)
+
+  }
+
+}
+
+
+
+
+
+
+#' @title convert_to_full_spatial_network
+#' @name convert_to_full_spatial_network
+#' @description convert to a full spatial network
+convert_to_full_spatial_network =  function(reduced_spatial_network_DT) {
+
+  # find location coordinates
+  coordinates = grep('sdim', colnames(reduced_spatial_network_DT), value = T)
+
+  begin_coordinates = grep('begin', coordinates, value = T)
+  new_begin_coordinates = gsub(x = begin_coordinates, pattern = '_begin', replacement = '')
+  new_begin_coordinates = gsub(x = new_begin_coordinates, pattern = 'sdim', replacement = 'source_')
+
+  end_coordinates = grep('end', coordinates, value = T)
+  new_end_coordinates = gsub(x = end_coordinates, pattern = '_end', replacement = '')
+  new_end_coordinates = gsub(x = new_end_coordinates, pattern = 'sdim', replacement = 'target_')
+
+  # create normal source --> target
+  part1 = data.table::copy(reduced_spatial_network_DT)
+  part1 = part1[, c('from', 'to', begin_coordinates, end_coordinates, 'distance', 'weight'), with = F]
+  colnames(part1) = c('source', 'target', new_begin_coordinates, new_end_coordinates, 'distance', 'weight')
+
+  # revert order target (now source) --> source (now target)
+  part2 = data.table::copy(reduced_spatial_network_DT[, c('to', 'from', end_coordinates, begin_coordinates, 'distance', 'weight'), with = F])
+  colnames(part2) = c('source', 'target', new_begin_coordinates, new_end_coordinates, 'distance', 'weight')
+
+  # combine and remove duplicates
+  full_spatial_network_DT = rbind(part1, part2)
+  full_spatial_network_DT = unique(full_spatial_network_DT)
+
+  # create ranking of interactions
+  data.table::setorder(full_spatial_network_DT, source, distance)
+  full_spatial_network_DT[, rank_int := 1:.N, by = 'source']
+
+  # create unified column
+  full_spatial_network_DT = Giotto:::sort_combine_two_DT_columns(full_spatial_network_DT, 'source', 'target', 'rnk_src_trgt')
+
+  return(full_spatial_network_DT)
+
+}
+
+#' @title convert_to_reduced_spatial_network
+#' @name convert_to_reduced_spatial_network
+#' @description convert to a reduced spatial network
+convert_to_reduced_spatial_network =  function(full_spatial_network_DT) {
+
+
+  # remove duplicates
+  reduced_spatial_network_DT = full_spatial_network_DT[!duplicated(rnk_src_trgt)]
+  reduced_spatial_network_DT[, c('rank_int', 'rnk_src_trgt') := NULL] # don't make sense in a reduced network
+
+  # convert to names for a reduced network
+  source_coordinates = grep('source_', colnames(reduced_spatial_network_DT), value = T)
+  new_source_coordinates = gsub(x = source_coordinates, pattern = 'source_', replacement = 'sdim')
+  new_source_coordinates = paste0(new_source_coordinates,'_begin')
+
+  target_coordinates = grep('target_', colnames(reduced_spatial_network_DT), value = T)
+  new_target_coordinates = gsub(x = target_coordinates, pattern = 'target_', replacement = 'sdim')
+  new_target_coordinates = paste0(new_target_coordinates,'_end')
+
+  reduced_spatial_network_DT = reduced_spatial_network_DT[, c('source', 'target', source_coordinates, target_coordinates, 'distance', 'weight'), with = F]
+  colnames(reduced_spatial_network_DT) = c('from', 'to', new_source_coordinates, new_target_coordinates, 'distance', 'weight')
+  return(reduced_spatial_network_DT)
+
+}
+
+
+#' @title create_spatialNetworkObject
+#' @name create_spatialNetworkObject
+#' @description creates a spatial network object to store the created spatial network and additional information
+create_spatialNetworkObject <- function(name = NULL,
+                                        method = NULL,
+                                        parameters = NULL,
+                                        outputObj = NULL,
+                                        networkDT = NULL,
+                                        cellShapeObj = NULL,
+                                        networkDT_before_filter = NULL,
+                                        crossSectionObjects = NULL,
+                                        misc = NULL) {
+
+  networkObj = list(name = name,
+                    method = method,
+                    parameters = parameters,
+                    outputObj = outputObj,
+                    networkDT = networkDT,
+                    networkDT_before_filter = networkDT_before_filter,
+                    cellShapeObj = cellShapeObj,
+                    crossSectionObjects = crossSectionObjects,
+                    misc = misc)
+
+  class(networkObj) <- append(class(networkObj), "spatialNetworkObj")
+  return(networkObj)
+
+}
+
+#' @title select_spatialNetwork
+#' @name select_spatialNetwork
+#' @description function to select a spatial network
+select_spatialNetwork <- function(gobject,
+                                  name = NULL,
+                                  return_network_Obj = FALSE) {
+
+  if (!is.element(name, names(gobject@spatial_network))){
+    message = sprintf("spatial network %s has not been created.Returning NULL", name)
+    warning(message)
+    return(NULL)
+  }else{
+    networkObj = gobject@spatial_network[[name]]
+    networkDT = networkObj$networkDT
+  }
+
+  if (return_network_Obj == TRUE){
+    return(networkObj)
+  }else{
+    return(networkDT)
+  }
+}
+
+#' @title calculate_distance_and_weight
+#' @name calculate_distance_and_weight
+#' @description calculate_distance_and_weight
+calculate_distance_and_weight <- function(networkDT,
+                                          sdimx = "sdimx",
+                                          sdimy = "sdimy",
+                                          sdimz = "sdimz",
+                                          d2_or_d3=c(2,3)){
+
+
+  if (d2_or_d3==3){
+    ## make it dynamic for all possible coordinates combinations ##
+    xbegin_name = paste0(sdimx,'_begin')
+    ybegin_name = paste0(sdimy,'_begin')
+    zbegin_name =  paste0(sdimz,'_begin')
+    xend_name = paste0(sdimx,'_end')
+    yend_name = paste0(sdimy,'_end')
+    zend_name = paste0(sdimz,'_end')
+    mycols = c(xbegin_name, ybegin_name, zbegin_name,
+               xend_name, yend_name, zend_name)
+  }else if (d2_or_d3==2){
+    xbegin_name = paste0(sdimx,'_begin')
+    ybegin_name = paste0(sdimy,'_begin')
+    xend_name = paste0(sdimx,'_end')
+    yend_name = paste0(sdimy,'_end')
+    mycols = c(xbegin_name, ybegin_name,
+               xend_name, yend_name)
+  }
+
+  ## calculate distance and weight + filter ##
+  networkDT[, `:=`(distance, dist(x = matrix(.SD, nrow = 2, byrow = T))),
+            by = 1:nrow(networkDT), .SDcols = mycols]
+
+  networkDT[, `:=`(distance, as.numeric(distance))]
+  networkDT[, `:=`(weight, 1/distance)]
+  data.table::setorder(networkDT, from, distance)
+
+  networkDT = networkDT[, c('to', 'from', 'weight',
+                            'distance', mycols), with = F]
+
+  return(networkDT)
+}
+
+#' @title filter_network
+#' @name filter_network
+#' @description function to filter a spatial network
+filter_network <- function(networkDT,
+                           maximum_distance = NULL,
+                           minimum_k = NULL){
+
+  temp_fullnetwork = Giotto:::convert_to_full_spatial_network(networkDT)
+
+  ## filter based on distance or minimum number of neighbors
+  if (maximum_distance == "auto") {
+    temp_fullnetwork = temp_fullnetwork[distance <= boxplot.stats(temp_fullnetwork$distance)$stats[5] | rank_int <= minimum_k]
+  }
+  else if (!is.null(maximum_distance)) {
+    temp_fullnetwork = temp_fullnetwork[distance <= maximum_distance | rank_int <= minimum_k]
+  }
+  networkDT = Giotto:::convert_to_reduced_spatial_network(temp_fullnetwork)
+
+  return(networkDT)
+}
+
+## Delaunay network ####
+
+#' @title create_delaunayNetwork_geometry
+#' @description Create a spatial Delaunay network.
+#' @examples
+#'     create_delaunayNetwork_geometry(gobject)
+create_delaunayNetwork_geometry <- function(spatial_locations,
+                                               sdimx = 'sdimx',
+                                               sdimy = 'sdimy',
+                                               options = "Pp",
+                                               ...) {
+
+  ## vector with original cell names ##
+  cell_ID_vec = spatial_locations$cell_ID
+  names(cell_ID_vec) = c(1:nrow(spatial_locations))
+
+  ## create delaunay network
+  delaunay_triangle = geometry::delaunayn(p = spatial_locations[, c(sdimx, sdimy), with = F],
+                                          options = options, ...)
+
+  ## save delaunay network object
+  geometry_obj = list("delaunay_triangle" = delaunay_triangle)
+
+  ## prepare delaunay network data.table results
+  delaunay_edges <- as.data.table(rbind(delaunay_triangle[ ,c(1,2)],
+                                        delaunay_triangle[ ,c(1,3)],
+                                        delaunay_triangle[ ,c(2,3)]))
+
+  delaunay_edges_dedup = unique(delaunay_edges)
+  igraph_obj = igraph::graph_from_edgelist(as.matrix(delaunay_edges_dedup))
+  adj_obj = igraph::as_adjacency_matrix(igraph_obj)
+  igraph_obj2 = igraph::graph.adjacency(adj_obj)
+  delaunay_edges_dedup2 = igraph::get.data.frame(igraph_obj2)
+  delaunay_edges_dedup = data.table::as.data.table(delaunay_edges_dedup2)
+
+
+  xbegin_name = paste0(sdimx,'_begin')
+  ybegin_name = paste0(sdimy,'_begin')
+  xend_name = paste0(sdimx,'_end')
+  yend_name = paste0(sdimy,'_end')
+
+  delaunay_network_DT = data.table::data.table(from = cell_ID_vec[delaunay_edges_dedup$from],
+                                               to = cell_ID_vec[delaunay_edges_dedup$to],
+                                               xbegin_name = spatial_locations[delaunay_edges_dedup$from, sdimx],
+                                               ybegin_name = spatial_locations[delaunay_edges_dedup$from, sdimy],
+                                               xend_name = spatial_locations[delaunay_edges_dedup$to, sdimx],
+                                               yend_name = spatial_locations[delaunay_edges_dedup$to, sdimy])
+  data.table::setnames(delaunay_network_DT,
+                       old = c('xbegin_name', 'ybegin_name', 'xend_name', 'yend_name'),
+                       new = c(xbegin_name, ybegin_name, xend_name, yend_name))
+  data.table::setorder(delaunay_network_DT, from, to)
+
+  out_object = list("geometry_obj" = geometry_obj,
+                    "delaunay_network_DT" = delaunay_network_DT)
+
+  return(out_object)
+}
+
+#' @title create_delaunayNetwork_geometry_3D
+#' @description Create a spatial Delaunay network.
+#' @examples
+#'     create_delaunayNetwork_geometry_3D(gobject)
+create_delaunayNetwork_geometry_3D <- function(spatial_locations,
+                                                  sdimx = 'sdimx',
+                                                  sdimy = 'sdimy',
+                                                  sdimz = 'sdimz',
+                                                  options = options,
+                                                  ...){
+
+  ## vector with original cell names ##
+  cell_ID_vec = spatial_locations$cell_ID
+  names(cell_ID_vec) = c(1:nrow(spatial_locations))
+
+
+  delaunay_tetrahedra <- geometry::delaunayn(p = spatial_locations[, c(sdimx, sdimy, sdimz), with = F],
+                                             options = options, ...)
+
+  geometry_obj = list("delaunay_tetrahedra"=delaunay_tetrahedra)
+  delaunay_edges <- as.data.table(rbind(delaunay_tetrahedra[,c(1,2)],
+                                        delaunay_tetrahedra[,c(1,3)],
+                                        delaunay_tetrahedra[,c(1,4)],
+                                        delaunay_tetrahedra[,c(2,3)],
+                                        delaunay_tetrahedra[,c(2,4)],
+                                        delaunay_tetrahedra[,c(3,4)]))
+
+
+  ### making sure of no duplication ###
+  delaunay_edges_dedup = unique(delaunay_edges)
+  igraph_obj = igraph::graph_from_edgelist(as.matrix(delaunay_edges_dedup))
+  adj_obj = igraph::as_adjacency_matrix(igraph_obj)
+  igraph_obj2 = igraph::graph.adjacency(adj_obj)
+  delaunay_edges_dedup2 = igraph::get.data.frame(igraph_obj2)
+  delaunay_edges_dedup = data.table::as.data.table(delaunay_edges_dedup2)
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+  xbegin_name = paste0(sdimx,'_begin')
+  ybegin_name = paste0(sdimy,'_begin')
+  zbegin_name = paste0(sdimz,'_begin')
+  xend_name = paste0(sdimx,'_end')
+  yend_name = paste0(sdimy,'_end')
+  zend_name = paste0(sdimz,'_end')
+
+  delaunay_network_DT = data.table::data.table(from = cell_ID_vec[delaunay_edges_dedup$from],
+                                               to = cell_ID_vec[delaunay_edges_dedup$to],
+                                               xbegin_name = spatial_locations[delaunay_edges_dedup$from, sdimx],
+                                               ybegin_name = spatial_locations[delaunay_edges_dedup$from, sdimy],
+                                               zbegin_name = spatial_locations[delaunay_edges_dedup$from, sdimz],
+                                               xend_name = spatial_locations[delaunay_edges_dedup$to, sdimx],
+                                               yend_name = spatial_locations[delaunay_edges_dedup$to, sdimy],
+                                               zend_name = spatial_locations[delaunay_edges_dedup$to, sdimz])
+
+  data.table::setnames(delaunay_network_DT,
+                       old = c('xbegin_name', 'ybegin_name', 'zbegin_name', 'xend_name', 'yend_name', 'zend_name'),
+                       new = c(xbegin_name, ybegin_name, zbegin_name, xend_name, yend_name, zend_name))
+  data.table::setorder(delaunay_network_DT, from, to)
+
+  out_object = list("geometry_obj"=geometry_obj,
+                    "delaunay_network_DT"=delaunay_network_DT)
+  return(out_object)
+
+}
+
+#' @title create_delaunayNetwork_RTriangle
+#' @description Create a spatial Delaunay network.
+#' @examples
+#'     create_delaunayNetwork_RTriangle(gobject)
+create_delaunayNetwork_RTriangle <- function(spatial_locations,
+                                                sdimx = 'sdimx',
+                                                sdimy = 'sdimy',
+                                                Y=TRUE,
+                                                j=TRUE,
+                                                S=0,
+                                                ...){
+
+
+  ## vector with original cell names ##
+  cell_ID_vec = spatial_locations$cell_ID
+  names(cell_ID_vec) = c(1:nrow(spatial_locations))
+
+  spatial_matrix = as.matrix(spatial_locations[, c(sdimx, sdimy), with = F])
+  RTriangle_obj = RTriangle::triangulate(RTriangle::pslg(spatial_matrix),
+                                         Y = Y,
+                                         j = j,
+                                         S = S,
+                                         ...)
+
+
+  ## prepare delaunay network data.table results
+  xbegin_name = paste0(sdimx,'_begin')
+  ybegin_name = paste0(sdimy,'_begin')
+  xend_name = paste0(sdimx,'_end')
+  yend_name = paste0(sdimy,'_end')
+
+  delaunay_network_DT = data.table::data.table(from = cell_ID_vec[RTriangle_obj$E[,1]],
+                                               to = cell_ID_vec[RTriangle_obj$E[, 2]],
+                                               xbegin_name = RTriangle_obj$P[RTriangle_obj$E[, 1],1],
+                                               ybegin_name = RTriangle_obj$P[RTriangle_obj$E[, 1], 2],
+                                               xend_name = RTriangle_obj$P[RTriangle_obj$E[, 2], 1],
+                                               yend_name = RTriangle_obj$P[RTriangle_obj$E[, 2], 2])
+
+  data.table::setnames(delaunay_network_DT,
+                       old = c('xbegin_name', 'ybegin_name', 'xend_name', 'yend_name'),
+                       new = c(xbegin_name, ybegin_name, xend_name, yend_name))
+  data.table::setorder(delaunay_network_DT, from, to)
+
+  out_object = list("RTriangle_obj"=RTriangle_obj,
+                    "delaunay_network_DT"=delaunay_network_DT)
+  return(out_object)
+}
+
+
+#' @title create_delaunayNetwork_deldir
+#' @description Create a spatial Delaunay network.
+#' @examples
+#'     create_delaunayNetwork_deldir(gobject)
+create_delaunayNetwork_deldir <- function(spatial_locations,
+                                             sdimx = 'sdimx',
+                                             sdimy = 'sdimy',
+                                             ...){
+
+  ## vector with original cell names ##
+  cell_ID_vec = spatial_locations$cell_ID
+  names(cell_ID_vec) = c(1:nrow(spatial_locations))
+
+
+  deldir_obj = deldir::deldir(x = spatial_locations[[sdimx]],
+                              y = spatial_locations[[sdimy]],
+                              ...)
+
+
+  ## prepare delaunay network data.table results
+  xbegin_name = paste0(sdimx,'_begin')
+  ybegin_name = paste0(sdimy,'_begin')
+  xend_name = paste0(sdimx,'_end')
+  yend_name = paste0(sdimy,'_end')
+
+  delaunay_network_DT = data.table::data.table(from = cell_ID_vec[deldir_obj$delsgs$ind1],
+                                               to = cell_ID_vec[deldir_obj$delsgs$ind2],
+                                               xbegin_name = deldir_obj$delsgs$x1,
+                                               ybegin_name = deldir_obj$delsgs$y1,
+                                               xend_name = deldir_obj$delsgs$x2,
+                                               yend_name = deldir_obj$delsgs$y2)
+
+  data.table::setnames(delaunay_network_DT,
+                       old = c('xbegin_name', 'ybegin_name', 'xend_name', 'yend_name'),
+                       new = c(xbegin_name, ybegin_name, xend_name, yend_name))
+  data.table::setorder(delaunay_network_DT, from, to)
+
+  out_object = list("deldir_obj"=deldir_obj,
+                    "delaunay_network_DT"=delaunay_network_DT)
+  return(out_object)
+}
+
+
+
+
+
+
+
+
+#' @title create_delaunayNetwork2D
+#' @description Create a spatial Delaunay network.
+#' @examples
+#'     create_delaunayNetwork2D(gobject)
+create_delaunayNetwork2D <- function (gobject,
+                                         method = c("delaunayn_geometry", "RTriangle", "deldir"),
+                                         sdimx = 'sdimx',
+                                         sdimy = 'sdimy',
+                                         name = "delaunay_network",
+                                         maximum_distance = "auto", # all
+                                         minimum_k = 0, # all
+                                         options = "Pp", # geometry
+                                         Y = TRUE, # RTriange
+                                         j = TRUE, # RTriange
+                                         S = 0, # RTriange
+                                         verbose = T,
+                                         return_gobject = TRUE,
+                                         ...)
+{
+
+
+  # get parameter values
+  method = match.arg(method, c("delaunayn_geometry", "RTriangle", "deldir"))
+
+  spatial_locations = gobject@spatial_locs
+  spatial_locations = spatial_locations[, c('cell_ID', sdimx, sdimy), with = F]
+
+  # 1. default is all dimensions as presented by spatial locations
+  # 2. otherwise try to grab spatial coordinates
+  # 3. stop if final result is not two columns
+
+
+  if (method == "RTriangle"){
+
+    delaunay_output = create_delaunayNetwork_RTriangle(spatial_locations = spatial_locations,
+                                                          sdimx = sdimx,
+                                                          sdimy = sdimy,
+                                                          Y = Y,
+                                                          j = j,
+                                                          S = S,
+                                                          ...)
+
+    outputObj = delaunay_output$geometry_obj
+    delaunay_network_DT = delaunay_output$delaunay_network_DT
+
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    parameters = list("maximum_distance" = maximum_distance,
+                      "minimum_k" = minimum_k,
+                      "Y" = Y,
+                      "j" = j,
+                      "S" = S)
+    outputObj = outputObj
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+
+  }else if (method == "deldir"){
+
+    delaunay_output = create_delaunayNetwork_deldir(spatial_locations = spatial_locations,
+                                                       sdimx = sdimx,
+                                                       sdimy = sdimy,
+                                                       ...)
+
+    outputObj = delaunay_output$geometry_obj
+    delaunay_network_DT = delaunay_output$delaunay_network_DT
+
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    parameters = list("maximum_distance" = maximum_distance,
+                      "minimum_k" = minimum_k)
+    outputObj = outputObj
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+  } else if (method == "delaunayn_geometry"){
+
+    delaunay_output = create_delaunayNetwork_geometry(spatial_locations = spatial_locations,
+                                                         sdimx = sdimx,
+                                                         sdimy = sdimy,
+                                                         options = options,
+                                                         ...)
+
+    outputObj = delaunay_output$geometry_obj
+    delaunay_network_DT = delaunay_output$delaunay_network_DT
+
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    parameters = list("options" = options)
+    outputObj = outputObj
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+
+  }
+
+
+  ## calculate distance and weight + filter ##
+  delaunay_network_DT = calculate_distance_and_weight(delaunay_network_DT,
+                                                      sdimx = sdimx,
+                                                      sdimy = sdimy,
+                                                      d2_or_d3=2)
+  networkDT_before_filter = delaunay_network_DT
+  delaunay_network_DT = filter_network(delaunay_network_DT,
+                                       maximum_distance = maximum_distance,
+                                       minimum_k = minimum_k)
+
+  ## calculate cell shape parameters ##
+  meanCellDistance = get_distance(delaunay_network_DT,method="mean")
+  medianCellDistance = get_distance(delaunay_network_DT,method="median")
+
+  cellShapeObj = list("meanCellDistance" = meanCellDistance,
+                      "medianCellDistance" = medianCellDistance)
+
+  ###
+  ###
+  delaunay_network_Obj = Giotto:::create_spatialNetworkObject(name = name,
+                                                              method = method,
+                                                              parameters = parameters,
+                                                              outputObj = outputObj,
+                                                              networkDT = delaunay_network_DT,
+                                                              networkDT_before_filter = networkDT_before_filter,
+                                                              cellShapeObj = cellShapeObj,
+                                                              misc = NULL)
+  ###
+  ###
+
+  if (return_gobject == TRUE) {
+
+    spn_names = names(gobject@spatial_network)
+    if (name %in% spn_names) {
+      cat("\n ", name, " has already been used, will be overwritten \n")
+    }
+    parameters_list = gobject@parameters
+    number_of_rounds = length(parameters_list)
+    update_name = paste0(number_of_rounds, "_delaunay_spatial_network")
+
+    if(method == "delaunayn_geometry") {
+      parameters_list[[update_name]] = c(`dimensions used` = paste0('dimensions: ', sdimx, ' and ', sdimy),
+                                         `method` = method,
+                                         `maximum distance threshold` = ifelse(is.null(maximum_distance),  NA, maximum_distance),
+                                         `name of spatial network` = name)
+    } else if(method == "RTriangle") {
+      parameters_list[[update_name]] = c(`dimensions used` = paste0('dimensions: ', sdimx, ' and ', sdimy),
+                                         `method` = method,
+                                         `maximum distance threshold` = ifelse(is.null(maximum_distance),  NA, maximum_distance),
+                                         `RTriangle Y:` = Y,
+                                         `RTriangle j:` = j,
+                                         `RTriangle S:` = S,
+                                         `name of spatial network` = name)
+    } else if(method == 'deldir') {
+      parameters_list[[update_name]] = c(`dimensions used` = paste0('dimensions: ', sdimx, ' and ', sdimy),
+                                         `method` = method,
+                                         `maximum distance threshold` = ifelse(is.null(maximum_distance),  NA, maximum_distance),
+                                         `name of spatial network` = name)
+    }
+
+    gobject@parameters = parameters_list
+    # gobject@spatial_network[[name]] = delaunay_network_DT
+
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject@spatial_network[[name]] = delaunay_network_Obj
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+
+    return(gobject)
+  }
+  else {
+    return(delaunay_network_DT)
+  }
+}
+
+
+
+
+#' @title create_delaunayNetwork3D
+#' @description Create a spatial Delaunay network.
+#' @examples
+#'     create_delaunayNetwork3D(gobject)
+create_delaunayNetwork3D <- function (gobject,
+                                         method = "delaunayn_geometry",
+                                         sdimx = 'sdimx',
+                                         sdimy = 'sdimy',
+                                         sdimz = 'sdimz',
+                                         name = "delaunay_network_3D",
+                                         maximum_distance = "auto",
+                                         minimum_k = 0, # all
+                                         options = "Pp", # geometry
+                                         return_gobject = TRUE,
+                                         ...)
+{
+
+  # get parameter values
+  method = match.arg(method, c("delaunayn_geometry", "RTriangle", "deldir"))
+
+  spatial_locations = gobject@spatial_locs
+  spatial_locations = spatial_locations[, c('cell_ID', sdimx, sdimy, sdimz), with = F]
+
+
+  ## delaunay geometry method ##
+  if (method == "delaunayn_geometry"){
+
+    delaunay_output = create_delaunayNetwork_geometry_3D(spatial_locations = spatial_locations,
+                                                            sdimx = sdimx,
+                                                            sdimy = sdimy,
+                                                            sdimz = sdimz,
+                                                            options = options,
+                                                            ...)
+
+    outputObj = delaunay_output$geometry_obj
+    delaunay_network_DT = delaunay_output$delaunay_network_DT
+
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    parameters = list("options" = options)
+    outputObj = outputObj
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+  }
+
+  ## calculate distance and weight + filter ##
+  networkDT_before_filter = calculate_distance_and_weight(delaunay_network_DT,
+                                                          sdimx = sdimx,
+                                                          sdimy = sdimy,
+                                                          sdimz = sdimz,
+                                                          d2_or_d3=3)
+  delaunay_network_DT = filter_network(networkDT_before_filter,
+                                       maximum_distance=maximum_distance,
+                                       minimum_k=minimum_k)
+
+  ## calculate cell shape parameters ##
+  meanCellDistance = get_distance(delaunay_network_DT,method="mean")
+  medianCellDistance = get_distance(delaunay_network_DT,method="median")
+
+  cellShapeObj = list("meanCellDistance" = meanCellDistance,
+                      "medianCellDistance" = medianCellDistance
+  )
+
+  if (return_gobject == TRUE) {
+    spn_names = names(gobject@spatial_network)
+    if (name %in% spn_names) {
+      cat("\n ", name, " has already been used, will be overwritten \n")
+    }
+    parameters_list = gobject@parameters
+    number_of_rounds = length(parameters_list)
+    update_name = paste0(number_of_rounds, "_delaunay_spatial_network_3D")
+
+    parameters_list[[update_name]] = c(`dimensions used` = paste0('dimensions: ', sdimx, ', ', sdimy, ' and ', sdimz),
+                                       `method` = method,
+                                       `maximum distance threshold` = ifelse(is.null(maximum_distance),  NA, maximum_distance),
+                                       `minimum k` = minimum_k,
+                                       `name of spatial network` = name)
+
+    gobject@parameters = parameters_list
+
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    ###
+    ###
+    delaunay_network_Obj = create_spatialNetworkObject(name = name,
+                                                       method = method,
+                                                       parameters = parameters,
+                                                       outputObj = outputObj,
+                                                       networkDT = delaunay_network_DT,
+                                                       networkDT_before_filter = networkDT_before_filter,
+                                                       cellShapeObj = cellShapeObj,
+                                                       misc = NULL)
+    ###
+    ###
+    gobject@spatial_network[[name]] = delaunay_network_Obj
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+
+    return(gobject)
+  }
+  else {
+    return(delaunay_network_DT)
+  }
+}
+
+
+
+
+
+
+
+
+#' @title createSpatialDelaunayNetwork
+#' @description Create a spatial Delaunay network based on cell centroid physical distances.
 #' @param gobject giotto object
-#' @param k number of nearest neighbors based on physical distance
 #' @param dimensions which spatial dimensions to use (default = all)
-#' @param maximum_distance distance cuttof for nearest neighbors to consider
-#' @param minimum_k minimum nearest neigbhours if maximum_distance != NULL
+#' @param name name for spatial network (default = 'delaunay_network')
+#' @param maximum_distance distance cuttof for Delaunay neighbors to consider. If "auto", "upper wisker" value of the distance vector between neighbors is used; see the boxplot{graphics} documentation for more details.(default = "auto")
+#' @param minimum_k minimum number of neigbhours if maximum_distance != NULL
+#' @param options (geometry) String containing extra control options for the underlying Qhull command; see the Qhull documentation (../doc/qhull/html/qdelaun.html) for the available options. (default = 'Pp', do not report precision problems)
+#' @param Y (RTriangle) If TRUE prohibits the insertion of Steiner points on the mesh boundary.
+#' @param j (RTriangle) If TRUE jettisons vertices that are not part of the final triangulation from the output.
+#' @param S (RTriangle) Specifies the maximum number of added Steiner points.
+#' @param verbose verbose
+#' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @param ... Other parameters of the \code{\link[RTriangle]{triangulate}} function
+#' @return giotto object with updated spatial network slot
+#' @details Creates a spatial Delaunay network as explained in \code{\link[geometry]{delaunayn}} (default), \code{\link[deldir]{deldir}}, or \code{\link[RTriangle]{triangulate}}.
+#' @export
+#' @examples
+#'     createSpatialDelaunayNetwork(gobject)
+createSpatialDelaunayNetwork <- function(gobject,
+                                            method = c("deldir", "delaunayn_geometry", "RTriangle"),
+                                            dimensions = "all",
+                                            name = "delaunay_network",
+                                            maximum_distance = "auto", # all
+                                            minimum_k = 0, # all
+                                            options = "Pp", # geometry
+                                            Y = TRUE, # RTriange
+                                            j = TRUE, # RTriange
+                                            S = 0, # RTriange
+                                            verbose = T,
+                                            return_gobject = TRUE,
+                                            ...) {
+
+  # get parameter values
+  method = match.arg(method, c("deldir", "delaunayn_geometry", "RTriangle"))
+
+  # determine the network dimesions
+  spatial_locations = gobject@spatial_locs
+  spatial_locations = spatial_locations[, grepl("sdim", colnames(spatial_locations)),  with = F]
+
+  if (dimensions != "all") {
+    spatial_locations = spatial_locations[, dimensions, with = FALSE]
+  }
+  spatial_locations <- as.matrix(spatial_locations)
+  d2_or_d3 = dim(spatial_locations)[2]
+
+
+  # create 2D or 3D delaunay network
+  if (d2_or_d3 == 2){
+
+    first_dimension = colnames(spatial_locations)[[1]]
+    second_dimension = colnames(spatial_locations)[[2]]
+
+    out = create_delaunayNetwork2D(gobject=gobject,
+                                      method = method,
+                                      sdimx = first_dimension,
+                                      sdimy = second_dimension,
+                                      name = name,
+                                      maximum_distance = maximum_distance,
+                                      minimum_k = minimum_k,
+                                      options = options,
+                                      Y = Y,
+                                      j = j,
+                                      S = S,
+                                      verbose = verbose,
+                                      return_gobject = return_gobject,
+                                      ...)
+  }else if(d2_or_d3 == 3){
+
+    if (method!="delaunayn_geometry"){
+      stop(method, ' method only applies to 2D data, use delaunayn_geometry, see details \n')
+    }else{
+
+      first_dimension = colnames(spatial_locations)[[1]]
+      second_dimension = colnames(spatial_locations)[[2]]
+      third_dimension = colnames(spatial_locations)[[3]]
+
+      out = create_delaunayNetwork3D(gobject=gobject,
+                                        method = method,
+                                        sdimx = first_dimension,
+                                        sdimy = second_dimension,
+                                        sdimz = third_dimension,
+                                        name = name,
+                                        maximum_distance = maximum_distance,
+                                        minimum_k = minimum_k,
+                                        options = options,
+                                        return_gobject = return_gobject,
+                                        ...)
+    }
+  }
+
+  return(out)
+
+}
+
+
+
+
+#' @title plotStatDelaunayNetwork
+#' @description Plots network statistics for a Delaunay network..
+#' @param gobject giotto object
+#' @param dimensions which spatial dimensions to use (maximum 2 dimensions)
+#' @param name name for spatial network (default = 'delaunay_network')
+#' @param maximum_distance distance cuttof for Delaunay neighbors to consider
+#' @param minimum_k minimum neigbhours if maximum_distance != NULL
+#' @param options (geometry) String containing extra control options for the underlying Qhull command; see the Qhull documentation (../doc/qhull/html/qdelaun.html) for the available options. (default = 'Pp', do not report precision problems)
+#' @param Y (RTriangle) If TRUE prohibits the insertion of Steiner points on the mesh boundary.
+#' @param j (RTriangle) If TRUE jettisons vertices that are not part of the final triangulation from the output.
+#' @param S (RTriangle) Specifies the maximum number of added Steiner points.
+#' @param show_plot show plots
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @param ... Other parameters of the \code{\link[RTriangle]{triangulate}} function
+#' @return giotto object with updated spatial network slot
+#' @details Plots statistics for a spatial Delaunay network as explained in \code{\link[RTriangle]{triangulate}}.
+#' This can be used to further finetune the \code{\link{createDelaunayNetwork}} function.
+#' @export
+#' @examples
+#'     plotStatDelaunayNetwork(gobject)
+plotStatDelaunayNetwork = function(gobject,
+                                      method = c("deldir", "delaunayn_geometry", "RTriangle"),
+                                      dimensions = "all",
+                                      maximum_distance = "auto", # all
+                                      minimum_k = 0, # all
+                                      options = "Pp", # geometry
+                                      Y = TRUE, # RTriange
+                                      j = TRUE, # RTriange
+                                      S = 0, # RTriange
+                                      show_plot = NA,
+                                      return_plot = NA,
+                                      save_plot = NA,
+                                      save_param =  list(),
+                                      default_save_name = 'plotStatDelaunayNetwork',
+                                      ...
+) {
+
+
+  delaunay_network_DT = createSpatialDelaunayNetwork(gobject = gobject,
+                                                        method = method,
+                                                        dimensions = dimensions,
+                                                        name = 'temp_network',
+                                                        maximum_distance = maximum_distance, # all
+                                                        minimum_k = minimum_k, # all
+                                                        options = options, # geometry
+                                                        Y = Y, # RTriange
+                                                        j = j, # RTriange
+                                                        S = S, # RTriange
+                                                        return_gobject = F,
+                                                        ...)
+
+  delaunay_network_DT_c = Giotto:::convert_to_full_spatial_network(reduced_spatial_network_DT = delaunay_network_DT)
+
+
+  ## create visuals
+  pl1 = ggplot(delaunay_network_DT, aes(x=factor(""), y=distance))
+  pl1 = pl1 + theme_classic() + theme(plot.title = element_text(hjust=0.5))
+  pl1 = pl1 + geom_boxplot(outlier.colour = "red", outlier.shape = 1)
+  pl1 = pl1 + labs(title = 'Delaunay network', y = 'cell-cell distances', x = '')
+
+  pl2 = ggplot(delaunay_network_DT_c, aes(x=factor(rank_int), y=distance))
+  pl2 = pl2 + theme_classic() + theme(plot.title = element_text(hjust=0.5))
+  pl2 = pl2 + geom_boxplot(outlier.colour = "red", outlier.shape = 1)
+  pl2 = pl2 + labs(title = 'Delaunay network by neigbor ranking', y = 'cell-cell distances', x = '')
+
+  neighbors = delaunay_network_DT_c[, .N, by = source]
+  pl3 = ggplot()
+  pl3 = pl3 + theme_classic() + theme(plot.title = element_text(hjust=0.5))
+  pl3 = pl3 + geom_histogram(data = neighbors, aes(x = as.factor(N)), stat = 'count')
+  pl3 = pl3 + labs(title = 'Delaunay network neigbors per cell', y = 'count', x = '')
+  pl3
+
+  savelist = list(pl1, pl2, pl3)
+
+
+
+  ## combine plots with cowplot
+  combo_plot <- cowplot::plot_grid(pl1, pl2, NULL, pl3,
+                                   ncol = 2,
+                                   rel_heights = c(1, 1), rel_widths = c(1, 2), align = 'v')
+
+
+  ## print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(combo_plot)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(combo_plot)
+  }
+
+
+}
+
+
+
+
+## kNN network ####
+
+#' @title create_KNNnetwork_dbscan
+#' @description Create a spatial knn network.
+#' @examples
+#'     create_KNNnetwork_dbscan(gobject)
+create_KNNnetwork_dbscan = function(spatial_locations,
+                                    sdimx = 'sdimx',
+                                    sdimy = 'sdimy',
+                                    sdimz = 'sdimz',
+                                    k = 4,
+                                    ...) {
+
+  ## vector with original cell names ##
+  cell_ID_vec = spatial_locations$cell_ID
+  names(cell_ID_vec) = c(1:nrow(spatial_locations))
+
+
+  ## set dimension coordinates to NULL if they don't exist
+  if(!is.null(sdimx)) {
+    if(sdimx %in% colnames(spatial_locations)) {
+      sdimx = sdimx
+    } else {
+      sdimx = NULL
+    }
+  }
+
+  if(!is.null(sdimy)) {
+    if(sdimy %in% colnames(spatial_locations)) {
+      sdimy = sdimy
+    } else {
+      sdimy = NULL
+    }
+  }
+
+  if(!is.null(sdimz)) {
+    if(sdimz %in% colnames(spatial_locations)) {
+      sdimz = sdimz
+    } else {
+      sdimz = NULL
+    }
+  }
+
+
+  ## create knn network
+  spatial_locations_matrix = as.matrix(spatial_locations[, c(sdimx, sdimy, sdimz), with = F])
+
+  knn_spatial <- dbscan::kNN(x = spatial_locations_matrix,
+                             k = k,
+                             ...)
+
+  knn_sptial.norm = data.frame(from = rep(1:nrow(knn_spatial$id), k),
+                               to = as.vector(knn_spatial$id),
+                               weight = 1/(1 + as.vector(knn_spatial$dist)),
+                               distance = as.vector(knn_spatial$dist))
+  nw_sptial.norm = igraph::graph_from_data_frame(knn_sptial.norm, directed = FALSE)
+  network_DT = data.table::as.data.table(knn_sptial.norm)
+
+
+  #spatial_network_DT[, `:=`(from, cell_ID_vec[from])]
+  #spatial_network_DT[, `:=`(to, cell_ID_vec[to])]
+
+
+  xbegin_name = paste0(sdimx,'_begin')
+  ybegin_name = paste0(sdimy,'_begin')
+  zbegin_name = paste0(sdimz,'_begin')
+  xend_name = paste0(sdimx,'_end')
+  yend_name = paste0(sdimy,'_end')
+  zend_name = paste0(sdimz,'_end')
+
+  if(!is.null(sdimz)) {
+    spatial_network_DT = data.table::data.table(from = cell_ID_vec[network_DT$from],
+                                                to = cell_ID_vec[network_DT$to],
+                                                xbegin_name = spatial_locations[network_DT$from, sdimx],
+                                                ybegin_name = spatial_locations[network_DT$from, sdimy],
+                                                zbegin_name = spatial_locations[network_DT$from, sdimz],
+                                                xend_name = spatial_locations[network_DT$to, sdimx],
+                                                yend_name = spatial_locations[network_DT$to, sdimy],
+                                                zend_name = spatial_locations[network_DT$to, sdimz],
+                                                distance = network_DT$distance,
+                                                weight = network_DT$weight)
+
+    data.table::setnames(spatial_network_DT,
+                         old = c('xbegin_name', 'ybegin_name', 'zbegin_name', 'xend_name', 'yend_name', 'zend_name'),
+                         new = c(xbegin_name, ybegin_name, zbegin_name, xend_name, yend_name, zend_name))
+    data.table::setorder(spatial_network_DT, from, to)
+
+
+  } else {
+    spatial_network_DT = data.table::data.table(from = cell_ID_vec[network_DT$from],
+                                                to = cell_ID_vec[network_DT$to],
+                                                xbegin_name = spatial_locations[network_DT$from, sdimx],
+                                                ybegin_name = spatial_locations[network_DT$from, sdimy],
+                                                xend_name = spatial_locations[network_DT$to, sdimx],
+                                                yend_name = spatial_locations[network_DT$to, sdimy],
+                                                distance = network_DT$distance,
+                                                weight = network_DT$weight)
+    data.table::setnames(spatial_network_DT,
+                         old = c('xbegin_name', 'ybegin_name', 'xend_name', 'yend_name'),
+                         new = c(xbegin_name, ybegin_name, xend_name, yend_name))
+    data.table::setorder(spatial_network_DT, from, to)
+
+  }
+
+  out_object = list("knn_obj" = knn_spatial,
+                    "spatial_network_DT"= spatial_network_DT)
+  return(out_object)
+
+}
+
+
+
+#' @title createSpatialKNNnetwork
+#' @description Create a spatial knn network.
+#' @param gobject giotto object
+#' @param method method to create kNN network
+#' @param dimensions which spatial dimensions to use (default = all)
 #' @param name name for spatial network (default = 'spatial_network')
+#' @param k number of nearest neighbors based on physical distance
+#' @param maximum_distance distance cuttof for nearest neighbors to consider for kNN network
+#' @param minimum_k minimum nearest neigbhours if maximum_distance != NULL
 #' @param verbose verbose
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @return giotto object with updated spatial network slot
-#' @details Creates a spatial network connecting single-cells based on their physical distance to each other.
-#' Number of neighbors can be determined by k, maximum distance from each cell with or without
-#' setting a minimum k for each cell.
 #'
 #' \strong{dimensions: } default = 'all' which takes all possible dimensions.
 #' Alternatively you can provide a character vector that specififies the spatial dimensions to use, e.g. c("sdimx', "sdimy")
@@ -21,103 +1261,257 @@
 #'
 #' \strong{maximum_distance: } to create a network based on maximum distance only, you also need to set k to a very high value, e.g. k = 100
 #'
+#'
 #' @export
 #' @examples
-#'     createSpatialNetwork(gobject)
-createSpatialNetwork <- function(gobject,
-                                 k = 4,
-                                 dimensions = 'all',
-                                 maximum_distance = NULL,
-                                 minimum_k = 0,
-                                 name = 'spatial_network',
-                                 verbose = F,
-                                 return_gobject = TRUE) {
+#'     createSpatialKNNnetwork(gobject)
+createSpatialKNNnetwork <- function (gobject,
+                                     method = "dbscan",
+                                     dimensions = "all",
+                                     name = "knn_network",
+                                     k = 4,
+                                     maximum_distance = NULL,
+                                     minimum_k = 0,
+                                     verbose = F,
+                                     return_gobject = TRUE,
+                                     ...)
+{
 
 
-  # spatial information
+  # get parameter values
+  method = match.arg(method, c("dbscan"))
+
   spatial_locations = gobject@spatial_locs
-  spatial_locations = spatial_locations[, grepl('sdim', colnames(spatial_locations)), with = F]
-  if(dimensions != 'all') {
-    spatial_locations = spatial_locations[, dimensions]
+
+
+  if (dimensions != "all") {
+    temp_spatial_locations = spatial_locations[, dimensions, with = FALSE]
+  } else {
+    temp_spatial_locations = spatial_locations[, grepl('sdim', colnames(spatial_locations)), with = FALSE]
   }
-  spatial_locations <- as.matrix(spatial_locations)
-  rownames(spatial_locations) <- gobject@cell_ID
+  temp_spatial_locations <- as.matrix(temp_spatial_locations)
 
-
-  # vector matching cell_ID and order
-  cell_ID_vec <- c(1:nrow(spatial_locations))
-  names(cell_ID_vec) <- rownames(spatial_locations)
-
-
-  # knn network
-  knn_spatial <- dbscan::kNN(x = spatial_locations, k = k)
-  knn_sptial.norm = data.frame(from = rep(1:nrow(knn_spatial$id), k),
-                               to = as.vector(knn_spatial$id),
-                               weight = 1/(1 + as.vector(knn_spatial$dist)),
-                               distance = as.vector(knn_spatial$dist))
-  nw_sptial.norm = igraph::graph_from_data_frame(knn_sptial.norm, directed = FALSE)
-
-  # create network for coordinates #
-  spatial_network_DT <- data.table::as.data.table(knn_sptial.norm)
-
-  spatial_network_DT[, from := names(cell_ID_vec[from])]
-  spatial_network_DT[, to := names(cell_ID_vec[to])]
-  spatial_network_DT[, rank_int := rank(distance), by = from]
-
-  if(!is.null(maximum_distance)) {
-    spatial_network_DT = spatial_network_DT[distance <= maximum_distance | rank_int <= minimum_k]
+  first_dimension = colnames(temp_spatial_locations)[[1]]
+  second_dimension = colnames(temp_spatial_locations)[[2]]
+  if(ncol(temp_spatial_locations) > 2) {
+    third_dimension = colnames(temp_spatial_locations)[[3]]
+  } else {
+    third_dimension = NULL
   }
 
-  # add to cell metadata
-  cel_metadata = gobject@cell_metadata
+  if (method == "dbscan"){
 
-  spatial_locs_DT = gobject@spatial_locs
-  spatial_locations_annot <- spatial_locs_DT[, cell_ID := gobject@cell_ID]
-
-  spatial_network_DT <- merge(spatial_network_DT, by.x = 'from', spatial_locations_annot, by.y = 'cell_ID')
-  coord_names = colnames(spatial_locations)
-  coord_begin = paste0(coord_names, '_begin')
-  setnames(spatial_network_DT, coord_names, coord_begin)
-
-  spatial_network_DT <- merge(spatial_network_DT, by.x = 'to', spatial_locations_annot, by.y = 'cell_ID')
-  coord_names = colnames(spatial_locations)
-  coord_end = paste0(coord_names, '_end')
-  setnames(spatial_network_DT, coord_names, coord_end)
+    spatial_locations = spatial_locations[, c('cell_ID', first_dimension, second_dimension, third_dimension), with = F]
 
 
-  if(return_gobject == TRUE) {
+    knn_output = create_KNNnetwork_dbscan(spatial_locations = spatial_locations,
+                                          k = k,
+                                          sdimx = first_dimension,
+                                          sdimy = second_dimension,
+                                          sdimz = third_dimension,
+                                          ...)
 
-    spn_names = names(gobject@spatial_network[[name]])
+    outputObj = knn_output$knn_obj
+    spatial_network_DT = knn_output$spatial_network_DT
 
-    if(name %in% spn_names) {
-      cat('\n ', name, ' has already been used, will be overwritten \n')
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    parameters = list("neighbors" = k,
+                      "maximum_distance" = maximum_distance,
+                      "minimum_k" = minimum_k)
+    outputObj = outputObj
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
-    }
-
-    ## update parameters used ##
-    parameters_list = gobject@parameters
-    number_of_rounds = length(parameters_list)
-    update_name = paste0(number_of_rounds,'_spatial_network')
-
-    # parameters to include
-    parameters_list[[update_name]] = c('k neighbours' = k,
-                                       'dimensions used' = dimensions,
-                                       'maximum distance threshold' = ifelse(is.null(maximum_distance), NA, maximum_distance),
-                                       'name of spatial network' = name)
-    gobject@parameters = parameters_list
-
-    gobject@spatial_network[[name]] = spatial_network_DT
-
-
-    return(gobject)
 
   } else {
+
+    stop('no other methods to create kNN spatial networks have been implemented')
+
+  }
+
+
+  temp_fullnetwork = Giotto:::convert_to_full_spatial_network(spatial_network_DT)
+  if (!is.null(maximum_distance)) {
+    temp_fullnetwork = temp_fullnetwork[distance <= maximum_distance | rank_int <= minimum_k]
+  }
+  spatial_network_DT = Giotto:::convert_to_reduced_spatial_network(temp_fullnetwork)
+
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+  parameters = list("maximum_distance" = maximum_distance,
+                    "minimum_k" = minimum_k,
+                    "k" = k,
+                    "dimensions" = dimensions)
+
+  spatial_network_Obj = Giotto:::create_spatialNetworkObject(name = name,
+                                                             method = method,
+                                                             parameters = parameters,
+                                                             outputObj = outputObj,
+                                                             networkDT = spatial_network_DT,
+                                                             misc = NULL)
+
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+  ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+  if (return_gobject == TRUE) {
+    spn_names = names(gobject@spatial_network)
+    if (name %in% spn_names) {
+      cat("\n ", name, " has already been used, will be overwritten \n")
+    }
+    parameters_list = gobject@parameters
+    number_of_rounds = length(parameters_list)
+    update_name = paste0(number_of_rounds, "_spatial_network")
+
+    parameters_list[[update_name]] = c(`k neighbours` = k,
+                                       `dimensions used` = dimensions,
+                                       `maximum distance threshold` = ifelse(is.null(maximum_distance), NA, maximum_distance),
+                                       `name of spatial network` = name)
+    gobject@parameters = parameters_list
+    #gobject@spatial_network[[name]] = spatial_network_DT
+
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+    gobject@spatial_network[[name]] = spatial_network_Obj
+    ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
+    return(gobject)
+  }
+  else {
     return(spatial_network_DT)
   }
 }
 
 
 
+
+
+
+
+
+
+## spatial network ####
+
+#' @title createSpatialNetwork
+#' @description Create a spatial network based on cell centroid physical distances.
+#' @param gobject giotto object
+#' @param dimensions which spatial dimensions to use (default = all)
+#' @param method which method to use to create a spatial network. (default = Delaunay)
+#' @param delaunay_method Delaunay method to use
+#' @param maximum_distance_delaunay distance cuttof for nearest neighbors to consider for Delaunay network
+#' @param options (geometry) String containing extra control options for the underlying Qhull command; see the Qhull documentation (../doc/qhull/html/qdelaun.html) for the available options. (default = 'Pp', do not report precision problems)
+#' @param Y (RTriangle) If TRUE prohibits the insertion of Steiner points on the mesh boundary.
+#' @param j (RTriangle) If TRUE jettisons vertices that are not part of the final triangulation from the output.
+#' @param S (RTriangle) Specifies the maximum number of added Steiner points.
+#' @param name name for spatial network (default = 'spatial_network')
+#' @param knn_method method to create kNN network
+#' @param k number of nearest neighbors based on physical distance
+#' @param minimum_k minimum nearest neigbhours if maximum_distance != NULL
+#' @param maximum_distance_knn distance cuttof for nearest neighbors to consider for kNN network
+#' @param verbose verbose
+#' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @return giotto object with updated spatial network slot
+#' @details Creates a spatial network connecting single-cells based on their physical distance to each other.
+#' For Delaunay method, neighbors will be decided by delaunay triangulation and a maximum distance criteria. For kNN method, number of neighbors can be determined by k, or maximum distance from each cell with or without
+#' setting a minimum k for each cell.
+#'
+#' \strong{dimensions: } default = 'all' which takes all possible dimensions.
+#' Alternatively you can provide a character vector that specififies the spatial dimensions to use, e.g. c("sdimx', "sdimy")
+#' or a numerical vector, e.g. 2:3
+#'
+#' @export
+#' @examples
+#'     createSpatialNetwork(gobject)
+createSpatialNetwork <- function(gobject,
+                                 name = NULL,
+                                 dimensions = "all",
+                                 method = c('Delaunay', 'kNN'),
+                                 delaunay_method = c("deldir", "delaunayn_geometry", "RTriangle"),
+                                 maximum_distance_delaunay = "auto",
+                                 options = "Pp",
+                                 Y = TRUE,
+                                 j = TRUE,
+                                 S = 0,
+                                 minimum_k = 0,
+                                 knn_method = "dbscan",
+                                 k = 4,
+                                 maximum_distance_knn = NULL,
+                                 verbose = F,
+                                 return_gobject = TRUE,
+                                 ...){
+
+  # get paramters
+  method = match.arg(method, c('Delaunay', 'kNN'))
+
+
+  if(method=="kNN"){
+    if(is.null(name)){
+      name = paste0(method,"_","network")
+    }
+
+    knn_method = match.arg(knn_method,c("dbscan"))
+
+    out = createSpatialKNNnetwork(gobject = gobject,
+                                  method = knn_method,
+                                  dimensions = dimensions,
+                                  k = k,
+                                  maximum_distance = maximum_distance_knn,
+                                  minimum_k = minimum_k,
+                                  name = name,
+                                  verbose = verbose,
+                                  return_gobject = return_gobject,
+                                  ...)
+
+  } else if (method=="Delaunay"){
+
+    delaunay_method = match.arg(delaunay_method, c("deldir", "delaunayn_geometry", "RTriangle"))
+    if(is.null(name)){
+      name = paste0(method,"_","network")
+    }
+    out = createSpatialDelaunayNetwork(gobject=gobject,
+                                       method = delaunay_method,
+                                       dimensions = dimensions,
+                                       name = name,
+                                       maximum_distance = maximum_distance_delaunay,
+                                       options = options,
+                                       minimum_k = minimum_k,
+                                       Y = Y,
+                                       j = j,
+                                       S = S,
+                                       verbose = verbose,
+                                       return_gobject = return_gobject,
+                                       ...)
+  }
+
+  return(out)
+}
+
+
+
+#' @title showNetworks
+#' @description Prints the available spatial networks that are attached to the Giotto object
+#' @param gobject a giotto object
+#' @param verbose verbosity of function#'
+#' @return vector
+#' @export
+#' @examples
+#'     showNetworks()
+showNetworks = function(gobject,
+                        verbose = TRUE) {
+
+  if(is.null(gobject)) stop('A giotto object needs to be provided \n')
+  g_network_names = names(gobject@spatial_network)
+
+  if(verbose == TRUE) {
+    cat('The following images are available: ',
+        g_network_names, '\n')
+  }
+
+  return(g_network_names)
+}
+
+
+
+
+## Spatial grid ####
 
 #' @title find_grid_3D
 #' @name find_grid_3D
@@ -519,6 +1913,30 @@ createSpatialGrid <- function(gobject,
   }
   return(result)
 }
+
+
+#' @title showGrids
+#' @description Prints the available spatial grids that are attached to the Giotto object
+#' @param gobject a giotto object
+#' @param verbose verbosity of function#'
+#' @return vector
+#' @export
+#' @examples
+#'     showGrids()
+showGrids = function(gobject,
+                     verbose = TRUE) {
+
+  if(is.null(gobject)) stop('A giotto object needs to be provided \n')
+  g_grid_names = names(gobject@spatial_grid)
+
+  if(verbose == TRUE) {
+    cat('The following images are available: ',
+        g_grid_names, '\n')
+  }
+
+  return(g_grid_names)
+}
+
 
 
 

@@ -21,7 +21,7 @@ changeGiottoInstructions(
 \item{return_gobject}{(boolean) return giotto object}
 }
 \value{
-named vector with giotto instructions
+giotto object with one or more changed instructions
 }
 \description{
 Function to change one or more instructions from giotto object

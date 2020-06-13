@@ -19,6 +19,7 @@ plot_spat_point_layer_ggplot(
   select_cell_groups = NULL,
   select_cells = NULL,
   point_size = 2,
+  point_alpha = 1,
   point_border_col = "lightgrey",
   point_border_stroke = 0.1,
   show_cluster_center = F,
@@ -60,6 +61,8 @@ plot_spat_point_layer_ggplot(
 \item{select_cells}{select subset of cells based on cell IDs}
 
 \item{point_size}{size of point (cell)}
+
+\item{point_alpha}{transparancy of point}
 
 \item{point_border_col}{color of border around points}
 

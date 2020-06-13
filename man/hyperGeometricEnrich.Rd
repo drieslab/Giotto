@@ -10,6 +10,7 @@ hyperGeometricEnrich(
   expression_values = c("normalized", "scaled", "custom"),
   reverse_log_scale = TRUE,
   logbase = 2,
+  top_percentage = 5,
   output_enrichment = c("original", "zscore")
 )
 }
@@ -23,6 +24,8 @@ hyperGeometricEnrich(
 \item{reverse_log_scale}{reverse expression values from log scale}
 
 \item{logbase}{log base to use if reverse_log_scale = TRUE}
+
+\item{top_percentage}{percentage of cells that will be considered to have gene expression with matrix binarization}
 
 \item{output_enrichment}{how to return enrichment output}
 }

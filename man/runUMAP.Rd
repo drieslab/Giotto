@@ -22,6 +22,7 @@ runUMAP(
   spread = 5,
   set_seed = T,
   seed_number = 1234,
+  verbose = T,
   ...
 )
 }
@@ -60,6 +61,8 @@ runUMAP(
 
 \item{seed_number}{seed number to use}
 
+\item{verbose}{verbosity of function}
+
 \item{...}{additional UMAP parameters}
 }
 \value{
@@ -73,9 +76,26 @@ See \code{\link[uwot]{umap}} for more information about these and other paramete
 \itemize{
   \item Input for UMAP dimension reduction can be another dimension reduction (default = 'pca')
   \item To use gene expression as input set dim_reduction_to_use = NULL
+  \item If dim_reduction_to_use = NULL, genes_to_use can be used to select a column name of
+  highly variable genes (see \code{\link{calculateHVG}}) or simply provide a vector of genes
   \item multiple UMAP results can be stored by changing the \emph{name} of the analysis
 }
 }
 \examples{
-    runUMAP(gobject)
+
+# 1. create giotto object
+expr_path = system.file("extdata", "seqfish_field_expr.txt", package = 'Giotto')
+loc_path = system.file("extdata", "seqfish_field_locs.txt", package = 'Giotto')
+VC_small <- createGiottoObject(raw_exprs = expr_path, spatial_locs = loc_path)
+
+# 2. normalize giotto
+VC_small <- normalizeGiotto(gobject = VC_small, scalefactor = 6000)
+VC_small <- addStatistics(gobject = VC_small)
+
+# 3. dimension reduction
+VC_small <- calculateHVG(gobject = VC_small)
+VC_small <- runPCA(gobject = VC_small)
+VC_small <- runUMAP(VC_small, dimensions_to_use = 1:5, n_threads = 2)
+plotUMAP(gobject = VC_small)
+
 }

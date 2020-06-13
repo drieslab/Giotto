@@ -160,7 +160,6 @@ doLeidenCluster = function(gobject,
 }
 
 
-
 #' @title doLouvainCluster_community
 #' @name doLouvainCluster_community
 #' @description cluster cells using a NN-network and the Louvain algorithm from the community module in Python
@@ -783,7 +782,7 @@ doKmeans <- function(gobject,
 
     # features as columns
     # cells as rows
-    matrix_to_use = t(expr_values)
+    matrix_to_use = t_giotto(expr_values)
 
   }
 
@@ -791,7 +790,7 @@ doKmeans <- function(gobject,
   if(distance_method == 'original') {
     celldist = matrix_to_use
   } else if(distance_method %in% c('spearman', 'pearson')) {
-    celldist = stats::as.dist(1-cor(x = t(matrix_to_use), method = distance_method))
+    celldist = stats::as.dist(1-cor_giotto(x = t_giotto(matrix_to_use), method = distance_method))
   } else if(distance_method %in% c("euclidean", "maximum", "manhattan",
                                    "canberra", "binary", "minkowski")) {
     celldist = stats::dist(x = matrix_to_use, method = distance_method)
@@ -941,7 +940,7 @@ doHclust <- function(gobject,
 
     # features as columns
     # cells as rows
-    matrix_to_use = t(expr_values)
+    matrix_to_use = t_giotto(expr_values)
 
   }
 
@@ -949,7 +948,7 @@ doHclust <- function(gobject,
   if(distance_method == 'original') {
     celldist = matrix_to_use
   } else if(distance_method %in% c('spearman', 'pearson')) {
-    celldist = stats::as.dist(1-cor(x = t(matrix_to_use), method = distance_method))
+    celldist = stats::as.dist(1-cor_giotto(x = t_giotto(matrix_to_use), method = distance_method))
   } else if(distance_method %in% c("euclidean", "maximum", "manhattan",
                                    "canberra", "binary", "minkowski")) {
     celldist = stats::dist(x = matrix_to_use, method = distance_method)
@@ -2072,9 +2071,9 @@ getClusterSimilarity <- function(gobject,
   testmatrix = dt_to_matrix(x = dcast_metatable)
 
   # correlation matrix
-  cormatrix = stats::cor(x = testmatrix, method = cor)
-  cor_table = as.data.table(reshape2::melt(cormatrix))
-  setnames(cor_table, old = c('Var1', 'Var2'), c('group1', 'group2'))
+  cormatrix = cor_giotto(x = testmatrix, method = cor)
+  cor_table = data.table::as.data.table(reshape2::melt(cormatrix))
+  data.table::setnames(cor_table, old = c('Var1', 'Var2'), c('group1', 'group2'))
   cor_table[, c('group1', 'group2') := list(as.character(group1), as.character(group2))]
   cor_table[, unified_group := paste(sort(c(group1, group2)), collapse = '--'), by = 1:nrow(cor_table)]
   cor_table = cor_table[!duplicated(cor_table[, .(value, unified_group)])]
@@ -2103,6 +2102,7 @@ getClusterSimilarity <- function(gobject,
 #' @param min_cor_score min correlation score to merge pairwise clusters
 #' @param max_group_size max cluster size that can be merged
 #' @param force_min_group_size size of clusters that will be merged with their most similar neighbor(s)
+#' @param max_sim_clusters maximum number of clusters to potentially merge to reach force_min_group_size
 #' @param return_gobject return giotto object
 #' @param verbose be verbose
 #' @return Giotto object
@@ -2110,7 +2110,8 @@ getClusterSimilarity <- function(gobject,
 #' To avoid large clusters to merge the max_group_size can be lowered. Small clusters can
 #' be forcibly merged with their most similar pairwise cluster by adjusting the
 #' force_min_group_size parameter. Clusters smaller than this value will be merged
-#' independent on the provided min_cor_score value. \cr
+#' independent on the provided min_cor_score value. The force_min_group_size might not always
+#' be reached if clusters have already been merged before \cr
 #' A giotto object is returned by default, if FALSE then the merging vector will be returned.
 #' @export
 #' @examples
@@ -2123,6 +2124,7 @@ mergeClusters <- function(gobject,
                           min_cor_score = 0.8,
                           max_group_size = 20,
                           force_min_group_size = 10,
+                          max_sim_clusters = 10,
                           return_gobject = TRUE,
                           verbose = TRUE) {
 
@@ -2132,7 +2134,7 @@ mergeClusters <- function(gobject,
   # correlation score to be used
   cor = match.arg(cor, c('pearson', 'spearman'))
 
-  # calculate similary data.table
+  # calculate similarity data.table
   similarityDT = getClusterSimilarity(gobject = gobject,
                                       expression_values = values,
                                       cluster_column = cluster_column,
@@ -2143,7 +2145,14 @@ mergeClusters <- function(gobject,
   filter_set_first = similarityDT[group1 != group2][group1_size < max_group_size][value >= min_cor_score]
 
   # 2. small clusters
-  minimum_set = similarityDT[group1 != group2][group1_size < force_min_group_size][order(-value)][, head(.SD,1), by = group1]
+  minimum_set = similarityDT[group1 != group2][group1_size < force_min_group_size][order(-value)][, head(.SD, max_sim_clusters), by = group1]
+
+  # 2.1 take all clusters necessary to reach force_min_group_size
+  minimum_set[, cumsum_val := cumsum(group2_size) + group1_size, by = group1]
+  minimum_set[, min_reached := ifelse(cumsum_val > max_group_size, 1, 0)]
+  minimum_set[, cumsum_reached := cumsum(min_reached), by = group1]
+  minimum_set = minimum_set[cumsum_reached <= 1]
+  minimum_set[, c('cumsum_val', 'min_reached', 'cumsum_reached') := NULL]
 
   filter_set = unique(do.call('rbind', list(filter_set_first, minimum_set)))
 
@@ -2158,22 +2167,29 @@ mergeClusters <- function(gobject,
     res = lapply(finallist, function(x) {any(x %in% c(first_clus, second_clus))})
 
     if(all(res == F)) {
+
       #print('not in list yet')
       finallist[[start_i]] = c(first_clus, second_clus)
       start_i = start_i + 1
 
-    } else {
-      #print('already in list')
+    } else if(length(res[res == T]) == 2) {
 
+      #print('do nothing')
+      NULL
+
+    } else {
+
+      #print('already in list')
       who = which(res == TRUE)[[1]]
       finallist[[who]] = unique(c(finallist[[who]], first_clus, second_clus))
+
     }
 
   }
 
 
   ## update metadata
-  metadata = copy(pDataDT(gobject))
+  metadata = data.table::copy(pDataDT(gobject))
 
   finalvec = NULL
   for(ll in 1:length(finallist)) {
@@ -2365,7 +2381,7 @@ getDendrogramSplits = function(gobject,
   testmatrix = dt_to_matrix(x = dcast_metatable)
 
   # correlation
-  cormatrix = stats::cor(x = testmatrix, method = cor)
+  cormatrix = cor_giotto(x = testmatrix, method = cor)
   cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
   corclus = stats::hclust(d = cordist, method = distance)
 

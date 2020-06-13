@@ -6,6 +6,9 @@
 \usage{
 spatDimCellPlot2D(
   gobject,
+  show_image = F,
+  gimage = NULL,
+  image_name = "image",
   plot_alignment = c("vertical", "horizontal"),
   spat_enr_names = NULL,
   cell_annotation_values = NULL,
@@ -22,10 +25,12 @@ spatDimCellPlot2D(
   select_cells = NULL,
   dim_point_shape = c("border", "no_border"),
   dim_point_size = 1,
+  dim_point_alpha = 1,
   dim_point_border_col = "black",
   dim_point_border_stroke = 0.1,
-  spat_point_shape = c("border", "no_border"),
+  spat_point_shape = c("border", "no_border", "voronoi"),
   spat_point_size = 1,
+  spat_point_alpha = 1,
   spat_point_border_col = "black",
   spat_point_border_stroke = 0.1,
   dim_show_cluster_center = F,
@@ -47,7 +52,7 @@ spatDimCellPlot2D(
   nn_network_name = "sNN.pca",
   dim_edge_alpha = 0.5,
   spat_show_network = F,
-  spatial_network_name = "spatial_network",
+  spatial_network_name = "Delaunay_network",
   spat_network_color = "red",
   spat_network_alpha = 0.5,
   spat_show_grid = F,
@@ -63,6 +68,9 @@ spatDimCellPlot2D(
   legend_symbol_size = 1,
   dim_background_color = "white",
   spat_background_color = "white",
+  vor_border_color = "white",
+  vor_max_radius = 200,
+  vor_alpha = 1,
   axis_text = 8,
   axis_title = 8,
   coord_fix_ratio = NULL,
@@ -79,6 +87,12 @@ spatDimCellPlot2D(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{show_image}{show a tissue background image}
+
+\item{gimage}{a giotto image}
+
+\item{image_name}{name of a giotto image}
 
 \item{plot_alignment}{direction to align plot}
 
@@ -112,13 +126,17 @@ spatDimCellPlot2D(
 
 \item{dim_point_size}{size of points in dim. reduction space}
 
+\item{dim_point_alpha}{transparancy of dim. reduction points}
+
 \item{dim_point_border_col}{border color of points in dim. reduction space}
 
 \item{dim_point_border_stroke}{border stroke of points in dim. reduction space}
 
-\item{spat_point_shape}{spatial points with border or not (border or no_border)}
+\item{spat_point_shape}{shape of points (border, no_border or voronoi)}
 
 \item{spat_point_size}{size of spatial points}
+
+\item{spat_point_alpha}{transparancy of spatial points}
 
 \item{spat_point_border_col}{border color of spatial points}
 
@@ -187,6 +205,12 @@ spatDimCellPlot2D(
 \item{dim_background_color}{background color of points in dim. reduction space}
 
 \item{spat_background_color}{background color of spatial points}
+
+\item{vor_border_color}{border colorr for voronoi plot}
+
+\item{vor_max_radius}{maximum radius for voronoi 'cells'}
+
+\item{vor_alpha}{transparancy of voronoi 'cells'}
 
 \item{axis_text}{size of axis text}
 

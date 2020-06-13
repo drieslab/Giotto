@@ -8,7 +8,7 @@ do_spatial_knn_smoothing(
   gobject,
   expression_values = c("normalized", "scaled", "custom"),
   subset_genes = NULL,
-  spatial_network_name = "spatial_network",
+  spatial_network_name = "Delaunay_network",
   b = NULL
 )
 }

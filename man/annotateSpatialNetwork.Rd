@@ -6,8 +6,9 @@
 \usage{
 annotateSpatialNetwork(
   gobject,
-  spatial_network_name = "spatial_network",
-  cluster_column
+  spatial_network_name = "Delaunay_network",
+  cluster_column,
+  create_full_network = F
 )
 }
 \arguments{
@@ -16,6 +17,8 @@ annotateSpatialNetwork(
 \item{spatial_network_name}{name of spatial network to use}
 
 \item{cluster_column}{name of column to use for clusters}
+
+\item{create_full_network}{convert from reduced to full network representation}
 }
 \value{
 annotated network in data.table format

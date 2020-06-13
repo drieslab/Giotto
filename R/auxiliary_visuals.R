@@ -4,7 +4,7 @@
 #' @description makes sure aes_string can also be used with names that start with numeric values
 aes_string2 <- function(...){
   args <- lapply(list(...), function(x) sprintf("`%s`", x))
-  do.call(aes_string, args)
+  do.call(ggplot2::aes_string, args)
 }
 
 #' @title ggplot_save_function
@@ -71,7 +71,11 @@ ggplot_save_function = function(gobject,
   base_aspect_ratio = as.numeric(base_aspect_ratio)
 
   # create saving location
-  file_location = paste0(save_dir,'/', save_folder)
+  if(!is.null(save_folder)) {
+    file_location = paste0(save_dir,'/', save_folder)
+  } else {
+    file_location = save_dir
+  }
   if(!file.exists(file_location)) dir.create(file_location, recursive = T)
   file_name = paste0(save_name, ".", save_format)
 
@@ -178,7 +182,11 @@ general_save_function = function(gobject,
   base_aspect_ratio = as.numeric(base_aspect_ratio)
 
   # create saving location
-  file_location = paste0(save_dir,'/', save_folder)
+  if(!is.null(save_folder)) {
+    file_location = paste0(save_dir,'/', save_folder)
+  } else {
+    file_location = save_dir
+  }
   if(!file.exists(file_location)) dir.create(file_location, recursive = T)
   file_name = paste0(save_name, ".", save_format)
   full_location = paste0(file_location,'/', file_name)
@@ -328,6 +336,54 @@ all_plots_save_function = function(gobject,
 
 
 
+
+#' @title showSaveParameters
+#' @name showSaveParameters
+#' @description Description of Giotto saving options, links to \code{\link{all_plots_save_function}}
+#' @return Instruction on how to use the automatic plot saving options within Giotto
+#' @export
+#' @examples
+#'     showSaveParameters()
+showSaveParameters = function() {
+
+  cat("This is a simple guide to help you with automatically saving plots. \n")
+  cat("Importantly, defaults for all these parameters can be set at the beginning with createGiottoInstructions() \n")
+  cat("See https://rubd.github.io/Giotto/articles/instructions_and_plotting.html for more information and examples \n \n")
+
+  cat("Each plotting function in Giotto has 4 important parameters for showing and/or saving a plot: \n
+      - show_plot: TRUE or FALSE, show the plot to the console
+      - return_plot: TRUE or FALSE, return the plot to the console (e.g. to further modify or save the plot
+      - save_plot: TRUE or FALSE, automatically save the plot
+      - save_param: a list of parameters that can be set \n")
+
+  cat('\n')
+
+  cat("The following list of parameters can be provided to save_param: \n
+      - save_dir: directory to save the plot to
+      - save_folder: if not NULL, a subfolder within save_dir that will be created to save the plot to
+      - save_name: name of the plot (no extension needed, see save_format)
+      - save_format: picture format to use, default is .png
+      - ncol: number of columns for multiplots
+      - nrow: number of rows for multiplot
+      - scale: scale of plots
+      - base_width: width of plot
+      - base_height: height of plot
+      - base_aspect_ratio: ratio of plot
+      - units: plotting units (e.g. in)
+      - dpi: dpi for each plot if plot is in raster format\n")
+
+  cat('\n')
+
+  cat("Example: \n
+      plotfunction(...,
+                   save_plot = TRUE,
+                   save_param = list(save_name = 'favorite_name', units = 'png'))")
+
+}
+
+
+
+
 #' @title showClusterHeatmap
 #' @name showClusterHeatmap
 #' @description Creates heatmap based on identified clusters
@@ -340,7 +396,7 @@ all_plots_save_function = function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @param ... additional parameters for the Heatmap function from ComplexHeatmap
 #' @return ggplot
@@ -382,7 +438,7 @@ showClusterHeatmap <- function(gobject,
   testmatrix = Giotto:::dt_to_matrix(x = dcast_metatable)
 
   # correlation
-  cormatrix = stats::cor(x = testmatrix, method = cor)
+  cormatrix = cor_giotto(x = testmatrix, method = cor)
   cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
   corclus = stats::hclust(d = cordist, method = distance)
 
@@ -428,7 +484,7 @@ showClusterHeatmap <- function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @param ... additional parameters for ggdendrogram()
 #' @return ggplot
@@ -460,7 +516,7 @@ showClusterDendrogram <- function(gobject,
   testmatrix = Giotto:::dt_to_matrix(x = dcast_metatable)
 
   # correlation
-  cormatrix = stats::cor(x = testmatrix, method = cor)
+  cormatrix = cor_giotto(x = testmatrix, method = cor)
   cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
   corclus = stats::hclust(d = cordist, method = distance)
 
@@ -553,7 +609,8 @@ decide_cluster_order = function(gobject,
                                           cluster_column = cluster_column,
                                           gene_subset = detected_genes,
                                           expression_values = values)
-    cormatrix = stats::cor(x = subset_matrix, method = cor_method)
+
+    cormatrix = cor_giotto(x = subset_matrix, method = cor_method)
     cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
     corclus = stats::hclust(d = cordist, method = hclust_method)
     clus_names = rownames(cormatrix)
@@ -600,7 +657,7 @@ createHeatmap_DT <- function(gobject,
                              cluster_custom_order = NULL,
                              cluster_cor_method = 'pearson',
                              cluster_hclust_method = 'ward.D',
-                             gene_order = c('custom', 'correlation'),
+                             gene_order = c('correlation', 'custom'),
                              gene_custom_order = NULL,
                              gene_cor_method = 'pearson',
                              gene_hclust_method = 'complete') {
@@ -617,7 +674,7 @@ createHeatmap_DT <- function(gobject,
   cell_metadata = pDataDT(gobject)
 
   # gene order
-  gene_order = match.arg(gene_order, c('custom', 'correlation'))
+  gene_order = match.arg(gene_order, c('correlation', 'custom'))
 
 
   ### cluster order ###
@@ -631,7 +688,7 @@ createHeatmap_DT <- function(gobject,
                                          hclust_method = cluster_hclust_method)
 
   ## data.table ##
-  subset_values_DT <- data.table::as.data.table(reshape2::melt(subset_values, varnames = c('genes', 'cells'), value.name = 'expression'))
+  subset_values_DT <- data.table::as.data.table(reshape2::melt(as.matrix(subset_values), varnames = c('genes', 'cells'), value.name = 'expression'))
   subset_values_DT <- merge(subset_values_DT, by.x = 'cells', cell_metadata[, c('cell_ID', cluster_column), with = F], by.y = 'cell_ID')
   subset_values_DT[[cluster_column]] <- factor(subset_values_DT[[cluster_column]], levels = clus_sort_names)
 
@@ -656,7 +713,7 @@ createHeatmap_DT <- function(gobject,
     test_mat = data.table::dcast.data.table(data = genesum_per_clus, formula = my_formula, value.var = 'V1')
     test_matrix = as.matrix(test_mat[,-1]); rownames(test_matrix) = test_mat$genes
 
-    gene_dist = stats::as.dist(1-cor(t(test_matrix), method = gene_cor_method))
+    gene_dist = stats::as.dist(1 - cor_giotto(t_giotto(test_matrix), method = gene_cor_method))
     gene_clus = stats::hclust(gene_dist, method = gene_hclust_method)
 
     gene_labels = rownames(test_matrix)
@@ -706,7 +763,7 @@ createHeatmap_DT <- function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name
 #' @return ggplot
 #' @details If you want to display many genes there are 2 ways to proceed:
@@ -726,7 +783,7 @@ plotHeatmap <- function(gobject,
                         cluster_color_code = NULL,
                         cluster_cor_method = 'pearson',
                         cluster_hclust_method = 'ward.D',
-                        gene_order = c('custom', 'correlation'),
+                        gene_order = c('correlation', 'custom'),
                         gene_custom_order = NULL,
                         gene_cor_method = 'pearson',
                         gene_hclust_method = 'complete',
@@ -773,14 +830,14 @@ plotHeatmap <- function(gobject,
 
   ## bar on top ##
   clus_pl <- ggplot2::ggplot()
-  clus_pl <- clus_pl + ggplot2::geom_raster(data = cell_order_DT, aes_string(x = 'cells', y = '1', fill = cluster_column))
+  clus_pl <- clus_pl + ggplot2::geom_raster(data = cell_order_DT, ggplot2::aes_string(x = 'cells', y = '1', fill = cluster_column))
   clus_pl <- clus_pl + ggplot2::geom_vline(xintercept = x_lines, color = 'white', size = size_vertical_lines)
-  clus_pl <- clus_pl + ggplot2::scale_fill_manual(values = clus_colors, guide = guide_legend(title = '', nrow = legend_nrows))
-  clus_pl <- clus_pl + ggplot2::theme(axis.text = element_blank(),
-                                      axis.ticks = element_blank(),
-                                      axis.line = element_blank(),
+  clus_pl <- clus_pl + ggplot2::scale_fill_manual(values = clus_colors, guide = ggplot2::guide_legend(title = '', nrow = legend_nrows))
+  clus_pl <- clus_pl + ggplot2::theme(axis.text = ggplot2::element_blank(),
+                                      axis.ticks = ggplot2::element_blank(),
+                                      axis.line = ggplot2::element_blank(),
                                       legend.position = 'top',
-                                      plot.margin = margin(0, 0, 0, 5.5, "pt"))
+                                      plot.margin = ggplot2::margin(0, 0, 0, 5.5, "pt"))
   clus_pl <- clus_pl + ggplot2::labs(x = '', y = 'clusters')
 
   ## rescale values ##
@@ -796,12 +853,12 @@ plotHeatmap <- function(gobject,
   }
 
   # create empty plot
-  empty = ggplot()
-  empty = empty + theme_classic()
-  empty = empty  + ggplot2::theme(axis.text = element_blank(),
-                                  axis.ticks = element_blank(),
-                                  axis.line = element_blank(),
-                                  plot.margin = margin(0, 0, 0, 0, "cm"))
+  empty = ggplot2::ggplot()
+  empty = empty + ggplot2::theme_classic()
+  empty = empty  + ggplot2::theme(axis.text = ggplot2::element_blank(),
+                                  axis.ticks = ggplot2::element_blank(),
+                                  axis.line = ggplot2::element_blank(),
+                                  plot.margin = ggplot2::margin(0, 0, 0, 0, "cm"))
 
   ## parse gradient colors
   if(length(gradient_colors) > 3) cat('\n only first 3 colors will be used for gradient \n')
@@ -815,17 +872,17 @@ plotHeatmap <- function(gobject,
   hmap <- hmap + ggplot2::geom_vline(xintercept = x_lines, color = 'white', size = size_vertical_lines)
   hmap <- hmap + ggplot2::scale_fill_gradient2(low = low_color, mid = mid_color, high = high_color,
                                                midpoint = midpoint,
-                                               guide = guide_colorbar(title = ''))
+                                               guide = ggplot2::guide_colorbar(title = ''))
 
   if(is.null(gene_label_selection)) {
 
-    hmap <- hmap + ggplot2::theme(axis.text.x = element_blank(),
-                                  axis.ticks.x = element_blank(),
-                                  axis.text.y = element_text(size = axis_text_y_size),
-                                  plot.margin = margin(0, 0, 5.5, 5.5, "pt"))
+    hmap <- hmap + ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                                  axis.ticks.x = ggplot2::element_blank(),
+                                  axis.text.y = ggplot2::element_text(size = axis_text_y_size),
+                                  plot.margin = ggplot2::margin(0, 0, 5.5, 5.5, "pt"))
 
     ## align and combine
-    aligned <- cowplot::align_plots(clus_pl, empty, hmap + theme(legend.position = "none"),  align = "v", axis = "l")
+    aligned <- cowplot::align_plots(clus_pl, empty, hmap + ggplot2::theme(legend.position = "none"),  align = "v", axis = "l")
     aligned <- append(aligned, list(cowplot::get_legend(hmap)))
     combplot = cowplot::plot_grid(plotlist = aligned,
                                   ncol = 2, rel_widths = c(1, 0.2),
@@ -860,9 +917,9 @@ plotHeatmap <- function(gobject,
     if(is.null(axis_text_y_size)) axis_text_y_size = 0.8*11/ggplot2::.pt
 
     # finish heatmap
-    hmap <- hmap + ggplot2::theme(axis.text = element_blank(),
-                                  axis.ticks = element_blank(),
-                                  plot.margin = margin(0, 0, 5.5, 5.5, "pt"))
+    hmap <- hmap + ggplot2::theme(axis.text = ggplot2::element_blank(),
+                                  axis.ticks = ggplot2::element_blank(),
+                                  plot.margin = ggplot2::margin(0, 0, 5.5, 5.5, "pt"))
     ### axis ###
     geneDT = subset_values_DT[,c('genes'), with = F]
     geneDT = unique(setorder(geneDT, genes))
@@ -874,12 +931,12 @@ plotHeatmap <- function(gobject,
                                             color = "grey30",  ## ggplot2 theme_grey() axis text
                                             size = axis_text_y_size  ## default ggplot2 theme_grey() axis text
     )
-    axis <- axis + scale_x_continuous(limits = c(0, 1), expand = c(0, 0),
+    axis <- axis + ggplot2::scale_x_continuous(limits = c(0, 1), expand = c(0, 0),
                                       breaks = NULL, labels = NULL, name = NULL)
-    axis <- axis + scale_y_continuous(limits = c(0, nrow(geneDT)), expand = c(0, 0),
+    axis <- axis + ggplot2::scale_y_continuous(limits = c(0, nrow(geneDT)), expand = c(0, 0),
                                       breaks = NULL, labels = NULL, name = NULL)
-    axis <- axis + theme(panel.background = element_blank(),
-                         plot.margin = margin(0, 0, 0, 0, "cm"))
+    axis <- axis + ggplot2::theme(panel.background = ggplot2::element_blank(),
+                         plot.margin = ggplot2::margin(0, 0, 0, 0, "cm"))
 
 
     #return(list(hmap, clus_pl, axis, empty))
@@ -938,7 +995,9 @@ plotHeatmap <- function(gobject,
 #' @param custom_gene_order custom gene order (default = NULL)
 #' @param gene_cor_method correlation method for genes
 #' @param gene_cluster_method hierarchical cluster method for the genes
-#' @param midpoint midpoint of show_values
+#' @param gradient_color vector with 3 colors for numeric data
+#' @param gradient_midpoint midpoint for color gradient
+#' @param gradient_limits vector with lower and upper limits
 #' @param x_text_size size of x-axis text
 #' @param x_text_angle angle of x-axis text
 #' @param y_text_size size of y-axis text
@@ -946,7 +1005,7 @@ plotHeatmap <- function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name
 #' @return ggplot or data.table
 #' @details Creates heatmap for the average expression of selected genes in the different annotation/cluster groups.
@@ -969,7 +1028,9 @@ plotMetaDataHeatmap = function(gobject,
                                custom_gene_order = NULL,
                                gene_cor_method = 'pearson',
                                gene_cluster_method = 'complete',
-                               midpoint = 0,
+                               gradient_color = c('blue', 'white', 'red'),
+                               gradient_midpoint = 0,
+                               gradient_limits = NULL,
                                x_text_size = 10,
                                x_text_angle = 45,
                                y_text_size = 10,
@@ -1051,9 +1112,24 @@ plotMetaDataHeatmap = function(gobject,
     metaDT[, factor_column := factor(get(metadata_cols), levels = clus_sort_names)]
     metaDT[, variable := factor(get('variable'), levels = gene_sort_names)]
 
+    # set gradient information
+    if(!is.null(gradient_limits) & is.vector(gradient_limits) & length(gradient_limits) == 2) {
+      lower_lim = gradient_limits[[1]]
+      upper_lim = gradient_limits[[2]]
+
+      numeric_data = metaDT[[show_values]]
+      limit_numeric_data = ifelse(numeric_data > upper_lim, upper_lim,
+                                  ifelse(numeric_data < lower_lim, lower_lim, numeric_data))
+      metaDT[[show_values]] = limit_numeric_data
+    }
+
+
     pl <- ggplot2::ggplot()
     pl <- pl + geom_tile(data = metaDT, aes_string(x = 'factor_column', y = 'variable', fill = show_values), color = 'black')
-    pl <- pl + scale_fill_gradient2(low = 'blue', mid = 'white', high = 'red', midpoint = midpoint)
+    pl <- pl + scale_fill_gradient2(low = gradient_color[[1]],
+                                    mid = gradient_color[[2]],
+                                    high = gradient_color[[3]],
+                                    midpoint = gradient_midpoint)
     pl <- pl + theme_classic()
     pl <- pl + theme(axis.text.x = element_text(size = x_text_size, angle = x_text_angle, hjust = 1, vjust = 1),
                      axis.text.y = element_text(size = y_text_size),
@@ -1094,9 +1170,23 @@ plotMetaDataHeatmap = function(gobject,
       metaDT[, factor_2_column := as.factor(get(second_meta_col))]
       metaDT[, variable := factor(get('variable'), levels = gene_sort_names)]
 
+      # set gradient information
+      if(!is.null(gradient_limits) & is.vector(gradient_limits) & length(gradient_limits) == 2) {
+        lower_lim = gradient_limits[[1]]
+        upper_lim = gradient_limits[[2]]
+
+        numeric_data = metaDT[[show_values]]
+        limit_numeric_data = ifelse(numeric_data > upper_lim, upper_lim,
+                                    ifelse(numeric_data < lower_lim, lower_lim, numeric_data))
+        metaDT[[show_values]] = limit_numeric_data
+      }
+
       pl <- ggplot()
       pl <- pl + geom_tile(data = metaDT, aes_string(x = 'factor_1_column', y = 'variable', fill = show_values), color = 'black')
-      pl <- pl + scale_fill_gradient2(low = 'blue', mid = 'white', high = 'red', midpoint = midpoint)
+      pl <- pl + scale_fill_gradient2(low = gradient_color[[1]],
+                                      mid = gradient_color[[2]],
+                                      high = gradient_color[[3]],
+                                      midpoint = gradient_midpoint)
       pl <- pl + facet_grid(stats::reformulate('factor_2_column'))
       pl <- pl + theme_classic()
       pl <- pl + theme(axis.text.x = element_text(size = x_text_size, angle = x_text_angle, hjust = 1, vjust = 1),
@@ -1133,7 +1223,6 @@ plotMetaDataHeatmap = function(gobject,
 }
 
 
-
 #' @title plotMetaDataCellsHeatmap
 #' @name plotMetaDataCellsHeatmap
 #' @description Creates heatmap for numeric cell metadata within aggregated clusters.
@@ -1158,7 +1247,7 @@ plotMetaDataHeatmap = function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot or data.table
 #' @details Creates heatmap for the average values of selected value columns in the different annotation groups.
@@ -1362,7 +1451,7 @@ plotMetaDataCellsHeatmap = function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
@@ -1396,13 +1485,19 @@ violinPlot <- function(gobject,
   expr_data = select_expression_values(gobject = gobject, values = values)
 
   # only keep genes that are in the dataset
-  selected_genes = genes[genes %in% rownames(expr_data) ]
+  selected_genes = genes[genes %in% rownames(expr_data)]
+  if(length(selected_genes[duplicated(selected_genes)]) != 0) {
+    cat('These genes have duplicates: \n',
+        selected_genes[duplicated(selected_genes)])
+
+    selected_genes = unique(selected_genes)
+  }
   subset_data = as.matrix(expr_data[rownames(expr_data) %in% selected_genes, ])
 
   if(length(genes) == 1) {
     t_subset_data = subset_data
   } else {
-    t_subset_data = t(subset_data)
+    t_subset_data = t_giotto(subset_data)
   }
 
   # metadata
@@ -1421,6 +1516,7 @@ violinPlot <- function(gobject,
   metadata_expr_m[[cluster_column]] = as.factor(metadata_expr_m[[cluster_column]])
 
   if(!is.null(cluster_custom_order)) {
+    cluster_custom_order = unique(cluster_custom_order)
     metadata_expr_m[[cluster_column]] = factor(x = metadata_expr_m[[cluster_column]], levels = cluster_custom_order)
   }
 

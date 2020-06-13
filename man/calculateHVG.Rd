@@ -74,5 +74,16 @@ A predicted COV is calculated for each gene using loess regression (COV~log(mean
 Genes that show a higher than predicted COV (\emph{difference_in_cov}) are considered highly variable. \cr
 }
 \examples{
-    calculateHVG(gobject)
+# 1. create giotto object
+expr_path = system.file("extdata", "seqfish_field_expr.txt", package = 'Giotto')
+loc_path = system.file("extdata", "seqfish_field_locs.txt", package = 'Giotto')
+VC_small <- createGiottoObject(raw_exprs = expr_path, spatial_locs = loc_path)
+
+# 2. normalize giotto
+VC_small <- normalizeGiotto(gobject = VC_small, scalefactor = 6000)
+VC_small <- addStatistics(gobject = VC_small)
+
+# 3. highly variable genes detection
+VC_small <- calculateHVG(gobject = VC_small)
+
 }

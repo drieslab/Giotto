@@ -96,7 +96,7 @@ createNearestNetwork <- function(gobject,
     }
 
     # features as columns & cells as rows
-    matrix_to_use = t(expr_values)
+    matrix_to_use = t_giotto(expr_values)
 
   }
 
@@ -112,9 +112,9 @@ createNearestNetwork <- function(gobject,
 
   nn_network = dbscan::kNN(x = matrix_to_use, k = k, sort = TRUE, ...)
   nn_network_dt = data.table::data.table(from = rep(1:nrow(nn_network$id), k),
-                             to = as.vector(nn_network$id),
-                             weight = 1/(1 + as.vector(nn_network$dist)),
-                             distance = as.vector(nn_network$dist))
+                                         to = as.vector(nn_network$id),
+                                         weight = 1/(1 + as.vector(nn_network$dist)),
+                                         distance = as.vector(nn_network$dist))
   nn_network_dt[, from_cell_ID := cell_names[from]]
   nn_network_dt[, to_cell_ID := cell_names[to]]
 
@@ -123,16 +123,16 @@ createNearestNetwork <- function(gobject,
 
     snn_network = dbscan::sNN(x = nn_network, k = k, kt = NULL, ...)
     snn_network_dt = data.table::data.table(from = rep(1:nrow(snn_network$id), k),
-                                to = as.vector(snn_network$id),
-                                weight = 1/(1 + as.vector(snn_network$dist)),
-                                distance = as.vector(snn_network$dist),
-                                shared = as.vector(snn_network$shared))
+                                            to = as.vector(snn_network$id),
+                                            weight = 1/(1 + as.vector(snn_network$dist)),
+                                            distance = as.vector(snn_network$dist),
+                                            shared = as.vector(snn_network$shared))
     snn_network_dt = snn_network_dt[complete.cases(snn_network_dt)]
     snn_network_dt[, from_cell_ID := cell_names[from]]
     snn_network_dt[, to_cell_ID := cell_names[to]]
 
     # rank snn
-    setorder(snn_network_dt, from, -shared)
+    data.table::setorder(snn_network_dt, from, -shared)
     snn_network_dt[, rank := 1:.N, by = from]
 
     # filter snn
