@@ -136,7 +136,7 @@ do_rank_permutation <- function(sc_gene, n){
 do_page_permutation<-function(gobject,
                           sig_gene,
                           ntimes){
-  # check available gene  
+  # check available gene
   available_ct<-c()
   for (i in colnames(sig_gene)){
     gene_i=rownames(sig_gene)[which(sig_gene[,i]==1)]
@@ -221,8 +221,8 @@ PAGEEnrich <- function(gobject,
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = select_expression_values(gobject = gobject, values = values)
-  
-  # check available gene  
+
+  # check available gene
   available_ct<-c()
   for (i in colnames(sign_matrix)){
     gene_i=rownames(sign_matrix)[which(sign_matrix[,i]==1)]
@@ -359,7 +359,7 @@ rankEnrich <- function(gobject,
 
     multiplyRank = (filterRankFold*filterSig[,i])^(1/2)
     rpb = 0.01*(0.99^(multiplyRank-1))
-    
+
     vectorX = rep(NA, dim(filterRankFold)[2])
 
     for (j in (1:dim(filterRankFold)[2])){
@@ -503,7 +503,7 @@ createSpatialEnrich = function(gobject,
                                expression_values = c('normalized', 'scaled', 'custom'),
                                reverse_log_scale = TRUE,
                                logbase = 2,
-                               p_value = TRUE,
+                               p_value = FALSE,
                                n_genes = 100,
                                n_times = 1000,
                                top_percentage = 5,
@@ -527,7 +527,7 @@ createSpatialEnrich = function(gobject,
     # default name for page enrichment
     if(is.null(name)) name = 'PAGE'
     if (p_value==TRUE){
-      # check available gene  
+      # check available gene
       available_ct<-c()
       for (i in colnames(sign_matrix)){
         gene_i=rownames(sign_matrix)[which(sign_matrix[,i]==1)]

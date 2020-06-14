@@ -9,6 +9,7 @@ library(Giotto)
 
 ## !! change this directory path !!:
 temp_dir = '/path/to/your/temporary/directory/results'
+temp_dir = '/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Temp/visium/'
 
 ## 1. giotto object ####
 expr_path = system.file("extdata", "visium_DG_expr.txt", package = 'Giotto')
@@ -126,14 +127,25 @@ brain_sc_markers = data.table::fread(sign_matrix_path) # file don't exist in dat
 sig_matrix = as.matrix(brain_sc_markers[,-1]); rownames(sig_matrix) = brain_sc_markers$Event
 
 ## enrichment tests
-visium_brain = createSpatialEnrich(brain_small, sign_matrix = sig_matrix, enrich_method = 'PAGE') #default = 'PAGE'
+brain_small = createSpatialEnrich(brain_small, sign_matrix = sig_matrix, enrich_method = 'PAGE') #default = 'PAGE'
 
 ## heatmap of enrichment versus annotation (e.g. clustering result)
 cell_types = colnames(sig_matrix)
-plotMetaDataCellsHeatmap(gobject = visium_brain,
+plotMetaDataCellsHeatmap(gobject = brain_small,
                          metadata_cols = 'leiden_clus',
                          value_cols = cell_types,
-                         spat_enr_names = 'PAGE',x_text_size = 8, y_text_size = 8)
+                         spat_enr_names = 'PAGE',
+                         x_text_size = 8, y_text_size = 8)
+
+
+enrichment_results = brain_small@spatial_enrichment$PAGE
+enrich_cell_types = colnames(enrichment_results)
+enrich_cell_types = enrich_cell_types[enrich_cell_types != 'cell_ID']
+
+## spatplot
+spatCellPlot(gobject = brain_small, spat_enr_names = 'PAGE',
+             cell_annotation_values = enrich_cell_types,
+             cow_n_col = 3,coord_fix_ratio = NULL, point_size = 1)
 
 
 
