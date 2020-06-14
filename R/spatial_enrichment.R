@@ -1,5 +1,3 @@
-source("/Users/rui/Documents/github/Giotto/R/auxiliary_giotto.R")
-library(data.table)
 
 #' @title makeSignMatrixPAGE
 #' @description Function to convert a list of signature genes (e.g. for cell types or processes) into
