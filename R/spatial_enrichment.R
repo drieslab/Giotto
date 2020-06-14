@@ -1,5 +1,4 @@
 
-
 #' @title makeSignMatrixPAGE
 #' @description Function to convert a list of signature genes (e.g. for cell types or processes) into
 #' a binary matrix format that can be used with the PAGE enrichment option. Each cell type or process should
@@ -137,9 +136,28 @@ do_rank_permutation <- function(sc_gene, n){
 do_page_permutation<-function(gobject,
                           sig_gene,
                           ntimes){
+  # check available gene  
+  available_ct<-c()
+  for (i in colnames(sig_gene)){
+    gene_i=rownames(sig_gene)[which(sig_gene[,i]==1)]
+    overlap_i=intersect(gene_i,rownames(gobject@norm_expr))
+    if (length(overlap_i)<=5){
+      output<-paste0("Warning, ",i," only has ",length(overlap_i)," overlapped genes. Will remove it.")
+      print(output)
+    } else {
+      available_ct<-c(available_ct,i)
+    }
+  }
+  if (length(available_ct)==1){
+    stop("Only one cell type available.")
+  }
+  # only continue with genes present in both datasets
+  interGene = intersect(rownames(sig_gene), rownames(gobject@norm_expr))
+  sign_matrix = sig_gene[interGene,available_ct]
+
   ct_gene_counts<-NULL
-  for (i in 1:dim(sig_gene)[2]){
-    a<-length(which(sig_gene[,i]==1))
+  for (i in 1:dim(sign_matrix)[2]){
+    a<-length(which(sign_matrix[,i]==1))
     ct_gene_counts<-c(ct_gene_counts,a)
   }
   uniq_ct_gene_counts<-unique(ct_gene_counts)
@@ -203,13 +221,29 @@ PAGEEnrich <- function(gobject,
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = select_expression_values(gobject = gobject, values = values)
+  
+  # check available gene  
+  available_ct<-c()
+  for (i in colnames(sign_matrix)){
+    gene_i=rownames(sign_matrix)[which(sign_matrix[,i]==1)]
+    overlap_i=intersect(gene_i,rownames(expr_values))
+    if (length(overlap_i)<=5){
+      output<-paste0("Warning, ",i," only has ",length(overlap_i)," overlapped genes. Will remove it.")
+      print(output)
+    } else {
+      available_ct<-c(available_ct,i)
+    }
+  }
+  if (length(available_ct)==1){
+    stop("Only one cell type available.")
+  }
 
   # output enrichment
   output_enrichment = match.arg(output_enrichment, choices = c('original', 'zscore'))
 
   # only continue with genes present in both datasets
   interGene = intersect(rownames(sign_matrix), rownames(expr_values))
-  filterSig = sign_matrix[interGene,]
+  filterSig = sign_matrix[interGene,available_ct]
   signames = rownames(filterSig)[which(filterSig[,1]==1)]
 
   # calculate mean gene expression
@@ -288,6 +322,12 @@ rankEnrich <- function(gobject,
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = select_expression_values(gobject = gobject, values = values)
+
+  #check gene list
+  interGene = intersect(rownames(sign_matrix), rownames(expr_values))
+  if (length(interGene)<100){
+    stop("Please check the gene numbers or names of scRNA-seq. The names of scRNA-seq should be consistent with spatial data.")
+  }
 
   # output enrichment
   output_enrichment = match.arg(output_enrichment, choices = c('original', 'zscore'))
@@ -487,10 +527,29 @@ createSpatialEnrich = function(gobject,
     # default name for page enrichment
     if(is.null(name)) name = 'PAGE'
     if (p_value==TRUE){
-      background_mean_sd = do_page_permutation(gobject,sign_matrix,n_times)
+      # check available gene  
+      available_ct<-c()
+      for (i in colnames(sign_matrix)){
+        gene_i=rownames(sign_matrix)[which(sign_matrix[,i]==1)]
+        overlap_i=intersect(gene_i,rownames(gobject@norm_expr))
+        if (length(overlap_i)<=5){
+          output<-paste0("Warning, ",i," only has ",length(overlap_i)," overlapped genes. Will remove it.")
+          print(output)
+        } else {
+          available_ct<-c(available_ct,i)
+        }
+      }
+      if (length(available_ct)==1){
+        stop("Only one cell type available.")
+      }
+      # only continue with genes present in both datasets
+      interGene = intersect(rownames(sign_matrix), rownames(gobject@norm_expr))
+      filter_sign_matrix = sign_matrix[interGene,available_ct]
+
+      background_mean_sd = do_page_permutation(gobject,filter_sign_matrix,n_times)
       pvalue_DT<-enrich_results_DT
-      for (i in 1:dim(sign_matrix)[2]){
-        length_gene<-length(which(sign_matrix[,i]==1))
+      for (i in 1:dim(filter_sign_matrix)[2]){
+        length_gene<-length(which(filter_sign_matrix[,i]==1))
         join_gene_with_length<-paste("gene_num_",length_gene,sep="")
         mean_i<-as.numeric(as.character(background_mean_sd[join_gene_with_length,][[1]]))
         sd_i<-as.numeric(as.character(background_mean_sd[join_gene_with_length,][[2]]))
