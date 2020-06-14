@@ -7,6 +7,7 @@ library(Giotto)
 ## Giotto 0.3.5 ##
 ## mini-test Visium Brain Giotto 0.3.5 ##
 
+## !! change this directory path !!:
 temp_dir = '/path/to/your/temporary/directory/results'
 
 ## 1. giotto object ####
