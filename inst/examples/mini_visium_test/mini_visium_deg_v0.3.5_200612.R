@@ -8,8 +8,8 @@ library(Giotto)
 ## mini-test Visium Brain Giotto 0.3.5 ##
 
 ## !! change this directory path !!:
-temp_dir = '/path/to/your/temporary/directory/results'
-temp_dir = '/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Temp/visium/'
+#temp_dir = '/path/to/your/temporary/directory/results'
+temp_dir = getwd()
 
 ## 1. giotto object ####
 expr_path = system.file("extdata", "visium_DG_expr.txt", package = 'Giotto')

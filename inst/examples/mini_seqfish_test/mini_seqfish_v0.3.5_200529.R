@@ -7,7 +7,7 @@ library(Giotto)
 ## Giotto 0.3.5 ##
 ## mini-test seqFish Giotto 0.3.5 ##
 
-#temp_dir = '/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Temp'
+#temp_dir = '/your/path/'
 temp_dir = getwd()
 
 ## 1. giotto object ####
