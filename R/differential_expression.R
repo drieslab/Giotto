@@ -176,6 +176,12 @@ findScranMarkers_one_vs_all <- function(gobject,
       unique(x$cluster) == selected_clus
     }))
     selected_table = data.table::as.data.table(markers[select_bool])
+
+    # remove summary column from scran output if present
+    col_ind_keep = !grepl('summary', colnames(selected_table))
+    selected_table = selected_table[, col_ind_keep, with = F]
+
+    # change logFC.xxx name to logFC
     data.table::setnames(selected_table, colnames(selected_table)[4], 'logFC')
 
     # filter selected table
