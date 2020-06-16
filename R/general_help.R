@@ -4,6 +4,7 @@
 #' @description Returns a number of distint colors based on the RGB scale
 #' @param n number of colors wanted
 #' @return number of distinct colors
+#' @export
 getDistinctColors <- function(n) {
   qual_col_pals <- RColorBrewer::brewer.pal.info[RColorBrewer::brewer.pal.info$category == 'qual',]
   col_vector <- unique(unlist(mapply(RColorBrewer::brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals))));
