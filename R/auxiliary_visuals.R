@@ -1078,7 +1078,7 @@ plotMetaDataHeatmap = function(gobject,
 
   # for clusters
   if(is.null(custom_cluster_order)) {
-    cormatrix = stats::cor(x = testmain_mat, method = clus_cor_method)
+    cormatrix = cor_giotto(x = testmain_mat, method = clus_cor_method)
     cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
     corclus = stats::hclust(d = cordist, method = clus_cluster_method)
     clus_names = rownames(cormatrix)
@@ -1094,7 +1094,7 @@ plotMetaDataHeatmap = function(gobject,
 
   # for genes
   if(is.null(custom_gene_order)) {
-    gene_cormatrix = stats::cor(x = t(testmain_mat), method = gene_cor_method)
+    gene_cormatrix = cor_giotto(x = t(testmain_mat), method = gene_cor_method)
     gene_cordist = stats::as.dist(1 - gene_cormatrix, diag = T, upper = T)
     gene_corclus = stats::hclust(d = gene_cordist, method = gene_cluster_method)
     gene_names = rownames(gene_cormatrix)
@@ -1316,7 +1316,7 @@ plotMetaDataCellsHeatmap = function(gobject,
 
   # for clusters
   if(is.null(custom_cluster_order)) {
-    cormatrix = stats::cor(x = testmain_mat, method = clus_cor_method)
+    cormatrix = cor_giotto(x = testmain_mat, method = clus_cor_method)
     cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
     corclus = stats::hclust(d = cordist, method = clus_cluster_method)
     clus_names = rownames(cormatrix)
@@ -1332,7 +1332,7 @@ plotMetaDataCellsHeatmap = function(gobject,
 
   # for genes
   if(is.null(custom_values_order)) {
-    values_cormatrix = stats::cor(x = t(testmain_mat), method = values_cor_method)
+    values_cormatrix = cor_giotto(x = t(testmain_mat), method = values_cor_method)
     values_cordist = stats::as.dist(1 - values_cormatrix, diag = T, upper = T)
     values_corclus = stats::hclust(d = values_cordist, method = values_cluster_method)
     values_names = rownames(values_cormatrix)
