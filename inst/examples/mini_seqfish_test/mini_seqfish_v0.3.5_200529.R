@@ -7,7 +7,8 @@ library(Giotto)
 ## Giotto 0.3.5 ##
 ## mini-test seqFish Giotto 0.3.5 ##
 
-temp_dir = '/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Temp'
+#temp_dir = '/Volumes/Ruben_Seagate/Dropbox/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Temp'
+temp_dir = getwd()
 
 ## 1. giotto object ####
 expr_path = system.file("extdata", "seqfish_field_expr.txt", package = 'Giotto')
@@ -353,8 +354,5 @@ exportGiottoViewer(gobject = VC_small, output_directory = viewer_folder,
                    expression_rounding = 3,
                    overwrite_dir = T)
 
-
-
-reticulate::miniconda_path()
 
 
