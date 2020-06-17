@@ -1510,6 +1510,79 @@ showNetworks = function(gobject,
 
 
 
+#' @title annotateSpatialNetwork
+#' @name annotateSpatialNetwork
+#' @description Annotate spatial network with cell metadata information.
+#' @param gobject giotto object
+#' @param spatial_network_name name of spatial network to use
+#' @param cluster_column name of column to use for clusters
+#' @param create_full_network convert from reduced to full network representation
+#' @return annotated network in data.table format
+#' @export
+#' @examples
+#'     annotateSpatialNetwork(gobject)
+annotateSpatialNetwork = function(gobject,
+                                  spatial_network_name = 'Delaunay_network',
+                                  cluster_column,
+                                  create_full_network = F) {
+
+  # get network
+  if(!spatial_network_name %in% names(gobject@spatial_network)) {
+    stop('\n spatial network with name: ', spatial_network_name, ' does not exist \n')
+  }
+  spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
+
+
+
+  if(create_full_network == TRUE) {
+
+    spatial_network = Giotto:::convert_to_full_spatial_network(spatial_network)
+
+    # convert to names for a reduced network
+    source_coordinates = grep('source_', colnames(spatial_network), value = T)
+    new_source_coordinates = gsub(x = source_coordinates, pattern = 'source_', replacement = 'sdim')
+    new_source_coordinates = paste0(new_source_coordinates,'_begin')
+
+    target_coordinates = grep('target_', colnames(spatial_network), value = T)
+    new_target_coordinates = gsub(x = target_coordinates, pattern = 'target_', replacement = 'sdim')
+    new_target_coordinates = paste0(new_target_coordinates,'_end')
+
+    data.table::setnames(spatial_network,
+                         old = c('source', 'target', source_coordinates, target_coordinates),
+                         new = c('from', 'to', new_source_coordinates, new_target_coordinates))
+  }
+
+
+
+  # cell metadata
+  cell_metadata = pDataDT(gobject)
+  if(!cluster_column %in% colnames(cell_metadata)) {
+    stop('\n the cluster column does not exist in pDataDT(gobject) \n')
+  }
+  cluster_type_vector = cell_metadata[[cluster_column]]
+  names(cluster_type_vector) = cell_metadata[['cell_ID']]
+
+  spatial_network_annot = data.table::copy(spatial_network)
+  spatial_network_annot[, to_cell_type := cluster_type_vector[to]]
+  spatial_network_annot[, from_cell_type := cluster_type_vector[from]]
+  spatial_network_annot[, type_int := ifelse(to_cell_type == from_cell_type, 'homo', 'hetero')]
+
+  # specific direction
+  spatial_network_annot[, from_to := paste0(from_cell_type,'-',to_cell_type)]
+
+  # unified direction, due to 'sort'
+  spatial_network_annot = Giotto:::sort_combine_two_DT_columns(spatial_network_annot,
+                                                               column1 = 'from_cell_type',
+                                                               column2 = 'to_cell_type',
+                                                               myname = 'unified_int')
+
+  return(spatial_network_annot)
+
+}
+
+
+
+
 
 ## Spatial grid ####
 
@@ -1727,6 +1800,8 @@ createSpatialGrid_3D <- function(gobject,
     return(list(grid = spatgrid, locs = spatlocs))
   }
 }
+
+
 
 #' @title createSpatialGrid_2D
 #' @description create a spatial grid for 2D spatial data.
@@ -1987,6 +2062,8 @@ annotate_spatlocs_with_spatgrid_3D = function(spatloc, spatgrid) {
 
 }
 
+
+
 #' @title annotate_spatlocs_with_spatgrid_2D
 #' @description annotate spatial locations with 2D spatial grid information
 #' @param spatloc spatial_locs slot from giotto object
@@ -2026,4 +2103,69 @@ annotate_spatlocs_with_spatgrid_2D = function(spatloc, spatgrid) {
   return(spatlocs)
 
 }
+
+
+#' @title annotateSpatialGrid
+#' @description annotate spatial grid with cell ID and cell metadata (optional)
+#' @param gobject Giotto object
+#' @param spatial_grid_name name of spatial grid, see \code{\link{showGrids}}
+#' @param cluster_columns names of cell metadata, see \code{\link{pDataDT}}
+#' @return annotated spatial grid data.table
+#' @examples
+#'     annotateSpatialGrid()
+annotateSpatialGrid = function(gobject,
+                               spatial_grid_name = 'spatial_grid',
+                               cluster_columns = NULL) {
+
+
+  # get network
+  if(!spatial_grid_name %in% names(gobject@spatial_grid)) {
+    stop('\n spatial grid with name: ', spatial_grid_name, ' does not exist \n',
+         'check which spatial grids exist with showGrids() \n')
+
+  }
+
+  spatial_grid = gobject@spatial_grid[[spatial_grid_name]]
+  spatial_locs = data.table::copy(gobject@spatial_locs)
+
+  # 1. annotate spatial grid with spatial locations
+  if(all(c('sdimx', 'sdimy', 'sdimz') %in% colnames(spatial_locs))) {
+    annotgrid_locs = annotate_spatlocs_with_spatgrid_3D(spatloc = spatial_locs, spatgrid = spatial_grid)
+  } else if(all(c('sdimx', 'sdimy') %in% colnames(spatial_locs))) {
+    annotgrid_locs = annotate_spatlocs_with_spatgrid_2D(spatloc = spatial_locs, spatgrid = spatial_grid)
+  }
+
+  # 2.select metadata
+  cell_metadata = pDataDT(gobject)
+
+  if(!is.null(cluster_columns)) {
+
+    annotation_vector = cluster_columns
+    possible_annotations = colnames(cell_metadata)
+
+    missing_annotation = annotation_vector[!annotation_vector %in% possible_annotations]
+    if(length(missing_annotation) > 0) {
+      cat('These annotations were not found back in the cell metadata (pDataDT): \n',
+          missing_annotation, '\n')
+    }
+
+    annotation_vector_found = annotation_vector[annotation_vector %in% possible_annotations]
+    cell_meta_selected = cell_metadata[, c('cell_ID', annotation_vector_found), with = F]
+
+    annotated_grid = data.table::merge.data.table(x = annotgrid_locs, y = cell_meta_selected, by = 'cell_ID')
+
+    return(annotated_grid)
+
+  } else {
+
+    return(annotgrid_locs)
+
+  }
+}
+
+
+
+
+
+
 
