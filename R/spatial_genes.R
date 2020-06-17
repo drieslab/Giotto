@@ -1949,13 +1949,18 @@ rankSpatialCorGroups = function(gobject,
     res_neg_cor_list[[id]] = mean_neg_score
   }
 
-  res_cor_DT = data.table('clusters' = unique(clusters_part),
-                          cor_score = unlist(res_cor_list),
-                          cor_neg_score = unlist(res_neg_cor_list),
-                          nr_genes = unlist(nr_genes_list))
+
+  # data.table variables
+  cor_neg_adj = cor_neg_score = adj_cor_score = cor_score = clusters = nr_genes = NULL
+
+  res_cor_DT = data.table::data.table('clusters' = unique(clusters_part),
+                                      cor_score = unlist(res_cor_list),
+                                      cor_neg_score = unlist(res_neg_cor_list),
+                                      nr_genes = unlist(nr_genes_list))
+
   res_cor_DT[, cor_neg_adj := 1-(cor_neg_score-min(cor_neg_score))]
   res_cor_DT[, adj_cor_score := cor_neg_adj * cor_score]
-  setorder(res_cor_DT, -adj_cor_score)
+  data.table::setorder(res_cor_DT, -adj_cor_score)
   res_cor_DT[, clusters := factor(x = clusters, levels = rev(clusters))]
 
   # print, return and save parameters
@@ -1964,10 +1969,10 @@ rankSpatialCorGroups = function(gobject,
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
 
-  pl = ggplot()
-  pl = pl + geom_point(data = res_cor_DT, aes(x = clusters, y = adj_cor_score, size = nr_genes))
-  pl = pl + theme_classic()
-  pl = pl + labs(x = 'clusters', y = 'pos r x (1 - (neg_r - min(neg_r)))')
+  pl = ggplot2::ggplot()
+  pl = pl + ggplot2::geom_point(data = res_cor_DT, ggplot2::aes(x = clusters, y = adj_cor_score, size = nr_genes))
+  pl = pl + ggplot2::theme_classic()
+  pl = pl + ggplot2::labs(x = 'clusters', y = 'pos r x (1 - (neg_r - min(neg_r)))')
 
 
   ## print plot

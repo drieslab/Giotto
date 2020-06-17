@@ -1050,6 +1050,9 @@ plotMetaDataHeatmap = function(gobject,
                               metadata_cols = metadata_cols,
                               selected_genes = selected_genes)
 
+  # data.table variables
+  zscores = value = zscores_rescaled_per_gene = NULL
+
   metaDT[, zscores := scale(value), by = c('variable')]
   metaDT[, zscores_rescaled_per_gene := scales::rescale(zscores, to = c(-1,1)), by = c('variable')]
 
@@ -1112,6 +1115,9 @@ plotMetaDataHeatmap = function(gobject,
 
   if(length(metadata_cols) == 1) {
 
+    # data.table variables
+    factor_column = variable = NULL
+
     metaDT[, factor_column := factor(get(metadata_cols), levels = clus_sort_names)]
     metaDT[, variable := factor(get('variable'), levels = gene_sort_names)]
 
@@ -1128,16 +1134,16 @@ plotMetaDataHeatmap = function(gobject,
 
 
     pl <- ggplot2::ggplot()
-    pl <- pl + geom_tile(data = metaDT, aes_string(x = 'factor_column', y = 'variable', fill = show_values), color = 'black')
-    pl <- pl + scale_fill_gradient2(low = gradient_color[[1]],
+    pl <- pl + ggplot2::geom_tile(data = metaDT, ggplot2::aes_string(x = 'factor_column', y = 'variable', fill = show_values), color = 'black')
+    pl <- pl + ggplot2::scale_fill_gradient2(low = gradient_color[[1]],
                                     mid = gradient_color[[2]],
                                     high = gradient_color[[3]],
                                     midpoint = gradient_midpoint)
-    pl <- pl + theme_classic()
-    pl <- pl + theme(axis.text.x = element_text(size = x_text_size, angle = x_text_angle, hjust = 1, vjust = 1),
-                     axis.text.y = element_text(size = y_text_size),
-                     legend.title=element_blank())
-    pl <- pl + labs(x = metadata_cols, y = 'genes')
+    pl <- pl + ggplot2::theme_classic()
+    pl <- pl + ggplot2::theme(axis.text.x = ggplot2::element_text(size = x_text_size, angle = x_text_angle, hjust = 1, vjust = 1),
+                     axis.text.y = ggplot2::element_text(size = y_text_size),
+                     legend.title = ggplot2::element_blank())
+    pl <- pl + ggplot2::labs(x = metadata_cols, y = 'genes')
 
 
     # print, return and save parameters
@@ -1169,6 +1175,9 @@ plotMetaDataHeatmap = function(gobject,
       return(metaDT)
     } else {
 
+      # data.table variables
+      factor_1_column = factor_2_column = variable = NULL
+
       metaDT[, factor_1_column := factor(get(first_meta_col), clus_sort_names)]
       metaDT[, factor_2_column := as.factor(get(second_meta_col))]
       metaDT[, variable := factor(get('variable'), levels = gene_sort_names)]
@@ -1184,19 +1193,19 @@ plotMetaDataHeatmap = function(gobject,
         metaDT[[show_values]] = limit_numeric_data
       }
 
-      pl <- ggplot()
-      pl <- pl + geom_tile(data = metaDT, aes_string(x = 'factor_1_column', y = 'variable', fill = show_values), color = 'black')
-      pl <- pl + scale_fill_gradient2(low = gradient_color[[1]],
+      pl <- ggplot2::ggplot()
+      pl <- pl + ggplot2::geom_tile(data = metaDT, ggplot2::aes_string(x = 'factor_1_column', y = 'variable', fill = show_values), color = 'black')
+      pl <- pl + ggplot2::scale_fill_gradient2(low = gradient_color[[1]],
                                       mid = gradient_color[[2]],
                                       high = gradient_color[[3]],
                                       midpoint = gradient_midpoint)
-      pl <- pl + facet_grid(stats::reformulate('factor_2_column'))
-      pl <- pl + theme_classic()
-      pl <- pl + theme(axis.text.x = element_text(size = x_text_size, angle = x_text_angle, hjust = 1, vjust = 1),
-                       axis.text.y = element_text(size = y_text_size),
-                       strip.text = element_text(size = strip_text_size),
-                       legend.title=element_blank())
-      pl <- pl + labs(x = first_meta_col, y = 'genes', title = second_meta_col)
+      pl <- pl + ggplot2::facet_grid(stats::reformulate('factor_2_column'))
+      pl <- pl + ggplot2::theme_classic()
+      pl <- pl + ggplot2::theme(axis.text.x = ggplot2::element_text(size = x_text_size, angle = x_text_angle, hjust = 1, vjust = 1),
+                       axis.text.y = ggplot2::element_text(size = y_text_size),
+                       strip.text = ggplot2::element_text(size = strip_text_size),
+                       legend.title= ggplot2::element_blank())
+      pl <- pl + ggplot2::labs(x = first_meta_col, y = 'genes', title = second_meta_col)
 
 
       # print, return and save parameters
@@ -1288,6 +1297,9 @@ plotMetaDataCellsHeatmap = function(gobject,
                                    metadata_cols = metadata_cols,
                                    spat_enr_names = spat_enr_names)
 
+  # data.table variables
+  zscores = zscores_rescaled_per_gene = value = NULL
+
   metaDT[, zscores := scale(value), by = c('variable')]
   metaDT[, zscores_rescaled_per_gene := scales::rescale(zscores, to = c(-1,1)), by = c('variable')]
 
@@ -1350,17 +1362,20 @@ plotMetaDataCellsHeatmap = function(gobject,
 
   if(length(metadata_cols) == 1) {
 
+    # data.table variables
+    factor_column = variable = NULL
+
     metaDT[, factor_column := factor(get(metadata_cols), levels = clus_sort_names)]
     metaDT[, variable := factor(get('variable'), levels = values_sort_names)]
 
     pl <- ggplot2::ggplot()
-    pl <- pl + geom_tile(data = metaDT, aes_string(x = 'factor_column', y = 'variable', fill = show_values), color = 'black')
-    pl <- pl + scale_fill_gradient2(low = 'blue', mid = 'white', high = 'red', midpoint = midpoint)
-    pl <- pl + theme_classic()
-    pl <- pl + theme(axis.text.x = element_text(size = x_text_size, angle = x_text_angle, hjust = 1, vjust = 1),
-                     axis.text.y = element_text(size = y_text_size),
-                     legend.title=element_blank())
-    pl <- pl + labs(x = metadata_cols, y = 'genes')
+    pl <- pl + ggplot2::geom_tile(data = metaDT, ggplot2::aes_string(x = 'factor_column', y = 'variable', fill = show_values), color = 'black')
+    pl <- pl + ggplot2::scale_fill_gradient2(low = 'blue', mid = 'white', high = 'red', midpoint = midpoint)
+    pl <- pl + ggplot2::theme_classic()
+    pl <- pl + ggplot2::theme(axis.text.x = ggplot2::element_text(size = x_text_size, angle = x_text_angle, hjust = 1, vjust = 1),
+                     axis.text.y = ggplot2::element_text(size = y_text_size),
+                     legend.title = ggplot2::element_blank())
+    pl <- pl + ggplot2::labs(x = metadata_cols, y = 'genes')
 
 
     # print, return and save parameters
@@ -1392,20 +1407,23 @@ plotMetaDataCellsHeatmap = function(gobject,
       return(metaDT)
     } else {
 
+      # data.table variables
+      factor_1_column = factor_2_column = variable = NULL
+
       metaDT[, factor_1_column := factor(get(first_meta_col), clus_sort_names)]
       metaDT[, factor_2_column := as.factor(get(second_meta_col))]
       metaDT[, variable := factor(get('variable'), levels = values_sort_names)]
 
-      pl <- ggplot()
-      pl <- pl + geom_tile(data = metaDT, aes_string(x = 'factor_1_column', y = 'variable', fill = show_values), color = 'black')
-      pl <- pl + scale_fill_gradient2(low = 'blue', mid = 'white', high = 'red', midpoint = midpoint)
-      pl <- pl + facet_grid(stats::reformulate('factor_2_column'))
-      pl <- pl + theme_classic()
-      pl <- pl + theme(axis.text.x = element_text(size = x_text_size, angle = x_text_angle, hjust = 1, vjust = 1),
-                       axis.text.y = element_text(size = y_text_size),
-                       strip.text = element_text(size = strip_text_size),
-                       legend.title=element_blank())
-      pl <- pl + labs(x = first_meta_col, y = 'genes', title = second_meta_col)
+      pl <- ggplot2::ggplot()
+      pl <- pl + ggplot2::geom_tile(data = metaDT, ggplot2::aes_string(x = 'factor_1_column', y = 'variable', fill = show_values), color = 'black')
+      pl <- pl + ggplot2::scale_fill_gradient2(low = 'blue', mid = 'white', high = 'red', midpoint = midpoint)
+      pl <- pl + ggplot2::facet_grid(stats::reformulate('factor_2_column'))
+      pl <- pl + ggplot2::theme_classic()
+      pl <- pl + ggplot2::theme(axis.text.x = ggplot2::element_text(size = x_text_size, angle = x_text_angle, hjust = 1, vjust = 1),
+                       axis.text.y = ggplot2::element_text(size = y_text_size),
+                       strip.text = ggplot2::element_text(size = strip_text_size),
+                       legend.title = ggplot2::element_blank())
+      pl <- pl + ggplot2::labs(x = first_meta_col, y = 'genes', title = second_meta_col)
 
 
       # print, return and save parameters

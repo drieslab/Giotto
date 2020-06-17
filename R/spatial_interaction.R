@@ -19,9 +19,9 @@ make_simulated_network = function(gobject,
                                                  cluster_column = cluster_column)
 
   # remove double edges between same cells #
-  spatial_network_annot = Giotto:::sort_combine_two_DT_columns(spatial_network_annot,
-                                                               column1 = 'from', column2 = 'to',
-                                                               myname = 'unified_cells')
+  spatial_network_annot = sort_combine_two_DT_columns(spatial_network_annot,
+                                                      column1 = 'from', column2 = 'to',
+                                                      myname = 'unified_cells')
   spatial_network_annot = spatial_network_annot[!duplicated(unified_cells)]
 
   # create a simulated network
@@ -48,8 +48,11 @@ make_simulated_network = function(gobject,
   s2_vector = do.call('c', s2_list)
   round_vector = rep(x = 1:number_of_simulations, each = length_ints)
   round_vector = paste0('sim',round_vector)
-  sample_dt = data.table::data.table(s1 = s1_vector, s2 = s2_vector, round = round_vector)
 
+  # data.table variables
+  s1 = s2 = unified_int = type_int = NULL
+
+  sample_dt = data.table::data.table(s1 = s1_vector, s2 = s2_vector, round = round_vector)
   uniq_sim_comb = unique(sample_dt[,.(s1,s2)])
   uniq_sim_comb[, unified_int := paste(sort(c(s1,s2)), collapse = '--'), by  = 1:nrow(uniq_sim_comb)]
   sample_dt[uniq_sim_comb, unified_int := unified_int, on = c(s1 = 's1', s2 = 's2')]

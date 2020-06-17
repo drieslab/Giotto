@@ -385,7 +385,6 @@ plotGiottoImage = function(gobject,
   g_image_names = names(gobject@images)
   if(!image_name %in% g_image_names) stop(image_name, ' was not found among the image names, see showImageNames()')
 
-  plot(gobject@images[[image_name]]$mg_object)
+  graphics::plot(gobject@images[[image_name]]$mg_object)
 }
-
 

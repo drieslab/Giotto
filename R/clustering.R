@@ -2142,6 +2142,10 @@ mergeClusters <- function(gobject,
 
   ## get clusters that can be merged
   # 1. clusters with high correlation
+
+  # data.table variables
+  group1 = group2 = group1_size = value = cumsum_val = group2_size = min_reached = cumsum_reached = NULL
+
   filter_set_first = similarityDT[group1 != group2][group1_size < max_group_size][value >= min_cor_score]
 
   # 2. small clusters
@@ -2214,7 +2218,8 @@ mergeClusters <- function(gobject,
       gobject@cell_metadata = cell_metadata
     }
 
-    gobject = addCellMetadata(gobject = gobject, new_metadata = metadata[, c('cell_ID', new_cluster_name), with = F],
+    gobject = addCellMetadata(gobject = gobject,
+                              new_metadata = metadata[, c('cell_ID', new_cluster_name), with = F],
                               by_column = T, column_cell_ID = 'cell_ID')
 
 

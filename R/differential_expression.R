@@ -62,6 +62,10 @@ findScranMarkers <- function(gobject,
     # create new pairwise group
     group_1_name = paste0(group_1, collapse = '_')
     group_2_name = paste0(group_2, collapse = '_')
+
+    # data.table variables
+    pairwise_select_comp = NULL
+
     cell_metadata[, pairwise_select_comp := ifelse(get(cluster_column) %in% group_1, group_1_name, group_2_name)]
 
     cluster_column = 'pairwise_select_comp'
@@ -76,6 +80,9 @@ findScranMarkers <- function(gobject,
 
   ## SCRAN ##
   marker_results = scran::findMarkers(x = expr_data, groups = cell_metadata[[cluster_column]], ...)
+
+  # data.table variables
+  genes = cluster = NULL
 
   savelist = lapply(names(marker_results), FUN = function(x) {
     dfr = marker_results[[x]]
@@ -187,6 +194,10 @@ findScranMarkers_one_vs_all <- function(gobject,
     # filter selected table
     filtered_table = selected_table[logFC > 0]
     filtered_table[, 'ranking' := rank(-logFC)]
+
+    # data.table variables
+    p.value = ranking = NULL
+
     filtered_table = filtered_table[(p.value <= pval & logFC >= logFC) | (ranking <= min_genes)]
 
     result_list[[clus_i]] = filtered_table
@@ -273,6 +284,10 @@ findGiniMarkers <- function(gobject,
     # create new pairwise group
     group_1_name = paste0(group_1, collapse = '_')
     group_2_name = paste0(group_2, collapse = '_')
+
+    # data.table variables
+    pairwise_select_comp = NULL
+
     cell_metadata[, pairwise_select_comp := ifelse(get(cluster_column) %in% group_1, group_1_name, group_2_name)]
 
     cluster_column = 'pairwise_select_comp'
@@ -285,10 +300,14 @@ findGiniMarkers <- function(gobject,
 
 
   # average expression per cluster
-  aggr_sc_clusters <- Giotto:::create_average_DT(gobject = gobject,
-                                                 meta_data_name = cluster_column,
-                                                 expression_values = values)
+  aggr_sc_clusters <- create_average_DT(gobject = gobject,
+                                        meta_data_name = cluster_column,
+                                        expression_values = values)
   aggr_sc_clusters_DT <- data.table::as.data.table(aggr_sc_clusters)
+
+  # data.table variables
+  genes = NULL
+
   aggr_sc_clusters_DT[, genes := rownames(aggr_sc_clusters)]
   aggr_sc_clusters_DT_melt <- data.table::melt.data.table(aggr_sc_clusters_DT,
                                                           variable.name = 'cluster',
@@ -297,20 +316,23 @@ findGiniMarkers <- function(gobject,
 
 
   ## detection per cluster
-  aggr_detection_sc_clusters <- Giotto:::create_average_detection_DT(gobject = gobject,
+  aggr_detection_sc_clusters = create_average_detection_DT(gobject = gobject,
                                                                      meta_data_name = cluster_column,
                                                                      expression_values = values,
                                                                      detection_threshold = detection_threshold)
-  aggr_detection_sc_clusters_DT <- as.data.table(aggr_detection_sc_clusters)
+  aggr_detection_sc_clusters_DT <- data.table::as.data.table(aggr_detection_sc_clusters)
   aggr_detection_sc_clusters_DT[, genes := rownames(aggr_detection_sc_clusters)]
-  aggr_detection_sc_clusters_DT_melt <- data.table::melt.data.table(aggr_detection_sc_clusters_DT,
+  aggr_detection_sc_clusters_DT_melt = data.table::melt.data.table(aggr_detection_sc_clusters_DT,
                                                                     variable.name = 'cluster',
                                                                     id.vars = 'genes',
                                                                     value.name = 'detection')
 
   ## gini
-  aggr_sc_clusters_DT_melt[, expression_gini := Giotto:::mygini_fun(expression), by = genes]
-  aggr_detection_sc_clusters_DT_melt[, detection_gini := Giotto:::mygini_fun(detection), by = genes]
+  # data.table variables
+  expression_gini = detection_gini = detection = NULL
+
+  aggr_sc_clusters_DT_melt[, expression_gini := mygini_fun(expression), by = genes]
+  aggr_detection_sc_clusters_DT_melt[, detection_gini := mygini_fun(detection), by = genes]
 
 
   ## combine
@@ -320,6 +342,10 @@ findGiniMarkers <- function(gobject,
 
   # expression rank for each gene in all samples
   # rescale expression rank range between 1 and 0.1
+
+  # data.table variables
+  expression_rank = cluster = detection_rank = NULL
+
   aggr_sc[, expression_rank := rank(-expression), by = genes]
   aggr_sc[, expression_rank := scales::rescale(expression_rank, to = c(1, 0.1)), by = cluster]
 
@@ -329,6 +355,10 @@ findGiniMarkers <- function(gobject,
   aggr_sc[, detection_rank := scales::rescale(detection_rank, to = c(1, 0.1)), by = cluster]
 
   # create combine score based on rescaled ranks and gini scores
+
+  # data.table variables
+  comb_score = comb_rank = NULL
+
   aggr_sc[, comb_score := (expression_gini*expression_rank)*(detection_gini*detection_rank)]
   setorder(aggr_sc, cluster, -comb_score)
   aggr_sc[, comb_rank := 1:.N, by = cluster]
@@ -429,6 +459,10 @@ findGiniMarkers_one_vs_all <- function(gobject,
 
     # filter steps
     #clus_name = paste0('cluster_', selected_clus)
+
+    # data.table variables
+    cluster = NULL
+
     filtered_table = markers[cluster == selected_clus]
 
     result_list[[clus_i]] = filtered_table
@@ -500,6 +534,10 @@ findMastMarkers <- function(gobject,
   ## create new pairwise group
   if(is.null(group_1_name)) group_1_name = paste0(group_1, collapse = '_')
   if(is.null(group_2_name)) group_2_name = paste0(group_2, collapse = '_')
+
+  # data.table variables
+  pairwise_select_comp = NULL
+
   cell_metadata[, pairwise_select_comp := ifelse(get(cluster_column) %in% group_1, group_1_name, group_2_name)]
 
   if(nrow(cell_metadata[pairwise_select_comp == group_1_name]) == 0) {
@@ -541,20 +579,28 @@ findMastMarkers <- function(gobject,
 
   ## create formula and run MAST gene regressions
   if(!is.null(adjust_columns)) {
-    myformula = as.formula(paste0("~ 1 + ",cluster_column, " + ", paste(adjust_columns, collapse = " + ")))
+    myformula = stats::as.formula(paste0("~ 1 + ",cluster_column, " + ", paste(adjust_columns, collapse = " + ")))
   } else {
-    myformula = as.formula(paste0("~ 1 + ",cluster_column))
+    myformula = stats::as.formula(paste0("~ 1 + ",cluster_column))
   }
   zlmCond <- MAST::zlm(formula = myformula, sca = mast_data, ...)
 
   ## run LRT and return data.table with results
+
+  # data.table variables
+  contrast = component = primerid = `Pr(>Chisq)` = coef = ci.hi = ci.lo = fdr = NULL
+
   sample = paste0(cluster_column, group_1_name)
   summaryCond <- MAST::summary(zlmCond, doLRT=sample)
   summaryDt <- summaryCond$datatable
   fcHurdle <- merge(summaryDt[contrast==sample & component=='H',.(primerid, `Pr(>Chisq)`)], #hurdle P values
                     summaryDt[contrast==sample & component=='logFC', .(primerid, coef, ci.hi, ci.lo)], by='primerid') #logFC coefficients
-  fcHurdle[,fdr := p.adjust(`Pr(>Chisq)`, 'fdr')]
+  fcHurdle[,fdr := stats::p.adjust(`Pr(>Chisq)`, 'fdr')]
   data.table::setorder(fcHurdle, fdr)
+
+  # data.table variables
+  cluster = NULL
+
   fcHurdle[, cluster := paste0(group_1_name,'_vs_', group_2_name)]
   data.table::setnames(fcHurdle, old = 'primerid', new = 'genes')
 
@@ -649,6 +695,10 @@ findMastMarkers_one_vs_all = function(gobject,
 
   # filter or retain only selected marker genes
   result_dt = do.call('rbind', result_list)
+
+  # data.table variables
+  ranking = fdr = coef = NULL
+
   result_dt[, ranking := 1:.N, by = 'cluster']
   filtered_result_dt = result_dt[ranking <= min_genes | (fdr < pval & coef > logFC)]
 

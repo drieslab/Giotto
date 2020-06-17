@@ -35,6 +35,7 @@ Imports:
     uwot (>= 0.0.0.9010),
     cowplot (>= 0.9.4),
     grDevices,
+    graphics,
     RColorBrewer (>= 1.1-2),
     dbscan (>= 1.1-3),
     farver (>= 2.0.3),

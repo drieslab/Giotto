@@ -29,13 +29,14 @@ rowSums_giotto = function(mymatrix) {
   }
 }
 
+
 #' @title rowMeans_giotto
 #' @export
 rowMeans_giotto = function(mymatrix) {
 
-  if(is(mymatrix, 'dgCMatrix')) {
+  if(methods::is(mymatrix, 'dgCMatrix')) {
     return(Matrix::rowMeans(mymatrix)) # replace with sparseMatrixStats
-  } else if(is(mymatrix, 'Matrix')) {
+  } else if(methods::is(mymatrix, 'Matrix')) {
     return(Matrix::rowMeans(mymatrix))
   } else {
     temp_matrix = as.matrix(mymatrix)
@@ -50,9 +51,9 @@ rowMeans_giotto = function(mymatrix) {
 #' @export
 colSums_giotto = function(mymatrix) {
 
-  if(is(mymatrix, 'dgCMatrix')) {
+  if(methods::is(mymatrix, 'dgCMatrix')) {
     return(Matrix::colSums(mymatrix)) # replace with sparseMatrixStats
-  } else if(is(mymatrix, 'Matrix')) {
+  } else if(methods::is(mymatrix, 'Matrix')) {
     return(Matrix::colSums(mymatrix))
   } else {
     temp_matrix = as.matrix(mymatrix)
@@ -66,9 +67,9 @@ colSums_giotto = function(mymatrix) {
 #' @export
 colMeans_giotto = function(mymatrix) {
 
-  if(is(mymatrix, 'dgCMatrix')) {
+  if(methods::is(mymatrix, 'dgCMatrix')) {
     return(Matrix::colMeans(mymatrix)) # replace with sparseMatrixStats
-  } else if(is(mymatrix, 'Matrix')) {
+  } else if(methods::is(mymatrix, 'Matrix')) {
     return(Matrix::colMeans(mymatrix))
   } else {
     temp_matrix = as.matrix(mymatrix)
@@ -82,9 +83,9 @@ colMeans_giotto = function(mymatrix) {
 #' @export
 t_giotto = function(mymatrix) {
 
-  if(is(mymatrix, 'dgCMatrix')) {
+  if(methods::is(mymatrix, 'dgCMatrix')) {
     return(Matrix::t(mymatrix)) # replace with sparseMatrixStats
-  } else if(is(mymatrix, 'Matrix')) {
+  } else if(methods::is(mymatrix, 'Matrix')) {
     return(Matrix::t(mymatrix))
   } else {
     mymatrix = as.matrix(mymatrix)
@@ -158,9 +159,9 @@ mean_expr_det_test = function(mymatrix, detection_threshold = 1) {
 libNorm_giotto <- function(mymatrix, scalefactor){
   libsizes = colSums_giotto(mymatrix)
 
-  if(is(mymatrix, 'dgCMatrix')) {
+  if(methods::is(mymatrix, 'dgCMatrix')) {
     norm_expr = Matrix::t(Matrix::t(mymatrix)/ libsizes)*scalefactor # replace with sparseMatrixStats
-  } else if(is(mymatrix, 'Matrix')) {
+  } else if(methods::is(mymatrix, 'Matrix')) {
     norm_expr = Matrix::t(Matrix::t(mymatrix)/ libsizes)*scalefactor
   } else {
     norm_expr = t(t(as.matrix(mymatrix))/ libsizes)*scalefactor
@@ -171,9 +172,9 @@ libNorm_giotto <- function(mymatrix, scalefactor){
 #' @export
 logNorm_giotto = function(mymatrix, base, offset) {
 
-  if(is(mymatrix, 'dgCMatrix')) {
+  if(methods::is(mymatrix, 'dgCMatrix')) {
     mymatrix@x = log(mymatrix@x + offset)/log(base) # replace with sparseMatrixStats
-  } else if(is(mymatrix, 'Matrix')) {
+  } else if(methods::is(mymatrix, 'Matrix')) {
     mymatrix@x =log(mymatrix@x + offset)/log(base)
   } else {
     mymatrix = log(as.matrix(mymatrix) + offset)/log(base)
@@ -989,12 +990,12 @@ normalizeGiotto <- function(gobject,
 
       if(scale_order == 'first_genes') {
         if(verbose == TRUE) cat('\n first scale genes and then cells \n')
-        if(!is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
+        if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
         norm_scaled_expr = armaScaleRow(Z = norm_expr)
         norm_scaled_expr = armaScaleCol(Z = norm_scaled_expr)
       } else if(scale_order == 'first_cells') {
         if(verbose == TRUE) cat('\n first scale cells and then genes \n')
-        if(!is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
+        if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
         norm_scaled_expr = armaScaleCol(Z = norm_expr)
         norm_scaled_expr = armaScaleRow(Z = norm_scaled_expr)
       } else {
@@ -1002,10 +1003,10 @@ normalizeGiotto <- function(gobject,
       }
 
     } else if(scale_genes == TRUE) {
-      if(!is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
+      if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
       norm_scaled_expr = armaScaleRow(Z = norm_expr)
     } else if(scale_cells == TRUE) {
-      if(!is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
+      if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
       norm_scaled_expr = armaScaleCol(Z = norm_expr)
     } else {
       norm_scaled_expr = NULL
@@ -1606,7 +1607,7 @@ addGenesPerc = function(gobject,
     stop('You need to provide a vector of gene names \n')
   }
 
-  if(!is(gobject, 'giotto')) {
+  if(!methods::is(gobject, 'giotto')) {
     stop('You need to provide a giotto object \n')
   }
 
@@ -1981,7 +1982,7 @@ findNetworkNeighbors = function(gobject,
 
   # get spatial network
   if(!is.null(spatial_network_name)) {
-    spatial_network = Giotto:::select_spatialNetwork(gobject, name = spatial_network_name, return_network_Obj = FALSE)
+    spatial_network = select_spatialNetwork(gobject, name = spatial_network_name, return_network_Obj = FALSE)
   } else {
     stop('You need to select a spatial network')
   }
@@ -1995,12 +1996,16 @@ findNetworkNeighbors = function(gobject,
   }
 
 
-  full_network_DT = Giotto:::convert_to_full_spatial_network(spatial_network)
+  full_network_DT = convert_to_full_spatial_network(spatial_network)
   potential_target_cells = full_network_DT[source %in% source_cells][['target']]
   source_and_target_cells = potential_target_cells[potential_target_cells %in% source_cells]
   target_cells = potential_target_cells[!potential_target_cells %in% source_and_target_cells]
 
   cell_meta = pDataDT(gobject)
+
+  # data.table variables
+  nb_cells = cell_ID = NULL
+
   cell_meta[, nb_cells := ifelse(cell_ID %in% source_and_target_cells, 'both',
                                  ifelse(cell_ID %in% source_cells, 'source',
                                         ifelse(cell_ID %in% target_cells, 'neighbor', 'others')))]

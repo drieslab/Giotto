@@ -485,6 +485,7 @@ create_screeplot = function(pca_obj, ncp = 20, ylim = c(0, 20)) {
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from all_plots_save_function()
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @param ... additional arguments to pca function, see \code{\link{runPCA}}
 #' @return ggplot object for scree method
 #' @details
 #'  Screeplot works by plotting the explained variance of each
@@ -511,7 +512,8 @@ screePlot = function(gobject,
                      return_plot = NA,
                      save_plot = NA,
                      save_param = list(),
-                     default_save_name = 'screePlot') {
+                     default_save_name = 'screePlot',
+                     ...) {
 
 
   # select direction of reduction
@@ -1011,6 +1013,9 @@ runUMAP <- function(gobject,
     uwot_clus <- uwot::umap(X = as.matrix(matrix_to_use), n_neighbors = n_neighbors, n_components = n_components,
                             n_epochs = n_epochs, min_dist = min_dist, n_threads = n_threads, spread = spread, ...)
     uwot_clus_pos_DT <- data.table::as.data.table(uwot_clus)
+
+    # data.table variables
+    cell_ID = NULL
     uwot_clus_pos_DT[, cell_ID := rownames(matrix_to_use)]
 
 
@@ -1189,6 +1194,9 @@ runtSNE <- function(gobject,
                              pca = do_PCA_first, ...)
 
     tsne_clus_pos_DT <- data.table::as.data.table(tsne_clus$Y)
+
+    # data.table variables
+    cell_ID = NULL
     tsne_clus_pos_DT[, cell_ID := rownames(matrix_to_use)]
 
     if(set_seed == TRUE) {

@@ -21,7 +21,8 @@ screePlot(
   return_plot = NA,
   save_plot = NA,
   save_param = list(),
-  default_save_name = "screePlot"
+  default_save_name = "screePlot",
+  ...
 )
 }
 \arguments{
@@ -58,6 +59,8 @@ screePlot(
 \item{save_param}{list of saving parameters from all_plots_save_function()}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+
+\item{...}{additional arguments to pca function, see \code{\link{runPCA}}}
 }
 \value{
 ggplot object for scree method
