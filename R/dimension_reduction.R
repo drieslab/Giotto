@@ -600,20 +600,22 @@ screePlot = function(gobject,
 #' @return ggplot
 create_jackstrawplot = function(jackstraw_data, ncp = 20, ylim = c(0, 1), threshold = 0.01) {
 
+  # data.table variables
+  PC = p.val = NULL
 
   testDT = data.table(PC = paste0('PC.', 1:length(jackstraw_data)),
                       p.val = jackstraw_data)
   testDT[, PC := factor(PC, levels = PC)]
   testDT[, sign := ifelse(p.val <= threshold, 'sign', 'n.s.')]
 
-  pl = ggplot()
-  pl = pl + theme_bw()
-  pl = pl + geom_point(data = testDT[1:ncp], aes(x = PC, y = p.val, fill = sign), shape = 21)
-  pl = pl + scale_fill_manual(values  = c('n.s.' = 'lightgrey', 'sign' = 'darkorange'))
-  pl = pl + theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
-  pl = pl + coord_cartesian(ylim = ylim)
-  pl = pl + theme(panel.grid.major.x = element_blank())
-  pl = pl + labs(x = '', y = 'p-value per PC')
+  pl = ggplot2::ggplot()
+  pl = pl + ggplot2::theme_bw()
+  pl = pl + ggplot2::geom_point(data = testDT[1:ncp], ggplot2::aes(x = PC, y = p.val, fill = sign), shape = 21)
+  pl = pl + ggplot2::scale_fill_manual(values  = c('n.s.' = 'lightgrey', 'sign' = 'darkorange'))
+  pl = pl + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1))
+  pl = pl + ggplot2::coord_cartesian(ylim = ylim)
+  pl = pl + ggplot2::theme(panel.grid.major.x = ggplot2::element_blank())
+  pl = pl + ggplot2::labs(x = '', y = 'p-value per PC')
 
   return(pl)
 

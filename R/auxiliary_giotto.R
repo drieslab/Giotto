@@ -1925,6 +1925,10 @@ createMetagenes = function(gobject,
 
   res_final = data.table::as.data.table(t(do.call('rbind', res_list)))
   colnames(res_final) = as.character(sort(unique(gene_clusters)))
+
+  # data.table variables
+  cell_ID = NULL
+
   res_final[, cell_ID := colnames(expr_values)]
 
 

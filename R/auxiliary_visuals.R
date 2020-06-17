@@ -692,6 +692,9 @@ createHeatmap_DT <- function(gobject,
   subset_values_DT <- merge(subset_values_DT, by.x = 'cells', cell_metadata[, c('cell_ID', cluster_column), with = F], by.y = 'cell_ID')
   subset_values_DT[[cluster_column]] <- factor(subset_values_DT[[cluster_column]], levels = clus_sort_names)
 
+  # data.table variables
+  z_scores = scale_scores = V1 = cells = NULL
+
   subset_values_DT[, genes := factor(genes, unique(detected_genes))]
   subset_values_DT[, z_scores := scale(expression), by = genes]
   subset_values_DT[, scale_scores := scales::rescale(x = expression, to = c(0,1)), by = genes]

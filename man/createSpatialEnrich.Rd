@@ -11,7 +11,7 @@ createSpatialEnrich(
   expression_values = c("normalized", "scaled", "custom"),
   reverse_log_scale = TRUE,
   logbase = 2,
-  p_value = TRUE,
+  p_value = FALSE,
   n_genes = 100,
   n_times = 1000,
   top_percentage = 5,

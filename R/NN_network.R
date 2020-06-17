@@ -111,6 +111,10 @@ createNearestNetwork <- function(gobject,
   }
 
   nn_network = dbscan::kNN(x = matrix_to_use, k = k, sort = TRUE, ...)
+
+  # data.table variables
+  from = to = weight = distance = from_cell_ID = to_cell_ID = shared = NULL
+
   nn_network_dt = data.table::data.table(from = rep(1:nrow(nn_network$id), k),
                                          to = as.vector(nn_network$id),
                                          weight = 1/(1 + as.vector(nn_network$dist)),
@@ -127,7 +131,7 @@ createNearestNetwork <- function(gobject,
                                             weight = 1/(1 + as.vector(snn_network$dist)),
                                             distance = as.vector(snn_network$dist),
                                             shared = as.vector(snn_network$shared))
-    snn_network_dt = snn_network_dt[complete.cases(snn_network_dt)]
+    snn_network_dt = snn_network_dt[stats::complete.cases(snn_network_dt)]
     snn_network_dt[, from_cell_ID := cell_names[from]]
     snn_network_dt[, to_cell_ID := cell_names[to]]
 
