@@ -2111,6 +2111,7 @@ annotate_spatlocs_with_spatgrid_2D = function(spatloc, spatgrid) {
 #' @param spatial_grid_name name of spatial grid, see \code{\link{showGrids}}
 #' @param cluster_columns names of cell metadata, see \code{\link{pDataDT}}
 #' @return annotated spatial grid data.table
+#' @export
 #' @examples
 #'     annotateSpatialGrid()
 annotateSpatialGrid = function(gobject,
