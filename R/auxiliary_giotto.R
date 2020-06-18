@@ -1309,6 +1309,9 @@ addCellMetadata <- function(gobject,
                             by_column = FALSE,
                             column_cell_ID = NULL) {
 
+  # data.table variables
+  cell_ID = NULL
+
   cell_metadata = gobject@cell_metadata
   ordered_cell_IDs = gobject@cell_ID
 
@@ -1382,6 +1385,9 @@ addGeneMetadata <- function(gobject,
                             by_column = F,
                             column_gene_ID = NULL) {
 
+  # data.table variables
+  gene_ID = NULL
+
   gene_metadata = gobject@gene_metadata
   ordered_gene_IDs = gobject@gene_ID
 
@@ -1437,6 +1443,9 @@ addGeneStatistics <- function(gobject,
                           perc_cells = (rowSums_giotto(expr_data > detection_threshold)/ncol(expr_data))*100,
                           total_expr = rowSums_giotto(expr_data),
                           mean_expr = rowMeans_giotto(expr_data))
+
+  # data.table variables
+  mean_expr_det = NULL
 
   mean_expr_detected = mean_expr_det_test(expr_data, detection_threshold = detection_threshold)
   gene_stats[, mean_expr_det := mean_expr_detected]

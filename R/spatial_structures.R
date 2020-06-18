@@ -1536,7 +1536,7 @@ annotateSpatialNetwork = function(gobject,
 
   if(create_full_network == TRUE) {
 
-    spatial_network = Giotto:::convert_to_full_spatial_network(spatial_network)
+    spatial_network = convert_to_full_spatial_network(spatial_network)
 
     # convert to names for a reduced network
     source_coordinates = grep('source_', colnames(spatial_network), value = T)
@@ -1571,10 +1571,10 @@ annotateSpatialNetwork = function(gobject,
   spatial_network_annot[, from_to := paste0(from_cell_type,'-',to_cell_type)]
 
   # unified direction, due to 'sort'
-  spatial_network_annot = Giotto:::sort_combine_two_DT_columns(spatial_network_annot,
-                                                               column1 = 'from_cell_type',
-                                                               column2 = 'to_cell_type',
-                                                               myname = 'unified_int')
+  spatial_network_annot = sort_combine_two_DT_columns(spatial_network_annot,
+                                                      column1 = 'from_cell_type',
+                                                      column2 = 'to_cell_type',
+                                                      myname = 'unified_int')
 
   return(spatial_network_annot)
 

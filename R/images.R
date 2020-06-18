@@ -7,7 +7,7 @@
 #' @return data.table with image pixel information
 convert_mgImage_to_array_DT = function(mg_object) {
 
-  if(is(mg_object, 'imageGiottoObj')) {
+  if(methods::is(mg_object, 'imageGiottoObj')) {
     mg_object = mg_object$mg_object
   }
 
@@ -34,7 +34,7 @@ convert_mgImage_to_array_DT = function(mg_object) {
 #'     estimateImageBg(mg_object)
 estimateImageBg = function(mg_object, top_color_range = 1:50) {
 
-  if(is(mg_object, 'imageGiottoObj')) {
+  if(methods::is(mg_object, 'imageGiottoObj')) {
     mg_object = mg_object$mg_object
   }
 
@@ -160,7 +160,7 @@ createGiottoImage = function(gobject = NULL,
                              xmin_adj = 0,
                              ymax_adj = 0,
                              ymin_adj = 0) {
-  if(!is(mg_object, 'magick-image')) {
+  if(!methods::is(mg_object, 'magick-image')) {
     if(file.exists(mg_object)) {
       mg_object = try(magick::image_read(mg_object))
       if(class(mg_object) == 'try-error') {
@@ -215,7 +215,7 @@ addGiottoImage = function(gobject,
 
     im = images[[image_i]]
 
-    if(is(im, 'imageGiottoObj')) {
+    if(methods::is(im, 'imageGiottoObj')) {
       im_name = im$name
 
       all_im_names = names(gobject@images)
