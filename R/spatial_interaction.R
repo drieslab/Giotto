@@ -103,6 +103,10 @@ cellProximityEnrichment <- function(gobject,
   # remove double edges between same cells #
   # a simplified network does not have double edges between cells #
   # spatial_network_annot[, unified_cells := paste(sort(c(to,from)), collapse = '--'), by = 1:nrow(spatial_network_annot)]
+
+  # data.table variables
+  unified_cells = NULL
+
   spatial_network_annot = sort_combine_two_DT_columns(spatial_network_annot, 'to', 'from', 'unified_cells')
   spatial_network_annot = spatial_network_annot[!duplicated(unified_cells)]
 
@@ -113,6 +117,10 @@ cellProximityEnrichment <- function(gobject,
 
   # combine original and simulated network
   table_sim_results <- sample_dt[, table(round), by = c('unified_int', 'type_int')]
+
+  # data.table variables
+  orig = unified_int = V1 = original = enrichm = simulations = NULL
+
   table_sim_results[, orig := 'simulations']
   spatial_network_annot[, round := 'original']
   table_orig_results <- spatial_network_annot[, table(round), by  = c('unified_int', 'type_int')]
@@ -176,8 +184,12 @@ cellProximityEnrichment <- function(gobject,
   table_mean_results_dc[, unified_int := factor(unified_int, unified_int)]
 
   # adjust p-values for mht
-  table_mean_results_dc[, p.adj_higher := p.adjust(p_higher_orig, method = sel_adjust_method)]
-  table_mean_results_dc[, p.adj_lower := p.adjust(p_lower_orig, method = sel_adjust_method)]
+
+  # data.table variables
+  p.adj_higher = p.adj_lower = p_lower_orig = p_higher_orig = PI_value = int_ranking = NULL
+
+  table_mean_results_dc[, p.adj_higher := stats::p.adjust(p_higher_orig, method = sel_adjust_method)]
+  table_mean_results_dc[, p.adj_lower := stats::p.adjust(p_lower_orig, method = sel_adjust_method)]
 
 
   table_mean_results_dc[, PI_value := ifelse(p.adj_higher <= p.adj_lower,

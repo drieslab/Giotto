@@ -34,20 +34,24 @@ cellProximityBarplot = function(gobject,
   table_mean_results_dc = CPscore$enrichm_res
 
   ## filter to remove low number of cell-cell proximity interactions ##
+
+  # data.table variables
+  original = simulations = p_higher_orig = p_lower_orig = NULL
+
   table_mean_results_dc_filter = table_mean_results_dc[original >= min_orig_ints & simulations >= min_sim_ints]
   table_mean_results_dc_filter = table_mean_results_dc_filter[p_higher_orig <= p_val | p_lower_orig <= p_val]
 
   pl <- ggplot2::ggplot()
-  pl <- pl + ggplot2::geom_bar(data = table_mean_results_dc_filter, aes(x = unified_int, y = enrichm, fill = type_int), stat = 'identity', show.legend = F)
+  pl <- pl + ggplot2::geom_bar(data = table_mean_results_dc_filter, ggplot2::aes(x = unified_int, y = enrichm, fill = type_int), stat = 'identity', show.legend = F)
   pl <- pl + ggplot2::coord_flip()
   pl <- pl + ggplot2::theme_bw()
   pl <- pl + ggplot2::labs(y = 'enrichment/depletion')
   pl
 
   bpl <- ggplot2::ggplot()
-  bpl <- bpl + ggplot2::geom_bar(data = table_mean_results_dc_filter, aes(x = unified_int, y = original, fill = type_int), stat = 'identity', show.legend = T)
+  bpl <- bpl + ggplot2::geom_bar(data = table_mean_results_dc_filter, ggplot2::aes(x = unified_int, y = original, fill = type_int), stat = 'identity', show.legend = T)
   bpl <- bpl + ggplot2::coord_flip()
-  bpl <- bpl + ggplot2::theme_bw() + theme(axis.text.y = element_blank())
+  bpl <- bpl + ggplot2::theme_bw() + ggplot2::theme(axis.text.y = element_blank())
   bpl <- bpl + ggplot2::labs(y = '# of interactions')
   bpl
 
@@ -110,6 +114,10 @@ cellProximityHeatmap = function(gobject,
 
 
   enrich_res = CPscore$enrichm_res
+
+  # data.table variables
+  first_type = second_type = unified_int = NULL
+
   enrich_res[, first_type := strsplit(x = as.character(unified_int), split = '--')[[1]][1], by = 1:nrow(enrich_res)]
   enrich_res[, second_type := strsplit(x = as.character(unified_int), split = '--')[[1]][2], by = 1:nrow(enrich_res)]
 
@@ -242,6 +250,10 @@ cellProximityNetwork = function(gobject,
                                 default_save_name = 'cellProximityNetwork') {
 
   # extract scores
+
+  # data.table variables
+  cell_1 = cell_2 = unified_int = color = size = name = NULL
+
   CPscores = CPscore[['enrichm_res']]
   CPscores[, cell_1 := strsplit(as.character(unified_int), split = '--')[[1]][1], by = 1:nrow(CPscores)]
   CPscores[, cell_2 := strsplit(as.character(unified_int), split = '--')[[1]][2], by = 1:nrow(CPscores)]

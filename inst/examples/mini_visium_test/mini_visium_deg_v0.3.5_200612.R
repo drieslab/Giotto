@@ -157,6 +157,9 @@ brain_small <- createSpatialGrid(gobject = brain_small,
 showGrids(brain_small)
 spatPlot(gobject = brain_small, show_grid = T, point_size = 1.5)
 
+annotated_grid = annotateSpatialGrid(brain_small)
+annotated_grid_metadata = annotateSpatialGrid(brain_small,
+                                              cluster_columns = c('leiden_clus', 'cell_types', 'nr_genes'))
 
 
 ## 9. spatial network ####
@@ -164,6 +167,9 @@ plotStatDelaunayNetwork(gobject = brain_small, maximum_distance = 300)
 brain_small = createSpatialNetwork(gobject = brain_small, minimum_k = 2, maximum_distance_delaunay = 400)
 brain_small = createSpatialNetwork(gobject = brain_small, minimum_k = 2, method = 'kNN', k = 10)
 showNetworks(brain_small)
+
+
+
 
 spatPlot(gobject = brain_small, show_network = T,
          network_color = 'blue', spatial_network_name = 'Delaunay_network',
