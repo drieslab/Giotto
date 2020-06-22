@@ -4,6 +4,20 @@
 #' @title create_crossSection_object
 #' @name create_crossSection_object
 #' @description create a crossSection object
+#' @param name name of cress section object. (default = cross_sectino)
+#' @param method method to define the cross section plane.
+#' @param thickness_unit unit of the virtual section thickness. If "cell", average size of the observed cells is used as length unit. If "natural", the unit of cell location coordinates is used.(default = cell)
+#' @param slice_thickness thickness of slice
+#' @param cell_distance_estimate_method method to estimate average distance between neighobring cells. (default = mean)
+#' @param extend_ratio deciding the span of the cross section meshgrid, as a ratio of extension compared to the borders of the vitural tissue section. (default = 0.2)
+#' @param plane_equation a numerical vector of length 4, in the form of c(A,B,C,D), which defines plane Ax+By+Cz=D.
+#' @param mesh_grid_n numer of meshgrid lines to generate along both directions for the cross section plane.
+#' @param mesh_obj object that stores the cross section meshgrid information.
+#' @param cell_subset cells selected by the cross section
+#' @param cell_subset_spatial_locations locations of cells selected by the cross section
+#' @param cell_subset_projection_locations 3D projection coordinates of selected cells onto the cross section plane
+#' @param cell_subset_projection_PCA pca of projection coordinates
+#' @param cell_subset_projection_coords 2D PCA coordinates of selected cells in the cross section plane
 create_crossSection_object <- function(name=NULL,
                                        method=NULL,
                                        thickness_unit=NULL,
@@ -281,7 +295,7 @@ transform_2d_mesh_to_3d_mesh <- function(mesh_line_obj_2d,pca_out,center_vec,mes
 #' @description get local coordinates within cross section plane
 get_cross_section_coordinates <- function(cell_subset_projection_locations){
 
-  cell_subset_projection_PCA = prcomp(cell_subset_projection_locations)
+  cell_subset_projection_PCA = stats::prcomp(cell_subset_projection_locations)
 
   cell_subset_projection_coords = cell_subset_projection_PCA$x[,c("PC1","PC2")]
 
@@ -293,7 +307,7 @@ get_cross_section_coordinates <- function(cell_subset_projection_locations){
 #' @description create mesh grid lines for cross section
 create_mesh_grid_lines <- function(cell_subset_projection_locations,extend_ratio,mesh_grid_n){
 
-  cell_subset_projection_PCA = prcomp(cell_subset_projection_locations)
+  cell_subset_projection_PCA = stats::prcomp(cell_subset_projection_locations)
 
   cell_subset_projection_coords = cell_subset_projection_PCA$x[,c("PC1","PC2")]
 
@@ -321,6 +335,7 @@ create_mesh_grid_lines <- function(cell_subset_projection_locations,extend_ratio
 #' @param name name of cress section object. (default = cross_sectino)
 #' @param spatial_network_name name of spatial network object. (default = Delaunay_network)
 #' @param thickness_unit unit of the virtual section thickness. If "cell", average size of the observed cells is used as length unit. If "natural", the unit of cell location coordinates is used.(default = cell)
+#' @param slice_thickness thickness of slice
 #' @param cell_distance_estimate_method method to estimate average distance between neighobring cells. (default = mean)
 #' @param extend_ratio deciding the span of the cross section meshgrid, as a ratio of extension compared to the borders of the vitural tissue section. (default = 0.2)
 #' @param method method to define the cross section plane.
@@ -341,7 +356,6 @@ create_mesh_grid_lines <- function(cell_subset_projection_locations,extend_ratio
 #' @return giotto object with updated spatial network slot
 #' @details Creates a virtual 2D cross section object for a given spatial network object. The users need to provide the definition of the cross section plane (see method).
 #' @export
-#' @examples
 #'
 createCrossSection <- function(gobject,
                                name="cross_section",
@@ -441,7 +455,7 @@ createCrossSection <- function(gobject,
   cell_subset_projection_locations = t(apply(cell_subset_spatial_locations,1,function(x) projection_fun(x,plane_point = plane_point, plane_norm = plane_equation[1:3])))
 
   # get the local coordinates of selected cells on the section plane
-  cell_subset_projection_PCA = prcomp(cell_subset_projection_locations)
+  cell_subset_projection_PCA = stats::prcomp(cell_subset_projection_locations)
   cell_subset_projection_coords = get_cross_section_coordinates(cell_subset_projection_locations)
 
   # create mesh grid lines for the cross section ###
@@ -486,6 +500,7 @@ createCrossSection <- function(gobject,
 #' @name crossSectionGenePlot
 #' @description Visualize cells and gene expression in a virtual cross section according to spatial coordinates
 #' @param gobject giotto object
+#' @param crossSection_obj crossSection object
 #' @param name name of virtual cross section to use
 #' @param spatial_network_name name of spatial network to use
 #' @param expression_values gene expression values to use
@@ -495,6 +510,7 @@ createCrossSection <- function(gobject,
 #' @param gradient_limits vector with lower and upper limits
 #' @param show_network show underlying spatial network
 #' @param network_color color of spatial network
+#' @param edge_alpha transparency of network edges
 #' @param show_grid show spatial grid
 #' @param grid_color color of spatial grid
 #' @param spatial_grid_name name of spatial grid to use
@@ -523,8 +539,6 @@ createCrossSection <- function(gobject,
 #' @details Description of parameters.
 #' @export
 #' @seealso \code{\link{spatGenePlot3D}} and \code{\link{spatGenePlot2D}}
-#' @examples
-#'     crossSectionGenePlot(gobject)
 #'
 crossSectionGenePlot <-function(gobject=NULL,
                                 crossSection_obj=NULL,
