@@ -11,6 +11,7 @@
 #' @export
 #' @examples
 #'     makeSignMatrixPAGE()
+globalVariables(c("quantile","fold","mean_expr","av_expr","rankFold","clusters"))
 makeSignMatrixPAGE = function(sign_names,
                               sign_list) {
 
@@ -35,7 +36,7 @@ makeSignMatrixPAGE = function(sign_names,
   mydt = data.table::data.table(genes = genes, types = unlist(types), value = 1)
 
   # convert data.table to signature matrix
-  dtmatrix = dcast.data.table(mydt, formula = genes~types, value.var = 'value', fill = 0)
+  dtmatrix = data.table::dcast.data.table(mydt, formula = genes~types, value.var = 'value', fill = 0)
   final_sig_matrix = as.matrix(dtmatrix[,-1]); rownames(final_sig_matrix) = dtmatrix$genes
 
   return(final_sig_matrix)
@@ -80,8 +81,8 @@ makeSignMatrixRank <- function(sc_matrix,
     group_list[[group]] = rep(group_id, total_nr_genes)
   }
 
-  mean_list_res = as.data.table(do.call('c', mean_list))
-  group_list_res = as.data.table(do.call('c', group_list))
+  mean_list_res = data.table::as.data.table(do.call('c', mean_list))
+  group_list_res = data.table::as.data.table(do.call('c', group_list))
 
   # average expression for all cells
   av_expression = rowMeans(sc_matrix)
@@ -136,7 +137,7 @@ do_rank_permutation <- function(sc_gene, n){
 do_page_permutation<-function(gobject,
                           sig_gene,
                           ntimes){
-  # check available gene  
+  # check available gene
   available_ct<-c()
   for (i in colnames(sig_gene)){
     gene_i=rownames(sig_gene)[which(sig_gene[,i]==1)]
@@ -177,7 +178,7 @@ do_page_permutation<-function(gobject,
     random_DT = PAGEEnrich(gobject,sign_matrix = random_sig)
     background<-unlist(random_DT[,2:dim(random_DT)[2]])
     df_row_name<-paste("gene_num_",uniq_ct_gene_counts[i],sep="")
-    list_back_i<-c(df_row_name,mean(background),sd(background))
+    list_back_i<-c(df_row_name,mean(background),stats::sd(background))
     background_mean_sd[i,]<-list_back_i
   }
   background_mean_sd[length(uniq_ct_gene_counts)+1,]<-c("temp","0","1")
@@ -221,8 +222,8 @@ PAGEEnrich <- function(gobject,
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = select_expression_values(gobject = gobject, values = values)
-  
-  # check available gene  
+
+  # check available gene
   available_ct<-c()
   for (i in colnames(sign_matrix)){
     gene_i=rownames(sign_matrix)[which(sign_matrix[,i]==1)]
@@ -256,7 +257,7 @@ PAGEEnrich <- function(gobject,
 
   # calculate sample/spot mean and sd
   cellColMean = apply(geneFold,2,mean)
-  cellColSd = apply(geneFold,2,sd)
+  cellColSd = apply(geneFold,2,stats::sd)
 
   # get enrichment scores
   enrichment = matrix(data=NA,nrow = dim(filterSig)[2],ncol=length(cellColMean))
@@ -284,7 +285,7 @@ PAGEEnrich <- function(gobject,
   }
 
   enrichmentDT = data.table::data.table(cell_ID = rownames(enrichment))
-  enrichmentDT = cbind(enrichmentDT, as.data.table(enrichment))
+  enrichmentDT = cbind(enrichmentDT, data.table::as.data.table(enrichment))
 
   return(enrichmentDT)
 }
@@ -359,7 +360,7 @@ rankEnrich <- function(gobject,
 
     multiplyRank = (filterRankFold*filterSig[,i])^(1/2)
     rpb = 0.01*(0.99^(multiplyRank-1))
-    
+
     vectorX = rep(NA, dim(filterRankFold)[2])
 
     for (j in (1:dim(filterRankFold)[2])){
@@ -448,7 +449,7 @@ hyperGeometricEnrich <- function(gobject,
       m = length(rownames(inter_sign_matrix)[which(inter_sign_matrix[,i]==1)])
       n = total-m
       k = length(intersect(cellsiggene, markerGenes))
-      enrich<-(0-log10(phyper(x, m, n, k, log = FALSE,lower.tail = FALSE)))
+      enrich<-(0-log10(stats::phyper(x, m, n, k, log = FALSE,lower.tail = FALSE)))
       vectorX = append(vectorX,enrich)
     }
     enrichment[i,] = vectorX
@@ -464,7 +465,7 @@ hyperGeometricEnrich <- function(gobject,
   }
 
   enrichmentDT = data.table::data.table(cell_ID = rownames(enrichment))
-  enrichmentDT = cbind(enrichmentDT, as.data.table(enrichment))
+  enrichmentDT = cbind(enrichmentDT, data.table::as.data.table(enrichment))
 
   return(enrichmentDT)
 }
@@ -480,6 +481,7 @@ hyperGeometricEnrich <- function(gobject,
 #' @param reverse_log_scale reverse expression values from log scale
 #' @param logbase log base to use if reverse_log_scale = TRUE
 #' @param p_value calculate p-value (default = FALSE)
+#' @param n_genes (page) number of genes of permutation iterations to calculate p-value
 #' @param n_times (page/rank) number of permutation iterations to calculate p-value
 #' @param top_percentage (hyper) percentage of cells that will be considered to have gene expression with matrix binarization
 #' @param output_enrichment how to return enrichment output
@@ -503,7 +505,7 @@ createSpatialEnrich = function(gobject,
                                expression_values = c('normalized', 'scaled', 'custom'),
                                reverse_log_scale = TRUE,
                                logbase = 2,
-                               p_value = TRUE,
+                               p_value = FALSE,
                                n_genes = 100,
                                n_times = 1000,
                                top_percentage = 5,
@@ -527,7 +529,7 @@ createSpatialEnrich = function(gobject,
     # default name for page enrichment
     if(is.null(name)) name = 'PAGE'
     if (p_value==TRUE){
-      # check available gene  
+      # check available gene
       available_ct<-c()
       for (i in colnames(sign_matrix)){
         gene_i=rownames(sign_matrix)[which(sign_matrix[,i]==1)]
@@ -554,7 +556,7 @@ createSpatialEnrich = function(gobject,
         mean_i<-as.numeric(as.character(background_mean_sd[join_gene_with_length,][[1]]))
         sd_i<-as.numeric(as.character(background_mean_sd[join_gene_with_length,][[2]]))
         j<-i+1
-        pvalue_DT[[j]]<-pnorm(pvalue_DT[[j]],mean = mean_i, sd = sd_i, lower.tail = FALSE,log.p = FALSE)
+        pvalue_DT[[j]]<-stats::pnorm(pvalue_DT[[j]],mean = mean_i, sd = sd_i, lower.tail = FALSE,log.p = FALSE)
       }
     }
 
@@ -577,10 +579,10 @@ createSpatialEnrich = function(gobject,
                              logbase = logbase,
                              output_enrichment = output_enrichment)
       background<-unlist(random_DT[,2:dim(random_DT)[2]])
-      fit.gamma <- fitdist(background, distr = "gamma", method = "mle")
+      fit.gamma <-  fitdistrplus::fitdist(background, distr = "gamma", method = "mle")
       pvalue_DT<-enrich_results_DT
       pvalue_DT[,2:dim(pvalue_DT)[2]]<- lapply(pvalue_DT[,2:dim(pvalue_DT)[2]],function(x)
-      {pgamma(x, fit.gamma$estimate[1], rate = fit.gamma$estimate[2], lower.tail = FALSE,log.p = FALSE)})
+      {stats::pgamma(x, fit.gamma$estimate[1], rate = fit.gamma$estimate[2], lower.tail = FALSE,log.p = FALSE)})
     }
 
 
