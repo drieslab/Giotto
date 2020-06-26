@@ -36,7 +36,7 @@ cellProximityBarplot = function(gobject,
   ## filter to remove low number of cell-cell proximity interactions ##
 
   # data.table variables
-  original = simulations = p_higher_orig = p_lower_orig = NULL
+  original = simulations = p_higher_orig = p_lower_orig = enrichm = type_int = NULL
 
   table_mean_results_dc_filter = table_mean_results_dc[original >= min_orig_ints & simulations >= min_sim_ints]
   table_mean_results_dc_filter = table_mean_results_dc_filter[p_higher_orig <= p_val | p_lower_orig <= p_val]

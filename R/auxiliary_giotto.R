@@ -1736,6 +1736,9 @@ calculateMetaTable = function(gobject,
 
   if(is.null(metadata_cols)) stop('\n You need to select one or more valid column names from pDataDT() \n')
 
+  # data.table variables
+  uniq_ID = NULL
+
   ## get metadata and create unique groups
   metadata = data.table::copy(pDataDT(gobject))
   if(length(metadata_cols) > 1) {

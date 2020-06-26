@@ -1562,6 +1562,9 @@ annotateSpatialNetwork = function(gobject,
   cluster_type_vector = cell_metadata[[cluster_column]]
   names(cluster_type_vector) = cell_metadata[['cell_ID']]
 
+  # data.table variables
+  to_cell_type = to = from_cell_type = from = type_int = from_to = NULL
+
   spatial_network_annot = data.table::copy(spatial_network)
   spatial_network_annot[, to_cell_type := cluster_type_vector[to]]
   spatial_network_annot[, from_cell_type := cluster_type_vector[from]]
@@ -2014,6 +2017,49 @@ showGrids = function(gobject,
 
 
 
+#' @title annotate_spatlocs_with_spatgrid_2D
+#' @description annotate spatial locations with 2D spatial grid information
+#' @param spatloc spatial_locs slot from giotto object
+#' @param spatgrid selected spatial_grid slot from giotto object
+#' @return annotated spatial location data.table
+#' @examples
+#'     annotate_spatlocs_with_spatgrid_2D()
+annotate_spatlocs_with_spatgrid_2D = function(spatloc, spatgrid) {
+
+  ## second label the spatial locations ##
+  spatlocs = data.table::copy(spatloc)
+
+  # data.table variables
+  gr_x_loc = gr_y_loc = gr_loc = NULL
+
+  x_vector = spatlocs$sdimx
+  x_breaks = sort(unique(spatgrid$x_end))
+  x_breaks_labels = paste0('gr_x_', 1:length(x_breaks))
+  minimum_x = min(spatgrid$x_start)
+  my_x_gr = cut(x = x_vector, breaks = c(minimum_x, x_breaks), include.lowest = T, right = T, labels = x_breaks_labels)
+  spatlocs[, gr_x_loc := as.character(my_x_gr)]
+
+  y_vector = spatlocs$sdimy
+  y_breaks = sort(unique(spatgrid$y_end))
+  y_breaks_labels = paste0('gr_y_', 1:length(y_breaks))
+  minimum_y = min(spatgrid$y_start)
+  my_y_gr = cut(x = y_vector, breaks = c(minimum_y, y_breaks), include.lowest = T, right = T, labels = y_breaks_labels)
+  spatlocs[, gr_y_loc := as.character(my_y_gr)]
+
+
+  ## for all dimensions ##
+  # converter
+  gr_dim_names = spatgrid$gr_name
+  names(gr_dim_names) = paste0(spatgrid$gr_x_name,'-', spatgrid$gr_y_name)
+
+  indiv_dim_names = paste0(spatlocs$gr_x_loc,'-', spatlocs$gr_y_loc)
+  my_gr = gr_dim_names[indiv_dim_names]
+  spatlocs[, gr_loc := as.character(my_gr)]
+
+  return(spatlocs)
+
+}
+
 
 #' @title annotate_spatlocs_with_spatgrid_3D
 #' @description annotate spatial locations with 3D spatial grid information
@@ -2025,7 +2071,10 @@ showGrids = function(gobject,
 annotate_spatlocs_with_spatgrid_3D = function(spatloc, spatgrid) {
 
   ## second label the spatial locations ##
-  spatlocs = copy(spatloc)
+  spatlocs = data.table::copy(spatloc)
+
+  # data.table variables
+  gr_x_loc = gr_y_loc = gr_z_loc = gr_loc = NULL
 
   x_vector = spatlocs$sdimx
   x_breaks = sort(unique(spatgrid$x_end))
@@ -2063,46 +2112,6 @@ annotate_spatlocs_with_spatgrid_3D = function(spatloc, spatgrid) {
 }
 
 
-
-#' @title annotate_spatlocs_with_spatgrid_2D
-#' @description annotate spatial locations with 2D spatial grid information
-#' @param spatloc spatial_locs slot from giotto object
-#' @param spatgrid selected spatial_grid slot from giotto object
-#' @return annotated spatial location data.table
-#' @examples
-#'     annotate_spatlocs_with_spatgrid_2D()
-annotate_spatlocs_with_spatgrid_2D = function(spatloc, spatgrid) {
-
-  ## second label the spatial locations ##
-  spatlocs = copy(spatloc)
-
-  x_vector = spatlocs$sdimx
-  x_breaks = sort(unique(spatgrid$x_end))
-  x_breaks_labels = paste0('gr_x_', 1:length(x_breaks))
-  minimum_x = min(spatgrid$x_start)
-  my_x_gr = cut(x = x_vector, breaks = c(minimum_x, x_breaks), include.lowest = T, right = T, labels = x_breaks_labels)
-  spatlocs[, gr_x_loc := as.character(my_x_gr)]
-
-  y_vector = spatlocs$sdimy
-  y_breaks = sort(unique(spatgrid$y_end))
-  y_breaks_labels = paste0('gr_y_', 1:length(y_breaks))
-  minimum_y = min(spatgrid$y_start)
-  my_y_gr = cut(x = y_vector, breaks = c(minimum_y, y_breaks), include.lowest = T, right = T, labels = y_breaks_labels)
-  spatlocs[, gr_y_loc := as.character(my_y_gr)]
-
-
-  ## for all dimensions ##
-  # converter
-  gr_dim_names = spatgrid$gr_name
-  names(gr_dim_names) = paste0(spatgrid$gr_x_name,'-', spatgrid$gr_y_name)
-
-  indiv_dim_names = paste0(spatlocs$gr_x_loc,'-', spatlocs$gr_y_loc)
-  my_gr = gr_dim_names[indiv_dim_names]
-  spatlocs[, gr_loc := as.character(my_gr)]
-
-  return(spatlocs)
-
-}
 
 
 #' @title annotateSpatialGrid

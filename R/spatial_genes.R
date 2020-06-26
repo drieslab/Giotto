@@ -700,6 +700,8 @@ detectSpatialPatterns <- function(gobject,
   }
 
 
+  # data.table variables
+  gr_loc = zscore = variance.percent = loc_ID = gene_ID = NULL
 
   # filter grid, minimum number of cells per grid
   cells_per_grid = sort(table(spatial_locs$gr_loc))
@@ -1555,6 +1557,9 @@ detectSpatialCorGenes <- function(gobject,
                                                             spatial_grid_name = spatial_grid_name,
                                                             min_cells_per_grid = min_cells_per_grid)
 
+    # data.table variables
+    gene_ID = variable = NULL
+
     cor_spat_matrix = cor_giotto(t_giotto(as.matrix(loc_av_expr_matrix)), method = cor_method)
     cor_spat_matrixDT = data.table::as.data.table(cor_spat_matrix)
     cor_spat_matrixDT[, gene_ID := rownames(cor_spat_matrix)]
@@ -1582,6 +1587,9 @@ detectSpatialCorGenes <- function(gobject,
   }
 
 
+
+  # data.table variables
+  cordiff = spat_cor = expr_cor = spatrank= exprrank = rankdiff = NULL
 
   ## 2. perform expression correlation at single-cell level without spatial information
   cor_matrix = cor_giotto(t_giotto(expr_values), method = cor_method)
@@ -1740,9 +1748,9 @@ clusterSpatialCorGenes = function(spatCorObject,
   cor_matrix = cor_matrix[my_gene_order, my_gene_order]
 
   # cluster
-  cor_dist = as.dist(1-cor_matrix)
-  cor_h = hclust(d = cor_dist, method = hclust_method)
-  cor_clus = cutree(cor_h, k = k)
+  cor_dist = stats::as.dist(1-cor_matrix)
+  cor_h = stats::hclust(d = cor_dist, method = hclust_method)
+  cor_clus = stats::cutree(cor_h, k = k)
 
   if(return_obj == TRUE) {
     spatCorObject[['cor_hclust']][[name]] = cor_h

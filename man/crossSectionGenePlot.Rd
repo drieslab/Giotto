@@ -45,6 +45,8 @@ crossSectionGenePlot(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{crossSection_obj}{crossSection object}
+
 \item{name}{name of virtual cross section to use}
 
 \item{spatial_network_name}{name of spatial network to use}
@@ -62,6 +64,8 @@ crossSectionGenePlot(
 \item{show_network}{show underlying spatial network}
 
 \item{network_color}{color of spatial network}
+
+\item{edge_alpha}{transparency of network edges}
 
 \item{show_grid}{show spatial grid}
 
@@ -119,10 +123,6 @@ Visualize cells and gene expression in a virtual cross section according to spat
 }
 \details{
 Description of parameters.
-}
-\examples{
-    crossSectionGenePlot(gobject)
-
 }
 \seealso{
 \code{\link{spatGenePlot3D}} and \code{\link{spatGenePlot2D}}

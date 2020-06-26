@@ -250,6 +250,10 @@ addCellIntMetadata = function(gobject,
                                                  cluster_column = cluster_column)
 
   # selected vs other cells
+
+  # data.table variables
+  unified_int = cell_ID = NULL
+
   selected_cells = unique(c(spatial_network_annot[unified_int == cell_interaction]$to,
                             spatial_network_annot[unified_int == cell_interaction]$from))
 
@@ -1670,6 +1674,9 @@ average_gene_gene_expression_in_groups = function(gobject,
   ligand_match = average_DT[match(gene_set_1, rownames(average_DT)), ,drop = F]
   receptor_match = average_DT[match(gene_set_2, rownames(average_DT)), ,drop = F]
 
+  # data.table variables
+  ligand = LR_comb = receptor = LR_expr = lig_expr = rec_expr = lig_cell_type = rec_cell_type = NULL
+
   all_ligand_cols = colnames(ligand_match)
   lig_test = data.table::as.data.table(reshape2::melt(ligand_match, measure.vars = all_ligand_cols))
   lig_test[, ligand := rep(rownames(ligand_match), ncol(ligand_match))]
@@ -2160,6 +2167,9 @@ combCCcom = function(spatialCC,
                      min_av_diff = 0) {
 
 
+  # data.table variables
+  lig_nr = rec_nr = p.adj = log2fc = av_diff = NULL
+
   spatialCC = spatialCC[lig_nr >= min_lig_nr & rec_nr >= min_rec_nr &
                           p.adj <= min_padj_value & abs(log2fc) >= min_log2fc & abs(av_diff) >= min_av_diff]
 
@@ -2172,6 +2182,9 @@ combCCcom = function(spatialCC,
   merge_DT = data.table:::merge.data.table(spatialCC, exprCC, by = c('LR_comb', 'LR_cell_comb',
                                                                     'lig_cell_type', 'rec_cell_type',
                                                                     'ligand', 'receptor'))
+
+  # data.table variables
+  LR_expr_rnk = LR_expr = LR_comb = LR_spat_rnk = LR_expr_spat = exprPI_rnk = PI = spatPI_rnk = PI_spat = NULL
 
   # rank for expression levels
   merge_DT[, LR_expr_rnk := rank(-LR_expr), by = LR_comb]

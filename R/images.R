@@ -11,6 +11,9 @@ convert_mgImage_to_array_DT = function(mg_object) {
     mg_object = mg_object$mg_object
   }
 
+  # data.table variables
+  RGB = c.1 = c.2 = c.3 = NULL
+
   # convert magick object to an array
   num_res = as.numeric(mg_object[[1]])
   num_res_m = data.table::as.data.table(reshape2::melt(num_res))

@@ -88,6 +88,9 @@ doLeidenCluster = function(gobject,
   ## extract NN network
   network_edge_dt = data.table::as.data.table(igraph::as_data_frame(x = igraph_object, what = 'edges'))
 
+  # data.table variables
+  weight = NULL
+
   # add weight for edges or set to 1 for all
   if(!is.null(weight_col)) {
     if(!weight_col %in% colnames(network_edge_dt)) {
@@ -228,6 +231,9 @@ doLouvainCluster_community <- function(gobject,
 
   network_edge_dt = data.table::as.data.table(igraph::as_data_frame(x = igraph_object, what = 'edges'))
 
+  # data.table variables
+  weight = NULL
+
   if(!is.null(weight_col)) {
 
     if(!weight_col %in% colnames(network_edge_dt)) {
@@ -346,13 +352,16 @@ doLouvainCluster_multinet <- function(gobject,
 
   # create mlnetworkobject
   mln_object <- multinet::ml_empty()
-  multinet::add_actors_ml(mlnetwork = mln_object, actors = V(igraph_object))
+  multinet::add_actors_ml(mlnetwork = mln_object, actors = igraph::V(igraph_object))
   multinet::add_igraph_layer_ml(mlnetwork = mln_object, g = igraph_object, name = name)
 
   # start seed
   if(set_seed == TRUE) {
     set.seed(seed = seed_number)
   }
+
+  # data.table variables
+  cell_ID = actor = weight_col = NULL
 
   louvain_clusters = multinet::glouvain_ml(mlnetwork = mln_object, gamma = gamma, omega = omega, ...)
   ident_clusters_DT = data.table::as.data.table(louvain_clusters)
@@ -538,7 +547,7 @@ doRandomWalkCluster <- function(gobject,
   randomwalk_clusters <- igraph::cluster_walktrap(graph = igraph_object, steps = walk_steps, weights = walk_weights)
   randomwalk_clusters <- as.factor(igraph::cut_at(communities = randomwalk_clusters, no =  walk_clusters))
 
-  ident_clusters_DT <- data.table::data.table('cell_ID' = V(igraph_object)$name, 'name' = randomwalk_clusters)
+  ident_clusters_DT <- data.table::data.table('cell_ID' = igraph::V(igraph_object)$name, 'name' = randomwalk_clusters)
   data.table::setnames(ident_clusters_DT, 'name', name)
 
   # exit seed
@@ -640,6 +649,9 @@ doSNNCluster <- function(gobject,
   if(set_seed == TRUE) {
     set.seed(seed = seed_number)
   }
+
+  # data.table variables
+  from = from_T = to_T = to = weight = distance = NULL
 
   ## SNN clust
   igraph_DT = data.table::as.data.table(igraph::as_data_frame(igraph_object, what = 'edges'))
@@ -1170,7 +1182,7 @@ clusterCells <- function(gobject,
                                        name = name,
                                        nn_network_to_use = nn_network_to_use,
                                        network_name = network_name,
-                                       weight_col = weight_col,
+                                       weight_col = pyth_louv_weight_col,
                                        gamma = louvain_gamma,
                                        omega = louvain_omega,
                                        return_gobject = return_gobject,
@@ -1316,6 +1328,10 @@ doLeidenSubCluster = function(gobject,
     stop('\n You need to provide a cluster column to subcluster on \n')
   }
   unique_clusters = sort(unique(cell_metadata[[cluster_column]]))
+
+
+  # data.table variables
+  hvg = perc_cells = mean_expr_det = parent_cluster = comb = tempclus = NULL
 
 
   for(cluster in unique_clusters) {
