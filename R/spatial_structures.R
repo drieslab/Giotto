@@ -1038,7 +1038,7 @@ createSpatialDelaunayNetwork <- function(gobject,
 #' @param ... Other parameters of the \code{\link[RTriangle]{triangulate}} function
 #' @return giotto object with updated spatial network slot
 #' @details Plots statistics for a spatial Delaunay network as explained in \code{\link[RTriangle]{triangulate}}.
-#' This can be used to further finetune the \code{\link{createDelaunayNetwork}} function.
+#' This can be used to further finetune the \code{\link{createSpatialDelaunayNetwork}} function.
 #' @export
 #' @examples
 #'     plotStatDelaunayNetwork(gobject)

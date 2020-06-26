@@ -1,3 +1,5 @@
+
+
 #' @title S4 giotto Class
 #' @description Framework of giotto object to store and work with spatial expression data
 #' @keywords giotto, object
@@ -12,8 +14,10 @@
 #' @slot gene_ID unique gene IDs
 #' @slot spatial_network spatial network in data.table/data.frame format
 #' @slot spatial_grid spatial grid in data.table/data.frame format
+#' @slot spatial_enrichment slot to save spatial enrichment-like results
 #' @slot dimension_reduction slot to save dimension reduction coordinates
 #' @slot nn_network nearest neighbor network in igraph format
+#' @slot images slot to store giotto images
 #' @slot parameters slot to save parameters that have been used
 #' @slot instructions slot for global function instructions
 #' @slot offset_file offset file used to stitch together image fields

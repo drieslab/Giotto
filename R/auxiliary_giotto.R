@@ -1084,7 +1084,7 @@ normalizeGiotto <- function(gobject,
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param update_slot expression slot that will be updated (default = custom)
 #' @return giotto object
-#' @details This function implements the \code{\link{ limma::removeBatchEffect}} function to
+#' @details This function implements the \code{\link[limma]{removeBatchEffect}} function to
 #' remove known batch effects and to adjust expression values according to provided covariates.
 #' @export
 #' @examples

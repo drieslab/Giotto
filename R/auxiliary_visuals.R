@@ -26,7 +26,7 @@ aes_string2 <- function(...){
 #' @param units units
 #' @param dpi Plot resolution
 #' @param limitsize When TRUE (the default), ggsave will not save images larger than 50x50 inches, to prevent the common error of specifying dimensions in pixels.
-#' @seealso \code{\link{cowplot::save_plot}}
+#' @seealso \code{\link[cowplot]{save_plot}}
 #' @export
 #' @examples
 #'     ggplot_save_function(gobject)

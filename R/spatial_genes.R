@@ -576,7 +576,7 @@ spatialAEH <- function(gobject = NULL,
 #' @param subset_genes subset of genes to run trendsceek on
 #' @param nrand An integer specifying the number of random resamplings of the mark distribution as to create the null-distribution.
 #' @param ncores An integer specifying the number of cores to be used by BiocParallel
-#' @param ... Additional parameters to the \code{\link[dbscan]{trendsceek_test}} function
+#' @param ... Additional parameters to the \code{\link[trendsceek]{trendsceek_test}} function
 #' @return data.frame with trendsceek spatial genes results
 #' @details This function is a wrapper for the trendsceek_test method implemented in the trendsceek package
 #' @export
