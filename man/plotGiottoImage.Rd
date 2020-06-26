@@ -9,7 +9,7 @@ plotGiottoImage(gobject, image_name)
 \arguments{
 \item{gobject}{giotto object}
 
-\item{image_name}{name of giotto image \code{\link{showImageNames}}}
+\item{image_name}{name of giotto image \code{\link{showGiottoImageNames}}}
 }
 \value{
 plot

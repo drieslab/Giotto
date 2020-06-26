@@ -3,8 +3,6 @@
 export("%>%")
 export()
 export(PAGEEnrich)
-export(Spatial_AEH)
-export(Spatial_DE)
 export(addCellIntMetadata)
 export(addCellMetadata)
 export(addCellStatistics)

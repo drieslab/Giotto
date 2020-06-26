@@ -352,7 +352,7 @@ updateGiottoImage = function(gobject,
 #' @name getGiottoImage
 #' @description get get a giotto image from a giotto object
 #' @param gobject giotto object
-#' @param image_name name of giotto image \code{\link{showImageNames}}
+#' @param image_name name of giotto image \code{\link{showGiottoImageNames}}
 #' @return a giotto image
 #' @export
 #' @examples
@@ -374,7 +374,7 @@ getGiottoImage = function(gobject,
 #' @name plotGiottoImage
 #' @description get plot a giotto image from a giotto object
 #' @param gobject giotto object
-#' @param image_name name of giotto image \code{\link{showImageNames}}
+#' @param image_name name of giotto image \code{\link{showGiottoImageNames}}
 #' @return plot
 #' @export
 #' @examples

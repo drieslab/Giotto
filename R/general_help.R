@@ -437,6 +437,7 @@ my_rowMeans = function(x, method = c('arithmic', 'geometric'), offset = 0.1) {
 #' @title DT_removeNA
 #' @name DT_removeNA
 #' @description set NA values to 0 in a data.table object
+#' @param DT data.table
 DT_removeNA = function(DT) {
   for (i in names(DT))
     DT[is.na(get(i)), (i):=0]

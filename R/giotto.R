@@ -147,6 +147,8 @@ setMethod(f = "print.giotto",
           })
 
 
+
+
 #' @title set_giotto_python_path
 #' @name set_giotto_python_path
 #' @description sets the python path and/or install miniconda and the python modules
