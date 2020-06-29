@@ -1,3 +1,4 @@
+#TESTING GITHUB
 #' @title S4 giotto Class
 #' @description Framework of giotto object to store and work with spatial expression data
 #' @keywords giotto, object
