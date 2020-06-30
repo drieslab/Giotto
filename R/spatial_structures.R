@@ -308,6 +308,15 @@ convert_to_reduced_spatial_network =  function(full_spatial_network_DT) {
 
 #' @title create_spatialNetworkObject
 #' @name create_spatialNetworkObject
+#' @param name name
+#' @param method method
+#' @param parameters parameters
+#' @param outputObj outputObj
+#' @param networkDT networkDT
+#' @param cellShapeObj cellShapeObj
+#' @param networkDT_before_filter networkDT_before_filter
+#' @param crossSectionObjects crossSectionObjects
+#' @keywords internal
 #' @description creates a spatial network object to store the created spatial network and additional information
 create_spatialNetworkObject <- function(name = NULL,
                                         method = NULL,
