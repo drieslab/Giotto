@@ -276,7 +276,7 @@ create_genes_to_use_matrix = function(gobject,
 #' @param genes_to_use subset of genes to use for PCA
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param center center data first (default = FALSE)
-#' @param scale_unit scale features before PCA
+#' @param scale_unit scale features before PCA (default = FALSE)
 #' @param rev do a reverse PCA
 #' @param ncp number of principal components to calculate
 #' @param method which implementation to use
