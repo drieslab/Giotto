@@ -151,6 +151,7 @@ exportGiottoViewer = function(gobject,
                               overwrite_dir = T,
                               verbose = T) {
 
+
   ## output directory ##
   if(file.exists(output_directory)) {
     if(overwrite_dir == TRUE) {
@@ -181,6 +182,10 @@ exportGiottoViewer = function(gobject,
 
   ### physical location ###
   if(verbose == TRUE) cat('\n write physical centroid locations \n')
+
+  # data.table variables
+  sdimx = sdimy = NULL
+
   spatial_location = gobject@spatial_locs[, .(sdimx, sdimy)]
   write.table(spatial_location, file = paste0(output_directory,'/','centroid_locations.txt'),
               quote = F, row.names = F, col.names = F, sep = ' ')

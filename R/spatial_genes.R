@@ -1228,6 +1228,9 @@ do_spatial_knn_smoothing = function(gobject,
     expr_values = expr_values[rownames(expr_values) %in% subset_genes,]
   }
 
+  # data.table variables
+  gene_ID = value = NULL
+
   # merge spatial network with expression data
   expr_values_dt = data.table::as.data.table(expr_values); expr_values_dt[, gene_ID := rownames(expr_values)]
   expr_values_dt_m = data.table::melt.data.table(expr_values_dt, id.vars = 'gene_ID', variable.name = 'cell_ID')
@@ -1267,7 +1270,7 @@ do_spatial_knn_smoothing = function(gobject,
   # combine original and smoothed values according to smoothening b
   # create best guess for b if not given
   if(is.null(b)) {
-    k = median(table(spatial_network$source))
+    k = stats::median(table(spatial_network$source))
     smooth_b = 1 - 1/k
   } else {
     smooth_b = b
@@ -1326,6 +1329,9 @@ do_spatial_grid_averaging = function(gobject,
     spatial_locs = annotate_spatlocs_with_spatgrid_2D(spatloc = spatial_locs, spatgrid = spatial_grid)
   }
 
+
+  # data.table variables
+  gr_loc = NULL
 
   # filter grid, minimum number of cells per grid
   cells_per_grid = sort(table(spatial_locs$gr_loc))

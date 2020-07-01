@@ -1892,8 +1892,8 @@ visDimPlot_2D_plotly <- function(gobject,
     }
 
     if(show_cluster_center == TRUE | show_center_label == TRUE) {
-      annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dim_names[1])),
-                                              center_2 = median(get(dim_names[2]))),
+      annotated_DT_centers = annotated_DT[, .(center_1 = stats::median(get(dim_names[1])),
+                                              center_2 = stats::median(get(dim_names[2]))),
                                           by = cell_color]
       annotated_DT_centers[[cell_color]] <- as.factor(annotated_DT_centers[[cell_color]])
       if(show_cluster_center == TRUE){
@@ -2106,9 +2106,9 @@ visDimPlot_3D_plotly <- function(gobject,
 
 
       if(show_cluster_center == TRUE | show_center_label == TRUE){
-        annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dim_names[1])),
-                                                center_2 = median(get(dim_names[2])),
-                                                center_3 = median(get(dim_names[3]))),
+        annotated_DT_centers = annotated_DT[, .(center_1 = stats::median(get(dim_names[1])),
+                                                center_2 = stats::median(get(dim_names[2])),
+                                                center_3 = stats::median(get(dim_names[3]))),
                                             by = cell_color]
         annotated_DT_centers[[cell_color]] <- as.factor(annotated_DT_centers[[cell_color]])
         if(show_cluster_center == TRUE){
@@ -2909,8 +2909,8 @@ visSpatDimPlot_3D <- function(gobject,
 
 
     if((show_cluster_center == TRUE | show_center_label == TRUE)&!is.null(cell_color)) {
-      annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dim_names[1])),
-                                              center_2 = median(get(dim_names[2]))),
+      annotated_DT_centers = annotated_DT[, .(center_1 = stats::median(get(dim_names[1])),
+                                              center_2 = stats::median(get(dim_names[2]))),
                                           by = cell_color]
       annotated_DT_centers[[cell_color]] <- as.factor(annotated_DT_centers[[cell_color]])
       if(show_cluster_center == TRUE){
@@ -3008,9 +3008,9 @@ visSpatDimPlot_3D <- function(gobject,
                                        opacity=nn_network_alpha)
     }
     if((show_cluster_center == TRUE | show_center_label == TRUE)& !is.null(cell_color)){
-      annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dim_names[1])),
-                                              center_2 = median(get(dim_names[2])),
-                                              center_3 = median(get(dim_names[3]))),
+      annotated_DT_centers = annotated_DT[, .(center_1 = stats::median(get(dim_names[1])),
+                                              center_2 = stats::median(get(dim_names[2])),
+                                              center_3 = stats::median(get(dim_names[3]))),
                                           by = cell_color]
       annotated_DT_centers[[cell_color]] <- as.factor(annotated_DT_centers[[cell_color]])
       if(show_cluster_center == TRUE){
@@ -5062,7 +5062,8 @@ plot_point_layer_ggplot = function(ggobject,
 
         # if you want to show centers or labels then calculate centers
         if(show_cluster_center == TRUE | show_center_label == TRUE) {
-          annotated_DT_centers = annotated_DT_selected[, .(center_1 = median(get(dims[1])), center_2 = median(get(dims[2]))), by = cell_color]
+          annotated_DT_centers = annotated_DT_selected[, .(center_1 = stats::median(get(dims[1])),
+                                                           center_2 = stats::median(get(dims[2]))), by = cell_color]
           factor_center_data = factor(annotated_DT_centers[[cell_color]])
           annotated_DT_centers[[cell_color]] <- factor_center_data
         }
@@ -5109,7 +5110,7 @@ plot_point_layer_ggplot = function(ggobject,
       } else if(color_as_factor == F){
 
         if(is.null(gradient_midpoint)) {
-          gradient_midpoint = median(annotated_DT_selected[[cell_color]])
+          gradient_midpoint = stats::median(annotated_DT_selected[[cell_color]])
         }
         pl <- pl + ggplot2::scale_fill_gradient2(low = cell_color_gradient[[1]],
                                                  mid = cell_color_gradient[[2]],
@@ -5276,7 +5277,8 @@ plot_point_layer_ggplot_noFILL = function(ggobject,
 
         # if you want to show centers or labels then calculate centers
         if(show_cluster_center == TRUE | show_center_label == TRUE) {
-          annotated_DT_centers = annotated_DT_selected[, .(center_1 = median(get(dims[1])), center_2 = median(get(dims[2]))), by = cell_color]
+          annotated_DT_centers = annotated_DT_selected[, .(center_1 = stats::median(get(dims[1])),
+                                                           center_2 = stats::median(get(dims[2]))), by = cell_color]
           factor_center_data = factor(annotated_DT_centers[[cell_color]])
           annotated_DT_centers[[cell_color]] <- factor_center_data
         }
@@ -5322,7 +5324,7 @@ plot_point_layer_ggplot_noFILL = function(ggobject,
       } else if(color_as_factor == F){
 
         if(is.null(gradient_midpoint)) {
-          gradient_midpoint = median(annotated_DT_selected[[cell_color]])
+          gradient_midpoint = stats::median(annotated_DT_selected[[cell_color]])
         }
         pl <- pl + ggplot2::scale_color_gradient2(low = cell_color_gradient[[1]],
                                                  mid = cell_color_gradient[[2]],
@@ -5447,6 +5449,10 @@ dimPlot2D_single <- function(gobject,
   }
   dim_dfr = gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$coordinates[,c(dim1_to_use, dim2_to_use)]
   dim_names = colnames(dim_dfr)
+
+  # data.table variables
+  cell_ID = NULL
+
   dim_DT = data.table::as.data.table(dim_dfr); dim_DT[, cell_ID := rownames(dim_dfr)]
 
   ## annotated cell metadata
@@ -6706,7 +6712,8 @@ plot_spat_point_layer_ggplot = function(ggobject,
 
         # if you want to show centers or labels then calculate centers
         if(show_cluster_center == TRUE | show_center_label == TRUE) {
-          annotated_DT_centers = cell_locations_metadata_selected[, .(center_1 = median(get('sdimx')), center_2 = median(get('sdimy'))), by = cell_color]
+          annotated_DT_centers = cell_locations_metadata_selected[, .(center_1 = stats::median(get('sdimx')),
+                                                                      center_2 = stats::median(get('sdimy'))), by = cell_color]
           factor_center_data = factor(annotated_DT_centers[[cell_color]])
           annotated_DT_centers[[cell_color]] <- factor_center_data
         }
@@ -6752,7 +6759,7 @@ plot_spat_point_layer_ggplot = function(ggobject,
       } else if(color_as_factor == F){
 
         if(is.null(gradient_midpoint)) {
-          gradient_midpoint = median(cell_locations_metadata_selected[[cell_color]])
+          gradient_midpoint = stats::median(cell_locations_metadata_selected[[cell_color]])
         }
 
         pl <- pl + ggplot2::scale_fill_gradient2(low = cell_color_gradient[[1]],
@@ -6923,7 +6930,8 @@ plot_spat_point_layer_ggplot_noFILL = function(ggobject,
 
         # if you want to show centers or labels then calculate centers
         if(show_cluster_center == TRUE | show_center_label == TRUE) {
-          annotated_DT_centers = cell_locations_metadata_selected[, .(center_1 = median(get('sdimx')), center_2 = median(get('sdimy'))), by = cell_color]
+          annotated_DT_centers = cell_locations_metadata_selected[, .(center_1 = stats::median(get('sdimx')),
+                                                                      center_2 = stats::median(get('sdimy'))), by = cell_color]
           factor_center_data = factor(annotated_DT_centers[[cell_color]])
           annotated_DT_centers[[cell_color]] <- factor_center_data
         }
@@ -6966,7 +6974,7 @@ plot_spat_point_layer_ggplot_noFILL = function(ggobject,
       } else if(color_as_factor == F){
 
         if(is.null(gradient_midpoint)) {
-          gradient_midpoint = median(cell_locations_metadata_selected[[cell_color]])
+          gradient_midpoint = stats::median(cell_locations_metadata_selected[[cell_color]])
         }
 
         pl <- pl + ggplot2::scale_color_gradient2(low = cell_color_gradient[[1]],
@@ -7118,7 +7126,7 @@ plot_spat_voronoi_layer_ggplot = function(ggobject,
                                            alpha = vor_alpha)
 
       if(is.null(gradient_midpoint)) {
-        gradient_midpoint = median(cell_locations_metadata_selected[['temp_color']])
+        gradient_midpoint = stats::median(cell_locations_metadata_selected[['temp_color']])
       }
 
       mybg_color = ifelse(show_other_cells == TRUE, other_cell_color, background_color)
@@ -7221,7 +7229,7 @@ plot_spat_voronoi_layer_ggplot = function(ggobject,
         mybg_color = ifelse(show_other_cells == TRUE, other_cell_color, background_color)
 
         if(is.null(gradient_midpoint)) {
-          gradient_midpoint = median(cell_locations_metadata_selected[['temp_color']])
+          gradient_midpoint = stats::median(cell_locations_metadata_selected[['temp_color']])
         }
 
         pl = pl + ggplot2::scale_fill_gradient2(low = cell_color_gradient[[1]],
@@ -7245,7 +7253,8 @@ plot_spat_voronoi_layer_ggplot = function(ggobject,
 
         # if you want to show centers or labels then calculate centers
         if(show_cluster_center == TRUE | show_center_label == TRUE) {
-          annotated_DT_centers = cell_locations_metadata_selected[, .(center_1 = median(get('sdimx')), center_2 = median(get('sdimy'))), by = cell_color]
+          annotated_DT_centers = cell_locations_metadata_selected[, .(center_1 = stats::median(get('sdimx')),
+                                                                      center_2 = stats::median(get('sdimy'))), by = cell_color]
           factor_center_data = factor(annotated_DT_centers[[cell_color]])
           annotated_DT_centers[[cell_color]] <- factor_center_data
         }
@@ -9070,7 +9079,7 @@ spatGenePlot2D <- function(gobject,
     }
 
     if(is.null(gradient_midpoint)) {
-      gradient_midpoint = median(cell_locations_metadata_genes[[gene]])
+      gradient_midpoint = stats::median(cell_locations_metadata_genes[[gene]])
     }
 
 
@@ -9453,6 +9462,10 @@ dimGenePlot2D <- function(gobject,
     subset_expr_data = expr_values[rownames(expr_values) %in% selected_genes, ]
     t_sub_expr_data = t(subset_expr_data)
     t_sub_expr_data_DT = data.table::as.data.table(t_sub_expr_data)
+
+    # data.table variables
+    cell_ID = NULL
+
     t_sub_expr_data_DT[, cell_ID := rownames(t_sub_expr_data)]
   }
 
@@ -9557,7 +9570,7 @@ dimGenePlot2D <- function(gobject,
       }
 
       if(is.null(gradient_midpoint)) {
-        gradient_midpoint = median(annotated_gene_DT[[gene]])
+        gradient_midpoint = stats::median(annotated_gene_DT[[gene]])
       }
 
 
@@ -12191,8 +12204,8 @@ spatDimPlot3D <- function(gobject,
 
 
     if((show_cluster_center == TRUE | show_center_label == TRUE)&!is.null(cell_color)) {
-      annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dim_names[1])),
-                                              center_2 = median(get(dim_names[2]))),
+      annotated_DT_centers = annotated_DT[, .(center_1 = stats::median(get(dim_names[1])),
+                                              center_2 = stats::median(get(dim_names[2]))),
                                           by = cell_color]
       annotated_DT_centers[[cell_color]] <- as.factor(annotated_DT_centers[[cell_color]])
       if(show_cluster_center == TRUE){
@@ -12305,9 +12318,9 @@ spatDimPlot3D <- function(gobject,
                                        opacity=nn_network_alpha)
     }
     if((show_cluster_center == TRUE | show_center_label == TRUE)& !is.null(cell_color)){
-      annotated_DT_centers = annotated_DT[, .(center_1 = median(get(dim_names[1])),
-                                              center_2 = median(get(dim_names[2])),
-                                              center_3 = median(get(dim_names[3]))),
+      annotated_DT_centers = annotated_DT[, .(center_1 = stats::median(get(dim_names[1])),
+                                              center_2 = stats::median(get(dim_names[2])),
+                                              center_3 = stats::median(get(dim_names[3]))),
                                           by = cell_color]
       annotated_DT_centers[[cell_color]] <- as.factor(annotated_DT_centers[[cell_color]])
       if(show_cluster_center == TRUE){
@@ -13036,6 +13049,10 @@ dimGenePlot3D <- function(gobject,
     subset_expr_data = expr_values[rownames(expr_values) %in% selected_genes, ]
     t_sub_expr_data = t(subset_expr_data)
     t_sub_expr_data_DT = data.table::as.data.table(t_sub_expr_data)
+
+    # data.table variables
+    cell_ID = NULL
+
     t_sub_expr_data_DT[, cell_ID := rownames(t_sub_expr_data)]
   }
 

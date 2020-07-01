@@ -197,7 +197,7 @@ pDataDT <- function(gobject) {
   }
 
   if(class(gobject) %in% c('ExpressionSet', 'SCESet')) {
-    return(as.data.table(pData(gobject)))
+    return(as.data.table(Biobase::pData(gobject)))
   }
   else if(class(gobject) == 'giotto') {
     return(gobject@cell_metadata)
@@ -223,10 +223,9 @@ fDataDT <- function(gobject) {
   else if(class(gobject) == 'giotto') {
     return(gobject@gene_metadata)
   }
-  return(data.table::as.data.table(fData(gobject)))
+  return(data.table::as.data.table(Biobase::fData(gobject)))
 
 }
-
 
 
 #' @title select_expression_values
@@ -743,6 +742,7 @@ filterCombinations <- function(gobject,
                                default_save_name = 'filterCombinations') {
 
 
+
   # expression values to be used
   values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
   expr_values = select_expression_values(gobject = gobject, values = values)
@@ -786,6 +786,10 @@ filterCombinations <- function(gobject,
   }
 
   result_DT = do.call('rbind', result_list)
+
+  # data.table variables
+  # gene_detected_in_min_cells = min_detected_genes_per_cell = combination = NULL
+
   result_DT[['gene_detected_in_min_cells']] = gene_det_in_min_cells
   result_DT[['min_detected_genes_per_cell']] = min_det_genes_per_cell
   result_DT[['combination']] = paste0(result_DT$gene_detected_in_min_cells,'-',result_DT$min_detected_genes_per_cell)

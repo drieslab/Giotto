@@ -572,7 +572,7 @@ evaluate_expr_matrix = function(inputmatrix, sparse = TRUE, cores = NA) {
     }
 
   } else if(class(inputmatrix) %in% c('data.frame', 'matrix')) {
-    mymatrix = as(as.matrix(inputmatrix), "sparseMatrix")
+    mymatrix = methods::as(as.matrix(inputmatrix), "sparseMatrix")
   } else {
     stop("raw_exprs needs to be a path or an object of class 'Matrix', 'data.table', 'data.frame' or 'matrix'")
   }

@@ -288,6 +288,9 @@ addCellIntMetadata = function(gobject,
 #'     do_ttest()
 do_ttest = function(expr_values, select_ind, other_ind, adjust_method, mean_method, offset = 0.1) {
 
+  # data.table variables
+  p.value = p.adj = NULL
+
   mean_sel = my_rowMeans(expr_values[,select_ind], method = mean_method, offset = offset)
   mean_all = my_rowMeans(expr_values[,other_ind], method = mean_method, offset = offset)
 
@@ -320,6 +323,9 @@ do_ttest = function(expr_values, select_ind, other_ind, adjust_method, mean_meth
 #' @examples
 #'     do_limmatest()
 do_limmatest = function(expr_values, select_ind, other_ind, mean_method, offset = 0.1) {
+
+  # data.table variables
+  sel = other = genes = P.Value = adj.P.Val = p.adj = NULL
 
   expr_values_subset = cbind(expr_values[,select_ind], expr_values[,other_ind])
   mygroups = c(rep('sel', length(select_ind)), rep('other', length(other_ind)))
@@ -374,6 +380,9 @@ do_limmatest = function(expr_values, select_ind, other_ind, mean_method, offset 
 #'     do_ttest()
 do_wilctest = function(expr_values, select_ind, other_ind, adjust_method, mean_method, offset = 0.1) {
 
+  # data.table variables
+  p.value = p.adj = NULL
+
   mean_sel = my_rowMeans(expr_values[,select_ind], method = mean_method, offset = offset)
   mean_all = my_rowMeans(expr_values[,other_ind], method = mean_method, offset = offset)
 
@@ -408,6 +417,9 @@ do_wilctest = function(expr_values, select_ind, other_ind, adjust_method, mean_m
 #'     do_permuttest_original()
 do_permuttest_original = function(expr_values, select_ind, other_ind, name = 'orig', mean_method, offset = 0.1) {
 
+  # data.table variables
+  genes = NULL
+
   mean_sel = my_rowMeans(expr_values[,select_ind], method = mean_method, offset = offset)
   mean_all = my_rowMeans(expr_values[,other_ind], method = mean_method, offset = offset)
 
@@ -435,6 +447,9 @@ do_permuttest_random = function(expr_values,
                                 other_ind,
                                 name = 'perm_1',
                                 mean_method, offset = 0.1) {
+
+  # data.table variables
+  genes = NULL
 
   l_select_ind = length(select_ind)
   l_other_ind = length(other_ind)
@@ -501,6 +516,9 @@ do_permuttest = function(expr_values,
                          n_perm = 1000, adjust_method = 'fdr',
                          mean_method, offset = 0.1, cores = 2) {
 
+  # data.table variables
+  log2fc_diff = log2fc = sel = other = genes = p_higher = p_lower = perm_sel = NULL
+  perm_other = perm_log2fc = perm_diff = p.value = p.adj = NULL
 
   ## original data
   original = do_permuttest_original(expr_values = expr_values,
@@ -530,7 +548,7 @@ do_permuttest = function(expr_values,
 
   # select lowest p-value and perform p.adj
   results_m[, p.value := ifelse(p_higher <= p_lower, p_higher, p_lower)]
-  results_m[, p.adj := p.adjust(p.value, method = adjust_method)]
+  results_m[, p.adj := stats::p.adjust(p.value, method = adjust_method)]
 
   results_m = results_m[,.(genes, sel, other, log2fc, diff, p.value, p.adj, perm_sel, perm_other, perm_log2fc, perm_diff)]
   setorder(results_m, p.adj, -log2fc)
@@ -1048,6 +1066,8 @@ filterCellProximityGenes = function(cpgObject,
                                     zscores_column = c('cell_type', 'genes'),
                                     direction = c('both', 'up', 'down')) {
 
+  # data.table variables
+  nr_select = int_nr_select = zscores = log2fc = sel = other = p.adj = NULL
 
   if(!'cpgObject' %in% class(cpgObject)) {
     stop('\n cpgObject needs to be the output from findCellProximityGenes() or findCPG() \n')
@@ -1738,6 +1758,10 @@ exprCellCellcom = function(gobject,
                            verbose = T) {
 
 
+  # data.table variables
+  lig_nr = lig_cell_type = rec_nr = rec_cell_type = rand_expr = av_diff = log2fc = LR_expr = pvalue = NULL
+  LR_cell_comb = p.adj = LR_comb = PI = NULL
+
   # get parameters
   adjust_method = match.arg(adjust_method, choices = c("fdr", "bonferroni","BH", "holm", "hochberg", "hommel",
                                                        "BY", "none"))
@@ -1809,9 +1833,9 @@ exprCellCellcom = function(gobject,
   comScore[, LR_cell_comb := paste0(lig_cell_type,'--',rec_cell_type)]
 
   if(adjust_target == 'genes') {
-    comScore[, p.adj := p.adjust(pvalue, method = adjust_method), by = .(LR_cell_comb)]
+    comScore[, p.adj := stats::p.adjust(pvalue, method = adjust_method), by = .(LR_cell_comb)]
   } else if(adjust_target == 'cells'){
-    comScore[, p.adj := p.adjust(pvalue, method = adjust_method), by = .(LR_comb)]
+    comScore[, p.adj := stats::p.adjust(pvalue, method = adjust_method), by = .(LR_comb)]
   }
 
 
@@ -1999,9 +2023,9 @@ specificCellCellcommunicationScores = function(gobject,
     comScore[, LR_cell_comb := paste0(lig_cell_type,'--',rec_cell_type)]
 
     if(adjust_target == 'genes') {
-      comScore[, p.adj := p.adjust(pvalue, method = adjust_method), by = .(LR_cell_comb)]
+      comScore[, p.adj := stats::p.adjust(pvalue, method = adjust_method), by = .(LR_cell_comb)]
     } else if(adjust_target == 'cells'){
-      comScore[, p.adj := p.adjust(pvalue, method = adjust_method), by = .(LR_comb)]
+      comScore[, p.adj := stats::p.adjust(pvalue, method = adjust_method), by = .(LR_comb)]
     }
 
     # get minimum adjusted p.value that is not zero

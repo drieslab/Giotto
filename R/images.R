@@ -43,7 +43,7 @@ estimateImageBg = function(mg_object, top_color_range = 1:50) {
 
   arrayDT = convert_mgImage_to_array_DT(mg_object = mg_object)
   sort_table = sort(table(arrayDT$RGB), decreasing = T)
-  barplot(sort_table[top_color_range], col=names(sort_table[top_color_range]))
+  graphics::barplot(sort_table[top_color_range], col=names(sort_table[top_color_range]))
 
   cat('Most abundant pixel colors: \n')
   print(sort_table[top_color_range])

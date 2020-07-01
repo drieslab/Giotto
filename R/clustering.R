@@ -1531,6 +1531,10 @@ doLouvainSubCluster_community = function(gobject,
 
       ## get hvg
       gene_metadata = fDataDT(temp_giotto)
+
+      # data.table variables
+      hvg = perc_cells = mean_expr_det = NULL
+
       featgenes     = gene_metadata[hvg == 'yes' & perc_cells >= hvg_min_perc_cells & mean_expr_det >= hvg_mean_expr_det]$gene_ID
 
       ## catch too low number of hvg
@@ -1558,6 +1562,9 @@ doLouvainSubCluster_community = function(gobject,
                                                 name = 'tempclus',
                                                 return_gobject = F)
 
+      # data.table variables
+      parent_cluster = NULL
+
       temp_cluster[, parent_cluster := cluster]
 
       iter_list[[cluster+index_offset]] = temp_cluster
@@ -1569,6 +1576,10 @@ doLouvainSubCluster_community = function(gobject,
   }
 
   together = do.call('rbind', iter_list)
+
+  # data.table variables
+  comb = tempclus = NULL
+
   together[, comb := paste0(parent_cluster,'.',tempclus)]
 
   # rename with subcluster of original name
@@ -1686,6 +1697,11 @@ doLouvainSubCluster_multinet =  function(gobject,
 
   ## if clusters start at 0, then add +1 for the index ##
   index_offset = ifelse(0 %in% unique_clusters, 1, 0)
+
+
+  # data.table variables
+  hvg = perc_cells = mean_expr_det = parent_cluster = cell_ID = comb = tempclus = NULL
+
 
   for(cluster in unique_clusters) {
 
