@@ -16,6 +16,24 @@ create_spatialNetworkObject(
   misc = NULL
 )
 }
+\arguments{
+\item{name}{name}
+
+\item{method}{method}
+
+\item{parameters}{parameters}
+
+\item{outputObj}{outputObj}
+
+\item{networkDT}{networkDT}
+
+\item{cellShapeObj}{cellShapeObj}
+
+\item{networkDT_before_filter}{networkDT_before_filter}
+
+\item{crossSectionObjects}{crossSectionObjects}
+}
 \description{
 creates a spatial network object to store the created spatial network and additional information
 }
+\keyword{internal}

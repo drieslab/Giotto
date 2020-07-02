@@ -9,3 +9,4 @@ t_giotto(mymatrix)
 \description{
 t_giotto
 }
+\keyword{internal}

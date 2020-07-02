@@ -6,6 +6,12 @@
 \usage{
 get_distance(networkDT, method = c("mean", "median"))
 }
+\arguments{
+\item{networkDT}{networkDT}
+
+\item{method}{method}
+}
 \description{
 estimate average distance between neighboring cells with network table as input
 }
+\keyword{internal}

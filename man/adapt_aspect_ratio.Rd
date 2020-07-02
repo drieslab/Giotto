@@ -13,6 +13,20 @@ adapt_aspect_ratio(
   mesh_obj = NULL
 )
 }
+\arguments{
+\item{current_ratio}{current_ratio}
+
+\item{cell_locations}{cell_locations}
+
+\item{sdimx}{sdimx}
+
+\item{sdimy}{sdimy}
+
+\item{sdimz}{sdimz}
+
+\item{mesh_obj}{mesh_obj}
+}
 \description{
 adapt the aspact ratio after inserting cross section mesh grid lines
 }
+\keyword{internal}

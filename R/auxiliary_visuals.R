@@ -926,6 +926,10 @@ plotHeatmap <- function(gobject,
     ### axis ###
     geneDT = subset_values_DT[,c('genes'), with = F]
     geneDT = unique(setorder(geneDT, genes))
+
+    # data.table variables
+    geneOrder = subset_genes = NULL
+
     geneDT[, geneOrder := 1:.N]
     geneDT[, subset_genes := ifelse(genes %in% gene_label_selection, as.character(genes), '')]
 

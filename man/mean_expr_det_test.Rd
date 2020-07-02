@@ -9,3 +9,4 @@ mean_expr_det_test(mymatrix, detection_threshold = 1)
 \description{
 mean_expr_det_test
 }
+\keyword{internal}

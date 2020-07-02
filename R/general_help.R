@@ -29,7 +29,7 @@ getDistinctColors <- function(n) {
   } else {
 
     xxx <- grDevices::col2rgb(col_vector);
-    dist_mat <- as.matrix(dist(t(xxx)));
+    dist_mat <- as.matrix(stats::dist(t(xxx)));
     diag(dist_mat) <- 1e10;
     while (length(col_vector) > n) {
       minv <- apply(dist_mat,1,function(x)min(x));
@@ -254,6 +254,9 @@ stitchTileCoordinates <- function (location_file, Xtilespan, Ytilespan) {
 #' @examples
 #'     get10Xmatrix(path_to_data)
 get10Xmatrix = function(path_to_data, gene_column_index = 1) {
+
+  # data.table variables
+  total = gene_symbol = gene_id = gene_id_num = cell_id = cell_id_num = sort_gene_id_num = NULL
 
   # data directory
   files_10X = list.files(path_to_data)

@@ -245,6 +245,9 @@ spatNetwDistributions <- function(gobject,
 #' @description convert to a full spatial network
 convert_to_full_spatial_network =  function(reduced_spatial_network_DT) {
 
+  # data.table variables
+  distance = rank_int = NULL
+
   # find location coordinates
   coordinates = grep('sdim', colnames(reduced_spatial_network_DT), value = T)
 
@@ -285,6 +288,9 @@ convert_to_full_spatial_network =  function(reduced_spatial_network_DT) {
 #' @description convert to a reduced spatial network
 convert_to_reduced_spatial_network =  function(full_spatial_network_DT) {
 
+
+  # data.table variables
+  rnk_src_trgt = NULL
 
   # remove duplicates
   reduced_spatial_network_DT = full_spatial_network_DT[!duplicated(rnk_src_trgt)]
@@ -1603,6 +1609,9 @@ annotateSpatialNetwork = function(gobject,
 #' @description find grid location in 3D
 find_grid_3D <- function(grid_DT, x_loc, y_loc, z_loc) {
 
+  # data.table variables
+  x_start = x_end = y_start = y_end = z_start = z_end = NULL
+
   name = grid_DT[x_loc > x_start & x_loc < x_end & y_loc > y_start & y_loc < y_end & z_loc > z_start & z_loc < z_end]$gr_name
   return(name)
 }
@@ -1612,6 +1621,9 @@ find_grid_3D <- function(grid_DT, x_loc, y_loc, z_loc) {
 #' @description find grid location in 2D
 find_grid_2D <- function(grid_DT, x_loc, y_loc) {
 
+  # data.table variables
+  x_start = x_end = y_start = y_end = NULL
+
   name = grid_DT[x_loc > x_start & x_loc < x_end & y_loc > y_start & y_loc < y_end]$gr_name
   return(name)
 }
@@ -1620,6 +1632,9 @@ find_grid_2D <- function(grid_DT, x_loc, y_loc) {
 #' @name find_grid_x
 #' @description find grid location on x-axis
 find_grid_x <- function(grid_DT, x_loc) {
+
+  # data.table variables
+  x_start = x_end = gr_x_name = NULL
 
   grid_DT_x = unique(grid_DT[,.(x_start, x_end, gr_x_name)])
   name_x = grid_DT_x[x_loc > x_start & x_loc < x_end]$gr_x_name
@@ -1631,6 +1646,9 @@ find_grid_x <- function(grid_DT, x_loc) {
 #' @description find grid location on y-axis
 find_grid_y <- function(grid_DT, y_loc) {
 
+  # data.table variables
+  y_start = y_end = gr_y_name = NULL
+
   grid_DT_y = unique(grid_DT[,.(y_start, y_end, gr_y_name)])
   name_y = grid_DT_y[y_loc > y_start & y_loc < y_end]$gr_y_name
   return(name_y)
@@ -1640,6 +1658,9 @@ find_grid_y <- function(grid_DT, y_loc) {
 #' @name find_grid_z
 #' @description find grid location on z-axis
 find_grid_z <- function(grid_DT, z_loc) {
+
+  # data.table variables
+  z_start = z_end = gr_z_name = NULL
 
   grid_DT_z = unique(grid_DT[,.(z_start, z_end, gr_z_name)])
   name_z = grid_DT_z[z_loc > z_start & z_loc < z_end]$gr_z_name

@@ -15,34 +15,15 @@ insertCrossSectionGenePlot3D(
   sdimx = "sdimx",
   sdimy = "sdimy",
   sdimz = "sdimz",
-  expression_values = c("normalized", "scaled", "custom"),
-  genes,
-  show_network = F,
-  network_color = NULL,
-  edge_alpha = NULL,
-  show_grid = F,
-  cluster_column = NULL,
-  select_cell_groups = NULL,
-  select_cells = NULL,
   show_other_cells = F,
-  other_cell_color = "lightgrey",
-  other_point_size = 1,
-  genes_high_color = NULL,
-  genes_mid_color = "white",
-  genes_low_color = "darkblue",
-  spatial_grid_name = "spatial_grid",
-  point_size = 2,
-  show_legend = T,
   axis_scale = c("cube", "real", "custom"),
   custom_ratio = NULL,
-  x_ticks = NULL,
-  y_ticks = NULL,
-  z_ticks = NULL,
   show_plot = NA,
   return_plot = NA,
   save_plot = NA,
   save_param = list(),
-  default_save_name = "spatGenePlot3D_with_cross_section"
+  default_save_name = "spatGenePlot3D_with_cross_section",
+  ...
 )
 }
 \arguments{
@@ -64,27 +45,11 @@ insertCrossSectionGenePlot3D(
 
 \item{sdimz}{z-axis dimension name (default = 'sdimy')}
 
-\item{expression_values}{gene expression values to use}
+\item{show_other_cells}{display not selected cells}
 
-\item{genes}{genes to show}
+\item{axis_scale}{axis_scale}
 
-\item{show_network}{show underlying spatial network}
-
-\item{network_color}{color of spatial network}
-
-\item{show_grid}{show spatial grid}
-
-\item{genes_high_color}{color represents high gene expression}
-
-\item{genes_mid_color}{color represents middle gene expression}
-
-\item{genes_low_color}{color represents low gene expression}
-
-\item{spatial_grid_name}{name of spatial grid to use}
-
-\item{point_size}{size of point (cell)}
-
-\item{show_legend}{show legend}
+\item{custom_ratio}{custom_ratio}
 
 \item{show_plot}{show plots}
 
@@ -96,13 +61,7 @@ insertCrossSectionGenePlot3D(
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
-\item{grid_color}{color of spatial grid}
-
-\item{midpoint}{expression midpoint}
-
-\item{scale_alpha_with_expression}{scale expression with ggplot alpha parameter}
-
-\item{...}{parameters for cowplot::save_plot()}
+\item{...}{parameters for spatGenePlot3D}
 }
 \value{
 ggplot

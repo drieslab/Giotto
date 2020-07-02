@@ -2087,6 +2087,9 @@ getClusterSimilarity <- function(gobject,
                                  cor = c('pearson', 'spearman')) {
 
 
+  # data.table variables
+  group1 = group2 = unified_group = value = NULL
+
   cor = match.arg(cor, c('pearson', 'spearman'))
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
 
@@ -2322,7 +2325,7 @@ split_dendrogram_in_two = function(dend) {
 node_clusters = function(hclus_obj, verbose = TRUE) {
 
   heights = sort(hclus_obj[['height']], decreasing = T)
-  mydend = as.dendrogram(hclus_obj)
+  mydend = stats::as.dendrogram(hclus_obj)
 
 
   result_list = list()
@@ -2408,6 +2411,8 @@ getDendrogramSplits = function(gobject,
                                verbose = TRUE) {
 
 
+  # data.table variables
+  nodeID = NULL
 
   cor = match.arg(cor, c('pearson', 'spearman'))
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
@@ -2422,7 +2427,7 @@ getDendrogramSplits = function(gobject,
   cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
   corclus = stats::hclust(d = cordist, method = distance)
 
-  cordend = as.dendrogram(object = corclus)
+  cordend = stats::as.dendrogram(object = corclus)
 
   ## print dendrogram ##
   if(show_dend == TRUE) {

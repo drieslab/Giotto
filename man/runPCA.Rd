@@ -35,7 +35,7 @@ runPCA(
 
 \item{center}{center data first (default = FALSE)}
 
-\item{scale_unit}{scale features before PCA}
+\item{scale_unit}{scale features before PCA (default = FALSE)}
 
 \item{ncp}{number of principal components to calculate}
 

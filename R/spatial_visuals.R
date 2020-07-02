@@ -7080,6 +7080,8 @@ plot_spat_voronoi_layer_ggplot = function(ggobject,
   # 2.3.1 numerical column
   # 2.3.2 factor column or character to factor
 
+  # data.table variables
+  temp_color = NULL
 
   # cell color default
   if(is.null(cell_color)) {

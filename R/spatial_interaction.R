@@ -311,7 +311,7 @@ do_ttest = function(expr_values, select_ind, other_ind, adjust_method, mean_meth
 
   resultsDT = data.table('genes' = rownames(expr_values), 'sel' = mean_sel, 'other' = mean_all, 'log2fc' = log2fc, 'diff' = diff, 'p.value' = unlist(results))
   resultsDT[, p.value := ifelse(is.nan(p.value), 1, p.value)]
-  resultsDT[, p.adj := p.adjust(p.value, method = adjust_method)]
+  resultsDT[, p.adj := stats::p.adjust(p.value, method = adjust_method)]
   setorder(resultsDT, p.adj)
 
   return(resultsDT)
@@ -403,7 +403,7 @@ do_wilctest = function(expr_values, select_ind, other_ind, adjust_method, mean_m
 
   resultsDT = data.table('genes' = rownames(expr_values), 'sel' = mean_sel, 'other' = mean_all, 'log2fc' = log2fc, 'diff' = diff, 'p.value' = unlist(results))
   resultsDT[, p.value := ifelse(is.nan(p.value), 1, p.value)]
-  resultsDT[, p.adj := p.adjust(p.value, method = adjust_method)]
+  resultsDT[, p.adj := stats::p.adjust(p.value, method = adjust_method)]
   setorder(resultsDT, p.adj)
 
   return(resultsDT)
@@ -413,9 +413,15 @@ do_wilctest = function(expr_values, select_ind, other_ind, adjust_method, mean_m
 #' @title do_permuttest_original
 #' @name do_permuttest_original
 #' @description calculate original values
+#' @keywords internal
 #' @examples
 #'     do_permuttest_original()
-do_permuttest_original = function(expr_values, select_ind, other_ind, name = 'orig', mean_method, offset = 0.1) {
+do_permuttest_original = function(expr_values,
+                                  select_ind,
+                                  other_ind,
+                                  name = 'orig',
+                                  mean_method,
+                                  offset = 0.1) {
 
   # data.table variables
   genes = NULL
@@ -630,6 +636,11 @@ findCellProximityGenes_per_interaction = function(expr_values,
                                                   adjust_method = 'bonferroni',
                                                   nr_permutations = 100,
                                                   cores = 1) {
+
+
+  # data.table variables
+  unified_int = to_cell_type = from_cell_type = cell_type = int_cell_type = NULL
+  nr_select = int_nr_select = nr_other = int_nr_other = unif_int = NULL
 
   # select test to perform
   diff_test = match.arg(arg = diff_test, choices = c('permutation', 'limma', 't.test', 'wilcox'))
@@ -931,6 +942,10 @@ findCellProximityGenes = function(gobject,
 
   final_result = do.call('rbind', fin_result)
 
+
+  # data.table variables
+  spec_int = cell_type = int_cell_type = type_int = NULL
+
   final_result[, spec_int := paste0(cell_type,'--',int_cell_type)]
   final_result[, type_int := ifelse(cell_type == int_cell_type, 'homo', 'hetero')]
 
@@ -1181,6 +1196,11 @@ combineCellProximityGenes_per_interaction =  function(cpgObject,
                                                       min_fdr = 0.05,
                                                       min_spat_diff = 0,
                                                       min_log2_fc = 0.5) {
+
+  # data.table variables
+  unif_int = genes = cell_type = p.adj = nr_select = int_nr_select = log2fc = sel = NULL
+  other = p.value = perm_sel = perm_other = perm_log2fc = perm_diff = NULL
+  int_cell_type = nr_other = genes_combo = genes_1 = genes_2 = type_int = NULL
 
   if(!'cpgObject' %in% class(cpgObject)) {
     stop('\n cpgObject needs to be the output from findCellProximityGenes() or findCPG() \n')
@@ -1505,6 +1525,9 @@ combineCellProximityGenes = function(cpgObject,
                                      do_parallel = TRUE,
                                      cores = NA,
                                      verbose = T) {
+
+  # data.table variables
+  unif_int = gene1_gene2 = genes_1 = genes_2 = comb_logfc = log2fc_1 = log2fc_2 = direction = NULL
 
   ## check validity
   if(!'cpgObject' %in% class(cpgObject)) {

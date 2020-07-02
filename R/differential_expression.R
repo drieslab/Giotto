@@ -739,7 +739,7 @@ findMastMarkers_one_vs_all = function(gobject,
 #'     findMarkers(gobject)
 findMarkers <- function(gobject,
                         expression_values = c('normalized', 'scaled', 'custom'),
-                        cluster_column,
+                        cluster_column = NULL,
                         method = c('scran','gini','mast'),
                         subset_clusters = NULL,
                         group_1 = NULL,
@@ -754,6 +754,11 @@ findMarkers <- function(gobject,
                         adjust_columns = NULL,
                         ...) {
 
+
+  # input
+  if(is.null(cluster_column)) {
+    stop('A valid cluster column needs to be given to cluster_column, see pDataDT()')
+  }
 
   # select method
   method = match.arg(method, choices = c('scran','gini','mast'))

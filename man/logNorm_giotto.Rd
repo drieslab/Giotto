@@ -9,3 +9,4 @@ logNorm_giotto(mymatrix, base, offset)
 \description{
 logNorm_giotto
 }
+\keyword{internal}

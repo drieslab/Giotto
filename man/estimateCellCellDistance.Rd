@@ -10,6 +10,14 @@ estimateCellCellDistance(
   method = c("mean", "median")
 )
 }
+\arguments{
+\item{gobject}{gobject}
+
+\item{spatial_network_name}{spatial_network_name}
+
+\item{method}{method}
+}
 \description{
 estimate average distance between neighboring cells
 }
+\keyword{internal}

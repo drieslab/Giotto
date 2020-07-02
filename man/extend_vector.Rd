@@ -6,6 +6,12 @@
 \usage{
 extend_vector(x, extend_ratio)
 }
+\arguments{
+\item{x}{x}
+
+\item{extend_ratio}{extend_ratio}
+}
 \description{
 extend the range of a vector by a given ratio
 }
+\keyword{internal}

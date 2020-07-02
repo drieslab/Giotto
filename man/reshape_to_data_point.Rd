@@ -6,6 +6,10 @@
 \usage{
 reshape_to_data_point(mesh_grid_obj)
 }
+\arguments{
+\item{mesh_grid_obj}{mesh_grid_obj}
+}
 \description{
 reshape a mesh grid line object to data point matrix
 }
+\keyword{internal}

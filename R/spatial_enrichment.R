@@ -11,7 +11,6 @@
 #' @export
 #' @examples
 #'     makeSignMatrixPAGE()
-globalVariables(c("quantile","fold","mean_expr","av_expr","rankFold","clusters"))
 makeSignMatrixPAGE = function(sign_names,
                               sign_list) {
 
@@ -42,7 +41,6 @@ makeSignMatrixPAGE = function(sign_names,
   return(final_sig_matrix)
 
 }
-
 
 
 

@@ -6,6 +6,10 @@
 \usage{
 get_cross_section_coordinates(cell_subset_projection_locations)
 }
+\arguments{
+\item{cell_subset_projection_locations}{cell_subset_projection_locations}
+}
 \description{
 get local coordinates within cross section plane
 }
+\keyword{internal}

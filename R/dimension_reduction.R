@@ -168,7 +168,7 @@ runPCA_factominer = function(x,
                              rev = FALSE,
                              ...) {
 
-  if(!is(x, 'matrix')) {
+  if(!methods::is(x, 'matrix')) {
     x = as.matrix(x)
   }
 

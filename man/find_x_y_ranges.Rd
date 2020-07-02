@@ -6,6 +6,12 @@
 \usage{
 find_x_y_ranges(data, extend_ratio)
 }
+\arguments{
+\item{data}{data}
+
+\item{extend_ratio}{extend_ratio}
+}
 \description{
 get the extended ranges of x and y
 }
+\keyword{internal}

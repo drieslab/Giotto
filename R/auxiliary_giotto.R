@@ -1,6 +1,6 @@
 
 #' @title mean_giotto
-#' @export
+#' @keywords internal
 mean_giotto = function(x, ...) {
 
   if(methods::is(x, 'dgCMatrix')) {
@@ -14,12 +14,12 @@ mean_giotto = function(x, ...) {
 
 
 #' @title rowSums_giotto
-#' @export
+#' @keywords internal
 rowSums_giotto = function(mymatrix) {
 
-  if(is(mymatrix, 'dgCMatrix')) {
+  if(methods::is(mymatrix, 'dgCMatrix')) {
     return(Matrix::rowSums(mymatrix)) # replace with sparseMatrixStats
-  } else if(is(mymatrix, 'Matrix')) {
+  } else if(methods::is(mymatrix, 'Matrix')) {
     return(Matrix::rowSums(mymatrix))
   } else {
     temp_matrix = as.matrix(mymatrix)
@@ -31,7 +31,7 @@ rowSums_giotto = function(mymatrix) {
 
 
 #' @title rowMeans_giotto
-#' @export
+#' @keywords internal
 rowMeans_giotto = function(mymatrix) {
 
   if(methods::is(mymatrix, 'dgCMatrix')) {
@@ -48,7 +48,7 @@ rowMeans_giotto = function(mymatrix) {
 }
 
 #' @title colSums_giotto
-#' @export
+#' @keywords internal
 colSums_giotto = function(mymatrix) {
 
   if(methods::is(mymatrix, 'dgCMatrix')) {
@@ -64,7 +64,7 @@ colSums_giotto = function(mymatrix) {
 }
 
 #' @title colMeans_giotto
-#' @export
+#' @keywords internal
 colMeans_giotto = function(mymatrix) {
 
   if(methods::is(mymatrix, 'dgCMatrix')) {
@@ -80,7 +80,7 @@ colMeans_giotto = function(mymatrix) {
 }
 
 #' @title t_giotto
-#' @export
+#' @keywords internal
 t_giotto = function(mymatrix) {
 
   if(methods::is(mymatrix, 'dgCMatrix')) {
@@ -97,16 +97,16 @@ t_giotto = function(mymatrix) {
 
 
 #' @title cor_sparse adapted from wydr package
-#' @export
+#' @keywords internal
 cor_sparse <- function(x) {
-  n <- nrow(x)
-  covmat <- (as.matrix(Matrix::crossprod(x)) - n * Matrix::tcrossprod(Matrix::colMeans(x))) / (n - 1)
-  cormat <- covmat / base::tcrossprod(base::sqrt(base::diag(covmat)))
+  n = nrow(x)
+  covmat = (as.matrix(Matrix::crossprod(x)) - n * Matrix::tcrossprod(Matrix::colMeans(x))) / (n - 1)
+  cormat = covmat / base::tcrossprod(base::sqrt(base::diag(covmat)))
   cormat
 }
 
 #' @title cor_giotto
-#' @export
+#' @keywords internal
 cor_giotto = function(x, ...) {
   x = as.matrix(x)
   return(stats::cor(x, ...))
@@ -115,7 +115,7 @@ cor_giotto = function(x, ...) {
 
 
 #' @title giotto_lapply
-#' @export
+#' @keywords internal
 giotto_lapply = function(X, cores = NA, fun, ...) {
 
   # get type of os
@@ -146,7 +146,7 @@ giotto_lapply = function(X, cores = NA, fun, ...) {
 
 
 #' @title mean_expr_det_test
-#' @export
+#' @keywords internal
 mean_expr_det_test = function(mymatrix, detection_threshold = 1) {
   mean_expr_detected = unlist(apply(X = mymatrix, MARGIN = 1, FUN = function(x) {
     detected_x = x[x > detection_threshold]
@@ -155,7 +155,7 @@ mean_expr_det_test = function(mymatrix, detection_threshold = 1) {
 }
 
 #' @title libNorm_giotto
-#' @export
+#' @keywords internal
 libNorm_giotto <- function(mymatrix, scalefactor){
   libsizes = colSums_giotto(mymatrix)
 
@@ -169,7 +169,7 @@ libNorm_giotto <- function(mymatrix, scalefactor){
 }
 
 #' @title logNorm_giotto
-#' @export
+#' @keywords internal
 logNorm_giotto = function(mymatrix, base, offset) {
 
   if(methods::is(mymatrix, 'dgCMatrix')) {
@@ -627,6 +627,9 @@ filterDistributions <- function(gobject,
   # plot type
   plot_type = match.arg(plot_type, c('histogram', 'violin'))
 
+  # variables
+  V1 = NULL
+
   # for genes
   if(detection == 'genes') {
 
@@ -636,7 +639,7 @@ filterDistributions <- function(gobject,
 
       pl <- ggplot2::ggplot()
       pl <- pl + ggplot2::theme_classic()
-      pl <- pl + ggplot2::geom_violin(data = gene_detection_levels, aes(x = 'genes', y = V1+axis_offset),
+      pl <- pl + ggplot2::geom_violin(data = gene_detection_levels, ggplot2::aes(x = 'genes', y = V1+axis_offset),
                                       fill = fill_color)
       pl <- pl + ggplot2::scale_y_continuous(trans = scale_axis)
       pl <- pl + ggplot2::labs(y = 'gene detected in # of cells', x = '')
@@ -645,7 +648,7 @@ filterDistributions <- function(gobject,
 
       pl <- ggplot2::ggplot()
       pl <- pl + ggplot2::theme_classic()
-      pl <- pl + ggplot2::geom_histogram(data = gene_detection_levels, aes(x = V1+axis_offset),
+      pl <- pl + ggplot2::geom_histogram(data = gene_detection_levels, ggplot2::aes(x = V1+axis_offset),
                                          color = 'white', bins = nr_bins, fill = fill_color)
       pl <- pl + ggplot2::scale_x_continuous(trans = scale_axis)
       pl <- pl + ggplot2::labs(x = 'gene detected in # of cells')
@@ -661,7 +664,7 @@ filterDistributions <- function(gobject,
 
       pl <- ggplot2::ggplot()
       pl <- pl + ggplot2::theme_classic()
-      pl <- pl + ggplot2::geom_violin(data = cell_detection_levels, aes(x = 'cells', y = V1+axis_offset),
+      pl <- pl + ggplot2::geom_violin(data = cell_detection_levels, ggplot2::aes(x = 'cells', y = V1+axis_offset),
                                       fill = fill_color)
       pl <- pl + ggplot2::scale_y_continuous(trans = scale_axis)
       pl <- pl + ggplot2::labs(y = 'genes detected per cell', x = '')
@@ -670,7 +673,7 @@ filterDistributions <- function(gobject,
 
       pl <- ggplot2::ggplot()
       pl <- pl + ggplot2::theme_classic()
-      pl <- pl + ggplot2::geom_histogram(data = cell_detection_levels, aes(x = V1+axis_offset),
+      pl <- pl + ggplot2::geom_histogram(data = cell_detection_levels, ggplot2::aes(x = V1+axis_offset),
                                          color = 'white', bins = nr_bins, fill = fill_color)
       pl <- pl + ggplot2::scale_x_continuous(trans = scale_axis)
       pl <- pl + ggplot2::labs(x = 'genes detected per cell')
@@ -1857,6 +1860,10 @@ combineMetadata = function(gobject,
 
   # spatial locations
   spatial_locs = copy(gobject@spatial_locs)
+
+  # data.table variables
+  cell_ID = NULL
+
   metadata = cbind(metadata, spatial_locs[, cell_ID := NULL])
 
   # cell/spot enrichment data

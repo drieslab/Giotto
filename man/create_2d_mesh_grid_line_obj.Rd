@@ -6,6 +6,18 @@
 \usage{
 create_2d_mesh_grid_line_obj(x_min, x_max, y_min, y_max, mesh_grid_n)
 }
+\arguments{
+\item{x_min}{x_min}
+
+\item{x_max}{x_max}
+
+\item{y_min}{y_min}
+
+\item{y_max}{y_max}
+
+\item{mesh_grid_n}{mesh_grid_n}
+}
 \description{
 create 2d mesh grid line object
 }
+\keyword{internal}

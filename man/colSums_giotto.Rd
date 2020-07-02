@@ -9,3 +9,4 @@ colSums_giotto(mymatrix)
 \description{
 colSums_giotto
 }
+\keyword{internal}

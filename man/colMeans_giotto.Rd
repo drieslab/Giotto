@@ -9,3 +9,4 @@ colMeans_giotto(mymatrix)
 \description{
 colMeans_giotto
 }
+\keyword{internal}
