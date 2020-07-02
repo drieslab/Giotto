@@ -175,7 +175,7 @@ logNorm_giotto = function(mymatrix, base, offset) {
   if(methods::is(mymatrix, 'dgCMatrix')) {
     mymatrix@x = log(mymatrix@x + offset)/log(base) # replace with sparseMatrixStats
   } else if(methods::is(mymatrix, 'Matrix')) {
-    mymatrix@x =log(mymatrix@x + offset)/log(base)
+    mymatrix@x = log(mymatrix@x + offset)/log(base)
   } else {
     mymatrix = log(as.matrix(mymatrix) + offset)/log(base)
   }
@@ -347,7 +347,10 @@ create_average_detection_DT <- function(gobject, meta_data_name,
 #' @export
 #' @examples
 #'     subsetGiotto(gobject)
-subsetGiotto <- function(gobject, cell_ids = NULL, gene_ids = NULL, verbose = FALSE) {
+subsetGiotto <- function(gobject,
+                         cell_ids = NULL,
+                         gene_ids = NULL,
+                         verbose = FALSE) {
 
 
   g_cell_IDs = gobject@cell_ID
@@ -402,6 +405,9 @@ subsetGiotto <- function(gobject, cell_ids = NULL, gene_ids = NULL, verbose = FA
   if(!is.null(gobject@gene_metadata)) {
     gobject@gene_metadata = gobject@gene_metadata[filter_bool_genes,]
   }
+
+  # data.table variables
+  to = from = V = NULL
 
   ## spatial network & grid ##
   # cell spatial network
@@ -1378,7 +1384,7 @@ addCellMetadata <- function(gobject,
 #' @param gobject giotto object
 #' @param new_metadata new metadata to use
 #' @param by_column merge metadata based on gene_ID column in fDataDT
-#' @param column_cell_ID column name of new metadata to use if by_column = TRUE
+#' @param column_gene_ID column name of new metadata to use if by_column = TRUE
 #' @return giotto object
 #' @details You can add additional gene metadata in two manners:
 #' 1. Provide a data.table or data.frame with gene annotations in the same order as the gene_ID column in fDataDT(gobject)
@@ -1683,7 +1689,8 @@ showProcessingSteps <- function(gobject) {
 
 
 #' @title create_cluster_matrix
-#' @description creates aggregated matrix for a given clustering
+#' @description creates aggregated matrix for a given clustering column
+#' @keywords internal
 #' @examples
 #'     create_cluster_matrix(gobject)
 create_cluster_matrix <- function(gobject,

@@ -20,3 +20,4 @@ calculate multiple random values
 \examples{
     do_multi_permuttest_random()
 }
+\keyword{internal}

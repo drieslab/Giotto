@@ -57,11 +57,16 @@ estimateImageBg = function(mg_object, top_color_range = 1:50) {
 #' @param bg_color estimated current background color
 #' @param perc_range range around estimated background color to include (percentage)
 #' @param new_color new background color
+#' @param new_name change name of Giotto image
 #' @return magick image or giotto image object with updated background color
 #' @export
 #' @examples
 #'     changeImageBg(mg_object)
-changeImageBg = function(mg_object, bg_color, perc_range = 10, new_color = '#FFFFFF', new_name = NULL) {
+changeImageBg = function(mg_object,
+                         bg_color,
+                         perc_range = 10,
+                         new_color = '#FFFFFF',
+                         new_name = NULL) {
 
   if(methods::is(mg_object, 'imageGiottoObj')) {
     is_g_image = TRUE

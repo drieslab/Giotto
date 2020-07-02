@@ -2576,7 +2576,8 @@ plotRecovery = function(gobject,
 #' @param cell_color_code named vector with colors
 #' @param color_as_factor convert color column to factor
 #' @param show_other_cells decide if show cells not in network
-#' @param show_network show underlying spatial network
+#' @param show_network show spatial network of selected cells
+#' @param show_other_network show spatial network of not selected cells
 #' @param network_color color of spatial network
 #' @param spatial_network_name name of spatial network to use
 #' @param show_grid show spatial grid
@@ -2588,6 +2589,7 @@ plotRecovery = function(gobject,
 #' @param point_select_border_col border color of selected points
 #' @param point_select_border_stroke stroke size of selected points
 #' @param point_size_other size of other points
+#' @param point_alpha_other opacity of other points
 #' @param point_other_border_col border color of other points
 #' @param point_other_border_stroke stroke size of other points
 #' @param show_plot show plots
@@ -2820,6 +2822,7 @@ cellProximitySpatPlot2D <- function(gobject,
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @param \dots additional parameters
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -2846,7 +2849,8 @@ cellProximitySpatPlot = function(gobject, ...) {
 #' @param cell_color_code named vector with colors
 #' @param color_as_factor convert color column to factor
 #' @param show_other_cells decide if show cells not in network
-#' @param show_network show underlying spatial network
+#' @param show_network show spatial network of selected cells
+#' @param show_other_network show spatial network of not selected cells
 #' @param network_color color of spatial network
 #' @param spatial_network_name name of spatial network to use
 #' @param show_grid show spatial grid
@@ -2855,11 +2859,18 @@ cellProximitySpatPlot = function(gobject, ...) {
 #' @param show_legend show legend
 #' @param point_size_select size of selected points
 #' @param point_size_other size of other points
+#' @param point_alpha_other opacity of other points
+#' @param axis_scale scale of axis
+#' @param x_ticks ticks on x-axis
+#' @param y_ticks ticks on y-axis
+#' @param z_ticks ticks on z-axis
+#' @param custom_ratio custom ratio of axes
 #' @param show_plot show plots
 #' @param return_plot return plotly object
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @param \dots additional parameters
 #' @return plotly
 #' @details Description of parameters.
 #' @export

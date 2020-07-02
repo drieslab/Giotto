@@ -302,10 +302,13 @@ set_giotto_python_path = function(python_path = NULL,
 #' @param return_plot return plot as object, default = TRUE
 #' @param save_plot automatically save plot, dafault = FALSE
 #' @param save_dir path to directory where to save plots
+#' @param plot_format format of plots (defaults to png)
 #' @param dpi resolution for raster images
+#' @param units units of format (defaults to in)
 #' @param height height of plots
 #' @param width width of  plots
 #' @return named vector with giotto instructions
+#' @seealso More online information can be found here \url{https://rubd.github.io/Giotto_site/articles/instructions_and_plotting.html}
 #' @export
 #' @examples
 #'     createGiottoInstructions()
@@ -548,11 +551,16 @@ readExprMatrix = function(path, cores = NA, transpose = FALSE) {
 #' @title evaluate_expr_matrix
 #' @description Evaluate expression matrices.
 #' @param inputmatrix inputmatrix to evaluate
+#' @param sparse create sparse matrix (default = TRUE)
+#' @param cores how many cores to use
 #' @return sparse matrix
 #' @details The inputmatrix can be a matrix, sparse matrix, data.frame, data.table or path to any of these.
+#' @keywords internal
 #' @examples
 #'     evaluate_expr_matrix()
-evaluate_expr_matrix = function(inputmatrix, sparse = TRUE, cores = NA) {
+evaluate_expr_matrix = function(inputmatrix,
+                                sparse = TRUE,
+                                cores = NA) {
 
   if(methods::is(inputmatrix, 'character')) {
     mymatrix = readExprMatrix(inputmatrix, cores =  cores)

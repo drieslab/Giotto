@@ -60,7 +60,9 @@ cellProximitySpatPlot3D(
 
 \item{show_other_cells}{decide if show cells not in network}
 
-\item{show_network}{show underlying spatial network}
+\item{show_network}{show spatial network of selected cells}
+
+\item{show_other_network}{show spatial network of not selected cells}
 
 \item{network_color}{color of spatial network}
 
@@ -78,6 +80,18 @@ cellProximitySpatPlot3D(
 
 \item{point_size_other}{size of other points}
 
+\item{point_alpha_other}{opacity of other points}
+
+\item{axis_scale}{scale of axis}
+
+\item{custom_ratio}{custom ratio of axes}
+
+\item{x_ticks}{ticks on x-axis}
+
+\item{y_ticks}{ticks on y-axis}
+
+\item{z_ticks}{ticks on z-axis}
+
 \item{show_plot}{show plots}
 
 \item{return_plot}{return plotly object}
@@ -87,6 +101,8 @@ cellProximitySpatPlot3D(
 \item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+
+\item{\dots}{additional parameters}
 }
 \value{
 plotly

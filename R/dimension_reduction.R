@@ -9,6 +9,8 @@
 #' @param reduction_method method used to reduce dimensions
 #' @param coordinates accepts the coordinates after dimension reduction
 #' @param misc any additional information will be added to this slot
+#' @param my_rownames rownames
+#' @keywords internal
 #' @return number of distinct colors
 create_dimObject = function(name = 'test',
                             reduction_method = NULL,
@@ -52,11 +54,11 @@ standardise_giotto = function (x, center = TRUE, scale = TRUE)
   }
   else if (center & !scale) {
     m <- Rfast::colmeans(x)
-    y <- eachrow(x, m, oper = "-")
+    y <- Rfast::eachrow(x, m, oper = "-")
   }
   else if (!center & scale) {
     s <- Rfast::colVars(x, std = TRUE)
-    y <- eachrow(x, s, oper = "/")
+    y <- Rfast::eachrow(x, s, oper = "/")
   } else {
     y = x
   }
@@ -598,9 +600,13 @@ screePlot = function(gobject,
 #' @param jackstraw_data result from jackstraw function
 #' @param ncp number of principal components to calculate
 #' @param ylim y-axis limits on jackstraw plot
-#' @param p-value threshold to call a PC significant
+#' @param threshold p.value threshold to call a PC significant
+#' @keywords internal
 #' @return ggplot
-create_jackstrawplot = function(jackstraw_data, ncp = 20, ylim = c(0, 1), threshold = 0.01) {
+create_jackstrawplot = function(jackstraw_data,
+                                ncp = 20,
+                                ylim = c(0, 1),
+                                threshold = 0.01) {
 
   # data.table variables
   PC = p.val = NULL

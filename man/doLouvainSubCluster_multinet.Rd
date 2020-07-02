@@ -62,8 +62,6 @@ doLouvainSubCluster_multinet(
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
 \item{verbose}{verbose}
-
-\item{python_path}{specify specific path to python if required}
 }
 \value{
 giotto object with new subclusters appended to cell metadata

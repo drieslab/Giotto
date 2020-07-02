@@ -48,16 +48,17 @@ spat_fish_func = function(gene,
       colhubs = colSums_giotto(subset_spat_mat)
       hub_nr = length(unique(c(names(colhubs[colhubs > hub_min_int]), names(rowhubs[colhubs > hub_min_int]))))
     }
-    fish_res = fisher.test(matrix(table(test), byrow = T, nrow = 2))[c('p.value','estimate')]
+    fish_res = stats::fisher.test(matrix(table(test), byrow = T, nrow = 2))[c('p.value','estimate')]
     return(c(genes = list(gene), fish_res, hubs = list(hub_nr)))
 
   } else {
 
-    fish_res = fisher.test(matrix(table(test), byrow = T, nrow = 2))[c('p.value','estimate')]
+    fish_res = stats::fisher.test(matrix(table(test), byrow = T, nrow = 2))[c('p.value','estimate')]
     return(c(genes = list(gene), fish_res))
   }
 
 }
+
 
 
 #' @title spat_OR_func
@@ -351,6 +352,9 @@ silhouetteRank <- function(gobject,
   }
 
 
+  # data.table variables
+  sdimx = sdimy = NULL
+
   # spatial locations
   spatlocs = as.matrix(gobject@spatial_locs[,.(sdimx, sdimy)])
 
@@ -616,6 +620,10 @@ trendSceek <- function(gobject,
 
 
   ## initial locations
+
+  # data.table variables
+  cell_ID = NULL
+
   spatial_locations = copy(gobject@spatial_locs)
   spatial_locations[, cell_ID := NULL]
   pp = trendsceek::pos2pp(spatial_locations)
@@ -1202,6 +1210,7 @@ selectPatternGenes <- function(spatPatObj,
 #' b is a smoothening factor that defaults to 1 - 1/k, where k is the median number of
 #' k-neighbors in the selected spatial network. Setting b = 0 means no smoothing and b = 1
 #' means no contribution from its own expression.
+#' @keywords internal
 #' @examples
 #'     do_spatial_knn_smoothing(gobject)
 do_spatial_knn_smoothing = function(gobject,
@@ -1293,6 +1302,7 @@ do_spatial_knn_smoothing = function(gobject,
 #' @param spatial_grid_name name of spatial grid to use
 #' @param min_cells_per_grid minimum number of cells to consider a grid
 #' @return matrix with smoothened gene expression values based on spatial grid
+#' @keywords internal
 #' @examples
 #'     do_spatial_grid_averaging(gobject)
 do_spatial_grid_averaging = function(gobject,
@@ -1369,7 +1379,7 @@ do_spatial_grid_averaging = function(gobject,
 #' @param network_smoothing  smoothing factor beteen 0 and 1 (default: automatic)
 #' @param spatial_grid_name name of spatial grid to use
 #' @param min_cells_per_grid minimum number of cells to consider a grid
-#' @param b smoothing factor beteen 0 and 1 (default: automatic)
+#' @param cor_method correlation method
 #' @return returns a spatial correlation object: "spatCorObject"
 #' @details
 #' For method = network, it expects a fully connected spatial network. You can make sure to create a
@@ -1435,10 +1445,10 @@ detectSpatialCorGenes <- function(gobject,
   if(method == 'network') {
 
     knn_av_expr_matrix = do_spatial_knn_smoothing(gobject = gobject,
-                                                           expression_values = expression_values,
-                                                           subset_genes = subset_genes,
-                                                           spatial_network_name = spatial_network_name,
-                                                           b = network_smoothing)
+                                                  expression_values = expression_values,
+                                                  subset_genes = subset_genes,
+                                                  spatial_network_name = spatial_network_name,
+                                                  b = network_smoothing)
 
     #print(knn_av_expr_matrix[1:4, 1:4])
 

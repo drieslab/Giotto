@@ -17,8 +17,7 @@ doLeidenCluster(
   n_iterations = 1000,
   return_gobject = TRUE,
   set_seed = T,
-  seed_number = 1234,
-  ...
+  seed_number = 1234
 )
 }
 \arguments{

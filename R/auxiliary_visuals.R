@@ -1,6 +1,8 @@
 
 #' @title aes_string2
 #' @name aes_string2
+#' @param \dots aes_string parameters
+#' @keywords internal
 #' @description makes sure aes_string can also be used with names that start with numeric values
 aes_string2 <- function(...){
   args <- lapply(list(...), function(x) sprintf("`%s`", x))
@@ -256,6 +258,7 @@ general_save_function = function(gobject,
 #' @param save_dir directory to save to
 #' @param save_folder folder in save_dir to save to
 #' @param save_name name of plot
+#' @param default_save_name default name to save a plot
 #' @param save_format format (e.g. png, tiff, pdf, ...)
 #' @param show_saved_plot load & display the saved plot
 #' @param ncol number of columns

@@ -5,12 +5,23 @@
 \title{calculate_distance_and_weight}
 \usage{
 calculate_distance_and_weight(
-  networkDT,
+  networkDT = NULL,
   sdimx = "sdimx",
   sdimy = "sdimy",
   sdimz = "sdimz",
   d2_or_d3 = c(2, 3)
 )
+}
+\arguments{
+\item{networkDT}{spatial network as data.table}
+
+\item{sdimx}{spatial dimension x}
+
+\item{sdimy}{spatial dimension y}
+
+\item{sdimz}{spatial dimension z}
+
+\item{d2_or_d3}{number of dimensions}
 }
 \description{
 calculate_distance_and_weight

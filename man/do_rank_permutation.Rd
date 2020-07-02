@@ -12,3 +12,4 @@ creates permutation for the rankEnrich test
 \examples{
     do_rank_permutation()
 }
+\keyword{internal}

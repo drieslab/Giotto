@@ -36,7 +36,7 @@ spatNetwDistributionsDistance <- function(gobject,
   spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
 
   ## convert to full network with rank_int column
-  spatial_network = Giotto:::convert_to_full_spatial_network(spatial_network)
+  spatial_network = convert_to_full_spatial_network(spatial_network)
 
   if(is.null(spatial_network)) {
     stop('spatial network ', spatial_network_name, ' was not found')
@@ -124,7 +124,7 @@ spatNetwDistributionsKneighbors = function(gobject,
   spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
 
   ## convert to full network with rank_int column
-  spatial_network = Giotto:::convert_to_full_spatial_network(spatial_network)
+  spatial_network = convert_to_full_spatial_network(spatial_network)
 
   if(is.null(spatial_network)) {
     stop('spatial network ', spatial_network_name, ' was not found')
@@ -242,6 +242,8 @@ spatNetwDistributions <- function(gobject,
 
 #' @title convert_to_full_spatial_network
 #' @name convert_to_full_spatial_network
+#' @param reduced_spatial_network_DT reduced spatial network in data.table format
+#' @keywords internal
 #' @description convert to a full spatial network
 convert_to_full_spatial_network =  function(reduced_spatial_network_DT) {
 
@@ -277,7 +279,7 @@ convert_to_full_spatial_network =  function(reduced_spatial_network_DT) {
   full_spatial_network_DT[, rank_int := 1:.N, by = 'source']
 
   # create unified column
-  full_spatial_network_DT = Giotto:::sort_combine_two_DT_columns(full_spatial_network_DT, 'source', 'target', 'rnk_src_trgt')
+  full_spatial_network_DT = sort_combine_two_DT_columns(full_spatial_network_DT, 'source', 'target', 'rnk_src_trgt')
 
   return(full_spatial_network_DT)
 
@@ -285,6 +287,8 @@ convert_to_full_spatial_network =  function(reduced_spatial_network_DT) {
 
 #' @title convert_to_reduced_spatial_network
 #' @name convert_to_reduced_spatial_network
+#' @param full_spatial_network_DT full spatial network in data.table format
+#' @keywords internal
 #' @description convert to a reduced spatial network
 convert_to_reduced_spatial_network =  function(full_spatial_network_DT) {
 
@@ -374,13 +378,24 @@ select_spatialNetwork <- function(gobject,
 
 #' @title calculate_distance_and_weight
 #' @name calculate_distance_and_weight
+#' @param networkDT spatial network as data.table
+#' @param sdimx spatial dimension x
+#' @param sdimy spatial dimension y
+#' @param sdimz spatial dimension z
+#' @param d2_or_d3 number of dimensions
 #' @description calculate_distance_and_weight
-calculate_distance_and_weight <- function(networkDT,
+calculate_distance_and_weight <- function(networkDT = NULL,
                                           sdimx = "sdimx",
                                           sdimy = "sdimy",
                                           sdimz = "sdimz",
                                           d2_or_d3=c(2,3)){
 
+  if(is.null(networkDT)) {
+    stop('parameter networkDT can not be NULL \n')
+  }
+
+  # number of spatial dimensions
+  d2_or_d3 = match.arg(d2_or_d3, choices = c(2,3))
 
   if (d2_or_d3==3){
     ## make it dynamic for all possible coordinates combinations ##
@@ -418,11 +433,15 @@ calculate_distance_and_weight <- function(networkDT,
 #' @title filter_network
 #' @name filter_network
 #' @description function to filter a spatial network
-filter_network <- function(networkDT,
+#' @param networkDT spatial network in data.table format
+#' @param maximum_distance maximum distance between cell centroids
+#' @param minimum_k minimum number of neighbors
+#' @keywords internal
+filter_network <- function(networkDT = NULL,
                            maximum_distance = NULL,
                            minimum_k = NULL){
 
-  temp_fullnetwork = Giotto:::convert_to_full_spatial_network(networkDT)
+  temp_fullnetwork = convert_to_full_spatial_network(networkDT)
 
   ## filter based on distance or minimum number of neighbors
   if (maximum_distance == "auto") {
@@ -431,7 +450,7 @@ filter_network <- function(networkDT,
   else if (!is.null(maximum_distance)) {
     temp_fullnetwork = temp_fullnetwork[distance <= maximum_distance | rank_int <= minimum_k]
   }
-  networkDT = Giotto:::convert_to_reduced_spatial_network(temp_fullnetwork)
+  networkDT = convert_to_reduced_spatial_network(temp_fullnetwork)
 
   return(networkDT)
 }
@@ -767,7 +786,7 @@ create_delaunayNetwork2D <- function (gobject,
 
   ###
   ###
-  delaunay_network_Obj = Giotto:::create_spatialNetworkObject(name = name,
+  delaunay_network_Obj = create_spatialNetworkObject(name = name,
                                                               method = method,
                                                               parameters = parameters,
                                                               outputObj = outputObj,
@@ -1088,7 +1107,7 @@ plotStatDelaunayNetwork = function(gobject,
                                                         return_gobject = F,
                                                         ...)
 
-  delaunay_network_DT_c = Giotto:::convert_to_full_spatial_network(reduced_spatial_network_DT = delaunay_network_DT)
+  delaunay_network_DT_c = convert_to_full_spatial_network(reduced_spatial_network_DT = delaunay_network_DT)
 
 
   ## create visuals
@@ -1344,11 +1363,11 @@ createSpatialKNNnetwork <- function (gobject,
   }
 
 
-  temp_fullnetwork = Giotto:::convert_to_full_spatial_network(spatial_network_DT)
+  temp_fullnetwork = convert_to_full_spatial_network(spatial_network_DT)
   if (!is.null(maximum_distance)) {
     temp_fullnetwork = temp_fullnetwork[distance <= maximum_distance | rank_int <= minimum_k]
   }
-  spatial_network_DT = Giotto:::convert_to_reduced_spatial_network(temp_fullnetwork)
+  spatial_network_DT = convert_to_reduced_spatial_network(temp_fullnetwork)
 
   ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
   ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
@@ -1358,7 +1377,7 @@ createSpatialKNNnetwork <- function (gobject,
                     "k" = k,
                     "dimensions" = dimensions)
 
-  spatial_network_Obj = Giotto:::create_spatialNetworkObject(name = name,
+  spatial_network_Obj = create_spatialNetworkObject(name = name,
                                                              method = method,
                                                              parameters = parameters,
                                                              outputObj = outputObj,

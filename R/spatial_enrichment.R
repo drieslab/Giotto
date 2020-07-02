@@ -92,6 +92,9 @@ makeSignMatrixRank <- function(sc_matrix,
   # create data.table with genes, mean expression per cluster, mean expression overall and cluster ids
   comb_dt = data.table(genes = gene_names_res, mean_expr = mean_list_res[[1]], av_expr = av_expression_res, clusters = group_list_res[[1]])
 
+  # data.table variables
+  fold = mean_expr = av_expr = rankFold = clusters = NULL
+
   # calculate fold change and rank of fold-change
   comb_dt[, fold := log2(mean_expr+1)-log2(av_expr+1)]
   comb_dt[, rankFold := frank(-fold, ties.method = 'first'), by = clusters]
@@ -114,6 +117,7 @@ makeSignMatrixRank <- function(sc_matrix,
 
 #' @title do_rank_permutation
 #' @description creates permutation for the rankEnrich test
+#' @keywords internal
 #' @examples
 #'     do_rank_permutation()
 do_rank_permutation <- function(sc_gene, n){
@@ -130,6 +134,7 @@ do_rank_permutation <- function(sc_gene, n){
 
 #' @title do_page_permutation
 #' @description creates permutation for the PAGEEnrich test
+#' @keywords internal
 #' @examples
 #'     do_page_permutation()
 do_page_permutation<-function(gobject,

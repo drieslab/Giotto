@@ -7581,6 +7581,9 @@ spatPlot2D_single = function(gobject,
   }
 
 
+  # data.table and ggplot variables
+  sdimx_begin = sdimy_begin = sdimx_end = sdimy_end = x_start = x_end = y_start = y_end = NULL
+
 
   ### create 2D plot with ggplot ###
   #cat('create 2D plot with ggplot \n')
@@ -11807,9 +11810,11 @@ plotPCA_3D = function(gobject, dim_reduction_name = 'pca', default_save_name = '
 #' @param other_cell_color color of not selected cells
 #' @param show_network show underlying spatial network
 #' @param network_color color of spatial network
+#' @param network_alpha opacity of spatial network
 #' @param spatial_network_name name of spatial network to use
 #' @param show_grid show spatial grid
 #' @param grid_color color of spatial grid
+#' @param grid_alpha opacity of spatial grid
 #' @param spatial_grid_name name of spatial grid to use
 #' @param title title of plot
 #' @param axis_scale the way to scale the axis
@@ -11848,6 +11853,7 @@ spatPlot3D = function(gobject,
                       spatial_network_name = 'Delaunay_network',
                       show_grid = F,
                       grid_color = NULL,
+                      grid_alpha = 1,
                       spatial_grid_name = 'spatial_grid',
                       title = '',
                       show_legend = T,

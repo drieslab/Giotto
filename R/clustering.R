@@ -52,8 +52,7 @@ doLeidenCluster = function(gobject,
                            n_iterations = 1000,
                            return_gobject = TRUE,
                            set_seed = T,
-                           seed_number = 1234,
-                           ...) {
+                           seed_number = 1234) {
 
   ## get cell IDs ##
   cell_ID_vec = gobject@cell_ID
@@ -199,8 +198,7 @@ doLouvainCluster_community <- function(gobject,
                                        louv_random = F,
                                        return_gobject = TRUE,
                                        set_seed = F,
-                                       seed_number = 1234,
-                                       ...) {
+                                       seed_number = 1234) {
 
 
   ## get cell IDs ##
@@ -330,8 +328,7 @@ doLouvainCluster_multinet <- function(gobject,
                                       omega = 1,
                                       return_gobject = TRUE,
                                       set_seed = F,
-                                      seed_number = 1234,
-                                      ...) {
+                                      seed_number = 1234) {
 
 
   if("multinet" %in% rownames(installed.packages()) == FALSE) {
@@ -427,11 +424,15 @@ doLouvainCluster_multinet <- function(gobject,
 #' @param network_name name of NN network to use
 #' @param python_path [community] specify specific path to python if required
 #' @param resolution [community] resolution
+#' @param louv_random [community] Will randomize the node evaluation order and the community evaluation
+#' order to get different partitions at each call
+#' @param weight_col weight column name
 #' @param gamma [multinet] Resolution parameter for modularity in the generalized louvain method.
-#' @param omega [multinet] Inter-layer weight parameter in the generalized louvain method.
+#' @param omega [multinet] Inter-layer weight parameter in the generalized louvain method
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param set_seed set seed
 #' @param seed_number number for seed
+#' @param \dots additional parameters
 #' @return giotto object with new clusters appended to cell metadata
 #' @details Louvain clustering using the community or multinet implementation of the louvain clustering algorithm.
 #' @seealso \code{\link{doLouvainCluster_community}} and \code{\link{doLouvainCluster_multinet}}
@@ -527,8 +528,7 @@ doRandomWalkCluster <- function(gobject,
                                 walk_weights = NA,
                                 return_gobject = TRUE,
                                 set_seed = F,
-                                seed_number = 1234,
-                                ...) {
+                                seed_number = 1234) {
 
   ## get cell IDs ##
   cell_ID_vec = gobject@cell_ID
@@ -627,8 +627,7 @@ doSNNCluster <- function(gobject,
                          borderPoints = TRUE,
                          return_gobject = TRUE,
                          set_seed = F,
-                         seed_number = 1234,
-                         ...) {
+                         seed_number = 1234) {
 
 
   ## get cell IDs ##
@@ -1640,7 +1639,6 @@ doLouvainSubCluster_community = function(gobject,
 #' @param k_neighbors number of k for createNearestNetwork
 #' @param gamma gamma
 #' @param omega omega
-#' @param python_path specify specific path to python if required
 #' @param nn_network_to_use type of NN network to use (kNN vs sNN)
 #' @param network_name name of NN network to use
 #' @param return_gobject boolean: return giotto object (default = TRUE)
@@ -1938,6 +1936,7 @@ doLouvainSubCluster =  function(gobject,
 #' @param nn_param parameters for parameters for createNearestNetwork
 #' @param k_neighbors number of k for createNearestNetwork
 #' @param resolution resolution
+#' @param n_iterations number of interations to run the Leiden algorithm.
 #' @param gamma gamma
 #' @param omega omega
 #' @param python_path specify specific path to python if required
@@ -1976,6 +1975,7 @@ subClusterCells <- function(gobject,
                             nn_param = list(dimensions_to_use = 1:20),
                             k_neighbors = 10,
                             resolution = 1,
+                            n_iterations = 1000,
                             gamma = 1,
                             omega = 1,
                             python_path = NULL,

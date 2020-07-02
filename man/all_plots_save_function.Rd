@@ -36,6 +36,8 @@ all_plots_save_function(
 
 \item{save_name}{name of plot}
 
+\item{default_save_name}{default name to save a plot}
+
 \item{save_format}{format (e.g. png, tiff, pdf, ...)}
 
 \item{show_saved_plot}{load & display the saved plot}

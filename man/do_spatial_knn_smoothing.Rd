@@ -39,3 +39,4 @@ means no contribution from its own expression.
 \examples{
     do_spatial_knn_smoothing(gobject)
 }
+\keyword{internal}

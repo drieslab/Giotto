@@ -9,6 +9,8 @@ cellProximitySpatPlot(gobject, ...)
 \arguments{
 \item{gobject}{giotto object}
 
+\item{\dots}{additional parameters}
+
 \item{interaction_name}{cell-cell interaction name}
 
 \item{cluster_column}{cluster column with cell clusters}

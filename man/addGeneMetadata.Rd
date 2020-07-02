@@ -13,7 +13,7 @@ addGeneMetadata(gobject, new_metadata, by_column = F, column_gene_ID = NULL)
 
 \item{by_column}{merge metadata based on gene_ID column in fDataDT}
 
-\item{column_cell_ID}{column name of new metadata to use if by_column = TRUE}
+\item{column_gene_ID}{column name of new metadata to use if by_column = TRUE}
 }
 \value{
 giotto object

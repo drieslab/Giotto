@@ -12,3 +12,4 @@ Performs limma t.test on subsets of a matrix
 \examples{
     do_limmatest()
 }
+\keyword{internal}

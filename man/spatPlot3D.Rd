@@ -24,6 +24,7 @@ spatPlot3D(
   spatial_network_name = "Delaunay_network",
   show_grid = F,
   grid_color = NULL,
+  grid_alpha = 1,
   spatial_grid_name = "spatial_grid",
   title = "",
   show_legend = T,
@@ -66,11 +67,15 @@ spatPlot3D(
 
 \item{network_color}{color of spatial network}
 
+\item{network_alpha}{opacity of spatial network}
+
 \item{spatial_network_name}{name of spatial network to use}
 
 \item{show_grid}{show spatial grid}
 
 \item{grid_color}{color of spatial grid}
+
+\item{grid_alpha}{opacity of spatial grid}
 
 \item{spatial_grid_name}{name of spatial grid to use}
 

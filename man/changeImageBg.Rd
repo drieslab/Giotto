@@ -20,6 +20,8 @@ changeImageBg(
 \item{perc_range}{range around estimated background color to include (percentage)}
 
 \item{new_color}{new background color}
+
+\item{new_name}{change name of Giotto image}
 }
 \value{
 magick image or giotto image object with updated background color

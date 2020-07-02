@@ -70,6 +70,7 @@ make_simulated_network = function(gobject,
 #' @param spatial_network_name name of spatial network to use
 #' @param cluster_column name of column to use for clusters
 #' @param number_of_simulations number of simulations to create expected observations
+#' @param adjust_method method to adjust p.values
 #' @return List of cell Proximity scores (CPscores) in data.table format. The first
 #' data.table (raw_sim_table) shows the raw observations of both the original and
 #' simulated networks. The second data.table (enrichm_res) shows the enrichment results.
@@ -284,9 +285,15 @@ addCellIntMetadata = function(gobject,
 #' @title do_ttest
 #' @name do_ttest
 #' @description Performs t.test on subsets of a matrix
+#' @keywords internal
 #' @examples
 #'     do_ttest()
-do_ttest = function(expr_values, select_ind, other_ind, adjust_method, mean_method, offset = 0.1) {
+do_ttest = function(expr_values,
+                    select_ind,
+                    other_ind,
+                    adjust_method,
+                    mean_method,
+                    offset = 0.1) {
 
   # data.table variables
   p.value = p.adj = NULL
@@ -320,9 +327,14 @@ do_ttest = function(expr_values, select_ind, other_ind, adjust_method, mean_meth
 #' @title do_limmatest
 #' @name do_limmatest
 #' @description Performs limma t.test on subsets of a matrix
+#' @keywords internal
 #' @examples
 #'     do_limmatest()
-do_limmatest = function(expr_values, select_ind, other_ind, mean_method, offset = 0.1) {
+do_limmatest = function(expr_values,
+                        select_ind,
+                        other_ind,
+                        mean_method,
+                        offset = 0.1) {
 
   # data.table variables
   sel = other = genes = P.Value = adj.P.Val = p.adj = NULL
@@ -485,6 +497,7 @@ do_permuttest_random = function(expr_values,
 #' @title do_multi_permuttest_random
 #' @name do_multi_permuttest_random
 #' @description calculate multiple random values
+#' @keywords internal
 #' @examples
 #'     do_multi_permuttest_random()
 do_multi_permuttest_random = function(expr_values,
@@ -567,6 +580,7 @@ do_permuttest = function(expr_values,
 #' @title do_cell_proximity_test
 #' @name do_cell_proximity_test
 #' @description Performs a selected differential test on subsets of a matrix
+#' @keywords internal
 #' @examples
 #'     do_cell_proximity_test()
 do_cell_proximity_test = function(expr_values,
@@ -1457,41 +1471,6 @@ combineCellProximityGenes_per_interaction =  function(cpgObject,
 }
 
 
-#' @title sort_combine_two_DT_columns
-#' @name sort_combine_two_DT_columns
-#' @description fast sorting and pasting of 2 character columns
-#' @examples
-#'     sort_combine_two_DT_columns()
-sort_combine_two_DT_columns = function(DT, column1, column2, myname = 'unif_gene_gene') {
-
-
-  # maybe faster with converting to factors??
-
-  # make sure columns are character
-  selected_columns = c(column1, column2)
-  DT[,(selected_columns):= lapply(.SD, as.character), .SDcols = selected_columns]
-
-  # convert characters into numeric values
-  uniq_values = sort(unique(c(DT[[column1]], DT[[column2]])))
-  uniq_values_num = 1:length(uniq_values)
-  names(uniq_values_num) = uniq_values
-
-
-  DT[,values_1_num := uniq_values_num[get(column1)]]
-  DT[,values_2_num := uniq_values_num[get(column2)]]
-
-
-  DT[, scolumn_1 := ifelse(values_1_num < values_2_num, get(column1), get(column2))]
-  DT[, scolumn_2 := ifelse(values_1_num < values_2_num, get(column2), get(column1))]
-
-  DT[, unif_sort_column := paste0(scolumn_1,'--',scolumn_2)]
-  DT[, c('values_1_num', 'values_2_num', 'scolumn_1', 'scolumn_2') := NULL]
-  data.table::setnames(DT, 'unif_sort_column', myname)
-
-  return(DT)
-}
-
-
 #' @title combineCellProximityGenes
 #' @name combineCellProximityGenes
 #' @description Combine CPG scores in a pairwise manner.
@@ -1950,6 +1929,10 @@ specificCellCellcommunicationScores = function(gobject,
                                                                  "BY", "none"),
                                                adjust_target = c('genes', 'cells'),
                                                verbose = T) {
+
+  # data.table variables
+  from_to = cell_ID = lig_cell_type = rec_cell_type = lig_nr = rec_nr = rand_expr = NULL
+  av_diff = log2fc = LR_expr = pvalue = LR_cell_comb = p.adj = LR_comb = PI = NULL
 
   # get parameters
   adjust_method = match.arg(adjust_method, choices = c("fdr", "bonferroni","BH", "holm", "hochberg", "hommel",
