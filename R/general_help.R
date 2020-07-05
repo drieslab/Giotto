@@ -318,7 +318,7 @@ get10Xmatrix = function(path_to_data, gene_column_index = 1) {
 
   # create a final matrix
   #matrix_ab = data.table::dcast.data.table(data = matrixDT, gene_id~cell_id, value.var = 'umi')
-  #matrix_ab_mat = Giotto:::dt_to_matrix(matrix_ab)
+  #matrix_ab_mat = dt_to_matrix(matrix_ab)
   #matrix_ab_mat[is.na(matrix_ab_mat)] = 0
 
 }

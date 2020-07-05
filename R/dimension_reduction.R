@@ -326,11 +326,11 @@ runPCA <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_values = select_expression_values(gobject = gobject, values = values)
 
   ## subset matrix
   if(!is.null(genes_to_use)) {
-    expr_values = Giotto:::create_genes_to_use_matrix(gobject = gobject,
+    expr_values = create_genes_to_use_matrix(gobject = gobject,
                                                       sel_matrix = expr_values,
                                                       genes_to_use = genes_to_use,
                                                       verbose = verbose)
@@ -375,7 +375,7 @@ runPCA <- function(gobject,
 
     }
 
-    dimObject = Giotto:::create_dimObject(name = name,
+    dimObject = create_dimObject(name = name,
                                           reduction_method = 'pca',
                                           coordinates = pca_object$coords,
                                           misc = list(eigenvalues = pca_object$eigenvalues,
@@ -565,7 +565,7 @@ screePlot = function(gobject,
         stop('only PCA methods from the irlba and factominer package have been implemented \n')
       }
 
-      dimObject = Giotto:::create_dimObject(name = name,
+      dimObject = create_dimObject(name = name,
                                             reduction_method = 'pca',
                                             coordinates = pca_object$coords,
                                             misc = list(eigenvalues = pca_object$eigenvalues,

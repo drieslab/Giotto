@@ -30,3 +30,4 @@ create background image in ggplot
 \examples{
     plot_spat_image_layer_ggplot(gobject)
 }
+\keyword{internal}

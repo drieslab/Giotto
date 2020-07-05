@@ -128,11 +128,11 @@ spatGenePlot2D(
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
-\item{...}{parameters for cowplot::save_plot()}
+\item{\dots}{additional parameters for cowplot::save_plot()}
 }
 \value{
 ggplot
@@ -148,4 +148,9 @@ Description of parameters.
 }
 \seealso{
 \code{\link{spatGenePlot3D}}
+
+Other spatial gene expression visualizations: 
+\code{\link{spatGenePlot3D}()},
+\code{\link{spatGenePlot}()}
 }
+\concept{spatial gene expression visualizations}

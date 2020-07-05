@@ -530,7 +530,7 @@ cellProximityVisPlot_2D_ggplot <- function(gobject,
         pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
       } else if(color_as_factor == T) {
         number_colors = length(unique(factor_data))
-        cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+        cell_color_code = getDistinctColors(n = number_colors)
         names(cell_color_code) = unique(factor_data)
         pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
       } else if(color_as_factor == F){
@@ -714,7 +714,7 @@ cellProximityVisPlot_2D_plotly <- function(gobject,
     if(cell_color %in% colnames(cell_locations_metadata)){
       if(is.null(cell_color_code)) {
         number_colors=length(unique(cell_locations_metadata[[cell_color]]))
-        cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+        cell_color_code = getDistinctColors(n = number_colors)
       }
       cell_locations_metadata[[cell_color]] <- as.factor(cell_locations_metadata[[cell_color]])
 
@@ -892,7 +892,7 @@ cellProximityVisPlot_3D_plotly <- function(gobject,
     if(cell_color %in% colnames(cell_locations_metadata)){
       if(is.null(cell_color_code)) {
         number_colors=length(unique(cell_locations_metadata[[cell_color]]))
-        cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+        cell_color_code = getDistinctColors(n = number_colors)
       }
       cell_locations_metadata[[cell_color]] <- as.factor(cell_locations_metadata[[cell_color]])
 
@@ -1411,7 +1411,7 @@ plotCellProximityGenes = function(gobject,
     changed_genes[, int_cell_type := factor(int_cell_type, unique(int_cell_type))]
 
     changed_genes_d = data.table::dcast.data.table(changed_genes, cell_type~int_cell_type, value.var = 'N', fill = 0)
-    changed_genes_m = Giotto:::dt_to_matrix(changed_genes_d)
+    changed_genes_m = dt_to_matrix(changed_genes_d)
 
     col_fun = circlize::colorRamp2(breaks = quantile(log2(changed_genes_m+1)),
                                    colors =  c("white", 'white', "blue", "yellow", "red"))
@@ -2130,7 +2130,7 @@ plotCCcomHeatmap = function(gobject,
   # creat matrix
   show = match.arg(show, choices = c('PI', 'LR_expr', 'log2fc'))
   selDT_d = data.table::dcast.data.table(selDT, LR_cell_comb~LR_comb, value.var = show, fill = 0)
-  selDT_m = Giotto:::dt_to_matrix(selDT_d)
+  selDT_m = dt_to_matrix(selDT_d)
 
   ## cells
   corclus_cells_dist = stats::as.dist(1-cor_giotto(x = t_giotto(selDT_m), method = cor_method))
@@ -2249,7 +2249,7 @@ plotCCcomDotplot = function(gobject,
   # creat matrix
   cluster_on = match.arg(cluster_on, choices = c('PI', 'LR_expr', 'log2fc'))
   selDT_d = data.table::dcast.data.table(selDT, LR_cell_comb~LR_comb, value.var = cluster_on, fill = 0)
-  selDT_m = Giotto:::dt_to_matrix(selDT_d)
+  selDT_m = dt_to_matrix(selDT_d)
 
   # remove zero variance
   sd_rows = apply(selDT_m, 1, sd)
@@ -2737,7 +2737,7 @@ cellProximitySpatPlot2D <- function(gobject,
         pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
       } else if(color_as_factor == T) {
         number_colors = length(unique(factor_data))
-        cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+        cell_color_code = getDistinctColors(n = number_colors)
         names(cell_color_code) = unique(factor_data)
         pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
       } else if(color_as_factor == F){

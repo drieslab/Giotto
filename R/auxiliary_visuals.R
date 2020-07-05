@@ -28,8 +28,9 @@ aes_string2 <- function(...){
 #' @param units units
 #' @param dpi Plot resolution
 #' @param limitsize When TRUE (the default), ggsave will not save images larger than 50x50 inches, to prevent the common error of specifying dimensions in pixels.
+#' @param \dots additional parameters to cowplot::save_plot
 #' @seealso \code{\link[cowplot]{save_plot}}
-#' @export
+#' @keywords internal
 #' @examples
 #'     ggplot_save_function(gobject)
 ggplot_save_function = function(gobject,
@@ -93,7 +94,8 @@ ggplot_save_function = function(gobject,
                      base_aspect_ratio = base_aspect_ratio,
                      units = units,
                      dpi = dpi,
-                     limitsize = limitsize)
+                     limitsize = limitsize,
+                     ...)
 
   # show saved plot if requested
   if(show_saved_plot == TRUE) {
@@ -136,7 +138,7 @@ ggplot_save_function = function(gobject,
 #' @param base_aspect_ratio aspect ratio
 #' @param units units
 #' @param dpi Plot resolution
-#' @export
+#' @keywords internal
 #' @examples
 #'     general_save_function(gobject)
 general_save_function = function(gobject,
@@ -270,7 +272,7 @@ general_save_function = function(gobject,
 #' @param units units
 #' @param dpi Plot resolution
 #' @param limitsize When TRUE (the default), ggsave will not save images larger than 50x50 inches, to prevent the common error of specifying dimensions in pixels.
-#' @param ... additional parameters to ggplot_save_function or general_save_function
+#' @param \dots additional parameters to ggplot_save_function or general_save_function
 #' @seealso \code{\link{general_save_function}}
 #' @export
 #' @examples
@@ -438,7 +440,7 @@ showClusterHeatmap <- function(gobject,
                                  metadata_cols = cluster_column,
                                  selected_genes = detected_genes)
   dcast_metatable = data.table::dcast.data.table(metatable, formula = variable~uniq_ID, value.var = 'value')
-  testmatrix = Giotto:::dt_to_matrix(x = dcast_metatable)
+  testmatrix = dt_to_matrix(x = dcast_metatable)
 
   # correlation
   cormatrix = cor_giotto(x = testmatrix, method = cor)
@@ -516,7 +518,7 @@ showClusterDendrogram <- function(gobject,
 
   metatable = calculateMetaTable(gobject = gobject, expression_values = values, metadata_cols = cluster_column)
   dcast_metatable = data.table::dcast.data.table(metatable, formula = variable~uniq_ID, value.var = 'value')
-  testmatrix = Giotto:::dt_to_matrix(x = dcast_metatable)
+  testmatrix = dt_to_matrix(x = dcast_metatable)
 
   # correlation
   cormatrix = cor_giotto(x = testmatrix, method = cor)
@@ -779,7 +781,9 @@ createHeatmap_DT <- function(gobject,
 #' }
 #' @export
 #' @examples
-#'     plotHeatmap(gobject)
+#' \dontrun{
+#' plotHeatmap(gobject)
+#' }
 plotHeatmap <- function(gobject,
                         expression_values = c('normalized', 'scaled', 'custom'),
                         genes,
@@ -828,7 +832,7 @@ plotHeatmap <- function(gobject,
   ## assign colors to each cluster
   if(is.null(cluster_color_code)) {
     clus_values = unique(cell_order_DT[[cluster_column]])
-    clus_colors = Giotto:::getDistinctColors(n = length(clus_values))
+    clus_colors = getDistinctColors(n = length(clus_values))
     names(clus_colors) = clus_values
   } else {
     clus_colors = cluster_color_code

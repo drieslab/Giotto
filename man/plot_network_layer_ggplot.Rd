@@ -32,3 +32,4 @@ Description of parameters.
 \examples{
     plot_network_layer_ggplot(gobject)
 }
+\keyword{internal}

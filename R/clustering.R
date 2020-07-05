@@ -663,7 +663,7 @@ doSNNCluster <- function(gobject,
   temp_igraph_DT = igraph_DT[,.(from_T, to_T, weight, distance)]
   data.table::setnames(temp_igraph_DT, old = c('from_T', 'to_T'), new = c('from', 'to'))
 
-  kNN_object = Giotto:::nnDT_to_kNN(nnDT = temp_igraph_DT)
+  kNN_object = nnDT_to_kNN(nnDT = temp_igraph_DT)
   sNN_clusters = dbscan::sNNclust(x = kNN_object, k = k, eps = eps,
                                   minPts = minPts, borderPoints = borderPoints)
 

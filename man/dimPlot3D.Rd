@@ -88,7 +88,7 @@ dimPlot3D(
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
@@ -107,3 +107,18 @@ Description of parameters.
     dimPlot3D(gobject)
 
 }
+\seealso{
+Other reduced dimension visualizations: 
+\code{\link{dimPlot2D}()},
+\code{\link{dimPlot}()},
+\code{\link{plotPCA_2D}()},
+\code{\link{plotPCA_3D}()},
+\code{\link{plotPCA}()},
+\code{\link{plotTSNE_2D}()},
+\code{\link{plotTSNE_3D}()},
+\code{\link{plotTSNE}()},
+\code{\link{plotUMAP_2D}()},
+\code{\link{plotUMAP_3D}()},
+\code{\link{plotUMAP}()}
+}
+\concept{reduced dimension visualizations}

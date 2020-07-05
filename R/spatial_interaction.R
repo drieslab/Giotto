@@ -704,7 +704,7 @@ findCellProximityGenes_per_interaction = function(expr_values,
        length(sel_ind2) < minimum_unique_int_cells) {
       result_cell_1 = NULL
     } else {
-      result_cell_1 = Giotto:::do_cell_proximity_test(expr_values = expr_values,
+      result_cell_1 = do_cell_proximity_test(expr_values = expr_values,
                                                       select_ind = sel_ind1,
                                                       other_ind = all_ind1,
                                                       diff_test = diff_test,
@@ -728,7 +728,7 @@ findCellProximityGenes_per_interaction = function(expr_values,
        length(sel_ind1) < minimum_unique_int_cells) {
       result_cell_2 = NULL
     } else {
-      result_cell_2 = Giotto:::do_cell_proximity_test(expr_values = expr_values,
+      result_cell_2 = do_cell_proximity_test(expr_values = expr_values,
                                                       select_ind = sel_ind2, other_ind = all_ind2,
                                                       diff_test = diff_test,
                                                       n_perm = nr_permutations,
@@ -781,7 +781,7 @@ findCellProximityGenes_per_interaction = function(expr_values,
       return(NULL)
     }
 
-    result_cells = Giotto:::do_cell_proximity_test(expr_values = expr_values,
+    result_cells = do_cell_proximity_test(expr_values = expr_values,
                                                    select_ind = sel_ind1, other_ind = all_ind1,
                                                    diff_test = diff_test,
                                                    n_perm = nr_permutations,
@@ -870,7 +870,7 @@ findCellProximityGenes = function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_values = select_expression_values(gobject = gobject, values = values)
 
   ## test selected genes ##
   if(!is.null(selected_genes)) {

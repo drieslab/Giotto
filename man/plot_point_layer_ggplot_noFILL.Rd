@@ -89,3 +89,4 @@ Description of parameters.
 \examples{
     plot_point_layer_ggplot_noFILL(gobject)
 }
+\keyword{internal}

@@ -101,7 +101,7 @@ makeSignMatrixRank <- function(sc_matrix,
 
   # create matrix
   comb_rank_mat = data.table::dcast.data.table(data = comb_dt, genes~clusters, value.var = 'rankFold')
-  comb_rank_matrix = Giotto:::dt_to_matrix(comb_rank_mat)
+  comb_rank_matrix = dt_to_matrix(comb_rank_mat)
   comb_rank_matrix = comb_rank_matrix[rownames(sc_matrix), unique(sc_cluster_ids)]
 
 

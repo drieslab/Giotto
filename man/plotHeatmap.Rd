@@ -94,5 +94,7 @@ If you want to display many genes there are 2 ways to proceed:
 }
 }
 \examples{
-    plotHeatmap(gobject)
+\dontrun{
+plotHeatmap(gobject)
+}
 }

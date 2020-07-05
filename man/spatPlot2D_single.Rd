@@ -181,3 +181,4 @@ Description of parameters.
 \seealso{
 \code{\link{spatPlot3D}}
 }
+\keyword{internal}

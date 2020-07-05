@@ -1366,7 +1366,7 @@ addCellMetadata <- function(gobject,
     cell_metadata = cbind(cell_metadata, new_metadata)
   } else {
     if(is.null(column_cell_ID)) stop('You need to provide cell_ID column')
-    cell_metadata <- data.table:::merge.data.table(cell_metadata, by.x = 'cell_ID',
+    cell_metadata <- data.table::merge.data.table(cell_metadata, by.x = 'cell_ID',
                                                    new_metadata, by.y = column_cell_ID,
                                                    all.x = T)
   }
@@ -1408,7 +1408,7 @@ addGeneMetadata <- function(gobject,
     gene_metadata = cbind(gene_metadata, new_metadata)
   } else {
     if(is.null(column_gene_ID)) stop('You need to provide gene_ID column')
-    gene_metadata <- data.table:::merge.data.table(gene_metadata, by.x = 'gene_ID',
+    gene_metadata <- data.table::merge.data.table(gene_metadata, by.x = 'gene_ID',
                                                    new_metadata, by.y = column_gene_ID,
                                                    all.x = T)
   }
@@ -1931,7 +1931,7 @@ createMetagenes = function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_values = select_expression_values(gobject = gobject, values = values)
 
 
   ## calculate metagene ##
