@@ -8840,11 +8840,13 @@ dimGenePlot = function(...) {
 #' @param show_NN_network show underlying NN network
 #' @param nn_network_to_use type of NN network to use (kNN vs sNN)
 #' @param network_name name of NN network to use, if show_NN_network = TRUE
+#' @param dim_network_color color of NN network
 #' @param edge_alpha_dim dim reduction plot: column to use for alpha of the edges
 #' @param scale_alpha_with_expression scale expression with ggplot alpha parameter
 #' @param sdimx spatial x-axis dimension name (default = 'sdimx')
 #' @param sdimy spatial y-axis dimension name (default = 'sdimy')
 #' @param spatial_network_name name of spatial network to use
+#' @param spatial_network_color color of spatial network
 #' @param spatial_grid_name name of spatial grid to use
 #' @param spat_point_shape spatial points with border or not (border or no_border)
 #' @param spat_point_size spatial plot: point size
@@ -8897,6 +8899,7 @@ spatDimGenePlot2D <- function(gobject,
                               dim_point_border_stroke = 0.1,
                               show_NN_network = F,
                               show_spatial_network = F,
+                              dim_network_color = 'gray',
                               show_spatial_grid = F,
                               nn_network_to_use = 'sNN',
                               network_name = 'sNN.pca',
@@ -8905,6 +8908,7 @@ spatDimGenePlot2D <- function(gobject,
                               sdimx = 'sdimx',
                               sdimy = 'sdimy',
                               spatial_network_name = 'Delaunay_network',
+                              spatial_network_color = NULL,
                               spatial_grid_name = 'spatial_grid',
                               spat_point_shape = c('border', 'no_border', 'voronoi'),
                               spat_point_size = 1,
@@ -8945,8 +8949,8 @@ spatDimGenePlot2D <- function(gobject,
                        dim2_to_use = dim2_to_use,
                        show_NN_network = show_NN_network,
                        nn_network_to_use = nn_network_to_use,
-                       network_name =network_name,
-                       network_color = network_color,
+                       network_name = network_name,
+                       network_color = dim_network_color,
                        edge_alpha = edge_alpha,
                        scale_alpha_with_expression = scale_alpha_with_expression,
                        point_shape = dim_point_shape,
@@ -8983,7 +8987,7 @@ spatDimGenePlot2D <- function(gobject,
                        gradient_midpoint = gradient_midpoint,
                        gradient_limits = gradient_limits,
                        show_network = show_spatial_network,
-                       network_color = network_color,
+                       network_color = spatial_network_color,
                        spatial_network_name = spatial_network_name,
                        edge_alpha = edge_alpha,
                        show_grid = show_spatial_grid,

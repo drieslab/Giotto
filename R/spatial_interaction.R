@@ -2168,6 +2168,10 @@ spatCellCellcom = function(gobject,
   }
 
   finalDT = do.call('rbind', savelist)
+
+  # data.table variables
+  LR_comb = LR_expr = NULL
+
   data.table::setorder(finalDT, LR_comb, -LR_expr)
 
   return(finalDT)

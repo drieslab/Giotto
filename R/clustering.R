@@ -360,7 +360,7 @@ doLouvainCluster_multinet <- function(gobject,
   # data.table variables
   cell_ID = actor = weight_col = NULL
 
-  louvain_clusters = multinet::glouvain_ml(mlnetwork = mln_object, gamma = gamma, omega = omega, ...)
+  louvain_clusters = multinet::glouvain_ml(mlnetwork = mln_object, gamma = gamma, omega = omega)
   ident_clusters_DT = data.table::as.data.table(louvain_clusters)
   ident_clusters_DT[, cell_ID := actor]
   data.table::setnames(ident_clusters_DT, 'cid', name)
@@ -486,7 +486,6 @@ doLouvainCluster = function(gobject,
                                        network_name = network_name,
                                        gamma = gamma,
                                        omega = omega,
-                                       weight_col = weight_col,
                                        return_gobject = return_gobject,
                                        set_seed = set_seed,
                                        seed_number = seed_number,
@@ -2098,6 +2097,10 @@ getClusterSimilarity <- function(gobject,
   # get clustersize
   clustersize = metadata[, .N, by = cluster_column]
   colnames(clustersize) = c('clusters', 'size')
+
+  # data.table variables
+  clusters = NULL
+
   clustersize[, clusters := as.character(clusters)]
 
   # scores per cluster

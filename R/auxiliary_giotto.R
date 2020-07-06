@@ -799,6 +799,9 @@ filterCombinations <- function(gobject,
   # data.table variables
   # gene_detected_in_min_cells = min_detected_genes_per_cell = combination = NULL
 
+  # data.table variables
+  gene_detected_in_min_cells = min_detected_genes_per_cell = combination = NULL
+
   result_DT[['gene_detected_in_min_cells']] = gene_det_in_min_cells
   result_DT[['min_detected_genes_per_cell']] = min_det_genes_per_cell
   result_DT[['combination']] = paste0(result_DT$gene_detected_in_min_cells,'-',result_DT$min_detected_genes_per_cell)

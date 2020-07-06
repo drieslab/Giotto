@@ -1413,7 +1413,7 @@ plotCellProximityGenes = function(gobject,
     changed_genes_d = data.table::dcast.data.table(changed_genes, cell_type~int_cell_type, value.var = 'N', fill = 0)
     changed_genes_m = dt_to_matrix(changed_genes_d)
 
-    col_fun = circlize::colorRamp2(breaks = quantile(log2(changed_genes_m+1)),
+    col_fun = circlize::colorRamp2(breaks = stats::quantile(log2(changed_genes_m+1)),
                                    colors =  c("white", 'white', "blue", "yellow", "red"))
 
     heatm = ComplexHeatmap::Heatmap(log2(changed_genes_m+1), col = col_fun,

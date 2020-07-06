@@ -1147,6 +1147,9 @@ selectPatternGenes <- function(spatPatObj,
     stop('\n spatPatObj needs to be the output from detectSpatialPatterns \n')
   }
 
+  # data.table variables
+  top_pos_rank = value = top_neg_rank = topvalue = gene_ID = variable = NULL
+
 
   # select PC to use
   selected_PCs = paste0('Dim.', dimensions)
@@ -1529,6 +1532,9 @@ showSpatialCorGenes = function(spatCorObject,
                                min_cor_diff = NULL,
                                min_rank_diff = NULL,
                                show_top_genes = NULL) {
+
+  # data.table variables
+  clus = gene_ID = spat_cor = cor_diff = rankdiff = NULL
 
   if(!'spatCorObject' %in% class(spatCorObject)) {
     stop('\n spatCorObject needs to be the output from detectSpatialCorGenes() \n')

@@ -525,7 +525,7 @@ showClusterDendrogram <- function(gobject,
   cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
   corclus = stats::hclust(d = cordist, method = distance)
 
-  cordend = as.dendrogram(object = corclus)
+  cordend = stats::as.dendrogram(object = corclus)
 
   # plot dendrogram
   pl = ggdendro::ggdendrogram(cordend, rotate = rotate, ...)
