@@ -394,8 +394,8 @@ calculate_distance_and_weight <- function(networkDT = NULL,
     stop('parameter networkDT can not be NULL \n')
   }
 
-  # number of spatial dimensions
-  d2_or_d3 = match.arg(d2_or_d3, choices = c(2,3))
+  # number of spatial dimensions TODO: chech with Huipeng!
+  # d2_or_d3 = match.arg(d2_or_d3, choices = c(2,3))
 
   if (d2_or_d3==3){
     ## make it dynamic for all possible coordinates combinations ##
@@ -977,7 +977,7 @@ create_delaunayNetwork3D <- function (gobject,
 createSpatialDelaunayNetwork <- function(gobject,
                                             method = c("deldir", "delaunayn_geometry", "RTriangle"),
                                             dimensions = "all",
-                                            name = "delaunay_network",
+                                            name = "Delaunay_network",
                                             maximum_distance = "auto", # all
                                             minimum_k = 0, # all
                                             options = "Pp", # geometry
