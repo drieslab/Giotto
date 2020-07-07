@@ -34,6 +34,8 @@ createCrossSection(
 
 \item{thickness_unit}{unit of the virtual section thickness. If "cell", average size of the observed cells is used as length unit. If "natural", the unit of cell location coordinates is used.(default = cell)}
 
+\item{slice_thickness}{thickness of slice}
+
 \item{cell_distance_estimate_method}{method to estimate average distance between neighobring cells. (default = mean)}
 
 \item{extend_ratio}{deciding the span of the cross section meshgrid, as a ratio of extension compared to the borders of the vitural tissue section. (default = 0.2)}
@@ -71,7 +73,4 @@ Create a virtual 2D cross section.
 }
 \details{
 Creates a virtual 2D cross section object for a given spatial network object. The users need to provide the definition of the cross section plane (see method).
-}
-\examples{
-
 }

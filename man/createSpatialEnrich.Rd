@@ -35,6 +35,8 @@ createSpatialEnrich(
 
 \item{p_value}{calculate p-value (default = FALSE)}
 
+\item{n_genes}{(page) number of genes of permutation iterations to calculate p-value}
+
 \item{n_times}{(page/rank) number of permutation iterations to calculate p-value}
 
 \item{top_percentage}{(hyper) percentage of cells that will be considered to have gene expression with matrix binarization}
