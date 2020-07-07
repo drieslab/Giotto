@@ -8,7 +8,7 @@ createSpatialDelaunayNetwork(
   gobject,
   method = c("deldir", "delaunayn_geometry", "RTriangle"),
   dimensions = "all",
-  name = "delaunay_network",
+  name = "Delaunay_network",
   maximum_distance = "auto",
   minimum_k = 0,
   options = "Pp",

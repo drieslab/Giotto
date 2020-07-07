@@ -23,6 +23,7 @@ spatDimGenePlot2D(
   dim_point_border_stroke = 0.1,
   show_NN_network = F,
   show_spatial_network = F,
+  dim_network_color = "gray",
   show_spatial_grid = F,
   nn_network_to_use = "sNN",
   network_name = "sNN.pca",
@@ -31,6 +32,7 @@ spatDimGenePlot2D(
   sdimx = "sdimx",
   sdimy = "sdimy",
   spatial_network_name = "Delaunay_network",
+  spatial_network_color = NULL,
   spatial_grid_name = "spatial_grid",
   spat_point_shape = c("border", "no_border", "voronoi"),
   spat_point_size = 1,
@@ -95,6 +97,8 @@ spatDimGenePlot2D(
 
 \item{show_NN_network}{show underlying NN network}
 
+\item{dim_network_color}{color of NN network}
+
 \item{nn_network_to_use}{type of NN network to use (kNN vs sNN)}
 
 \item{network_name}{name of NN network to use, if show_NN_network = TRUE}
@@ -108,6 +112,8 @@ spatDimGenePlot2D(
 \item{sdimy}{spatial y-axis dimension name (default = 'sdimy')}
 
 \item{spatial_network_name}{name of spatial network to use}
+
+\item{spatial_network_color}{color of spatial network}
 
 \item{spatial_grid_name}{name of spatial grid to use}
 

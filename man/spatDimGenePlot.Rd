@@ -29,11 +29,13 @@ spatDimGenePlot(...)
     \item{\code{show_NN_network}}{show underlying NN network}
     \item{\code{nn_network_to_use}}{type of NN network to use (kNN vs sNN)}
     \item{\code{network_name}}{name of NN network to use, if show_NN_network = TRUE}
+    \item{\code{dim_network_color}}{color of NN network}
     \item{\code{edge_alpha_dim}}{dim reduction plot: column to use for alpha of the edges}
     \item{\code{scale_alpha_with_expression}}{scale expression with ggplot alpha parameter}
     \item{\code{sdimx}}{spatial x-axis dimension name (default = 'sdimx')}
     \item{\code{sdimy}}{spatial y-axis dimension name (default = 'sdimy')}
     \item{\code{spatial_network_name}}{name of spatial network to use}
+    \item{\code{spatial_network_color}}{color of spatial network}
     \item{\code{spatial_grid_name}}{name of spatial grid to use}
     \item{\code{spat_point_shape}}{spatial points with border or not (border or no_border)}
     \item{\code{spat_point_size}}{spatial plot: point size}
