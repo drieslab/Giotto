@@ -12,3 +12,4 @@ gini coefficient
 \description{
 calculate gini coefficient on a minimum length vector
 }
+\keyword{internal}

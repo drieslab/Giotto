@@ -17,6 +17,7 @@ plot_point_layer_ggplot_noFILL(
   select_cell_groups = NULL,
   select_cells = NULL,
   point_size = 1,
+  point_alpha = 1,
   show_cluster_center = F,
   show_center_label = T,
   center_point_size = 4,
@@ -52,6 +53,8 @@ plot_point_layer_ggplot_noFILL(
 
 \item{point_size}{size of point (cell)}
 
+\item{point_alpha}{transparancy of point}
+
 \item{show_cluster_center}{plot center of selected clusters}
 
 \item{show_center_label}{plot label of selected clusters}
@@ -86,3 +89,4 @@ Description of parameters.
 \examples{
     plot_point_layer_ggplot_noFILL(gobject)
 }
+\keyword{internal}

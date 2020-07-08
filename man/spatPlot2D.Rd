@@ -6,6 +6,9 @@
 \usage{
 spatPlot2D(
   gobject,
+  show_image = F,
+  gimage = NULL,
+  image_name = "image",
   group_by = NULL,
   group_by_subset = NULL,
   sdimx = "sdimx",
@@ -19,8 +22,9 @@ spatPlot2D(
   gradient_limits = NULL,
   select_cell_groups = NULL,
   select_cells = NULL,
-  point_shape = c("border", "no_border"),
+  point_shape = c("border", "no_border", "voronoi"),
   point_size = 3,
+  point_alpha = 1,
   point_border_col = "black",
   point_border_stroke = 0.1,
   show_cluster_center = F,
@@ -31,7 +35,7 @@ spatPlot2D(
   label_size = 4,
   label_fontface = "bold",
   show_network = F,
-  spatial_network_name = "spatial_network",
+  spatial_network_name = "Delaunay_network",
   network_color = NULL,
   network_alpha = 1,
   show_grid = F,
@@ -47,6 +51,9 @@ spatPlot2D(
   legend_text = 8,
   legend_symbol_size = 1,
   background_color = "white",
+  vor_border_color = "white",
+  vor_max_radius = 200,
+  vor_alpha = 1,
   axis_text = 8,
   axis_title = 8,
   cow_n_col = 2,
@@ -62,6 +69,12 @@ spatPlot2D(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{show_image}{show a tissue background image}
+
+\item{gimage}{a giotto image}
+
+\item{image_name}{name of a giotto image}
 
 \item{group_by_subset}{subset the group_by factor column}
 
@@ -87,9 +100,11 @@ spatPlot2D(
 
 \item{select_cells}{select subset of cells based on cell IDs}
 
-\item{point_shape}{point with border or not (border or no_border)}
+\item{point_shape}{shape of points (border, no_border or voronoi)}
 
 \item{point_size}{size of point (cell)}
+
+\item{point_alpha}{transparancy of point}
 
 \item{point_border_col}{color of border around points}
 
@@ -139,6 +154,12 @@ spatPlot2D(
 
 \item{background_color}{color of plot background}
 
+\item{vor_border_color}{border colorr for voronoi plot}
+
+\item{vor_max_radius}{maximum radius for voronoi 'cells'}
+
+\item{vor_alpha}{transparancy of voronoi 'cells'}
+
 \item{axis_text}{size of axis text}
 
 \item{axis_title}{size of axis title}
@@ -157,7 +178,7 @@ spatPlot2D(
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
@@ -177,4 +198,9 @@ Description of parameters.
 }
 \seealso{
 \code{\link{spatPlot3D}}
+
+Other spatial visualizations: 
+\code{\link{spatPlot3D}()},
+\code{\link{spatPlot}()}
 }
+\concept{spatial visualizations}

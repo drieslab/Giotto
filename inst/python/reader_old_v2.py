@@ -13,8 +13,8 @@ from scipy.stats import zscore
 from scipy.spatial.distance import euclidean, squareform, pdist
 import smfishHmrf.reader as reader
 import pandas as pd
-import matplotlib as mpl
-import matplotlib.pyplot as plt
+#import matplotlib as mpl
+#import matplotlib.pyplot as plt
 import seaborn as sns
 from smfishHmrf.bias_correction import calc_bias_moving, do_pca, plot_pca
 from scipy.cluster.vq import kmeans2
@@ -118,7 +118,7 @@ if __name__=="__main__":
 	parser.add_argument("-e", "--expression", dest="expression", type=str, required=True)
 	parser.add_argument("-o", "--outdir", dest="outdir", type=str, required=True)
 	parser.add_argument("-a", "--name", dest="name", type=str, required=True)
-	
+
 	parser.add_argument("-k", "--k", dest="k", type=int, required=True)
 	parser.add_argument("-b", "--betas", help="three numbers: start_beta, beta_increment, num_beta (e.g. 0 2.0 50)", nargs=3, dest="betas", type=float, required=True)
 	parser.add_argument("-t", "--tolerance", dest="tolerance", type=float, help="tolerance value", default=1e-10)
@@ -128,15 +128,15 @@ if __name__=="__main__":
 	args = parser.parse_args()
 
 	#print args
-	#sys.exit(0)	
-	
+	#sys.exit(0)
+
 	mat, genes, cells = read_expression_classic(args.expression)
 	print("Done reading expression")
 	Xcen, field = read_centroid(args.location, cells)
 	print("Done reading location")
 
 	#mat = pd.read_table(args.expression, sep=" ", header=0, index_col=0)
-	
+
 	#print mat.index
 	'''
 	genes = []
@@ -147,9 +147,9 @@ if __name__=="__main__":
 	'''
 	genes_good = reader.read_genes(args.genes)
 	expr = mat
-	
 
-	new_dset = DatasetMatrixSingleField(expr, genes, None, Xcen)	
+
+	new_dset = DatasetMatrixSingleField(expr, genes, None, Xcen)
 	edges = read_graph(args.network, cells)
 	print("Done reading graph")
 	points = set([])
@@ -161,7 +161,7 @@ if __name__=="__main__":
 	ngene = expr.shape[0]
 	#print ncell, ngene
 
-	'''	
+	'''
 	dist = pdist(Xcen, metric="euclidean")
 	dist = squareform(dist)
 	for i in range(ncell):
@@ -198,7 +198,7 @@ if __name__=="__main__":
 		import smfishHmrf
 		this_path = os.path.dirname(smfishHmrf.__file__) + "/graphColoring"
 		subprocess.call("java -cp %s -Xmx32g -Xms32g GraphColoring %s %s" % (this_path, edge_file, block_file), shell=True)
-		
+
 		f = open(block_file)
 		b_ind = 0
 		for l in f:
@@ -231,7 +231,7 @@ if __name__=="__main__":
 	elif args.zscore=="rowcol":
 		t_dset.expr = zscore(t_dset.expr, axis=1) #per row (gene)
 		t_dset.expr = zscore(t_dset.expr, axis=0) #per col (cell)
-		
+
 	outdir = args.outdir
 	st_beta, incr_beta, num_beta = args.betas
 	st_beta = float(st_beta)

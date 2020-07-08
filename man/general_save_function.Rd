@@ -52,3 +52,4 @@ Function to automatically save plots to directory of interest
 \examples{
     general_save_function(gobject)
 }
+\keyword{internal}

@@ -32,7 +32,18 @@
 #'
 #' @export
 #' @examples
-#'     calculateHVG(gobject)
+#' # 1. create giotto object
+#' expr_path = system.file("extdata", "seqfish_field_expr.txt", package = 'Giotto')
+#' loc_path = system.file("extdata", "seqfish_field_locs.txt", package = 'Giotto')
+#' VC_small <- createGiottoObject(raw_exprs = expr_path, spatial_locs = loc_path)
+#'
+#' # 2. normalize giotto
+#' VC_small <- normalizeGiotto(gobject = VC_small, scalefactor = 6000)
+#' VC_small <- addStatistics(gobject = VC_small)
+#'
+#' # 3. highly variable genes detection
+#' VC_small <- calculateHVG(gobject = VC_small)
+#'
 calculateHVG <- function(gobject,
                          expression_values = c('normalized', 'scaled', 'custom'),
                          method = c('cov_groups','cov_loess'),
@@ -50,10 +61,11 @@ calculateHVG <- function(gobject,
                          default_save_name = 'HVGplot',
                          return_gobject = TRUE) {
 
+  sd = cov = mean_expr = gini = cov_group_zscore = selected = cov_diff = pred_cov_genes = genes = NULL
 
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_values = select_expression_values(gobject = gobject, values = values)
 
   # method to use
   method = match.arg(method, choices = c('cov_groups', 'cov_loess'))
@@ -64,18 +76,13 @@ calculateHVG <- function(gobject,
   }
 
   ## create data.table with relevant statistics ##
-  gene_in_cells_detected <- data.table(genes = rownames(expr_values),
-                                       nr_cells = rowSums(expr_values > expression_threshold),
-                                       total_expr = rowSums(expr_values),
-                                       mean_expr = rowMeans(expr_values),
+  gene_in_cells_detected <- data.table::data.table(genes = rownames(expr_values),
+                                       nr_cells = rowSums_giotto(expr_values > expression_threshold),
+                                       total_expr = rowSums_giotto(expr_values),
+                                       mean_expr = rowMeans_giotto(expr_values),
                                        sd = unlist(apply(expr_values, 1, sd)))
   gene_in_cells_detected[, cov := (sd/mean_expr)]
-  gini_level <- unlist(apply(expr_values, MARGIN = 1, FUN = function(x) {
-
-    gini = Giotto:::mygini_fun(x)
-    return(gini)
-
-  }))
+  gini_level <- unlist(apply(expr_values, MARGIN = 1, mygini_fun))
   gene_in_cells_detected[, gini := gini_level]
 
 
@@ -100,13 +107,13 @@ calculateHVG <- function(gobject,
     gene_in_cells_detected[, selected := ifelse(cov_group_zscore > zscore_threshold, 'yes', 'no')]
 
     pl <- ggplot2::ggplot()
-    pl <- pl + ggplot2::theme_classic() + theme(axis.title = element_text(size = 14),
-                                                axis.text = element_text(size = 12))
-    pl <- pl + ggplot2::geom_point(data = gene_in_cells_detected, aes(x = mean_expr, y = cov, color = selected))
-    pl <- pl + scale_color_manual(values = c(no = 'lightgrey', yes = 'orange'), guide = guide_legend(title = 'HVG',
+    pl <- pl + ggplot2::theme_classic() + ggplot2::theme(axis.title = ggplot2::element_text(size = 14),
+                                                axis.text = ggplot2::element_text(size = 12))
+    pl <- pl + ggplot2::geom_point(data = gene_in_cells_detected, ggplot2::aes(x = mean_expr, y = cov, color = selected))
+    pl <- pl + ggplot2::scale_color_manual(values = c(no = 'lightgrey', yes = 'orange'), guide = ggplot2::guide_legend(title = 'HVG',
                                                                                                      override.aes = list(size=5)))
     pl <- pl + ggplot2::facet_wrap(~expr_groups, ncol = nr_expression_groups, scales = 'free_x')
-    pl <- pl + ggplot2::theme(axis.text.x = element_blank(), strip.text = element_text(size = 4))
+    pl <- pl + ggplot2::theme(axis.text.x = ggplot2::element_blank(), strip.text = ggplot2::element_text(size = 4))
     pl <- pl + ggplot2::labs(x = 'expression groups', y = 'cov')
 
   } else {
@@ -117,22 +124,22 @@ calculateHVG <- function(gobject,
       var_col = 'cov'
     }
 
-    loess_model_sample <- stats::loess(loess_formula, data = gene_in_cells_detected)
-    gene_in_cells_detected$pred_cov_genes <- predict(loess_model_sample, newdata = gene_in_cells_detected)
+    loess_model_sample = stats::loess(loess_formula, data = gene_in_cells_detected)
+    gene_in_cells_detected$pred_cov_genes = stats::predict(loess_model_sample, newdata = gene_in_cells_detected)
     gene_in_cells_detected[, cov_diff := get(var_col)-pred_cov_genes, by = 1:nrow(gene_in_cells_detected)]
-    setorder(gene_in_cells_detected, -cov_diff)
+    data.table::setorder(gene_in_cells_detected, -cov_diff)
     gene_in_cells_detected[, selected := ifelse(cov_diff > difference_in_cov, 'yes', 'no')]
 
 
     pl <- ggplot2::ggplot()
-    pl <- pl + ggplot2::theme_classic() + theme(axis.title = element_text(size = 14),
-                                                axis.text = element_text(size = 12))
-    pl <- pl + ggplot2::geom_point(data = gene_in_cells_detected, aes_string(x = 'log(mean_expr)', y = var_col, color = 'selected'))
-    pl <- pl + ggplot2::geom_line(data = gene_in_cells_detected, aes_string(x = 'log(mean_expr)', y = 'pred_cov_genes'), color = 'blue')
+    pl <- pl + ggplot2::theme_classic() + ggplot2::theme(axis.title = ggplot2::element_text(size = 14),
+                                                axis.text = ggplot2::element_text(size = 12))
+    pl <- pl + ggplot2::geom_point(data = gene_in_cells_detected, ggplot2::aes_string(x = 'log(mean_expr)', y = var_col, color = 'selected'))
+    pl <- pl + ggplot2::geom_line(data = gene_in_cells_detected, ggplot2::aes_string(x = 'log(mean_expr)', y = 'pred_cov_genes'), color = 'blue')
     hvg_line = paste0('pred_cov_genes+',difference_in_cov)
-    pl <- pl + ggplot2::geom_line(data = gene_in_cells_detected, aes_string(x = 'log(mean_expr)', y = hvg_line), linetype = 2)
+    pl <- pl + ggplot2::geom_line(data = gene_in_cells_detected, ggplot2::aes_string(x = 'log(mean_expr)', y = hvg_line), linetype = 2)
     pl <- pl + ggplot2::labs(x = 'log(mean expression)', y = var_col)
-    pl <- pl + scale_color_manual(values = c(no = 'lightgrey', yes = 'orange'), guide = guide_legend(title = 'HVG',
+    pl <- pl + ggplot2::scale_color_manual(values = c(no = 'lightgrey', yes = 'orange'), guide = ggplot2::guide_legend(title = 'HVG',
                                                                                                      override.aes = list(size=5)))
 
 
@@ -159,7 +166,7 @@ calculateHVG <- function(gobject,
   if(return_plot == TRUE) {
     if(return_gobject == TRUE) {
       cat('return_plot = TRUE and return_gobject = TRUE \n
-          plot will not be returned to object, but can still be saved with save_plot = TRUE or manually')
+          plot will not be returned to object, but can still be saved with save_plot = TRUE or manually \n')
     } else {
       return(pl)
     }
@@ -185,7 +192,7 @@ calculateHVG <- function(gobject,
     }
 
     HVGgenes = gene_in_cells_detected[,.(genes, selected)]
-    setnames(HVGgenes, 'selected', HVGname)
+    data.table::setnames(HVGgenes, 'selected', HVGname)
     gobject <- addGeneMetadata(gobject = gobject, new_metadata = HVGgenes, by_column = T, column_gene_ID = 'genes')
 
 

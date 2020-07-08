@@ -6,7 +6,7 @@
 \usage{
 make_simulated_network(
   gobject,
-  spatial_network_name = "spatial_network",
+  spatial_network_name = "Delaunay_network",
   cluster_column,
   number_of_simulations = 100
 )

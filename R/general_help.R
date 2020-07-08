@@ -4,6 +4,7 @@
 #' @description Returns a number of distint colors based on the RGB scale
 #' @param n number of colors wanted
 #' @return number of distinct colors
+#' @export
 getDistinctColors <- function(n) {
   qual_col_pals <- RColorBrewer::brewer.pal.info[RColorBrewer::brewer.pal.info$category == 'qual',]
   col_vector <- unique(unlist(mapply(RColorBrewer::brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals))));
@@ -28,7 +29,7 @@ getDistinctColors <- function(n) {
   } else {
 
     xxx <- grDevices::col2rgb(col_vector);
-    dist_mat <- as.matrix(dist(t(xxx)));
+    dist_mat <- as.matrix(stats::dist(t(xxx)));
     diag(dist_mat) <- 1e10;
     while (length(col_vector) > n) {
       minv <- apply(dist_mat,1,function(x)min(x));
@@ -42,23 +43,54 @@ getDistinctColors <- function(n) {
 }
 
 
+#' @title get_os
+#' @description return the type of operating system, see https://conjugateprior.org/2015/06/identifying-the-os-from-r/
+#' @return character osx, linux or windows
+get_os <- function(){
+
+  if(.Platform[['OS.type']] == 'windows') {
+    os = 'windows'
+  } else {
+
+    sysinf <- Sys.info()
+    if (!is.null(sysinf)){
+      os = sysinf['sysname']
+      if (os == 'Darwin')
+        os = "osx"
+    } else { ## mystery machine
+      os = .Platform$OS.type
+      if (grepl("^darwin", R.version$os))
+        os = "osx"
+      if (grepl("linux-gnu", R.version$os))
+        os = "linux"
+    }
+
+  }
+  return(tolower(os))
+}
+
+
+
 #' @title dt_to_matrix
 #' @description converts data.table to matrix
+#' @param x data.table object
+#' @keywords internal
 #' @examples
 #'     dt_to_matrix(x)
 dt_to_matrix <- function(x) {
   rownames = as.character(x[[1]])
-  mat = as.matrix(x[,-1])
+  mat = methods::as(as.matrix(x[,-1]), 'Matrix')
   rownames(mat) = rownames
   return(mat)
 }
 
 
-
 #' @title mygini_fun
 #' @description calculate gini coefficient
+#' @keywords internal
 #' @return gini coefficient
-mygini_fun <- function(x, weights = rep(1,length(x))) {
+mygini_fun <- function(x,
+                       weights = rep(1,length(x))) {
 
   # adapted from R package GiniWegNeg
   dataset = cbind(x, weights)
@@ -85,8 +117,11 @@ mygini_fun <- function(x, weights = rep(1,length(x))) {
 
 #' @title extended_gini_fun
 #' @description calculate gini coefficient on a minimum length vector
+#' @keywords internal
 #' @return gini coefficient
-extended_gini_fun <- function(x, weights = rep(1, length = length(x)), minimum_length = 16) {
+extended_gini_fun <- function(x,
+                              weights = rep(1, length = length(x)),
+                              minimum_length = 16) {
 
   if(length(x) < minimum_length) {
     difference = minimum_length - length(x)
@@ -131,6 +166,10 @@ stitchFieldCoordinates <- function(location_file,
                                    Y_coord_col = 'Y',
                                    reverse_final_x = F,
                                    reverse_final_y = T) {
+
+
+  # data.table variables
+  x_offset_final = x_offset = y_offset_final = y_offset = field = NULL
 
 
   # cumulate offset values or not for offset file
@@ -181,26 +220,60 @@ stitchFieldCoordinates <- function(location_file,
 }
 
 
+#' @title stitchTileCoordinates
+#' @description Helper function to stitch tile coordinates together to form one complete picture
+#' @param location_file location dataframe with X and Y coordinates
+#' @param Xtilespan numerical value specifying the width of each tile
+#' @param Ytilespan numerical value specifying the height of each tile
+#' @details ...
+#' @export
+#' @examples
+#'     stitchTileCoordinates(gobject)
+stitchTileCoordinates <- function (location_file,
+                                   Xtilespan,
+                                   Ytilespan) {
+
+  # data.table variables
+  Xcoord = X.X = XtileIndex = Ycoord = Y.Y = YtileIndex = NULL
+
+  if (is.null(location_file$X.X)){
+    print("X coordinates missing in input file.")
+  }else if (is.null(location_file$Y.Y)){
+    print("Y coordinates missing in input file.")
+  } else if (is.null(location_file$XtileIndex)){
+    print("X tile index missing in input file.")
+  }else if (is.null(location_file$YtileIndex)){
+    print("Y tile index missing in input file.")
+  }else{
+    copy_loc_file = data.table::copy(location_file)
+    copy_loc_file[,Xcoord := X.X + Xtilespan*(XtileIndex-1)]
+    copy_loc_file[,Ycoord := Y.Y + Ytilespan*(YtileIndex-1)]
+    return(copy_loc_file)
+  }
+}
 
 
 
 #' @title get10Xmatrix
 #' @description This function creates an expression matrix from a 10X structured folder
 #' @param path_to_data path to the 10X folder
-#' @param row_ids row ids to use (gene symbols or ensembl ids)
-#' @return expression matrix from 10X
-#' @details A typical 10X folder is named raw_feature_bc_matrix or raw_feature_bc_matrix. It has 3 files:
+#' @param gene_column_index which column from the features or genes .tsv file to use for row ids
+#' @return sparse expression matrix from 10X
+#' @details A typical 10X folder is named raw_feature_bc_matrix or raw_feature_bc_matrix and tt has 3 files:
 #' \itemize{
-#'   \item{barcodes}
-#'   \item{features.tsv.gz}
-#'   \item{matrix.mtx.gz}
+#'   \item{barcodes.tsv(.gz)}
+#'   \item{features.tsv(.gz) or genes.tsv(.gz)}
+#'   \item{matrix.mtx(.gz)}
 #' }
+#' By default the first column of the features or genes .tsv file will be used, however if multiple
+#' annotations are provided (e.g. ensembl gene ids and gene symbols) the user can select another column.
 #' @export
 #' @examples
-#'     get10Xmatrix(10Xmatrix)
-get10Xmatrix = function(path_to_data, row_ids = c('gene_symbols', 'ensembl_ids')) {
+#'     get10Xmatrix(path_to_data)
+get10Xmatrix = function(path_to_data, gene_column_index = 1) {
 
-  row_ids = match.arg(row_ids, c('gene_symbols', 'ensembl_ids'))
+  # data.table variables
+  total = gene_symbol = gene_id = gene_id_num = cell_id = cell_id_num = sort_gene_id_num = NULL
 
   # data directory
   files_10X = list.files(path_to_data)
@@ -212,18 +285,17 @@ get10Xmatrix = function(path_to_data, row_ids = c('gene_symbols', 'ensembl_ids')
   names(barcodes_vec) = 1:nrow(barcodesDT)
 
   # get features and create vector
-  features_file = grep(files_10X, pattern = 'features', value = T)
+  features_file = grep(files_10X, pattern = 'features|genes', value = T)
   featuresDT = fread(input = paste0(path_to_data,'/',features_file), header = F)
 
-  if(row_ids == 'gene_symbols') {
-    featuresDT[, total := .N, by = V2]
-    featuresDT[, gene_symbol := ifelse(total > 1, paste0(V2,'--',1:.N), V2), by = V2]
-    features_vec = featuresDT$gene_symbol
-    names(features_vec) = 1:nrow(featuresDT)
-  } else if(row_ids == 'ensembl_ids') {
-    features_vec = featuresDT$V1
-    names(features_vec) = 1:nrow(featuresDT)
-  }
+  g_name = colnames(featuresDT)[gene_column_index]
+  ## convert ensembl gene id to gene symbol ##
+  ## TODO
+
+  featuresDT[, total := .N, by = get(g_name)]
+  featuresDT[, gene_symbol := ifelse(total > 1, paste0(get(g_name),'--',1:.N), get(g_name)), by = get(g_name)]
+  features_vec = featuresDT$gene_symbol
+  names(features_vec) = 1:nrow(featuresDT)
 
   # get matrix
   matrix_file = grep(files_10X, pattern = 'matrix', value = T)
@@ -234,12 +306,20 @@ get10Xmatrix = function(path_to_data, row_ids = c('gene_symbols', 'ensembl_ids')
   matrixDT[, gene_id := features_vec[gene_id_num]]
   matrixDT[, cell_id := barcodes_vec[cell_id_num]]
 
-  # create a final matrix
-  matrix_ab = data.table::dcast.data.table(data = matrixDT, gene_id~cell_id, value.var = 'umi')
-  matrix_ab_mat = Giotto:::dt_to_matrix(matrix_ab)
-  matrix_ab_mat[is.na(matrix_ab_mat)] = 0
+  # make sure that gene id are consecutive
+  sort_gene_id_vec = 1:length(unique(matrixDT$gene_id))
+  names(sort_gene_id_vec) = unique(matrixDT$gene_id)
+  matrixDT[, sort_gene_id_num := sort_gene_id_vec[gene_id]]
 
-  return(matrix_ab_mat)
+  sparsemat = Matrix::sparseMatrix(i = matrixDT$sort_gene_id_num, j = matrixDT$cell_id_num, x = matrixDT$umi,
+                                   dimnames = list(unique(matrixDT$gene_id), unique(matrixDT$cell_id)))
+
+  return(sparsemat)
+
+  # create a final matrix
+  #matrix_ab = data.table::dcast.data.table(data = matrixDT, gene_id~cell_id, value.var = 'umi')
+  #matrix_ab_mat = dt_to_matrix(matrix_ab)
+  #matrix_ab_mat[is.na(matrix_ab_mat)] = 0
 
 }
 
@@ -256,6 +336,8 @@ get10Xmatrix = function(path_to_data, row_ids = c('gene_symbols', 'ensembl_ids')
 convertEnsemblToGeneSymbol = function(matrix,
                                       species = c('mouse', 'human')) {
 
+  # data.table: set global variable
+  dupes = mgi_symbol = gene_symbol = ensembl_gene_id = hgnc_symbol = NULL
 
   if("biomaRt" %in% rownames(installed.packages()) == FALSE) {
     cat("\n package 'biomaRt' is not yet installed and is required for this function \n")
@@ -269,13 +351,13 @@ convertEnsemblToGeneSymbol = function(matrix,
     ensemblsIDS = rownames(matrix)
 
     # prepare ensembl database
-    ensembl = useMart("ensembl",
+    ensembl = biomaRt::useMart("ensembl",
                       dataset = "mmusculus_gene_ensembl")
-    gene_names = getBM(attributes= c('mgi_symbol', 'ensembl_gene_id'),
+    gene_names = biomaRt::getBM(attributes= c('mgi_symbol', 'ensembl_gene_id'),
                        filters = 'ensembl_gene_id',
                        values = ensemblsIDS,
                        mart = ensembl)
-    gene_names_DT = as.data.table(gene_names)
+    gene_names_DT = data.table::as.data.table(gene_names)
     gene_names_DT[, dupes := duplicated(mgi_symbol)]
     gene_names_DT[, gene_symbol := ifelse(any(dupes) == FALSE, mgi_symbol,
                                           ifelse(mgi_symbol == "", ensembl_gene_id, 'temporary')), by = mgi_symbol]
@@ -303,13 +385,13 @@ convertEnsemblToGeneSymbol = function(matrix,
     ensemblsIDS = rownames(matrix)
 
     # prepare ensembl database
-    ensembl = useMart("ensembl",
+    ensembl = biomaRt::useMart("ensembl",
                       dataset = "hsapiens_gene_ensembl")
-    gene_names = getBM(attributes= c('hgnc_symbol', 'ensembl_gene_id'),
+    gene_names = biomaRt::getBM(attributes= c('hgnc_symbol', 'ensembl_gene_id'),
                        filters = 'ensembl_gene_id',
                        values = ensemblsIDS,
                        mart = ensembl)
-    gene_names_DT = as.data.table(gene_names)
+    gene_names_DT = data.table::as.data.table(gene_names)
     gene_names_DT[, dupes := duplicated(hgnc_symbol)]
     gene_names_DT[, gene_symbol := ifelse(any(dupes) == FALSE, hgnc_symbol,
                                           ifelse(hgnc_symbol == "", ensembl_gene_id, 'temporary')), by = hgnc_symbol]
@@ -333,4 +415,133 @@ convertEnsemblToGeneSymbol = function(matrix,
 
 
 }
+
+
+
+#' @title my_arowMeans
+#' @description arithmic rowMeans that works for a single column
+#' @examples
+#'     my_arowMeans(x)
+my_arowMeans = function(x) {
+  if(is.null(nrow(x))) {
+    x # if only one column is selected
+    #mean(x)
+  } else {
+    rowMeans_giotto(x)
+  }
+}
+
+#' @title my_growMeans
+#' @description geometric rowMeans that works for a single column
+#' @examples
+#'     my_growMeans(x)
+my_growMeans = function(x, offset = 0.1) {
+  if(is.null(nrow(x))) {
+    x # if only one column is selected
+    #exp(mean(log(x+offset)))-offset
+  } else {
+    exp(rowMeans_giotto(log(x+offset)))-offset
+  }
+}
+
+#' @title my_rowMeans
+#' @description arithmic or geometric rowMeans that works for a single column
+#' @examples
+#'     my_rowMeans(x)
+my_rowMeans = function(x, method = c('arithmic', 'geometric'), offset = 0.1) {
+  method = match.arg(method, c('arithmic', 'geometric'))
+  if(method == 'arithmic') return(my_arowMeans(x))
+  if(method == 'geometric') return(my_growMeans(x))
+}
+
+#' @title DT_removeNA
+#' @name DT_removeNA
+#' @description set NA values to 0 in a data.table object
+#' @param DT data.table
+DT_removeNA = function(DT) {
+  for (i in names(DT))
+    DT[is.na(get(i)), (i):=0]
+  return(DT)
+}
+
+#' @title kmeans_binarize
+#' @name kmeans_binarize
+#' @description create binarized scores from a vector using kmeans
+kmeans_binarize = function(x, nstart = 3, iter.max = 10) {
+
+  sel_gene_km = stats::kmeans(x, centers = 2, nstart = nstart, iter.max = iter.max)$cluster
+  mean_1 = mean(x[sel_gene_km == 1])
+  mean_2 = mean(x[sel_gene_km == 2])
+
+  if(mean_1 > mean_2) {
+    mean_1_value = 1
+    mean_2_value = 0
+  } else {
+    mean_1_value = 0
+    mean_2_value = 1
+  }
+
+  sel_gene_bin = x
+  sel_gene_bin[sel_gene_km == 1] = mean_1_value
+  sel_gene_bin[sel_gene_km == 2] = mean_2_value
+
+  return(sel_gene_bin)
+
+}
+
+#' @title rank_binarize
+#' @name rank_binarize
+#' @description create binarized scores from a vector using arbitrary rank
+rank_binarize = function(x, max_rank = 200) {
+
+  sel_gene_rank = rank(-x, ties.method = 'average')
+
+  sel_gene_bin = x
+  sel_gene_bin[sel_gene_rank <= max_rank] = 1
+  sel_gene_bin[sel_gene_rank > max_rank] = 0
+
+  return(sel_gene_bin)
+
+}
+
+#' @title sort_combine_two_DT_columns
+#' @name sort_combine_two_DT_columns
+#' @description fast sorting and pasting of 2 character columns in a data.table
+#' @keywords internal
+#' @examples
+#'     sort_combine_two_DT_columns()
+sort_combine_two_DT_columns = function(DT,
+                                       column1,
+                                       column2,
+                                       myname = 'unif_gene_gene') {
+
+  # data.table variables
+  values_1_num = values_2_num = scolumn_1 = scolumn_2 = unif_sort_column = NULL
+
+  # maybe faster with converting to factors??
+
+  # make sure columns are character
+  selected_columns = c(column1, column2)
+  DT[,(selected_columns):= lapply(.SD, as.character), .SDcols = selected_columns]
+
+  # convert characters into numeric values
+  uniq_values = sort(unique(c(DT[[column1]], DT[[column2]])))
+  uniq_values_num = 1:length(uniq_values)
+  names(uniq_values_num) = uniq_values
+
+
+  DT[,values_1_num := uniq_values_num[get(column1)]]
+  DT[,values_2_num := uniq_values_num[get(column2)]]
+
+
+  DT[, scolumn_1 := ifelse(values_1_num < values_2_num, get(column1), get(column2))]
+  DT[, scolumn_2 := ifelse(values_1_num < values_2_num, get(column2), get(column1))]
+
+  DT[, unif_sort_column := paste0(scolumn_1,'--',scolumn_2)]
+  DT[, c('values_1_num', 'values_2_num', 'scolumn_1', 'scolumn_2') := NULL]
+  data.table::setnames(DT, 'unif_sort_column', myname)
+
+  return(DT)
+}
+
 

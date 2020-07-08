@@ -7,7 +7,7 @@
 findMarkers(
   gobject,
   expression_values = c("normalized", "scaled", "custom"),
-  cluster_column,
+  cluster_column = NULL,
   method = c("scran", "gini", "mast"),
   subset_clusters = NULL,
   group_1 = NULL,

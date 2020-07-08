@@ -14,7 +14,7 @@ plotHeatmap(
   cluster_color_code = NULL,
   cluster_cor_method = "pearson",
   cluster_hclust_method = "ward.D",
-  gene_order = c("custom", "correlation"),
+  gene_order = c("correlation", "custom"),
   gene_custom_order = NULL,
   gene_cor_method = "pearson",
   gene_hclust_method = "complete",
@@ -76,7 +76,7 @@ plotHeatmap(
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name}
 }
@@ -94,5 +94,7 @@ If you want to display many genes there are 2 ways to proceed:
 }
 }
 \examples{
-    plotHeatmap(gobject)
+\dontrun{
+plotHeatmap(gobject)
+}
 }

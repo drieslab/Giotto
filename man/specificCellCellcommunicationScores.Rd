@@ -6,7 +6,7 @@
 \usage{
 specificCellCellcommunicationScores(
   gobject,
-  spatial_network_name = "spatial_network",
+  spatial_network_name = "Delaunay_network",
   cluster_column = "cell_types",
   random_iter = 100,
   cell_type_1 = "astrocyte",
@@ -15,6 +15,9 @@ specificCellCellcommunicationScores(
   gene_set_2,
   log2FC_addendum = 0.1,
   min_observations = 2,
+  adjust_method = c("fdr", "bonferroni", "BH", "holm", "hochberg", "hommel", "BY",
+    "none"),
+  adjust_target = c("genes", "cells"),
   verbose = T
 )
 }
@@ -38,6 +41,10 @@ specificCellCellcommunicationScores(
 \item{log2FC_addendum}{addendum to add when calculating log2FC}
 
 \item{min_observations}{minimum number of interactions needed to be considered}
+
+\item{adjust_method}{which method to adjust p-values}
+
+\item{adjust_target}{adjust multiple hypotheses at the cell or gene level}
 
 \item{verbose}{verbose}
 }

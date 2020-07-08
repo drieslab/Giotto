@@ -33,7 +33,7 @@ spatDimPlot3D(
   dim_point_size = 3,
   nn_network_alpha = 0.5,
   show_spatial_network = F,
-  spatial_network_name = "spatial_network",
+  spatial_network_name = "Delaunay_network",
   network_color = "lightgray",
   spatial_network_alpha = 0.5,
   show_spatial_grid = F,
@@ -129,7 +129,7 @@ spatDimPlot3D(
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
@@ -159,3 +159,9 @@ Description of parameters.
 \examples{
     spatDimPlot3D(gobject)
 }
+\seealso{
+Other spatial and dimension reduction visualizations: 
+\code{\link{spatDimPlot2D}()},
+\code{\link{spatDimPlot}()}
+}
+\concept{spatial and dimension reduction visualizations}

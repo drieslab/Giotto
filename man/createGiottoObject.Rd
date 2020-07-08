@@ -18,10 +18,13 @@ createGiottoObject(
   spatial_grid_name = NULL,
   spatial_enrichment = NULL,
   spatial_enrichment_name = NULL,
+  spatial_deconvolution = NULL,
   dimension_reduction = NULL,
   nn_network = NULL,
+  images = NULL,
   offset_file = NULL,
-  instructions = NULL
+  instructions = NULL,
+  cores = NA
 )
 }
 \arguments{
@@ -51,13 +54,19 @@ createGiottoObject(
 
 \item{spatial_enrichment_name}{list of spatial enrichment name(s)}
 
+\item{spatial_deconvolution}{list of spatial cell type proportion(s) for each spatial region}
+
 \item{dimension_reduction}{list of dimension reduction(s)}
 
 \item{nn_network}{list of nearest neighbor network(s)}
 
+\item{images}{list of images}
+
 \item{offset_file}{file used to stitch fields together (optional)}
 
-\item{instructions}{list of instructions or output result from createGiottoInstructions}
+\item{instructions}{list of instructions or output result from \code{\link{createGiottoInstructions}}}
+
+\item{cores}{how many cores or threads to use to read data if paths are provided}
 }
 \value{
 giotto object
@@ -67,10 +76,11 @@ Function to create a giotto object
 }
 \details{
 [\strong{Requirements}] To create a giotto object you need to provide at least a matrix with genes as
-row names and cells as column names. To include spatial information about cells (or regions)
-you need to provide a data.table or data.frame with coordinates for all spatial dimensions.
-This can be 2D (x and y) or 3D (x, y, x).The row order for the cell coordinates should be
-the same as the column order for the provided expression data.
+row names and cells as column names. This matrix can be provided as a base matrix, sparse Matrix, data.frame,
+data.table or as a path to any of those.
+To include spatial information about cells (or regions) you need to provide a matrix, data.table or data.frame (or path to them)
+with coordinates for all spatial dimensions. This can be 2D (x and y) or 3D (x, y, x).
+The row order for the cell coordinates should be the same as the column order for the provided expression data.
 
 [\strong{Instructions}] Additionally an instruction file, generated manually or with \code{\link{createGiottoInstructions}}
 can be provided to instructions, if not a default instruction file will be created
@@ -93,6 +103,7 @@ This data can also be added afterwards using the \code{\link{addGeneMetadata}} o
   \item{spatial enrichments}
   \item{dimensions reductions}
   \item{nearest neighbours networks}
+  \item{images}
 }
 }
 \examples{

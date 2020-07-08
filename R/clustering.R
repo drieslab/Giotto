@@ -52,8 +52,7 @@ doLeidenCluster = function(gobject,
                            n_iterations = 1000,
                            return_gobject = TRUE,
                            set_seed = T,
-                           seed_number = 1234,
-                           ...) {
+                           seed_number = 1234) {
 
   ## get cell IDs ##
   cell_ID_vec = gobject@cell_ID
@@ -87,6 +86,9 @@ doLeidenCluster = function(gobject,
 
   ## extract NN network
   network_edge_dt = data.table::as.data.table(igraph::as_data_frame(x = igraph_object, what = 'edges'))
+
+  # data.table variables
+  weight = NULL
 
   # add weight for edges or set to 1 for all
   if(!is.null(weight_col)) {
@@ -160,7 +162,6 @@ doLeidenCluster = function(gobject,
 }
 
 
-
 #' @title doLouvainCluster_community
 #' @name doLouvainCluster_community
 #' @description cluster cells using a NN-network and the Louvain algorithm from the community module in Python
@@ -197,8 +198,7 @@ doLouvainCluster_community <- function(gobject,
                                        louv_random = F,
                                        return_gobject = TRUE,
                                        set_seed = F,
-                                       seed_number = 1234,
-                                       ...) {
+                                       seed_number = 1234) {
 
 
   ## get cell IDs ##
@@ -228,6 +228,9 @@ doLouvainCluster_community <- function(gobject,
   }
 
   network_edge_dt = data.table::as.data.table(igraph::as_data_frame(x = igraph_object, what = 'edges'))
+
+  # data.table variables
+  weight = NULL
 
   if(!is.null(weight_col)) {
 
@@ -325,8 +328,7 @@ doLouvainCluster_multinet <- function(gobject,
                                       omega = 1,
                                       return_gobject = TRUE,
                                       set_seed = F,
-                                      seed_number = 1234,
-                                      ...) {
+                                      seed_number = 1234) {
 
 
   if("multinet" %in% rownames(installed.packages()) == FALSE) {
@@ -347,7 +349,7 @@ doLouvainCluster_multinet <- function(gobject,
 
   # create mlnetworkobject
   mln_object <- multinet::ml_empty()
-  multinet::add_actors_ml(mlnetwork = mln_object, actors = V(igraph_object))
+  multinet::add_actors_ml(mlnetwork = mln_object, actors = igraph::V(igraph_object))
   multinet::add_igraph_layer_ml(mlnetwork = mln_object, g = igraph_object, name = name)
 
   # start seed
@@ -355,7 +357,10 @@ doLouvainCluster_multinet <- function(gobject,
     set.seed(seed = seed_number)
   }
 
-  louvain_clusters = multinet::glouvain_ml(mlnetwork = mln_object, gamma = gamma, omega = omega, ...)
+  # data.table variables
+  cell_ID = actor = weight_col = NULL
+
+  louvain_clusters = multinet::glouvain_ml(mlnetwork = mln_object, gamma = gamma, omega = omega)
   ident_clusters_DT = data.table::as.data.table(louvain_clusters)
   ident_clusters_DT[, cell_ID := actor]
   data.table::setnames(ident_clusters_DT, 'cid', name)
@@ -419,11 +424,15 @@ doLouvainCluster_multinet <- function(gobject,
 #' @param network_name name of NN network to use
 #' @param python_path [community] specify specific path to python if required
 #' @param resolution [community] resolution
+#' @param louv_random [community] Will randomize the node evaluation order and the community evaluation
+#' order to get different partitions at each call
+#' @param weight_col weight column name
 #' @param gamma [multinet] Resolution parameter for modularity in the generalized louvain method.
-#' @param omega [multinet] Inter-layer weight parameter in the generalized louvain method.
+#' @param omega [multinet] Inter-layer weight parameter in the generalized louvain method
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param set_seed set seed
 #' @param seed_number number for seed
+#' @param \dots additional parameters
 #' @return giotto object with new clusters appended to cell metadata
 #' @details Louvain clustering using the community or multinet implementation of the louvain clustering algorithm.
 #' @seealso \code{\link{doLouvainCluster_community}} and \code{\link{doLouvainCluster_multinet}}
@@ -477,7 +486,6 @@ doLouvainCluster = function(gobject,
                                        network_name = network_name,
                                        gamma = gamma,
                                        omega = omega,
-                                       weight_col = weight_col,
                                        return_gobject = return_gobject,
                                        set_seed = set_seed,
                                        seed_number = seed_number,
@@ -519,8 +527,7 @@ doRandomWalkCluster <- function(gobject,
                                 walk_weights = NA,
                                 return_gobject = TRUE,
                                 set_seed = F,
-                                seed_number = 1234,
-                                ...) {
+                                seed_number = 1234) {
 
   ## get cell IDs ##
   cell_ID_vec = gobject@cell_ID
@@ -539,7 +546,7 @@ doRandomWalkCluster <- function(gobject,
   randomwalk_clusters <- igraph::cluster_walktrap(graph = igraph_object, steps = walk_steps, weights = walk_weights)
   randomwalk_clusters <- as.factor(igraph::cut_at(communities = randomwalk_clusters, no =  walk_clusters))
 
-  ident_clusters_DT <- data.table::data.table('cell_ID' = V(igraph_object)$name, 'name' = randomwalk_clusters)
+  ident_clusters_DT <- data.table::data.table('cell_ID' = igraph::V(igraph_object)$name, 'name' = randomwalk_clusters)
   data.table::setnames(ident_clusters_DT, 'name', name)
 
   # exit seed
@@ -619,8 +626,7 @@ doSNNCluster <- function(gobject,
                          borderPoints = TRUE,
                          return_gobject = TRUE,
                          set_seed = F,
-                         seed_number = 1234,
-                         ...) {
+                         seed_number = 1234) {
 
 
   ## get cell IDs ##
@@ -642,6 +648,9 @@ doSNNCluster <- function(gobject,
     set.seed(seed = seed_number)
   }
 
+  # data.table variables
+  from = from_T = to_T = to = weight = distance = NULL
+
   ## SNN clust
   igraph_DT = data.table::as.data.table(igraph::as_data_frame(igraph_object, what = 'edges'))
   igraph_DT = igraph_DT[order(from)]
@@ -653,7 +662,7 @@ doSNNCluster <- function(gobject,
   temp_igraph_DT = igraph_DT[,.(from_T, to_T, weight, distance)]
   data.table::setnames(temp_igraph_DT, old = c('from_T', 'to_T'), new = c('from', 'to'))
 
-  kNN_object = Giotto:::nnDT_to_kNN(nnDT = temp_igraph_DT)
+  kNN_object = nnDT_to_kNN(nnDT = temp_igraph_DT)
   sNN_clusters = dbscan::sNNclust(x = kNN_object, k = k, eps = eps,
                                   minPts = minPts, borderPoints = borderPoints)
 
@@ -783,7 +792,7 @@ doKmeans <- function(gobject,
 
     # features as columns
     # cells as rows
-    matrix_to_use = t(expr_values)
+    matrix_to_use = t_giotto(expr_values)
 
   }
 
@@ -791,7 +800,7 @@ doKmeans <- function(gobject,
   if(distance_method == 'original') {
     celldist = matrix_to_use
   } else if(distance_method %in% c('spearman', 'pearson')) {
-    celldist = stats::as.dist(1-cor(x = t(matrix_to_use), method = distance_method))
+    celldist = stats::as.dist(1-cor_giotto(x = t_giotto(matrix_to_use), method = distance_method))
   } else if(distance_method %in% c("euclidean", "maximum", "manhattan",
                                    "canberra", "binary", "minkowski")) {
     celldist = stats::dist(x = matrix_to_use, method = distance_method)
@@ -941,7 +950,7 @@ doHclust <- function(gobject,
 
     # features as columns
     # cells as rows
-    matrix_to_use = t(expr_values)
+    matrix_to_use = t_giotto(expr_values)
 
   }
 
@@ -949,7 +958,7 @@ doHclust <- function(gobject,
   if(distance_method == 'original') {
     celldist = matrix_to_use
   } else if(distance_method %in% c('spearman', 'pearson')) {
-    celldist = stats::as.dist(1-cor(x = t(matrix_to_use), method = distance_method))
+    celldist = stats::as.dist(1-cor_giotto(x = t_giotto(matrix_to_use), method = distance_method))
   } else if(distance_method %in% c("euclidean", "maximum", "manhattan",
                                    "canberra", "binary", "minkowski")) {
     celldist = stats::dist(x = matrix_to_use, method = distance_method)
@@ -1171,7 +1180,7 @@ clusterCells <- function(gobject,
                                        name = name,
                                        nn_network_to_use = nn_network_to_use,
                                        network_name = network_name,
-                                       weight_col = weight_col,
+                                       weight_col = pyth_louv_weight_col,
                                        gamma = louvain_gamma,
                                        omega = louvain_omega,
                                        return_gobject = return_gobject,
@@ -1317,6 +1326,10 @@ doLeidenSubCluster = function(gobject,
     stop('\n You need to provide a cluster column to subcluster on \n')
   }
   unique_clusters = sort(unique(cell_metadata[[cluster_column]]))
+
+
+  # data.table variables
+  hvg = perc_cells = mean_expr_det = parent_cluster = comb = tempclus = NULL
 
 
   for(cluster in unique_clusters) {
@@ -1516,6 +1529,10 @@ doLouvainSubCluster_community = function(gobject,
 
       ## get hvg
       gene_metadata = fDataDT(temp_giotto)
+
+      # data.table variables
+      hvg = perc_cells = mean_expr_det = NULL
+
       featgenes     = gene_metadata[hvg == 'yes' & perc_cells >= hvg_min_perc_cells & mean_expr_det >= hvg_mean_expr_det]$gene_ID
 
       ## catch too low number of hvg
@@ -1543,6 +1560,9 @@ doLouvainSubCluster_community = function(gobject,
                                                 name = 'tempclus',
                                                 return_gobject = F)
 
+      # data.table variables
+      parent_cluster = NULL
+
       temp_cluster[, parent_cluster := cluster]
 
       iter_list[[cluster+index_offset]] = temp_cluster
@@ -1554,6 +1574,10 @@ doLouvainSubCluster_community = function(gobject,
   }
 
   together = do.call('rbind', iter_list)
+
+  # data.table variables
+  comb = tempclus = NULL
+
   together[, comb := paste0(parent_cluster,'.',tempclus)]
 
   # rename with subcluster of original name
@@ -1614,7 +1638,6 @@ doLouvainSubCluster_community = function(gobject,
 #' @param k_neighbors number of k for createNearestNetwork
 #' @param gamma gamma
 #' @param omega omega
-#' @param python_path specify specific path to python if required
 #' @param nn_network_to_use type of NN network to use (kNN vs sNN)
 #' @param network_name name of NN network to use
 #' @param return_gobject boolean: return giotto object (default = TRUE)
@@ -1671,6 +1694,11 @@ doLouvainSubCluster_multinet =  function(gobject,
 
   ## if clusters start at 0, then add +1 for the index ##
   index_offset = ifelse(0 %in% unique_clusters, 1, 0)
+
+
+  # data.table variables
+  hvg = perc_cells = mean_expr_det = parent_cluster = cell_ID = comb = tempclus = NULL
+
 
   for(cluster in unique_clusters) {
 
@@ -1907,6 +1935,7 @@ doLouvainSubCluster =  function(gobject,
 #' @param nn_param parameters for parameters for createNearestNetwork
 #' @param k_neighbors number of k for createNearestNetwork
 #' @param resolution resolution
+#' @param n_iterations number of interations to run the Leiden algorithm.
 #' @param gamma gamma
 #' @param omega omega
 #' @param python_path specify specific path to python if required
@@ -1945,6 +1974,7 @@ subClusterCells <- function(gobject,
                             nn_param = list(dimensions_to_use = 1:20),
                             k_neighbors = 10,
                             resolution = 1,
+                            n_iterations = 1000,
                             gamma = 1,
                             omega = 1,
                             python_path = NULL,
@@ -2056,6 +2086,9 @@ getClusterSimilarity <- function(gobject,
                                  cor = c('pearson', 'spearman')) {
 
 
+  # data.table variables
+  group1 = group2 = unified_group = value = NULL
+
   cor = match.arg(cor, c('pearson', 'spearman'))
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
 
@@ -2064,6 +2097,10 @@ getClusterSimilarity <- function(gobject,
   # get clustersize
   clustersize = metadata[, .N, by = cluster_column]
   colnames(clustersize) = c('clusters', 'size')
+
+  # data.table variables
+  clusters = NULL
+
   clustersize[, clusters := as.character(clusters)]
 
   # scores per cluster
@@ -2072,9 +2109,9 @@ getClusterSimilarity <- function(gobject,
   testmatrix = dt_to_matrix(x = dcast_metatable)
 
   # correlation matrix
-  cormatrix = stats::cor(x = testmatrix, method = cor)
-  cor_table = as.data.table(reshape2::melt(cormatrix))
-  setnames(cor_table, old = c('Var1', 'Var2'), c('group1', 'group2'))
+  cormatrix = cor_giotto(x = testmatrix, method = cor)
+  cor_table = data.table::as.data.table(reshape2::melt(cormatrix))
+  data.table::setnames(cor_table, old = c('Var1', 'Var2'), c('group1', 'group2'))
   cor_table[, c('group1', 'group2') := list(as.character(group1), as.character(group2))]
   cor_table[, unified_group := paste(sort(c(group1, group2)), collapse = '--'), by = 1:nrow(cor_table)]
   cor_table = cor_table[!duplicated(cor_table[, .(value, unified_group)])]
@@ -2103,6 +2140,7 @@ getClusterSimilarity <- function(gobject,
 #' @param min_cor_score min correlation score to merge pairwise clusters
 #' @param max_group_size max cluster size that can be merged
 #' @param force_min_group_size size of clusters that will be merged with their most similar neighbor(s)
+#' @param max_sim_clusters maximum number of clusters to potentially merge to reach force_min_group_size
 #' @param return_gobject return giotto object
 #' @param verbose be verbose
 #' @return Giotto object
@@ -2110,7 +2148,8 @@ getClusterSimilarity <- function(gobject,
 #' To avoid large clusters to merge the max_group_size can be lowered. Small clusters can
 #' be forcibly merged with their most similar pairwise cluster by adjusting the
 #' force_min_group_size parameter. Clusters smaller than this value will be merged
-#' independent on the provided min_cor_score value. \cr
+#' independent on the provided min_cor_score value. The force_min_group_size might not always
+#' be reached if clusters have already been merged before \cr
 #' A giotto object is returned by default, if FALSE then the merging vector will be returned.
 #' @export
 #' @examples
@@ -2123,6 +2162,7 @@ mergeClusters <- function(gobject,
                           min_cor_score = 0.8,
                           max_group_size = 20,
                           force_min_group_size = 10,
+                          max_sim_clusters = 10,
                           return_gobject = TRUE,
                           verbose = TRUE) {
 
@@ -2132,7 +2172,7 @@ mergeClusters <- function(gobject,
   # correlation score to be used
   cor = match.arg(cor, c('pearson', 'spearman'))
 
-  # calculate similary data.table
+  # calculate similarity data.table
   similarityDT = getClusterSimilarity(gobject = gobject,
                                       expression_values = values,
                                       cluster_column = cluster_column,
@@ -2140,10 +2180,21 @@ mergeClusters <- function(gobject,
 
   ## get clusters that can be merged
   # 1. clusters with high correlation
+
+  # data.table variables
+  group1 = group2 = group1_size = value = cumsum_val = group2_size = min_reached = cumsum_reached = NULL
+
   filter_set_first = similarityDT[group1 != group2][group1_size < max_group_size][value >= min_cor_score]
 
   # 2. small clusters
-  minimum_set = similarityDT[group1 != group2][group1_size < force_min_group_size][order(-value)][, head(.SD,1), by = group1]
+  minimum_set = similarityDT[group1 != group2][group1_size < force_min_group_size][order(-value)][, head(.SD, max_sim_clusters), by = group1]
+
+  # 2.1 take all clusters necessary to reach force_min_group_size
+  minimum_set[, cumsum_val := cumsum(group2_size) + group1_size, by = group1]
+  minimum_set[, min_reached := ifelse(cumsum_val > max_group_size, 1, 0)]
+  minimum_set[, cumsum_reached := cumsum(min_reached), by = group1]
+  minimum_set = minimum_set[cumsum_reached <= 1]
+  minimum_set[, c('cumsum_val', 'min_reached', 'cumsum_reached') := NULL]
 
   filter_set = unique(do.call('rbind', list(filter_set_first, minimum_set)))
 
@@ -2158,22 +2209,29 @@ mergeClusters <- function(gobject,
     res = lapply(finallist, function(x) {any(x %in% c(first_clus, second_clus))})
 
     if(all(res == F)) {
+
       #print('not in list yet')
       finallist[[start_i]] = c(first_clus, second_clus)
       start_i = start_i + 1
 
-    } else {
-      #print('already in list')
+    } else if(length(res[res == T]) == 2) {
 
+      #print('do nothing')
+      NULL
+
+    } else {
+
+      #print('already in list')
       who = which(res == TRUE)[[1]]
       finallist[[who]] = unique(c(finallist[[who]], first_clus, second_clus))
+
     }
 
   }
 
 
   ## update metadata
-  metadata = copy(pDataDT(gobject))
+  metadata = data.table::copy(pDataDT(gobject))
 
   finalvec = NULL
   for(ll in 1:length(finallist)) {
@@ -2198,7 +2256,8 @@ mergeClusters <- function(gobject,
       gobject@cell_metadata = cell_metadata
     }
 
-    gobject = addCellMetadata(gobject = gobject, new_metadata = metadata[, c('cell_ID', new_cluster_name), with = F],
+    gobject = addCellMetadata(gobject = gobject,
+                              new_metadata = metadata[, c('cell_ID', new_cluster_name), with = F],
                               by_column = T, column_cell_ID = 'cell_ID')
 
 
@@ -2269,7 +2328,7 @@ split_dendrogram_in_two = function(dend) {
 node_clusters = function(hclus_obj, verbose = TRUE) {
 
   heights = sort(hclus_obj[['height']], decreasing = T)
-  mydend = as.dendrogram(hclus_obj)
+  mydend = stats::as.dendrogram(hclus_obj)
 
 
   result_list = list()
@@ -2355,6 +2414,8 @@ getDendrogramSplits = function(gobject,
                                verbose = TRUE) {
 
 
+  # data.table variables
+  nodeID = NULL
 
   cor = match.arg(cor, c('pearson', 'spearman'))
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
@@ -2365,11 +2426,11 @@ getDendrogramSplits = function(gobject,
   testmatrix = dt_to_matrix(x = dcast_metatable)
 
   # correlation
-  cormatrix = stats::cor(x = testmatrix, method = cor)
+  cormatrix = cor_giotto(x = testmatrix, method = cor)
   cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
   corclus = stats::hclust(d = cordist, method = distance)
 
-  cordend = as.dendrogram(object = corclus)
+  cordend = stats::as.dendrogram(object = corclus)
 
   ## print dendrogram ##
   if(show_dend == TRUE) {

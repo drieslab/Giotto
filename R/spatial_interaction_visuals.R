@@ -34,20 +34,24 @@ cellProximityBarplot = function(gobject,
   table_mean_results_dc = CPscore$enrichm_res
 
   ## filter to remove low number of cell-cell proximity interactions ##
+
+  # data.table variables
+  original = simulations = p_higher_orig = p_lower_orig = enrichm = type_int = unified_int = NULL
+
   table_mean_results_dc_filter = table_mean_results_dc[original >= min_orig_ints & simulations >= min_sim_ints]
   table_mean_results_dc_filter = table_mean_results_dc_filter[p_higher_orig <= p_val | p_lower_orig <= p_val]
 
   pl <- ggplot2::ggplot()
-  pl <- pl + ggplot2::geom_bar(data = table_mean_results_dc_filter, aes(x = unified_int, y = enrichm, fill = type_int), stat = 'identity', show.legend = F)
+  pl <- pl + ggplot2::geom_bar(data = table_mean_results_dc_filter, ggplot2::aes(x = unified_int, y = enrichm, fill = type_int), stat = 'identity', show.legend = F)
   pl <- pl + ggplot2::coord_flip()
   pl <- pl + ggplot2::theme_bw()
   pl <- pl + ggplot2::labs(y = 'enrichment/depletion')
   pl
 
   bpl <- ggplot2::ggplot()
-  bpl <- bpl + ggplot2::geom_bar(data = table_mean_results_dc_filter, aes(x = unified_int, y = original, fill = type_int), stat = 'identity', show.legend = T)
+  bpl <- bpl + ggplot2::geom_bar(data = table_mean_results_dc_filter, ggplot2::aes(x = unified_int, y = original, fill = type_int), stat = 'identity', show.legend = T)
   bpl <- bpl + ggplot2::coord_flip()
-  bpl <- bpl + ggplot2::theme_bw() + theme(axis.text.y = element_blank())
+  bpl <- bpl + ggplot2::theme_bw() + ggplot2::theme(axis.text.y = element_blank())
   bpl <- bpl + ggplot2::labs(y = '# of interactions')
   bpl
 
@@ -110,13 +114,17 @@ cellProximityHeatmap = function(gobject,
 
 
   enrich_res = CPscore$enrichm_res
+
+  # data.table variables
+  first_type = second_type = unified_int = NULL
+
   enrich_res[, first_type := strsplit(x = as.character(unified_int), split = '--')[[1]][1], by = 1:nrow(enrich_res)]
   enrich_res[, second_type := strsplit(x = as.character(unified_int), split = '--')[[1]][2], by = 1:nrow(enrich_res)]
 
   # create matrix
   enrich_mat = data.table::dcast.data.table(data = enrich_res,formula = first_type~second_type, value.var = 'enrichm')
   matrix_d <- as.matrix(enrich_mat[,-1]); rownames(matrix_d) = as.vector(enrich_mat[[1]])
-  t_matrix_d <- t(matrix_d)
+  t_matrix_d <- t_giotto(matrix_d)
 
   # fill in NAs based on values in upper and lower matrix triangle
   t_matrix_d[upper.tri(t_matrix_d)][is.na(t_matrix_d[upper.tri(t_matrix_d)])] = matrix_d[upper.tri(matrix_d)][is.na(t_matrix_d[upper.tri(t_matrix_d)])]
@@ -126,9 +134,9 @@ cellProximityHeatmap = function(gobject,
 
   # scale data
   if(scale == TRUE) {
-    final_matrix <- t(scale(t(final_matrix)))
-    final_matrix <- t(final_matrix)
-    final_matrix[lower.tri(final_matrix)] <- t(final_matrix)[lower.tri(final_matrix)]
+    final_matrix <- t_giotto(scale(t_giotto(final_matrix)))
+    final_matrix <- t_giotto(final_matrix)
+    final_matrix[lower.tri(final_matrix)] <- t_giotto(final_matrix)[lower.tri(final_matrix)]
   }
 
   # # if NA values, impute as mean
@@ -141,7 +149,7 @@ cellProximityHeatmap = function(gobject,
   # order cell types
   if(order_cell_types == TRUE) {
 
-    cordist = stats::as.dist(1-cor(final_matrix))
+    cordist = stats::as.dist(1-cor_giotto(final_matrix))
     clus = stats::hclust(cordist)
     myorder = clus$order
     mylabels = clus$labels
@@ -163,7 +171,7 @@ cellProximityHeatmap = function(gobject,
     }
 
     heatm = ComplexHeatmap::Heatmap(matrix = final_matrix, cluster_rows = F, cluster_columns = F,
-                            col = circlize::colorRamp2(breaks = color_breaks, colors = color_names))
+                                    col = circlize::colorRamp2(breaks = color_breaks, colors = color_names))
   } else {
     heatm = ComplexHeatmap::Heatmap(matrix = final_matrix, cluster_rows = F, cluster_columns = F)
   }
@@ -242,6 +250,10 @@ cellProximityNetwork = function(gobject,
                                 default_save_name = 'cellProximityNetwork') {
 
   # extract scores
+
+  # data.table variables
+  cell_1 = cell_2 = unified_int = color = size = name = NULL
+
   CPscores = CPscore[['enrichm_res']]
   CPscores[, cell_1 := strsplit(as.character(unified_int), split = '--')[[1]][1], by = 1:nrow(CPscores)]
   CPscores[, cell_2 := strsplit(as.character(unified_int), split = '--')[[1]][2], by = 1:nrow(CPscores)]
@@ -285,15 +297,7 @@ cellProximityNetwork = function(gobject,
   }
 
 
-  if(layout == 'Fruchterman') {
-    coords = igraph::layout_with_fr(graph = igd, weights = edges_sizes_resc)
-  } else if(layout == 'DrL') {
-    coords = igraph::layout_with_drl(graph = igd, weights = edges_sizes_resc)
-  } else if(layout == 'Kamada-Kawai') {
-    coords = igraph::layout_with_kk(graph = igd, weights = edges_sizes_resc)
-  } else {
-    stop('\n Currently no other layouts have been implemented \n')
-  }
+
 
   #iplot = igraph::plot.igraph(igd, edge.color = edges_colors, edge.width = edges_sizes_resc, layout = coords)
 
@@ -305,7 +309,22 @@ cellProximityNetwork = function(gobject,
     colors = igraph::get.edge.attribute(igd, name = 'color')
     subvertices_ids = which(colors == 'enriched')
     igd = igraph::subgraph.edges(graph = igd, eids = subvertices_ids)
+
+    # get new rescale vector (in case vector id is lost)
+    edges_sizes_resc = igraph::E(igd)$size
   }
+
+  ## get coordinates layouts
+  if(layout == 'Fruchterman') {
+    coords = igraph::layout_with_fr(graph = igd, weights = edges_sizes_resc)
+  } else if(layout == 'DrL') {
+    coords = igraph::layout_with_drl(graph = igd, weights = edges_sizes_resc)
+  } else if(layout == 'Kamada-Kawai') {
+    coords = igraph::layout_with_kk(graph = igd, weights = edges_sizes_resc)
+  } else {
+    stop('\n Currently no other layouts have been implemented \n')
+  }
+
 
   #longDT = as.data.table(igraph::as_long_data_frame(igd))
   #return(longDT)
@@ -313,18 +332,18 @@ cellProximityNetwork = function(gobject,
 
   ## create plot
   gpl = ggraph::ggraph(graph = igd, layout = coords)
-  gpl = gpl + ggraph::geom_edge_link(aes(color = factor(color), edge_width = size, edge_alpha = size), show.legend = F)
-  gpl = gpl + ggraph::geom_edge_loop(aes(color = factor(color), edge_width = size, edge_alpha = size, strength = self_loop_strength), show.legend = F)
+  gpl = gpl + ggraph::geom_edge_link(ggplot2::aes(color = factor(color), edge_width = size, edge_alpha = size), show.legend = F)
+  gpl = gpl + ggraph::geom_edge_loop(ggplot2::aes(color = factor(color), edge_width = size, edge_alpha = size, strength = self_loop_strength), show.legend = F)
   gpl = gpl + ggraph::scale_edge_color_manual(values = c('enriched' = color_enrichment, 'depleted' = color_depletion))
   gpl = gpl + ggraph::scale_edge_width(range = edge_width_range)
   gpl = gpl + ggraph::scale_edge_alpha(range = c(0.1,1))
-  gpl = gpl + ggraph::geom_node_text(aes(label = name), repel = TRUE, size = node_text_size)
+  gpl = gpl + ggraph::geom_node_text(ggplot2::aes(label = name), repel = TRUE, size = node_text_size)
   gpl = gpl + ggraph::geom_node_point(size = node_size)
-  gpl = gpl + ggplot2::theme_bw() + ggplot2::theme(panel.grid = element_blank(),
-                                                   panel.border = element_blank(),
-                                                   axis.title = element_blank(),
-                                                   axis.text = element_blank(),
-                                                   axis.ticks = element_blank())
+  gpl = gpl + ggplot2::theme_bw() + ggplot2::theme(panel.grid = ggplot2::element_blank(),
+                                                   panel.border = ggplot2::element_blank(),
+                                                   axis.title = ggplot2::element_blank(),
+                                                   axis.text = ggplot2::element_blank(),
+                                                   axis.ticks = ggplot2::element_blank())
 
 
   # print, return and save parameters
@@ -332,7 +351,7 @@ cellProximityNetwork = function(gobject,
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
-    ## print plot
+  ## print plot
   if(show_plot == TRUE) {
     print(gpl)
   }
@@ -349,6 +368,7 @@ cellProximityNetwork = function(gobject,
 
 
 }
+
 
 #' @title cellProximityVisPlot_2D_ggplot
 #' @name cellProximityVisPlot_2D_ggplot
@@ -393,7 +413,7 @@ cellProximityVisPlot_2D_ggplot <- function(gobject,
                                            show_network = F,
                                            show_other_network = F,
                                            network_color = NULL,
-                                           spatial_network_name = 'spatial_network',
+                                           spatial_network_name = 'Delaunay_network',
                                            show_grid = F,
                                            grid_color = NULL,
                                            spatial_grid_name = 'spatial_grid',
@@ -510,7 +530,7 @@ cellProximityVisPlot_2D_ggplot <- function(gobject,
         pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
       } else if(color_as_factor == T) {
         number_colors = length(unique(factor_data))
-        cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+        cell_color_code = getDistinctColors(n = number_colors)
         names(cell_color_code) = unique(factor_data)
         pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
       } else if(color_as_factor == F){
@@ -582,7 +602,7 @@ cellProximityVisPlot_2D_plotly <- function(gobject,
                                            show_network = F,
                                            show_other_network = F,
                                            network_color = NULL,
-                                           spatial_network_name = 'spatial_network',
+                                           spatial_network_name = 'Delaunay_network',
                                            show_grid = F,
                                            grid_color = NULL,
                                            spatial_grid_name = 'spatial_grid',
@@ -694,7 +714,7 @@ cellProximityVisPlot_2D_plotly <- function(gobject,
     if(cell_color %in% colnames(cell_locations_metadata)){
       if(is.null(cell_color_code)) {
         number_colors=length(unique(cell_locations_metadata[[cell_color]]))
-        cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+        cell_color_code = getDistinctColors(n = number_colors)
       }
       cell_locations_metadata[[cell_color]] <- as.factor(cell_locations_metadata[[cell_color]])
 
@@ -800,7 +820,7 @@ cellProximityVisPlot_3D_plotly <- function(gobject,
                                            show_network = F,
                                            show_other_network = F,
                                            network_color = NULL,
-                                           spatial_network_name = 'spatial_network',
+                                           spatial_network_name = 'Delaunay_network',
                                            show_grid = F,
                                            grid_color = NULL,
                                            spatial_grid_name = 'spatial_grid',
@@ -872,7 +892,7 @@ cellProximityVisPlot_3D_plotly <- function(gobject,
     if(cell_color %in% colnames(cell_locations_metadata)){
       if(is.null(cell_color_code)) {
         number_colors=length(unique(cell_locations_metadata[[cell_color]]))
-        cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+        cell_color_code = getDistinctColors(n = number_colors)
       }
       cell_locations_metadata[[cell_color]] <- as.factor(cell_locations_metadata[[cell_color]])
 
@@ -1000,7 +1020,7 @@ cellProximityVisPlot <- function(gobject,
                                  show_network = F,
                                  show_other_network = F,
                                  network_color = NULL,
-                                 spatial_network_name = 'spatial_network',
+                                 spatial_network_name = 'Delaunay_network',
                                  show_grid = F,
                                  grid_color = NULL,
                                  spatial_grid_name = 'spatial_grid',
@@ -1147,326 +1167,61 @@ cellProximityVisPlot <- function(gobject,
 
 
 
-#' @title showGeneExpressionProximityScore
-#' @name showGeneExpressionProximityScore
-#' @description Create heatmap from cell-cell proximity scores
-#' @param scores CPscore, output from getAverageCellProximityGeneScores()
-#' @param selected_gene gene to show
-#' @param sort_column column name to use for sorting
-#' @return ggplot barplot
-#' @details Give more details ...
-#' @export
-#' @examples
-#'     showGeneExpressionProximityScore(scores)
-showGeneExpressionProximityScore <- function(scores,
-                                             selected_gene,
-                                             sort_column = 'diff_spat') {
-
-  # gene specific
-  subset_scores = scores[genes == selected_gene]
-
-  order_dt = subset_scores[order(get(sort_column))]
-  order_ints = order_dt$interaction
-
-  specific_int_scores = subset_scores[,.(genes, interaction, cell_expr_1, cell_expr_2, comb_expr,
-                                         all_cell_expr_1, all_cell_expr_2, all_comb_expr,
-                                         diff_spat, diff_spat_1, diff_spat_2)]
-  specific_int_scores = data.table::melt.data.table(data = specific_int_scores, id.vars = c('genes', 'interaction'))
-  specific_int_scores[, value := as.numeric(value)]
-  specific_int_scores[, interaction := factor(interaction, order_ints)]
-  specific_int_scores[, score := ifelse(grepl('spat', variable), 'difference',
-                                        ifelse(grepl('all', variable), 'all cells', 'int cells'))]
-  specific_int_scores[, variable := factor(variable, levels = c('cell_expr_1', 'cell_expr_2', 'comb_expr',
-                                                                'all_cell_expr_1', 'all_cell_expr_2', 'all_comb_expr',
-                                                                'diff_spat_1', 'diff_spat_2', 'diff_spat'))]
-
-  pl <- ggplot2::ggplot()
-  pl <- pl + ggplot2::theme_classic()
-  pl <- pl + ggplot2::geom_bar(data = specific_int_scores, aes(x = interaction, y = as.numeric(value), fill = score), stat = 'identity')
-  pl <- pl + ggplot2::facet_wrap(~ variable, ncol = 9)
-  pl <- pl + ggplot2::coord_flip()
-  pl <- pl + ggplot2::labs(x = '', y = 'normalized expression', title = selected_gene)
-  pl
-
-  print(pl)
 
 
-}
+# * ####
+# NEW plots ####
 
-
-
-
-#' @title showIntExpressionProximityScore
-#' @name showIntExpressionProximityScore
-#' @description Create heatmap from cell-cell proximity scores
-#' @param scores scores, output from getAverageCellProximityGeneScores()
-#' @param selected_interaction interaction to show
-#' @param sort_column column name to use for sorting
-#' @param show_enriched_n show top enriched interactions
-#' @param show_depleted_n show top depleted interactions
-#' @return ggplot barplot
-#' @details Give more details ...
-#' @export
-#' @examples
-#'     showIntExpressionProximityScore(scores)
-showIntExpressionProximityScore <- function(scores,
-                                            selected_interaction,
-                                            sort_column = 'diff_spat',
-                                            show_enriched_n = 5,
-                                            show_depleted_n = 5) {
-
-  # interaction specific
-  subset_scores = scores[interaction == selected_interaction]
-
-  order_dt = subset_scores[order(get(sort_column))]
-  order_genes = order_dt$genes
-  head_genes = head(order_genes, show_enriched_n)
-  tail_genes = tail(order_genes, show_depleted_n)
-
-  specific_gene_scores = subset_scores[,.(genes, interaction, cell_expr_1, cell_expr_2, comb_expr,
-                                          all_cell_expr_1, all_cell_expr_2, all_comb_expr,
-                                          diff_spat, diff_spat_1, diff_spat_2)]
-  specific_gene_scores = data.table::melt.data.table(data = specific_gene_scores, id.vars = c('genes', 'interaction'))
-  specific_gene_scores[, value := as.numeric(value)]
-  specific_gene_scores[, genes := factor(genes, order_genes)]
-  specific_gene_scores[, score := ifelse(grepl('spat', variable), 'difference',
-                                         ifelse(grepl('all', variable), 'all cells', 'int cells'))]
-  specific_gene_scores[, variable := factor(variable, levels = c('cell_expr_1', 'cell_expr_2', 'comb_expr',
-                                                                 'all_cell_expr_1', 'all_cell_expr_2', 'all_comb_expr',
-                                                                 'diff_spat_1', 'diff_spat_2', 'diff_spat'))]
-
-  specific_gene_scores = specific_gene_scores[genes %in% c(head_genes, tail_genes)]
-
-  pl <- ggplot2::ggplot()
-  pl <- pl + ggplot2::theme_classic()
-  pl <- pl + ggplot2::geom_bar(data = specific_gene_scores, aes(x = genes, y = as.numeric(value), fill = score), stat = 'identity')
-  pl <- pl + ggplot2::facet_wrap(~ variable, ncol = 9)
-  pl <- pl + ggplot2::coord_flip()
-  pl <- pl + ggplot2::labs(x = '', y = 'normalized expression', title = '1-3')
-  pl
-
-  print(pl)
-
-}
-
-
-#' @title showTopGeneToGene
-#' @name showTopGeneToGene
-#' @description Show enriched/depleted gene-gene enrichments
-#' @param GTGscore GTGscore, output from getGeneToGeneScores()
-#' @param top_interactions number of top gene-gene enrichments to show
-#' @param direction show top increased or decreased gene-gene enrichments
-#' @param complement_data include non-enriched gene-gene scores from other cell-cell interactions
-#' @param subset_cell_ints subset cell-cell interactions to show
-#' @param subset_genes subset genes to show
-#' @return ggplot barplot
-#' @details Give more details ...
-#' @export
-#' @examples
-#'     showTopGeneToGene(scores)
-showTopGeneToGene = function(GTGscore,
-                             top_interactions = 10,
-                             direction = c('increased', 'decreased'),
-                             complement_data = T,
-                             subset_cell_ints = NULL,
-                             subset_genes = NULL) {
-
-  direction = match.arg(direction, choices = c('increased', 'decreased'))
-  data.table::setorder(GTGscore, interaction, -diff_spat)
-
-
-  # subset genes or cell cell interactions
-  if(!is.null(subset_cell_ints)) {
-    GTGscore = GTGscore[interaction %in% subset_cell_ints]
-  }
-
-  if(!is.null(subset_genes)) {
-    GTGscore = GTGscore[genes_cell_1 %in% subset_genes | genes_cell_2 %in% subset_genes]
-  }
-
-
-  ## increased ##
-  if(direction == 'increased') {
-
-    topDT = GTGscore[, head(.SD, top_interactions), by = interaction]
-    if(complement_data == TRUE) {
-      topDT = GTGscore[gene_gene %in% topDT$gene_gene]
-    }
-    topDT[, direction := 'increased']
-
-  }
-
-  ## decreased ##
-  else if(direction == 'decreased') {
-
-    topDT = GTGscore[, tail(.SD, top_interactions), by = interaction]
-    if(complement_data == TRUE) {
-      topDT = GTGscore[gene_gene %in% topDT$gene_gene]
-    }
-    topDT[, direction := 'decreased']
-
-  }
-
-  # sort gene_gene
-  setorder(topDT, interaction, -diff_spat)
-  gene_gene_order = unique(topDT[['gene_gene']])
-  topDT[, gene_gene := factor(gene_gene, level = gene_gene_order)]
-
-  pl <- ggplot2::ggplot()
-  pl <- pl + ggplot2::theme_classic()
-  pl <- pl + ggplot2::geom_segment(data = topDT, aes(x = comb_expr, xend = all_comb_expr, y = gene_gene, yend = gene_gene), linetype = 2)
-  pl <- pl + ggplot2::geom_point(data = topDT, aes_string(x = 'all_comb_expr', y = 'gene_gene'), color = 'blue', size = 2)
-  pl <- pl + ggplot2::geom_point(data = topDT, aes_string(x = 'comb_expr', y = 'gene_gene'), color = 'red', size = 2)
-  pl <- pl + ggplot2::facet_wrap( ~ interaction, ncol = length(unique(topDT$interaction)))
-  pl
-
-}
-
-
-
-#' @title direction_test_CPG
-#' @name direction_test_CPG
-#' @description shows direction of change
-#' @examples
-#'     direction_test_CPG()
-direction_test = function(x, min_fdr = 0.05) {
-
-  fdr_1 = as.numeric(x[['fdr_1']])
-  if(is.na(fdr_1) == TRUE) fdr_1 = 1
-  fdr_2 = as.numeric(x[['fdr_2']])
-  if(is.na(fdr_2) == TRUE) fdr_2 = 1
-
-  log2fc_1 = as.numeric(x[['log2fc_spat_1']])
-  log2fc_2 = as.numeric(x[['log2fc_spat_2']])
-
-  if(fdr_1 > min_fdr & fdr_2 > min_fdr) {
-    return('n.s.')
-  } else if(fdr_1 <= min_fdr & fdr_2 <= min_fdr) {
-
-    if(log2fc_1 > 0 & log2fc_2 > 0) {
-      return('both_up')
-    } else if(log2fc_1 < 0 & log2fc_2 < 0) {
-      return('both_down')
-    } else {
-      return('mixed')
-    }
-
-  } else if((fdr_1 <= min_fdr & log2fc_1 > 0) | (fdr_2 <= min_fdr & log2fc_2 > 0)) {
-    return('up')
-  } else if((fdr_1 <= min_fdr & log2fc_1 < 0) | (fdr_2 <= min_fdr & log2fc_2 < 0)) {
-    return('down')
-  } else {
-    return('missing')
-  }
-
-}
-
-
-
-#' @title filterCPGscores
-#' @name filterCPGscores
-#' @description visualize Cell Proximity Gene enrichment scores
-#' @param method visualization method
-#' @param min_cells min number of cells threshold
-#' @param min_fdr false_discovery threshold
-#' @param min_spat_diff spatial difference threshold
-#' @param min_log2_fc min log2 fold-change
-#' @param keep_int_duplicates keep both cell_A-cell_B and cell_B-cell_A
-#' @param direction expression changes to keep
-#' @return Gene to gene scores in data.table format
-#' @details This function filters the output from getCellProximityGeneScores based on
-#' false-discovery rate, minimum absolute difference, minimum log fold-change and
-#' direction of change.
-#' @export
-#' @examples
-#'     filterCPGscores(CPGscore)
-filterCPGscores = function(CPGscore,
-                           min_cells = 5,
-                           min_fdr = 0.05,
-                           min_spat_diff = 0.2,
-                           min_log2_fc = 0.5,
-                           keep_int_duplicates = TRUE,
-                           direction = c('both', 'up', 'down')) {
-
-
-
-  # other parameters
-  direction = match.arg(direction, choices = c('both', 'up', 'down'))
-
-  if(keep_int_duplicates == FALSE) {
-    selection_scores = data.table::copy(CPGscore[unif_int_rank == 1])
-  } else {
-    selection_scores = data.table::copy(CPGscore)
-  }
-
-  selection_scores = CPGscore[(nr_1 >= min_cells & fdr_1 <= min_fdr &
-                                 abs(diff_spat_1) >= min_spat_diff &
-                                 abs(log2fc_spat_1) >= min_log2_fc) |
-                                (nr_2 >= min_cells & fdr_2 <= min_fdr &
-                                   abs(diff_spat_2) >= min_spat_diff &
-                                   abs(log2fc_spat_2) >= min_log2_fc)]
-
-  if(direction == 'both') {
-    selection_scores = selection_scores
-  } else if(direction == 'up') {
-    selection_scores = selection_scores[(log2fc_spat_1 >= min_log2_fc & fdr_1 <= min_fdr & diff_spat_1 >= min_spat_diff) |
-                                          (log2fc_spat_2 >= min_log2_fc & fdr_2 <= min_fdr & diff_spat_2 >= min_spat_diff)]
-  } else if(direction == 'down') {
-    selection_scores = selection_scores[(log2fc_spat_1 <= -min_log2_fc & fdr_1 <= min_fdr & diff_spat_1 <= -min_spat_diff) |
-                                          (log2fc_spat_2 <= -min_log2_fc & fdr_2 <= min_fdr & diff_spat_2 <= -min_spat_diff)]
-  }
-
-
-  change_values = unlist(apply(selection_scores, MARGIN = 1, FUN = function(x) {
-    direction_test(x, min_fdr = min_fdr)
-  }))
-  selection_scores[, change := change_values]
-  return(selection_scores)
-
-}
-
-
-
-#' @title showCPGscores
-#' @name showCPGscores
-#' @description visualize Cell Proximity Gene enrichment scores
-#' @param CPGscore CPGscore, output from getCellProximityGeneScores()
-#' @param method visualization method
-#' @param min_cells min number of cells threshold
-#' @param min_fdr fdr threshold
-#' @param min_spat_diff spatial difference threshold
-#' @param min_log2_fc min log2 fold-change
-#' @param keep_int_duplicates keep both cell_A-cell_B and cell_B-cell_A
-#' @param direction up or downregulation or both
-#' @param cell_color_code color code for cell types
-#' @param show_plot show plot
-#' @param return_plot return ggplot object
+#' @title plotCellProximityGenes
+#' @name plotCellProximityGenes
+#' @description Create visualization for cell proximity gene scores
+#' @param gobject giotto object
+#' @param cpgObject cell proximity gene score object
+#' @param method plotting method to use
+#' @param min_cells minimum number of source cell type
+#' @param min_cells_expr minimum expression level for source cell type
+#' @param min_int_cells minimum number of interacting neighbor cell type
+#' @param min_int_cells_expr minimum expression level for interacting neighbor cell type
+#' @param min_fdr minimum adjusted p-value
+#' @param min_spat_diff minimum absolute spatial expression difference
+#' @param min_log2_fc minimum log2 fold-change
+#' @param min_zscore minimum z-score change
+#' @param zscores_column calculate z-scores over cell types or genes
+#' @param direction differential expression directions to keep
+#' @param cell_color_code vector of colors with cell types as names
+#' @param show_plot show plots
+#' @param return_plot return plotting object
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
-#' @return Gene to gene scores in data.table format
-#' @details Different ways to visualize how many genes are differentially regulated
-#' within a source cell type due to the proximity of another neighboring cell type.
+#' @return plot
 #' @export
 #' @examples
-#'     showCPGscores(CPGscore)
-showCPGscores = function(gobject,
-                         CPGscore,
-                         method = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey', 'heatmap', 'dotplot'),
-                         min_cells = 5,
-                         min_fdr = 0.05,
-                         min_spat_diff = 0.2,
-                         min_log2_fc = 0.5,
-                         keep_int_duplicates = TRUE,
-                         direction = c('both', 'up', 'down'),
-                         cell_color_code = NULL,
-                         show_plot = NA,
-                         return_plot = NA,
-                         save_plot = NA,
-                         save_param =  list(),
-                         default_save_name = 'showCPGscores'
-) {
+#'     plotCellProximityGenes(CPGscores)
+plotCellProximityGenes = function(gobject,
+                                  cpgObject,
+                                  method = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey', 'heatmap', 'dotplot'),
+                                  min_cells = 4,
+                                  min_cells_expr = 1,
+                                  min_int_cells = 4,
+                                  min_int_cells_expr = 1,
+                                  min_fdr = 0.1,
+                                  min_spat_diff = 0.2,
+                                  min_log2_fc = 0.2,
+                                  min_zscore = 2,
+                                  zscores_column = c('cell_type', 'genes'),
+                                  direction = c('both', 'up', 'down'),
+                                  cell_color_code = NULL,
+                                  show_plot = NA,
+                                  return_plot = NA,
+                                  save_plot = NA,
+                                  save_param =  list(),
+                                  default_save_name = 'plotCellProximityGenes') {
 
+
+  if(!'cpgObject' %in% class(cpgObject)) {
+    stop('\n cpgObject needs to be the output from findCellProximityGenes() or findCPG() \n')
+  }
 
   # print, return and save parameters
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
@@ -1475,36 +1230,36 @@ showCPGscores = function(gobject,
 
 
   ## first filter
-  filter_set = filterCPGscores(CPGscore = CPGscore,
-                               min_cells = min_cells,
-                               min_fdr = min_fdr,
-                               min_spat_diff = min_spat_diff,
-                               min_log2_fc = min_log2_fc,
-                               keep_int_duplicates = keep_int_duplicates,
-                               direction = direction)
+  filter_cpg = filterCellProximityGenes(cpgObject = cpgObject,
+                                        min_cells = min_cells,
+                                        min_cells_expr = min_cells_expr,
+                                        min_int_cells = min_int_cells,
+                                        min_int_cells_expr = min_int_cells_expr,
+                                        min_fdr = min_fdr,
+                                        min_spat_diff = min_spat_diff,
+                                        min_log2_fc = min_log2_fc,
+                                        min_zscore = min_zscore,
+                                        zscores_column = zscores_column,
+                                        direction = direction)
 
+  complete_part = filter_cpg[['CPGscores']]
 
   ## other parameters
   method = match.arg(method, choices = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey', 'heatmap', 'dotplot'))
 
+
+  # variables
+  log2fc = p.adj =  unif_int = N = cell_type = int_cell_type = NULL
+
   ## create data.table for visualization
-  subset = filter_set[(fdr_1 <= min_fdr & unif_int_rank == 1) | (fdr_1 <= min_fdr & fdr_2 <= min_fdr & unif_int_rank == 2)]
-  part1 = subset[unif_int_rank == 1,.(genes, interaction, cell_type_1, cell_type_2, log2fc_spat_1, fdr_1)]
-  colnames(part1) = c('genes', 'interaction', 'source', 'neighbor', 'log2fc', 'fdr')
-  part2 = subset[unif_int_rank == 2,.(genes, interaction, cell_type_2, cell_type_1, log2fc_spat_2, fdr_2)]
-  colnames(part2) = c('genes', 'interaction', 'source', 'neighbor', 'log2fc', 'fdr')
-  complete_part = rbind(part1, part2)
-
-
-
-
   if(method == 'volcano') {
 
     ## volcanoplot
-    pl = ggplot()
-    pl = pl + geom_point(data = complete_part, aes(x = log2fc, y = -log10(fdr)))
-    pl = pl + theme_classic()
-    pl = pl + geom_vline(xintercept = 0, linetype = 2)
+    pl = ggplot2::ggplot()
+    pl = pl + ggplot2::geom_point(data = complete_part, ggplot2::aes(x = log2fc, y = ifelse(is.infinite(-log10(p.adj)), 1000, -log10(p.adj))))
+    pl = pl + ggplot2::theme_classic()
+    pl = pl + ggplot2::geom_vline(xintercept = 0, linetype = 2)
+    pl = pl + ggplot2::labs(x = 'log2 fold-change', y = '-log10(p.adjusted)')
 
 
     ## print plot
@@ -1525,14 +1280,14 @@ showCPGscores = function(gobject,
 
   } else if(method == 'cell-cell') {
 
-    nr_int_selection_scores = complete_part[, .N, by = interaction]
-    order_interactions = nr_int_selection_scores[order(N)]$interaction
+    nr_int_selection_scores = complete_part[, .N, by = unif_int]
+    order_interactions = nr_int_selection_scores[order(N)]$unif_int
 
-    complete_part[, interaction := factor(interaction, order_interactions)]
+    complete_part[, unif_int := factor(unif_int, order_interactions)]
 
     pl <- ggplot2::ggplot()
-    pl <- pl + ggplot2::geom_bar(data = complete_part, aes(x = interaction, fill = interaction))
-    pl <- pl + ggplot2::theme_classic() + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1))
+    pl <- pl + ggplot2::geom_bar(data = complete_part, ggplot2::aes(x = unif_int, fill = unif_int))
+    pl <- pl + ggplot2::theme_classic() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1, vjust = 1))
     pl <- pl + ggplot2::coord_flip()
 
     ## print plot
@@ -1555,13 +1310,13 @@ showCPGscores = function(gobject,
 
 
     # by source cell type plot
-    nr_source_selection_scores = complete_part[, .N, by = source]
-    order_source = nr_source_selection_scores[order(N)]$source
+    nr_source_selection_scores = complete_part[, .N, by = cell_type]
+    order_source = nr_source_selection_scores[order(N)]$cell_type
 
-    complete_part[, source := factor(source, order_source)]
+    complete_part[, cell_type := factor(cell_type, order_source)]
 
     pl <- ggplot2::ggplot()
-    pl <- pl + ggplot2::geom_bar(data = complete_part, aes(x = source, fill = neighbor))
+    pl <- pl + ggplot2::geom_bar(data = complete_part, ggplot2::aes(x = cell_type, fill = int_cell_type))
     if(!is.null(cell_color_code)) {
       pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
     }
@@ -1586,13 +1341,13 @@ showCPGscores = function(gobject,
 
   } else if(method == 'cell_sankey') {
 
-    testalluv = complete_part[, .N, by = c('neighbor', 'source')]
+    testalluv = complete_part[, .N, by = c('int_cell_type', 'cell_type')]
 
     library(ggalluvial)
 
     pl <- ggplot2::ggplot(testalluv,
-                          aes(y = N, axis1 = source, axis2 = neighbor)) +
-      ggalluvial::geom_alluvium(aes(fill = source), width = 1/12) +
+                          ggplot2::aes(y = N, axis1 = cell_type, axis2 = int_cell_type)) +
+      ggalluvial::geom_alluvium(aes(fill = cell_type), width = 1/12) +
       ggalluvial::geom_stratum(width = 1/12, fill = "black", color = "grey") +
       ggplot2::scale_x_discrete(limits = c("cell type", "neighbours"), expand = c(.05, .05)) +
       ggplot2::geom_label(stat = "stratum", label.strata = TRUE, size = 3) +
@@ -1621,17 +1376,17 @@ showCPGscores = function(gobject,
 
   } else if(method == 'dotplot') {
 
-    changed_genes = complete_part[, .N, by = c('source', 'neighbor')]
+    changed_genes = complete_part[, .N, by = c('cell_type', 'int_cell_type')]
 
-    changed_genes[, source := factor(source, unique(source))]
-    changed_genes[, neighbor := factor(neighbor, unique(neighbor))]
+    changed_genes[, cell_type := factor(cell_type, unique(cell_type))]
+    changed_genes[, int_cell_type := factor(int_cell_type, unique(int_cell_type))]
 
-    pl = ggplot()
-    pl = pl + theme_classic()
-    pl = pl + geom_point(data = changed_genes, aes(x = source, y = neighbor, size = N))
-    pl = pl + scale_size_continuous(guide=guide_legend(title = '# of DEGs'))
-    pl = pl + theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1))
-    pl = pl + labs(x = 'source cell type', y = 'neighbor cell type')
+    pl = ggplot2::ggplot()
+    pl = pl + ggplot2::theme_classic()
+    pl = pl + ggplot2::geom_point(data = changed_genes, ggplot2::aes(x = cell_type, y = int_cell_type, size = N))
+    pl = pl + ggplot2::scale_size_continuous(guide=guide_legend(title = '# of ICGs'))
+    pl = pl + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
+    pl = pl + ggplot2::labs(x = 'source cell type', y = 'neighbor cell type')
 
     ## print plot
     if(show_plot == TRUE) {
@@ -1650,19 +1405,19 @@ showCPGscores = function(gobject,
 
   } else if(method == 'heatmap') {
 
-    changed_genes = complete_part[, .N, by = c('source', 'neighbor')]
+    changed_genes = complete_part[, .N, by = c('cell_type', 'int_cell_type')]
 
-    changed_genes[, source := factor(source, unique(source))]
-    changed_genes[, neighbor := factor(neighbor, unique(neighbor))]
+    changed_genes[, cell_type := factor(cell_type, unique(cell_type))]
+    changed_genes[, int_cell_type := factor(int_cell_type, unique(int_cell_type))]
 
-    changed_genes_d = data.table::dcast.data.table(changed_genes, source~neighbor, value.var = 'N', fill = 0)
-    changed_genes_m = Giotto:::dt_to_matrix(changed_genes_d)
+    changed_genes_d = data.table::dcast.data.table(changed_genes, cell_type~int_cell_type, value.var = 'N', fill = 0)
+    changed_genes_m = dt_to_matrix(changed_genes_d)
 
-    col_fun = circlize::colorRamp2(breaks = quantile(log2(changed_genes_m+1)),
+    col_fun = circlize::colorRamp2(breaks = stats::quantile(log2(changed_genes_m+1)),
                                    colors =  c("white", 'white', "blue", "yellow", "red"))
 
     heatm = ComplexHeatmap::Heatmap(log2(changed_genes_m+1), col = col_fun,
-                                    row_title = 'source', column_title = 'neighbor', heatmap_legend_param = list(title = 'log2(# DEGs)'))
+                                    row_title = 'cell_type', column_title = 'int_cell_type', heatmap_legend_param = list(title = 'log2(# DEGs)'))
 
     ## print plot
     if(show_plot == TRUE) {
@@ -1685,286 +1440,320 @@ showCPGscores = function(gobject,
 }
 
 
-
-#' @title showGTGscores
-#' @name showGTGscores
-#' @description visualize Cell Proximity Gene enrichment scores
-#' @param CPGscore CPGscore, output from getCellProximityGeneScores()
-#' @param method visualization method
-#' @param min_cells min number of cells threshold
-#' @param min_pval p-value threshold
-#' @param min_spat_diff spatial difference threshold
-#' @param min_log2_fc log2 fold-change threshold
-#' @param direction up or downregulation or both
-#' @param cell_color_code color code for cell types
-#' @param show_plot print plot
-#' @param specific_genes_1 subset of genes, matched with specific_genes_2
-#' @param specific_genes_2 subset of genes, matched with specific_genes_1
-#' @param first_cell_name name for first cells
-#' @param second_cell_name name for second cells
-#' @return ggplot
-#' @details Give more details ...
+#' @title plotCPG
+#' @name plotCPG
+#' @description Create visualization for cell proximity gene scores
+#' @param gobject giotto object
+#' @param cpgObject cell proximity gene score object
+#' @param method plotting method to use
+#' @param min_cells minimum number of source cell type
+#' @param min_cells_expr minimum expression level for source cell type
+#' @param min_int_cells minimum number of interacting neighbor cell type
+#' @param min_int_cells_expr minimum expression level for interacting neighbor cell type
+#' @param min_fdr minimum adjusted p-value
+#' @param min_spat_diff minimum absolute spatial expression difference
+#' @param min_log2_fc minimum log2 fold-change
+#' @param min_zscore minimum z-score change
+#' @param zscores_column calculate z-scores over cell types or genes
+#' @param direction differential expression directions to keep
+#' @param cell_color_code vector of colors with cell types as names
+#' @param show_plot show plots
+#' @param return_plot return plotting object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return plot
 #' @export
 #' @examples
-#'     showGTGscores(CPGscore)
-showGTGscores = function(GTGscore,
-                         method = c('cell_barplot', 'cell-cell', 'cell_sankey'),
-                         min_cells = 5,
-                         min_pval = 0.05,
-                         min_spat_diff = 0.2,
-                         min_log2_fc = 0.5,
-                         direction = c('both', 'up', 'down'),
-                         cell_color_code = NULL,
-                         show_plot = T,
-                         specific_genes_1 = NULL,
-                         specific_genes_2 = NULL,
-                         first_cell_name = 'ligand cell',
-                         second_cell_name = 'receptor cell',
-                         return_DT = F) {
+#'     plotCPG(CPGscores)
+plotCPG = function(gobject,
+                   cpgObject,
+                   method = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey', 'heatmap', 'dotplot'),
+                   min_cells = 5,
+                   min_cells_expr = 1,
+                   min_int_cells = 3,
+                   min_int_cells_expr = 1,
+                   min_fdr = 0.05,
+                   min_spat_diff = 0.2,
+                   min_log2_fc = 0.2,
+                   min_zscore = 2,
+                   zscores_column = c('cell_type', 'genes'),
+                   direction = c('both', 'up', 'down'),
+                   cell_color_code = NULL,
+                   show_plot = NA,
+                   return_plot = NA,
+                   save_plot = NA,
+                   save_param =  list(),
+                   default_save_name = 'plotCPG') {
 
 
-  direction = match.arg(direction, choices = c('both', 'up', 'down'))
-  method = match.arg(method, choices = c('cell_barplot', 'cell-cell', 'cell_sankey'))
+  plotCellProximityGenes(gobject = gobject,
+                         cpgObject = cpgObject,
+                         method = method,
+                         min_cells = min_cells,
+                         min_cells_expr = min_cells_expr,
+                         min_int_cells = min_int_cells,
+                         min_int_cells_expr = min_int_cells_expr,
+                         min_fdr = min_fdr,
+                         min_spat_diff = min_spat_diff,
+                         min_log2_fc = min_log2_fc,
+                         min_zscore = min_zscore,
+                         zscores_column = zscores_column,
+                         direction = direction,
+                         cell_color_code = cell_color_code,
+                         show_plot = show_plot,
+                         return_plot = return_plot,
+                         save_plot = save_plot,
+                         save_param =  save_param,
+                         default_save_name = default_save_name)
 
-
-  ## filter ##
-
-  ## p-value, nr of cells and spatial difference
-  if(direction == 'both') {
-    GTGscore = GTGscore[(nr_1 >= min_cells & pval_1 < min_pval & abs(diff_spat_1) >= min_spat_diff & abs(log2fc_spat_1) >= min_log2_fc) &
-                          (nr_2 >= min_cells & pval_2 < min_pval & abs(diff_spat_2) >= min_spat_diff & abs(log2fc_spat_2) >= min_log2_fc)]
-  } else if(direction == 'up') {
-    GTGscore = GTGscore[(nr_1 >= min_cells & pval_1 < min_pval & diff_spat_1 >= min_spat_diff & log2fc_spat_1 >= min_log2_fc) &
-                          (nr_2 >= min_cells & pval_2 < min_pval & diff_spat_2 >= min_spat_diff & log2fc_spat_2 >= min_log2_fc)]
-  } else if(direction == 'down') {
-    GTGscore = GTGscore[(nr_1 >= min_cells & pval_1 < min_pval & diff_spat_1 <= -min_spat_diff & log2fc_spat_1 <= -min_log2_fc) &
-                          (nr_2 >= min_cells & pval_2 < min_pval & diff_spat_2 <= -min_spat_diff & log2fc_spat_2 <= -min_log2_fc)]
-  }
-
-
-
-  ## specific genes
-  if((!is.null(specific_genes_1) & !is.null(specific_genes_2))) {
-
-    if(length(specific_genes_1) != length(specific_genes_2)) {
-      stop('\n specific_genes_1 must have the same length as specific_genes_2')
-    }
-
-    LR_combo = paste0(specific_genes_1,'-', specific_genes_2)
-    RL_combo = paste0(specific_genes_2,'-', specific_genes_1)
-    GTGscore = GTGscore[gene_gene %in% c(LR_combo, RL_combo)]
-
-  }
-
-
-  # return data.table
-  if(return_DT == TRUE) {
-    return(GTGscore)
-  }
-
-
-
-  if(method == 'cell-cell') {
-
-    nr_int_GTGscore = GTGscore[, .N, by = unified_int]
-    order_interactions = nr_int_GTGscore[order(N)]$unified_int
-
-    GTGscore[, unified_int := factor(unified_int, order_interactions)]
-    GTGscore[, type_int := ifelse(cell_type_1 == cell_type_2, 'homo', 'hetero')]
-
-    pl <- ggplot2::ggplot()
-    pl <- pl + ggplot2::geom_bar(data = GTGscore, aes(x = unified_int, fill = type_int))
-    pl <- pl + ggplot2::theme_classic() + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1))
-    pl <- pl + ggplot2::coord_flip()
-
-    if(show_plot == TRUE) {
-      print(pl)
-    }
-
-  } else if(method == 'cell_barplot') {
-
-    if((!is.null(specific_genes_1) & !is.null(specific_genes_2))) {
-
-      LR_GTGscore = GTGscore[(genes_1 %in% specific_genes_1 & genes_2 %in% specific_genes_2)]
-      RL_GTGscore = GTGscore[(genes_1 %in% specific_genes_2 & genes_2 %in% specific_genes_1)]
-
-      hipLR = LR_GTGscore[, .N, by = .(cell_type_1, cell_type_2)]
-      setnames(hipLR, c('cell_type_1', 'cell_type_2'), c('first_cell', 'second_cell'))
-      hipRL = RL_GTGscore[, .N, by = .(cell_type_2, cell_type_1)]
-      setnames(hipRL, c('cell_type_2', 'cell_type_1'), c('first_cell', 'second_cell'))
-      hip = rbind(hipLR, hipRL)
-
-      hip[, type_int := ifelse(first_cell == second_cell, 'homo', 'hetero')]
-
-    } else {
-
-      hip = GTGscore[, .N, by = .(cell_type_1, cell_type_2)]
-      setnames(hip, c('cell_type_1', 'cell_type_2'), c('first_cell', 'second_cell'))
-
-    }
-
-    first_order = hip[, sum(N), by = first_cell]
-    first_cell_order = first_order[order(V1)][['first_cell']]
-
-    second_order = hip[, sum(N), by = second_cell]
-    second_cell_order = second_order[order(V1)][['second_cell']]
-
-    hip[, first_cell := factor(first_cell, levels = first_cell_order)]
-    hip[, second_cell := factor(second_cell, levels = second_cell_order)]
-
-
-    pl <- ggplot2::ggplot()
-    pl <- pl + ggplot2::geom_bar(data = hip, aes(x = first_cell, fill = second_cell, y = N), stat = 'identity')
-    pl <- pl + ggplot2::theme_classic()  + theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
-
-    if(!is.null(cell_color_code)) {
-      pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
-    }
-
-    if(show_plot == TRUE) {
-      print(pl)
-    }
-
-
-  } else if(method == 'cell_sankey') {
-
-
-    if((!is.null(specific_genes_1) & !is.null(specific_genes_2))) {
-
-      LR_GTGscore = GTGscore[(genes_1 %in% specific_genes_1 & genes_2 %in% specific_genes_2)]
-      RL_GTGscore = GTGscore[(genes_1 %in% specific_genes_2 & genes_2 %in% specific_genes_1)]
-
-      hipLR = LR_GTGscore[, .N, by = .(cell_type_1, cell_type_2)]
-      setnames(hipLR, c('cell_type_1', 'cell_type_2'), c('first_cell', 'second_cell'))
-      hipRL = RL_GTGscore[, .N, by = .(cell_type_2, cell_type_1)]
-      setnames(hipRL, c('cell_type_2', 'cell_type_1'), c('first_cell', 'second_cell'))
-      hip = rbind(hipLR, hipRL)
-
-      hip[, type_int := ifelse(first_cell == second_cell, 'homo', 'hetero')]
-
-    } else {
-
-      hip = GTGscore[, .N, by = .(cell_type_1, cell_type_2)]
-      setnames(hip, c('cell_type_1', 'cell_type_2'), c('first_cell', 'second_cell'))
-
-    }
-
-    first_order = hip[, sum(N), by = first_cell]
-    first_cell_order = first_order[order(V1)][['first_cell']]
-
-    second_order = hip[, sum(N), by = second_cell]
-    second_cell_order = second_order[order(V1)][['second_cell']]
-
-    hip[, first_cell := factor(first_cell, levels = first_cell_order)]
-    hip[, second_cell := factor(second_cell, levels = second_cell_order)]
-
-
-    pl <- ggplot2::ggplot(hip,
-                 aes(y = N, axis1 = first_cell, axis2 = second_cell)) +
-      ggalluvial::geom_alluvium(aes(fill = first_cell), width = 1/12) +
-      ggalluvial::geom_stratum(width = 1/12, fill = "black", color = "grey") +
-      ggplot2::scale_x_discrete(limits = c(first_cell_name, second_cell_name), expand = c(.05, .05)) +
-      ggplot2::geom_label(stat = "stratum", label.strata = TRUE, size = 3) +
-      ggplot2::theme_classic() + ggplot2::labs(x = '', y = '# spatial L-R')
-    if(!is.null(cell_color_code)) {
-      pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
-    }
-    if(show_plot == TRUE) {
-      print(pl)
-    }
-
-  }
-
-  return(pl)
 
 }
 
 
 
 
-#' @title plotGTGscores
-#' @name plotGTGscores
-#' @description Create heatmap from cell-cell proximity scores
+
+#' @title plotInteractionChangedGenes
+#' @name plotInteractionChangedGenes
+#' @description Create barplot to visualize interaction changed genes
 #' @param gobject giotto object
-#' @param GTGscore GTGscore, output from getGeneToGeneScores()
+#' @param cpgObject cell proximity gene score object
+#' @param source_type cell type of the source cell
+#' @param source_markers markers for the source cell type
+#' @param ICG_genes named character vector of ICG genes
+#' @param cell_color_code cell color code for the interacting cell types
+#' @param show_plot show plots
+#' @param return_plot return plotting object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return plot
+#' @export
+#' @examples
+#'     plotInteractionChangedGenes(CPGscores)
+plotInteractionChangedGenes = function(gobject,
+                                       cpgObject,
+                                       source_type,
+                                       source_markers,
+                                       ICG_genes,
+                                       cell_color_code = NULL,
+                                       show_plot = NA,
+                                       return_plot = NA,
+                                       save_plot = NA,
+                                       save_param =  list(),
+                                       default_save_name = 'plotInteractionChangedGenes') {
+
+
+  # data.table variables
+  cell_type = int_cell_type = log2fc = NULL
+
+
+  if(!'cpgObject' %in% class(cpgObject)) {
+    stop('\n cpgObject needs to be the output from findCellProximityGenes() or findCPG() \n')
+  }
+
+  CPGscores = cpgObject[['CPGscores']]
+
+  # combine genes
+  names(source_markers) = rep('marker', length(source_markers))
+  neighbor_types = names(ICG_genes)
+  all_genes = c(source_markers, ICG_genes)
+
+  # warning if there are genes selected that are not detected
+  detected_genes = unique(CPGscores[['genes']])
+  not_detected_genes = all_genes[!all_genes %in% detected_genes]
+  if(length(not_detected_genes) > 0) {
+    cat('These selected genes are not in the cpgObject: \n',
+        not_detected_genes, '\n')
+  }
+
+  # data.table set column names
+  genes = group = NULL
+
+  tempDT = CPGscores[genes %in% all_genes][cell_type == source_type][int_cell_type %in% neighbor_types]
+  tempDT[, genes := factor(genes, levels = all_genes)]
+  tempDT[, group := names(all_genes[all_genes == genes]), by = 1:nrow(tempDT)]
+
+
+  if(is.null(cell_color_code)) {
+    mycolors = getDistinctColors(n = length(unique(tempDT$int_cell_type)))
+    names(mycolors) = unique(tempDT$int_cell_type)
+  } else {
+    mycolors = cell_color_code
+  }
+
+
+  pl = ggplot2::ggplot()
+  pl = pl + ggplot2::theme_classic() + ggplot2::theme(axis.text.x = ggplot2::element_text(size = 14, angle = 45, vjust = 1, hjust = 1),
+                                                      axis.text.y = ggplot2::element_text(size = 14),
+                                                      axis.title = ggplot2::element_text(size = 14))
+  pl = pl + ggplot2::geom_bar(data = tempDT, ggplot2::aes(x = genes, y = log2fc, fill = int_cell_type), stat = 'identity', position = ggplot2::position_dodge())
+  pl = pl + ggplot2::scale_fill_manual(values = mycolors)
+  pl = pl + ggplot2::labs(x = '', title = paste0('fold-change z-scores in ' ,source_type))
+
+
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
+
+
+}
+
+
+#' @title plotICG
+#' @name plotICG
+#' @description Create barplot to visualize interaction changed genes
+#' @param gobject giotto object
+#' @param cpgObject cell proximity gene score object
+#' @param source_type cell type of the source cell
+#' @param source_markers markers for the source cell type
+#' @param ICG_genes named character vector of ICG genes
+#' @param cell_color_code cell color code for the interacting cell types
+#' @param show_plot show plots
+#' @param return_plot return plotting object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return plot
+#' @export
+#' @examples
+#'     plotICG(CPGscores)
+plotICG = function(gobject,
+                   cpgObject,
+                   source_type,
+                   source_markers,
+                   ICG_genes,
+                   cell_color_code = NULL,
+                   show_plot = NA,
+                   return_plot = NA,
+                   save_plot = NA,
+                   save_param =  list(),
+                   default_save_name = 'plotICG') {
+
+
+  plotInteractionChangedGenes(gobject = gobject,
+                             cpgObject = cpgObject,
+                             source_type = source_type,
+                             source_markers = source_markers,
+                             ICG_genes = ICG_genes,
+                             cell_color_code = cell_color_code,
+                             show_plot = show_plot,
+                             return_plot = return_plot,
+                             save_plot = save_plot,
+                             save_param =  save_param,
+                             default_save_name = default_save_name)
+
+}
+
+
+
+
+
+
+#' @title plotCombineCellProximityGenes
+#' @name plotCombineCellProximityGenes
+#' @description Create visualization for combined (pairwise) cell proximity gene scores
+#' @param gobject giotto object
+#' @param combCpgObject CPGscores, output from combineCellProximityGenes()
 #' @param selected_interactions interactions to show
-#' @param selected_genes genes to show
+#' @param selected_gene_to_gene pairwise gene combinations to show
 #' @param detail_plot show detailed info in both interacting cell types
 #' @param simple_plot show a simplified plot
 #' @param simple_plot_facet facet on interactions or genes with simple plot
 #' @param facet_scales ggplot facet scales paramter
 #' @param facet_ncol ggplot facet ncol parameter
 #' @param facet_nrow ggplot facet nrow parameter
-#' @param colors vector with 2 colors to represent respectively all and selected cells
+#' @param colors vector with two colors to use
 #' @param show_plot show plots
-#' @param return_plot return ggplot object
+#' @param return_plot return plotting object
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
-#' @return ggplot barplot
-#' @details Give more details ...
+#' @return ggplot
 #' @export
 #' @examples
-#'     plotGTGscores(GTGscore)
-plotGTGscores <- function(gobject,
-                          GTGscore,
-                          selected_interactions = NULL,
-                          selected_gene_to_gene = NULL,
-                          detail_plot = T,
-                          simple_plot = F,
-                          simple_plot_facet = c('interaction', 'genes'),
-                          facet_scales = 'fixed',
-                          facet_ncol = length(selected_gene_to_gene),
-                          facet_nrow = length(selected_interactions),
-                          colors = c('blue', 'red'),
-                          show_plot = NA,
-                          return_plot = NA,
-                          save_plot = NA,
-                          save_param =  list(),
-                          default_save_name = 'plotGTGscores') {
+#'     plotCombineCellProximityGenes(CPGscores)
+plotCombineCellProximityGenes <- function(gobject,
+                                          combCpgObject,
+                                          selected_interactions = NULL,
+                                          selected_gene_to_gene = NULL,
+                                          detail_plot = T,
+                                          simple_plot = F,
+                                          simple_plot_facet = c('interaction', 'genes'),
+                                          facet_scales = 'fixed',
+                                          facet_ncol = length(selected_gene_to_gene),
+                                          facet_nrow = length(selected_interactions),
+                                          colors = c('#9932CC', '#FF8C00'),
+                                          show_plot = NA,
+                                          return_plot = NA,
+                                          save_plot = NA,
+                                          save_param =  list(),
+                                          default_save_name = 'plotCombineCPG') {
+
+
+
+  ## check validity
+  if(!'combCpgObject' %in% class(combCpgObject)) {
+    stop('\n combCpgObject needs to be the output from combineCellProximityGenes() or combineCPG() \n')
+  }
+  combCPGscore = copy(combCpgObject[['combCPGscores']])
 
   if(is.null(selected_interactions) | is.null(selected_gene_to_gene)) {
     stop('\n You need to provide a selection of cell-cell interactions and genes-genes to plot \n')
   }
 
 
-  subDT = GTGscore[unif_gene_gene %in% selected_gene_to_gene & unified_int %in% selected_interactions]
+  # data.table variables
+  unif_gene_gene = unif_int = other_2 = sel_2 = other_1 = sel_1 = cols = NULL
 
-  subDT[, all_cell_expr_1 := as.numeric(all_cell_expr_1)]
-  subDT[, cell_expr_1 := as.numeric(cell_expr_1)]
-  subDT[, all_cell_expr_2 := as.numeric(all_cell_expr_2)]
-  subDT[, cell_expr_2 := as.numeric(cell_expr_2)]
-  subDT[, all_cell_expr := as.numeric(all_cell_expr)]
-  subDT[, spatial_cell_expr := as.numeric(spatial_cell_expr)]
 
+  subDT = combCPGscore[unif_gene_gene %in% selected_gene_to_gene & unif_int %in% selected_interactions]
 
   # order interactions and gene-to-gene according to input
-  subDT[, gene_gene := factor(gene_gene, levels = selected_gene_to_gene)]
-  subDT[, unified_int := factor(unified_int, levels = selected_interactions)]
+  subDT[, unif_gene_gene := factor(unif_gene_gene, levels = selected_gene_to_gene)]
+  subDT[, unif_int := factor(unif_int, levels = selected_interactions)]
 
-
-    if(simple_plot == F) {
+  if(simple_plot == F) {
 
     pl <- ggplot2::ggplot()
     pl <- pl + ggplot2::theme_bw()
 
     if(detail_plot == TRUE) {
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = 0, y = all_cell_expr_2, colour = "all cell expression"),shape = 1)
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = 0, y = cell_expr_2,colour = "selected cell expression"), shape = 1)
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_cell_expr_1, y = 0, colour = "all cell expression"), shape = 1)
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = cell_expr_1, y = 0,colour ="selected cell expression"), shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = 0, y = other_2, colour = "other cell expression"),shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = 0, y = sel_2, colour = "selected cell expression"), shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = other_1, y = 0, colour = "other cell expression"), shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sel_1, y = 0,colour ="selected cell expression"), shape = 1)
     }
 
-    pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_cell_expr_1, y = all_cell_expr_2,colour = "all cell expression"),size = 2)
-    pl <- pl + ggplot2::geom_point(data = subDT, aes(x = cell_expr_1, y = cell_expr_2,colour ="selected cell expression"), size = 2)
-    pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = all_cell_expr_1, xend = cell_expr_1,
-                                              y = all_cell_expr_2, yend = cell_expr_2), linetype = 2)
+    pl <- pl + ggplot2::geom_point(data = subDT, aes(x = other_1, y = other_2, colour = "other cell expression"),size = 2)
+    pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sel_1, y = sel_2, colour ="selected cell expression"), size = 2)
+    pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = other_1, xend = sel_1,
+                                                       y = other_2, yend = sel_2), linetype = 2)
     #pl <- pl + ggplot2::labs(x = 'gene 1 in celltype 1', y = 'gene 2 in celltype 2')
-    pl <- pl + ggplot2::labs(x = paste(subDT$genes_1,subDT$cell_type_1,sep = " in ")
-                             , y = paste(subDT$genes_2,subDT$cell_type_2,sep = " in "))
+    pl <- pl + ggplot2::labs(x = paste(subDT$genes_1, subDT$cell_type_1, sep = " in ")
+                             , y = paste(subDT$genes_2, subDT$cell_type_2, sep = " in "))
     pl <- pl + ggplot2::scale_colour_manual(name="expression source",values = colors)
-    pl <- pl + ggplot2::facet_wrap(~unif_gene_gene+unified_int, nrow = facet_nrow, ncol = facet_ncol,
-                          scales = facet_scales)
+    pl <- pl + ggplot2::facet_wrap(~unif_gene_gene+unif_int, nrow = facet_nrow, ncol = facet_ncol,
+                                   scales = facet_scales)
 
   }else {
 
@@ -1973,20 +1762,20 @@ plotGTGscores <- function(gobject,
     if(simple_plot_facet == 'interaction') {
       pl <- ggplot2::ggplot()
       pl <- pl + ggplot2::theme_bw()
-      pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = all_cell_expr, xend = spatial_cell_expr,
-                                                y = unif_gene_gene, yend = unif_gene_gene), linetype = 2)
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_cell_expr, y = unif_gene_gene,colour = "all cell expression"))
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = spatial_cell_expr, y = unif_gene_gene,colour ="selected cell expression"))
+      pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = sum(c(other_1, other_2)), xend = sum(c(sel_1, sel_2)),
+                                                         y = unif_gene_gene, yend = unif_gene_gene), linetype = 2)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sum(c(other_1, other_2)), y = unif_gene_gene,colour = "other cell expression"))
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sum(c(sel_1, sel_2)), y = unif_gene_gene,colour ="selected cell expression"))
       pl <- pl + ggplot2::scale_colour_manual(name="expression source",values=cols)
-      pl <- pl + ggplot2::facet_wrap(~unified_int, scales = facet_scales)
+      pl <- pl + ggplot2::facet_wrap(~unif_int, scales = facet_scales)
       pl <- pl + ggplot2::labs(x = 'interactions', y = 'gene-gene')
     } else {
       pl <- ggplot2::ggplot()
       pl <- pl + ggplot2::theme_bw()
-      pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = all_cell_expr, xend = spatial_cell_expr,
-                                                y = unified_int, yend = unified_int), linetype = 2)
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_cell_expr, y = unified_int,colour = "all cell expression"))
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = spatial_cell_expr, y = unified_int,colour ="selected cell expression"))
+      pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = sum(c(other_1, other_2)), xend = sum(c(sel_1, sel_2)),
+                                                         y = unif_int, yend = unif_int), linetype = 2)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sum(c(other_1, other_2)), y = unif_int, colour = "other cell expression"))
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = sum(c(sel_1, sel_2)), y = unif_int, colour ="selected cell expression"))
       pl <- pl + ggplot2::scale_colour_manual(name="expression source",values=cols)
       pl <- pl + ggplot2::facet_wrap(~unif_gene_gene, scales = facet_scales)
       pl <- pl + ggplot2::labs(x = 'gene-gene', y = 'interactions')
@@ -2013,61 +1802,135 @@ plotGTGscores <- function(gobject,
     return(pl)
   }
 
-  return(pl)
-
 }
 
 
 
-
-#' @title plotCPGscores
-#' @name plotCPGscores
-#' @description Create heatmap from cell-cell proximity scores
-#' @param CPGscores CPGscores, output from getCellProximityGeneScores()
+#' @title plotCombineCPG
+#' @name plotCombineCPG
+#' @description Create visualization for combined (pairwise) cell proximity gene scores
+#' @param gobject giotto object
+#' @param combCpgObject CPGscores, output from combineCellProximityGenes()
 #' @param selected_interactions interactions to show
-#' @param selected_genes genes to show
+#' @param selected_gene_to_gene pairwise gene combinations to show
 #' @param detail_plot show detailed info in both interacting cell types
 #' @param simple_plot show a simplified plot
 #' @param simple_plot_facet facet on interactions or genes with simple plot
 #' @param facet_scales ggplot facet scales paramter
 #' @param facet_ncol ggplot facet ncol parameter
 #' @param facet_nrow ggplot facet nrow parameter
-#' @param show_plot show plot
-#' @return ggplot barplot
-#' @details Give more details ...
+#' @param colors vector with two colors to use
+#' @param show_plot show plots
+#' @param return_plot return plotting object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
 #' @export
 #' @examples
-#'     plotCPGscores(CPGscores)
-plotCPGscores <- function(CPGscores,
-                          selected_interactions = NULL,
-                          selected_genes = NULL,
-                          detail_plot = T,
-                          simple_plot = F,
-                          simple_plot_facet = c('interaction', 'genes'),
-                          facet_scales = 'fixed',
-                          facet_ncol = length(selected_genes),
-                          facet_nrow = length(selected_interactions),
-                          show_plot = F) {
+#'     plotCombineCPG(CPGscores)
+plotCombineCPG <- function(gobject,
+                           combCpgObject,
+                           selected_interactions = NULL,
+                           selected_gene_to_gene = NULL,
+                           detail_plot = T,
+                           simple_plot = F,
+                           simple_plot_facet = c('interaction', 'genes'),
+                           facet_scales = 'fixed',
+                           facet_ncol = length(selected_gene_to_gene),
+                           facet_nrow = length(selected_interactions),
+                           colors = c('#9932CC', '#FF8C00'),
+                           show_plot = NA,
+                           return_plot = NA,
+                           save_plot = NA,
+                           save_param =  list(),
+                           default_save_name = 'plotCombineCPG') {
 
-  if(is.null(selected_interactions) | is.null(selected_genes)) {
-    stop('\n You need to provide a selection of cell-cell interactions and genes to plot \n')
+
+  plotCombineCellProximityGenes(gobject = gobject,
+                                combCpgObject = combCpgObject,
+                                selected_interactions = selected_interactions,
+                                selected_gene_to_gene = selected_gene_to_gene,
+                                detail_plot = detail_plot,
+                                simple_plot = simple_plot,
+                                simple_plot_facet = simple_plot_facet,
+                                facet_scales = facet_scales,
+                                facet_ncol = facet_ncol,
+                                facet_nrow = facet_nrow,
+                                colors = colors,
+                                show_plot = show_plot,
+                                return_plot = return_plot,
+                                save_plot = save_plot,
+                                save_param =  save_param,
+                                default_save_name = default_save_name)
+
+
+}
+
+
+
+
+
+
+
+# * ####
+# cell communication plots ####
+
+#' @title plotCombineCellCellCommunication
+#' @name plotCombineCellCellCommunication
+#' @description Create visualization for combined (pairwise) cell proximity gene scores
+#' @param gobject giotto object
+#' @param combCCcom combined communcation scores, output from combCCcom()
+#' @param selected_LR selected ligand-receptor pair
+#' @param selected_cell_LR selected cell-cell interaction pair for ligand-receptor pair
+#' @param detail_plot show detailed info in both interacting cell types
+#' @param simple_plot show a simplified plot
+#' @param simple_plot_facet facet on interactions or genes with simple plot
+#' @param facet_scales ggplot facet scales paramter
+#' @param facet_ncol ggplot facet ncol parameter
+#' @param facet_nrow ggplot facet nrow parameter
+#' @param colors vector with two colors to use
+#' @param show_plot show plots
+#' @param return_plot return plotting object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @export
+#' @examples
+#'     plotCombineCellCellCommunication(CPGscores)
+plotCombineCellCellCommunication <- function(gobject,
+                                             combCCcom,
+                                             selected_LR = NULL,
+                                             selected_cell_LR = NULL,
+                                             detail_plot = T,
+                                             simple_plot = F,
+                                             simple_plot_facet = c('interaction', 'genes'),
+                                             facet_scales = 'fixed',
+                                             facet_ncol = length(selected_LR),
+                                             facet_nrow = length(selected_cell_LR),
+                                             colors = c('#9932CC', '#FF8C00'),
+                                             show_plot = NA,
+                                             return_plot = NA,
+                                             save_plot = NA,
+                                             save_param =  list(),
+                                             default_save_name = 'plotCombineCellCellCommunication') {
+
+
+
+  # data.table variables
+  LR_comb = LR_cell_comb = lig_expr = lig_expr_spat = rec_expr = rec_expr_spat = LR_expr = LR_expr_spat = NULL
+
+  ## check validity
+  if(is.null(selected_cell_LR) | is.null(selected_LR)) {
+    stop('\n You need to provide a selection of cell-cell interactions and genes-genes to plot \n')
   }
 
-
-  subDT = CPGscores[genes %in% selected_genes & interaction %in% selected_interactions]
-
-  subDT[, all_cell_expr_1 := as.numeric(all_cell_expr_1)]
-  subDT[, cell_expr_1 := as.numeric(cell_expr_1)]
-  subDT[, all_cell_expr_2 := as.numeric(all_cell_expr_2)]
-  subDT[, cell_expr_2 := as.numeric(cell_expr_2)]
-  subDT[, all_comb_expr := as.numeric(all_comb_expr)]
-  subDT[, comb_expr := as.numeric(comb_expr)]
-
+  subDT = combCCcom[LR_comb %in% selected_LR & LR_cell_comb %in% selected_cell_LR]
 
   # order interactions and gene-to-gene according to input
-  subDT[, genes := factor(genes, levels = selected_genes)]
-  subDT[, interaction := factor(interaction, levels = selected_interactions)]
-
+  subDT[, LR_comb := factor(LR_comb, levels = selected_LR)]
+  subDT[, LR_cell_comb := factor(LR_cell_comb, levels = selected_cell_LR)]
 
   if(simple_plot == F) {
 
@@ -2075,50 +1938,618 @@ plotCPGscores <- function(CPGscores,
     pl <- pl + ggplot2::theme_bw()
 
     if(detail_plot == TRUE) {
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = 0, y = all_cell_expr_2), color = 'blue', shape = 1)
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = 0, y = cell_expr_2), color = 'red', shape = 1)
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_cell_expr_1, y = 0), color = 'blue', shape = 1)
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = cell_expr_1, y = 0), color = 'red', shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = 0, y = lig_expr, colour = "overall cell expression"),shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = 0, y = lig_expr_spat, colour = "spatial cell expression"), shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = rec_expr, y = 0, colour = "overall cell expression"), shape = 1)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = rec_expr_spat, y = 0,colour ="spatial cell expression"), shape = 1)
     }
 
-    pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_cell_expr_1, y = all_cell_expr_2), color = 'blue', size = 2)
-    pl <- pl + ggplot2::geom_point(data = subDT, aes(x = cell_expr_1, y = cell_expr_2), color = 'red', size = 2)
-    pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = all_cell_expr_1, xend = cell_expr_1,
-                                              y = all_cell_expr_2, yend = cell_expr_2), linetype = 2)
-    pl <- pl + ggplot2::labs(x = 'gene in celltype 1', y = 'gene in celltype 2')
-    pl <- pl + ggplot2::facet_wrap(~genes+interaction, nrow = facet_nrow, ncol = facet_ncol,
-                          scales = facet_scales)
+    pl <- pl + ggplot2::geom_point(data = subDT, aes(x = rec_expr, y = lig_expr, colour = "overall cell expression"),size = 2)
+    pl <- pl + ggplot2::geom_point(data = subDT, aes(x = rec_expr_spat, y = lig_expr_spat, colour ="spatial cell expression"), size = 2)
+    pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = rec_expr, xend = rec_expr_spat,
+                                                       y = lig_expr, yend = lig_expr_spat), linetype = 2)
+    #pl <- pl + ggplot2::labs(x = 'gene 1 in celltype 1', y = 'gene 2 in celltype 2')
+    pl <- pl + ggplot2::labs(x = paste(subDT$receptor, subDT$rec_cell_type, sep = " in ")
+                             , y = paste(subDT$ligand, subDT$lig_cell_type, sep = " in "))
+    pl <- pl + ggplot2::scale_colour_manual(name="expression source",values = colors)
+    pl <- pl + ggplot2::facet_wrap(~LR_comb+LR_cell_comb, nrow = facet_nrow, ncol = facet_ncol,
+                                   scales = facet_scales)
 
-  } else {
+  }else {
 
     simple_plot_facet = match.arg(arg = simple_plot_facet, choices = c('interaction', 'genes'))
 
     if(simple_plot_facet == 'interaction') {
       pl <- ggplot2::ggplot()
       pl <- pl + ggplot2::theme_bw()
-      pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = all_comb_expr, xend = comb_expr,
-                                                y = genes, yend = genes), linetype = 2)
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_comb_expr, y = genes), color = 'blue')
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = comb_expr, y = genes), color = 'red')
-      pl <- pl + ggplot2::facet_wrap(~interaction, scales = facet_scales)
-      pl <- pl + ggplot2::labs(x = 'interactions', y = 'genes')
+      pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = LR_expr, xend = LR_expr_spat,
+                                                         y = LR_comb, yend = LR_comb), linetype = 2)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = LR_expr, y = LR_comb, colour = "overall cell expression"))
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = LR_expr_spat, y = LR_comb,colour ="spatial cell expression"))
+      pl <- pl + ggplot2::scale_colour_manual(name="expression source",values=colors)
+      pl <- pl + ggplot2::facet_wrap(~LR_cell_comb, scales = 'fixed')
+      pl <- pl + ggplot2::labs(x = 'interactions', y = 'gene-gene')
+      pl
+
     } else {
       pl <- ggplot2::ggplot()
       pl <- pl + ggplot2::theme_bw()
-      pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = all_comb_expr, xend = comb_expr,
-                                                y = interaction, yend = interaction), linetype = 2)
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = all_comb_expr, y = interaction), color = 'blue')
-      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = comb_expr, y = interaction), color = 'red')
-      pl <- pl + ggplot2::facet_wrap(~genes, scales = facet_scales)
-      pl <- pl + ggplot2::labs(x = 'genes', y = 'interactions')
+      pl <- pl + ggplot2::geom_segment(data = subDT, aes(x = LR_expr, xend = LR_expr_spat,
+                                                         y = LR_cell_comb, yend = LR_cell_comb), linetype = 2)
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = LR_expr, y = LR_cell_comb, colour = "overall cell expression"))
+      pl <- pl + ggplot2::geom_point(data = subDT, aes(x = LR_expr_spat, y = LR_cell_comb, colour ="spatial cell expression"))
+      pl <- pl + ggplot2::scale_colour_manual(name="expression source",values=colors)
+      pl <- pl + ggplot2::facet_wrap(~LR_comb, scales = facet_scales)
+      pl <- pl + ggplot2::labs(x = 'gene-gene', y = 'interactions')
     }
   }
 
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
   if(show_plot == TRUE) {
     print(pl)
   }
 
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
+
+}
+
+
+
+#' @title plotCombineCCcom
+#' @name plotCombineCCcom
+#' @description Create visualization for combined (pairwise) cell proximity gene scores
+#' @param gobject giotto object
+#' @param combCCcom combined communcation scores, output from combCCcom()
+#' @param selected_LR selected ligand-receptor pair
+#' @param selected_cell_LR selected cell-cell interaction pair for ligand-receptor pair
+#' @param detail_plot show detailed info in both interacting cell types
+#' @param simple_plot show a simplified plot
+#' @param simple_plot_facet facet on interactions or genes with simple plot
+#' @param facet_scales ggplot facet scales paramter
+#' @param facet_ncol ggplot facet ncol parameter
+#' @param facet_nrow ggplot facet nrow parameter
+#' @param colors vector with two colors to use
+#' @param show_plot show plots
+#' @param return_plot return plotting object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @export
+#' @examples
+#'     plotCombineCCcom(CPGscores)
+plotCombineCCcom = function(gobject,
+                            combCCcom,
+                            selected_LR = NULL,
+                            selected_cell_LR = NULL,
+                            detail_plot = T,
+                            simple_plot = F,
+                            simple_plot_facet = c('interaction', 'genes'),
+                            facet_scales = 'fixed',
+                            facet_ncol = length(selected_LR),
+                            facet_nrow = length(selected_cell_LR),
+                            colors = c('#9932CC', '#FF8C00'),
+                            show_plot = NA,
+                            return_plot = NA,
+                            save_plot = NA,
+                            save_param =  list(),
+                            default_save_name = 'plotCombineCCcom') {
+
+
+  plotCombineCellCellCommunication(gobject = gobject,
+                                   combCCcom = combCCcom,
+                                   selected_LR = selected_LR,
+                                   selected_cell_LR = selected_cell_LR,
+                                   detail_plot = detail_plot,
+                                   simple_plot = simple_plot,
+                                   simple_plot_facet = simple_plot_facet,
+                                   facet_scales = facet_scales,
+                                   facet_ncol = facet_ncol,
+                                   facet_nrow = facet_nrow,
+                                   colors = colors,
+                                   show_plot = show_plot,
+                                   return_plot = return_plot,
+                                   save_plot = save_plot,
+                                   save_param =  save_param,
+                                   default_save_name = default_save_name)
+
+}
+
+
+
+#' @title plotCCcomHeatmap
+#' @name plotCCcomHeatmap
+#' @description Plots heatmap for ligand-receptor communication scores in cell-cell interactions
+#' @param gobject giotto object
+#' @param comScores communinication scores from \code{\link{exprCellCellcom}} or \code{\link{spatCellCellcom}}
+#' @param selected_LR selected ligand-receptor combinations
+#' @param selected_cell_LR selected cell-cell combinations for ligand-receptor combinations
+#' @param show_LR_names show ligand-receptor names
+#' @param show_cell_LR_names show cell-cell names
+#' @param show values to show on heatmap
+#' @param cor_method correlation method used for clustering
+#' @param aggl_method agglomeration method used by hclust
+#' @param show_plot show plots
+#' @param return_plot return plotting object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @export
+#' @examples
+#'     plotCCcomHeatmap(CPGscores)
+plotCCcomHeatmap = function(gobject,
+                            comScores,
+                            selected_LR = NULL,
+                            selected_cell_LR = NULL,
+                            show_LR_names = TRUE,
+                            show_cell_LR_names = TRUE,
+                            show = c('PI', 'LR_expr', 'log2fc'),
+                            cor_method = c("pearson", "kendall", "spearman"),
+                            aggl_method = c("ward.D", "ward.D2", "single", "complete", "average", "mcquitty", "median", "centroid"),
+                            show_plot = NA,
+                            return_plot = NA,
+                            save_plot = NA,
+                            save_param =  list(),
+                            default_save_name = 'plotCCcomHeatmap') {
+
+
+  # get parameters
+  cor_method = match.arg(cor_method, choices = c("pearson", "kendall", "spearman"))
+  aggl_method = match.arg(aggl_method, choices = c("ward.D", "ward.D2", "single", "complete",
+                                                   "average", "mcquitty", "median", "centroid"))
+
+
+  # data.table variables
+  LR_comb = LR_cell_comb = NULL
+
+  # plot method
+  if(!is.null(selected_LR) & !is.null(selected_cell_LR)) {
+    selDT = comScores[LR_comb %in% selected_LR & LR_cell_comb %in% selected_cell_LR]
+  } else if(!is.null(selected_LR)) {
+    selDT = comScores[LR_comb %in% selected_LR]
+  } else if(!is.null(selected_cell_LR)) {
+    selDT = comScores[LR_cell_comb %in% selected_cell_LR]
+  } else {
+    selDT = comScores
+  }
+
+  # creat matrix
+  show = match.arg(show, choices = c('PI', 'LR_expr', 'log2fc'))
+  selDT_d = data.table::dcast.data.table(selDT, LR_cell_comb~LR_comb, value.var = show, fill = 0)
+  selDT_m = dt_to_matrix(selDT_d)
+
+  ## cells
+  corclus_cells_dist = stats::as.dist(1-cor_giotto(x = t_giotto(selDT_m), method = cor_method))
+  hclusters_cells = stats::hclust(d = corclus_cells_dist, method = aggl_method)
+  clus_names = rownames(selDT_m)
+  names(clus_names) = 1:length(clus_names)
+  clus_sort_names = clus_names[hclusters_cells$order]
+  selDT[, LR_cell_comb := factor(LR_cell_comb, clus_sort_names)]
+
+  ## genes
+  corclus_genes_dist = stats::as.dist(1-cor_giotto(x = selDT_m, method = cor_method))
+  hclusters_genes = stats::hclust(d = corclus_genes_dist, method = aggl_method)
+  clus_names = colnames(selDT_m)
+  names(clus_names) = 1:length(clus_names)
+  clus_sort_names = clus_names[hclusters_genes$order]
+  selDT[, LR_comb := factor(LR_comb, clus_sort_names)]
+
+
+
+  pl = ggplot2::ggplot()
+  pl = pl + ggplot2::geom_raster(data = selDT, aes_string(x = 'LR_cell_comb',
+                                                  y = 'LR_comb', fill = show))
+
+  pl = pl + ggplot2::theme_classic() + ggplot2::theme(axis.text.x = element_blank(),
+                                     axis.ticks = element_blank(),
+                                     axis.text.y = element_blank())
+  if(show_LR_names == TRUE) pl <- pl + ggplot2::theme(axis.text.y = element_text(),
+                                             axis.ticks.y = element_line())
+  if(show_cell_LR_names == TRUE) pl <- pl + ggplot2::theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1),
+                                                  axis.ticks.x = element_line())
+  pl = pl + ggplot2::scale_fill_gradientn(colours = c('darkblue', 'blue', 'white', 'red', 'darkred'))
+  pl = pl + ggplot2::labs(x = 'cell-cell', y = 'ligand-receptor')
+
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
+
+}
+
+
+
+#' @title plotCCcomDotplot
+#' @name plotCCcomDotplot
+#' @description Plots dotplot for ligand-receptor communication scores in cell-cell interactions
+#' @param gobject giotto object
+#' @param comScores communinication scores from \code{\link{exprCellCellcom}} or \code{\link{spatCellCellcom}}
+#' @param selected_LR selected ligand-receptor combinations
+#' @param selected_cell_LR selected cell-cell combinations for ligand-receptor combinations
+#' @param show_LR_names show ligand-receptor names
+#' @param show_cell_LR_names show cell-cell names
+#' @param cluster_on values to use for clustering of cell-cell and ligand-receptor pairs
+#' @param cor_method correlation method used for clustering
+#' @param aggl_method agglomeration method used by hclust
+#' @param show values to show on heatmap
+#' @param show_plot show plots
+#' @param return_plot return plotting object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @export
+#' @examples
+#'     plotCCcomDotplot(CPGscores)
+plotCCcomDotplot = function(gobject,
+                            comScores,
+                            selected_LR = NULL,
+                            selected_cell_LR = NULL,
+                            show_LR_names = TRUE,
+                            show_cell_LR_names = TRUE,
+                            cluster_on = c('PI', 'LR_expr', 'log2fc'),
+                            cor_method = c("pearson", "kendall", "spearman"),
+                            aggl_method = c("ward.D", "ward.D2", "single", "complete", "average", "mcquitty", "median", "centroid"),
+                            show_plot = NA,
+                            return_plot = NA,
+                            save_plot = NA,
+                            save_param =  list(),
+                            default_save_name = 'plotCCcomDotplot') {
+
+  # get parameters
+  cor_method = match.arg(cor_method, choices = c("pearson", "kendall", "spearman"))
+  aggl_method = match.arg(aggl_method, choices = c("ward.D", "ward.D2", "single", "complete",
+                                                   "average", "mcquitty", "median", "centroid"))
+
+
+  # data.table variables
+  LR_comb = LR_cell_comb = sd = NULL
+
+  # plot method
+  if(!is.null(selected_LR) & !is.null(selected_cell_LR)) {
+    selDT = comScores[LR_comb %in% selected_LR & LR_cell_comb %in% selected_cell_LR]
+  } else if(!is.null(selected_LR)) {
+    selDT = comScores[LR_comb %in% selected_LR]
+  } else if(!is.null(selected_cell_LR)) {
+    selDT = comScores[LR_cell_comb %in% selected_cell_LR]
+  } else {
+    selDT = comScores
+  }
+
+  # creat matrix
+  cluster_on = match.arg(cluster_on, choices = c('PI', 'LR_expr', 'log2fc'))
+  selDT_d = data.table::dcast.data.table(selDT, LR_cell_comb~LR_comb, value.var = cluster_on, fill = 0)
+  selDT_m = dt_to_matrix(selDT_d)
+
+  # remove zero variance
+  sd_rows = apply(selDT_m, 1, sd)
+  sd_rows_zero = names(sd_rows[sd_rows == 0])
+  if(length(sd_rows_zero) > 0) selDT_m = selDT_m[!rownames(selDT_m) %in% sd_rows_zero, ]
+
+  sd_cols = apply(selDT_m, 2, sd)
+  sd_cols_zero = names(sd_cols[sd_cols == 0])
+  if(length(sd_cols_zero) > 0) selDT_m = selDT_m[, !colnames(selDT_m) %in% sd_cols_zero]
+
+
+
+  ## cells
+  corclus_cells_dist = stats::as.dist(1-cor_giotto(x = t_giotto(selDT_m), method = cor_method))
+  hclusters_cells = stats::hclust(d = corclus_cells_dist, method = aggl_method)
+  clus_names = rownames(selDT_m)
+  names(clus_names) = 1:length(clus_names)
+  clus_sort_names = clus_names[hclusters_cells$order]
+  selDT[, LR_cell_comb := factor(LR_cell_comb, clus_sort_names)]
+
+  ## genes
+  corclus_genes_dist = stats::as.dist(1-cor_giotto(x = selDT_m, method = cor_method))
+  hclusters_genes = stats::hclust(d = corclus_genes_dist, method = aggl_method)
+  clus_names = colnames(selDT_m)
+  names(clus_names) = 1:length(clus_names)
+  clus_sort_names = clus_names[hclusters_genes$order]
+  selDT[, LR_comb := factor(LR_comb, clus_sort_names)]
+
+
+
+  pl = ggplot2::ggplot()
+  pl = pl + ggplot2::geom_point(data = selDT, aes_string(x = 'LR_cell_comb',
+                                                 y = 'LR_comb', size = 'pvalue', color = 'log2fc'))
+  pl = pl + ggplot2::theme_classic()
+  if(show_LR_names == TRUE) pl = pl + ggplot2::theme(axis.text.y = element_text(),
+                                             axis.ticks.y = element_line())
+  if(show_cell_LR_names == TRUE) pl = pl + ggplot2::theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1),
+                                                  axis.ticks.x = element_line())
+  pl = pl + ggplot2::scale_fill_gradientn(colours = c('darkblue', 'blue', 'white', 'red', 'darkred'))
+  pl = pl + ggplot2::scale_size_continuous(range = c(5, 0.5)) + scale_color_gradientn(colours = c('darkblue', 'blue', 'white', 'red', 'darkred'))
+  pl = pl + ggplot2::labs(x = 'cell-cell', y = 'ligand-receptor')
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
+
+}
+
+
+
+#' @title plotRankSpatvsExpr
+#' @name plotRankSpatvsExpr
+#' @description Plots dotplot to compare ligand-receptor rankings from spatial and expression information
+#' @param gobject giotto object
+#' @param combCC combined communinication scores from \code{\link{combCCcom}}
+#' @param expr_rnk_column column with expression rank information to use
+#' @param spat_rnk_column column with spatial rank information to use
+#' @param midpoint midpoint of colors
+#' @param size_range size ranges of dotplot
+#' @param xlims x-limits, numerical vector of 2
+#' @param ylims y-limits, numerical vector of 2
+#' @param selected_ranks numerical vector, will be used to print out the percentage of top spatial ranks are recovered
+#' @param show_plot show plots
+#' @param return_plot return plotting object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @export
+#' @examples
+#'     plotRankSpatvsExpr(CPGscores)
+plotRankSpatvsExpr = function(gobject,
+                              combCC,
+                              expr_rnk_column = 'LR_expr_rnk',
+                              spat_rnk_column = 'LR_spat_rnk',
+                              midpoint = 10,
+                              size_range = c(0.01, 1.5),
+                              xlims = NULL,
+                              ylims = NULL,
+                              selected_ranks = c(1, 10, 20),
+                              show_plot = NA,
+                              return_plot = NA,
+                              save_plot = NA,
+                              save_param =  list(),
+                              default_save_name = 'plotRankSpatvsExpr') {
+
+
+  # data.table variables
+  spt_rank = variable = value = NULL
+
+  total_rnks = max(unique(combCC[[expr_rnk_column]]))
+
+  rnk_list = list()
+  spt_list = list()
+  for(rnk in 1:total_rnks) {
+
+    mytab = table(cut(sort(combCC[get(expr_rnk_column) == rnk][[spat_rnk_column]]), breaks = seq(0,total_rnks,1), labels = c(1:total_rnks)))
+    rnk_list[[rnk]] = mytab
+    spt_list[[rnk]] = names(mytab)
+  }
+
+  rnk_res = as.data.table(do.call('rbind', rnk_list))
+  rnk_res[, spt_rank := 1:total_rnks]
+
+  rnk_res_m = melt.data.table(rnk_res, id.vars = 'spt_rank')
+  rnk_res_m[, spt_rank := as.numeric(spt_rank)]
+  rnk_res_m[, variable := as.numeric(variable)]
+
+  rnk_res_m[, diff := variable - spt_rank]
+
+  for(i in selected_ranks) {
+    perc_recovered = 100*(sum(rnk_res_m[abs(diff) < i]$value)/sum(rnk_res_m$value))
+    cat('for top ', i, ' expression ranks, you recover ', round(perc_recovered, 2), '% of the highest spatial rank \n')
+  }
+
+
+  # full plot
+  pl = ggplot2::ggplot()
+  pl = pl + ggplot2::theme_classic() + ggplot2::theme(axis.text = element_blank())
+  pl = pl + ggplot2::geom_point(data = rnk_res_m, ggplot2::aes(x = variable, y = spt_rank, size = value, color = value))
+  pl = pl + ggplot2::scale_color_gradient2(low = 'blue', mid = 'yellow', high = 'red', midpoint = midpoint, guide = guide_legend(title = ''))
+  pl = pl + ggplot2::scale_size_continuous(range = size_range, guide = F)
+  pl = pl + ggplot2::labs(x = 'expression rank', y = 'spatial rank')
+
+  if(!is.null(xlims)) {
+    pl = pl + xlim(xlims)
+  }
+
+  if(!is.null(ylims)) {
+    pl = pl + ylim(ylims)
+  }
+
+
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
+
+}
+
+
+
+
+#' @title plotRecovery_sub
+#' @name plotRecovery_sub
+#' @description Plots recovery plot to compare ligand-receptor rankings from spatial and expression information
+#' @param combCC combined communinication scores from \code{\link{combCCcom}}
+#' @param first_col first column to use
+#' @param second_col second column to use
+#' @examples
+#'     plotRecovery_sub(CPGscores)
+plotRecovery_sub = function(combCC,
+                            first_col = 'LR_expr_rnk',
+                            second_col = 'LR_spat_rnk') {
+
+
+  # data.table variables
+  concord = perc = not_concord = secondrank = secondrank_perc = NULL
+
+  mergeDT_filt = combCC[get(first_col) == 1]
+
+  mymat = matrix(data = NA, nrow = max(combCC[[second_col]]), ncol = 2)
+  for(i in 1:max(combCC[[second_col]])) {
+
+    mergeDT_filt[, concord := ifelse(get(second_col) <= i, 'yes', 'no')]
+    mytable = table(mergeDT_filt$concord)
+
+    matching = mytable['yes']
+    if(is.na(matching)) matching = 0
+    mymat[i, 1] = matching
+
+    non_matching = mytable['no']
+    if(is.na(non_matching)) non_matching = 0
+    mymat[i, 2] = non_matching
+
+  }
+
+  mymatDT = data.table::as.data.table(mymat); colnames(mymatDT) = c('concord', 'not_concord')
+  mymatDT[, perc := 100*(concord / (concord+not_concord))]
+  mymatDT[, secondrank := 1:nrow(mymatDT)]
+  mymatDT[, secondrank_perc := (secondrank/max(secondrank))*100]
+
+  # percentage explained
+  perc_explained = mymatDT[, sum(perc)]/(100*nrow(mymat))
+  cat('percentage explained = ', perc_explained)
+
+
+  pl = ggplot2::ggplot()
+  pl = pl + ggplot2::theme_classic()
+  pl = pl + ggplot2::geom_point(data = mymatDT, aes(x = secondrank_perc, y = perc))
+  pl = pl + ggplot2::scale_x_continuous(expand = c(0,0), limits = c(0,100))
+  pl = pl + ggplot2::scale_y_continuous(expand = c(0,0), limits = c(0, 100))
+  pl = pl + ggplot2::geom_abline(slope = 1, intercept = 0, color = 'blue')
+
   return(pl)
+
+}
+
+
+
+
+
+#' @title plotRecovery
+#' @name plotRecovery
+#' @description Plots recovery plot to compare ligand-receptor rankings from spatial and expression information
+#' @param gobject giotto object
+#' @param combCC combined communinication scores from \code{\link{combCCcom}}
+#' @param expr_rnk_column column with expression rank information to use
+#' @param spat_rnk_column column with spatial rank information to use
+#' @param ground_truth what to consider as ground truth (default: spatial)
+#' @param show_plot show plots
+#' @param return_plot return plotting object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @export
+#' @examples
+#'     plotRecovery(CPGscores)
+plotRecovery = function(gobject,
+                        combCC,
+                        expr_rnk_column = 'exprPI_rnk',
+                        spat_rnk_column = 'spatPI_rnk',
+                        ground_truth = c('spatial', 'expression'),
+                        show_plot = NA,
+                        return_plot = NA,
+                        save_plot = NA,
+                        save_param =  list(),
+                        default_save_name = 'plotRecovery') {
+
+  ground_truth = match.arg(ground_truth, choices = c('spatial', 'expression'))
+
+
+  if(ground_truth == 'spatial') {
+
+    pl = plotRecovery_sub(combCC = combCC,
+                          first_col = spat_rnk_column,
+                          second_col = expr_rnk_column)
+    pl = pl + ggplot2::labs(x = '% expression rank included', y = '% highest spatial rank recovered')
+
+  } else if(ground_truth == 'expression') {
+
+    pl = plotRecovery_sub(combCC = combCC,
+                          first_col = expr_rnk_column,
+                          second_col = spat_rnk_column)
+    pl = pl + ggplot2::labs(x = '% spatial rank included', y = '% highest expression rank recovered')
+
+  }
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
+  if(show_plot == TRUE) {
+    print(pl)
+  }
+
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
 
 }
 
@@ -2130,10 +2561,8 @@ plotCPGscores <- function(CPGscores,
 
 
 
-
-
-
-
+# * ####
+# cell proximity spatplots ####
 
 #' @title cellProximitySpatPlot2D
 #' @name cellProximitySpatPlot2D
@@ -2147,7 +2576,8 @@ plotCPGscores <- function(CPGscores,
 #' @param cell_color_code named vector with colors
 #' @param color_as_factor convert color column to factor
 #' @param show_other_cells decide if show cells not in network
-#' @param show_network show underlying spatial network
+#' @param show_network show spatial network of selected cells
+#' @param show_other_network show spatial network of not selected cells
 #' @param network_color color of spatial network
 #' @param spatial_network_name name of spatial network to use
 #' @param show_grid show spatial grid
@@ -2159,6 +2589,7 @@ plotCPGscores <- function(CPGscores,
 #' @param point_select_border_col border color of selected points
 #' @param point_select_border_stroke stroke size of selected points
 #' @param point_size_other size of other points
+#' @param point_alpha_other opacity of other points
 #' @param point_other_border_col border color of other points
 #' @param point_other_border_stroke stroke size of other points
 #' @param show_plot show plots
@@ -2183,7 +2614,7 @@ cellProximitySpatPlot2D <- function(gobject,
                                     show_network = F,
                                     show_other_network = F,
                                     network_color = NULL,
-                                    spatial_network_name = 'spatial_network',
+                                    spatial_network_name = 'Delaunay_network',
                                     show_grid = F,
                                     grid_color = NULL,
                                     spatial_grid_name = 'spatial_grid',
@@ -2213,6 +2644,10 @@ cellProximitySpatPlot2D <- function(gobject,
   spatial_network = annotateSpatialNetwork(gobject = gobject,
                                            spatial_network_name = spatial_network_name,
                                            cluster_column = cluster_column)
+
+
+  # data.table variables
+  unified_int = sdimx_begin = sdimy_begin = sdimx_end = sdimy_end = x_start = x_end = y_start = y_end = cell_ID = NULL
 
   cell_IDs_to_keep = unique(c(spatial_network[unified_int %in% interaction_name]$to,
                               spatial_network[unified_int %in% interaction_name]$from))
@@ -2302,7 +2737,7 @@ cellProximitySpatPlot2D <- function(gobject,
         pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
       } else if(color_as_factor == T) {
         number_colors = length(unique(factor_data))
-        cell_color_code = Giotto:::getDistinctColors(n = number_colors)
+        cell_color_code = getDistinctColors(n = number_colors)
         names(cell_color_code) = unique(factor_data)
         pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
       } else if(color_as_factor == F){
@@ -2387,6 +2822,7 @@ cellProximitySpatPlot2D <- function(gobject,
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @param \dots additional parameters
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
@@ -2413,7 +2849,8 @@ cellProximitySpatPlot = function(gobject, ...) {
 #' @param cell_color_code named vector with colors
 #' @param color_as_factor convert color column to factor
 #' @param show_other_cells decide if show cells not in network
-#' @param show_network show underlying spatial network
+#' @param show_network show spatial network of selected cells
+#' @param show_other_network show spatial network of not selected cells
 #' @param network_color color of spatial network
 #' @param spatial_network_name name of spatial network to use
 #' @param show_grid show spatial grid
@@ -2422,11 +2859,18 @@ cellProximitySpatPlot = function(gobject, ...) {
 #' @param show_legend show legend
 #' @param point_size_select size of selected points
 #' @param point_size_other size of other points
+#' @param point_alpha_other opacity of other points
+#' @param axis_scale scale of axis
+#' @param x_ticks ticks on x-axis
+#' @param y_ticks ticks on y-axis
+#' @param z_ticks ticks on z-axis
+#' @param custom_ratio custom ratio of axes
 #' @param show_plot show plots
 #' @param return_plot return plotly object
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @param \dots additional parameters
 #' @return plotly
 #' @details Description of parameters.
 #' @export
@@ -2446,7 +2890,7 @@ cellProximitySpatPlot3D = function(gobject,
                                    show_network = T,
                                    show_other_network = F,
                                    network_color = NULL,
-                                   spatial_network_name = 'spatial_network',
+                                   spatial_network_name = 'Delaunay_network',
                                    show_grid = F,
                                    grid_color = NULL,
                                    spatial_grid_name = 'spatial_grid',

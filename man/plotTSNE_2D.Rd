@@ -14,97 +14,58 @@ plotTSNE_2D(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{dim_reduction_name}{dimension reduction name}
+\item{dim_reduction_name}{name of TSNE}
 
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+\item{default_save_name}{default save name of TSNE plot}
 
-\item{groub_by}{create multiple plots based on cell annotation column}
-
-\item{group_by_subset}{subset the group_by factor column}
-
-\item{dim1_to_use}{dimension to use on x-axis}
-
-\item{dim2_to_use}{dimension to use on y-axis}
-
-\item{spat_enr_names}{names of spatial enrichment results to include}
-
-\item{show_NN_network}{show underlying NN network}
-
-\item{nn_network_to_use}{type of NN network to use (kNN vs sNN)}
-
-\item{network_name}{name of NN network to use, if show_NN_network = TRUE}
-
-\item{cell_color}{color for cells (see details)}
-
-\item{color_as_factor}{convert color column to factor}
-
-\item{cell_color_code}{named vector with colors}
-
-\item{cell_color_gradient}{vector with 3 colors for numeric data}
-
-\item{gradient_midpoint}{midpoint for color gradient}
-
-\item{gradient_limits}{vector with lower and upper limits}
-
-\item{select_cell_groups}{select subset of cells/clusters based on cell_color parameter}
-
-\item{select_cells}{select subset of cells based on cell IDs}
-
-\item{show_other_cells}{display not selected cells}
-
-\item{other_cell_color}{color of not selected cells}
-
-\item{other_point_size}{size of not selected cells}
-
-\item{show_cluster_center}{plot center of selected clusters}
-
-\item{show_center_label}{plot label of selected clusters}
-
-\item{center_point_size}{size of center points}
-
-\item{label_size}{size of labels}
-
-\item{label_fontface}{font of labels}
-
-\item{edge_alpha}{column to use for alpha of the edges}
-
-\item{point_shape}{point with border or not (border or no_border)}
-
-\item{point_size}{size of point (cell)}
-
-\item{point_border_col}{color of border around points}
-
-\item{point_border_stroke}{stroke size of border around points}
-
-\item{title}{title for plot, defaults to cell_color parameter}
-
-\item{show_legend}{show legend}
-
-\item{legend_text}{size of legend text}
-
-\item{legend_symbol_size}{size of legend symbols}
-
-\item{background_color}{color of plot background}
-
-\item{axis_text}{size of axis text}
-
-\item{axis_title}{size of axis title}
-
-\item{cow_n_col}{cowplot param: how many columns}
-
-\item{cow_rel_h}{cowplot param: relative height}
-
-\item{cow_rel_w}{cowplot param: relative width}
-
-\item{cow_align}{cowplot param: how to align}
-
-\item{show_plot}{show plot}
-
-\item{return_plot}{return ggplot object}
-
-\item{save_plot}{directly save the plot [boolean]}
-
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+\item{...}{
+  Arguments passed on to \code{\link[=dimPlot2D]{dimPlot2D}}
+  \describe{
+    \item{\code{group_by_subset}}{subset the group_by factor column}
+    \item{\code{dim1_to_use}}{dimension to use on x-axis}
+    \item{\code{dim2_to_use}}{dimension to use on y-axis}
+    \item{\code{spat_enr_names}}{names of spatial enrichment results to include}
+    \item{\code{show_NN_network}}{show underlying NN network}
+    \item{\code{nn_network_to_use}}{type of NN network to use (kNN vs sNN)}
+    \item{\code{network_name}}{name of NN network to use, if show_NN_network = TRUE}
+    \item{\code{cell_color}}{color for cells (see details)}
+    \item{\code{color_as_factor}}{convert color column to factor}
+    \item{\code{cell_color_code}}{named vector with colors}
+    \item{\code{cell_color_gradient}}{vector with 3 colors for numeric data}
+    \item{\code{gradient_midpoint}}{midpoint for color gradient}
+    \item{\code{gradient_limits}}{vector with lower and upper limits}
+    \item{\code{select_cell_groups}}{select subset of cells/clusters based on cell_color parameter}
+    \item{\code{select_cells}}{select subset of cells based on cell IDs}
+    \item{\code{show_other_cells}}{display not selected cells}
+    \item{\code{other_cell_color}}{color of not selected cells}
+    \item{\code{other_point_size}}{size of not selected cells}
+    \item{\code{show_cluster_center}}{plot center of selected clusters}
+    \item{\code{show_center_label}}{plot label of selected clusters}
+    \item{\code{center_point_size}}{size of center points}
+    \item{\code{label_size}}{size of labels}
+    \item{\code{label_fontface}}{font of labels}
+    \item{\code{edge_alpha}}{column to use for alpha of the edges}
+    \item{\code{point_shape}}{point with border or not (border or no_border)}
+    \item{\code{point_size}}{size of point (cell)}
+    \item{\code{point_alpha}}{transparancy of point}
+    \item{\code{point_border_col}}{color of border around points}
+    \item{\code{point_border_stroke}}{stroke size of border around points}
+    \item{\code{title}}{title for plot, defaults to cell_color parameter}
+    \item{\code{show_legend}}{show legend}
+    \item{\code{legend_text}}{size of legend text}
+    \item{\code{legend_symbol_size}}{size of legend symbols}
+    \item{\code{background_color}}{color of plot background}
+    \item{\code{axis_text}}{size of axis text}
+    \item{\code{axis_title}}{size of axis title}
+    \item{\code{cow_n_col}}{cowplot param: how many columns}
+    \item{\code{cow_rel_h}}{cowplot param: relative height}
+    \item{\code{cow_rel_w}}{cowplot param: relative width}
+    \item{\code{cow_align}}{cowplot param: how to align}
+    \item{\code{show_plot}}{show plot}
+    \item{\code{return_plot}}{return ggplot object}
+    \item{\code{save_plot}}{directly save the plot [boolean]}
+    \item{\code{save_param}}{list of saving parameters, see \code{\link{showSaveParameters}}}
+  }}
 }
 \value{
 ggplot
@@ -118,3 +79,18 @@ Description of parameters, see \code{\link{dimPlot2D}}. For 3D plots see \code{\
 \examples{
     plotTSNE_2D(gobject)
 }
+\seealso{
+Other reduced dimension visualizations: 
+\code{\link{dimPlot2D}()},
+\code{\link{dimPlot3D}()},
+\code{\link{dimPlot}()},
+\code{\link{plotPCA_2D}()},
+\code{\link{plotPCA_3D}()},
+\code{\link{plotPCA}()},
+\code{\link{plotTSNE_3D}()},
+\code{\link{plotTSNE}()},
+\code{\link{plotUMAP_2D}()},
+\code{\link{plotUMAP_3D}()},
+\code{\link{plotUMAP}()}
+}
+\concept{reduced dimension visualizations}

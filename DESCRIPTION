@@ -1,57 +1,79 @@
 Package: Giotto
-Title: Spatial single-cell transcriptomics pipeline.
-Version: 0.1.4
-Authors@R: person("Ruben", "Dries", email = "rubendries@gmail.com", role = c("aut", "cre"))
-Description: Pipeline to process, analyze and visualize (spatial) single-cell expression data.
+Title: Spatial single-cell transcriptomics toolbox
+Version: 0.3.6.9000
+Authors@R: c(
+	person("Ruben", "Dries", email = "rubendries@gmail.com",
+		 role = c("aut", "cre")),
+	person("Huipeng", "Li", email = "Huipeng_Li@DFCI.HARVARD.EDU",
+		role = c("aut")),
+	person("Qian", "Zhu", email = "zqian@jimmy.harvard.edu",
+		 role = c("aut")),
+	person("Rui", "Dong", email = "rdong@jimmy.harvard.edu",
+		 role = c("aut")),
+	person("Guo-Cheng", "Yuan", email = "gcyuan@ds.dfci.harvard.edu",
+		 role = c("aut"))
+	)
+Description: Toolbox to process, analyze and visualize spatial single-cell expression data
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.0.1
+URL: https://rubd.github.io/Giotto/, https://github.com/RubD/Giotto
+BugReports: https://github.com/RubD/Giotto/issues
+RoxygenNote: 7.1.1
 Depends:
-    data.table (>= 1.12.2),
-    ggplot2 (>= 3.1.1),
     base (>= 3.5.1),
     utils (>= 3.5.1),
     R (>= 3.5.1)
 Imports:
-    Rtsne (>= 0.15),
+    data.table (>= 1.12.2),
+    deldir,
+    ggplot2 (>= 3.1.1),
+    Matrix,
+    magick,
+    matrixStats (>= 0.55.0),
+    methods,
     uwot (>= 0.0.0.9010),
-    FactoMineR (>= 1.34),
-    factoextra (>= 1.0.5),
     cowplot (>= 0.9.4),
     grDevices,
+    graphics,
     RColorBrewer (>= 1.1-2),
-    jackstraw (>= 1.3),
     dbscan (>= 1.1-3),
+    farver (>= 2.0.3),
     ggalluvial (>= 0.9.1),
     scales (>= 1.0.0),
     ComplexHeatmap (>= 1.20.0),
     qvalue (>= 2.14.1),
     lfa (>= 1.12.0),
     igraph (>= 1.2.4.1),
+    irlba,
     plotly,
-    reticulate,
+    parallel,
+    reticulate (>= 1.14),
     magrittr,
     limma,
     ggdendro,
     smfishHmrf,
-    matrixStats (>= 0.55.0),
-    IRanges,
     devtools,
     reshape2,
     ggraph,
     Rcpp,
-    rlang (>= 0.4.3)
+    Rfast,
+    Rtsne (>= 0.15),
+    rlang (>= 0.4.3),
+    R.utils,
+    fitdistrplus,
 Suggests:
     knitr,
     rmarkdown,
     MAST,
     scran (>= 1.10.1),
     png,
+    FactoMineR,
     tiff,
     biomaRt,
     trendsceek,
-    multinet (>= 3.0.2)
+    multinet (>= 3.0.2),
+    RTriangle (>= 1.6-0.10)
 biocViews:
 VignetteBuilder: knitr
 LinkingTo: 

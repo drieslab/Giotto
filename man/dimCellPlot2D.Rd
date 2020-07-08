@@ -33,6 +33,7 @@ dimCellPlot2D(
   edge_alpha = NULL,
   point_shape = c("border", "no_border"),
   point_size = 1,
+  point_alpha = 1,
   point_border_col = "black",
   point_border_stroke = 0.1,
   show_legend = T,
@@ -105,6 +106,8 @@ dimCellPlot2D(
 
 \item{point_size}{size of point (cell)}
 
+\item{point_alpha}{transparancy of dim. reduction points}
+
 \item{point_border_col}{color of border around points}
 
 \item{point_border_stroke}{stroke size of border around points}
@@ -127,7 +130,7 @@ dimCellPlot2D(
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
@@ -151,3 +154,8 @@ Description of parameters. For 3D plots see \code{\link{dimPlot3D}}
 \examples{
     dimCellPlot2D(gobject)
 }
+\seealso{
+Other dimension reduction cell annotation visualizations: 
+\code{\link{dimCellPlot}()}
+}
+\concept{dimension reduction cell annotation visualizations}

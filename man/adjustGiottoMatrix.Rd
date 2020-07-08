@@ -33,7 +33,7 @@ giotto object
 normalize and/or scale expresion values of Giotto object
 }
 \details{
-This function implements the \code{\link{ limma::removeBatchEffect}} function to
+This function implements the \code{\link[limma]{removeBatchEffect}} function to
 remove known batch effects and to adjust expression values according to provided covariates.
 }
 \examples{

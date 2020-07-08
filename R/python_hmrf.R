@@ -26,7 +26,7 @@
 #'     doHMRF(gobject)
 doHMRF <- function(gobject,
                    expression_values = c('normalized', 'scaled', 'custom'),
-                   spatial_network_name = 'spatial_network',
+                   spatial_network_name = 'Delaunay_network',
                    spatial_genes = NULL,
                    spatial_dimensions = c('sdimx', 'sdimy', 'sdimz'),
                    dim_reduction_to_use = NULL,
@@ -42,6 +42,9 @@ doHMRF <- function(gobject,
                    output_folder = NULL,
                    overwrite_output = TRUE) {
 
+  # data.table set global variable
+  to = from = NULL
+
   ## check or make paths
   # python path
   if(is.null(python_path)) {
@@ -50,7 +53,7 @@ doHMRF <- function(gobject,
   }
 
   ## reader.py and get_result.py paths
-  reader_path = system.file("python", "reader.py", package = 'Giotto')
+  reader_path = system.file("python", "reader2.py", package = 'Giotto')
 
   ## output folder
   # no folder path specified
@@ -74,7 +77,7 @@ doHMRF <- function(gobject,
   ## 1. expression values
   if(!is.null(dim_reduction_to_use)) {
     expr_values = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']][, dimensions_to_use]
-    expr_values = t(expr_values)
+    expr_values = t_giotto(expr_values)
   } else {
     values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
     expr_values = select_expression_values(gobject = gobject, values = values)
@@ -131,7 +134,7 @@ doHMRF <- function(gobject,
 
 
   ## 3. spatial network
-  spatial_network = gobject@spatial_network[[spatial_network_name]]
+  spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
   spatial_network = spatial_network[,.(to,from)]
   spatial_network_file = paste0(output_folder,'/', 'spatial_network.txt')
 
@@ -420,7 +423,7 @@ writeHMRFresults <- function(gobject,
 #' @param HMRFoutput HMRF output from doHMRF()
 #' @param k number of domains
 #' @param betas_to_add results from different betas that you want to add
-#' @param name specify a custom name
+#' @param hmrf_name specify a custom name
 #' @return giotto object
 #' @details Description ...
 #' @export
@@ -476,14 +479,14 @@ addHMRF <- function(gobject,
     output = system(command = result_command, intern = T)
 
     # create unique name
-    annot_DT = data.table(temp_name = output)
+    annot_DT = data.table::data.table(temp_name = output)
 
     if(!is.null(hmrf_name)) {
       annot_name = paste0(hmrf_name,'_k', k, '_b.',b)
       setnames(annot_DT, old = 'temp_name', new = annot_name)
     } else {
       annot_name = paste0('hmrf_k.', k, '_b.',b)
-      setnames(annot_DT, old = 'temp_name', new = annot_name)
+      data.table::setnames(annot_DT, old = 'temp_name', new = annot_name)
     }
 
 

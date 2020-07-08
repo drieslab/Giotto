@@ -1,4 +1,188 @@
 
+#' @title mean_giotto
+#' @keywords internal
+mean_giotto = function(x, ...) {
+
+  if(methods::is(x, 'dgCMatrix')) {
+    return(Matrix::mean(x, ...)) # replace with sparseMatrixStats
+  } else if(methods::is(x, 'Matrix')) {
+    return(Matrix::mean(x, ...))
+  } else {
+    return(base::mean(x, ...))
+  }
+}
+
+
+#' @title rowSums_giotto
+#' @keywords internal
+rowSums_giotto = function(mymatrix) {
+
+  if(methods::is(mymatrix, 'dgCMatrix')) {
+    return(Matrix::rowSums(mymatrix)) # replace with sparseMatrixStats
+  } else if(methods::is(mymatrix, 'Matrix')) {
+    return(Matrix::rowSums(mymatrix))
+  } else {
+    temp_matrix = as.matrix(mymatrix)
+    temp_res = matrixStats::rowSums2(temp_matrix)
+    names(temp_res) = rownames(temp_matrix)
+    return(temp_res)
+  }
+}
+
+
+#' @title rowMeans_giotto
+#' @keywords internal
+rowMeans_giotto = function(mymatrix) {
+
+  if(methods::is(mymatrix, 'dgCMatrix')) {
+    return(Matrix::rowMeans(mymatrix)) # replace with sparseMatrixStats
+  } else if(methods::is(mymatrix, 'Matrix')) {
+    return(Matrix::rowMeans(mymatrix))
+  } else {
+    temp_matrix = as.matrix(mymatrix)
+    temp_res = matrixStats::rowMeans2(temp_matrix)
+    names(temp_res) = rownames(temp_matrix)
+    return(temp_res)
+
+  }
+}
+
+#' @title colSums_giotto
+#' @keywords internal
+colSums_giotto = function(mymatrix) {
+
+  if(methods::is(mymatrix, 'dgCMatrix')) {
+    return(Matrix::colSums(mymatrix)) # replace with sparseMatrixStats
+  } else if(methods::is(mymatrix, 'Matrix')) {
+    return(Matrix::colSums(mymatrix))
+  } else {
+    temp_matrix = as.matrix(mymatrix)
+    temp_res = matrixStats::colSums2(temp_matrix)
+    names(temp_res) = colnames(temp_matrix)
+    return(temp_res)
+  }
+}
+
+#' @title colMeans_giotto
+#' @keywords internal
+colMeans_giotto = function(mymatrix) {
+
+  if(methods::is(mymatrix, 'dgCMatrix')) {
+    return(Matrix::colMeans(mymatrix)) # replace with sparseMatrixStats
+  } else if(methods::is(mymatrix, 'Matrix')) {
+    return(Matrix::colMeans(mymatrix))
+  } else {
+    temp_matrix = as.matrix(mymatrix)
+    temp_res = matrixStats::colMeans2(temp_matrix)
+    names(temp_res) = colnames(temp_matrix)
+    return(temp_res)
+  }
+}
+
+#' @title t_giotto
+#' @keywords internal
+t_giotto = function(mymatrix) {
+
+  if(methods::is(mymatrix, 'dgCMatrix')) {
+    return(Matrix::t(mymatrix)) # replace with sparseMatrixStats
+  } else if(methods::is(mymatrix, 'Matrix')) {
+    return(Matrix::t(mymatrix))
+  } else {
+    mymatrix = as.matrix(mymatrix)
+    mymatrix = base::t(mymatrix)
+    return(mymatrix)
+  }
+}
+
+
+
+#' @title cor_sparse adapted from wydr package
+#' @keywords internal
+cor_sparse <- function(x) {
+  n = nrow(x)
+  covmat = (as.matrix(Matrix::crossprod(x)) - n * Matrix::tcrossprod(Matrix::colMeans(x))) / (n - 1)
+  cormat = covmat / base::tcrossprod(base::sqrt(base::diag(covmat)))
+  cormat
+}
+
+#' @title cor_giotto
+#' @keywords internal
+cor_giotto = function(x, ...) {
+  x = as.matrix(x)
+  return(stats::cor(x, ...))
+}
+
+
+
+#' @title giotto_lapply
+#' @keywords internal
+giotto_lapply = function(X, cores = NA, fun, ...) {
+
+  # get type of os
+  os = .Platform$OS.type
+
+  # set number of cores automatically, but with limit of 10
+  if(is.na(cores) | !is.numeric(cores)) {
+    cores = parallel::detectCores() - 2
+    cores = ifelse(cores > 10, 10, cores)
+  }
+
+  if(os == 'unix') {
+    save_list = parallel::mclapply(X = X, mc.cores = cores,
+                                   FUN = fun, ...)
+  } else if(os == 'windows') {
+    save_list = parallel::mclapply(X = X, mc.cores = 1,
+                                   FUN = fun, ...)
+
+    # !! unexplainable errors are returned for some nodes !! #
+    # currently disabled #
+    #cl <- parallel::makeCluster(cores)
+    #save_list = parallel::parLapply(cl = cl, X = X,
+    #                                fun = fun, ...)
+  }
+
+  return(save_list)
+}
+
+
+#' @title mean_expr_det_test
+#' @keywords internal
+mean_expr_det_test = function(mymatrix, detection_threshold = 1) {
+  mean_expr_detected = unlist(apply(X = mymatrix, MARGIN = 1, FUN = function(x) {
+    detected_x = x[x > detection_threshold]
+    mean(detected_x)
+  }))
+}
+
+#' @title libNorm_giotto
+#' @keywords internal
+libNorm_giotto <- function(mymatrix, scalefactor){
+  libsizes = colSums_giotto(mymatrix)
+
+  if(methods::is(mymatrix, 'dgCMatrix')) {
+    norm_expr = Matrix::t(Matrix::t(mymatrix)/ libsizes)*scalefactor # replace with sparseMatrixStats
+  } else if(methods::is(mymatrix, 'Matrix')) {
+    norm_expr = Matrix::t(Matrix::t(mymatrix)/ libsizes)*scalefactor
+  } else {
+    norm_expr = t(t(as.matrix(mymatrix))/ libsizes)*scalefactor
+  }
+}
+
+#' @title logNorm_giotto
+#' @keywords internal
+logNorm_giotto = function(mymatrix, base, offset) {
+
+  if(methods::is(mymatrix, 'dgCMatrix')) {
+    mymatrix@x = log(mymatrix@x + offset)/log(base) # replace with sparseMatrixStats
+  } else if(methods::is(mymatrix, 'Matrix')) {
+    mymatrix@x = log(mymatrix@x + offset)/log(base)
+  } else {
+    mymatrix = log(as.matrix(mymatrix) + offset)/log(base)
+  }
+
+  return(mymatrix)
+}
+
 #' @title pDataDT
 #' @description show cell metadata
 #' @param gobject giotto object
@@ -13,7 +197,7 @@ pDataDT <- function(gobject) {
   }
 
   if(class(gobject) %in% c('ExpressionSet', 'SCESet')) {
-    return(as.data.table(pData(gobject)))
+    return(as.data.table(Biobase::pData(gobject)))
   }
   else if(class(gobject) == 'giotto') {
     return(gobject@cell_metadata)
@@ -39,10 +223,9 @@ fDataDT <- function(gobject) {
   else if(class(gobject) == 'giotto') {
     return(gobject@gene_metadata)
   }
-  return(data.table::as.data.table(fData(gobject)))
+  return(data.table::as.data.table(Biobase::fData(gobject)))
 
 }
-
 
 
 #' @title select_expression_values
@@ -97,7 +280,7 @@ create_average_DT <- function(gobject, meta_data_name,
     name = paste0('cluster_', group)
 
     temp = expr_data[, cell_metadata[[meta_data_name]] == group]
-    temp_DT = rowMeans(as.matrix(temp))
+    temp_DT = rowMeans_giotto(temp)
 
     savelist[[name]] <- temp_DT
   }
@@ -133,9 +316,10 @@ create_average_detection_DT <- function(gobject, meta_data_name,
     name = paste0('cluster_', group)
 
     temp = expr_data[, cell_metadata[[meta_data_name]] == group]
+    temp = as.matrix(temp)
 
     if(is.matrix(temp)) {
-      temp_DT = rowSums(as.matrix(temp) > detection_threshold)/ncol(temp)
+      temp_DT = rowSums_giotto(temp > detection_threshold)/ncol(temp)
     } else {
       temp_DT = as.numeric(temp > detection_threshold)
     }
@@ -163,7 +347,10 @@ create_average_detection_DT <- function(gobject, meta_data_name,
 #' @export
 #' @examples
 #'     subsetGiotto(gobject)
-subsetGiotto <- function(gobject, cell_ids = NULL, gene_ids = NULL, verbose = FALSE) {
+subsetGiotto <- function(gobject,
+                         cell_ids = NULL,
+                         gene_ids = NULL,
+                         verbose = FALSE) {
 
 
   g_cell_IDs = gobject@cell_ID
@@ -219,11 +406,14 @@ subsetGiotto <- function(gobject, cell_ids = NULL, gene_ids = NULL, verbose = FA
     gobject@gene_metadata = gobject@gene_metadata[filter_bool_genes,]
   }
 
+  # data.table variables
+  to = from = V = NULL
+
   ## spatial network & grid ##
   # cell spatial network
   if(!is.null(gobject@spatial_network)) {
     for(network in names(gobject@spatial_network)) {
-      gobject@spatial_network[[network]] =   gobject@spatial_network[[network]][to %in% cells_to_keep & from %in% cells_to_keep]
+      gobject@spatial_network[[network]]$networkDT =   gobject@spatial_network[[network]]$networkDT[to %in% cells_to_keep & from %in% cells_to_keep]
     }
   }
 
@@ -410,6 +600,10 @@ subsetGiottoLocs = function(gobject,
 #' @param scale_axis ggplot transformation for axis (e.g. log2)
 #' @param axis_offset offset to be used together with the scaling transformation
 #' @param show_plot show plot
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot object
 #' @export
 #' @examples
@@ -423,7 +617,11 @@ filterDistributions <- function(gobject,
                                 fill_color = 'lightblue',
                                 scale_axis = 'identity',
                                 axis_offset = 0,
-                                show_plot = TRUE) {
+                                show_plot = NA,
+                                return_plot = NA,
+                                save_plot = NA,
+                                save_param =  list(),
+                                default_save_name = 'filterDistributions') {
 
   # expression values to be used
   values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
@@ -435,16 +633,19 @@ filterDistributions <- function(gobject,
   # plot type
   plot_type = match.arg(plot_type, c('histogram', 'violin'))
 
+  # variables
+  V1 = NULL
+
   # for genes
   if(detection == 'genes') {
 
-    gene_detection_levels = data.table::as.data.table(rowSums(expr_values >= expression_threshold))
+    gene_detection_levels = data.table::as.data.table(rowSums_giotto(expr_values >= expression_threshold))
 
     if(plot_type == 'violin') {
 
       pl <- ggplot2::ggplot()
       pl <- pl + ggplot2::theme_classic()
-      pl <- pl + ggplot2::geom_violin(data = gene_detection_levels, aes(x = 'genes', y = V1+axis_offset),
+      pl <- pl + ggplot2::geom_violin(data = gene_detection_levels, ggplot2::aes(x = 'genes', y = V1+axis_offset),
                                       fill = fill_color)
       pl <- pl + ggplot2::scale_y_continuous(trans = scale_axis)
       pl <- pl + ggplot2::labs(y = 'gene detected in # of cells', x = '')
@@ -453,7 +654,7 @@ filterDistributions <- function(gobject,
 
       pl <- ggplot2::ggplot()
       pl <- pl + ggplot2::theme_classic()
-      pl <- pl + ggplot2::geom_histogram(data = gene_detection_levels, aes(x = V1+axis_offset),
+      pl <- pl + ggplot2::geom_histogram(data = gene_detection_levels, ggplot2::aes(x = V1+axis_offset),
                                          color = 'white', bins = nr_bins, fill = fill_color)
       pl <- pl + ggplot2::scale_x_continuous(trans = scale_axis)
       pl <- pl + ggplot2::labs(x = 'gene detected in # of cells')
@@ -463,13 +664,13 @@ filterDistributions <- function(gobject,
     # for cells
   } else if(detection == 'cells') {
 
-    cell_detection_levels = data.table::as.data.table(colSums(expr_values >= expression_threshold))
+    cell_detection_levels = data.table::as.data.table(colSums_giotto(expr_values >= expression_threshold))
 
     if(plot_type == 'violin') {
 
       pl <- ggplot2::ggplot()
       pl <- pl + ggplot2::theme_classic()
-      pl <- pl + ggplot2::geom_violin(data = cell_detection_levels, aes(x = 'cells', y = V1+axis_offset),
+      pl <- pl + ggplot2::geom_violin(data = cell_detection_levels, ggplot2::aes(x = 'cells', y = V1+axis_offset),
                                       fill = fill_color)
       pl <- pl + ggplot2::scale_y_continuous(trans = scale_axis)
       pl <- pl + ggplot2::labs(y = 'genes detected per cell', x = '')
@@ -478,7 +679,7 @@ filterDistributions <- function(gobject,
 
       pl <- ggplot2::ggplot()
       pl <- pl + ggplot2::theme_classic()
-      pl <- pl + ggplot2::geom_histogram(data = cell_detection_levels, aes(x = V1+axis_offset),
+      pl <- pl + ggplot2::geom_histogram(data = cell_detection_levels, ggplot2::aes(x = V1+axis_offset),
                                          color = 'white', bins = nr_bins, fill = fill_color)
       pl <- pl + ggplot2::scale_x_continuous(trans = scale_axis)
       pl <- pl + ggplot2::labs(x = 'genes detected per cell')
@@ -486,11 +687,25 @@ filterDistributions <- function(gobject,
     }
   }
 
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
   if(show_plot == TRUE) {
     print(pl)
   }
 
-  return(pl)
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  }
 
 }
 
@@ -508,6 +723,10 @@ filterDistributions <- function(gobject,
 #' @param scale_y_axis ggplot transformation for y-axis (e.g. log2)
 #' @param y_axis_offset y-axis offset to be used together with the scaling transformation
 #' @param show_plot show plot
+#' @param return_plot return only ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return list of data.table and ggplot object
 #' @details Creates a scatterplot that visualizes the number of genes and cells that are
 #' lost with a specific combination of a gene and cell threshold given an arbitrary cutoff
@@ -525,7 +744,12 @@ filterCombinations <- function(gobject,
                                x_axis_offset = 0,
                                scale_y_axis = 'identity',
                                y_axis_offset = 0,
-                               show_plot = TRUE) {
+                               show_plot = TRUE,
+                               return_plot = FALSE,
+                               save_plot = NA,
+                               save_param =  list(),
+                               default_save_name = 'filterCombinations') {
+
 
 
   # expression values to be used
@@ -552,12 +776,12 @@ filterCombinations <- function(gobject,
 
 
       # first remove genes
-      filter_index_genes = rowSums(expr_values >= threshold) >= min_cells_for_gene
+      filter_index_genes = rowSums_giotto(expr_values >= threshold) >= min_cells_for_gene
       removed_genes = length(filter_index_genes[filter_index_genes == FALSE])
       det_cells_res[[combn_i]] = removed_genes
 
       # then remove cells
-      filter_index_cells = colSums(expr_values[filter_index_genes, ] >= threshold) >= min_genes_per_cell
+      filter_index_cells = colSums_giotto(expr_values[filter_index_genes, ] >= threshold) >= min_genes_per_cell
       removed_cells = length(filter_index_cells[filter_index_cells == FALSE])
       det_genes_res[[combn_i]] = removed_cells
     }
@@ -571,13 +795,23 @@ filterCombinations <- function(gobject,
   }
 
   result_DT = do.call('rbind', result_list)
+
+  # data.table variables
+  # gene_detected_in_min_cells = min_detected_genes_per_cell = combination = NULL
+
+  # data.table variables
+  gene_detected_in_min_cells = min_detected_genes_per_cell = combination = NULL
+
   result_DT[['gene_detected_in_min_cells']] = gene_det_in_min_cells
   result_DT[['min_detected_genes_per_cell']] = min_det_genes_per_cell
   result_DT[['combination']] = paste0(result_DT$gene_detected_in_min_cells,'-',result_DT$min_detected_genes_per_cell)
 
   result_DT = result_DT[,.(threshold,
-                           gene_detected_in_min_cells, min_detected_genes_per_cell,
-                           combination, removed_genes, removed_cells)]
+                           gene_detected_in_min_cells,
+                           min_detected_genes_per_cell,
+                           combination,
+                           removed_genes,
+                           removed_cells)]
 
   maximum_x_value = max(result_DT[['removed_cells']], na.rm = T)
   maximum_y_value = max(result_DT[['removed_genes']], na.rm = T)
@@ -597,11 +831,29 @@ filterCombinations <- function(gobject,
   pl <- pl + ggplot2::scale_x_continuous(trans = scale_x_axis, limits = c(0, maximum_x_value))
   pl <- pl + ggplot2::scale_y_continuous(trans = scale_y_axis, limits = c(0, maximum_y_value))
   pl <- pl + ggplot2::labs(x = 'number of removed cells', y = 'number of removed genes')
+
+
+  # print, return and save parameters
+  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+  ## print plot
   if(show_plot == TRUE) {
     print(pl)
   }
 
-  return(list(results = result_DT, ggplot = pl))
+  ## save plot
+  if(save_plot == TRUE) {
+    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
+  }
+
+  ## return plot
+  if(return_plot == TRUE) {
+    return(pl)
+  } else {
+    return(list(results = result_DT, ggplot = pl))
+  }
 
 }
 
@@ -635,11 +887,11 @@ filterGiotto <- function(gobject,
   # 2. then remove cells that do not have sufficient detected genes
 
   ## filter genes
-  filter_index_genes = rowSums(expr_values >= expression_threshold) >= gene_det_in_min_cells
+  filter_index_genes = rowSums_giotto(expr_values >= expression_threshold) >= gene_det_in_min_cells
   selected_gene_ids = gobject@gene_ID[filter_index_genes]
 
   ## filter cells
-  filter_index_cells = colSums(expr_values[filter_index_genes, ] >= expression_threshold) >= min_det_genes_per_cell
+  filter_index_cells = colSums_giotto(expr_values[filter_index_genes, ] >= expression_threshold) >= min_det_genes_per_cell
   selected_cell_ids = gobject@cell_ID[filter_index_cells]
 
   newGiottoObject = subsetGiotto(gobject = gobject,
@@ -676,155 +928,9 @@ filterGiotto <- function(gobject,
 }
 
 
+
+
 #' @title normalizeGiotto
-#' @description normalize and/or scale expresion values of Giotto object
-#' @param gobject giotto object
-#' @param norm_methods normalization method to use
-#' @param library_size_norm normalize cells by library size
-#' @param scalefactor scale factor to use after library size normalization
-#' @param log_norm transform values to log-scale
-#' @param logbase log base to use to log normalize expression values
-#' @param scale_genes z-score genes over all cells
-#' @param scale_cells z-score cells over all genes
-#' @param scale_order order to scale genes and cells
-#' @param verbose be verbose
-#' @return giotto object
-#' @details Currently there are two 'methods' to normalize your raw counts data.
-#'
-#' A. The standard method follows the standard protocol which can be adjusted using
-#' the provided parameters and follows the following order: \cr
-#' \itemize{
-#'   \item{1. Data normalization for total library size and scaling by a custom scale-factor.}
-#'   \item{2. Log transformation of data.}
-#'   \item{3. Z-scoring of data by genes and/or cells.}
-#' }
-#' B. The normalization method as provided by the osmFISH paper is also implemented: \cr
-#' \itemize{
-#'   \item{1. First normalize genes, for each gene divide the counts by the total gene count and
-#' multiply by the total number of genes.}
-#'   \item{2. Next normalize cells, for each cell divide the normalized gene counts by the total
-#' counts per cell and multiply by the total number of cells.}
-#' }
-#' This data will be saved in the Giotto slot for custom expression.
-#' @export
-#' @examples
-#'     normalizeGiotto(gobject)
-normalizeGiotto <- function(gobject,
-                            norm_methods = c('standard', 'osmFISH'),
-                            library_size_norm = TRUE,
-                            scalefactor = 6e3,
-                            log_norm = TRUE,
-                            logbase = 2,
-                            scale_genes = T,
-                            scale_cells = T,
-                            scale_order = c('first_genes', 'first_cells'),
-                            verbose = F) {
-
-  raw_expr = gobject@raw_exprs
-
-  norm_methods = match.arg(arg = norm_methods, choices = c('standard', 'osmFISH'))
-
-  # normalization according to standard methods
-  if(norm_methods == 'standard') {
-
-    ## 1. library size normalize
-    if(library_size_norm == TRUE) {
-      norm_expr = t((t(raw_expr)/colSums(raw_expr))*scalefactor)
-    } else {
-      norm_expr = raw_expr
-    }
-
-    ## 2. lognormalize
-    if(log_norm == TRUE) {
-      norm_expr = log(x = norm_expr+1, base = logbase)
-    } else {
-      norm_expr = norm_expr
-    }
-
-    ## 3. scale
-    if(scale_genes == TRUE & scale_cells == TRUE) {
-
-      scale_order = match.arg(arg = scale_order, choices = c('first_genes', 'first_cells'))
-
-      if(scale_order == 'first_genes') {
-        if(verbose == TRUE) cat('\n first scale genes and then cells \n')
-        norm_scaled_expr = t(scale(x = t(norm_expr)))
-        norm_scaled_expr = scale(x = norm_scaled_expr)
-      } else if(scale_order == 'first_cells') {
-        if(verbose == TRUE) cat('\n first scale cells and then genes \n')
-        norm_scaled_expr = scale(x = norm_expr)
-        norm_scaled_expr = t(scale(x = t(norm_scaled_expr)))
-      } else {
-        stop('\n scale order must be given \n')
-      }
-
-    } else if(scale_genes == TRUE) {
-      norm_scaled_expr = t(scale(x = t(norm_expr)))
-    } else if(scale_cells == TRUE) {
-      norm_scaled_expr = scale(x = norm_expr)
-    } else {
-      norm_scaled_expr = NULL
-    }
-
-
-    ## 4. reverse log-scale
-    # only when data have been logged
-    # and when data have been scaled
-    # not implemented
-
-
-    # return Giotto object
-    gobject@norm_expr = norm_expr
-    gobject@norm_scaled_expr = norm_scaled_expr
-
-  }
-
-  # normalization according to osmFISH method
-  else if(norm_methods == 'osmFISH') {
-    # 1. normalize per gene with scale-factor equal to number of genes
-    norm_genes = (raw_expr/rowSums(raw_expr)) * nrow(raw_expr)
-    # 2. normalize per cells with scale-factor equal to number of cells
-    norm_genes_cells = t((t(norm_genes)/colSums(norm_genes)) * ncol(raw_expr))
-
-    # return results to Giotto object
-    cat('\n osmFISH-like normalized data will be returned to the custom Giotto slot \n')
-    gobject@custom_expr = norm_genes_cells
-
-  }
-
-
-
-
-  ## update parameters used ##
-  parameters_list  = gobject@parameters
-  number_of_rounds = length(parameters_list)
-  update_name      = paste0(number_of_rounds,'_normalize')
-
-  # parameters to include
-  if(norm_methods == 'standard') {
-    parameters_list[[update_name]] = c('normalization method' = norm_methods,
-                                       'normalized to library size' = ifelse(library_size_norm == T, 'yes', 'no'),
-                                       'scalefactor' = scalefactor,
-                                       'log-normalized' =  ifelse(log_norm == T, 'yes', 'no'),
-                                       'logbase' = ifelse(is.null(logbase), NA, logbase),
-                                       'genes scaled' = ifelse(scale_genes == T, 'yes', 'no'),
-                                       'cell scaled' = ifelse(scale_cells == T, 'yes', 'no'),
-                                       'if both, order of scaling' = scale_order)
-  }
-
-  if(norm_methods == 'osmFISH') {
-    parameters_list[[update_name]] = c('normalization method' = norm_methods)
-  }
-
-  gobject@parameters = parameters_list
-
-  return(gobject)
-}
-
-
-
-
-#' @title normalizeGiottoFast
 #' @description fast normalize and/or scale expresion values of Giotto object
 #' @param gobject giotto object
 #' @param norm_methods normalization method to use
@@ -857,8 +963,8 @@ normalizeGiotto <- function(gobject,
 #' This data will be saved in the Giotto slot for custom expression.
 #' @export
 #' @examples
-#'     normalizeGiottoFast(gobject)
-normalizeGiottoFast <- function(gobject,
+#'     normalizeGiotto(gobject)
+normalizeGiotto <- function(gobject,
                              norm_methods = c('standard', 'osmFISH'),
                              library_size_norm = TRUE,
                              scalefactor = 6e3,
@@ -881,14 +987,14 @@ normalizeGiottoFast <- function(gobject,
 
     ## 1. library size normalize
     if(library_size_norm == TRUE) {
-      norm_expr = libNormFast(raw_matrix = raw_expr, scalefactor = rep(scalefactor, ncol(raw_expr)))
+      norm_expr = libNorm_giotto(mymatrix = raw_expr, scalefactor = scalefactor)
     } else {
       norm_expr = raw_expr
     }
 
     ## 2. lognormalize
     if(log_norm == TRUE) {
-      norm_expr = logNormFast(mymatrix = norm_expr,  base = logbase, offset = log_offset)
+      norm_expr = logNorm_giotto(mymatrix = norm_expr,  base = logbase, offset = log_offset)
     } else {
       norm_expr = norm_expr
     }
@@ -900,10 +1006,12 @@ normalizeGiottoFast <- function(gobject,
 
       if(scale_order == 'first_genes') {
         if(verbose == TRUE) cat('\n first scale genes and then cells \n')
+        if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
         norm_scaled_expr = armaScaleRow(Z = norm_expr)
         norm_scaled_expr = armaScaleCol(Z = norm_scaled_expr)
       } else if(scale_order == 'first_cells') {
         if(verbose == TRUE) cat('\n first scale cells and then genes \n')
+        if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
         norm_scaled_expr = armaScaleCol(Z = norm_expr)
         norm_scaled_expr = armaScaleRow(Z = norm_scaled_expr)
       } else {
@@ -911,8 +1019,10 @@ normalizeGiottoFast <- function(gobject,
       }
 
     } else if(scale_genes == TRUE) {
+      if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
       norm_scaled_expr = armaScaleRow(Z = norm_expr)
     } else if(scale_cells == TRUE) {
+      if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
       norm_scaled_expr = armaScaleCol(Z = norm_expr)
     } else {
       norm_scaled_expr = NULL
@@ -939,9 +1049,9 @@ normalizeGiottoFast <- function(gobject,
   else if(norm_methods == 'osmFISH') {
 
     # 1. normalize per gene with scale-factor equal to number of genes
-    norm_genes = (raw_expr/rowSums(raw_expr)) * nrow(raw_expr)
+    norm_genes = (raw_expr/rowSums_giotto(raw_expr)) * nrow(raw_expr)
     # 2. normalize per cells with scale-factor equal to number of cells
-    norm_genes_cells = t((t(norm_genes)/colSums(norm_genes)) * ncol(raw_expr))
+    norm_genes_cells = t((t(norm_genes)/colSums_giotto(norm_genes)) * ncol(raw_expr))
 
     # return results to Giotto object
     cat('\n osmFISH-like normalized data will be returned to the custom Giotto slot \n')
@@ -981,8 +1091,6 @@ normalizeGiottoFast <- function(gobject,
 
 
 
-
-
 #' @title adjustGiottoMatrix
 #' @description normalize and/or scale expresion values of Giotto object
 #' @param gobject giotto object
@@ -992,7 +1100,7 @@ normalizeGiottoFast <- function(gobject,
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param update_slot expression slot that will be updated (default = custom)
 #' @return giotto object
-#' @details This function implements the \code{\link{ limma::removeBatchEffect}} function to
+#' @details This function implements the \code{\link[limma]{removeBatchEffect}} function to
 #' remove known batch effects and to adjust expression values according to provided covariates.
 #' @export
 #' @examples
@@ -1089,6 +1197,10 @@ adjustGiottoMatrix <- function(gobject,
 #'     annotateGiotto(gobject)
 annotateGiotto <- function(gobject, annotation_vector = NULL, cluster_column = NULL, name = 'cell_types') {
 
+
+  # data.table: set global variable
+  temp_cluster_name = NULL
+
   if(is.null(annotation_vector) | is.null(cluster_column)) {
     stop('\n You need to provide both a named annotation vector and the corresponding cluster column  \n')
   }
@@ -1100,21 +1212,35 @@ annotateGiotto <- function(gobject, annotation_vector = NULL, cluster_column = N
     stop('\n Cluster column is not found in cell metadata \n')
   }
 
-  # 2. remove previous annotation name if it's the same
+  # 2. verify if each cluster has an annotation
+  uniq_names = names(annotation_vector)
+  uniq_clusters = unique(cell_metadata[[cluster_column]])
+  missing_annotations = uniq_clusters[!uniq_clusters %in% uniq_names]
+  no_matching_annotations = uniq_names[!uniq_names %in% uniq_clusters]
+
+  if(length(missing_annotations) > 0) {
+    cat('Not all clusters have an accompanying annotation in the annotation_vector: \n',
+        'These names are missing: ', as.character(missing_annotations), '\n',
+        'These annotations have no match: ', as.character(no_matching_annotations), '\n')
+    stop('Annotation interrupted \n')
+  }
+
+
+  # 3. remove previous annotation name if it's the same
   # but only if new name is not the same as cluster to be used
   if(name %in% colnames(cell_metadata)) {
     cat('\n annotation name ', name,' was already used \n',
         'and will be overwritten \n')
 
-    cell_metadata[, temp_cluster_name := annotation_vector[[get(cluster_column)]], by = 1:nrow(cell_metadata)]
+    cell_metadata[, temp_cluster_name := annotation_vector[[as.character(get(cluster_column))]], by = 1:nrow(cell_metadata)]
     cell_metadata[, (name) := NULL]
 
   } else {
 
-    cell_metadata[, temp_cluster_name := annotation_vector[[get(cluster_column)]], by = 1:nrow(cell_metadata)]
+    cell_metadata[, temp_cluster_name := annotation_vector[[as.character(get(cluster_column))]], by = 1:nrow(cell_metadata)]
   }
 
-  setnames(cell_metadata, old = 'temp_cluster_name', new = name)
+  data.table::setnames(cell_metadata, old = 'temp_cluster_name', new = name)
   gobject@cell_metadata = cell_metadata
 
   return(gobject)
@@ -1181,28 +1307,40 @@ removeGeneAnnotation <- function(gobject, columns = NULL, return_gobject = TRUE)
 #' @description adds cell metadata to the giotto object
 #' @param gobject giotto object
 #' @param new_metadata new cell metadata to use (data.table, data.frame, ...)
+#' @param vector_name (optional) custom name if you provide a single vector
 #' @param by_column merge metadata based on cell_ID column in pDataDT (default = FALSE)
 #' @param column_cell_ID column name of new metadata to use if by_column = TRUE
 #' @return giotto object
 #' @details You can add additional cell metadata in two manners:
-#' 1. Provide a data.table or data.frame with cell annotations in the same order as the cell_ID column in pDataDT(gobject)
-#' 2. Provide a data.table or data.frame with cell annotations and specificy which column contains the cell IDs,
-#' these cell IDs need to match with the cell_ID column in pDataDT(gobject)
+#' \itemize{
+#'   \item{1. Provide a data.table or data.frame with cell annotations in the same order as the cell_ID column in pDataDT(gobject) }
+#'   \item{2. Provide a data.table or data.frame with cell annotations and specificy which column contains the cell IDs, these cell IDs need to match with the cell_ID column in pDataDT(gobject)}
+#' }
 #' @export
 #' @examples
 #'     addCellMetadata(gobject)
 addCellMetadata <- function(gobject,
                             new_metadata,
+                            vector_name = NULL,
                             by_column = FALSE,
                             column_cell_ID = NULL) {
+
+  # data.table variables
+  cell_ID = NULL
 
   cell_metadata = gobject@cell_metadata
   ordered_cell_IDs = gobject@cell_ID
 
-  if(is.vector(new_metadata)) {
+  if(is.vector(new_metadata) | is.factor(new_metadata)) {
     original_name = deparse(substitute(new_metadata))
     new_metadata = data.table::as.data.table(new_metadata)
-    colnames(new_metadata) = original_name
+
+    if(!is.null(vector_name) & is.character(vector_name)) {
+      colnames(new_metadata) = vector_name
+    } else {
+      colnames(new_metadata) = original_name
+    }
+
   } else {
     new_metadata = data.table::as.data.table(new_metadata)
   }
@@ -1231,7 +1369,7 @@ addCellMetadata <- function(gobject,
     cell_metadata = cbind(cell_metadata, new_metadata)
   } else {
     if(is.null(column_cell_ID)) stop('You need to provide cell_ID column')
-    cell_metadata <- data.table:::merge.data.table(cell_metadata, by.x = 'cell_ID',
+    cell_metadata <- data.table::merge.data.table(cell_metadata, by.x = 'cell_ID',
                                                    new_metadata, by.y = column_cell_ID,
                                                    all.x = T)
   }
@@ -1249,7 +1387,7 @@ addCellMetadata <- function(gobject,
 #' @param gobject giotto object
 #' @param new_metadata new metadata to use
 #' @param by_column merge metadata based on gene_ID column in fDataDT
-#' @param column_cell_ID column name of new metadata to use if by_column = TRUE
+#' @param column_gene_ID column name of new metadata to use if by_column = TRUE
 #' @return giotto object
 #' @details You can add additional gene metadata in two manners:
 #' 1. Provide a data.table or data.frame with gene annotations in the same order as the gene_ID column in fDataDT(gobject)
@@ -1263,6 +1401,9 @@ addGeneMetadata <- function(gobject,
                             by_column = F,
                             column_gene_ID = NULL) {
 
+  # data.table variables
+  gene_ID = NULL
+
   gene_metadata = gobject@gene_metadata
   ordered_gene_IDs = gobject@gene_ID
 
@@ -1270,7 +1411,7 @@ addGeneMetadata <- function(gobject,
     gene_metadata = cbind(gene_metadata, new_metadata)
   } else {
     if(is.null(column_gene_ID)) stop('You need to provide gene_ID column')
-    gene_metadata <- data.table:::merge.data.table(gene_metadata, by.x = 'gene_ID',
+    gene_metadata <- data.table::merge.data.table(gene_metadata, by.x = 'gene_ID',
                                                    new_metadata, by.y = column_gene_ID,
                                                    all.x = T)
   }
@@ -1314,15 +1455,15 @@ addGeneStatistics <- function(gobject,
 
   # calculate stats
   gene_stats = data.table::data.table(genes = rownames(expr_data),
-                          nr_cells = rowSums(expr_data > detection_threshold),
-                          perc_cells = (rowSums(expr_data > detection_threshold)/ncol(expr_data))*100,
-                          total_expr = rowSums(expr_data),
-                          mean_expr = rowMeans(expr_data))
+                          nr_cells = rowSums_giotto(expr_data > detection_threshold),
+                          perc_cells = (rowSums_giotto(expr_data > detection_threshold)/ncol(expr_data))*100,
+                          total_expr = rowSums_giotto(expr_data),
+                          mean_expr = rowMeans_giotto(expr_data))
 
-    mean_expr_detected = unlist(apply(X = expr_data, MARGIN = 1, FUN = function(x) {
-    detected_x = x[x > detection_threshold]
-    mean(detected_x)
-  }))
+  # data.table variables
+  mean_expr_det = NULL
+
+  mean_expr_detected = mean_expr_det_test(expr_data, detection_threshold = detection_threshold)
   gene_stats[, mean_expr_det := mean_expr_detected]
 
 
@@ -1387,9 +1528,9 @@ addCellStatistics <- function(gobject,
 
   # calculate stats
   cell_stats = data.table::data.table(cells = colnames(expr_data),
-                          nr_genes = colSums(expr_data > detection_threshold),
-                          perc_genes = (colSums(expr_data > detection_threshold)/nrow(expr_data))*100,
-                          total_expr = colSums(expr_data))
+                          nr_genes = colSums_giotto(expr_data > detection_threshold),
+                          perc_genes = (colSums_giotto(expr_data > detection_threshold)/nrow(expr_data))*100,
+                          total_expr = colSums_giotto(expr_data))
 
 
 
@@ -1469,6 +1610,54 @@ addStatistics <- function(gobject,
 }
 
 
+#' @title addGenesPerc
+#' @description calculates the total percentage of (normalized) counts for a subset of selected genes
+#' @param gobject giotto object
+#' @param expression_values expression values to use
+#' @param genes vector of selected genes
+#' @param vector_name column name as seen in pDataDT()
+#' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @return giotto object if return_gobject = TRUE, else a vector with % results
+#' @export
+#' @examples
+#'     addGenesPerc(gobject)
+addGenesPerc = function(gobject,
+                        expression_values = c('normalized', 'scaled', 'custom'),
+                        genes = NULL,
+                        vector_name = 'gene_perc',
+                        return_gobject = TRUE) {
+
+  # tests
+  if(is.null(genes)) {
+    stop('You need to provide a vector of gene names \n')
+  }
+
+  if(!methods::is(gobject, 'giotto')) {
+    stop('You need to provide a giotto object \n')
+  }
+
+
+  # expression values to be used
+  expression_values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_data = select_expression_values(gobject = gobject, values = expression_values)
+
+  totalsum = colSums_giotto(expr_data)
+  gene_sum = colSums_giotto(expr_data[rownames(expr_data) %in% genes,])
+  perc_genes = round((gene_sum/totalsum)*100, 2)
+
+  if(return_gobject == TRUE) {
+    temp_gobj = addCellMetadata(gobject = gobject,
+                                new_metadata = perc_genes,
+                                vector_name = vector_name,
+                                by_column = F)
+    return(temp_gobj)
+  } else {
+    return(perc_genes)
+  }
+
+}
+
+
 
 #' @title showProcessingSteps
 #' @description shows the sequential processing steps that were performed in a summarized format
@@ -1503,7 +1692,8 @@ showProcessingSteps <- function(gobject) {
 
 
 #' @title create_cluster_matrix
-#' @description creates aggregated matrix for a given clustering
+#' @description creates aggregated matrix for a given clustering column
+#' @keywords internal
 #' @examples
 #'     create_cluster_matrix(gobject)
 create_cluster_matrix <- function(gobject,
@@ -1514,7 +1704,8 @@ create_cluster_matrix <- function(gobject,
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
 
   # average expression per cluster
-  aggr_sc_clusters <- create_average_DT(gobject = gobject, meta_data_name = cluster_column,
+  aggr_sc_clusters <- create_average_DT(gobject = gobject,
+                                        meta_data_name = cluster_column,
                                         expression_values = values)
   aggr_sc_clusters_DT <- data.table::as.data.table(aggr_sc_clusters)
   aggr_sc_clusters_DT[, genes := rownames(aggr_sc_clusters)]
@@ -1525,9 +1716,11 @@ create_cluster_matrix <- function(gobject,
 
   # create matrix
   testmat = data.table::dcast.data.table(aggr_sc_clusters_DT_melt,
-                                         formula = genes~cluster, value.var = 'expression')
-  testmatrix = as.matrix(testmat[,-1])
-  rownames(testmatrix) = testmat[['genes']]
+                                         formula = genes~cluster,
+                                         value.var = 'expression')
+  testmatrix = dt_to_matrix(testmat)
+  #testmatrix = as.matrix(testmat[,-1])
+  #rownames(testmatrix) = testmat[['genes']]
 
   # create subset if required
   if(!is.null(gene_subset)) {
@@ -1559,6 +1752,9 @@ calculateMetaTable = function(gobject,
                               selected_genes = NULL) {
 
   if(is.null(metadata_cols)) stop('\n You need to select one or more valid column names from pDataDT() \n')
+
+  # data.table variables
+  uniq_ID = NULL
 
   ## get metadata and create unique groups
   metadata = data.table::copy(pDataDT(gobject))
@@ -1592,7 +1788,7 @@ calculateMetaTable = function(gobject,
     selected_cell_IDs = metadata[uniq_ID == uniq_identifiier][['cell_ID']]
     sub_expr_values = expr_values[, colnames(expr_values) %in% selected_cell_IDs]
     if(is.vector(sub_expr_values) == FALSE) {
-      subvec = rowMeans(sub_expr_values)
+      subvec = rowMeans_giotto(sub_expr_values)
     } else {
       subvec = sub_expr_values
     }
@@ -1674,6 +1870,10 @@ combineMetadata = function(gobject,
 
   # spatial locations
   spatial_locs = copy(gobject@spatial_locs)
+
+  # data.table variables
+  cell_ID = NULL
+
   metadata = cbind(metadata, spatial_locs[, cell_ID := NULL])
 
   # cell/spot enrichment data
@@ -1734,7 +1934,7 @@ createMetagenes = function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_values = select_expression_values(gobject = gobject, values = values)
 
 
   ## calculate metagene ##
@@ -1751,7 +1951,7 @@ createMetagenes = function(gobject,
     if(length(selected_genes) == 1) {
       mean_score = sub_mat
     } else{
-      mean_score = colMeans(sub_mat)
+      mean_score = colMeans_giotto(sub_mat)
     }
 
     res_list[[id]] = mean_score
@@ -1759,6 +1959,10 @@ createMetagenes = function(gobject,
 
   res_final = data.table::as.data.table(t(do.call('rbind', res_list)))
   colnames(res_final) = as.character(sort(unique(gene_clusters)))
+
+  # data.table variables
+  cell_ID = NULL
+
   res_final[, cell_ID := colnames(expr_values)]
 
 
@@ -1794,232 +1998,56 @@ createMetagenes = function(gobject,
 }
 
 
-
-
-
-
-#' @title spatNetwDistributionsDistance
-#' @description This function return histograms displaying the distance distribution for each spatial k-neighbor
+#' @title findNetworkNeighbors
+#' @description Find the spatial neighbors for a selected group of cells within the selected spatial network.
 #' @param gobject Giotto object
 #' @param spatial_network_name name of spatial network
-#' @param hist_bins number of binds to use for the histogram
-#' @param test_distance_limit effect of different distance threshold on k-neighbors
-#' @param ncol number of columns to visualize the histograms in
-#' @param show_plot show plot
-#' @param return_plot return ggplot object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, alternatively change save_name in save_param
-#' @return ggplot plot
+#' @param source_cell_ids cell ids for which you want to know the spatial neighbors
+#' @param name name of the results
+#' @return data.table
 #' @export
 #' @examples
-#'     spatNetwDistributionsDistance(gobject)
-spatNetwDistributionsDistance <- function(gobject,
-                                          spatial_network_name = 'spatial_network',
-                                          hist_bins = 30,
-                                          test_distance_limit =  NULL,
-                                          ncol = 1,
-                                          show_plot = NA,
-                                          return_plot = NA,
-                                          save_plot = NA,
-                                          save_param =  list(),
-                                          default_save_name = 'spatNetwDistributionsDistance') {
+#'     findNetworkNeighbors(gobject)
+findNetworkNeighbors = function(gobject,
+                                spatial_network_name,
+                                source_cell_ids = NULL,
+                                name = 'nb_cells') {
 
-
-  ## spatial network
-  spatial_network = gobject@spatial_network[[spatial_network_name]]
-  if(is.null(spatial_network)) {
-    stop('spatial network ', spatial_network_name, ' was not found')
+  # get spatial network
+  if(!is.null(spatial_network_name)) {
+    spatial_network = select_spatialNetwork(gobject, name = spatial_network_name, return_network_Obj = FALSE)
+  } else {
+    stop('You need to select a spatial network')
   }
 
-  if(!is.null(test_distance_limit)) {
-    removed_neighbors = spatial_network[distance > test_distance_limit, .N, by = rank_int]
-    removed_neighbors[, status := 'remove']
-    keep_neighbors = spatial_network[distance <= test_distance_limit, .N, by = rank_int]
-    keep_neighbors[, status := 'keep']
+  # source cell ids that are found back
+  all_cell_ids = gobject@cell_ID
+  source_cells = all_cell_ids[all_cell_ids %in% source_cell_ids]
 
-    dist_removal_dt = rbind(removed_neighbors, keep_neighbors)
-    setorder(dist_removal_dt, rank_int)
-
-    dist_removal_dt_dcast = dcast.data.table(data = dist_removal_dt, rank_int~status, value.var = 'N', fill = 0)
-    dist_removal_dt_dcast[, label := paste0('keep:',keep, '\n remove:',remove)]
+  if(length(source_cells) == 0) {
+    stop('No source cell ids were selected or found')
   }
 
-  # text location coordinates
-  middle_distance = max(spatial_network$distance)/(3/2)
-  freq_dt = spatial_network[, table(cut(distance, breaks = 30)), by = rank_int]
-  middle_height = max(freq_dt$V1)/(3/2)
 
-  pl = ggplot()
-  pl = pl + labs(title = 'distance distribution per k-neighbor')
-  pl = pl + theme_classic()
-  pl = pl + geom_histogram(data = spatial_network, aes(x = distance), color = 'white', fill = 'black', bins = hist_bins)
-  pl = pl + facet_wrap(~rank_int, ncol = ncol)
-  if(!is.null(test_distance_limit)) {
-    pl = pl + geom_vline(xintercept = test_distance_limit, color = 'red')
-    pl = pl + geom_text(data = dist_removal_dt_dcast, aes(x = middle_distance, y = middle_height, label = label))
-  }
+  full_network_DT = convert_to_full_spatial_network(spatial_network)
+  potential_target_cells = full_network_DT[source %in% source_cells][['target']]
+  source_and_target_cells = potential_target_cells[potential_target_cells %in% source_cells]
+  target_cells = potential_target_cells[!potential_target_cells %in% source_and_target_cells]
 
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+  cell_meta = pDataDT(gobject)
 
-  ## print plot
-  if(show_plot == TRUE) {
-    print(pl)
-  }
+  # data.table variables
+  nb_cells = cell_ID = NULL
 
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
-  }
+  cell_meta[, nb_cells := ifelse(cell_ID %in% source_and_target_cells, 'both',
+                                 ifelse(cell_ID %in% source_cells, 'source',
+                                        ifelse(cell_ID %in% target_cells, 'neighbor', 'others')))]
+  nb_annot = cell_meta[, c('cell_ID', 'nb_cells'), with = FALSE]
+  data.table::setnames(nb_annot, 'nb_cells', name)
 
-  ## return plot
-  if(return_plot == TRUE) {
-    return(pl)
-  }
-
+  return(nb_annot)
 
 }
-
-
-
-
-#' @title spatNetwDistributionsKneighbors
-#' @description This function returns a histogram displaying the number of k-neighbors distribution for each cell
-#' @param gobject Giotto object
-#' @param spatial_network_name name of spatial network
-#' @param hist_bins number of binds to use for the histogram
-#' @param show_plot show plot
-#' @param return_plot return ggplot object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, alternatively change save_name in save_param
-#' @return ggplot plot
-#' @export
-#' @examples
-#'     spatNetwDistributionsKneighbors(gobject)
-spatNetwDistributionsKneighbors = function(gobject,
-                                           spatial_network_name = 'spatial_network',
-                                           hist_bins = 30,
-                                           show_plot = NA,
-                                           return_plot = NA,
-                                           save_plot = NA,
-                                           save_param =  list(),
-                                           default_save_name = 'spatNetwDistributionsKneighbors') {
-
-  ## spatial network
-  spatial_network = gobject@spatial_network[[spatial_network_name]]
-  if(is.null(spatial_network)) {
-    stop('spatial network ', spatial_network_name, ' was not found')
-  }
-
-  spatial_network_dt = as.data.table(spatial_network[, table(from)])
-
-  pl = ggplot()
-  pl = pl + labs(title = 'k-neighbor distribution for all cells', x = 'k-neighbors/cell')
-  pl = pl + theme_classic()
-  pl = pl + geom_histogram(data = spatial_network_dt, aes(x = N), color = 'white', fill = 'black', bins = hist_bins)
-
-
-  # print, return and save parameters
-  show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
-  save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
-  return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-
-  ## print plot
-  if(show_plot == TRUE) {
-    print(pl)
-  }
-
-  ## save plot
-  if(save_plot == TRUE) {
-    do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
-  }
-
-  ## return plot
-  if(return_plot == TRUE) {
-    return(pl)
-  }
-
-
-}
-
-
-
-#' @title spatNetwDistributionsDistance
-#' @description This function return histograms displaying the distance distribution for each spatial k-neighbor
-#' @param gobject Giotto object
-#' @param spatial_network_name name of spatial network
-#' @param distribution show the distribution of cell-to-cell distance or number of k neighbors
-#' @param hist_bins number of binds to use for the histogram
-#' @param test_distance_limit effect of different distance threshold on k-neighbors
-#' @param ncol number of columns to visualize the histograms in
-#' @param show_plot show plot
-#' @param return_plot return ggplot object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, alternatively change save_name in save_param
-#' @details The \strong{distance} option shows the spatial distance distribution for each nearest neighbor rank (1st, 2nd, 3th, ... neigbor).
-#' With this option the user can also test the effect of a distance limit on the spatial network. This distance limit can be used to remove neigbor
-#' cells that are considered to far away. \cr
-#' The \strong{k_neighbors} option shows the number of k neighbors distribution over all cells.
-#' @return ggplot plot
-#' @export
-#' @examples
-#'     spatNetwDistributionsDistance(gobject)
-spatNetwDistributions <- function(gobject,
-                                  spatial_network_name = 'spatial_network',
-                                  distribution = c('distance', 'k_neighbors'),
-                                  hist_bins = 30,
-                                  test_distance_limit =  NULL,
-                                  ncol = 1,
-                                  show_plot = NA,
-                                  return_plot = NA,
-                                  save_plot = NA,
-                                  save_param =  list(),
-                                  default_save_name = 'spatNetwDistributions') {
-
-  ## histogram to show
-  distribution = match.arg(distribution, choices = distribution)
-
-  ## spatial network
-  spatial_network = gobject@spatial_network[[spatial_network_name]]
-  if(is.null(spatial_network)) {
-    stop('spatial network ', spatial_network_name, ' was not found')
-  }
-
-
-  if(distribution == 'distance') {
-
-    spatNetwDistributionsDistance(gobject = gobject,
-                                  spatial_network_name = spatial_network_name,
-                                  hist_bins = hist_bins,
-                                  test_distance_limit =  test_distance_limit,
-                                  ncol = ncol,
-                                  show_plot = show_plot,
-                                  return_plot = return_plot,
-                                  save_plot = save_plot,
-                                  save_param =  save_param,
-                                  default_save_name = default_save_name)
-
-  } else if(distribution == 'k_neighbors') {
-
-    spatNetwDistributionsKneighbors(gobject = gobject,
-                                    spatial_network_name = spatial_network_name,
-                                    hist_bins = hist_bins,
-                                    show_plot = show_plot,
-                                    return_plot = return_plot,
-                                    save_plot = save_plot,
-                                    save_param =  save_param,
-                                    default_save_name = default_save_name)
-
-  }
-
-}
-
-
 
 
 

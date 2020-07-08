@@ -4,108 +4,54 @@
 \alias{spatGenePlot}
 \title{spatGenePlot}
 \usage{
-spatGenePlot(
-  gobject,
-  expression_values = c("normalized", "scaled", "custom"),
-  genes,
-  genes_high_color = "darkred",
-  genes_mid_color = "white",
-  genes_low_color = "darkblue",
-  show_network = F,
-  network_color = NULL,
-  spatial_network_name = "spatial_network",
-  edge_alpha = NULL,
-  show_grid = F,
-  grid_color = NULL,
-  spatial_grid_name = "spatial_grid",
-  midpoint = 0,
-  scale_alpha_with_expression = FALSE,
-  point_shape = c("border", "no_border"),
-  point_size = 1,
-  point_border_col = "black",
-  point_border_stroke = 0.1,
-  show_legend = T,
-  legend_text = 8,
-  background_color = "white",
-  axis_text = 8,
-  axis_title = 8,
-  cow_n_col = 2,
-  cow_rel_h = 1,
-  cow_rel_w = 1,
-  cow_align = "h",
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
-  save_param = list(),
-  default_save_name = "spatGenePlot"
-)
+spatGenePlot(...)
 }
 \arguments{
-\item{gobject}{giotto object}
-
-\item{expression_values}{gene expression values to use}
-
-\item{genes}{genes to show}
-
-\item{genes_high_color}{color represents high gene expression}
-
-\item{genes_mid_color}{color represents middle gene expression}
-
-\item{genes_low_color}{color represents low gene expression}
-
-\item{show_network}{show underlying spatial network}
-
-\item{network_color}{color of spatial network}
-
-\item{spatial_network_name}{name of spatial network to use}
-
-\item{show_grid}{show spatial grid}
-
-\item{grid_color}{color of spatial grid}
-
-\item{spatial_grid_name}{name of spatial grid to use}
-
-\item{midpoint}{expression midpoint}
-
-\item{scale_alpha_with_expression}{scale expression with ggplot alpha parameter}
-
-\item{point_shape}{point with border or not (border or no_border)}
-
-\item{point_size}{size of point (cell)}
-
-\item{point_border_col}{color of border around points}
-
-\item{point_border_stroke}{stroke size of border around points}
-
-\item{show_legend}{show legend}
-
-\item{legend_text}{size of legend text}
-
-\item{background_color}{color of plot background}
-
-\item{axis_text}{size of axis text}
-
-\item{axis_title}{size of axis title}
-
-\item{cow_n_col}{cowplot param: how many columns}
-
-\item{cow_rel_h}{cowplot param: relative height}
-
-\item{cow_rel_w}{cowplot param: relative width}
-
-\item{cow_align}{cowplot param: how to align}
-
-\item{show_plot}{show plots}
-
-\item{return_plot}{return ggplot object}
-
-\item{save_plot}{directly save the plot [boolean]}
-
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
-
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-
-\item{...}{parameters for cowplot::save_plot()}
+\item{...}{
+  Arguments passed on to \code{\link[=spatGenePlot2D]{spatGenePlot2D}}
+  \describe{
+    \item{\code{gobject}}{giotto object}
+    \item{\code{show_image}}{show a tissue background image}
+    \item{\code{gimage}}{a giotto image}
+    \item{\code{image_name}}{name of a giotto image}
+    \item{\code{sdimx}}{x-axis dimension name (default = 'sdimx')}
+    \item{\code{sdimy}}{y-axis dimension name (default = 'sdimy')}
+    \item{\code{expression_values}}{gene expression values to use}
+    \item{\code{genes}}{genes to show}
+    \item{\code{cell_color_gradient}}{vector with 3 colors for numeric data}
+    \item{\code{gradient_midpoint}}{midpoint for color gradient}
+    \item{\code{gradient_limits}}{vector with lower and upper limits}
+    \item{\code{show_network}}{show underlying spatial network}
+    \item{\code{network_color}}{color of spatial network}
+    \item{\code{spatial_network_name}}{name of spatial network to use}
+    \item{\code{show_grid}}{show spatial grid}
+    \item{\code{grid_color}}{color of spatial grid}
+    \item{\code{spatial_grid_name}}{name of spatial grid to use}
+    \item{\code{midpoint}}{expression midpoint}
+    \item{\code{scale_alpha_with_expression}}{scale expression with ggplot alpha parameter}
+    \item{\code{point_shape}}{shape of points (border, no_border or voronoi)}
+    \item{\code{point_size}}{size of point (cell)}
+    \item{\code{point_alpha}}{transparancy of points}
+    \item{\code{point_border_col}}{color of border around points}
+    \item{\code{point_border_stroke}}{stroke size of border around points}
+    \item{\code{cow_n_col}}{cowplot param: how many columns}
+    \item{\code{cow_rel_h}}{cowplot param: relative height}
+    \item{\code{cow_rel_w}}{cowplot param: relative width}
+    \item{\code{cow_align}}{cowplot param: how to align}
+    \item{\code{show_legend}}{show legend}
+    \item{\code{legend_text}}{size of legend text}
+    \item{\code{background_color}}{color of plot background}
+    \item{\code{vor_border_color}}{border colorr for voronoi plot}
+    \item{\code{vor_max_radius}}{maximum radius for voronoi 'cells'}
+    \item{\code{vor_alpha}}{transparancy of voronoi 'cells'}
+    \item{\code{axis_text}}{size of axis text}
+    \item{\code{axis_title}}{size of axis title}
+    \item{\code{show_plot}}{show plots}
+    \item{\code{return_plot}}{return ggplot object}
+    \item{\code{save_plot}}{directly save the plot [boolean]}
+    \item{\code{save_param}}{list of saving parameters, see \code{\link{showSaveParameters}}}
+    \item{\code{default_save_name}}{default save name for saving, don't change, change save_name in save_param}
+  }}
 }
 \value{
 ggplot
@@ -121,4 +67,9 @@ Description of parameters.
 }
 \seealso{
 \code{\link{spatGenePlot3D}} and \code{\link{spatGenePlot2D}}
+
+Other spatial gene expression visualizations: 
+\code{\link{spatGenePlot2D}()},
+\code{\link{spatGenePlot3D}()}
 }
+\concept{spatial gene expression visualizations}

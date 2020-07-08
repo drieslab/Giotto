@@ -20,6 +20,7 @@ subClusterCells(
   nn_param = list(dimensions_to_use = 1:20),
   k_neighbors = 10,
   resolution = 1,
+  n_iterations = 1000,
   gamma = 1,
   omega = 1,
   python_path = NULL,
@@ -57,6 +58,8 @@ subClusterCells(
 \item{k_neighbors}{number of k for createNearestNetwork}
 
 \item{resolution}{resolution}
+
+\item{n_iterations}{number of interations to run the Leiden algorithm.}
 
 \item{gamma}{gamma}
 

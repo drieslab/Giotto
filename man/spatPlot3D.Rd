@@ -21,9 +21,10 @@ spatPlot3D(
   network_color = NULL,
   network_alpha = 1,
   other_cell_alpha = 0.5,
-  spatial_network_name = "spatial_network",
+  spatial_network_name = "Delaunay_network",
   show_grid = F,
   grid_color = NULL,
+  grid_alpha = 1,
   spatial_grid_name = "spatial_grid",
   title = "",
   show_legend = T,
@@ -66,11 +67,15 @@ spatPlot3D(
 
 \item{network_color}{color of spatial network}
 
+\item{network_alpha}{opacity of spatial network}
+
 \item{spatial_network_name}{name of spatial network to use}
 
 \item{show_grid}{show spatial grid}
 
 \item{grid_color}{color of spatial grid}
+
+\item{grid_alpha}{opacity of spatial grid}
 
 \item{spatial_grid_name}{name of spatial grid to use}
 
@@ -94,7 +99,7 @@ spatPlot3D(
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }
@@ -111,3 +116,9 @@ Description of parameters.
     spatPlot3D(gobject)
 
 }
+\seealso{
+Other spatial visualizations: 
+\code{\link{spatPlot2D}()},
+\code{\link{spatPlot}()}
+}
+\concept{spatial visualizations}

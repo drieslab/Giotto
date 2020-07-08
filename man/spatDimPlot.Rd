@@ -4,205 +4,86 @@
 \alias{spatDimPlot}
 \title{spatDimPlot}
 \usage{
-spatDimPlot(
-  gobject,
-  plot_alignment = c("vertical", "horizontal"),
-  dim_reduction_to_use = "umap",
-  dim_reduction_name = "umap",
-  dim1_to_use = 1,
-  dim2_to_use = 2,
-  sdimx = "sdimx",
-  sdimy = "sdimy",
-  spat_enr_names = NULL,
-  cell_color = NULL,
-  color_as_factor = T,
-  cell_color_code = NULL,
-  cell_color_gradient = c("blue", "white", "red"),
-  gradient_midpoint = NULL,
-  gradient_limits = NULL,
-  select_cell_groups = NULL,
-  select_cells = NULL,
-  dim_point_shape = c("border", "no_border"),
-  dim_point_size = 1,
-  dim_point_border_col = "black",
-  dim_point_border_stroke = 0.1,
-  spat_point_shape = c("border", "no_border"),
-  spat_point_size = 1,
-  spat_point_border_col = "black",
-  spat_point_border_stroke = 0.1,
-  dim_show_cluster_center = F,
-  dim_show_center_label = T,
-  dim_center_point_size = 4,
-  dim_center_point_border_col = "black",
-  dim_center_point_border_stroke = 0.1,
-  dim_label_size = 4,
-  dim_label_fontface = "bold",
-  spat_show_cluster_center = F,
-  spat_show_center_label = F,
-  spat_center_point_size = 4,
-  spat_label_size = 4,
-  spat_label_fontface = "bold",
-  show_NN_network = F,
-  nn_network_to_use = "sNN",
-  network_name = "sNN.pca",
-  nn_network_alpha = 0.05,
-  show_spatial_network = F,
-  spat_network_name = "spatial_network",
-  spat_network_color = "blue",
-  spat_network_alpha = 0.5,
-  show_spatial_grid = F,
-  spat_grid_name = "spatial_grid",
-  spat_grid_color = "blue",
-  show_other_cells = T,
-  other_cell_color = "lightgrey",
-  dim_other_point_size = 1,
-  spat_other_point_size = 1,
-  spat_other_cells_alpha = 0.5,
-  dim_show_legend = F,
-  spat_show_legend = F,
-  legend_text = 8,
-  legend_symbol_size = 1,
-  dim_background_color = "white",
-  spat_background_color = "white",
-  axis_text = 8,
-  axis_title = 8,
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
-  save_param = list(),
-  default_save_name = "spatDimPlot"
-)
+spatDimPlot(...)
 }
 \arguments{
-\item{gobject}{giotto object}
-
-\item{plot_alignment}{direction to align plot}
-
-\item{dim_reduction_to_use}{dimension reduction to use}
-
-\item{dim_reduction_name}{dimension reduction name}
-
-\item{dim1_to_use}{dimension to use on x-axis}
-
-\item{dim2_to_use}{dimension to use on y-axis}
-
-\item{sdimx}{= spatial dimension to use on x-axis}
-
-\item{sdimy}{= spatial dimension to use on y-axis}
-
-\item{spat_enr_names}{names of spatial enrichment results to include}
-
-\item{cell_color}{color for cells (see details)}
-
-\item{color_as_factor}{convert color column to factor}
-
-\item{cell_color_code}{named vector with colors}
-
-\item{cell_color_gradient}{vector with 3 colors for numeric data}
-
-\item{gradient_midpoint}{midpoint for color gradient}
-
-\item{gradient_limits}{vector with lower and upper limits}
-
-\item{select_cell_groups}{select subset of cells/clusters based on cell_color parameter}
-
-\item{select_cells}{select subset of cells based on cell IDs}
-
-\item{dim_point_shape}{point with border or not (border or no_border)}
-
-\item{dim_point_size}{size of points in dim. reduction space}
-
-\item{dim_point_border_col}{border color of points in dim. reduction space}
-
-\item{dim_point_border_stroke}{border stroke of points in dim. reduction space}
-
-\item{spat_point_shape}{point with border or not (border or no_border)}
-
-\item{spat_point_size}{size of spatial points}
-
-\item{spat_point_border_col}{border color of spatial points}
-
-\item{spat_point_border_stroke}{border stroke of spatial points}
-
-\item{dim_show_cluster_center}{show the center of each cluster}
-
-\item{dim_show_center_label}{provide a label for each cluster}
-
-\item{dim_center_point_size}{size of the center point}
-
-\item{dim_center_point_border_col}{border color of center point}
-
-\item{dim_center_point_border_stroke}{stroke size of center point}
-
-\item{dim_label_size}{size of the center label}
-
-\item{dim_label_fontface}{font of the center label}
-
-\item{spat_show_cluster_center}{show the center of each cluster}
-
-\item{spat_show_center_label}{provide a label for each cluster}
-
-\item{spat_center_point_size}{size of the center point}
-
-\item{spat_label_size}{size of the center label}
-
-\item{spat_label_fontface}{font of the center label}
-
-\item{show_NN_network}{show underlying NN network}
-
-\item{nn_network_to_use}{type of NN network to use (kNN vs sNN)}
-
-\item{network_name}{name of NN network to use, if show_NN_network = TRUE}
-
-\item{nn_network_alpha}{column to use for alpha of the edges}
-
-\item{show_spatial_network}{show spatial network}
-
-\item{spat_network_name}{name of spatial network to use}
-
-\item{spat_network_color}{color of spatial network}
-
-\item{show_spatial_grid}{show spatial grid}
-
-\item{spat_grid_name}{name of spatial grid to use}
-
-\item{spat_grid_color}{color of spatial grid}
-
-\item{show_other_cells}{display not selected cells}
-
-\item{other_cell_color}{color of not selected cells}
-
-\item{dim_other_point_size}{size of not selected dim cells}
-
-\item{spat_other_point_size}{size of not selected spat cells}
-
-\item{spat_other_cells_alpha}{alpha of not selected spat cells}
-
-\item{dim_show_legend}{show legend of dimension reduction plot}
-
-\item{spat_show_legend}{show legend of spatial plot}
-
-\item{legend_text}{size of legend text}
-
-\item{legend_symbol_size}{size of legend symbols}
-
-\item{dim_background_color}{background color of points in dim. reduction space}
-
-\item{spat_background_color}{background color of spatial points}
-
-\item{axis_text}{size of axis text}
-
-\item{axis_title}{size of axis title}
-
-\item{show_plot}{show plot}
-
-\item{return_plot}{return ggplot object}
-
-\item{save_plot}{directly save the plot [boolean]}
-
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
-
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+\item{...}{
+  Arguments passed on to \code{\link[=spatDimPlot2D]{spatDimPlot2D}}
+  \describe{
+    \item{\code{gobject}}{giotto object}
+    \item{\code{show_image}}{show a tissue background image}
+    \item{\code{gimage}}{a giotto image}
+    \item{\code{image_name}}{name of a giotto image}
+    \item{\code{plot_alignment}}{direction to align plot}
+    \item{\code{dim_reduction_to_use}}{dimension reduction to use}
+    \item{\code{dim_reduction_name}}{dimension reduction name}
+    \item{\code{dim1_to_use}}{dimension to use on x-axis}
+    \item{\code{dim2_to_use}}{dimension to use on y-axis}
+    \item{\code{sdimx}}{= spatial dimension to use on x-axis}
+    \item{\code{sdimy}}{= spatial dimension to use on y-axis}
+    \item{\code{spat_enr_names}}{names of spatial enrichment results to include}
+    \item{\code{cell_color}}{color for cells (see details)}
+    \item{\code{color_as_factor}}{convert color column to factor}
+    \item{\code{cell_color_code}}{named vector with colors}
+    \item{\code{cell_color_gradient}}{vector with 3 colors for numeric data}
+    \item{\code{gradient_midpoint}}{midpoint for color gradient}
+    \item{\code{gradient_limits}}{vector with lower and upper limits}
+    \item{\code{select_cell_groups}}{select subset of cells/clusters based on cell_color parameter}
+    \item{\code{select_cells}}{select subset of cells based on cell IDs}
+    \item{\code{dim_point_shape}}{point with border or not (border or no_border)}
+    \item{\code{dim_point_size}}{size of points in dim. reduction space}
+    \item{\code{dim_point_alpha}}{transparancy of point in dim. reduction space}
+    \item{\code{dim_point_border_col}}{border color of points in dim. reduction space}
+    \item{\code{dim_point_border_stroke}}{border stroke of points in dim. reduction space}
+    \item{\code{spat_point_shape}}{shape of points (border, no_border or voronoi)}
+    \item{\code{spat_point_size}}{size of spatial points}
+    \item{\code{spat_point_alpha}}{transparancy of spatial points}
+    \item{\code{spat_point_border_col}}{border color of spatial points}
+    \item{\code{spat_point_border_stroke}}{border stroke of spatial points}
+    \item{\code{dim_show_cluster_center}}{show the center of each cluster}
+    \item{\code{dim_show_center_label}}{provide a label for each cluster}
+    \item{\code{dim_center_point_size}}{size of the center point}
+    \item{\code{dim_center_point_border_col}}{border color of center point}
+    \item{\code{dim_center_point_border_stroke}}{stroke size of center point}
+    \item{\code{dim_label_size}}{size of the center label}
+    \item{\code{dim_label_fontface}}{font of the center label}
+    \item{\code{spat_show_cluster_center}}{show the center of each cluster}
+    \item{\code{spat_show_center_label}}{provide a label for each cluster}
+    \item{\code{spat_center_point_size}}{size of the center point}
+    \item{\code{spat_label_size}}{size of the center label}
+    \item{\code{spat_label_fontface}}{font of the center label}
+    \item{\code{show_NN_network}}{show underlying NN network}
+    \item{\code{nn_network_to_use}}{type of NN network to use (kNN vs sNN)}
+    \item{\code{network_name}}{name of NN network to use, if show_NN_network = TRUE}
+    \item{\code{nn_network_alpha}}{column to use for alpha of the edges}
+    \item{\code{show_spatial_network}}{show spatial network}
+    \item{\code{spat_network_name}}{name of spatial network to use}
+    \item{\code{spat_network_color}}{color of spatial network}
+    \item{\code{show_spatial_grid}}{show spatial grid}
+    \item{\code{spat_grid_name}}{name of spatial grid to use}
+    \item{\code{spat_grid_color}}{color of spatial grid}
+    \item{\code{show_other_cells}}{display not selected cells}
+    \item{\code{other_cell_color}}{color of not selected cells}
+    \item{\code{dim_other_point_size}}{size of not selected dim cells}
+    \item{\code{spat_other_point_size}}{size of not selected spat cells}
+    \item{\code{spat_other_cells_alpha}}{alpha of not selected spat cells}
+    \item{\code{dim_show_legend}}{show legend of dimension reduction plot}
+    \item{\code{spat_show_legend}}{show legend of spatial plot}
+    \item{\code{legend_text}}{size of legend text}
+    \item{\code{legend_symbol_size}}{size of legend symbols}
+    \item{\code{dim_background_color}}{background color of points in dim. reduction space}
+    \item{\code{spat_background_color}}{background color of spatial points}
+    \item{\code{vor_border_color}}{border colorr for voronoi plot}
+    \item{\code{vor_max_radius}}{maximum radius for voronoi 'cells'}
+    \item{\code{vor_alpha}}{transparancy of voronoi 'cells'}
+    \item{\code{axis_text}}{size of axis text}
+    \item{\code{axis_title}}{size of axis title}
+    \item{\code{show_plot}}{show plot}
+    \item{\code{return_plot}}{return ggplot object}
+    \item{\code{save_plot}}{directly save the plot [boolean]}
+    \item{\code{save_param}}{list of saving parameters, see \code{\link{showSaveParameters}}}
+    \item{\code{default_save_name}}{default save name for saving, don't change, change save_name in save_param}
+  }}
 }
 \value{
 ggplot
@@ -218,4 +99,9 @@ Description of parameters.
 }
 \seealso{
 \code{\link{spatDimPlot2D}} and \code{\link{spatDimPlot3D}} for 3D visualization.
+
+Other spatial and dimension reduction visualizations: 
+\code{\link{spatDimPlot2D}()},
+\code{\link{spatDimPlot3D}()}
 }
+\concept{spatial and dimension reduction visualizations}
