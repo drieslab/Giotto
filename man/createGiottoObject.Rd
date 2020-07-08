@@ -18,6 +18,7 @@ createGiottoObject(
   spatial_grid_name = NULL,
   spatial_enrichment = NULL,
   spatial_enrichment_name = NULL,
+  spatial_deconvolution = NULL,
   dimension_reduction = NULL,
   nn_network = NULL,
   images = NULL,
@@ -52,6 +53,8 @@ createGiottoObject(
 \item{spatial_enrichment}{list of spatial enrichment score(s) for each spatial region}
 
 \item{spatial_enrichment_name}{list of spatial enrichment name(s)}
+
+\item{spatial_deconvolution}{list of spatial cell type proportion(s) for each spatial region}
 
 \item{dimension_reduction}{list of dimension reduction(s)}
 
