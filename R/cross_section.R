@@ -46,11 +46,12 @@ create_crossSection_object <- function(name=NULL,
 
 #' @title read_crossSection
 #' @name read_crossSection
+
 #' @param gobject gobject
 #' @param name name
 #' @param spatial_network_name spatial_network_name
 #' @keywords internal
-#' @description read a cross section object from a giotto object
+
 read_crossSection <- function(gobject,
                               name=NULL,
                               spatial_network_name=NULL){
@@ -78,10 +79,7 @@ read_crossSection <- function(gobject,
 
 #' @title get_distance
 #' @name get_distance
-#' @param networkDT networkDT
-#' @param method method
-#' @keywords internal
-#' @description estimate average distance between neighboring cells with network table as input
+
 get_distance <- function(networkDT,
                          method=c("mean","median")
                          ){
@@ -96,11 +94,12 @@ get_distance <- function(networkDT,
 
 #' @title estimateCellCellDistance
 #' @name estimateCellCellDistance
+
 #' @param gobject gobject
 #' @param spatial_network_name spatial_network_name
 #' @param method method
 #' @keywords internal
-#' @description estimate average distance between neighboring cells
+
 estimateCellCellDistance <- function(gobject,
                                      spatial_network_name="Delaunay_network",
                                      method=c("mean","median")
@@ -115,13 +114,14 @@ estimateCellCellDistance <- function(gobject,
 }
 #' @title get_sectionThickness
 #' @name get_sectionThickness
+
 #' @param gobject gobject
 #' @param thickness_unit thickness_unit
 #' @param spatial_network_name spatial_network_name
 #' @param cell_distance_estimate_method cell_distance_estimate_method
 #' @param plane_equation plane_equation
 #' @keywords internal
-#' @description get section thickness
+
 get_sectionThickness <- function(gobject,thickness_unit=c("cell","natural"),
                                  slice_thickness = 2,
                                  spatial_network_name="Delaunay_network",
@@ -143,11 +143,12 @@ get_sectionThickness <- function(gobject,thickness_unit=c("cell","natural"),
 
 #' @title projection_fun
 #' @name projection_fun
+
 #' @param point_to_project point_to_project
 #' @param plane_point plane_point
 #' @param plane_norm plane_norm
 #' @keywords internal
-#' @description project a point onto a plane
+
 projection_fun <- function(point_to_project,plane_point,plane_norm){
 
   a = plane_norm[1]
@@ -169,6 +170,7 @@ projection_fun <- function(point_to_project,plane_point,plane_norm){
 
 #' @title adapt_aspect_ratio
 #' @name adapt_aspect_ratio
+
 #' @param current_ratio current_ratio
 #' @param cell_locations cell_locations
 #' @param sdimx sdimx
@@ -176,7 +178,7 @@ projection_fun <- function(point_to_project,plane_point,plane_norm){
 #' @param sdimz sdimz
 #' @param mesh_obj mesh_obj
 #' @keywords internal
-#' @description adapt the aspact ratio after inserting cross section mesh grid lines
+
 adapt_aspect_ratio <-function(current_ratio,cell_locations,
                               sdimx = NULL,sdimy = NULL,sdimz = NULL,
                               mesh_obj=NULL){
@@ -213,10 +215,7 @@ adapt_aspect_ratio <-function(current_ratio,cell_locations,
 
 #' @title extend_vector
 #' @name extend_vector
-#' @param x x
-#' @param extend_ratio extend_ratio
-#' @keywords internal
-#' @description extend the range of a vector by a given ratio
+
 extend_vector <- function(x,extend_ratio){
 
   x_center = (max(x)+min(x))/2
@@ -227,10 +226,7 @@ extend_vector <- function(x,extend_ratio){
 
 #' @title find_x_y_ranges
 #' @name find_x_y_ranges
-#' @param data data
-#' @param extend_ratio extend_ratio
-#' @keywords internal
-#' @description get the extended ranges of x and y
+
 find_x_y_ranges <- function(data,extend_ratio){
 
   x_extend = extend_vector(data[,1],extend_ratio)
@@ -250,13 +246,14 @@ find_x_y_ranges <- function(data,extend_ratio){
 
 #' @title create_2d_mesh_grid_line_obj
 #' @name create_2d_mesh_grid_line_obj
+
 #' @param x_min x_min
 #' @param x_max x_max
 #' @param y_min y_min
 #' @param y_max y_max
 #' @param mesh_grid_n mesh_grid_n
 #' @keywords internal
-#' @description create 2d mesh grid line object
+
 create_2d_mesh_grid_line_obj <- function(x_min,x_max,y_min,y_max,mesh_grid_n){
 
   x_grid = seq(x_min,x_max,length.out = mesh_grid_n)
@@ -276,9 +273,7 @@ create_2d_mesh_grid_line_obj <- function(x_min,x_max,y_min,y_max,mesh_grid_n){
 
 #' @title reshape_to_data_point
 #' @name reshape_to_data_point
-#' @param mesh_grid_obj mesh_grid_obj
-#' @keywords internal
-#' @description reshape a mesh grid line object to data point matrix
+
 reshape_to_data_point <- function(mesh_grid_obj){
 
   if (length(mesh_grid_obj)==3){
@@ -295,10 +290,7 @@ reshape_to_data_point <- function(mesh_grid_obj){
 
 #' @title reshape_to_mesh_grid_obj
 #' @name reshape_to_mesh_grid_obj
-#' @param data_points data_points
-#' @param mesh_grid_n mesh_grid_n
-#' @keywords internal
-#' @description reshape a data point matrix to a mesh grid line object
+
 reshape_to_mesh_grid_obj <- function(data_points,mesh_grid_n){
 
   if (dim(data_points)[2]==2){
@@ -322,14 +314,12 @@ reshape_to_mesh_grid_obj <- function(data_points,mesh_grid_n){
 
 
 
-#' @title transform_2d_mesh_to_3d_mesh
-#' @name transform_2d_mesh_to_3d_mesh
 #' @param mesh_line_obj_2d mesh_line_obj_2d
 #' @param pca_out pca_out
 #' @param center_vec center_vec
 #' @param mesh_grid_n mesh_grid_n
 #' @keywords internal
-#' @description transform 2d mesh to 3d mesh by reversing PCA
+
 transform_2d_mesh_to_3d_mesh <- function(mesh_line_obj_2d,pca_out,center_vec,mesh_grid_n){
 
   data_point_2d = reshape_to_data_point(mesh_line_obj_2d)
@@ -342,9 +332,7 @@ transform_2d_mesh_to_3d_mesh <- function(mesh_line_obj_2d,pca_out,center_vec,mes
 
 #' @title get_cross_section_coordinates
 #' @name get_cross_section_coordinates
-#' @param cell_subset_projection_locations cell_subset_projection_locations
-#' @keywords internal
-#' @description get local coordinates within cross section plane
+
 get_cross_section_coordinates <- function(cell_subset_projection_locations){
 
   cell_subset_projection_PCA = stats::prcomp(cell_subset_projection_locations)
@@ -356,11 +344,12 @@ get_cross_section_coordinates <- function(cell_subset_projection_locations){
 
 #' @title create_mesh_grid_lines
 #' @name create_mesh_grid_lines
+
 #' @param cell_subset_projection_locations cell_subset_projection_locations
 #' @param extend_ratio extend_ratio
 #' @param mesh_grid_n mesh_grid_n
 #' @keywords internal
-#' @description create mesh grid lines for cross section
+
 create_mesh_grid_lines <- function(cell_subset_projection_locations,extend_ratio,mesh_grid_n){
 
   cell_subset_projection_PCA = stats::prcomp(cell_subset_projection_locations)
