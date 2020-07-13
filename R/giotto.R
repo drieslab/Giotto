@@ -40,7 +40,6 @@ giotto <- setClass(
     spatial_network = "ANY",
     spatial_grid = "ANY",
     spatial_enrichment = "ANY",
-    spatial_deconvolution = "ANY",
     dimension_reduction = 'ANY',
     nn_network = "ANY",
     images = "ANY",
@@ -63,7 +62,6 @@ giotto <- setClass(
     spatial_network = NULL,
     spatial_grid = NULL,
     spatial_enrichment = NULL,
-    spatial_deconvolution = NULL,
     dimension_reduction = NULL,
     nn_network = NULL,
     images = NULL,
@@ -608,7 +606,6 @@ evaluate_expr_matrix = function(inputmatrix,
 #' @param spatial_grid_name list of spatial grid name(s)
 #' @param spatial_enrichment list of spatial enrichment score(s) for each spatial region
 #' @param spatial_enrichment_name list of spatial enrichment name(s)
-#' @param spatial_deconvolution list of spatial cell type proportion(s) for each spatial region
 #' @param dimension_reduction list of dimension reduction(s)
 #' @param nn_network list of nearest neighbor network(s)
 #' @param images list of images
@@ -665,7 +662,6 @@ createGiottoObject <- function(raw_exprs,
                                spatial_grid_name = NULL,
                                spatial_enrichment = NULL,
                                spatial_enrichment_name = NULL,
-                               spatial_deconvolution = NULL,
                                dimension_reduction = NULL,
                                nn_network = NULL,
                                images = NULL,
@@ -686,7 +682,6 @@ createGiottoObject <- function(raw_exprs,
                    spatial_network = NULL,
                    spatial_grid = NULL,
                    spatial_enrichment = NULL,
-                   spatial_deconvolution = NULL,
                    dimension_reduction = NULL,
                    nn_network = NULL,
                    images = NULL,
