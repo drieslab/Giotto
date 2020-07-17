@@ -767,7 +767,7 @@ findMarkers <- function(gobject,
 
     markers_result =  findScranMarkers(gobject = gobject,
                                        expression_values = expression_values,
-                                       cluster_colum = cluster_column,
+                                       cluster_column = cluster_column,
                                        subset_clusters = subset_clusters,
                                        group_1 = group_1,
                                        group_2 = group_2, ...)

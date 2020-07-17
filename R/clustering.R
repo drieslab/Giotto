@@ -1180,7 +1180,6 @@ clusterCells <- function(gobject,
                                        name = name,
                                        nn_network_to_use = nn_network_to_use,
                                        network_name = network_name,
-                                       weight_col = pyth_louv_weight_col,
                                        gamma = louvain_gamma,
                                        omega = louvain_omega,
                                        return_gobject = return_gobject,
@@ -2013,7 +2012,7 @@ subClusterCells <- function(gobject,
 
   } else if(cluster_method == 'louvain_community') {
 
-    result = doLouvainCluster_community(gobject = gobject,
+    result = doLouvainSubCluster_community(gobject = gobject,
                                         cluster_column = cluster_column,
                                         selected_clusters = selected_clusters,
                                         hvg_param = hvg_param,
@@ -2034,7 +2033,7 @@ subClusterCells <- function(gobject,
 
   } else if(cluster_method == 'louvain_multinet') {
 
-    result = doLouvainCluster_multinet(gobject = gobject,
+    result = doLouvainSubCluster_multinet(gobject = gobject,
                                        cluster_column = cluster_column,
                                        selected_clusters = selected_clusters,
                                        hvg_param = hvg_param,

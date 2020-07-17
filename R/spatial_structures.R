@@ -390,6 +390,9 @@ calculate_distance_and_weight <- function(networkDT = NULL,
                                           sdimz = "sdimz",
                                           d2_or_d3=c(2,3)){
 
+  # data.table variables
+  distance = weight = from = NULL
+
   if(is.null(networkDT)) {
     stop('parameter networkDT can not be NULL \n')
   }
@@ -417,7 +420,7 @@ calculate_distance_and_weight <- function(networkDT = NULL,
   }
 
   ## calculate distance and weight + filter ##
-  networkDT[, `:=`(distance, dist(x = matrix(.SD, nrow = 2, byrow = T))),
+  networkDT[, `:=`(distance, stats::dist(x = matrix(.SD, nrow = 2, byrow = T))),
             by = 1:nrow(networkDT), .SDcols = mycols]
 
   networkDT[, `:=`(distance, as.numeric(distance))]
