@@ -29,7 +29,7 @@ getDistinctColors <- function(n) {
   } else {
 
     xxx <- grDevices::col2rgb(col_vector);
-    dist_mat <- as.matrix(dist(t(xxx)));
+    dist_mat <- as.matrix(stats::dist(t(xxx)));
     diag(dist_mat) <- 1e10;
     while (length(col_vector) > n) {
       minv <- apply(dist_mat,1,function(x)min(x));
@@ -73,11 +73,13 @@ get_os <- function(){
 
 #' @title dt_to_matrix
 #' @description converts data.table to matrix
+#' @param x data.table object
+#' @keywords internal
 #' @examples
 #'     dt_to_matrix(x)
 dt_to_matrix <- function(x) {
   rownames = as.character(x[[1]])
-  mat = as(as.matrix(x[,-1]), 'Matrix')
+  mat = methods::as(as.matrix(x[,-1]), 'Matrix')
   rownames(mat) = rownames
   return(mat)
 }
@@ -85,8 +87,10 @@ dt_to_matrix <- function(x) {
 
 #' @title mygini_fun
 #' @description calculate gini coefficient
+#' @keywords internal
 #' @return gini coefficient
-mygini_fun <- function(x, weights = rep(1,length(x))) {
+mygini_fun <- function(x,
+                       weights = rep(1,length(x))) {
 
   # adapted from R package GiniWegNeg
   dataset = cbind(x, weights)
@@ -113,8 +117,11 @@ mygini_fun <- function(x, weights = rep(1,length(x))) {
 
 #' @title extended_gini_fun
 #' @description calculate gini coefficient on a minimum length vector
+#' @keywords internal
 #' @return gini coefficient
-extended_gini_fun <- function(x, weights = rep(1, length = length(x)), minimum_length = 16) {
+extended_gini_fun <- function(x,
+                              weights = rep(1, length = length(x)),
+                              minimum_length = 16) {
 
   if(length(x) < minimum_length) {
     difference = minimum_length - length(x)
@@ -159,6 +166,10 @@ stitchFieldCoordinates <- function(location_file,
                                    Y_coord_col = 'Y',
                                    reverse_final_x = F,
                                    reverse_final_y = T) {
+
+
+  # data.table variables
+  x_offset_final = x_offset = y_offset_final = y_offset = field = NULL
 
 
   # cumulate offset values or not for offset file
@@ -218,7 +229,13 @@ stitchFieldCoordinates <- function(location_file,
 #' @export
 #' @examples
 #'     stitchTileCoordinates(gobject)
-stitchTileCoordinates <- function (location_file, Xtilespan, Ytilespan) {
+stitchTileCoordinates <- function (location_file,
+                                   Xtilespan,
+                                   Ytilespan) {
+
+  # data.table variables
+  Xcoord = X.X = XtileIndex = Ycoord = Y.Y = YtileIndex = NULL
+
   if (is.null(location_file$X.X)){
     print("X coordinates missing in input file.")
   }else if (is.null(location_file$Y.Y)){
@@ -254,6 +271,9 @@ stitchTileCoordinates <- function (location_file, Xtilespan, Ytilespan) {
 #' @examples
 #'     get10Xmatrix(path_to_data)
 get10Xmatrix = function(path_to_data, gene_column_index = 1) {
+
+  # data.table variables
+  total = gene_symbol = gene_id = gene_id_num = cell_id = cell_id_num = sort_gene_id_num = NULL
 
   # data directory
   files_10X = list.files(path_to_data)
@@ -298,7 +318,7 @@ get10Xmatrix = function(path_to_data, gene_column_index = 1) {
 
   # create a final matrix
   #matrix_ab = data.table::dcast.data.table(data = matrixDT, gene_id~cell_id, value.var = 'umi')
-  #matrix_ab_mat = Giotto:::dt_to_matrix(matrix_ab)
+  #matrix_ab_mat = dt_to_matrix(matrix_ab)
   #matrix_ab_mat[is.na(matrix_ab_mat)] = 0
 
 }
@@ -437,6 +457,7 @@ my_rowMeans = function(x, method = c('arithmic', 'geometric'), offset = 0.1) {
 #' @title DT_removeNA
 #' @name DT_removeNA
 #' @description set NA values to 0 in a data.table object
+#' @param DT data.table
 DT_removeNA = function(DT) {
   for (i in names(DT))
     DT[is.na(get(i)), (i):=0]
@@ -481,6 +502,46 @@ rank_binarize = function(x, max_rank = 200) {
 
   return(sel_gene_bin)
 
+}
+
+#' @title sort_combine_two_DT_columns
+#' @name sort_combine_two_DT_columns
+#' @description fast sorting and pasting of 2 character columns in a data.table
+#' @keywords internal
+#' @examples
+#'     sort_combine_two_DT_columns()
+sort_combine_two_DT_columns = function(DT,
+                                       column1,
+                                       column2,
+                                       myname = 'unif_gene_gene') {
+
+  # data.table variables
+  values_1_num = values_2_num = scolumn_1 = scolumn_2 = unif_sort_column = NULL
+
+  # maybe faster with converting to factors??
+
+  # make sure columns are character
+  selected_columns = c(column1, column2)
+  DT[,(selected_columns):= lapply(.SD, as.character), .SDcols = selected_columns]
+
+  # convert characters into numeric values
+  uniq_values = sort(unique(c(DT[[column1]], DT[[column2]])))
+  uniq_values_num = 1:length(uniq_values)
+  names(uniq_values_num) = uniq_values
+
+
+  DT[,values_1_num := uniq_values_num[get(column1)]]
+  DT[,values_2_num := uniq_values_num[get(column2)]]
+
+
+  DT[, scolumn_1 := ifelse(values_1_num < values_2_num, get(column1), get(column2))]
+  DT[, scolumn_2 := ifelse(values_1_num < values_2_num, get(column2), get(column1))]
+
+  DT[, unif_sort_column := paste0(scolumn_1,'--',scolumn_2)]
+  DT[, c('values_1_num', 'values_2_num', 'scolumn_1', 'scolumn_2') := NULL]
+  data.table::setnames(DT, 'unif_sort_column', myname)
+
+  return(DT)
 }
 
 

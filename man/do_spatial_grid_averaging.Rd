@@ -32,3 +32,4 @@ smooth gene expression over a defined spatial grid
 \examples{
     do_spatial_grid_averaging(gobject)
 }
+\keyword{internal}

@@ -1,4 +1,6 @@
 
+## spatial enrichment functions ####
+
 #' @title makeSignMatrixPAGE
 #' @description Function to convert a list of signature genes (e.g. for cell types or processes) into
 #' a binary matrix format that can be used with the PAGE enrichment option. Each cell type or process should
@@ -11,7 +13,6 @@
 #' @export
 #' @examples
 #'     makeSignMatrixPAGE()
-globalVariables(c("quantile","fold","mean_expr","av_expr","rankFold","clusters"))
 makeSignMatrixPAGE = function(sign_names,
                               sign_list) {
 
@@ -42,7 +43,6 @@ makeSignMatrixPAGE = function(sign_names,
   return(final_sig_matrix)
 
 }
-
 
 
 
@@ -94,13 +94,16 @@ makeSignMatrixRank <- function(sc_matrix,
   # create data.table with genes, mean expression per cluster, mean expression overall and cluster ids
   comb_dt = data.table(genes = gene_names_res, mean_expr = mean_list_res[[1]], av_expr = av_expression_res, clusters = group_list_res[[1]])
 
+  # data.table variables
+  fold = mean_expr = av_expr = rankFold = clusters = NULL
+
   # calculate fold change and rank of fold-change
   comb_dt[, fold := log2(mean_expr+1)-log2(av_expr+1)]
   comb_dt[, rankFold := frank(-fold, ties.method = 'first'), by = clusters]
 
   # create matrix
   comb_rank_mat = data.table::dcast.data.table(data = comb_dt, genes~clusters, value.var = 'rankFold')
-  comb_rank_matrix = Giotto:::dt_to_matrix(comb_rank_mat)
+  comb_rank_matrix = dt_to_matrix(comb_rank_mat)
   comb_rank_matrix = comb_rank_matrix[rownames(sc_matrix), unique(sc_cluster_ids)]
 
 
@@ -116,6 +119,7 @@ makeSignMatrixRank <- function(sc_matrix,
 
 #' @title do_rank_permutation
 #' @description creates permutation for the rankEnrich test
+#' @keywords internal
 #' @examples
 #'     do_rank_permutation()
 do_rank_permutation <- function(sc_gene, n){
@@ -132,6 +136,7 @@ do_rank_permutation <- function(sc_gene, n){
 
 #' @title do_page_permutation
 #' @description creates permutation for the PAGEEnrich test
+#' @keywords internal
 #' @examples
 #'     do_page_permutation()
 do_page_permutation<-function(gobject,
@@ -637,4 +642,12 @@ createSpatialEnrich = function(gobject,
     return(enrich_results_DT)
   }
 }
+
+
+
+
+## spatial deconvolution functions ####
+
+
+
 

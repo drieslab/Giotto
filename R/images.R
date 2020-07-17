@@ -11,6 +11,9 @@ convert_mgImage_to_array_DT = function(mg_object) {
     mg_object = mg_object$mg_object
   }
 
+  # data.table variables
+  RGB = c.1 = c.2 = c.3 = NULL
+
   # convert magick object to an array
   num_res = as.numeric(mg_object[[1]])
   num_res_m = data.table::as.data.table(reshape2::melt(num_res))
@@ -40,7 +43,7 @@ estimateImageBg = function(mg_object, top_color_range = 1:50) {
 
   arrayDT = convert_mgImage_to_array_DT(mg_object = mg_object)
   sort_table = sort(table(arrayDT$RGB), decreasing = T)
-  barplot(sort_table[top_color_range], col=names(sort_table[top_color_range]))
+  graphics::barplot(sort_table[top_color_range], col=names(sort_table[top_color_range]))
 
   cat('Most abundant pixel colors: \n')
   print(sort_table[top_color_range])
@@ -54,11 +57,16 @@ estimateImageBg = function(mg_object, top_color_range = 1:50) {
 #' @param bg_color estimated current background color
 #' @param perc_range range around estimated background color to include (percentage)
 #' @param new_color new background color
+#' @param new_name change name of Giotto image
 #' @return magick image or giotto image object with updated background color
 #' @export
 #' @examples
 #'     changeImageBg(mg_object)
-changeImageBg = function(mg_object, bg_color, perc_range = 10, new_color = '#FFFFFF', new_name = NULL) {
+changeImageBg = function(mg_object,
+                         bg_color,
+                         perc_range = 10,
+                         new_color = '#FFFFFF',
+                         new_name = NULL) {
 
   if(methods::is(mg_object, 'imageGiottoObj')) {
     is_g_image = TRUE
@@ -349,7 +357,7 @@ updateGiottoImage = function(gobject,
 #' @name getGiottoImage
 #' @description get get a giotto image from a giotto object
 #' @param gobject giotto object
-#' @param image_name name of giotto image \code{\link{showImageNames}}
+#' @param image_name name of giotto image \code{\link{showGiottoImageNames}}
 #' @return a giotto image
 #' @export
 #' @examples
@@ -371,7 +379,7 @@ getGiottoImage = function(gobject,
 #' @name plotGiottoImage
 #' @description get plot a giotto image from a giotto object
 #' @param gobject giotto object
-#' @param image_name name of giotto image \code{\link{showImageNames}}
+#' @param image_name name of giotto image \code{\link{showGiottoImageNames}}
 #' @return plot
 #' @export
 #' @examples

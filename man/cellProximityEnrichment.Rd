@@ -21,6 +21,8 @@ cellProximityEnrichment(
 \item{cluster_column}{name of column to use for clusters}
 
 \item{number_of_simulations}{number of simulations to create expected observations}
+
+\item{adjust_method}{method to adjust p.values}
 }
 \value{
 List of cell Proximity scores (CPscores) in data.table format. The first

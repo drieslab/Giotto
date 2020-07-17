@@ -13,6 +13,18 @@ get_sectionThickness(
   plane_equation = NULL
 )
 }
+\arguments{
+\item{gobject}{gobject}
+
+\item{thickness_unit}{thickness_unit}
+
+\item{spatial_network_name}{spatial_network_name}
+
+\item{cell_distance_estimate_method}{cell_distance_estimate_method}
+
+\item{plane_equation}{plane_equation}
+}
 \description{
 get section thickness
 }
+\keyword{internal}

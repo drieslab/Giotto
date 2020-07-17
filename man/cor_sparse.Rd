@@ -9,3 +9,4 @@ cor_sparse(x)
 \description{
 cor_sparse adapted from wydr package
 }
+\keyword{internal}

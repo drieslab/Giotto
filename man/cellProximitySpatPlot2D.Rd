@@ -56,7 +56,9 @@ cellProximitySpatPlot2D(
 
 \item{show_other_cells}{decide if show cells not in network}
 
-\item{show_network}{show underlying spatial network}
+\item{show_network}{show spatial network of selected cells}
+
+\item{show_other_network}{show spatial network of not selected cells}
 
 \item{network_color}{color of spatial network}
 
@@ -79,6 +81,8 @@ cellProximitySpatPlot2D(
 \item{point_select_border_stroke}{stroke size of selected points}
 
 \item{point_size_other}{size of other points}
+
+\item{point_alpha_other}{opacity of other points}
 
 \item{point_other_border_col}{border color of other points}
 

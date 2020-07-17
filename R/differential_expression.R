@@ -39,7 +39,7 @@ findScranMarkers <- function(gobject,
 
   # expression data
   values = match.arg(expression_values, choices = c('normalized', 'scaled', 'custom'))
-  expr_data = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_data = select_expression_values(gobject = gobject, values = values)
 
   # cluster column
   cell_metadata = pDataDT(gobject)
@@ -561,7 +561,7 @@ findMastMarkers <- function(gobject,
   ## create mast object ##
   # expression data
   values = match.arg(expression_values, choices = c('normalized', 'scaled', 'custom'))
-  expr_data = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_data = select_expression_values(gobject = gobject, values = values)
   # column & row data
   column_data = pDataDT(gobject)
   setnames(column_data, 'cell_ID', 'wellKey')
@@ -739,7 +739,7 @@ findMastMarkers_one_vs_all = function(gobject,
 #'     findMarkers(gobject)
 findMarkers <- function(gobject,
                         expression_values = c('normalized', 'scaled', 'custom'),
-                        cluster_column,
+                        cluster_column = NULL,
                         method = c('scran','gini','mast'),
                         subset_clusters = NULL,
                         group_1 = NULL,
@@ -754,6 +754,11 @@ findMarkers <- function(gobject,
                         adjust_columns = NULL,
                         ...) {
 
+
+  # input
+  if(is.null(cluster_column)) {
+    stop('A valid cluster column needs to be given to cluster_column, see pDataDT()')
+  }
 
   # select method
   method = match.arg(method, choices = c('scran','gini','mast'))

@@ -9,3 +9,4 @@ libNorm_giotto(mymatrix, scalefactor)
 \description{
 libNorm_giotto
 }
+\keyword{internal}

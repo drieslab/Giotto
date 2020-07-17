@@ -32,3 +32,4 @@ Performs wilcoxon on subsets of a matrix
     do_ttest()
     do_ttest()
 }
+\keyword{internal}

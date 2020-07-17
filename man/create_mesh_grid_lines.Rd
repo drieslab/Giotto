@@ -10,6 +10,14 @@ create_mesh_grid_lines(
   mesh_grid_n
 )
 }
+\arguments{
+\item{cell_subset_projection_locations}{cell_subset_projection_locations}
+
+\item{extend_ratio}{extend_ratio}
+
+\item{mesh_grid_n}{mesh_grid_n}
+}
 \description{
 create mesh grid lines for cross section
 }
+\keyword{internal}

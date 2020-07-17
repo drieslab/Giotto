@@ -6,6 +6,14 @@
 \usage{
 read_crossSection(gobject, name = NULL, spatial_network_name = NULL)
 }
+\arguments{
+\item{gobject}{gobject}
+
+\item{name}{name}
+
+\item{spatial_network_name}{spatial_network_name}
+}
 \description{
 read a cross section object from a giotto object
 }
+\keyword{internal}

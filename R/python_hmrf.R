@@ -423,7 +423,7 @@ writeHMRFresults <- function(gobject,
 #' @param HMRFoutput HMRF output from doHMRF()
 #' @param k number of domains
 #' @param betas_to_add results from different betas that you want to add
-#' @param name specify a custom name
+#' @param hmrf_name specify a custom name
 #' @return giotto object
 #' @details Description ...
 #' @export

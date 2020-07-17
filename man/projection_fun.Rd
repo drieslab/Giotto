@@ -6,6 +6,14 @@
 \usage{
 projection_fun(point_to_project, plane_point, plane_norm)
 }
+\arguments{
+\item{point_to_project}{point_to_project}
+
+\item{plane_point}{plane_point}
+
+\item{plane_norm}{plane_norm}
+}
 \description{
 project a point onto a plane
 }
+\keyword{internal}

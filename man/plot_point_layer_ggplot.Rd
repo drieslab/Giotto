@@ -97,3 +97,4 @@ Description of parameters.
 \examples{
     plot_point_layer_ggplot(gobject)
 }
+\keyword{internal}

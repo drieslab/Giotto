@@ -4,8 +4,16 @@
 \alias{filter_network}
 \title{filter_network}
 \usage{
-filter_network(networkDT, maximum_distance = NULL, minimum_k = NULL)
+filter_network(networkDT = NULL, maximum_distance = NULL, minimum_k = NULL)
+}
+\arguments{
+\item{networkDT}{spatial network in data.table format}
+
+\item{maximum_distance}{maximum distance between cell centroids}
+
+\item{minimum_k}{minimum number of neighbors}
 }
 \description{
 function to filter a spatial network
 }
+\keyword{internal}

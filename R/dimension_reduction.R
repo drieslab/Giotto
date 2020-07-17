@@ -9,6 +9,8 @@
 #' @param reduction_method method used to reduce dimensions
 #' @param coordinates accepts the coordinates after dimension reduction
 #' @param misc any additional information will be added to this slot
+#' @param my_rownames rownames
+#' @keywords internal
 #' @return number of distinct colors
 create_dimObject = function(name = 'test',
                             reduction_method = NULL,
@@ -52,11 +54,11 @@ standardise_giotto = function (x, center = TRUE, scale = TRUE)
   }
   else if (center & !scale) {
     m <- Rfast::colmeans(x)
-    y <- eachrow(x, m, oper = "-")
+    y <- Rfast::eachrow(x, m, oper = "-")
   }
   else if (!center & scale) {
     s <- Rfast::colVars(x, std = TRUE)
-    y <- eachrow(x, s, oper = "/")
+    y <- Rfast::eachrow(x, s, oper = "/")
   } else {
     y = x
   }
@@ -168,7 +170,7 @@ runPCA_factominer = function(x,
                              rev = FALSE,
                              ...) {
 
-  if(!is(x, 'matrix')) {
+  if(!methods::is(x, 'matrix')) {
     x = as.matrix(x)
   }
 
@@ -276,7 +278,7 @@ create_genes_to_use_matrix = function(gobject,
 #' @param genes_to_use subset of genes to use for PCA
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param center center data first (default = FALSE)
-#' @param scale_unit scale features before PCA
+#' @param scale_unit scale features before PCA (default = FALSE)
 #' @param rev do a reverse PCA
 #' @param ncp number of principal components to calculate
 #' @param method which implementation to use
@@ -324,11 +326,11 @@ runPCA <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_values = select_expression_values(gobject = gobject, values = values)
 
   ## subset matrix
   if(!is.null(genes_to_use)) {
-    expr_values = Giotto:::create_genes_to_use_matrix(gobject = gobject,
+    expr_values = create_genes_to_use_matrix(gobject = gobject,
                                                       sel_matrix = expr_values,
                                                       genes_to_use = genes_to_use,
                                                       verbose = verbose)
@@ -373,7 +375,7 @@ runPCA <- function(gobject,
 
     }
 
-    dimObject = Giotto:::create_dimObject(name = name,
+    dimObject = create_dimObject(name = name,
                                           reduction_method = 'pca',
                                           coordinates = pca_object$coords,
                                           misc = list(eigenvalues = pca_object$eigenvalues,
@@ -563,7 +565,7 @@ screePlot = function(gobject,
         stop('only PCA methods from the irlba and factominer package have been implemented \n')
       }
 
-      dimObject = Giotto:::create_dimObject(name = name,
+      dimObject = create_dimObject(name = name,
                                             reduction_method = 'pca',
                                             coordinates = pca_object$coords,
                                             misc = list(eigenvalues = pca_object$eigenvalues,
@@ -598,9 +600,13 @@ screePlot = function(gobject,
 #' @param jackstraw_data result from jackstraw function
 #' @param ncp number of principal components to calculate
 #' @param ylim y-axis limits on jackstraw plot
-#' @param p-value threshold to call a PC significant
+#' @param threshold p.value threshold to call a PC significant
+#' @keywords internal
 #' @return ggplot
-create_jackstrawplot = function(jackstraw_data, ncp = 20, ylim = c(0, 1), threshold = 0.01) {
+create_jackstrawplot = function(jackstraw_data,
+                                ncp = 20,
+                                ylim = c(0, 1),
+                                threshold = 0.01) {
 
   # data.table variables
   PC = p.val = NULL

@@ -65,7 +65,7 @@ calculateHVG <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_values = select_expression_values(gobject = gobject, values = values)
 
   # method to use
   method = match.arg(method, choices = c('cov_groups', 'cov_loess'))

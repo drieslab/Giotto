@@ -48,16 +48,17 @@ spat_fish_func = function(gene,
       colhubs = colSums_giotto(subset_spat_mat)
       hub_nr = length(unique(c(names(colhubs[colhubs > hub_min_int]), names(rowhubs[colhubs > hub_min_int]))))
     }
-    fish_res = fisher.test(matrix(table(test), byrow = T, nrow = 2))[c('p.value','estimate')]
+    fish_res = stats::fisher.test(matrix(table(test), byrow = T, nrow = 2))[c('p.value','estimate')]
     return(c(genes = list(gene), fish_res, hubs = list(hub_nr)))
 
   } else {
 
-    fish_res = fisher.test(matrix(table(test), byrow = T, nrow = 2))[c('p.value','estimate')]
+    fish_res = stats::fisher.test(matrix(table(test), byrow = T, nrow = 2))[c('p.value','estimate')]
     return(c(genes = list(gene), fish_res))
   }
 
 }
+
 
 
 #' @title spat_OR_func
@@ -351,6 +352,9 @@ silhouetteRank <- function(gobject,
   }
 
 
+  # data.table variables
+  sdimx = sdimy = NULL
+
   # spatial locations
   spatlocs = as.matrix(gobject@spatial_locs[,.(sdimx, sdimy)])
 
@@ -567,6 +571,7 @@ spatialAEH <- function(gobject = NULL,
 }
 
 
+
 #' @title FSV_show
 #' @name FSV_show
 #' @description Visualize spatial varible genes caculated by spatial_DE
@@ -640,7 +645,7 @@ FSV_show <- function(results,
 #' @param subset_genes subset of genes to run trendsceek on
 #' @param nrand An integer specifying the number of random resamplings of the mark distribution as to create the null-distribution.
 #' @param ncores An integer specifying the number of cores to be used by BiocParallel
-#' @param ... Additional parameters to the \code{\link[dbscan]{trendsceek_test}} function
+#' @param ... Additional parameters to the \code{\link[trendsceek]{trendsceek_test}} function
 #' @return data.frame with trendsceek spatial genes results
 #' @details This function is a wrapper for the trendsceek_test method implemented in the trendsceek package
 #' @export
@@ -680,6 +685,10 @@ trendSceek <- function(gobject,
 
 
   ## initial locations
+
+  # data.table variables
+  cell_ID = NULL
+
   spatial_locations = copy(gobject@spatial_locs)
   spatial_locations[, cell_ID := NULL]
   pp = trendsceek::pos2pp(spatial_locations)
@@ -764,6 +773,8 @@ detectSpatialPatterns <- function(gobject,
   }
 
 
+  # data.table variables
+  gr_loc = zscore = variance.percent = loc_ID = gene_ID = NULL
 
   # filter grid, minimum number of cells per grid
   cells_per_grid = sort(table(spatial_locs$gr_loc))
@@ -1201,6 +1212,9 @@ selectPatternGenes <- function(spatPatObj,
     stop('\n spatPatObj needs to be the output from detectSpatialPatterns \n')
   }
 
+  # data.table variables
+  top_pos_rank = value = top_neg_rank = topvalue = gene_ID = variable = NULL
+
 
   # select PC to use
   selected_PCs = paste0('Dim.', dimensions)
@@ -1241,149 +1255,8 @@ selectPatternGenes <- function(spatPatObj,
 }
 
 
-#' @title Spatial_DE
-#' @name Spatial_DE
-#' @description calculate spatial varible genes with spatialDE method
-#' @param gobject Giotto object
-#' @param show_plot show FSV plot
-#' @param python_path specify specific path to python if required
-#' @return a list or a dataframe of SVs
-#' @details Description.
-#' @export
-#' @examples
-#'     Spatial_DE(gobject)
-Spatial_DE <- function(gobject = NULL,
-                       show_plot = T,
-                       size = c(4,2,1),
-                       color = c("blue", "green", "red"),
-                       sig_alpha = 0.5,
-                       unsig_alpha = 0.5,
-                       python_path = NULL){
-
-  ## python path
-  if(is.null(python_path)) {
-    python_path = readGiottoInstructions(gobject, param = "python_path")
-    #python_path = system('which python', intern = T)
-  }
-
-  ## source python file
-  reticulate::use_python(required = T, python = python_path)
-  reader_path = system.file("python", "SpatialDE_wrapper.py", package = 'Giotto')
-  reticulate::source_python(file = reader_path)
-
-  #reader_path = system.file("python", "SpatialDE_wrapper.py", package = 'Giotto')
-  #source_python(reader_path)
-
-  spatial_locs <- as.data.frame(gobject@spatial_locs)
-  rownames(spatial_locs) <- spatial_locs$cell_ID
-  spatial_locs <- subset(spatial_locs, select = -cell_ID)
-
-  Spatial_DE_results = Spatial_DE(as.data.frame(t(gobject@raw_exprs)), spatial_locs)
-
-  results <- as.data.frame(py_to_r(Spatial_DE_results[[1]]))
-
-  if(length(Spatial_DE_results) == 2){
-    ms_results <- as.data.frame(py_to_r(Spatial_DE_results[[2]]))
-    spatial_genes_results <- list(results,ms_results)
-    names(spatial_genes_results) <- c("results","ms_results")
-  }
-
-  else{
-    spatial_genes_results =  results
-    ms_results = NULL
-  }
 
 
-  if(show_plot == T){
-    FSV_show(results = results,
-             ms_results = ms_results,
-             size =size,
-             color = color,
-             sig_alpha = sig_alpha,
-             unsig_alpha = unsig_alpha)
-  }
-
-  return(spatial_genes_results)
-}
-
-
-
-#' @title Spatial_AEH
-#' @name Spatial_AEH
-#' @description calculate automatic expression histology with spatialDE method
-#' @param gobject Giotto object
-#' @param results output from spatial_DE
-#' @param pattern_num the number of gene expression patterns
-#' @param show_AEH show AEH plot
-#' @param python_path specify specific path to python if required
-#' @return a list or a dataframe of SVs
-#' @details Description.
-#' @export
-#' @examples
-#'     Spatial_AEH(gobject)
-Spatial_AEH <- function(gobject = NULL,
-                        results = NULL,
-                        pattern_num = 5,
-                        l = 1.05,
-                        show_AEH = T,
-                        sdimx = NULL,
-                        sdimy = NULL,
-                        point_size = 3,
-                        point_alpha = 1,
-                        low_color = "blue",
-                        mid_color = "white",
-                        high_color = "red",
-                        midpoint = 0,
-                        python_path = NULL){
-
-
-  ## python path
-  if(is.null(python_path)) {
-    python_path = readGiottoInstructions(gobject, param = "python_path")
-  }
-
-  ## source python file
-  reticulate::use_python(required = T, python = python_path)
-  reader_path = system.file("python", "SpatialDE_wrapper.py", package = 'Giotto')
-  reticulate::source_python(file = reader_path)
-
-
-
-  if(is.null(sdimx)|is.null(sdimy)){
-    sdimx = "sdimx"
-    sdimy = "sdimy"
-  }
-
-  spatial_locs <- as.data.frame(gobject@spatial_locs)
-  rownames(spatial_locs) <- spatial_locs$cell_ID
-  spatial_locs <- subset(spatial_locs, select = -cell_ID)
-
-  AEH_results = Spatial_DE_AEH(filterd_exprs = as.data.frame(t(gobject@raw_exprs)),
-                               coordinates = spatial_locs,
-                               results = as.data.frame(results),
-                               pattern_num = pattern_num,
-                               l = l)
-  histology_results <- as.data.frame(py_to_r(AEH_results[[1]]))
-  cell_pattern_score <- as.data.frame((py_to_r(AEH_results[[2]])))
-
-  spatial_pattern_results <- list(histology_results,cell_pattern_score)
-  names(spatial_pattern_results) <- c("histology_results","cell_pattern_score")
-
-  if(show_AEH){
-    GenePattern_show(gobject = gobject,
-                     AEH_results = spatial_pattern_results,
-                     sdimx = sdimx,
-                     sdimy = sdimy,
-                     point_size = point_size,
-                     point_alpha = point_alpha,
-                     low_color = low_color,
-                     mid_color = mid_color,
-                     high_color = high_color,
-                     midpoint = 0)
-  }
-
-  return(spatial_pattern_results)
-}
 
 
 
@@ -1405,6 +1278,7 @@ Spatial_AEH <- function(gobject = NULL,
 #' b is a smoothening factor that defaults to 1 - 1/k, where k is the median number of
 #' k-neighbors in the selected spatial network. Setting b = 0 means no smoothing and b = 1
 #' means no contribution from its own expression.
+#' @keywords internal
 #' @examples
 #'     do_spatial_knn_smoothing(gobject)
 do_spatial_knn_smoothing = function(gobject,
@@ -1430,6 +1304,9 @@ do_spatial_knn_smoothing = function(gobject,
   if(!is.null(subset_genes)) {
     expr_values = expr_values[rownames(expr_values) %in% subset_genes,]
   }
+
+  # data.table variables
+  gene_ID = value = NULL
 
   # merge spatial network with expression data
   expr_values_dt = data.table::as.data.table(expr_values); expr_values_dt[, gene_ID := rownames(expr_values)]
@@ -1470,7 +1347,7 @@ do_spatial_knn_smoothing = function(gobject,
   # combine original and smoothed values according to smoothening b
   # create best guess for b if not given
   if(is.null(b)) {
-    k = median(table(spatial_network$source))
+    k = stats::median(table(spatial_network$source))
     smooth_b = 1 - 1/k
   } else {
     smooth_b = b
@@ -1493,6 +1370,7 @@ do_spatial_knn_smoothing = function(gobject,
 #' @param spatial_grid_name name of spatial grid to use
 #' @param min_cells_per_grid minimum number of cells to consider a grid
 #' @return matrix with smoothened gene expression values based on spatial grid
+#' @keywords internal
 #' @examples
 #'     do_spatial_grid_averaging(gobject)
 do_spatial_grid_averaging = function(gobject,
@@ -1530,6 +1408,9 @@ do_spatial_grid_averaging = function(gobject,
   }
 
 
+  # data.table variables
+  gr_loc = NULL
+
   # filter grid, minimum number of cells per grid
   cells_per_grid = sort(table(spatial_locs$gr_loc))
   cells_per_grid = cells_per_grid[cells_per_grid >= min_cells_per_grid]
@@ -1566,7 +1447,7 @@ do_spatial_grid_averaging = function(gobject,
 #' @param network_smoothing  smoothing factor beteen 0 and 1 (default: automatic)
 #' @param spatial_grid_name name of spatial grid to use
 #' @param min_cells_per_grid minimum number of cells to consider a grid
-#' @param b smoothing factor beteen 0 and 1 (default: automatic)
+#' @param cor_method correlation method
 #' @return returns a spatial correlation object: "spatCorObject"
 #' @details
 #' For method = network, it expects a fully connected spatial network. You can make sure to create a
@@ -1619,6 +1500,9 @@ detectSpatialCorGenes <- function(gobject,
                                                             spatial_grid_name = spatial_grid_name,
                                                             min_cells_per_grid = min_cells_per_grid)
 
+    # data.table variables
+    gene_ID = variable = NULL
+
     cor_spat_matrix = cor_giotto(t_giotto(as.matrix(loc_av_expr_matrix)), method = cor_method)
     cor_spat_matrixDT = data.table::as.data.table(cor_spat_matrix)
     cor_spat_matrixDT[, gene_ID := rownames(cor_spat_matrix)]
@@ -1629,10 +1513,10 @@ detectSpatialCorGenes <- function(gobject,
   if(method == 'network') {
 
     knn_av_expr_matrix = do_spatial_knn_smoothing(gobject = gobject,
-                                                           expression_values = expression_values,
-                                                           subset_genes = subset_genes,
-                                                           spatial_network_name = spatial_network_name,
-                                                           b = network_smoothing)
+                                                  expression_values = expression_values,
+                                                  subset_genes = subset_genes,
+                                                  spatial_network_name = spatial_network_name,
+                                                  b = network_smoothing)
 
     #print(knn_av_expr_matrix[1:4, 1:4])
 
@@ -1646,6 +1530,9 @@ detectSpatialCorGenes <- function(gobject,
   }
 
 
+
+  # data.table variables
+  cordiff = spat_cor = expr_cor = spatrank= exprrank = rankdiff = NULL
 
   ## 2. perform expression correlation at single-cell level without spatial information
   cor_matrix = cor_giotto(t_giotto(expr_values), method = cor_method)
@@ -1710,6 +1597,9 @@ showSpatialCorGenes = function(spatCorObject,
                                min_cor_diff = NULL,
                                min_rank_diff = NULL,
                                show_top_genes = NULL) {
+
+  # data.table variables
+  clus = gene_ID = spat_cor = cor_diff = rankdiff = NULL
 
   if(!'spatCorObject' %in% class(spatCorObject)) {
     stop('\n spatCorObject needs to be the output from detectSpatialCorGenes() \n')
@@ -1804,9 +1694,9 @@ clusterSpatialCorGenes = function(spatCorObject,
   cor_matrix = cor_matrix[my_gene_order, my_gene_order]
 
   # cluster
-  cor_dist = as.dist(1-cor_matrix)
-  cor_h = hclust(d = cor_dist, method = hclust_method)
-  cor_clus = cutree(cor_h, k = k)
+  cor_dist = stats::as.dist(1-cor_matrix)
+  cor_h = stats::hclust(d = cor_dist, method = hclust_method)
+  cor_clus = stats::cutree(cor_h, k = k)
 
   if(return_obj == TRUE) {
     spatCorObject[['cor_hclust']][[name]] = cor_h

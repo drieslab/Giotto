@@ -9,3 +9,4 @@ mean_giotto(x, ...)
 \description{
 mean_giotto
 }
+\keyword{internal}

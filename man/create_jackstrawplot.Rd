@@ -18,7 +18,7 @@ create_jackstrawplot(
 
 \item{ylim}{y-axis limits on jackstraw plot}
 
-\item{p-value}{threshold to call a PC significant}
+\item{threshold}{p.value threshold to call a PC significant}
 }
 \value{
 ggplot
@@ -26,3 +26,4 @@ ggplot
 \description{
 create jackstrawplot with ggplot
 }
+\keyword{internal}

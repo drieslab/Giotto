@@ -9,3 +9,4 @@ cor_giotto(x, ...)
 \description{
 cor_giotto
 }
+\keyword{internal}

@@ -15,8 +15,7 @@ doSNNCluster(
   borderPoints = TRUE,
   return_gobject = TRUE,
   set_seed = F,
-  seed_number = 1234,
-  ...
+  seed_number = 1234
 )
 }
 \arguments{

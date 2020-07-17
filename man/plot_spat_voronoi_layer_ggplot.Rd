@@ -104,3 +104,4 @@ Description of parameters.
 \examples{
     plot_spat_voronoi_layer_ggplot(gobject)
 }
+\keyword{internal}

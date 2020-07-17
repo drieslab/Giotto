@@ -1,3 +1,5 @@
+
+
 #' @title S4 giotto Class
 #' @description Framework of giotto object to store and work with spatial expression data
 #' @keywords giotto, object
@@ -12,8 +14,10 @@
 #' @slot gene_ID unique gene IDs
 #' @slot spatial_network spatial network in data.table/data.frame format
 #' @slot spatial_grid spatial grid in data.table/data.frame format
+#' @slot spatial_enrichment slot to save spatial enrichment-like results
 #' @slot dimension_reduction slot to save dimension reduction coordinates
 #' @slot nn_network nearest neighbor network in igraph format
+#' @slot images slot to store giotto images
 #' @slot parameters slot to save parameters that have been used
 #' @slot instructions slot for global function instructions
 #' @slot offset_file offset file used to stitch together image fields
@@ -143,9 +147,11 @@ setMethod(f = "print.giotto",
           })
 
 
+
+
 #' @title set_giotto_python_path
 #' @name set_giotto_python_path
-#' @description sets the python path and/or install miniconda and the python modules
+#' @description sets the python path and/or installs miniconda and the python modules
 set_giotto_python_path = function(python_path = NULL,
                                   packages_to_install = c('pandas', 'networkx', 'python-igraph',
                                                           'leidenalg', 'python-louvain', 'python.app',
@@ -296,10 +302,13 @@ set_giotto_python_path = function(python_path = NULL,
 #' @param return_plot return plot as object, default = TRUE
 #' @param save_plot automatically save plot, dafault = FALSE
 #' @param save_dir path to directory where to save plots
+#' @param plot_format format of plots (defaults to png)
 #' @param dpi resolution for raster images
+#' @param units units of format (defaults to in)
 #' @param height height of plots
 #' @param width width of  plots
 #' @return named vector with giotto instructions
+#' @seealso More online information can be found here \url{https://rubd.github.io/Giotto_site/articles/instructions_and_plotting.html}
 #' @export
 #' @examples
 #'     createGiottoInstructions()
@@ -542,11 +551,16 @@ readExprMatrix = function(path, cores = NA, transpose = FALSE) {
 #' @title evaluate_expr_matrix
 #' @description Evaluate expression matrices.
 #' @param inputmatrix inputmatrix to evaluate
+#' @param sparse create sparse matrix (default = TRUE)
+#' @param cores how many cores to use
 #' @return sparse matrix
 #' @details The inputmatrix can be a matrix, sparse matrix, data.frame, data.table or path to any of these.
+#' @keywords internal
 #' @examples
 #'     evaluate_expr_matrix()
-evaluate_expr_matrix = function(inputmatrix, sparse = TRUE, cores = NA) {
+evaluate_expr_matrix = function(inputmatrix,
+                                sparse = TRUE,
+                                cores = NA) {
 
   if(methods::is(inputmatrix, 'character')) {
     mymatrix = readExprMatrix(inputmatrix, cores =  cores)
@@ -566,7 +580,7 @@ evaluate_expr_matrix = function(inputmatrix, sparse = TRUE, cores = NA) {
     }
 
   } else if(class(inputmatrix) %in% c('data.frame', 'matrix')) {
-    mymatrix = as(as.matrix(inputmatrix), "sparseMatrix")
+    mymatrix = methods::as(as.matrix(inputmatrix), "sparseMatrix")
   } else {
     stop("raw_exprs needs to be a path or an object of class 'Matrix', 'data.table', 'data.frame' or 'matrix'")
   }

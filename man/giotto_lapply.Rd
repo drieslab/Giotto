@@ -9,3 +9,4 @@ giotto_lapply(X, cores = NA, fun, ...)
 \description{
 giotto_lapply
 }
+\keyword{internal}

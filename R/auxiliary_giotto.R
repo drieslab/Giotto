@@ -1,6 +1,6 @@
 
 #' @title mean_giotto
-#' @export
+#' @keywords internal
 mean_giotto = function(x, ...) {
 
   if(methods::is(x, 'dgCMatrix')) {
@@ -14,12 +14,12 @@ mean_giotto = function(x, ...) {
 
 
 #' @title rowSums_giotto
-#' @export
+#' @keywords internal
 rowSums_giotto = function(mymatrix) {
 
-  if(is(mymatrix, 'dgCMatrix')) {
+  if(methods::is(mymatrix, 'dgCMatrix')) {
     return(Matrix::rowSums(mymatrix)) # replace with sparseMatrixStats
-  } else if(is(mymatrix, 'Matrix')) {
+  } else if(methods::is(mymatrix, 'Matrix')) {
     return(Matrix::rowSums(mymatrix))
   } else {
     temp_matrix = as.matrix(mymatrix)
@@ -31,7 +31,7 @@ rowSums_giotto = function(mymatrix) {
 
 
 #' @title rowMeans_giotto
-#' @export
+#' @keywords internal
 rowMeans_giotto = function(mymatrix) {
 
   if(methods::is(mymatrix, 'dgCMatrix')) {
@@ -48,7 +48,7 @@ rowMeans_giotto = function(mymatrix) {
 }
 
 #' @title colSums_giotto
-#' @export
+#' @keywords internal
 colSums_giotto = function(mymatrix) {
 
   if(methods::is(mymatrix, 'dgCMatrix')) {
@@ -64,7 +64,7 @@ colSums_giotto = function(mymatrix) {
 }
 
 #' @title colMeans_giotto
-#' @export
+#' @keywords internal
 colMeans_giotto = function(mymatrix) {
 
   if(methods::is(mymatrix, 'dgCMatrix')) {
@@ -80,7 +80,7 @@ colMeans_giotto = function(mymatrix) {
 }
 
 #' @title t_giotto
-#' @export
+#' @keywords internal
 t_giotto = function(mymatrix) {
 
   if(methods::is(mymatrix, 'dgCMatrix')) {
@@ -97,16 +97,16 @@ t_giotto = function(mymatrix) {
 
 
 #' @title cor_sparse adapted from wydr package
-#' @export
+#' @keywords internal
 cor_sparse <- function(x) {
-  n <- nrow(x)
-  covmat <- (as.matrix(Matrix::crossprod(x)) - n * Matrix::tcrossprod(Matrix::colMeans(x))) / (n - 1)
-  cormat <- covmat / base::tcrossprod(base::sqrt(base::diag(covmat)))
+  n = nrow(x)
+  covmat = (as.matrix(Matrix::crossprod(x)) - n * Matrix::tcrossprod(Matrix::colMeans(x))) / (n - 1)
+  cormat = covmat / base::tcrossprod(base::sqrt(base::diag(covmat)))
   cormat
 }
 
 #' @title cor_giotto
-#' @export
+#' @keywords internal
 cor_giotto = function(x, ...) {
   x = as.matrix(x)
   return(stats::cor(x, ...))
@@ -115,7 +115,7 @@ cor_giotto = function(x, ...) {
 
 
 #' @title giotto_lapply
-#' @export
+#' @keywords internal
 giotto_lapply = function(X, cores = NA, fun, ...) {
 
   # get type of os
@@ -146,7 +146,7 @@ giotto_lapply = function(X, cores = NA, fun, ...) {
 
 
 #' @title mean_expr_det_test
-#' @export
+#' @keywords internal
 mean_expr_det_test = function(mymatrix, detection_threshold = 1) {
   mean_expr_detected = unlist(apply(X = mymatrix, MARGIN = 1, FUN = function(x) {
     detected_x = x[x > detection_threshold]
@@ -155,7 +155,7 @@ mean_expr_det_test = function(mymatrix, detection_threshold = 1) {
 }
 
 #' @title libNorm_giotto
-#' @export
+#' @keywords internal
 libNorm_giotto <- function(mymatrix, scalefactor){
   libsizes = colSums_giotto(mymatrix)
 
@@ -169,13 +169,13 @@ libNorm_giotto <- function(mymatrix, scalefactor){
 }
 
 #' @title logNorm_giotto
-#' @export
+#' @keywords internal
 logNorm_giotto = function(mymatrix, base, offset) {
 
   if(methods::is(mymatrix, 'dgCMatrix')) {
     mymatrix@x = log(mymatrix@x + offset)/log(base) # replace with sparseMatrixStats
   } else if(methods::is(mymatrix, 'Matrix')) {
-    mymatrix@x =log(mymatrix@x + offset)/log(base)
+    mymatrix@x = log(mymatrix@x + offset)/log(base)
   } else {
     mymatrix = log(as.matrix(mymatrix) + offset)/log(base)
   }
@@ -197,7 +197,7 @@ pDataDT <- function(gobject) {
   }
 
   if(class(gobject) %in% c('ExpressionSet', 'SCESet')) {
-    return(as.data.table(pData(gobject)))
+    return(as.data.table(Biobase::pData(gobject)))
   }
   else if(class(gobject) == 'giotto') {
     return(gobject@cell_metadata)
@@ -223,10 +223,9 @@ fDataDT <- function(gobject) {
   else if(class(gobject) == 'giotto') {
     return(gobject@gene_metadata)
   }
-  return(data.table::as.data.table(fData(gobject)))
+  return(data.table::as.data.table(Biobase::fData(gobject)))
 
 }
-
 
 
 #' @title select_expression_values
@@ -348,7 +347,10 @@ create_average_detection_DT <- function(gobject, meta_data_name,
 #' @export
 #' @examples
 #'     subsetGiotto(gobject)
-subsetGiotto <- function(gobject, cell_ids = NULL, gene_ids = NULL, verbose = FALSE) {
+subsetGiotto <- function(gobject,
+                         cell_ids = NULL,
+                         gene_ids = NULL,
+                         verbose = FALSE) {
 
 
   g_cell_IDs = gobject@cell_ID
@@ -403,6 +405,9 @@ subsetGiotto <- function(gobject, cell_ids = NULL, gene_ids = NULL, verbose = FA
   if(!is.null(gobject@gene_metadata)) {
     gobject@gene_metadata = gobject@gene_metadata[filter_bool_genes,]
   }
+
+  # data.table variables
+  to = from = V = NULL
 
   ## spatial network & grid ##
   # cell spatial network
@@ -628,6 +633,9 @@ filterDistributions <- function(gobject,
   # plot type
   plot_type = match.arg(plot_type, c('histogram', 'violin'))
 
+  # variables
+  V1 = NULL
+
   # for genes
   if(detection == 'genes') {
 
@@ -637,7 +645,7 @@ filterDistributions <- function(gobject,
 
       pl <- ggplot2::ggplot()
       pl <- pl + ggplot2::theme_classic()
-      pl <- pl + ggplot2::geom_violin(data = gene_detection_levels, aes(x = 'genes', y = V1+axis_offset),
+      pl <- pl + ggplot2::geom_violin(data = gene_detection_levels, ggplot2::aes(x = 'genes', y = V1+axis_offset),
                                       fill = fill_color)
       pl <- pl + ggplot2::scale_y_continuous(trans = scale_axis)
       pl <- pl + ggplot2::labs(y = 'gene detected in # of cells', x = '')
@@ -646,7 +654,7 @@ filterDistributions <- function(gobject,
 
       pl <- ggplot2::ggplot()
       pl <- pl + ggplot2::theme_classic()
-      pl <- pl + ggplot2::geom_histogram(data = gene_detection_levels, aes(x = V1+axis_offset),
+      pl <- pl + ggplot2::geom_histogram(data = gene_detection_levels, ggplot2::aes(x = V1+axis_offset),
                                          color = 'white', bins = nr_bins, fill = fill_color)
       pl <- pl + ggplot2::scale_x_continuous(trans = scale_axis)
       pl <- pl + ggplot2::labs(x = 'gene detected in # of cells')
@@ -662,7 +670,7 @@ filterDistributions <- function(gobject,
 
       pl <- ggplot2::ggplot()
       pl <- pl + ggplot2::theme_classic()
-      pl <- pl + ggplot2::geom_violin(data = cell_detection_levels, aes(x = 'cells', y = V1+axis_offset),
+      pl <- pl + ggplot2::geom_violin(data = cell_detection_levels, ggplot2::aes(x = 'cells', y = V1+axis_offset),
                                       fill = fill_color)
       pl <- pl + ggplot2::scale_y_continuous(trans = scale_axis)
       pl <- pl + ggplot2::labs(y = 'genes detected per cell', x = '')
@@ -671,7 +679,7 @@ filterDistributions <- function(gobject,
 
       pl <- ggplot2::ggplot()
       pl <- pl + ggplot2::theme_classic()
-      pl <- pl + ggplot2::geom_histogram(data = cell_detection_levels, aes(x = V1+axis_offset),
+      pl <- pl + ggplot2::geom_histogram(data = cell_detection_levels, ggplot2::aes(x = V1+axis_offset),
                                          color = 'white', bins = nr_bins, fill = fill_color)
       pl <- pl + ggplot2::scale_x_continuous(trans = scale_axis)
       pl <- pl + ggplot2::labs(x = 'genes detected per cell')
@@ -743,6 +751,7 @@ filterCombinations <- function(gobject,
                                default_save_name = 'filterCombinations') {
 
 
+
   # expression values to be used
   values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
   expr_values = select_expression_values(gobject = gobject, values = values)
@@ -786,6 +795,13 @@ filterCombinations <- function(gobject,
   }
 
   result_DT = do.call('rbind', result_list)
+
+  # data.table variables
+  # gene_detected_in_min_cells = min_detected_genes_per_cell = combination = NULL
+
+  # data.table variables
+  gene_detected_in_min_cells = min_detected_genes_per_cell = combination = NULL
+
   result_DT[['gene_detected_in_min_cells']] = gene_det_in_min_cells
   result_DT[['min_detected_genes_per_cell']] = min_det_genes_per_cell
   result_DT[['combination']] = paste0(result_DT$gene_detected_in_min_cells,'-',result_DT$min_detected_genes_per_cell)
@@ -1084,7 +1100,7 @@ normalizeGiotto <- function(gobject,
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param update_slot expression slot that will be updated (default = custom)
 #' @return giotto object
-#' @details This function implements the \code{\link{ limma::removeBatchEffect}} function to
+#' @details This function implements the \code{\link[limma]{removeBatchEffect}} function to
 #' remove known batch effects and to adjust expression values according to provided covariates.
 #' @export
 #' @examples
@@ -1353,7 +1369,7 @@ addCellMetadata <- function(gobject,
     cell_metadata = cbind(cell_metadata, new_metadata)
   } else {
     if(is.null(column_cell_ID)) stop('You need to provide cell_ID column')
-    cell_metadata <- data.table:::merge.data.table(cell_metadata, by.x = 'cell_ID',
+    cell_metadata <- data.table::merge.data.table(cell_metadata, by.x = 'cell_ID',
                                                    new_metadata, by.y = column_cell_ID,
                                                    all.x = T)
   }
@@ -1371,7 +1387,7 @@ addCellMetadata <- function(gobject,
 #' @param gobject giotto object
 #' @param new_metadata new metadata to use
 #' @param by_column merge metadata based on gene_ID column in fDataDT
-#' @param column_cell_ID column name of new metadata to use if by_column = TRUE
+#' @param column_gene_ID column name of new metadata to use if by_column = TRUE
 #' @return giotto object
 #' @details You can add additional gene metadata in two manners:
 #' 1. Provide a data.table or data.frame with gene annotations in the same order as the gene_ID column in fDataDT(gobject)
@@ -1395,7 +1411,7 @@ addGeneMetadata <- function(gobject,
     gene_metadata = cbind(gene_metadata, new_metadata)
   } else {
     if(is.null(column_gene_ID)) stop('You need to provide gene_ID column')
-    gene_metadata <- data.table:::merge.data.table(gene_metadata, by.x = 'gene_ID',
+    gene_metadata <- data.table::merge.data.table(gene_metadata, by.x = 'gene_ID',
                                                    new_metadata, by.y = column_gene_ID,
                                                    all.x = T)
   }
@@ -1676,7 +1692,8 @@ showProcessingSteps <- function(gobject) {
 
 
 #' @title create_cluster_matrix
-#' @description creates aggregated matrix for a given clustering
+#' @description creates aggregated matrix for a given clustering column
+#' @keywords internal
 #' @examples
 #'     create_cluster_matrix(gobject)
 create_cluster_matrix <- function(gobject,
@@ -1735,6 +1752,9 @@ calculateMetaTable = function(gobject,
                               selected_genes = NULL) {
 
   if(is.null(metadata_cols)) stop('\n You need to select one or more valid column names from pDataDT() \n')
+
+  # data.table variables
+  uniq_ID = NULL
 
   ## get metadata and create unique groups
   metadata = data.table::copy(pDataDT(gobject))
@@ -1850,6 +1870,10 @@ combineMetadata = function(gobject,
 
   # spatial locations
   spatial_locs = copy(gobject@spatial_locs)
+
+  # data.table variables
+  cell_ID = NULL
+
   metadata = cbind(metadata, spatial_locs[, cell_ID := NULL])
 
   # cell/spot enrichment data
@@ -1910,7 +1934,7 @@ createMetagenes = function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_values = select_expression_values(gobject = gobject, values = values)
 
 
   ## calculate metagene ##

@@ -28,7 +28,11 @@ createGiottoInstructions(
 
 \item{save_dir}{path to directory where to save plots}
 
+\item{plot_format}{format of plots (defaults to png)}
+
 \item{dpi}{resolution for raster images}
+
+\item{units}{units of format (defaults to in)}
 
 \item{height}{height of plots}
 
@@ -42,4 +46,7 @@ Function to set global instructions for giotto functions
 }
 \examples{
     createGiottoInstructions()
+}
+\seealso{
+More online information can be found here \url{https://rubd.github.io/Giotto_site/articles/instructions_and_plotting.html}
 }

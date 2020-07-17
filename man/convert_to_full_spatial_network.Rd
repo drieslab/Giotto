@@ -6,6 +6,10 @@
 \usage{
 convert_to_full_spatial_network(reduced_spatial_network_DT)
 }
+\arguments{
+\item{reduced_spatial_network_DT}{reduced spatial network in data.table format}
+}
 \description{
 convert to a full spatial network
 }
+\keyword{internal}

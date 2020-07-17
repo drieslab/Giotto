@@ -6,6 +6,9 @@
 \usage{
 DT_removeNA(DT)
 }
+\arguments{
+\item{DT}{data.table}
+}
 \description{
 set NA values to 0 in a data.table object
 }
