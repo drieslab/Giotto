@@ -23,6 +23,8 @@ createSpatialDelaunayNetwork(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{method}{package to use to create a Delaunay network}
+
 \item{dimensions}{which spatial dimensions to use (default = all)}
 
 \item{name}{name for spatial network (default = 'delaunay_network')}
@@ -43,7 +45,7 @@ createSpatialDelaunayNetwork(
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
-\item{...}{Other parameters of the \code{\link[RTriangle]{triangulate}} function}
+\item{\dots}{Other additional parameters}
 }
 \value{
 giotto object with updated spatial network slot

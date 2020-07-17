@@ -78,6 +78,8 @@ spatGenePlot2D(
 
 \item{spatial_network_name}{name of spatial network to use}
 
+\item{edge_alpha}{alpha of edge}
+
 \item{show_grid}{show spatial grid}
 
 \item{grid_color}{color of spatial grid}

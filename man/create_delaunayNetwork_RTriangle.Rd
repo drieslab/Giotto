@@ -15,8 +15,6 @@ create_delaunayNetwork_RTriangle(
 )
 }
 \description{
-Create a spatial Delaunay network.
+Create a spatial Delaunay network with RTriangle
 }
-\examples{
-    create_delaunayNetwork_RTriangle(gobject)
-}
+\keyword{internal}

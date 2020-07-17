@@ -9,6 +9,4 @@ my_rowMeans(x, method = c("arithmic", "geometric"), offset = 0.1)
 \description{
 arithmic or geometric rowMeans that works for a single column
 }
-\examples{
-    my_rowMeans(x)
-}
+\keyword{internal}

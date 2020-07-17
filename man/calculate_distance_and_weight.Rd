@@ -26,3 +26,4 @@ calculate_distance_and_weight(
 \description{
 calculate_distance_and_weight
 }
+\keyword{internal}

@@ -27,7 +27,7 @@ spatDimGenePlot2D(
   show_spatial_grid = F,
   nn_network_to_use = "sNN",
   network_name = "sNN.pca",
-  edge_alpha_dim = NULL,
+  dim_edge_alpha = NULL,
   scale_alpha_with_expression = FALSE,
   sdimx = "sdimx",
   sdimy = "sdimy",
@@ -103,7 +103,7 @@ spatDimGenePlot2D(
 
 \item{network_name}{name of NN network to use, if show_NN_network = TRUE}
 
-\item{edge_alpha_dim}{dim reduction plot: column to use for alpha of the edges}
+\item{dim_edge_alpha}{dim reduction plot: column to use for alpha of the edges}
 
 \item{scale_alpha_with_expression}{scale expression with ggplot alpha parameter}
 
@@ -168,6 +168,8 @@ spatDimGenePlot2D(
 \item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+
+\item{spat_edge_alpha}{edge alpha}
 }
 \value{
 ggplot

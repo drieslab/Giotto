@@ -22,7 +22,7 @@ viewHMRFresults(
 
 \item{betas_to_view}{results from different betas that you want to view}
 
-\item{...}{paramters to visPlot()}
+\item{\dots}{additional paramters to visPlot()}
 }
 \value{
 spatial plots with HMRF domains

@@ -22,8 +22,6 @@ create_delaunayNetwork2D(
 )
 }
 \description{
-Create a spatial Delaunay network.
+Create a spatial 2D Delaunay network.
 }
-\examples{
-    create_delaunayNetwork2D(gobject)
-}
+\keyword{internal}

@@ -35,6 +35,8 @@ showPattern2D(
 
 \item{show_legend}{show legend of ggplot}
 
+\item{point_size}{size of points}
+
 \item{show_plot}{show plot}
 
 \item{return_plot}{return ggplot object}

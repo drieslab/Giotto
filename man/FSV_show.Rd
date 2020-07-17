@@ -35,6 +35,4 @@ Visualize spatial varible genes caculated by spatial_DE
 \details{
 Description of parameters.
 }
-\examples{
-    FSV_show(results)
-}
+\keyword{internal}

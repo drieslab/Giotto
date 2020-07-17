@@ -9,3 +9,4 @@ rank_binarize(x, max_rank = 200)
 \description{
 create binarized scores from a vector using arbitrary rank
 }
+\keyword{internal}

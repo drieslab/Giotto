@@ -30,3 +30,4 @@ list of eigenvalues, loadings and pca coordinates
 \description{
 performs PCA based on the irlba package
 }
+\keyword{internal}

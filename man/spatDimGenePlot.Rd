@@ -30,7 +30,7 @@ spatDimGenePlot(...)
     \item{\code{nn_network_to_use}}{type of NN network to use (kNN vs sNN)}
     \item{\code{network_name}}{name of NN network to use, if show_NN_network = TRUE}
     \item{\code{dim_network_color}}{color of NN network}
-    \item{\code{edge_alpha_dim}}{dim reduction plot: column to use for alpha of the edges}
+    \item{\code{dim_edge_alpha}}{dim reduction plot: column to use for alpha of the edges}
     \item{\code{scale_alpha_with_expression}}{scale expression with ggplot alpha parameter}
     \item{\code{sdimx}}{spatial x-axis dimension name (default = 'sdimx')}
     \item{\code{sdimy}}{spatial y-axis dimension name (default = 'sdimy')}
