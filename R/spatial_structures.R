@@ -1009,6 +1009,7 @@ createSpatialDelaunayNetwork <- function(gobject,
                                             return_gobject = TRUE,
                                             ...) {
 
+
   # get parameter values
   method = match.arg(method, c("deldir", "delaunayn_geometry", "RTriangle"))
 
