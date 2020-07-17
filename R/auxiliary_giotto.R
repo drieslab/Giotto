@@ -526,6 +526,7 @@ subsetGiotto <- function(gobject,
 #' @param z_max maximum z-coordinate
 #' @param z_min minimum z-coordinate
 #' @param return_gobject return Giotto object
+#' @param verbose be verbose
 #' @return giotto object
 #' @details if return_gobject = FALSE, then a filtered combined metadata data.table will be returned
 #' @export
@@ -1694,12 +1695,13 @@ showProcessingSteps <- function(gobject) {
 #' @title create_cluster_matrix
 #' @description creates aggregated matrix for a given clustering column
 #' @keywords internal
-#' @examples
-#'     create_cluster_matrix(gobject)
 create_cluster_matrix <- function(gobject,
                                   expression_values = c('normalized', 'scaled', 'custom'),
                                   cluster_column,
                                   gene_subset = NULL) {
+
+  # data.table variables
+  genes = NULL
 
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
 

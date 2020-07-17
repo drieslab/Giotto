@@ -534,6 +534,7 @@ createSpatialEnrich = function(gobject,
                                     reverse_log_scale = reverse_log_scale,
                                     logbase = logbase,
                                     output_enrichment = output_enrichment)
+
     # default name for page enrichment
     if(is.null(name)) name = 'PAGE'
     if (p_value==TRUE){

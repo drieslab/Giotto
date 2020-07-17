@@ -273,8 +273,12 @@ addNetworkLayout = function(gobject,
 #' @name nnDT_to_kNN
 #' @description Convert a nearest network data.table to a kNN object
 #' @param nnDT nearest neighbor network in data.table format
+#' @keywords internal
 #' @return kNN object
 nnDT_to_kNN <- function(nnDT) {
+
+  # data.table variable
+  from = NULL
 
   k = unique(table(nnDT$from))
 

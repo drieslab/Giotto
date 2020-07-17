@@ -276,7 +276,7 @@ loadHMRF = function(name_used = 'test',
 #' @param HMRFoutput HMRF output from doHMRF
 #' @param k number of HMRF domains
 #' @param betas_to_view results from different betas that you want to view
-#' @param ... paramters to visPlot()
+#' @param \dots additional paramters to visPlot()
 #' @return spatial plots with HMRF domains
 #' @details Description ...
 #' @seealso \code{\link{visPlot}}

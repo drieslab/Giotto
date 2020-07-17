@@ -427,6 +427,11 @@ cellProximityVisPlot_2D_ggplot <- function(gobject,
                                            point_other_border_col = 'lightgrey',
                                            point_other_border_stroke = 0.01,
                                            ...){
+
+  # data.table variables
+  unified_int = sdimx_begin = sdimy_begin = sdimx_end = sdimy_end = x_start = x_end = NULL
+  y_start = y_end = cell_ID = NULL
+
   if(is.null(interaction_name)) {
     stop('\n you need to specific at least one interaction name, run cellProximityEnrichment \n')
   }
@@ -615,6 +620,11 @@ cellProximityVisPlot_2D_plotly <- function(gobject,
                                            x_ticks = NULL,
                                            y_ticks = NULL,
                                            ...){
+
+
+  # data.table variables
+  cell_ID = NULL
+
   if(is.null(interaction_name)) {
     stop('\n you need to specific at least one interaction name, run cellProximityEnrichment \n')
   }
@@ -754,7 +764,7 @@ cellProximityVisPlot_2D_plotly <- function(gobject,
                                    x = ~sdimx, y = ~sdimy,
                                    marker = list(size = point_size_select,color = "lightblue",colors = "lightblue"))
     if(show_other_cells){
-      pl <- pl %>% add_trace(type = 'scatter',mode = 'markers',
+      pl <- pl %>% plotly::add_trace(type = 'scatter',mode = 'markers',
                              data=cell_locations_metadata[cell_ID %in% other_cell_IDs],
                              x = ~sdimx, y = ~sdimy,
                              name = "selected cells outside network",
@@ -834,6 +844,9 @@ cellProximityVisPlot_3D_plotly <- function(gobject,
                                            y_ticks = NULL,
                                            z_ticks = NULL,
                                            ...){
+
+  # data.table variables
+  cell_ID = unified_int = NULL
 
   if(is.null(interaction_name)) {
     stop('\n you need to specific at least one interaction name, run cellProximityEnrichment \n')
@@ -937,7 +950,7 @@ cellProximityVisPlot_3D_plotly <- function(gobject,
                         marker = list(size = point_size_other,color = "lightgray",colors = "lightgray"),
                         opacity = point_alpha_other)
     if(show_other_cells){
-      pl <- pl %>% add_trace(type = 'scatter3d',mode = 'markers',
+      pl <- pl %>% plotly::add_trace(type = 'scatter3d',mode = 'markers',
                              data=cell_locations_metadata[cell_ID %in% other_cell_IDs],
                              x = ~sdimx, y = ~sdimy, z = ~sdimz,
                              name = "selected cells outside network",

@@ -151,7 +151,8 @@ setMethod(f = "print.giotto",
 
 #' @title set_giotto_python_path
 #' @name set_giotto_python_path
-#' @description sets the python path and/or install miniconda and the python modules
+#' @description sets the python path and/or installs miniconda and the python modules
+#' @keywords internal
 set_giotto_python_path = function(python_path = NULL,
                                   packages_to_install = c('pandas', 'networkx', 'python-igraph',
                                                           'leidenalg', 'python-louvain', 'python.app',

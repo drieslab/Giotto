@@ -8111,6 +8111,7 @@ spatDimPlot = function(...) {
 #' @param show_network show underlying spatial network
 #' @param network_color color of spatial network
 #' @param spatial_network_name name of spatial network to use
+#' @param edge_alpha alpha of edge
 #' @param show_grid show spatial grid
 #' @param grid_color color of spatial grid
 #' @param spatial_grid_name name of spatial grid to use
@@ -8841,7 +8842,7 @@ dimGenePlot = function(...) {
 #' @param nn_network_to_use type of NN network to use (kNN vs sNN)
 #' @param network_name name of NN network to use, if show_NN_network = TRUE
 #' @param dim_network_color color of NN network
-#' @param edge_alpha_dim dim reduction plot: column to use for alpha of the edges
+#' @param dim_edge_alpha dim reduction plot: column to use for alpha of the edges
 #' @param scale_alpha_with_expression scale expression with ggplot alpha parameter
 #' @param sdimx spatial x-axis dimension name (default = 'sdimx')
 #' @param sdimy spatial y-axis dimension name (default = 'sdimy')
@@ -8853,6 +8854,7 @@ dimGenePlot = function(...) {
 #' @param spat_point_alpha transparancy of spatial points
 #' @param spat_point_border_col color of border around points
 #' @param spat_point_border_stroke stroke size of border around points
+#' @param spat_edge_alpha edge alpha
 #' @param cell_color_gradient vector with 3 colors for numeric data
 #' @param gradient_midpoint midpoint for color gradient
 #' @param gradient_limits vector with lower and upper limits
@@ -8903,7 +8905,7 @@ spatDimGenePlot2D <- function(gobject,
                               show_spatial_grid = F,
                               nn_network_to_use = 'sNN',
                               network_name = 'sNN.pca',
-                              edge_alpha_dim = NULL,
+                              dim_edge_alpha = NULL,
                               scale_alpha_with_expression = FALSE,
                               sdimx = 'sdimx',
                               sdimy = 'sdimy',
@@ -8951,7 +8953,7 @@ spatDimGenePlot2D <- function(gobject,
                        nn_network_to_use = nn_network_to_use,
                        network_name = network_name,
                        network_color = dim_network_color,
-                       edge_alpha = edge_alpha,
+                       edge_alpha = dim_edge_alpha,
                        scale_alpha_with_expression = scale_alpha_with_expression,
                        point_shape = dim_point_shape,
                        point_size = dim_point_size,
@@ -8989,7 +8991,7 @@ spatDimGenePlot2D <- function(gobject,
                        show_network = show_spatial_network,
                        network_color = spatial_network_color,
                        spatial_network_name = spatial_network_name,
-                       edge_alpha = edge_alpha,
+                       edge_alpha = spat_edge_alpha,
                        show_grid = show_spatial_grid,
                        grid_color = grid_color,
                        spatial_grid_name = spatial_grid_name,
@@ -11673,6 +11675,9 @@ spatDimGenePlot3D <- function(gobject,
                               save_plot = NA,
                               save_param =  list(),
                               default_save_name = "spatDimGenePlot3D"){
+
+  # data.table variables
+  cell_ID = NULL
 
   plot_alignment = match.arg(plot_alignment, choices = c( 'horizontal','vertical'))
 

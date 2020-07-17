@@ -362,6 +362,7 @@ create_spatialNetworkObject <- function(name = NULL,
 #' @title select_spatialNetwork
 #' @name select_spatialNetwork
 #' @description function to select a spatial network
+#' @keywords internal
 select_spatialNetwork <- function(gobject,
                                   name = NULL,
                                   return_network_Obj = FALSE) {
@@ -390,6 +391,7 @@ select_spatialNetwork <- function(gobject,
 #' @param sdimz spatial dimension z
 #' @param d2_or_d3 number of dimensions
 #' @description calculate_distance_and_weight
+#' @keywords internal
 calculate_distance_and_weight <- function(networkDT = NULL,
                                           sdimx = "sdimx",
                                           sdimy = "sdimy",
@@ -471,8 +473,7 @@ filter_network <- function(networkDT = NULL,
 
 #' @title create_delaunayNetwork_geometry
 #' @description Create a spatial Delaunay network.
-#' @examples
-#'     create_delaunayNetwork_geometry(gobject)
+#' @keywords internal
 create_delaunayNetwork_geometry <- function(spatial_locations,
                                                sdimx = 'sdimx',
                                                sdimy = 'sdimy',
@@ -533,9 +534,8 @@ create_delaunayNetwork_geometry <- function(spatial_locations,
 }
 
 #' @title create_delaunayNetwork_geometry_3D
-#' @description Create a spatial Delaunay network.
-#' @examples
-#'     create_delaunayNetwork_geometry_3D(gobject)
+#' @description Create a spatial 3D Delaunay network with geometry
+#' @keywords internal
 create_delaunayNetwork_geometry_3D <- function(spatial_locations,
                                                   sdimx = 'sdimx',
                                                   sdimy = 'sdimy',
@@ -605,9 +605,8 @@ create_delaunayNetwork_geometry_3D <- function(spatial_locations,
 }
 
 #' @title create_delaunayNetwork_RTriangle
-#' @description Create a spatial Delaunay network.
-#' @examples
-#'     create_delaunayNetwork_RTriangle(gobject)
+#' @description Create a spatial Delaunay network with RTriangle
+#' @keywords internal
 create_delaunayNetwork_RTriangle <- function(spatial_locations,
                                                 sdimx = 'sdimx',
                                                 sdimy = 'sdimy',
@@ -660,9 +659,8 @@ create_delaunayNetwork_RTriangle <- function(spatial_locations,
 
 
 #' @title create_delaunayNetwork_deldir
-#' @description Create a spatial Delaunay network.
-#' @examples
-#'     create_delaunayNetwork_deldir(gobject)
+#' @description Create a spatial Delaunay network with deldir
+#' @keywords internal
 create_delaunayNetwork_deldir <- function(spatial_locations,
                                              sdimx = 'sdimx',
                                              sdimy = 'sdimy',
@@ -713,9 +711,8 @@ create_delaunayNetwork_deldir <- function(spatial_locations,
 
 
 #' @title create_delaunayNetwork2D
-#' @description Create a spatial Delaunay network.
-#' @examples
-#'     create_delaunayNetwork2D(gobject)
+#' @description Create a spatial 2D Delaunay network.
+#' @keywords internal
 create_delaunayNetwork2D <- function (gobject,
                                          method = c("delaunayn_geometry", "RTriangle", "deldir"),
                                          sdimx = 'sdimx',
@@ -882,20 +879,19 @@ create_delaunayNetwork2D <- function (gobject,
 
 
 #' @title create_delaunayNetwork3D
-#' @description Create a spatial Delaunay network.
-#' @examples
-#'     create_delaunayNetwork3D(gobject)
+#' @description Create a spatial 3D Delaunay network.
+#' @keywords internal
 create_delaunayNetwork3D <- function (gobject,
-                                         method = "delaunayn_geometry",
-                                         sdimx = 'sdimx',
-                                         sdimy = 'sdimy',
-                                         sdimz = 'sdimz',
-                                         name = "delaunay_network_3D",
-                                         maximum_distance = "auto",
-                                         minimum_k = 0, # all
-                                         options = "Pp", # geometry
-                                         return_gobject = TRUE,
-                                         ...)
+                                      method = "delaunayn_geometry",
+                                      sdimx = 'sdimx',
+                                      sdimy = 'sdimy',
+                                      sdimz = 'sdimz',
+                                      name = "delaunay_network_3D",
+                                      maximum_distance = "auto",
+                                      minimum_k = 0, # all
+                                      options = "Pp", # geometry
+                                      return_gobject = TRUE,
+                                      ...)
 {
 
   # get parameter values
@@ -994,6 +990,7 @@ create_delaunayNetwork3D <- function (gobject,
 #' @title createSpatialDelaunayNetwork
 #' @description Create a spatial Delaunay network based on cell centroid physical distances.
 #' @param gobject giotto object
+#' @param method package to use to create a Delaunay network
 #' @param dimensions which spatial dimensions to use (default = all)
 #' @param name name for spatial network (default = 'delaunay_network')
 #' @param maximum_distance distance cuttof for Delaunay neighbors to consider. If "auto", "upper wisker" value of the distance vector between neighbors is used; see the boxplot{graphics} documentation for more details.(default = "auto")
@@ -1004,25 +1001,25 @@ create_delaunayNetwork3D <- function (gobject,
 #' @param S (RTriangle) Specifies the maximum number of added Steiner points.
 #' @param verbose verbose
 #' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @param ... Other parameters of the \code{\link[RTriangle]{triangulate}} function
+#' @param \dots Other additional parameters
 #' @return giotto object with updated spatial network slot
 #' @details Creates a spatial Delaunay network as explained in \code{\link[geometry]{delaunayn}} (default), \code{\link[deldir]{deldir}}, or \code{\link[RTriangle]{triangulate}}.
 #' @export
 #' @examples
 #'     createSpatialDelaunayNetwork(gobject)
 createSpatialDelaunayNetwork <- function(gobject,
-                                            method = c("deldir", "delaunayn_geometry", "RTriangle"),
-                                            dimensions = "all",
-                                            name = "Delaunay_network",
-                                            maximum_distance = "auto", # all
-                                            minimum_k = 0, # all
-                                            options = "Pp", # geometry
-                                            Y = TRUE, # RTriange
-                                            j = TRUE, # RTriange
-                                            S = 0, # RTriange
-                                            verbose = T,
-                                            return_gobject = TRUE,
-                                            ...) {
+                                         method = c("deldir", "delaunayn_geometry", "RTriangle"),
+                                         dimensions = "all",
+                                         name = "Delaunay_network",
+                                         maximum_distance = "auto", # all
+                                         minimum_k = 0, # all
+                                         options = "Pp", # geometry
+                                         Y = TRUE, # RTriange
+                                         j = TRUE, # RTriange
+                                         S = 0, # RTriange
+                                         verbose = T,
+                                         return_gobject = TRUE,
+                                         ...) {
 
   # get parameter values
   method = match.arg(method, c("deldir", "delaunayn_geometry", "RTriangle"))
@@ -1092,8 +1089,8 @@ createSpatialDelaunayNetwork <- function(gobject,
 #' @title plotStatDelaunayNetwork
 #' @description Plots network statistics for a Delaunay network..
 #' @param gobject giotto object
+#' @param method package to use to create a Delaunay network
 #' @param dimensions which spatial dimensions to use (maximum 2 dimensions)
-#' @param name name for spatial network (default = 'delaunay_network')
 #' @param maximum_distance distance cuttof for Delaunay neighbors to consider
 #' @param minimum_k minimum neigbhours if maximum_distance != NULL
 #' @param options (geometry) String containing extra control options for the underlying Qhull command; see the Qhull documentation (../doc/qhull/html/qdelaun.html) for the available options. (default = 'Pp', do not report precision problems)
@@ -1103,31 +1100,28 @@ createSpatialDelaunayNetwork <- function(gobject,
 #' @param show_plot show plots
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
-#' @param ... Other parameters of the \code{\link[RTriangle]{triangulate}} function
+#' @param \dots Other parameters
 #' @return giotto object with updated spatial network slot
-#' @details Plots statistics for a spatial Delaunay network as explained in \code{\link[RTriangle]{triangulate}}.
-#' This can be used to further finetune the \code{\link{createSpatialDelaunayNetwork}} function.
 #' @export
 #' @examples
 #'     plotStatDelaunayNetwork(gobject)
 plotStatDelaunayNetwork = function(gobject,
-                                      method = c("deldir", "delaunayn_geometry", "RTriangle"),
-                                      dimensions = "all",
-                                      maximum_distance = "auto", # all
-                                      minimum_k = 0, # all
-                                      options = "Pp", # geometry
-                                      Y = TRUE, # RTriange
-                                      j = TRUE, # RTriange
-                                      S = 0, # RTriange
-                                      show_plot = NA,
-                                      return_plot = NA,
-                                      save_plot = NA,
-                                      save_param =  list(),
-                                      default_save_name = 'plotStatDelaunayNetwork',
-                                      ...
-) {
+                                   method = c("deldir", "delaunayn_geometry", "RTriangle"),
+                                   dimensions = "all",
+                                   maximum_distance = "auto", # all
+                                   minimum_k = 0, # all
+                                   options = "Pp", # geometry
+                                   Y = TRUE, # RTriange
+                                   j = TRUE, # RTriange
+                                   S = 0, # RTriange
+                                   show_plot = NA,
+                                   return_plot = NA,
+                                   save_plot = NA,
+                                   save_param =  list(),
+                                   default_save_name = 'plotStatDelaunayNetwork',
+                                   ...) {
 
 
   # data.table variables
@@ -1206,9 +1200,8 @@ plotStatDelaunayNetwork = function(gobject,
 ## kNN network ####
 
 #' @title create_KNNnetwork_dbscan
-#' @description Create a spatial knn network.
-#' @examples
-#'     create_KNNnetwork_dbscan(gobject)
+#' @description Create a spatial knn network with dbscan
+#' @keywords internal
 create_KNNnetwork_dbscan = function(spatial_locations,
                                     sdimx = 'sdimx',
                                     sdimy = 'sdimy',
@@ -1330,6 +1323,7 @@ create_KNNnetwork_dbscan = function(spatial_locations,
 #' @param minimum_k minimum nearest neigbhours if maximum_distance != NULL
 #' @param verbose verbose
 #' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @param \dots additional arguments to the selected method function
 #' @return giotto object with updated spatial network slot
 #'
 #' \strong{dimensions: } default = 'all' which takes all possible dimensions.
@@ -1489,6 +1483,7 @@ createSpatialKNNnetwork <- function (gobject,
 #' @param maximum_distance_knn distance cuttof for nearest neighbors to consider for kNN network
 #' @param verbose verbose
 #' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @param \dots Additional parameters for the selected function
 #' @return giotto object with updated spatial network slot
 #' @details Creates a spatial network connecting single-cells based on their physical distance to each other.
 #' For Delaunay method, neighbors will be decided by delaunay triangulation and a maximum distance criteria. For kNN method, number of neighbors can be determined by k, or maximum distance from each cell with or without
@@ -1673,6 +1668,7 @@ annotateSpatialNetwork = function(gobject,
 #' @title find_grid_3D
 #' @name find_grid_3D
 #' @description find grid location in 3D
+#' @keywords internal
 find_grid_3D <- function(grid_DT, x_loc, y_loc, z_loc) {
 
   # data.table variables
@@ -1685,6 +1681,7 @@ find_grid_3D <- function(grid_DT, x_loc, y_loc, z_loc) {
 #' @title find_grid_2D
 #' @name find_grid_2D
 #' @description find grid location in 2D
+#' @keywords internal
 find_grid_2D <- function(grid_DT, x_loc, y_loc) {
 
   # data.table variables
@@ -1697,6 +1694,7 @@ find_grid_2D <- function(grid_DT, x_loc, y_loc) {
 #' @title find_grid_x
 #' @name find_grid_x
 #' @description find grid location on x-axis
+#' @keywords internal
 find_grid_x <- function(grid_DT, x_loc) {
 
   # data.table variables
@@ -1710,6 +1708,7 @@ find_grid_x <- function(grid_DT, x_loc) {
 #' @title find_grid_y
 #' @name find_grid_y
 #' @description find grid location on y-axis
+#' @keywords internal
 find_grid_y <- function(grid_DT, y_loc) {
 
   # data.table variables
@@ -1723,6 +1722,7 @@ find_grid_y <- function(grid_DT, y_loc) {
 #' @title find_grid_z
 #' @name find_grid_z
 #' @description find grid location on z-axis
+#' @keywords internal
 find_grid_z <- function(grid_DT, z_loc) {
 
   # data.table variables
