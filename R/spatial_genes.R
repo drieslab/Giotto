@@ -425,6 +425,8 @@ spatialDE <- function(gobject = NULL,
                       save_param = list(),
                       default_save_name = 'SpatialDE'){
 
+  # data.table variables
+  cell_ID = NULL
 
   # expression
   values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
@@ -519,6 +521,9 @@ spatialAEH <- function(gobject = NULL,
                        l = 1.05,
                        python_path = NULL,
                        return_gobject = TRUE) {
+
+  # data.table variables
+  cell_ID = NULL
 
   # expression
   values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
@@ -1024,6 +1029,9 @@ showPattern3D <- function(gobject,
                           save_param =  list(),
                           default_save_name = 'showPattern3D') {
 
+  # data.table variables
+  center_x = x_start = x_end = center_y = y_start = y_end = center_z = z_start = z_end = NULL
+
   if(!'spatPatObj' %in% class(spatPatObj)) {
     stop('\n spatPatObj needs to be the output from detectSpatialPatterns \n')
   }
@@ -1129,6 +1137,9 @@ showPatternGenes <- function(gobject,
                              save_plot = NA,
                              save_param =  list(),
                              default_save_name = 'showPatternGenes') {
+
+  # data.table variables
+  gene_ID = NULL
 
   if(!'spatPatObj' %in% class(spatPatObj)) {
     stop('\n spatPatObj needs to be the output from detectSpatialPatterns \n')

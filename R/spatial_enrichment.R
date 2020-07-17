@@ -1,5 +1,5 @@
 
-## spatial enrichment functions ####
+## create spatial enrichment matrix ####
 
 #' @title makeSignMatrixPAGE
 #' @description Function to convert a list of signature genes (e.g. for cell types or processes) into
@@ -116,6 +116,9 @@ makeSignMatrixRank <- function(sc_matrix,
 
 }
 
+
+
+## spatial enrichment functions ####
 
 #' @title do_rank_permutation
 #' @description creates permutation for the rankEnrich test
@@ -433,7 +436,7 @@ hyperGeometricEnrich <- function(gobject,
   aveExp<-log2(2*(rowMeans(2^gobject@norm_expr-1, dims = 1))+1)
   foldChange<-gobject@norm_expr-aveExp
   top_q<-1-top_percentage/100
-  quantilecut<-apply(foldChange, 2 , quantile , probs = top_q, na.rm = TRUE )
+  quantilecut = apply(foldChange, 2 , stats::quantile , probs = top_q, na.rm = TRUE )
   expbinary<-t(ifelse(t(foldChange)>quantilecut,1,0))
 
   markerGenes = rownames(inter_sign_matrix)

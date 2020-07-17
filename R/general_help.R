@@ -545,3 +545,49 @@ sort_combine_two_DT_columns = function(DT,
 }
 
 
+
+
+
+
+
+#' @title package_check
+#' @name package_check
+#' @description check if package is available and provide installation instruction if not available
+#' @keywords internal
+package_check = function(pkg_name,
+                         repository = c('CRAN', 'Bioc')) {
+
+  repository = match.arg(repository, choices = c('CRAN', 'Bioc'))
+
+  if(repository == 'CRAN') {
+
+    if(pkg_name %in% rownames(installed.packages()) == FALSE) {
+      stop("\n package ", pkg_name ," is not yet installed \n",
+           "To install: \n",
+           "install.packages('",pkg_name,"')"
+      )
+    }
+
+
+  } else if(repository == 'Bioc') {
+
+    if(pkg_name %in% rownames(installed.packages()) == FALSE) {
+      stop("\n package ", pkg_name ," is not yet installed \n",
+           "To install: \n",
+           "if (!requireNamespace('BiocManager', quietly = TRUE)) install.packages('BiocManager');
+         BiocManager::install('",pkg_name,"')"
+      )
+    }
+
+  }
+
+}
+
+
+
+
+
+
+
+
+

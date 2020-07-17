@@ -31,6 +31,9 @@ spatNetwDistributionsDistance <- function(gobject,
                                           default_save_name = 'spatNetwDistributionsDistance') {
 
 
+  # data.table variables
+  distance = rank_int = status = label = keep = NULL
+
   ## spatial network
   #spatial_network = gobject@spatial_network[[spatial_network_name]]
   spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
@@ -118,6 +121,9 @@ spatNetwDistributionsKneighbors = function(gobject,
                                            save_plot = NA,
                                            save_param =  list(),
                                            default_save_name = 'spatNetwDistributionsKneighbors') {
+
+  # data.table variables
+  N = NULL
 
   ## spatial network
   #spatial_network = gobject@spatial_network[[spatial_network_name]]
@@ -444,11 +450,14 @@ filter_network <- function(networkDT = NULL,
                            maximum_distance = NULL,
                            minimum_k = NULL){
 
+  # data.table variables
+  distance = rank_int = NULL
+
   temp_fullnetwork = convert_to_full_spatial_network(networkDT)
 
   ## filter based on distance or minimum number of neighbors
   if (maximum_distance == "auto") {
-    temp_fullnetwork = temp_fullnetwork[distance <= boxplot.stats(temp_fullnetwork$distance)$stats[5] | rank_int <= minimum_k]
+    temp_fullnetwork = temp_fullnetwork[distance <= grDevices::boxplot.stats(temp_fullnetwork$distance)$stats[5] | rank_int <= minimum_k]
   }
   else if (!is.null(maximum_distance)) {
     temp_fullnetwork = temp_fullnetwork[distance <= maximum_distance | rank_int <= minimum_k]
@@ -469,6 +478,13 @@ create_delaunayNetwork_geometry <- function(spatial_locations,
                                                sdimy = 'sdimy',
                                                options = "Pp",
                                                ...) {
+
+
+  # verify if optional package is installed
+  package_check(pkg_name = "geometry", repository = "CRAN")
+
+  # data.table variables
+  from = to = NULL
 
   ## vector with original cell names ##
   cell_ID_vec = spatial_locations$cell_ID
@@ -526,6 +542,13 @@ create_delaunayNetwork_geometry_3D <- function(spatial_locations,
                                                   sdimz = 'sdimz',
                                                   options = options,
                                                   ...){
+
+  # verify if optional package is installed
+  package_check(pkg_name = "geometry", repository = "CRAN")
+
+
+  # data.table variables
+  from = to = NULL
 
   ## vector with original cell names ##
   cell_ID_vec = spatial_locations$cell_ID
@@ -594,6 +617,12 @@ create_delaunayNetwork_RTriangle <- function(spatial_locations,
                                                 ...){
 
 
+  # verify if optional package is installed
+  package_check(pkg_name = "RTriangle", repository = "CRAN")
+
+  # data.table variables
+  from = to = NULL
+
   ## vector with original cell names ##
   cell_ID_vec = spatial_locations$cell_ID
   names(cell_ID_vec) = c(1:nrow(spatial_locations))
@@ -638,6 +667,10 @@ create_delaunayNetwork_deldir <- function(spatial_locations,
                                              sdimx = 'sdimx',
                                              sdimy = 'sdimy',
                                              ...){
+
+
+  # data.table variables
+  from = to = NULL
 
   ## vector with original cell names ##
   cell_ID_vec = spatial_locations$cell_ID
@@ -1097,6 +1130,9 @@ plotStatDelaunayNetwork = function(gobject,
 ) {
 
 
+  # data.table variables
+  distance = rank_int = N = NULL
+
   delaunay_network_DT = createSpatialDelaunayNetwork(gobject = gobject,
                                                         method = method,
                                                         dimensions = dimensions,
@@ -1179,6 +1215,10 @@ create_KNNnetwork_dbscan = function(spatial_locations,
                                     sdimz = 'sdimz',
                                     k = 4,
                                     ...) {
+
+
+  # data.table variables
+  from = to = NULL
 
   ## vector with original cell names ##
   cell_ID_vec = spatial_locations$cell_ID
@@ -1313,6 +1353,10 @@ createSpatialKNNnetwork <- function (gobject,
                                      return_gobject = TRUE,
                                      ...)
 {
+
+
+  # data.table variables
+  distance = rank_int = NULL
 
 
   # get parameter values
@@ -1715,6 +1759,9 @@ createSpatialGrid_3D <- function(gobject,
                                  return_gobject = TRUE) {
 
 
+  # data.table variables
+  gr_name = gr_x_name = gr_y_name = gr_z_name = gr_x_loc = gr_y_loc = gr_z_loc = gr_loc = NULL
+
   spatlocs = copy(gobject@spatial_locs)
   if(is.null(spatlocs)) stop('\n spatial locations are needed to create a spatial grid \n')
 
@@ -1878,6 +1925,9 @@ createSpatialGrid_2D <- function(gobject,
                                  name = 'spatial_grid',
                                  return_gobject = TRUE) {
 
+
+  # data.table variables
+  gr_name = gr_x_name = gr_y_name = gr_x_loc = gr_y_loc = gr_loc = NULL
 
   spatlocs = copy(gobject@spatial_locs)
   if(is.null(spatlocs)) stop('\n spatial locations are needed to create a spatial grid \n')

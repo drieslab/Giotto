@@ -14,6 +14,9 @@ make_simulated_network = function(gobject,
                                   number_of_simulations = 100) {
 
 
+  # data.table variables
+  unified_cells = NULL
+
   spatial_network_annot = annotateSpatialNetwork(gobject = gobject,
                                                  spatial_network_name = spatial_network_name,
                                                  cluster_column = cluster_column)

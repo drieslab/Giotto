@@ -87,7 +87,7 @@ get_distance <- function(networkDT,
                          ){
 
   if (method=="median"){
-    distance = median(networkDT$distance)
+    distance = stats::median(networkDT$distance)
   }else if(method=="mean"){
     distance = mean(networkDT$distance)
   }

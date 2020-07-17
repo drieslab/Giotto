@@ -29,13 +29,8 @@ findScranMarkers <- function(gobject,
                              ...) {
 
 
-  if("scran" %in% rownames(installed.packages()) == FALSE) {
-    stop("\n package 'scran' is not yet installed \n",
-         "To install: \n",
-         "if (!requireNamespace('BiocManager', quietly = TRUE)) install.packages('BiocManager');
-         BiocManager::install('scran')"
-    )
-  }
+  # verify if optional package is installed
+  package_check(pkg_name = "scran", repository = "Bioc")
 
   # expression data
   values = match.arg(expression_values, choices = c('normalized', 'scaled', 'custom'))
@@ -503,13 +498,9 @@ findMastMarkers <- function(gobject,
                             adjust_columns = NULL,
                             ...) {
 
-  if("MAST" %in% rownames(installed.packages()) == FALSE) {
-    stop("\n package 'MAST' is not yet installed \n",
-         "To install: \n",
-         "if (!requireNamespace('BiocManager', quietly = TRUE)) install.packages('BiocManager');
-         BiocManager::install('MAST')"
-    )
-  }
+
+  # verify if optional package is installed
+  package_check(pkg_name = "MAST", repository = "Bioc")
 
   ## select expression values to use
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
