@@ -390,6 +390,7 @@ calculate_distance_and_weight <- function(networkDT = NULL,
                                           sdimz = "sdimz",
                                           d2_or_d3=c(2,3)){
 
+
   # data.table variables
   distance = weight = from = NULL
 
