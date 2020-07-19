@@ -405,7 +405,7 @@ silhouetteRank <- function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return a list of data.frames with results and plot (optional)
 #' @details This function is a wrapper for the SpatialDE method implemented in the ...
@@ -876,7 +876,7 @@ detectSpatialPatterns <- function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
@@ -972,7 +972,7 @@ showPattern2D <- function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @seealso \code{\link{showPattern2D}}
@@ -1004,7 +1004,7 @@ showPattern = function(gobject, spatPatObj, ...) {
 #' @param show_plot show plot
 #' @param return_plot return plot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return plotly
 #' @export
@@ -1119,7 +1119,7 @@ showPattern3D <- function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
@@ -1205,6 +1205,7 @@ showPatternGenes <- function(gobject,
 #' @param top_neg_genes Top negatively correlated genes.
 #' @param min_pos_cor Minimum positive correlation score to include a gene.
 #' @param min_neg_cor Minimum negative correlation score to include a gene.
+#' @param return_top_selection only return selection based on correlation criteria (boolean)
 #' @return Data.table with genes associated with selected dimension (PC).
 #' @details Description.
 #' @export
@@ -1853,7 +1854,7 @@ heatmSpatialCorGenes = function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return data.table with positive (within group) and negative (outside group) scores
 #' @export

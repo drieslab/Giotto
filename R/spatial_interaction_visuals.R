@@ -373,34 +373,9 @@ cellProximityNetwork = function(gobject,
 #' @title cellProximityVisPlot_2D_ggplot
 #' @name cellProximityVisPlot_2D_ggplot
 #' @description Visualize 2D cell-cell interactions according to spatial coordinates in ggplot mode
-#' @param gobject giotto object
-#' @param interaction_name cell-cell interaction name
-#' @param cluster_column cluster column with cell clusters
-#' @param sdimx x-axis dimension name (default = 'sdimx')
-#' @param sdimy y-axis dimension name (default = 'sdimy')
-#' @param cell_color color for cells (see details)
-#' @param cell_color_code named vector with colors
-#' @param color_as_factor convert color column to factor
-#' @param show_other_cells decide if show cells not in network
-#' @param show_network show underlying spatial network
-#' @param network_color color of spatial network
-#' @param spatial_network_name name of spatial network to use
-#' @param show_grid show spatial grid
-#' @param grid_color color of spatial grid
-#' @param spatial_grid_name name of spatial grid to use
-#' @param coord_fix_ratio fix ratio between x and y-axis
-#' @param show_legend show legend
-#' @param point_size_select size of selected points
-#' @param point_select_border_col border color of selected points
-#' @param point_select_border_stroke stroke size of selected points
-#' @param point_size_other size of other points
-#' @param point_other_border_col border color of other points
-#' @param point_other_border_stroke stroke size of other points
 #' @return ggplot
 #' @details Description of parameters.
-#' @export
-#' @examples
-#'     cellProximityVisPlot_2D_ggplot(gobject)
+#' @keywords internal
 cellProximityVisPlot_2D_ggplot <- function(gobject,
                                            interaction_name = NULL,
                                            cluster_column = NULL,
@@ -571,30 +546,7 @@ cellProximityVisPlot_2D_ggplot <- function(gobject,
 #' @title cellProximityVisPlot_2D_plotly
 #' @name cellProximityVisPlot_2D_plotly
 #' @description Visualize 2D cell-cell interactions according to spatial coordinates in plotly mode
-#' @param gobject giotto object
-#' @param interaction_name cell-cell interaction name
-#' @param cluster_column cluster column with cell clusters
-#' @param sdimx x-axis dimension name (default = 'sdimx')
-#' @param sdimy y-axis dimension name (default = 'sdimy')
-#' @param cell_color color for cells (see details)
-#' @param cell_color_code named vector with colors
-#' @param color_as_factor convert color column to factor
-#' @param show_other_cells decide if show cells not in network
-#' @param show_network show underlying spatial network
-#' @param network_color color of spatial network
-#' @param spatial_network_name name of spatial network to use
-#' @param show_grid show spatial grid
-#' @param grid_color color of spatial grid
-#' @param spatial_grid_name name of spatial grid to use
-#' @param coord_fix_ratio fix ratio between x and y-axis
-#' @param show_legend show legend
-#' @param point_size_select size of selected points
-#' @return plotly
-#' @details Description of parameters.
-#' @export
-#' @examples
-#'     cellProximityVisPlot_2D_plotly(gobject)
-
+#' @keywords internal
 cellProximityVisPlot_2D_plotly <- function(gobject,
                                            interaction_name = NULL,
                                            cluster_column = NULL,
@@ -623,7 +575,7 @@ cellProximityVisPlot_2D_plotly <- function(gobject,
 
 
   # data.table variables
-  cell_ID = NULL
+  cell_ID = unified_int = NULL
 
   if(is.null(interaction_name)) {
     stop('\n you need to specific at least one interaction name, run cellProximityEnrichment \n')
@@ -792,31 +744,7 @@ cellProximityVisPlot_2D_plotly <- function(gobject,
 #' @title cellProximityVisPlot_3D_plotly
 #' @name cellProximityVisPlot_3D_plotly
 #' @description Visualize 3D cell-cell interactions according to spatial coordinates in plotly mode
-#' @param gobject giotto object
-#' @param interaction_name cell-cell interaction name
-#' @param cluster_column cluster column with cell clusters
-#' @param sdimx x-axis dimension name (default = 'sdimx')
-#' @param sdimy y-axis dimension name (default = 'sdimy')
-#' @param sdimz z-axis dimension name (default = 'sdimz')
-#' @param cell_color color for cells (see details)
-#' @param cell_color_code named vector with colors
-#' @param color_as_factor convert color column to factor
-#' @param show_other_cells decide if show cells not in network
-#' @param show_network show underlying spatial network
-#' @param network_color color of spatial network
-#' @param spatial_network_name name of spatial network to use
-#' @param show_grid show spatial grid
-#' @param grid_color color of spatial grid
-#' @param spatial_grid_name name of spatial grid to use
-#' @param coord_fix_ratio fix ratio between x and y-axis
-#' @param show_legend show legend
-#' @param point_size_select size of selected points
-#' @return plotly
-#' @details Description of parameters.
-#' @export
-#' @examples
-#'     cellProximityVisPlot_3D_plotly(gobject)
-
+#' @keywords internal
 cellProximityVisPlot_3D_plotly <- function(gobject,
                                            interaction_name = NULL,
                                            cluster_column = NULL,
@@ -2214,7 +2142,6 @@ plotCCcomHeatmap = function(gobject,
 #' @param cluster_on values to use for clustering of cell-cell and ligand-receptor pairs
 #' @param cor_method correlation method used for clustering
 #' @param aggl_method agglomeration method used by hclust
-#' @param show values to show on heatmap
 #' @param show_plot show plots
 #' @param return_plot return plotting object
 #' @param save_plot directly save the plot [boolean]

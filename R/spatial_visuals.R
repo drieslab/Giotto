@@ -271,6 +271,10 @@ visPlot_2D_ggplot = function(gobject,
                              ...) {
 
 
+  # data.table variables
+  sdimx_begin = sdimy_begin = sdimx_end = sdimy_end = x_start = x_end = y_start = y_end = NULL
+
+
   ## get spatial cell locations
   cell_locations  = gobject@spatial_locs
 
@@ -976,6 +980,12 @@ visGenePlot_2D_ggplot <- function(gobject,
                                   cow_rel_w = 1,
                                   cow_align = 'h',
                                   show_plots = F){
+
+  # data.table variables
+  cell_ID = sdimx_begin = sdimy_begin = sdimx_end = sdimy_end = NULL
+
+  x_start = x_end = y_start = y_end = NULL
+
   selected_genes = genes
 
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
@@ -1142,6 +1152,10 @@ visGenePlot_3D_plotly <- function(gobject,
                                   y_ticks = NULL,
                                   z_ticks = NULL,
                                   show_plots = F){
+
+  # data.table variables
+  cell_ID = NULL
+
   selected_genes = genes
 
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
@@ -1563,6 +1577,9 @@ visDimPlot_2D_ggplot <- function(gobject,
                                  show_saved_plot = F,
                                  ...){
 
+  # data.table variables
+  cell_ID = NULL
+
   ## dimension reduction ##
   dim_dfr = gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$coordinates[,c(dim1_to_use, dim2_to_use)]
   dim_names = colnames(dim_dfr)
@@ -1767,6 +1784,10 @@ visDimPlot_2D_plotly <- function(gobject,
                                  label_size = 4,
                                  edge_alpha = NULL,
                                  point_size = 5){
+
+
+  # data.table variables
+  cell_ID = NULL
 
   ## dimension reduction ##
   dim_dfr = gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$coordinates[,c(dim1_to_use, dim2_to_use)]
@@ -1996,6 +2017,10 @@ visDimPlot_3D_plotly <- function(gobject,
                                  label_size = 4,
                                  edge_alpha = NULL,
                                  point_size = 1){
+
+  # data.table variables
+  cell_ID = NULL
+
   ## dimension reduction ##
   dim_dfr = gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$coordinates[,c(dim1_to_use, dim2_to_use,dim3_to_use)]
   dim_names = colnames(dim_dfr)
@@ -2421,6 +2446,8 @@ visForceLayoutPlot <- function(gobject,
                                show_saved_plot = F,
                                ...) {
 
+  # data.table variables
+  cell_ID = NULL
 
   ## layout ##
   co = gobject@nn_network[[nn_network_to_use]][[network_name]][['layout']][,c(dim1_to_use, dim2_to_use)]
@@ -2780,6 +2807,9 @@ visSpatDimPlot_3D <- function(gobject,
                               y_ticks = NULL,
                               z_ticks = NULL,
                               legend_text_size = 12){
+
+  # data.table variables
+  cell_ID = NULL
 
   plot_alignment = match.arg(plot_alignment, choices = c( 'horizontal','vertical'))
 
@@ -3569,6 +3599,10 @@ visDimGenePlot_2D_ggplot <- function(gobject,
                                      cow_align = 'h',
                                      show_legend = T,
                                      show_plots = F){
+
+  # data.table variables
+  cell_ID = NULL
+
   ## select genes ##
   selected_genes = genes
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
@@ -3749,6 +3783,10 @@ visDimGenePlot_3D_plotly <- function(gobject,
                                      genes_low_color = "blue",
                                      show_legend = T,
                                      show_plots = F){
+
+  # data.table variables
+  cell_ID = NULL
+
   ## select genes ##
   selected_genes = genes
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
@@ -4129,6 +4167,8 @@ visSpatDimGenePlot_2D <- function(gobject,
 
   {
 
+
+
     plot_alignment = match.arg(plot_alignment, choices = c('vertical', 'horizontal'))
 
     # dimension reduction plot
@@ -4270,6 +4310,9 @@ visSpatDimGenePlot_3D <- function(gobject,
                                   x_ticks = NULL,
                                   y_ticks = NULL,
                                   z_ticks = NULL){
+
+  # data.table variables
+  cell_ID = NULL
 
   plot_alignment = match.arg(plot_alignment, choices = c( 'horizontal','vertical'))
 
@@ -8191,6 +8234,9 @@ spatGenePlot2D <- function(gobject,
                            default_save_name = 'spatGenePlot2D') {
 
 
+  # data.table variables
+  cell_ID = NULL
+
   # print, return and save parameters
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
@@ -8903,6 +8949,7 @@ spatDimGenePlot2D <- function(gobject,
                               show_spatial_network = F,
                               dim_network_color = 'gray',
                               show_spatial_grid = F,
+                              grid_color = NULL,
                               nn_network_to_use = 'sNN',
                               network_name = 'sNN.pca',
                               dim_edge_alpha = NULL,
@@ -8917,6 +8964,7 @@ spatDimGenePlot2D <- function(gobject,
                               spat_point_alpha = 1,
                               spat_point_border_col = 'black',
                               spat_point_border_stroke = 0.1,
+                              spat_edge_alpha = NULL,
                               cell_color_gradient = c('blue', 'white', 'red'),
                               gradient_midpoint = NULL,
                               gradient_limits = NULL,
@@ -8999,7 +9047,7 @@ spatDimGenePlot2D <- function(gobject,
                        point_shape = spat_point_shape,
                        point_size = spat_point_size,
                        point_alpha = spat_point_alpha,
-                       point_border_col =spat_point_border_col,
+                       point_border_col = spat_point_border_col,
                        point_border_stroke = spat_point_border_stroke,
                        show_legend = show_legend,
                        legend_text = legend_text,
@@ -10369,6 +10417,9 @@ spatDimPlot3D <- function(gobject,
                           save_param =  list(),
                           default_save_name = "spatDimPlot3D"){
 
+  # data.table variables
+  cell_ID = NULL
+
   plot_alignment = match.arg(plot_alignment, choices = c( 'horizontal','vertical'))
 
   # ********data prepare********#
@@ -11039,6 +11090,11 @@ spatGenePlot3D <- function(gobject,
                            save_plot = NA,
                            save_param =  list(),
                            default_save_name = "spatGenePlot3D"){
+
+  # data.table variables
+  cell_ID = NULL
+
+
   selected_genes = genes
 
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))

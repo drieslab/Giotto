@@ -1259,9 +1259,9 @@ plotMetaDataHeatmap = function(gobject,
 #' @param custom_cluster_order custom cluster order (default = NULL)
 #' @param clus_cor_method correlation method for clusters
 #' @param clus_cluster_method hierarchical cluster method for the clusters
-#' @param custom_gene_order custom gene order (default = NULL)
-#' @param gene_cor_method correlation method for genes
-#' @param gene_cluster_method hierarchical cluster method for the genes
+#' @param custom_values_order custom values order (default = NULL)
+#' @param values_cor_method correlation method for values
+#' @param values_cluster_method hierarchical cluster method for the values
 #' @param midpoint midpoint of show_values
 #' @param x_text_size size of x-axis text
 #' @param x_text_angle angle of x-axis text
@@ -1608,9 +1608,7 @@ violinPlot <- function(gobject,
 #' @description provide network segment to draw in 3D plot_ly()
 #' @param gobject network in giotto object
 #' @return edges in network as data.table()
-#' @export
-#' @examples
-#'     plotly_network(gobject)
+#' @keywords internal
 plotly_network <- function(network,
                            x = "sdimx_begin",y = "sdimy_begin",z = "sdimz_begin",
                            x_end = "sdimx_end",y_end="sdimy_end",z_end="sdimz_end"){
@@ -1635,9 +1633,7 @@ plotly_network <- function(network,
 #' @description provide grid segment to draw in plot_ly()
 #' @param spatial_grid spatial_grid in giotto object
 #' @return edges in spatial grid as data.table()
-#' @export
-#' @examples
-#'     plotly_grid(gobject)
+#' @keywords internal
 plotly_grid <- function(spatial_grid,
                         x_start = "x_start",
                         y_start = "y_start",

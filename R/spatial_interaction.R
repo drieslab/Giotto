@@ -6,8 +6,7 @@
 #' @title make_simulated_network
 #' @name make_simulated_network
 #' @description Simulate random network.
-#' @examples
-#'     make_simulated_network(gobject)
+#' @keywords internal
 make_simulated_network = function(gobject,
                                   spatial_network_name = 'Delaunay_network',
                                   cluster_column,
@@ -461,8 +460,7 @@ do_permuttest_original = function(expr_values,
 #' @title do_permuttest_random
 #' @name do_permuttest_random
 #' @description calculate random values
-#' @examples
-#'     do_permuttest_random()
+#' @keywords internal
 do_permuttest_random = function(expr_values,
                                 select_ind,
                                 other_ind,
@@ -501,8 +499,6 @@ do_permuttest_random = function(expr_values,
 #' @name do_multi_permuttest_random
 #' @description calculate multiple random values
 #' @keywords internal
-#' @examples
-#'     do_multi_permuttest_random()
 do_multi_permuttest_random = function(expr_values,
                                       select_ind,
                                       other_ind,
@@ -531,8 +527,7 @@ do_multi_permuttest_random = function(expr_values,
 #' @title do_permuttest_random
 #' @name do_permuttest_random
 #' @description Performs permutation test on subsets of a matrix
-#' @examples
-#'     do_permuttest_random()
+#' @keywords internal
 do_permuttest = function(expr_values,
                          select_ind, other_ind,
                          n_perm = 1000, adjust_method = 'fdr',
@@ -584,8 +579,6 @@ do_permuttest = function(expr_values,
 #' @name do_cell_proximity_test
 #' @description Performs a selected differential test on subsets of a matrix
 #' @keywords internal
-#' @examples
-#'     do_cell_proximity_test()
 do_cell_proximity_test = function(expr_values,
                                   select_ind, other_ind,
                                   diff_test = c('permutation', 'limma', 't.test', 'wilcox'),
@@ -637,8 +630,7 @@ do_cell_proximity_test = function(expr_values,
 #' @title findCellProximityGenes_per_interaction
 #' @name findCellProximityGenes_per_interaction
 #' @description Identifies genes that are differentially expressed due to proximity to other cell types.
-#' @examples
-#'     findCellProximityGenes_per_interaction()
+#' @keywords internal
 findCellProximityGenes_per_interaction = function(expr_values,
                                                   cell_metadata,
                                                   annot_spatnetwork,
@@ -1201,8 +1193,7 @@ filterCPG = function(cpgObject,
 #' @title combineCellProximityGenes_per_interaction
 #' @name combineCellProximityGenes_per_interaction
 #' @description Combine CPG scores per interaction
-#' @examples
-#'     combineCellProximityGenes_per_interaction()
+#' @keywords internal
 combineCellProximityGenes_per_interaction =  function(cpgObject,
                                                       sel_int,
                                                       selected_genes = NULL,
