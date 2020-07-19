@@ -59,6 +59,7 @@ spatDimPlot(...)
     \item{\code{show_spatial_network}}{show spatial network}
     \item{\code{spat_network_name}}{name of spatial network to use}
     \item{\code{spat_network_color}}{color of spatial network}
+    \item{\code{spat_network_alpha}}{alpha of spatial network}
     \item{\code{show_spatial_grid}}{show spatial grid}
     \item{\code{spat_grid_name}}{name of spatial grid to use}
     \item{\code{spat_grid_color}}{color of spatial grid}

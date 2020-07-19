@@ -708,7 +708,7 @@ createGiottoObject <- function(raw_exprs,
   }
 
 
-  # set number of cores automatically, but with limit of 10
+  # if cores is not set, then set number of cores automatically, but with limit of 10
   if(is.na(cores) | !is.numeric(cores)) {
     cores = parallel::detectCores() - 2
     cores = ifelse(cores > 10, 10, cores)
@@ -733,6 +733,8 @@ createGiottoObject <- function(raw_exprs,
   gobject@cell_ID = colnames(raw_exprs)
   gobject@gene_ID = rownames(raw_exprs)
   gobject@parameters = list()
+
+
 
 
   ## set instructions
@@ -836,6 +838,7 @@ createGiottoObject <- function(raw_exprs,
       stop('\n dimensions, row or column names are not the same between custom normalized and raw expression \n')
     }
   }
+
 
 
   ## cell metadata

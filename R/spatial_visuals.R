@@ -5717,7 +5717,7 @@ dimPlot2D_single <- function(gobject,
 #' @name dimPlot2D
 #' @description Visualize cells according to dimension reduction coordinates
 #' @param gobject giotto object
-#' @param groub_by create multiple plots based on cell annotation column
+#' @param group_by create multiple plots based on cell annotation column
 #' @param group_by_subset subset the group_by factor column
 #' @param dim_reduction_to_use dimension reduction to use
 #' @param dim_reduction_name dimension reduction name
@@ -5741,6 +5741,8 @@ dimPlot2D_single <- function(gobject,
 #' @param show_cluster_center plot center of selected clusters
 #' @param show_center_label plot label of selected clusters
 #' @param center_point_size size of center points
+#' @param center_point_border_col border color of center points
+#' @param center_point_border_stroke border stroke size of center points
 #' @param label_size  size of labels
 #' @param label_fontface font of labels
 #' @param edge_alpha column to use for alpha of the edges
@@ -7851,6 +7853,7 @@ spatPlot = function(...) {
 #' @param show_spatial_network show spatial network
 #' @param spat_network_name name of spatial network to use
 #' @param spat_network_color color of spatial network
+#' @param spat_network_alpha alpha of spatial network
 #' @param show_spatial_grid show spatial grid
 #' @param spat_grid_name name of spatial grid to use
 #' @param spat_grid_color color of spatial grid
@@ -8182,7 +8185,6 @@ spatDimPlot = function(...) {
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
-#' @param \dots additional parameters for cowplot::save_plot()
 #' @return ggplot
 #' @details Description of parameters.
 #' @family spatial gene expression visualizations
@@ -8540,6 +8542,7 @@ spatGenePlot = function(...) {
 #' @param show_NN_network show underlying NN network
 #' @param nn_network_to_use type of NN network to use (kNN vs sNN)
 #' @param network_name name of NN network to use, if show_NN_network = TRUE
+#' @param network_color color of NN network
 #' @param edge_alpha column to use for alpha of the edges
 #' @param scale_alpha_with_expression scale expression with ggplot alpha parameter
 #' @param point_shape point with border or not (border or no_border)
@@ -8564,7 +8567,6 @@ spatGenePlot = function(...) {
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
-#' @param \dots additional parameters for cowplot::save_plot()
 #' @return ggplot
 #' @details Description of parameters.
 #' @family dimension reduction gene expression visualizations
@@ -8885,6 +8887,7 @@ dimGenePlot = function(...) {
 #' @param dim_point_border_col color of border around points
 #' @param dim_point_border_stroke stroke size of border around points
 #' @param show_NN_network show underlying NN network
+#' @param show_spatial_network show underlying spatial netwok
 #' @param nn_network_to_use type of NN network to use (kNN vs sNN)
 #' @param network_name name of NN network to use, if show_NN_network = TRUE
 #' @param dim_network_color color of NN network
@@ -8894,6 +8897,8 @@ dimGenePlot = function(...) {
 #' @param sdimy spatial y-axis dimension name (default = 'sdimy')
 #' @param spatial_network_name name of spatial network to use
 #' @param spatial_network_color color of spatial network
+#' @param show_spatial_grid show spatial grid
+#' @param grid_color color of spatial grid
 #' @param spatial_grid_name name of spatial grid to use
 #' @param spat_point_shape spatial points with border or not (border or no_border)
 #' @param spat_point_size spatial plot: point size
@@ -8948,8 +8953,6 @@ spatDimGenePlot2D <- function(gobject,
                               show_NN_network = F,
                               show_spatial_network = F,
                               dim_network_color = 'gray',
-                              show_spatial_grid = F,
-                              grid_color = NULL,
                               nn_network_to_use = 'sNN',
                               network_name = 'sNN.pca',
                               dim_edge_alpha = NULL,
@@ -8958,6 +8961,8 @@ spatDimGenePlot2D <- function(gobject,
                               sdimy = 'sdimy',
                               spatial_network_name = 'Delaunay_network',
                               spatial_network_color = NULL,
+                              show_spatial_grid = F,
+                              grid_color = NULL,
                               spatial_grid_name = 'spatial_grid',
                               spat_point_shape = c('border', 'no_border', 'voronoi'),
                               spat_point_size = 1,
@@ -9383,9 +9388,7 @@ spatCellPlot = function(...) {
 #' @param show_NN_network show underlying NN network
 #' @param nn_network_to_use type of NN network to use (kNN vs sNN)
 #' @param network_name name of NN network to use, if show_NN_network = TRUE
-#' @param cell_color color for cells (see details)
-#' @param color_as_factor convert color column to factor
-#' @param cell_color_code named vector with colors
+#' @param cell_color_code named vector with colors for cell annotation values
 #' @param cell_color_gradient vector with 3 colors for numeric data
 #' @param gradient_midpoint midpoint for color gradient
 #' @param gradient_limits vector with lower and upper limits
@@ -9397,6 +9400,8 @@ spatCellPlot = function(...) {
 #' @param show_cluster_center plot center of selected clusters
 #' @param show_center_label plot label of selected clusters
 #' @param center_point_size size of center points
+#' @param center_point_border_col border color of center points
+#' @param center_point_border_stroke border stroke size of center points
 #' @param label_size  size of labels
 #' @param label_fontface font of labels
 #' @param edge_alpha column to use for alpha of the edges
@@ -9405,13 +9410,16 @@ spatCellPlot = function(...) {
 #' @param point_alpha transparancy of dim. reduction points
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
-#' @param title title for plot, defaults to cell_color parameter
 #' @param show_legend show legend
 #' @param legend_text size of legend text
 #' @param legend_symbol_size size of legend symbols
 #' @param background_color color of plot background
 #' @param axis_text size of axis text
 #' @param axis_title size of axis title
+#' @param cow_n_col cowplot param: how many columns
+#' @param cow_rel_h cowplot param: relative height
+#' @param cow_rel_w cowplot param: relative width
+#' @param cow_align cowplot param: how to align
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -9433,6 +9441,7 @@ dimCellPlot2D = function(gobject,
                          show_NN_network = F,
                          nn_network_to_use = 'sNN',
                          network_name = 'sNN.pca',
+                         cell_color_code = NULL,
                          cell_color_gradient = c('blue', 'white', 'red'),
                          gradient_midpoint = NULL,
                          gradient_limits = NULL,
@@ -9504,6 +9513,7 @@ dimCellPlot2D = function(gobject,
                    network_name = network_name,
                    cell_color = annot,
                    color_as_factor = FALSE,
+                   cell_color_code = cell_color_code,
                    cell_color_gradient = cell_color_gradient,
                    gradient_midpoint = gradient_midpoint,
                    gradient_limits = gradient_limits,
@@ -9580,16 +9590,17 @@ dimCellPlot2D = function(gobject,
 #' @title dimCellPlot
 #' @name dimCellPlot
 #' @description Visualize cells according to dimension reduction coordinates
-#' @inheritDotParams dimCellPlot2D
+#' @param gobject giotto object
+#' @inheritDotParams dimCellPlot2D -gobject
 #' @return ggplot
 #' @details Description of parameters. For 3D plots see \code{\link{dimCellPlot2D}}
 #' @family dimension reduction cell annotation visualizations
 #' @export
 #' @examples
 #'     dimCellPlot(gobject)
-dimCellPlot = function(...) {
+dimCellPlot = function(gobject, ...) {
 
-  dimCellPlot2D(...)
+  dimCellPlot2D(gobject = gobject, ...)
 
 }
 
@@ -9636,7 +9647,9 @@ dimCellPlot = function(...) {
 #' @param dim_label_fontface font of the center label
 #' @param spat_show_cluster_center show the center of each cluster
 #' @param spat_show_center_label provide a label for each cluster
-#' @param spat_center_point_size size of the center point
+#' @param spat_center_point_size size of the spatial center points
+#' @param spat_center_point_border_col border color of the spatial center points
+#' @param spat_center_point_border_stroke stroke size of the spatial center points
 #' @param spat_label_size size of the center label
 #' @param spat_label_fontface font of the center label
 #' @param show_NN_network show underlying NN network
@@ -9646,6 +9659,7 @@ dimCellPlot = function(...) {
 #' @param spat_show_network show spatial network
 #' @param spatial_network_name name of spatial network to use
 #' @param spat_network_color color of spatial network
+#' @param spat_network_alpha alpha of spatial network
 #' @param spat_show_grid show spatial grid
 #' @param spatial_grid_name name of spatial grid to use
 #' @param spat_grid_color color of spatial grid

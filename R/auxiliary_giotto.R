@@ -1,4 +1,6 @@
 
+## Giotto stat functions ####
+
 #' @title mean_giotto
 #' @keywords internal
 mean_giotto = function(x, ...) {
@@ -113,6 +115,8 @@ cor_giotto = function(x, ...) {
 }
 
 
+## * ####
+## Giotto auxiliary functions ####
 
 #' @title giotto_lapply
 #' @keywords internal
@@ -1179,6 +1183,10 @@ adjustGiottoMatrix <- function(gobject,
 }
 
 
+## * ####
+## Gene & Cell metadata functions ####
+
+
 #' @title annotateGiotto
 #' @description Converts cluster results into provided annotation.
 #' @param gobject giotto object
@@ -1658,6 +1666,10 @@ addGenesPerc = function(gobject,
 
 }
 
+
+
+## * ####
+## Giotto auxiliary functions ####
 
 
 #' @title showProcessingSteps

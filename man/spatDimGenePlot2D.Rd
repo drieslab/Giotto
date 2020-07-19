@@ -24,7 +24,6 @@ spatDimGenePlot2D(
   show_NN_network = F,
   show_spatial_network = F,
   dim_network_color = "gray",
-  show_spatial_grid = F,
   nn_network_to_use = "sNN",
   network_name = "sNN.pca",
   dim_edge_alpha = NULL,
@@ -33,12 +32,15 @@ spatDimGenePlot2D(
   sdimy = "sdimy",
   spatial_network_name = "Delaunay_network",
   spatial_network_color = NULL,
+  show_spatial_grid = F,
+  grid_color = NULL,
   spatial_grid_name = "spatial_grid",
   spat_point_shape = c("border", "no_border", "voronoi"),
   spat_point_size = 1,
   spat_point_alpha = 1,
   spat_point_border_col = "black",
   spat_point_border_stroke = 0.1,
+  spat_edge_alpha = NULL,
   cell_color_gradient = c("blue", "white", "red"),
   gradient_midpoint = NULL,
   gradient_limits = NULL,
@@ -97,6 +99,8 @@ spatDimGenePlot2D(
 
 \item{show_NN_network}{show underlying NN network}
 
+\item{show_spatial_network}{show underlying spatial netwok}
+
 \item{dim_network_color}{color of NN network}
 
 \item{nn_network_to_use}{type of NN network to use (kNN vs sNN)}
@@ -115,6 +119,10 @@ spatDimGenePlot2D(
 
 \item{spatial_network_color}{color of spatial network}
 
+\item{show_spatial_grid}{show spatial grid}
+
+\item{grid_color}{color of spatial grid}
+
 \item{spatial_grid_name}{name of spatial grid to use}
 
 \item{spat_point_shape}{spatial points with border or not (border or no_border)}
@@ -126,6 +134,8 @@ spatDimGenePlot2D(
 \item{spat_point_border_col}{color of border around points}
 
 \item{spat_point_border_stroke}{stroke size of border around points}
+
+\item{spat_edge_alpha}{edge alpha}
 
 \item{cell_color_gradient}{vector with 3 colors for numeric data}
 
@@ -168,8 +178,6 @@ spatDimGenePlot2D(
 \item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-
-\item{spat_edge_alpha}{edge alpha}
 }
 \value{
 ggplot

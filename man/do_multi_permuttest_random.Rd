@@ -17,7 +17,4 @@ do_multi_permuttest_random(
 \description{
 calculate multiple random values
 }
-\examples{
-    do_multi_permuttest_random()
-}
 \keyword{internal}

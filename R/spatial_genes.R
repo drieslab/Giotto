@@ -5,6 +5,7 @@
 #' @title spat_fish_func
 #' @name spat_fish_func
 #' @description performs fisher exact test
+#' @keywords internal
 spat_fish_func = function(gene,
                           bin_matrix,
                           spat_mat,
@@ -64,6 +65,7 @@ spat_fish_func = function(gene,
 #' @title spat_OR_func
 #' @name spat_OR_func
 #' @description calculate odds-ratio
+#' @keywords internal
 spat_OR_func = function(gene,
                         bin_matrix,
                         spat_mat,
@@ -964,16 +966,7 @@ showPattern2D <- function(gobject,
 #' @description show patterns for 2D spatial data
 #' @param gobject giotto object
 #' @param spatPatObj Output from detectSpatialPatterns
-#' @param dimension dimension to plot
-#' @param trim Trim ends of the PC values.
-#' @param background_color background color for plot
-#' @param grid_border_color color for grid
-#' @param show_legend show legend of ggplot
-#' @param show_plot show plot
-#' @param return_plot return ggplot object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @inheritDotParams showPattern2D -gobject -spatPatObj
 #' @return ggplot
 #' @seealso \code{\link{showPattern2D}}
 #' @export

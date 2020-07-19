@@ -20,6 +20,7 @@ dimGenePlot(...)
     \item{\code{show_NN_network}}{show underlying NN network}
     \item{\code{nn_network_to_use}}{type of NN network to use (kNN vs sNN)}
     \item{\code{network_name}}{name of NN network to use, if show_NN_network = TRUE}
+    \item{\code{network_color}}{color of NN network}
     \item{\code{edge_alpha}}{column to use for alpha of the edges}
     \item{\code{scale_alpha_with_expression}}{scale expression with ggplot alpha parameter}
     \item{\code{point_shape}}{point with border or not (border or no_border)}

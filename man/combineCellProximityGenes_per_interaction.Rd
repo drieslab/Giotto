@@ -20,6 +20,4 @@ combineCellProximityGenes_per_interaction(
 \description{
 Combine CPG scores per interaction
 }
-\examples{
-    combineCellProximityGenes_per_interaction()
-}
+\keyword{internal}

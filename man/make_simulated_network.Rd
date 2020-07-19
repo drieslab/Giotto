@@ -14,6 +14,4 @@ make_simulated_network(
 \description{
 Simulate random network.
 }
-\examples{
-    make_simulated_network(gobject)
-}
+\keyword{internal}

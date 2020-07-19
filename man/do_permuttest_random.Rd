@@ -30,7 +30,4 @@ calculate random values
 
 Performs permutation test on subsets of a matrix
 }
-\examples{
-    do_permuttest_random()
-    do_permuttest_random()
-}
+\keyword{internal}

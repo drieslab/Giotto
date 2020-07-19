@@ -27,6 +27,7 @@ spatDimGenePlot(...)
     \item{\code{dim_point_border_col}}{color of border around points}
     \item{\code{dim_point_border_stroke}}{stroke size of border around points}
     \item{\code{show_NN_network}}{show underlying NN network}
+    \item{\code{show_spatial_network}}{show underlying spatial netwok}
     \item{\code{nn_network_to_use}}{type of NN network to use (kNN vs sNN)}
     \item{\code{network_name}}{name of NN network to use, if show_NN_network = TRUE}
     \item{\code{dim_network_color}}{color of NN network}
@@ -36,12 +37,15 @@ spatDimGenePlot(...)
     \item{\code{sdimy}}{spatial y-axis dimension name (default = 'sdimy')}
     \item{\code{spatial_network_name}}{name of spatial network to use}
     \item{\code{spatial_network_color}}{color of spatial network}
+    \item{\code{show_spatial_grid}}{show spatial grid}
+    \item{\code{grid_color}}{color of spatial grid}
     \item{\code{spatial_grid_name}}{name of spatial grid to use}
     \item{\code{spat_point_shape}}{spatial points with border or not (border or no_border)}
     \item{\code{spat_point_size}}{spatial plot: point size}
     \item{\code{spat_point_alpha}}{transparancy of spatial points}
     \item{\code{spat_point_border_col}}{color of border around points}
     \item{\code{spat_point_border_stroke}}{stroke size of border around points}
+    \item{\code{spat_edge_alpha}}{edge alpha}
     \item{\code{cell_color_gradient}}{vector with 3 colors for numeric data}
     \item{\code{gradient_midpoint}}{midpoint for color gradient}
     \item{\code{gradient_limits}}{vector with lower and upper limits}

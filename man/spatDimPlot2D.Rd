@@ -180,6 +180,8 @@ spatDimPlot2D(
 
 \item{spat_network_color}{color of spatial network}
 
+\item{spat_network_alpha}{alpha of spatial network}
+
 \item{show_spatial_grid}{show spatial grid}
 
 \item{spat_grid_name}{name of spatial grid to use}
