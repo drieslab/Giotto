@@ -62,6 +62,7 @@ Imports:
     rlang (>= 0.4.3),
     R.utils,
     fitdistrplus,
+    quadprog
 Suggests:
     knitr,
     rmarkdown,
