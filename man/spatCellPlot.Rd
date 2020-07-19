@@ -31,6 +31,8 @@ spatCellPlot(...)
     \item{\code{show_cluster_center}}{plot center of selected clusters}
     \item{\code{show_center_label}}{plot label of selected clusters}
     \item{\code{center_point_size}}{size of center points}
+    \item{\code{center_point_border_col}}{border color of center points}
+    \item{\code{center_point_border_stroke}}{border stroke size of center points}
     \item{\code{label_size}}{size of labels}
     \item{\code{label_fontface}}{font of labels}
     \item{\code{show_network}}{show underlying spatial network}
@@ -54,6 +56,10 @@ spatCellPlot(...)
     \item{\code{vor_alpha}}{transparancy of voronoi 'cells'}
     \item{\code{axis_text}}{size of axis text}
     \item{\code{axis_title}}{size of axis title}
+    \item{\code{cow_n_col}}{cowplot param: how many columns}
+    \item{\code{cow_rel_h}}{cowplot param: relative height}
+    \item{\code{cow_rel_w}}{cowplot param: relative width}
+    \item{\code{cow_align}}{cowplot param: how to align}
     \item{\code{show_plot}}{show plot}
     \item{\code{return_plot}}{return ggplot object}
     \item{\code{save_plot}}{directly save the plot [boolean]}

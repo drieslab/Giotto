@@ -91,6 +91,4 @@ Visualize cells and gene expression according to dimension reduction coordinates
 \details{
 Description of parameters.
 }
-\examples{
-    visDimGenePlot(gobject)
-}
+\keyword{internal}

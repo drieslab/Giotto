@@ -115,6 +115,4 @@ Visualize cells according to spatial coordinates
 \details{
 Description of parameters.
 }
-\examples{
-    visPlot_2D_ggplot(gobject)
-}
+\keyword{internal}

@@ -78,6 +78,4 @@ Visualize cells according to spatial coordinates
 \details{
 Description of parameters.
 }
-\examples{
-    visPlot_2D_plotly(gobject)
-}
+\keyword{internal}

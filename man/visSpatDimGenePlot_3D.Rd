@@ -101,6 +101,4 @@ Visualize cells according to spatial AND dimension reduction coordinates in plot
 \details{
 Description of parameters.
 }
-\examples{
-    visSpatDimPlot_3D(gobject)
-}
+\keyword{internal}

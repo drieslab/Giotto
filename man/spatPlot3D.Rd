@@ -17,10 +17,10 @@ spatPlot3D(
   show_other_cells = T,
   other_cell_color = "lightgrey",
   other_point_size = 0.5,
+  other_cell_alpha = 0.5,
   show_network = F,
   network_color = NULL,
   network_alpha = 1,
-  other_cell_alpha = 0.5,
   spatial_network_name = "Delaunay_network",
   show_grid = F,
   grid_color = NULL,
@@ -62,6 +62,10 @@ spatPlot3D(
 \item{show_other_cells}{display not selected cells}
 
 \item{other_cell_color}{color of not selected cells}
+
+\item{other_point_size}{size of not selected cells}
+
+\item{other_cell_alpha}{alpha of not selected cells}
 
 \item{show_network}{show underlying spatial network}
 

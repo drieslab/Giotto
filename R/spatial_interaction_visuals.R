@@ -2735,34 +2735,7 @@ cellProximitySpatPlot2D <- function(gobject,
 #' @name cellProximitySpatPlot
 #' @description Visualize 2D cell-cell interactions according to spatial coordinates in ggplot mode
 #' @param gobject giotto object
-#' @param interaction_name cell-cell interaction name
-#' @param cluster_column cluster column with cell clusters
-#' @param sdimx x-axis dimension name (default = 'sdimx')
-#' @param sdimy y-axis dimension name (default = 'sdimy')
-#' @param cell_color color for cells (see details)
-#' @param cell_color_code named vector with colors
-#' @param color_as_factor convert color column to factor
-#' @param show_other_cells decide if show cells not in network
-#' @param show_network show underlying spatial network
-#' @param network_color color of spatial network
-#' @param spatial_network_name name of spatial network to use
-#' @param show_grid show spatial grid
-#' @param grid_color color of spatial grid
-#' @param spatial_grid_name name of spatial grid to use
-#' @param coord_fix_ratio fix ratio between x and y-axis
-#' @param show_legend show legend
-#' @param point_size_select size of selected points
-#' @param point_select_border_col border color of selected points
-#' @param point_select_border_stroke stroke size of selected points
-#' @param point_size_other size of other points
-#' @param point_other_border_col border color of other points
-#' @param point_other_border_stroke stroke size of other points
-#' @param show_plot show plots
-#' @param return_plot return ggplot object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
-#' @param \dots additional parameters
+#' @inheritDotParams cellProximitySpatPlot2D -gobject
 #' @return ggplot
 #' @details Description of parameters.
 #' @export

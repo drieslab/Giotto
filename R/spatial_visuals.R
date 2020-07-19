@@ -27,9 +27,7 @@
 #' @param show_plot show plot
 #' @return ggplot
 #' @details Description of parameters.
-#' @export
-#' @examples
-#'     visPlot_3D_plotly(gobject)
+#' @keywords internal
 visPlot_3D_plotly = function(gobject,
                              sdimx = NULL,
                              sdimy = NULL,
@@ -228,9 +226,7 @@ visPlot_3D_plotly = function(gobject,
 #' @param show_saved_plot load & display the saved plot
 #' @return ggplot
 #' @details Description of parameters.
-#' @export
-#' @examples
-#'     visPlot_2D_ggplot(gobject)
+#' @keywords internal
 visPlot_2D_ggplot = function(gobject,
                              sdimx = NULL,
                              sdimy = NULL,
@@ -500,9 +496,7 @@ visPlot_2D_ggplot = function(gobject,
 #' @param show_plot show plot
 #' @return plotly
 #' @details Description of parameters.
-#' @export
-#' @examples
-#'     visPlot_2D_plotly(gobject)
+#' @keywords internal
 visPlot_2D_plotly = function(gobject,
                              sdimx = NULL,
                              sdimy = NULL,
@@ -743,9 +737,7 @@ visPlot_2D_plotly = function(gobject,
 #' @param show_saved_plot load & display the saved plot
 #' @return ggplot
 #' @details Description of parameters.
-#' @export
-#' @examples
-#'     visPlot(gobject)
+#' @keywords internal
 visPlot <- function(gobject,
                     sdimx = NULL,
                     sdimy = NULL,
@@ -953,9 +945,7 @@ visPlot <- function(gobject,
 #' @param show_plots show plots
 #' @return ggplot
 #' @details Description of parameters.
-#' @export
-#' @examples
-#'     visGenePlot_2D_ggplot(gobject)
+#' @keywords internal
 visGenePlot_2D_ggplot <- function(gobject,
                                   expression_values = c('normalized', 'scaled', 'custom'),
                                   genes,
@@ -1129,9 +1119,7 @@ visGenePlot_2D_ggplot <- function(gobject,
 #' @param show_plots show plots
 #' @return plotly
 #' @details Description of parameters.
-#' @export
-#' @examples
-#'     visGenePlot_3D_plotly(gobject)
+#' @keywords internal
 visGenePlot_3D_plotly <- function(gobject,
                                   expression_values = c('normalized', 'scaled', 'custom'),
                                   genes,
@@ -1405,9 +1393,7 @@ visGenePlot_3D_plotly <- function(gobject,
 #' @param show_plots show plots
 #' @return ggplot or plotly
 #' @details Description of parameters.
-#' @export
-#' @examples
-#'     visGenePlot(gobject)
+#' @keywords internal
 visGenePlot <- function(gobject,
                         expression_values = c('normalized', 'scaled', 'custom'),
                         genes,
@@ -1536,9 +1522,7 @@ visGenePlot <- function(gobject,
 #' @param show_legend show legend
 #' @return ggplot
 #' @details Description of parameters.
-#' @export
-#' @examples
-#'     visDimPlot_2D_ggplot(gobject)
+#' @keywords internal
 visDimPlot_2D_ggplot <- function(gobject,
                                  dim_reduction_to_use = 'umap',
                                  dim_reduction_name = 'umap',
@@ -1759,9 +1743,7 @@ visDimPlot_2D_ggplot <- function(gobject,
 #' @param point_size size of point (cell)
 #' @return plotly
 #' @details Description of parameters.
-#' @export
-#' @examples
-#'     visDimPlot_2D_plotly(gobject)
+#' @keywords internal
 visDimPlot_2D_plotly <- function(gobject,
                                  dim_reduction_to_use = 'umap',
                                  dim_reduction_name = 'umap',
@@ -1988,10 +1970,7 @@ visDimPlot_2D_plotly <- function(gobject,
 #' @param point_size size of point (cell)
 #' @return plotly
 #' @details Description of parameters.
-#' @export
-#' @examples
-#'     visDimPlot_3D_plotly(gobject)
-
+#' @keywords internal
 visDimPlot_3D_plotly <- function(gobject,
                                  dim_reduction_to_use = 'umap',
                                  dim_reduction_name = 'umap',
@@ -2251,9 +2230,7 @@ visDimPlot_3D_plotly <- function(gobject,
 #' @param show_saved_plot load & display the saved plot
 #' @return ggplot or plotly
 #' @details Description of parameters.
-#' @export
-#' @examples
-#'     visDimPlot(gobject)
+#' @keywords internal
 visDimPlot <- function(gobject,
                        dim_reduction_to_use = 'umap',
                        dim_reduction_name = 'umap',
@@ -2418,9 +2395,7 @@ visDimPlot <- function(gobject,
 #' @param show_saved_plot load & display the saved plot
 #' @return ggplot
 #' @details Description of parameters.
-#' @export
-#' @examples
-#'     visForceLayoutPlot(gobject)
+#' @keywords internal
 visForceLayoutPlot <- function(gobject,
                                nn_network_to_use = 'sNN',
                                network_name = 'sNN.pca',
@@ -2612,9 +2587,7 @@ visForceLayoutPlot <- function(gobject,
 #' @param show_saved_plot load & display the saved plot
 #' @return ggplot
 #' @details Description of parameters.
-#' @export
-#' @examples
-#'     visSpatDimPlot_2D(gobject)
+#' @keywords internal
 visSpatDimPlot_2D <- function(gobject,
                               plot_alignment = c('vertical', 'horizontal'),
                               dim_reduction_to_use = 'umap',
@@ -2767,9 +2740,7 @@ visSpatDimPlot_2D <- function(gobject,
 #' @param legend_text_size text size of legend
 #' @return plotly
 #' @details Description of parameters.
-#' @export
-#' @examples
-#'     visSpatDimPlot_3D(gobject)
+#' @keywords internal
 visSpatDimPlot_3D <- function(gobject,
                               plot_alignment = c('horizontal','vertical'),
                               dim_reduction_to_use = 'umap',
@@ -3377,9 +3348,7 @@ visSpatDimPlot_3D <- function(gobject,
 #' @param legend_text_size text size of legend
 #' @return ggplot or plotly
 #' @details Description of parameters.
-#' @export
-#' @examples
-#'     visSpatDimPlot(gobject)
+#' @keywords internal
 visSpatDimPlot <- function(gobject,
                            plot_method = c("ggplot", "plotly"),
                            plot_alignment = NULL,
@@ -3570,9 +3539,7 @@ visSpatDimPlot <- function(gobject,
 #' @param show_plots show plots
 #' @return ggplot
 #' @details Description of parameters.
-#' @export
-#' @examples
-#'     visDimGenePlot_2D_ggplot(gobject)
+#' @keywords internal
 visDimGenePlot_2D_ggplot <- function(gobject,
                                      expression_values = c('normalized', 'scaled', 'custom'),
                                      genes = NULL,
@@ -3759,11 +3726,7 @@ visDimGenePlot_2D_ggplot <- function(gobject,
 #' @param show_plots show plots
 #' @return ggplot
 #' @details Description of parameters.
-#' @export
-#' @examples
-#'     visDimGenePlot_3D_plotly(gobject)
-
-
+#' @keywords internal
 visDimGenePlot_3D_plotly <- function(gobject,
                                      expression_values = c('normalized', 'scaled', 'custom'),
                                      genes = NULL,
@@ -3989,11 +3952,7 @@ visDimGenePlot_3D_plotly <- function(gobject,
 #' @param show_plots show plots
 #' @return ggplot
 #' @details Description of parameters.
-#' @export
-#' @examples
-#'     visDimGenePlot(gobject)
-
-
+#' @keywords internal
 visDimGenePlot <- function(gobject,
                            expression_values = c('normalized', 'scaled', 'custom'),
                            genes = NULL,
@@ -4124,9 +4083,7 @@ visDimGenePlot <- function(gobject,
 #' @param show_plot show plot
 #' @return ggplot
 #' @details Description of parameters.
-#' @export
-#' @examples
-#'     visSpatDimGenePlot_2D(gobject)
+#' @keywords internal
 visSpatDimGenePlot_2D <- function(gobject,
                                   expression_values = c('normalized', 'scaled', 'custom'),
                                   plot_alignment = c('horizontal', 'vertical'),
@@ -4271,9 +4228,7 @@ visSpatDimGenePlot_2D <- function(gobject,
 #' @param legend_text_size text size of legend
 #' @return plotly
 #' @details Description of parameters.
-#' @export
-#' @examples
-#'     visSpatDimPlot_3D(gobject)
+#' @keywords internal
 visSpatDimGenePlot_3D <- function(gobject,
                                   expression_values = c('normalized', 'scaled', 'custom'),
                                   plot_alignment = c('horizontal','vertical'),
@@ -4722,9 +4677,7 @@ visSpatDimGenePlot_3D <- function(gobject,
 #' @param show_plot show plot
 #' @return ggplot or plotly
 #' @details Description of parameters.
-#' @export
-#' @examples
-#'     visSpatDimGenePlot(gobject)
+#' @keywords internal
 visSpatDimGenePlot <- function(gobject,
                                plot_method = c("ggplot", "plotly"),
                                expression_values = c('normalized', 'scaled', 'custom'),
@@ -4883,7 +4836,7 @@ visSpatDimGenePlot <- function(gobject,
 
 
 
-
+## * ####
 ## 2-D ggplots ####
 ## ----------- ##
 
@@ -4898,8 +4851,6 @@ visSpatDimGenePlot <- function(gobject,
 #' @return ggplot
 #' @details Description of parameters.
 #' @keywords internal
-#' @examples
-#'     plot_network_layer_ggplot(gobject)
 plot_network_layer_ggplot = function(ggobject,
                                      annotated_network_DT,
                                      edge_alpha = NULL,
@@ -4971,8 +4922,6 @@ plot_network_layer_ggplot = function(ggobject,
 #' @return ggplot
 #' @details Description of parameters.
 #' @keywords internal
-#' @examples
-#'     plot_point_layer_ggplot(gobject)
 plot_point_layer_ggplot = function(ggobject,
                                    annotated_DT_selected,
                                    annotated_DT_other,
@@ -5198,8 +5147,6 @@ plot_point_layer_ggplot = function(ggobject,
 #' @return ggplot
 #' @details Description of parameters.
 #' @keywords internal
-#' @examples
-#'     plot_point_layer_ggplot_noFILL(gobject)
 plot_point_layer_ggplot_noFILL = function(ggobject,
                                    annotated_DT_selected,
                                    annotated_DT_other,
@@ -5432,8 +5379,6 @@ plot_point_layer_ggplot_noFILL = function(ggobject,
 #' @return ggplot
 #' @details Description of parameters. For 3D plots see \code{\link{dimPlot3D}}
 #' @keywords internal
-#' @examples
-#'     dimPlot2D_single(gobject)
 dimPlot2D_single <- function(gobject,
                              dim_reduction_to_use = 'umap',
                              dim_reduction_name = 'umap',
@@ -7447,7 +7392,7 @@ spatPlot2D_single = function(gobject,
 #' @param show_image show a tissue background image
 #' @param gimage a giotto image
 #' @param image_name name of a giotto image
-#' @param groub_by create multiple plots based on cell annotation column
+#' @param group_by create multiple plots based on cell annotation column
 #' @param group_by_subset subset the group_by factor column
 #' @param sdimx x-axis dimension name (default = 'sdimx')
 #' @param sdimy y-axis dimension name (default = 'sdimy')
@@ -7468,6 +7413,8 @@ spatPlot2D_single = function(gobject,
 #' @param show_cluster_center plot center of selected clusters
 #' @param show_center_label plot label of selected clusters
 #' @param center_point_size size of center points
+#' @param center_point_border_col border color of center points
+#' @param center_point_border_stroke border stroke size of center points
 #' @param label_size  size of labels
 #' @param label_fontface font of labels
 #' @param show_network show underlying spatial network
@@ -7844,6 +7791,8 @@ spatPlot = function(...) {
 #' @param spat_show_cluster_center show the center of each cluster
 #' @param spat_show_center_label provide a label for each cluster
 #' @param spat_center_point_size size of the center point
+#' @param spat_center_point_border_col border color of spatial center points
+#' @param spat_center_point_border_stroke border strike size of spatial center points
 #' @param spat_label_size size of the center label
 #' @param spat_label_fontface font of the center label
 #' @param show_NN_network show underlying NN network
@@ -7925,6 +7874,8 @@ spatDimPlot2D <- function(gobject,
                           spat_show_cluster_center = F,
                           spat_show_center_label = F,
                           spat_center_point_size = 4,
+                          spat_center_point_border_col = 'blue',
+                          spat_center_point_border_stroke = 0.1,
                           spat_label_size = 4,
                           spat_label_fontface = 'bold',
                           show_NN_network = F,
@@ -9154,6 +9105,8 @@ spatDimGenePlot = function(...) {
 #' @param show_cluster_center plot center of selected clusters
 #' @param show_center_label plot label of selected clusters
 #' @param center_point_size size of center points
+#' @param center_point_border_col border color of center points
+#' @param center_point_border_stroke border stroke size of center points
 #' @param label_size  size of labels
 #' @param label_fontface font of labels
 #' @param show_network show underlying spatial network
@@ -9177,6 +9130,10 @@ spatDimGenePlot = function(...) {
 #' @param vor_alpha transparancy of voronoi 'cells'
 #' @param axis_text size of axis text
 #' @param axis_title size of axis title
+#' @param cow_n_col cowplot param: how many columns
+#' @param cow_rel_h cowplot param: relative height
+#' @param cow_rel_w cowplot param: relative width
+#' @param cow_align cowplot param: how to align
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -10184,6 +10141,8 @@ plotPCA_3D = function(gobject,
 #' @param select_cells select subset of cells based on cell IDs
 #' @param show_other_cells display not selected cells
 #' @param other_cell_color color of not selected cells
+#' @param other_point_size size of not selected cells
+#' @param other_cell_alpha alpha of not selected cells
 #' @param show_network show underlying spatial network
 #' @param network_color color of spatial network
 #' @param network_alpha opacity of spatial network
@@ -10223,10 +10182,10 @@ spatPlot3D = function(gobject,
                       show_other_cells = T,
                       other_cell_color = "lightgrey",
                       other_point_size = 0.5,
+                      other_cell_alpha = 0.5,
                       show_network = F,
                       network_color = NULL,
                       network_alpha = 1,
-                      other_cell_alpha = 0.5,
                       spatial_network_name = 'Delaunay_network',
                       show_grid = F,
                       grid_color = NULL,

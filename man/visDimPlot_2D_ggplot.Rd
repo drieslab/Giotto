@@ -106,6 +106,4 @@ Visualize cells according to dimension reduction coordinates
 \details{
 Description of parameters.
 }
-\examples{
-    visDimPlot_2D_ggplot(gobject)
-}
+\keyword{internal}

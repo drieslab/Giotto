@@ -73,6 +73,4 @@ Visualize cells according to dimension reduction coordinates
 \details{
 Description of parameters.
 }
-\examples{
-    visDimPlot_2D_plotly(gobject)
-}
+\keyword{internal}

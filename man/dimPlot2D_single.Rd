@@ -148,7 +148,4 @@ Visualize cells according to dimension reduction coordinates
 \details{
 Description of parameters. For 3D plots see \code{\link{dimPlot3D}}
 }
-\examples{
-    dimPlot2D_single(gobject)
-}
 \keyword{internal}
