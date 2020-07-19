@@ -43,8 +43,6 @@ runSpatialEnrich(
 \item{name}{to give to spatial enrichment results, default = PAGE}
 
 \item{return_gobject}{return giotto object}
-
-\item{n_genes}{(page) number of genes of permutation iterations to calculate p-value}
 }
 \value{
 Giotto object or enrichment results if return_gobject = FALSE

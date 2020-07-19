@@ -191,7 +191,7 @@ do_page_permutation<-function(gobject,
 #' @param logbase log base to use if reverse_log_scale = TRUE
 #' @param output_enrichment how to return enrichment output
 #' @param p_value calculate p-values (boolean, default = FALSE)
-#' @param n_time number of permutations to calculate for p_value
+#' @param n_times number of permutations to calculate for p_value
 #' @param name to give to spatial enrichment results, default = PAGE
 #' @param return_gobject return giotto object
 #' @return data.table with enrichment results
@@ -410,7 +410,7 @@ do_rank_permutation <- function(sc_gene, n){
 #' @param logbase log base to use if reverse_log_scale = TRUE
 #' @param output_enrichment how to return enrichment output
 #' @param p_value calculate p-values (boolean, default = FALSE)
-#' @param n_time number of permutations to calculate for p_value
+#' @param n_times number of permutations to calculate for p_value
 #' @param name to give to spatial enrichment results, default = rank
 #' @param return_gobject return giotto object
 #' @return data.table with enrichment results
@@ -694,8 +694,7 @@ runHyperGeometricEnrich <- function(gobject,
                                        'top percentage' = top_percentage,
                                        'p-values calculated' = p_value,
                                        'output enrichment scores' = output_enrichment,
-                                       'p values calculated' = p_value,
-                                       'nr permutations' = n_times)
+                                       'p values calculated' = p_value)
     gobject@parameters = parameters_list
 
     gobject@spatial_enrichment[[name]] = enrichmentDT
@@ -733,7 +732,6 @@ hyperGeometricEnrich <- function(...) {
 #' @param reverse_log_scale reverse expression values from log scale
 #' @param logbase log base to use if reverse_log_scale = TRUE
 #' @param p_value calculate p-value (default = FALSE)
-#' @param n_genes (page) number of genes of permutation iterations to calculate p-value
 #' @param n_times (page/rank) number of permutation iterations to calculate p-value
 #' @param top_percentage (hyper) percentage of cells that will be considered to have gene expression with matrix binarization
 #' @param output_enrichment how to return enrichment output

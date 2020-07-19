@@ -32,11 +32,11 @@ runPAGEEnrich(
 
 \item{p_value}{calculate p-values (boolean, default = FALSE)}
 
+\item{n_times}{number of permutations to calculate for p_value}
+
 \item{name}{to give to spatial enrichment results, default = PAGE}
 
 \item{return_gobject}{return giotto object}
-
-\item{n_time}{number of permutations to calculate for p_value}
 }
 \value{
 data.table with enrichment results
