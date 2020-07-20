@@ -304,18 +304,16 @@ nnDT_to_kNN <- function(nnDT) {
 
 
 
-#' @title extractNearestNetwork
-#' @name extractNearestNetwork
+#' @title select_NearestNetwork
+#' @name select_NearestNetwork
 #' @description Extracts a NN-network from a Giotto object
 #' @param gobject giotto object
 #' @param nn_network_to_use kNN or sNN
 #' @param network_name name of NN network to be used
 #' @param output return a igraph or data.table object
 #' @return igraph or data.table object
-#' @export
-#' @examples
-#'     extractNearestNetwork(gobject)
-extractNearestNetwork = function(gobject,
+#' @keywords internal
+select_NearestNetwork = function(gobject,
                                  nn_network_to_use = 'sNN',
                                  network_name = 'sNN.pca',
                                  output = c('igraph', 'data.table')) {
@@ -343,4 +341,22 @@ extractNearestNetwork = function(gobject,
   return(igraph_object)
 
 }
+
+
+#' @title extractNearestNetwork
+#' @name extractNearestNetwork
+#' @description Function to calculate gene signature enrichment scores per spatial position using a rank based approach.
+#' @inheritDotParams select_NearestNetwork
+#' @seealso \code{\link{select_NearestNetwork}}
+#' @keywords internal
+extractNearestNetwork = function(...) {
+
+  .Deprecated(new = "select_NearestNetwork")
+
+  select_NearestNetwork(...)
+
+}
+
+
+
 
