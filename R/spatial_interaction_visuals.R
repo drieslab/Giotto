@@ -929,7 +929,9 @@ cellProximityVisPlot_3D_plotly <- function(gobject,
 #' @param cell_color color for cells (see details)
 #' @param cell_color_code named vector with colors
 #' @param color_as_factor convert color column to factor
+#' @param show_other_cells show not selected cells
 #' @param show_network show underlying spatial network
+#' @param show_other_network show underlying spatial network of other cells
 #' @param network_color color of spatial network
 #' @param spatial_network_name name of spatial network to use
 #' @param show_grid show spatial grid
@@ -941,8 +943,16 @@ cellProximityVisPlot_3D_plotly <- function(gobject,
 #' @param point_select_border_col border color of selected points
 #' @param point_select_border_stroke stroke size of selected points
 #' @param point_size_other size of other points
+#' @param point_alpha_other alpha of other points
 #' @param point_other_border_col border color of other points
 #' @param point_other_border_stroke stroke size of other points
+#' @param axis_scale scale of axis
+#' @param custom_ratio custom ratio of scales
+#' @param x_ticks x ticks
+#' @param y_ticks y ticks
+#' @param z_ticks z ticks
+#' @param plot_method method to plot
+#' @param \dots additional parameters
 #' @return ggplot or plotly
 #' @details Description of parameters.
 #' @export

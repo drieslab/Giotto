@@ -7166,7 +7166,6 @@ spatPlot2D_single = function(gobject,
   ## extract spatial grid
   if(show_grid == TRUE) {
     spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
-    #spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
   } else {
     spatial_grid = NULL
   }
@@ -7174,12 +7173,10 @@ spatPlot2D_single = function(gobject,
   ## get cell metadata
   cell_metadata = combineMetadata(gobject = gobject,
                                   spat_enr_names = spat_enr_names)
-  #cell_metadata   = cell_metadata[, !grepl('cell_ID', colnames(cell_metadata)), with = F]
 
   if(nrow(cell_metadata) == 0) {
     cell_locations_metadata = cell_locations
   } else {
-    #cell_locations_metadata <- cbind(cell_locations, cell_metadata)
     cell_locations_metadata <- cell_metadata
   }
 
@@ -9899,9 +9896,12 @@ spatDimCellPlot = function(...) {
 
 
 
-# ** ####
+# * ####
 ## 3-D plotly ####
 ## ----------- ##
+
+# ** dimension plot ####
+
 #' @title dimPlot3D
 #' @name dimPlot3D
 #' @description Visualize cells according to dimension reduction coordinates
@@ -10136,6 +10136,432 @@ plotPCA_3D = function(gobject,
 }
 
 
+
+
+
+
+# ** ####
+# ** spatial 3D plot ####
+
+#' @title spatPlot_2D_plotly
+#' @name spatPlot_2D_plotly
+#' @description Visualize cells at their 2D spatial locations with plotly
+#' @return plotly object
+#' @keywords internal
+spatPlot_2D_plotly = function(gobject,
+                              sdimx = NULL,
+                              sdimy = NULL,
+                              spat_enr_names = NULL,
+                              point_size = 3,
+                              cell_color = NULL,
+                              cell_color_code = NULL,
+                              color_as_factor = T,
+                              select_cell_groups = NULL,
+                              select_cells = NULL,
+                              show_other_cells = T,
+                              other_cell_color = "lightgrey",
+                              other_point_size = 0.5,
+                              show_network = FALSE,
+                              spatial_network_name = 'spatial_network',
+                              network_color = "lightgray",
+                              network_alpha = 1,
+                              other_cell_alpha = 0.5,
+                              show_grid = FALSE,
+                              spatial_grid_name = 'spatial_grid',
+                              grid_color = NULL,
+                              grid_alpha = 1,
+                              show_legend = T,
+                              axis_scale = c("cube","real","custom"),
+                              custom_ratio = NULL,
+                              x_ticks = NULL,
+                              y_ticks = NULL,
+                              show_plot = F) {
+
+
+  ## get spatial cell locations
+  cell_locations  = gobject@spatial_locs
+
+
+  ## extract spatial network
+  if(show_network == TRUE) {
+    spatial_network = select_spatialNetwork(gobject, name = spatial_network_name, return_network_Obj = FALSE)
+  } else {
+    spatial_network = NULL
+  }
+
+  ## extract spatial grid
+  if(show_grid == TRUE) {
+    spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
+  } else {
+    spatial_grid = NULL
+  }
+
+  ## get cell metadata
+  cell_metadata = combineMetadata(gobject = gobject,
+                                  spat_enr_names = spat_enr_names)
+
+  if(nrow(cell_metadata) == 0) {
+    cell_locations_metadata = cell_locations
+  } else {
+    cell_locations_metadata = cell_metadata
+  }
+
+  ## create subsets if needed
+  if(!is.null(select_cells) & !is.null(select_cell_groups)) {
+    cat('You have selected both individual cell IDs and a group of cells \n')
+    group_cell_IDs = cell_locations_metadata[get(cell_color) %in% select_cell_groups][['cell_ID']]
+    select_cells = unique(c(select_cells, group_cell_IDs))
+  } else if(!is.null(select_cell_groups)) {
+    select_cells = cell_locations_metadata[get(cell_color) %in% select_cell_groups][['cell_ID']]
+  }
+
+
+  if(!is.null(select_cells)) {
+    cell_locations_metadata_other = cell_locations_metadata[!cell_locations_metadata$cell_ID %in% select_cells]
+    cell_locations_metadata_selected = cell_locations_metadata[cell_locations_metadata$cell_ID %in% select_cells]
+    spatial_network <- spatial_network[spatial_network$to %in% select_cells & spatial_network$from %in% select_cells]
+
+    # if specific cells are selected
+    # cell_locations_metadata = cell_locations_metadata_selected
+
+  } else if(is.null(select_cells)) {
+
+    cell_locations_metadata_selected = cell_locations_metadata
+    cell_locations_metadata_other = NULL
+
+  }
+
+
+
+  ### set scale
+  axis_scale = match.arg(axis_scale, c("cube","real","custom"))
+
+  ### set ratio
+  ratio = plotly_axis_scale_2D(cell_locations,
+                               sdimx = sdimx,
+                               sdimy = sdimy,
+                               mode = axis_scale,
+                               custom_ratio = custom_ratio)
+
+
+
+  pl <- plotly::plot_ly()
+
+  ## create network
+  if(show_network == TRUE) {
+    if(is.null(spatial_network)){
+      stop("No usable spatial network specified! Please choose a network with spatial_network_name=xxx")
+    }
+    else{
+      if(is.null(network_alpha)) {
+        network_alpha = 0.5
+      }
+      else if(is.character(network_alpha)){
+        warning("Edge_alpha for plotly mode is not adjustable yet. Default 0.5 will be set\n")
+        network_alpha = 0.5
+      }
+      pl <- pl %>% plotly::add_segments(name = spatial_network_name,
+                                        type = "scatter",
+                                        x = spatial_network[["sdimx_begin"]],
+                                        y = spatial_network[["sdimy_begin"]],
+                                        xend = spatial_network[["sdimx_end"]],
+                                        yend = spatial_network[["sdimy_end"]],
+                                        line = list(color = network_color,
+                                                    width = 0.5),
+                                        opacity = network_alpha)
+    }
+  }
+
+  ## create grid
+  if(show_grid == TRUE){
+    if(is.null(spatial_grid)){
+      stop("No usable spatial grid specified! Please choose a network with spatial_grid_name=xxx")
+    }
+    else{
+      if(is.null(grid_color)) {
+        grid_color = 'black'
+      }
+      edges <- plotly_grid(spatial_grid)
+      pl <- pl %>% plotly::add_segments(name = "spatial_grid",
+                                        type = "scatter",
+                                        data = edges,
+                                        x = ~x,
+                                        y = ~y,
+                                        xend = ~x_end,
+                                        yend = ~y_end,
+                                        line = list(color = grid_color,
+                                                    width = 1),
+                                        opacity=grid_alpha)
+
+    }
+  }
+
+
+
+  if(!is.null(cell_color)) {
+    if(cell_color %in% colnames(cell_locations_metadata_selected)){
+      if(is.null(cell_color_code)) {
+        number_colors=length(unique(cell_locations_metadata_selected[[cell_color]]))
+        cell_color_code = getDistinctColors(n = number_colors)
+      }
+      cell_locations_metadata_selected[[cell_color]] <- as.factor(cell_locations_metadata_selected[[cell_color]])
+      pl <- pl %>% plotly::add_trace(type = 'scatter',
+                                     mode = 'markers',
+                                     x = cell_locations_metadata_selected[[sdimx]],
+                                     y = cell_locations_metadata_selected[[sdimy]],
+                                     color = cell_locations_metadata_selected[[cell_color]],
+                                     colors = cell_color_code,
+                                     marker = list(size = point_size))
+
+
+      if(!is.null(select_cells) & show_other_cells){
+        pl <- pl %>% plotly::add_trace(type = "scatter",
+                                       mode="markers",
+                                       data= cell_locations_metadata_other,
+                                       name = "unselected cells",
+                                       x=~sdimx,
+                                       y=~sdimy,
+                                       marker = list(size = other_point_size,color = other_cell_color),
+                                       opacity=other_cell_alpha)
+      }
+    }
+    else{
+      cat('cell_color does not exist! \n')
+    }
+  } else {
+    pl <- pl %>% plotly::add_trace(type = 'scatter',
+                                   mode = 'markers',
+                                   name = "selected cells",
+                                   x = cell_locations_metadata_selected[[sdimx]],
+                                   y = cell_locations_metadata_selected[[sdimy]],
+                                   colors = 'lightblue',
+                                   marker = list(size = point_size))
+
+    if(!is.null(select_cells) & show_other_cells){
+      pl <- pl %>% plotly::add_trace(type = "scatter",
+                                     mode = "markers",
+                                     data = cell_locations_metadata_other,
+                                     name = "unselected cells",
+                                     x =~ sdimx,
+                                     y =~ sdimy,
+                                     marker = list(size = other_point_size,
+                                                   color = other_cell_color),
+                                     opacity = other_cell_alpha)
+    }
+  }
+
+
+  pl <- pl %>%
+    plotly::layout(list(xaxis = list(title = 'X', nticks = x_ticks),
+                        yaxis = list(title = 'Y', nticks = y_ticks)),
+                   legend = list(x = 100, y = 0.5,
+                                 font = list(family = "sans-serif",
+                                             size = 12)))
+
+
+  return((pl))
+
+
+}
+
+
+
+#' @title spatPlot_3D_plotly
+#' @name spatPlot_3D_plotly
+#' @description Visualize cells at their 3D spatial locations with plotly
+#' @return plotly object
+#' @keywords internal
+spatPlot_3D_plotly = function(gobject,
+                              sdimx = NULL,
+                              sdimy = NULL,
+                              sdimz = NULL,
+                              spat_enr_names = NULL,
+                              point_size = 3,
+                              cell_color = NULL,
+                              cell_color_code = NULL,
+                              select_cell_groups = NULL,
+                              select_cells = NULL,
+                              show_other_cells = T,
+                              other_cell_color = "lightgrey",
+                              other_point_size = 0.5,
+                              show_network = FALSE,
+                              spatial_network_name = 'spatial_network',
+                              network_color = NULL,
+                              network_alpha = 1,
+                              other_cell_alpha = 0.5,
+                              show_grid = FALSE,
+                              spatial_grid_name = 'spatial_grid',
+                              title = '',
+                              show_legend = TRUE,
+                              axis_scale = c("cube","real","custom"),
+                              custom_ratio = NULL,
+                              x_ticks = NULL,
+                              y_ticks = NULL,
+                              z_ticks = NULL,
+                              show_plot = FALSE) {
+
+
+  ## get spatial cell locations
+  cell_locations  = gobject@spatial_locs
+
+  ## extract spatial network
+  if(show_network == TRUE) {
+    spatial_network = select_spatialNetwork(gobject, name = spatial_network_name, return_network_Obj = FALSE)
+  } else {
+    spatial_network = NULL
+  }
+
+  ## extract spatial grid
+  if(show_grid == TRUE) {
+    spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
+  } else {
+    spatial_grid = NULL
+  }
+
+  ## get cell metadata
+  cell_metadata = combineMetadata(gobject = gobject,
+                                  spat_enr_names = spat_enr_names)
+
+  if(nrow(cell_metadata) == 0) {
+    cell_locations_metadata = cell_locations
+  } else {
+    cell_locations_metadata = cell_metadata
+  }
+
+
+  ## create subsets if needed
+  if(!is.null(select_cells) & !is.null(select_cell_groups)) {
+    cat('You have selected both individual cell IDs and a group of cells \n')
+    group_cell_IDs = cell_locations_metadata[get(cell_color) %in% select_cell_groups][['cell_ID']]
+    select_cells = unique(c(select_cells, group_cell_IDs))
+  } else if(!is.null(select_cell_groups)) {
+    select_cells = cell_locations_metadata[get(cell_color) %in% select_cell_groups][['cell_ID']]
+  }
+
+  if(!is.null(select_cells)) {
+    cell_locations_metadata_other = cell_locations_metadata[!cell_locations_metadata$cell_ID %in% select_cells]
+    cell_locations_metadata_selected = cell_locations_metadata[cell_locations_metadata$cell_ID %in% select_cells]
+    spatial_network <- spatial_network[spatial_network$to %in% select_cells & spatial_network$from %in% select_cells]
+
+    # if specific cells are selected
+    #cell_locations_metadata = cell_locations_metadata_selected
+
+  } else if(is.null(select_cells)) {
+
+    cell_locations_metadata_selected = cell_locations_metadata
+    cell_locations_metadata_other = NULL
+
+  }
+
+
+
+  ### set scale
+  axis_scale = match.arg(axis_scale, c("cube","real","custom"))
+
+  ### set ratio
+  ratio = plotly_axis_scale_3D(cell_locations,
+                               sdimx = sdimx,
+                               sdimy = sdimy,
+                               sdimz = sdimz,
+                               mode = axis_scale,
+                               custom_ratio = custom_ratio)
+
+
+
+  pl <- plotly::plot_ly()
+  if(!is.null(cell_color)) {
+    if(cell_color %in% colnames(cell_locations_metadata_selected)){
+      if(is.null(cell_color_code)) {
+        number_colors=length(unique(cell_locations_metadata_selected[[cell_color]]))
+        cell_color_code = getDistinctColors(n = number_colors)
+      }
+      cell_locations_metadata_selected[[cell_color]] <- as.factor(cell_locations_metadata_selected[[cell_color]])
+      pl <- pl %>% plotly::add_trace(type = 'scatter3d',mode = "markers",data = cell_locations_metadata_selected,
+                                     x = ~sdimx, y = ~sdimy, z = ~sdimz,
+                                     color = cell_locations_metadata_selected[[cell_color]],
+                                     colors = cell_color_code,
+                                     marker = list(size = point_size))
+
+
+      if(!is.null(select_cells) & show_other_cells){
+        pl <- pl %>% plotly::add_trace(type = "scatter3d",mode="markers",
+                                       data = cell_locations_metadata_other,
+                                       name = "unselected cells",
+                                       x = ~sdimx,
+                                       y = ~sdimy,
+                                       z = ~sdimz,
+                                       marker = list(size = other_point_size,
+                                                     color = other_cell_color),
+                                       opacity=other_cell_alpha)
+      }
+    }
+    else{
+      cat('cell_color does not exist! \n')
+    }
+  } else {
+    pl <- pl %>% plotly::add_trace(type = 'scatter3d',
+                                   data = cell_locations_metadata_selected,
+                                   x = ~sdimx,
+                                   y = ~sdimy,
+                                   z = ~sdimz,
+                                   mode = 'markers',
+                                   marker = list(size = point_size),
+                                   colors = 'lightblue',name = "selected cells")
+
+    if(!is.null(select_cells) & show_other_cells){
+      pl <- pl %>% plotly::add_trace(type = "scatter3d",
+                                     mode="markers",
+                                     data=cell_locations_metadata_other,
+                                     name = "unselected cells",
+                                     x=~sdimx,y=~sdimy,z=~sdimz,
+                                     marker = list(size = other_point_size,
+                                                   color=other_cell_color),
+                                     opacity = other_cell_alpha)
+    }
+  }
+
+
+  ## plot spatial network
+  if(!is.null(spatial_network) & show_network == TRUE) {
+    if(is.null(network_color)) {
+      network_color = 'red'
+    }
+    edges <- plotly_network(spatial_network)
+
+    pl <- pl %>% plotly::add_trace(name = "sptial network",
+                                   mode = "lines",
+                                   type = "scatter3d",
+                                   data = edges,
+                                   x = ~x,
+                                   y = ~y,
+                                   z = ~z,
+                                   line = list(color=network_color,width = 0.5),
+                                   opacity = network_alpha)
+  }
+
+  ## plot spatial grid
+  # 3D grid is not clear to view
+
+
+  pl <- pl %>%
+    plotly::layout(scene = list(xaxis = list(title = 'X',nticks = x_ticks),
+                                yaxis = list(title = 'Y',nticks = y_ticks),
+                                zaxis = list(title = 'Z',nticks = z_ticks),
+                                aspectmode='manual',
+                                aspectratio = list(x=ratio[[1]],
+                                                   y=ratio[[2]],
+                                                   z=ratio[[3]])),
+                   legend = list(x = 100, y = 0.5,
+                                 font = list(family = "sans-serif",size = 12)))
+
+
+  return(pl)
+
+}
+
+
+
+
 #' @title spatPlot3D
 #' @name spatPlot3D
 #' @description Visualize cells according to spatial coordinates
@@ -10143,6 +10569,7 @@ plotPCA_3D = function(gobject,
 #' @param sdimx x-axis dimension name (default = 'sdimx')
 #' @param sdimy y-axis dimension name (default = 'sdimy')
 #' @param sdimz z-axis dimension name (default = 'sdimy')
+#' @param spat_enr_names names of spatial enrichment results to include
 #' @param point_size size of point (cell)
 #' @param cell_color color for cells (see details)
 #' @param cell_color_code named vector with colors
@@ -10173,16 +10600,15 @@ plotPCA_3D = function(gobject,
 #' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
-#' @details Description of parameters.
 #' @family spatial visualizations
 #' @export
 #' @examples
 #'     spatPlot3D(gobject)
-#'
 spatPlot3D = function(gobject,
                       sdimx = "sdimx",
                       sdimy = "sdimy",
                       sdimz = "sdimz",
+                      spat_enr_names = NULL,
                       point_size = 3,
                       cell_color = NULL,
                       cell_color_code = NULL,
@@ -10193,13 +10619,13 @@ spatPlot3D = function(gobject,
                       other_point_size = 0.5,
                       other_cell_alpha = 0.5,
                       show_network = F,
+                      spatial_network_name = 'Delaunay_network',
                       network_color = NULL,
                       network_alpha = 1,
-                      spatial_network_name = 'Delaunay_network',
                       show_grid = F,
+                      spatial_grid_name = 'spatial_grid',
                       grid_color = NULL,
                       grid_alpha = 1,
-                      spatial_grid_name = 'spatial_grid',
                       title = '',
                       show_legend = T,
                       axis_scale = c("cube","real","custom"),
@@ -10212,63 +10638,65 @@ spatPlot3D = function(gobject,
                       save_plot = NA,
                       save_param =  list(),
                       default_save_name = "spat3D") {
+
   if(is.null(sdimz)){
     cat('create 2D plot\n')
 
-    pl = visPlot_2D_plotly(gobject = gobject,
-                           sdimx = sdimx,
-                           sdimy = sdimy,
-                           point_size = point_size,
-                           cell_color = cell_color,
-                           cell_color_code = cell_color_code,
-                           select_cell_groups = select_cell_groups,
-                           select_cells = select_cells,
-                           show_other_cells = show_other_cells,
-                           other_cell_color = other_cell_color,
-                           other_point_size =other_point_size,
-                           show_network = show_network,
-                           network_color = network_color,
-                           network_alpha = network_alpha,
-                           other_cell_alpha =other_cell_alpha,
-                           spatial_network_name = spatial_network_name,
-                           show_grid = show_grid,
-                           grid_color = grid_color,
-                           grid_alpha = grid_alpha,
-                           spatial_grid_name = spatial_grid_name,
-                           show_legend = show_legend,
-                           axis_scale = axis_scale,
-                           custom_ratio = custom_ratio,
-                           x_ticks = x_ticks,
-                           y_ticks = y_ticks,
-                           show_plot = F)
+    pl = spatPlot_2D_plotly(gobject = gobject,
+                            sdimx = sdimx,
+                            sdimy = sdimy,
+                            point_size = point_size,
+                            cell_color = cell_color,
+                            cell_color_code = cell_color_code,
+                            select_cell_groups = select_cell_groups,
+                            select_cells = select_cells,
+                            show_other_cells = show_other_cells,
+                            other_cell_color = other_cell_color,
+                            other_point_size =other_point_size,
+                            show_network = show_network,
+                            network_color = network_color,
+                            network_alpha = network_alpha,
+                            other_cell_alpha =other_cell_alpha,
+                            spatial_network_name = spatial_network_name,
+                            show_grid = show_grid,
+                            grid_color = grid_color,
+                            grid_alpha = grid_alpha,
+                            spatial_grid_name = spatial_grid_name,
+                            show_legend = show_legend,
+                            axis_scale = axis_scale,
+                            custom_ratio = custom_ratio,
+                            x_ticks = x_ticks,
+                            y_ticks = y_ticks,
+                            show_plot = F)
   }
   else{
+
     cat('create 3D plot\n')
-    pl = visPlot_3D_plotly(gobject = gobject,
-                           sdimx = sdimx,
-                           sdimy = sdimy,
-                           sdimz = sdimz,
-                           point_size = point_size,
-                           cell_color = cell_color,
-                           cell_color_code = cell_color_code,
-                           select_cell_groups = select_cell_groups,
-                           select_cells = select_cells,
-                           show_other_cells = show_other_cells,
-                           other_cell_color = other_cell_color,
-                           other_point_size =other_point_size,
-                           show_network = show_network,
-                           network_color = network_color,
-                           network_alpha = network_alpha,
-                           other_cell_alpha =other_cell_alpha,
-                           spatial_network_name = spatial_network_name,
-                           spatial_grid_name = spatial_grid_name,
-                           show_legend = show_legend,
-                           axis_scale = axis_scale,
-                           custom_ratio = custom_ratio,
-                           x_ticks = x_ticks,
-                           y_ticks = y_ticks,
-                           z_ticks = z_ticks,
-                           show_plot = F)
+    pl = spatPlot_3D_plotly(gobject = gobject,
+                            sdimx = sdimx,
+                            sdimy = sdimy,
+                            sdimz = sdimz,
+                            point_size = point_size,
+                            cell_color = cell_color,
+                            cell_color_code = cell_color_code,
+                            select_cell_groups = select_cell_groups,
+                            select_cells = select_cells,
+                            show_other_cells = show_other_cells,
+                            other_cell_color = other_cell_color,
+                            other_point_size =other_point_size,
+                            show_network = show_network,
+                            network_color = network_color,
+                            network_alpha = network_alpha,
+                            other_cell_alpha =other_cell_alpha,
+                            spatial_network_name = spatial_network_name,
+                            spatial_grid_name = spatial_grid_name,
+                            show_legend = show_legend,
+                            axis_scale = axis_scale,
+                            custom_ratio = custom_ratio,
+                            x_ticks = x_ticks,
+                            y_ticks = y_ticks,
+                            z_ticks = z_ticks,
+                            show_plot = F)
   }
 
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
@@ -10292,6 +10720,16 @@ spatPlot3D = function(gobject,
 
 }
 
+
+
+
+
+
+
+
+
+# ** ####
+# ** spatial & dimension 3D plot ####
 
 #' @title spatDimPlot3D
 #' @name spatDimPlot3D
@@ -11159,6 +11597,7 @@ spatGenePlot3D <- function(gobject,
   if(!is.null(spatial_network) & show_network == TRUE){
     edges <- plotly_network(spatial_network)
   }
+
   ##Point layer
   if(length(selected_genes) > 4){
     stop("\n The max number of genes showed together is 4.Otherwise it will be too small to see\n

@@ -710,8 +710,14 @@ createGiottoObject <- function(raw_exprs,
 
   # if cores is not set, then set number of cores automatically, but with limit of 10
   if(is.na(cores) | !is.numeric(cores)) {
-    cores = parallel::detectCores() - 2
-    cores = ifelse(cores > 10, 10, cores)
+
+    cores = parallel::detectCores()
+    if(cores <= 2) {
+      cores = cores
+    } else {
+      cores = cores - 2
+      cores = ifelse(cores > 10, 10, cores)
+    }
     data.table::setDTthreads(threads = cores)
   }
 
