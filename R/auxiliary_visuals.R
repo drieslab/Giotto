@@ -9,6 +9,8 @@ aes_string2 <- function(...){
   do.call(ggplot2::aes_string, args)
 }
 
+
+
 #' @title ggplot_save_function
 #' @name ggplot_save_function
 #' @description Function to automatically save plots to directory of interest

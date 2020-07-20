@@ -741,8 +741,8 @@ hyperGeometricEnrich <- function(...) {
 #' @details For details see the individual functions:
 #' \itemize{
 #'   \item{PAGE: }{\code{\link{runPAGEEnrich}}}
-#'   \item{PAGE: }{\code{\link{runRankEnrich}}}
-#'   \item{PAGE: }{\code{\link{runHyperGeometricEnrich}}}
+#'   \item{Rank: }{\code{\link{runRankEnrich}}}
+#'   \item{Hypergeometric: }{\code{\link{runHyperGeometricEnrich}}}
 #' }
 #'
 #' @export

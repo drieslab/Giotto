@@ -69,7 +69,8 @@ visPlot_3D_plotly = function(gobject,
 
   ## extract spatial grid
   if(!is.null(spatial_grid_name)) {
-    spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
+    #spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
+    spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
   } else {
     spatial_grid = NULL
   }
@@ -283,7 +284,8 @@ visPlot_2D_ggplot = function(gobject,
 
   ## extract spatial grid
   if(!is.null(spatial_grid_name)) {
-    spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
+    #spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
+    spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
   } else {
     spatial_grid = NULL
   }
@@ -544,7 +546,8 @@ visPlot_2D_plotly = function(gobject,
 
   ## extract spatial grid
   if(!is.null(spatial_grid_name)) {
-    spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
+    #spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
+    spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
   } else {
     spatial_grid = NULL
   }
@@ -1009,7 +1012,8 @@ visGenePlot_2D_ggplot <- function(gobject,
 
   ## extract spatial grid
   if(!is.null(spatial_grid_name)) {
-    spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
+    spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
+    #spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
   } else {
     spatial_grid = NULL
   }
@@ -1177,7 +1181,8 @@ visGenePlot_3D_plotly <- function(gobject,
 
   ## extract spatial grid
   if(!is.null(spatial_grid_name)) {
-    spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
+    #spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
+    spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
   } else {
     spatial_grid = NULL
   }
@@ -2832,7 +2837,8 @@ visSpatDimPlot_3D <- function(gobject,
 
   ## extract spatial grid
   if(!is.null(spatial_grid_name)) {
-    spatial_grid = gobject@spatial_grid[[spatial_grid_name]]
+    #spatial_grid = gobject@spatial_grid[[spatial_grid_name]]
+    spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
   } else {
     spatial_grid = NULL
   }
@@ -4323,7 +4329,8 @@ visSpatDimGenePlot_3D <- function(gobject,
 
   ## extract spatial grid
   if(!is.null(spatial_grid_name)) {
-    spatial_grid = gobject@spatial_grid[[spatial_grid_name]]
+    spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
+    #spatial_grid = gobject@spatial_grid[[spatial_grid_name]]
   } else {
     spatial_grid = NULL
   }
@@ -7158,7 +7165,8 @@ spatPlot2D_single = function(gobject,
 
   ## extract spatial grid
   if(show_grid == TRUE) {
-    spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
+    spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
+    #spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
   } else {
     spatial_grid = NULL
   }
@@ -8241,7 +8249,8 @@ spatGenePlot2D <- function(gobject,
 
   ## extract spatial grid
   if(show_grid == TRUE) {
-    spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
+    spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
+    #spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
   } else {
     spatial_grid = NULL
   }
@@ -10443,7 +10452,8 @@ spatDimPlot3D <- function(gobject,
 
   ## extract spatial grid
   if(!is.null(spatial_grid_name)) {
-    spatial_grid = gobject@spatial_grid[[spatial_grid_name]]
+    spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
+    #spatial_grid = gobject@spatial_grid[[spatial_grid_name]]
   } else {
     spatial_grid = NULL
   }
@@ -11101,7 +11111,8 @@ spatGenePlot3D <- function(gobject,
 
   ## extract spatial grid
   if(!is.null(spatial_grid_name)) {
-    spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
+    spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
+    #spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
   } else {
     spatial_grid = NULL
   }
@@ -11766,7 +11777,8 @@ spatDimGenePlot3D <- function(gobject,
 
   ## extract spatial grid
   if(!is.null(spatial_grid_name)) {
-    spatial_grid = gobject@spatial_grid[[spatial_grid_name]]
+    spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
+    #spatial_grid = gobject@spatial_grid[[spatial_grid_name]]
   } else {
     spatial_grid = NULL
   }

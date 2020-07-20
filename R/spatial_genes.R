@@ -766,8 +766,9 @@ detectSpatialPatterns <- function(gobject,
   if(!spatial_grid_name %in% names(gobject@spatial_grid)) {
     stop("\n you need to provide an existing spatial grid name for this function to work \n")
   }
-  spatial_grid = gobject@spatial_grid[[spatial_grid_name]]
 
+  #spatial_grid = gobject@spatial_grid[[spatial_grid_name]]
+  spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
 
   # annotate spatial locations with spatial grid information
   spatial_locs = copy(gobject@spatial_locs)
@@ -1400,7 +1401,9 @@ do_spatial_grid_averaging = function(gobject,
   if(!spatial_grid_name %in% names(gobject@spatial_grid)) {
     stop("\n you need to provide an existing spatial grid name for this function to work \n")
   }
-  spatial_grid = gobject@spatial_grid[[spatial_grid_name]]
+
+  #spatial_grid = gobject@spatial_grid[[spatial_grid_name]]
+  spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
 
 
   # annotate spatial locations with spatial grid information
