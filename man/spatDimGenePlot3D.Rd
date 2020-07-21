@@ -32,11 +32,11 @@ spatDimGenePlot3D(
   genes_high_color = "red",
   dim_point_size = 3,
   nn_network_alpha = 0.5,
-  show_spatial_network = F,
+  show_spatial_network = FALSE,
   spatial_network_name = "Delaunay_network",
   network_color = "lightgray",
   spatial_network_alpha = 0.5,
-  show_spatial_grid = F,
+  show_spatial_grid = FALSE,
   spatial_grid_name = "spatial_grid",
   spatial_grid_color = NULL,
   spatial_grid_alpha = 0.5,
@@ -81,7 +81,11 @@ spatDimGenePlot3D(
 
 \item{dim_point_size}{dim reduction plot: point size}
 
+\item{show_spatial_network}{show spatial network (boolean)}
+
 \item{spatial_network_name}{name of spatial network to use}
+
+\item{show_spatial_grid}{show spatial grid (boolean)}
 
 \item{spatial_grid_name}{name of spatial grid to use}
 
@@ -113,9 +117,6 @@ Visualize cells according to spatial AND dimension reduction coordinates in ggpl
 }
 \details{
 Description of parameters.
-}
-\examples{
-    spatDimGenePlot3D(gobject)
 }
 \seealso{
 Other spatial and dimension reduction gene expression visualizations: 

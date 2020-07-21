@@ -8,11 +8,10 @@ spatGenePlot3D(
   gobject,
   expression_values = c("normalized", "scaled", "custom"),
   genes,
-  show_network = F,
+  show_network = FALSE,
   network_color = NULL,
   spatial_network_name = "Delaunay_network",
   edge_alpha = NULL,
-  show_grid = F,
   cluster_column = NULL,
   select_cell_groups = NULL,
   select_cells = NULL,
@@ -22,6 +21,7 @@ spatGenePlot3D(
   genes_high_color = NULL,
   genes_mid_color = "white",
   genes_low_color = "blue",
+  show_grid = FALSE,
   spatial_grid_name = "spatial_grid",
   point_size = 2,
   show_legend = T,
@@ -50,13 +50,13 @@ spatGenePlot3D(
 
 \item{spatial_network_name}{name of spatial network to use}
 
-\item{show_grid}{show spatial grid}
-
 \item{genes_high_color}{color represents high gene expression}
 
 \item{genes_mid_color}{color represents middle gene expression}
 
 \item{genes_low_color}{color represents low gene expression}
+
+\item{show_grid}{show spatial grid}
 
 \item{spatial_grid_name}{name of spatial grid to use}
 

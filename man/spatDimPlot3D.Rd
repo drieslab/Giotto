@@ -15,7 +15,8 @@ spatDimPlot3D(
   sdimx = "sdimx",
   sdimy = "sdimy",
   sdimz = "sdimz",
-  show_NN_network = F,
+  spat_enr_names = NULL,
+  show_NN_network = FALSE,
   nn_network_to_use = "sNN",
   network_name = "sNN.pca",
   show_cluster_center = F,
@@ -74,6 +75,8 @@ spatDimPlot3D(
 \item{sdimy}{= spatial dimension to use on y-axis}
 
 \item{sdimz}{= spatial dimension to use on z-axis}
+
+\item{spat_enr_names}{names of spatial enrichment results to include}
 
 \item{show_NN_network}{show underlying NN network}
 
