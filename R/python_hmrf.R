@@ -276,18 +276,16 @@ loadHMRF = function(name_used = 'test',
 #' @param HMRFoutput HMRF output from doHMRF
 #' @param k number of HMRF domains
 #' @param betas_to_view results from different betas that you want to view
-#' @param \dots additional paramters to visPlot()
+#' @param third_dim 3D data (boolean)
+#' @param \dots additional paramters (see details)
 #' @return spatial plots with HMRF domains
-#' @details Description ...
-#' @seealso \code{\link{visPlot}}
+#' @seealso \code{\link{spatPlot2D}} and \code{\link{spatPlot3D}}
 #' @export
-#' @examples
-#'     viewHMRFresults(gobject)
 viewHMRFresults <- function(gobject,
                             HMRFoutput,
                             k = NULL,
                             betas_to_view = NULL,
-                            third_dim = NULL,
+                            third_dim = FALSE,
                             ...) {
 
 
@@ -333,7 +331,12 @@ viewHMRFresults <- function(gobject,
 
     title_name = paste0('k = ', k, ' b = ',b)
 
-    visPlot(gobject = gobject, sdimz = third_dim, cell_color = output, show_plot = T, title = title_name,...)
+    spatPlot2D(gobject = gobject, cell_color = output, show_plot = T, title = title_name, ...)
+
+    if(third_dim == TRUE) {
+      spatPlot3D(gobject = gobject, cell_color = output, show_plot = T, ...)
+    }
+    #visPlot(gobject = gobject, sdimz = third_dim, cell_color = output, show_plot = T, title = title_name,...)
   }
 }
 

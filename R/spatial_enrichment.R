@@ -171,7 +171,7 @@ do_page_permutation<-function(gobject,
     random_DT = runPAGEEnrich(gobject,sign_matrix = random_sig, p_value = F)
     background = unlist(random_DT[,2:dim(random_DT)[2]])
     df_row_name = paste("gene_num_",uniq_ct_gene_counts[i],sep="")
-    list_back_i = c(df_row_name,mean(background),stats::sd(background))
+    list_back_i = c(df_row_name,mean(background), stats::sd(background))
     background_mean_sd[i,] = list_back_i
   }
   background_mean_sd[length(uniq_ct_gene_counts)+1,] = c("temp","0","1")
@@ -972,11 +972,13 @@ cluster_enrich_analysis <- function(exp_matrix,
   return(cluster_enrich)
 }
 
+
 #' @title enrich_analysis
 #' @description Rui to fill in
 #' @keywords internal
 enrich_analysis <- function(expr_values,
                             sign_matrix) {
+
   # output enrichment
   # only continue with genes present in both datasets
   interGene = intersect(rownames(sign_matrix), rownames(expr_values))
@@ -987,8 +989,9 @@ enrich_analysis <- function(expr_values,
   mean_gene_expr = log2(rowMeans(2^expr_values-1, dims = 1)+1)
   geneFold = expr_values - mean_gene_expr
   # calculate sample/spot mean and sd
-  cellColMean = apply(geneFold,2,mean)
-  cellColSd = apply(geneFold,2,sd)
+  cellColMean = apply(geneFold,2, mean)
+  cellColSd = apply(geneFold,2, stats::sd)
+
   # get enrichment scores
   enrichment = matrix(data=NA,nrow = dim(filterSig)[2],ncol=length(cellColMean))
   for (i in (1:dim(filterSig)[2])){
@@ -1072,36 +1075,37 @@ optimize_solveDampenedWLS<-function(S,
 find_dampening_constant<-function(S,
                                   B,
                                   goldStandard){
+
   solutionsSd<-NULL
   #goldStandard is used to define the weights
-  sol<-goldStandard
-  ws<-as.vector((1/(S%*%sol))^2)
-  wsScaled<-ws/min(ws)
-  wsScaledMinusInf<-wsScaled
+  sol = goldStandard
+  ws = as.vector((1/(S%*%sol))^2)
+  wsScaled = ws/min(ws)
+  wsScaledMinusInf = wsScaled
   #ignore infinite weights
-  if(max(wsScaled)=="Inf"){
-    wsScaledMinusInf<-wsScaled[-which(wsScaled=="Inf")]
+  if(max(wsScaled) == "Inf"){
+    wsScaledMinusInf = wsScaled[-which(wsScaled == "Inf")]
   }
   #try multiple values of the dampening constant (multiplier)
   #for each, calculate the variance of the dampened weighted solution for a subset of genes
   for (j in 1:ceiling(log2(max(wsScaledMinusInf)))){
-    multiplier<-1*2^(j-1)
-    wsDampened<-wsScaled
-    wsDampened[which(wsScaled>multiplier)]<-multiplier
+    multiplier = 1*2^(j-1)
+    wsDampened = wsScaled
+    wsDampened[which(wsScaled>multiplier)] = multiplier
     solutions<-NULL
     seeds<-c(1:100)
     for (i in 1:100){
       set.seed(seeds[i]) #make nondeterministic
-      subset<-sample(length(ws),size=length(ws)*0.5) #randomly select half of gene set
+      subset = sample(length(ws),size=length(ws)*0.5) #randomly select half of gene set
       #solve dampened weighted least squares for subset
       fit = stats::lm (B[subset] ~ -1+S[subset,],weights=wsDampened[subset])
-      sol<-fit$coef*sum(goldStandard)/sum(fit$coef)
-      solutions<-cbind(solutions,sol)
+      sol = fit$coef*sum(goldStandard)/sum(fit$coef)
+      solutions = cbind(solutions,sol)
     }
-    solutionsSd<-cbind(solutionsSd,apply(solutions,1,sd))
+    solutionsSd = cbind(solutionsSd,apply(solutions, 1, stats::sd))
   }
   #choose dampening constant that results in least cross-validation variance
-  j<-which.min(colMeans(solutionsSd^2))
+  j = which.min(colMeans(solutionsSd^2))
   return(j)
 }
 

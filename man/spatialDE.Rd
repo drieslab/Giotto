@@ -53,6 +53,3 @@ Compute spatial variable genes with spatialDE method
 \details{
 This function is a wrapper for the SpatialDE method implemented in the ...
 }
-\examples{
-    spatialDE(gobject)
-}

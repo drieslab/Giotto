@@ -5578,7 +5578,6 @@ dimPlot_3D_plotly <- function(gobject,
 #' @param label_size  size of labels
 #' @param edge_alpha column to use for alpha of the edges
 #' @param point_size size of point (cell)
-#' @param show_legend show legend
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -5627,61 +5626,61 @@ dimPlot3D = function(gobject,
   if(is.null(dim3_to_use)){
     cat('create 2D plot\n')
 
-    pl = visDimPlot_2D_plotly(gobject = gobject,
-                              dim_reduction_to_use = dim_reduction_to_use,
-                              dim_reduction_name = dim_reduction_name,
-                              dim1_to_use = dim1_to_use,
-                              dim2_to_use = dim2_to_use,
-                              spat_enr_names = spat_enr_names,
+    pl = dimPlot_2D_plotly(gobject = gobject,
+                           dim_reduction_to_use = dim_reduction_to_use,
+                           dim_reduction_name = dim_reduction_name,
+                           dim1_to_use = dim1_to_use,
+                           dim2_to_use = dim2_to_use,
+                           spat_enr_names = spat_enr_names,
 
-                              select_cell_groups = select_cell_groups,
-                              select_cells = select_cells,
-                              show_other_cells = show_other_cells,
-                              other_cell_color = other_cell_color,
-                              other_point_size = other_point_size,
+                           select_cell_groups = select_cell_groups,
+                           select_cells = select_cells,
+                           show_other_cells = show_other_cells,
+                           other_cell_color = other_cell_color,
+                           other_point_size = other_point_size,
 
-                              show_NN_network = show_NN_network,
-                              nn_network_to_use = nn_network_to_use,
-                              network_name = network_name,
-                              color_as_factor = color_as_factor,
-                              cell_color = cell_color,
-                              cell_color_code = cell_color_code,
-                              show_cluster_center = show_cluster_center,
-                              show_center_label = show_center_label,
-                              center_point_size = center_point_size,
-                              label_size = label_size,
-                              edge_alpha = edge_alpha,
-                              point_size = point_size)
+                           show_NN_network = show_NN_network,
+                           nn_network_to_use = nn_network_to_use,
+                           network_name = network_name,
+                           color_as_factor = color_as_factor,
+                           cell_color = cell_color,
+                           cell_color_code = cell_color_code,
+                           show_cluster_center = show_cluster_center,
+                           show_center_label = show_center_label,
+                           center_point_size = center_point_size,
+                           label_size = label_size,
+                           edge_alpha = edge_alpha,
+                           point_size = point_size)
   }
 
   else{
     cat('create 3D plot\n')
-    pl = visDimPlot_3D_plotly(gobject = gobject,
-                              dim_reduction_to_use = dim_reduction_to_use,
-                              dim_reduction_name = dim_reduction_name,
-                              dim1_to_use = dim1_to_use,
-                              dim2_to_use = dim2_to_use,
-                              dim3_to_use = dim3_to_use,
-                              spat_enr_names = spat_enr_names,
+    pl = dimPlot_3D_plotly(gobject = gobject,
+                           dim_reduction_to_use = dim_reduction_to_use,
+                           dim_reduction_name = dim_reduction_name,
+                           dim1_to_use = dim1_to_use,
+                           dim2_to_use = dim2_to_use,
+                           dim3_to_use = dim3_to_use,
+                           spat_enr_names = spat_enr_names,
 
-                              select_cell_groups = select_cell_groups,
-                              select_cells = select_cells,
-                              show_other_cells = show_other_cells,
-                              other_cell_color = other_cell_color,
-                              other_point_size = other_point_size,
+                           select_cell_groups = select_cell_groups,
+                           select_cells = select_cells,
+                           show_other_cells = show_other_cells,
+                           other_cell_color = other_cell_color,
+                           other_point_size = other_point_size,
 
-                              show_NN_network = show_NN_network,
-                              nn_network_to_use = nn_network_to_use,
-                              network_name = network_name,
-                              color_as_factor = color_as_factor,
-                              cell_color = cell_color,
-                              cell_color_code = cell_color_code,
-                              show_cluster_center = show_cluster_center,
-                              show_center_label = show_center_label,
-                              center_point_size = center_point_size,
-                              label_size = label_size,
-                              edge_alpha = edge_alpha,
-                              point_size = point_size)
+                           show_NN_network = show_NN_network,
+                           nn_network_to_use = nn_network_to_use,
+                           network_name = network_name,
+                           color_as_factor = color_as_factor,
+                           cell_color = cell_color,
+                           cell_color_code = cell_color_code,
+                           show_cluster_center = show_cluster_center,
+                           show_center_label = show_center_label,
+                           center_point_size = center_point_size,
+                           label_size = label_size,
+                           edge_alpha = edge_alpha,
+                           point_size = point_size)
   }
 
 
@@ -6397,6 +6396,7 @@ spatPlot3D = function(gobject,
 #' @param sdimx = spatial dimension to use on x-axis
 #' @param sdimy = spatial dimension to use on y-axis
 #' @param sdimz = spatial dimension to use on z-axis
+#'
 #' @param spat_enr_names names of spatial enrichment results to include
 #' @param show_NN_network show underlying NN network
 #' @param nn_network_to_use type of NN network to use (kNN vs sNN)
@@ -6408,27 +6408,34 @@ spatPlot3D = function(gobject,
 #' @param cell_color color for cells (see details)
 #' @param color_as_factor convert color column to factor
 #' @param cell_color_code named vector with colors
+#'
 #' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
 #' @param select_cells select subset of cells based on cell IDs
 #' @param show_other_cells display not selected cells
 #' @param other_cell_color color of not selected cells
 #' @param other_point_size size of not selected cells
+#'
 #' @param dim_point_size size of points in dim. reduction space
-#' @param dim_point_border_col border color of points in dim. reduction space
-#' @param dim_point_border_stroke border stroke of points in dim. reduction space
+#' @param nn_network_color color of nn network
 #' @param nn_network_alpha column to use for alpha of the edges
 #' @param show_spatial_network show spatial network
 #' @param spatial_network_name name of spatial network to use
 #' @param spatial_network_color color of spatial network
+#'
 #' @param show_spatial_grid show spatial grid
 #' @param spatial_grid_name name of spatial grid to use
 #' @param spatial_grid_color color of spatial grid
 #' @param spatial_point_size size of spatial points
-#' @param spatial_other_point_size size of not selected spatial points
+#' @param spatial_network_color color of spatial network
 #' @param spatial_network_alpha alpha of spatial network
-#' @param spatial_other_cells_alpha alpha of not selected spatial points
-#' @param dim_other_point_size size of not selected dim. reduction points
-#' @param show_legend show legend
+#'
+#' @param axis_scale the way to scale the axis
+#' @param custom_ratio customize the scale of the plot
+#' @param x_ticks set the number of ticks on the x-axis
+#' @param y_ticks set the number of ticks on the y-axis
+#' @param z_ticks set the number of ticks on the z-axis
+#' @param legend_text_size size of legend
+#'
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -6455,6 +6462,9 @@ spatDimPlot3D <- function(gobject,
                           show_NN_network = FALSE,
                           nn_network_to_use = 'sNN',
                           network_name = 'sNN.pca',
+                          nn_network_color = 'lightgray',
+                          nn_network_alpha = 0.5,
+
                           show_cluster_center = F,
                           show_center_label = T,
                           center_point_size = 4,
@@ -6470,11 +6480,11 @@ spatDimPlot3D <- function(gobject,
                           color_as_factor = T,
                           cell_color_code = NULL,
                           dim_point_size = 3,
-                          nn_network_alpha = 0.5,
+
 
                           show_spatial_network = F,
                           spatial_network_name = 'Delaunay_network',
-                          network_color = "lightgray",
+                          spatial_network_color = "lightgray",
                           spatial_network_alpha = 0.5,
 
                           show_spatial_grid = F,
@@ -6482,6 +6492,7 @@ spatDimPlot3D <- function(gobject,
                           spatial_grid_color = NULL,
                           spatial_grid_alpha = 0.5,
                           spatial_point_size = 3,
+
                           axis_scale = c("cube","real","custom"),
                           custom_ratio = NULL,
                           x_ticks = NULL,
@@ -6655,7 +6666,7 @@ spatDimPlot3D <- function(gobject,
                                           y = annotated_network_DT[[from_dim_names[2]]],
                                           xend = annotated_network_DT[[to_dim_names[1]]],
                                           yend = annotated_network_DT[[to_dim_names[2]]],
-                                          line = list(color = network_color,
+                                          line = list(color = nn_network_color,
                                                       width = 0.5),
                                           opacity=nn_network_alpha)
     }
@@ -6803,7 +6814,7 @@ spatDimPlot3D <- function(gobject,
                                        type = "scatter3d",
                                        data = edges,
                                        x = ~x,y=~y,z=~z,
-                                       line=list(color=network_color),
+                                       line=list(color = nn_network_color),
                                        opacity=nn_network_alpha)
     }
     if((show_cluster_center == TRUE | show_center_label == TRUE)& !is.null(cell_color)){
@@ -6886,7 +6897,7 @@ spatDimPlot3D <- function(gobject,
                                             y = spatial_network[["sdimy_begin"]],
                                             xend = spatial_network[["sdimx_end"]],
                                             yend = spatial_network[["sdimy_end"]],
-                                            line = list(color = network_color,
+                                            line = list(color = spatial_network_color,
                                                         width = 0.5),
                                             opacity = spatial_network_alpha)
       }
@@ -7021,7 +7032,7 @@ spatDimPlot3D <- function(gobject,
                                          type = "scatter3d",
                                          data = edges,
                                          x = ~x,y=~y,z=~z,
-                                         line=list(color=network_color),
+                                         line=list(color = spatial_network_color),
                                          opacity=spatial_network_alpha)
       }
     }
@@ -7153,25 +7164,39 @@ spatDimPlot3D <- function(gobject,
 #' @param gobject giotto object
 #' @param expression_values gene expression values to use
 #' @param genes genes to show
+#'
+#' @param cluster_column cluster column to select groups
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param select_cells select subset of cells based on cell IDs
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color of not selected cells
+#' @param other_point_size size of not selected cells
+#'
 #' @param genes_high_color color represents high gene expression
 #' @param genes_mid_color color represents middle gene expression
 #' @param genes_low_color color represents low gene expression
 #' @param show_network show underlying spatial network
 #' @param network_color color of spatial network
 #' @param spatial_network_name name of spatial network to use
+#' @param edge_alpha alpha of edges
 #' @param show_grid show spatial grid
 #' @param grid_color color of spatial grid
 #' @param spatial_grid_name name of spatial grid to use
-#' @param midpoint expression midpoint
-#' @param scale_alpha_with_expression scale expression with ggplot alpha parameter
+#'
 #' @param point_size size of point (cell)
 #' @param show_legend show legend
+#'
+#' @param axis_scale the way to scale the axis
+#' @param custom_ratio customize the scale of the plot
+#' @param x_ticks set the number of ticks on the x-axis
+#' @param y_ticks set the number of ticks on the y-axis
+#' @param z_ticks set the number of ticks on the z-axis
+#'
 #' @param show_plot show plots
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
-#' @param \dots additional parameters for cowplot::save_plot()
 #' @return ggplot
 #' @details Description of parameters.
 #' @family spatial gene expression visualizations
@@ -7201,7 +7226,7 @@ spatGenePlot3D <- function(gobject,
                            show_grid = FALSE,
                            spatial_grid_name = 'spatial_grid',
                            point_size = 2,
-                           show_legend = T,
+                           show_legend = TRUE,
                            axis_scale = c("cube","real","custom"),
                            custom_ratio = NULL,
                            x_ticks = NULL,
@@ -7492,18 +7517,32 @@ spatGenePlot3D <- function(gobject,
 #' @param dim1_to_use dimension to use on x-axis
 #' @param dim2_to_use dimension to use on y-axis
 #' @param dim3_to_use dimension to use on z-axis
+#'
 #' @param show_NN_network show underlying NN network
 #' @param nn_network_to_use type of NN network to use (kNN vs sNN)
 #' @param network_name name of NN network to use, if show_NN_network = TRUE
+#' @param network_color color of NN network
+#'
+#' @param cluster_column cluster column to select groups
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param select_cells select subset of cells based on cell IDs
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color of not selected cells
+#' @param other_point_size size of not selected cells
+#'
 #' @param edge_alpha column to use for alpha of the edges
 #' @param point_size size of point (cell)
+#'
+#' @param genes_high_color color for high expression levels
+#' @param genes_mid_color color for medium expression levels
+#' @param genes_low_color color for low expression levels
+#'
 #' @param show_legend show legend
 #' @param show_plot show plots
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
 #' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
-#' @param \dots additional parameters for cowplot::save_plot()
 #' @return ggplot
 #' @details Description of parameters.
 #' @family dimension reduction gene expression visualizations
@@ -7518,6 +7557,7 @@ dimGenePlot3D <- function(gobject,
                           dim1_to_use = 1,
                           dim2_to_use = 2,
                           dim3_to_use = 3,
+
                           show_NN_network = F,
                           nn_network_to_use = 'sNN',
                           network_name = 'sNN.pca',
@@ -7791,25 +7831,55 @@ dimGenePlot3D <- function(gobject,
 #' @param gobject giotto object
 #' @param expression_values gene expression values to use
 #' @param plot_alignment direction to align plot
-#' @param genes genes to show
 #' @param dim_reduction_to_use dimension reduction to use
 #' @param dim_reduction_name dimension reduction name
 #' @param dim1_to_use dimension to use on x-axis
 #' @param dim2_to_use dimension to use on y-axis
 #' @param dim3_to_use dimension to use on z-axis
+#' @param sdimx spatial dimension to use on x-axis
+#' @param sdimy spatial dimension to use on y-axis
+#' @param sdimz spatial dimension to use on z-axis
+#' @param genes genes to show
+#'
+#' @param cluster_column cluster column to select groups
+#' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
+#' @param select_cells select subset of cells based on cell IDs
+#' @param show_other_cells display not selected cells
+#' @param other_cell_color color of not selected cells
+#' @param other_point_size size of not selected cells
+#'
 #' @param dim_point_size dim reduction plot: point size
 #' @param show_NN_network show underlying NN network
 #' @param nn_network_to_use type of NN network to use (kNN vs sNN)
+#' @param nn_network_color color of NN network
+#' @param nn_network_alpha alpha of NN network
 #' @param network_name name of NN network to use, if show_NN_network = TRUE
+#'
+#' @param label_size size of labels
+#' @param genes_high_color color for high expression levels
+#' @param genes_mid_color color for medium expression levels
+#' @param genes_low_color color for low expression levels
+#'
 #' @param edge_alpha_dim dim reduction plot: column to use for alpha of the edges
-#' @param scale_alpha_with_expression scale expression with ggplot alpha parameter
 #' @param show_spatial_network show spatial network (boolean)
 #' @param spatial_network_name name of spatial network to use
+#' @param spatial_network_color color of spatial network
+#' @param spatial_network_alpha alpha of spatial network
+#'
 #' @param show_spatial_grid show spatial grid (boolean)
 #' @param spatial_grid_name name of spatial grid to use
+#' @param spatial_grid_color color of spatial grid
+#' @param spatial_grid_alpha alpha of spatial grid
+#'
 #' @param spatial_point_size spatial plot: point size
-#' @param point_size size of point (cell)
-#' @param show_legend show legend
+#' @param legend_text_size size of legend
+#'
+#' @param axis_scale the way to scale the axis
+#' @param custom_ratio customize the scale of the plot
+#' @param x_ticks set the number of ticks on the x-axis
+#' @param y_ticks set the number of ticks on the y-axis
+#' @param z_ticks set the number of ticks on the z-axis
+#'
 #' @param show_plot show plots
 #' @param return_plot return plotly object
 #' @param save_plot directly save the plot [boolean]
@@ -7839,27 +7909,30 @@ spatDimGenePlot3D <- function(gobject,
                               other_cell_color = 'lightgrey',
                               other_point_size = 1.5,
 
-                              show_NN_network = F,
+                              show_NN_network = FALSE,
                               nn_network_to_use = 'sNN',
+                              nn_network_color = 'lightgrey',
+                              nn_network_alpha = 0.5,
                               network_name = 'sNN.pca',
                               label_size = 16,
                               genes_low_color = "blue",
                               genes_mid_color = "white",
                               genes_high_color = "red",
                               dim_point_size = 3,
-                              nn_network_alpha = 0.5,
 
                               show_spatial_network = FALSE,
                               spatial_network_name = 'Delaunay_network',
-                              network_color = "lightgray",
+                              spatial_network_color = "lightgray",
                               spatial_network_alpha = 0.5,
 
                               show_spatial_grid = FALSE,
                               spatial_grid_name = 'spatial_grid',
                               spatial_grid_color = NULL,
                               spatial_grid_alpha = 0.5,
+
                               spatial_point_size = 3,
                               legend_text_size = 12,
+
                               axis_scale = c("cube","real","custom"),
                               custom_ratio = NULL,
                               x_ticks = NULL,
@@ -8005,7 +8078,7 @@ spatDimGenePlot3D <- function(gobject,
                                           y = annotated_network_DT[[from_dim_names[2]]],
                                           xend = annotated_network_DT[[to_dim_names[1]]],
                                           yend = annotated_network_DT[[to_dim_names[2]]],
-                                          line = list(color = network_color,
+                                          line = list(color = nn_network_color,
                                                       width = 0.5),
                                           opacity=nn_network_alpha)
     }
@@ -8072,8 +8145,8 @@ spatDimGenePlot3D <- function(gobject,
                                        type = "scatter3d",
                                        data = edges,
                                        x = ~x,y=~y,z=~z,
-                                       line=list(color=network_color),
-                                       opacity=nn_network_alpha)
+                                       line=list(color = nn_network_color),
+                                       opacity= nn_network_alpha)
     }
 
 
@@ -8114,7 +8187,7 @@ spatDimGenePlot3D <- function(gobject,
                                             y = spatial_network[["sdimy_begin"]],
                                             xend = spatial_network[["sdimx_end"]],
                                             yend = spatial_network[["sdimy_end"]],
-                                            line = list(color = network_color,
+                                            line = list(color = spatial_network_color,
                                                         width = 0.5),
                                             opacity=spatial_network_alpha)
       }
@@ -8210,8 +8283,8 @@ spatDimGenePlot3D <- function(gobject,
                                          type = "scatter3d",
                                          data = edges,
                                          x = ~x,y=~y,z=~z,
-                                         line=list(color=network_color),
-                                         opacity=spatial_network_alpha)
+                                         line=list(color = spatial_network_color),
+                                         opacity = spatial_network_alpha)
       }
     }
 
@@ -8328,3 +8401,6 @@ spatDimGenePlot3D <- function(gobject,
   }
 
 }
+
+
+

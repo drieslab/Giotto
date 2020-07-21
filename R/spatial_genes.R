@@ -412,8 +412,6 @@ silhouetteRank <- function(gobject,
 #' @return a list of data.frames with results and plot (optional)
 #' @details This function is a wrapper for the SpatialDE method implemented in the ...
 #' @export
-#' @examples
-#'     spatialDE(gobject)
 spatialDE <- function(gobject = NULL,
                       expression_values = c('raw', 'normalized', 'scaled', 'custom'),
                       size = c(4,2,1),
@@ -513,8 +511,6 @@ spatialDE <- function(gobject = NULL,
 #' @return An updated giotto object
 #' @details This function is a wrapper for the SpatialAEH method implemented in the ...
 #' @export
-#' @examples
-#'     spatialAEH(gobject)
 spatialAEH <- function(gobject = NULL,
                        SpatialDE_results = NULL,
                        name_pattern = 'AEH_patterns',
@@ -576,7 +572,6 @@ spatialAEH <- function(gobject = NULL,
 
   }
 }
-
 
 
 #' @title FSV_show

@@ -19,6 +19,8 @@ spatDimPlot3D(
   show_NN_network = FALSE,
   nn_network_to_use = "sNN",
   network_name = "sNN.pca",
+  nn_network_color = "lightgray",
+  nn_network_alpha = 0.5,
   show_cluster_center = F,
   show_center_label = T,
   center_point_size = 4,
@@ -32,10 +34,9 @@ spatDimPlot3D(
   color_as_factor = T,
   cell_color_code = NULL,
   dim_point_size = 3,
-  nn_network_alpha = 0.5,
   show_spatial_network = F,
   spatial_network_name = "Delaunay_network",
-  network_color = "lightgray",
+  spatial_network_color = "lightgray",
   spatial_network_alpha = 0.5,
   show_spatial_grid = F,
   spatial_grid_name = "spatial_grid",
@@ -84,6 +85,10 @@ spatDimPlot3D(
 
 \item{network_name}{name of NN network to use, if show_NN_network = TRUE}
 
+\item{nn_network_color}{color of nn network}
+
+\item{nn_network_alpha}{column to use for alpha of the edges}
+
 \item{show_cluster_center}{show the center of each cluster}
 
 \item{show_center_label}{provide a label for each cluster}
@@ -110,11 +115,11 @@ spatDimPlot3D(
 
 \item{dim_point_size}{size of points in dim. reduction space}
 
-\item{nn_network_alpha}{column to use for alpha of the edges}
-
 \item{show_spatial_network}{show spatial network}
 
 \item{spatial_network_name}{name of spatial network to use}
+
+\item{spatial_network_color}{color of spatial network}
 
 \item{spatial_network_alpha}{alpha of spatial network}
 
@@ -126,6 +131,18 @@ spatDimPlot3D(
 
 \item{spatial_point_size}{size of spatial points}
 
+\item{axis_scale}{the way to scale the axis}
+
+\item{custom_ratio}{customize the scale of the plot}
+
+\item{x_ticks}{set the number of ticks on the x-axis}
+
+\item{y_ticks}{set the number of ticks on the y-axis}
+
+\item{z_ticks}{set the number of ticks on the z-axis}
+
+\item{legend_text_size}{size of legend}
+
 \item{show_plot}{show plot}
 
 \item{return_plot}{return ggplot object}
@@ -135,20 +152,6 @@ spatDimPlot3D(
 \item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-
-\item{dim_point_border_col}{border color of points in dim. reduction space}
-
-\item{dim_point_border_stroke}{border stroke of points in dim. reduction space}
-
-\item{spatial_network_color}{color of spatial network}
-
-\item{spatial_other_point_size}{size of not selected spatial points}
-
-\item{spatial_other_cells_alpha}{alpha of not selected spatial points}
-
-\item{dim_other_point_size}{size of not selected dim. reduction points}
-
-\item{show_legend}{show legend}
 }
 \value{
 plotly

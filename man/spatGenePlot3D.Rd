@@ -24,7 +24,7 @@ spatGenePlot3D(
   show_grid = FALSE,
   spatial_grid_name = "spatial_grid",
   point_size = 2,
-  show_legend = T,
+  show_legend = TRUE,
   axis_scale = c("cube", "real", "custom"),
   custom_ratio = NULL,
   x_ticks = NULL,
@@ -50,6 +50,20 @@ spatGenePlot3D(
 
 \item{spatial_network_name}{name of spatial network to use}
 
+\item{edge_alpha}{alpha of edges}
+
+\item{cluster_column}{cluster column to select groups}
+
+\item{select_cell_groups}{select subset of cells/clusters based on cell_color parameter}
+
+\item{select_cells}{select subset of cells based on cell IDs}
+
+\item{show_other_cells}{display not selected cells}
+
+\item{other_cell_color}{color of not selected cells}
+
+\item{other_point_size}{size of not selected cells}
+
 \item{genes_high_color}{color represents high gene expression}
 
 \item{genes_mid_color}{color represents middle gene expression}
@@ -64,6 +78,16 @@ spatGenePlot3D(
 
 \item{show_legend}{show legend}
 
+\item{axis_scale}{the way to scale the axis}
+
+\item{custom_ratio}{customize the scale of the plot}
+
+\item{x_ticks}{set the number of ticks on the x-axis}
+
+\item{y_ticks}{set the number of ticks on the y-axis}
+
+\item{z_ticks}{set the number of ticks on the z-axis}
+
 \item{show_plot}{show plots}
 
 \item{return_plot}{return ggplot object}
@@ -75,12 +99,6 @@ spatGenePlot3D(
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
 \item{grid_color}{color of spatial grid}
-
-\item{midpoint}{expression midpoint}
-
-\item{scale_alpha_with_expression}{scale expression with ggplot alpha parameter}
-
-\item{\dots}{additional parameters for cowplot::save_plot()}
 }
 \value{
 ggplot
