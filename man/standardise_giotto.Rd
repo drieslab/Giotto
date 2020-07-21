@@ -19,3 +19,4 @@ standardized matrix
 \description{
 standardises a matrix
 }
+\keyword{internal}

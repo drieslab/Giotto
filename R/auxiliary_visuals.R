@@ -9,6 +9,8 @@ aes_string2 <- function(...){
   do.call(ggplot2::aes_string, args)
 }
 
+
+
 #' @title ggplot_save_function
 #' @name ggplot_save_function
 #' @description Function to automatically save plots to directory of interest
@@ -1259,9 +1261,9 @@ plotMetaDataHeatmap = function(gobject,
 #' @param custom_cluster_order custom cluster order (default = NULL)
 #' @param clus_cor_method correlation method for clusters
 #' @param clus_cluster_method hierarchical cluster method for the clusters
-#' @param custom_gene_order custom gene order (default = NULL)
-#' @param gene_cor_method correlation method for genes
-#' @param gene_cluster_method hierarchical cluster method for the genes
+#' @param custom_values_order custom values order (default = NULL)
+#' @param values_cor_method correlation method for values
+#' @param values_cluster_method hierarchical cluster method for the values
 #' @param midpoint midpoint of show_values
 #' @param x_text_size size of x-axis text
 #' @param x_text_angle angle of x-axis text
@@ -1608,13 +1610,20 @@ violinPlot <- function(gobject,
 #' @description provide network segment to draw in 3D plot_ly()
 #' @param gobject network in giotto object
 #' @return edges in network as data.table()
-#' @export
-#' @examples
-#'     plotly_network(gobject)
+#' @keywords internal
 plotly_network <- function(network,
-                           x = "sdimx_begin",y = "sdimy_begin",z = "sdimz_begin",
-                           x_end = "sdimx_end",y_end="sdimy_end",z_end="sdimz_end"){
-  edges <- data.table(edge_id = 1:(3*dim(network)[1]),x = 0,y = 0,z = 0)
+                           x = "sdimx_begin",
+                           y = "sdimy_begin",
+                           z = "sdimz_begin",
+                           x_end = "sdimx_end",
+                           y_end="sdimy_end",
+                           z_end="sdimz_end"){
+
+  edges = data.table::data.table(edge_id = 1:(3*dim(network)[1]),
+                                 x = 0,
+                                 y = 0,
+                                 z = 0)
+
   edges[edges$edge_id%%3 == 1]$x = as.double(network[[x]])
   edges[edges$edge_id%%3 == 1]$y = as.double(network[[y]])
   edges[edges$edge_id%%3 == 1]$z = as.double(network[[z]])
@@ -1626,6 +1635,7 @@ plotly_network <- function(network,
   edges[edges$edge_id%%3 == 0]$x = NA
   edges[edges$edge_id%%3 == 0]$y = NA
   edges[edges$edge_id%%3 == 0]$z = NA
+
   return(edges)
 }
 
@@ -1635,14 +1645,13 @@ plotly_network <- function(network,
 #' @description provide grid segment to draw in plot_ly()
 #' @param spatial_grid spatial_grid in giotto object
 #' @return edges in spatial grid as data.table()
-#' @export
-#' @examples
-#'     plotly_grid(gobject)
+#' @keywords internal
 plotly_grid <- function(spatial_grid,
                         x_start = "x_start",
                         y_start = "y_start",
                         x_end = "x_end",
                         y_end = "y_end"){
+
   edge_num <- length(unique(spatial_grid[[x_start]])) + length(unique(spatial_grid[[y_start]])) + 2
   x_line <- unique(as.numeric(unlist(spatial_grid[,c(x_start,x_end)])))
   y_line <- unique(as.numeric(unlist(spatial_grid[,c(y_start,y_end)])))
@@ -1653,7 +1662,7 @@ plotly_grid <- function(spatial_grid,
   y_min <- min(spatial_grid[[y_start]])
   y_max <- max(spatial_grid[[y_end]])
 
-  edges <- data.table(edge_id = 1:edge_num,x = 0,y = 0,x_end = 0,y_end = 0)
+  edges <- data.table::data.table(edge_id = 1:edge_num,x = 0,y = 0,x_end = 0,y_end = 0)
 
   edges[1:length(x_line),]$x <- x_line
   edges[1:length(x_line),]$x_end <- x_line
@@ -1679,11 +1688,13 @@ plotly_grid <- function(spatial_grid,
 #' @param mode axis adjustment mode
 #' @param custom_ratio set the ratio artificially
 #' @return edges in spatial grid as data.table()
-#' @export
-#' @examples
-#'     plotly_axis_scale_3D(gobject)
-plotly_axis_scale_3D <- function(cell_locations,sdimx = NULL,sdimy = NULL,sdimz = NULL,
-                                 mode = c("cube","real","custom"),custom_ratio = NULL){
+#' @keywords internal
+plotly_axis_scale_3D <- function(cell_locations,
+                                 sdimx = NULL,
+                                 sdimy = NULL,
+                                 sdimz = NULL,
+                                 mode = c("cube","real","custom"),
+                                 custom_ratio = NULL){
   mode = match.arg(mode, c("cube","real","custom"))
   if(mode == "real"){
     x_ratio = max(cell_locations[[sdimx]]) - min(cell_locations[[sdimx]])
@@ -1717,18 +1728,20 @@ plotly_axis_scale_3D <- function(cell_locations,sdimx = NULL,sdimy = NULL,sdimz 
 
 #' @title plotly_axis_scale_2D
 #' @name plotly_axis_scale_2D
-#' @description adjust the axis scale in 3D plotly plot
+#' @description adjust the axis scale in 2D plotly plot
 #' @param cell_locations spatial_loc in giotto object
 #' @param sdimx x axis of cell spatial location
 #' @param sdimy y axis of cell spatial location
 #' @param mode axis adjustment mode
 #' @param custom_ratio set the ratio artificially
 #' @return edges in spatial grid as data.table()
-#' @export
-#' @examples
-#'     plotly_axis_scale_2D(gobject)
-plotly_axis_scale_2D <- function(cell_locations,sdimx = NULL,sdimy = NULL,
-                                 mode = c("cube","real","custom"),custom_ratio = NULL){
+#' @keywords internal
+plotly_axis_scale_2D <- function(cell_locations,
+                                 sdimx = NULL,
+                                 sdimy = NULL,
+                                 mode = c("cube","real","custom"),
+                                 custom_ratio = NULL){
+
   mode = match.arg(mode, c("cube","real","custom"))
   if(mode == "real"){
     x_ratio = max(cell_locations[[sdimx]]) - min(cell_locations[[sdimx]])

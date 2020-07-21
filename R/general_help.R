@@ -420,8 +420,7 @@ convertEnsemblToGeneSymbol = function(matrix,
 
 #' @title my_arowMeans
 #' @description arithmic rowMeans that works for a single column
-#' @examples
-#'     my_arowMeans(x)
+#' @keywords internal
 my_arowMeans = function(x) {
   if(is.null(nrow(x))) {
     x # if only one column is selected
@@ -433,8 +432,7 @@ my_arowMeans = function(x) {
 
 #' @title my_growMeans
 #' @description geometric rowMeans that works for a single column
-#' @examples
-#'     my_growMeans(x)
+#' @keywords internal
 my_growMeans = function(x, offset = 0.1) {
   if(is.null(nrow(x))) {
     x # if only one column is selected
@@ -446,8 +444,7 @@ my_growMeans = function(x, offset = 0.1) {
 
 #' @title my_rowMeans
 #' @description arithmic or geometric rowMeans that works for a single column
-#' @examples
-#'     my_rowMeans(x)
+#' @keywords internal
 my_rowMeans = function(x, method = c('arithmic', 'geometric'), offset = 0.1) {
   method = match.arg(method, c('arithmic', 'geometric'))
   if(method == 'arithmic') return(my_arowMeans(x))
@@ -457,7 +454,7 @@ my_rowMeans = function(x, method = c('arithmic', 'geometric'), offset = 0.1) {
 #' @title DT_removeNA
 #' @name DT_removeNA
 #' @description set NA values to 0 in a data.table object
-#' @param DT data.table
+#' @keywords internal
 DT_removeNA = function(DT) {
   for (i in names(DT))
     DT[is.na(get(i)), (i):=0]
@@ -467,6 +464,7 @@ DT_removeNA = function(DT) {
 #' @title kmeans_binarize
 #' @name kmeans_binarize
 #' @description create binarized scores from a vector using kmeans
+#' @keywords internal
 kmeans_binarize = function(x, nstart = 3, iter.max = 10) {
 
   sel_gene_km = stats::kmeans(x, centers = 2, nstart = nstart, iter.max = iter.max)$cluster
@@ -492,6 +490,7 @@ kmeans_binarize = function(x, nstart = 3, iter.max = 10) {
 #' @title rank_binarize
 #' @name rank_binarize
 #' @description create binarized scores from a vector using arbitrary rank
+#' @keywords internal
 rank_binarize = function(x, max_rank = 200) {
 
   sel_gene_rank = rank(-x, ties.method = 'average')
@@ -543,5 +542,51 @@ sort_combine_two_DT_columns = function(DT,
 
   return(DT)
 }
+
+
+
+
+
+
+
+#' @title package_check
+#' @name package_check
+#' @description check if package is available and provide installation instruction if not available
+#' @keywords internal
+package_check = function(pkg_name,
+                         repository = c('CRAN', 'Bioc')) {
+
+  repository = match.arg(repository, choices = c('CRAN', 'Bioc'))
+
+  if(repository == 'CRAN') {
+
+    if(pkg_name %in% rownames(installed.packages()) == FALSE) {
+      stop("\n package ", pkg_name ," is not yet installed \n",
+           "To install: \n",
+           "install.packages('",pkg_name,"')"
+      )
+    }
+
+
+  } else if(repository == 'Bioc') {
+
+    if(pkg_name %in% rownames(installed.packages()) == FALSE) {
+      stop("\n package ", pkg_name ," is not yet installed \n",
+           "To install: \n",
+           "if (!requireNamespace('BiocManager', quietly = TRUE)) install.packages('BiocManager');
+         BiocManager::install('",pkg_name,"')"
+      )
+    }
+
+  }
+
+}
+
+
+
+
+
+
+
 
 

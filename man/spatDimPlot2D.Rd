@@ -45,6 +45,8 @@ spatDimPlot2D(
   spat_show_cluster_center = F,
   spat_show_center_label = F,
   spat_center_point_size = 4,
+  spat_center_point_border_col = "blue",
+  spat_center_point_border_stroke = 0.1,
   spat_label_size = 4,
   spat_label_fontface = "bold",
   show_NN_network = F,
@@ -162,6 +164,10 @@ spatDimPlot2D(
 
 \item{spat_center_point_size}{size of the center point}
 
+\item{spat_center_point_border_col}{border color of spatial center points}
+
+\item{spat_center_point_border_stroke}{border strike size of spatial center points}
+
 \item{spat_label_size}{size of the center label}
 
 \item{spat_label_fontface}{font of the center label}
@@ -179,6 +185,8 @@ spatDimPlot2D(
 \item{spat_network_name}{name of spatial network to use}
 
 \item{spat_network_color}{color of spatial network}
+
+\item{spat_network_alpha}{alpha of spatial network}
 
 \item{show_spatial_grid}{show spatial grid}
 

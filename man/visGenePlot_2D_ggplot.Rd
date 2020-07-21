@@ -87,6 +87,4 @@ Visualize cells and gene expression according to spatial coordinates
 \details{
 Description of parameters.
 }
-\examples{
-    visGenePlot_2D_ggplot(gobject)
-}
+\keyword{internal}

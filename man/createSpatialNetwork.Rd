@@ -56,6 +56,8 @@ createSpatialNetwork(
 \item{verbose}{verbose}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
+
+\item{\dots}{Additional parameters for the selected function}
 }
 \value{
 giotto object with updated spatial network slot

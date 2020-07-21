@@ -126,6 +126,4 @@ integration of visSpatDimPlot_2D and visSpatDimPlot_3D
 \details{
 Description of parameters.
 }
-\examples{
-    visSpatDimPlot(gobject)
-}
+\keyword{internal}

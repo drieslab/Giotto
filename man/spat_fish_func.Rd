@@ -9,3 +9,4 @@ spat_fish_func(gene, bin_matrix, spat_mat, calc_hub = F, hub_min_int = 3)
 \description{
 performs fisher exact test
 }
+\keyword{internal}

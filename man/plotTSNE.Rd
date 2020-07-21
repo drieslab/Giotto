@@ -16,6 +16,7 @@ plotTSNE(gobject, dim_reduction_name = "tsne", default_save_name = "tSNE", ...)
 \item{...}{
   Arguments passed on to \code{\link[=dimPlot2D]{dimPlot2D}}
   \describe{
+    \item{\code{group_by}}{create multiple plots based on cell annotation column}
     \item{\code{group_by_subset}}{subset the group_by factor column}
     \item{\code{dim1_to_use}}{dimension to use on x-axis}
     \item{\code{dim2_to_use}}{dimension to use on y-axis}
@@ -37,6 +38,8 @@ plotTSNE(gobject, dim_reduction_name = "tsne", default_save_name = "tSNE", ...)
     \item{\code{show_cluster_center}}{plot center of selected clusters}
     \item{\code{show_center_label}}{plot label of selected clusters}
     \item{\code{center_point_size}}{size of center points}
+    \item{\code{center_point_border_col}}{border color of center points}
+    \item{\code{center_point_border_stroke}}{border stroke size of center points}
     \item{\code{label_size}}{size of labels}
     \item{\code{label_fontface}}{font of labels}
     \item{\code{edge_alpha}}{column to use for alpha of the edges}

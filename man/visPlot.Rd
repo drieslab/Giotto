@@ -120,6 +120,4 @@ Visualize cells according to spatial coordinates
 \details{
 Description of parameters.
 }
-\examples{
-    visPlot(gobject)
-}
+\keyword{internal}

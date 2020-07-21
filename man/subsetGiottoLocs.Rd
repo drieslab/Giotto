@@ -32,6 +32,8 @@ subsetGiottoLocs(
 \item{z_min}{minimum z-coordinate}
 
 \item{return_gobject}{return Giotto object}
+
+\item{verbose}{be verbose}
 }
 \value{
 giotto object

@@ -9,3 +9,4 @@ spat_OR_func(gene, bin_matrix, spat_mat, calc_hub = F, hub_min_int = 3)
 \description{
 calculate odds-ratio
 }
+\keyword{internal}

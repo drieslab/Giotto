@@ -1,4 +1,6 @@
 
+## Giotto stat functions ####
+
 #' @title mean_giotto
 #' @keywords internal
 mean_giotto = function(x, ...) {
@@ -113,6 +115,8 @@ cor_giotto = function(x, ...) {
 }
 
 
+## * ####
+## Giotto auxiliary functions ####
 
 #' @title giotto_lapply
 #' @keywords internal
@@ -526,6 +530,7 @@ subsetGiotto <- function(gobject,
 #' @param z_max maximum z-coordinate
 #' @param z_min minimum z-coordinate
 #' @param return_gobject return Giotto object
+#' @param verbose be verbose
 #' @return giotto object
 #' @details if return_gobject = FALSE, then a filtered combined metadata data.table will be returned
 #' @export
@@ -1178,6 +1183,10 @@ adjustGiottoMatrix <- function(gobject,
 }
 
 
+## * ####
+## Gene & Cell metadata functions ####
+
+
 #' @title annotateGiotto
 #' @description Converts cluster results into provided annotation.
 #' @param gobject giotto object
@@ -1659,6 +1668,10 @@ addGenesPerc = function(gobject,
 
 
 
+## * ####
+## Giotto auxiliary functions ####
+
+
 #' @title showProcessingSteps
 #' @description shows the sequential processing steps that were performed in a summarized format
 #' @param gobject giotto object
@@ -1694,12 +1707,13 @@ showProcessingSteps <- function(gobject) {
 #' @title create_cluster_matrix
 #' @description creates aggregated matrix for a given clustering column
 #' @keywords internal
-#' @examples
-#'     create_cluster_matrix(gobject)
 create_cluster_matrix <- function(gobject,
                                   expression_values = c('normalized', 'scaled', 'custom'),
                                   cluster_column,
                                   gene_subset = NULL) {
+
+  # data.table variables
+  genes = NULL
 
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
 

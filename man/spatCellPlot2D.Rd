@@ -105,6 +105,10 @@ spatCellPlot2D(
 
 \item{center_point_size}{size of center points}
 
+\item{center_point_border_col}{border color of center points}
+
+\item{center_point_border_stroke}{border stroke size of center points}
+
 \item{label_size}{size of labels}
 
 \item{label_fontface}{font of labels}
@@ -150,6 +154,14 @@ spatCellPlot2D(
 \item{axis_text}{size of axis text}
 
 \item{axis_title}{size of axis title}
+
+\item{cow_n_col}{cowplot param: how many columns}
+
+\item{cow_rel_h}{cowplot param: relative height}
+
+\item{cow_rel_w}{cowplot param: relative width}
+
+\item{cow_align}{cowplot param: how to align}
 
 \item{show_plot}{show plot}
 

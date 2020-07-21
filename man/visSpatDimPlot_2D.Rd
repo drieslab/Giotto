@@ -121,6 +121,4 @@ Visualize cells according to spatial AND dimension reduction coordinates in ggpl
 \details{
 Description of parameters.
 }
-\examples{
-    visSpatDimPlot_2D(gobject)
-}
+\keyword{internal}

@@ -151,7 +151,8 @@ setMethod(f = "print.giotto",
 
 #' @title set_giotto_python_path
 #' @name set_giotto_python_path
-#' @description sets the python path and/or install miniconda and the python modules
+#' @description sets the python path and/or installs miniconda and the python modules
+#' @keywords internal
 set_giotto_python_path = function(python_path = NULL,
                                   packages_to_install = c('pandas', 'networkx', 'python-igraph',
                                                           'leidenalg', 'python-louvain', 'python.app',
@@ -707,10 +708,16 @@ createGiottoObject <- function(raw_exprs,
   }
 
 
-  # set number of cores automatically, but with limit of 10
+  # if cores is not set, then set number of cores automatically, but with limit of 10
   if(is.na(cores) | !is.numeric(cores)) {
-    cores = parallel::detectCores() - 2
-    cores = ifelse(cores > 10, 10, cores)
+
+    cores = parallel::detectCores()
+    if(cores <= 2) {
+      cores = cores
+    } else {
+      cores = cores - 2
+      cores = ifelse(cores > 10, 10, cores)
+    }
     data.table::setDTthreads(threads = cores)
   }
 
@@ -732,6 +739,8 @@ createGiottoObject <- function(raw_exprs,
   gobject@cell_ID = colnames(raw_exprs)
   gobject@gene_ID = rownames(raw_exprs)
   gobject@parameters = list()
+
+
 
 
   ## set instructions
@@ -835,6 +844,7 @@ createGiottoObject <- function(raw_exprs,
       stop('\n dimensions, row or column names are not the same between custom normalized and raw expression \n')
     }
   }
+
 
 
   ## cell metadata

@@ -24,6 +24,4 @@ findCellProximityGenes_per_interaction(
 \description{
 Identifies genes that are differentially expressed due to proximity to other cell types.
 }
-\examples{
-    findCellProximityGenes_per_interaction()
-}
+\keyword{internal}

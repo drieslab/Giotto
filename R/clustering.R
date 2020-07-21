@@ -58,7 +58,7 @@ doLeidenCluster = function(gobject,
   cell_ID_vec = gobject@cell_ID
 
   ## select network to use
-  igraph_object = extractNearestNetwork(gobject,
+  igraph_object = select_NearestNetwork(gobject,
                                         nn_network_to_use = nn_network_to_use,
                                         network_name = network_name)
 
@@ -205,7 +205,7 @@ doLouvainCluster_community <- function(gobject,
   cell_ID_vec = gobject@cell_ID
 
   ## select network to use
-  igraph_object = extractNearestNetwork(gobject,
+  igraph_object = select_NearestNetwork(gobject,
                                         nn_network_to_use = nn_network_to_use,
                                         network_name = network_name)
 
@@ -343,7 +343,7 @@ doLouvainCluster_multinet <- function(gobject,
   cell_ID_vec = gobject@cell_ID
 
   ## select network to use
-  igraph_object = extractNearestNetwork(gobject,
+  igraph_object = select_NearestNetwork(gobject,
                                         nn_network_to_use = nn_network_to_use,
                                         network_name = network_name)
 
@@ -533,7 +533,7 @@ doRandomWalkCluster <- function(gobject,
   cell_ID_vec = gobject@cell_ID
 
   ## select network to use
-  igraph_object = extractNearestNetwork(gobject,
+  igraph_object = select_NearestNetwork(gobject,
                                         nn_network_to_use = nn_network_to_use,
                                         network_name = network_name)
 
@@ -633,7 +633,7 @@ doSNNCluster <- function(gobject,
   cell_ID_vec = gobject@cell_ID
 
   ## select network to use
-  igraph_object = extractNearestNetwork(gobject,
+  igraph_object = select_NearestNetwork(gobject,
                                         nn_network_to_use = nn_network_to_use,
                                         network_name = network_name)
 
@@ -1180,7 +1180,6 @@ clusterCells <- function(gobject,
                                        name = name,
                                        nn_network_to_use = nn_network_to_use,
                                        network_name = network_name,
-                                       weight_col = pyth_louv_weight_col,
                                        gamma = louvain_gamma,
                                        omega = louvain_omega,
                                        return_gobject = return_gobject,
@@ -2013,7 +2012,7 @@ subClusterCells <- function(gobject,
 
   } else if(cluster_method == 'louvain_community') {
 
-    result = doLouvainCluster_community(gobject = gobject,
+    result = doLouvainSubCluster_community(gobject = gobject,
                                         cluster_column = cluster_column,
                                         selected_clusters = selected_clusters,
                                         hvg_param = hvg_param,
@@ -2034,7 +2033,7 @@ subClusterCells <- function(gobject,
 
   } else if(cluster_method == 'louvain_multinet') {
 
-    result = doLouvainCluster_multinet(gobject = gobject,
+    result = doLouvainSubCluster_multinet(gobject = gobject,
                                        cluster_column = cluster_column,
                                        selected_clusters = selected_clusters,
                                        hvg_param = hvg_param,

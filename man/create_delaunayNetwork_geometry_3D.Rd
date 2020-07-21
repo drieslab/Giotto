@@ -14,8 +14,6 @@ create_delaunayNetwork_geometry_3D(
 )
 }
 \description{
-Create a spatial Delaunay network.
+Create a spatial 3D Delaunay network with geometry
 }
-\examples{
-    create_delaunayNetwork_geometry_3D(gobject)
-}
+\keyword{internal}

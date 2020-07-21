@@ -5,6 +5,7 @@
 #' @title spat_fish_func
 #' @name spat_fish_func
 #' @description performs fisher exact test
+#' @keywords internal
 spat_fish_func = function(gene,
                           bin_matrix,
                           spat_mat,
@@ -64,6 +65,7 @@ spat_fish_func = function(gene,
 #' @title spat_OR_func
 #' @name spat_OR_func
 #' @description calculate odds-ratio
+#' @keywords internal
 spat_OR_func = function(gene,
                         bin_matrix,
                         spat_mat,
@@ -405,7 +407,7 @@ silhouetteRank <- function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return a list of data.frames with results and plot (optional)
 #' @details This function is a wrapper for the SpatialDE method implemented in the ...
@@ -425,6 +427,8 @@ spatialDE <- function(gobject = NULL,
                       save_param = list(),
                       default_save_name = 'SpatialDE'){
 
+  # data.table variables
+  cell_ID = NULL
 
   # expression
   values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
@@ -520,6 +524,9 @@ spatialAEH <- function(gobject = NULL,
                        python_path = NULL,
                        return_gobject = TRUE) {
 
+  # data.table variables
+  cell_ID = NULL
+
   # expression
   values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
   expr_values = select_expression_values(gobject = gobject, values = values)
@@ -583,9 +590,7 @@ spatialAEH <- function(gobject = NULL,
 #' @param unsig_alpha transparency of unsignificant genes
 #' @return ggplot object
 #' @details Description of parameters.
-#' @export
-#' @examples
-#'     FSV_show(results)
+#' @keywords internal
 FSV_show <- function(results,
                      ms_results = NULL,
                      size = c(4,2,1),
@@ -658,6 +663,7 @@ trendSceek <- function(gobject,
                        ncores = 8,
                        ...) {
 
+  # verify if optional package is installed
   if("trendsceek" %in% rownames(installed.packages()) == FALSE) {
     stop("\n package 'trendsceek' is not yet installed \n",
          "To install: \n",
@@ -760,8 +766,9 @@ detectSpatialPatterns <- function(gobject,
   if(!spatial_grid_name %in% names(gobject@spatial_grid)) {
     stop("\n you need to provide an existing spatial grid name for this function to work \n")
   }
-  spatial_grid = gobject@spatial_grid[[spatial_grid_name]]
 
+  #spatial_grid = gobject@spatial_grid[[spatial_grid_name]]
+  spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
 
   # annotate spatial locations with spatial grid information
   spatial_locs = copy(gobject@spatial_locs)
@@ -868,10 +875,11 @@ detectSpatialPatterns <- function(gobject,
 #' @param background_color background color for plot
 #' @param grid_border_color color for grid
 #' @param show_legend show legend of ggplot
+#' @param point_size size of points
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
@@ -959,16 +967,7 @@ showPattern2D <- function(gobject,
 #' @description show patterns for 2D spatial data
 #' @param gobject giotto object
 #' @param spatPatObj Output from detectSpatialPatterns
-#' @param dimension dimension to plot
-#' @param trim Trim ends of the PC values.
-#' @param background_color background color for plot
-#' @param grid_border_color color for grid
-#' @param show_legend show legend of ggplot
-#' @param show_plot show plot
-#' @param return_plot return ggplot object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @inheritDotParams showPattern2D -gobject -spatPatObj
 #' @return ggplot
 #' @seealso \code{\link{showPattern2D}}
 #' @export
@@ -999,7 +998,7 @@ showPattern = function(gobject, spatPatObj, ...) {
 #' @param show_plot show plot
 #' @param return_plot return plot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return plotly
 #' @export
@@ -1023,6 +1022,9 @@ showPattern3D <- function(gobject,
                           save_plot = NA,
                           save_param =  list(),
                           default_save_name = 'showPattern3D') {
+
+  # data.table variables
+  center_x = x_start = x_end = center_y = y_start = y_end = center_z = z_start = z_end = NULL
 
   if(!'spatPatObj' %in% class(spatPatObj)) {
     stop('\n spatPatObj needs to be the output from detectSpatialPatterns \n')
@@ -1111,7 +1113,7 @@ showPattern3D <- function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from all_plots_save_function()
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
@@ -1129,6 +1131,9 @@ showPatternGenes <- function(gobject,
                              save_plot = NA,
                              save_param =  list(),
                              default_save_name = 'showPatternGenes') {
+
+  # data.table variables
+  gene_ID = NULL
 
   if(!'spatPatObj' %in% class(spatPatObj)) {
     stop('\n spatPatObj needs to be the output from detectSpatialPatterns \n')
@@ -1194,6 +1199,7 @@ showPatternGenes <- function(gobject,
 #' @param top_neg_genes Top negatively correlated genes.
 #' @param min_pos_cor Minimum positive correlation score to include a gene.
 #' @param min_neg_cor Minimum negative correlation score to include a gene.
+#' @param return_top_selection only return selection based on correlation criteria (boolean)
 #' @return Data.table with genes associated with selected dimension (PC).
 #' @details Description.
 #' @export
@@ -1395,7 +1401,9 @@ do_spatial_grid_averaging = function(gobject,
   if(!spatial_grid_name %in% names(gobject@spatial_grid)) {
     stop("\n you need to provide an existing spatial grid name for this function to work \n")
   }
-  spatial_grid = gobject@spatial_grid[[spatial_grid_name]]
+
+  #spatial_grid = gobject@spatial_grid[[spatial_grid_name]]
+  spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
 
 
   # annotate spatial locations with spatial grid information
@@ -1727,9 +1735,9 @@ clusterSpatialCorGenes = function(spatCorObject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
-#' @param ... additional parameters to the \code{\link[ComplexHeatmap]{Heatmap}} function from ComplexHeatmap
+#' @param \dots additional parameters to the \code{\link[ComplexHeatmap]{Heatmap}} function from ComplexHeatmap
 #' @return Heatmap generated by ComplexHeatmap
 #' @export
 #' @examples
@@ -1842,7 +1850,7 @@ heatmSpatialCorGenes = function(gobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return data.table with positive (within group) and negative (outside group) scores
 #' @export

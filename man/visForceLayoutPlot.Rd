@@ -87,6 +87,4 @@ Visualize cells according to forced layout algorithm coordinates
 \details{
 Description of parameters.
 }
-\examples{
-    visForceLayoutPlot(gobject)
-}
+\keyword{internal}

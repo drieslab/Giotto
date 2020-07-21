@@ -78,6 +78,8 @@ spatGenePlot2D(
 
 \item{spatial_network_name}{name of spatial network to use}
 
+\item{edge_alpha}{alpha of edge}
+
 \item{show_grid}{show spatial grid}
 
 \item{grid_color}{color of spatial grid}
@@ -131,8 +133,6 @@ spatGenePlot2D(
 \item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-
-\item{\dots}{additional parameters for cowplot::save_plot()}
 }
 \value{
 ggplot

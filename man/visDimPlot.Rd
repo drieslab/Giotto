@@ -116,6 +116,4 @@ Visualize cells according to dimension reduction coordinates
 \details{
 Description of parameters.
 }
-\examples{
-    visDimPlot(gobject)
-}
+\keyword{internal}

@@ -21,3 +21,4 @@ list of eigenvalues, eigenvectors and pca coordinates
 \description{
 performs PCA based on Rfast
 }
+\keyword{internal}

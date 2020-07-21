@@ -20,7 +20,4 @@ do_cell_proximity_test(
 \description{
 Performs a selected differential test on subsets of a matrix
 }
-\examples{
-    do_cell_proximity_test()
-}
 \keyword{internal}

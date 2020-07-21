@@ -152,6 +152,4 @@ integration of visSpatDimGenePlot_2D(ggplot) and visSpatDimGenePlot_3D(plotly)
 \details{
 Description of parameters.
 }
-\examples{
-    visSpatDimGenePlot(gobject)
-}
+\keyword{internal}

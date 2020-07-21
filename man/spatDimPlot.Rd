@@ -50,6 +50,8 @@ spatDimPlot(...)
     \item{\code{spat_show_cluster_center}}{show the center of each cluster}
     \item{\code{spat_show_center_label}}{provide a label for each cluster}
     \item{\code{spat_center_point_size}}{size of the center point}
+    \item{\code{spat_center_point_border_col}}{border color of spatial center points}
+    \item{\code{spat_center_point_border_stroke}}{border strike size of spatial center points}
     \item{\code{spat_label_size}}{size of the center label}
     \item{\code{spat_label_fontface}}{font of the center label}
     \item{\code{show_NN_network}}{show underlying NN network}
@@ -59,6 +61,7 @@ spatDimPlot(...)
     \item{\code{show_spatial_network}}{show spatial network}
     \item{\code{spat_network_name}}{name of spatial network to use}
     \item{\code{spat_network_color}}{color of spatial network}
+    \item{\code{spat_network_alpha}}{alpha of spatial network}
     \item{\code{show_spatial_grid}}{show spatial grid}
     \item{\code{spat_grid_name}}{name of spatial grid to use}
     \item{\code{spat_grid_color}}{color of spatial grid}

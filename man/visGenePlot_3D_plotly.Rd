@@ -83,6 +83,4 @@ Visualize cells and gene expression according to spatial coordinates
 \details{
 Description of parameters.
 }
-\examples{
-    visGenePlot_3D_plotly(gobject)
-}
+\keyword{internal}

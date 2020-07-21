@@ -43,6 +43,7 @@ create_dimObject = function(name = 'test',
 #' @param x matrix
 #' @param center center data
 #' @param scale scale data
+#' @keywords internal
 #' @return standardized matrix
 standardise_giotto = function (x, center = TRUE, scale = TRUE)
 {
@@ -71,6 +72,7 @@ standardise_giotto = function (x, center = TRUE, scale = TRUE)
 #' @param center center data
 #' @param scale scale features
 #' @param k number of principal components to calculate
+#' @keywords internal
 #' @return list of eigenvalues, eigenvectors and pca coordinates
 pca_giotto = function(mymatrix, center = T, scale = T, k = 50) {
 
@@ -101,6 +103,7 @@ pca_giotto = function(mymatrix, center = T, scale = T, k = 50) {
 #' @param center center data
 #' @param scale scale features
 #' @param rev reverse PCA
+#' @keywords internal
 #' @return list of eigenvalues, loadings and pca coordinates
 runPCA_prcomp_irlba = function(x,
                                ncp = 100,
@@ -163,6 +166,7 @@ runPCA_prcomp_irlba = function(x,
 #' @param ncp number of principal components to calculate
 #' @param scale scale features
 #' @param rev reverse PCA
+#' @keywords internal
 #' @return list of eigenvalues, loadings and pca coordinates
 runPCA_factominer = function(x,
                              ncp = 100,
@@ -240,6 +244,7 @@ runPCA_factominer = function(x,
 #' @param sel_matrix selected expression matrix
 #' @param genes_to_use genes to use, character or vector of genes
 #' @param verbose verbosity
+#' @keywords internal
 #' @return subsetted matrix based on selected genes
 create_genes_to_use_matrix = function(gobject,
                                       sel_matrix,

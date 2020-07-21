@@ -11,5 +11,6 @@ set_giotto_python_path(
 )
 }
 \description{
-sets the python path and/or install miniconda and the python modules
+sets the python path and/or installs miniconda and the python modules
 }
+\keyword{internal}
