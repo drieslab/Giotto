@@ -390,7 +390,7 @@ create_mesh_grid_lines <- function(cell_subset_projection_locations,extend_ratio
 #' @param name name of cress section object. (default = cross_sectino)
 #' @param spatial_network_name name of spatial network object. (default = Delaunay_network)
 #' @param thickness_unit unit of the virtual section thickness. If "cell", average size of the observed cells is used as length unit. If "natural", the unit of cell location coordinates is used.(default = cell)
-#' @param slice_thickness thickness of slice
+#' @param slice_thickness thickness of slice. default = 2
 #' @param cell_distance_estimate_method method to estimate average distance between neighobring cells. (default = mean)
 #' @param extend_ratio deciding the span of the cross section meshgrid, as a ratio of extension compared to the borders of the vitural tissue section. (default = 0.2)
 #' @param method method to define the cross section plane.
