@@ -9902,6 +9902,498 @@ spatDimCellPlot = function(...) {
 
 # ** dimension plot ####
 
+
+#' @title dimPlot_2D_plotly
+#' @name dimPlot_2D_plotly
+#' @description Visualize cells at their 2D dimension reduction coordinates with plotly
+#' @return plotly object
+#' @keywords internal
+dimPlot_2D_plotly <- function(gobject,
+                              dim_reduction_to_use = 'umap',
+                              dim_reduction_name = 'umap',
+                              dim1_to_use = 1,
+                              dim2_to_use = 2,
+                              spat_enr_names = NULL,
+                              select_cell_groups = NULL,
+                              select_cells = NULL,
+                              show_other_cells = T,
+                              other_cell_color = 'lightgrey',
+                              other_point_size = 0.5,
+                              show_NN_network = F,
+                              nn_network_to_use = 'sNN',
+                              network_name = 'sNN.pca',
+                              color_as_factor = T,
+                              cell_color = NULL,
+                              cell_color_code = NULL,
+                              show_cluster_center = F,
+                              show_center_label = T,
+                              center_point_size = 4,
+                              label_size = 4,
+                              edge_alpha = NULL,
+                              point_size = 5){
+
+
+  # data.table variables
+  cell_ID = NULL
+
+  ## dimension reduction ##
+  dim_dfr = select_dimReduction(gobject,
+                                reduction = 'cells',
+                                reduction_method = dim_reduction_to_use,
+                                name = dim_reduction_name,
+                                return_dimObj = FALSE)
+  dim_dfr = dim_dfr[,c(dim1_to_use, dim2_to_use)]
+  dim_names = colnames(dim_dfr)
+  dim_DT = data.table::as.data.table(dim_dfr)
+  dim_DT[, cell_ID := rownames(dim_dfr)]
+
+
+  ## annotated cell metadata
+  cell_metadata = combineMetadata(gobject = gobject,
+                                  spat_enr_names = spat_enr_names)
+  annotated_DT = merge(cell_metadata, dim_DT, by = 'cell_ID')
+
+
+  # create input for network
+  if(show_NN_network == TRUE) {
+
+    # nn_network
+    selected_nn_network = select_NearestNetwork(gobject = gobject,
+                                                nn_network_to_use = nn_network_to_use,
+                                                network_name = network_name,
+                                                output = 'igraph')
+    network_DT = data.table::as.data.table(igraph::as_data_frame(selected_nn_network, what = 'edges'))
+
+    # annotated network
+    old_dim_names = dim_names
+
+    annotated_network_DT <- merge(network_DT, dim_DT, by.x = 'from', by.y = 'cell_ID')
+    from_dim_names = paste0('from_', old_dim_names)
+    data.table::setnames(annotated_network_DT, old = old_dim_names, new = from_dim_names)
+
+    annotated_network_DT <- merge(annotated_network_DT, dim_DT, by.x = 'to', by.y = 'cell_ID')
+    to_dim_names = paste0('to_', old_dim_names)
+    data.table::setnames(annotated_network_DT, old = old_dim_names, new = to_dim_names)
+
+  }
+
+
+  if(dim_reduction_to_use == "pca"){
+    pca_object = select_dimReduction(gobject,
+                                     reduction = 'cells',
+                                     reduction_method = dim_reduction_to_use,
+                                     name = dim_reduction_name,
+                                     return_dimObj = TRUE)
+    eigenvalues = pca_object$misc$eigenvalues
+    total = sum(eigenvalues)
+    var_expl_vec = (eigenvalues/total) * 100
+    dim1_x_variance = var_expl_vec[dim1_to_use]
+    dim2_y_variance = var_expl_vec[dim2_to_use]
+  }
+
+
+  if(!is.null(select_cells) & !is.null(select_cell_groups)) {
+    if(is.null(cell_color)) {
+      stop('\n selection of cells is based on cell_color paramter, which is a metadata column \n')
+    }
+    cat('You have selected both individual cell IDs and a group of cells \n')
+    group_cell_IDs = annotated_DT[get(cell_color) %in% select_cell_groups][['cell_ID']]
+    select_cells = unique(c(select_cells, group_cell_IDs))
+  } else if(!is.null(select_cell_groups)) {
+    select_cells = annotated_DT[get(cell_color) %in% select_cell_groups][['cell_ID']]
+  }
+
+
+  if(!is.null(select_cells)) {
+    annotated_DT_other = annotated_DT[!annotated_DT$cell_ID %in% select_cells]
+    annotated_DT_selected = annotated_DT[annotated_DT$cell_ID %in% select_cells]
+
+    if(show_NN_network == TRUE) {
+      annotated_network_DT = annotated_network_DT[annotated_network_DT$to %in% select_cells & annotated_network_DT$from %in% select_cells]
+    }
+
+    # if specific cells are selected
+    #annotated_DT = annotated_DT_selected
+
+  }
+
+
+  ## if no subsets are required
+  if(is.null(select_cells) & is.null(select_cell_groups)) {
+    annotated_DT_selected = annotated_DT
+    annotated_DT_other    = NULL
+  }
+
+
+  ## annotated_DT_selected = all selected cells or all cells if no selection
+  ## annotated_DT_other = all not selected cells or NULL if no selection
+
+
+  pl <- plotly::plot_ly()
+  if(show_NN_network == TRUE) {
+    if(is.null(edge_alpha)) {
+      edge_alpha = 0.5
+    }
+    else if(is.character(edge_alpha)){
+      warning("Edge_alpha for plotly mode is not adjustable yet. Default 0.5 will be set\n")
+      edge_alpha = 0.5
+    }
+
+    pl <- pl %>% plotly::add_segments(name = network_name,
+                                      type = "scatter",
+                                      x = annotated_network_DT[[from_dim_names[1]]],
+                                      y = annotated_network_DT[[from_dim_names[2]]],
+                                      xend = annotated_network_DT[[to_dim_names[1]]],
+                                      yend = annotated_network_DT[[to_dim_names[2]]],
+                                      line = list(color = "lightgray",
+                                                  width = 0.5),
+                                      opacity = edge_alpha)
+  }
+
+  if(is.null(cell_color)){
+    cell_color = "lightblue"
+    pl <- pl %>% plotly::add_trace(type = "scatter",mode = "markers",
+                                   x = annotated_DT_selected[[dim_names[1]]],
+                                   y = annotated_DT_selected[[dim_names[2]]],
+                                   color = cell_color,
+                                   colors = cell_color,
+                                   marker = list(size = point_size))
+  }
+
+  else if(cell_color %in% colnames(annotated_DT_selected)){
+    if(is.null(cell_color_code)){
+      number_colors = length(unique(annotated_DT[[cell_color]]))
+      cell_color_code = getDistinctColors(n = number_colors)
+    }
+    if(color_as_factor){
+      annotated_DT_selected[[cell_color]] <- as.factor(annotated_DT_selected[[cell_color]])
+    }
+
+
+    pl <- pl %>% plotly::add_trace(type = "scatter",mode = "markers",
+                                   x = annotated_DT_selected[[dim_names[1]]],
+                                   y = annotated_DT_selected[[dim_names[2]]],
+                                   color = annotated_DT_selected[[cell_color]],
+                                   colors = cell_color_code,
+                                   legendgroup = annotated_DT_selected[[cell_color]],
+                                   marker = list(size = point_size))
+
+    if(!is.null(select_cells) & show_other_cells){
+      pl <- pl %>% plotly::add_trace(type = "scatter",mode = "markers",
+                                     x = annotated_DT_other[[dim_names[1]]],
+                                     y = annotated_DT_other[[dim_names[2]]],
+                                     #legendgroup = annotated_DT[[cell_color]],
+                                     marker = list(size = other_point_size,color = other_cell_color),
+                                     showlegend = F)
+    }
+
+    if(show_cluster_center == TRUE | show_center_label == TRUE) {
+      annotated_DT_centers = annotated_DT_selected[, .(center_1 = stats::median(get(dim_names[1])),
+                                                       center_2 = stats::median(get(dim_names[2]))),
+                                                   by = cell_color]
+      annotated_DT_centers[[cell_color]] = as.factor(annotated_DT_centers[[cell_color]])
+      if(show_cluster_center == TRUE){
+        pl <- pl %>% plotly::add_trace(type = "scatter",mode = "markers",
+                                       x = annotated_DT_centers[["center_1"]],
+                                       y = annotated_DT_centers[["center_2"]],
+                                       color = annotated_DT_centers[[cell_color]],
+                                       colors = cell_color_code,
+                                       legendgroup = annotated_DT_centers[[cell_color]],
+                                       marker = list(size = center_point_size,symbol = "x",symbols = "x"),
+                                       showlegend = F)
+      }
+
+      if(show_center_label == TRUE){
+        pl <- pl %>%  plotly::add_text(x = annotated_DT_centers[["center_1"]],
+                                       y = annotated_DT_centers[["center_2"]],
+                                       type = 'scatter',mode = 'text',
+                                       text = annotated_DT_centers[[cell_color]],
+                                       textposition = 'middle right',
+                                       textfont = list(color = '#000000', size = 16),
+                                       showlegend = F)
+      }
+
+    }
+  }
+
+  else{
+    stop("cell_color does not exist!\n")
+  }
+
+
+
+  if(dim_reduction_to_use == 'pca') {
+    x_name = paste0('pca','-',dim_names[1])
+    y_name = paste0('pca','-',dim_names[2])
+    x_title = sprintf('%s explains %.02f%% of variance', x_name, var_expl_vec[1])
+    y_title = sprintf('%s explains %.02f%% of variance', y_name, var_expl_vec[2])
+  }
+  else{
+    x_title = paste(dim_reduction_to_use, dim_names[1],sep = " ")
+    y_title = paste(dim_reduction_to_use, dim_names[2],sep = " ")
+  }
+  pl <- pl %>% plotly::layout(xaxis = list(title = x_title),
+                              yaxis = list(title = y_title),
+                              legend = list(x = 100, y = 0.5,font = list(family = "sans-serif",size = 12)))
+
+  return (pl)
+}
+
+
+#' @title dimPlot_3D_plotly
+#' @name dimPlot_3D_plotly
+#' @description Visualize cells at their 3D dimension reduction coordinates with plotly
+#' @return plotly object
+#' @keywords internal
+dimPlot_3D_plotly <- function(gobject,
+                              dim_reduction_to_use = 'umap',
+                              dim_reduction_name = 'umap',
+                              dim1_to_use = 1,
+                              dim2_to_use = 2,
+                              dim3_to_use = 3,
+                              spat_enr_names = NULL,
+
+                              select_cell_groups = NULL,
+                              select_cells = NULL,
+                              show_other_cells = T,
+                              other_cell_color = 'lightgrey',
+                              other_point_size = 0.5,
+
+                              show_NN_network = F,
+                              nn_network_to_use = 'sNN',
+                              network_name = 'sNN.pca',
+                              color_as_factor = T,
+                              cell_color = NULL,
+                              cell_color_code = NULL,
+                              show_cluster_center = F,
+                              show_center_label = T,
+                              center_point_size = 4,
+                              label_size = 4,
+                              edge_alpha = NULL,
+                              point_size = 1){
+
+  # data.table variables
+  cell_ID = NULL
+
+  ## dimension reduction ##
+  dim_dfr = select_dimReduction(gobject,
+                                reduction = 'cells',
+                                reduction_method = dim_reduction_to_use,
+                                name = dim_reduction_name,
+                                return_dimObj = FALSE)
+  dim_dfr = dim_dfr[,c(dim1_to_use, dim2_to_use)]
+  dim_names = colnames(dim_dfr)
+  dim_DT = data.table::as.data.table(dim_dfr)
+  dim_DT[, cell_ID := rownames(dim_dfr)]
+
+
+  ## annotated cell metadata
+  cell_metadata = combineMetadata(gobject = gobject,
+                                  spat_enr_names = spat_enr_names)
+  annotated_DT = merge(cell_metadata, dim_DT, by = 'cell_ID')
+
+
+  # create input for network
+  if(show_NN_network == TRUE) {
+
+    # nn_network
+    selected_nn_network = select_NearestNetwork(gobject = gobject,
+                                                nn_network_to_use = nn_network_to_use,
+                                                network_name = network_name,
+                                                output = 'igraph')
+    network_DT = data.table::as.data.table(igraph::as_data_frame(selected_nn_network, what = 'edges'))
+
+    # annotated network
+    old_dim_names = dim_names
+
+    annotated_network_DT = merge(network_DT, dim_DT, by.x = 'from', by.y = 'cell_ID')
+    from_dim_names = paste0('from_', old_dim_names)
+    data.table::setnames(annotated_network_DT, old = old_dim_names, new = from_dim_names)
+
+    annotated_network_DT = merge(annotated_network_DT, dim_DT, by.x = 'to', by.y = 'cell_ID')
+    to_dim_names = paste0('to_', old_dim_names)
+    data.table::setnames(annotated_network_DT, old = old_dim_names, new = to_dim_names)
+
+  }
+
+  if(dim_reduction_to_use == "pca"){
+    pca_object = select_dimReduction(gobject,
+                                     reduction = 'cells',
+                                     reduction_method = dim_reduction_to_use,
+                                     name = dim_reduction_name,
+                                     return_dimObj = TRUE)
+    eigenvalues = pca_object$misc$eigenvalues
+    total = sum(eigenvalues)
+    var_expl_vec = (eigenvalues/total) * 100
+    dim1_x_variance = var_expl_vec[dim1_to_use]
+    dim2_y_variance = var_expl_vec[dim2_to_use]
+  }
+
+  ## create subsets if needed
+  if(!is.null(select_cells) & !is.null(select_cell_groups)) {
+    if(is.null(cell_color)) {
+      stop('\n selection of cells is based on cell_color paramter, which is a metadata column \n')
+    }
+    cat('You have selected both individual cell IDs and a group of cells \n')
+    group_cell_IDs = annotated_DT[get(cell_color) %in% select_cell_groups][['cell_ID']]
+    select_cells = unique(c(select_cells, group_cell_IDs))
+  } else if(!is.null(select_cell_groups)) {
+    select_cells = annotated_DT[get(cell_color) %in% select_cell_groups][['cell_ID']]
+  }
+
+  if(!is.null(select_cells)) {
+    annotated_DT_other = annotated_DT[!annotated_DT$cell_ID %in% select_cells]
+    annotated_DT_selected = annotated_DT[annotated_DT$cell_ID %in% select_cells]
+
+    if(show_NN_network == TRUE) {
+      annotated_network_DT = annotated_network_DT[annotated_network_DT$to %in% select_cells & annotated_network_DT$from %in% select_cells]
+    }
+
+    # if specific cells are selected
+    annotated_DT = annotated_DT_selected
+  }
+
+  ## if no subsets are required
+  if(is.null(select_cells) & is.null(select_cell_groups)) {
+    annotated_DT_selected = annotated_DT
+    annotated_DT_other    = NULL
+  }
+
+  ## annotated_DT_selected = all selected cells or all cells if no selection
+  ## annotated_DT_other = all not selected cells or NULL if no selection
+
+
+  pl <- plotly::plot_ly()
+  if(is.null(cell_color)){
+    cell_color = "lightblue"
+    pl <- pl %>% plotly::add_trace(type = 'scatter3d',mode = "markers",
+                                   x = annotated_DT_selected[[dim_names[1]]],
+                                   y = annotated_DT_selected[[dim_names[2]]],
+                                   z = annotated_DT_selected[[dim_names[3]]],
+                                   color = cell_color,
+                                   colors = cell_color,
+                                   marker = list(size = 2),
+                                   legendgroup = annotated_DT_selected[[cell_color]])
+  }
+  else{
+    if(cell_color %in% colnames(annotated_DT_selected)){
+      if(is.null(cell_color_code)) {
+        number_colors=length(unique(annotated_DT_selected[[cell_color]]))
+        cell_color_code = getDistinctColors(n = number_colors)
+      }
+      if(color_as_factor){
+        annotated_DT_selected[[cell_color]] <- as.factor(annotated_DT_selected[[cell_color]])
+      }
+
+      pl <- pl %>% plotly::add_trace(type = 'scatter3d',mode = "markers",
+                                     x = annotated_DT_selected[[dim_names[1]]],
+                                     y = annotated_DT_selected[[dim_names[2]]],
+                                     z = annotated_DT_selected[[dim_names[3]]],
+                                     color = annotated_DT_selected[[cell_color]],
+                                     colors = cell_color_code,
+                                     marker = list(size = point_size),
+                                     legendgroup = annotated_DT_selected[[cell_color]])
+
+      if(!is.null(select_cells)&show_other_cells){
+        pl <- pl %>% plotly::add_trace(type = 'scatter3d',mode = "markers",
+                                       x = annotated_DT_other[[dim_names[1]]],
+                                       y = annotated_DT_other[[dim_names[2]]],
+                                       z = annotated_DT_other[[dim_names[3]]],
+                                       #colors = other_cell_color,
+                                       marker = list(size = other_point_size,color = other_cell_color),
+                                       showlegend = F)
+      }
+
+
+      if(show_cluster_center == TRUE | show_center_label == TRUE){
+        annotated_DT_centers = annotated_DT_selected[, .(center_1 = stats::median(get(dim_names[1])),
+                                                         center_2 = stats::median(get(dim_names[2])),
+                                                         center_3 = stats::median(get(dim_names[3]))),
+                                                     by = cell_color]
+        annotated_DT_centers[[cell_color]] <- as.factor(annotated_DT_centers[[cell_color]])
+        if(show_cluster_center == TRUE){
+          pl <- pl %>% plotly::add_trace(mode = "markers",
+                                         type = "scatter3d",
+                                         data = annotated_DT_centers,
+                                         x = ~center_1,
+                                         y = ~center_2,
+                                         z = ~center_3,
+                                         color = annotated_DT_centers[[cell_color]],
+                                         colors = cell_color_code,
+                                         inherit = F,
+                                         marker=list(size = 2,symbol = "x",symbols = "x"),
+                                         legendgroup = annotated_DT_centers[[cell_color]],
+                                         showlegend = F)
+        }
+        if(show_center_label == TRUE){
+          cat(" center label is not clear to see in 3D plot\n You can shut it down with show_center_label = F\n")
+          pl <- pl %>% plotly::add_trace(mode = "text",
+                                         type = "scatter3d",
+                                         data = annotated_DT_centers,
+                                         x = ~center_1,
+                                         y = ~center_2,
+                                         z = ~center_3,
+                                         text = annotated_DT_centers[[cell_color]],
+                                         legendgroup = annotated_DT_centers[[cell_color]],
+                                         inherit = F,
+                                         showlegend = F)
+        }
+
+      }
+    }
+
+    else{
+      stop("cell_color does not exist!\n")
+    }
+  }
+
+  if(show_NN_network){
+    edges <- plotly_network(annotated_network_DT,
+                            "from_Dim.1","from_Dim.2","from_Dim.3",
+                            "to_Dim.1","to_Dim.2","to_Dim.3")
+    if(is.null(edge_alpha)){
+      edge_alpha = 0.5
+    }
+    else if(is.character(edge_alpha)){
+      warning("Edge_alpha for plotly mode is not adjustable yet. Default 0.5 will be set\n")
+      edge_alpha = 0.5
+    }
+
+    pl <- pl %>% plotly::add_trace(name = network_name,
+                                   mode = "lines",
+                                   type = "scatter3d",
+                                   data = edges,
+                                   x = ~x,y=~y,z=~z,
+                                   inherit = F,
+                                   line=list(color="lightgray", width = 0.5),
+                                   opacity=edge_alpha)
+  }
+
+  if(dim_reduction_to_use == 'pca') {
+    x_name = paste0('pca','-',dim_names[1])
+    y_name = paste0('pca','-',dim_names[2])
+    z_name = paste0('pca','-',dim_names[3])
+    x_title = sprintf('%s explains %.02f%% of variance', x_name, var_expl_vec[1])
+    y_title = sprintf('%s explains %.02f%% of variance', y_name, var_expl_vec[2])
+    z_title = sprintf('%s explains %.02f%% of variance', z_name, var_expl_vec[3])
+  }
+  else{
+    x_title = paste(dim_reduction_to_use,dim_names[1],sep = " ")
+    y_title = paste(dim_reduction_to_use,dim_names[2],sep = " ")
+    z_title = paste(dim_reduction_to_use,dim_names[3],sep = " ")
+  }
+  pl <- pl %>%  plotly::layout(scene = list(xaxis = list(title = x_title),
+                                            yaxis = list(title = y_title),
+                                            zaxis = list(title = z_title)),
+                               legend = list(x = 100, y = 0.5,font = list(family = "sans-serif",size = 12)))
+  return(pl)
+}
+
+
+
+
+
+
 #' @title dimPlot3D
 #' @name dimPlot3D
 #' @description Visualize cells according to dimension reduction coordinates
@@ -9911,6 +10403,7 @@ spatDimCellPlot = function(...) {
 #' @param dim1_to_use dimension to use on x-axis
 #' @param dim2_to_use dimension to use on y-axis
 #' @param dim3_to_use dimension to use on z-axis
+#' @param spat_enr_names names of spatial enrichment results to include
 #' @param show_NN_network show underlying NN network
 #' @param nn_network_to_use type of NN network to use (kNN vs sNN)
 #' @param network_name name of NN network to use, if show_NN_network = TRUE
@@ -9947,6 +10440,7 @@ dimPlot3D = function(gobject,
                      dim1_to_use = 1,
                      dim2_to_use = 2,
                      dim3_to_use = 3,
+                     spat_enr_names = NULL,
 
                      select_cell_groups = NULL,
                      select_cells = NULL,
@@ -9972,6 +10466,7 @@ dimPlot3D = function(gobject,
                      save_plot = NA,
                      save_param =  list(),
                      default_save_name = "dim3D"){
+
   if(is.null(dim3_to_use)){
     cat('create 2D plot\n')
 
@@ -9980,6 +10475,7 @@ dimPlot3D = function(gobject,
                               dim_reduction_name = dim_reduction_name,
                               dim1_to_use = dim1_to_use,
                               dim2_to_use = dim2_to_use,
+                              spat_enr_names = spat_enr_names,
 
                               select_cell_groups = select_cell_groups,
                               select_cells = select_cells,
@@ -10009,6 +10505,7 @@ dimPlot3D = function(gobject,
                               dim1_to_use = dim1_to_use,
                               dim2_to_use = dim2_to_use,
                               dim3_to_use = dim3_to_use,
+                              spat_enr_names = spat_enr_names,
 
                               select_cell_groups = select_cell_groups,
                               select_cells = select_cells,
@@ -10121,7 +10618,6 @@ plotTSNE_3D = function(gobject,
 #' @export
 #' @examples
 #'     plotPCA_3D(gobject)
-#'
 plotPCA_3D = function(gobject,
                       dim_reduction_name = 'pca',
                       default_save_name = 'PCA_3D',
@@ -11446,6 +11942,10 @@ spatDimPlot3D <- function(gobject,
 }
 
 
+
+
+# ** ####
+# ** gene 3D plot ####
 
 
 #' @title spatGenePlot3D

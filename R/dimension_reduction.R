@@ -37,6 +37,53 @@ create_dimObject = function(name = 'test',
 }
 
 
+
+#' @title select_dimReduction
+#' @name select_dimReduction
+#' @description Creates an object that stores a dimension reduction output
+#' @keywords internal
+#' @return dim reduction coordinates (default) or dim reduction object
+select_dimReduction = function(gobject,
+                               reduction = c('cells', 'genes'),
+                               reduction_method = c('pca', 'umap', 'tsne'),
+                               name = 'pca',
+                               return_dimObj = FALSE) {
+
+
+  ## check parameters
+  reduction = match.arg(arg = reduction, choices = c('cells', 'genes'))
+  reduction_method = match.arg(arg = reduction_method, choices = c('pca', 'umap', 'tsne'))
+
+  ## check reduction
+  reduction_res = gobject@dimension_reduction[[reduction]]
+  if(is.null(reduction_res)) {
+    stop('No dimension reduction for ', reduction, ' has been applied \n')
+  }
+
+  ## check method
+  reduction_res = reduction_res[[reduction_method]]
+  if(is.null(reduction_res)) {
+    stop(reduction_method, ' has not been performed on this dataset \n')
+  }
+
+  ## check name for method
+  reduction_res = reduction_res[[name]]
+  if(is.null(reduction_res)) {
+    stop(name, ': this name is not available for method: ', reduction_method, '\n')
+  }
+
+  ## return object or coordinates
+  if(return_dimObj == TRUE) {
+    return(reduction_res)
+  } else {
+    return(reduction_res$coordinates)
+  }
+
+}
+
+
+
+
 #' @title standardise_giotto
 #' @name standardise_giotto
 #' @description standardises a matrix
