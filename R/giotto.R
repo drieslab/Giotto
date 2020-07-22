@@ -100,10 +100,12 @@ giotto <- setClass(
 
 
 
-#' @title show method for giotto class
-#' @keywords giotto, object
-#'
-#' @export
+#' show method for giotto class
+#' @param object giotto object
+#' @aliases show,giotto-method
+#' @docType methods
+#' @rdname show-methods
+
 setMethod(
   f = "show",
   signature = "giotto",
@@ -124,29 +126,25 @@ setMethod(
 )
 
 
-#' @title print method for giotto class
-#' @description print method for giotto class.
-#' Prints the chosen number of genes (rows) and cells (columns) from the raw count matrix.
-#' Also print the spatial locations for the chosen number of cells.
+
+
+#' Prints giotto object.
+#'
+#' Prints giotto object
+#'
+#' @param object giotto object
 #' @param nr_genes number of genes (rows) to print
 #' @param nr_cells number of cells (columns) to print
-#' @keywords giotto, object
-#'
+#' @method print giotto
 #' @export
-setGeneric(name = "print.giotto",
-           def = function(object, ...) {
-             standardGeneric("print.giotto")
-           })
+print.giotto <- function(object,
+                         nr_genes = 5,
+                         nr_cells = 5) {
+  print(object@raw_exprs[1:nr_genes, 1:nr_cells])
+  cat('\n')
+  print(object@spatial_locs[1:nr_cells,])
+}
 
-setMethod(f = "print.giotto",
-          signature = "giotto",
-          definition = function(object,
-                                nr_genes = 5,
-                                nr_cells = 5) {
-            print(object@raw_exprs[1:nr_genes, 1:nr_cells])
-            cat('\n')
-            print(object@spatial_locs[1:nr_cells,])
-          })
 
 
 
@@ -649,6 +647,7 @@ evaluate_expr_matrix = function(inputmatrix,
 #' }
 #'
 #' @keywords giotto
+#' @importFrom methods new
 #' @export
 #' @examples
 #'     createGiottoObject(raw_exprs, spatial_locs)

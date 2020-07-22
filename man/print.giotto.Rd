@@ -2,19 +2,17 @@
 % Please edit documentation in R/giotto.R
 \name{print.giotto}
 \alias{print.giotto}
-\title{print method for giotto class}
+\title{Prints giotto object.}
 \usage{
-print.giotto(object, ...)
+\method{print}{giotto}(object, nr_genes = 5, nr_cells = 5)
 }
 \arguments{
+\item{object}{giotto object}
+
 \item{nr_genes}{number of genes (rows) to print}
 
 \item{nr_cells}{number of cells (columns) to print}
 }
 \description{
-print method for giotto class.
-Prints the chosen number of genes (rows) and cells (columns) from the raw count matrix.
-Also print the spatial locations for the chosen number of cells.
+Prints giotto object
 }
-\keyword{giotto,}
-\keyword{object}

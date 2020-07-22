@@ -13,7 +13,7 @@ Authors@R: c(
 	person("Guo-Cheng", "Yuan", email = "gcyuan@ds.dfci.harvard.edu",
 		 role = c("aut"))
 	)
-Description: Toolbox to process, analyze and visualize spatial single-cell expression data
+Description: Toolbox to process, analyze and visualize spatial single-cell expression data.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
