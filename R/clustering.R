@@ -2322,8 +2322,7 @@ split_dendrogram_in_two = function(dend) {
 #' @param hclus_obj hclus object
 #' @param verbose be verbose
 #' @return list of splitted dendrogram nodes from high to low node height
-#' @examples
-#'     node_clusters(hclus_obj)
+#' @keywords internal
 node_clusters = function(hclus_obj, verbose = TRUE) {
 
   heights = sort(hclus_obj[['height']], decreasing = T)

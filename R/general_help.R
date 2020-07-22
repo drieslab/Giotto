@@ -46,6 +46,7 @@ getDistinctColors <- function(n) {
 #' @title get_os
 #' @description return the type of operating system, see https://conjugateprior.org/2015/06/identifying-the-os-from-r/
 #' @return character osx, linux or windows
+#' @keywords internal
 get_os <- function(){
 
   if(.Platform[['OS.type']] == 'windows') {
@@ -75,8 +76,6 @@ get_os <- function(){
 #' @description converts data.table to matrix
 #' @param x data.table object
 #' @keywords internal
-#' @examples
-#'     dt_to_matrix(x)
 dt_to_matrix <- function(x) {
   rownames = as.character(x[[1]])
   mat = methods::as(as.matrix(x[,-1]), 'Matrix')
@@ -155,8 +154,6 @@ extended_gini_fun <- function(x,
 #' }
 #'
 #' @export
-#' @examples
-#'     stitchFieldCoordinates(gobject)
 stitchFieldCoordinates <- function(location_file,
                                    offset_file,
                                    cumulate_offset_x = F,
@@ -225,10 +222,7 @@ stitchFieldCoordinates <- function(location_file,
 #' @param location_file location dataframe with X and Y coordinates
 #' @param Xtilespan numerical value specifying the width of each tile
 #' @param Ytilespan numerical value specifying the height of each tile
-#' @details ...
 #' @export
-#' @examples
-#'     stitchTileCoordinates(gobject)
 stitchTileCoordinates <- function (location_file,
                                    Xtilespan,
                                    Ytilespan) {
@@ -268,8 +262,6 @@ stitchTileCoordinates <- function (location_file,
 #' By default the first column of the features or genes .tsv file will be used, however if multiple
 #' annotations are provided (e.g. ensembl gene ids and gene symbols) the user can select another column.
 #' @export
-#' @examples
-#'     get10Xmatrix(path_to_data)
 get10Xmatrix = function(path_to_data, gene_column_index = 1) {
 
   # data.table variables
@@ -331,8 +323,6 @@ get10Xmatrix = function(path_to_data, gene_column_index = 1) {
 #' @return expression matrix with gene symbols as rownames
 #' @details This function requires that the biomaRt library is installed
 #' @export
-#' @examples
-#'     convertEnsemblToGeneSymbol(matrix)
 convertEnsemblToGeneSymbol = function(matrix,
                                       species = c('mouse', 'human')) {
 
@@ -542,10 +532,6 @@ sort_combine_two_DT_columns = function(DT,
 
   return(DT)
 }
-
-
-
-
 
 
 

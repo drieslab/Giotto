@@ -136,6 +136,7 @@ setMethod(
 #' @param nr_genes number of genes (rows) to print
 #' @param nr_cells number of cells (columns) to print
 #' @method print giotto
+#' @rdname print.giotto
 #' @export
 print.giotto <- function(object,
                          nr_genes = 5,

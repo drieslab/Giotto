@@ -5,6 +5,7 @@
 #' @description converts a magick image object to a data.table
 #' @param mg_object magick image or Giotto image object
 #' @return data.table with image pixel information
+#' @keywords internal
 convert_mgImage_to_array_DT = function(mg_object) {
 
   if(methods::is(mg_object, 'imageGiottoObj')) {

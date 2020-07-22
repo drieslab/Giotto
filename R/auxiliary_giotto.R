@@ -127,8 +127,14 @@ giotto_lapply = function(X, cores = NA, fun, ...) {
 
   # set number of cores automatically, but with limit of 10
   if(is.na(cores) | !is.numeric(cores)) {
-    cores = parallel::detectCores() - 2
-    cores = ifelse(cores > 10, 10, cores)
+
+    cores = parallel::detectCores()
+    if(cores <= 2) {
+      cores = cores
+    } else {
+      cores = cores - 2
+      cores = ifelse(cores > 10, 10, cores)
+    }
   }
 
   if(os == 'unix') {
@@ -237,6 +243,7 @@ fDataDT <- function(gobject) {
 #' @param gobject giotto object
 #' @param values expression values to extract
 #' @return expression matrix
+#' @keywords internal
 select_expression_values <- function(gobject, values) {
 
   if(values == 'scaled' & is.null(gobject@norm_scaled_expr)) {
