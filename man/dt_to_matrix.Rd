@@ -12,7 +12,4 @@ dt_to_matrix(x)
 \description{
 converts data.table to matrix
 }
-\examples{
-    dt_to_matrix(x)
-}
 \keyword{internal}

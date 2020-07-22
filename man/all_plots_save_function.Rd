@@ -65,9 +65,7 @@ all_plots_save_function(
 \description{
 Function to automatically save plots to directory of interest
 }
-\examples{
-    all_plots_save_function(gobject)
-}
 \seealso{
 \code{\link{general_save_function}}
 }
+\keyword{internal}

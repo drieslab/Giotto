@@ -15,3 +15,4 @@ data.table with image pixel information
 \description{
 converts a magick image object to a data.table
 }
+\keyword{internal}
