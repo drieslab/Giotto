@@ -6425,6 +6425,7 @@ spatPlot3D = function(gobject,
 #' @param show_spatial_grid show spatial grid
 #' @param spatial_grid_name name of spatial grid to use
 #' @param spatial_grid_color color of spatial grid
+#' @param spatial_grid_alpha alpha of spatial grid
 #' @param spatial_point_size size of spatial points
 #' @param spatial_network_color color of spatial network
 #' @param spatial_network_alpha alpha of spatial network
@@ -7180,7 +7181,6 @@ spatDimPlot3D <- function(gobject,
 #' @param spatial_network_name name of spatial network to use
 #' @param edge_alpha alpha of edges
 #' @param show_grid show spatial grid
-#' @param grid_color color of spatial grid
 #' @param spatial_grid_name name of spatial grid to use
 #'
 #' @param point_size size of point (cell)
@@ -7364,6 +7364,7 @@ spatGenePlot3D <- function(gobject,
                                      marker = list(size = other_point_size,color = other_cell_color))
     }
 
+
     ## plot spatial network
     if(show_network == TRUE) {
       if(is.null(network_color)) {
@@ -7385,10 +7386,13 @@ spatGenePlot3D <- function(gobject,
                                      opacity = edge_alpha,
                                      showlegend = F)
     }
+
+
     ##plot spatial grid
     if(!is.null(spatial_grid) & show_grid == TRUE){
       cat("\n spatial grid is not clear in 3D plot \n")
     }
+
     pl <- pl %>% plotly::colorbar(title = gene)
     savelist[[gene]] <- pl
   }
@@ -7860,7 +7864,6 @@ dimGenePlot3D <- function(gobject,
 #' @param genes_mid_color color for medium expression levels
 #' @param genes_low_color color for low expression levels
 #'
-#' @param edge_alpha_dim dim reduction plot: column to use for alpha of the edges
 #' @param show_spatial_network show spatial network (boolean)
 #' @param spatial_network_name name of spatial network to use
 #' @param spatial_network_color color of spatial network

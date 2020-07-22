@@ -97,8 +97,6 @@ spatGenePlot3D(
 \item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-
-\item{grid_color}{color of spatial grid}
 }
 \value{
 ggplot

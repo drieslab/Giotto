@@ -428,7 +428,6 @@ writeHMRFresults <- function(gobject,
 #' @param betas_to_add results from different betas that you want to add
 #' @param hmrf_name specify a custom name
 #' @return giotto object
-#' @details Description ...
 #' @export
 #' @examples
 #'     addHMRF(gobject)
@@ -515,18 +514,14 @@ addHMRF <- function(gobject,
 #' @param HMRFoutput HMRF output from doHMRF
 #' @param k number of HMRF domains
 #' @param betas_to_view results from different betas that you want to view
-#' @param ... paramters to visPlot()
+#' @param \dots additional parameters to spatPlot2D()
 #' @return spatial plots with HMRF domains
-#' @details Description ...
 #' @seealso \code{\link{spatPlot2D}}
 #' @export
-#' @examples
-#'     viewHMRFresults2D(gobject)
 viewHMRFresults2D <- function(gobject,
                             HMRFoutput,
                             k = NULL,
                             betas_to_view = NULL,
-                            third_dim = NULL,
                             ...) {
 
 
@@ -584,18 +579,14 @@ viewHMRFresults2D <- function(gobject,
 #' @param HMRFoutput HMRF output from doHMRF
 #' @param k number of HMRF domains
 #' @param betas_to_view results from different betas that you want to view
-#' @param ... paramters to visPlot()
+#' @param \dots additional parameters to spatPlot3D()
 #' @return spatial plots with HMRF domains
-#' @details Description ...
 #' @seealso \code{\link{spatPlot3D}}
 #' @export
-#' @examples
-#'     viewHMRFresults3D(gobject)
 viewHMRFresults3D <- function(gobject,
                               HMRFoutput,
                               k = NULL,
                               betas_to_view = NULL,
-                              third_dim = NULL,
                               ...) {
 
 

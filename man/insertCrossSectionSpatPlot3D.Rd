@@ -25,6 +25,8 @@ insertCrossSectionSpatPlot3D(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{crossSection_obj}{cross section object as alternative input. default = NULL.}
+
 \item{name}{name of virtual cross section to use}
 
 \item{spatial_network_name}{name of spatial network to use}

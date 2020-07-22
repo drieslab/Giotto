@@ -140,7 +140,9 @@ setGeneric(name = "print.giotto",
 
 setMethod(f = "print.giotto",
           signature = "giotto",
-          definition = function(object, nr_genes = 5, nr_cells = 5) {
+          definition = function(object,
+                                nr_genes = 5,
+                                nr_cells = 5) {
             print(object@raw_exprs[1:nr_genes, 1:nr_cells])
             cat('\n')
             print(object@spatial_locs[1:nr_cells,])

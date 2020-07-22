@@ -9,6 +9,8 @@ create_crossSection_object(
   method = NULL,
   thickness_unit = NULL,
   slice_thickness = NULL,
+  cell_distance_estimate_method = NULL,
+  extend_ratio = NULL,
   plane_equation = NULL,
   mesh_grid_n = NULL,
   mesh_obj = NULL,
@@ -28,6 +30,10 @@ create_crossSection_object(
 
 \item{slice_thickness}{thickness of slice}
 
+\item{cell_distance_estimate_method}{method to estimate average distance between neighobring cells. (default = mean)}
+
+\item{extend_ratio}{deciding the span of the cross section meshgrid, as a ratio of extension compared to the borders of the vitural tissue section. (default = 0.2)}
+
 \item{plane_equation}{a numerical vector of length 4, in the form of c(A,B,C,D), which defines plane Ax+By+Cz=D.}
 
 \item{mesh_grid_n}{numer of meshgrid lines to generate along both directions for the cross section plane.}
@@ -43,10 +49,6 @@ create_crossSection_object(
 \item{cell_subset_projection_PCA}{pca of projection coordinates}
 
 \item{cell_subset_projection_coords}{2D PCA coordinates of selected cells in the cross section plane}
-
-\item{cell_distance_estimate_method}{method to estimate average distance between neighobring cells. (default = mean)}
-
-\item{extend_ratio}{deciding the span of the cross section meshgrid, as a ratio of extension compared to the borders of the vitural tissue section. (default = 0.2)}
 }
 \description{
 create a crossSection object

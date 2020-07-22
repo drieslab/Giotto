@@ -129,6 +129,8 @@ spatDimPlot3D(
 
 \item{spatial_grid_color}{color of spatial grid}
 
+\item{spatial_grid_alpha}{alpha of spatial grid}
+
 \item{spatial_point_size}{size of spatial points}
 
 \item{axis_scale}{the way to scale the axis}
