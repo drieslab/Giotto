@@ -597,7 +597,8 @@ getSpatialDataset = function(dataset = c('ST_OB',
                                          'seqfish_SS_cortex', 'seqfish_OB',
                                          'starmap_3D_cortex',
                                          'osmfish_SS_cortex',
-                                         'merfish_preoptic'),
+                                         'merfish_preoptic',
+                                         'codex_spleen'),
                              directory = getwd()) {
 
   sel_dataset = match.arg(dataset, choices = c('ST_OB',
