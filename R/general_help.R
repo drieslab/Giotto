@@ -593,23 +593,32 @@ package_check = function(pkg_name,
 #' expression matrix for the chosen dataset. These files are already in the right format
 #' to create a Giotto object.
 #' @export
-getSpatialDataset = function(dataset = c('ST_OB', 'seqfish_SS_cortex'),
+getSpatialDataset = function(dataset = c('ST_OB',
+                                         'seqfish_SS_cortex', 'seqfish_OB',
+                                         'starmap_3D_cortex',
+                                         'osmfish_SS_cortex',
+                                         'merfish_preoptic'),
                              directory = getwd()) {
 
-  dataset = match.arg(dataset, choices = c('ST_OB', 'seqfish_SS_cortex'))
+  sel_dataset = match.arg(dataset, choices = c('ST_OB',
+                                               'seqfish_SS_cortex', 'seqfish_OB',
+                                               'starmap_3D_cortex',
+                                               'osmfish_SS_cortex',
+                                               'merfish_preoptic'))
 
   if(!file.exists(directory)) {
     warning('The output directory does not exist and will be created \n')
   }
 
-  datasets_file = system.file("extdata", "datasets", package = 'Giotto')
+  datasets_file = system.file("extdata", "datasets.txt", package = 'Giotto')
+  datasets_file = data.table::fread(datasets_file)
 
   # get url to spatial locations and download
-  spatial_locs_url = datasets_file[dataset == dataset][['spatial_locs']]
+  spatial_locs_url = datasets_file[dataset == sel_dataset][['spatial_locs']]
   system(paste0('wget -P ', directory,' ', spatial_locs_url))
 
   # get url to expression matrix and download
-  expr_matrix_url = datasets_file[dataset == dataset][['expr_matrix']]
+  expr_matrix_url = datasets_file[dataset == sel_dataset][['expr_matrix']]
   system(paste0('wget -P ', directory,' ', expr_matrix_url))
 
 }
