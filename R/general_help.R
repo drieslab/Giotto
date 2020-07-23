@@ -585,7 +585,34 @@ package_check = function(pkg_name,
 
 
 
+#' @title getSpatialDataset
+#' @name getSpatialDataset
+#' @param dataset dataset to download
+#' @param directory directory to save the data to
+#' @description This package will automatically download the spatial locations and
+#' expression matrix for the chosen dataset. These files are already in the right format
+#' to create a Giotto object.
+#' @export
+getSpatialDataset = function(dataset = c('ST_OB', 'seqfish_SS_cortex'),
+                             directory = getwd()) {
 
+  dataset = match.arg(dataset, choices = c('ST_OB', 'seqfish_SS_cortex'))
+
+  if(!file.exists(directory)) {
+    warning('The output directory does not exist and will be created \n')
+  }
+
+  datasets_file = system.file("extdata", "datasets", package = 'Giotto')
+
+  # get url to spatial locations and download
+  spatial_locs_url = datasets_file[dataset == dataset][['spatial_locs']]
+  system(paste0('wget -P ', directory,' ', spatial_locs_url))
+
+  # get url to expression matrix and download
+  expr_matrix_url = datasets_file[dataset == dataset][['expr_matrix']]
+  system(paste0('wget -P ', directory,' ', expr_matrix_url))
+
+}
 
 
 

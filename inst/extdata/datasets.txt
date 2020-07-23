@@ -1,0 +1,3 @@
+dataset	spatial_locs	expr_matrix
+ST_OB	https://raw.githubusercontent.com/RubD/spatial-datasets/master/data/2016_ST_olfactory_bulb/cell_locations/Rep11_MOB_0_location.txt	https://raw.githubusercontent.com/RubD/spatial-datasets/master/data/2016_ST_olfactory_bulb/count_matrix/Rep11_MOB_0_expr.txt
+seqfish_SS_cortex	https://raw.githubusercontent.com/RubD/spatial-datasets/master/data/2019_seqfish_plus_SScortex/cell_locations/cortex_svz_centroids_rotated.csv	https://raw.githubusercontent.com/RubD/spatial-datasets/master/data/2019_seqfish_plus_SScortex/count_matrix/cortex_svz_expression.txt
