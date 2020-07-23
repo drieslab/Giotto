@@ -1294,7 +1294,8 @@ plotCellProximityGenes = function(gobject,
 
     testalluv = complete_part[, .N, by = c('int_cell_type', 'cell_type')]
 
-    library(ggalluvial)
+    # library(ggalluvial) # this is needed for it to work, why??
+    # maybe use requireNamespace() instead?
 
     pl <- ggplot2::ggplot(testalluv,
                           ggplot2::aes(y = N, axis1 = cell_type, axis2 = int_cell_type)) +

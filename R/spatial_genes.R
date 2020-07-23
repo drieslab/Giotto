@@ -645,12 +645,10 @@ FSV_show <- function(results,
 #' @param subset_genes subset of genes to run trendsceek on
 #' @param nrand An integer specifying the number of random resamplings of the mark distribution as to create the null-distribution.
 #' @param ncores An integer specifying the number of cores to be used by BiocParallel
-#' @param ... Additional parameters to the \code{\link[trendsceek]{trendsceek_test}} function
+#' @param \dots Additional parameters to the \code{\link[trendsceek]{trendsceek_test}} function
 #' @return data.frame with trendsceek spatial genes results
 #' @details This function is a wrapper for the trendsceek_test method implemented in the trendsceek package
 #' @export
-#' @examples
-#'     trendSceek(gobject)
 trendSceek <- function(gobject,
                        expression_values = c("normalized", "raw"),
                        subset_genes = NULL,
@@ -659,12 +657,11 @@ trendSceek <- function(gobject,
                        ...) {
 
   # verify if optional package is installed
-  if("trendsceek" %in% rownames(installed.packages()) == FALSE) {
-    stop("\n package 'trendsceek' is not yet installed \n",
-         "To install: \n",
-         "See https://github.com/edsgard/trendsceek"
-    )
-  }
+  package_check(pkg_name = 'trendsceek',
+                repository = c('github'),
+                github_repo = 'edsgard/trendsceek')
+
+
 
   ## expression data
   values = match.arg(expression_values, c("normalized", "raw"))

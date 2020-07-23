@@ -4,7 +4,18 @@
 \alias{package_check}
 \title{package_check}
 \usage{
-package_check(pkg_name, repository = c("CRAN", "Bioc"))
+package_check(
+  pkg_name,
+  repository = c("CRAN", "Bioc", "github"),
+  github_repo = NULL
+)
+}
+\arguments{
+\item{pkg_name}{name of package}
+
+\item{repository}{where is the package}
+
+\item{github_repo}{name of github repository if needed}
 }
 \description{
 check if package is available and provide installation instruction if not available

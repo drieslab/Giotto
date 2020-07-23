@@ -537,12 +537,16 @@ sort_combine_two_DT_columns = function(DT,
 
 #' @title package_check
 #' @name package_check
+#' @param pkg_name name of package
+#' @param repository where is the package
+#' @param github_repo name of github repository if needed
 #' @description check if package is available and provide installation instruction if not available
 #' @keywords internal
 package_check = function(pkg_name,
-                         repository = c('CRAN', 'Bioc')) {
+                         repository = c('CRAN', 'Bioc', 'github'),
+                         github_repo = NULL) {
 
-  repository = match.arg(repository, choices = c('CRAN', 'Bioc'))
+  repository = match.arg(repository, choices = c('CRAN', 'Bioc', 'github'))
 
   if(repository == 'CRAN') {
 
@@ -561,6 +565,17 @@ package_check = function(pkg_name,
            "To install: \n",
            "if (!requireNamespace('BiocManager', quietly = TRUE)) install.packages('BiocManager');
          BiocManager::install('",pkg_name,"')"
+      )
+    }
+
+  } else if(repository == 'github') {
+
+    if(is.null(github_repo)) stop("provide the github repo of package, e.g. 'johndoe/cooltool' ")
+
+    if(pkg_name %in% rownames(installed.packages()) == FALSE) {
+      stop("\n package ", pkg_name ," is not yet installed \n",
+           "To install: \n",
+           "devtools::install_github('",github_repo,"')"
       )
     }
 
