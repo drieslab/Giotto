@@ -592,6 +592,63 @@ evaluate_expr_matrix = function(inputmatrix,
 
 
 
+#' @title evaluate_spatial_locations
+#' @description Evaluate spatial location input
+#' @param spatial_locs spatial locations to evaluate
+#' @param cores how many cores to use
+#' @return data.table
+#' @keywords internal
+evaluate_spatial_locations = function(spatial_locs, cores = 1, dummy_n = 2) {
+
+  if(is.null(spatial_locs)) {
+    warning('\n spatial locations are not given, dummy 3D data will be created \n')
+    spatial_locs = data.table::data.table(sdimx = 1:dummy_n,
+                                          sdimy = 1:dummy_n,
+                                          sdimz = 1:dummy_n)
+
+  } else {
+
+    if(!any(class(spatial_locs) %in% c('data.table', 'data.frame', 'matrix', 'character'))) {
+      stop('spatial_locs needs to be a data.table or data.frame-like object or a path to one of these')
+    }
+    if(methods::is(spatial_locs, 'character')) {
+      if(!file.exists(spatial_locs)) stop('path to spatial locations does not exist')
+      spatial_locs = data.table::fread(input = spatial_locs, nThread = cores)
+    } else {
+      spatial_locs = data.table::as.data.table(spatial_locs)
+    }
+
+    # check number of columns: too few
+    if(ncol(spatial_locs) < 2) {
+      stop('There need to be at least 2 numeric columns for spatial locations \n')
+    }
+
+    # check number of columns: too many
+    if(ncol(spatial_locs) > 3) {
+      warning('There are more than 3 columns for spatial locations, only the first 3 will be used \n')
+      spatial_locs = spatial_locs[, 1:3]
+    }
+
+
+    # check if all columns are numeric
+    column_classes = lapply(spatial_locs, FUN = class)
+    non_numeric_classes = column_classes[column_classes != 'numeric']
+    if(length(non_numeric_classes) > 0) {
+
+      non_numeric_indices = which(column_classes != 'numeric')
+
+      stop('There are non numeric columns for the spatial location input at column position(s): ', non_numeric_indices,
+           'Only provide the numeric coordinates, not cell IDs or other type of information')
+    }
+
+  }
+
+
+  return(spatial_locs)
+}
+
+
+
 
 #' @title create Giotto object
 #' @description Function to create a giotto object
@@ -743,8 +800,6 @@ createGiottoObject <- function(raw_exprs,
   gobject@parameters = list()
 
 
-
-
   ## set instructions
   if(is.null(instructions)) {
     # create all default instructions
@@ -762,27 +817,13 @@ createGiottoObject <- function(raw_exprs,
 
 
   ## spatial locations
-
-  # create dummy spatial data if no information is given
-  if(is.null(spatial_locs)) {
-    warning('\n spatial locations are not given, dummy 3D data will be created \n')
-    spatial_locs = data.table::data.table(sdimx = 1:ncol(raw_exprs),
-                                          sdimy = 1:ncol(raw_exprs),
-                                          sdimz = 1:ncol(raw_exprs))
-    #gobject@spatial_locs = spatial_locs
-  }
+  dummy_n = ncol(raw_exprs)
+  spatial_locs = evaluate_spatial_locations(spatial_locs = spatial_locs,
+                                            cores = cores,
+                                            dummy_n = dummy_n)
 
 
-  ## spatial
-  if(!any(class(spatial_locs) %in% c('data.table', 'data.frame', 'matrix', 'character'))) {
-    stop('spatial_locs needs to be a data.table or data.frame-like object or a path to one of these')
-  }
-  if(methods::is(spatial_locs, 'character')) {
-    if(!file.exists(spatial_locs)) stop('path to spatial locations does not exist')
-    spatial_locs = data.table::fread(input = spatial_locs, nThread = cores)
-  } else {
-    spatial_locs = data.table::as.data.table(spatial_locs)
-  }
+
 
   # check if dimensions agree
   if(nrow(spatial_locs) != ncol(raw_exprs)) {

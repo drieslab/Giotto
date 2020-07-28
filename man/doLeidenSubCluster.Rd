@@ -9,8 +9,8 @@ doLeidenSubCluster(
   name = "sub_pleiden_clus",
   cluster_column = NULL,
   selected_clusters = NULL,
-  hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values
-    = "normalized"),
+  hvg_param = list(reverse_log_scale = T, difference_in_cov = 1, expression_values =
+    "normalized"),
   hvg_min_perc_cells = 5,
   hvg_mean_expr_det = 1,
   use_all_genes_as_hvg = FALSE,
