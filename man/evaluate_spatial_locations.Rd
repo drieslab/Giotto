@@ -4,12 +4,21 @@
 \alias{evaluate_spatial_locations}
 \title{evaluate_spatial_locations}
 \usage{
-evaluate_spatial_locations(spatial_locs, cores = 1, dummy_n = 2)
+evaluate_spatial_locations(
+  spatial_locs,
+  cores = 1,
+  dummy_n = 2,
+  expr_matrix = NULL
+)
 }
 \arguments{
 \item{spatial_locs}{spatial locations to evaluate}
 
 \item{cores}{how many cores to use}
+
+\item{dummy_n}{number of rows to create dummy spaial locations}
+
+\item{expr_matrix}{expression matrix to compare the cell IDs with}
 }
 \value{
 data.table

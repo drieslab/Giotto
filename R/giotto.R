@@ -596,9 +596,14 @@ evaluate_expr_matrix = function(inputmatrix,
 #' @description Evaluate spatial location input
 #' @param spatial_locs spatial locations to evaluate
 #' @param cores how many cores to use
+#' @param dummy_n number of rows to create dummy spaial locations
+#' @param expr_matrix expression matrix to compare the cell IDs with
 #' @return data.table
 #' @keywords internal
-evaluate_spatial_locations = function(spatial_locs, cores = 1, dummy_n = 2) {
+evaluate_spatial_locations = function(spatial_locs,
+                                      cores = 1,
+                                      dummy_n = 2,
+                                      expr_matrix = NULL) {
 
   if(is.null(spatial_locs)) {
     warning('\n spatial locations are not given, dummy 3D data will be created \n')
@@ -618,6 +623,36 @@ evaluate_spatial_locations = function(spatial_locs, cores = 1, dummy_n = 2) {
       spatial_locs = data.table::as.data.table(spatial_locs)
     }
 
+
+    # check if all columns are numeric
+    column_classes = lapply(spatial_locs, FUN = class)
+    non_numeric_classes = column_classes[column_classes != 'numeric']
+
+    if(length(non_numeric_classes) > 0) {
+
+      non_numeric_indices = which(column_classes != 'numeric')
+
+      warning('There are non numeric columns for the spatial location input at column position(s): ', non_numeric_indices,
+              '\n The first non-numeric column will be considered as a cell ID to test for consistency with the expression matrix',
+              '\n Other non numeric columns will be removed')
+
+      if(!is.null(expr_matrix)) {
+        potential_cell_IDs = spatial_locs[[ non_numeric_indices[1] ]]
+        expr_matrix_IDs = colnames(expr_matrix)
+
+        if(!identical(potential_cell_IDs, expr_matrix_IDs)) {
+          warning('The cell IDs from the expression matrix and spatial locations do not seem to be identical')
+        }
+
+      }
+
+
+      spatial_locs = spatial_locs[,-non_numeric_indices, with = F]
+
+    }
+
+    print(head(spatial_locs))
+
     # check number of columns: too few
     if(ncol(spatial_locs) < 2) {
       stop('There need to be at least 2 numeric columns for spatial locations \n')
@@ -630,16 +665,7 @@ evaluate_spatial_locations = function(spatial_locs, cores = 1, dummy_n = 2) {
     }
 
 
-    # check if all columns are numeric
-    column_classes = lapply(spatial_locs, FUN = class)
-    non_numeric_classes = column_classes[column_classes != 'numeric']
-    if(length(non_numeric_classes) > 0) {
 
-      non_numeric_indices = which(column_classes != 'numeric')
-
-      stop('There are non numeric columns for the spatial location input at column position(s): ', non_numeric_indices,
-           'Only provide the numeric coordinates, not cell IDs or other type of information')
-    }
 
   }
 
@@ -820,9 +846,8 @@ createGiottoObject <- function(raw_exprs,
   dummy_n = ncol(raw_exprs)
   spatial_locs = evaluate_spatial_locations(spatial_locs = spatial_locs,
                                             cores = cores,
-                                            dummy_n = dummy_n)
-
-
+                                            dummy_n = dummy_n,
+                                            expr_matrix = raw_exprs)
 
 
   # check if dimensions agree
