@@ -651,8 +651,6 @@ evaluate_spatial_locations = function(spatial_locs,
 
     }
 
-    print(head(spatial_locs))
-
     # check number of columns: too few
     if(ncol(spatial_locs) < 2) {
       stop('There need to be at least 2 numeric columns for spatial locations \n')
@@ -663,9 +661,6 @@ evaluate_spatial_locations = function(spatial_locs,
       warning('There are more than 3 columns for spatial locations, only the first 3 will be used \n')
       spatial_locs = spatial_locs[, 1:3]
     }
-
-
-
 
   }
 
