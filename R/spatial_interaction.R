@@ -1898,14 +1898,35 @@ create_cell_type_random_cell_IDs = function(gobject,
 #' @param gene_set_2 second specific gene set from gene pairs
 #' @param log2FC_addendum addendum to add when calculating log2FC
 #' @param min_observations minimum number of interactions needed to be considered
+#' @param detailed provide more detailed information (random variance and z-score)
 #' @param adjust_method which method to adjust p-values
 #' @param adjust_target adjust multiple hypotheses at the cell or gene level
 #' @param verbose verbose
 #' @return Cell-Cell communication scores for gene pairs based on spatial interaction
 #' @details Statistical framework to identify if pairs of genes (such as ligand-receptor combinations)
 #' are expressed at higher levels than expected based on a reshuffled null distribution
-#' of gene expression values in cells that are spatially in proximity to eachother..
-#' More details will follow soon.
+#' of gene expression values in cells that are spatially in proximity to eachother.
+#' \itemize{
+#'  \item{LR_comb:}{Pair of ligand and receptor}
+#'  \item{lig_cell_type:}{ cell type to assess expression level of ligand }
+#'  \item{lig_expr:}{ average expression of ligand in lig_cell_type }
+#'  \item{ligand:}{ ligand name }
+#'  \item{rec_cell_type:}{ cell type to assess expression level of receptor }
+#'  \item{rec_expr:}{ average expression of receptor in rec_cell_type}
+#'  \item{receptor:}{ receptor name }
+#'  \item{LR_expr:}{ combined average ligand and receptor expression }
+#'  \item{lig_nr:}{ total number of cells from lig_cell_type that spatially interact with cells from rec_cell_type }
+#'  \item{rec_nr:}{ total number of cells from rec_cell_type that spatially interact with cells from lig_cell_type }
+#'  \item{rand_expr:}{ average combined ligand and receptor expression from random spatial permutations }
+#'  \item{av_diff:}{ average difference between LR_expr and rand_expr over all random spatial permutations }
+#'  \item{sd_diff:}{ (optional) standard deviation of the difference between LR_expr and rand_expr over all random spatial permutations }
+#'  \item{z_score:}{ (optinal) z-score }
+#'  \item{log2fc:}{ log2 fold-change (LR_expr/rand_expr) }
+#'  \item{pvalue:}{ p-value }
+#'  \item{LR_cell_comb:}{ cell type pair combination }
+#'  \item{p.adj:}{ adjusted p-value }
+#'  \item{PI:}{ significanc score: log2fc * -log10(p.adj) }
+#' }
 #' @export
 #' @examples
 #'     specificCellCellcommunicationScores(gobject)
@@ -1919,6 +1940,7 @@ specificCellCellcommunicationScores = function(gobject,
                                                gene_set_2,
                                                log2FC_addendum = 0.1,
                                                min_observations = 2,
+                                               detailed = FALSE,
                                                adjust_method = c("fdr", "bonferroni","BH", "holm", "hochberg", "hommel",
                                                                  "BY", "none"),
                                                adjust_target = c('genes', 'cells'),
@@ -1974,7 +1996,13 @@ specificCellCellcommunicationScores = function(gobject,
 
     # prepare for randomized scores
     total_av = rep(0, nrow(comScore))
-    total_sum = rep(0, nrow(comScore))
+
+    if(detailed == FALSE) {
+      total_sum = rep(0, nrow(comScore))
+    } else {
+      total_sum = matrix(nrow = nrow(comScore), ncol = random_iter)
+    }
+
     total_bool = rep(0, nrow(comScore))
 
     # identify which cell types you need
@@ -1987,14 +2015,14 @@ specificCellCellcommunicationScores = function(gobject,
       if(verbose == TRUE) cat('simulation ', sim, '\n')
 
       # get random ids and subset
-      random_ids = create_cell_type_random_cell_IDs(gobject = gobject, cluster_column = cluster_column,
-                                                    needed_cell_types = needed_cell_types)
+      random_ids = Giotto:::create_cell_type_random_cell_IDs(gobject = gobject, cluster_column = cluster_column,
+                                                             needed_cell_types = needed_cell_types)
       tempGiotto = subsetGiotto(gobject = gobject, cell_ids = random_ids)
 
       # get random communication scores
-      randomScore = average_gene_gene_expression_in_groups(gobject = tempGiotto,
-                                                           cluster_column = cluster_column,
-                                                           gene_set_1 = gene_set_1, gene_set_2 = gene_set_2)
+      randomScore = Giotto:::average_gene_gene_expression_in_groups(gobject = tempGiotto,
+                                                                    cluster_column = cluster_column,
+                                                                    gene_set_1 = gene_set_1, gene_set_2 = gene_set_2)
       randomScore = randomScore[(lig_cell_type == cell_type_1 & rec_cell_type == cell_type_2) |
                                   (lig_cell_type == cell_type_2 & rec_cell_type == cell_type_1)]
 
@@ -2006,7 +2034,11 @@ specificCellCellcommunicationScores = function(gobject,
       difference = comScore[['LR_expr']] - randomScore[['LR_expr']]
 
       # calculate total difference
-      total_sum = total_sum+difference
+      if(detailed == FALSE) {
+        total_sum = total_sum+difference
+      } else {
+        total_sum[,sim] = difference
+      }
 
       # calculate p-values
       difference[difference > 0] = 1
@@ -2016,7 +2048,20 @@ specificCellCellcommunicationScores = function(gobject,
     }
 
     comScore[, rand_expr := total_av/random_iter]
-    comScore[, av_diff := total_sum/random_iter]
+
+    if(detailed == TRUE) {
+      av_difference_scores = Giotto:::rowMeans_giotto(total_sum)
+      sd_difference_scores = apply(total_sum, MARGIN = 1, FUN = stats::sd)
+
+      comScore[, av_diff := av_difference_scores]
+      comScore[, sd_diff := sd_difference_scores]
+      comScore[, z_score := (LR_expr - rand_expr)/sd_diff]
+
+    } else {
+      comScore[, av_diff := total_sum/random_iter]
+    }
+
+
     comScore[, log2fc := log2((LR_expr+log2FC_addendum)/(rand_expr+log2FC_addendum))]
     comScore[, pvalue := total_bool/random_iter]
     comScore[, pvalue := ifelse(pvalue > 0, 1-pvalue, 1+pvalue)]
@@ -2032,7 +2077,6 @@ specificCellCellcommunicationScores = function(gobject,
     all_p.adj = comScore[['p.adj']]
     lowest_p.adj = min(all_p.adj[all_p.adj != 0])
     comScore[, PI := ifelse(p.adj == 0, log2fc*(-log10(lowest_p.adj)), log2fc*(-log10(p.adj)))]
-    #comScore[, PI := log2fc*(-log10(p.adj))]
 
     return(comScore)
 
@@ -2051,6 +2095,7 @@ specificCellCellcommunicationScores = function(gobject,
 #' @param gene_set_2 second specific gene set from gene pairs
 #' @param log2FC_addendum addendum to add when calculating log2FC
 #' @param min_observations minimum number of interactions needed to be considered
+#' @param detailed provide more detailed information (random variance and z-score)
 #' @param adjust_method which method to adjust p-values
 #' @param adjust_target adjust multiple hypotheses at the cell or gene level
 #' @param do_parallel run calculations in parallel with mclapply
@@ -2060,7 +2105,27 @@ specificCellCellcommunicationScores = function(gobject,
 #' @details Statistical framework to identify if pairs of genes (such as ligand-receptor combinations)
 #' are expressed at higher levels than expected based on a reshuffled null distribution
 #' of gene expression values in cells that are spatially in proximity to eachother..
-#' More details will follow soon.
+#' \itemize{
+#'  \item{LR_comb:}{Pair of ligand and receptor}
+#'  \item{lig_cell_type:}{ cell type to assess expression level of ligand }
+#'  \item{lig_expr:}{ average expression of ligand in lig_cell_type }
+#'  \item{ligand:}{ ligand name }
+#'  \item{rec_cell_type:}{ cell type to assess expression level of receptor }
+#'  \item{rec_expr:}{ average expression of receptor in rec_cell_type}
+#'  \item{receptor:}{ receptor name }
+#'  \item{LR_expr:}{ combined average ligand and receptor expression }
+#'  \item{lig_nr:}{ total number of cells from lig_cell_type that spatially interact with cells from rec_cell_type }
+#'  \item{rec_nr:}{ total number of cells from rec_cell_type that spatially interact with cells from lig_cell_type }
+#'  \item{rand_expr:}{ average combined ligand and receptor expression from random spatial permutations }
+#'  \item{av_diff:}{ average difference between LR_expr and rand_expr over all random spatial permutations }
+#'  \item{sd_diff:}{ (optional) standard deviation of the difference between LR_expr and rand_expr over all random spatial permutations }
+#'  \item{z_score:}{ (optinal) z-score }
+#'  \item{log2fc:}{ log2 fold-change (LR_expr/rand_expr) }
+#'  \item{pvalue:}{ p-value }
+#'  \item{LR_cell_comb:}{ cell type pair combination }
+#'  \item{p.adj:}{ adjusted p-value }
+#'  \item{PI:}{ significanc score: log2fc * -log10(p.adj) }
+#' }
 #' @export
 #' @examples
 #'     spatCellCellcom(gobject)
@@ -2072,6 +2137,7 @@ spatCellCellcom = function(gobject,
                            gene_set_2,
                            log2FC_addendum = 0.1,
                            min_observations = 2,
+                           detailed = FALSE,
                            adjust_method = c("fdr", "bonferroni","BH", "holm", "hochberg", "hommel",
                                              "BY", "none"),
                            adjust_target = c('genes', 'cells'),
@@ -2117,6 +2183,7 @@ spatCellCellcom = function(gobject,
                                                             spatial_network_name = spatial_network_name,
                                                             log2FC_addendum = log2FC_addendum,
                                                             min_observations = min_observations,
+                                                            detailed = detailed,
                                                             adjust_method = adjust_method,
                                                             adjust_target = adjust_target)
 
@@ -2152,6 +2219,7 @@ spatCellCellcom = function(gobject,
                                                             spatial_network_name = spatial_network_name,
                                                             log2FC_addendum = log2FC_addendum,
                                                             min_observations = min_observations,
+                                                            detailed = detailed,
                                                             adjust_method = adjust_method,
                                                             adjust_target = adjust_target,
                                                             verbose = specific_verbose)
@@ -2172,6 +2240,8 @@ spatCellCellcom = function(gobject,
 }
 
 
+
+
 #' @title combCCcom
 #' @name combCCcom
 #' @description Combine spatial and expression based cell-cell communication data.tables
@@ -2182,6 +2252,7 @@ spatCellCellcom = function(gobject,
 #' @param min_padj_value minimum adjusted p-value
 #' @param min_log2fc minimum log2 fold-change
 #' @param min_av_diff minimum average expression difference
+#' @param detailed detailed option used with \code{\link{spatCellCellCom}} (default = FALSE)
 #' @return combined data.table with spatial and expression communication data
 #' @export
 #' @examples
@@ -2192,7 +2263,8 @@ combCCcom = function(spatialCC,
                      min_rec_nr = 3,
                      min_padj_value = 1,
                      min_log2fc = 0,
-                     min_av_diff = 0) {
+                     min_av_diff = 0,
+                     detailed = FALSE) {
 
 
   # data.table variables
@@ -2201,11 +2273,21 @@ combCCcom = function(spatialCC,
   spatialCC = spatialCC[lig_nr >= min_lig_nr & rec_nr >= min_rec_nr &
                           p.adj <= min_padj_value & abs(log2fc) >= min_log2fc & abs(av_diff) >= min_av_diff]
 
+
+  if(detailed == TRUE) {
+    old_detailed = c('sd_diff', 'z_score')
+    new_detailed = c('sd_diff_spat', 'z_score_spat')
+  } else {
+    old_detailed = NULL
+    new_detailed = NULL
+  }
+
+
   data.table::setnames(x = spatialCC,
                        old = c('lig_expr', 'rec_expr', 'LR_expr', 'lig_nr', 'rec_nr',
-                               'rand_expr', 'av_diff', 'log2fc', 'pvalue', 'p.adj', 'PI'),
+                               'rand_expr', 'av_diff', old_detailed, 'log2fc', 'pvalue', 'p.adj', 'PI'),
                        new = c('lig_expr_spat', 'rec_expr_spat', 'LR_expr_spat', 'lig_nr_spat', 'rec_nr_spat',
-                               'rand_expr_spat', 'av_diff_spat', 'log2fc_spat', 'pvalue_spat', 'p.adj_spat', 'PI_spat'))
+                               'rand_expr_spat', 'av_diff_spat', new_detailed, 'log2fc_spat', 'pvalue_spat', 'p.adj_spat', 'PI_spat'))
 
   merge_DT = data.table:::merge.data.table(spatialCC, exprCC, by = c('LR_comb', 'LR_cell_comb',
                                                                     'lig_cell_type', 'rec_cell_type',
