@@ -1964,7 +1964,7 @@ specificCellCellcommunicationScores = function(gobject,
   cell_direction_1 = paste0(cell_type_1,'-',cell_type_2)
   cell_direction_2 = paste0(cell_type_2,'-',cell_type_1)
 
-  subset_annot_network = annot_network[from_to %in% c(cell_direction_1, cell_direction_1)]
+  subset_annot_network = annot_network[from_to %in% c(cell_direction_1, cell_direction_2)]
 
   # make sure that there are sufficient observations
   if(nrow(subset_annot_network) <= min_observations) {
