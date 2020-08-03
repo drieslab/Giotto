@@ -296,8 +296,8 @@ create_average_DT <- function(gobject, meta_data_name,
     savelist[[name]] <- temp_DT
   }
 
-  finalDF <- do.call('cbind', savelist)
-  rownames(finalDF) <- myrownames
+  finalDF = do.call('cbind', savelist)
+  rownames(finalDF) = myrownames
 
   return(as.data.frame(finalDF))
 }
