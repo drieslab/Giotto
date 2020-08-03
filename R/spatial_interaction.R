@@ -1673,7 +1673,8 @@ average_gene_gene_expression_in_groups = function(gobject,
   colnames(average_DT) = new_colnames
 
   # keep order of colnames
-  colnames_order = new_colnames
+  colnames_order = sort(new_colnames)
+  average_DT = average_DT[,colnames_order]
 
   # gene_set_1 and gene_set_2 need to have same length and all genes need to be present in data
   if(length(gene_set_1) != length(gene_set_2)) {
