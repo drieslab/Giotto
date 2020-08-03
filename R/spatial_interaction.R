@@ -1674,7 +1674,6 @@ average_gene_gene_expression_in_groups = function(gobject,
 
   # keep order of colnames
   colnames_order = sort(new_colnames)
-  average_DT = average_DT[,colnames_order]
 
   # gene_set_1 and gene_set_2 need to have same length and all genes need to be present in data
   if(length(gene_set_1) != length(gene_set_2)) {
@@ -1988,7 +1987,8 @@ specificCellCellcommunicationScores = function(gobject,
     # get average communication scores
     comScore = average_gene_gene_expression_in_groups(gobject = subsetGiotto,
                                                       cluster_column = cluster_column,
-                                                      gene_set_1 = gene_set_1, gene_set_2 = gene_set_2)
+                                                      gene_set_1 = gene_set_1,
+                                                      gene_set_2 = gene_set_2)
     comScore = comScore[(lig_cell_type == cell_type_1 & rec_cell_type == cell_type_2) |
                           (lig_cell_type == cell_type_2 & rec_cell_type == cell_type_1)]
 
@@ -2016,16 +2016,19 @@ specificCellCellcommunicationScores = function(gobject,
       if(verbose == TRUE) cat('simulation ', sim, '\n')
 
       # get random ids and subset
-      random_ids = Giotto:::create_cell_type_random_cell_IDs(gobject = gobject, cluster_column = cluster_column,
-                                                             needed_cell_types = needed_cell_types)
+      random_ids = create_cell_type_random_cell_IDs(gobject = gobject, cluster_column = cluster_column,
+                                                    needed_cell_types = needed_cell_types)
       tempGiotto = subsetGiotto(gobject = gobject, cell_ids = random_ids)
 
       # get random communication scores
-      randomScore = Giotto:::average_gene_gene_expression_in_groups(gobject = tempGiotto,
-                                                                    cluster_column = cluster_column,
-                                                                    gene_set_1 = gene_set_1, gene_set_2 = gene_set_2)
+      randomScore = average_gene_gene_expression_in_groups(gobject = tempGiotto,
+                                                           cluster_column = cluster_column,
+                                                           gene_set_1 = gene_set_1,
+                                                           gene_set_2 = gene_set_2)
       randomScore = randomScore[(lig_cell_type == cell_type_1 & rec_cell_type == cell_type_2) |
                                   (lig_cell_type == cell_type_2 & rec_cell_type == cell_type_1)]
+
+
 
 
       # average random score
