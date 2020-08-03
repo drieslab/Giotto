@@ -1731,6 +1731,7 @@ average_gene_gene_expression_in_groups = function(gobject,
 #' @param gene_set_1 first specific gene set from gene pairs
 #' @param gene_set_2 second specific gene set from gene pairs
 #' @param log2FC_addendum addendum to add when calculating log2FC
+#' @param detailed provide more detailed information (random variance and z-score)
 #' @param adjust_method which method to adjust p-values
 #' @param adjust_target adjust multiple hypotheses at the cell or gene level
 #' @param verbose verbose
@@ -1748,6 +1749,7 @@ exprCellCellcom = function(gobject,
                            gene_set_1,
                            gene_set_2,
                            log2FC_addendum = 0.1,
+                           detailed = FALSE,
                            adjust_method = c("fdr", "bonferroni","BH", "holm", "hochberg", "hommel",
                                              "BY", "none"),
                            adjust_target = c('genes', 'cells'),
@@ -1779,7 +1781,13 @@ exprCellCellcom = function(gobject,
 
   # prepare for randomized scores
   total_av = rep(0, nrow(comScore))
-  total_sum = rep(0, nrow(comScore))
+
+  if(detailed == FALSE) {
+    total_sum = rep(0, nrow(comScore))
+  } else {
+    total_sum = matrix(nrow = nrow(comScore), ncol = random_iter)
+  }
+
   total_bool = rep(0, nrow(comScore))
 
 
@@ -1812,7 +1820,11 @@ exprCellCellcom = function(gobject,
     difference = comScore[['LR_expr']] - randomScore[['LR_expr']]
 
     # calculate total difference
-    total_sum = total_sum+difference
+    if(detailed == FALSE) {
+      total_sum = total_sum+difference
+    } else {
+      total_sum[,sim] = difference
+    }
 
     # calculate p-values
     difference[difference > 0] = 1
@@ -1822,7 +1834,19 @@ exprCellCellcom = function(gobject,
   }
 
   comScore[, rand_expr := total_av/random_iter]
-  comScore[, av_diff := total_sum/random_iter]
+
+  if(detailed == TRUE) {
+    av_difference_scores = rowMeans_giotto(total_sum)
+    sd_difference_scores = apply(total_sum, MARGIN = 1, FUN = stats::sd)
+
+    comScore[, av_diff := av_difference_scores]
+    comScore[, sd_diff := sd_difference_scores]
+    comScore[, z_score := (LR_expr - rand_expr)/sd_diff]
+
+  } else {
+    comScore[, av_diff := total_sum/random_iter]
+  }
+
   comScore[, log2fc := log2((LR_expr+log2FC_addendum)/(rand_expr+log2FC_addendum))]
   comScore[, pvalue := total_bool/random_iter]
   comScore[, pvalue := ifelse(pvalue > 0, 1-pvalue, 1+pvalue)]
