@@ -11,6 +11,7 @@ exprCellCellcom(
   gene_set_1,
   gene_set_2,
   log2FC_addendum = 0.1,
+  detailed = FALSE,
   adjust_method = c("fdr", "bonferroni", "BH", "holm", "hochberg", "hommel", "BY",
     "none"),
   adjust_target = c("genes", "cells"),
@@ -29,6 +30,8 @@ exprCellCellcom(
 \item{gene_set_2}{second specific gene set from gene pairs}
 
 \item{log2FC_addendum}{addendum to add when calculating log2FC}
+
+\item{detailed}{provide more detailed information (random variance and z-score)}
 
 \item{adjust_method}{which method to adjust p-values}
 
