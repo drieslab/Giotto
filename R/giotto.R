@@ -626,13 +626,14 @@ evaluate_spatial_locations = function(spatial_locs,
 
     # check if all columns are numeric
     column_classes = lapply(spatial_locs, FUN = class)
-    non_numeric_classes = column_classes[column_classes != 'numeric']
+    #non_numeric_classes = column_classes[column_classes != 'numeric']
+    non_numeric_classes = column_classes[!column_classes %in% c('numeric','integer')]
 
     if(length(non_numeric_classes) > 0) {
 
-      non_numeric_indices = which(column_classes != 'numeric')
+      non_numeric_indices = which(!column_classes %in% c('numeric','integer'))
 
-      warning('There are non numeric columns for the spatial location input at column position(s): ', non_numeric_indices,
+      warning('There are non numeric or integer columns for the spatial location input at column position(s): ', non_numeric_indices,
               '\n The first non-numeric column will be considered as a cell ID to test for consistency with the expression matrix',
               '\n Other non numeric columns will be removed')
 
