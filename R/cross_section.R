@@ -787,6 +787,9 @@ insertCrossSectionSpatPlot3D <- function(gobject,
   pl = spatPlot3D(gobject,
                   sdimx = sdimx, sdimy = sdimy, sdimz = sdimz,
                   show_other_cells = show_other_cells,
+                  show_plot = FALSE,
+                  return_plot = TRUE,
+                  save_plot = FALSE,
                   default_save_name = default_save_name,...)
 
   for (i in 1:dim(crossSection_obj$mesh_obj$mesh_grid_lines$mesh_grid_lines_X)[2]){
@@ -870,6 +873,9 @@ insertCrossSectionGenePlot3D <- function(gobject,
                       show_other_cells = F,
                       axis_scale = axis_scale,
                       custom_ratio = custom_ratio,
+                      show_plot = FALSE,
+                      return_plot = TRUE,
+                      save_plot = FALSE,
                       default_save_name = default_save_name,...)
   for (i in 1:dim(crossSection_obj$mesh_obj$mesh_grid_lines$mesh_grid_lines_X)[2]){
 
