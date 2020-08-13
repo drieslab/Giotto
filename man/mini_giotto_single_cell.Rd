@@ -16,7 +16,7 @@ Mini Giotto object created from the seqFISH+ data.
 \examples{
 data(mini_giotto_single_cell)
 
-\donttest{spatPlot(mini_giotto_single_cell)}
+\donttest{spatPlot2D(mini_giotto_single_cell,cell_color = 'cell_types', point_size = 5)}
 }
 \references{
 Eng et al. (2019) Nature

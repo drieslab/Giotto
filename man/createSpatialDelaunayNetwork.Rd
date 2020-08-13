@@ -25,7 +25,7 @@ createSpatialDelaunayNetwork(
 
 \item{method}{package to use to create a Delaunay network}
 
-\item{dimensions}{which spatial dimensions to use (default = all)}
+\item{dimensions}{which spatial dimensions to use. Use "sdimx" (spatial dimension x), "sdimy", "sdimz" respectively to refer to X (or the 1st), Y (or the 2nd) and Z(or the 3rd) dimension, see details. (default = all)}
 
 \item{name}{name for spatial network (default = 'delaunay_network')}
 
