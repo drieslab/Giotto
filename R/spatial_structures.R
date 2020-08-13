@@ -992,7 +992,7 @@ create_delaunayNetwork3D <- function (gobject,
 #' @description Create a spatial Delaunay network based on cell centroid physical distances.
 #' @param gobject giotto object
 #' @param method package to use to create a Delaunay network
-#' @param dimensions which spatial dimensions to use (default = all)
+#' @param dimensions which spatial dimensions to use. Use "sdimx" (spatial dimension x), "sdimy", "sdimz" respectively to refer to X (or the 1st), Y (or the 2nd) and Z(or the 3rd) dimension, see details. (default = all)
 #' @param name name for spatial network (default = 'delaunay_network')
 #' @param maximum_distance distance cuttof for Delaunay neighbors to consider. If "auto", "upper wisker" value of the distance vector between neighbors is used; see the boxplot{graphics} documentation for more details.(default = "auto")
 #' @param minimum_k minimum number of neigbhours if maximum_distance != NULL
