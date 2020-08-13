@@ -119,7 +119,7 @@ cellProximityEnrichment <- function(gobject,
                                      number_of_simulations = number_of_simulations)
 
   # combine original and simulated network
-  table_sim_results <- sample_dt[, table(round), by = c('unified_int', 'type_int')]
+  table_sim_results = sample_dt[, table(round), by = c('unified_int', 'type_int')]
 
   # data.table variables
   orig = unified_int = V1 = original = enrichm = simulations = NULL

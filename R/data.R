@@ -19,5 +19,14 @@
 #' @examples
 #' data(mini_giotto_single_cell)
 #'
-#' \donttest{spatPlot(mini_giotto_single_cell)}
+#' \donttest{spatPlot2D(mini_giotto_single_cell,cell_color = 'cell_types', point_size = 5)}
 "mini_giotto_single_cell"
+
+
+
+
+
+
+
+
+
