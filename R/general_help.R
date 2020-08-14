@@ -622,6 +622,17 @@ getSpatialDataset = function(dataset = c('ST_OB',
   expr_matrix_url = datasets_file[dataset == sel_dataset][['expr_matrix']]
   system(paste0('wget -P ', directory,' ', expr_matrix_url))
 
+  # get url(s) to additional metadata files and download
+  metadata_url = datasets_file[dataset == sel_dataset][['metadata']]
+
+  if(length(metadata_url) == 1 & is.na(metadata_url)) {
+    NULL
+  } else {
+    for(url in metadata_url) {
+      system(paste0('wget -P ', directory,' ', url))
+    }
+  }
+
 }
 
 
