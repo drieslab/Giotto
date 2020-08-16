@@ -593,19 +593,27 @@ package_check = function(pkg_name,
 #' expression matrix for the chosen dataset. These files are already in the right format
 #' to create a Giotto object.
 #' @export
-getSpatialDataset = function(dataset = c('ST_OB',
-                                         'seqfish_SS_cortex', 'seqfish_OB',
+getSpatialDataset = function(dataset = c('ST_OB_1',
+                                         'ST_OB_2',
+                                         'codex_spleen',
+                                         'cycif_PDAC',
                                          'starmap_3D_cortex',
                                          'osmfish_SS_cortex',
                                          'merfish_preoptic',
-                                         'codex_spleen'),
+                                         'seqfish_SS_cortex',
+                                         'seqfish_OB'
+                                         ),
                              directory = getwd()) {
 
-  sel_dataset = match.arg(dataset, choices = c('ST_OB',
-                                               'seqfish_SS_cortex', 'seqfish_OB',
+  sel_dataset = match.arg(dataset, choices = c('ST_OB_1',
+                                               'ST_OB_2',
+                                               'codex_spleen',
+                                               'cycif_PDAC',
                                                'starmap_3D_cortex',
                                                'osmfish_SS_cortex',
-                                               'merfish_preoptic'))
+                                               'merfish_preoptic',
+                                               'seqfish_SS_cortex',
+                                               'seqfish_OB'))
 
   if(!file.exists(directory)) {
     warning('The output directory does not exist and will be created \n')
@@ -623,7 +631,7 @@ getSpatialDataset = function(dataset = c('ST_OB',
   system(paste0('wget -P ', directory,' ', expr_matrix_url))
 
   # get url(s) to additional metadata files and download
-  metadata_url = datasets_file[dataset == sel_dataset][['metadata']]
+  metadata_url = datasets_file[dataset == sel_dataset][['metadata']][[1]]
 
   if(length(metadata_url) == 1 & is.na(metadata_url)) {
     NULL
