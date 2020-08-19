@@ -106,6 +106,130 @@ spatGenePlot(VC_small, expression_values = 'scaled', genes = km_spatialgenes[1:6
              show_network = F, network_color = 'lightgrey', point_size = 2.5,
              cow_n_col = 2)
 
+
+
+pattern = VC_small@spatial_locs[sdimx > 1500 & sdimy < -500]
+pattern_ids = pattern$cell_ID
+
+cell_meta = pDataDT(VC_small)
+cell_meta[, patt := ifelse(cell_ID %in% pattern_ids, 'in', 'out')]
+
+VC_small = addCellMetadata(VC_small, new_metadata = cell_meta[,.(cell_ID, patt)], by_column = T, column_cell_ID = 'cell_ID')
+spatPlot(gobject = VC_small,
+         point_size = 2.5, cell_color = 'patt')
+
+
+cell_meta = pDataDT(VC_small)
+cell_number = nrow(cell_meta[patt == 'in'])
+
+expr_data = VC_small@norm_expr
+
+result_list = list()
+
+spatial_prob = 0.5
+
+for(gene_i in 1:nrow(expr_data)) {
+
+  gene_vector = expr_data[gene_i,]
+  sort_expr_gene = sort(gene_vector, decreasing = T)
+
+  total_cell_number = length(sort_expr_gene)
+  remaining_cell_number = total_cell_number - cell_number
+
+  outside_prob = 1 - spatial_prob
+  prob_vector = c(rep(spatial_prob, cell_number), rep(outside_prob, remaining_cell_number))
+
+  sample_values = sort(sample(sort_expr_gene, replace = F, size = cell_number, prob = prob_vector), decreasing = T)
+
+  remain_values = sort_expr_gene[!names(sort_expr_gene) %in% names(sample_values)]
+  remain_values = sample(remain_values, size = length(remain_values))
+
+  in_ids = cell_meta[patt == 'in']$cell_ID
+  names(sample_values) = in_ids
+
+  out_ids = cell_meta[patt == 'out']$cell_ID
+  names(remain_values) = out_ids
+
+  new_sim_values = c(sample_values, remain_values)
+  new_sim_values = new_sim_values[names(gene_vector)]
+
+  result_list[[gene_i]] = new_sim_values
+
+}
+
+new_sim_matrix = do.call('rbind', result_list)
+new_sim_matrix[1:4, 1:4]
+rownames(new_sim_matrix) = rownames(expr_data)
+
+
+VC_small_sim = VC_small
+VC_small_sim@norm_expr = new_sim_matrix
+
+# binspect
+km_spatialgenes_sim = binSpect(VC_small_sim)
+km_spatialgenes_sim[p.value <= 0.05]
+
+km_spatialgenes_sim[genes == 'Slc9a3']
+
+spatGenePlot(VC_small_sim, expression_values = 'norm', genes = km_spatialgenes_sim[1:6]$genes,
+             point_shape = 'border', point_border_stroke = 0.1,
+             show_network = F, network_color = 'lightgrey', point_size = 2.5,
+             cow_n_col = 2)
+
+spatGenePlot(VC_small_sim, expression_values = 'norm', genes = tail(km_spatialgenes_sim$genes, 6),
+             point_shape = 'border', point_border_stroke = 0.1,
+             show_network = F, network_color = 'lightgrey', point_size = 2.5,
+             cow_n_col = 2)
+
+
+# silhouette
+silh_spatialgenes = silhouetteRank(gobject = VC_small_sim) # TODO: suppress print output
+
+spatGenePlot(VC_small_sim, expression_values = 'norm', genes = silh_spatialgenes[1:6]$genes,
+             point_shape = 'border', point_border_stroke = 0.1,
+             show_network = F, network_color = 'lightgrey', point_size = 2.5,
+             cow_n_col = 2)
+
+spatGenePlot(VC_small_sim, expression_values = 'norm', genes = tail(silh_spatialgenes$genes, 6),
+             point_shape = 'border', point_border_stroke = 0.1,
+             show_network = F, network_color = 'lightgrey', point_size = 2.5,
+             cow_n_col = 2)
+
+
+
+
+
+
+gene_vector = expr_data[1,]
+sort_expr_gene = sort(gene_vector, decreasing = T)
+
+total_cell_number = length(sort_expr_gene)
+remaining_cell_number = total_cell_number - cell_number
+
+spatial_prob = 0.75
+outside_prob = 1 - spatial_prob
+prob_vector = c(rep(spatial_prob, cell_number), rep(outside_prob, remaining_cell_number))
+
+sample_values = sort(sample(sort_expr_gene, replace = F, size = cell_number, prob = prob_vector), decreasing = T)
+
+remain_values = sort_expr_gene[!names(sort_expr_gene) %in% names(sample_values)]
+remain_values = sample(remain_values, size = length(remain_values))
+
+in_ids = cell_meta[patt == 'in']$cell_ID
+names(sample_values) = in_ids
+
+out_ids = cell_meta[patt == 'out']$cell_ID
+names(remain_values) = out_ids
+
+new_sim_values = c(sample_values, remain_values)
+new_sim_values = new_sim_values[names(gene_vector)]
+
+
+
+
+
+
+
 rank_spatialgenes = binSpect(VC_small, bin_method = 'rank')
 spatGenePlot(VC_small, expression_values = 'scaled', genes = rank_spatialgenes[1:6]$genes,
              point_shape = 'border', point_border_stroke = 0.1,
