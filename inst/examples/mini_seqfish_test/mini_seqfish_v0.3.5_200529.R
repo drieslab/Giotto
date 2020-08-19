@@ -183,38 +183,10 @@ cell_proximities = cellProximityEnrichment(gobject = VC_small,
                                            adjust_method = 'fdr',
                                            number_of_simulations = 1000)
 
-test = cell_proximities$raw_sim_table
-sort(table(test$unified_int))
-
-metadata = pDataDT(VC_small)
-sort(table(metadata$cell_types))
-
-
-testset = test[unified_int == 'cell F--cell F']
-
-orig_value = testset[orig == 'original']$V1
-sim_values = testset[orig == 'simulations']$V1
-
-number_of_simulations = 1000
-
-length_simulations = length(sim_values)
-if(length_simulations != number_of_simulations) {
-  additional_length_needed = number_of_simulations-length_simulations
-  sim_values = c(sim_values, rep(0, additional_length_needed))
-}
-
-p_orig_higher = 1 - (sum((orig_value+1) > (sim_values+1))/number_of_simulations)
-p_orig_lower = 1 - (sum((orig_value+1) < (sim_values+1))/number_of_simulations)
-
-
-
-
-
-
-
-
 # barplot
-cellProximityBarplot(gobject = VC_small, CPscore = cell_proximities, min_orig_ints = 5, min_sim_ints = 5)
+cellProximityBarplot(gobject = VC_small, CPscore = cell_proximities,
+                     min_orig_ints = 1, min_sim_ints = 1, p_val = 0.25)
+
 ## heatmap
 cellProximityHeatmap(gobject = VC_small, CPscore = cell_proximities, order_cell_types = T, scale = T,
                      color_breaks = c(-1.5, 0, 1.5), color_names = c('blue', 'white', 'red'))

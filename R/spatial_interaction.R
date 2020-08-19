@@ -96,8 +96,8 @@ cellProximityEnrichment <- function(gobject,
 
   # p.adj test
   sel_adjust_method = match.arg(adjust_method, choices = c("none", "fdr", "bonferroni","BH",
-                                                       "holm", "hochberg", "hommel",
-                                                       "BY"))
+                                                           "holm", "hochberg", "hommel",
+                                                           "BY"))
 
   spatial_network_annot = annotateSpatialNetwork(gobject = gobject,
                                                  spatial_network_name = spatial_network_name,
@@ -119,19 +119,39 @@ cellProximityEnrichment <- function(gobject,
                                      number_of_simulations = number_of_simulations)
 
   # combine original and simulated network
-  table_sim_results = sample_dt[, table(round), by = c('unified_int', 'type_int')]
+  table_sim_results = sample_dt[, .N, by = c('unified_int', 'type_int', 'round')]
+
+  ## create complete simulations
+  ## add 0 if no single interaction was found
+  unique_ints = unique(table_sim_results[,.(unified_int, type_int)])
+
+  # data.table with 0's for all interactions
+  minimum_simulations = unique_ints[rep(seq_len(nrow(unique_ints)), number_of_simulations), ]
+  minimum_simulations[, round := rep(paste0('sim',1:number_of_simulations), each = nrow(unique_ints))]
+  minimum_simulations[, N := 0]
+
+  table_sim_minimum_results = rbind(table_sim_results, minimum_simulations)
+  table_sim_minimum_results[, V1 := sum(N), by  = c('unified_int', 'type_int', 'round')]
+  table_sim_minimum_results = unique(table_sim_minimum_results[,.(unified_int, type_int, round, V1)])
+  table_sim_results = table_sim_minimum_results
+
 
   # data.table variables
   orig = unified_int = V1 = original = enrichm = simulations = NULL
 
   table_sim_results[, orig := 'simulations']
   spatial_network_annot[, round := 'original']
-  table_orig_results <- spatial_network_annot[, table(round), by  = c('unified_int', 'type_int')]
+
+  table_orig_results = spatial_network_annot[, .N, by  = c('unified_int', 'type_int', 'round')]
   table_orig_results[, orig := 'original']
-  table_results <- rbind(table_orig_results, table_sim_results)
+  data.table::setnames(table_orig_results, old = 'N', new = 'V1')
+
+  table_results = rbind(table_orig_results, table_sim_results)
+
 
 
   # add missing combinations from original or simulations
+  # probably not needed anymore
   all_simulation_ints = as.character(unique(table_results[orig == 'simulations']$unified_int))
   all_original_ints = as.character(unique(table_results[orig == 'original']$unified_int))
   missing_in_original = all_simulation_ints[!all_simulation_ints %in% all_original_ints]
@@ -208,7 +228,6 @@ cellProximityEnrichment <- function(gobject,
   return(list(raw_sim_table = table_results, enrichm_res = table_mean_results_dc))
 
 }
-
 
 
 #' @title addCellIntMetadata
