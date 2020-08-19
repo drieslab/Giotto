@@ -161,7 +161,8 @@ cellProximityEnrichment <- function(gobject,
     length_simulations = length(sim_values)
     if(length_simulations != number_of_simulations) {
       additional_length_needed = number_of_simulations-length_simulations
-      length_simulations = c(length_simulations, rep(0, additional_length_needed))
+      sim_values = c(sim_values, rep(0, additional_length_needed))
+      #length_simulations = c(length_simulations, rep(0, additional_length_needed))
     }
 
     p_orig_higher = 1 - (sum((orig_value+1) > (sim_values+1))/number_of_simulations)
