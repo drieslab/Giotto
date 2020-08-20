@@ -709,6 +709,110 @@ trendSceek <- function(gobject,
 
 
 
+#' @title spark
+#' @name spark
+#' @description Compute spatially expressed genes with SPARK method
+#' @param gobject giotto object
+#' @param percentage The percentage of cells that are expressed for analysis
+#' @param min_count minimum number of counts for a gene to be included
+#' @param values_type type of values to use (raw by default)
+#' @param num_core number of cores to use
+#' @param covariates The covariates in experiments, i.e. confounding factors/batch effect. Column name of giotto cell metadata.
+#' @param return_object type of result to return (data.table or spark object)
+#' @param \dots Additional parameters to the \code{\link[SPARK]{spark.vc}} function
+#' @return data.table with SPARK spatial genes results or the SPARK object
+#' @details This function is a wrapper for the method implemented in the SPARK package:
+#' \itemize{
+#'  \item{1. CreateSPARKObject }{create a SPARK object from a Giotto object}
+#'  \item{2. spark.vc }{ Fits the count-based spatial model to estimate the parameters,
+#'  see \code{\link[SPARK]{spark.vc}} for additional parameters}
+#'  \item{3. spark.test }{ Testing multiple kernel matrices}
+#' }
+#' @export
+spark = function(gobject,
+                 percentage = 0.1,
+                 min_count = 10,
+                 values_type = 'raw',
+                 num_core = 5,
+                 covariates = NULL,
+                 return_object = 'data.table',
+                 ...) {
+
+
+  ## test if SPARK is installed ##
+  Giotto:::package_check(pkg_name = 'SPARK',
+                         repository = c('github'),
+                         github_repo = 'xzhoulab/SPARK')
+
+
+  # print message with information #
+  message("using 'SPARK' for spatial gene/pattern detection. If used in published research, please cite:
+  Sun, Shiquan, Jiaqiang Zhu, and Xiang Zhou. “Statistical Analysis of Spatial Expression Pattern for Spatially Resolved Transcriptomic Studies.”
+          BioRxiv, October 21, 2019, 810903. https://doi.org/10.1101/810903.")
+
+
+  ## extract expression values from gobject
+  expr = Giotto:::select_expression_values(gobject = gobject, values = values_type)
+
+  ## extract coordinates from gobject
+  locs = as.data.frame(gobject@spatial_locs)
+  rownames(locs) = colnames(expr)
+
+  ## create SPARK object for analysis and filter out lowly expressed genes
+  sobject = SPARK::CreateSPARKObject(counts = expr,
+                                     location = locs[,1:2],
+                                     percentage = percentage,
+                                     min_total_counts = min_count)
+
+  ## total counts for each cell
+  sobject@lib_size = apply(sobject@counts, 2, sum)
+
+  ## extract covariates ##
+  if(!is.null(covariates)) {
+
+    # first filter giotto object based on spark object
+    filter_cell_ids = colnames(sobject@counts)
+    filter_gene_ids = rownames(sobject@counts)
+    tempgobject = subsetGiotto(gobject, cell_ids = filter_cell_ids, gene_ids = filter_gene_ids)
+
+    metadata = pDataDT(tempgobject)
+
+    if(!covariates %in% colnames(metadata)) {
+      warning(covariates, ' was not found in the cell metadata of the giotto object, will be set to NULL \n')
+      covariates = NULL
+    } else {
+      covariates = metadata[[covariates]]
+    }
+  }
+
+  ## Fit statistical model under null hypothesis
+  sobject = SPARK::spark.vc(sobject,
+                            covariates = covariates,
+                            lib_size = sobject@lib_size,
+                            num_core = num_core,
+                            verbose = F,
+                            ...)
+
+  ## test spatially expressed pattern genes
+  ## calculating pval
+  sobject = SPARK::spark.test(sobject,
+                              check_positive = T,
+                              verbose = F)
+
+  ## return results ##
+  if(return_object == 'spark'){
+    return(sobject)
+  }else if(return_object == 'data.table'){
+    DT_results = data.table::as.data.table(sobject@res_mtest)
+    gene_names = rownames(sobject@counts)
+    DT_results[, genes := gene_names]
+    data.table::setorder(DT_results, adjusted_pvalue, combined_pvalue)
+    return(DT_results)
+  }
+}
+
+
+
 
 
 # * ####
