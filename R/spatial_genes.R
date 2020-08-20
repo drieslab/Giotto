@@ -693,7 +693,10 @@ trendSceek <- function(gobject,
                 repository = c('github'),
                 github_repo = 'edsgard/trendsceek')
 
-
+  # print message with information #
+  message("using 'trendsceek' for spatial gene/pattern detection. If used in published research, please cite:
+  Edsgärd, Daniel, Per Johnsson, and Rickard Sandberg. “Identification of Spatial Expression Trends in Single-Cell Gene Expression Data.”
+          Nature Methods 15, no. 5 (May 2018): 339–42. https://doi.org/10.1038/nmeth.4634.")
 
   ## expression data
   values = match.arg(expression_values, c("normalized", "raw"))

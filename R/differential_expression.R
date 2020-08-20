@@ -9,6 +9,7 @@
 #' @param subset_clusters selection of clusters to compare
 #' @param group_1 group 1 cluster IDs from cluster_column for pairwise comparison
 #' @param group_2 group 2 cluster IDs from cluster_column for pairwise comparison
+#' @param verbose be verbose (default = FALSE)
 #' @param ... additional parameters for the findMarkers function in scran
 #' @return data.table with marker genes
 #' @details This is a minimal convenience wrapper around
@@ -26,11 +27,21 @@ findScranMarkers <- function(gobject,
                              subset_clusters = NULL,
                              group_1 = NULL,
                              group_2 = NULL,
+                             verbose = FALSE,
                              ...) {
 
 
   # verify if optional package is installed
   package_check(pkg_name = "scran", repository = "Bioc")
+
+
+  # print message with information #
+  if(verbose) message("using 'Scran' to detect marker genes. If used in published research, please cite:
+  Lun ATL, McCarthy DJ, Marioni JC (2016).
+  'A step-by-step workflow for low-level analysis of single-cell RNA-seq data with Bioconductor.'
+  F1000Res., 5, 2122. doi: 10.12688/f1000research.9501.2. ")
+
+
 
   # expression data
   values = match.arg(expression_values, choices = c('normalized', 'scaled', 'custom'))
@@ -121,13 +132,14 @@ findScranMarkers_one_vs_all <- function(gobject,
                                         ...) {
 
 
-  if("scran" %in% rownames(installed.packages()) == FALSE) {
-    stop("\n package 'scran' is not yet installed \n",
-         "To install: \n",
-         "if (!requireNamespace('BiocManager', quietly = TRUE)) install.packages('BiocManager');
-         BiocManager::install('scran')"
-    )
-  }
+  # verify if optional package is installed
+  package_check(pkg_name = "scran", repository = "Bioc")
+
+  # print message with information #
+  if(verbose) message("using 'Scran' to detect marker genes. If used in published research, please cite:
+  Lun ATL, McCarthy DJ, Marioni JC (2016).
+  'A step-by-step workflow for low-level analysis of single-cell RNA-seq data with Bioconductor.'
+  F1000Res., 5, 2122. doi: 10.12688/f1000research.9501.2. ")
 
   # expression data
   values = match.arg(expression_values, choices = c('normalized', 'scaled', 'custom'))
@@ -171,7 +183,8 @@ findScranMarkers_one_vs_all <- function(gobject,
                                expression_values = values,
                                cluster_column = cluster_column,
                                group_1 = selected_clus,
-                               group_2 = other_clus )
+                               group_2 = other_clus,
+                               verbose = FALSE)
 
     # identify list to continue with
     select_bool = unlist(lapply(markers, FUN = function(x) {
@@ -481,6 +494,7 @@ findGiniMarkers_one_vs_all <- function(gobject,
 #' @param group_2 group 2 cluster IDs from cluster_column for pairwise comparison
 #' @param group_2_name custom name for group_2 clusters
 #' @param adjust_columns column in pDataDT to adjust for (e.g. detection rate)
+#' @param verbose be verbose
 #' @param ... additional parameters for the zlm function in MAST
 #' @return data.table with marker genes
 #' @details This is a minimal convenience wrapper around the \code{\link[MAST]{zlm}}
@@ -496,11 +510,18 @@ findMastMarkers <- function(gobject,
                             group_2 = NULL,
                             group_2_name = NULL,
                             adjust_columns = NULL,
+                            verbose = FALSE,
                             ...) {
 
 
   # verify if optional package is installed
   package_check(pkg_name = "MAST", repository = "Bioc")
+
+  # print message with information #
+  if(verbose) message("using 'MAST' to detect marker genes. If used in published research, please cite:
+  McDavid A, Finak G, Yajima M (2020).
+  MAST: Model-based Analysis of Single Cell Transcriptomics. R package version 1.14.0,
+  https://github.com/RGLab/MAST/.")
 
   ## select expression values to use
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
@@ -632,13 +653,14 @@ findMastMarkers_one_vs_all = function(gobject,
                                       ...) {
 
 
-  if("MAST" %in% rownames(installed.packages()) == FALSE) {
-    stop("\n package 'MAST' is not yet installed \n",
-         "To install: \n",
-         "if (!requireNamespace('BiocManager', quietly = TRUE)) install.packages('BiocManager');
-         BiocManager::install('MAST')"
-    )
-  }
+  # verify if optional package is installed
+  package_check(pkg_name = "MAST", repository = "Bioc")
+
+  # print message with information #
+  if(verbose) message("using 'MAST' to detect marker genes. If used in published research, please cite:
+  McDavid A, Finak G, Yajima M (2020).
+  MAST: Model-based Analysis of Single Cell Transcriptomics. R package version 1.14.0,
+  https://github.com/RGLab/MAST/.")
 
 
   ## cluster column
@@ -678,7 +700,8 @@ findMastMarkers_one_vs_all = function(gobject,
                                         group_1 = selected_clus,
                                         group_1_name = selected_clus,
                                         group_2 = other_clus,
-                                        group_2_name = 'others')
+                                        group_2_name = 'others',
+                                        verbose = FALSE)
 
     result_list[[clus_i]] = temp_mast_markers
 
