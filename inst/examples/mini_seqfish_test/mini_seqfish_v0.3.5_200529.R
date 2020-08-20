@@ -107,9 +107,17 @@ spatGenePlot(VC_small, expression_values = 'scaled', genes = km_spatialgenes[1:6
              cow_n_col = 2)
 
 
+km_spatialgenes[p.value <= 0.05]
 
+
+# pattern 1: bottom right stripe
 pattern = VC_small@spatial_locs[sdimx > 1500 & sdimy < -500]
 pattern_ids = pattern$cell_ID
+
+# pattern 2: small patch center
+pattern = VC_small@spatial_locs[sdimx < 1250 & sdimx > 750 & sdimy < -750 & sdimy > -1250]
+pattern_ids = pattern$cell_ID
+
 
 cell_meta = pDataDT(VC_small)
 cell_meta[, patt := ifelse(cell_ID %in% pattern_ids, 'in', 'out')]
@@ -119,14 +127,18 @@ spatPlot(gobject = VC_small,
          point_size = 2.5, cell_color = 'patt')
 
 
+
+
 cell_meta = pDataDT(VC_small)
 cell_number = nrow(cell_meta[patt == 'in'])
 
 expr_data = VC_small@norm_expr
+raw_expr_data = VC_small@raw_exprs
 
 result_list = list()
+raw_result_list = list()
 
-spatial_prob = 0.5
+spatial_prob = 0.9
 
 for(gene_i in 1:nrow(expr_data)) {
 
@@ -144,10 +156,26 @@ for(gene_i in 1:nrow(expr_data)) {
   remain_values = sort_expr_gene[!names(sort_expr_gene) %in% names(sample_values)]
   remain_values = sample(remain_values, size = length(remain_values))
 
+
+  ## within pattern ##
   in_ids = cell_meta[patt == 'in']$cell_ID
+
+  # for raw matrix
+  sample_values_id_vector = names(sample_values)
+  names(sample_values_id_vector) = in_ids
+
+  # for norm matrix
   names(sample_values) = in_ids
 
+
+  ## outside pattern ##
   out_ids = cell_meta[patt == 'out']$cell_ID
+
+  # for raw matrix
+  remain_values_id_vector = names(remain_values)
+  names(remain_values_id_vector) = out_ids
+
+  # for norm matrix
   names(remain_values) = out_ids
 
   new_sim_values = c(sample_values, remain_values)
@@ -155,21 +183,50 @@ for(gene_i in 1:nrow(expr_data)) {
 
   result_list[[gene_i]] = new_sim_values
 
+
+  # raw matrix
+  raw_gene_vector = raw_expr_data[gene_i,]
+
+  raw_new_sample_vector = raw_gene_vector[sample_values_id_vector]
+  names(raw_new_sample_vector) = names(sample_values_id_vector)
+
+  raw_new_remain_vector = raw_gene_vector[remain_values_id_vector]
+  names(raw_new_remain_vector) = names(remain_values_id_vector)
+
+
+  new_sim_raw_values = c(raw_new_sample_vector, raw_new_remain_vector)
+  new_sim_raw_values = new_sim_raw_values[names(raw_gene_vector)]
+
+  raw_result_list[[gene_i]] = new_sim_raw_values
+
 }
 
 new_sim_matrix = do.call('rbind', result_list)
 new_sim_matrix[1:4, 1:4]
 rownames(new_sim_matrix) = rownames(expr_data)
 
+new_raw_sim_matrix = do.call('rbind', raw_result_list)
+new_raw_sim_matrix[1:4, 1:4]
+rownames(new_raw_sim_matrix) = rownames(raw_expr_data)
+
 
 VC_small_sim = VC_small
 VC_small_sim@norm_expr = new_sim_matrix
+VC_small_sim@raw_exprs = new_raw_sim_matrix
+
 
 # binspect
-km_spatialgenes_sim = binSpect(VC_small_sim)
-km_spatialgenes_sim[p.value <= 0.05]
+km_spatialgenes_sim = binSpect(VC_small_sim, spatial_network_name = 'Delaunay_network')
+km_spatialgenes_sim = binSpect(VC_small_sim, spatial_network_name = 'kNN_network')
+detected_genes = km_spatialgenes_sim[p.value <= 0.05]
 
-km_spatialgenes_sim[genes == 'Slc9a3']
+# with control
+false_pos = nrow(detected_genes)/nrow(km_spatialgenes_sim)
+
+# with simulations
+true_pos = nrow(detected_genes)/nrow(km_spatialgenes_sim)
+
+
 
 spatGenePlot(VC_small_sim, expression_values = 'norm', genes = km_spatialgenes_sim[1:6]$genes,
              point_shape = 'border', point_border_stroke = 0.1,
@@ -180,6 +237,36 @@ spatGenePlot(VC_small_sim, expression_values = 'norm', genes = tail(km_spatialge
              point_shape = 'border', point_border_stroke = 0.1,
              show_network = F, network_color = 'lightgrey', point_size = 2.5,
              cow_n_col = 2)
+
+
+# spatialDE
+sd_cells = apply(new_raw_sim_matrix, 2, sd)
+sd_non_zero_cells = names(sd_cells[sd_cells != 0])
+
+VC_small_sim2 = subsetGiotto(VC_small_sim, cell_ids = sd_non_zero_cells)
+
+testspatDE = spatialDE(gobject = VC_small_sim2)
+
+spatialDE_DT = data.table::as.data.table(testspatDE$results$results)
+data.table::setorder(spatialDE_DT, pval)
+detected_genes = spatialDE_DT[pval <= 0.05]
+
+true_pos = nrow(detected_genes)/nrow(spatialDE_DT)
+
+
+spatGenePlot(VC_small_sim2, expression_values = 'norm', genes = detected_genes[1:6]$g,
+             point_shape = 'border', point_border_stroke = 0.1,
+             show_network = F, network_color = 'lightgrey', point_size = 2.5,
+             cow_n_col = 2)
+
+
+spatGenePlot(VC_small_sim2, expression_values = 'norm', genes = tail(detected_genes$g, 6),
+             point_shape = 'border', point_border_stroke = 0.1,
+             show_network = F, network_color = 'lightgrey', point_size = 2.5,
+             cow_n_col = 2)
+
+
+
 
 
 # silhouette
@@ -194,6 +281,12 @@ spatGenePlot(VC_small_sim, expression_values = 'norm', genes = tail(silh_spatial
              point_shape = 'border', point_border_stroke = 0.1,
              show_network = F, network_color = 'lightgrey', point_size = 2.5,
              cow_n_col = 2)
+
+
+
+
+
+
 
 
 
