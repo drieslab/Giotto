@@ -13,6 +13,7 @@ findMastMarkers(
   group_2 = NULL,
   group_2_name = NULL,
   adjust_columns = NULL,
+  verbose = FALSE,
   ...
 )
 }
@@ -32,6 +33,8 @@ findMastMarkers(
 \item{group_2_name}{custom name for group_2 clusters}
 
 \item{adjust_columns}{column in pDataDT to adjust for (e.g. detection rate)}
+
+\item{verbose}{be verbose}
 
 \item{...}{additional parameters for the zlm function in MAST}
 }

@@ -11,6 +11,7 @@ findScranMarkers(
   subset_clusters = NULL,
   group_1 = NULL,
   group_2 = NULL,
+  verbose = FALSE,
   ...
 )
 }
@@ -26,6 +27,8 @@ findScranMarkers(
 \item{group_1}{group 1 cluster IDs from cluster_column for pairwise comparison}
 
 \item{group_2}{group 2 cluster IDs from cluster_column for pairwise comparison}
+
+\item{verbose}{be verbose (default = FALSE)}
 
 \item{...}{additional parameters for the findMarkers function in scran}
 }
