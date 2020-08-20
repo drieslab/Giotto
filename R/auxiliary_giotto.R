@@ -2072,3 +2072,168 @@ findNetworkNeighbors = function(gobject,
 
 
 
+
+
+#' @title simulatePatternGiottoObject
+#' @description Forces all genes to follow a defined spatial pattern [beta]
+#' @param gobject Giotto object
+#' @param pattern_name name of spatial pattern
+#' @param pattern_cell_ids cell ids from original giotto object to create spatial pattern
+#' @param spatial_prob probability for a high-expressing cell to be assigned to the spatial pattern
+#' @param gradient_direction direction of gradient (default = NULL)
+#' @param show_pattern show how pattern looks like
+#' @param pattern_colors named vector with 2 colors
+#' @return Giotto object with simulated normalized and raw expression according to a spatial pattern
+#' @export
+#' @examples
+#'     simulatePatternGiottoObject(gobject)
+simulatePatternGiottoObject = function(gobject,
+                                       pattern_name = 'pattern',
+                                       pattern_cell_ids = NULL,
+                                       spatial_prob = 0.95,
+                                       gradient_direction = NULL,
+                                       show_pattern = TRUE,
+                                       pattern_colors = c('in' = 'green', 'out' = 'red')) {
+
+  if(is.null(pattern_cell_ids)) {
+    stop('pattern_cell_ids can not be NULL \n')
+  }
+
+  ## create and add annotation for pattern
+  cell_meta = pDataDT(gobject)
+  cell_meta[, (pattern_name) := ifelse(cell_ID %in% pattern_cell_ids, 'in', 'out')]
+
+  newgobject = addCellMetadata(gobject,
+                               new_metadata = cell_meta[,c('cell_ID', pattern_name), with = F],
+                               by_column = T,
+                               column_cell_ID = 'cell_ID')
+
+  # show pattern
+  if(show_pattern == TRUE) {
+    spatPlot2D(gobject = newgobject, save_plot = F, cell_color_code = pattern_colors,
+               point_size = 2, cell_color = pattern_name)
+  }
+
+
+  ## merge cell metadata and cell coordinate data
+  cell_meta = pDataDT(newgobject)
+  cell_coord = newgobject@spatial_locs
+  cell_meta = data.table::merge.data.table(cell_meta, cell_coord, by = 'cell_ID')
+
+  ## get number of cells within pattern
+  cell_number = nrow(cell_meta[get(pattern_name) == 'in'])
+
+
+  ## normalized expression
+  expr_data = newgobject@norm_expr
+  result_list = list()
+
+  ## raw expression
+  raw_expr_data = newgobject@raw_exprs
+  raw_result_list = list()
+
+
+  ## create the spatial expression pattern for each gene
+  # 1. rank all gene values from the cells from high to low
+  # 2. move the highest expressing values to the spatial pattern using a probability
+  #     - 0.5 is the control = random
+  #     - 1 is perfection: all the highest values go to the pattern
+  #     - 0.5 to 1 is decreasing noise levels
+
+  for(gene_i in 1:nrow(expr_data)) {
+
+    # rank genes
+    gene_vector = expr_data[gene_i,]
+    sort_expr_gene = sort(gene_vector, decreasing = T)
+
+    # number of cells in and out the pattern
+    total_cell_number = length(sort_expr_gene)
+    remaining_cell_number = total_cell_number - cell_number
+
+    # calculate outside probability
+    outside_prob = 1 - spatial_prob
+    prob_vector = c(rep(spatial_prob, cell_number), rep(outside_prob, remaining_cell_number))
+
+    # first get the 'in' pattern sample values randomly
+    sample_values = sample(sort_expr_gene, replace = F, size = cell_number, prob = prob_vector)
+
+    # then take the remaining 'out' pattern values randomly
+    remain_values = sort_expr_gene[!names(sort_expr_gene) %in% names(sample_values)]
+    remain_values = sample(remain_values, size = length(remain_values))
+
+
+
+    ## A. within pattern ##
+    # ------------------- #
+    in_cell_meta = cell_meta[get(pattern_name) == 'in']
+
+    # if gradient is wanted
+    # does not work with 0.5!! is not random!!
+    if(!is.null(gradient_direction)) {
+      # sort in_ids according to x, y or  xy coordinates to create gradient
+      in_cell_meta[, sdimx_y := abs(sdimx)+ abs(sdimy)]
+      # order according to gradient direction
+      in_cell_meta = in_cell_meta[order(get(gradient_direction))]
+    }
+    in_ids = in_cell_meta$cell_ID
+
+    # preparation for raw matrix
+    sample_values_id_vector = names(sample_values)
+    names(sample_values_id_vector) = in_ids
+
+    # for norm matrix
+    names(sample_values) = in_ids
+
+
+
+    ## B. outside pattern ##
+    # -------------------- #
+    out_ids = cell_meta[get(pattern_name) == 'out']$cell_ID
+
+    # preparation for raw matrix
+    remain_values_id_vector = names(remain_values)
+    names(remain_values_id_vector) = out_ids
+
+    # for norm matrix
+    names(remain_values) = out_ids
+
+    new_sim_values = c(sample_values, remain_values)
+    new_sim_values = new_sim_values[names(gene_vector)]
+
+    result_list[[gene_i]] = new_sim_values
+
+
+
+    ## raw matrix
+    # swap the cell ids #
+    raw_gene_vector = raw_expr_data[gene_i,]
+
+    raw_new_sample_vector = raw_gene_vector[sample_values_id_vector]
+    names(raw_new_sample_vector) = names(sample_values_id_vector)
+
+    raw_new_remain_vector = raw_gene_vector[remain_values_id_vector]
+    names(raw_new_remain_vector) = names(remain_values_id_vector)
+
+    new_sim_raw_values = c(raw_new_sample_vector, raw_new_remain_vector)
+    new_sim_raw_values = new_sim_raw_values[names(raw_gene_vector)]
+
+    raw_result_list[[gene_i]] = new_sim_raw_values
+
+  }
+
+  # simulated normalized matrix
+  new_sim_matrix = do.call('rbind', result_list)
+  rownames(new_sim_matrix) = rownames(expr_data)
+
+  # simulation raw matrix
+  new_raw_sim_matrix = do.call('rbind', raw_result_list)
+  rownames(new_raw_sim_matrix) = rownames(raw_expr_data)
+
+  # change the original matrices
+  newgobject@norm_expr = new_sim_matrix
+  newgobject@raw_exprs = new_raw_sim_matrix
+
+  return(newgobject)
+
+}
+
