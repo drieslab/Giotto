@@ -100,7 +100,7 @@ spatPlot(gobject = VC_small, show_network = T,
 
 
 ## 9. spatial genes ####
-km_spatialgenes = binSpect(VC_small)
+km_spatialgenes = binSpect(VC_small, spatial_network_name = 'kNN_network')
 spatGenePlot(VC_small, expression_values = 'scaled', genes = km_spatialgenes[1:6]$genes,
              point_shape = 'border', point_border_stroke = 0.1,
              show_network = F, network_color = 'lightgrey', point_size = 2.5,
@@ -129,8 +129,91 @@ center_patch = simulatePatternGiottoObject(VC_small, pattern_name = 'center_patc
 pattern = VC_small@spatial_locs[sdimx < 1200 & sdimx > 800]
 pattern_ids = pattern$cell_ID
 
-center_stripe = simulatePatternGiottoObject(VC_small, pattern_name = 'center_stripe',
+
+probs = c(0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.99, 1)
+repetitions = 10
+
+outer_list = list()
+for(prob_index in 1:length(probs)) {
+
+  prob_i = probs[prob_index]
+
+  inner_list = list()
+  for(j in 1:repetitions) {
+
+    sim_object = simulatePatternGiottoObject(VC_small,
+                                                spatial_prob = prob_i,
+                                                pattern_name = 'center_stripe',
+                                                pattern_cell_ids = pattern_ids)
+
+    sim_results = binSpect(sim_object, spatial_network_name = 'kNN_network')
+    sim_results[, method := 'binKm']
+    sim_results[, prob := prob_i]
+    sim_results[, rep := j]
+
+    inner_list[[j]] = sim_results
+  }
+
+  inner_list_res = do.call('rbind', inner_list)
+
+  outer_list[[prob_index]] = inner_list_res
+
+}
+
+outer_list_res = do.call('rbind', outer_list)
+
+
+combos = length(probs)*repetitions
+
+p_values = c(0.01, 0.05, 0.1)
+
+p_results = list()
+for(p_ind in 1:length(p_values)) {
+
+  p_i = p_values[p_ind]
+
+  #summary_1 = outer_list_res[, table(p.value <= p_i), by = .(method, prob, rep)]
+
+  outer_list_res[, bin := ifelse(p.value <= p_i, 'yes', 'no')]
+  summary_1 = outer_list_res[, table(factor(bin, levels = c('yes', 'no'))), by = .(method, prob, rep)]
+
+  reps = nrow(summary_1)/2
+  summary_1[, ident := rep(c('found', 'not_found'), reps)]
+  summary_1[, frac_V1 := V1/sum(V1), by = c('method', 'prob', 'rep')]
+  summary_1[, frac_V1 := as.numeric(frac_V1)]
+
+  summary_1[, p_val := p_i]
+  p_results[[p_ind]] = summary_1
+
+}
+
+
+
+summary_all = do.call('rbind', p_results)
+
+summary_all[, p_val := as.factor(p_val)]
+
+library(ggplot2)
+
+pl = ggplot()
+pl = pl + geom_point(data = summary_all, aes(x = as.factor(prob), color = ident, y = frac_V1))
+pl = pl + geom_line(data = summary_all, aes(x = as.factor(prob), color = ident, y = frac_V1, group = ident))
+pl = pl + facet_grid(~ p_val)
+pl = pl + theme_bw()
+pl
+
+
+
+center_stripe = simulatePatternGiottoObject(VC_small,
+                                            spatial_prob = 0.5,
+                                            pattern_name = 'center_stripe',
                                             pattern_cell_ids = pattern_ids)
+
+km_spatialgenes_sim = binSpect(center_stripe, spatial_network_name = 'kNN_network')
+
+
+
+
 
 
 
