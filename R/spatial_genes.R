@@ -425,6 +425,38 @@ spatialDE <- function(gobject = NULL,
                       save_param = list(),
                       default_save_name = 'SpatialDE'){
 
+
+
+  # test if SPARK is installed ##
+
+  module_test = reticulate::py_module_available('SpatialDE')
+  if(module_test == FALSE) {
+    warning("SpatialDE python module is not installed:
+            install in the right environment or python path with:
+
+            'pip install spatialde'
+
+            or from within R in the Giotto environment with:
+
+            conda_path = reticulate::miniconda_path()
+            conda_full_path = paste0(conda_path,'/','bin/conda')
+            full_envname = paste0(conda_path,'/envs/giotto_env')
+            reticulate::py_install(packages = c('NaiveDE', 'patsy', 'SpatialDE'),
+                                   envname = full_envname,
+                                   method = 'conda',
+                                   conda = conda_full_path,
+                                   pip = TRUE,
+                                   python_version = '3.6')")
+  }
+
+
+  # print message with information #
+  message("using 'SpatialDE' for spatial gene/pattern detection. If used in published research, please cite:
+  Svensson, Valentine, Sarah A. Teichmann, and Oliver Stegle. “SpatialDE: Identification of Spatially Variable Genes.”
+          Nature Methods 15, no. 5 (May 2018): 343–46. https://doi.org/10.1038/nmeth.4636.")
+
+
+
   # data.table variables
   cell_ID = NULL
 
@@ -740,9 +772,9 @@ spark = function(gobject,
 
 
   ## test if SPARK is installed ##
-  Giotto:::package_check(pkg_name = 'SPARK',
-                         repository = c('github'),
-                         github_repo = 'xzhoulab/SPARK')
+  package_check(pkg_name = 'SPARK',
+                repository = c('github'),
+                github_repo = 'xzhoulab/SPARK')
 
 
   # print message with information #
@@ -752,7 +784,7 @@ spark = function(gobject,
 
 
   ## extract expression values from gobject
-  expr = Giotto:::select_expression_values(gobject = gobject, values = values_type)
+  expr = select_expression_values(gobject = gobject, values = values_type)
 
   ## extract coordinates from gobject
   locs = as.data.frame(gobject@spatial_locs)
