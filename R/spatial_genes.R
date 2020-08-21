@@ -494,20 +494,20 @@ spatialDE <- function(gobject = NULL,
   }
 
 
-  ## create plot
-  FSV_plot = FSV_show(results = results,
-                      ms_results = ms_results,
-                      size =size,
-                      color = color,
-                      sig_alpha = sig_alpha,
-                      unsig_alpha = unsig_alpha)
-
-
   # print, return and save parameters
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
+  ## create plot
+  if(show_plot == TRUE | save_plot == TRUE | return_plot == TRUE) {
+    FSV_plot = FSV_show(results = results,
+                        ms_results = ms_results,
+                        size =size,
+                        color = color,
+                        sig_alpha = sig_alpha,
+                        unsig_alpha = unsig_alpha)
+  }
 
   ## print plot
   if(show_plot == TRUE) {
@@ -2088,5 +2088,558 @@ rankSpatialCorGroups = function(gobject,
 }
 
 
+
+
+
+# ** ####
+## Simulate single-gene spatial patterns ####
+## --------------------------------------- ##
+
+
+
+#' @title simulateOneGenePatternGiottoObject
+#' @name simulateOneGenePatternGiottoObject
+#' @description Create a simulated spatial pattern for one selected gnee
+#' @param gobject giotto object
+#' @param pattern_name name of spatial pattern
+#' @param pattern_cell_ids cell ids that make up the spatial pattern
+#' @param gene_name selected gene
+#' @param spatial_prob probability for a high expressing gene value to be part of the spatial pattern
+#' @param gradient_direction direction of gradient
+#' @param show_pattern show the discrete spatial pattern
+#' @param pattern_colors 2 color vector for the spatial pattern
+#' @param \dots additional parameters for (re-)normalizing
+#' @return Reprocessed Giotto object for which one gene has a forced spatial pattern
+#' @export
+#' @examples
+#'     simulateOneGenePatternGiottoObject(gobject)
+simulateOneGenePatternGiottoObject = function(gobject,
+                                              pattern_name = 'pattern',
+                                              pattern_cell_ids = NULL,
+                                              gene_name = NULL,
+                                              spatial_prob = 0.95,
+                                              gradient_direction = NULL,
+                                              show_pattern = TRUE,
+                                              pattern_colors = c('in' = 'green', 'out' = 'red'),
+                                              ...) {
+
+  if(is.null(pattern_cell_ids)) {
+    stop('pattern_cell_ids can not be NULL \n')
+  }
+
+  ## create and add annotation for pattern
+  cell_meta = pDataDT(gobject)
+  cell_meta[, (pattern_name) := ifelse(cell_ID %in% pattern_cell_ids, 'in', 'out')]
+
+  newgobject = addCellMetadata(gobject,
+                               new_metadata = cell_meta[,c('cell_ID', pattern_name), with = F],
+                               by_column = T,
+                               column_cell_ID = 'cell_ID')
+
+  # show pattern
+  if(show_pattern == TRUE) {
+    spatPlot2D(gobject = newgobject, save_plot = F, cell_color_code = pattern_colors,
+               point_size = 2, cell_color = pattern_name)
+  }
+
+
+  ## merge cell metadata and cell coordinate data
+  cell_meta = pDataDT(newgobject)
+  cell_coord = newgobject@spatial_locs
+  cell_meta = data.table::merge.data.table(cell_meta, cell_coord, by = 'cell_ID')
+
+  ## get number of cells within pattern
+  cell_number = nrow(cell_meta[get(pattern_name) == 'in'])
+
+
+  ## normalized expression
+  expr_data = newgobject@norm_expr
+  result_list = list()
+
+  ## raw expression
+  raw_expr_data = newgobject@raw_exprs
+  raw_result_list = list()
+
+
+  ## create the spatial expression pattern for the specified gene
+  # 1. rank all gene values from the cells from high to low
+  # 2. move the highest expressing values to the spatial pattern using a probability
+  #     - 0.5 is the control = random
+  #     - 1 is perfection: all the highest values go to the pattern
+  #     - 0.5 to 1 is decreasing noise levels
+
+  if(is.null(gene_name)) stop('a gene name needs to be provided')
+
+
+
+  # rank genes
+  gene_vector = expr_data[rownames(expr_data) == gene_name, ]
+  sort_expr_gene = sort(gene_vector, decreasing = T)
+
+  # number of cells in and out the pattern
+  total_cell_number = length(sort_expr_gene)
+  remaining_cell_number = total_cell_number - cell_number
+
+  # calculate outside probability
+  outside_prob = 1 - spatial_prob
+  prob_vector = c(rep(spatial_prob, cell_number), rep(outside_prob, remaining_cell_number))
+
+  # first get the 'in' pattern sample values randomly
+  sample_values = sample(sort_expr_gene, replace = F, size = cell_number, prob = prob_vector)
+
+  # then take the remaining 'out' pattern values randomly
+  remain_values = sort_expr_gene[!names(sort_expr_gene) %in% names(sample_values)]
+  remain_values = sample(remain_values, size = length(remain_values))
+
+
+
+  ## A. within pattern ##
+  # ------------------- #
+  in_cell_meta = cell_meta[get(pattern_name) == 'in']
+
+  # if gradient is wanted
+  # does not work with 0.5!! is not random!!
+  if(!is.null(gradient_direction)) {
+    # sort in_ids according to x, y or  xy coordinates to create gradient
+    in_cell_meta[, sdimx_y := abs(sdimx)+ abs(sdimy)]
+    # order according to gradient direction
+    in_cell_meta = in_cell_meta[order(get(gradient_direction))]
+  }
+  in_ids = in_cell_meta$cell_ID
+
+  # preparation for raw matrix
+  sample_values_id_vector = names(sample_values)
+  names(sample_values_id_vector) = in_ids
+
+
+  ## B. outside pattern ##
+  # -------------------- #
+  out_ids = cell_meta[get(pattern_name) == 'out']$cell_ID
+
+  # preparation for raw matrix
+  remain_values_id_vector = names(remain_values)
+  names(remain_values_id_vector) = out_ids
+
+
+
+
+  ## raw matrix
+  # swap the cell ids #
+  raw_gene_vector = raw_expr_data[rownames(raw_expr_data) == gene_name,]
+
+  raw_new_sample_vector = raw_gene_vector[sample_values_id_vector]
+  names(raw_new_sample_vector) = names(sample_values_id_vector)
+
+  raw_new_remain_vector = raw_gene_vector[remain_values_id_vector]
+  names(raw_new_remain_vector) = names(remain_values_id_vector)
+
+  new_sim_raw_values = c(raw_new_sample_vector, raw_new_remain_vector)
+  new_sim_raw_values = new_sim_raw_values[names(raw_gene_vector)]
+
+  # change the original matrices
+  raw_expr_data[rownames(raw_expr_data) == gene_name,] = new_sim_raw_values
+  newgobject@raw_exprs = raw_expr_data
+
+  # recalculate normalized values
+  newgobject <- normalizeGiotto(gobject = newgobject, ...)
+  newgobject <- addStatistics(gobject = newgobject)
+
+  return(newgobject)
+
+}
+
+
+
+
+
+
+#' @title run_spatial_sim_tests_one_rep
+#' @name run_spatial_sim_tests_one_rep
+#' @description runs all spatial tests for 1 probability and 1 rep
+#' @keywords internal
+run_spatial_sim_tests_one_rep = function(gobject,
+                                         pattern_name = 'pattern',
+                                         pattern_cell_ids = NULL,
+                                         gene_name = NULL,
+                                         spatial_prob = 0.95,
+                                         show_pattern = FALSE,
+
+                                         # binspect kmeans
+                                         spatial_network_name = 'kNN_network',
+                                         binSpect_km_param = list(nstart = 3,
+                                                                  iter_max = 10,
+                                                                  expression_values = 'normalized',
+                                                                  get_av_expr = FALSE,
+                                                                  get_high_expr = FALSE),
+                                         # binspect rank
+                                         binSpect_rnk_param = list(percentage_rank = 30,
+                                                                   expression_values = 'normalized',
+                                                                   get_av_expr = FALSE,
+                                                                   get_high_expr = FALSE),
+
+                                         # spatialDE
+                                         spatialDE_param = list(expression_values = 'raw',
+                                                                sig_alpha = 0.5,
+                                                                unsig_alpha = 0.5),
+
+                                         # spark
+                                         spark_param = list(values_type = 'raw',
+                                                            percentage = 0.1,
+                                                            min_count = 10,
+                                                            num_core = 5),
+
+
+                                         save_plot = F,
+                                         save_dir = '~',
+                                         save_name = 'plot',
+
+                                         ...) {
+
+
+  simulate_patch = simulateOneGenePatternGiottoObject(gobject,
+                                                      pattern_name = pattern_name,
+                                                      pattern_cell_ids = pattern_cell_ids,
+                                                      gene_name = gene_name,
+                                                      spatial_prob = spatial_prob,
+                                                      gradient_direction = NULL,
+                                                      show_pattern = show_pattern,
+                                                      ...)
+
+
+  if(save_plot == TRUE) {
+
+    spatGenePlot2D(simulate_patch, expression_values = 'norm', genes = gene_name,
+                   point_shape = 'border', point_border_stroke = 0.1, point_size = 2.5,
+                   cow_n_col = 1, show_plot = F,
+                   save_plot = T, save_param = list(save_dir = save_dir, save_folder = pattern_name,
+                                                    save_name = save_name,
+                                                    base_width = 9, base_height = 7, units = 'cm'))
+
+  }
+
+
+
+  ## spatial gene detection methods ##
+
+  ## binspect kmeans
+  ## -------------- ##
+  start = proc.time()
+  km_spatialgenes_sim = do.call('binSpect', c(gobject =  simulate_patch,
+                                              bin_method = 'kmeans',
+                                              spatial_network_name = spatial_network_name,
+                                              binSpect_km_param))
+
+  km_spatialgenes_sim[, adj.p.value := p.adjust(p.value, method = 'fdr')]
+  binspec_km_result = km_spatialgenes_sim[genes == gene_name]
+  binspec_km_time = proc.time() - start
+
+  binspec_km_result[, prob := spatial_prob]
+  binspec_km_result[, time := binspec_km_time[['elapsed']] ]
+
+  binspec_km_result = binspec_km_result[,.(genes, p.value, adj.p.value, prob, time)]
+  colnames(binspec_km_result) = c('genes', 'p.value', 'adj.p.value', 'prob', 'time')
+  binspec_km_result[, method := 'binspec_km']
+
+
+  ## binspect rank
+  ## ---------- ##
+  start = proc.time()
+  rnk_spatialgenes_sim = do.call('binSpect', c(gobject =  simulate_patch,
+                                               bin_method = 'rank',
+                                               spatial_network_name = spatial_network_name,
+                                               binSpect_rnk_param))
+
+  rnk_spatialgenes_sim[, adj.p.value := p.adjust(p.value, method = 'fdr')]
+  binspec_rnk_result = rnk_spatialgenes_sim[genes == gene_name]
+  binspec_rnk_time = proc.time() - start
+
+  binspec_rnk_result[, prob := spatial_prob]
+  binspec_rnk_result[, time := binspec_rnk_time[['elapsed']] ]
+
+  binspec_rnk_result = binspec_rnk_result[,.(genes, p.value, adj.p.value, prob, time)]
+  colnames(binspec_rnk_result) = c('genes', 'p.value', 'adj.p.value', 'prob', 'time')
+  binspec_rnk_result[, method := 'binspec_rnk']
+
+
+
+  ## spatialDE
+  ## -------- ##
+  start = proc.time()
+  new_raw_sim_matrix = simulate_patch@raw_exprs
+  sd_cells = apply(new_raw_sim_matrix, 2, sd)
+  sd_non_zero_cells = names(sd_cells[sd_cells != 0])
+  simulate_patch_fix = subsetGiotto(simulate_patch, cell_ids = sd_non_zero_cells)
+
+  spatialDE_spatialgenes_sim = do.call('spatialDE', c(gobject =  simulate_patch_fix,
+                                                      show_plot = FALSE,
+                                                      return_plot = FALSE,
+                                                      save_plot = FALSE,
+                                                      spatialDE_param))
+
+  spatialDE_spatialgenes_sim_res = spatialDE_spatialgenes_sim$results$results
+  if(is.null(spatialDE_spatialgenes_sim_res)) spatialDE_spatialgenes_sim_res = spatialDE_spatialgenes_sim$results
+  spatialDE_spatialgenes_sim_res = data.table::as.data.table(spatialDE_spatialgenes_sim_res)
+  data.table::setorder(spatialDE_spatialgenes_sim_res, qval, pval)
+  spatialDE_result = spatialDE_spatialgenes_sim_res[g == gene_name]
+
+  spatialDE_time = proc.time() - start
+
+  spatialDE_result[, prob := spatial_prob]
+  spatialDE_result[, time := spatialDE_time[['elapsed']] ]
+
+  spatialDE_result = spatialDE_result[,.(g, pval, qval, prob, time)]
+  colnames(spatialDE_result) = c('genes', 'p.value', 'adj.p.value', 'prob', 'time')
+  spatialDE_result[, method := 'spatialDE']
+
+
+
+  ## spark
+  start = proc.time()
+  spark_spatialgenes_sim = do.call('spark', c(gobject =  simulate_patch,
+                                              return_object = 'data.table',
+                                              spark_param))
+
+  spark_result = spark_spatialgenes_sim[genes == gene_name]
+  spark_time = proc.time() - start
+
+  spark_result[, prob := spatial_prob]
+  spark_result[, time := spark_time[['elapsed']] ]
+
+  spark_result = spark_result[,.(genes, combined_pvalue, adjusted_pvalue, prob, time)]
+  colnames(spark_result) = c('genes', 'p.value', 'adj.p.value', 'prob', 'time')
+  spark_result[, method := 'spark']
+
+  results = do.call('rbind', list(binspec_km_result, binspec_rnk_result, spatialDE_result, spark_result))
+
+
+  return(results)
+
+}
+
+
+
+
+
+
+#' @title run_spatial_sim_tests_multi
+#' @name run_spatial_sim_tests_multi
+#' @description runs all spatial tests for multiple probabilities and repetitions
+#' @keywords internal
+run_spatial_sim_tests_multi = function(gobject,
+                                       pattern_name = 'pattern',
+                                       pattern_cell_ids = NULL,
+                                       gene_name = NULL,
+                                       spatial_probs = c(0.5, 1),
+                                       reps = 2,
+
+                                       # binspect kmeans
+                                       spatial_network_name = 'kNN_network',
+                                       binSpect_km_param = list(nstart = 3,
+                                                                iter_max = 10,
+                                                                expression_values = 'normalized',
+                                                                get_av_expr = FALSE,
+                                                                get_high_expr = FALSE),
+                                       # binspect rank
+                                       binSpect_rnk_param = list(percentage_rank = 30,
+                                                                 expression_values = 'normalized',
+                                                                 get_av_expr = FALSE,
+                                                                 get_high_expr = FALSE),
+
+                                       # spatialDE
+                                       spatialDE_param = list(expression_values = 'raw',
+                                                              sig_alpha = 0.5,
+                                                              unsig_alpha = 0.5),
+
+                                       # spark
+                                       spark_param = list(values_type = 'raw',
+                                                          percentage = 0.1,
+                                                          min_count = 10,
+                                                          num_core = 5),
+
+                                       save_plot = F,
+                                       save_dir = '~',
+                                       ...) {
+
+  prob_list = list()
+  for(prob_ind in 1:length(spatial_probs)) {
+
+    prob_i = spatial_probs[prob_ind]
+
+    cat('\n \n start with ', prob_i, '\n \n')
+
+    rep_list = list()
+    for(rep_i in 1:reps) {
+
+
+      cat('\n \n repetitiion = ', rep_i, '\n \n')
+
+
+      plot_name = paste0('plot_',gene_name,'_prob', prob_i, '_rep', rep_i)
+
+
+      rep_res = run_spatial_sim_tests_one_rep(gobject,
+                                              pattern_name = pattern_name,
+                                              pattern_cell_ids = pattern_cell_ids,
+                                              gene_name = gene_name,
+                                              spatial_prob = prob_i,
+
+                                              spatial_network_name = spatial_network_name,
+                                              binSpect_km_param = binSpect_km_param,
+                                              binSpect_rnk_param = binSpect_rnk_param,
+                                              spatialDE_param = spatialDE_param,
+                                              spark_param = spark_param,
+
+                                              save_plot = save_plot,
+                                              save_dir = save_dir,
+                                              save_name = plot_name,
+                                              ...)
+
+      rep_res[, rep := rep_i]
+      rep_list[[rep_i]] = rep_res
+
+    }
+
+    rep_list_res = do.call('rbind', rep_list)
+    prob_list[[prob_ind]] = rep_list_res
+
+  }
+
+  final_gene_results = do.call('rbind', prob_list)
+
+  return(final_gene_results)
+
+}
+
+
+
+
+
+#' @title runPatternSimulation
+#' @name runPatternSimulation
+#' @description Creates a known spatial pattern for selected genes one-by-one and runs the different spatial gene detection tests
+#' @param gobject giotto object
+#' @param pattern_name name of spatial pattern
+#' @param pattern_cell_ids cell ids that make up the spatial pattern
+#' @param gene_names selected genes
+#' @param spatial_probs probabilities to test for a high expressing gene value to be part of the spatial pattern
+#' @param reps number of random simulation repititions
+#' @param save_plot save intermediate random simulation plots or not
+#' @param save_dir directory to save results to
+#' @param max_col maximum number of columns for final plots
+#' @param height height of final plots
+#' @param width width of final plots
+#' @param \dots additional parameters for spatial gene detection tests
+#' @return data.table with results
+#' @export
+#' @examples
+#'     runPatternSimulation(gobject)
+runPatternSimulation = function(gobject,
+                                pattern_name = 'pattern',
+                                pattern_cell_ids = NULL,
+                                gene_names = NULL,
+                                spatial_probs = c(0.5, 1),
+                                reps = 2,
+                                save_plot = T,
+                                save_dir = '~',
+                                max_col = 4,
+                                height = 7,
+                                width = 7,
+                                ...) {
+
+
+  # plot pattern for first gene (the same for all)
+  example_patch = simulateOneGenePatternGiottoObject(gobject,
+                                                     pattern_name = pattern_name,
+                                                     pattern_cell_ids = pattern_cell_ids,
+                                                     gene_name = gene_names[[1]],
+                                                     spatial_prob = 1,
+                                                     scalefactor = 6000,
+                                                     verbose = T)
+
+  spatPlot2D(example_patch, cell_color = pattern_name,
+             save_plot = T, save_param = list(save_dir = save_dir, save_folder = 'original', save_name = paste0(pattern_name,'_pattern'),
+                                              base_width = 9, base_height = 7, units = 'cm'))
+
+
+  all_results = list()
+  for(gene_ind in 1:length(gene_names)) {
+
+    gene = gene_names[gene_ind]
+
+    # plot original expression
+    spatGenePlot2D(gobject, expression_values = 'norm', genes = gene,
+                   point_shape = 'border', point_border_stroke = 0.1,
+                   show_network = F, network_color = 'lightgrey', point_size = 2.5,
+                   cow_n_col = 1, show_plot = F,
+                   save_plot = T, save_param = list(save_dir = save_dir, save_folder = 'original', save_name = paste0(gene,'_original'),
+                                                    base_width = 9, base_height = 7, units = 'cm'))
+
+
+    generesults = run_spatial_sim_tests_multi(gobject,
+                                              pattern_name = pattern_name,
+                                              pattern_cell_ids = pattern_cell_ids,
+                                              gene_name = gene,
+                                              save_plot = save_plot,
+                                              save_dir = save_dir,
+                                              spatial_probs = spatial_probs,
+                                              reps = reps,
+                                              ...)
+    generesults[, prob := as.factor(prob)]
+    generesults[, method := factor(method, levels = c('binspec_km', 'binspec_rnk', 'spatialDE', 'spark'))]
+
+    all_results[[gene_ind]] = generesults
+
+  }
+
+  results = do.call('rbind', all_results)
+
+
+
+  ## plot results ##
+
+  # 4 columns max
+  nr_rows = max(c(round(length(gene_names)/max_col), 1))
+
+  # p-values
+  pl = ggplot()
+  pl = pl + geom_boxplot(data = results, aes(x = method, y = adj.p.value, color = prob))
+  pl = pl + geom_point(data = results, aes(x = method, y = adj.p.value, color = prob), size = 2, position = position_jitterdodge())
+  pl = pl + theme_bw() + theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1))
+  pl = pl + facet_wrap(~genes, nrow = nr_rows)
+  pl = pl + geom_hline(yintercept = 0.05, color = 'red', linetype = 2)
+
+  pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_pvalues.pdf'), width = width, height = height)
+  print(pl)
+  dev.off()
+
+
+  # -log10 p-values
+  pl = ggplot()
+  pl = pl + geom_boxplot(data = results, aes(x = method, y = -log10(adj.p.value), color = prob))
+  pl = pl + geom_point(data = results, aes(x = method, y = -log10(adj.p.value), color = prob), size = 2, position = position_jitterdodge())
+  pl = pl + theme_bw() + theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1))
+  pl = pl + facet_wrap(~genes, nrow = nr_rows)
+
+  pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_log10pvalues.pdf'), width = width, height = height)
+  print(pl)
+  dev.off()
+
+
+  # time
+  pl = ggplot()
+  pl = pl + geom_boxplot(data = results, aes(x = method, y = time, color = prob))
+  pl = pl + geom_point(data = results, aes(x = method, y = time, color = prob), size = 2, position = position_jitterdodge())
+  pl = pl + theme_bw() + theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1))
+
+  pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_time.pdf'), width = width, height = height)
+  print(pl)
+  dev.off()
+
+  # write results
+  data.table::fwrite(x = results, file = paste0(save_dir,'/',pattern_name,'_results.txt'), sep = '\t', quote = F)
+
+  return(results)
+
+}
 
 
