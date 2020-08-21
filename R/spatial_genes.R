@@ -2601,12 +2601,12 @@ runPatternSimulation = function(gobject,
   nr_rows = max(c(round(length(gene_names)/max_col), 1))
 
   # p-values
-  pl = ggplot()
-  pl = pl + geom_boxplot(data = results, aes(x = method, y = adj.p.value, color = prob))
-  pl = pl + geom_point(data = results, aes(x = method, y = adj.p.value, color = prob), size = 2, position = position_jitterdodge())
-  pl = pl + theme_bw() + theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1))
-  pl = pl + facet_wrap(~genes, nrow = nr_rows)
-  pl = pl + geom_hline(yintercept = 0.05, color = 'red', linetype = 2)
+  pl = ggplot2::ggplot()
+  pl = pl + ggplot2::geom_boxplot(data = results, ggplot2::aes(x = method, y = adj.p.value, color = prob))
+  pl = pl + ggplot2::geom_point(data = results, ggplot2::aes(x = method, y = adj.p.value, color = prob), size = 2, position = ggplot2::position_jitterdodge())
+  pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
+  pl = pl + ggplot2::facet_wrap(~genes, nrow = nr_rows)
+  pl = pl + ggplot2::geom_hline(yintercept = 0.05, color = 'red', linetype = 2)
 
   pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_pvalues.pdf'), width = width, height = height)
   print(pl)
@@ -2614,11 +2614,11 @@ runPatternSimulation = function(gobject,
 
 
   # -log10 p-values
-  pl = ggplot()
-  pl = pl + geom_boxplot(data = results, aes(x = method, y = -log10(adj.p.value), color = prob))
-  pl = pl + geom_point(data = results, aes(x = method, y = -log10(adj.p.value), color = prob), size = 2, position = position_jitterdodge())
-  pl = pl + theme_bw() + theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1))
-  pl = pl + facet_wrap(~genes, nrow = nr_rows)
+  pl = ggplot2::ggplot()
+  pl = pl + ggplot2::geom_boxplot(data = results, ggplot2::aes(x = method, y = -log10(adj.p.value), color = prob))
+  pl = pl + ggplot2::geom_point(data = results, aes(x = method, y = -log10(adj.p.value), color = prob), size = 2, position = ggplot2::position_jitterdodge())
+  pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
+  pl = pl + ggplot2::facet_wrap(~genes, nrow = nr_rows)
 
   pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_log10pvalues.pdf'), width = width, height = height)
   print(pl)
@@ -2626,10 +2626,10 @@ runPatternSimulation = function(gobject,
 
 
   # time
-  pl = ggplot()
-  pl = pl + geom_boxplot(data = results, aes(x = method, y = time, color = prob))
-  pl = pl + geom_point(data = results, aes(x = method, y = time, color = prob), size = 2, position = position_jitterdodge())
-  pl = pl + theme_bw() + theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1))
+  pl = ggplot2::ggplot()
+  pl = pl + ggplot2::geom_boxplot(data = results, ggplot2::aes(x = method, y = time, color = prob))
+  pl = pl + ggplot2::geom_point(data = results, ggplot2::aes(x = method, y = time, color = prob), size = 2, position = ggplot2::position_jitterdodge())
+  pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
 
   pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_time.pdf'), width = width, height = height)
   print(pl)
