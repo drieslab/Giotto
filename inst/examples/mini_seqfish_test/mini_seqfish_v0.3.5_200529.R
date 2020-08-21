@@ -109,12 +109,201 @@ spatGenePlot(VC_small, expression_values = 'scaled', genes = km_spatialgenes[1:6
 km_spatialgenes[p.value <= 0.05]
 
 
+
+
+
+
+
+
+
 # pattern 1: bottom right stripe
 pattern = VC_small@spatial_locs[sdimx > 1500 & sdimy < -500]
 pattern_ids = pattern$cell_ID
 
+
+simulateOneGenePatternGiottoObject = function(gobject,
+                                       pattern_name = 'pattern',
+                                       pattern_cell_ids = NULL,
+                                       gene_name = NULL,
+                                       spatial_prob = 0.95,
+                                       gradient_direction = NULL,
+                                       show_pattern = TRUE,
+                                       pattern_colors = c('in' = 'green', 'out' = 'red'),
+                                       ...) {
+
+  if(is.null(pattern_cell_ids)) {
+    stop('pattern_cell_ids can not be NULL \n')
+  }
+
+  ## create and add annotation for pattern
+  cell_meta = pDataDT(gobject)
+  cell_meta[, (pattern_name) := ifelse(cell_ID %in% pattern_cell_ids, 'in', 'out')]
+
+  newgobject = addCellMetadata(gobject,
+                               new_metadata = cell_meta[,c('cell_ID', pattern_name), with = F],
+                               by_column = T,
+                               column_cell_ID = 'cell_ID')
+
+  # show pattern
+  if(show_pattern == TRUE) {
+    spatPlot2D(gobject = newgobject, save_plot = F, cell_color_code = pattern_colors,
+               point_size = 2, cell_color = pattern_name)
+  }
+
+
+  ## merge cell metadata and cell coordinate data
+  cell_meta = pDataDT(newgobject)
+  cell_coord = newgobject@spatial_locs
+  cell_meta = data.table::merge.data.table(cell_meta, cell_coord, by = 'cell_ID')
+
+  ## get number of cells within pattern
+  cell_number = nrow(cell_meta[get(pattern_name) == 'in'])
+
+
+  ## normalized expression
+  expr_data = newgobject@norm_expr
+  result_list = list()
+
+  ## raw expression
+  raw_expr_data = newgobject@raw_exprs
+  raw_result_list = list()
+
+
+  ## create the spatial expression pattern for the specified gene
+  # 1. rank all gene values from the cells from high to low
+  # 2. move the highest expressing values to the spatial pattern using a probability
+  #     - 0.5 is the control = random
+  #     - 1 is perfection: all the highest values go to the pattern
+  #     - 0.5 to 1 is decreasing noise levels
+
+  if(is.null(gene_name)) stop('a gene name needs to be provided')
+
+
+
+  # rank genes
+  gene_vector = expr_data[rownames(expr_data) == gene_name, ]
+  sort_expr_gene = sort(gene_vector, decreasing = T)
+
+  # number of cells in and out the pattern
+  total_cell_number = length(sort_expr_gene)
+  remaining_cell_number = total_cell_number - cell_number
+
+  # calculate outside probability
+  outside_prob = 1 - spatial_prob
+  prob_vector = c(rep(spatial_prob, cell_number), rep(outside_prob, remaining_cell_number))
+
+  # first get the 'in' pattern sample values randomly
+  sample_values = sample(sort_expr_gene, replace = F, size = cell_number, prob = prob_vector)
+
+  # then take the remaining 'out' pattern values randomly
+  remain_values = sort_expr_gene[!names(sort_expr_gene) %in% names(sample_values)]
+  remain_values = sample(remain_values, size = length(remain_values))
+
+
+
+  ## A. within pattern ##
+  # ------------------- #
+  in_cell_meta = cell_meta[get(pattern_name) == 'in']
+
+  # if gradient is wanted
+  # does not work with 0.5!! is not random!!
+  if(!is.null(gradient_direction)) {
+    # sort in_ids according to x, y or  xy coordinates to create gradient
+    in_cell_meta[, sdimx_y := abs(sdimx)+ abs(sdimy)]
+    # order according to gradient direction
+    in_cell_meta = in_cell_meta[order(get(gradient_direction))]
+  }
+  in_ids = in_cell_meta$cell_ID
+
+  # preparation for raw matrix
+  sample_values_id_vector = names(sample_values)
+  names(sample_values_id_vector) = in_ids
+
+
+  ## B. outside pattern ##
+  # -------------------- #
+  out_ids = cell_meta[get(pattern_name) == 'out']$cell_ID
+
+  # preparation for raw matrix
+  remain_values_id_vector = names(remain_values)
+  names(remain_values_id_vector) = out_ids
+
+
+
+
+  ## raw matrix
+  # swap the cell ids #
+  raw_gene_vector = raw_expr_data[rownames(raw_expr_data) == gene_name,]
+
+  raw_new_sample_vector = raw_gene_vector[sample_values_id_vector]
+  names(raw_new_sample_vector) = names(sample_values_id_vector)
+
+  raw_new_remain_vector = raw_gene_vector[remain_values_id_vector]
+  names(raw_new_remain_vector) = names(remain_values_id_vector)
+
+  new_sim_raw_values = c(raw_new_sample_vector, raw_new_remain_vector)
+  new_sim_raw_values = new_sim_raw_values[names(raw_gene_vector)]
+
+  # change the original matrices
+  raw_expr_data[rownames(raw_expr_data) == gene_name,] = new_sim_raw_values
+  newgobject@raw_exprs = raw_expr_data
+
+  # recalculate normalized values
+  newgobject <- normalizeGiotto(gobject = newgobject, ...)
+  newgobject <- addStatistics(gobject = newgobject)
+
+  return(newgobject)
+
+}
+
+
+# original
+spatGenePlot(VC_small, expression_values = 'norm', genes = 'Mafb',
+             point_shape = 'border', point_border_stroke = 0.1,
+             show_network = F, network_color = 'lightgrey', point_size = 2.5,
+             cow_n_col = 1, show_plot = F)
+
+
+right_gene_patch = simulateOneGenePatternGiottoObject(VC_small,
+                                                      pattern_name = 'right_patch',
+                                                      pattern_cell_ids = pattern_ids,
+                                                      gene_name = 'Mafb',
+                                                      spatial_prob = 0.99,
+                                                      scalefactor = 6000, verbose = T)
+
+spatGenePlot(right_gene_patch, expression_values = 'norm', genes = 'Mafb',
+             point_shape = 'border', point_border_stroke = 0.1,
+             show_network = F, network_color = 'lightgrey', point_size = 2.5,
+             cow_n_col = 1, show_plot = F)
+
+
+# binspect
+km_spatialgenes_sim = binSpect(right_gene_patch, spatial_network_name = 'kNN_network')
+km_spatialgenes_sim[genes == 'Mafb']
+
+
+# spatialDE
+new_raw_sim_matrix = right_gene_patch@raw_exprs
+sd_cells = apply(new_raw_sim_matrix, 2, sd)
+sd_non_zero_cells = names(sd_cells[sd_cells != 0])
+right_gene_patch_fix = subsetGiotto(right_gene_patch, cell_ids = sd_non_zero_cells)
+
+spatialDE_spatialgenes_sim = spatialDE(gobject = right_gene_patch_fix)
+
+spatialDE_spatialgenes_sim_res = spatialDE_spatialgenes_sim$results$results
+if(is.null(spatialDE_spatialgenes_sim_res)) spatialDE_spatialgenes_sim_res = spatialDE_spatialgenes_sim$results
+spatialDE_spatialgenes_sim_res = data.table::as.data.table(spatialDE_spatialgenes_sim_res)
+data.table::setorder(spatialDE_spatialgenes_sim_res, qval, pval)
+spatialDE_spatialgenes_sim_res[g == 'Mafb']
+
+
+
+
+## OLD ##
 right_patch = simulatePatternGiottoObject(VC_small, pattern_name = 'right_patch',
                                           pattern_cell_ids = pattern_ids)
+
+
 
 
 # pattern 2: small patch center
