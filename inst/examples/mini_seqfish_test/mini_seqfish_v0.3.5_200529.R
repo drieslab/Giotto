@@ -131,21 +131,53 @@ VC_small_subset <- normalizeGiotto(gobject = VC_small_subset, scalefactor = 6000
 pattern = VC_small_subset@spatial_locs[sdimx > 1500 & sdimy < -500]
 pattern_ids = pattern$cell_ID
 
-selected_genes = c('Abca4', 'Kcna6')
-my_dir = '/Users/rubendries/Dropbox (Personal)/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Paper_revisions/NatMethod_revisions/Revision_1/Spatial_sim_tests/'
+selected_genes = sample_genes[1:4]
+my_dir = '/Users/rubendries/Dropbox (Personal)/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Paper_revisions/NatMethod_revisions/Revision_1/Spatial_sim_tests/right_lower_patch/'
 
-testpattern = runPatternSimulation(gobject = VC_small_subset,
-                                   pattern_name = 'right_patch',
-                                   pattern_cell_ids = pattern_ids,
-                                   gene_names = selected_genes,
-                                   save_plot = T,
-                                   save_dir = my_dir)
+right_patch_pattern = runPatternSimulation(gobject = VC_small_subset,
+                                           pattern_name = 'right_patch',
+                                           pattern_cell_ids = pattern_ids,
+                                           gene_names = selected_genes,
+                                           spatial_probs = c(0.5, 0.8, 0.9, 0.95, 0.99, 1),
+                                           reps = 6,
+                                           save_plot = T,
+                                           max_col = 2,
+                                           save_dir = my_dir)
 
 
+# pattern 2: central patch
+pattern = VC_small_subset@spatial_locs[sdimx > 750 & sdimx < 1250 & sdimy > -1250 & sdimy < -750]
+pattern_ids = pattern$cell_ID
 
+selected_genes = sample_genes[1:4]
+my_dir = '/Users/rubendries/Dropbox (Personal)/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Paper_revisions/NatMethod_revisions/Revision_1/Spatial_sim_tests/center_patch/'
 
+center_patch_pattern = runPatternSimulation(gobject = VC_small_subset,
+                                           pattern_name = 'center_patch',
+                                           pattern_cell_ids = pattern_ids,
+                                           gene_names = selected_genes,
+                                           spatial_probs = c(0.5, 0.8, 0.9, 0.95, 0.99, 1),
+                                           reps = 6,
+                                           save_plot = T,
+                                           max_col = 2,
+                                           save_dir = my_dir)
 
+# pattern 3: stripe
+pattern = VC_small_subset@spatial_locs[sdimx > 800 & sdimx < 1200]
+pattern_ids = pattern$cell_ID
 
+selected_genes = sample_genes[1:4]
+my_dir = '/Users/rubendries/Dropbox (Personal)/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Paper_revisions/NatMethod_revisions/Revision_1/Spatial_sim_tests/stripe/'
+
+center_patch_pattern = runPatternSimulation(gobject = VC_small_subset,
+                                            pattern_name = 'stripe',
+                                            pattern_cell_ids = pattern_ids,
+                                            gene_names = selected_genes,
+                                            spatial_probs = c(0.5, 0.8, 0.9, 0.95, 0.99, 1),
+                                            reps = 6,
+                                            save_plot = T,
+                                            max_col = 2,
+                                            save_dir = my_dir)
 
 
 
