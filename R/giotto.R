@@ -1101,6 +1101,8 @@ createGiottoObject <- function(raw_exprs,
 
 
 
+
+
 #' @title createGiottoVisiumObject
 #' @description creates Giotto object directly from a 10X visium folder
 #' @param visium_dir path to the 10X visium directory [required]

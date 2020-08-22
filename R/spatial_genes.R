@@ -750,7 +750,7 @@ trendSceek <- function(gobject,
 #' @param gobject giotto object
 #' @param percentage The percentage of cells that are expressed for analysis
 #' @param min_count minimum number of counts for a gene to be included
-#' @param values_type type of values to use (raw by default)
+#' @param expression_values type of values to use (raw by default)
 #' @param num_core number of cores to use
 #' @param covariates The covariates in experiments, i.e. confounding factors/batch effect. Column name of giotto cell metadata.
 #' @param return_object type of result to return (data.table or spark object)
@@ -767,7 +767,7 @@ trendSceek <- function(gobject,
 spark = function(gobject,
                  percentage = 0.1,
                  min_count = 10,
-                 values_type = 'raw',
+                 expression_values = 'raw',
                  num_core = 5,
                  covariates = NULL,
                  return_object = 'data.table',
@@ -787,7 +787,7 @@ spark = function(gobject,
 
 
   ## extract expression values from gobject
-  expr = select_expression_values(gobject = gobject, values = values_type)
+  expr = select_expression_values(gobject = gobject, values = expression_values)
 
   ## extract coordinates from gobject
   locs = as.data.frame(gobject@spatial_locs)
@@ -2283,7 +2283,7 @@ run_spatial_sim_tests_one_rep = function(gobject,
                                                                 unsig_alpha = 0.5),
 
                                          # spark
-                                         spark_param = list(values_type = 'raw',
+                                         spark_param = list(expression_values = 'raw',
                                                             percentage = 0.1,
                                                             min_count = 10,
                                                             num_core = 5),
@@ -2451,7 +2451,7 @@ run_spatial_sim_tests_multi = function(gobject,
                                                               unsig_alpha = 0.5),
 
                                        # spark
-                                       spark_param = list(values_type = 'raw',
+                                       spark_param = list(expression_values = 'raw',
                                                           percentage = 0.1,
                                                           min_count = 10,
                                                           num_core = 5),
