@@ -2587,6 +2587,18 @@ runPatternSimulation = function(gobject,
     generesults[, prob := as.factor(prob)]
     generesults[, method := factor(method, levels = c('binspec_km', 'binspec_rnk', 'spatialDE', 'spark'))]
 
+
+    if(save_plot == TRUE) {
+
+      subdir = paste0(save_dir,'/',pattern_name,'/')
+      if(!file.exists(subdir)) dir.create(path = subdir, recursive = TRUE)
+
+      # write results
+      data.table::fwrite(x = generesults, file = paste0(subdir,'/',gene,'_results.txt'), sep = '\t', quote = F)
+
+    }
+
+
     all_results[[gene_ind]] = generesults
 
   }
@@ -2597,43 +2609,46 @@ runPatternSimulation = function(gobject,
 
   ## plot results ##
 
-  # 4 columns max
-  nr_rows = max(c(round(length(gene_names)/max_col), 1))
+  if(save_plot == TRUE) {
+    # 4 columns max
+    nr_rows = max(c(round(length(gene_names)/max_col), 1))
 
-  # p-values
-  pl = ggplot2::ggplot()
-  pl = pl + ggplot2::geom_boxplot(data = results, ggplot2::aes(x = method, y = adj.p.value, color = prob))
-  pl = pl + ggplot2::geom_point(data = results, ggplot2::aes(x = method, y = adj.p.value, color = prob), size = 2, position = ggplot2::position_jitterdodge())
-  pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
-  pl = pl + ggplot2::facet_wrap(~genes, nrow = nr_rows)
-  pl = pl + ggplot2::geom_hline(yintercept = 0.05, color = 'red', linetype = 2)
+    # p-values
+    pl = ggplot2::ggplot()
+    pl = pl + ggplot2::geom_boxplot(data = results, ggplot2::aes(x = method, y = adj.p.value, color = prob))
+    pl = pl + ggplot2::geom_point(data = results, ggplot2::aes(x = method, y = adj.p.value, color = prob), size = 2, position = ggplot2::position_jitterdodge())
+    pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
+    pl = pl + ggplot2::facet_wrap(~genes, nrow = nr_rows)
+    pl = pl + ggplot2::geom_hline(yintercept = 0.05, color = 'red', linetype = 2)
 
-  pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_pvalues.pdf'), width = width, height = height)
-  print(pl)
-  dev.off()
-
-
-  # -log10 p-values
-  pl = ggplot2::ggplot()
-  pl = pl + ggplot2::geom_boxplot(data = results, ggplot2::aes(x = method, y = -log10(adj.p.value), color = prob))
-  pl = pl + ggplot2::geom_point(data = results, aes(x = method, y = -log10(adj.p.value), color = prob), size = 2, position = ggplot2::position_jitterdodge())
-  pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
-  pl = pl + ggplot2::facet_wrap(~genes, nrow = nr_rows)
-
-  pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_log10pvalues.pdf'), width = width, height = height)
-  print(pl)
-  dev.off()
+    pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_pvalues.pdf'), width = width, height = height)
+    print(pl)
+    dev.off()
 
 
-  # time
-  pl = ggplot2::ggplot()
-  pl = pl + ggplot2::geom_boxplot(data = results, ggplot2::aes(x = method, y = time, color = prob))
-  pl = pl + ggplot2::geom_point(data = results, ggplot2::aes(x = method, y = time, color = prob), size = 2, position = ggplot2::position_jitterdodge())
-  pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
+    # -log10 p-values
+    pl = ggplot2::ggplot()
+    pl = pl + ggplot2::geom_boxplot(data = results, ggplot2::aes(x = method, y = -log10(adj.p.value), color = prob))
+    pl = pl + ggplot2::geom_point(data = results, aes(x = method, y = -log10(adj.p.value), color = prob), size = 2, position = ggplot2::position_jitterdodge())
+    pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
+    pl = pl + ggplot2::facet_wrap(~genes, nrow = nr_rows)
 
-  pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_time.pdf'), width = width, height = height)
-  print(pl)
-  dev.off()
+    pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_log10pvalues.pdf'), width = width, height = height)
+    print(pl)
+    dev.off()
+
+
+    # time
+    pl = ggplot2::ggplot()
+    pl = pl + ggplot2::geom_boxplot(data = results, ggplot2::aes(x = method, y = time, color = prob))
+    pl = pl + ggplot2::geom_point(data = results, ggplot2::aes(x = method, y = time, color = prob), size = 2, position = ggplot2::position_jitterdodge())
+    pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
+
+    pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_time.pdf'), width = width, height = height)
+    print(pl)
+    dev.off()
+  }
+
 
   # write results
   data.table::fwrite(x = results, file = paste0(save_dir,'/',pattern_name,'_results.txt'), sep = '\t', quote = F)
