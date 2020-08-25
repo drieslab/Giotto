@@ -8,7 +8,7 @@ spark(
   gobject,
   percentage = 0.1,
   min_count = 10,
-  values_type = "raw",
+  expression_values = "raw",
   num_core = 5,
   covariates = NULL,
   return_object = "data.table",
@@ -22,7 +22,7 @@ spark(
 
 \item{min_count}{minimum number of counts for a gene to be included}
 
-\item{values_type}{type of values to use (raw by default)}
+\item{expression_values}{type of values to use (raw by default)}
 
 \item{num_core}{number of cores to use}
 

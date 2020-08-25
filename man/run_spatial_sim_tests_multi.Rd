@@ -17,8 +17,8 @@ run_spatial_sim_tests_multi(
   binSpect_rnk_param = list(percentage_rank = 30, expression_values = "normalized",
     get_av_expr = FALSE, get_high_expr = FALSE),
   spatialDE_param = list(expression_values = "raw", sig_alpha = 0.5, unsig_alpha = 0.5),
-  spark_param = list(values_type = "raw", percentage = 0.1, min_count = 10, num_core =
-    5),
+  spark_param = list(expression_values = "raw", percentage = 0.1, min_count = 10,
+    num_core = 5),
   save_plot = F,
   save_dir = "~",
   ...

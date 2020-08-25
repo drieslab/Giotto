@@ -750,7 +750,7 @@ trendSceek <- function(gobject,
 #' @param gobject giotto object
 #' @param percentage The percentage of cells that are expressed for analysis
 #' @param min_count minimum number of counts for a gene to be included
-#' @param values_type type of values to use (raw by default)
+#' @param expression_values type of values to use (raw by default)
 #' @param num_core number of cores to use
 #' @param covariates The covariates in experiments, i.e. confounding factors/batch effect. Column name of giotto cell metadata.
 #' @param return_object type of result to return (data.table or spark object)
@@ -767,7 +767,7 @@ trendSceek <- function(gobject,
 spark = function(gobject,
                  percentage = 0.1,
                  min_count = 10,
-                 values_type = 'raw',
+                 expression_values = 'raw',
                  num_core = 5,
                  covariates = NULL,
                  return_object = 'data.table',
@@ -787,7 +787,7 @@ spark = function(gobject,
 
 
   ## extract expression values from gobject
-  expr = select_expression_values(gobject = gobject, values = values_type)
+  expr = select_expression_values(gobject = gobject, values = expression_values)
 
   ## extract coordinates from gobject
   locs = as.data.frame(gobject@spatial_locs)
@@ -2283,7 +2283,7 @@ run_spatial_sim_tests_one_rep = function(gobject,
                                                                 unsig_alpha = 0.5),
 
                                          # spark
-                                         spark_param = list(values_type = 'raw',
+                                         spark_param = list(expression_values = 'raw',
                                                             percentage = 0.1,
                                                             min_count = 10,
                                                             num_core = 5),
@@ -2451,7 +2451,7 @@ run_spatial_sim_tests_multi = function(gobject,
                                                               unsig_alpha = 0.5),
 
                                        # spark
-                                       spark_param = list(values_type = 'raw',
+                                       spark_param = list(expression_values = 'raw',
                                                           percentage = 0.1,
                                                           min_count = 10,
                                                           num_core = 5),
@@ -2587,6 +2587,18 @@ runPatternSimulation = function(gobject,
     generesults[, prob := as.factor(prob)]
     generesults[, method := factor(method, levels = c('binspec_km', 'binspec_rnk', 'spatialDE', 'spark'))]
 
+
+    if(save_plot == TRUE) {
+
+      subdir = paste0(save_dir,'/',pattern_name,'/')
+      if(!file.exists(subdir)) dir.create(path = subdir, recursive = TRUE)
+
+      # write results
+      data.table::fwrite(x = generesults, file = paste0(subdir,'/',gene,'_results.txt'), sep = '\t', quote = F)
+
+    }
+
+
     all_results[[gene_ind]] = generesults
 
   }
@@ -2597,43 +2609,46 @@ runPatternSimulation = function(gobject,
 
   ## plot results ##
 
-  # 4 columns max
-  nr_rows = max(c(round(length(gene_names)/max_col), 1))
+  if(save_plot == TRUE) {
+    # 4 columns max
+    nr_rows = max(c(round(length(gene_names)/max_col), 1))
 
-  # p-values
-  pl = ggplot2::ggplot()
-  pl = pl + ggplot2::geom_boxplot(data = results, ggplot2::aes(x = method, y = adj.p.value, color = prob))
-  pl = pl + ggplot2::geom_point(data = results, ggplot2::aes(x = method, y = adj.p.value, color = prob), size = 2, position = ggplot2::position_jitterdodge())
-  pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
-  pl = pl + ggplot2::facet_wrap(~genes, nrow = nr_rows)
-  pl = pl + ggplot2::geom_hline(yintercept = 0.05, color = 'red', linetype = 2)
+    # p-values
+    pl = ggplot2::ggplot()
+    pl = pl + ggplot2::geom_boxplot(data = results, ggplot2::aes(x = method, y = adj.p.value, color = prob))
+    pl = pl + ggplot2::geom_point(data = results, ggplot2::aes(x = method, y = adj.p.value, color = prob), size = 2, position = ggplot2::position_jitterdodge())
+    pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
+    pl = pl + ggplot2::facet_wrap(~genes, nrow = nr_rows)
+    pl = pl + ggplot2::geom_hline(yintercept = 0.05, color = 'red', linetype = 2)
 
-  pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_pvalues.pdf'), width = width, height = height)
-  print(pl)
-  dev.off()
-
-
-  # -log10 p-values
-  pl = ggplot2::ggplot()
-  pl = pl + ggplot2::geom_boxplot(data = results, ggplot2::aes(x = method, y = -log10(adj.p.value), color = prob))
-  pl = pl + ggplot2::geom_point(data = results, aes(x = method, y = -log10(adj.p.value), color = prob), size = 2, position = ggplot2::position_jitterdodge())
-  pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
-  pl = pl + ggplot2::facet_wrap(~genes, nrow = nr_rows)
-
-  pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_log10pvalues.pdf'), width = width, height = height)
-  print(pl)
-  dev.off()
+    pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_pvalues.pdf'), width = width, height = height)
+    print(pl)
+    dev.off()
 
 
-  # time
-  pl = ggplot2::ggplot()
-  pl = pl + ggplot2::geom_boxplot(data = results, ggplot2::aes(x = method, y = time, color = prob))
-  pl = pl + ggplot2::geom_point(data = results, ggplot2::aes(x = method, y = time, color = prob), size = 2, position = ggplot2::position_jitterdodge())
-  pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
+    # -log10 p-values
+    pl = ggplot2::ggplot()
+    pl = pl + ggplot2::geom_boxplot(data = results, ggplot2::aes(x = method, y = -log10(adj.p.value), color = prob))
+    pl = pl + ggplot2::geom_point(data = results, aes(x = method, y = -log10(adj.p.value), color = prob), size = 2, position = ggplot2::position_jitterdodge())
+    pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
+    pl = pl + ggplot2::facet_wrap(~genes, nrow = nr_rows)
 
-  pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_time.pdf'), width = width, height = height)
-  print(pl)
-  dev.off()
+    pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_log10pvalues.pdf'), width = width, height = height)
+    print(pl)
+    dev.off()
+
+
+    # time
+    pl = ggplot2::ggplot()
+    pl = pl + ggplot2::geom_boxplot(data = results, ggplot2::aes(x = method, y = time, color = prob))
+    pl = pl + ggplot2::geom_point(data = results, ggplot2::aes(x = method, y = time, color = prob), size = 2, position = ggplot2::position_jitterdodge())
+    pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
+
+    pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_time.pdf'), width = width, height = height)
+    print(pl)
+    dev.off()
+  }
+
 
   # write results
   data.table::fwrite(x = results, file = paste0(save_dir,'/',pattern_name,'_results.txt'), sep = '\t', quote = F)
