@@ -579,7 +579,7 @@ spatialAEH <- function(gobject = NULL,
   results = SpatialDE_results[['results']][['results']]
 
   ## automatic expression histology
-  AEH_results = Spatial_DE_AEH(filterd_exprs = as.data.frame(t_giotto(expr_values)),
+  AEH_results = Spatial_DE_AEH(filterd_exprs = as.data.frame(t_giotto(as.matrix(expr_values))),
                                coordinates = spatial_locs,
                                results = as.data.frame(results),
                                pattern_num = pattern_num,

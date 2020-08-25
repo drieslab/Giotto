@@ -41,7 +41,6 @@ plotUMAP(gobject = VC_small)
 VC_small <- runtSNE(VC_small, dimensions_to_use = 1:5)
 plotTSNE(gobject = VC_small)
 
-
 ## 4. clustering ####
 VC_small <- createNearestNetwork(gobject = VC_small, dimensions_to_use = 1:5, k = 5)
 VC_small <- doLeidenCluster(gobject = VC_small, resolution = 0.4, n_iterations = 1000)
