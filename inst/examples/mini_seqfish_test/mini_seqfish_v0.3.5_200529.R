@@ -30,7 +30,8 @@ VC_small <- adjustGiottoMatrix(gobject = VC_small, expression_values = c('normal
 
 ## 3. dimension reduction ####
 VC_small <- calculateHVG(gobject = VC_small)
-VC_small <- runPCA(gobject = VC_small)
+VC_small <- runPCA(gobject = VC_small, center = T)
+?runPCA
 screePlot(VC_small, ncp = 20)
 jackstrawPlot(VC_small, ncp = 20)
 plotPCA(VC_small)
