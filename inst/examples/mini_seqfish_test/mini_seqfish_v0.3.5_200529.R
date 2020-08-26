@@ -100,7 +100,45 @@ spatPlot(gobject = VC_small, show_network = T,
 
 
 ## 9. spatial genes ####
-km_spatialgenes = binSpect(VC_small, spatial_network_name = 'kNN_network')
+
+install.packages('bench')
+library(bench)
+
+mark(memory = T,
+  km_spatialgenes = binSpect(VC_small, spatial_network_name = 'kNN_network', do_parallel = F)
+)
+
+install.packages('profvis')
+library(profvis)
+
+
+
+profvis({
+
+  spatial_network = Giotto:::select_spatialNetwork(gobject = VC_small ,name = 'kNN_network',return_network_Obj = FALSE)
+  dc_spat_network = data.table::dcast.data.table(spatial_network, formula = to~from, value.var = 'distance', fill = 0)
+  spat_mat = Giotto:::dt_to_matrix(dc_spat_network)
+  spat_mat[spat_mat > 0] = 1
+
+  expr_values = VC_small@norm_expr
+  bin_matrix = Giotto:::t_giotto(apply(X = expr_values, MARGIN = 1, FUN = Giotto:::kmeans_binarize, nstart = 3, iter.max = 10))
+
+
+  gene = 'Aanat'
+  gene_vector = bin_matrix[rownames(bin_matrix) == gene,]
+  gene_vectorA = gene_vector[names(gene_vector) %in% rownames(spat_mat)]
+  gene_vectorA = gene_vectorA[match(rownames(spat_mat), names(gene_vectorA))]
+  gene_vectorB = gene_vector[names(gene_vector) %in% colnames(spat_mat)]
+  gene_vectorB = gene_vectorB[match(colnames(spat_mat), names(gene_vectorB))]
+  test1 = spat_mat*gene_vectorA
+  test2 = Giotto:::t_giotto(Giotto:::t_giotto(spat_mat)*gene_vectorB)
+})
+
+
+
+
+
+
 spatGenePlot(VC_small, expression_values = 'scaled', genes = km_spatialgenes[1:6]$genes,
              point_shape = 'border', point_border_stroke = 0.1,
              show_network = F, network_color = 'lightgrey', point_size = 2.5,
