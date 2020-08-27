@@ -136,7 +136,7 @@ profvis({
 
 
 
-
+?binSpect
 
 
 spatGenePlot(VC_small, expression_values = 'scaled', genes = km_spatialgenes[1:6]$genes,
