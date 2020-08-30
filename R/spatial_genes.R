@@ -35,6 +35,13 @@ spat_fish_func = function(gene,
     possibs = c("1-1","0-1","1-0","0-0")
     missings_possibs = possibs[!possibs %in% unique(test)]
     test = c(test, missings_possibs)
+
+    table_test = table(test)
+    table_test[names(table_test) %in% missings_possibs] = 0
+    table_matrix = matrix(table_test, byrow = T, nrow = 2)
+
+  } else {
+    table_matrix = matrix(table(test), byrow = T, nrow = 2)
   }
 
   if(calc_hub == TRUE) {
@@ -49,12 +56,13 @@ spat_fish_func = function(gene,
       colhubs = colSums_giotto(subset_spat_mat)
       hub_nr = length(unique(c(names(colhubs[colhubs > hub_min_int]), names(rowhubs[colhubs > hub_min_int]))))
     }
-    fish_res = stats::fisher.test(matrix(table(test), byrow = T, nrow = 2))[c('p.value','estimate')]
+
+    fish_res = stats::fisher.test(table_matrix)[c('p.value','estimate')]
     return(c(genes = list(gene), fish_res, hubs = list(hub_nr)))
 
   } else {
 
-    fish_res = stats::fisher.test(matrix(table(test), byrow = T, nrow = 2))[c('p.value','estimate')]
+    fish_res = stats::fisher.test(table_matrix)[c('p.value','estimate')]
     return(c(genes = list(gene), fish_res))
   }
 
@@ -95,6 +103,13 @@ spat_OR_func = function(gene,
     possibs = c("1-1","0-1","1-0","0-0")
     missings_possibs = possibs[!possibs %in% unique(test)]
     test = c(test, missings_possibs)
+
+    table_test = table(test)
+    table_test[names(table_test) %in% missings_possibs] = 0
+    table_matrix = matrix(table_test, byrow = T, nrow = 2)
+
+  } else {
+    table_matrix = matrix(table(test), byrow = T, nrow = 2)
   }
 
 
@@ -110,7 +125,7 @@ spat_OR_func = function(gene,
       hub_nr = length(unique(c(names(colhubs[colhubs > hub_min_int]), names(rowhubs[colhubs > hub_min_int]))))
     }
 
-    fish_matrix = matrix(table(test), byrow = T, nrow = 2)
+    fish_matrix = table_matrix
     fish_matrix = fish_matrix/1000
     OR = ((fish_matrix[1]*fish_matrix[4]) / (fish_matrix[2]*fish_matrix[3]))
 
@@ -118,102 +133,131 @@ spat_OR_func = function(gene,
 
   }
 
-  fish_matrix = matrix(table(test), byrow = T, nrow = 2)
+  fish_matrix = table_matrix
   fish_matrix = fish_matrix/1000
   OR = ((fish_matrix[1]*fish_matrix[4]) / (fish_matrix[2]*fish_matrix[3]))
   return(c(genes = list(gene), OR))
 
 }
 
-#' @title binSpect
-#' @name binSpect
-#' @description Previously: binGetSpatialGenes. BinSpect (Binary Spatial Extraction of genes) is a fast computational method
-#' that identifies genes with a spatially coherent expression pattern.
-#' @param gobject giotto object
-#' @param bin_method method to binarize gene expression
-#' @param expression_values expression values to use
-#' @param subset_genes only select a subset of genes to test
-#' @param spatial_network_name name of spatial network to use (default = 'spatial_network')
-#' @param nstart kmeans: nstart parameter
-#' @param iter_max kmeans: iter.max parameter
-#' @param percentage_rank percentage of top cells for binarization
-#' @param do_fisher_test perform fisher test
-#' @param calc_hub calculate the number of hub cells
-#' @param hub_min_int minimum number of cell-cell interactions for a hub cell
-#' @param get_av_expr calculate the average expression per gene of the high expressing cells
-#' @param get_high_expr calculate the number of high expressing cells  per gene
-#' @param do_parallel run calculations in parallel with mclapply
-#' @param cores number of cores to use if do_parallel = TRUE
-#' @param verbose be verbose
-#' @return data.table with results (see details)
-#' @details We provide two ways to identify spatial genes based on gene expression binarization.
-#' Both methods are identicial except for how binarization is performed.
-#' \itemize{
-#'   \item{1. binarize: }{Each gene is binarized (0 or 1) in each cell with \bold{kmeans} (k = 2) or based on \bold{rank} percentile}
-#'   \item{2. network: }{Alll cells are connected through a spatial network based on the physical coordinates}
-#'   \item{3. contingency table: }{A contingency table is calculated based on all edges of neighboring cells and the binarized expression (0-0, 0-1, 1-0 or 1-1)}
-#'   \item{4. For each gene an odds-ratio (OR) and fisher.test (optional) is calculated}
-#' }
-#' Other statistics are provided (optional):
-#' \itemize{
-#'   \item{Number of cells with high expression (binary = 1)}
-#'   \item{Average expression of each gene within high expressing cells }
-#'   \item{Number of hub cells, these are high expressing cells that have a user defined number of high expressing neighbors}
-#' }
-#' By selecting a subset of likely spatial genes (e.g. soft thresholding highly variable genes) or using multiple cores can accelerate the speed.
-#' @export
-#' @examples
-#'     binSpect(gobject)
-binSpect = function(gobject,
-                    bin_method = c('kmeans', 'rank'),
-                    expression_values = c('normalized', 'scaled', 'custom'),
-                    subset_genes = NULL,
-                    spatial_network_name = 'Delaunay_network',
-                    nstart = 3,
-                    iter_max = 10,
-                    percentage_rank = 30,
-                    do_fisher_test = TRUE,
-                    calc_hub = FALSE,
-                    hub_min_int = 3,
-                    get_av_expr = TRUE,
-                    get_high_expr = TRUE,
-                    do_parallel = TRUE,
-                    cores = NA,
-                    verbose = T) {
 
 
-  # data.table: set global variable
-  genes = p.value = estimate = score = NULL
+#' @title OR_test_fnc
+#' @name OR_test_fnc
+#' @description calculate odds-ratio from a 2x2 matrix
+#' @keywords internal
+OR_test_fnc = function(matrix) {
+  OR = ((matrix[1]*matrix[4]) / (matrix[2]*matrix[3]))
+  list('estimate' = OR)
+}
 
-  # set binarization method
-  bin_method = match.arg(bin_method, choices = c('kmeans', 'rank'))
 
-  # spatial network
-  spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
-  if(is.null(spatial_network)) {
-    stop('spatial_network_name: ', spatial_network_name, ' does not exist, create a spatial network first')
+#' @title calc_spatial_enrichment_minimum
+#' @name calc_spatial_enrichment_minimum
+#' @description calculate spatial enrichment using a simple and efficient for loop
+#' @keywords internal
+calc_spatial_enrichment_minimum = function(spatial_network,
+                                           bin_matrix,
+                                           adjust_method = 'fdr',
+                                           do_fisher_test = TRUE) {
+
+  spatial_network_min = spatial_network[,.(from, to)]
+
+  all_colindex = 1:ncol(bin_matrix)
+  names(all_colindex) = colnames(bin_matrix)
+
+  # code for possible combinations
+  convert_code = c(1, 2, 3, 4)
+  names(convert_code) = c('0-0', '0-1', '1-0', '1-1')
+
+  # preallocate final matrix for results
+  matrix_res = matrix(data = NA, nrow = nrow(bin_matrix), ncol = nrow(spatial_network_min))
+
+  ## 1. summarize results for each edge in the network
+  for(row_i in 1:nrow(spatial_network_min)) {
+
+    from_id = spatial_network_min[row_i][['from']]
+    to_id = spatial_network_min[row_i][['to']]
+
+    sumres = data.table::as.data.table(bin_matrix[, all_colindex[c(from_id, to_id)]])
+    sumres[, combn := paste0(get(from_id),'-',get(to_id))]
+
+    ## maybe a slightly faster alternative ##
+    #sumres[, sum := get(from_id)+get(to_id)]
+    #sumres[, combn := ifelse(sum == 0, 1,
+    #                          ifelse(sum == 2, 4,
+    #                                 ifelse(get(from_id) == 1, 3, 2)))]
+    #code_res = sumres[['combn']]
+
+    code_res = convert_code[sumres$combn]
+    matrix_res[, row_i] = code_res
   }
 
-  # expression
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  rownames(matrix_res) = rownames(bin_matrix)
 
-  if(!is.null(subset_genes)) {
-    expr_values = expr_values[rownames(expr_values) %in% subset_genes, ]
+
+  # preallocate matrix for table results
+  table_res = matrix(data = NA, nrow(matrix_res), ncol = 4)
+
+  ## 2. calculate the frequencies of possible combinations ##
+  # '0-0' = 1, '0-1' = 2, '1-0' = 3 and '1-1' = 4
+  for(row_i in 1:nrow(matrix_res)) {
+
+    x = matrix_res[row_i,]
+    x = factor(x, levels = c(1,2,3,4))
+    tabres = as.vector(table(x))
+
+    table_res[row_i,] = tabres
   }
 
-  # binarize matrix
-  if(bin_method == 'kmeans') {
-    bin_matrix = t_giotto(apply(X = expr_values, MARGIN = 1, FUN = kmeans_binarize, nstart = nstart, iter.max = iter_max))
-  } else if(bin_method == 'rank') {
-    max_rank = (ncol(expr_values)/100)*percentage_rank
-    bin_matrix = t_giotto(apply(X = expr_values, MARGIN = 1, FUN = rank_binarize, max_rank = max_rank))
+  rownames(table_res) = rownames(matrix_res)
+  colnames(table_res) = 1:4
+
+  rable_resDT = data.table::as.data.table(table_res)
+  rable_resDT[, genes := rownames(table_res)]
+
+  rable_resDTm = data.table::melt.data.table(rable_resDT, id.vars = 'genes')
+  data.table::setorder(rable_resDTm, genes, variable)
+
+  ## run fisher test ##
+  if(do_fisher_test == TRUE) {
+    results = rable_resDTm[, stats::fisher.test(matrix(value, nrow = 2))[c(1,3)], by = genes]
+
+    # replace zero p-values with lowest p-value
+    min_pvalue = min(results$p.value[results$p.value > 0])
+    results[, p.value := ifelse(p.value == 0, min_pvalue, p.value)]
+    results[, adj.p.value := stats::p.adjust(p.value, method = adjust_method)]
+
+    # sort genes based on p-value and estimate
+    results[, score := -log(p.value) * estimate]
+    data.table::setorder(results, -score)
+
+
+  } else {
+
+    results = rable_resDTm[,  OR_test_fnc(matrix(value, nrow = 2)), by = genes]
+    data.table::setorder(results, -estimate)
+
   }
 
-  if(verbose == TRUE) cat('\n 1. matrix binarization complete \n')
+  return(results)
 
+}
 
-  # spatial matrix
+#' @title calc_spatial_enrichment_matrix
+#' @name calc_spatial_enrichment_matrix
+#' @description calculate spatial enrichment using a matrix approach
+#' @keywords internal
+calc_spatial_enrichment_matrix = function(spatial_network,
+                                          bin_matrix,
+                                          adjust_method = 'fdr',
+                                          do_fisher_test = TRUE,
+                                          do_parallel = TRUE,
+                                          cores = NA,
+                                          calc_hub = FALSE,
+                                          hub_min_int = 3) {
+
+  # convert spatial network data.table to spatial matrix
   dc_spat_network = data.table::dcast.data.table(spatial_network, formula = to~from, value.var = 'distance', fill = 0)
   spat_mat = dt_to_matrix(dc_spat_network)
   spat_mat[spat_mat > 0] = 1
@@ -224,14 +268,14 @@ binSpect = function(gobject,
 
     if(do_fisher_test == TRUE) {
 
-      save_list = suppressMessages(giotto_lapply(X = rownames(bin_matrix), cores = cores, fun = spat_fish_func,
-                                                 bin_matrix = bin_matrix, spat_mat = spat_mat,
-                                                 calc_hub = calc_hub, hub_min_int = hub_min_int))
+      save_list = suppressMessages(Giotto:::giotto_lapply(X = rownames(bin_matrix), cores = cores, fun = spat_fish_func,
+                                                          bin_matrix = bin_matrix, spat_mat = spat_mat,
+                                                          calc_hub = calc_hub, hub_min_int = hub_min_int))
 
     } else {
-      save_list =  suppressMessages(giotto_lapply(X = rownames(bin_matrix), cores = cores, fun = spat_OR_func,
-                                                  bin_matrix = bin_matrix, spat_mat = spat_mat,
-                                                  calc_hub = calc_hub, hub_min_int = hub_min_int))
+      save_list =  suppressMessages(Giotto:::giotto_lapply(X = rownames(bin_matrix), cores = cores, fun = spat_OR_func,
+                                                           bin_matrix = bin_matrix, spat_mat = spat_mat,
+                                                           calc_hub = calc_hub, hub_min_int = hub_min_int))
 
     }
 
@@ -244,64 +288,39 @@ binSpect = function(gobject,
       for(gene in rownames(bin_matrix)) {
         if(verbose == TRUE) print(gene)
 
-          save_list[[gene]] = suppressMessages(spat_fish_func(gene = gene, bin_matrix = bin_matrix, spat_mat = spat_mat,
-                                             calc_hub = calc_hub, hub_min_int = hub_min_int))
+        save_list[[gene]] = suppressMessages(spat_fish_func(gene = gene, bin_matrix = bin_matrix, spat_mat = spat_mat,
+                                                                     calc_hub = calc_hub, hub_min_int = hub_min_int))
 
       }
     } else {
       for(gene in rownames(bin_matrix)) {
         if(verbose == TRUE) print(gene)
 
-          save_list[[gene]] = suppressMessages(spat_OR_func(gene = gene, bin_matrix = bin_matrix, spat_mat = spat_mat,
-                                           calc_hub = calc_hub, hub_min_int = hub_min_int))
+        save_list[[gene]] = suppressMessages(spat_OR_func(gene = gene, bin_matrix = bin_matrix, spat_mat = spat_mat,
+                                                                   calc_hub = calc_hub, hub_min_int = hub_min_int))
 
       }
     }
 
   }
 
-  if(verbose == TRUE) cat('\n 2. spatial enrichment test completed \n')
-
   result = data.table::as.data.table(do.call('rbind', save_list))
   result[, genes := unlist(genes)]
-  #result[, genes := rownames(bin_matrix)]
-
-  ## extra info: average expression of high expression group
-  if(get_av_expr == TRUE) {
-    sel_expr_values = expr_values * bin_matrix
-    av_expr = apply(sel_expr_values, MARGIN = 1, FUN = function(x) {
-      mean(x[x > 0])
-    })
-    av_expr_DT = data.table::data.table(genes = names(av_expr), av_expr = av_expr)
-    result = merge(result, av_expr_DT, by = 'genes')
-
-    if(verbose == TRUE) cat('\n 3. average expression of high expressing cells calculated \n')
-  }
-
-  ## extra info: number of high expressing cells
-  if(get_high_expr == TRUE) {
-    high_expr = rowSums(bin_matrix)
-    high_expr_DT = data.table::data.table(genes = names(high_expr), high_expr = high_expr)
-    result = merge(result, high_expr_DT, by = 'genes')
-
-    if(verbose == TRUE) cat('\n 4. number of high expressing cells calculated \n')
-  }
 
 
-  ## order data.table
   if(do_fisher_test == TRUE) {
     result[, c('p.value', 'estimate') := list(as.numeric(p.value), as.numeric(estimate))]
 
     # convert p.value = 0 to lowest p-value
     min_pvalue = min(result$p.value[result$p.value > 0])
     result[, p.value := ifelse(p.value == 0, min_pvalue, p.value)]
+    result[, adj.p.value := stats::p.adjust(p.value, method = adjust_method)]
 
     result[, score := -log(p.value) * estimate]
     data.table::setorder(result, -score)
 
-
-
   } else {
+
     data.table::setnames(result, 'V1', 'estimate')
     data.table::setorder(result, -estimate)
   }
@@ -310,6 +329,224 @@ binSpect = function(gobject,
 
 }
 
+
+#' @title binSpect
+#' @name binSpect
+#' @description Previously: binGetSpatialGenes. BinSpect (Binary Spatial Extraction of genes) is a fast computational method
+#' that identifies genes with a spatially coherent expression pattern.
+#' @param gobject giotto object
+#' @param bin_method method to binarize gene expression
+#' @param expression_values expression values to use
+#' @param subset_genes only select a subset of genes to test
+#' @param spatial_network_name name of spatial network to use (default = 'spatial_network')
+#' @param reduce_network default uses the full network
+#' @param kmeans_algo kmeans algorithm to use (kmeans, kmeans_arma, kmeans_arma_subset)
+#' @param nstart kmeans: nstart parameter
+#' @param iter_max kmeans: iter.max parameter
+#' @param extreme_nr number of top and bottom cells (see details)
+#' @param sample_nr total number of cells to sample (see details)
+#' @param percentage_rank percentage of top cells for binarization
+#' @param do_fisher_test perform fisher test
+#' @param adjust_method p-value adjusted method to use (see \code{\link[stats]{p.adjust}})
+#' @param calc_hub calculate the number of hub cells
+#' @param hub_min_int minimum number of cell-cell interactions for a hub cell
+#' @param get_av_expr calculate the average expression per gene of the high expressing cells
+#' @param get_high_expr calculate the number of high expressing cells  per gene
+#' @param implementation enrichment implementation (simple vs matrix)
+#' @param do_parallel run calculations in parallel with mclapply
+#' @param cores number of cores to use if do_parallel = TRUE
+#' @param verbose be verbose
+#' @return data.table with results (see details)
+#' @details We provide two ways to identify spatial genes based on gene expression binarization.
+#' Both methods are identicial except for how binarization is performed.
+#' \itemize{
+#'   \item{1. binarize: }{Each gene is binarized (0 or 1) in each cell with \bold{kmeans} (k = 2) or based on \bold{rank} percentile}
+#'   \item{2. network: }{Alll cells are connected through a spatial network based on the physical coordinates}
+#'   \item{3. contingency table: }{A contingency table is calculated based on all edges of neighboring cells and the binarized expression (0-0, 0-1, 1-0 or 1-1)}
+#'   \item{4. For each gene an odds-ratio (OR) and fisher.test (optional) is calculated}
+#' }
+#' Three different kmeans algorithmes have been implemented:
+#' \itemize{
+#'   \item{1. kmeans: }{default, see \code{\link[stats]{kmeans}} }
+#'   \item{2. kmeans_arma: }{from ClusterR, see \code{\link[ClusterR]{KMeans_arma}} }
+#'   \item{3. kmeans_arma_subst: }{from ClusterR, see \code{\link[ClusterR]{KMeans_arma}},
+#'    but random subsetting the vector for each gene to increase speed. Change extreme_nr and sample_nr for control.  }
+#' }
+#' Other statistics are provided (optional):
+#' \itemize{
+#'   \item{Number of cells with high expression (binary = 1)}
+#'   \item{Average expression of each gene within high expressing cells }
+#'   \item{Number of hub cells, these are high expressing cells that have a user defined number of high expressing neighbors}
+#' }
+#' By selecting a subset of likely spatial genes (e.g. soft thresholding highly variable genes) can accelerate the speed.
+#' The simple implementation is usually faster, but lacks the possibility to run in parallel and to calculate hub cells.
+#' @export
+#' @examples
+#'     binSpect(gobject)
+binSpect = function(gobject,
+                    bin_method = c('kmeans', 'rank'),
+                    expression_values = c('normalized', 'scaled', 'custom'),
+                    subset_genes = NULL,
+                    spatial_network_name = 'Delaunay_network',
+                    reduce_network = FALSE,
+                    kmeans_algo = c('kmeans', 'kmeans_arma', 'kmeans_arma_subset'),
+                    nstart = 3,
+                    iter_max = 10,
+                    extreme_nr = 50,
+                    sample_nr = 50,
+                    percentage_rank = 30,
+                    do_fisher_test = TRUE,
+                    adjust_method = 'fdr',
+                    calc_hub = FALSE,
+                    hub_min_int = 3,
+                    get_av_expr = TRUE,
+                    get_high_expr = TRUE,
+                    implementation = c('simple', 'matrix'),
+                    do_parallel = TRUE,
+                    cores = NA,
+                    verbose = T,
+                    set.seed = NULL) {
+
+
+  # data.table: set global variable
+  genes = p.value = estimate = score = NULL
+
+  # set binarization method
+  bin_method = match.arg(bin_method, choices = c('kmeans', 'rank'))
+
+  # kmeans algorithm
+  kmeans_algo = match.arg(kmeans_algo, choices = c('kmeans', 'kmeans_arma', 'kmeans_arma_subset'))
+
+  # implementation
+  implementation = match.arg(implementation, choices = c('simple', 'matrix'))
+
+  # spatial network
+  spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
+  if(is.null(spatial_network)) {
+    stop('spatial_network_name: ', spatial_network_name, ' does not exist, create a spatial network first')
+  }
+
+  # convert to full network
+  if(reduce_network == FALSE) {
+    spatial_network = convert_to_full_spatial_network(spatial_network)
+    setnames(spatial_network, c('source', 'target'), c('from', 'to'))
+  }
+
+
+
+  # expression
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_values = select_expression_values(gobject = gobject, values = values)
+
+  if(!is.null(subset_genes)) {
+    expr_values = expr_values[rownames(expr_values) %in% subset_genes, ]
+  }
+
+  ## start binarization ##
+  ## ------------------ ##
+
+  if(bin_method == 'kmeans') {
+
+    if(kmeans_algo == 'kmeans') {
+      bin_matrix = t_giotto(apply(X = expr_values, MARGIN = 1, FUN = kmeans_binarize,
+                                  nstart = nstart, iter.max = iter_max, set.seed = set.seed))
+    } else if(kmeans_algo == 'kmeans_arma') {
+      bin_matrix = t_giotto(apply(X = expr_values, MARGIN = 1, FUN = kmeans_arma_binarize,
+                                  n_iter = iter_max, set.seed = set.seed))
+    } else if(kmeans_algo == 'kmeans_arma_subset') {
+      bin_matrix = t_giotto(apply(X = expr_values, MARGIN = 1, FUN = kmeans_arma_subset_binarize,
+                                  n_iter = iter_max,
+                                  extreme_nr = extreme_nr,
+                                  sample_nr = sample_nr,
+                                  set.seed = set.seed))
+    }
+
+
+  } else if(bin_method == 'rank') {
+    max_rank = (ncol(expr_values)/100)*percentage_rank
+    bin_matrix = t_giotto(apply(X = expr_values, MARGIN = 1, FUN = rank_binarize, max_rank = max_rank))
+  }
+
+  if(verbose == TRUE) cat('\n 1. matrix binarization complete \n')
+
+
+
+
+  ## start with enrichment ##
+  ## --------------------- ##
+
+  if(implementation == 'simple') {
+    if(do_parallel == TRUE) {
+      warning('Parallel not yet implemented for simple. Enrichment will default to serial.')
+    }
+
+    if(calc_hub == TRUE) {
+      warning('Hub calculation is not possible with the simple implementation, change to matrix if requird.')
+    }
+
+
+    result = calc_spatial_enrichment_minimum(spatial_network = spatial_network,
+                                             bin_matrix = bin_matrix,
+                                             adjust_method = adjust_method,
+                                             do_fisher_test = do_fisher_test)
+
+
+  } else if(implementation == 'matrix') {
+
+    result = calc_spatial_enrichment_matrix(spatial_network = spatial_network,
+                                            bin_matrix = bin_matrix,
+                                            adjust_method = adjust_method,
+                                            do_fisher_test = do_fisher_test,
+                                            do_parallel = do_parallel,
+                                            cores = cores,
+                                            calc_hub = calc_hub,
+                                            hub_min_int = hub_min_int)
+  }
+
+  if(verbose == TRUE) cat('\n 2. spatial enrichment test completed \n')
+
+
+
+
+
+  ## start with average high expression ##
+  ## ---------------------------------- ##
+
+  if(get_av_expr == TRUE) {
+    sel_expr_values = expr_values * bin_matrix
+    av_expr = apply(sel_expr_values, MARGIN = 1, FUN = function(x) {
+      mean(x[x > 0])
+    })
+    av_expr_DT = data.table::data.table(genes = names(av_expr), av_expr = av_expr)
+    result = merge(result, av_expr_DT, by = 'genes')
+
+    if(verbose == TRUE) cat('\n 3. (optional) average expression of high expressing cells calculated \n')
+  }
+
+
+
+  ## start with number of high expressing cells ##
+  ## ------------------------------------------ ##
+
+  if(get_high_expr == TRUE) {
+    high_expr = rowSums(bin_matrix)
+    high_expr_DT = data.table::data.table(genes = names(high_expr), high_expr = high_expr)
+    result = merge(result, high_expr_DT, by = 'genes')
+
+    if(verbose == TRUE) cat('\n 4. (optional) number of high expressing cells calculated \n')
+  }
+
+
+  # sort
+  if(do_fisher_test == TRUE) {
+    data.table::setorder(result, -score)
+  } else {
+    data.table::setorder(result, -estimate)
+  }
+
+  return(result)
+
+}
 
 
 

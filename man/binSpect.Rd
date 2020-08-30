@@ -10,17 +10,24 @@ binSpect(
   expression_values = c("normalized", "scaled", "custom"),
   subset_genes = NULL,
   spatial_network_name = "Delaunay_network",
+  reduce_network = FALSE,
+  kmeans_algo = c("kmeans", "kmeans_arma", "kmeans_arma_subset"),
   nstart = 3,
   iter_max = 10,
+  extreme_nr = 50,
+  sample_nr = 50,
   percentage_rank = 30,
   do_fisher_test = TRUE,
+  adjust_method = "fdr",
   calc_hub = FALSE,
   hub_min_int = 3,
   get_av_expr = TRUE,
   get_high_expr = TRUE,
+  implementation = c("simple", "matrix"),
   do_parallel = TRUE,
   cores = NA,
-  verbose = T
+  verbose = T,
+  set.seed = NULL
 )
 }
 \arguments{
@@ -34,13 +41,23 @@ binSpect(
 
 \item{spatial_network_name}{name of spatial network to use (default = 'spatial_network')}
 
+\item{reduce_network}{default uses the full network}
+
+\item{kmeans_algo}{kmeans algorithm to use (kmeans, kmeans_arma, kmeans_arma_subset)}
+
 \item{nstart}{kmeans: nstart parameter}
 
 \item{iter_max}{kmeans: iter.max parameter}
 
+\item{extreme_nr}{number of top and bottom cells (see details)}
+
+\item{sample_nr}{total number of cells to sample (see details)}
+
 \item{percentage_rank}{percentage of top cells for binarization}
 
 \item{do_fisher_test}{perform fisher test}
+
+\item{adjust_method}{p-value adjusted method to use (see \code{\link[stats]{p.adjust}})}
 
 \item{calc_hub}{calculate the number of hub cells}
 
@@ -49,6 +66,8 @@ binSpect(
 \item{get_av_expr}{calculate the average expression per gene of the high expressing cells}
 
 \item{get_high_expr}{calculate the number of high expressing cells  per gene}
+
+\item{implementation}{enrichment implementation (simple vs matrix)}
 
 \item{do_parallel}{run calculations in parallel with mclapply}
 
@@ -72,13 +91,21 @@ Both methods are identicial except for how binarization is performed.
   \item{3. contingency table: }{A contingency table is calculated based on all edges of neighboring cells and the binarized expression (0-0, 0-1, 1-0 or 1-1)}
   \item{4. For each gene an odds-ratio (OR) and fisher.test (optional) is calculated}
 }
+Three different kmeans algorithmes have been implemented:
+\itemize{
+  \item{1. kmeans: }{default, see \code{\link[stats]{kmeans}} }
+  \item{2. kmeans_arma: }{from ClusterR, see \code{\link[ClusterR]{KMeans_arma}} }
+  \item{3. kmeans_arma_subst: }{from ClusterR, see \code{\link[ClusterR]{KMeans_arma}},
+   but random subsetting the vector for each gene to increase speed. Change extreme_nr and sample_nr for control.  }
+}
 Other statistics are provided (optional):
 \itemize{
   \item{Number of cells with high expression (binary = 1)}
   \item{Average expression of each gene within high expressing cells }
   \item{Number of hub cells, these are high expressing cells that have a user defined number of high expressing neighbors}
 }
-By selecting a subset of likely spatial genes (e.g. soft thresholding highly variable genes) or using multiple cores can accelerate the speed.
+By selecting a subset of likely spatial genes (e.g. soft thresholding highly variable genes) can accelerate the speed.
+The simple implementation is usually faster, but lacks the possibility to run in parallel and to calculate hub cells.
 }
 \examples{
     binSpect(gobject)
