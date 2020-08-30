@@ -23,7 +23,8 @@ binSpect(
   hub_min_int = 3,
   get_av_expr = TRUE,
   get_high_expr = TRUE,
-  implementation = c("simple", "matrix"),
+  implementation = c("simple", "matrix", "data.table"),
+  group_size = 200,
   do_parallel = TRUE,
   cores = NA,
   verbose = T,
@@ -67,7 +68,7 @@ binSpect(
 
 \item{get_high_expr}{calculate the number of high expressing cells  per gene}
 
-\item{implementation}{enrichment implementation (simple vs matrix)}
+\item{implementation}{enrichment implementation (simple, matrix, data.table)}
 
 \item{do_parallel}{run calculations in parallel with mclapply}
 
@@ -106,6 +107,7 @@ Other statistics are provided (optional):
 }
 By selecting a subset of likely spatial genes (e.g. soft thresholding highly variable genes) can accelerate the speed.
 The simple implementation is usually faster, but lacks the possibility to run in parallel and to calculate hub cells.
+The data.table implementation might be more appropriate for large datasets by setting the group_size (number of genes) parameter to divide the workload.
 }
 \examples{
     binSpect(gobject)

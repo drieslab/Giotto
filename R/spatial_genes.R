@@ -68,6 +68,75 @@ spat_fish_func = function(gene,
 
 }
 
+#' @title spat_fish_func_DT
+#' @name spat_fish_func_DT
+#' @description performs fisher exact test with data.table implementation
+#' @keywords internal
+spat_fish_func_DT = function(bin_matrix_DTm,
+                             spat_netw_min,
+                             calc_hub = F,
+                             hub_min_int = 3) {
+
+
+  # get binarized expression values for the neighbors
+  spatial_network_min_ext = data.table::merge.data.table(spat_netw_min, bin_matrix_DTm, by.x = 'from', by.y = 'variable', allow.cartesian = T)
+  setnames(spatial_network_min_ext, 'value', 'from_value')
+
+  spatial_network_min_ext =data.table::merge.data.table(spatial_network_min_ext, by.x = c('to', 'gene_ID'), bin_matrix_DTm, by.y = c('variable', 'gene_ID'))
+  setnames(spatial_network_min_ext, 'value', 'to_value')
+
+
+  # summarize the different combinations
+  spatial_network_min_ext[, combn := paste0(from_value,'-',to_value)]
+  freq_summary = spatial_network_min_ext[, .N, by = .(gene_ID, combn)]
+  setorder(freq_summary, gene_ID, combn)
+
+  genes = unique(freq_summary$gene_ID)
+  all_combn = c('0-0', '0-1', '1-0', '1-1')
+
+  # create a zeroes DT to add missing observations
+  freq_summary_zeroes = data.table::data.table(gene_ID = rep(genes, each = 4),
+                                   combn = rep(all_combn, length(genes)),
+                                   N = 0)
+  freq_summary2 = rbind(freq_summary, freq_summary_zeroes)
+  freq_summary2[, N := sum(N), by = .(gene_ID, combn)]
+  freq_summary2 = unique(freq_summary2)
+
+  # sort the combinations and run fisher test
+  data.table::setorder(freq_summary2, gene_ID, combn, -N)
+  fish_results = freq_summary2[, stats::fisher.test(matrix(N, nrow = 2))[c(1,3)], by = gene_ID]
+
+
+  ## hubs ##
+  if(calc_hub == TRUE) {
+
+    double_pos = spatial_network_min_ext[combn == '1-1']
+
+    double_pos_to = double_pos[, .N, by = .(gene_ID, to)]
+    data.table::setnames(double_pos_to, 'to', 'cell_ID')
+    double_pos_from = double_pos[, .N, by = .(gene_ID, from)]
+    data.table::setnames(double_pos_from, 'from', 'cell_ID')
+
+    double_pos_both = rbind(double_pos_to, double_pos_from)
+    double_pos_both = double_pos_both[, sum(N), by = .(gene_ID, cell_ID)]
+    data.table::setorder(double_pos_both, gene_ID, -V1)
+
+    # get hubs and add 0's
+    hub_DT = double_pos_both[V1 > hub_min_int, .N, by = gene_ID]
+    hub_DT_zeroes = data.table(gene_ID = unique(spatial_network_min_ext$gene_ID), N = 0)
+    hub_DT2 = rbind(hub_DT, hub_DT_zeroes)
+
+    hub_DT2 = hub_DT2[, sum(N), by = gene_ID]
+    data.table::setnames(hub_DT2, 'V1', 'hub_nr')
+
+    fish_results = data.table::merge.data.table(fish_results, hub_DT2, by = 'gene_ID')
+
+  }
+
+  return(fish_results)
+
+}
+
 
 
 #' @title spat_OR_func
@@ -140,6 +209,75 @@ spat_OR_func = function(gene,
 
 }
 
+
+#' @title spat_OR_func_DT
+#' @name spat_OR_func_DT
+#' @description calculate odds-ratio with data.table implementation
+#' @keywords internal
+spat_OR_func_DT = function(bin_matrix_DTm,
+                           spat_netw_min,
+                           calc_hub = F,
+                           hub_min_int = 3) {
+
+
+  # get binarized expression values for the neighbors
+  spatial_network_min_ext = data.table::merge.data.table(spat_netw_min, bin_matrix_DTm, by.x = 'from', by.y = 'variable', allow.cartesian = T)
+  setnames(spatial_network_min_ext, 'value', 'from_value')
+
+  spatial_network_min_ext =data.table::merge.data.table(spatial_network_min_ext, by.x = c('to', 'gene_ID'), bin_matrix_DTm, by.y = c('variable', 'gene_ID'))
+  setnames(spatial_network_min_ext, 'value', 'to_value')
+
+
+  # summarize the different combinations
+  spatial_network_min_ext[, combn := paste0(from_value,'-',to_value)]
+  freq_summary = spatial_network_min_ext[, .N, by = .(gene_ID, combn)]
+  setorder(freq_summary, gene_ID, combn)
+
+  genes = unique(freq_summary$gene_ID)
+  all_combn = c('0-0', '0-1', '1-0', '1-1')
+
+  # create a zeroes DT to add missing observations
+  freq_summary_zeroes = data.table::data.table(gene_ID = rep(genes, each = 4),
+                                   combn = rep(all_combn, length(genes)),
+                                   N = 0)
+  freq_summary2 = rbind(freq_summary, freq_summary_zeroes)
+  freq_summary2[, N := sum(N), by = .(gene_ID, combn)]
+  freq_summary2 = unique(freq_summary2)
+
+  # sort the combinations and run fisher test
+  setorder(freq_summary2, gene_ID, combn, -N)
+  or_results = freq_summary2[, Giotto:::OR_test_fnc(matrix(N, nrow = 2)), by = gene_ID]
+
+
+  ## hubs ##
+  if(calc_hub == TRUE) {
+
+    double_pos = spatial_network_min_ext[combn == '1-1']
+
+    double_pos_to = double_pos[, .N, by = .(gene_ID, to)]
+    data.table::setnames(double_pos_to, 'to', 'cell_ID')
+    double_pos_from = double_pos[, .N, by = .(gene_ID, from)]
+    data.table::setnames(double_pos_from, 'from', 'cell_ID')
+
+    double_pos_both = rbind(double_pos_to, double_pos_from)
+    double_pos_both = double_pos_both[, sum(N), by = .(gene_ID, cell_ID)]
+    data.table::setorder(double_pos_both, gene_ID, -V1)
+
+    # get hubs and add 0's
+    hub_DT = double_pos_both[V1 > hub_min_int, .N, by = gene_ID]
+    hub_DT_zeroes = data.table(gene_ID = unique(spatial_network_min_ext$gene_ID), N = 0)
+    hub_DT2 = rbind(hub_DT, hub_DT_zeroes)
+
+    hub_DT2 = hub_DT2[, sum(N), by = gene_ID]
+    data.table::setnames(hub_DT2, 'V1', 'hub_nr')
+
+    or_results = data.table::merge.data.table(or_results, hub_DT2, by = 'gene_ID')
+
+  }
+
+  return(or_results)
+
+}
 
 
 #' @title OR_test_fnc
@@ -330,6 +468,77 @@ calc_spatial_enrichment_matrix = function(spatial_network,
 }
 
 
+#' @title calc_spatial_enrichment_DT
+#' @name calc_spatial_enrichment_DT
+#' @description calculate spatial enrichment using the data.table implementation
+#' @keywords internal
+calc_spatial_enrichment_DT = function(bin_matrix,
+                                      spatial_network,
+                                      calc_hub = F,
+                                      hub_min_int = 3,
+                                      group_size = 20,
+                                      do_fisher_test = TRUE,
+                                      adjust_method = 'fdr') {
+
+
+  # create minimum spatial network
+  spat_netw_min = spatial_network[,.(from, to)]
+
+  # divide matrix in groups
+  groups = ceiling(nrow(bin_matrix)/group_size)
+  cut_groups = cut(1:nrow(bin_matrix), breaks = groups, labels = 1:groups)
+  indexes = 1:nrow(bin_matrix)
+  names(indexes) = cut_groups
+
+
+  total_list = list()
+  for(group in unique(cut_groups)) {
+
+    sel_indices = indexes[names(indexes) == group]
+
+    bin_matrix_DT = data.table::as.data.table(bin_matrix[sel_indices,])
+    bin_matrix_DT[, gene_ID := rownames(bin_matrix[sel_indices,])]
+    bin_matrix_DTm = data.table::melt.data.table(bin_matrix_DT, id.vars = 'gene_ID')
+
+    if(do_fisher_test == TRUE) {
+      test = spat_fish_func_DT(bin_matrix_DTm = bin_matrix_DTm,
+                               spat_netw_min = spat_netw_min,
+                               calc_hub = calc_hub,
+                               hub_min_int = hub_min_int)
+    } else {
+      test = spat_OR_func_DT(bin_matrix_DTm = bin_matrix_DTm,
+                             spat_netw_min = spat_netw_min,
+                             calc_hub = calc_hub,
+                             hub_min_int = hub_min_int)
+    }
+
+
+    total_list[[group]] = test
+
+  }
+
+  result = do.call('rbind', total_list)
+
+  if(do_fisher_test == TRUE) {
+    min_pvalue = min(result$p.value[result$p.value > 0])
+    result[, p.value := ifelse(p.value == 0, min_pvalue, p.value)]
+    result[, adj.p.value := stats::p.adjust(p.value, method = adjust_method)]
+
+    result[, score := -log(p.value) * estimate]
+    data.table::setorder(result, -score)
+    data.table::setnames(result, 'gene_ID', 'genes')
+  } else {
+    data.table::setorder(result, -estimate)
+    data.table::setnames(result, 'gene_ID', 'genes')
+  }
+
+  return(result)
+
+}
+
+
+
+
 #' @title binSpect
 #' @name binSpect
 #' @description Previously: binGetSpatialGenes. BinSpect (Binary Spatial Extraction of genes) is a fast computational method
@@ -352,7 +561,7 @@ calc_spatial_enrichment_matrix = function(spatial_network,
 #' @param hub_min_int minimum number of cell-cell interactions for a hub cell
 #' @param get_av_expr calculate the average expression per gene of the high expressing cells
 #' @param get_high_expr calculate the number of high expressing cells  per gene
-#' @param implementation enrichment implementation (simple vs matrix)
+#' @param implementation enrichment implementation (simple, matrix, data.table)
 #' @param do_parallel run calculations in parallel with mclapply
 #' @param cores number of cores to use if do_parallel = TRUE
 #' @param verbose be verbose
@@ -380,6 +589,7 @@ calc_spatial_enrichment_matrix = function(spatial_network,
 #' }
 #' By selecting a subset of likely spatial genes (e.g. soft thresholding highly variable genes) can accelerate the speed.
 #' The simple implementation is usually faster, but lacks the possibility to run in parallel and to calculate hub cells.
+#' The data.table implementation might be more appropriate for large datasets by setting the group_size (number of genes) parameter to divide the workload.
 #' @export
 #' @examples
 #'     binSpect(gobject)
@@ -401,7 +611,8 @@ binSpect = function(gobject,
                     hub_min_int = 3,
                     get_av_expr = TRUE,
                     get_high_expr = TRUE,
-                    implementation = c('simple', 'matrix'),
+                    implementation = c('simple', 'matrix', 'data.table'),
+                    group_size = 200,
                     do_parallel = TRUE,
                     cores = NA,
                     verbose = T,
@@ -501,6 +712,16 @@ binSpect = function(gobject,
                                             cores = cores,
                                             calc_hub = calc_hub,
                                             hub_min_int = hub_min_int)
+
+  } else if(implementation == 'data.table') {
+
+    result = calc_spatial_enrichment_DT(bin_matrix = bin_matrix,
+                                        spatial_network = spatial_network,
+                                        calc_hub = calc_hub,
+                                        hub_min_int = hub_min_int,
+                                        group_size = group_size,
+                                        do_fisher_test = do_fisher_test,
+                                        adjust_method = adjust_method)
   }
 
   if(verbose == TRUE) cat('\n 2. spatial enrichment test completed \n')
