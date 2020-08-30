@@ -80,16 +80,16 @@ spat_fish_func_DT = function(bin_matrix_DTm,
 
   # get binarized expression values for the neighbors
   spatial_network_min_ext = data.table::merge.data.table(spat_netw_min, bin_matrix_DTm, by.x = 'from', by.y = 'variable', allow.cartesian = T)
-  setnames(spatial_network_min_ext, 'value', 'from_value')
+  data.table::setnames(spatial_network_min_ext, 'value', 'from_value')
 
-  spatial_network_min_ext =data.table::merge.data.table(spatial_network_min_ext, by.x = c('to', 'gene_ID'), bin_matrix_DTm, by.y = c('variable', 'gene_ID'))
-  setnames(spatial_network_min_ext, 'value', 'to_value')
+  spatial_network_min_ext = data.table::merge.data.table(spatial_network_min_ext, by.x = c('to', 'gene_ID'), bin_matrix_DTm, by.y = c('variable', 'gene_ID'))
+  data.table::setnames(spatial_network_min_ext, 'value', 'to_value')
 
 
   # summarize the different combinations
   spatial_network_min_ext[, combn := paste0(from_value,'-',to_value)]
   freq_summary = spatial_network_min_ext[, .N, by = .(gene_ID, combn)]
-  setorder(freq_summary, gene_ID, combn)
+  data.table::setorder(freq_summary, gene_ID, combn)
 
   genes = unique(freq_summary$gene_ID)
   all_combn = c('0-0', '0-1', '1-0', '1-1')
@@ -123,7 +123,7 @@ spat_fish_func_DT = function(bin_matrix_DTm,
 
     # get hubs and add 0's
     hub_DT = double_pos_both[V1 > hub_min_int, .N, by = gene_ID]
-    hub_DT_zeroes = data.table(gene_ID = unique(spatial_network_min_ext$gene_ID), N = 0)
+    hub_DT_zeroes = data.table::data.table(gene_ID = unique(spatial_network_min_ext$gene_ID), N = 0)
     hub_DT2 = rbind(hub_DT, hub_DT_zeroes)
 
     hub_DT2 = hub_DT2[, sum(N), by = gene_ID]
@@ -222,16 +222,16 @@ spat_OR_func_DT = function(bin_matrix_DTm,
 
   # get binarized expression values for the neighbors
   spatial_network_min_ext = data.table::merge.data.table(spat_netw_min, bin_matrix_DTm, by.x = 'from', by.y = 'variable', allow.cartesian = T)
-  setnames(spatial_network_min_ext, 'value', 'from_value')
+  data.table::setnames(spatial_network_min_ext, 'value', 'from_value')
 
-  spatial_network_min_ext =data.table::merge.data.table(spatial_network_min_ext, by.x = c('to', 'gene_ID'), bin_matrix_DTm, by.y = c('variable', 'gene_ID'))
-  setnames(spatial_network_min_ext, 'value', 'to_value')
+  spatial_network_min_ext = data.table::merge.data.table(spatial_network_min_ext, by.x = c('to', 'gene_ID'), bin_matrix_DTm, by.y = c('variable', 'gene_ID'))
+  data.table::setnames(spatial_network_min_ext, 'value', 'to_value')
 
 
   # summarize the different combinations
   spatial_network_min_ext[, combn := paste0(from_value,'-',to_value)]
   freq_summary = spatial_network_min_ext[, .N, by = .(gene_ID, combn)]
-  setorder(freq_summary, gene_ID, combn)
+  data.table::setorder(freq_summary, gene_ID, combn)
 
   genes = unique(freq_summary$gene_ID)
   all_combn = c('0-0', '0-1', '1-0', '1-1')
@@ -246,7 +246,7 @@ spat_OR_func_DT = function(bin_matrix_DTm,
 
   # sort the combinations and run fisher test
   setorder(freq_summary2, gene_ID, combn, -N)
-  or_results = freq_summary2[, Giotto:::OR_test_fnc(matrix(N, nrow = 2)), by = gene_ID]
+  or_results = freq_summary2[, OR_test_fnc(matrix(N, nrow = 2)), by = gene_ID]
 
 
   ## hubs ##
@@ -265,7 +265,7 @@ spat_OR_func_DT = function(bin_matrix_DTm,
 
     # get hubs and add 0's
     hub_DT = double_pos_both[V1 > hub_min_int, .N, by = gene_ID]
-    hub_DT_zeroes = data.table(gene_ID = unique(spatial_network_min_ext$gene_ID), N = 0)
+    hub_DT_zeroes = data.table::data.table(gene_ID = unique(spatial_network_min_ext$gene_ID), N = 0)
     hub_DT2 = rbind(hub_DT, hub_DT_zeroes)
 
     hub_DT2 = hub_DT2[, sum(N), by = gene_ID]
@@ -611,7 +611,7 @@ binSpect = function(gobject,
                     hub_min_int = 3,
                     get_av_expr = TRUE,
                     get_high_expr = TRUE,
-                    implementation = c('simple', 'matrix', 'data.table'),
+                    implementation = c('data.table', 'simple', 'matrix'),
                     group_size = 200,
                     do_parallel = TRUE,
                     cores = NA,
@@ -629,7 +629,7 @@ binSpect = function(gobject,
   kmeans_algo = match.arg(kmeans_algo, choices = c('kmeans', 'kmeans_arma', 'kmeans_arma_subset'))
 
   # implementation
-  implementation = match.arg(implementation, choices = c('simple', 'matrix'))
+  implementation = match.arg(implementation, choices = c('data.table', 'simple', 'matrix'))
 
   # spatial network
   spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
