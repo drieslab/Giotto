@@ -561,7 +561,7 @@ calc_spatial_enrichment_DT = function(bin_matrix,
 #' @param hub_min_int minimum number of cell-cell interactions for a hub cell
 #' @param get_av_expr calculate the average expression per gene of the high expressing cells
 #' @param get_high_expr calculate the number of high expressing cells  per gene
-#' @param implementation enrichment implementation (simple, matrix, data.table)
+#' @param implementation enrichment implementation (data.table, simple, matrix)
 #' @param do_parallel run calculations in parallel with mclapply
 #' @param cores number of cores to use if do_parallel = TRUE
 #' @param verbose be verbose

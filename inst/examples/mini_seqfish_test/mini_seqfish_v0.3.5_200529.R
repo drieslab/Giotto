@@ -101,18 +101,37 @@ spatPlot(gobject = VC_small, show_network = T,
 
 ## 9. spatial genes ####
 
+km_spatialgenes = binSpect(VC_small)
 
 spatGenePlot(VC_small, expression_values = 'scaled', genes = km_spatialgenes[1:6]$genes,
              point_shape = 'border', point_border_stroke = 0.1,
              show_network = F, network_color = 'lightgrey', point_size = 2.5,
              cow_n_col = 2)
 
+
+## combined approach ##
 km_spatialgenes[p.value <= 0.05]
 
+km_spatialgenes1 = km_spatialgenes
+km_spatialgenes1[, k := 1]
+km_spatialgenes2 = km_spatialgenes
+km_spatialgenes2[, k := 2]
+km_spatialgenes3 = km_spatialgenes
+km_spatialgenes3[, k := 3]
+
+km_spatialgenes_tot = data.table::rbindlist(l = list(km_spatialgenes1, km_spatialgenes2, km_spatialgenes3))
+
+comb_km = km_spatialgenes_tot[, sum(log(p.value)), by = genes]
+comb_km[, V1 := V1*-2]
+comb_km[, p.val := pchisq(q = V1, df = 2*3, log.p = F, lower.tail = F)]
+
+pchisq(q = 1, df = 2*3, log.p = T)
+pchisq(q = 6, df = 2*3, log.p = T)
 
 
-
-
+km_spatialgenes[p.value < 0.01 ]
+comb_km[p.val < 0.01]
+comb_km
 
 ## simulations ##
 
@@ -206,6 +225,7 @@ spatGenePlot(VC_small, expression_values = 'scaled', genes = silh_spatialgenes[1
              point_shape = 'border', point_border_stroke = 0.1,
              show_network = F, network_color = 'lightgrey', point_size = 2.5,
              cow_n_col = 2)
+
 
 
 ## 10. spatial co-expression patterns ####
