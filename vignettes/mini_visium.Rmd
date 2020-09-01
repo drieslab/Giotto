@@ -2,7 +2,7 @@
 title: "mini_visium"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{mini_seqfish}
+  %\VignetteIndexEntry{mini_visium}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

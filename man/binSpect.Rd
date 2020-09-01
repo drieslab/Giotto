@@ -23,7 +23,7 @@ binSpect(
   hub_min_int = 3,
   get_av_expr = TRUE,
   get_high_expr = TRUE,
-  implementation = c("simple", "matrix", "data.table"),
+  implementation = c("data.table", "simple", "matrix"),
   group_size = 200,
   do_parallel = TRUE,
   cores = NA,
@@ -68,7 +68,7 @@ binSpect(
 
 \item{get_high_expr}{calculate the number of high expressing cells  per gene}
 
-\item{implementation}{enrichment implementation (simple, matrix, data.table)}
+\item{implementation}{enrichment implementation (data.table, simple, matrix)}
 
 \item{do_parallel}{run calculations in parallel with mclapply}
 
