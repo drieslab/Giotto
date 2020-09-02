@@ -31,7 +31,8 @@ binSpect(
   verbose = T,
   knn_params = NULL,
   set.seed = NULL,
-  bin_matrix = NULL
+  bin_matrix = NULL,
+  summarize = c("p.val", "adj.p.val")
 )
 }
 \arguments{
@@ -86,6 +87,8 @@ binSpect(
 \item{set.seed}{set a seed before kmeans binarization}
 
 \item{bin_matrix}{a binarized matrix, when provided it will skip the binarization process}
+
+\item{summarize}{summarize the p-values or adjusted p-values}
 }
 \value{
 data.table with results (see details)

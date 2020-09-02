@@ -29,7 +29,8 @@ binSpectMulti(
   cores = NA,
   verbose = T,
   knn_params = NULL,
-  set.seed = NULL
+  set.seed = NULL,
+  summarize = c("p.val", "adj.p.val")
 )
 }
 \arguments{
@@ -80,6 +81,8 @@ binSpectMulti(
 \item{verbose}{be verbose}
 
 \item{set.seed}{set a seed before kmeans binarization}
+
+\item{summarize}{summarize the p-values or adjusted p-values}
 }
 \value{
 data.table with results (see details)

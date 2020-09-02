@@ -814,6 +814,7 @@ binSpectSingle = function(gobject,
 #' @param cores number of cores to use if do_parallel = TRUE
 #' @param verbose be verbose
 #' @param set.seed set a seed before kmeans binarization
+#' @param summarize summarize the p-values or adjusted p-values
 #' @return data.table with results (see details)
 #' @details We provide two ways to identify spatial genes based on gene expression binarization.
 #' Both methods are identicial except for how binarization is performed.
@@ -1032,6 +1033,7 @@ binSpectMulti = function(gobject,
 #' @param verbose be verbose
 #' @param set.seed set a seed before kmeans binarization
 #' @param bin_matrix a binarized matrix, when provided it will skip the binarization process
+#' @param summarize summarize the p-values or adjusted p-values
 #' @return data.table with results (see details)
 #' @details We provide two ways to identify spatial genes based on gene expression binarization.
 #' Both methods are identicial except for how binarization is performed.
@@ -1086,7 +1088,8 @@ binSpect = function(gobject,
                     verbose = T,
                     knn_params = NULL,
                     set.seed = NULL,
-                    bin_matrix = NULL) {
+                    bin_matrix = NULL,
+                    summarize = c('p.val', 'adj.p.val')) {
 
 
   if(!is.null(spatial_network_k)) {
@@ -1115,7 +1118,8 @@ binSpect = function(gobject,
                            cores = cores,
                            verbose = verbose,
                            knn_params = knn_params,
-                           set.seed = set.seed)
+                           set.seed = set.seed,
+                           summarize = summarize)
 
   } else {
 
