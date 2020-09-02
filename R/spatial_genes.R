@@ -476,7 +476,7 @@ calc_spatial_enrichment_DT = function(bin_matrix,
                                       spatial_network,
                                       calc_hub = F,
                                       hub_min_int = 3,
-                                      group_size = 20,
+                                      group_size = 'automatic',
                                       do_fisher_test = TRUE,
                                       adjust_method = 'fdr') {
 
@@ -485,6 +485,16 @@ calc_spatial_enrichment_DT = function(bin_matrix,
   spat_netw_min = spatial_network[,.(from, to)]
 
   # divide matrix in groups
+  if(!is.na(group_size) & is.numeric(group_size)) {
+    group_size = group_size
+    if(group_size > nrow(bin_matrix)) {
+      stop('group_size is too big, it can not be greater than the number of genes')
+    }
+  } else if(group_size == 'automatic') {
+    test_number = ceiling(nrow(bin_matrix)/10)
+    group_size = min(200, test_number)
+  }
+
   groups = ceiling(nrow(bin_matrix)/group_size)
   cut_groups = cut(1:nrow(bin_matrix), breaks = groups, labels = 1:groups)
   indexes = 1:nrow(bin_matrix)
@@ -612,7 +622,7 @@ binSpect = function(gobject,
                     get_av_expr = TRUE,
                     get_high_expr = TRUE,
                     implementation = c('data.table', 'simple', 'matrix'),
-                    group_size = 200,
+                    group_size = 'automatic',
                     do_parallel = TRUE,
                     cores = NA,
                     verbose = T,
