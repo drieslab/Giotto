@@ -9,7 +9,7 @@ calc_spatial_enrichment_DT(
   spatial_network,
   calc_hub = F,
   hub_min_int = 3,
-  group_size = 20,
+  group_size = "automatic",
   do_fisher_test = TRUE,
   adjust_method = "fdr"
 )
