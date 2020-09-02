@@ -866,10 +866,18 @@ binSpectMulti = function(gobject,
                          cores = NA,
                          verbose = T,
                          knn_params = NULL,
-                         set.seed = NULL) {
+                         set.seed = NULL,
+                         summarize = c('p.val', 'adj.p.val')
+                         ) {
 
 
   if(verbose == TRUE) cat('\n This is the multi parameter version of binSpect')
+
+  # check bin_method
+  bin_method = match.arg(bin_method, choices = c('kmeans', 'rank'))
+
+  # summarization level
+  summarize = match.arg(summarize, choices = c('p.val', 'adj.p.val'))
 
   ## bin method rank
   if(bin_method == 'rank') {
@@ -984,11 +992,11 @@ binSpectMulti = function(gobject,
 
 
   ## merge results into 1 p-value per gene ##
-  simple_result = combined_result[, sum(log(p.value)), by = genes]
+  simple_result = combined_result[, sum(log(get(summarize))), by = genes]
   simple_result[, V1 := V1*-2]
   simple_result[, p.val := stats::pchisq(q = V1, df = total_trials, log.p = F, lower.tail = F)]
 
-  return(list(combined = combined_result, simple = simple_result))
+  return(list(combined = combined_result, simple = simple_result[,.(genes, p.val)]))
 
 }
 

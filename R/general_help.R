@@ -411,6 +411,9 @@ kmeans_binarize_wrapper = function(gobject,
     expr_values = expr_values[rownames(expr_values) %in% subset_genes, ]
   }
 
+  # check parameter
+  kmeans_algo = match.arg(arg = kmeans_algo, choices = c('kmeans', 'kmeans_arma', 'kmeans_arma_subset'))
+
   if(kmeans_algo == 'kmeans') {
     bin_matrix = t_giotto(apply(X = expr_values, MARGIN = 1, FUN = kmeans_binarize,
                                 nstart = nstart, iter.max = iter_max, set.seed = set.seed))
