@@ -876,7 +876,7 @@ binSpectMulti = function(gobject,
 
     total_trials = length(spatial_network_k)*length(percentage_rank)
     result_list = vector(mode = 'list', length = total_trials)
-    i = 0
+    i = 1
 
     for(k in spatial_network_k) {
 
@@ -923,7 +923,7 @@ binSpectMulti = function(gobject,
     ## bin method kmeans
     total_trials = length(spatial_network_k)
     result_list = vector(mode = 'list', length = total_trials)
-    i = 0
+    i = 1
 
 
     # pre-calculate bin_matrix once
@@ -1134,7 +1134,6 @@ binSpect = function(gobject,
                             do_parallel = do_parallel,
                             cores = cores,
                             verbose = verbose,
-                            knn_params = knn_params,
                             set.seed = set.seed,
                             bin_matrix = bin_matrix)
 
