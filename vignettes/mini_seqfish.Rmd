@@ -309,7 +309,7 @@ spatPlot(gobject = seqfish_mini, cell_color = 'HMRF_k9_b.28',
 
 
 ## 12. cell neighborhood: cell-type/cell-type interactions
-```{r eval=FALSE}
+```{r eval=TRUE}
 set.seed(seed = 2841)
 cell_proximities = cellProximityEnrichment(gobject = seqfish_mini,
                                            cluster_column = 'cell_types',
@@ -342,7 +342,7 @@ cellProximityNetwork(gobject = seqfish_mini, CPscore = cell_proximities,
 
 
 ### visualization of specific cell types
-```{r eval=FALSE}
+```{r eval=TRUE}
 
 # Option 1
 spec_interaction = "cell D--cell F"
@@ -366,7 +366,7 @@ spatPlot(seqfish_mini, cell_color = 'D_F_interactions', legend_symbol_size = 3,
 
 
 ### 13. cell neighborhood: interaction changed genes
-```{r eval=FALSE}
+```{r eval=TRUE}
 
 ## select top 25th highest expressing genes
 gene_metadata = fDataDT(seqfish_mini)
@@ -408,7 +408,7 @@ plotICG(gobject = seqfish_mini,
 
 
 ## 14. cell neighborhood:  ligand-receptor cell-cell communication
-```{r eval=FALSE}
+```{r eval=TRUE}
 
 LR_data = data.table::fread(system.file("extdata", "mouse_ligand_receptors.txt", package = 'Giotto'))
 

@@ -349,7 +349,7 @@ spatPlot(gobject = starmap_mini, cell_color = 'HMRF_k6_b.12',
 
 
 ## 12. cell neighborhood: cell-type/cell-type interactions
-```{r eval=FALSE}
+```{r eval=TRUE}
 set.seed(seed = 2841)
 cell_proximities = cellProximityEnrichment(gobject = starmap_mini,
                                            cluster_column = 'cell_types',
@@ -382,7 +382,7 @@ cellProximityNetwork(gobject = starmap_mini, CPscore = cell_proximities,
 
 
 ### visualization of specific cell types
-```{r eval=FALSE}
+```{r eval=TRUE}
 pDataDT(starmap_mini)
 # Option 1
 spec_interaction = "cell D--cell H" # needs to be in alphabetic order! first D, then H
@@ -407,7 +407,7 @@ spatPlot(starmap_mini, cell_color = 'D_H_interactions', legend_symbol_size = 3,
 
 
 ## 13. 2D cross sections from 3D object
-```{r eval=FALSE}
+```{r eval=TRUE}
 
 # create cross section
 starmap_mini = createCrossSection(starmap_mini,
