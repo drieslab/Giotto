@@ -64,6 +64,7 @@ compute highly variable genes
 }
 \details{
 Currently we provide 2 ways to calculate highly variable genes:
+
 \bold{1. high coeff of variance (COV) within groups: } \cr
 First genes are binned (\emph{nr_expression_groups}) into average expression groups and
 the COV for each gene is converted into a z-score within each bin. Genes with a z-score
@@ -76,8 +77,21 @@ Genes that show a higher than predicted COV (\emph{difference_in_cov}) are consi
 \examples{
 
 data(mini_giotto_single_cell) # loads existing Giotto object
-mini_giotto <- calculateHVG(gobject = mini_giotto, zscore_threshold = 0.1, nr_expression_groups = 3)
 
-hvg_dt <- calculateHVG(gobject = mini_giotto, zscore_threshold = 0.1, nr_expression_groups = 3, return_gobject = FALSE)
+# update a giotto object
+mini_giotto_single_cell <- calculateHVG(gobject = mini_giotto_single_cell,
+                                        zscore_threshold = 0.1,
+                                        nr_expression_groups = 3)
+
+# return a data.table with the high variable genes annotated
+hvg_dt <- calculateHVG(gobject = mini_giotto_single_cell,
+                       zscore_threshold = 0.1, nr_expression_groups = 3,
+                       return_plot = FALSE, return_gobject = FALSE)
+
+# return the ggplot object
+hvg_plot <- calculateHVG(gobject = mini_giotto_single_cell,
+                       zscore_threshold = 0.1, nr_expression_groups = 3,
+                       return_plot = TRUE, return_gobject = FALSE)
+
 
 }
