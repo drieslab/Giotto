@@ -279,7 +279,7 @@ Identify spatial genes with 3 different methods:
 - silhouetteRank  
 
 Visualize top 4 genes per method.  
-```{r eval=TRUE}
+```{r eval=TRUE, fig.width=10, fig.height=10}
 km_spatialgenes = binSpect(mini_visium)
 spatGenePlot(mini_visium, expression_values = 'scaled', 
              genes = km_spatialgenes[1:4]$genes,
@@ -308,7 +308,7 @@ Identify robust spatial co-expression patterns using the spatial network or grid
 and a subset of individual spatial genes.  
 1. calculate spatial correlation scores  
 2. cluster correlation scores
-```{r eval=TRUE}
+```{r eval=TRUE, fig.width=10, fig.height=10}
 
 # 1. calculate spatial correlation scores 
 ext_spatial_genes = km_spatialgenes[1:100]$genes

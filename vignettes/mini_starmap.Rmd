@@ -245,15 +245,15 @@ Identify spatial genes with 3 different methods:
 - silhouetteRank  
 
 Visualize top 4 genes per method.  
-```{r eval=TRUE}
-km_spatialgenes = binSpect(starmap_mini, group_size = 5)
+```{r eval=TRUE, fig.width=10, fig.height=10}
+km_spatialgenes = binSpect(starmap_mini)
 spatGenePlot(starmap_mini, expression_values = 'scaled', 
              genes = km_spatialgenes[1:4]$genes,
              point_shape = 'border', point_border_stroke = 0.1,
              show_network = F, network_color = 'lightgrey', point_size = 2.5,
              cow_n_col = 2)
 
-rank_spatialgenes = binSpect(starmap_mini, bin_method = 'rank', group_size = 5)
+rank_spatialgenes = binSpect(starmap_mini, bin_method = 'rank')
 spatGenePlot(starmap_mini, expression_values = 'scaled', 
              genes = rank_spatialgenes[1:4]$genes,
              point_shape = 'border', point_border_stroke = 0.1,
@@ -274,7 +274,7 @@ Identify robust spatial co-expression patterns using the spatial network or grid
 and a subset of individual spatial genes.  
 1. calculate spatial correlation scores  
 2. cluster correlation scores
-```{r eval=TRUE}
+```{r eval=TRUE, fig.width=10, fig.height=10}
 
 # 1. calculate spatial correlation scores 
 ext_spatial_genes = km_spatialgenes[1:20]$genes
@@ -313,7 +313,7 @@ spatCellPlot(starmap_mini,
 
 
 ## 11. spatial HMRF domains
-```{r eval=FALSE}
+```{r eval=TRUE}
 hmrf_folder = paste0(temp_dir,'/','11_HMRF/')
 if(!file.exists(hmrf_folder)) dir.create(hmrf_folder, recursive = T)
 
