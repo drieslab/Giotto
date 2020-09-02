@@ -32,7 +32,7 @@ binSpect(
   knn_params = NULL,
   set.seed = NULL,
   bin_matrix = NULL,
-  summarize = c("p.val", "adj.p.val")
+  summarize = c("p.value", "adj.p.value")
 )
 }
 \arguments{

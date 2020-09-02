@@ -868,7 +868,7 @@ binSpectMulti = function(gobject,
                          verbose = T,
                          knn_params = NULL,
                          set.seed = NULL,
-                         summarize = c('p.val', 'adj.p.val')
+                         summarize = c('p.value', 'adj.p.value')
                          ) {
 
 
@@ -878,7 +878,7 @@ binSpectMulti = function(gobject,
   bin_method = match.arg(bin_method, choices = c('kmeans', 'rank'))
 
   # summarization level
-  summarize = match.arg(summarize, choices = c('p.val', 'adj.p.val'))
+  summarize = match.arg(summarize, choices = c('p.value', 'adj.p.value'))
 
   ## bin method rank
   if(bin_method == 'rank') {
@@ -1089,7 +1089,7 @@ binSpect = function(gobject,
                     knn_params = NULL,
                     set.seed = NULL,
                     bin_matrix = NULL,
-                    summarize = c('p.val', 'adj.p.val')) {
+                    summarize = c('p.value', 'adj.p.value')) {
 
 
   if(!is.null(spatial_network_k)) {

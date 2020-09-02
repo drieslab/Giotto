@@ -30,7 +30,7 @@ binSpectMulti(
   verbose = T,
   knn_params = NULL,
   set.seed = NULL,
-  summarize = c("p.val", "adj.p.val")
+  summarize = c("p.value", "adj.p.value")
 )
 }
 \arguments{
