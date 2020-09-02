@@ -387,6 +387,51 @@ kmeans_arma_subset_binarize = function(x, n_iter = 5, extreme_nr = 20, sample_nr
 
 }
 
+
+#' @title kmeans_binarize_wrapper
+#' @name kmeans_binarize_wrapper
+#' @description wrapper for different binarization functions
+#' @keywords internal
+kmeans_binarize_wrapper = function(gobject,
+                                   expression_values = c('normalized', 'scaled', 'custom'),
+                                   subset_genes = NULL,
+                                   kmeans_algo = c('kmeans', 'kmeans_arma', 'kmeans_arma_subset'),
+                                   nstart = 3,
+                                   iter_max = 10,
+                                   extreme_nr = 50,
+                                   sample_nr = 50,
+                                   set.seed = NULL) {
+
+
+  # expression
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_values = select_expression_values(gobject = gobject, values = values)
+
+  if(!is.null(subset_genes)) {
+    expr_values = expr_values[rownames(expr_values) %in% subset_genes, ]
+  }
+
+  if(kmeans_algo == 'kmeans') {
+    bin_matrix = t_giotto(apply(X = expr_values, MARGIN = 1, FUN = kmeans_binarize,
+                                nstart = nstart, iter.max = iter_max, set.seed = set.seed))
+  } else if(kmeans_algo == 'kmeans_arma') {
+    bin_matrix = t_giotto(apply(X = expr_values, MARGIN = 1, FUN = kmeans_arma_binarize,
+                                n_iter = iter_max, set.seed = set.seed))
+  } else if(kmeans_algo == 'kmeans_arma_subset') {
+    bin_matrix = t_giotto(apply(X = expr_values, MARGIN = 1, FUN = kmeans_arma_subset_binarize,
+                                n_iter = iter_max,
+                                extreme_nr = extreme_nr,
+                                sample_nr = sample_nr,
+                                set.seed = set.seed))
+  }
+
+  return(bin_matrix)
+
+}
+
+
+
+
 #' @title rank_binarize
 #' @name rank_binarize
 #' @description create binarized scores from a vector using arbitrary rank
