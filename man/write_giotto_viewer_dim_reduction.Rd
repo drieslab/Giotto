@@ -32,3 +32,4 @@ write a .txt and .annot file for the selection annotation
 \description{
 write out dimensional reduction data from a giotto object for the Viewer
 }
+\keyword{internal}

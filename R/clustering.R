@@ -2293,8 +2293,7 @@ mergeClusters <- function(gobject,
 #' @description Merge selected clusters based on pairwise correlation scores and size of cluster.
 #' @param dend dendrogram object
 #' @return list of two dendrograms and height of node
-#' @examples
-#'     split_dendrogram_in_two(dend)
+#' @keywords internal
 split_dendrogram_in_two = function(dend) {
 
   top_height = attributes(dend)$height
@@ -2315,6 +2314,8 @@ split_dendrogram_in_two = function(dend) {
 
   return(list(theight = top_height, dend1 =  dend_1, dend2 = dend_2))
 }
+
+
 
 #' @title node_clusters
 #' @name node_clusters

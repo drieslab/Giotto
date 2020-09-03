@@ -41,6 +41,4 @@ creates order for clusters
 \details{
 Calculates order for clusters.
 }
-\examples{
-    decide_cluster_order(gobject)
-}
+\keyword{internal}

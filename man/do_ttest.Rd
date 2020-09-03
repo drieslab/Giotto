@@ -2,7 +2,6 @@
 % Please edit documentation in R/spatial_interaction.R
 \name{do_ttest}
 \alias{do_ttest}
-\alias{do_wilctest}
 \title{do_ttest}
 \usage{
 do_ttest(
@@ -13,23 +12,8 @@ do_ttest(
   mean_method,
   offset = 0.1
 )
-
-do_wilctest(
-  expr_values,
-  select_ind,
-  other_ind,
-  adjust_method,
-  mean_method,
-  offset = 0.1
-)
 }
 \description{
 Performs t.test on subsets of a matrix
-
-Performs wilcoxon on subsets of a matrix
-}
-\examples{
-    do_ttest()
-    do_ttest()
 }
 \keyword{internal}
