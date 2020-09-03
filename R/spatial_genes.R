@@ -492,6 +492,7 @@ calc_spatial_enrichment_DT = function(bin_matrix,
     }
   } else if(group_size == 'automatic') {
     test_number = ceiling(nrow(bin_matrix)/10)
+    test_number = max(2, test_number)
     group_size = min(200, test_number)
   }
 
