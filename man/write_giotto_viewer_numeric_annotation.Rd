@@ -23,3 +23,4 @@ write a .txt and .annot file for the selection annotation
 \description{
 write out numeric annotation data from a giotto object for the Viewer
 }
+\keyword{internal}

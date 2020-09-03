@@ -492,6 +492,7 @@ calc_spatial_enrichment_DT = function(bin_matrix,
     }
   } else if(group_size == 'automatic') {
     test_number = ceiling(nrow(bin_matrix)/10)
+    test_number = max(2, test_number)
     group_size = min(200, test_number)
   }
 
@@ -662,6 +663,8 @@ binSpectSingle = function(gobject,
   }
 
 
+
+
   ## start binarization ##
   ## ------------------ ##
 
@@ -681,6 +684,15 @@ binSpectSingle = function(gobject,
                                            set.seed = set.seed)
 
     } else if(bin_method == 'rank') {
+
+      # expression
+      values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+      expr_values = select_expression_values(gobject = gobject, values = values)
+
+      if(!is.null(subset_genes)) {
+        expr_values = expr_values[rownames(expr_values) %in% subset_genes, ]
+      }
+
       max_rank = (ncol(expr_values)/100)*percentage_rank
       bin_matrix = t_giotto(apply(X = expr_values, MARGIN = 1, FUN = rank_binarize, max_rank = max_rank))
     }

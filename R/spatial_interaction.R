@@ -308,8 +308,6 @@ addCellIntMetadata = function(gobject,
 #' @name do_ttest
 #' @description Performs t.test on subsets of a matrix
 #' @keywords internal
-#' @examples
-#'     do_ttest()
 do_ttest = function(expr_values,
                     select_ind,
                     other_ind,
@@ -350,8 +348,6 @@ do_ttest = function(expr_values,
 #' @name do_limmatest
 #' @description Performs limma t.test on subsets of a matrix
 #' @keywords internal
-#' @examples
-#'     do_limmatest()
 do_limmatest = function(expr_values,
                         select_ind,
                         other_ind,
@@ -407,11 +403,10 @@ do_limmatest = function(expr_values,
 
 }
 
-#' @title do_ttest
-#' @name do_ttest
+#' @title do_wilctest
+#' @name do_wilctest
 #' @description Performs wilcoxon on subsets of a matrix
-#' @examples
-#'     do_ttest()
+#' @keywords internal
 do_wilctest = function(expr_values, select_ind, other_ind, adjust_method, mean_method, offset = 0.1) {
 
   # data.table variables
@@ -444,12 +439,11 @@ do_wilctest = function(expr_values, select_ind, other_ind, adjust_method, mean_m
 
 }
 
+
 #' @title do_permuttest_original
 #' @name do_permuttest_original
 #' @description calculate original values
 #' @keywords internal
-#' @examples
-#'     do_permuttest_original()
 do_permuttest_original = function(expr_values,
                                   select_ind,
                                   other_ind,
@@ -1679,8 +1673,7 @@ combineCPG = function(cpgObject,
 #' @param gene_set_2 second specific gene set from gene pairs
 #' @return data.table with average expression scores for each cluster
 #' @details Details will follow soon.
-#' @examples
-#'     average_gene_gene_expression_in_groups(gobject)
+#' @keywords internal
 average_gene_gene_expression_in_groups = function(gobject,
                                                   cluster_column = 'cell_types',
                                                   gene_set_1,

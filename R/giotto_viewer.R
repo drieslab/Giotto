@@ -8,6 +8,7 @@
 #' @param annot_name name of the annotation
 #' @param output_directory directory where to save the files
 #' @return write a .txt and .annot file for the selection annotation
+#' @keywords internal
 write_giotto_viewer_annotation = function(annotation,
                                           annot_name = 'test',
                                           output_directory = getwd()) {
@@ -56,6 +57,7 @@ write_giotto_viewer_annotation = function(annotation,
 #' @param annot_name name of the annotation
 #' @param output_directory directory where to save the files
 #' @return write a .txt and .annot file for the selection annotation
+#' @keywords internal
 write_giotto_viewer_numeric_annotation = function(annotation,
                                                   annot_name = 'test',
                                                   output_directory = getwd()) {
@@ -80,6 +82,7 @@ write_giotto_viewer_numeric_annotation = function(annotation,
 #' @param dim_red_rescale numericals to rescale the coordinates
 #' @param output_directory directory where to save the files
 #' @return write a .txt and .annot file for the selection annotation
+#' @keywords internal
 write_giotto_viewer_dim_reduction = function(dim_reduction_cell,
                                              dim_red = NULL,
                                              dim_red_name = NULL,

@@ -567,8 +567,7 @@ showClusterDendrogram <- function(gobject,
 #' @param hclust_method method for hierarchical clustering
 #' @return custom
 #' @details Calculates order for clusters.
-#' @examples
-#'     decide_cluster_order(gobject)
+#' @keywords internal
 decide_cluster_order = function(gobject,
                                 expression_values = c('normalized', 'scaled', 'custom'),
                                 genes,
