@@ -12,15 +12,14 @@ run_spatial_sim_tests_multi(
   spatial_probs = c(0.5, 1),
   reps = 2,
   spatial_network_name = "kNN_network",
-  binSpect_km_param = list(nstart = 3, iter_max = 10, expression_values = "normalized",
-    get_av_expr = FALSE, get_high_expr = FALSE),
-  binSpect_rnk_param = list(percentage_rank = 30, expression_values = "normalized",
-    get_av_expr = FALSE, get_high_expr = FALSE),
-  spatialDE_param = list(expression_values = "raw", sig_alpha = 0.5, unsig_alpha = 0.5),
-  spark_param = list(expression_values = "raw", percentage = 0.1, min_count = 10,
-    num_core = 5),
-  save_plot = F,
+  spat_methods = c("binSpect_single", "binSpect_multi", "spatialDE", "spark"),
+  spat_methods_params = list(NA, NA, NA, NA),
+  spat_methods_names = c("binSpect_single", "binSpect_multi", "spatialDE", "spark"),
+  save_plot = FALSE,
+  save_raw = FALSE,
+  save_norm = FALSE,
   save_dir = "~",
+  verbose = TRUE,
   ...
 )
 }

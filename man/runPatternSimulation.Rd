@@ -11,7 +11,13 @@ runPatternSimulation(
   gene_names = NULL,
   spatial_probs = c(0.5, 1),
   reps = 2,
+  spatial_network_name = "kNN_network",
+  spat_methods = c("binSpect_single", "binSpect_multi", "spatialDE", "spark"),
+  spat_methods_params = list(NA, NA, NA, NA),
+  spat_methods_names = c("binSpect_single", "binSpect_multi", "spatialDE", "spark"),
   save_plot = T,
+  save_raw = T,
+  save_norm = T,
   save_dir = "~",
   max_col = 4,
   height = 7,
@@ -30,7 +36,15 @@ runPatternSimulation(
 
 \item{spatial_probs}{probabilities to test for a high expressing gene value to be part of the spatial pattern}
 
-\item{reps}{number of random simulation repititions}
+\item{reps}{number of random simulation repetitions}
+
+\item{spatial_network_name}{which spatial network to use for binSpectSingle}
+
+\item{spat_methods}{vector of spatial methods to test}
+
+\item{spat_methods_params}{list of parameters list for each element in the vector of spatial methods to test}
+
+\item{spat_methods_names}{name for each element in the vector of spatial elements to test}
 
 \item{save_plot}{save intermediate random simulation plots or not}
 
