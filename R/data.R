@@ -50,4 +50,26 @@
 
 
 
+#' mini Giotto object for spatial multi-cell resolution data
+#'
+#' Mini Giotto object created from the Brain Visium 10X data.
+#'
+#' @docType data
+#'
+#' @usage data(mini_giotto_multi_cell)
+#'
+#' @format An object of class \code{"giotto"}; see \code{\link[Giotto]{createGiottoObject}}.
+#'
+#' @keywords datasets
+#'
+#' @references 10 Genomics Visium technology
+#' (\href{https://www.10xgenomics.com/spatial-transcriptomics/}{10xgenomics})
+#'
+#'
+#' @examples
+#' data(mini_giotto_multi_cell)
+#'
+#' \donttest{spatPlot(mini_giotto_multi_cell, cell_color = 'cell_types', point_size = 5)}
+"mini_giotto_multi_cell"
+
 
