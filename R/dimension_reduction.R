@@ -719,7 +719,7 @@ jackstrawPlot = function(gobject,
                          ylim = c(0, 1),
                          iter = 10,
                          threshold = 0.01,
-                         verbose = T,
+                         verbose = TRUE,
                          show_plot = NA,
                          return_plot = NA,
                          save_plot = NA,
@@ -727,12 +727,12 @@ jackstrawPlot = function(gobject,
                          default_save_name = 'jackstrawPlot') {
 
 
-  if("jackstraw" %in% rownames(installed.packages()) == FALSE) {
-    stop("\n package 'jackstraw' is not yet installed \n",
-         "To install: \n",
-         "install.packages('jackstraw') \n"
-    )
-  }
+  package_check(pkg_name = "jackstraw", repository = "CRAN")
+
+  # print message with information #
+  if(verbose) message("using 'jackstraw' to identify significant PCs If used in published research, please cite:
+  Neo Christopher Chung and John D. Storey (2014).
+  'Statistical significance of variables driving systematic variation in high-dimensional data. Bioinformatics")
 
   # select direction of reduction
   reduction = match.arg(reduction, c('cells', 'genes'))

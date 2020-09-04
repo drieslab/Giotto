@@ -531,6 +531,8 @@ package_check = function(pkg_name,
            "To install: \n",
            "install.packages('",pkg_name,"')"
       )
+    } else {
+      return(TRUE)
     }
 
 
@@ -542,6 +544,8 @@ package_check = function(pkg_name,
            "if (!requireNamespace('BiocManager', quietly = TRUE)) install.packages('BiocManager');
          BiocManager::install('",pkg_name,"')"
       )
+    } else {
+      return(TRUE)
     }
 
   } else if(repository == 'github') {
@@ -553,6 +557,8 @@ package_check = function(pkg_name,
            "To install: \n",
            "devtools::install_github('",github_repo,"')"
       )
+    } else {
+      return(TRUE)
     }
 
   }
