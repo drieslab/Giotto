@@ -199,7 +199,10 @@ logNorm_giotto = function(mymatrix, base, offset) {
 #' @return data.table with cell metadata
 #' @export
 #' @examples
-#'     pDataDT(gobject)
+#'
+#' data(mini_giotto_single_cell) # loads existing Giotto object
+#' pDataDT(mini_giotto_single_cell)
+#'
 pDataDT <- function(gobject) {
 
   if(!class(gobject) %in% c('ExpressionSet', 'SCESet', 'seurat', 'giotto')) {
@@ -224,7 +227,10 @@ pDataDT <- function(gobject) {
 #' @return data.table with gene metadata
 #' @export
 #' @examples
-#'     pDataDT(gobject)
+#'
+#' data(mini_giotto_single_cell) # loads existing Giotto object
+#' fDataDT(mini_giotto_single_cell)
+#'
 fDataDT <- function(gobject) {
 
   if(!class(gobject) %in% c('ExpressionSet', 'SCESet', 'giotto')) {
@@ -273,6 +279,7 @@ select_expression_values <- function(gobject, values) {
 #' @param meta_data_name name of metadata column to use
 #' @param expression_values which expression values to use
 #' @return data.table with average gene epression values for each factor
+#' @keywords internal
 create_average_DT <- function(gobject, meta_data_name,
                               expression_values = c('normalized', 'scaled', 'custom')) {
 
@@ -309,6 +316,7 @@ create_average_DT <- function(gobject, meta_data_name,
 #' @param expression_values which expression values to use
 #' @param detection_threshold detection threshold to consider a gene detected
 #' @return data.table with average gene epression values for each factor
+#' @keywords internal
 create_average_detection_DT <- function(gobject, meta_data_name,
                                         expression_values = c('normalized', 'scaled', 'custom'),
                                         detection_threshold = 0) {
@@ -357,7 +365,19 @@ create_average_detection_DT <- function(gobject, meta_data_name,
 #' @return giotto object
 #' @export
 #' @examples
-#'     subsetGiotto(gobject)
+#' \donttest{
+#'
+#'data(mini_giotto_single_cell)
+#'
+#'random_cells = sample(slot(mini_giotto_single_cell, 'cell_ID'), 10)
+#'random_genes = sample(slot(mini_giotto_single_cell, 'gene_ID'), 10)
+#'
+#'subset_obj = subsetGiotto(mini_giotto_single_cell,
+#'                          cell_ids = random_cells,
+#'                          gene_ids = random_genes)
+#'
+#' }
+#'
 subsetGiotto <- function(gobject,
                          cell_ids = NULL,
                          gene_ids = NULL,
@@ -542,7 +562,22 @@ subsetGiotto <- function(gobject,
 #' @details if return_gobject = FALSE, then a filtered combined metadata data.table will be returned
 #' @export
 #' @examples
-#'     subsetGiottoLocs(gobject)
+#' \donttest{
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' # spatial plot
+#' spatPlot(mini_giotto_single_cell)
+#'
+#' # subset giotto object based on spatial locations
+#' subset_obj = subsetGiottoLocs(mini_giotto_single_cell,
+#' x_max = 1500, x_min = 1000,
+#' y_max = -500, y_min = -1000)
+#'
+#' # spatial plot of subset giotto object
+#' spatPlot(subset_obj)
+#'
+#' }
 subsetGiottoLocs = function(gobject,
                             x_max = NULL,
                             x_min = NULL,
@@ -619,7 +654,15 @@ subsetGiottoLocs = function(gobject,
 #' @return ggplot object
 #' @export
 #' @examples
-#'     filterDistributions(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' # distribution plot of genes
+#' filterDistributions(mini_giotto_single_cell, detection = 'genes')
+#'
+#' # distribution plot of cells
+#' filterDistributions(mini_giotto_single_cell, detection = 'cells')
+#'
 filterDistributions <- function(gobject,
                                 expression_values = c('raw', 'normalized', 'scaled', 'custom'),
                                 expression_threshold = 1,
@@ -746,7 +789,14 @@ filterDistributions <- function(gobject,
 #' filtering step with filterGiotto.
 #' @export
 #' @examples
-#'     filterCombinations(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' # assess the effect of multiple filter criteria
+#' filterCombinations(mini_giotto_single_cell,
+#' gene_det_in_min_cells = c(2, 4, 8),
+#' min_det_genes_per_cell = c(5, 10, 20))
+#'
 filterCombinations <- function(gobject,
                                expression_values = c('raw', 'normalized', 'scaled', 'custom'),
                                expression_thresholds = c(1, 2),
@@ -882,7 +932,14 @@ filterCombinations <- function(gobject,
 #' @details The function \code{\link{filterCombinations}} can be used to explore the effect of different parameter values.
 #' @export
 #' @examples
-#'     filterGiotto(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' filtered_gobject = filterGiotto(mini_giotto_single_cell,
+#'                                 gene_det_in_min_cells = 10,
+#'                                 min_det_genes_per_cell = 10)
+#'
+#'
 filterGiotto <- function(gobject,
                          expression_values = c('raw', 'normalized', 'scaled', 'custom'),
                          expression_threshold = 1,
@@ -975,7 +1032,13 @@ filterGiotto <- function(gobject,
 #' This data will be saved in the Giotto slot for custom expression.
 #' @export
 #' @examples
-#'     normalizeGiotto(gobject)
+#'
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' norm_gobject = normalizeGiotto(mini_giotto_single_cell)
+#'
+#'
 normalizeGiotto <- function(gobject,
                              norm_methods = c('standard', 'osmFISH'),
                              library_size_norm = TRUE,
@@ -1104,7 +1167,7 @@ normalizeGiotto <- function(gobject,
 
 
 #' @title adjustGiottoMatrix
-#' @description normalize and/or scale expresion values of Giotto object
+#' @description Adjust expression values to account for known batch effects or technological covariates.
 #' @param gobject giotto object
 #' @param expression_values expression values to use
 #' @param batch_columns metadata columns that represent different batch (max = 2)
@@ -1116,7 +1179,11 @@ normalizeGiotto <- function(gobject,
 #' remove known batch effects and to adjust expression values according to provided covariates.
 #' @export
 #' @examples
-#'     adjustGiottoMatrix(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' adjust_gobject = adjustGiottoMatrix(mini_giotto_single_cell)
+#'
 adjustGiottoMatrix <- function(gobject,
                                expression_values = c('normalized', 'scaled', 'custom'),
                                batch_columns = NULL,
@@ -1680,12 +1747,17 @@ addGenesPerc = function(gobject,
 
 
 #' @title showProcessingSteps
-#' @description shows the sequential processing steps that were performed in a summarized format
+#' @description shows the sequential processing steps that were performed
+#' on a Giotto object in a summarized format
 #' @param gobject giotto object
 #' @return list of processing steps and names
 #' @export
 #' @examples
-#'     showProcessingSteps(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' showProcessingSteps(mini_giotto_single_cell)
+#'
 showProcessingSteps <- function(gobject) {
 
   parameters = gobject@parameters
