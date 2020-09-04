@@ -3127,6 +3127,7 @@ run_spatial_sim_tests_one_rep = function(gobject,
                                          save_norm = FALSE,
                                          save_dir = '~',
                                          save_name = 'plot',
+                                         run_simulations = TRUE,
                                          ...) {
 
 
@@ -3184,153 +3185,161 @@ run_spatial_sim_tests_one_rep = function(gobject,
   }
 
 
-  result_list = list()
-  for(test in 1:length(spat_methods)) {
 
-    # method
-    selected_method = spat_methods[test]
-    if(!selected_method %in% c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark')) {
-      stop(selected_method, ' is not a know spatial method \n')
-    }
+  ## do simulations ##
+  if(run_simulations == TRUE) {
 
-    # params
-    selected_params = spat_methods_params[[test]]
-    if(is.na(selected_params)) {
+    result_list = list()
+    for(test in 1:length(spat_methods)) {
 
+      # method
+      selected_method = spat_methods[test]
+      if(!selected_method %in% c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark')) {
+        stop(selected_method, ' is not a know spatial method \n')
+      }
+
+      # params
+      selected_params = spat_methods_params[[test]]
+      if(is.na(selected_params)) {
+
+        if(selected_method == 'binSpect_single') {
+          selected_params = list(bin_method = 'kmeans',
+                                 nstart = 3,
+                                 iter_max = 10,
+                                 expression_values = 'normalized',
+                                 get_av_expr = FALSE,
+                                 get_high_expr = FALSE)
+
+        } else if(selected_method == 'binSpect_multi') {
+          selected_params = list(bin_method = 'kmeans',
+                                 spatial_network_k = c(5, 10, 20),
+                                 nstart = 3,
+                                 iter_max = 10,
+                                 expression_values = 'normalized',
+                                 get_av_expr = FALSE,
+                                 get_high_expr = FALSE,
+                                 summarize = 'adj.p.value')
+
+        } else if(selected_method == 'spatialDE') {
+          selected_params = list(expression_values = 'raw',
+                                 sig_alpha = 0.5,
+                                 unsig_alpha = 0.5,
+                                 show_plot = FALSE,
+                                 return_plot = FALSE,
+                                 save_plot = FALSE)
+
+
+        } else if(selected_method == 'spark') {
+          selected_params = list(expression_values = 'raw',
+                                 return_object = 'data.table',
+                                 percentage = 0.1,
+                                 min_count = 10,
+                                 num_core = 5)
+        }
+
+
+      }
+
+      # name
+      selected_name = spat_methods_names[test]
+
+
+      ## RUN Spatial Analysis ##
       if(selected_method == 'binSpect_single') {
-        selected_params = list(bin_method = 'kmeans',
-                               nstart = 3,
-                               iter_max = 10,
-                               expression_values = 'normalized',
-                               get_av_expr = FALSE,
-                               get_high_expr = FALSE)
+
+        start = proc.time()
+        spatial_gene_results = do.call('binSpectSingle', c(gobject =  simulate_patch,
+                                                           selected_params))
+
+        spatial_gene_results = spatial_gene_results[genes == gene_name]
+        total_time = proc.time() - start
+
+        spatial_gene_results[, prob := spatial_prob]
+        spatial_gene_results[, time := total_time[['elapsed']] ]
+
+        spatial_gene_results = spatial_gene_results[,.(genes, adj.p.value, prob, time)]
+        colnames(spatial_gene_results) = c('genes', 'adj.p.value', 'prob', 'time')
+
+        spatial_gene_results[, method := selected_name]
+
 
       } else if(selected_method == 'binSpect_multi') {
-        selected_params = list(bin_method = 'kmeans',
-                               spatial_network_k = c(5, 10, 20),
-                               nstart = 3,
-                               iter_max = 10,
-                               expression_values = 'normalized',
-                               get_av_expr = FALSE,
-                               get_high_expr = FALSE,
-                               summarize = 'adj.p.value')
+
+        start = proc.time()
+        spatial_gene_results = do.call('binSpectMulti', c(gobject =  simulate_patch,
+                                                          selected_params))
+
+        spatial_gene_results = spatial_gene_results$simple
+        spatial_gene_results = spatial_gene_results[genes == gene_name]
+        total_time = proc.time() - start
+
+        spatial_gene_results[, prob := spatial_prob]
+        spatial_gene_results[, time := total_time[['elapsed']] ]
+
+        spatial_gene_results = spatial_gene_results[,.(genes, p.val, prob, time)]
+        colnames(spatial_gene_results) = c('genes', 'adj.p.value', 'prob', 'time')
+
+        spatial_gene_results[, method := selected_name]
+
 
       } else if(selected_method == 'spatialDE') {
-        selected_params = list(expression_values = 'raw',
-                               sig_alpha = 0.5,
-                               unsig_alpha = 0.5,
-                               show_plot = FALSE,
-                               return_plot = FALSE,
-                               save_plot = FALSE)
+
+        start = proc.time()
+        new_raw_sim_matrix = simulate_patch@raw_exprs
+        sd_cells = apply(new_raw_sim_matrix, 2, sd)
+        sd_non_zero_cells = names(sd_cells[sd_cells != 0])
+        simulate_patch_fix = subsetGiotto(simulate_patch, cell_ids = sd_non_zero_cells)
+
+        spatial_gene_results = do.call('spatialDE', c(gobject =  simulate_patch_fix,
+                                                      selected_params))
+
+        spatialDE_spatialgenes_sim_res = spatial_gene_results$results$results
+        if(is.null(spatialDE_spatialgenes_sim_res)) spatialDE_spatialgenes_sim_res = spatial_gene_results$results
+
+        spatialDE_spatialgenes_sim_res = data.table::as.data.table(spatialDE_spatialgenes_sim_res)
+        data.table::setorder(spatialDE_spatialgenes_sim_res, qval, pval)
+        spatialDE_result = spatialDE_spatialgenes_sim_res[g == gene_name]
+
+        spatialDE_time = proc.time() - start
+
+        spatialDE_result[, prob := spatial_prob]
+        spatialDE_result[, time := spatialDE_time[['elapsed']] ]
+
+        spatial_gene_results = spatialDE_result[,.(g, qval, prob, time)]
+        colnames(spatial_gene_results) = c('genes', 'adj.p.value', 'prob', 'time')
+        spatial_gene_results[, method := 'spatialDE']
 
 
       } else if(selected_method == 'spark') {
-        selected_params = list(expression_values = 'raw',
-                               return_object = 'data.table',
-                               percentage = 0.1,
-                               min_count = 10,
-                               num_core = 5)
-      }
 
-
-    }
-
-    # name
-    selected_name = spat_methods_names[test]
-
-
-    ## RUN Spatial Analysis ##
-    if(selected_method == 'binSpect_single') {
-
-      start = proc.time()
-      spatial_gene_results = do.call('binSpectSingle', c(gobject =  simulate_patch,
-                                                         selected_params))
-
-      spatial_gene_results = spatial_gene_results[genes == gene_name]
-      total_time = proc.time() - start
-
-      spatial_gene_results[, prob := spatial_prob]
-      spatial_gene_results[, time := total_time[['elapsed']] ]
-
-      spatial_gene_results = spatial_gene_results[,.(genes, adj.p.value, prob, time)]
-      colnames(spatial_gene_results) = c('genes', 'adj.p.value', 'prob', 'time')
-
-      spatial_gene_results[, method := selected_name]
-
-
-    } else if(selected_method == 'binSpect_multi') {
-
-      start = proc.time()
-      spatial_gene_results = do.call('binSpectMulti', c(gobject =  simulate_patch,
-                                                        selected_params))
-
-      spatial_gene_results = spatial_gene_results$simple
-      spatial_gene_results = spatial_gene_results[genes == gene_name]
-      total_time = proc.time() - start
-
-      spatial_gene_results[, prob := spatial_prob]
-      spatial_gene_results[, time := total_time[['elapsed']] ]
-
-      spatial_gene_results = spatial_gene_results[,.(genes, p.val, prob, time)]
-      colnames(spatial_gene_results) = c('genes', 'adj.p.value', 'prob', 'time')
-
-      spatial_gene_results[, method := selected_name]
-
-
-    } else if(selected_method == 'spatialDE') {
-
-      start = proc.time()
-      new_raw_sim_matrix = simulate_patch@raw_exprs
-      sd_cells = apply(new_raw_sim_matrix, 2, sd)
-      sd_non_zero_cells = names(sd_cells[sd_cells != 0])
-      simulate_patch_fix = subsetGiotto(simulate_patch, cell_ids = sd_non_zero_cells)
-
-      spatial_gene_results = do.call('spatialDE', c(gobject =  simulate_patch_fix,
+        ## spark
+        start = proc.time()
+        spark_spatialgenes_sim = do.call('spark', c(gobject =  simulate_patch,
                                                     selected_params))
 
-      spatialDE_spatialgenes_sim_res = spatial_gene_results$results$results
-      if(is.null(spatialDE_spatialgenes_sim_res)) spatialDE_spatialgenes_sim_res = spatial_gene_results$results
+        spark_result = spark_spatialgenes_sim[genes == gene_name]
+        spark_time = proc.time() - start
 
-      spatialDE_spatialgenes_sim_res = data.table::as.data.table(spatialDE_spatialgenes_sim_res)
-      data.table::setorder(spatialDE_spatialgenes_sim_res, qval, pval)
-      spatialDE_result = spatialDE_spatialgenes_sim_res[g == gene_name]
+        spark_result[, prob := spatial_prob]
+        spark_result[, time := spark_time[['elapsed']] ]
 
-      spatialDE_time = proc.time() - start
-
-      spatialDE_result[, prob := spatial_prob]
-      spatialDE_result[, time := spatialDE_time[['elapsed']] ]
-
-      spatial_gene_results = spatialDE_result[,.(g, qval, prob, time)]
-      colnames(spatial_gene_results) = c('genes', 'adj.p.value', 'prob', 'time')
-      spatial_gene_results[, method := 'spatialDE']
+        spatial_gene_results = spark_result[,.(genes, adjusted_pvalue, prob, time)]
+        colnames(spatial_gene_results) = c('genes', 'adj.p.value', 'prob', 'time')
+        spatial_gene_results[, method := 'spark']
 
 
-    } else if(selected_method == 'spark') {
+      }
 
-      ## spark
-      start = proc.time()
-      spark_spatialgenes_sim = do.call('spark', c(gobject =  simulate_patch,
-                                                  selected_params))
-
-      spark_result = spark_spatialgenes_sim[genes == gene_name]
-      spark_time = proc.time() - start
-
-      spark_result[, prob := spatial_prob]
-      spark_result[, time := spark_time[['elapsed']] ]
-
-      spatial_gene_results = spark_result[,.(genes, adjusted_pvalue, prob, time)]
-      colnames(spatial_gene_results) = c('genes', 'adj.p.value', 'prob', 'time')
-      spatial_gene_results[, method := 'spark']
-
+      result_list[[test]] = spatial_gene_results
 
     }
 
-    result_list[[test]] = spatial_gene_results
+    results = data.table::rbindlist(l = result_list)
+    return(results)
 
+  } else {
+    return(NULL)
   }
-
-  results = data.table::rbindlist(l = result_list)
-  return(results)
 
 }
 
@@ -3359,6 +3368,7 @@ run_spatial_sim_tests_multi = function(gobject,
                                        save_norm = FALSE,
                                        save_dir = '~',
                                        verbose = TRUE,
+                                       run_simulations = TRUE,
                                        ... ) {
 
 
@@ -3397,21 +3407,30 @@ run_spatial_sim_tests_multi = function(gobject,
 
                                               save_dir = save_dir,
                                               save_name = plot_name,
+                                              run_simulations = run_simulations,
                                               ...)
 
-      rep_res[, rep := rep_i]
-      rep_list[[rep_i]] = rep_res
+      if(run_simulations == TRUE) {
+        rep_res[, rep := rep_i]
+        rep_list[[rep_i]] = rep_res
+      }
+
 
     }
 
-    rep_list_res = do.call('rbind', rep_list)
-    prob_list[[prob_ind]] = rep_list_res
+    if(run_simulations == TRUE) {
+      rep_list_res = do.call('rbind', rep_list)
+      prob_list[[prob_ind]] = rep_list_res
+    }
+
 
   }
 
-  final_gene_results = do.call('rbind', prob_list)
+  if(run_simulations == TRUE) {
+    final_gene_results = do.call('rbind', prob_list)
+    return(final_gene_results)
+  }
 
-  return(final_gene_results)
 
 }
 
@@ -3436,6 +3455,7 @@ run_spatial_sim_tests_multi = function(gobject,
 #' @param max_col maximum number of columns for final plots
 #' @param height height of final plots
 #' @param width width of final plots
+#' @param run_simulations run simulations (default = TRUE)
 #' @param \dots additional parameters for spatial gene detection tests
 #' @return data.table with results
 #' @export
@@ -3458,6 +3478,7 @@ runPatternSimulation = function(gobject,
                                 max_col = 4,
                                 height = 7,
                                 width = 7,
+                                run_simulations = TRUE,
                                 ...) {
 
 
@@ -3503,78 +3524,85 @@ runPatternSimulation = function(gobject,
                                               save_dir = save_dir,
                                               spatial_probs = spatial_probs,
                                               reps = reps,
+                                              run_simulations = run_simulations,
                                               ...)
-    generesults[, prob := as.factor(prob)]
-    uniq_methods = sort(unique(generesults$method))
-    generesults[, method := factor(method, levels = uniq_methods)]
 
+    if(run_simulations == TRUE) {
+      generesults[, prob := as.factor(prob)]
+      uniq_methods = sort(unique(generesults$method))
+      generesults[, method := factor(method, levels = uniq_methods)]
 
-    if(save_plot == TRUE) {
+      if(save_plot == TRUE) {
 
-      subdir = paste0(save_dir,'/',pattern_name,'/')
-      if(!file.exists(subdir)) dir.create(path = subdir, recursive = TRUE)
+        subdir = paste0(save_dir,'/',pattern_name,'/')
+        if(!file.exists(subdir)) dir.create(path = subdir, recursive = TRUE)
+        # write results
+        data.table::fwrite(x = generesults, file = paste0(subdir,'/',gene,'_results.txt'), sep = '\t', quote = F)
 
-      # write results
-      data.table::fwrite(x = generesults, file = paste0(subdir,'/',gene,'_results.txt'), sep = '\t', quote = F)
+      }
+
+      all_results[[gene_ind]] = generesults
 
     }
 
-
-    all_results[[gene_ind]] = generesults
-
-  }
-
-  results = do.call('rbind', all_results)
-
-
-
-  ## plot results ##
-
-  if(save_plot == TRUE) {
-    # 4 columns max
-    nr_rows = max(c(round(length(gene_names)/max_col), 1))
-
-    # p-values
-    pl = ggplot2::ggplot()
-    pl = pl + ggplot2::geom_boxplot(data = results, ggplot2::aes(x = method, y = adj.p.value, color = prob))
-    pl = pl + ggplot2::geom_point(data = results, ggplot2::aes(x = method, y = adj.p.value, color = prob), size = 2, position = ggplot2::position_jitterdodge())
-    pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
-    pl = pl + ggplot2::facet_wrap(~genes, nrow = nr_rows)
-    pl = pl + ggplot2::geom_hline(yintercept = 0.05, color = 'red', linetype = 2)
-
-    pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_pvalues.pdf'), width = width, height = height)
-    print(pl)
-    dev.off()
-
-
-    # -log10 p-values
-    pl = ggplot2::ggplot()
-    pl = pl + ggplot2::geom_boxplot(data = results, ggplot2::aes(x = method, y = -log10(adj.p.value), color = prob))
-    pl = pl + ggplot2::geom_point(data = results, ggplot2::aes(x = method, y = -log10(adj.p.value), color = prob), size = 2, position = ggplot2::position_jitterdodge())
-    pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
-    pl = pl + ggplot2::facet_wrap(~genes, nrow = nr_rows)
-
-    pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_log10pvalues.pdf'), width = width, height = height)
-    print(pl)
-    dev.off()
-
-
-    # time
-    pl = ggplot2::ggplot()
-    pl = pl + ggplot2::geom_boxplot(data = results, ggplot2::aes(x = method, y = time, color = prob))
-    pl = pl + ggplot2::geom_point(data = results, ggplot2::aes(x = method, y = time, color = prob), size = 2, position = ggplot2::position_jitterdodge())
-    pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
-
-    pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_time.pdf'), width = width, height = height)
-    print(pl)
-    dev.off()
   }
 
 
-  # write results
-  data.table::fwrite(x = results, file = paste0(save_dir,'/',pattern_name,'_results.txt'), sep = '\t', quote = F)
+  ## create combined results and visuals
+  if(run_simulations == TRUE) {
 
-  return(results)
+    results = do.call('rbind', all_results)
+
+    ## plot results ##
+
+    if(save_plot == TRUE) {
+      # 4 columns max
+      nr_rows = max(c(round(length(gene_names)/max_col), 1))
+
+      # p-values
+      pl = ggplot2::ggplot()
+      pl = pl + ggplot2::geom_boxplot(data = results, ggplot2::aes(x = method, y = adj.p.value, color = prob))
+      pl = pl + ggplot2::geom_point(data = results, ggplot2::aes(x = method, y = adj.p.value, color = prob), size = 2, position = ggplot2::position_jitterdodge())
+      pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
+      pl = pl + ggplot2::facet_wrap(~genes, nrow = nr_rows)
+      pl = pl + ggplot2::geom_hline(yintercept = 0.05, color = 'red', linetype = 2)
+
+      pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_pvalues.pdf'), width = width, height = height)
+      print(pl)
+      dev.off()
+
+
+      # -log10 p-values
+      pl = ggplot2::ggplot()
+      pl = pl + ggplot2::geom_boxplot(data = results, ggplot2::aes(x = method, y = -log10(adj.p.value), color = prob))
+      pl = pl + ggplot2::geom_point(data = results, ggplot2::aes(x = method, y = -log10(adj.p.value), color = prob), size = 2, position = ggplot2::position_jitterdodge())
+      pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
+      pl = pl + ggplot2::facet_wrap(~genes, nrow = nr_rows)
+
+      pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_log10pvalues.pdf'), width = width, height = height)
+      print(pl)
+      dev.off()
+
+
+      # time
+      pl = ggplot2::ggplot()
+      pl = pl + ggplot2::geom_boxplot(data = results, ggplot2::aes(x = method, y = time, color = prob))
+      pl = pl + ggplot2::geom_point(data = results, ggplot2::aes(x = method, y = time, color = prob), size = 2, position = ggplot2::position_jitterdodge())
+      pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
+
+      pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_time.pdf'), width = width, height = height)
+      print(pl)
+      dev.off()
+    }
+
+
+    # write results
+    data.table::fwrite(x = results, file = paste0(save_dir,'/',pattern_name,'_results.txt'), sep = '\t', quote = F)
+    return(results)
+
+  } else {
+    return(NULL)
+  }
 
 }
 
