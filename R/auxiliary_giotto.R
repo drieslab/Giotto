@@ -1526,7 +1526,12 @@ addGeneMetadata <- function(gobject,
 #' }
 #' @export
 #' @examples
-#'     addGeneStatistics(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' updated_giotto_object = addGeneStatistics(mini_giotto_single_cell)
+#'
+#'
 addGeneStatistics <- function(gobject,
                               expression_values = c('normalized', 'scaled', 'custom'),
                               detection_threshold = 0,
@@ -1599,7 +1604,12 @@ addGeneStatistics <- function(gobject,
 #' }
 #' @export
 #' @examples
-#'     addCellStatistics(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' updated_giotto_object = addCellStatistics(mini_giotto_single_cell)
+#'
+#'
 addCellStatistics <- function(gobject,
                               expression_values = c('normalized', 'scaled', 'custom'),
                               detection_threshold = 0,
@@ -1661,7 +1671,12 @@ addCellStatistics <- function(gobject,
 #' @details See \code{\link{addGeneStatistics}} and \code{\link{addCellStatistics}}
 #' @export
 #' @examples
-#'     addStatistics(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' updated_giotto_object = addStatistics(mini_giotto_single_cell)
+#'
+#'
 addStatistics <- function(gobject,
                           expression_values = c('normalized', 'scaled', 'custom'),
                           detection_threshold = 0,
@@ -1703,7 +1718,21 @@ addStatistics <- function(gobject,
 #' @return giotto object if return_gobject = TRUE, else a vector with % results
 #' @export
 #' @examples
-#'     addGenesPerc(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' # select genes (e.g. Rpl or mitochondrial)
+#' random_genes = sample(slot(mini_giotto_single_cell, 'gene_ID'), 5)
+#'
+#' # calculate percentage of those selected genes per cells/spot
+#' updated_giotto_object = addGenesPerc(mini_giotto_single_cell,
+#'                                      genes = random_genes,
+#'                                      vector_name = 'random_gene_perc')
+#'
+#' # visualize result in data.table format
+#' pDataDT(updated_giotto_object)
+#'
+#'
 addGenesPerc = function(gobject,
                         expression_values = c('normalized', 'scaled', 'custom'),
                         genes = NULL,
@@ -1739,6 +1768,8 @@ addGenesPerc = function(gobject,
   }
 
 }
+
+
 
 
 
