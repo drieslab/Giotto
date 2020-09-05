@@ -87,7 +87,11 @@ logdir="./logs", num_core=4, parallel_path="/usr/bin", output=".", query_sizes=1
 				random_dir = "%s/result_5000_%.2f_%.3f" % (args.output, rbp_p, examine_top)
 				score_file = "%s/silhouette.exact.rbp.%.2f.top.%.3f.txt" % (args.output, rbp_p, examine_top)
 				output_score_file = "%s/silhouette.exact.rbp.%.2f.top.%.3f.pval.txt" % (args.output, rbp_p, examine_top)
-			args1 = argparse.Namespace(expr=args.expr, centroid=args.centroid, examine_top=examine_top, input=score_file, input_random=random_dir, output=output_score_file, outdir=args.output, query_sizes=args.query_sizes, overwrite_input_bin=args.overwrite_input_bin)
+			args1 = argparse.Namespace(expr=args.expr, centroid=args.centroid,
+			examine_top=examine_top, input=score_file, input_random=random_dir,
+			output=output_score_file, outdir=args.output, query_sizes=args.query_sizes,
+			overwrite_input_bin=args.overwrite_input_bin)
+			
 			use_previous_cluster.do_one(args1)
 
 	combined_file = "%s/silhouette.overall.pval.txt" % args.output
