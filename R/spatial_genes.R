@@ -3645,6 +3645,8 @@ run_spatial_sim_tests_multi = function(gobject,
 #' @param spat_methods_params list of parameters list for each element in the vector of spatial methods to test
 #' @param spat_methods_names name for each element in the vector of spatial elements to test
 #' @param save_plot save intermediate random simulation plots or not
+#' @param save_raw save the raw expression matrix of the simulation
+#' @param save_norm save the normalized expression matrix of the simulation
 #' @param save_dir directory to save results to
 #' @param max_col maximum number of columns for final plots
 #' @param height height of final plots
