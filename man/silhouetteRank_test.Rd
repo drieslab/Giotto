@@ -15,7 +15,7 @@ silhouetteRank_test(
   num_core = 4,
   parallel_path = "/usr/bin",
   output = NULL,
-  query_sizes = 10
+  query_sizes = 10L
 )
 }
 \arguments{

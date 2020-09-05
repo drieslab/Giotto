@@ -1279,14 +1279,46 @@ silhouetteRank_test = function(gobject,
                                num_core = 4,
                                parallel_path = "/usr/bin",
                                output = NULL,
-                               query_sizes = 10) {
+                               query_sizes = 10L) {
 
 
-  # TODO: test availability of R packages and Python modules
+  ## test if R packages are installed
+  package_check(pkg_name = 'EnvStats',
+                repository = c('CRAN'))
+
+  if ('eva' %in% rownames(installed.packages()) == FALSE) {
+    stop("\n package ", 'eva', " is not yet installed \n",
+         "To install: \n",
+         "install.packages('eva_0.2.5.tar.gz', repos=NULL, type='source')",
+         "see https://cran.r-project.org/src/contrib/Archive/eva/")
+  }
+
+  ## test if python package is installed
+  module_test = reticulate::py_module_available('silhouetteRank')
+  if(module_test == FALSE) {
+    warning("silhouetteRank python module is not installed:
+            install in the right environment or python path with:
+
+            'pip install silhouetteRank'
+
+            or from within R in the Giotto environment with:
+
+            conda_path = reticulate::miniconda_path()
+            conda_full_path = paste0(conda_path,'/','bin/conda')
+            full_envname = paste0(conda_path,'/envs/giotto_env')
+            reticulate::py_install(packages = 'silhouetteRank',
+                       envname = full_envname,
+                       method = 'conda',
+                       conda = conda_full_path,
+                       pip = TRUE,
+                       python_version = '3.6')")
+  }
+
+
 
   # expression values
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
 
   # subset genes
   if(!is.null(subset_genes)) {
@@ -1299,16 +1331,19 @@ silhouetteRank_test = function(gobject,
   # spatial locations
   spatlocs = gobject@spatial_locs
 
-  # python path
-  if(is.null(python_path)) {
-    python_path = readGiottoInstructions(gobject, param = "python_path")
-  }
-
   ## save dir and log
-  if(is.null(output) | !file.exists(output)) {
+  if(is.null(output)) {
+
     save_dir = readGiottoInstructions(gobject, param = "save_dir")
     silh_output_dir = paste0(save_dir, '/', 'silhouetteRank_output/')
     if(!file.exists(silh_output_dir)) dir.create(silh_output_dir, recursive = TRUE)
+
+  } else if(!file.exists(output)) {
+
+    save_dir = readGiottoInstructions(gobject, param = "save_dir")
+    silh_output_dir = paste0(save_dir, '/', 'silhouetteRank_output/')
+    if(!file.exists(silh_output_dir)) dir.create(silh_output_dir, recursive = TRUE)
+
   } else {
     silh_output_dir = output
   }
@@ -1327,7 +1362,7 @@ silhouetteRank_test = function(gobject,
     colnames(format_spatlocs) = c('ID', 'x', 'y', 'z')
   }
 
-  write.table(x = format_spatlocs,
+  write.table(x = format_spatlocs, row.names = F,
               file = paste0(silh_output_dir,'/', 'format_spatlocs.txt'),
               quote = F, sep = '\t')
 
@@ -1343,6 +1378,7 @@ silhouetteRank_test = function(gobject,
 
 
   ## prepare python path and louvain script
+  python_path = readGiottoInstructions(gobject, param = 'python_path')
   reticulate::use_python(required = T, python = python_path)
   python_silh_function = system.file("python", "silhouette_rank_wrapper.py", package = 'Giotto')
   reticulate::source_python(file = python_silh_function)
