@@ -18,18 +18,39 @@ import silhouetteRank.evaluate_exact_one_2b as evaluate_exact_one_2b
 import silhouetteRank.use_previous_cluster as use_previous_cluster
 import silhouetteRank.combine as combine
 
-def silhouette_rank(expr="expression.txt", centroid="Xcen.good", overwrite_input_bin=True, rbp_ps=[0.95, 0.99], examine_tops=[0.005, 0.010, 0.050, 0.100, 0.300], matrix_type="dissim", logdir="./logs", num_core=4, parallel_path="/usr/bin", output=".", query_sizes=10):
-	args = argparse.Namespace(expr=expr, centroid=centroid, rbp_ps=rbp_ps, examine_tops=examine_tops, matrix_type=matrix_type, output=output, query_sizes=query_sizes, overwrite_input_bin=overwrite_input_bin)
+def silhouette_rank(expr="expression.txt", centroid="Xcen.good", overwrite_input_bin=True, 
+rbp_ps=[0.95, 0.99], examine_tops=[0.005, 0.010, 0.050, 0.100, 0.300], matrix_type="dissim",
+logdir="./logs", num_core=4, parallel_path="/usr/bin", output=".", query_sizes=10):
+	args = argparse.Namespace(expr=expr, centroid=centroid, rbp_ps=rbp_ps,
+	examine_tops=examine_tops, matrix_type=matrix_type, output=output, query_sizes=query_sizes,
+	overwrite_input_bin=overwrite_input_bin, logdir=logdir,
+	parallel_path=parallel_path, num_core=num_core)
 
 	if not os.path.isdir(args.output):
 		os.mkdir(args.output)
 	if not os.path.isdir(args.logdir):
 		os.mkdir(args.logdir)
 
+	
+	args1 = argparse.Namespace(expr=args.expr, centroid=args.centroid, rbp_ps=args.rbp_ps, examine_tops=args.examine_tops, matrix_type=args.matrix_type, output=args.output, query_sizes=args.query_sizes, overwrite_input_bin=args.overwrite_input_bin)
+	prep.do_one(args1)
+
 	fw = open("%s/args" % args.output, "w")
 	for rbp_p in args.rbp_ps:
 		for examine_top in args.examine_tops:
-			for i in range(args.query_sizes):
+			freq_file = "%s/result_5000_%.2f_%.3f/gene.freq.good.txt" % (args.output, rbp_p, examine_top)
+			if args.matrix_type=="sim":
+				freq_file = "%s/result_sim_5000_%.2f_%.3f/gene.freq.good.txt" % (args.output, rbp_p, examine_top)
+			uniq_freq = 0
+			f = open(freq_file)
+			for l in f:
+				l = l.rstrip("\n")
+				uniq_freq+=1
+			f.close()
+			num_query_sizes = args.query_sizes
+			if uniq_freq<=num_query_sizes:
+				num_query_sizes = uniq_freq
+			for i in range(num_query_sizes):
 				fw.write("%.2f\n" % rbp_p)
 				fw.write("%.3f\n" % examine_top)
 				fw.write("%d\n" % i)
@@ -41,9 +62,6 @@ def silhouette_rank(expr="expression.txt", centroid="Xcen.good", overwrite_input
 			fw.write("%.2f\n" % rbp_p)
 			fw.write("%.3f\n" % examine_top)
 	fw.close()
-	
-	args1 = argparse.Namespace(expr=args.expr, centroid=args.centroid, rbp_ps=args.rbp_ps, examine_tops=args.examine_tops, matrix_type=args.matrix_type, output=args.output, query_sizes=args.query_sizes, overwrite_input_bin=args.overwrite_input_bin)
-	prep.do_one(args1)
 
 	bin_path = os.path.dirname(silhouetteRank.__file__)
 	for i in range(4):
