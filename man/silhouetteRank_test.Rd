@@ -8,7 +8,7 @@ silhouetteRank_test(
   gobject,
   expression_values = c("normalized", "scaled", "custom"),
   subset_genes = NULL,
-  overwrite_input_bin = TRUE,
+  overwrite_input_bin = FALSE,
   rbp_ps = c(0.95, 0.99),
   examine_tops = c(0.005, 0.01, 0.05, 0.1, 0.3),
   matrix_type = "dissim",

@@ -6,6 +6,7 @@
 #' @param anndata_path path to the .h5ad file
 #' @param metadata_cols metadata columns to include
 #' @param instructions giotto instructions
+#' @param \dots additional parameters to \code{\link{createGiottoObject}}
 #' @return Giotto object
 #' @details Function in beta.
 #' @export

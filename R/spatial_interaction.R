@@ -108,7 +108,7 @@ cellProximityEnrichment <- function(gobject,
   # spatial_network_annot[, unified_cells := paste(sort(c(to,from)), collapse = '--'), by = 1:nrow(spatial_network_annot)]
 
   # data.table variables
-  unified_cells = NULL
+  unified_cells = type_int = N = NULL
 
   spatial_network_annot = sort_combine_two_DT_columns(spatial_network_annot, 'to', 'from', 'unified_cells')
   spatial_network_annot = spatial_network_annot[!duplicated(unified_cells)]
@@ -1771,7 +1771,7 @@ exprCellCellcom = function(gobject,
 
   # data.table variables
   lig_nr = lig_cell_type = rec_nr = rec_cell_type = rand_expr = av_diff = log2fc = LR_expr = pvalue = NULL
-  LR_cell_comb = p.adj = LR_comb = PI = NULL
+  LR_cell_comb = p.adj = LR_comb = PI = sd_diff = z_score = NULL
 
   # get parameters
   adjust_method = match.arg(adjust_method, choices = c("fdr", "bonferroni","BH", "holm", "hochberg", "hommel",
@@ -1983,9 +1983,12 @@ specificCellCellcommunicationScores = function(gobject,
                                                adjust_target = c('genes', 'cells'),
                                                verbose = T) {
 
+
+
   # data.table variables
   from_to = cell_ID = lig_cell_type = rec_cell_type = lig_nr = rec_nr = rand_expr = NULL
   av_diff = log2fc = LR_expr = pvalue = LR_cell_comb = p.adj = LR_comb = PI = NULL
+  sd_diff = z_score = NULL
 
   # get parameters
   adjust_method = match.arg(adjust_method, choices = c("fdr", "bonferroni","BH", "holm", "hochberg", "hommel",
@@ -2293,7 +2296,7 @@ spatCellCellcom = function(gobject,
 #' @param min_padj_value minimum adjusted p-value
 #' @param min_log2fc minimum log2 fold-change
 #' @param min_av_diff minimum average expression difference
-#' @param detailed detailed option used with \code{\link{spatCellCellCom}} (default = FALSE)
+#' @param detailed detailed option used with \code{\link{spatCellCellcom}} (default = FALSE)
 #' @return combined data.table with spatial and expression communication data
 #' @export
 #' @examples

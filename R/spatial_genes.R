@@ -78,6 +78,9 @@ spat_fish_func_DT = function(bin_matrix_DTm,
                              hub_min_int = 3) {
 
 
+  # data.table variables
+  from_value = to_value = gene_ID = N = to = from = cell_ID = V1 = NULL
+
   # get binarized expression values for the neighbors
   spatial_network_min_ext = data.table::merge.data.table(spat_netw_min, bin_matrix_DTm, by.x = 'from', by.y = 'variable', allow.cartesian = T)
   data.table::setnames(spatial_network_min_ext, 'value', 'from_value')
@@ -220,6 +223,9 @@ spat_OR_func_DT = function(bin_matrix_DTm,
                            hub_min_int = 3) {
 
 
+  # data.table variables
+  from_value = to_value = gene_ID = N = to = from = cell_ID = V1 = NULL
+
   # get binarized expression values for the neighbors
   spatial_network_min_ext = data.table::merge.data.table(spat_netw_min, bin_matrix_DTm, by.x = 'from', by.y = 'variable', allow.cartesian = T)
   data.table::setnames(spatial_network_min_ext, 'value', 'from_value')
@@ -298,6 +304,9 @@ calc_spatial_enrichment_minimum = function(spatial_network,
                                            bin_matrix,
                                            adjust_method = 'fdr',
                                            do_fisher_test = TRUE) {
+
+  # data.table variables
+  from = to = genes = variable = value = p.value = adj.p.value = score = estimate = NULL
 
   spatial_network_min = spatial_network[,.(from, to)]
 
@@ -393,7 +402,12 @@ calc_spatial_enrichment_matrix = function(spatial_network,
                                           do_parallel = TRUE,
                                           cores = NA,
                                           calc_hub = FALSE,
-                                          hub_min_int = 3) {
+                                          hub_min_int = 3,
+                                          verbose = TRUE) {
+
+
+  # data.table variables
+  verbose = genes = p.value = estimate = adj.p.value = score = NULL
 
   # convert spatial network data.table to spatial matrix
   dc_spat_network = data.table::dcast.data.table(spatial_network, formula = to~from, value.var = 'distance', fill = 0)
@@ -480,6 +494,9 @@ calc_spatial_enrichment_DT = function(bin_matrix,
                                       do_fisher_test = TRUE,
                                       adjust_method = 'fdr') {
 
+
+  # data.table variables
+  from = to = gene_ID = p.value = adj.p.value = score = estimate = NULL
 
   # create minimum spatial network
   spat_netw_min = spatial_network[,.(from, to)]
@@ -825,6 +842,7 @@ binSpectSingle = function(gobject,
 #' @param do_parallel run calculations in parallel with mclapply
 #' @param cores number of cores to use if do_parallel = TRUE
 #' @param verbose be verbose
+#' @param knn_params list of parameters to create spatial kNN network
 #' @param set.seed set a seed before kmeans binarization
 #' @param summarize summarize the p-values or adjusted p-values
 #' @return data.table with results (see details)
@@ -1004,6 +1022,9 @@ binSpectMulti = function(gobject,
   }
 
 
+  # data.table variables
+  genes = V1 = p.val = NULL
+
   ## merge results into 1 p-value per gene ##
   simple_result = combined_result[, sum(log(get(summarize))), by = genes]
   simple_result[, V1 := V1*-2]
@@ -1043,6 +1064,7 @@ binSpectMulti = function(gobject,
 #' @param do_parallel run calculations in parallel with mclapply
 #' @param cores number of cores to use if do_parallel = TRUE
 #' @param verbose be verbose
+#' @param knn_params list of parameters to create spatial kNN network
 #' @param set.seed set a seed before kmeans binarization
 #' @param bin_matrix a binarized matrix, when provided it will skip the binarization process
 #' @param summarize summarize the p-values or adjusted p-values
@@ -1170,12 +1192,12 @@ binSpect = function(gobject,
 
 
 
-#' @title silhouetteRank
-#' @name silhouetteRank
+#' @title silhouetteRank_old
+#' @name silhouetteRank_old
 #' @description Previously: calculate_spatial_genes_python. This method computes a silhouette score per gene based on the
 #' spatial distribution of two partitions of cells (expressed L1, and non-expressed L0).
 #' Here, rather than L2 Euclidean norm, it uses a rank-transformed, exponentially weighted
-#' function to represent the local physical distance between two cells.
+#' function to represent the local physical distance between two cells. New implementation can be found at \code{\link{silhouetteRank}}
 #' @param gobject giotto object
 #' @param expression_values expression values to use
 #' @param metric distance metric to use
@@ -1185,15 +1207,13 @@ binSpect = function(gobject,
 #' @param python_path specify specific path to python if required
 #' @return data.table with spatial scores
 #' @export
-#' @examples
-#'     silhouetteRank(gobject)
-silhouetteRank <- function(gobject,
-                           expression_values = c('normalized', 'scaled', 'custom'),
-                           metric = "euclidean",
-                           subset_genes = NULL,
-                           rbp_p = 0.95,
-                           examine_top = 0.3,
-                           python_path = NULL) {
+silhouetteRank_old <- function(gobject,
+                               expression_values = c('normalized', 'scaled', 'custom'),
+                               metric = "euclidean",
+                               subset_genes = NULL,
+                               rbp_p = 0.95,
+                               examine_top = 0.3,
+                               python_path = NULL) {
 
 
   # expression values
@@ -1250,8 +1270,8 @@ silhouetteRank <- function(gobject,
 
 
 
-#' @title silhouetteRank_test
-#' @name silhouetteRank_test
+#' @title silhouetteRank
+#' @name silhouetteRank
 #' @description Previously: calculate_spatial_genes_python. This method computes a silhouette score per gene based on the
 #' spatial distribution of two partitions of cells (expressed L1, and non-expressed L0).
 #' Here, rather than L2 Euclidean norm, it uses a rank-transformed, exponentially weighted
@@ -1269,10 +1289,10 @@ silhouetteRank <- function(gobject,
 #' @param query_sizes size of query
 #' @return data.table with spatial scores
 #' @export
-silhouetteRank_test = function(gobject,
+silhouetteRank = function(gobject,
                                expression_values = c('normalized', 'scaled', 'custom'),
                                subset_genes = NULL,
-                               overwrite_input_bin = TRUE,
+                               overwrite_input_bin = FALSE,
                                rbp_ps = c(0.95, 0.99),
                                examine_tops = c(0.005, 0.010, 0.050, 0.100, 0.300),
                                matrix_type = "dissim",
@@ -1281,6 +1301,9 @@ silhouetteRank_test = function(gobject,
                                output = NULL,
                                query_sizes = 10L) {
 
+
+  # data.table variables
+  cell_ID = sdimx = sdimy = sdimz = NULL
 
   ## test if R packages are installed
   Giotto:::package_check(pkg_name = 'EnvStats',
@@ -1398,8 +1421,11 @@ silhouetteRank_test = function(gobject,
                                 output = silh_output_dir,
                                 query_sizes = query_sizes)
 
+  unlist_results = lapply(output_silh, FUN = function(x) unlist(x))
+  spatial_results = data.table::as.data.table(do.call('rbind', unlist_results))
+  colnames(spatial_results) = c('genes', 'chisq', 'p.value')
 
-  return(output_silh)
+  return(spatial_results)
 
 }
 
@@ -1547,7 +1573,7 @@ spatialDE <- function(gobject = NULL,
 #' @name spatialAEH
 #' @description Compute spatial variable genes with spatialDE method
 #' @param gobject Giotto object
-#' @param SpatialDE_results results of \code{\link{SpatialDE}} function
+#' @param SpatialDE_results results of \code{\link{spatialDE}} function
 #' @param name_pattern name for the computed spatial patterns
 #' @param expression_values gene expression values to use
 #' @param pattern_num number of spatial patterns to look for
@@ -1787,6 +1813,9 @@ spark = function(gobject,
                  return_object = 'data.table',
                  ...) {
 
+
+  # data.table variables
+  genes =  adjusted_pvalue = combined_pvalue = NULL
 
   ## test if SPARK is installed ##
   package_check(pkg_name = 'SPARK',
@@ -3137,6 +3166,9 @@ simulateOneGenePatternGiottoObject = function(gobject,
                                               pattern_colors = c('in' = 'green', 'out' = 'red'),
                                               ...) {
 
+  # data.table variables
+  cell_ID = sdimx_y = sdimx = sdimy = NULL
+
   if(is.null(pattern_cell_ids)) {
     stop('pattern_cell_ids can not be NULL \n')
   }
@@ -3289,6 +3321,9 @@ run_spatial_sim_tests_one_rep = function(gobject,
                                          run_simulations = TRUE,
                                          ...) {
 
+
+  # data.table variables
+  genes = prob = time = adj.p.value = method = p.val = sd = qval = pval = g = adjusted_pvalue = NULL
 
   ## test if spat_methods, params and names have the same length
   if(length(spat_methods) != length(spat_methods_params)) {
@@ -3641,6 +3676,10 @@ runPatternSimulation = function(gobject,
                                 ...) {
 
 
+  # data.table variables
+  prob = method = adj.p.value = time = NULL
+
+
   # plot pattern for first gene (the same for all)
   example_patch = simulateOneGenePatternGiottoObject(gobject,
                                                      pattern_name = pattern_name,
@@ -3726,9 +3765,10 @@ runPatternSimulation = function(gobject,
       pl = pl + ggplot2::facet_wrap(~genes, nrow = nr_rows)
       pl = pl + ggplot2::geom_hline(yintercept = 0.05, color = 'red', linetype = 2)
 
-      pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_pvalues.pdf'), width = width, height = height)
+      grDevices::pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_pvalues.pdf'), width = width, height = height)
       print(pl)
-      dev.off()
+      rDevices::dev.off()
+
 
 
       # -log10 p-values
@@ -3738,9 +3778,9 @@ runPatternSimulation = function(gobject,
       pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
       pl = pl + ggplot2::facet_wrap(~genes, nrow = nr_rows)
 
-      pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_log10pvalues.pdf'), width = width, height = height)
+      rDevices::pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_log10pvalues.pdf'), width = width, height = height)
       print(pl)
-      dev.off()
+      rDevices::dev.off()
 
 
       # time
@@ -3749,9 +3789,9 @@ runPatternSimulation = function(gobject,
       pl = pl + ggplot2::geom_point(data = results, ggplot2::aes(x = method, y = time, color = prob), size = 2, position = ggplot2::position_jitterdodge())
       pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
 
-      pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_time.pdf'), width = width, height = height)
+      rDevices::pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_time.pdf'), width = width, height = height)
       print(pl)
-      dev.off()
+      rDevices::dev.off()
     }
 
 
