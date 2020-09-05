@@ -1222,8 +1222,8 @@ silhouetteRank <- function(gobject,
 
   ## prepare python path and louvain script
   reticulate::use_python(required = T, python = python_path)
-  python_leiden_function = system.file("python", "python_spatial_genes.py", package = 'Giotto')
-  reticulate::source_python(file = python_leiden_function)
+  python_silh_function = system.file("python", "python_spatial_genes.py", package = 'Giotto')
+  reticulate::source_python(file = python_silh_function)
 
 
   output_python = python_spatial_genes(spatial_locations = spatlocs,
@@ -1246,6 +1246,126 @@ silhouetteRank <- function(gobject,
 
 
 }
+
+
+
+
+#' @title silhouetteRank_test
+#' @name silhouetteRank_test
+#' @description Previously: calculate_spatial_genes_python. This method computes a silhouette score per gene based on the
+#' spatial distribution of two partitions of cells (expressed L1, and non-expressed L0).
+#' Here, rather than L2 Euclidean norm, it uses a rank-transformed, exponentially weighted
+#' function to represent the local physical distance between two cells.
+#' @param gobject giotto object
+#' @param expression_values expression values to use
+#' @param subset_genes only run on this subset of genes
+#' @param overwrite_input_bin overwrite input bin
+#' @param rbp_ps fractional binarization thresholds
+#' @param examine_tops top fractions to evaluate with silhouette
+#' @param matrix_type type of matrix
+#' @param num_core number of cores to use
+#' @param parallel_path path to GNU parallel function
+#' @param output output directory
+#' @param query_sizes size of query
+#' @return data.table with spatial scores
+#' @export
+silhouetteRank_test = function(gobject,
+                               expression_values = c('normalized', 'scaled', 'custom'),
+                               subset_genes = NULL,
+                               overwrite_input_bin = TRUE,
+                               rbp_ps = c(0.95, 0.99),
+                               examine_tops = c(0.005, 0.010, 0.050, 0.100, 0.300),
+                               matrix_type = "dissim",
+                               num_core = 4,
+                               parallel_path = "/usr/bin",
+                               output = NULL,
+                               query_sizes = 10) {
+
+
+  # TODO: test availability of R packages and Python modules
+
+  # expression values
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_values = select_expression_values(gobject = gobject, values = values)
+
+  # subset genes
+  if(!is.null(subset_genes)) {
+
+    subset_genes = subset_genes[subset_genes %in% gobject@gene_ID]
+    expr_values = expr_values[rownames(expr_values) %in% subset_genes, ]
+
+  }
+
+  # spatial locations
+  spatlocs = gobject@spatial_locs
+
+  # python path
+  if(is.null(python_path)) {
+    python_path = readGiottoInstructions(gobject, param = "python_path")
+  }
+
+  ## save dir and log
+  if(is.null(output) | !file.exists(output)) {
+    save_dir = readGiottoInstructions(gobject, param = "save_dir")
+    silh_output_dir = paste0(save_dir, '/', 'silhouetteRank_output/')
+    if(!file.exists(silh_output_dir)) dir.create(silh_output_dir, recursive = TRUE)
+  } else {
+    silh_output_dir = output
+  }
+
+  # log directory
+  log_dir  = paste0(silh_output_dir, '/', 'logs/')
+  if(!file.exists(log_dir)) dir.create(log_dir, recursive = TRUE)
+
+
+  ## write spatial locations to .txt file
+  if(ncol(spatlocs) == 3) {
+    format_spatlocs = spatlocs[,.(cell_ID, sdimx, sdimy)]
+    colnames(format_spatlocs) = c('ID', 'x', 'y')
+  } else {
+    format_spatlocs = spatlocs[,.(cell_ID, sdimx, sdimy, sdimz)]
+    colnames(format_spatlocs) = c('ID', 'x', 'y', 'z')
+  }
+
+  write.table(x = format_spatlocs,
+              file = paste0(silh_output_dir,'/', 'format_spatlocs.txt'),
+              quote = F, sep = '\t')
+
+  spatlocs_path = paste0(silh_output_dir,'/', 'format_spatlocs.txt')
+
+  ## write expression to .txt file
+  write.table(x = as.matrix(expr_values),
+              file = paste0(silh_output_dir,'/', 'expression.txt'),
+              quote = F, sep = '\t', col.names=NA)
+
+  expr_values_path = paste0(silh_output_dir,'/', 'expression.txt')
+
+
+
+  ## prepare python path and louvain script
+  reticulate::use_python(required = T, python = python_path)
+  python_silh_function = system.file("python", "silhouette_rank_wrapper.py", package = 'Giotto')
+  reticulate::source_python(file = python_silh_function)
+
+
+  output_silh = silhouette_rank(expr = expr_values_path,
+                                centroid = spatlocs_path,
+                                overwrite_input_bin = overwrite_input_bin,
+                                rbp_ps = rbp_ps,
+                                examine_tops = examine_tops,
+                                matrix_type = matrix_type,
+                                logdir = log_dir,
+                                num_core = num_core,
+                                parallel_path = parallel_path,
+                                output = silh_output_dir,
+                                query_sizes = query_sizes)
+
+
+  return(output_silh)
+
+}
+
+
 
 
 

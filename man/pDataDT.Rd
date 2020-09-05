@@ -16,5 +16,8 @@ data.table with cell metadata
 show cell metadata
 }
 \examples{
-    pDataDT(gobject)
+
+data(mini_giotto_single_cell) # loads existing Giotto object
+pDataDT(mini_giotto_single_cell)
+
 }

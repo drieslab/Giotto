@@ -22,6 +22,7 @@ runPatternSimulation(
   max_col = 4,
   height = 7,
   width = 7,
+  run_simulations = TRUE,
   ...
 )
 }
@@ -55,6 +56,8 @@ runPatternSimulation(
 \item{height}{height of final plots}
 
 \item{width}{width of final plots}
+
+\item{run_simulations}{run simulations (default = TRUE)}
 
 \item{\dots}{additional parameters for spatial gene detection tests}
 }

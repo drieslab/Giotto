@@ -15,7 +15,7 @@ jackstrawPlot(
   ylim = c(0, 1),
   iter = 10,
   threshold = 0.01,
-  verbose = T,
+  verbose = TRUE,
   show_plot = NA,
   return_plot = NA,
   save_plot = NA,

@@ -20,6 +20,7 @@ run_spatial_sim_tests_multi(
   save_norm = FALSE,
   save_dir = "~",
   verbose = TRUE,
+  run_simulations = TRUE,
   ...
 )
 }

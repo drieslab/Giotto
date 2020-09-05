@@ -23,3 +23,4 @@ data.table with average gene epression values for each factor
 \description{
 calculates average gene expression for a cell metadata factor (e.g. cluster)
 }
+\keyword{internal}

@@ -20,6 +20,7 @@ run_spatial_sim_tests_one_rep(
   save_norm = FALSE,
   save_dir = "~",
   save_name = "plot",
+  run_simulations = TRUE,
   ...
 )
 }
