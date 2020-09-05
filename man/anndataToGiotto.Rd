@@ -17,6 +17,8 @@ anndataToGiotto(
 \item{metadata_cols}{metadata columns to include}
 
 \item{instructions}{giotto instructions}
+
+\item{\dots}{additional parameters to \code{\link{createGiottoObject}}}
 }
 \value{
 Giotto object

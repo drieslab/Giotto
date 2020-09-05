@@ -84,6 +84,8 @@ binSpect(
 
 \item{verbose}{be verbose}
 
+\item{knn_params}{list of parameters to create spatial kNN network}
+
 \item{set.seed}{set a seed before kmeans binarization}
 
 \item{bin_matrix}{a binarized matrix, when provided it will skip the binarization process}

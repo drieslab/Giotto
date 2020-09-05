@@ -30,7 +30,7 @@ combCCcom(
 
 \item{min_av_diff}{minimum average expression difference}
 
-\item{detailed}{detailed option used with \code{\link{spatCellCellCom}} (default = FALSE)}
+\item{detailed}{detailed option used with \code{\link{spatCellCellcom}} (default = FALSE)}
 }
 \value{
 combined data.table with spatial and expression communication data

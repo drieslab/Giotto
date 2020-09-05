@@ -49,6 +49,10 @@ runPatternSimulation(
 
 \item{save_plot}{save intermediate random simulation plots or not}
 
+\item{save_raw}{save the raw expression matrix of the simulation}
+
+\item{save_norm}{save the normalized expression matrix of the simulation}
+
 \item{save_dir}{directory to save results to}
 
 \item{max_col}{maximum number of columns for final plots}

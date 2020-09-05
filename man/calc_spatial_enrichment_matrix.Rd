@@ -12,7 +12,8 @@ calc_spatial_enrichment_matrix(
   do_parallel = TRUE,
   cores = NA,
   calc_hub = FALSE,
-  hub_min_int = 3
+  hub_min_int = 3,
+  verbose = TRUE
 )
 }
 \description{

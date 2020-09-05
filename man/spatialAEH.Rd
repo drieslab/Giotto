@@ -18,7 +18,7 @@ spatialAEH(
 \arguments{
 \item{gobject}{Giotto object}
 
-\item{SpatialDE_results}{results of \code{\link{SpatialDE}} function}
+\item{SpatialDE_results}{results of \code{\link{spatialDE}} function}
 
 \item{name_pattern}{name for the computed spatial patterns}
 

@@ -7,11 +7,15 @@
 silhouetteRank(
   gobject,
   expression_values = c("normalized", "scaled", "custom"),
-  metric = "euclidean",
   subset_genes = NULL,
-  rbp_p = 0.95,
-  examine_top = 0.3,
-  python_path = NULL
+  overwrite_input_bin = FALSE,
+  rbp_ps = c(0.95, 0.99),
+  examine_tops = c(0.005, 0.01, 0.05, 0.1, 0.3),
+  matrix_type = "dissim",
+  num_core = 4,
+  parallel_path = "/usr/bin",
+  output = NULL,
+  query_sizes = 10L
 )
 }
 \arguments{
@@ -19,15 +23,23 @@ silhouetteRank(
 
 \item{expression_values}{expression values to use}
 
-\item{metric}{distance metric to use}
-
 \item{subset_genes}{only run on this subset of genes}
 
-\item{rbp_p}{fractional binarization threshold}
+\item{overwrite_input_bin}{overwrite input bin}
 
-\item{examine_top}{top fraction to evaluate with silhouette}
+\item{rbp_ps}{fractional binarization thresholds}
 
-\item{python_path}{specify specific path to python if required}
+\item{examine_tops}{top fractions to evaluate with silhouette}
+
+\item{matrix_type}{type of matrix}
+
+\item{num_core}{number of cores to use}
+
+\item{parallel_path}{path to GNU parallel function}
+
+\item{output}{output directory}
+
+\item{query_sizes}{size of query}
 }
 \value{
 data.table with spatial scores
@@ -37,7 +49,4 @@ Previously: calculate_spatial_genes_python. This method computes a silhouette sc
 spatial distribution of two partitions of cells (expressed L1, and non-expressed L0).
 Here, rather than L2 Euclidean norm, it uses a rank-transformed, exponentially weighted
 function to represent the local physical distance between two cells.
-}
-\examples{
-    silhouetteRank(gobject)
 }
