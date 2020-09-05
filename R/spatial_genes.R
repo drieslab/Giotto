@@ -1283,8 +1283,8 @@ silhouetteRank_test = function(gobject,
 
 
   ## test if R packages are installed
-  package_check(pkg_name = 'EnvStats',
-                repository = c('CRAN'))
+  Giotto:::package_check(pkg_name = 'EnvStats',
+                         repository = c('CRAN'))
 
   if ('eva' %in% rownames(installed.packages()) == FALSE) {
     stop("\n package ", 'eva', " is not yet installed \n",
@@ -1338,14 +1338,16 @@ silhouetteRank_test = function(gobject,
     silh_output_dir = paste0(save_dir, '/', 'silhouetteRank_output/')
     if(!file.exists(silh_output_dir)) dir.create(silh_output_dir, recursive = TRUE)
 
-  } else if(!file.exists(output)) {
+  } else if(file.exists(output)) {
 
-    save_dir = readGiottoInstructions(gobject, param = "save_dir")
-    silh_output_dir = paste0(save_dir, '/', 'silhouetteRank_output/')
+    silh_output_dir = paste0(output, '/', 'silhouetteRank_output/')
     if(!file.exists(silh_output_dir)) dir.create(silh_output_dir, recursive = TRUE)
 
   } else {
-    silh_output_dir = output
+
+    silh_output_dir = paste0(output, '/', 'silhouetteRank_output/')
+    if(!file.exists(silh_output_dir)) dir.create(silh_output_dir, recursive = TRUE)
+
   }
 
   # log directory
@@ -1400,6 +1402,7 @@ silhouetteRank_test = function(gobject,
   return(output_silh)
 
 }
+
 
 
 
