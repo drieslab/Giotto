@@ -18,8 +18,14 @@ import silhouetteRank.evaluate_exact_one_2b as evaluate_exact_one_2b
 import silhouetteRank.use_previous_cluster as use_previous_cluster
 import silhouetteRank.combine as combine
 
-def silhouette_rank(expr="expression.txt", centroid="Xcen.good", overwrite_input_bin=True, rbp_ps=[0.95, 0.99], examine_tops=[0.005, 0.010, 0.050, 0.100, 0.300], matrix_type="dissim", logdir="./logs", num_core=4, parallel_path="/usr/bin", output=".", query_sizes=10):
-	args = argparse.Namespace(expr=expr, centroid=centroid, rbp_ps=rbp_ps, examine_tops=examine_tops, matrix_type=matrix_type, output=output, query_sizes=query_sizes, overwrite_input_bin=overwrite_input_bin)
+def silhouette_rank(expr="expression.txt", centroid="Xcen.good", overwrite_input_bin=True,
+ rbp_ps=[0.95, 0.99], examine_tops=[0.005, 0.010, 0.050, 0.100, 0.300],
+  matrix_type="dissim", logdir="./logs", num_core=4, parallel_path="/usr/bin",
+  output=".", query_sizes=10):
+	args = argparse.Namespace(expr=expr, centroid=centroid, rbp_ps=rbp_ps,
+	examine_tops=examine_tops, matrix_type=matrix_type,
+	 output=output, query_sizes=query_sizes,
+	  overwrite_input_bin=overwrite_input_bin, logdir=logdir)
 
 	if not os.path.isdir(args.logdir):
 		os.mkdir(args.logdir)
@@ -42,14 +48,14 @@ def silhouette_rank(expr="expression.txt", centroid="Xcen.good", overwrite_input
 			fw.write("%.2f\n" % rbp_p)
 			fw.write("%.3f\n" % examine_top)
 	fw.close()
-	
+
 	args1 = argparse.Namespace(expr=args.expr, centroid=args.centroid, rbp_ps=args.rbp_ps, examine_tops=args.examine_tops, matrix_type=args.matrix_type, output=args.output, query_sizes=args.query_sizes, overwrite_input_bin=args.overwrite_input_bin)
 	prep.do_one(args1)
 
 	bin_path = os.path.dirname(silhouetteRank.__file__)
 	for i in range(4):
 		bin_path = os.path.dirname(bin_path)
-	bin_path = os.path.join(bin_path, "bin")	
+	bin_path = os.path.join(bin_path, "bin")
 
 	sys.stderr.write("Start calculating silhouette rank...\n")
 	sys.stderr.flush()
@@ -76,7 +82,7 @@ def silhouette_rank(expr="expression.txt", centroid="Xcen.good", overwrite_input
 		combined_file = "silhouette.sim.overall.pval.txt"
 	args1 = argparse.Namespace(rbp_ps=args.rbp_ps, examine_tops=args.examine_tops, matrix_type=args.matrix_type, input=args.output, output=combined_file)
 	combine.do_one(args1)
-	 
+
 	res = []
 	f = open(combined_file)
 	for l in f:
