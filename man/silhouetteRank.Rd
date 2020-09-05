@@ -15,7 +15,8 @@ silhouetteRank(
   num_core = 4,
   parallel_path = "/usr/bin",
   output = NULL,
-  query_sizes = 10L
+  query_sizes = 10L,
+  adjust_method = "fdr"
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ silhouetteRank(
 \item{output}{output directory}
 
 \item{query_sizes}{size of query}
+
+\item{adjust_method}{p-value adjusted method to use (see \code{\link[stats]{p.adjust}})}
 }
 \value{
 data.table with spatial scores
