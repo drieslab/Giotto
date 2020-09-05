@@ -3313,9 +3313,9 @@ run_spatial_sim_tests_one_rep = function(gobject,
                                          spatial_prob = 0.95,
                                          show_pattern = FALSE,
                                          spatial_network_name = 'kNN_network',
-                                         spat_methods = c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark', 'silhouetterank'),
+                                         spat_methods = c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark', 'silhouetteRank'),
                                          spat_methods_params = list(NA, NA, NA, NA, NA),
-                                         spat_methods_names = c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark', 'silhouetterank'),
+                                         spat_methods_names = c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark', 'silhouetteRank'),
                                          save_plot = FALSE,
                                          save_raw = FALSE,
                                          save_norm = FALSE,
@@ -3391,7 +3391,7 @@ run_spatial_sim_tests_one_rep = function(gobject,
 
       # method
       selected_method = spat_methods[test]
-      if(!selected_method %in% c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark', 'silhouetterank')) {
+      if(!selected_method %in% c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark', 'silhouetteRank')) {
         stop(selected_method, ' is not a know spatial method \n')
       }
 
@@ -3433,7 +3433,7 @@ run_spatial_sim_tests_one_rep = function(gobject,
                                  min_count = 10,
                                  num_core = 5)
 
-        }  else if(selected_method == 'silhouetterank') {
+        }  else if(selected_method == 'silhouetteRank') {
           selected_params = list(expression_values = 'normalized',
                                  overwrite_input_bin = FALSE,
                                  rbp_ps = c(0.95, 0.99),
@@ -3537,12 +3537,12 @@ run_spatial_sim_tests_one_rep = function(gobject,
         spatial_gene_results[, method := 'spark']
 
 
-      } else if(selected_method == 'silhouetterank') {
+      } else if(selected_method == 'silhouetteRank') {
 
         ## silhouetterank
         start = proc.time()
 
-        spatial_gene_results = do.call('silhouetterank', c(gobject = simulate_patch,
+        spatial_gene_results = do.call('silhouetteRank', c(gobject = simulate_patch,
                                                            selected_params))
         spatial_gene_results = spatial_gene_results[genes == gene_name]
         silh_time = proc.time() - start
@@ -3585,9 +3585,9 @@ run_spatial_sim_tests_multi = function(gobject,
                                        reps = 2,
 
                                        spatial_network_name = 'kNN_network',
-                                       spat_methods = c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark', 'silhouetterank'),
+                                       spat_methods = c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark', 'silhouetteRank'),
                                        spat_methods_params = list(NA, NA, NA, NA, NA),
-                                       spat_methods_names = c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark', 'silhouetterank'),
+                                       spat_methods_names = c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark', 'silhouetteRank'),
 
                                        save_plot = FALSE,
                                        save_raw = FALSE,
@@ -3696,9 +3696,9 @@ runPatternSimulation = function(gobject,
                                 spatial_probs = c(0.5, 1),
                                 reps = 2,
                                 spatial_network_name = 'kNN_network',
-                                spat_methods = c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark', 'silhouetterank'),
+                                spat_methods = c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark', 'silhouetteRank'),
                                 spat_methods_params = list(NA, NA, NA, NA, NA),
-                                spat_methods_names = c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark', 'silhouetterank'),
+                                spat_methods_names = c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark', 'silhouetteRank'),
                                 save_plot = T,
                                 save_raw = T,
                                 save_norm = T,
