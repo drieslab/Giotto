@@ -3397,55 +3397,59 @@ run_spatial_sim_tests_one_rep = function(gobject,
 
       # params
       selected_params = spat_methods_params[[test]]
-      if(is.na(selected_params)) {
 
-        if(selected_method == 'binSpect_single') {
-          selected_params = list(bin_method = 'kmeans',
-                                 nstart = 3,
-                                 iter_max = 10,
-                                 expression_values = 'normalized',
-                                 get_av_expr = FALSE,
-                                 get_high_expr = FALSE)
+      if(length(selected_params) == 1) {
 
-        } else if(selected_method == 'binSpect_multi') {
-          selected_params = list(bin_method = 'kmeans',
-                                 spatial_network_k = c(5, 10, 20),
-                                 nstart = 3,
-                                 iter_max = 10,
-                                 expression_values = 'normalized',
-                                 get_av_expr = FALSE,
-                                 get_high_expr = FALSE,
-                                 summarize = 'adj.p.value')
+        if(is.na(selected_params)) {
 
-        } else if(selected_method == 'spatialDE') {
-          selected_params = list(expression_values = 'raw',
-                                 sig_alpha = 0.5,
-                                 unsig_alpha = 0.5,
-                                 show_plot = FALSE,
-                                 return_plot = FALSE,
-                                 save_plot = FALSE)
+          if(selected_method == 'binSpect_single') {
+            selected_params = list(bin_method = 'kmeans',
+                                   nstart = 3,
+                                   iter_max = 10,
+                                   expression_values = 'normalized',
+                                   get_av_expr = FALSE,
+                                   get_high_expr = FALSE)
+
+          } else if(selected_method == 'binSpect_multi') {
+            selected_params = list(bin_method = 'kmeans',
+                                   spatial_network_k = c(5, 10, 20),
+                                   nstart = 3,
+                                   iter_max = 10,
+                                   expression_values = 'normalized',
+                                   get_av_expr = FALSE,
+                                   get_high_expr = FALSE,
+                                   summarize = 'adj.p.value')
+
+          } else if(selected_method == 'spatialDE') {
+            selected_params = list(expression_values = 'raw',
+                                   sig_alpha = 0.5,
+                                   unsig_alpha = 0.5,
+                                   show_plot = FALSE,
+                                   return_plot = FALSE,
+                                   save_plot = FALSE)
 
 
-        } else if(selected_method == 'spark') {
-          selected_params = list(expression_values = 'raw',
-                                 return_object = 'data.table',
-                                 percentage = 0.1,
-                                 min_count = 10,
-                                 num_core = 5)
+          } else if(selected_method == 'spark') {
+            selected_params = list(expression_values = 'raw',
+                                   return_object = 'data.table',
+                                   percentage = 0.1,
+                                   min_count = 10,
+                                   num_core = 5)
 
-        }  else if(selected_method == 'silhouetteRank') {
-          selected_params = list(expression_values = 'normalized',
-                                 overwrite_input_bin = FALSE,
-                                 rbp_ps = c(0.95, 0.99),
-                                 examine_tops = c(0.005, 0.010),
-                                 matrix_type = "dissim",
-                                 num_core = 4,
-                                 parallel_path = "/usr/bin",
-                                 output = NULL,
-                                 query_sizes = 10L,
-                                 adjust_method = 'fdr')
+          }  else if(selected_method == 'silhouetteRank') {
+            selected_params = list(expression_values = 'normalized',
+                                   overwrite_input_bin = FALSE,
+                                   rbp_ps = c(0.95, 0.99),
+                                   examine_tops = c(0.005, 0.010),
+                                   matrix_type = "dissim",
+                                   num_core = 4,
+                                   parallel_path = "/usr/bin",
+                                   output = NULL,
+                                   query_sizes = 10L,
+                                   adjust_method = 'fdr')
+          }
+
         }
-
 
       }
 
@@ -3801,7 +3805,7 @@ runPatternSimulation = function(gobject,
 
       grDevices::pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_pvalues.pdf'), width = width, height = height)
       print(pl)
-      rDevices::dev.off()
+      grDevices::dev.off()
 
 
 
@@ -3812,9 +3816,9 @@ runPatternSimulation = function(gobject,
       pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
       pl = pl + ggplot2::facet_wrap(~genes, nrow = nr_rows)
 
-      rDevices::pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_log10pvalues.pdf'), width = width, height = height)
+      grDevices::pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_log10pvalues.pdf'), width = width, height = height)
       print(pl)
-      rDevices::dev.off()
+      grDevices::dev.off()
 
 
       # time
@@ -3823,9 +3827,9 @@ runPatternSimulation = function(gobject,
       pl = pl + ggplot2::geom_point(data = results, ggplot2::aes(x = method, y = time, color = prob), size = 2, position = ggplot2::position_jitterdodge())
       pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
 
-      rDevices::pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_time.pdf'), width = width, height = height)
+      grDevices::pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_time.pdf'), width = width, height = height)
       print(pl)
-      rDevices::dev.off()
+      grDevices::dev.off()
     }
 
 
