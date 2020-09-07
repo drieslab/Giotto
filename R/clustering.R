@@ -185,9 +185,8 @@ doLeidenCluster = function(gobject,
 #'
 #' Set \emph{weight_col = NULL} to give equal weight (=1) to each edge.
 #'
-#' @export
-#' @examples
-#'     doLouvainCluster_community(gobject)
+#' @keywords internal
+#'
 doLouvainCluster_community <- function(gobject,
                                        name = 'louvain_clus',
                                        nn_network_to_use = 'sNN',
@@ -317,9 +316,7 @@ doLouvainCluster_community <- function(gobject,
 #' @details See \code{\link[multinet]{glouvain_ml}} from the multinet package in R for
 #' more information.
 #'
-#' @export
-#' @examples
-#'     doLouvainCluster_multinet(gobject)
+#' @keywords internal
 doLouvainCluster_multinet <- function(gobject,
                                       name = 'louvain_clus',
                                       nn_network_to_use = 'sNN',
@@ -516,8 +513,6 @@ doLouvainCluster = function(gobject,
 #' @details See \code{\link[igraph]{cluster_walktrap}} function from the igraph
 #' package in R for more information.
 #' @export
-#' @examples
-#'     doRandomWalkCluster(gobject)
 doRandomWalkCluster <- function(gobject,
                                 name = 'random_walk_clus',
                                 nn_network_to_use = 'sNN',
@@ -1468,9 +1463,7 @@ doLeidenSubCluster = function(gobject,
 #'   \item{5. do Louvain community clustering}
 #' }
 #' @seealso \code{\link{doLouvainCluster_community}}
-#' @export
-#' @examples
-#'     doLouvainSubCluster_community(gobject)
+#' @keywords internal
 doLouvainSubCluster_community = function(gobject,
                                          name = 'sub_louvain_comm_clus',
                                          cluster_column = NULL,
@@ -1652,9 +1645,7 @@ doLouvainSubCluster_community = function(gobject,
 #'   \item{5. do Louvain multinet clustering}
 #' }
 #' @seealso \code{\link{doLouvainCluster_multinet}}
-#' @export
-#' @examples
-#'     doLouvainSubCluster_multinet(gobject)
+#' @keywords internal
 doLouvainSubCluster_multinet =  function(gobject,
                                          name = 'sub_louvain_mult_clus',
                                          cluster_column = NULL,
