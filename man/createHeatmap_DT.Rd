@@ -53,6 +53,4 @@ creates order for clusters
 \details{
 Creates input data.tables for plotHeatmap function.
 }
-\examples{
-    createHeatmap_DT(gobject)
-}
+\keyword{internal}

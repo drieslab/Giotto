@@ -87,6 +87,3 @@ Two different methods can be used to assess the number of relevant or significan
  systematically permuting genes it identifies robust, and thus significant, PCs.
  \cr
 }
-\examples{
-    signPCA(gobject)
-}

@@ -36,6 +36,3 @@ You can add additional cell metadata in two manners:
   \item{2. Provide a data.table or data.frame with cell annotations and specificy which column contains the cell IDs, these cell IDs need to match with the cell_ID column in pDataDT(gobject)}
 }
 }
-\examples{
-    addCellMetadata(gobject)
-}

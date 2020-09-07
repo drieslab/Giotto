@@ -63,5 +63,20 @@ ggplot
 Creates violinplot for selected clusters
 }
 \examples{
-    violinPlot(gobject)
+\dontrun{
+
+data(mini_giotto_single_cell)
+
+# get all genes
+all_genes = slot(mini_giotto_single_cell, 'gene_ID')
+
+# look at cell metadata
+cell_metadata = pDataDT(mini_giotto_single_cell)
+
+# plot violinplot with selected genes and stratified for identified cell types
+violinPlot(mini_giotto_single_cell,
+           genes = all_genes[1:10],
+           cluster_column = 'cell_types')
+
+}
 }

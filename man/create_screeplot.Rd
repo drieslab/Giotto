@@ -19,3 +19,4 @@ ggplot
 \description{
 create screeplot with ggplot
 }
+\keyword{internal}

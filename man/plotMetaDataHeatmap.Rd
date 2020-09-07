@@ -95,7 +95,22 @@ Calculation of cluster or gene order is done on the provided expression values, 
 is by default on the z-scores. Other options are the original values or z-scores rescaled per gene (-1 to 1).
 }
 \examples{
-    plotMetaDataHeatmap(gobject)
+\dontrun{
+
+data(mini_giotto_single_cell)
+
+# get all genes
+all_genes = slot(mini_giotto_single_cell, 'gene_ID')
+
+# look at cell metadata
+cell_metadata = pDataDT(mini_giotto_single_cell)
+
+# plot heatmap per cell type, a column name from cell_metadata
+plotMetaDataHeatmap(mini_giotto_single_cell,
+                    selected_genes = all_genes[1:10],
+                    metadata_cols = 'cell_types')
+
+}
 }
 \seealso{
 \code{\link{plotMetaDataCellsHeatmap}} for numeric cell annotation instead of gene expression.

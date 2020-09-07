@@ -49,5 +49,12 @@ This is a minimal convenience wrapper around the \code{\link[MAST]{zlm}}
 from the MAST package to detect differentially expressed genes.
 }
 \examples{
-    findMastMarkers(gobject)
+
+data(mini_giotto_single_cell)
+
+mast_markers = findMastMarkers(gobject = mini_giotto_single_cell,
+                               cluster_column = 'leiden_clus',
+                               group_1 = 1,
+                               group_2 = 2)
+
 }

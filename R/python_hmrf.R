@@ -22,8 +22,6 @@
 #' @return Creates a directory with results that can be viewed with viewHMRFresults
 #' @details Description of HMRF parameters ...
 #' @export
-#' @examples
-#'     doHMRF(gobject)
 doHMRF <- function(gobject,
                    expression_values = c('normalized', 'scaled', 'custom'),
                    spatial_network_name = 'Delaunay_network',
@@ -239,8 +237,6 @@ doHMRF <- function(gobject,
 #' @return reloads a previous ran HMRF from doHRMF
 #' @details Description of HMRF parameters ...
 #' @export
-#' @examples
-#'     loadHMRF(gobject)
 loadHMRF = function(name_used = 'test',
                     output_folder_used,
                     k_used = 10,
@@ -352,8 +348,6 @@ viewHMRFresults <- function(gobject,
 #' @param print_command see the python command
 #' @return data.table with HMRF results for each b and the selected k
 #' @export
-#' @examples
-#'     writeHMRFresults(gobject)
 writeHMRFresults <- function(gobject,
                              HMRFoutput,
                              k = NULL,
@@ -429,8 +423,6 @@ writeHMRFresults <- function(gobject,
 #' @param hmrf_name specify a custom name
 #' @return giotto object
 #' @export
-#' @examples
-#'     addHMRF(gobject)
 addHMRF <- function(gobject,
                     HMRFoutput,
                     k = NULL,

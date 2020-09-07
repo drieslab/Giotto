@@ -56,6 +56,4 @@ page for more information.
 
 Set \emph{weight_col = NULL} to give equal weight (=1) to each edge.
 }
-\examples{
-    doLouvainCluster_community(gobject)
-}
+\keyword{internal}

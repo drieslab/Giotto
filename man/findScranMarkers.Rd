@@ -46,5 +46,12 @@ To perform differential expression between cluster groups you need to specificy 
 to the parameters \emph{group_1} and \emph{group_2}.
 }
 \examples{
-    findScranMarkers(gobject)
+
+data(mini_giotto_single_cell)
+
+scran_markers = findScranMarkers(gobject = mini_giotto_single_cell,
+                                 cluster_column = 'leiden_clus',
+                                 group_1 = 1,
+                                 group_2 = 2)
+
 }

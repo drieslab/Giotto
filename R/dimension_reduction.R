@@ -347,19 +347,14 @@ create_genes_to_use_matrix = function(gobject,
 #' @export
 #' @examples
 #'
-#' # 1. create giotto object
-#' expr_path = system.file("extdata", "seqfish_field_expr.txt", package = 'Giotto')
-#' loc_path = system.file("extdata", "seqfish_field_locs.txt", package = 'Giotto')
-#' VC_small <- createGiottoObject(raw_exprs = expr_path, spatial_locs = loc_path)
+#' data(mini_giotto_single_cell)
 #'
-#' # 2. normalize giotto
-#' VC_small <- normalizeGiotto(gobject = VC_small, scalefactor = 6000)
-#' VC_small <- addStatistics(gobject = VC_small)
+#' # run PCA
+#' mini_giotto_single_cell <- runPCA(gobject = mini_giotto_single_cell,
+#'                                   center = T, scale_unit = T)
 #'
-#' # 3. dimension reduction
-#' VC_small <- calculateHVG(gobject = VC_small)
-#' VC_small <- runPCA(gobject = VC_small)
-#' plotPCA(VC_small)
+#' # plot PCA results
+#' plotPCA(mini_giotto_single_cell)
 #'
 runPCA <- function(gobject,
                    expression_values = c('normalized', 'scaled', 'custom'),
@@ -470,6 +465,7 @@ runPCA <- function(gobject,
 #' @param ncp number of principal components to calculate
 #' @param ylim y-axis limits on scree plot
 #' @return ggplot
+#' @keywords internal
 create_screeplot = function(pca_obj, ncp = 20, ylim = c(0, 20)) {
 
 
@@ -549,7 +545,11 @@ create_screeplot = function(pca_obj, ncp = 20, ylim = c(0, 20)) {
 #'  create it if it's not available (see \code{\link{runPCA}})
 #' @export
 #' @examples
-#'     screePlot(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' screePlot(mini_giotto_single_cell, ncp = 10)
+#'
 screePlot = function(gobject,
                      name = 'pca',
                      expression_values = c('normalized', 'scaled', 'custom'),
@@ -708,7 +708,16 @@ create_jackstrawplot = function(jackstraw_data,
 #'  \cr
 #' @export
 #' @examples
-#'     jackstrawPlot(gobject)
+#'
+#' \donttest{
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' # jackstraw package is required to run
+#' jackstrawPlot(mini_giotto_single_cell, ncp = 10)
+#'
+#' }
+#'
 jackstrawPlot = function(gobject,
                          expression_values = c('normalized', 'scaled', 'custom'),
                          reduction = c('cells', 'genes'),
@@ -824,8 +833,6 @@ jackstrawPlot = function(gobject,
 #'  systematically permuting genes it identifies robust, and thus significant, PCs.
 #'  \cr
 #' @export
-#' @examples
-#'     signPCA(gobject)
 signPCA <- function(gobject,
                     name = 'pca',
                     method = c('screeplot', 'jackstraw'),
@@ -998,20 +1005,14 @@ signPCA <- function(gobject,
 #' @export
 #' @examples
 #'
-#' # 1. create giotto object
-#' expr_path = system.file("extdata", "seqfish_field_expr.txt", package = 'Giotto')
-#' loc_path = system.file("extdata", "seqfish_field_locs.txt", package = 'Giotto')
-#' VC_small <- createGiottoObject(raw_exprs = expr_path, spatial_locs = loc_path)
+#' data(mini_giotto_single_cell)
 #'
-#' # 2. normalize giotto
-#' VC_small <- normalizeGiotto(gobject = VC_small, scalefactor = 6000)
-#' VC_small <- addStatistics(gobject = VC_small)
+#' mini_giotto_single_cell <- runUMAP(mini_giotto_single_cell,
+#'                                    dimensions_to_use = 1:3,
+#'                                    n_threads = 1,
+#'                                    n_neighbors = 3)
 #'
-#' # 3. dimension reduction
-#' VC_small <- calculateHVG(gobject = VC_small)
-#' VC_small <- runPCA(gobject = VC_small)
-#' VC_small <- runUMAP(VC_small, dimensions_to_use = 1:5, n_threads = 2)
-#' plotUMAP(gobject = VC_small)
+#' plotUMAP(gobject = mini_giotto_single_cell)
 #'
 runUMAP <- function(gobject,
                     expression_values = c('normalized', 'scaled', 'custom'),
@@ -1176,20 +1177,14 @@ runUMAP <- function(gobject,
 #' @export
 #' @examples
 #'
-#' # 1. create giotto object
-#' expr_path = system.file("extdata", "seqfish_field_expr.txt", package = 'Giotto')
-#' loc_path = system.file("extdata", "seqfish_field_locs.txt", package = 'Giotto')
-#' VC_small <- createGiottoObject(raw_exprs = expr_path, spatial_locs = loc_path)
+#' data(mini_giotto_single_cell)
 #'
-#' # 2. normalize giotto
-#' VC_small <- normalizeGiotto(gobject = VC_small, scalefactor = 6000)
-#' VC_small <- addStatistics(gobject = VC_small)
+#' mini_giotto_single_cell <- runtSNE(mini_giotto_single_cell,
+#'                                    dimensions_to_use = 1:3,
+#'                                    n_threads = 1,
+#'                                    n_neighbors = 3)
 #'
-#' # 3. dimension reduction
-#' VC_small <- calculateHVG(gobject = VC_small)
-#' VC_small <- runPCA(gobject = VC_small)
-#' VC_small <- runTSNE(VC_small, dimensions_to_use = 1:5, n_threads = 2)
-#' plotTSNE(gobject = VC_small)
+#' plotTSNE(gobject = mini_giotto_single_cell)
 #'
 runtSNE <- function(gobject,
                     expression_values = c('normalized', 'scaled', 'custom'),

@@ -42,5 +42,4 @@ data(mini_giotto_single_cell)
 
 updated_giotto_object = addGeneStatistics(mini_giotto_single_cell)
 
-
 }

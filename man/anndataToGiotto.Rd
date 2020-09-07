@@ -27,5 +27,5 @@ Giotto object
 Converts a spatial anndata (e.g. scanpy) .h5ad file into a Giotto object
 }
 \details{
-Function in beta.
+Function in beta. Converts a .h5ad file into a Giotto object.
 }

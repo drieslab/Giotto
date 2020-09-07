@@ -80,9 +80,7 @@ The systematic steps are:
   \item{5. do Louvain community clustering}
 }
 }
-\examples{
-    doLouvainSubCluster_community(gobject)
-}
 \seealso{
 \code{\link{doLouvainCluster_community}}
 }
+\keyword{internal}

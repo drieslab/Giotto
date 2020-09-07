@@ -23,6 +23,3 @@ giotto object
 \description{
 Add selected results from doHMRF to the giotto object
 }
-\examples{
-    addHMRF(gobject)
-}

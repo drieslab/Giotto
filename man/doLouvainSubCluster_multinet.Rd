@@ -80,9 +80,7 @@ The systematic steps are:
   \item{5. do Louvain multinet clustering}
 }
 }
-\examples{
-    doLouvainSubCluster_multinet(gobject)
-}
 \seealso{
 \code{\link{doLouvainCluster_multinet}}
 }
+\keyword{internal}

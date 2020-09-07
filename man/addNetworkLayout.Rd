@@ -40,6 +40,3 @@ This function creates layout coordinates based on the provided kNN or sNN.
 Currently only the force-directed graph layout "drl", see \code{\link[igraph]{layout_with_drl}},
 is implemented. This provides an alternative to tSNE or UMAP based visualizations.
 }
-\examples{
-    addNetworkLayout(gobject)
-}

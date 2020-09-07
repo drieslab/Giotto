@@ -35,5 +35,4 @@ data(mini_giotto_single_cell)
 
 updated_giotto_object = addStatistics(mini_giotto_single_cell)
 
-
 }

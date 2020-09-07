@@ -64,18 +64,13 @@ See \code{\link[irlba]{prcomp_irlba}} and \code{\link[FactoMineR]{PCA}} for more
 }
 \examples{
 
-# 1. create giotto object
-expr_path = system.file("extdata", "seqfish_field_expr.txt", package = 'Giotto')
-loc_path = system.file("extdata", "seqfish_field_locs.txt", package = 'Giotto')
-VC_small <- createGiottoObject(raw_exprs = expr_path, spatial_locs = loc_path)
+data(mini_giotto_single_cell)
 
-# 2. normalize giotto
-VC_small <- normalizeGiotto(gobject = VC_small, scalefactor = 6000)
-VC_small <- addStatistics(gobject = VC_small)
+# run PCA
+mini_giotto_single_cell <- runPCA(gobject = mini_giotto_single_cell,
+                                  center = T, scale_unit = T)
 
-# 3. dimension reduction
-VC_small <- calculateHVG(gobject = VC_small)
-VC_small <- runPCA(gobject = VC_small)
-plotPCA(VC_small)
+# plot PCA results
+plotPCA(mini_giotto_single_cell)
 
 }

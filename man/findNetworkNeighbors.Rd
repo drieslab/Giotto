@@ -27,5 +27,16 @@ data.table
 Find the spatial neighbors for a selected group of cells within the selected spatial network.
 }
 \examples{
-    findNetworkNeighbors(gobject)
+
+data(mini_giotto_single_cell)
+
+# get all cells
+all_cells = slot(mini_giotto_single_cell, 'cell_ID')
+
+# find all the spatial neighbours for the first 5 cells
+# within the Delaunay network
+findNetworkNeighbors(mini_giotto_single_cell,
+                     spatial_network_name = 'Delaunay_network',
+                     source_cell_ids = all_cells[1:5])
+
 }

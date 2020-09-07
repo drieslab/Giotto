@@ -68,6 +68,3 @@ Run HMRF
 \details{
 Description of HMRF parameters ...
 }
-\examples{
-    doHMRF(gobject)
-}

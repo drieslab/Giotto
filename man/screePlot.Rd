@@ -76,5 +76,9 @@ Screeplot works by plotting the explained variance of each
  create it if it's not available (see \code{\link{runPCA}})
 }
 \examples{
-    screePlot(gobject)
+
+data(mini_giotto_single_cell)
+
+screePlot(mini_giotto_single_cell, ncp = 10)
+
 }
