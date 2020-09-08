@@ -585,8 +585,7 @@ getSpatialDataset = function(dataset = c('ST_OB_1',
                                          'osmfish_SS_cortex',
                                          'merfish_preoptic',
                                          'seqfish_SS_cortex',
-                                         'seqfish_OB'
-                                         ),
+                                         'seqfish_OB'),
                              directory = getwd()) {
 
   sel_dataset = match.arg(dataset, choices = c('ST_OB_1',
@@ -622,11 +621,11 @@ getSpatialDataset = function(dataset = c('ST_OB_1',
 
   # get url to spatial locations and download
   spatial_locs_url = datasets_file[dataset == sel_dataset][['spatial_locs']]
-  system(paste0('wget -P ', directory,' ', spatial_locs_url))
+  system(paste0("wget -P ", "'",directory,"'"," ", spatial_locs_url))
 
   # get url to expression matrix and download
   expr_matrix_url = datasets_file[dataset == sel_dataset][['expr_matrix']]
-  system(paste0('wget -P ', directory,' ', expr_matrix_url))
+  system(paste0("wget -P ", "'",directory,"'"," ", expr_matrix_url))
 
   # get url(s) to additional metadata files and download
   metadata_url = datasets_file[dataset == sel_dataset][['metadata']][[1]]
@@ -635,7 +634,7 @@ getSpatialDataset = function(dataset = c('ST_OB_1',
     NULL
   } else {
     for(url in metadata_url) {
-      system(paste0('wget -P ', directory,' ', url))
+      system(paste0("wget -P ", "'",directory,"'"," ", url))
     }
   }
 
