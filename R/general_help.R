@@ -606,6 +606,20 @@ getSpatialDataset = function(dataset = c('ST_OB_1',
   datasets_file = system.file("extdata", "datasets.txt", package = 'Giotto')
   datasets_file = data.table::fread(datasets_file)
 
+  ## check if wget is installed
+  ## TODO: check if it works on Windows
+  message = system("if ! command -v wget &> /dev/null
+                    then
+                    echo 'wget could not be found, please install wget first'
+                    exit
+                    fi", intern = TRUE)
+
+  if(identical(message, character(0))) {
+    print('wget was found, start downloading datasets: ')
+  } else {
+    stop(message)
+  }
+
   # get url to spatial locations and download
   spatial_locs_url = datasets_file[dataset == sel_dataset][['spatial_locs']]
   system(paste0('wget -P ', directory,' ', spatial_locs_url))
