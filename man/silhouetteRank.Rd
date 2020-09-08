@@ -16,7 +16,8 @@ silhouetteRank(
   parallel_path = "/usr/bin",
   output = NULL,
   query_sizes = 10L,
-  adjust_method = "fdr"
+  adjust_method = "fdr",
+  verbose = FALSE
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ silhouetteRank(
 \item{query_sizes}{size of query}
 
 \item{adjust_method}{p-value adjusted method to use (see \code{\link[stats]{p.adjust}})}
+
+\item{verbose}{be verbose}
 }
 \value{
 data.table with spatial scores
