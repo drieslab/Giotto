@@ -1427,8 +1427,9 @@ silhouetteRank = function(gobject,
 
   unlist_results = lapply(output_silh, FUN = function(x) unlist(x))
   spatial_results = data.table::as.data.table(do.call('rbind', unlist_results))
-  colnames(spatial_results) = c('genes', 'chisq', 'p.value')
-  spatial_results[, adj.p.value := stats::p.adjust(p.value, method = adjust_method)]
+
+  #colnames(spatial_results) = c('genes', 'chisq', 'p.value')
+  #spatial_results[, adj.p.value := stats::p.adjust(p.value, method = adjust_method)] #TODO: replace with qvalue if not provided
 
   return(spatial_results)
 
