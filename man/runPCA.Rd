@@ -11,8 +11,8 @@ runPCA(
   name = "pca",
   genes_to_use = "hvg",
   return_gobject = TRUE,
-  center = F,
-  scale_unit = F,
+  center = TRUE,
+  scale_unit = TRUE,
   ncp = 100,
   method = c("irlba", "factominer"),
   rev = FALSE,
@@ -33,9 +33,9 @@ runPCA(
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
-\item{center}{center data first (default = FALSE)}
+\item{center}{center data first (default = TRUE)}
 
-\item{scale_unit}{scale features before PCA (default = FALSE)}
+\item{scale_unit}{scale features before PCA (default = TRUE)}
 
 \item{ncp}{number of principal components to calculate}
 
