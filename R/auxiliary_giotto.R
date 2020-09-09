@@ -2055,7 +2055,7 @@ combineMetadata = function(gobject,
 
   spat_enr_names = spat_enr_names[spat_enr_names %in% available_enr]
 
-  if(!is.null(spat_enr_names) | length(spat_enr_names) > 0) {
+  if(!is.null(spat_enr_names) & length(spat_enr_names) > 0) {
 
     result_list = list()
     for(spatenr in 1:length(spat_enr_names)) {
