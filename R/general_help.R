@@ -629,8 +629,9 @@ getSpatialDataset = function(dataset = c('ST_OB_1',
 
   # get url(s) to additional metadata files and download
   metadata_url = datasets_file[dataset == sel_dataset][['metadata']][[1]]
+  metadata_url = unlist(strsplit(metadata_url, split = '\\|'))
 
-  if(length(metadata_url) == 1 & is.na(metadata_url)) {
+  if(identical(metadata_url, character(0))) {
     NULL
   } else {
     for(url in metadata_url) {
