@@ -329,8 +329,8 @@ create_genes_to_use_matrix = function(gobject,
 #' @param name arbitrary name for PCA run
 #' @param genes_to_use subset of genes to use for PCA
 #' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @param center center data first (default = FALSE)
-#' @param scale_unit scale features before PCA (default = FALSE)
+#' @param center center data first (default = TRUE)
+#' @param scale_unit scale features before PCA (default = TRUE)
 #' @param rev do a reverse PCA
 #' @param ncp number of principal components to calculate
 #' @param method which implementation to use
@@ -362,8 +362,8 @@ runPCA <- function(gobject,
                    name = 'pca',
                    genes_to_use = 'hvg',
                    return_gobject = TRUE,
-                   center = F,
-                   scale_unit = F,
+                   center = TRUE,
+                   scale_unit = TRUE,
                    ncp = 100,
                    method = c('irlba','factominer'),
                    rev = FALSE,
