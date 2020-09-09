@@ -524,7 +524,9 @@ replaceGiottoInstructions = function(gobject,
 #' @export
 #' @examples
 #'     readExprMatrix()
-readExprMatrix = function(path, cores = NA, transpose = FALSE) {
+readExprMatrix = function(path,
+                          cores = NA,
+                          transpose = FALSE) {
 
   # check if path is a character vector and exists
   if(!is.character(path)) stop('path needs to be character vector')
