@@ -20,7 +20,7 @@ runUMAP(
   min_dist = 0.01,
   n_threads = 1,
   spread = 5,
-  set_seed = T,
+  set_seed = TRUE,
   seed_number = 1234,
   verbose = T,
   ...
