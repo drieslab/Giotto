@@ -150,6 +150,8 @@ pca_giotto = function(mymatrix, center = T, scale = T, k = 50) {
 #' @param center center data
 #' @param scale scale features
 #' @param rev reverse PCA
+#' @param set_seed use of seed
+#' @param seed_number seed number to use
 #' @keywords internal
 #' @return list of eigenvalues, loadings and pca coordinates
 runPCA_prcomp_irlba = function(x,
@@ -157,6 +159,8 @@ runPCA_prcomp_irlba = function(x,
                                center = TRUE,
                                scale = TRUE,
                                rev = FALSE,
+                               set_seed = TRUE,
+                               seed_number = 1234,
                                ...) {
 
   min_ncp = min(dim(x))
@@ -170,6 +174,9 @@ runPCA_prcomp_irlba = function(x,
 
     x = t_giotto(x)
 
+    if(set_seed == TRUE) {
+      set.seed(seed = seed_number)
+    }
     pca_res = irlba::prcomp_irlba(x = x, n = ncp, center = center, scale. = scale, ...)
     # eigenvalues
     eigenvalues = pca_res$sdev^2
@@ -185,6 +192,9 @@ runPCA_prcomp_irlba = function(x,
 
   } else {
 
+    if(set_seed == TRUE) {
+      set.seed(seed = seed_number)
+    }
     pca_res = irlba::prcomp_irlba(x = x, n = ncp, center = center, scale. = scale, ...)
     # eigenvalues
     eigenvalues = pca_res$sdev^2
@@ -213,12 +223,16 @@ runPCA_prcomp_irlba = function(x,
 #' @param ncp number of principal components to calculate
 #' @param scale scale features
 #' @param rev reverse PCA
+#' @param set_seed use of seed
+#' @param seed_number seed number to use
 #' @keywords internal
 #' @return list of eigenvalues, loadings and pca coordinates
 runPCA_factominer = function(x,
                              ncp = 100,
                              scale = TRUE,
                              rev = FALSE,
+                             set_seed = TRUE,
+                             seed_number = 1234,
                              ...) {
 
   if(!methods::is(x, 'matrix')) {
@@ -234,6 +248,9 @@ runPCA_factominer = function(x,
       ncp = nrow(x)
     }
 
+    if(set_seed == TRUE) {
+      set.seed(seed = seed_number)
+    }
     pca_res = FactoMineR::PCA(X = x, ncp = ncp, scale.unit = scale, graph = F, ...)
 
     # eigenvalues
@@ -258,6 +275,9 @@ runPCA_factominer = function(x,
       ncp = ncol(x)
     }
 
+    if(set_seed == TRUE) {
+      set.seed(seed = seed_number)
+    }
     pca_res = FactoMineR::PCA(X = x, ncp = ncp, scale.unit = scale, graph = F, ...)
 
     # eigenvalues
@@ -280,7 +300,6 @@ runPCA_factominer = function(x,
   return(result)
 
 }
-
 
 
 
@@ -1029,7 +1048,7 @@ runUMAP <- function(gobject,
                     min_dist = 0.01,
                     n_threads = 1,
                     spread = 5,
-                    set_seed = T,
+                    set_seed = TRUE,
                     seed_number = 1234,
                     verbose = T,
                     ...) {
