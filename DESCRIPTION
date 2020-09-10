@@ -27,6 +27,7 @@ Depends:
 Imports:
     data.table (>= 1.12.2),
     deldir,
+    dendextend,
     ggplot2 (>= 3.1.1),
     Matrix,
     magick,

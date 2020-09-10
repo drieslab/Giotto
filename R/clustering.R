@@ -2436,7 +2436,7 @@ getDendrogramSplits = function(gobject,
 
   splitList = node_clusters(hclus_obj = corclus, verbose = verbose)
 
-  splitDT = as.data.table(t(as.data.table(splitList[[2]])))
+  splitDT = data.table::as.data.table(t_giotto(data.table::as.data.table(splitList[[2]])))
   colnames(splitDT) = c('node_h', 'tree_1', 'tree_2')
   splitDT[, nodeID := paste0('node_', 1:.N)]
 
