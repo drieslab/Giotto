@@ -6,7 +6,12 @@
 \usage{
 rowSums_giotto(mymatrix)
 }
-\description{
-rowSums_giotto
+\arguments{
+\item{mymatrix}{matrix object}
 }
-\keyword{internal}
+\value{
+numeric vector
+}
+\description{
+rowSums function that works with multiple matrix representations
+}

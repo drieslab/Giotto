@@ -2,7 +2,11 @@
 ## Giotto stat functions ####
 
 #' @title mean_giotto
-#' @keywords internal
+#' @description mean function that works with multiple matrix representations
+#' @param x vector
+#' @param \dots additional parameters
+#' @return numeric
+#' @export
 mean_giotto = function(x, ...) {
 
   if(methods::is(x, 'dgCMatrix')) {
@@ -16,7 +20,10 @@ mean_giotto = function(x, ...) {
 
 
 #' @title rowSums_giotto
-#' @keywords internal
+#' @description rowSums function that works with multiple matrix representations
+#' @param mymatrix matrix object
+#' @return numeric vector
+#' @export
 rowSums_giotto = function(mymatrix) {
 
   if(methods::is(mymatrix, 'dgCMatrix')) {
@@ -33,7 +40,10 @@ rowSums_giotto = function(mymatrix) {
 
 
 #' @title rowMeans_giotto
-#' @keywords internal
+#' @description rowMeans function that works with multiple matrix representations
+#' @param mymatrix matrix object
+#' @return numeric vector
+#' @export
 rowMeans_giotto = function(mymatrix) {
 
   if(methods::is(mymatrix, 'dgCMatrix')) {
@@ -50,7 +60,10 @@ rowMeans_giotto = function(mymatrix) {
 }
 
 #' @title colSums_giotto
-#' @keywords internal
+#' @description colSums function that works with multiple matrix representations
+#' @param mymatrix matrix object
+#' @return numeric vector
+#' @export
 colSums_giotto = function(mymatrix) {
 
   if(methods::is(mymatrix, 'dgCMatrix')) {
@@ -66,7 +79,10 @@ colSums_giotto = function(mymatrix) {
 }
 
 #' @title colMeans_giotto
-#' @keywords internal
+#' @description colMeans function that works with multiple matrix representations
+#' @param mymatrix matrix object
+#' @return numeric vector
+#' @export
 colMeans_giotto = function(mymatrix) {
 
   if(methods::is(mymatrix, 'dgCMatrix')) {
@@ -82,7 +98,10 @@ colMeans_giotto = function(mymatrix) {
 }
 
 #' @title t_giotto
-#' @keywords internal
+#' @description t function that works with multiple matrix representations
+#' @param mymatrix matrix object
+#' @return transposed matrix
+#' @export
 t_giotto = function(mymatrix) {
 
   if(methods::is(mymatrix, 'dgCMatrix')) {

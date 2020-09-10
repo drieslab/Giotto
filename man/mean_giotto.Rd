@@ -6,7 +6,14 @@
 \usage{
 mean_giotto(x, ...)
 }
-\description{
-mean_giotto
+\arguments{
+\item{x}{vector}
+
+\item{\dots}{additional parameters}
 }
-\keyword{internal}
+\value{
+numeric
+}
+\description{
+mean function that works with multiple matrix representations
+}
