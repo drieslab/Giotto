@@ -2342,7 +2342,7 @@ node_clusters = function(hclus_obj, verbose = TRUE) {
 
     # get dendrogram associated with height and split in two
     # select_dend_ind = which(available_h == n_height)
-    select_dend_ind = which.min(available_h - n_height)
+    select_dend_ind = which.min(abs(available_h - n_height))
     select_dend = dend_list[[select_dend_ind]]
     tempres = split_dendrogram_in_two(dend = select_dend)
 
