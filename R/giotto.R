@@ -533,11 +533,8 @@ readExprMatrix = function(path,
   if(!file.exists(path)) stop('the path: ', path, ' does not exist')
 
   # set number of cores automatically, but with limit of 10
-  if(is.na(cores) | !is.numeric(cores)) {
-    cores = parallel::detectCores() - 2
-    cores = ifelse(cores > 10, 10, cores)
-    data.table::setDTthreads(threads = cores)
-  }
+  cores = determine_cores(cores)
+  data.table::setDTthreads(threads = cores)
 
   # read and convert
   DT = suppressWarnings(data.table::fread(input = path, nThread = cores))
@@ -792,18 +789,8 @@ createGiottoObject <- function(raw_exprs,
 
 
   # if cores is not set, then set number of cores automatically, but with limit of 10
-  if(is.na(cores) | !is.numeric(cores)) {
-
-    cores = parallel::detectCores()
-    if(cores <= 2) {
-      cores = cores
-    } else {
-      cores = cores - 2
-      cores = ifelse(cores > 10, 10, cores)
-    }
-    data.table::setDTthreads(threads = cores)
-  }
-
+  cores = determine_cores(cores)
+  data.table::setDTthreads(threads = cores)
 
   ## read expression matrix
   raw_exprs = evaluate_expr_matrix(raw_exprs, cores = cores, sparse = TRUE)
@@ -1147,11 +1134,8 @@ createGiottoVisiumObject = function(visium_dir = NULL,
   expr_data = match.arg(expr_data, choices = c('raw', 'filter'))
 
   # set number of cores automatically, but with limit of 10
-  if(is.na(cores) | !is.numeric(cores)) {
-    cores = parallel::detectCores() - 2
-    cores = ifelse(cores > 10, 10, cores)
-    data.table::setDTthreads(threads = cores)
-  }
+  cores = determine_cores(cores)
+  data.table::setDTthreads(threads = cores)
 
   ## matrix
   if(expr_data == 'raw') {

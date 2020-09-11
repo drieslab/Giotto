@@ -145,16 +145,7 @@ giotto_lapply = function(X, cores = NA, fun, ...) {
   os = .Platform$OS.type
 
   # set number of cores automatically, but with limit of 10
-  if(is.na(cores) | !is.numeric(cores)) {
-
-    cores = parallel::detectCores()
-    if(cores <= 2) {
-      cores = cores
-    } else {
-      cores = cores - 2
-      cores = ifelse(cores > 10, 10, cores)
-    }
-  }
+  cores = determine_cores(cores)
 
   if(os == 'unix') {
     save_list = parallel::mclapply(X = X, mc.cores = cores,

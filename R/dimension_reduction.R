@@ -1006,7 +1006,7 @@ signPCA <- function(gobject,
 #' @param n_components UMAP param: number of components
 #' @param n_epochs UMAP param: number of epochs
 #' @param min_dist UMAP param: minimum distance
-#' @param n_threads UMAP param: threads to use
+#' @param n_threads UMAP param: threads/cores to use
 #' @param spread UMAP param: spread
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
@@ -1046,7 +1046,7 @@ runUMAP <- function(gobject,
                     n_components = 2,
                     n_epochs = 400,
                     min_dist = 0.01,
-                    n_threads = 1,
+                    n_threads = NA,
                     spread = 5,
                     set_seed = TRUE,
                     seed_number = 1234,
@@ -1055,6 +1055,8 @@ runUMAP <- function(gobject,
 
   reduction = match.arg(reduction, choices = c('cells', 'genes'))
 
+  # set cores to use
+  n_threads = determine_cores(cores = n_threads)
 
   ## umap on cells ##
   if(reduction == 'cells') {

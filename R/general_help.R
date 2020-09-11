@@ -1,5 +1,28 @@
 
 
+
+#' @title determine_cores
+#' @description guesses how many cores to use
+#' @return numeric
+#' @keywords internal
+determine_cores = function(cores, min_cores = 1, max_cores = 10) {
+
+  if(is.na(cores) | !is.numeric(cores) | (is.numeric(cores) & cores <= 0)) {
+    cores = parallel::detectCores()
+
+    if(cores <= 2) {
+      cores = ifelse(cores < min_cores, cores, min_cores)
+    } else {
+      cores = cores - 2
+      cores = ifelse(cores > max_cores, max_cores, cores)
+    }
+    return(cores)
+  } else {
+    cores = cores
+    return(cores)
+  }
+}
+
 #' @title getDistinctColors
 #' @description Returns a number of distint colors based on the RGB scale
 #' @param n number of colors wanted
