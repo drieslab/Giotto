@@ -2297,8 +2297,8 @@ split_dendrogram_in_two = function(dend) {
   numerical_leaves = unlist(dend)
   names(numerical_leaves) = all_leaves
 
-  dend_1 = dendextend::find_dendrogram(dend = dend, selected_labels = numerical_leaves[selected_labels_ind_1])
-  dend_2 = dendextend::find_dendrogram(dend = dend, selected_labels = numerical_leaves[selected_labels_ind_2])
+  dend_1 = dendextend::find_dendrogram(dend = dend, selected_labels = names(numerical_leaves[selected_labels_ind_1]))
+  dend_2 = dendextend::find_dendrogram(dend = dend, selected_labels = names(numerical_leaves[selected_labels_ind_2]))
 
   #dend_1 = dendextend::find_dendrogram(dend = dend, selected_labels = divided_leaves_labels[[1]])
   #dend_2 = dendextend::find_dendrogram(dend = dend, selected_labels = divided_leaves_labels[[2]])
@@ -2341,7 +2341,8 @@ node_clusters = function(hclus_obj, verbose = TRUE) {
     available_h = as.numeric(unlist(lapply(dend_list, FUN = function(x) attributes(x)$height)))
 
     # get dendrogram associated with height and split in two
-    select_dend_ind = which(available_h == n_height)
+    # select_dend_ind = which(available_h == n_height)
+    select_dend_ind = which.min(available_h - n_height)
     select_dend = dend_list[[select_dend_ind]]
     tempres = split_dendrogram_in_two(dend = select_dend)
 
