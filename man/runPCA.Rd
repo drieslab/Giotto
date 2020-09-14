@@ -16,6 +16,8 @@ runPCA(
   ncp = 100,
   method = c("irlba", "factominer"),
   rev = FALSE,
+  set_seed = TRUE,
+  seed_number = 1234,
   verbose = TRUE,
   ...
 )
@@ -42,6 +44,10 @@ runPCA(
 \item{method}{which implementation to use}
 
 \item{rev}{do a reverse PCA}
+
+\item{set_seed}{use of seed}
+
+\item{seed_number}{seed number to use}
 
 \item{verbose}{verbosity of the function}
 

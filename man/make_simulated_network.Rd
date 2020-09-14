@@ -8,7 +8,9 @@ make_simulated_network(
   gobject,
   spatial_network_name = "Delaunay_network",
   cluster_column,
-  number_of_simulations = 100
+  number_of_simulations = 100,
+  set_seed = TRUE,
+  seed_number = 1234
 )
 }
 \description{
