@@ -10,7 +10,9 @@
 make_simulated_network = function(gobject,
                                   spatial_network_name = 'Delaunay_network',
                                   cluster_column,
-                                  number_of_simulations = 100) {
+                                  number_of_simulations = 100,
+                                  set_seed = TRUE,
+                                  seed_number = 1234) {
 
 
   # data.table variables
@@ -35,6 +37,11 @@ make_simulated_network = function(gobject,
   middle_point = length(all_cell_type)/2
 
   for(sim in 1:number_of_simulations) {
+
+    if(set_seed == TRUE) {
+      seed_number = seed_number+sim
+      set.seed(seed = seed_number)
+    }
 
     reshuffled_all_cell_type = sample(x = all_cell_type, size = length(all_cell_type), replace = F)
 
@@ -73,6 +80,8 @@ make_simulated_network = function(gobject,
 #' @param cluster_column name of column to use for clusters
 #' @param number_of_simulations number of simulations to create expected observations
 #' @param adjust_method method to adjust p.values
+#' @param set_seed use of seed
+#' @param seed_number seed number to use
 #' @return List of cell Proximity scores (CPscores) in data.table format. The first
 #' data.table (raw_sim_table) shows the raw observations of both the original and
 #' simulated networks. The second data.table (enrichm_res) shows the enrichment results.
@@ -91,7 +100,9 @@ cellProximityEnrichment <- function(gobject,
                                     number_of_simulations = 1000,
                                     adjust_method = c("none", "fdr", "bonferroni","BH",
                                                       "holm", "hochberg", "hommel",
-                                                      "BY")) {
+                                                      "BY"),
+                                    set_seed = TRUE,
+                                    seed_number = 1234) {
 
 
   # p.adj test
@@ -116,7 +127,9 @@ cellProximityEnrichment <- function(gobject,
   sample_dt = make_simulated_network(gobject = gobject,
                                      spatial_network_name = spatial_network_name,
                                      cluster_column = cluster_column,
-                                     number_of_simulations = number_of_simulations)
+                                     number_of_simulations = number_of_simulations,
+                                     set_seed = set_seed,
+                                     seed_number = seed_number)
 
   # combine original and simulated network
   table_sim_results = sample_dt[, .N, by = c('unified_int', 'type_int', 'round')]
@@ -544,8 +557,11 @@ do_multi_permuttest_random = function(expr_values,
 #' @keywords internal
 do_permuttest = function(expr_values,
                          select_ind, other_ind,
-                         n_perm = 1000, adjust_method = 'fdr',
-                         mean_method, offset = 0.1, cores = 2) {
+                         n_perm = 1000,
+                         adjust_method = 'fdr',
+                         mean_method,
+                         offset = 0.1,
+                         cores = 2) {
 
   # data.table variables
   log2fc_diff = log2fc = sel = other = genes = p_higher = p_lower = perm_sel = NULL
@@ -555,12 +571,16 @@ do_permuttest = function(expr_values,
   original = do_permuttest_original(expr_values = expr_values,
                                     select_ind = select_ind, other_ind = other_ind,
                                     name = 'orig',
-                                    mean_method = mean_method, offset = offset)
+                                    mean_method = mean_method,
+                                    offset = offset)
 
   ## random permutations
-  random_perms = do_multi_permuttest_random(expr_values = expr_values, n = n_perm,
-                                            select_ind = select_ind, other_ind = other_ind,
-                                            mean_method = mean_method, offset = offset,
+  random_perms = do_multi_permuttest_random(expr_values = expr_values,
+                                            n = n_perm,
+                                            select_ind = select_ind,
+                                            other_ind = other_ind,
+                                            mean_method = mean_method,
+                                            offset = offset,
                                             cores = cores)
 
   ##

@@ -350,9 +350,11 @@ create_genes_to_use_matrix = function(gobject,
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param center center data first (default = TRUE)
 #' @param scale_unit scale features before PCA (default = TRUE)
-#' @param rev do a reverse PCA
 #' @param ncp number of principal components to calculate
 #' @param method which implementation to use
+#' @param rev do a reverse PCA
+#' @param set_seed use of seed
+#' @param seed_number seed number to use
 #' @param verbose verbosity of the function
 #' @param ... additional parameters for PCA (see details)
 #' @return giotto object with updated PCA dimension recuction
@@ -386,6 +388,8 @@ runPCA <- function(gobject,
                    ncp = 100,
                    method = c('irlba','factominer'),
                    rev = FALSE,
+                   set_seed = TRUE,
+                   seed_number = 1234,
                    verbose = TRUE,
                    ...) {
 
@@ -412,9 +416,13 @@ runPCA <- function(gobject,
   if(reduction == 'cells') {
     # PCA on cells
     if(method == 'irlba') {
-      pca_object = runPCA_prcomp_irlba(x = t_giotto(expr_values), center = center, scale = scale_unit, ncp = ncp, rev = rev, ...)
+      pca_object = runPCA_prcomp_irlba(x = t_giotto(expr_values),
+                                       center = center, scale = scale_unit, ncp = ncp,
+                                       rev = rev, set_seed = set_seed, seed_number = seed_number, ...)
     } else if(method == 'factominer') {
-      pca_object = runPCA_factominer(x = t_giotto(expr_values), scale = scale_unit, ncp = ncp, rev = rev, ...)
+      pca_object = runPCA_factominer(x = t_giotto(expr_values),
+                                     scale = scale_unit, ncp = ncp, rev = rev,
+                                     set_seed = set_seed, seed_number = seed_number, ...)
     } else {
       stop('only PCA methods from the irlba and factominer package have been implemented \n')
     }
@@ -422,9 +430,13 @@ runPCA <- function(gobject,
   } else {
     # PCA on genes
     if(method == 'irlba') {
-      pca_object = runPCA_prcomp_irlba(x = expr_values, center = center, scale = scale_unit, ncp = ncp, rev = rev, ...)
+      pca_object = runPCA_prcomp_irlba(x = expr_values,
+                                       center = center, scale = scale_unit, ncp = ncp,
+                                       rev = rev, set_seed = set_seed, seed_number = seed_number, ...)
     } else if(method == 'factominer') {
-      pca_object = runPCA_factominer(x = expr_values, scale = scale_unit, ncp = ncp, rev = rev, ...)
+      pca_object = runPCA_factominer(x = expr_values,
+                                     scale = scale_unit, ncp = ncp, rev = rev,
+                                     set_seed = set_seed, seed_number = seed_number, ...)
     } else {
       stop('only PCA methods from the irlba and factominer package have been implemented \n')
     }
