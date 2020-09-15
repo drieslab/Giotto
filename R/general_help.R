@@ -630,16 +630,25 @@ getSpatialDataset = function(dataset = c('ST_OB_1',
 
   ## check if wget is installed
   ## TODO: check if it works on Windows
-  message = system("if ! command -v wget &> /dev/null
-                    then
-                    echo 'wget could not be found, please install wget first'
-                    exit
-                    fi", intern = TRUE)
+  #message = system("if ! command -v wget &> /dev/null
+  #                  then
+  #                  echo 'wget could not be found, please install wget first'
+  #                  exit
+  #                  fi", intern = TRUE)
 
-  if(identical(message, character(0))) {
-    print('wget was found, start downloading datasets: ')
+  #if(identical(message, character(0))) {
+  #  print('wget was found, start downloading datasets: ')
+  #} else {
+  #  stop(message)
+  #}
+
+  # alternative
+  wget_works = try(system('command -v wget', intern = T))
+
+  if(class(wget_works) == 'try-error' | is.na(wget_works[1])) {
+    stop('wget was not found, please install wget first \n')
   } else {
-    stop(message)
+    print('wget was found, start downloading datasets: \n')
   }
 
   # get url to spatial locations and download
