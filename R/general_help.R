@@ -621,6 +621,15 @@ getSpatialDataset = function(dataset = c('ST_OB_1',
                                                'seqfish_SS_cortex',
                                                'seqfish_OB'))
 
+  # check operating system first
+  os_specific_system = get_os()
+
+  if(os_specific_system == 'windows') {
+    stop('This function is currently not supported on windows systems,
+         please visit https://github.com/RubD/spatial-datasets and manually download your files')
+  }
+
+
   if(!file.exists(directory)) {
     warning('The output directory does not exist and will be created \n')
   }
