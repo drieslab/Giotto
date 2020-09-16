@@ -1287,7 +1287,6 @@ silhouetteRank_old <- function(gobject,
 #' @param parallel_path path to GNU parallel function
 #' @param output output directory
 #' @param query_sizes size of query
-#' @param adjust_method p-value adjusted method to use (see \code{\link[stats]{p.adjust}})
 #' @param verbose be verbose
 #' @return data.table with spatial scores
 #' @export
@@ -1302,7 +1301,6 @@ silhouetteRank = function(gobject,
                           parallel_path = "/usr/bin",
                           output = NULL,
                           query_sizes = 10L,
-                          adjust_method = 'fdr',
                           verbose = FALSE) {
 
 
@@ -1310,9 +1308,10 @@ silhouetteRank = function(gobject,
   cell_ID = sdimx = sdimy = sdimz = NULL
 
   ## test if R packages are installed
-  Giotto:::package_check(pkg_name = 'EnvStats',
-                         repository = c('CRAN'))
+  # check envstats
+  package_check(pkg_name = 'EnvStats', repository = c('CRAN'))
 
+  # check eva
   if ('eva' %in% rownames(installed.packages()) == FALSE) {
     stop("\n package ", 'eva', " is not yet installed \n",
          "To install: \n",
@@ -1345,7 +1344,7 @@ silhouetteRank = function(gobject,
 
   # expression values
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_values = select_expression_values(gobject = gobject, values = values)
 
   # subset genes
   if(!is.null(subset_genes)) {
@@ -3443,8 +3442,8 @@ run_spatial_sim_tests_one_rep = function(gobject,
                                    num_core = 4,
                                    parallel_path = "/usr/bin",
                                    output = NULL,
-                                   query_sizes = 10L,
-                                   adjust_method = 'fdr')
+                                   query_sizes = 10L)
+
           }
 
         }
@@ -3546,13 +3545,16 @@ run_spatial_sim_tests_one_rep = function(gobject,
 
         spatial_gene_results = do.call('silhouetteRank', c(gobject = simulate_patch,
                                                            selected_params))
+
+        data.table::setnames(spatial_gene_results, old = 'gene', new = 'genes')
         spatial_gene_results = spatial_gene_results[genes == gene_name]
         silh_time = proc.time() - start
 
         spatial_gene_results[, prob := spatial_prob]
         spatial_gene_results[, time := silh_time[['elapsed']] ]
 
-        spatial_gene_results = spatial_gene_results[,.(genes, adj.p.value, prob, time)]
+        # silhrank uses qval by default
+        spatial_gene_results = spatial_gene_results[,.(genes, qval, prob, time)]
         colnames(spatial_gene_results) = c('genes', 'adj.p.value', 'prob', 'time')
         spatial_gene_results[, method := 'silhouette']
 
