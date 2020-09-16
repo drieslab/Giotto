@@ -4,10 +4,10 @@ Version: 0.3.6.9046
 Authors@R: c(
 	person("Ruben", "Dries", email = "rubendries@gmail.com",
 		 role = c("aut", "cre")),
-	person("Huipeng", "Li", email = "Huipeng_Li@DFCI.HARVARD.EDU",
-		role = c("aut")),
 	person("Qian", "Zhu", email = "zqian@jimmy.harvard.edu",
 		 role = c("aut")),
+	person("Huipeng", "Li", email = "Huipeng_Li@DFCI.HARVARD.EDU",
+		role = c("aut")),
 	person("Rui", "Dong", email = "rdong@jimmy.harvard.edu",
 		 role = c("aut")),
 	person("Guo-Cheng", "Yuan", email = "gcyuan@ds.dfci.harvard.edu",

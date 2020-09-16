@@ -218,6 +218,7 @@ runPAGEEnrich <- function(gobject,
                           name = NULL,
                           return_gobject = TRUE) {
 
+
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
   expr_values = select_expression_values(gobject = gobject, values = values)
@@ -237,6 +238,7 @@ runPAGEEnrich <- function(gobject,
       available_ct<-c(available_ct,i)
     }
   }
+
   if (length(available_ct)==1){
     stop("Only one cell type available.")
   }
@@ -246,7 +248,7 @@ runPAGEEnrich <- function(gobject,
 
   # only continue with genes present in both datasets
   interGene = intersect(rownames(sign_matrix), rownames(expr_values))
-  filterSig = sign_matrix[interGene,available_ct]
+  filterSig = sign_matrix[interGene, available_ct]
   signames = rownames(filterSig)[which(filterSig[,1]==1)]
 
   # calculate mean gene expression
@@ -307,6 +309,7 @@ runPAGEEnrich <- function(gobject,
         available_ct = c(available_ct, i)
       }
     }
+
     if (length(available_ct) == 1){
       stop("Only one cell type available.")
     }
@@ -328,6 +331,7 @@ runPAGEEnrich <- function(gobject,
       enrichmentDT[[j]] = stats::pnorm(enrichmentDT[[j]], mean = mean_i, sd = sd_i, lower.tail = FALSE, log.p = FALSE)
     }
   }
+
 
 
   ## return object or results ##
