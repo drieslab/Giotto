@@ -8,6 +8,7 @@ runPAGEEnrich(
   gobject,
   sign_matrix,
   expression_values = c("normalized", "scaled", "custom"),
+  min_overlap_genes = 5,
   reverse_log_scale = TRUE,
   logbase = 2,
   output_enrichment = c("original", "zscore"),
@@ -25,6 +26,8 @@ runPAGEEnrich(
 \item{sign_matrix}{Matrix of signature genes for each cell type / process}
 
 \item{expression_values}{expression values to use}
+
+\item{min_overlap_genes}{minimum number of overlapping genes in sign_matrix required to calculate enrichment}
 
 \item{reverse_log_scale}{reverse expression values from log scale}
 

@@ -554,6 +554,7 @@ PAGE_DT_method = function(sign_matrix,
 #' @param gobject Giotto object
 #' @param sign_matrix Matrix of signature genes for each cell type / process
 #' @param expression_values expression values to use
+#' @param min_overlap_genes minimum number of overlapping genes in sign_matrix required to calculate enrichment
 #' @param reverse_log_scale reverse expression values from log scale
 #' @param logbase log base to use if reverse_log_scale = TRUE
 #' @param output_enrichment how to return enrichment output
@@ -579,6 +580,7 @@ PAGE_DT_method = function(sign_matrix,
 runPAGEEnrich <- function(gobject,
                           sign_matrix,
                           expression_values = c('normalized', 'scaled', 'custom'),
+                          min_overlap_genes = 5,
                           reverse_log_scale = TRUE,
                           logbase = 2,
                           output_enrichment = c('original', 'zscore'),
@@ -1012,12 +1014,15 @@ hyperGeometricEnrich <- function(...) {
 #' @param sign_matrix Matrix of signature genes for each cell type / process
 #' @param expression_values expression values to use
 #' @param reverse_log_scale reverse expression values from log scale
+#' @param min_overlap_genes minimum number of overlapping genes in sign_matrix required to calculate enrichment (PAGE)
 #' @param logbase log base to use if reverse_log_scale = TRUE
 #' @param p_value calculate p-value (default = FALSE)
 #' @param n_times (page/rank) number of permutation iterations to calculate p-value
+#' @param max_block number of lines to process together (default = 20e6)
 #' @param top_percentage (hyper) percentage of cells that will be considered to have gene expression with matrix binarization
 #' @param output_enrichment how to return enrichment output
 #' @param name to give to spatial enrichment results, default = PAGE
+#' @param verbose be verbose
 #' @param return_gobject return giotto object
 #' @return Giotto object or enrichment results if return_gobject = FALSE
 #' @details For details see the individual functions:
@@ -1029,17 +1034,20 @@ hyperGeometricEnrich <- function(...) {
 #'
 #' @export
 runSpatialEnrich = function(gobject,
-                               enrich_method = c('PAGE', 'rank', 'hypergeometric'),
-                               sign_matrix,
-                               expression_values = c('normalized', 'scaled', 'custom'),
-                               reverse_log_scale = TRUE,
-                               logbase = 2,
-                               p_value = FALSE,
-                               n_times = 1000,
-                               top_percentage = 5,
-                               output_enrichment = c('original', 'zscore'),
-                               name = NULL,
-                               return_gobject = TRUE) {
+                            enrich_method = c('PAGE', 'rank', 'hypergeometric'),
+                            sign_matrix,
+                            expression_values = c('normalized', 'scaled', 'custom'),
+                            min_overlap_genes = 5,
+                            reverse_log_scale = TRUE,
+                            logbase = 2,
+                            p_value = FALSE,
+                            n_times = 1000,
+                            max_block = 20e6,
+                            top_percentage = 5,
+                            output_enrichment = c('original', 'zscore'),
+                            name = NULL,
+                            verbose = TRUE,
+                            return_gobject = TRUE) {
 
 
   enrich_method = match.arg(enrich_method, choices = c('PAGE', 'rank', 'hypergeometric'))

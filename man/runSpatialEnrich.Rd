@@ -9,13 +9,16 @@ runSpatialEnrich(
   enrich_method = c("PAGE", "rank", "hypergeometric"),
   sign_matrix,
   expression_values = c("normalized", "scaled", "custom"),
+  min_overlap_genes = 5,
   reverse_log_scale = TRUE,
   logbase = 2,
   p_value = FALSE,
   n_times = 1000,
+  max_block = 2e+07,
   top_percentage = 5,
   output_enrichment = c("original", "zscore"),
   name = NULL,
+  verbose = TRUE,
   return_gobject = TRUE
 )
 }
@@ -28,6 +31,8 @@ runSpatialEnrich(
 
 \item{expression_values}{expression values to use}
 
+\item{min_overlap_genes}{minimum number of overlapping genes in sign_matrix required to calculate enrichment (PAGE)}
+
 \item{reverse_log_scale}{reverse expression values from log scale}
 
 \item{logbase}{log base to use if reverse_log_scale = TRUE}
@@ -36,11 +41,15 @@ runSpatialEnrich(
 
 \item{n_times}{(page/rank) number of permutation iterations to calculate p-value}
 
+\item{max_block}{number of lines to process together (default = 20e6)}
+
 \item{top_percentage}{(hyper) percentage of cells that will be considered to have gene expression with matrix binarization}
 
 \item{output_enrichment}{how to return enrichment output}
 
 \item{name}{to give to spatial enrichment results, default = PAGE}
+
+\item{verbose}{be verbose}
 
 \item{return_gobject}{return giotto object}
 }

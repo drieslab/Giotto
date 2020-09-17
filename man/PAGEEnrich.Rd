@@ -13,6 +13,7 @@ PAGEEnrich(...)
     \item{\code{gobject}}{Giotto object}
     \item{\code{sign_matrix}}{Matrix of signature genes for each cell type / process}
     \item{\code{expression_values}}{expression values to use}
+    \item{\code{min_overlap_genes}}{minimum number of overlapping genes in sign_matrix required to calculate enrichment}
     \item{\code{reverse_log_scale}}{reverse expression values from log scale}
     \item{\code{logbase}}{log base to use if reverse_log_scale = TRUE}
     \item{\code{output_enrichment}}{how to return enrichment output}
