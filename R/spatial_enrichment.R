@@ -168,7 +168,7 @@ do_page_permutation<-function(gobject,
       all_sample_list = c(all_sample_list,list(random_gene))
     }
     random_sig = makeSignMatrixPAGE(all_sample_names,all_sample_list)
-    random_DT = runPAGEEnrich(gobject,sign_matrix = random_sig, p_value = F)
+    random_DT = runPAGEEnrich(gobject, sign_matrix = random_sig, p_value = F)
     background = unlist(random_DT[,2:dim(random_DT)[2]])
     df_row_name = paste("gene_num_",uniq_ct_gene_counts[i],sep="")
     list_back_i = c(df_row_name,mean(background), stats::sd(background))
@@ -182,7 +182,7 @@ do_page_permutation<-function(gobject,
 
 
 
-#' @title runPAGEEnrich
+#' @title runPAGEEnrich_OLD
 #' @description Function to calculate gene signature enrichment scores per spatial position using PAGE.
 #' @param gobject Giotto object
 #' @param sign_matrix Matrix of signature genes for each cell type / process
@@ -207,7 +207,7 @@ do_page_permutation<-function(gobject,
 #' and  m is the size of a given marker gene set.
 #' @seealso \code{\link{makeSignMatrixPAGE}}
 #' @export
-runPAGEEnrich <- function(gobject,
+runPAGEEnrich_OLD <- function(gobject,
                           sign_matrix,
                           expression_values = c('normalized', 'scaled', 'custom'),
                           reverse_log_scale = TRUE,
@@ -371,7 +371,285 @@ runPAGEEnrich <- function(gobject,
 
 
 
+#' @title PAGE_DT_method
+#' @description PAGE data.table method
+#' @keywords internal
+PAGE_DT_method = function(sign_matrix,
+                          expr_values,
+                          min_overlap_genes = 5,
+                          logbase = 2,
+                          reverse_log_scale = TRUE,
+                          output_enrichment = c('original', 'zscore'),
+                          p_value = FALSE,
+                          n_times = 1000,
+                          max_block = 20e6,
+                          verbose = TRUE) {
+
+
+  # output enrichment
+  output_enrichment = match.arg(output_enrichment, choices = c('original', 'zscore'))
+
+  ## identify available cell types
+  all_genes = rownames(expr_values)
+  sign_matrix_DT = data.table::as.data.table(reshape2::melt(sig_matrix))
+  sign_matrix_DT = sign_matrix_DT[Var1 %in% all_genes]
+  detected_DT = sign_matrix_DT[, sum(value), by = Var2]
+
+  lost_cell_types_DT = detected_DT[V1 <= min_overlap_genes]
+  for(row in 1:nrow(lost_cell_types_DT)) {
+    output<-paste0("Warning, ",lost_cell_types_DT[row][['Var2']]," only has ",lost_cell_types_DT[row][['V1']]," overlapping genes. Will be removed.")
+    if(verbose) print(output)
+  }
+  available_ct = as.character(detected_DT[V1 > min_overlap_genes][['Var2']])
+
+  if (length(available_ct) == 1){
+    stop("Only one cell type available.")
+  }
+
+  # create subset of sinature matrix
+  interGene = intersect(rownames(sign_matrix), rownames(expr_values))
+  filterSig = sign_matrix[interGene, available_ct]
+
+  # create fold expression for each gene in each spot
+  # calculate mean gene expression
+  if(reverse_log_scale == TRUE) {
+    mean_gene_expr = log(rowMeans(logbase^expr_values-1, dims = 1)+1)
+  } else {
+    mean_gene_expr = rowMeans(expr_values)
+  }
+  geneFold = expr_values - mean_gene_expr
+
+  # calculate sample/spot mean and sd
+  cellColMean = colMeans(geneFold)
+  cellColSd = apply(geneFold, 2, stats::sd)
+  cellColMeanSd =  data.table::data.table(cell_ID = names(cellColMean),
+                                          colmean = cellColMean,
+                                          colSd = cellColSd)
+
+  filterSig_DT = data.table::as.data.table(reshape2::melt(filterSig))
+  colnames(filterSig_DT) = c('gene', 'cell_type', 'marker')
+  sub_ct_DT = filterSig_DT[marker == 1]
+  sub_ct_DT[, nr_markers := .N, by = cell_type]
+
+  ## reshape gene fold-expression
+  geneFold_DT = data.table::as.data.table(reshape2::melt(geneFold))
+  colnames(geneFold_DT) = c('gene', 'cell_ID', 'fc')
+
+  mergetest = data.table::merge.data.table(sub_ct_DT, geneFold_DT, by = 'gene')
+  mergetest = mergetest[, mean(fc), by = .(cell_type, cell_ID, nr_markers)]
+  mergetest = data.table::merge.data.table(mergetest, cellColMeanSd, by = 'cell_ID')
+  mergetest[, zscore := ((V1 - colmean)* nr_markers^(1/2)) / colSd]
+
+  if(output_enrichment == 'zscore') {
+    mergetest[, zscore := scale(zscore), by = 'cell_type']
+  }
+
+
+
+
+  ## return p-values based on permutations ##
+  if(p_value == TRUE) {
+
+    ## 1. get number of markers instructions ##
+    sample_intrs = unique(sub_ct_DT[,.(cell_type, nr_markers)])
+
+
+    ## 2. first create the random samples all together ##
+    cell_type_list = list()
+    perm_type_list = list()
+    for(row in 1:nrow(sample_intrs)) {
+
+      cell_type = sample_intrs[row][['cell_type']]
+      nr_genes = as.numeric(sample_intrs[row][['nr_markers']])
+
+      gene_list = list()
+      perm_list = list()
+      for(i in 1:n_times) {
+        sampled_genes = sample(rownames(expr_values), size = nr_genes)
+        gene_list[[i]] = sampled_genes
+        perm_list[[i]] = rep(paste0('p_',i), nr_genes)
+      }
+
+      gene_res = unlist(gene_list)
+      names(gene_res) = rep(cell_type, length(gene_res))
+      cell_type_list[[row]] = gene_res
+
+      perm_res = unlist(perm_list)
+      perm_type_list[[row]] = perm_res
+
+    }
+
+    cell_type_perm = unlist(cell_type_list)
+    perm_round = unlist(perm_type_list)
+
+    cell_type_perm_DT = data.table::data.table(cell_type = names(cell_type_perm),
+                                               gene = cell_type_perm,
+                                               round = perm_round)
+
+    sample_intrs_vec = sample_intrs$nr_markers
+    names(sample_intrs_vec) = sample_intrs$cell_type
+    cell_type_perm_DT[, nr_markers := sample_intrs_vec[cell_type]]
+
+
+    ## 3. decide on number of blocks to process ##
+    nr_perm_lines = nrow(cell_type_perm_DT)
+    nr_spots = ncol(expr_values)
+    total_lines = nr_spots * nr_perm_lines
+    nr_groups = round(total_lines / max_block)
+
+    ## 4. create groups
+    all_perms = unique(perm_round)
+    all_perms_num = 1:length(all_perms)
+    names(all_perms_num) = all_perms
+    group_labels = paste0('group_',1:nr_groups)
+    groups_vec = cut(all_perms_num, breaks = nr_groups, labels = group_labels)
+    names(all_perms) = groups_vec
+
+
+    ## 5. do random enrichment per block
+    res_list = list()
+    for(group_i in 1:length(group_labels)) {
+
+      group = group_labels[group_i]
+      sub_perms = all_perms[names(all_perms) == group]
+      cell_type_perm_DT_sub = cell_type_perm_DT[round %in% sub_perms]
+
+      mergetest_perm_sub = data.table::merge.data.table(cell_type_perm_DT_sub, geneFold_DT, allow.cartesian = TRUE)
+      mergetest_perm_sub = mergetest_perm_sub[, mean(fc), by = .(cell_type, cell_ID, nr_markers, round)]
+      mergetest_perm_sub = data.table::merge.data.table(mergetest_perm_sub, cellColMeanSd, by = 'cell_ID')
+      mergetest_perm_sub[, zscore := ((V1 - colmean)* nr_markers^(1/2)) / colSd]
+
+      res_list[[group_i]] = mergetest_perm_sub
+
+    }
+
+    res_list_comb = do.call('rbind', res_list)
+    res_list_comb_average = res_list_comb[, .(mean_zscore = mean(zscore), sd_zscore = stats::sd(zscore)), by = c('cell_ID', 'cell_type')]
+    mergetest_final = data.table::merge.data.table(mergetest, res_list_comb_average, by = c('cell_ID', 'cell_type'))
+
+    ## calculate p.values based on normal distribution
+    mergetest_final[, pval := stats::pnorm(abs(zscore), mean = mean_zscore, sd = sd_zscore, lower.tail = FALSE, log.p = FALSE)]
+    setorder(mergetest_final, pval)
+
+    ## calculate pval_score
+    mergetest_final[, pval_score := sign(zscore)*-log10(pval)]
+
+    resultmatrix = data.table::dcast(mergetest_final, formula = cell_ID~cell_type, value.var = 'pval_score')
+    return(list(DT = mergetest_final, matrix = resultmatrix))
+
+
+  } else {
+
+    resultmatrix = data.table::dcast(mergetest, formula = cell_ID~cell_type, value.var = 'zscore')
+    return(list(DT = mergetest, matrix = resultmatrix))
+
+  }
+
+}
+
+
+
 #' @title runPAGEEnrich
+#' @description Function to calculate gene signature enrichment scores per spatial position using PAGE.
+#' @param gobject Giotto object
+#' @param sign_matrix Matrix of signature genes for each cell type / process
+#' @param expression_values expression values to use
+#' @param reverse_log_scale reverse expression values from log scale
+#' @param logbase log base to use if reverse_log_scale = TRUE
+#' @param output_enrichment how to return enrichment output
+#' @param p_value calculate p-values (boolean, default = FALSE)
+#' @param n_times number of permutations to calculate for p_value
+#' @param max_block number of lines to process together (default = 20e6)
+#' @param name to give to spatial enrichment results, default = PAGE
+#' @param verbose be verbose
+#' @param return_gobject return giotto object
+#' @return data.table with enrichment results
+#' @details
+#' sign_matrix: a binary matrix with genes as row names and cell-types as column names.
+#' Alternatively a list of signature genes can be provided to makeSignMatrixPAGE, which will create
+#' the matrix for you. \cr
+#'
+#' The enrichment Z score is calculated by using method (PAGE) from
+#' Kim SY et al., BMC bioinformatics, 2005 as \eqn{Z = ((Sm – mu)*m^(1/2)) / delta}.
+#' For each gene in each spot, mu is the fold change values versus the mean expression
+#' and delta is the standard deviation. Sm is the mean fold change value of a specific marker gene set
+#' and  m is the size of a given marker gene set.
+#' @seealso \code{\link{makeSignMatrixPAGE}}
+#' @export
+runPAGEEnrich <- function(gobject,
+                          sign_matrix,
+                          expression_values = c('normalized', 'scaled', 'custom'),
+                          reverse_log_scale = TRUE,
+                          logbase = 2,
+                          output_enrichment = c('original', 'zscore'),
+                          p_value = FALSE,
+                          n_times = 1000,
+                          max_block = 20e6,
+                          name = NULL,
+                          verbose = TRUE,
+                          return_gobject = TRUE) {
+
+
+  # expression values to be used
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_values = select_expression_values(gobject = gobject, values = values)
+
+  # check parameters
+  if(is.null(name)) name = 'PAGE'
+
+  PAGE_results = PAGE_DT_method(sign_matrix = sign_matrix,
+                                expr_values = expr_values,
+                                min_overlap_genes = min_overlap_genes,
+                                logbase = logbase,
+                                reverse_log_scale = reverse_log_scale,
+                                output_enrichment = c('original', 'zscore'),
+                                p_value = p_value,
+                                n_times = n_times,
+                                max_block = max_block,
+                                verbose = verbose)
+
+
+  ## return object or results ##
+  if(return_gobject == TRUE) {
+
+    spenr_names = names(gobject@spatial_enrichment)
+
+    if(name %in% spenr_names) {
+      cat('\n ', name, ' has already been used, will be overwritten \n')
+    }
+
+    ## update parameters used ##
+    parameters_list = gobject@parameters
+    number_of_rounds = length(parameters_list)
+    update_name = paste0(number_of_rounds,'_spatial_enrichment')
+
+    # parameters to include
+    parameters_list[[update_name]] = c('method used' = 'PAGE',
+                                       'enrichment name' = name,
+                                       'expression values' = expression_values,
+                                       'reverse log scale' = reverse_log_scale,
+                                       'logbase' = logbase,
+                                       'output enrichment scores' = output_enrichment,
+                                       'p values calculated' = p_value,
+                                       'nr permutations' = n_times)
+
+    gobject@parameters = parameters_list
+    gobject@spatial_enrichment[[name]] = PAGE_results[['matrix']]
+
+    return(gobject)
+
+  } else {
+    return(PAGE_results)
+  }
+}
+
+
+
+
+
+
+
+#' @title PAGEEnrich
 #' @description Function to calculate gene signature enrichment scores per spatial position using PAGE.
 #' @inheritDotParams runPAGEEnrich
 #' @seealso \code{\link{runPAGEEnrich}}
