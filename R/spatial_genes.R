@@ -78,9 +78,6 @@ spat_fish_func_DT = function(bin_matrix_DTm,
                              hub_min_int = 3) {
 
 
-  # data.table variables
-  from_value = to_value = gene_ID = N = to = from = cell_ID = V1 = NULL
-
   # get binarized expression values for the neighbors
   spatial_network_min_ext = data.table::merge.data.table(spat_netw_min, bin_matrix_DTm, by.x = 'from', by.y = 'variable', allow.cartesian = T)
   data.table::setnames(spatial_network_min_ext, 'value', 'from_value')
@@ -223,9 +220,6 @@ spat_OR_func_DT = function(bin_matrix_DTm,
                            hub_min_int = 3) {
 
 
-  # data.table variables
-  from_value = to_value = gene_ID = N = to = from = cell_ID = V1 = NULL
-
   # get binarized expression values for the neighbors
   spatial_network_min_ext = data.table::merge.data.table(spat_netw_min, bin_matrix_DTm, by.x = 'from', by.y = 'variable', allow.cartesian = T)
   data.table::setnames(spatial_network_min_ext, 'value', 'from_value')
@@ -304,9 +298,6 @@ calc_spatial_enrichment_minimum = function(spatial_network,
                                            bin_matrix,
                                            adjust_method = 'fdr',
                                            do_fisher_test = TRUE) {
-
-  # data.table variables
-  from = to = genes = variable = value = p.value = adj.p.value = score = estimate = NULL
 
   spatial_network_min = spatial_network[,.(from, to)]
 
@@ -402,12 +393,7 @@ calc_spatial_enrichment_matrix = function(spatial_network,
                                           do_parallel = TRUE,
                                           cores = NA,
                                           calc_hub = FALSE,
-                                          hub_min_int = 3,
-                                          verbose = TRUE) {
-
-
-  # data.table variables
-  verbose = genes = p.value = estimate = adj.p.value = score = NULL
+                                          hub_min_int = 3) {
 
   # convert spatial network data.table to spatial matrix
   dc_spat_network = data.table::dcast.data.table(spatial_network, formula = to~from, value.var = 'distance', fill = 0)
@@ -494,9 +480,6 @@ calc_spatial_enrichment_DT = function(bin_matrix,
                                       do_fisher_test = TRUE,
                                       adjust_method = 'fdr') {
 
-
-  # data.table variables
-  from = to = gene_ID = p.value = adj.p.value = score = estimate = NULL
 
   # create minimum spatial network
   spat_netw_min = spatial_network[,.(from, to)]
@@ -842,7 +825,6 @@ binSpectSingle = function(gobject,
 #' @param do_parallel run calculations in parallel with mclapply
 #' @param cores number of cores to use if do_parallel = TRUE
 #' @param verbose be verbose
-#' @param knn_params list of parameters to create spatial kNN network
 #' @param set.seed set a seed before kmeans binarization
 #' @param summarize summarize the p-values or adjusted p-values
 #' @return data.table with results (see details)
@@ -1022,9 +1004,6 @@ binSpectMulti = function(gobject,
   }
 
 
-  # data.table variables
-  genes = V1 = p.val = NULL
-
   ## merge results into 1 p-value per gene ##
   simple_result = combined_result[, sum(log(get(summarize))), by = genes]
   simple_result[, V1 := V1*-2]
@@ -1064,7 +1043,6 @@ binSpectMulti = function(gobject,
 #' @param do_parallel run calculations in parallel with mclapply
 #' @param cores number of cores to use if do_parallel = TRUE
 #' @param verbose be verbose
-#' @param knn_params list of parameters to create spatial kNN network
 #' @param set.seed set a seed before kmeans binarization
 #' @param bin_matrix a binarized matrix, when provided it will skip the binarization process
 #' @param summarize summarize the p-values or adjusted p-values
@@ -1192,12 +1170,12 @@ binSpect = function(gobject,
 
 
 
-#' @title silhouetteRank_old
-#' @name silhouetteRank_old
+#' @title silhouetteRank
+#' @name silhouetteRank
 #' @description Previously: calculate_spatial_genes_python. This method computes a silhouette score per gene based on the
 #' spatial distribution of two partitions of cells (expressed L1, and non-expressed L0).
 #' Here, rather than L2 Euclidean norm, it uses a rank-transformed, exponentially weighted
-#' function to represent the local physical distance between two cells. New implementation can be found at \code{\link{silhouetteRank}}
+#' function to represent the local physical distance between two cells.
 #' @param gobject giotto object
 #' @param expression_values expression values to use
 #' @param metric distance metric to use
@@ -1207,13 +1185,15 @@ binSpect = function(gobject,
 #' @param python_path specify specific path to python if required
 #' @return data.table with spatial scores
 #' @export
-silhouetteRank_old <- function(gobject,
-                               expression_values = c('normalized', 'scaled', 'custom'),
-                               metric = "euclidean",
-                               subset_genes = NULL,
-                               rbp_p = 0.95,
-                               examine_top = 0.3,
-                               python_path = NULL) {
+#' @examples
+#'     silhouetteRank(gobject)
+silhouetteRank <- function(gobject,
+                           expression_values = c('normalized', 'scaled', 'custom'),
+                           metric = "euclidean",
+                           subset_genes = NULL,
+                           rbp_p = 0.95,
+                           examine_top = 0.3,
+                           python_path = NULL) {
 
 
   # expression values
@@ -1270,8 +1250,8 @@ silhouetteRank_old <- function(gobject,
 
 
 
-#' @title silhouetteRank
-#' @name silhouetteRank
+#' @title silhouetteRank_test
+#' @name silhouetteRank_test
 #' @description Previously: calculate_spatial_genes_python. This method computes a silhouette score per gene based on the
 #' spatial distribution of two partitions of cells (expressed L1, and non-expressed L0).
 #' Here, rather than L2 Euclidean norm, it uses a rank-transformed, exponentially weighted
@@ -1287,31 +1267,25 @@ silhouetteRank_old <- function(gobject,
 #' @param parallel_path path to GNU parallel function
 #' @param output output directory
 #' @param query_sizes size of query
-#' @param verbose be verbose
 #' @return data.table with spatial scores
 #' @export
-silhouetteRank = function(gobject,
-                          expression_values = c('normalized', 'scaled', 'custom'),
-                          subset_genes = NULL,
-                          overwrite_input_bin = FALSE,
-                          rbp_ps = c(0.95, 0.99),
-                          examine_tops = c(0.005, 0.010, 0.050, 0.100, 0.300),
-                          matrix_type = "dissim",
-                          num_core = 4,
-                          parallel_path = "/usr/bin",
-                          output = NULL,
-                          query_sizes = 10L,
-                          verbose = FALSE) {
+silhouetteRank_test = function(gobject,
+                               expression_values = c('normalized', 'scaled', 'custom'),
+                               subset_genes = NULL,
+                               overwrite_input_bin = TRUE,
+                               rbp_ps = c(0.95, 0.99),
+                               examine_tops = c(0.005, 0.010, 0.050, 0.100, 0.300),
+                               matrix_type = "dissim",
+                               num_core = 4,
+                               parallel_path = "/usr/bin",
+                               output = NULL,
+                               query_sizes = 10L, verbose=FALSE) {
 
-
-  # data.table variables
-  cell_ID = sdimx = sdimy = sdimz = NULL
 
   ## test if R packages are installed
-  # check envstats
-  package_check(pkg_name = 'EnvStats', repository = c('CRAN'))
+  Giotto:::package_check(pkg_name = 'EnvStats',
+                         repository = c('CRAN'))
 
-  # check eva
   if ('eva' %in% rownames(installed.packages()) == FALSE) {
     stop("\n package ", 'eva', " is not yet installed \n",
          "To install: \n",
@@ -1344,7 +1318,7 @@ silhouetteRank = function(gobject,
 
   # expression values
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
 
   # subset genes
   if(!is.null(subset_genes)) {
@@ -1377,8 +1351,8 @@ silhouetteRank = function(gobject,
   }
 
   # log directory
-  # log_dir  = paste0(silh_output_dir, '/', 'logs/')
-  # if(!file.exists(log_dir)) dir.create(log_dir, recursive = TRUE)
+  log_dir  = paste0(silh_output_dir, '/', 'logs/')
+  if(!file.exists(log_dir)) dir.create(log_dir, recursive = TRUE)
 
 
   ## write spatial locations to .txt file
@@ -1418,14 +1392,15 @@ silhouetteRank = function(gobject,
                                 rbp_ps = rbp_ps,
                                 examine_tops = examine_tops,
                                 matrix_type = matrix_type,
-                                verbose = verbose,
+								verbose = verbose,
+                                #logdir = log_dir,
                                 num_core = num_core,
                                 parallel_path = parallel_path,
                                 output = silh_output_dir,
-                                query_sizes = query_sizes)
+                                query_sizes = as.integer(query_sizes))
 
-  spatial_results = data.table::as.data.table(output_silh)
-  return(spatial_results)
+
+  return(output_silh)
 
 }
 
@@ -1573,7 +1548,7 @@ spatialDE <- function(gobject = NULL,
 #' @name spatialAEH
 #' @description Compute spatial variable genes with spatialDE method
 #' @param gobject Giotto object
-#' @param SpatialDE_results results of \code{\link{spatialDE}} function
+#' @param SpatialDE_results results of \code{\link{SpatialDE}} function
 #' @param name_pattern name for the computed spatial patterns
 #' @param expression_values gene expression values to use
 #' @param pattern_num number of spatial patterns to look for
@@ -1813,9 +1788,6 @@ spark = function(gobject,
                  return_object = 'data.table',
                  ...) {
 
-
-  # data.table variables
-  genes =  adjusted_pvalue = combined_pvalue = NULL
 
   ## test if SPARK is installed ##
   package_check(pkg_name = 'SPARK',
@@ -3166,9 +3138,6 @@ simulateOneGenePatternGiottoObject = function(gobject,
                                               pattern_colors = c('in' = 'green', 'out' = 'red'),
                                               ...) {
 
-  # data.table variables
-  cell_ID = sdimx_y = sdimx = sdimy = NULL
-
   if(is.null(pattern_cell_ids)) {
     stop('pattern_cell_ids can not be NULL \n')
   }
@@ -3310,9 +3279,9 @@ run_spatial_sim_tests_one_rep = function(gobject,
                                          spatial_prob = 0.95,
                                          show_pattern = FALSE,
                                          spatial_network_name = 'kNN_network',
-                                         spat_methods = c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark', 'silhouetteRank'),
-                                         spat_methods_params = list(NA, NA, NA, NA, NA),
-                                         spat_methods_names = c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark', 'silhouetteRank'),
+                                         spat_methods = c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark'),
+                                         spat_methods_params = list(NA, NA, NA, NA),
+                                         spat_methods_names = c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark'),
                                          save_plot = FALSE,
                                          save_raw = FALSE,
                                          save_norm = FALSE,
@@ -3321,9 +3290,6 @@ run_spatial_sim_tests_one_rep = function(gobject,
                                          run_simulations = TRUE,
                                          ...) {
 
-
-  # data.table variables
-  genes = prob = time = adj.p.value = method = p.val = sd = qval = pval = g = adjusted_pvalue = NULL
 
   ## test if spat_methods, params and names have the same length
   if(length(spat_methods) != length(spat_methods_params)) {
@@ -3388,65 +3354,49 @@ run_spatial_sim_tests_one_rep = function(gobject,
 
       # method
       selected_method = spat_methods[test]
-      if(!selected_method %in% c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark', 'silhouetteRank')) {
+      if(!selected_method %in% c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark')) {
         stop(selected_method, ' is not a know spatial method \n')
       }
 
       # params
       selected_params = spat_methods_params[[test]]
+      if(is.na(selected_params)) {
 
-      if(length(selected_params) == 1) {
+        if(selected_method == 'binSpect_single') {
+          selected_params = list(bin_method = 'kmeans',
+                                 nstart = 3,
+                                 iter_max = 10,
+                                 expression_values = 'normalized',
+                                 get_av_expr = FALSE,
+                                 get_high_expr = FALSE)
 
-        if(is.na(selected_params)) {
+        } else if(selected_method == 'binSpect_multi') {
+          selected_params = list(bin_method = 'kmeans',
+                                 spatial_network_k = c(5, 10, 20),
+                                 nstart = 3,
+                                 iter_max = 10,
+                                 expression_values = 'normalized',
+                                 get_av_expr = FALSE,
+                                 get_high_expr = FALSE,
+                                 summarize = 'adj.p.value')
 
-          if(selected_method == 'binSpect_single') {
-            selected_params = list(bin_method = 'kmeans',
-                                   nstart = 3,
-                                   iter_max = 10,
-                                   expression_values = 'normalized',
-                                   get_av_expr = FALSE,
-                                   get_high_expr = FALSE)
-
-          } else if(selected_method == 'binSpect_multi') {
-            selected_params = list(bin_method = 'kmeans',
-                                   spatial_network_k = c(5, 10, 20),
-                                   nstart = 3,
-                                   iter_max = 10,
-                                   expression_values = 'normalized',
-                                   get_av_expr = FALSE,
-                                   get_high_expr = FALSE,
-                                   summarize = 'adj.p.value')
-
-          } else if(selected_method == 'spatialDE') {
-            selected_params = list(expression_values = 'raw',
-                                   sig_alpha = 0.5,
-                                   unsig_alpha = 0.5,
-                                   show_plot = FALSE,
-                                   return_plot = FALSE,
-                                   save_plot = FALSE)
+        } else if(selected_method == 'spatialDE') {
+          selected_params = list(expression_values = 'raw',
+                                 sig_alpha = 0.5,
+                                 unsig_alpha = 0.5,
+                                 show_plot = FALSE,
+                                 return_plot = FALSE,
+                                 save_plot = FALSE)
 
 
-          } else if(selected_method == 'spark') {
-            selected_params = list(expression_values = 'raw',
-                                   return_object = 'data.table',
-                                   percentage = 0.1,
-                                   min_count = 10,
-                                   num_core = 5)
-
-          }  else if(selected_method == 'silhouetteRank') {
-            selected_params = list(expression_values = 'normalized',
-                                   overwrite_input_bin = FALSE,
-                                   rbp_ps = c(0.95, 0.99),
-                                   examine_tops = c(0.005, 0.010),
-                                   matrix_type = "dissim",
-                                   num_core = 4,
-                                   parallel_path = "/usr/bin",
-                                   output = NULL,
-                                   query_sizes = 10L)
-
-          }
-
+        } else if(selected_method == 'spark') {
+          selected_params = list(expression_values = 'raw',
+                                 return_object = 'data.table',
+                                 percentage = 0.1,
+                                 min_count = 10,
+                                 num_core = 5)
         }
+
 
       }
 
@@ -3538,26 +3488,6 @@ run_spatial_sim_tests_one_rep = function(gobject,
         spatial_gene_results[, method := 'spark']
 
 
-      } else if(selected_method == 'silhouetteRank') {
-
-        ## silhouetterank
-        start = proc.time()
-
-        spatial_gene_results = do.call('silhouetteRank', c(gobject = simulate_patch,
-                                                           selected_params))
-
-        data.table::setnames(spatial_gene_results, old = 'gene', new = 'genes')
-        spatial_gene_results = spatial_gene_results[genes == gene_name]
-        silh_time = proc.time() - start
-
-        spatial_gene_results[, prob := spatial_prob]
-        spatial_gene_results[, time := silh_time[['elapsed']] ]
-
-        # silhrank uses qval by default
-        spatial_gene_results = spatial_gene_results[,.(genes, qval, prob, time)]
-        colnames(spatial_gene_results) = c('genes', 'adj.p.value', 'prob', 'time')
-        spatial_gene_results[, method := 'silhouette']
-
       }
 
       result_list[[test]] = spatial_gene_results
@@ -3589,9 +3519,9 @@ run_spatial_sim_tests_multi = function(gobject,
                                        reps = 2,
 
                                        spatial_network_name = 'kNN_network',
-                                       spat_methods = c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark', 'silhouetteRank'),
-                                       spat_methods_params = list(NA, NA, NA, NA, NA),
-                                       spat_methods_names = c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark', 'silhouetteRank'),
+                                       spat_methods = c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark'),
+                                       spat_methods_params = list(NA, NA, NA, NA),
+                                       spat_methods_names = c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark'),
 
                                        save_plot = FALSE,
                                        save_raw = FALSE,
@@ -3681,8 +3611,6 @@ run_spatial_sim_tests_multi = function(gobject,
 #' @param spat_methods_params list of parameters list for each element in the vector of spatial methods to test
 #' @param spat_methods_names name for each element in the vector of spatial elements to test
 #' @param save_plot save intermediate random simulation plots or not
-#' @param save_raw save the raw expression matrix of the simulation
-#' @param save_norm save the normalized expression matrix of the simulation
 #' @param save_dir directory to save results to
 #' @param max_col maximum number of columns for final plots
 #' @param height height of final plots
@@ -3700,9 +3628,9 @@ runPatternSimulation = function(gobject,
                                 spatial_probs = c(0.5, 1),
                                 reps = 2,
                                 spatial_network_name = 'kNN_network',
-                                spat_methods = c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark', 'silhouetteRank'),
-                                spat_methods_params = list(NA, NA, NA, NA, NA),
-                                spat_methods_names = c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark', 'silhouetteRank'),
+                                spat_methods = c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark'),
+                                spat_methods_params = list(NA, NA, NA, NA),
+                                spat_methods_names = c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark'),
                                 save_plot = T,
                                 save_raw = T,
                                 save_norm = T,
@@ -3712,10 +3640,6 @@ runPatternSimulation = function(gobject,
                                 width = 7,
                                 run_simulations = TRUE,
                                 ...) {
-
-
-  # data.table variables
-  prob = method = adj.p.value = time = NULL
 
 
   # plot pattern for first gene (the same for all)
@@ -3803,10 +3727,9 @@ runPatternSimulation = function(gobject,
       pl = pl + ggplot2::facet_wrap(~genes, nrow = nr_rows)
       pl = pl + ggplot2::geom_hline(yintercept = 0.05, color = 'red', linetype = 2)
 
-      grDevices::pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_pvalues.pdf'), width = width, height = height)
+      pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_pvalues.pdf'), width = width, height = height)
       print(pl)
-      grDevices::dev.off()
-
+      dev.off()
 
 
       # -log10 p-values
@@ -3816,9 +3739,9 @@ runPatternSimulation = function(gobject,
       pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
       pl = pl + ggplot2::facet_wrap(~genes, nrow = nr_rows)
 
-      grDevices::pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_log10pvalues.pdf'), width = width, height = height)
+      pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_log10pvalues.pdf'), width = width, height = height)
       print(pl)
-      grDevices::dev.off()
+      dev.off()
 
 
       # time
@@ -3827,9 +3750,9 @@ runPatternSimulation = function(gobject,
       pl = pl + ggplot2::geom_point(data = results, ggplot2::aes(x = method, y = time, color = prob), size = 2, position = ggplot2::position_jitterdodge())
       pl = pl + ggplot2::theme_bw() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
 
-      grDevices::pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_time.pdf'), width = width, height = height)
+      pdf(file = paste0(save_dir,'/',pattern_name,'_boxplot_time.pdf'), width = width, height = height)
       print(pl)
-      grDevices::dev.off()
+      dev.off()
     }
 
 
