@@ -51,7 +51,12 @@
 #'
 #' @export
 #' @examples
-#'     createNearestNetwork(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' mini_giotto_single_cell <- createNearestNetwork(gobject = mini_giotto_single_cell,
+#'                                                 dimensions_to_use = 1:3, k = 3)
+#'
 createNearestNetwork <- function(gobject,
                                  type = c('sNN', 'kNN'),
                                  dim_reduction_to_use = 'pca',
@@ -211,8 +216,6 @@ createNearestNetwork <- function(gobject,
 #' Currently only the force-directed graph layout "drl", see \code{\link[igraph]{layout_with_drl}},
 #' is implemented. This provides an alternative to tSNE or UMAP based visualizations.
 #' @export
-#' @examples
-#'     addNetworkLayout(gobject)
 addNetworkLayout = function(gobject,
                             nn_network_to_use = "sNN",
                             network_name = "sNN.pca",

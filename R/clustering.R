@@ -185,9 +185,8 @@ doLeidenCluster = function(gobject,
 #'
 #' Set \emph{weight_col = NULL} to give equal weight (=1) to each edge.
 #'
-#' @export
-#' @examples
-#'     doLouvainCluster_community(gobject)
+#' @keywords internal
+#'
 doLouvainCluster_community <- function(gobject,
                                        name = 'louvain_clus',
                                        nn_network_to_use = 'sNN',
@@ -317,9 +316,7 @@ doLouvainCluster_community <- function(gobject,
 #' @details See \code{\link[multinet]{glouvain_ml}} from the multinet package in R for
 #' more information.
 #'
-#' @export
-#' @examples
-#'     doLouvainCluster_multinet(gobject)
+#' @keywords internal
 doLouvainCluster_multinet <- function(gobject,
                                       name = 'louvain_clus',
                                       nn_network_to_use = 'sNN',
@@ -516,8 +513,6 @@ doLouvainCluster = function(gobject,
 #' @details See \code{\link[igraph]{cluster_walktrap}} function from the igraph
 #' package in R for more information.
 #' @export
-#' @examples
-#'     doRandomWalkCluster(gobject)
 doRandomWalkCluster <- function(gobject,
                                 name = 'random_walk_clus',
                                 nn_network_to_use = 'sNN',
@@ -1468,9 +1463,7 @@ doLeidenSubCluster = function(gobject,
 #'   \item{5. do Louvain community clustering}
 #' }
 #' @seealso \code{\link{doLouvainCluster_community}}
-#' @export
-#' @examples
-#'     doLouvainSubCluster_community(gobject)
+#' @keywords internal
 doLouvainSubCluster_community = function(gobject,
                                          name = 'sub_louvain_comm_clus',
                                          cluster_column = NULL,
@@ -1652,9 +1645,7 @@ doLouvainSubCluster_community = function(gobject,
 #'   \item{5. do Louvain multinet clustering}
 #' }
 #' @seealso \code{\link{doLouvainCluster_multinet}}
-#' @export
-#' @examples
-#'     doLouvainSubCluster_multinet(gobject)
+#' @keywords internal
 doLouvainSubCluster_multinet =  function(gobject,
                                          name = 'sub_louvain_mult_clus',
                                          cluster_column = NULL,
@@ -2306,8 +2297,8 @@ split_dendrogram_in_two = function(dend) {
   numerical_leaves = unlist(dend)
   names(numerical_leaves) = all_leaves
 
-  dend_1 = dendextend::find_dendrogram(dend = dend, selected_labels = numerical_leaves[selected_labels_ind_1])
-  dend_2 = dendextend::find_dendrogram(dend = dend, selected_labels = numerical_leaves[selected_labels_ind_2])
+  dend_1 = dendextend::find_dendrogram(dend = dend, selected_labels = names(numerical_leaves[selected_labels_ind_1]))
+  dend_2 = dendextend::find_dendrogram(dend = dend, selected_labels = names(numerical_leaves[selected_labels_ind_2]))
 
   #dend_1 = dendextend::find_dendrogram(dend = dend, selected_labels = divided_leaves_labels[[1]])
   #dend_2 = dendextend::find_dendrogram(dend = dend, selected_labels = divided_leaves_labels[[2]])
@@ -2350,7 +2341,8 @@ node_clusters = function(hclus_obj, verbose = TRUE) {
     available_h = as.numeric(unlist(lapply(dend_list, FUN = function(x) attributes(x)$height)))
 
     # get dendrogram associated with height and split in two
-    select_dend_ind = which(available_h == n_height)
+    # select_dend_ind = which(available_h == n_height)
+    select_dend_ind = which.min(abs(available_h - n_height))
     select_dend = dend_list[[select_dend_ind]]
     tempres = split_dendrogram_in_two(dend = select_dend)
 
@@ -2445,7 +2437,7 @@ getDendrogramSplits = function(gobject,
 
   splitList = node_clusters(hclus_obj = corclus, verbose = verbose)
 
-  splitDT = as.data.table(t(as.data.table(splitList[[2]])))
+  splitDT = data.table::as.data.table(t_giotto(data.table::as.data.table(splitList[[2]])))
   colnames(splitDT) = c('node_h', 'tree_1', 'tree_2')
   splitDT[, nodeID := paste0('node_', 1:.N)]
 

@@ -1,5 +1,28 @@
 
 
+
+#' @title determine_cores
+#' @description guesses how many cores to use
+#' @return numeric
+#' @keywords internal
+determine_cores = function(cores, min_cores = 1, max_cores = 10) {
+
+  if(is.na(cores) | !is.numeric(cores) | (is.numeric(cores) & cores <= 0)) {
+    cores = parallel::detectCores()
+
+    if(cores <= 2) {
+      cores = ifelse(cores < min_cores, cores, min_cores)
+    } else {
+      cores = cores - 2
+      cores = ifelse(cores > max_cores, max_cores, cores)
+    }
+    return(cores)
+  } else {
+    cores = cores
+    return(cores)
+  }
+}
+
 #' @title getDistinctColors
 #' @description Returns a number of distint colors based on the RGB scale
 #' @param n number of colors wanted
@@ -573,24 +596,26 @@ package_check = function(pkg_name,
 #' @name getSpatialDataset
 #' @param dataset dataset to download
 #' @param directory directory to save the data to
+#' @param \dots additional parameters to \code{\link[utils]{download.file}}
 #' @description This package will automatically download the spatial locations and
 #' expression matrix for the chosen dataset. These files are already in the right format
-#' to create a Giotto object.
+#' to create a Giotto object. If wget is installed on your machine, you can add
+#' 'method = wget' to the parameters to download files faster.
 #' @export
-getSpatialDataset = function(dataset = c('ST_OB_1',
-                                         'ST_OB_2',
+getSpatialDataset = function(dataset = c('ST_OB1',
+                                         'ST_OB2',
                                          'codex_spleen',
                                          'cycif_PDAC',
                                          'starmap_3D_cortex',
                                          'osmfish_SS_cortex',
                                          'merfish_preoptic',
                                          'seqfish_SS_cortex',
-                                         'seqfish_OB'
-                                         ),
-                             directory = getwd()) {
+                                         'seqfish_OB'),
+                             directory = getwd(),
+                             ...) {
 
-  sel_dataset = match.arg(dataset, choices = c('ST_OB_1',
-                                               'ST_OB_2',
+  sel_dataset = match.arg(dataset, choices = c('ST_OB1',
+                                               'ST_OB2',
                                                'codex_spleen',
                                                'cycif_PDAC',
                                                'starmap_3D_cortex',
@@ -599,29 +624,83 @@ getSpatialDataset = function(dataset = c('ST_OB_1',
                                                'seqfish_SS_cortex',
                                                'seqfish_OB'))
 
+  # check operating system first
+  os_specific_system = get_os()
+
+  #if(os_specific_system == 'windows') {
+  #  stop('This function is currently not supported on windows systems,
+  #       please visit https://github.com/RubD/spatial-datasets and manually download your files')
+  #}
+
+
+  # check directory
   if(!file.exists(directory)) {
     warning('The output directory does not exist and will be created \n')
+    dir.create(directory, recursive = T)
   }
 
   datasets_file = system.file("extdata", "datasets.txt", package = 'Giotto')
   datasets_file = data.table::fread(datasets_file)
 
+
+
+  ## check if wget is installed
+  #message = system("if ! command -v wget &> /dev/null
+  #                  then
+  #                  echo 'wget could not be found, please install wget first'
+  #                  exit
+  #                  fi", intern = TRUE)
+
+  #if(identical(message, character(0))) {
+  #  print('wget was found, start downloading datasets: ')
+  #} else {
+  #  stop(message)
+  #}
+
+  ## alternative
+  #wget_works = try(system('command -v wget', intern = T))
+
+  #if(class(wget_works) == 'try-error' | is.na(wget_works[1])) {
+  #  stop('wget was not found, please install wget first \n')
+  #} else {
+  #  print('wget was found, start downloading datasets: \n')
+  #}
+
+
+
   # get url to spatial locations and download
   spatial_locs_url = datasets_file[dataset == sel_dataset][['spatial_locs']]
-  system(paste0('wget -P ', directory,' ', spatial_locs_url))
+  myfilename = basename(spatial_locs_url)
+  mydestfile = paste0(directory,'/', myfilename)
+
+  print(spatial_locs_url)
+  print(mydestfile)
+
+  utils::download.file(url = spatial_locs_url, destfile = mydestfile, ...)
+
+  #system(paste0("wget -P ", "'",directory,"'"," ", spatial_locs_url))
+
 
   # get url to expression matrix and download
   expr_matrix_url = datasets_file[dataset == sel_dataset][['expr_matrix']]
-  system(paste0('wget -P ', directory,' ', expr_matrix_url))
+  myfilename = basename(expr_matrix_url)
+  mydestfile = paste0(directory,'/', myfilename)
+  utils::download.file(url = expr_matrix_url, destfile = mydestfile, ...)
+
+  #system(paste0("wget -P ", "'",directory,"'"," ", expr_matrix_url))
 
   # get url(s) to additional metadata files and download
   metadata_url = datasets_file[dataset == sel_dataset][['metadata']][[1]]
+  metadata_url = unlist(strsplit(metadata_url, split = '\\|'))
 
-  if(length(metadata_url) == 1 & is.na(metadata_url)) {
+  if(identical(metadata_url, character(0))) {
     NULL
   } else {
     for(url in metadata_url) {
-      system(paste0('wget -P ', directory,' ', url))
+      myfilename = basename(url)
+      mydestfile = paste0(directory,'/', myfilename)
+      utils::download.file(url = url, destfile = mydestfile, ...)
+      #system(paste0("wget -P ", "'",directory,"'"," ", url))
     }
   }
 

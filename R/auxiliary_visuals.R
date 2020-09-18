@@ -404,7 +404,16 @@ showSaveParameters = function() {
 #' @details Correlation heatmap of selected clusters.
 #' @export
 #' @examples
-#'     showClusterHeatmap(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' # cell metadata
+#' cell_metadata = pDataDT(mini_giotto_single_cell)
+#'
+#' # create heatmap
+#' showClusterHeatmap(mini_giotto_single_cell,
+#'                    cluster_column = 'cell_types')
+#'
 showClusterHeatmap <- function(gobject,
                                expression_values = c('normalized', 'scaled', 'custom'),
                                genes = 'all',
@@ -492,7 +501,16 @@ showClusterHeatmap <- function(gobject,
 #' @details Expression correlation dendrogram for selected clusters.
 #' @export
 #' @examples
-#'     showClusterDendrogram(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' # cell metadata
+#' cell_metadata = pDataDT(mini_giotto_single_cell)
+#'
+#' # create heatmap
+#' showClusterDendrogram(mini_giotto_single_cell,
+#'                       cluster_column = 'cell_types')
+#'
 showClusterDendrogram <- function(gobject,
                                   expression_values = c('normalized', 'scaled', 'custom'),
                                   cluster_column,
@@ -647,8 +665,7 @@ decide_cluster_order = function(gobject,
 #' @param gene_hclust_method method for hierarchical clustering of genes
 #' @return list
 #' @details Creates input data.tables for plotHeatmap function.
-#' @examples
-#'     createHeatmap_DT(gobject)
+#' @keywords internal
 createHeatmap_DT <- function(gobject,
                              expression_values = c('normalized', 'scaled', 'custom'),
                              genes,
@@ -741,6 +758,7 @@ createHeatmap_DT <- function(gobject,
 }
 
 
+
 #' @title plotHeatmap
 #' @name plotHeatmap
 #' @description Creates heatmap for genes and clusters.
@@ -777,7 +795,24 @@ createHeatmap_DT <- function(gobject,
 #' @export
 #' @examples
 #' \dontrun{
-#' plotHeatmap(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' # get all genes
+#' all_genes = slot(mini_giotto_single_cell, 'gene_ID')
+#'
+#' # plot heatmap
+#' plotHeatmap(mini_giotto_single_cell,
+#'             genes = all_genes[1:10])
+#'
+#' # look at cell metadata
+#' cell_metadata = pDataDT(mini_giotto_single_cell)
+#'
+#' # plot heatmap per cell type, a column name from cell_metadata
+#' plotHeatmap(mini_giotto_single_cell,
+#'             genes = all_genes[1:10],
+#'             cluster_column = 'cell_types')
+#'
 #' }
 plotHeatmap <- function(gobject,
                         expression_values = c('normalized', 'scaled', 'custom'),
@@ -1023,7 +1058,22 @@ plotHeatmap <- function(gobject,
 #' @seealso \code{\link{plotMetaDataCellsHeatmap}} for numeric cell annotation instead of gene expression.
 #' @export
 #' @examples
-#'     plotMetaDataHeatmap(gobject)
+#' \dontrun{
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' # get all genes
+#' all_genes = slot(mini_giotto_single_cell, 'gene_ID')
+#'
+#' # look at cell metadata
+#' cell_metadata = pDataDT(mini_giotto_single_cell)
+#'
+#' # plot heatmap per cell type, a column name from cell_metadata
+#' plotMetaDataHeatmap(mini_giotto_single_cell,
+#'                     selected_genes = all_genes[1:10],
+#'                     metadata_cols = 'cell_types')
+#'
+#' }
 plotMetaDataHeatmap = function(gobject,
                                expression_values =  c("normalized", "scaled", "custom"),
                                metadata_cols = NULL,
@@ -1271,8 +1321,6 @@ plotMetaDataHeatmap = function(gobject,
 #' @details Creates heatmap for the average values of selected value columns in the different annotation groups.
 #' @seealso \code{\link{plotMetaDataHeatmap}} for gene expression instead of numeric cell annotation data.
 #' @export
-#' @examples
-#'     plotMetaDataCellsHeatmap(gobject)
 plotMetaDataCellsHeatmap = function(gobject,
                                     metadata_cols = NULL,
                                     spat_enr_names = NULL,
@@ -1483,7 +1531,22 @@ plotMetaDataCellsHeatmap = function(gobject,
 #' @return ggplot
 #' @export
 #' @examples
-#'     violinPlot(gobject)
+#' \dontrun{
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' # get all genes
+#' all_genes = slot(mini_giotto_single_cell, 'gene_ID')
+#'
+#' # look at cell metadata
+#' cell_metadata = pDataDT(mini_giotto_single_cell)
+#'
+#' # plot violinplot with selected genes and stratified for identified cell types
+#' violinPlot(mini_giotto_single_cell,
+#'            genes = all_genes[1:10],
+#'            cluster_column = 'cell_types')
+#'
+#' }
 violinPlot <- function(gobject,
                        expression_values = c('normalized', 'scaled', 'custom'),
                        genes,

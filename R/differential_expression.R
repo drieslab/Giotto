@@ -20,7 +20,14 @@
 #'
 #' @export
 #' @examples
-#'     findScranMarkers(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' scran_markers = findScranMarkers(gobject = mini_giotto_single_cell,
+#'                                  cluster_column = 'leiden_clus',
+#'                                  group_1 = 1,
+#'                                  group_2 = 2)
+#'
 findScranMarkers <- function(gobject,
                              expression_values = c('normalized', 'scaled', 'custom'),
                              cluster_column,
@@ -120,7 +127,12 @@ findScranMarkers <- function(gobject,
 #' @seealso \code{\link{findScranMarkers}}
 #' @export
 #' @examples
-#'     findScranMarkers_one_vs_all(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' scran_markers = findScranMarkers_one_vs_all(gobject = mini_giotto_single_cell,
+#'                                             cluster_column = 'leiden_clus')
+#'
 findScranMarkers_one_vs_all <- function(gobject,
                                         expression_values = c('normalized', 'scaled', 'custom'),
                                         cluster_column,
@@ -254,7 +266,14 @@ findScranMarkers_one_vs_all <- function(gobject,
 #'
 #' @export
 #' @examples
-#'     findGiniMarkers(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' gini_markers = findGiniMarkers(gobject = mini_giotto_single_cell,
+#'                                cluster_column = 'leiden_clus',
+#'                                group_1 = 1,
+#'                                group_2 = 2)
+#'
 findGiniMarkers <- function(gobject,
                             expression_values = c('normalized', 'scaled', 'custom'),
                             cluster_column,
@@ -406,7 +425,12 @@ findGiniMarkers <- function(gobject,
 #' @seealso \code{\link{findGiniMarkers}}
 #' @export
 #' @examples
-#'     findGiniMarkers_one_vs_all(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' gini_markers = findGiniMarkers_one_vs_all(gobject = mini_giotto_single_cell,
+#'                                           cluster_column = 'leiden_clus')
+#'
 findGiniMarkers_one_vs_all <- function(gobject,
                                        expression_values = c('normalized', 'scaled', 'custom'),
                                        cluster_column,
@@ -501,7 +525,14 @@ findGiniMarkers_one_vs_all <- function(gobject,
 #' from the MAST package to detect differentially expressed genes.
 #' @export
 #' @examples
-#'     findMastMarkers(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' mast_markers = findMastMarkers(gobject = mini_giotto_single_cell,
+#'                                cluster_column = 'leiden_clus',
+#'                                group_1 = 1,
+#'                                group_2 = 2)
+#'
 findMastMarkers <- function(gobject,
                             expression_values = c('normalized', 'scaled', 'custom'),
                             cluster_column,
@@ -640,7 +671,12 @@ findMastMarkers <- function(gobject,
 #' @seealso \code{\link{findMastMarkers}}
 #' @export
 #' @examples
-#'     findMastMarkers_one_vs_all(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' mast_markers = findMastMarkers_one_vs_all(gobject = mini_giotto_single_cell,
+#'                                           cluster_column = 'leiden_clus')
+#'
 findMastMarkers_one_vs_all = function(gobject,
                                       expression_values = c('normalized', 'scaled', 'custom'),
                                       cluster_column,
@@ -749,8 +785,6 @@ findMastMarkers_one_vs_all = function(gobject,
 #' @details Wrapper for all individual functions to detect marker genes for clusters.
 #' @seealso \code{\link{findScranMarkers}}, \code{\link{findGiniMarkers}} and \code{\link{findMastMarkers}}
 #' @export
-#' @examples
-#'     findMarkers(gobject)
 findMarkers <- function(gobject,
                         expression_values = c('normalized', 'scaled', 'custom'),
                         cluster_column = NULL,
@@ -840,8 +874,6 @@ findMarkers <- function(gobject,
 #' @details Wrapper for all one vs all functions to detect marker genes for clusters.
 #' @seealso \code{\link{findScranMarkers_one_vs_all}}, \code{\link{findGiniMarkers_one_vs_all}} and \code{\link{findMastMarkers_one_vs_all}}
 #' @export
-#' @examples
-#'     findMarkers_one_vs_all(gobject)
 findMarkers_one_vs_all <- function(gobject,
                                    expression_values = c('normalized', 'scaled', 'custom'),
                                    cluster_column,
