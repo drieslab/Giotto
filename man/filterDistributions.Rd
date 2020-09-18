@@ -4,11 +4,22 @@
 \alias{filterDistributions}
 \title{filterDistributions}
 \usage{
-filterDistributions(gobject, expression_values = c("raw", "normalized",
-  "scaled", "custom"), expression_threshold = 1, detection = c("genes",
-  "cells"), plot_type = c("histogram", "violin"), nr_bins = 30,
-  fill_color = "lightblue", scale_axis = "identity", axis_offset = 0,
-  show_plot = TRUE)
+filterDistributions(
+  gobject,
+  expression_values = c("raw", "normalized", "scaled", "custom"),
+  expression_threshold = 1,
+  detection = c("genes", "cells"),
+  plot_type = c("histogram", "violin"),
+  nr_bins = 30,
+  fill_color = "lightblue",
+  scale_axis = "identity",
+  axis_offset = 0,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "filterDistributions"
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -17,7 +28,7 @@ filterDistributions(gobject, expression_values = c("raw", "normalized",
 
 \item{expression_threshold}{threshold to consider a gene expressed}
 
-\item{detection}{look at genes or cells}
+\item{detection}{consider genes or cells}
 
 \item{plot_type}{type of plot}
 
@@ -30,13 +41,29 @@ filterDistributions(gobject, expression_values = c("raw", "normalized",
 \item{axis_offset}{offset to be used together with the scaling transformation}
 
 \item{show_plot}{show plot}
+
+\item{return_plot}{return ggplot object}
+
+\item{save_plot}{directly save the plot [boolean]}
+
+\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+
+\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }
 \value{
 ggplot object
 }
 \description{
-show gene or cell filter distributions
+show gene or cell distribution after filtering on expression threshold
 }
 \examples{
-    filterDistributions(gobject)
+
+data(mini_giotto_single_cell)
+
+# distribution plot of genes
+filterDistributions(mini_giotto_single_cell, detection = 'genes')
+
+# distribution plot of cells
+filterDistributions(mini_giotto_single_cell, detection = 'cells')
+
 }

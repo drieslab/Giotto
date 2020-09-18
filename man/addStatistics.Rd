@@ -4,8 +4,12 @@
 \alias{addStatistics}
 \title{addStatistics}
 \usage{
-addStatistics(gobject, expression_values = c("normalized", "scaled",
-  "custom"), detection_threshold = 0, return_gobject = TRUE)
+addStatistics(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  detection_threshold = 0,
+  return_gobject = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -23,8 +27,12 @@ giotto object if return_gobject = TRUE, else a list with results
 adds genes and cells statistics to the giotto object
 }
 \details{
-Details about gene and cell statistics that are returned.
+See \code{\link{addGeneStatistics}} and \code{\link{addCellStatistics}}
 }
 \examples{
-    addStatistics(gobject)
+
+data(mini_giotto_single_cell)
+
+updated_giotto_object = addStatistics(mini_giotto_single_cell)
+
 }

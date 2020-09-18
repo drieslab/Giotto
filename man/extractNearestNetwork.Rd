@@ -4,22 +4,22 @@
 \alias{extractNearestNetwork}
 \title{extractNearestNetwork}
 \usage{
-extractNearestNetwork(gobject, nn_network_to_use = "sNN",
-  network_name = "sNN.pca")
+extractNearestNetwork(...)
 }
 \arguments{
-\item{gobject}{giotto object}
-
-\item{nn_network_to_use}{kNN or sNN}
-
-\item{network_name}{name of NN network to be used}
-}
-\value{
-igraph object
+\item{...}{
+  Arguments passed on to \code{\link[=select_NearestNetwork]{select_NearestNetwork}}
+  \describe{
+    \item{\code{gobject}}{giotto object}
+    \item{\code{nn_network_to_use}}{kNN or sNN}
+    \item{\code{network_name}}{name of NN network to be used}
+    \item{\code{output}}{return a igraph or data.table object}
+  }}
 }
 \description{
-Extracts a NN-network from a Giotto object as an igraph object
+Function to calculate gene signature enrichment scores per spatial position using a rank based approach.
 }
-\examples{
-    extractNearestNetwork(gobject)
+\seealso{
+\code{\link{select_NearestNetwork}}
 }
+\keyword{internal}

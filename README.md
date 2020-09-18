@@ -1,121 +1,123 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+<!-- This line is from RStudio -->
+
 # Giotto
 
 <!-- badges: start -->
 
 <!-- badges: end -->
 
-The goal of Giotto is to process, analyze and visualize **single-cell
-spatial transcriptomic** data. Simultaneously this package contains the
-data that was used in the recent
-[**seqFISH+**](https://www.nature.com/articles/s41586-019-1049-y) paper
-and can thus be used to explore or re-analyze this dataset.
+The Giotto package consists of two modules, Giotto Analyzer and Viewer
+(see [www.spatialgiotto.com](http://www.spatialgiotto.com)), which
+provide tools to process, analyze and visualize **single-cell spatial
+expression** data. The underlying framework is generalizable to
+virtually all currently available spatial datasets. We recently
+demonstrated the general applicability on 10 different datasets created
+by 9 different state-of-the-art spatial technologies, including *in
+situ* hybridization (seqFISH+, merFISH, osmFISH), sequencing (Slide-seq,
+Visium, STARmap) and imaging-based multiplexing/proteomics (CyCIF, MIBI,
+CODEX). These technologies differ in terms of resolution (single cell vs
+multiple cells), spatial dimension (2D vs 3D), molecular modality
+(protein vs RNA), and throughput (number of cells and genes). More
+information and documentation about the latest version of Giotto
+Analyzer can be found at <https://rubd.github.io/Giotto_site/> (**URL
+change \!\!**).
 
- 
+<img src="inst/images/general_figs/overview_datasets.png" />
 
 ## Requirements
 
   - R (\>= 3.5.1)
   - Python (\>= 3.0)
-  - Unix/Linux
+  - Windows, MacOS or Linux specific installation tools. See
+    [link](https://support.rstudio.com/hc/en-us/articles/200486498-Package-Development-Prerequisites).
 
  
 
 ## Installation
 
+See [FAQs](https://rubd.github.io/Giotto_site/articles/faqs.html) for
+additional information.
+
 #### R installation
 
-You can install the development version of Giotto with:
+You can install Giotto with (\~1-5 mins):
 
 ``` r
-library(remotes)
+library(devtools)  # if not installed: install.packages('devtools')
+library(remotes)  # if not installed: install.packages('remotes')
 remotes::install_github("RubD/Giotto")
 ```
 
-#### Python tools (optional)
+#### Required python modules
 
-This is necessary to run all available analyses, including Leiden /
-Louvain clustering and to build and use the interactive visualization
-tool. An alternative, but less flexible, R version for Louvain
-clustering is also available. It is advisable to install everything
-within a specific conda environment and specify the python path in the R
-function when required.
+These are necessary to run all available analyses, but can be installed
+automatically.
 
 Required python modules:  
 \- pandas  
-\- igraph  
+\- python-igraph (igraph)  
 \- networkx  
 \- leidenalg  
-\- community
+\- python-louvain (community)  
+\- smfishHmrf  
+\- python.app (OSX only) - scikit-learn
 
-Conda installation:
+##### Automatic installation
 
-``` python
-# pandas:
-conda install -c anaconda pandas
+The python modules will be installed automatically in a miniconda
+environment when installing Giotto. However, it will ask you whether you
+want to install them and you can opt out and select your preferred
+python path. In that case you need to do a manual installation of the
+python modules.
 
-# python-igraph:
-conda install -c conda-forge python-igraph
-conda install -c conda-forge/label/gcc7 python-igraph
-conda install -c conda-forge/label/cf201901 python-igraph 
+##### Manual installation
 
-# networkx:
-conda install -c anaconda networkx
+See [python
+installation](https://rubd.github.io/Giotto_site/articles/installation_issues.html#python-manual-installation)
 
-# louvain:
-conda install -c conda-forge python-louvain
-conda install -c conda-forge/label/gcc7 python-louvain
-conda install -c conda-forge/label/cf201901 python-louvain
+#### Giotto Viewer
 
-# leidenalg:
-conda install -c conda-forge leidenalg
-```
-
-#### HMRF
-
-See [**HMRF**](http://www.nature.com/articles/nbt.4260) installation
-[instructions](http://spatial.rc.fas.harvard.edu/install.html).
+See
+[link](http://spatial.rc.fas.harvard.edu/spatialgiotto/giotto.install.native.html)
 
  
 
 ## Examples
 
-[![Cortex](./inst/images/cortex_image_summary.png)](./inst/examples/mouse_cortex_svz/mouse_cortex_1_simple_improved.md)
+  - see <https://github.com/RubD/spatial-datasets> to find raw and
+    pre-processed input data and Giotto scripts (in progress).
+  - typical run time range for the different datasets on a personal
+    computer is around 10\~45 mins.  
+  - click on the image and try them out yourself.  
+  - all examples are gradually updated to the latest Giotto version
+    \[work in progress\]
 
- 
-
-## Latest News
-
-  - First release (beta)
-  - …
-
- 
-
-## FAQ
-
-Howto’s and faqs examples:
-
-  - Cortex/SVZ and olfactory bulb data availability?  
-    **Expression and centroid information is part of Giotto, see
-    examples.**
-  - How to create a giotto object with your own spatial network/grid,
-    dimensions reduction, … ?  
-  - [How to add metadata and subset a Giotto
-    object?](./inst/faqs/metadata_and_subset/metadata_and_subset_VC.md)
-  - How to test and store multiple parameters or analyses?
-  - …
-
- 
+[![seqFISH](./inst/images/general_figs/cortex_image_summary.png)](https://rubd.github.io/Giotto_site/articles/mouse_seqFISH_cortex_200319.html)
+[![merFISH](./inst/images/general_figs/merFISH_hypoth_image_summary.png)](https://rubd.github.io/Giotto_site/articles/mouse_merFISH_hypoth_preoptic_region_200326.html)
+[![STARmap](./inst/images/general_figs/starmap_cortex_image_summary.png)](https://rubd.github.io/Giotto_site/articles/mouse_starmap_cortex.html)
+[![Visium\_brain](./inst/images/general_figs/visium_brain_image_summary.png)](https://rubd.github.io/Giotto_site/articles/mouse_visium_brain_200325.html)
+[![Visium\_kidney](./inst/images/general_figs/visium_kidney_image_summary.png)](https://rubd.github.io/Giotto_site/articles/mouse_visium_kidney_200326.html)
+[![CyCIF](./inst/images/general_figs/cyCIF_PDAC_image_summary.png)](https://rubd.github.io/Giotto_site/articles/human_cycif_PDAC_200322.html)
+[![osmFISH](./inst/images/general_figs/osmFISH_SS_cortex_image_summary.png)](https://rubd.github.io/Giotto_site/articles/mouse_osmFISH_SScortex.html)
+[![CODEX](./inst/images/general_figs/CODEX_spleen_image_summary.png)](https://rubd.github.io/Giotto_site/articles/mouse_CODEX_spleen.html)
 
 ## References
 
-  - Eng, C.-H. L. et al. Transcriptome-scale super-resolved imaging in
-    tissues by RNA seqFISH+. Nature 1 (2019).
+  - [Dries, R. et al. Giotto, a toolbox for integrative analysis and
+    visualization of spatial expression data. bioRxiv 701680
+    (2019).](https://www.biorxiv.org/content/10.1101/701680v2)
+    <doi:10.1101/701680>
+
+  - [Eng, C.-H. L. et al. Transcriptome-scale super-resolved imaging in
+    tissues by RNA seqFISH+. Nature 1
+    (2019).](https://www.nature.com/articles/s41586-019-1049-y)
     <doi:10.1038/s41586-019-1049-y>
 
-  - Zhu, Q., Shah, S., Dries, R., Cai, L. & Yuan, G.-C. Identification
+  - [Zhu, Q., Shah, S., Dries, R., Cai, L. & Yuan, G.-C. Identification
     of spatially associated subpopulations by combining scRNAseq and
     sequential fluorescence in situ hybridization data. Nature
-    Biotechnology (2018). <doi:10.1038/nbt.4260>
+    Biotechnology (2018).](https://www.nature.com/articles/nbt.4260)
+    <doi:10.1038/nbt.4260>

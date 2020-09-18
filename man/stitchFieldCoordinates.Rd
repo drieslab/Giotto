@@ -4,15 +4,22 @@
 \alias{stitchFieldCoordinates}
 \title{stitchFieldCoordinates}
 \usage{
-stitchFieldCoordinates(location_file, offset_file, cumulate_offset_x = F,
-  cumulate_offset_y = F, field_col = "Field of View",
-  X_coord_col = "X", Y_coord_col = "Y", reverse_final_x = F,
-  reverse_final_y = T)
+stitchFieldCoordinates(
+  location_file,
+  offset_file,
+  cumulate_offset_x = F,
+  cumulate_offset_y = F,
+  field_col = "Field of View",
+  X_coord_col = "X",
+  Y_coord_col = "Y",
+  reverse_final_x = F,
+  reverse_final_y = T
+)
 }
 \arguments{
 \item{location_file}{location dataframe with X and Y coordinates}
 
-\item{offset_file}{dataframe that describes to offset for each field (see details)}
+\item{offset_file}{dataframe that describes the offset for each field (see details)}
 
 \item{cumulate_offset_x}{(boolean) Do the x-axis offset values need to be cumulated?}
 
@@ -35,8 +42,11 @@ Updated location dataframe with new X ['X_final'] and Y ['Y_final'] coordinates
 Helper function to stitch field coordinates together to form one complete picture
 }
 \details{
-Describe how stitching works.
+Stitching of fields:
+\itemize{
+  \item{1. have cell locations: }{at least 3 columns: field, X, Y}
+  \item{2. create offset file: }{offset file has 3 columns: field, x_offset, y_offset}
+  \item{3. create new cell location file by stitching original cell locations with stitchFieldCoordinates}
+  \item{4. provide new cell location file to \code{\link{createGiottoObject}}}
 }
-\examples{
-    stitchFieldCoordinates(gobject)
 }

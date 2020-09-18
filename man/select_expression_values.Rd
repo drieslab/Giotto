@@ -17,3 +17,4 @@ expression matrix
 \description{
 helper function to select expression values
 }
+\keyword{internal}

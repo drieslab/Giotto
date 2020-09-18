@@ -4,34 +4,38 @@
 \alias{showPattern}
 \title{showPattern}
 \usage{
-showPattern(spatPatObj, dimension = 1, trim = c(0.02, 0.98),
-  background_color = "white", grid_border_color = "grey",
-  show_legend = T, show_plot = F)
+showPattern(gobject, spatPatObj, ...)
 }
 \arguments{
+\item{gobject}{giotto object}
+
 \item{spatPatObj}{Output from detectSpatialPatterns}
 
-\item{dimension}{dimension to plot}
-
-\item{trim}{Trim ends of the PC values.}
-
-\item{background_color}{background color for plot}
-
-\item{grid_border_color}{color for grid}
-
-\item{show_legend}{show legend of ggplot}
-
-\item{show_plot}{Show the plot.}
+\item{...}{
+  Arguments passed on to \code{\link[=showPattern2D]{showPattern2D}}
+  \describe{
+    \item{\code{dimension}}{dimension to plot}
+    \item{\code{trim}}{Trim ends of the PC values.}
+    \item{\code{background_color}}{background color for plot}
+    \item{\code{grid_border_color}}{color for grid}
+    \item{\code{show_legend}}{show legend of ggplot}
+    \item{\code{point_size}}{size of points}
+    \item{\code{show_plot}}{show plot}
+    \item{\code{return_plot}}{return ggplot object}
+    \item{\code{save_plot}}{directly save the plot [boolean]}
+    \item{\code{save_param}}{list of saving parameters, see \code{\link{showSaveParameters}}}
+    \item{\code{default_save_name}}{default save name for saving, don't change, change save_name in save_param}
+  }}
 }
 \value{
 ggplot
 }
 \description{
-create a spatial grid
-}
-\details{
-Description.
+show patterns for 2D spatial data
 }
 \examples{
     showPattern(gobject)
+}
+\seealso{
+\code{\link{showPattern2D}}
 }

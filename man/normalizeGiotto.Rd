@@ -4,16 +4,32 @@
 \alias{normalizeGiotto}
 \title{normalizeGiotto}
 \usage{
-normalizeGiotto(gobject, library_size_norm = T, scalefactor = 6000,
-  logbase = 2, scale_genes = T, scale_cells = T,
-  scale_order = c("first_genes", "first_cells"), verbose = F)
+normalizeGiotto(
+  gobject,
+  norm_methods = c("standard", "osmFISH"),
+  library_size_norm = TRUE,
+  scalefactor = 6000,
+  log_norm = TRUE,
+  log_offset = 1,
+  logbase = 2,
+  scale_genes = T,
+  scale_cells = T,
+  scale_order = c("first_genes", "first_cells"),
+  verbose = F
+)
 }
 \arguments{
 \item{gobject}{giotto object}
 
+\item{norm_methods}{normalization method to use}
+
 \item{library_size_norm}{normalize cells by library size}
 
 \item{scalefactor}{scale factor to use after library size normalization}
+
+\item{log_norm}{transform values to log-scale}
+
+\item{log_offset}{offset value to add to expression matrix, default = 1}
 
 \item{logbase}{log base to use to log normalize expression values}
 
@@ -29,11 +45,33 @@ normalizeGiotto(gobject, library_size_norm = T, scalefactor = 6000,
 giotto object
 }
 \description{
-normalize and/or scale expresion values of Giotto object
+fast normalize and/or scale expresion values of Giotto object
 }
 \details{
-Description of normalization steps ...
+Currently there are two 'methods' to normalize your raw counts data.
+
+A. The standard method follows the standard protocol which can be adjusted using
+the provided parameters and follows the following order: \cr
+\itemize{
+  \item{1. Data normalization for total library size and scaling by a custom scale-factor.}
+  \item{2. Log transformation of data.}
+  \item{3. Z-scoring of data by genes and/or cells.}
+}
+B. The normalization method as provided by the osmFISH paper is also implemented: \cr
+\itemize{
+  \item{1. First normalize genes, for each gene divide the counts by the total gene count and
+multiply by the total number of genes.}
+  \item{2. Next normalize cells, for each cell divide the normalized gene counts by the total
+counts per cell and multiply by the total number of cells.}
+}
+This data will be saved in the Giotto slot for custom expression.
 }
 \examples{
-    normalizeGiotto(gobject)
+
+
+data(mini_giotto_single_cell)
+
+norm_gobject = normalizeGiotto(mini_giotto_single_cell)
+
+
 }

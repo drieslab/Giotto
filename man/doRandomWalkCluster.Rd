@@ -4,10 +4,18 @@
 \alias{doRandomWalkCluster}
 \title{doRandomWalkCluster}
 \usage{
-doRandomWalkCluster(gobject, name = "random_walk_clus",
-  nn_network_to_use = "sNN", network_name = "sNN.pca",
-  walk_steps = 4, walk_clusters = 10, walk_weights = NA,
-  return_gobject = TRUE, set_seed = F, seed_number = 1234, ...)
+doRandomWalkCluster(
+  gobject,
+  name = "random_walk_clus",
+  nn_network_to_use = "sNN",
+  network_name = "sNN.pca",
+  walk_steps = 4,
+  walk_clusters = 10,
+  walk_weights = NA,
+  return_gobject = TRUE,
+  set_seed = F,
+  seed_number = 1234
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -29,18 +37,14 @@ doRandomWalkCluster(gobject, name = "random_walk_clus",
 \item{set_seed}{set seed}
 
 \item{seed_number}{number for seed}
-
-\item{...}{additional parameters}
 }
 \value{
-giotto object appended with new cluster
+giotto object with new clusters appended to cell metadata
 }
 \description{
 Cluster cells using a random walk approach.
 }
 \details{
-See random walk algorithm from the igraph package in R.
-}
-\examples{
-    doRandomWalkCluster(gobject)
+See \code{\link[igraph]{cluster_walktrap}} function from the igraph
+package in R for more information.
 }

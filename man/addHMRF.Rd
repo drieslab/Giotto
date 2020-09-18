@@ -4,8 +4,7 @@
 \alias{addHMRF}
 \title{addHMRF}
 \usage{
-addHMRF(gobject, HMRFoutput, k = NULL, betas_to_add = NULL,
-  hmrf_name = NULL)
+addHMRF(gobject, HMRFoutput, k = NULL, betas_to_add = NULL, hmrf_name = NULL)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -16,17 +15,11 @@ addHMRF(gobject, HMRFoutput, k = NULL, betas_to_add = NULL,
 
 \item{betas_to_add}{results from different betas that you want to add}
 
-\item{name}{specify a custom name}
+\item{hmrf_name}{specify a custom name}
 }
 \value{
 giotto object
 }
 \description{
 Add selected results from doHMRF to the giotto object
-}
-\details{
-Description ...
-}
-\examples{
-    addHMRF(gobject)
 }

@@ -4,8 +4,11 @@
 \alias{create_average_DT}
 \title{create_average_DT}
 \usage{
-create_average_DT(gobject, meta_data_name,
-  expression_values = c("normalized", "scaled", "custom"))
+create_average_DT(
+  gobject,
+  meta_data_name,
+  expression_values = c("normalized", "scaled", "custom")
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -20,3 +23,4 @@ data.table with average gene epression values for each factor
 \description{
 calculates average gene expression for a cell metadata factor (e.g. cluster)
 }
+\keyword{internal}

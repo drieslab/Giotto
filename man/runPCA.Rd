@@ -4,9 +4,23 @@
 \alias{runPCA}
 \title{runPCA}
 \usage{
-runPCA(gobject, expression_values = c("normalized", "scaled", "custom"),
-  reduction = c("cells", "genes"), name = "pca", genes_to_use = NULL,
-  return_gobject = TRUE, scale_unit = F, ncp = 200, ...)
+runPCA(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  reduction = c("cells", "genes"),
+  name = "pca",
+  genes_to_use = "hvg",
+  return_gobject = TRUE,
+  center = TRUE,
+  scale_unit = TRUE,
+  ncp = 100,
+  method = c("irlba", "factominer"),
+  rev = FALSE,
+  set_seed = TRUE,
+  seed_number = 1234,
+  verbose = TRUE,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -21,21 +35,48 @@ runPCA(gobject, expression_values = c("normalized", "scaled", "custom"),
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
-\item{scale_unit}{scale features before PCA}
+\item{center}{center data first (default = TRUE)}
+
+\item{scale_unit}{scale features before PCA (default = TRUE)}
 
 \item{ncp}{number of principal components to calculate}
 
-\item{...}{additional parameters for PCA}
+\item{method}{which implementation to use}
+
+\item{rev}{do a reverse PCA}
+
+\item{set_seed}{use of seed}
+
+\item{seed_number}{seed number to use}
+
+\item{verbose}{verbosity of the function}
+
+\item{...}{additional parameters for PCA (see details)}
 }
 \value{
 giotto object with updated PCA dimension recuction
 }
 \description{
-run PCA
+runs a Principal Component Analysis
 }
 \details{
-Description of PCA steps...
+See \code{\link[irlba]{prcomp_irlba}} and \code{\link[FactoMineR]{PCA}} for more information about other parameters.
+\itemize{
+  \item genes_to_use = NULL: will use all genes from the selected matrix
+  \item genes_to_use = <hvg name>: can be used to select a column name of
+  highly variable genes, created by (see \code{\link{calculateHVG}})
+  \item genes_to_use = c('geneA', 'geneB', ...): will use all manually provided genes
+}
 }
 \examples{
-    runPCA(gobject)
+
+data(mini_giotto_single_cell)
+
+# run PCA
+mini_giotto_single_cell <- runPCA(gobject = mini_giotto_single_cell,
+                                  center = T, scale_unit = T)
+
+# plot PCA results
+plotPCA(mini_giotto_single_cell)
+
 }

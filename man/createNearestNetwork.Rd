@@ -4,19 +4,27 @@
 \alias{createNearestNetwork}
 \title{createNearestNetwork}
 \usage{
-createNearestNetwork(gobject, expression_values = c("normalized",
-  "scaled", "custom"), type = c("sNN", "kNN"),
-  dim_reduction_to_use = "pca", dim_reduction_name = "pca",
-  dimensions_to_use = 1:10, genes_to_use = NULL, name = "sNN.pca",
-  return_gobject = TRUE, k = 30, minimum_shared = 5,
-  top_shared = 3, verbose = T, ...)
+createNearestNetwork(
+  gobject,
+  type = c("sNN", "kNN"),
+  dim_reduction_to_use = "pca",
+  dim_reduction_name = "pca",
+  dimensions_to_use = 1:10,
+  genes_to_use = NULL,
+  expression_values = c("normalized", "scaled", "custom"),
+  name = "sNN.pca",
+  return_gobject = TRUE,
+  k = 30,
+  minimum_shared = 5,
+  top_shared = 3,
+  verbose = T,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{expression_values}{expression values to use}
-
-\item{type}{kNN or sNN}
+\item{type}{sNN or kNN}
 
 \item{dim_reduction_to_use}{dimension reduction method to use}
 
@@ -25,6 +33,8 @@ createNearestNetwork(gobject, expression_values = c("normalized",
 \item{dimensions_to_use}{number of dimensions to use as input}
 
 \item{genes_to_use}{if dim_reduction_to_use = NULL, which genes to use}
+
+\item{expression_values}{expression values to use}
 
 \item{name}{arbitrary name for NN network}
 
@@ -38,18 +48,50 @@ createNearestNetwork(gobject, expression_values = c("normalized",
 
 \item{verbose}{be verbose}
 
-\item{...}{additional parameters}
+\item{...}{additional parameters for kNN and sNN functions from dbscan}
 }
 \value{
 giotto object with updated NN network
 }
 \description{
-create a nearest neighbour network based on previously computed \cr
-dimension reductions
+create a nearest neighbour (NN) network
 }
 \details{
-Description of nearest neighbor network creation and filter steps.
+This function creates a k-nearest neighbour (kNN) or shared nearest neighbour (sNN) network
+based on the provided dimension reduction space. To run it directly on the gene expression matrix
+set \emph{dim_reduction_to_use = NULL}.
+
+See also \code{\link[dbscan]{kNN}} and \code{\link[dbscan]{sNN}} for more information about
+how the networks are created.
+
+Output for kNN:
+\itemize{
+  \item{from: }{cell_ID for source cell}
+  \item{to: }{cell_ID for target cell}
+  \item{distance: }{distance between cells}
+  \item{weight: }{weight = 1/(1 + distance)}
+}
+
+Output for sNN:
+\itemize{
+  \item{from: }{cell_ID for source cell}
+  \item{to: }{cell_ID for target cell}
+  \item{distance: }{distance between cells}
+  \item{weight: }{1/(1 + distance)}
+  \item{shared: }{number of shared neighbours}
+  \item{rank: }{ranking of pairwise cell neighbours}
+}
+For sNN networks two additional parameters can be set:
+\itemize{
+  \item{minimum_shared: }{minimum number of shared neighbours needed}
+  \item{top_shared: }{keep this number of the top shared neighbours, irrespective of minimum_shared setting}
+}
 }
 \examples{
-    createNearestNetwork(gobject)
+
+data(mini_giotto_single_cell)
+
+mini_giotto_single_cell <- createNearestNetwork(gobject = mini_giotto_single_cell,
+                                                dimensions_to_use = 1:3, k = 3)
+
 }

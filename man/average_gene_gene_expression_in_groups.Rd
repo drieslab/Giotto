@@ -4,8 +4,12 @@
 \alias{average_gene_gene_expression_in_groups}
 \title{average_gene_gene_expression_in_groups}
 \usage{
-average_gene_gene_expression_in_groups(gobject,
-  cluster_column = "cell_types", gene_set_1, gene_set_2)
+average_gene_gene_expression_in_groups(
+  gobject,
+  cluster_column = "cell_types",
+  gene_set_1,
+  gene_set_2
+)
 }
 \arguments{
 \item{gobject}{giotto object to use}
@@ -23,8 +27,6 @@ data.table with average expression scores for each cluster
 calculate average expression per cluster
 }
 \details{
-Details will follow.
+Details will follow soon.
 }
-\examples{
-    average_gene_gene_expression_in_groups(gobject)
-}
+\keyword{internal}

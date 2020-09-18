@@ -10,11 +10,14 @@ pDataDT(gobject)
 \item{gobject}{giotto object}
 }
 \value{
-data.table
+data.table with cell metadata
 }
 \description{
 show cell metadata
 }
 \examples{
-    pDataDT(gobject)
+
+data(mini_giotto_single_cell) # loads existing Giotto object
+pDataDT(mini_giotto_single_cell)
+
 }

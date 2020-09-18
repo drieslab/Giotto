@@ -4,9 +4,12 @@
 \alias{create_average_detection_DT}
 \title{create_average_detection_DT}
 \usage{
-create_average_detection_DT(gobject, meta_data_name,
+create_average_detection_DT(
+  gobject,
+  meta_data_name,
   expression_values = c("normalized", "scaled", "custom"),
-  detection_threshold = 0)
+  detection_threshold = 0
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -23,3 +26,4 @@ data.table with average gene epression values for each factor
 \description{
 calculates average gene detection for a cell metadata factor (e.g. cluster)
 }
+\keyword{internal}

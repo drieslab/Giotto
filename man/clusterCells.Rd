@@ -4,28 +4,51 @@
 \alias{clusterCells}
 \title{clusterCells}
 \usage{
-clusterCells(gobject, cluster_method = c("leiden", "louvain_community",
-  "louvain_multinet", "randomwalk", "sNNclust", "kmeans", "hierarchical"),
-  name = "cluster_name", nn_network_to_use = "sNN",
-  network_name = "sNN.pca", pyth_leid_resolution = 1,
+clusterCells(
+  gobject,
+  cluster_method = c("leiden", "louvain_community", "louvain_multinet", "randomwalk",
+    "sNNclust", "kmeans", "hierarchical"),
+  name = "cluster_name",
+  nn_network_to_use = "sNN",
+  network_name = "sNN.pca",
+  pyth_leid_resolution = 1,
   pyth_leid_weight_col = "weight",
   pyth_leid_part_type = c("RBConfigurationVertexPartition",
-  "ModularityVertexPartition"), pyth_leid_init_memb = NULL,
-  pyth_leid_iterations = 1000, pyth_louv_resolution = 1,
-  pyth_louv_weight_col = NULL, python_louv_random = F,
-  python_path = NULL, louvain_gamma = 1, louvain_omega = 1,
-  walk_steps = 4, walk_clusters = 10, walk_weights = NA,
-  sNNclust_k = 20, sNNclust_eps = 4, sNNclust_minPts = 16,
-  borderPoints = TRUE, expression_values = c("normalized", "scaled",
-  "custom"), genes_to_use = NULL, dim_reduction_to_use = c("cells",
-  "pca", "umap", "tsne"), dim_reduction_name = "pca",
-  dimensions_to_use = 1:10, distance_method = c("original", "pearson",
-  "spearman", "euclidean", "maximum", "manhattan", "canberra", "binary",
-  "minkowski"), km_centers = 10, km_iter_max = 100, km_nstart = 1000,
+    "ModularityVertexPartition"),
+  pyth_leid_init_memb = NULL,
+  pyth_leid_iterations = 1000,
+  pyth_louv_resolution = 1,
+  pyth_louv_weight_col = NULL,
+  python_louv_random = F,
+  python_path = NULL,
+  louvain_gamma = 1,
+  louvain_omega = 1,
+  walk_steps = 4,
+  walk_clusters = 10,
+  walk_weights = NA,
+  sNNclust_k = 20,
+  sNNclust_eps = 4,
+  sNNclust_minPts = 16,
+  borderPoints = TRUE,
+  expression_values = c("normalized", "scaled", "custom"),
+  genes_to_use = NULL,
+  dim_reduction_to_use = c("cells", "pca", "umap", "tsne"),
+  dim_reduction_name = "pca",
+  dimensions_to_use = 1:10,
+  distance_method = c("original", "pearson", "spearman", "euclidean", "maximum",
+    "manhattan", "canberra", "binary", "minkowski"),
+  km_centers = 10,
+  km_iter_max = 100,
+  km_nstart = 1000,
   km_algorithm = "Hartigan-Wong",
-  hc_agglomeration_method = c("ward.D2", "ward.D", "single", "complete",
-  "average", "mcquitty", "median", "centroid"), hc_k = 10, hc_h = NULL,
-  return_gobject = TRUE, set_seed = T, seed_number = 1234, ...)
+  hc_agglomeration_method = c("ward.D2", "ward.D", "single", "complete", "average",
+    "mcquitty", "median", "centroid"),
+  hc_k = 10,
+  hc_h = NULL,
+  return_gobject = TRUE,
+  set_seed = T,
+  seed_number = 1234
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -105,18 +128,21 @@ clusterCells(gobject, cluster_method = c("leiden", "louvain_community",
 \item{set_seed}{set seed}
 
 \item{seed_number}{number for seed}
-
-\item{...}{additional parameters}
 }
 \value{
-giotto object appended with new cluster
+giotto object with new clusters appended to cell metadata
 }
 \description{
-cluster cells using a NN-network and community detection algorithms
+cluster cells using a variety of different methods
 }
 \details{
-Description of different clustering methods.
+Wrapper for the different clustering methods.
 }
 \examples{
     clusterCells(gobject)
+}
+\seealso{
+\code{\link{doLeidenCluster}}, \code{\link{doLouvainCluster_community}}, \code{\link{doLouvainCluster_multinet}},
+\code{\link{doLouvainCluster}}, \code{\link{doRandomWalkCluster}}, \code{\link{doSNNCluster}},
+\code{\link{doKmeans}}, \code{\link{doHclust}}
 }

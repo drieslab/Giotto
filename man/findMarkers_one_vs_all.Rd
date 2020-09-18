@@ -4,10 +4,23 @@
 \alias{findMarkers_one_vs_all}
 \title{findMarkers_one_vs_all}
 \usage{
-findMarkers_one_vs_all(gobject, expression_values = c("normalized",
-  "scaled", "custom"), cluster_column, method = c("scran", "gini"),
-  pval = 0.01, logFC = 0.5, min_expr_gini_score = 0.5,
-  min_det_gini_score = 0.5, detection_threshold = 0, min_genes = 10)
+findMarkers_one_vs_all(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  cluster_column,
+  subset_clusters = NULL,
+  method = c("scran", "gini", "mast"),
+  pval = 0.01,
+  logFC = 0.5,
+  min_genes = 10,
+  min_expr_gini_score = 0.5,
+  min_det_gini_score = 0.5,
+  detection_threshold = 0,
+  rank_score = 1,
+  adjust_columns = NULL,
+  verbose = TRUE,
+  ...
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -16,29 +29,39 @@ findMarkers_one_vs_all(gobject, expression_values = c("normalized",
 
 \item{cluster_column}{clusters to use}
 
-\item{method}{method to use}
+\item{subset_clusters}{selection of clusters to compare}
 
-\item{pval}{max pvalue with method scran}
+\item{method}{method to use to detect differentially expressed genes}
 
-\item{logFC}{min logFC with method scran}
+\item{pval}{scran & mast: filter on minimal p-value}
 
-\item{min_expr_gini_score}{minimum gini coefficient on expression}
+\item{logFC}{scan & mast: filter on logFC}
 
-\item{min_det_gini_score}{minimum gini coefficient on detection}
+\item{min_genes}{minimum genes to keep per cluster, overrides pval and logFC}
 
-\item{detection_threshold}{detection threshold for gene expression}
+\item{min_expr_gini_score}{gini: filter on minimum gini coefficient for expression}
 
-\item{min_genes}{minimum number of genes to keep}
+\item{min_det_gini_score}{gini: filter minimum gini coefficient for detection}
+
+\item{detection_threshold}{gini: detection threshold for gene expression}
+
+\item{rank_score}{gini: rank scores to include}
+
+\item{adjust_columns}{mast: column in pDataDT to adjust for (e.g. detection rate)}
+
+\item{verbose}{be verbose}
+
+\item{...}{additional parameters for the findMarkers function in scran or zlm function in MAST}
 }
 \value{
-gini genes output
+data.table with marker genes
 }
 \description{
-Identify marker genes for selected clusters
+Identify marker genes for all clusters in a one vs all manner.
 }
 \details{
-Description of parameters.
+Wrapper for all one vs all functions to detect marker genes for clusters.
 }
-\examples{
-    findMarkers_one_vs_all(gobject)
+\seealso{
+\code{\link{findScranMarkers_one_vs_all}}, \code{\link{findGiniMarkers_one_vs_all}} and \code{\link{findMastMarkers_one_vs_all}}
 }

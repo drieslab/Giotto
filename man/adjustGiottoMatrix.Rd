@@ -4,16 +4,21 @@
 \alias{adjustGiottoMatrix}
 \title{adjustGiottoMatrix}
 \usage{
-adjustGiottoMatrix(gobject, expression_values = c("normalized", "scaled",
-  "custom"), batch_columns = NULL, covariate_columns = NULL,
-  return_gobject = TRUE, update_slot = c("custom"))
+adjustGiottoMatrix(
+  gobject,
+  expression_values = c("normalized", "scaled", "custom"),
+  batch_columns = NULL,
+  covariate_columns = NULL,
+  return_gobject = TRUE,
+  update_slot = c("custom")
+)
 }
 \arguments{
 \item{gobject}{giotto object}
 
 \item{expression_values}{expression values to use}
 
-\item{batch_columns}{metadata columns that represent different batch}
+\item{batch_columns}{metadata columns that represent different batch (max = 2)}
 
 \item{covariate_columns}{metadata columns that represent covariates to regress out}
 
@@ -25,11 +30,16 @@ adjustGiottoMatrix(gobject, expression_values = c("normalized", "scaled",
 giotto object
 }
 \description{
-normalize and/or scale expresion values of Giotto object
+Adjust expression values to account for known batch effects or technological covariates.
 }
 \details{
-Description of adjusting steps ...
+This function implements the \code{\link[limma]{removeBatchEffect}} function to
+remove known batch effects and to adjust expression values according to provided covariates.
 }
 \examples{
-    adjustGiottoMatrix(gobject)
+
+data(mini_giotto_single_cell)
+
+adjust_gobject = adjustGiottoMatrix(mini_giotto_single_cell)
+
 }

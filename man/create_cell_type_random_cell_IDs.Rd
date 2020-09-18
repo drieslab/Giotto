@@ -4,8 +4,11 @@
 \alias{create_cell_type_random_cell_IDs}
 \title{create_cell_type_random_cell_IDs}
 \usage{
-create_cell_type_random_cell_IDs(gobject, cluster_column = "cell_types",
-  needed_cell_types)
+create_cell_type_random_cell_IDs(
+  gobject,
+  cluster_column = "cell_types",
+  needed_cell_types
+)
 }
 \arguments{
 \item{gobject}{giotto object to use}
