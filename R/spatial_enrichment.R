@@ -52,6 +52,7 @@ makeSignMatrixPAGE = function(sign_names,
 #' a rank matrix that can be used with the Rank enrichment option.
 #' @param sc_matrix matrix of single-cell RNAseq expression data
 #' @param sc_cluster_ids vector of cluster ids
+#' @param ties_method how to handle rank ties
 #' @param gobject if giotto object is given then only genes present in both datasets will be considered
 #' @return matrix
 #' @seealso \code{\link{rankEnrich}}
@@ -60,14 +61,15 @@ makeSignMatrixPAGE = function(sign_names,
 #'     makeSignMatrixRank()
 makeSignMatrixRank <- function(sc_matrix,
                                sc_cluster_ids,
-                               gobject = NULL, ties.method=c("random", "max")) {
+                               ties_method = c("random", "max"),
+                               gobject = NULL) {
 
   if(is(sc_matrix, "sparseMatrix")){
     sc_matrix = Matrix::as.matrix(sc_matrix)
   }
-  if(ties.method %in% c("min", "average", "first", "last")){
-    stop("Chosen ties.method is not supported.")
-  }
+
+  # select ties_method
+  ties_method =  match.arg(ties_method, choices = c("random", "max"))
 
   # check input
   if(length(sc_cluster_ids) != ncol(sc_matrix)) {
@@ -99,14 +101,17 @@ makeSignMatrixRank <- function(sc_matrix,
   gene_names_res = rep(gene_names, length(unique(sc_cluster_ids)))
 
   # create data.table with genes, mean expression per cluster, mean expression overall and cluster ids
-  comb_dt = data.table::data.table(genes = gene_names_res, mean_expr = mean_list_res[[1]], av_expr = av_expression_res, clusters = group_list_res[[1]])
+  comb_dt = data.table::data.table(genes = gene_names_res,
+                                   mean_expr = mean_list_res[[1]],
+                                   av_expr = av_expression_res,
+                                   clusters = group_list_res[[1]])
 
   # data.table variables
   fold = mean_expr = av_expr = rankFold = clusters = NULL
 
   # calculate fold change and rank of fold-change
   comb_dt[, fold := log2(mean_expr+1)-log2(av_expr+1)]
-  comb_dt[, rankFold := data.table::frank(-fold, ties.method = ties.method), by = clusters]
+  comb_dt[, rankFold := data.table::frank(-fold, ties.method = ties_method), by = clusters]
 
   # create matrix
   comb_rank_mat = data.table::dcast.data.table(data = comb_dt, genes~clusters, value.var = 'rankFold')
@@ -700,8 +705,11 @@ do_rank_permutation <- function(sc_gene, n){
 #' @param reverse_log_scale reverse expression values from log scale
 #' @param logbase log base to use if reverse_log_scale = TRUE
 #' @param output_enrichment how to return enrichment output
+#' @param ties_method how to handle rank ties
 #' @param p_value calculate p-values (boolean, default = FALSE)
 #' @param n_times number of permutations to calculate for p_value
+#' @param rbp_p fractional binarization threshold (default = 0.99)
+#' @param num_agg number of top genes to aggregate (default = 100)
 #' @param name to give to spatial enrichment results, default = rank
 #' @param return_gobject return giotto object
 #' @return data.table with enrichment results
@@ -722,15 +730,16 @@ runRankEnrich <- function(gobject,
                        reverse_log_scale = TRUE,
                        logbase = 2,
                        output_enrichment = c('original', 'zscore'),
-                       ties.method = c("random", "max"),
+                       ties_method = c("random", "max"),
                        p_value = FALSE,
                        n_times = 1000,
+                       rbp_p = 0.99,
+                       num_agg = 100,
                        name = NULL,
-                       return_gobject = TRUE, rbp_p = 0.99, num_agg=100) {
+                       return_gobject = TRUE) {
 
-  if(ties.method %in% c("min", "first", "last", "average")){
-    stop("Chosen ties.method is not supported.")
-  }
+  # determine ties.method
+  ties_method = match.arg(ties_method, choices = c("random", "max"))
 
   # expression values to be used
   values = match.arg(expression_values, c('normalized', "raw", 'scaled', 'custom'))
@@ -767,9 +776,9 @@ runRankEnrich <- function(gobject,
   #geneFold = expr_values - mean_gene_expr
   #rankFold = t(matrixStats::colRanks(-geneFold, ties.method = "first"))
 
-  ties_1 = ties.method
-  ties_2 = ties.method
-  if(ties.method=="max"){
+  ties_1 = ties_method
+  ties_2 = ties_method
+  if(ties_method=="max"){
     ties_1 = "min"
     ties_2 = "max"
   }
