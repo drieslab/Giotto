@@ -10,9 +10,7 @@
 make_simulated_network = function(gobject,
                                   spatial_network_name = 'Delaunay_network',
                                   cluster_column,
-                                  number_of_simulations = 100,
-                                  set_seed = TRUE,
-                                  seed_number = 1234) {
+                                  number_of_simulations = 100) {
 
 
   # data.table variables
@@ -37,11 +35,6 @@ make_simulated_network = function(gobject,
   middle_point = length(all_cell_type)/2
 
   for(sim in 1:number_of_simulations) {
-
-    if(set_seed == TRUE) {
-      seed_number = seed_number+sim
-      set.seed(seed = seed_number)
-    }
 
     reshuffled_all_cell_type = sample(x = all_cell_type, size = length(all_cell_type), replace = F)
 
@@ -80,8 +73,6 @@ make_simulated_network = function(gobject,
 #' @param cluster_column name of column to use for clusters
 #' @param number_of_simulations number of simulations to create expected observations
 #' @param adjust_method method to adjust p.values
-#' @param set_seed use of seed
-#' @param seed_number seed number to use
 #' @return List of cell Proximity scores (CPscores) in data.table format. The first
 #' data.table (raw_sim_table) shows the raw observations of both the original and
 #' simulated networks. The second data.table (enrichm_res) shows the enrichment results.
@@ -100,9 +91,7 @@ cellProximityEnrichment <- function(gobject,
                                     number_of_simulations = 1000,
                                     adjust_method = c("none", "fdr", "bonferroni","BH",
                                                       "holm", "hochberg", "hommel",
-                                                      "BY"),
-                                    set_seed = TRUE,
-                                    seed_number = 1234) {
+                                                      "BY")) {
 
 
   # p.adj test
@@ -119,7 +108,7 @@ cellProximityEnrichment <- function(gobject,
   # spatial_network_annot[, unified_cells := paste(sort(c(to,from)), collapse = '--'), by = 1:nrow(spatial_network_annot)]
 
   # data.table variables
-  unified_cells = type_int = N = NULL
+  unified_cells = NULL
 
   spatial_network_annot = sort_combine_two_DT_columns(spatial_network_annot, 'to', 'from', 'unified_cells')
   spatial_network_annot = spatial_network_annot[!duplicated(unified_cells)]
@@ -127,9 +116,7 @@ cellProximityEnrichment <- function(gobject,
   sample_dt = make_simulated_network(gobject = gobject,
                                      spatial_network_name = spatial_network_name,
                                      cluster_column = cluster_column,
-                                     number_of_simulations = number_of_simulations,
-                                     set_seed = set_seed,
-                                     seed_number = seed_number)
+                                     number_of_simulations = number_of_simulations)
 
   # combine original and simulated network
   table_sim_results = sample_dt[, .N, by = c('unified_int', 'type_int', 'round')]
@@ -557,11 +544,8 @@ do_multi_permuttest_random = function(expr_values,
 #' @keywords internal
 do_permuttest = function(expr_values,
                          select_ind, other_ind,
-                         n_perm = 1000,
-                         adjust_method = 'fdr',
-                         mean_method,
-                         offset = 0.1,
-                         cores = 2) {
+                         n_perm = 1000, adjust_method = 'fdr',
+                         mean_method, offset = 0.1, cores = 2) {
 
   # data.table variables
   log2fc_diff = log2fc = sel = other = genes = p_higher = p_lower = perm_sel = NULL
@@ -571,16 +555,12 @@ do_permuttest = function(expr_values,
   original = do_permuttest_original(expr_values = expr_values,
                                     select_ind = select_ind, other_ind = other_ind,
                                     name = 'orig',
-                                    mean_method = mean_method,
-                                    offset = offset)
+                                    mean_method = mean_method, offset = offset)
 
   ## random permutations
-  random_perms = do_multi_permuttest_random(expr_values = expr_values,
-                                            n = n_perm,
-                                            select_ind = select_ind,
-                                            other_ind = other_ind,
-                                            mean_method = mean_method,
-                                            offset = offset,
+  random_perms = do_multi_permuttest_random(expr_values = expr_values, n = n_perm,
+                                            select_ind = select_ind, other_ind = other_ind,
+                                            mean_method = mean_method, offset = offset,
                                             cores = cores)
 
   ##
@@ -1791,7 +1771,7 @@ exprCellCellcom = function(gobject,
 
   # data.table variables
   lig_nr = lig_cell_type = rec_nr = rec_cell_type = rand_expr = av_diff = log2fc = LR_expr = pvalue = NULL
-  LR_cell_comb = p.adj = LR_comb = PI = sd_diff = z_score = NULL
+  LR_cell_comb = p.adj = LR_comb = PI = NULL
 
   # get parameters
   adjust_method = match.arg(adjust_method, choices = c("fdr", "bonferroni","BH", "holm", "hochberg", "hommel",
@@ -2003,12 +1983,9 @@ specificCellCellcommunicationScores = function(gobject,
                                                adjust_target = c('genes', 'cells'),
                                                verbose = T) {
 
-
-
   # data.table variables
   from_to = cell_ID = lig_cell_type = rec_cell_type = lig_nr = rec_nr = rand_expr = NULL
   av_diff = log2fc = LR_expr = pvalue = LR_cell_comb = p.adj = LR_comb = PI = NULL
-  sd_diff = z_score = NULL
 
   # get parameters
   adjust_method = match.arg(adjust_method, choices = c("fdr", "bonferroni","BH", "holm", "hochberg", "hommel",
@@ -2316,7 +2293,7 @@ spatCellCellcom = function(gobject,
 #' @param min_padj_value minimum adjusted p-value
 #' @param min_log2fc minimum log2 fold-change
 #' @param min_av_diff minimum average expression difference
-#' @param detailed detailed option used with \code{\link{spatCellCellcom}} (default = FALSE)
+#' @param detailed detailed option used with \code{\link{spatCellCellCom}} (default = FALSE)
 #' @return combined data.table with spatial and expression communication data
 #' @export
 #' @examples

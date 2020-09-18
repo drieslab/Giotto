@@ -6,9 +6,8 @@
 #' @param anndata_path path to the .h5ad file
 #' @param metadata_cols metadata columns to include
 #' @param instructions giotto instructions
-#' @param \dots additional parameters to \code{\link{createGiottoObject}}
 #' @return Giotto object
-#' @details Function in beta. Converts a .h5ad file into a Giotto object.
+#' @details Function in beta.
 #' @export
 anndataToGiotto = function(anndata_path,
                            metadata_cols = c("total_counts", "pct_counts_mt"),

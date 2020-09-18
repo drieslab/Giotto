@@ -139,14 +139,7 @@ write_giotto_viewer_dim_reduction = function(dim_reduction_cell,
 #' and add the gene signature names (.e.g cell types) to the numeric annotations parameter.
 #' @export
 #' @examples
-#'
-#' \donttest{
-#'
-#' data(mini_giotto_single_cell)
-#' exportGiottoViewer(mini_giotto_single_cell)
-#'
-#' }
-#'
+#'     exportGiottoViewer(gobject)
 exportGiottoViewer = function(gobject,
                               output_directory = NULL,
                               spat_enr_names = NULL,
