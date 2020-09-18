@@ -174,10 +174,18 @@ createGiottoInstructions <- function(python_path =  NULL,
                                      dpi = NULL,
                                      units = NULL,
                                      height = NULL,
-                                     width = NULL) {
+                                     width = NULL, is_docker = FALSE, is_ubuntu = FALSE) {
 
-  # pyton path to use
-  python_path = set_giotto_python_path(python_path = python_path)
+  if(is_docker){
+    python_path = set_giotto_python_path(python_path = "/usr/bin/python3")
+  }
+  else if(is_ubuntu){
+    python_path = set_giotto_python_path(python_path = "/usr/bin/python3")
+  }
+  else{
+    # pyton path to use
+    python_path = set_giotto_python_path(python_path = python_path)
+  }
 
   # print plot to console
   if(is.null(show_plot)) {

@@ -306,9 +306,9 @@ set_giotto_python_path = function(python_path = NULL) {
     cat('\n 2. provide an existing python path to python_path to use your own python path which has all modules installed \n')
 
     if(.Platform[['OS.type']] == 'unix') {
-      python_path = try(system('which python', intern = T))
+      python_path = try(system('which python3', intern = T))
     } else if(.Platform[['OS.type']] == 'windows') {
-      python_path = try(system('where python', intern = T))
+      python_path = try(system('where python3', intern = T))
     }
 
     if(class(python_path) == "try-error") {

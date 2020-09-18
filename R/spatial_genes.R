@@ -1192,8 +1192,8 @@ binSpect = function(gobject,
 
 
 
-#' @title silhouetteRank_old
-#' @name silhouetteRank_old
+#' @title silhouetteRank
+#' @name silhouetteRank
 #' @description Previously: calculate_spatial_genes_python. This method computes a silhouette score per gene based on the
 #' spatial distribution of two partitions of cells (expressed L1, and non-expressed L0).
 #' Here, rather than L2 Euclidean norm, it uses a rank-transformed, exponentially weighted
@@ -1207,13 +1207,13 @@ binSpect = function(gobject,
 #' @param python_path specify specific path to python if required
 #' @return data.table with spatial scores
 #' @export
-silhouetteRank_old <- function(gobject,
-                               expression_values = c('normalized', 'scaled', 'custom'),
-                               metric = "euclidean",
-                               subset_genes = NULL,
-                               rbp_p = 0.95,
-                               examine_top = 0.3,
-                               python_path = NULL) {
+silhouetteRank <- function(gobject,
+                           expression_values = c('normalized', 'scaled', 'custom'),
+                           metric = "euclidean",
+                           subset_genes = NULL,
+                           rbp_p = 0.95,
+                           examine_top = 0.3,
+                           python_path = NULL) {
 
 
   # expression values
@@ -1270,8 +1270,8 @@ silhouetteRank_old <- function(gobject,
 
 
 
-#' @title silhouetteRank
-#' @name silhouetteRank
+#' @title silhouetteRank_test
+#' @name silhouetteRank_test
 #' @description Previously: calculate_spatial_genes_python. This method computes a silhouette score per gene based on the
 #' spatial distribution of two partitions of cells (expressed L1, and non-expressed L0).
 #' Here, rather than L2 Euclidean norm, it uses a rank-transformed, exponentially weighted
@@ -1290,18 +1290,18 @@ silhouetteRank_old <- function(gobject,
 #' @param verbose be verbose
 #' @return data.table with spatial scores
 #' @export
-silhouetteRank = function(gobject,
-                          expression_values = c('normalized', 'scaled', 'custom'),
-                          subset_genes = NULL,
-                          overwrite_input_bin = FALSE,
-                          rbp_ps = c(0.95, 0.99),
-                          examine_tops = c(0.005, 0.010, 0.050, 0.100, 0.300),
-                          matrix_type = "dissim",
-                          num_core = 4,
-                          parallel_path = "/usr/bin",
-                          output = NULL,
-                          query_sizes = 10L,
-                          verbose = FALSE) {
+silhouetteRank_test = function(gobject,
+                               expression_values = c('normalized', 'scaled', 'custom'),
+                               subset_genes = NULL,
+                               overwrite_input_bin = TRUE,
+                               rbp_ps = c(0.95, 0.99),
+                               examine_tops = c(0.005, 0.010, 0.050, 0.100, 0.300),
+                               matrix_type = "dissim",
+                               num_core = 4,
+                               parallel_path = "/usr/bin",
+                               output = NULL,
+                               query_sizes = 10L,
+                               verbose = FALSE) {
 
 
   # data.table variables
@@ -1377,8 +1377,8 @@ silhouetteRank = function(gobject,
   }
 
   # log directory
-  # log_dir  = paste0(silh_output_dir, '/', 'logs/')
-  # if(!file.exists(log_dir)) dir.create(log_dir, recursive = TRUE)
+  log_dir  = paste0(silh_output_dir, '/', 'logs/')
+  if(!file.exists(log_dir)) dir.create(log_dir, recursive = TRUE)
 
 
   ## write spatial locations to .txt file
@@ -1422,10 +1422,9 @@ silhouetteRank = function(gobject,
                                 num_core = num_core,
                                 parallel_path = parallel_path,
                                 output = silh_output_dir,
-                                query_sizes = query_sizes)
+                                query_sizes = as.integer(query_sizes))
 
-  spatial_results = data.table::as.data.table(output_silh)
-  return(spatial_results)
+  return(output_silh)
 
 }
 
@@ -3543,7 +3542,7 @@ run_spatial_sim_tests_one_rep = function(gobject,
         ## silhouetterank
         start = proc.time()
 
-        spatial_gene_results = do.call('silhouetteRank', c(gobject = simulate_patch,
+        spatial_gene_results = do.call('silhouetteRank_test', c(gobject = simulate_patch,
                                                            selected_params))
 
         data.table::setnames(spatial_gene_results, old = 'gene', new = 'genes')
