@@ -610,7 +610,8 @@ getSpatialDataset = function(dataset = c('ST_OB1',
                                          'osmfish_SS_cortex',
                                          'merfish_preoptic',
                                          'seqfish_SS_cortex',
-                                         'seqfish_OB'),
+                                         'seqfish_OB',
+                                         'slideseq_cerebellum'),
                              directory = getwd(),
                              ...) {
 
@@ -622,7 +623,8 @@ getSpatialDataset = function(dataset = c('ST_OB1',
                                                'osmfish_SS_cortex',
                                                'merfish_preoptic',
                                                'seqfish_SS_cortex',
-                                               'seqfish_OB'))
+                                               'seqfish_OB',
+                                               'slideseq_cerebellum'))
 
   # check operating system first
   os_specific_system = get_os()
