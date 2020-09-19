@@ -14,7 +14,8 @@ createGiottoInstructions(
   dpi = NULL,
   units = NULL,
   height = NULL,
-  width = NULL
+  width = NULL,
+  is_docker = FALSE
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ createGiottoInstructions(
 \item{height}{height of plots}
 
 \item{width}{width of  plots}
+
+\item{is_docker}{using docker implementation of Giotto (defaults to FALSE)}
 }
 \value{
 named vector with giotto instructions

@@ -7,12 +7,15 @@
 runRankEnrich(
   gobject,
   sign_matrix,
-  expression_values = c("normalized", "scaled", "custom"),
+  expression_values = c("normalized", "raw", "scaled", "custom"),
   reverse_log_scale = TRUE,
   logbase = 2,
   output_enrichment = c("original", "zscore"),
+  ties_method = c("random", "max"),
   p_value = FALSE,
   n_times = 1000,
+  rbp_p = 0.99,
+  num_agg = 100,
   name = NULL,
   return_gobject = TRUE
 )
@@ -30,9 +33,15 @@ runRankEnrich(
 
 \item{output_enrichment}{how to return enrichment output}
 
+\item{ties_method}{how to handle rank ties}
+
 \item{p_value}{calculate p-values (boolean, default = FALSE)}
 
 \item{n_times}{number of permutations to calculate for p_value}
+
+\item{rbp_p}{fractional binarization threshold (default = 0.99)}
+
+\item{num_agg}{number of top genes to aggregate (default = 100)}
 
 \item{name}{to give to spatial enrichment results, default = rank}
 

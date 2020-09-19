@@ -38,7 +38,7 @@ makeSignMatrixPAGE = function(sign_names,
 
   # convert data.table to signature matrix
   dtmatrix = data.table::dcast.data.table(mydt, formula = genes~types, value.var = 'value', fill = 0)
-  final_sig_matrix = as.matrix(dtmatrix[,-1]); rownames(final_sig_matrix) = dtmatrix$genes
+  final_sig_matrix = Matrix::as.matrix(dtmatrix[,-1]); rownames(final_sig_matrix) = dtmatrix$genes
 
   return(final_sig_matrix)
 
@@ -52,6 +52,7 @@ makeSignMatrixPAGE = function(sign_names,
 #' a rank matrix that can be used with the Rank enrichment option.
 #' @param sc_matrix matrix of single-cell RNAseq expression data
 #' @param sc_cluster_ids vector of cluster ids
+#' @param ties_method how to handle rank ties
 #' @param gobject if giotto object is given then only genes present in both datasets will be considered
 #' @return matrix
 #' @seealso \code{\link{rankEnrich}}
@@ -60,7 +61,15 @@ makeSignMatrixPAGE = function(sign_names,
 #'     makeSignMatrixRank()
 makeSignMatrixRank <- function(sc_matrix,
                                sc_cluster_ids,
+                               ties_method = c("random", "max"),
                                gobject = NULL) {
+
+  if(is(sc_matrix, "sparseMatrix")){
+    sc_matrix = Matrix::as.matrix(sc_matrix)
+  }
+
+  # select ties_method
+  ties_method =  match.arg(ties_method, choices = c("random", "max"))
 
   # check input
   if(length(sc_cluster_ids) != ncol(sc_matrix)) {
@@ -92,14 +101,17 @@ makeSignMatrixRank <- function(sc_matrix,
   gene_names_res = rep(gene_names, length(unique(sc_cluster_ids)))
 
   # create data.table with genes, mean expression per cluster, mean expression overall and cluster ids
-  comb_dt = data.table(genes = gene_names_res, mean_expr = mean_list_res[[1]], av_expr = av_expression_res, clusters = group_list_res[[1]])
+  comb_dt = data.table::data.table(genes = gene_names_res,
+                                   mean_expr = mean_list_res[[1]],
+                                   av_expr = av_expression_res,
+                                   clusters = group_list_res[[1]])
 
   # data.table variables
   fold = mean_expr = av_expr = rankFold = clusters = NULL
 
   # calculate fold change and rank of fold-change
   comb_dt[, fold := log2(mean_expr+1)-log2(av_expr+1)]
-  comb_dt[, rankFold := frank(-fold, ties.method = 'first'), by = clusters]
+  comb_dt[, rankFold := data.table::frank(-fold, ties.method = ties_method), by = clusters]
 
   # create matrix
   comb_rank_mat = data.table::dcast.data.table(data = comb_dt, genes~clusters, value.var = 'rankFold')
@@ -693,8 +705,11 @@ do_rank_permutation <- function(sc_gene, n){
 #' @param reverse_log_scale reverse expression values from log scale
 #' @param logbase log base to use if reverse_log_scale = TRUE
 #' @param output_enrichment how to return enrichment output
+#' @param ties_method how to handle rank ties
 #' @param p_value calculate p-values (boolean, default = FALSE)
 #' @param n_times number of permutations to calculate for p_value
+#' @param rbp_p fractional binarization threshold (default = 0.99)
+#' @param num_agg number of top genes to aggregate (default = 100)
 #' @param name to give to spatial enrichment results, default = rank
 #' @param return_gobject return giotto object
 #' @return data.table with enrichment results
@@ -711,18 +726,28 @@ do_rank_permutation <- function(sc_gene, n){
 #' @export
 runRankEnrich <- function(gobject,
                        sign_matrix,
-                       expression_values = c('normalized', 'scaled', 'custom'),
+                       expression_values = c('normalized', "raw", 'scaled', 'custom'),
                        reverse_log_scale = TRUE,
                        logbase = 2,
                        output_enrichment = c('original', 'zscore'),
+                       ties_method = c("random", "max"),
                        p_value = FALSE,
                        n_times = 1000,
+                       rbp_p = 0.99,
+                       num_agg = 100,
                        name = NULL,
                        return_gobject = TRUE) {
 
+  # determine ties.method
+  ties_method = match.arg(ties_method, choices = c("random", "max"))
+
   # expression values to be used
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  values = match.arg(expression_values, c('normalized', "raw", 'scaled', 'custom'))
   expr_values = select_expression_values(gobject = gobject, values = values)
+
+  if(values=="raw"){
+    expr_values = Matrix::as.matrix(expr_values)
+  }
 
   # check parameters
   if(is.null(name)) name = 'rank'
@@ -748,8 +773,19 @@ runRankEnrich <- function(gobject,
   }
 
   # fold change and ranking
-  geneFold = expr_values - mean_gene_expr
-  rankFold = t(matrixStats::colRanks(-geneFold, ties.method = "first"))
+  #geneFold = expr_values - mean_gene_expr
+  #rankFold = t(matrixStats::colRanks(-geneFold, ties.method = "first"))
+
+  ties_1 = ties_method
+  ties_2 = ties_method
+  if(ties_method=="max"){
+    ties_1 = "min"
+    ties_2 = "max"
+  }
+  #else ties_1=ties_2 is equal to random
+  geneFold = expr_values
+  geneFold = matrixStats::rowRanks(geneFold, ties.method = ties_1)
+  rankFold = t(matrixStats::colRanks(-geneFold, ties.method = ties_2))
 
   rownames(rankFold) = rownames(expr_values)
   colnames(rankFold) = colnames(expr_values)
@@ -762,13 +798,13 @@ runRankEnrich <- function(gobject,
     filterRankFold = rankFold[interGene,]
 
     multiplyRank = (filterRankFold*filterSig[,i])^(1/2)
-    rpb = 0.01*(0.99^(multiplyRank-1))
+    rpb = (1.0 - rbp_p)*(rbp_p^(multiplyRank-1))
 
     vectorX = rep(NA, dim(filterRankFold)[2])
 
     for (j in (1:dim(filterRankFold)[2])){
       toprpb = sort(rpb[,j],decreasing = T)
-      zscore = sum(toprpb[1:100])
+      zscore = sum(toprpb[1:num_agg])
       vectorX[j] = zscore
     }
     enrichment[i,] = vectorX
@@ -784,7 +820,7 @@ runRankEnrich <- function(gobject,
   }
 
   enrichmentDT = data.table::data.table(cell_ID = rownames(enrichment))
-  enrichmentDT = cbind(enrichmentDT, as.data.table(enrichment))
+  enrichmentDT = cbind(enrichmentDT, data.table::as.data.table(enrichment))
 
 
   # default name for page enrichment
@@ -1217,7 +1253,7 @@ spot_deconvolution<-function(expr,
       constant_J<-find_dampening_constant(select_sig_exp,all_exp,solution_all_exp)
       ######deconvolution for each spot
       for(k in 1:(dim(cluster_cell_exp)[2])){
-        B<-as.matrix(cluster_cell_exp[,k])
+        B<-Matrix::as.matrix(cluster_cell_exp[,k])
         ct_spot_k<-rownames(cluster_i_matrix)[which(cluster_i_matrix[,k]==1)]
         if (length(ct_spot_k)==1){
           dwls_results[ct_spot_k[1],colnames(cluster_cell_exp)[k]]<-1
@@ -1228,7 +1264,7 @@ spot_deconvolution<-function(expr,
             ct_k_gene<-c(ct_k_gene,sig_gene_k)
           }
           uniq_ct_k_gene<-intersect(rownames(ct_exp),unique(ct_k_gene))
-          S_k<-as.matrix(ct_exp[uniq_ct_k_gene,ct_spot_k])
+          S_k<-Matrix::as.matrix(ct_exp[uniq_ct_k_gene,ct_spot_k])
           solDWLS<-optimize_solveDampenedWLS(S_k,B[uniq_ct_k_gene,],constant_J)
           dwls_results[names(solDWLS),colnames(cluster_cell_exp)[k]]<-solDWLS
         }
@@ -1313,8 +1349,8 @@ optimize_deconvolute_dwls <- function(exp,
   ######overlap signature with spatial genes
   Genes<-intersect(rownames(Signature),rownames(exp))
   S<-Signature[Genes,]
-  S<-as.matrix(S)
-  Bulk<-as.matrix(exp)
+  S<-Matrix::as.matrix(S)
+  Bulk<-Matrix::as.matrix(exp)
   subBulk = Bulk[Genes,]
   allCounts_DWLS<-NULL
   all_exp<-rowMeans(exp)
@@ -1349,7 +1385,7 @@ optimize_solveDampenedWLS<-function(S,
     newsolution<-solve_dampened_WLSj(S,B,solution,j)
     #decrease step size for convergence
     solutionAverage<-rowMeans(cbind(newsolution,matrix(solution,nrow = length(solution),ncol = 4)))
-    change<-norm(as.matrix(solutionAverage-solution))
+    change<-norm(Matrix::as.matrix(solutionAverage-solution))
     solution<-solutionAverage
     iterations<-iterations+1
     changes<-c(changes,change)

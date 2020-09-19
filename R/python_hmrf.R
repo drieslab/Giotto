@@ -186,6 +186,13 @@ doHMRF <- function(gobject,
   output_data = paste0(output_folder,'/', 'result.spatial.zscore')
   if(!file.exists(output_data)) dir.create(output_data)
 
+  # encapsulate to avoid path problems
+  # python code also needs to be updated internally
+  cell_location =  paste0('"', cell_location, '"')
+  spatial_genes =  paste0('"', spatial_genes, '"')
+  spatial_network =  paste0('"', spatial_network, '"')
+  expression_data =  paste0('"', expression_data, '"')
+  output_data =  paste0('"', output_data, '"')
 
   # process other params
   zscore = match.arg(zscore, c('none','rowcol', 'colrow'))

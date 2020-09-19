@@ -16,8 +16,11 @@ rankEnrich(...)
     \item{\code{reverse_log_scale}}{reverse expression values from log scale}
     \item{\code{logbase}}{log base to use if reverse_log_scale = TRUE}
     \item{\code{output_enrichment}}{how to return enrichment output}
+    \item{\code{ties_method}}{how to handle rank ties}
     \item{\code{p_value}}{calculate p-values (boolean, default = FALSE)}
     \item{\code{n_times}}{number of permutations to calculate for p_value}
+    \item{\code{rbp_p}}{fractional binarization threshold (default = 0.99)}
+    \item{\code{num_agg}}{number of top genes to aggregate (default = 100)}
     \item{\code{name}}{to give to spatial enrichment results, default = rank}
     \item{\code{return_gobject}}{return giotto object}
   }}

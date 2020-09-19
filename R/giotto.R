@@ -160,6 +160,7 @@ print.giotto <- function(object,
 #' @param units units of format (defaults to in)
 #' @param height height of plots
 #' @param width width of  plots
+#' @param is_docker using docker implementation of Giotto (defaults to FALSE)
 #' @return named vector with giotto instructions
 #' @seealso More online information can be found here \url{https://rubd.github.io/Giotto_site/articles/instructions_and_plotting.html}
 #' @export
@@ -174,10 +175,15 @@ createGiottoInstructions <- function(python_path =  NULL,
                                      dpi = NULL,
                                      units = NULL,
                                      height = NULL,
-                                     width = NULL) {
+                                     width = NULL,
+                                     is_docker = FALSE) {
 
   # pyton path to use
-  python_path = set_giotto_python_path(python_path = python_path)
+  if(is_docker){
+    python_path = set_giotto_python_path(python_path = "/usr/bin/python3") # fixed in docker version
+  }  else{
+    python_path = set_giotto_python_path(python_path = python_path)
+  }
 
   # print plot to console
   if(is.null(show_plot)) {
@@ -231,9 +237,9 @@ createGiottoInstructions <- function(python_path =  NULL,
   width = as.numeric(width)
 
   instructions_list = list(python_path, show_plot, return_plot,
-                           save_plot, save_dir, plot_format, dpi, units, height, width)
+                           save_plot, save_dir, plot_format, dpi, units, height, width, is_docker)
   names(instructions_list) = c('python_path', 'show_plot', 'return_plot',
-                               'save_plot', 'save_dir', 'plot_format', 'dpi', 'units', 'height', 'width')
+                               'save_plot', 'save_dir', 'plot_format', 'dpi', 'units', 'height', 'width', 'is_docker')
   return(instructions_list)
 
 }
