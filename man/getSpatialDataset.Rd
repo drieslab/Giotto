@@ -6,7 +6,8 @@
 \usage{
 getSpatialDataset(
   dataset = c("ST_OB1", "ST_OB2", "codex_spleen", "cycif_PDAC", "starmap_3D_cortex",
-    "osmfish_SS_cortex", "merfish_preoptic", "seqfish_SS_cortex", "seqfish_OB"),
+    "osmfish_SS_cortex", "merfish_preoptic", "seqfish_SS_cortex", "seqfish_OB",
+    "slideseq_cerebellum"),
   directory = getwd(),
   ...
 )
