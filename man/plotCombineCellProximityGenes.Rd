@@ -4,64 +4,33 @@
 \alias{plotCombineCellProximityGenes}
 \title{plotCombineCellProximityGenes}
 \usage{
-plotCombineCellProximityGenes(
-  gobject,
-  combCpgObject,
-  selected_interactions = NULL,
-  selected_gene_to_gene = NULL,
-  detail_plot = T,
-  simple_plot = F,
-  simple_plot_facet = c("interaction", "genes"),
-  facet_scales = "fixed",
-  facet_ncol = length(selected_gene_to_gene),
-  facet_nrow = length(selected_interactions),
-  colors = c("#9932CC", "#FF8C00"),
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
-  save_param = list(),
-  default_save_name = "plotCombineCPG"
-)
+plotCombineCellProximityGenes(...)
 }
 \arguments{
-\item{gobject}{giotto object}
-
-\item{combCpgObject}{CPGscores, output from combineCellProximityGenes()}
-
-\item{selected_interactions}{interactions to show}
-
-\item{selected_gene_to_gene}{pairwise gene combinations to show}
-
-\item{detail_plot}{show detailed info in both interacting cell types}
-
-\item{simple_plot}{show a simplified plot}
-
-\item{simple_plot_facet}{facet on interactions or genes with simple plot}
-
-\item{facet_scales}{ggplot facet scales paramter}
-
-\item{facet_ncol}{ggplot facet ncol parameter}
-
-\item{facet_nrow}{ggplot facet nrow parameter}
-
-\item{colors}{vector with two colors to use}
-
-\item{show_plot}{show plots}
-
-\item{return_plot}{return plotting object}
-
-\item{save_plot}{directly save the plot [boolean]}
-
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
-
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-}
-\value{
-ggplot
+\item{...}{
+  Arguments passed on to \code{\link[=plotCombineInteractionChangedGenes]{plotCombineInteractionChangedGenes}}
+  \describe{
+    \item{\code{gobject}}{giotto object}
+    \item{\code{combCpgObject}}{ICGscores, output from combineInteractionChangedGenes()}
+    \item{\code{selected_interactions}}{interactions to show}
+    \item{\code{selected_gene_to_gene}}{pairwise gene combinations to show}
+    \item{\code{detail_plot}}{show detailed info in both interacting cell types}
+    \item{\code{simple_plot}}{show a simplified plot}
+    \item{\code{simple_plot_facet}}{facet on interactions or genes with simple plot}
+    \item{\code{facet_scales}}{ggplot facet scales paramter}
+    \item{\code{facet_ncol}}{ggplot facet ncol parameter}
+    \item{\code{facet_nrow}}{ggplot facet nrow parameter}
+    \item{\code{colors}}{vector with two colors to use}
+    \item{\code{show_plot}}{show plots}
+    \item{\code{return_plot}}{return plotting object}
+    \item{\code{save_plot}}{directly save the plot [boolean]}
+    \item{\code{save_param}}{list of saving parameters from \code{\link{all_plots_save_function}}}
+    \item{\code{default_save_name}}{default save name for saving, don't change, change save_name in save_param}
+  }}
 }
 \description{
-Create visualization for combined (pairwise) cell proximity gene scores
+Create visualization for combined (pairwise) ICG scores
 }
-\examples{
-    plotCombineCellProximityGenes(CPGscores)
+\seealso{
+\code{\link{plotCombineInteractionChangedGenes}}
 }

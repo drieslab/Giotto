@@ -30,7 +30,7 @@ plotCellProximityGenes(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{cpgObject}{cell proximity gene score object}
+\item{cpgObject}{ICG (interaction changed gene) score object}
 
 \item{method}{plotting method to use}
 
