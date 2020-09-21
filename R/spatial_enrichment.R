@@ -403,7 +403,7 @@ PAGE_DT_method = function(sign_matrix,
 
   ## identify available cell types
   all_genes = rownames(expr_values)
-  sign_matrix_DT = data.table::as.data.table(reshape2::melt(sig_matrix))
+  sign_matrix_DT = data.table::as.data.table(reshape2::melt(sign_matrix))
   sign_matrix_DT = sign_matrix_DT[Var1 %in% all_genes]
   detected_DT = sign_matrix_DT[, sum(value), by = Var2]
 

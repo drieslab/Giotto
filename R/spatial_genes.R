@@ -1809,9 +1809,12 @@ spark = function(gobject,
                  expression_values = 'raw',
                  num_core = 5,
                  covariates = NULL,
-                 return_object = 'data.table',
+                 return_object = c('data.table', 'spark'),
                  ...) {
 
+
+  # determine parameter
+  return_object = match.arg(return_object, c('data.table', 'spark'))
 
   # data.table variables
   genes =  adjusted_pvalue = combined_pvalue = NULL
