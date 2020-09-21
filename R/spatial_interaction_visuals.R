@@ -17,8 +17,6 @@
 #' @details This function creates a barplot that shows the  spatial proximity
 #'  enrichment or depletion of cell type pairs.
 #' @export
-#' @examples
-#'     cellProximityBarplot(CPscore)
 cellProximityBarplot = function(gobject,
                                 CPscore,
                                 min_orig_ints = 5,
@@ -98,8 +96,6 @@ cellProximityBarplot = function(gobject,
 #' @details This function creates a heatmap that shows the  spatial proximity
 #'  enrichment or depletion of cell type pairs.
 #' @export
-#' @examples
-#'     cellProximityHeatmap(CPscore)
 cellProximityHeatmap = function(gobject,
                                 CPscore,
                                 scale = T,
@@ -227,8 +223,6 @@ cellProximityHeatmap = function(gobject,
 #' @details This function creates a network that shows the  spatial proximity
 #'  enrichment or depletion of cell type pairs.
 #' @export
-#' @examples
-#'     cellProximityNetwork(CPscore)
 cellProximityNetwork = function(gobject,
                                 CPscore,
                                 remove_self_edges = FALSE,
@@ -956,8 +950,6 @@ cellProximityVisPlot_3D_plotly <- function(gobject,
 #' @return ggplot or plotly
 #' @details Description of parameters.
 #' @export
-#' @examples
-#'     cellProximityVisPlot(gobject)
 cellProximityVisPlot <- function(gobject,
                                  interaction_name = NULL,
                                  cluster_column = NULL,
@@ -1147,8 +1139,6 @@ cellProximityVisPlot <- function(gobject,
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return plot
 #' @export
-#' @examples
-#'     plotCellProximityGenes(CPGscores)
 plotCellProximityGenes = function(gobject,
                                   cpgObject,
                                   method = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey', 'heatmap', 'dotplot'),
@@ -1416,8 +1406,6 @@ plotCellProximityGenes = function(gobject,
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return plot
 #' @export
-#' @examples
-#'     plotCPG(CPGscores)
 plotCPG = function(gobject,
                    cpgObject,
                    method = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey', 'heatmap', 'dotplot'),
@@ -1482,8 +1470,6 @@ plotCPG = function(gobject,
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return plot
 #' @export
-#' @examples
-#'     plotInteractionChangedGenes(CPGscores)
 plotInteractionChangedGenes = function(gobject,
                                        cpgObject,
                                        source_type,
@@ -1587,8 +1573,6 @@ plotInteractionChangedGenes = function(gobject,
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return plot
 #' @export
-#' @examples
-#'     plotICG(CPGscores)
 plotICG = function(gobject,
                    cpgObject,
                    source_type,
