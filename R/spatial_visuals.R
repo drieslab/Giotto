@@ -3496,18 +3496,33 @@ spatGenePlot2D <- function(gobject,
     if(point_shape == 'border') {
 
       if(scale_alpha_with_expression == TRUE) {
-        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes, aes_string2(x = sdimx, y = sdimy,
-                                                                                                  fill = gene, alpha = gene),
+        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes, aes_string2(x = sdimx,
+                                                                                         y = sdimy,
+                                                                                         fill = gene,
+                                                                                         alpha = gene),
                                        shape = 21,
                                        color = point_border_col, size = point_size, stroke = point_border_stroke,
                                        show.legend = show_legend)
       } else {
-        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes,  aes_string2(x = sdimx, y = sdimy,
-                                                                                                   fill = gene),
+        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes,  aes_string2(x = sdimx,
+                                                                                          y = sdimy,
+                                                                                          fill = gene),
                                        shape = 21,
                                        color = point_border_col, size = point_size, stroke = point_border_stroke,
                                        show.legend = show_legend, alpha = point_alpha)
       }
+
+
+      ## scale and labs ##
+      pl <- pl + ggplot2::scale_alpha_continuous(guide = 'none')
+      pl <- pl + ggplot2::scale_fill_gradient2(low = cell_color_gradient[[1]],
+                                               mid = cell_color_gradient[[2]],
+                                               high = cell_color_gradient[[3]],
+                                               midpoint = gradient_midpoint,
+                                               guide = guide_colorbar(title = ''))
+      pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y', title = gene)
+
+
     }
 
 
@@ -3516,15 +3531,27 @@ spatGenePlot2D <- function(gobject,
     if(point_shape == 'no_border') {
 
       if(scale_alpha_with_expression == TRUE) {
-        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes,  aes_string2(x = sdimx, y = sdimy,
-                                                                                                   color = gene, alpha = gene),
+        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes,  aes_string2(x = sdimx,
+                                                                                          y = sdimy,
+                                                                                          color = gene,
+                                                                                          alpha = gene),
                                        shape = 19, size = point_size,  show.legend = show_legend)
       } else {
-        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes,  aes_string2(x = sdimx, y = sdimy,
-                                                                                                   color = gene),
+        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes,  aes_string2(x = sdimx,
+                                                                                          y = sdimy,
+                                                                                          color = gene),
                                        shape = 19, size = point_size, show.legend = show_legend, alpha = point_alpha)
       }
 
+
+      ## scale and labs ##
+      pl <- pl + ggplot2::scale_alpha_continuous(guide = 'none')
+      pl <- pl + ggplot2::scale_color_gradient2(low = cell_color_gradient[[1]],
+                                               mid = cell_color_gradient[[2]],
+                                               high = cell_color_gradient[[3]],
+                                               midpoint = gradient_midpoint,
+                                               guide = guide_colorbar(title = ''))
+      pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y', title = gene)
 
     }
 
@@ -3573,18 +3600,17 @@ spatGenePlot2D <- function(gobject,
       }
 
 
+      ## scale and labs ##
+      pl <- pl + ggplot2::scale_alpha_continuous(guide = 'none')
+      pl <- pl + ggplot2::scale_fill_gradient2(low = cell_color_gradient[[1]],
+                                               mid = cell_color_gradient[[2]],
+                                               high = cell_color_gradient[[3]],
+                                               midpoint = gradient_midpoint,
+                                               guide = guide_colorbar(title = ''))
+      pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y', title = gene)
+
 
     }
-
-
-    ## scale and labs ##
-    pl <- pl + ggplot2::scale_alpha_continuous(guide = 'none')
-    pl <- pl + ggplot2::scale_fill_gradient2(low = cell_color_gradient[[1]],
-                                             mid = cell_color_gradient[[2]],
-                                             high = cell_color_gradient[[3]],
-                                             midpoint = gradient_midpoint,
-                                             guide = guide_colorbar(title = ''))
-    pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y', title = gene)
 
     ## theme ##
     pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5),
@@ -3881,6 +3907,14 @@ dimGenePlot2D <- function(gobject,
                                          color = point_border_col, stroke = point_border_stroke,
                                          alpha = point_alpha)
         }
+
+        ## scale and labs ##
+        pl <- pl + ggplot2::scale_alpha_continuous(guide = 'none')
+        pl <- pl + ggplot2::scale_fill_gradient2(low = cell_color_gradient[[1]],
+                                                 mid = cell_color_gradient[[2]],
+                                                 high = cell_color_gradient[[3]],
+                                                 midpoint = gradient_midpoint,
+                                                 guide = guide_colorbar(title = ''))
       }
 
 
@@ -3899,18 +3933,16 @@ dimGenePlot2D <- function(gobject,
                                          show.legend = show_legend, shape = 19, size =  point_size,
                                          alpha = point_alpha)
         }
+
+        ## scale and labs ##
+        pl <- pl + ggplot2::scale_alpha_continuous(guide = 'none')
+        pl <- pl + ggplot2::scale_color_gradient2(low = cell_color_gradient[[1]],
+                                                 mid = cell_color_gradient[[2]],
+                                                 high = cell_color_gradient[[3]],
+                                                 midpoint = gradient_midpoint,
+                                                 guide = guide_colorbar(title = ''))
+
       }
-
-
-      ## scale and labs ##
-      pl <- pl + ggplot2::scale_alpha_continuous(guide = 'none')
-      pl <- pl + ggplot2::scale_fill_gradient2(low = cell_color_gradient[[1]],
-                                               mid = cell_color_gradient[[2]],
-                                               high = cell_color_gradient[[3]],
-                                               midpoint = gradient_midpoint,
-                                               guide = guide_colorbar(title = ''))
-
-
     }
 
 
