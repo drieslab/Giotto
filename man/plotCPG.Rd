@@ -72,6 +72,3 @@ plot
 \description{
 Create visualization for cell proximity gene scores
 }
-\examples{
-    plotCPG(CPGscores)
-}

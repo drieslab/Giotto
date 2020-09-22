@@ -75,6 +75,3 @@ Create network from cell-cell proximity scores
 This function creates a network that shows the  spatial proximity
  enrichment or depletion of cell type pairs.
 }
-\examples{
-    cellProximityNetwork(CPscore)
-}

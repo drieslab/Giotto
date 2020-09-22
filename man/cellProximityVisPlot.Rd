@@ -116,6 +116,3 @@ Visualize cell-cell interactions according to spatial coordinates
 \details{
 Description of parameters.
 }
-\examples{
-    cellProximityVisPlot(gobject)
-}
