@@ -504,8 +504,8 @@ PAGE_DT_method = function(sign_matrix,
 
 
     ## 3. decide on number of blocks to process ##
-    nr_perm_lines = nrow(cell_type_perm_DT)
-    nr_spots = ncol(expr_values)
+    nr_perm_lines = as.numeric(nrow(cell_type_perm_DT))
+    nr_spots = as.numeric(ncol(expr_values))
     total_lines = nr_spots * nr_perm_lines
     nr_groups = round(total_lines / max_block)
 
