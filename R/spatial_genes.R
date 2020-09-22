@@ -1197,7 +1197,8 @@ binSpect = function(gobject,
 #' @description Previously: calculate_spatial_genes_python. This method computes a silhouette score per gene based on the
 #' spatial distribution of two partitions of cells (expressed L1, and non-expressed L0).
 #' Here, rather than L2 Euclidean norm, it uses a rank-transformed, exponentially weighted
-#' function to represent the local physical distance between two cells. New implementation can be found at \code{\link{silhouetteRank}}
+#' function to represent the local physical distance between two cells.
+#' New multi aggregator implementation can be found at \code{\link{silhouetteRankTest}}
 #' @param gobject giotto object
 #' @param expression_values expression values to use
 #' @param metric distance metric to use
@@ -1270,12 +1271,9 @@ silhouetteRank <- function(gobject,
 
 
 
-#' @title silhouetteRank_test
-#' @name silhouetteRank_test
-#' @description Previously: calculate_spatial_genes_python. This method computes a silhouette score per gene based on the
-#' spatial distribution of two partitions of cells (expressed L1, and non-expressed L0).
-#' Here, rather than L2 Euclidean norm, it uses a rank-transformed, exponentially weighted
-#' function to represent the local physical distance between two cells.
+#' @title silhouetteRankTest
+#' @name silhouetteRankTest
+#' @description Multi parameter aggregator version of \code{\link{silhouetteRank}}
 #' @param gobject giotto object
 #' @param expression_values expression values to use
 #' @param subset_genes only run on this subset of genes
@@ -1290,7 +1288,7 @@ silhouetteRank <- function(gobject,
 #' @param verbose be verbose
 #' @return data.table with spatial scores
 #' @export
-silhouetteRank_test = function(gobject,
+silhouetteRankTest = function(gobject,
                                expression_values = c('normalized', 'scaled', 'custom'),
                                subset_genes = NULL,
                                overwrite_input_bin = TRUE,
@@ -3545,7 +3543,7 @@ run_spatial_sim_tests_one_rep = function(gobject,
         ## silhouetterank
         start = proc.time()
 
-        spatial_gene_results = do.call('silhouetteRank_test', c(gobject = simulate_patch,
+        spatial_gene_results = do.call('silhouetteRankTest', c(gobject = simulate_patch,
                                                            selected_params))
 
         data.table::setnames(spatial_gene_results, old = 'gene', new = 'genes')
