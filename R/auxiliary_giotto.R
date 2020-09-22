@@ -2063,6 +2063,13 @@ combineMetadata = function(gobject,
   # cell/spot enrichment data
   available_enr = names(gobject@spatial_enrichment)
 
+  # output warning if not found
+  not_available = spat_enr_names[!spat_enr_names %in% available_enr]
+  if(length(not_available) > 0) {
+    cat('These spatial enrichment results have not been found: \n',
+        not_available)
+  }
+
   spat_enr_names = spat_enr_names[spat_enr_names %in% available_enr]
 
   if(!is.null(spat_enr_names) & length(spat_enr_names) > 0) {
