@@ -17,6 +17,3 @@ a giotto image
 \description{
 get get a giotto image from a giotto object
 }
-\examples{
-    getGiottoImage(gobject)
-}

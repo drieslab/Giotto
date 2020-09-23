@@ -92,8 +92,6 @@ make_simulated_network = function(gobject,
 #' obtained by reshuffling the cell type labels of each node (cell)
 #' in the spatial network.
 #' @export
-#' @examples
-#'     cellProximityEnrichment(gobject)
 cellProximityEnrichment <- function(gobject,
                                     spatial_network_name = 'Delaunay_network',
                                     cluster_column,
@@ -259,8 +257,6 @@ cellProximityEnrichment <- function(gobject,
 #' the values "select_astrocytes", "select_oligodendrocytes", "other_astrocytes", "other_oligodendroyctes" and "other". Where "other" is all
 #' other cell types found within the selected cell type column.
 #' @export
-#' @examples
-#'     addCellIntMetadata(gobject)
 addCellIntMetadata = function(gobject,
                               spatial_network = 'spatial_network',
                               cluster_column,
@@ -1763,7 +1759,6 @@ combineCPG <- function(...) {
 #' @param gene_set_1 first specific gene set from gene pairs
 #' @param gene_set_2 second specific gene set from gene pairs
 #' @return data.table with average expression scores for each cluster
-#' @details Details will follow soon.
 #' @keywords internal
 average_gene_gene_expression_in_groups = function(gobject,
                                                   cluster_column = 'cell_types',
@@ -1845,8 +1840,6 @@ average_gene_gene_expression_in_groups = function(gobject,
 #' without considering the spatial position of cells.
 #' More details will follow soon.
 #' @export
-#' @examples
-#'     exprCellCellcom(gobject)
 exprCellCellcom = function(gobject,
                            cluster_column = 'cell_types',
                            random_iter = 1000,
@@ -1984,9 +1977,7 @@ exprCellCellcom = function(gobject,
 #' @param cluster_column cluster column with cell type information
 #' @param needed_cell_types vector of cell type names for which a random id will be found
 #' @return list of randomly sampled cell ids with same cell type composition
-#' @details Details will follow.
-#' @examples
-#'     create_cell_type_random_cell_IDs(gobject)
+#' @keywords internal
 create_cell_type_random_cell_IDs = function(gobject,
                                             cluster_column = 'cell_types',
                                             needed_cell_types) {
@@ -2056,8 +2047,6 @@ create_cell_type_random_cell_IDs = function(gobject,
 #'  \item{PI:}{ significanc score: log2fc * -log10(p.adj) }
 #' }
 #' @export
-#' @examples
-#'     specificCellCellcommunicationScores(gobject)
 specificCellCellcommunicationScores = function(gobject,
                                                spatial_network_name = 'Delaunay_network',
                                                cluster_column = 'cell_types',
@@ -2262,8 +2251,6 @@ specificCellCellcommunicationScores = function(gobject,
 #'  \item{PI:}{ significanc score: log2fc * -log10(p.adj) }
 #' }
 #' @export
-#' @examples
-#'     spatCellCellcom(gobject)
 spatCellCellcom = function(gobject,
                            spatial_network_name = 'Delaunay_network',
                            cluster_column = 'cell_types',
@@ -2390,8 +2377,6 @@ spatCellCellcom = function(gobject,
 #' @param detailed detailed option used with \code{\link{spatCellCellcom}} (default = FALSE)
 #' @return combined data.table with spatial and expression communication data
 #' @export
-#' @examples
-#'     combCCcom(gobject)
 combCCcom = function(spatialCC,
                      exprCC,
                      min_lig_nr = 3,

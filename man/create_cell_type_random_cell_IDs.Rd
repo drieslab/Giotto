@@ -23,9 +23,4 @@ list of randomly sampled cell ids with same cell type composition
 \description{
 creates randomized cell ids within a selection of cell types
 }
-\details{
-Details will follow.
-}
-\examples{
-    create_cell_type_random_cell_IDs(gobject)
-}
+\keyword{internal}

@@ -51,6 +51,3 @@ are expressed at higher levels than expected based on a reshuffled null distribu
 without considering the spatial position of cells.
 More details will follow soon.
 }
-\examples{
-    exprCellCellcom(gobject)
-}

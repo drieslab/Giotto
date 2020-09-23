@@ -29,6 +29,3 @@ magick image or giotto image object with updated background color
 \description{
 Function to change the background color of a magick image plot to another color
 }
-\examples{
-    changeImageBg(mg_object)
-}

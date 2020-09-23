@@ -38,6 +38,3 @@ combined data.table with spatial and expression communication data
 \description{
 Combine spatial and expression based cell-cell communication data.tables
 }
-\examples{
-    combCCcom(gobject)
-}

@@ -17,6 +17,3 @@ an updated Giotto object with access to the list of images
 \description{
 Adds giotto image objects to your giotto object
 }
-\examples{
-    addGiottoImage(mg_object)
-}

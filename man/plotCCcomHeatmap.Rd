@@ -57,6 +57,3 @@ ggplot
 \description{
 Plots heatmap for ligand-receptor communication scores in cell-cell interactions
 }
-\examples{
-    plotCCcomHeatmap(CPGscores)
-}

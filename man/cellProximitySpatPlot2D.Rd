@@ -107,6 +107,3 @@ Visualize 2D cell-cell interactions according to spatial coordinates in ggplot m
 \details{
 Description of parameters.
 }
-\examples{
-    cellProximitySpatPlot2D(gobject)
-}

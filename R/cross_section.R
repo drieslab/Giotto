@@ -413,7 +413,6 @@ create_mesh_grid_lines <- function(cell_subset_projection_locations,extend_ratio
 #' @return giotto object with updated spatial network slot
 #' @details Creates a virtual 2D cross section object for a given spatial network object. The users need to provide the definition of the cross section plane (see method).
 #' @export
-#'
 createCrossSection <- function(gobject,
                                name="cross_section",
                                spatial_network_name = "Delaunay_network",
@@ -611,7 +610,6 @@ crossSectionGenePlot <-function(gobject=NULL,
 #' @details Description of parameters.
 #' @export
 #' @seealso \code{\link{crossSectionPlot}}
-#'
 crossSectionPlot <-function(gobject,
                             crossSection_obj = NULL,
                             name=NULL,
@@ -658,7 +656,6 @@ crossSectionPlot <-function(gobject,
 #' @export
 #' @examples
 #'     crossSectionGenePlot3D(gobject)
-#'
 crossSectionGenePlot3D <-function(gobject,
                                   crossSection_obj = NULL,
                                   name=NULL,
@@ -700,9 +697,6 @@ crossSectionGenePlot3D <-function(gobject,
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
-#' @examples
-#'     crossSectionPlot3D(gobject)
-#'
 crossSectionPlot3D <-function(gobject,
                               crossSection_obj = NULL,
                               name=NULL,
@@ -760,8 +754,6 @@ crossSectionPlot3D <-function(gobject,
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
-#' @examples
-#'     insertCrossSectionSpatPlot3D(gobject)
 insertCrossSectionSpatPlot3D <- function(gobject,
                                          crossSection_obj=NULL,
                                          name=NULL,
@@ -845,8 +837,6 @@ insertCrossSectionSpatPlot3D <- function(gobject,
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
-#' @examples
-#'     insertCrossSectionGenePlot3D(gobject)
 insertCrossSectionGenePlot3D <- function(gobject,
                                          crossSection_obj=NULL,
                                          name=NULL,

@@ -40,5 +40,4 @@ Description of parameters.
 }
 \examples{
     crossSectionGenePlot3D(gobject)
-
 }

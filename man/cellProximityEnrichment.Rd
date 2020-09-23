@@ -46,6 +46,3 @@ calculated from a number of spatial network simulations. Each individual simulat
 obtained by reshuffling the cell type labels of each node (cell)
 in the spatial network.
 }
-\examples{
-    cellProximityEnrichment(gobject)
-}

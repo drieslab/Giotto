@@ -56,6 +56,3 @@ ggplot
 \description{
 Plots dotplot to compare ligand-receptor rankings from spatial and expression information
 }
-\examples{
-    plotRankSpatvsExpr(CPGscores)
-}

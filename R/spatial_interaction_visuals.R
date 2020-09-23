@@ -1857,8 +1857,6 @@ plotCombineCPG <- function(...) {
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
-#' @examples
-#'     plotCombineCellCellCommunication(CPGscores)
 plotCombineCellCellCommunication <- function(gobject,
                                              combCCcom,
                                              selected_LR = NULL,
@@ -1989,8 +1987,6 @@ plotCombineCellCellCommunication <- function(gobject,
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
-#' @examples
-#'     plotCombineCCcom(CPGscores)
 plotCombineCCcom = function(gobject,
                             combCCcom,
                             selected_LR = NULL,
@@ -2049,8 +2045,6 @@ plotCombineCCcom = function(gobject,
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
-#' @examples
-#'     plotCCcomHeatmap(CPGscores)
 plotCCcomHeatmap = function(gobject,
                             comScores,
                             selected_LR = NULL,
@@ -2168,8 +2162,6 @@ plotCCcomHeatmap = function(gobject,
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
-#' @examples
-#'     plotCCcomDotplot(CPGscores)
 plotCCcomDotplot = function(gobject,
                             comScores,
                             selected_LR = NULL,
@@ -2294,8 +2286,6 @@ plotCCcomDotplot = function(gobject,
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
-#' @examples
-#'     plotRankSpatvsExpr(CPGscores)
 plotRankSpatvsExpr = function(gobject,
                               combCC,
                               expr_rnk_column = 'LR_expr_rnk',
@@ -2390,8 +2380,6 @@ plotRankSpatvsExpr = function(gobject,
 #' @param combCC combined communinication scores from \code{\link{combCCcom}}
 #' @param first_col first column to use
 #' @param second_col second column to use
-#' @examples
-#'     plotRecovery_sub(CPGscores)
 plotRecovery_sub = function(combCC,
                             first_col = 'LR_expr_rnk',
                             second_col = 'LR_spat_rnk') {
@@ -2458,8 +2446,6 @@ plotRecovery_sub = function(combCC,
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
-#' @examples
-#'     plotRecovery(CPGscores)
 plotRecovery = function(gobject,
                         combCC,
                         expr_rnk_column = 'exprPI_rnk',
@@ -2559,8 +2545,6 @@ plotRecovery = function(gobject,
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
-#' @examples
-#'     cellProximitySpatPlot2D(gobject)
 cellProximitySpatPlot2D <- function(gobject,
                                     interaction_name = NULL,
                                     cluster_column = NULL,
@@ -2759,8 +2743,6 @@ cellProximitySpatPlot2D <- function(gobject,
 #' @details Description of parameters.
 #' @export
 #' @seealso  \code{\link{cellProximitySpatPlot2D}} and \code{\link{cellProximitySpatPlot3D}} for 3D
-#' @examples
-#'     cellProximitySpatPlot(gobject)
 cellProximitySpatPlot = function(gobject, ...) {
 
   cellProximitySpatPlot2D(gobject = gobject, ...)
@@ -2806,9 +2788,6 @@ cellProximitySpatPlot = function(gobject, ...) {
 #' @return plotly
 #' @details Description of parameters.
 #' @export
-#' @examples
-#'     cellProximitySpatPlot3D(gobject)
-
 cellProximitySpatPlot3D = function(gobject,
                                    interaction_name = NULL,
                                    cluster_column = NULL,

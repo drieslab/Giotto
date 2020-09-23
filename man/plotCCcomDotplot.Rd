@@ -57,6 +57,3 @@ ggplot
 \description{
 Plots dotplot for ligand-receptor communication scores in cell-cell interactions
 }
-\examples{
-    plotCCcomDotplot(CPGscores)
-}

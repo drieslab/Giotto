@@ -83,6 +83,3 @@ of gene expression values in cells that are spatially in proximity to eachother.
  \item{PI:}{ significanc score: log2fc * -log10(p.adj) }
 }
 }
-\examples{
-    specificCellCellcommunicationScores(gobject)
-}

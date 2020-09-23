@@ -41,7 +41,3 @@ Visualize cells in a virtual cross section according to spatial coordinates
 \details{
 Description of parameters.
 }
-\examples{
-    crossSectionPlot3D(gobject)
-
-}

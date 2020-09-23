@@ -62,6 +62,3 @@ Visualize the meshgrid lines of cross section together with cells
 \details{
 Description of parameters.
 }
-\examples{
-    insertCrossSectionSpatPlot3D(gobject)
-}

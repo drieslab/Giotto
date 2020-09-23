@@ -26,7 +26,4 @@ data.table with average expression scores for each cluster
 \description{
 calculate average expression per cluster
 }
-\details{
-Details will follow soon.
-}
 \keyword{internal}

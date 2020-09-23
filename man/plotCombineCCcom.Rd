@@ -62,6 +62,3 @@ ggplot
 \description{
 Create visualization for combined (pairwise) cell proximity gene scores
 }
-\examples{
-    plotCombineCCcom(CPGscores)
-}
