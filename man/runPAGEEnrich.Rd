@@ -13,6 +13,7 @@ runPAGEEnrich(
   logbase = 2,
   output_enrichment = c("original", "zscore"),
   p_value = FALSE,
+  include_depletion = FALSE,
   n_times = 1000,
   max_block = 2e+07,
   name = NULL,
@@ -36,6 +37,8 @@ runPAGEEnrich(
 \item{output_enrichment}{how to return enrichment output}
 
 \item{p_value}{calculate p-values (boolean, default = FALSE)}
+
+\item{include_depletion}{calculate both enrichment and depletion}
 
 \item{n_times}{number of permutations to calculate for p_value}
 

@@ -64,7 +64,7 @@ makeSignMatrixRank <- function(sc_matrix,
                                ties_method = c("random", "max"),
                                gobject = NULL) {
 
-  if(is(sc_matrix, "sparseMatrix")){
+  if(methods::is(sc_matrix, "sparseMatrix")){
     sc_matrix = Matrix::as.matrix(sc_matrix)
   }
 
@@ -399,11 +399,16 @@ PAGE_DT_method = function(sign_matrix,
                           verbose = TRUE) {
 
 
+  # data.table variables
+  Var1 = value = Var2 = V1 = marker = nr_markers = fc = cell_ID = zscore = colmean = colSd = pval = NULL
+  mean_zscore = sd_zscore = pval_score = NULL
+
   # output enrichment
   output_enrichment = match.arg(output_enrichment, choices = c('original', 'zscore'))
 
   ## identify available cell types
   all_genes = rownames(expr_values)
+  sign_matrix = as.matrix(sign_matrix)
   sign_matrix_DT = data.table::as.data.table(reshape2::melt(sign_matrix))
   sign_matrix_DT = sign_matrix_DT[Var1 %in% all_genes]
   detected_DT = sign_matrix_DT[, sum(value), by = Var2]

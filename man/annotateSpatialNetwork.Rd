@@ -26,6 +26,3 @@ annotated network in data.table format
 \description{
 Annotate spatial network with cell metadata information.
 }
-\examples{
-    annotateSpatialNetwork(gobject)
-}

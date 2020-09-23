@@ -18,6 +18,7 @@ PAGEEnrich(...)
     \item{\code{logbase}}{log base to use if reverse_log_scale = TRUE}
     \item{\code{output_enrichment}}{how to return enrichment output}
     \item{\code{p_value}}{calculate p-values (boolean, default = FALSE)}
+    \item{\code{include_depletion}}{calculate both enrichment and depletion}
     \item{\code{n_times}}{number of permutations to calculate for p_value}
     \item{\code{max_block}}{number of lines to process together (default = 20e6)}
     \item{\code{name}}{to give to spatial enrichment results, default = PAGE}

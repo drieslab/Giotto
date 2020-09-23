@@ -4,7 +4,10 @@
 \alias{removeGiottoEnvironment}
 \title{removeGiottoEnvironment}
 \usage{
-removeGiottoEnvironment()
+removeGiottoEnvironment(verbose = TRUE)
+}
+\arguments{
+\item{verbose}{be verbose}
 }
 \description{
 removeGiottoEnvironment

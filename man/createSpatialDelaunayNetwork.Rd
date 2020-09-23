@@ -56,6 +56,3 @@ Create a spatial Delaunay network based on cell centroid physical distances.
 \details{
 Creates a spatial Delaunay network as explained in \code{\link[geometry]{delaunayn}} (default), \code{\link[deldir]{deldir}}, or \code{\link[RTriangle]{triangulate}}.
 }
-\examples{
-    createSpatialDelaunayNetwork(gobject)
-}
