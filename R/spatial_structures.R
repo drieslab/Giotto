@@ -17,8 +17,6 @@
 #' @param default_save_name default save name for saving, alternatively change save_name in save_param
 #' @return ggplot plot
 #' @export
-#' @examples
-#'     spatNetwDistributionsDistance(gobject)
 spatNetwDistributionsDistance <- function(gobject,
                                           spatial_network_name = 'spatial_network',
                                           hist_bins = 30,
@@ -111,8 +109,6 @@ spatNetwDistributionsDistance <- function(gobject,
 #' @param default_save_name default save name for saving, alternatively change save_name in save_param
 #' @return ggplot plot
 #' @export
-#' @examples
-#'     spatNetwDistributionsKneighbors(gobject)
 spatNetwDistributionsKneighbors = function(gobject,
                                            spatial_network_name = 'spatial_network',
                                            hist_bins = 30,
@@ -188,8 +184,6 @@ spatNetwDistributionsKneighbors = function(gobject,
 #' The \strong{k_neighbors} option shows the number of k neighbors distribution over all cells.
 #' @return ggplot plot
 #' @export
-#' @examples
-#'     spatNetwDistributionsDistance(gobject)
 spatNetwDistributions <- function(gobject,
                                   spatial_network_name = 'spatial_network',
                                   distribution = c('distance', 'k_neighbors'),
@@ -1006,8 +1000,6 @@ create_delaunayNetwork3D <- function (gobject,
 #' @return giotto object with updated spatial network slot
 #' @details Creates a spatial Delaunay network as explained in \code{\link[geometry]{delaunayn}} (default), \code{\link[deldir]{deldir}}, or \code{\link[RTriangle]{triangulate}}.
 #' @export
-#' @examples
-#'     createSpatialDelaunayNetwork(gobject)
 createSpatialDelaunayNetwork <- function(gobject,
                                          method = c("deldir", "delaunayn_geometry", "RTriangle"),
                                          dimensions = "all",
@@ -1106,8 +1098,6 @@ createSpatialDelaunayNetwork <- function(gobject,
 #' @param \dots Other parameters
 #' @return giotto object with updated spatial network slot
 #' @export
-#' @examples
-#'     plotStatDelaunayNetwork(gobject)
 plotStatDelaunayNetwork = function(gobject,
                                    method = c("deldir", "delaunayn_geometry", "RTriangle"),
                                    dimensions = "all",
@@ -1335,8 +1325,6 @@ create_KNNnetwork_dbscan = function(spatial_locations,
 #'
 #'
 #' @export
-#' @examples
-#'     createSpatialKNNnetwork(gobject)
 createSpatialKNNnetwork <- function (gobject,
                                      method = "dbscan",
                                      dimensions = "all",
@@ -1495,8 +1483,6 @@ createSpatialKNNnetwork <- function (gobject,
 #' or a numerical vector, e.g. 2:3
 #'
 #' @export
-#' @examples
-#'     createSpatialNetwork(gobject)
 createSpatialNetwork <- function(gobject,
                                  name = NULL,
                                  dimensions = "all",
@@ -1569,8 +1555,6 @@ createSpatialNetwork <- function(gobject,
 #' @param verbose verbosity of function#'
 #' @return vector
 #' @export
-#' @examples
-#'     showNetworks()
 showNetworks = function(gobject,
                         verbose = TRUE) {
 
@@ -1596,8 +1580,6 @@ showNetworks = function(gobject,
 #' @param create_full_network convert from reduced to full network representation
 #' @return annotated network in data.table format
 #' @export
-#' @examples
-#'     annotateSpatialNetwork(gobject)
 annotateSpatialNetwork = function(gobject,
                                   spatial_network_name = 'Delaunay_network',
                                   cluster_column,
@@ -2103,8 +2085,6 @@ createSpatialGrid <- function(gobject,
 #' @param verbose verbosity of function#'
 #' @return vector
 #' @export
-#' @examples
-#'     showGrids()
 showGrids = function(gobject,
                      verbose = TRUE) {
 
@@ -2225,8 +2205,6 @@ annotate_spatlocs_with_spatgrid_3D = function(spatloc,
 #' @param cluster_columns names of cell metadata, see \code{\link{pDataDT}}
 #' @return annotated spatial grid data.table
 #' @export
-#' @examples
-#'     annotateSpatialGrid()
 annotateSpatialGrid = function(gobject,
                                spatial_grid_name = 'spatial_grid',
                                cluster_columns = NULL) {

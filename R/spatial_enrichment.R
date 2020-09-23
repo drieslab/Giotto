@@ -393,6 +393,7 @@ PAGE_DT_method = function(sign_matrix,
                           reverse_log_scale = TRUE,
                           output_enrichment = c('original', 'zscore'),
                           p_value = FALSE,
+                          include_depletion = FALSE,
                           n_times = 1000,
                           max_block = 20e6,
                           verbose = TRUE) {
@@ -540,11 +541,21 @@ PAGE_DT_method = function(sign_matrix,
     mergetest_final = data.table::merge.data.table(mergetest, res_list_comb_average, by = c('cell_ID', 'cell_type'))
 
     ## calculate p.values based on normal distribution
-    mergetest_final[, pval := stats::pnorm(abs(zscore), mean = mean_zscore, sd = sd_zscore, lower.tail = FALSE, log.p = FALSE)]
-    setorder(mergetest_final, pval)
+    if(include_depletion == TRUE) {
+      mergetest_final[, pval := stats::pnorm(abs(zscore), mean = mean_zscore, sd = sd_zscore, lower.tail = FALSE, log.p = FALSE)]
+    } else {
+      mergetest_final[, pval := stats::pnorm(zscore, mean = mean_zscore, sd = sd_zscore, lower.tail = FALSE, log.p = FALSE)]
+    }
+
+    data.table::setorder(mergetest_final, pval)
 
     ## calculate pval_score
-    mergetest_final[, pval_score := sign(zscore)*-log10(pval)]
+    if(include_depletion == TRUE) {
+      mergetest_final[, pval_score := sign(zscore)*-log10(pval)]
+    } else {
+      mergetest_final[, pval_score := -log10(pval)]
+    }
+
 
     resultmatrix = data.table::dcast(mergetest_final, formula = cell_ID~cell_type, value.var = 'pval_score')
     return(list(DT = mergetest_final, matrix = resultmatrix))
@@ -571,6 +582,7 @@ PAGE_DT_method = function(sign_matrix,
 #' @param logbase log base to use if reverse_log_scale = TRUE
 #' @param output_enrichment how to return enrichment output
 #' @param p_value calculate p-values (boolean, default = FALSE)
+#' @param include_depletion calculate both enrichment and depletion
 #' @param n_times number of permutations to calculate for p_value
 #' @param max_block number of lines to process together (default = 20e6)
 #' @param name to give to spatial enrichment results, default = PAGE
@@ -597,6 +609,7 @@ runPAGEEnrich <- function(gobject,
                           logbase = 2,
                           output_enrichment = c('original', 'zscore'),
                           p_value = FALSE,
+                          include_depletion = FALSE,
                           n_times = 1000,
                           max_block = 20e6,
                           name = NULL,
@@ -618,6 +631,7 @@ runPAGEEnrich <- function(gobject,
                                 reverse_log_scale = reverse_log_scale,
                                 output_enrichment = c('original', 'zscore'),
                                 p_value = p_value,
+                                include_depletion = include_depletion,
                                 n_times = n_times,
                                 max_block = max_block,
                                 verbose = verbose)
@@ -645,6 +659,7 @@ runPAGEEnrich <- function(gobject,
                                        'logbase' = logbase,
                                        'output enrichment scores' = output_enrichment,
                                        'p values calculated' = p_value,
+                                       'include depletion' = include_depletion,
                                        'nr permutations' = n_times)
 
     gobject@parameters = parameters_list
