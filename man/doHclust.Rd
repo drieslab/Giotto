@@ -62,7 +62,12 @@ cluster cells using hierarchical clustering algorithm
 Description on how to use Kmeans clustering method.
 }
 \examples{
-    doHclust(gobject)
+
+data(mini_giotto_single_cell)
+
+mini_giotto_single_cell = doHclust(mini_giotto_single_cell, k = 4, name = 'hier_clus')
+plotUMAP_2D(mini_giotto_single_cell, cell_color = 'hier_clus', point_size = 3)
+
 }
 \seealso{
 \code{\link[stats]{hclust}}

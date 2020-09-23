@@ -83,9 +83,6 @@ The systematic steps are:
   \item{5. do Leiden clustering}
 }
 }
-\examples{
-    doLeidenSubCluster(gobject)
-}
 \seealso{
 \code{\link{doLeidenCluster}}
 }

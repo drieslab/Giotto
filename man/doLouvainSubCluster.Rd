@@ -89,9 +89,6 @@ The systematic steps are:
   \item{5. do Louvain clustering}
 }
 }
-\examples{
-    doLouvainSubCluster(gobject)
-}
 \seealso{
 \code{\link{doLouvainCluster_multinet}} and \code{\link{doLouvainCluster_community}}
 }

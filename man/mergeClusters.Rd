@@ -57,5 +57,15 @@ be reached if clusters have already been merged before \cr
 A giotto object is returned by default, if FALSE then the merging vector will be returned.
 }
 \examples{
-    mergeClusters(gobject)
+
+data("mini_giotto_single_cell")
+
+pDataDT(mini_giotto_single_cell)
+mini_giotto_single_cell = mergeClusters(mini_giotto_single_cell,
+                                        cluster_column = 'leiden_clus',
+                                        min_cor_score = 0.7,
+                                        force_min_group_size = 4)
+pDataDT(mini_giotto_single_cell)
+plotUMAP_2D(mini_giotto_single_cell, cell_color = 'merged_cluster', point_size = 3)
+
 }

@@ -38,7 +38,12 @@
 #'
 #' @export
 #' @examples
-#'     doLeidenCluster(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' mini_giotto_single_cell = doLeidenCluster(mini_giotto_single_cell, name = 'leiden_clus')
+#' plotUMAP_2D(mini_giotto_single_cell, cell_color = 'leiden_clus', point_size = 3)
+#'
 doLeidenCluster = function(gobject,
                            name = 'leiden_clus',
                            nn_network_to_use = 'sNN',
@@ -435,7 +440,12 @@ doLouvainCluster_multinet <- function(gobject,
 #' @seealso \code{\link{doLouvainCluster_community}} and \code{\link{doLouvainCluster_multinet}}
 #' @export
 #' @examples
-#'     doLouvainCluster(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' mini_giotto_single_cell = doLouvainCluster(mini_giotto_single_cell, name = 'louvain_clus')
+#' plotUMAP_2D(mini_giotto_single_cell, cell_color = 'louvain_clus', point_size = 3)
+#'
 doLouvainCluster = function(gobject,
                             version = c('community', 'multinet'),
                             name = 'louvain_clus',
@@ -609,8 +619,6 @@ doRandomWalkCluster <- function(gobject,
 #' @return giotto object with new clusters appended to cell metadata
 #' @details See \code{\link[dbscan]{sNNclust}} from dbscan package
 #' @export
-#' @examples
-#'     doSNNCluster(gobject)
 doSNNCluster <- function(gobject,
                          name = 'sNN_clus',
                          nn_network_to_use = 'kNN',
@@ -738,7 +746,12 @@ doSNNCluster <- function(gobject,
 #' @seealso  \code{\link[stats]{kmeans}}
 #' @export
 #' @examples
-#'     doKmeans(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' mini_giotto_single_cell = doKmeans(mini_giotto_single_cell, centers = 4, name = 'kmeans_clus')
+#' plotUMAP_2D(mini_giotto_single_cell, cell_color = 'kmeans_clus', point_size = 3)
+#'
 doKmeans <- function(gobject,
                      expression_values = c('normalized', 'scaled', 'custom'),
                      genes_to_use = NULL,
@@ -891,7 +904,12 @@ doKmeans <- function(gobject,
 #' @seealso  \code{\link[stats]{hclust}}
 #' @export
 #' @examples
-#'     doHclust(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' mini_giotto_single_cell = doHclust(mini_giotto_single_cell, k = 4, name = 'hier_clus')
+#' plotUMAP_2D(mini_giotto_single_cell, cell_color = 'hier_clus', point_size = 3)
+#'
 doHclust <- function(gobject,
                      expression_values = c('normalized', 'scaled', 'custom'),
                      genes_to_use = NULL,
@@ -1072,8 +1090,6 @@ doHclust <- function(gobject,
 #' \code{\link{doLouvainCluster}}, \code{\link{doRandomWalkCluster}}, \code{\link{doSNNCluster}},
 #' \code{\link{doKmeans}}, \code{\link{doHclust}}
 #' @export
-#' @examples
-#'     clusterCells(gobject)
 clusterCells <- function(gobject,
                          cluster_method = c('leiden',
                                             'louvain_community', 'louvain_multinet',
@@ -1289,8 +1305,6 @@ clusterCells <- function(gobject,
 #' }
 #' @seealso \code{\link{doLeidenCluster}}
 #' @export
-#' @examples
-#'     doLeidenSubCluster(gobject)
 doLeidenSubCluster = function(gobject,
                               name = 'sub_pleiden_clus',
                               cluster_column = NULL,
@@ -1833,8 +1847,6 @@ doLouvainSubCluster_multinet =  function(gobject,
 #' }
 #' @seealso \code{\link{doLouvainCluster_multinet}} and \code{\link{doLouvainCluster_community}}
 #' @export
-#' @examples
-#'     doLouvainSubCluster(gobject)
 doLouvainSubCluster =  function(gobject,
                                 name = 'sub_louvain_clus',
                                 version = c('community', 'multinet'),
@@ -1946,8 +1958,6 @@ doLouvainSubCluster =  function(gobject,
 #' @seealso \code{\link{doLouvainCluster_multinet}}, \code{\link{doLouvainCluster_community}}
 #' and  @seealso \code{\link{doLeidenCluster}}
 #' @export
-#' @examples
-#'     subClusterCells(gobject)
 subClusterCells <- function(gobject,
                             name = 'sub_clus',
                             cluster_method = c('leiden',
@@ -2069,7 +2079,11 @@ subClusterCells <- function(gobject,
 #' with mergeClusters to combine very similar or small clusters into bigger clusters.
 #' @export
 #' @examples
-#'     getClusterSimilarity(gobject)
+#' data("mini_giotto_single_cell")
+#'
+#' cluster_similarities = getClusterSimilarity(mini_giotto_single_cell,
+#'                                             cluster_column = 'leiden_clus')
+#'
 getClusterSimilarity <- function(gobject,
                                  expression_values = c('normalized', 'scaled', 'custom'),
                                  cluster_column,
@@ -2143,7 +2157,17 @@ getClusterSimilarity <- function(gobject,
 #' A giotto object is returned by default, if FALSE then the merging vector will be returned.
 #' @export
 #' @examples
-#'     mergeClusters(gobject)
+#'
+#' data("mini_giotto_single_cell")
+#'
+#' pDataDT(mini_giotto_single_cell)
+#' mini_giotto_single_cell = mergeClusters(mini_giotto_single_cell,
+#'                                         cluster_column = 'leiden_clus',
+#'                                         min_cor_score = 0.7,
+#'                                         force_min_group_size = 4)
+#' pDataDT(mini_giotto_single_cell)
+#' plotUMAP_2D(mini_giotto_single_cell, cell_color = 'merged_cluster', point_size = 3)
+#'
 mergeClusters <- function(gobject,
                           expression_values = c('normalized', 'scaled', 'custom'),
                           cluster_column,
@@ -2393,7 +2417,11 @@ node_clusters = function(hclus_obj, verbose = TRUE) {
 #' differentially expressed marker genes at each node.
 #' @export
 #' @examples
-#'     getDendrogramSplits(gobject)
+#'
+#' data("mini_giotto_single_cell")
+#'
+#' splits = getDendrogramSplits(mini_giotto_single_cell, cluster_column = 'leiden_clus')
+#'
 getDendrogramSplits = function(gobject,
                                expression_values = c('normalized', 'scaled', 'custom'),
                                cluster_column,
