@@ -203,7 +203,7 @@ if __name__=="__main__":
 		fw.close()
 		import smfishHmrf
 		this_path = os.path.dirname(smfishHmrf.__file__) + "/graphColoring"
-		subprocess.call("java -cp %s -Xmx32g -Xms32g GraphColoring %s %s" % (this_path, edge_file, block_file), shell=True)
+		subprocess.call("java -cp '%s' -Xmx32g -Xms32g GraphColoring '%s' '%s'" % (this_path, edge_file, block_file), shell=True)
 
 		f = open(block_file)
 		b_ind = 0
