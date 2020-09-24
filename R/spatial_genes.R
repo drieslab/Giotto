@@ -420,12 +420,12 @@ calc_spatial_enrichment_matrix = function(spatial_network,
 
     if(do_fisher_test == TRUE) {
 
-      save_list = suppressMessages(Giotto:::giotto_lapply(X = rownames(bin_matrix), cores = cores, fun = spat_fish_func,
+      save_list = suppressMessages(giotto_lapply(X = rownames(bin_matrix), cores = cores, fun = spat_fish_func,
                                                           bin_matrix = bin_matrix, spat_mat = spat_mat,
                                                           calc_hub = calc_hub, hub_min_int = hub_min_int))
 
     } else {
-      save_list =  suppressMessages(Giotto:::giotto_lapply(X = rownames(bin_matrix), cores = cores, fun = spat_OR_func,
+      save_list =  suppressMessages(giotto_lapply(X = rownames(bin_matrix), cores = cores, fun = spat_OR_func,
                                                            bin_matrix = bin_matrix, spat_mat = spat_mat,
                                                            calc_hub = calc_hub, hub_min_int = hub_min_int))
 
@@ -2498,7 +2498,7 @@ do_spatial_knn_smoothing = function(gobject,
 
   #print(spatial_network)
 
-  spatial_network_ext = data.table:::merge.data.table(spatial_network, expr_values_dt_m, by.x = 'target', by.y = 'cell_ID', allow.cartesian = T)
+  spatial_network_ext = data.table::merge.data.table(spatial_network, expr_values_dt_m, by.x = 'target', by.y = 'cell_ID', allow.cartesian = T)
 
   #print(spatial_network_ext)
 
@@ -2797,7 +2797,7 @@ showSpatialCorGenes = function(spatCorObject,
     clusters = clusters_part
     names_clusters = names(clusters_part)
     clusters_DT = data.table::data.table('gene_ID' = names_clusters, 'clus' = clusters)
-    filter_DT = data.table:::merge.data.table(filter_DT, clusters_DT, by = 'gene_ID')
+    filter_DT = data.table::merge.data.table(filter_DT, clusters_DT, by = 'gene_ID')
   }
 
   ## 0. subset clusters

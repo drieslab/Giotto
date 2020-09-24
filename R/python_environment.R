@@ -259,10 +259,11 @@ installGiottoEnvironment =  function(packages_to_install = c('pandas', 'networkx
 
 #' @title removeGiottoEnvironment
 #' @name removeGiottoEnvironment
+#' @param verbose be verbose
 #' @details Removes a previously installed giotto environment.
 #' See \code{\link{installGiottoEnvironment}}.
 #' @export
-removeGiottoEnvironment = function() {
+removeGiottoEnvironment = function(verbose = TRUE) {
 
   # first see if Giotto is already installed
   giotto_installed = checkGiottoEnvironment(verbose = verbose)

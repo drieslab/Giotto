@@ -303,7 +303,7 @@ exportGiottoViewer = function(gobject,
   # expression values to be used
   if(verbose == TRUE) cat('\n write expression values \n')
   values = match.arg(expression_values, c( 'scaled', 'normalized', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_values = select_expression_values(gobject = gobject, values = values)
 
   # swap cell_IDs for numerical values
   colnames(expr_values) = 1:ncol(expr_values)

@@ -74,5 +74,10 @@ Partition types available and information:
 Set \emph{weight_col = NULL} to give equal weight (=1) to each edge.
 }
 \examples{
-    doLeidenCluster(gobject)
+
+data(mini_giotto_single_cell)
+
+mini_giotto_single_cell = doLeidenCluster(mini_giotto_single_cell, name = 'leiden_clus')
+plotUMAP_2D(mini_giotto_single_cell, cell_color = 'leiden_clus', point_size = 3)
+
 }

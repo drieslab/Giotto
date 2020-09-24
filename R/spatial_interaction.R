@@ -402,7 +402,7 @@ do_limmatest = function(expr_values,
                                   'other' = mean_all,
                                   'log2fc' = log2fc,
                                   'diff' =  diff)
-  limmaDT = data.table:::merge.data.table(limmaDT, tempDT, by = 'genes')
+  limmaDT = data.table::merge.data.table(limmaDT, tempDT, by = 'genes')
   limmaDT = limmaDT[,.(genes, sel, other, log2fc, diff, P.Value, adj.P.Val)]
   colnames(limmaDT) = c('genes', 'sel', 'other', 'log2fc', 'diff', 'p.value', 'p.adj')
 
@@ -591,7 +591,7 @@ do_permuttest = function(expr_values,
 
   ## combine results permutation and original
   random_perms_res = unique(random_perms[,.(genes, perm_sel, perm_other, perm_log2fc, perm_diff, p_higher, p_lower)])
-  results_m = data.table:::merge.data.table(random_perms_res, original[,.(genes, sel, other, log2fc, diff)], by = 'genes')
+  results_m = data.table::merge.data.table(random_perms_res, original[,.(genes, sel, other, log2fc, diff)], by = 'genes')
 
   # select lowest p-value and perform p.adj
   results_m[, p.value := ifelse(p_higher <= p_lower, p_higher, p_lower)]
@@ -1468,7 +1468,7 @@ combineCellProximityGenes_per_interaction =  function(cpgObject,
 
     }
 
-    merge_subsets = data.table:::merge.data.table(subset_cell_1, subset_cell_2, by = c('unif_int'), allow.cartesian = TRUE)
+    merge_subsets = data.table::merge.data.table(subset_cell_1, subset_cell_2, by = c('unif_int'), allow.cartesian = TRUE)
 
   } else if(length(unique_cell_types) == 1) {
 
@@ -1523,7 +1523,7 @@ combineCellProximityGenes_per_interaction =  function(cpgObject,
 
     }
 
-    merge_subsets = data.table:::merge.data.table(subset_cell_1A, subset_cell_1B, by = c('unif_int'), allow.cartesian = TRUE)
+    merge_subsets = data.table::merge.data.table(subset_cell_1A, subset_cell_1B, by = c('unif_int'), allow.cartesian = TRUE)
 
 
   }
@@ -2174,7 +2174,7 @@ specificCellCellcommunicationScores = function(gobject,
     comScore[, rand_expr := total_av/random_iter]
 
     if(detailed == TRUE) {
-      av_difference_scores = Giotto:::rowMeans_giotto(total_sum)
+      av_difference_scores = rowMeans_giotto(total_sum)
       sd_difference_scores = apply(total_sum, MARGIN = 1, FUN = stats::sd)
 
       comScore[, av_diff := av_difference_scores]
@@ -2409,7 +2409,7 @@ combCCcom = function(spatialCC,
                        new = c('lig_expr_spat', 'rec_expr_spat', 'LR_expr_spat', 'lig_nr_spat', 'rec_nr_spat',
                                'rand_expr_spat', 'av_diff_spat', new_detailed, 'log2fc_spat', 'pvalue_spat', 'p.adj_spat', 'PI_spat'))
 
-  merge_DT = data.table:::merge.data.table(spatialCC, exprCC, by = c('LR_comb', 'LR_cell_comb',
+  merge_DT = data.table::merge.data.table(spatialCC, exprCC, by = c('LR_comb', 'LR_cell_comb',
                                                                     'lig_cell_type', 'rec_cell_type',
                                                                     'ligand', 'receptor'))
 

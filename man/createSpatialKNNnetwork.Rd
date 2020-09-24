@@ -50,6 +50,3 @@ or a numerical vector, e.g. 2:3
 \description{
 Create a spatial knn network.
 }
-\examples{
-    createSpatialKNNnetwork(gobject)
-}

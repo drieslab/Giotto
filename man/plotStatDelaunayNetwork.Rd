@@ -59,6 +59,3 @@ giotto object with updated spatial network slot
 \description{
 Plots network statistics for a Delaunay network..
 }
-\examples{
-    plotStatDelaunayNetwork(gobject)
-}

@@ -38,6 +38,3 @@ ggplot plot
 \description{
 This function returns a histogram displaying the number of k-neighbors distribution for each cell
 }
-\examples{
-    spatNetwDistributionsKneighbors(gobject)
-}
