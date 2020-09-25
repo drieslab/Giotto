@@ -19,6 +19,8 @@ createSpatialEnrich(...)
     \item{\code{logbase}}{log base to use if reverse_log_scale = TRUE}
     \item{\code{p_value}}{calculate p-value (default = FALSE)}
     \item{\code{n_times}}{(page/rank) number of permutation iterations to calculate p-value}
+    \item{\code{rbp_p}}{(rank) fractional binarization threshold (default = 0.99)}
+    \item{\code{num_agg}}{(rank) number of top genes to aggregate (default = 100)}
     \item{\code{max_block}}{number of lines to process together (default = 20e6)}
     \item{\code{top_percentage}}{(hyper) percentage of cells that will be considered to have gene expression with matrix binarization}
     \item{\code{output_enrichment}}{how to return enrichment output}
