@@ -798,7 +798,7 @@ runRankEnrich <- function(gobject,
 
   ties_1 = ties_method
   ties_2 = ties_method
-  if(ties_method=="max"){
+  if(ties_method == "max"){
     ties_1 = "min"
     ties_2 = "max"
   }
@@ -1074,6 +1074,8 @@ hyperGeometricEnrich <- function(...) {
 #' @param logbase log base to use if reverse_log_scale = TRUE
 #' @param p_value calculate p-value (default = FALSE)
 #' @param n_times (page/rank) number of permutation iterations to calculate p-value
+#' @param rbp_p (rank) fractional binarization threshold (default = 0.99)
+#' @param num_agg (rank) number of top genes to aggregate (default = 100)
 #' @param max_block number of lines to process together (default = 20e6)
 #' @param top_percentage (hyper) percentage of cells that will be considered to have gene expression with matrix binarization
 #' @param output_enrichment how to return enrichment output
@@ -1098,6 +1100,8 @@ runSpatialEnrich = function(gobject,
                             logbase = 2,
                             p_value = FALSE,
                             n_times = 1000,
+                            rbp_p = 0.99,
+                            num_agg = 100,
                             max_block = 20e6,
                             top_percentage = 5,
                             output_enrichment = c('original', 'zscore'),
@@ -1134,6 +1138,8 @@ runSpatialEnrich = function(gobject,
                              output_enrichment = output_enrichment,
                              p_value = p_value,
                              n_times = n_times,
+                             rbp_p = rbp_p,
+                             num_agg = num_agg,
                              name = name,
                              return_gobject = return_gobject)
 
