@@ -14,6 +14,8 @@ runSpatialEnrich(
   logbase = 2,
   p_value = FALSE,
   n_times = 1000,
+  rbp_p = 0.99,
+  num_agg = 100,
   max_block = 2e+07,
   top_percentage = 5,
   output_enrichment = c("original", "zscore"),
@@ -40,6 +42,10 @@ runSpatialEnrich(
 \item{p_value}{calculate p-value (default = FALSE)}
 
 \item{n_times}{(page/rank) number of permutation iterations to calculate p-value}
+
+\item{rbp_p}{(rank) fractional binarization threshold (default = 0.99)}
+
+\item{num_agg}{(rank) number of top genes to aggregate (default = 100)}
 
 \item{max_block}{number of lines to process together (default = 20e6)}
 
