@@ -7,6 +7,7 @@
 runPatternSimulation(
   gobject,
   pattern_name = "pattern",
+  pattern_colors = c(`in` = "green", out = "red"),
   pattern_cell_ids = NULL,
   gene_names = NULL,
   spatial_probs = c(0.5, 1),
@@ -17,6 +18,7 @@ runPatternSimulation(
   spat_methods_params = list(NA, NA, NA, NA, NA),
   spat_methods_names = c("binSpect_single", "binSpect_multi", "spatialDE", "spark",
     "silhouetteRank"),
+  scalefactor = 6000,
   save_plot = T,
   save_raw = T,
   save_norm = T,
@@ -32,6 +34,8 @@ runPatternSimulation(
 \item{gobject}{giotto object}
 
 \item{pattern_name}{name of spatial pattern}
+
+\item{pattern_colors}{2 color vector for the spatial pattern}
 
 \item{pattern_cell_ids}{cell ids that make up the spatial pattern}
 
@@ -49,6 +53,8 @@ runPatternSimulation(
 
 \item{spat_methods_names}{name for each element in the vector of spatial elements to test}
 
+\item{scalefactor}{library size scaling factor when re-normalizing dataset}
+
 \item{save_plot}{save intermediate random simulation plots or not}
 
 \item{save_raw}{save the raw expression matrix of the simulation}
@@ -65,7 +71,7 @@ runPatternSimulation(
 
 \item{run_simulations}{run simulations (default = TRUE)}
 
-\item{\dots}{additional parameters for spatial gene detection tests}
+\item{\dots}{additional parameters for renormalization}
 }
 \value{
 data.table with results
