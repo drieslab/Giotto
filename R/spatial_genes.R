@@ -3672,6 +3672,7 @@ run_spatial_sim_tests_multi = function(gobject,
 #' @description Creates a known spatial pattern for selected genes one-by-one and runs the different spatial gene detection tests
 #' @param gobject giotto object
 #' @param pattern_name name of spatial pattern
+#' @param pattern_colors 2 color vector for the spatial pattern
 #' @param pattern_cell_ids cell ids that make up the spatial pattern
 #' @param gene_names selected genes
 #' @param spatial_probs probabilities to test for a high expressing gene value to be part of the spatial pattern
@@ -3680,6 +3681,7 @@ run_spatial_sim_tests_multi = function(gobject,
 #' @param spat_methods vector of spatial methods to test
 #' @param spat_methods_params list of parameters list for each element in the vector of spatial methods to test
 #' @param spat_methods_names name for each element in the vector of spatial elements to test
+#' @param scalefactor library size scaling factor when re-normalizing dataset
 #' @param save_plot save intermediate random simulation plots or not
 #' @param save_raw save the raw expression matrix of the simulation
 #' @param save_norm save the normalized expression matrix of the simulation
@@ -3688,13 +3690,14 @@ run_spatial_sim_tests_multi = function(gobject,
 #' @param height height of final plots
 #' @param width width of final plots
 #' @param run_simulations run simulations (default = TRUE)
-#' @param \dots additional parameters for spatial gene detection tests
+#' @param \dots additional parameters for renormalization
 #' @return data.table with results
 #' @export
 #' @examples
 #'     runPatternSimulation(gobject)
 runPatternSimulation = function(gobject,
                                 pattern_name = 'pattern',
+                                pattern_colors = c('in' = 'green', 'out' = 'red'),
                                 pattern_cell_ids = NULL,
                                 gene_names = NULL,
                                 spatial_probs = c(0.5, 1),
@@ -3703,6 +3706,7 @@ runPatternSimulation = function(gobject,
                                 spat_methods = c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark', 'silhouetteRank'),
                                 spat_methods_params = list(NA, NA, NA, NA, NA),
                                 spat_methods_names = c('binSpect_single', 'binSpect_multi', 'spatialDE', 'spark', 'silhouetteRank'),
+                                scalefactor = 6000,
                                 save_plot = T,
                                 save_raw = T,
                                 save_norm = T,
@@ -3724,10 +3728,10 @@ runPatternSimulation = function(gobject,
                                                      pattern_cell_ids = pattern_cell_ids,
                                                      gene_name = gene_names[[1]],
                                                      spatial_prob = 1,
-                                                     scalefactor = 6000,
+                                                     scalefactor = scalefactor,
                                                      verbose = T)
 
-  spatPlot2D(example_patch, cell_color = pattern_name,
+  spatPlot2D(example_patch, cell_color = pattern_name, cell_color_code = pattern_colors,
              save_plot = save_plot, save_param = list(save_dir = save_dir, save_folder = 'original', save_name = paste0(pattern_name,'_pattern'),
                                                       base_width = 9, base_height = 7, units = 'cm'))
 
