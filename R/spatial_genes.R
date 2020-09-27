@@ -75,8 +75,12 @@ spat_fish_func = function(gene,
 spat_fish_func_DT = function(bin_matrix_DTm,
                              spat_netw_min,
                              calc_hub = F,
-                             hub_min_int = 3) {
+                             hub_min_int = 3,
+                             cores = NA) {
 
+  # set number of cores automatically, but with limit of 10
+  cores = determine_cores(cores)
+  data.table::setDTthreads(threads = cores)
 
   # data.table variables
   from_value = to_value = gene_ID = N = to = from = cell_ID = V1 = NULL
@@ -220,8 +224,12 @@ spat_OR_func = function(gene,
 spat_OR_func_DT = function(bin_matrix_DTm,
                            spat_netw_min,
                            calc_hub = F,
-                           hub_min_int = 3) {
+                           hub_min_int = 3,
+                           cores = NA) {
 
+  # set number of cores automatically, but with limit of 10
+  cores = determine_cores(cores)
+  data.table::setDTthreads(threads = cores)
 
   # data.table variables
   from_value = to_value = gene_ID = N = to = from = cell_ID = V1 = NULL
@@ -492,8 +500,13 @@ calc_spatial_enrichment_DT = function(bin_matrix,
                                       hub_min_int = 3,
                                       group_size = 'automatic',
                                       do_fisher_test = TRUE,
-                                      adjust_method = 'fdr') {
+                                      adjust_method = 'fdr',
+                                      cores = NA) {
 
+
+  # set number of cores automatically, but with limit of 10
+  cores = determine_cores(cores)
+  data.table::setDTthreads(threads = cores)
 
   # data.table variables
   from = to = gene_ID = p.value = adj.p.value = score = estimate = NULL
@@ -532,12 +545,14 @@ calc_spatial_enrichment_DT = function(bin_matrix,
       test = spat_fish_func_DT(bin_matrix_DTm = bin_matrix_DTm,
                                spat_netw_min = spat_netw_min,
                                calc_hub = calc_hub,
-                               hub_min_int = hub_min_int)
+                               hub_min_int = hub_min_int,
+                               cores = cores)
     } else {
       test = spat_OR_func_DT(bin_matrix_DTm = bin_matrix_DTm,
                              spat_netw_min = spat_netw_min,
                              calc_hub = calc_hub,
-                             hub_min_int = hub_min_int)
+                             hub_min_int = hub_min_int,
+                             cores = cores)
     }
 
 
@@ -654,6 +669,11 @@ binSpectSingle = function(gobject,
 
   if(verbose == TRUE) cat('\n This is the single parameter version of binSpect')
 
+
+  # set number of cores automatically, but with limit of 10
+  cores = determine_cores(cores)
+  data.table::setDTthreads(threads = cores)
+
   # data.table: set global variable
   genes = p.value = estimate = score = NULL
 
@@ -755,7 +775,8 @@ binSpectSingle = function(gobject,
                                         hub_min_int = hub_min_int,
                                         group_size = group_size,
                                         do_fisher_test = do_fisher_test,
-                                        adjust_method = adjust_method)
+                                        adjust_method = adjust_method,
+                                        cores = cores)
   }
 
   if(verbose == TRUE) cat('\n 2. spatial enrichment test completed \n')
@@ -903,6 +924,10 @@ binSpectMulti = function(gobject,
 
 
   if(verbose == TRUE) cat('\n This is the multi parameter version of binSpect')
+
+  # set number of cores automatically, but with limit of 10
+  cores = determine_cores(cores)
+  data.table::setDTthreads(threads = cores)
 
   # check bin_method
   bin_method = match.arg(bin_method, choices = c('kmeans', 'rank'))

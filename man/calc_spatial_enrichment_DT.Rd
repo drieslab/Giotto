@@ -11,7 +11,8 @@ calc_spatial_enrichment_DT(
   hub_min_int = 3,
   group_size = "automatic",
   do_fisher_test = TRUE,
-  adjust_method = "fdr"
+  adjust_method = "fdr",
+  cores = NA
 )
 }
 \description{

@@ -4,7 +4,13 @@
 \alias{spat_fish_func_DT}
 \title{spat_fish_func_DT}
 \usage{
-spat_fish_func_DT(bin_matrix_DTm, spat_netw_min, calc_hub = F, hub_min_int = 3)
+spat_fish_func_DT(
+  bin_matrix_DTm,
+  spat_netw_min,
+  calc_hub = F,
+  hub_min_int = 3,
+  cores = NA
+)
 }
 \description{
 performs fisher exact test with data.table implementation
