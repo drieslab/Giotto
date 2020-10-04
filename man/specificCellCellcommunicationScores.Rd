@@ -19,6 +19,8 @@ specificCellCellcommunicationScores(
   adjust_method = c("fdr", "bonferroni", "BH", "holm", "hochberg", "hommel", "BY",
     "none"),
   adjust_target = c("genes", "cells"),
+  set_seed = FALSE,
+  seed_number = 1234,
   verbose = T
 )
 }
@@ -48,6 +50,10 @@ specificCellCellcommunicationScores(
 \item{adjust_method}{which method to adjust p-values}
 
 \item{adjust_target}{adjust multiple hypotheses at the cell or gene level}
+
+\item{set_seed}{set a seed for reproducibility}
+
+\item{seed_number}{seed number}
 
 \item{verbose}{verbose}
 }

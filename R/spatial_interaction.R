@@ -488,7 +488,10 @@ do_permuttest_random = function(expr_values,
                                 select_ind,
                                 other_ind,
                                 name = 'perm_1',
-                                mean_method, offset = 0.1) {
+                                mean_method,
+                                offset = 0.1,
+                                set_seed = TRUE,
+                                seed_number = 1234) {
 
   # data.table variables
   genes = NULL
@@ -498,6 +501,9 @@ do_permuttest_random = function(expr_values,
 
   all_ind = c(select_ind, other_ind)
 
+  if(set_seed == TRUE) {
+    set.seed(seed = seed_number)
+  }
   random_select = sample(all_ind, size = l_select_ind, replace = F)
   random_other = all_ind[!all_ind %in% random_select]
 
@@ -528,18 +534,26 @@ do_multi_permuttest_random = function(expr_values,
                                       mean_method,
                                       offset = 0.1,
                                       n = 100,
-                                      cores = 2) {
+                                      cores = 2,
+                                      set_seed = TRUE,
+                                      seed_number = 1234) {
 
-
+  if(set_seed == TRUE) {
+    seed_number_list = seed_number:(seed_number + (n-1))
+  }
 
   result = giotto_lapply(X = 1:n, cores = cores, fun = function(x) {
+
+    seed_number = seed_number_list[x]
 
     perm_rand = do_permuttest_random(expr_values = expr_values,
                                      select_ind = select_ind,
                                      other_ind = other_ind,
                                      name = paste0('perm_', x),
                                      mean_method = mean_method,
-                                     offset = offset)
+                                     offset = offset,
+                                     set_seed = set_seed,
+                                     seed_number = seed_number)
 
   })
 
@@ -557,7 +571,9 @@ do_permuttest = function(expr_values,
                          adjust_method = 'fdr',
                          mean_method,
                          offset = 0.1,
-                         cores = 2) {
+                         cores = 2,
+                         set_seed = TRUE,
+                         seed_number = 1234) {
 
   # data.table variables
   log2fc_diff = log2fc = sel = other = genes = p_higher = p_lower = perm_sel = NULL
@@ -577,7 +593,9 @@ do_permuttest = function(expr_values,
                                             other_ind = other_ind,
                                             mean_method = mean_method,
                                             offset = offset,
-                                            cores = cores)
+                                            cores = cores,
+                                            set_seed = set_seed,
+                                            seed_number = seed_number)
 
   ##
   random_perms[, log2fc_diff := rep(original$log2fc, n_perm) - log2fc]
@@ -617,7 +635,9 @@ do_cell_proximity_test = function(expr_values,
                                   n_perm = 100,
                                   adjust_method = c("bonferroni","BH", "holm", "hochberg", "hommel",
                                                     "BY", "fdr", "none"),
-                                  cores = 2) {
+                                  cores = 2,
+                                  set_seed = TRUE,
+                                  seed_number = 1234) {
 
   # get parameters
   diff_test = match.arg(diff_test, choices = c('permutation', 'limma', 't.test', 'wilcox'))
@@ -630,7 +650,9 @@ do_cell_proximity_test = function(expr_values,
     result = do_permuttest(expr_values = expr_values,
                            select_ind = select_ind, other_ind = other_ind,
                            n_perm = n_perm, adjust_method = adjust_method, cores = cores,
-                           mean_method = mean_method, offset = offset)
+                           mean_method = mean_method, offset = offset,
+                           set_seed = set_seed,
+                           seed_number = seed_number)
 
   } else if(diff_test == 'limma') {
     result = do_limmatest(expr_values = expr_values,
@@ -674,7 +696,9 @@ findCellProximityGenes_per_interaction = function(expr_values,
                                                   offset = 0.1,
                                                   adjust_method = 'bonferroni',
                                                   nr_permutations = 100,
-                                                  cores = 1) {
+                                                  cores = 1,
+                                                  set_seed = TRUE,
+                                                  seed_number = 1234) {
 
 
   # data.table variables
@@ -730,14 +754,16 @@ findCellProximityGenes_per_interaction = function(expr_values,
       result_cell_1 = NULL
     } else {
       result_cell_1 = do_cell_proximity_test(expr_values = expr_values,
-                                                      select_ind = sel_ind1,
-                                                      other_ind = all_ind1,
-                                                      diff_test = diff_test,
-                                                      n_perm = nr_permutations,
-                                                      mean_method = mean_method,
-                                                      offset = offset,
-                                                      adjust_method = adjust_method,
-                                                      cores = cores)
+                                             select_ind = sel_ind1,
+                                             other_ind = all_ind1,
+                                             diff_test = diff_test,
+                                             n_perm = nr_permutations,
+                                             mean_method = mean_method,
+                                             offset = offset,
+                                             adjust_method = adjust_method,
+                                             cores = cores,
+                                             set_seed = set_seed,
+                                             seed_number = seed_number)
       result_cell_1[, cell_type := first_cell_type]
       result_cell_1[, int_cell_type := second_cell_type]
       result_cell_1[, nr_select := length(sel_ind1)]
@@ -754,13 +780,15 @@ findCellProximityGenes_per_interaction = function(expr_values,
       result_cell_2 = NULL
     } else {
       result_cell_2 = do_cell_proximity_test(expr_values = expr_values,
-                                                      select_ind = sel_ind2, other_ind = all_ind2,
-                                                      diff_test = diff_test,
-                                                      n_perm = nr_permutations,
-                                                      mean_method = mean_method,
-                                                      offset = offset,
-                                                      adjust_method = adjust_method,
-                                                      cores = cores)
+                                             select_ind = sel_ind2, other_ind = all_ind2,
+                                             diff_test = diff_test,
+                                             n_perm = nr_permutations,
+                                             mean_method = mean_method,
+                                             offset = offset,
+                                             adjust_method = adjust_method,
+                                             cores = cores,
+                                             set_seed = set_seed,
+                                             seed_number = seed_number)
       result_cell_2[, cell_type := second_cell_type]
       result_cell_2[, int_cell_type := first_cell_type]
       result_cell_2[, nr_select := length(sel_ind2)]
@@ -807,13 +835,15 @@ findCellProximityGenes_per_interaction = function(expr_values,
     }
 
     result_cells = do_cell_proximity_test(expr_values = expr_values,
-                                                   select_ind = sel_ind1, other_ind = all_ind1,
-                                                   diff_test = diff_test,
-                                                   n_perm = nr_permutations,
-                                                   mean_method = mean_method,
-                                                   offset = offset,
-                                                   adjust_method = adjust_method,
-                                                   cores = cores)
+                                          select_ind = sel_ind1, other_ind = all_ind1,
+                                          diff_test = diff_test,
+                                          n_perm = nr_permutations,
+                                          mean_method = mean_method,
+                                          offset = offset,
+                                          adjust_method = adjust_method,
+                                          cores = cores,
+                                          set_seed = set_seed,
+                                          seed_number = seed_number)
 
     result_cells[, cell_type := first_cell_type]
     result_cells[, int_cell_type := first_cell_type]
@@ -852,6 +882,8 @@ findCellProximityGenes_per_interaction = function(expr_values,
 #' @param exclude_selected_cells_from_test exclude interacting cells other cells
 #' @param do_parallel run calculations in parallel with mclapply
 #' @param cores number of cores to use if do_parallel = TRUE
+#' @param set_seed set a seed for reproducibility
+#' @param seed_number seed number
 #' @return cpgObject that contains the Interaction Changed differential gene scores
 #' @details Function to calculate if genes are differentially expressed in cell types
 #'  when they interact (approximated by physical proximity) with other cell types.
@@ -888,7 +920,9 @@ findInteractionChangedGenes = function(gobject,
                                        nr_permutations = 1000,
                                        exclude_selected_cells_from_test = T,
                                        do_parallel = TRUE,
-                                       cores = NA) {
+                                       cores = NA,
+                                       set_seed = TRUE,
+                                       seed_number = 1234) {
 
 
 
@@ -941,7 +975,9 @@ findInteractionChangedGenes = function(gobject,
                                                        offset = offset,
                                                        adjust_method = adjust_method,
                                                        nr_permutations = nr_permutations,
-                                                       cores = 2)
+                                                       cores = 2,
+                                                       set_seed = set_seed,
+                                                       seed_number = seed_number)
 
 
     })
@@ -969,7 +1005,9 @@ findInteractionChangedGenes = function(gobject,
                                                        offset = offset,
                                                        adjust_method = adjust_method,
                                                        nr_permutations = nr_permutations,
-                                                       cores = 2)
+                                                       cores = 2,
+                                                       set_seed = set_seed,
+                                                       seed_number = seed_number)
 
       fin_result[[i]] = tempres
 
@@ -1042,6 +1080,8 @@ findCellProximityGenes <- function(...) {
 #' @param exclude_selected_cells_from_test exclude interacting cells other cells
 #' @param do_parallel run calculations in parallel with mclapply
 #' @param cores number of cores to use if do_parallel = TRUE
+#' @param set_seed set a seed for reproducibility
+#' @param seed_number seed number
 #' @return cpgObject that contains the differential gene scores
 #' @details Function to calculate if genes are differentially expressed in cell types
 #'  when they interact (approximated by physical proximity) with other cell types.
@@ -1078,24 +1118,28 @@ findICG = function(gobject,
                    nr_permutations = 100,
                    exclude_selected_cells_from_test = T,
                    do_parallel = TRUE,
-                   cores = NA) {
+                   cores = NA,
+                   set_seed = TRUE,
+                   seed_number = 1234) {
 
 
-  findCellProximityGenes(gobject = gobject,
-                         expression_values = expression_values,
-                         selected_genes = selected_genes,
-                         cluster_column = cluster_column,
-                         spatial_network_name = spatial_network_name,
-                         minimum_unique_cells = minimum_unique_cells,
-                         minimum_unique_int_cells = minimum_unique_int_cells,
-                         diff_test = diff_test,
-                         mean_method = mean_method,
-                         offset = offset,
-                         adjust_method = adjust_method,
-                         nr_permutations = nr_permutations,
-                         exclude_selected_cells_from_test = exclude_selected_cells_from_test,
-                         do_parallel = do_parallel,
-                         cores = cores)
+  findInteractionChangedGenes(gobject = gobject,
+                              expression_values = expression_values,
+                              selected_genes = selected_genes,
+                              cluster_column = cluster_column,
+                              spatial_network_name = spatial_network_name,
+                              minimum_unique_cells = minimum_unique_cells,
+                              minimum_unique_int_cells = minimum_unique_int_cells,
+                              diff_test = diff_test,
+                              mean_method = mean_method,
+                              offset = offset,
+                              adjust_method = adjust_method,
+                              nr_permutations = nr_permutations,
+                              exclude_selected_cells_from_test = exclude_selected_cells_from_test,
+                              do_parallel = do_parallel,
+                              cores = cores,
+                              set_seed = set_seed,
+                              seed_number = seed_number)
 
 
 }
@@ -1833,6 +1877,8 @@ average_gene_gene_expression_in_groups = function(gobject,
 #' @param detailed provide more detailed information (random variance and z-score)
 #' @param adjust_method which method to adjust p-values
 #' @param adjust_target adjust multiple hypotheses at the cell or gene level
+#' @param set_seed set seed for random simulations (default = TRUE)
+#' @param seed_number seed number
 #' @param verbose verbose
 #' @return Cell-Cell communication scores for gene pairs based on expression only
 #' @details Statistical framework to identify if pairs of genes (such as ligand-receptor combinations)
@@ -1850,6 +1896,8 @@ exprCellCellcom = function(gobject,
                            adjust_method = c("fdr", "bonferroni","BH", "holm", "hochberg", "hommel",
                                              "BY", "none"),
                            adjust_target = c('genes', 'cells'),
+                           set_seed = TRUE,
+                           seed_number = 1234,
                            verbose = T) {
 
 
@@ -1902,6 +1950,10 @@ exprCellCellcom = function(gobject,
 
     # randomize annoation
     cell_types = cell_metadata[[cluster_column]]
+    if(set_seed == TRUE) {
+      seed_number = seed_number+sim
+      set.seed(seed = seed_number)
+    }
     random_cell_types = sample(x = cell_types, size = length(cell_types))
     tempGiotto = addCellMetadata(gobject = tempGiotto, new_metadata = random_cell_types, by_column = F)
 
@@ -1976,11 +2028,15 @@ exprCellCellcom = function(gobject,
 #' @param gobject giotto object to use
 #' @param cluster_column cluster column with cell type information
 #' @param needed_cell_types vector of cell type names for which a random id will be found
+#' @param set_seed set a seed for reproducibility
+#' @param seed_number seed number
 #' @return list of randomly sampled cell ids with same cell type composition
 #' @keywords internal
 create_cell_type_random_cell_IDs = function(gobject,
                                             cluster_column = 'cell_types',
-                                            needed_cell_types) {
+                                            needed_cell_types,
+                                            set_seed = FALSE,
+                                            seed_number = 1234) {
 
   # subset metadata to choose from
   full_metadata = pDataDT(gobject)
@@ -1994,6 +2050,9 @@ create_cell_type_random_cell_IDs = function(gobject,
 
     uniq_type = uniq_types[i]
     length_random = length(needed_cell_types[needed_cell_types == uniq_type])
+    if(set_seed == TRUE) {
+      set.seed(seed = seed_number)
+    }
     sub_sample_ids = possible_metadata[get(cluster_column) == uniq_type][sample(x = 1:.N, size = length_random)][['cell_ID']]
     sample_ids[[i]] = sub_sample_ids
 
@@ -2020,6 +2079,8 @@ create_cell_type_random_cell_IDs = function(gobject,
 #' @param detailed provide more detailed information (random variance and z-score)
 #' @param adjust_method which method to adjust p-values
 #' @param adjust_target adjust multiple hypotheses at the cell or gene level
+#' @param set_seed set a seed for reproducibility
+#' @param seed_number seed number
 #' @param verbose verbose
 #' @return Cell-Cell communication scores for gene pairs based on spatial interaction
 #' @details Statistical framework to identify if pairs of genes (such as ligand-receptor combinations)
@@ -2061,6 +2122,8 @@ specificCellCellcommunicationScores = function(gobject,
                                                adjust_method = c("fdr", "bonferroni","BH", "holm", "hochberg", "hommel",
                                                                  "BY", "none"),
                                                adjust_target = c('genes', 'cells'),
+                                               set_seed = FALSE,
+                                               seed_number = 1234,
                                                verbose = T) {
 
 
@@ -2130,14 +2193,23 @@ specificCellCellcommunicationScores = function(gobject,
     subset_metadata = cell_metadata[cell_ID %in% subset_ids]
     needed_cell_types = subset_metadata[[cluster_column]]
 
-    # simulations
+
+
+    ## simulations ##
     for(sim in 1:random_iter) {
 
       if(verbose == TRUE) cat('simulation ', sim, '\n')
 
       # get random ids and subset
-      random_ids = create_cell_type_random_cell_IDs(gobject = gobject, cluster_column = cluster_column,
-                                                    needed_cell_types = needed_cell_types)
+      if(set_seed == TRUE) {
+        seed_number = seed_number+sim
+        set.seed(seed = seed_number)
+      }
+      random_ids = create_cell_type_random_cell_IDs(gobject = gobject,
+                                                    cluster_column = cluster_column,
+                                                    needed_cell_types = needed_cell_types,
+                                                    set_seed = set_seed,
+                                                    seed_number = seed_number)
       tempGiotto = subsetGiotto(gobject = gobject, cell_ids = random_ids)
 
       # get random communication scores
@@ -2224,6 +2296,8 @@ specificCellCellcommunicationScores = function(gobject,
 #' @param adjust_target adjust multiple hypotheses at the cell or gene level
 #' @param do_parallel run calculations in parallel with mclapply
 #' @param cores number of cores to use if do_parallel = TRUE
+#' @param set_seed set a seed for reproducibility
+#' @param seed_number seed number
 #' @param verbose verbose
 #' @return Cell-Cell communication scores for gene pairs based on spatial interaction
 #' @details Statistical framework to identify if pairs of genes (such as ligand-receptor combinations)
@@ -2265,6 +2339,8 @@ spatCellCellcom = function(gobject,
                            adjust_target = c('genes', 'cells'),
                            do_parallel = TRUE,
                            cores = NA,
+                           set_seed = TRUE,
+                           seed_number = 1234,
                            verbose = c('a little', 'a lot', 'none')) {
 
   verbose = match.arg(verbose, choices = c('a little', 'a lot', 'none'))
@@ -2307,7 +2383,9 @@ spatCellCellcom = function(gobject,
                                                             min_observations = min_observations,
                                                             detailed = detailed,
                                                             adjust_method = adjust_method,
-                                                            adjust_target = adjust_target)
+                                                            adjust_target = adjust_target,
+                                                            set_seed = set_seed,
+                                                            seed_number = seed_number)
 
     })
 
@@ -2344,6 +2422,8 @@ spatCellCellcom = function(gobject,
                                                             detailed = detailed,
                                                             adjust_method = adjust_method,
                                                             adjust_target = adjust_target,
+                                                            set_seed = set_seed,
+                                                            seed_number = seed_number,
                                                             verbose = specific_verbose)
       savelist[[row]] = specific_scores
       countdown = countdown - 1

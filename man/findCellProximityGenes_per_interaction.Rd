@@ -18,7 +18,9 @@ findCellProximityGenes_per_interaction(
   offset = 0.1,
   adjust_method = "bonferroni",
   nr_permutations = 100,
-  cores = 1
+  cores = 1,
+  set_seed = TRUE,
+  seed_number = 1234
 )
 }
 \description{

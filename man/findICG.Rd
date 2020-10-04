@@ -20,7 +20,9 @@ findICG(
   nr_permutations = 100,
   exclude_selected_cells_from_test = T,
   do_parallel = TRUE,
-  cores = NA
+  cores = NA,
+  set_seed = TRUE,
+  seed_number = 1234
 )
 }
 \arguments{
@@ -53,6 +55,10 @@ findICG(
 \item{do_parallel}{run calculations in parallel with mclapply}
 
 \item{cores}{number of cores to use if do_parallel = TRUE}
+
+\item{set_seed}{set a seed for reproducibility}
+
+\item{seed_number}{seed number}
 }
 \value{
 cpgObject that contains the differential gene scores

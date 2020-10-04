@@ -25,6 +25,8 @@ filterCellProximityGenes(...)
     \item{\code{exclude_selected_cells_from_test}}{exclude interacting cells other cells}
     \item{\code{do_parallel}}{run calculations in parallel with mclapply}
     \item{\code{cores}}{number of cores to use if do_parallel = TRUE}
+    \item{\code{set_seed}}{set a seed for reproducibility}
+    \item{\code{seed_number}}{seed number}
   }}
 }
 \description{

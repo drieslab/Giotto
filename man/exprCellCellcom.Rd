@@ -15,6 +15,8 @@ exprCellCellcom(
   adjust_method = c("fdr", "bonferroni", "BH", "holm", "hochberg", "hommel", "BY",
     "none"),
   adjust_target = c("genes", "cells"),
+  set_seed = TRUE,
+  seed_number = 1234,
   verbose = T
 )
 }
@@ -36,6 +38,10 @@ exprCellCellcom(
 \item{adjust_method}{which method to adjust p-values}
 
 \item{adjust_target}{adjust multiple hypotheses at the cell or gene level}
+
+\item{set_seed}{set seed for random simulations (default = TRUE)}
+
+\item{seed_number}{seed number}
 
 \item{verbose}{verbose}
 }
