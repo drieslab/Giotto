@@ -1215,7 +1215,8 @@ runUMAP <- function(gobject,
 #' mini_giotto_single_cell <- runtSNE(mini_giotto_single_cell,
 #'                                    dimensions_to_use = 1:3,
 #'                                    n_threads = 1,
-#'                                    n_neighbors = 3)
+#'                                    n_neighbors = 3,
+#'                                    perplexity = 1)
 #'
 #' plotTSNE(gobject = mini_giotto_single_cell)
 #'

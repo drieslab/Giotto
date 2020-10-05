@@ -16,7 +16,7 @@ Mini Giotto object created from the STARmap data.
 \examples{
 data(mini_giotto_3D)
 
-\donttest{spatPlot3D(mini_giotto_3D, cell_color = 'cell_types', point_size = 5)}
+\dontrun{spatPlot3D(mini_giotto_3D, cell_color = 'cell_types', point_size = 5)}
 }
 \references{
 Wang et al. (2018) Science
