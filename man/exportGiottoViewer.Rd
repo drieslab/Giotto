@@ -61,7 +61,7 @@ and add the gene signature names (.e.g cell types) to the numeric annotations pa
 }
 \examples{
 
-\donttest{
+\dontrun{
 
 data(mini_giotto_single_cell)
 exportGiottoViewer(mini_giotto_single_cell)

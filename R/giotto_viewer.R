@@ -140,7 +140,7 @@ write_giotto_viewer_dim_reduction = function(dim_reduction_cell,
 #' @export
 #' @examples
 #'
-#' \donttest{
+#' \dontrun{
 #'
 #' data(mini_giotto_single_cell)
 #' exportGiottoViewer(mini_giotto_single_cell)
