@@ -47,9 +47,6 @@ named vector with giotto instructions
 \description{
 Function to set global instructions for giotto functions
 }
-\examples{
-    createGiottoInstructions()
-}
 \seealso{
 More online information can be found here \url{https://rubd.github.io/Giotto_site/articles/instructions_and_plotting.html}
 }

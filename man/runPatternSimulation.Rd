@@ -79,6 +79,3 @@ data.table with results
 \description{
 Creates a known spatial pattern for selected genes one-by-one and runs the different spatial gene detection tests
 }
-\examples{
-    runPatternSimulation(gobject)
-}

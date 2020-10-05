@@ -41,6 +41,3 @@ Reprocessed Giotto object for which one gene has a forced spatial pattern
 \description{
 Create a simulated spatial pattern for one selected gnee
 }
-\examples{
-    simulateOneGenePatternGiottoObject(gobject)
-}

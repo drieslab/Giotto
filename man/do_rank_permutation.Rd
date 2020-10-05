@@ -9,7 +9,4 @@ do_rank_permutation(sc_gene, n)
 \description{
 creates permutation for the rankEnrich test
 }
-\examples{
-    do_rank_permutation()
-}
 \keyword{internal}

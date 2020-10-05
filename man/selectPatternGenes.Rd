@@ -38,6 +38,3 @@ Select genes correlated with spatial patterns
 \details{
 Description.
 }
-\examples{
-    selectPatternGenes(gobject)
-}

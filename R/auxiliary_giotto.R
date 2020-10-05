@@ -220,13 +220,13 @@ pDataDT <- function(gobject) {
   }
 
   if(class(gobject) %in% c('ExpressionSet', 'SCESet')) {
-    return(as.data.table(Biobase::pData(gobject)))
+    return(data.table::as.data.table(Biobase::pData(gobject)))
   }
   else if(class(gobject) == 'giotto') {
     return(gobject@cell_metadata)
   }
   else if(class(gobject) == 'seurat') {
-    return(as.data.table(gobject@meta.data))
+    return(data.table::as.data.table(gobject@meta.data))
   }
 
 }
@@ -2132,8 +2132,9 @@ combineMetadata = function(gobject,
 #'
 #' # show metagene expression
 #' spatCellPlot(mini_giotto_single_cell,
-#'              spat_enr_names = 'cluster_metagene',
-#'              point_size = 3.5, cow_n_col = 3)
+#'             spat_enr_names = 'cluster_metagene',
+#'             cell_annotation_values = c('1', '2'),
+#'             point_size = 3.5, cow_n_col = 2)
 #'
 createMetagenes = function(gobject,
                            expression_values = c('normalized', 'scaled', 'custom'),

@@ -50,7 +50,8 @@ mini_giotto_single_cell = createMetagenes(mini_giotto_single_cell,
 
 # show metagene expression
 spatCellPlot(mini_giotto_single_cell,
-             spat_enr_names = 'cluster_metagene',
-             point_size = 3.5, cow_n_col = 3)
+            spat_enr_names = 'cluster_metagene',
+            cell_annotation_values = c('1', '2'),
+            point_size = 3.5, cow_n_col = 2)
 
 }

@@ -38,6 +38,3 @@ data.table with positive (within group) and negative (outside group) scores
 \description{
 Rank spatial correlated clusters according to correlation structure
 }
-\examples{
-    rankSpatialCorGroups(gobject)
-}

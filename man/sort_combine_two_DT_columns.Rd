@@ -9,7 +9,4 @@ sort_combine_two_DT_columns(DT, column1, column2, myname = "unif_gene_gene")
 \description{
 fast sorting and pasting of 2 character columns in a data.table
 }
-\examples{
-    sort_combine_two_DT_columns()
-}
 \keyword{internal}
