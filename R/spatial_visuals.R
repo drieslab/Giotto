@@ -881,7 +881,12 @@ dimPlot2D_single <- function(gobject,
 #' @family reduced dimension visualizations
 #' @export
 #' @examples
-#'     dimPlot2D(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' dimPlot2D(mini_giotto_single_cell)
+#' dimPlot2D(mini_giotto_single_cell, cell_color = 'cell_types', point_size = 3)
+#'
 dimPlot2D = function(gobject,
                      group_by = NULL,
                      group_by_subset = NULL,
@@ -1138,7 +1143,12 @@ dimPlot2D = function(gobject,
 #' @family reduced dimension visualizations
 #' @export
 #' @examples
-#'     dimPlot(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' dimPlot(mini_giotto_single_cell)
+#' dimPlot(mini_giotto_single_cell, cell_color = 'cell_types', point_size = 3)
+#'
 dimPlot = function(...) {
 
   dimPlot2D(...)
@@ -1162,7 +1172,12 @@ dimPlot = function(...) {
 #' @family reduced dimension visualizations
 #' @export
 #' @examples
-#'     plotUMAP_2D(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' plotUMAP_2D(mini_giotto_single_cell)
+#' plotUMAP_2D(mini_giotto_single_cell, cell_color = 'cell_types', point_size = 3)
+#'
 plotUMAP_2D = function(gobject,
                        dim_reduction_name = 'umap',
                        default_save_name = 'UMAP_2D',
@@ -1189,7 +1204,12 @@ plotUMAP_2D = function(gobject,
 #' @family reduced dimension visualizations
 #' @export
 #' @examples
-#'     plotUMAP(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' plotUMAP(mini_giotto_single_cell)
+#' plotUMAP(mini_giotto_single_cell, cell_color = 'cell_types', point_size = 3)
+#'
 plotUMAP = function(gobject,
                     dim_reduction_name = 'umap',
                     default_save_name = 'UMAP',
@@ -1219,7 +1239,12 @@ plotUMAP = function(gobject,
 #' @family reduced dimension visualizations
 #' @export
 #' @examples
-#'     plotTSNE_2D(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' plotTSNE_2D(mini_giotto_single_cell)
+#' plotTSNE_2D(mini_giotto_single_cell, cell_color = 'cell_types', point_size = 3)
+#'
 plotTSNE_2D = function(gobject,
                        dim_reduction_name = 'tsne',
                        default_save_name = 'tSNE_2D',
@@ -1245,7 +1270,12 @@ plotTSNE_2D = function(gobject,
 #' @family reduced dimension visualizations
 #' @export
 #' @examples
-#'     plotTSNE(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' plotTSNE(mini_giotto_single_cell)
+#' plotTSNE(mini_giotto_single_cell, cell_color = 'cell_types', point_size = 3)
+#'
 plotTSNE = function(gobject,
                     dim_reduction_name = 'tsne',
                     default_save_name = 'tSNE',
@@ -1273,7 +1303,12 @@ plotTSNE = function(gobject,
 #' @family reduced dimension visualizations
 #' @export
 #' @examples
-#'     plotPCA_2D(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' plotPCA_2D(mini_giotto_single_cell)
+#' plotPCA_2D(mini_giotto_single_cell, cell_color = 'cell_types', point_size = 3)
+#'
 plotPCA_2D = function(gobject,
                       dim_reduction_name = 'pca',
                       default_save_name = 'PCA_2D',
@@ -1301,7 +1336,12 @@ plotPCA_2D = function(gobject,
 #' @family reduced dimension visualizations
 #' @export
 #' @examples
-#'     plotPCA(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' plotPCA(mini_giotto_single_cell)
+#' plotPCA(mini_giotto_single_cell, cell_color = 'cell_types', point_size = 3)
+#'
 plotPCA = function(gobject,
                    dim_reduction_name = 'pca',
                    default_save_name = 'PCA',
@@ -1349,8 +1389,6 @@ plotPCA = function(gobject,
 #' @return ggplot
 #' @details Description of parameters.
 #' @keywords internal
-#' @examples
-#'     plot_spat_point_layer_ggplot(gobject)
 plot_spat_point_layer_ggplot = function(ggobject,
                                         sdimx = NULL,
                                         sdimy = NULL,
@@ -1585,8 +1623,6 @@ plot_spat_point_layer_ggplot = function(ggobject,
 #' @return ggplot
 #' @details Description of parameters.
 #' @keywords internal
-#' @examples
-#'     plot_spat_point_layer_ggplot_noFILL(gobject)
 plot_spat_point_layer_ggplot_noFILL = function(ggobject,
                                                sdimx = NULL,
                                                sdimy = NULL,
@@ -1807,8 +1843,6 @@ plot_spat_point_layer_ggplot_noFILL = function(ggobject,
 #' @details Description of parameters.
 #' @keywords internal
 #' @export
-#' @examples
-#'     plot_spat_voronoi_layer_ggplot(gobject)
 plot_spat_voronoi_layer_ggplot = function(ggobject,
                                           sdimx = NULL,
                                           sdimy = NULL,
@@ -2130,8 +2164,6 @@ plot_spat_voronoi_layer_ggplot = function(ggobject,
 #' @param sdimy y-axis dimension name (default = 'sdimy')
 #' @return ggplot
 #' @keywords internal
-#' @examples
-#'     plot_spat_image_layer_ggplot(gobject)
 plot_spat_image_layer_ggplot = function(ggplot,
                                         gobject,
                                         gimage,
@@ -2238,8 +2270,6 @@ plot_spat_image_layer_ggplot = function(ggplot,
 #' @details Description of parameters.
 #' @keywords internal
 #' @seealso \code{\link{spatPlot3D}}
-#' @examples
-#'     spatPlot2D_single(gobject)
 spatPlot2D_single = function(gobject,
                              show_image = F,
                              gimage = NULL,
@@ -2616,7 +2646,12 @@ spatPlot2D_single = function(gobject,
 #' @export
 #' @seealso \code{\link{spatPlot3D}}
 #' @examples
-#'     spatPlot2D(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' spatPlot2D(mini_giotto_single_cell)
+#' spatPlot2D(mini_giotto_single_cell, cell_color = 'cell_types', point_size = 3)
+#'
 spatPlot2D = function(gobject,
                       show_image = F,
                       gimage = NULL,
@@ -2896,7 +2931,12 @@ spatPlot2D = function(gobject,
 #' @export
 #' @seealso \code{\link{spatPlot3D}}
 #' @examples
-#'     spatPlot(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' spatPlot(mini_giotto_single_cell)
+#' spatPlot(mini_giotto_single_cell, cell_color = 'cell_types', point_size = 3)
+#'
 spatPlot = function(...) {
 
   spatPlot2D(...)
@@ -2995,7 +3035,13 @@ spatPlot = function(...) {
 #' @export
 #' @seealso \code{\link{spatDimPlot3D}}
 #' @examples
-#'     spatDimPlot2D(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' spatDimPlot2D(mini_giotto_single_cell)
+#' spatDimPlot2D(mini_giotto_single_cell, cell_color = 'cell_types',
+#'              spat_point_size = 3, dim_point_size = 3)
+#'
 spatDimPlot2D <- function(gobject,
                           show_image = F,
                           gimage = NULL,
@@ -3244,7 +3290,13 @@ spatDimPlot2D <- function(gobject,
 #' @export
 #' @seealso \code{\link{spatDimPlot2D}} and \code{\link{spatDimPlot3D}} for 3D visualization.
 #' @examples
-#'     spatDimPlot(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' spatDimPlot(mini_giotto_single_cell)
+#' spatDimPlot(mini_giotto_single_cell, cell_color = 'cell_types',
+#'              spat_point_size = 3, dim_point_size = 3)
+#'
 spatDimPlot = function(...) {
 
   spatDimPlot2D(...)
@@ -3304,7 +3356,13 @@ spatDimPlot = function(...) {
 #' @export
 #' @seealso \code{\link{spatGenePlot3D}}
 #' @examples
-#'     spatGenePlot2D(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' all_genes = slot(mini_giotto_single_cell, 'gene_ID')
+#' selected_genes = all_genes[1:2]
+#' spatGenePlot2D(mini_giotto_single_cell, genes = selected_genes, point_size = 3)
+#'
 spatGenePlot2D <- function(gobject,
                            show_image = F,
                            gimage = NULL,
@@ -3660,7 +3718,13 @@ spatGenePlot2D <- function(gobject,
 #' @export
 #' @seealso \code{\link{spatGenePlot3D}} and \code{\link{spatGenePlot2D}}
 #' @examples
-#'     spatGenePlot(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' all_genes = slot(mini_giotto_single_cell, 'gene_ID')
+#' selected_genes = all_genes[1:2]
+#' spatGenePlot(mini_giotto_single_cell, genes = selected_genes, point_size = 3)
+#'
 spatGenePlot = function(...) {
 
   spatGenePlot2D(...)
@@ -3713,7 +3777,13 @@ spatGenePlot = function(...) {
 #' @export
 #' @seealso \code{\link{dimGenePlot3D}}
 #' @examples
-#'     dimGenePlot2D(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' all_genes = slot(mini_giotto_single_cell, 'gene_ID')
+#' selected_genes = all_genes[1:2]
+#' dimGenePlot2D(mini_giotto_single_cell, genes = selected_genes, point_size = 3)
+#'
 dimGenePlot2D <- function(gobject,
                           expression_values = c('normalized', 'scaled', 'custom'),
                           genes = NULL,
@@ -4001,7 +4071,13 @@ dimGenePlot2D <- function(gobject,
 #' @export
 #' @seealso \code{\link{dimGenePlot3D}}
 #' @examples
-#'     dimGenePlot(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' all_genes = slot(mini_giotto_single_cell, 'gene_ID')
+#' selected_genes = all_genes[1:2]
+#' dimGenePlot(mini_giotto_single_cell, genes = selected_genes, point_size = 3)
+#'
 dimGenePlot = function(...) {
 
   dimGenePlot2D(...)
@@ -4079,7 +4155,15 @@ dimGenePlot = function(...) {
 #' @export
 #' @seealso \code{\link{spatDimGenePlot3D}}
 #' @examples
-#'     spatDimGenePlot2D(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' all_genes = slot(mini_giotto_single_cell, 'gene_ID')
+#' selected_genes = all_genes[1]
+#' spatDimGenePlot2D(mini_giotto_single_cell, genes = selected_genes,
+#'                  dim_point_size = 3, spat_point_size = 3,
+#'                  cow_n_col = 1, plot_alignment = 'horizontal')
+#'
 spatDimGenePlot2D <- function(gobject,
                               show_image = F,
                               gimage = NULL,
@@ -4265,7 +4349,15 @@ spatDimGenePlot2D <- function(gobject,
 #' @export
 #' @seealso \code{\link{spatDimGenePlot3D}}
 #' @examples
-#'     spatDimGenePlot(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' all_genes = slot(mini_giotto_single_cell, 'gene_ID')
+#' selected_genes = all_genes[1]
+#' spatDimGenePlot(mini_giotto_single_cell, genes = selected_genes,
+#'                  dim_point_size = 3, spat_point_size = 3,
+#'                  cow_n_col = 1, plot_alignment = 'horizontal')
+#'
 spatDimGenePlot = function(...) {
   spatDimGenePlot2D(...)
 }
@@ -4339,7 +4431,20 @@ spatDimGenePlot = function(...) {
 #' @family spatial cell annotation visualizations
 #' @export
 #' @examples
-#'     spatCellPlot2D(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' # combine all metadata
+#' combineMetadata(mini_giotto_single_cell, spat_enr_names = 'cluster_metagene')
+#'
+#' # visualize total expression information
+#' spatCellPlot2D(mini_giotto_single_cell, cell_annotation_values = 'total_expr')
+#'
+#' # visualize enrichment results
+#' spatCellPlot2D(mini_giotto_single_cell,
+#'                spat_enr_names = 'cluster_metagene',
+#'                cell_annotation_values = c('1','2'))
+#'
 spatCellPlot2D = function(gobject,
                           show_image = F,
                           gimage = NULL,
@@ -4516,7 +4621,20 @@ spatCellPlot2D = function(gobject,
 #' @family spatial cell annotation visualizations
 #' @export
 #' @examples
-#'     spatCellPlot(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' # combine all metadata
+#' combineMetadata(mini_giotto_single_cell, spat_enr_names = 'cluster_metagene')
+#'
+#' # visualize total expression information
+#' spatCellPlot(mini_giotto_single_cell, cell_annotation_values = 'total_expr')
+#'
+#' # visualize enrichment results
+#' spatCellPlot(mini_giotto_single_cell,
+#'                spat_enr_names = 'cluster_metagene',
+#'                cell_annotation_values = c('1','2'))
+#'
 spatCellPlot = function(...) {
 
   spatCellPlot2D(...)
@@ -4582,7 +4700,20 @@ spatCellPlot = function(...) {
 #' @family dimension reduction cell annotation visualizations
 #' @export
 #' @examples
-#'     dimCellPlot2D(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' # combine all metadata
+#' combineMetadata(mini_giotto_single_cell, spat_enr_names = 'cluster_metagene')
+#'
+#' # visualize total expression information
+#' dimCellPlot2D(mini_giotto_single_cell, cell_annotation_values = 'total_expr')
+#'
+#' # visualize enrichment results
+#' dimCellPlot2D(mini_giotto_single_cell,
+#'                spat_enr_names = 'cluster_metagene',
+#'                cell_annotation_values = c('1','2'))
+#'
 dimCellPlot2D = function(gobject,
                          dim_reduction_to_use = 'umap',
                          dim_reduction_name = 'umap',
@@ -4749,7 +4880,20 @@ dimCellPlot2D = function(gobject,
 #' @family dimension reduction cell annotation visualizations
 #' @export
 #' @examples
-#'     dimCellPlot(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' # combine all metadata
+#' combineMetadata(mini_giotto_single_cell, spat_enr_names = 'cluster_metagene')
+#'
+#' # visualize total expression information
+#' dimCellPlot(mini_giotto_single_cell, cell_annotation_values = 'total_expr')
+#'
+#' # visualize enrichment results
+#' dimCellPlot(mini_giotto_single_cell,
+#'                spat_enr_names = 'cluster_metagene',
+#'                cell_annotation_values = c('1','2'))
+#'
 dimCellPlot = function(gobject, ...) {
 
   dimCellPlot2D(gobject = gobject, ...)
@@ -4845,7 +4989,20 @@ dimCellPlot = function(gobject, ...) {
 #' @family spatial and dimension reduction cell annotation visualizations
 #' @export
 #' @examples
-#'     spatDimCellPlot2D(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' # combine all metadata
+#' combineMetadata(mini_giotto_single_cell, spat_enr_names = 'cluster_metagene')
+#'
+#' # visualize total expression information
+#' spatDimCellPlot2D(mini_giotto_single_cell, cell_annotation_values = 'total_expr')
+#'
+#' # visualize enrichment results
+#' spatDimCellPlot2D(mini_giotto_single_cell,
+#'                  spat_enr_names = 'cluster_metagene',
+#'                  cell_annotation_values = c('1','2'))
+#'
 spatDimCellPlot2D <- function(gobject,
                               show_image = F,
                               gimage = NULL,
@@ -5073,7 +5230,20 @@ spatDimCellPlot2D <- function(gobject,
 #' @family spatial and dimension reduction cell annotation visualizations
 #' @export
 #' @examples
-#'     spatDimCellPlot(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' # combine all metadata
+#' combineMetadata(mini_giotto_single_cell, spat_enr_names = 'cluster_metagene')
+#'
+#' # visualize total expression information
+#' spatDimCellPlot(mini_giotto_single_cell, cell_annotation_values = 'total_expr')
+#'
+#' # visualize enrichment results
+#' spatDimCellPlot(mini_giotto_single_cell,
+#'                 spat_enr_names = 'cluster_metagene',
+#'                 cell_annotation_values = c('1','2'))
+#'
 spatDimCellPlot = function(...) {
 
   spatDimCellPlot2D(...)
@@ -5619,9 +5789,6 @@ dimPlot_3D_plotly <- function(gobject,
 #' @details Description of parameters.
 #' @family reduced dimension visualizations
 #' @export
-#' @examples
-#'     dimPlot3D(gobject)
-#'
 dimPlot3D = function(gobject,
                      dim_reduction_to_use = 'umap',
                      dim_reduction_name = 'umap',
@@ -5748,9 +5915,6 @@ dimPlot3D = function(gobject,
 #' @details Description of parameters.
 #' @family reduced dimension visualizations
 #' @export
-#' @examples
-#'     plotUMAP_3D(gobject)
-#'
 plotUMAP_3D = function(gobject,
                        dim_reduction_name = 'umap',
                        default_save_name = 'UMAP_3D',
@@ -5776,9 +5940,6 @@ plotUMAP_3D = function(gobject,
 #' @details Description of parameters.
 #' @family reduced dimension visualizations
 #' @export
-#' @examples
-#'     plotTSNE_3D(gobject)
-#'
 plotTSNE_3D = function(gobject,
                        dim_reduction_name = 'tsne',
                        default_save_name = 'TSNE_3D',
@@ -5804,8 +5965,6 @@ plotTSNE_3D = function(gobject,
 #' @details Description of parameters.
 #' @family reduced dimension visualizations
 #' @export
-#' @examples
-#'     plotPCA_3D(gobject)
 plotPCA_3D = function(gobject,
                       dim_reduction_name = 'pca',
                       default_save_name = 'PCA_3D',
@@ -6286,8 +6445,6 @@ spatPlot_3D_plotly = function(gobject,
 #' @return ggplot
 #' @family spatial visualizations
 #' @export
-#' @examples
-#'     spatPlot3D(gobject)
 spatPlot3D = function(gobject,
                       sdimx = "sdimx",
                       sdimy = "sdimy",
@@ -6478,8 +6635,6 @@ spatPlot3D = function(gobject,
 #' @details Description of parameters.
 #' @family spatial and dimension reduction visualizations
 #' @export
-#' @examples
-#'     spatDimPlot3D(gobject)
 spatDimPlot3D <- function(gobject,
                           plot_alignment = c('horizontal','vertical'),
                           dim_reduction_to_use = 'umap',
@@ -7233,8 +7388,6 @@ spatDimPlot3D <- function(gobject,
 #' @details Description of parameters.
 #' @family spatial gene expression visualizations
 #' @export
-#' @examples
-#'     spatGenePlot3D(gobject)
 spatGenePlot3D <- function(gobject,
                            expression_values = c('normalized', 'scaled', 'custom'),
                            genes,
@@ -7583,8 +7736,6 @@ spatGenePlot3D <- function(gobject,
 #' @details Description of parameters.
 #' @family dimension reduction gene expression visualizations
 #' @export
-#' @examples
-#'     dimGenePlot3D(gobject)
 dimGenePlot3D <- function(gobject,
                           expression_values = c('normalized', 'scaled', 'custom'),
                           genes = NULL,

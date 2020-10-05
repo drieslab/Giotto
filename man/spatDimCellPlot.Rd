@@ -100,7 +100,20 @@ Visualize numerical features of cells according to spatial AND dimension reducti
 Description of parameters.
 }
 \examples{
-    spatDimCellPlot(gobject)
+
+data(mini_giotto_single_cell)
+
+# combine all metadata
+combineMetadata(mini_giotto_single_cell, spat_enr_names = 'cluster_metagene')
+
+# visualize total expression information
+spatDimCellPlot(mini_giotto_single_cell, cell_annotation_values = 'total_expr')
+
+# visualize enrichment results
+spatDimCellPlot(mini_giotto_single_cell,
+                spat_enr_names = 'cluster_metagene',
+                cell_annotation_values = c('1','2'))
+
 }
 \seealso{
 Other spatial and dimension reduction cell annotation visualizations: 

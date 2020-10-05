@@ -97,7 +97,4 @@ creat ggplot point layer for spatial coordinates
 \details{
 Description of parameters.
 }
-\examples{
-    plot_spat_point_layer_ggplot(gobject)
-}
 \keyword{internal}

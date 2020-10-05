@@ -57,9 +57,6 @@ Visualize cells according to 3D PCA dimension reduction
 \details{
 Description of parameters.
 }
-\examples{
-    plotPCA_3D(gobject)
-}
 \seealso{
 Other reduced dimension visualizations: 
 \code{\link{dimPlot2D}()},

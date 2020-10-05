@@ -89,7 +89,4 @@ creat ggplot point layer for spatial coordinates without borders
 \details{
 Description of parameters.
 }
-\examples{
-    plot_spat_point_layer_ggplot_noFILL(gobject)
-}
 \keyword{internal}

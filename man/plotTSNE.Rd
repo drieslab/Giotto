@@ -75,7 +75,12 @@ Short wrapper for tSNE visualization
 Description of parameters, see \code{\link{dimPlot2D}}. For 3D plots see \code{\link{plotTSNE_3D}}
 }
 \examples{
-    plotTSNE(gobject)
+
+data(mini_giotto_single_cell)
+
+plotTSNE(mini_giotto_single_cell)
+plotTSNE(mini_giotto_single_cell, cell_color = 'cell_types', point_size = 3)
+
 }
 \seealso{
 Other reduced dimension visualizations: 

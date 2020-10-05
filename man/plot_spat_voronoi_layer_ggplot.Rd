@@ -101,7 +101,4 @@ creat ggplot point layer for spatial coordinates without borders
 \details{
 Description of parameters.
 }
-\examples{
-    plot_spat_voronoi_layer_ggplot(gobject)
-}
 \keyword{internal}

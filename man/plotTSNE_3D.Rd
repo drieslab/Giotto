@@ -57,10 +57,6 @@ Visualize cells according to dimension reduction coordinates
 \details{
 Description of parameters.
 }
-\examples{
-    plotTSNE_3D(gobject)
-
-}
 \seealso{
 Other reduced dimension visualizations: 
 \code{\link{dimPlot2D}()},

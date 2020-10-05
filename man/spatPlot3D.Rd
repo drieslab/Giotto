@@ -116,9 +116,6 @@ ggplot
 \description{
 Visualize cells according to spatial coordinates
 }
-\examples{
-    spatPlot3D(gobject)
-}
 \seealso{
 Other spatial visualizations: 
 \code{\link{spatPlot2D}()},

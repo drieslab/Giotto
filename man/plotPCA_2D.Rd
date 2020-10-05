@@ -80,7 +80,12 @@ Short wrapper for PCA visualization
 Description of parameters, see \code{\link{dimPlot2D}}. For 3D plots see \code{\link{plotPCA_3D}}
 }
 \examples{
-    plotPCA_2D(gobject)
+
+data(mini_giotto_single_cell)
+
+plotPCA_2D(mini_giotto_single_cell)
+plotPCA_2D(mini_giotto_single_cell, cell_color = 'cell_types', point_size = 3)
+
 }
 \seealso{
 Other reduced dimension visualizations: 
