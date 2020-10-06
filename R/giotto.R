@@ -128,26 +128,6 @@ setMethod(
 
 
 
-#' Prints giotto object.
-#'
-#' Prints giotto object
-#'
-#' @param object giotto object
-#' @param nr_genes number of genes (rows) to print
-#' @param nr_cells number of cells (columns) to print
-#' @method print giotto
-#' @rdname print.giotto
-#' @export
-print.giotto <- function(object,
-                         nr_genes = 5,
-                         nr_cells = 5) {
-  print(object@raw_exprs[1:nr_genes, 1:nr_cells])
-  cat('\n')
-  print(object@spatial_locs[1:nr_cells,])
-}
-
-
-
 #' @title createGiottoInstructions
 #' @description Function to set global instructions for giotto functions
 #' @param python_path path to python binary to use

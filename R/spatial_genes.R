@@ -1508,8 +1508,8 @@ spatialDE <- function(gobject = NULL,
 
   # print message with information #
   message("using 'SpatialDE' for spatial gene/pattern detection. If used in published research, please cite:
-  Svensson, Valentine, Sarah A. Teichmann, and Oliver Stegle. “SpatialDE: Identification of Spatially Variable Genes.”
-          Nature Methods 15, no. 5 (May 2018): 343–46. https://doi.org/10.1038/nmeth.4636.")
+  Svensson, Valentine, Sarah A. Teichmann, and Oliver Stegle. 'SpatialDE: Identification of Spatially Variable Genes.'
+          Nature Methods 15, no. 5 (May 2018): 343-46. https://doi.org/10.1038/nmeth.4636.")
 
 
 
@@ -1751,8 +1751,8 @@ trendSceek <- function(gobject,
 
   # print message with information #
   message("using 'trendsceek' for spatial gene/pattern detection. If used in published research, please cite:
-  Edsgärd, Daniel, Per Johnsson, and Rickard Sandberg. “Identification of Spatial Expression Trends in Single-Cell Gene Expression Data.”
-          Nature Methods 15, no. 5 (May 2018): 339–42. https://doi.org/10.1038/nmeth.4634.")
+  Edsgard, Daniel, Per Johnsson, and Rickard Sandberg. 'Identification of Spatial Expression Trends in Single-Cell Gene Expression Data.'
+          Nature Methods 15, no. 5 (May 2018): 339-42. https://doi.org/10.1038/nmeth.4634.")
 
   ## expression data
   values = match.arg(expression_values, c("normalized", "raw"))
@@ -1844,7 +1844,7 @@ spark = function(gobject,
 
   # print message with information #
   message("using 'SPARK' for spatial gene/pattern detection. If used in published research, please cite:
-  Sun, Shiquan, Jiaqiang Zhu, and Xiang Zhou. “Statistical Analysis of Spatial Expression Pattern for Spatially Resolved Transcriptomic Studies.”
+  Sun, Shiquan, Jiaqiang Zhu, and Xiang Zhou. 'Statistical Analysis of Spatial Expression Pattern for Spatially Resolved Transcriptomic Studies.'
           BioRxiv, October 21, 2019, 810903. https://doi.org/10.1101/810903.")
 
 
