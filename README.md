@@ -49,6 +49,7 @@ You can install Giotto with (\~1-5 mins):
 library(devtools)  # if not installed: install.packages('devtools')
 library(remotes)  # if not installed: install.packages('remotes')
 remotes::install_github("RubD/Giotto")
+remotes::install_github("RubD/Giotto@development") # to install the latest development version
 ```
 
 #### Required python modules
@@ -63,7 +64,7 @@ Required python modules:
 \- leidenalg  
 \- python-louvain (community)  
 \- smfishHmrf  
-\- python.app (OSX only) - scikit-learn
+\- python.app (\!\!OSX only\!\!) - scikit-learn
 
 ##### Automatic installation
 
@@ -95,19 +96,20 @@ See
   - all examples are gradually updated to the latest Giotto version
     \[work in progress\]
 
-[![seqFISH](./inst/images/general_figs/cortex_image_summary.png)](https://rubd.github.io/Giotto_site/articles/mouse_seqFISH_cortex_200319.html)
-[![merFISH](./inst/images/general_figs/merFISH_hypoth_image_summary.png)](https://rubd.github.io/Giotto_site/articles/mouse_merFISH_hypoth_preoptic_region_200326.html)
-[![STARmap](./inst/images/general_figs/starmap_cortex_image_summary.png)](https://rubd.github.io/Giotto_site/articles/mouse_starmap_cortex.html)
-[![Visium\_brain](./inst/images/general_figs/visium_brain_image_summary.png)](https://rubd.github.io/Giotto_site/articles/mouse_visium_brain_200325.html)
-[![Visium\_kidney](./inst/images/general_figs/visium_kidney_image_summary.png)](https://rubd.github.io/Giotto_site/articles/mouse_visium_kidney_200326.html)
-[![CyCIF](./inst/images/general_figs/cyCIF_PDAC_image_summary.png)](https://rubd.github.io/Giotto_site/articles/human_cycif_PDAC_200322.html)
-[![osmFISH](./inst/images/general_figs/osmFISH_SS_cortex_image_summary.png)](https://rubd.github.io/Giotto_site/articles/mouse_osmFISH_SScortex.html)
-[![CODEX](./inst/images/general_figs/CODEX_spleen_image_summary.png)](https://rubd.github.io/Giotto_site/articles/mouse_CODEX_spleen.html)
+[![seqFISH](./inst/images/general_figs/cortex_image_summary.png)](https://rubd.github.io/Giotto_site/articles/mouse_seqFISH_cortex_200914.html)
+[![merFISH](./inst/images/general_figs/merFISH_hypoth_image_summary.png)](https://rubd.github.io/Giotto_site/articles/mouse_merFISH_preoptic_region_200909.html)
+[![STARmap](./inst/images/general_figs/starmap_cortex_image_summary.png)](https://rubd.github.io/Giotto_site/articles/mouse_starmap_cortex_200917.html)
+[![Visium\_brain](./inst/images/general_figs/visium_brain_image_summary.png)](https://rubd.github.io/Giotto_site/articles/mouse_visium_brain_200918.html)
+[![Visium\_kidney](./inst/images/general_figs/visium_kidney_image_summary.png)](https://rubd.github.io/Giotto_site/articles/mouse_visium_kidney_200916.html)
+[![CyCIF](./inst/images/general_figs/cyCIF_PDAC_image_summary.png)](https://rubd.github.io/Giotto_site/articles/human_cycif_PDAC_200916.html)
+[![osmFISH](./inst/images/general_figs/osmFISH_SS_cortex_image_summary.png)](https://rubd.github.io/Giotto_site/articles/mouse_osmFISH_SScortex_200915.html)
+[![CODEX](./inst/images/general_figs/CODEX_spleen_image_summary.png)](https://rubd.github.io/Giotto_site/articles/mouse_CODEX_spleen_200921.html)
 
 ## References
 
-  - [Dries, R. et al. Giotto, a toolbox for integrative analysis and
-    visualization of spatial expression data. bioRxiv 701680
+  - [Dries, R., Zhu, Q. et al. Giotto, a toolbox for integrative
+    analysis and visualization of spatial expression data.
+    bioRxiv 701680
     (2019).](https://www.biorxiv.org/content/10.1101/701680v2)
     <doi:10.1101/701680>
 
