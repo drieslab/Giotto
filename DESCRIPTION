@@ -63,8 +63,7 @@ Imports:
     Rtsne (>= 0.15),
     rlang (>= 0.4.3),
     R.utils,
-    fitdistrplus,
-    quadprog
+    fitdistrplus
 Suggests:
     Biobase,
     biomaRt,
@@ -80,6 +79,7 @@ Suggests:
     MAST,
     multinet (>= 3.0.2),
     png,
+    quadprog,
     rmarkdown,
     RTriangle (>= 1.6-0.10),
     scran (>= 1.10.1),

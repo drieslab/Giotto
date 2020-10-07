@@ -1518,6 +1518,10 @@ runDWLSDeconv <- function(gobject,
                           return_gobject = TRUE) {
 
 
+  # verify if optional package is installed
+  package_check(pkg_name = "quadprog", repository = "CRAN")
+
+
   ## check parameters ##
 
   # check parameters
