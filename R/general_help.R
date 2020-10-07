@@ -492,8 +492,6 @@ DT_removeNA = function(DT) {
 #' @name sort_combine_two_DT_columns
 #' @description fast sorting and pasting of 2 character columns in a data.table
 #' @keywords internal
-#' @examples
-#'     sort_combine_two_DT_columns()
 sort_combine_two_DT_columns = function(DT,
                                        column1,
                                        column2,

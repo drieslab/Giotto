@@ -107,9 +107,6 @@ Visualize cells and gene expression according to spatial coordinates
 \details{
 Description of parameters.
 }
-\examples{
-    spatGenePlot3D(gobject)
-}
 \seealso{
 Other spatial gene expression visualizations: 
 \code{\link{spatGenePlot2D}()},

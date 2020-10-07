@@ -17,6 +17,3 @@ giotto object with replaces instructions
 \description{
 Function to replace all instructions from giotto object
 }
-\examples{
-    replaceGiottoInstructions()
-}

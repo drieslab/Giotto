@@ -28,9 +28,6 @@ Function to convert a single-cell count matrix
 and a corresponding single-cell cluster vector into
 a rank matrix that can be used with the Rank enrichment option.
 }
-\examples{
-    makeSignMatrixRank()
-}
 \seealso{
 \code{\link{rankEnrich}}
 }

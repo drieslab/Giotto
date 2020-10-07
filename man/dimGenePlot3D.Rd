@@ -104,9 +104,6 @@ Visualize cells and gene expression according to dimension reduction coordinates
 \details{
 Description of parameters.
 }
-\examples{
-    dimGenePlot3D(gobject)
-}
 \seealso{
 Other dimension reduction gene expression visualizations: 
 \code{\link{dimGenePlot2D}()},

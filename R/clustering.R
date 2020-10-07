@@ -37,12 +37,6 @@
 #' Set \emph{weight_col = NULL} to give equal weight (=1) to each edge.
 #'
 #' @export
-#' @examples
-#'
-#' data(mini_giotto_single_cell)
-#'
-#' mini_giotto_single_cell = doLeidenCluster(mini_giotto_single_cell, name = 'leiden_clus')
-#' plotUMAP_2D(mini_giotto_single_cell, cell_color = 'leiden_clus', point_size = 3)
 #'
 doLeidenCluster = function(gobject,
                            name = 'leiden_clus',
@@ -439,13 +433,6 @@ doLouvainCluster_multinet <- function(gobject,
 #' @details Louvain clustering using the community or multinet implementation of the louvain clustering algorithm.
 #' @seealso \code{\link{doLouvainCluster_community}} and \code{\link{doLouvainCluster_multinet}}
 #' @export
-#' @examples
-#'
-#' data(mini_giotto_single_cell)
-#'
-#' mini_giotto_single_cell = doLouvainCluster(mini_giotto_single_cell, name = 'louvain_clus')
-#' plotUMAP_2D(mini_giotto_single_cell, cell_color = 'louvain_clus', point_size = 3)
-#'
 doLouvainCluster = function(gobject,
                             version = c('community', 'multinet'),
                             name = 'louvain_clus',
@@ -2079,6 +2066,7 @@ subClusterCells <- function(gobject,
 #' with mergeClusters to combine very similar or small clusters into bigger clusters.
 #' @export
 #' @examples
+#'
 #' data("mini_giotto_single_cell")
 #'
 #' cluster_similarities = getClusterSimilarity(mini_giotto_single_cell,

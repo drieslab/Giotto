@@ -33,9 +33,6 @@ ggplot
 \description{
 show patterns for 2D spatial data
 }
-\examples{
-    showPattern(gobject)
-}
 \seealso{
 \code{\link{showPattern2D}}
 }

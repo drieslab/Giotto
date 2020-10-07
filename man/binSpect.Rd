@@ -125,6 +125,3 @@ By selecting a subset of likely spatial genes (e.g. soft thresholding highly var
 The simple implementation is usually faster, but lacks the possibility to run in parallel and to calculate hub cells.
 The data.table implementation might be more appropriate for large datasets by setting the group_size (number of genes) parameter to divide the workload.
 }
-\examples{
-    binSpect(gobject)
-}

@@ -36,7 +36,4 @@ b is a smoothening factor that defaults to 1 - 1/k, where k is the median number
 k-neighbors in the selected spatial network. Setting b = 0 means no smoothing and b = 1
 means no contribution from its own expression.
 }
-\examples{
-    do_spatial_knn_smoothing(gobject)
-}
 \keyword{internal}

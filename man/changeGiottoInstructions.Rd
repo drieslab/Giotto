@@ -26,6 +26,3 @@ giotto object with one or more changed instructions
 \description{
 Function to change one or more instructions from giotto object
 }
-\examples{
-    changeGiottoInstructions()
-}

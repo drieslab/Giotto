@@ -57,7 +57,13 @@ Visualize gene expression according to dimension reduction coordinates
 Description of parameters.
 }
 \examples{
-    dimGenePlot(gobject)
+
+data(mini_giotto_single_cell)
+
+all_genes = slot(mini_giotto_single_cell, 'gene_ID')
+selected_genes = all_genes[1:2]
+dimGenePlot(mini_giotto_single_cell, genes = selected_genes, point_size = 3)
+
 }
 \seealso{
 \code{\link{dimGenePlot3D}}

@@ -183,7 +183,20 @@ Visualize cells according to spatial coordinates
 Description of parameters.
 }
 \examples{
-    spatCellPlot2D(gobject)
+
+data(mini_giotto_single_cell)
+
+# combine all metadata
+combineMetadata(mini_giotto_single_cell, spat_enr_names = 'cluster_metagene')
+
+# visualize total expression information
+spatCellPlot2D(mini_giotto_single_cell, cell_annotation_values = 'total_expr')
+
+# visualize enrichment results
+spatCellPlot2D(mini_giotto_single_cell,
+               spat_enr_names = 'cluster_metagene',
+               cell_annotation_values = c('1','2'))
+
 }
 \seealso{
 Other spatial cell annotation visualizations: 

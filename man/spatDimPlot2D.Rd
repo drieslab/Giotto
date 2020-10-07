@@ -246,7 +246,13 @@ Visualize cells according to spatial AND dimension reduction coordinates 2D
 Description of parameters.
 }
 \examples{
-    spatDimPlot2D(gobject)
+
+data(mini_giotto_single_cell)
+
+spatDimPlot2D(mini_giotto_single_cell)
+spatDimPlot2D(mini_giotto_single_cell, cell_color = 'cell_types',
+             spat_point_size = 3, dim_point_size = 3)
+
 }
 \seealso{
 \code{\link{spatDimPlot3D}}

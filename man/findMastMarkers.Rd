@@ -46,15 +46,18 @@ Identify marker genes for selected clusters based on the MAST package.
 }
 \details{
 This is a minimal convenience wrapper around the \code{\link[MAST]{zlm}}
-from the MAST package to detect differentially expressed genes.
+from the MAST package to detect differentially expressed genes. Caution: with large datasets
+MAST might take a long time to run and finish
 }
 \examples{
 
+\dontrun{
 data(mini_giotto_single_cell)
 
 mast_markers = findMastMarkers(gobject = mini_giotto_single_cell,
                                cluster_column = 'leiden_clus',
                                group_1 = 1,
                                group_2 = 2)
+}
 
 }

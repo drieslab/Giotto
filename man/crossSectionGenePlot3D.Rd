@@ -38,6 +38,3 @@ Visualize cells and gene expression in a virtual cross section according to spat
 \details{
 Description of parameters.
 }
-\examples{
-    crossSectionGenePlot3D(gobject)
-}

@@ -19,7 +19,7 @@
 #' @examples
 #' data(mini_giotto_single_cell)
 #'
-#' \donttest{spatPlot2D(mini_giotto_single_cell,cell_color = 'cell_types', point_size = 5)}
+#' \dontrun{spatPlot2D(mini_giotto_single_cell,cell_color = 'cell_types', point_size = 5)}
 "mini_giotto_single_cell"
 
 
@@ -43,7 +43,7 @@
 #' @examples
 #' data(mini_giotto_3D)
 #'
-#' \donttest{spatPlot3D(mini_giotto_3D, cell_color = 'cell_types', point_size = 5)}
+#' \dontrun{spatPlot3D(mini_giotto_3D, cell_color = 'cell_types', point_size = 5)}
 "mini_giotto_3D"
 
 
@@ -69,7 +69,7 @@
 #' @examples
 #' data(mini_giotto_multi_cell)
 #'
-#' \donttest{spatPlot(mini_giotto_multi_cell, cell_color = 'cell_types', point_size = 5)}
+#' \dontrun{spatPlot(mini_giotto_multi_cell, cell_color = 'cell_types', point_size = 5)}
 "mini_giotto_multi_cell"
 
 

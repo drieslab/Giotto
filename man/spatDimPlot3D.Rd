@@ -164,9 +164,6 @@ Visualize cells according to spatial AND dimension reduction coordinates in plot
 \details{
 Description of parameters.
 }
-\examples{
-    spatDimPlot3D(gobject)
-}
 \seealso{
 Other spatial and dimension reduction visualizations: 
 \code{\link{spatDimPlot2D}()},

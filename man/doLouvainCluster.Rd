@@ -63,14 +63,6 @@ cluster cells using a NN-network and the Louvain algorithm.
 \details{
 Louvain clustering using the community or multinet implementation of the louvain clustering algorithm.
 }
-\examples{
-
-data(mini_giotto_single_cell)
-
-mini_giotto_single_cell = doLouvainCluster(mini_giotto_single_cell, name = 'louvain_clus')
-plotUMAP_2D(mini_giotto_single_cell, cell_color = 'louvain_clus', point_size = 3)
-
-}
 \seealso{
 \code{\link{doLouvainCluster_community}} and \code{\link{doLouvainCluster_multinet}}
 }

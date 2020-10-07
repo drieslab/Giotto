@@ -128,26 +128,6 @@ setMethod(
 
 
 
-#' Prints giotto object.
-#'
-#' Prints giotto object
-#'
-#' @param object giotto object
-#' @param nr_genes number of genes (rows) to print
-#' @param nr_cells number of cells (columns) to print
-#' @method print giotto
-#' @rdname print.giotto
-#' @export
-print.giotto <- function(object,
-                         nr_genes = 5,
-                         nr_cells = 5) {
-  print(object@raw_exprs[1:nr_genes, 1:nr_cells])
-  cat('\n')
-  print(object@spatial_locs[1:nr_cells,])
-}
-
-
-
 #' @title createGiottoInstructions
 #' @description Function to set global instructions for giotto functions
 #' @param python_path path to python binary to use
@@ -164,8 +144,6 @@ print.giotto <- function(object,
 #' @return named vector with giotto instructions
 #' @seealso More online information can be found here \url{https://rubd.github.io/Giotto_site/articles/instructions_and_plotting.html}
 #' @export
-#' @examples
-#'     createGiottoInstructions()
 createGiottoInstructions <- function(python_path =  NULL,
                                      show_plot = NULL,
                                      return_plot = NULL,
@@ -251,8 +229,6 @@ createGiottoInstructions <- function(python_path =  NULL,
 #' @param param parameter to retrieve
 #' @return specific parameter
 #' @export
-#' @examples
-#'     readGiottoInstrunctions()
 readGiottoInstructions <- function(giotto_instructions,
                                    param = NULL) {
 
@@ -278,8 +254,6 @@ readGiottoInstructions <- function(giotto_instructions,
 #' @param gobject giotto object
 #' @return named vector with giotto instructions
 #' @export
-#' @examples
-#'     showGiottoInstructions()
 showGiottoInstructions = function(gobject) {
 
   instrs = gobject@instructions
@@ -295,8 +269,6 @@ showGiottoInstructions = function(gobject) {
 #' @param return_gobject (boolean) return giotto object
 #' @return giotto object with one or more changed instructions
 #' @export
-#' @examples
-#'     changeGiottoInstructions()
 changeGiottoInstructions = function(gobject,
                                     params = NULL,
                                     new_values = NULL,
@@ -352,8 +324,6 @@ changeGiottoInstructions = function(gobject,
 #' @param instructions new instructions (e.g. result from createGiottoInstructions)
 #' @return giotto object with replaces instructions
 #' @export
-#' @examples
-#'     replaceGiottoInstructions()
 replaceGiottoInstructions = function(gobject,
                                      instructions = NULL) {
 
@@ -379,8 +349,6 @@ replaceGiottoInstructions = function(gobject,
 #' @return sparse matrix
 #' @details The expression matrix needs to have both unique column names and row names
 #' @export
-#' @examples
-#'     readExprMatrix()
 readExprMatrix = function(path,
                           cores = NA,
                           transpose = FALSE) {
@@ -414,8 +382,6 @@ readExprMatrix = function(path,
 #' @return sparse matrix
 #' @details The inputmatrix can be a matrix, sparse matrix, data.frame, data.table or path to any of these.
 #' @keywords internal
-#' @examples
-#'     evaluate_expr_matrix()
 evaluate_expr_matrix = function(inputmatrix,
                                 sparse = TRUE,
                                 cores = NA) {
@@ -585,8 +551,6 @@ evaluate_spatial_locations = function(spatial_locs,
 #' @keywords giotto
 #' @importFrom methods new
 #' @export
-#' @examples
-#'     createGiottoObject(raw_exprs, spatial_locs)
 createGiottoObject <- function(raw_exprs,
                                spatial_locs = NULL,
                                norm_expr = NULL,
@@ -969,8 +933,6 @@ createGiottoObject <- function(raw_exprs,
 #'   \item{png_name: by default the first png will be selected, provide the png name to override this (e.g. myimage.png)}
 #' }
 #' @export
-#' @examples
-#'     createGiottoVisiumObject(visium_dir)
 createGiottoVisiumObject = function(visium_dir = NULL,
                                     expr_data = c('raw', 'filter'),
                                     gene_column_index = 1,

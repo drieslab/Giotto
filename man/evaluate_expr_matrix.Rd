@@ -22,7 +22,4 @@ Evaluate expression matrices.
 \details{
 The inputmatrix can be a matrix, sparse matrix, data.frame, data.table or path to any of these.
 }
-\examples{
-    evaluate_expr_matrix()
-}
 \keyword{internal}

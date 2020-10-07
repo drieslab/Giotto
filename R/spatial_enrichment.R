@@ -11,8 +11,6 @@
 #' @return matrix
 #' @seealso \code{\link{PAGEEnrich}}
 #' @export
-#' @examples
-#'     makeSignMatrixPAGE()
 makeSignMatrixPAGE = function(sign_names,
                               sign_list) {
 
@@ -57,8 +55,6 @@ makeSignMatrixPAGE = function(sign_names,
 #' @return matrix
 #' @seealso \code{\link{rankEnrich}}
 #' @export
-#' @examples
-#'     makeSignMatrixRank()
 makeSignMatrixRank <- function(sc_matrix,
                                sc_cluster_ids,
                                ties_method = c("random", "max"),
@@ -137,8 +133,6 @@ makeSignMatrixRank <- function(sc_matrix,
 #' @title do_page_permutation
 #' @description creates permutation for the PAGEEnrich test
 #' @keywords internal
-#' @examples
-#'     do_page_permutation()
 do_page_permutation<-function(gobject,
                           sig_gene,
                           ntimes){
@@ -703,8 +697,6 @@ PAGEEnrich <- function(...) {
 #' @title do_rank_permutation
 #' @description creates permutation for the rankEnrich test
 #' @keywords internal
-#' @examples
-#'     do_rank_permutation()
 do_rank_permutation <- function(sc_gene, n){
   random_df <- data.frame(matrix(ncol = n, nrow = length(sc_gene)))
   for (i in 1:n){

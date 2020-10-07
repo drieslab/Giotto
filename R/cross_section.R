@@ -654,8 +654,6 @@ crossSectionPlot <-function(gobject,
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
-#' @examples
-#'     crossSectionGenePlot3D(gobject)
 crossSectionGenePlot3D <-function(gobject,
                                   crossSection_obj = NULL,
                                   name=NULL,

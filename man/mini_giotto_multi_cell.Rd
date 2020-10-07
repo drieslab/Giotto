@@ -16,7 +16,7 @@ Mini Giotto object created from the Brain Visium 10X data.
 \examples{
 data(mini_giotto_multi_cell)
 
-\donttest{spatPlot(mini_giotto_multi_cell, cell_color = 'cell_types', point_size = 5)}
+\dontrun{spatPlot(mini_giotto_multi_cell, cell_color = 'cell_types', point_size = 5)}
 }
 \references{
 10 Genomics Visium technology
