@@ -1171,17 +1171,17 @@ plotCellProximityGenes = function(gobject,
 
 
   ## first filter
-  filter_cpg = filterCellProximityGenes(cpgObject = cpgObject,
-                                        min_cells = min_cells,
-                                        min_cells_expr = min_cells_expr,
-                                        min_int_cells = min_int_cells,
-                                        min_int_cells_expr = min_int_cells_expr,
-                                        min_fdr = min_fdr,
-                                        min_spat_diff = min_spat_diff,
-                                        min_log2_fc = min_log2_fc,
-                                        min_zscore = min_zscore,
-                                        zscores_column = zscores_column,
-                                        direction = direction)
+  filter_cpg = filterInteractionChangedGenes(cpgObject = cpgObject,
+                                             min_cells = min_cells,
+                                             min_cells_expr = min_cells_expr,
+                                             min_int_cells = min_int_cells,
+                                             min_int_cells_expr = min_int_cells_expr,
+                                             min_fdr = min_fdr,
+                                             min_spat_diff = min_spat_diff,
+                                             min_log2_fc = min_log2_fc,
+                                             min_zscore = min_zscore,
+                                             zscores_column = zscores_column,
+                                             direction = direction)
 
   complete_part = filter_cpg[['CPGscores']]
 
