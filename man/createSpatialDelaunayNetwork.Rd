@@ -23,7 +23,9 @@ createSpatialDelaunayNetwork(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{dimensions}{which spatial dimensions to use (default = all)}
+\item{method}{package to use to create a Delaunay network}
+
+\item{dimensions}{which spatial dimensions to use. Use "sdimx" (spatial dimension x), "sdimy", "sdimz" respectively to refer to X (or the 1st), Y (or the 2nd) and Z(or the 3rd) dimension, see details. (default = all)}
 
 \item{name}{name for spatial network (default = 'delaunay_network')}
 
@@ -43,7 +45,7 @@ createSpatialDelaunayNetwork(
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
-\item{...}{Other parameters of the \code{\link[RTriangle]{triangulate}} function}
+\item{\dots}{Other additional parameters}
 }
 \value{
 giotto object with updated spatial network slot
@@ -53,7 +55,4 @@ Create a spatial Delaunay network based on cell centroid physical distances.
 }
 \details{
 Creates a spatial Delaunay network as explained in \code{\link[geometry]{delaunayn}} (default), \code{\link[deldir]{deldir}}, or \code{\link[RTriangle]{triangulate}}.
-}
-\examples{
-    createSpatialDelaunayNetwork(gobject)
 }

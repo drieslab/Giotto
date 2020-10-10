@@ -9,7 +9,7 @@ viewHMRFresults(
   HMRFoutput,
   k = NULL,
   betas_to_view = NULL,
-  third_dim = NULL,
+  third_dim = FALSE,
   ...
 )
 }
@@ -22,7 +22,9 @@ viewHMRFresults(
 
 \item{betas_to_view}{results from different betas that you want to view}
 
-\item{...}{paramters to visPlot()}
+\item{third_dim}{3D data (boolean)}
+
+\item{\dots}{additional paramters (see details)}
 }
 \value{
 spatial plots with HMRF domains
@@ -30,12 +32,6 @@ spatial plots with HMRF domains
 \description{
 View results from doHMRF.
 }
-\details{
-Description ...
-}
-\examples{
-    viewHMRFresults(gobject)
-}
 \seealso{
-\code{\link{visPlot}}
+\code{\link{spatPlot2D}} and \code{\link{spatPlot3D}}
 }

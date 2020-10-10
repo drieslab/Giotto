@@ -9,3 +9,4 @@ find_grid_x(grid_DT, x_loc)
 \description{
 find grid location on x-axis
 }
+\keyword{internal}

@@ -59,7 +59,11 @@ cellProximityVisPlot(
 
 \item{color_as_factor}{convert color column to factor}
 
+\item{show_other_cells}{show not selected cells}
+
 \item{show_network}{show underlying spatial network}
+
+\item{show_other_network}{show underlying spatial network of other cells}
 
 \item{network_color}{color of spatial network}
 
@@ -83,9 +87,25 @@ cellProximityVisPlot(
 
 \item{point_size_other}{size of other points}
 
+\item{point_alpha_other}{alpha of other points}
+
 \item{point_other_border_col}{border color of other points}
 
 \item{point_other_border_stroke}{stroke size of other points}
+
+\item{axis_scale}{scale of axis}
+
+\item{custom_ratio}{custom ratio of scales}
+
+\item{x_ticks}{x ticks}
+
+\item{y_ticks}{y ticks}
+
+\item{z_ticks}{z ticks}
+
+\item{plot_method}{method to plot}
+
+\item{\dots}{additional parameters}
 }
 \value{
 ggplot or plotly
@@ -95,7 +115,4 @@ Visualize cell-cell interactions according to spatial coordinates
 }
 \details{
 Description of parameters.
-}
-\examples{
-    cellProximityVisPlot(gobject)
 }

@@ -4,48 +4,31 @@
 \alias{PAGEEnrich}
 \title{PAGEEnrich}
 \usage{
-PAGEEnrich(
-  gobject,
-  sign_matrix,
-  expression_values = c("normalized", "scaled", "custom"),
-  reverse_log_scale = TRUE,
-  logbase = 2,
-  output_enrichment = c("original", "zscore")
-)
+PAGEEnrich(...)
 }
 \arguments{
-\item{gobject}{Giotto object}
-
-\item{sign_matrix}{Matrix of signature genes for each cell type / process}
-
-\item{expression_values}{expression values to use}
-
-\item{reverse_log_scale}{reverse expression values from log scale}
-
-\item{logbase}{log base to use if reverse_log_scale = TRUE}
-
-\item{output_enrichment}{how to return enrichment output}
-}
-\value{
-data.table with enrichment results
+\item{...}{
+  Arguments passed on to \code{\link[=runPAGEEnrich]{runPAGEEnrich}}
+  \describe{
+    \item{\code{gobject}}{Giotto object}
+    \item{\code{sign_matrix}}{Matrix of signature genes for each cell type / process}
+    \item{\code{expression_values}}{expression values to use}
+    \item{\code{min_overlap_genes}}{minimum number of overlapping genes in sign_matrix required to calculate enrichment}
+    \item{\code{reverse_log_scale}}{reverse expression values from log scale}
+    \item{\code{logbase}}{log base to use if reverse_log_scale = TRUE}
+    \item{\code{output_enrichment}}{how to return enrichment output}
+    \item{\code{p_value}}{calculate p-values (boolean, default = FALSE)}
+    \item{\code{include_depletion}}{calculate both enrichment and depletion}
+    \item{\code{n_times}}{number of permutations to calculate for p_value}
+    \item{\code{max_block}}{number of lines to process together (default = 20e6)}
+    \item{\code{name}}{to give to spatial enrichment results, default = PAGE}
+    \item{\code{verbose}}{be verbose}
+    \item{\code{return_gobject}}{return giotto object}
+  }}
 }
 \description{
 Function to calculate gene signature enrichment scores per spatial position using PAGE.
 }
-\details{
-sign_matrix: a binary matrix with genes as row names and cell-types as column names.
-Alternatively a list of signature genes can be provided to makeSignMatrixPAGE, which will create
-the matrix for you. \cr
-
-The enrichment Z score is calculated by using method (PAGE) from
-Kim SY et al., BMC bioinformatics, 2005 as \eqn{Z = ((Sm – mu)*m^(1/2)) / delta}.
-For each gene in each spot, mu is the fold change values versus the mean expression
-and delta is the standard deviation. Sm is the mean fold change value of a specific marker gene set
-and  m is the size of a given marker gene set.
-}
-\examples{
-    PAGEEnrich(gobject)
-}
 \seealso{
-\code{\link{makeSignMatrixPAGE}}
+\code{\link{runPAGEEnrich}}
 }

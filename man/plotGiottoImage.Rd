@@ -17,6 +17,3 @@ plot
 \description{
 get plot a giotto image from a giotto object
 }
-\examples{
-    plotGiottoImage(gobject)
-}

@@ -10,17 +10,29 @@ binSpect(
   expression_values = c("normalized", "scaled", "custom"),
   subset_genes = NULL,
   spatial_network_name = "Delaunay_network",
+  spatial_network_k = NULL,
+  reduce_network = FALSE,
+  kmeans_algo = c("kmeans", "kmeans_arma", "kmeans_arma_subset"),
   nstart = 3,
   iter_max = 10,
+  extreme_nr = 50,
+  sample_nr = 50,
   percentage_rank = 30,
   do_fisher_test = TRUE,
+  adjust_method = "fdr",
   calc_hub = FALSE,
   hub_min_int = 3,
   get_av_expr = TRUE,
   get_high_expr = TRUE,
+  implementation = c("data.table", "simple", "matrix"),
+  group_size = "automatic",
   do_parallel = TRUE,
   cores = NA,
-  verbose = T
+  verbose = T,
+  knn_params = NULL,
+  set.seed = NULL,
+  bin_matrix = NULL,
+  summarize = c("p.value", "adj.p.value")
 )
 }
 \arguments{
@@ -34,13 +46,25 @@ binSpect(
 
 \item{spatial_network_name}{name of spatial network to use (default = 'spatial_network')}
 
+\item{spatial_network_k}{different k's for a spatial kNN to evaluate}
+
+\item{reduce_network}{default uses the full network}
+
+\item{kmeans_algo}{kmeans algorithm to use (kmeans, kmeans_arma, kmeans_arma_subset)}
+
 \item{nstart}{kmeans: nstart parameter}
 
 \item{iter_max}{kmeans: iter.max parameter}
 
+\item{extreme_nr}{number of top and bottom cells (see details)}
+
+\item{sample_nr}{total number of cells to sample (see details)}
+
 \item{percentage_rank}{percentage of top cells for binarization}
 
 \item{do_fisher_test}{perform fisher test}
+
+\item{adjust_method}{p-value adjusted method to use (see \code{\link[stats]{p.adjust}})}
 
 \item{calc_hub}{calculate the number of hub cells}
 
@@ -50,11 +74,23 @@ binSpect(
 
 \item{get_high_expr}{calculate the number of high expressing cells  per gene}
 
+\item{implementation}{enrichment implementation (data.table, simple, matrix)}
+
+\item{group_size}{number of genes to process together with data.table implementation (default = automatic)}
+
 \item{do_parallel}{run calculations in parallel with mclapply}
 
 \item{cores}{number of cores to use if do_parallel = TRUE}
 
 \item{verbose}{be verbose}
+
+\item{knn_params}{list of parameters to create spatial kNN network}
+
+\item{set.seed}{set a seed before kmeans binarization}
+
+\item{bin_matrix}{a binarized matrix, when provided it will skip the binarization process}
+
+\item{summarize}{summarize the p-values or adjusted p-values}
 }
 \value{
 data.table with results (see details)
@@ -72,14 +108,20 @@ Both methods are identicial except for how binarization is performed.
   \item{3. contingency table: }{A contingency table is calculated based on all edges of neighboring cells and the binarized expression (0-0, 0-1, 1-0 or 1-1)}
   \item{4. For each gene an odds-ratio (OR) and fisher.test (optional) is calculated}
 }
+Three different kmeans algorithmes have been implemented:
+\itemize{
+  \item{1. kmeans: }{default, see \code{\link[stats]{kmeans}} }
+  \item{2. kmeans_arma: }{from ClusterR, see \code{\link[ClusterR]{KMeans_arma}} }
+  \item{3. kmeans_arma_subst: }{from ClusterR, see \code{\link[ClusterR]{KMeans_arma}},
+   but random subsetting the vector for each gene to increase speed. Change extreme_nr and sample_nr for control.  }
+}
 Other statistics are provided (optional):
 \itemize{
   \item{Number of cells with high expression (binary = 1)}
   \item{Average expression of each gene within high expressing cells }
   \item{Number of hub cells, these are high expressing cells that have a user defined number of high expressing neighbors}
 }
-By selecting a subset of likely spatial genes (e.g. soft thresholding highly variable genes) or using multiple cores can accelerate the speed.
-}
-\examples{
-    binSpect(gobject)
+By selecting a subset of likely spatial genes (e.g. soft thresholding highly variable genes) can accelerate the speed.
+The simple implementation is usually faster, but lacks the possibility to run in parallel and to calculate hub cells.
+The data.table implementation might be more appropriate for large datasets by setting the group_size (number of genes) parameter to divide the workload.
 }

@@ -54,9 +54,6 @@ fully connected network by setting minimal_k > 0 in the \code{\link{createSpatia
 }
 The spatCorObject can be further explored with showSpatialCorGenes()
 }
-\examples{
-    detectSpatialCorGenes(gobject)
-}
 \seealso{
 \code{\link{showSpatialCorGenes}}
 }

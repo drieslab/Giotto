@@ -14,13 +14,12 @@ do_cell_proximity_test(
   n_perm = 100,
   adjust_method = c("bonferroni", "BH", "holm", "hochberg", "hommel", "BY", "fdr",
     "none"),
-  cores = 2
+  cores = 2,
+  set_seed = TRUE,
+  seed_number = 1234
 )
 }
 \description{
 Performs a selected differential test on subsets of a matrix
-}
-\examples{
-    do_cell_proximity_test()
 }
 \keyword{internal}

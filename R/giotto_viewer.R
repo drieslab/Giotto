@@ -8,6 +8,7 @@
 #' @param annot_name name of the annotation
 #' @param output_directory directory where to save the files
 #' @return write a .txt and .annot file for the selection annotation
+#' @keywords internal
 write_giotto_viewer_annotation = function(annotation,
                                           annot_name = 'test',
                                           output_directory = getwd()) {
@@ -56,6 +57,7 @@ write_giotto_viewer_annotation = function(annotation,
 #' @param annot_name name of the annotation
 #' @param output_directory directory where to save the files
 #' @return write a .txt and .annot file for the selection annotation
+#' @keywords internal
 write_giotto_viewer_numeric_annotation = function(annotation,
                                                   annot_name = 'test',
                                                   output_directory = getwd()) {
@@ -80,6 +82,7 @@ write_giotto_viewer_numeric_annotation = function(annotation,
 #' @param dim_red_rescale numericals to rescale the coordinates
 #' @param output_directory directory where to save the files
 #' @return write a .txt and .annot file for the selection annotation
+#' @keywords internal
 write_giotto_viewer_dim_reduction = function(dim_reduction_cell,
                                              dim_red = NULL,
                                              dim_red_name = NULL,
@@ -136,7 +139,14 @@ write_giotto_viewer_dim_reduction = function(dim_reduction_cell,
 #' and add the gene signature names (.e.g cell types) to the numeric annotations parameter.
 #' @export
 #' @examples
-#'     exportGiottoViewer(gobject)
+#'
+#' \dontrun{
+#'
+#' data(mini_giotto_single_cell)
+#' exportGiottoViewer(mini_giotto_single_cell)
+#'
+#' }
+#'
 exportGiottoViewer = function(gobject,
                               output_directory = NULL,
                               spat_enr_names = NULL,
@@ -293,7 +303,7 @@ exportGiottoViewer = function(gobject,
   # expression values to be used
   if(verbose == TRUE) cat('\n write expression values \n')
   values = match.arg(expression_values, c( 'scaled', 'normalized', 'custom'))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, values = values)
+  expr_values = select_expression_values(gobject = gobject, values = values)
 
   # swap cell_IDs for numerical values
   colnames(expr_values) = 1:ncol(expr_values)

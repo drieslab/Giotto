@@ -160,7 +160,11 @@ spatDimCellPlot2D(
 
 \item{spat_show_center_label}{provide a label for each cluster}
 
-\item{spat_center_point_size}{size of the center point}
+\item{spat_center_point_size}{size of the spatial center points}
+
+\item{spat_center_point_border_col}{border color of the spatial center points}
+
+\item{spat_center_point_border_stroke}{stroke size of the spatial center points}
 
 \item{spat_label_size}{size of the center label}
 
@@ -179,6 +183,8 @@ spatDimCellPlot2D(
 \item{spatial_network_name}{name of spatial network to use}
 
 \item{spat_network_color}{color of spatial network}
+
+\item{spat_network_alpha}{alpha of spatial network}
 
 \item{spat_show_grid}{show spatial grid}
 
@@ -246,7 +252,20 @@ Visualize numerical features of cells according to spatial AND dimension reducti
 Description of parameters.
 }
 \examples{
-    spatDimCellPlot2D(gobject)
+
+data(mini_giotto_single_cell)
+
+# combine all metadata
+combineMetadata(mini_giotto_single_cell, spat_enr_names = 'cluster_metagene')
+
+# visualize total expression information
+spatDimCellPlot2D(mini_giotto_single_cell, cell_annotation_values = 'total_expr')
+
+# visualize enrichment results
+spatDimCellPlot2D(mini_giotto_single_cell,
+                 spat_enr_names = 'cluster_metagene',
+                 cell_annotation_values = c('1','2'))
+
 }
 \seealso{
 Other spatial and dimension reduction cell annotation visualizations: 

@@ -54,5 +54,14 @@ Creates heatmap based on identified clusters
 Correlation heatmap of selected clusters.
 }
 \examples{
-    showClusterHeatmap(gobject)
+
+data(mini_giotto_single_cell)
+
+# cell metadata
+cell_metadata = pDataDT(mini_giotto_single_cell)
+
+# create heatmap
+showClusterHeatmap(mini_giotto_single_cell,
+                   cluster_column = 'cell_types')
+
 }

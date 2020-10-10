@@ -38,6 +38,3 @@ a giotto image object
 \description{
 Creates a giotto image that can be added to a Giotto object and/or used to add an image to the spatial plotting functions
 }
-\examples{
-    createGiottoImage(mg_object)
-}

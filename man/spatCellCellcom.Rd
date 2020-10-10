@@ -13,11 +13,14 @@ spatCellCellcom(
   gene_set_2,
   log2FC_addendum = 0.1,
   min_observations = 2,
+  detailed = FALSE,
   adjust_method = c("fdr", "bonferroni", "BH", "holm", "hochberg", "hommel", "BY",
     "none"),
   adjust_target = c("genes", "cells"),
   do_parallel = TRUE,
   cores = NA,
+  set_seed = TRUE,
+  seed_number = 1234,
   verbose = c("a little", "a lot", "none")
 )
 }
@@ -38,6 +41,8 @@ spatCellCellcom(
 
 \item{min_observations}{minimum number of interactions needed to be considered}
 
+\item{detailed}{provide more detailed information (random variance and z-score)}
+
 \item{adjust_method}{which method to adjust p-values}
 
 \item{adjust_target}{adjust multiple hypotheses at the cell or gene level}
@@ -45,6 +50,10 @@ spatCellCellcom(
 \item{do_parallel}{run calculations in parallel with mclapply}
 
 \item{cores}{number of cores to use if do_parallel = TRUE}
+
+\item{set_seed}{set a seed for reproducibility}
+
+\item{seed_number}{seed number}
 
 \item{verbose}{verbose}
 }
@@ -58,8 +67,25 @@ Spatial Cell-Cell communication scores based on spatial expression of interactin
 Statistical framework to identify if pairs of genes (such as ligand-receptor combinations)
 are expressed at higher levels than expected based on a reshuffled null distribution
 of gene expression values in cells that are spatially in proximity to eachother..
-More details will follow soon.
+\itemize{
+ \item{LR_comb:}{Pair of ligand and receptor}
+ \item{lig_cell_type:}{ cell type to assess expression level of ligand }
+ \item{lig_expr:}{ average expression of ligand in lig_cell_type }
+ \item{ligand:}{ ligand name }
+ \item{rec_cell_type:}{ cell type to assess expression level of receptor }
+ \item{rec_expr:}{ average expression of receptor in rec_cell_type}
+ \item{receptor:}{ receptor name }
+ \item{LR_expr:}{ combined average ligand and receptor expression }
+ \item{lig_nr:}{ total number of cells from lig_cell_type that spatially interact with cells from rec_cell_type }
+ \item{rec_nr:}{ total number of cells from rec_cell_type that spatially interact with cells from lig_cell_type }
+ \item{rand_expr:}{ average combined ligand and receptor expression from random spatial permutations }
+ \item{av_diff:}{ average difference between LR_expr and rand_expr over all random spatial permutations }
+ \item{sd_diff:}{ (optional) standard deviation of the difference between LR_expr and rand_expr over all random spatial permutations }
+ \item{z_score:}{ (optinal) z-score }
+ \item{log2fc:}{ log2 fold-change (LR_expr/rand_expr) }
+ \item{pvalue:}{ p-value }
+ \item{LR_cell_comb:}{ cell type pair combination }
+ \item{p.adj:}{ adjusted p-value }
+ \item{PI:}{ significanc score: log2fc * -log10(p.adj) }
 }
-\examples{
-    spatCellCellcom(gobject)
 }

@@ -26,9 +26,4 @@ data.table with average expression scores for each cluster
 \description{
 calculate average expression per cluster
 }
-\details{
-Details will follow soon.
-}
-\examples{
-    average_gene_gene_expression_in_groups(gobject)
-}
+\keyword{internal}

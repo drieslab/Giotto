@@ -4,8 +4,9 @@
 \alias{kmeans_binarize}
 \title{kmeans_binarize}
 \usage{
-kmeans_binarize(x, nstart = 3, iter.max = 10)
+kmeans_binarize(x, nstart = 3, iter.max = 10, set.seed = NULL)
 }
 \description{
 create binarized scores from a vector using kmeans
 }
+\keyword{internal}

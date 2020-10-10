@@ -15,7 +15,7 @@ jackstrawPlot(
   ylim = c(0, 1),
   iter = 10,
   threshold = 0.01,
-  verbose = T,
+  verbose = TRUE,
   show_plot = NA,
   return_plot = NA,
   save_plot = NA,
@@ -68,5 +68,14 @@ The Jackstraw method uses the \code{\link[jackstraw]{permutationPA}} function. B
  \cr
 }
 \examples{
-    jackstrawPlot(gobject)
+
+\donttest{
+
+data(mini_giotto_single_cell)
+
+# jackstraw package is required to run
+jackstrawPlot(mini_giotto_single_cell, ncp = 10)
+
+}
+
 }

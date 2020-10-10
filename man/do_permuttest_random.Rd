@@ -11,7 +11,9 @@ do_permuttest_random(
   other_ind,
   name = "perm_1",
   mean_method,
-  offset = 0.1
+  offset = 0.1,
+  set_seed = TRUE,
+  seed_number = 1234
 )
 
 do_permuttest(
@@ -22,7 +24,9 @@ do_permuttest(
   adjust_method = "fdr",
   mean_method,
   offset = 0.1,
-  cores = 2
+  cores = 2,
+  set_seed = TRUE,
+  seed_number = 1234
 )
 }
 \description{
@@ -30,7 +34,4 @@ calculate random values
 
 Performs permutation test on subsets of a matrix
 }
-\examples{
-    do_permuttest_random()
-    do_permuttest_random()
-}
+\keyword{internal}

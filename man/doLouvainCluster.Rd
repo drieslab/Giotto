@@ -63,9 +63,6 @@ cluster cells using a NN-network and the Louvain algorithm.
 \details{
 Louvain clustering using the community or multinet implementation of the louvain clustering algorithm.
 }
-\examples{
-    doLouvainCluster(gobject)
-}
 \seealso{
 \code{\link{doLouvainCluster_community}} and \code{\link{doLouvainCluster_multinet}}
 }

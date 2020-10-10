@@ -18,9 +18,9 @@ runUMAP(
   n_components = 2,
   n_epochs = 400,
   min_dist = 0.01,
-  n_threads = 1,
+  n_threads = NA,
   spread = 5,
-  set_seed = T,
+  set_seed = TRUE,
   seed_number = 1234,
   verbose = T,
   ...
@@ -53,7 +53,7 @@ runUMAP(
 
 \item{min_dist}{UMAP param: minimum distance}
 
-\item{n_threads}{UMAP param: threads to use}
+\item{n_threads}{UMAP param: threads/cores to use}
 
 \item{spread}{UMAP param: spread}
 
@@ -83,19 +83,13 @@ See \code{\link[uwot]{umap}} for more information about these and other paramete
 }
 \examples{
 
-# 1. create giotto object
-expr_path = system.file("extdata", "seqfish_field_expr.txt", package = 'Giotto')
-loc_path = system.file("extdata", "seqfish_field_locs.txt", package = 'Giotto')
-VC_small <- createGiottoObject(raw_exprs = expr_path, spatial_locs = loc_path)
+data(mini_giotto_single_cell)
 
-# 2. normalize giotto
-VC_small <- normalizeGiotto(gobject = VC_small, scalefactor = 6000)
-VC_small <- addStatistics(gobject = VC_small)
+mini_giotto_single_cell <- runUMAP(mini_giotto_single_cell,
+                                   dimensions_to_use = 1:3,
+                                   n_threads = 1,
+                                   n_neighbors = 3)
 
-# 3. dimension reduction
-VC_small <- calculateHVG(gobject = VC_small)
-VC_small <- runPCA(gobject = VC_small)
-VC_small <- runUMAP(VC_small, dimensions_to_use = 1:5, n_threads = 2)
-plotUMAP(gobject = VC_small)
+plotUMAP(gobject = mini_giotto_single_cell)
 
 }

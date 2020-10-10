@@ -8,11 +8,10 @@ spatGenePlot3D(
   gobject,
   expression_values = c("normalized", "scaled", "custom"),
   genes,
-  show_network = F,
+  show_network = FALSE,
   network_color = NULL,
   spatial_network_name = "Delaunay_network",
   edge_alpha = NULL,
-  show_grid = F,
   cluster_column = NULL,
   select_cell_groups = NULL,
   select_cells = NULL,
@@ -22,9 +21,10 @@ spatGenePlot3D(
   genes_high_color = NULL,
   genes_mid_color = "white",
   genes_low_color = "blue",
+  show_grid = FALSE,
   spatial_grid_name = "spatial_grid",
   point_size = 2,
-  show_legend = T,
+  show_legend = TRUE,
   axis_scale = c("cube", "real", "custom"),
   custom_ratio = NULL,
   x_ticks = NULL,
@@ -50,7 +50,19 @@ spatGenePlot3D(
 
 \item{spatial_network_name}{name of spatial network to use}
 
-\item{show_grid}{show spatial grid}
+\item{edge_alpha}{alpha of edges}
+
+\item{cluster_column}{cluster column to select groups}
+
+\item{select_cell_groups}{select subset of cells/clusters based on cell_color parameter}
+
+\item{select_cells}{select subset of cells based on cell IDs}
+
+\item{show_other_cells}{display not selected cells}
+
+\item{other_cell_color}{color of not selected cells}
+
+\item{other_point_size}{size of not selected cells}
 
 \item{genes_high_color}{color represents high gene expression}
 
@@ -58,11 +70,23 @@ spatGenePlot3D(
 
 \item{genes_low_color}{color represents low gene expression}
 
+\item{show_grid}{show spatial grid}
+
 \item{spatial_grid_name}{name of spatial grid to use}
 
 \item{point_size}{size of point (cell)}
 
 \item{show_legend}{show legend}
+
+\item{axis_scale}{the way to scale the axis}
+
+\item{custom_ratio}{customize the scale of the plot}
+
+\item{x_ticks}{set the number of ticks on the x-axis}
+
+\item{y_ticks}{set the number of ticks on the y-axis}
+
+\item{z_ticks}{set the number of ticks on the z-axis}
 
 \item{show_plot}{show plots}
 
@@ -73,14 +97,6 @@ spatGenePlot3D(
 \item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-
-\item{grid_color}{color of spatial grid}
-
-\item{midpoint}{expression midpoint}
-
-\item{scale_alpha_with_expression}{scale expression with ggplot alpha parameter}
-
-\item{\dots}{additional parameters for cowplot::save_plot()}
 }
 \value{
 ggplot
@@ -90,9 +106,6 @@ Visualize cells and gene expression according to spatial coordinates
 }
 \details{
 Description of parameters.
-}
-\examples{
-    spatGenePlot3D(gobject)
 }
 \seealso{
 Other spatial gene expression visualizations: 

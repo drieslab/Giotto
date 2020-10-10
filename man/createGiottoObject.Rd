@@ -103,7 +103,4 @@ This data can also be added afterwards using the \code{\link{addGeneMetadata}} o
   \item{images}
 }
 }
-\examples{
-    createGiottoObject(raw_exprs, spatial_locs)
-}
 \keyword{giotto}

@@ -17,6 +17,3 @@ an updated spatial ggplot object
 \description{
 Add a giotto image to a spatial ggplot object post creation
 }
-\examples{
-    addGiottoImageToSpatPlot(mg_object)
-}

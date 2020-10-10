@@ -4,49 +4,28 @@
 \alias{filterCPG}
 \title{filterCPG}
 \usage{
-filterCPG(
-  cpgObject,
-  min_cells = 4,
-  min_cells_expr = 1,
-  min_int_cells = 4,
-  min_int_cells_expr = 1,
-  min_fdr = 0.1,
-  min_spat_diff = 0.2,
-  min_log2_fc = 0.2,
-  min_zscore = 2,
-  zscores_column = c("cell_type", "genes"),
-  direction = c("both", "up", "down")
-)
+filterCPG(...)
 }
 \arguments{
-\item{cpgObject}{cell proximity gene score object}
-
-\item{min_cells}{minimum number of source cell type}
-
-\item{min_cells_expr}{minimum expression level for source cell type}
-
-\item{min_int_cells}{minimum number of interacting neighbor cell type}
-
-\item{min_int_cells_expr}{minimum expression level for interacting neighbor cell type}
-
-\item{min_fdr}{minimum adjusted p-value}
-
-\item{min_spat_diff}{minimum absolute spatial expression difference}
-
-\item{min_log2_fc}{minimum log2 fold-change}
-
-\item{min_zscore}{minimum z-score change}
-
-\item{zscores_column}{calculate z-scores over cell types or genes}
-
-\item{direction}{differential expression directions to keep}
-}
-\value{
-cpgObject that contains the filtered differential gene scores
+\item{...}{
+  Arguments passed on to \code{\link[=filterICG]{filterICG}}
+  \describe{
+    \item{\code{cpgObject}}{ICG (interaction changed gene) score object}
+    \item{\code{min_cells}}{minimum number of source cell type}
+    \item{\code{min_cells_expr}}{minimum expression level for source cell type}
+    \item{\code{min_int_cells}}{minimum number of interacting neighbor cell type}
+    \item{\code{min_int_cells_expr}}{minimum expression level for interacting neighbor cell type}
+    \item{\code{min_fdr}}{minimum adjusted p-value}
+    \item{\code{min_spat_diff}}{minimum absolute spatial expression difference}
+    \item{\code{min_log2_fc}}{minimum log2 fold-change}
+    \item{\code{min_zscore}}{minimum z-score change}
+    \item{\code{zscores_column}}{calculate z-scores over cell types or genes}
+    \item{\code{direction}}{differential expression directions to keep}
+  }}
 }
 \description{
-Filter cell proximity gene scores.
+Filter Interaction Changed Gene scores.
 }
-\examples{
-    filterCPG(gobject)
+\seealso{
+\code{\link{filterICG}}
 }

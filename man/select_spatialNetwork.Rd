@@ -9,3 +9,4 @@ select_spatialNetwork(gobject, name = NULL, return_network_Obj = FALSE)
 \description{
 function to select a spatial network
 }
+\keyword{internal}

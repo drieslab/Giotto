@@ -11,6 +11,7 @@ dimPlot(...)
   Arguments passed on to \code{\link[=dimPlot2D]{dimPlot2D}}
   \describe{
     \item{\code{gobject}}{giotto object}
+    \item{\code{group_by}}{create multiple plots based on cell annotation column}
     \item{\code{group_by_subset}}{subset the group_by factor column}
     \item{\code{dim_reduction_to_use}}{dimension reduction to use}
     \item{\code{dim_reduction_name}}{dimension reduction name}
@@ -34,6 +35,8 @@ dimPlot(...)
     \item{\code{show_cluster_center}}{plot center of selected clusters}
     \item{\code{show_center_label}}{plot label of selected clusters}
     \item{\code{center_point_size}}{size of center points}
+    \item{\code{center_point_border_col}}{border color of center points}
+    \item{\code{center_point_border_stroke}}{border stroke size of center points}
     \item{\code{label_size}}{size of labels}
     \item{\code{label_fontface}}{font of labels}
     \item{\code{edge_alpha}}{column to use for alpha of the edges}
@@ -70,7 +73,12 @@ Visualize cells according to dimension reduction coordinates
 Description of parameters, see \code{\link{dimPlot2D}}. For 3D plots see \code{\link{dimPlot3D}}
 }
 \examples{
-    dimPlot(gobject)
+
+data(mini_giotto_single_cell)
+
+dimPlot(mini_giotto_single_cell)
+dimPlot(mini_giotto_single_cell, cell_color = 'cell_types', point_size = 3)
+
 }
 \seealso{
 Other reduced dimension visualizations: 

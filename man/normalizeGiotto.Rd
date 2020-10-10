@@ -67,5 +67,11 @@ counts per cell and multiply by the total number of cells.}
 This data will be saved in the Giotto slot for custom expression.
 }
 \examples{
-    normalizeGiotto(gobject)
+
+
+data(mini_giotto_single_cell)
+
+norm_gobject = normalizeGiotto(mini_giotto_single_cell)
+
+
 }

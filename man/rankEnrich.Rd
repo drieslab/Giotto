@@ -4,47 +4,30 @@
 \alias{rankEnrich}
 \title{rankEnrich}
 \usage{
-rankEnrich(
-  gobject,
-  sign_matrix,
-  expression_values = c("normalized", "scaled", "custom"),
-  reverse_log_scale = TRUE,
-  logbase = 2,
-  output_enrichment = c("original", "zscore")
-)
+rankEnrich(...)
 }
 \arguments{
-\item{gobject}{Giotto object}
-
-\item{sign_matrix}{Matrix of signature genes for each cell type / process}
-
-\item{expression_values}{expression values to use}
-
-\item{reverse_log_scale}{reverse expression values from log scale}
-
-\item{logbase}{log base to use if reverse_log_scale = TRUE}
-
-\item{output_enrichment}{how to return enrichment output}
-}
-\value{
-data.table with enrichment results
+\item{...}{
+  Arguments passed on to \code{\link[=runRankEnrich]{runRankEnrich}}
+  \describe{
+    \item{\code{gobject}}{Giotto object}
+    \item{\code{sign_matrix}}{Matrix of signature genes for each cell type / process}
+    \item{\code{expression_values}}{expression values to use}
+    \item{\code{reverse_log_scale}}{reverse expression values from log scale}
+    \item{\code{logbase}}{log base to use if reverse_log_scale = TRUE}
+    \item{\code{output_enrichment}}{how to return enrichment output}
+    \item{\code{ties_method}}{how to handle rank ties}
+    \item{\code{p_value}}{calculate p-values (boolean, default = FALSE)}
+    \item{\code{n_times}}{number of permutations to calculate for p_value}
+    \item{\code{rbp_p}}{fractional binarization threshold (default = 0.99)}
+    \item{\code{num_agg}}{number of top genes to aggregate (default = 100)}
+    \item{\code{name}}{to give to spatial enrichment results, default = rank}
+    \item{\code{return_gobject}}{return giotto object}
+  }}
 }
 \description{
 Function to calculate gene signature enrichment scores per spatial position using a rank based approach.
 }
-\details{
-sign_matrix: a rank-fold matrix with genes as row names and cell-types as column names.
-Alternatively a scRNA-seq matrix and vector with clusters can be provided to makeSignMatrixRank, which will create
-the matrix for you. \cr
-
-First a new rank is calculated as R = (R1*R2)^(1/2), where R1 is the rank of
-fold-change for each gene in each spot and R2 is the rank of each marker in each cell type.
-The Rank-Biased Precision is then calculated as: RBP = (1 - 0.99) * (0.99)^(R - 1)
-and the final enrichment score is then calculated as the sum of top 100 RBPs.
-}
-\examples{
-    rankEnrich(gobject)
-}
 \seealso{
-\code{\link{makeSignMatrixRank}}
+\code{\link{runRankEnrich}}
 }

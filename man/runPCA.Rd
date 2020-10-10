@@ -11,11 +11,13 @@ runPCA(
   name = "pca",
   genes_to_use = "hvg",
   return_gobject = TRUE,
-  center = F,
-  scale_unit = F,
+  center = TRUE,
+  scale_unit = TRUE,
   ncp = 100,
   method = c("irlba", "factominer"),
   rev = FALSE,
+  set_seed = TRUE,
+  seed_number = 1234,
   verbose = TRUE,
   ...
 )
@@ -33,15 +35,19 @@ runPCA(
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
-\item{center}{center data first (default = FALSE)}
+\item{center}{center data first (default = TRUE)}
 
-\item{scale_unit}{scale features before PCA (default = FALSE)}
+\item{scale_unit}{scale features before PCA (default = TRUE)}
 
 \item{ncp}{number of principal components to calculate}
 
 \item{method}{which implementation to use}
 
 \item{rev}{do a reverse PCA}
+
+\item{set_seed}{use of seed}
+
+\item{seed_number}{seed number to use}
 
 \item{verbose}{verbosity of the function}
 
@@ -64,18 +70,13 @@ See \code{\link[irlba]{prcomp_irlba}} and \code{\link[FactoMineR]{PCA}} for more
 }
 \examples{
 
-# 1. create giotto object
-expr_path = system.file("extdata", "seqfish_field_expr.txt", package = 'Giotto')
-loc_path = system.file("extdata", "seqfish_field_locs.txt", package = 'Giotto')
-VC_small <- createGiottoObject(raw_exprs = expr_path, spatial_locs = loc_path)
+data(mini_giotto_single_cell)
 
-# 2. normalize giotto
-VC_small <- normalizeGiotto(gobject = VC_small, scalefactor = 6000)
-VC_small <- addStatistics(gobject = VC_small)
+# run PCA
+mini_giotto_single_cell <- runPCA(gobject = mini_giotto_single_cell,
+                                  center = TRUE, scale_unit = TRUE)
 
-# 3. dimension reduction
-VC_small <- calculateHVG(gobject = VC_small)
-VC_small <- runPCA(gobject = VC_small)
-plotPCA(VC_small)
+# plot PCA results
+plotPCA(mini_giotto_single_cell)
 
 }

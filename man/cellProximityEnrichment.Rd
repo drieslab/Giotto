@@ -10,7 +10,9 @@ cellProximityEnrichment(
   cluster_column,
   number_of_simulations = 1000,
   adjust_method = c("none", "fdr", "bonferroni", "BH", "holm", "hochberg", "hommel",
-    "BY")
+    "BY"),
+  set_seed = TRUE,
+  seed_number = 1234
 )
 }
 \arguments{
@@ -23,6 +25,10 @@ cellProximityEnrichment(
 \item{number_of_simulations}{number of simulations to create expected observations}
 
 \item{adjust_method}{method to adjust p.values}
+
+\item{set_seed}{use of seed}
+
+\item{seed_number}{seed number to use}
 }
 \value{
 List of cell Proximity scores (CPscores) in data.table format. The first
@@ -39,7 +45,4 @@ of cell-cell proximity interactions. The expected frequency is the average frequ
 calculated from a number of spatial network simulations. Each individual simulation is
 obtained by reshuffling the cell type labels of each node (cell)
 in the spatial network.
-}
-\examples{
-    cellProximityEnrichment(gobject)
 }

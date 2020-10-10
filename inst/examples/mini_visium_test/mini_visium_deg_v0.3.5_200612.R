@@ -80,6 +80,7 @@ brain_small <- createNearestNetwork(gobject = brain_small, dimensions_to_use = 1
 brain_small <- doLeidenCluster(gobject = brain_small, resolution = 0.4, n_iterations = 1000)
 plotUMAP(gobject = brain_small, cell_color = 'leiden_clus', show_NN_network = T, point_size = 2.5)
 
+
 ## 5. co-visualize ####
 spatDimPlot(gobject = brain_small, cell_color = 'leiden_clus',
             dim_point_size = 2, spat_point_size = 2.5)
@@ -169,8 +170,6 @@ brain_small = createSpatialNetwork(gobject = brain_small, minimum_k = 2, method 
 showNetworks(brain_small)
 
 
-
-
 spatPlot(gobject = brain_small, show_network = T,
          network_color = 'blue', spatial_network_name = 'Delaunay_network',
          point_size = 2.5, cell_color = 'leiden_clus')
@@ -199,6 +198,7 @@ spatGenePlot(brain_small, expression_values = 'scaled', genes = silh_spatialgene
              point_shape = 'border', point_border_stroke = 0.1,
              show_network = F, network_color = 'lightgrey', point_size = 2.5,
              cow_n_col = 2)
+
 
 
 ## 11. spatial co-expression patterns ####

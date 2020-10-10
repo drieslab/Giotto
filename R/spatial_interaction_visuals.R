@@ -17,8 +17,6 @@
 #' @details This function creates a barplot that shows the  spatial proximity
 #'  enrichment or depletion of cell type pairs.
 #' @export
-#' @examples
-#'     cellProximityBarplot(CPscore)
 cellProximityBarplot = function(gobject,
                                 CPscore,
                                 min_orig_ints = 5,
@@ -98,8 +96,6 @@ cellProximityBarplot = function(gobject,
 #' @details This function creates a heatmap that shows the  spatial proximity
 #'  enrichment or depletion of cell type pairs.
 #' @export
-#' @examples
-#'     cellProximityHeatmap(CPscore)
 cellProximityHeatmap = function(gobject,
                                 CPscore,
                                 scale = T,
@@ -227,8 +223,6 @@ cellProximityHeatmap = function(gobject,
 #' @details This function creates a network that shows the  spatial proximity
 #'  enrichment or depletion of cell type pairs.
 #' @export
-#' @examples
-#'     cellProximityNetwork(CPscore)
 cellProximityNetwork = function(gobject,
                                 CPscore,
                                 remove_self_edges = FALSE,
@@ -373,34 +367,9 @@ cellProximityNetwork = function(gobject,
 #' @title cellProximityVisPlot_2D_ggplot
 #' @name cellProximityVisPlot_2D_ggplot
 #' @description Visualize 2D cell-cell interactions according to spatial coordinates in ggplot mode
-#' @param gobject giotto object
-#' @param interaction_name cell-cell interaction name
-#' @param cluster_column cluster column with cell clusters
-#' @param sdimx x-axis dimension name (default = 'sdimx')
-#' @param sdimy y-axis dimension name (default = 'sdimy')
-#' @param cell_color color for cells (see details)
-#' @param cell_color_code named vector with colors
-#' @param color_as_factor convert color column to factor
-#' @param show_other_cells decide if show cells not in network
-#' @param show_network show underlying spatial network
-#' @param network_color color of spatial network
-#' @param spatial_network_name name of spatial network to use
-#' @param show_grid show spatial grid
-#' @param grid_color color of spatial grid
-#' @param spatial_grid_name name of spatial grid to use
-#' @param coord_fix_ratio fix ratio between x and y-axis
-#' @param show_legend show legend
-#' @param point_size_select size of selected points
-#' @param point_select_border_col border color of selected points
-#' @param point_select_border_stroke stroke size of selected points
-#' @param point_size_other size of other points
-#' @param point_other_border_col border color of other points
-#' @param point_other_border_stroke stroke size of other points
 #' @return ggplot
 #' @details Description of parameters.
-#' @export
-#' @examples
-#'     cellProximityVisPlot_2D_ggplot(gobject)
+#' @keywords internal
 cellProximityVisPlot_2D_ggplot <- function(gobject,
                                            interaction_name = NULL,
                                            cluster_column = NULL,
@@ -427,6 +396,11 @@ cellProximityVisPlot_2D_ggplot <- function(gobject,
                                            point_other_border_col = 'lightgrey',
                                            point_other_border_stroke = 0.01,
                                            ...){
+
+  # data.table variables
+  unified_int = sdimx_begin = sdimy_begin = sdimx_end = sdimy_end = x_start = x_end = NULL
+  y_start = y_end = cell_ID = NULL
+
   if(is.null(interaction_name)) {
     stop('\n you need to specific at least one interaction name, run cellProximityEnrichment \n')
   }
@@ -566,30 +540,7 @@ cellProximityVisPlot_2D_ggplot <- function(gobject,
 #' @title cellProximityVisPlot_2D_plotly
 #' @name cellProximityVisPlot_2D_plotly
 #' @description Visualize 2D cell-cell interactions according to spatial coordinates in plotly mode
-#' @param gobject giotto object
-#' @param interaction_name cell-cell interaction name
-#' @param cluster_column cluster column with cell clusters
-#' @param sdimx x-axis dimension name (default = 'sdimx')
-#' @param sdimy y-axis dimension name (default = 'sdimy')
-#' @param cell_color color for cells (see details)
-#' @param cell_color_code named vector with colors
-#' @param color_as_factor convert color column to factor
-#' @param show_other_cells decide if show cells not in network
-#' @param show_network show underlying spatial network
-#' @param network_color color of spatial network
-#' @param spatial_network_name name of spatial network to use
-#' @param show_grid show spatial grid
-#' @param grid_color color of spatial grid
-#' @param spatial_grid_name name of spatial grid to use
-#' @param coord_fix_ratio fix ratio between x and y-axis
-#' @param show_legend show legend
-#' @param point_size_select size of selected points
-#' @return plotly
-#' @details Description of parameters.
-#' @export
-#' @examples
-#'     cellProximityVisPlot_2D_plotly(gobject)
-
+#' @keywords internal
 cellProximityVisPlot_2D_plotly <- function(gobject,
                                            interaction_name = NULL,
                                            cluster_column = NULL,
@@ -615,6 +566,11 @@ cellProximityVisPlot_2D_plotly <- function(gobject,
                                            x_ticks = NULL,
                                            y_ticks = NULL,
                                            ...){
+
+
+  # data.table variables
+  cell_ID = unified_int = NULL
+
   if(is.null(interaction_name)) {
     stop('\n you need to specific at least one interaction name, run cellProximityEnrichment \n')
   }
@@ -754,7 +710,7 @@ cellProximityVisPlot_2D_plotly <- function(gobject,
                                    x = ~sdimx, y = ~sdimy,
                                    marker = list(size = point_size_select,color = "lightblue",colors = "lightblue"))
     if(show_other_cells){
-      pl <- pl %>% add_trace(type = 'scatter',mode = 'markers',
+      pl <- pl %>% plotly::add_trace(type = 'scatter',mode = 'markers',
                              data=cell_locations_metadata[cell_ID %in% other_cell_IDs],
                              x = ~sdimx, y = ~sdimy,
                              name = "selected cells outside network",
@@ -782,31 +738,7 @@ cellProximityVisPlot_2D_plotly <- function(gobject,
 #' @title cellProximityVisPlot_3D_plotly
 #' @name cellProximityVisPlot_3D_plotly
 #' @description Visualize 3D cell-cell interactions according to spatial coordinates in plotly mode
-#' @param gobject giotto object
-#' @param interaction_name cell-cell interaction name
-#' @param cluster_column cluster column with cell clusters
-#' @param sdimx x-axis dimension name (default = 'sdimx')
-#' @param sdimy y-axis dimension name (default = 'sdimy')
-#' @param sdimz z-axis dimension name (default = 'sdimz')
-#' @param cell_color color for cells (see details)
-#' @param cell_color_code named vector with colors
-#' @param color_as_factor convert color column to factor
-#' @param show_other_cells decide if show cells not in network
-#' @param show_network show underlying spatial network
-#' @param network_color color of spatial network
-#' @param spatial_network_name name of spatial network to use
-#' @param show_grid show spatial grid
-#' @param grid_color color of spatial grid
-#' @param spatial_grid_name name of spatial grid to use
-#' @param coord_fix_ratio fix ratio between x and y-axis
-#' @param show_legend show legend
-#' @param point_size_select size of selected points
-#' @return plotly
-#' @details Description of parameters.
-#' @export
-#' @examples
-#'     cellProximityVisPlot_3D_plotly(gobject)
-
+#' @keywords internal
 cellProximityVisPlot_3D_plotly <- function(gobject,
                                            interaction_name = NULL,
                                            cluster_column = NULL,
@@ -834,6 +766,9 @@ cellProximityVisPlot_3D_plotly <- function(gobject,
                                            y_ticks = NULL,
                                            z_ticks = NULL,
                                            ...){
+
+  # data.table variables
+  cell_ID = unified_int = NULL
 
   if(is.null(interaction_name)) {
     stop('\n you need to specific at least one interaction name, run cellProximityEnrichment \n')
@@ -937,7 +872,7 @@ cellProximityVisPlot_3D_plotly <- function(gobject,
                         marker = list(size = point_size_other,color = "lightgray",colors = "lightgray"),
                         opacity = point_alpha_other)
     if(show_other_cells){
-      pl <- pl %>% add_trace(type = 'scatter3d',mode = 'markers',
+      pl <- pl %>% plotly::add_trace(type = 'scatter3d',mode = 'markers',
                              data=cell_locations_metadata[cell_ID %in% other_cell_IDs],
                              x = ~sdimx, y = ~sdimy, z = ~sdimz,
                              name = "selected cells outside network",
@@ -988,7 +923,9 @@ cellProximityVisPlot_3D_plotly <- function(gobject,
 #' @param cell_color color for cells (see details)
 #' @param cell_color_code named vector with colors
 #' @param color_as_factor convert color column to factor
+#' @param show_other_cells show not selected cells
 #' @param show_network show underlying spatial network
+#' @param show_other_network show underlying spatial network of other cells
 #' @param network_color color of spatial network
 #' @param spatial_network_name name of spatial network to use
 #' @param show_grid show spatial grid
@@ -1000,13 +937,19 @@ cellProximityVisPlot_3D_plotly <- function(gobject,
 #' @param point_select_border_col border color of selected points
 #' @param point_select_border_stroke stroke size of selected points
 #' @param point_size_other size of other points
+#' @param point_alpha_other alpha of other points
 #' @param point_other_border_col border color of other points
 #' @param point_other_border_stroke stroke size of other points
+#' @param axis_scale scale of axis
+#' @param custom_ratio custom ratio of scales
+#' @param x_ticks x ticks
+#' @param y_ticks y ticks
+#' @param z_ticks z ticks
+#' @param plot_method method to plot
+#' @param \dots additional parameters
 #' @return ggplot or plotly
 #' @details Description of parameters.
 #' @export
-#' @examples
-#'     cellProximityVisPlot(gobject)
 cellProximityVisPlot <- function(gobject,
                                  interaction_name = NULL,
                                  cluster_column = NULL,
@@ -1176,7 +1119,7 @@ cellProximityVisPlot <- function(gobject,
 #' @name plotCellProximityGenes
 #' @description Create visualization for cell proximity gene scores
 #' @param gobject giotto object
-#' @param cpgObject cell proximity gene score object
+#' @param cpgObject ICG (interaction changed gene) score object
 #' @param method plotting method to use
 #' @param min_cells minimum number of source cell type
 #' @param min_cells_expr minimum expression level for source cell type
@@ -1196,8 +1139,6 @@ cellProximityVisPlot <- function(gobject,
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return plot
 #' @export
-#' @examples
-#'     plotCellProximityGenes(CPGscores)
 plotCellProximityGenes = function(gobject,
                                   cpgObject,
                                   method = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey', 'heatmap', 'dotplot'),
@@ -1230,17 +1171,17 @@ plotCellProximityGenes = function(gobject,
 
 
   ## first filter
-  filter_cpg = filterCellProximityGenes(cpgObject = cpgObject,
-                                        min_cells = min_cells,
-                                        min_cells_expr = min_cells_expr,
-                                        min_int_cells = min_int_cells,
-                                        min_int_cells_expr = min_int_cells_expr,
-                                        min_fdr = min_fdr,
-                                        min_spat_diff = min_spat_diff,
-                                        min_log2_fc = min_log2_fc,
-                                        min_zscore = min_zscore,
-                                        zscores_column = zscores_column,
-                                        direction = direction)
+  filter_cpg = filterInteractionChangedGenes(cpgObject = cpgObject,
+                                             min_cells = min_cells,
+                                             min_cells_expr = min_cells_expr,
+                                             min_int_cells = min_int_cells,
+                                             min_int_cells_expr = min_int_cells_expr,
+                                             min_fdr = min_fdr,
+                                             min_spat_diff = min_spat_diff,
+                                             min_log2_fc = min_log2_fc,
+                                             min_zscore = min_zscore,
+                                             zscores_column = zscores_column,
+                                             direction = direction)
 
   complete_part = filter_cpg[['CPGscores']]
 
@@ -1343,7 +1284,8 @@ plotCellProximityGenes = function(gobject,
 
     testalluv = complete_part[, .N, by = c('int_cell_type', 'cell_type')]
 
-    library(ggalluvial)
+    # library(ggalluvial) # this is needed for it to work, why??
+    # maybe use requireNamespace() instead?
 
     pl <- ggplot2::ggplot(testalluv,
                           ggplot2::aes(y = N, axis1 = cell_type, axis2 = int_cell_type)) +
@@ -1444,7 +1386,7 @@ plotCellProximityGenes = function(gobject,
 #' @name plotCPG
 #' @description Create visualization for cell proximity gene scores
 #' @param gobject giotto object
-#' @param cpgObject cell proximity gene score object
+#' @param cpgObject ICG (interaction changed gene) score object
 #' @param method plotting method to use
 #' @param min_cells minimum number of source cell type
 #' @param min_cells_expr minimum expression level for source cell type
@@ -1464,8 +1406,6 @@ plotCellProximityGenes = function(gobject,
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return plot
 #' @export
-#' @examples
-#'     plotCPG(CPGscores)
 plotCPG = function(gobject,
                    cpgObject,
                    method = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey', 'heatmap', 'dotplot'),
@@ -1518,7 +1458,7 @@ plotCPG = function(gobject,
 #' @name plotInteractionChangedGenes
 #' @description Create barplot to visualize interaction changed genes
 #' @param gobject giotto object
-#' @param cpgObject cell proximity gene score object
+#' @param cpgObject ICG (interaction changed gene) score object
 #' @param source_type cell type of the source cell
 #' @param source_markers markers for the source cell type
 #' @param ICG_genes named character vector of ICG genes
@@ -1530,8 +1470,6 @@ plotCPG = function(gobject,
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return plot
 #' @export
-#' @examples
-#'     plotInteractionChangedGenes(CPGscores)
 plotInteractionChangedGenes = function(gobject,
                                        cpgObject,
                                        source_type,
@@ -1623,7 +1561,7 @@ plotInteractionChangedGenes = function(gobject,
 #' @name plotICG
 #' @description Create barplot to visualize interaction changed genes
 #' @param gobject giotto object
-#' @param cpgObject cell proximity gene score object
+#' @param cpgObject ICG (interaction changed gene) score object
 #' @param source_type cell type of the source cell
 #' @param source_markers markers for the source cell type
 #' @param ICG_genes named character vector of ICG genes
@@ -1635,8 +1573,6 @@ plotInteractionChangedGenes = function(gobject,
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return plot
 #' @export
-#' @examples
-#'     plotICG(CPGscores)
 plotICG = function(gobject,
                    cpgObject,
                    source_type,
@@ -1669,11 +1605,11 @@ plotICG = function(gobject,
 
 
 
-#' @title plotCombineCellProximityGenes
-#' @name plotCombineCellProximityGenes
-#' @description Create visualization for combined (pairwise) cell proximity gene scores
+#' @title plotCombineInteractionChangedGenes
+#' @name plotCombineInteractionChangedGenes
+#' @description Create visualization for combined (pairwise) ICG scores
 #' @param gobject giotto object
-#' @param combCpgObject CPGscores, output from combineCellProximityGenes()
+#' @param combCpgObject ICGscores, output from combineInteractionChangedGenes()
 #' @param selected_interactions interactions to show
 #' @param selected_gene_to_gene pairwise gene combinations to show
 #' @param detail_plot show detailed info in both interacting cell types
@@ -1690,24 +1626,22 @@ plotICG = function(gobject,
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
-#' @examples
-#'     plotCombineCellProximityGenes(CPGscores)
-plotCombineCellProximityGenes <- function(gobject,
-                                          combCpgObject,
-                                          selected_interactions = NULL,
-                                          selected_gene_to_gene = NULL,
-                                          detail_plot = T,
-                                          simple_plot = F,
-                                          simple_plot_facet = c('interaction', 'genes'),
-                                          facet_scales = 'fixed',
-                                          facet_ncol = length(selected_gene_to_gene),
-                                          facet_nrow = length(selected_interactions),
-                                          colors = c('#9932CC', '#FF8C00'),
-                                          show_plot = NA,
-                                          return_plot = NA,
-                                          save_plot = NA,
-                                          save_param =  list(),
-                                          default_save_name = 'plotCombineCPG') {
+plotCombineInteractionChangedGenes <- function(gobject,
+                                               combCpgObject,
+                                               selected_interactions = NULL,
+                                               selected_gene_to_gene = NULL,
+                                               detail_plot = T,
+                                               simple_plot = F,
+                                               simple_plot_facet = c('interaction', 'genes'),
+                                               facet_scales = 'fixed',
+                                               facet_ncol = length(selected_gene_to_gene),
+                                               facet_nrow = length(selected_interactions),
+                                               colors = c('#9932CC', '#FF8C00'),
+                                               show_plot = NA,
+                                               return_plot = NA,
+                                               save_plot = NA,
+                                               save_param =  list(),
+                                               default_save_name = 'plotCombineICG') {
 
 
 
@@ -1806,11 +1740,27 @@ plotCombineCellProximityGenes <- function(gobject,
 
 
 
-#' @title plotCombineCPG
-#' @name plotCombineCPG
-#' @description Create visualization for combined (pairwise) cell proximity gene scores
+#' @title plotCombineCellProximityGenes
+#' @description Create visualization for combined (pairwise) ICG scores
+#' @inheritDotParams plotCombineInteractionChangedGenes
+#' @seealso \code{\link{plotCombineInteractionChangedGenes}}
+#' @export
+plotCombineCellProximityGenes <- function(...) {
+
+  .Deprecated(new = "plotCombineInteractionChangedGenes")
+
+  plotCombineInteractionChangedGenes(...)
+
+}
+
+
+
+
+#' @title plotCombineICG
+#' @name plotCombineICG
+#' @description Create visualization for combined (pairwise) ICG scores
 #' @param gobject giotto object
-#' @param combCpgObject CPGscores, output from combineCellProximityGenes()
+#' @param combCpgObject ICGscores, output from combineInteractionChangedGenes()
 #' @param selected_interactions interactions to show
 #' @param selected_gene_to_gene pairwise gene combinations to show
 #' @param detail_plot show detailed info in both interacting cell types
@@ -1827,9 +1777,7 @@ plotCombineCellProximityGenes <- function(gobject,
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
-#' @examples
-#'     plotCombineCPG(CPGscores)
-plotCombineCPG <- function(gobject,
+plotCombineICG <- function(gobject,
                            combCpgObject,
                            selected_interactions = NULL,
                            selected_gene_to_gene = NULL,
@@ -1844,7 +1792,7 @@ plotCombineCPG <- function(gobject,
                            return_plot = NA,
                            save_plot = NA,
                            save_param =  list(),
-                           default_save_name = 'plotCombineCPG') {
+                           default_save_name = 'plotCombineICG') {
 
 
   plotCombineCellProximityGenes(gobject = gobject,
@@ -1869,6 +1817,18 @@ plotCombineCPG <- function(gobject,
 
 
 
+#' @title plotCombineCPG
+#' @description Create visualization for combined (pairwise) ICG scores
+#' @inheritDotParams plotCombineICG
+#' @seealso \code{\link{plotCombineICG}}
+#' @export
+plotCombineCPG <- function(...) {
+
+  .Deprecated(new = "plotCombineICG")
+
+  plotCombineICG(...)
+
+}
 
 
 
@@ -1897,8 +1857,6 @@ plotCombineCPG <- function(gobject,
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
-#' @examples
-#'     plotCombineCellCellCommunication(CPGscores)
 plotCombineCellCellCommunication <- function(gobject,
                                              combCCcom,
                                              selected_LR = NULL,
@@ -2029,8 +1987,6 @@ plotCombineCellCellCommunication <- function(gobject,
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
-#' @examples
-#'     plotCombineCCcom(CPGscores)
 plotCombineCCcom = function(gobject,
                             combCCcom,
                             selected_LR = NULL,
@@ -2089,8 +2045,6 @@ plotCombineCCcom = function(gobject,
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
-#' @examples
-#'     plotCCcomHeatmap(CPGscores)
 plotCCcomHeatmap = function(gobject,
                             comScores,
                             selected_LR = NULL,
@@ -2201,7 +2155,6 @@ plotCCcomHeatmap = function(gobject,
 #' @param cluster_on values to use for clustering of cell-cell and ligand-receptor pairs
 #' @param cor_method correlation method used for clustering
 #' @param aggl_method agglomeration method used by hclust
-#' @param show values to show on heatmap
 #' @param show_plot show plots
 #' @param return_plot return plotting object
 #' @param save_plot directly save the plot [boolean]
@@ -2209,8 +2162,6 @@ plotCCcomHeatmap = function(gobject,
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
-#' @examples
-#'     plotCCcomDotplot(CPGscores)
 plotCCcomDotplot = function(gobject,
                             comScores,
                             selected_LR = NULL,
@@ -2335,8 +2286,6 @@ plotCCcomDotplot = function(gobject,
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
-#' @examples
-#'     plotRankSpatvsExpr(CPGscores)
 plotRankSpatvsExpr = function(gobject,
                               combCC,
                               expr_rnk_column = 'LR_expr_rnk',
@@ -2431,8 +2380,6 @@ plotRankSpatvsExpr = function(gobject,
 #' @param combCC combined communinication scores from \code{\link{combCCcom}}
 #' @param first_col first column to use
 #' @param second_col second column to use
-#' @examples
-#'     plotRecovery_sub(CPGscores)
 plotRecovery_sub = function(combCC,
                             first_col = 'LR_expr_rnk',
                             second_col = 'LR_spat_rnk') {
@@ -2499,8 +2446,6 @@ plotRecovery_sub = function(combCC,
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @export
-#' @examples
-#'     plotRecovery(CPGscores)
 plotRecovery = function(gobject,
                         combCC,
                         expr_rnk_column = 'exprPI_rnk',
@@ -2600,8 +2545,6 @@ plotRecovery = function(gobject,
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
-#' @examples
-#'     cellProximitySpatPlot2D(gobject)
 cellProximitySpatPlot2D <- function(gobject,
                                     interaction_name = NULL,
                                     cluster_column = NULL,
@@ -2795,40 +2738,11 @@ cellProximitySpatPlot2D <- function(gobject,
 #' @name cellProximitySpatPlot
 #' @description Visualize 2D cell-cell interactions according to spatial coordinates in ggplot mode
 #' @param gobject giotto object
-#' @param interaction_name cell-cell interaction name
-#' @param cluster_column cluster column with cell clusters
-#' @param sdimx x-axis dimension name (default = 'sdimx')
-#' @param sdimy y-axis dimension name (default = 'sdimy')
-#' @param cell_color color for cells (see details)
-#' @param cell_color_code named vector with colors
-#' @param color_as_factor convert color column to factor
-#' @param show_other_cells decide if show cells not in network
-#' @param show_network show underlying spatial network
-#' @param network_color color of spatial network
-#' @param spatial_network_name name of spatial network to use
-#' @param show_grid show spatial grid
-#' @param grid_color color of spatial grid
-#' @param spatial_grid_name name of spatial grid to use
-#' @param coord_fix_ratio fix ratio between x and y-axis
-#' @param show_legend show legend
-#' @param point_size_select size of selected points
-#' @param point_select_border_col border color of selected points
-#' @param point_select_border_stroke stroke size of selected points
-#' @param point_size_other size of other points
-#' @param point_other_border_col border color of other points
-#' @param point_other_border_stroke stroke size of other points
-#' @param show_plot show plots
-#' @param return_plot return ggplot object
-#' @param save_plot directly save the plot [boolean]
-#' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
-#' @param default_save_name default save name for saving, don't change, change save_name in save_param
-#' @param \dots additional parameters
+#' @inheritDotParams cellProximitySpatPlot2D -gobject
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
 #' @seealso  \code{\link{cellProximitySpatPlot2D}} and \code{\link{cellProximitySpatPlot3D}} for 3D
-#' @examples
-#'     cellProximitySpatPlot(gobject)
 cellProximitySpatPlot = function(gobject, ...) {
 
   cellProximitySpatPlot2D(gobject = gobject, ...)
@@ -2874,9 +2788,6 @@ cellProximitySpatPlot = function(gobject, ...) {
 #' @return plotly
 #' @details Description of parameters.
 #' @export
-#' @examples
-#'     cellProximitySpatPlot3D(gobject)
-
 cellProximitySpatPlot3D = function(gobject,
                                    interaction_name = NULL,
                                    cluster_column = NULL,

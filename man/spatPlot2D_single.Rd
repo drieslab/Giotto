@@ -175,9 +175,6 @@ Visualize cells according to spatial coordinates
 \details{
 Description of parameters.
 }
-\examples{
-    spatPlot2D_single(gobject)
-}
 \seealso{
 \code{\link{spatPlot3D}}
 }

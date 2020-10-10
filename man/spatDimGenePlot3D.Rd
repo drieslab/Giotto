@@ -23,20 +23,21 @@ spatDimGenePlot3D(
   show_other_cells = T,
   other_cell_color = "lightgrey",
   other_point_size = 1.5,
-  show_NN_network = F,
+  show_NN_network = FALSE,
   nn_network_to_use = "sNN",
+  nn_network_color = "lightgrey",
+  nn_network_alpha = 0.5,
   network_name = "sNN.pca",
   label_size = 16,
   genes_low_color = "blue",
   genes_mid_color = "white",
   genes_high_color = "red",
   dim_point_size = 3,
-  nn_network_alpha = 0.5,
-  show_spatial_network = F,
+  show_spatial_network = FALSE,
   spatial_network_name = "Delaunay_network",
-  network_color = "lightgray",
+  spatial_network_color = "lightgray",
   spatial_network_alpha = 0.5,
-  show_spatial_grid = F,
+  show_spatial_grid = FALSE,
   spatial_grid_name = "spatial_grid",
   spatial_grid_color = NULL,
   spatial_grid_alpha = 0.5,
@@ -71,21 +72,75 @@ spatDimGenePlot3D(
 
 \item{dim3_to_use}{dimension to use on z-axis}
 
+\item{sdimx}{spatial dimension to use on x-axis}
+
+\item{sdimy}{spatial dimension to use on y-axis}
+
+\item{sdimz}{spatial dimension to use on z-axis}
+
 \item{genes}{genes to show}
+
+\item{cluster_column}{cluster column to select groups}
+
+\item{select_cell_groups}{select subset of cells/clusters based on cell_color parameter}
+
+\item{select_cells}{select subset of cells based on cell IDs}
+
+\item{show_other_cells}{display not selected cells}
+
+\item{other_cell_color}{color of not selected cells}
+
+\item{other_point_size}{size of not selected cells}
 
 \item{show_NN_network}{show underlying NN network}
 
 \item{nn_network_to_use}{type of NN network to use (kNN vs sNN)}
 
+\item{nn_network_color}{color of NN network}
+
+\item{nn_network_alpha}{alpha of NN network}
+
 \item{network_name}{name of NN network to use, if show_NN_network = TRUE}
+
+\item{label_size}{size of labels}
+
+\item{genes_low_color}{color for low expression levels}
+
+\item{genes_mid_color}{color for medium expression levels}
+
+\item{genes_high_color}{color for high expression levels}
 
 \item{dim_point_size}{dim reduction plot: point size}
 
+\item{show_spatial_network}{show spatial network (boolean)}
+
 \item{spatial_network_name}{name of spatial network to use}
+
+\item{spatial_network_color}{color of spatial network}
+
+\item{spatial_network_alpha}{alpha of spatial network}
+
+\item{show_spatial_grid}{show spatial grid (boolean)}
 
 \item{spatial_grid_name}{name of spatial grid to use}
 
+\item{spatial_grid_color}{color of spatial grid}
+
+\item{spatial_grid_alpha}{alpha of spatial grid}
+
 \item{spatial_point_size}{spatial plot: point size}
+
+\item{legend_text_size}{size of legend}
+
+\item{axis_scale}{the way to scale the axis}
+
+\item{custom_ratio}{customize the scale of the plot}
+
+\item{x_ticks}{set the number of ticks on the x-axis}
+
+\item{y_ticks}{set the number of ticks on the y-axis}
+
+\item{z_ticks}{set the number of ticks on the z-axis}
 
 \item{show_plot}{show plots}
 
@@ -96,14 +151,6 @@ spatDimGenePlot3D(
 \item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-
-\item{edge_alpha_dim}{dim reduction plot: column to use for alpha of the edges}
-
-\item{scale_alpha_with_expression}{scale expression with ggplot alpha parameter}
-
-\item{point_size}{size of point (cell)}
-
-\item{show_legend}{show legend}
 }
 \value{
 plotly
@@ -113,9 +160,6 @@ Visualize cells according to spatial AND dimension reduction coordinates in ggpl
 }
 \details{
 Description of parameters.
-}
-\examples{
-    spatDimGenePlot3D(gobject)
 }
 \seealso{
 Other spatial and dimension reduction gene expression visualizations: 

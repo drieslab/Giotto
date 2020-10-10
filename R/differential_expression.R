@@ -9,6 +9,7 @@
 #' @param subset_clusters selection of clusters to compare
 #' @param group_1 group 1 cluster IDs from cluster_column for pairwise comparison
 #' @param group_2 group 2 cluster IDs from cluster_column for pairwise comparison
+#' @param verbose be verbose (default = FALSE)
 #' @param ... additional parameters for the findMarkers function in scran
 #' @return data.table with marker genes
 #' @details This is a minimal convenience wrapper around
@@ -19,23 +20,35 @@
 #'
 #' @export
 #' @examples
-#'     findScranMarkers(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' scran_markers = findScranMarkers(gobject = mini_giotto_single_cell,
+#'                                  cluster_column = 'leiden_clus',
+#'                                  group_1 = 1,
+#'                                  group_2 = 2)
+#'
 findScranMarkers <- function(gobject,
                              expression_values = c('normalized', 'scaled', 'custom'),
                              cluster_column,
                              subset_clusters = NULL,
                              group_1 = NULL,
                              group_2 = NULL,
+                             verbose = FALSE,
                              ...) {
 
 
-  if("scran" %in% rownames(installed.packages()) == FALSE) {
-    stop("\n package 'scran' is not yet installed \n",
-         "To install: \n",
-         "if (!requireNamespace('BiocManager', quietly = TRUE)) install.packages('BiocManager');
-         BiocManager::install('scran')"
-    )
-  }
+  # verify if optional package is installed
+  package_check(pkg_name = "scran", repository = "Bioc")
+
+
+  # print message with information #
+  if(verbose) message("using 'Scran' to detect marker genes. If used in published research, please cite:
+  Lun ATL, McCarthy DJ, Marioni JC (2016).
+  'A step-by-step workflow for low-level analysis of single-cell RNA-seq data with Bioconductor.'
+  F1000Res., 5, 2122. doi: 10.12688/f1000research.9501.2. ")
+
+
 
   # expression data
   values = match.arg(expression_values, choices = c('normalized', 'scaled', 'custom'))
@@ -114,7 +127,12 @@ findScranMarkers <- function(gobject,
 #' @seealso \code{\link{findScranMarkers}}
 #' @export
 #' @examples
-#'     findScranMarkers_one_vs_all(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' scran_markers = findScranMarkers_one_vs_all(gobject = mini_giotto_single_cell,
+#'                                             cluster_column = 'leiden_clus')
+#'
 findScranMarkers_one_vs_all <- function(gobject,
                                         expression_values = c('normalized', 'scaled', 'custom'),
                                         cluster_column,
@@ -126,13 +144,14 @@ findScranMarkers_one_vs_all <- function(gobject,
                                         ...) {
 
 
-  if("scran" %in% rownames(installed.packages()) == FALSE) {
-    stop("\n package 'scran' is not yet installed \n",
-         "To install: \n",
-         "if (!requireNamespace('BiocManager', quietly = TRUE)) install.packages('BiocManager');
-         BiocManager::install('scran')"
-    )
-  }
+  # verify if optional package is installed
+  package_check(pkg_name = "scran", repository = "Bioc")
+
+  # print message with information #
+  if(verbose) message("using 'Scran' to detect marker genes. If used in published research, please cite:
+  Lun ATL, McCarthy DJ, Marioni JC (2016).
+  'A step-by-step workflow for low-level analysis of single-cell RNA-seq data with Bioconductor.'
+  F1000Res., 5, 2122. doi: 10.12688/f1000research.9501.2. ")
 
   # expression data
   values = match.arg(expression_values, choices = c('normalized', 'scaled', 'custom'))
@@ -176,7 +195,8 @@ findScranMarkers_one_vs_all <- function(gobject,
                                expression_values = values,
                                cluster_column = cluster_column,
                                group_1 = selected_clus,
-                               group_2 = other_clus )
+                               group_2 = other_clus,
+                               verbose = FALSE)
 
     # identify list to continue with
     select_bool = unlist(lapply(markers, FUN = function(x) {
@@ -246,7 +266,14 @@ findScranMarkers_one_vs_all <- function(gobject,
 #'
 #' @export
 #' @examples
-#'     findGiniMarkers(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' gini_markers = findGiniMarkers(gobject = mini_giotto_single_cell,
+#'                                cluster_column = 'leiden_clus',
+#'                                group_1 = 1,
+#'                                group_2 = 2)
+#'
 findGiniMarkers <- function(gobject,
                             expression_values = c('normalized', 'scaled', 'custom'),
                             cluster_column,
@@ -398,7 +425,12 @@ findGiniMarkers <- function(gobject,
 #' @seealso \code{\link{findGiniMarkers}}
 #' @export
 #' @examples
-#'     findGiniMarkers_one_vs_all(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' gini_markers = findGiniMarkers_one_vs_all(gobject = mini_giotto_single_cell,
+#'                                           cluster_column = 'leiden_clus')
+#'
 findGiniMarkers_one_vs_all <- function(gobject,
                                        expression_values = c('normalized', 'scaled', 'custom'),
                                        cluster_column,
@@ -486,13 +518,24 @@ findGiniMarkers_one_vs_all <- function(gobject,
 #' @param group_2 group 2 cluster IDs from cluster_column for pairwise comparison
 #' @param group_2_name custom name for group_2 clusters
 #' @param adjust_columns column in pDataDT to adjust for (e.g. detection rate)
+#' @param verbose be verbose
 #' @param ... additional parameters for the zlm function in MAST
 #' @return data.table with marker genes
 #' @details This is a minimal convenience wrapper around the \code{\link[MAST]{zlm}}
-#' from the MAST package to detect differentially expressed genes.
+#' from the MAST package to detect differentially expressed genes. Caution: with large datasets
+#' MAST might take a long time to run and finish
 #' @export
 #' @examples
-#'     findMastMarkers(gobject)
+#'
+#' \dontrun{
+#' data(mini_giotto_single_cell)
+#'
+#' mast_markers = findMastMarkers(gobject = mini_giotto_single_cell,
+#'                                cluster_column = 'leiden_clus',
+#'                                group_1 = 1,
+#'                                group_2 = 2)
+#' }
+#'
 findMastMarkers <- function(gobject,
                             expression_values = c('normalized', 'scaled', 'custom'),
                             cluster_column,
@@ -501,15 +544,18 @@ findMastMarkers <- function(gobject,
                             group_2 = NULL,
                             group_2_name = NULL,
                             adjust_columns = NULL,
+                            verbose = FALSE,
                             ...) {
 
-  if("MAST" %in% rownames(installed.packages()) == FALSE) {
-    stop("\n package 'MAST' is not yet installed \n",
-         "To install: \n",
-         "if (!requireNamespace('BiocManager', quietly = TRUE)) install.packages('BiocManager');
-         BiocManager::install('MAST')"
-    )
-  }
+
+  # verify if optional package is installed
+  package_check(pkg_name = "MAST", repository = "Bioc")
+
+  # print message with information #
+  if(verbose) message("using 'MAST' to detect marker genes. If used in published research, please cite:
+  McDavid A, Finak G, Yajima M (2020).
+  MAST: Model-based Analysis of Single Cell Transcriptomics. R package version 1.14.0,
+  https://github.com/RGLab/MAST/.")
 
   ## select expression values to use
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
@@ -628,7 +674,12 @@ findMastMarkers <- function(gobject,
 #' @seealso \code{\link{findMastMarkers}}
 #' @export
 #' @examples
-#'     findMastMarkers_one_vs_all(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' mast_markers = findMastMarkers_one_vs_all(gobject = mini_giotto_single_cell,
+#'                                           cluster_column = 'leiden_clus')
+#'
 findMastMarkers_one_vs_all = function(gobject,
                                       expression_values = c('normalized', 'scaled', 'custom'),
                                       cluster_column,
@@ -641,13 +692,14 @@ findMastMarkers_one_vs_all = function(gobject,
                                       ...) {
 
 
-  if("MAST" %in% rownames(installed.packages()) == FALSE) {
-    stop("\n package 'MAST' is not yet installed \n",
-         "To install: \n",
-         "if (!requireNamespace('BiocManager', quietly = TRUE)) install.packages('BiocManager');
-         BiocManager::install('MAST')"
-    )
-  }
+  # verify if optional package is installed
+  package_check(pkg_name = "MAST", repository = "Bioc")
+
+  # print message with information #
+  if(verbose) message("using 'MAST' to detect marker genes. If used in published research, please cite:
+  McDavid A, Finak G, Yajima M (2020).
+  MAST: Model-based Analysis of Single Cell Transcriptomics. R package version 1.14.0,
+  https://github.com/RGLab/MAST/.")
 
 
   ## cluster column
@@ -687,7 +739,8 @@ findMastMarkers_one_vs_all = function(gobject,
                                         group_1 = selected_clus,
                                         group_1_name = selected_clus,
                                         group_2 = other_clus,
-                                        group_2_name = 'others')
+                                        group_2_name = 'others',
+                                        verbose = FALSE)
 
     result_list[[clus_i]] = temp_mast_markers
 
@@ -735,8 +788,6 @@ findMastMarkers_one_vs_all = function(gobject,
 #' @details Wrapper for all individual functions to detect marker genes for clusters.
 #' @seealso \code{\link{findScranMarkers}}, \code{\link{findGiniMarkers}} and \code{\link{findMastMarkers}}
 #' @export
-#' @examples
-#'     findMarkers(gobject)
 findMarkers <- function(gobject,
                         expression_values = c('normalized', 'scaled', 'custom'),
                         cluster_column = NULL,
@@ -767,7 +818,7 @@ findMarkers <- function(gobject,
 
     markers_result =  findScranMarkers(gobject = gobject,
                                        expression_values = expression_values,
-                                       cluster_colum = cluster_column,
+                                       cluster_column = cluster_column,
                                        subset_clusters = subset_clusters,
                                        group_1 = group_1,
                                        group_2 = group_2, ...)
@@ -826,8 +877,6 @@ findMarkers <- function(gobject,
 #' @details Wrapper for all one vs all functions to detect marker genes for clusters.
 #' @seealso \code{\link{findScranMarkers_one_vs_all}}, \code{\link{findGiniMarkers_one_vs_all}} and \code{\link{findMastMarkers_one_vs_all}}
 #' @export
-#' @examples
-#'     findMarkers_one_vs_all(gobject)
 findMarkers_one_vs_all <- function(gobject,
                                    expression_values = c('normalized', 'scaled', 'custom'),
                                    cluster_column,

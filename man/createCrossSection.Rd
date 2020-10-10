@@ -34,7 +34,7 @@ createCrossSection(
 
 \item{thickness_unit}{unit of the virtual section thickness. If "cell", average size of the observed cells is used as length unit. If "natural", the unit of cell location coordinates is used.(default = cell)}
 
-\item{slice_thickness}{thickness of slice}
+\item{slice_thickness}{thickness of slice. default = 2}
 
 \item{cell_distance_estimate_method}{method to estimate average distance between neighobring cells. (default = mean)}
 

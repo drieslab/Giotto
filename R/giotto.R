@@ -100,10 +100,12 @@ giotto <- setClass(
 
 
 
-#' @title show method for giotto class
-#' @keywords giotto, object
-#'
-#' @export
+#' show method for giotto class
+#' @param object giotto object
+#' @aliases show,giotto-method
+#' @docType methods
+#' @rdname show-methods
+
 setMethod(
   f = "show",
   signature = "giotto",
@@ -123,28 +125,6 @@ setMethod(
   }
 )
 
-
-#' @title print method for giotto class
-#' @description print method for giotto class.
-#' Prints the chosen number of genes (rows) and cells (columns) from the raw count matrix.
-#' Also print the spatial locations for the chosen number of cells.
-#' @param nr_genes number of genes (rows) to print
-#' @param nr_cells number of cells (columns) to print
-#' @keywords giotto, object
-#'
-#' @export
-setGeneric(name = "print.giotto",
-           def = function(object, ...) {
-             standardGeneric("print.giotto")
-           })
-
-setMethod(f = "print.giotto",
-          signature = "giotto",
-          definition = function(object, nr_genes = 5, nr_cells = 5) {
-            print(object@raw_exprs[1:nr_genes, 1:nr_cells])
-            cat('\n')
-            print(object@spatial_locs[1:nr_cells,])
-          })
 
 
 
@@ -307,11 +287,10 @@ set_giotto_python_path = function(python_path = NULL,
 #' @param units units of format (defaults to in)
 #' @param height height of plots
 #' @param width width of  plots
+#' @param is_docker using docker implementation of Giotto (defaults to FALSE)
 #' @return named vector with giotto instructions
 #' @seealso More online information can be found here \url{https://rubd.github.io/Giotto_site/articles/instructions_and_plotting.html}
 #' @export
-#' @examples
-#'     createGiottoInstructions()
 createGiottoInstructions <- function(python_path =  NULL,
                                      show_plot = NULL,
                                      return_plot = NULL,
@@ -321,10 +300,15 @@ createGiottoInstructions <- function(python_path =  NULL,
                                      dpi = NULL,
                                      units = NULL,
                                      height = NULL,
-                                     width = NULL) {
+                                     width = NULL,
+                                     is_docker = FALSE) {
 
   # pyton path to use
-  python_path = set_giotto_python_path(python_path = python_path)
+  if(is_docker){
+    python_path = set_giotto_python_path(python_path = "/usr/bin/python3") # fixed in docker version
+  }  else{
+    python_path = set_giotto_python_path(python_path = python_path)
+  }
 
   # print plot to console
   if(is.null(show_plot)) {
@@ -378,9 +362,9 @@ createGiottoInstructions <- function(python_path =  NULL,
   width = as.numeric(width)
 
   instructions_list = list(python_path, show_plot, return_plot,
-                           save_plot, save_dir, plot_format, dpi, units, height, width)
+                           save_plot, save_dir, plot_format, dpi, units, height, width, is_docker)
   names(instructions_list) = c('python_path', 'show_plot', 'return_plot',
-                               'save_plot', 'save_dir', 'plot_format', 'dpi', 'units', 'height', 'width')
+                               'save_plot', 'save_dir', 'plot_format', 'dpi', 'units', 'height', 'width', 'is_docker')
   return(instructions_list)
 
 }
@@ -392,8 +376,6 @@ createGiottoInstructions <- function(python_path =  NULL,
 #' @param param parameter to retrieve
 #' @return specific parameter
 #' @export
-#' @examples
-#'     readGiottoInstrunctions()
 readGiottoInstructions <- function(giotto_instructions,
                                    param = NULL) {
 
@@ -419,8 +401,6 @@ readGiottoInstructions <- function(giotto_instructions,
 #' @param gobject giotto object
 #' @return named vector with giotto instructions
 #' @export
-#' @examples
-#'     showGiottoInstructions()
 showGiottoInstructions = function(gobject) {
 
   instrs = gobject@instructions
@@ -436,8 +416,6 @@ showGiottoInstructions = function(gobject) {
 #' @param return_gobject (boolean) return giotto object
 #' @return giotto object with one or more changed instructions
 #' @export
-#' @examples
-#'     changeGiottoInstructions()
 changeGiottoInstructions = function(gobject,
                                     params = NULL,
                                     new_values = NULL,
@@ -493,8 +471,6 @@ changeGiottoInstructions = function(gobject,
 #' @param instructions new instructions (e.g. result from createGiottoInstructions)
 #' @return giotto object with replaces instructions
 #' @export
-#' @examples
-#'     replaceGiottoInstructions()
 replaceGiottoInstructions = function(gobject,
                                      instructions = NULL) {
 
@@ -520,20 +496,17 @@ replaceGiottoInstructions = function(gobject,
 #' @return sparse matrix
 #' @details The expression matrix needs to have both unique column names and row names
 #' @export
-#' @examples
-#'     readExprMatrix()
-readExprMatrix = function(path, cores = NA, transpose = FALSE) {
+readExprMatrix = function(path,
+                          cores = NA,
+                          transpose = FALSE) {
 
   # check if path is a character vector and exists
   if(!is.character(path)) stop('path needs to be character vector')
   if(!file.exists(path)) stop('the path: ', path, ' does not exist')
 
   # set number of cores automatically, but with limit of 10
-  if(is.na(cores) | !is.numeric(cores)) {
-    cores = parallel::detectCores() - 2
-    cores = ifelse(cores > 10, 10, cores)
-    data.table::setDTthreads(threads = cores)
-  }
+  cores = determine_cores(cores)
+  data.table::setDTthreads(threads = cores)
 
   # read and convert
   DT = suppressWarnings(data.table::fread(input = path, nThread = cores))
@@ -556,8 +529,6 @@ readExprMatrix = function(path, cores = NA, transpose = FALSE) {
 #' @return sparse matrix
 #' @details The inputmatrix can be a matrix, sparse matrix, data.frame, data.table or path to any of these.
 #' @keywords internal
-#' @examples
-#'     evaluate_expr_matrix()
 evaluate_expr_matrix = function(inputmatrix,
                                 sparse = TRUE,
                                 cores = NA) {
@@ -586,6 +557,85 @@ evaluate_expr_matrix = function(inputmatrix,
   }
 
   return(mymatrix)
+}
+
+
+
+#' @title evaluate_spatial_locations
+#' @description Evaluate spatial location input
+#' @param spatial_locs spatial locations to evaluate
+#' @param cores how many cores to use
+#' @param dummy_n number of rows to create dummy spaial locations
+#' @param expr_matrix expression matrix to compare the cell IDs with
+#' @return data.table
+#' @keywords internal
+evaluate_spatial_locations = function(spatial_locs,
+                                      cores = 1,
+                                      dummy_n = 2,
+                                      expr_matrix = NULL) {
+
+  if(is.null(spatial_locs)) {
+    warning('\n spatial locations are not given, dummy 3D data will be created \n')
+    spatial_locs = data.table::data.table(sdimx = 1:dummy_n,
+                                          sdimy = 1:dummy_n,
+                                          sdimz = 1:dummy_n)
+
+  } else {
+
+    if(!any(class(spatial_locs) %in% c('data.table', 'data.frame', 'matrix', 'character'))) {
+      stop('spatial_locs needs to be a data.table or data.frame-like object or a path to one of these')
+    }
+    if(methods::is(spatial_locs, 'character')) {
+      if(!file.exists(spatial_locs)) stop('path to spatial locations does not exist')
+      spatial_locs = data.table::fread(input = spatial_locs, nThread = cores)
+    } else {
+      spatial_locs = data.table::as.data.table(spatial_locs)
+    }
+
+
+    # check if all columns are numeric
+    column_classes = lapply(spatial_locs, FUN = class)
+    #non_numeric_classes = column_classes[column_classes != 'numeric']
+    non_numeric_classes = column_classes[!column_classes %in% c('numeric','integer')]
+
+    if(length(non_numeric_classes) > 0) {
+
+      non_numeric_indices = which(!column_classes %in% c('numeric','integer'))
+
+      warning('There are non numeric or integer columns for the spatial location input at column position(s): ', non_numeric_indices,
+              '\n The first non-numeric column will be considered as a cell ID to test for consistency with the expression matrix',
+              '\n Other non numeric columns will be removed')
+
+      if(!is.null(expr_matrix)) {
+        potential_cell_IDs = spatial_locs[[ non_numeric_indices[1] ]]
+        expr_matrix_IDs = colnames(expr_matrix)
+
+        if(!identical(potential_cell_IDs, expr_matrix_IDs)) {
+          warning('The cell IDs from the expression matrix and spatial locations do not seem to be identical')
+        }
+
+      }
+
+
+      spatial_locs = spatial_locs[,-non_numeric_indices, with = F]
+
+    }
+
+    # check number of columns: too few
+    if(ncol(spatial_locs) < 2) {
+      stop('There need to be at least 2 numeric columns for spatial locations \n')
+    }
+
+    # check number of columns: too many
+    if(ncol(spatial_locs) > 3) {
+      warning('There are more than 3 columns for spatial locations, only the first 3 will be used \n')
+      spatial_locs = spatial_locs[, 1:3]
+    }
+
+  }
+
+
+  return(spatial_locs)
 }
 
 
@@ -646,9 +696,8 @@ evaluate_expr_matrix = function(inputmatrix,
 #' }
 #'
 #' @keywords giotto
+#' @importFrom methods new
 #' @export
-#' @examples
-#'     createGiottoObject(raw_exprs, spatial_locs)
 createGiottoObject <- function(raw_exprs,
                                spatial_locs = NULL,
                                norm_expr = NULL,
@@ -707,13 +756,9 @@ createGiottoObject <- function(raw_exprs,
   }
 
 
-  # set number of cores automatically, but with limit of 10
-  if(is.na(cores) | !is.numeric(cores)) {
-    cores = parallel::detectCores() - 2
-    cores = ifelse(cores > 10, 10, cores)
-    data.table::setDTthreads(threads = cores)
-  }
-
+  # if cores is not set, then set number of cores automatically, but with limit of 10
+  cores = determine_cores(cores)
+  data.table::setDTthreads(threads = cores)
 
   ## read expression matrix
   raw_exprs = evaluate_expr_matrix(raw_exprs, cores = cores, sparse = TRUE)
@@ -751,27 +796,12 @@ createGiottoObject <- function(raw_exprs,
 
 
   ## spatial locations
+  dummy_n = ncol(raw_exprs)
+  spatial_locs = evaluate_spatial_locations(spatial_locs = spatial_locs,
+                                            cores = cores,
+                                            dummy_n = dummy_n,
+                                            expr_matrix = raw_exprs)
 
-  # create dummy spatial data if no information is given
-  if(is.null(spatial_locs)) {
-    warning('\n spatial locations are not given, dummy 3D data will be created \n')
-    spatial_locs = data.table::data.table(sdimx = 1:ncol(raw_exprs),
-                                          sdimy = 1:ncol(raw_exprs),
-                                          sdimz = 1:ncol(raw_exprs))
-    #gobject@spatial_locs = spatial_locs
-  }
-
-
-  ## spatial
-  if(!any(class(spatial_locs) %in% c('data.table', 'data.frame', 'matrix', 'character'))) {
-    stop('spatial_locs needs to be a data.table or data.frame-like object or a path to one of these')
-  }
-  if(methods::is(spatial_locs, 'character')) {
-    if(!file.exists(spatial_locs)) stop('path to spatial locations does not exist')
-    spatial_locs = data.table::fread(input = spatial_locs, nThread = cores)
-  } else {
-    spatial_locs = data.table::as.data.table(spatial_locs)
-  }
 
   # check if dimensions agree
   if(nrow(spatial_locs) != ncol(raw_exprs)) {
@@ -835,6 +865,7 @@ createGiottoObject <- function(raw_exprs,
       stop('\n dimensions, row or column names are not the same between custom normalized and raw expression \n')
     }
   }
+
 
 
   ## cell metadata
@@ -1027,6 +1058,8 @@ createGiottoObject <- function(raw_exprs,
 
 
 
+
+
 #' @title createGiottoVisiumObject
 #' @description creates Giotto object directly from a 10X visium folder
 #' @param visium_dir path to the 10X visium directory [required]
@@ -1047,8 +1080,6 @@ createGiottoObject <- function(raw_exprs,
 #'   \item{png_name: by default the first png will be selected, provide the png name to override this (e.g. myimage.png)}
 #' }
 #' @export
-#' @examples
-#'     createGiottoVisiumObject(visium_dir)
 createGiottoVisiumObject = function(visium_dir = NULL,
                                     expr_data = c('raw', 'filter'),
                                     gene_column_index = 1,
@@ -1069,11 +1100,8 @@ createGiottoVisiumObject = function(visium_dir = NULL,
   expr_data = match.arg(expr_data, choices = c('raw', 'filter'))
 
   # set number of cores automatically, but with limit of 10
-  if(is.na(cores) | !is.numeric(cores)) {
-    cores = parallel::detectCores() - 2
-    cores = ifelse(cores > 10, 10, cores)
-    data.table::setDTthreads(threads = cores)
-  }
+  cores = determine_cores(cores)
+  data.table::setDTthreads(threads = cores)
 
   ## matrix
   if(expr_data == 'raw') {

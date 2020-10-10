@@ -48,5 +48,9 @@ subdendrograms. This information can be used to determine in a hierarchical mann
 differentially expressed marker genes at each node.
 }
 \examples{
-    getDendrogramSplits(gobject)
+
+data("mini_giotto_single_cell")
+
+splits = getDendrogramSplits(mini_giotto_single_cell, cluster_column = 'leiden_clus')
+
 }

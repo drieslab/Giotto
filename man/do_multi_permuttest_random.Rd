@@ -11,13 +11,12 @@ do_multi_permuttest_random(
   mean_method,
   offset = 0.1,
   n = 100,
-  cores = 2
+  cores = 2,
+  set_seed = TRUE,
+  seed_number = 1234
 )
 }
 \description{
 calculate multiple random values
-}
-\examples{
-    do_multi_permuttest_random()
 }
 \keyword{internal}

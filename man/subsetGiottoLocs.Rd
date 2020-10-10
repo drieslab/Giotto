@@ -32,6 +32,8 @@ subsetGiottoLocs(
 \item{z_min}{minimum z-coordinate}
 
 \item{return_gobject}{return Giotto object}
+
+\item{verbose}{be verbose}
 }
 \value{
 giotto object
@@ -43,5 +45,20 @@ subsets Giotto object based on spatial locations
 if return_gobject = FALSE, then a filtered combined metadata data.table will be returned
 }
 \examples{
-    subsetGiottoLocs(gobject)
+\donttest{
+
+data(mini_giotto_single_cell)
+
+# spatial plot
+spatPlot(mini_giotto_single_cell)
+
+# subset giotto object based on spatial locations
+subset_obj = subsetGiottoLocs(mini_giotto_single_cell,
+x_max = 1500, x_min = 1000,
+y_max = -500, y_min = -1000)
+
+# spatial plot of subset giotto object
+spatPlot(subset_obj)
+
+}
 }

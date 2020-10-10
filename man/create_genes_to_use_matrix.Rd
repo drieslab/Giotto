@@ -21,3 +21,4 @@ subsetted matrix based on selected genes
 \description{
 subsets matrix based on vector of genes or hvg column
 }
+\keyword{internal}

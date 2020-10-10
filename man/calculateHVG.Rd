@@ -64,6 +64,7 @@ compute highly variable genes
 }
 \details{
 Currently we provide 2 ways to calculate highly variable genes:
+
 \bold{1. high coeff of variance (COV) within groups: } \cr
 First genes are binned (\emph{nr_expression_groups}) into average expression groups and
 the COV for each gene is converted into a z-score within each bin. Genes with a z-score
@@ -74,16 +75,23 @@ A predicted COV is calculated for each gene using loess regression (COV~log(mean
 Genes that show a higher than predicted COV (\emph{difference_in_cov}) are considered highly variable. \cr
 }
 \examples{
-# 1. create giotto object
-expr_path = system.file("extdata", "seqfish_field_expr.txt", package = 'Giotto')
-loc_path = system.file("extdata", "seqfish_field_locs.txt", package = 'Giotto')
-VC_small <- createGiottoObject(raw_exprs = expr_path, spatial_locs = loc_path)
 
-# 2. normalize giotto
-VC_small <- normalizeGiotto(gobject = VC_small, scalefactor = 6000)
-VC_small <- addStatistics(gobject = VC_small)
+data(mini_giotto_single_cell) # loads existing Giotto object
 
-# 3. highly variable genes detection
-VC_small <- calculateHVG(gobject = VC_small)
+# update a giotto object
+mini_giotto_single_cell <- calculateHVG(gobject = mini_giotto_single_cell,
+                                        zscore_threshold = 0.1,
+                                        nr_expression_groups = 3)
+
+# return a data.table with the high variable genes annotated
+hvg_dt <- calculateHVG(gobject = mini_giotto_single_cell,
+                       zscore_threshold = 0.1, nr_expression_groups = 3,
+                       return_plot = FALSE, return_gobject = FALSE)
+
+# return the ggplot object
+hvg_plot <- calculateHVG(gobject = mini_giotto_single_cell,
+                       zscore_threshold = 0.1, nr_expression_groups = 3,
+                       return_plot = TRUE, return_gobject = FALSE)
+
 
 }

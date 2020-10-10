@@ -39,6 +39,3 @@ interaction. For example, if you want to color interacting astrocytes and oligod
 the values "select_astrocytes", "select_oligodendrocytes", "other_astrocytes", "other_oligodendroyctes" and "other". Where "other" is all
 other cell types found within the selected cell type column.
 }
-\examples{
-    addCellIntMetadata(gobject)
-}

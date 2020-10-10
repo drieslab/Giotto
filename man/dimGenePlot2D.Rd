@@ -63,6 +63,8 @@ dimGenePlot2D(
 
 \item{network_name}{name of NN network to use, if show_NN_network = TRUE}
 
+\item{network_color}{color of NN network}
+
 \item{edge_alpha}{column to use for alpha of the edges}
 
 \item{scale_alpha_with_expression}{scale expression with ggplot alpha parameter}
@@ -110,8 +112,6 @@ dimGenePlot2D(
 \item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-
-\item{\dots}{additional parameters for cowplot::save_plot()}
 }
 \value{
 ggplot
@@ -123,7 +123,13 @@ Visualize gene expression according to dimension reduction coordinates
 Description of parameters.
 }
 \examples{
-    dimGenePlot2D(gobject)
+
+data(mini_giotto_single_cell)
+
+all_genes = slot(mini_giotto_single_cell, 'gene_ID')
+selected_genes = all_genes[1:2]
+dimGenePlot2D(mini_giotto_single_cell, genes = selected_genes, point_size = 3)
+
 }
 \seealso{
 \code{\link{dimGenePlot3D}}

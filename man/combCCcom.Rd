@@ -11,7 +11,8 @@ combCCcom(
   min_rec_nr = 3,
   min_padj_value = 1,
   min_log2fc = 0,
-  min_av_diff = 0
+  min_av_diff = 0,
+  detailed = FALSE
 )
 }
 \arguments{
@@ -28,13 +29,12 @@ combCCcom(
 \item{min_log2fc}{minimum log2 fold-change}
 
 \item{min_av_diff}{minimum average expression difference}
+
+\item{detailed}{detailed option used with \code{\link{spatCellCellcom}} (default = FALSE)}
 }
 \value{
 combined data.table with spatial and expression communication data
 }
 \description{
 Combine spatial and expression based cell-cell communication data.tables
-}
-\examples{
-    combCCcom(gobject)
 }

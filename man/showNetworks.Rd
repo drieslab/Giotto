@@ -17,6 +17,3 @@ vector
 \description{
 Prints the available spatial networks that are attached to the Giotto object
 }
-\examples{
-    showNetworks()
-}

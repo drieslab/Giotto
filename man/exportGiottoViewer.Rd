@@ -60,5 +60,12 @@ include the provided spatial enrichment name (default PAGE or rank)
 and add the gene signature names (.e.g cell types) to the numeric annotations parameter.
 }
 \examples{
-    exportGiottoViewer(gobject)
+
+\dontrun{
+
+data(mini_giotto_single_cell)
+exportGiottoViewer(mini_giotto_single_cell)
+
+}
+
 }

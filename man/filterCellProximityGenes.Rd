@@ -4,49 +4,34 @@
 \alias{filterCellProximityGenes}
 \title{filterCellProximityGenes}
 \usage{
-filterCellProximityGenes(
-  cpgObject,
-  min_cells = 4,
-  min_cells_expr = 1,
-  min_int_cells = 4,
-  min_int_cells_expr = 1,
-  min_fdr = 0.1,
-  min_spat_diff = 0.2,
-  min_log2_fc = 0.2,
-  min_zscore = 2,
-  zscores_column = c("cell_type", "genes"),
-  direction = c("both", "up", "down")
-)
+filterCellProximityGenes(...)
 }
 \arguments{
-\item{cpgObject}{cell proximity gene score object}
-
-\item{min_cells}{minimum number of source cell type}
-
-\item{min_cells_expr}{minimum expression level for source cell type}
-
-\item{min_int_cells}{minimum number of interacting neighbor cell type}
-
-\item{min_int_cells_expr}{minimum expression level for interacting neighbor cell type}
-
-\item{min_fdr}{minimum adjusted p-value}
-
-\item{min_spat_diff}{minimum absolute spatial expression difference}
-
-\item{min_log2_fc}{minimum log2 fold-change}
-
-\item{min_zscore}{minimum z-score change}
-
-\item{zscores_column}{calculate z-scores over cell types or genes}
-
-\item{direction}{differential expression directions to keep}
-}
-\value{
-cpgObject that contains the filtered differential gene scores
+\item{...}{
+  Arguments passed on to \code{\link[=findICG]{findICG}}
+  \describe{
+    \item{\code{gobject}}{giotto object}
+    \item{\code{expression_values}}{expression values to use}
+    \item{\code{selected_genes}}{subset of selected genes (optional)}
+    \item{\code{cluster_column}}{name of column to use for cell types}
+    \item{\code{spatial_network_name}}{name of spatial network to use}
+    \item{\code{minimum_unique_cells}}{minimum number of target cells required}
+    \item{\code{minimum_unique_int_cells}}{minimum number of interacting cells required}
+    \item{\code{diff_test}}{which differential expression test}
+    \item{\code{mean_method}}{method to use to calculate the mean}
+    \item{\code{offset}}{offset value to use when calculating log2 ratio}
+    \item{\code{adjust_method}}{which method to adjust p-values}
+    \item{\code{nr_permutations}}{number of permutations if diff_test = permutation}
+    \item{\code{exclude_selected_cells_from_test}}{exclude interacting cells other cells}
+    \item{\code{do_parallel}}{run calculations in parallel with mclapply}
+    \item{\code{cores}}{number of cores to use if do_parallel = TRUE}
+    \item{\code{set_seed}}{set a seed for reproducibility}
+    \item{\code{seed_number}}{seed number}
+  }}
 }
 \description{
-Filter cell proximity gene scores.
+Filter Interaction Changed Gene scores.
 }
-\examples{
-    filterCellProximityGenes(gobject)
+\seealso{
+\code{\link{findICG}}
 }

@@ -45,6 +45,4 @@ cluster cells using a NN-network and the Louvain algorithm from the multinet pac
 See \code{\link[multinet]{glouvain_ml}} from the multinet package in R for
 more information.
 }
-\examples{
-    doLouvainCluster_multinet(gobject)
-}
+\keyword{internal}

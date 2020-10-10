@@ -9,6 +9,8 @@ aes_string2 <- function(...){
   do.call(ggplot2::aes_string, args)
 }
 
+
+
 #' @title ggplot_save_function
 #' @name ggplot_save_function
 #' @description Function to automatically save plots to directory of interest
@@ -31,8 +33,6 @@ aes_string2 <- function(...){
 #' @param \dots additional parameters to cowplot::save_plot
 #' @seealso \code{\link[cowplot]{save_plot}}
 #' @keywords internal
-#' @examples
-#'     ggplot_save_function(gobject)
 ggplot_save_function = function(gobject,
                                 plot_object,
                                 save_dir = NULL,
@@ -139,8 +139,6 @@ ggplot_save_function = function(gobject,
 #' @param units units
 #' @param dpi Plot resolution
 #' @keywords internal
-#' @examples
-#'     general_save_function(gobject)
 general_save_function = function(gobject,
                                  plot_object,
                                  save_dir = NULL,
@@ -274,9 +272,7 @@ general_save_function = function(gobject,
 #' @param limitsize When TRUE (the default), ggsave will not save images larger than 50x50 inches, to prevent the common error of specifying dimensions in pixels.
 #' @param \dots additional parameters to ggplot_save_function or general_save_function
 #' @seealso \code{\link{general_save_function}}
-#' @export
-#' @examples
-#'     all_plots_save_function(gobject)
+#' @keywords internal
 all_plots_save_function = function(gobject,
                                    plot_object,
                                    save_dir = NULL,
@@ -408,7 +404,16 @@ showSaveParameters = function() {
 #' @details Correlation heatmap of selected clusters.
 #' @export
 #' @examples
-#'     showClusterHeatmap(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' # cell metadata
+#' cell_metadata = pDataDT(mini_giotto_single_cell)
+#'
+#' # create heatmap
+#' showClusterHeatmap(mini_giotto_single_cell,
+#'                    cluster_column = 'cell_types')
+#'
 showClusterHeatmap <- function(gobject,
                                expression_values = c('normalized', 'scaled', 'custom'),
                                genes = 'all',
@@ -496,7 +501,16 @@ showClusterHeatmap <- function(gobject,
 #' @details Expression correlation dendrogram for selected clusters.
 #' @export
 #' @examples
-#'     showClusterDendrogram(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' # cell metadata
+#' cell_metadata = pDataDT(mini_giotto_single_cell)
+#'
+#' # create heatmap
+#' showClusterDendrogram(mini_giotto_single_cell,
+#'                       cluster_column = 'cell_types')
+#'
 showClusterDendrogram <- function(gobject,
                                   expression_values = c('normalized', 'scaled', 'custom'),
                                   cluster_column,
@@ -571,8 +585,7 @@ showClusterDendrogram <- function(gobject,
 #' @param hclust_method method for hierarchical clustering
 #' @return custom
 #' @details Calculates order for clusters.
-#' @examples
-#'     decide_cluster_order(gobject)
+#' @keywords internal
 decide_cluster_order = function(gobject,
                                 expression_values = c('normalized', 'scaled', 'custom'),
                                 genes,
@@ -652,8 +665,7 @@ decide_cluster_order = function(gobject,
 #' @param gene_hclust_method method for hierarchical clustering of genes
 #' @return list
 #' @details Creates input data.tables for plotHeatmap function.
-#' @examples
-#'     createHeatmap_DT(gobject)
+#' @keywords internal
 createHeatmap_DT <- function(gobject,
                              expression_values = c('normalized', 'scaled', 'custom'),
                              genes,
@@ -746,6 +758,7 @@ createHeatmap_DT <- function(gobject,
 }
 
 
+
 #' @title plotHeatmap
 #' @name plotHeatmap
 #' @description Creates heatmap for genes and clusters.
@@ -782,7 +795,24 @@ createHeatmap_DT <- function(gobject,
 #' @export
 #' @examples
 #' \dontrun{
-#' plotHeatmap(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' # get all genes
+#' all_genes = slot(mini_giotto_single_cell, 'gene_ID')
+#'
+#' # plot heatmap
+#' plotHeatmap(mini_giotto_single_cell,
+#'             genes = all_genes[1:10])
+#'
+#' # look at cell metadata
+#' cell_metadata = pDataDT(mini_giotto_single_cell)
+#'
+#' # plot heatmap per cell type, a column name from cell_metadata
+#' plotHeatmap(mini_giotto_single_cell,
+#'             genes = all_genes[1:10],
+#'             cluster_column = 'cell_types')
+#'
 #' }
 plotHeatmap <- function(gobject,
                         expression_values = c('normalized', 'scaled', 'custom'),
@@ -1028,7 +1058,22 @@ plotHeatmap <- function(gobject,
 #' @seealso \code{\link{plotMetaDataCellsHeatmap}} for numeric cell annotation instead of gene expression.
 #' @export
 #' @examples
-#'     plotMetaDataHeatmap(gobject)
+#' \dontrun{
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' # get all genes
+#' all_genes = slot(mini_giotto_single_cell, 'gene_ID')
+#'
+#' # look at cell metadata
+#' cell_metadata = pDataDT(mini_giotto_single_cell)
+#'
+#' # plot heatmap per cell type, a column name from cell_metadata
+#' plotMetaDataHeatmap(mini_giotto_single_cell,
+#'                     selected_genes = all_genes[1:10],
+#'                     metadata_cols = 'cell_types')
+#'
+#' }
 plotMetaDataHeatmap = function(gobject,
                                expression_values =  c("normalized", "scaled", "custom"),
                                metadata_cols = NULL,
@@ -1259,9 +1304,9 @@ plotMetaDataHeatmap = function(gobject,
 #' @param custom_cluster_order custom cluster order (default = NULL)
 #' @param clus_cor_method correlation method for clusters
 #' @param clus_cluster_method hierarchical cluster method for the clusters
-#' @param custom_gene_order custom gene order (default = NULL)
-#' @param gene_cor_method correlation method for genes
-#' @param gene_cluster_method hierarchical cluster method for the genes
+#' @param custom_values_order custom values order (default = NULL)
+#' @param values_cor_method correlation method for values
+#' @param values_cluster_method hierarchical cluster method for the values
 #' @param midpoint midpoint of show_values
 #' @param x_text_size size of x-axis text
 #' @param x_text_angle angle of x-axis text
@@ -1276,8 +1321,6 @@ plotMetaDataHeatmap = function(gobject,
 #' @details Creates heatmap for the average values of selected value columns in the different annotation groups.
 #' @seealso \code{\link{plotMetaDataHeatmap}} for gene expression instead of numeric cell annotation data.
 #' @export
-#' @examples
-#'     plotMetaDataCellsHeatmap(gobject)
 plotMetaDataCellsHeatmap = function(gobject,
                                     metadata_cols = NULL,
                                     spat_enr_names = NULL,
@@ -1488,7 +1531,22 @@ plotMetaDataCellsHeatmap = function(gobject,
 #' @return ggplot
 #' @export
 #' @examples
-#'     violinPlot(gobject)
+#' \dontrun{
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' # get all genes
+#' all_genes = slot(mini_giotto_single_cell, 'gene_ID')
+#'
+#' # look at cell metadata
+#' cell_metadata = pDataDT(mini_giotto_single_cell)
+#'
+#' # plot violinplot with selected genes and stratified for identified cell types
+#' violinPlot(mini_giotto_single_cell,
+#'            genes = all_genes[1:10],
+#'            cluster_column = 'cell_types')
+#'
+#' }
 violinPlot <- function(gobject,
                        expression_values = c('normalized', 'scaled', 'custom'),
                        genes,
@@ -1608,13 +1666,20 @@ violinPlot <- function(gobject,
 #' @description provide network segment to draw in 3D plot_ly()
 #' @param gobject network in giotto object
 #' @return edges in network as data.table()
-#' @export
-#' @examples
-#'     plotly_network(gobject)
+#' @keywords internal
 plotly_network <- function(network,
-                           x = "sdimx_begin",y = "sdimy_begin",z = "sdimz_begin",
-                           x_end = "sdimx_end",y_end="sdimy_end",z_end="sdimz_end"){
-  edges <- data.table(edge_id = 1:(3*dim(network)[1]),x = 0,y = 0,z = 0)
+                           x = "sdimx_begin",
+                           y = "sdimy_begin",
+                           z = "sdimz_begin",
+                           x_end = "sdimx_end",
+                           y_end="sdimy_end",
+                           z_end="sdimz_end"){
+
+  edges = data.table::data.table(edge_id = 1:(3*dim(network)[1]),
+                                 x = 0,
+                                 y = 0,
+                                 z = 0)
+
   edges[edges$edge_id%%3 == 1]$x = as.double(network[[x]])
   edges[edges$edge_id%%3 == 1]$y = as.double(network[[y]])
   edges[edges$edge_id%%3 == 1]$z = as.double(network[[z]])
@@ -1626,6 +1691,7 @@ plotly_network <- function(network,
   edges[edges$edge_id%%3 == 0]$x = NA
   edges[edges$edge_id%%3 == 0]$y = NA
   edges[edges$edge_id%%3 == 0]$z = NA
+
   return(edges)
 }
 
@@ -1635,14 +1701,13 @@ plotly_network <- function(network,
 #' @description provide grid segment to draw in plot_ly()
 #' @param spatial_grid spatial_grid in giotto object
 #' @return edges in spatial grid as data.table()
-#' @export
-#' @examples
-#'     plotly_grid(gobject)
+#' @keywords internal
 plotly_grid <- function(spatial_grid,
                         x_start = "x_start",
                         y_start = "y_start",
                         x_end = "x_end",
                         y_end = "y_end"){
+
   edge_num <- length(unique(spatial_grid[[x_start]])) + length(unique(spatial_grid[[y_start]])) + 2
   x_line <- unique(as.numeric(unlist(spatial_grid[,c(x_start,x_end)])))
   y_line <- unique(as.numeric(unlist(spatial_grid[,c(y_start,y_end)])))
@@ -1653,7 +1718,7 @@ plotly_grid <- function(spatial_grid,
   y_min <- min(spatial_grid[[y_start]])
   y_max <- max(spatial_grid[[y_end]])
 
-  edges <- data.table(edge_id = 1:edge_num,x = 0,y = 0,x_end = 0,y_end = 0)
+  edges <- data.table::data.table(edge_id = 1:edge_num,x = 0,y = 0,x_end = 0,y_end = 0)
 
   edges[1:length(x_line),]$x <- x_line
   edges[1:length(x_line),]$x_end <- x_line
@@ -1679,11 +1744,13 @@ plotly_grid <- function(spatial_grid,
 #' @param mode axis adjustment mode
 #' @param custom_ratio set the ratio artificially
 #' @return edges in spatial grid as data.table()
-#' @export
-#' @examples
-#'     plotly_axis_scale_3D(gobject)
-plotly_axis_scale_3D <- function(cell_locations,sdimx = NULL,sdimy = NULL,sdimz = NULL,
-                                 mode = c("cube","real","custom"),custom_ratio = NULL){
+#' @keywords internal
+plotly_axis_scale_3D <- function(cell_locations,
+                                 sdimx = NULL,
+                                 sdimy = NULL,
+                                 sdimz = NULL,
+                                 mode = c("cube","real","custom"),
+                                 custom_ratio = NULL){
   mode = match.arg(mode, c("cube","real","custom"))
   if(mode == "real"){
     x_ratio = max(cell_locations[[sdimx]]) - min(cell_locations[[sdimx]])
@@ -1717,18 +1784,20 @@ plotly_axis_scale_3D <- function(cell_locations,sdimx = NULL,sdimy = NULL,sdimz 
 
 #' @title plotly_axis_scale_2D
 #' @name plotly_axis_scale_2D
-#' @description adjust the axis scale in 3D plotly plot
+#' @description adjust the axis scale in 2D plotly plot
 #' @param cell_locations spatial_loc in giotto object
 #' @param sdimx x axis of cell spatial location
 #' @param sdimy y axis of cell spatial location
 #' @param mode axis adjustment mode
 #' @param custom_ratio set the ratio artificially
 #' @return edges in spatial grid as data.table()
-#' @export
-#' @examples
-#'     plotly_axis_scale_2D(gobject)
-plotly_axis_scale_2D <- function(cell_locations,sdimx = NULL,sdimy = NULL,
-                                 mode = c("cube","real","custom"),custom_ratio = NULL){
+#' @keywords internal
+plotly_axis_scale_2D <- function(cell_locations,
+                                 sdimx = NULL,
+                                 sdimy = NULL,
+                                 mode = c("cube","real","custom"),
+                                 custom_ratio = NULL){
+
   mode = match.arg(mode, c("cube","real","custom"))
   if(mode == "real"){
     x_ratio = max(cell_locations[[sdimx]]) - min(cell_locations[[sdimx]])

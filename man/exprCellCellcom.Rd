@@ -11,9 +11,12 @@ exprCellCellcom(
   gene_set_1,
   gene_set_2,
   log2FC_addendum = 0.1,
+  detailed = FALSE,
   adjust_method = c("fdr", "bonferroni", "BH", "holm", "hochberg", "hommel", "BY",
     "none"),
   adjust_target = c("genes", "cells"),
+  set_seed = TRUE,
+  seed_number = 1234,
   verbose = T
 )
 }
@@ -30,9 +33,15 @@ exprCellCellcom(
 
 \item{log2FC_addendum}{addendum to add when calculating log2FC}
 
+\item{detailed}{provide more detailed information (random variance and z-score)}
+
 \item{adjust_method}{which method to adjust p-values}
 
 \item{adjust_target}{adjust multiple hypotheses at the cell or gene level}
+
+\item{set_seed}{set seed for random simulations (default = TRUE)}
+
+\item{seed_number}{seed number}
 
 \item{verbose}{verbose}
 }
@@ -47,7 +56,4 @@ Statistical framework to identify if pairs of genes (such as ligand-receptor com
 are expressed at higher levels than expected based on a reshuffled null distribution of gene expression values,
 without considering the spatial position of cells.
 More details will follow soon.
-}
-\examples{
-    exprCellCellcom(gobject)
 }

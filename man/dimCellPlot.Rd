@@ -4,13 +4,14 @@
 \alias{dimCellPlot}
 \title{dimCellPlot}
 \usage{
-dimCellPlot(...)
+dimCellPlot(gobject, ...)
 }
 \arguments{
+\item{gobject}{giotto object}
+
 \item{...}{
   Arguments passed on to \code{\link[=dimCellPlot2D]{dimCellPlot2D}}
   \describe{
-    \item{\code{gobject}}{giotto object}
     \item{\code{dim_reduction_to_use}}{dimension reduction to use}
     \item{\code{dim_reduction_name}}{dimension reduction name}
     \item{\code{dim1_to_use}}{dimension to use on x-axis}
@@ -20,6 +21,7 @@ dimCellPlot(...)
     \item{\code{show_NN_network}}{show underlying NN network}
     \item{\code{nn_network_to_use}}{type of NN network to use (kNN vs sNN)}
     \item{\code{network_name}}{name of NN network to use, if show_NN_network = TRUE}
+    \item{\code{cell_color_code}}{named vector with colors for cell annotation values}
     \item{\code{cell_color_gradient}}{vector with 3 colors for numeric data}
     \item{\code{gradient_midpoint}}{midpoint for color gradient}
     \item{\code{gradient_limits}}{vector with lower and upper limits}
@@ -31,6 +33,8 @@ dimCellPlot(...)
     \item{\code{show_cluster_center}}{plot center of selected clusters}
     \item{\code{show_center_label}}{plot label of selected clusters}
     \item{\code{center_point_size}}{size of center points}
+    \item{\code{center_point_border_col}}{border color of center points}
+    \item{\code{center_point_border_stroke}}{border stroke size of center points}
     \item{\code{label_size}}{size of labels}
     \item{\code{label_fontface}}{font of labels}
     \item{\code{edge_alpha}}{column to use for alpha of the edges}
@@ -45,6 +49,10 @@ dimCellPlot(...)
     \item{\code{background_color}}{color of plot background}
     \item{\code{axis_text}}{size of axis text}
     \item{\code{axis_title}}{size of axis title}
+    \item{\code{cow_n_col}}{cowplot param: how many columns}
+    \item{\code{cow_rel_h}}{cowplot param: relative height}
+    \item{\code{cow_rel_w}}{cowplot param: relative width}
+    \item{\code{cow_align}}{cowplot param: how to align}
     \item{\code{show_plot}}{show plot}
     \item{\code{return_plot}}{return ggplot object}
     \item{\code{save_plot}}{directly save the plot [boolean]}
@@ -62,7 +70,20 @@ Visualize cells according to dimension reduction coordinates
 Description of parameters. For 3D plots see \code{\link{dimCellPlot2D}}
 }
 \examples{
-    dimCellPlot(gobject)
+
+data(mini_giotto_single_cell)
+
+# combine all metadata
+combineMetadata(mini_giotto_single_cell, spat_enr_names = 'cluster_metagene')
+
+# visualize total expression information
+dimCellPlot(mini_giotto_single_cell, cell_annotation_values = 'total_expr')
+
+# visualize enrichment results
+dimCellPlot(mini_giotto_single_cell,
+               spat_enr_names = 'cluster_metagene',
+               cell_annotation_values = c('1','2'))
+
 }
 \seealso{
 Other dimension reduction cell annotation visualizations: 

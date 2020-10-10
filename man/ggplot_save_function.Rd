@@ -63,9 +63,6 @@ ggplot_save_function(
 \description{
 Function to automatically save plots to directory of interest
 }
-\examples{
-    ggplot_save_function(gobject)
-}
 \seealso{
 \code{\link[cowplot]{save_plot}}
 }

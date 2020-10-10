@@ -11,6 +11,7 @@ dimPlot3D(
   dim1_to_use = 1,
   dim2_to_use = 2,
   dim3_to_use = 3,
+  spat_enr_names = NULL,
   select_cell_groups = NULL,
   select_cells = NULL,
   show_other_cells = T,
@@ -47,6 +48,8 @@ dimPlot3D(
 \item{dim2_to_use}{dimension to use on y-axis}
 
 \item{dim3_to_use}{dimension to use on z-axis}
+
+\item{spat_enr_names}{names of spatial enrichment results to include}
 
 \item{select_cell_groups}{select subset of cells/clusters based on cell_color parameter}
 
@@ -91,8 +94,6 @@ dimPlot3D(
 \item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-
-\item{show_legend}{show legend}
 }
 \value{
 plotly
@@ -102,10 +103,6 @@ Visualize cells according to dimension reduction coordinates
 }
 \details{
 Description of parameters.
-}
-\examples{
-    dimPlot3D(gobject)
-
 }
 \seealso{
 Other reduced dimension visualizations: 

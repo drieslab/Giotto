@@ -6,16 +6,21 @@
 \usage{
 createSpatialGrid(
   gobject,
+  name = NULL,
+  method = c("default"),
   sdimx_stepsize = NULL,
   sdimy_stepsize = NULL,
   sdimz_stepsize = NULL,
   minimum_padding = 1,
-  name = "spatial_grid",
   return_gobject = TRUE
 )
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{name}{name for spatial grid}
+
+\item{method}{method to create a spatial grid}
 
 \item{sdimx_stepsize}{stepsize along the x-axis}
 
@@ -25,20 +30,18 @@ createSpatialGrid(
 
 \item{minimum_padding}{minimum padding on the edges}
 
-\item{name}{name for spatial grid (default = 'spatial_grid')}
-
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 }
 \value{
 giotto object with updated spatial grid slot
 }
 \description{
-Create a spatial grid.
+Create a spatial grid using the default method
 }
 \details{
 Creates a spatial grid with defined x, y (and z) dimensions.
 The dimension units are based on the provided spatial location units.
+\itemize{
+  \item{default method: }{\code{\link{createSpatialDefaultGrid}}}
 }
-\examples{
-    createSpatialGrid(gobject)
 }

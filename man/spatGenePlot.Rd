@@ -24,6 +24,7 @@ spatGenePlot(...)
     \item{\code{show_network}}{show underlying spatial network}
     \item{\code{network_color}}{color of spatial network}
     \item{\code{spatial_network_name}}{name of spatial network to use}
+    \item{\code{edge_alpha}}{alpha of edge}
     \item{\code{show_grid}}{show spatial grid}
     \item{\code{grid_color}}{color of spatial grid}
     \item{\code{spatial_grid_name}}{name of spatial grid to use}
@@ -63,7 +64,13 @@ Visualize cells and gene expression according to spatial coordinates
 Description of parameters.
 }
 \examples{
-    spatGenePlot(gobject)
+
+data(mini_giotto_single_cell)
+
+all_genes = slot(mini_giotto_single_cell, 'gene_ID')
+selected_genes = all_genes[1:2]
+spatGenePlot(mini_giotto_single_cell, genes = selected_genes, point_size = 3)
+
 }
 \seealso{
 \code{\link{spatGenePlot3D}} and \code{\link{spatGenePlot2D}}

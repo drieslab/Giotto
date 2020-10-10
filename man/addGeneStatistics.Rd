@@ -37,5 +37,9 @@ This function will add the following statistics to gene metadata:
 }
 }
 \examples{
-    addGeneStatistics(gobject)
+
+data(mini_giotto_single_cell)
+
+updated_giotto_object = addGeneStatistics(mini_giotto_single_cell)
+
 }

@@ -63,5 +63,12 @@ to call a gene expressed. This function can be used to make an informed decision
 filtering step with filterGiotto.
 }
 \examples{
-    filterCombinations(gobject)
+
+data(mini_giotto_single_cell)
+
+# assess the effect of multiple filter criteria
+filterCombinations(mini_giotto_single_cell,
+gene_det_in_min_cells = c(2, 4, 8),
+min_det_genes_per_cell = c(5, 10, 20))
+
 }

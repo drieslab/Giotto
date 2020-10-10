@@ -86,7 +86,4 @@ Visualize cells in point layer according to dimension reduction coordinates with
 \details{
 Description of parameters.
 }
-\examples{
-    plot_point_layer_ggplot_noFILL(gobject)
-}
 \keyword{internal}

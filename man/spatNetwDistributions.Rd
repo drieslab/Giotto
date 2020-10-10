@@ -53,6 +53,3 @@ With this option the user can also test the effect of a distance limit on the sp
 cells that are considered to far away. \cr
 The \strong{k_neighbors} option shows the number of k neighbors distribution over all cells.
 }
-\examples{
-    spatNetwDistributionsDistance(gobject)
-}

@@ -57,5 +57,13 @@ ggplot object
 show gene or cell distribution after filtering on expression threshold
 }
 \examples{
-    filterDistributions(gobject)
+
+data(mini_giotto_single_cell)
+
+# distribution plot of genes
+filterDistributions(mini_giotto_single_cell, detection = 'genes')
+
+# distribution plot of cells
+filterDistributions(mini_giotto_single_cell, detection = 'cells')
+
 }

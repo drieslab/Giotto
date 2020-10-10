@@ -51,6 +51,12 @@ plotMetaDataCellsHeatmap(
 
 \item{clus_cluster_method}{hierarchical cluster method for the clusters}
 
+\item{custom_values_order}{custom values order (default = NULL)}
+
+\item{values_cor_method}{correlation method for values}
+
+\item{values_cluster_method}{hierarchical cluster method for the values}
+
 \item{midpoint}{midpoint of show_values}
 
 \item{x_text_size}{size of x-axis text}
@@ -70,12 +76,6 @@ plotMetaDataCellsHeatmap(
 \item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-
-\item{custom_gene_order}{custom gene order (default = NULL)}
-
-\item{gene_cor_method}{correlation method for genes}
-
-\item{gene_cluster_method}{hierarchical cluster method for the genes}
 }
 \value{
 ggplot or data.table
@@ -85,9 +85,6 @@ Creates heatmap for numeric cell metadata within aggregated clusters.
 }
 \details{
 Creates heatmap for the average values of selected value columns in the different annotation groups.
-}
-\examples{
-    plotMetaDataCellsHeatmap(gobject)
 }
 \seealso{
 \code{\link{plotMetaDataHeatmap}} for gene expression instead of numeric cell annotation data.

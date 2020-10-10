@@ -25,6 +25,8 @@ plotStatDelaunayNetwork(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{method}{package to use to create a Delaunay network}
+
 \item{dimensions}{which spatial dimensions to use (maximum 2 dimensions)}
 
 \item{maximum_distance}{distance cuttof for Delaunay neighbors to consider}
@@ -45,24 +47,15 @@ plotStatDelaunayNetwork(
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
-\item{...}{Other parameters of the \code{\link[RTriangle]{triangulate}} function}
-
-\item{name}{name for spatial network (default = 'delaunay_network')}
+\item{\dots}{Other parameters}
 }
 \value{
 giotto object with updated spatial network slot
 }
 \description{
 Plots network statistics for a Delaunay network..
-}
-\details{
-Plots statistics for a spatial Delaunay network as explained in \code{\link[RTriangle]{triangulate}}.
-This can be used to further finetune the \code{\link{createSpatialDelaunayNetwork}} function.
-}
-\examples{
-    plotStatDelaunayNetwork(gobject)
 }

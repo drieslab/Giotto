@@ -10,6 +10,8 @@ runPCA_prcomp_irlba(
   center = TRUE,
   scale = TRUE,
   rev = FALSE,
+  set_seed = TRUE,
+  seed_number = 1234,
   ...
 )
 }
@@ -23,6 +25,10 @@ runPCA_prcomp_irlba(
 \item{scale}{scale features}
 
 \item{rev}{reverse PCA}
+
+\item{set_seed}{use of seed}
+
+\item{seed_number}{seed number to use}
 }
 \value{
 list of eigenvalues, loadings and pca coordinates
@@ -30,3 +36,4 @@ list of eigenvalues, loadings and pca coordinates
 \description{
 performs PCA based on the irlba package
 }
+\keyword{internal}

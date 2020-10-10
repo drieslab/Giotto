@@ -76,6 +76,8 @@ spatPlot2D(
 
 \item{image_name}{name of a giotto image}
 
+\item{group_by}{create multiple plots based on cell annotation column}
+
 \item{group_by_subset}{subset the group_by factor column}
 
 \item{sdimx}{x-axis dimension name (default = 'sdimx')}
@@ -115,6 +117,10 @@ spatPlot2D(
 \item{show_center_label}{plot label of selected clusters}
 
 \item{center_point_size}{size of center points}
+
+\item{center_point_border_col}{border color of center points}
+
+\item{center_point_border_stroke}{border stroke size of center points}
 
 \item{label_size}{size of labels}
 
@@ -181,8 +187,6 @@ spatPlot2D(
 \item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-
-\item{groub_by}{create multiple plots based on cell annotation column}
 }
 \value{
 ggplot
@@ -194,7 +198,12 @@ Visualize cells according to spatial coordinates
 Description of parameters.
 }
 \examples{
-    spatPlot2D(gobject)
+
+data(mini_giotto_single_cell)
+
+spatPlot2D(mini_giotto_single_cell)
+spatPlot2D(mini_giotto_single_cell, cell_color = 'cell_types', point_size = 3)
+
 }
 \seealso{
 \code{\link{spatPlot3D}}

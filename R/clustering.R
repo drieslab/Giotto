@@ -37,8 +37,7 @@
 #' Set \emph{weight_col = NULL} to give equal weight (=1) to each edge.
 #'
 #' @export
-#' @examples
-#'     doLeidenCluster(gobject)
+#'
 doLeidenCluster = function(gobject,
                            name = 'leiden_clus',
                            nn_network_to_use = 'sNN',
@@ -58,7 +57,7 @@ doLeidenCluster = function(gobject,
   cell_ID_vec = gobject@cell_ID
 
   ## select network to use
-  igraph_object = extractNearestNetwork(gobject,
+  igraph_object = select_NearestNetwork(gobject,
                                         nn_network_to_use = nn_network_to_use,
                                         network_name = network_name)
 
@@ -185,9 +184,8 @@ doLeidenCluster = function(gobject,
 #'
 #' Set \emph{weight_col = NULL} to give equal weight (=1) to each edge.
 #'
-#' @export
-#' @examples
-#'     doLouvainCluster_community(gobject)
+#' @keywords internal
+#'
 doLouvainCluster_community <- function(gobject,
                                        name = 'louvain_clus',
                                        nn_network_to_use = 'sNN',
@@ -205,7 +203,7 @@ doLouvainCluster_community <- function(gobject,
   cell_ID_vec = gobject@cell_ID
 
   ## select network to use
-  igraph_object = extractNearestNetwork(gobject,
+  igraph_object = select_NearestNetwork(gobject,
                                         nn_network_to_use = nn_network_to_use,
                                         network_name = network_name)
 
@@ -317,9 +315,7 @@ doLouvainCluster_community <- function(gobject,
 #' @details See \code{\link[multinet]{glouvain_ml}} from the multinet package in R for
 #' more information.
 #'
-#' @export
-#' @examples
-#'     doLouvainCluster_multinet(gobject)
+#' @keywords internal
 doLouvainCluster_multinet <- function(gobject,
                                       name = 'louvain_clus',
                                       nn_network_to_use = 'sNN',
@@ -343,7 +339,7 @@ doLouvainCluster_multinet <- function(gobject,
   cell_ID_vec = gobject@cell_ID
 
   ## select network to use
-  igraph_object = extractNearestNetwork(gobject,
+  igraph_object = select_NearestNetwork(gobject,
                                         nn_network_to_use = nn_network_to_use,
                                         network_name = network_name)
 
@@ -437,8 +433,6 @@ doLouvainCluster_multinet <- function(gobject,
 #' @details Louvain clustering using the community or multinet implementation of the louvain clustering algorithm.
 #' @seealso \code{\link{doLouvainCluster_community}} and \code{\link{doLouvainCluster_multinet}}
 #' @export
-#' @examples
-#'     doLouvainCluster(gobject)
 doLouvainCluster = function(gobject,
                             version = c('community', 'multinet'),
                             name = 'louvain_clus',
@@ -516,8 +510,6 @@ doLouvainCluster = function(gobject,
 #' @details See \code{\link[igraph]{cluster_walktrap}} function from the igraph
 #' package in R for more information.
 #' @export
-#' @examples
-#'     doRandomWalkCluster(gobject)
 doRandomWalkCluster <- function(gobject,
                                 name = 'random_walk_clus',
                                 nn_network_to_use = 'sNN',
@@ -533,7 +525,7 @@ doRandomWalkCluster <- function(gobject,
   cell_ID_vec = gobject@cell_ID
 
   ## select network to use
-  igraph_object = extractNearestNetwork(gobject,
+  igraph_object = select_NearestNetwork(gobject,
                                         nn_network_to_use = nn_network_to_use,
                                         network_name = network_name)
 
@@ -614,8 +606,6 @@ doRandomWalkCluster <- function(gobject,
 #' @return giotto object with new clusters appended to cell metadata
 #' @details See \code{\link[dbscan]{sNNclust}} from dbscan package
 #' @export
-#' @examples
-#'     doSNNCluster(gobject)
 doSNNCluster <- function(gobject,
                          name = 'sNN_clus',
                          nn_network_to_use = 'kNN',
@@ -633,7 +623,7 @@ doSNNCluster <- function(gobject,
   cell_ID_vec = gobject@cell_ID
 
   ## select network to use
-  igraph_object = extractNearestNetwork(gobject,
+  igraph_object = select_NearestNetwork(gobject,
                                         nn_network_to_use = nn_network_to_use,
                                         network_name = network_name)
 
@@ -743,7 +733,12 @@ doSNNCluster <- function(gobject,
 #' @seealso  \code{\link[stats]{kmeans}}
 #' @export
 #' @examples
-#'     doKmeans(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' mini_giotto_single_cell = doKmeans(mini_giotto_single_cell, centers = 4, name = 'kmeans_clus')
+#' plotUMAP_2D(mini_giotto_single_cell, cell_color = 'kmeans_clus', point_size = 3)
+#'
 doKmeans <- function(gobject,
                      expression_values = c('normalized', 'scaled', 'custom'),
                      genes_to_use = NULL,
@@ -896,7 +891,12 @@ doKmeans <- function(gobject,
 #' @seealso  \code{\link[stats]{hclust}}
 #' @export
 #' @examples
-#'     doHclust(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' mini_giotto_single_cell = doHclust(mini_giotto_single_cell, k = 4, name = 'hier_clus')
+#' plotUMAP_2D(mini_giotto_single_cell, cell_color = 'hier_clus', point_size = 3)
+#'
 doHclust <- function(gobject,
                      expression_values = c('normalized', 'scaled', 'custom'),
                      genes_to_use = NULL,
@@ -1077,8 +1077,6 @@ doHclust <- function(gobject,
 #' \code{\link{doLouvainCluster}}, \code{\link{doRandomWalkCluster}}, \code{\link{doSNNCluster}},
 #' \code{\link{doKmeans}}, \code{\link{doHclust}}
 #' @export
-#' @examples
-#'     clusterCells(gobject)
 clusterCells <- function(gobject,
                          cluster_method = c('leiden',
                                             'louvain_community', 'louvain_multinet',
@@ -1180,7 +1178,6 @@ clusterCells <- function(gobject,
                                        name = name,
                                        nn_network_to_use = nn_network_to_use,
                                        network_name = network_name,
-                                       weight_col = pyth_louv_weight_col,
                                        gamma = louvain_gamma,
                                        omega = louvain_omega,
                                        return_gobject = return_gobject,
@@ -1295,13 +1292,11 @@ clusterCells <- function(gobject,
 #' }
 #' @seealso \code{\link{doLeidenCluster}}
 #' @export
-#' @examples
-#'     doLeidenSubCluster(gobject)
 doLeidenSubCluster = function(gobject,
                               name = 'sub_pleiden_clus',
                               cluster_column = NULL,
                               selected_clusters = NULL,
-                              hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
+                              hvg_param = list(reverse_log_scale = T, difference_in_cov = 1, expression_values = 'normalized'),
                               hvg_min_perc_cells = 5,
                               hvg_mean_expr_det = 1,
                               use_all_genes_as_hvg = FALSE,
@@ -1469,14 +1464,12 @@ doLeidenSubCluster = function(gobject,
 #'   \item{5. do Louvain community clustering}
 #' }
 #' @seealso \code{\link{doLouvainCluster_community}}
-#' @export
-#' @examples
-#'     doLouvainSubCluster_community(gobject)
+#' @keywords internal
 doLouvainSubCluster_community = function(gobject,
                                          name = 'sub_louvain_comm_clus',
                                          cluster_column = NULL,
                                          selected_clusters = NULL,
-                                         hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
+                                         hvg_param = list(reverse_log_scale = T, difference_in_cov = 1, expression_values = 'normalized'),
                                          hvg_min_perc_cells = 5,
                                          hvg_mean_expr_det = 1,
                                          use_all_genes_as_hvg = FALSE,
@@ -1653,14 +1646,12 @@ doLouvainSubCluster_community = function(gobject,
 #'   \item{5. do Louvain multinet clustering}
 #' }
 #' @seealso \code{\link{doLouvainCluster_multinet}}
-#' @export
-#' @examples
-#'     doLouvainSubCluster_multinet(gobject)
+#' @keywords internal
 doLouvainSubCluster_multinet =  function(gobject,
                                          name = 'sub_louvain_mult_clus',
                                          cluster_column = NULL,
                                          selected_clusters = NULL,
-                                         hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
+                                         hvg_param = list(reverse_log_scale = T, difference_in_cov = 1, expression_values = 'normalized'),
                                          hvg_min_perc_cells = 5,
                                          hvg_mean_expr_det = 1,
                                          use_all_genes_as_hvg = FALSE,
@@ -1843,14 +1834,12 @@ doLouvainSubCluster_multinet =  function(gobject,
 #' }
 #' @seealso \code{\link{doLouvainCluster_multinet}} and \code{\link{doLouvainCluster_community}}
 #' @export
-#' @examples
-#'     doLouvainSubCluster(gobject)
 doLouvainSubCluster =  function(gobject,
                                 name = 'sub_louvain_clus',
                                 version = c('community', 'multinet'),
                                 cluster_column = NULL,
                                 selected_clusters = NULL,
-                                hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
+                                hvg_param = list(reverse_log_scale = T, difference_in_cov = 1, expression_values = 'normalized'),
                                 hvg_min_perc_cells = 5,
                                 hvg_mean_expr_det = 1,
                                 use_all_genes_as_hvg = FALSE,
@@ -1956,8 +1945,6 @@ doLouvainSubCluster =  function(gobject,
 #' @seealso \code{\link{doLouvainCluster_multinet}}, \code{\link{doLouvainCluster_community}}
 #' and  @seealso \code{\link{doLeidenCluster}}
 #' @export
-#' @examples
-#'     subClusterCells(gobject)
 subClusterCells <- function(gobject,
                             name = 'sub_clus',
                             cluster_method = c('leiden',
@@ -1965,7 +1952,7 @@ subClusterCells <- function(gobject,
                                                'louvain_multinet'),
                             cluster_column = NULL,
                             selected_clusters = NULL,
-                            hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values = 'normalized'),
+                            hvg_param = list(reverse_log_scale = T, difference_in_cov = 1, expression_values = 'normalized'),
                             hvg_min_perc_cells = 5,
                             hvg_mean_expr_det = 1,
                             use_all_genes_as_hvg = FALSE,
@@ -2013,7 +2000,7 @@ subClusterCells <- function(gobject,
 
   } else if(cluster_method == 'louvain_community') {
 
-    result = doLouvainCluster_community(gobject = gobject,
+    result = doLouvainSubCluster_community(gobject = gobject,
                                         cluster_column = cluster_column,
                                         selected_clusters = selected_clusters,
                                         hvg_param = hvg_param,
@@ -2034,7 +2021,7 @@ subClusterCells <- function(gobject,
 
   } else if(cluster_method == 'louvain_multinet') {
 
-    result = doLouvainCluster_multinet(gobject = gobject,
+    result = doLouvainSubCluster_multinet(gobject = gobject,
                                        cluster_column = cluster_column,
                                        selected_clusters = selected_clusters,
                                        hvg_param = hvg_param,
@@ -2079,7 +2066,12 @@ subClusterCells <- function(gobject,
 #' with mergeClusters to combine very similar or small clusters into bigger clusters.
 #' @export
 #' @examples
-#'     getClusterSimilarity(gobject)
+#'
+#' data("mini_giotto_single_cell")
+#'
+#' cluster_similarities = getClusterSimilarity(mini_giotto_single_cell,
+#'                                             cluster_column = 'leiden_clus')
+#'
 getClusterSimilarity <- function(gobject,
                                  expression_values = c('normalized', 'scaled', 'custom'),
                                  cluster_column,
@@ -2153,7 +2145,17 @@ getClusterSimilarity <- function(gobject,
 #' A giotto object is returned by default, if FALSE then the merging vector will be returned.
 #' @export
 #' @examples
-#'     mergeClusters(gobject)
+#'
+#' data("mini_giotto_single_cell")
+#'
+#' pDataDT(mini_giotto_single_cell)
+#' mini_giotto_single_cell = mergeClusters(mini_giotto_single_cell,
+#'                                         cluster_column = 'leiden_clus',
+#'                                         min_cor_score = 0.7,
+#'                                         force_min_group_size = 4)
+#' pDataDT(mini_giotto_single_cell)
+#' plotUMAP_2D(mini_giotto_single_cell, cell_color = 'merged_cluster', point_size = 3)
+#'
 mergeClusters <- function(gobject,
                           expression_values = c('normalized', 'scaled', 'custom'),
                           cluster_column,
@@ -2294,8 +2296,7 @@ mergeClusters <- function(gobject,
 #' @description Merge selected clusters based on pairwise correlation scores and size of cluster.
 #' @param dend dendrogram object
 #' @return list of two dendrograms and height of node
-#' @examples
-#'     split_dendrogram_in_two(dend)
+#' @keywords internal
 split_dendrogram_in_two = function(dend) {
 
   top_height = attributes(dend)$height
@@ -2308,8 +2309,8 @@ split_dendrogram_in_two = function(dend) {
   numerical_leaves = unlist(dend)
   names(numerical_leaves) = all_leaves
 
-  dend_1 = dendextend::find_dendrogram(dend = dend, selected_labels = numerical_leaves[selected_labels_ind_1])
-  dend_2 = dendextend::find_dendrogram(dend = dend, selected_labels = numerical_leaves[selected_labels_ind_2])
+  dend_1 = dendextend::find_dendrogram(dend = dend, selected_labels = names(numerical_leaves[selected_labels_ind_1]))
+  dend_2 = dendextend::find_dendrogram(dend = dend, selected_labels = names(numerical_leaves[selected_labels_ind_2]))
 
   #dend_1 = dendextend::find_dendrogram(dend = dend, selected_labels = divided_leaves_labels[[1]])
   #dend_2 = dendextend::find_dendrogram(dend = dend, selected_labels = divided_leaves_labels[[2]])
@@ -2317,14 +2318,15 @@ split_dendrogram_in_two = function(dend) {
   return(list(theight = top_height, dend1 =  dend_1, dend2 = dend_2))
 }
 
+
+
 #' @title node_clusters
 #' @name node_clusters
 #' @description Merge selected clusters based on pairwise correlation scores and size of cluster.
 #' @param hclus_obj hclus object
 #' @param verbose be verbose
 #' @return list of splitted dendrogram nodes from high to low node height
-#' @examples
-#'     node_clusters(hclus_obj)
+#' @keywords internal
 node_clusters = function(hclus_obj, verbose = TRUE) {
 
   heights = sort(hclus_obj[['height']], decreasing = T)
@@ -2351,7 +2353,8 @@ node_clusters = function(hclus_obj, verbose = TRUE) {
     available_h = as.numeric(unlist(lapply(dend_list, FUN = function(x) attributes(x)$height)))
 
     # get dendrogram associated with height and split in two
-    select_dend_ind = which(available_h == n_height)
+    # select_dend_ind = which(available_h == n_height)
+    select_dend_ind = which.min(abs(available_h - n_height))
     select_dend = dend_list[[select_dend_ind]]
     tempres = split_dendrogram_in_two(dend = select_dend)
 
@@ -2402,7 +2405,11 @@ node_clusters = function(hclus_obj, verbose = TRUE) {
 #' differentially expressed marker genes at each node.
 #' @export
 #' @examples
-#'     getDendrogramSplits(gobject)
+#'
+#' data("mini_giotto_single_cell")
+#'
+#' splits = getDendrogramSplits(mini_giotto_single_cell, cluster_column = 'leiden_clus')
+#'
 getDendrogramSplits = function(gobject,
                                expression_values = c('normalized', 'scaled', 'custom'),
                                cluster_column,
@@ -2446,7 +2453,7 @@ getDendrogramSplits = function(gobject,
 
   splitList = node_clusters(hclus_obj = corclus, verbose = verbose)
 
-  splitDT = as.data.table(t(as.data.table(splitList[[2]])))
+  splitDT = data.table::as.data.table(t_giotto(data.table::as.data.table(splitList[[2]])))
   colnames(splitDT) = c('node_h', 'tree_1', 'tree_2')
   splitDT[, nodeID := paste0('node_', 1:.N)]
 

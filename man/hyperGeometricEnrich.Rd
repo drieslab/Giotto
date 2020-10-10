@@ -4,41 +4,27 @@
 \alias{hyperGeometricEnrich}
 \title{hyperGeometricEnrich}
 \usage{
-hyperGeometricEnrich(
-  gobject,
-  sign_matrix,
-  expression_values = c("normalized", "scaled", "custom"),
-  reverse_log_scale = TRUE,
-  logbase = 2,
-  top_percentage = 5,
-  output_enrichment = c("original", "zscore")
-)
+hyperGeometricEnrich(...)
 }
 \arguments{
-\item{gobject}{Giotto object}
-
-\item{sign_matrix}{Matrix of signature genes for each cell type / process}
-
-\item{expression_values}{expression values to use}
-
-\item{reverse_log_scale}{reverse expression values from log scale}
-
-\item{logbase}{log base to use if reverse_log_scale = TRUE}
-
-\item{top_percentage}{percentage of cells that will be considered to have gene expression with matrix binarization}
-
-\item{output_enrichment}{how to return enrichment output}
-}
-\value{
-data.table with enrichment results
+\item{...}{
+  Arguments passed on to \code{\link[=runHyperGeometricEnrich]{runHyperGeometricEnrich}}
+  \describe{
+    \item{\code{gobject}}{Giotto object}
+    \item{\code{sign_matrix}}{Matrix of signature genes for each cell type / process}
+    \item{\code{expression_values}}{expression values to use}
+    \item{\code{reverse_log_scale}}{reverse expression values from log scale}
+    \item{\code{logbase}}{log base to use if reverse_log_scale = TRUE}
+    \item{\code{top_percentage}}{percentage of cells that will be considered to have gene expression with matrix binarization}
+    \item{\code{output_enrichment}}{how to return enrichment output}
+    \item{\code{p_value}}{calculate p-values (boolean, default = FALSE)}
+    \item{\code{name}}{to give to spatial enrichment results, default = rank}
+    \item{\code{return_gobject}}{return giotto object}
+  }}
 }
 \description{
 Function to calculate gene signature enrichment scores per spatial position using a hypergeometric test.
 }
-\details{
-The enrichment score is calculated based on the p-value from the
-hypergeometric test, -log10(p-value).
-}
-\examples{
-    hyperGeometricEnrich(gobject)
+\seealso{
+\code{\link{runHyperGeometricEnrich}}
 }

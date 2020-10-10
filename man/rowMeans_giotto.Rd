@@ -6,7 +6,12 @@
 \usage{
 rowMeans_giotto(mymatrix)
 }
-\description{
-rowMeans_giotto
+\arguments{
+\item{mymatrix}{matrix object}
 }
-\keyword{internal}
+\value{
+numeric vector
+}
+\description{
+rowMeans function that works with multiple matrix representations
+}

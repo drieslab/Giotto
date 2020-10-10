@@ -35,6 +35,8 @@ createSpatialKNNnetwork(
 \item{verbose}{verbose}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
+
+\item{\dots}{additional arguments to the selected method function}
 }
 \value{
 giotto object with updated spatial network slot
@@ -47,7 +49,4 @@ or a numerical vector, e.g. 2:3
 }
 \description{
 Create a spatial knn network.
-}
-\examples{
-    createSpatialKNNnetwork(gobject)
 }

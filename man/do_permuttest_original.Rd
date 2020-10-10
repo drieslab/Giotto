@@ -16,7 +16,4 @@ do_permuttest_original(
 \description{
 calculate original values
 }
-\examples{
-    do_permuttest_original()
-}
 \keyword{internal}

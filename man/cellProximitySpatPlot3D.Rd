@@ -113,6 +113,3 @@ Visualize 3D cell-cell interactions according to spatial coordinates in plotly m
 \details{
 Description of parameters.
 }
-\examples{
-    cellProximitySpatPlot3D(gobject)
-}

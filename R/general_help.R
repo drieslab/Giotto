@@ -1,5 +1,28 @@
 
 
+
+#' @title determine_cores
+#' @description guesses how many cores to use
+#' @return numeric
+#' @keywords internal
+determine_cores = function(cores, min_cores = 1, max_cores = 10) {
+
+  if(is.na(cores) | !is.numeric(cores) | (is.numeric(cores) & cores <= 0)) {
+    cores = parallel::detectCores()
+
+    if(cores <= 2) {
+      cores = ifelse(cores < min_cores, cores, min_cores)
+    } else {
+      cores = cores - 2
+      cores = ifelse(cores > max_cores, max_cores, cores)
+    }
+    return(cores)
+  } else {
+    cores = cores
+    return(cores)
+  }
+}
+
 #' @title getDistinctColors
 #' @description Returns a number of distint colors based on the RGB scale
 #' @param n number of colors wanted
@@ -46,6 +69,7 @@ getDistinctColors <- function(n) {
 #' @title get_os
 #' @description return the type of operating system, see https://conjugateprior.org/2015/06/identifying-the-os-from-r/
 #' @return character osx, linux or windows
+#' @keywords internal
 get_os <- function(){
 
   if(.Platform[['OS.type']] == 'windows') {
@@ -75,8 +99,6 @@ get_os <- function(){
 #' @description converts data.table to matrix
 #' @param x data.table object
 #' @keywords internal
-#' @examples
-#'     dt_to_matrix(x)
 dt_to_matrix <- function(x) {
   rownames = as.character(x[[1]])
   mat = methods::as(as.matrix(x[,-1]), 'Matrix')
@@ -155,8 +177,6 @@ extended_gini_fun <- function(x,
 #' }
 #'
 #' @export
-#' @examples
-#'     stitchFieldCoordinates(gobject)
 stitchFieldCoordinates <- function(location_file,
                                    offset_file,
                                    cumulate_offset_x = F,
@@ -225,10 +245,7 @@ stitchFieldCoordinates <- function(location_file,
 #' @param location_file location dataframe with X and Y coordinates
 #' @param Xtilespan numerical value specifying the width of each tile
 #' @param Ytilespan numerical value specifying the height of each tile
-#' @details ...
 #' @export
-#' @examples
-#'     stitchTileCoordinates(gobject)
 stitchTileCoordinates <- function (location_file,
                                    Xtilespan,
                                    Ytilespan) {
@@ -254,6 +271,442 @@ stitchTileCoordinates <- function (location_file,
 
 
 
+
+
+#' @title my_arowMeans
+#' @description arithmic rowMeans that works for a single column
+#' @keywords internal
+my_arowMeans = function(x) {
+  if(is.null(nrow(x))) {
+    x # if only one column is selected
+    #mean(x)
+  } else {
+    rowMeans_giotto(x)
+  }
+}
+
+#' @title my_growMeans
+#' @description geometric rowMeans that works for a single column
+#' @keywords internal
+my_growMeans = function(x, offset = 0.1) {
+  if(is.null(nrow(x))) {
+    x # if only one column is selected
+    #exp(mean(log(x+offset)))-offset
+  } else {
+    exp(rowMeans_giotto(log(x+offset)))-offset
+  }
+}
+
+#' @title my_rowMeans
+#' @description arithmic or geometric rowMeans that works for a single column
+#' @keywords internal
+my_rowMeans = function(x, method = c('arithmic', 'geometric'), offset = 0.1) {
+  method = match.arg(method, c('arithmic', 'geometric'))
+  if(method == 'arithmic') return(my_arowMeans(x))
+  if(method == 'geometric') return(my_growMeans(x))
+}
+
+
+
+## matrix binarization methods ####
+
+#' @title kmeans_binarize
+#' @name kmeans_binarize
+#' @description create binarized scores from a vector using kmeans
+#' @keywords internal
+kmeans_binarize = function(x, nstart = 3, iter.max = 10, set.seed = NULL) {
+
+  if(!is.null(set.seed)) set.seed(1234)
+  sel_gene_km = stats::kmeans(x, centers = 2, nstart = nstart, iter.max = iter.max)$cluster
+  mean_1 = mean(x[sel_gene_km == 1])
+  mean_2 = mean(x[sel_gene_km == 2])
+
+  if(mean_1 > mean_2) {
+    mean_1_value = 1
+    mean_2_value = 0
+  } else {
+    mean_1_value = 0
+    mean_2_value = 1
+  }
+
+  sel_gene_bin = x
+  sel_gene_bin[sel_gene_km == 1] = mean_1_value
+  sel_gene_bin[sel_gene_km == 2] = mean_2_value
+
+  return(sel_gene_bin)
+
+}
+
+#' @title kmeans_arma_binarize
+#' @name kmeans_arma_binarize
+#' @description create binarized scores from a vector using kmeans_arma
+#' @keywords internal
+kmeans_arma_binarize = function(x, n_iter = 5, set.seed = NULL) {
+
+
+  if(!is.null(set.seed)) set.seed(1234)
+  sel_gene_km_res = ClusterR::KMeans_arma(data = as.matrix(x),
+                                          clusters = 2,
+                                          n_iter = n_iter)
+  sel_gene_km = ClusterR::predict_KMeans(data = as.matrix(x),
+                                         CENTROIDS = sel_gene_km_res)
+
+  mean_1 = mean(x[sel_gene_km == 1])
+  mean_2 = mean(x[sel_gene_km == 2])
+
+  if(mean_1 > mean_2) {
+    mean_1_value = 1
+    mean_2_value = 0
+  } else {
+    mean_1_value = 0
+    mean_2_value = 1
+  }
+
+  sel_gene_bin = x
+  sel_gene_bin[sel_gene_km == 1] = mean_1_value
+  sel_gene_bin[sel_gene_km == 2] = mean_2_value
+
+  return(sel_gene_bin)
+
+}
+
+#' @title kmeans_arma_subset_binarize
+#' @name kmeans_arma_subset_binarize
+#' @description create binarized scores from a subsetted vector using kmeans_arma
+#' @keywords internal
+kmeans_arma_subset_binarize = function(x, n_iter = 5, extreme_nr = 20, sample_nr = 200, set.seed = NULL) {
+
+  length_x = length(x)
+
+  vector_x = sort(x)
+  first_set = vector_x[1:extreme_nr]
+  last_set = vector_x[(length_x-(extreme_nr-1)):length_x]
+  random_set = sample(vector_x[(extreme_nr+1):(length_x-extreme_nr)], size = sample_nr)
+  testset = c(first_set, last_set, random_set)
+
+  if(!is.null(set.seed)) set.seed(1234)
+  sel_gene_km_res = ClusterR::KMeans_arma(data = as.matrix(testset),
+                                          clusters = 2,
+                                          n_iter = n_iter)
+  sel_gene_km = ClusterR::predict_KMeans(data = as.matrix(x),
+                                         CENTROIDS = sel_gene_km_res)
+
+  mean_1 = mean(x[sel_gene_km == 1])
+  mean_2 = mean(x[sel_gene_km == 2])
+
+  if(mean_1 > mean_2) {
+    mean_1_value = 1
+    mean_2_value = 0
+  } else {
+    mean_1_value = 0
+    mean_2_value = 1
+  }
+
+  sel_gene_bin = x
+  sel_gene_bin[sel_gene_km == 1] = mean_1_value
+  sel_gene_bin[sel_gene_km == 2] = mean_2_value
+
+  return(sel_gene_bin)
+
+}
+
+
+#' @title kmeans_binarize_wrapper
+#' @name kmeans_binarize_wrapper
+#' @description wrapper for different binarization functions
+#' @keywords internal
+kmeans_binarize_wrapper = function(gobject,
+                                   expression_values = c('normalized', 'scaled', 'custom'),
+                                   subset_genes = NULL,
+                                   kmeans_algo = c('kmeans', 'kmeans_arma', 'kmeans_arma_subset'),
+                                   nstart = 3,
+                                   iter_max = 10,
+                                   extreme_nr = 50,
+                                   sample_nr = 50,
+                                   set.seed = NULL) {
+
+
+  # expression
+  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  expr_values = select_expression_values(gobject = gobject, values = values)
+
+  if(!is.null(subset_genes)) {
+    expr_values = expr_values[rownames(expr_values) %in% subset_genes, ]
+  }
+
+  # check parameter
+  kmeans_algo = match.arg(arg = kmeans_algo, choices = c('kmeans', 'kmeans_arma', 'kmeans_arma_subset'))
+
+  if(kmeans_algo == 'kmeans') {
+    bin_matrix = t_giotto(apply(X = expr_values, MARGIN = 1, FUN = kmeans_binarize,
+                                nstart = nstart, iter.max = iter_max, set.seed = set.seed))
+  } else if(kmeans_algo == 'kmeans_arma') {
+    bin_matrix = t_giotto(apply(X = expr_values, MARGIN = 1, FUN = kmeans_arma_binarize,
+                                n_iter = iter_max, set.seed = set.seed))
+  } else if(kmeans_algo == 'kmeans_arma_subset') {
+    bin_matrix = t_giotto(apply(X = expr_values, MARGIN = 1, FUN = kmeans_arma_subset_binarize,
+                                n_iter = iter_max,
+                                extreme_nr = extreme_nr,
+                                sample_nr = sample_nr,
+                                set.seed = set.seed))
+  }
+
+  return(bin_matrix)
+
+}
+
+
+
+
+#' @title rank_binarize
+#' @name rank_binarize
+#' @description create binarized scores from a vector using arbitrary rank
+#' @keywords internal
+rank_binarize = function(x, max_rank = 200) {
+
+  sel_gene_rank = rank(-x, ties.method = 'average')
+
+  sel_gene_bin = x
+  sel_gene_bin[sel_gene_rank <= max_rank] = 1
+  sel_gene_bin[sel_gene_rank > max_rank] = 0
+
+  return(sel_gene_bin)
+
+}
+
+
+## data.table helper functions ####
+
+#' @title DT_removeNA
+#' @name DT_removeNA
+#' @description set NA values to 0 in a data.table object
+#' @keywords internal
+DT_removeNA = function(DT) {
+  for (i in names(DT))
+    DT[is.na(get(i)), (i):=0]
+  return(DT)
+}
+
+
+#' @title sort_combine_two_DT_columns
+#' @name sort_combine_two_DT_columns
+#' @description fast sorting and pasting of 2 character columns in a data.table
+#' @keywords internal
+sort_combine_two_DT_columns = function(DT,
+                                       column1,
+                                       column2,
+                                       myname = 'unif_gene_gene') {
+
+  # data.table variables
+  values_1_num = values_2_num = scolumn_1 = scolumn_2 = unif_sort_column = NULL
+
+  # maybe faster with converting to factors??
+
+  # make sure columns are character
+  selected_columns = c(column1, column2)
+  DT[,(selected_columns):= lapply(.SD, as.character), .SDcols = selected_columns]
+
+  # convert characters into numeric values
+  uniq_values = sort(unique(c(DT[[column1]], DT[[column2]])))
+  uniq_values_num = 1:length(uniq_values)
+  names(uniq_values_num) = uniq_values
+
+
+  DT[,values_1_num := uniq_values_num[get(column1)]]
+  DT[,values_2_num := uniq_values_num[get(column2)]]
+
+
+  DT[, scolumn_1 := ifelse(values_1_num < values_2_num, get(column1), get(column2))]
+  DT[, scolumn_2 := ifelse(values_1_num < values_2_num, get(column2), get(column1))]
+
+  DT[, unif_sort_column := paste0(scolumn_1,'--',scolumn_2)]
+  DT[, c('values_1_num', 'values_2_num', 'scolumn_1', 'scolumn_2') := NULL]
+  data.table::setnames(DT, 'unif_sort_column', myname)
+
+  return(DT)
+}
+
+
+
+
+
+## package checks ####
+
+#' @title package_check
+#' @name package_check
+#' @param pkg_name name of package
+#' @param repository where is the package
+#' @param github_repo name of github repository if needed
+#' @description check if package is available and provide installation instruction if not available
+#' @keywords internal
+package_check = function(pkg_name,
+                         repository = c('CRAN', 'Bioc', 'github'),
+                         github_repo = NULL) {
+
+  repository = match.arg(repository, choices = c('CRAN', 'Bioc', 'github'))
+
+  if(repository == 'CRAN') {
+
+    if(pkg_name %in% rownames(installed.packages()) == FALSE) {
+      stop("\n package ", pkg_name ," is not yet installed \n",
+           "To install: \n",
+           "install.packages('",pkg_name,"')"
+      )
+    } else {
+      return(TRUE)
+    }
+
+
+  } else if(repository == 'Bioc') {
+
+    if(pkg_name %in% rownames(installed.packages()) == FALSE) {
+      stop("\n package ", pkg_name ," is not yet installed \n",
+           "To install: \n",
+           "if (!requireNamespace('BiocManager', quietly = TRUE)) install.packages('BiocManager');
+         BiocManager::install('",pkg_name,"')"
+      )
+    } else {
+      return(TRUE)
+    }
+
+  } else if(repository == 'github') {
+
+    if(is.null(github_repo)) stop("provide the github repo of package, e.g. 'johndoe/cooltool' ")
+
+    if(pkg_name %in% rownames(installed.packages()) == FALSE) {
+      stop("\n package ", pkg_name ," is not yet installed \n",
+           "To install: \n",
+           "devtools::install_github('",github_repo,"')"
+      )
+    } else {
+      return(TRUE)
+    }
+
+  }
+
+}
+
+
+
+## dataset helpers ####
+
+#' @title getSpatialDataset
+#' @name getSpatialDataset
+#' @param dataset dataset to download
+#' @param directory directory to save the data to
+#' @param \dots additional parameters to \code{\link[utils]{download.file}}
+#' @description This package will automatically download the spatial locations and
+#' expression matrix for the chosen dataset. These files are already in the right format
+#' to create a Giotto object. If wget is installed on your machine, you can add
+#' 'method = wget' to the parameters to download files faster.
+#' @export
+getSpatialDataset = function(dataset = c('ST_OB1',
+                                         'ST_OB2',
+                                         'codex_spleen',
+                                         'cycif_PDAC',
+                                         'starmap_3D_cortex',
+                                         'osmfish_SS_cortex',
+                                         'merfish_preoptic',
+                                         'seqfish_SS_cortex',
+                                         'seqfish_OB',
+                                         'slideseq_cerebellum'),
+                             directory = getwd(),
+                             ...) {
+
+  sel_dataset = match.arg(dataset, choices = c('ST_OB1',
+                                               'ST_OB2',
+                                               'codex_spleen',
+                                               'cycif_PDAC',
+                                               'starmap_3D_cortex',
+                                               'osmfish_SS_cortex',
+                                               'merfish_preoptic',
+                                               'seqfish_SS_cortex',
+                                               'seqfish_OB',
+                                               'slideseq_cerebellum'))
+
+  # check operating system first
+  os_specific_system = get_os()
+
+  #if(os_specific_system == 'windows') {
+  #  stop('This function is currently not supported on windows systems,
+  #       please visit https://github.com/RubD/spatial-datasets and manually download your files')
+  #}
+
+
+  # check directory
+  if(!file.exists(directory)) {
+    warning('The output directory does not exist and will be created \n')
+    dir.create(directory, recursive = T)
+  }
+
+  datasets_file = system.file("extdata", "datasets.txt", package = 'Giotto')
+  datasets_file = data.table::fread(datasets_file)
+
+
+
+  ## check if wget is installed
+  #message = system("if ! command -v wget &> /dev/null
+  #                  then
+  #                  echo 'wget could not be found, please install wget first'
+  #                  exit
+  #                  fi", intern = TRUE)
+
+  #if(identical(message, character(0))) {
+  #  print('wget was found, start downloading datasets: ')
+  #} else {
+  #  stop(message)
+  #}
+
+  ## alternative
+  #wget_works = try(system('command -v wget', intern = T))
+
+  #if(class(wget_works) == 'try-error' | is.na(wget_works[1])) {
+  #  stop('wget was not found, please install wget first \n')
+  #} else {
+  #  print('wget was found, start downloading datasets: \n')
+  #}
+
+
+
+  # get url to spatial locations and download
+  spatial_locs_url = datasets_file[dataset == sel_dataset][['spatial_locs']]
+  myfilename = basename(spatial_locs_url)
+  mydestfile = paste0(directory,'/', myfilename)
+
+  print(spatial_locs_url)
+  print(mydestfile)
+
+  utils::download.file(url = spatial_locs_url, destfile = mydestfile, ...)
+
+  #system(paste0("wget -P ", "'",directory,"'"," ", spatial_locs_url))
+
+
+  # get url to expression matrix and download
+  expr_matrix_url = datasets_file[dataset == sel_dataset][['expr_matrix']]
+  myfilename = basename(expr_matrix_url)
+  mydestfile = paste0(directory,'/', myfilename)
+  utils::download.file(url = expr_matrix_url, destfile = mydestfile, ...)
+
+  #system(paste0("wget -P ", "'",directory,"'"," ", expr_matrix_url))
+
+  # get url(s) to additional metadata files and download
+  metadata_url = datasets_file[dataset == sel_dataset][['metadata']][[1]]
+  metadata_url = unlist(strsplit(metadata_url, split = '\\|'))
+
+  if(identical(metadata_url, character(0))) {
+    NULL
+  } else {
+    for(url in metadata_url) {
+      myfilename = basename(url)
+      mydestfile = paste0(directory,'/', myfilename)
+      utils::download.file(url = url, destfile = mydestfile, ...)
+      #system(paste0("wget -P ", "'",directory,"'"," ", url))
+    }
+  }
+
+}
+
+
 #' @title get10Xmatrix
 #' @description This function creates an expression matrix from a 10X structured folder
 #' @param path_to_data path to the 10X folder
@@ -268,8 +721,6 @@ stitchTileCoordinates <- function (location_file,
 #' By default the first column of the features or genes .tsv file will be used, however if multiple
 #' annotations are provided (e.g. ensembl gene ids and gene symbols) the user can select another column.
 #' @export
-#' @examples
-#'     get10Xmatrix(path_to_data)
 get10Xmatrix = function(path_to_data, gene_column_index = 1) {
 
   # data.table variables
@@ -331,8 +782,6 @@ get10Xmatrix = function(path_to_data, gene_column_index = 1) {
 #' @return expression matrix with gene symbols as rownames
 #' @details This function requires that the biomaRt library is installed
 #' @export
-#' @examples
-#'     convertEnsemblToGeneSymbol(matrix)
 convertEnsemblToGeneSymbol = function(matrix,
                                       species = c('mouse', 'human')) {
 
@@ -352,11 +801,11 @@ convertEnsemblToGeneSymbol = function(matrix,
 
     # prepare ensembl database
     ensembl = biomaRt::useMart("ensembl",
-                      dataset = "mmusculus_gene_ensembl")
+                               dataset = "mmusculus_gene_ensembl")
     gene_names = biomaRt::getBM(attributes= c('mgi_symbol', 'ensembl_gene_id'),
-                       filters = 'ensembl_gene_id',
-                       values = ensemblsIDS,
-                       mart = ensembl)
+                                filters = 'ensembl_gene_id',
+                                values = ensemblsIDS,
+                                mart = ensembl)
     gene_names_DT = data.table::as.data.table(gene_names)
     gene_names_DT[, dupes := duplicated(mgi_symbol)]
     gene_names_DT[, gene_symbol := ifelse(any(dupes) == FALSE, mgi_symbol,
@@ -386,11 +835,11 @@ convertEnsemblToGeneSymbol = function(matrix,
 
     # prepare ensembl database
     ensembl = biomaRt::useMart("ensembl",
-                      dataset = "hsapiens_gene_ensembl")
+                               dataset = "hsapiens_gene_ensembl")
     gene_names = biomaRt::getBM(attributes= c('hgnc_symbol', 'ensembl_gene_id'),
-                       filters = 'ensembl_gene_id',
-                       values = ensemblsIDS,
-                       mart = ensembl)
+                                filters = 'ensembl_gene_id',
+                                values = ensemblsIDS,
+                                mart = ensembl)
     gene_names_DT = data.table::as.data.table(gene_names)
     gene_names_DT[, dupes := duplicated(hgnc_symbol)]
     gene_names_DT[, gene_symbol := ifelse(any(dupes) == FALSE, hgnc_symbol,
@@ -417,131 +866,5 @@ convertEnsemblToGeneSymbol = function(matrix,
 }
 
 
-
-#' @title my_arowMeans
-#' @description arithmic rowMeans that works for a single column
-#' @examples
-#'     my_arowMeans(x)
-my_arowMeans = function(x) {
-  if(is.null(nrow(x))) {
-    x # if only one column is selected
-    #mean(x)
-  } else {
-    rowMeans_giotto(x)
-  }
-}
-
-#' @title my_growMeans
-#' @description geometric rowMeans that works for a single column
-#' @examples
-#'     my_growMeans(x)
-my_growMeans = function(x, offset = 0.1) {
-  if(is.null(nrow(x))) {
-    x # if only one column is selected
-    #exp(mean(log(x+offset)))-offset
-  } else {
-    exp(rowMeans_giotto(log(x+offset)))-offset
-  }
-}
-
-#' @title my_rowMeans
-#' @description arithmic or geometric rowMeans that works for a single column
-#' @examples
-#'     my_rowMeans(x)
-my_rowMeans = function(x, method = c('arithmic', 'geometric'), offset = 0.1) {
-  method = match.arg(method, c('arithmic', 'geometric'))
-  if(method == 'arithmic') return(my_arowMeans(x))
-  if(method == 'geometric') return(my_growMeans(x))
-}
-
-#' @title DT_removeNA
-#' @name DT_removeNA
-#' @description set NA values to 0 in a data.table object
-#' @param DT data.table
-DT_removeNA = function(DT) {
-  for (i in names(DT))
-    DT[is.na(get(i)), (i):=0]
-  return(DT)
-}
-
-#' @title kmeans_binarize
-#' @name kmeans_binarize
-#' @description create binarized scores from a vector using kmeans
-kmeans_binarize = function(x, nstart = 3, iter.max = 10) {
-
-  sel_gene_km = stats::kmeans(x, centers = 2, nstart = nstart, iter.max = iter.max)$cluster
-  mean_1 = mean(x[sel_gene_km == 1])
-  mean_2 = mean(x[sel_gene_km == 2])
-
-  if(mean_1 > mean_2) {
-    mean_1_value = 1
-    mean_2_value = 0
-  } else {
-    mean_1_value = 0
-    mean_2_value = 1
-  }
-
-  sel_gene_bin = x
-  sel_gene_bin[sel_gene_km == 1] = mean_1_value
-  sel_gene_bin[sel_gene_km == 2] = mean_2_value
-
-  return(sel_gene_bin)
-
-}
-
-#' @title rank_binarize
-#' @name rank_binarize
-#' @description create binarized scores from a vector using arbitrary rank
-rank_binarize = function(x, max_rank = 200) {
-
-  sel_gene_rank = rank(-x, ties.method = 'average')
-
-  sel_gene_bin = x
-  sel_gene_bin[sel_gene_rank <= max_rank] = 1
-  sel_gene_bin[sel_gene_rank > max_rank] = 0
-
-  return(sel_gene_bin)
-
-}
-
-#' @title sort_combine_two_DT_columns
-#' @name sort_combine_two_DT_columns
-#' @description fast sorting and pasting of 2 character columns in a data.table
-#' @keywords internal
-#' @examples
-#'     sort_combine_two_DT_columns()
-sort_combine_two_DT_columns = function(DT,
-                                       column1,
-                                       column2,
-                                       myname = 'unif_gene_gene') {
-
-  # data.table variables
-  values_1_num = values_2_num = scolumn_1 = scolumn_2 = unif_sort_column = NULL
-
-  # maybe faster with converting to factors??
-
-  # make sure columns are character
-  selected_columns = c(column1, column2)
-  DT[,(selected_columns):= lapply(.SD, as.character), .SDcols = selected_columns]
-
-  # convert characters into numeric values
-  uniq_values = sort(unique(c(DT[[column1]], DT[[column2]])))
-  uniq_values_num = 1:length(uniq_values)
-  names(uniq_values_num) = uniq_values
-
-
-  DT[,values_1_num := uniq_values_num[get(column1)]]
-  DT[,values_2_num := uniq_values_num[get(column2)]]
-
-
-  DT[, scolumn_1 := ifelse(values_1_num < values_2_num, get(column1), get(column2))]
-  DT[, scolumn_2 := ifelse(values_1_num < values_2_num, get(column2), get(column1))]
-
-  DT[, unif_sort_column := paste0(scolumn_1,'--',scolumn_2)]
-  DT[, c('values_1_num', 'values_2_num', 'scolumn_1', 'scolumn_2') := NULL]
-  data.table::setnames(DT, 'unif_sort_column', myname)
-
-  return(DT)
-}
 
 

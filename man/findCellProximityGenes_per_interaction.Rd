@@ -18,12 +18,12 @@ findCellProximityGenes_per_interaction(
   offset = 0.1,
   adjust_method = "bonferroni",
   nr_permutations = 100,
-  cores = 1
+  cores = 1,
+  set_seed = TRUE,
+  seed_number = 1234
 )
 }
 \description{
 Identifies genes that are differentially expressed due to proximity to other cell types.
 }
-\examples{
-    findCellProximityGenes_per_interaction()
-}
+\keyword{internal}

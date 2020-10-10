@@ -9,61 +9,39 @@ cellProximitySpatPlot(gobject, ...)
 \arguments{
 \item{gobject}{giotto object}
 
-\item{\dots}{additional parameters}
-
-\item{interaction_name}{cell-cell interaction name}
-
-\item{cluster_column}{cluster column with cell clusters}
-
-\item{sdimx}{x-axis dimension name (default = 'sdimx')}
-
-\item{sdimy}{y-axis dimension name (default = 'sdimy')}
-
-\item{cell_color}{color for cells (see details)}
-
-\item{cell_color_code}{named vector with colors}
-
-\item{color_as_factor}{convert color column to factor}
-
-\item{show_other_cells}{decide if show cells not in network}
-
-\item{show_network}{show underlying spatial network}
-
-\item{network_color}{color of spatial network}
-
-\item{spatial_network_name}{name of spatial network to use}
-
-\item{show_grid}{show spatial grid}
-
-\item{grid_color}{color of spatial grid}
-
-\item{spatial_grid_name}{name of spatial grid to use}
-
-\item{coord_fix_ratio}{fix ratio between x and y-axis}
-
-\item{show_legend}{show legend}
-
-\item{point_size_select}{size of selected points}
-
-\item{point_select_border_col}{border color of selected points}
-
-\item{point_select_border_stroke}{stroke size of selected points}
-
-\item{point_size_other}{size of other points}
-
-\item{point_other_border_col}{border color of other points}
-
-\item{point_other_border_stroke}{stroke size of other points}
-
-\item{show_plot}{show plots}
-
-\item{return_plot}{return ggplot object}
-
-\item{save_plot}{directly save the plot [boolean]}
-
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
-
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+\item{...}{
+  Arguments passed on to \code{\link[=cellProximitySpatPlot2D]{cellProximitySpatPlot2D}}
+  \describe{
+    \item{\code{interaction_name}}{cell-cell interaction name}
+    \item{\code{cluster_column}}{cluster column with cell clusters}
+    \item{\code{sdimx}}{x-axis dimension name (default = 'sdimx')}
+    \item{\code{sdimy}}{y-axis dimension name (default = 'sdimy')}
+    \item{\code{cell_color}}{color for cells (see details)}
+    \item{\code{cell_color_code}}{named vector with colors}
+    \item{\code{color_as_factor}}{convert color column to factor}
+    \item{\code{show_other_cells}}{decide if show cells not in network}
+    \item{\code{show_network}}{show spatial network of selected cells}
+    \item{\code{show_other_network}}{show spatial network of not selected cells}
+    \item{\code{network_color}}{color of spatial network}
+    \item{\code{spatial_network_name}}{name of spatial network to use}
+    \item{\code{show_grid}}{show spatial grid}
+    \item{\code{grid_color}}{color of spatial grid}
+    \item{\code{spatial_grid_name}}{name of spatial grid to use}
+    \item{\code{coord_fix_ratio}}{fix ratio between x and y-axis}
+    \item{\code{show_legend}}{show legend}
+    \item{\code{point_size_select}}{size of selected points}
+    \item{\code{point_select_border_col}}{border color of selected points}
+    \item{\code{point_select_border_stroke}}{stroke size of selected points}
+    \item{\code{point_size_other}}{size of other points}
+    \item{\code{point_alpha_other}}{opacity of other points}
+    \item{\code{point_other_border_col}}{border color of other points}
+    \item{\code{point_other_border_stroke}}{stroke size of other points}
+    \item{\code{show_plot}}{show plots}
+    \item{\code{return_plot}}{return ggplot object}
+    \item{\code{save_plot}}{directly save the plot [boolean]}
+    \item{\code{save_param}}{list of saving parameters from \code{\link{all_plots_save_function}}}
+    \item{\code{default_save_name}}{default save name for saving, don't change, change save_name in save_param}
+  }}
 }
 \value{
 ggplot
@@ -73,9 +51,6 @@ Visualize 2D cell-cell interactions according to spatial coordinates in ggplot m
 }
 \details{
 Description of parameters.
-}
-\examples{
-    cellProximitySpatPlot(gobject)
 }
 \seealso{
 \code{\link{cellProximitySpatPlot2D}} and \code{\link{cellProximitySpatPlot3D}} for 3D

@@ -14,6 +14,7 @@ spatPlot(...)
     \item{\code{show_image}}{show a tissue background image}
     \item{\code{gimage}}{a giotto image}
     \item{\code{image_name}}{name of a giotto image}
+    \item{\code{group_by}}{create multiple plots based on cell annotation column}
     \item{\code{group_by_subset}}{subset the group_by factor column}
     \item{\code{sdimx}}{x-axis dimension name (default = 'sdimx')}
     \item{\code{sdimy}}{y-axis dimension name (default = 'sdimy')}
@@ -34,6 +35,8 @@ spatPlot(...)
     \item{\code{show_cluster_center}}{plot center of selected clusters}
     \item{\code{show_center_label}}{plot label of selected clusters}
     \item{\code{center_point_size}}{size of center points}
+    \item{\code{center_point_border_col}}{border color of center points}
+    \item{\code{center_point_border_stroke}}{border stroke size of center points}
     \item{\code{label_size}}{size of labels}
     \item{\code{label_fontface}}{font of labels}
     \item{\code{show_network}}{show underlying spatial network}
@@ -79,7 +82,12 @@ Visualize cells according to spatial coordinates
 Description of parameters.
 }
 \examples{
-    spatPlot(gobject)
+
+data(mini_giotto_single_cell)
+
+spatPlot(mini_giotto_single_cell)
+spatPlot(mini_giotto_single_cell, cell_color = 'cell_types', point_size = 3)
+
 }
 \seealso{
 \code{\link{spatPlot3D}}

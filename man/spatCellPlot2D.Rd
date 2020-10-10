@@ -105,6 +105,10 @@ spatCellPlot2D(
 
 \item{center_point_size}{size of center points}
 
+\item{center_point_border_col}{border color of center points}
+
+\item{center_point_border_stroke}{border stroke size of center points}
+
 \item{label_size}{size of labels}
 
 \item{label_fontface}{font of labels}
@@ -151,6 +155,14 @@ spatCellPlot2D(
 
 \item{axis_title}{size of axis title}
 
+\item{cow_n_col}{cowplot param: how many columns}
+
+\item{cow_rel_h}{cowplot param: relative height}
+
+\item{cow_rel_w}{cowplot param: relative width}
+
+\item{cow_align}{cowplot param: how to align}
+
 \item{show_plot}{show plot}
 
 \item{return_plot}{return ggplot object}
@@ -171,7 +183,20 @@ Visualize cells according to spatial coordinates
 Description of parameters.
 }
 \examples{
-    spatCellPlot2D(gobject)
+
+data(mini_giotto_single_cell)
+
+# combine all metadata
+combineMetadata(mini_giotto_single_cell, spat_enr_names = 'cluster_metagene')
+
+# visualize total expression information
+spatCellPlot2D(mini_giotto_single_cell, cell_annotation_values = 'total_expr')
+
+# visualize enrichment results
+spatCellPlot2D(mini_giotto_single_cell,
+               spat_enr_names = 'cluster_metagene',
+               cell_annotation_values = c('1','2'))
+
 }
 \seealso{
 Other spatial cell annotation visualizations: 

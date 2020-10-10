@@ -15,6 +15,7 @@ dimCellPlot2D(
   show_NN_network = F,
   nn_network_to_use = "sNN",
   network_name = "sNN.pca",
+  cell_color_code = NULL,
   cell_color_gradient = c("blue", "white", "red"),
   gradient_midpoint = NULL,
   gradient_limits = NULL,
@@ -74,6 +75,8 @@ dimCellPlot2D(
 
 \item{network_name}{name of NN network to use, if show_NN_network = TRUE}
 
+\item{cell_color_code}{named vector with colors for cell annotation values}
+
 \item{cell_color_gradient}{vector with 3 colors for numeric data}
 
 \item{gradient_midpoint}{midpoint for color gradient}
@@ -95,6 +98,10 @@ dimCellPlot2D(
 \item{show_center_label}{plot label of selected clusters}
 
 \item{center_point_size}{size of center points}
+
+\item{center_point_border_col}{border color of center points}
+
+\item{center_point_border_stroke}{border stroke size of center points}
 
 \item{label_size}{size of labels}
 
@@ -124,6 +131,14 @@ dimCellPlot2D(
 
 \item{axis_title}{size of axis title}
 
+\item{cow_n_col}{cowplot param: how many columns}
+
+\item{cow_rel_h}{cowplot param: relative height}
+
+\item{cow_rel_w}{cowplot param: relative width}
+
+\item{cow_align}{cowplot param: how to align}
+
 \item{show_plot}{show plot}
 
 \item{return_plot}{return ggplot object}
@@ -133,14 +148,6 @@ dimCellPlot2D(
 \item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-
-\item{cell_color}{color for cells (see details)}
-
-\item{color_as_factor}{convert color column to factor}
-
-\item{cell_color_code}{named vector with colors}
-
-\item{title}{title for plot, defaults to cell_color parameter}
 }
 \value{
 ggplot
@@ -152,7 +159,20 @@ Visualize cells according to dimension reduction coordinates
 Description of parameters. For 3D plots see \code{\link{dimPlot3D}}
 }
 \examples{
-    dimCellPlot2D(gobject)
+
+data(mini_giotto_single_cell)
+
+# combine all metadata
+combineMetadata(mini_giotto_single_cell, spat_enr_names = 'cluster_metagene')
+
+# visualize total expression information
+dimCellPlot2D(mini_giotto_single_cell, cell_annotation_values = 'total_expr')
+
+# visualize enrichment results
+dimCellPlot2D(mini_giotto_single_cell,
+               spat_enr_names = 'cluster_metagene',
+               cell_annotation_values = c('1','2'))
+
 }
 \seealso{
 Other dimension reduction cell annotation visualizations: 

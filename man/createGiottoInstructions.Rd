@@ -14,7 +14,8 @@ createGiottoInstructions(
   dpi = NULL,
   units = NULL,
   height = NULL,
-  width = NULL
+  width = NULL,
+  is_docker = FALSE
 )
 }
 \arguments{
@@ -37,15 +38,14 @@ createGiottoInstructions(
 \item{height}{height of plots}
 
 \item{width}{width of  plots}
+
+\item{is_docker}{using docker implementation of Giotto (defaults to FALSE)}
 }
 \value{
 named vector with giotto instructions
 }
 \description{
 Function to set global instructions for giotto functions
-}
-\examples{
-    createGiottoInstructions()
 }
 \seealso{
 More online information can be found here \url{https://rubd.github.io/Giotto_site/articles/instructions_and_plotting.html}

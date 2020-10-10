@@ -56,6 +56,8 @@ createSpatialNetwork(
 \item{verbose}{verbose}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
+
+\item{\dots}{Additional parameters for the selected function}
 }
 \value{
 giotto object with updated spatial network slot
@@ -71,7 +73,4 @@ setting a minimum k for each cell.
 \strong{dimensions: } default = 'all' which takes all possible dimensions.
 Alternatively you can provide a character vector that specififies the spatial dimensions to use, e.g. c("sdimx', "sdimy")
 or a numerical vector, e.g. 2:3
-}
-\examples{
-    createSpatialNetwork(gobject)
 }

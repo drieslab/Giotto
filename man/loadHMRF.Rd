@@ -32,6 +32,3 @@ load previous HMRF
 \details{
 Description of HMRF parameters ...
 }
-\examples{
-    loadHMRF(gobject)
-}

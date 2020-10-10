@@ -51,6 +51,3 @@ creates Giotto object directly from a 10X visium folder
   \item{png_name: by default the first png will be selected, provide the png name to override this (e.g. myimage.png)}
 }
 }
-\examples{
-    createGiottoVisiumObject(visium_dir)
-}

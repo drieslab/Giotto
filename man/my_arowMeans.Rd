@@ -9,6 +9,4 @@ my_arowMeans(x)
 \description{
 arithmic rowMeans that works for a single column
 }
-\examples{
-    my_arowMeans(x)
-}
+\keyword{internal}

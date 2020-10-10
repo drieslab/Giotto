@@ -27,6 +27,3 @@ You can add additional gene metadata in two manners:
 2. Provide a data.table or data.frame with gene annotations and specificy which column contains the gene IDs,
 these gene IDs need to match with the gene_ID column in fDataDT(gobject)
 }
-\examples{
-    addGeneMetadata(gobject)
-}

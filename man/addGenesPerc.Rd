@@ -30,5 +30,19 @@ giotto object if return_gobject = TRUE, else a vector with % results
 calculates the total percentage of (normalized) counts for a subset of selected genes
 }
 \examples{
-    addGenesPerc(gobject)
+
+data(mini_giotto_single_cell)
+
+# select genes (e.g. Rpl or mitochondrial)
+random_genes = sample(slot(mini_giotto_single_cell, 'gene_ID'), 5)
+
+# calculate percentage of those selected genes per cells/spot
+updated_giotto_object = addGenesPerc(mini_giotto_single_cell,
+                                     genes = random_genes,
+                                     vector_name = 'random_gene_perc')
+
+# visualize result in data.table format
+pDataDT(updated_giotto_object)
+
+
 }

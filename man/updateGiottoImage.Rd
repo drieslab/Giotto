@@ -35,6 +35,3 @@ a giotto object or an updated giotto image if return_gobject = F
 \description{
 Updates the boundaries of a giotto image attached to a giotto object
 }
-\examples{
-    updateGiottoImage(gobject)
-}

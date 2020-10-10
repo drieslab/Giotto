@@ -9,6 +9,7 @@ library(Giotto)
 
 #temp_dir = '/your/path/'
 temp_dir = getwd()
+temp_dir = '~/Temp/'
 
 ## 1. giotto object ####
 expr_path = system.file("extdata", "seqfish_field_expr.txt", package = 'Giotto')
@@ -29,7 +30,8 @@ VC_small <- adjustGiottoMatrix(gobject = VC_small, expression_values = c('normal
 
 ## 3. dimension reduction ####
 VC_small <- calculateHVG(gobject = VC_small)
-VC_small <- runPCA(gobject = VC_small)
+VC_small <- runPCA(gobject = VC_small, center = T)
+?runPCA
 screePlot(VC_small, ncp = 20)
 jackstrawPlot(VC_small, ncp = 20)
 plotPCA(VC_small)
@@ -38,7 +40,6 @@ VC_small <- runUMAP(VC_small, dimensions_to_use = 1:5, n_threads = 2)
 plotUMAP(gobject = VC_small)
 VC_small <- runtSNE(VC_small, dimensions_to_use = 1:5)
 plotTSNE(gobject = VC_small)
-
 
 ## 4. clustering ####
 VC_small <- createNearestNetwork(gobject = VC_small, dimensions_to_use = 1:5, k = 5)
@@ -99,11 +100,119 @@ spatPlot(gobject = VC_small, show_network = T,
 
 
 ## 9. spatial genes ####
+
 km_spatialgenes = binSpect(VC_small)
+
 spatGenePlot(VC_small, expression_values = 'scaled', genes = km_spatialgenes[1:6]$genes,
              point_shape = 'border', point_border_stroke = 0.1,
              show_network = F, network_color = 'lightgrey', point_size = 2.5,
              cow_n_col = 2)
+
+
+## combined approach ##
+km_spatialgenes[p.value <= 0.05]
+
+km_spatialgenes1 = km_spatialgenes
+km_spatialgenes1[, k := 1]
+km_spatialgenes2 = km_spatialgenes
+km_spatialgenes2[, k := 2]
+km_spatialgenes3 = km_spatialgenes
+km_spatialgenes3[, k := 3]
+
+km_spatialgenes_tot = data.table::rbindlist(l = list(km_spatialgenes1, km_spatialgenes2, km_spatialgenes3))
+
+comb_km = km_spatialgenes_tot[, sum(log(p.value)), by = genes]
+comb_km[, V1 := V1*-2]
+comb_km[, p.val := pchisq(q = V1, df = 2*3, log.p = F, lower.tail = F)]
+
+pchisq(q = 1, df = 2*3, log.p = T)
+pchisq(q = 6, df = 2*3, log.p = T)
+
+
+km_spatialgenes[p.value < 0.01 ]
+comb_km[p.val < 0.01]
+comb_km
+
+## simulations ##
+
+# create smaller object
+
+set.seed(1234)
+sample_genes = sample(VC_small@gene_ID, 100)
+
+VC_small_subset = subsetGiotto(VC_small, gene_ids = sample_genes)
+VC_small_subset <- filterGiotto(gobject = VC_small_subset, expression_threshold = 0.5, gene_det_in_min_cells = 20, min_det_genes_per_cell = 0)
+VC_small_subset <- normalizeGiotto(gobject = VC_small_subset, scalefactor = 6000, verbose = T)
+
+
+
+
+# pattern 1: bottom right stripe
+pattern = VC_small_subset@spatial_locs[sdimx > 1500 & sdimy < -500]
+pattern_ids = pattern$cell_ID
+
+selected_genes = sample_genes[1:4]
+my_dir = '/Users/rubendries/Dropbox (Personal)/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Paper_revisions/NatMethod_revisions/Revision_1/Spatial_sim_tests/right_lower_patch/'
+
+right_patch_pattern = runPatternSimulation(gobject = VC_small_subset,
+                                           pattern_name = 'right_patch',
+                                           pattern_cell_ids = pattern_ids,
+                                           gene_names = selected_genes,
+                                           spatial_probs = c(0.5, 0.8, 0.9, 0.95, 0.99, 1),
+                                           reps = 6,
+                                           save_plot = T,
+                                           max_col = 2,
+                                           save_dir = my_dir)
+
+
+# pattern 2: central patch
+pattern = VC_small_subset@spatial_locs[sdimx > 750 & sdimx < 1250 & sdimy > -1250 & sdimy < -750]
+pattern_ids = pattern$cell_ID
+
+selected_genes = sample_genes[1:4]
+my_dir = '/Users/rubendries/Dropbox (Personal)/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Paper_revisions/NatMethod_revisions/Revision_1/Spatial_sim_tests/center_patch/'
+
+center_patch_pattern = runPatternSimulation(gobject = VC_small_subset,
+                                           pattern_name = 'center_patch',
+                                           pattern_cell_ids = pattern_ids,
+                                           gene_names = selected_genes,
+                                           spatial_probs = c(0.5, 0.8, 0.9, 0.95, 0.99, 1),
+                                           reps = 6,
+                                           save_plot = T,
+                                           max_col = 2,
+                                           save_dir = my_dir)
+
+# pattern 3: stripe
+pattern = VC_small_subset@spatial_locs[sdimx > 800 & sdimx < 1200]
+pattern_ids = pattern$cell_ID
+
+selected_genes = sample_genes[1:4]
+my_dir = '/Users/rubendries/Dropbox (Personal)/Projects/GC_lab/Ruben_Dries/190225_spatial_package/Results/Paper_revisions/NatMethod_revisions/Revision_1/Spatial_sim_tests/stripe/'
+
+center_patch_pattern = runPatternSimulation(gobject = VC_small_subset,
+                                            pattern_name = 'stripe',
+                                            pattern_cell_ids = pattern_ids,
+                                            gene_names = selected_genes,
+                                            spatial_probs = c(0.5, 0.8, 0.9, 0.95, 0.99, 1),
+                                            reps = 6,
+                                            save_plot = T,
+                                            max_col = 2,
+                                            save_dir = my_dir)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 rank_spatialgenes = binSpect(VC_small, bin_method = 'rank')
 spatGenePlot(VC_small, expression_values = 'scaled', genes = rank_spatialgenes[1:6]$genes,
@@ -116,6 +225,7 @@ spatGenePlot(VC_small, expression_values = 'scaled', genes = silh_spatialgenes[1
              point_shape = 'border', point_border_stroke = 0.1,
              show_network = F, network_color = 'lightgrey', point_size = 2.5,
              cow_n_col = 2)
+
 
 
 ## 10. spatial co-expression patterns ####
@@ -181,8 +291,11 @@ cell_proximities = cellProximityEnrichment(gobject = VC_small,
                                            spatial_network_name = 'Delaunay_network',
                                            adjust_method = 'fdr',
                                            number_of_simulations = 1000)
+
 # barplot
-cellProximityBarplot(gobject = VC_small, CPscore = cell_proximities, min_orig_ints = 5, min_sim_ints = 5)
+cellProximityBarplot(gobject = VC_small, CPscore = cell_proximities,
+                     min_orig_ints = 1, min_sim_ints = 1, p_val = 0.25)
+
 ## heatmap
 cellProximityHeatmap(gobject = VC_small, CPscore = cell_proximities, order_cell_types = T, scale = T,
                      color_breaks = c(-1.5, 0, 1.5), color_names = c('blue', 'white', 'red'))

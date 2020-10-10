@@ -17,9 +17,13 @@ crossSectionGenePlot3D(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{crossSection_obj}{cross section object as alternative input. default = NULL.}
+
 \item{name}{name of virtual cross section to use}
 
 \item{spatial_network_name}{name of spatial network to use}
+
+\item{other_cell_color}{color of cells outside the cross section. default = transparent.}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
@@ -33,8 +37,4 @@ Visualize cells and gene expression in a virtual cross section according to spat
 }
 \details{
 Description of parameters.
-}
-\examples{
-    crossSectionGenePlot3D(gobject)
-
 }

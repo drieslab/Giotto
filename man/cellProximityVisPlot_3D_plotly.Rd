@@ -34,54 +34,7 @@ cellProximityVisPlot_3D_plotly(
   ...
 )
 }
-\arguments{
-\item{gobject}{giotto object}
-
-\item{interaction_name}{cell-cell interaction name}
-
-\item{cluster_column}{cluster column with cell clusters}
-
-\item{sdimx}{x-axis dimension name (default = 'sdimx')}
-
-\item{sdimy}{y-axis dimension name (default = 'sdimy')}
-
-\item{sdimz}{z-axis dimension name (default = 'sdimz')}
-
-\item{cell_color}{color for cells (see details)}
-
-\item{cell_color_code}{named vector with colors}
-
-\item{color_as_factor}{convert color column to factor}
-
-\item{show_other_cells}{decide if show cells not in network}
-
-\item{show_network}{show underlying spatial network}
-
-\item{network_color}{color of spatial network}
-
-\item{spatial_network_name}{name of spatial network to use}
-
-\item{show_grid}{show spatial grid}
-
-\item{grid_color}{color of spatial grid}
-
-\item{spatial_grid_name}{name of spatial grid to use}
-
-\item{show_legend}{show legend}
-
-\item{point_size_select}{size of selected points}
-
-\item{coord_fix_ratio}{fix ratio between x and y-axis}
-}
-\value{
-plotly
-}
 \description{
 Visualize 3D cell-cell interactions according to spatial coordinates in plotly mode
 }
-\details{
-Description of parameters.
-}
-\examples{
-    cellProximityVisPlot_3D_plotly(gobject)
-}
+\keyword{internal}

@@ -12,8 +12,6 @@ create_delaunayNetwork_deldir(
 )
 }
 \description{
-Create a spatial Delaunay network.
+Create a spatial Delaunay network with deldir
 }
-\examples{
-    create_delaunayNetwork_deldir(gobject)
-}
+\keyword{internal}

@@ -22,6 +22,8 @@ create_crossSection_object <- function(name=NULL,
                                        method=NULL,
                                        thickness_unit=NULL,
                                        slice_thickness=NULL,
+                                       cell_distance_estimate_method=NULL,
+                                       extend_ratio=NULL,
                                        plane_equation=NULL,
                                        mesh_grid_n=NULL,
                                        mesh_obj=NULL,
@@ -87,7 +89,7 @@ get_distance <- function(networkDT,
                          ){
 
   if (method=="median"){
-    distance = median(networkDT$distance)
+    distance = stats::median(networkDT$distance)
   }else if(method=="mean"){
     distance = mean(networkDT$distance)
   }
@@ -390,7 +392,7 @@ create_mesh_grid_lines <- function(cell_subset_projection_locations,extend_ratio
 #' @param name name of cress section object. (default = cross_sectino)
 #' @param spatial_network_name name of spatial network object. (default = Delaunay_network)
 #' @param thickness_unit unit of the virtual section thickness. If "cell", average size of the observed cells is used as length unit. If "natural", the unit of cell location coordinates is used.(default = cell)
-#' @param slice_thickness thickness of slice
+#' @param slice_thickness thickness of slice. default = 2
 #' @param cell_distance_estimate_method method to estimate average distance between neighobring cells. (default = mean)
 #' @param extend_ratio deciding the span of the cross section meshgrid, as a ratio of extension compared to the borders of the vitural tissue section. (default = 0.2)
 #' @param method method to define the cross section plane.
@@ -411,7 +413,6 @@ create_mesh_grid_lines <- function(cell_subset_projection_locations,extend_ratio
 #' @return giotto object with updated spatial network slot
 #' @details Creates a virtual 2D cross section object for a given spatial network object. The users need to provide the definition of the cross section plane (see method).
 #' @export
-#'
 createCrossSection <- function(gobject,
                                name="cross_section",
                                spatial_network_name = "Delaunay_network",
@@ -522,6 +523,8 @@ createCrossSection <- function(gobject,
   crossSection_obj <- create_crossSection_object(method=method,
                                                  thickness_unit=thickness_unit,
                                                  slice_thickness=slice_thickness,
+                                                 cell_distance_estimate_method=cell_distance_estimate_method,
+                                                 extend_ratio=extend_ratio,
                                                  plane_equation=plane_equation,mesh_grid_n=mesh_grid_n,
                                                  mesh_obj=mesh_obj,cell_subset=cell_subset,
                                                  cell_subset_spatial_locations=cell_subset_spatial_locations,
@@ -598,6 +601,7 @@ crossSectionGenePlot <-function(gobject=NULL,
 #' @name crossSectionPlot
 #' @description Visualize cells in a virtual cross section according to spatial coordinates
 #' @param gobject giotto object
+#' @param crossSection_obj cross section object as alternative input. default = NULL.
 #' @param name name of virtual cross section to use
 #' @param spatial_network_name name of spatial network to use
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
@@ -606,8 +610,6 @@ crossSectionGenePlot <-function(gobject=NULL,
 #' @details Description of parameters.
 #' @export
 #' @seealso \code{\link{crossSectionPlot}}
-#' @examples
-#'
 crossSectionPlot <-function(gobject,
                             crossSection_obj = NULL,
                             name=NULL,
@@ -643,16 +645,15 @@ crossSectionPlot <-function(gobject,
 #' @name crossSectionGenePlot3D
 #' @description Visualize cells and gene expression in a virtual cross section according to spatial coordinates
 #' @param gobject giotto object
+#' @param crossSection_obj cross section object as alternative input. default = NULL.
 #' @param name name of virtual cross section to use
 #' @param spatial_network_name name of spatial network to use
+#' @param other_cell_color color of cells outside the cross section. default = transparent.
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @param ... parameters for spatGenePlot3D
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
-#' @examples
-#'     crossSectionGenePlot3D(gobject)
-#'
 crossSectionGenePlot3D <-function(gobject,
                                   crossSection_obj = NULL,
                                   name=NULL,
@@ -684,17 +685,16 @@ crossSectionGenePlot3D <-function(gobject,
 #' @name crossSectionPlot3D
 #' @description Visualize cells in a virtual cross section according to spatial coordinates
 #' @param gobject giotto object
+#' @param crossSection_obj cross section object as alternative input. default = NULL.
 #' @param name name of virtual cross section to use
 #' @param spatial_network_name name of spatial network to use
 #' @param show_other_cells display not selected cells
+#' @param other_cell_color color of cells outside the cross section. default = transparent.
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @param ... parameters for spatPlot3D
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
-#' @examples
-#'     crossSectionPlot3D(gobject)
-#'
 crossSectionPlot3D <-function(gobject,
                               crossSection_obj = NULL,
                               name=NULL,
@@ -735,6 +735,7 @@ crossSectionPlot3D <-function(gobject,
 #' @name insertCrossSectionSpatPlot3D
 #' @description Visualize the meshgrid lines of cross section together with cells
 #' @param gobject giotto object
+#' @param crossSection_obj cross section object as alternative input. default = NULL.
 #' @param name name of virtual cross section to use
 #' @param spatial_network_name name of spatial network to use
 #' @param mesh_grid_color color for the meshgrid lines
@@ -751,8 +752,6 @@ crossSectionPlot3D <-function(gobject,
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
-#' @examples
-#'     insertCrossSectionSpatPlot3D(gobject)
 insertCrossSectionSpatPlot3D <- function(gobject,
                                          crossSection_obj=NULL,
                                          name=NULL,
@@ -778,6 +777,9 @@ insertCrossSectionSpatPlot3D <- function(gobject,
   pl = spatPlot3D(gobject,
                   sdimx = sdimx, sdimy = sdimy, sdimz = sdimz,
                   show_other_cells = show_other_cells,
+                  show_plot = FALSE,
+                  return_plot = TRUE,
+                  save_plot = FALSE,
                   default_save_name = default_save_name,...)
 
   for (i in 1:dim(crossSection_obj$mesh_obj$mesh_grid_lines$mesh_grid_lines_X)[2]){
@@ -812,6 +814,7 @@ insertCrossSectionSpatPlot3D <- function(gobject,
 #' @name insertCrossSectionGenePlot3D
 #' @description Visualize cells and gene expression in a virtual cross section according to spatial coordinates
 #' @param gobject giotto object
+#' @param crossSection_obj cross section object as alternative input. default = NULL.
 #' @param name name of virtual cross section to use
 #' @param spatial_network_name name of spatial network to use
 #' @param mesh_grid_color color for the meshgrid lines
@@ -832,8 +835,6 @@ insertCrossSectionSpatPlot3D <- function(gobject,
 #' @return ggplot
 #' @details Description of parameters.
 #' @export
-#' @examples
-#'     insertCrossSectionGenePlot3D(gobject)
 insertCrossSectionGenePlot3D <- function(gobject,
                                          crossSection_obj=NULL,
                                          name=NULL,
@@ -860,6 +861,9 @@ insertCrossSectionGenePlot3D <- function(gobject,
                       show_other_cells = F,
                       axis_scale = axis_scale,
                       custom_ratio = custom_ratio,
+                      show_plot = FALSE,
+                      return_plot = TRUE,
+                      save_plot = FALSE,
                       default_save_name = default_save_name,...)
   for (i in 1:dim(crossSection_obj$mesh_obj$mesh_grid_lines$mesh_grid_lines_X)[2]){
 

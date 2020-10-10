@@ -47,7 +47,9 @@ spatDimCellPlot(...)
     \item{\code{dim_label_fontface}}{font of the center label}
     \item{\code{spat_show_cluster_center}}{show the center of each cluster}
     \item{\code{spat_show_center_label}}{provide a label for each cluster}
-    \item{\code{spat_center_point_size}}{size of the center point}
+    \item{\code{spat_center_point_size}}{size of the spatial center points}
+    \item{\code{spat_center_point_border_col}}{border color of the spatial center points}
+    \item{\code{spat_center_point_border_stroke}}{stroke size of the spatial center points}
     \item{\code{spat_label_size}}{size of the center label}
     \item{\code{spat_label_fontface}}{font of the center label}
     \item{\code{show_NN_network}}{show underlying NN network}
@@ -57,6 +59,7 @@ spatDimCellPlot(...)
     \item{\code{spat_show_network}}{show spatial network}
     \item{\code{spatial_network_name}}{name of spatial network to use}
     \item{\code{spat_network_color}}{color of spatial network}
+    \item{\code{spat_network_alpha}}{alpha of spatial network}
     \item{\code{spat_show_grid}}{show spatial grid}
     \item{\code{spatial_grid_name}}{name of spatial grid to use}
     \item{\code{spat_grid_color}}{color of spatial grid}
@@ -97,7 +100,20 @@ Visualize numerical features of cells according to spatial AND dimension reducti
 Description of parameters.
 }
 \examples{
-    spatDimCellPlot(gobject)
+
+data(mini_giotto_single_cell)
+
+# combine all metadata
+combineMetadata(mini_giotto_single_cell, spat_enr_names = 'cluster_metagene')
+
+# visualize total expression information
+spatDimCellPlot(mini_giotto_single_cell, cell_annotation_values = 'total_expr')
+
+# visualize enrichment results
+spatDimCellPlot(mini_giotto_single_cell,
+                spat_enr_names = 'cluster_metagene',
+                cell_annotation_values = c('1','2'))
+
 }
 \seealso{
 Other spatial and dimension reduction cell annotation visualizations: 

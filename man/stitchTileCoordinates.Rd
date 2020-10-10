@@ -16,9 +16,3 @@ stitchTileCoordinates(location_file, Xtilespan, Ytilespan)
 \description{
 Helper function to stitch tile coordinates together to form one complete picture
 }
-\details{
-...
-}
-\examples{
-    stitchTileCoordinates(gobject)
-}

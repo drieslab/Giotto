@@ -44,6 +44,3 @@ ggplot plot
 \description{
 This function return histograms displaying the distance distribution for each spatial k-neighbor
 }
-\examples{
-    spatNetwDistributionsDistance(gobject)
-}

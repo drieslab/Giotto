@@ -65,9 +65,6 @@ Identify marker genes for selected clusters.
 \details{
 Wrapper for all individual functions to detect marker genes for clusters.
 }
-\examples{
-    findMarkers(gobject)
-}
 \seealso{
 \code{\link{findScranMarkers}}, \code{\link{findGiniMarkers}} and \code{\link{findMastMarkers}}
 }

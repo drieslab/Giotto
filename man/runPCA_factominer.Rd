@@ -4,7 +4,15 @@
 \alias{runPCA_factominer}
 \title{runPCA_factominer}
 \usage{
-runPCA_factominer(x, ncp = 100, scale = TRUE, rev = FALSE, ...)
+runPCA_factominer(
+  x,
+  ncp = 100,
+  scale = TRUE,
+  rev = FALSE,
+  set_seed = TRUE,
+  seed_number = 1234,
+  ...
+)
 }
 \arguments{
 \item{x}{matrix or object that can be converted to matrix}
@@ -14,6 +22,10 @@ runPCA_factominer(x, ncp = 100, scale = TRUE, rev = FALSE, ...)
 \item{scale}{scale features}
 
 \item{rev}{reverse PCA}
+
+\item{set_seed}{use of seed}
+
+\item{seed_number}{seed number to use}
 }
 \value{
 list of eigenvalues, loadings and pca coordinates
@@ -21,3 +33,4 @@ list of eigenvalues, loadings and pca coordinates
 \description{
 performs PCA based on the factominer package
 }
+\keyword{internal}

@@ -23,5 +23,14 @@ removes cell annotation of giotto object
 if return_gobject = FALSE, it will return the cell metadata
 }
 \examples{
-    removeCellAnnotation(gobject)
+
+data(mini_giotto_single_cell) # load full mini giotto object
+
+# show cell metadata
+pDataDT(mini_giotto_single_cell)
+
+# remove cell_types column
+mini_giotto_single_cell = removeCellAnnotation(mini_giotto_single_cell,
+                                               columns = 'cell_types')
+
 }

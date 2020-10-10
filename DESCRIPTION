@@ -1,19 +1,19 @@
 Package: Giotto
 Title: Spatial single-cell transcriptomics toolbox
-Version: 0.3.6.9000
+Version: 0.3.6.9058
 Authors@R: c(
 	person("Ruben", "Dries", email = "rubendries@gmail.com",
 		 role = c("aut", "cre")),
-	person("Huipeng", "Li", email = "Huipeng_Li@DFCI.HARVARD.EDU",
-		role = c("aut")),
 	person("Qian", "Zhu", email = "zqian@jimmy.harvard.edu",
 		 role = c("aut")),
+	person("Huipeng", "Li", email = "Huipeng_Li@DFCI.HARVARD.EDU",
+		role = c("aut")),
 	person("Rui", "Dong", email = "rdong@jimmy.harvard.edu",
 		 role = c("aut")),
 	person("Guo-Cheng", "Yuan", email = "gcyuan@ds.dfci.harvard.edu",
 		 role = c("aut"))
 	)
-Description: Toolbox to process, analyze and visualize spatial single-cell expression data
+Description: Toolbox to process, analyze and visualize spatial single-cell expression data.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -21,12 +21,13 @@ URL: https://rubd.github.io/Giotto/, https://github.com/RubD/Giotto
 BugReports: https://github.com/RubD/Giotto/issues
 RoxygenNote: 7.1.1
 Depends:
-    base (>= 3.5.1),
-    utils (>= 3.5.1),
-    R (>= 3.5.1)
+    base (>= 3.5.0),
+    utils (>= 3.5.0),
+    R (>= 3.5.0)
 Imports:
     data.table (>= 1.12.2),
     deldir,
+    dendextend (>= 1.13.0),
     ggplot2 (>= 3.1.1),
     Matrix,
     magick,
@@ -34,6 +35,7 @@ Imports:
     methods,
     uwot (>= 0.0.0.9010),
     cowplot (>= 0.9.4),
+    ClusterR,
     grDevices,
     graphics,
     RColorBrewer (>= 1.1-2),
@@ -61,19 +63,30 @@ Imports:
     Rtsne (>= 0.15),
     rlang (>= 0.4.3),
     R.utils,
-    fitdistrplus,
+    fitdistrplus
 Suggests:
-    knitr,
-    rmarkdown,
-    MAST,
-    scran (>= 1.10.1),
-    png,
-    FactoMineR,
-    tiff,
+    Biobase,
     biomaRt,
-    trendsceek,
+    circlize,
+    FactoMineR,
+    factoextra,
+    geometry,
+    ggforce,
+    ggrepel,
+    htmlwidgets,
+    jackstraw,
+    knitr,
+    MAST,
     multinet (>= 3.0.2),
-    RTriangle (>= 1.6-0.10)
+    png,
+    quadprog,
+    rmarkdown,
+    RTriangle (>= 1.6-0.10),
+    scran (>= 1.10.1),
+    SingleCellExperiment,
+    SPARK,
+    tiff,
+    trendsceek
 biocViews:
 VignetteBuilder: knitr
 LinkingTo: 

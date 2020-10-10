@@ -24,6 +24,7 @@ plotTSNE_3D(
     \item{\code{dim1_to_use}}{dimension to use on x-axis}
     \item{\code{dim2_to_use}}{dimension to use on y-axis}
     \item{\code{dim3_to_use}}{dimension to use on z-axis}
+    \item{\code{spat_enr_names}}{names of spatial enrichment results to include}
     \item{\code{show_NN_network}}{show underlying NN network}
     \item{\code{nn_network_to_use}}{type of NN network to use (kNN vs sNN)}
     \item{\code{network_name}}{name of NN network to use, if show_NN_network = TRUE}
@@ -55,10 +56,6 @@ Visualize cells according to dimension reduction coordinates
 }
 \details{
 Description of parameters.
-}
-\examples{
-    plotTSNE_3D(gobject)
-
 }
 \seealso{
 Other reduced dimension visualizations: 

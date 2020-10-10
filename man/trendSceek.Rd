@@ -24,7 +24,7 @@ trendSceek(
 
 \item{ncores}{An integer specifying the number of cores to be used by BiocParallel}
 
-\item{...}{Additional parameters to the \code{\link[trendsceek]{trendsceek_test}} function}
+\item{\dots}{Additional parameters to the \code{\link[trendsceek]{trendsceek_test}} function}
 }
 \value{
 data.frame with trendsceek spatial genes results
@@ -34,7 +34,4 @@ Compute spatial variable genes with trendsceek method
 }
 \details{
 This function is a wrapper for the trendsceek_test method implemented in the trendsceek package
-}
-\examples{
-    trendSceek(gobject)
 }

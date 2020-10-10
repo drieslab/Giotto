@@ -9,6 +9,4 @@ my_growMeans(x, offset = 0.1)
 \description{
 geometric rowMeans that works for a single column
 }
-\examples{
-    my_growMeans(x)
-}
+\keyword{internal}

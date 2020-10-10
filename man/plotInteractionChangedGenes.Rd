@@ -21,7 +21,7 @@ plotInteractionChangedGenes(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{cpgObject}{cell proximity gene score object}
+\item{cpgObject}{ICG (interaction changed gene) score object}
 
 \item{source_type}{cell type of the source cell}
 
@@ -46,7 +46,4 @@ plot
 }
 \description{
 Create barplot to visualize interaction changed genes
-}
-\examples{
-    plotInteractionChangedGenes(CPGscores)
 }

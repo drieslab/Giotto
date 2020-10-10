@@ -14,8 +14,6 @@ create_KNNnetwork_dbscan(
 )
 }
 \description{
-Create a spatial knn network.
+Create a spatial knn network with dbscan
 }
-\examples{
-    create_KNNnetwork_dbscan(gobject)
-}
+\keyword{internal}

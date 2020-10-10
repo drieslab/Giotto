@@ -34,5 +34,24 @@ An example for the 'gene_clusters' could be like this:
 cluster_vector = c(1, 1, 2, 2); names(cluster_vector) = c('geneA', 'geneB', 'geneC', 'geneD')
 }
 \examples{
-    createMetagenes(gobject)
+
+data(mini_giotto_single_cell)
+
+# get all genes
+all_genes = slot(mini_giotto_single_cell, 'gene_ID')
+
+# create 2 metagenes from the first 6 genes
+cluster_vector = c(1, 1, 1, 2, 2, 2) # 2 groups
+names(cluster_vector) = all_genes[1:6]
+
+mini_giotto_single_cell = createMetagenes(mini_giotto_single_cell,
+                                          gene_clusters = cluster_vector,
+                                          name = 'cluster_metagene')
+
+# show metagene expression
+spatCellPlot(mini_giotto_single_cell,
+            spat_enr_names = 'cluster_metagene',
+            cell_annotation_values = c('1', '2'),
+            point_size = 3.5, cow_n_col = 2)
+
 }

@@ -30,12 +30,16 @@ adjustGiottoMatrix(
 giotto object
 }
 \description{
-normalize and/or scale expresion values of Giotto object
+Adjust expression values to account for known batch effects or technological covariates.
 }
 \details{
 This function implements the \code{\link[limma]{removeBatchEffect}} function to
 remove known batch effects and to adjust expression values according to provided covariates.
 }
 \examples{
-    adjustGiottoMatrix(gobject)
+
+data(mini_giotto_single_cell)
+
+adjust_gobject = adjustGiottoMatrix(mini_giotto_single_cell)
+
 }
