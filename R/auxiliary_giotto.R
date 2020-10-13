@@ -1268,6 +1268,61 @@ adjustGiottoMatrix <- function(gobject,
 
 
 
+#' @title processGiotto
+#' @description Wrapper for the different Giotto object processing functions
+#' @param gobject giotto object
+#' @param filter_params additional parameters to filterGiotto
+#' @param norm_params additional parameters to normalizeGiotto
+#' @param stat_params additional parameters to addStatistics
+#' @param adjust_params additional parameters to adjustGiottoMatrix
+#' @param verbose be verbose (default is TRUE)
+#' @return giotto object
+#' @details See \code{\link{filterGiotto}}, \code{\link{normalizeGiotto}},
+#' \code{\link{addStatistics}} and \code{\link{adjustGiottoMatrix}} for more
+#' information about the different parameters in each step. If you do not provide
+#' them it will use the default values.
+#' @export
+#' @examples
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' processed_object = processGiotto(mini_giotto_single_cell,
+#'                                  filter_params = list(gene_det_in_min_cells = 10,
+#'                                  min_det_genes_per_cell = 10))
+#'
+processGiotto = function(gobject,
+                         filter_params = list(),
+                         norm_params = list(),
+                         stat_params = list(),
+                         adjust_params = list(),
+                         verbose = TRUE){
+
+  # filter Giotto
+  if(verbose == TRUE) cat('1. start filter step \n')
+  if(class(filter_params) != 'list') stop('filter_params need to be a list of parameters for filterGiotto \n')
+  gobject = do.call('filterGiotto', c(gobject = gobject, filter_params))
+
+  # normalize Giotto
+  if(verbose == TRUE) cat('2. start normalization step \n')
+  if(class(norm_params) != 'list') stop('norm_params need to be a list of parameters for normalizeGiotto \n')
+  gobject = do.call('normalizeGiotto', c(gobject = gobject, norm_params))
+
+  # add Statistics
+  if(verbose == TRUE) cat('3. start cell and gene statistics step \n')
+  if(class(stat_params) != 'list') stop('stat_params need to be a list of parameters for addStatistics \n')
+  stat_params[['return_gobject']] = TRUE # force this to be true
+  gobject = do.call('addStatistics', c(gobject = gobject, stat_params))
+
+  # adjust Giotto
+  if(verbose == TRUE) cat('3. start adjusted matrix step \n')
+  if(class(adjust_params) != 'list') stop('adjust_params need to be a list of parameters for adjustGiottoMatrix \n')
+  adjust_params[['return_gobject']] = TRUE # force this to be true
+  gobject = do.call('adjustGiottoMatrix', c(gobject = gobject, adjust_params))
+
+
+  return(gobject)
+
+}
 
 
 
