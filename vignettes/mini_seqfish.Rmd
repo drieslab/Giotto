@@ -18,6 +18,16 @@ knitr::opts_chunk$set(
 library(Giotto)
 ```
 
+
+### Install Python modules
+
+To run this vignette you need to install all the necessary Python modules.  
+
+1. This can be done manually, see https://rubd.github.io/Giotto_site/articles/installation_issues.html#python-manual-installation  
+
+2. This can be done within R using our installation tools (installGiottoEnvironment), see  https://rubd.github.io/Giotto_site/articles/tut0_giotto_environment.html for more information.  
+
+
 ### (optional) set giotto instructions
 ```{r eval=FALSE}
 # to automatically save figures in save_dir set save_plot to TRUE
