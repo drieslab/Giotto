@@ -14,12 +14,12 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup, eval=TRUE}
+```{r setup, eval=FALSE}
 library(Giotto)
 ```
 
 ### (optional) set giotto instructions
-```{r eval=TRUE}
+```{r eval=FALSE}
 # to automatically save figures in save_dir set save_plot to TRUE
 temp_dir = getwd()
 temp_dir = '~/Temp/'
@@ -36,7 +36,7 @@ minimum requirements:
 - matrix with expression information (or path to)  
 - x,y(,z) coordinates for cells or spots (or path to)
 
-```{r eval=TRUE}
+```{r eval=FALSE}
 # giotto object 
 expr_path = system.file("extdata", "seqfish_field_expr.txt", package = 'Giotto')
 loc_path = system.file("extdata", "seqfish_field_locs.txt", package = 'Giotto')
@@ -52,7 +52,7 @@ How to work with Giotto instructions that are part of your Giotto object:
 - replace all instructions at once with **replaceGiottoInstructions**  
 - read or get a specific giotto instruction with **readGiottoInstructions**  
 Of note, the python path can only be set once in an R session. See the reticulate package for more information.  
-```{r eval=TRUE}
+```{r eval=FALSE}
 # show instructions associated with giotto object (seqfish_mini)
 showGiottoInstructions(seqfish_mini)
 ```
@@ -65,7 +65,7 @@ showGiottoInstructions(seqfish_mini)
 - add cell and gene statistics (optional)  
 - adjust expression matrix for technical covariates or batches (optional). These results will be stored in the *custom* slot. 
 
-```{r eval=TRUE}
+```{r eval=FALSE}
 seqfish_mini <- filterGiotto(gobject = seqfish_mini, 
                              expression_threshold = 0.5, 
                              gene_det_in_min_cells = 20, 
@@ -84,7 +84,7 @@ seqfish_mini <- adjustGiottoMatrix(gobject = seqfish_mini,
 - perform PCA  
 - identify number of significant prinicipal components (PCs)  
 - run UMAP and/or TSNE on PCs  (or directly on matrix)  
-```{r eval=TRUE}
+```{r eval=FALSE}
 seqfish_mini <- calculateHVG(gobject = seqfish_mini)
 seqfish_mini <- runPCA(gobject = seqfish_mini)
 screePlot(seqfish_mini, ncp = 20)
@@ -102,7 +102,7 @@ plotTSNE(gobject = seqfish_mini)
 - create a shared (default) nearest network in PCA space (or directly on matrix)  
 - cluster on nearest network with Leiden or Louvan (kmeans and hclust are alternatives) 
 
-```{r eval=TRUE}
+```{r eval=FALSE}
 seqfish_mini <- createNearestNetwork(gobject = seqfish_mini, dimensions_to_use = 1:5, k = 5)
 seqfish_mini <- doLeidenCluster(gobject = seqfish_mini, resolution = 0.4, n_iterations = 1000)
 
@@ -119,7 +119,7 @@ showClusterDendrogram(seqfish_mini, h = 0.5, rotate = T, cluster_column = 'leide
 
 
 ## 5. differential expression
-```{r eval=TRUE}
+```{r eval=FALSE}
 gini_markers = findMarkers_one_vs_all(gobject = seqfish_mini,
                                                   method = 'gini',
                                                   expression_values = 'normalized',
@@ -141,7 +141,7 @@ plotMetaDataHeatmap(seqfish_mini, selected_genes = topgenes_gini2$genes,
 
 
 ## 6. cell type annotation
-```{r eval=TRUE}
+```{r eval=FALSE}
 clusters_cell_types = c('cell A', 'cell B', 'cell C', 'cell D',
                         'cell E', 'cell F', 'cell G')
 names(clusters_cell_types) = 1:7
@@ -161,7 +161,7 @@ spatDimPlot(gobject = seqfish_mini, cell_color = 'cell_types',
 
 ## 7. spatial grid
 Create a grid based on defined stepsizes in the x,y(,z) axes.  
-```{r eval=TRUE}
+```{r eval=FALSE}
 seqfish_mini <- createSpatialGrid(gobject = seqfish_mini,
                               sdimx_stepsize = 300,
                               sdimy_stepsize = 300,
@@ -178,7 +178,7 @@ spatPlot(gobject = seqfish_mini, show_grid = T, point_size = 1.5)
 - visualize information about the default Delaunay network  
 - create a spatial Delaunay network (default)  
 - create a spatial kNN network   
-```{r eval=TRUE}
+```{r eval=FALSE}
 plotStatDelaunayNetwork(gobject = seqfish_mini, maximum_distance = 400)
 seqfish_mini = createSpatialNetwork(gobject = seqfish_mini, minimum_k = 2, 
                                     maximum_distance_delaunay = 400)
@@ -205,7 +205,7 @@ Identify spatial genes with 3 different methods:
 - silhouetteRank  
 
 Visualize top 4 genes per method.  
-```{r eval=TRUE, fig.width=10, fig.height=10}
+```{r eval=FALSE, fig.width=10, fig.height=10}
 km_spatialgenes = binSpect(seqfish_mini)
 spatGenePlot(seqfish_mini, expression_values = 'scaled', 
              genes = km_spatialgenes[1:4]$genes,
@@ -234,7 +234,7 @@ Identify robust spatial co-expression patterns using the spatial network or grid
 and a subset of individual spatial genes.  
 1. calculate spatial correlation scores  
 2. cluster correlation scores
-```{r eval=TRUE, fig.width=10, fig.height=10}
+```{r eval=FALSE, fig.width=10, fig.height=10}
 
 # 1. calculate spatial correlation scores 
 ext_spatial_genes = km_spatialgenes[1:500]$genes
@@ -309,7 +309,7 @@ spatPlot(gobject = seqfish_mini, cell_color = 'HMRF_k9_b.28',
 
 
 ## 12. cell neighborhood: cell-type/cell-type interactions
-```{r eval=TRUE}
+```{r eval=FALSE}
 set.seed(seed = 2841)
 cell_proximities = cellProximityEnrichment(gobject = seqfish_mini,
                                            cluster_column = 'cell_types',
@@ -342,7 +342,7 @@ cellProximityNetwork(gobject = seqfish_mini, CPscore = cell_proximities,
 
 
 ### visualization of specific cell types
-```{r eval=TRUE}
+```{r eval=FALSE}
 
 # Option 1
 spec_interaction = "cell D--cell F"
@@ -366,7 +366,7 @@ spatPlot(seqfish_mini, cell_color = 'D_F_interactions', legend_symbol_size = 3,
 
 
 ### 13. cell neighborhood: interaction changed genes
-```{r eval=TRUE}
+```{r eval=FALSE}
 
 ## select top 25th highest expressing genes
 gene_metadata = fDataDT(seqfish_mini)
@@ -408,7 +408,7 @@ plotICG(gobject = seqfish_mini,
 
 
 ## 14. cell neighborhood:  ligand-receptor cell-cell communication
-```{r eval=TRUE}
+```{r eval=FALSE}
 
 LR_data = data.table::fread(system.file("extdata", "mouse_ligand_receptors.txt", package = 'Giotto'))
 

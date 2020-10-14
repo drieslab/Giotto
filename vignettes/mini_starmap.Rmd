@@ -14,12 +14,12 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup, eval=TRUE}
+```{r setup, eval=FALSE}
 library(Giotto)
 ```
 
 ### (optional) set giotto instructions
-```{r eval=TRUE}
+```{r eval=FALSE}
 # to automatically save figures in save_dir set save_plot to TRUE
 temp_dir = '~/Temp/'
 myinstructions = createGiottoInstructions(save_dir = temp_dir,
@@ -35,7 +35,7 @@ minimum requirements:
 - matrix with expression information (or path to)  
 - x,y(,z) coordinates for cells or spots (or path to)
 
-```{r eval=TRUE}
+```{r eval=FALSE}
 # giotto object 
 expr_path = system.file("extdata", "starmap_expr.txt", package = 'Giotto')
 loc_path = system.file("extdata", "starmap_cell_loc.txt", package = 'Giotto')
@@ -51,7 +51,7 @@ How to work with Giotto instructions that are part of your Giotto object:
 - replace all instructions at once with **replaceGiottoInstructions**  
 - read or get a specific giotto instruction with **readGiottoInstructions**  
 Of note, the python path can only be set once in an R session. See the reticulate package for more information.  
-```{r eval=TRUE}
+```{r eval=FALSE}
 # show instructions associated with giotto object (starmap_mini)
 showGiottoInstructions(starmap_mini)
 ```
@@ -64,7 +64,7 @@ showGiottoInstructions(starmap_mini)
 - add cell and gene statistics (optional)  
 - adjust expression matrix for technical covariates or batches (optional). These results will be stored in the *custom* slot. 
 
-```{r eval=TRUE}
+```{r eval=FALSE}
 filterDistributions(starmap_mini, detection = 'genes')
 filterDistributions(starmap_mini, detection = 'cells')
 filterCombinations(starmap_mini,
@@ -89,7 +89,7 @@ starmap_mini <- addStatistics(gobject = starmap_mini)
 - perform PCA  
 - identify number of significant prinicipal components (PCs)  
 - run UMAP and/or TSNE on PCs  (or directly on matrix)  
-```{r eval=TRUE}
+```{r eval=FALSE}
 starmap_mini <- runPCA(gobject = starmap_mini, method = 'factominer')
 screePlot(starmap_mini, ncp = 30)
 plotPCA(gobject = starmap_mini)
@@ -112,7 +112,7 @@ plotTSNE(gobject = starmap_mini)
 - create a shared (default) nearest network in PCA space (or directly on matrix)  
 - cluster on nearest network with Leiden or Louvan (kmeans and hclust are alternatives) 
 
-```{r eval=TRUE}
+```{r eval=FALSE}
 starmap_mini <- createNearestNetwork(gobject = starmap_mini, dimensions_to_use = 1:8, k = 25)
 starmap_mini <- doLeidenCluster(gobject = starmap_mini, resolution = 0.5, n_iterations = 1000)
 
@@ -136,7 +136,7 @@ showClusterDendrogram(starmap_mini, h = 0.5, rotate = T, cluster_column = 'leide
 
 
 ## 5. differential expression
-```{r eval=TRUE}
+```{r eval=FALSE}
 gini_markers = findMarkers_one_vs_all(gobject = starmap_mini,
                                                   method = 'gini',
                                                   expression_values = 'normalized',
@@ -158,7 +158,7 @@ plotMetaDataHeatmap(starmap_mini, selected_genes = topgenes_gini2$genes,
 
 
 ## 6. A. cell type annotation
-```{r eval=TRUE}
+```{r eval=FALSE}
 clusters_cell_types = c('cell A', 'cell B', 'cell C', 'cell D',
                         'cell E', 'cell F', 'cell G', 'cell H')
 names(clusters_cell_types) = 1:8
@@ -175,7 +175,7 @@ spatDimPlot(gobject = starmap_mini, cell_color = 'cell_types',
 ```
 
 ## 6. B. cell type gene expression
-```{r eval=TRUE}
+```{r eval=FALSE}
 dimGenePlot3D(starmap_mini,
               dim_reduction_name = '3D_umap',
               expression_values = 'scaled',
@@ -194,7 +194,7 @@ spatGenePlot3D(starmap_mini,
 
 ## 7. spatial grid
 Create a grid based on defined stepsizes in the x,y(,z) axes.  
-```{r eval=TRUE}
+```{r eval=FALSE}
 starmap_mini <- createSpatialGrid(gobject = starmap_mini,
                               sdimx_stepsize = 200,
                               sdimy_stepsize = 200,
@@ -215,7 +215,7 @@ geometry to be installed.
 - visualize information about the default Delaunay network  
 - create a spatial Delaunay network (default)  
 - create a spatial kNN network   
-```{r eval=TRUE}
+```{r eval=FALSE}
 plotStatDelaunayNetwork(gobject = starmap_mini, maximum_distance = 200, 
                         method = 'delaunayn_geometry')
 starmap_mini = createSpatialNetwork(gobject = starmap_mini, minimum_k = 2, 
@@ -245,7 +245,7 @@ Identify spatial genes with 3 different methods:
 - silhouetteRank  
 
 Visualize top 4 genes per method.  
-```{r eval=TRUE, fig.width=10, fig.height=10}
+```{r eval=FALSE, fig.width=10, fig.height=10}
 km_spatialgenes = binSpect(starmap_mini)
 spatGenePlot(starmap_mini, expression_values = 'scaled', 
              genes = km_spatialgenes[1:4]$genes,
@@ -274,7 +274,7 @@ Identify robust spatial co-expression patterns using the spatial network or grid
 and a subset of individual spatial genes.  
 1. calculate spatial correlation scores  
 2. cluster correlation scores
-```{r eval=TRUE, fig.width=10, fig.height=10}
+```{r eval=FALSE, fig.width=10, fig.height=10}
 
 # 1. calculate spatial correlation scores 
 ext_spatial_genes = km_spatialgenes[1:20]$genes
@@ -313,7 +313,7 @@ spatCellPlot(starmap_mini,
 
 
 ## 11. spatial HMRF domains
-```{r eval=TRUE}
+```{r eval=FALSE}
 hmrf_folder = paste0(temp_dir,'/','11_HMRF/')
 if(!file.exists(hmrf_folder)) dir.create(hmrf_folder, recursive = T)
 
@@ -349,7 +349,7 @@ spatPlot(gobject = starmap_mini, cell_color = 'HMRF_k6_b.12',
 
 
 ## 12. cell neighborhood: cell-type/cell-type interactions
-```{r eval=TRUE}
+```{r eval=FALSE}
 set.seed(seed = 2841)
 cell_proximities = cellProximityEnrichment(gobject = starmap_mini,
                                            cluster_column = 'cell_types',
@@ -382,7 +382,7 @@ cellProximityNetwork(gobject = starmap_mini, CPscore = cell_proximities,
 
 
 ### visualization of specific cell types
-```{r eval=TRUE}
+```{r eval=FALSE}
 pDataDT(starmap_mini)
 # Option 1
 spec_interaction = "cell D--cell H" # needs to be in alphabetic order! first D, then H
@@ -407,7 +407,7 @@ spatPlot(starmap_mini, cell_color = 'D_H_interactions', legend_symbol_size = 3,
 
 
 ## 13. 2D cross sections from 3D object
-```{r eval=TRUE}
+```{r eval=FALSE}
 
 # create cross section
 starmap_mini = createCrossSection(starmap_mini,

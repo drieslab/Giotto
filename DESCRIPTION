@@ -15,7 +15,7 @@ Authors@R: c(
 	)
 Maintainer: Ruben Dries <rubendries@gmail.com>
 Description: Toolbox to process, analyze and visualize spatial single-cell expression data.
-License: MIT + file LICENSE
+License: GPL-3 | file LICENSE
 Encoding: UTF-8
 LazyData: true
 URL: https://rubd.github.io/Giotto/, https://github.com/RubD/Giotto
