@@ -547,11 +547,11 @@ package_check = function(pkg_name,
 
   if(repository == 'CRAN') {
 
-    if(pkg_name %in% rownames(installed.packages()) == FALSE) {
+    if(!requireNamespace(pkg_name, quietly = TRUE)) {
       stop("\n package ", pkg_name ," is not yet installed \n",
            "To install: \n",
-           "install.packages('",pkg_name,"')"
-      )
+           "install.packages('",pkg_name,"')",
+           call. = FALSE)
     } else {
       return(TRUE)
     }
@@ -559,12 +559,12 @@ package_check = function(pkg_name,
 
   } else if(repository == 'Bioc') {
 
-    if(pkg_name %in% rownames(installed.packages()) == FALSE) {
+    if(!requireNamespace(pkg_name, quietly = TRUE)) {
       stop("\n package ", pkg_name ," is not yet installed \n",
            "To install: \n",
            "if (!requireNamespace('BiocManager', quietly = TRUE)) install.packages('BiocManager');
-         BiocManager::install('",pkg_name,"')"
-      )
+         BiocManager::install('",pkg_name,"')",
+           call. = FALSE)
     } else {
       return(TRUE)
     }
@@ -573,11 +573,11 @@ package_check = function(pkg_name,
 
     if(is.null(github_repo)) stop("provide the github repo of package, e.g. 'johndoe/cooltool' ")
 
-    if(pkg_name %in% rownames(installed.packages()) == FALSE) {
+    if(!requireNamespace(pkg_name, quietly = TRUE)) {
       stop("\n package ", pkg_name ," is not yet installed \n",
            "To install: \n",
-           "devtools::install_github('",github_repo,"')"
-      )
+           "devtools::install_github('",github_repo,"')",
+           call. = FALSE)
     } else {
       return(TRUE)
     }
