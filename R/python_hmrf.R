@@ -42,6 +42,16 @@ doHMRF <- function(gobject,
                    output_folder = NULL,
                    overwrite_output = TRUE) {
 
+
+  if(!requireNamespace('smfishHmrf', quietly = TRUE)) {
+    stop("\n package ", 'smfishHmrf' ," is not yet installed \n",
+         "To install: \n",
+         "remotes::install_bitbucket(repo = 'qzhudfci/smfishhmrf-r', ref='master')",
+         "see http://spatial.rc.fas.harvard.edu/install.html for more information",
+         call. = FALSE)
+  }
+
+
   # data.table set global variable
   to = from = NULL
 

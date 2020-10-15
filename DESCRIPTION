@@ -1,5 +1,5 @@
 Package: Giotto
-Title: Spatial single-cell transcriptomics toolbox
+Title: Spatial Single-Cell Transcriptomics Toolbox
 Version: 1.0.1
 Authors@R: c(
 	person("Ruben", "Dries", email = "rubendries@gmail.com",
@@ -30,41 +30,40 @@ Imports:
     ComplexHeatmap (>= 1.20.0),
     cowplot (>= 0.9.4),
     data.table (>= 1.12.2),
+    dbscan (>= 1.1-3),
     deldir,
     dendextend (>= 1.13.0),
+    devtools,
+    farver (>= 2.0.3),
+    fitdistrplus
+    ggalluvial (>= 0.9.1),
     ggplot2 (>= 3.1.1),
-    Matrix,
-    magick,
-    matrixStats (>= 0.55.0),
-    methods,
-    uwot (>= 0.0.0.9010),
+    ggdendro,
+    ggraph,
     grDevices,
     graphics,
-    RColorBrewer (>= 1.1-2),
-    dbscan (>= 1.1-3),
-    farver (>= 2.0.3),
-    ggalluvial (>= 0.9.1),
-    scales (>= 1.0.0),
-    qvalue (>= 2.14.1),
-    lfa (>= 1.12.0),
-    limma,
     igraph (>= 1.2.4.1),
     irlba,
+    lfa (>= 1.12.0),
+    limma,
+    Matrix,
+    magick,
+    magrittr,
+    matrixStats (>= 0.55.0),
+    methods,
     plotly,
     parallel,
-    reticulate (>= 1.14),
-    magrittr,
-    ggdendro,
-    smfishHmrf,
-    devtools,
-    reshape2,
-    ggraph,
+    qvalue (>= 2.14.1),
+    RColorBrewer (>= 1.1-2),
     Rcpp,
+    reshape2,
+    reticulate (>= 1.14),
     Rfast,
     Rtsne (>= 0.15),
     rlang (>= 0.4.3),
     R.utils,
-    fitdistrplus
+    scales (>= 1.0.0),
+    uwot (>= 0.0.0.9010)
 Suggests:
     Biobase,
     biomaRt,
@@ -85,6 +84,7 @@ Suggests:
     RTriangle (>= 1.6-0.10),
     scran (>= 1.10.1),
     SingleCellExperiment,
+    smfishHmrf,
     SPARK,
     tiff,
     trendsceek
@@ -93,4 +93,3 @@ VignetteBuilder: knitr
 LinkingTo: 
     Rcpp,
     RcppArmadillo
-Remotes: lambdamoses/smfishhmrf-r
