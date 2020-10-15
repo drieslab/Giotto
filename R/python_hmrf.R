@@ -12,7 +12,8 @@
 #' @param dimensions_to_use number of dimensions to use as input
 #' @param name name of HMRF run
 #' @param k  number of HMRF domains
-#' @param betas betas to test for
+#' @param seed seed to fix random number generator (for creating initialization of HMRF) (-1 if no fixing)
+#' @param betas betas to test for. three numbers: start_beta, beta_increment, num_betas (e.g. 0 2.0 50)
 #' @param tolerance tolerance
 #' @param zscore zscore
 #' @param numinit number of initializations
@@ -30,6 +31,7 @@ doHMRF <- function(gobject,
                    dim_reduction_to_use = NULL,
                    dim_reduction_name = 'pca',
                    dimensions_to_use = 1:10,
+                   seed = 100,
                    name = 'test',
                    k = 10,
                    betas = c(0, 2, 50),
@@ -211,6 +213,7 @@ doHMRF <- function(gobject,
                           ' ', betas_final,
                           ' -t ', tolerance,
                           ' -z ', zscore,
+                          ' -s ', seed,
                           ' -i ', numinit)
 
   print(reader_command)
