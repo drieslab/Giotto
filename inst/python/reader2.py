@@ -122,6 +122,7 @@ if __name__=="__main__":
 	parser.add_argument("-k", "--k", dest="k", type=int, required=True)
 	parser.add_argument("-b", "--betas", help="three numbers: start_beta, beta_increment, num_beta (e.g. 0 2.0 50)", nargs=3, dest="betas", type=float, required=True)
 	parser.add_argument("-t", "--tolerance", dest="tolerance", type=float, help="tolerance value", default=1e-10)
+	parser.add_argument("-s", "--seed", dest="seed", type=float, help="seed for initialization of HMRF. -1 will not fix it.", default=-1)
 	parser.add_argument("-z", "--zscore", type=str, dest="zscore", choices=["rowcol", "colrow", "none"], default="none", help="zscore the matrix after subsetting to spatial genes. Rowcol: row(gene) first, column(cell) next.")
 	parser.add_argument("-i", "--numinit", type=int, dest="num_init", default=100, help="number of initializations")
 
@@ -246,5 +247,5 @@ if __name__=="__main__":
 	if not os.path.isdir(outdir):
 		os.mkdir(outdir)
 	this_hmrf = HMRFInstance(args.name, outdir, t_dset, args.k, st_beta, incr_beta, num_beta, tolerance=args.tolerance)
-	this_hmrf.init(nstart=args.num_init)
+	this_hmrf.init(nstart=args.num_init, seed=args.seed)
 	this_hmrf.run()
