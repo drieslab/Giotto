@@ -13,7 +13,7 @@
 #' @param name name of HMRF run
 #' @param k  number of HMRF domains
 #' @param seed seed to fix random number generator (for creating initialization of HMRF) (-1 if no fixing)
-#' @param betas betas to test for. three numbers: start_beta, beta_increment, num_betas (e.g. 0 2.0 50)
+#' @param betas betas to test for. three numbers: start_beta, beta_increment, num_betas e.g. c(0, 2.0, 50)
 #' @param tolerance tolerance
 #' @param zscore zscore
 #' @param numinit number of initializations
