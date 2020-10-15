@@ -35,7 +35,7 @@ Imports:
     dendextend (>= 1.13.0),
     devtools,
     farver (>= 2.0.3),
-    fitdistrplus
+    fitdistrplus,
     ggalluvial (>= 0.9.1),
     ggplot2 (>= 3.1.1),
     ggdendro,
