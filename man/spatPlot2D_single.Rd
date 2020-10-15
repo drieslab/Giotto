@@ -6,6 +6,9 @@
 \usage{
 spatPlot2D_single(
   gobject,
+  show_image = F,
+  gimage = NULL,
+  image_name = "image",
   sdimx = "sdimx",
   sdimy = "sdimy",
   spat_enr_names = NULL,
@@ -17,8 +20,9 @@ spatPlot2D_single(
   gradient_limits = NULL,
   select_cell_groups = NULL,
   select_cells = NULL,
-  point_shape = c("border", "no_border"),
+  point_shape = c("border", "no_border", "voronoi"),
   point_size = 3,
+  point_alpha = 1,
   point_border_col = "black",
   point_border_stroke = 0.1,
   show_cluster_center = F,
@@ -29,7 +33,7 @@ spatPlot2D_single(
   label_size = 4,
   label_fontface = "bold",
   show_network = F,
-  spatial_network_name = "spatial_network",
+  spatial_network_name = "Delaunay_network",
   network_color = NULL,
   network_alpha = 1,
   show_grid = F,
@@ -45,6 +49,9 @@ spatPlot2D_single(
   legend_text = 8,
   legend_symbol_size = 1,
   background_color = "white",
+  vor_border_color = "white",
+  vor_max_radius = 200,
+  vor_alpha = 1,
   axis_text = 8,
   axis_title = 8,
   show_plot = NA,
@@ -56,6 +63,12 @@ spatPlot2D_single(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{show_image}{show a tissue background image}
+
+\item{gimage}{a giotto image}
+
+\item{image_name}{name of a giotto image}
 
 \item{sdimx}{x-axis dimension name (default = 'sdimx')}
 
@@ -79,9 +92,11 @@ spatPlot2D_single(
 
 \item{select_cells}{select subset of cells based on cell IDs}
 
-\item{point_shape}{point with border or not (border or no_border)}
+\item{point_shape}{shape of points (border, no_border or voronoi)}
 
 \item{point_size}{size of point (cell)}
+
+\item{point_alpha}{transparancy of point}
 
 \item{point_border_col}{color of border around points}
 
@@ -131,6 +146,12 @@ spatPlot2D_single(
 
 \item{background_color}{color of plot background}
 
+\item{vor_border_color}{border colorr for voronoi plot}
+
+\item{vor_max_radius}{maximum radius for voronoi 'cells'}
+
+\item{vor_alpha}{transparancy of voronoi 'cells'}
+
 \item{axis_text}{size of axis text}
 
 \item{axis_title}{size of axis title}
@@ -154,9 +175,7 @@ Visualize cells according to spatial coordinates
 \details{
 Description of parameters.
 }
-\examples{
-    spatPlot2D_single(gobject)
-}
 \seealso{
 \code{\link{spatPlot3D}}
 }
+\keyword{internal}

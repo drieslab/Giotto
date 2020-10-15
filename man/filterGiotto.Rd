@@ -36,5 +36,12 @@ filter Giotto object based on expression threshold
 The function \code{\link{filterCombinations}} can be used to explore the effect of different parameter values.
 }
 \examples{
-    filterGiotto(gobject)
+
+data(mini_giotto_single_cell)
+
+filtered_gobject = filterGiotto(mini_giotto_single_cell,
+                                gene_det_in_min_cells = 10,
+                                min_det_genes_per_cell = 10)
+
+
 }

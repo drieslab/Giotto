@@ -1,3 +1,5 @@
+
+
 #' @title S4 giotto Class
 #' @description Framework of giotto object to store and work with spatial expression data
 #' @keywords giotto, object
@@ -12,12 +14,16 @@
 #' @slot gene_ID unique gene IDs
 #' @slot spatial_network spatial network in data.table/data.frame format
 #' @slot spatial_grid spatial grid in data.table/data.frame format
+#' @slot spatial_enrichment slot to save spatial enrichment-like results
 #' @slot dimension_reduction slot to save dimension reduction coordinates
 #' @slot nn_network nearest neighbor network in igraph format
+#' @slot images slot to store giotto images
 #' @slot parameters slot to save parameters that have been used
 #' @slot instructions slot for global function instructions
 #' @slot offset_file offset file used to stitch together image fields
 #' @slot OS_platform Operating System to run Giotto analysis on
+#' @useDynLib Giotto
+#' @importFrom Rcpp sourceCpp
 #' @export
 giotto <- setClass(
   "giotto",
@@ -36,6 +42,7 @@ giotto <- setClass(
     spatial_enrichment = "ANY",
     dimension_reduction = 'ANY',
     nn_network = "ANY",
+    images = "ANY",
     parameters = "ANY",
     instructions = "ANY",
     offset_file = "ANY",
@@ -57,6 +64,7 @@ giotto <- setClass(
     spatial_enrichment = NULL,
     dimension_reduction = NULL,
     nn_network = NULL,
+    images = NULL,
     parameters = NULL,
     instructions = NULL,
     offset_file = NULL,
@@ -92,10 +100,12 @@ giotto <- setClass(
 
 
 
-#' @title show method for giotto class
-#' @keywords giotto, object
-#'
-#' @export
+#' show method for giotto class
+#' @param object giotto object
+#' @aliases show,giotto-method
+#' @docType methods
+#' @rdname show-methods
+
 setMethod(
   f = "show",
   signature = "giotto",
@@ -116,27 +126,152 @@ setMethod(
 )
 
 
-#' @title print method for giotto class
-#' @description print method for giotto class.
-#' Prints the chosen number of genes (rows) and cells (columns) from the raw count matrix.
-#' Also print the spatial locations for the chosen number of cells.
-#' @param nr_genes number of genes (rows) to print
-#' @param nr_cells number of cells (columns) to print
-#' @keywords giotto, object
-#'
-#' @export
-setGeneric(name = "print.giotto",
-           def = function(object, ...) {
-             standardGeneric("print.giotto")
-           })
 
-setMethod(f = "print.giotto",
-          signature = "giotto",
-          definition = function(object, nr_genes = 5, nr_cells = 5) {
-            print(object@raw_exprs[1:nr_genes, 1:nr_cells])
-            cat('\n')
-            print(object@spatial_locs[1:nr_cells,])
-          })
+
+
+#' @title set_giotto_python_path
+#' @name set_giotto_python_path
+#' @description sets the python path and/or installs miniconda and the python modules
+set_giotto_python_path = function(python_path = NULL,
+                                  packages_to_install = c('pandas', 'networkx', 'python-igraph',
+                                                          'leidenalg', 'python-louvain', 'python.app',
+                                                          'scikit-learn')) {
+
+  ## if a python path is provided, use that path
+  if(!is.null(python_path)) {
+    cat('\n python path provided \n')
+    python_path = as.character(python_path)
+    reticulate::use_python(required = T, python = python_path)
+
+  } else {
+
+    ## identify operating system and adjust the necessary packages
+    os_specific_system = get_os()
+
+    # exclude python.app for windows and linux
+    if(os_specific_system != 'osx') {
+      packages_to_install = packages_to_install[packages_to_install != 'python.app']
+    }
+
+
+
+    ## check if giotto environment is already installed
+    conda_path = reticulate::miniconda_path()
+    if(os_specific_system == 'osx') {
+      full_path = paste0(conda_path, "/envs/giotto_env/bin/pythonw")
+    } else if(os_specific_system == 'windows') {
+      full_path = paste0(conda_path, "\\envs\\giotto_env\\python.exe")
+    } else if(os_specific_system == 'linux') {
+      full_path = paste0(conda_path, "/envs/giotto_env/bin/python")
+    }
+
+    if(file.exists(full_path)) {
+      cat('\n giotto environment found \n')
+      python_path = full_path
+      reticulate::use_python(required = T, python = python_path)
+
+
+    } else {
+
+      ## if giotto environment is not found, ask to install miniconda and giotto environment
+      install_giotto = utils::askYesNo(msg = 'Install a miniconda Python environment for Giotto?')
+
+      if(install_giotto == TRUE) {
+
+        ## check and install miniconda locally if necessary
+        conda_path = reticulate::miniconda_path()
+
+        if(!file.exists(conda_path)) {
+          cat('\n |---- install local miniconda ----| \n')
+          reticulate::install_miniconda()
+        }
+
+        cat('\n |---- install giotto environment ----| \n')
+        conda_path = reticulate::miniconda_path()
+
+        ## for unix-like systems ##
+        if(.Platform[['OS.type']] == 'unix') {
+
+          conda_full_path = paste0(conda_path,'/','bin/conda')
+          reticulate::conda_create(envname = 'giotto_env',
+                                   conda = conda_full_path)
+
+
+          full_envname = paste0(conda_path,'/envs/giotto_env')
+
+          if(os_specific_system == 'osx') {
+            python_full_path = paste0(conda_path, "/envs/giotto_env/bin/pythonw")
+          } else if(os_specific_system == 'linux') {
+            python_full_path = paste0(conda_path, "/envs/giotto_env/bin/python")
+          }
+
+
+          reticulate::py_install(packages = packages_to_install,
+                                 envname = 'giotto_env',
+                                 method = 'conda',
+                                 conda = conda_full_path,
+                                 python_version = '3.6')
+
+          reticulate::py_install(packages = 'smfishhmrf',
+                                 envname = full_envname,
+                                 method = 'conda',
+                                 conda = conda_full_path,
+                                 pip = TRUE,
+                                 python_version = '3.6')
+
+
+          ## for windows systems ##
+        } else if(.Platform[['OS.type']] == 'windows') {
+
+          conda_full_path = paste0(conda_path,'/','condabin/conda.bat')
+          reticulate::conda_create(envname = 'giotto_env',
+                                   conda = conda_full_path)
+
+
+          full_envname = paste0(conda_path,'/envs/giotto_env')
+          python_full_path = paste0(conda_path, "/envs/giotto_env/python.exe")
+
+          reticulate::py_install(packages = packages_to_install,
+                                 envname = 'giotto_env',
+                                 method = 'conda',
+                                 conda = conda_full_path,
+                                 python_version = '3.6',
+                                 channel = c('conda-forge', 'vtraag'))
+
+          reticulate::py_install(packages = 'smfishhmrf',
+                                 envname = full_envname,
+                                 method = 'conda',
+                                 conda = conda_full_path,
+                                 pip = TRUE,
+                                 python_version = '3.6')
+        }
+
+
+        python_path = python_full_path
+        reticulate::use_python(required = T, python = python_path)
+
+      } else {
+
+        if(.Platform[['OS.type']] == 'unix') {
+          python_path = try(system('which python', intern = T))
+        } else if(.Platform[['OS.type']] == 'windows') {
+          python_path = try(system('where python', intern = T))
+        }
+
+        if(class(python_path) == "try-error") {
+          cat('\n no python path found, set it manually when needed \n')
+          python_path = '/need/to/set/path/to/python'
+        } else {
+          cat('\n try default python \n')
+          python_path = python_path
+          reticulate::use_python(required = T, python = python_path)
+        }
+      }
+    }
+  }
+  return(python_path)
+}
+
 
 
 
@@ -147,13 +282,15 @@ setMethod(f = "print.giotto",
 #' @param return_plot return plot as object, default = TRUE
 #' @param save_plot automatically save plot, dafault = FALSE
 #' @param save_dir path to directory where to save plots
+#' @param plot_format format of plots (defaults to png)
 #' @param dpi resolution for raster images
+#' @param units units of format (defaults to in)
 #' @param height height of plots
 #' @param width width of  plots
+#' @param is_docker using docker implementation of Giotto (defaults to FALSE)
 #' @return named vector with giotto instructions
+#' @seealso More online information can be found here \url{https://rubd.github.io/Giotto_site/articles/instructions_and_plotting.html}
 #' @export
-#' @examples
-#'     createGiottoInstructions()
 createGiottoInstructions <- function(python_path =  NULL,
                                      show_plot = NULL,
                                      return_plot = NULL,
@@ -163,22 +300,15 @@ createGiottoInstructions <- function(python_path =  NULL,
                                      dpi = NULL,
                                      units = NULL,
                                      height = NULL,
-                                     width = NULL) {
+                                     width = NULL,
+                                     is_docker = FALSE) {
 
   # pyton path to use
-  if(is.null(python_path)) {
-
-    if(.Platform[['OS.type']] == 'unix') {
-      python_path = try(system('which python', intern = T))
-    } else if(.Platform[['OS.type']] == 'windows') {
-      python_path = try(system('where python', intern = T))
-      if(class(python_path) == "try-error") {
-        cat('\n no python path found, set it manually when needed \n')
-        python_path = '/set/your/python/path/manually/please/'
-      }
-    }
+  if(is_docker){
+    python_path = set_giotto_python_path(python_path = "/usr/bin/python3") # fixed in docker version
+  }  else{
+    python_path = set_giotto_python_path(python_path = python_path)
   }
-  python_path = as.character(python_path)
 
   # print plot to console
   if(is.null(show_plot)) {
@@ -215,29 +345,30 @@ createGiottoInstructions <- function(python_path =  NULL,
 
   # units for height and width
   if(is.null(units)) {
-    units = 'cm'
+    units = 'in'
   }
   units = as.character(units)
 
   # height of plot
   if(is.null(height)) {
-    height = 600
+    height = 9
   }
   height = as.numeric(height)
 
   # width of plot
   if(is.null(width)) {
-    width = 600
+    width = 9
   }
   width = as.numeric(width)
 
   instructions_list = list(python_path, show_plot, return_plot,
-                           save_plot, save_dir, plot_format, dpi, units, height, width)
+                           save_plot, save_dir, plot_format, dpi, units, height, width, is_docker)
   names(instructions_list) = c('python_path', 'show_plot', 'return_plot',
-                               'save_plot', 'save_dir', 'plot_format', 'dpi', 'units', 'height', 'width')
+                               'save_plot', 'save_dir', 'plot_format', 'dpi', 'units', 'height', 'width', 'is_docker')
   return(instructions_list)
 
 }
+
 
 #' @title readGiottoInstrunctions
 #' @description Retrieves the instruction associated with the provided parameter
@@ -245,8 +376,6 @@ createGiottoInstructions <- function(python_path =  NULL,
 #' @param param parameter to retrieve
 #' @return specific parameter
 #' @export
-#' @examples
-#'     readGiottoInstrunctions()
 readGiottoInstructions <- function(giotto_instructions,
                                    param = NULL) {
 
@@ -272,8 +401,6 @@ readGiottoInstructions <- function(giotto_instructions,
 #' @param gobject giotto object
 #' @return named vector with giotto instructions
 #' @export
-#' @examples
-#'     showGiottoInstructions()
 showGiottoInstructions = function(gobject) {
 
   instrs = gobject@instructions
@@ -287,10 +414,8 @@ showGiottoInstructions = function(gobject) {
 #' @param params parameter(s) to change
 #' @param new_values new value(s) for parameter(s)
 #' @param return_gobject (boolean) return giotto object
-#' @return named vector with giotto instructions
+#' @return giotto object with one or more changed instructions
 #' @export
-#' @examples
-#'     changeGiottoInstructions()
 changeGiottoInstructions = function(gobject,
                                     params = NULL,
                                     new_values = NULL,
@@ -344,10 +469,8 @@ changeGiottoInstructions = function(gobject,
 #' @description Function to replace all instructions from giotto object
 #' @param gobject giotto object
 #' @param instructions new instructions (e.g. result from createGiottoInstructions)
-#' @return named vector with giotto instructions
+#' @return giotto object with replaces instructions
 #' @export
-#' @examples
-#'     replaceGiottoInstructions()
 replaceGiottoInstructions = function(gobject,
                                      instructions = NULL) {
 
@@ -362,6 +485,159 @@ replaceGiottoInstructions = function(gobject,
   }
 
 }
+
+
+
+#' @title readExprMatrix
+#' @description Function to read an expression matrix into a sparse matrix.
+#' @param path path to the expression matrix
+#' @param cores number of cores to use
+#' @param transpose transpose matrix
+#' @return sparse matrix
+#' @details The expression matrix needs to have both unique column names and row names
+#' @export
+readExprMatrix = function(path,
+                          cores = NA,
+                          transpose = FALSE) {
+
+  # check if path is a character vector and exists
+  if(!is.character(path)) stop('path needs to be character vector')
+  if(!file.exists(path)) stop('the path: ', path, ' does not exist')
+
+  # set number of cores automatically, but with limit of 10
+  cores = determine_cores(cores)
+  data.table::setDTthreads(threads = cores)
+
+  # read and convert
+  DT = suppressWarnings(data.table::fread(input = path, nThread = cores))
+  spM = Matrix::Matrix(as.matrix(DT[,-1]), dimnames = list(DT[[1]], colnames(DT[,-1])), sparse = T)
+
+  if(transpose == TRUE) {
+    spM = t_giotto(spM)
+  }
+
+  return(spM)
+}
+
+
+
+#' @title evaluate_expr_matrix
+#' @description Evaluate expression matrices.
+#' @param inputmatrix inputmatrix to evaluate
+#' @param sparse create sparse matrix (default = TRUE)
+#' @param cores how many cores to use
+#' @return sparse matrix
+#' @details The inputmatrix can be a matrix, sparse matrix, data.frame, data.table or path to any of these.
+#' @keywords internal
+evaluate_expr_matrix = function(inputmatrix,
+                                sparse = TRUE,
+                                cores = NA) {
+
+  if(methods::is(inputmatrix, 'character')) {
+    mymatrix = readExprMatrix(inputmatrix, cores =  cores)
+  } else if(methods::is(inputmatrix, 'Matrix')) {
+    mymatrix = inputmatrix
+  } else if(methods::is(inputmatrix, 'data.table')) {
+    if(sparse == TRUE) {
+      # force sparse class
+      mymatrix = Matrix::Matrix(as.matrix(inputmatrix[,-1]),
+                                dimnames = list(inputmatrix[[1]],
+                                                colnames(inputmatrix[,-1])), sparse = TRUE)
+    } else {
+      # let Matrix decide
+      mymatrix = Matrix::Matrix(as.matrix(inputmatrix[,-1]),
+                                dimnames = list(inputmatrix[[1]],
+                                                colnames(inputmatrix[,-1])))
+    }
+
+  } else if(class(inputmatrix) %in% c('data.frame', 'matrix')) {
+    mymatrix = methods::as(as.matrix(inputmatrix), "sparseMatrix")
+  } else {
+    stop("raw_exprs needs to be a path or an object of class 'Matrix', 'data.table', 'data.frame' or 'matrix'")
+  }
+
+  return(mymatrix)
+}
+
+
+
+#' @title evaluate_spatial_locations
+#' @description Evaluate spatial location input
+#' @param spatial_locs spatial locations to evaluate
+#' @param cores how many cores to use
+#' @param dummy_n number of rows to create dummy spaial locations
+#' @param expr_matrix expression matrix to compare the cell IDs with
+#' @return data.table
+#' @keywords internal
+evaluate_spatial_locations = function(spatial_locs,
+                                      cores = 1,
+                                      dummy_n = 2,
+                                      expr_matrix = NULL) {
+
+  if(is.null(spatial_locs)) {
+    warning('\n spatial locations are not given, dummy 3D data will be created \n')
+    spatial_locs = data.table::data.table(sdimx = 1:dummy_n,
+                                          sdimy = 1:dummy_n,
+                                          sdimz = 1:dummy_n)
+
+  } else {
+
+    if(!any(class(spatial_locs) %in% c('data.table', 'data.frame', 'matrix', 'character'))) {
+      stop('spatial_locs needs to be a data.table or data.frame-like object or a path to one of these')
+    }
+    if(methods::is(spatial_locs, 'character')) {
+      if(!file.exists(spatial_locs)) stop('path to spatial locations does not exist')
+      spatial_locs = data.table::fread(input = spatial_locs, nThread = cores)
+    } else {
+      spatial_locs = data.table::as.data.table(spatial_locs)
+    }
+
+
+    # check if all columns are numeric
+    column_classes = lapply(spatial_locs, FUN = class)
+    #non_numeric_classes = column_classes[column_classes != 'numeric']
+    non_numeric_classes = column_classes[!column_classes %in% c('numeric','integer')]
+
+    if(length(non_numeric_classes) > 0) {
+
+      non_numeric_indices = which(!column_classes %in% c('numeric','integer'))
+
+      warning('There are non numeric or integer columns for the spatial location input at column position(s): ', non_numeric_indices,
+              '\n The first non-numeric column will be considered as a cell ID to test for consistency with the expression matrix',
+              '\n Other non numeric columns will be removed')
+
+      if(!is.null(expr_matrix)) {
+        potential_cell_IDs = spatial_locs[[ non_numeric_indices[1] ]]
+        expr_matrix_IDs = colnames(expr_matrix)
+
+        if(!identical(potential_cell_IDs, expr_matrix_IDs)) {
+          warning('The cell IDs from the expression matrix and spatial locations do not seem to be identical')
+        }
+
+      }
+
+
+      spatial_locs = spatial_locs[,-non_numeric_indices, with = F]
+
+    }
+
+    # check number of columns: too few
+    if(ncol(spatial_locs) < 2) {
+      stop('There need to be at least 2 numeric columns for spatial locations \n')
+    }
+
+    # check number of columns: too many
+    if(ncol(spatial_locs) > 3) {
+      warning('There are more than 3 columns for spatial locations, only the first 3 will be used \n')
+      spatial_locs = spatial_locs[, 1:3]
+    }
+
+  }
+
+
+  return(spatial_locs)
+}
+
 
 
 
@@ -382,15 +658,18 @@ replaceGiottoInstructions = function(gobject,
 #' @param spatial_enrichment_name list of spatial enrichment name(s)
 #' @param dimension_reduction list of dimension reduction(s)
 #' @param nn_network list of nearest neighbor network(s)
+#' @param images list of images
 #' @param offset_file file used to stitch fields together (optional)
-#' @param instructions list of instructions or output result from createGiottoInstructions
+#' @param instructions list of instructions or output result from \code{\link{createGiottoInstructions}}
+#' @param cores how many cores or threads to use to read data if paths are provided
 #' @return giotto object
 #' @details
 #' [\strong{Requirements}] To create a giotto object you need to provide at least a matrix with genes as
-#' row names and cells as column names. To include spatial information about cells (or regions)
-#' you need to provide a data.table or data.frame with coordinates for all spatial dimensions.
-#' This can be 2D (x and y) or 3D (x, y, x).The row order for the cell coordinates should be
-#' the same as the column order for the provided expression data.
+#' row names and cells as column names. This matrix can be provided as a base matrix, sparse Matrix, data.frame,
+#' data.table or as a path to any of those.
+#' To include spatial information about cells (or regions) you need to provide a matrix, data.table or data.frame (or path to them)
+#' with coordinates for all spatial dimensions. This can be 2D (x and y) or 3D (x, y, x).
+#' The row order for the cell coordinates should be the same as the column order for the provided expression data.
 #'
 #' [\strong{Instructions}] Additionally an instruction file, generated manually or with \code{\link{createGiottoInstructions}}
 #' can be provided to instructions, if not a default instruction file will be created
@@ -413,12 +692,12 @@ replaceGiottoInstructions = function(gobject,
 #'   \item{spatial enrichments}
 #'   \item{dimensions reductions}
 #'   \item{nearest neighbours networks}
+#'   \item{images}
 #' }
 #'
 #' @keywords giotto
+#' @importFrom methods new
 #' @export
-#' @examples
-#'     createGiottoObject(raw_exprs, spatial_locs)
 createGiottoObject <- function(raw_exprs,
                                spatial_locs = NULL,
                                norm_expr = NULL,
@@ -434,8 +713,10 @@ createGiottoObject <- function(raw_exprs,
                                spatial_enrichment_name = NULL,
                                dimension_reduction = NULL,
                                nn_network = NULL,
+                               images = NULL,
                                offset_file = NULL,
-                               instructions = NULL) {
+                               instructions = NULL,
+                               cores = NA) {
 
   # create minimum giotto
   gobject = giotto(raw_exprs = raw_exprs,
@@ -452,32 +733,38 @@ createGiottoObject <- function(raw_exprs,
                    spatial_enrichment = NULL,
                    dimension_reduction = NULL,
                    nn_network = NULL,
+                   images = NULL,
                    parameters = NULL,
                    offset_file = offset_file,
                    instructions = instructions,
                    OS_platform = .Platform[['OS.type']])
 
 
+  # data.table: set global variable
+  cell_ID = gene_ID = NULL
+
   # check if all optional packages are installed
-  extra_packages = c("scran", "MAST", "png", "tiff", "biomaRt", "trendsceek")
-  pack_index = extra_packages %in% rownames(installed.packages())
+  extra_packages = c("scran", "MAST", "png", "tiff", "biomaRt", "trendsceek", "multinet", "RTriangle", "FactoMiner")
+  pack_index = extra_packages %in% rownames(utils::installed.packages())
   extra_installed_packages = extra_packages[pack_index]
   extra_not_installed_packages = extra_packages[!pack_index]
 
   if(any(pack_index == FALSE) == TRUE) {
     cat("Consider to install these (optional) packages to run all possible Giotto commands: ",
         extra_not_installed_packages)
+    cat("\n Giotto does not automatically install all these packages as they are not absolutely required and this reduces the number of dependencies")
   }
 
 
-  # check input of raw_exprs & force it as matrix
-  if(!any(c('matrix','data.frame') %in% class(raw_exprs))) {
-    stop("raw_exprs needs to be of class 'matrix', check class(raw_exprs)")
-  }
+  # if cores is not set, then set number of cores automatically, but with limit of 10
+  cores = determine_cores(cores)
+  data.table::setDTthreads(threads = cores)
 
-  raw_exprs = as.matrix(raw_exprs)
+  ## read expression matrix
+  raw_exprs = evaluate_expr_matrix(raw_exprs, cores = cores, sparse = TRUE)
   gobject@raw_exprs = raw_exprs
 
+  # check rownames and colnames
   if(any(duplicated(rownames(raw_exprs)))) {
     stop("row names contain duplicates, please remove or rename")
   }
@@ -486,40 +773,58 @@ createGiottoObject <- function(raw_exprs,
     stop("column names contain duplicates, please remove or rename")
   }
 
-  # prepare other slots
+  # prepare other slots related to matrix
   gobject@cell_ID = colnames(raw_exprs)
   gobject@gene_ID = rownames(raw_exprs)
   gobject@parameters = list()
 
+
+  ## set instructions
   if(is.null(instructions)) {
     # create all default instructions
     gobject@instructions = createGiottoInstructions()
   }
 
-  ## if no spatial information is given; create dummy spatial data
-  if(is.null(spatial_locs)) {
-    cat('\n spatial locations are not given, dummy 3D data will be created \n')
-    spatial_locs = data.table::data.table(x = 1:ncol(raw_exprs),
-                                          y = 1:ncol(raw_exprs),
-                                          z = 1:ncol(raw_exprs))
-    gobject@spatial_locs = spatial_locs
+  ## test if python modules are available
+  python_modules = c('pandas', 'igraph', 'leidenalg', 'community', 'networkx', 'sklearn')
+  my_python_path = gobject@instructions$python_path
+  for(module in python_modules) {
+    if(reticulate::py_module_available(module) == FALSE) {
+      warning('module: ', module, ' was not found with python path: ', my_python_path, '\n')
+    }
   }
 
 
-  ## spatial
+  ## spatial locations
+  dummy_n = ncol(raw_exprs)
+  spatial_locs = evaluate_spatial_locations(spatial_locs = spatial_locs,
+                                            cores = cores,
+                                            dummy_n = dummy_n,
+                                            expr_matrix = raw_exprs)
+
+
+  # check if dimensions agree
   if(nrow(spatial_locs) != ncol(raw_exprs)) {
     stop('\n Number of rows of spatial location must equal number of columns of expression matrix \n')
-  } else {
-    spatial_dimensions = c('x', 'y', 'z')
-    colnames(gobject@spatial_locs) <- paste0('sdim', spatial_dimensions[1:ncol(gobject@spatial_locs)])
-    gobject@spatial_locs = data.table::as.data.table(gobject@spatial_locs)
-    gobject@spatial_locs[, cell_ID := colnames(raw_exprs)]
   }
+
+  ## force dimension names
+  spatial_dimensions = c('x', 'y', 'z')
+  colnames(spatial_locs) = paste0('sdim', spatial_dimensions[1:ncol(spatial_locs)])
+
+  # add cell_ID column
+  spatial_locs[, cell_ID := colnames(raw_exprs)]
+  gobject@spatial_locs = spatial_locs
+  #gobject@spatial_locs[, cell_ID := colnames(raw_exprs)]
+
+
 
 
   ## OPTIONAL:
   # add other normalized expression data
   if(!is.null(norm_expr)) {
+
+    norm_expr = evaluate_expr_matrix(norm_expr, cores = cores, sparse = F)
 
     if(all(dim(norm_expr) == dim(raw_exprs)) &
        all(colnames(norm_expr) == colnames(raw_exprs)) &
@@ -534,6 +839,8 @@ createGiottoObject <- function(raw_exprs,
   # add other normalized and scaled expression data
   if(!is.null(norm_scaled_expr)) {
 
+    norm_scaled_expr = evaluate_expr_matrix(norm_scaled_expr, cores = cores, sparse = F)
+
     if(all(dim(norm_scaled_expr) == dim(raw_exprs)) &
        all(colnames(norm_scaled_expr) == colnames(raw_exprs)) &
        all(rownames(norm_scaled_expr) == rownames(raw_exprs))) {
@@ -547,6 +854,8 @@ createGiottoObject <- function(raw_exprs,
   # add other custom normalized expression data
   if(!is.null(custom_expr)) {
 
+    custom_expr = evaluate_expr_matrix(custom_expr, cores = cores, sparse = F)
+
     if(all(dim(custom_expr) == dim(raw_exprs)) &
        all(colnames(custom_expr) == colnames(raw_exprs)) &
        all(rownames(custom_expr) == rownames(raw_exprs))) {
@@ -557,7 +866,9 @@ createGiottoObject <- function(raw_exprs,
     }
   }
 
-  # cell metadata
+
+
+  ## cell metadata
   if(is.null(cell_metadata)) {
     gobject@cell_metadata = data.table::data.table(cell_ID = colnames(raw_exprs))
   } else {
@@ -569,7 +880,7 @@ createGiottoObject <- function(raw_exprs,
     gobject@cell_metadata = gobject@cell_metadata[, c('cell_ID', other_colnames), with = FALSE]
   }
 
-  # gene metadata
+  ## gene metadata
   if(is.null(gene_metadata)) {
     gobject@gene_metadata = data.table::data.table(gene_ID = rownames(raw_exprs))
   } else {
@@ -592,7 +903,8 @@ createGiottoObject <- function(raw_exprs,
 
         if(any(c('data.frame', 'data.table') %in% class(network))) {
           if(all(c('to', 'from', 'weight', 'sdimx_begin', 'sdimy_begin', 'sdimx_end', 'sdimy_end') %in% colnames(network))) {
-            gobject@spatial_network[[networkname]] = network
+            spatial_network_Obj = create_spatialNetworkObject(name = networkname,networkDT = network)
+            gobject@spatial_network[[networkname]] = spatial_network_Obj
           } else {
             stop('\n network ', networkname, ' does not have all necessary column names, see details \n')
           }
@@ -639,7 +951,7 @@ createGiottoObject <- function(raw_exprs,
         spatenrichname = spatial_enrichment_name[[spat_enrich_i]]
         spatenrich     = spatial_enrichment[[spat_enrich_i]]
 
-        if(nrow(spatenrich) != nrow(goject@cell_metadata)) {
+        if(nrow(spatenrich) != nrow(gobject@cell_metadata)) {
           stop('\n spatial enrichment ', spatenrichname, ' does not have the same number of rows as spots/cells, see details \n')
         } else {
 
@@ -693,7 +1005,7 @@ createGiottoObject <- function(raw_exprs,
 
         igraph_data = nn_netw[['igraph']]
 
-        if(all(names(V(igraph_data)) %in% gobject@cell_ID)) {
+        if(all(names(igraph::V(igraph_data)) %in% gobject@cell_ID)) {
 
           type_value = nn_netw[['type']] # sNN or kNN
           name_value = nn_netw[['name']]  # uniq name
@@ -711,6 +1023,31 @@ createGiottoObject <- function(raw_exprs,
 
   }
 
+  ## images ##
+  # expect a list of giotto object images
+  if(!is.null(images)) {
+
+    if(is.null(names(images))) {
+      names(images) = paste0('image.', 1:length(images))
+    }
+
+    for(image_i in 1:length(images)) {
+
+      im = images[[image_i]]
+      im_name = names(images)[[image_i]]
+
+      if(methods::is(im, 'imageGiottoObj')) {
+        gobject@images[[im_name]] = im
+      } else {
+        warning('image: ', im, ' is not a giotto image object')
+      }
+
+    }
+
+  }
+
+
+
   # other information
   # TODO
 
@@ -720,6 +1057,95 @@ createGiottoObject <- function(raw_exprs,
 
 
 
+
+
+
+#' @title createGiottoVisiumObject
+#' @description creates Giotto object directly from a 10X visium folder
+#' @param visium_dir path to the 10X visium directory [required]
+#' @param expr_data raw or filtered data (see details)
+#' @param gene_column_index which column index to select (see details)
+#' @param png_name select name of png to use (see details)
+#' @param xmax_adj adjustment of the maximum x-value to align the image
+#' @param xmin_adj adjustment of the minimum x-value to align the image
+#' @param ymax_adj adjustment of the maximum y-value to align the image
+#' @param ymin_adj adjustment of the minimum y-value to align the image
+#' @param instructions list of instructions or output result from \code{\link{createGiottoInstructions}}
+#' @param cores how many cores or threads to use to read data if paths are provided
+#' @return giotto object
+#' @details
+#' \itemize{
+#'   \item{expr_data: raw will take expression data from raw_feature_bc_matrix and filter from filtered_feature_bc_matrix}
+#'   \item{gene_column_index: which gene identifiers (names) to use if there are multiple columns (e.g. ensemble and gene symbol)}
+#'   \item{png_name: by default the first png will be selected, provide the png name to override this (e.g. myimage.png)}
+#' }
+#' @export
+createGiottoVisiumObject = function(visium_dir = NULL,
+                                    expr_data = c('raw', 'filter'),
+                                    gene_column_index = 1,
+                                    png_name = NULL,
+                                    xmax_adj = 0,
+                                    xmin_adj = 0,
+                                    ymax_adj = 0,
+                                    ymin_adj = 0,
+                                    instructions = NULL,
+                                    cores = NA) {
+
+  # data.table: set global variable
+  V1 = row_pxl = col_pxl = in_tissue = array_row = array_col = NULL
+
+  ## check arguments
+  if(is.null(visium_dir)) stop('visium_dir needs to be a path to a visium directory \n')
+  if(!file.exists(visium_dir)) stop(visium_dir, ' does not exist \n')
+  expr_data = match.arg(expr_data, choices = c('raw', 'filter'))
+
+  # set number of cores automatically, but with limit of 10
+  cores = determine_cores(cores)
+  data.table::setDTthreads(threads = cores)
+
+  ## matrix
+  if(expr_data == 'raw') {
+    data_path = paste0(visium_dir, '/', 'raw_feature_bc_matrix/')
+    raw_matrix = get10Xmatrix(path_to_data = data_path, gene_column_index = gene_column_index)
+  } else if(expr_data == 'filter') {
+    data_path = paste0(visium_dir, '/', 'filtered_feature_bc_matrix/')
+    raw_matrix = get10Xmatrix(path_to_data = data_path, gene_column_index = gene_column_index)
+  }
+
+  ## spatial locations and image
+  spatial_path = paste0(visium_dir, '/', 'spatial/')
+  spatial_results = data.table::fread(paste0(spatial_path, '/','tissue_positions_list.csv'))
+  spatial_results = spatial_results[match(colnames(raw_matrix), V1)]
+  colnames(spatial_results) = c('barcode', 'in_tissue', 'array_row', 'array_col', 'col_pxl', 'row_pxl')
+  spatial_locs = spatial_results[,.(row_pxl,-col_pxl)]
+  colnames(spatial_locs) = c('sdimx', 'sdimy')
+
+  ## spatial image
+  if(is.null(png_name)) {
+    png_list = list.files(spatial_path, pattern = "*.png")
+    png_name = png_list[1]
+  }
+  png_path = paste0(spatial_path,'/',png_name)
+  if(!file.exists(png_path)) stop(png_path, ' does not exist! \n')
+
+  mg_img = magick::image_read(png_path)
+
+
+  visium_png = createGiottoImage(gobject = NULL, spatial_locs =  spatial_locs,
+                                 mg_object = mg_img, name = 'image',
+                                 xmax_adj = xmax_adj, xmin_adj = xmin_adj,
+                                 ymax_adj = ymax_adj, ymin_adj = ymin_adj)
+  visium_png_list = list(visium_png)
+  names(visium_png_list) = c('image')
+
+  giotto_object = createGiottoObject(raw_exprs = raw_matrix,
+                                     spatial_locs = spatial_locs,
+                                     instructions = instructions,
+                                     cell_metadata = spatial_results[,.(in_tissue, array_row, array_col)],
+                                     images = visium_png_list)
+  return(giotto_object)
+
+}
 
 
 

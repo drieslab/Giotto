@@ -4,111 +4,72 @@
 \alias{dimGenePlot}
 \title{dimGenePlot}
 \usage{
-dimGenePlot(
-  gobject,
-  expression_values = c("normalized", "scaled", "custom"),
-  genes = NULL,
-  dim_reduction_to_use = "umap",
-  dim_reduction_name = "umap",
-  dim1_to_use = 1,
-  dim2_to_use = 2,
-  show_NN_network = F,
-  nn_network_to_use = "sNN",
-  network_name = "sNN.pca",
-  network_color = "lightgray",
-  edge_alpha = NULL,
-  scale_alpha_with_expression = FALSE,
-  point_shape = c("border", "no_border"),
-  point_size = 1,
-  genes_high_color = "red",
-  genes_mid_color = "white",
-  genes_low_color = "blue",
-  point_border_col = "black",
-  point_border_stroke = 0.1,
-  midpoint = 0,
-  show_legend = T,
-  legend_text = 8,
-  background_color = "white",
-  axis_text = 8,
-  axis_title = 8,
-  cow_n_col = 2,
-  cow_rel_h = 1,
-  cow_rel_w = 1,
-  cow_align = "h",
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
-  save_param = list(),
-  default_save_name = "dimGenePlot"
-)
+dimGenePlot(...)
 }
 \arguments{
-\item{gobject}{giotto object}
-
-\item{expression_values}{gene expression values to use}
-
-\item{genes}{genes to show}
-
-\item{dim_reduction_to_use}{dimension reduction to use}
-
-\item{dim_reduction_name}{dimension reduction name}
-
-\item{dim1_to_use}{dimension to use on x-axis}
-
-\item{dim2_to_use}{dimension to use on y-axis}
-
-\item{show_NN_network}{show underlying NN network}
-
-\item{nn_network_to_use}{type of NN network to use (kNN vs sNN)}
-
-\item{network_name}{name of NN network to use, if show_NN_network = TRUE}
-
-\item{edge_alpha}{column to use for alpha of the edges}
-
-\item{scale_alpha_with_expression}{scale expression with ggplot alpha parameter}
-
-\item{point_size}{size of point (cell)}
-
-\item{point_border_col}{color of border around points}
-
-\item{point_border_stroke}{stroke size of border around points}
-
-\item{midpoint}{size of point (cell)}
-
-\item{show_legend}{show legend}
-
-\item{cow_n_col}{cowplot param: how many columns}
-
-\item{cow_rel_h}{cowplot param: relative height}
-
-\item{cow_rel_w}{cowplot param: relative width}
-
-\item{cow_align}{cowplot param: how to align}
-
-\item{show_plot}{show plots}
-
-\item{return_plot}{return ggplot object}
-
-\item{save_plot}{directly save the plot [boolean]}
-
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
-
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-
-\item{...}{parameters for cowplot::save_plot()}
+\item{...}{
+  Arguments passed on to \code{\link[=dimGenePlot2D]{dimGenePlot2D}}
+  \describe{
+    \item{\code{gobject}}{giotto object}
+    \item{\code{expression_values}}{gene expression values to use}
+    \item{\code{genes}}{genes to show}
+    \item{\code{dim_reduction_to_use}}{dimension reduction to use}
+    \item{\code{dim_reduction_name}}{dimension reduction name}
+    \item{\code{dim1_to_use}}{dimension to use on x-axis}
+    \item{\code{dim2_to_use}}{dimension to use on y-axis}
+    \item{\code{show_NN_network}}{show underlying NN network}
+    \item{\code{nn_network_to_use}}{type of NN network to use (kNN vs sNN)}
+    \item{\code{network_name}}{name of NN network to use, if show_NN_network = TRUE}
+    \item{\code{network_color}}{color of NN network}
+    \item{\code{edge_alpha}}{column to use for alpha of the edges}
+    \item{\code{scale_alpha_with_expression}}{scale expression with ggplot alpha parameter}
+    \item{\code{point_shape}}{point with border or not (border or no_border)}
+    \item{\code{point_size}}{size of point (cell)}
+    \item{\code{point_alpha}}{transparancy of points}
+    \item{\code{cell_color_gradient}}{vector with 3 colors for numeric data}
+    \item{\code{gradient_midpoint}}{midpoint for color gradient}
+    \item{\code{gradient_limits}}{vector with lower and upper limits}
+    \item{\code{point_border_col}}{color of border around points}
+    \item{\code{point_border_stroke}}{stroke size of border around points}
+    \item{\code{show_legend}}{show legend}
+    \item{\code{legend_text}}{size of legend text}
+    \item{\code{background_color}}{color of plot background}
+    \item{\code{axis_text}}{size of axis text}
+    \item{\code{axis_title}}{size of axis title}
+    \item{\code{cow_n_col}}{cowplot param: how many columns}
+    \item{\code{cow_rel_h}}{cowplot param: relative height}
+    \item{\code{cow_rel_w}}{cowplot param: relative width}
+    \item{\code{cow_align}}{cowplot param: how to align}
+    \item{\code{show_plot}}{show plots}
+    \item{\code{return_plot}}{return ggplot object}
+    \item{\code{save_plot}}{directly save the plot [boolean]}
+    \item{\code{save_param}}{list of saving parameters, see \code{\link{showSaveParameters}}}
+    \item{\code{default_save_name}}{default save name for saving, don't change, change save_name in save_param}
+  }}
 }
 \value{
 ggplot
 }
 \description{
-Visualize cells and gene expression according to dimension reduction coordinates
+Visualize gene expression according to dimension reduction coordinates
 }
 \details{
 Description of parameters.
 }
 \examples{
-    dimGenePlot(gobject)
+
+data(mini_giotto_single_cell)
+
+all_genes = slot(mini_giotto_single_cell, 'gene_ID')
+selected_genes = all_genes[1:2]
+dimGenePlot(mini_giotto_single_cell, genes = selected_genes, point_size = 3)
+
 }
 \seealso{
 \code{\link{dimGenePlot3D}}
+
+Other dimension reduction gene expression visualizations: 
+\code{\link{dimGenePlot2D}()},
+\code{\link{dimGenePlot3D}()}
 }
+\concept{dimension reduction gene expression visualizations}

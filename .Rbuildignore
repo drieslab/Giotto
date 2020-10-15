@@ -1,3 +1,5 @@
+^renv$
+^renv\.lock$
 ^Giotto\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
@@ -5,3 +7,8 @@
 ^inst/examples$
 ^inst/faqs$
 ^inst/images$
+^inst/howtos$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+.Rbuildignore.save

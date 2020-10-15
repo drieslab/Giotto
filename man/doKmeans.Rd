@@ -64,7 +64,12 @@ cluster cells using kmeans algorithm
 Description on how to use Kmeans clustering method.
 }
 \examples{
-    doKmeans(gobject)
+
+data(mini_giotto_single_cell)
+
+mini_giotto_single_cell = doKmeans(mini_giotto_single_cell, centers = 4, name = 'kmeans_clus')
+plotUMAP_2D(mini_giotto_single_cell, cell_color = 'kmeans_clus', point_size = 3)
+
 }
 \seealso{
 \code{\link[stats]{kmeans}}

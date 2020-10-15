@@ -20,12 +20,12 @@ dimGenePlot2D(
   scale_alpha_with_expression = FALSE,
   point_shape = c("border", "no_border"),
   point_size = 1,
-  genes_high_color = "red",
-  genes_mid_color = "white",
-  genes_low_color = "blue",
+  point_alpha = 1,
+  cell_color_gradient = c("blue", "white", "red"),
+  gradient_midpoint = NULL,
+  gradient_limits = NULL,
   point_border_col = "black",
   point_border_stroke = 0.1,
-  midpoint = 0,
   show_legend = T,
   legend_text = 8,
   background_color = "white",
@@ -63,6 +63,8 @@ dimGenePlot2D(
 
 \item{network_name}{name of NN network to use, if show_NN_network = TRUE}
 
+\item{network_color}{color of NN network}
+
 \item{edge_alpha}{column to use for alpha of the edges}
 
 \item{scale_alpha_with_expression}{scale expression with ggplot alpha parameter}
@@ -71,11 +73,17 @@ dimGenePlot2D(
 
 \item{point_size}{size of point (cell)}
 
+\item{point_alpha}{transparancy of points}
+
+\item{cell_color_gradient}{vector with 3 colors for numeric data}
+
+\item{gradient_midpoint}{midpoint for color gradient}
+
+\item{gradient_limits}{vector with lower and upper limits}
+
 \item{point_border_col}{color of border around points}
 
 \item{point_border_stroke}{stroke size of border around points}
-
-\item{midpoint}{size of point (cell)}
 
 \item{show_legend}{show legend}
 
@@ -101,24 +109,33 @@ dimGenePlot2D(
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-
-\item{...}{parameters for cowplot::save_plot()}
 }
 \value{
 ggplot
 }
 \description{
-Visualize cells and gene expression according to dimension reduction coordinates
+Visualize gene expression according to dimension reduction coordinates
 }
 \details{
 Description of parameters.
 }
 \examples{
-    dimGenePlot2D(gobject)
+
+data(mini_giotto_single_cell)
+
+all_genes = slot(mini_giotto_single_cell, 'gene_ID')
+selected_genes = all_genes[1:2]
+dimGenePlot2D(mini_giotto_single_cell, genes = selected_genes, point_size = 3)
+
 }
 \seealso{
 \code{\link{dimGenePlot3D}}
+
+Other dimension reduction gene expression visualizations: 
+\code{\link{dimGenePlot3D}()},
+\code{\link{dimGenePlot}()}
 }
+\concept{dimension reduction gene expression visualizations}

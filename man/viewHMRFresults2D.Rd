@@ -4,14 +4,7 @@
 \alias{viewHMRFresults2D}
 \title{viewHMRFresults2D}
 \usage{
-viewHMRFresults2D(
-  gobject,
-  HMRFoutput,
-  k = NULL,
-  betas_to_view = NULL,
-  third_dim = NULL,
-  ...
-)
+viewHMRFresults2D(gobject, HMRFoutput, k = NULL, betas_to_view = NULL, ...)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -22,19 +15,13 @@ viewHMRFresults2D(
 
 \item{betas_to_view}{results from different betas that you want to view}
 
-\item{...}{paramters to visPlot()}
+\item{\dots}{additional parameters to spatPlot2D()}
 }
 \value{
 spatial plots with HMRF domains
 }
 \description{
 View results from doHMRF.
-}
-\details{
-Description ...
-}
-\examples{
-    viewHMRFresults2D(gobject)
 }
 \seealso{
 \code{\link{spatPlot2D}}

@@ -14,59 +14,39 @@ plotTSNE_3D(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{dim_reduction_name}{tsne dimension reduction name}
+\item{dim_reduction_name}{name of TSNE}
 
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+\item{default_save_name}{default save name of TSNE plot}
 
-\item{dim1_to_use}{dimension to use on x-axis}
-
-\item{dim2_to_use}{dimension to use on y-axis}
-
-\item{dim3_to_use}{dimension to use on z-axis}
-
-\item{show_NN_network}{show underlying NN network}
-
-\item{nn_network_to_use}{type of NN network to use (kNN vs sNN)}
-
-\item{network_name}{name of NN network to use, if show_NN_network = TRUE}
-
-\item{cell_color}{color for cells (see details)}
-
-\item{color_as_factor}{convert color column to factor}
-
-\item{cell_color_code}{named vector with colors}
-
-\item{select_cell_groups}{select subset of cells/clusters based on cell_color parameter}
-
-\item{select_cells}{select subset of cells based on cell IDs}
-
-\item{show_other_cells}{display not selected cells}
-
-\item{other_cell_color}{color of not selected cells}
-
-\item{other_point_size}{size of not selected cells}
-
-\item{show_cluster_center}{plot center of selected clusters}
-
-\item{show_center_label}{plot label of selected clusters}
-
-\item{center_point_size}{size of center points}
-
-\item{label_size}{size of labels}
-
-\item{edge_alpha}{column to use for alpha of the edges}
-
-\item{point_size}{size of point (cell)}
-
-\item{show_legend}{show legend}
-
-\item{show_plot}{show plot}
-
-\item{return_plot}{return ggplot object}
-
-\item{save_plot}{directly save the plot [boolean]}
-
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+\item{...}{
+  Arguments passed on to \code{\link[=dimPlot3D]{dimPlot3D}}
+  \describe{
+    \item{\code{dim1_to_use}}{dimension to use on x-axis}
+    \item{\code{dim2_to_use}}{dimension to use on y-axis}
+    \item{\code{dim3_to_use}}{dimension to use on z-axis}
+    \item{\code{spat_enr_names}}{names of spatial enrichment results to include}
+    \item{\code{show_NN_network}}{show underlying NN network}
+    \item{\code{nn_network_to_use}}{type of NN network to use (kNN vs sNN)}
+    \item{\code{network_name}}{name of NN network to use, if show_NN_network = TRUE}
+    \item{\code{cell_color}}{color for cells (see details)}
+    \item{\code{color_as_factor}}{convert color column to factor}
+    \item{\code{cell_color_code}}{named vector with colors}
+    \item{\code{select_cell_groups}}{select subset of cells/clusters based on cell_color parameter}
+    \item{\code{select_cells}}{select subset of cells based on cell IDs}
+    \item{\code{show_other_cells}}{display not selected cells}
+    \item{\code{other_cell_color}}{color of not selected cells}
+    \item{\code{other_point_size}}{size of not selected cells}
+    \item{\code{show_cluster_center}}{plot center of selected clusters}
+    \item{\code{show_center_label}}{plot label of selected clusters}
+    \item{\code{center_point_size}}{size of center points}
+    \item{\code{label_size}}{size of labels}
+    \item{\code{edge_alpha}}{column to use for alpha of the edges}
+    \item{\code{point_size}}{size of point (cell)}
+    \item{\code{show_plot}}{show plot}
+    \item{\code{return_plot}}{return ggplot object}
+    \item{\code{save_plot}}{directly save the plot [boolean]}
+    \item{\code{save_param}}{list of saving parameters, see \code{\link{showSaveParameters}}}
+  }}
 }
 \value{
 plotly
@@ -77,7 +57,18 @@ Visualize cells according to dimension reduction coordinates
 \details{
 Description of parameters.
 }
-\examples{
-    plotTSNE_3D(gobject)
-
+\seealso{
+Other reduced dimension visualizations: 
+\code{\link{dimPlot2D}()},
+\code{\link{dimPlot3D}()},
+\code{\link{dimPlot}()},
+\code{\link{plotPCA_2D}()},
+\code{\link{plotPCA_3D}()},
+\code{\link{plotPCA}()},
+\code{\link{plotTSNE_2D}()},
+\code{\link{plotTSNE}()},
+\code{\link{plotUMAP_2D}()},
+\code{\link{plotUMAP_3D}()},
+\code{\link{plotUMAP}()}
 }
+\concept{reduced dimension visualizations}

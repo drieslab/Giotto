@@ -6,9 +6,10 @@
 \usage{
 dt_to_matrix(x)
 }
+\arguments{
+\item{x}{data.table object}
+}
 \description{
 converts data.table to matrix
 }
-\examples{
-    dt_to_matrix(x)
-}
+\keyword{internal}

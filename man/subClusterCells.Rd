@@ -10,8 +10,8 @@ subClusterCells(
   cluster_method = c("leiden", "louvain_community", "louvain_multinet"),
   cluster_column = NULL,
   selected_clusters = NULL,
-  hvg_param = list(reverse_log_scale = T, difference_in_variance = 1, expression_values
-    = "normalized"),
+  hvg_param = list(reverse_log_scale = T, difference_in_cov = 1, expression_values =
+    "normalized"),
   hvg_min_perc_cells = 5,
   hvg_mean_expr_det = 1,
   use_all_genes_as_hvg = FALSE,
@@ -20,6 +20,7 @@ subClusterCells(
   nn_param = list(dimensions_to_use = 1:20),
   k_neighbors = 10,
   resolution = 1,
+  n_iterations = 1000,
   gamma = 1,
   omega = 1,
   python_path = NULL,
@@ -58,6 +59,8 @@ subClusterCells(
 
 \item{resolution}{resolution}
 
+\item{n_iterations}{number of interations to run the Leiden algorithm.}
+
 \item{gamma}{gamma}
 
 \item{omega}{omega}
@@ -88,9 +91,6 @@ The systematic steps are:
   \item{4. create nearest neighbouring network}
   \item{5. do clustering}
 }
-}
-\examples{
-    subClusterCells(gobject)
 }
 \seealso{
 \code{\link{doLouvainCluster_multinet}}, \code{\link{doLouvainCluster_community}}

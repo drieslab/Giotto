@@ -13,7 +13,7 @@ createHeatmap_DT(
   cluster_custom_order = NULL,
   cluster_cor_method = "pearson",
   cluster_hclust_method = "ward.D",
-  gene_order = c("custom", "correlation"),
+  gene_order = c("correlation", "custom"),
   gene_custom_order = NULL,
   gene_cor_method = "pearson",
   gene_hclust_method = "complete"
@@ -53,6 +53,4 @@ creates order for clusters
 \details{
 Creates input data.tables for plotHeatmap function.
 }
-\examples{
-    createHeatmap_DT(gobject)
-}
+\keyword{internal}

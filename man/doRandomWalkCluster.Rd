@@ -14,8 +14,7 @@ doRandomWalkCluster(
   walk_weights = NA,
   return_gobject = TRUE,
   set_seed = F,
-  seed_number = 1234,
-  ...
+  seed_number = 1234
 )
 }
 \arguments{
@@ -48,7 +47,4 @@ Cluster cells using a random walk approach.
 \details{
 See \code{\link[igraph]{cluster_walktrap}} function from the igraph
 package in R for more information.
-}
-\examples{
-    doRandomWalkCluster(gobject)
 }

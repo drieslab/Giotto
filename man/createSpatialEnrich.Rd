@@ -4,52 +4,34 @@
 \alias{createSpatialEnrich}
 \title{createSpatialEnrich}
 \usage{
-createSpatialEnrich(
-  gobject,
-  enrich_method = c("PAGE", "rank", "rankDT", "hypergeometric"),
-  sign_matrix,
-  expression_values = c("normalized", "scaled", "custom"),
-  reverse_log_scale = TRUE,
-  logbase = 2,
-  output_enrichment = c("original", "zscore"),
-  name = "PAGE",
-  return_gobject = TRUE
-)
+createSpatialEnrich(...)
 }
 \arguments{
-\item{gobject}{Giotto object}
-
-\item{enrich_method}{method for gene signature enrichment calculation}
-
-\item{sign_matrix}{Matrix of signature genes for each cell type / process}
-
-\item{expression_values}{expression values to use}
-
-\item{reverse_log_scale}{reverse expression values from log scale}
-
-\item{logbase}{log base to use if reverse_log_scale = TRUE}
-
-\item{output_enrichment}{how to return enrichment output}
-
-\item{name}{to give to spatial enrichment results, default = PAGE}
-
-\item{return_gobject}{return giotto object}
-}
-\value{
-Giotto object or enrichment results if return_gobject = FALSE
+\item{...}{
+  Arguments passed on to \code{\link[=runSpatialEnrich]{runSpatialEnrich}}
+  \describe{
+    \item{\code{gobject}}{Giotto object}
+    \item{\code{enrich_method}}{method for gene signature enrichment calculation}
+    \item{\code{sign_matrix}}{Matrix of signature genes for each cell type / process}
+    \item{\code{expression_values}}{expression values to use}
+    \item{\code{reverse_log_scale}}{reverse expression values from log scale}
+    \item{\code{min_overlap_genes}}{minimum number of overlapping genes in sign_matrix required to calculate enrichment (PAGE)}
+    \item{\code{logbase}}{log base to use if reverse_log_scale = TRUE}
+    \item{\code{p_value}}{calculate p-value (default = FALSE)}
+    \item{\code{n_times}}{(page/rank) number of permutation iterations to calculate p-value}
+    \item{\code{rbp_p}}{(rank) fractional binarization threshold (default = 0.99)}
+    \item{\code{num_agg}}{(rank) number of top genes to aggregate (default = 100)}
+    \item{\code{max_block}}{number of lines to process together (default = 20e6)}
+    \item{\code{top_percentage}}{(hyper) percentage of cells that will be considered to have gene expression with matrix binarization}
+    \item{\code{output_enrichment}}{how to return enrichment output}
+    \item{\code{name}}{to give to spatial enrichment results, default = PAGE}
+    \item{\code{verbose}}{be verbose}
+    \item{\code{return_gobject}}{return giotto object}
+  }}
 }
 \description{
-Function to calculate gene signature enrichment scores per spatial position using a hypergeometric test.
+Function to calculate gene signature enrichment scores per spatial position using an enrichment test.
 }
-\details{
-For details see the individual functions:
-\itemize{
-  \item{PAGE: }{\code{\link{PAGEEnrich}}}
-  \item{rank: }{\code{\link{rankEnrich}}}
-  \item{rankDT: }{\code{\link{rankEnrichDT}}}
-  \item{hypergeometric: }{\code{\link{hyperGeometricEnrich}}}
-}
-}
-\examples{
-    createSpatialEnrich(gobject)
+\seealso{
+\code{\link{runSpatialEnrich}}
 }

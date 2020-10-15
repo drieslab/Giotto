@@ -7,7 +7,7 @@
 findMarkers(
   gobject,
   expression_values = c("normalized", "scaled", "custom"),
-  cluster_column,
+  cluster_column = NULL,
   method = c("scran", "gini", "mast"),
   subset_clusters = NULL,
   group_1 = NULL,
@@ -64,9 +64,6 @@ Identify marker genes for selected clusters.
 }
 \details{
 Wrapper for all individual functions to detect marker genes for clusters.
-}
-\examples{
-    findMarkers(gobject)
 }
 \seealso{
 \code{\link{findScranMarkers}}, \code{\link{findGiniMarkers}} and \code{\link{findMastMarkers}}

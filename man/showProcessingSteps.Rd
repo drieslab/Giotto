@@ -13,8 +13,13 @@ showProcessingSteps(gobject)
 list of processing steps and names
 }
 \description{
-shows the sequential processing steps that were performed in a summarized format
+shows the sequential processing steps that were performed
+on a Giotto object in a summarized format
 }
 \examples{
-    showProcessingSteps(gobject)
+
+data(mini_giotto_single_cell)
+
+showProcessingSteps(mini_giotto_single_cell)
+
 }

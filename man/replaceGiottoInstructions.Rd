@@ -12,11 +12,8 @@ replaceGiottoInstructions(gobject, instructions = NULL)
 \item{instructions}{new instructions (e.g. result from createGiottoInstructions)}
 }
 \value{
-named vector with giotto instructions
+giotto object with replaces instructions
 }
 \description{
 Function to replace all instructions from giotto object
-}
-\examples{
-    replaceGiottoInstructions()
 }

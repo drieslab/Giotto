@@ -46,6 +46,3 @@ Steps to identify spatial patterns:
   \item{3. convert variance of principlal components (PCs) to z-scores and select PCs based on a z-score threshold}
 }
 }
-\examples{
-    detectSpatialPatterns(gobject)
-}

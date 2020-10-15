@@ -20,6 +20,3 @@ This function convert ensembl gene IDs from a matrix to official gene symbols
 \details{
 This function requires that the biomaRt library is installed
 }
-\examples{
-    convertEnsemblToGeneSymbol(matrix)
-}

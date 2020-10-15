@@ -4,12 +4,19 @@
 \alias{makeSignMatrixRank}
 \title{makeSignMatrixRank}
 \usage{
-makeSignMatrixRank(sc_matrix, sc_cluster_ids, gobject = NULL)
+makeSignMatrixRank(
+  sc_matrix,
+  sc_cluster_ids,
+  ties_method = c("random", "max"),
+  gobject = NULL
+)
 }
 \arguments{
 \item{sc_matrix}{matrix of single-cell RNAseq expression data}
 
 \item{sc_cluster_ids}{vector of cluster ids}
+
+\item{ties_method}{how to handle rank ties}
 
 \item{gobject}{if giotto object is given then only genes present in both datasets will be considered}
 }
@@ -20,9 +27,6 @@ matrix
 Function to convert a single-cell count matrix
 and a corresponding single-cell cluster vector into
 a rank matrix that can be used with the Rank enrichment option.
-}
-\examples{
-    makeSignMatrixRank()
 }
 \seealso{
 \code{\link{rankEnrich}}

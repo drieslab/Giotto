@@ -29,6 +29,3 @@ spatCorObject or cluster results
 \description{
 Cluster based on spatially correlated genes
 }
-\examples{
-    clusterSpatialCorGenes(gobject)
-}

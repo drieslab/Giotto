@@ -42,7 +42,12 @@ data.table with marker genes
 Identify marker genes for all clusters in a one vs all manner based on scran's implementation of findMarkers.
 }
 \examples{
-    findScranMarkers_one_vs_all(gobject)
+
+data(mini_giotto_single_cell)
+
+scran_markers = findScranMarkers_one_vs_all(gobject = mini_giotto_single_cell,
+                                            cluster_column = 'leiden_clus')
+
 }
 \seealso{
 \code{\link{findScranMarkers}}

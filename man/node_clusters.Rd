@@ -17,6 +17,4 @@ list of splitted dendrogram nodes from high to low node height
 \description{
 Merge selected clusters based on pairwise correlation scores and size of cluster.
 }
-\examples{
-    node_clusters(hclus_obj)
-}
+\keyword{internal}

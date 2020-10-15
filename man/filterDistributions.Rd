@@ -14,7 +14,11 @@ filterDistributions(
   fill_color = "lightblue",
   scale_axis = "identity",
   axis_offset = 0,
-  show_plot = TRUE
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "filterDistributions"
 )
 }
 \arguments{
@@ -37,6 +41,14 @@ filterDistributions(
 \item{axis_offset}{offset to be used together with the scaling transformation}
 
 \item{show_plot}{show plot}
+
+\item{return_plot}{return ggplot object}
+
+\item{save_plot}{directly save the plot [boolean]}
+
+\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+
+\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }
 \value{
 ggplot object
@@ -45,5 +57,13 @@ ggplot object
 show gene or cell distribution after filtering on expression threshold
 }
 \examples{
-    filterDistributions(gobject)
+
+data(mini_giotto_single_cell)
+
+# distribution plot of genes
+filterDistributions(mini_giotto_single_cell, detection = 'genes')
+
+# distribution plot of cells
+filterDistributions(mini_giotto_single_cell, detection = 'cells')
+
 }

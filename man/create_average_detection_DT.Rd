@@ -26,3 +26,4 @@ data.table with average gene epression values for each factor
 \description{
 calculates average gene detection for a cell metadata factor (e.g. cluster)
 }
+\keyword{internal}

@@ -35,6 +35,7 @@ dimPlot2D_single(
   edge_alpha = NULL,
   point_shape = c("border", "no_border"),
   point_size = 1,
+  point_alpha = 1,
   point_border_col = "black",
   point_border_stroke = 0.1,
   title = NULL,
@@ -108,6 +109,8 @@ dimPlot2D_single(
 
 \item{point_size}{size of point (cell)}
 
+\item{point_alpha}{transparancy of point}
+
 \item{point_border_col}{color of border around points}
 
 \item{point_border_stroke}{stroke size of border around points}
@@ -145,6 +148,4 @@ Visualize cells according to dimension reduction coordinates
 \details{
 Description of parameters. For 3D plots see \code{\link{dimPlot3D}}
 }
-\examples{
-    dimPlot2D_single(gobject)
-}
+\keyword{internal}

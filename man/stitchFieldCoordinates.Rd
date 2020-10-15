@@ -50,6 +50,3 @@ Stitching of fields:
   \item{4. provide new cell location file to \code{\link{createGiottoObject}}}
 }
 }
-\examples{
-    stitchFieldCoordinates(gobject)
-}

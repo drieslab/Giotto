@@ -27,5 +27,14 @@ data.table with average expression values for each gene per (combined) annotatio
 calculates the average gene expression for one or more (combined) annotation columns.
 }
 \examples{
-    calculateMetaTable(gobject)
+
+data(mini_giotto_single_cell)
+
+# show cell metadata
+pDataDT(mini_giotto_single_cell)
+
+# show average gene expression per annotated cell type
+calculateMetaTable(mini_giotto_single_cell,
+                   metadata_cols = 'cell_types')
+
 }

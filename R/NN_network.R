@@ -51,7 +51,12 @@
 #'
 #' @export
 #' @examples
-#'     createNearestNetwork(gobject)
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' mini_giotto_single_cell <- createNearestNetwork(gobject = mini_giotto_single_cell,
+#'                                                 dimensions_to_use = 1:3, k = 3)
+#'
 createNearestNetwork <- function(gobject,
                                  type = c('sNN', 'kNN'),
                                  dim_reduction_to_use = 'pca',
@@ -96,7 +101,7 @@ createNearestNetwork <- function(gobject,
     }
 
     # features as columns & cells as rows
-    matrix_to_use = t(expr_values)
+    matrix_to_use = t_giotto(expr_values)
 
   }
 
@@ -111,10 +116,14 @@ createNearestNetwork <- function(gobject,
   }
 
   nn_network = dbscan::kNN(x = matrix_to_use, k = k, sort = TRUE, ...)
+
+  # data.table variables
+  from = to = weight = distance = from_cell_ID = to_cell_ID = shared = NULL
+
   nn_network_dt = data.table::data.table(from = rep(1:nrow(nn_network$id), k),
-                             to = as.vector(nn_network$id),
-                             weight = 1/(1 + as.vector(nn_network$dist)),
-                             distance = as.vector(nn_network$dist))
+                                         to = as.vector(nn_network$id),
+                                         weight = 1/(1 + as.vector(nn_network$dist)),
+                                         distance = as.vector(nn_network$dist))
   nn_network_dt[, from_cell_ID := cell_names[from]]
   nn_network_dt[, to_cell_ID := cell_names[to]]
 
@@ -123,16 +132,16 @@ createNearestNetwork <- function(gobject,
 
     snn_network = dbscan::sNN(x = nn_network, k = k, kt = NULL, ...)
     snn_network_dt = data.table::data.table(from = rep(1:nrow(snn_network$id), k),
-                                to = as.vector(snn_network$id),
-                                weight = 1/(1 + as.vector(snn_network$dist)),
-                                distance = as.vector(snn_network$dist),
-                                shared = as.vector(snn_network$shared))
-    snn_network_dt = snn_network_dt[complete.cases(snn_network_dt)]
+                                            to = as.vector(snn_network$id),
+                                            weight = 1/(1 + as.vector(snn_network$dist)),
+                                            distance = as.vector(snn_network$dist),
+                                            shared = as.vector(snn_network$shared))
+    snn_network_dt = snn_network_dt[stats::complete.cases(snn_network_dt)]
     snn_network_dt[, from_cell_ID := cell_names[from]]
     snn_network_dt[, to_cell_ID := cell_names[to]]
 
     # rank snn
-    setorder(snn_network_dt, from, -shared)
+    data.table::setorder(snn_network_dt, from, -shared)
     snn_network_dt[, rank := 1:.N, by = from]
 
     # filter snn
@@ -207,8 +216,6 @@ createNearestNetwork <- function(gobject,
 #' Currently only the force-directed graph layout "drl", see \code{\link[igraph]{layout_with_drl}},
 #' is implemented. This provides an alternative to tSNE or UMAP based visualizations.
 #' @export
-#' @examples
-#'     addNetworkLayout(gobject)
 addNetworkLayout = function(gobject,
                             nn_network_to_use = "sNN",
                             network_name = "sNN.pca",
@@ -269,8 +276,12 @@ addNetworkLayout = function(gobject,
 #' @name nnDT_to_kNN
 #' @description Convert a nearest network data.table to a kNN object
 #' @param nnDT nearest neighbor network in data.table format
+#' @keywords internal
 #' @return kNN object
 nnDT_to_kNN <- function(nnDT) {
+
+  # data.table variable
+  from = NULL
 
   k = unique(table(nnDT$from))
 
@@ -296,18 +307,16 @@ nnDT_to_kNN <- function(nnDT) {
 
 
 
-#' @title extractNearestNetwork
-#' @name extractNearestNetwork
+#' @title select_NearestNetwork
+#' @name select_NearestNetwork
 #' @description Extracts a NN-network from a Giotto object
 #' @param gobject giotto object
 #' @param nn_network_to_use kNN or sNN
 #' @param network_name name of NN network to be used
 #' @param output return a igraph or data.table object
 #' @return igraph or data.table object
-#' @export
-#' @examples
-#'     extractNearestNetwork(gobject)
-extractNearestNetwork = function(gobject,
+#' @keywords internal
+select_NearestNetwork = function(gobject,
                                  nn_network_to_use = 'sNN',
                                  network_name = 'sNN.pca',
                                  output = c('igraph', 'data.table')) {
@@ -335,4 +344,22 @@ extractNearestNetwork = function(gobject,
   return(igraph_object)
 
 }
+
+
+#' @title extractNearestNetwork
+#' @name extractNearestNetwork
+#' @description Function to calculate gene signature enrichment scores per spatial position using a rank based approach.
+#' @inheritDotParams select_NearestNetwork
+#' @seealso \code{\link{select_NearestNetwork}}
+#' @keywords internal
+extractNearestNetwork = function(...) {
+
+  .Deprecated(new = "select_NearestNetwork")
+
+  select_NearestNetwork(...)
+
+}
+
+
+
 

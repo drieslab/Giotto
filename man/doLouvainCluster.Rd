@@ -37,15 +37,22 @@ doLouvainCluster(
 
 \item{resolution}{[community] resolution}
 
+\item{weight_col}{weight column name}
+
 \item{gamma}{[multinet] Resolution parameter for modularity in the generalized louvain method.}
 
-\item{omega}{[multinet] Inter-layer weight parameter in the generalized louvain method.}
+\item{omega}{[multinet] Inter-layer weight parameter in the generalized louvain method}
+
+\item{louv_random}{[community] Will randomize the node evaluation order and the community evaluation
+order to get different partitions at each call}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
 \item{set_seed}{set seed}
 
 \item{seed_number}{number for seed}
+
+\item{\dots}{additional parameters}
 }
 \value{
 giotto object with new clusters appended to cell metadata
@@ -55,9 +62,6 @@ cluster cells using a NN-network and the Louvain algorithm.
 }
 \details{
 Louvain clustering using the community or multinet implementation of the louvain clustering algorithm.
-}
-\examples{
-    doLouvainCluster(gobject)
 }
 \seealso{
 \code{\link{doLouvainCluster_community}} and \code{\link{doLouvainCluster_multinet}}

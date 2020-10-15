@@ -41,6 +41,3 @@ data.table with filtered information
 \description{
 Shows and filters spatially correlated genes
 }
-\examples{
-    showSpatialCorGenes(gobject)
-}

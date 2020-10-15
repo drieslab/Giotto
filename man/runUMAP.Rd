@@ -18,10 +18,11 @@ runUMAP(
   n_components = 2,
   n_epochs = 400,
   min_dist = 0.01,
-  n_threads = 1,
+  n_threads = NA,
   spread = 5,
-  set_seed = T,
+  set_seed = TRUE,
   seed_number = 1234,
+  verbose = T,
   ...
 )
 }
@@ -52,13 +53,15 @@ runUMAP(
 
 \item{min_dist}{UMAP param: minimum distance}
 
-\item{n_threads}{UMAP param: threads to use}
+\item{n_threads}{UMAP param: threads/cores to use}
 
 \item{spread}{UMAP param: spread}
 
 \item{set_seed}{use of seed}
 
 \item{seed_number}{seed number to use}
+
+\item{verbose}{verbosity of function}
 
 \item{...}{additional UMAP parameters}
 }
@@ -73,9 +76,20 @@ See \code{\link[uwot]{umap}} for more information about these and other paramete
 \itemize{
   \item Input for UMAP dimension reduction can be another dimension reduction (default = 'pca')
   \item To use gene expression as input set dim_reduction_to_use = NULL
+  \item If dim_reduction_to_use = NULL, genes_to_use can be used to select a column name of
+  highly variable genes (see \code{\link{calculateHVG}}) or simply provide a vector of genes
   \item multiple UMAP results can be stored by changing the \emph{name} of the analysis
 }
 }
 \examples{
-    runUMAP(gobject)
+
+data(mini_giotto_single_cell)
+
+mini_giotto_single_cell <- runUMAP(mini_giotto_single_cell,
+                                   dimensions_to_use = 1:3,
+                                   n_threads = 1,
+                                   n_neighbors = 3)
+
+plotUMAP(gobject = mini_giotto_single_cell)
+
 }

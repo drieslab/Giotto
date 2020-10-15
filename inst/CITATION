@@ -1,0 +1,24 @@
+
+citHeader("To cite Giotto in publications, please use:")
+
+citEntry(entry = "article",
+  author = personList(as.person("Ruben Dries"),
+                      as.person("Qian Zhu"),
+                      as.person("Rui Dong"),
+                      as.person("Chee-Huat Linus Eng"),
+                      as.person("Huipeng Li"),
+                      as.person("Kan Liu"),
+                      as.person("Yuntian Fu"),
+                      as.person("Tianxiao Zhao"),
+                      as.person("Arpan Sarkar"),
+                      as.person("Rani E George"),
+                      as.person("Nico Pierson"),
+                      as.person("Long Cai"),
+                      as.person("Guo-Cheng Yuan")),
+  title = "Giotto, a toolbox for integrative analysis and visualization of spatial expression data",
+  journal = "bioRxiv",
+  year = "2020",
+  doi = "10.1101/701680",
+  url = "https://doi.org/10.1101/701680",
+  textVersion = "Dries et al. Giotto, a toolbox for integrative analysis and visualization of spatial expression data. bioRxiv (2020)."
+)

@@ -36,6 +36,8 @@ all_plots_save_function(
 
 \item{save_name}{name of plot}
 
+\item{default_save_name}{default name to save a plot}
+
 \item{save_format}{format (e.g. png, tiff, pdf, ...)}
 
 \item{show_saved_plot}{load & display the saved plot}
@@ -58,14 +60,12 @@ all_plots_save_function(
 
 \item{limitsize}{When TRUE (the default), ggsave will not save images larger than 50x50 inches, to prevent the common error of specifying dimensions in pixels.}
 
-\item{...}{additional parameters to ggplot_save_function or general_save_function}
+\item{\dots}{additional parameters to ggplot_save_function or general_save_function}
 }
 \description{
 Function to automatically save plots to directory of interest
 }
-\examples{
-    all_plots_save_function(gobject)
-}
 \seealso{
 \code{\link{general_save_function}}
 }
+\keyword{internal}

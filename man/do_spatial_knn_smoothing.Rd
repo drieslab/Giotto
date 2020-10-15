@@ -8,7 +8,7 @@ do_spatial_knn_smoothing(
   gobject,
   expression_values = c("normalized", "scaled", "custom"),
   subset_genes = NULL,
-  spatial_network_name = "spatial_network",
+  spatial_network_name = "Delaunay_network",
   b = NULL
 )
 }
@@ -36,6 +36,4 @@ b is a smoothening factor that defaults to 1 - 1/k, where k is the median number
 k-neighbors in the selected spatial network. Setting b = 0 means no smoothing and b = 1
 means no contribution from its own expression.
 }
-\examples{
-    do_spatial_knn_smoothing(gobject)
-}
+\keyword{internal}

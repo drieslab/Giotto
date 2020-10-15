@@ -33,9 +33,13 @@ Framework of giotto object to store and work with spatial expression data
 
 \item{\code{spatial_grid}}{spatial grid in data.table/data.frame format}
 
+\item{\code{spatial_enrichment}}{slot to save spatial enrichment-like results}
+
 \item{\code{dimension_reduction}}{slot to save dimension reduction coordinates}
 
 \item{\code{nn_network}}{nearest neighbor network in igraph format}
+
+\item{\code{images}}{slot to store giotto images}
 
 \item{\code{parameters}}{slot to save parameters that have been used}
 

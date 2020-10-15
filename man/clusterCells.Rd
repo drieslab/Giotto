@@ -13,7 +13,8 @@ clusterCells(
   network_name = "sNN.pca",
   pyth_leid_resolution = 1,
   pyth_leid_weight_col = "weight",
-  pyth_leid_part_type = c("RBConfigurationVertexPartition", "ModularityVertexPartition"),
+  pyth_leid_part_type = c("RBConfigurationVertexPartition",
+    "ModularityVertexPartition"),
   pyth_leid_init_memb = NULL,
   pyth_leid_iterations = 1000,
   pyth_louv_resolution = 1,
@@ -136,9 +137,6 @@ cluster cells using a variety of different methods
 }
 \details{
 Wrapper for the different clustering methods.
-}
-\examples{
-    clusterCells(gobject)
 }
 \seealso{
 \code{\link{doLeidenCluster}}, \code{\link{doLouvainCluster_community}}, \code{\link{doLouvainCluster_multinet}},

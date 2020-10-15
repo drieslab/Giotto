@@ -52,7 +52,7 @@ violinPlot(
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }
@@ -63,5 +63,20 @@ ggplot
 Creates violinplot for selected clusters
 }
 \examples{
-    violinPlot(gobject)
+\dontrun{
+
+data(mini_giotto_single_cell)
+
+# get all genes
+all_genes = slot(mini_giotto_single_cell, 'gene_ID')
+
+# look at cell metadata
+cell_metadata = pDataDT(mini_giotto_single_cell)
+
+# plot violinplot with selected genes and stratified for identified cell types
+violinPlot(mini_giotto_single_cell,
+           genes = all_genes[1:10],
+           cluster_column = 'cell_types')
+
+}
 }
