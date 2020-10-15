@@ -16,5 +16,8 @@ data.table with gene metadata
 show gene metadata
 }
 \examples{
-    pDataDT(gobject)
+
+data(mini_giotto_single_cell) # loads existing Giotto object
+fDataDT(mini_giotto_single_cell)
+
 }

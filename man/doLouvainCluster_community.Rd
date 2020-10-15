@@ -15,8 +15,7 @@ doLouvainCluster_community(
   louv_random = F,
   return_gobject = TRUE,
   set_seed = F,
-  seed_number = 1234,
-  ...
+  seed_number = 1234
 )
 }
 \arguments{
@@ -57,6 +56,4 @@ page for more information.
 
 Set \emph{weight_col = NULL} to give equal weight (=1) to each edge.
 }
-\examples{
-    doLouvainCluster_community(gobject)
-}
+\keyword{internal}

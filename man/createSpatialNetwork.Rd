@@ -6,31 +6,58 @@
 \usage{
 createSpatialNetwork(
   gobject,
-  k = 4,
+  name = NULL,
   dimensions = "all",
-  maximum_distance = NULL,
+  method = c("Delaunay", "kNN"),
+  delaunay_method = c("deldir", "delaunayn_geometry", "RTriangle"),
+  maximum_distance_delaunay = "auto",
+  options = "Pp",
+  Y = TRUE,
+  j = TRUE,
+  S = 0,
   minimum_k = 0,
-  name = "spatial_network",
+  knn_method = "dbscan",
+  k = 4,
+  maximum_distance_knn = NULL,
   verbose = F,
-  return_gobject = TRUE
+  return_gobject = TRUE,
+  ...
 )
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{k}{number of nearest neighbors based on physical distance}
+\item{name}{name for spatial network (default = 'spatial_network')}
 
 \item{dimensions}{which spatial dimensions to use (default = all)}
 
-\item{maximum_distance}{distance cuttof for nearest neighbors to consider}
+\item{method}{which method to use to create a spatial network. (default = Delaunay)}
+
+\item{delaunay_method}{Delaunay method to use}
+
+\item{maximum_distance_delaunay}{distance cuttof for nearest neighbors to consider for Delaunay network}
+
+\item{options}{(geometry) String containing extra control options for the underlying Qhull command; see the Qhull documentation (../doc/qhull/html/qdelaun.html) for the available options. (default = 'Pp', do not report precision problems)}
+
+\item{Y}{(RTriangle) If TRUE prohibits the insertion of Steiner points on the mesh boundary.}
+
+\item{j}{(RTriangle) If TRUE jettisons vertices that are not part of the final triangulation from the output.}
+
+\item{S}{(RTriangle) Specifies the maximum number of added Steiner points.}
 
 \item{minimum_k}{minimum nearest neigbhours if maximum_distance != NULL}
 
-\item{name}{name for spatial network (default = 'spatial_network')}
+\item{knn_method}{method to create kNN network}
+
+\item{k}{number of nearest neighbors based on physical distance}
+
+\item{maximum_distance_knn}{distance cuttof for nearest neighbors to consider for kNN network}
 
 \item{verbose}{verbose}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
+
+\item{\dots}{Additional parameters for the selected function}
 }
 \value{
 giotto object with updated spatial network slot
@@ -40,15 +67,10 @@ Create a spatial network based on cell centroid physical distances.
 }
 \details{
 Creates a spatial network connecting single-cells based on their physical distance to each other.
-Number of neighbors can be determined by k, maximum distance from each cell with or without
+For Delaunay method, neighbors will be decided by delaunay triangulation and a maximum distance criteria. For kNN method, number of neighbors can be determined by k, or maximum distance from each cell with or without
 setting a minimum k for each cell.
 
 \strong{dimensions: } default = 'all' which takes all possible dimensions.
 Alternatively you can provide a character vector that specififies the spatial dimensions to use, e.g. c("sdimx', "sdimy")
 or a numerical vector, e.g. 2:3
-
-\strong{maximum_distance: } to create a network based on maximum distance only, you also need to set k to a very high value, e.g. k = 100
-}
-\examples{
-    createSpatialNetwork(gobject)
 }

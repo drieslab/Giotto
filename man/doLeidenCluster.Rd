@@ -17,8 +17,7 @@ doLeidenCluster(
   n_iterations = 1000,
   return_gobject = TRUE,
   set_seed = T,
-  seed_number = 1234,
-  ...
+  seed_number = 1234
 )
 }
 \arguments{
@@ -73,7 +72,4 @@ Partition types available and information:
 }
 
 Set \emph{weight_col = NULL} to give equal weight (=1) to each edge.
-}
-\examples{
-    doLeidenCluster(gobject)
 }

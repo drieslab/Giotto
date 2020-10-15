@@ -4,141 +4,68 @@
 \alias{spatCellPlot}
 \title{spatCellPlot}
 \usage{
-spatCellPlot(
-  gobject,
-  sdimx = "sdimx",
-  sdimy = "sdimy",
-  spat_enr_names = NULL,
-  cell_annotation_values = NULL,
-  cell_color_gradient = c("blue", "white", "red"),
-  gradient_midpoint = NULL,
-  gradient_limits = NULL,
-  select_cell_groups = NULL,
-  select_cells = NULL,
-  point_shape = c("border", "no_border"),
-  point_size = 3,
-  point_border_col = "black",
-  point_border_stroke = 0.1,
-  show_cluster_center = F,
-  show_center_label = F,
-  center_point_size = 4,
-  center_point_border_col = "black",
-  center_point_border_stroke = 0.1,
-  label_size = 4,
-  label_fontface = "bold",
-  show_network = F,
-  spatial_network_name = "spatial_network",
-  network_color = NULL,
-  network_alpha = 1,
-  show_grid = F,
-  spatial_grid_name = "spatial_grid",
-  grid_color = NULL,
-  show_other_cells = T,
-  other_cell_color = "lightgrey",
-  other_point_size = 1,
-  other_cells_alpha = 0.1,
-  coord_fix_ratio = NULL,
-  show_legend = T,
-  legend_text = 8,
-  legend_symbol_size = 1,
-  background_color = "white",
-  axis_text = 8,
-  axis_title = 8,
-  cow_n_col = 2,
-  cow_rel_h = 1,
-  cow_rel_w = 1,
-  cow_align = "h",
-  show_plot = NA,
-  return_plot = NA,
-  save_plot = NA,
-  save_param = list(),
-  default_save_name = "spatCellPlot"
-)
+spatCellPlot(...)
 }
 \arguments{
-\item{gobject}{giotto object}
-
-\item{sdimx}{x-axis dimension name (default = 'sdimx')}
-
-\item{sdimy}{y-axis dimension name (default = 'sdimy')}
-
-\item{spat_enr_names}{names of spatial enrichment results to include}
-
-\item{cell_annotation_values}{numeric cell annotation columns}
-
-\item{cell_color_gradient}{vector with 3 colors for numeric data}
-
-\item{gradient_midpoint}{midpoint for color gradient}
-
-\item{gradient_limits}{vector with lower and upper limits}
-
-\item{select_cell_groups}{select subset of cells/clusters based on cell_color parameter}
-
-\item{select_cells}{select subset of cells based on cell IDs}
-
-\item{point_shape}{point with border or not (border or no_border)}
-
-\item{point_size}{size of point (cell)}
-
-\item{point_border_col}{color of border around points}
-
-\item{point_border_stroke}{stroke size of border around points}
-
-\item{show_cluster_center}{plot center of selected clusters}
-
-\item{show_center_label}{plot label of selected clusters}
-
-\item{center_point_size}{size of center points}
-
-\item{label_size}{size of labels}
-
-\item{label_fontface}{font of labels}
-
-\item{show_network}{show underlying spatial network}
-
-\item{spatial_network_name}{name of spatial network to use}
-
-\item{network_color}{color of spatial network}
-
-\item{network_alpha}{alpha of spatial network}
-
-\item{show_grid}{show spatial grid}
-
-\item{spatial_grid_name}{name of spatial grid to use}
-
-\item{grid_color}{color of spatial grid}
-
-\item{show_other_cells}{display not selected cells}
-
-\item{other_cell_color}{color of not selected cells}
-
-\item{other_point_size}{point size of not selected cells}
-
-\item{other_cells_alpha}{alpha of not selected cells}
-
-\item{coord_fix_ratio}{fix ratio between x and y-axis}
-
-\item{show_legend}{show legend}
-
-\item{legend_text}{size of legend text}
-
-\item{legend_symbol_size}{size of legend symbols}
-
-\item{background_color}{color of plot background}
-
-\item{axis_text}{size of axis text}
-
-\item{axis_title}{size of axis title}
-
-\item{show_plot}{show plot}
-
-\item{return_plot}{return ggplot object}
-
-\item{save_plot}{directly save the plot [boolean]}
-
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
-
-\item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
+\item{...}{
+  Arguments passed on to \code{\link[=spatCellPlot2D]{spatCellPlot2D}}
+  \describe{
+    \item{\code{gobject}}{giotto object}
+    \item{\code{show_image}}{show a tissue background image}
+    \item{\code{gimage}}{a giotto image}
+    \item{\code{image_name}}{name of a giotto image}
+    \item{\code{sdimx}}{x-axis dimension name (default = 'sdimx')}
+    \item{\code{sdimy}}{y-axis dimension name (default = 'sdimy')}
+    \item{\code{spat_enr_names}}{names of spatial enrichment results to include}
+    \item{\code{cell_annotation_values}}{numeric cell annotation columns}
+    \item{\code{cell_color_gradient}}{vector with 3 colors for numeric data}
+    \item{\code{gradient_midpoint}}{midpoint for color gradient}
+    \item{\code{gradient_limits}}{vector with lower and upper limits}
+    \item{\code{select_cell_groups}}{select subset of cells/clusters based on cell_color parameter}
+    \item{\code{select_cells}}{select subset of cells based on cell IDs}
+    \item{\code{point_shape}}{shape of points (border, no_border or voronoi)}
+    \item{\code{point_size}}{size of point (cell)}
+    \item{\code{point_alpha}}{transparancy of spatial points}
+    \item{\code{point_border_col}}{color of border around points}
+    \item{\code{point_border_stroke}}{stroke size of border around points}
+    \item{\code{show_cluster_center}}{plot center of selected clusters}
+    \item{\code{show_center_label}}{plot label of selected clusters}
+    \item{\code{center_point_size}}{size of center points}
+    \item{\code{center_point_border_col}}{border color of center points}
+    \item{\code{center_point_border_stroke}}{border stroke size of center points}
+    \item{\code{label_size}}{size of labels}
+    \item{\code{label_fontface}}{font of labels}
+    \item{\code{show_network}}{show underlying spatial network}
+    \item{\code{spatial_network_name}}{name of spatial network to use}
+    \item{\code{network_color}}{color of spatial network}
+    \item{\code{network_alpha}}{alpha of spatial network}
+    \item{\code{show_grid}}{show spatial grid}
+    \item{\code{spatial_grid_name}}{name of spatial grid to use}
+    \item{\code{grid_color}}{color of spatial grid}
+    \item{\code{show_other_cells}}{display not selected cells}
+    \item{\code{other_cell_color}}{color of not selected cells}
+    \item{\code{other_point_size}}{point size of not selected cells}
+    \item{\code{other_cells_alpha}}{alpha of not selected cells}
+    \item{\code{coord_fix_ratio}}{fix ratio between x and y-axis}
+    \item{\code{show_legend}}{show legend}
+    \item{\code{legend_text}}{size of legend text}
+    \item{\code{legend_symbol_size}}{size of legend symbols}
+    \item{\code{background_color}}{color of plot background}
+    \item{\code{vor_border_color}}{border colorr for voronoi plot}
+    \item{\code{vor_max_radius}}{maximum radius for voronoi 'cells'}
+    \item{\code{vor_alpha}}{transparancy of voronoi 'cells'}
+    \item{\code{axis_text}}{size of axis text}
+    \item{\code{axis_title}}{size of axis title}
+    \item{\code{cow_n_col}}{cowplot param: how many columns}
+    \item{\code{cow_rel_h}}{cowplot param: relative height}
+    \item{\code{cow_rel_w}}{cowplot param: relative width}
+    \item{\code{cow_align}}{cowplot param: how to align}
+    \item{\code{show_plot}}{show plot}
+    \item{\code{return_plot}}{return ggplot object}
+    \item{\code{save_plot}}{directly save the plot [boolean]}
+    \item{\code{save_param}}{list of saving parameters, see \code{\link{showSaveParameters}}}
+    \item{\code{default_save_name}}{default save name for saving, don't change, change save_name in save_param}
+  }}
 }
 \value{
 ggplot
@@ -150,5 +77,23 @@ Visualize cells according to spatial coordinates
 Description of parameters.
 }
 \examples{
-    spatCellPlot(gobject)
+
+data(mini_giotto_single_cell)
+
+# combine all metadata
+combineMetadata(mini_giotto_single_cell, spat_enr_names = 'cluster_metagene')
+
+# visualize total expression information
+spatCellPlot(mini_giotto_single_cell, cell_annotation_values = 'total_expr')
+
+# visualize enrichment results
+spatCellPlot(mini_giotto_single_cell,
+               spat_enr_names = 'cluster_metagene',
+               cell_annotation_values = c('1','2'))
+
 }
+\seealso{
+Other spatial cell annotation visualizations: 
+\code{\link{spatCellPlot2D}()}
+}
+\concept{spatial cell annotation visualizations}

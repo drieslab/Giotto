@@ -32,6 +32,4 @@ edges in spatial grid as data.table()
 \description{
 adjust the axis scale in 3D plotly plot
 }
-\examples{
-    plotly_axis_scale_3D(gobject)
-}
+\keyword{internal}

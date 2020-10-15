@@ -13,6 +13,7 @@ mergeClusters(
   min_cor_score = 0.8,
   max_group_size = 20,
   force_min_group_size = 10,
+  max_sim_clusters = 10,
   return_gobject = TRUE,
   verbose = TRUE
 )
@@ -34,6 +35,8 @@ mergeClusters(
 
 \item{force_min_group_size}{size of clusters that will be merged with their most similar neighbor(s)}
 
+\item{max_sim_clusters}{maximum number of clusters to potentially merge to reach force_min_group_size}
+
 \item{return_gobject}{return giotto object}
 
 \item{verbose}{be verbose}
@@ -49,9 +52,20 @@ Merge selected clusters based on pairwise correlation scores and size of cluster
 To avoid large clusters to merge the max_group_size can be lowered. Small clusters can
 be forcibly merged with their most similar pairwise cluster by adjusting the
 force_min_group_size parameter. Clusters smaller than this value will be merged
-independent on the provided min_cor_score value. \cr
+independent on the provided min_cor_score value. The force_min_group_size might not always
+be reached if clusters have already been merged before \cr
 A giotto object is returned by default, if FALSE then the merging vector will be returned.
 }
 \examples{
-    mergeClusters(gobject)
+
+data("mini_giotto_single_cell")
+
+pDataDT(mini_giotto_single_cell)
+mini_giotto_single_cell = mergeClusters(mini_giotto_single_cell,
+                                        cluster_column = 'leiden_clus',
+                                        min_cor_score = 0.7,
+                                        force_min_group_size = 4)
+pDataDT(mini_giotto_single_cell)
+plotUMAP_2D(mini_giotto_single_cell, cell_color = 'merged_cluster', point_size = 3)
+
 }

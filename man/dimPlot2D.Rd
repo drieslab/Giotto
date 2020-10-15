@@ -37,6 +37,7 @@ dimPlot2D(
   edge_alpha = NULL,
   point_shape = c("border", "no_border"),
   point_size = 1,
+  point_alpha = 1,
   point_border_col = "black",
   point_border_stroke = 0.1,
   title = NULL,
@@ -59,6 +60,8 @@ dimPlot2D(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{group_by}{create multiple plots based on cell annotation column}
 
 \item{group_by_subset}{subset the group_by factor column}
 
@@ -106,6 +109,10 @@ dimPlot2D(
 
 \item{center_point_size}{size of center points}
 
+\item{center_point_border_col}{border color of center points}
+
+\item{center_point_border_stroke}{border stroke size of center points}
+
 \item{label_size}{size of labels}
 
 \item{label_fontface}{font of labels}
@@ -115,6 +122,8 @@ dimPlot2D(
 \item{point_shape}{point with border or not (border or no_border)}
 
 \item{point_size}{size of point (cell)}
+
+\item{point_alpha}{transparancy of point}
 
 \item{point_border_col}{color of border around points}
 
@@ -148,11 +157,9 @@ dimPlot2D(
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-
-\item{groub_by}{create multiple plots based on cell annotation column}
 }
 \value{
 ggplot
@@ -164,5 +171,25 @@ Visualize cells according to dimension reduction coordinates
 Description of parameters. For 3D plots see \code{\link{dimPlot3D}}
 }
 \examples{
-    dimPlot2D(gobject)
+
+data(mini_giotto_single_cell)
+
+dimPlot2D(mini_giotto_single_cell)
+dimPlot2D(mini_giotto_single_cell, cell_color = 'cell_types', point_size = 3)
+
 }
+\seealso{
+Other reduced dimension visualizations: 
+\code{\link{dimPlot3D}()},
+\code{\link{dimPlot}()},
+\code{\link{plotPCA_2D}()},
+\code{\link{plotPCA_3D}()},
+\code{\link{plotPCA}()},
+\code{\link{plotTSNE_2D}()},
+\code{\link{plotTSNE_3D}()},
+\code{\link{plotTSNE}()},
+\code{\link{plotUMAP_2D}()},
+\code{\link{plotUMAP_3D}()},
+\code{\link{plotUMAP}()}
+}
+\concept{reduced dimension visualizations}

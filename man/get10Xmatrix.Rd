@@ -4,27 +4,26 @@
 \alias{get10Xmatrix}
 \title{get10Xmatrix}
 \usage{
-get10Xmatrix(path_to_data, row_ids = c("gene_symbols", "ensembl_ids"))
+get10Xmatrix(path_to_data, gene_column_index = 1)
 }
 \arguments{
 \item{path_to_data}{path to the 10X folder}
 
-\item{row_ids}{row ids to use (gene symbols or ensembl ids)}
+\item{gene_column_index}{which column from the features or genes .tsv file to use for row ids}
 }
 \value{
-expression matrix from 10X
+sparse expression matrix from 10X
 }
 \description{
 This function creates an expression matrix from a 10X structured folder
 }
 \details{
-A typical 10X folder is named raw_feature_bc_matrix or raw_feature_bc_matrix. It has 3 files:
+A typical 10X folder is named raw_feature_bc_matrix or raw_feature_bc_matrix and tt has 3 files:
 \itemize{
-  \item{barcodes}
-  \item{features.tsv.gz}
-  \item{matrix.mtx.gz}
+  \item{barcodes.tsv(.gz)}
+  \item{features.tsv(.gz) or genes.tsv(.gz)}
+  \item{matrix.mtx(.gz)}
 }
-}
-\examples{
-    get10Xmatrix(10Xmatrix)
+By default the first column of the features or genes .tsv file will be used, however if multiple
+annotations are provided (e.g. ensembl gene ids and gene symbols) the user can select another column.
 }

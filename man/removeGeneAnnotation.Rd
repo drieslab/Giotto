@@ -23,5 +23,14 @@ removes gene annotation of giotto object
 if return_gobject = FALSE, it will return the gene metadata
 }
 \examples{
-    removeGeneAnnotation(gobject)
+
+data(mini_giotto_single_cell) # load full mini giotto object
+
+# show gene metadata
+fDataDT(mini_giotto_single_cell)
+
+# remove nr_cells column
+mini_giotto_single_cell = removeGeneAnnotation(mini_giotto_single_cell,
+                                               columns = 'nr_cells')
+
 }

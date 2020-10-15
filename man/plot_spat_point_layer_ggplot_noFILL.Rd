@@ -19,6 +19,7 @@ plot_spat_point_layer_ggplot_noFILL(
   select_cell_groups = NULL,
   select_cells = NULL,
   point_size = 2,
+  point_alpha = 1,
   show_cluster_center = F,
   show_center_label = T,
   center_point_size = 4,
@@ -57,6 +58,8 @@ plot_spat_point_layer_ggplot_noFILL(
 
 \item{point_size}{size of point (cell)}
 
+\item{point_alpha}{transparancy of point}
+
 \item{show_cluster_center}{plot center of selected clusters}
 
 \item{show_center_label}{plot label of selected clusters}
@@ -86,6 +89,4 @@ creat ggplot point layer for spatial coordinates without borders
 \details{
 Description of parameters.
 }
-\examples{
-    plot_spat_point_layer_ggplot_noFILL(gobject)
-}
+\keyword{internal}

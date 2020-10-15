@@ -15,8 +15,6 @@ combineMetadata(gobject, spat_enr_names = NULL)
 Extended cell metadata in data.table format.
 }
 \description{
-This function combines the cell metadata with spatial locations and enrichment results from createSpatialEnrich
-}
-\examples{
-    combineMetadata(gobject)
+This function combines the cell metadata with spatial locations and
+enrichment results from \code{\link{runSpatialEnrich}}
 }

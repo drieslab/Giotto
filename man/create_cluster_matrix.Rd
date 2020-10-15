@@ -12,8 +12,6 @@ create_cluster_matrix(
 )
 }
 \description{
-creates aggregated matrix for a given clustering
+creates aggregated matrix for a given clustering column
 }
-\examples{
-    create_cluster_matrix(gobject)
-}
+\keyword{internal}

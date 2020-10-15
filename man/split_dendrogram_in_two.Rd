@@ -15,6 +15,4 @@ list of two dendrograms and height of node
 \description{
 Merge selected clusters based on pairwise correlation scores and size of cluster.
 }
-\examples{
-    split_dendrogram_in_two(dend)
-}
+\keyword{internal}

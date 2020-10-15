@@ -9,6 +9,7 @@ spatPlot3D(
   sdimx = "sdimx",
   sdimy = "sdimy",
   sdimz = "sdimz",
+  spat_enr_names = NULL,
   point_size = 3,
   cell_color = NULL,
   cell_color_code = NULL,
@@ -17,14 +18,15 @@ spatPlot3D(
   show_other_cells = T,
   other_cell_color = "lightgrey",
   other_point_size = 0.5,
+  other_cell_alpha = 0.5,
   show_network = F,
+  spatial_network_name = "Delaunay_network",
   network_color = NULL,
   network_alpha = 1,
-  other_cell_alpha = 0.5,
-  spatial_network_name = "spatial_network",
   show_grid = F,
-  grid_color = NULL,
   spatial_grid_name = "spatial_grid",
+  grid_color = NULL,
+  grid_alpha = 1,
   title = "",
   show_legend = T,
   axis_scale = c("cube", "real", "custom"),
@@ -48,6 +50,8 @@ spatPlot3D(
 
 \item{sdimz}{z-axis dimension name (default = 'sdimy')}
 
+\item{spat_enr_names}{names of spatial enrichment results to include}
+
 \item{point_size}{size of point (cell)}
 
 \item{cell_color}{color for cells (see details)}
@@ -62,17 +66,25 @@ spatPlot3D(
 
 \item{other_cell_color}{color of not selected cells}
 
-\item{show_network}{show underlying spatial network}
+\item{other_point_size}{size of not selected cells}
 
-\item{network_color}{color of spatial network}
+\item{other_cell_alpha}{alpha of not selected cells}
+
+\item{show_network}{show underlying spatial network}
 
 \item{spatial_network_name}{name of spatial network to use}
 
+\item{network_color}{color of spatial network}
+
+\item{network_alpha}{opacity of spatial network}
+
 \item{show_grid}{show spatial grid}
+
+\item{spatial_grid_name}{name of spatial grid to use}
 
 \item{grid_color}{color of spatial grid}
 
-\item{spatial_grid_name}{name of spatial grid to use}
+\item{grid_alpha}{opacity of spatial grid}
 
 \item{title}{title of plot}
 
@@ -94,7 +106,7 @@ spatPlot3D(
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }
@@ -104,10 +116,9 @@ ggplot
 \description{
 Visualize cells according to spatial coordinates
 }
-\details{
-Description of parameters.
+\seealso{
+Other spatial visualizations: 
+\code{\link{spatPlot2D}()},
+\code{\link{spatPlot}()}
 }
-\examples{
-    spatPlot3D(gobject)
-
-}
+\concept{spatial visualizations}

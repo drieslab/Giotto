@@ -6,27 +6,32 @@
 \usage{
 signPCA(
   gobject,
+  name = "pca",
   method = c("screeplot", "jackstraw"),
   expression_values = c("normalized", "scaled", "custom"),
   reduction = c("cells", "genes"),
+  pca_method = c("irlba", "factominer"),
+  rev = FALSE,
   genes_to_use = NULL,
+  center = T,
   scale_unit = T,
   ncp = 50,
-  scree_labels = T,
   scree_ylim = c(0, 10),
   jack_iter = 10,
   jack_threshold = 0.01,
-  jack_verbose = T,
+  jack_ylim = c(0, 1),
+  verbose = TRUE,
   show_plot = NA,
   return_plot = NA,
   save_plot = NA,
   save_param = list(),
-  default_save_name = "signPCA",
-  ...
+  default_save_name = "signPCA"
 )
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{name}{name of PCA object if available}
 
 \item{method}{method to use to identify significant PCs}
 
@@ -34,13 +39,17 @@ signPCA(
 
 \item{reduction}{cells or genes}
 
+\item{pca_method}{which implementation to use}
+
+\item{rev}{do a reverse PCA}
+
 \item{genes_to_use}{subset of genes to use for PCA}
+
+\item{center}{center data before PCA}
 
 \item{scale_unit}{scale features before PCA}
 
 \item{ncp}{number of principal components to calculate}
-
-\item{scree_labels}{show labels on scree plot}
 
 \item{scree_ylim}{y-axis limits on scree plot}
 
@@ -48,7 +57,9 @@ signPCA(
 
 \item{jack_threshold}{p-value threshold to call a PC significant}
 
-\item{jack_verbose}{show progress of jackstraw method}
+\item{jack_ylim}{y-axis limits on jackstraw plot}
+
+\item{verbose}{verbosity}
 
 \item{show_plot}{show plot}
 
@@ -59,8 +70,6 @@ signPCA(
 \item{save_param}{list of saving parameters from all_plots_save_function()}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-
-\item{...}{additional parameters for PCA}
 }
 \value{
 ggplot object for scree method and maxtrix of p-values for jackstraw
@@ -72,12 +81,9 @@ identify significant prinicipal components (PCs)
 Two different methods can be used to assess the number of relevant or significant
  prinicipal components (PC's). \cr
  1. Screeplot works by plotting the explained variance of each
- individual PC in a barplot allowing you to identify which PC does not show a significant
- contribution anymore ( = 'elbow method'). \cr
+ individual PC in a barplot allowing you to identify which PC provides a significant
+ contribution  (a.k.a. 'elbow method'). \cr
  2. The Jackstraw method uses the \code{\link[jackstraw]{permutationPA}} function. By
  systematically permuting genes it identifies robust, and thus significant, PCs.
- \cr multiple PCA results can be stored by changing the \emph{name} parameter
-}
-\examples{
-    signPCA(gobject)
+ \cr
 }

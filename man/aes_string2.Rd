@@ -6,6 +6,10 @@
 \usage{
 aes_string2(...)
 }
+\arguments{
+\item{\dots}{aes_string parameters}
+}
 \description{
 makes sure aes_string can also be used with names that start with numeric values
 }
+\keyword{internal}

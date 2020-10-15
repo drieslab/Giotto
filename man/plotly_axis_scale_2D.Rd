@@ -27,8 +27,6 @@ plotly_axis_scale_2D(
 edges in spatial grid as data.table()
 }
 \description{
-adjust the axis scale in 3D plotly plot
+adjust the axis scale in 2D plotly plot
 }
-\examples{
-    plotly_axis_scale_2D(gobject)
-}
+\keyword{internal}

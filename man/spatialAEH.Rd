@@ -18,7 +18,7 @@ spatialAEH(
 \arguments{
 \item{gobject}{Giotto object}
 
-\item{SpatialDE_results}{results of \code{\link{SpatialDE}} function}
+\item{SpatialDE_results}{results of \code{\link{spatialDE}} function}
 
 \item{name_pattern}{name for the computed spatial patterns}
 
@@ -40,7 +40,4 @@ Compute spatial variable genes with spatialDE method
 }
 \details{
 This function is a wrapper for the SpatialAEH method implemented in the ...
-}
-\examples{
-    spatialAEH(gobject)
 }

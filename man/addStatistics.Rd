@@ -30,5 +30,9 @@ adds genes and cells statistics to the giotto object
 See \code{\link{addGeneStatistics}} and \code{\link{addCellStatistics}}
 }
 \examples{
-    addStatistics(gobject)
+
+data(mini_giotto_single_cell)
+
+updated_giotto_object = addStatistics(mini_giotto_single_cell)
+
 }

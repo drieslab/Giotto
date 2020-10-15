@@ -29,6 +29,3 @@ data.table with HMRF results for each b and the selected k
 \description{
 write results from doHMRF to a data.table.
 }
-\examples{
-    writeHMRFresults(gobject)
-}

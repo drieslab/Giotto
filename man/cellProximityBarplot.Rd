@@ -48,6 +48,3 @@ Create barplot from cell-cell proximity scores
 This function creates a barplot that shows the  spatial proximity
  enrichment or depletion of cell type pairs.
 }
-\examples{
-    cellProximityBarplot(CPscore)
-}

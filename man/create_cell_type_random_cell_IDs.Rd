@@ -7,7 +7,9 @@
 create_cell_type_random_cell_IDs(
   gobject,
   cluster_column = "cell_types",
-  needed_cell_types
+  needed_cell_types,
+  set_seed = FALSE,
+  seed_number = 1234
 )
 }
 \arguments{
@@ -16,6 +18,10 @@ create_cell_type_random_cell_IDs(
 \item{cluster_column}{cluster column with cell type information}
 
 \item{needed_cell_types}{vector of cell type names for which a random id will be found}
+
+\item{set_seed}{set a seed for reproducibility}
+
+\item{seed_number}{seed number}
 }
 \value{
 list of randomly sampled cell ids with same cell type composition
@@ -23,9 +29,4 @@ list of randomly sampled cell ids with same cell type composition
 \description{
 creates randomized cell ids within a selection of cell types
 }
-\details{
-Details will follow.
-}
-\examples{
-    create_cell_type_random_cell_IDs(gobject)
-}
+\keyword{internal}

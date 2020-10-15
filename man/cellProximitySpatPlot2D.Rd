@@ -17,7 +17,7 @@ cellProximitySpatPlot2D(
   show_network = F,
   show_other_network = F,
   network_color = NULL,
-  spatial_network_name = "spatial_network",
+  spatial_network_name = "Delaunay_network",
   show_grid = F,
   grid_color = NULL,
   spatial_grid_name = "spatial_grid",
@@ -56,7 +56,9 @@ cellProximitySpatPlot2D(
 
 \item{show_other_cells}{decide if show cells not in network}
 
-\item{show_network}{show underlying spatial network}
+\item{show_network}{show spatial network of selected cells}
+
+\item{show_other_network}{show spatial network of not selected cells}
 
 \item{network_color}{color of spatial network}
 
@@ -80,6 +82,8 @@ cellProximitySpatPlot2D(
 
 \item{point_size_other}{size of other points}
 
+\item{point_alpha_other}{opacity of other points}
+
 \item{point_other_border_col}{border color of other points}
 
 \item{point_other_border_stroke}{stroke size of other points}
@@ -102,7 +106,4 @@ Visualize 2D cell-cell interactions according to spatial coordinates in ggplot m
 }
 \details{
 Description of parameters.
-}
-\examples{
-    cellProximitySpatPlot2D(gobject)
 }

@@ -6,6 +6,9 @@
 \usage{
 spatDimGenePlot2D(
   gobject,
+  show_image = F,
+  gimage = NULL,
+  image_name = "image",
   expression_values = c("normalized", "scaled", "custom"),
   plot_alignment = c("vertical", "horizontal"),
   genes,
@@ -15,25 +18,32 @@ spatDimGenePlot2D(
   dim2_to_use = 2,
   dim_point_shape = c("border", "no_border"),
   dim_point_size = 1,
+  dim_point_alpha = 1,
   dim_point_border_col = "black",
   dim_point_border_stroke = 0.1,
   show_NN_network = F,
   show_spatial_network = F,
-  show_spatial_grid = F,
+  dim_network_color = "gray",
   nn_network_to_use = "sNN",
   network_name = "sNN.pca",
-  edge_alpha_dim = NULL,
+  dim_edge_alpha = NULL,
   scale_alpha_with_expression = FALSE,
-  spatial_network_name = "spatial_network",
+  sdimx = "sdimx",
+  sdimy = "sdimy",
+  spatial_network_name = "Delaunay_network",
+  spatial_network_color = NULL,
+  show_spatial_grid = F,
+  grid_color = NULL,
   spatial_grid_name = "spatial_grid",
-  spat_point_shape = c("border", "no_border"),
+  spat_point_shape = c("border", "no_border", "voronoi"),
   spat_point_size = 1,
+  spat_point_alpha = 1,
   spat_point_border_col = "black",
   spat_point_border_stroke = 0.1,
-  midpoint = 0,
-  genes_high_color = "red",
-  genes_mid_color = "white",
-  genes_low_color = "blue",
+  spat_edge_alpha = NULL,
+  cell_color_gradient = c("blue", "white", "red"),
+  gradient_midpoint = NULL,
+  gradient_limits = NULL,
   cow_n_col = 2,
   cow_rel_h = 1,
   cow_rel_w = 1,
@@ -42,6 +52,9 @@ spatDimGenePlot2D(
   legend_text = 8,
   dim_background_color = "white",
   spat_background_color = "white",
+  vor_border_color = "white",
+  vor_max_radius = 200,
+  vor_alpha = 1,
   axis_text = 8,
   axis_title = 8,
   show_plot = NA,
@@ -53,6 +66,12 @@ spatDimGenePlot2D(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{show_image}{show a tissue background image}
+
+\item{gimage}{a giotto image}
+
+\item{image_name}{name of a giotto image}
 
 \item{expression_values}{gene expression values to use}
 
@@ -72,21 +91,37 @@ spatDimGenePlot2D(
 
 \item{dim_point_size}{dim reduction plot: point size}
 
+\item{dim_point_alpha}{transparancy of dim. reduction points}
+
 \item{dim_point_border_col}{color of border around points}
 
 \item{dim_point_border_stroke}{stroke size of border around points}
 
 \item{show_NN_network}{show underlying NN network}
 
+\item{show_spatial_network}{show underlying spatial netwok}
+
+\item{dim_network_color}{color of NN network}
+
 \item{nn_network_to_use}{type of NN network to use (kNN vs sNN)}
 
 \item{network_name}{name of NN network to use, if show_NN_network = TRUE}
 
-\item{edge_alpha_dim}{dim reduction plot: column to use for alpha of the edges}
+\item{dim_edge_alpha}{dim reduction plot: column to use for alpha of the edges}
 
 \item{scale_alpha_with_expression}{scale expression with ggplot alpha parameter}
 
+\item{sdimx}{spatial x-axis dimension name (default = 'sdimx')}
+
+\item{sdimy}{spatial y-axis dimension name (default = 'sdimy')}
+
 \item{spatial_network_name}{name of spatial network to use}
+
+\item{spatial_network_color}{color of spatial network}
+
+\item{show_spatial_grid}{show spatial grid}
+
+\item{grid_color}{color of spatial grid}
 
 \item{spatial_grid_name}{name of spatial grid to use}
 
@@ -94,11 +129,19 @@ spatDimGenePlot2D(
 
 \item{spat_point_size}{spatial plot: point size}
 
+\item{spat_point_alpha}{transparancy of spatial points}
+
 \item{spat_point_border_col}{color of border around points}
 
 \item{spat_point_border_stroke}{stroke size of border around points}
 
-\item{midpoint}{size of point (cell)}
+\item{spat_edge_alpha}{edge alpha}
+
+\item{cell_color_gradient}{vector with 3 colors for numeric data}
+
+\item{gradient_midpoint}{midpoint for color gradient}
+
+\item{gradient_limits}{vector with lower and upper limits}
 
 \item{cow_n_col}{cowplot param: how many columns}
 
@@ -116,6 +159,12 @@ spatDimGenePlot2D(
 
 \item{spat_background_color}{color of plot background for spatial plot}
 
+\item{vor_border_color}{border colorr for voronoi plot}
+
+\item{vor_max_radius}{maximum radius for voronoi 'cells'}
+
+\item{vor_alpha}{transparancy of voronoi 'cells'}
+
 \item{axis_text}{size of axis text}
 
 \item{axis_title}{size of axis title}
@@ -126,7 +175,7 @@ spatDimGenePlot2D(
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 }
@@ -140,8 +189,21 @@ Visualize cells according to spatial AND dimension reduction coordinates in ggpl
 Description of parameters.
 }
 \examples{
-    spatDimGenePlot2D(gobject)
+
+data(mini_giotto_single_cell)
+
+all_genes = slot(mini_giotto_single_cell, 'gene_ID')
+selected_genes = all_genes[1]
+spatDimGenePlot2D(mini_giotto_single_cell, genes = selected_genes,
+                 dim_point_size = 3, spat_point_size = 3,
+                 cow_n_col = 1, plot_alignment = 'horizontal')
+
 }
 \seealso{
 \code{\link{spatDimGenePlot3D}}
+
+Other spatial and dimension reduction gene expression visualizations: 
+\code{\link{spatDimGenePlot3D}()},
+\code{\link{spatDimGenePlot}()}
 }
+\concept{spatial and dimension reduction gene expression visualizations}

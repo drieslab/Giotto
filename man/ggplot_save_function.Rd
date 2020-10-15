@@ -57,13 +57,13 @@ ggplot_save_function(
 \item{dpi}{Plot resolution}
 
 \item{limitsize}{When TRUE (the default), ggsave will not save images larger than 50x50 inches, to prevent the common error of specifying dimensions in pixels.}
+
+\item{\dots}{additional parameters to cowplot::save_plot}
 }
 \description{
 Function to automatically save plots to directory of interest
 }
-\examples{
-    ggplot_save_function(gobject)
-}
 \seealso{
-\code{\link{cowplot::save_plot}}
+\code{\link[cowplot]{save_plot}}
 }
+\keyword{internal}

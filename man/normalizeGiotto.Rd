@@ -10,6 +10,7 @@ normalizeGiotto(
   library_size_norm = TRUE,
   scalefactor = 6000,
   log_norm = TRUE,
+  log_offset = 1,
   logbase = 2,
   scale_genes = T,
   scale_cells = T,
@@ -28,6 +29,8 @@ normalizeGiotto(
 
 \item{log_norm}{transform values to log-scale}
 
+\item{log_offset}{offset value to add to expression matrix, default = 1}
+
 \item{logbase}{log base to use to log normalize expression values}
 
 \item{scale_genes}{z-score genes over all cells}
@@ -42,7 +45,7 @@ normalizeGiotto(
 giotto object
 }
 \description{
-normalize and/or scale expresion values of Giotto object
+fast normalize and/or scale expresion values of Giotto object
 }
 \details{
 Currently there are two 'methods' to normalize your raw counts data.
@@ -64,5 +67,11 @@ counts per cell and multiply by the total number of cells.}
 This data will be saved in the Giotto slot for custom expression.
 }
 \examples{
-    normalizeGiotto(gobject)
+
+
+data(mini_giotto_single_cell)
+
+norm_gobject = normalizeGiotto(mini_giotto_single_cell)
+
+
 }

@@ -17,6 +17,3 @@ specific parameter
 \description{
 Retrieves the instruction associated with the provided parameter
 }
-\examples{
-    readGiottoInstrunctions()
-}

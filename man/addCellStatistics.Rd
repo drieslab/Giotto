@@ -35,5 +35,9 @@ This function will add the following statistics to cell metadata:
 }
 }
 \examples{
-    addCellStatistics(gobject)
+
+data(mini_giotto_single_cell)
+
+updated_giotto_object = addCellStatistics(mini_giotto_single_cell)
+
 }

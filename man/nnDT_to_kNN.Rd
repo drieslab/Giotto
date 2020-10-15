@@ -15,3 +15,4 @@ kNN object
 \description{
 Convert a nearest network data.table to a kNN object
 }
+\keyword{internal}

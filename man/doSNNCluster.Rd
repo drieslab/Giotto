@@ -15,8 +15,7 @@ doSNNCluster(
   borderPoints = TRUE,
   return_gobject = TRUE,
   set_seed = F,
-  seed_number = 1234,
-  ...
+  seed_number = 1234
 )
 }
 \arguments{
@@ -50,7 +49,4 @@ Cluster cells using a SNN cluster approach.
 }
 \details{
 See \code{\link[dbscan]{sNNclust}} from dbscan package
-}
-\examples{
-    doSNNCluster(gobject)
 }

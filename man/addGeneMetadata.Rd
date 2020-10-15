@@ -13,7 +13,7 @@ addGeneMetadata(gobject, new_metadata, by_column = F, column_gene_ID = NULL)
 
 \item{by_column}{merge metadata based on gene_ID column in fDataDT}
 
-\item{column_cell_ID}{column name of new metadata to use if by_column = TRUE}
+\item{column_gene_ID}{column name of new metadata to use if by_column = TRUE}
 }
 \value{
 giotto object
@@ -26,7 +26,4 @@ You can add additional gene metadata in two manners:
 1. Provide a data.table or data.frame with gene annotations in the same order as the gene_ID column in fDataDT(gobject)
 2. Provide a data.table or data.frame with gene annotations and specificy which column contains the gene IDs,
 these gene IDs need to match with the gene_ID column in fDataDT(gobject)
-}
-\examples{
-    addGeneMetadata(gobject)
 }

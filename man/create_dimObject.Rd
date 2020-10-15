@@ -20,6 +20,8 @@ create_dimObject(
 \item{coordinates}{accepts the coordinates after dimension reduction}
 
 \item{misc}{any additional information will be added to this slot}
+
+\item{my_rownames}{rownames}
 }
 \value{
 number of distinct colors
@@ -27,3 +29,4 @@ number of distinct colors
 \description{
 Creates an object that stores a dimension reduction output
 }
+\keyword{internal}

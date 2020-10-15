@@ -59,9 +59,29 @@ dimGenePlot3D(
 
 \item{network_name}{name of NN network to use, if show_NN_network = TRUE}
 
+\item{network_color}{color of NN network}
+
+\item{cluster_column}{cluster column to select groups}
+
+\item{select_cell_groups}{select subset of cells/clusters based on cell_color parameter}
+
+\item{select_cells}{select subset of cells based on cell IDs}
+
+\item{show_other_cells}{display not selected cells}
+
+\item{other_cell_color}{color of not selected cells}
+
+\item{other_point_size}{size of not selected cells}
+
 \item{edge_alpha}{column to use for alpha of the edges}
 
 \item{point_size}{size of point (cell)}
+
+\item{genes_high_color}{color for high expression levels}
+
+\item{genes_mid_color}{color for medium expression levels}
+
+\item{genes_low_color}{color for low expression levels}
 
 \item{show_legend}{show legend}
 
@@ -71,11 +91,9 @@ dimGenePlot3D(
 
 \item{save_plot}{directly save the plot [boolean]}
 
-\item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
+\item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
-
-\item{...}{parameters for cowplot::save_plot()}
 }
 \value{
 ggplot
@@ -86,6 +104,9 @@ Visualize cells and gene expression according to dimension reduction coordinates
 \details{
 Description of parameters.
 }
-\examples{
-    dimGenePlot3D(gobject)
+\seealso{
+Other dimension reduction gene expression visualizations: 
+\code{\link{dimGenePlot2D}()},
+\code{\link{dimGenePlot}()}
 }
+\concept{dimension reduction gene expression visualizations}
