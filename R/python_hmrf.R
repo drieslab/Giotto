@@ -13,7 +13,7 @@
 #' @param name name of HMRF run
 #' @param k  number of HMRF domains
 #' @param seed seed to fix random number generator (for creating initialization of HMRF) (-1 if no fixing)
-#' @param betas betas to test for. three numbers: start_beta, beta_increment, num_betas (e.g. 0 2.0 50)
+#' @param betas betas to test for. three numbers: start_beta, beta_increment, num_betas e.g. c(0, 2.0, 50)
 #' @param tolerance tolerance
 #' @param zscore zscore
 #' @param numinit number of initializations
@@ -41,6 +41,16 @@ doHMRF <- function(gobject,
                    python_path = NULL,
                    output_folder = NULL,
                    overwrite_output = TRUE) {
+
+
+  if(!requireNamespace('smfishHmrf', quietly = TRUE)) {
+    stop("\n package ", 'smfishHmrf' ," is not yet installed \n",
+         "To install: \n",
+         "remotes::install_bitbucket(repo = 'qzhudfci/smfishhmrf-r', ref='master')",
+         "see http://spatial.rc.fas.harvard.edu/install.html for more information",
+         call. = FALSE)
+  }
+
 
   # data.table set global variable
   to = from = NULL

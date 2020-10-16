@@ -318,6 +318,7 @@ set_giotto_python_path = function(python_path = NULL) {
     } else {
       python_path = python_path
       reticulate::use_python(required = T, python = python_path)
+      cat('\n A default python path was found: ', python_path)
     }
 
   }

@@ -13,6 +13,7 @@ doHMRF(
   dim_reduction_to_use = NULL,
   dim_reduction_name = "pca",
   dimensions_to_use = 1:10,
+  seed = 100,
   name = "test",
   k = 10,
   betas = c(0, 2, 50),
@@ -41,11 +42,13 @@ doHMRF(
 
 \item{dimensions_to_use}{number of dimensions to use as input}
 
+\item{seed}{seed to fix random number generator (for creating initialization of HMRF) (-1 if no fixing)}
+
 \item{name}{name of HMRF run}
 
 \item{k}{number of HMRF domains}
 
-\item{betas}{betas to test for}
+\item{betas}{betas to test for. three numbers: start_beta, beta_increment, num_betas e.g. c(0, 2.0, 50)}
 
 \item{tolerance}{tolerance}
 
