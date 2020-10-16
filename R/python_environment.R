@@ -302,9 +302,7 @@ set_giotto_python_path = function(python_path = NULL) {
 
   } else {
 
-    cat('\n no external python path or giotto environment was found, will use default python path if available \n')
-    cat('\n 1. use installGiottoEnvironment() to install a local giotto python environment which automatically installs all modules \n')
-    cat('\n 2. provide an existing python path to python_path to use your own python path which has all modules installed \n')
+    cat('\n no external python path or giotto environment was specified, will check if a default python path is available \n')
 
     if(.Platform[['OS.type']] == 'unix') {
       python_path = try(system('which python3', intern = T))
@@ -318,8 +316,12 @@ set_giotto_python_path = function(python_path = NULL) {
     } else {
       python_path = python_path
       reticulate::use_python(required = T, python = python_path)
-      cat('\n A default python path was found: ', python_path)
+      cat('\n A default python path was found: ', python_path, ' and will be used\n')
     }
+
+    cat('\n If this is not the correct python path, either\n')
+    cat('\n 1. use installGiottoEnvironment() to install a local miniconda python environment along with required modules \n')
+    cat('\n 2. provide an existing python path to python_path to use your own python path which has all modules installed \n')
 
   }
 
