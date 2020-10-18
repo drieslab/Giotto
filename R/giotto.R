@@ -1065,6 +1065,10 @@ createGiottoObject <- function(raw_exprs,
 #' @param visium_dir path to the 10X visium directory [required]
 #' @param expr_data raw or filtered data (see details)
 #' @param gene_column_index which column index to select (see details)
+#' @param h5_visium_path path to visium 10X .h5 file
+#' @param h5_gene_ids gene names as symbols (default) or ensemble gene ids
+#' @param h5_tissue_positions_path path to tissue locations (.csv file)
+#' @param h5_image_png_path path to tissue .png file (optional)
 #' @param png_name select name of png to use (see details)
 #' @param xmax_adj adjustment of the maximum x-value to align the image
 #' @param xmin_adj adjustment of the minimum x-value to align the image
@@ -1074,78 +1078,149 @@ createGiottoObject <- function(raw_exprs,
 #' @param cores how many cores or threads to use to read data if paths are provided
 #' @return giotto object
 #' @details
+#' If starting from a Visium 10X directory:
 #' \itemize{
 #'   \item{expr_data: raw will take expression data from raw_feature_bc_matrix and filter from filtered_feature_bc_matrix}
 #'   \item{gene_column_index: which gene identifiers (names) to use if there are multiple columns (e.g. ensemble and gene symbol)}
 #'   \item{png_name: by default the first png will be selected, provide the png name to override this (e.g. myimage.png)}
 #' }
+#'
+#' If starting from a Visium 10X .h5 file
+#' \itemize{
+#'   \item{h5_visium_path: full path to .h5 file: /your/path/to/visium_file.h5}
+#'   \item{h5_tissue_positions_path: full path to spatial locations file: /you/path/to/tissue_positions_list.csv}
+#'   \item{h5_image_png_path: full path to png: /your/path/to/images/tissue_lowres_image.png}
+#' }
+#'
 #' @export
 createGiottoVisiumObject = function(visium_dir = NULL,
                                     expr_data = c('raw', 'filter'),
                                     gene_column_index = 1,
+                                    h5_visium_path = NULL,
+                                    h5_gene_ids = c('symbols', 'ensembl'),
+                                    h5_tissue_positions_path = NULL,
+                                    h5_image_png_path = NULL,
                                     png_name = NULL,
                                     xmax_adj = 0,
                                     xmin_adj = 0,
                                     ymax_adj = 0,
                                     ymin_adj = 0,
                                     instructions = NULL,
-                                    cores = NA) {
+                                    cores = NA,
+                                    verbose = TRUE) {
 
-  # data.table: set global variable
-  V1 = row_pxl = col_pxl = in_tissue = array_row = array_col = NULL
+  if(!is.null(h5_visium_path)) {
 
-  ## check arguments
-  if(is.null(visium_dir)) stop('visium_dir needs to be a path to a visium directory \n')
-  if(!file.exists(visium_dir)) stop(visium_dir, ' does not exist \n')
-  expr_data = match.arg(expr_data, choices = c('raw', 'filter'))
+    if(verbose) cat("A path to an .h5 10X file was provided and will be used \n")
 
-  # set number of cores automatically, but with limit of 10
-  cores = determine_cores(cores)
-  data.table::setDTthreads(threads = cores)
+    if(!file.exists(h5_visium_path)) stop("The provided path ", h5_visium_path, " does not exist \n")
 
-  ## matrix
-  if(expr_data == 'raw') {
-    data_path = paste0(visium_dir, '/', 'raw_feature_bc_matrix/')
-    raw_matrix = get10Xmatrix(path_to_data = data_path, gene_column_index = gene_column_index)
-  } else if(expr_data == 'filter') {
-    data_path = paste0(visium_dir, '/', 'filtered_feature_bc_matrix/')
-    raw_matrix = get10Xmatrix(path_to_data = data_path, gene_column_index = gene_column_index)
+    # spatial locations
+    if(is.null(h5_tissue_positions_path)) stop("A path to the tissue positions (.csv) needs to be provided to h5_tissue_positions_path \n")
+    if(!file.exists(h5_tissue_positions_path)) stop("The provided path ", h5_tissue_positions_path, " does not exist \n")
+
+    # get matrix counts
+    h5_results = get10Xmatrix_h5(path_to_data = h5_visium_path, gene_ids = h5_gene_ids)
+    raw_matrix = h5_results[['Gene Expression']]
+
+    # spatial locations
+    spatial_results = data.table::fread(h5_tissue_positions_path)
+    spatial_results = spatial_results[match(colnames(raw_matrix), V1)]
+    colnames(spatial_results) = c('barcode', 'in_tissue', 'array_row', 'array_col', 'col_pxl', 'row_pxl')
+    spatial_locs = spatial_results[,.(row_pxl,-col_pxl)]
+    colnames(spatial_locs) = c('sdimx', 'sdimy')
+
+    # image (optional)
+    if(!is.null(h5_image_png_path)) {
+
+
+      if(!file.exists(h5_image_png_path)) stop("The provided path ", h5_image_png_path,
+                                               " does not exist. Set to NULL to exclude or provide the correct path. \n")
+
+      mg_img = magick::image_read(h5_image_png_path)
+
+      visium_png = createGiottoImage(gobject = NULL, spatial_locs =  spatial_locs,
+                                     mg_object = mg_img, name = 'image',
+                                     xmax_adj = xmax_adj, xmin_adj = xmin_adj,
+                                     ymax_adj = ymax_adj, ymin_adj = ymin_adj)
+      visium_png_list = list(visium_png)
+      names(visium_png_list) = c('image')
+    } else {
+      visium_png_list = NULL
+    }
+
+    # create Giotto object
+    giotto_object = createGiottoObject(raw_exprs = raw_matrix,
+                                       spatial_locs = spatial_locs,
+                                       instructions = instructions,
+                                       cell_metadata = spatial_results[,.(in_tissue, array_row, array_col)],
+                                       images = visium_png_list)
+    return(giotto_object)
+
+
+  } else {
+
+    if(verbose) cat("A structured visium directory will be used \n")
+
+    # data.table: set global variable
+    V1 = row_pxl = col_pxl = in_tissue = array_row = array_col = NULL
+
+    ## check arguments
+    if(is.null(visium_dir)) stop('visium_dir needs to be a path to a visium directory \n')
+    if(!file.exists(visium_dir)) stop(visium_dir, ' does not exist \n')
+    expr_data = match.arg(expr_data, choices = c('raw', 'filter'))
+
+    # set number of cores automatically, but with limit of 10
+    cores = determine_cores(cores)
+    data.table::setDTthreads(threads = cores)
+
+    ## matrix
+    if(expr_data == 'raw') {
+      data_path = paste0(visium_dir, '/', 'raw_feature_bc_matrix/')
+      raw_matrix = get10Xmatrix(path_to_data = data_path, gene_column_index = gene_column_index)
+    } else if(expr_data == 'filter') {
+      data_path = paste0(visium_dir, '/', 'filtered_feature_bc_matrix/')
+      raw_matrix = get10Xmatrix(path_to_data = data_path, gene_column_index = gene_column_index)
+    }
+
+    ## spatial locations and image
+    spatial_path = paste0(visium_dir, '/', 'spatial/')
+    spatial_results = data.table::fread(paste0(spatial_path, '/','tissue_positions_list.csv'))
+    spatial_results = spatial_results[match(colnames(raw_matrix), V1)]
+    colnames(spatial_results) = c('barcode', 'in_tissue', 'array_row', 'array_col', 'col_pxl', 'row_pxl')
+    spatial_locs = spatial_results[,.(row_pxl,-col_pxl)]
+    colnames(spatial_locs) = c('sdimx', 'sdimy')
+
+    ## spatial image
+    if(is.null(png_name)) {
+      png_list = list.files(spatial_path, pattern = "*.png")
+      png_name = png_list[1]
+    }
+    png_path = paste0(spatial_path,'/',png_name)
+    if(!file.exists(png_path)) stop(png_path, ' does not exist! \n')
+
+    mg_img = magick::image_read(png_path)
+
+
+    visium_png = createGiottoImage(gobject = NULL, spatial_locs =  spatial_locs,
+                                   mg_object = mg_img, name = 'image',
+                                   xmax_adj = xmax_adj, xmin_adj = xmin_adj,
+                                   ymax_adj = ymax_adj, ymin_adj = ymin_adj)
+
+    visium_png_list = list(visium_png)
+    names(visium_png_list) = c('image')
+
+    giotto_object = createGiottoObject(raw_exprs = raw_matrix,
+                                       spatial_locs = spatial_locs,
+                                       instructions = instructions,
+                                       cell_metadata = spatial_results[,.(in_tissue, array_row, array_col)],
+                                       images = visium_png_list)
+    return(giotto_object)
+
   }
-
-  ## spatial locations and image
-  spatial_path = paste0(visium_dir, '/', 'spatial/')
-  spatial_results = data.table::fread(paste0(spatial_path, '/','tissue_positions_list.csv'))
-  spatial_results = spatial_results[match(colnames(raw_matrix), V1)]
-  colnames(spatial_results) = c('barcode', 'in_tissue', 'array_row', 'array_col', 'col_pxl', 'row_pxl')
-  spatial_locs = spatial_results[,.(row_pxl,-col_pxl)]
-  colnames(spatial_locs) = c('sdimx', 'sdimy')
-
-  ## spatial image
-  if(is.null(png_name)) {
-    png_list = list.files(spatial_path, pattern = "*.png")
-    png_name = png_list[1]
-  }
-  png_path = paste0(spatial_path,'/',png_name)
-  if(!file.exists(png_path)) stop(png_path, ' does not exist! \n')
-
-  mg_img = magick::image_read(png_path)
-
-
-  visium_png = createGiottoImage(gobject = NULL, spatial_locs =  spatial_locs,
-                                 mg_object = mg_img, name = 'image',
-                                 xmax_adj = xmax_adj, xmin_adj = xmin_adj,
-                                 ymax_adj = ymax_adj, ymin_adj = ymin_adj)
-  visium_png_list = list(visium_png)
-  names(visium_png_list) = c('image')
-
-  giotto_object = createGiottoObject(raw_exprs = raw_matrix,
-                                     spatial_locs = spatial_locs,
-                                     instructions = instructions,
-                                     cell_metadata = spatial_results[,.(in_tissue, array_row, array_col)],
-                                     images = visium_png_list)
-  return(giotto_object)
 
 }
+
 
 
 

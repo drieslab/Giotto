@@ -712,7 +712,7 @@ getSpatialDataset = function(dataset = c('ST_OB1',
 #' @param path_to_data path to the 10X folder
 #' @param gene_column_index which column from the features or genes .tsv file to use for row ids
 #' @return sparse expression matrix from 10X
-#' @details A typical 10X folder is named raw_feature_bc_matrix or raw_feature_bc_matrix and tt has 3 files:
+#' @details A typical 10X folder is named raw_feature_bc_matrix or raw_feature_bc_matrix and it has 3 files:
 #' \itemize{
 #'   \item{barcodes.tsv(.gz)}
 #'   \item{features.tsv(.gz) or genes.tsv(.gz)}
@@ -773,6 +773,104 @@ get10Xmatrix = function(path_to_data, gene_column_index = 1) {
   #matrix_ab_mat[is.na(matrix_ab_mat)] = 0
 
 }
+
+
+
+#' @title get10Xmatrix_h5
+#' @description This function creates an expression matrix from a 10X h5 file path
+#' @param path_to_data path to the 10X .h5 file
+#' @param gene_ids use gene symbols (default) or ensembl ids for the gene expression matrix
+#' @return (list of) sparse expression matrix from 10X
+#' @details If the .h5 10x file has multiple modalities (e.g. RNA and protein),
+#'  multiple matrices will be returned
+#' @export
+get10Xmatrix_h5 = function(path_to_data, gene_ids = c('symbols', 'ensembl')) {
+
+  ## function inspired by and modified from the VISION package
+  ## see read_10x_h5_v3 in https://github.com/YosefLab/VISION/blob/master/R/Utilities.R
+
+  # verify if optional package is installed
+  package_check(pkg_name = "hdf5r", repository = "CRAN")
+
+  # select parameter
+  gene_ids = match.arg(gene_ids, choices = c('symbols', 'ensembl'))
+
+  h5 <- hdf5r::H5File$new(h5_file)
+
+  tryCatch({
+
+    # list objects part of the h5 file
+    # hdf5r::list.objects(h5)
+
+    # get root folder name e.g. 'matrix'
+    root <- names(h5)
+    root <- root[1]
+
+    # extraction information
+    data <- h5[[paste0(root, "/data")]][]
+    data <- as.numeric(data)
+
+    genome = unique(h5[[paste0(root, "/features/genome")]][])
+    barcodes = h5[[paste0(root, "/barcodes")]][]
+    feature_id = h5[[paste0(root, "/features/id")]][]
+    data_shape = h5[[paste0(root, "/shape")]][]
+    feature_names = h5[[paste0(root, "/features/name")]][]
+    feature_tag_keys = h5[[paste0(root, "/features/_all_tag_keys")]][]
+    feature_types = unique(h5[[paste0(root, "/features/feature_type")]][])
+    indices = h5[[paste0(root, "/indices")]][]
+    indptr = h5[[paste0(root, "/indptr")]][]
+
+    # create a feature data.table
+    features_dt <- data.table::data.table(
+      'id' = feature_id,
+      'name' = feature_names,
+      'feature_type' = feature_types,
+      'genome' = genome
+    )
+
+    # create uniq name symbols
+    # duplicate gene symbols will be given a suffix '_1', '_2', ...
+    features_dt[, nr_name := 1:.N, by = name]
+    features_dt[, uniq_name := ifelse(nr_name == 1, name, paste0(name, '_', (nr_name-1)))]
+
+
+    # dimension names
+    dimnames = list(feature_id, barcodes)
+
+    sparsemat = Matrix::sparseMatrix(i = indices + 1,
+                                     p = indptr,
+                                     x = data,
+                                     dims = data_shape,
+                                     dimnames = dimnames)
+
+    # multiple modalities? add for future improvement
+    result_list = list()
+
+    for(modality in unique(feature_types)) {
+
+      result_list[[modality]] = sparsemat[features_dt$feature_type == modality, ]
+
+      # change names to gene symbols if it's expression
+      if(modality == 'Gene Expression' & gene_ids == 'symbols') {
+
+        conv_vector = features_dt$uniq_name
+        names(conv_vector) = features_dt$id
+
+        current_names = rownames(result_list[[modality]])
+        new_names = conv_vector[current_names]
+        rownames(result_list[[modality]]) = new_names
+      }
+    }
+
+  },
+  finally = {
+    h5$close_all()
+  })
+
+  return(result_list)
+
+}
+
 
 
 #' @title convertEnsemblToGeneSymbol

@@ -18,7 +18,7 @@ sparse expression matrix from 10X
 This function creates an expression matrix from a 10X structured folder
 }
 \details{
-A typical 10X folder is named raw_feature_bc_matrix or raw_feature_bc_matrix and tt has 3 files:
+A typical 10X folder is named raw_feature_bc_matrix or raw_feature_bc_matrix and it has 3 files:
 \itemize{
   \item{barcodes.tsv(.gz)}
   \item{features.tsv(.gz) or genes.tsv(.gz)}
