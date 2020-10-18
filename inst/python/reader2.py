@@ -93,9 +93,9 @@ def read_expression_classic(n):
 def connected_components(edges, adjacent, points):
 	visited = {}
 	chains = []
-	for p in points:
+	for p in sorted(list(points)):
 		visited[p] = False
-	for p in points:
+	for p in sorted(list(points)):
 		if visited[p]==False:
 			new_chain = []
 			visited, new_chain = DFS(p, adjacent, visited, new_chain)
@@ -105,7 +105,7 @@ def connected_components(edges, adjacent, points):
 def DFS(p, adjacent, visited, new_chain):
 	visited[p] = True
 	new_chain.append(p)
-	for nei in adjacent[p]:
+	for nei in sorted(list(adjacent[p])):
 		if visited[nei]==False:
 			visited, new_chain = DFS(nei, adjacent, visited, new_chain)
 	return visited, new_chain
@@ -122,7 +122,7 @@ if __name__=="__main__":
 	parser.add_argument("-k", "--k", dest="k", type=int, required=True)
 	parser.add_argument("-b", "--betas", help="three numbers: start_beta, beta_increment, num_beta (e.g. 0 2.0 50)", nargs=3, dest="betas", type=float, required=True)
 	parser.add_argument("-t", "--tolerance", dest="tolerance", type=float, help="tolerance value", default=1e-10)
-	parser.add_argument("-s", "--seed", dest="seed", type=float, help="seed for initialization of HMRF. -1 will not fix it.", default=-1)
+	parser.add_argument("-s", "--seed", dest="seed", type=float, help="seed for random initialization of HMRF. -1 will not fix it.", default=-1)
 	parser.add_argument("-z", "--zscore", type=str, dest="zscore", choices=["rowcol", "colrow", "none"], default="none", help="zscore the matrix after subsetting to spatial genes. Rowcol: row(gene) first, column(cell) next.")
 	parser.add_argument("-i", "--numinit", type=int, dest="num_init", default=100, help="number of initializations")
 
@@ -204,7 +204,7 @@ if __name__=="__main__":
 		fw.close()
 		import smfishHmrf
 		this_path = os.path.dirname(smfishHmrf.__file__) + "/graphColoring"
-		subprocess.call("java -cp '%s' -Xmx32g -Xms32g GraphColoring '%s' '%s'" % (this_path, edge_file, block_file), shell=True)
+		subprocess.call("java -cp '%s' -Xmx32g -Xms32g GraphColoring '%s' '%s' '%d'" % (this_path, edge_file, block_file, args.seed), shell=True)
 
 		f = open(block_file)
 		b_ind = 0
