@@ -821,7 +821,7 @@ get10Xmatrix_h5 = function(path_to_data, gene_ids = c('symbols', 'ensembl')) {
     indptr = h5[[paste0(root, "/indptr")]][]
 
     # create a feature data.table
-    features_dt <- data.table::data.table(
+    features_dt = data.table::data.table(
       'id' = feature_id,
       'name' = feature_names,
       'feature_type' = feature_types,
