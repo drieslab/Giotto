@@ -1282,6 +1282,11 @@ plotCellProximityGenes = function(gobject,
 
   } else if(method == 'cell_sankey') {
 
+
+    # package check for ggalluvial
+    package_check(pkg_name = 'ggalluvial', repository = 'CRAN')
+
+
     testalluv = complete_part[, .N, by = c('int_cell_type', 'cell_type')]
 
     # library(ggalluvial) # this is needed for it to work, why??
