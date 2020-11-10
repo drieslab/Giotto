@@ -1092,23 +1092,33 @@ normalizeGiotto <- function(gobject,
       if(scale_order == 'first_genes') {
         if(verbose == TRUE) cat('\n first scale genes and then cells \n')
         if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
-        norm_scaled_expr = armaScaleRow(Z = norm_expr)
-        norm_scaled_expr = armaScaleCol(Z = norm_scaled_expr)
+        #norm_scaled_expr = armaScaleRow(Z = norm_expr)
+        norm_scaled_expr = t(Rfast::standardise(x = t(norm_expr), center = TRUE, scale = TRUE))
+
+        #norm_scaled_expr = armaScaleCol(Z = norm_scaled_expr)
+        norm_scaled_expr = Rfast::standardise(x = norm_scaled_expr, center = TRUE, scale = TRUE)
       } else if(scale_order == 'first_cells') {
         if(verbose == TRUE) cat('\n first scale cells and then genes \n')
         if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
-        norm_scaled_expr = armaScaleCol(Z = norm_expr)
-        norm_scaled_expr = armaScaleRow(Z = norm_scaled_expr)
+        #norm_scaled_expr = armaScaleCol(Z = norm_expr)
+        norm_scaled_expr = Rfast::standardise(x = norm_expr, center = TRUE, scale = TRUE)
+
+        #norm_scaled_expr = armaScaleRow(Z = norm_scaled_expr)
+        norm_scaled_expr = t(Rfast::standardise(x = t(norm_scaled_expr), center = TRUE, scale = TRUE))
       } else {
         stop('\n scale order must be given \n')
       }
 
     } else if(scale_genes == TRUE) {
       if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
-      norm_scaled_expr = armaScaleRow(Z = norm_expr)
+      #norm_scaled_expr = armaScaleRow(Z = norm_expr)
+      norm_scaled_expr = t(Rfast::standardise(x = t(norm_expr), center = TRUE, scale = TRUE))
+
     } else if(scale_cells == TRUE) {
       if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
-      norm_scaled_expr = armaScaleCol(Z = norm_expr)
+      #norm_scaled_expr = armaScaleCol(Z = norm_expr)
+      norm_scaled_expr = Rfast::standardise(x = norm_expr, center = TRUE, scale = TRUE)
+
     } else {
       norm_scaled_expr = NULL
     }
