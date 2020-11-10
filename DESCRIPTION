@@ -90,6 +90,3 @@ Suggests:
     trendsceek
 biocViews:
 VignetteBuilder: knitr
-LinkingTo: 
-    Rcpp,
-    RcppArmadillo
