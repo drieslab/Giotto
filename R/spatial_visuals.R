@@ -756,17 +756,21 @@ dimPlot2D_single <- function(gobject,
 
 
   ## add % variance explained to names of plot for PCA ##
-  if(dim_reduction_to_use == 'pca' & !is.null(eigenvalues)) {
+  if(dim_reduction_to_use == 'pca') {
 
-    x_name = paste0('pca','-',dim_names[1])
-    y_name = paste0('pca','-',dim_names[2])
+    if(!is.null(eigenvalues)) {
+      x_name = paste0('pca','-',dim_names[1])
+      y_name = paste0('pca','-',dim_names[2])
 
-    # provide x, y and plot titles
-    x_title = sprintf('%s explains %.02f%% of variance', x_name, var_expl_vec[1])
-    y_title = sprintf('%s explains %.02f%% of variance', y_name, var_expl_vec[2])
+      # provide x, y and plot titles
+      x_title = sprintf('%s explains %.02f%% of variance', x_name, var_expl_vec[1])
+      y_title = sprintf('%s explains %.02f%% of variance', y_name, var_expl_vec[2])
 
-    if(is.null(title)) title = cell_color
-    pl <- pl + ggplot2::labs(x = x_title, y = y_title, title = title)
+      if(is.null(title)) title = cell_color
+      pl <- pl + ggplot2::labs(x = x_title, y = y_title, title = title)
+    }
+
+
 
   } else {
 
@@ -5484,11 +5488,16 @@ dimPlot_2D_plotly <- function(gobject,
 
 
 
-  if(dim_reduction_to_use == 'pca' & !is.null(eigenvalues)) {
-    x_name = paste0('pca','-',dim_names[1])
-    y_name = paste0('pca','-',dim_names[2])
-    x_title = sprintf('%s explains %.02f%% of variance', x_name, var_expl_vec[1])
-    y_title = sprintf('%s explains %.02f%% of variance', y_name, var_expl_vec[2])
+  if(dim_reduction_to_use == 'pca') {
+
+    if(!is.null(eigenvalues)) {
+      x_name = paste0('pca','-',dim_names[1])
+      y_name = paste0('pca','-',dim_names[2])
+      x_title = sprintf('%s explains %.02f%% of variance', x_name, var_expl_vec[1])
+      y_title = sprintf('%s explains %.02f%% of variance', y_name, var_expl_vec[2])
+    }
+
+
   } else {
     x_title = paste(dim_reduction_to_use, dim_names[1],sep = " ")
     y_title = paste(dim_reduction_to_use, dim_names[2],sep = " ")
@@ -5734,13 +5743,18 @@ dimPlot_3D_plotly <- function(gobject,
                                    opacity=edge_alpha)
   }
 
-  if(dim_reduction_to_use == 'pca' & !is.null(eigenvalues)) {
-    x_name = paste0('pca','-',dim_names[1])
-    y_name = paste0('pca','-',dim_names[2])
-    z_name = paste0('pca','-',dim_names[3])
-    x_title = sprintf('%s explains %.02f%% of variance', x_name, var_expl_vec[1])
-    y_title = sprintf('%s explains %.02f%% of variance', y_name, var_expl_vec[2])
-    z_title = sprintf('%s explains %.02f%% of variance', z_name, var_expl_vec[3])
+  if(dim_reduction_to_use == 'pca') {
+
+    if(!is.null(eigenvalues)) {
+      x_name = paste0('pca','-',dim_names[1])
+      y_name = paste0('pca','-',dim_names[2])
+      z_name = paste0('pca','-',dim_names[3])
+      x_title = sprintf('%s explains %.02f%% of variance', x_name, var_expl_vec[1])
+      y_title = sprintf('%s explains %.02f%% of variance', y_name, var_expl_vec[2])
+      z_title = sprintf('%s explains %.02f%% of variance', z_name, var_expl_vec[3])
+    }
+
+
   }
   else{
     x_title = paste(dim_reduction_to_use,dim_names[1],sep = " ")
@@ -6935,11 +6949,15 @@ spatDimPlot3D <- function(gobject,
                                        marker = list(size = other_point_size,color = other_cell_color),
                                        showlegend = FALSE)
     }
-    if(dim_reduction_to_use == 'pca' & !is.null(eigenvalues)) {
-      x_name = paste0('pca','-',dim_names[1])
-      y_name = paste0('pca','-',dim_names[2])
-      x_title = sprintf('%s explains %.02f%% of variance', x_name, var_expl_vec[1])
-      y_title = sprintf('%s explains %.02f%% of variance', y_name, var_expl_vec[2])
+    if(dim_reduction_to_use == 'pca') {
+
+      if(!is.null(eigenvalues)) {
+        x_name = paste0('pca','-',dim_names[1])
+        y_name = paste0('pca','-',dim_names[2])
+        x_title = sprintf('%s explains %.02f%% of variance', x_name, var_expl_vec[1])
+        y_title = sprintf('%s explains %.02f%% of variance', y_name, var_expl_vec[2])
+      }
+
     } else {
       x_title = paste(dim_reduction_to_use, dim_names[1],sep = " ")
       y_title = paste(dim_reduction_to_use, dim_names[2],sep = " ")
