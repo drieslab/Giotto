@@ -106,27 +106,38 @@ This data can also be added afterwards using the \code{\link{addGeneMetadata}} o
   PCA_matrix
 
   # step2: create a pca dimension reduction object
+
+  \code{
   PCA_list <- list(
      'type' = "cells", # only PCA on cells is currently supported
      'name' = "pca",   # name of your pca, 'pca' is the default name
      'reduction_method' = "pca", # needs to be pca
      'coordinates' = as.matrix(PCA_matrix), # make sure to provide a matrix
      'misc' = NULL) # slot for miscellaneous data, e.g. list(eigenvalues = ..., loadings = ...)
+  }
 
   # step3a: add PCA_list to createGiottoObject
+
+  \code{
   gobj <- createGiottoObject(
      dimension_reduction=list(PCA_list),
      ...)
+  }
 
   # step3b: add multiple PCA_lists to createGiottoObject
   # the name parameter should be different for each PCA list
+
+  \code{
   gobj <- createGiottoObject(
      dimension_reduction=list(PCA_list1, PCA_list2, ...),
      ...)
+  }
 
-  # step4: for UMAP or tSNE
-  - same as for PCA, except for UMAP: reduction_method = 'umap' and default name = 'umap'
-  - same as for PCA, except for tSNE: reduction_method = 'tsne' and default name = 'tsne'
+  # step4: for UMAP or tSNE:
+  \itemize{
+    \item{same as for PCA, except for UMAP: reduction_method = 'umap' and default name = 'umap'}
+    \item{same as for PCA, except for UMAP: reduction_method = 'umap' and default name = 'umap'}
+  }
 
   }
   \item{nearest neighbours networks}
