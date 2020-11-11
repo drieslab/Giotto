@@ -662,6 +662,9 @@ evaluate_spatial_locations = function(spatial_locs,
 #' @param cores how many cores or threads to use to read data if paths are provided
 #' @return giotto object
 #' @details
+#'
+#' See \url{https://rubd.github.io/Giotto_site/articles/howto_giotto_class.html} for more details
+#'
 #' [\strong{Requirements}] To create a giotto object you need to provide at least a matrix with genes as
 #' row names and cells as column names. This matrix can be provided as a base matrix, sparse Matrix, data.frame,
 #' data.table or as a path to any of those.
@@ -688,48 +691,7 @@ evaluate_spatial_locations = function(spatial_locs,
 #'   \item{spatial networks}
 #'   \item{spatial girds}
 #'   \item{spatial enrichments}
-#'   \item{dimensions reduction} {
-#'
-#'   ## example for PCA ##
-#'
-#'   # step1: create matrix from PCA coordinates and name the columns (PCs): Dim.1, Dim.2, Dim.3, ...
-#'   PCA_matrix
-#'
-#'   # step2: create a pca dimension reduction object
-#'
-#'   \code{
-#'   PCA_list <- list(
-#'      'type' = "cells", # only PCA on cells is currently supported
-#'      'name' = "pca",   # name of your pca, 'pca' is the default name
-#'      'reduction_method' = "pca", # needs to be pca
-#'      'coordinates' = as.matrix(PCA_matrix), # make sure to provide a matrix
-#'      'misc' = NULL) # slot for miscellaneous data, e.g. list(eigenvalues = ..., loadings = ...)
-#'   }
-#'
-#'   # step3a: add PCA_list to createGiottoObject
-#'
-#'   \code{
-#'   gobj <- createGiottoObject(
-#'      dimension_reduction=list(PCA_list),
-#'      ...)
-#'   }
-#'
-#'   # step3b: add multiple PCA_lists to createGiottoObject
-#'   # the name parameter should be different for each PCA list
-#'
-#'   \code{
-#'   gobj <- createGiottoObject(
-#'      dimension_reduction=list(PCA_list1, PCA_list2, ...),
-#'      ...)
-#'   }
-#'
-#'   # step4: for UMAP or tSNE:
-#'   \itemize{
-#'     \item{same as for PCA, except for UMAP: reduction_method = 'umap' and default name = 'umap'}
-#'     \item{same as for PCA, except for UMAP: reduction_method = 'umap' and default name = 'umap'}
-#'   }
-#'
-#'   }
+#'   \item{dimensions reduction}
 #'   \item{nearest neighbours networks}
 #'   \item{images}
 #' }
