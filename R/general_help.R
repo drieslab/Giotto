@@ -411,13 +411,11 @@ kmeans_arma_subset_binarize = function(x, n_iter = 5, extreme_nr = 20, sample_nr
 }
 
 
-#' @title kmeans_binarize_wrapper
 #' @name kmeans_binarize_wrapper
 #' @description wrapper for different binarization functions
 #' @keywords internal
-kmeans_binarize_wrapper = function(gobject,
-                                   expression_values = c('normalized', 'scaled', 'custom'),
-                                   subset_genes = NULL,
+kmeans_binarize_wrapper = function(expr_values,
+                                   subset_feats = NULL,
                                    kmeans_algo = c('kmeans', 'kmeans_arma', 'kmeans_arma_subset'),
                                    nstart = 3,
                                    iter_max = 10,
@@ -426,39 +424,33 @@ kmeans_binarize_wrapper = function(gobject,
                                    set.seed = NULL) {
 
 
-  # expression
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
 
-  if(!is.null(subset_genes)) {
-    expr_values = expr_values[rownames(expr_values) %in% subset_genes, ]
+  # expression values
+  if(!is.null(subset_feats)) {
+    expr_values = expr_values[rownames(expr_values) %in% subset_feats, ]
   }
 
   # check parameter
   kmeans_algo = match.arg(arg = kmeans_algo, choices = c('kmeans', 'kmeans_arma', 'kmeans_arma_subset'))
 
   if(kmeans_algo == 'kmeans') {
-    bin_matrix = t_giotto(apply(X = expr_values, MARGIN = 1, FUN = kmeans_binarize,
-                                nstart = nstart, iter.max = iter_max, set.seed = set.seed))
+    bin_matrix = t_flex(apply(X = expr_values, MARGIN = 1, FUN = Giotto:::kmeans_binarize,
+                              nstart = nstart, iter.max = iter_max, set.seed = set.seed))
   } else if(kmeans_algo == 'kmeans_arma') {
-    bin_matrix = t_giotto(apply(X = expr_values, MARGIN = 1, FUN = kmeans_arma_binarize,
-                                n_iter = iter_max, set.seed = set.seed))
+    bin_matrix = t_flex(apply(X = expr_values, MARGIN = 1, FUN = Giotto:::kmeans_arma_binarize,
+                              n_iter = iter_max, set.seed = set.seed))
   } else if(kmeans_algo == 'kmeans_arma_subset') {
-    bin_matrix = t_giotto(apply(X = expr_values, MARGIN = 1, FUN = kmeans_arma_subset_binarize,
-                                n_iter = iter_max,
-                                extreme_nr = extreme_nr,
-                                sample_nr = sample_nr,
-                                set.seed = set.seed))
+    bin_matrix = t_flex(apply(X = expr_values, MARGIN = 1, FUN = Giotto:::kmeans_arma_subset_binarize,
+                              n_iter = iter_max,
+                              extreme_nr = extreme_nr,
+                              sample_nr = sample_nr,
+                              set.seed = set.seed))
   }
 
   return(bin_matrix)
 
 }
 
-
-
-
-#' @title rank_binarize
 #' @name rank_binarize
 #' @description create binarized scores from a vector using arbitrary rank
 #' @keywords internal
@@ -473,6 +465,26 @@ rank_binarize = function(x, max_rank = 200) {
   return(sel_gene_bin)
 
 }
+
+
+#' @name rank_binarize_wrapper
+#' @description wrapper for rank binarization function
+#' @keywords internal
+rank_binarize_wrapper = function(expr_values,
+                                 subset_feats = NULL,
+                                 percentage_rank = 30) {
+
+  # expression values
+  if(!is.null(subset_feats)) {
+    expr_values = expr_values[rownames(expr_values) %in% subset_feats, ]
+  }
+
+  max_rank = (ncol(expr_values)/100)*percentage_rank
+  bin_matrix = t_flex(apply(X = expr_values, MARGIN = 1, FUN = rank_binarize, max_rank = max_rank))
+
+  return(bin_matrix)
+}
+
 
 
 ## data.table helper functions ####

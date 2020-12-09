@@ -464,6 +464,61 @@ filter_network <- function(networkDT = NULL,
   return(networkDT)
 }
 
+
+
+#' @name evaluate_spatial_network
+#' @description function to evaluate a spatial network
+#' @keywords internal
+evaluate_spatial_network = function(spatial_network) {
+
+  if(!inherits(spatial_network, 'data.frame')) {
+    stop('The spatial network must be a data.frame(-like) object \n')
+  }
+
+  netw_names = colnames(spatial_network)
+  required_cols = c('from', 'to',
+                    'sdimx_begin', 'sdimy_begin',
+                    'sdimx_end', 'sdimy_end',
+                    'distance', 'weight')
+  missing_cols = required_cols[!required_cols %in% netw_names]
+
+  if(length(missing_cols) > 0) {
+    stop('missing columns: ', list(missing_cols))
+  } else {
+    return(TRUE)
+  }
+
+}
+
+
+#' @name compatible_spatial_network
+#' @description function to evaluate if a spatial network is compatible
+#' with a provided expression matrix
+#' @keywords internal
+compatible_spatial_network = function(spatial_network,
+                                      expression_matrix) {
+
+  # first evaluate spatial network
+  evaluate_spatial_network(spatial_network)
+
+  # compatible network
+  # all network nodes need to be found back in the column names
+
+  network_ids = unique(spatial_network$from, spatial_network$to)
+  cell_ids = colnames(expression_matrix)
+
+  missing_network_ids = network_ids[!network_ids %in% cell_ids]
+
+  if(length(missing_network_ids) > 0) {
+    stop('Spatial network ids missing in expression matrix: ', list(missing_network_ids))
+  } else {
+    return(TRUE)
+  }
+
+}
+
+
+
 ## Delaunay network ####
 
 #' @title create_delaunayNetwork_geometry
