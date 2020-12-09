@@ -3,6 +3,7 @@
 #' @name doLeidenCluster
 #' @description cluster cells using a NN-network and the Leiden community detection algorithm
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param name name for cluster
 #' @param nn_network_to_use type of NN network to use (kNN vs sNN)
 #' @param network_name name of NN network to use
@@ -39,6 +40,7 @@
 #' @export
 #'
 doLeidenCluster = function(gobject,
+                           feat_type = NULL,
                            name = 'leiden_clus',
                            nn_network_to_use = 'sNN',
                            network_name = 'sNN.pca',
@@ -53,13 +55,19 @@ doLeidenCluster = function(gobject,
                            set_seed = T,
                            seed_number = 1234) {
 
+
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
   ## get cell IDs ##
   cell_ID_vec = gobject@cell_ID
 
   ## select network to use
-  igraph_object = select_NearestNetwork(gobject,
-                                        nn_network_to_use = nn_network_to_use,
-                                        network_name = network_name)
+  igraph_object = Giotto:::select_NearestNetwork(gobject,
+                                                 nn_network_to_use = nn_network_to_use,
+                                                 network_name = network_name)
 
   ## select partition type
   partition_type = match.arg(partition_type,
@@ -68,7 +76,7 @@ doLeidenCluster = function(gobject,
   ## check or make paths
   # python path
   if(is.null(python_path)) {
-    python_path = readGiottoInstructions(gobject, param = "python_path")
+    python_path = Giotto:::readGiottoInstructions(gobject, param = "python_path")
   }
 
   ## prepare python path and louvain script
@@ -96,7 +104,7 @@ doLeidenCluster = function(gobject,
     } else {
       # weight is defined by attribute of igraph object
       network_edge_dt = network_edge_dt[,c('from', 'to', weight_col), with = F]
-      setnames(network_edge_dt, weight_col, 'weight')
+      data.table::setnames(network_edge_dt, weight_col, 'weight')
     }
   } else {
     # weight is the same
@@ -130,24 +138,12 @@ doLeidenCluster = function(gobject,
       gobject@cell_metadata = cell_metadata
     }
 
-    gobject = addCellMetadata(gobject = gobject, new_metadata = ident_clusters_DT[, c('cell_ID', name), with = F],
-                              by_column = T, column_cell_ID = 'cell_ID')
+    gobject = addCellMetadata(gobject = gobject, feat_type = feat_type,
+                              new_metadata = ident_clusters_DT[, c('cell_ID', name), with = FALSE],
+                              by_column = TRUE, column_cell_ID = 'cell_ID')
 
     ## update parameters used ##
-    parameters_list = gobject@parameters
-    number_of_rounds = length(parameters_list)
-    update_name = paste0(number_of_rounds,'_cluster')
-
-    parameters_list[[update_name]] = c('cluster algorithm' = 'Leiden',
-                                       'nn network' = nn_network_to_use,
-                                       'network name' = network_name,
-                                       'name for clusters' = name,
-                                       'pyth leiden resolution' = resolution,
-                                       'pyth leiden weight' = weight_col,
-                                       'pyth leiden partition' = partition_type,
-                                       'pyth leiden iterations' = n_iterations)
-
-    gobject@parameters = parameters_list
+    gobject = update_giotto_params(gobject, description = '_cluster')
     return(gobject)
 
 

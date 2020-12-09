@@ -1,17 +1,18 @@
 
+#### Giotto class ####
 
 #' @title S4 giotto Class
 #' @description Framework of giotto object to store and work with spatial expression data
 #' @keywords giotto, object
-#' @slot raw_exprs raw expression counts
-#' @slot norm_expr normalized expression counts
-#' @slot norm_scaled_expr normalized and scaled expression counts
-#' @slot custom_expr custom normalized counts
+#' @slot expression expression information
+#' @slot expression_feat available features (e.g. rna, protein, ...)
 #' @slot spatial_locs spatial location coordinates for cells
+#' @slot spatial_info information about spatial units
 #' @slot cell_metadata metadata for cells
-#' @slot gene_metadata metadata for genes
+#' @slot feat_metadata metadata for available features
+#' @slot feat_info information about features
 #' @slot cell_ID unique cell IDs
-#' @slot gene_ID unique gene IDs
+#' @slot feat_ID unique feature IDs for all features or modalities
 #' @slot spatial_network spatial network in data.table/data.frame format
 #' @slot spatial_grid spatial grid in data.table/data.frame format
 #' @slot spatial_enrichment slot to save spatial enrichment-like results
@@ -22,19 +23,26 @@
 #' @slot instructions slot for global function instructions
 #' @slot offset_file offset file used to stitch together image fields
 #' @slot OS_platform Operating System to run Giotto analysis on
+#' @details
+#' [\strong{expression}] There are several ways to provide expression information:
+#'
+#' [\strong{expression_feat}] The different featurs or modalities such as rna, protein, metabolites, ...
+#' that are provided in the expression slot.
+#'
+#'
 #' @export
 giotto <- setClass(
   "giotto",
   slots = c(
-    raw_exprs = "ANY",
-    norm_expr = "ANY",
-    norm_scaled_expr = "ANY",
-    custom_expr = "ANY",
+    expression = "ANY",
+    expression_feat = "ANY",
     spatial_locs = "ANY",
+    spatial_info = "ANY",
     cell_metadata = "ANY",
-    gene_metadata = "ANY",
+    feat_metadata = "ANY",
+    feat_info = "ANY",
     cell_ID = "ANY",
-    gene_ID = "ANY",
+    feat_ID = "ANY",
     spatial_network = "ANY",
     spatial_grid = "ANY",
     spatial_enrichment = "ANY",
@@ -48,15 +56,15 @@ giotto <- setClass(
   ),
 
   prototype = list(
-    raw_exprs = NULL,
-    norm_expr = NULL,
-    norm_scaled_expr = NULL,
-    custom_expr = NULL,
+    expression = NULL,
+    expression_feat = NULL,
     spatial_locs = NULL,
+    spatial_info = NULL,
     cell_metadata = NULL,
-    gene_metadata = NULL,
+    feat_metadata = NULL,
+    feat_info = NULL,
     cell_ID = NULL,
-    gene_ID = NULL,
+    feat_ID = NULL,
     spatial_network = NULL,
     spatial_grid = NULL,
     spatial_enrichment = NULL,
@@ -67,33 +75,7 @@ giotto <- setClass(
     instructions = NULL,
     offset_file = NULL,
     OS_platform = NULL
-  ),
-
-  validity = function(object) {
-
-    if(any(lapply(list(object@raw_exprs), is.null) == TRUE)) {
-      return('expression and spatial locations slots need to be filled in')
-    }
-
-    # check validity of instructions vector if provided by the user
-    if(!is.null(object@instructions)) {
-
-      instr_names = c("python_path", "save_dir", "plot_format", "dpi", "units", "height", "width")
-      missing_names = instr_names[!instr_names %in% names(object@instructions)]
-      if(length(missing_names) != 0) {
-        return('\t Instruction parameters are missing for: ', missing_names, '\t')
-      }
-    }
-
-    #if(any(lapply(list(object@raw_exprs, object@spatial_locs), is.null) == TRUE)) {
-    #  return('expression and spatial locations slots need to be filled in')
-    #}
-
-    #if(ncol(object@raw_exprs) != nrow(object@spatial_locs)) {
-    #  return('number of cells do not correspond between expression matrix and spatial locations')
-    #}
-    return(TRUE)
-  }
+  )
 )
 
 
@@ -108,15 +90,20 @@ setMethod(
   f = "show",
   signature = "giotto",
   definition = function(object) {
-    cat(
-      "An object of class",
-      class(object),
-      "\n",
-      nrow(x = object@raw_exprs),
-      "genes across",
-      ncol(x = object@raw_exprs),
-      "samples.\n \n"
-    )
+
+    cat("An object of class",  class(object), "\n")
+
+    for(feat_type in unique(object@expression_feat)) {
+      cat("features = ", feat_type, "\n")
+
+      cat(
+        nrow(x = object@expression[[feat_type]][['raw']]),
+        "features across",
+        ncol(x = object@expression[[feat_type]][['raw']]),
+        "samples.\n \n"
+      )
+    }
+
     cat('Steps and parameters used: \n \n')
     print(object@parameters)
     invisible(x = NULL)
@@ -124,8 +111,7 @@ setMethod(
 )
 
 
-
-
+#### Giotto python path ####
 
 #' @title set_giotto_python_path
 #' @name set_giotto_python_path
@@ -271,6 +257,10 @@ set_giotto_python_path = function(python_path = NULL,
 }
 
 
+
+
+
+#### Giotto instructions ####
 
 
 #' @title createGiottoInstructions
@@ -486,6 +476,8 @@ replaceGiottoInstructions = function(gobject,
 
 
 
+#### Giotto matrices ####
+
 #' @title readExprMatrix
 #' @description Function to read an expression matrix into a sparse matrix.
 #' @param path path to the expression matrix
@@ -548,7 +540,7 @@ evaluate_expr_matrix = function(inputmatrix,
                                                 colnames(inputmatrix[,-1])))
     }
 
-  } else if(class(inputmatrix) %in% c('data.frame', 'matrix')) {
+  } else if(inherits(inputmatrix, what = c('data.frame', 'matrix'))) {
     mymatrix = methods::as(as.matrix(inputmatrix), "sparseMatrix")
   } else {
     stop("raw_exprs needs to be a path or an object of class 'Matrix', 'data.table', 'data.frame' or 'matrix'")
@@ -558,6 +550,179 @@ evaluate_expr_matrix = function(inputmatrix,
 }
 
 
+
+#' @name depth
+#' @keywords internal
+depth <- function(this) {
+  if(is.list(this) && length(this) == 0) {
+    return(0)
+  }
+  ifelse(is.list(this), 1L + max(sapply(this, depth)), 0L)
+}
+
+
+#' @name extr_single_list
+#' @keywords internal
+extr_single_list = function(gobject,
+                            expr_s_list,
+                            expression_feat = 'rna',
+                            cores = 1) {
+
+
+
+  # to make it compatible with previous version
+  #if(length(expr_s_list) == 1 & !list(expr_s_list)) {
+  #  expr_s_list = list('raw' = expr_s_list)
+  #}
+
+  expression_name = names(expr_s_list)
+
+  ## 1. raw expression data is required
+  if(!'raw' %in% expression_name) {
+    stop("\n the raw expression matrix with name 'raw' must be provided \n")
+  } else {
+
+    exprname = 'raw'
+    expr_i = match('raw', expression_name)
+    expr     = expr_s_list[[expr_i]]
+    expr_res = evaluate_expr_matrix(inputmatrix = expr, cores = cores, sparse = TRUE)
+
+    # check rownames and colnames
+    if(any(duplicated(rownames(expr_res)))) {
+      stop("row names for ", exprname, " contains duplicates, please remove or rename")
+    }
+
+    if(any(duplicated(colnames(expr_res)))) {
+      stop("column names for ", exprname, " contains duplicates, please remove or rename")
+    }
+
+
+    # update giotto object
+    gobject@expression[[expression_feat]] = list()
+    gobject@expression[[expression_feat]][['raw']] = expr_res
+
+    # prepare other slots related to raw matrix
+    gobject@cell_ID = colnames(expr_res)
+    gobject@feat_ID[[expression_feat]] = rownames(expr_res)
+
+    raw_exprs_dim = dim(expr_res)
+  }
+
+  ## 2. load all other provided matrices
+  if(length(expression_name) > 1) {
+    expression_name_other = expression_name[expression_name != 'raw']
+
+    for(exprname in expression_name_other) {
+
+      expr_i   = match(exprname, expression_name)
+      expr     = expr_s_list[[expr_i]]
+      expr_res = evaluate_expr_matrix(inputmatrix = expr, cores = cores, sparse = TRUE)
+
+      # check rownames and colnames
+      if(any(duplicated(rownames(expr_res)))) {
+        stop("row names for ", exprname, " contains duplicates, please remove or rename")
+      }
+
+      if(any(duplicated(colnames(expr_res)))) {
+        stop("column names for ", exprname, " contains duplicates, please remove or rename")
+      }
+
+      # compare processed matrix dimensions with raw matrix
+      if(all(dim(expr_res) == raw_exprs_dim) &
+         all(colnames(expr_res) == gobject@cell_ID) &
+         all(rownames(expr_res) == gobject@feat_ID[[expression_feat]])) {
+
+        gobject@expression[[expression_feat]][[exprname]] = expr_res
+
+      } else {
+        stop('\n dimensions, row or column names are not the same between ', exprname, ' and raw expression \n')
+      }
+
+    }
+
+  }
+
+  return(gobject)
+
+}
+
+
+#' @name extract_expression_list
+#' @keywords internal
+extract_expression_list = function(gobject,
+                                   expr_list,
+                                   expression_feat = 'rna',
+                                   cores = 1,
+                                   verbose = TRUE) {
+
+
+  ## to make it compatible with previous version
+
+  # single matrix
+  if(inherits(expr_list, c('matrix', 'Matrix'))) {
+    expr_list = list('raw' = expr_list)
+  }
+
+  # single path to matrix
+  if(length(expr_list) == 1 & !is.list(expr_list)) {
+    expr_list = list('raw' = expr_list)
+  }
+
+  # 1. get depth of list
+  if(verbose == TRUE) print(str(expr_list))
+  list_depth = depth(expr_list)
+
+  # nothing provided
+  if(list_depth == 0) {
+    stop('Depth of expression list is 0, no expression information is provided \n')
+  }
+
+  # only one set provided
+  if(list_depth == 1) {
+    if(verbose == TRUE) message('Depth of provided expression list is 1, working with one type of molecular feature \n')
+
+    if(length(expression_feat) > list_depth) {
+      stop('More expression feature types provided than expected \n')
+    }
+
+    gobject = extr_single_list(gobject = gobject,
+                               expr_s_list = expr_list,
+                               expression_feat = expression_feat,
+                               cores = cores)
+
+
+
+  } else {
+    if(verbose == TRUE) message('Depth of provided expression list is more than 1, working with multiple types of molecular features \n')
+
+
+    if(length(expression_feat) > list_depth) {
+      stop('More expression feature types provided than expected \n')
+    }
+
+    if(length(expression_feat) < list_depth) {
+      stop('Too few expression feature types provided than expected \n')
+    }
+
+    for(feat_type in names(expr_list)) {
+
+      gobject = extr_single_list(gobject = gobject,
+                                 expr_s_list = expr_list[[feat_type]],
+                                 expression_feat = feat_type,
+                                 cores = cores)
+
+    }
+
+  }
+
+  return(gobject)
+
+}
+
+
+
+
+#### Giotto locations ####
 
 #' @title evaluate_spatial_locations
 #' @description Evaluate spatial location input
@@ -639,15 +804,17 @@ evaluate_spatial_locations = function(spatial_locs,
 
 
 
+#### creating Giotto objects ####
+
 #' @title create Giotto object
 #' @description Function to create a giotto object
-#' @param raw_exprs matrix with raw expression counts [required]
+#' @param expression expression information
+#' @param expression_feat available features (e.g. rna, protein, ...)
 #' @param spatial_locs data.table or data.frame with coordinates for cell centroids
-#' @param norm_expr normalized expression values
-#' @param norm_scaled_expr scaled expression values
-#' @param custom_expr custom expression values
+#' @param spatial_info information about spatial units
 #' @param cell_metadata cell annotation metadata
-#' @param gene_metadata gene annotation metadata
+#' @param feat_metadata feature annotation metadata for each unique feature
+#' @param feat_info information about features for each unique feature
 #' @param spatial_network list of spatial network(s)
 #' @param spatial_network_name list of spatial network name(s)
 #' @param spatial_grid list of spatial grid(s)
@@ -699,13 +866,13 @@ evaluate_spatial_locations = function(spatial_locs,
 #' @keywords giotto
 #' @importFrom methods new
 #' @export
-createGiottoObject <- function(raw_exprs,
+createGiottoObject <- function(expression,
+                               expression_feat = 'rna',
                                spatial_locs = NULL,
-                               norm_expr = NULL,
-                               norm_scaled_expr = NULL,
-                               custom_expr = NULL,
+                               spatial_info = NULL,
                                cell_metadata = NULL,
-                               gene_metadata = NULL,
+                               feat_metadata = NULL,
+                               feat_info = NULL,
                                spatial_network = NULL,
                                spatial_network_name = NULL,
                                spatial_grid = NULL,
@@ -720,15 +887,15 @@ createGiottoObject <- function(raw_exprs,
                                cores = NA) {
 
   # create minimum giotto
-  gobject = giotto(raw_exprs = raw_exprs,
+  gobject = giotto(expression = list(),
+                   expression_feat = expression_feat,
                    spatial_locs = spatial_locs,
-                   norm_expr = NULL,
-                   norm_scaled_expr = NULL,
-                   custom_expr = NULL,
+                   spatial_info = NULL,
                    cell_metadata = cell_metadata,
-                   gene_metadata = gene_metadata,
+                   feat_metadata = feat_metadata,
+                   feat_info = feat_info,
                    cell_ID = NULL,
-                   gene_ID = NULL,
+                   feat_ID = NULL,
                    spatial_network = NULL,
                    spatial_grid = NULL,
                    spatial_enrichment = NULL,
@@ -741,10 +908,12 @@ createGiottoObject <- function(raw_exprs,
                    OS_platform = .Platform[['OS.type']])
 
 
-  # data.table: set global variable
-  cell_ID = gene_ID = NULL
+  ## data.table: set global variable
+  cell_ID = feat_ID = NULL
 
-  # check if all optional packages are installed
+  ## check if all optional packages are installed
+  # TODO: update at the end
+  # TODO: extract from suggest field of DESCRIPTION
   extra_packages = c("scran", "MAST", "png", "tiff", "biomaRt", "trendsceek", "multinet", "RTriangle", "FactoMiner")
   pack_index = extra_packages %in% rownames(utils::installed.packages())
   extra_installed_packages = extra_packages[pack_index]
@@ -753,30 +922,28 @@ createGiottoObject <- function(raw_exprs,
   if(any(pack_index == FALSE) == TRUE) {
     cat("Consider to install these (optional) packages to run all possible Giotto commands: ",
         extra_not_installed_packages)
-    cat("\n Giotto does not automatically install all these packages as they are not absolutely required and this reduces the number of dependencies")
+    cat("\n Giotto does not automatically install all these packages as they are not absolutely required and this reduces the number of dependencies \n")
   }
 
 
-  # if cores is not set, then set number of cores automatically, but with limit of 10
-  cores = determine_cores(cores)
+  ## if cores is not set, then set number of cores automatically, but with limit of 10
+  cores = Giotto:::determine_cores(cores)
   data.table::setDTthreads(threads = cores)
 
-  ## read expression matrix
-  raw_exprs = evaluate_expr_matrix(raw_exprs, cores = cores, sparse = TRUE)
-  gobject@raw_exprs = raw_exprs
 
-  # check rownames and colnames
-  if(any(duplicated(rownames(raw_exprs)))) {
-    stop("row names contain duplicates, please remove or rename")
+  ## expression data ##
+  if(!is.null(expression)) {
+
+    gobject = extract_expression_list(gobject = gobject,
+                                      expr_list = expression,
+                                      expression_feat = expression_feat,
+                                      cores = cores,
+                                      verbose = T)
   }
 
-  if(any(duplicated(colnames(raw_exprs)))) {
-    stop("column names contain duplicates, please remove or rename")
-  }
 
-  # prepare other slots related to matrix
-  gobject@cell_ID = colnames(raw_exprs)
-  gobject@gene_ID = rownames(raw_exprs)
+
+  ## parameters ##
   gobject@parameters = list()
 
 
@@ -785,6 +952,7 @@ createGiottoObject <- function(raw_exprs,
     # create all default instructions
     gobject@instructions = createGiottoInstructions()
   }
+
 
   ## test if python modules are available
   python_modules = c('pandas', 'igraph', 'leidenalg', 'community', 'networkx', 'sklearn')
@@ -796,16 +964,29 @@ createGiottoObject <- function(raw_exprs,
   }
 
 
-  ## spatial locations
-  dummy_n = ncol(raw_exprs)
-  spatial_locs = evaluate_spatial_locations(spatial_locs = spatial_locs,
-                                            cores = cores,
-                                            dummy_n = dummy_n,
-                                            expr_matrix = raw_exprs)
+  ## spatial locations ##
+  raw_cell_dim = ncol(gobject@expression[[1]][[1]]) # number of columns
+  spatial_locs = Giotto:::evaluate_spatial_locations(spatial_locs = spatial_locs,
+                                                     cores = cores,
+                                                     dummy_n = raw_cell_dim,
+                                                     expr_matrix = gobject@expression[['raw']])
+
+  ## spatial info ##
+  ## place to store segmentation info in polygon format style
+  if(is.null(spatial_info)) {
+
+    gobject@spatial_info[[1]] = data.table::data.table(cell_ID = gobject@cell_ID,
+                                                       point = NA,
+                                                       x = NA, y = NA, z = NA)
+
+  } else {
+    # evaluate spatial info, needs to be compatible with spatial_locs
+    print('TODO evaluate spatial info')
+  }
 
 
   # check if dimensions agree
-  if(nrow(spatial_locs) != ncol(raw_exprs)) {
+  if(nrow(spatial_locs) != raw_cell_dim) {
     stop('\n Number of rows of spatial location must equal number of columns of expression matrix \n')
   }
 
@@ -814,80 +995,73 @@ createGiottoObject <- function(raw_exprs,
   colnames(spatial_locs) = paste0('sdim', spatial_dimensions[1:ncol(spatial_locs)])
 
   # add cell_ID column
-  spatial_locs[, cell_ID := colnames(raw_exprs)]
+  spatial_locs[, cell_ID := gobject@cell_ID]
   gobject@spatial_locs = spatial_locs
-  #gobject@spatial_locs[, cell_ID := colnames(raw_exprs)]
 
-
-
-
-  ## OPTIONAL:
-  # add other normalized expression data
-  if(!is.null(norm_expr)) {
-
-    norm_expr = evaluate_expr_matrix(norm_expr, cores = cores, sparse = F)
-
-    if(all(dim(norm_expr) == dim(raw_exprs)) &
-       all(colnames(norm_expr) == colnames(raw_exprs)) &
-       all(rownames(norm_expr) == rownames(raw_exprs))) {
-
-      gobject@norm_expr = as.matrix(norm_expr)
-    } else {
-      stop('\n dimensions, row or column names are not the same between normalized and raw expression \n')
-    }
-  }
-
-  # add other normalized and scaled expression data
-  if(!is.null(norm_scaled_expr)) {
-
-    norm_scaled_expr = evaluate_expr_matrix(norm_scaled_expr, cores = cores, sparse = F)
-
-    if(all(dim(norm_scaled_expr) == dim(raw_exprs)) &
-       all(colnames(norm_scaled_expr) == colnames(raw_exprs)) &
-       all(rownames(norm_scaled_expr) == rownames(raw_exprs))) {
-
-      gobject@norm_scaled_expr = as.matrix(norm_scaled_expr)
-    } else {
-      stop('\n dimensions, row or column names are not the same between normalized + scaled and raw expression \n')
-    }
-  }
-
-  # add other custom normalized expression data
-  if(!is.null(custom_expr)) {
-
-    custom_expr = evaluate_expr_matrix(custom_expr, cores = cores, sparse = F)
-
-    if(all(dim(custom_expr) == dim(raw_exprs)) &
-       all(colnames(custom_expr) == colnames(raw_exprs)) &
-       all(rownames(custom_expr) == rownames(raw_exprs))) {
-
-      gobject@custom_expr = as.matrix(custom_expr)
-    } else {
-      stop('\n dimensions, row or column names are not the same between custom normalized and raw expression \n')
-    }
-  }
 
 
 
   ## cell metadata
   if(is.null(cell_metadata)) {
-    gobject@cell_metadata = data.table::data.table(cell_ID = colnames(raw_exprs))
+
+    for(feat_type in expression_feat) {
+      gobject@cell_metadata[[feat_type]] = data.table::data.table(cell_ID = gobject@cell_ID)
+    }
+
+
   } else {
-    gobject@cell_metadata = data.table::as.data.table(gobject@cell_metadata)
-    gobject@cell_metadata[, cell_ID := colnames(raw_exprs)]
-    # put cell_ID first
-    all_colnames = colnames(gobject@cell_metadata)
-    other_colnames = grep('cell_ID', all_colnames, invert = T, value = T)
-    gobject@cell_metadata = gobject@cell_metadata[, c('cell_ID', other_colnames), with = FALSE]
+
+    if(length(cell_metadata) != length(expression_feat)) {
+      stop('Number of differe molecular features need to correspond with the cell_metadata list length \n')
+    }
+
+    for(feat_type in expression_feat) {
+      gobject@cell_metadata[[feat_type]] = data.table::as.data.table(gobject@cell_metadata[[feat_type]])
+      gobject@cell_metadata[[feat_type]][, cell_ID := gobject@cell_ID]
+      # put cell_ID first
+      all_colnames = colnames(gobject@cell_metadata[[feat_type]])
+      other_colnames = grep('cell_ID', all_colnames, invert = T, value = T)
+      gobject@cell_metadata[[feat_type]] = gobject@cell_metadata[[feat_type]][, c('cell_ID', other_colnames), with = FALSE]
+    }
   }
 
+
+
   ## gene metadata
-  if(is.null(gene_metadata)) {
-    gobject@gene_metadata = data.table::data.table(gene_ID = rownames(raw_exprs))
+  if(is.null(feat_metadata)) {
+
+    for(feat_type in expression_feat) {
+      gobject@feat_metadata[[feat_type]] = data.table::data.table(feat_ID = gobject@feat_ID[[feat_type]])
+    }
+
   } else {
-    gobject@gene_metadata = data.table::as.data.table(gobject@gene_metadata)
-    gobject@gene_metadata[, gene_ID := rownames(raw_exprs)]
+
+    if(length(feat_metadata) != length(expression_feat)) {
+      stop('Number of differe molecular features need to correspond with the feat_metadata list length \n')
+    }
+
+    for(feat_type in expression_feat) {
+      gobject@feat_metadata[[feat_type]] = data.table::as.data.table(gobject@feat_metadata[[feat_type]])
+      gobject@feat_metadata[[feat_type]][, feat_ID := gobject@feat_ID[[feat_type]]]
+    }
+
   }
+
+  ## feature info ##
+  ## place to store individual feature info
+  if(is.null(feat_info)) {
+
+    for(feat_type in expression_feat) {
+      gobject@feat_info[[feat_type]] = data.table::data.table(feat_ID = gobject@feat_ID[[feat_type]],
+                                                              point = NA, x = NA, y = NA, z = NA)
+    }
+
+  }
+  else {
+    # evaluate spatial info, needs to be compatible with spatial_locs
+    print('TODO evaluate feature info')
+  }
+
 
 
   ### OPTIONAL:
@@ -904,7 +1078,7 @@ createGiottoObject <- function(raw_exprs,
 
         if(any(c('data.frame', 'data.table') %in% class(network))) {
           if(all(c('to', 'from', 'weight', 'sdimx_begin', 'sdimy_begin', 'sdimx_end', 'sdimy_end') %in% colnames(network))) {
-            spatial_network_Obj = create_spatialNetworkObject(name = networkname,networkDT = network)
+            spatial_network_Obj = create_spatialNetworkObject(name = networkname, networkDT = network)
             gobject@spatial_network[[networkname]] = spatial_network_Obj
           } else {
             stop('\n network ', networkname, ' does not have all necessary column names, see details \n')
@@ -1151,10 +1325,11 @@ createGiottoVisiumObject = function(visium_dir = NULL,
     }
 
     # create Giotto object
-    giotto_object = createGiottoObject(raw_exprs = raw_matrix,
+    giotto_object = createGiottoObject(expression = raw_matrix,
+                                       expression_feat = 'rna',
                                        spatial_locs = spatial_locs,
                                        instructions = instructions,
-                                       cell_metadata = spatial_results[,.(in_tissue, array_row, array_col)],
+                                       cell_metadata = list('rna' = spatial_results[,.(in_tissue, array_row, array_col)]),
                                        images = visium_png_list)
     return(giotto_object)
 
@@ -1211,10 +1386,11 @@ createGiottoVisiumObject = function(visium_dir = NULL,
     visium_png_list = list(visium_png)
     names(visium_png_list) = c('image')
 
-    giotto_object = createGiottoObject(raw_exprs = raw_matrix,
+    giotto_object = createGiottoObject(expression = raw_matrix,
+                                       expression_feat = 'rna',
                                        spatial_locs = spatial_locs,
                                        instructions = instructions,
-                                       cell_metadata = spatial_results[,.(in_tissue, array_row, array_col)],
+                                       cell_metadata = list('rna' = spatial_results[,.(in_tissue, array_row, array_col)]),
                                        images = visium_png_list)
     return(giotto_object)
 
@@ -1223,5 +1399,70 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 }
 
 
+
+
+#### logging of giotto functions ####
+
+#' @name get_args
+#' @keywords internal
+get_args <- function(toplevel = 2) {
+
+  cl = sys.call(-toplevel)
+
+  # function name
+  fname = as.character(cl[[1]])
+  # function
+  f = get(x = fname, mode = "function", sys.frame(-2))
+
+  # get used arguments
+  cl = match.call(definition=f, call=cl)
+  user_args = as.list(cl)[-1]
+
+  # all fun arguments
+  fun_args <- formals(fun = fname)
+  fun_args[names(user_args)] = user_args
+
+  unl_args = unlist(fun_args)
+  final_args = as.character(unl_args)
+  names(final_args) = names(unl_args)
+
+  # select first from vector
+  bool_det = grepl("c\\(", final_args)
+  if(any(bool_det) == TRUE) {
+
+    for(bool_name in names(final_args[bool_det])) {
+
+      bool_vec = final_args[bool_name]
+      new_vec = strsplit(bool_vec, split = "\"")[[1]][2]
+
+      final_args[bool_name] = new_vec
+
+    }
+  }
+
+  return(final_args)
+
+}
+
+#' @name update_giotto_params
+#' @keywords internal
+update_giotto_params = function(gobject,
+                                description = '_test',
+                                return_gobject = TRUE,
+                                toplevel = 2) {
+
+  parameters_list = gobject@parameters
+  number_of_rounds = length(parameters_list)
+  update_name = paste0(number_of_rounds, description)
+
+  parameters_list[[update_name]] = get_args(toplevel = toplevel)
+
+  if(return_gobject == TRUE) {
+    gobject@parameters = parameters_list
+    return(gobject)
+  } else {
+    return(list(plist = parameters_list, newname = update_name))
+  }
+}
 
 

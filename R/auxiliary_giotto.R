@@ -206,6 +206,7 @@ logNorm_giotto = function(mymatrix, base, offset) {
 #' @title pDataDT
 #' @description show cell metadata
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @return data.table with cell metadata
 #' @export
 #' @examples
@@ -213,7 +214,12 @@ logNorm_giotto = function(mymatrix, base, offset) {
 #' data(mini_giotto_single_cell) # loads existing Giotto object
 #' pDataDT(mini_giotto_single_cell)
 #'
-pDataDT <- function(gobject) {
+pDataDT <- function(gobject,
+                    feat_type = NULL) {
+
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
 
   if(!class(gobject) %in% c('ExpressionSet', 'SCESet', 'seurat', 'giotto')) {
     stop('only works with ExpressionSet (-like) objects')
@@ -223,7 +229,7 @@ pDataDT <- function(gobject) {
     return(data.table::as.data.table(Biobase::pData(gobject)))
   }
   else if(class(gobject) == 'giotto') {
-    return(gobject@cell_metadata)
+    return(gobject@cell_metadata[[feat_type]])
   }
   else if(class(gobject) == 'seurat') {
     return(data.table::as.data.table(gobject@meta.data))
@@ -234,6 +240,7 @@ pDataDT <- function(gobject) {
 #' @title fDataDT
 #' @description show gene metadata
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @return data.table with gene metadata
 #' @export
 #' @examples
@@ -241,46 +248,55 @@ pDataDT <- function(gobject) {
 #' data(mini_giotto_single_cell) # loads existing Giotto object
 #' fDataDT(mini_giotto_single_cell)
 #'
-fDataDT <- function(gobject) {
+fDataDT <- function(gobject,
+                    feat_type = NULL) {
+
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
 
   if(!class(gobject) %in% c('ExpressionSet', 'SCESet', 'giotto')) {
     stop('only works with ExpressionSet (-like) objects')
   }
   else if(class(gobject) == 'giotto') {
-    return(gobject@gene_metadata)
+    return(gobject@feat_metadata[[feat_type]])
   }
   return(data.table::as.data.table(Biobase::fData(gobject)))
 
 }
 
-
 #' @title select_expression_values
 #' @description helper function to select expression values
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param values expression values to extract
 #' @return expression matrix
 #' @keywords internal
-select_expression_values <- function(gobject, values) {
+select_expression_values <- function(gobject,
+                                     feat_type = 'rna',
+                                     values) {
 
-  if(values == 'scaled' & is.null(gobject@norm_scaled_expr)) {
-    stop('run first scaling step')
-  } else if(values == 'scaled') {
-    expr_values = gobject@norm_scaled_expr
-  } else if(values == 'normalized' & is.null(gobject@norm_expr)) {
+  potential_values = names(gobject@expression[[feat_type]])
+
+  ## special cases for giotto standard pipeline
+  if(values == 'scaled' & is.null(gobject@expression[[feat_type]][[values]])) {
+    stop('run first scaling (& normalization) step')
+  } else if(values == 'normalized' & is.null(gobject@expression[[feat_type]][[values]])) {
     stop('run first normalization step')
-  } else if(values == 'normalized') {
-    expr_values = gobject@norm_expr
-  } else if(values == 'custom' & is.null(gobject@custom_expr)) {
+  } else if(values == 'custom' & is.null(gobject@expression[[feat_type]][[values]])) {
     stop('first add custom expression matrix')
-  } else if(values == 'custom') {
-    expr_values = gobject@custom_expr
-  } else if(values == 'raw') {
-    expr_values = gobject@raw_exprs
   }
 
-  return(expr_values)
+
+  if(values %in% potential_values) {
+    expr_values = gobject@expression[[feat_type]][[values]]
+    return(expr_values)
+  } else {
+    stop("The ", feat_type ," expression matrix with name ","'", values, "'"," can not be found \n")
+  }
 
 }
+
 
 
 #' @title create_average_DT
@@ -370,7 +386,8 @@ create_average_detection_DT <- function(gobject, meta_data_name,
 #' @description subsets Giotto object including previous analyses.
 #' @param gobject giotto object
 #' @param cell_ids cell IDs to keep
-#' @param gene_ids gene IDs to keep
+#' @param feat_type feature type to use
+#' @param feat_ids feature IDs to keep
 #' @param verbose be verbose
 #' @return giotto object
 #' @export
@@ -384,67 +401,76 @@ create_average_detection_DT <- function(gobject, meta_data_name,
 #'
 #'subset_obj = subsetGiotto(mini_giotto_single_cell,
 #'                          cell_ids = random_cells,
-#'                          gene_ids = random_genes)
+#'                          feat_ids = random_genes)
 #'
 #' }
 #'
 subsetGiotto <- function(gobject,
                          cell_ids = NULL,
-                         gene_ids = NULL,
+                         feat_type = NULL,
+                         feat_ids = NULL,
                          verbose = FALSE) {
 
+  # set feat type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
 
   g_cell_IDs = gobject@cell_ID
-  g_gene_IDs = gobject@gene_ID
+  g_feat_IDs = gobject@feat_ID[[feat_type]]
 
   ## filter index
   if(!is.null(cell_ids)) {
     filter_bool_cells = g_cell_IDs %in% cell_ids
   } else filter_bool_cells = g_cell_IDs %in% g_cell_IDs
-  if(!is.null(gene_ids)) {
-    filter_bool_genes = g_gene_IDs %in% gene_ids
-  } else filter_bool_genes = g_gene_IDs %in% g_gene_IDs
+  if(!is.null(feat_ids)) {
+    filter_bool_feats = g_feat_IDs %in% feat_ids
+  } else filter_bool_feats = g_feat_IDs %in% g_feat_IDs
 
   cells_to_keep = g_cell_IDs[filter_bool_cells]
-  genes_to_keep = g_gene_IDs[filter_bool_genes]
+  feats_to_keep = g_feat_IDs[filter_bool_feats]
 
   ## FILTER ##
   # filter raw data
-  gobject@raw_exprs = gobject@raw_exprs[filter_bool_genes, filter_bool_cells]
+  gobject@expression[[feat_type]][['raw']] = gobject@expression[[feat_type]][['raw']][filter_bool_feats, filter_bool_cells]
 
   # filter spatial locations
   gobject@spatial_locs = gobject@spatial_locs[filter_bool_cells]
 
   # filter cell_ID and gene_ID
-  gobject@cell_ID = colnames(gobject@raw_exprs)
-  gobject@gene_ID = rownames(gobject@raw_exprs)
+  gobject@cell_ID = colnames(gobject@expression[[feat_type]][['raw']])
+  gobject@feat_ID[[feat_type]] = rownames(gobject@expression[[feat_type]][['raw']])
 
 
 
   ## FILTER optional slots ##
 
-  ## expression data ##
-  # normalized expression
-  if(!is.null(gobject@norm_expr)) {
-    gobject@norm_expr = gobject@norm_expr[filter_bool_genes, filter_bool_cells]
+  ## filter expression data besides the raw slot ##
+
+
+  for(expr_feat in unique(gobject@expression_feat)) {
+    expression_names = names(gobject@expression[[expr_feat]])
+    expression_names = expression_names[expression_names != 'raw']
+    for(expr_name in expression_names) {
+      gobject@expression[[expr_feat]][[expr_name]] = gobject@expression[[expr_feat]][[expr_name]][filter_bool_feats, filter_bool_cells]
+    }
   }
-  # (normalized) rescaled expression
-  if(!is.null(gobject@norm_scaled_expr)) {
-    gobject@norm_scaled_expr = gobject@norm_scaled_expr[filter_bool_genes, filter_bool_cells]
-  }
-  # custom expression
-  if(!is.null(gobject@custom_expr)) {
-    gobject@custom_expr = gobject@custom_expr[filter_bool_genes, filter_bool_cells]
-  }
+
+
 
   ## cell & gene metadata ##
   # cell metadata
   if(!is.null(gobject@cell_metadata)) {
-    gobject@cell_metadata = gobject@cell_metadata[filter_bool_cells,]
+    for(expr_feat in unique(gobject@expression_feat)) {
+      gobject@cell_metadata[[expr_feat]] = gobject@cell_metadata[[expr_feat]][filter_bool_cells,]
+    }
+
   }
   # gene metadata
-  if(!is.null(gobject@gene_metadata)) {
-    gobject@gene_metadata = gobject@gene_metadata[filter_bool_genes,]
+  if(!is.null(gobject@feat_metadata)) {
+    for(expr_feat in unique(gobject@expression_feat)) {
+      gobject@feat_metadata[[expr_feat]] = gobject@feat_metadata[[expr_feat]][filter_bool_feats,]
+    }
   }
 
   # data.table variables
@@ -538,21 +564,26 @@ subsetGiotto <- function(gobject,
 
 
   ## update parameters used ##
-  parameters_list = gobject@parameters
-  number_of_rounds = length(parameters_list)
-  update_name = paste0(number_of_rounds,'_subset')
-  # parameters to include
+  parameters_info = update_giotto_params(gobject,
+                                         description = '_subset',
+                                         return_gobject = FALSE)
+  # extra parameters to include
   cells_removed = length(filter_bool_cells[filter_bool_cells==FALSE])
-  genes_removed = length(filter_bool_genes[filter_bool_genes==FALSE])
-  parameters_list[[update_name]] = c('cells removed' = cells_removed,
-                                     'genes removed' = genes_removed)
+  feats_removed = length(filter_bool_feats[filter_bool_feats==FALSE])
+
+
+  parameters_list = parameters_info[['plist']]
+  update_name = parameters_info[['newname']]
+
+  parameters_list[[update_name]] = c(parameters_list[[update_name]],
+                                     'cells removed' = cells_removed,
+                                     'feats removed' = feats_removed)
   gobject@parameters = parameters_list
 
 
   return(gobject)
 
 }
-
 
 
 
@@ -629,7 +660,9 @@ subsetGiottoLocs = function(gobject,
 
     filtered_cell_IDs = comb_metadata[['cell_ID']]
 
-    subset_object = subsetGiotto(gobject = gobject, cell_ids = filtered_cell_IDs, verbose = verbose)
+    subset_object = subsetGiotto(gobject = gobject,
+                                 cell_ids = filtered_cell_IDs,
+                                 verbose = verbose)
 
     return(subset_object)
 
@@ -933,74 +966,82 @@ filterCombinations <- function(gobject,
 #' @title filterGiotto
 #' @description filter Giotto object based on expression threshold
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param expression_values expression values to use
 #' @param expression_threshold threshold to consider a gene expressed
-#' @param gene_det_in_min_cells minimum # of cells that need to express a gene
-#' @param min_det_genes_per_cell minimum # of genes that need to be detected in a cell
+#' @param feat_det_in_min_cells minimum # of cells that need to express a feature
+#' @param gene_det_in_min_cells deprecated, use feat_det_in_min_cells
+#' @param min_det_feats_per_cell minimum # of features that need to be detected in a cell
+#' @param min_det_genes_per_cell deprecated, use min_det_genes_per_cell
 #' @param verbose verbose
 #' @return giotto object
 #' @details The function \code{\link{filterCombinations}} can be used to explore the effect of different parameter values.
 #' @export
 #' @examples
 #'
-#' data(mini_giotto_single_cell)
-#'
-#' filtered_gobject = filterGiotto(mini_giotto_single_cell,
-#'                                 gene_det_in_min_cells = 10,
-#'                                 min_det_genes_per_cell = 10)
-#'
-#'
 filterGiotto <- function(gobject,
+                         feat_type = NULL,
                          expression_values = c('raw', 'normalized', 'scaled', 'custom'),
                          expression_threshold = 1,
-                         gene_det_in_min_cells = 100,
-                         min_det_genes_per_cell = 100,
+                         feat_det_in_min_cells = 100,
+                         gene_det_in_min_cells = NULL,
+                         min_det_feats_per_cell = 100,
+                         min_det_genes_per_cell = NULL,
                          verbose = F) {
 
+  ## deprecated arguments
+  if(!is.null(gene_det_in_min_cells)) {
+    feat_det_in_min_cells = gene_det_in_min_cells
+    warning('gene_det_in_min_cells is deprecated, use feat_det_in_min_cells in the future \n')
+  }
+  if(!is.null(min_det_genes_per_cell)) {
+    min_det_feats_per_cell = min_det_genes_per_cell
+    warning('min_det_genes_per_cell is deprecated, use min_det_feats_per_cell in the future \n')
+  }
+
+
+  # set feat type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
   # expression values to be used
-  values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  values = match.arg(expression_values, unique(c('raw', 'normalized', 'scaled', 'custom', expression_values)))
+  expr_values = select_expression_values(gobject = gobject, feat_type = feat_type, values = values)
 
   # approach:
   # 1. first remove genes that are not frequently detected
   # 2. then remove cells that do not have sufficient detected genes
 
   ## filter genes
-  filter_index_genes = rowSums_giotto(expr_values >= expression_threshold) >= gene_det_in_min_cells
-  selected_gene_ids = gobject@gene_ID[filter_index_genes]
+  filter_index_feats = rowSums_flex(expr_values >= expression_threshold) >= feat_det_in_min_cells
+  selected_feat_ids = gobject@feat_ID[[feat_type]][filter_index_feats]
 
   ## filter cells
-  filter_index_cells = colSums_giotto(expr_values[filter_index_genes, ] >= expression_threshold) >= min_det_genes_per_cell
+  filter_index_cells = colSums_flex(expr_values[filter_index_feats, ] >= expression_threshold) >= min_det_feats_per_cell
   selected_cell_ids = gobject@cell_ID[filter_index_cells]
 
   newGiottoObject = subsetGiotto(gobject = gobject,
+                                 feat_type = feat_type,
                                  cell_ids = selected_cell_ids,
-                                 gene_ids = selected_gene_ids)
+                                 feat_ids = selected_feat_ids)
 
   ## print output ##
-  removed_genes = length(filter_index_genes[filter_index_genes == FALSE])
-  total_genes   = length(filter_index_genes)
+  removed_feats = length(filter_index_feats[filter_index_feats == FALSE])
+  total_feats   = length(filter_index_feats)
 
   removed_cells = length(filter_index_cells[filter_index_cells == FALSE])
   total_cells   = length(filter_index_cells)
 
   if(verbose == TRUE) {
+    cat('Feature type: ', feat_type, '\n')
     cat('Number of cells removed: ', removed_cells, ' out of ', total_cells, '\n')
-    cat('Number of genes removed: ', removed_genes, ' out of ', total_genes, '\n')
+    cat('Number of feats removed: ', removed_feats, ' out of ', total_feats, '\n')
   }
 
 
   ## update parameters used ##
-  parameters_list  = newGiottoObject@parameters
-  number_of_rounds = length(parameters_list)
-  update_name      = paste0(number_of_rounds,'_filter')
-  # parameters to include
-  parameters_list[[update_name]] = c('used expression values' = values,
-                                     'gene expression threshold' = expression_threshold,
-                                     'minimum # of genes detected per cell' = min_det_genes_per_cell,
-                                     'minimum times a gene is detected over all cells' = gene_det_in_min_cells)
-  newGiottoObject@parameters = parameters_list
-
+  newGiottoObject = update_giotto_params(newGiottoObject, description = '_filter')
   return(newGiottoObject)
 
 
@@ -1009,18 +1050,140 @@ filterGiotto <- function(gobject,
 
 
 
+#' @name rna_standard_normalization
+#' @description standard function for RNA normalization
+#' @keywords internal
+rna_standard_normalization = function(gobject,
+                                      raw_expr,
+                                      feat_type,
+                                      library_size_norm = TRUE,
+                                      scalefactor = 6e3,
+                                      log_norm = TRUE,
+                                      log_offset = 1,
+                                      logbase = 2,
+                                      scale_feats = T,
+                                      scale_cells = T,
+                                      scale_order = c('first_feats', 'first_cells'),
+                                      verbose = F) {
+
+  # check feature type compatibility
+  if(!feat_type %in% c('rna', 'RNA')) {
+    warning('Caution: Standard normalization was developed for RNA data \n')
+  }
+
+  feat_names = rownames(raw_expr)
+  col_names = colnames(raw_expr)
+
+  ## 1. library size normalize
+  if(library_size_norm == TRUE) {
+    norm_expr = Giotto:::libNorm_giotto(mymatrix = raw_expr, scalefactor = scalefactor)
+  } else {
+    norm_expr = raw_expr
+  }
+
+  ## 2. lognormalize
+  if(log_norm == TRUE) {
+    norm_expr = Giotto:::logNorm_giotto(mymatrix = norm_expr,  base = logbase, offset = log_offset)
+  } else {
+    norm_expr = norm_expr
+  }
+
+  ## 3. scale
+  if(scale_feats == TRUE & scale_cells == TRUE) {
+
+    scale_order = match.arg(arg = scale_order, choices = c('first_feats', 'first_cells'))
+
+    if(scale_order == 'first_feats') {
+      if(verbose == TRUE) cat('\n first scale feats and then cells \n')
+      if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
+      norm_scaled_expr = t(Rfast::standardise(x = t(norm_expr), center = TRUE, scale = TRUE))
+      norm_scaled_expr = Rfast::standardise(x = norm_scaled_expr, center = TRUE, scale = TRUE)
+
+    } else if(scale_order == 'first_cells') {
+      if(verbose == TRUE) cat('\n first scale cells and then feats \n')
+      if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
+      norm_scaled_expr = Rfast::standardise(x = norm_expr, center = TRUE, scale = TRUE)
+      norm_scaled_expr = t(Rfast::standardise(x = t(norm_scaled_expr), center = TRUE, scale = TRUE))
+
+    } else {
+      stop('\n scale order must be given \n')
+    }
+
+  } else if(scale_feats == TRUE) {
+    if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
+    norm_scaled_expr = t(Rfast::standardise(x = t(norm_expr), center = TRUE, scale = TRUE))
+
+  } else if(scale_cells == TRUE) {
+    if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
+    norm_scaled_expr = Rfast::standardise(x = norm_expr, center = TRUE, scale = TRUE)
+
+  } else {
+    norm_scaled_expr = NULL
+  }
+
+
+  ## 4. add cell and gene names back
+  if(!is.null(norm_expr)) {
+    rownames(norm_expr) = feat_names
+    colnames(norm_expr) = col_names
+  }
+  if(!is.null(norm_scaled_expr)) {
+    rownames(norm_scaled_expr) = feat_names
+    colnames(norm_scaled_expr) = col_names
+  }
+
+  # return Giotto object
+  gobject@expression[[feat_type]][['normalized']] = norm_expr
+  gobject@expression[[feat_type]][['scaled']] = norm_scaled_expr
+
+  return(gobject)
+}
+
+
+
+#' @name rna_osmfish_normalization
+#' @description function for RNA normalization according to osmFISH paper
+#' @keywords internal
+rna_osmfish_normalization = function(gobject,
+                                     raw_expr,
+                                     feat_type,
+                                     verbose = F) {
+
+  # check feature type compatibility
+  if(!feat_type %in% c('rna', 'RNA')) {
+    warning('Caution: osmFISH normalization was developed for RNA in situ data \n')
+  }
+
+  # 1. normalize per gene with scale-factor equal to number of genes
+  norm_feats = (raw_expr/rowSums_flex(raw_expr)) * nrow(raw_expr)
+  # 2. normalize per cells with scale-factor equal to number of cells
+  norm_feats_cells = t((t(norm_feats)/colSums_flex(norm_feats)) * ncol(raw_expr))
+
+  # return results to Giotto object
+  if(verbose == TRUE) message('\n osmFISH-like normalized data will be returned to the custom Giotto slot \n')
+
+  gobject@expression[[feat_type]][['custom']] = norm_feats_cells
+
+  return(gobject)
+}
+
+
+
+
 #' @title normalizeGiotto
 #' @description fast normalize and/or scale expresion values of Giotto object
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param norm_methods normalization method to use
 #' @param library_size_norm normalize cells by library size
 #' @param scalefactor scale factor to use after library size normalization
 #' @param log_norm transform values to log-scale
 #' @param log_offset offset value to add to expression matrix, default = 1
 #' @param logbase log base to use to log normalize expression values
-#' @param scale_genes z-score genes over all cells
+#' @param scale_feats z-score genes over all cells
+#' @param scale_genes deprecated, use scale_feats
 #' @param scale_cells z-score cells over all genes
-#' @param scale_order order to scale genes and cells
+#' @param scale_order order to scale feats and cells
 #' @param verbose be verbose
 #' @return giotto object
 #' @details Currently there are two 'methods' to normalize your raw counts data.
@@ -1050,145 +1213,78 @@ filterGiotto <- function(gobject,
 #'
 #'
 normalizeGiotto <- function(gobject,
-                             norm_methods = c('standard', 'osmFISH'),
-                             library_size_norm = TRUE,
-                             scalefactor = 6e3,
-                             log_norm = TRUE,
-                             log_offset = 1,
-                             logbase = 2,
-                             scale_genes = T,
-                             scale_cells = T,
-                             scale_order = c('first_genes', 'first_cells'),
-                             verbose = F) {
+                            feat_type = NULL,
+                            norm_methods = c('standard', 'osmFISH'),
+                            library_size_norm = TRUE,
+                            scalefactor = 6e3,
+                            log_norm = TRUE,
+                            log_offset = 1,
+                            logbase = 2,
+                            scale_feats = TRUE,
+                            scale_genes = NULL,
+                            scale_cells = TRUE,
+                            scale_order = c('first_feats', 'first_cells'),
+                            verbose = FALSE) {
 
-  raw_expr = gobject@raw_exprs
-  gene_names = rownames(raw_expr)
-  col_names = colnames(raw_expr)
+
+
+  ## deprecated arguments
+  if(!is.null(scale_genes)) {
+    scale_feats = scale_genes
+    warning('scale_genes is deprecated, use scale_feats in the future \n')
+  }
+
+  ## set feat type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+  ## hard coded to start from raw data
+  raw_expr = gobject@expression[[feat_type]][['raw']]
+
 
   norm_methods = match.arg(arg = norm_methods, choices = c('standard', 'osmFISH'))
 
   # normalization according to standard methods
   if(norm_methods == 'standard') {
 
-    ## 1. library size normalize
-    if(library_size_norm == TRUE) {
-      norm_expr = libNorm_giotto(mymatrix = raw_expr, scalefactor = scalefactor)
-    } else {
-      norm_expr = raw_expr
-    }
+    gobject = rna_standard_normalization(gobject = gobject,
+                                         raw_expr = raw_expr,
+                                         feat_type = feat_type,
+                                         library_size_norm = library_size_norm,
+                                         scalefactor = scalefactor,
+                                         log_norm = log_norm,
+                                         log_offset = log_offset,
+                                         logbase = logbase,
+                                         scale_feats = scale_feats,
+                                         scale_cells = scale_cells,
+                                         scale_order = scale_order,
+                                         verbose = verbose)
 
-    ## 2. lognormalize
-    if(log_norm == TRUE) {
-      norm_expr = logNorm_giotto(mymatrix = norm_expr,  base = logbase, offset = log_offset)
-    } else {
-      norm_expr = norm_expr
-    }
-
-    ## 3. scale
-    if(scale_genes == TRUE & scale_cells == TRUE) {
-
-      scale_order = match.arg(arg = scale_order, choices = c('first_genes', 'first_cells'))
-
-      if(scale_order == 'first_genes') {
-        if(verbose == TRUE) cat('\n first scale genes and then cells \n')
-        if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
-        #norm_scaled_expr = armaScaleRow(Z = norm_expr)
-        norm_scaled_expr = t(Rfast::standardise(x = t(norm_expr), center = TRUE, scale = TRUE))
-
-        #norm_scaled_expr = armaScaleCol(Z = norm_scaled_expr)
-        norm_scaled_expr = Rfast::standardise(x = norm_scaled_expr, center = TRUE, scale = TRUE)
-      } else if(scale_order == 'first_cells') {
-        if(verbose == TRUE) cat('\n first scale cells and then genes \n')
-        if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
-        #norm_scaled_expr = armaScaleCol(Z = norm_expr)
-        norm_scaled_expr = Rfast::standardise(x = norm_expr, center = TRUE, scale = TRUE)
-
-        #norm_scaled_expr = armaScaleRow(Z = norm_scaled_expr)
-        norm_scaled_expr = t(Rfast::standardise(x = t(norm_scaled_expr), center = TRUE, scale = TRUE))
-      } else {
-        stop('\n scale order must be given \n')
-      }
-
-    } else if(scale_genes == TRUE) {
-      if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
-      #norm_scaled_expr = armaScaleRow(Z = norm_expr)
-      norm_scaled_expr = t(Rfast::standardise(x = t(norm_expr), center = TRUE, scale = TRUE))
-
-    } else if(scale_cells == TRUE) {
-      if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
-      #norm_scaled_expr = armaScaleCol(Z = norm_expr)
-      norm_scaled_expr = Rfast::standardise(x = norm_expr, center = TRUE, scale = TRUE)
-
-    } else {
-      norm_scaled_expr = NULL
-    }
-
-
-    ## 4. add cell and gene names back
-    if(!is.null(norm_expr)) {
-      rownames(norm_expr) = gene_names
-      colnames(norm_expr) = col_names
-    }
-    if(!is.null(norm_scaled_expr)) {
-      rownames(norm_scaled_expr) = gene_names
-      colnames(norm_scaled_expr) = col_names
-    }
-
-    # return Giotto object
-    gobject@norm_expr = norm_expr
-    gobject@norm_scaled_expr = norm_scaled_expr
 
   }
 
-  # normalization according to osmFISH method
   else if(norm_methods == 'osmFISH') {
 
-    # 1. normalize per gene with scale-factor equal to number of genes
-    norm_genes = (raw_expr/rowSums_giotto(raw_expr)) * nrow(raw_expr)
-    # 2. normalize per cells with scale-factor equal to number of cells
-    norm_genes_cells = t((t(norm_genes)/colSums_giotto(norm_genes)) * ncol(raw_expr))
-
-    # return results to Giotto object
-    cat('\n osmFISH-like normalized data will be returned to the custom Giotto slot \n')
-    gobject@custom_expr = norm_genes_cells
+    gobject = rna_osmfish_normalization(gobject = gobject,
+                                        raw_expr = raw_expr,
+                                        feat_type = feat_type,
+                                        verbose = verbose)
 
   }
-
-
-
 
   ## update parameters used ##
-  parameters_list  = gobject@parameters
-  number_of_rounds = length(parameters_list)
-  update_name      = paste0(number_of_rounds,'_normalize')
-
-  # parameters to include
-  if(norm_methods == 'standard') {
-    parameters_list[[update_name]] = c('normalization method' = norm_methods,
-                                       'normalized to library size' = ifelse(library_size_norm == T, 'yes', 'no'),
-                                       'scalefactor' = scalefactor,
-                                       'log-normalized' =  ifelse(log_norm == T, 'yes', 'no'),
-                                       'logbase' = ifelse(is.null(logbase), NA, logbase),
-                                       'log offset' = log_offset,
-                                       'genes scaled' = ifelse(scale_genes == T, 'yes', 'no'),
-                                       'cell scaled' = ifelse(scale_cells == T, 'yes', 'no'),
-                                       'if both, order of scaling' = scale_order)
-  }
-
-  if(norm_methods == 'osmFISH') {
-    parameters_list[[update_name]] = c('normalization method' = norm_methods)
-  }
-
-  gobject@parameters = parameters_list
-
+  gobject = update_giotto_params(gobject, description = '_normalize')
   return(gobject)
+
 }
 
 
 
-#' @title adjustGiottoMatrix
+#' @name adjustGiottoMatrix
 #' @description Adjust expression values to account for known batch effects or technological covariates.
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param expression_values expression values to use
 #' @param batch_columns metadata columns that represent different batch (max = 2)
 #' @param covariate_columns metadata columns that represent covariates to regress out
@@ -1205,14 +1301,20 @@ normalizeGiotto <- function(gobject,
 #' adjust_gobject = adjustGiottoMatrix(mini_giotto_single_cell)
 #'
 adjustGiottoMatrix <- function(gobject,
+                               feat_type = NULL,
                                expression_values = c('normalized', 'scaled', 'custom'),
                                batch_columns = NULL,
                                covariate_columns = NULL,
                                return_gobject = TRUE,
                                update_slot = c('custom')) {
 
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
   # metadata
-  cell_metadata = pDataDT(gobject)
+  cell_metadata = pDataDT(gobject, feat_type = feat_type)
 
   if(!is.null(batch_columns)) {
     if(!all(batch_columns %in% colnames(cell_metadata))) {
@@ -1226,10 +1328,12 @@ adjustGiottoMatrix <- function(gobject,
     }
   }
 
-  update_slot = match.arg(update_slot, c('normalized', 'scaled', 'custom'))
+  update_slot = match.arg(update_slot, c('normalized', 'scaled', 'custom', update_slot))
 
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_data = select_expression_values(gobject = gobject, values = values)
+  # expression values to be used
+  values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
+  expr_data = select_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+
 
   # batch columns
   if(!is.null(batch_columns)) {
@@ -1258,14 +1362,10 @@ adjustGiottoMatrix <- function(gobject,
                                              covariates = covariates)
 
   if(return_gobject == TRUE) {
-    if(update_slot == 'normalized') {
-      gobject@norm_expr = adjusted_matrix
-    } else if(update_slot == 'scaled') {
-      gobject@norm_scaled_expr = adjusted_matrix
-    } else if(update_slot == 'custom') {
-      gobject@custom_expr = adjusted_matrix
-    }
 
+    gobject = update_giotto_params(gobject, description = '_adj_matrix')
+
+    gobject@expression[[feat_type]][[update_slot]] = adjusted_matrix
     return(gobject)
 
   } else {
@@ -1275,7 +1375,6 @@ adjustGiottoMatrix <- function(gobject,
   }
 
 }
-
 
 
 #' @title processGiotto
@@ -1337,6 +1436,9 @@ processGiotto = function(gobject,
 
 
 
+
+
+
 ## * ####
 ## Gene & Cell metadata functions ####
 
@@ -1344,6 +1446,7 @@ processGiotto = function(gobject,
 #' @title annotateGiotto
 #' @description Converts cluster results into a user provided annotation.
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param annotation_vector named annotation vector (names = cluster ids)
 #' @param cluster_column cluster column to convert to annotation names
 #' @param name new name for annotation column
@@ -1380,10 +1483,15 @@ processGiotto = function(gobject,
 #'
 #'
 annotateGiotto <- function(gobject,
+                           feat_type = NULL,
                            annotation_vector = NULL,
                            cluster_column = NULL,
                            name = 'cell_types') {
 
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
 
   # data.table: set global variable
   temp_cluster_name = NULL
@@ -1392,7 +1500,7 @@ annotateGiotto <- function(gobject,
     stop('\n You need to provide both a named annotation vector and the corresponding cluster column  \n')
   }
 
-  cell_metadata = pDataDT(gobject)
+  cell_metadata = pDataDT(gobject, feat_type = feat_type)
 
   # 1. verify if cluster column exist
   if(!cluster_column %in% colnames(cell_metadata)) {
@@ -1428,12 +1536,13 @@ annotateGiotto <- function(gobject,
   }
 
   data.table::setnames(cell_metadata, old = 'temp_cluster_name', new = name)
-  gobject@cell_metadata = cell_metadata
+  gobject@cell_metadata[[feat_type]] = cell_metadata
 
   return(gobject)
 
 
 }
+
 
 
 #' @title removeCellAnnotation
@@ -1515,6 +1624,7 @@ removeGeneAnnotation <- function(gobject,
 #' @title addCellMetadata
 #' @description adds cell metadata to the giotto object
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param new_metadata new cell metadata to use (data.table, data.frame, ...)
 #' @param vector_name (optional) custom name if you provide a single vector
 #' @param by_column merge metadata based on cell_ID column in pDataDT (default = FALSE)
@@ -1527,15 +1637,21 @@ removeGeneAnnotation <- function(gobject,
 #' }
 #' @export
 addCellMetadata <- function(gobject,
+                            feat_type = NULL,
                             new_metadata,
                             vector_name = NULL,
                             by_column = FALSE,
                             column_cell_ID = NULL) {
 
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
   # data.table variables
   cell_ID = NULL
 
-  cell_metadata = gobject@cell_metadata
+  cell_metadata = gobject@cell_metadata[[feat_type]]
   ordered_cell_IDs = gobject@cell_ID
 
   if(is.vector(new_metadata) | is.factor(new_metadata)) {
@@ -1576,17 +1692,69 @@ addCellMetadata <- function(gobject,
     cell_metadata = cbind(cell_metadata, new_metadata)
   } else {
     if(is.null(column_cell_ID)) stop('You need to provide cell_ID column')
-    cell_metadata <- data.table::merge.data.table(cell_metadata, by.x = 'cell_ID',
-                                                   new_metadata, by.y = column_cell_ID,
-                                                   all.x = T)
+    cell_metadata <- data.table::merge.data.table(cell_metadata,
+                                                  by.x = 'cell_ID',
+                                                  new_metadata,
+                                                  by.y = column_cell_ID,
+                                                  all.x = TRUE)
   }
 
   # reorder
   cell_metadata = cell_metadata[match(ordered_cell_IDs, cell_ID)]
 
-  gobject@cell_metadata <- cell_metadata
+  gobject@cell_metadata[[feat_type]] = cell_metadata
   return(gobject)
 }
+
+#' @name addFeatMetadata
+#' @description adds gene metadata to the giotto object
+#' @param gobject giotto object
+#' @param feat_type feature type
+#' @param new_metadata new metadata to use
+#' @param by_column merge metadata based on gene_ID column in fDataDT
+#' @param column_feat_ID column name of new metadata to use if by_column = TRUE
+#' @return giotto object
+#' @details You can add additional gene metadata in two manners:
+#' 1. Provide a data.table or data.frame with gene annotations in the same order as the gene_ID column in fDataDT(gobject)
+#' 2. Provide a data.table or data.frame with gene annotations and specificy which column contains the gene IDs,
+#' these gene IDs need to match with the gene_ID column in fDataDT(gobject)
+#' @export
+addFeatMetadata <- function(gobject,
+                            feat_type = NULL,
+                            new_metadata,
+                            by_column = F,
+                            column_feat_ID = NULL) {
+
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+  # data.table variables
+  feat_ID = NULL
+
+  feat_metadata = gobject@feat_metadata[[feat_type]]
+  ordered_feat_IDs = gobject@feat_ID[[feat_type]]
+
+  if(by_column == FALSE) {
+    feat_metadata = cbind(feat_metadata, new_metadata)
+  } else {
+    if(is.null(column_feat_ID)) stop('You need to provide feat ID column')
+    feat_metadata <- data.table::merge.data.table(feat_metadata,
+                                                  by.x = 'feat_ID',
+                                                  new_metadata,
+                                                  by.y = column_feat_ID,
+                                                  all.x = T)
+  }
+
+  # reorder
+  feat_metadata = feat_metadata[match(ordered_feat_IDs, feat_ID)]
+
+  gobject@feat_metadata[[feat_type]] <- feat_metadata
+  return(gobject)
+}
+
+
 
 
 #' @title addGeneMetadata
@@ -1606,31 +1774,114 @@ addGeneMetadata <- function(gobject,
                             by_column = F,
                             column_gene_ID = NULL) {
 
-  # data.table variables
-  gene_ID = NULL
+  warning("Deprecated and replaced by addFeatMetadata")
 
-  gene_metadata = gobject@gene_metadata
-  ordered_gene_IDs = gobject@gene_ID
+  result = addFeatMetadata(gobject = gobject,
+                           feat_type = NULL,
+                           new_metadata = new_metadata,
+                           by_column = by_column,
+                           column_feat_ID = column_gene_ID)
 
-  if(by_column == FALSE) {
-    gene_metadata = cbind(gene_metadata, new_metadata)
-  } else {
-    if(is.null(column_gene_ID)) stop('You need to provide gene_ID column')
-    gene_metadata <- data.table::merge.data.table(gene_metadata, by.x = 'gene_ID',
-                                                   new_metadata, by.y = column_gene_ID,
-                                                   all.x = T)
-  }
-
-  # reorder
-  gene_metadata = gene_metadata[match(ordered_gene_IDs, gene_ID)]
-
-  gobject@gene_metadata <- gene_metadata
-  return(gobject)
+  return(result)
 }
 
 
 
-#' @title addGeneStatistics
+
+#' @name addFeatStatistics
+#' @description adds gene statistics to the giotto object
+#' @param gobject giotto object
+#' @param feat_type feature type
+#' @param expression_values expression values to use
+#' @param detection_threshold detection threshold to consider a gene detected
+#' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @return giotto object if return_gobject = TRUE
+#' @details
+#' This function will add the following statistics to feature metadata:
+#' \itemize{
+#'   \item{nr_cells: }{Denotes in how many cells the feature is detected}
+#'   \item{per_cells: }{Denotes in what percentage of cells the feature is detected}
+#'   \item{total_expr: }{Shows the total sum of feature expression in all cells}
+#'   \item{mean_expr: }{Average feature expression in all cells}
+#'   \item{mean_expr_det: }{Average feature expression in cells with detectable levels of the gene}
+#' }
+#' @export
+#' @examples
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' updated_giotto_object = addFeatStatistics(mini_giotto_single_cell)
+#'
+addFeatStatistics <- function(gobject,
+                              feat_type = NULL,
+                              expression_values = c('normalized', 'scaled', 'custom'),
+                              detection_threshold = 0,
+                              return_gobject = TRUE) {
+
+  # set feat type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+  # expression values to be used
+  expression_values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
+  expr_data = select_expression_values(gobject = gobject, feat_type = feat_type, values = expression_values)
+
+  # calculate stats
+  feat_stats = data.table::data.table(feats = rownames(expr_data),
+                                      nr_cells = rowSums_flex(expr_data > detection_threshold),
+                                      perc_cells = (rowSums_flex(expr_data > detection_threshold)/ncol(expr_data))*100,
+                                      total_expr = rowSums_flex(expr_data),
+                                      mean_expr = rowMeans_flex(expr_data))
+
+  # data.table variables
+  mean_expr_det = NULL
+
+  mean_expr_detected = mean_expr_det_test(expr_data, detection_threshold = detection_threshold)
+  feat_stats[, mean_expr_det := mean_expr_detected]
+
+
+  if(return_gobject == TRUE) {
+
+    # remove previous statistics
+    feat_metadata = fDataDT(gobject, feat_type = feat_type)
+    metadata_names = colnames(feat_metadata)
+
+    if('nr_cells' %in% metadata_names) {
+      cat('\n feat statistics has already been applied once, will be overwritten \n')
+      feat_metadata[, c('nr_cells', 'perc_cells', 'total_expr', 'mean_expr', 'mean_expr_det') := NULL]
+      gobject@feat_metadata[[feat_type]] = feat_metadata
+    }
+
+    gobject = addFeatMetadata(gobject = gobject,
+                              feat_type = feat_type,
+                              new_metadata = feat_stats,
+                              by_column = T,
+                              column_feat_ID = 'feats')
+
+    ## update parameters used ##
+
+    # parent function name
+    cl = sys.call(-1)
+    fname = as.character(cl[[1]])
+    if(fname == 'addStatistics') {
+      gobject = update_giotto_params(gobject, description = '_feat_stats', toplevel = 3)
+    } else {
+      gobject = update_giotto_params(gobject, description = '_feat_stats')
+    }
+
+    return(gobject)
+
+
+  } else {
+    return(feat_stats)
+  }
+
+}
+
+
+
+#' @name addGeneStatistics
 #' @description adds gene statistics to the giotto object
 #' @param gobject giotto object
 #' @param expression_values expression values to use
@@ -1658,60 +1909,25 @@ addGeneStatistics <- function(gobject,
                               detection_threshold = 0,
                               return_gobject = TRUE) {
 
-  # expression values to be used
-  expression_values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_data = select_expression_values(gobject = gobject, values = expression_values)
+  warning("Deprecated and replaced by addFeatStatistics")
 
-  # calculate stats
-  gene_stats = data.table::data.table(genes = rownames(expr_data),
-                          nr_cells = rowSums_giotto(expr_data > detection_threshold),
-                          perc_cells = (rowSums_giotto(expr_data > detection_threshold)/ncol(expr_data))*100,
-                          total_expr = rowSums_giotto(expr_data),
-                          mean_expr = rowMeans_giotto(expr_data))
-
-  # data.table variables
-  mean_expr_det = NULL
-
-  mean_expr_detected = mean_expr_det_test(expr_data, detection_threshold = detection_threshold)
-  gene_stats[, mean_expr_det := mean_expr_detected]
-
-
-  if(return_gobject == TRUE) {
-
-    # remove previous statistics
-    gene_metadata = fDataDT(gobject)
-    metadata_names = colnames(gene_metadata)
-    if('nr_cells' %in% metadata_names) {
-      cat('\n gene statistics has already been applied once, will be overwritten \n')
-      gene_metadata[, c('nr_cells', 'perc_cells', 'total_expr', 'mean_expr', 'mean_expr_det') := NULL]
-      gobject@gene_metadata = gene_metadata
-    }
-
-    gobject = addGeneMetadata(gobject = gobject, new_metadata = gene_stats,
-                                      by_column = T, column_gene_ID = 'genes')
-
-    ## update parameters used ##
-    parameters_list = gobject@parameters
-    number_of_rounds = length(parameters_list)
-    update_name = paste0(number_of_rounds,'_gene_stats')
-    # parameters to include
-    parameters_list[[update_name]] = c('expression values used' = expression_values,
-                                       'detection_threshold' = detection_threshold)
-    gobject@parameters = parameters_list
-
-    return(gobject)
-
-
-  } else {
-    return(gene_stats)
-  }
+  result = addFeatStatistics(gobject = gobject,
+                             feat_type = NULL,
+                             expression_values = expression_values,
+                             detection_threshold = detection_threshold,
+                             return_gobject = return_gobject)
 
 }
+
+
+
+
 
 
 #' @title addCellStatistics
 #' @description adds cells statistics to the giotto object
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param expression_values expression values to use
 #' @param detection_threshold detection threshold to consider a gene detected
 #' @param return_gobject boolean: return giotto object (default = TRUE)
@@ -1719,9 +1935,9 @@ addGeneStatistics <- function(gobject,
 #' @details
 #' This function will add the following statistics to cell metadata:
 #' \itemize{
-#'   \item{nr_genes: }{Denotes in how many genes are detected per cell}
-#'   \item{perc_genes: }{Denotes what percentage of genes is detected per cell}
-#'   \item{total_expr: }{Shows the total sum of gene expression per cell}
+#'   \item{nr_feats: }{Denotes in how many features are detected per cell}
+#'   \item{perc_feats: }{Denotes what percentage of features is detected per cell}
+#'   \item{total_expr: }{Shows the total sum of feature expression per cell}
 #' }
 #' @export
 #' @examples
@@ -1731,45 +1947,52 @@ addGeneStatistics <- function(gobject,
 #' updated_giotto_object = addCellStatistics(mini_giotto_single_cell)
 #'
 addCellStatistics <- function(gobject,
+                              feat_type = NULL,
                               expression_values = c('normalized', 'scaled', 'custom'),
                               detection_threshold = 0,
                               return_gobject = TRUE) {
 
+  # set feat type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
   # expression values to be used
-  expression_values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_data = select_expression_values(gobject = gobject, values = expression_values)
+  expression_values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
+  expr_data = select_expression_values(gobject = gobject, feat_type = feat_type, values = expression_values)
 
   # calculate stats
   cell_stats = data.table::data.table(cells = colnames(expr_data),
-                          nr_genes = colSums_giotto(expr_data > detection_threshold),
-                          perc_genes = (colSums_giotto(expr_data > detection_threshold)/nrow(expr_data))*100,
-                          total_expr = colSums_giotto(expr_data))
-
-
+                                      nr_feats = colSums_flex(expr_data > detection_threshold),
+                                      perc_feats = (colSums_flex(expr_data > detection_threshold)/nrow(expr_data))*100,
+                                      total_expr = colSums_flex(expr_data))
 
   if(return_gobject == TRUE) {
 
     # remove previous statistics
-    cell_metadata = pDataDT(gobject)
+    cell_metadata = pDataDT(gobject, feat_type = feat_type)
     metadata_names = colnames(cell_metadata)
-    if('nr_genes' %in% metadata_names) {
+    if('nr_feats' %in% metadata_names) {
       cat('\n cells statistics has already been applied once, will be overwritten \n')
-      cell_metadata[, c('nr_genes', 'perc_genes', 'total_expr') := NULL]
-      gobject@cell_metadata = cell_metadata
+      cell_metadata[, c('nr_feats', 'perc_feats', 'total_expr') := NULL]
+      gobject@cell_metadata[[feat_type]] = cell_metadata
     }
 
-    gobject = addCellMetadata(gobject = gobject, new_metadata = cell_stats,
-                                      by_column = T, column_cell_ID = 'cells')
+    gobject = addCellMetadata(gobject = gobject,
+                              feat_type = feat_type,
+                              new_metadata = cell_stats,
+                              by_column = TRUE,
+                              column_cell_ID = 'cells')
 
     ## update parameters used ##
-    parameters_list = gobject@parameters
-    number_of_rounds = length(parameters_list)
-    update_name = paste0(number_of_rounds,'_cell_stats')
-    # parameters to include
-    parameters_list[[update_name]] = c('expression values used' = expression_values,
-                                       'detection_threshold' = detection_threshold)
-    gobject@parameters = parameters_list
-
+    # parent function name
+    cl = sys.call(-1)
+    fname = as.character(cl[[1]])
+    if(fname == 'addStatistics') {
+      gobject = update_giotto_params(gobject, description = '_cell_stats', toplevel = 3)
+    } else {
+      gobject = update_giotto_params(gobject, description = '_cell_stats')
+    }
     return(gobject)
 
 
@@ -1780,15 +2003,15 @@ addCellStatistics <- function(gobject,
 }
 
 
-
 #' @title addStatistics
 #' @description adds genes and cells statistics to the giotto object
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param expression_values expression values to use
-#' @param detection_threshold detection threshold to consider a gene detected
+#' @param detection_threshold detection threshold to consider a feature detected
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @return giotto object if return_gobject = TRUE, else a list with results
-#' @details See \code{\link{addGeneStatistics}} and \code{\link{addCellStatistics}}
+#' @details See \code{\link{addFeatStatistics}} and \code{\link{addCellStatistics}}
 #' @export
 #' @examples
 #'
@@ -1797,22 +2020,31 @@ addCellStatistics <- function(gobject,
 #' updated_giotto_object = addStatistics(mini_giotto_single_cell)
 #'
 addStatistics <- function(gobject,
+                          feat_type = NULL,
                           expression_values = c('normalized', 'scaled', 'custom'),
                           detection_threshold = 0,
                           return_gobject = TRUE) {
 
-  # get gene statistics
-  gene_stats = addGeneStatistics(gobject = gobject,
+
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+  # get feats statistics
+  feat_stats = addFeatStatistics(gobject = gobject,
+                                 feat_type = feat_type,
                                  expression_values = expression_values,
                                  detection_threshold = detection_threshold,
                                  return_gobject = return_gobject)
 
   if(return_gobject == TRUE) {
-    gobject = gene_stats
+    gobject = feat_stats
   }
 
   # get cell statistics
   cell_stats = addCellStatistics(gobject = gobject,
+                                 feat_type = feat_type,
                                  expression_values = expression_values,
                                  detection_threshold = detection_threshold,
                                  return_gobject = return_gobject)
@@ -1821,7 +2053,85 @@ addStatistics <- function(gobject,
     gobject = cell_stats
     return(gobject)
   } else {
-    return(gene_stats = gene_stats, cell_stats = cell_stats)
+    return(feat_stats = feat_stats, cell_stats = cell_stats)
+  }
+
+}
+
+
+
+
+
+#' @name addFeatsPerc
+#' @description calculates the total percentage of (normalized) counts for a subset of selected genes
+#' @param gobject giotto object
+#' @param feat_type feature type
+#' @param expression_values expression values to use
+#' @param feats vector of selected features
+#' @param vector_name column name as seen in pDataDT()
+#' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @return giotto object if return_gobject = TRUE, else a vector with % results
+#' @export
+#' @examples
+#'
+#' data(mini_giotto_single_cell)
+#'
+#' # select genes (e.g. Rpl or mitochondrial)
+#' random_genes = sample(slot(mini_giotto_single_cell, 'gene_ID'), 5)
+#'
+#' # calculate percentage of those selected genes per cells/spot
+#' updated_giotto_object = addFeatsPerc(mini_giotto_single_cell,
+#'                                      feats = random_genes,
+#'                                      vector_name = 'random_gene_perc')
+#'
+#' # visualize result in data.table format
+#' pDataDT(updated_giotto_object)
+#'
+addFeatsPerc = function(gobject,
+                        feat_type = NULL,
+                        expression_values = c('normalized', 'scaled', 'custom'),
+                        feats = NULL,
+                        vector_name = 'feat_perc',
+                        return_gobject = TRUE) {
+
+
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+  # tests
+  if(is.null(feats)) {
+    stop('You need to provide a vector of feat names \n')
+  }
+
+  if(!methods::is(gobject, 'giotto')) {
+    stop('You need to provide a giotto object \n')
+  }
+
+
+  # expression values to be used
+  expression_values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
+  expr_data = select_expression_values(gobject = gobject, feat_type = feat_type, values = expression_values)
+
+
+  totalsum = colSums_flex(expr_data)
+  feat_sum = colSums_flex(expr_data[rownames(expr_data) %in% feats,])
+  perc_feats = round((feat_sum/totalsum)*100, 2)
+
+  if(return_gobject == TRUE) {
+    temp_gobj = addCellMetadata(gobject = gobject,
+                                feat_type = feat_type,
+                                new_metadata = perc_feats,
+                                vector_name = vector_name,
+                                by_column = F)
+
+    ## update parameters used ##
+    temp_gobj = update_giotto_params(temp_gobj, description = '_feats_perc')
+
+    return(temp_gobj)
+  } else {
+    return(perc_feats)
   }
 
 }
@@ -1858,34 +2168,17 @@ addGenesPerc = function(gobject,
                         vector_name = 'gene_perc',
                         return_gobject = TRUE) {
 
-  # tests
-  if(is.null(genes)) {
-    stop('You need to provide a vector of gene names \n')
-  }
-
-  if(!methods::is(gobject, 'giotto')) {
-    stop('You need to provide a giotto object \n')
-  }
+  warning("Deprecated and replaced by addFeatsPerc")
 
 
-  # expression values to be used
-  expression_values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_data = select_expression_values(gobject = gobject, values = expression_values)
+  result = addFeatsPerc(gobject = gobject,
+                        feat_type = NULL,
+                        expression_values = expression_values,
+                        feats = feats,
+                        vector_name = vector_name,
+                        return_gobject = return_gobject)
 
-  totalsum = colSums_giotto(expr_data)
-  gene_sum = colSums_giotto(expr_data[rownames(expr_data) %in% genes,])
-  perc_genes = round((gene_sum/totalsum)*100, 2)
-
-  if(return_gobject == TRUE) {
-    temp_gobj = addCellMetadata(gobject = gobject,
-                                new_metadata = perc_genes,
-                                vector_name = vector_name,
-                                by_column = F)
-    return(temp_gobj)
-  } else {
-    return(perc_genes)
-  }
-
+  return(result)
 }
 
 
@@ -2108,17 +2401,24 @@ calculateMetaTableCells = function(gobject,
 #' @description This function combines the cell metadata with spatial locations and
 #' enrichment results from \code{\link{runSpatialEnrich}}
 #' @param gobject Giotto object
+#' @param feat_type feature type
 #' @param spat_enr_names names of spatial enrichment results to include
 #' @return Extended cell metadata in data.table format.
 #' @export
 combineMetadata = function(gobject,
+                           feat_type = NULL,
                            spat_enr_names = NULL) {
 
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
   # cell metadata
-  metadata = pDataDT(gobject)
+  metadata = pDataDT(gobject, feat_type = feat_type)
 
   # spatial locations
-  spatial_locs = copy(gobject@spatial_locs)
+  spatial_locs = data.table::copy(gobject@spatial_locs)
 
   # data.table variables
   cell_ID = NULL
@@ -2143,7 +2443,7 @@ combineMetadata = function(gobject,
     for(spatenr in 1:length(spat_enr_names)) {
 
       spatenr_name = spat_enr_names[spatenr]
-      temp_spat = copy(gobject@spatial_enrichment[[spatenr_name]])
+      temp_spat = data.table::copy(gobject@spatial_enrichment[[spatenr_name]])
       temp_spat[, 'cell_ID' := NULL]
 
       result_list[[spatenr]] = temp_spat
@@ -2164,7 +2464,6 @@ combineMetadata = function(gobject,
   return(final_meta)
 
 }
-
 
 
 

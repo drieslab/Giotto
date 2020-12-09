@@ -5,12 +5,14 @@
 #' @name createNearestNetwork
 #' @description create a nearest neighbour (NN) network
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param type sNN or kNN
 #' @param dim_reduction_to_use dimension reduction method to use
 #' @param dim_reduction_name name of dimension reduction set to use
 #' @param dimensions_to_use number of dimensions to use as input
 #' @param name arbitrary name for NN network
-#' @param genes_to_use if dim_reduction_to_use = NULL, which genes to use
+#' @param feats_to_use if dim_reduction_to_use = NULL, which genes to use
+#' @param genes_to_use deprecated, use feats_to_use
 #' @param expression_values expression values to use
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param k number of k neighbors to use
@@ -58,10 +60,12 @@
 #'                                                 dimensions_to_use = 1:3, k = 3)
 #'
 createNearestNetwork <- function(gobject,
+                                 feat_type = NULL,
                                  type = c('sNN', 'kNN'),
                                  dim_reduction_to_use = 'pca',
                                  dim_reduction_name = 'pca',
                                  dimensions_to_use = 1:10,
+                                 feats_to_use = NULL,
                                  genes_to_use = NULL,
                                  expression_values = c('normalized', 'scaled', 'custom'),
                                  name = 'sNN.pca',
@@ -71,6 +75,18 @@ createNearestNetwork <- function(gobject,
                                  top_shared = 3,
                                  verbose = T,
                                  ...) {
+
+
+  ## deprecated arguments
+  if(!is.null(genes_to_use)) {
+    feats_to_use = genes_to_use
+    warning('genes_to_use is deprecated, use feats_to_use in the future \n')
+  }
+
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
 
   # type of NN network
   type = match.arg(type, c('sNN', 'kNN'))
@@ -92,16 +108,17 @@ createNearestNetwork <- function(gobject,
   } else {
 
     ## using original matrix ##
-    values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-    expr_values = select_expression_values(gobject = gobject, values = values)
+    # expression values to be used
+    values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
+    expr_values = select_expression_values(gobject = gobject, feat_type = feat_type, values = values)
 
     # subset expression matrix
-    if(!is.null(genes_to_use)) {
-      expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
+    if(!is.null(feats_to_use)) {
+      expr_values = expr_values[rownames(expr_values) %in% feats_to_use, ]
     }
 
     # features as columns & cells as rows
-    matrix_to_use = t_giotto(expr_values)
+    matrix_to_use = t_flex(expr_values)
 
   }
 
@@ -175,21 +192,7 @@ createNearestNetwork <- function(gobject,
     gobject@nn_network[[type]][[name]][['igraph']] <- nn_network_igraph
 
     ## update parameters used ##
-    parameters_list = gobject@parameters
-    number_of_rounds = length(parameters_list)
-    update_name = paste0(number_of_rounds,'_nn_network')
-    # parameters to include
-    parameters_list[[update_name]] = c('nearest-neighbour type' = type,
-                                       'dimension reduction used' = dim_reduction_to_use,
-                                       'name for dimension reduction' = dim_reduction_name,
-                                       'dimensions used' = length(dimensions_to_use),
-                                       'expression values' = expression_values,
-                                       'number of genes used' = length(genes_to_use),
-                                       'k neighbours' = k,
-                                       'minimum shared edges for edge in snn' = minimum_shared,
-                                       'top edges for edge in snn' = top_shared,
-                                       'name for network' = name)
-    gobject@parameters = parameters_list
+    gobject = update_giotto_params(gobject, description = '_nn_network')
 
     return(gobject)
 
@@ -253,16 +256,7 @@ addNetworkLayout = function(gobject,
     gobject@nn_network[[nn_network_to_use]][[network_name]][['layout']] <- layout_coord
 
     ## update parameters used ##
-    parameters_list = gobject@parameters
-    number_of_rounds = length(parameters_list)
-    update_name = paste0(number_of_rounds,'_nn_network_layout')
-    # parameters to include
-    parameters_list[[update_name]] = c('nn network to use' = nn_network_to_use,
-                                       'network name' = network_name,
-                                       'layout type' = layout_type,
-                                       'layout name ' = layout_name)
-    gobject@parameters = parameters_list
-
+    gobject = update_giotto_params(gobject, description = '_nn_network_layout')
     return(gobject)
 
   } else {
