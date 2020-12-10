@@ -6,6 +6,7 @@
 \usage{
 spark(
   gobject,
+  feat_type = NULL,
   percentage = 0.1,
   min_count = 10,
   expression_values = "raw",
@@ -17,6 +18,8 @@ spark(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{feat_type}{feature type}
 
 \item{percentage}{The percentage of cells that are expressed for analysis}
 

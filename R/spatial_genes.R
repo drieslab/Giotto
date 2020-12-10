@@ -2133,6 +2133,7 @@ trendSceek <- function(gobject,
 #' @name spark
 #' @description Compute spatially expressed genes with SPARK method
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param percentage The percentage of cells that are expressed for analysis
 #' @param min_count minimum number of counts for a gene to be included
 #' @param expression_values type of values to use (raw by default)
@@ -2150,6 +2151,7 @@ trendSceek <- function(gobject,
 #' }
 #' @export
 spark = function(gobject,
+                 feat_type = NULL,
                  percentage = 0.1,
                  min_count = 10,
                  expression_values = 'raw',
@@ -2158,6 +2160,11 @@ spark = function(gobject,
                  return_object = c('data.table', 'spark'),
                  ...) {
 
+
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
 
   # determine parameter
   return_object = match.arg(return_object, c('data.table', 'spark'))
@@ -2178,7 +2185,9 @@ spark = function(gobject,
 
 
   ## extract expression values from gobject
-  expr = select_expression_values(gobject = gobject, values = expression_values)
+  expr = select_expression_values(gobject = gobject,
+                                  feat_type = feat_type,
+                                  values = expression_values)
 
   ## extract coordinates from gobject
   locs = as.data.frame(gobject@spatial_locs)
@@ -2199,7 +2208,10 @@ spark = function(gobject,
     # first filter giotto object based on spark object
     filter_cell_ids = colnames(sobject@counts)
     filter_gene_ids = rownames(sobject@counts)
-    tempgobject = subsetGiotto(gobject, cell_ids = filter_cell_ids, gene_ids = filter_gene_ids)
+    tempgobject = subsetGiotto(gobject,
+                               feat_type = feat_type,
+                               cell_ids = filter_cell_ids,
+                               feat_ids = filter_gene_ids)
 
     metadata = pDataDT(tempgobject)
 
