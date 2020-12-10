@@ -378,6 +378,7 @@ select_spatialNetwork <- function(gobject,
   }
 }
 
+
 #' @title calculate_distance_and_weight
 #' @name calculate_distance_and_weight
 #' @param networkDT spatial network as data.table
@@ -1630,21 +1631,30 @@ showNetworks = function(gobject,
 #' @name annotateSpatialNetwork
 #' @description Annotate spatial network with cell metadata information.
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param spatial_network_name name of spatial network to use
 #' @param cluster_column name of column to use for clusters
 #' @param create_full_network convert from reduced to full network representation
 #' @return annotated network in data.table format
 #' @export
 annotateSpatialNetwork = function(gobject,
+                                  feat_type = NULL,
                                   spatial_network_name = 'Delaunay_network',
                                   cluster_column,
-                                  create_full_network = F) {
+                                  create_full_network = FALSE) {
+
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
 
   # get network
   if(!spatial_network_name %in% names(gobject@spatial_network)) {
     stop('\n spatial network with name: ', spatial_network_name, ' does not exist \n')
   }
-  spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
+  spatial_network = select_spatialNetwork(gobject,
+                                          name = spatial_network_name,
+                                          return_network_Obj = FALSE)
 
 
 
@@ -1669,7 +1679,7 @@ annotateSpatialNetwork = function(gobject,
 
 
   # cell metadata
-  cell_metadata = pDataDT(gobject)
+  cell_metadata = pDataDT(gobject, feat_type = feat_type)
   if(!cluster_column %in% colnames(cell_metadata)) {
     stop('\n the cluster column does not exist in pDataDT(gobject) \n')
   }
@@ -1688,10 +1698,10 @@ annotateSpatialNetwork = function(gobject,
   spatial_network_annot[, from_to := paste0(from_cell_type,'-',to_cell_type)]
 
   # unified direction, due to 'sort'
-  spatial_network_annot = sort_combine_two_DT_columns(spatial_network_annot,
-                                                      column1 = 'from_cell_type',
-                                                      column2 = 'to_cell_type',
-                                                      myname = 'unified_int')
+  spatial_network_annot = Giotto:::sort_combine_two_DT_columns(spatial_network_annot,
+                                                               column1 = 'from_cell_type',
+                                                               column2 = 'to_cell_type',
+                                                               myname = 'unified_int')
 
   return(spatial_network_annot)
 
