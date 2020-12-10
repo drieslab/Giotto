@@ -2468,61 +2468,51 @@ combineMetadata = function(gobject,
 
 
 
-#' @title createMetagenes
-#' @description This function creates an average metagene for gene clusters.
+
+
+
+#' @name createMetafeats
+#' @description This function creates an average metafeat/metagene/module for clusters.
 #' @param gobject Giotto object
 #' @param expression_values expression values to use
-#' @param gene_clusters numerical vector with genes as names
+#' @param feat_clusters numerical vector with features as names
 #' @param name name of the metagene results
 #' @param return_gobject return giotto object
 #' @return giotto object
 #' @details An example for the 'gene_clusters' could be like this:
 #' cluster_vector = c(1, 1, 2, 2); names(cluster_vector) = c('geneA', 'geneB', 'geneC', 'geneD')
 #' @export
-#' @examples
-#'
-#' data(mini_giotto_single_cell)
-#'
-#' # get all genes
-#' all_genes = slot(mini_giotto_single_cell, 'gene_ID')
-#'
-#' # create 2 metagenes from the first 6 genes
-#' cluster_vector = c(1, 1, 1, 2, 2, 2) # 2 groups
-#' names(cluster_vector) = all_genes[1:6]
-#'
-#' mini_giotto_single_cell = createMetagenes(mini_giotto_single_cell,
-#'                                           gene_clusters = cluster_vector,
-#'                                           name = 'cluster_metagene')
-#'
-#' # show metagene expression
-#' spatCellPlot(mini_giotto_single_cell,
-#'             spat_enr_names = 'cluster_metagene',
-#'             cell_annotation_values = c('1', '2'),
-#'             point_size = 3.5, cow_n_col = 2)
-#'
-createMetagenes = function(gobject,
+createMetafeats = function(gobject,
+                           feat_type = NULL,
                            expression_values = c('normalized', 'scaled', 'custom'),
-                           gene_clusters,
-                           name = 'metagene',
+                           feat_clusters,
+                           name = 'metafeat',
                            return_gobject = TRUE) {
 
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
   # expression values to be used
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
+  expr_values = select_expression_values(gobject = gobject,
+                                         feat_type = feat_type,
+                                         values = values)
 
 
-  ## calculate metagene ##
+  ## calculate metafeat ##
   res_list = list()
 
-  for(id in sort(unique(gene_clusters))) {
+  for(id in sort(unique(feat_clusters))) {
 
     clus_id = id
 
-    selected_genes = names(gene_clusters[gene_clusters == clus_id])
-    sub_mat = expr_values[rownames(expr_values) %in% selected_genes,]
+    selected_feats = names(feat_clusters[feat_clusters == clus_id])
+    sub_mat = expr_values[rownames(expr_values) %in% selected_feats,]
 
     # calculate mean
-    if(length(selected_genes) == 1) {
+    if(length(selected_feats) == 1) {
       mean_score = sub_mat
     } else{
       mean_score = colMeans_giotto(sub_mat)
@@ -2532,7 +2522,7 @@ createMetagenes = function(gobject,
   }
 
   res_final = data.table::as.data.table(t(do.call('rbind', res_list)))
-  colnames(res_final) = as.character(sort(unique(gene_clusters)))
+  colnames(res_final) = as.character(sort(unique(feat_clusters)))
 
   # data.table variables
   cell_ID = NULL
@@ -2549,25 +2539,45 @@ createMetagenes = function(gobject,
       cat('\n ', name, ' has already been used, will be overwritten \n')
     }
 
-    ## update parameters used ##
-    parameters_list = gobject@parameters
-    number_of_rounds = length(parameters_list)
-    update_name = paste0(number_of_rounds,'_create_metagene')
-
-    # parameters to include
-    parameters_list[[update_name]] = c('expression values' = values,
-                                       'metagene name' = name)
-    gobject@parameters = parameters_list
-
     gobject@spatial_enrichment[[name]] = res_final
 
+    ## update parameters used ##
+    gobject = update_giotto_params(gobject, description = '_create_metafeat')
     return(gobject)
-
-
 
   } else {
     return(res_final)
   }
+
+}
+
+
+
+#' @name createMetagenes
+#' @description This function creates an average metagene for gene clusters.
+#' @param gobject Giotto object
+#' @param expression_values expression values to use
+#' @param gene_clusters numerical vector with genes as names
+#' @param name name of the metagene results
+#' @param return_gobject return giotto object
+#' @return giotto object
+#' @details An example for the 'gene_clusters' could be like this:
+#' cluster_vector = c(1, 1, 2, 2); names(cluster_vector) = c('geneA', 'geneB', 'geneC', 'geneD')
+#' @export
+createMetagenes = function(gobject,
+                           expression_values = c('normalized', 'scaled', 'custom'),
+                           gene_clusters,
+                           name = 'metagene',
+                           return_gobject = TRUE) {
+
+  warning("Deprecated and replaced by createMetafeats")
+
+  createMetafeats(gobject = gobject,
+                  feat_type = NULL,
+                  expression_values = expression_values,
+                  feat_clusters = gene_clusters,
+                  name = name,
+                  return_gobject = return_gobject)
 
 }
 

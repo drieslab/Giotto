@@ -3272,7 +3272,95 @@ detectSpatialCorGenes <- function(gobject,
 }
 
 
-#' @title showSpatialCorGenes
+
+
+
+
+#' @name showSpatialCorFeats
+#' @description Shows and filters spatially correlated features
+#' @param spatCorObject spatial correlation object
+#' @param use_clus_name cluster information to show
+#' @param selected_clusters subset of clusters to show
+#' @param feats subset of features to show
+#' @param min_spat_cor filter on minimum spatial correlation
+#' @param min_expr_cor filter on minimum single-cell expression correlation
+#' @param min_cor_diff filter on minimum correlation difference (spatial vs expression)
+#' @param min_rank_diff filter on minimum correlation rank difference (spatial vs expression)
+#' @param show_top_feats show top features per gene
+#' @return data.table with filtered information
+#' @export
+showSpatialCorFeats = function(spatCorObject,
+                               use_clus_name = NULL,
+                               selected_clusters = NULL,
+                               feats = NULL,
+                               min_spat_cor = 0.5,
+                               min_expr_cor = NULL,
+                               min_cor_diff = NULL,
+                               min_rank_diff = NULL,
+                               show_top_feats = NULL) {
+
+  # data.table variables
+  clus = feat_ID = spat_cor = cor_diff = rankdiff = NULL
+
+  if(!'spatCorObject' %in% class(spatCorObject)) {
+    stop('\n spatCorObject needs to be the output from detectSpatialCorfeats() \n')
+  }
+
+  filter_DT = data.table::copy(spatCorObject[['cor_DT']])
+
+  if(!is.null(use_clus_name)) {
+
+    clusters_part = spatCorObject[['cor_clusters']][[use_clus_name]]
+
+    # combine spatial correlation info and clusters
+    clusters = clusters_part
+    names_clusters = names(clusters_part)
+    clusters_DT = data.table::data.table('feat_ID' = names_clusters, 'clus' = clusters)
+    filter_DT = data.table::merge.data.table(filter_DT, clusters_DT, by = 'feat_ID')
+  }
+
+  ## 0. subset clusters
+  if(!is.null(selected_clusters)) {
+    filter_DT = filter_DT[clus %in% selected_clusters]
+  }
+
+
+  ## 1. subset feats
+  if(!is.null(feats)) {
+    filter_DT = filter_DT[feat_ID %in% feats]
+  }
+
+  ## 2. select spatial correlation
+  if(!is.null(min_spat_cor)) {
+    filter_DT = filter_DT[spat_cor >= min_spat_cor]
+  }
+
+  ## 3. minimum expression correlation
+  if(!is.null(min_expr_cor)) {
+    filter_DT = filter_DT[spat_cor >= min_expr_cor]
+  }
+
+  ## 4. minimum correlation difference
+  if(!is.null(min_cor_diff)) {
+    filter_DT = filter_DT[cor_diff >= min_cor_diff]
+  }
+
+  ## 5. minimum correlation difference
+  if(!is.null(min_rank_diff)) {
+    filter_DT = filter_DT[rankdiff >= min_rank_diff]
+  }
+
+  ## 6. show only top feats
+  if(!is.null(show_top_feats)) {
+    filter_DT = filter_DT[, head(.SD, show_top_feats), by = feat_ID]
+  }
+
+  return(filter_DT)
+
+}
+
+
+
 #' @name showSpatialCorGenes
 #' @description Shows and filters spatially correlated genes
 #' @param spatCorObject spatial correlation object
@@ -3296,63 +3384,18 @@ showSpatialCorGenes = function(spatCorObject,
                                min_rank_diff = NULL,
                                show_top_genes = NULL) {
 
-  # data.table variables
-  clus = gene_ID = spat_cor = cor_diff = rankdiff = NULL
+  warning("Deprecated and replaced by showSpatialCorFeats")
 
-  if(!'spatCorObject' %in% class(spatCorObject)) {
-    stop('\n spatCorObject needs to be the output from detectSpatialCorGenes() \n')
-  }
+  showSpatialCorFeats(spatCorObject = spatCorObject,
+                      use_clus_name = use_clus_name,
+                      selected_clusters = selected_clusters,
+                      feats = genes,
+                      min_spat_cor = min_spat_cor,
+                      min_expr_cor = min_expr_cor,
+                      min_cor_diff = min_cor_diff,
+                      min_rank_diff = min_rank_diff,
+                      show_top_feats = show_top_genes)
 
-  filter_DT = copy(spatCorObject[['cor_DT']])
-
-  if(!is.null(use_clus_name)) {
-
-    clusters_part = spatCorObject[['cor_clusters']][[use_clus_name]]
-
-    # combine spatial correlation info and clusters
-    clusters = clusters_part
-    names_clusters = names(clusters_part)
-    clusters_DT = data.table::data.table('gene_ID' = names_clusters, 'clus' = clusters)
-    filter_DT = data.table::merge.data.table(filter_DT, clusters_DT, by = 'gene_ID')
-  }
-
-  ## 0. subset clusters
-  if(!is.null(selected_clusters)) {
-    filter_DT = filter_DT[clus %in% selected_clusters]
-  }
-
-
-  ## 1. subset genes
-  if(!is.null(genes)) {
-    filter_DT = filter_DT[gene_ID %in% genes]
-  }
-
-  ## 2. select spatial correlation
-  if(!is.null(min_spat_cor)) {
-    filter_DT = filter_DT[spat_cor >= min_spat_cor]
-  }
-
-  ## 3. minimum expression correlation
-  if(!is.null(min_expr_cor)) {
-    filter_DT = filter_DT[spat_cor >= min_expr_cor]
-  }
-
-  ## 4. minimum correlation difference
-  if(!is.null(min_cor_diff)) {
-    filter_DT = filter_DT[cor_diff >= min_cor_diff]
-  }
-
-  ## 5. minimum correlation difference
-  if(!is.null(min_rank_diff)) {
-    filter_DT = filter_DT[rankdiff >= min_rank_diff]
-  }
-
-  ## 6. show only top genes
-  if(!is.null(show_top_genes)) {
-    filter_DT = filter_DT[, head(.SD, show_top_genes), by = gene_ID]
-  }
-
-  return(filter_DT)
 
 }
 
@@ -3444,12 +3487,11 @@ clusterSpatialCorGenes = function(spatCorObject,
 
 
 
-#' @title heatmSpatialCorGenes
-#' @name heatmSpatialCorGenes
-#' @description Create heatmap of spatially correlated genes
+#' @name heatmSpatialCorFeats
+#' @description Create heatmap of spatially correlated features
 #' @param gobject giotto object
 #' @param spatCorObject spatial correlation object
-#' @param use_clus_name name of clusters to visualize (from clusterSpatialCorGenes())
+#' @param use_clus_name name of clusters to visualize (from clusterSpatialCorFeats())
 #' @param show_cluster_annot show cluster annotation on top of heatmap
 #' @param show_row_dend show row dendrogram
 #' @param show_column_dend show column dendrogram
@@ -3463,7 +3505,7 @@ clusterSpatialCorGenes = function(spatCorObject,
 #' @param \dots additional parameters to the \code{\link[ComplexHeatmap]{Heatmap}} function from ComplexHeatmap
 #' @return Heatmap generated by ComplexHeatmap
 #' @export
-heatmSpatialCorGenes = function(gobject,
+heatmSpatialCorFeats = function(gobject,
                                 spatCorObject,
                                 use_clus_name = NULL,
                                 show_cluster_annot = TRUE,
@@ -3475,22 +3517,22 @@ heatmSpatialCorGenes = function(gobject,
                                 return_plot = NA,
                                 save_plot = NA,
                                 save_param =  list(),
-                                default_save_name = 'heatmSpatialCorGenes',
+                                default_save_name = 'heatmSpatialCorFeats',
                                 ...) {
 
   ## check input
   if(!'spatCorObject' %in% class(spatCorObject)) {
-    stop('\n spatCorObject needs to be the output from detectSpatialCorGenes() \n')
+    stop('\n spatCorObject needs to be the output from detectSpatialCorFeats() \n')
   }
 
   ## create correlation matrix
   cor_DT = spatCorObject[['cor_DT']]
-  cor_DT_dc = data.table::dcast.data.table(cor_DT, formula = gene_ID~variable, value.var = 'spat_cor')
+  cor_DT_dc = data.table::dcast.data.table(cor_DT, formula = feat_ID~variable, value.var = 'spat_cor')
   cor_matrix = dt_to_matrix(cor_DT_dc)
 
   # re-ordering matrix
-  my_gene_order = spatCorObject[['gene_order']]
-  cor_matrix = cor_matrix[my_gene_order, my_gene_order]
+  my_feat_order = spatCorObject[['feat_order']]
+  cor_matrix = cor_matrix[my_feat_order, my_feat_order]
 
 
   ## fix row and column names
@@ -3560,6 +3602,20 @@ heatmSpatialCorGenes = function(gobject,
 
 
 
+#' @name heatmSpatialCorGenes
+#' @description Create heatmap of spatially correlated genes
+#' @inheritDotParams heatmSpatialCorFeats
+#' @seealso \code{\link{heatmSpatialCorFeats}}
+#' @export
+heatmSpatialCorGenes = function(...) {
+
+  .Deprecated(new = "heatmSpatialCorFeats")
+
+  heatmSpatialCorFeats(...)
+}
+
+
+
 
 
 #' @title rankSpatialCorGroups
@@ -3587,7 +3643,7 @@ rankSpatialCorGroups = function(gobject,
 
   ## check input
   if(!'spatCorObject' %in% class(spatCorObject)) {
-    stop('\n spatCorObject needs to be the output from detectSpatialCorGenes() \n')
+    stop('\n spatCorObject needs to be the output from detectSpatialCorFeats() \n')
   }
 
   ## check if cluster exist
@@ -3602,42 +3658,42 @@ rankSpatialCorGroups = function(gobject,
 
   ## create correlation matrix
   cor_DT = spatCorObject[['cor_DT']]
-  cor_DT_dc = data.table::dcast.data.table(cor_DT, formula = gene_ID~variable, value.var = 'spat_cor')
+  cor_DT_dc = data.table::dcast.data.table(cor_DT, formula = feat_ID~variable, value.var = 'spat_cor')
   cor_matrix = dt_to_matrix(cor_DT_dc)
 
   # re-ordering matrix
-  my_gene_order = spatCorObject[['gene_order']]
-  cor_matrix = cor_matrix[my_gene_order, my_gene_order]
+  my_feat_order = spatCorObject[['feat_order']]
+  cor_matrix = cor_matrix[my_feat_order, my_feat_order]
 
 
 
   res_cor_list = list()
   res_neg_cor_list = list()
-  nr_genes_list = list()
+  nr_feats_list = list()
 
   for(id in 1:length(unique(clusters_part))) {
 
     clus_id = unique(clusters_part)[id]
-    selected_genes = names(clusters_part[clusters_part == clus_id])
-    nr_genes_list[[id]] = length(selected_genes)
+    selected_feats = names(clusters_part[clusters_part == clus_id])
+    nr_feats_list[[id]] = length(selected_feats)
 
-    sub_cor_matrix = cor_matrix[rownames(cor_matrix) %in% selected_genes, colnames(cor_matrix) %in% selected_genes]
-    mean_score = mean_giotto(sub_cor_matrix)
+    sub_cor_matrix = cor_matrix[rownames(cor_matrix) %in% selected_feats, colnames(cor_matrix) %in% selected_feats]
+    mean_score = mean_flex(sub_cor_matrix)
     res_cor_list[[id]] = mean_score
 
-    sub_neg_cor_matrix = cor_matrix[rownames(cor_matrix) %in% selected_genes, !colnames(cor_matrix) %in% selected_genes]
-    mean_neg_score = mean_giotto(sub_neg_cor_matrix)
+    sub_neg_cor_matrix = cor_matrix[rownames(cor_matrix) %in% selected_feats, !colnames(cor_matrix) %in% selected_feats]
+    mean_neg_score = mean_flex(sub_neg_cor_matrix)
     res_neg_cor_list[[id]] = mean_neg_score
   }
 
 
   # data.table variables
-  cor_neg_adj = cor_neg_score = adj_cor_score = cor_score = clusters = nr_genes = NULL
+  cor_neg_adj = cor_neg_score = adj_cor_score = cor_score = clusters = nr_feats = NULL
 
   res_cor_DT = data.table::data.table('clusters' = unique(clusters_part),
                                       cor_score = unlist(res_cor_list),
                                       cor_neg_score = unlist(res_neg_cor_list),
-                                      nr_genes = unlist(nr_genes_list))
+                                      nr_feats = unlist(nr_feats_list))
 
   res_cor_DT[, cor_neg_adj := 1-(cor_neg_score-min(cor_neg_score))]
   res_cor_DT[, adj_cor_score := cor_neg_adj * cor_score]
@@ -3651,7 +3707,7 @@ rankSpatialCorGroups = function(gobject,
 
 
   pl = ggplot2::ggplot()
-  pl = pl + ggplot2::geom_point(data = res_cor_DT, ggplot2::aes(x = clusters, y = adj_cor_score, size = nr_genes))
+  pl = pl + ggplot2::geom_point(data = res_cor_DT, ggplot2::aes(x = clusters, y = adj_cor_score, size = nr_feats))
   pl = pl + ggplot2::theme_classic()
   pl = pl + ggplot2::labs(x = 'clusters', y = 'pos r x (1 - (neg_r - min(neg_r)))')
 
@@ -3674,6 +3730,7 @@ rankSpatialCorGroups = function(gobject,
   }
 
 }
+
 
 
 

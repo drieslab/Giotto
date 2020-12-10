@@ -1154,7 +1154,7 @@ runSpatialEnrich = function(gobject,
 }
 
 
-#' @title createSpatialEnrich
+#' @name createSpatialEnrich
 #' @description Function to calculate gene signature enrichment scores per spatial position using an enrichment test.
 #' @inheritDotParams runSpatialEnrich
 #' @seealso \code{\link{runSpatialEnrich}}
