@@ -8,9 +8,9 @@ filterCPG(...)
 }
 \arguments{
 \item{...}{
-  Arguments passed on to \code{\link[=filterICG]{filterICG}}
+  Arguments passed on to \code{\link[=filterICF]{filterICF}}
   \describe{
-    \item{\code{cpgObject}}{ICG (interaction changed gene) score object}
+    \item{\code{cpgObject}}{ICF (interaction changed feature) score object}
     \item{\code{min_cells}}{minimum number of source cell type}
     \item{\code{min_cells_expr}}{minimum expression level for source cell type}
     \item{\code{min_int_cells}}{minimum number of interacting neighbor cell type}
@@ -19,7 +19,7 @@ filterCPG(...)
     \item{\code{min_spat_diff}}{minimum absolute spatial expression difference}
     \item{\code{min_log2_fc}}{minimum log2 fold-change}
     \item{\code{min_zscore}}{minimum z-score change}
-    \item{\code{zscores_column}}{calculate z-scores over cell types or genes}
+    \item{\code{zscores_column}}{calculate z-scores over cell types or features}
     \item{\code{direction}}{differential expression directions to keep}
   }}
 }
@@ -27,5 +27,5 @@ filterCPG(...)
 Filter Interaction Changed Gene scores.
 }
 \seealso{
-\code{\link{filterICG}}
+\code{\link{filterICF}}
 }

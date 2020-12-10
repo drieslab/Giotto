@@ -6,10 +6,12 @@
 \usage{
 createNearestNetwork(
   gobject,
+  feat_type = NULL,
   type = c("sNN", "kNN"),
   dim_reduction_to_use = "pca",
   dim_reduction_name = "pca",
   dimensions_to_use = 1:10,
+  feats_to_use = NULL,
   genes_to_use = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   name = "sNN.pca",
@@ -24,6 +26,8 @@ createNearestNetwork(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{feat_type}{feature type}
+
 \item{type}{sNN or kNN}
 
 \item{dim_reduction_to_use}{dimension reduction method to use}
@@ -32,7 +36,9 @@ createNearestNetwork(
 
 \item{dimensions_to_use}{number of dimensions to use as input}
 
-\item{genes_to_use}{if dim_reduction_to_use = NULL, which genes to use}
+\item{feats_to_use}{if dim_reduction_to_use = NULL, which genes to use}
+
+\item{genes_to_use}{deprecated, use feats_to_use}
 
 \item{expression_values}{expression values to use}
 

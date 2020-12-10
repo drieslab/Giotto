@@ -6,23 +6,32 @@
 \usage{
 filterGiotto(
   gobject,
+  feat_type = NULL,
   expression_values = c("raw", "normalized", "scaled", "custom"),
   expression_threshold = 1,
-  gene_det_in_min_cells = 100,
-  min_det_genes_per_cell = 100,
+  feat_det_in_min_cells = 100,
+  gene_det_in_min_cells = NULL,
+  min_det_feats_per_cell = 100,
+  min_det_genes_per_cell = NULL,
   verbose = F
 )
 }
 \arguments{
 \item{gobject}{giotto object}
 
+\item{feat_type}{feature type}
+
 \item{expression_values}{expression values to use}
 
 \item{expression_threshold}{threshold to consider a gene expressed}
 
-\item{gene_det_in_min_cells}{minimum # of cells that need to express a gene}
+\item{feat_det_in_min_cells}{minimum # of cells that need to express a feature}
 
-\item{min_det_genes_per_cell}{minimum # of genes that need to be detected in a cell}
+\item{gene_det_in_min_cells}{deprecated, use feat_det_in_min_cells}
+
+\item{min_det_feats_per_cell}{minimum # of features that need to be detected in a cell}
+
+\item{min_det_genes_per_cell}{deprecated, use min_det_genes_per_cell}
 
 \item{verbose}{verbose}
 }
@@ -36,12 +45,5 @@ filter Giotto object based on expression threshold
 The function \code{\link{filterCombinations}} can be used to explore the effect of different parameter values.
 }
 \examples{
-
-data(mini_giotto_single_cell)
-
-filtered_gobject = filterGiotto(mini_giotto_single_cell,
-                                gene_det_in_min_cells = 10,
-                                min_det_genes_per_cell = 10)
-
 
 }

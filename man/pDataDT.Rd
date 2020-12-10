@@ -4,10 +4,12 @@
 \alias{pDataDT}
 \title{pDataDT}
 \usage{
-pDataDT(gobject)
+pDataDT(gobject, feat_type = NULL)
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{feat_type}{feature type}
 }
 \value{
 data.table with cell metadata

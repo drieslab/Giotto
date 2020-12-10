@@ -5,13 +5,13 @@
 \title{create Giotto object}
 \usage{
 createGiottoObject(
-  raw_exprs,
+  expression,
+  expression_feat = "rna",
   spatial_locs = NULL,
-  norm_expr = NULL,
-  norm_scaled_expr = NULL,
-  custom_expr = NULL,
+  spatial_info = NULL,
   cell_metadata = NULL,
-  gene_metadata = NULL,
+  feat_metadata = NULL,
+  feat_info = NULL,
   spatial_network = NULL,
   spatial_network_name = NULL,
   spatial_grid = NULL,
@@ -27,19 +27,19 @@ createGiottoObject(
 )
 }
 \arguments{
-\item{raw_exprs}{matrix with raw expression counts [required]}
+\item{expression}{expression information}
+
+\item{expression_feat}{available features (e.g. rna, protein, ...)}
 
 \item{spatial_locs}{data.table or data.frame with coordinates for cell centroids}
 
-\item{norm_expr}{normalized expression values}
-
-\item{norm_scaled_expr}{scaled expression values}
-
-\item{custom_expr}{custom expression values}
+\item{spatial_info}{information about spatial units}
 
 \item{cell_metadata}{cell annotation metadata}
 
-\item{gene_metadata}{gene annotation metadata}
+\item{feat_metadata}{feature annotation metadata for each unique feature}
+
+\item{feat_info}{information about features for each unique feature}
 
 \item{spatial_network}{list of spatial network(s)}
 

@@ -6,6 +6,7 @@
 \usage{
 annotateGiotto(
   gobject,
+  feat_type = NULL,
   annotation_vector = NULL,
   cluster_column = NULL,
   name = "cell_types"
@@ -13,6 +14,8 @@ annotateGiotto(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{feat_type}{feature type}
 
 \item{annotation_vector}{named annotation vector (names = cluster ids)}
 

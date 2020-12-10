@@ -6,6 +6,7 @@
 \usage{
 cellProximityEnrichment(
   gobject,
+  feat_type = NULL,
   spatial_network_name = "Delaunay_network",
   cluster_column,
   number_of_simulations = 1000,
@@ -17,6 +18,8 @@ cellProximityEnrichment(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{feat_type}{feature type}
 
 \item{spatial_network_name}{name of spatial network to use}
 

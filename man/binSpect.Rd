@@ -6,8 +6,10 @@
 \usage{
 binSpect(
   gobject,
+  feat_type = NULL,
   bin_method = c("kmeans", "rank"),
   expression_values = c("normalized", "scaled", "custom"),
+  subset_feats = NULL,
   subset_genes = NULL,
   spatial_network_name = "Delaunay_network",
   spatial_network_k = NULL,
@@ -38,11 +40,15 @@ binSpect(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{feat_type}{feature type}
+
 \item{bin_method}{method to binarize gene expression}
 
 \item{expression_values}{expression values to use}
 
-\item{subset_genes}{only select a subset of genes to test}
+\item{subset_feats}{only select a subset of features to test}
+
+\item{subset_genes}{deprecated, use subset_feats}
 
 \item{spatial_network_name}{name of spatial network to use (default = 'spatial_network')}
 

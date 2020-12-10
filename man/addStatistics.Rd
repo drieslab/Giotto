@@ -6,6 +6,7 @@
 \usage{
 addStatistics(
   gobject,
+  feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   detection_threshold = 0,
   return_gobject = TRUE
@@ -14,9 +15,11 @@ addStatistics(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{feat_type}{feature type}
+
 \item{expression_values}{expression values to use}
 
-\item{detection_threshold}{detection threshold to consider a gene detected}
+\item{detection_threshold}{detection threshold to consider a feature detected}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 }
@@ -27,7 +30,7 @@ giotto object if return_gobject = TRUE, else a list with results
 adds genes and cells statistics to the giotto object
 }
 \details{
-See \code{\link{addGeneStatistics}} and \code{\link{addCellStatistics}}
+See \code{\link{addFeatStatistics}} and \code{\link{addCellStatistics}}
 }
 \examples{
 

@@ -16,6 +16,7 @@ plotUMAP(gobject, dim_reduction_name = "umap", default_save_name = "UMAP", ...)
 \item{...}{
   Arguments passed on to \code{\link[=dimPlot2D]{dimPlot2D}}
   \describe{
+    \item{\code{feat_type}}{feature type}
     \item{\code{group_by}}{create multiple plots based on cell annotation column}
     \item{\code{group_by_subset}}{subset the group_by factor column}
     \item{\code{dim1_to_use}}{dimension to use on x-axis}

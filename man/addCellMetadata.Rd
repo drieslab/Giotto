@@ -6,6 +6,7 @@
 \usage{
 addCellMetadata(
   gobject,
+  feat_type = NULL,
   new_metadata,
   vector_name = NULL,
   by_column = FALSE,
@@ -14,6 +15,8 @@ addCellMetadata(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{feat_type}{feature type}
 
 \item{new_metadata}{new cell metadata to use (data.table, data.frame, ...)}
 

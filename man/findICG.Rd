@@ -88,3 +88,6 @@ Function to calculate if genes are differentially expressed in cell types
  \item{unif_int:}{ cell-cell interaction}
 }
 }
+\seealso{
+\code{\link{findICF}}
+}

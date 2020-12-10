@@ -8,11 +8,12 @@ findCPG(...)
 }
 \arguments{
 \item{...}{
-  Arguments passed on to \code{\link[=findICG]{findICG}}
+  Arguments passed on to \code{\link[=findICF]{findICF}}
   \describe{
     \item{\code{gobject}}{giotto object}
+    \item{\code{feat_type}}{feature type}
     \item{\code{expression_values}}{expression values to use}
-    \item{\code{selected_genes}}{subset of selected genes (optional)}
+    \item{\code{selected_feats}}{subset of selected features (optional)}
     \item{\code{cluster_column}}{name of column to use for cell types}
     \item{\code{spatial_network_name}}{name of spatial network to use}
     \item{\code{minimum_unique_cells}}{minimum number of target cells required}
@@ -34,5 +35,5 @@ Identifies cell-to-cell Interaction Changed Genes (ICG),
 i.e. genes that are differentially expressed due to proximity to other cell types.
 }
 \seealso{
-\code{\link{findICG}}
+\code{\link{findICF}}
 }

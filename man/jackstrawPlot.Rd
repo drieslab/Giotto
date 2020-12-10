@@ -6,8 +6,10 @@
 \usage{
 jackstrawPlot(
   gobject,
+  feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
-  reduction = c("cells", "genes"),
+  reduction = c("cells", "feats"),
+  feats_to_use = NULL,
   genes_to_use = NULL,
   center = FALSE,
   scale_unit = FALSE,
@@ -26,11 +28,15 @@ jackstrawPlot(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{feat_type}{feature type}
+
 \item{expression_values}{expression values to use}
 
 \item{reduction}{cells or genes}
 
-\item{genes_to_use}{subset of genes to use for PCA}
+\item{feats_to_use}{subset of features to use for PCA}
+
+\item{genes_to_use}{deprecated, use feats_to_use}
 
 \item{center}{center data before PCA}
 

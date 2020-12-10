@@ -6,12 +6,14 @@
 \usage{
 runUMAP(
   gobject,
+  feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
-  reduction = c("cells", "genes"),
+  reduction = c("cells", "feats"),
   dim_reduction_to_use = "pca",
   dim_reduction_name = "pca",
   dimensions_to_use = 1:10,
   name = "umap",
+  feats_to_use = NULL,
   genes_to_use = NULL,
   return_gobject = TRUE,
   n_neighbors = 40,
@@ -29,6 +31,8 @@ runUMAP(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{feat_type}{feature type}
+
 \item{expression_values}{expression values to use}
 
 \item{reduction}{cells or genes}
@@ -41,7 +45,9 @@ runUMAP(
 
 \item{name}{arbitrary name for UMAP run}
 
-\item{genes_to_use}{if dim_reduction_to_use = NULL, which genes to use}
+\item{feats_to_use}{if dim_reduction_to_use = NULL, which genes to use}
+
+\item{genes_to_use}{deprecated, use feats_to_use}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 

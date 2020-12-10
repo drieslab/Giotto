@@ -6,6 +6,7 @@
 \usage{
 spatDimPlot2D(
   gobject,
+  feat_type = NULL,
   show_image = F,
   gimage = NULL,
   image_name = "image",
@@ -85,6 +86,8 @@ spatDimPlot2D(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{feat_type}{feature type}
 
 \item{show_image}{show a tissue background image}
 

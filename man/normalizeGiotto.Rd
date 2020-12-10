@@ -6,20 +6,24 @@
 \usage{
 normalizeGiotto(
   gobject,
+  feat_type = NULL,
   norm_methods = c("standard", "osmFISH"),
   library_size_norm = TRUE,
   scalefactor = 6000,
   log_norm = TRUE,
   log_offset = 1,
   logbase = 2,
-  scale_genes = T,
-  scale_cells = T,
-  scale_order = c("first_genes", "first_cells"),
-  verbose = F
+  scale_feats = TRUE,
+  scale_genes = NULL,
+  scale_cells = TRUE,
+  scale_order = c("first_feats", "first_cells"),
+  verbose = FALSE
 )
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{feat_type}{feature type}
 
 \item{norm_methods}{normalization method to use}
 
@@ -33,11 +37,13 @@ normalizeGiotto(
 
 \item{logbase}{log base to use to log normalize expression values}
 
-\item{scale_genes}{z-score genes over all cells}
+\item{scale_feats}{z-score genes over all cells}
+
+\item{scale_genes}{deprecated, use scale_feats}
 
 \item{scale_cells}{z-score cells over all genes}
 
-\item{scale_order}{order to scale genes and cells}
+\item{scale_order}{order to scale feats and cells}
 
 \item{verbose}{be verbose}
 }

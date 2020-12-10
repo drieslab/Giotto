@@ -5,23 +5,22 @@
 \title{do_spatial_knn_smoothing}
 \usage{
 do_spatial_knn_smoothing(
-  gobject,
-  expression_values = c("normalized", "scaled", "custom"),
-  subset_genes = NULL,
-  spatial_network_name = "Delaunay_network",
+  expression_matrix,
+  spatial_network,
+  subset_feats = NULL,
   b = NULL
 )
 }
 \arguments{
+\item{subset_feats}{subset of features to use}
+
+\item{b}{smoothing factor beteen 0 and 1 (default: automatic)}
+
 \item{gobject}{giotto object}
 
 \item{expression_values}{gene expression values to use}
 
-\item{subset_genes}{subset of genes to use}
-
 \item{spatial_network_name}{name of spatial network to use}
-
-\item{b}{smoothing factor beteen 0 and 1 (default: automatic)}
 }
 \value{
 matrix with smoothened gene expression values based on kNN spatial network

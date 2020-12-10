@@ -6,6 +6,7 @@
 \usage{
 addCellStatistics(
   gobject,
+  feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   detection_threshold = 0,
   return_gobject = TRUE
@@ -13,6 +14,8 @@ addCellStatistics(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{feat_type}{feature type}
 
 \item{expression_values}{expression values to use}
 
@@ -29,9 +32,9 @@ adds cells statistics to the giotto object
 \details{
 This function will add the following statistics to cell metadata:
 \itemize{
-  \item{nr_genes: }{Denotes in how many genes are detected per cell}
-  \item{perc_genes: }{Denotes what percentage of genes is detected per cell}
-  \item{total_expr: }{Shows the total sum of gene expression per cell}
+  \item{nr_feats: }{Denotes in how many features are detected per cell}
+  \item{perc_feats: }{Denotes what percentage of features is detected per cell}
+  \item{total_expr: }{Shows the total sum of feature expression per cell}
 }
 }
 \examples{

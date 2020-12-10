@@ -2,16 +2,25 @@
 % Please edit documentation in R/dimension_reduction.R
 \name{create_genes_to_use_matrix}
 \alias{create_genes_to_use_matrix}
+\alias{create_feats_to_use_matrix}
 \title{create_genes_to_use_matrix}
 \usage{
-create_genes_to_use_matrix(gobject, sel_matrix, genes_to_use, verbose = TRUE)
+create_feats_to_use_matrix(
+  gobject,
+  feat_type = NULL,
+  sel_matrix,
+  feats_to_use,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}
 
+\item{feat_type}{feature type}
+
 \item{sel_matrix}{selected expression matrix}
 
-\item{genes_to_use}{genes to use, character or vector of genes}
+\item{feats_to_use}{feats to use, character or vector of features}
 
 \item{verbose}{verbosity}
 }
@@ -19,6 +28,6 @@ create_genes_to_use_matrix(gobject, sel_matrix, genes_to_use, verbose = TRUE)
 subsetted matrix based on selected genes
 }
 \description{
-subsets matrix based on vector of genes or hvg column
+subsets matrix based on vector of genes or hvf column
 }
 \keyword{internal}

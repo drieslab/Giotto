@@ -6,10 +6,12 @@
 \usage{
 runPCA(
   gobject,
+  feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
-  reduction = c("cells", "genes"),
+  reduction = c("cells", "feats"),
   name = "pca",
-  genes_to_use = "hvg",
+  feats_to_use = "hvf",
+  genes_to_use = NULL,
   return_gobject = TRUE,
   center = TRUE,
   scale_unit = TRUE,
@@ -25,13 +27,17 @@ runPCA(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{feat_type}{feature type}
+
 \item{expression_values}{expression values to use}
 
 \item{reduction}{cells or genes}
 
 \item{name}{arbitrary name for PCA run}
 
-\item{genes_to_use}{subset of genes to use for PCA}
+\item{feats_to_use}{subset of features to use for PCA}
+
+\item{genes_to_use}{deprecated use feats_to_use}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
@@ -62,10 +68,10 @@ runs a Principal Component Analysis
 \details{
 See \code{\link[irlba]{prcomp_irlba}} and \code{\link[FactoMineR]{PCA}} for more information about other parameters.
 \itemize{
-  \item genes_to_use = NULL: will use all genes from the selected matrix
-  \item genes_to_use = <hvg name>: can be used to select a column name of
-  highly variable genes, created by (see \code{\link{calculateHVG}})
-  \item genes_to_use = c('geneA', 'geneB', ...): will use all manually provided genes
+  \item feats_to_use = NULL: will use all features from the selected matrix
+  \item feats_to_use = <hvg name>: can be used to select a column name of
+  highly variable features, created by (see \code{\link{calculateHVF}})
+  \item feats_to_use = c('geneA', 'geneB', ...): will use all manually provided features
 }
 }
 \examples{

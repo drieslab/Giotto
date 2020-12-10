@@ -4,10 +4,12 @@
 \alias{fDataDT}
 \title{fDataDT}
 \usage{
-fDataDT(gobject)
+fDataDT(gobject, feat_type = NULL)
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{feat_type}{feature type}
 }
 \value{
 data.table with gene metadata

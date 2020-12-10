@@ -4,10 +4,12 @@
 \alias{select_expression_values}
 \title{select_expression_values}
 \usage{
-select_expression_values(gobject, values)
+select_expression_values(gobject, feat_type = "rna", values)
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{feat_type}{feature type}
 
 \item{values}{expression values to extract}
 }

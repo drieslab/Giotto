@@ -6,12 +6,14 @@
 \usage{
 signPCA(
   gobject,
+  feat_type = NULL,
   name = "pca",
   method = c("screeplot", "jackstraw"),
   expression_values = c("normalized", "scaled", "custom"),
-  reduction = c("cells", "genes"),
+  reduction = c("cells", "feats"),
   pca_method = c("irlba", "factominer"),
   rev = FALSE,
+  feats_to_use = NULL,
   genes_to_use = NULL,
   center = T,
   scale_unit = T,
@@ -31,6 +33,8 @@ signPCA(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{feat_type}{feature type}
+
 \item{name}{name of PCA object if available}
 
 \item{method}{method to use to identify significant PCs}
@@ -43,7 +47,9 @@ signPCA(
 
 \item{rev}{do a reverse PCA}
 
-\item{genes_to_use}{subset of genes to use for PCA}
+\item{feats_to_use}{subset of features to use for PCA}
+
+\item{genes_to_use}{deprecated, use feats_to_use}
 
 \item{center}{center data before PCA}
 

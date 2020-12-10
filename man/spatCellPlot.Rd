@@ -11,6 +11,7 @@ spatCellPlot(...)
   Arguments passed on to \code{\link[=spatCellPlot2D]{spatCellPlot2D}}
   \describe{
     \item{\code{gobject}}{giotto object}
+    \item{\code{feat_type}}{feature type}
     \item{\code{show_image}}{show a tissue background image}
     \item{\code{gimage}}{a giotto image}
     \item{\code{image_name}}{name of a giotto image}

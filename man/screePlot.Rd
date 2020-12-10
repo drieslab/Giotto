@@ -6,11 +6,13 @@
 \usage{
 screePlot(
   gobject,
+  feat_type = NULL,
   name = "pca",
   expression_values = c("normalized", "scaled", "custom"),
-  reduction = c("cells", "genes"),
+  reduction = c("cells", "feats"),
   method = c("irlba", "factominer"),
   rev = FALSE,
+  feats_to_use = NULL,
   genes_to_use = NULL,
   center = F,
   scale_unit = F,
@@ -28,17 +30,21 @@ screePlot(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{feat_type}{feature type}
+
 \item{name}{name of PCA object if available}
 
 \item{expression_values}{expression values to use}
 
-\item{reduction}{cells or genes}
+\item{reduction}{cells or features}
 
 \item{method}{which implementation to use}
 
 \item{rev}{do a reverse PCA}
 
-\item{genes_to_use}{subset of genes to use for PCA}
+\item{feats_to_use}{subset of features to use for PCA}
+
+\item{genes_to_use}{deprecated, use feats_to_use}
 
 \item{center}{center data before PCA}
 
@@ -66,7 +72,7 @@ screePlot(
 ggplot object for scree method
 }
 \description{
-identify significant prinicipal components (PCs) using an screeplot (a.k.a. elbowplot)
+identify significant principal components (PCs) using an screeplot (a.k.a. elbowplot)
 }
 \details{
 Screeplot works by plotting the explained variance of each

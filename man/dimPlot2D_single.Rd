@@ -6,6 +6,7 @@
 \usage{
 dimPlot2D_single(
   gobject,
+  feat_type = NULL,
   dim_reduction_to_use = "umap",
   dim_reduction_name = "umap",
   dim1_to_use = 1,
@@ -54,6 +55,8 @@ dimPlot2D_single(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{feat_type}{feature type}
 
 \item{dim_reduction_to_use}{dimension reduction to use}
 

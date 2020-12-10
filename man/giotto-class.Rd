@@ -8,26 +8,32 @@
 \description{
 Framework of giotto object to store and work with spatial expression data
 }
+\details{
+[\strong{expression}] There are several ways to provide expression information:
+
+[\strong{expression_feat}] The different featurs or modalities such as rna, protein, metabolites, ...
+that are provided in the expression slot.
+}
 \section{Slots}{
 
 \describe{
-\item{\code{raw_exprs}}{raw expression counts}
+\item{\code{expression}}{expression information}
 
-\item{\code{norm_expr}}{normalized expression counts}
-
-\item{\code{norm_scaled_expr}}{normalized and scaled expression counts}
-
-\item{\code{custom_expr}}{custom normalized counts}
+\item{\code{expression_feat}}{available features (e.g. rna, protein, ...)}
 
 \item{\code{spatial_locs}}{spatial location coordinates for cells}
 
+\item{\code{spatial_info}}{information about spatial units}
+
 \item{\code{cell_metadata}}{metadata for cells}
 
-\item{\code{gene_metadata}}{metadata for genes}
+\item{\code{feat_metadata}}{metadata for available features}
+
+\item{\code{feat_info}}{information about features}
 
 \item{\code{cell_ID}}{unique cell IDs}
 
-\item{\code{gene_ID}}{unique gene IDs}
+\item{\code{feat_ID}}{unique feature IDs for all features or modalities}
 
 \item{\code{spatial_network}}{spatial network in data.table/data.frame format}
 

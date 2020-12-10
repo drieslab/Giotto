@@ -6,13 +6,16 @@
 \usage{
 annotateSpatialNetwork(
   gobject,
+  feat_type = NULL,
   spatial_network_name = "Delaunay_network",
   cluster_column,
-  create_full_network = F
+  create_full_network = FALSE
 )
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{feat_type}{feature type}
 
 \item{spatial_network_name}{name of spatial network to use}
 
