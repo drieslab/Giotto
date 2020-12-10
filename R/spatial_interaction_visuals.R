@@ -2606,6 +2606,7 @@ plotRecovery = function(gobject,
 #' @name cellProximitySpatPlot2D
 #' @description Visualize 2D cell-cell interactions according to spatial coordinates in ggplot mode
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param interaction_name cell-cell interaction name
 #' @param cluster_column cluster column with cell clusters
 #' @param sdimx x-axis dimension name (default = 'sdimx')
@@ -2639,6 +2640,7 @@ plotRecovery = function(gobject,
 #' @details Description of parameters.
 #' @export
 cellProximitySpatPlot2D <- function(gobject,
+                                    feat_type = NULL,
                                     interaction_name = NULL,
                                     cluster_column = NULL,
                                     sdimx = 'sdimx',
@@ -2672,12 +2674,18 @@ cellProximitySpatPlot2D <- function(gobject,
     stop('\n you need to specific at least one interaction name, run cellProximityEnrichment \n')
   }
 
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
 
   cell_locations  = gobject@spatial_locs
   spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
-  cell_metadata   = gobject@cell_metadata
+  cell_metadata   = gobject@cell_metadata[[feat_type]]
 
   spatial_network = annotateSpatialNetwork(gobject = gobject,
+                                           feat_type = feat_type,
                                            spatial_network_name = spatial_network_name,
                                            cluster_column = cluster_column)
 
@@ -2824,7 +2832,6 @@ cellProximitySpatPlot2D <- function(gobject,
     return(pl)
   }
 }
-
 
 
 #' @title cellProximitySpatPlot
