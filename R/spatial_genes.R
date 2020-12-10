@@ -1018,6 +1018,7 @@ binSpectMulti = function(gobject,
                          bin_method = c('kmeans', 'rank'),
                          expression_values = c('normalized', 'scaled', 'custom'),
                          subset_feats = NULL,
+                         subset_genes = NULL,
                          spatial_network_k = c(5, 10, 20),
                          reduce_network = FALSE,
                          kmeans_algo = c('kmeans', 'kmeans_arma', 'kmeans_arma_subset'),
@@ -3139,13 +3140,23 @@ detectSpatialCorFeats <- function(gobject,
   }
 
 
+
+  # get spatial locations
+  spatial_locs = newgobject@spatial_locs
+
+
   ## spatial averaging or smoothing
   if(method == 'grid') {
 
-    loc_av_expr_matrix = do_spatial_grid_averaging(gobject = gobject,
-                                                   expression_values = expression_values,
+    # get spatial grid
+    spatial_grid = select_spatialGrid(gobject = gobject,
+                                      name = spatial_grid_name,
+                                      return_grid_Obj = FALSE)
+
+    loc_av_expr_matrix = do_spatial_grid_averaging(expression_matrix = expr_values,
+                                                   spatial_grid  = spatial_grid,
+                                                   spatial_locs = spatial_locs,
                                                    subset_feats = subset_feats,
-                                                   spatial_grid_name = spatial_grid_name,
                                                    min_cells_per_grid = min_cells_per_grid)
 
     # data.table variables
@@ -3160,11 +3171,16 @@ detectSpatialCorFeats <- function(gobject,
 
   if(method == 'network') {
 
-    knn_av_expr_matrix = do_spatial_knn_smoothing(gobject = gobject,
-                                                  expression_values = expression_values,
+    # get spatial network
+    spatial_network = select_spatialNetwork(gobject = gobject,
+                                      name = spatial_network_name,
+                                      return_network_Obj = FALSE)
+
+    knn_av_expr_matrix = do_spatial_knn_smoothing(expression_matrix = expr_values,
+                                                  spatial_network = spatial_network,
                                                   subset_feats = subset_feats,
-                                                  spatial_network_name = spatial_network_name,
                                                   b = network_smoothing)
+
 
     #print(knn_av_expr_matrix[1:4, 1:4])
 

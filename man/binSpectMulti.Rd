@@ -10,6 +10,7 @@ binSpectMulti(
   bin_method = c("kmeans", "rank"),
   expression_values = c("normalized", "scaled", "custom"),
   subset_feats = NULL,
+  subset_genes = NULL,
   spatial_network_k = c(5, 10, 20),
   reduce_network = FALSE,
   kmeans_algo = c("kmeans", "kmeans_arma", "kmeans_arma_subset"),
@@ -44,6 +45,8 @@ binSpectMulti(
 \item{expression_values}{expression values to use}
 
 \item{subset_feats}{only select a subset of features to test}
+
+\item{subset_genes}{deprecated, use subset_feats}
 
 \item{spatial_network_k}{different k's for a spatial kNN to evaluate}
 
@@ -88,8 +91,6 @@ binSpectMulti(
 \item{set.seed}{set a seed before kmeans binarization}
 
 \item{summarize}{summarize the p-values or adjusted p-values}
-
-\item{subset_genes}{deprecated, use subset_feats}
 }
 \value{
 data.table with results (see details)
