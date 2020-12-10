@@ -2602,7 +2602,6 @@ plotRecovery = function(gobject,
 # * ####
 # cell proximity spatplots ####
 
-#' @title cellProximitySpatPlot2D
 #' @name cellProximitySpatPlot2D
 #' @description Visualize 2D cell-cell interactions according to spatial coordinates in ggplot mode
 #' @param gobject giotto object

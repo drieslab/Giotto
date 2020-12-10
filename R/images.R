@@ -163,6 +163,7 @@ createGiottoImage = function(gobject = NULL,
                              xmin_adj = 0,
                              ymax_adj = 0,
                              ymin_adj = 0) {
+
   if(!methods::is(mg_object, 'magick-image')) {
     if(file.exists(mg_object)) {
       mg_object = try(magick::image_read(mg_object))
@@ -170,7 +171,7 @@ createGiottoImage = function(gobject = NULL,
         stop(mg_object, ' can not be read by magick::image_read() \n')
       }
     } else {
-      stop("mg_object needs to be an image object 'magick-image'' from the magick package or \n
+      stop("mg_object needs to be an image object 'magick-image' from the magick package or \n
            an existig path that can be read by magick::image_read()")
     }
   }
