@@ -6,13 +6,15 @@
 \usage{
 findMastMarkers_one_vs_all(
   gobject,
+  feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   cluster_column,
   subset_clusters = NULL,
   adjust_columns = NULL,
   pval = 0.001,
   logFC = 1,
-  min_genes = 10,
+  min_feats = 10,
+  min_genes = NULL,
   verbose = TRUE,
   ...
 )
@@ -20,7 +22,9 @@ findMastMarkers_one_vs_all(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{expression_values}{gene expression values to use}
+\item{feat_type}{feature type}
+
+\item{expression_values}{feat expression values to use}
 
 \item{cluster_column}{clusters to use}
 
@@ -32,17 +36,19 @@ findMastMarkers_one_vs_all(
 
 \item{logFC}{filter on logFC}
 
-\item{min_genes}{minimum genes to keep per cluster, overrides pval and logFC}
+\item{min_feats}{minimum feats to keep per cluster, overrides pval and logFC}
+
+\item{min_genes}{deprecated, use min_feats}
 
 \item{verbose}{be verbose}
 
 \item{...}{additional parameters for the zlm function in MAST}
 }
 \value{
-data.table with marker genes
+data.table with marker feats
 }
 \description{
-Identify marker genes for all clusters in a one vs all manner based on the MAST package.
+Identify marker feats for all clusters in a one vs all manner based on the MAST package.
 }
 \examples{
 

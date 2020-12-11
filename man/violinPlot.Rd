@@ -6,11 +6,13 @@
 \usage{
 violinPlot(
   gobject,
+  feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
-  genes,
+  feats = NULL,
+  genes = NULL,
   cluster_column,
   cluster_custom_order = NULL,
-  color_violin = c("genes", "cluster"),
+  color_violin = c("feats", "cluster"),
   cluster_color_code = NULL,
   strip_position = c("top", "right", "left", "bottom"),
   strip_text = 7,
@@ -26,9 +28,13 @@ violinPlot(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{feat_type}{feature type}
+
 \item{expression_values}{expression values to use}
 
-\item{genes}{genes to plot}
+\item{feats}{features to plot}
+
+\item{genes}{deprecated, use feats argument}
 
 \item{cluster_column}{name of column to use for clusters}
 

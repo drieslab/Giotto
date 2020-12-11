@@ -6,6 +6,7 @@
 \usage{
 findGiniMarkers(
   gobject,
+  feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   cluster_column,
   subset_clusters = NULL,
@@ -15,13 +16,16 @@ findGiniMarkers(
   min_det_gini_score = 0.2,
   detection_threshold = 0,
   rank_score = 1,
-  min_genes = 5
+  min_feats = 5,
+  min_genes = NULL
 )
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{expression_values}{gene expression values to use}
+\item{feat_type}{feature type}
+
+\item{expression_values}{feat expression values to use}
 
 \item{cluster_column}{clusters to use}
 
@@ -35,32 +39,34 @@ findGiniMarkers(
 
 \item{min_det_gini_score}{filter on minimum gini coefficient for detection}
 
-\item{detection_threshold}{detection threshold for gene expression}
+\item{detection_threshold}{detection threshold for feat expression}
 
 \item{rank_score}{rank scores for both detection and expression to include}
 
-\item{min_genes}{minimum number of top genes to return}
+\item{min_feats}{minimum number of top feats to return}
+
+\item{min_genes}{deprecated, use min_feats}
 }
 \value{
-data.table with marker genes
+data.table with marker feats
 }
 \description{
-Identify marker genes for selected clusters based on gini detection and expression scores.
+Identify marker feats for selected clusters based on gini detection and expression scores.
 }
 \details{
-Detection of marker genes using the \url{https://en.wikipedia.org/wiki/Gini_coefficient}{gini}
-coefficient is based on the following steps/principles per gene:
+Detection of marker feats using the \url{https://en.wikipedia.org/wiki/Gini_coefficient}{gini}
+coefficient is based on the following steps/principles per feat:
 \itemize{
   \item{1. calculate average expression per cluster}
   \item{2. calculate detection fraction per cluster}
   \item{3. calculate gini-coefficient for av. expression values over all clusters}
   \item{4. calculate gini-coefficient for detection fractions over all clusters}
   \item{5. convert gini-scores to rank scores}
-  \item{6. for each gene create combined score = detection rank x expression rank x expr gini-coefficient x detection gini-coefficient}
-  \item{7. for each gene sort on expression and detection rank and combined score}
+  \item{6. for each feat create combined score = detection rank x expression rank x expr gini-coefficient x detection gini-coefficient}
+  \item{7. for each feat sort on expression and detection rank and combined score}
 }
 
-As a results "top gini" genes are genes that are very selectivily expressed in a specific cluster,
+As a results "top gini" feats are feats that are very selectivily expressed in a specific cluster,
 however not always expressed in all cells of that cluster. In other words highly specific, but
 not necessarily sensitive at the single-cell level.
 

@@ -6,6 +6,7 @@
 \usage{
 createGiottoObject(
   expression,
+  raw_exprs = NULL,
   expression_feat = "rna",
   spatial_locs = NULL,
   spatial_info = NULL,
@@ -28,6 +29,8 @@ createGiottoObject(
 }
 \arguments{
 \item{expression}{expression information}
+
+\item{raw_exprs}{deprecated, use expression}
 
 \item{expression_feat}{available features (e.g. rna, protein, ...)}
 

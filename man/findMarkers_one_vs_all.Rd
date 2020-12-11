@@ -6,13 +6,15 @@
 \usage{
 findMarkers_one_vs_all(
   gobject,
+  feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   cluster_column,
   subset_clusters = NULL,
   method = c("scran", "gini", "mast"),
   pval = 0.01,
   logFC = 0.5,
-  min_genes = 10,
+  min_feats = 10,
+  min_genes = NULL,
   min_expr_gini_score = 0.5,
   min_det_gini_score = 0.5,
   detection_threshold = 0,
@@ -25,25 +27,29 @@ findMarkers_one_vs_all(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{expression_values}{gene expression values to use}
+\item{feat_type}{feature type}
+
+\item{expression_values}{feat expression values to use}
 
 \item{cluster_column}{clusters to use}
 
 \item{subset_clusters}{selection of clusters to compare}
 
-\item{method}{method to use to detect differentially expressed genes}
+\item{method}{method to use to detect differentially expressed feats}
 
 \item{pval}{scran & mast: filter on minimal p-value}
 
 \item{logFC}{scan & mast: filter on logFC}
 
-\item{min_genes}{minimum genes to keep per cluster, overrides pval and logFC}
+\item{min_feats}{minimum feats to keep per cluster, overrides pval and logFC}
+
+\item{min_genes}{deprecated, use min_feats}
 
 \item{min_expr_gini_score}{gini: filter on minimum gini coefficient for expression}
 
 \item{min_det_gini_score}{gini: filter minimum gini coefficient for detection}
 
-\item{detection_threshold}{gini: detection threshold for gene expression}
+\item{detection_threshold}{gini: detection threshold for feat expression}
 
 \item{rank_score}{gini: rank scores to include}
 
@@ -54,13 +60,13 @@ findMarkers_one_vs_all(
 \item{...}{additional parameters for the findMarkers function in scran or zlm function in MAST}
 }
 \value{
-data.table with marker genes
+data.table with marker feats
 }
 \description{
-Identify marker genes for all clusters in a one vs all manner.
+Identify marker feats for all clusters in a one vs all manner.
 }
 \details{
-Wrapper for all one vs all functions to detect marker genes for clusters.
+Wrapper for all one vs all functions to detect marker feats for clusters.
 }
 \seealso{
 \code{\link{findScranMarkers_one_vs_all}}, \code{\link{findGiniMarkers_one_vs_all}} and \code{\link{findMastMarkers_one_vs_all}}

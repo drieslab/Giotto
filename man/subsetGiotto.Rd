@@ -9,6 +9,7 @@ subsetGiotto(
   cell_ids = NULL,
   feat_type = NULL,
   feat_ids = NULL,
+  gene_ids = NULL,
   verbose = FALSE
 )
 }

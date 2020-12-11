@@ -17,7 +17,7 @@ plotCellProximityGenes(
   min_spat_diff = 0.2,
   min_log2_fc = 0.2,
   min_zscore = 2,
-  zscores_column = c("cell_type", "genes"),
+  zscores_column = c("cell_type", "feats"),
   direction = c("both", "up", "down"),
   cell_color_code = NULL,
   show_plot = NA,

@@ -409,11 +409,19 @@ subsetGiotto <- function(gobject,
                          cell_ids = NULL,
                          feat_type = NULL,
                          feat_ids = NULL,
+                         gene_ids = NULL,
                          verbose = FALSE) {
 
   # set feat type
   if(is.null(feat_type)) {
     feat_type = gobject@expression_feat[[1]]
+  }
+
+
+  ## deprecated arguments
+  if(!is.null(gene_ids)) {
+    feat_ids = gene_ids
+    warning('gene_ids argument is deprecated, use feat_ids argument in the future \n')
   }
 
   g_cell_IDs = gobject@cell_ID

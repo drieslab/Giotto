@@ -32,7 +32,7 @@ To run this vignette you need to install all the necessary Python modules.
 ```{r eval=FALSE}
 # to automatically save figures in save_dir set save_plot to TRUE
 temp_dir = getwd()
-temp_dir = '~/Temp/'
+#temp_dir = '~/Temp/'
 myinstructions = createGiottoInstructions(save_dir = temp_dir,
                                           save_plot = FALSE, 
                                           show_plot = F)
@@ -84,7 +84,7 @@ seqfish_mini <- normalizeGiotto(gobject = seqfish_mini, scalefactor = 6000, verb
 seqfish_mini <- addStatistics(gobject = seqfish_mini)
 seqfish_mini <- adjustGiottoMatrix(gobject = seqfish_mini, 
                                    expression_values = c('normalized'),
-                                   covariate_columns = c('nr_genes', 'total_expr'))
+                                   covariate_columns = c('nr_feats', 'total_expr'))
 ```
 
 
@@ -140,11 +140,11 @@ gini_markers = findMarkers_one_vs_all(gobject = seqfish_mini,
 
 # get top 2 genes per cluster and visualize with violinplot
 topgenes_gini = gini_markers[, head(.SD, 2), by = 'cluster']
-violinPlot(seqfish_mini, genes = topgenes_gini$genes, cluster_column = 'leiden_clus')
+violinPlot(seqfish_mini, genes = topgenes_gini$feats[1:4], cluster_column = 'leiden_clus')
 
 # get top 6 genes per cluster and visualize with heatmap
 topgenes_gini2 = gini_markers[, head(.SD, 6), by = 'cluster']
-plotMetaDataHeatmap(seqfish_mini, selected_genes = topgenes_gini2$genes,
+plotMetaDataHeatmap(seqfish_mini, selected_genes = topgenes_gini2$feats,
                     metadata_cols = c('leiden_clus'))
 ```
 

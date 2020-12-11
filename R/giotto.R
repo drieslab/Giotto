@@ -809,6 +809,7 @@ evaluate_spatial_locations = function(spatial_locs,
 #' @title create Giotto object
 #' @description Function to create a giotto object
 #' @param expression expression information
+#' @param raw_exprs deprecated, use expression
 #' @param expression_feat available features (e.g. rna, protein, ...)
 #' @param spatial_locs data.table or data.frame with coordinates for cell centroids
 #' @param spatial_info information about spatial units
@@ -867,6 +868,7 @@ evaluate_spatial_locations = function(spatial_locs,
 #' @importFrom methods new
 #' @export
 createGiottoObject <- function(expression,
+                               raw_exprs = NULL,
                                expression_feat = 'rna',
                                spatial_locs = NULL,
                                spatial_info = NULL,
@@ -932,6 +934,14 @@ createGiottoObject <- function(expression,
 
 
   ## expression data ##
+
+
+  ## deprecated arguments
+  if(!is.null(raw_exprs)) {
+    expression = raw_exprs
+    warning('raw_exprs argument is deprecated, use expression argument in the future \n')
+  }
+
   if(!is.null(expression)) {
 
     gobject = extract_expression_list(gobject = gobject,

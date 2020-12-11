@@ -14,7 +14,7 @@ calculateHVF(
   expression_threshold = 0,
   nr_expression_groups = 20,
   zscore_threshold = 1.5,
-  HVFname = "hvg",
+  HVFname = "hvf",
   difference_in_cov = 0.1,
   show_plot = NA,
   return_plot = NA,
