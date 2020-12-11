@@ -153,8 +153,8 @@ plotMetaDataHeatmap(seqfish_mini, selected_genes = topgenes_gini2$feats,
 ## 6. cell type annotation
 ```{r eval=FALSE}
 clusters_cell_types = c('cell A', 'cell B', 'cell C', 'cell D',
-                        'cell E', 'cell F', 'cell G')
-names(clusters_cell_types) = 1:7
+                        'cell E', 'cell F', 'cell G', 'cell H')
+names(clusters_cell_types) = 1:8
 seqfish_mini = annotateGiotto(gobject = seqfish_mini, 
                               annotation_vector = clusters_cell_types, 
                               cluster_column = 'leiden_clus', 
@@ -247,7 +247,7 @@ and a subset of individual spatial genes.
 ```{r eval=FALSE, fig.width=10, fig.height=10}
 
 # 1. calculate spatial correlation scores 
-ext_spatial_genes = km_spatialgenes[1:500]$genes
+ext_spatial_genes = km_spatialgenes[1:500]$feats
 spat_cor_netw_DT = detectSpatialCorGenes(seqfish_mini,
                                          method = 'network', 
                                          spatial_network_name = 'Delaunay_network',
@@ -270,10 +270,12 @@ top_netw_spat_cluster = showSpatialCorGenes(spat_cor_netw_DT,
 cluster_genes_DT = showSpatialCorGenes(spat_cor_netw_DT, 
                                        use_clus_name = 'spat_netw_clus',
                                        show_top_genes = 1)
-cluster_genes = cluster_genes_DT$clus; names(cluster_genes) = cluster_genes_DT$gene_ID
+cluster_genes = cluster_genes_DT$clus; names(cluster_genes) = cluster_genes_DT$feat_ID
 
 
-seqfish_mini = createMetagenes(seqfish_mini, gene_clusters = cluster_genes, name = 'cluster_metagene')
+seqfish_mini = createMetagenes(seqfish_mini,
+                               gene_clusters = cluster_genes,
+                               name = 'cluster_metagene')
 spatCellPlot(seqfish_mini,
              spat_enr_names = 'cluster_metagene',
              cell_annotation_values = netw_ranks$clusters,

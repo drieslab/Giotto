@@ -3154,7 +3154,7 @@ detectSpatialCorFeats <- function(gobject,
 
 
   # get spatial locations
-  spatial_locs = newgobject@spatial_locs
+  spatial_locs = gobject@spatial_locs
 
 
   ## spatial averaging or smoothing

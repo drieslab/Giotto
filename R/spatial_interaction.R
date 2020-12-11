@@ -1372,14 +1372,14 @@ findICG = function(gobject,
 #' @title findCPG
 #' @description Identifies cell-to-cell Interaction Changed Genes (ICG),
 #' i.e. genes that are differentially expressed due to proximity to other cell types.
-#' @inheritDotParams findICF
-#' @seealso \code{\link{findICF}}
+#' @inheritDotParams findICG
+#' @seealso \code{\link{findICG}}
 #' @export
 findCPG <- function(...) {
 
-  .Deprecated(new = "findICF")
+  .Deprecated(new = "findICG")
 
-  findICF(...)
+  findICG(...)
 
 }
 
