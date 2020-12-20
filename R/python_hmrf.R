@@ -97,13 +97,13 @@ doHMRF <- function(gobject,
   # overwrite if exists
   if(file.exists(expression_file) & overwrite_output == TRUE) {
     cat('\n expression_matrix.txt already exists at this location, will be overwritten \n')
-    data.table::fwrite(data.table::as.data.table(expr_values, keep.rownames="gene"), file=expression_file, quot=F, col.names=T, row.names=T, sep=" ")
+    data.table::fwrite(data.table::as.data.table(expr_values, keep.rownames="gene"), file=expression_file, quot=F, col.names=T, row.names=F, sep=" ")
 
     #write.table(expr_values, file = expression_file, quote = F, col.names = NA, row.names = T)
   } else if(file.exists(expression_file) & overwrite_output == FALSE) {
     cat('\n expression_matrix.txt already exists at this location, will be used again \n')
   } else {
-    data.table::fwrite(data.table::as.data.table(expr_values, keep.rownames="gene"), file=expression_file, quot=F, col.names=T, row.names=T, sep=" ")
+    data.table::fwrite(data.table::as.data.table(expr_values, keep.rownames="gene"), file=expression_file, quot=F, col.names=T, row.names=F, sep=" ")
     #write.table(expr_values,
     #            file = expression_file,
     #            quote = F, col.names = NA, row.names = T)
