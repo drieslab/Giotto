@@ -165,15 +165,15 @@ exportGiottoViewer = function(gobject,
   ## output directory ##
   if(file.exists(output_directory)) {
     if(overwrite_dir == TRUE) {
-      cat('\n output directory already exits, files will be overwritten \n')
+      cat('output directory already exits, files will be overwritten \n')
     } else {
-      stop('\n output directory already exits, change overwrite_dir = TRUE to overwrite files \n')
+      stop('output directory already exits, change overwrite_dir = TRUE to overwrite files \n')
     }
   } else if(is.null(output_directory)) {
-    cat('\n no output directory is provides, defaults to current directory: ', getwd(), '\n')
+    cat('no output directory is provides, defaults to current directory: ', getwd(), '\n')
     output_directory = getwd()
   } else {
-    cat('\n output directory is created \n')
+    cat('output directory is created \n')
     dir.create(output_directory, recursive = T)
   }
 
@@ -320,7 +320,9 @@ exportGiottoViewer = function(gobject,
 
   if(verbose == TRUE){
      cat("\n")
-     cat("Next steps, in a shell terminal:", "\n")
+     cat("================================================================", "\n")
+     cat("Next steps. Please manually run the following in a SHELL terminal:", "\n")
+	 cat("================================================================", "\n")
      cat("cd ", output_directory, "\n")
      cat("giotto_setup_image --require-stitch=n --image=n --image-multi-channel=n --segmentation=n --multi-fov=n --output-json=step1.json", "\n")
      cat("smfish_step1_setup -c step1.json", "\n")
@@ -328,8 +330,13 @@ exportGiottoViewer = function(gobject,
 	 cat("smfish_read_config -c step2.json -o test.dec6.js -p test.dec6.html -q test.dec6.css", "\n")
      cat("giotto_copy_js_css --output .", "\n")
 	 cat("python3 -m http.server", "\n")
-	 cat("Open your browser, navigate to http://localhost:8000/. Then click on the file test.dec6.html to see the viewer.", "\n")
+     cat("================================================================", "\n")
+     cat("\n")
+	 cat("Finally, open your browser, navigate to http://localhost:8000/. Then click on the file test.dec6.html to see the viewer.", "\n")
+     cat("\n")
+     cat("\n")
      cat("For more information, http://spatialgiotto.rc.fas.harvard.edu/giotto.viewer.setup3.html", "\n")
+	 cat("\n")
   }
 
 }
