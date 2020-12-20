@@ -311,7 +311,8 @@ exportGiottoViewer = function(gobject,
   if(!is.null(expression_rounding)) {
     expr_values = round(x = expr_values, digits = expression_rounding)
   }
-  write.table(expr_values, quote = F, row.names = T, col.names = NA, sep = ',', file = paste0(output_directory,'/','giotto_expression.csv'))
+  data.table::fwrite(data.table::as.data.table(expr_values, keep.rownames="gene"), file=fs::path(output_directory, "giotto_expression.csv"), sep=",", quot=F, row.names=F, col.names=T)
+  #write.table(expr_values, quote = F, row.names = T, col.names = NA, sep = ',', file = paste0(output_directory,'/','giotto_expression.csv'))
 
 
   if(verbose == TRUE) cat('\n finished writing giotto viewer files to', output_directory , '\n')
