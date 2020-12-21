@@ -424,8 +424,8 @@ plotICG(gobject = seqfish_mini,
 
 LR_data = data.table::fread(system.file("extdata", "mouse_ligand_receptors.txt", package = 'Giotto'))
 
-LR_data[, ligand_det := ifelse(mouseLigand %in% seqfish_mini@gene_ID, T, F)]
-LR_data[, receptor_det := ifelse(mouseReceptor %in% seqfish_mini@gene_ID, T, F)]
+LR_data[, ligand_det := ifelse(mouseLigand %in% seqfish_mini@feat_ID[['rna']], T, F)]
+LR_data[, receptor_det := ifelse(mouseReceptor %in% seqfish_mini@feat_ID[['rna']], T, F)]
 LR_data_det = LR_data[ligand_det == T & receptor_det == T]
 select_ligands = LR_data_det$mouseLigand
 select_receptors = LR_data_det$mouseReceptor
@@ -434,7 +434,7 @@ select_receptors = LR_data_det$mouseReceptor
 ## get statistical significance of gene pair expression changes based on expression ##
 expr_only_scores = exprCellCellcom(gobject = seqfish_mini,
                                    cluster_column = 'cell_types',
-                                   random_iter = 500,
+                                   random_iter = 50,
                                    gene_set_1 = select_ligands,
                                    gene_set_2 = select_receptors)
 
@@ -442,7 +442,7 @@ expr_only_scores = exprCellCellcom(gobject = seqfish_mini,
 spatial_all_scores = spatCellCellcom(seqfish_mini,
                                      spatial_network_name = 'Delaunay_network',
                                      cluster_column = 'cell_types',
-                                     random_iter = 500,
+                                     random_iter = 50,
                                      gene_set_1 = select_ligands,
                                      gene_set_2 = select_receptors,
                                      adjust_method = 'fdr',

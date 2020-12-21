@@ -2163,6 +2163,8 @@ exprCellCellcom = function(gobject,
                            random_iter = 1000,
                            feat_set_1,
                            feat_set_2,
+                           gene_set_1 = NULL,
+                           gene_set_2 = NULL,
                            log2FC_addendum = 0.1,
                            detailed = FALSE,
                            adjust_method = c("fdr", "bonferroni","BH", "holm", "hochberg", "hommel",
@@ -2172,6 +2174,21 @@ exprCellCellcom = function(gobject,
                            seed_number = 1234,
                            verbose = T) {
 
+
+  # set feat type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+  ## deprecated arguments
+  if(!is.null(gene_set_1)) {
+    feat_set_1 = gene_set_1
+    warning('gene_set_1 is deprecated, use feat_set_1 in the future \n')
+  }
+  if(!is.null(gene_set_2)) {
+    feat_set_2 = gene_set_2
+    warning('gene_set_2 is deprecated, use feat_set_2 in the future \n')
+  }
 
   # data.table variables
   lig_nr = lig_cell_type = rec_nr = rec_cell_type = rand_expr = av_diff = log2fc = LR_expr = pvalue = NULL
@@ -2401,6 +2418,7 @@ create_cell_type_random_cell_IDs = function(gobject,
 #' }
 #' @export
 specificCellCellcommunicationScores = function(gobject,
+                                               feat_type = NULL,
                                                spatial_network_name = 'Delaunay_network',
                                                cluster_column = 'cell_types',
                                                random_iter = 100,
@@ -2602,6 +2620,7 @@ specificCellCellcommunicationScores = function(gobject,
 #' @name spatCellCellcom
 #' @description Spatial Cell-Cell communication scores based on spatial expression of interacting cells
 #' @param gobject giotto object to use
+#' @param feat_type feature type
 #' @param spatial_network_name spatial network to use for identifying interacting cells
 #' @param cluster_column cluster column with cell type information
 #' @param random_iter number of iterations
@@ -2646,6 +2665,7 @@ specificCellCellcommunicationScores = function(gobject,
 #' }
 #' @export
 spatCellCellcom = function(gobject,
+                           feat_type = NULL,
                            spatial_network_name = 'Delaunay_network',
                            cluster_column = 'cell_types',
                            random_iter = 1000,
@@ -2674,8 +2694,6 @@ spatCellCellcom = function(gobject,
          'use showNetworks() to see the available networks \n',
          'or create a new spatial network with createSpatialNetwork() \n')
   }
-
-
 
   # set feat type
   if(is.null(feat_type)) {
@@ -2712,6 +2730,7 @@ spatCellCellcom = function(gobject,
       cell_type_2 = combn_DT[row][['V2']]
 
       specific_scores = specificCellCellcommunicationScores(gobject = gobject,
+                                                            feat_type = feat_type,
                                                             cluster_column = cluster_column,
                                                             random_iter = random_iter,
                                                             cell_type_1 = cell_type_1,
@@ -2750,6 +2769,7 @@ spatCellCellcom = function(gobject,
       }
 
       specific_scores = specificCellCellcommunicationScores(gobject = gobject,
+                                                            feat_type = feat_type,
                                                             cluster_column = cluster_column,
                                                             random_iter = random_iter,
                                                             cell_type_1 = cell_type_1,
