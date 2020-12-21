@@ -6,6 +6,7 @@
 \usage{
 create_cell_type_random_cell_IDs(
   gobject,
+  feat_type = NULL,
   cluster_column = "cell_types",
   needed_cell_types,
   set_seed = FALSE,
@@ -14,6 +15,8 @@ create_cell_type_random_cell_IDs(
 }
 \arguments{
 \item{gobject}{giotto object to use}
+
+\item{feat_type}{feature type}
 
 \item{cluster_column}{cluster column with cell type information}
 

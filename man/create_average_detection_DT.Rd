@@ -6,6 +6,7 @@
 \usage{
 create_average_detection_DT(
   gobject,
+  feat_type = NULL,
   meta_data_name,
   expression_values = c("normalized", "scaled", "custom"),
   detection_threshold = 0
@@ -13,6 +14,8 @@ create_average_detection_DT(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{feat_type}{feature type}
 
 \item{meta_data_name}{name of metadata column to use}
 

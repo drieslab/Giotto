@@ -6,15 +6,18 @@
 \usage{
 exprCellCellcom(
   gobject,
+  feat_type = NULL,
   cluster_column = "cell_types",
   random_iter = 1000,
-  gene_set_1,
-  gene_set_2,
+  feat_set_1,
+  feat_set_2,
+  gene_set_1 = NULL,
+  gene_set_2 = NULL,
   log2FC_addendum = 0.1,
   detailed = FALSE,
   adjust_method = c("fdr", "bonferroni", "BH", "holm", "hochberg", "hommel", "BY",
     "none"),
-  adjust_target = c("genes", "cells"),
+  adjust_target = c("feats", "cells"),
   set_seed = TRUE,
   seed_number = 1234,
   verbose = T
@@ -23,13 +26,15 @@ exprCellCellcom(
 \arguments{
 \item{gobject}{giotto object to use}
 
+\item{feat_type}{feature type}
+
 \item{cluster_column}{cluster column with cell type information}
 
 \item{random_iter}{number of iterations}
 
-\item{gene_set_1}{first specific gene set from gene pairs}
+\item{feat_set_1}{first specific feature set from feature pairs}
 
-\item{gene_set_2}{second specific gene set from gene pairs}
+\item{feat_set_2}{second specific feature set from feature pairs}
 
 \item{log2FC_addendum}{addendum to add when calculating log2FC}
 
@@ -37,7 +42,7 @@ exprCellCellcom(
 
 \item{adjust_method}{which method to adjust p-values}
 
-\item{adjust_target}{adjust multiple hypotheses at the cell or gene level}
+\item{adjust_target}{adjust multiple hypotheses at the cell or feature level}
 
 \item{set_seed}{set seed for random simulations (default = TRUE)}
 
@@ -46,14 +51,14 @@ exprCellCellcom(
 \item{verbose}{verbose}
 }
 \value{
-Cell-Cell communication scores for gene pairs based on expression only
+Cell-Cell communication scores for feature pairs based on expression only
 }
 \description{
 Cell-Cell communication scores based on expression only
 }
 \details{
-Statistical framework to identify if pairs of genes (such as ligand-receptor combinations)
-are expressed at higher levels than expected based on a reshuffled null distribution of gene expression values,
+Statistical framework to identify if pairs of features (such as ligand-receptor combinations)
+are expressed at higher levels than expected based on a reshuffled null distribution of feature expression values,
 without considering the spatial position of cells.
 More details will follow soon.
 }

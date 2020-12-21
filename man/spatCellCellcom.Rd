@@ -6,17 +6,20 @@
 \usage{
 spatCellCellcom(
   gobject,
+  feat_type = NULL,
   spatial_network_name = "Delaunay_network",
   cluster_column = "cell_types",
   random_iter = 1000,
-  gene_set_1,
-  gene_set_2,
+  feat_set_1,
+  feat_set_2,
+  gene_set_1 = NULL,
+  gene_set_2 = NULL,
   log2FC_addendum = 0.1,
   min_observations = 2,
   detailed = FALSE,
   adjust_method = c("fdr", "bonferroni", "BH", "holm", "hochberg", "hommel", "BY",
     "none"),
-  adjust_target = c("genes", "cells"),
+  adjust_target = c("feats", "cells"),
   do_parallel = TRUE,
   cores = NA,
   set_seed = TRUE,
@@ -27,15 +30,21 @@ spatCellCellcom(
 \arguments{
 \item{gobject}{giotto object to use}
 
+\item{feat_type}{feature type}
+
 \item{spatial_network_name}{spatial network to use for identifying interacting cells}
 
 \item{cluster_column}{cluster column with cell type information}
 
 \item{random_iter}{number of iterations}
 
-\item{gene_set_1}{first specific gene set from gene pairs}
+\item{feat_set_1}{first specific feature set from feature pairs}
 
-\item{gene_set_2}{second specific gene set from gene pairs}
+\item{feat_set_2}{second specific feature set from feature pairs}
+
+\item{gene_set_1}{deprecated, use feat_set_1}
+
+\item{gene_set_2}{deprecated, use feat_set_2}
 
 \item{log2FC_addendum}{addendum to add when calculating log2FC}
 
@@ -45,7 +54,7 @@ spatCellCellcom(
 
 \item{adjust_method}{which method to adjust p-values}
 
-\item{adjust_target}{adjust multiple hypotheses at the cell or gene level}
+\item{adjust_target}{adjust multiple hypotheses at the cell or feature level}
 
 \item{do_parallel}{run calculations in parallel with mclapply}
 
@@ -58,7 +67,7 @@ spatCellCellcom(
 \item{verbose}{verbose}
 }
 \value{
-Cell-Cell communication scores for gene pairs based on spatial interaction
+Cell-Cell communication scores for feature pairs based on spatial interaction
 }
 \description{
 Spatial Cell-Cell communication scores based on spatial expression of interacting cells
@@ -66,7 +75,7 @@ Spatial Cell-Cell communication scores based on spatial expression of interactin
 \details{
 Statistical framework to identify if pairs of genes (such as ligand-receptor combinations)
 are expressed at higher levels than expected based on a reshuffled null distribution
-of gene expression values in cells that are spatially in proximity to eachother..
+of feature expression values in cells that are spatially in proximity to eachother..
 \itemize{
  \item{LR_comb:}{Pair of ligand and receptor}
  \item{lig_cell_type:}{ cell type to assess expression level of ligand }
