@@ -302,20 +302,32 @@ select_expression_values <- function(gobject,
 #' @title create_average_DT
 #' @description calculates average gene expression for a cell metadata factor (e.g. cluster)
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param meta_data_name name of metadata column to use
 #' @param expression_values which expression values to use
 #' @return data.table with average gene epression values for each factor
 #' @keywords internal
-create_average_DT <- function(gobject, meta_data_name,
+create_average_DT <- function(gobject,
+                              feat_type = NULL,
+                              meta_data_name,
                               expression_values = c('normalized', 'scaled', 'custom')) {
 
 
+  # set feat type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
   # expression values to be used
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_data = select_expression_values(gobject = gobject, values = values)
+  values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
+  expr_data = select_expression_values(gobject = gobject,
+                                       feat_type = feat_type,
+                                       values = values)
+
 
   # metadata
-  cell_metadata = pDataDT(gobject)
+  cell_metadata = pDataDT(gobject,
+                          feat_type = feat_type)
   myrownames = rownames(expr_data)
 
   savelist <- list()
@@ -338,21 +350,32 @@ create_average_DT <- function(gobject, meta_data_name,
 #' @title create_average_detection_DT
 #' @description calculates average gene detection for a cell metadata factor (e.g. cluster)
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param meta_data_name name of metadata column to use
 #' @param expression_values which expression values to use
 #' @param detection_threshold detection threshold to consider a gene detected
 #' @return data.table with average gene epression values for each factor
 #' @keywords internal
-create_average_detection_DT <- function(gobject, meta_data_name,
+create_average_detection_DT <- function(gobject,
+                                        feat_type = NULL,
+                                        meta_data_name,
                                         expression_values = c('normalized', 'scaled', 'custom'),
                                         detection_threshold = 0) {
 
+  # set feat type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
   # expression values to be used
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_data = select_expression_values(gobject = gobject, values = values)
+  values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
+  expr_data = select_expression_values(gobject = gobject,
+                                       feat_type = feat_type,
+                                       values = values)
 
   # metadata
-  cell_metadata <- pDataDT(gobject)
+  cell_metadata <- pDataDT(gobject,
+                           feat_type = feat_type)
   myrownames <- rownames(expr_data)
 
   savelist <- list()
@@ -364,7 +387,7 @@ create_average_detection_DT <- function(gobject, meta_data_name,
     temp = as.matrix(temp)
 
     if(is.matrix(temp)) {
-      temp_DT = rowSums_giotto(temp > detection_threshold)/ncol(temp)
+      temp_DT = rowSums_flex(temp > detection_threshold)/ncol(temp)
     } else {
       temp_DT = as.numeric(temp > detection_threshold)
     }
