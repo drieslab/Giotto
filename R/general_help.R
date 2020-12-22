@@ -795,7 +795,7 @@ get10Xmatrix_h5 = function(path_to_data, gene_ids = c('symbols', 'ensembl')) {
   # select parameter
   gene_ids = match.arg(gene_ids, choices = c('symbols', 'ensembl'))
 
-  h5 <- hdf5r::H5File$new(h5_file)
+  h5 = hdf5r::H5File$new(path_to_data)
 
   tryCatch({
 
@@ -821,7 +821,7 @@ get10Xmatrix_h5 = function(path_to_data, gene_ids = c('symbols', 'ensembl')) {
     indptr = h5[[paste0(root, "/indptr")]][]
 
     # create a feature data.table
-    features_dt <- data.table::data.table(
+    features_dt = data.table::data.table(
       'id' = feature_id,
       'name' = feature_names,
       'feature_type' = feature_types,
@@ -830,6 +830,10 @@ get10Xmatrix_h5 = function(path_to_data, gene_ids = c('symbols', 'ensembl')) {
 
     # create uniq name symbols
     # duplicate gene symbols will be given a suffix '_1', '_2', ...
+
+    # data.table variables
+    nr_name = name = uniq_name = NULL
+
     features_dt[, nr_name := 1:.N, by = name]
     features_dt[, uniq_name := ifelse(nr_name == 1, name, paste0(name, '_', (nr_name-1)))]
 

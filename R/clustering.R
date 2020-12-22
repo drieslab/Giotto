@@ -2405,11 +2405,12 @@ node_clusters = function(hclus_obj, verbose = TRUE) {
 #' differentially expressed marker genes at each node.
 #' @export
 #' @examples
-#'
+#' \dontrun{
 #' data("mini_giotto_single_cell")
 #'
 #' splits = getDendrogramSplits(mini_giotto_single_cell, cluster_column = 'leiden_clus')
-#'
+#' }
+
 getDendrogramSplits = function(gobject,
                                expression_values = c('normalized', 'scaled', 'custom'),
                                cluster_column,
@@ -2420,6 +2421,9 @@ getDendrogramSplits = function(gobject,
                                show_dend = TRUE,
                                verbose = TRUE) {
 
+
+  # package check for dendextend
+  package_check(pkg_name = "dendextend", repository = "CRAN")
 
   # data.table variables
   nodeID = NULL
