@@ -165,20 +165,20 @@ exportGiottoViewer = function(gobject,
   ## output directory ##
   if(file.exists(output_directory)) {
     if(overwrite_dir == TRUE) {
-      cat('\n output directory already exits, files will be overwritten \n')
+      cat('output directory already exits, files will be overwritten \n')
     } else {
-      stop('\n output directory already exits, change overwrite_dir = TRUE to overwrite files \n')
+      stop('output directory already exits, change overwrite_dir = TRUE to overwrite files \n')
     }
   } else if(is.null(output_directory)) {
-    cat('\n no output directory is provides, defaults to current directory: ', getwd(), '\n')
+    cat('no output directory is provides, defaults to current directory: ', getwd(), '\n')
     output_directory = getwd()
   } else {
-    cat('\n output directory is created \n')
+    cat('output directory is created \n')
     dir.create(output_directory, recursive = T)
   }
 
 
-  if(verbose == TRUE) cat('\n write cell and gene IDs \n')
+  if(verbose == TRUE) cat('write cell and gene IDs\n')
   ### output cell_IDs ###
   giotto_cell_ids = gobject@cell_ID
   write.table(giotto_cell_ids, file = paste0(output_directory,'/','giotto_cell_ids.txt'),
@@ -191,7 +191,7 @@ exportGiottoViewer = function(gobject,
 
 
   ### physical location ###
-  if(verbose == TRUE) cat('\n write physical centroid locations \n')
+  if(verbose == TRUE) cat('write physical centroid locations\n')
 
   # data.table variables
   sdimx = sdimy = NULL
@@ -203,7 +203,7 @@ exportGiottoViewer = function(gobject,
   ### offset file ###
   offset_file = gobject@offset_file
   if(!is.null(offset_file)) {
-    if(verbose == TRUE) cat('\n write offset file \n')
+    if(verbose == TRUE) cat('write offset file \n')
     write.table(offset_file, file = paste0(output_directory,'/','offset_file.txt'),
                 quote = F, row.names = F, col.names = F, sep = ' ')
   }
@@ -218,7 +218,7 @@ exportGiottoViewer = function(gobject,
     found_factor_annotations = factor_annotations[factor_annotations %in% colnames(cell_metadata)]
     for(sel_annot in found_factor_annotations) {
 
-      if(verbose == TRUE) cat('\n write annotation data for: ', sel_annot,'\n')
+      if(verbose == TRUE) cat('write annotation data for: ', sel_annot,'\n')
 
       selected_annotation = cell_metadata[[sel_annot]]
       write_giotto_viewer_annotation(annotation = selected_annotation, annot_name = sel_annot,
@@ -251,7 +251,7 @@ exportGiottoViewer = function(gobject,
     found_numeric_annotations = numeric_annotations[numeric_annotations %in% colnames(cell_metadata)]
     for(sel_annot in found_numeric_annotations) {
 
-      if(verbose == TRUE) cat('\n write annotation data for: ', sel_annot,'\n')
+      if(verbose == TRUE) cat('write annotation data for: ', sel_annot,'\n')
       selected_annotation = cell_metadata[[sel_annot]]
       write_giotto_viewer_numeric_annotation(annotation = selected_annotation, annot_name = sel_annot,
                                              output_directory = output_directory)
@@ -286,7 +286,7 @@ exportGiottoViewer = function(gobject,
     temp_dim_red = dim_reductions[i]
     temp_dim_red_name = dim_reduction_names[i]
 
-    if(verbose == TRUE) cat('\n write annotation data for: ', temp_dim_red, ' for ', temp_dim_red_name,'\n')
+    if(verbose == TRUE) cat('write annotation data for: ', temp_dim_red, ' for ', temp_dim_red_name,'\n')
 
     write_giotto_viewer_dim_reduction(dim_reduction_cell = dim_reduction_cell,
                                       dim_red = temp_dim_red,
@@ -301,7 +301,7 @@ exportGiottoViewer = function(gobject,
 
   ### expression data ###
   # expression values to be used
-  if(verbose == TRUE) cat('\n write expression values \n')
+  if(verbose == TRUE) cat('write expression values \n')
   values = match.arg(expression_values, c( 'scaled', 'normalized', 'custom'))
   expr_values = select_expression_values(gobject = gobject, values = values)
 
@@ -311,10 +311,33 @@ exportGiottoViewer = function(gobject,
   if(!is.null(expression_rounding)) {
     expr_values = round(x = expr_values, digits = expression_rounding)
   }
-  write.table(expr_values, quote = F, row.names = T, col.names = NA, sep = ',', file = paste0(output_directory,'/','giotto_expression.csv'))
+  data.table::fwrite(data.table::as.data.table(expr_values, keep.rownames="gene"), file=fs::path(output_directory, "giotto_expression.csv"), sep=",", quot=F, row.names=F, col.names=T)
+  #write.table(expr_values, quote = F, row.names = T, col.names = NA, sep = ',', file = paste0(output_directory,'/','giotto_expression.csv'))
 
 
-  if(verbose == TRUE) cat('\n finished writing giotto viewer files to', output_directory , '\n')
+  if(verbose == TRUE) cat('finished writing giotto viewer files to', output_directory , '\n')
+
+
+  if(verbose == TRUE){
+     cat("\n")
+     cat("================================================================", "\n")
+     cat("Next steps. Please manually run the following in a SHELL terminal:", "\n")
+	 cat("================================================================", "\n")
+     cat("cd ", output_directory, "\n")
+     cat("giotto_setup_image --require-stitch=n --image=n --image-multi-channel=n --segmentation=n --multi-fov=n --output-json=step1.json", "\n")
+     cat("smfish_step1_setup -c step1.json", "\n")
+	 cat("giotto_setup_viewer --num-panel=2 --input-preprocess-json=step1.json --panel-1=PanelPhysicalSimple --panel-2=PanelTsne --output-json=step2.json --input-annotation-list=annotation_list.txt", "\n")
+	 cat("smfish_read_config -c step2.json -o test.dec6.js -p test.dec6.html -q test.dec6.css", "\n")
+     cat("giotto_copy_js_css --output .", "\n")
+	 cat("python3 -m http.server", "\n")
+     cat("================================================================", "\n")
+     cat("\n")
+	 cat("Finally, open your browser, navigate to http://localhost:8000/. Then click on the file test.dec6.html to see the viewer.", "\n")
+     cat("\n")
+     cat("\n")
+     cat("For more information, http://spatialgiotto.rc.fas.harvard.edu/giotto.viewer.setup3.html", "\n")
+	 cat("\n")
+  }
 
 }
 
