@@ -235,6 +235,10 @@ runPCA_factominer = function(x,
                              seed_number = 1234,
                              ...) {
 
+  # verify if optional package is installed
+  package_check(pkg_name = "FactoMineR", repository = "CRAN")
+
+
   if(!methods::is(x, 'matrix')) {
     x = as.matrix(x)
   }
@@ -440,11 +444,11 @@ runPCA <- function(gobject,
   if(reduction == 'cells') {
     # PCA on cells
     if(method == 'irlba') {
-      pca_object = Giotto:::runPCA_prcomp_irlba(x = t_flex(expr_values),
+      pca_object = runPCA_prcomp_irlba(x = t_flex(expr_values),
                                                 center = center, scale = scale_unit, ncp = ncp,
                                                 rev = rev, set_seed = set_seed, seed_number = seed_number, ...)
     } else if(method == 'factominer') {
-      pca_object = Giotto:::runPCA_factominer(x = t_flex(expr_values),
+      pca_object = runPCA_factominer(x = t_flex(expr_values),
                                               scale = scale_unit, ncp = ncp, rev = rev,
                                               set_seed = set_seed, seed_number = seed_number, ...)
     } else {
@@ -454,11 +458,11 @@ runPCA <- function(gobject,
   } else {
     # PCA on genes
     if(method == 'irlba') {
-      pca_object = Giotto:::runPCA_prcomp_irlba(x = expr_values,
+      pca_object = runPCA_prcomp_irlba(x = expr_values,
                                                 center = center, scale = scale_unit, ncp = ncp,
                                                 rev = rev, set_seed = set_seed, seed_number = seed_number, ...)
     } else if(method == 'factominer') {
-      pca_object = Giotto:::runPCA_factominer(x = expr_values,
+      pca_object = runPCA_factominer(x = expr_values,
                                               scale = scale_unit, ncp = ncp, rev = rev,
                                               set_seed = set_seed, seed_number = seed_number, ...)
     } else {
@@ -477,7 +481,7 @@ runPCA <- function(gobject,
 
     }
 
-    dimObject = Giotto:::create_dimObject(name = name,
+    dimObject = create_dimObject(name = name,
                                           reduction_method = 'pca',
                                           coordinates = pca_object$coords,
                                           misc = list(eigenvalues = pca_object$eigenvalues,
@@ -641,7 +645,7 @@ screePlot = function(gobject,
   if(!is.null(pca_obj)) {
     if(verbose == TRUE) cat('PCA with name: ', name, ' already exists and will be used for the screeplot \n')
 
-    screeplot = Giotto:::create_screeplot(pca_obj = pca_obj, ncp = ncp, ylim = ylim)
+    screeplot = create_screeplot(pca_obj = pca_obj, ncp = ncp, ylim = ylim)
 
   } else {
     # if pca doesn't exists, then create pca and then plot
@@ -668,9 +672,9 @@ screePlot = function(gobject,
 
       # PCA on cells
       if(method == 'irlba') {
-        pca_object = Giotto:::runPCA_prcomp_irlba(x = t_flex(expr_values), center = center, scale = scale_unit, ncp = ncp, rev = rev, ...)
+        pca_object = runPCA_prcomp_irlba(x = t_flex(expr_values), center = center, scale = scale_unit, ncp = ncp, rev = rev, ...)
       } else if(method == 'factominer') {
-        pca_object = Giotto:::runPCA_factominer(x = t_flex(expr_values), scale = scale_unit, ncp = ncp, rev = rev, ...)
+        pca_object = runPCA_factominer(x = t_flex(expr_values), scale = scale_unit, ncp = ncp, rev = rev, ...)
       } else {
         stop('only PCA methods from the irlba and factominer package have been implemented \n')
       }
@@ -682,7 +686,7 @@ screePlot = function(gobject,
                                                loadings = pca_object$loadings),
                                    my_rownames = colnames(expr_values))
 
-      screeplot = Giotto:::create_screeplot(pca_obj = dimObject, ncp = ncp, ylim = ylim)
+      screeplot = create_screeplot(pca_obj = dimObject, ncp = ncp, ylim = ylim)
     }
 
   }
@@ -851,7 +855,7 @@ jackstrawPlot = function(gobject,
     nr_sign_components = jtest$r
     cat('number of estimated significant components: ', nr_sign_components, '\n')
     final_results = jtest$p
-    jackplot = Giotto:::create_jackstrawplot(jackstraw_data = final_results, ncp = ncp, ylim = ylim, threshold = threshold)
+    jackplot = create_jackstrawplot(jackstraw_data = final_results, ncp = ncp, ylim = ylim, threshold = threshold)
 
   }
 
@@ -1142,7 +1146,7 @@ runUMAP <- function(gobject,
   reduction = match.arg(reduction, choices = c('cells', 'feats'))
 
   # set cores to use
-  n_threads = Giotto:::determine_cores(cores = n_threads)
+  n_threads = determine_cores(cores = n_threads)
 
   ## umap on cells ##
   if(reduction == 'cells') {
@@ -1207,7 +1211,7 @@ runUMAP <- function(gobject,
       coordinates = uwot_clus
       rownames(coordinates) = rownames(matrix_to_use)
 
-      dimObject = Giotto:::create_dimObject(name = name,
+      dimObject = create_dimObject(name = name,
                                             reduction_method = 'umap',
                                             coordinates = coordinates,
                                             misc = NULL)
@@ -1383,7 +1387,7 @@ runtSNE <- function(gobject,
       coordinates = tsne_clus$Y
       rownames(coordinates) = rownames(matrix_to_use)
 
-      dimObject = Giotto:::create_dimObject(name = name,
+      dimObject = create_dimObject(name = name,
                                             reduction_method = 'tsne',
                                             coordinates = coordinates,
                                             misc = tsne_clus)

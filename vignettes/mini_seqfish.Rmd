@@ -502,7 +502,8 @@ plotRecovery(gobject = seqfish_mini,
 viewer_folder = paste0(temp_dir, '/', 'Mouse_cortex_viewer')
 
 # select annotations, reductions and expression values to view in Giotto Viewer
-exportGiottoViewer(gobject = seqfish_mini, output_directory = viewer_folder,
+exportGiottoViewer(gobject = seqfish_mini,
+                   output_directory = viewer_folder,
                    factor_annotations = c('cell_types',
                                           'leiden_clus',
                                           'HMRF_k9_b.28'),
