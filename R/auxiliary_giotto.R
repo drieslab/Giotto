@@ -1199,6 +1199,40 @@ rna_osmfish_normalization = function(gobject,
 }
 
 
+#' @name rna_pears_resid_normalization
+#' @description function for RNA normalization according to Lause/Kobak et al paper
+#' @keywords internal
+rna_pears_resid_normalization = function(gobject,
+                                        raw_expr,
+                                        feat_type,
+                                        theta = 100,
+                                        name = 'pears_resid') {
+
+  # check feature type compatibility
+  if(!feat_type %in% c('rna', 'RNA')) {
+    warning('Caution: pearson residual normalization was developed for RNA count normalization \n')
+  }
+
+  counts_sum0 = as(matrix(Matrix::colSums(raw_expr),nrow=1),"dgCMatrix")
+  counts_sum1 = as(matrix(Matrix::rowSums(raw_expr),ncol=1),"dgCMatrix")
+  counts_sum  = sum(raw_expr)
+
+  #get residuals
+  mu = (counts_sum1 %*% counts_sum0) / counts_sum
+  z  = (counts - mu) / sqrt(mu + mu^2/theta)
+
+  #clip to sqrt(n)
+  n = ncol(counts)
+  z[z > sqrt(n)]  = sqrt(n)
+  z[z < -sqrt(n)] = -sqrt(n)
+
+  gobject@expression[[feat_type]][[name]] = z
+
+  return(gobject)
+
+}
+
+
 
 
 #' @title normalizeGiotto
