@@ -3334,17 +3334,19 @@ spatDimPlot = function(...) {
 
 
 
-#' @title spatGenePlot2D
-#' @name spatGenePlot2D
-#' @description Visualize cells and gene expression according to spatial coordinates
+
+
+#' @name spatFeatPlot2D
+#' @description Visualize cells and feature expression according to spatial coordinates
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param show_image show a tissue background image
 #' @param gimage a giotto image
 #' @param image_name name of a giotto image
 #' @param sdimx x-axis dimension name (default = 'sdimx')
 #' @param sdimy y-axis dimension name (default = 'sdimy')
 #' @param expression_values gene expression values to use
-#' @param genes genes to show
+#' @param feats features to show
 #' @param cell_color_gradient vector with 3 colors for numeric data
 #' @param gradient_midpoint midpoint for color gradient
 #' @param gradient_limits vector with lower and upper limits
@@ -3381,25 +3383,20 @@ spatDimPlot = function(...) {
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @details Description of parameters.
-#' @family spatial gene expression visualizations
+#' @family spatial feature expression visualizations
 #' @export
 #' @seealso \code{\link{spatGenePlot3D}}
 #' @examples
 #'
-#' data(mini_giotto_single_cell)
-#'
-#' all_genes = slot(mini_giotto_single_cell, 'gene_ID')
-#' selected_genes = all_genes[1:2]
-#' spatGenePlot2D(mini_giotto_single_cell, genes = selected_genes, point_size = 3)
-#'
-spatGenePlot2D <- function(gobject,
+spatFeatPlot2D <- function(gobject,
+                           feat_type = NULL,
                            show_image = F,
                            gimage = NULL,
                            image_name = 'image',
                            sdimx = 'sdimx',
                            sdimy = 'sdimy',
                            expression_values = c('normalized', 'scaled', 'custom'),
-                           genes,
+                           feats,
                            cell_color_gradient = c('blue', 'white', 'red'),
                            gradient_midpoint = NULL,
                            gradient_limits = NULL,
@@ -3433,7 +3430,7 @@ spatGenePlot2D <- function(gobject,
                            return_plot = NA,
                            save_plot = NA,
                            save_param =  list(),
-                           default_save_name = 'spatGenePlot2D') {
+                           default_save_name = 'spatFeatPlot2D') {
 
 
   # data.table variables
@@ -3456,22 +3453,29 @@ spatGenePlot2D <- function(gobject,
   # point shape
   point_shape = match.arg(point_shape, choices = c('border', 'no_border', 'voronoi'))
 
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
   # expression values
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
+  expr_values = select_expression_values(gobject = gobject,
+                                         feat_type = feat_type,
+                                         values = values)
 
-  # only keep genes that are in the dataset
-  selected_genes = genes
-  selected_genes = selected_genes[selected_genes %in% rownames(expr_values) ]
+  # only keep feats that are in the dataset
+  selected_feats = feats
+  selected_feats = selected_feats[selected_feats %in% rownames(expr_values) ]
 
 
-  # get selected gene expression values in data.table format
-  if(length(selected_genes) == 1) {
-    subset_expr_data = expr_values[rownames(expr_values) %in% selected_genes, ]
-    t_sub_expr_data_DT = data.table::data.table('selected_gene' = subset_expr_data, 'cell_ID' = colnames(expr_values))
-    data.table::setnames(t_sub_expr_data_DT, 'selected_gene', selected_genes)
+  # get selected feat expression values in data.table format
+  if(length(selected_feats) == 1) {
+    subset_expr_data = expr_values[rownames(expr_values) %in% selected_feats, ]
+    t_sub_expr_data_DT = data.table::data.table('selected_feat' = subset_expr_data, 'cell_ID' = colnames(expr_values))
+    data.table::setnames(t_sub_expr_data_DT, 'selected_feat', selected_feats)
   } else {
-    subset_expr_data = expr_values[rownames(expr_values) %in% selected_genes, ]
+    subset_expr_data = expr_values[rownames(expr_values) %in% selected_feats, ]
     t_sub_expr_data = t(subset_expr_data)
     t_sub_expr_data_DT = data.table::as.data.table(t_sub_expr_data)
     t_sub_expr_data_DT[, cell_ID := rownames(t_sub_expr_data)]
@@ -3483,21 +3487,25 @@ spatGenePlot2D <- function(gobject,
 
   ## extract spatial network
   if(show_network == TRUE) {
-    spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
+    spatial_network = select_spatialNetwork(gobject,
+                                            name = spatial_network_name,
+                                            return_network_Obj = FALSE)
   } else {
     spatial_network = NULL
   }
 
   ## extract spatial grid
   if(show_grid == TRUE) {
-    spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
+    spatial_grid = select_spatialGrid(gobject,
+                                      spatial_grid_name)
     #spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
   } else {
     spatial_grid = NULL
   }
 
   ## extract cell metadata
-  cell_metadata = combineMetadata(gobject = gobject)
+  cell_metadata = combineMetadata(gobject = gobject,
+                                  feat_type = feat_type)
 
   if(nrow(cell_metadata) == 0) {
     cell_locations_metadata = cell_locations
@@ -3505,13 +3513,15 @@ spatGenePlot2D <- function(gobject,
     cell_locations_metadata = cell_metadata
   }
 
-  cell_locations_metadata_genes <- merge(cell_locations_metadata, t_sub_expr_data_DT, by = 'cell_ID')
+  cell_locations_metadata_feats <- merge(cell_locations_metadata,
+                                         t_sub_expr_data_DT,
+                                         by = 'cell_ID')
 
 
   ## plotting ##
   savelist <- list()
 
-  for(gene in selected_genes) {
+  for(feat in selected_feats) {
 
     pl <- ggplot2::ggplot()
     pl <- pl + ggplot2::theme_classic()
@@ -3539,8 +3549,10 @@ spatGenePlot2D <- function(gobject,
         ybegin = paste0(sdimy, '_begin')
         xend = paste0(sdimx, '_end')
         yend = paste0(sdimy, '_end')
-        pl <- pl + ggplot2::geom_segment(data = spatial_network, aes_string(x = xbegin, y = ybegin,
-                                                                            xend = xend, yend = yend),
+        pl <- pl + ggplot2::geom_segment(data = spatial_network, aes_string(x = xbegin,
+                                                                            y = ybegin,
+                                                                            xend = xend,
+                                                                            yend = yend),
                                          color = network_color, size = 0.5, alpha = 0.5)
       }
 
@@ -3553,8 +3565,10 @@ spatGenePlot2D <- function(gobject,
         xmax = paste0(gsub(pattern = 'sdim', replacement = '', x = sdimx), '_end')
         ymax = paste0(gsub(pattern = 'sdim', replacement = '', x = sdimy), '_end')
 
-        pl <- pl + ggplot2::geom_rect(data = spatial_grid, aes_string(xmin = xmin, xmax = xmax,
-                                                                      ymin = ymin, ymax = ymax),
+        pl <- pl + ggplot2::geom_rect(data = spatial_grid, aes_string(xmin = xmin,
+                                                                      xmax = xmax,
+                                                                      ymin = ymin,
+                                                                      ymax = ymax),
                                       color = grid_color, fill = NA)
       }
 
@@ -3568,14 +3582,14 @@ spatGenePlot2D <- function(gobject,
     if(!is.null(gradient_limits) & is.vector(gradient_limits) & length(gradient_limits) == 2) {
       lower_lim = gradient_limits[[1]]
       upper_lim = gradient_limits[[2]]
-      numeric_data = cell_locations_metadata_genes[[gene]]
+      numeric_data = cell_locations_metadata_feats[[feat]]
       limit_numeric_data = ifelse(numeric_data > upper_lim, upper_lim,
                                   ifelse(numeric_data < lower_lim, lower_lim, numeric_data))
-      cell_locations_metadata_genes[[gene]] = limit_numeric_data
+      cell_locations_metadata_feats[[feat]] = limit_numeric_data
     }
 
     if(is.null(gradient_midpoint)) {
-      gradient_midpoint = stats::median(cell_locations_metadata_genes[[gene]])
+      gradient_midpoint = stats::median(cell_locations_metadata_feats[[feat]])
     }
 
 
@@ -3583,19 +3597,23 @@ spatGenePlot2D <- function(gobject,
     if(point_shape == 'border') {
 
       if(scale_alpha_with_expression == TRUE) {
-        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes, aes_string2(x = sdimx,
-                                                                                         y = sdimy,
-                                                                                         fill = gene,
-                                                                                         alpha = gene),
+        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_feats,
+                                       aes_string2(x = sdimx,
+                                                   y = sdimy,
+                                                   fill = feat,
+                                                   alpha = feat),
                                        shape = 21,
-                                       color = point_border_col, size = point_size, stroke = point_border_stroke,
+                                       color = point_border_col, size = point_size,
+                                       stroke = point_border_stroke,
                                        show.legend = show_legend)
       } else {
-        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes,  aes_string2(x = sdimx,
-                                                                                          y = sdimy,
-                                                                                          fill = gene),
+        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_feats,
+                                       aes_string2(x = sdimx,
+                                                   y = sdimy,
+                                                   fill = feat),
                                        shape = 21,
-                                       color = point_border_col, size = point_size, stroke = point_border_stroke,
+                                       color = point_border_col, size = point_size,
+                                       stroke = point_border_stroke,
                                        show.legend = show_legend, alpha = point_alpha)
       }
 
@@ -3607,7 +3625,7 @@ spatGenePlot2D <- function(gobject,
                                                high = cell_color_gradient[[3]],
                                                midpoint = gradient_midpoint,
                                                guide = guide_colorbar(title = ''))
-      pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y', title = gene)
+      pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y', title = feat)
 
 
     }
@@ -3618,27 +3636,31 @@ spatGenePlot2D <- function(gobject,
     if(point_shape == 'no_border') {
 
       if(scale_alpha_with_expression == TRUE) {
-        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes,  aes_string2(x = sdimx,
-                                                                                          y = sdimy,
-                                                                                          color = gene,
-                                                                                          alpha = gene),
-                                       shape = 19, size = point_size,  show.legend = show_legend)
+        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_feats,
+                                       aes_string2(x = sdimx,
+                                                   y = sdimy,
+                                                   color = feat,
+                                                   alpha = feat),
+                                       shape = 19, size = point_size,
+                                       show.legend = show_legend)
       } else {
-        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_genes,  aes_string2(x = sdimx,
-                                                                                          y = sdimy,
-                                                                                          color = gene),
-                                       shape = 19, size = point_size, show.legend = show_legend, alpha = point_alpha)
+        pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_feats,
+                                       aes_string2(x = sdimx,
+                                                   y = sdimy,
+                                                   color = feat),
+                                       shape = 19, size = point_size,
+                                       show.legend = show_legend, alpha = point_alpha)
       }
 
 
       ## scale and labs ##
       pl <- pl + ggplot2::scale_alpha_continuous(guide = 'none')
       pl <- pl + ggplot2::scale_color_gradient2(low = cell_color_gradient[[1]],
-                                               mid = cell_color_gradient[[2]],
-                                               high = cell_color_gradient[[3]],
-                                               midpoint = gradient_midpoint,
-                                               guide = guide_colorbar(title = ''))
-      pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y', title = gene)
+                                                mid = cell_color_gradient[[2]],
+                                                high = cell_color_gradient[[3]],
+                                                midpoint = gradient_midpoint,
+                                                guide = guide_colorbar(title = ''))
+      pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y', title = feat)
 
     }
 
@@ -3647,13 +3669,21 @@ spatGenePlot2D <- function(gobject,
     if(point_shape == 'voronoi') {
 
       if(scale_alpha_with_expression == TRUE) {
-        pl = pl + ggforce::geom_voronoi_tile(data = cell_locations_metadata_genes,
-                                             aes_string(x = sdimx, y = sdimy, group = '-1L', fill = gene, alpha = gene),
-                                             colour = vor_border_color, max.radius = vor_max_radius, show.legend = show_legend)
+        pl = pl + ggforce::geom_voronoi_tile(data = cell_locations_metadata_feats,
+                                             aes_string(x = sdimx, y = sdimy,
+                                                        group = '-1L',
+                                                        fill = feat, alpha = feat),
+                                             colour = vor_border_color,
+                                             max.radius = vor_max_radius,
+                                             show.legend = show_legend)
       } else {
-        pl = pl + ggforce::geom_voronoi_tile(data = cell_locations_metadata_genes,
-                                             aes_string(x = sdimx, y = sdimy, group = '-1L', fill = gene),
-                                             colour = vor_border_color, max.radius = vor_max_radius, show.legend = show_legend,
+        pl = pl + ggforce::geom_voronoi_tile(data = cell_locations_metadata_feats,
+                                             aes_string(x = sdimx, y = sdimy,
+                                                        group = '-1L',
+                                                        fill = feat),
+                                             colour = vor_border_color,
+                                             max.radius = vor_max_radius,
+                                             show.legend = show_legend,
                                              alpha = vor_alpha)
       }
 
@@ -3694,7 +3724,7 @@ spatGenePlot2D <- function(gobject,
                                                high = cell_color_gradient[[3]],
                                                midpoint = gradient_midpoint,
                                                guide = guide_colorbar(title = ''))
-      pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y', title = gene)
+      pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y', title = feat)
 
 
     }
@@ -3709,7 +3739,7 @@ spatGenePlot2D <- function(gobject,
                               panel.background = element_rect(fill = background_color))
 
 
-    savelist[[gene]] <- pl
+    savelist[[feat]] <- pl
   }
 
   # combine plots with cowplot
@@ -3737,6 +3767,31 @@ spatGenePlot2D <- function(gobject,
 
 
 
+#' @name spatGenePlot2D
+#' @description Visualize cells and gene expression according to spatial coordinates
+#' @param gobject giotto object
+#' @param genes genes to show
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @inheritDotParams spatFeatPlot2D -gobject -feats -default_save_name
+#' @param
+#' @return ggplot
+#' @details Description of parameters, see \code{\link{spatFeatPlot2D}}
+#' @family spatial gene expression visualizations
+#' @export
+spatGenePlot2D <- function(gobject,
+                           genes,
+                           default_save_name = 'spatGenePlot2D',
+                           ...) {
+
+  spatFeatPlot2D(gobject = gobject,
+                 feat_type = 'rna',
+                 feats = genes,
+                 default_save_name = default_save_name,
+                 ...)
+
+}
+
+
 #' @title spatGenePlot
 #' @name spatGenePlot
 #' @description Visualize cells and gene expression according to spatial coordinates
@@ -3746,14 +3801,6 @@ spatGenePlot2D <- function(gobject,
 #' @family spatial gene expression visualizations
 #' @export
 #' @seealso \code{\link{spatGenePlot3D}} and \code{\link{spatGenePlot2D}}
-#' @examples
-#'
-#' data(mini_giotto_single_cell)
-#'
-#' all_genes = slot(mini_giotto_single_cell, 'gene_ID')
-#' selected_genes = all_genes[1:2]
-#' spatGenePlot(mini_giotto_single_cell, genes = selected_genes, point_size = 3)
-#'
 spatGenePlot = function(...) {
 
   spatGenePlot2D(...)
@@ -3762,12 +3809,14 @@ spatGenePlot = function(...) {
 
 
 
-#' @title dimGenePlot2D
-#' @name dimGenePlot2D
+
+
+#' @name dimFeatPlot2D
 #' @description Visualize gene expression according to dimension reduction coordinates
 #' @param gobject giotto object
+#' @param feat_type  feature type
 #' @param expression_values gene expression values to use
-#' @param genes genes to show
+#' @param feats features to show
 #' @param dim_reduction_to_use dimension reduction to use
 #' @param dim_reduction_name dimension reduction name
 #' @param dim1_to_use dimension to use on x-axis
@@ -3802,20 +3851,12 @@ spatGenePlot = function(...) {
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @details Description of parameters.
-#' @family dimension reduction gene expression visualizations
+#' @family dimension reduction feature expression visualizations
 #' @export
-#' @seealso \code{\link{dimGenePlot3D}}
-#' @examples
-#'
-#' data(mini_giotto_single_cell)
-#'
-#' all_genes = slot(mini_giotto_single_cell, 'gene_ID')
-#' selected_genes = all_genes[1:2]
-#' dimGenePlot2D(mini_giotto_single_cell, genes = selected_genes, point_size = 3)
-#'
-dimGenePlot2D <- function(gobject,
+dimFeatPlot2D <- function(gobject,
+                          feat_type = NULL,
                           expression_values = c('normalized', 'scaled', 'custom'),
-                          genes = NULL,
+                          feats = NULL,
                           dim_reduction_to_use = 'umap',
                           dim_reduction_name = 'umap',
                           dim1_to_use = 1,
@@ -3847,7 +3888,7 @@ dimGenePlot2D <- function(gobject,
                           return_plot = NA,
                           save_plot = NA,
                           save_param =  list(),
-                          default_save_name = 'dimGenePlot2D') {
+                          default_save_name = 'dimFeatPlot2D') {
 
 
   # print, return and save parameters
@@ -3858,21 +3899,29 @@ dimGenePlot2D <- function(gobject,
   # point shape
   point_shape = match.arg(point_shape, choices = c('border', 'no_border'))
 
-  ## select genes ##
-  selected_genes = genes
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
 
-  # only keep genes that are in the dataset
-  selected_genes = selected_genes[selected_genes %in% rownames(expr_values) ]
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+  # expression values
+  values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
+  expr_values = select_expression_values(gobject = gobject,
+                                         feat_type = feat_type,
+                                         values = values)
+
+  # only keep feats that are in the dataset
+  selected_feats = feats
+  selected_feats = selected_feats[selected_feats %in% rownames(expr_values) ]
 
   #
-  if(length(selected_genes) == 1) {
-    subset_expr_data = expr_values[rownames(expr_values) %in% selected_genes, ]
-    t_sub_expr_data_DT = data.table('selected_gene' = subset_expr_data, 'cell_ID' = colnames(expr_values))
-    data.table::setnames(t_sub_expr_data_DT, 'selected_gene', selected_genes)
+  if(length(selected_feats) == 1) {
+    subset_expr_data = expr_values[rownames(expr_values) %in% selected_feats, ]
+    t_sub_expr_data_DT = data.table('selected_feat' = subset_expr_data, 'cell_ID' = colnames(expr_values))
+    data.table::setnames(t_sub_expr_data_DT, 'selected_feat', selected_feats)
   } else {
-    subset_expr_data = expr_values[rownames(expr_values) %in% selected_genes, ]
+    subset_expr_data = expr_values[rownames(expr_values) %in% selected_feats, ]
     t_sub_expr_data = t(subset_expr_data)
     t_sub_expr_data_DT = data.table::as.data.table(t_sub_expr_data)
 
@@ -3892,8 +3941,8 @@ dimGenePlot2D <- function(gobject,
   cell_metadata = gobject@cell_metadata
   annotated_DT = data.table::merge.data.table(cell_metadata, dim_DT, by = 'cell_ID')
 
-  ## merge gene info
-  annotated_gene_DT = data.table::merge.data.table(annotated_DT, t_sub_expr_data_DT, by = 'cell_ID')
+  ## merge feat info
+  annotated_feat_DT = data.table::merge.data.table(annotated_DT, t_sub_expr_data_DT, by = 'cell_ID')
 
   # create input for network
   if(show_NN_network == TRUE) {
@@ -3921,7 +3970,7 @@ dimGenePlot2D <- function(gobject,
   ## 2D plots ##
   savelist <- list()
 
-  for(gene in selected_genes) {
+  for(feat in selected_feats) {
 
 
     ## OLD need to be combined ##
@@ -3961,10 +4010,10 @@ dimGenePlot2D <- function(gobject,
 
 
     ## point layer ##
-    if(is.null(genes)) {
+    if(is.null(feats)) {
       cell_color = 'lightblue'
-      cat('no genes selected')
-      pl <- pl + ggplot2::geom_point(data = annotated_gene_DT,
+      cat('no feats selected')
+      pl <- pl + ggplot2::geom_point(data = annotated_feat_DT,
                                      aes_string(x = dim_names[1], dim_names[2]),
                                      fill = cell_color, show.legend = show_legend,
                                      size =  point_size, alpha = point_alpha)
@@ -3976,14 +4025,14 @@ dimGenePlot2D <- function(gobject,
       if(!is.null(gradient_limits) & is.vector(gradient_limits) & length(gradient_limits) == 2) {
         lower_lim = gradient_limits[[1]]
         upper_lim = gradient_limits[[2]]
-        numeric_data = annotated_gene_DT[[gene]]
+        numeric_data = annotated_feat_DT[[feat]]
         limit_numeric_data = ifelse(numeric_data > upper_lim, upper_lim,
                                     ifelse(numeric_data < lower_lim, lower_lim, numeric_data))
-        annotated_gene_DT[[gene]] = limit_numeric_data
+        annotated_feat_DT[[feat]] = limit_numeric_data
       }
 
       if(is.null(gradient_midpoint)) {
-        gradient_midpoint = stats::median(annotated_gene_DT[[gene]])
+        gradient_midpoint = stats::median(annotated_feat_DT[[feat]])
       }
 
 
@@ -3992,15 +4041,15 @@ dimGenePlot2D <- function(gobject,
       if(point_shape == 'border') {
 
         if(scale_alpha_with_expression == TRUE) {
-          pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string2(x = dim_names[1],
-                                                                                        y = dim_names[2],
-                                                                                        fill = gene, alpha = gene),
+          pl <- pl + ggplot2::geom_point(data = annotated_feat_DT, aes_string2(x = dim_names[1],
+                                                                               y = dim_names[2],
+                                                                               fill = feat, alpha = feat),
                                          show.legend = show_legend, shape = 21, size = point_size,
                                          color = point_border_col, stroke = point_border_stroke)
         } else {
-          pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string2(x = dim_names[1],
-                                                                                        y = dim_names[2],
-                                                                                        fill = gene),
+          pl <- pl + ggplot2::geom_point(data = annotated_feat_DT, aes_string2(x = dim_names[1],
+                                                                               y = dim_names[2],
+                                                                               fill = feat),
                                          show.legend = show_legend, shape = 21,
                                          size =  point_size,
                                          color = point_border_col, stroke = point_border_stroke,
@@ -4021,14 +4070,14 @@ dimGenePlot2D <- function(gobject,
       if(point_shape == 'no_border') {
 
         if(scale_alpha_with_expression == TRUE) {
-          pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string2(x = dim_names[1],
-                                                                                        y = dim_names[2],
-                                                                                        color = gene, alpha = gene),
+          pl <- pl + ggplot2::geom_point(data = annotated_feat_DT, aes_string2(x = dim_names[1],
+                                                                               y = dim_names[2],
+                                                                               color = feat, alpha = feat),
                                          show.legend = show_legend, shape = 19, size = point_size)
         } else {
-          pl <- pl + ggplot2::geom_point(data = annotated_gene_DT, aes_string2(x = dim_names[1],
-                                                                                        y = dim_names[2],
-                                                                                        color = gene),
+          pl <- pl + ggplot2::geom_point(data = annotated_feat_DT, aes_string2(x = dim_names[1],
+                                                                               y = dim_names[2],
+                                                                               color = feat),
                                          show.legend = show_legend, shape = 19, size =  point_size,
                                          alpha = point_alpha)
         }
@@ -4036,17 +4085,17 @@ dimGenePlot2D <- function(gobject,
         ## scale and labs ##
         pl <- pl + ggplot2::scale_alpha_continuous(guide = 'none')
         pl <- pl + ggplot2::scale_color_gradient2(low = cell_color_gradient[[1]],
-                                                 mid = cell_color_gradient[[2]],
-                                                 high = cell_color_gradient[[3]],
-                                                 midpoint = gradient_midpoint,
-                                                 guide = guide_colorbar(title = ''))
+                                                  mid = cell_color_gradient[[2]],
+                                                  high = cell_color_gradient[[3]],
+                                                  midpoint = gradient_midpoint,
+                                                  guide = guide_colorbar(title = ''))
 
       }
     }
 
 
     ## add title
-    pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y', title = gene)
+    pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y', title = feat)
 
     ## aesthetics
     pl <- pl + ggplot2::theme(plot.title = element_text(hjust = 0.5),
@@ -4057,7 +4106,7 @@ dimGenePlot2D <- function(gobject,
                               panel.grid = element_blank(),
                               panel.background = element_rect(fill = background_color))
 
-    savelist[[gene]] <- pl
+    savelist[[feat]] <- pl
   }
 
 
@@ -4066,7 +4115,8 @@ dimGenePlot2D <- function(gobject,
   # combine plots with cowplot
   combo_plot <- cowplot::plot_grid(plotlist = savelist,
                                    ncol = cow_n_col,
-                                   rel_heights = cow_rel_h, rel_widths = cow_rel_w, align = cow_align)
+                                   rel_heights = cow_rel_h, rel_widths = cow_rel_w,
+                                   align = cow_align)
 
 
   ## print plot
@@ -4090,7 +4140,31 @@ dimGenePlot2D <- function(gobject,
 
 
 
-#' @title dimGenePlot
+#' @name dimGenePlot2D
+#' @description Visualize gene expression according to dimension reduction coordinates
+#' @param gobject giotto object
+#' @param genes genes to show
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @inheritDotParams dimFeatPlot2D -gobject -feats -default_save_name
+#' @return ggplot
+#' @details Description of parameters.
+#' @family dimension reduction gene expression visualizations
+#' @export
+dimGenePlot2D <- function(gobject,
+                          genes = NULL,
+                          default_save_name = 'dimGenePlot2D',
+                          ...) {
+
+  dimFeatPlot2D(gobject = gobject,
+                feat_type = 'rna',
+                feats = genes,
+                default_save_name = default_save_name,
+                ...)
+}
+
+
+
+
 #' @name dimGenePlot
 #' @description Visualize gene expression according to dimension reduction coordinates
 #' @inheritDotParams dimGenePlot2D
@@ -4099,14 +4173,6 @@ dimGenePlot2D <- function(gobject,
 #' @family dimension reduction gene expression visualizations
 #' @export
 #' @seealso \code{\link{dimGenePlot3D}}
-#' @examples
-#'
-#' data(mini_giotto_single_cell)
-#'
-#' all_genes = slot(mini_giotto_single_cell, 'gene_ID')
-#' selected_genes = all_genes[1:2]
-#' dimGenePlot(mini_giotto_single_cell, genes = selected_genes, point_size = 3)
-#'
 dimGenePlot = function(...) {
 
   dimGenePlot2D(...)
@@ -4117,17 +4183,16 @@ dimGenePlot = function(...) {
 
 
 
-
-#' @title spatDimGenePlot2D
-#' @name spatDimGenePlot2D
+#' @name spatDimFeatPlot2D
 #' @description Visualize cells according to spatial AND dimension reduction coordinates in ggplot mode
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param show_image show a tissue background image
 #' @param gimage a giotto image
 #' @param image_name name of a giotto image
-#' @param expression_values gene expression values to use
+#' @param expression_values feat expression values to use
 #' @param plot_alignment direction to align plot
-#' @param genes genes to show
+#' @param feats features to show
 #' @param dim_reduction_to_use dimension reduction to use
 #' @param dim_reduction_name dimension reduction name
 #' @param dim1_to_use dimension to use on x-axis
@@ -4180,26 +4245,16 @@ dimGenePlot = function(...) {
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @details Description of parameters.
-#' @family spatial and dimension reduction gene expression visualizations
+#' @family spatial and dimension reduction feature expression visualizations
 #' @export
-#' @seealso \code{\link{spatDimGenePlot3D}}
-#' @examples
-#'
-#' data(mini_giotto_single_cell)
-#'
-#' all_genes = slot(mini_giotto_single_cell, 'gene_ID')
-#' selected_genes = all_genes[1]
-#' spatDimGenePlot2D(mini_giotto_single_cell, genes = selected_genes,
-#'                  dim_point_size = 3, spat_point_size = 3,
-#'                  cow_n_col = 1, plot_alignment = 'horizontal')
-#'
-spatDimGenePlot2D <- function(gobject,
+spatDimFeatPlot2D <- function(gobject,
+                              feat_type = NULL,
                               show_image = F,
                               gimage = NULL,
                               image_name = 'image',
                               expression_values = c('normalized', 'scaled', 'custom'),
                               plot_alignment = c('vertical', 'horizontal'),
-                              genes,
+                              feats,
                               dim_reduction_to_use = 'umap',
                               dim_reduction_name = 'umap',
                               dim1_to_use = 1,
@@ -4249,14 +4304,15 @@ spatDimGenePlot2D <- function(gobject,
                               return_plot = NA,
                               save_plot = NA,
                               save_param =  list(),
-                              default_save_name = 'spatDimGenePlot2D') {
+                              default_save_name = 'spatDimFeatPlot2D') {
 
   plot_alignment = match.arg(plot_alignment, choices = c('vertical', 'horizontal'))
 
   # dimension reduction plot
-  dmpl = dimGenePlot2D(gobject = gobject,
+  dmpl = dimFeatPlot2D(gobject = gobject,
+                       feat_type = feat_type,
                        expression_values = expression_values,
-                       genes = genes,
+                       feats = feats,
                        dim_reduction_to_use = dim_reduction_to_use,
                        dim_reduction_name = dim_reduction_name,
                        dim1_to_use = dim1_to_use,
@@ -4289,14 +4345,15 @@ spatDimGenePlot2D <- function(gobject,
                        save_plot = FALSE)
 
   # spatial plot
-  spl = spatGenePlot2D(gobject=gobject,
+  spl = spatFeatPlot2D(gobject = gobject,
+                       feat_type = feat_type,
                        show_image = show_image,
                        gimage = gimage,
                        image_name = image_name,
                        sdimx = sdimx,
                        sdimy = sdimy,
                        expression_values = expression_values,
-                       genes = genes,
+                       feats = feats,
                        cell_color_gradient = cell_color_gradient,
                        gradient_midpoint = gradient_midpoint,
                        gradient_limits = gradient_limits,
@@ -4368,6 +4425,37 @@ spatDimGenePlot2D <- function(gobject,
 
 
 
+
+#' @name spatDimGenePlot2D
+#' @description Visualize cells according to spatial AND dimension reduction coordinates in ggplot mode
+#' @param gobject giotto object
+#' @param genes genes to show
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @inheritDotParams spatDimFeatPlot2D -gobject -feats -default_save_name
+#' @return ggplot
+#' @details Description of parameters.
+#' @family spatial and dimension reduction gene expression visualizations
+#' @export
+#' @seealso \code{\link{spatDimGenePlot3D}}
+spatDimGenePlot2D <- function(gobject,
+                              genes,
+                              default_save_name = 'spatDimGenePlot2D',
+                              ...) {
+
+  spatDimFeatPlot2D(gobject = gobject,
+                    feat_type = 'rna',
+                    feats = genes,
+                    default_save_name = default_save_name,
+                    ...)
+
+}
+
+
+
+
+
+
+
 #' @title spatDimGenePlot
 #' @name spatDimGenePlot
 #' @description Visualize cells according to spatial AND dimension reduction coordinates in ggplot mode
@@ -4377,16 +4465,6 @@ spatDimGenePlot2D <- function(gobject,
 #' @family spatial and dimension reduction gene expression visualizations
 #' @export
 #' @seealso \code{\link{spatDimGenePlot3D}}
-#' @examples
-#'
-#' data(mini_giotto_single_cell)
-#'
-#' all_genes = slot(mini_giotto_single_cell, 'gene_ID')
-#' selected_genes = all_genes[1]
-#' spatDimGenePlot(mini_giotto_single_cell, genes = selected_genes,
-#'                  dim_point_size = 3, spat_point_size = 3,
-#'                  cow_n_col = 1, plot_alignment = 'horizontal')
-#'
 spatDimGenePlot = function(...) {
   spatDimGenePlot2D(...)
 }
