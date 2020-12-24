@@ -1324,7 +1324,7 @@ normalizeGiotto <- function(gobject,
   raw_expr = gobject@expression[[feat_type]][['raw']]
 
 
-  norm_methods = match.arg(arg = norm_methods, choices = c('standard', 'osmFISH', 'pearson_resid'))
+  norm_methods = match.arg(arg = norm_methods, choices = c('standard', 'pearson_resid', 'osmFISH'))
 
   # normalization according to standard methods
   if(norm_methods == 'standard') {
