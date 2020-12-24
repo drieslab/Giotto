@@ -3773,7 +3773,6 @@ spatFeatPlot2D <- function(gobject,
 #' @param genes genes to show
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @inheritDotParams spatFeatPlot2D -gobject -feats -default_save_name
-#' @param
 #' @return ggplot
 #' @details Description of parameters, see \code{\link{spatFeatPlot2D}}
 #' @family spatial gene expression visualizations

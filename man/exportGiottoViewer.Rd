@@ -6,6 +6,7 @@
 \usage{
 exportGiottoViewer(
   gobject,
+  feat_type = NULL,
   output_directory = NULL,
   spat_enr_names = NULL,
   factor_annotations = NULL,
@@ -16,12 +17,14 @@ exportGiottoViewer(
   dim_red_rounding = NULL,
   dim_red_rescale = c(-20, 20),
   expression_rounding = 2,
-  overwrite_dir = T,
+  overwrite_dir = TRUE,
   verbose = T
 )
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{feat_type}{feature types}
 
 \item{output_directory}{directory where to save the files}
 

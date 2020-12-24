@@ -11,61 +11,7 @@ spatDimGenePlot(...)
   Arguments passed on to \code{\link[=spatDimGenePlot2D]{spatDimGenePlot2D}}
   \describe{
     \item{\code{gobject}}{giotto object}
-    \item{\code{show_image}}{show a tissue background image}
-    \item{\code{gimage}}{a giotto image}
-    \item{\code{image_name}}{name of a giotto image}
-    \item{\code{expression_values}}{gene expression values to use}
-    \item{\code{plot_alignment}}{direction to align plot}
     \item{\code{genes}}{genes to show}
-    \item{\code{dim_reduction_to_use}}{dimension reduction to use}
-    \item{\code{dim_reduction_name}}{dimension reduction name}
-    \item{\code{dim1_to_use}}{dimension to use on x-axis}
-    \item{\code{dim2_to_use}}{dimension to use on y-axis}
-    \item{\code{dim_point_shape}}{dim reduction points with border or not (border or no_border)}
-    \item{\code{dim_point_size}}{dim reduction plot: point size}
-    \item{\code{dim_point_alpha}}{transparancy of dim. reduction points}
-    \item{\code{dim_point_border_col}}{color of border around points}
-    \item{\code{dim_point_border_stroke}}{stroke size of border around points}
-    \item{\code{show_NN_network}}{show underlying NN network}
-    \item{\code{show_spatial_network}}{show underlying spatial netwok}
-    \item{\code{nn_network_to_use}}{type of NN network to use (kNN vs sNN)}
-    \item{\code{network_name}}{name of NN network to use, if show_NN_network = TRUE}
-    \item{\code{dim_network_color}}{color of NN network}
-    \item{\code{dim_edge_alpha}}{dim reduction plot: column to use for alpha of the edges}
-    \item{\code{scale_alpha_with_expression}}{scale expression with ggplot alpha parameter}
-    \item{\code{sdimx}}{spatial x-axis dimension name (default = 'sdimx')}
-    \item{\code{sdimy}}{spatial y-axis dimension name (default = 'sdimy')}
-    \item{\code{spatial_network_name}}{name of spatial network to use}
-    \item{\code{spatial_network_color}}{color of spatial network}
-    \item{\code{show_spatial_grid}}{show spatial grid}
-    \item{\code{grid_color}}{color of spatial grid}
-    \item{\code{spatial_grid_name}}{name of spatial grid to use}
-    \item{\code{spat_point_shape}}{spatial points with border or not (border or no_border)}
-    \item{\code{spat_point_size}}{spatial plot: point size}
-    \item{\code{spat_point_alpha}}{transparancy of spatial points}
-    \item{\code{spat_point_border_col}}{color of border around points}
-    \item{\code{spat_point_border_stroke}}{stroke size of border around points}
-    \item{\code{spat_edge_alpha}}{edge alpha}
-    \item{\code{cell_color_gradient}}{vector with 3 colors for numeric data}
-    \item{\code{gradient_midpoint}}{midpoint for color gradient}
-    \item{\code{gradient_limits}}{vector with lower and upper limits}
-    \item{\code{show_legend}}{show legend}
-    \item{\code{legend_text}}{size of legend text}
-    \item{\code{dim_background_color}}{color of plot background for dimension plot}
-    \item{\code{spat_background_color}}{color of plot background for spatial plot}
-    \item{\code{vor_border_color}}{border colorr for voronoi plot}
-    \item{\code{vor_max_radius}}{maximum radius for voronoi 'cells'}
-    \item{\code{vor_alpha}}{transparancy of voronoi 'cells'}
-    \item{\code{axis_text}}{size of axis text}
-    \item{\code{axis_title}}{size of axis title}
-    \item{\code{cow_n_col}}{cowplot param: how many columns}
-    \item{\code{cow_rel_h}}{cowplot param: relative height}
-    \item{\code{cow_rel_w}}{cowplot param: relative width}
-    \item{\code{cow_align}}{cowplot param: how to align}
-    \item{\code{show_plot}}{show plots}
-    \item{\code{return_plot}}{return ggplot object}
-    \item{\code{save_plot}}{directly save the plot [boolean]}
-    \item{\code{save_param}}{list of saving parameters, see \code{\link{showSaveParameters}}}
     \item{\code{default_save_name}}{default save name for saving, don't change, change save_name in save_param}
   }}
 }
@@ -77,17 +23,6 @@ Visualize cells according to spatial AND dimension reduction coordinates in ggpl
 }
 \details{
 Description of parameters.
-}
-\examples{
-
-data(mini_giotto_single_cell)
-
-all_genes = slot(mini_giotto_single_cell, 'gene_ID')
-selected_genes = all_genes[1]
-spatDimGenePlot(mini_giotto_single_cell, genes = selected_genes,
-                 dim_point_size = 3, spat_point_size = 3,
-                 cow_n_col = 1, plot_alignment = 'horizontal')
-
 }
 \seealso{
 \code{\link{spatDimGenePlot3D}}
