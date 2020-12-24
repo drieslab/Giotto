@@ -1092,10 +1092,10 @@ rna_standard_normalization = function(gobject,
                                       log_norm = TRUE,
                                       log_offset = 1,
                                       logbase = 2,
-                                      scale_feats = T,
-                                      scale_cells = T,
+                                      scale_feats = TRUE,
+                                      scale_cells = TRUE,
                                       scale_order = c('first_feats', 'first_cells'),
-                                      verbose = F) {
+                                      verbose = TRUE) {
 
   # check feature type compatibility
   if(!feat_type %in% c('rna', 'RNA')) {
@@ -1178,7 +1178,8 @@ rna_standard_normalization = function(gobject,
 rna_osmfish_normalization = function(gobject,
                                      raw_expr,
                                      feat_type,
-                                     verbose = F) {
+                                     name = 'custom',
+                                     verbose = TRUE) {
 
   # check feature type compatibility
   if(!feat_type %in% c('rna', 'RNA')) {
@@ -1191,9 +1192,9 @@ rna_osmfish_normalization = function(gobject,
   norm_feats_cells = t((t(norm_feats)/colSums_flex(norm_feats)) * ncol(raw_expr))
 
   # return results to Giotto object
-  if(verbose == TRUE) message('\n osmFISH-like normalized data will be returned to the custom Giotto slot \n')
+  if(verbose == TRUE) message('\n osmFISH-like normalized data will be returned to the', name, 'Giotto slot \n')
 
-  gobject@expression[[feat_type]][['custom']] = norm_feats_cells
+  gobject@expression[[feat_type]][[name]] = norm_feats_cells
 
   return(gobject)
 }
@@ -1201,12 +1202,21 @@ rna_osmfish_normalization = function(gobject,
 
 #' @name rna_pears_resid_normalization
 #' @description function for RNA normalization according to Lause/Kobak et al paper
+#' Adapted from https://gist.github.com/hypercompetent/51a3c428745e1c06d826d76c3671797c#file-pearson_residuals-r
 #' @keywords internal
 rna_pears_resid_normalization = function(gobject,
-                                        raw_expr,
-                                        feat_type,
-                                        theta = 100,
-                                        name = 'pears_resid') {
+                                         raw_expr,
+                                         feat_type,
+                                         theta = 100,
+                                         name = 'scaled',
+                                         verbose = TRUE) {
+
+
+  # print message with information #
+  if(verbose) message("using 'Lause/Kobak' method to normalize count matrix If used in published research, please cite:
+  Jan Lause, Philipp Berens, Dmitry Kobak (2020).
+                      'Analytic Pearson residuals for normalization of single-cell RNA-seq UMI data' ")
+
 
   # check feature type compatibility
   if(!feat_type %in% c('rna', 'RNA')) {
@@ -1219,12 +1229,16 @@ rna_pears_resid_normalization = function(gobject,
 
   #get residuals
   mu = (counts_sum1 %*% counts_sum0) / counts_sum
-  z  = (counts - mu) / sqrt(mu + mu^2/theta)
+  z  = (raw_expr - mu) / sqrt(mu + mu^2/theta)
 
   #clip to sqrt(n)
-  n = ncol(counts)
+  n = ncol(raw_expr)
   z[z > sqrt(n)]  = sqrt(n)
   z[z < -sqrt(n)] = -sqrt(n)
+
+
+  # return results to Giotto object
+  if(verbose == TRUE) message('\n Pearsono residual normalized data will be returned to the', name, 'Giotto slot \n')
 
   gobject@expression[[feat_type]][[name]] = z
 
@@ -1249,6 +1263,8 @@ rna_pears_resid_normalization = function(gobject,
 #' @param scale_genes deprecated, use scale_feats
 #' @param scale_cells z-score cells over all genes
 #' @param scale_order order to scale feats and cells
+#' @param theta theta parameter for the pearson residual normalization step
+#' @param update_slot slot or name to use for the results from osmFISH and pearson residual normalization
 #' @param verbose be verbose
 #' @return giotto object
 #' @details Currently there are two 'methods' to normalize your raw counts data.
@@ -1267,19 +1283,17 @@ rna_pears_resid_normalization = function(gobject,
 #'   \item{2. Next normalize cells, for each cell divide the normalized gene counts by the total
 #' counts per cell and multiply by the total number of cells.}
 #' }
-#' This data will be saved in the Giotto slot for custom expression.
+#' C. The normalization method as provided by Lause/Kobak et al is also implemented: \cr
+#' \itemize{
+#'   \item{1. First calculate expected values based on Pearson correlations.}
+#'   \item{2. Next calculate z-scores based on observed and expected values.}
+#' }
+#' By default the latter two results will be saved in the Giotto slot for scaled expression,
+#'  this can be changed by changing the update_slot parameters
 #' @export
-#' @examples
-#'
-#'
-#' data(mini_giotto_single_cell)
-#'
-#' norm_gobject = normalizeGiotto(mini_giotto_single_cell)
-#'
-#'
 normalizeGiotto <- function(gobject,
                             feat_type = NULL,
-                            norm_methods = c('standard', 'osmFISH'),
+                            norm_methods = c('standard', 'pearson_resid', 'osmFISH'),
                             library_size_norm = TRUE,
                             scalefactor = 6e3,
                             log_norm = TRUE,
@@ -1289,6 +1303,8 @@ normalizeGiotto <- function(gobject,
                             scale_genes = NULL,
                             scale_cells = TRUE,
                             scale_order = c('first_feats', 'first_cells'),
+                            theta = 100,
+                            update_slot = 'scaled',
                             verbose = FALSE) {
 
 
@@ -1308,7 +1324,7 @@ normalizeGiotto <- function(gobject,
   raw_expr = gobject@expression[[feat_type]][['raw']]
 
 
-  norm_methods = match.arg(arg = norm_methods, choices = c('standard', 'osmFISH'))
+  norm_methods = match.arg(arg = norm_methods, choices = c('standard', 'osmFISH', 'pearson_resid'))
 
   # normalization according to standard methods
   if(norm_methods == 'standard') {
@@ -1334,7 +1350,19 @@ normalizeGiotto <- function(gobject,
     gobject = rna_osmfish_normalization(gobject = gobject,
                                         raw_expr = raw_expr,
                                         feat_type = feat_type,
+                                        name = update_slot,
                                         verbose = verbose)
+
+  }
+
+  else if(norm_methods == 'pearson_resid') {
+
+    gobject = rna_pears_resid_normalization(gobject = gobject,
+                                            raw_expr = raw_expr,
+                                            feat_type = feat_type,
+                                            theta = theta,
+                                            name = update_slot,
+                                            verbose = verbose)
 
   }
 
