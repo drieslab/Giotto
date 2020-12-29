@@ -696,11 +696,11 @@ extract_expression_list = function(gobject,
     if(verbose == TRUE) message('Depth of provided expression list is more than 1, working with multiple types of molecular features \n')
 
 
-    if(length(expression_feat) > list_depth) {
+    if(length(expression_feat) > length(expr_list)) {
       stop('More expression feature types provided than expected \n')
     }
 
-    if(length(expression_feat) < list_depth) {
+    if(length(expression_feat) < length(expr_list)) {
       stop('Too few expression feature types provided than expected \n')
     }
 
