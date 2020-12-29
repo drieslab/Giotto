@@ -99,7 +99,7 @@ showGiottoImageNames(mini_visium)
 
 ```{r eval=FALSE}
 # explore gene and cell distribution
-filterDistributions(mini_visium, detection = 'genes')
+filterDistributions(mini_visium, detection = 'feats')
 filterDistributions(mini_visium, detection = 'cells')
 filterCombinations(mini_visium,
                    expression_thresholds = c(1),
@@ -181,8 +181,9 @@ plotMetaDataHeatmap(mini_visium, selected_genes = topgenes_scran,
 ## 6. A. simple cell type annotation
 ```{r eval=FALSE}
 
-clusters_cell_types = c('Gfap_cells', 'Tbr1_cells', 'Tcf7l2_cells', 'Wfs1_cells', 'Nptxr_cells')
-names(clusters_cell_types) = 1:5
+clusters_cell_types = c('Ambiguous_1', 'Tcf7l2_cells', 'Ambiguous_2', 'Ipcef1_cells',
+                        'Prdm8_cells', 'Spink8_cells', 'Ccn2_cells', 'Cdc153_cells')
+names(clusters_cell_types) = 1:8
 mini_visium = annotateGiotto(gobject = mini_visium, annotation_vector = clusters_cell_types,
                              cluster_column = 'leiden_clus', name = 'cell_types')
 
@@ -291,14 +292,14 @@ Visualize top 4 genes per method.
 ```{r eval=FALSE, fig.width=10, fig.height=10}
 km_spatialgenes = binSpect(mini_visium)
 spatGenePlot(mini_visium, expression_values = 'scaled', 
-             genes = km_spatialgenes[1:4]$genes,
+             genes = km_spatialgenes[1:4]$feats,
              point_shape = 'border', point_border_stroke = 0.1,
              show_network = F, network_color = 'lightgrey', point_size = 2.5,
              cow_n_col = 2)
 
 rank_spatialgenes = binSpect(mini_visium, bin_method = 'rank')
 spatGenePlot(mini_visium, expression_values = 'scaled', 
-             genes = rank_spatialgenes[1:4]$genes,
+             genes = rank_spatialgenes[1:4]$feats,
              point_shape = 'border', point_border_stroke = 0.1,
              show_network = F, network_color = 'lightgrey', point_size = 2.5,
              cow_n_col = 2)
@@ -320,7 +321,7 @@ and a subset of individual spatial genes.
 ```{r eval=FALSE, fig.width=10, fig.height=10}
 
 # 1. calculate spatial correlation scores 
-ext_spatial_genes = km_spatialgenes[1:100]$genes
+ext_spatial_genes = km_spatialgenes[1:100]$feats
 spat_cor_netw_DT = detectSpatialCorGenes(mini_visium,
                                          method = 'network', spatial_network_name = 'Delaunay_network',
                                          subset_genes = ext_spatial_genes)
@@ -335,7 +336,7 @@ top_netw_spat_cluster = showSpatialCorGenes(spat_cor_netw_DT, use_clus_name = 's
                                             selected_clusters = 6, show_top_genes = 1)
 
 cluster_genes_DT = showSpatialCorGenes(spat_cor_netw_DT, use_clus_name = 'spat_netw_clus', show_top_genes = 1)
-cluster_genes = cluster_genes_DT$clus; names(cluster_genes) = cluster_genes_DT$gene_ID
+cluster_genes = cluster_genes_DT$clus; names(cluster_genes) = cluster_genes_DT$feat_ID
 
 mini_visium = createMetagenes(mini_visium, gene_clusters = cluster_genes, name = 'cluster_metagene')
 spatCellPlot(mini_visium,
