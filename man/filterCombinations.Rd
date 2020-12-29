@@ -6,10 +6,13 @@
 \usage{
 filterCombinations(
   gobject,
+  feat_type = NULL,
   expression_values = c("raw", "normalized", "scaled", "custom"),
   expression_thresholds = c(1, 2),
-  gene_det_in_min_cells = c(5, 50),
-  min_det_genes_per_cell = c(200, 400),
+  feat_det_in_min_cells = c(5, 50),
+  gene_det_in_min_cells = NULL,
+  min_det_feats_per_cell = c(200, 400),
+  min_det_genes_per_cell = NULL,
   scale_x_axis = "identity",
   x_axis_offset = 0,
   scale_y_axis = "identity",
@@ -24,13 +27,19 @@ filterCombinations(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{feat_type}{feature type}
+
 \item{expression_values}{expression values to use}
 
 \item{expression_thresholds}{all thresholds to consider a gene expressed}
 
-\item{gene_det_in_min_cells}{minimum number of cells that should express a gene to consider that gene further}
+\item{feat_det_in_min_cells}{minimum # of cells that need to express a feature}
 
-\item{min_det_genes_per_cell}{minimum number of expressed genes per cell to consider that cell further}
+\item{gene_det_in_min_cells}{deprecated, use feat_det_in_min_cells}
+
+\item{min_det_feats_per_cell}{minimum # of features that need to be detected in a cell}
+
+\item{min_det_genes_per_cell}{deprecated, use min_det_feats_per_cell}
 
 \item{scale_x_axis}{ggplot transformation for x-axis (e.g. log2)}
 

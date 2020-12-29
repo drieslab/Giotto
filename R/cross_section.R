@@ -601,6 +601,7 @@ crossSectionGenePlot <-function(gobject=NULL,
 #' @name crossSectionPlot
 #' @description Visualize cells in a virtual cross section according to spatial coordinates
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param crossSection_obj cross section object as alternative input. default = NULL.
 #' @param name name of virtual cross section to use
 #' @param spatial_network_name name of spatial network to use
@@ -611,29 +612,44 @@ crossSectionGenePlot <-function(gobject=NULL,
 #' @export
 #' @seealso \code{\link{crossSectionPlot}}
 crossSectionPlot <-function(gobject,
+                            feat_type = NULL,
                             crossSection_obj = NULL,
-                            name=NULL,
+                            name = NULL,
                             spatial_network_name = "Delaunay_network",
-                            default_save_name = "crossSectionPlot",...){
+                            default_save_name = "crossSectionPlot",
+                            ...){
+
+
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
 
   # load cross section object
   if (!is.null(crossSection_obj)){
     crossSection_obj = crossSection_obj
   }else{
-    crossSection_obj = read_crossSection(gobject,name=name,spatial_network_name = spatial_network_name)
+    crossSection_obj = read_crossSection(gobject,
+                                         name = name,
+                                         spatial_network_name = spatial_network_name)
   }
 
 
   cell_subset = crossSection_obj$cell_subset
   cell_subset_projection_coords = crossSection_obj$cell_subset_projection_coords
+
   # modify gobject based on crossSection object
-  subset_cell_IDs = gobject@cell_metadata$cell_ID[cell_subset]
-  temp_gobject = subsetGiotto(gobject, cell_ids = subset_cell_IDs)
+  subset_cell_IDs = gobject@cell_metadata[[feat_type]]$cell_ID[cell_subset]
+  temp_gobject = subsetGiotto(gobject,
+                              feat_type = feat_type,
+                              cell_ids = subset_cell_IDs)
   temp_gobject@spatial_locs$sdimx=cell_subset_projection_coords[,1]
   temp_gobject@spatial_locs$sdimy=cell_subset_projection_coords[,2]
   temp_gobject@spatial_locs$sdimz=rep(0,dim(cell_subset_projection_coords)[1])
+
   # call spatGenePlot2D to generate the plots
   spatPlot2D(gobject = temp_gobject,
+             feat_type = feat_type,
              spatial_network_name = spatial_network_name,
              default_save_name = default_save_name,...)
 

@@ -6,6 +6,7 @@
 \usage{
 crossSectionPlot(
   gobject,
+  feat_type = NULL,
   crossSection_obj = NULL,
   name = NULL,
   spatial_network_name = "Delaunay_network",
@@ -15,6 +16,8 @@ crossSectionPlot(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{feat_type}{feature type}
 
 \item{crossSection_obj}{cross section object as alternative input. default = NULL.}
 

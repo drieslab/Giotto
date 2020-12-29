@@ -156,11 +156,11 @@ gini_markers = findMarkers_one_vs_all(gobject = starmap_mini,
 
 # get top 2 genes per cluster and visualize with violinplot
 topgenes_gini = gini_markers[, head(.SD, 2), by = 'cluster']
-violinPlot(starmap_mini, genes = topgenes_gini$genes, cluster_column = 'leiden_clus')
+violinPlot(starmap_mini, genes = topgenes_gini$feats, cluster_column = 'leiden_clus')
 
 # get top 6 genes per cluster and visualize with heatmap
 topgenes_gini2 = gini_markers[, head(.SD, 6), by = 'cluster']
-plotMetaDataHeatmap(starmap_mini, selected_genes = topgenes_gini2$genes,
+plotMetaDataHeatmap(starmap_mini, selected_genes = topgenes_gini2$feats ,
                     metadata_cols = c('leiden_clus'))
 ```
 
@@ -227,11 +227,13 @@ geometry to be installed.
 ```{r eval=FALSE}
 plotStatDelaunayNetwork(gobject = starmap_mini, maximum_distance = 200, 
                         method = 'delaunayn_geometry')
-starmap_mini = createSpatialNetwork(gobject = starmap_mini, minimum_k = 2, 
+starmap_mini = createSpatialNetwork(gobject = starmap_mini,
+                                    minimum_k = 2, 
                                     maximum_distance_delaunay = 200, 
                                     method = 'Delaunay', 
                                     delaunay_method = 'delaunayn_geometry')
-starmap_mini = createSpatialNetwork(gobject = starmap_mini, minimum_k = 2, 
+starmap_mini = createSpatialNetwork(gobject = starmap_mini,
+                                    minimum_k = 2, 
                                     method = 'kNN', k = 10)
 showNetworks(starmap_mini)
 
@@ -257,14 +259,14 @@ Visualize top 4 genes per method.
 ```{r eval=FALSE, fig.width=10, fig.height=10}
 km_spatialgenes = binSpect(starmap_mini)
 spatGenePlot(starmap_mini, expression_values = 'scaled', 
-             genes = km_spatialgenes[1:4]$genes,
+             genes = km_spatialgenes[1:4]$feats,
              point_shape = 'border', point_border_stroke = 0.1,
              show_network = F, network_color = 'lightgrey', point_size = 2.5,
              cow_n_col = 2)
 
 rank_spatialgenes = binSpect(starmap_mini, bin_method = 'rank')
 spatGenePlot(starmap_mini, expression_values = 'scaled', 
-             genes = rank_spatialgenes[1:4]$genes,
+             genes = rank_spatialgenes[1:4]$feats,
              point_shape = 'border', point_border_stroke = 0.1,
              show_network = F, network_color = 'lightgrey', point_size = 2.5,
              cow_n_col = 2)
@@ -286,7 +288,7 @@ and a subset of individual spatial genes.
 ```{r eval=FALSE, fig.width=10, fig.height=10}
 
 # 1. calculate spatial correlation scores 
-ext_spatial_genes = km_spatialgenes[1:20]$genes
+ext_spatial_genes = km_spatialgenes[1:20]$feats
 spat_cor_netw_DT = detectSpatialCorGenes(starmap_mini,
                                          method = 'network', 
                                          spatial_network_name = 'Delaunay_network',
@@ -294,8 +296,10 @@ spat_cor_netw_DT = detectSpatialCorGenes(starmap_mini,
 
 # 2. cluster correlation scores
 spat_cor_netw_DT = clusterSpatialCorGenes(spat_cor_netw_DT, 
-                                          name = 'spat_netw_clus', k = 6)
-heatmSpatialCorGenes(starmap_mini, spatCorObject = spat_cor_netw_DT, 
+                                          name = 'spat_netw_clus',
+                                          k = 6)
+heatmSpatialCorGenes(starmap_mini,
+                     spatCorObject = spat_cor_netw_DT, 
                      use_clus_name = 'spat_netw_clus')
 
 netw_ranks = rankSpatialCorGroups(starmap_mini, 
@@ -309,7 +313,7 @@ top_netw_spat_cluster = showSpatialCorGenes(spat_cor_netw_DT,
 cluster_genes_DT = showSpatialCorGenes(spat_cor_netw_DT, 
                                        use_clus_name = 'spat_netw_clus',
                                        show_top_genes = 1)
-cluster_genes = cluster_genes_DT$clus; names(cluster_genes) = cluster_genes_DT$gene_ID
+cluster_genes = cluster_genes_DT$clus; names(cluster_genes) = cluster_genes_DT$feat_ID
 
 
 starmap_mini = createMetagenes(starmap_mini, gene_clusters = cluster_genes, name = 'cluster_metagene')
@@ -327,7 +331,7 @@ hmrf_folder = paste0(temp_dir,'/','11_HMRF/')
 if(!file.exists(hmrf_folder)) dir.create(hmrf_folder, recursive = T)
 
 # perform hmrf
-my_spatial_genes = km_spatialgenes[1:20]$genes
+my_spatial_genes = km_spatialgenes[1:20]$feats
 HMRF_spatial_genes = doHMRF(gobject = starmap_mini,
                             expression_values = 'scaled',
                             spatial_genes = my_spatial_genes,

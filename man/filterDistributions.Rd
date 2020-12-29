@@ -6,9 +6,10 @@
 \usage{
 filterDistributions(
   gobject,
+  feat_type = NULL,
   expression_values = c("raw", "normalized", "scaled", "custom"),
   expression_threshold = 1,
-  detection = c("genes", "cells"),
+  detection = c("feats", "cells"),
   plot_type = c("histogram", "violin"),
   nr_bins = 30,
   fill_color = "lightblue",
@@ -24,11 +25,13 @@ filterDistributions(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{feat_type}{feature type}
+
 \item{expression_values}{expression values to use}
 
 \item{expression_threshold}{threshold to consider a gene expressed}
 
-\item{detection}{consider genes or cells}
+\item{detection}{consider features (e.g. genes) or cells}
 
 \item{plot_type}{type of plot}
 

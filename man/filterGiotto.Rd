@@ -31,7 +31,7 @@ filterGiotto(
 
 \item{min_det_feats_per_cell}{minimum # of features that need to be detected in a cell}
 
-\item{min_det_genes_per_cell}{deprecated, use min_det_genes_per_cell}
+\item{min_det_genes_per_cell}{deprecated, use min_det_feats_per_cell}
 
 \item{verbose}{verbose}
 }

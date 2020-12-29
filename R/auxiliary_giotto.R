@@ -712,9 +712,10 @@ subsetGiottoLocs = function(gobject,
 #' @title filterDistributions
 #' @description show gene or cell distribution after filtering on expression threshold
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param expression_values expression values to use
 #' @param expression_threshold threshold to consider a gene expressed
-#' @param detection consider genes or cells
+#' @param detection consider features (e.g. genes) or cells
 #' @param plot_type type of plot
 #' @param nr_bins number of bins for histogram plot
 #' @param fill_color fill color for plots
@@ -738,9 +739,10 @@ subsetGiottoLocs = function(gobject,
 #' filterDistributions(mini_giotto_single_cell, detection = 'cells')
 #'
 filterDistributions <- function(gobject,
+                                feat_type = NULL,
                                 expression_values = c('raw', 'normalized', 'scaled', 'custom'),
                                 expression_threshold = 1,
-                                detection = c('genes', 'cells'),
+                                detection = c('feats', 'cells'),
                                 plot_type = c('histogram', 'violin'),
                                 nr_bins = 30,
                                 fill_color = 'lightblue',
@@ -752,12 +754,20 @@ filterDistributions <- function(gobject,
                                 save_param =  list(),
                                 default_save_name = 'filterDistributions') {
 
+
+  # set feat type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
   # expression values to be used
-  values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  values = match.arg(expression_values, unique(c('raw', 'normalized', 'scaled', 'custom', expression_values)))
+  expr_values = select_expression_values(gobject = gobject,
+                                         feat_type = feat_type,
+                                         values = values)
 
   # plot distribution for genes or cells
-  detection = match.arg(detection, c('genes', 'cells'))
+  detection = match.arg(detection, c('feats', 'cells'))
 
   # plot type
   plot_type = match.arg(plot_type, c('histogram', 'violin'))
@@ -766,34 +776,34 @@ filterDistributions <- function(gobject,
   V1 = NULL
 
   # for genes
-  if(detection == 'genes') {
+  if(detection == 'feats') {
 
-    gene_detection_levels = data.table::as.data.table(rowSums_giotto(expr_values >= expression_threshold))
+    feat_detection_levels = data.table::as.data.table(rowSums_flex(expr_values >= expression_threshold))
 
     if(plot_type == 'violin') {
 
       pl <- ggplot2::ggplot()
       pl <- pl + ggplot2::theme_classic()
-      pl <- pl + ggplot2::geom_violin(data = gene_detection_levels, ggplot2::aes(x = 'genes', y = V1+axis_offset),
+      pl <- pl + ggplot2::geom_violin(data = feat_detection_levels, ggplot2::aes(x = 'feats', y = V1+axis_offset),
                                       fill = fill_color)
       pl <- pl + ggplot2::scale_y_continuous(trans = scale_axis)
-      pl <- pl + ggplot2::labs(y = 'gene detected in # of cells', x = '')
+      pl <- pl + ggplot2::labs(y = 'feat detected in # of cells', x = '')
 
     } else if(plot_type == 'histogram') {
 
       pl <- ggplot2::ggplot()
       pl <- pl + ggplot2::theme_classic()
-      pl <- pl + ggplot2::geom_histogram(data = gene_detection_levels, ggplot2::aes(x = V1+axis_offset),
+      pl <- pl + ggplot2::geom_histogram(data = feat_detection_levels, ggplot2::aes(x = V1+axis_offset),
                                          color = 'white', bins = nr_bins, fill = fill_color)
       pl <- pl + ggplot2::scale_x_continuous(trans = scale_axis)
-      pl <- pl + ggplot2::labs(x = 'gene detected in # of cells')
+      pl <- pl + ggplot2::labs(x = 'feat detected in # of cells')
 
     }
 
     # for cells
   } else if(detection == 'cells') {
 
-    cell_detection_levels = data.table::as.data.table(colSums_giotto(expr_values >= expression_threshold))
+    cell_detection_levels = data.table::as.data.table(colSums_flex(expr_values >= expression_threshold))
 
     if(plot_type == 'violin') {
 
@@ -802,7 +812,7 @@ filterDistributions <- function(gobject,
       pl <- pl + ggplot2::geom_violin(data = cell_detection_levels, ggplot2::aes(x = 'cells', y = V1+axis_offset),
                                       fill = fill_color)
       pl <- pl + ggplot2::scale_y_continuous(trans = scale_axis)
-      pl <- pl + ggplot2::labs(y = 'genes detected per cell', x = '')
+      pl <- pl + ggplot2::labs(y = 'feats detected per cell', x = '')
 
     } else if(plot_type == 'histogram') {
 
@@ -811,7 +821,7 @@ filterDistributions <- function(gobject,
       pl <- pl + ggplot2::geom_histogram(data = cell_detection_levels, ggplot2::aes(x = V1+axis_offset),
                                          color = 'white', bins = nr_bins, fill = fill_color)
       pl <- pl + ggplot2::scale_x_continuous(trans = scale_axis)
-      pl <- pl + ggplot2::labs(x = 'genes detected per cell')
+      pl <- pl + ggplot2::labs(x = 'feats detected per cell')
 
     }
   }
@@ -843,10 +853,13 @@ filterDistributions <- function(gobject,
 #' @title filterCombinations
 #' @description Shows how many genes and cells are lost with combinations of thresholds.
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param expression_values expression values to use
 #' @param expression_thresholds all thresholds to consider a gene expressed
-#' @param gene_det_in_min_cells minimum number of cells that should express a gene to consider that gene further
-#' @param min_det_genes_per_cell minimum number of expressed genes per cell to consider that cell further
+#' @param feat_det_in_min_cells minimum # of cells that need to express a feature
+#' @param gene_det_in_min_cells deprecated, use feat_det_in_min_cells
+#' @param min_det_feats_per_cell minimum # of features that need to be detected in a cell
+#' @param min_det_genes_per_cell deprecated, use min_det_feats_per_cell
 #' @param scale_x_axis ggplot transformation for x-axis (e.g. log2)
 #' @param x_axis_offset x-axis offset to be used together with the scaling transformation
 #' @param scale_y_axis ggplot transformation for y-axis (e.g. log2)
@@ -872,10 +885,13 @@ filterDistributions <- function(gobject,
 #' min_det_genes_per_cell = c(5, 10, 20))
 #'
 filterCombinations <- function(gobject,
+                               feat_type = NULL,
                                expression_values = c('raw', 'normalized', 'scaled', 'custom'),
                                expression_thresholds = c(1, 2),
-                               gene_det_in_min_cells = c(5, 50),
-                               min_det_genes_per_cell = c(200, 400),
+                               feat_det_in_min_cells = c(5, 50),
+                               gene_det_in_min_cells = NULL,
+                               min_det_feats_per_cell = c(200, 400),
+                               min_det_genes_per_cell = NULL,
                                scale_x_axis = 'identity',
                                x_axis_offset = 0,
                                scale_y_axis = 'identity',
@@ -887,44 +903,61 @@ filterCombinations <- function(gobject,
                                default_save_name = 'filterCombinations') {
 
 
-
-  # expression values to be used
-  values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
-
-  # gene and cell minimums need to have the same length
-  if(length(gene_det_in_min_cells) != length(min_det_genes_per_cell)) {
-    stop('\n gene_det_in_min_cells and min_det_genes_per_cell need to be the same size \n')
+  ## deprecated arguments
+  if(!is.null(gene_det_in_min_cells)) {
+    feat_det_in_min_cells = gene_det_in_min_cells
+    warning('gene_det_in_min_cells is deprecated, use feat_det_in_min_cells in the future \n')
+  }
+  if(!is.null(min_det_genes_per_cell)) {
+    min_det_feats_per_cell = min_det_genes_per_cell
+    warning('min_det_genes_per_cell is deprecated, use min_det_feats_per_cell in the future \n')
   }
 
-  # compute the number of removed genes and cells
+  # set feat type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+
+  # expression values to be used
+  values = match.arg(expression_values, unique(c('raw', 'normalized', 'scaled', 'custom', expression_values)))
+  expr_values = select_expression_values(gobject = gobject,
+                                         feat_type = feat_type,
+                                         values = values)
+
+  # feat and cell minimums need to have the same length
+  if(length(feat_det_in_min_cells) != length(min_det_feats_per_cell)) {
+    stop('\n feat_det_in_min_cells and min_det_feats_per_cell need to be the same size \n')
+  }
+
+  # compute the number of removed feats and cells
   result_list = list()
   for(thresh_i in 1:length(expression_thresholds)) {
 
     threshold = expression_thresholds[thresh_i]
 
-    det_genes_res = list()
+    det_feats_res = list()
     det_cells_res = list()
-    for(combn_i in 1:length(gene_det_in_min_cells)) {
+    for(combn_i in 1:length(feat_det_in_min_cells)) {
 
-      min_cells_for_gene = gene_det_in_min_cells[combn_i]
-      min_genes_per_cell = min_det_genes_per_cell[combn_i]
+      min_cells_for_feat = feat_det_in_min_cells[combn_i]
+      min_feats_per_cell = min_det_feats_per_cell[combn_i]
 
 
-      # first remove genes
-      filter_index_genes = rowSums_giotto(expr_values >= threshold) >= min_cells_for_gene
-      removed_genes = length(filter_index_genes[filter_index_genes == FALSE])
-      det_cells_res[[combn_i]] = removed_genes
+      # first remove feats
+      filter_index_feats = rowSums_giotto(expr_values >= threshold) >= min_cells_for_feat
+      removed_feats = length(filter_index_feats[filter_index_feats == FALSE])
+      det_cells_res[[combn_i]] = removed_feats
 
       # then remove cells
-      filter_index_cells = colSums_giotto(expr_values[filter_index_genes, ] >= threshold) >= min_genes_per_cell
+      filter_index_cells = colSums_giotto(expr_values[filter_index_feats, ] >= threshold) >= min_feats_per_cell
       removed_cells = length(filter_index_cells[filter_index_cells == FALSE])
-      det_genes_res[[combn_i]] = removed_cells
+      det_feats_res[[combn_i]] = removed_cells
     }
 
     temp_dt = data.table::data.table('threshold' = threshold,
-                                     removed_genes = unlist(det_cells_res),
-                                     removed_cells = unlist(det_genes_res))
+                                     removed_feats = unlist(det_cells_res),
+                                     removed_cells = unlist(det_feats_res))
 
     result_list[[thresh_i]] = temp_dt
 
@@ -933,40 +966,40 @@ filterCombinations <- function(gobject,
   result_DT = do.call('rbind', result_list)
 
   # data.table variables
-  # gene_detected_in_min_cells = min_detected_genes_per_cell = combination = NULL
+  # feat_detected_in_min_cells = min_detected_feats_per_cell = combination = NULL
 
   # data.table variables
-  gene_detected_in_min_cells = min_detected_genes_per_cell = combination = NULL
+  feat_detected_in_min_cells = min_detected_feats_per_cell = combination = NULL
 
-  result_DT[['gene_detected_in_min_cells']] = gene_det_in_min_cells
-  result_DT[['min_detected_genes_per_cell']] = min_det_genes_per_cell
-  result_DT[['combination']] = paste0(result_DT$gene_detected_in_min_cells,'-',result_DT$min_detected_genes_per_cell)
+  result_DT[['feat_detected_in_min_cells']] = feat_det_in_min_cells
+  result_DT[['min_detected_feats_per_cell']] = min_det_feats_per_cell
+  result_DT[['combination']] = paste0(result_DT$feat_detected_in_min_cells,'-',result_DT$min_detected_feats_per_cell)
 
   result_DT = result_DT[,.(threshold,
-                           gene_detected_in_min_cells,
-                           min_detected_genes_per_cell,
+                           feat_detected_in_min_cells,
+                           min_detected_feats_per_cell,
                            combination,
-                           removed_genes,
+                           removed_feats,
                            removed_cells)]
 
   maximum_x_value = max(result_DT[['removed_cells']], na.rm = T)
-  maximum_y_value = max(result_DT[['removed_genes']], na.rm = T)
+  maximum_y_value = max(result_DT[['removed_feats']], na.rm = T)
 
   pl <- ggplot2::ggplot()
   pl <- pl + ggplot2::theme_classic()
   pl <- pl + ggplot2::geom_line(data = result_DT, aes(x = removed_cells+x_axis_offset,
-                                                      y = removed_genes+y_axis_offset,
+                                                      y = removed_feats+y_axis_offset,
                                                       group = as.factor(threshold)), linetype = 2)
   pl <- pl + ggplot2::geom_point(data = result_DT, aes(x = removed_cells+x_axis_offset,
-                                                       y = removed_genes+y_axis_offset,
+                                                       y = removed_feats+y_axis_offset,
                                                        color = as.factor(threshold)))
   pl <- pl + scale_color_discrete(guide = guide_legend(title = 'threshold(s)'))
   pl <- pl + ggrepel::geom_text_repel(data = result_DT, aes(x = removed_cells+x_axis_offset,
-                                                            y = removed_genes+y_axis_offset,
+                                                            y = removed_feats+y_axis_offset,
                                                             label = combination))
   pl <- pl + ggplot2::scale_x_continuous(trans = scale_x_axis, limits = c(0, maximum_x_value))
   pl <- pl + ggplot2::scale_y_continuous(trans = scale_y_axis, limits = c(0, maximum_y_value))
-  pl <- pl + ggplot2::labs(x = 'number of removed cells', y = 'number of removed genes')
+  pl <- pl + ggplot2::labs(x = 'number of removed cells', y = 'number of removed feats')
 
 
   # print, return and save parameters
@@ -1003,7 +1036,7 @@ filterCombinations <- function(gobject,
 #' @param feat_det_in_min_cells minimum # of cells that need to express a feature
 #' @param gene_det_in_min_cells deprecated, use feat_det_in_min_cells
 #' @param min_det_feats_per_cell minimum # of features that need to be detected in a cell
-#' @param min_det_genes_per_cell deprecated, use min_det_genes_per_cell
+#' @param min_det_genes_per_cell deprecated, use min_det_feats_per_cell
 #' @param verbose verbose
 #' @return giotto object
 #' @details The function \code{\link{filterCombinations}} can be used to explore the effect of different parameter values.
