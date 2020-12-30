@@ -6,6 +6,7 @@
 \usage{
 getClusterSimilarity(
   gobject,
+  feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   cluster_column,
   cor = c("pearson", "spearman")
@@ -13,6 +14,8 @@ getClusterSimilarity(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{feat_type}{feature type}
 
 \item{expression_values}{expression values to use}
 

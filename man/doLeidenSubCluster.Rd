@@ -6,15 +6,21 @@
 \usage{
 doLeidenSubCluster(
   gobject,
+  feat_type = NULL,
   name = "sub_pleiden_clus",
   cluster_column = NULL,
   selected_clusters = NULL,
-  hvg_param = list(reverse_log_scale = T, difference_in_cov = 1, expression_values =
+  hvf_param = list(reverse_log_scale = T, difference_in_cov = 1, expression_values =
     "normalized"),
-  hvg_min_perc_cells = 5,
-  hvg_mean_expr_det = 1,
-  use_all_genes_as_hvg = FALSE,
-  min_nr_of_hvg = 5,
+  hvg_param = NULL,
+  hvf_min_perc_cells = 5,
+  hvg_min_perc_cells = NULL,
+  hvf_mean_expr_det = 1,
+  hvg_mean_expr_det = NULL,
+  use_all_feats_as_hvf = FALSE,
+  use_all_genes_as_hvg = NULL,
+  min_nr_of_hvf = 5,
+  min_nr_of_hvg = NULL,
   pca_param = list(expression_values = "normalized", scale_unit = T),
   nn_param = list(dimensions_to_use = 1:20),
   k_neighbors = 10,
@@ -30,21 +36,33 @@ doLeidenSubCluster(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{feat_type}{feature type}
+
 \item{name}{name for new clustering result}
 
 \item{cluster_column}{cluster column to subcluster}
 
 \item{selected_clusters}{only do subclustering on these clusters}
 
-\item{hvg_param}{parameters for calculateHVG}
+\item{hvf_param}{parameters for calculateHVf}
 
-\item{hvg_min_perc_cells}{threshold for detection in min percentage of cells}
+\item{hvg_param}{deprecatd, use hvf_param}
 
-\item{hvg_mean_expr_det}{threshold for mean expression level in cells with detection}
+\item{hvf_min_perc_cells}{threshold for detection in min percentage of cells}
 
-\item{use_all_genes_as_hvg}{forces all genes to be HVG and to be used as input for PCA}
+\item{hvg_min_perc_cells}{deprecated, use hvf_min_perc_cells}
 
-\item{min_nr_of_hvg}{minimum number of HVG, or all genes will be used as input for PCA}
+\item{hvf_mean_expr_det}{threshold for mean expression level in cells with detection}
+
+\item{hvg_mean_expr_det}{deprecated, use hvf_mean_expr_det}
+
+\item{use_all_feats_as_hvf}{forces all features to be HVF and to be used as input for PCA}
+
+\item{use_all_genes_as_hvg}{deprecated, use use_all_feats_as_hvf}
+
+\item{min_nr_of_hvf}{minimum number of HVF, or all features will be used as input for PCA}
+
+\item{min_nr_of_hvg}{deprecated, use min_nr_of_hvf}
 
 \item{pca_param}{parameters for runPCA}
 
@@ -77,7 +95,7 @@ This function performs subclustering using the Leiden algorithm on selected clus
 The systematic steps are:
 \itemize{
   \item{1. subset Giotto object}
-  \item{2. identify highly variable genes}
+  \item{2. identify highly variable fetures}
   \item{3. run PCA}
   \item{4. create nearest neighbouring network}
   \item{5. do Leiden clustering}

@@ -783,7 +783,7 @@ doKmeans <- function(gobject,
 
     # features as columns
     # cells as rows
-    matrix_to_use = t_giotto(expr_values)
+    matrix_to_use = t_flex(expr_values)
 
   }
 
@@ -791,7 +791,7 @@ doKmeans <- function(gobject,
   if(distance_method == 'original') {
     celldist = matrix_to_use
   } else if(distance_method %in% c('spearman', 'pearson')) {
-    celldist = stats::as.dist(1-cor_giotto(x = t_giotto(matrix_to_use), method = distance_method))
+    celldist = stats::as.dist(1-cor_flex(x = t_flex(matrix_to_use), method = distance_method))
   } else if(distance_method %in% c("euclidean", "maximum", "manhattan",
                                    "canberra", "binary", "minkowski")) {
     celldist = stats::dist(x = matrix_to_use, method = distance_method)
@@ -946,7 +946,7 @@ doHclust <- function(gobject,
 
     # features as columns
     # cells as rows
-    matrix_to_use = t_giotto(expr_values)
+    matrix_to_use = t_flex(expr_values)
 
   }
 
@@ -954,7 +954,7 @@ doHclust <- function(gobject,
   if(distance_method == 'original') {
     celldist = matrix_to_use
   } else if(distance_method %in% c('spearman', 'pearson')) {
-    celldist = stats::as.dist(1-cor_giotto(x = t_giotto(matrix_to_use), method = distance_method))
+    celldist = stats::as.dist(1-cor_flex(x = t_flex(matrix_to_use), method = distance_method))
   } else if(distance_method %in% c("euclidean", "maximum", "manhattan",
                                    "canberra", "binary", "minkowski")) {
     celldist = stats::dist(x = matrix_to_use, method = distance_method)
@@ -1258,14 +1258,20 @@ clusterCells <- function(gobject,
 #' @name doLeidenSubCluster
 #' @description Further subcluster cells using a NN-network and the Leiden algorithm
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param name name for new clustering result
 #' @param cluster_column cluster column to subcluster
 #' @param selected_clusters only do subclustering on these clusters
-#' @param hvg_param parameters for calculateHVG
-#' @param hvg_min_perc_cells threshold for detection in min percentage of cells
-#' @param hvg_mean_expr_det threshold for mean expression level in cells with detection
-#' @param use_all_genes_as_hvg forces all genes to be HVG and to be used as input for PCA
-#' @param min_nr_of_hvg minimum number of HVG, or all genes will be used as input for PCA
+#' @param hvf_param parameters for calculateHVf
+#' @param hvg_param deprecatd, use hvf_param
+#' @param hvf_min_perc_cells threshold for detection in min percentage of cells
+#' @param hvg_min_perc_cells deprecated, use hvf_min_perc_cells
+#' @param hvf_mean_expr_det threshold for mean expression level in cells with detection
+#' @param hvg_mean_expr_det deprecated, use hvf_mean_expr_det
+#' @param use_all_feats_as_hvf forces all features to be HVF and to be used as input for PCA
+#' @param use_all_genes_as_hvg deprecated, use use_all_feats_as_hvf
+#' @param min_nr_of_hvf minimum number of HVF, or all features will be used as input for PCA
+#' @param min_nr_of_hvg deprecated, use min_nr_of_hvf
 #' @param pca_param parameters for runPCA
 #' @param nn_param parameters for parameters for createNearestNetwork
 #' @param k_neighbors number of k for createNearestNetwork
@@ -1281,7 +1287,7 @@ clusterCells <- function(gobject,
 #' The systematic steps are:
 #' \itemize{
 #'   \item{1. subset Giotto object}
-#'   \item{2. identify highly variable genes}
+#'   \item{2. identify highly variable fetures}
 #'   \item{3. run PCA}
 #'   \item{4. create nearest neighbouring network}
 #'   \item{5. do Leiden clustering}
@@ -1289,14 +1295,20 @@ clusterCells <- function(gobject,
 #' @seealso \code{\link{doLeidenCluster}}
 #' @export
 doLeidenSubCluster = function(gobject,
+                              feat_type = NULL,
                               name = 'sub_pleiden_clus',
                               cluster_column = NULL,
                               selected_clusters = NULL,
-                              hvg_param = list(reverse_log_scale = T, difference_in_cov = 1, expression_values = 'normalized'),
-                              hvg_min_perc_cells = 5,
-                              hvg_mean_expr_det = 1,
-                              use_all_genes_as_hvg = FALSE,
-                              min_nr_of_hvg = 5,
+                              hvf_param = list(reverse_log_scale = T, difference_in_cov = 1, expression_values = 'normalized'),
+                              hvg_param = NULL,
+                              hvf_min_perc_cells = 5,
+                              hvg_min_perc_cells = NULL,
+                              hvf_mean_expr_det = 1,
+                              hvg_mean_expr_det = NULL,
+                              use_all_feats_as_hvf = FALSE,
+                              use_all_genes_as_hvg = NULL,
+                              min_nr_of_hvf = 5,
+                              min_nr_of_hvg = NULL,
                               pca_param = list(expression_values = 'normalized', scale_unit = T),
                               nn_param = list(dimensions_to_use = 1:20),
                               k_neighbors = 10,
@@ -1309,9 +1321,39 @@ doLeidenSubCluster = function(gobject,
                               verbose = T) {
 
 
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+  ## deprecated arguments
+  if(!is.null(hvg_param)) {
+    hvf_param = hvg_param
+    warning('hvg_param is deprecated, use hvf_param in the future \n')
+  }
+  if(!is.null(hvg_min_perc_cells)) {
+    hvf_min_perc_cells = hvg_min_perc_cells
+    warning('hvg_min_perc_cells is deprecated, use hvf_min_perc_cells in the future \n')
+  }
+  if(!is.null(hvg_mean_expr_det)) {
+    hvf_mean_expr_det = hvg_mean_expr_det
+    warning('hvg_mean_expr_det is deprecated, use hvf_mean_expr_det in the future \n')
+  }
+  if(!is.null(use_all_genes_as_hvg)) {
+    use_all_feats_as_hvf = use_all_genes_as_hvg
+    warning('use_all_genes_as_hvg is deprecated, use use_all_feats_as_hvf in the future \n')
+  }
+  if(!is.null(min_nr_of_hvg)) {
+    min_nr_of_hvf = min_nr_of_hvg
+    warning('min_nr_of_hvg is deprecated, use min_nr_of_hvf in the future \n')
+  }
+
+
+
   iter_list = list()
 
-  cell_metadata = pDataDT(gobject)
+  cell_metadata = pDataDT(gobject,
+                          feat_type = feat_type)
 
   if(is.null(cluster_column)) {
     stop('\n You need to provide a cluster column to subcluster on \n')
@@ -1320,7 +1362,7 @@ doLeidenSubCluster = function(gobject,
 
 
   # data.table variables
-  hvg = perc_cells = mean_expr_det = parent_cluster = comb = tempclus = NULL
+  hvf = perc_cells = mean_expr_det = parent_cluster = comb = tempclus = NULL
 
 
   for(cluster in unique_clusters) {
@@ -1329,7 +1371,9 @@ doLeidenSubCluster = function(gobject,
 
     ## get subset
     subset_cell_IDs = cell_metadata[get(cluster_column) == cluster][['cell_ID']]
-    temp_giotto = subsetGiotto(gobject = gobject, cell_ids = subset_cell_IDs)
+    temp_giotto = subsetGiotto(gobject = gobject,
+                               feat_type = feat_type,
+                               cell_ids = subset_cell_IDs)
 
     ## if cluster is not selected
     if(!is.null(selected_clusters) & !cluster %in% selected_clusters) {
@@ -1341,28 +1385,30 @@ doLeidenSubCluster = function(gobject,
       # continue for selected clusters or all clusters if there is no selection
 
       ## calculate stats
-      temp_giotto <- addStatistics(gobject = temp_giotto)
+      temp_giotto <- addStatistics(gobject = temp_giotto,
+                                   feat_type = feat_type)
 
-      ## calculate variable genes
-      temp_giotto = do.call('calculateHVG', c(gobject = temp_giotto, hvg_param))
+      ## calculate variable feats
+      temp_giotto = do.call('calculateHVF', c(gobject = temp_giotto, hvf_param))
 
       ## get hvg
-      gene_metadata = fDataDT(temp_giotto)
-      featgenes     = gene_metadata[hvg == 'yes' & perc_cells >= hvg_min_perc_cells & mean_expr_det >= hvg_mean_expr_det]$gene_ID
+      feat_metadata = fDataDT(temp_giotto,
+                              feat_type = feat_type)
+      featfeats     = feat_metadata[hvf == 'yes' & perc_cells >= hvf_min_perc_cells & mean_expr_det >= hvf_mean_expr_det]$feat_ID
 
       ## catch too low number of hvg
-      if(use_all_genes_as_hvg == TRUE) {
-        featgenes == gene_metadata$gene_ID
+      if(use_all_feats_as_hvf == TRUE) {
+        featfeats == feat_metadata$feat_ID
       } else {
-        if(verbose == TRUE) cat('\n', length(featgenes), 'highly variable genes have been selected \n')
-        if(length(featgenes) <= min_nr_of_hvg) {
-          cat('\n too few genes, will continue with all genes instead \n')
-          featgenes = gene_metadata$gene_ID
+        if(verbose == TRUE) cat('\n', length(featfeats), 'highly variable feats have been selected \n')
+        if(length(featfeats) <= min_nr_of_hvf) {
+          cat('\n too few feats, will continue with all feats instead \n')
+          featfeats = feat_metadata$feat_ID
         }
       }
 
       ## run PCA
-      temp_giotto = do.call('runPCA', c(gobject =  temp_giotto, genes_to_use = list(featgenes), pca_param))
+      temp_giotto = do.call('runPCA', c(gobject =  temp_giotto, feats_to_use = list(featfeats), pca_param))
 
       ## nearest neighbor and clustering
       temp_giotto = do.call('createNearestNetwork', c(gobject = temp_giotto, k = k_neighbors, nn_param))
@@ -1370,6 +1416,7 @@ doLeidenSubCluster = function(gobject,
       ## Leiden Cluster
       ## TO DO: expand to all clustering options
       temp_cluster = doLeidenCluster(gobject = temp_giotto,
+                                     feat_type = feat_type,
                                      resolution = resolution,
                                      n_iterations = n_iterations,
                                      python_path = python_path,
@@ -1396,29 +1443,21 @@ doLeidenSubCluster = function(gobject,
 
   if(return_gobject == TRUE) {
 
-    cluster_names = names(gobject@cell_metadata)
+    cluster_names = names(gobject@cell_metadata[[feat_type]])
     if(name %in% cluster_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
-      cell_metadata = gobject@cell_metadata
+      cell_metadata = gobject@cell_metadata[[feat_type]]
       cell_metadata[, eval(name) := NULL]
-      gobject@cell_metadata = cell_metadata
+      gobject@cell_metadata[[feat_type]] = cell_metadata
     }
 
-    gobject <- addCellMetadata(gobject, new_metadata = together[, c('cell_ID', name), with = F],
-                               by_column = T, column_cell_ID = 'cell_ID')
+    gobject <- addCellMetadata(gobject,
+                               feat_type = feat_type,
+                               new_metadata = together[, c('cell_ID', name), with = F],
+                               by_column = TRUE, column_cell_ID = 'cell_ID')
 
     ## update parameters used ##
-    parameters_list = gobject@parameters
-    number_of_rounds = length(parameters_list)
-    update_name = paste0(number_of_rounds,'_sub_cluster')
-
-    # parameters to include
-    parameters_list[[update_name]] = c('subclus name' = name,
-                                       'resolution ' = resolution,
-                                       'k neighbors ' = k_neighbors)
-
-    gobject@parameters = parameters_list
-
+    gobject = update_giotto_params(gobject, description = '_sub_cluster')
     return(gobject)
 
   } else {
@@ -2053,6 +2092,7 @@ subClusterCells <- function(gobject,
 #' @name getClusterSimilarity
 #' @description Creates data.table with pairwise correlation scores between each cluster.
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param expression_values expression values to use
 #' @param cluster_column name of column to use for clusters
 #' @param cor correlation score to calculate distance
@@ -2069,18 +2109,25 @@ subClusterCells <- function(gobject,
 #'                                             cluster_column = 'leiden_clus')
 #'
 getClusterSimilarity <- function(gobject,
+                                 feat_type = NULL,
                                  expression_values = c('normalized', 'scaled', 'custom'),
                                  cluster_column,
                                  cor = c('pearson', 'spearman')) {
+
+
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
 
 
   # data.table variables
   group1 = group2 = unified_group = value = NULL
 
   cor = match.arg(cor, c('pearson', 'spearman'))
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
 
-  metadata = pDataDT(gobject)
+  metadata = pDataDT(gobject, feat_type = feat_type)
 
   # get clustersize
   clustersize = metadata[, .N, by = cluster_column]
@@ -2092,12 +2139,15 @@ getClusterSimilarity <- function(gobject,
   clustersize[, clusters := as.character(clusters)]
 
   # scores per cluster
-  metatable = calculateMetaTable(gobject = gobject, expression_values = values, metadata_cols = cluster_column)
+  metatable = calculateMetaTable(gobject = gobject,
+                                 feat_type = feat_type,
+                                 expression_values = values,
+                                 metadata_cols = cluster_column)
   dcast_metatable = data.table::dcast.data.table(metatable, formula = variable~uniq_ID, value.var = 'value')
   testmatrix = dt_to_matrix(x = dcast_metatable)
 
   # correlation matrix
-  cormatrix = cor_giotto(x = testmatrix, method = cor)
+  cormatrix = cor_flex(x = testmatrix, method = cor)
   cor_table = data.table::as.data.table(reshape2::melt(cormatrix))
   data.table::setnames(cor_table, old = c('Var1', 'Var2'), c('group1', 'group2'))
   cor_table[, c('group1', 'group2') := list(as.character(group1), as.character(group2))]
@@ -2121,6 +2171,7 @@ getClusterSimilarity <- function(gobject,
 #' @name mergeClusters
 #' @description Merge selected clusters based on pairwise correlation scores and size of cluster.
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param expression_values expression values to use
 #' @param cluster_column name of column to use for clusters
 #' @param cor correlation score to calculate distance
@@ -2153,6 +2204,7 @@ getClusterSimilarity <- function(gobject,
 #' plotUMAP_2D(mini_giotto_single_cell, cell_color = 'merged_cluster', point_size = 3)
 #'
 mergeClusters <- function(gobject,
+                          feat_type = NULL,
                           expression_values = c('normalized', 'scaled', 'custom'),
                           cluster_column,
                           cor = c('pearson', 'spearman'),
@@ -2164,14 +2216,20 @@ mergeClusters <- function(gobject,
                           return_gobject = TRUE,
                           verbose = TRUE) {
 
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
   # expression values to be used
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
 
   # correlation score to be used
   cor = match.arg(cor, c('pearson', 'spearman'))
 
   # calculate similarity data.table
   similarityDT = getClusterSimilarity(gobject = gobject,
+                                      feat_type = feat_type,
                                       expression_values = values,
                                       cluster_column = cluster_column,
                                       cor = cor)
@@ -2229,7 +2287,7 @@ mergeClusters <- function(gobject,
 
 
   ## update metadata
-  metadata = data.table::copy(pDataDT(gobject))
+  metadata = data.table::copy(pDataDT(gobject, feat_type = feat_type))
 
   finalvec = NULL
   for(ll in 1:length(finallist)) {
@@ -2246,35 +2304,23 @@ mergeClusters <- function(gobject,
 
   if(return_gobject == TRUE) {
 
-    cluster_names = names(gobject@cell_metadata)
+    cluster_names = names(gobject@cell_metadata[[feat_type]])
     if(new_cluster_name %in% cluster_names) {
       cat('\n ', new_cluster_name, ' has already been used, will be overwritten \n')
-      cell_metadata = gobject@cell_metadata
+      cell_metadata = gobject@cell_metadata[[feat_type]]
       cell_metadata[, eval(new_cluster_name) := NULL]
-      gobject@cell_metadata = cell_metadata
+      gobject@cell_metadata[[feat_type]] = cell_metadata
     }
 
     gobject = addCellMetadata(gobject = gobject,
+                              feat_type = feat_type,
                               new_metadata = metadata[, c('cell_ID', new_cluster_name), with = F],
                               by_column = T, column_cell_ID = 'cell_ID')
 
 
     ## update parameters used ##
-    parameters_list = gobject@parameters
-    number_of_rounds = length(parameters_list)
-    update_name = paste0(number_of_rounds,'_merge_cluster')
-
-    parameters_list[[update_name]] = c('expression values' = values,
-                                       'cluster column to merge' = cluster_column,
-                                       'cor score' = cor,
-                                       'minimum cor score' = min_cor_score,
-                                       'max group size to merge' = max_group_size,
-                                       'group size that will be forcibly merged' = force_min_group_size)
-
-    gobject@parameters = parameters_list
+    gobject = update_giotto_params(gobject, description = '_merge_cluster')
     return(gobject)
-
-
 
   } else {
 
@@ -2386,6 +2432,7 @@ node_clusters = function(hclus_obj, verbose = TRUE) {
 #' @name getDendrogramSplits
 #' @description Split dendrogram at each node and keep the leave (label) information..
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param expression_values expression values to use
 #' @param cluster_column name of column to use for clusters
 #' @param cor correlation score to calculate distance
@@ -2407,6 +2454,7 @@ node_clusters = function(hclus_obj, verbose = TRUE) {
 #' splits = getDendrogramSplits(mini_giotto_single_cell, cluster_column = 'leiden_clus')
 #'
 getDendrogramSplits = function(gobject,
+                               feat_type = NULL,
                                expression_values = c('normalized', 'scaled', 'custom'),
                                cluster_column,
                                cor = c('pearson', 'spearman'),
@@ -2417,19 +2465,27 @@ getDendrogramSplits = function(gobject,
                                verbose = TRUE) {
 
 
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
   # data.table variables
   nodeID = NULL
 
   cor = match.arg(cor, c('pearson', 'spearman'))
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
 
   # create average expression matrix per cluster
-  metatable = calculateMetaTable(gobject = gobject, expression_values = values, metadata_cols = cluster_column)
+  metatable = calculateMetaTable(gobject = gobject,
+                                 feat_type = feat_type,
+                                 expression_values = values,
+                                 metadata_cols = cluster_column)
   dcast_metatable = data.table::dcast.data.table(metatable, formula = variable~uniq_ID, value.var = 'value')
   testmatrix = dt_to_matrix(x = dcast_metatable)
 
   # correlation
-  cormatrix = cor_giotto(x = testmatrix, method = cor)
+  cormatrix = cor_flex(x = testmatrix, method = cor)
   cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
   corclus = stats::hclust(d = cordist, method = distance)
 
@@ -2449,7 +2505,7 @@ getDendrogramSplits = function(gobject,
 
   splitList = node_clusters(hclus_obj = corclus, verbose = verbose)
 
-  splitDT = data.table::as.data.table(t_giotto(data.table::as.data.table(splitList[[2]])))
+  splitDT = data.table::as.data.table(t_flex(data.table::as.data.table(splitList[[2]])))
   colnames(splitDT) = c('node_h', 'tree_1', 'tree_2')
   splitDT[, nodeID := paste0('node_', 1:.N)]
 
