@@ -6,25 +6,35 @@
 \usage{
 createHeatmap_DT(
   gobject,
+  feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
-  genes,
+  feats,
+  genes = NULL,
   cluster_column = NULL,
   cluster_order = c("size", "correlation", "custom"),
   cluster_custom_order = NULL,
   cluster_cor_method = "pearson",
   cluster_hclust_method = "ward.D",
-  gene_order = c("correlation", "custom"),
+  feat_order = c("correlation", "custom"),
+  gene_order = NULL,
+  feat_custom_order = NULL,
   gene_custom_order = NULL,
-  gene_cor_method = "pearson",
-  gene_hclust_method = "complete"
+  feat_cor_method = "pearson",
+  gene_cor_method = NULL,
+  feat_hclust_method = "complete",
+  gene_hclust_method = NULL
 )
 }
 \arguments{
 \item{gobject}{giotto object}
 
+\item{feat_type}{feature type}
+
 \item{expression_values}{expression values to use}
 
-\item{genes}{genes to use}
+\item{feats}{features to use}
+
+\item{genes}{deprecated, use feats}
 
 \item{cluster_column}{name of column to use for clusters}
 
@@ -36,13 +46,21 @@ createHeatmap_DT(
 
 \item{cluster_hclust_method}{method for hierarchical clustering of clusters}
 
-\item{gene_order}{method to determine gene order}
+\item{feat_order}{method to determine features order}
 
-\item{gene_custom_order}{custom order for genes}
+\item{gene_order}{deprecated, use feat_order in the future}
 
-\item{gene_cor_method}{method for gene correlation}
+\item{feat_custom_order}{custom order for features}
 
-\item{gene_hclust_method}{method for hierarchical clustering of genes}
+\item{gene_custom_order}{deprecated, use feat_custom_order in the future}
+
+\item{feat_cor_method}{method for features correlation}
+
+\item{gene_cor_method}{deprecated, use feat_cor_method in the future}
+
+\item{feat_hclust_method}{method for hierarchical clustering of features}
+
+\item{gene_hclust_method}{deprecated, use feat_hclust_method in the future}
 }
 \value{
 list

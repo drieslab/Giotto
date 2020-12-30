@@ -6,8 +6,10 @@
 \usage{
 showClusterHeatmap(
   gobject,
+  feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
-  genes = "all",
+  feats = "all",
+  genes = NULL,
   cluster_column,
   cor = c("pearson", "spearman"),
   distance = "ward.D",
@@ -21,6 +23,8 @@ showClusterHeatmap(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{feat_type}{feature type}
 
 \item{expression_values}{expression values to use}
 

@@ -6,8 +6,10 @@
 \usage{
 create_cluster_matrix(
   gobject,
+  feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   cluster_column,
+  feat_subset = NULL,
   gene_subset = NULL
 )
 }

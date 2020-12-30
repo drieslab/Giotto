@@ -2356,38 +2356,52 @@ showProcessingSteps <- function(gobject) {
 #' @description creates aggregated matrix for a given clustering column
 #' @keywords internal
 create_cluster_matrix <- function(gobject,
+                                  feat_type = NULL,
                                   expression_values = c('normalized', 'scaled', 'custom'),
                                   cluster_column,
+                                  feat_subset = NULL,
                                   gene_subset = NULL) {
 
-  # data.table variables
-  genes = NULL
 
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  # data.table variables
+  feats = NULL
+
+  ## deprecated arguments
+  if(!is.null(gene_subset)) {
+    feat_subset = gene_subset
+  }
+
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+  values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
 
   # average expression per cluster
   aggr_sc_clusters <- create_average_DT(gobject = gobject,
+                                        feat_type = feat_type,
                                         meta_data_name = cluster_column,
                                         expression_values = values)
   aggr_sc_clusters_DT <- data.table::as.data.table(aggr_sc_clusters)
-  aggr_sc_clusters_DT[, genes := rownames(aggr_sc_clusters)]
+  aggr_sc_clusters_DT[, feats := rownames(aggr_sc_clusters)]
   aggr_sc_clusters_DT_melt <- data.table::melt.data.table(aggr_sc_clusters_DT,
                                                           variable.name = 'cluster',
-                                                          id.vars = 'genes',
+                                                          id.vars = 'feats',
                                                           value.name = 'expression')
 
   # create matrix
   testmat = data.table::dcast.data.table(aggr_sc_clusters_DT_melt,
-                                         formula = genes~cluster,
+                                         formula = feats~cluster,
                                          value.var = 'expression')
   testmatrix = dt_to_matrix(testmat)
   #testmatrix = as.matrix(testmat[,-1])
-  #rownames(testmatrix) = testmat[['genes']]
+  #rownames(testmatrix) = testmat[['feats']]
 
   # create subset if required
-  if(!is.null(gene_subset)) {
-    gene_subset_detected = gene_subset[gene_subset %in% rownames(testmatrix)]
-    testmatrix = testmatrix[rownames(testmatrix) %in% gene_subset_detected, ]
+  if(!is.null(feat_subset)) {
+    feat_subset_detected = feat_subset[feat_subset %in% rownames(testmatrix)]
+    testmatrix = testmatrix[rownames(testmatrix) %in% feat_subset_detected, ]
   }
 
   return(testmatrix)
@@ -2418,17 +2432,30 @@ create_cluster_matrix <- function(gobject,
 #'                    metadata_cols = 'cell_types')
 #'
 calculateMetaTable = function(gobject,
+                              feat_type = NULL,
                               expression_values =  c("normalized", "scaled", "custom"),
                               metadata_cols = NULL,
+                              selected_feats = NULL,
                               selected_genes = NULL) {
 
   if(is.null(metadata_cols)) stop('\n You need to select one or more valid column names from pDataDT() \n')
+
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+  ## deprecated arguments
+  if(!is.null(selected_genes)) {
+    selected_feats = selected_genes
+    warning('selected_genes is deprecated, use selected_feats in the future \n')
+  }
 
   # data.table variables
   uniq_ID = NULL
 
   ## get metadata and create unique groups
-  metadata = data.table::copy(pDataDT(gobject))
+  metadata = data.table::copy(pDataDT(gobject, feat_type = feat_type))
   if(length(metadata_cols) > 1) {
     metadata[, uniq_ID := paste(.SD, collapse = '-'), by = 1:nrow(metadata), .SDcols = metadata_cols]
   } else {
@@ -2444,10 +2471,12 @@ calculateMetaTable = function(gobject,
   }
 
   ## get expression data
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
-  if(!is.null(selected_genes)) {
-    expr_values = expr_values[rownames(expr_values) %in% selected_genes, ]
+  values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
+  expr_values = select_expression_values(gobject = gobject,
+                                         feat_type = feat_type,
+                                         values = values)
+  if(!is.null(selected_feats)) {
+    expr_values = expr_values[rownames(expr_values) %in% selected_feats, ]
   }
 
   ## summarize unique groups (average)
@@ -2459,7 +2488,7 @@ calculateMetaTable = function(gobject,
     selected_cell_IDs = metadata[uniq_ID == uniq_identifiier][['cell_ID']]
     sub_expr_values = expr_values[, colnames(expr_values) %in% selected_cell_IDs]
     if(is.vector(sub_expr_values) == FALSE) {
-      subvec = rowMeans_giotto(sub_expr_values)
+      subvec = rowMeans_flex(sub_expr_values)
     } else {
       subvec = sub_expr_values
     }

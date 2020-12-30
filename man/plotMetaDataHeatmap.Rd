@@ -6,8 +6,10 @@
 \usage{
 plotMetaDataHeatmap(
   gobject,
+  feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   metadata_cols = NULL,
+  selected_feats = NULL,
   selected_genes = NULL,
   first_meta_col = NULL,
   second_meta_col = NULL,
@@ -15,9 +17,12 @@ plotMetaDataHeatmap(
   custom_cluster_order = NULL,
   clus_cor_method = "pearson",
   clus_cluster_method = "complete",
+  custom_feat_order = NULL,
   custom_gene_order = NULL,
-  gene_cor_method = "pearson",
-  gene_cluster_method = "complete",
+  feat_cor_method = "pearson",
+  gene_cor_method = NULL,
+  feat_cluster_method = "complete",
+  gene_cluster_method = NULL,
   gradient_color = c("blue", "white", "red"),
   gradient_midpoint = 0,
   gradient_limits = NULL,
@@ -34,6 +39,8 @@ plotMetaDataHeatmap(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{feat_type}{feature type}
 
 \item{expression_values}{expression values to use}
 

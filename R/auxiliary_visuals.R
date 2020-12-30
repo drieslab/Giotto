@@ -389,6 +389,7 @@ showSaveParameters = function() {
 #' @name showClusterHeatmap
 #' @description Creates heatmap based on identified clusters
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param expression_values expression values to use
 #' @param genes vector of genes to use, default to 'all'
 #' @param cluster_column name of column to use for clusters
@@ -415,8 +416,10 @@ showSaveParameters = function() {
 #'                    cluster_column = 'cell_types')
 #'
 showClusterHeatmap <- function(gobject,
+                               feat_type = NULL,
                                expression_values = c('normalized', 'scaled', 'custom'),
-                               genes = 'all',
+                               feats = 'all',
+                               genes = NULL,
                                cluster_column,
                                cor = c('pearson', 'spearman'),
                                distance = 'ward.D',
@@ -427,34 +430,49 @@ showClusterHeatmap <- function(gobject,
                                default_save_name = 'showClusterHeatmap',
                                ...) {
 
+
+  ## deprecated arguments
+  if(!is.null(genes)) {
+    feats = genes
+    warning('genes is deprecated, use feats in the future \n')
+  }
+
+
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
   ## correlation
   cor = match.arg(cor, c('pearson', 'spearman'))
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
 
   ## subset expression data
-  if(genes[1] != 'all') {
-    all_genes = gobject@gene_ID
-    detected_genes = genes[genes %in% all_genes]
+  if(feats[1] != 'all') {
+    all_feats = gobject@feat_ID[[feat_type]]
+    detected_feats = feats[feats %in% all_feats]
   } else {
-    # NULL = all genes in calculateMetaTable()
-    detected_genes = NULL
+    # NULL = all feats in calculateMetaTable()
+    detected_feats = NULL
   }
 
   metatable = calculateMetaTable(gobject = gobject,
+                                 feat_type = feat_type,
                                  expression_values = values,
                                  metadata_cols = cluster_column,
-                                 selected_genes = detected_genes)
+                                 selected_feats = detected_feats)
   dcast_metatable = data.table::dcast.data.table(metatable, formula = variable~uniq_ID, value.var = 'value')
   testmatrix = dt_to_matrix(x = dcast_metatable)
 
   # correlation
-  cormatrix = cor_giotto(x = testmatrix, method = cor)
+  cormatrix = cor_flex(x = testmatrix, method = cor)
   cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
   corclus = stats::hclust(d = cordist, method = distance)
 
   hmap = ComplexHeatmap::Heatmap(matrix = cormatrix,
                                  cluster_rows = corclus,
-                                 cluster_columns = corclus, ...)
+                                 cluster_columns = corclus,
+                                 ...)
 
 
   # print, return and save parameters
@@ -484,6 +502,7 @@ showClusterHeatmap <- function(gobject,
 #' @name showClusterDendrogram
 #' @description Creates dendrogram for selected clusters.
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param expression_values expression values to use
 #' @param cluster_column name of column to use for clusters
 #' @param cor correlation score to calculate distance
@@ -512,6 +531,7 @@ showClusterHeatmap <- function(gobject,
 #'                       cluster_column = 'cell_types')
 #'
 showClusterDendrogram <- function(gobject,
+                                  feat_type = NULL,
                                   expression_values = c('normalized', 'scaled', 'custom'),
                                   cluster_column,
                                   cor = c('pearson', 'spearman'),
@@ -527,15 +547,22 @@ showClusterDendrogram <- function(gobject,
                                   ...) {
 
   cor = match.arg(cor, c('pearson', 'spearman'))
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
 
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
 
-  metatable = calculateMetaTable(gobject = gobject, expression_values = values, metadata_cols = cluster_column)
+  metatable = calculateMetaTable(gobject = gobject,
+                                 feat_type = feat_type,
+                                 expression_values = values,
+                                 metadata_cols = cluster_column)
   dcast_metatable = data.table::dcast.data.table(metatable, formula = variable~uniq_ID, value.var = 'value')
   testmatrix = dt_to_matrix(x = dcast_metatable)
 
   # correlation
-  cormatrix = cor_giotto(x = testmatrix, method = cor)
+  cormatrix = cor_flex(x = testmatrix, method = cor)
   cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
   corclus = stats::hclust(d = cordist, method = distance)
 
@@ -576,8 +603,10 @@ showClusterDendrogram <- function(gobject,
 #' @name decide_cluster_order
 #' @description creates order for clusters
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param expression_values expression values to use
-#' @param genes genes to use
+#' @param feats features to use (e.g. genes)
+#' @param genes deprecated, use feats
 #' @param cluster_column name of column to use for clusters
 #' @param cluster_order method to determine cluster order
 #' @param cluster_custom_order custom order for clusters
@@ -587,25 +616,38 @@ showClusterDendrogram <- function(gobject,
 #' @details Calculates order for clusters.
 #' @keywords internal
 decide_cluster_order = function(gobject,
+                                feat_type = NULL,
                                 expression_values = c('normalized', 'scaled', 'custom'),
-                                genes,
+                                feats,
+                                genes = NULL,
                                 cluster_column = NULL,
                                 cluster_order = c('size', 'correlation', 'custom'),
                                 cluster_custom_order = NULL,
                                 cor_method = 'pearson',
                                 hclust_method = 'ward.D') {
 
+  ## deprecated arguments
+  if(!is.null(genes)) {
+    feats = genes
+  }
+
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
 
   # epxression data
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
+  expr_values = select_expression_values(gobject = gobject,
+                                         feat_type = feat_type,
+                                         values = values)
 
   # subset expression data
-  detected_genes = genes[genes %in% rownames(expr_values)]
-  subset_values = expr_values[rownames(expr_values) %in% detected_genes, ]
+  detected_feats = feats[feats %in% rownames(expr_values)]
+  subset_values = expr_values[rownames(expr_values) %in% detected_feats, ]
 
   # metadata
-  cell_metadata = pDataDT(gobject)
+  cell_metadata = pDataDT(gobject, feat_type = feat_type)
 
   ## check parameters
   if(is.null(cluster_column)) stop('\n cluster column must be selected \n')
@@ -624,11 +666,12 @@ decide_cluster_order = function(gobject,
   } else if(cluster_order == 'correlation') {
     ## sorts clusters based on their correlation
     subset_matrix = create_cluster_matrix(gobject = gobject,
+                                          feat_type = feat_type,
                                           cluster_column = cluster_column,
-                                          gene_subset = detected_genes,
+                                          feat_subset = detected_feats,
                                           expression_values = values)
 
-    cormatrix = cor_giotto(x = subset_matrix, method = cor_method)
+    cormatrix = cor_flex(x = subset_matrix, method = cor_method)
     cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
     corclus = stats::hclust(d = cordist, method = hclust_method)
     clus_names = rownames(cormatrix)
@@ -652,52 +695,96 @@ decide_cluster_order = function(gobject,
 #' @name createHeatmap_DT
 #' @description creates order for clusters
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param expression_values expression values to use
-#' @param genes genes to use
+#' @param feats features to use
+#' @param genes deprecated, use feats
 #' @param cluster_column name of column to use for clusters
 #' @param cluster_order method to determine cluster order
 #' @param cluster_custom_order custom order for clusters
 #' @param cluster_cor_method method for cluster correlation
 #' @param cluster_hclust_method method for hierarchical clustering of clusters
-#' @param gene_order method to determine gene order
-#' @param gene_custom_order custom order for genes
-#' @param gene_cor_method method for gene correlation
-#' @param gene_hclust_method method for hierarchical clustering of genes
+#' @param feat_order method to determine features order
+#' @param gene_order deprecated, use feat_order in the future
+#' @param feat_custom_order custom order for features
+#' @param gene_custom_order deprecated, use feat_custom_order in the future
+#' @param feat_cor_method method for features correlation
+#' @param gene_cor_method deprecated, use feat_cor_method in the future
+#' @param feat_hclust_method method for hierarchical clustering of features
+#' @param gene_hclust_method deprecated, use feat_hclust_method in the future
 #' @return list
 #' @details Creates input data.tables for plotHeatmap function.
 #' @keywords internal
 createHeatmap_DT <- function(gobject,
+                             feat_type = NULL,
                              expression_values = c('normalized', 'scaled', 'custom'),
-                             genes,
+                             feats,
+                             genes = NULL,
                              cluster_column = NULL,
                              cluster_order = c('size', 'correlation', 'custom'),
                              cluster_custom_order = NULL,
                              cluster_cor_method = 'pearson',
                              cluster_hclust_method = 'ward.D',
-                             gene_order = c('correlation', 'custom'),
+                             feat_order = c('correlation', 'custom'),
+                             gene_order = NULL,
+                             feat_custom_order = NULL,
                              gene_custom_order = NULL,
-                             gene_cor_method = 'pearson',
-                             gene_hclust_method = 'complete') {
+                             feat_cor_method = 'pearson',
+                             gene_cor_method = NULL,
+                             feat_hclust_method = 'complete',
+                             gene_hclust_method = NULL) {
+
+
+  ## deprecated arguments
+  if(!is.null(genes)) {
+    feats = genes
+    warning('genes is deprecated, use feats in the future \n')
+  }
+  if(!is.null(gene_order)) {
+    feat_order = gene_order
+    warning('gene_order is deprecated, use feat_order in the future \n')
+  }
+  if(!is.null(gene_custom_order)) {
+    feat_custom_order = gene_custom_order
+    warning('gene_custom_order is deprecated, use feat_custom_order in the future \n')
+  }
+  if(!is.null(gene_cor_method)) {
+    feat_cor_method = gene_cor_method
+    warning('gene_cor_method is deprecated, use feat_cor_method in the future \n')
+  }
+  if(!is.null(gene_hclust_method)) {
+    feat_hclust_method = gene_hclust_method
+    warning('gene_hclust_method is deprecated, use feat_hclust_method in the future \n')
+  }
+
+
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
 
   # epxression data
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
+  expr_values = select_expression_values(gobject = gobject,
+                                         feat_type = feat_type,
+                                         values = values)
 
   # subset expression data
-  detected_genes = genes[genes %in% rownames(expr_values)]
-  subset_values = expr_values[rownames(expr_values) %in% detected_genes, ]
+  detected_feats = feats[feats %in% rownames(expr_values)]
+  subset_values = expr_values[rownames(expr_values) %in% detected_feats, ]
 
   # metadata
-  cell_metadata = pDataDT(gobject)
+  cell_metadata = pDataDT(gobject, feat_type = feat_type)
 
-  # gene order
-  gene_order = match.arg(gene_order, c('correlation', 'custom'))
+  # feat order
+  feat_order = match.arg(feat_order, c('correlation', 'custom'))
 
 
   ### cluster order ###
   clus_sort_names = decide_cluster_order(gobject = gobject,
+                                         feat_type = feat_type,
                                          expression_values = expression_values,
-                                         genes = genes,
+                                         feats = feats,
                                          cluster_column = cluster_column,
                                          cluster_order = cluster_order,
                                          cluster_custom_order = cluster_custom_order,
@@ -705,16 +792,21 @@ createHeatmap_DT <- function(gobject,
                                          hclust_method = cluster_hclust_method)
 
   ## data.table ##
-  subset_values_DT <- data.table::as.data.table(reshape2::melt(as.matrix(subset_values), varnames = c('genes', 'cells'), value.name = 'expression'))
-  subset_values_DT <- merge(subset_values_DT, by.x = 'cells', cell_metadata[, c('cell_ID', cluster_column), with = F], by.y = 'cell_ID')
+  subset_values_DT <- data.table::as.data.table(reshape2::melt(as.matrix(subset_values),
+                                                               varnames = c('feats', 'cells'),
+                                                               value.name = 'expression'))
+  subset_values_DT <- merge(subset_values_DT,
+                            by.x = 'cells',
+                            cell_metadata[, c('cell_ID', cluster_column), with = F],
+                            by.y = 'cell_ID')
   subset_values_DT[[cluster_column]] <- factor(subset_values_DT[[cluster_column]], levels = clus_sort_names)
 
   # data.table variables
   z_scores = scale_scores = V1 = cells = NULL
 
-  subset_values_DT[, genes := factor(genes, unique(detected_genes))]
-  subset_values_DT[, z_scores := scale(expression), by = genes]
-  subset_values_DT[, scale_scores := scales::rescale(x = expression, to = c(0,1)), by = genes]
+  subset_values_DT[, feats := factor(feats, unique(detected_feats))]
+  subset_values_DT[, z_scores := scale(expression), by = feats]
+  subset_values_DT[, scale_scores := scales::rescale(x = expression, to = c(0,1)), by = feats]
 
 
   ## order cells by mean expression ##
@@ -725,30 +817,30 @@ createHeatmap_DT <- function(gobject,
   ## get x-coordines for vertical lines in heatmap
   x_lines = cumsum(as.vector(table(cell_order_DT[[cluster_column]])))
 
-  ## order genes ##
-  if(gene_order == 'correlation') {
-    genesum_per_clus = subset_values_DT[, sum(expression), by = c('genes', cluster_column)]
+  ## order feats ##
+  if(feat_order == 'correlation') {
+    featsum_per_clus = subset_values_DT[, sum(expression), by = c('feats', cluster_column)]
 
-    my_formula = paste0('genes~',cluster_column)
-    test_mat = data.table::dcast.data.table(data = genesum_per_clus, formula = my_formula, value.var = 'V1')
-    test_matrix = as.matrix(test_mat[,-1]); rownames(test_matrix) = test_mat$genes
+    my_formula = paste0('feats~',cluster_column)
+    test_mat = data.table::dcast.data.table(data = featsum_per_clus, formula = my_formula, value.var = 'V1')
+    test_matrix = as.matrix(test_mat[,-1]); rownames(test_matrix) = test_mat$feats
 
-    gene_dist = stats::as.dist(1 - cor_giotto(t_giotto(test_matrix), method = gene_cor_method))
-    gene_clus = stats::hclust(gene_dist, method = gene_hclust_method)
+    feat_dist = stats::as.dist(1 - cor_flex(t_flex(test_matrix), method = feat_cor_method))
+    feat_clus = stats::hclust(feat_dist, method = feat_hclust_method)
 
-    gene_labels = rownames(test_matrix)
-    gene_index = 1:length(gene_labels)
-    names(gene_index) = gene_labels
+    feat_labels = rownames(test_matrix)
+    feat_index = 1:length(feat_labels)
+    names(feat_index) = feat_labels
 
-    final_gene_order = names(gene_index[match(gene_clus$order, gene_index)])
-    subset_values_DT[, genes := factor(genes, final_gene_order)]
+    final_feat_order = names(feat_index[match(feat_clus$order, feat_index)])
+    subset_values_DT[, feats := factor(feats, final_feat_order)]
 
-  } else if(gene_order == 'custom') {
+  } else if(feat_order == 'custom') {
 
-    if(is.null(gene_custom_order)) {
-      stop('\n with custom gene order the gene_custom_order parameter needs to be provided \n')
+    if(is.null(feat_custom_order)) {
+      stop('\n with custom feat order the feat_custom_order parameter needs to be provided \n')
     }
-    subset_values_DT[, genes := factor(genes, gene_custom_order)]
+    subset_values_DT[, feats := factor(feats, feat_custom_order)]
 
   }
 
@@ -763,22 +855,29 @@ createHeatmap_DT <- function(gobject,
 #' @name plotHeatmap
 #' @description Creates heatmap for genes and clusters.
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param expression_values expression values to use
-#' @param genes genes to use
+#' @param feats features to use
+#' @param genes deprecated, use feats
 #' @param cluster_column name of column to use for clusters
 #' @param cluster_order method to determine cluster order
 #' @param cluster_custom_order custom order for clusters
 #' @param cluster_color_code color code for clusters
 #' @param cluster_cor_method method for cluster correlation
 #' @param cluster_hclust_method method for hierarchical clustering of clusters
-#' @param gene_order method to determine gene order
-#' @param gene_custom_order custom order for genes
-#' @param gene_cor_method method for gene correlation
-#' @param gene_hclust_method method for hierarchical clustering of genes
+#' @param feat_order method to determine features order
+#' @param feat_custom_order custom order for features
+#' @param feat_cor_method method for features correlation
+#' @param feat_hclust_method method for hierarchical clustering of features
+#' @param gene_order deprecated, use feat_order
+#' @param gene_custom_order deprecated, use feat_custom_order
+#' @param gene_cor_method deprecated, use feat_cor_method
+#' @param gene_hclust_method deprecated, use feat_hclust_method
 #' @param show_values which values to show on heatmap
 #' @param size_vertical_lines sizes for vertical lines
 #' @param gradient_colors colors for heatmap gradient
-#' @param gene_label_selection subset of genes to show on y-axis
+#' @param feat_label_selection subset of features to show on y-axis
+#' @param gene_label_selection deprecated, use feat_label_selection
 #' @param axis_text_y_size size for y-axis text
 #' @param legend_nrows number of rows for the cluster legend
 #' @param show_plot show plot
@@ -789,8 +888,8 @@ createHeatmap_DT <- function(gobject,
 #' @return ggplot
 #' @details If you want to display many genes there are 2 ways to proceed:
 #' \itemize{
-#'   \item{1. set axis_text_y_size to a really small value and show all genes}
-#'   \item{2. provide a subset of genes to display to gene_label_selection}
+#'   \item{1. set axis_text_y_size to a really small value and show all features}
+#'   \item{2. provide a subset of features to display to feat_label_selection}
 #' }
 #' @export
 #' @examples
@@ -815,21 +914,28 @@ createHeatmap_DT <- function(gobject,
 #'
 #' }
 plotHeatmap <- function(gobject,
+                        feat_type = NULL,
                         expression_values = c('normalized', 'scaled', 'custom'),
-                        genes,
+                        feats,
+                        genes = NULL,
                         cluster_column = NULL,
                         cluster_order = c('size', 'correlation', 'custom'),
                         cluster_custom_order = NULL,
                         cluster_color_code = NULL,
                         cluster_cor_method = 'pearson',
                         cluster_hclust_method = 'ward.D',
-                        gene_order = c('correlation', 'custom'),
+                        feat_order = c('correlation', 'custom'),
+                        gene_order = NULL,
+                        feat_custom_order = NULL,
                         gene_custom_order = NULL,
-                        gene_cor_method = 'pearson',
-                        gene_hclust_method = 'complete',
+                        feat_cor_method = 'pearson',
+                        gene_cor_method = NULL,
+                        feat_hclust_method = 'complete',
+                        gene_hclust_method = NULL,
                         show_values = c('rescaled', 'z-scaled', 'original'),
                         size_vertical_lines = 1.1,
                         gradient_colors = c('blue', 'yellow', 'red'),
+                        feat_label_selection = NULL,
                         gene_label_selection = NULL,
                         axis_text_y_size = NULL,
                         legend_nrows = 1,
@@ -844,15 +950,20 @@ plotHeatmap <- function(gobject,
 
   heatmap_data = createHeatmap_DT(gobject = gobject,
                                   expression_values = expression_values,
+                                  feats = feats,
                                   genes = genes,
                                   cluster_column = cluster_column,
                                   cluster_order = cluster_order,
                                   cluster_custom_order = cluster_custom_order,
                                   cluster_cor_method = cluster_cor_method,
                                   cluster_hclust_method = cluster_hclust_method,
+                                  feat_order = feat_order,
                                   gene_order = gene_order,
+                                  feat_custom_order = feat_custom_order,
                                   gene_custom_order = gene_custom_order,
+                                  feat_cor_method = feat_cor_method,
                                   gene_cor_method = gene_cor_method,
+                                  feat_hclust_method = feat_hclust_method,
                                   gene_hclust_method = gene_hclust_method)
 
   cell_order_DT = heatmap_data[['cell_DT']]
@@ -908,13 +1019,13 @@ plotHeatmap <- function(gobject,
 
   ### heatmap ###
   hmap <- ggplot2::ggplot()
-  hmap <- hmap + ggplot2::geom_tile(data = subset_values_DT, aes_string(x = 'cells', y = 'genes', fill = value_column))
+  hmap <- hmap + ggplot2::geom_tile(data = subset_values_DT, aes_string(x = 'cells', y = 'feats', fill = value_column))
   hmap <- hmap + ggplot2::geom_vline(xintercept = x_lines, color = 'white', size = size_vertical_lines)
   hmap <- hmap + ggplot2::scale_fill_gradient2(low = low_color, mid = mid_color, high = high_color,
                                                midpoint = midpoint,
                                                guide = ggplot2::guide_colorbar(title = ''))
 
-  if(is.null(gene_label_selection)) {
+  if(is.null(feat_label_selection)) {
 
     hmap <- hmap + ggplot2::theme(axis.text.x = ggplot2::element_blank(),
                                   axis.ticks.x = ggplot2::element_blank(),
@@ -961,23 +1072,23 @@ plotHeatmap <- function(gobject,
                                   axis.ticks = ggplot2::element_blank(),
                                   plot.margin = ggplot2::margin(0, 0, 5.5, 5.5, "pt"))
     ### axis ###
-    geneDT = subset_values_DT[,c('genes'), with = F]
-    geneDT = unique(setorder(geneDT, genes))
+    featDT = subset_values_DT[,c('feats'), with = F]
+    featDT = unique(setorder(featDT, feats))
 
     # data.table variables
-    geneOrder = subset_genes = NULL
+    featOrder = subset_feats = NULL
 
-    geneDT[, geneOrder := 1:.N]
-    geneDT[, subset_genes := ifelse(genes %in% gene_label_selection, as.character(genes), '')]
+    featDT[, featOrder := 1:.N]
+    featDT[, subset_feats := ifelse(feats %in% feat_label_selection, as.character(feats), '')]
 
-    axis <- ggplot(data = geneDT, aes(x = 0, y = geneOrder, label = subset_genes))
+    axis <- ggplot(data = featDT, aes(x = 0, y = featOrder, label = subset_feats))
     axis <- axis + ggrepel::geom_text_repel(min.segment.length = grid::unit(0, "pt"),
                                             color = "grey30",  ## ggplot2 theme_grey() axis text
                                             size = axis_text_y_size  ## default ggplot2 theme_grey() axis text
     )
     axis <- axis + ggplot2::scale_x_continuous(limits = c(0, 1), expand = c(0, 0),
                                       breaks = NULL, labels = NULL, name = NULL)
-    axis <- axis + ggplot2::scale_y_continuous(limits = c(0, nrow(geneDT)), expand = c(0, 0),
+    axis <- axis + ggplot2::scale_y_continuous(limits = c(0, nrow(featDT)), expand = c(0, 0),
                                       breaks = NULL, labels = NULL, name = NULL)
     axis <- axis + ggplot2::theme(panel.background = ggplot2::element_blank(),
                          plot.margin = ggplot2::margin(0, 0, 0, 0, "cm"))
@@ -1027,6 +1138,7 @@ plotHeatmap <- function(gobject,
 #' @name plotMetaDataHeatmap
 #' @description Creates heatmap for genes within aggregated clusters.
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param expression_values expression values to use
 #' @param metadata_cols annotation columns found in pDataDT(gobject)
 #' @param selected_genes subset of genes to use
@@ -1075,8 +1187,10 @@ plotHeatmap <- function(gobject,
 #'
 #' }
 plotMetaDataHeatmap = function(gobject,
+                               feat_type = NULL,
                                expression_values =  c("normalized", "scaled", "custom"),
                                metadata_cols = NULL,
+                               selected_feats = NULL,
                                selected_genes = NULL,
                                first_meta_col = NULL,
                                second_meta_col = NULL,
@@ -1084,9 +1198,12 @@ plotMetaDataHeatmap = function(gobject,
                                custom_cluster_order = NULL,
                                clus_cor_method = 'pearson',
                                clus_cluster_method = 'complete',
+                               custom_feat_order = NULL,
                                custom_gene_order = NULL,
-                               gene_cor_method = 'pearson',
-                               gene_cluster_method = 'complete',
+                               feat_cor_method = 'pearson',
+                               gene_cor_method = NULL,
+                               feat_cluster_method = 'complete',
+                               gene_cluster_method = NULL,
                                gradient_color = c('blue', 'white', 'red'),
                                gradient_midpoint = 0,
                                gradient_limits = NULL,
@@ -1101,16 +1218,41 @@ plotMetaDataHeatmap = function(gobject,
                                default_save_name = 'plotMetaDataHeatmap') {
 
 
+  ## deprecated arguments
+  if(!is.null(selected_genes)) {
+    selected_feats = selected_genes
+    warning('selected_genes is deprecated, use selected_feats in the future \n')
+  }
+  if(!is.null(custom_gene_order)) {
+    custom_feat_order = custom_gene_order
+    warning('custom_gene_order is deprecated, use custom_feat_order in the future \n')
+  }
+  if(!is.null(gene_cor_method)) {
+    feat_cor_method = gene_cor_method
+    warning('gene_cor_method is deprecated, use feat_cor_method in the future \n')
+  }
+  if(!is.null(gene_cluster_method)) {
+    feat_cluster_method = gene_cluster_method
+    warning('gene_cluster_method is deprecated, use feat_cluster_method in the future \n')
+  }
+
+
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
   metaDT = calculateMetaTable(gobject = gobject,
+                              feat_type = feat_type,
                               expression_values = expression_values,
                               metadata_cols = metadata_cols,
-                              selected_genes = selected_genes)
+                              selected_feats = selected_feats)
 
   # data.table variables
-  zscores = value = zscores_rescaled_per_gene = NULL
+  zscores = value = zscores_rescaled_per_feat = NULL
 
   metaDT[, zscores := scale(value), by = c('variable')]
-  metaDT[, zscores_rescaled_per_gene := scales::rescale(zscores, to = c(-1,1)), by = c('variable')]
+  metaDT[, zscores_rescaled_per_feat := scales::rescale(zscores, to = c(-1,1)), by = c('variable')]
 
   show_values = match.arg(show_values, choices = c('zscores', 'original', 'zscores_rescaled'))
   if(show_values == 'zscores') {
@@ -1118,7 +1260,7 @@ plotMetaDataHeatmap = function(gobject,
   } else if(show_values == 'original') {
     show_values = 'value'
   } else {
-    show_values = 'zscores_rescaled_per_gene'
+    show_values = 'zscores_rescaled_per_feat'
   }
 
   ## visualization
@@ -1128,7 +1270,7 @@ plotMetaDataHeatmap = function(gobject,
   }
 
 
-  ## order of genes and clusters
+  ## order of feats and clusters
 
   main_factor = ifelse(length(metadata_cols) == 1, metadata_cols, first_meta_col)
   testmain = metaDT[, mean(value), by = c('variable', main_factor)]
@@ -1140,7 +1282,7 @@ plotMetaDataHeatmap = function(gobject,
 
   # for clusters
   if(is.null(custom_cluster_order)) {
-    cormatrix = cor_giotto(x = testmain_mat, method = clus_cor_method)
+    cormatrix = cor_flex(x = testmain_mat, method = clus_cor_method)
     cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
     corclus = stats::hclust(d = cordist, method = clus_cluster_method)
     clus_names = rownames(cormatrix)
@@ -1154,18 +1296,18 @@ plotMetaDataHeatmap = function(gobject,
   }
 
 
-  # for genes
-  if(is.null(custom_gene_order)) {
-    gene_cormatrix = cor_giotto(x = t(testmain_mat), method = gene_cor_method)
-    gene_cordist = stats::as.dist(1 - gene_cormatrix, diag = T, upper = T)
-    gene_corclus = stats::hclust(d = gene_cordist, method = gene_cluster_method)
-    gene_names = rownames(gene_cormatrix)
-    names(gene_names) = 1:length(gene_names)
-    gene_sort_names = gene_names[gene_corclus$order]
+  # for feats
+  if(is.null(custom_feat_order)) {
+    feat_cormatrix = cor_flex(x = t(testmain_mat), method = feat_cor_method)
+    feat_cordist = stats::as.dist(1 - feat_cormatrix, diag = T, upper = T)
+    feat_corclus = stats::hclust(d = feat_cordist, method = feat_cluster_method)
+    feat_names = rownames(feat_cormatrix)
+    names(feat_names) = 1:length(feat_names)
+    feat_sort_names = feat_names[feat_corclus$order]
   }  else {
-    gene_sort_names = unique(as.character(custom_gene_order))
-    if(all(rownames(testmain_mat) %in% gene_sort_names) == FALSE) {
-      stop('\n custom gene order is given, but not all genes are represented \n')
+    feat_sort_names = unique(as.character(custom_feat_order))
+    if(all(rownames(testmain_mat) %in% feat_sort_names) == FALSE) {
+      stop('\n custom feat order is given, but not all feats are represented \n')
     }
   }
 
@@ -1175,7 +1317,7 @@ plotMetaDataHeatmap = function(gobject,
     factor_column = variable = NULL
 
     metaDT[, factor_column := factor(get(metadata_cols), levels = clus_sort_names)]
-    metaDT[, variable := factor(get('variable'), levels = gene_sort_names)]
+    metaDT[, variable := factor(get('variable'), levels = feat_sort_names)]
 
     # set gradient information
     if(!is.null(gradient_limits) & is.vector(gradient_limits) & length(gradient_limits) == 2) {
@@ -1199,7 +1341,7 @@ plotMetaDataHeatmap = function(gobject,
     pl <- pl + ggplot2::theme(axis.text.x = ggplot2::element_text(size = x_text_size, angle = x_text_angle, hjust = 1, vjust = 1),
                      axis.text.y = ggplot2::element_text(size = y_text_size),
                      legend.title = ggplot2::element_blank())
-    pl <- pl + ggplot2::labs(x = metadata_cols, y = 'genes')
+    pl <- pl + ggplot2::labs(x = metadata_cols, y = 'feats')
 
 
     # print, return and save parameters
@@ -1236,7 +1378,7 @@ plotMetaDataHeatmap = function(gobject,
 
       metaDT[, factor_1_column := factor(get(first_meta_col), clus_sort_names)]
       metaDT[, factor_2_column := as.factor(get(second_meta_col))]
-      metaDT[, variable := factor(get('variable'), levels = gene_sort_names)]
+      metaDT[, variable := factor(get('variable'), levels = feat_sort_names)]
 
       # set gradient information
       if(!is.null(gradient_limits) & is.vector(gradient_limits) & length(gradient_limits) == 2) {
@@ -1261,7 +1403,7 @@ plotMetaDataHeatmap = function(gobject,
                        axis.text.y = ggplot2::element_text(size = y_text_size),
                        strip.text = ggplot2::element_text(size = strip_text_size),
                        legend.title= ggplot2::element_blank())
-      pl <- pl + ggplot2::labs(x = first_meta_col, y = 'genes', title = second_meta_col)
+      pl <- pl + ggplot2::labs(x = first_meta_col, y = 'feats', title = second_meta_col)
 
 
       # print, return and save parameters
@@ -1385,7 +1527,7 @@ plotMetaDataCellsHeatmap = function(gobject,
 
   # for clusters
   if(is.null(custom_cluster_order)) {
-    cormatrix = cor_giotto(x = testmain_mat, method = clus_cor_method)
+    cormatrix = cor_flex(x = testmain_mat, method = clus_cor_method)
     cordist = stats::as.dist(1 - cormatrix, diag = T, upper = T)
     corclus = stats::hclust(d = cordist, method = clus_cluster_method)
     clus_names = rownames(cormatrix)
@@ -1401,7 +1543,7 @@ plotMetaDataCellsHeatmap = function(gobject,
 
   # for genes
   if(is.null(custom_values_order)) {
-    values_cormatrix = cor_giotto(x = t(testmain_mat), method = values_cor_method)
+    values_cormatrix = cor_flex(x = t(testmain_mat), method = values_cor_method)
     values_cordist = stats::as.dist(1 - values_cormatrix, diag = T, upper = T)
     values_corclus = stats::hclust(d = values_cordist, method = values_cluster_method)
     values_names = rownames(values_cormatrix)

@@ -6,8 +6,10 @@
 \usage{
 calculateMetaTable(
   gobject,
+  feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   metadata_cols = NULL,
+  selected_feats = NULL,
   selected_genes = NULL
 )
 }

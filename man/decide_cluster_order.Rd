@@ -6,8 +6,10 @@
 \usage{
 decide_cluster_order(
   gobject,
+  feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
-  genes,
+  feats,
+  genes = NULL,
   cluster_column = NULL,
   cluster_order = c("size", "correlation", "custom"),
   cluster_custom_order = NULL,
@@ -18,9 +20,13 @@ decide_cluster_order(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{feat_type}{feature type}
+
 \item{expression_values}{expression values to use}
 
-\item{genes}{genes to use}
+\item{feats}{features to use (e.g. genes)}
+
+\item{genes}{deprecated, use feats}
 
 \item{cluster_column}{name of column to use for clusters}
 

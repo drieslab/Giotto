@@ -6,21 +6,28 @@
 \usage{
 plotHeatmap(
   gobject,
+  feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
-  genes,
+  feats,
+  genes = NULL,
   cluster_column = NULL,
   cluster_order = c("size", "correlation", "custom"),
   cluster_custom_order = NULL,
   cluster_color_code = NULL,
   cluster_cor_method = "pearson",
   cluster_hclust_method = "ward.D",
-  gene_order = c("correlation", "custom"),
+  feat_order = c("correlation", "custom"),
+  gene_order = NULL,
+  feat_custom_order = NULL,
   gene_custom_order = NULL,
-  gene_cor_method = "pearson",
-  gene_hclust_method = "complete",
+  feat_cor_method = "pearson",
+  gene_cor_method = NULL,
+  feat_hclust_method = "complete",
+  gene_hclust_method = NULL,
   show_values = c("rescaled", "z-scaled", "original"),
   size_vertical_lines = 1.1,
   gradient_colors = c("blue", "yellow", "red"),
+  feat_label_selection = NULL,
   gene_label_selection = NULL,
   axis_text_y_size = NULL,
   legend_nrows = 1,
@@ -34,9 +41,13 @@ plotHeatmap(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{feat_type}{feature type}
+
 \item{expression_values}{expression values to use}
 
-\item{genes}{genes to use}
+\item{feats}{features to use}
+
+\item{genes}{deprecated, use feats}
 
 \item{cluster_column}{name of column to use for clusters}
 
@@ -50,13 +61,21 @@ plotHeatmap(
 
 \item{cluster_hclust_method}{method for hierarchical clustering of clusters}
 
-\item{gene_order}{method to determine gene order}
+\item{feat_order}{method to determine features order}
 
-\item{gene_custom_order}{custom order for genes}
+\item{gene_order}{deprecated, use feat_order}
 
-\item{gene_cor_method}{method for gene correlation}
+\item{feat_custom_order}{custom order for features}
 
-\item{gene_hclust_method}{method for hierarchical clustering of genes}
+\item{gene_custom_order}{deprecated, use feat_custom_order}
+
+\item{feat_cor_method}{method for features correlation}
+
+\item{gene_cor_method}{deprecated, use feat_cor_method}
+
+\item{feat_hclust_method}{method for hierarchical clustering of features}
+
+\item{gene_hclust_method}{deprecated, use feat_hclust_method}
 
 \item{show_values}{which values to show on heatmap}
 
@@ -64,7 +83,9 @@ plotHeatmap(
 
 \item{gradient_colors}{colors for heatmap gradient}
 
-\item{gene_label_selection}{subset of genes to show on y-axis}
+\item{feat_label_selection}{subset of features to show on y-axis}
+
+\item{gene_label_selection}{deprecated, use feat_label_selection}
 
 \item{axis_text_y_size}{size for y-axis text}
 
@@ -89,8 +110,8 @@ Creates heatmap for genes and clusters.
 \details{
 If you want to display many genes there are 2 ways to proceed:
 \itemize{
-  \item{1. set axis_text_y_size to a really small value and show all genes}
-  \item{2. provide a subset of genes to display to gene_label_selection}
+  \item{1. set axis_text_y_size to a really small value and show all features}
+  \item{2. provide a subset of features to display to feat_label_selection}
 }
 }
 \examples{
