@@ -146,6 +146,8 @@ violinPlot(seqfish_mini, genes = topgenes_gini$feats[1:4], cluster_column = 'lei
 topgenes_gini2 = gini_markers[, head(.SD, 6), by = 'cluster']
 plotMetaDataHeatmap(seqfish_mini, selected_genes = topgenes_gini2$feats,
                     metadata_cols = c('leiden_clus'))
+
+
 ```
 
 
@@ -165,6 +167,15 @@ pDataDT(seqfish_mini)
 # visualize annotations
 spatDimPlot(gobject = seqfish_mini, cell_color = 'cell_types', 
             spat_point_size = 3, dim_point_size = 3)
+
+# heatmap
+topgenes_heatmap = gini_markers[, head(.SD, 4), by = 'cluster']
+plotHeatmap(gobject = seqfish_mini,
+            genes = topgenes_heatmap$feats, 
+            gene_order = 'custom',
+            gene_custom_order = unique(topgenes_heatmap$feats),
+            cluster_column = 'cell_types',
+            legend_nrows = 1)
 ```
 
 
@@ -218,14 +229,14 @@ Visualize top 4 genes per method.
 ```{r eval=FALSE, fig.width=10, fig.height=10}
 km_spatialgenes = binSpect(seqfish_mini)
 spatGenePlot(seqfish_mini, expression_values = 'scaled', 
-             genes = km_spatialgenes[1:4]$genes,
+             genes = km_spatialgenes[1:4]$feats,
              point_shape = 'border', point_border_stroke = 0.1,
              show_network = F, network_color = 'lightgrey', point_size = 2.5,
              cow_n_col = 2)
 
 rank_spatialgenes = binSpect(seqfish_mini, bin_method = 'rank')
 spatGenePlot(seqfish_mini, expression_values = 'scaled', 
-             genes = rank_spatialgenes[1:4]$genes,
+             genes = rank_spatialgenes[1:4]$feats,
              point_shape = 'border', point_border_stroke = 0.1,
              show_network = F, network_color = 'lightgrey', point_size = 2.5,
              cow_n_col = 2)

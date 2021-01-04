@@ -724,7 +724,7 @@ extract_expression_list = function(gobject,
 
 #### Giotto locations ####
 
-#' @title evaluate_spatial_locations
+#' @name evaluate_spatial_locations
 #' @description Evaluate spatial location input
 #' @param spatial_locs spatial locations to evaluate
 #' @param cores how many cores to use
@@ -802,6 +802,139 @@ evaluate_spatial_locations = function(spatial_locs,
 }
 
 
+
+#### Giotto spatial info ####
+
+
+#' @name evaluate_spatial_info
+#' @description Evaluate spatial information input
+#' @param spatial_info spatial information to evaluate
+#' @param cores how many cores to use
+#' @param spatial_locs spatial location data.table to compare the cell IDs with
+#' @return data.table
+#' @keywords internal
+evaluate_spatial_info = function(spatial_info,
+                                 cores = 1,
+                                 spatial_locs) {
+
+
+  ## 1. load or read spatial information data ##
+  if(inherits(spatial_info, 'character')) {
+
+    if(!file.exists(spatial_info)) stop('path to spatial information does not exist')
+    spatial_info = data.table::fread(input = spatial_info, nThread = cores)
+
+  } else if(inherits(spatial_info, 'data.frame')) {
+
+    spatial_info = data.table::as.data.table(spatial_info)
+
+  } else {
+
+    stop('If spatial information is provided then it needs to be a file path or a data.frame-like object')
+
+  }
+
+  ## 2. check and name columns ##
+  nr_cols = ncol(spatial_info)
+
+  if(nr_cols < 4) stop('Spatial information needs to have at least 4 columns: \n',
+                       'x, y, (z) information columns \n',
+                       'cell ID and polygon point column \n')
+
+  column_classes = lapply(spatial_info, FUN = class)
+
+  # 3D or 2D data
+  if(all(column_classes[1:3] == 'numeric')) {
+    colnames(spatial_info)[1:5] = c('sdimx', 'sdimy', 'sdimz', 'cell_ID', 'point')
+  } else if(all(column_classes[1:2] == 'numeric')){
+    colnames(spatial_info)[1:4] = c('sdimx', 'sdimy', 'cell_ID', 'point')
+  } else {
+    stop('First 3 or 2 columns need to be numeric for 3D and 2D data respectively')
+  }
+
+
+
+  ## 3. check cell ID ##
+  spatial_locs_cell_IDs = spatial_locs[['cell_ID']]
+
+  spatial_info_cell_IDs = spatial_info[['cell_ID']]
+
+  if(all(spatial_info_cell_IDs %in% spatial_locs_cell_IDs)) {
+    return(spatial_info)
+  } else {
+    stop('cell IDs in spatial information are missing in the spatial locations slot')
+  }
+
+}
+
+
+
+
+#### Giotto spatial feature info ####
+
+
+#' @name evaluate_feat_info
+#' @description Evaluate spatial feature information input
+#' @param spatial_feat_info spatial feature information to evaluate
+#' @param cores how many cores to use
+#' @param feat_ID feature IDs to check with
+#' @return data.table
+#' @keywords internal
+evaluate_feat_info = function(spatial_feat_info,
+                              feat_type,
+                              cores = 1,
+                              feat_ID) {
+
+
+  ## 1. load or read spatial information data ##
+  if(inherits(spatial_feat_info, 'character')) {
+
+    if(!file.exists(spatial_feat_info)) stop('path to spatial information does not exist')
+    spatial_feat_info = data.table::fread(input = spatial_feat_info, nThread = cores)
+
+  } else if(inherits(spatial_feat_info, 'data.frame')) {
+
+    spatial_feat_info = data.table::as.data.table(spatial_feat_info)
+
+  } else {
+
+    stop('If spatial feature information is provided then it needs to be a file path or a data.frame-like object')
+
+  }
+
+
+  ## 2. check and name columns ##
+  nr_cols = ncol(spatial_feat_info)
+
+  if(nr_cols < 3) stop('Spatial feature information needs to have at least 3 columns: \n',
+                       'x, y, (z) information columns \n',
+                       'and feature ID column \n')
+
+  column_classes = lapply(spatial_feat_info, FUN = class)
+
+
+  # 3D or 2D data
+  if(all(column_classes[1:3] == 'numeric')) {
+    colnames(spatial_feat_info)[1:4] = c('sdimx', 'sdimy', 'sdimz', 'feat_ID')
+  } else if(all(column_classes[1:2] == 'numeric')){
+    colnames(spatial_feat_info)[1:3] = c('sdimx', 'sdimy', 'feat_ID')
+  } else {
+    stop('First 3 or 2 columns need to be numeric for 3D and 2D data respectively')
+  }
+
+
+
+  ## 3. check cell ID ##
+
+  spatial_feature_info_feat_IDs = spatial_feat_info[['feat_ID']]
+
+  if(all(spatial_feature_info_feat_IDs %in% feat_ID)) {
+    return(spatial_feat_info)
+  } else {
+    stop('feat IDs in spatial feature information are missing in the feature ID slot')
+  }
+
+}
 
 
 #### creating Giotto objects ####
@@ -929,7 +1062,7 @@ createGiottoObject <- function(expression,
 
 
   ## if cores is not set, then set number of cores automatically, but with limit of 10
-  cores = Giotto:::determine_cores(cores)
+  cores = determine_cores(cores)
   data.table::setDTthreads(threads = cores)
 
 
@@ -975,24 +1108,12 @@ createGiottoObject <- function(expression,
 
 
   ## spatial locations ##
+  ## ----------------- ##
   raw_cell_dim = ncol(gobject@expression[[1]][[1]]) # number of columns
-  spatial_locs = Giotto:::evaluate_spatial_locations(spatial_locs = spatial_locs,
-                                                     cores = cores,
-                                                     dummy_n = raw_cell_dim,
-                                                     expr_matrix = gobject@expression[['raw']])
-
-  ## spatial info ##
-  ## place to store segmentation info in polygon format style
-  if(is.null(spatial_info)) {
-
-    gobject@spatial_info[[1]] = data.table::data.table(cell_ID = gobject@cell_ID,
-                                                       point = NA,
-                                                       x = NA, y = NA, z = NA)
-
-  } else {
-    # evaluate spatial info, needs to be compatible with spatial_locs
-    print('TODO evaluate spatial info')
-  }
+  spatial_locs = evaluate_spatial_locations(spatial_locs = spatial_locs,
+                                            cores = cores,
+                                            dummy_n = raw_cell_dim,
+                                            expr_matrix = gobject@expression[['raw']])
 
 
   # check if dimensions agree
@@ -1000,7 +1121,7 @@ createGiottoObject <- function(expression,
     stop('\n Number of rows of spatial location must equal number of columns of expression matrix \n')
   }
 
-  ## force dimension names
+  # force dimension names
   spatial_dimensions = c('x', 'y', 'z')
   colnames(spatial_locs) = paste0('sdim', spatial_dimensions[1:ncol(spatial_locs)])
 
@@ -1010,8 +1131,33 @@ createGiottoObject <- function(expression,
 
 
 
+  ## spatial info ##
+  ## ------------ ##
+  ## place to store segmentation info in polygon format style
+  if(is.null(spatial_info)) {
 
-  ## cell metadata
+    gobject@spatial_info = data.table::data.table( sdimx = NA,
+                                                  sdimy = NA,
+                                                  sdimz = NA,
+                                                  cell_ID = gobject@cell_ID,
+                                                  point = NA)
+
+  } else {
+    # evaluate spatial info, needs to be compatible with spatial_locs
+    spatial_info = evaluate_spatial_info(spatial_info = spatial_info,
+                                         cores = cores,
+                                         spatial_locs = spatial_locs)
+    gobject@spatial_info = spatial_info
+
+  }
+
+
+
+
+
+
+  ## cell metadata ##
+  ## ------------- ##
   if(is.null(cell_metadata)) {
 
     for(feat_type in expression_feat) {
@@ -1022,12 +1168,13 @@ createGiottoObject <- function(expression,
   } else {
 
     if(length(cell_metadata) != length(expression_feat)) {
-      stop('Number of differe molecular features need to correspond with the cell_metadata list length \n')
+      stop('Number of different molecular features need to correspond with the cell_metadata list length \n')
     }
 
     for(feat_type in expression_feat) {
       gobject@cell_metadata[[feat_type]] = data.table::as.data.table(gobject@cell_metadata[[feat_type]])
       gobject@cell_metadata[[feat_type]][, cell_ID := gobject@cell_ID]
+
       # put cell_ID first
       all_colnames = colnames(gobject@cell_metadata[[feat_type]])
       other_colnames = grep('cell_ID', all_colnames, invert = T, value = T)
@@ -1037,7 +1184,8 @@ createGiottoObject <- function(expression,
 
 
 
-  ## gene metadata
+  ## gene metadata ##
+  ## ------------- ##
   if(is.null(feat_metadata)) {
 
     for(feat_type in expression_feat) {
@@ -1047,7 +1195,7 @@ createGiottoObject <- function(expression,
   } else {
 
     if(length(feat_metadata) != length(expression_feat)) {
-      stop('Number of differe molecular features need to correspond with the feat_metadata list length \n')
+      stop('Number of different molecular features need to correspond with the feat_metadata list length \n')
     }
 
     for(feat_type in expression_feat) {
@@ -1058,19 +1206,44 @@ createGiottoObject <- function(expression,
   }
 
   ## feature info ##
+  ## ------------ ##
   ## place to store individual feature info
   if(is.null(feat_info)) {
 
     for(feat_type in expression_feat) {
       gobject@feat_info[[feat_type]] = data.table::data.table(feat_ID = gobject@feat_ID[[feat_type]],
-                                                              point = NA, x = NA, y = NA, z = NA)
+                                                              x = NA,
+                                                              y = NA,
+                                                              z = NA)
+    }
+
+  } else {
+
+    feat_info_names = names(feat_info)
+
+    for(feat_type in feat_info_names) {
+
+      if(!feat_type %in% expression_feat) {
+        warning('The feat info for ', feat_type, ' was not found back in ', expression_feat, ' and will not be used')
+      } else {
+
+        feat_info_object = feat_info[[feat_type]]
+
+        feat_ids = gobject@feat_ID[[feat_type]]
+
+        feat_info_object = evaluate_feat_info(spatial_feat_info = feat_info_object,
+                                              feat_type = feat_type,
+                                              cores = cores,
+                                              feat_ID = feat_ids)
+
+        gobject@feat_info[[feat_type]] = feat_info_object
+
+      }
+
     }
 
   }
-  else {
-    # evaluate spatial info, needs to be compatible with spatial_locs
-    print('TODO evaluate feature info')
-  }
+
 
 
 
