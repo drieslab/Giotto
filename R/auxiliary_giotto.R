@@ -2352,7 +2352,7 @@ showProcessingSteps <- function(gobject) {
 
 
 
-#' @title create_cluster_matrix
+#' @name create_cluster_matrix
 #' @description creates aggregated matrix for a given clustering column
 #' @keywords internal
 create_cluster_matrix <- function(gobject,
@@ -2802,5 +2802,78 @@ findNetworkNeighbors = function(gobject,
 
 
 
+#' @name merge_spatial_locs_feat_info
+#' @description merge spatial cell and feature location information
+#' @keywords internal
+merge_spatial_locs_feat_info = function(spatial_info,
+                                        feature_info) {
+
+
+  reslist = list()
+  for(i in 1:length(unique(spatial_info$cell_ID))) {
+
+    cell_i = unique(spatial_info$cell_ID)[i]
+
+    temp = sp::point.in.polygon(point.x = feature_info$sdimx,
+                                point.y = feature_info$sdimy,
+                                pol.x = spatial_info[cell_ID == cell_i]$sdimx,
+                                pol.y = spatial_info[cell_ID == cell_i]$sdimy)
+
+    detected_feats = feature_info[temp == 1]
+    detected_feats[, cell_ID := cell_i]
+
+    reslist[[i]] = detected_feats
+
+  }
+
+  reslistfinal = do.call('rbind', reslist)
+
+  # calculate how often a single transcript is used
+  # > 1 means that a transcript was assigned to more than 1 cell
+  reslistfinal[, used := .N, by = c('sdimx', 'sdimy', 'feat_ID')]
+
+  return(reslistfinal)
+
+}
+
+
+#' @name combineSpatialCellFeatureInfo
+#' @description Combine location information about cells (polygon) and features (points)
+#' @param gobject Giotto object
+#' @param feat_type feature type
+#' @return data.table
+#' @details
+#' The returned data.table has the following columns: \cr
+#' \itemize{
+#'   \item{sdimx: spatial feature location on the x-axis}
+#'   \item{sdimy: spatial feature location on the y-axis}
+#'   \item{feat_ID: unique feature ID}
+#'   \item{cell_ID: unique cell ID}
+#'   \item{used: how often was the feature used/assigned to a cell}
+#' }
+#' @export
+combineSpatialCellFeatureInfo = function(gobject,
+                                         feat_type = NULL) {
+
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+  spatial_cell_polygon = gobject@spatial_info
+  spatial_feat_locs = gobject@feat_info[[feat_type]]
+
+  if(is.null(spatial_cell_polygon)) {
+    stop('There is no available spatial segmentation/location information')
+  }
+
+  if(is.null(spatial_feat_locs)) {
+    stop('There is no available spatial feature location information')
+  }
+
+  merge_spatial_locs_feat_info(spatial_info = spatial_cell_polygon,
+                               feature_info = spatial_feat_locs)
+
+}
 
 

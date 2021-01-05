@@ -1067,6 +1067,7 @@ createGiottoObject <- function(expression,
 
 
   ## expression data ##
+  ## --------------- ##
 
 
   ## deprecated arguments
@@ -1087,10 +1088,12 @@ createGiottoObject <- function(expression,
 
 
   ## parameters ##
+  ## ---------- ##
   gobject@parameters = list()
 
 
-  ## set instructions
+  ## set instructions ##
+  ## ---------------- ##
   if(is.null(instructions)) {
     # create all default instructions
     gobject@instructions = createGiottoInstructions()
