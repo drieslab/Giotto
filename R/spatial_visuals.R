@@ -3154,7 +3154,7 @@ spatDimPlot2D <- function(gobject,
   if(is.null(cell_color_code)) {
     if(is.character(cell_color)) {
 
-      cell_metadata = pDataDT(gobject)
+      cell_metadata = pDataDT(gobject, feat_type)
       if(cell_color %in% colnames(cell_metadata)) {
 
         if(color_as_factor == TRUE) {
@@ -3476,8 +3476,8 @@ spatFeatPlot2D <- function(gobject,
     data.table::setnames(t_sub_expr_data_DT, 'selected_feat', selected_feats)
   } else {
     subset_expr_data = expr_values[rownames(expr_values) %in% selected_feats, ]
-    t_sub_expr_data = t(subset_expr_data)
-    t_sub_expr_data_DT = data.table::as.data.table(t_sub_expr_data)
+    t_sub_expr_data = t_flex(subset_expr_data)
+    t_sub_expr_data_DT = data.table::as.data.table(as.matrix(t_sub_expr_data))
     t_sub_expr_data_DT[, cell_ID := rownames(t_sub_expr_data)]
   }
 
@@ -3921,8 +3921,8 @@ dimFeatPlot2D <- function(gobject,
     data.table::setnames(t_sub_expr_data_DT, 'selected_feat', selected_feats)
   } else {
     subset_expr_data = expr_values[rownames(expr_values) %in% selected_feats, ]
-    t_sub_expr_data = t(subset_expr_data)
-    t_sub_expr_data_DT = data.table::as.data.table(t_sub_expr_data)
+    t_sub_expr_data = t_flex(subset_expr_data)
+    t_sub_expr_data_DT = data.table::as.data.table(as.matrix(t_sub_expr_data))
 
     # data.table variables
     cell_ID = NULL
@@ -3937,7 +3937,7 @@ dimFeatPlot2D <- function(gobject,
   dim_DT = data.table::as.data.table(dim_dfr); dim_DT[, cell_ID := rownames(dim_dfr)]
 
   ## annotated cell metadata
-  cell_metadata = gobject@cell_metadata
+  cell_metadata = gobject@cell_metadata[[feat_type]]
   annotated_DT = data.table::merge.data.table(cell_metadata, dim_DT, by = 'cell_ID')
 
   ## merge feat info
@@ -7566,8 +7566,8 @@ spatGenePlot3D <- function(gobject,
     data.table::setnames(t_sub_expr_data_DT, 'selected_gene', selected_genes)
   } else {
     subset_expr_data = expr_values[rownames(expr_values) %in% selected_genes, ]
-    t_sub_expr_data = t(subset_expr_data)
-    t_sub_expr_data_DT = data.table::as.data.table(t_sub_expr_data)
+    t_sub_expr_data = t_flex(subset_expr_data)
+    t_sub_expr_data_DT = data.table::as.data.table(as.matrix(t_sub_expr_data))
     t_sub_expr_data_DT[, cell_ID := rownames(t_sub_expr_data)]
   }
 
@@ -7907,8 +7907,8 @@ dimGenePlot3D <- function(gobject,
     data.table::setnames(t_sub_expr_data_DT, 'selected_gene', selected_genes)
   } else {
     subset_expr_data = expr_values[rownames(expr_values) %in% selected_genes, ]
-    t_sub_expr_data = t(subset_expr_data)
-    t_sub_expr_data_DT = data.table::as.data.table(t_sub_expr_data)
+    t_sub_expr_data = t_flex(subset_expr_data)
+    t_sub_expr_data_DT = data.table::as.data.table(as.matrix(t_sub_expr_data))
 
     # data.table variables
     cell_ID = NULL
