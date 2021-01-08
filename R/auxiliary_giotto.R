@@ -480,16 +480,26 @@ subsetGiotto <- function(gobject,
 
 
   for(expr_feat in unique(gobject@expression_feat)) {
-    expression_names = names(gobject@expression[[expr_feat]])
-    expression_names = expression_names[expression_names != 'raw']
-    for(expr_name in expression_names) {
-      gobject@expression[[expr_feat]][[expr_name]] = gobject@expression[[expr_feat]][[expr_name]][filter_bool_feats, filter_bool_cells]
+
+    if(expr_feat == feat_type) {
+      # filter features and cells
+      expression_names = names(gobject@expression[[expr_feat]])
+      expression_names = expression_names[expression_names != 'raw']
+      for(expr_name in expression_names) {
+        gobject@expression[[expr_feat]][[expr_name]] = gobject@expression[[expr_feat]][[expr_name]][filter_bool_feats, filter_bool_cells]
+      }
+    } else {
+      # only filter cells
+      expression_names = names(gobject@expression[[expr_feat]])
+      for(expr_name in expression_names) {
+        gobject@expression[[expr_feat]][[expr_name]] = gobject@expression[[expr_feat]][[expr_name]][, filter_bool_cells]
+      }
     }
   }
 
 
 
-  ## cell & gene metadata ##
+  ## cell & feature metadata ##
   # cell metadata
   if(!is.null(gobject@cell_metadata)) {
     for(expr_feat in unique(gobject@expression_feat)) {
@@ -497,11 +507,14 @@ subsetGiotto <- function(gobject,
     }
 
   }
-  # gene metadata
+
+  # feature metadata
   if(!is.null(gobject@feat_metadata)) {
-    for(expr_feat in unique(gobject@expression_feat)) {
-      gobject@feat_metadata[[expr_feat]] = gobject@feat_metadata[[expr_feat]][filter_bool_feats,]
-    }
+
+    print(feat_type)
+    # only subset features of the feat type
+    gobject@feat_metadata[[feat_type]] = gobject@feat_metadata[[feat_type]][filter_bool_feats,]
+
   }
 
   # data.table variables
@@ -1077,13 +1090,14 @@ filterGiotto <- function(gobject,
   # 1. first remove genes that are not frequently detected
   # 2. then remove cells that do not have sufficient detected genes
 
-  ## filter genes
+  ## filter features
   filter_index_feats = rowSums_flex(expr_values >= expression_threshold) >= feat_det_in_min_cells
   selected_feat_ids = gobject@feat_ID[[feat_type]][filter_index_feats]
 
   ## filter cells
   filter_index_cells = colSums_flex(expr_values[filter_index_feats, ] >= expression_threshold) >= min_det_feats_per_cell
   selected_cell_ids = gobject@cell_ID[filter_index_cells]
+
 
   newGiottoObject = subsetGiotto(gobject = gobject,
                                  feat_type = feat_type,

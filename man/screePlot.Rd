@@ -7,7 +7,7 @@
 screePlot(
   gobject,
   feat_type = NULL,
-  name = "pca",
+  name = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   reduction = c("cells", "feats"),
   method = c("irlba", "factominer"),

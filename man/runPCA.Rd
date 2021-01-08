@@ -9,7 +9,7 @@ runPCA(
   feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   reduction = c("cells", "feats"),
-  name = "pca",
+  name = NULL,
   feats_to_use = "hvf",
   genes_to_use = NULL,
   return_gobject = TRUE,

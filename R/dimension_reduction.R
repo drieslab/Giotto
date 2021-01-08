@@ -54,6 +54,7 @@ select_dimReduction = function(gobject,
   reduction = match.arg(arg = reduction, choices = c('cells', 'genes'))
   reduction_method = match.arg(arg = reduction_method, choices = c('pca', 'umap', 'tsne'))
 
+
   ## check reduction
   reduction_res = gobject@dimension_reduction[[reduction]]
   if(is.null(reduction_res)) {
@@ -395,7 +396,7 @@ runPCA <- function(gobject,
                    feat_type = NULL,
                    expression_values = c('normalized', 'scaled', 'custom'),
                    reduction = c('cells', 'feats'),
-                   name = 'pca',
+                   name = NULL,
                    feats_to_use = 'hvf',
                    genes_to_use = NULL,
                    return_gobject = TRUE,
@@ -413,6 +414,15 @@ runPCA <- function(gobject,
   # specify feat_type
   if(is.null(feat_type)) {
     feat_type = gobject@expression_feat[[1]]
+  }
+
+  # specify name to use for pca
+  if(is.null(name)) {
+    if(feat_type == 'rna') {
+      name = 'pca'
+    } else {
+      name = paste0(feat_type,'.','pca')
+    }
   }
 
   ## deprecated arguments
@@ -599,7 +609,7 @@ create_screeplot = function(pca_obj, ncp = 20, ylim = c(0, 20)) {
 #'
 screePlot = function(gobject,
                      feat_type = NULL,
-                     name = 'pca',
+                     name = NULL,
                      expression_values = c('normalized', 'scaled', 'custom'),
                      reduction = c('cells', 'feats'),
                      method = c('irlba','factominer'),
@@ -624,6 +634,14 @@ screePlot = function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
+  # specify name to use for screeplot
+  if(is.null(name)) {
+    if(feat_type == 'rna') {
+      name = 'pca'
+    } else {
+      name = paste0(feat_type,'.','pca')
+    }
+  }
 
   ## deprecated arguments
   if(!is.null(genes_to_use)) {
@@ -1114,9 +1132,9 @@ runUMAP <- function(gobject,
                     expression_values = c('normalized', 'scaled', 'custom'),
                     reduction = c('cells', 'feats'),
                     dim_reduction_to_use = 'pca',
-                    dim_reduction_name = 'pca',
+                    dim_reduction_name = NULL,
                     dimensions_to_use = 1:10,
-                    name = 'umap',
+                    name = NULL,
                     feats_to_use = NULL,
                     genes_to_use = NULL,
                     return_gobject = TRUE,
@@ -1145,6 +1163,28 @@ runUMAP <- function(gobject,
 
   reduction = match.arg(reduction, choices = c('cells', 'feats'))
 
+  # specify name to use for pca input for umap
+  if(dim_reduction_to_use == 'pca') {
+    if(is.null(dim_reduction_name)) {
+      if(feat_type == 'rna') {
+        name = 'pca'
+      } else {
+        name = paste0(feat_type,'.','pca')
+      }
+    }
+  }
+
+
+  # specify name to use for umap
+  if(is.null(name)) {
+    if(feat_type == 'rna') {
+      name = 'umap'
+    } else {
+      name = paste0(feat_type,'.','umap')
+    }
+  }
+
+
   # set cores to use
   n_threads = determine_cores(cores = n_threads)
 
@@ -1155,8 +1195,17 @@ runUMAP <- function(gobject,
     if(!is.null(dim_reduction_to_use)) {
 
       ## TODO: check if reduction exists
-      matrix_to_use = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']][, dimensions_to_use]
+      matrix_to_use = select_dimReduction(gobject = gobject,
+                                          reduction = reduction,
+                                          reduction_method = dim_reduction_to_use,
+                                          name = dim_reduction_name,
+                                          return_dimObj = FALSE)
+      matrix_to_use = matrix_to_use[, dimensions_to_use]
 
+      #matrix_to_use = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']][, dimensions_to_use]
+
+      print('ok1')
+      print(matrix_to_use[1:4, 1:4])
 
     } else {
 
@@ -1291,9 +1340,9 @@ runtSNE <- function(gobject,
                     expression_values = c('normalized', 'scaled', 'custom'),
                     reduction = c('cells', 'feats'),
                     dim_reduction_to_use = 'pca',
-                    dim_reduction_name = 'pca',
+                    dim_reduction_name = NULL,
                     dimensions_to_use = 1:10,
-                    name = 'tsne',
+                    name = NULL,
                     feats_to_use = NULL,
                     genes_to_use = NULL,
                     return_gobject = TRUE,
@@ -1321,7 +1370,31 @@ runtSNE <- function(gobject,
 
   reduction = match.arg(reduction, choices = c('cells', 'feats'))
 
-  ## umap on cells ##
+
+  # specify name to use for pca input for umap
+  if(dim_reduction_to_use == 'pca') {
+    if(is.null(dim_reduction_name)) {
+      if(feat_type == 'rna') {
+        name = 'pca'
+      } else {
+        name = paste0(feat_type,'.','pca')
+      }
+    }
+  }
+
+  # specify name to use for umap
+  if(is.null(name)) {
+    if(feat_type == 'rna') {
+      name = 'tsne'
+    } else {
+      name = paste0(feat_type,'.','tsne')
+    }
+  }
+
+
+
+
+  ## tsne on cells ##
   if(reduction == 'cells') {
 
     ## using dimension reduction ##

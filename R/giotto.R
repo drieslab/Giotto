@@ -602,7 +602,16 @@ extr_single_list = function(gobject,
     gobject@expression[[expression_feat]][['raw']] = expr_res
 
     # prepare other slots related to raw matrix
-    gobject@cell_ID = colnames(expr_res)
+
+    # check existin cell_IDs; need to be consistent across features
+    if(!is.null(gobject@cell_ID)) {
+      test = identical(gobject@cell_ID, colnames(expr_res))
+      if(test == FALSE) stop('column names (cell ids) between feature expression matrices need to be identical and in the same order')
+    } else {
+      gobject@cell_ID = colnames(expr_res)
+    }
+
+    # can be unique for each feature
     gobject@feat_ID[[expression_feat]] = rownames(expr_res)
 
     raw_exprs_dim = dim(expr_res)
@@ -1087,6 +1096,7 @@ createGiottoObject <- function(expression,
 
 
 
+
   ## parameters ##
   ## ---------- ##
   gobject@parameters = list()
@@ -1187,7 +1197,7 @@ createGiottoObject <- function(expression,
 
 
 
-  ## gene metadata ##
+  ## feat metadata ##
   ## ------------- ##
   if(is.null(feat_metadata)) {
 
@@ -1234,6 +1244,9 @@ createGiottoObject <- function(expression,
 
         feat_ids = gobject@feat_ID[[feat_type]]
 
+        print(feat_type)
+        print(feat_ids[1:5])
+        print(feat_info_object)
         feat_info_object = evaluate_feat_info(spatial_feat_info = feat_info_object,
                                               feat_type = feat_type,
                                               cores = cores,
