@@ -160,5 +160,31 @@ my_rowMeans = function(x, method = c('arithmic', 'geometric'), offset = 0.1) {
 }
 
 
+#' @name standardise_flex
+#' @description standardises a matrix
+#' @param x matrix
+#' @param center center data
+#' @param scale scale data
+#' @keywords internal
+#' @return standardized matrix
+standardise_flex = function (x, center = TRUE, scale = TRUE)
+{
+  if (center & scale) {
+    y <- t_flex(x) - Rfast::colmeans(x)
+    y <- y/sqrt(Rfast::rowsums(y^2)) * sqrt((dim(x)[1] -
+                                               1))
+    y <- t_flex(y)
+  }
+  else if (center & !scale) {
+    m <- Rfast::colmeans(x)
+    y <- Rfast::eachrow(x, m, oper = "-")
+  }
+  else if (!center & scale) {
+    s <- Rfast::colVars(x, std = TRUE)
+    y <- Rfast::eachrow(x, s, oper = "/")
+  } else {
+    y = x
+  }
+}
 
 

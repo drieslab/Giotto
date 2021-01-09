@@ -89,13 +89,5 @@ See \code{\link[uwot]{umap}} for more information about these and other paramete
 }
 \examples{
 
-data(mini_giotto_single_cell)
-
-mini_giotto_single_cell <- runUMAP(mini_giotto_single_cell,
-                                   dimensions_to_use = 1:3,
-                                   n_threads = 1,
-                                   n_neighbors = 3)
-
-plotUMAP(gobject = mini_giotto_single_cell)
 
 }

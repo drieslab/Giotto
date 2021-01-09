@@ -74,15 +74,3 @@ See \code{\link[irlba]{prcomp_irlba}} and \code{\link[FactoMineR]{PCA}} for more
   \item feats_to_use = c('geneA', 'geneB', ...): will use all manually provided features
 }
 }
-\examples{
-
-data(mini_giotto_single_cell)
-
-# run PCA
-mini_giotto_single_cell <- runPCA(gobject = mini_giotto_single_cell,
-                                  center = TRUE, scale_unit = TRUE)
-
-# plot PCA results
-plotPCA(mini_giotto_single_cell)
-
-}

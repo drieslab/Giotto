@@ -83,36 +83,6 @@ select_dimReduction = function(gobject,
 }
 
 
-
-
-#' @title standardise_giotto
-#' @name standardise_giotto
-#' @description standardises a matrix
-#' @param x matrix
-#' @param center center data
-#' @param scale scale data
-#' @keywords internal
-#' @return standardized matrix
-standardise_giotto = function (x, center = TRUE, scale = TRUE)
-{
-  if (center & scale) {
-    y <- t_giotto(x) - Rfast::colmeans(x)
-    y <- y/sqrt(Rfast::rowsums(y^2)) * sqrt((dim(x)[1] -
-                                               1))
-    y <- t_giotto(y)
-  }
-  else if (center & !scale) {
-    m <- Rfast::colmeans(x)
-    y <- Rfast::eachrow(x, m, oper = "-")
-  }
-  else if (!center & scale) {
-    s <- Rfast::colVars(x, std = TRUE)
-    y <- Rfast::eachrow(x, s, oper = "/")
-  } else {
-    y = x
-  }
-}
-
 #' @title pca_giotto
 #' @name pca_giotto
 #' @description performs PCA based on Rfast
@@ -130,11 +100,11 @@ pca_giotto = function(mymatrix, center = T, scale = T, k = 50) {
   }
 
   if(!is.matrix(mymatrix)) mymatrix = as.matrix(mymatrix)
-  my_t_matrix = t_giotto(mymatrix)
+  my_t_matrix = t_flex(mymatrix)
   pca_f = Rfast::hd.eigen(x = my_t_matrix, center = center, scale = scale, k = k, vectors = TRUE)
 
   # calculate pca coordinates
-  rotated_mat = standardise_giotto(x = my_t_matrix, center = center, scale = scale)
+  rotated_mat = standardise_flex(x = my_t_matrix, center = center, scale = scale)
   coords = rotated_mat %*% pca_f$vectors
   colnames(coords) = paste0('Dim.', 1:ncol(coords))
 
@@ -173,7 +143,7 @@ runPCA_prcomp_irlba = function(x,
 
   if(rev == TRUE) {
 
-    x = t_giotto(x)
+    x = t_flex(x)
 
     if(set_seed == TRUE) {
       set.seed(seed = seed_number)
@@ -246,7 +216,7 @@ runPCA_factominer = function(x,
 
   if(rev == TRUE) {
 
-    x = t_giotto(x)
+    x = t_flex(x)
 
     if(ncp > nrow(x)) {
       warning("ncp > nrow(x), will be set to nrow(x)")
@@ -381,16 +351,6 @@ create_feats_to_use_matrix = function(gobject,
 #'   \item feats_to_use = c('geneA', 'geneB', ...): will use all manually provided features
 #' }
 #' @export
-#' @examples
-#'
-#' data(mini_giotto_single_cell)
-#'
-#' # run PCA
-#' mini_giotto_single_cell <- runPCA(gobject = mini_giotto_single_cell,
-#'                                   center = TRUE, scale_unit = TRUE)
-#'
-#' # plot PCA results
-#' plotPCA(mini_giotto_single_cell)
 #'
 runPCA <- function(gobject,
                    feat_type = NULL,
@@ -1118,14 +1078,6 @@ signPCA <- function(gobject,
 #' @export
 #' @examples
 #'
-#' data(mini_giotto_single_cell)
-#'
-#' mini_giotto_single_cell <- runUMAP(mini_giotto_single_cell,
-#'                                    dimensions_to_use = 1:3,
-#'                                    n_threads = 1,
-#'                                    n_neighbors = 3)
-#'
-#' plotUMAP(gobject = mini_giotto_single_cell)
 #'
 runUMAP <- function(gobject,
                     feat_type = NULL,
@@ -1203,9 +1155,6 @@ runUMAP <- function(gobject,
       matrix_to_use = matrix_to_use[, dimensions_to_use]
 
       #matrix_to_use = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']][, dimensions_to_use]
-
-      print('ok1')
-      print(matrix_to_use[1:4, 1:4])
 
     } else {
 
@@ -1325,15 +1274,6 @@ runUMAP <- function(gobject,
 #' @export
 #' @examples
 #'
-#' data(mini_giotto_single_cell)
-#'
-#' mini_giotto_single_cell <- runtSNE(mini_giotto_single_cell,
-#'                                    dimensions_to_use = 1:3,
-#'                                    n_threads = 1,
-#'                                    n_neighbors = 3,
-#'                                    perplexity = 1)
-#'
-#' plotTSNE(gobject = mini_giotto_single_cell)
 #'
 runtSNE <- function(gobject,
                     feat_type = NULL,
@@ -1401,8 +1341,14 @@ runtSNE <- function(gobject,
     if(!is.null(dim_reduction_to_use)) {
 
       ## TODO: check if reduction exists
+      matrix_to_use = select_dimReduction(gobject = gobject,
+                                          reduction = reduction,
+                                          reduction_method = dim_reduction_to_use,
+                                          name = dim_reduction_name,
+                                          return_dimObj = FALSE)
+      matrix_to_use = matrix_to_use[, dimensions_to_use]
 
-      matrix_to_use = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']][, dimensions_to_use]
+      #matrix_to_use = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']][, dimensions_to_use]
 
 
     } else {
