@@ -261,14 +261,20 @@ calculateHVF <- function(gobject,
 
       results = calc_cov_group_HVF(feat_in_cells_detected = feat_in_cells_detected,
                                    nr_expression_groups = nr_expression_groups,
-                                   zscore_threshold = zscore_threshold)
+                                   zscore_threshold = zscore_threshold,
+                                   show_plot = show_plot,
+                                   return_plot = return_plot,
+                                   save_plot = save_plot)
       feat_in_cells_detected = results[['dt']]
       pl = results[['pl']]
 
     } else if(method == 'cov_loess') {
 
       results = calc_cov_loess_HVF(feat_in_cells_detected = feat_in_cells_detected,
-                                   difference_in_cov = difference_in_cov)
+                                   difference_in_cov = difference_in_cov,
+                                   show_plot = show_plot,
+                                   return_plot = return_plot,
+                                   save_plot = save_plot)
       feat_in_cells_detected = results[['dt']]
       pl = results[['pl']]
     }
