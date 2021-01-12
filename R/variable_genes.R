@@ -109,21 +109,26 @@ calc_var_HVF = function(scaled_matrix,
 
   if(show_plot == TRUE | return_plot == TRUE | save_plot == TRUE) {
 
+    dt_res[, rank := 1:.N]
+
     pl = ggplot2::ggplot()
     pl = pl + ggplot2::geom_point(data = dt_res, aes(x = rank, y = var, color = selected))
     pl = pl + ggplot2::scale_x_reverse()
-    pl <- pl + ggplot2::theme_classic() + ggplot2::theme(axis.title = ggplot2::element_text(size = 14),
+    pl = pl + ggplot2::theme_classic() + ggplot2::theme(axis.title = ggplot2::element_text(size = 14),
                                                          axis.text = ggplot2::element_text(size = 12))
     pl = pl + ggplot2::scale_color_manual(values = c(no = 'lightgrey', yes = 'orange'),
                                           guide = ggplot2::guide_legend(title = 'HVF',
                                                                         override.aes = list(size=5)))
     pl = pl + ggplot2::labs(x = 'feature rank', y = 'variance')
 
-    return(list(dt = feat_in_cells_detected, pl = pl))
+    dt_res_final = data.table::copy(dt_res)
+    dt_res_final[, rank := NULL]
+
+    return(list(dt = dt_res_final, pl = pl))
 
   } else {
 
-    return(list(dt = feat_in_cells_detected))
+    return(list(dt = dt_res))
   }
 
 }
@@ -285,8 +290,6 @@ calculateHVF <- function(gobject,
 
 
 
-
-
   ## print plot
   if(show_plot == TRUE) {
     print(pl)
@@ -322,6 +325,7 @@ calculateHVF <- function(gobject,
     }
 
     if(method == 'var_p_resid') {
+      print('ok2')
       HVGfeats = feat_in_cells_detected[,.(feats, var, selected)]
       data.table::setnames(HVGfeats, 'selected', HVFname)
     } else {
