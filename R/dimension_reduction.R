@@ -1115,13 +1115,13 @@ runUMAP <- function(gobject,
 
   reduction = match.arg(reduction, choices = c('cells', 'feats'))
 
-  # specify name to use for pca input for umap
+  # specify dim_reduction_name to use for pca input for umap
   if(dim_reduction_to_use == 'pca') {
     if(is.null(dim_reduction_name)) {
       if(feat_type == 'rna') {
-        name = 'pca'
+        dim_reduction_name = 'pca'
       } else {
-        name = paste0(feat_type,'.','pca')
+        dim_reduction_name = paste0(feat_type,'.','pca')
       }
     }
   }
@@ -1311,13 +1311,13 @@ runtSNE <- function(gobject,
   reduction = match.arg(reduction, choices = c('cells', 'feats'))
 
 
-  # specify name to use for pca input for umap
+  # specify dim_reduction_name to use for pca input for tsne
   if(dim_reduction_to_use == 'pca') {
     if(is.null(dim_reduction_name)) {
       if(feat_type == 'rna') {
-        name = 'pca'
+        dim_reduction_name = 'pca'
       } else {
-        name = paste0(feat_type,'.','pca')
+        dim_reduction_name = paste0(feat_type,'.','pca')
       }
     }
   }
