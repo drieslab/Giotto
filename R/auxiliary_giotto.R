@@ -2366,6 +2366,35 @@ showProcessingSteps <- function(gobject) {
 
 
 
+#' @name showGiottoExpression
+#' @description shows the available matrices
+#' @param gobject giotto object
+#' @param nrows number of rows to print for each matrix
+#' @param ncols number of columns to print for each matrix
+#' @return prints the name and small subset of available matrices
+#' @export
+showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
+
+  for(feat_type in names(gobject@expression)) {
+
+    cat('Feature ', feat_type, ': \n\n')
+
+    for(mat_i in names(gobject@expression[[feat_type]])) {
+
+      cat('---> ', mat_i, 'matrix: \n')
+
+      print(gobject@expression[[feat_type]][[mat_i]][1:nrows, 1:ncols])
+      cat('\n')
+    }
+
+  }
+
+}
+
+
+
+
+
 #' @name create_cluster_matrix
 #' @description creates aggregated matrix for a given clustering column
 #' @keywords internal

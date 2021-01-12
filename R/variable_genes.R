@@ -1,9 +1,12 @@
 
-#' @title calc_cov_group_HVG
+#' @name calc_cov_group_HVF
 #' @keywords internal
-calc_cov_group_HVG = function(feat_in_cells_detected,
+calc_cov_group_HVF = function(feat_in_cells_detected,
                               nr_expression_groups = 20,
-                              zscore_threshold = 1) {
+                              zscore_threshold = 1,
+                              show_plot = NA,
+                              return_plot = NA,
+                              save_plot = NA) {
 
 
   steps = 1/nr_expression_groups
@@ -24,24 +27,33 @@ calc_cov_group_HVG = function(feat_in_cells_detected,
   feat_in_cells_detected[, cov_group_zscore := scale(cov), by =  expr_groups]
   feat_in_cells_detected[, selected := ifelse(cov_group_zscore > zscore_threshold, 'yes', 'no')]
 
-  pl <- ggplot2::ggplot()
-  pl <- pl + ggplot2::theme_classic() + ggplot2::theme(axis.title = ggplot2::element_text(size = 14),
-                                                       axis.text = ggplot2::element_text(size = 12))
-  pl <- pl + ggplot2::geom_point(data = feat_in_cells_detected, ggplot2::aes(x = mean_expr, y = cov, color = selected))
-  pl <- pl + ggplot2::scale_color_manual(values = c(no = 'lightgrey', yes = 'orange'), guide = ggplot2::guide_legend(title = 'HVG',
-                                                                                                                     override.aes = list(size=5)))
-  pl <- pl + ggplot2::facet_wrap(~expr_groups, ncol = nr_expression_groups, scales = 'free_x')
-  pl <- pl + ggplot2::theme(axis.text.x = ggplot2::element_blank(), strip.text = ggplot2::element_text(size = 4))
-  pl <- pl + ggplot2::labs(x = 'expression groups', y = 'cov')
+  if(show_plot == TRUE | return_plot == TRUE | save_plot == TRUE) {
+    pl <- ggplot2::ggplot()
+    pl <- pl + ggplot2::theme_classic() + ggplot2::theme(axis.title = ggplot2::element_text(size = 14),
+                                                         axis.text = ggplot2::element_text(size = 12))
+    pl <- pl + ggplot2::geom_point(data = feat_in_cells_detected, ggplot2::aes(x = mean_expr, y = cov, color = selected))
+    pl <- pl + ggplot2::scale_color_manual(values = c(no = 'lightgrey', yes = 'orange'), guide = ggplot2::guide_legend(title = 'HVF',
+                                                                                                                       override.aes = list(size=5)))
+    pl <- pl + ggplot2::facet_wrap(~expr_groups, ncol = nr_expression_groups, scales = 'free_x')
+    pl <- pl + ggplot2::theme(axis.text.x = ggplot2::element_blank(), strip.text = ggplot2::element_text(size = 4))
+    pl <- pl + ggplot2::labs(x = 'expression groups', y = 'cov')
 
-  return(list(dt = feat_in_cells_detected, pl = pl))
+    return(list(dt = feat_in_cells_detected, pl = pl))
+  } else {
+    return(list(dt = feat_in_cells_detected))
+  }
 
 }
 
-#' @title calc_cov_loess_HVG
+
+
+#' @name calc_cov_loess_HVF
 #' @keywords internal
-calc_cov_loess_HVG = function(feat_in_cells_detected,
-                              difference_in_cov = 0.1) {
+calc_cov_loess_HVF = function(feat_in_cells_detected,
+                              difference_in_cov = 0.1,
+                              show_plot = NA,
+                              return_plot = NA,
+                              save_plot = NA) {
 
   # create loess regression
   loess_formula = paste0('cov~log(mean_expr)')
@@ -53,27 +65,68 @@ calc_cov_loess_HVG = function(feat_in_cells_detected,
   data.table::setorder(feat_in_cells_detected, -cov_diff)
   feat_in_cells_detected[, selected := ifelse(cov_diff > difference_in_cov, 'yes', 'no')]
 
+  if(show_plot == TRUE | return_plot == TRUE | save_plot == TRUE) {
+    pl <- ggplot2::ggplot()
+    pl <- pl + ggplot2::theme_classic() + ggplot2::theme(axis.title = ggplot2::element_text(size = 14),
+                                                         axis.text = ggplot2::element_text(size = 12))
+    pl <- pl + ggplot2::geom_point(data = feat_in_cells_detected, ggplot2::aes_string(x = 'log(mean_expr)', y = var_col, color = 'selected'))
+    pl <- pl + ggplot2::geom_line(data = feat_in_cells_detected, ggplot2::aes_string(x = 'log(mean_expr)', y = 'pred_cov_feats'), color = 'blue')
+    hvg_line = paste0('pred_cov_feats+',difference_in_cov)
+    pl <- pl + ggplot2::geom_line(data = feat_in_cells_detected, ggplot2::aes_string(x = 'log(mean_expr)', y = hvg_line), linetype = 2)
+    pl <- pl + ggplot2::labs(x = 'log(mean expression)', y = var_col)
+    pl <- pl + ggplot2::scale_color_manual(values = c(no = 'lightgrey', yes = 'orange'),
+                                           guide = ggplot2::guide_legend(title = 'HVF',
+                                                                         override.aes = list(size=5)))
 
-  pl <- ggplot2::ggplot()
-  pl <- pl + ggplot2::theme_classic() + ggplot2::theme(axis.title = ggplot2::element_text(size = 14),
-                                                       axis.text = ggplot2::element_text(size = 12))
-  pl <- pl + ggplot2::geom_point(data = feat_in_cells_detected, ggplot2::aes_string(x = 'log(mean_expr)', y = var_col, color = 'selected'))
-  pl <- pl + ggplot2::geom_line(data = feat_in_cells_detected, ggplot2::aes_string(x = 'log(mean_expr)', y = 'pred_cov_feats'), color = 'blue')
-  hvg_line = paste0('pred_cov_feats+',difference_in_cov)
-  pl <- pl + ggplot2::geom_line(data = feat_in_cells_detected, ggplot2::aes_string(x = 'log(mean_expr)', y = hvg_line), linetype = 2)
-  pl <- pl + ggplot2::labs(x = 'log(mean expression)', y = var_col)
-  pl <- pl + ggplot2::scale_color_manual(values = c(no = 'lightgrey', yes = 'orange'), guide = ggplot2::guide_legend(title = 'HVG',
-                                                                                                                     override.aes = list(size=5)))
-
-
-  return(list(dt = feat_in_cells_detected, pl = pl))
-
+    return(list(dt = feat_in_cells_detected, pl = pl))
+  } else {
+    return(list(dt = feat_in_cells_detected))
+  }
 }
 
 
+#' @name calc_var_HVF
+#' @keywords internal
+calc_var_HVF = function(scaled_matrix,
+                        var_threshold = 1.5,
+                        var_number = NULL,
+                        show_plot = NA,
+                        return_plot = NA,
+                        save_plot = NA) {
+
+  test = apply(X = scaled_matrix, MARGIN = 1, FUN = function(x) var(x))
+  test = sort(test, decreasing = T)
+
+  dt_res = data.table::data.table(feats = names(test), var = test)
+
+  if(!is.null(var_number) & is.numeric(var_number)) {
+    dt_res[, selected := 1:.N]
+    dt_res[, selected := ifelse(selected <= var_number, 'yes', 'no')]
+  } else {
+    dt_res[, selected := ifelse(var >= var_threshold, 'yes', 'no')]
+  }
 
 
+  if(show_plot == TRUE | return_plot == TRUE | save_plot == TRUE) {
 
+    pl = ggplot2::ggplot()
+    pl = pl + ggplot2::geom_point(data = dt_res, aes(x = rank, y = var, color = selected))
+    pl = pl + ggplot2::scale_x_reverse()
+    pl <- pl + ggplot2::theme_classic() + ggplot2::theme(axis.title = ggplot2::element_text(size = 14),
+                                                         axis.text = ggplot2::element_text(size = 12))
+    pl = pl + ggplot2::scale_color_manual(values = c(no = 'lightgrey', yes = 'orange'),
+                                          guide = ggplot2::guide_legend(title = 'HVF',
+                                                                        override.aes = list(size=5)))
+    pl = pl + ggplot2::labs(x = 'feature rank', y = 'variance')
+
+    return(list(dt = feat_in_cells_detected, pl = pl))
+
+  } else {
+
+    return(list(dt = feat_in_cells_detected))
+  }
+
+}
 
 #' @title calculateHVF
 #' @name calculateHVF
@@ -85,10 +138,12 @@ calc_cov_loess_HVG = function(feat_in_cells_detected,
 #' @param reverse_log_scale reverse log-scale of expression values (default = FALSE)
 #' @param logbase if reverse_log_scale is TRUE, which log base was used?
 #' @param expression_threshold expression threshold to consider a gene detected
-#' @param nr_expression_groups number of expression groups for cov_groups
-#' @param zscore_threshold zscore to select hvg for cov_groups
+#' @param nr_expression_groups [cov_groups] number of expression groups for cov_groups
+#' @param zscore_threshold [cov_groups] zscore to select hvg for cov_groups
 #' @param HVFname name for highly variable features in cell metadata
-#' @param difference_in_cov minimum difference in coefficient of variance required
+#' @param difference_in_cov [cov_loess] minimum difference in coefficient of variance required
+#' @param var_threshold [var_p_resid] variance threshold for features for var_p_resid method
+#' @param var_number [var_p_resid] number of top variance features for var_p_resid method
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -131,7 +186,7 @@ calc_cov_loess_HVG = function(feat_in_cells_detected,
 calculateHVF <- function(gobject,
                          feat_type = NULL,
                          expression_values = c('normalized', 'scaled', 'custom'),
-                         method = c('cov_groups','cov_loess'),
+                         method = c('cov_groups','cov_loess', 'var_p_resid'),
                          reverse_log_scale = FALSE,
                          logbase = 2,
                          expression_threshold = 0,
@@ -139,6 +194,8 @@ calculateHVF <- function(gobject,
                          zscore_threshold = 1.5,
                          HVFname = 'hvf',
                          difference_in_cov = 0.1,
+                         var_threshold = 1.5,
+                         var_number = NULL,
                          show_plot = NA,
                          return_plot = NA,
                          save_plot = NA,
@@ -163,42 +220,65 @@ calculateHVF <- function(gobject,
     expr_values = (logbase^expr_values)-1
   }
 
-  ## create data.table with relevant statistics ##
-  feat_in_cells_detected <- data.table::data.table(feats = rownames(expr_values),
-                                                   nr_cells = rowSums_flex(expr_values > expression_threshold),
-                                                   total_expr = rowSums_flex(expr_values),
-                                                   mean_expr = rowMeans_flex(expr_values),
-                                                   sd = unlist(apply(expr_values, 1, sd)))
-  feat_in_cells_detected[, cov := (sd/mean_expr)]
-  gini_level <- unlist(apply(expr_values, MARGIN = 1, Giotto:::mygini_fun))
-  feat_in_cells_detected[, gini := gini_level]
-
 
   # method to use
-  method = match.arg(method, choices = c('cov_groups', 'cov_loess'))
-
-
-  if(method == 'cov_groups') {
-
-    results = calc_cov_group_HVG(feat_in_cells_detected = feat_in_cells_detected,
-                                 nr_expression_groups = nr_expression_groups,
-                                 zscore_threshold = zscore_threshold)
-    feat_in_cells_detected = results[['dt']]
-    pl = results[['pl']]
-
-  } else if(method == 'cov_loess') {
-
-    results = calc_cov_loess_HVG(feat_in_cells_detected = feat_in_cells_detected,
-                                 difference_in_cov = difference_in_cov)
-    feat_in_cells_detected = results[['dt']]
-    pl = results[['pl']]
-  }
+  method = match.arg(method, choices = c('cov_groups', 'cov_loess', 'var_p_resid'))
 
 
   # print, return and save parameters
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+
+
+  if(method == 'var_p_resid') {
+
+    results = calc_var_HVF(scaled_matrix = expr_values,
+                           var_threshold = var_threshold,
+                           var_number = var_number,
+                           show_plot = show_plot,
+                           return_plot = return_plot,
+                           save_plot = save_plot)
+
+    feat_in_cells_detected = results[['dt']]
+    pl = results[['pl']]
+
+  } else {
+
+    ## create data.table with relevant statistics ##
+    feat_in_cells_detected <- data.table::data.table(feats = rownames(expr_values),
+                                                     nr_cells = rowSums_flex(expr_values > expression_threshold),
+                                                     total_expr = rowSums_flex(expr_values),
+                                                     mean_expr = rowMeans_flex(expr_values),
+                                                     sd = unlist(apply(expr_values, 1, sd)))
+    feat_in_cells_detected[, cov := (sd/mean_expr)]
+    gini_level <- unlist(apply(expr_values, MARGIN = 1, Giotto:::mygini_fun))
+    feat_in_cells_detected[, gini := gini_level]
+
+
+    if(method == 'cov_groups') {
+
+      results = calc_cov_group_HVF(feat_in_cells_detected = feat_in_cells_detected,
+                                   nr_expression_groups = nr_expression_groups,
+                                   zscore_threshold = zscore_threshold)
+      feat_in_cells_detected = results[['dt']]
+      pl = results[['pl']]
+
+    } else if(method == 'cov_loess') {
+
+      results = calc_cov_loess_HVF(feat_in_cells_detected = feat_in_cells_detected,
+                                   difference_in_cov = difference_in_cov)
+      feat_in_cells_detected = results[['dt']]
+      pl = results[['pl']]
+    }
+
+
+  }
+
+
+
+
 
 
   ## print plot
@@ -235,8 +315,14 @@ calculateHVF <- function(gobject,
       gobject@feat_metadata[[feat_type]] = feat_metadata
     }
 
-    HVGfeats = feat_in_cells_detected[,.(feats, selected)]
-    data.table::setnames(HVGfeats, 'selected', HVFname)
+    if(method == 'var_p_resid') {
+      HVGfeats = feat_in_cells_detected[,.(feats, var, selected)]
+      data.table::setnames(HVGfeats, 'selected', HVFname)
+    } else {
+      HVGfeats = feat_in_cells_detected[,.(feats, selected)]
+      data.table::setnames(HVGfeats, 'selected', HVFname)
+    }
+
 
     gobject = addFeatMetadata(gobject = gobject,
                               feat_type = feat_type,
@@ -270,10 +356,12 @@ calculateHVF <- function(gobject,
 #' @param reverse_log_scale reverse log-scale of expression values (default = FALSE)
 #' @param logbase if reverse_log_scale is TRUE, which log base was used?
 #' @param expression_threshold expression threshold to consider a gene detected
-#' @param nr_expression_groups number of expression groups for cov_groups
-#' @param zscore_threshold zscore to select hvg for cov_groups
+#' @param nr_expression_groups [cov_groups] number of expression groups for cov_groups
+#' @param zscore_threshold [cov_groups] zscore to select hvg for cov_groups
 #' @param HVGname name for highly variable genes in cell metadata
-#' @param difference_in_cov minimum difference in coefficient of variance required
+#' @param difference_in_cov [cov_loess] minimum difference in coefficient of variance required
+#' @param var_threshold [var_p_resid] variance threshold for features for var_p_resid method
+#' @param var_number [var_p_resid] number of top variance features for var_p_resid method
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -316,7 +404,7 @@ calculateHVF <- function(gobject,
 #'
 calculateHVG <- function(gobject,
                          expression_values = c('normalized', 'scaled', 'custom'),
-                         method = c('cov_groups','cov_loess'),
+                         method = c('cov_groups','cov_loess', 'var_p_resid'),
                          reverse_log_scale = FALSE,
                          logbase = 2,
                          expression_threshold = 0,
@@ -324,6 +412,8 @@ calculateHVG <- function(gobject,
                          zscore_threshold = 1.5,
                          HVGname = 'hvf',
                          difference_in_cov = 0.1,
+                         var_threshold = 1.5,
+                         var_number = NULL,
                          show_plot = NA,
                          return_plot = NA,
                          save_plot = NA,
@@ -345,6 +435,8 @@ calculateHVG <- function(gobject,
                         zscore_threshold = zscore_threshold,
                         HVFname = HVGname,
                         difference_in_cov = difference_in_cov,
+                        var_threshold = var_threshold,
+                        var_number = var_number,
                         show_plot = show_plot,
                         return_plot = return_plot,
                         save_plot = save_plot,

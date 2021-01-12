@@ -7,7 +7,7 @@
 calculateHVG(
   gobject,
   expression_values = c("normalized", "scaled", "custom"),
-  method = c("cov_groups", "cov_loess"),
+  method = c("cov_groups", "cov_loess", "var_p_resid"),
   reverse_log_scale = FALSE,
   logbase = 2,
   expression_threshold = 0,
@@ -15,6 +15,8 @@ calculateHVG(
   zscore_threshold = 1.5,
   HVGname = "hvf",
   difference_in_cov = 0.1,
+  var_threshold = 1.5,
+  var_number = NULL,
   show_plot = NA,
   return_plot = NA,
   save_plot = NA,
@@ -36,13 +38,17 @@ calculateHVG(
 
 \item{expression_threshold}{expression threshold to consider a gene detected}
 
-\item{nr_expression_groups}{number of expression groups for cov_groups}
+\item{nr_expression_groups}{[cov_groups] number of expression groups for cov_groups}
 
-\item{zscore_threshold}{zscore to select hvg for cov_groups}
+\item{zscore_threshold}{[cov_groups] zscore to select hvg for cov_groups}
 
 \item{HVGname}{name for highly variable genes in cell metadata}
 
-\item{difference_in_cov}{minimum difference in coefficient of variance required}
+\item{difference_in_cov}{[cov_loess] minimum difference in coefficient of variance required}
+
+\item{var_threshold}{[var_p_resid] variance threshold for features for var_p_resid method}
+
+\item{var_number}{[var_p_resid] number of top variance features for var_p_resid method}
 
 \item{show_plot}{show plot}
 
