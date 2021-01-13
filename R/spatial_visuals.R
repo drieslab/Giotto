@@ -4,6 +4,7 @@
 ## 2-D ggplots ####
 ## ----------- ##
 
+## ** dim reduction plotting ####
 
 #' @title plot_network_layer_ggplot
 #' @name plot_network_layer_ggplot
@@ -1370,7 +1371,7 @@ plotPCA = function(gobject,
 }
 
 
-
+## ** spatial plotting ####
 
 #' @title plot_spat_point_layer_ggplot
 #' @name plot_spat_point_layer_ggplot
@@ -2973,7 +2974,7 @@ spatPlot = function(...) {
 
 
 
-
+## ** spatial and dim reduction plotting ####
 
 
 #' @title spatDimPlot2D
@@ -3334,9 +3335,9 @@ spatDimPlot = function(...) {
 
 
 
+## ** spatial feature plotting ####
 
-
-#' @name spatFeatPlot2D
+#' @name spatFeatPlot2D_single
 #' @description Visualize cells and feature expression according to spatial coordinates
 #' @param gobject giotto object
 #' @param feat_type feature type
@@ -3388,7 +3389,7 @@ spatDimPlot = function(...) {
 #' @seealso \code{\link{spatGenePlot3D}}
 #' @examples
 #'
-spatFeatPlot2D <- function(gobject,
+spatFeatPlot2D_single <- function(gobject,
                            feat_type = NULL,
                            show_image = F,
                            gimage = NULL,
@@ -3430,7 +3431,7 @@ spatFeatPlot2D <- function(gobject,
                            return_plot = NA,
                            save_plot = NA,
                            save_param =  list(),
-                           default_save_name = 'spatFeatPlot2D') {
+                           default_save_name = 'spatFeatPlot2D_single') {
 
 
   # data.table variables
@@ -3766,6 +3767,278 @@ spatFeatPlot2D <- function(gobject,
 
 
 
+#' @name spatFeatPlot2D
+#' @description Visualize cells and feature expression according to spatial coordinates
+#' @param gobject giotto object
+#' @param feat_type feature type
+#' @param show_image show a tissue background image
+#' @param gimage a giotto image
+#' @param image_name name of a giotto image
+#' @param group_by create multiple plots based on cell annotation column
+#' @param group_by_subset subset the group_by factor column
+#' @param sdimx x-axis dimension name (default = 'sdimx')
+#' @param sdimy y-axis dimension name (default = 'sdimy')
+#' @param expression_values gene expression values to use
+#' @param feats features to show
+#' @param cell_color_gradient vector with 3 colors for numeric data
+#' @param gradient_midpoint midpoint for color gradient
+#' @param gradient_limits vector with lower and upper limits
+#' @param show_network show underlying spatial network
+#' @param network_color color of spatial network
+#' @param spatial_network_name name of spatial network to use
+#' @param edge_alpha alpha of edge
+#' @param show_grid show spatial grid
+#' @param grid_color color of spatial grid
+#' @param spatial_grid_name name of spatial grid to use
+#' @param midpoint expression midpoint
+#' @param scale_alpha_with_expression scale expression with ggplot alpha parameter
+#' @param point_shape shape of points (border, no_border or voronoi)
+#' @param point_size size of point (cell)
+#' @param point_alpha transparancy of points
+#' @param point_border_col color of border around points
+#' @param point_border_stroke stroke size of border around points
+#' @param cow_n_col cowplot param: how many columns
+#' @param cow_rel_h cowplot param: relative height
+#' @param cow_rel_w cowplot param: relative width
+#' @param cow_align cowplot param: how to align
+#' @param show_legend show legend
+#' @param legend_text size of legend text
+#' @param background_color color of plot background
+#' @param vor_border_color border colorr for voronoi plot
+#' @param vor_max_radius maximum radius for voronoi 'cells'
+#' @param vor_alpha transparancy of voronoi 'cells'
+#' @param axis_text size of axis text
+#' @param axis_title size of axis title
+#' @param show_plot show plots
+#' @param return_plot return ggplot object
+#' @param save_plot directly save the plot [boolean]
+#' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
+#' @param default_save_name default save name for saving, don't change, change save_name in save_param
+#' @return ggplot
+#' @details Description of parameters.
+#' @family spatial feature expression visualizations
+#' @export
+#' @seealso \code{\link{spatGenePlot3D}}
+#' @examples
+#'
+spatFeatPlot2D <- function(gobject,
+                           feat_type = NULL,
+                           show_image = F,
+                           gimage = NULL,
+                           image_name = 'image',
+                           group_by = NULL,
+                           group_by_subset = NULL,
+                           sdimx = 'sdimx',
+                           sdimy = 'sdimy',
+                           expression_values = c('normalized', 'scaled', 'custom'),
+                           feats,
+                           cell_color_gradient = c('blue', 'white', 'red'),
+                           gradient_midpoint = NULL,
+                           gradient_limits = NULL,
+                           show_network = F,
+                           network_color = NULL,
+                           spatial_network_name = 'Delaunay_network',
+                           edge_alpha = NULL,
+                           show_grid = F,
+                           grid_color = NULL,
+                           spatial_grid_name = 'spatial_grid',
+                           midpoint = 0,
+                           scale_alpha_with_expression = FALSE,
+                           point_shape = c('border', 'no_border', 'voronoi'),
+                           point_size = 1,
+                           point_alpha = 1,
+                           point_border_col = 'black',
+                           point_border_stroke = 0.1,
+                           show_legend = T,
+                           legend_text = 8,
+                           background_color = 'white',
+                           vor_border_color = 'white',
+                           vor_alpha = 1,
+                           vor_max_radius = 200,
+                           axis_text = 8,
+                           axis_title = 8,
+                           cow_n_col = 2,
+                           cow_rel_h = 1,
+                           cow_rel_w = 1,
+                           cow_align = 'h',
+                           show_plot = NA,
+                           return_plot = NA,
+                           save_plot = NA,
+                           save_param =  list(),
+                           default_save_name = 'spatFeatPlot2D') {
+
+  ## check group_by
+  if(is.null(group_by)) {
+
+    spatFeatPlot2D_single(gobject = gobject,
+                          feat_type = feat_type,
+                          show_image = show_image,
+                          gimage = gimage,
+                          image_name = image_name,
+                          sdimx = sdimx,
+                          sdimy = sdimy,
+                          expression_values = expression_values,
+                          feats = feats,
+                          cell_color_gradient = cell_color_gradient,
+                          gradient_midpoint = gradient_midpoint,
+                          gradient_limits = gradient_limits,
+                          show_network = show_network,
+                          network_color = network_color,
+                          spatial_network_name = spatial_network_name,
+                          edge_alpha = edge_alpha,
+                          show_grid = show_grid,
+                          grid_color = grid_color,
+                          spatial_grid_name = spatial_grid_name,
+                          midpoint = midpoint,
+                          scale_alpha_with_expression = scale_alpha_with_expression,
+                          point_shape = point_shape,
+                          point_size = point_size,
+                          point_alpha = point_alpha,
+                          point_border_col = point_border_col,
+                          point_border_stroke = point_border_stroke,
+                          show_legend = show_legend,
+                          legend_text = legend_text,
+                          background_color = background_color,
+                          vor_border_color = vor_border_color,
+                          vor_alpha = vor_alpha,
+                          vor_max_radius = vor_max_radius,
+                          axis_text = axis_text,
+                          axis_title = axis_title,
+                          cow_n_col = cow_n_col,
+                          cow_rel_h = cow_rel_h,
+                          cow_rel_w = cow_rel_w,
+                          cow_align = cow_align,
+                          show_plot = show_plot,
+                          return_plot = return_plot,
+                          save_plot = save_plot,
+                          save_param =  save_param,
+                          default_save_name = default_save_name)
+
+
+  } else {
+
+    ## metadata
+    comb_metadata = combineMetadata(gobject = gobject,
+                                    feat_type = feat_type)
+    possible_meta_groups = colnames(comb_metadata)
+
+    ## check if group_by is found
+    if(!group_by %in% possible_meta_groups) {
+      stop("group_by ", group_by, " was not found in pDataDT()")
+    }
+
+    unique_groups = unique(comb_metadata[[group_by]])
+
+    # subset unique_groups
+    if(!is.null(group_by_subset)) {
+      not_found = group_by_subset[!group_by_subset %in% unique_groups]
+      if(length(not_found) > 0) {
+        cat('the following subset was not found: ', not_found)
+      }
+      unique_groups = unique_groups[unique_groups %in% group_by_subset]
+    }
+
+
+    # print, return and save parameters
+    show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
+    save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
+    return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
+
+    ## plotting ##
+    savelist <- list()
+
+
+    for(group_id in 1:length(unique_groups)) {
+
+      group = unique_groups[group_id]
+
+      subset_cell_IDs = comb_metadata[get(group_by) == group][['cell_ID']]
+      temp_gobject = subsetGiotto(gobject = gobject,
+                                  feat_type = feat_type,
+                                  cell_ids = subset_cell_IDs)
+
+      pl = spatFeatPlot2D_single(gobject = temp_gobject,
+                                 feat_type = feat_type,
+                                 show_image = show_image,
+                                 gimage = gimage,
+                                 image_name = image_name,
+                                 sdimx = sdimx,
+                                 sdimy = sdimy,
+                                 expression_values = expression_values,
+                                 feats = feats,
+                                 cell_color_gradient = cell_color_gradient,
+                                 gradient_midpoint = gradient_midpoint,
+                                 gradient_limits = gradient_limits,
+                                 show_network = show_network,
+                                 network_color = network_color,
+                                 spatial_network_name = spatial_network_name,
+                                 edge_alpha = edge_alpha,
+                                 show_grid = show_grid,
+                                 grid_color = grid_color,
+                                 spatial_grid_name = spatial_grid_name,
+                                 midpoint = midpoint,
+                                 scale_alpha_with_expression = scale_alpha_with_expression,
+                                 point_shape = point_shape,
+                                 point_size = point_size,
+                                 point_alpha = point_alpha,
+                                 point_border_col = point_border_col,
+                                 point_border_stroke = point_border_stroke,
+                                 show_legend = show_legend,
+                                 legend_text = legend_text,
+                                 background_color = background_color,
+                                 vor_border_color = vor_border_color,
+                                 vor_alpha = vor_alpha,
+                                 vor_max_radius = vor_max_radius,
+                                 axis_text = axis_text,
+                                 axis_title = axis_title,
+                                 cow_n_col = 1,
+                                 cow_rel_h = cow_rel_h,
+                                 cow_rel_w = cow_rel_w,
+                                 cow_align = cow_align,
+                                 show_plot = FALSE,
+                                 return_plot = TRUE,
+                                 save_plot = FALSE,
+                                 save_param =  save_param,
+                                 default_save_name = 'spatFeatPlot2D')
+
+
+      savelist[[group_id]] <- pl
+
+    }
+
+    # combine plots with cowplot
+    combo_plot <- cowplot::plot_grid(plotlist = savelist,
+                                     ncol = cow_n_col,
+                                     rel_heights = cow_rel_h,
+                                     rel_widths = cow_rel_w,
+                                     align = cow_align)
+
+
+    ## print plot
+    if(show_plot == TRUE) {
+      print(combo_plot)
+    }
+
+    ## save plot
+    if(save_plot == TRUE) {
+      do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = combo_plot, default_save_name = default_save_name), save_param))
+    }
+
+    ## return plot
+    if(return_plot == TRUE) {
+      return(combo_plot)
+    }
+
+
+
+  }
+
+
+}
+
+
+
+
 
 #' @name spatGenePlot2D
 #' @description Visualize cells and gene expression according to spatial coordinates
@@ -3808,7 +4081,7 @@ spatGenePlot = function(...) {
 
 
 
-
+## ** dim reduction feature plotting ####
 
 #' @name dimFeatPlot2D
 #' @description Visualize gene expression according to dimension reduction coordinates
@@ -4179,6 +4452,7 @@ dimGenePlot = function(...) {
 }
 
 
+## ** spatial and dim reduction feature plotting ####
 
 
 
