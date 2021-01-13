@@ -511,7 +511,6 @@ subsetGiotto <- function(gobject,
   # feature metadata
   if(!is.null(gobject@feat_metadata)) {
 
-    print(feat_type)
     # only subset features of the feat type
     gobject@feat_metadata[[feat_type]] = gobject@feat_metadata[[feat_type]][filter_bool_feats,]
 
