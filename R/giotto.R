@@ -540,10 +540,7 @@ evaluate_expr_matrix = function(inputmatrix,
                                                 colnames(inputmatrix[,-1])))
     }
 
-  } else if(
-
-
-  ) {
+  } else if(inherits(inputmatrix, what = c('data.frame', 'matrix'))) {
     mymatrix = methods::as(as.matrix(inputmatrix), "sparseMatrix")
   } else {
     stop("raw_exprs needs to be a path or an object of class 'Matrix', 'data.table', 'data.frame' or 'matrix'")
@@ -730,7 +727,6 @@ extract_expression_list = function(gobject,
   return(gobject)
 
 }
-
 
 
 
