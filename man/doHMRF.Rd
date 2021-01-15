@@ -6,6 +6,7 @@
 \usage{
 doHMRF(
   gobject,
+  feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   spatial_network_name = "Delaunay_network",
   spatial_genes = NULL,
@@ -27,6 +28,8 @@ doHMRF(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{feat_type}{feature type}
 
 \item{expression_values}{expression values to use}
 
