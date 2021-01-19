@@ -1442,10 +1442,10 @@ get_adj_rescale_img = function(mg_img,
   image_width = info$width
   image_height = info$height
 
-  my_xmin = min(spatlocs$sdimx)
-  my_xmax = max(spatlocs$sdimx)
-  my_ymin = min(spatlocs$sdimy)
-  my_ymax = max(spatlocs$sdimy)
+  my_xmin = min(spatial_locs$sdimx)
+  my_xmax = max(spatial_locs$sdimx)
+  my_ymin = min(spatial_locs$sdimy)
+  my_ymax = max(spatial_locs$sdimy)
 
   xmin_adj_scaled = my_xmin*scale_factor
   xmin_adj_orig = xmin_adj_scaled/scale_factor
