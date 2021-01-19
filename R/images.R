@@ -193,8 +193,10 @@ createGiottoImage = function(gobject = NULL,
   # image object
   imageObj = list(name = name,
                   mg_object = mg_object,
-                  minmax = c(my_xmax, my_xmin, my_ymax, my_ymin),
-                  boundaries = c(xmax_adj, xmin_adj, ymax_adj, ymin_adj))
+                  minmax = c('xmax_sloc' = my_xmax, 'xmin_sloc' = my_xmin,
+                             'ymax_sloc' = my_ymax, 'ymin_sloc' = my_ymin),
+                  boundaries = c('xmax_adj' = xmax_adj, 'xmin_adj' = xmin_adj,
+                                 'ymax_adj' = ymax_adj, 'ymin_adj' = ymin_adj))
 
   class(imageObj) <- append(class(imageObj), 'imageGiottoObj')
   return(imageObj)

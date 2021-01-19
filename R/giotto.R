@@ -1432,6 +1432,40 @@ createGiottoObject <- function(expression,
 
 
 
+#' @name get_adj_rescale_img
+#' @keywords internal
+get_adj_rescale_img = function(mg_img,
+                               spatial_locs,
+                               scale_factor) {
+
+  info = magick::image_info(mg_img)
+  image_width = info$width
+  image_height = info$height
+
+  my_xmin = min(spatlocs$sdimx)
+  my_xmax = max(spatlocs$sdimx)
+  my_ymin = min(spatlocs$sdimy)
+  my_ymax = max(spatlocs$sdimy)
+
+  xmin_adj_scaled = my_xmin*scale_factor
+  xmin_adj_orig = xmin_adj_scaled/scale_factor
+
+  xmax_adj_scaled = image_width - (my_xmax*scale_factor)
+  xmax_adj_orig = xmax_adj_scaled/scale_factor
+
+  ymax_adj_scaled = my_ymax*scale_factor
+  ymax_adj_orig = -(ymax_adj_scaled/scale_factor)
+
+  ymin_adj_scaled = image_height - -(my_ymin*scale_factor)
+  ymin_adj_orig = ymin_adj_scaled/scale_factor
+
+  return(c('xmin_adj_orig' = xmin_adj_orig, 'xmax_adj_orig' = xmax_adj_orig,
+           'ymin_adj_orig' = ymin_adj_orig, 'ymax_adj_orig' = ymax_adj_orig))
+
+}
+
+
+
 
 
 #' @title createGiottoVisiumObject
@@ -1443,6 +1477,7 @@ createGiottoObject <- function(expression,
 #' @param h5_gene_ids gene names as symbols (default) or ensemble gene ids
 #' @param h5_tissue_positions_path path to tissue locations (.csv file)
 #' @param h5_image_png_path path to tissue .png file (optional)
+#' @param h5_json_scalefactors_path path to .json scalefactors (optional)
 #' @param png_name select name of png to use (see details)
 #' @param xmax_adj adjustment of the maximum x-value to align the image
 #' @param xmin_adj adjustment of the minimum x-value to align the image
@@ -1457,6 +1492,7 @@ createGiottoObject <- function(expression,
 #'   \item{expr_data: raw will take expression data from raw_feature_bc_matrix and filter from filtered_feature_bc_matrix}
 #'   \item{gene_column_index: which gene identifiers (names) to use if there are multiple columns (e.g. ensemble and gene symbol)}
 #'   \item{png_name: by default the first png will be selected, provide the png name to override this (e.g. myimage.png)}
+#'   \item{the file scalefactors_json.json will be detected automaticated and used to attempt to align the data}
 #' }
 #'
 #' If starting from a Visium 10X .h5 file
@@ -1464,6 +1500,7 @@ createGiottoObject <- function(expression,
 #'   \item{h5_visium_path: full path to .h5 file: /your/path/to/visium_file.h5}
 #'   \item{h5_tissue_positions_path: full path to spatial locations file: /you/path/to/tissue_positions_list.csv}
 #'   \item{h5_image_png_path: full path to png: /your/path/to/images/tissue_lowres_image.png}
+#'   \item{h5_json_scalefactors_path: full path to .json file: /your/path/to/scalefactors_json.json}
 #' }
 #'
 #' @export
@@ -1474,6 +1511,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                     h5_gene_ids = c('symbols', 'ensembl'),
                                     h5_tissue_positions_path = NULL,
                                     h5_image_png_path = NULL,
+                                    h5_json_scalefactors_path = NULL,
                                     png_name = NULL,
                                     xmax_adj = 0,
                                     xmin_adj = 0,
@@ -1513,10 +1551,56 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 
       mg_img = magick::image_read(h5_image_png_path)
 
-      visium_png = createGiottoImage(gobject = NULL, spatial_locs =  spatial_locs,
-                                     mg_object = mg_img, name = 'image',
-                                     xmax_adj = xmax_adj, xmin_adj = xmin_adj,
-                                     ymax_adj = ymax_adj, ymin_adj = ymin_adj)
+      ## check if automatic alignment can be done
+      png_name = basename(h5_image_png_path)
+
+      if(png_name == 'tissue_lowres_image.png') {
+        if(file.exists(h5_json_scalefactors_path)) {
+          if(verbose == TRUE) cat('png and scalefactors paths are found and automatic alignment for the lowres image will be attempted \n')
+
+          json_info = jsonlite::read_json(h5_json_scalefactors_path)
+          scale_factor = json_info[['tissue_lowres_scalef']]
+
+          adj_values = get_adj_rescale_img(mg_img = mg_img,
+                                           spatial_locs = spatial_locs,
+                                           scale_factor = scale_factor)
+
+          visium_png = createGiottoImage(gobject = NULL,
+                                         spatial_locs =  spatial_locs,
+                                         mg_object = mg_img, name = 'image',
+                                         xmax_adj = adj_values[['xmax_adj_orig']],
+                                         xmin_adj = adj_values[['xmin_adj_orig']],
+                                         ymax_adj = adj_values[['ymax_adj_orig']],
+                                         ymin_adj = adj_values[['ymin_adj_orig']])
+
+        }
+      } else if(png_name == 'tissue_hires_image.png') {
+        if(file.exists(h5_json_scalefactors_path)) {
+          if(verbose == TRUE) cat('png and scalefactors paths are found and automatic alignment for the hires image will be attempted \n')
+
+          json_info = jsonlite::read_json(h5_json_scalefactors_path)
+          scale_factor = json_info[['tissue_hires_scalef']]
+
+          adj_values = get_adj_rescale_img(mg_img = mg_img,
+                                           spatial_locs = spatial_locs,
+                                           scale_factor = scale_factor)
+
+          visium_png = createGiottoImage(gobject = NULL,
+                                         spatial_locs =  spatial_locs,
+                                         mg_object = mg_img, name = 'image',
+                                         xmax_adj = adj_values[['xmax_adj_orig']],
+                                         xmin_adj = adj_values[['xmin_adj_orig']],
+                                         ymax_adj = adj_values[['ymax_adj_orig']],
+                                         ymin_adj = adj_values[['ymin_adj_orig']])
+
+        }
+      } else {
+        visium_png = createGiottoImage(gobject = NULL, spatial_locs =  spatial_locs,
+                                       mg_object = mg_img, name = 'image',
+                                       xmax_adj = xmax_adj, xmin_adj = xmin_adj,
+                                       ymax_adj = ymax_adj, ymin_adj = ymin_adj)
+      }
+
       visium_png_list = list(visium_png)
       names(visium_png_list) = c('image')
     } else {
@@ -1577,10 +1661,58 @@ createGiottoVisiumObject = function(visium_dir = NULL,
     mg_img = magick::image_read(png_path)
 
 
-    visium_png = createGiottoImage(gobject = NULL, spatial_locs =  spatial_locs,
-                                   mg_object = mg_img, name = 'image',
-                                   xmax_adj = xmax_adj, xmin_adj = xmin_adj,
-                                   ymax_adj = ymax_adj, ymin_adj = ymin_adj)
+    if(png_name == 'tissue_lowres_image.png') {
+
+      scalefactors_path = paste0(spatial_path,'/','scalefactors_json.json')
+
+      if(file.exists(scalefactors_path)) {
+        if(verbose == TRUE) cat('png and scalefactors paths are found and automatic alignment for the lowres image will be attempted \n')
+
+        json_info = jsonlite::read_json(scalefactors_path)
+        scale_factor = json_info[['tissue_lowres_scalef']]
+
+        adj_values = get_adj_rescale_img(mg_img = mg_img,
+                                         spatial_locs = spatial_locs,
+                                         scale_factor = scale_factor)
+
+        visium_png = createGiottoImage(gobject = NULL,
+                                       spatial_locs =  spatial_locs,
+                                       mg_object = mg_img, name = 'image',
+                                       xmax_adj = adj_values[['xmax_adj_orig']],
+                                       xmin_adj = adj_values[['xmin_adj_orig']],
+                                       ymax_adj = adj_values[['ymax_adj_orig']],
+                                       ymin_adj = adj_values[['ymin_adj_orig']])
+
+      }
+    } else if(png_name == 'tissue_hires_image.png') {
+
+      scalefactors_path = paste0(spatial_path,'/','scalefactors_json.json')
+
+       if(file.exists(scalefactors_path)) {
+        if(verbose == TRUE) cat('png and scalefactors paths are found and automatic alignment for the hires image will be attempted \n')
+
+        json_info = jsonlite::read_json( scalefactors_path = paste0(spatial_path,'/','scalefactors_json.json'))
+        scale_factor = json_info[['tissue_hires_scalef']]
+
+        adj_values = get_adj_rescale_img(mg_img = mg_img,
+                                         spatial_locs = spatial_locs,
+                                         scale_factor = scale_factor)
+
+        visium_png = createGiottoImage(gobject = NULL,
+                                       spatial_locs =  spatial_locs,
+                                       mg_object = mg_img, name = 'image',
+                                       xmax_adj = adj_values[['xmax_adj_orig']],
+                                       xmin_adj = adj_values[['xmin_adj_orig']],
+                                       ymax_adj = adj_values[['ymax_adj_orig']],
+                                       ymin_adj = adj_values[['ymin_adj_orig']])
+
+      }
+    } else {
+      visium_png = createGiottoImage(gobject = NULL, spatial_locs =  spatial_locs,
+                                     mg_object = mg_img, name = 'image',
+                                     xmax_adj = xmax_adj, xmin_adj = xmin_adj,
+                                     ymax_adj = ymax_adj, ymin_adj = ymin_adj)
+    }
 
     visium_png_list = list(visium_png)
     names(visium_png_list) = c('image')
