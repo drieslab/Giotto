@@ -753,6 +753,19 @@ get10Xmatrix = function(path_to_data, gene_column_index = 1) {
   matrixDT = fread(input = paste0(path_to_data,'/',matrix_file), header = F, skip = 3)
   colnames(matrixDT) = c('gene_id_num', 'cell_id_num', 'umi')
 
+  # extend matrixDT with missing cell IDs
+  all_matrix_cell_ids = unique(matrixDT$cell_id_num)
+  missing_barcodes_cell_ids = as.integer(names(barcodes_vec)[!names(barcodes_vec) %in% all_matrix_cell_ids])
+  length_missing = length(missing_barcodes_cell_ids)
+
+  if(length_missing > 0) {
+    missing_matrixDT = data.table(gene_id_num = rep(1, length_missing),
+                                  cell_id_num = missing_barcodes_cell_ids,
+                                  umi = rep(0, length_missing))
+    matrixDT = rbind(matrixDT, missing_matrixDT)
+  }
+
+
   # convert barcodes and features
   matrixDT[, gene_id := features_vec[gene_id_num]]
   matrixDT[, cell_id := barcodes_vec[cell_id_num]]
