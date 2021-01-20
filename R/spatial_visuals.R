@@ -610,8 +610,6 @@ dimPlot2D_single <- function(gobject,
   dim_dfr = gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$coordinates[,c(dim1_to_use, dim2_to_use)]
   dim_names = colnames(dim_dfr)
 
-  print(dim_names)
-
   # data.table variables
   cell_ID = NULL
 

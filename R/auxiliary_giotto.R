@@ -2392,6 +2392,60 @@ showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 
 
 
+#' @name showGiottoDimRed
+#' @description shows the available dimension reductions
+#' @param gobject giotto object
+#' @param nrows number of coordinates rows to print
+#' @param ncols number of coordinates columns to print
+#' @return prints the name and small subset of available dimension reduction coordinates
+#' @export
+showGiottoDimRed = function(gobject,
+                            nrows = 3,
+                            ncols = 2) {
+
+
+  # for features
+  cat('Dim reduction on features:',
+      '\n',
+      '-------------------------',
+      '\n\n\n')
+
+  for(dim_type in names(gobject@dimension_reduction[['feats']])) {
+
+    cat('Dim reduction ', dim_type, ': \n\n')
+
+    for(sub_type in names(gobject@dimension_reduction[['feats']][[dim_type]])) {
+
+      cat('---> ', sub_type, 'coordinates: \n')
+
+      print(gobject@dimension_reduction[['feats']][[dim_type]][[sub_type]][['coordinates']][1:nrows, 1:ncols])
+      cat('\n')
+    }
+
+  }
+
+  # for cells
+  cat('Dim reduction on cells:',
+      '\n',
+      '----------------------',
+      '\n\n\n')
+  for(dim_type in names(gobject@dimension_reduction[['cells']])) {
+
+    cat('Dim reduction ', dim_type, ': \n\n')
+
+    for(sub_type in names(gobject@dimension_reduction[['cells']][[dim_type]])) {
+
+      cat('---> ', sub_type, 'coordinates: \n')
+
+      print(gobject@dimension_reduction[['cells']][[dim_type]][[sub_type]][['coordinates']][1:nrows, 1:ncols])
+      cat('\n')
+    }
+
+  }
+
+}
+
+
 
 
 #' @name create_cluster_matrix
@@ -2882,8 +2936,8 @@ merge_spatial_locs_feat_info = function(spatial_info,
 #' @name combineSpatialCellFeatureInfo
 #' @description Combine location information about cells (polygon) and features (points)
 #' @param gobject Giotto object
-#' @param feat_type feature type
-#' @return data.table
+#' @param feat_type feature type(s)
+#' @return list of data.table(s)
 #' @details
 #' The returned data.table has the following columns: \cr
 #' \itemize{
@@ -2892,6 +2946,7 @@ merge_spatial_locs_feat_info = function(spatial_info,
 #'   \item{feat_ID: unique feature ID}
 #'   \item{cell_ID: unique cell ID}
 #'   \item{used: how often was the feature used/assigned to a cell}
+#'   \item{feat: selected feature(s)}
 #' }
 #' @export
 combineSpatialCellFeatureInfo = function(gobject,
@@ -2903,19 +2958,76 @@ combineSpatialCellFeatureInfo = function(gobject,
   }
 
   spatial_cell_polygon = gobject@spatial_info
-  spatial_feat_locs = gobject@feat_info[[feat_type]]
 
   if(is.null(spatial_cell_polygon)) {
     stop('There is no available spatial segmentation/location information')
   }
 
-  if(is.null(spatial_feat_locs)) {
-    stop('There is no available spatial feature location information')
+
+  res_list = list()
+  for(feat in unique(feat_type)) {
+
+    spatial_feat_locs = gobject@feat_info[[feat]]
+
+    if(is.null(spatial_feat_locs)) {
+      stop('There is no available spatial feature location information for ', feat, '\n')
+    }
+
+    output = merge_spatial_locs_feat_info(spatial_info = spatial_cell_polygon,
+                                          feature_info = spatial_feat_locs)
+    output[, 'feat' := feat]
+
+    res_list[[feat]] = output
   }
 
-  merge_spatial_locs_feat_info(spatial_info = spatial_cell_polygon,
-                               feature_info = spatial_feat_locs)
+  return(res_list)
 
 }
 
 
+
+
+#' @name combineCellMetadataInfo
+#' @description Combine cell metadata with location information about cells (polygon)
+#' @param gobject Giotto object
+#' @param feat_type feature type(s)
+#' @return list of data.table(s)
+#' @details
+#' The returned data.table has the following columns: \cr
+#' \itemize{
+#'   \item{sdimx: spatial feature location on the x-axis}
+#'   \item{sdimy: spatial feature location on the y-axis}
+#'   \item{cell_ID: unique cell ID}
+#'   \item{feat: selected feature(s)}
+#'   \item{other columns that are part of the cell metadata}
+#' }
+#' @export
+combineCellMetadataInfo = function(gobject,
+                                   feat_type = NULL) {
+
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+  # get spatial cell information
+  spatial_cell_info = gobject@spatial_info
+
+  res_list = list()
+  for(feat in unique(feat_type)) {
+
+    # get spatial cell metadata
+    cell_meta = pDataDT(gobject, feat_type = feat)
+
+    # merge
+    spatial_cell_info_meta = merge.data.table(spatial_cell_info, cell_meta, by = 'cell_ID')
+
+    spatial_cell_info_meta[, 'feat' := feat]
+
+    res_list[[feat]] = spatial_cell_info_meta
+
+  }
+
+  return(res_list)
+
+}

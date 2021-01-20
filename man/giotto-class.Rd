@@ -21,9 +21,9 @@ that are provided in the expression slot.
 
 \item{\code{expression_feat}}{available features (e.g. rna, protein, ...)}
 
-\item{\code{spatial_locs}}{spatial location coordinates for cells}
+\item{\code{spatial_locs}}{spatial location coordinates for cells/spots/grids}
 
-\item{\code{spatial_info}}{information about spatial units}
+\item{\code{spatial_info}}{information about spatial units (polygon)}
 
 \item{\code{cell_metadata}}{metadata for cells}
 
