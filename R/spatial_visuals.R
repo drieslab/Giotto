@@ -610,6 +610,8 @@ dimPlot2D_single <- function(gobject,
   dim_dfr = gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$coordinates[,c(dim1_to_use, dim2_to_use)]
   dim_names = colnames(dim_dfr)
 
+  print(dim_names)
+
   # data.table variables
   cell_ID = NULL
 
@@ -652,6 +654,7 @@ dimPlot2D_single <- function(gobject,
       var_expl_vec = (eigenvalues/total) * 100
       dim1_x_variance = var_expl_vec[dim1_to_use]
       dim2_y_variance = var_expl_vec[dim2_to_use]
+
     }
 
   }
@@ -772,8 +775,8 @@ dimPlot2D_single <- function(gobject,
       y_name = paste0('pca','-',dim_names[2])
 
       # provide x, y and plot titles
-      x_title = sprintf('%s explains %.02f%% of variance', x_name, var_expl_vec[1])
-      y_title = sprintf('%s explains %.02f%% of variance', y_name, var_expl_vec[2])
+      x_title = sprintf('%s explains %.02f%% of variance', x_name, var_expl_vec[dim1_to_use])
+      y_title = sprintf('%s explains %.02f%% of variance', y_name, var_expl_vec[dim2_to_use])
 
       if(is.null(title)) title = cell_color
       pl <- pl + ggplot2::labs(x = x_title, y = y_title, title = title)

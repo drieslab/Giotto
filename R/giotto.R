@@ -6,8 +6,8 @@
 #' @keywords giotto, object
 #' @slot expression expression information
 #' @slot expression_feat available features (e.g. rna, protein, ...)
-#' @slot spatial_locs spatial location coordinates for cells
-#' @slot spatial_info information about spatial units
+#' @slot spatial_locs spatial location coordinates for cells/spots/grids
+#' @slot spatial_info information about spatial units (polygon)
 #' @slot cell_metadata metadata for cells
 #' @slot feat_metadata metadata for available features
 #' @slot feat_info information about features

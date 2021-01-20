@@ -325,7 +325,6 @@ calculateHVF <- function(gobject,
     }
 
     if(method == 'var_p_resid') {
-      print('ok2')
       HVGfeats = feat_in_cells_detected[,.(feats, var, selected)]
       data.table::setnames(HVGfeats, 'selected', HVFname)
     } else {
