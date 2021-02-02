@@ -1351,7 +1351,7 @@ normalizeGiotto <- function(gobject,
                             scale_order = c('first_feats', 'first_cells'),
                             theta = 100,
                             update_slot = 'scaled',
-                            verbose = FALSE) {
+                            verbose = TRUE) {
 
 
 
