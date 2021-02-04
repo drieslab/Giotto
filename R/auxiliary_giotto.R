@@ -2313,7 +2313,7 @@ addGenesPerc = function(gobject,
   result = addFeatsPerc(gobject = gobject,
                         feat_type = NULL,
                         expression_values = expression_values,
-                        feats = feats,
+                        feats = genes,
                         vector_name = vector_name,
                         return_gobject = return_gobject)
 
