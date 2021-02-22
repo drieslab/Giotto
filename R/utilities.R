@@ -19,7 +19,9 @@ mean_flex = function(x, ...) {
 #' @keywords internal
 rowSums_flex = function(mymatrix) {
 
-  if(methods::is(mymatrix, 'dgCMatrix')) {
+  if(methods::is(mymatrix, 'DelayedMatrix')) {
+    return(DelayedMatrixStats::rowSums2(mymatrix))
+  } else if(methods::is(mymatrix, 'dgCMatrix')) {
     return(Matrix::rowSums(mymatrix)) # replace with sparseMatrixStats
   } else if(methods::is(mymatrix, 'Matrix')) {
     return(Matrix::rowSums(mymatrix))
@@ -35,7 +37,11 @@ rowSums_flex = function(mymatrix) {
 #' @keywords internal
 rowMeans_flex = function(mymatrix) {
 
-  if(methods::is(mymatrix, 'dgCMatrix')) {
+  # replace by MatrixGenerics?
+
+  if(methods::is(mymatrix, 'DelayedMatrix')) {
+    return(DelayedMatrixStats::rowMeans2(mymatrix))
+  } else if(methods::is(mymatrix, 'dgCMatrix')) {
     return(Matrix::rowMeans(mymatrix)) # replace with sparseMatrixStats
   } else if(methods::is(mymatrix, 'Matrix')) {
     return(Matrix::rowMeans(mymatrix))
@@ -52,7 +58,9 @@ rowMeans_flex = function(mymatrix) {
 #' @keywords internal
 colSums_flex = function(mymatrix) {
 
-  if(methods::is(mymatrix, 'dgCMatrix')) {
+  if(methods::is(mymatrix, 'DelayedMatrix')) {
+    return(DelayedMatrixStats::colSums2(mymatrix))
+  } else if(methods::is(mymatrix, 'dgCMatrix')) {
     return(Matrix::colSums(mymatrix)) # replace with sparseMatrixStats
   } else if(methods::is(mymatrix, 'Matrix')) {
     return(Matrix::colSums(mymatrix))
@@ -68,7 +76,9 @@ colSums_flex = function(mymatrix) {
 #' @keywords internal
 colMeans_flex = function(mymatrix) {
 
-  if(methods::is(mymatrix, 'dgCMatrix')) {
+  if(methods::is(mymatrix, 'DelayedMatrix')) {
+    return(DelayedMatrixStats::colMeans2(mymatrix))
+  } else if(methods::is(mymatrix, 'dgCMatrix')) {
     return(Matrix::colMeans(mymatrix)) # replace with sparseMatrixStats
   } else if(methods::is(mymatrix, 'Matrix')) {
     return(Matrix::colMeans(mymatrix))
@@ -84,7 +94,9 @@ colMeans_flex = function(mymatrix) {
 #' @keywords internal
 t_flex = function(mymatrix) {
 
-  if(methods::is(mymatrix, 'dgCMatrix')) {
+  if(methods::is(mymatrix, 'DelayedMatrix')) {
+    return(t(mymatrix))
+  } else if(methods::is(mymatrix, 'dgCMatrix')) {
     return(Matrix::t(mymatrix)) # replace with sparseMatrixStats
   } else if(methods::is(mymatrix, 'Matrix')) {
     return(Matrix::t(mymatrix))

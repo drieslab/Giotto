@@ -523,9 +523,12 @@ evaluate_expr_matrix = function(inputmatrix,
                                 sparse = TRUE,
                                 cores = NA) {
 
+
   if(methods::is(inputmatrix, 'character')) {
     mymatrix = readExprMatrix(inputmatrix, cores =  cores)
   } else if(methods::is(inputmatrix, 'Matrix')) {
+    mymatrix = inputmatrix
+  } else if(methods::is(inputmatrix, 'DelayedMatrix')) {
     mymatrix = inputmatrix
   } else if(methods::is(inputmatrix, 'data.table')) {
     if(sparse == TRUE) {
@@ -668,7 +671,7 @@ extract_expression_list = function(gobject,
   ## to make it compatible with previous version
 
   # single matrix
-  if(inherits(expr_list, c('matrix', 'Matrix'))) {
+  if(inherits(expr_list, c('matrix', 'Matrix', 'DelayedMatrix'))) {
     expr_list = list('raw' = expr_list)
   }
 
