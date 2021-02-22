@@ -177,9 +177,12 @@ mean_expr_det_test = function(mymatrix, detection_threshold = 1) {
 #' @title libNorm_giotto
 #' @keywords internal
 libNorm_giotto <- function(mymatrix, scalefactor){
-  libsizes = colSums_giotto(mymatrix)
 
-  if(methods::is(mymatrix, 'dgCMatrix')) {
+  libsizes = colSums_flex(mymatrix)
+
+  if(methods::is(mymatrix, 'DelayedMatrix')) {
+    norm_expr = t(t(mymatrix)/ libsizes)*scalefactor
+  } else if(methods::is(mymatrix, 'dgCMatrix')) {
     norm_expr = Matrix::t(Matrix::t(mymatrix)/ libsizes)*scalefactor # replace with sparseMatrixStats
   } else if(methods::is(mymatrix, 'Matrix')) {
     norm_expr = Matrix::t(Matrix::t(mymatrix)/ libsizes)*scalefactor
@@ -192,7 +195,9 @@ libNorm_giotto <- function(mymatrix, scalefactor){
 #' @keywords internal
 logNorm_giotto = function(mymatrix, base, offset) {
 
-  if(methods::is(mymatrix, 'dgCMatrix')) {
+  if(methods::is(mymatrix, 'DelayedMatrix')) {
+    mymatrix = log(mymatrix + offset)/log(base)
+  } else if(methods::is(mymatrix, 'dgCMatrix')) {
     mymatrix@x = log(mymatrix@x + offset)/log(base) # replace with sparseMatrixStats
   } else if(methods::is(mymatrix, 'Matrix')) {
     mymatrix@x = log(mymatrix@x + offset)/log(base)
@@ -202,6 +207,44 @@ logNorm_giotto = function(mymatrix, base, offset) {
 
   return(mymatrix)
 }
+
+
+#' @title standardise_giotto
+#' @keywords internal
+standardise_giotto = function(x, center = TRUE, scale = TRUE) {
+
+  # switch to matrixGenerics for everything?
+
+  if(methods::is(x, class2 = 'DelayedArray')) {
+
+    if (center & scale) {
+      y <- t(x) - MatrixGenerics::colMeans2(x)
+      y <- y/sqrt(MatrixGenerics::rowSums2(y^2)) * sqrt((dim(x)[1] - 1))
+      y <- t(y)
+    }
+    else if (center & !scale) {
+      y <- t(x) - MatrixGenerics::colMeans2(x)
+    }
+    else if (!center & scale) {
+      y <- y/sqrt(MatrixGenerics::rowSums2(y^2)) * sqrt((dim(x)[1] - 1))
+      y <- t(y)
+    }
+
+
+
+  } else {
+
+    if(!methods::is(x, class2 = 'matrix')) x = as.matrix(x)
+
+    y = Rfast::standardise(x = x, center = center, scale = scale)
+
+  }
+
+  return(y)
+
+}
+
+
 
 #' @title pDataDT
 #' @description show cell metadata
@@ -463,7 +506,13 @@ subsetGiotto <- function(gobject,
 
   ## FILTER ##
   # filter raw data
-  gobject@expression[[feat_type]][['raw']] = gobject@expression[[feat_type]][['raw']][filter_bool_feats, filter_bool_cells]
+
+  if(methods::is(h5_gtest@expression[['rna']][['raw']], 'HDF5Array')) {
+    gobject@expression[[feat_type]][['raw']] = DelayedArray::realize(gobject@expression[[feat_type]][['raw']][filter_bool_feats, filter_bool_cells], "HDF5Array")
+  } else {
+    gobject@expression[[feat_type]][['raw']] = gobject@expression[[feat_type]][['raw']][filter_bool_feats, filter_bool_cells]
+  }
+
 
   # filter spatial locations
   gobject@spatial_locs = gobject@spatial_locs[filter_bool_cells]
@@ -1153,14 +1202,14 @@ rna_standard_normalization = function(gobject,
 
   ## 1. library size normalize
   if(library_size_norm == TRUE) {
-    norm_expr = Giotto:::libNorm_giotto(mymatrix = raw_expr, scalefactor = scalefactor)
+    norm_expr = libNorm_giotto(mymatrix = raw_expr, scalefactor = scalefactor)
   } else {
     norm_expr = raw_expr
   }
 
   ## 2. lognormalize
   if(log_norm == TRUE) {
-    norm_expr = Giotto:::logNorm_giotto(mymatrix = norm_expr,  base = logbase, offset = log_offset)
+    norm_expr = logNorm_giotto(mymatrix = norm_expr,  base = logbase, offset = log_offset)
   } else {
     norm_expr = norm_expr
   }
@@ -1172,27 +1221,41 @@ rna_standard_normalization = function(gobject,
 
     if(scale_order == 'first_feats') {
       if(verbose == TRUE) cat('\n first scale feats and then cells \n')
-      if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
-      norm_scaled_expr = t(Rfast::standardise(x = t(norm_expr), center = TRUE, scale = TRUE))
-      norm_scaled_expr = Rfast::standardise(x = norm_scaled_expr, center = TRUE, scale = TRUE)
+
+      norm_scaled_expr = t(standardise_giotto(x = t(norm_expr), center = TRUE, scale = TRUE))
+      norm_scaled_expr = standardise_giotto(x = norm_scaled_expr, center = TRUE, scale = TRUE)
+
+      #if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
+      #norm_scaled_expr = t(Rfast::standardise(x = t(norm_expr), center = TRUE, scale = TRUE))
+      #norm_scaled_expr = Rfast::standardise(x = norm_scaled_expr, center = TRUE, scale = TRUE)
 
     } else if(scale_order == 'first_cells') {
       if(verbose == TRUE) cat('\n first scale cells and then feats \n')
-      if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
-      norm_scaled_expr = Rfast::standardise(x = norm_expr, center = TRUE, scale = TRUE)
-      norm_scaled_expr = t(Rfast::standardise(x = t(norm_scaled_expr), center = TRUE, scale = TRUE))
+
+      norm_scaled_expr = standardise_giotto(x = norm_expr, center = TRUE, scale = TRUE)
+      norm_scaled_expr = t(standardise_giotto(x = t(norm_scaled_expr), center = TRUE, scale = TRUE))
+
+      #if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
+      #norm_scaled_expr = Rfast::standardise(x = norm_expr, center = TRUE, scale = TRUE)
+      #norm_scaled_expr = t(Rfast::standardise(x = t(norm_scaled_expr), center = TRUE, scale = TRUE))
 
     } else {
       stop('\n scale order must be given \n')
     }
 
   } else if(scale_feats == TRUE) {
-    if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
-    norm_scaled_expr = t(Rfast::standardise(x = t(norm_expr), center = TRUE, scale = TRUE))
+
+    norm_scaled_expr = t(standardise_giotto(x = t(norm_expr), center = TRUE, scale = TRUE))
+
+    #if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
+    #norm_scaled_expr = t(Rfast::standardise(x = t(norm_expr), center = TRUE, scale = TRUE))
 
   } else if(scale_cells == TRUE) {
-    if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
-    norm_scaled_expr = Rfast::standardise(x = norm_expr, center = TRUE, scale = TRUE)
+
+    norm_scaled_expr = standardise_giotto(x = norm_expr, center = TRUE, scale = TRUE)
+
+    #if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
+    #norm_scaled_expr = Rfast::standardise(x = norm_expr, center = TRUE, scale = TRUE)
 
   } else {
     norm_scaled_expr = NULL
@@ -1269,22 +1332,41 @@ rna_pears_resid_normalization = function(gobject,
     warning('Caution: pearson residual normalization was developed for RNA count normalization \n')
   }
 
-  counts_sum0 = as(matrix(Matrix::colSums(raw_expr),nrow=1),"dgCMatrix")
-  counts_sum1 = as(matrix(Matrix::rowSums(raw_expr),ncol=1),"dgCMatrix")
-  counts_sum  = sum(raw_expr)
+  if(methods::is(raw_expr, 'HDF5Matrix')) {
 
-  #get residuals
-  mu = (counts_sum1 %*% counts_sum0) / counts_sum
-  z  = (raw_expr - mu) / sqrt(mu + mu^2/theta)
+    counts_sum0 = as(matrix(MatrixGenerics::colSums2(raw_expr),nrow=1),"HDF5Matrix")
+    counts_sum1 = as(matrix(MatrixGenerics::rowSums2(raw_expr),ncol=1),"HDF5Matrix")
+    counts_sum  = sum(raw_expr)
 
-  #clip to sqrt(n)
-  n = ncol(raw_expr)
-  z[z > sqrt(n)]  = sqrt(n)
-  z[z < -sqrt(n)] = -sqrt(n)
+    #get residuals
+    mu = (counts_sum1 %*% counts_sum0) / counts_sum
+    z  = (raw_expr - mu) / sqrt(mu + mu^2/theta)
 
+    #clip to sqrt(n)
+    n = ncol(raw_expr)
+    z[z > sqrt(n)]  = sqrt(n)
+    z[z < -sqrt(n)] = -sqrt(n)
+
+  } else {
+
+
+    counts_sum0 = as(matrix(Matrix::colSums(raw_expr),nrow=1),"dgCMatrix")
+    counts_sum1 = as(matrix(Matrix::rowSums(raw_expr),ncol=1),"dgCMatrix")
+    counts_sum  = sum(raw_expr)
+
+    #get residuals
+    mu = (counts_sum1 %*% counts_sum0) / counts_sum
+    z  = (raw_expr - mu) / sqrt(mu + mu^2/theta)
+
+    #clip to sqrt(n)
+    n = ncol(raw_expr)
+    z[z > sqrt(n)]  = sqrt(n)
+    z[z < -sqrt(n)] = -sqrt(n)
+
+  }
 
   # return results to Giotto object
-  if(verbose == TRUE) message('\n Pearsono residual normalized data will be returned to the', name, 'Giotto slot \n')
+  if(verbose == TRUE) message('\n Pearsono residual normalized data will be returned to the ', name, ' Giotto slot \n')
 
   gobject@expression[[feat_type]][[name]] = z
 
@@ -1495,6 +1577,8 @@ adjustGiottoMatrix <- function(gobject,
   }
 
 
+
+  # TODO: implement ResidualMatrix to work with a delayed matrix
   adjusted_matrix = limma::removeBatchEffect(x = expr_data,
                                              batch = batch_column_1,
                                              batch2 =  batch_column_2,

@@ -750,10 +750,18 @@ evaluate_spatial_locations = function(spatial_locs,
                                       expr_matrix = NULL) {
 
   if(is.null(spatial_locs)) {
-    warning('\n spatial locations are not given, dummy 3D data will be created \n')
-    spatial_locs = data.table::data.table(sdimx = 1:dummy_n,
-                                          sdimy = 1:dummy_n,
-                                          sdimz = 1:dummy_n)
+    warning('\n spatial locations are not given, dummy 2D data will be created \n')
+
+    # create 2D rectangular dummy positions
+    ceil_value = ceiling(sqrt(dummy_n))
+    dummy_matrix = t(utils::combn(x = ceil_value, m = 2))
+    final_dummy = rbind(matrix(data = rep(1:ceil_value, 2), ncol = 2),
+                        dummy_matrix,
+                        dummy_matrix[, c(2,1)])
+    final_dummy = final_dummy[1:dummy_n,]
+
+    spatial_locs = data.table::data.table(sdimx = final_dummy[,1],
+                                          sdimy = final_dummy[,2])
 
   } else {
 
@@ -1152,7 +1160,7 @@ createGiottoObject <- function(expression,
   ## place to store segmentation info in polygon format style
   if(is.null(spatial_info)) {
 
-    gobject@spatial_info = data.table::data.table( sdimx = NA,
+    gobject@spatial_info = data.table::data.table(sdimx = NA,
                                                   sdimy = NA,
                                                   sdimz = NA,
                                                   cell_ID = gobject@cell_ID,
