@@ -42,6 +42,7 @@ Imports:
     ggraph,
     grDevices,
     graphics,
+    HDF5Array (>= 1.18.1),
     igraph (>= 1.2.4.1),
     irlba,
     lfa (>= 1.12.0),

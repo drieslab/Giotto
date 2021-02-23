@@ -149,6 +149,7 @@ runPCA_prcomp_irlba = function(x,
       set.seed(seed = seed_number)
     }
     pca_res = irlba::prcomp_irlba(x = x, n = ncp, center = center, scale. = scale, ...)
+
     # eigenvalues
     eigenvalues = pca_res$sdev^2
     # PC loading
@@ -277,6 +278,124 @@ runPCA_factominer = function(x,
 }
 
 
+#' @name runPCA_BiocSingular
+#' @description performs PCA based on the biocSingular package
+#' @param x matrix or object that can be converted to matrix
+#' @param ncp number of principal components to calculate
+#' @param center center the matrix before pca
+#' @param scale scale features
+#' @param rev reverse PCA
+#' @param set_seed use of seed
+#' @param seed_number seed number to use
+#' @param BSPARAM method to use
+#' @param BSParameters additonal parameters for method
+#' @keywords internal
+#' @return list of eigenvalues, loadings and pca coordinates
+runPCA_BiocSingular = function(x,
+                               ncp = 100,
+                               center = TRUE,
+                               scale = TRUE,
+                               rev = FALSE,
+                               set_seed = TRUE,
+                               seed_number = 1234,
+                               BSPARAM = c('irlba', 'exact', 'random'),
+                               BSParameters = list(NA),
+                               ...) {
+
+  BSPARAM = match.arg(BSPARAM, choices = c('irlba', 'exact', 'random'))
+
+  min_ncp = min(dim(x))
+
+  if(ncp >= min_ncp) {
+    warning("ncp >= minimum dimension of x, will be set to minimum dimension of x - 1")
+    ncp = min_ncp-1
+  }
+
+  if(rev == TRUE) {
+
+    x = t_flex(x)
+
+    if(set_seed == TRUE) {
+      set.seed(seed = seed_number)
+    }
+
+    if(BSPARAM == 'irlba') {
+      pca_res = BiocSingular::runPCA(x = x, rank = ncp,
+                                     center = center, scale = scale,
+                                     BSPARAM = BiocSingular::IrlbaParam(BSParameters),
+                                     ...)
+    } else if(BSPARAM == 'exact') {
+      pca_res = BiocSingular::runPCA(x = x, rank = ncp,
+                                     center = center, scale = scale,
+                                     BSPARAM = BiocSingular::ExactParam(BSParameters),
+                                     ...)
+    } else if(BSPARAM == 'random') {
+      pca_res = BiocSingular::runPCA(x = x, rank = ncp,
+                                     center = center, scale = scale,
+                                     BSPARAM = BiocSingular::RandomParam(BSParameters),
+                                     ...)
+    }
+
+
+
+    # eigenvalues
+    eigenvalues = pca_res$sdev^2
+    # PC loading
+    loadings = pca_res$x
+    rownames(loadings) = rownames(x)
+    colnames(loadings) = paste0('Dim.', 1:ncol(loadings))
+    # coordinates
+    coords = pca_res$rotation
+    rownames(coords) = colnames(x)
+    colnames(coords) = paste0('Dim.', 1:ncol(coords))
+    result = list(eigenvalues = eigenvalues, loadings = loadings, coords = coords)
+
+  } else {
+
+    if(set_seed == TRUE) {
+      set.seed(seed = seed_number)
+    }
+
+
+    if(BSPARAM == 'irlba') {
+      pca_res = BiocSingular::runPCA(x = x, rank = ncp,
+                                     center = center, scale = scale,
+                                     BSPARAM = BiocSingular::IrlbaParam(BSParameters),
+                                     ...)
+    } else if(BSPARAM == 'exact') {
+      pca_res = BiocSingular::runPCA(x = x, rank = ncp,
+                                     center = center, scale = scale,
+                                     BSPARAM = BiocSingular::ExactParam(BSParameters),
+                                     ...)
+    } else if(BSPARAM == 'random') {
+      pca_res = BiocSingular::runPCA(x = x, rank = ncp,
+                                     center = center, scale = scale,
+                                     BSPARAM = BiocSingular::RandomParam(BSParameters),
+                                     ...)
+    }
+
+    # eigenvalues
+    eigenvalues = pca_res$sdev^2
+    # PC loading
+    loadings = pca_res$rotation
+    rownames(loadings) = colnames(x)
+    colnames(loadings) = paste0('Dim.', 1:ncol(loadings))
+    # coordinates
+    coords = pca_res$x
+    rownames(coords) = rownames(x)
+    colnames(coords) = paste0('Dim.', 1:ncol(coords))
+    result = list(eigenvalues = eigenvalues, loadings = loadings, coords = coords)
+
+  }
+
+  return(result)
+
+}
+
+
+
+
+
 
 #' @title create_genes_to_use_matrix
 #' @name create_genes_to_use_matrix
@@ -316,6 +435,7 @@ create_feats_to_use_matrix = function(gobject,
     sel_matrix = sel_matrix[rownames(sel_matrix) %in% feats_to_use, ]
   }
 
+  print(class(sel_matrix))
   return(sel_matrix)
 
 }
