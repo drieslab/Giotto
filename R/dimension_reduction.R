@@ -457,13 +457,14 @@ create_feats_to_use_matrix = function(gobject,
 #' @param scale_unit scale features before PCA (default = TRUE)
 #' @param ncp number of principal components to calculate
 #' @param method which implementation to use
+#' @param method_params additional parameters
 #' @param rev do a reverse PCA
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
 #' @param verbose verbosity of the function
 #' @param ... additional parameters for PCA (see details)
 #' @return giotto object with updated PCA dimension recuction
-#' @details See \code{\link[irlba]{prcomp_irlba}} and \code{\link[FactoMineR]{PCA}} for more information about other parameters.
+#' @details See \code{\link[BiocSingular]{runPCA}} and \code{\link[FactoMineR]{PCA}} for more information about other parameters.
 #' \itemize{
 #'   \item feats_to_use = NULL: will use all features from the selected matrix
 #'   \item feats_to_use = <hvg name>: can be used to select a column name of
@@ -483,7 +484,8 @@ runPCA <- function(gobject,
                    center = TRUE,
                    scale_unit = TRUE,
                    ncp = 100,
-                   method = c('irlba','factominer'),
+                   method = c('irlba', 'exact', 'random','factominer'),
+                   method_params = list(NA),
                    rev = FALSE,
                    set_seed = TRUE,
                    seed_number = 1234,
@@ -529,28 +531,46 @@ runPCA <- function(gobject,
   reduction = match.arg(reduction, c('cells', 'feats'))
 
   # PCA implementation
-  method = match.arg(method, c('irlba','factominer'))
+  method = match.arg(method, c('irlba', 'exact', 'random','factominer'))
 
   if(reduction == 'cells') {
     # PCA on cells
-    if(method == 'irlba') {
-      pca_object = runPCA_prcomp_irlba(x = t_flex(expr_values),
-                                                center = center, scale = scale_unit, ncp = ncp,
-                                                rev = rev, set_seed = set_seed, seed_number = seed_number, ...)
+    if(method %in% c('irlba', 'exact', 'random')) {
+      pca_object = runPCA_BiocSingular(x = t_flex(expr_values),
+                                       center = center,
+                                       scale = scale_unit,
+                                       ncp = ncp,
+                                       rev = rev,
+                                       set_seed = set_seed,
+                                       seed_number = seed_number,
+                                       BSPARAM = method,
+                                       BSParameters = method_params,
+                                       ...)
     } else if(method == 'factominer') {
       pca_object = runPCA_factominer(x = t_flex(expr_values),
-                                              scale = scale_unit, ncp = ncp, rev = rev,
-                                              set_seed = set_seed, seed_number = seed_number, ...)
+                                     scale = scale_unit,
+                                     ncp = ncp, rev = rev,
+                                     set_seed = set_seed,
+                                     seed_number = seed_number,
+                                     ...)
     } else {
-      stop('only PCA methods from the irlba and factominer package have been implemented \n')
+      stop('only PCA methods from the BiocSingular and factominer package have been implemented \n')
     }
 
   } else {
     # PCA on genes
-    if(method == 'irlba') {
-      pca_object = runPCA_prcomp_irlba(x = expr_values,
-                                                center = center, scale = scale_unit, ncp = ncp,
-                                                rev = rev, set_seed = set_seed, seed_number = seed_number, ...)
+    if(method %in% c('irlba', 'exact', 'random')) {
+      runPCA_BiocSingular(x = expr_values,
+                          center = center,
+                          scale = scale_unit,
+                          ncp = ncp,
+                          rev = rev,
+                          set_seed = set_seed,
+                          seed_number = seed_number,
+                          BSPARAM = method,
+                          BSParameters = method_params,
+                          ...)
+
     } else if(method == 'factominer') {
       pca_object = runPCA_factominer(x = expr_values,
                                               scale = scale_unit, ncp = ncp, rev = rev,
@@ -572,11 +592,11 @@ runPCA <- function(gobject,
     }
 
     dimObject = create_dimObject(name = name,
-                                          reduction_method = 'pca',
-                                          coordinates = pca_object$coords,
-                                          misc = list(eigenvalues = pca_object$eigenvalues,
-                                                      loadings = pca_object$loadings),
-                                          my_rownames = colnames(expr_values))
+                                 reduction_method = 'pca',
+                                 coordinates = pca_object$coords,
+                                 misc = list(eigenvalues = pca_object$eigenvalues,
+                                             loadings = pca_object$loadings),
+                                 my_rownames = colnames(expr_values))
 
     gobject@dimension_reduction[[reduction]][['pca']][[name]] <- dimObject
 

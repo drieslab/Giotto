@@ -65,9 +65,9 @@ doLeidenCluster = function(gobject,
   cell_ID_vec = gobject@cell_ID
 
   ## select network to use
-  igraph_object = Giotto:::select_NearestNetwork(gobject,
-                                                 nn_network_to_use = nn_network_to_use,
-                                                 network_name = network_name)
+  igraph_object = select_NearestNetwork(gobject,
+                                        nn_network_to_use = nn_network_to_use,
+                                        network_name = network_name)
 
   ## select partition type
   partition_type = match.arg(partition_type,
@@ -76,7 +76,7 @@ doLeidenCluster = function(gobject,
   ## check or make paths
   # python path
   if(is.null(python_path)) {
-    python_path = Giotto:::readGiottoInstructions(gobject, param = "python_path")
+    python_path = readGiottoInstructions(gobject, param = "python_path")
   }
 
   ## prepare python path and louvain script
