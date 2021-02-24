@@ -3018,7 +3018,8 @@ merge_spatial_locs_feat_info = function(spatial_info,
 
 
 #' @name combineSpatialCellFeatureInfo
-#' @description Combine location information about cells (polygon) and features (points)
+#' @description Combine spatial cell information (e.g. polygon)
+#' and spatial feature information (e.g. transcript locations)
 #' @param gobject Giotto object
 #' @param feat_type feature type(s)
 #' @return list of data.table(s)
@@ -3036,14 +3037,19 @@ merge_spatial_locs_feat_info = function(spatial_info,
 combineSpatialCellFeatureInfo = function(gobject,
                                          feat_type = NULL) {
 
+
+  # combine
+  # 1. spatial morphology information ( = polygon)
+  # 2. spatial transcript location information
+
   # specify feat_type
   if(is.null(feat_type)) {
     feat_type = gobject@expression_feat[[1]]
   }
 
-  spatial_cell_polygon = gobject@spatial_info
+  spatial_cell_info = gobject@spatial_info
 
-  if(is.null(spatial_cell_polygon)) {
+  if(is.null(spatial_cell_info)) {
     stop('There is no available spatial segmentation/location information')
   }
 
@@ -3057,7 +3063,7 @@ combineSpatialCellFeatureInfo = function(gobject,
       stop('There is no available spatial feature location information for ', feat, '\n')
     }
 
-    output = merge_spatial_locs_feat_info(spatial_info = spatial_cell_polygon,
+    output = merge_spatial_locs_feat_info(spatial_info = spatial_cell_info,
                                           feature_info = spatial_feat_locs)
     output[, 'feat' := feat]
 
@@ -3071,8 +3077,8 @@ combineSpatialCellFeatureInfo = function(gobject,
 
 
 
-#' @name combineCellMetadataInfo
-#' @description Combine cell metadata with location information about cells (polygon)
+#' @name combineSpatialCellMetadataInfo
+#' @description Combine cell metadata with spatial cell information (e.g. polygon)
 #' @param gobject Giotto object
 #' @param feat_type feature type(s)
 #' @return list of data.table(s)
@@ -3086,8 +3092,13 @@ combineSpatialCellFeatureInfo = function(gobject,
 #'   \item{other columns that are part of the cell metadata}
 #' }
 #' @export
-combineCellMetadataInfo = function(gobject,
-                                   feat_type = NULL) {
+combineSpatialCellMetadataInfo = function(gobject,
+                                          feat_type = NULL) {
+
+
+  # combine
+  # 1. spatial morphology information ( = polygon)
+  # 2. cell metadata
 
   # specify feat_type
   if(is.null(feat_type)) {
@@ -3115,3 +3126,7 @@ combineCellMetadataInfo = function(gobject,
   return(res_list)
 
 }
+
+
+
+

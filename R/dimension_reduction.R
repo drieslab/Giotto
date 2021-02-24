@@ -435,7 +435,7 @@ create_feats_to_use_matrix = function(gobject,
     sel_matrix = sel_matrix[rownames(sel_matrix) %in% feats_to_use, ]
   }
 
-  print(class(sel_matrix))
+  if(verbose == TRUE) print(class(sel_matrix))
   return(sel_matrix)
 
 }
@@ -967,7 +967,7 @@ jackstrawPlot = function(gobject,
       expr_values = t_flex(scale(t_flex(expr_values), center = center, scale = scale_unit))
     }
 
-    jtest = jackstraw::permutationPA(dat = expr_values, B = iter, threshold = threshold, verbose = verbose)
+    jtest = jackstraw::permutationPA(dat = as.matrix(expr_values), B = iter, threshold = threshold, verbose = verbose)
 
     ## results ##
     nr_sign_components = jtest$r
