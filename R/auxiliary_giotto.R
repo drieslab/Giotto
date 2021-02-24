@@ -507,7 +507,7 @@ subsetGiotto <- function(gobject,
   ## FILTER ##
   # filter raw data
 
-  if(methods::is(h5_gtest@expression[['rna']][['raw']], 'HDF5Array')) {
+  if(methods::is(gobject@expression[['rna']][['raw']], 'HDF5Array')) {
     gobject@expression[[feat_type]][['raw']] = DelayedArray::realize(gobject@expression[[feat_type]][['raw']][filter_bool_feats, filter_bool_cells], "HDF5Array")
   } else {
     gobject@expression[[feat_type]][['raw']] = gobject@expression[[feat_type]][['raw']][filter_bool_feats, filter_bool_cells]
