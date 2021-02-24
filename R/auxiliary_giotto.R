@@ -1222,7 +1222,7 @@ rna_standard_normalization = function(gobject,
     if(scale_order == 'first_feats') {
       if(verbose == TRUE) cat('\n first scale feats and then cells \n')
 
-      norm_scaled_expr = t(standardise_giotto(x = t(norm_expr), center = TRUE, scale = TRUE))
+      norm_scaled_expr = t_flex(standardise_giotto(x = t_flex(norm_expr), center = TRUE, scale = TRUE))
       norm_scaled_expr = standardise_giotto(x = norm_scaled_expr, center = TRUE, scale = TRUE)
 
       #if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
@@ -1233,7 +1233,7 @@ rna_standard_normalization = function(gobject,
       if(verbose == TRUE) cat('\n first scale cells and then feats \n')
 
       norm_scaled_expr = standardise_giotto(x = norm_expr, center = TRUE, scale = TRUE)
-      norm_scaled_expr = t(standardise_giotto(x = t(norm_scaled_expr), center = TRUE, scale = TRUE))
+      norm_scaled_expr = t_flex(standardise_giotto(x = t_flex(norm_scaled_expr), center = TRUE, scale = TRUE))
 
       #if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
       #norm_scaled_expr = Rfast::standardise(x = norm_expr, center = TRUE, scale = TRUE)
@@ -1245,7 +1245,7 @@ rna_standard_normalization = function(gobject,
 
   } else if(scale_feats == TRUE) {
 
-    norm_scaled_expr = t(standardise_giotto(x = t(norm_expr), center = TRUE, scale = TRUE))
+    norm_scaled_expr = t(standardise_giotto(x = t_flex(norm_expr), center = TRUE, scale = TRUE))
 
     #if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
     #norm_scaled_expr = t(Rfast::standardise(x = t(norm_expr), center = TRUE, scale = TRUE))
