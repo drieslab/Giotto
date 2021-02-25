@@ -3022,6 +3022,7 @@ merge_spatial_locs_feat_info = function(spatial_info,
 #' and spatial feature information (e.g. transcript locations)
 #' @param gobject Giotto object
 #' @param feat_type feature type(s)
+#' @param selected_features select set of features
 #' @return list of data.table(s)
 #' @details
 #' The returned data.table has the following columns: \cr
@@ -3035,7 +3036,8 @@ merge_spatial_locs_feat_info = function(spatial_info,
 #' }
 #' @export
 combineSpatialCellFeatureInfo = function(gobject,
-                                         feat_type = NULL) {
+                                         feat_type = NULL,
+                                         selected_features = NULL) {
 
 
   # combine
@@ -3058,6 +3060,10 @@ combineSpatialCellFeatureInfo = function(gobject,
   for(feat in unique(feat_type)) {
 
     spatial_feat_locs = gobject@feat_info[[feat]]
+
+    if(!is.null(selected_features)) {
+      spatial_feat_locs = spatial_feat_locs[feat_ID %in% selected_features]
+    }
 
     if(is.null(spatial_feat_locs)) {
       stop('There is no available spatial feature location information for ', feat, '\n')

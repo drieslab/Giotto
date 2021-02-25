@@ -10,7 +10,7 @@ screePlot(
   name = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   reduction = c("cells", "feats"),
-  method = c("irlba", "factominer"),
+  method = c("irlba", "exact", "random", "factominer"),
   rev = FALSE,
   feats_to_use = NULL,
   genes_to_use = NULL,

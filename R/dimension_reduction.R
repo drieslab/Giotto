@@ -712,7 +712,7 @@ screePlot = function(gobject,
                      name = NULL,
                      expression_values = c('normalized', 'scaled', 'custom'),
                      reduction = c('cells', 'feats'),
-                     method = c('irlba','factominer'),
+                     method = c('irlba', 'exact', 'random','factominer'),
                      rev = FALSE,
                      feats_to_use = NULL,
                      genes_to_use = NULL,
@@ -770,11 +770,11 @@ screePlot = function(gobject,
     if(verbose == TRUE) cat('PCA with name: ', name, ' does NOT exists, PCA will be done first \n')
 
     # expression values to be used
-    values = match.arg(expression_values, c('normalized', 'scaled', 'custom', expression_values))
+    values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
     expr_values = select_expression_values(gobject = gobject, feat_type = feat_type, values = values)
 
     # PCA implementation
-    method = match.arg(method, c('irlba','factominer'))
+    method = match.arg(method, c('irlba', 'exact', 'random','factominer'))
 
     ## subset matrix
     if(!is.null(feats_to_use)) {

@@ -16,7 +16,8 @@ runPCA(
   center = TRUE,
   scale_unit = TRUE,
   ncp = 100,
-  method = c("irlba", "factominer"),
+  method = c("irlba", "exact", "random", "factominer"),
+  method_params = list(NA),
   rev = FALSE,
   set_seed = TRUE,
   seed_number = 1234,
@@ -49,6 +50,8 @@ runPCA(
 
 \item{method}{which implementation to use}
 
+\item{method_params}{additional parameters}
+
 \item{rev}{do a reverse PCA}
 
 \item{set_seed}{use of seed}
@@ -66,7 +69,7 @@ giotto object with updated PCA dimension recuction
 runs a Principal Component Analysis
 }
 \details{
-See \code{\link[irlba]{prcomp_irlba}} and \code{\link[FactoMineR]{PCA}} for more information about other parameters.
+See \code{\link[BiocSingular]{runPCA}} and \code{\link[FactoMineR]{PCA}} for more information about other parameters.
 \itemize{
   \item feats_to_use = NULL: will use all features from the selected matrix
   \item feats_to_use = <hvg name>: can be used to select a column name of

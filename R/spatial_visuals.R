@@ -3747,7 +3747,9 @@ spatFeatPlot2D_single <- function(gobject,
   # combine plots with cowplot
   combo_plot <- cowplot::plot_grid(plotlist = savelist,
                                    ncol = cow_n_col,
-                                   rel_heights = cow_rel_h, rel_widths = cow_rel_w, align = cow_align)
+                                   rel_heights = cow_rel_h,
+                                   rel_widths = cow_rel_w,
+                                   align = cow_align)
 
 
   ## print plot
