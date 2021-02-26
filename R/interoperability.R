@@ -1,5 +1,10 @@
 
+## sp classes ####
 
+
+
+
+## anndata object ####
 
 #' @title anndataToGiotto
 #' @description Converts a spatial anndata (e.g. scanpy) .h5ad file into a Giotto object
