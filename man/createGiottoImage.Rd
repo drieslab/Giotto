@@ -33,7 +33,7 @@ createGiottoImage(
 \item{ymin_adj}{adjustment of the minimum y-value to align the image}
 }
 \value{
-a giotto image object
+a giottoImage object
 }
 \description{
 Creates a giotto image that can be added to a Giotto object and/or used to add an image to the spatial plotting functions
