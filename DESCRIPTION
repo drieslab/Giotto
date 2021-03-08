@@ -10,7 +10,7 @@ Authors@R: c(
 		role = c("aut")),
 	person("Rui", "Dong", email = "rdong@jimmy.harvard.edu",
 		 role = c("aut")),
-	person("Guo-Cheng", "Yuan", email = "gcyuan@ds.dfci.harvard.edu",
+	person("Guo-Cheng", "Yuan", email = "guo-cheng.yuan@mssm.edu",
 		 role = c("aut"))
 	)
 Maintainer: Ruben Dries <rubendries@gmail.com>
