@@ -29,7 +29,4 @@ change \!\!**).
 
 ## References
 
-  - [Dries, R., Zhu, Q. et al. Giotto, a toolbox for integrative
-    analysis and visualization of spatial expression data.
-    bioRxiv 701680
-    (2019).](https://www.biorxiv.org/content/10.1101/701680v2)
+  - [Dries, R., Zhu, Q. et al. Giotto: a toolbox for integrative analysis and visualization of spatial expression data. Genome Biol. 2021 Mar 8;22(1):78.](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-021-02286-2)
