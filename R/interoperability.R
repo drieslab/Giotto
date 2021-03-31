@@ -21,11 +21,8 @@ anndataToGiotto = function(anndata_path,
                            ...) {
 
 
-  if(!file.exists(anndata_path)) stop('path to anndata does not exist \n')
-  adata <- sc$read(anndata_path)
 
   # test if scanpy is found
-
   module_test = reticulate::py_module_available('scanpy')
   if(module_test == FALSE) {
     warning("scanpy python module is not installed:
@@ -50,6 +47,8 @@ anndataToGiotto = function(anndata_path,
   sc <- reticulate::import("scanpy")
   pd <- reticulate::import("pandas")
 
+  if(!file.exists(anndata_path)) stop('path to anndata does not exist \n')
+  adata <- sc$read(anndata_path)
 
   ## get count data
   exprs <- t(adata$X)

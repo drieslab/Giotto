@@ -1137,7 +1137,7 @@ createGiottoObject <- function(expression,
   spatial_locs = evaluate_spatial_locations(spatial_locs = spatial_locs,
                                             cores = cores,
                                             dummy_n = raw_cell_dim,
-                                            expr_matrix = gobject@expression[['raw']])
+                                            expr_matrix = gobject@expression[[1]][['raw']])
 
 
   # check if dimensions agree
@@ -1421,7 +1421,7 @@ createGiottoObject <- function(expression,
       im = images[[image_i]]
       im_name = names(images)[[image_i]]
 
-      if(methods::is(im, 'imageGiottoObj')) {
+      if(methods::is(im, 'giottoImage')) {
         gobject@images[[im_name]] = im
       } else {
         warning('image: ', im, ' is not a giotto image object')
