@@ -2201,19 +2201,19 @@ plot_spat_image_layer_ggplot = function(ggplot,
   spatlocs = gobject@spatial_locs
 
   # extract min and max from object
-  my_xmax = gimage$minmax[1]
-  my_xmin = gimage$minmax[2]
-  my_ymax = gimage$minmax[3]
-  my_ymin = gimage$minmax[4]
+  my_xmax = gimage@minmax[1]
+  my_xmin = gimage@minmax[2]
+  my_ymax = gimage@minmax[3]
+  my_ymin = gimage@minmax[4]
 
   # convert giotto image object into array
-  img_array = as.numeric(gimage$mg_object[[1]])
+  img_array = as.numeric(gimage@mg_object[[1]])
 
   # extract adjustments from object
-  xmax_b = gimage$boundaries[1]
-  xmin_b = gimage$boundaries[2]
-  ymax_b = gimage$boundaries[3]
-  ymin_b = gimage$boundaries[4]
+  xmax_b = gimage@boundaries[1]
+  xmin_b = gimage@boundaries[2]
+  ymax_b = gimage@boundaries[3]
+  ymin_b = gimage@boundaries[4]
 
 
   ggplot = ggplot + geom_blank(data = spatlocs, aes_string(sdimx, sdimy))
