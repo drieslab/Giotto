@@ -10,7 +10,8 @@ subsetGiotto(
   feat_type = NULL,
   feat_ids = NULL,
   gene_ids = NULL,
-  verbose = FALSE
+  verbose = FALSE,
+  toplevel_params = 2
 )
 }
 \arguments{
@@ -22,7 +23,11 @@ subsetGiotto(
 
 \item{feat_ids}{feature IDs to keep}
 
+\item{gene_ids}{deprecated, use feat_ids}
+
 \item{verbose}{be verbose}
+
+\item{toplevel_params}{parameters to extract}
 }
 \value{
 giotto object

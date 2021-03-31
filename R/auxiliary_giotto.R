@@ -454,7 +454,9 @@ create_average_detection_DT <- function(gobject,
 #' @param cell_ids cell IDs to keep
 #' @param feat_type feature type to use
 #' @param feat_ids feature IDs to keep
+#' @param gene_ids deprecated, use feat_ids
 #' @param verbose be verbose
+#' @param toplevel_params parameters to extract
 #' @return giotto object
 #' @export
 #' @examples
@@ -476,7 +478,8 @@ subsetGiotto <- function(gobject,
                          feat_type = NULL,
                          feat_ids = NULL,
                          gene_ids = NULL,
-                         verbose = FALSE) {
+                         verbose = FALSE,
+                         toplevel_params = 2) {
 
   # set feat type
   if(is.null(feat_type)) {
@@ -658,11 +661,12 @@ subsetGiotto <- function(gobject,
   ## update parameters used ##
   parameters_info = update_giotto_params(gobject,
                                          description = '_subset',
-                                         return_gobject = FALSE)
+                                         return_gobject = FALSE,
+                                         toplevel = toplevel_params)
+
   # extra parameters to include
   cells_removed = length(filter_bool_cells[filter_bool_cells==FALSE])
   feats_removed = length(filter_bool_feats[filter_bool_feats==FALSE])
-
 
   parameters_list = parameters_info[['plist']]
   update_name = parameters_info[['newname']]
