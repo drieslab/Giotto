@@ -1878,7 +1878,7 @@ addCellMetadata <- function(gobject,
   # data.table variables
   cell_ID = NULL
 
-  cell_metadata = gobject@cell_metadata[[feat_type]]
+  cell_metadata = data.table::copy(gobject@cell_metadata[[feat_type]])
   ordered_cell_IDs = gobject@cell_ID
 
   if(is.vector(new_metadata) | is.factor(new_metadata)) {
