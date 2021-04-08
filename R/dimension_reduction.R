@@ -1239,6 +1239,7 @@ runUMAP <- function(gobject,
                     set_seed = TRUE,
                     seed_number = 1234,
                     verbose = T,
+                    toplevel_params = 2,
                     ...) {
 
 
@@ -1363,7 +1364,10 @@ runUMAP <- function(gobject,
 
 
       ## update parameters used ##
-      gobject = update_giotto_params(gobject, description = '_umap')
+      gobject = update_giotto_params(gobject,
+                                     description = '_umap',
+                                     return_gobject = FALSE,
+                                     toplevel = toplevel_params)
       return(gobject)
 
 
