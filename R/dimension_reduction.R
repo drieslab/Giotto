@@ -1205,6 +1205,7 @@ signPCA <- function(gobject,
 #' @param set_seed use of seed
 #' @param seed_number seed number to use
 #' @param verbose verbosity of function
+#' @param toplevel_params parameters to extract
 #' @param ... additional UMAP parameters
 #' @return giotto object with updated UMAP dimension recuction
 #' @details See \code{\link[uwot]{umap}} for more information about these and other parameters.

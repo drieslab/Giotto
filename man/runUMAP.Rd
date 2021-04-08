@@ -25,6 +25,7 @@ runUMAP(
   set_seed = TRUE,
   seed_number = 1234,
   verbose = T,
+  toplevel_params = 2,
   ...
 )
 }
@@ -68,6 +69,8 @@ runUMAP(
 \item{seed_number}{seed number to use}
 
 \item{verbose}{verbosity of function}
+
+\item{toplevel_params}{parameters to extract}
 
 \item{...}{additional UMAP parameters}
 }
