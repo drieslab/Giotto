@@ -1750,6 +1750,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 get_args <- function(toplevel = 2) {
 
   cl = sys.call(-toplevel)
+  print(cl)
 
   # function name
   fname = as.character(cl[[1]])
@@ -1785,6 +1786,8 @@ get_args <- function(toplevel = 2) {
   return(final_args)
 
 }
+
+
 
 #' @name update_giotto_params
 #' @keywords internal

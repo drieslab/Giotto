@@ -659,6 +659,12 @@ subsetGiotto <- function(gobject,
 
 
   ## update parameters used ##
+  nframes = sys.nframe()
+  cat('number of frames: ', nframes, '\n')
+
+  parent = sys.parent()
+  cat('sys parent: ', parent, '\n')
+
   parameters_info = update_giotto_params(gobject,
                                          description = '_subset',
                                          return_gobject = FALSE,
