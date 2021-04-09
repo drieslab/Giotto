@@ -1367,7 +1367,7 @@ runUMAP <- function(gobject,
       ## update parameters used ##
       gobject = update_giotto_params(gobject,
                                      description = '_umap',
-                                     return_gobject = FALSE,
+                                     return_gobject = TRUE,
                                      toplevel = toplevel_params)
       return(gobject)
 

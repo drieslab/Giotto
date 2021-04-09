@@ -1750,14 +1750,14 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 get_args <- function(toplevel = 2) {
 
   nframes = sys.nframe()
-  #cat('\n number of frames: ')
-  #print(nframes)
-  #cat('\n')
+  cat('\n number of frames: ')
+  print(nframes)
+  cat('\n')
 
   cl = sys.call(-toplevel)
-  #cat('\n system call: ')
-  #print(cl)
-  #cat('\n')
+  cat('\n system call: ')
+  print(cl)
+  cat('\n')
 
   # function name
   fname = as.character(cl[[1]])
@@ -1766,9 +1766,9 @@ get_args <- function(toplevel = 2) {
     fname = fname[[3]]
   }
 
-  #cat('\n function name: ')
-  #print(fname)
-  #cat('\n')
+  cat('\n function name: ')
+  print(fname)
+  cat('\n')
 
   # function
   #f = get(x = fname, mode = "function", pos = 'package:Giotto')
