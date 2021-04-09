@@ -124,7 +124,7 @@ createGiottoImage = function(gobject = NULL,
 
   ## 2. min and max based on spatial locations
   if(!is.null(gobject)) {
-    spatlocs = gobject@spatial_locs
+    spatlocs = gobject@spatial_locs[['raw']]
 
     my_xmin = min(spatlocs$sdimx)
     my_xmax = max(spatlocs$sdimx)

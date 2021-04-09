@@ -12,6 +12,7 @@ spatDimPlot3D(
   dim1_to_use = 1,
   dim2_to_use = 2,
   dim3_to_use = 3,
+  spat_loc_name = "raw",
   sdimx = "sdimx",
   sdimy = "sdimy",
   sdimz = "sdimz",
@@ -70,6 +71,8 @@ spatDimPlot3D(
 \item{dim2_to_use}{dimension to use on y-axis}
 
 \item{dim3_to_use}{dimension to use on z-axis}
+
+\item{spat_loc_name}{name for spatial locations}
 
 \item{sdimx}{= spatial dimension to use on x-axis}
 

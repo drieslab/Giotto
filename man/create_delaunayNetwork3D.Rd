@@ -7,6 +7,7 @@
 create_delaunayNetwork3D(
   gobject,
   method = "delaunayn_geometry",
+  spat_loc_name = "raw",
   sdimx = "sdimx",
   sdimy = "sdimy",
   sdimz = "sdimz",

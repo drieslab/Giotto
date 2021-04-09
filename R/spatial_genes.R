@@ -1582,7 +1582,7 @@ silhouetteRank <- function(gobject,
   sdimx = sdimy = NULL
 
   # spatial locations
-  spatlocs = as.matrix(gobject@spatial_locs[,.(sdimx, sdimy)])
+  spatlocs = as.matrix(gobject@spatial_locs[['raw']][,.(sdimx, sdimy)])
 
   # python path
   if(is.null(python_path)) {
@@ -1701,7 +1701,7 @@ silhouetteRankTest = function(gobject,
   }
 
   # spatial locations
-  spatlocs = gobject@spatial_locs
+  spatlocs = gobject@spatial_locs[['raw']]
 
   ## save dir and log
   if(is.null(output)) {
@@ -1783,6 +1783,7 @@ silhouetteRankTest = function(gobject,
 #' @name spatialDE
 #' @description Compute spatial variable genes with spatialDE method
 #' @param gobject Giotto object
+#' @param spat_loc_name name for spatial locations
 #' @param expression_values gene expression values to use
 #' @param size size of plot
 #' @param color low/medium/high color scheme for plot
@@ -1798,6 +1799,7 @@ silhouetteRankTest = function(gobject,
 #' @details This function is a wrapper for the SpatialDE method implemented in the ...
 #' @export
 spatialDE <- function(gobject = NULL,
+                      spat_loc_name = 'raw',
                       expression_values = c('raw', 'normalized', 'scaled', 'custom'),
                       size = c(4,2,1),
                       color = c("blue", "green", "red"),
@@ -1860,7 +1862,9 @@ spatialDE <- function(gobject = NULL,
   reticulate::source_python(file = reader_path)
 
   ## get spatial locations
-  spatial_locs <- as.data.frame(gobject@spatial_locs)
+  spatial_locs = select_spatial_locations(gobject,
+                                          spat_loc_name = spat_loc_name)
+  spatial_locs <- as.data.frame(spatial_locs)
   rownames(spatial_locs) <- spatial_locs$cell_ID
   spatial_locs <- subset(spatial_locs, select = -cell_ID)
 
@@ -1918,6 +1922,7 @@ spatialDE <- function(gobject = NULL,
 #' @name spatialAEH
 #' @description Compute spatial variable genes with spatialDE method
 #' @param gobject Giotto object
+#' @param spat_loc_name name for spatial locations
 #' @param SpatialDE_results results of \code{\link{spatialDE}} function
 #' @param name_pattern name for the computed spatial patterns
 #' @param expression_values gene expression values to use
@@ -1929,6 +1934,7 @@ spatialDE <- function(gobject = NULL,
 #' @details This function is a wrapper for the SpatialAEH method implemented in the ...
 #' @export
 spatialAEH <- function(gobject = NULL,
+                       spat_loc_name = 'raw',
                        SpatialDE_results = NULL,
                        name_pattern = 'AEH_patterns',
                        expression_values = c('raw', 'normalized', 'scaled', 'custom'),
@@ -1956,7 +1962,9 @@ spatialAEH <- function(gobject = NULL,
 
 
   ## spatial locations
-  spatial_locs <- as.data.frame(gobject@spatial_locs)
+  spatial_locs =  select_spatial_locations(gobject,
+                                           spat_loc_name = spat_loc_name)
+  spatial_locs <- as.data.frame(spatial_locs)
   rownames(spatial_locs) <- spatial_locs$cell_ID
   spatial_locs <- subset(spatial_locs, select = -cell_ID)
 
@@ -2058,6 +2066,7 @@ FSV_show <- function(results,
 #' @name trendSceek
 #' @description Compute spatial variable genes with trendsceek method
 #' @param gobject Giotto object
+#' @param spat_loc_name name for spatial locations
 #' @param expression_values gene expression values to use
 #' @param subset_genes subset of genes to run trendsceek on
 #' @param nrand An integer specifying the number of random resamplings of the mark distribution as to create the null-distribution.
@@ -2067,6 +2076,7 @@ FSV_show <- function(results,
 #' @details This function is a wrapper for the trendsceek_test method implemented in the trendsceek package
 #' @export
 trendSceek <- function(gobject,
+                       spat_loc_name = 'raw',
                        expression_values = c("normalized", "raw"),
                        subset_genes = NULL,
                        nrand = 100,
@@ -2107,7 +2117,7 @@ trendSceek <- function(gobject,
   # data.table variables
   cell_ID = NULL
 
-  spatial_locations = copy(gobject@spatial_locs)
+  spatial_locations = select_spatial_locations(gobject, spat_loc_name = spat_loc_name)
   spatial_locations[, cell_ID := NULL]
   pp = trendsceek::pos2pp(spatial_locations)
 
@@ -2133,6 +2143,7 @@ trendSceek <- function(gobject,
 #' @name spark
 #' @description Compute spatially expressed genes with SPARK method
 #' @param gobject giotto object
+#' @param spat_loc_name name for spatial locations
 #' @param feat_type feature type
 #' @param percentage The percentage of cells that are expressed for analysis
 #' @param min_count minimum number of counts for a gene to be included
@@ -2151,6 +2162,7 @@ trendSceek <- function(gobject,
 #' }
 #' @export
 spark = function(gobject,
+                 spat_loc_name = 'raw',
                  feat_type = NULL,
                  percentage = 0.1,
                  min_count = 10,
@@ -2190,7 +2202,9 @@ spark = function(gobject,
                                   values = expression_values)
 
   ## extract coordinates from gobject
-  locs = as.data.frame(gobject@spatial_locs)
+  locs = select_spatial_locations(gobject,
+                                  spat_loc_name = spat_loc_name)
+  locs = as.data.frame(locs)
   rownames(locs) = colnames(expr)
 
   ## create SPARK object for analysis and filter out lowly expressed genes
@@ -2303,7 +2317,7 @@ detectSpatialPatterns <- function(gobject,
   spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
 
   # annotate spatial locations with spatial grid information
-  spatial_locs = copy(gobject@spatial_locs)
+  spatial_locs = copy(gobject@spatial_locs[['raw']])
 
   if(all(c('sdimx', 'sdimy', 'sdimz') %in% colnames(spatial_locs))) {
     spatial_locs = annotate_spatlocs_with_spatgrid_3D(spatloc = spatial_locs, spatgrid = spatial_grid)
@@ -3095,6 +3109,7 @@ detectSpatialCorFeatsMatrix <- function(expression_matrix,
 #' @name detectSpatialCorFeats
 #' @description Detect features that are spatially correlated
 #' @param gobject giotto object
+#' @param spat_loc_name name for spatial locations
 #' @param feat_type feature type
 #' @param method method to use for spatial averaging
 #' @param expression_values gene expression values to use
@@ -3120,6 +3135,7 @@ detectSpatialCorFeatsMatrix <- function(expression_matrix,
 #' @seealso \code{\link{showSpatialCorFeats}}
 #' @export
 detectSpatialCorFeats <- function(gobject,
+                                  spat_loc_name = 'raw',
                                   feat_type = NULL,
                                   method = c('grid', 'network'),
                                   expression_values = c('normalized', 'scaled', 'custom'),
@@ -3154,8 +3170,8 @@ detectSpatialCorFeats <- function(gobject,
 
 
   # get spatial locations
-  spatial_locs = gobject@spatial_locs
-
+  spatial_locs = select_spatial_locations(gobject,
+                                          spat_loc_name = spat_loc_name)
 
   ## spatial averaging or smoothing
   if(method == 'grid') {
@@ -3819,7 +3835,7 @@ simulateOneGenePatternGiottoObject = function(gobject,
 
   ## merge cell metadata and cell coordinate data
   cell_meta = pDataDT(newgobject)
-  cell_coord = newgobject@spatial_locs
+  cell_coord = newgobject@spatial_locs[['raw']]
   cell_meta = data.table::merge.data.table(cell_meta, cell_coord, by = 'cell_ID')
 
   ## get number of cells within pattern

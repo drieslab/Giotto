@@ -6,6 +6,7 @@
 \usage{
 trendSceek(
   gobject,
+  spat_loc_name = "raw",
   expression_values = c("normalized", "raw"),
   subset_genes = NULL,
   nrand = 100,
@@ -15,6 +16,8 @@ trendSceek(
 }
 \arguments{
 \item{gobject}{Giotto object}
+
+\item{spat_loc_name}{name for spatial locations}
 
 \item{expression_values}{gene expression values to use}
 

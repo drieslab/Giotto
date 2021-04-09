@@ -7,6 +7,7 @@
 createSpatialKNNnetwork(
   gobject,
   method = "dbscan",
+  spat_loc_name = "raw",
   dimensions = "all",
   name = "knn_network",
   k = 4,
@@ -21,6 +22,8 @@ createSpatialKNNnetwork(
 \item{gobject}{giotto object}
 
 \item{method}{method to create kNN network}
+
+\item{spat_loc_name}{name of spatial locations}
 
 \item{dimensions}{which spatial dimensions to use (default = all)}
 

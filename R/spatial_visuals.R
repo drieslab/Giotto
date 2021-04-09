@@ -2175,6 +2175,7 @@ plot_spat_voronoi_layer_ggplot = function(ggobject,
 #' @description create background image in ggplot
 #' @param gobject giotto object
 #' @param gimage a giotto image
+#' @param spat_loc_name name for spatial locations
 #' @param sdimx x-axis dimension name (default = 'sdimx')
 #' @param sdimy y-axis dimension name (default = 'sdimy')
 #' @return ggplot
@@ -2182,6 +2183,7 @@ plot_spat_voronoi_layer_ggplot = function(ggobject,
 plot_spat_image_layer_ggplot = function(ggplot,
                                         gobject,
                                         gimage,
+                                        spat_loc_name = 'raw',
                                         sdimx = NULL,
                                         sdimy = NULL) {
 
@@ -2198,7 +2200,8 @@ plot_spat_image_layer_ggplot = function(ggplot,
   }
 
   # spatial locations
-  spatlocs = gobject@spatial_locs
+  spatlocs = select_spatial_locations(gobject = gobject,
+                                       spat_loc_name = spat_loc_name)
 
   # extract min and max from object
   my_xmax = gimage@minmax[1]
@@ -2234,6 +2237,7 @@ plot_spat_image_layer_ggplot = function(ggplot,
 #' @param show_image show a tissue background image
 #' @param gimage a giotto image
 #' @param image_name name of a giotto image
+#' @param spat_loc_name name of spatial locations
 #' @param sdimx x-axis dimension name (default = 'sdimx')
 #' @param sdimy y-axis dimension name (default = 'sdimy')
 #' @param spat_enr_names names of spatial enrichment results to include
@@ -2291,6 +2295,7 @@ spatPlot2D_single = function(gobject,
                              show_image = F,
                              gimage = NULL,
                              image_name = 'image',
+                             spat_loc_name = 'raw',
                              sdimx = 'sdimx',
                              sdimy = 'sdimy',
                              spat_enr_names = NULL,
@@ -2362,25 +2367,29 @@ spatPlot2D_single = function(gobject,
   point_shape = match.arg(point_shape, choices = c('border', 'no_border', 'voronoi'))
 
   ## get spatial cell locations
-  cell_locations  = gobject@spatial_locs
+  cell_locations = select_spatial_locations(gobject = gobject,
+                                            spat_loc_name = spat_loc_name)
+
 
   ## extract spatial network
   if(show_network == TRUE) {
-    spatial_network = Giotto:::select_spatialNetwork(gobject, name = spatial_network_name, return_network_Obj = FALSE)
+    spatial_network = select_spatialNetwork(gobject, name = spatial_network_name, return_network_Obj = FALSE)
   } else {
     spatial_network = NULL
   }
 
   ## extract spatial grid
   if(show_grid == TRUE) {
-    spatial_grid = Giotto:::select_spatialGrid(gobject, spatial_grid_name)
+    spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
   } else {
     spatial_grid = NULL
   }
 
+
   ## get cell metadata
   cell_metadata = combineMetadata(gobject = gobject,
                                   feat_type = feat_type,
+                                  spat_loc_name = spat_loc_name,
                                   spat_enr_names = spat_enr_names)
 
   if(nrow(cell_metadata) == 0) {
@@ -2424,7 +2433,6 @@ spatPlot2D_single = function(gobject,
 
   pl <- ggplot2::ggplot()
   pl <- pl + ggplot2::theme_bw()
-
 
   ## plot image ##
   if(show_image == TRUE & !is.null(gimage)) {
@@ -2609,6 +2617,7 @@ spatPlot2D_single = function(gobject,
 #' @param image_name name of a giotto image
 #' @param group_by create multiple plots based on cell annotation column
 #' @param group_by_subset subset the group_by factor column
+#' @param spat_loc_name name of spatial locations
 #' @param sdimx x-axis dimension name (default = 'sdimx')
 #' @param sdimy y-axis dimension name (default = 'sdimy')
 #' @param spat_enr_names names of spatial enrichment results to include
@@ -2682,6 +2691,7 @@ spatPlot2D = function(gobject,
                       image_name = 'image',
                       group_by = NULL,
                       group_by_subset = NULL,
+                      spat_loc_name = 'raw',
                       sdimx = 'sdimx',
                       sdimy = 'sdimy',
                       spat_enr_names = NULL,
@@ -2746,6 +2756,7 @@ spatPlot2D = function(gobject,
                       show_image = show_image,
                       gimage = gimage,
                       image_name = image_name,
+                      spat_loc_name = spat_loc_name,
                       sdimx = sdimx,
                       sdimy = sdimy,
                       spat_enr_names = spat_enr_names,
@@ -2862,6 +2873,7 @@ spatPlot2D = function(gobject,
                              show_image = show_image,
                              gimage = gimage,
                              image_name = image_name,
+                             spat_loc_name = spat_loc_name,
                              sdimx = sdimx,
                              sdimy = sdimy,
                              spat_enr_names = spat_enr_names,
@@ -3395,6 +3407,7 @@ spatFeatPlot2D_single <- function(gobject,
                            show_image = F,
                            gimage = NULL,
                            image_name = 'image',
+                           spat_loc_name = 'raw',
                            sdimx = 'sdimx',
                            sdimy = 'sdimy',
                            expression_values = c('normalized', 'scaled', 'custom'),
@@ -3485,7 +3498,8 @@ spatFeatPlot2D_single <- function(gobject,
 
 
   ## extract cell locations
-  cell_locations  = gobject@spatial_locs
+  cell_locations  = select_spatial_locations(gobject,
+                                             spat_loc_name = spat_loc_name)
 
   ## extract spatial network
   if(show_network == TRUE) {
@@ -6384,6 +6398,7 @@ plotPCA_3D = function(gobject,
 #' @return plotly object
 #' @keywords internal
 spatPlot_2D_plotly = function(gobject,
+                              spat_loc_name = 'raw',
                               sdimx = NULL,
                               sdimy = NULL,
                               spat_enr_names = NULL,
@@ -6414,7 +6429,8 @@ spatPlot_2D_plotly = function(gobject,
 
 
   ## get spatial cell locations
-  cell_locations  = gobject@spatial_locs
+  cell_locations  = select_spatial_locations(gobject,
+                                             spat_loc_name = spat_loc_name)
 
 
   ## extract spatial network
@@ -6607,6 +6623,7 @@ spatPlot_2D_plotly = function(gobject,
 #' @return plotly object
 #' @keywords internal
 spatPlot_3D_plotly = function(gobject,
+                              spat_loc_name = 'raw',
                               sdimx = NULL,
                               sdimy = NULL,
                               sdimz = NULL,
@@ -6637,7 +6654,8 @@ spatPlot_3D_plotly = function(gobject,
 
 
   ## get spatial cell locations
-  cell_locations  = gobject@spatial_locs
+  cell_locations  = select_spatial_locations(gobject,
+                                             spat_loc_name = spat_loc_name)
 
   ## extract spatial network
   if(show_network == TRUE) {
@@ -6974,6 +6992,8 @@ spatPlot3D = function(gobject,
 #' @param dim1_to_use dimension to use on x-axis
 #' @param dim2_to_use dimension to use on y-axis
 #' @param dim3_to_use dimension to use on z-axis
+#'
+#' @param spat_loc_name name for spatial locations
 #' @param sdimx = spatial dimension to use on x-axis
 #' @param sdimy = spatial dimension to use on y-axis
 #' @param sdimz = spatial dimension to use on z-axis
@@ -7034,6 +7054,8 @@ spatDimPlot3D <- function(gobject,
                           dim1_to_use = 1,
                           dim2_to_use = 2,
                           dim3_to_use = 3,
+
+                          spat_loc_name = 'raw',
                           sdimx="sdimx",
                           sdimy="sdimy",
                           sdimz="sdimz",
@@ -7109,7 +7131,9 @@ spatDimPlot3D <- function(gobject,
   cell_metadata = combineMetadata(gobject = gobject,
                                   spat_enr_names = spat_enr_names)
   annotated_DT = merge(cell_metadata, dim_DT, by = 'cell_ID')
-  annotated_DT = merge(annotated_DT, gobject@spatial_locs,by = 'cell_ID')
+  spatial_locations = select_spatial_locations(gobject,
+                                               spat_loc_name = spat_loc_name)
+  annotated_DT = merge(annotated_DT, spatial_locations, by = 'cell_ID')
 
 
   if(dim_reduction_to_use == "pca"){
@@ -7850,7 +7874,7 @@ spatGenePlot3D <- function(gobject,
 
 
   ## extract cell locations
-  cell_locations  = gobject@spatial_locs
+  cell_locations  = gobject@spatial_locs[['raw']]
 
 
   ## extract spatial network
@@ -8568,7 +8592,7 @@ spatDimGenePlot3D <- function(gobject,
   ## annotated cell metadata
   cell_metadata = pDataDT(gobject)
   annotated_DT = merge(cell_metadata, dim_DT, by = 'cell_ID')
-  annotated_DT = merge(annotated_DT, gobject@spatial_locs,by = 'cell_ID')
+  annotated_DT = merge(annotated_DT, gobject@spatial_locs[['raw']], by = 'cell_ID')
   annotated_DT = merge(annotated_DT, t_sub_expr_data_DT,by = 'cell_ID')
 
 

@@ -6,12 +6,15 @@
 \usage{
 annotateSpatialGrid(
   gobject,
+  spat_loc_name = "raw",
   spatial_grid_name = "spatial_grid",
   cluster_columns = NULL
 )
 }
 \arguments{
 \item{gobject}{Giotto object}
+
+\item{spat_loc_name}{name of spatial locations}
 
 \item{spatial_grid_name}{name of spatial grid, see \code{\link{showGrids}}}
 

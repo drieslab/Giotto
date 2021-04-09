@@ -823,6 +823,78 @@ evaluate_spatial_locations = function(spatial_locs,
 
 
 
+#' @name extract_spatial_locations_list
+#' @description Extract spatial locations
+#' @param gobject giotto object
+#' @param spat_loc_list list of spatial locations
+#' @param cores how many cores to use
+#' @param dummy_n number of rows to create dummy spaial locations
+#' @param expr_matrix expression matrix to compare the cell IDs with
+#' @param verbose be verbose
+#' @return updated giotto object
+#' @keywords internal
+extract_spatial_locations_list = function(gobject,
+                                          spat_loc_list,
+                                          cores = 1,
+                                          dummy_n = 1,
+                                          expr_matrix = NULL,
+                                          verbose = TRUE) {
+
+
+  ## to make it compatible with previous version
+
+  # single data.table-like
+  if(inherits(spat_loc_list, c('data.frame', 'data.table', 'matrix', 'character'))) {
+    spat_loc_list = list('raw' = spat_loc_list)
+  }
+
+
+  spat_locs_names = names(spat_loc_list)
+
+  ## 1. raw expression data is required
+  if(!'raw' %in% spat_locs_names) {
+    stop("\n the raw / real / physical coordinates must be provided with name 'raw' \n")
+  }
+
+
+  gobject@spatial_locs = list()
+
+  for(spatlocname in spat_locs_names) {
+
+    cat('spatlocname: ', spatlocname, '\n')
+
+    spatial_locs = spat_loc_list[[spatlocname]]
+
+    spatial_locs = evaluate_spatial_locations(spatial_locs = spatial_locs,
+                                              cores = cores,
+                                              dummy_n = dummy_n,
+                                              expr_matrix = expr_matrix)
+
+    # check if dimensions agree
+    # dummy_n = number of columns in expression matrix, also dummy number if no spatial location are being provided
+    if(nrow(spatial_locs) != dummy_n) {
+      stop('\n Number of rows of spatial location must equal number of columns of raw expression matrix \n')
+    }
+
+    # force dimension names
+    spatial_dimensions = c('x', 'y', 'z')
+    colnames(spatial_locs) = paste0('sdim', spatial_dimensions[1:ncol(spatial_locs)])
+
+    # add cell_ID column
+    spatial_locs[, cell_ID := gobject@cell_ID]
+
+    gobject@spatial_locs[[spatlocname]] = spatial_locs
+
+  }
+
+  return(gobject)
+
+}
+
+
+
+
+
 #### Giotto spatial info ####
 
 
@@ -981,6 +1053,7 @@ evaluate_feat_info = function(spatial_feat_info,
 #' @param offset_file file used to stitch fields together (optional)
 #' @param instructions list of instructions or output result from \code{\link{createGiottoInstructions}}
 #' @param cores how many cores or threads to use to read data if paths are provided
+#' @param verbose be verbose when building Giotto object
 #' @return giotto object
 #' @details
 #'
@@ -1039,7 +1112,8 @@ createGiottoObject <- function(expression,
                                images = NULL,
                                offset_file = NULL,
                                instructions = NULL,
-                               cores = NA) {
+                               cores = NA,
+                               verbose = TRUE) {
 
   # create minimum giotto
   gobject = giotto(expression = list(),
@@ -1102,7 +1176,7 @@ createGiottoObject <- function(expression,
                                       expr_list = expression,
                                       expression_feat = expression_feat,
                                       cores = cores,
-                                      verbose = T)
+                                      verbose = verbose)
   }
 
 
@@ -1134,25 +1208,38 @@ createGiottoObject <- function(expression,
   ## spatial locations ##
   ## ----------------- ##
   raw_cell_dim = ncol(gobject@expression[[1]][[1]]) # number of columns
-  spatial_locs = evaluate_spatial_locations(spatial_locs = spatial_locs,
-                                            cores = cores,
-                                            dummy_n = raw_cell_dim,
-                                            expr_matrix = gobject@expression[[1]][['raw']])
+
+  # list of spatial location data.table, each with a unique name
+  # the default name = 'raw' and correspond to the real physical coordinates
+  # additional spatial locations can be provided
+
+  gobject = extract_spatial_locations_list(gobject,
+                                           spat_loc_list = spatial_locs,
+                                           cores = cores,
+                                           dummy_n = raw_cell_dim,
+                                           expr_matrix = gobject@expression[[1]][['raw']],
+                                           verbose = TRUE)
+
+
+  ## OLD ##
+  #spatial_locs = evaluate_spatial_locations(spatial_locs = spatial_locs,
+  #                                          cores = cores,
+  #                                          dummy_n = raw_cell_dim,
+  #                                          expr_matrix = gobject@expression[[1]][['raw']])
 
 
   # check if dimensions agree
-  if(nrow(spatial_locs) != raw_cell_dim) {
-    stop('\n Number of rows of spatial location must equal number of columns of expression matrix \n')
-  }
+  #if(nrow(spatial_locs) != raw_cell_dim) {
+  #  stop('\n Number of rows of spatial location must equal number of columns of expression matrix \n')
+  #}
 
   # force dimension names
-  spatial_dimensions = c('x', 'y', 'z')
-  colnames(spatial_locs) = paste0('sdim', spatial_dimensions[1:ncol(spatial_locs)])
+  #spatial_dimensions = c('x', 'y', 'z')
+  #colnames(spatial_locs) = paste0('sdim', spatial_dimensions[1:ncol(spatial_locs)])
 
   # add cell_ID column
-  spatial_locs[, cell_ID := gobject@cell_ID]
-  gobject@spatial_locs = spatial_locs
-
+  #spatial_locs[, cell_ID := gobject@cell_ID]
+  #gobject@spatial_locs = spatial_locs
 
 
   ## spatial info ##

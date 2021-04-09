@@ -6,6 +6,7 @@
 \usage{
 spark(
   gobject,
+  spat_loc_name = "raw",
   feat_type = NULL,
   percentage = 0.1,
   min_count = 10,
@@ -18,6 +19,8 @@ spark(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{spat_loc_name}{name for spatial locations}
 
 \item{feat_type}{feature type}
 

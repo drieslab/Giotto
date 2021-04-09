@@ -6,6 +6,7 @@
 \usage{
 spatialAEH(
   gobject = NULL,
+  spat_loc_name = "raw",
   SpatialDE_results = NULL,
   name_pattern = "AEH_patterns",
   expression_values = c("raw", "normalized", "scaled", "custom"),
@@ -17,6 +18,8 @@ spatialAEH(
 }
 \arguments{
 \item{gobject}{Giotto object}
+
+\item{spat_loc_name}{name for spatial locations}
 
 \item{SpatialDE_results}{results of \code{\link{spatialDE}} function}
 

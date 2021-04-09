@@ -6,6 +6,7 @@
 \usage{
 crossSectionPlot(
   gobject,
+  spat_loc_name = "raw",
   feat_type = NULL,
   crossSection_obj = NULL,
   name = NULL,
@@ -16,6 +17,8 @@ crossSectionPlot(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{spat_loc_name}{name of spatial locations}
 
 \item{feat_type}{feature type}
 

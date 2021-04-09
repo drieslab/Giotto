@@ -10,6 +10,7 @@ spatPlot2D_single(
   show_image = F,
   gimage = NULL,
   image_name = "image",
+  spat_loc_name = "raw",
   sdimx = "sdimx",
   sdimy = "sdimy",
   spat_enr_names = NULL,
@@ -72,6 +73,8 @@ spatPlot2D_single(
 \item{gimage}{a giotto image}
 
 \item{image_name}{name of a giotto image}
+
+\item{spat_loc_name}{name of spatial locations}
 
 \item{sdimx}{x-axis dimension name (default = 'sdimx')}
 

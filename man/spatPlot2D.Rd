@@ -12,6 +12,7 @@ spatPlot2D(
   image_name = "image",
   group_by = NULL,
   group_by_subset = NULL,
+  spat_loc_name = "raw",
   sdimx = "sdimx",
   sdimy = "sdimy",
   spat_enr_names = NULL,
@@ -82,6 +83,8 @@ spatPlot2D(
 \item{group_by}{create multiple plots based on cell annotation column}
 
 \item{group_by_subset}{subset the group_by factor column}
+
+\item{spat_loc_name}{name of spatial locations}
 
 \item{sdimx}{x-axis dimension name (default = 'sdimx')}
 

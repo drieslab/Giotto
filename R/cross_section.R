@@ -389,6 +389,7 @@ create_mesh_grid_lines <- function(cell_subset_projection_locations,extend_ratio
 #' @title createCrossSection
 #' @description Create a virtual 2D cross section.
 #' @param gobject giotto object
+#' @param spat_loc_name name of spatial locations
 #' @param name name of cress section object. (default = cross_sectino)
 #' @param spatial_network_name name of spatial network object. (default = Delaunay_network)
 #' @param thickness_unit unit of the virtual section thickness. If "cell", average size of the observed cells is used as length unit. If "natural", the unit of cell location coordinates is used.(default = cell)
@@ -414,6 +415,7 @@ create_mesh_grid_lines <- function(cell_subset_projection_locations,extend_ratio
 #' @details Creates a virtual 2D cross section object for a given spatial network object. The users need to provide the definition of the cross section plane (see method).
 #' @export
 createCrossSection <- function(gobject,
+                               spat_loc_name = 'raw',
                                name="cross_section",
                                spatial_network_name = "Delaunay_network",
                                thickness_unit = c("cell","natural"),
@@ -430,7 +432,8 @@ createCrossSection <- function(gobject,
 ){
 
   # read spatial locations
-  spatial_locations = gobject@spatial_locs
+  spatial_locations = select_spatial_locations(gobject,
+                                               spat_loc_name = spat_loc_name)
   spatial_locations = spatial_locations[, grepl("sdim", colnames(spatial_locations)),
                                         with = F]
   spatial_locations = as.matrix(spatial_locations)
@@ -558,6 +561,7 @@ createCrossSection <- function(gobject,
 #' @name crossSectionGenePlot
 #' @description Visualize cells and gene expression in a virtual cross section according to spatial coordinates
 #' @param gobject giotto object
+#' @param spat_loc_name name of spatial locations
 #' @param crossSection_obj crossSection object
 #' @param name name of virtual cross section to use
 #' @param spatial_network_name name of spatial network to use
@@ -569,6 +573,7 @@ createCrossSection <- function(gobject,
 #' @seealso \code{\link{spatGenePlot3D}} and \code{\link{spatGenePlot2D}}
 #'
 crossSectionGenePlot <-function(gobject=NULL,
+                                spat_loc_name = 'raw',
                                 crossSection_obj=NULL,
                                 name=NULL,
                                 spatial_network_name = "Delaunay_network",
@@ -586,9 +591,9 @@ crossSectionGenePlot <-function(gobject=NULL,
   # modify gobject based on crossSection object
   subset_cell_IDs = gobject@cell_metadata$cell_ID[cell_subset]
   temp_gobject = subsetGiotto(gobject = gobject, cell_ids = subset_cell_IDs)
-  temp_gobject@spatial_locs$sdimx=cell_subset_projection_coords[,1]
-  temp_gobject@spatial_locs$sdimy=cell_subset_projection_coords[,2]
-  temp_gobject@spatial_locs$sdimz=rep(0,dim(cell_subset_projection_coords)[1])
+  temp_gobject@spatial_locs[[spat_loc_name]]$sdimx=cell_subset_projection_coords[,1]
+  temp_gobject@spatial_locs[[spat_loc_name]]$sdimy=cell_subset_projection_coords[,2]
+  temp_gobject@spatial_locs[[spat_loc_name]]$sdimz=rep(0,dim(cell_subset_projection_coords)[1])
   # call spatGenePlot2D to generate the plots
   spatGenePlot2D(gobject = temp_gobject,
                  spatial_network_name = spatial_network_name,
@@ -601,6 +606,7 @@ crossSectionGenePlot <-function(gobject=NULL,
 #' @name crossSectionPlot
 #' @description Visualize cells in a virtual cross section according to spatial coordinates
 #' @param gobject giotto object
+#' @param spat_loc_name name of spatial locations
 #' @param feat_type feature type
 #' @param crossSection_obj cross section object as alternative input. default = NULL.
 #' @param name name of virtual cross section to use
@@ -612,6 +618,7 @@ crossSectionGenePlot <-function(gobject=NULL,
 #' @export
 #' @seealso \code{\link{crossSectionPlot}}
 crossSectionPlot <-function(gobject,
+                            spat_loc_name = 'raw',
                             feat_type = NULL,
                             crossSection_obj = NULL,
                             name = NULL,
@@ -643,9 +650,9 @@ crossSectionPlot <-function(gobject,
   temp_gobject = subsetGiotto(gobject,
                               feat_type = feat_type,
                               cell_ids = subset_cell_IDs)
-  temp_gobject@spatial_locs$sdimx=cell_subset_projection_coords[,1]
-  temp_gobject@spatial_locs$sdimy=cell_subset_projection_coords[,2]
-  temp_gobject@spatial_locs$sdimz=rep(0,dim(cell_subset_projection_coords)[1])
+  temp_gobject@spatial_locs[[spat_loc_name]]$sdimx=cell_subset_projection_coords[,1]
+  temp_gobject@spatial_locs[[spat_loc_name]]$sdimy=cell_subset_projection_coords[,2]
+  temp_gobject@spatial_locs[[spat_loc_name]]$sdimz=rep(0,dim(cell_subset_projection_coords)[1])
 
   # call spatGenePlot2D to generate the plots
   spatPlot2D(gobject = temp_gobject,
@@ -751,6 +758,7 @@ crossSectionPlot3D <-function(gobject,
 #' @name insertCrossSectionSpatPlot3D
 #' @description Visualize the meshgrid lines of cross section together with cells
 #' @param gobject giotto object
+#' @param spat_loc_name name of spatial locations
 #' @param crossSection_obj cross section object as alternative input. default = NULL.
 #' @param name name of virtual cross section to use
 #' @param spatial_network_name name of spatial network to use
@@ -769,6 +777,7 @@ crossSectionPlot3D <-function(gobject,
 #' @details Description of parameters.
 #' @export
 insertCrossSectionSpatPlot3D <- function(gobject,
+                                         spat_loc_name = 'raw',
                                          crossSection_obj=NULL,
                                          name=NULL,
                                          spatial_network_name = "Delaunay_network",
@@ -791,7 +800,9 @@ insertCrossSectionSpatPlot3D <- function(gobject,
 
 
   pl = spatPlot3D(gobject,
-                  sdimx = sdimx, sdimy = sdimy, sdimz = sdimz,
+                  sdimx = sdimx,
+                  sdimy = sdimy,
+                  sdimz = sdimz,
                   show_other_cells = show_other_cells,
                   show_plot = FALSE,
                   return_plot = TRUE,
@@ -807,10 +818,11 @@ insertCrossSectionSpatPlot3D <- function(gobject,
                                   line = list(color = mesh_grid_color, width = mesh_grid_width,dash = mesh_grid_style))
   }
 
-  current_ratio = plotly_axis_scale_3D(gobject@spatial_locs,sdimx = sdimx,sdimy = sdimy,sdimz = sdimz,
+  current_ratio = plotly_axis_scale_3D(gobject@spatial_locs[[spat_loc_name]],
+                                       sdimx = sdimx,sdimy = sdimy,sdimz = sdimz,
                                        mode = axis_scale,custom_ratio = custom_ratio)
 
-  new_ratio = adapt_aspect_ratio(current_ratio,gobject@spatial_locs,
+  new_ratio = adapt_aspect_ratio(current_ratio,gobject@spatial_locs[[spat_loc_name]],
                                  sdimx = sdimx,sdimy = sdimy,sdimz = sdimz,
                                  mesh_obj=crossSection_obj$mesh_obj)
 
@@ -830,6 +842,7 @@ insertCrossSectionSpatPlot3D <- function(gobject,
 #' @name insertCrossSectionGenePlot3D
 #' @description Visualize cells and gene expression in a virtual cross section according to spatial coordinates
 #' @param gobject giotto object
+#' @param spat_loc_name name of spatial locations
 #' @param crossSection_obj cross section object as alternative input. default = NULL.
 #' @param name name of virtual cross section to use
 #' @param spatial_network_name name of spatial network to use
@@ -852,6 +865,7 @@ insertCrossSectionSpatPlot3D <- function(gobject,
 #' @details Description of parameters.
 #' @export
 insertCrossSectionGenePlot3D <- function(gobject,
+                                         spat_loc_name = 'raw',
                                          crossSection_obj=NULL,
                                          name=NULL,
                                          spatial_network_name = "Delaunay_network",
@@ -891,10 +905,16 @@ insertCrossSectionGenePlot3D <- function(gobject,
                                   line = list(color = mesh_grid_color, width = mesh_grid_width,dash = mesh_grid_style))
   }
 
-  current_ratio = plotly_axis_scale_3D(gobject@spatial_locs,sdimx = sdimx,sdimy = sdimy,sdimz = sdimz,
+  current_ratio = plotly_axis_scale_3D(gobject@spatial_locs[[spat_loc_name]],
+                                       sdimx = sdimx,
+                                       sdimy = sdimy,
+                                       sdimz = sdimz,
                                        mode = axis_scale,custom_ratio = custom_ratio)
 
-  new_ratio = adapt_aspect_ratio(current_ratio,gobject@spatial_locs,sdimx = sdimx,sdimy = sdimy,sdimz = sdimz,
+  new_ratio = adapt_aspect_ratio(current_ratio,gobject@spatial_locs[[spat_loc_name]],
+                                 sdimx = sdimx,
+                                 sdimy = sdimy,
+                                 sdimz = sdimz,
                                  mesh_obj = crossSection_obj$mesh_obj)
 
   pl = pl %>% plotly::layout(showlegend = FALSE,

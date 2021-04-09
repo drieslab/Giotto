@@ -6,6 +6,7 @@
 \usage{
 create_spatialGrid_default_2D(
   gobject,
+  spat_loc_name = "raw",
   sdimx_stepsize = NULL,
   sdimy_stepsize = NULL,
   minimum_padding = 1

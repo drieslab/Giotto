@@ -8,6 +8,7 @@ plot_spat_image_layer_ggplot(
   ggplot,
   gobject,
   gimage,
+  spat_loc_name = "raw",
   sdimx = NULL,
   sdimy = NULL
 )
@@ -16,6 +17,8 @@ plot_spat_image_layer_ggplot(
 \item{gobject}{giotto object}
 
 \item{gimage}{a giotto image}
+
+\item{spat_loc_name}{name for spatial locations}
 
 \item{sdimx}{x-axis dimension name (default = 'sdimx')}
 

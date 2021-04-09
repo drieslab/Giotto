@@ -6,6 +6,7 @@
 \usage{
 spatialDE(
   gobject = NULL,
+  spat_loc_name = "raw",
   expression_values = c("raw", "normalized", "scaled", "custom"),
   size = c(4, 2, 1),
   color = c("blue", "green", "red"),
@@ -21,6 +22,8 @@ spatialDE(
 }
 \arguments{
 \item{gobject}{Giotto object}
+
+\item{spat_loc_name}{name for spatial locations}
 
 \item{expression_values}{gene expression values to use}
 

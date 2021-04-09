@@ -342,6 +342,29 @@ select_expression_values <- function(gobject,
 
 
 
+#' @title select_expression_values
+#' @description helper function to select expression values
+#' @param gobject giotto object
+#' @param feat_type feature type
+#' @param values expression values to extract
+#' @return expression matrix
+#' @keywords internal
+select_spatial_locations <- function(gobject,
+                                     spat_loc_name = 'raw') {
+
+  potential_names = names(gobject@spatial_locs)
+
+  if(spat_loc_name %in% potential_names) {
+    spatloc = data.table::copy(gobject@spatial_locs[[spat_loc_name]])
+    return(spatloc)
+  } else {
+    stop("The spatial locations with name ","'", spat_loc_name, "'"," can not be found \n")
+  }
+
+}
+
+
+
 #' @title create_average_DT
 #' @description calculates average gene expression for a cell metadata factor (e.g. cluster)
 #' @param gobject giotto object
@@ -518,7 +541,10 @@ subsetGiotto <- function(gobject,
 
 
   # filter spatial locations
-  gobject@spatial_locs = gobject@spatial_locs[filter_bool_cells]
+  for(spatlocname in names(gobject@spatial_locs)) {
+    gobject@spatial_locs[[spatlocname]] = gobject@spatial_locs[[spatlocname]][filter_bool_cells]
+  }
+  #gobject@spatial_locs = gobject@spatial_locs[filter_bool_cells]
 
   # filter cell_ID and gene_ID
   gobject@cell_ID = colnames(gobject@expression[[feat_type]][['raw']])
@@ -2485,6 +2511,21 @@ showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 }
 
 
+#' @name showGiottoSpatLocs
+#' @description shows the available spatial locations
+#' @param gobject giotto object
+#' @param nrows number of rows to print for each spatial location data.table
+#' @return prints the name and small subset of available data.table
+#' @export
+showGiottoSpatLocs = function(gobject, nrows = 4) {
+
+  for(spatlocname in names(gobject@spatial_locs)) {
+    cat('Name ', spatlocname, ': \n\n')
+    print(gobject@spatial_locs[[spatlocname]][1:nrows,])
+  }
+}
+
+
 
 #' @name showGiottoDimRed
 #' @description shows the available dimension reductions
@@ -2752,6 +2793,7 @@ calculateMetaTableCells = function(gobject,
 #' @export
 combineMetadata = function(gobject,
                            feat_type = NULL,
+                           spat_loc_name = 'raw',
                            spat_enr_names = NULL) {
 
   # specify feat_type
@@ -2763,7 +2805,9 @@ combineMetadata = function(gobject,
   metadata = pDataDT(gobject, feat_type = feat_type)
 
   # spatial locations
-  spatial_locs = data.table::copy(gobject@spatial_locs)
+  spatial_locs = select_spatial_locations(gobject = gobject,
+                                          spat_loc_name = spat_loc_name)
+  #spatial_locs = data.table::copy(gobject@spatial_locs)
 
   # data.table variables
   cell_ID = NULL

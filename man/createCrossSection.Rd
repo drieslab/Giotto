@@ -6,6 +6,7 @@
 \usage{
 createCrossSection(
   gobject,
+  spat_loc_name = "raw",
   name = "cross_section",
   spatial_network_name = "Delaunay_network",
   thickness_unit = c("cell", "natural"),
@@ -27,6 +28,8 @@ createCrossSection(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{spat_loc_name}{name of spatial locations}
 
 \item{name}{name of cress section object. (default = cross_sectino)}
 

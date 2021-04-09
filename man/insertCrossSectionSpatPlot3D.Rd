@@ -6,6 +6,7 @@
 \usage{
 insertCrossSectionSpatPlot3D(
   gobject,
+  spat_loc_name = "raw",
   crossSection_obj = NULL,
   name = NULL,
   spatial_network_name = "Delaunay_network",
@@ -24,6 +25,8 @@ insertCrossSectionSpatPlot3D(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{spat_loc_name}{name of spatial locations}
 
 \item{crossSection_obj}{cross section object as alternative input. default = NULL.}
 

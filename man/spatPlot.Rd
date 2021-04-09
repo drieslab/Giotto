@@ -17,6 +17,7 @@ spatPlot(...)
     \item{\code{image_name}}{name of a giotto image}
     \item{\code{group_by}}{create multiple plots based on cell annotation column}
     \item{\code{group_by_subset}}{subset the group_by factor column}
+    \item{\code{spat_loc_name}}{name of spatial locations}
     \item{\code{sdimx}}{x-axis dimension name (default = 'sdimx')}
     \item{\code{sdimy}}{y-axis dimension name (default = 'sdimy')}
     \item{\code{spat_enr_names}}{names of spatial enrichment results to include}
