@@ -3514,7 +3514,6 @@ spatFeatPlot2D_single <- function(gobject,
   if(show_grid == TRUE) {
     spatial_grid = select_spatialGrid(gobject,
                                       spatial_grid_name)
-    #spatial_grid    = gobject@spatial_grid[[spatial_grid_name]]
   } else {
     spatial_grid = NULL
   }
