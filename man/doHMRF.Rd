@@ -9,6 +9,7 @@ doHMRF(
   feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   spatial_network_name = "Delaunay_network",
+  spat_loc_name = "raw",
   spatial_genes = NULL,
   spatial_dimensions = c("sdimx", "sdimy", "sdimz"),
   dim_reduction_to_use = NULL,
@@ -34,6 +35,8 @@ doHMRF(
 \item{expression_values}{expression values to use}
 
 \item{spatial_network_name}{name of spatial network to use for HMRF}
+
+\item{spat_loc_name}{name of spatial locations}
 
 \item{spatial_genes}{spatial genes to use for HMRF}
 

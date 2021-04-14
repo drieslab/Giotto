@@ -6,6 +6,7 @@
 #' @param feat_type feature type
 #' @param expression_values expression values to use
 #' @param spatial_network_name name of spatial network to use for HMRF
+#' @param spat_loc_name name of spatial locations
 #' @param spatial_genes spatial genes to use for HMRF
 #' @param spatial_dimensions select spatial dimensions to use, default is all possible dimensions
 #' @param dim_reduction_to_use use another dimension reduction set as input
@@ -28,6 +29,7 @@ doHMRF <- function(gobject,
                    feat_type = NULL,
                    expression_values = c('normalized', 'scaled', 'custom'),
                    spatial_network_name = 'Delaunay_network',
+                   spat_loc_name = 'raw',
                    spatial_genes = NULL,
                    spatial_dimensions = c('sdimx', 'sdimy', 'sdimz'),
                    dim_reduction_to_use = NULL,
@@ -182,7 +184,9 @@ doHMRF <- function(gobject,
 
 
   ## 4. cell location
-  spatial_location = gobject@spatial_locs
+  spatial_location = select_spatial_locations(gobject = gobject,
+                                            spat_loc_name = spat_loc_name)
+  #spatial_location = gobject@spatial_locs
 
   # select spatial dimensions that are available #
   spatial_dimensions = spatial_dimensions[spatial_dimensions %in% colnames(spatial_location)]
