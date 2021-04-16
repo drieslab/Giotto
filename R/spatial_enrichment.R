@@ -70,7 +70,7 @@ makeSignMatrixDWLS = function(gobject,
     sig_exp<-cbind(sig_exp,(apply(ExprSubset,1,function(y) mean(y[which(id==i)]))))
   }
   colnames(sig_exp)<-unique(id)
-  
+
   return(as.matrix(sig_exp))
 }
 

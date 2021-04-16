@@ -6,7 +6,9 @@
 \usage{
 doKmeans(
   gobject,
+  feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
+  feats_to_use = NULL,
   genes_to_use = NULL,
   dim_reduction_to_use = c("cells", "pca", "umap", "tsne"),
   dim_reduction_name = "pca",
@@ -26,9 +28,13 @@ doKmeans(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{feat_type}{feature type}
+
 \item{expression_values}{expression values to use}
 
-\item{genes_to_use}{subset of genes to use}
+\item{feats_to_use}{subset of features to use}
+
+\item{genes_to_use}{deprecated use feats_to_use}
 
 \item{dim_reduction_to_use}{dimension reduction to use}
 

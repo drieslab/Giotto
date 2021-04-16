@@ -771,12 +771,6 @@ doKmeans <- function(gobject,
                                                            "euclidean", "maximum", "manhattan",
                                                            "canberra", "binary", "minkowski"))
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
 
   ## using dimension reduction ##
   if(dim_reduction_to_use != 'cells' & !is.null(dim_reduction_to_use)) {
@@ -790,6 +784,15 @@ doKmeans <- function(gobject,
 
 
   } else {
+
+    # specify feat_type
+    if(is.null(feat_type)) {
+      feat_type = gobject@expression_feat[[1]]
+    }
+
+    values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
+
+
     ## using original matrix ##
     expr_values = select_expression_values(gobject = gobject, feat_type = feat_type, values = values)
 
