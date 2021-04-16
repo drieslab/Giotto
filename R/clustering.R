@@ -710,8 +710,10 @@ doSNNCluster <- function(gobject,
 #' @name doKmeans
 #' @description cluster cells using kmeans algorithm
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param expression_values expression values to use
-#' @param genes_to_use subset of genes to use
+#' @param feats_to_use subset of features to use
+#' @param genes_to_use deprecated use feats_to_use
 #' @param dim_reduction_to_use dimension reduction to use
 #' @param dim_reduction_name dimensions reduction name
 #' @param dimensions_to_use dimensions to use
@@ -736,7 +738,9 @@ doSNNCluster <- function(gobject,
 #' plotUMAP_2D(mini_giotto_single_cell, cell_color = 'kmeans_clus', point_size = 3)
 #'
 doKmeans <- function(gobject,
+                     feat_type = NULL,
                      expression_values = c('normalized', 'scaled', 'custom'),
+                     feats_to_use = NULL,
                      genes_to_use = NULL,
                      dim_reduction_to_use = c('cells', 'pca', 'umap', 'tsne'),
                      dim_reduction_name = 'pca',
@@ -755,11 +759,24 @@ doKmeans <- function(gobject,
 
 
 
+  ## deprecated arguments
+  if(!is.null(genes_to_use)) {
+    feats_to_use = genes_to_use
+    warning('genes_to_use is deprecated, use feats_to_use in the future \n')
+  }
+
+
   dim_reduction_to_use = match.arg(dim_reduction_to_use, choices = c('cells', 'pca', 'umap', 'tsne'))
   distance_method = match.arg(distance_method, choices = c("original", "pearson", "spearman",
                                                            "euclidean", "maximum", "manhattan",
                                                            "canberra", "binary", "minkowski"))
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+  values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
 
   ## using dimension reduction ##
   if(dim_reduction_to_use != 'cells' & !is.null(dim_reduction_to_use)) {
@@ -774,11 +791,11 @@ doKmeans <- function(gobject,
 
   } else {
     ## using original matrix ##
-    expr_values = select_expression_values(gobject = gobject, values = values)
+    expr_values = select_expression_values(gobject = gobject, feat_type = feat_type, values = values)
 
     # subset expression matrix
     if(!is.null(genes_to_use)) {
-      expr_values = expr_values[rownames(expr_values) %in% genes_to_use, ]
+      expr_values = expr_values[rownames(expr_values) %in% feats_to_use, ]
     }
 
     # features as columns
@@ -807,8 +824,10 @@ doKmeans <- function(gobject,
   set.seed(seed = seed_number)
 
   # start clustering
-  kclusters = stats::kmeans(x = celldist, centers = centers,
-                            iter.max = iter_max, nstart = nstart,
+  kclusters = stats::kmeans(x = celldist,
+                            centers = centers,
+                            iter.max = iter_max,
+                            nstart = nstart,
                             algorithm =  algorithm)
 
 
