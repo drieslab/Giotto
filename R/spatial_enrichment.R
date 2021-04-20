@@ -41,8 +41,38 @@ makeSignMatrixPAGE = function(sign_names,
   return(final_sig_matrix)
 
 }
+## create spatialDWLS matrix ####
 
-
+#' @title makeSignMatrixDWLS
+#' @description Function to convert signature genes into an average expression matrix format that can be used for
+#' spatialDWLS. gobject is the single cell Giotto object. sign_gene is in character format contains all DEGs.
+#' cell_type are all the cell types used for single cell analysis.
+#' @param gobject Giotto object of single cell
+#' @param sign_gene all of DE genes (signature)
+#' @param cell_type cell type for single cells
+#' @return matrix
+#' @seealso \code{\link{spatialDWLS}}
+#' @export
+makeSignMatrixDWLS = function(gobject,
+                              sign_gene,
+                              cell_type) {
+  ## check input
+  if(!is.character(sign_gene)) {
+    stop('\n sign_gene needs to be a character of signatures for all cell types / process \n')
+  }
+  ## get un logged normalized expression value
+  norm_exp<- 2^(gobject@norm_expr)-1
+  id<- as.character(cell_type)
+  intersect_sign_gene <- intersect(rownames(norm_exp), sign_gene)
+  ExprSubset<-norm_exp[intersect_sign_gene,]
+  sig_exp<-NULL
+  for (i in unique(id)){
+    sig_exp<-cbind(sig_exp,(apply(ExprSubset,1,function(y) mean(y[which(id==i)]))))
+  }
+  colnames(sig_exp)<-unique(id)
+  
+  return(as.matrix(sig_exp))
+}
 
 #' @title makeSignMatrixRank
 #' @description Function to convert a single-cell count matrix
@@ -1182,13 +1212,22 @@ enrich_deconvolution<-function(expr,
                                ct_exp,
                                cutoff){
   #####generate enrich 0/1 matrix based on expression matrix
+  ct_exp <- ct_exp[rowSums(ct_exp)>0,]
   enrich_matrix<-matrix(0,nrow=dim(ct_exp)[1],ncol=dim(ct_exp)[2])
   rowmax_col<-Rfast::rowMaxs(ct_exp)
   for (i in 1:length(rowmax_col)){
     enrich_matrix[i,rowmax_col[i]]=1
   }
+  colsum_ct_binary <- colSums(enrich_matrix)
+  for (i in 1:length(colsum_ct_binary)){
+    if (colsum_ct_binary[i] <= 2){
+      rank <- rank(-ct_exp[,i])
+      enrich_matrix[rank <=2, i] =1
+    }
+  }
   rownames(enrich_matrix)<-rownames(ct_exp)
   colnames(enrich_matrix)<-colnames(ct_exp)
+  # print(enrich_matrix)
   #####page enrich
   enrich_result<-enrich_analysis(log_expr,enrich_matrix)
   #####initialize dwls matrix
@@ -1214,6 +1253,7 @@ enrich_deconvolution<-function(expr,
     select_sig_exp<-ct_exp[uniq_ct_gene,ct]
     cluster_i_cell<-which(cluster_info==cluster_sort[i])
     cluster_cell_exp<-expr[uniq_ct_gene,cluster_i_cell]
+    # print(cluster_cell_exp)
     cluster_i_dwls<-optimize_deconvolute_dwls(cluster_cell_exp,select_sig_exp)
     dwls_results[ct,cluster_i_cell]<-cluster_i_dwls
   }
@@ -1306,6 +1346,9 @@ cluster_enrich_analysis <- function(exp_matrix,
                                     cluster_info,
                                     enrich_sig_matrix) {
   uniq_cluster<-sort(unique(cluster_info))
+  if(length(uniq_cluster) == 1) {
+    stop("Only one cluster identified, need at least two.")
+  }
   cluster_exp<-NULL
   for (i in uniq_cluster){
     cluster_exp<-cbind(cluster_exp,(apply(exp_matrix,1,function(y) mean(y[which(cluster_info==i)]))))
@@ -1372,12 +1415,18 @@ optimize_deconvolute_dwls <- function(exp,
   subBulk = Bulk[Genes,]
   allCounts_DWLS<-NULL
   all_exp<-rowMeans(exp)
+
   solution_all_exp<-solve_OLS_internal(S,all_exp[Genes])
+
   constant_J<-find_dampening_constant(S,all_exp[Genes],solution_all_exp)
-  #print(constant_J)
   for(j in 1:(dim(subBulk)[2])){
     B<-subBulk[,j]
-    solDWLS<-optimize_solveDampenedWLS(S,B,constant_J)
+    if (sum(B)>0){
+      solDWLS<-optimize_solveDampenedWLS(S,B,constant_J)
+    } else{
+      solDWLS <- rep(0, length(B))
+      names(solDWLS) <- names(B)
+    }
     allCounts_DWLS<-cbind(allCounts_DWLS,solDWLS)
   }
   colnames(allCounts_DWLS)<-colnames(exp)
@@ -1543,6 +1592,7 @@ runDWLSDeconv <- function(gobject,
 
 
   #####getting overlapped gene lists
+  sign_matrix <- as.matrix(sign_matrix)
   intersect_gene = intersect(rownames(sign_matrix), rownames(nolog_expr))
   filter_Sig = sign_matrix[intersect_gene,]
   filter_expr = nolog_expr[intersect_gene,]
@@ -1648,4 +1698,3 @@ runSpatialDeconv <- function(gobject,
   return(results)
 
 }
-
