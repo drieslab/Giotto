@@ -1245,6 +1245,11 @@ createGiottoObject <- function(expression,
   ## spatial info ##
   ## ------------ ##
   ## place to store segmentation info in polygon format style
+
+
+
+
+
   if(is.null(spatial_info)) {
 
     gobject@spatial_info = data.table::data.table(sdimx = NA,
