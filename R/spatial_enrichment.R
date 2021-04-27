@@ -61,7 +61,7 @@ makeSignMatrixDWLS = function(gobject,
     stop('\n sign_gene needs to be a character of signatures for all cell types / process \n')
   }
   ## get un logged normalized expression value
-  norm_exp<- 2^(gobject@norm_expr)-1
+  norm_exp<- 2^(gobject@expression$rna$normalized)-1
   id<- as.character(cell_type)
   intersect_sign_gene <- intersect(rownames(norm_exp), sign_gene)
   ExprSubset<-norm_exp[intersect_sign_gene,]
@@ -170,7 +170,7 @@ do_page_permutation<-function(gobject,
   available_ct<-c()
   for (i in colnames(sig_gene)){
     gene_i=rownames(sig_gene)[which(sig_gene[,i]==1)]
-    overlap_i=intersect(gene_i,rownames(gobject@norm_expr))
+    overlap_i=intersect(gene_i,rownames(gobject@expression$rna$normalized))
     if (length(overlap_i)<=5){
       output<-paste0("Warning, ",i," only has ",length(overlap_i)," overlapped genes. Will remove it.")
       print(output)
@@ -182,7 +182,7 @@ do_page_permutation<-function(gobject,
     stop("Only one cell type available.")
   }
   # only continue with genes present in both datasets
-  interGene = intersect(rownames(sig_gene), rownames(gobject@norm_expr))
+  interGene = intersect(rownames(sig_gene), rownames(gobject@expression$rna$normalized))
   sign_matrix = sig_gene[interGene,available_ct]
 
   ct_gene_counts<-NULL
@@ -198,7 +198,7 @@ do_page_permutation<-function(gobject,
     all_sample_list<-NULL
     for (j in 1:ntimes){
       set.seed(j)
-      random_gene=sample(rownames(gobject@norm_expr),gene_num,replace=FALSE)
+      random_gene=sample(rownames(gobject@expression$rna$normalized),gene_num,replace=FALSE)
       ct_name<-paste("ct",j,sep="")
       all_sample_names = c(all_sample_names,ct_name)
       all_sample_list = c(all_sample_list,list(random_gene))
@@ -336,7 +336,7 @@ runPAGEEnrich_OLD <- function(gobject,
     available_ct = c()
     for (i in colnames(sign_matrix)){
       gene_i = rownames(sign_matrix)[which(sign_matrix[,i]==1)]
-      overlap_i = intersect(gene_i,rownames(gobject@norm_expr))
+      overlap_i = intersect(gene_i,rownames(gobject@expression$rna$normalized))
 
       if (length(overlap_i)<=5){
         output = paste0("Warning, ",i," only has ",length(overlap_i)," overlapped genes. It will be removed.")
@@ -351,7 +351,7 @@ runPAGEEnrich_OLD <- function(gobject,
     }
 
     # only continue with genes present in both datasets
-    interGene = intersect(rownames(sign_matrix), rownames(gobject@norm_expr))
+    interGene = intersect(rownames(sign_matrix), rownames(gobject@expression$rna$normalized))
     filter_sign_matrix = sign_matrix[interGene,available_ct]
 
     background_mean_sd = do_page_permutation(gobject = gobject,
@@ -981,10 +981,10 @@ runHyperGeometricEnrich <- function(gobject,
     expr_values = logbase^expr_values-1
   }
 
-  interGene<-intersect(rownames(gobject@norm_expr),rownames(sign_matrix))
+  interGene<-intersect(rownames(gobject@expression$rna$normalized),rownames(sign_matrix))
   inter_sign_matrix<-sign_matrix[interGene,]
-  aveExp<-log2(2*(rowMeans(2^gobject@norm_expr-1, dims = 1))+1)
-  foldChange<-gobject@norm_expr-aveExp
+  aveExp<-log2(2*(rowMeans(2^gobject@expression$rna$normalized-1, dims = 1))+1)
+  foldChange<-gobject@expression$rna$normalized-aveExp
   top_q<-1-top_percentage/100
   quantilecut = apply(foldChange, 2 , stats::quantile , probs = top_q, na.rm = TRUE )
   expbinary<-t(ifelse(t(foldChange)>quantilecut,1,0))
@@ -1568,6 +1568,7 @@ runDWLSDeconv <- function(gobject,
 
 
   # verify if optional package is installed
+  # DELETE BEFORE PUSHING
   package_check(pkg_name = "quadprog", repository = "CRAN")
 
 
@@ -1578,7 +1579,7 @@ runDWLSDeconv <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  expr_values = as.array(select_expression_values(gobject = gobject, values = values))
 
   # #transform expression data to no log data
   nolog_expr = logbase^(expr_values)-1
