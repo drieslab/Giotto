@@ -12,7 +12,7 @@ spatDimPlot3D(
   dim1_to_use = 1,
   dim2_to_use = 2,
   dim3_to_use = 3,
-  spat_loc_name = "raw",
+  spat_loc_name = NULL,
   sdimx = "sdimx",
   sdimy = "sdimy",
   sdimz = "sdimz",

@@ -6,7 +6,7 @@
 \usage{
 spatPlot_3D_plotly(
   gobject,
-  spat_loc_name = "raw",
+  spat_loc_name = NULL,
   sdimx = NULL,
   sdimy = NULL,
   sdimz = NULL,

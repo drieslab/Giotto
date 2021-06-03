@@ -11,9 +11,9 @@
 #' @keywords internal
 plot_cell_polygon_layer = function(ggobject = NULL,
                                    polygon_dt,
-                                   polygon_grouping = 'cell_ID',
-                                   sdimx = 'sdimx',
-                                   sdimy = 'sdimy',
+                                   polygon_grouping = 'poly_ID',
+                                   sdimx = 'x',
+                                   sdimy = 'y',
                                    fill = NULL,
                                    fill_as_factor = TRUE,
                                    color = 'black',
@@ -62,6 +62,8 @@ plot_cell_polygon_layer = function(ggobject = NULL,
 
 
 
+
+
 #' @name plot_feature_points_layer
 #' @description low level function to plot a points at the spatial in situ level
 #' @return ggplot
@@ -72,8 +74,8 @@ plot_feature_points_layer = function(ggobject,
                                      feats,
                                      feats_color_code = NULL,
                                      feat_shape_code = NULL,
-                                     sdimx = 'sdimx',
-                                     sdimy = 'sdimy',
+                                     sdimx = 'x',
+                                     sdimy = 'y',
                                      color = 'feat_ID',
                                      shape = 'feat',
                                      point_size = 1.5) {
@@ -132,11 +134,11 @@ spatInSituPlotPoints = function(gobject,
                                 feat_type = 'rna',
                                 feats_color_code = NULL,
                                 feat_shape_code = NULL,
-                                sdimx = 'sdimx',
-                                sdimy = 'sdimy',
+                                sdimx = 'x',
+                                sdimy = 'y',
                                 point_size = 1.5,
                                 show_polygon = TRUE,
-                                polygon_feat_type = NULL,
+                                polygon_feat_type = 'cell',
                                 polygon_color = 'black',
                                 polygon_fill = NULL,
                                 polygon_fill_as_factor = NULL,
@@ -172,38 +174,48 @@ spatInSituPlotPoints = function(gobject,
       polygon_feat_type = gobject@expression_feat[[1]]
     }
 
-    polygon_dt = combineSpatialCellMetadataInfo(gobject, feat_type = polygon_feat_type)
-    polygon_dt = polygon_dt[[polygon_feat_type]]
+
+    #testobj@spatial_info$cell@spatVector
+
+    polygon_info = select_polygon_info(gobject = gobject,
+                                       polygon_name = polygon_feat_type)
+    polygon_dt = spatVector_to_dt(polygon_info)
+
+    #polygon_dt = spatVector_to_dt(gobject@spatial_info[[polygon_feat_type]]@spatVector)
+
+    #polygon_dt = combineCellData(gobject = gobject,
+    #                             feat_type = polygon_feat_type)
+    #polygon_dt = polygon_dt[[polygon_feat_type]]
 
     plot = plot_cell_polygon_layer(ggobject = gobject,
-                                   polygon_dt,
-                                   polygon_grouping = 'cell_ID',
-                                   sdimx = sdimx,
-                                   sdimy = sdimy,
-                                   fill = polygon_fill,
-                                   fill_as_factor = polygon_fill_as_factor,
-                                   color = polygon_color,
-                                   alpha = polygon_alpha)
+                                    polygon_dt,
+                                    polygon_grouping = 'poly_ID',
+                                    sdimx = sdimx,
+                                    sdimy = sdimy,
+                                    fill = polygon_fill,
+                                    fill_as_factor = polygon_fill_as_factor,
+                                    color = polygon_color,
+                                    alpha = polygon_alpha)
+
   }
 
-  spatial_feat_info = combineSpatialCellFeatureInfo(gobject = gobject,
-                                                    feat_type = feat_type,
-                                                    selected_features = feats)
+  spatial_feat_info = combineFeatureOverlapData(gobject = gobject,
+                                                feat_type = feat_type,
+                                                sel_feats = feats)
+
   #spatial_feat_info = combineSpatialCellFeatureInfo(gobject = gobject, feat_type = feat_type)
   spatial_feat_info = do.call('rbind', spatial_feat_info)
 
-
   plot = plot_feature_points_layer(ggobject = plot,
-                                   spatial_feat_info = spatial_feat_info,
-                                   feats = feats,
-                                   feats_color_code = feats_color_code,
-                                   feat_shape_code = feat_shape_code,
-                                   sdimx = sdimx,
-                                   sdimy = sdimy,
-                                   color = 'feat_ID',
-                                   shape = 'feat',
-                                   point_size = point_size)
-
+                                    spatial_feat_info = spatial_feat_info,
+                                    feats = feats,
+                                    feats_color_code = feats_color_code,
+                                    feat_shape_code = feat_shape_code,
+                                    sdimx = 'x',
+                                    sdimy = 'y',
+                                    color = 'feat_ID',
+                                    shape = 'feat',
+                                    point_size = point_size)
 
   ## adjust theme settings
   plot <- plot + ggplot2::theme(plot.title = element_text(hjust = 0.5),
@@ -245,13 +257,13 @@ spatInSituPlotPoints = function(gobject,
 #' @return ggplot
 #' @details This function can plot one feature for one modality.
 #' @keywords internal
-plot_feature_hexbin_layer = function(ggobject = NULL,
-                                     spatial_feat_info,
-                                     sel_feat,
-                                     sdimx = 'sdimx',
-                                     sdimy = 'sdimy',
-                                     bins = 10,
-                                     alpha = 0.5) {
+plot_feature_hexbin_layer2 = function(ggobject = NULL,
+                                      spatial_feat_info,
+                                      sel_feat,
+                                      sdimx = 'x',
+                                      sdimy = 'y',
+                                      bins = 10,
+                                      alpha = 0.5) {
 
 
 
@@ -281,22 +293,22 @@ plot_feature_hexbin_layer = function(ggobject = NULL,
 #' @details This function can plot one feature for one modality.
 #' @keywords internal
 spatInSituPlotHex_single = function(gobject,
-                                    feat = NULL,
-                                    feat_type = 'rna',
-                                    sdimx = 'sdimx',
-                                    sdimy = 'sdimy',
-                                    bins = 10,
-                                    alpha = 0.5,
-                                    show_polygon = TRUE,
-                                    polygon_feat_type = NULL,
-                                    polygon_color = 'black',
-                                    polygon_fill = NULL,
-                                    polygon_fill_as_factor = NULL,
-                                    polygon_alpha = 0.5,
-                                    axis_text = 8,
-                                    axis_title = 8,
-                                    legend_text = 6,
-                                    background_color = 'black') {
+                                     feat = NULL,
+                                     feat_type = 'rna',
+                                     sdimx = 'x',
+                                     sdimy = 'y',
+                                     bins = 10,
+                                     alpha = 0.5,
+                                     show_polygon = TRUE,
+                                     polygon_feat_type = 'cell',
+                                     polygon_color = 'black',
+                                     polygon_fill = NULL,
+                                     polygon_fill_as_factor = NULL,
+                                     polygon_alpha = 0.5,
+                                     axis_text = 8,
+                                     axis_title = 8,
+                                     legend_text = 6,
+                                     background_color = 'black') {
 
 
   if(is.null(feat)) {
@@ -312,35 +324,46 @@ spatInSituPlotHex_single = function(gobject,
       polygon_feat_type = gobject@expression_feat[[1]]
     }
 
-    polygon_dt = combineSpatialCellMetadataInfo(gobject, feat_type = polygon_feat_type)
-    polygon_dt = polygon_dt[[polygon_feat_type]]
+
+    #polygon_dt = combineSpatialCellMetadataInfo(gobject, feat_type = polygon_feat_type)
+    #polygon_dt = polygon_dt[[polygon_feat_type]]
+
+    polygon_info = select_polygon_info(gobject = gobject,
+                                       polygon_name = polygon_feat_type)
+    polygon_dt = spatVector_to_dt(polygon_info)
 
     plot = plot_cell_polygon_layer(ggobject = gobject,
-                                   polygon_dt,
-                                   polygon_grouping = 'cell_ID',
-                                   sdimx = sdimx,
-                                   sdimy = sdimy,
-                                   fill = polygon_fill,
-                                   fill_as_factor = polygon_fill_as_factor,
-                                   color = polygon_color,
-                                   alpha = polygon_alpha)
+                                    polygon_dt,
+                                    polygon_grouping = 'poly_ID',
+                                    sdimx = sdimx,
+                                    sdimy = sdimy,
+                                    fill = polygon_fill,
+                                    fill_as_factor = polygon_fill_as_factor,
+                                    color = polygon_color,
+                                    alpha = polygon_alpha)
+
   }
 
 
 
   ## hexbin layer ##
 
-  spatial_feat_info = combineSpatialCellFeatureInfo(gobject = gobject,
-                                                    feat_type = feat_type,
-                                                    selected_features = feat)
+  form_feat = list(feat_type = c(feat))
+  spatial_feat_info = combineFeatureOverlapData(gobject = gobject,
+                                                feat_type = feat_type,
+                                                sel_feats = form_feat)
+
+  #spatial_feat_info = combineSpatialCellFeatureInfo(gobject = gobject,
+  #                                                  feat_type = feat_type,
+  #                                                  selected_features = feat)
   spatial_feat_info = do.call('rbind', spatial_feat_info)
 
   plot = plot_feature_hexbin_layer(ggobject = plot,
-                                   spatial_feat_info = spatial_feat_info,
-                                   sel_feat = feat,
-                                   sdimx = sdimx,
-                                   sdimy = sdimy,
-                                   bins = bins)
+                                    spatial_feat_info = spatial_feat_info,
+                                    sel_feat = feat,
+                                    sdimx = sdimx,
+                                    sdimy = sdimy,
+                                    bins = bins)
 
 
   ## adjust theme settings
@@ -357,7 +380,6 @@ spatInSituPlotHex_single = function(gobject,
   return(plot)
 
 }
-
 
 
 
@@ -396,12 +418,12 @@ spatInSituPlotHex_single = function(gobject,
 spatInSituPlotHex = function(gobject,
                              feats = NULL,
                              feat_type = 'rna',
-                             sdimx = 'sdimx',
-                             sdimy = 'sdimy',
+                             sdimx = 'x',
+                             sdimy = 'y',
                              bins = 10,
                              alpha = 0.5,
                              show_polygon = TRUE,
-                             polygon_feat_type = NULL,
+                             polygon_feat_type = 'cell',
                              polygon_color = 'black',
                              polygon_fill = NULL,
                              polygon_fill_as_factor = NULL,
@@ -409,7 +431,7 @@ spatInSituPlotHex = function(gobject,
                              axis_text = 8,
                              axis_title = 8,
                              legend_text = 6,
-                             background_color = 'black',
+                             background_color = 'white',
                              cow_n_col = 2,
                              cow_rel_h = 1,
                              cow_rel_w = 1,
@@ -436,22 +458,22 @@ spatInSituPlotHex = function(gobject,
   for(sel_feat in feats) {
 
     pl = spatInSituPlotHex_single(gobject = gobject,
-                                  feat = sel_feat,
-                                  feat_type = feat_type,
-                                  sdimx = sdimx,
-                                  sdimy = sdimy,
-                                  bins = bins,
-                                  alpha = alpha,
-                                  show_polygon = show_polygon,
-                                  polygon_feat_type = polygon_feat_type,
-                                  polygon_color = polygon_color,
-                                  polygon_fill = polygon_fill,
-                                  polygon_fill_as_factor = polygon_fill_as_factor,
-                                  polygon_alpha = polygon_alpha,
-                                  axis_text = axis_text,
-                                  axis_title = axis_title,
-                                  legend_text = legend_text,
-                                  background_color = background_color)
+                                   feat = sel_feat,
+                                   feat_type = feat_type,
+                                   sdimx = sdimx,
+                                   sdimy = sdimy,
+                                   bins = bins,
+                                   alpha = alpha,
+                                   show_polygon = show_polygon,
+                                   polygon_feat_type = polygon_feat_type,
+                                   polygon_color = polygon_color,
+                                   polygon_fill = polygon_fill,
+                                   polygon_fill_as_factor = polygon_fill_as_factor,
+                                   polygon_alpha = polygon_alpha,
+                                   axis_text = axis_text,
+                                   axis_title = axis_title,
+                                   legend_text = legend_text,
+                                   background_color = background_color)
 
     savelist[[sel_feat]] = pl
 
@@ -489,18 +511,17 @@ spatInSituPlotHex = function(gobject,
 
 
 
-
 #' @name plot_feature_raster_density_layer
 #' @description low level function to plot density plots at the spatial in situ level
 #' @return ggplot
 #' @details This function can plot one feature for one modality.
 #' @keywords internal
 plot_feature_raster_density_layer = function(ggobject = NULL,
-                                             spatial_feat_info,
-                                             sel_feat,
-                                             sdimx = 'sdimx',
-                                             sdimy = 'sdimy',
-                                             alpha = 0.5) {
+                                              spatial_feat_info,
+                                              sel_feat,
+                                              sdimx = 'x',
+                                              sdimy = 'y',
+                                              alpha = 0.5) {
 
   spatial_feat_info_subset = spatial_feat_info[feat_ID %in% unlist(sel_feat)]
 
@@ -532,21 +553,21 @@ plot_feature_raster_density_layer = function(ggobject = NULL,
 #' @details This function can plot one feature for one modality.
 #' @keywords internal
 spatInSituPlotDensity_single = function(gobject,
-                                        feat = NULL,
-                                        feat_type = 'rna',
-                                        sdimx = 'sdimx',
-                                        sdimy = 'sdimy',
-                                        alpha = 0.95,
-                                        show_polygon = TRUE,
-                                        polygon_feat_type = NULL,
-                                        polygon_color = 'black',
-                                        polygon_fill = NULL,
-                                        polygon_fill_as_factor = NULL,
-                                        polygon_alpha = 0.5,
-                                        axis_text = 8,
-                                        axis_title = 8,
-                                        legend_text = 6,
-                                        background_color = 'black') {
+                                         feat = NULL,
+                                         feat_type = 'rna',
+                                         sdimx = 'x',
+                                         sdimy = 'y',
+                                         alpha = 0.95,
+                                         show_polygon = TRUE,
+                                         polygon_feat_type = 'cell',
+                                         polygon_color = 'black',
+                                         polygon_fill = NULL,
+                                         polygon_fill_as_factor = NULL,
+                                         polygon_alpha = 0.5,
+                                         axis_text = 8,
+                                         axis_title = 8,
+                                         legend_text = 6,
+                                         background_color = 'black') {
 
 
   if(is.null(feat)) {
@@ -562,34 +583,44 @@ spatInSituPlotDensity_single = function(gobject,
       polygon_feat_type = gobject@expression_feat[[1]]
     }
 
-    polygon_dt = combineSpatialCellMetadataInfo(gobject, feat_type = polygon_feat_type)
-    polygon_dt = polygon_dt[[polygon_feat_type]]
+
+    polygon_info = select_polygon_info(gobject = gobject,
+                                       polygon_name = polygon_feat_type)
+    polygon_dt = spatVector_to_dt(polygon_info)
+
+    #polygon_dt = combineSpatialCellMetadataInfo(gobject, feat_type = polygon_feat_type)
+    #polygon_dt = polygon_dt[[polygon_feat_type]]
 
     plot = plot_cell_polygon_layer(ggobject = gobject,
-                                   polygon_dt,
-                                   polygon_grouping = 'cell_ID',
-                                   sdimx = sdimx,
-                                   sdimy = sdimy,
-                                   fill = polygon_fill,
-                                   fill_as_factor = polygon_fill_as_factor,
-                                   color = polygon_color,
-                                   alpha = polygon_alpha)
+                                    polygon_dt,
+                                    polygon_grouping = 'poly_ID',
+                                    sdimx = sdimx,
+                                    sdimy = sdimy,
+                                    fill = polygon_fill,
+                                    fill_as_factor = polygon_fill_as_factor,
+                                    color = polygon_color,
+                                    alpha = polygon_alpha)
   }
 
 
 
   ## density layer ##
-  spatial_feat_info = combineSpatialCellFeatureInfo(gobject = gobject,
-                                                    feat_type = feat_type,
-                                                    selected_features = feat)
+  form_feat = list(feat_type = c(feat))
+  spatial_feat_info = combineFeatureOverlapData(gobject = gobject,
+                                                feat_type = feat_type,
+                                                sel_feats = form_feat)
+
+  #spatial_feat_info = combineSpatialCellFeatureInfo(gobject = gobject,
+  #                                                  feat_type = feat_type,
+  #                                                  selected_features = feat)
   spatial_feat_info = do.call('rbind', spatial_feat_info)
 
   plot = plot_feature_raster_density_layer(ggobject = plot,
-                                           spatial_feat_info = spatial_feat_info,
-                                           sel_feat = feat,
-                                           sdimx = sdimx,
-                                           sdimy = sdimy,
-                                           alpha = alpha)
+                                            spatial_feat_info = spatial_feat_info,
+                                            sel_feat = feat,
+                                            sdimx = sdimx,
+                                            sdimy = sdimy,
+                                            alpha = alpha)
 
 
   ## adjust theme settings
@@ -641,30 +672,30 @@ spatInSituPlotDensity_single = function(gobject,
 #' @family In Situ visualizations
 #' @export
 spatInSituPlotDensity = function(gobject,
-                                 feats = NULL,
-                                 feat_type = 'rna',
-                                 sdimx = 'sdimx',
-                                 sdimy = 'sdimy',
-                                 alpha = 0.95,
-                                 show_polygon = TRUE,
-                                 polygon_feat_type = NULL,
-                                 polygon_color = 'black',
-                                 polygon_fill = NULL,
-                                 polygon_fill_as_factor = NULL,
-                                 polygon_alpha = 0.5,
-                                 axis_text = 8,
-                                 axis_title = 8,
-                                 legend_text = 6,
-                                 background_color = 'black',
-                                 cow_n_col = 2,
-                                 cow_rel_h = 1,
-                                 cow_rel_w = 1,
-                                 cow_align = 'h',
-                                 show_plot = NA,
-                                 return_plot = NA,
-                                 save_plot = NA,
-                                 save_param =  list(),
-                                 default_save_name = 'spatInSituPlotDensity') {
+                                  feats = NULL,
+                                  feat_type = 'rna',
+                                  sdimx = 'x',
+                                  sdimy = 'y',
+                                  alpha = 0.95,
+                                  show_polygon = TRUE,
+                                  polygon_feat_type = 'cell',
+                                  polygon_color = 'black',
+                                  polygon_fill = NULL,
+                                  polygon_fill_as_factor = NULL,
+                                  polygon_alpha = 0.5,
+                                  axis_text = 8,
+                                  axis_title = 8,
+                                  legend_text = 6,
+                                  background_color = 'black',
+                                  cow_n_col = 2,
+                                  cow_rel_h = 1,
+                                  cow_rel_w = 1,
+                                  cow_align = 'h',
+                                  show_plot = NA,
+                                  return_plot = NA,
+                                  save_plot = NA,
+                                  save_param =  list(),
+                                  default_save_name = 'spatInSituPlotDensity') {
 
 
   if(is.null(feats)) {
@@ -685,21 +716,21 @@ spatInSituPlotDensity = function(gobject,
   for(sel_feat in feats) {
 
     pl = spatInSituPlotDensity_single(gobject = gobject,
-                                      feat = sel_feat,
-                                      feat_type = feat_type,
-                                      sdimx = sdimx,
-                                      sdimy = sdimy,
-                                      alpha = alpha,
-                                      show_polygon = show_polygon,
-                                      polygon_feat_type = polygon_feat_type,
-                                      polygon_color = polygon_color,
-                                      polygon_fill = polygon_fill,
-                                      polygon_fill_as_factor = polygon_fill_as_factor,
-                                      polygon_alpha = polygon_alpha,
-                                      axis_text = axis_text,
-                                      axis_title = axis_title,
-                                      legend_text = legend_text,
-                                      background_color = background_color)
+                                       feat = sel_feat,
+                                       feat_type = feat_type,
+                                       sdimx = sdimx,
+                                       sdimy = sdimy,
+                                       alpha = alpha,
+                                       show_polygon = show_polygon,
+                                       polygon_feat_type = polygon_feat_type,
+                                       polygon_color = polygon_color,
+                                       polygon_fill = polygon_fill,
+                                       polygon_fill_as_factor = polygon_fill_as_factor,
+                                       polygon_alpha = polygon_alpha,
+                                       axis_text = axis_text,
+                                       axis_title = axis_title,
+                                       legend_text = legend_text,
+                                       background_color = background_color)
 
     savelist[[sel_feat]] = pl
 
