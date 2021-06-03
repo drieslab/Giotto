@@ -7,6 +7,7 @@
 createSpatialNetwork(
   gobject,
   name = NULL,
+  spat_loc_name = NULL,
   dimensions = "all",
   method = c("Delaunay", "kNN"),
   delaunay_method = c("deldir", "delaunayn_geometry", "RTriangle"),
@@ -28,6 +29,8 @@ createSpatialNetwork(
 \item{gobject}{giotto object}
 
 \item{name}{name for spatial network (default = 'spatial_network')}
+
+\item{spat_loc_name}{name of spatial locations to use}
 
 \item{dimensions}{which spatial dimensions to use (default = all)}
 

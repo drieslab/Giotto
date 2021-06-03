@@ -6,10 +6,10 @@
 \usage{
 createSpatialDelaunayNetwork(
   gobject,
-  method = c("deldir", "delaunayn_geometry", "RTriangle"),
-  spat_loc_name = "raw",
-  dimensions = "all",
   name = "Delaunay_network",
+  spat_loc_name = NULL,
+  method = c("deldir", "delaunayn_geometry", "RTriangle"),
+  dimensions = "all",
   maximum_distance = "auto",
   minimum_k = 0,
   options = "Pp",
@@ -24,13 +24,13 @@ createSpatialDelaunayNetwork(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{method}{package to use to create a Delaunay network}
+\item{name}{name for spatial network (default = 'delaunay_network')}
 
 \item{spat_loc_name}{name of spatial locations}
 
-\item{dimensions}{which spatial dimensions to use. Use "sdimx" (spatial dimension x), "sdimy", "sdimz" respectively to refer to X (or the 1st), Y (or the 2nd) and Z(or the 3rd) dimension, see details. (default = all)}
+\item{method}{package to use to create a Delaunay network}
 
-\item{name}{name for spatial network (default = 'delaunay_network')}
+\item{dimensions}{which spatial dimensions to use. Use "sdimx" (spatial dimension x), "sdimy", "sdimz" respectively to refer to X (or the 1st), Y (or the 2nd) and Z(or the 3rd) dimension, see details. (default = all)}
 
 \item{maximum_distance}{distance cuttof for Delaunay neighbors to consider. If "auto", "upper wisker" value of the distance vector between neighbors is used; see the boxplot{graphics} documentation for more details.(default = "auto")}
 

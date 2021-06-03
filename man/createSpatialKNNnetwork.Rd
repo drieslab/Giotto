@@ -7,7 +7,7 @@
 createSpatialKNNnetwork(
   gobject,
   method = "dbscan",
-  spat_loc_name = "raw",
+  spat_loc_name = NULL,
   dimensions = "all",
   name = "knn_network",
   k = 4,

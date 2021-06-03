@@ -12,7 +12,7 @@ spatPlot2D(
   image_name = "image",
   group_by = NULL,
   group_by_subset = NULL,
-  spat_loc_name = "raw",
+  spat_loc_name = NULL,
   sdimx = "sdimx",
   sdimy = "sdimy",
   spat_enr_names = NULL,

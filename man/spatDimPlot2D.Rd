@@ -10,6 +10,7 @@ spatDimPlot2D(
   show_image = F,
   gimage = NULL,
   image_name = "image",
+  spat_loc_name = NULL,
   plot_alignment = c("vertical", "horizontal"),
   dim_reduction_to_use = "umap",
   dim_reduction_name = "umap",
