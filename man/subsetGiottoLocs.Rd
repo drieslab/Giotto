@@ -12,6 +12,7 @@ subsetGiottoLocs(
   y_min = NULL,
   z_max = NULL,
   z_min = NULL,
+  poly_info = "cell",
   return_gobject = T,
   verbose = FALSE
 )
@@ -30,6 +31,8 @@ subsetGiottoLocs(
 \item{z_max}{maximum z-coordinate}
 
 \item{z_min}{minimum z-coordinate}
+
+\item{poly_info}{polygon information to use}
 
 \item{return_gobject}{return Giotto object}
 

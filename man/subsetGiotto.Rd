@@ -10,6 +10,7 @@ subsetGiotto(
   feat_type = NULL,
   feat_ids = NULL,
   gene_ids = NULL,
+  poly_info = NULL,
   verbose = FALSE,
   toplevel_params = 2
 )
@@ -24,6 +25,8 @@ subsetGiotto(
 \item{feat_ids}{feature IDs to keep}
 
 \item{gene_ids}{deprecated, use feat_ids}
+
+\item{poly_info}{polygon information to use}
 
 \item{verbose}{be verbose}
 
