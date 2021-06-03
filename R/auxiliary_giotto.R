@@ -352,15 +352,31 @@ select_expression_values <- function(gobject,
 select_spatial_locations <- function(gobject,
                                      spat_loc_name = 'raw') {
 
-  potential_names = names(gobject@spatial_locs)
 
-  if(spat_loc_name %in% potential_names) {
-    spatloc = data.table::copy(gobject@spatial_locs[[spat_loc_name]])
-    return(spatloc)
+  # spatial locations
+  # if NULL (not given) and spatial locations have been added, then use first one
+  # if NULL (not given) and spatial loactions have NOT been added, then keep NULL
+  if(is.null(spat_loc_name)) {
+    if(!is.null(gobject@spatial_locs)) {
+      spat_loc_name = names(gobject@spatial_locs)[[1]]
+      cat('No spatial locations have been selected, the first one -',spat_loc_name, '- will be used \n')
+    } else {
+      spat_loc_name = NULL
+      cat('No spatial locations have been found \n')
+      return(NULL)
+    }
   } else {
-    stop("The spatial locations with name ","'", spat_loc_name, "'"," can not be found \n")
-  }
 
+    potential_names = names(gobject@spatial_locs)
+
+    if(spat_loc_name %in% potential_names) {
+      spatloc = data.table::copy(gobject@spatial_locs[[spat_loc_name]])
+      return(spatloc)
+    } else {
+      stop("The spatial locations with name ","'", spat_loc_name, "'"," can not be found \n")
+    }
+
+  }
 }
 
 
@@ -2812,7 +2828,10 @@ combineMetadata = function(gobject,
   # data.table variables
   cell_ID = NULL
 
-  metadata = cbind(metadata, spatial_locs[, cell_ID := NULL])
+  if(!is.null(spatial_locs)) {
+    metadata = cbind(metadata, spatial_locs[, cell_ID := NULL])
+  }
+
 
   # cell/spot enrichment data
   available_enr = names(gobject@spatial_enrichment)

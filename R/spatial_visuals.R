@@ -618,7 +618,8 @@ dimPlot2D_single <- function(gobject,
   ## annotated cell metadata
   cell_metadata = combineMetadata(gobject = gobject,
                                   feat_type = feat_type,
-                                  spat_enr_names = spat_enr_names)
+                                  spat_enr_names = spat_enr_names,
+                                  spat_loc_name = NULL)
   annotated_DT = merge(cell_metadata, dim_DT, by = 'cell_ID')
 
 
@@ -1012,7 +1013,8 @@ dimPlot2D = function(gobject,
 
     comb_metadata = combineMetadata(gobject = gobject,
                                     feat_type = feat_type,
-                                    spat_enr_names = spat_enr_names)
+                                    spat_enr_names = spat_enr_names,
+                                    spat_loc_name = NULL)
     possible_meta_groups = colnames(comb_metadata)
 
     ## check if group_by is found
@@ -2691,7 +2693,7 @@ spatPlot2D = function(gobject,
                       image_name = 'image',
                       group_by = NULL,
                       group_by_subset = NULL,
-                      spat_loc_name = 'raw',
+                      spat_loc_name = NULL,
                       sdimx = 'sdimx',
                       sdimy = 'sdimy',
                       spat_enr_names = NULL,
@@ -3088,6 +3090,7 @@ spatDimPlot2D <- function(gobject,
                           show_image = F,
                           gimage = NULL,
                           image_name = 'image',
+                          spat_loc_name = NULL,
                           plot_alignment = c('vertical', 'horizontal'),
                           dim_reduction_to_use = 'umap',
                           dim_reduction_name = 'umap',
@@ -3235,6 +3238,7 @@ spatDimPlot2D <- function(gobject,
                    show_image = show_image,
                    gimage = gimage,
                    image_name = image_name,
+                   spat_loc_name = spat_loc_name,
                    group_by = NULL,
                    group_by_subset = NULL,
                    sdimx = sdimx,
