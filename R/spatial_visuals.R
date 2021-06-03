@@ -3502,6 +3502,7 @@ spatFeatPlot2D_single <- function(gobject,
 
 
   ## extract cell locations
+  print(spat_loc_name)
   cell_locations  = select_spatial_locations(gobject,
                                              spat_loc_name = spat_loc_name)
 
@@ -3524,6 +3525,7 @@ spatFeatPlot2D_single <- function(gobject,
 
   ## extract cell metadata
   cell_metadata = combineMetadata(gobject = gobject,
+                                  spat_loc_name = spat_loc_name,
                                   feat_type = feat_type)
 
   if(nrow(cell_metadata) == 0) {
@@ -3941,6 +3943,7 @@ spatFeatPlot2D <- function(gobject,
 
     ## metadata
     comb_metadata = combineMetadata(gobject = gobject,
+                                    spat_loc_name = spat_loc_name,
                                     feat_type = feat_type)
     possible_meta_groups = colnames(comb_metadata)
 

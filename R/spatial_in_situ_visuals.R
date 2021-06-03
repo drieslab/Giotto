@@ -257,7 +257,7 @@ spatInSituPlotPoints = function(gobject,
 #' @return ggplot
 #' @details This function can plot one feature for one modality.
 #' @keywords internal
-plot_feature_hexbin_layer2 = function(ggobject = NULL,
+plot_feature_hexbin_layer = function(ggobject = NULL,
                                       spatial_feat_info,
                                       sel_feat,
                                       sdimx = 'x',

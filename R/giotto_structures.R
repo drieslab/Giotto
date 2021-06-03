@@ -1066,7 +1066,7 @@ calculateOverlap = function(gobject,
 
         if(length(subpointsvec) > 0) {
 
-          subtestsect = intersect(x = subpolvec, y = subpointsvec)
+          subtestsect = terra::intersect(x = subpolvec, y = subpointsvec)
           resultsteplist[[i]] = subtestsect
           i = i + 1
         }
