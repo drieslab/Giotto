@@ -294,6 +294,7 @@ fix_multipart_geoms = function(spatVector) {
 #' @param fix_multipart try to split polygons with multiple parts (default: TRUE)
 #' @return
 #' @keywords mask polygon
+#' @export
 createGiottoPolygonsFromMask = function(maskfile,
                                         name = 'cell',
                                         remove_background_polygon = FALSE,
@@ -416,6 +417,7 @@ createGiottoPolygonsFromMask = function(maskfile,
 #' @param calc_centroids calculate centroids for polygons
 #' @return
 #' @keywords polygon
+#' @export
 createGiottoPolygonsFromDfr = function(segmdfr,
                                        name = 'cell',
                                        calc_centroids = FALSE) {
@@ -537,6 +539,7 @@ extract_polygon_list = function(polygonlist) {
 #' @param gpolygons list of giotto polygon objects
 #' @return
 #' @keywords polygon
+#' @export
 addGiottoPolygons = function(gobject,
                              gpolygons) {
 
@@ -639,6 +642,7 @@ spline_poly <- function(xy, vertices = 20, k = 3, ...) {
 #' @param set_neg_to_zero set negative values to zero (default: TRUE)
 #' @return
 #' @keywords polygon
+#' @export
 smoothGiottoPolygons = function(gpolygon,
                                 vertices = 20,
                                 k = 3,
@@ -785,6 +789,7 @@ create_spatvector_object_from_dfr = function(x) {
 #' @param feat_type feature type
 #' @return
 #' @keywords polygon
+#' @export
 createGiottoPoints = function(x,
                               feat_type = 'rna') {
 
@@ -858,6 +863,7 @@ dt_to_spatVector_points = function(dt,
 #' @param gpoints list of giotto point objects
 #' @return
 #' @keywords polygon
+#' @export
 addGiottoPoints = function(gobject,
                            gpoints) {
 
@@ -942,6 +948,7 @@ extract_points_list = function(pointslist) {
 #' @param return_gobject return giotto object (default: TRUE)
 #' @return
 #' @keywords centroid
+#' @export
 addSpatialCentroidLocations = function(gobject,
                                        poly_info = 'cell',
                                        return_gobject = TRUE) {
@@ -989,6 +996,7 @@ addSpatialCentroidLocations = function(gobject,
 #' @param return_gobject return giotto object (default: TRUE)
 #' @return giotto object or spatVector with overlapping information
 #' @keywords overlap
+#' @export
 calculateOverlap = function(gobject,
                             poly_info = 'cell',
                             feat_info = 'rna',
@@ -1104,6 +1112,7 @@ calculateOverlap = function(gobject,
 #' @param return_gobject return giotto object (default: TRUE)
 #' @return giotto object or count matrix
 #' @keywords overlap
+#' @export
 overlapToMatrix = function(gobject,
                            name = 'raw',
                            poly_info = 'cell',
@@ -1172,6 +1181,7 @@ overlapToMatrix = function(gobject,
 #' @param poly_info polygon information name
 #' @return data.table with combined spatial information
 #' @keywords combine cell metadata
+#' @export
 combineCellData = function(gobject,
                            feat_type = 'rna',
                            include_spat_locs = TRUE,
@@ -1255,6 +1265,7 @@ combineCellData = function(gobject,
 #' @param sel_feats selected features (default: NULL or no selection)
 #' @return data.table with combined spatial feature information
 #' @keywords combine feature metadata
+#' @export
 combineFeatureData = function(gobject,
                               feat_type = 'rna',
                               sel_feats = NULL) {
@@ -1310,6 +1321,7 @@ combineFeatureData = function(gobject,
 #' @param poly_info polygon information name
 #' @return data.table with combined spatial polygon information
 #' @keywords combine feature metadata
+#' @export
 combineFeatureOverlapData = function(gobject,
                                      feat_type = 'rna',
                                      sel_feats = NULL,
@@ -1414,6 +1426,7 @@ select_feature_info = function(gobject,
 #' @description show the available giotto spatial polygon information
 #' @param gobject giotto object
 #' @keywords show
+#' @export
 showGiottoSpatialInfo = function(gobject) {
 
   for(info in names(gobject@spatial_info)) {
@@ -1431,6 +1444,7 @@ showGiottoSpatialInfo = function(gobject) {
 #' @description show the available giotto spatial feature information
 #' @param gobject giotto object
 #' @keywords show
+#' @export
 showGiottoFeatInfo = function(gobject) {
 
   for(info in names(gobject@feat_info)) {
