@@ -365,17 +365,15 @@ select_spatial_locations <- function(gobject,
       cat('No spatial locations have been found \n')
       return(NULL)
     }
+  }
+
+  potential_names = names(gobject@spatial_locs)
+
+  if(spat_loc_name %in% potential_names) {
+    spatloc = data.table::copy(gobject@spatial_locs[[spat_loc_name]])
+    return(spatloc)
   } else {
-
-    potential_names = names(gobject@spatial_locs)
-
-    if(spat_loc_name %in% potential_names) {
-      spatloc = data.table::copy(gobject@spatial_locs[[spat_loc_name]])
-      return(spatloc)
-    } else {
-      stop("The spatial locations with name ","'", spat_loc_name, "'"," can not be found \n")
-    }
-
+    stop("The spatial locations with name ","'", spat_loc_name, "'"," can not be found \n")
   }
 }
 
