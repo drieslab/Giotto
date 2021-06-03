@@ -67,6 +67,7 @@ Imports:
     rlang (>= 0.4.3),
     R.utils,
     scales (>= 1.0.0),
+    terra (>= 1.1.4),
     uwot (>= 0.0.0.9010)
 Suggests:
     Biobase,
