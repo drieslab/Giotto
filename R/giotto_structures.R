@@ -296,6 +296,7 @@ fix_multipart_geoms = function(spatVector) {
 #' @keywords mask polygon
 #' @export
 createGiottoPolygonsFromMask = function(maskfile,
+                                        mask_method = c('guess', 'single', 'multiple'),
                                         name = 'cell',
                                         remove_background_polygon = FALSE,
                                         background_algo = c('range'),
@@ -315,36 +316,47 @@ createGiottoPolygonsFromMask = function(maskfile,
     stop('path : ', maskfile, ' does not exist \n')
   }
 
+  # mask method
+  # single: single mask value for all segmented cells
+  # multiple: multiple maks values and thus a unique value for each segmented cell
+  mask_method = match.arg(mask_method, choices = c('guess', 'single', 'multiple'))
+
   # create polygons from mask
   terra_rast = terra::rast(maskfile)
   rast_dimensions = dim(terra_rast)
   terra_polygon = terra::as.polygons(x = terra_rast, value = TRUE)
-  names(terra_polygon) = 'mask'
+  spatVecDT = spatVector_to_dt(terra_polygon)
 
-
-  # try to fix geoms with multiple parts
-  # treat them as individual cell segments
-  if(fix_multipart == TRUE) {
-
-    spatVecDT = spatVector_to_dt(terra_polygon)
-    uniq_multi = unique(spatVecDT[part == 2]$geom)
-
-    if(length(uniq_multi) > 0) {
-      terra_polygon = fix_multipart_geoms(terra_polygon)
-    }
-
+  # guess mask method
+  if(mask_method == 'guess') {
+    uniq_geoms = length(unique(spatVecDT$geom))
+    uniq_parts = length(unique(spatVecDT$part))
+    mask_method = ifelse(uniq_geoms > uniq_parts, 'multiple', 'single')
   }
 
+  if(mask_method == 'multiple') {
+    if(is.null(poly_IDs)) {
+      spatVecDT[, geom := paste0(name,geom)]
+    }
+    g_polygon = createGiottoPolygonsFromDfr(segmdfr = spatVecDT[,.(x, y, geom)])
+    terra_polygon = g_polygon@spatVector
+  } else if(mask_method == 'single') {
+    if(is.null(poly_IDs)) {
+      spatVecDT[, part := paste0(name,part)]
+    }
+    g_polygon = createGiottoPolygonsFromDfr(segmdfr = spatVecDT[,.(x, y, part)])
+    terra_polygon = g_polygon@spatVector
+  }
 
-
+  #names(terra_polygon) = 'mask'
 
   ## flip axes ##
   if(flip_vertical == TRUE) {
-    terra_polygon = flip(terra_polygon, direction = 'vertical')
+    terra_polygon = terra::flip(terra_polygon, direction = 'vertical')
   }
 
   if(flip_horizontal == TRUE) {
-    terra_polygon = flip(terra_polygon, direction = 'horizontal')
+    terra_polygon = terra::flip(terra_polygon, direction = 'horizontal')
   }
 
   ## shift values ##
@@ -408,6 +420,8 @@ createGiottoPolygonsFromMask = function(maskfile,
 }
 
 
+
+
 ## segmDfrToPolygon
 
 #' @name createGiottoPolygonsFromDfr
@@ -434,9 +448,9 @@ createGiottoPolygonsFromDfr = function(segmdfr,
 
   # add other colnaes for the input data.table
   input_dt[, geom := nr_of_cells_vec[[get('poly_ID')]] , by = 1:nrow(input_dt)]
-  input_dt[, mask := nr_of_cells_vec[[get('poly_ID')]], by = 1:nrow(input_dt)]
+  #input_dt[, mask := nr_of_cells_vec[[get('poly_ID')]], by = 1:nrow(input_dt)]
   input_dt[, c('part', 'hole') := list(1, 0)]
-  input_dt = input_dt[, c('geom', 'part', 'x', 'y', 'hole', 'mask', 'poly_ID'), with =F]
+  input_dt = input_dt[, c('geom', 'part', 'x', 'y', 'hole', 'poly_ID'), with =F]
 
   # create spatvector
   spatvector = dt_to_spatVector_polygon(input_dt,
@@ -457,7 +471,6 @@ createGiottoPolygonsFromDfr = function(segmdfr,
   return(g_polygon)
 
 }
-
 
 
 
