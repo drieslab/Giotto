@@ -102,11 +102,12 @@ identify_background_range_polygons = function(spatVector) {
   # get original mask id for identified 'background' polygon
   backgr_polygon_id = range_geom[1, ][['geom']]
   values = terra::values(spatVector)
-  mask_id = values[backgr_polygon_id, 1]
+  poly_id = values[backgr_polygon_id, 1]
 
-  return(mask_id)
+  return(poly_id)
 
 }
+
 
 
 
@@ -384,10 +385,10 @@ createGiottoPolygonsFromMask = function(maskfile,
   if(remove_background_polygon == TRUE) {
 
     if(background_algo == 'range') {
-      mask_id = identify_background_range_polygons(terra_polygon)
+      backgr_poly_id = identify_background_range_polygons(terra_polygon)
     }
 
-    terra_polygon = terra::subset(x = terra_polygon, terra_polygon[['mask']] != mask_id)
+    terra_polygon = terra::subset(x = terra_polygon, terra_polygon[['polyID']] != backgr_poly_id)
 
   }
 
