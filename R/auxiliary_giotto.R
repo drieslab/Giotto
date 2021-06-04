@@ -856,13 +856,13 @@ subsetGiotto <- function(gobject,
   ## spatial info
   gobject@spatial_info = subset_spatial_info_data(spatial_info = gobject@spatial_info,
                                                   feat_type = feat_type,
-                                                  cell_ids = cell_ids,
-                                                  feat_ids = feat_ids,
+                                                  cell_ids = cells_to_keep,
+                                                  feat_ids = feats_to_keep,
                                                   poly_info = poly_info)
 
   ## feature info
   gobject@feat_info = subset_feature_info_data(feat_info = gobject@feat_info,
-                                               feat_ids = feat_ids,
+                                               feat_ids = feats_to_keep,
                                                feat_type = feat_type)
 
 
