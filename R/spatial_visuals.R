@@ -613,15 +613,22 @@ dimPlot2D_single <- function(gobject,
   # data.table variables
   cell_ID = NULL
 
-  dim_DT = data.table::as.data.table(dim_dfr); dim_DT[, cell_ID := rownames(dim_dfr)]
+  dim_DT = data.table::as.data.table(dim_dfr); dim_DT[, cell_ID := as.character(rownames(dim_dfr))]
 
   ## annotated cell metadata
   cell_metadata = combineMetadata(gobject = gobject,
                                   feat_type = feat_type,
                                   spat_enr_names = spat_enr_names,
                                   spat_loc_name = NULL)
-  annotated_DT = merge(cell_metadata, dim_DT, by = 'cell_ID')
 
+  cell_metadata[, cell_ID := as.character(cell_ID)]
+
+  print(dim_DT)
+  print(cell_metadata)
+
+  annotated_DT = data.table::merge.data.table(cell_metadata, dim_DT, by = 'cell_ID')
+
+  print(annotated_DT)
 
   # create input for network
   if(show_NN_network == TRUE) {

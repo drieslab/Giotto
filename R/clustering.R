@@ -138,7 +138,8 @@ doLeidenCluster = function(gobject,
       gobject@cell_metadata = cell_metadata
     }
 
-    gobject = addCellMetadata(gobject = gobject, feat_type = feat_type,
+    gobject = addCellMetadata(gobject = gobject,
+                              feat_type = feat_type,
                               new_metadata = ident_clusters_DT[, c('cell_ID', name), with = FALSE],
                               by_column = TRUE, column_cell_ID = 'cell_ID')
 

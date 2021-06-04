@@ -516,6 +516,10 @@ extract_polygon_list = function(polygonlist) {
       poly_results = createGiottoPolygonsFromDfr(name = 'cell',
                                                  segmdfr = polyinfo)
 
+    } else if(inherits(polyinfo, 'giottoPolygon')) {
+
+      poly_results = polyinfo
+
     } else {
 
       stop('Polygon can only be extraxted from a mask file or from a correctly formatted data.frame')
@@ -1019,15 +1023,17 @@ calculateOverlap = function(gobject,
   yrep = ceiling(range_y / y_step)
 
   start_x = xmin(myext)
-  end_x = (xrep-1) * x_step
+  end_x = start_x + (xrep * x_step)
 
   start_y = ymin(myext)
-  end_y = (yrep-1) * y_step
+  end_y = start_y + (yrep * y_step)
 
-  dt_steps = data.table::data.table(xmin = rep(seq(start_x, end_x, x_step), xrep),
-                                    xmax = rep(seq(x_step, (end_x+x_step), x_step), xrep),
-                                    ymin = rep(seq(start_y, end_y, y_step), each = yrep),
-                                    ymax = rep(seq(y_step, (end_y+y_step), y_step), each = yrep))
+  dt_steps = data.table::data.table(xmin = rep(seq(start_x, end_x, x_step), yrep),
+                                    xmax = rep(seq(x_step, (end_x+x_step), x_step), yrep),
+                                    ymin = rep(seq(start_y, end_y, y_step), each = xrep),
+                                    ymax = rep(seq(y_step, (end_y+y_step), y_step), each = xrep))
+
+  print(dt_steps)
 
 
   all_cell_IDs = unique(polvec$poly_ID)
@@ -1037,6 +1043,8 @@ calculateOverlap = function(gobject,
 
   i = 1
   for(row in 1:nrow(dt_steps)) {
+
+    print(row)
 
     crop_polvec = terra::crop(x = polvec,
                               y = ext(dt_steps[row]$xmin, dt_steps[row]$xmax,
@@ -1065,6 +1073,9 @@ calculateOverlap = function(gobject,
 
 
         if(length(subpointsvec) > 0) {
+
+          cat('subpolvec ', nrow(subpolvec), '\n')
+          cat('subpointsvec ', nrow(subpointsvec), '\n')
 
           subtestsect = terra::intersect(x = subpolvec, y = subpointsvec)
           resultsteplist[[i]] = subtestsect

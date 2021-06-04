@@ -942,7 +942,7 @@ subsetGiottoLocs = function(gobject,
                             return_gobject = T,
                             verbose = FALSE) {
 
-  comb_metadata = combineMetadata(gobject = gobject)
+  comb_metadata = combineMetadata(gobject = gobject, spat_loc_name = NULL)
   comb_colnames =  colnames(comb_metadata)
 
   # x spatial dimension
