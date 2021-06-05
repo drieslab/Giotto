@@ -90,6 +90,7 @@ setMethod(
 #' @export
 createGiottoImage = function(gobject = NULL,
                              spatial_locs = NULL,
+                             spat_loc_name = NULL,
                              mg_object,
                              name = 'image',
                              xmax_adj = 0,
@@ -124,7 +125,11 @@ createGiottoImage = function(gobject = NULL,
 
   ## 2. min and max based on spatial locations
   if(!is.null(gobject)) {
-    spatlocs = gobject@spatial_locs[['raw']]
+
+    spatlocs = select_spatial_locations(gobject = gobject,
+                                        spat_loc_name = spat_loc_name)
+
+    #spatlocs = gobject@spatial_locs[['raw']]
 
     my_xmin = min(spatlocs$sdimx)
     my_xmax = max(spatlocs$sdimx)

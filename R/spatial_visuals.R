@@ -2192,7 +2192,7 @@ plot_spat_voronoi_layer_ggplot = function(ggobject,
 plot_spat_image_layer_ggplot = function(ggplot,
                                         gobject,
                                         gimage,
-                                        spat_loc_name = 'raw',
+                                        spat_loc_name = NULL,
                                         sdimx = NULL,
                                         sdimy = NULL) {
 
@@ -2304,7 +2304,7 @@ spatPlot2D_single = function(gobject,
                              show_image = F,
                              gimage = NULL,
                              image_name = 'image',
-                             spat_loc_name = 'raw',
+                             spat_loc_name = NULL,
                              sdimx = 'sdimx',
                              sdimy = 'sdimy',
                              spat_enr_names = NULL,
@@ -2382,14 +2382,17 @@ spatPlot2D_single = function(gobject,
 
   ## extract spatial network
   if(show_network == TRUE) {
-    spatial_network = select_spatialNetwork(gobject, name = spatial_network_name, return_network_Obj = FALSE)
+    spatial_network = select_spatialNetwork(gobject,
+                                            name = spatial_network_name,
+                                            return_network_Obj = FALSE)
   } else {
     spatial_network = NULL
   }
 
   ## extract spatial grid
   if(show_grid == TRUE) {
-    spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
+    spatial_grid = select_spatialGrid(gobject = gobject,
+                                      name = spatial_grid_name)
   } else {
     spatial_grid = NULL
   }
@@ -2447,6 +2450,7 @@ spatPlot2D_single = function(gobject,
   if(show_image == TRUE & !is.null(gimage)) {
     pl = plot_spat_image_layer_ggplot(ggplot = pl,
                                       gobject = gobject,
+                                      spat_loc_name = spat_loc_name,
                                       gimage = gimage,
                                       sdimx = sdimx,
                                       sdimy = sdimy)
