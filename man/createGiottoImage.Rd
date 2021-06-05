@@ -7,6 +7,7 @@
 createGiottoImage(
   gobject = NULL,
   spatial_locs = NULL,
+  spat_loc_name = NULL,
   mg_object,
   name = "image",
   xmax_adj = 0,

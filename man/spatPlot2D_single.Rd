@@ -10,7 +10,7 @@ spatPlot2D_single(
   show_image = F,
   gimage = NULL,
   image_name = "image",
-  spat_loc_name = "raw",
+  spat_loc_name = NULL,
   sdimx = "sdimx",
   sdimy = "sdimy",
   spat_enr_names = NULL,

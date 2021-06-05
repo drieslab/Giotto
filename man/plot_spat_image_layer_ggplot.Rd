@@ -8,7 +8,7 @@ plot_spat_image_layer_ggplot(
   ggplot,
   gobject,
   gimage,
-  spat_loc_name = "raw",
+  spat_loc_name = NULL,
   sdimx = NULL,
   sdimy = NULL
 )
