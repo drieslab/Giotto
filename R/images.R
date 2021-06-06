@@ -82,10 +82,15 @@ setMethod(
 #' @param spatial_locs spatial locations (alternative if giobject = NULL)
 #' @param mg_object magick image object
 #' @param name name for the image
+#' @param image_transformations vector of sequential image transformations
 #' @param xmax_adj adjustment of the maximum x-value to align the image
 #' @param xmin_adj adjustment of the minimum x-value to align the image
 #' @param ymax_adj adjustment of the maximum y-value to align the image
 #' @param ymin_adj adjustment of the minimum y-value to align the image
+#' @details image_transformations: transformation options from magick library
+#' [\strong{flip_x_axis}] flip x-axis (\code{\link[magick]{image_flop}})
+#' [\strong{flip_y_axis}] flip y-axis (\code{\link[magick]{image_flip}})
+#' Example: image_transformations = c(flip_x_axis, flip_y_axis); first flip x-axis and then y-axis
 #' @return a giottoImage object
 #' @export
 createGiottoImage = function(gobject = NULL,
@@ -93,6 +98,7 @@ createGiottoImage = function(gobject = NULL,
                              spat_loc_name = NULL,
                              mg_object,
                              name = 'image',
+                             image_transformations = NULL,
                              xmax_adj = 0,
                              xmin_adj = 0,
                              ymax_adj = 0,
@@ -107,7 +113,7 @@ createGiottoImage = function(gobject = NULL,
                         OS_platform = .Platform[['OS.type']])
 
 
-  ## 1. check magick image object
+  ## 1.a. check magick image object
   if(!methods::is(mg_object, 'magick-image')) {
     if(file.exists(mg_object)) {
       mg_object = try(magick::image_read(mg_object))
@@ -117,6 +123,26 @@ createGiottoImage = function(gobject = NULL,
     } else {
       stop("mg_object needs to be an image object 'magick-image' from the magick package or \n
            an existig path that can be read by magick::image_read()")
+    }
+  }
+
+  ## 1.b. check colorspace
+  info = magick::image_info(mg_object)
+  mg_colorspace = info$colorspace
+  if(mg_colorspace == 'Gray') {
+    mg_object = magick::image_convert(mg_object, colorspace = 'rgb')
+  }
+
+  ## 1.c. perform transformations if found
+  if(!is.null(image_transformations)) {
+    for(transf in image_transformations) {
+      if(transf == 'flip_x_axis') {
+        mg_object = magick::image_flop(mg_object)
+      } else if(transf == 'flip_y_axis') {
+        mg_object = magick::image_flop(mg_object)
+      } else {
+        cat(transf, ' is not a supported transformation, see details \n')
+      }
     }
   }
 
