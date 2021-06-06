@@ -1029,7 +1029,7 @@ calculateOverlap = function(gobject,
 
   ## compute windows to look for overlap
   ## create data.table with x and y beginnings and ends
-  myext = ext(polvec)
+  myext = terra::ext(polvec)
   range_x = xmax(myext) - xmin(myext)
   range_y = ymax(myext) - ymin(myext)
 
@@ -1061,7 +1061,7 @@ calculateOverlap = function(gobject,
     print(row)
 
     crop_polvec = terra::crop(x = polvec,
-                              y = ext(dt_steps[row]$xmin, dt_steps[row]$xmax,
+                              y = terra::ext(dt_steps[row]$xmin, dt_steps[row]$xmax,
                                       dt_steps[row]$ymin, dt_steps[row]$ymax))
 
 
