@@ -64,8 +64,8 @@ create_giotto_polygon_object = function(name = 'cell',
       stop("spatVectorCentroids needs to be a spatVector object from the terra package")
     }
 
-    l_centroids = nrow(values(spatVectorCentroids))
-    l_polygons = nrow(values(spatVector))
+    l_centroids = nrow(terra::values(spatVectorCentroids))
+    l_polygons = nrow(terra::values(spatVector))
 
     if(l_centroids == l_polygons) {
       g_polygon@spatVectorCentroids = spatVectorCentroids
@@ -173,12 +173,12 @@ create_segm_polygons = function(maskfile,
 
   # provide own cell_ID name
   if(!is.null(poly_IDs)) {
-    if(length(poly_IDs) != nrow(values(terra_polygon))) {
+    if(length(poly_IDs) != nrow(terra::values(terra_polygon))) {
       stop('length poly_IDs does not equal number of found polygons \n')
     }
     terra_polygon$poly_ID = poly_IDs
   } else {
-    terra_polygon$poly_ID = paste0(name, '_', 1:nrow(values(terra_polygon)))
+    terra_polygon$poly_ID = paste0(name, '_', 1:nrow(terra::values(terra_polygon)))
   }
 
 
@@ -395,12 +395,12 @@ createGiottoPolygonsFromMask = function(maskfile,
 
   # provide own cell_ID name
   if(!is.null(poly_IDs)) {
-    if(length(poly_IDs) != nrow(values(terra_polygon))) {
+    if(length(poly_IDs) != nrow(terra::values(terra_polygon))) {
       stop('length cell_IDs does not equal number of found polyongs \n')
     }
     terra_polygon$poly_ID = poly_IDs
   } else {
-    terra_polygon$poly_ID = paste0(name, '_', 1:nrow(values(terra_polygon)))
+    terra_polygon$poly_ID = paste0(name, '_', 1:nrow(terra::values(terra_polygon)))
   }
 
 
@@ -578,12 +578,12 @@ addGiottoPolygons = function(gobject,
 spatVector_to_dt = function(spatvector,
                             include_values = TRUE) {
 
-  DT_geom = data.table::as.data.table(geom(spatvector))
+  DT_geom = data.table::as.data.table(terra::geom(spatvector))
 
   if(include_values == TRUE) {
-    DT_values = data.table::as.data.table(values(spatvector))
+    DT_values = data.table::as.data.table(terra::values(spatvector))
     DT_values[, geom := 1:nrow(DT_values)]
-    DT_full = merge.data.table(DT_geom, DT_values, by = 'geom')
+    DT_full = data.table::merge.data.table(DT_geom, DT_values, by = 'geom')
     return(DT_full)
   } else {
     return(DT_geom)
