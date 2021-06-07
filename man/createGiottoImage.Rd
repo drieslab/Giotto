@@ -7,8 +7,10 @@
 createGiottoImage(
   gobject = NULL,
   spatial_locs = NULL,
+  spat_loc_name = NULL,
   mg_object,
   name = "image",
+  image_transformations = NULL,
   xmax_adj = 0,
   xmin_adj = 0,
   ymax_adj = 0,
@@ -24,6 +26,8 @@ createGiottoImage(
 
 \item{name}{name for the image}
 
+\item{image_transformations}{vector of sequential image transformations}
+
 \item{xmax_adj}{adjustment of the maximum x-value to align the image}
 
 \item{xmin_adj}{adjustment of the minimum x-value to align the image}
@@ -37,4 +41,10 @@ a giottoImage object
 }
 \description{
 Creates a giotto image that can be added to a Giotto object and/or used to add an image to the spatial plotting functions
+}
+\details{
+image_transformations: transformation options from magick library
+[\strong{flip_x_axis}] flip x-axis (\code{\link[magick]{image_flop}})
+[\strong{flip_y_axis}] flip y-axis (\code{\link[magick]{image_flip}})
+Example: image_transformations = c(flip_x_axis, flip_y_axis); first flip x-axis and then y-axis
 }
