@@ -2973,7 +2973,6 @@ spatPlot2D = function(gobject,
 
 
 
-
 #' @title spatPlot
 #' @name spatPlot
 #' @description Visualize cells according to spatial coordinates
