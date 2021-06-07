@@ -1252,11 +1252,13 @@ createGiottoObject <- function(expression,
 
   if(is.null(spatial_info)) {
 
-    gobject@spatial_info = data.table::data.table(sdimx = NA,
-                                                  sdimy = NA,
-                                                  sdimz = NA,
-                                                  cell_ID = gobject@cell_ID,
-                                                  point = NA)
+    gobject@spatial_info = NULL
+
+    #gobject@spatial_info = data.table::data.table(sdimx = NA,
+    #                                              sdimy = NA,
+    #                                              sdimz = NA,
+    #                                              cell_ID = gobject@cell_ID,
+    #                                              point = NA)
 
   } else {
     # evaluate spatial info, needs to be compatible with spatial_locs
@@ -1326,12 +1328,15 @@ createGiottoObject <- function(expression,
   ## place to store individual feature info
   if(is.null(feat_info)) {
 
-    for(feat_type in expression_feat) {
-      gobject@feat_info[[feat_type]] = data.table::data.table(feat_ID = gobject@feat_ID[[feat_type]],
-                                                              x = NA,
-                                                              y = NA,
-                                                              z = NA)
-    }
+
+    gobject@feat_info = NULL
+
+    #for(feat_type in expression_feat) {
+    #  gobject@feat_info[[feat_type]] = data.table::data.table(feat_ID = gobject@feat_ID[[feat_type]],
+    #                                                          x = NA,
+    #                                                          y = NA,
+    #                                                          z = NA)
+    #}
 
   } else {
 
