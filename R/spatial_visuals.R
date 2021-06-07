@@ -2881,11 +2881,17 @@ spatPlot2D = function(gobject,
                                   feat_type = feat_type,
                                   cell_ids = subset_cell_IDs)
 
+      if(length(unique_groups) == length(image_name)) {
+        spec_image_name = image_name[group_id]
+      } else {
+        spec_image_name = image_name
+      }
+
       pl = spatPlot2D_single(gobject = temp_gobject,
                              feat_type = feat_type,
                              show_image = show_image,
                              gimage = gimage,
-                             image_name = image_name,
+                             image_name = spec_image_name,
                              spat_loc_name = spat_loc_name,
                              sdimx = sdimx,
                              sdimy = sdimy,
