@@ -2627,7 +2627,7 @@ spatPlot2D_single = function(gobject,
 #' @param feat_type feature type
 #' @param show_image show a tissue background image
 #' @param gimage a giotto image
-#' @param image_name name of a giotto image
+#' @param image_name name of a giotto image or multiple images with group_by
 #' @param group_by create multiple plots based on cell annotation column
 #' @param group_by_subset subset the group_by factor column
 #' @param spat_loc_name name of spatial locations
@@ -2880,6 +2880,7 @@ spatPlot2D = function(gobject,
       temp_gobject = subsetGiotto(gobject = gobject,
                                   feat_type = feat_type,
                                   cell_ids = subset_cell_IDs)
+
 
       if(length(unique_groups) == length(image_name)) {
         spec_image_name = image_name[group_id]
@@ -3811,7 +3812,7 @@ spatFeatPlot2D_single <- function(gobject,
 #' @param feat_type feature type
 #' @param show_image show a tissue background image
 #' @param gimage a giotto image
-#' @param image_name name of a giotto image
+#' @param image_name name of a giotto image or multiple images if group_by
 #' @param group_by create multiple plots based on cell annotation column
 #' @param group_by_subset subset the group_by factor column
 #' @param sdimx x-axis dimension name (default = 'sdimx')
@@ -3998,11 +3999,18 @@ spatFeatPlot2D <- function(gobject,
                                   feat_type = feat_type,
                                   cell_ids = subset_cell_IDs)
 
+
+      if(length(unique_groups) == length(image_name)) {
+        spec_image_name = image_name[group_id]
+      } else {
+        spec_image_name = image_name
+      }
+
       pl = spatFeatPlot2D_single(gobject = temp_gobject,
                                  feat_type = feat_type,
                                  show_image = show_image,
                                  gimage = gimage,
-                                 image_name = image_name,
+                                 image_name = spec_image_name,
                                  spat_loc_name = spat_loc_name,
                                  sdimx = sdimx,
                                  sdimy = sdimy,
