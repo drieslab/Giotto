@@ -4,6 +4,8 @@
 ## ACCESSOR functions to access and retrieve values in one of the giotto class slots ##
 
 
+## Accessors ####
+
 #' @name  select_expression_values
 #' @description helper function to select expression values
 #' @param gobject giotto object
@@ -278,6 +280,9 @@ select_feature_info = function(gobject,
     return(feat_info)
   }
 }
+
+
+## Show functions ####
 
 
 
