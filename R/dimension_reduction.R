@@ -1558,6 +1558,7 @@ runtSNE <- function(gobject,
 #' @param feats_to_use if dim_reduction_to_use = NULL, which genes to use
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param toplevel_params parameters to extract
+#' @param verbose be verbose
 #' @param ... additional Harmony parameters
 #' @return giotto object with updated Harmony dimension recuction
 #' @details See \code{\link[harmony]{HarmonyMatrix}} for more information about these and other parameters.
@@ -1583,7 +1584,7 @@ runGiottoHarmony = function(gobject,
 
 
   # print message with information #
-  if(verbose) message("using 'Harmony' to integrate different datasets. If used in published research, please cite: \n
+  message("using 'Harmony' to integrate different datasets. If used in published research, please cite: \n
   Korsunsky, I., Millard, N., Fan, J. et al.
                       Fast, sensitive and accurate integration of single-cell data with Harmony.
                       Nat Methods 16, 1289–1296 (2019).
@@ -1615,7 +1616,7 @@ runGiottoHarmony = function(gobject,
     if(feat_type == 'rna') {
       name = 'harmony'
     } else {
-      name = paste0(feat_type,'.','umap')
+      name = paste0(feat_type,'.','harmony')
     }
   }
 
@@ -1631,7 +1632,7 @@ runGiottoHarmony = function(gobject,
 
     ## TODO: check if reduction exists
     matrix_to_use = select_dimReduction(gobject = gobject,
-                                        reduction = reduction,
+                                        reduction = 'cells',
                                         reduction_method = dim_reduction_to_use,
                                         name = dim_reduction_name,
                                         return_dimObj = FALSE)
@@ -1668,8 +1669,9 @@ runGiottoHarmony = function(gobject,
                                            vars_use = vars_use,
                                            do_pca = do_pca,
                                            ...)
+
   colnames(harmony_results) =  paste0('Dim.', 1:ncol(harmony_results))
-  rownames(harmony_results) = colnames(matrix_to_use)
+  rownames(harmony_results) = rownames(matrix_to_use)
 
   harmdimObject = create_dimObject(name = name,
                                    reduction_method = 'harmony',
