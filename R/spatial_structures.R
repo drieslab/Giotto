@@ -353,30 +353,6 @@ create_spatialNetworkObject <- function(name = NULL,
 
 }
 
-#' @title select_spatialNetwork
-#' @name select_spatialNetwork
-#' @description function to select a spatial network
-#' @keywords internal
-select_spatialNetwork <- function(gobject,
-                                  name = NULL,
-                                  return_network_Obj = FALSE) {
-
-  if (!is.element(name, names(gobject@spatial_network))){
-    message = sprintf("spatial network %s has not been created. Returning NULL.
-                      check which spatial networks exist with showNetworks() \n", name)
-    warning(message)
-    return(NULL)
-  }else{
-    networkObj = gobject@spatial_network[[name]]
-    networkDT = networkObj$networkDT
-  }
-
-  if (return_network_Obj == TRUE){
-    return(networkObj)
-  }else{
-    return(networkDT)
-  }
-}
 
 
 #' @title calculate_distance_and_weight
@@ -2089,31 +2065,6 @@ createSpatialDefaultGrid <- function(gobject,
 
 }
 
-
-
-#' @title select_spatialGrid
-#' @description accessor function to select spatial grid
-#' @keywords internal
-select_spatialGrid <- function(gobject,
-                               name = NULL,
-                               return_grid_Obj = FALSE) {
-
-  if (!is.element(name, names(gobject@spatial_grid))){
-    message = sprintf("spatial grid %s has not been created. Returning NULL.
-                      check which spatial grids exist with showGrids() \n", name)
-    warning(message)
-    return(NULL)
-  }else{
-    gridObj = gobject@spatial_grid[[name]]
-    gridDT = gridObj$gridDT
-  }
-
-  if (return_grid_Obj == TRUE){
-    return(gridObj)
-  }else{
-    return(gridDT)
-  }
-}
 
 
 

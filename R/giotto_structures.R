@@ -1402,50 +1402,6 @@ combineFeatureOverlapData = function(gobject,
 
 
 
-#' @name select_polygon_info
-#' @description  selection giotto polygon spatVector
-#' @keywords internal
-select_polygon_info = function(gobject,
-                               polygon_name = 'cell',
-                               polygon_overlap = NULL) {
-
-  potential_names = names(gobject@spatial_info)
-
-  if(!polygon_name %in% potential_names) {
-    stop('There is no polygon information with name ', polygon_name, '\n')
-  } else {
-
-    if(is.null(polygon_overlap)) {
-      poly_info = gobject@spatial_info[[polygon_name]]@spatVector
-    } else {
-      potential_overlaps = names(gobject@spatial_info[[polygon_name]]@overlaps)
-
-      if(!polygon_overlap %in% potential_overlaps) {
-        stop('There is no polygon overlap information with name ', polygon_overlap, '\n')
-      } else {
-        poly_info = gobject@spatial_info[[polygon_name]]@overlaps[[polygon_overlap]]
-      }
-    }
-    return(poly_info)
-  }
-}
-
-#' @name select_feature_info
-#' @description  selection giotto points spatVector
-#' @keywords internal
-select_feature_info = function(gobject,
-                               feat_name = 'rna') {
-
-  potential_names = names(gobject@feat_info)
-
-  if(!feat_name %in% potential_names) {
-    stop('There is no feature information with name ', feat_name, '\n')
-  } else {
-    feat_info = gobject@feat_info[[feat_name]]@spatVector
-    return(feat_info)
-  }
-}
-
 
 #' @name showGiottoSpatialInfo
 #' @description show the available giotto spatial polygon information

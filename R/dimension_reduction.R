@@ -38,49 +38,6 @@ create_dimObject = function(name = 'test',
 
 
 
-#' @title select_dimReduction
-#' @name select_dimReduction
-#' @description Creates an object that stores a dimension reduction output
-#' @keywords internal
-#' @return dim reduction coordinates (default) or dim reduction object
-select_dimReduction = function(gobject,
-                               reduction = c('cells', 'genes'),
-                               reduction_method = c('pca', 'umap', 'tsne'),
-                               name = 'pca',
-                               return_dimObj = FALSE) {
-
-
-  ## check parameters
-  reduction = match.arg(arg = reduction, choices = c('cells', 'genes'))
-  reduction_method = match.arg(arg = reduction_method, choices = c('pca', 'umap', 'tsne'))
-
-
-  ## check reduction
-  reduction_res = gobject@dimension_reduction[[reduction]]
-  if(is.null(reduction_res)) {
-    stop('No dimension reduction for ', reduction, ' has been applied \n')
-  }
-
-  ## check method
-  reduction_res = reduction_res[[reduction_method]]
-  if(is.null(reduction_res)) {
-    stop(reduction_method, ' has not been performed on this dataset \n')
-  }
-
-  ## check name for method
-  reduction_res = reduction_res[[name]]
-  if(is.null(reduction_res)) {
-    stop(name, ': this name is not available for method: ', reduction_method, '\n')
-  }
-
-  ## return object or coordinates
-  if(return_dimObj == TRUE) {
-    return(reduction_res)
-  } else {
-    return(reduction_res$coordinates)
-  }
-
-}
 
 
 #' @title pca_giotto
@@ -996,7 +953,6 @@ jackstrawPlot = function(gobject,
 
 
 
-#' @title signPCA
 #' @name signPCA
 #' @description identify significant prinicipal components (PCs)
 #' @param gobject giotto object
@@ -1182,7 +1138,6 @@ signPCA <- function(gobject,
 
 
 
-#' @title runUMAP
 #' @name runUMAP
 #' @description run UMAP
 #' @param gobject giotto object
@@ -1330,7 +1285,7 @@ runUMAP <- function(gobject,
 
     uwot_clus <- uwot::umap(X = as.matrix(matrix_to_use), n_neighbors = n_neighbors, n_components = n_components,
                             n_epochs = n_epochs, min_dist = min_dist, n_threads = n_threads, spread = spread, ...)
-    uwot_clus_pos_DT <- data.table::as.data.table(uwot_clus)
+    uwot_clus_pos_DT = data.table::as.data.table(uwot_clus)
 
     # data.table variables
     cell_ID = NULL
@@ -1389,7 +1344,6 @@ runUMAP <- function(gobject,
 
 
 
-#' @title runtSNE
 #' @name runtSNE
 #' @description run tSNE
 #' @param gobject giotto object
@@ -1582,4 +1536,175 @@ runtSNE <- function(gobject,
   }
 
 }
+
+
+
+
+
+
+## * Data Integration ####
+# ---------------------- #
+
+
+#' @name runGiottoHarmony
+#' @description run UMAP
+#' @param gobject giotto object
+#' @param feat_type feature type
+#' @param expression_values expression values to use
+#' @param dim_reduction_to_use use another dimension reduction set as input
+#' @param dim_reduction_name name of dimension reduction set to use
+#' @param dimensions_to_use number of dimensions to use as input
+#' @param name arbitrary name for Harmony run
+#' @param feats_to_use if dim_reduction_to_use = NULL, which genes to use
+#' @param return_gobject boolean: return giotto object (default = TRUE)
+#' @param toplevel_params parameters to extract
+#' @param ... additional Harmony parameters
+#' @return giotto object with updated Harmony dimension recuction
+#' @details See \code{\link[harmony]{HarmonyMatrix}} for more information about these and other parameters.
+#' This is a simple wrapper for the HarmonyMatrix function in the Harmony package.
+#' @export
+runGiottoHarmony = function(gobject,
+                            feat_type = NULL,
+                            vars_use = 'list_ID',
+                            do_pca = FALSE,
+                            expression_values = c('normalized', 'scaled', 'custom'),
+                            dim_reduction_to_use = 'pca',
+                            dim_reduction_name = NULL,
+                            dimensions_to_use = 1:10,
+                            name = NULL,
+                            feats_to_use = NULL,
+                            toplevel_params = 2,
+                            return_gobject = TRUE,
+                            ...) {
+
+
+  # verify if optional package is installed
+  package_check(pkg_name = "harmony", repository = "CRAN")
+
+
+  # print message with information #
+  if(verbose) message("using 'Harmony' to integrate different datasets. If used in published research, please cite: \n
+  Korsunsky, I., Millard, N., Fan, J. et al.
+                      Fast, sensitive and accurate integration of single-cell data with Harmony.
+                      Nat Methods 16, 1289–1296 (2019).
+                      https://doi.org/10.1038/s41592-019-0619-0 ")
+
+
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+
+  # specify dim_reduction_name to use for pca input for umap
+  if(!is.null(dim_reduction_to_use)) {
+    if(dim_reduction_to_use == 'pca') {
+      if(is.null(dim_reduction_name)) {
+        if(feat_type == 'rna') {
+          dim_reduction_name = 'pca'
+        } else {
+          dim_reduction_name = paste0(feat_type,'.','pca')
+        }
+      }
+    }
+  }
+
+
+  # specify name to use for harmony
+  if(is.null(name)) {
+    if(feat_type == 'rna') {
+      name = 'harmony'
+    } else {
+      name = paste0(feat_type,'.','umap')
+    }
+  }
+
+
+
+
+  # set cores to use
+  #n_threads = determine_cores(cores = n_threads)
+
+
+  ## using dimension reduction ##
+  if(!is.null(dim_reduction_to_use)) {
+
+    ## TODO: check if reduction exists
+    matrix_to_use = select_dimReduction(gobject = gobject,
+                                        reduction = reduction,
+                                        reduction_method = dim_reduction_to_use,
+                                        name = dim_reduction_name,
+                                        return_dimObj = FALSE)
+    matrix_to_use = matrix_to_use[, dimensions_to_use]
+
+  } else {
+
+    ## using original matrix ##
+    # expression values to be used
+    values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
+    expr_values = select_expression_values(gobject = gobject,
+                                           feat_type = feat_type,
+                                           values = values)
+
+
+    ## subset matrix
+    if(!is.null(genes_to_use)) {
+      expr_values = create_feats_to_use_matrix(gobject = gobject,
+                                               feat_type = feat_type,
+                                               sel_matrix = expr_values,
+                                               feats_to_use = feats_to_use,
+                                               verbose = verbose)
+    }
+
+    matrix_to_use = t_flex(expr_values)
+  }
+
+  # get metadata
+  metadata = pDataDT(gobject)
+
+  # run harmony
+  harmony_results = harmony::HarmonyMatrix(data_mat = matrix_to_use,
+                                           meta_data = metadata,
+                                           vars_use = vars_use,
+                                           do_pca = do_pca,
+                                           ...)
+  colnames(harmony_results) =  paste0('Dim.', 1:ncol(harmony_results))
+  rownames(harmony_results) = colnames(matrix_to_use)
+
+  harmdimObject = create_dimObject(name = name,
+                                   reduction_method = 'harmony',
+                                   coordinates = harmony_results,
+                                   misc = NULL)
+
+  # return giotto object or harmony results
+  if(return_gobject == TRUE) {
+
+    harmony_names = names(gobject@dimension_reduction[['cells']][['harmony']])
+
+    if(name %in% harmony_names) {
+      cat('\n ', name, ' has already been used with harmony, will be overwritten \n')
+
+    }
+
+    gobject@dimension_reduction[['cells']][['harmony']][[name]] = harmdimObject
+
+    ## update parameters used ##
+    gobject = update_giotto_params(gobject,
+                                   description = '_harmony',
+                                   return_gobject = TRUE,
+                                   toplevel = toplevel_params)
+    return(gobject)
+
+  } else {
+    return(harmdimObject)
+  }
+
+}
+
+
+
+
+
+
+
 
