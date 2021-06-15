@@ -16,7 +16,7 @@ plot_spat_image_layer_ggplot(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{gimage}{a giotto image}
+\item{gimage}{a giotto image or a list/vector of giotto images}
 
 \item{spat_loc_name}{name for spatial locations}
 

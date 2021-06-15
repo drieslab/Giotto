@@ -78,7 +78,7 @@ spatPlot2D(
 
 \item{gimage}{a giotto image}
 
-\item{image_name}{name of a giotto image}
+\item{image_name}{name of a giotto image or multiple images with group_by}
 
 \item{group_by}{create multiple plots based on cell annotation column}
 

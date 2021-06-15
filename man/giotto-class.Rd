@@ -23,13 +23,13 @@ that are provided in the expression slot.
 
 \item{\code{spatial_locs}}{spatial location coordinates for cells/spots/grids}
 
-\item{\code{spatial_info}}{information about spatial units (polygon)}
+\item{\code{spatial_info}}{information about spatial units (Giotto spatVector)}
 
 \item{\code{cell_metadata}}{metadata for cells}
 
 \item{\code{feat_metadata}}{metadata for available features}
 
-\item{\code{feat_info}}{information about features}
+\item{\code{feat_info}}{information about features (Giotto spatVector)}
 
 \item{\code{cell_ID}}{unique cell IDs}
 
@@ -54,6 +54,8 @@ that are provided in the expression slot.
 \item{\code{offset_file}}{offset file used to stitch together image fields}
 
 \item{\code{OS_platform}}{Operating System to run Giotto analysis on}
+
+\item{\code{join_info}}{information about joined Giotto objects}
 }}
 
 \keyword{giotto,}

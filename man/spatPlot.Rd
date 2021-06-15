@@ -14,7 +14,7 @@ spatPlot(...)
     \item{\code{feat_type}}{feature type}
     \item{\code{show_image}}{show a tissue background image}
     \item{\code{gimage}}{a giotto image}
-    \item{\code{image_name}}{name of a giotto image}
+    \item{\code{image_name}}{name of a giotto image or multiple images with group_by}
     \item{\code{group_by}}{create multiple plots based on cell annotation column}
     \item{\code{group_by_subset}}{subset the group_by factor column}
     \item{\code{spat_loc_name}}{name of spatial locations}
