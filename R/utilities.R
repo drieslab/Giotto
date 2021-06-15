@@ -173,7 +173,7 @@ my_rowMeans = function(x, method = c('arithmic', 'geometric'), offset = 0.1) {
 
 
 #' @name standardise_flex
-#' @description standardises a matrix
+#' @description standardizes a matrix
 #' @param x matrix
 #' @param center center data
 #' @param scale scale data
@@ -199,4 +199,4 @@ standardise_flex = function (x, center = TRUE, scale = TRUE)
   }
 }
 
-
+?colVars

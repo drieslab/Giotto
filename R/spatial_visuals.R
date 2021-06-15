@@ -2183,7 +2183,7 @@ plot_spat_voronoi_layer_ggplot = function(ggobject,
 #' @name plot_spat_image_layer_ggplot
 #' @description create background image in ggplot
 #' @param gobject giotto object
-#' @param gimage a giotto image
+#' @param gimage a giotto image or a list/vector of giotto images
 #' @param spat_loc_name name for spatial locations
 #' @param sdimx x-axis dimension name (default = 'sdimx')
 #' @param sdimy y-axis dimension name (default = 'sdimy')
@@ -2210,28 +2210,60 @@ plot_spat_image_layer_ggplot = function(ggplot,
 
   # spatial locations
   spatlocs = select_spatial_locations(gobject = gobject,
-                                       spat_loc_name = spat_loc_name)
-
-  # extract min and max from object
-  my_xmax = gimage@minmax[1]
-  my_xmin = gimage@minmax[2]
-  my_ymax = gimage@minmax[3]
-  my_ymin = gimage@minmax[4]
-
-  # convert giotto image object into array
-  img_array = as.numeric(gimage@mg_object[[1]])
-
-  # extract adjustments from object
-  xmax_b = gimage@boundaries[1]
-  xmin_b = gimage@boundaries[2]
-  ymax_b = gimage@boundaries[3]
-  ymin_b = gimage@boundaries[4]
-
+                                      spat_loc_name = spat_loc_name)
 
   ggplot = ggplot + geom_blank(data = spatlocs, aes_string(sdimx, sdimy))
-  ggplot = ggplot + annotation_raster(img_array,
-                                      xmin = my_xmin-xmin_b, xmax = my_xmax+xmax_b,
-                                      ymin = my_ymin-ymin_b, ymax = my_ymax+ymax_b)
+
+  if((is.list(gimage) | is.vector(gimage)) & length(gimage) > 1) {
+
+    for(i in 1:length(gimage)) {
+
+
+      # extract min and max from object
+      my_xmax = gimage[[i]]@minmax[1]
+      my_xmin = gimage[[i]]@minmax[2]
+      my_ymax = gimage[[i]]@minmax[3]
+      my_ymin = gimage[[i]]@minmax[4]
+
+      # convert giotto image object into array
+      img_array = as.numeric(gimage[[i]]@mg_object[[1]])
+
+      # extract adjustments from object
+      xmax_b = gimage[[i]]@boundaries[1]
+      xmin_b = gimage[[i]]@boundaries[2]
+      ymax_b = gimage[[i]]@boundaries[3]
+      ymin_b = gimage[[i]]@boundaries[4]
+
+      ggplot = ggplot + annotation_raster(img_array,
+                                          xmin = my_xmin-xmin_b, xmax = my_xmax+xmax_b,
+                                          ymin = my_ymin-ymin_b, ymax = my_ymax+ymax_b)
+
+    }
+
+  } else {
+
+    # extract min and max from object
+    my_xmax = gimage@minmax[1]
+    my_xmin = gimage@minmax[2]
+    my_ymax = gimage@minmax[3]
+    my_ymin = gimage@minmax[4]
+
+    # convert giotto image object into array
+    img_array = as.numeric(gimage@mg_object[[1]])
+
+    # extract adjustments from object
+    xmax_b = gimage@boundaries[1]
+    xmin_b = gimage@boundaries[2]
+    ymax_b = gimage@boundaries[3]
+    ymin_b = gimage@boundaries[4]
+
+    ggplot = ggplot + annotation_raster(img_array,
+                                        xmin = my_xmin-xmin_b, xmax = my_xmax+xmax_b,
+                                        ymin = my_ymin-ymin_b, ymax = my_ymax+ymax_b)
+  }
+
+
+  ggplot = ggplot + geom_point(data = spatlocs, aes_string(sdimx, sdimy), alpha = 0.5, size = 0.4)
 
   return(ggplot)
 
@@ -2366,8 +2398,19 @@ spatPlot2D_single = function(gobject,
   if(show_image == TRUE) {
     if(!is.null(gimage)) gimage = gimage
     else if(!is.null(image_name)) {
-      gimage = gobject@images[[image_name]]
-      if(is.null(gimage)) warning('image_name: ', image_name, ' does not exists')
+
+      if(length(image_name) == 1) {
+        gimage = gobject@images[[image_name]]
+        if(is.null(gimage)) warning('image_name: ', image_name, ' does not exists')
+      } else {
+        gimage = list()
+        for(gim in 1:length(image_name)) {
+          gimage[[gim]] = gobject@images[[gim]]
+          if(is.null(gimage[[gim]])) warning('image_name: ', gim, ' does not exists')
+        }
+      }
+
+
     }
   }
 
