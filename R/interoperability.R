@@ -78,16 +78,19 @@ anndataToGiotto = function(anndata_path,
 
 
 
-
+## Seurat object ####
 
 #' @name giottoToSeurat
 #' @description Converts Giotto object into a Seurat object
 #' @param obj_use Giotto object
 #' @return Seurat object
 #' @export
-giottoToSeurat <- function(obj_use = NULL,...){
-  require(Seurat)
-  require(Giotto)
+giottoToSeurat <- function(obj_use = NULL,
+                           ...){
+
+  # verify if optional package is installed
+  package_check(pkg_name = "Seurat", repository = "CRAN")
+
   # check whether any raw data exist -- required for Seurat
   raw_exist <- sapply(obj_use@expression_feat,function(x)
     'raw' %in% names(obj_use@expression[[x]]))
@@ -105,12 +108,17 @@ giottoToSeurat <- function(obj_use = NULL,...){
     slot_use <- names(expr_use)
     if (i == 1){
       data_raw <- expr_use[['raw']]
-      sobj <- CreateSeuratObject(counts = data_raw,assay = assay_use)
+      sobj <- Seurat::CreateSeuratObject(counts = data_raw,
+                                         assay = assay_use)
       if ('normalized' %in% slot_use){
-        sobj <- SetAssayData(sobj,slot = 'data',new.data = expr_use[['normalized']],assay = assay_use)
+        sobj <- Seurat::SetAssayData(sobj,slot = 'data',
+                                     new.data = expr_use[['normalized']],
+                                     assay = assay_use)
       }
       if ('scaled' %in% slot_use){
-        sobj <- SetAssayData(sobj,slot = 'scale.data',new.data = expr_use[['scaled']],assay = assay_use)
+        sobj <- Seurat::SetAssayData(sobj,slot = 'scale.data',
+                                     new.data = expr_use[['scaled']],
+                                     assay = assay_use)
       }
     } else {
       if ('raw' %in% slot_use){
@@ -126,16 +134,18 @@ giottoToSeurat <- function(obj_use = NULL,...){
         flag_norm <- 0
       }
       if (flag_raw == 1){
-        assay_obj <- CreateAssayObject(counts = data_raw)
+        assay_obj <- Seurat::CreateAssayObject(counts = data_raw)
       } else if (flag_raw == 0 & flag_norm == 1){
-        assay_obj <- CreateAssayObject(data = data_norm)
+        assay_obj <- Seurat::CreateAssayObject(data = data_norm)
       } else {
         stop(paste0('Raw and normalized data not found for assay ',assay_use))
       }
       sobj[[assay_use]] <- assay_obj
       if ('scaled' %in% slot_use){
         data_scale <- expr_use[['scaled']]
-        sobj <- SetAssayData(sobj,slot = "scale.data",new.data = data_scale,assay = assay_use)
+        sobj <- Seurat::SetAssayData(sobj,slot = "scale.data",
+                                     new.data = data_scale,
+                                     assay = assay_use)
       }
     }
 
@@ -144,7 +154,7 @@ giottoToSeurat <- function(obj_use = NULL,...){
     rownames(meta_cells) <- meta_cells$cell_ID
     meta_cells <- meta_cells[,-which(colnames(meta_cells) == 'cell_ID')]
     colnames(meta_cells) <- paste0(assay_use,"_",colnames(meta_cells))
-    sobj <- AddMetaData(sobj,metadata = meta_cells[Cells(sobj),])
+    sobj <- Seurat::AddMetaData(sobj,metadata = meta_cells[Cells(sobj),])
 
     # add feature metadata
     meta_genes <- as.data.frame(fDataDT(obj_use,feat_type = assay_use))
@@ -155,12 +165,13 @@ giottoToSeurat <- function(obj_use = NULL,...){
   # spatial coordinates
   loc_use <- as.data.frame(select_spatial_locations(gobject = obj_use,...))
   rownames(loc_use) <- loc_use$cell_ID
-  sobj <- AddMetaData(sobj,metadata = loc_use)
+  sobj <- Seurat::AddMetaData(sobj,metadata = loc_use)
   # add spatial coordinates as new dim reduct object
   loc_2 <- loc_use[,c('sdimx','sdimy')]
   colnames(loc_2) <- c('spatial_1','spatial_2')
-  sobj[['spatial']] <- CreateDimReducObject(embeddings = as.matrix(loc_2),
-                                            assay = names(sobj@assays)[1],key = 'spatial_')
+  sobj[['spatial']] <- Seurat::CreateDimReducObject(embeddings = as.matrix(loc_2),
+                                            assay = names(sobj@assays)[1],
+                                            key = 'spatial_')
 
   # dim reduction
   # note: Seurat requires assay name specification for each dim reduc
@@ -173,11 +184,15 @@ giottoToSeurat <- function(obj_use = NULL,...){
       if (sum(c('loadings','eigenvalues') %in% names(dr_obj$misc)) == 2){
         loadings_use <- dr_obj$misc$loadings
         stdev_use <- dr_obj$misc$eigenvalues
-        sobj[[dr_name]] <- CreateDimReducObject(embeddings = as.matrix(emb_use),loadings = loadings_use,
-                                                key = dr_name,stdev = stdev_use,assay = names(sobj@assays)[1])
+        sobj[[dr_name]] <- Seurat::CreateDimReducObject(embeddings = as.matrix(emb_use),
+                                                        loadings = loadings_use,
+                                                        key = dr_name,
+                                                        stdev = stdev_use,
+                                                        assay = names(sobj@assays)[1])
       } else {
-        sobj[[dr_name]] <- CreateDimReducObject(embeddings = as.matrix(emb_use),
-                                                key = dr_name,assay = names(sobj@assays)[1])
+        sobj[[dr_name]] <- Seurat::CreateDimReducObject(embeddings = as.matrix(emb_use),
+                                                        key = dr_name,
+                                                        assay = names(sobj@assays)[1])
       }
     }
   }
@@ -187,8 +202,10 @@ giottoToSeurat <- function(obj_use = NULL,...){
   nn_all <- names(obj_use@nn_network)
   if (!is.null(nn_all)){
     for (i in nn_all){
-      nn_use <- select_NearestNetwork(gobject = obj_use,nn_network_to_use = i,
-                                      output = 'data.table',network_name = names(obj_use@nn_network[[i]]))
+      nn_use <- select_NearestNetwork(gobject = obj_use,
+                                      nn_network_to_use = i,
+                                      output = 'data.table',
+                                      network_name = names(obj_use@nn_network[[i]]))
       idx1 <- match(nn_use$from,Cells(sobj))
       idx2 <- match(nn_use$to,Cells(sobj))
       edge_weight <- nn_use$weight
@@ -218,3 +235,13 @@ giottoToSeurat <- function(obj_use = NULL,...){
 
   return (sobj)
 }
+
+
+
+
+## SpatialExperiment object ####
+
+
+
+
+
