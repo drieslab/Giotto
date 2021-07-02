@@ -1,21 +1,21 @@
 
 
 
-## ACCESSOR functions to access and retrieve values in one of the giotto class slots ##
+## Get and set functions to get and set values in one of the giotto class slots ##
 
 
-## Accessors ####
+## expression values slot ####
 
-#' @name  select_expression_values
-#' @description helper function to select expression values
+#' @name  get_expression_values
+#' @description function to get expression values from giotto object
 #' @param gobject giotto object
 #' @param feat_type feature type
 #' @param values expression values to extract
 #' @return expression matrix
 #' @keywords internal
-select_expression_values <- function(gobject,
-                                     feat_type = 'rna',
-                                     values) {
+get_expression_values <- function(gobject,
+                                  feat_type = 'rna',
+                                  values) {
 
   potential_values = names(gobject@expression[[feat_type]])
 
@@ -39,14 +39,31 @@ select_expression_values <- function(gobject,
 }
 
 
+#' @name select_expression_values
+#' @inheritDotParams get_expression_values
+#' @seealso \code{\link{get_expression_values}}
+#' @keywords internal
+select_expression_values = function(...) {
 
-#' @name select_spatial_locations
-#' @description helper function to select spatial location data.table
+  .Deprecated(new = "get_expression_values")
+
+  get_expression_values(...)
+
+}
+
+
+
+
+## spatial locations slot ####
+
+
+#' @name get_spatial_locations
+#' @description function to get a spatial location data.table
 #' @param gobject giotto object
 #' @param spat_loc_name name of spatial locations
 #' @return data.table with coordinates
 #' @keywords internal
-select_spatial_locations <- function(gobject,
+get_spatial_locations <- function(gobject,
                                      spat_loc_name = 'raw') {
 
 
@@ -77,15 +94,37 @@ select_spatial_locations <- function(gobject,
 
 
 
-#' @name select_dimReduction
-#' @description helper function to select a dimension reduction object
+#' @name select_expression_values
+#' @inheritDotParams get_spatial_locations
+#' @seealso \code{\link{get_spatial_locations}}
+#' @keywords internal
+select_spatial_locations = function(...) {
+
+  .Deprecated(new = "get_spatial_locations")
+
+  get_spatial_locations(...)
+
+}
+
+
+
+
+
+
+
+
+## dimension reduction slot ####
+
+
+#' @name get_dimReduction
+#' @description function to get a dimension reduction object
 #' @keywords internal
 #' @return dim reduction coordinates (default) or dim reduction object
-select_dimReduction = function(gobject,
-                               reduction = c('cells', 'genes'),
-                               reduction_method = c('pca', 'umap', 'tsne'),
-                               name = 'pca',
-                               return_dimObj = FALSE) {
+get_dimReduction = function(gobject,
+                            reduction = c('cells', 'genes'),
+                            reduction_method = c('pca', 'umap', 'tsne'),
+                            name = 'pca',
+                            return_dimObj = FALSE) {
 
 
   ## check parameters
@@ -121,19 +160,38 @@ select_dimReduction = function(gobject,
 }
 
 
+#' @name select_dimReduction
+#' @inheritDotParams get_dimReduction
+#' @seealso \code{\link{get_dimReduction}}
+#' @keywords internal
+select_dimReduction = function(...) {
 
-#' @name select_NearestNetwork
-#' @description selects a NN-network from a Giotto object
+  .Deprecated(new = "get_dimReduction")
+
+  get_dimReduction(...)
+
+}
+
+
+
+
+
+
+## nearest neighbor network slot ####
+
+
+#' @name get_NearestNetwork
+#' @description get a NN-network from a Giotto object
 #' @param gobject giotto object
 #' @param nn_network_to_use kNN or sNN
 #' @param network_name name of NN network to be used
 #' @param output return a igraph or data.table object
 #' @return igraph or data.table object
 #' @keywords internal
-select_NearestNetwork = function(gobject,
-                                 nn_network_to_use = 'sNN',
-                                 network_name = 'sNN.pca',
-                                 output = c('igraph', 'data.table')) {
+get_NearestNetwork = function(gobject,
+                              nn_network_to_use = 'sNN',
+                              network_name = 'sNN.pca',
+                              output = c('igraph', 'data.table')) {
 
   output = match.arg(arg = output, choices = c('igraph', 'data.table'))
 
@@ -159,30 +217,47 @@ select_NearestNetwork = function(gobject,
 
 }
 
+
 #' @name extractNearestNetwork
-#' @description Function to calculate gene signature enrichment scores per spatial position using a rank based approach.
-#' @inheritDotParams select_NearestNetwork
-#' @seealso \code{\link{select_NearestNetwork}}
+#' @inheritDotParams get_NearestNetwork
+#' @seealso \code{\link{get_NearestNetwork}}
 #' @keywords internal
 extractNearestNetwork = function(...) {
 
-  .Deprecated(new = "select_NearestNetwork")
+  .Deprecated(new = "get_NearestNetwork")
 
-  select_NearestNetwork(...)
+  get_NearestNetwork(...)
+
+}
+
+
+#' @name select_NearestNetwork
+#' @inheritDotParams get_NearestNetwork
+#' @seealso \code{\link{get_NearestNetwork}}
+#' @keywords internal
+select_NearestNetwork = function(...) {
+
+  .Deprecated(new = "get_NearestNetwork")
+
+  get_NearestNetwork(...)
 
 }
 
 
 
-#' @name select_spatialNetwork
-#' @description function to select a spatial network
+
+## spatial network slot ####
+
+
+#' @name get_spatialNetwork
+#' @description function to get a spatial network
 #' @param gobject giotto object
 #' @param name name of spatial network
 #' @param return_network_Obj return network object (default = FALSE)
 #' @keywords internal
-select_spatialNetwork <- function(gobject,
-                                  name = NULL,
-                                  return_network_Obj = FALSE) {
+get_spatialNetwork <- function(gobject,
+                               name = NULL,
+                               return_network_Obj = FALSE) {
 
   if (!is.element(name, names(gobject@spatial_network))){
     message = sprintf("spatial network %s has not been created. Returning NULL.
@@ -202,15 +277,34 @@ select_spatialNetwork <- function(gobject,
 }
 
 
-#' @name select_spatialGrid
-#' @description accessor function to select spatial grid
+
+#' @name select_spatialNetwork
+#' @inheritDotParams get_spatialNetwork
+#' @seealso \code{\link{get_spatialNetwork}}
+#' @keywords internal
+select_spatialNetwork = function(...) {
+
+  .Deprecated(new = "get_spatialNetwork")
+
+  get_spatialNetwork(...)
+
+}
+
+
+
+
+## spatial grid slot ####
+
+
+#' @name get_spatialGrid
+#' @description function to get spatial grid
 #' @param gobject giotto object
 #' @param name name of spatial grid
 #' @param return_network_Obj return grid object (default = FALSE)
 #' @keywords internal
-select_spatialGrid <- function(gobject,
-                               name = NULL,
-                               return_grid_Obj = FALSE) {
+get_spatialGrid <- function(gobject,
+                            name = NULL,
+                            return_grid_Obj = FALSE) {
 
   if (!is.element(name, names(gobject@spatial_grid))){
     message = sprintf("spatial grid %s has not been created. Returning NULL.
@@ -231,16 +325,33 @@ select_spatialGrid <- function(gobject,
 
 
 
+#' @name select_spatialGrid
+#' @inheritDotParams get_spatialGrid
+#' @seealso \code{\link{get_spatialGrid}}
+#' @keywords internal
+select_spatialGrid = function(...) {
 
-#' @name select_polygon_info
-#' @description  selection giotto polygon spatVector
+  .Deprecated(new = "get_spatialGrid")
+
+  get_spatialGrid(...)
+
+}
+
+
+
+
+## polygon cell info ####
+
+
+#' @name get_polygon_info
+#' @description  get giotto polygon spatVector
 #' @param gobject giotto object
 #' @param polygon_name name of polygons
 #' @param polygon_overlap include polygon overlap information
 #' @keywords internal
-select_polygon_info = function(gobject,
-                               polygon_name = 'cell',
-                               polygon_overlap = NULL) {
+get_polygon_info = function(gobject,
+                            polygon_name = 'cell',
+                            polygon_overlap = NULL) {
 
   potential_names = names(gobject@spatial_info)
 
@@ -263,12 +374,31 @@ select_polygon_info = function(gobject,
   }
 }
 
+
+
+#' @name select_polygon_info
+#' @inheritDotParams get_polygon_info
+#' @seealso \code{\link{get_polygon_info}}
+#' @keywords internal
+select_polygon_info = function(...) {
+
+  .Deprecated(new = "get_polygon_info")
+
+  get_polygon_info(...)
+
+}
+
+
+
+
+## feature info ####
+
 #' @name select_feature_info
-#' @description  selection giotto points spatVector
+#' @description  get giotto points spatVector
 #' @param gobject giotto object
 #' @param feat_name name of feature
 #' @keywords internal
-select_feature_info = function(gobject,
+get_feature_info = function(gobject,
                                feat_name = 'rna') {
 
   potential_names = names(gobject@feat_info)
@@ -279,6 +409,19 @@ select_feature_info = function(gobject,
     feat_info = gobject@feat_info[[feat_name]]@spatVector
     return(feat_info)
   }
+}
+
+
+#' @name select_feature_info
+#' @inheritDotParams get_feature_info
+#' @seealso \code{\link{get_feature_info}}
+#' @keywords internal
+select_feature_info = function(...) {
+
+  .Deprecated(new = "get_feature_info")
+
+  get_feature_info(...)
+
 }
 
 
