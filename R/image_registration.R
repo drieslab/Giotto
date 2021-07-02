@@ -18,8 +18,8 @@ trakem2_rigid_transf_extract <- function(inputstring) {
   transfExtractPatA = "(?<=iict_transform class=\"mpicbg.trakem2.transform.RigidModel2D\" data=\")(.*)(?=\")"
   transfExtractPatB = "(?<=class=\"mpicbg.trakem2.transform.TranslationModel2D\" data=\")(.*)(?=\")"
   #Split relevant text into numerical values
-  out <- c(sapply(str_split(stringr::str_extract(string = inputstring, pattern = transfExtractPatA), pattern = ' '), function(x) as.numeric(x)),
-           sapply(str_split(stringr::str_extract(string = inputstring, pattern = transfExtractPatB), pattern = ' '), function(x) as.numeric(x)))
+  out <- c(sapply(stringr::str_split(stringr::str_extract(string = inputstring, pattern = transfExtractPatA), pattern = ' '), function(x) as.numeric(x)),
+           sapply(stringr::str_split(stringr::str_extract(string = inputstring, pattern = transfExtractPatB), pattern = ' '), function(x) as.numeric(x)))
   
   if(sum(is.na(out)) == 2) {
     out <- rep(0,5)
@@ -50,8 +50,8 @@ trakem2_rigid_transf_extract <- function(inputstring) {
 scale_spatial_locations <- function(spatlocs,
                                     scalefactor) {
   
-  spatlocs$pixel_x <- spatlocs$pixel_x*scalefactor
-  spatlocs$pixel_y <- spatlocs$pixel_y*scalefactor
+  spatlocs$sdimx <- spatlocs$sdimx*scalefactor
+  spatlocs$sdimy <- spatlocs$sdimy*scalefactor
   
   return(spatlocs)
 }
@@ -103,12 +103,12 @@ xy_translate_spatial_locations <- function(xvals,
 rigid_transform_spatial_locations <- function(spatlocs,
                                               transformvalues) {
   
-  spatLocsXY <- cbind(spatlocs$pixel_x, spatlocs$pixel_y)
+  spatLocsXY <- cbind(spatlocs$sdimx, spatlocs$sdimy) #TODO Check these
   spatLocsXY <- rotate_spatial_locations(spatLocsXY[,1],spatLocsXY[,2],transformvalues$Theta)
   spatLocsXY <- xy_translate_spatial_locations(spatLocsXY[,1],spatLocsXY[,2],transformvalues$XFinalTransform,transformvalues$YFinalTransform)
   
-  spatlocs$pixel_x <- spatLocsXY[,1]
-  spatlocs$pixel_y <- spatLocsXY[,2]
+  spatlocs$sdimx <- spatLocsXY[,1]
+  spatlocs$sdimy <- spatLocsXY[,2]
   
   return(spatlocs)
 }
@@ -263,6 +263,7 @@ registerGiottoObjectListFiji = function(gobject_list,
     #TODO Generate image adjustments if possible
     #Check if either 'image' (default) or other supplied unregistered image slot supplied through image exists in the gobject.
     if(image %in% showGiotoImageNames(gobj, verbose = FALSE)) {
+      #Check if boundaries and minmax exist for the giotto image
       if()
     }
     
@@ -323,14 +324,12 @@ registerSpatialLocations <- function(spatLocs, registerTransforms, scale_spatloc
 }
 
 #TODO edit rigid_transform_spatial_locations (gobj uses xdim and ydim)
+#TODO check on sdimx and sdimy functions (rigid_transform_spatial_locations and scale_spatial_locations)
 
 
 
 
 
-asdf <- function(a, b = a) {
-  return(b)
-}
 
 
 
