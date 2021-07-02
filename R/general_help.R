@@ -724,7 +724,7 @@ getSpatialDataset = function(dataset = c('ST_OB1',
 #' @param path_to_data path to the 10X folder
 #' @param gene_column_index which column from the features or genes .tsv file to use for row ids
 #' @return sparse expression matrix from 10X
-#' @details A typical 10X folder is named raw_feature_bc_matrix or raw_feature_bc_matrix and it has 3 files:
+#' @details A typical 10X folder is named raw_feature_bc_matrix or filtered_feature_bc_matrix and it has 3 files:
 #' \itemize{
 #'   \item{barcodes.tsv(.gz)}
 #'   \item{features.tsv(.gz) or genes.tsv(.gz)}
@@ -743,13 +743,13 @@ get10Xmatrix = function(path_to_data, gene_column_index = 1) {
 
   # get barcodes and create vector
   barcodes_file = grep(files_10X, pattern = 'barcodes', value = T)
-  barcodesDT = fread(input = paste0(path_to_data,'/',barcodes_file), header = F)
+  barcodesDT = data.table::fread(input = paste0(path_to_data,'/',barcodes_file), header = F)
   barcodes_vec = barcodesDT$V1
   names(barcodes_vec) = 1:nrow(barcodesDT)
 
   # get features and create vector
   features_file = grep(files_10X, pattern = 'features|genes', value = T)
-  featuresDT = fread(input = paste0(path_to_data,'/',features_file), header = F)
+  featuresDT = data.table::fread(input = paste0(path_to_data,'/',features_file), header = F)
 
   g_name = colnames(featuresDT)[gene_column_index]
   ## convert ensembl gene id to gene symbol ##
@@ -762,7 +762,7 @@ get10Xmatrix = function(path_to_data, gene_column_index = 1) {
 
   # get matrix
   matrix_file = grep(files_10X, pattern = 'matrix', value = T)
-  matrixDT = fread(input = paste0(path_to_data,'/',matrix_file), header = F, skip = 3)
+  matrixDT = data.table::fread(input = paste0(path_to_data,'/',matrix_file), header = F, skip = 3)
   colnames(matrixDT) = c('gene_id_num', 'cell_id_num', 'umi')
 
   # extend matrixDT with missing cell IDs
@@ -787,7 +787,9 @@ get10Xmatrix = function(path_to_data, gene_column_index = 1) {
   names(sort_gene_id_vec) = unique(matrixDT$gene_id)
   matrixDT[, sort_gene_id_num := sort_gene_id_vec[gene_id]]
 
-  sparsemat = Matrix::sparseMatrix(i = matrixDT$sort_gene_id_num, j = matrixDT$cell_id_num, x = matrixDT$umi,
+  sparsemat = Matrix::sparseMatrix(i = matrixDT$sort_gene_id_num,
+                                   j = matrixDT$cell_id_num,
+                                   x = matrixDT$umi,
                                    dimnames = list(unique(matrixDT$gene_id), unique(matrixDT$cell_id)))
 
   return(sparsemat)

@@ -2306,6 +2306,7 @@ joinGiottoObjects = function(gobject_list,
                              x_padding = 0,
                              verbose = TRUE) {
 
+
   ## check params
   if(!is.vector(gobject_names) | !is.character(gobject_names)) {
     stop('gobject_names need to be a vector with unique names for the giotto objects')
@@ -2325,6 +2326,16 @@ joinGiottoObjects = function(gobject_list,
 
 
   updated_object_list = list()
+
+
+
+
+  ## 0. re-scale spatial locations ##
+  ## ----------------------------- ##
+
+
+
+
 
 
   ## 1. update giotto objects ##
