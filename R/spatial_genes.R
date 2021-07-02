@@ -1414,9 +1414,10 @@ silhouetteRankTest = function(gobject,
   spatlocs_path = paste0(silh_output_dir,'/', 'format_spatlocs.txt')
 
   ## write expression to .txt file
-  write.table(x = as.matrix(expr_values),
-              file = paste0(silh_output_dir,'/', 'expression.txt'),
-              quote = F, sep = '\t', col.names=NA)
+  #write.table(x = as.matrix(expr_values),
+  #            file = paste0(silh_output_dir,'/', 'expression.txt'),
+  #            quote = F, sep = '\t', col.names=NA)
+  data.table::fwrite(data.table::as.data.table(expr_values, keep.rownames="gene"), file=fs::path(silh_output_dir, "expression.txt"), quot=F, sep="\t", col.names=T, row.names=F)
 
   expr_values_path = paste0(silh_output_dir,'/', 'expression.txt')
 

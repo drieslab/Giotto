@@ -765,7 +765,6 @@ get10Xmatrix = function(path_to_data, gene_column_index = 1) {
     matrixDT = rbind(matrixDT, missing_matrixDT)
   }
 
-
   # convert barcodes and features
   matrixDT[, gene_id := features_vec[gene_id_num]]
   matrixDT[, cell_id := barcodes_vec[cell_id_num]]
@@ -808,7 +807,7 @@ get10Xmatrix_h5 = function(path_to_data, gene_ids = c('symbols', 'ensembl')) {
   # select parameter
   gene_ids = match.arg(gene_ids, choices = c('symbols', 'ensembl'))
 
-  h5 <- hdf5r::H5File$new(h5_file)
+  h5 = hdf5r::H5File$new(path_to_data)
 
   tryCatch({
 
@@ -834,7 +833,7 @@ get10Xmatrix_h5 = function(path_to_data, gene_ids = c('symbols', 'ensembl')) {
     indptr = h5[[paste0(root, "/indptr")]][]
 
     # create a feature data.table
-    features_dt <- data.table::data.table(
+    features_dt = data.table::data.table(
       'id' = feature_id,
       'name' = feature_names,
       'feature_type' = feature_types,
@@ -843,6 +842,10 @@ get10Xmatrix_h5 = function(path_to_data, gene_ids = c('symbols', 'ensembl')) {
 
     # create uniq name symbols
     # duplicate gene symbols will be given a suffix '_1', '_2', ...
+
+    # data.table variables
+    nr_name = name = uniq_name = NULL
+
     features_dt[, nr_name := 1:.N, by = name]
     features_dt[, uniq_name := ifelse(nr_name == 1, name, paste0(name, '_', (nr_name-1)))]
 

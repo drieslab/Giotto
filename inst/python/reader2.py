@@ -66,7 +66,13 @@ def read_graph(n, cells):
 
 def read_expression_classic(n):
 	f = open(n)
-	h = f.readline().rstrip("\n").split()
+	#h = f.readline().rstrip("\n").split()
+	h = f.readline().rstrip("\n")
+	#header begins with space
+	if h.startswith(" "):
+		h = h.split()
+	else: #header startswith a gene name
+		h = h.split()[1:]
 	num_cell = len(h)
 	num_gene = 0
 	for l in f:
