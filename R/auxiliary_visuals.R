@@ -546,6 +546,10 @@ showClusterDendrogram <- function(gobject,
                                   default_save_name = 'showClusterDendrogram',
                                   ...) {
 
+
+  # verify if optional package is installed
+  package_check(pkg_name = "ggdendro", repository = "CRAN")
+
   cor = match.arg(cor, c('pearson', 'spearman'))
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
 
