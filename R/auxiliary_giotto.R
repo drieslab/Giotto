@@ -330,7 +330,7 @@ create_average_DT <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_data = select_expression_values(gobject = gobject,
+  expr_data = get_expression_values(gobject = gobject,
                                        feat_type = feat_type,
                                        values = values)
 
@@ -379,7 +379,7 @@ create_average_detection_DT <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_data = select_expression_values(gobject = gobject,
+  expr_data = get_expression_values(gobject = gobject,
                                        feat_type = feat_type,
                                        values = values)
 
@@ -981,7 +981,7 @@ filterDistributions <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('raw', 'normalized', 'scaled', 'custom', expression_values)))
-  expr_values = select_expression_values(gobject = gobject,
+  expr_values = get_expression_values(gobject = gobject,
                                          feat_type = feat_type,
                                          values = values)
 
@@ -1140,7 +1140,7 @@ filterCombinations <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('raw', 'normalized', 'scaled', 'custom', expression_values)))
-  expr_values = select_expression_values(gobject = gobject,
+  expr_values = get_expression_values(gobject = gobject,
                                          feat_type = feat_type,
                                          values = values)
 
@@ -1292,7 +1292,7 @@ filterGiotto <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('raw', 'normalized', 'scaled', 'custom', expression_values)))
-  expr_values = Giotto:::select_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+  expr_values = Giotto:::get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
 
   # approach:
   # 1. first remove genes that are not frequently detected
@@ -1715,7 +1715,7 @@ adjustGiottoMatrix <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_data = select_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+  expr_data = get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
 
 
   # batch columns
@@ -2210,7 +2210,7 @@ addFeatStatistics <- function(gobject,
 
   # expression values to be used
   expression_values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_data = select_expression_values(gobject = gobject, feat_type = feat_type, values = expression_values)
+  expr_data = get_expression_values(gobject = gobject, feat_type = feat_type, values = expression_values)
 
   # calculate stats
   feat_stats = data.table::data.table(feats = rownames(expr_data),
@@ -2344,7 +2344,7 @@ addCellStatistics <- function(gobject,
 
   # expression values to be used
   expression_values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_data = select_expression_values(gobject = gobject, feat_type = feat_type, values = expression_values)
+  expr_data = get_expression_values(gobject = gobject, feat_type = feat_type, values = expression_values)
 
   # calculate stats
   cell_stats = data.table::data.table(cells = colnames(expr_data),
@@ -2497,7 +2497,7 @@ addFeatsPerc = function(gobject,
 
   # expression values to be used
   expression_values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_data = select_expression_values(gobject = gobject, feat_type = feat_type, values = expression_values)
+  expr_data = get_expression_values(gobject = gobject, feat_type = feat_type, values = expression_values)
 
 
   totalsum = colSums_flex(expr_data)
@@ -2829,7 +2829,7 @@ calculateMetaTable = function(gobject,
 
   ## get expression data
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_values = select_expression_values(gobject = gobject,
+  expr_values = get_expression_values(gobject = gobject,
                                          feat_type = feat_type,
                                          values = values)
   if(!is.null(selected_feats)) {
@@ -2931,7 +2931,7 @@ combineMetadata = function(gobject,
   metadata = pDataDT(gobject, feat_type = feat_type)
 
   # spatial locations
-  spatial_locs = select_spatial_locations(gobject = gobject,
+  spatial_locs = get_spatial_locations(gobject = gobject,
                                           spat_loc_name = spat_loc_name)
   #spatial_locs = data.table::copy(gobject@spatial_locs)
 
@@ -3013,7 +3013,7 @@ createMetafeats = function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_values = select_expression_values(gobject = gobject,
+  expr_values = get_expression_values(gobject = gobject,
                                          feat_type = feat_type,
                                          values = values)
 
@@ -3127,7 +3127,7 @@ findNetworkNeighbors = function(gobject,
 
   # get spatial network
   if(!is.null(spatial_network_name)) {
-    spatial_network = select_spatialNetwork(gobject, name = spatial_network_name, return_network_Obj = FALSE)
+    spatial_network = get_spatialNetwork(gobject, name = spatial_network_name, return_network_Obj = FALSE)
   } else {
     stop('You need to select a spatial network')
   }
