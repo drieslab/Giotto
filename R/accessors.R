@@ -684,3 +684,38 @@ set_feature_info = function(gobject,
 
 
 
+#' @name showGiottoSpatialInfo
+#' @description show the available giotto spatial polygon information
+#' @param gobject giotto object
+#' @keywords show
+#' @export
+showGiottoSpatialInfo = function(gobject) {
+
+  for(info in names(gobject@spatial_info)) {
+
+    cat("For Spatial info: ", info, "\n\n")
+    print(gobject@spatial_info[[info]])
+    cat("-----------------------------")
+    cat("\n \n")
+  }
+
+}
+
+
+#' @name showGiottoFeatInfo
+#' @description show the available giotto spatial feature information
+#' @param gobject giotto object
+#' @keywords show
+#' @export
+showGiottoFeatInfo = function(gobject) {
+
+  for(info in names(gobject@feat_info)) {
+
+    cat("For Feature info: ", info, "\n\n")
+    print(gobject@feat_info[[info]])
+    cat("-----------------------------")
+    cat("\n \n")
+  }
+
+}
+
