@@ -118,25 +118,31 @@ cor_flex = function(x, ...) {
 #' @keywords internal
 flex_lapply = function(X, cores = NA, fun, ...) {
 
+  # a simple wrapper for future.apply::future_lapply
+  # probably does not need any additional changes
+
+  # potential addition:
+  # check if future::plan() was already set by user
+  # if not, set plan(multisession, workers = cores) by default
+
+
   # get type of os
   os = .Platform$OS.type
 
   # set number of cores automatically, but with limit of 10
   cores = determine_cores(cores)
 
-  if(os == 'unix') {
-    save_list = parallel::mclapply(X = X, mc.cores = cores,
-                                   FUN = fun, ...)
-  } else if(os == 'windows') {
-    save_list = parallel::mclapply(X = X, mc.cores = 1,
-                                   FUN = fun, ...)
 
-    # !! unexplainable errors are returned for some nodes !! #
-    # currently disabled #
-    #cl <- parallel::makeCluster(cores)
-    #save_list = parallel::parLapply(cl = cl, X = X,
-    #                                fun = fun, ...)
-  }
+  # future_lapply call
+  save_list = future.apply::future_lapply(X = X, FUN = fun, ...)
+
+  #if(os == 'unix') {
+  #  save_list = parallel::mclapply(X = X, mc.cores = cores,
+  #                                 FUN = fun, ...)
+  #} else if(os == 'windows') {
+  #  save_list = parallel::mclapply(X = X, mc.cores = 1,
+  #                                 FUN = fun, ...)
+  #}
 
   return(save_list)
 }
