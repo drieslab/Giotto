@@ -177,7 +177,7 @@ spatInSituPlotPoints = function(gobject,
 
     #testobj@spatial_info$cell@spatVector
 
-    polygon_info = select_polygon_info(gobject = gobject,
+    polygon_info = get_polygon_info(gobject = gobject,
                                        polygon_name = polygon_feat_type)
     polygon_dt = spatVector_to_dt(polygon_info)
 
@@ -328,7 +328,7 @@ spatInSituPlotHex_single = function(gobject,
     #polygon_dt = combineSpatialCellMetadataInfo(gobject, feat_type = polygon_feat_type)
     #polygon_dt = polygon_dt[[polygon_feat_type]]
 
-    polygon_info = select_polygon_info(gobject = gobject,
+    polygon_info = get_polygon_info(gobject = gobject,
                                        polygon_name = polygon_feat_type)
     polygon_dt = spatVector_to_dt(polygon_info)
 
@@ -584,7 +584,7 @@ spatInSituPlotDensity_single = function(gobject,
     }
 
 
-    polygon_info = select_polygon_info(gobject = gobject,
+    polygon_info = get_polygon_info(gobject = gobject,
                                        polygon_name = polygon_feat_type)
     polygon_dt = spatVector_to_dt(polygon_info)
 

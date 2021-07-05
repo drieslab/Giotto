@@ -947,14 +947,14 @@ addGiottoPoints = function(gobject,
 
     extra_feats = gpoints_feats[!gpoints_feats %in% gobject_feats]
     if(length(extra_feats) > 0) {
-      stop('too many features, these features are not in the original giotto object: \n',
-           extra_feats, ' \n please remove them')
+      warning(length(extra_feats), ' too many features, these features are not in the original giotto object: \n',
+           paste(extra_feats, ' '), ' \n you may want to remove them')
     }
 
     missing_feats = gobject_feats[!gobject_feats %in% gpoints_feats]
     if(length(missing_feats) > 0) {
-      stop('missing features, these features are not found in the giotto points object: \n',
-           missing_feats, ' \n please add them')
+      warning(length(missing_feats), ' missing features, these features are not found in the giotto points object: \n',
+           paste(missing_feats, ' '), ' \n you may want to add them')
     }
 
     gobject@feat_info[[gp@feat_type]] = gp

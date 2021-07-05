@@ -683,6 +683,105 @@ set_feature_info = function(gobject,
 ## Show functions ####
 
 
+#' @name showGiottoExpression
+#' @description shows the available matrices
+#' @param gobject giotto object
+#' @param nrows number of rows to print for each matrix
+#' @param ncols number of columns to print for each matrix
+#' @return prints the name and small subset of available matrices
+#' @export
+showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
+
+  for(feat_type in names(gobject@expression)) {
+
+    cat('Feature ', feat_type, ': \n\n')
+
+    for(mat_i in names(gobject@expression[[feat_type]])) {
+
+      cat('---> ', mat_i, 'matrix: \n')
+
+      print(gobject@expression[[feat_type]][[mat_i]][1:nrows, 1:ncols])
+      cat('\n')
+    }
+
+  }
+
+}
+
+
+#' @name showGiottoSpatLocs
+#' @description shows the available spatial locations
+#' @param gobject giotto object
+#' @param nrows number of rows to print for each spatial location data.table
+#' @return prints the name and small subset of available data.table
+#' @export
+showGiottoSpatLocs = function(gobject, nrows = 4) {
+
+  for(spatlocname in names(gobject@spatial_locs)) {
+    cat('Name ', spatlocname, ': \n\n')
+    print(gobject@spatial_locs[[spatlocname]][1:nrows,])
+  }
+}
+
+
+
+#' @name showGiottoDimRed
+#' @description shows the available dimension reductions
+#' @param gobject giotto object
+#' @param nrows number of coordinates rows to print
+#' @param ncols number of coordinates columns to print
+#' @return prints the name and small subset of available dimension reduction coordinates
+#' @export
+showGiottoDimRed = function(gobject,
+                            nrows = 3,
+                            ncols = 2) {
+
+
+  # for features
+  cat('Dim reduction on features:',
+      '\n',
+      '-------------------------',
+      '\n\n\n')
+
+  for(dim_type in names(gobject@dimension_reduction[['feats']])) {
+
+    cat('Dim reduction ', dim_type, ': \n\n')
+
+    for(sub_type in names(gobject@dimension_reduction[['feats']][[dim_type]])) {
+
+      cat('---> ', sub_type, 'coordinates: \n')
+
+      print(gobject@dimension_reduction[['feats']][[dim_type]][[sub_type]][['coordinates']][1:nrows, 1:ncols])
+      cat('\n')
+    }
+
+  }
+
+  # for cells
+  cat('Dim reduction on cells:',
+      '\n',
+      '----------------------',
+      '\n\n\n')
+  for(dim_type in names(gobject@dimension_reduction[['cells']])) {
+
+    cat('Dim reduction ', dim_type, ': \n\n')
+
+    for(sub_type in names(gobject@dimension_reduction[['cells']][[dim_type]])) {
+
+      cat('---> ', sub_type, 'coordinates: \n')
+
+      print(gobject@dimension_reduction[['cells']][[dim_type]][[sub_type]][['coordinates']][1:nrows, 1:ncols])
+      cat('\n')
+    }
+
+  }
+
+}
+
+
+
+
+
 
 #' @name showGiottoSpatialInfo
 #' @description show the available giotto spatial polygon information
