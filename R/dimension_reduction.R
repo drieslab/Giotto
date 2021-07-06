@@ -39,6 +39,8 @@ create_dimObject = function(name = 'test',
 
 
 
+## * PCA  ####
+# ---------- #
 
 #' @title pca_giotto
 #' @name pca_giotto
@@ -472,7 +474,7 @@ runPCA <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_values = select_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+  expr_values = get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
 
   ## subset matrix
   if(!is.null(feats_to_use)) {
@@ -569,6 +571,8 @@ runPCA <- function(gobject,
 }
 
 
+## * PC estimates ####
+# ------------------ #
 
 #' @title create_screeplot
 #' @name create_screeplot
@@ -728,7 +732,7 @@ screePlot = function(gobject,
 
     # expression values to be used
     values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-    expr_values = select_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+    expr_values = get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
 
     # PCA implementation
     method = match.arg(method, c('irlba', 'exact', 'random','factominer'))
@@ -905,7 +909,7 @@ jackstrawPlot = function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_values = select_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+  expr_values = get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
 
 
   ## subset matrix
@@ -1027,7 +1031,7 @@ signPCA <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  expr_values = get_expression_values(gobject = gobject, values = values)
 
   # print, return and save parameters
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
@@ -1136,7 +1140,8 @@ signPCA <- function(gobject,
 
 
 
-
+## * Dim reduction algos ####
+# ------------------------- #
 
 #' @name runUMAP
 #' @description run UMAP
@@ -1248,7 +1253,7 @@ runUMAP <- function(gobject,
     if(!is.null(dim_reduction_to_use)) {
 
       ## TODO: check if reduction exists
-      matrix_to_use = select_dimReduction(gobject = gobject,
+      matrix_to_use = get_dimReduction(gobject = gobject,
                                           reduction = reduction,
                                           reduction_method = dim_reduction_to_use,
                                           name = dim_reduction_name,
@@ -1262,7 +1267,7 @@ runUMAP <- function(gobject,
       ## using original matrix ##
       # expression values to be used
       values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-      expr_values = select_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+      expr_values = get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
 
 
       ## subset matrix
@@ -1447,7 +1452,7 @@ runtSNE <- function(gobject,
     if(!is.null(dim_reduction_to_use)) {
 
       ## TODO: check if reduction exists
-      matrix_to_use = select_dimReduction(gobject = gobject,
+      matrix_to_use = get_dimReduction(gobject = gobject,
                                           reduction = reduction,
                                           reduction_method = dim_reduction_to_use,
                                           name = dim_reduction_name,
@@ -1461,7 +1466,7 @@ runtSNE <- function(gobject,
       ## using original matrix ##
       # expression values to be used
       values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-      expr_values = select_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+      expr_values = get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
 
       ## subset matrix
       if(!is.null(genes_to_use)) {
@@ -1631,7 +1636,7 @@ runGiottoHarmony = function(gobject,
   if(!is.null(dim_reduction_to_use)) {
 
     ## TODO: check if reduction exists
-    matrix_to_use = select_dimReduction(gobject = gobject,
+    matrix_to_use = get_dimReduction(gobject = gobject,
                                         reduction = 'cells',
                                         reduction_method = dim_reduction_to_use,
                                         name = dim_reduction_name,
@@ -1643,7 +1648,7 @@ runGiottoHarmony = function(gobject,
     ## using original matrix ##
     # expression values to be used
     values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-    expr_values = select_expression_values(gobject = gobject,
+    expr_values = get_expression_values(gobject = gobject,
                                            feat_type = feat_type,
                                            values = values)
 

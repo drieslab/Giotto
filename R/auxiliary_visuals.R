@@ -1,5 +1,4 @@
 
-#' @title aes_string2
 #' @name aes_string2
 #' @param \dots aes_string parameters
 #' @keywords internal
@@ -8,6 +7,29 @@ aes_string2 <- function(...){
   args <- lapply(list(...), function(x) sprintf("`%s`", x))
   do.call(ggplot2::aes_string, args)
 }
+
+
+#' @name giotto_point
+#' @param \dots geom_point parameters
+#' @keywords internal
+#' @description uses ggplot::geom_point or scattermore::geom_scattermore
+giotto_point = function(use_scattermore = FALSE,
+                        ...) {
+
+  if(use_scattermore == FALSE) {
+    ggplot2::geom_point(...)
+  } else {
+    package_check(pkg_name = "scattermore",
+                  repository = "github",
+                  github_repo = 'exaexa/scattermore')
+    scattermore::geom_scattermore(...)
+  }
+
+}
+
+
+
+
 
 
 
