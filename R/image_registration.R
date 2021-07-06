@@ -97,15 +97,15 @@ xy_translate_spatial_locations <- function(xvals,
 #' @name rigid_transform_spatial_locations
 #' @description Performs appropriate transforms to align spatial locations with registered images.
 #' @param spatlocs input spatial locations
-#' @param transformvalues transformation values to use
+#' @param transform_values transformation values to use
 #' @keywords internal
 #Rotation is performed first, followed by XY transform
 rigid_transform_spatial_locations <- function(spatlocs,
-                                              transformvalues) {
+                                              transform_values) {
   
   spatLocsXY <- cbind(spatlocs$sdimx, spatlocs$sdimy) #TODO Check these
-  spatLocsXY <- rotate_spatial_locations(spatLocsXY[,1],spatLocsXY[,2],transformvalues$Theta)
-  spatLocsXY <- xy_translate_spatial_locations(spatLocsXY[,1],spatLocsXY[,2],transformvalues$XFinalTransform,transformvalues$YFinalTransform)
+  spatLocsXY <- rotate_spatial_locations(spatLocsXY[,1],spatLocsXY[,2],transform_values$Theta)
+  spatLocsXY <- xy_translate_spatial_locations(spatLocsXY[,1],spatLocsXY[,2],transform_values$XFinalTransform,transform_values$YFinalTransform)
   
   spatlocs$sdimx <- spatLocsXY[,1]
   spatlocs$sdimy <- spatLocsXY[,2]
@@ -113,6 +113,23 @@ rigid_transform_spatial_locations <- function(spatlocs,
   return(spatlocs)
 }
 
+#' @name auto_comp_reg_border
+#' @description adjusts for increase in gobject image extent from transformations performed during registration
+#' @param gobject gobject to use
+#' @param transform_values transformation values to use
+#' @keywords internal
+#Automatically account for changes in image size due to alignment
+auto_comp_reg_border <- function(gobject,transform_values) {
+  
+  #Find image spatial info from original image if possible
+  if(image %in% showGiotoImageNames(gobj, verbose = FALSE)) {
+    im_info <- list(gobj@images$[[image]]@boundaries,
+                    gobj@images$[[image]]@minmax)
+    
+    
+  }
+}
+  
 
 
 
@@ -143,6 +160,7 @@ registerGiottoObjectList <- function(gobject_list,
                                      fiji_registered_images,
                                      scaling = 1,
                                      allow_rvision_autoscale = TRUE,
+                                     auto_comp_reg_border = TRUE,
                                      verbose = TRUE) {
   
   if(method == 'fiji') {
@@ -154,7 +172,8 @@ registerGiottoObjectList <- function(gobject_list,
                                                 xml_files = fiji_xml_files,
                                                 registered_images = fiji_registered_images,
                                                 registered_image_name = registered_image_name,
-                                                scaling = scaling
+                                                scaling = scaling,
+                                                auto_comp_reg_border = auto_comp_reg_border,
                                                 verbose = verbose)
   
   ##TODO:
@@ -168,6 +187,7 @@ registerGiottoObjectList <- function(gobject_list,
   #                                                  spat_loc_name = spat_loc_name,
   #                                                  scaling = scaling,
   #                                                  allow_rvision_autoscale = allow_rvision_autoscale,
+  #                                                  auto_comp_reg_border = auto_comp_reg_border,  
   #                                                  verbose = verbose)
 
   } else {
@@ -200,6 +220,7 @@ registerGiottoObjectListFiji = function(gobject_list,
                                         xml_files,
                                         registered_images = NULL,
                                         scaling = 1,
+                                        auto_comp_reg_border,
                                         verbose = TRUE) {
   
   ## 1. get spatial coordinates and put in list ##
@@ -237,7 +258,7 @@ registerGiottoObjectListFiji = function(gobject_list,
   
   spatloc_list <- lapply(1:length(spatloc_list),
                          FUN = function(x) {rigid_transform_spatial_locations(spatlocs = spatloc_list[[x]],
-                                                                              transformvalues = transformsDF[[x]])
+                                                                              transform_values = transformsDF[[x]])
                            })
 
   ## 4. update Giotto slots and names and return list of Giotto object
@@ -258,14 +279,9 @@ registerGiottoObjectListFiji = function(gobject_list,
     
     #Assign registered spatial locations from spatloc_list to gobject_list
     gobj@spatial_locs$spat_loc_values <- spatloc_list[[gobj_i]]
+
     
-    
-    #TODO Generate image adjustments if possible
-    #Check if either 'image' (default) or other supplied unregistered image slot supplied through image exists in the gobject.
-    if(image %in% showGiotoImageNames(gobj, verbose = FALSE)) {
-      #Check if boundaries and minmax exist for the giotto image
-      if()
-    }
+        
     
     
     #If there is an image in the image slot and the intended slot of the registered image is 'image'
@@ -285,8 +301,14 @@ registerGiottoObjectListFiji = function(gobject_list,
     #Create a giotto image if there are registered images supplied
     if(registered_images != NULL) {
       g_image <- createGiottoImage(registered_images[gobj_i])
+      
+      
+      #TODO Generate image adjustments if possible
+      #Check if either 'image' (default) or other supplied unregistered image slot supplied through image exists in the gobject.
+      
     }
 
+    
     
     
     gobj@images$[[registered_image_name]] 
@@ -318,16 +340,13 @@ registerSpatialLocations <- function(spatLocs, registerTransforms, scale_spatloc
   #Start with scaling of the spatial coordinates
   spatLocs <- lapply(spatLocs, scale_spatial_locations, scalefactor = scale_spatloc_factor)
   
-  spatLocs <- lapply(1:length(spatLocs), FUN = function(x) {rigid_transform_spatial_locations(spatlocs = spatLocs[[x]],transformvalues = transfDF[[x]])})
+  spatLocs <- lapply(1:length(spatLocs), FUN = function(x) {rigid_transform_spatial_locations(spatlocs = spatLocs[[x]],transform_values = transfDF[[x]])})
   
   return(spatLocs)
 }
 
 #TODO edit rigid_transform_spatial_locations (gobj uses xdim and ydim)
 #TODO check on sdimx and sdimy functions (rigid_transform_spatial_locations and scale_spatial_locations)
-
-
-
 
 
 
