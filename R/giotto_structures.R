@@ -554,14 +554,41 @@ extract_polygon_list = function(polygonlist) {
 #' @name addGiottoPolygons
 #' @description Adds Giotto polygon to an existing Giotto object
 #' @param gobject giotto object
-#' @param gpolygons list of giotto polygon objects
-#' @return
+#' @param gpolygons list of giotto polygon objects,
+#' see \code{\link{createGiottoPolygonsFromMask}} and \code{\link{createGiottoPolygonsFromDfr}}
+#' @return giotto object
 #' @keywords polygon
 #' @export
 addGiottoPolygons = function(gobject,
                              gpolygons) {
 
-  cat('Does not exist yet')
+  # check input
+  if(!inherits(gobject, 'giotto')) {
+    stop('gobject needs to be a giotto object')
+  }
+
+  if(!inherits(gpolygons, 'list')) {
+    stop('gpolygons needs to be a list of one or more giottoPolygon objects')
+  }
+
+
+  # add each giottoPoint object to the giotto object
+  for(gp_i in 1:length(gpolygons)) {
+
+    gp = gpolygons[[gp_i]]
+
+    # check if giottoPoint object
+    if(!inherits(gp, 'giottoPolygon')) {
+      stop('gpolygons needs to be a list of one or more giottoPolygon objects', '\n',
+           'number ', gp_i, ' is not a giottoPolygon object \n')
+    }
+
+
+    gobject@spatial_info[[gp@name]] = gp
+
+  }
+
+  return(gobject)
 
 }
 
@@ -803,9 +830,9 @@ create_spatvector_object_from_dfr = function(x) {
 
 #' @name createGiottoPoints
 #' @description Creates Giotto point object from a structured dataframe-like object
-#' @param x data.frame-like object with points coordinate information (x, y, feat ID)
+#' @param x spatVector or data.frame-like object with points coordinate information (x, y, feat ID)
 #' @param feat_type feature type
-#' @return
+#' @return giottoPoints
 #' @keywords polygon
 #' @export
 createGiottoPoints = function(x,
@@ -878,14 +905,63 @@ dt_to_spatVector_points = function(dt,
 #' @name addGiottoPoints
 #' @description Adds Giotto points to an existing Giotto object
 #' @param gobject giotto object
-#' @param gpoints list of giotto point objects
-#' @return
+#' @param gpoints list of giotto point objects, see \code{\link{createGiottoPoints}}
+#' @return giotto object
 #' @keywords polygon
 #' @export
 addGiottoPoints = function(gobject,
                            gpoints) {
 
-  cat('Does not exist yet')
+  # check input
+  if(!inherits(gobject, 'giotto')) {
+    stop('gobject needs to be a giotto object')
+  }
+
+  if(!inherits(gpoints, 'list')) {
+    stop('gpoints needs to be a list of one or more giottoPoints objects')
+  }
+
+  # available features types
+  feat_types = gobject@expression_feat
+
+
+  # add each giottoPoint object to the giotto object
+  for(gp_i in 1:length(gpoints)) {
+
+    gp = gpoints[[gp_i]]
+
+    # check if giottoPoint object
+    if(!inherits(gp, 'giottoPoints')) {
+      stop('gpoints needs to be a list of one or more giottoPoints objects', '\n',
+           'number ', gp_i, ' is not a giottoPoints object \n')
+    }
+
+    # check if feature type is available
+    if(!gp@feat_type %in% feat_types) {
+      stop(gp@feat_type, ' is not a feature type in the giotto object \n')
+    }
+
+    # check if features match
+    gobject_feats = gobject@feat_ID[[gp@feat_type]]
+    gpoints_feats = unique(gp@spatVector[['feat_ID']][[1]])
+
+    extra_feats = gpoints_feats[!gpoints_feats %in% gobject_feats]
+    if(length(extra_feats) > 0) {
+      warning(length(extra_feats), ' too many features, these features are not in the original giotto object: \n',
+           paste(extra_feats, ' '), ' \n you may want to remove them')
+    }
+
+    missing_feats = gobject_feats[!gobject_feats %in% gpoints_feats]
+    if(length(missing_feats) > 0) {
+      warning(length(missing_feats), ' missing features, these features are not found in the giotto points object: \n',
+           paste(missing_feats, ' '), ' \n you may want to add them')
+    }
+
+    gobject@feat_info[[gp@feat_type]] = gp
+
+  }
+
+  return(gobject)
 
 }
 
@@ -1145,7 +1221,7 @@ overlapToMatrix = function(gobject,
                            return_gobject = TRUE) {
 
 
-  overlap_spatvec = select_polygon_info(gobject = gobject,
+  overlap_spatvec = get_polygon_info(gobject = gobject,
                                         polygon_name = poly_info,
                                         polygon_overlap = feat_info)
 
@@ -1225,8 +1301,8 @@ combineCellData = function(gobject,
 
   # get spatial locations
   if(include_spat_locs == TRUE) {
-    spat_locs_dt = select_spatial_locations(gobject = gobject,
-                                            spat_loc_name = spat_loc_name)
+    spat_locs_dt = get_spatial_locations(gobject = gobject,
+                                         spat_loc_name = spat_loc_name)
   } else {
     spat_locs_dt = NULL
   }
@@ -1235,8 +1311,8 @@ combineCellData = function(gobject,
   # get spatial cell information
   if(include_poly_info == TRUE) {
     # get spatial cell information
-    spatial_cell_info_spatvec = select_polygon_info(gobject = gobject,
-                                                    polygon_name = poly_info)
+    spatial_cell_info_spatvec = get_polygon_info(gobject = gobject,
+                                                 polygon_name = poly_info)
     spatial_cell_info_dt = spatVector_to_dt(spatial_cell_info_spatvec,
                                             include_values = TRUE)
     data.table::setnames(spatial_cell_info_dt, old = 'poly_ID', new = 'cell_ID')
@@ -1247,7 +1323,9 @@ combineCellData = function(gobject,
 
   # combine prior information if wanted
   if(!is.null(spat_locs_dt) & !is.null(spatial_cell_info_dt)) {
-    comb_dt = data.table::merge.data.table(spat_locs_dt, spatial_cell_info_dt, by = 'cell_ID')
+    comb_dt = data.table::merge.data.table(spat_locs_dt,
+                                           spatial_cell_info_dt,
+                                           by = 'cell_ID')
   } else if(!is.null(spat_locs_dt)) {
     comb_dt = spat_locs_dt
   } else if(!is.null(spatial_cell_info_dt)) {
@@ -1314,7 +1392,7 @@ combineFeatureData = function(gobject,
 
 
     # feature info
-    feat_info_spatvec = select_feature_info(gobject = gobject,
+    feat_info_spatvec = get_feature_info(gobject = gobject,
                                             feat_name = feat)
     feat_info = spatVector_to_dt(feat_info_spatvec)
     if(!is.null(sel_feats[[feat_type]])) {
@@ -1372,7 +1450,7 @@ combineFeatureOverlapData = function(gobject,
     # overlap poly and feat info
     poly_list = list()
     for(poly in poly_info) {
-      feat_overlap_info_spatvec = select_polygon_info(gobject = gobject,
+      feat_overlap_info_spatvec = get_polygon_info(gobject = gobject,
                                                       polygon_name = poly,
                                                       polygon_overlap = feat)
       feat_overlap_info = spatVector_to_dt(feat_overlap_info_spatvec)
@@ -1402,39 +1480,4 @@ combineFeatureOverlapData = function(gobject,
 
 
 
-
-#' @name showGiottoSpatialInfo
-#' @description show the available giotto spatial polygon information
-#' @param gobject giotto object
-#' @keywords show
-#' @export
-showGiottoSpatialInfo = function(gobject) {
-
-  for(info in names(gobject@spatial_info)) {
-
-    cat("For Spatial info: ", info, "\n\n")
-    print(gobject@spatial_info[[info]])
-    cat("-----------------------------")
-    cat("\n \n")
-  }
-
-}
-
-
-#' @name showGiottoFeatInfo
-#' @description show the available giotto spatial feature information
-#' @param gobject giotto object
-#' @keywords show
-#' @export
-showGiottoFeatInfo = function(gobject) {
-
-  for(info in names(gobject@feat_info)) {
-
-    cat("For Feature info: ", info, "\n\n")
-    print(gobject@feat_info[[info]])
-    cat("-----------------------------")
-    cat("\n \n")
-  }
-
-}
 

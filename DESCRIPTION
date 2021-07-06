@@ -1,14 +1,14 @@
 Package: Giotto
 Title: Spatial Single-Cell Transcriptomics Toolbox
-Version: 2.0.0.9027
+Version: 2.0.0.9031
 Authors@R: c(
 	person("Ruben", "Dries", email = "rubendries@gmail.com",
 		 role = c("aut", "cre")),
-	person("Qian", "Zhu", email = "zqian@jimmy.harvard.edu",
+	person("Jiaji", "George Chen", email = "jiajic@bu.edu",
 		 role = c("aut")),
-	person("Huipeng", "Li", email = "Huipeng_Li@DFCI.HARVARD.EDU",
-		role = c("aut")),
-	person("Rui", "Dong", email = "rdong@jimmy.harvard.edu",
+	person("Natalie", "Del Rossi", email = "natalie.delrossi@mssm.edu",
+		 role = c("aut")),
+	person("Qian", "Zhu", email = "zqian@jimmy.harvard.edu",
 		 role = c("aut")),
 	person("Guo-Cheng", "Yuan", email = "guo-cheng.yuan@mssm.edu",
 		 role = c("aut"))
@@ -39,9 +39,9 @@ Imports:
     devtools,
     farver (>= 2.0.3),
     fitdistrplus,
-    ggalluvial (>= 0.9.1),
+    future,
+    future.apply,
     ggplot2 (>= 3.1.1),
-    ggdendro,
     ggraph,
     grDevices,
     graphics,
@@ -62,7 +62,6 @@ Imports:
     Rcpp,
     reshape2,
     reticulate (>= 1.14),
-    Rfast,
     Rtsne (>= 0.15),
     rlang (>= 0.4.3),
     R.utils,
@@ -76,6 +75,8 @@ Suggests:
     FactoMineR,
     factoextra,
     geometry,
+    ggalluvial,
+    ggdendro,
     ggforce,
     ggrepel,
     htmlwidgets,

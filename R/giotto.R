@@ -1042,9 +1042,12 @@ evaluate_feat_info = function(spatial_feat_info,
 #' @param expression_feat available features (e.g. rna, protein, ...)
 #' @param spatial_locs data.table or data.frame with coordinates for cell centroids
 #' @param spatial_info information about spatial units
+#' @param spatial_info list of giotto polygon objects with spatial information,
+#' see \code{\link{createGiottoPolygonsFromMask}} and \code{\link{createGiottoPolygonsFromDfr}}
 #' @param cell_metadata cell annotation metadata
 #' @param feat_metadata feature annotation metadata for each unique feature
-#' @param feat_info information about features for each unique feature
+#' @param feat_info list of giotto point objects with feature info,
+#' see \code{\link{createGiottoPoints}}
 #' @param spatial_network list of spatial network(s)
 #' @param spatial_network_name list of spatial network name(s)
 #' @param spatial_grid list of spatial grid(s)
@@ -1238,14 +1241,8 @@ createGiottoObject <- function(expression,
 
   } else {
 
-
-    # evaluate spatial info, needs to be compatible with spatial_locs
-    #spatial_info = evaluate_spatial_info(spatial_info = spatial_info,
-    #                                     cores = cores,
-    #                                     spatial_locs = spatial_locs)
-
-    # TODO: evaluate if spatial info is a proper Giotto polygon object
-    gobject@spatial_info = spatial_info
+    gobject = addGiottoPolygons(gobject = gobject,
+                                gpolygons = spatial_info)
 
   }
 
@@ -1312,29 +1309,19 @@ createGiottoObject <- function(expression,
 
   } else {
 
-    feat_info_names = names(feat_info)
+    gobject = addGiottoPoints(gobject = gobject,
+                              gpoints = feat_info)
 
-    for(feat_type in feat_info_names) {
-
-      if(!feat_type %in% expression_feat) {
-        warning('The feat info for ', feat_type, ' was not found back in ', expression_feat, ' and will not be used')
-      } else {
-
-        feat_info_object = feat_info[[feat_type]]
-
-        feat_ids = gobject@feat_ID[[feat_type]]
-
-        # TODO: evaluate if spatial feature info is a proper Giotto polygon object
-        #feat_info_object = evaluate_feat_info(spatial_feat_info = feat_info_object,
-        #                                      feat_type = feat_type,
-        #                                      cores = cores,
-        #                                      feat_ID = feat_ids)
-
-        gobject@feat_info[[feat_type]] = feat_info_object
-
-      }
-
-    }
+    #feat_info_names = names(feat_info)
+    #for(feat_type in feat_info_names) {
+    #  if(!feat_type %in% expression_feat) {
+    #    warning('The feat info for ', feat_type, ' was not found back in ', expression_feat, ' and will not be used')
+    #  } else {
+    #    feat_info_object = feat_info[[feat_type]]
+    #    feat_ids = gobject@feat_ID[[feat_type]]
+    #    gobject@feat_info[[feat_type]] = feat_info_object
+    #  }
+    #}
 
   }
 
@@ -1872,7 +1859,7 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
 
 
   ## if cores is not set, then set number of cores automatically, but with limit
-  cores = Giotto:::determine_cores(cores)
+  cores = determine_cores(cores)
   data.table::setDTthreads(threads = cores)
 
 

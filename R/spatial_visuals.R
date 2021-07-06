@@ -2209,7 +2209,7 @@ plot_spat_image_layer_ggplot = function(ggplot,
   }
 
   # spatial locations
-  spatlocs = select_spatial_locations(gobject = gobject,
+  spatlocs = get_spatial_locations(gobject = gobject,
                                       spat_loc_name = spat_loc_name)
 
   ggplot = ggplot + geom_blank(data = spatlocs, aes_string(sdimx, sdimy))
@@ -2419,13 +2419,13 @@ spatPlot2D_single = function(gobject,
   point_shape = match.arg(point_shape, choices = c('border', 'no_border', 'voronoi'))
 
   ## get spatial cell locations
-  cell_locations = select_spatial_locations(gobject = gobject,
+  cell_locations = get_spatial_locations(gobject = gobject,
                                             spat_loc_name = spat_loc_name)
 
 
   ## extract spatial network
   if(show_network == TRUE) {
-    spatial_network = select_spatialNetwork(gobject,
+    spatial_network = get_spatialNetwork(gobject,
                                             name = spatial_network_name,
                                             return_network_Obj = FALSE)
   } else {
@@ -3539,7 +3539,7 @@ spatFeatPlot2D_single <- function(gobject,
 
   # expression values
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_values = select_expression_values(gobject = gobject,
+  expr_values = get_expression_values(gobject = gobject,
                                          feat_type = feat_type,
                                          values = values)
 
@@ -3563,12 +3563,12 @@ spatFeatPlot2D_single <- function(gobject,
 
   ## extract cell locations
   print(spat_loc_name)
-  cell_locations  = select_spatial_locations(gobject,
+  cell_locations  = get_spatial_locations(gobject,
                                              spat_loc_name = spat_loc_name)
 
   ## extract spatial network
   if(show_network == TRUE) {
-    spatial_network = select_spatialNetwork(gobject,
+    spatial_network = get_spatialNetwork(gobject,
                                             name = spatial_network_name,
                                             return_network_Obj = FALSE)
   } else {
@@ -4272,7 +4272,7 @@ dimFeatPlot2D <- function(gobject,
 
   # expression values
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_values = select_expression_values(gobject = gobject,
+  expr_values = get_expression_values(gobject = gobject,
                                          feat_type = feat_type,
                                          values = values)
 
@@ -5783,7 +5783,7 @@ dimPlot_2D_plotly <- function(gobject,
   if(show_NN_network == TRUE) {
 
     # nn_network
-    selected_nn_network = select_NearestNetwork(gobject = gobject,
+    selected_nn_network = get_NearestNetwork(gobject = gobject,
                                                 nn_network_to_use = nn_network_to_use,
                                                 network_name = network_name,
                                                 output = 'igraph')
@@ -6029,7 +6029,7 @@ dimPlot_3D_plotly <- function(gobject,
   if(show_NN_network == TRUE) {
 
     # nn_network
-    selected_nn_network = select_NearestNetwork(gobject = gobject,
+    selected_nn_network = get_NearestNetwork(gobject = gobject,
                                                 nn_network_to_use = nn_network_to_use,
                                                 network_name = network_name,
                                                 output = 'igraph')
@@ -6505,13 +6505,13 @@ spatPlot_2D_plotly = function(gobject,
 
 
   ## get spatial cell locations
-  cell_locations  = select_spatial_locations(gobject,
+  cell_locations  = get_spatial_locations(gobject,
                                              spat_loc_name = spat_loc_name)
 
 
   ## extract spatial network
   if(show_network == TRUE) {
-    spatial_network = select_spatialNetwork(gobject, name = spatial_network_name, return_network_Obj = FALSE)
+    spatial_network = get_spatialNetwork(gobject, name = spatial_network_name, return_network_Obj = FALSE)
   } else {
     spatial_network = NULL
   }
@@ -6730,12 +6730,12 @@ spatPlot_3D_plotly = function(gobject,
 
 
   ## get spatial cell locations
-  cell_locations  = select_spatial_locations(gobject,
+  cell_locations  = get_spatial_locations(gobject,
                                              spat_loc_name = spat_loc_name)
 
   ## extract spatial network
   if(show_network == TRUE) {
-    spatial_network = select_spatialNetwork(gobject, name = spatial_network_name, return_network_Obj = FALSE)
+    spatial_network = get_spatialNetwork(gobject, name = spatial_network_name, return_network_Obj = FALSE)
   } else {
     spatial_network = NULL
   }
@@ -7207,7 +7207,7 @@ spatDimPlot3D <- function(gobject,
   cell_metadata = combineMetadata(gobject = gobject,
                                   spat_enr_names = spat_enr_names)
   annotated_DT = merge(cell_metadata, dim_DT, by = 'cell_ID')
-  spatial_locations = select_spatial_locations(gobject,
+  spatial_locations = get_spatial_locations(gobject,
                                                spat_loc_name = spat_loc_name)
   annotated_DT = merge(annotated_DT, spatial_locations, by = 'cell_ID')
 
@@ -7239,7 +7239,7 @@ spatDimPlot3D <- function(gobject,
   if(show_NN_network){
 
     # nn_network
-    selected_nn_network = select_NearestNetwork(gobject = gobject,
+    selected_nn_network = get_NearestNetwork(gobject = gobject,
                                                 nn_network_to_use = nn_network_to_use,
                                                 network_name = network_name,
                                                 output = 'igraph')
@@ -7262,7 +7262,7 @@ spatDimPlot3D <- function(gobject,
 
   ## extract spatial network
   if(show_spatial_network == TRUE) {
-    spatial_network = select_spatialNetwork(gobject, name = spatial_network_name, return_network_Obj = FALSE)
+    spatial_network = get_spatialNetwork(gobject, name = spatial_network_name, return_network_Obj = FALSE)
   } else {
     spatial_network = NULL
   }
@@ -7931,7 +7931,7 @@ spatGenePlot3D <- function(gobject,
   selected_genes = genes
 
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  expr_values = get_expression_values(gobject = gobject, values = values)
 
   # only keep genes that are in the dataset
   selected_genes = selected_genes[selected_genes %in% rownames(expr_values) ]
@@ -7955,7 +7955,7 @@ spatGenePlot3D <- function(gobject,
 
   ## extract spatial network
   if(show_network == TRUE) {
-    spatial_network = select_spatialNetwork(gobject,name = spatial_network_name, return_network_Obj = FALSE)
+    spatial_network = get_spatialNetwork(gobject,name = spatial_network_name, return_network_Obj = FALSE)
   } else {
     spatial_network = NULL
   }
@@ -8272,7 +8272,7 @@ dimGenePlot3D <- function(gobject,
   ## select genes ##
   selected_genes = genes
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  expr_values = get_expression_values(gobject = gobject, values = values)
 
   # only keep genes that are in the dataset
   selected_genes = selected_genes[selected_genes %in% rownames(expr_values) ]
@@ -8315,7 +8315,7 @@ dimGenePlot3D <- function(gobject,
   if(show_NN_network == TRUE) {
 
     # nn_network
-    selected_nn_network = select_NearestNetwork(gobject = gobject,
+    selected_nn_network = get_NearestNetwork(gobject = gobject,
                                                 nn_network_to_use = nn_network_to_use,
                                                 network_name = network_name,
                                                 output = 'igraph')
@@ -8644,7 +8644,7 @@ spatDimGenePlot3D <- function(gobject,
   }
   selected_genes = genes
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  expr_values = get_expression_values(gobject = gobject, values = values)
 
   # only keep genes that are in the dataset
   selected_genes = selected_genes[selected_genes %in% rownames(expr_values) ]
@@ -8676,7 +8676,7 @@ spatDimGenePlot3D <- function(gobject,
   if(show_NN_network){
 
     # nn_network
-    selected_nn_network = select_NearestNetwork(gobject = gobject,
+    selected_nn_network = get_NearestNetwork(gobject = gobject,
                                                 nn_network_to_use = nn_network_to_use,
                                                 network_name = network_name,
                                                 output = 'igraph')
@@ -8697,7 +8697,7 @@ spatDimGenePlot3D <- function(gobject,
 
   ## extract spatial network
   if(show_spatial_network == TRUE) {
-    spatial_network = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
+    spatial_network = get_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
   } else {
     spatial_network = NULL
   }

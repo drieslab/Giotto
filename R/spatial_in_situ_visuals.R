@@ -78,7 +78,10 @@ plot_feature_points_layer = function(ggobject,
                                      sdimy = 'y',
                                      color = 'feat_ID',
                                      shape = 'feat',
-                                     point_size = 1.5) {
+                                     point_size = 1.5,
+                                     show_legend = TRUE,
+                                     use_scattermore = FALSE) {
+
 
   spatial_feat_info_subset = spatial_feat_info[feat_ID %in% unlist(feats)]
 
@@ -88,12 +91,17 @@ plot_feature_points_layer = function(ggobject,
     pl = ggplot2::ggplot()
   }
 
-  pl = pl + ggplot2::geom_point(data = spatial_feat_info_subset,
-                                ggplot2::aes_string(x = sdimx,
-                                                    y = sdimy,
-                                                    color = color,
-                                                    shape = shape),
-                                size = point_size)
+  pl = pl + giotto_point(use_scattermore = use_scattermore,
+                         data = spatial_feat_info_subset,
+                         ggplot2::aes_string(x = sdimx,
+                                             y = sdimy,
+                                             color = color,
+                                             shape = shape),
+                         size = point_size, show.legend = show_legend)
+
+  if(!is.null(feats_color_code)) {
+    pl = pl + ggplot2::scale_color_manual(values = feats_color_code)
+  }
 
   return(pl)
 }
@@ -120,6 +128,8 @@ plot_feature_points_layer = function(ggobject,
 #' @param axis_title title text size
 #' @param legend_text legend text size
 #' @param background_color background color
+#' @param show_legend show legend
+#' @param use_scattermore use scattermore to plot points
 #' @param show_plot show plots
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -147,6 +157,8 @@ spatInSituPlotPoints = function(gobject,
                                 axis_title = 8,
                                 legend_text = 6,
                                 background_color = 'black',
+                                show_legend = TRUE,
+                                use_scattermore = FALSE,
                                 show_plot = NA,
                                 return_plot = NA,
                                 save_plot = NA,
@@ -177,7 +189,7 @@ spatInSituPlotPoints = function(gobject,
 
     #testobj@spatial_info$cell@spatVector
 
-    polygon_info = select_polygon_info(gobject = gobject,
+    polygon_info = get_polygon_info(gobject = gobject,
                                        polygon_name = polygon_feat_type)
     polygon_dt = spatVector_to_dt(polygon_info)
 
@@ -207,15 +219,17 @@ spatInSituPlotPoints = function(gobject,
   spatial_feat_info = do.call('rbind', spatial_feat_info)
 
   plot = plot_feature_points_layer(ggobject = plot,
-                                    spatial_feat_info = spatial_feat_info,
-                                    feats = feats,
-                                    feats_color_code = feats_color_code,
-                                    feat_shape_code = feat_shape_code,
-                                    sdimx = 'x',
-                                    sdimy = 'y',
-                                    color = 'feat_ID',
-                                    shape = 'feat',
-                                    point_size = point_size)
+                                   spatial_feat_info = spatial_feat_info,
+                                   feats = feats,
+                                   feats_color_code = feats_color_code,
+                                   feat_shape_code = feat_shape_code,
+                                   sdimx = 'x',
+                                   sdimy = 'y',
+                                   color = 'feat_ID',
+                                   shape = 'feat',
+                                   point_size = point_size,
+                                   show_legend = show_legend,
+                                   use_scattermore = use_scattermore)
 
   ## adjust theme settings
   plot <- plot + ggplot2::theme(plot.title = element_text(hjust = 0.5),
@@ -328,7 +342,7 @@ spatInSituPlotHex_single = function(gobject,
     #polygon_dt = combineSpatialCellMetadataInfo(gobject, feat_type = polygon_feat_type)
     #polygon_dt = polygon_dt[[polygon_feat_type]]
 
-    polygon_info = select_polygon_info(gobject = gobject,
+    polygon_info = get_polygon_info(gobject = gobject,
                                        polygon_name = polygon_feat_type)
     polygon_dt = spatVector_to_dt(polygon_info)
 
@@ -584,7 +598,7 @@ spatInSituPlotDensity_single = function(gobject,
     }
 
 
-    polygon_info = select_polygon_info(gobject = gobject,
+    polygon_info = get_polygon_info(gobject = gobject,
                                        polygon_name = polygon_feat_type)
     polygon_dt = spatVector_to_dt(polygon_info)
 

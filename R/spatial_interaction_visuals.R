@@ -1287,6 +1287,9 @@ plotCellProximityGenes = function(gobject,
     # library(ggalluvial) # this is needed for it to work, why??
     # maybe use requireNamespace() instead?
 
+    # verify if optional package is installed
+    package_check(pkg_name = "ggalluvial", repository = "CRAN")
+
     pl <- ggplot2::ggplot(testalluv,
                           ggplot2::aes(y = N, axis1 = cell_type, axis2 = int_cell_type)) +
       ggalluvial::geom_alluvium(aes(fill = cell_type), width = 1/12) +

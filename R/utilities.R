@@ -118,25 +118,31 @@ cor_flex = function(x, ...) {
 #' @keywords internal
 flex_lapply = function(X, cores = NA, fun, ...) {
 
+  # a simple wrapper for future.apply::future_lapply
+  # probably does not need any additional changes
+
+  # potential addition:
+  # check if future::plan() was already set by user
+  # if not, set plan(multisession, workers = cores) by default
+
+
   # get type of os
   os = .Platform$OS.type
 
   # set number of cores automatically, but with limit of 10
   cores = determine_cores(cores)
 
-  if(os == 'unix') {
-    save_list = parallel::mclapply(X = X, mc.cores = cores,
-                                   FUN = fun, ...)
-  } else if(os == 'windows') {
-    save_list = parallel::mclapply(X = X, mc.cores = 1,
-                                   FUN = fun, ...)
 
-    # !! unexplainable errors are returned for some nodes !! #
-    # currently disabled #
-    #cl <- parallel::makeCluster(cores)
-    #save_list = parallel::parLapply(cl = cl, X = X,
-    #                                fun = fun, ...)
-  }
+  # future_lapply call
+  save_list = future.apply::future_lapply(X = X, FUN = fun, ...)
+
+  #if(os == 'unix') {
+  #  save_list = parallel::mclapply(X = X, mc.cores = cores,
+  #                                 FUN = fun, ...)
+  #} else if(os == 'windows') {
+  #  save_list = parallel::mclapply(X = X, mc.cores = 1,
+  #                                 FUN = fun, ...)
+  #}
 
   return(save_list)
 }
@@ -179,24 +185,22 @@ my_rowMeans = function(x, method = c('arithmic', 'geometric'), offset = 0.1) {
 #' @param scale scale data
 #' @keywords internal
 #' @return standardized matrix
-standardise_flex = function (x, center = TRUE, scale = TRUE)
-{
+standardise_flex = function (x, center = TRUE, scale = TRUE) {
+
   if (center & scale) {
-    y <- t_flex(x) - Rfast::colmeans(x)
-    y <- y/sqrt(Rfast::rowsums(y^2)) * sqrt((dim(x)[1] -
-                                               1))
-    y <- t_flex(y)
+    y = Giotto:::t_flex(x) - matrixStats:::colMeans2(x)
+    y = y/sqrt(matrixStats::rowSums2(y^2)) * sqrt((dim(x)[1] - 1))
+    y = Giotto:::t_flex(y)
   }
   else if (center & !scale) {
-    m <- Rfast::colmeans(x)
-    y <- Rfast::eachrow(x, m, oper = "-")
+    y = Giotto:::t_flex(x) - matrixStats:::colMeans2(x)
+    y = Giotto:::t_flex(y)
   }
   else if (!center & scale) {
-    s <- Rfast::colVars(x, std = TRUE)
-    y <- Rfast::eachrow(x, s, oper = "/")
+    csd = matrixStats::colSds(x)
+    y = Giotto:::t_flex(Giotto:::t_flex(x) / csd )
   } else {
     y = x
   }
 }
 
-?colVars

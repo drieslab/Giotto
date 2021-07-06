@@ -1,5 +1,4 @@
 
-#' @title aes_string2
 #' @name aes_string2
 #' @param \dots aes_string parameters
 #' @keywords internal
@@ -8,6 +7,29 @@ aes_string2 <- function(...){
   args <- lapply(list(...), function(x) sprintf("`%s`", x))
   do.call(ggplot2::aes_string, args)
 }
+
+
+#' @name giotto_point
+#' @param \dots geom_point parameters
+#' @keywords internal
+#' @description uses ggplot::geom_point or scattermore::geom_scattermore
+giotto_point = function(use_scattermore = FALSE,
+                        ...) {
+
+  if(use_scattermore == FALSE) {
+    ggplot2::geom_point(...)
+  } else {
+    package_check(pkg_name = "scattermore",
+                  repository = "github",
+                  github_repo = 'exaexa/scattermore')
+    scattermore::geom_scattermore(...)
+  }
+
+}
+
+
+
+
 
 
 
@@ -545,6 +567,10 @@ showClusterDendrogram <- function(gobject,
                                   save_param =  list(),
                                   default_save_name = 'showClusterDendrogram',
                                   ...) {
+
+
+  # verify if optional package is installed
+  package_check(pkg_name = "ggdendro", repository = "CRAN")
 
   cor = match.arg(cor, c('pearson', 'spearman'))
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))

@@ -37,13 +37,15 @@ createGiottoObject(
 
 \item{spatial_locs}{data.table or data.frame with coordinates for cell centroids}
 
-\item{spatial_info}{information about spatial units}
+\item{spatial_info}{list of giotto polygon objects with spatial information,
+see \code{\link{createGiottoPolygonsFromMask}} and \code{\link{createGiottoPolygonsFromDfr}}}
 
 \item{cell_metadata}{cell annotation metadata}
 
 \item{feat_metadata}{feature annotation metadata for each unique feature}
 
-\item{feat_info}{information about features for each unique feature}
+\item{feat_info}{list of giotto point objects with feature info,
+see \code{\link{createGiottoPoints}}}
 
 \item{spatial_network}{list of spatial network(s)}
 
