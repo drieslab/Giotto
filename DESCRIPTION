@@ -88,6 +88,7 @@ Suggests:
     quadprog,
     rmarkdown,
     RTriangle (>= 1.6-0.10),
+    scattermore,
     scran (>= 1.10.1),
     SingleCellExperiment,
     smfishHmrf,

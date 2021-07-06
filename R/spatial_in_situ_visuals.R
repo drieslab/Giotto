@@ -80,7 +80,7 @@ plot_feature_points_layer = function(ggobject,
                                      shape = 'feat',
                                      point_size = 1.5,
                                      show_legend = TRUE,
-                                     use_scattermore = FALSE) {
+                                     plot_method = c('ggplot', 'scattermore', 'scattermost')) {
 
 
   spatial_feat_info_subset = spatial_feat_info[feat_ID %in% unlist(feats)]
@@ -91,7 +91,7 @@ plot_feature_points_layer = function(ggobject,
     pl = ggplot2::ggplot()
   }
 
-  pl = pl + giotto_point(use_scattermore = use_scattermore,
+  pl = pl + giotto_point(plot_method = plot_method,
                          data = spatial_feat_info_subset,
                          ggplot2::aes_string(x = sdimx,
                                              y = sdimy,
@@ -129,7 +129,7 @@ plot_feature_points_layer = function(ggobject,
 #' @param legend_text legend text size
 #' @param background_color background color
 #' @param show_legend show legend
-#' @param use_scattermore use scattermore to plot points
+#' @param plot_method method to plot points
 #' @param show_plot show plots
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
@@ -158,7 +158,7 @@ spatInSituPlotPoints = function(gobject,
                                 legend_text = 6,
                                 background_color = 'black',
                                 show_legend = TRUE,
-                                use_scattermore = FALSE,
+                                plot_method = c('ggplot', 'scattermore', 'scattermost'),
                                 show_plot = NA,
                                 return_plot = NA,
                                 save_plot = NA,
@@ -229,7 +229,7 @@ spatInSituPlotPoints = function(gobject,
                                    shape = 'feat',
                                    point_size = point_size,
                                    show_legend = show_legend,
-                                   use_scattermore = use_scattermore)
+                                   plot_method = plot_method)
 
   ## adjust theme settings
   plot <- plot + ggplot2::theme(plot.title = element_text(hjust = 0.5),

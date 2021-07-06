@@ -623,12 +623,8 @@ dimPlot2D_single <- function(gobject,
 
   cell_metadata[, cell_ID := as.character(cell_ID)]
 
-  print(dim_DT)
-  print(cell_metadata)
-
   annotated_DT = data.table::merge.data.table(cell_metadata, dim_DT, by = 'cell_ID')
 
-  print(annotated_DT)
 
   # create input for network
   if(show_NN_network == TRUE) {

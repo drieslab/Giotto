@@ -12,17 +12,24 @@ aes_string2 <- function(...){
 #' @name giotto_point
 #' @param \dots geom_point parameters
 #' @keywords internal
-#' @description uses ggplot::geom_point or scattermore::geom_scattermore
-giotto_point = function(use_scattermore = FALSE,
+#' @description uses ggplot::geom_point, scattermore::geom_scattermore or scattermore::geom_scattermost
+giotto_point = function(plot_method = c('ggplot', 'scattermore', 'scattermost'),
                         ...) {
 
-  if(use_scattermore == FALSE) {
+  plot_method = match.arg(arg = plot_method, choices = c('ggplot', 'scattermore', 'scattermost'))
+
+  if(plot_method == 'ggplot') {
     ggplot2::geom_point(...)
-  } else {
+  } else if(plot_method == 'scattermore') {
     package_check(pkg_name = "scattermore",
                   repository = "github",
                   github_repo = 'exaexa/scattermore')
     scattermore::geom_scattermore(...)
+  } else if(plot_method == 'scattermost') {
+    package_check(pkg_name = "scattermore",
+                  repository = "github",
+                  github_repo = 'exaexa/scattermore')
+    scattermore::geom_scattermost(...)
   }
 
 }

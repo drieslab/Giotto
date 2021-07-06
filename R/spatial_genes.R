@@ -909,11 +909,11 @@ binSpectSingle = function(gobject,
 
   ## 1. expression matrix
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_values = select_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+  expr_values = get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
 
 
   ## 2. spatial network
-  spatial_network = Giotto:::select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
+  spatial_network = Giotto:::get_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
   if(is.null(spatial_network)) {
     stop('spatial_network_name: ', spatial_network_name, ' does not exist, create a spatial network first')
   }
@@ -1124,7 +1124,7 @@ binSpectMulti = function(gobject,
 
     ## expression matrix
     values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-    expr_values = select_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+    expr_values = get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
 
 
     # pre-calculate bin_matrix once
@@ -1567,7 +1567,7 @@ silhouetteRank <- function(gobject,
 
   # expression values
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  expr_values = get_expression_values(gobject = gobject, values = values)
 
   # subset genes
   if(!is.null(subset_genes)) {
@@ -1690,7 +1690,7 @@ silhouetteRankTest = function(gobject,
 
   # expression values
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  expr_values = get_expression_values(gobject = gobject, values = values)
 
   # subset genes
   if(!is.null(subset_genes)) {
@@ -1849,7 +1849,7 @@ spatialDE <- function(gobject = NULL,
 
   # expression
   values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  expr_values = get_expression_values(gobject = gobject, values = values)
 
   ## python path
   if(is.null(python_path)) {
@@ -1862,7 +1862,7 @@ spatialDE <- function(gobject = NULL,
   reticulate::source_python(file = reader_path)
 
   ## get spatial locations
-  spatial_locs = select_spatial_locations(gobject,
+  spatial_locs = get_spatial_locations(gobject,
                                           spat_loc_name = spat_loc_name)
   spatial_locs <- as.data.frame(spatial_locs)
   rownames(spatial_locs) <- spatial_locs$cell_ID
@@ -1948,7 +1948,7 @@ spatialAEH <- function(gobject = NULL,
 
   # expression
   values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  expr_values = get_expression_values(gobject = gobject, values = values)
 
   ## python path
   if(is.null(python_path)) {
@@ -1962,7 +1962,7 @@ spatialAEH <- function(gobject = NULL,
 
 
   ## spatial locations
-  spatial_locs =  select_spatial_locations(gobject,
+  spatial_locs =  get_spatial_locations(gobject,
                                            spat_loc_name = spat_loc_name)
   spatial_locs <- as.data.frame(spatial_locs)
   rownames(spatial_locs) <- spatial_locs$cell_ID
@@ -2095,7 +2095,7 @@ trendSceek <- function(gobject,
 
   ## expression data
   values = match.arg(expression_values, c("normalized", "raw"))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  expr_values = get_expression_values(gobject = gobject, values = values)
 
   ## normalization function
   if (values == "normalized") {
@@ -2117,7 +2117,7 @@ trendSceek <- function(gobject,
   # data.table variables
   cell_ID = NULL
 
-  spatial_locations = select_spatial_locations(gobject, spat_loc_name = spat_loc_name)
+  spatial_locations = get_spatial_locations(gobject, spat_loc_name = spat_loc_name)
   spatial_locations[, cell_ID := NULL]
   pp = trendsceek::pos2pp(spatial_locations)
 
@@ -2197,12 +2197,12 @@ spark = function(gobject,
 
 
   ## extract expression values from gobject
-  expr = select_expression_values(gobject = gobject,
+  expr = get_expression_values(gobject = gobject,
                                   feat_type = feat_type,
                                   values = expression_values)
 
   ## extract coordinates from gobject
-  locs = select_spatial_locations(gobject,
+  locs = get_spatial_locations(gobject,
                                   spat_loc_name = spat_loc_name)
   locs = as.data.frame(locs)
   rownames(locs) = colnames(expr)
@@ -2302,7 +2302,7 @@ detectSpatialPatterns <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  expr_values = get_expression_values(gobject = gobject, values = values)
 
 
   # spatial grid and spatial locations
@@ -2314,7 +2314,7 @@ detectSpatialPatterns <- function(gobject,
   }
 
   #spatial_grid = gobject@spatial_grid[[spatial_grid_name]]
-  spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
+  spatial_grid = get_spatialGrid(gobject, spatial_grid_name)
 
   # annotate spatial locations with spatial grid information
   spatial_locs = copy(gobject@spatial_locs[['raw']])
@@ -3159,7 +3159,7 @@ detectSpatialCorFeats <- function(gobject,
 
   # get expression matrix
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_values = select_expression_values(gobject = gobject,
+  expr_values = get_expression_values(gobject = gobject,
                                          feat_type = feat_type,
                                          values = values)
 
@@ -3170,14 +3170,14 @@ detectSpatialCorFeats <- function(gobject,
 
 
   # get spatial locations
-  spatial_locs = select_spatial_locations(gobject,
+  spatial_locs = get_spatial_locations(gobject,
                                           spat_loc_name = spat_loc_name)
 
   ## spatial averaging or smoothing
   if(method == 'grid') {
 
     # get spatial grid
-    spatial_grid = select_spatialGrid(gobject = gobject,
+    spatial_grid = get_spatialGrid(gobject = gobject,
                                       name = spatial_grid_name,
                                       return_grid_Obj = FALSE)
 
@@ -3200,7 +3200,7 @@ detectSpatialCorFeats <- function(gobject,
   if(method == 'network') {
 
     # get spatial network
-    spatial_network = select_spatialNetwork(gobject = gobject,
+    spatial_network = get_spatialNetwork(gobject = gobject,
                                       name = spatial_network_name,
                                       return_network_Obj = FALSE)
 
