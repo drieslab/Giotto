@@ -4,12 +4,14 @@
 \alias{get10Xmatrix}
 \title{get10Xmatrix}
 \usage{
-get10Xmatrix(path_to_data, gene_column_index = 1)
+get10Xmatrix(path_to_data, gene_column_index = 1, remove_zero_rows = TRUE)
 }
 \arguments{
 \item{path_to_data}{path to the 10X folder}
 
 \item{gene_column_index}{which column from the features or genes .tsv file to use for row ids}
+
+\item{remove_zero_rows}{removes rows with sum equal to zero}
 }
 \value{
 sparse expression matrix from 10X
@@ -18,7 +20,7 @@ sparse expression matrix from 10X
 This function creates an expression matrix from a 10X structured folder
 }
 \details{
-A typical 10X folder is named raw_feature_bc_matrix or raw_feature_bc_matrix and it has 3 files:
+A typical 10X folder is named raw_feature_bc_matrix or filtered_feature_bc_matrix and it has 3 files:
 \itemize{
   \item{barcodes.tsv(.gz)}
   \item{features.tsv(.gz) or genes.tsv(.gz)}
