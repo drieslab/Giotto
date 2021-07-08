@@ -756,7 +756,7 @@ get10Xmatrix = function(path_to_data, gene_column_index = 1, remove_zero_rows = 
   colnames(MMmatrix) = barcodes_vec
 
   if(remove_zero_rows == TRUE) {
-    rowsums_result = rowSums_flex(MMmatrix)
+    rowsums_result = rowSums_giotto(MMmatrix)
     rowsums_bool = rowsums_result != 0
     MMmatrix = MMmatrix[rowsums_bool, ]
   }
