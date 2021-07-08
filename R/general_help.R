@@ -711,8 +711,9 @@ getSpatialDataset = function(dataset = c('ST_OB1',
 #' @description This function creates an expression matrix from a 10X structured folder
 #' @param path_to_data path to the 10X folder
 #' @param gene_column_index which column from the features or genes .tsv file to use for row ids
+#' @param remove_zero_rows removes rows with sum equal to zero
 #' @return sparse expression matrix from 10X
-#' @details A typical 10X folder is named raw_feature_bc_matrix or raw_feature_bc_matrix and it has 3 files:
+#' @details A typical 10X folder is named raw_feature_bc_matrix or filtered_feature_bc_matrix and it has 3 files:
 #' \itemize{
 #'   \item{barcodes.tsv(.gz)}
 #'   \item{features.tsv(.gz) or genes.tsv(.gz)}
@@ -721,7 +722,7 @@ getSpatialDataset = function(dataset = c('ST_OB1',
 #' By default the first column of the features or genes .tsv file will be used, however if multiple
 #' annotations are provided (e.g. ensembl gene ids and gene symbols) the user can select another column.
 #' @export
-get10Xmatrix = function(path_to_data, gene_column_index = 1) {
+get10Xmatrix = function(path_to_data, gene_column_index = 1, remove_zero_rows = TRUE) {
 
   # data.table variables
   total = gene_symbol = gene_id = gene_id_num = cell_id = cell_id_num = sort_gene_id_num = NULL
@@ -731,13 +732,13 @@ get10Xmatrix = function(path_to_data, gene_column_index = 1) {
 
   # get barcodes and create vector
   barcodes_file = grep(files_10X, pattern = 'barcodes', value = T)
-  barcodesDT = fread(input = paste0(path_to_data,'/',barcodes_file), header = F)
+  barcodesDT = data.table::fread(input = paste0(path_to_data,'/',barcodes_file), header = F)
   barcodes_vec = barcodesDT$V1
   names(barcodes_vec) = 1:nrow(barcodesDT)
 
   # get features and create vector
   features_file = grep(files_10X, pattern = 'features|genes', value = T)
-  featuresDT = fread(input = paste0(path_to_data,'/',features_file), header = F)
+  featuresDT = data.table::fread(input = paste0(path_to_data,'/',features_file), header = F)
 
   g_name = colnames(featuresDT)[gene_column_index]
   ## convert ensembl gene id to gene symbol ##
@@ -750,41 +751,20 @@ get10Xmatrix = function(path_to_data, gene_column_index = 1) {
 
   # get matrix
   matrix_file = grep(files_10X, pattern = 'matrix', value = T)
-  matrixDT = fread(input = paste0(path_to_data,'/',matrix_file), header = F, skip = 3)
-  colnames(matrixDT) = c('gene_id_num', 'cell_id_num', 'umi')
+  MMmatrix = Matrix::readMM(paste0(path_to_data,'/',matrix_file))
+  rownames(MMmatrix) = features_vec
+  colnames(MMmatrix) = barcodes_vec
 
-  # extend matrixDT with missing cell IDs
-  all_matrix_cell_ids = unique(matrixDT$cell_id_num)
-  missing_barcodes_cell_ids = as.integer(names(barcodes_vec)[!names(barcodes_vec) %in% all_matrix_cell_ids])
-  length_missing = length(missing_barcodes_cell_ids)
-
-  if(length_missing > 0) {
-    missing_matrixDT = data.table(gene_id_num = rep(1, length_missing),
-                                  cell_id_num = missing_barcodes_cell_ids,
-                                  umi = rep(0, length_missing))
-    matrixDT = rbind(matrixDT, missing_matrixDT)
+  if(remove_zero_rows == TRUE) {
+    rowsums_result = rowSums_flex(MMmatrix)
+    rowsums_bool = rowsums_result != 0
+    MMmatrix = MMmatrix[rowsums_bool, ]
   }
 
-  # convert barcodes and features
-  matrixDT[, gene_id := features_vec[gene_id_num]]
-  matrixDT[, cell_id := barcodes_vec[cell_id_num]]
-
-  # make sure that gene id are consecutive
-  sort_gene_id_vec = 1:length(unique(matrixDT$gene_id))
-  names(sort_gene_id_vec) = unique(matrixDT$gene_id)
-  matrixDT[, sort_gene_id_num := sort_gene_id_vec[gene_id]]
-
-  sparsemat = Matrix::sparseMatrix(i = matrixDT$sort_gene_id_num, j = matrixDT$cell_id_num, x = matrixDT$umi,
-                                   dimnames = list(unique(matrixDT$gene_id), unique(matrixDT$cell_id)))
-
-  return(sparsemat)
-
-  # create a final matrix
-  #matrix_ab = data.table::dcast.data.table(data = matrixDT, gene_id~cell_id, value.var = 'umi')
-  #matrix_ab_mat = dt_to_matrix(matrix_ab)
-  #matrix_ab_mat[is.na(matrix_ab_mat)] = 0
+  return(MMmatrix)
 
 }
+
 
 
 
