@@ -818,3 +818,51 @@ showGiottoFeatInfo = function(gobject) {
 
 }
 
+
+
+#' @title showNetworks
+#' @description Prints the available spatial networks that are attached to the Giotto object
+#' @param gobject a giotto object
+#' @param verbose verbosity of function#'
+#' @return vector
+#' @export
+showNetworks = function(gobject,
+                        verbose = TRUE) {
+
+  if(is.null(gobject)) stop('A giotto object needs to be provided \n')
+  g_network_names = names(gobject@spatial_network)
+
+  if(verbose == TRUE) {
+    cat('The following images are available: ',
+        g_network_names, '\n')
+  }
+
+  return(g_network_names)
+}
+
+
+#' @title showGrids
+#' @description Prints the available spatial grids that are attached to the Giotto object
+#' @param gobject a giotto object
+#' @param verbose verbosity of function#'
+#' @return vector
+#' @export
+showGrids = function(gobject,
+                     verbose = TRUE) {
+
+  if(is.null(gobject)) stop('A giotto object needs to be provided \n')
+  g_grid_names = names(gobject@spatial_grid)
+
+  if(verbose == TRUE) {
+    cat('The following grids are available: ',
+        g_grid_names, '\n')
+  }
+
+  return(g_grid_names)
+}
+
+
+
+
+
+
