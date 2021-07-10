@@ -1495,37 +1495,53 @@ createGiottoObject <- function(expression,
 }
 
 
+#' @name get_img_minmax
+#' @keywords internal
+get_img_minmax = function(mg_img) {
+  #Get magick object dimensions. xmin and ymax assumed to be 0.
+  info = magick::image_info(mg_img)
+  img_xmax = info$width     #width
+  img_xmin = 0              #x origin
+  img_ymax = 0              #y origin
+  img_ymin = -(info$height) #height
+  
+  return(list('img_xmax' = img_xmax,
+              'img_xmin' = img_xmin,
+              'img_ymax' = img_ymax,
+              'img_ymin' = img_ymin))
+}
 
 
 #' @name get_adj_rescale_img
 #' @keywords internal
-get_adj_rescale_img = function(mg_img,
+get_adj_rescale_img = function(img_minmax,
                                spatial_locs,
-                               scale_factor) {
-
-  info = magick::image_info(mg_img)
-  image_width = info$width
-  image_height = info$height
-
+                               scale_factor = 1) {
+  
+  #Spatial minmax
   my_xmin = min(spatial_locs$sdimx)
   my_xmax = max(spatial_locs$sdimx)
   my_ymin = min(spatial_locs$sdimy)
   my_ymax = max(spatial_locs$sdimy)
 
-  xmin_adj_scaled = my_xmin*scale_factor
+  #Find scaled image adjustments based on scaled spatlocs
+  xmin_adj_scaled = my_xmin*scale_factor - img_minmax$img_xmin #spatloc xdistmin - img xdistmin
   xmin_adj_orig = xmin_adj_scaled/scale_factor
 
-  xmax_adj_scaled = image_width - (my_xmax*scale_factor)
+  xmax_adj_scaled = img_minmax$img_xmax - (my_xmax*scale_factor) #img xdistmax - spatloc xdistmax
   xmax_adj_orig = xmax_adj_scaled/scale_factor
 
-  ymax_adj_scaled = my_ymax*scale_factor
-  ymax_adj_orig = -(ymax_adj_scaled/scale_factor)
-
-  ymin_adj_scaled = image_height - -(my_ymin*scale_factor)
+  ymin_adj_scaled = -(img_minmax$img_ymin) - -(my_ymin*scale_factor) #img ydistmax - spatloc ydistmax
   ymin_adj_orig = ymin_adj_scaled/scale_factor
 
-  return(c('xmin_adj_orig' = xmin_adj_orig, 'xmax_adj_orig' = xmax_adj_orig,
-           'ymin_adj_orig' = ymin_adj_orig, 'ymax_adj_orig' = ymax_adj_orig))
+  ymax_adj_scaled = -(my_ymax*scale_factor) - -(img_minmax$img_ymax) #spatloc ydistmin - img ydistmin
+  ymax_adj_orig = ymax_adj_scaled/scale_factor
+  
+  #return scaled adjustments
+  return(c('xmin_adj_orig' = xmin_adj_orig,
+           'xmax_adj_orig' = xmax_adj_orig,
+           'ymin_adj_orig' = ymin_adj_orig,
+           'ymax_adj_orig' = ymax_adj_orig))
 
 }
 
@@ -1626,7 +1642,8 @@ createGiottoVisiumObject = function(visium_dir = NULL,
           json_info = jsonlite::read_json(h5_json_scalefactors_path)
           scale_factor = json_info[['tissue_lowres_scalef']]
 
-          adj_values = get_adj_rescale_img(mg_img = mg_img,
+          img_minmax = get_img_minmax(mg_img = mg_img)
+          adj_values = get_adj_rescale_img(img_minmax = img_minmax,
                                            spatial_locs = spatial_locs,
                                            scale_factor = scale_factor)
 
@@ -1646,7 +1663,8 @@ createGiottoVisiumObject = function(visium_dir = NULL,
           json_info = jsonlite::read_json(h5_json_scalefactors_path)
           scale_factor = json_info[['tissue_hires_scalef']]
 
-          adj_values = get_adj_rescale_img(mg_img = mg_img,
+          img_minmax = get_img_minmax(mg_img = mg_img)
+          adj_values = get_adj_rescale_img(img_minmax = img_minmax,
                                            spatial_locs = spatial_locs,
                                            scale_factor = scale_factor)
 
@@ -1736,7 +1754,8 @@ createGiottoVisiumObject = function(visium_dir = NULL,
         json_info = jsonlite::read_json(scalefactors_path)
         scale_factor = json_info[['tissue_lowres_scalef']]
 
-        adj_values = get_adj_rescale_img(mg_img = mg_img,
+        img_minmax = get_img_minmax(mg_img = mg_img)
+        adj_values = get_adj_rescale_img(img_minmax = img_minmax,
                                          spatial_locs = spatial_locs,
                                          scale_factor = scale_factor)
 
@@ -1756,10 +1775,11 @@ createGiottoVisiumObject = function(visium_dir = NULL,
        if(file.exists(scalefactors_path)) {
         if(verbose == TRUE) cat('png and scalefactors paths are found and automatic alignment for the hires image will be attempted \n')
 
-        json_info = jsonlite::read_json( scalefactors_path = paste0(spatial_path,'/','scalefactors_json.json'))
+        json_info = jsonlite::read_json(scalefactors_path)
         scale_factor = json_info[['tissue_hires_scalef']]
 
-        adj_values = get_adj_rescale_img(mg_img = mg_img,
+        img_minmax = get_img_minmax(mg_img = mg_img)
+        adj_values = get_adj_rescale_img(img_minmax = img_minmax,
                                          spatial_locs = spatial_locs,
                                          scale_factor = scale_factor)
 
