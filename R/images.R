@@ -87,6 +87,7 @@ setMethod(
 #' @param xmin_adj adjustment of the minimum x-value to align the image
 #' @param ymax_adj adjustment of the maximum y-value to align the image
 #' @param ymin_adj adjustment of the minimum y-value to align the image
+#' @param scale_factor scaling of image dimensions relative to spatial coordinates
 #' @details image_transformations: transformation options from magick library
 #' [\strong{flip_x_axis}] flip x-axis (\code{\link[magick]{image_flop}})
 #' [\strong{flip_y_axis}] flip y-axis (\code{\link[magick]{image_flip}})
@@ -102,7 +103,8 @@ createGiottoImage = function(gobject = NULL,
                              xmax_adj = 0,
                              xmin_adj = 0,
                              ymax_adj = 0,
-                             ymin_adj = 0) {
+                             ymin_adj = 0,
+                             scale_factor = 1) {
 
 
   # create minimum giotto
@@ -149,7 +151,7 @@ createGiottoImage = function(gobject = NULL,
   g_image@mg_object = mg_object
 
 
-  ## 2. min and max based on spatial locations
+  ## 2. spatial minmax and adjustments by image dimensions
   if(!is.null(gobject)) {
 
     spatlocs = get_spatial_locations(gobject = gobject,
@@ -161,6 +163,17 @@ createGiottoImage = function(gobject = NULL,
     my_xmax = max(spatlocs$sdimx)
     my_ymin = min(spatlocs$sdimy)
     my_ymax = max(spatlocs$sdimy)
+    
+    #find adjustment values
+    img_minmax = get_img_minmax(mg_img = mg_object)
+    adj_values = get_adj_rescale_img(img_minmax = img_minmax,
+                                     spatial_locs = spatlocs,
+                                     scale_factor = scale_factor)
+    
+    xmax_adj = as.numeric(adj_values[['xmax_adj_orig']])
+    xmin_adj = as.numeric(adj_values[['xmin_adj_orig']])
+    ymax_adj = as.numeric(adj_values[['ymax_adj_orig']])
+    ymin_adj = as.numeric(adj_values[['ymin_adj_orig']])
 
   } else if(!is.null(spatial_locs)) {
     spatlocs = spatial_locs
@@ -172,6 +185,17 @@ createGiottoImage = function(gobject = NULL,
     my_xmax = max(spatlocs$sdimx)
     my_ymin = min(spatlocs$sdimy)
     my_ymax = max(spatlocs$sdimy)
+    
+    #find adjustment values
+    img_minmax = get_img_minmax(mg_img = mg_object)
+    adj_values = get_adj_rescale_img(img_minmax = img_minmax,
+                                     spatial_locs = spatlocs,
+                                     scale_factor = scale_factor)
+    
+    xmax_adj = as.numeric(adj_values[['xmax_adj_orig']])
+    xmin_adj = as.numeric(adj_values[['xmin_adj_orig']])
+    ymax_adj = as.numeric(adj_values[['ymax_adj_orig']])
+    ymin_adj = as.numeric(adj_values[['ymin_adj_orig']])
 
   } else {
     warning('gobject or spatial locations are not provided \n',
@@ -180,14 +204,17 @@ createGiottoImage = function(gobject = NULL,
     my_xmin = 0; my_xmax = 10; my_ymin = 0; my_ymax = 10
 
   }
+  
+  #minmax and boundary values for return
+  g_image@minmax = c('xmax_sloc' = my_xmax,
+                     'xmin_sloc' = my_xmin,
+                     'ymax_sloc' = my_ymax,
+                     'ymin_sloc' = my_ymin)
 
-  g_image@minmax = c('xmax_sloc' = my_xmax, 'xmin_sloc' = my_xmin,
-                     'ymax_sloc' = my_ymax, 'ymin_sloc' = my_ymin)
-
-
-  ## 3. adjustment boundaries
-  g_image@boundaries = c('xmax_adj' = xmax_adj, 'xmin_adj' = xmin_adj,
-                         'ymax_adj' = ymax_adj, 'ymin_adj' = ymin_adj)
+  g_image@boundaries = c('xmax_adj' = xmax_adj,
+                         'xmin_adj' = xmin_adj,
+                         'ymax_adj' = ymax_adj,
+                         'ymin_adj' = ymin_adj)
 
   # image object
   return(g_image)
@@ -404,10 +431,14 @@ createGiottoImageOLD = function(gobject = NULL,
 #' @description Adds giotto image objects to your giotto object
 #' @param gobject giotto object
 #' @param images list of giotto image objects, see \code{\link{createGiottoImage}}
+#' @param spat_loc_name provide spatial location slot in Giotto to align images. Defaults to 'raw'
+#' @param scale_factor provide scale of image pixel dimensions relative to spatial coordinates. Defaults to 1:1
 #' @return an updated Giotto object with access to the list of images
 #' @export
 addGiottoImage = function(gobject,
-                          images) {
+                          images,
+                          spat_loc_name = 'raw',
+                          scale_factor = 1) {
 
   if(is.null(gobject)) stop('The giotto object that will be updated needs to be provided')
 
@@ -423,8 +454,41 @@ addGiottoImage = function(gobject,
       if(im_name %in% all_im_names) {
         cat('\n ', im_name, ' has already been used, will be overwritten \n')
       }
-
+      
+      #Update boundaries if not already done during createGiottoImage() due to lack of spatlocs and gobject
+      if(sum(im@boundaries == c(0,0,0,0)) == 4 && sum(im@minmax == c(10,0,10,0)) == 4) {
+        spatlocs = get_spatial_locations(gobject = gobject,
+                                         spat_loc_name = spat_loc_name)
+        
+        #Find spatial minmax values
+        xmin_sloc = min(spatlocs$sdimx)
+        xmax_sloc = max(spatlocs$sdimx)
+        ymin_sloc = min(spatlocs$sdimy)
+        ymax_sloc = max(spatlocs$sdimy)
+        
+        #Find adjustment values
+        img_minmax = get_img_minmax(mg_img = im@mg_object)
+        adj_values = get_adj_rescale_img(img_minmax = img_minmax,
+                                         spatial_locs = spatlocs,
+                                         scale_factor = scale_factor)
+        
+        #Add minmax values to giottoImage@minmax
+        im@minmax = c('xmax_sloc' = xmax_sloc,
+                      'xmin_sloc' = xmin_sloc,
+                      'ymax_sloc' = ymax_sloc,
+                      'ymin_sloc' = ymin_sloc)
+        
+        #Add adjustment values to giottoImage@boundaries
+        im@boundaries = c('xmax_adj' = as.numeric(adj_values[['xmax_adj_orig']]),
+                          'xmin_adj' = as.numeric(adj_values[['xmin_adj_orig']]),
+                          'ymax_adj' = as.numeric(adj_values[['ymax_adj_orig']]),
+                          'ymin_adj' = as.numeric(adj_values[['ymin_adj_orig']]))
+        
+      }
+      
+      #Add giottoImage to gobject
       gobject@images[[im_name]] = im
+      
     } else {
       warning('image is not a giotto image object')
     }
