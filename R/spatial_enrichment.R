@@ -41,6 +41,7 @@ makeSignMatrixPAGE = function(sign_names,
   return(final_sig_matrix)
 
 }
+
 ## create spatialDWLS matrix ####
 
 #' @title makeSignMatrixDWLS

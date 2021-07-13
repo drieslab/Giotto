@@ -1528,7 +1528,7 @@ rna_pears_resid_normalization = function(gobject,
   }
 
   # return results to Giotto object
-  if(verbose == TRUE) message('\n Pearsono residual normalized data will be returned to the ', name, ' Giotto slot \n')
+  if(verbose == TRUE) message('\n Pearson residual normalized data will be returned to the ', name, ' Giotto slot \n')
 
   gobject@expression[[feat_type]][[name]] = z
 
