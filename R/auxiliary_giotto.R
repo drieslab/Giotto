@@ -264,17 +264,17 @@ pDataDT <- function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
-  if(!class(gobject) %in% c('ExpressionSet', 'SCESet', 'seurat', 'giotto')) {
+  if(!inherits(gobject, c('ExpressionSet', 'SCESet', 'seurat', 'giotto'))) {
     stop('only works with ExpressionSet (-like) objects')
   }
 
-  if(class(gobject) %in% c('ExpressionSet', 'SCESet')) {
+  if(inherits(gobject, c('ExpressionSet', 'SCESet'))) {
     return(data.table::as.data.table(Biobase::pData(gobject)))
   }
   else if(class(gobject) == 'giotto') {
     return(gobject@cell_metadata[[feat_type]])
   }
-  else if(class(gobject) == 'seurat') {
+  else if(inherits(gobject, 'seurat')) {
     return(data.table::as.data.table(gobject@meta.data))
   }
 
@@ -298,7 +298,7 @@ fDataDT <- function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
-  if(!class(gobject) %in% c('ExpressionSet', 'SCESet', 'giotto')) {
+  if(!inherits(gobject, c('ExpressionSet', 'SCESet', 'giotto'))) {
     stop('only works with ExpressionSet (-like) objects')
   }
   else if(class(gobject) == 'giotto') {

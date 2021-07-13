@@ -772,6 +772,7 @@ dimPlot2D_single <- function(gobject,
   ## add % variance explained to names of plot for PCA ##
   if(dim_reduction_to_use == 'pca') {
 
+<<<<<<< HEAD
     if(!is.null(eigenvalues)) {
       x_name = paste0('pca','-',dim_names[1])
       y_name = paste0('pca','-',dim_names[2])
@@ -784,6 +785,11 @@ dimPlot2D_single <- function(gobject,
       pl <- pl + ggplot2::labs(x = x_title, y = y_title, title = title)
     }
 
+=======
+    # provide x, y and plot titles
+    x_title = sprintf('%s explains %.02f%% of variance', x_name, var_expl_vec[dim1_to_use])
+    y_title = sprintf('%s explains %.02f%% of variance', y_name, var_expl_vec[dim2_to_use])
+>>>>>>> origin
 
 
   } else {

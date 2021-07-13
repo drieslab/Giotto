@@ -42,6 +42,8 @@ makeSignMatrixPAGE = function(sign_names,
 
 }
 
+
+
 ## create spatialDWLS matrix ####
 
 #' @title makeSignMatrixDWLS
@@ -62,7 +64,9 @@ makeSignMatrixDWLS = function(gobject,
     stop('\n sign_gene needs to be a character of signatures for all cell types / process \n')
   }
   ## get un logged normalized expression value
+
   norm_exp<- 2^(gobject@expression$rna$normalized)-1
+
   id<- as.character(cell_type)
   intersect_sign_gene <- intersect(rownames(norm_exp), sign_gene)
   ExprSubset<-norm_exp[intersect_sign_gene,]
@@ -1700,3 +1704,4 @@ runSpatialDeconv <- function(gobject,
   return(results)
 
 }
+
