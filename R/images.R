@@ -149,7 +149,7 @@ createGiottoImage = function(gobject = NULL,
   }
 
   g_image@mg_object = mg_object
-
+  
 
   ## 2. spatial minmax and adjustments by image dimensions
   if(!is.null(gobject)) {

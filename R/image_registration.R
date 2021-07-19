@@ -275,7 +275,6 @@ registerGiottoObjectList <- function(gobject_list,
 #' @param verbose
 #' @return list of registered giotto objects where the registered images and spatial locations 
 #' @export
-#Register giotto objects when given xml transform output files from FIJI
 registerGiottoObjectListFiji = function(gobject_list,
                                         image = 'image',
                                         registered_image_name = 'image',
@@ -286,8 +285,6 @@ registerGiottoObjectListFiji = function(gobject_list,
                                         scaling = 1,
                                         auto_comp_reg_border,
                                         verbose = TRUE) {
-  
-  # add a comment here
   
   ## 1. get spatial coordinates and put in list ##
   spatloc_list = list()
@@ -405,3 +402,167 @@ registerGiottoObjectListFiji = function(gobject_list,
 }
 
 #TODO check if spatloc is actually provided in createGiottoImage() and ignore auto align if not.
+
+
+### FIJI related functions ####
+
+#' @description \code{fiji} returns path to preferred Fiji executable
+#' @rdname runFijiMacro
+#' @export
+#' @examples 
+#' # Path to current Fiji executable
+#' \donttest{
+#' fiji()
+#' }
+#' 
+#' \dontrun{
+#' # This function taken from jimpipeline by jefferislab #
+#' # Set path to preferred Fiji executable (this will be remembered)
+#' # you can also set options(jimpipeline.fiji="/some/path")
+#' fiji("/Applications/Fiji.app/Contents/MacOS/ImageJ-macosx")
+#' }
+fiji <- function(fijiPath=NULL) {
+  if(!is.null(fijiPath)) {
+    if(!file.exists(fijiPath)) 
+      stop("fiji is not at: ", fijiPath)
+  } else {
+    # do we have an option set?
+    fijiPath=getOption('jimpipeline.fiji')
+    if(!is.null(fijiPath)) {
+      if(!file.exists(fijiPath))
+        stop("fiji is not at: ", fijiPath, " as specified by options('jimpipeline.fiji')!")
+    } else {
+      # look for it in sensible places
+      if(!nzchar(fijiPath <- Sys.which('fiji'))) {
+        macapp="/Applications/Fiji.app/Contents/MacOS/ImageJ-macosx"
+        if(file.exists(macapp))
+          fijiPath=macapp
+        else 
+          stop("Unable to find fiji!",
+               "Set options('jimpipeline.fiji') to point to the fiji command line executable!")
+      }
+    }
+  }
+  options(jimpipeline.fiji=fijiPath)
+  normalizePath(fijiPath)
+}
+
+
+
+#' @name registerImagesFIJI
+#' @description Wrapper function for Register Virtual Stack Slices plugin in FIJI
+#' @param source Folder containing images to be registered
+#' @param output Folder to save registered images to
+#' @param transformSave Folder to save transforms to
+#' @param referenceImg File name of reference image for the registration
+#' @param init_gauss_blur Point detector option: initial image blurring
+#' @param steps_per_scale_octave Point detector option
+#' @param min_img_size Point detector option
+#' @param max_img_size Point detector option
+#' @param feat_desc_size Feature descriptor option
+#' @param feat_desc_orient_bins Feature descriptor option
+#' @param closest_next_closest_Ratio Feature descriptor option
+#' @param max_align_err Geometric consensus filter option
+#' @param inlier_ratio Geometric consensus filter option
+#' @param headless Whether to have ImageJ/Fiji running headless #TODO
+#' @param batch Use batch mode #TODO
+#' @param MinMem,MaxMem Memory limits
+#' @param IncrementalGC Whether to use incremental garbage collection
+#' @param Threads Number of threads
+#' @param fijiArgs Arguments for ImageJ/FIJI
+#' @param javaArgs Arguments for Java
+#' @param ijArgs Arguments for ImageJ
+#' @param fijiPath Path to fiji executable (can be set by
+#'   \code{options(jimpipeline.fiji="/some/path")})
+#' @param DryRun Whether to return the command to be run rather than actually 
+#'   executing it.
+#' @return list of registered giotto objects where the registered images and spatial locations 
+#' @export
+#' 
+#' \dontrun{
+#' #This function adapted from runFijiMacro function in jimpipeline by jefferislab #
+#' }
+registerImagesFIJI = function(source,
+                              output,
+                              #Scale Invariant Interest Point Detector Options
+                              init_gauss_blur = 1.6,
+                              steps_per_scale_octave = 3,
+                              min_img_size = 64,
+                              max_img_size = 1024,
+                              #Feature Descriptor Options
+                              feat_desc_size = 8,
+                              feat_desc_orient_bins = 8,
+                              closest_next_closest_Ratio = 0.92,
+                              #Geometric Consensus Filter Options
+                              max_align_err = 25,
+                              inlier_ratio = 0.05,
+                              #FIJI Options
+                              headless = FALSE,
+                              batch = TRUE,
+                              MinMem = MaxMem,
+                              MaxMem = 2500,
+                              IncrementalGC = TRUE,
+                              Threads = NULL,
+                              fijiArgs = NULL,
+                              javaArgs = NULL,
+                              ijArgs = NULL,
+                              fijiPath = fiji(),
+                              DryRun = FALSE) {
+  
+  if(headless) fijiArgs = c(fijiArgs,"--headless")
+  fijiArgs=paste(fijiArgs,collapse=" ")
+  
+  javaArgs=c(paste("-Xms",MinMem,'m',sep=""),paste("-Xmx",MaxMem,'m',sep=""),javaArgs)
+  if(IncrementalGC) javaArgs=c(javaArgs,"-Xincgc")
+  javaArgs=paste(javaArgs,collapse=" ")
+  
+  threadAdjust=ifelse(is.null(Threads),"",paste("run(\"Memory & Threads...\", \"parallel=",Threads,"\");",sep=""))
+  
+  macroCall=paste(" -eval '",
+                  threadAdjust,
+                  "run(\"Register Virtual Stack Slices\", \"source=[",
+                  source,
+                  "] output=[",
+                  output,
+                  "] feature=Similarity registration=[Rigid                -- translate + rotate                  ] advanced save initial_gaussian_blur=",
+                  init_gauss_blur,
+                  " steps_per_scale_octave=",
+                  steps_per_scale_octave,
+                  " minimum_image_size=",
+                  min_img_size,
+                  " maximum_image_size=",
+                  max_img_size,
+                  " feature_descriptor_size=",
+                  feat_desc_size,
+                  " feature_descriptor_orientation_bins=",
+                  feat_desc_orient_bins,
+                  " closest/next_closest_ratio=",
+                  closest_next_closest_Ratio,
+                  " maximal_alignment_error=",
+                  max_align_err,
+                  " inlier_ratio=",
+                  inlier_ratio,
+                  " feature_extraction_model=Similarity registration_model=[Rigid                -- translate + rotate                  ] interpolate\");' ",sep="")
+  
+  ijArgs=paste(c(ijArgs,ifelse(batch,"-batch","")),collapse=" ")
+  
+  cmd<-paste(fijiPath,javaArgs,fijiArgs,"--",macroCall,ijArgs)
+  if(DryRun) return(cmd)
+  return(0==system(cmd))
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

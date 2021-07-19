@@ -1526,16 +1526,16 @@ get_adj_rescale_img = function(img_minmax,
   my_ymax = max(spatial_locs$sdimy)
 
   #Find scaled image adjustments based on scaled spatlocs
-  xmin_adj_scaled = my_xmin*scale_factor - img_minmax$img_xmin #spatloc xdistmin - img xdistmin
+  xmin_adj_scaled = (my_xmin*scale_factor) - (img_minmax$img_xmin)
   xmin_adj_orig = xmin_adj_scaled/scale_factor
 
-  xmax_adj_scaled = img_minmax$img_xmax - (my_xmax*scale_factor) #img xdistmax - spatloc xdistmax
+  xmax_adj_scaled = (img_minmax$img_xmax) - (my_xmax*scale_factor)
   xmax_adj_orig = xmax_adj_scaled/scale_factor
 
-  ymin_adj_scaled = -(img_minmax$img_ymin) - -(my_ymin*scale_factor) #img ydistmax - spatloc ydistmax
+  ymin_adj_scaled = (my_ymin*scale_factor) - (img_minmax$img_ymin)
   ymin_adj_orig = ymin_adj_scaled/scale_factor
 
-  ymax_adj_scaled = -(my_ymax*scale_factor) - -(img_minmax$img_ymax) #spatloc ydistmin - img ydistmin
+  ymax_adj_scaled = (img_minmax$img_ymax) - (my_ymax*scale_factor)
   ymax_adj_orig = ymax_adj_scaled/scale_factor
   
   #return scaled adjustments
@@ -1644,18 +1644,10 @@ createGiottoVisiumObject = function(visium_dir = NULL,
           json_info = jsonlite::read_json(h5_json_scalefactors_path)
           scale_factor = json_info[['tissue_lowres_scalef']]
 
-          img_minmax = get_img_minmax(mg_img = mg_img)
-          adj_values = get_adj_rescale_img(img_minmax = img_minmax,
-                                           spatial_locs = spatial_locs,
-                                           scale_factor = scale_factor)
-
           visium_png = createGiottoImage(gobject = NULL,
                                          spatial_locs =  spatial_locs,
                                          mg_object = mg_img, name = 'image',
-                                         xmax_adj = adj_values[['xmax_adj_orig']],
-                                         xmin_adj = adj_values[['xmin_adj_orig']],
-                                         ymax_adj = adj_values[['ymax_adj_orig']],
-                                         ymin_adj = adj_values[['ymin_adj_orig']])
+                                         scale_factor = scale_factor)
 
         }
       } else if(png_name == 'tissue_hires_image.png') {
@@ -1665,18 +1657,10 @@ createGiottoVisiumObject = function(visium_dir = NULL,
           json_info = jsonlite::read_json(h5_json_scalefactors_path)
           scale_factor = json_info[['tissue_hires_scalef']]
 
-          img_minmax = get_img_minmax(mg_img = mg_img)
-          adj_values = get_adj_rescale_img(img_minmax = img_minmax,
-                                           spatial_locs = spatial_locs,
-                                           scale_factor = scale_factor)
-
           visium_png = createGiottoImage(gobject = NULL,
                                          spatial_locs =  spatial_locs,
                                          mg_object = mg_img, name = 'image',
-                                         xmax_adj = adj_values[['xmax_adj_orig']],
-                                         xmin_adj = adj_values[['xmin_adj_orig']],
-                                         ymax_adj = adj_values[['ymax_adj_orig']],
-                                         ymin_adj = adj_values[['ymin_adj_orig']])
+                                         scale_factor = scale_factor)
 
         }
       } else {
@@ -1756,18 +1740,10 @@ createGiottoVisiumObject = function(visium_dir = NULL,
         json_info = jsonlite::read_json(scalefactors_path)
         scale_factor = json_info[['tissue_lowres_scalef']]
 
-        img_minmax = get_img_minmax(mg_img = mg_img)
-        adj_values = get_adj_rescale_img(img_minmax = img_minmax,
-                                         spatial_locs = spatial_locs,
-                                         scale_factor = scale_factor)
-
         visium_png = createGiottoImage(gobject = NULL,
                                        spatial_locs =  spatial_locs,
                                        mg_object = mg_img, name = 'image',
-                                       xmax_adj = adj_values[['xmax_adj_orig']],
-                                       xmin_adj = adj_values[['xmin_adj_orig']],
-                                       ymax_adj = adj_values[['ymax_adj_orig']],
-                                       ymin_adj = adj_values[['ymin_adj_orig']])
+                                       scale_factor = scale_factor)
 
       }
     } else if(png_name == 'tissue_hires_image.png') {
@@ -1780,18 +1756,10 @@ createGiottoVisiumObject = function(visium_dir = NULL,
         json_info = jsonlite::read_json(scalefactors_path)
         scale_factor = json_info[['tissue_hires_scalef']]
 
-        img_minmax = get_img_minmax(mg_img = mg_img)
-        adj_values = get_adj_rescale_img(img_minmax = img_minmax,
-                                         spatial_locs = spatial_locs,
-                                         scale_factor = scale_factor)
-
         visium_png = createGiottoImage(gobject = NULL,
                                        spatial_locs =  spatial_locs,
                                        mg_object = mg_img, name = 'image',
-                                       xmax_adj = adj_values[['xmax_adj_orig']],
-                                       xmin_adj = adj_values[['xmin_adj_orig']],
-                                       ymax_adj = adj_values[['ymax_adj_orig']],
-                                       ymin_adj = adj_values[['ymin_adj_orig']])
+                                       scale_factor = scale_factor)
 
       }
     } else {
