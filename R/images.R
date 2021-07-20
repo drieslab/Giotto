@@ -83,6 +83,7 @@ setMethod(
 #' @param mg_object magick image object
 #' @param name name for the image
 #' @param image_transformations vector of sequential image transformations
+#' @param do_manual_adj flag to use manual adj values instead of automatic alignment when given a gobject or spatlocs
 #' @param xmax_adj adjustment of the maximum x-value to align the image
 #' @param xmin_adj adjustment of the minimum x-value to align the image
 #' @param ymax_adj adjustment of the maximum y-value to align the image
@@ -100,6 +101,7 @@ createGiottoImage = function(gobject = NULL,
                              mg_object,
                              name = 'image',
                              image_transformations = NULL,
+                             do_manual_adj = FALSE,
                              xmax_adj = 0,
                              xmin_adj = 0,
                              ymax_adj = 0,
@@ -149,13 +151,15 @@ createGiottoImage = function(gobject = NULL,
   }
 
   g_image@mg_object = mg_object
-
-
-  ## 2. spatial minmax and adjustments by image dimensions
+  
+  ## 2. spatial minmax and adjustments -- manual OR by image dimensions (auto)
+  if(do_manual_adj == TRUE) cat('do_manual == TRUE \n','Boundaries will be adjusted by given values.\n')
+  #If spatlocs or gobject supplied, minmax values will always be generated
+  #If do_manual_adj == TRUE, bypass followup automatic boundary value generation
   if(!is.null(gobject)) {
 
     spatlocs = get_spatial_locations(gobject = gobject,
-                                        spat_loc_name = spat_loc_name)
+                                     spat_loc_name = spat_loc_name)
 
     #spatlocs = gobject@spatial_locs[['raw']]
 
@@ -164,16 +168,19 @@ createGiottoImage = function(gobject = NULL,
     my_ymin = min(spatlocs$sdimy)
     my_ymax = max(spatlocs$sdimy)
     
-    #find adjustment values
-    img_minmax = get_img_minmax(mg_img = mg_object)
-    adj_values = get_adj_rescale_img(img_minmax = img_minmax,
-                                     spatial_locs = spatlocs,
-                                     scale_factor = scale_factor)
-    
-    xmax_adj = as.numeric(adj_values[['xmax_adj_orig']])
-    xmin_adj = as.numeric(adj_values[['xmin_adj_orig']])
-    ymax_adj = as.numeric(adj_values[['ymax_adj_orig']])
-    ymin_adj = as.numeric(adj_values[['ymin_adj_orig']])
+    if(do_manual_adj == FALSE) {
+      #find adjustment values
+      img_minmax = get_img_minmax(mg_img = mg_object)
+      adj_values = get_adj_rescale_img(img_minmax = img_minmax,
+                                       spatial_locs = spatlocs,
+                                       scale_factor = scale_factor)
+      
+      xmax_adj = as.numeric(adj_values[['xmax_adj_orig']])
+      xmin_adj = as.numeric(adj_values[['xmin_adj_orig']])
+      ymax_adj = as.numeric(adj_values[['ymax_adj_orig']])
+      ymin_adj = as.numeric(adj_values[['ymin_adj_orig']])
+    }
+
 
   } else if(!is.null(spatial_locs)) {
     spatlocs = spatial_locs
@@ -186,16 +193,19 @@ createGiottoImage = function(gobject = NULL,
     my_ymin = min(spatlocs$sdimy)
     my_ymax = max(spatlocs$sdimy)
     
-    #find adjustment values
-    img_minmax = get_img_minmax(mg_img = mg_object)
-    adj_values = get_adj_rescale_img(img_minmax = img_minmax,
-                                     spatial_locs = spatlocs,
-                                     scale_factor = scale_factor)
-    
-    xmax_adj = as.numeric(adj_values[['xmax_adj_orig']])
-    xmin_adj = as.numeric(adj_values[['xmin_adj_orig']])
-    ymax_adj = as.numeric(adj_values[['ymax_adj_orig']])
-    ymin_adj = as.numeric(adj_values[['ymin_adj_orig']])
+    if(do_manual_adj == FALSE) {
+      #find adjustment values
+      img_minmax = get_img_minmax(mg_img = mg_object)
+      adj_values = get_adj_rescale_img(img_minmax = img_minmax,
+                                       spatial_locs = spatlocs,
+                                       scale_factor = scale_factor)
+      
+      xmax_adj = as.numeric(adj_values[['xmax_adj_orig']])
+      xmin_adj = as.numeric(adj_values[['xmin_adj_orig']])
+      ymax_adj = as.numeric(adj_values[['ymax_adj_orig']])
+      ymin_adj = as.numeric(adj_values[['ymin_adj_orig']])
+    }
+
 
   } else {
     warning('gobject or spatial locations are not provided \n',
