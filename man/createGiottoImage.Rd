@@ -11,6 +11,7 @@ createGiottoImage(
   mg_object,
   name = "image",
   image_transformations = NULL,
+  do_manual_adj = FALSE,
   xmax_adj = 0,
   xmin_adj = 0,
   ymax_adj = 0,
@@ -28,6 +29,8 @@ createGiottoImage(
 \item{name}{name for the image}
 
 \item{image_transformations}{vector of sequential image transformations}
+
+\item{do_manual_adj}{flag to use manual adj values instead of automatic alignment when given a gobject or spatlocs}
 
 \item{xmax_adj}{adjustment of the maximum x-value to align the image}
 

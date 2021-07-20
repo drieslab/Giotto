@@ -14,6 +14,7 @@ createGiottoVisiumObject(
   h5_image_png_path = NULL,
   h5_json_scalefactors_path = NULL,
   png_name = NULL,
+  do_manual_adj = FALSE,
   xmax_adj = 0,
   xmin_adj = 0,
   ymax_adj = 0,
@@ -41,6 +42,8 @@ createGiottoVisiumObject(
 \item{h5_json_scalefactors_path}{path to .json scalefactors (optional)}
 
 \item{png_name}{select name of png to use (see details)}
+
+\item{do_manual_adj}{flag to use manual adj values instead of automatic image alignment}
 
 \item{xmax_adj}{adjustment of the maximum x-value to align the image}
 
