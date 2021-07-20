@@ -1505,7 +1505,7 @@ get_img_minmax = function(mg_img) {
   img_xmin = 0              #x origin
   img_ymax = 0              #y origin
   img_ymin = -(info$height) #height
-  
+
   return(list('img_xmax' = img_xmax,
               'img_xmin' = img_xmin,
               'img_ymax' = img_ymax,
@@ -1518,7 +1518,7 @@ get_img_minmax = function(mg_img) {
 get_adj_rescale_img = function(img_minmax,
                                spatial_locs,
                                scale_factor = 1) {
-  
+
   #Spatial minmax
   my_xmin = min(spatial_locs$sdimx)
   my_xmax = max(spatial_locs$sdimx)
@@ -1537,7 +1537,7 @@ get_adj_rescale_img = function(img_minmax,
 
   ymax_adj_scaled = -(my_ymax*scale_factor) - -(img_minmax$img_ymax) #spatloc ydistmin - img ydistmin
   ymax_adj_orig = ymax_adj_scaled/scale_factor
-  
+
   #return scaled adjustments
   return(c('xmin_adj_orig' = xmin_adj_orig,
            'xmax_adj_orig' = xmax_adj_orig,
@@ -2405,6 +2405,7 @@ joinGiottoObjects = function(gobject_list,
             xmax = my_xmax+xmax_b
 
             add_to_x = ((gobj_i - 1) * (xmax-xmin)) + ((gobj_i - 1) * x_padding)
+
           } else {
             add_to_x = ((gobj_i - 1) * x_shift) + ((gobj_i - 1) * x_padding)
           }
@@ -2424,10 +2425,6 @@ joinGiottoObjects = function(gobject_list,
 
 
 
-
-
-
-
     ## 3. update spatial location
     # add padding to x-axis
     # update cell ID
@@ -2442,6 +2439,7 @@ joinGiottoObjects = function(gobject_list,
 
         if(is.null(x_shift)) {
           add_to_x = xshift_list[[gobj_i]]
+
         } else {
           add_to_x = (gobj_i - 1) * x_shift + ((gobj_i - 1) * x_padding)
         }
