@@ -114,9 +114,10 @@ cor_flex = function(x, ...) {
   return(stats::cor(x, ...))
 }
 
+
 #' @name  flex_lapply
 #' @keywords internal
-flex_lapply = function(X, cores = NA, fun, ...) {
+flex_lapply = function(X, FUN, cores = NA, fun = NULL, ...) {
 
   # a simple wrapper for future.apply::future_lapply
   # probably does not need any additional changes
@@ -124,6 +125,12 @@ flex_lapply = function(X, cores = NA, fun, ...) {
   # potential addition:
   # check if future::plan() was already set by user
   # if not, set plan(multisession, workers = cores) by default
+
+
+  # backwards compatible with previous version
+  if(!is.null(fun)) {
+    FUN = fun
+  }
 
 
   # get type of os
@@ -134,7 +141,7 @@ flex_lapply = function(X, cores = NA, fun, ...) {
 
 
   # future_lapply call
-  save_list = future.apply::future_lapply(X = X, FUN = fun, ...)
+  save_list = future.apply::future_lapply(X = X, FUN = FUN, ...)
 
   #if(os == 'unix') {
   #  save_list = parallel::mclapply(X = X, mc.cores = cores,

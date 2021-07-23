@@ -1292,7 +1292,7 @@ filterGiotto <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('raw', 'normalized', 'scaled', 'custom', expression_values)))
-  expr_values = Giotto:::get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+  expr_values = get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
 
   # approach:
   # 1. first remove genes that are not frequently detected
