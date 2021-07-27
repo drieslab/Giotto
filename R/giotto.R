@@ -295,7 +295,8 @@ createGiottoInstructions <- function(python_path =  NULL,
                                      height = NULL,
                                      width = NULL,
                                      is_docker = FALSE,
-                                     plot_count = 0) {
+                                     plot_count = 0,
+                                     fiji_path = NULL) {
 
   # pyton path to use
   if(is_docker){
@@ -355,9 +356,15 @@ createGiottoInstructions <- function(python_path =  NULL,
   }
   width = as.numeric(width)
 
-  ## global options
+
+  ## global options ##
+  # ---------------- #
+
   # plot count
   options('giotto.plot_count' = plot_count)
+
+  # fiji path
+  options('giotto.fiji' = fiji_path)
 
 
   # return instructions list
