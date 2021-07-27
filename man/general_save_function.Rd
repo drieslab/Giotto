@@ -18,6 +18,7 @@ general_save_function(
   base_aspect_ratio = NULL,
   units = NULL,
   dpi = NULL,
+  plot_count = NULL,
   ...
 )
 }
@@ -45,6 +46,8 @@ general_save_function(
 \item{units}{units}
 
 \item{dpi}{Plot resolution}
+
+\item{plot_count}{count number for plot}
 }
 \description{
 Function to automatically save plots to directory of interest

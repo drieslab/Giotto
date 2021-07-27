@@ -22,6 +22,7 @@ all_plots_save_function(
   units = NULL,
   dpi = NULL,
   limitsize = TRUE,
+  plot_count = NULL,
   ...
 )
 }
@@ -59,6 +60,8 @@ all_plots_save_function(
 \item{dpi}{Plot resolution}
 
 \item{limitsize}{When TRUE (the default), ggsave will not save images larger than 50x50 inches, to prevent the common error of specifying dimensions in pixels.}
+
+\item{plot_count}{count number for plot}
 
 \item{\dots}{additional parameters to ggplot_save_function or general_save_function}
 }

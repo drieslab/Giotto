@@ -59,6 +59,7 @@ giotto_point = function(plot_method = c('ggplot', 'scattermore', 'scattermost'),
 #' @param units units
 #' @param dpi Plot resolution
 #' @param limitsize When TRUE (the default), ggsave will not save images larger than 50x50 inches, to prevent the common error of specifying dimensions in pixels.
+#' @param plot_count count number for plot
 #' @param \dots additional parameters to cowplot::save_plot
 #' @seealso \code{\link[cowplot]{save_plot}}
 #' @keywords internal
@@ -79,6 +80,7 @@ ggplot_save_function = function(gobject,
                                 units = NULL,
                                 dpi = NULL,
                                 limitsize = TRUE,
+                                plot_count = NULL,
                                 ...) {
 
   if(is.null(plot_object)) {
@@ -88,7 +90,12 @@ ggplot_save_function = function(gobject,
   ## get save information and set defaults
   if(is.null(save_dir)) save_dir = readGiottoInstructions(gobject, param = 'save_dir')
   if(is.null(save_folder)) save_folder = NULL
-  if(is.null(save_name)) save_name = default_save_name
+  if(is.null(plot_count)) plot_count = getOption('giotto.plot_count')
+  if(is.null(save_name)) {
+    save_name = default_save_name
+    save_name = paste0(plot_count,'-', save_name)
+    options('giotto.plot_count' = plot_count + 1)
+  }
   if(is.null(save_format)) save_format = readGiottoInstructions(gobject, param = 'plot_format')
   if(is.null(dpi)) dpi = readGiottoInstructions(gobject, param = 'dpi')
   if(is.null(base_width)) base_width = readGiottoInstructions(gobject, param = 'width')
@@ -133,7 +140,7 @@ ggplot_save_function = function(gobject,
       if("png" %in% rownames(installed.packages()) == FALSE) {
         cat("\n package 'png' is not yet installed \n")
       } else {
-        img <- png::readPNG(source = paste0(file_location, '/', file_name))
+        img = png::readPNG(source = paste0(file_location, '/', file_name))
         grid::grid.raster(img)
         }
 
@@ -141,7 +148,7 @@ ggplot_save_function = function(gobject,
       if("tiff" %in% rownames(installed.packages()) == FALSE) {
         cat("\n package 'tiff' is not yet installed \n")
       } else {
-        img <- tiff::readTIFF(source =  paste0(file_location, '/', file_name))
+        img = tiff::readTIFF(source =  paste0(file_location, '/', file_name))
         grid::grid.raster(img)
       }
     } else {
@@ -167,6 +174,7 @@ ggplot_save_function = function(gobject,
 #' @param base_aspect_ratio aspect ratio
 #' @param units units
 #' @param dpi Plot resolution
+#' @param plot_count count number for plot
 #' @keywords internal
 general_save_function = function(gobject,
                                  plot_object,
@@ -181,6 +189,7 @@ general_save_function = function(gobject,
                                  base_aspect_ratio = NULL,
                                  units = NULL,
                                  dpi = NULL,
+                                 plot_count = NULL,
                                  ...) {
 
 
@@ -198,7 +207,12 @@ general_save_function = function(gobject,
   ## get save information and set defaults
   if(is.null(save_dir)) save_dir = readGiottoInstructions(gobject, param = 'save_dir')
   if(is.null(save_folder)) save_folder = NULL
-  if(is.null(save_name)) save_name = default_save_name
+  if(is.null(plot_count)) plot_count = getOption('giotto.plot_count')
+  if(is.null(save_name)) {
+    save_name = default_save_name
+    save_name = paste0(plot_count,'-', save_name)
+    options('giotto.plot_count' = plot_count + 1)
+  }
   if(is.null(save_format)) save_format = readGiottoInstructions(gobject, param = 'plot_format')
   if(is.null(dpi)) dpi = readGiottoInstructions(gobject, param = 'dpi')
   if(is.null(base_width)) base_width = readGiottoInstructions(gobject, param = 'width')
@@ -299,6 +313,7 @@ general_save_function = function(gobject,
 #' @param units units
 #' @param dpi Plot resolution
 #' @param limitsize When TRUE (the default), ggsave will not save images larger than 50x50 inches, to prevent the common error of specifying dimensions in pixels.
+#' @param plot_count count number for plot
 #' @param \dots additional parameters to ggplot_save_function or general_save_function
 #' @seealso \code{\link{general_save_function}}
 #' @keywords internal
@@ -319,6 +334,7 @@ all_plots_save_function = function(gobject,
                                    units = NULL,
                                    dpi = NULL,
                                    limitsize = TRUE,
+                                   plot_count = NULL,
                                    ...) {
 
 
@@ -341,6 +357,7 @@ all_plots_save_function = function(gobject,
                          units = units,
                          dpi = dpi,
                          limitsize = limitsize,
+                         plot_count = plot_count,
                          ...)
 
   } else {
@@ -358,6 +375,7 @@ all_plots_save_function = function(gobject,
                           base_aspect_ratio = base_aspect_ratio,
                           units = units,
                           dpi = dpi,
+                          plot_count = plot_count,
                           ...)
 
   }
