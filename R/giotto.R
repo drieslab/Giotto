@@ -2166,17 +2166,25 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
 
 #' @name get_args
 #' @keywords internal
-get_args <- function(toplevel = 2) {
+get_args <- function(toplevel = 2, verbose = FALSE) {
 
   nframes = sys.nframe()
-  cat('\n number of frames: ')
-  print(nframes)
-  cat('\n')
+
+  if(verbose == TRUE) {
+    cat('\n number of frames: ')
+    print(nframes)
+    cat('\n')
+  }
+
 
   cl = sys.call(-toplevel)
-  cat('\n system call: ')
-  print(cl)
-  cat('\n')
+
+  if(verbose == TRUE) {
+    cat('\n system call: ')
+    print(cl)
+    cat('\n')
+  }
+
 
   # function name
   fname = as.character(cl[[1]])
@@ -2185,9 +2193,12 @@ get_args <- function(toplevel = 2) {
     fname = fname[[3]]
   }
 
-  cat('\n function name: ')
-  print(fname)
-  cat('\n')
+  if(verbose == TRUE) {
+    cat('\n function name: ')
+    print(fname)
+    cat('\n')
+  }
+
 
   # function
   #f = get(x = fname, mode = "function", pos = 'package:Giotto')
