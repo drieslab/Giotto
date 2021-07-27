@@ -369,7 +369,7 @@ create_feats_to_use_matrix = function(gobject,
                                       feat_type = NULL,
                                       sel_matrix,
                                       feats_to_use,
-                                      verbose = TRUE) {
+                                      verbose = FALSE) {
 
   # specify feat_type
   if(is.null(feat_type)) {
@@ -393,7 +393,7 @@ create_feats_to_use_matrix = function(gobject,
     sel_matrix = sel_matrix[rownames(sel_matrix) %in% feats_to_use, ]
   }
 
-  if(verbose == TRUE) print(class(sel_matrix))
+  if(verbose == TRUE) cat('class of selected matrix: ', class(sel_matrix))
   return(sel_matrix)
 
 }
