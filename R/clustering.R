@@ -65,7 +65,7 @@ doLeidenCluster = function(gobject,
   cell_ID_vec = gobject@cell_ID
 
   ## select network to use
-  igraph_object = select_NearestNetwork(gobject,
+  igraph_object = get_NearestNetwork(gobject,
                                         nn_network_to_use = nn_network_to_use,
                                         network_name = network_name)
 
@@ -200,7 +200,7 @@ doLouvainCluster_community <- function(gobject,
   cell_ID_vec = gobject@cell_ID
 
   ## select network to use
-  igraph_object = select_NearestNetwork(gobject,
+  igraph_object = get_NearestNetwork(gobject,
                                         nn_network_to_use = nn_network_to_use,
                                         network_name = network_name)
 
@@ -336,7 +336,7 @@ doLouvainCluster_multinet <- function(gobject,
   cell_ID_vec = gobject@cell_ID
 
   ## select network to use
-  igraph_object = select_NearestNetwork(gobject,
+  igraph_object = get_NearestNetwork(gobject,
                                         nn_network_to_use = nn_network_to_use,
                                         network_name = network_name)
 
@@ -522,7 +522,7 @@ doRandomWalkCluster <- function(gobject,
   cell_ID_vec = gobject@cell_ID
 
   ## select network to use
-  igraph_object = select_NearestNetwork(gobject,
+  igraph_object = get_NearestNetwork(gobject,
                                         nn_network_to_use = nn_network_to_use,
                                         network_name = network_name)
 
@@ -620,7 +620,7 @@ doSNNCluster <- function(gobject,
   cell_ID_vec = gobject@cell_ID
 
   ## select network to use
-  igraph_object = select_NearestNetwork(gobject,
+  igraph_object = get_NearestNetwork(gobject,
                                         nn_network_to_use = nn_network_to_use,
                                         network_name = network_name)
 

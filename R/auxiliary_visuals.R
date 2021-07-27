@@ -1781,7 +1781,7 @@ violinPlot <- function(gobject,
 
   ## expression data ##
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_data = select_expression_values(gobject = gobject,
+  expr_data = get_expression_values(gobject = gobject,
                                        feat_type = feat_type,
                                        values = values)
 

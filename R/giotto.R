@@ -524,7 +524,7 @@ readExprMatrix = function(path,
   spM = Matrix::Matrix(as.matrix(DT[,-1]), dimnames = list(DT[[1]], colnames(DT[,-1])), sparse = T)
 
   if(transpose == TRUE) {
-    spM = t_giotto(spM)
+    spM = t_flex(spM)
   }
 
   return(spM)
