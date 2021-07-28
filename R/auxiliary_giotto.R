@@ -9,6 +9,8 @@
 #' @export
 mean_giotto = function(x, ...) {
 
+  print("replace with 'mean_flex' ")
+
   if(methods::is(x, 'dgCMatrix')) {
     return(Matrix::mean(x, ...)) # replace with sparseMatrixStats
   } else if(methods::is(x, 'Matrix')) {
@@ -25,6 +27,8 @@ mean_giotto = function(x, ...) {
 #' @return numeric vector
 #' @export
 rowSums_giotto = function(mymatrix) {
+
+  print("replace with 'rowSums_flex' ")
 
   if(methods::is(mymatrix, 'dgCMatrix')) {
     return(Matrix::rowSums(mymatrix)) # replace with sparseMatrixStats
@@ -46,6 +50,8 @@ rowSums_giotto = function(mymatrix) {
 #' @export
 rowMeans_giotto = function(mymatrix) {
 
+  print("replace with 'rowMeans_flex' ")
+
   if(methods::is(mymatrix, 'dgCMatrix')) {
     return(Matrix::rowMeans(mymatrix)) # replace with sparseMatrixStats
   } else if(methods::is(mymatrix, 'Matrix')) {
@@ -66,6 +72,8 @@ rowMeans_giotto = function(mymatrix) {
 #' @export
 colSums_giotto = function(mymatrix) {
 
+  print("replace with 'colSums_flex' ")
+
   if(methods::is(mymatrix, 'dgCMatrix')) {
     return(Matrix::colSums(mymatrix)) # replace with sparseMatrixStats
   } else if(methods::is(mymatrix, 'Matrix')) {
@@ -84,6 +92,8 @@ colSums_giotto = function(mymatrix) {
 #' @return numeric vector
 #' @export
 colMeans_giotto = function(mymatrix) {
+
+  print("replace with 'colMeans_flex' ")
 
   if(methods::is(mymatrix, 'dgCMatrix')) {
     return(Matrix::colMeans(mymatrix)) # replace with sparseMatrixStats
@@ -104,6 +114,8 @@ colMeans_giotto = function(mymatrix) {
 #' @export
 t_giotto = function(mymatrix) {
 
+  print("replace with 't_flex' ")
+
   if(methods::is(mymatrix, 'dgCMatrix')) {
     return(Matrix::t(mymatrix)) # replace with sparseMatrixStats
   } else if(methods::is(mymatrix, 'Matrix')) {
@@ -120,6 +132,9 @@ t_giotto = function(mymatrix) {
 #' @title cor_sparse adapted from wydr package
 #' @keywords internal
 cor_sparse <- function(x) {
+
+  print("replace with 'cor_flex' ")
+
   n = nrow(x)
   covmat = (as.matrix(Matrix::crossprod(x)) - n * Matrix::tcrossprod(Matrix::colMeans(x))) / (n - 1)
   cormat = covmat / base::tcrossprod(base::sqrt(base::diag(covmat)))
@@ -129,6 +144,9 @@ cor_sparse <- function(x) {
 #' @title cor_giotto
 #' @keywords internal
 cor_giotto = function(x, ...) {
+
+  print("replace with 'cor_flex' ")
+
   x = as.matrix(x)
   return(stats::cor(x, ...))
 }
@@ -140,6 +158,8 @@ cor_giotto = function(x, ...) {
 #' @title giotto_lapply
 #' @keywords internal
 giotto_lapply = function(X, cores = NA, fun, ...) {
+
+  print("replace with 'flex_lapply' ")
 
   # get type of os
   os = .Platform$OS.type
@@ -804,10 +824,10 @@ subsetGiotto <- function(gobject,
 
   ## update parameters used ##
   nframes = sys.nframe()
-  cat('number of frames: ', nframes, '\n')
+  if(verbose == TRUE) cat('number of frames: ', nframes, '\n')
 
   parent = sys.parent()
-  cat('sys parent: ', parent, '\n')
+  if(verbose == TRUE) cat('sys parent: ', parent, '\n')
 
   parameters_info = Giotto:::update_giotto_params(gobject,
                                                   description = '_subset',

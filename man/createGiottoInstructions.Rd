@@ -16,7 +16,8 @@ createGiottoInstructions(
   height = NULL,
   width = NULL,
   is_docker = FALSE,
-  plot_count = 0
+  plot_count = 0,
+  fiji_path = NULL
 )
 }
 \arguments{

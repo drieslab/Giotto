@@ -295,7 +295,8 @@ createGiottoInstructions <- function(python_path =  NULL,
                                      height = NULL,
                                      width = NULL,
                                      is_docker = FALSE,
-                                     plot_count = 0) {
+                                     plot_count = 0,
+                                     fiji_path = NULL) {
 
   # pyton path to use
   if(is_docker){
@@ -355,9 +356,15 @@ createGiottoInstructions <- function(python_path =  NULL,
   }
   width = as.numeric(width)
 
-  ## global options
+
+  ## global options ##
+  # ---------------- #
+
   # plot count
   options('giotto.plot_count' = plot_count)
+
+  # fiji path
+  options('giotto.fiji' = fiji_path)
 
 
   # return instructions list
@@ -517,7 +524,7 @@ readExprMatrix = function(path,
   spM = Matrix::Matrix(as.matrix(DT[,-1]), dimnames = list(DT[[1]], colnames(DT[,-1])), sparse = T)
 
   if(transpose == TRUE) {
-    spM = t_giotto(spM)
+    spM = t_flex(spM)
   }
 
   return(spM)
@@ -2159,17 +2166,25 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
 
 #' @name get_args
 #' @keywords internal
-get_args <- function(toplevel = 2) {
+get_args <- function(toplevel = 2, verbose = FALSE) {
 
   nframes = sys.nframe()
-  cat('\n number of frames: ')
-  print(nframes)
-  cat('\n')
+
+  if(verbose == TRUE) {
+    cat('\n number of frames: ')
+    print(nframes)
+    cat('\n')
+  }
+
 
   cl = sys.call(-toplevel)
-  cat('\n system call: ')
-  print(cl)
-  cat('\n')
+
+  if(verbose == TRUE) {
+    cat('\n system call: ')
+    print(cl)
+    cat('\n')
+  }
+
 
   # function name
   fname = as.character(cl[[1]])
@@ -2178,9 +2193,12 @@ get_args <- function(toplevel = 2) {
     fname = fname[[3]]
   }
 
-  cat('\n function name: ')
-  print(fname)
-  cat('\n')
+  if(verbose == TRUE) {
+    cat('\n function name: ')
+    print(fname)
+    cat('\n')
+  }
+
 
   # function
   #f = get(x = fname, mode = "function", pos = 'package:Giotto')

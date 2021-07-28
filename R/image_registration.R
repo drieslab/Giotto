@@ -416,34 +416,34 @@ registerGiottoObjectListFiji = function(gobject_list,
 #' }
 #'
 #' \dontrun{
-#' # This function taken from jimpipeline by jefferislab #
+#' # This function was taken and modified from jimpipeline by jefferislab #
 #' # Set path to preferred Fiji executable (this will be remembered)
-#' # you can also set options(jimpipeline.fiji="/some/path")
+#' # you can also set options(giotto.fiji="/some/path")
 #' fiji("/Applications/Fiji.app/Contents/MacOS/ImageJ-macosx")
 #' }
-fiji = function(fijiPath=NULL) {
+fiji = function(fijiPath = NULL) {
   if(!is.null(fijiPath)) {
     if(!file.exists(fijiPath))
       stop("fiji is not at: ", fijiPath)
   } else {
     # do we have an option set?
-    fijiPath=getOption('jimpipeline.fiji')
+    fijiPath=getOption('giotto.fiji')
     if(!is.null(fijiPath)) {
       if(!file.exists(fijiPath))
-        stop("fiji is not at: ", fijiPath, " as specified by options('jimpipeline.fiji')!")
+        stop("fiji is not at: ", fijiPath, " as specified by options('giotto.fiji')!")
     } else {
       # look for it in sensible places
       if(!nzchar(fijiPath <- Sys.which('fiji'))) {
         macapp="/Applications/Fiji.app/Contents/MacOS/ImageJ-macosx"
         if(file.exists(macapp))
-          fijiPath=macapp
+          fijiPath = macapp
         else
           stop("Unable to find fiji!",
-               "Set options('jimpipeline.fiji') to point to the fiji command line executable!")
+               "Set options('giotto.fiji') to point to the fiji command line executable!")
       }
     }
   }
-  options(jimpipeline.fiji=fijiPath)
+  options(giotto.fiji=fijiPath)
   normalizePath(fijiPath)
 }
 
@@ -473,12 +473,12 @@ fiji = function(fijiPath=NULL) {
 #' @param javaArgs Arguments for Java
 #' @param ijArgs Arguments for ImageJ
 #' @param fijiPath Path to fiji executable (can be set by
-#'   \code{options(jimpipeline.fiji="/some/path")})
+#'   \code{options(giotto.fiji="/some/path")})
 #' @param DryRun Whether to return the command to be run rather than actually
 #'   executing it.
 #' @return list of registered giotto objects where the registered images and spatial locations
 #' \dontrun{
-#' #This function adapted from runFijiMacro function in jimpipeline by jefferislab #
+#' #This function was adapted from runFijiMacro function in jimpipeline by jefferislab #
 #' }
 #' @export
 registerImagesFIJI = function(source,

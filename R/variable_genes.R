@@ -218,7 +218,7 @@ calculateHVF <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_values = select_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+  expr_values = get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
 
   # not advised
   if(reverse_log_scale == TRUE) {
