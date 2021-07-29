@@ -1083,6 +1083,7 @@ filterCombinations <- function(gobject,
 }
 
 
+#' @title filterGiotto
 #' @name filterGiotto
 #' @description filter Giotto object based on expression threshold
 #' @param gobject giotto object
@@ -1098,8 +1099,6 @@ filterCombinations <- function(gobject,
 #' @return giotto object
 #' @details The function \code{\link{filterCombinations}} can be used to explore the effect of different parameter values.
 #' @export
-#' @examples
-#'
 filterGiotto <- function(gobject,
                          feat_type = NULL,
                          expression_values = c('raw', 'normalized', 'scaled', 'custom'),

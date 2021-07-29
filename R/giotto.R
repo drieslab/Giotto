@@ -1830,6 +1830,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 
 
 
+#' @title createGiottoObjectSubcellular
 #' @name createGiottoObjectSubcellular
 #' @description Function to create a giotto object starting from subcellular polygon (e.g. cell) and points (e.g. transcripts) information
 #' @param gpoints giotto points
@@ -2317,6 +2318,7 @@ join_cell_meta = function(dt_list) {
 }
 
 
+#' @title joinGiottoObjects
 #' @name joinGiottoObjects
 #' @description Function to join multiple giotto objects together
 #' @param gobject_list list of giotto objects
