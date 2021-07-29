@@ -406,6 +406,7 @@ registerGiottoObjectListFiji = function(gobject_list,
 
 ### FIJI related functions ####
 
+#' @title fiji
 #' @description \code{fiji} returns path to preferred Fiji executable
 #' @rdname runFijiMacro
 #' @export
@@ -448,7 +449,7 @@ fiji = function(fijiPath = NULL) {
 }
 
 
-
+#' @title registerImagesFIJI
 #' @name registerImagesFIJI
 #' @description Wrapper function for Register Virtual Stack Slices plugin in FIJI
 #' @param source Folder containing images to be registered
