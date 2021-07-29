@@ -2291,12 +2291,6 @@ addFeatStatistics <- function(gobject,
 #'   \item{mean_expr_det: }{Average gene expression in cells with detectable levels of the gene}
 #' }
 #' @export
-#' @examples
-#'
-#' data(mini_giotto_single_cell)
-#'
-#' updated_giotto_object = addGeneStatistics(mini_giotto_single_cell)
-#'
 addGeneStatistics <- function(gobject,
                               expression_values = c('normalized', 'scaled', 'custom'),
                               detection_threshold = 0,
@@ -2333,12 +2327,6 @@ addGeneStatistics <- function(gobject,
 #'   \item{total_expr: }{Shows the total sum of feature expression per cell}
 #' }
 #' @export
-#' @examples
-#'
-#' data(mini_giotto_single_cell)
-#'
-#' updated_giotto_object = addCellStatistics(mini_giotto_single_cell)
-#'
 addCellStatistics <- function(gobject,
                               feat_type = NULL,
                               expression_values = c('normalized', 'scaled', 'custom'),
