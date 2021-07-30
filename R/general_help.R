@@ -719,6 +719,7 @@ getSpatialDataset = function(dataset = c('ST_OB1',
 }
 
 
+#' @title get10Xmatrix
 #' @name get10Xmatrix
 #' @description This function creates an expression matrix from a 10X structured folder
 #' @param path_to_data path to the 10X folder

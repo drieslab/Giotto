@@ -443,9 +443,11 @@ PAGE_DT_method = function(sign_matrix,
   detected_DT = sign_matrix_DT[, sum(value), by = Var2]
 
   lost_cell_types_DT = detected_DT[V1 <= min_overlap_genes]
-  for(row in 1:nrow(lost_cell_types_DT)) {
-    output<-paste0("Warning, ",lost_cell_types_DT[row][['Var2']]," only has ",lost_cell_types_DT[row][['V1']]," overlapping genes. Will be removed.")
-    if(verbose) print(output)
+  if(nrow(lost_cell_types_DT) > 0) {
+    for(row in 1:nrow(lost_cell_types_DT)) {
+      output = paste0("Warning, ",lost_cell_types_DT[row][['Var2']]," only has ",lost_cell_types_DT[row][['V1']]," overlapping genes. Will be removed.")
+      if(verbose) print(output)
+    }
   }
   available_ct = as.character(detected_DT[V1 > min_overlap_genes][['Var2']])
 
@@ -653,13 +655,13 @@ runPAGEEnrich <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  expr_values = get_expression_values(gobject = gobject, values = values)
 
   # check parameters
   if(is.null(name)) name = 'PAGE'
 
   PAGE_results = PAGE_DT_method(sign_matrix = sign_matrix,
-                                expr_values = expr_values,
+                                expr_values = as.matrix(expr_values),
                                 min_overlap_genes = min_overlap_genes,
                                 logbase = logbase,
                                 reverse_log_scale = reverse_log_scale,

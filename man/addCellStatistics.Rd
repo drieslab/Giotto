@@ -37,10 +37,3 @@ This function will add the following statistics to cell metadata:
   \item{total_expr: }{Shows the total sum of feature expression per cell}
 }
 }
-\examples{
-
-data(mini_giotto_single_cell)
-
-updated_giotto_object = addCellStatistics(mini_giotto_single_cell)
-
-}
