@@ -115,9 +115,13 @@ cor_flex = function(x, ...) {
 }
 
 
-#' @name  flex_lapply
+#' @name  lapply_flex
 #' @keywords internal
-flex_lapply = function(X, FUN, cores = NA, fun = NULL, ...) {
+lapply_flex = function(X,
+                       FUN,
+                       cores = NA,
+                       fun = NULL,
+                       ...) {
 
   # a simple wrapper for future.apply::future_lapply
   # probably does not need any additional changes
@@ -153,6 +157,25 @@ flex_lapply = function(X, FUN, cores = NA, fun = NULL, ...) {
 
   return(save_list)
 }
+
+
+#' @name  flex_lapply
+#' @inheritDotParams lapply_flex
+#' @seealso \code{\link{lapply_flex}}
+#' @keywords internal
+flex_lapply = function(X,
+                       FUN,
+                       cores = NA,
+                       fun = NULL,
+                       ...) {
+
+
+  .Deprecated(new = "flex_lapply")
+
+  flex_lapply(...)
+
+}
+
 
 #' @name  my_arowMeans
 #' @keywords internal
