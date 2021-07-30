@@ -1253,7 +1253,7 @@ createGiottoObject <- function(expression,
 
     if(verbose == TRUE) warning('\n No spatial locations have been provided, dummy locations will be created \n')
 
-
+    # create square dummy coordinates
     nr_cells = raw_cell_dim
     x = ceiling(sqrt(nr_cells))
     first_col  = rep(1:x, each = x)[1:nr_cells]

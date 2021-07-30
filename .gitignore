@@ -3,5 +3,5 @@
 .Rhistory
 inst/doc
 .DS_Store
-.Rproj
+*.Rproj
 .git_old
