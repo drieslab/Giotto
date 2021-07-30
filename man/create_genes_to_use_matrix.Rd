@@ -10,7 +10,7 @@ create_feats_to_use_matrix(
   feat_type = NULL,
   sel_matrix,
   feats_to_use,
-  verbose = TRUE
+  verbose = FALSE
 )
 }
 \arguments{
