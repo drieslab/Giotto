@@ -1239,14 +1239,33 @@ createGiottoObject <- function(expression,
   # the default name = 'raw' and correspond to the real physical coordinates
   # additional spatial locations can be provided
 
-  gobject = extract_spatial_locations_list(gobject,
-                                           spat_loc_list = spatial_locs,
-                                           cores = cores,
-                                           dummy_n = raw_cell_dim,
-                                           expr_matrix = gobject@expression[[1]][['raw']],
-                                           verbose = TRUE)
+
+  if(!is.null(spatial_locs)) {
+
+    gobject = extract_spatial_locations_list(gobject,
+                                             spat_loc_list = spatial_locs,
+                                             cores = cores,
+                                             dummy_n = raw_cell_dim,
+                                             expr_matrix = gobject@expression[[1]][['raw']],
+                                             verbose = TRUE)
+
+  } else {
+
+    if(verbose == TRUE) warning('\n No spatial locations have been provided, dummy locations will be created \n')
 
 
+    nr_cells = raw_cell_dim
+    x = ceiling(sqrt(nr_cells))
+    first_col  = rep(1:x, each = x)[1:nr_cells]
+    second_col = rep(1:x, times = x)[1:nr_cells]
+
+    spatial_locs = data.table::data.table(cell_ID = gobject@cell_ID,
+                                          sdimx = first_col,
+                                          sdimy = second_col)
+
+    gobject@spatial_locs[['raw']] = spatial_locs
+
+  }
 
   ## spatial info ##
   ## ------------ ##
