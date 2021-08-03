@@ -165,7 +165,7 @@ reg_img_minmax_finder <- function(gobject_list,
     #return the max values
     return(minmaxRegVals)
   } else {
-    warning('original images must be supplied for registered images to be aligned')
+    warning('original images must be supplied for registered images to be aligned \n')
   }
 }
 
@@ -180,7 +180,7 @@ get_img_corners <- function(img_object) {
   } else if(methods::is(img_object,'magick-image')) {
     img_dims = Giotto:::get_img_minmax(img_object)
   } else {
-    stop('img_object must be either a giottoImage or a magick-image /n')
+    stop('img_object must be either a giottoImage or a magick-image \n')
   }
 
   upper_left = c(img_dims$img_xmin,img_dims$img_ymax)
@@ -306,7 +306,7 @@ registerGiottoObjectListFiji = function(gobject_list,
 
   ## 3. apply transformation on spatial locations ##
   if(length(spatloc_list) != length(transf_list)) {
-    stop('xml spatial transforms must be supplied for every gobject to be registered.')
+    stop('xml spatial transforms must be supplied for every gobject to be registered. \n')
   }
 
   #Select useful info out of the TrakEM2 files
@@ -331,10 +331,10 @@ registerGiottoObjectListFiji = function(gobject_list,
   if(is.null(registered_images) == FALSE) {
     #If there are not the same number of registered images as gobjects, stop
     if(length(registered_images) != length(gobject_list)) {
-      stop('A registered image should be supplied for every gobject to align /n')
+      stop('A registered image should be supplied for every gobject to align \n')
     }
     if(sum(as.logical(lapply(registered_images, methods::is, class2 = 'giottoImage'))) > 0)
-      stop('Registered images should be supplied as either magick-objects or filepaths /n')
+      stop('Registered images should be supplied as either magick-objects or filepaths \n')
   }
 
   #Find new image boundaries for registered images
