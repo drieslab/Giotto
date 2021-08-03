@@ -334,7 +334,7 @@ registerGiottoObjectListFiji = function(gobject_list,
   spatloc_list = lapply(1:length(spatloc_list),
                         FUN = function(x) {
                           rigid_transform_spatial_locations(spatlocs = spatloc_list[[x]],
-                                                            transform_values = transformsDF[[x]].
+                                                            transform_values = transformsDF[[x]],
                                                             method = 'fiji')
                         })
 
