@@ -1,4 +1,4 @@
-### registering giotto object ####
+### Image registration and creation of registered Giotto object ####
 
 ### helper functions ####
 
@@ -97,26 +97,35 @@ xy_translate_spatial_locations <- function(spatlocs,
 #' @description Performs appropriate transforms to align spatial locations with registered images.
 #' @param spatlocs input spatial locations
 #' @param transform_values transformation values to use
+#' @param method which method used for image registration
 #' @keywords internal
 #Rotation is performed first, followed by XY transform.
 rigid_transform_spatial_locations <- function(spatlocs,
-                                              transform_values) {
-
-  spatlocsXY <- spatlocs[,c('sdimx','sdimy')]
-  #These functions must be performed in positive y values
-  spatlocsXY$sdimy <- -spatlocsXY$sdimy
-
-  spatlocsXY <- rotate_spatial_locations(spatlocsXY,
-                                         transform_values$Theta)
-
-  spatlocsXY <- xy_translate_spatial_locations(spatlocsXY,
-                                               transform_values$XFinalTransform,
-                                               transform_values$YFinalTransform)
-
-  spatlocs$sdimx <- spatlocsXY$sdimx
-  spatlocs$sdimy <- -spatlocsXY$sdimy
-
-  return(spatlocs)
+                                              transform_values,
+                                              method) {
+  if(method == 'fiji') {
+    spatlocsXY <- spatlocs[,c('sdimx','sdimy')]
+    #These functions must be performed in positive y values
+    spatlocsXY$sdimy <- -spatlocsXY$sdimy
+  
+    spatlocsXY <- rotate_spatial_locations(spatlocsXY,
+                                           transform_values$Theta)
+  
+    spatlocsXY <- xy_translate_spatial_locations(spatlocsXY,
+                                                 transform_values$XFinalTransform,
+                                                 transform_values$YFinalTransform)
+  
+    spatlocs$sdimx <- spatlocsXY$sdimx
+    spatlocs$sdimy <- -spatlocsXY$sdimy
+  
+    return(spatlocs)
+  } else if(method == 'rvision') {
+    
+    #TODO *********
+    
+  } else {
+    stop('Image registration method must be provided. Only "fiji" and "rvision" methods currently supported.')
+  }
 }
 
 #' @name reg_img_minmax_finder
@@ -130,7 +139,8 @@ rigid_transform_spatial_locations <- function(spatlocs,
 reg_img_minmax_finder <- function(gobject_list,
                                   unreg_image_slot,
                                   scalefactor = 1,
-                                  transform_values) {
+                                  transform_values,
+                                  method) {
 
   #Find image spatial info from original image if possible
   #Check to make sure that the unreg_image_slot finds an existing image in each gobject to be registered
@@ -153,7 +163,8 @@ reg_img_minmax_finder <- function(gobject_list,
     #register corners based on transform values
     image_corners_reg = lapply(1:length(image_corners), FUN = function(x) {
       rigid_transform_spatial_locations(spatlocs = image_corners[[x]],
-                                        transform_values = transform_values[[x]])
+                                        transform_values = transform_values[[x]],
+                                        method = method)
     })
 
     image_corners_reg = dplyr::bind_rows(image_corners_reg)
@@ -201,6 +212,7 @@ get_img_corners <- function(img_object) {
 ### exported functions ####
 
 
+#' @title registerGiottoObjectList
 #' @name registerGiottoObjectList
 #' @description Wrapper function for registerGiottoObjectListFiji and registerGiottoObjectListRvision
 #' @param gobject_list list of gobjects to register
@@ -218,6 +230,8 @@ get_img_corners <- function(img_object) {
 registerGiottoObjectList <- function(gobject_list,
                                      image = 'image',
                                      registered_image_name = 'image',
+                                     image_list = NULL,
+                                     save_dir = NULL,
                                      spat_loc_values = NULL, #?
                                      spat_loc_name = 'raw',
                                      method = c('fiji','rvision'),
@@ -237,32 +251,30 @@ registerGiottoObjectList <- function(gobject_list,
                                                 registered_images = fiji_registered_images,
                                                 registered_image_name = registered_image_name,
                                                 scaling = scaling,
-                                                auto_comp_reg_border = auto_comp_reg_border,
+                                                # auto_comp_reg_border = auto_comp_reg_border,
                                                 verbose = verbose)
 
-    ##TODO:
-    # rvision registration not yet implemented
-
-    # } else if (method == 'rvision') {
-    #   gobject_list = registerGiottoObjectListRvision(gobject_list = gobject_list,
-    #                                                  images = images,
-    #                                                  registered_image_name = registered_image_name,
-    #                                                  spat_loc_values = spat_loc_values,
-    #                                                  spat_loc_name = spat_loc_name,
-    #                                                  scaling = scaling,
-    #                                                  allow_rvision_autoscale = allow_rvision_autoscale,
-    #                                                  auto_comp_reg_border = auto_comp_reg_border,
-    #                                                  verbose = verbose)
+  } else if (method == 'rvision') {
+    gobject_list = registerGiottoObjectListRvision(gobject_list = gobject_list,
+                                                   # images = images,
+                                                   # registered_image_name = registered_image_name,
+                                                   image_list = image_list,
+                                                   save_dir = save_dir,
+                                                   spat_loc_values = spat_loc_values,
+                                                   spat_loc_name = spat_loc_name,
+                                                   # allow_rvision_autoscale = allow_rvision_autoscale,
+                                                   # auto_comp_reg_border = auto_comp_reg_border,
+                                                   verbose = verbose)
 
   } else {
-    stop('Only FIJI registration is currently supported')
+    stop('Invalid method input\n Only fiji and rvision methods are currently supported.')
   }
 
   return(gobject_list)
 }
 
 
-
+#' @title registerGiottoObjectListFiji
 #' @name registerGiottoObjectListFiji
 #' @description Function to spatially align gobject data based on FIJI image registration.
 #' @param gobject_list list of gobjects to register
@@ -322,7 +334,8 @@ registerGiottoObjectListFiji = function(gobject_list,
   spatloc_list = lapply(1:length(spatloc_list),
                         FUN = function(x) {
                           rigid_transform_spatial_locations(spatlocs = spatloc_list[[x]],
-                                                            transform_values = transformsDF[[x]])
+                                                            transform_values = transformsDF[[x]].
+                                                            method = 'fiji')
                         })
 
   ## 4. update Giotto slots and names and return list of Giotto object
@@ -343,7 +356,8 @@ registerGiottoObjectListFiji = function(gobject_list,
   reg_img_boundaries = reg_img_minmax_finder(gobject_list = gobject_list,
                                              unreg_image_slot = image,
                                              scalefactor = scaling,
-                                             transform_values = transformsDF)
+                                             transform_values = transformsDF,
+                                             method = 'fiji')
 
   #GOBJECT UPDATING FOR LOOP
   for(gobj_i in 1:length(gobject_list)) {
@@ -509,6 +523,10 @@ registerImagesFIJI = function(source,
                               fijiPath = fiji(),
                               DryRun = FALSE) {
 
+  #expand the paths of source and output
+  source = path.expand(source)
+  output = path.expand(output)
+  
   if(headless) fijiArgs = c(fijiArgs,"--headless")
   fijiArgs=paste(fijiArgs,collapse=" ")
 
