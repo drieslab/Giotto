@@ -707,6 +707,13 @@ smoothGiottoPolygons = function(gpolygon,
 
     polygMat = as.matrix(polygDT[geom == z,.(x, y)])
 
+    # adjust k to maximum value
+    max_k = nrow(polygMat)
+    if(k >= max_k) {
+      cat('k will be set to ', max_k)
+      k = max_k
+    }
+
     polygDT_smooth = data.table::as.data.table(spline_poly(polygMat, vertices = vertices, k = k, ...))
     polygDT_smooth[, geom := z]
 
@@ -730,7 +737,7 @@ smoothGiottoPolygons = function(gpolygon,
     bool = terra::is.valid(new_spatvec[new_spatvec$poly_ID == ID])
     if(bool == FALSE) {
       print(ID)
-      plot(new_spatvec[new_spatvec$poly_ID == ID])
+      #plot(new_spatvec[new_spatvec$poly_ID == ID])
       #orig_spatvector = gpolygon@spatVector
       #new_spatvec[new_spatvec$poly_ID == ID] = orig_spatvector[orig_spatvector$poly_ID == ID]
     }
@@ -1454,6 +1461,7 @@ combineFeatureOverlapData = function(gobject,
                                                       polygon_name = poly,
                                                       polygon_overlap = feat)
       feat_overlap_info = spatVector_to_dt(feat_overlap_info_spatvec)
+
       if(!is.null(sel_feats[[feat_type]])) {
         selected_features = sel_feats[[feat_type]]
         feat_overlap_info = feat_overlap_info[feat_ID %in% selected_features]

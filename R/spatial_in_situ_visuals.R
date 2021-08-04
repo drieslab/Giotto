@@ -186,11 +186,12 @@ spatInSituPlotPoints = function(gobject,
       polygon_feat_type = gobject@expression_feat[[1]]
     }
 
+    print('show_polygon')
 
     #testobj@spatial_info$cell@spatVector
 
     polygon_info = get_polygon_info(gobject = gobject,
-                                       polygon_name = polygon_feat_type)
+                                    polygon_name = polygon_feat_type)
     polygon_dt = spatVector_to_dt(polygon_info)
 
     #polygon_dt = spatVector_to_dt(gobject@spatial_info[[polygon_feat_type]]@spatVector)
@@ -211,9 +212,22 @@ spatInSituPlotPoints = function(gobject,
 
   }
 
-  spatial_feat_info = combineFeatureOverlapData(gobject = gobject,
-                                                feat_type = feat_type,
-                                                sel_feats = feats)
+
+  spatial_feat_info = combineFeatureData(gobject = gobject,
+                                         feat_type = feat_type,
+                                         sel_feats = feats)
+
+  #if(show_polygon == TRUE) {
+  #  spatial_feat_info = combineFeatureOverlapData(gobject = gobject,
+  #                                                feat_type = feat_type,
+  #                                                sel_feats = feats,
+  #                                                poly_info = polygon_feat_type)
+  #} else {
+  #  spatial_feat_info = combineFeatureData(gobject = gobject,
+  #                                         feat_type = feat_type,
+  #                                         sel_feats = feats)
+  #}
+
 
   #spatial_feat_info = combineSpatialCellFeatureInfo(gobject = gobject, feat_type = feat_type)
   spatial_feat_info = do.call('rbind', spatial_feat_info)
