@@ -1,5 +1,5 @@
 
-## * ####
+
 ## Giotto auxiliary functions ####
 
 #' @title mean_expr_det_test
@@ -46,9 +46,9 @@ logNorm_giotto = function(mymatrix, base, offset) {
 }
 
 
-#' @title standardise_giotto
+#' @title standardise_flex
 #' @keywords internal
-standardise_giotto = function(x, center = TRUE, scale = TRUE) {
+standardise_flex = function(x, center = TRUE, scale = TRUE) {
 
   # switch to matrixGenerics for everything?
 
@@ -183,7 +183,7 @@ create_average_DT <- function(gobject,
     name = paste0('cluster_', group)
 
     temp = expr_data[, cell_metadata[[meta_data_name]] == group]
-    temp_DT = rowMeans_giotto(temp)
+    temp_DT = rowMeans_flex(temp)
 
     savelist[[name]] <- temp_DT
   }
@@ -1047,12 +1047,12 @@ filterCombinations <- function(gobject,
 
 
       # first remove feats
-      filter_index_feats = rowSums_giotto(expr_values >= threshold) >= min_cells_for_feat
+      filter_index_feats = rowSums_flex(expr_values >= threshold) >= min_cells_for_feat
       removed_feats = length(filter_index_feats[filter_index_feats == FALSE])
       det_cells_res[[combn_i]] = removed_feats
 
       # then remove cells
-      filter_index_cells = colSums_giotto(expr_values[filter_index_feats, ] >= threshold) >= min_feats_per_cell
+      filter_index_cells = colSums_flex(expr_values[filter_index_feats, ] >= threshold) >= min_feats_per_cell
       removed_cells = length(filter_index_cells[filter_index_cells == FALSE])
       det_feats_res[[combn_i]] = removed_cells
     }
@@ -1266,8 +1266,8 @@ rna_standard_normalization = function(gobject,
     if(scale_order == 'first_feats') {
       if(verbose == TRUE) cat('\n first scale feats and then cells \n')
 
-      norm_scaled_expr = t_flex(standardise_giotto(x = t_flex(norm_expr), center = TRUE, scale = TRUE))
-      norm_scaled_expr = standardise_giotto(x = norm_scaled_expr, center = TRUE, scale = TRUE)
+      norm_scaled_expr = t_flex(standardise_flex(x = t_flex(norm_expr), center = TRUE, scale = TRUE))
+      norm_scaled_expr = standardise_flex(x = norm_scaled_expr, center = TRUE, scale = TRUE)
 
       #if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
       #norm_scaled_expr = t(Rfast::standardise(x = t(norm_expr), center = TRUE, scale = TRUE))
@@ -1276,8 +1276,8 @@ rna_standard_normalization = function(gobject,
     } else if(scale_order == 'first_cells') {
       if(verbose == TRUE) cat('\n first scale cells and then feats \n')
 
-      norm_scaled_expr = standardise_giotto(x = norm_expr, center = TRUE, scale = TRUE)
-      norm_scaled_expr = t_flex(standardise_giotto(x = t_flex(norm_scaled_expr), center = TRUE, scale = TRUE))
+      norm_scaled_expr = standardise_flex(x = norm_expr, center = TRUE, scale = TRUE)
+      norm_scaled_expr = t_flex(standardise_flex(x = t_flex(norm_scaled_expr), center = TRUE, scale = TRUE))
 
       #if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
       #norm_scaled_expr = Rfast::standardise(x = norm_expr, center = TRUE, scale = TRUE)
@@ -1289,14 +1289,14 @@ rna_standard_normalization = function(gobject,
 
   } else if(scale_feats == TRUE) {
 
-    norm_scaled_expr = t(standardise_giotto(x = t_flex(norm_expr), center = TRUE, scale = TRUE))
+    norm_scaled_expr = t(standardise_flex(x = t_flex(norm_expr), center = TRUE, scale = TRUE))
 
     #if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
     #norm_scaled_expr = t(Rfast::standardise(x = t(norm_expr), center = TRUE, scale = TRUE))
 
   } else if(scale_cells == TRUE) {
 
-    norm_scaled_expr = standardise_giotto(x = norm_expr, center = TRUE, scale = TRUE)
+    norm_scaled_expr = standardise_flex(x = norm_expr, center = TRUE, scale = TRUE)
 
     #if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
     #norm_scaled_expr = Rfast::standardise(x = norm_expr, center = TRUE, scale = TRUE)
@@ -2794,7 +2794,7 @@ createMetafeats = function(gobject,
     if(length(selected_feats) == 1) {
       mean_score = sub_mat
     } else{
-      mean_score = colMeans_giotto(sub_mat)
+      mean_score = colMeans_flex(sub_mat)
     }
 
     res_list[[id]] = mean_score
