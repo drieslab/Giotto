@@ -314,11 +314,15 @@ subset_spatial_info_data = function(spatial_info,
   res_list = list()
   for(spat_info in names(spatial_info)) {
 
+    cat('for ', spat_info)
+
     if(spat_info %in% poly_info) {
       spat_subset = subset_giotto_polygon_object(spatial_info[[spat_info]],
                                                  cell_ids = cell_ids,
                                                  feat_ids = feat_ids,
                                                  feat_type = feat_type)
+      print('ok')
+      print(spat_subset)
       res_list[[spat_info]] = spat_subset
 
     } else {
@@ -349,16 +353,33 @@ subset_spatial_info_data = function(spatial_info,
 
 #' @name subset_giotto_points_object
 #' @description subset a single giotto points object
+#' @details subset on feature ids and on x,y coordinates
 #' @keywords internal
 subset_giotto_points_object = function(gpoints,
-                                       feat_ids) {
+                                       feat_ids = NULL,
+                                       x_min = NULL,
+                                       x_max = NULL,
+                                       y_min = NULL,
+                                       y_max = NULL) {
 
   if(!is.null(gpoints@spatVector)) {
 
+    if(!is.null(feat_ids)) {
+      feat_id_bool = gpoints@spatVector$feat_ID %in% feat_ids
+      gpoints@spatVector = gpoints@spatVector[feat_id_bool]
+    }
 
-    feat_id_bool = gpoints@spatVector$feat_ID %in% feat_ids
+    if(!any(is.null(c(x_min, x_max, y_min, y_max)))) {
 
-    gpoints@spatVector = gpoints@spatVector[feat_id_bool]
+      myspatvector = gpoints@spatVector
+      spatDT = spatVector_to_dt(myspatvector)
+
+      spatDT_subset = spatDT[x >= x_min & x <= x_max & y >= y_min & y <= y_max]
+      myspatvector_subset = dt_to_spatVector_points(dt = spatDT_subset)
+
+      gpoints@spatVector = myspatvector_subset
+    }
+
   }
 
   return(gpoints)
@@ -366,12 +387,17 @@ subset_giotto_points_object = function(gpoints,
 }
 
 
+
 #' @name subset_feature_info_data
 #' @description subset  all spatial feature (points) data
 #' @keywords internal
 subset_feature_info_data = function(feat_info,
                                     feat_ids,
-                                    feat_type = 'rna') {
+                                    feat_type = 'rna',
+                                    x_min = NULL,
+                                    x_max = NULL,
+                                    y_min = NULL,
+                                    y_max = NULL) {
 
   res_list = list()
   for(feat in names(feat_info)) {
@@ -379,7 +405,11 @@ subset_feature_info_data = function(feat_info,
     if(feat == feat_type) {
 
       feat_subset = subset_giotto_points_object(feat_info[[feat]],
-                                                feat_ids = feat_ids)
+                                                feat_ids = feat_ids,
+                                                x_min = x_min,
+                                                x_max = x_max,
+                                                y_min = y_min,
+                                                y_max = y_max)
       res_list[[feat]] = feat_subset
 
     } else {
@@ -409,6 +439,10 @@ subset_feature_info_data = function(feat_info,
 #' @param feat_ids feature IDs to keep
 #' @param gene_ids deprecated, use feat_ids
 #' @param poly_info polygon information to use
+#' @param x_max maximum x-coordinate for feature coordinates
+#' @param x_min minimum x-coordinate for feature coordinates
+#' @param y_max maximum y-coordinate for feature coordinates
+#' @param y_min minimum y-coordinate for feature coordinates
 #' @param verbose be verbose
 #' @param toplevel_params parameters to extract
 #' @return giotto object
@@ -433,6 +467,10 @@ subsetGiotto <- function(gobject,
                          feat_ids = NULL,
                          gene_ids = NULL,
                          poly_info = NULL,
+                         x_max = NULL,
+                         x_min = NULL,
+                         y_max = NULL,
+                         y_min = NULL,
                          verbose = FALSE,
                          toplevel_params = 2) {
 
@@ -634,7 +672,11 @@ subsetGiotto <- function(gobject,
   if(!is.null(gobject@feat_info)) {
     gobject@feat_info = subset_feature_info_data(feat_info = gobject@feat_info,
                                                  feat_ids = feats_to_keep,
-                                                 feat_type = feat_type)
+                                                 feat_type = feat_type,
+                                                 x_max = x_max,
+                                                 x_min = x_min,
+                                                 y_max = y_max,
+                                                 y_min = y_min)
   }
 
 
@@ -749,6 +791,10 @@ subsetGiottoLocs = function(gobject,
     subset_object = subsetGiotto(gobject = gobject,
                                  cell_ids = filtered_cell_IDs,
                                  poly_info = poly_info,
+                                 x_max = x_max,
+                                 x_min = x_min,
+                                 y_max = y_max,
+                                 y_min = y_min,
                                  verbose = verbose)
 
     return(subset_object)
