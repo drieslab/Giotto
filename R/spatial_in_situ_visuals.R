@@ -119,6 +119,7 @@ plot_feature_points_layer = function(ggobject,
 #' @param sdimy spatial dimension y
 #' @param point_size size of the points
 #' @param show_polygon overlay polygon information (cell shape)
+#' @param use_overlap use polygon and feature coordinates overlap results
 #' @param polygon_feat_type feature type associated with polygon information
 #' @param polygon_color color for polygon border
 #' @param polygon_fill fill color or column for polygon
@@ -148,6 +149,7 @@ spatInSituPlotPoints = function(gobject,
                                 sdimy = 'y',
                                 point_size = 1.5,
                                 show_polygon = TRUE,
+                                use_overlap = TRUE,
                                 polygon_feat_type = 'cell',
                                 polygon_color = 'black',
                                 polygon_fill = NULL,
@@ -180,25 +182,18 @@ spatInSituPlotPoints = function(gobject,
   # start plotting
   plot = ggplot2::ggplot()
 
+
+  ## 1. plot morphology first
   if(show_polygon == TRUE) {
 
     if(is.null(polygon_feat_type)) {
       polygon_feat_type = gobject@expression_feat[[1]]
     }
 
-    print('show_polygon')
-
-    #testobj@spatial_info$cell@spatVector
 
     polygon_info = get_polygon_info(gobject = gobject,
                                     polygon_name = polygon_feat_type)
     polygon_dt = spatVector_to_dt(polygon_info)
-
-    #polygon_dt = spatVector_to_dt(gobject@spatial_info[[polygon_feat_type]]@spatVector)
-
-    #polygon_dt = combineCellData(gobject = gobject,
-    #                             feat_type = polygon_feat_type)
-    #polygon_dt = polygon_dt[[polygon_feat_type]]
 
     plot = plot_cell_polygon_layer(ggobject = gobject,
                                     polygon_dt,
@@ -213,23 +208,21 @@ spatInSituPlotPoints = function(gobject,
   }
 
 
-  spatial_feat_info = combineFeatureData(gobject = gobject,
-                                         feat_type = feat_type,
-                                         sel_feats = feats)
+  ## 2. plot features second
+  # use_overlap = TRUE will use the overlap results
+  # use_overlap = FALSE will use the raw tx coordinate results
+  if(use_overlap == TRUE) {
+    # TODO: check if overlap exists, if not print warning message and default to non-overlap results
+    spatial_feat_info = combineFeatureOverlapData(gobject = gobject,
+                                                  feat_type = feat_type,
+                                                  sel_feats = feats,
+                                                  poly_info = polygon_feat_type)
+  } else {
+    spatial_feat_info = combineFeatureData(gobject = gobject,
+                                           feat_type = feat_type,
+                                           sel_feats = feats)
+  }
 
-  #if(show_polygon == TRUE) {
-  #  spatial_feat_info = combineFeatureOverlapData(gobject = gobject,
-  #                                                feat_type = feat_type,
-  #                                                sel_feats = feats,
-  #                                                poly_info = polygon_feat_type)
-  #} else {
-  #  spatial_feat_info = combineFeatureData(gobject = gobject,
-  #                                         feat_type = feat_type,
-  #                                         sel_feats = feats)
-  #}
-
-
-  #spatial_feat_info = combineSpatialCellFeatureInfo(gobject = gobject, feat_type = feat_type)
   spatial_feat_info = do.call('rbind', spatial_feat_info)
 
   plot = plot_feature_points_layer(ggobject = plot,
@@ -245,7 +238,8 @@ spatInSituPlotPoints = function(gobject,
                                    show_legend = show_legend,
                                    plot_method = plot_method)
 
-  ## adjust theme settings
+
+  ## 3. adjust theme settings
   plot <- plot + ggplot2::theme(plot.title = element_text(hjust = 0.5),
                                 legend.title = element_blank(),
                                 legend.text = element_text(size = legend_text),

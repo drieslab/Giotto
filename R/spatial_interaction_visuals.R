@@ -120,7 +120,7 @@ cellProximityHeatmap = function(gobject,
   # create matrix
   enrich_mat = data.table::dcast.data.table(data = enrich_res,formula = first_type~second_type, value.var = 'enrichm')
   matrix_d <- as.matrix(enrich_mat[,-1]); rownames(matrix_d) = as.vector(enrich_mat[[1]])
-  t_matrix_d <- t_giotto(matrix_d)
+  t_matrix_d <- t_flex(matrix_d)
 
   # fill in NAs based on values in upper and lower matrix triangle
   t_matrix_d[upper.tri(t_matrix_d)][is.na(t_matrix_d[upper.tri(t_matrix_d)])] = matrix_d[upper.tri(matrix_d)][is.na(t_matrix_d[upper.tri(t_matrix_d)])]
@@ -130,9 +130,9 @@ cellProximityHeatmap = function(gobject,
 
   # scale data
   if(scale == TRUE) {
-    final_matrix <- t_giotto(scale(t_giotto(final_matrix)))
-    final_matrix <- t_giotto(final_matrix)
-    final_matrix[lower.tri(final_matrix)] <- t_giotto(final_matrix)[lower.tri(final_matrix)]
+    final_matrix <- t_flex(scale(t_flex(final_matrix)))
+    final_matrix <- t_flex(final_matrix)
+    final_matrix[lower.tri(final_matrix)] <- t_flex(final_matrix)[lower.tri(final_matrix)]
   }
 
   # # if NA values, impute as mean
@@ -145,7 +145,7 @@ cellProximityHeatmap = function(gobject,
   # order cell types
   if(order_cell_types == TRUE) {
 
-    cordist = stats::as.dist(1-cor_giotto(final_matrix))
+    cordist = stats::as.dist(1-cor_flex(final_matrix))
     clus = stats::hclust(cordist)
     myorder = clus$order
     mylabels = clus$labels
@@ -2188,7 +2188,7 @@ plotCCcomHeatmap = function(gobject,
   selDT_m = dt_to_matrix(selDT_d)
 
   ## cells
-  corclus_cells_dist = stats::as.dist(1-cor_giotto(x = t_giotto(selDT_m), method = cor_method))
+  corclus_cells_dist = stats::as.dist(1-cor_flex(x = t_flex(selDT_m), method = cor_method))
   hclusters_cells = stats::hclust(d = corclus_cells_dist, method = aggl_method)
   clus_names = rownames(selDT_m)
   names(clus_names) = 1:length(clus_names)
@@ -2196,7 +2196,7 @@ plotCCcomHeatmap = function(gobject,
   selDT[, LR_cell_comb := factor(LR_cell_comb, clus_sort_names)]
 
   ## genes
-  corclus_genes_dist = stats::as.dist(1-cor_giotto(x = selDT_m, method = cor_method))
+  corclus_genes_dist = stats::as.dist(1-cor_flex(x = selDT_m, method = cor_method))
   hclusters_genes = stats::hclust(d = corclus_genes_dist, method = aggl_method)
   clus_names = colnames(selDT_m)
   names(clus_names) = 1:length(clus_names)
@@ -2315,7 +2315,7 @@ plotCCcomDotplot = function(gobject,
 
 
   ## cells
-  corclus_cells_dist = stats::as.dist(1-cor_giotto(x = t_giotto(selDT_m), method = cor_method))
+  corclus_cells_dist = stats::as.dist(1-cor_flex(x = t_flex(selDT_m), method = cor_method))
   hclusters_cells = stats::hclust(d = corclus_cells_dist, method = aggl_method)
   clus_names = rownames(selDT_m)
   names(clus_names) = 1:length(clus_names)
@@ -2323,7 +2323,7 @@ plotCCcomDotplot = function(gobject,
   selDT[, LR_cell_comb := factor(LR_cell_comb, clus_sort_names)]
 
   ## genes
-  corclus_genes_dist = stats::as.dist(1-cor_giotto(x = selDT_m, method = cor_method))
+  corclus_genes_dist = stats::as.dist(1-cor_flex(x = selDT_m, method = cor_method))
   hclusters_genes = stats::hclust(d = corclus_genes_dist, method = aggl_method)
   clus_names = colnames(selDT_m)
   names(clus_names) = 1:length(clus_names)
