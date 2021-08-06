@@ -3142,7 +3142,6 @@ spatPlot = function(...) {
 #' @return ggplot
 #' @details Description of parameters.
 #' @keywords internal
-#' @seealso \code{\link{spatPlot3D}}
 spatDeconvPlot = function(gobject,
                           feat_type = NULL,
                           deconv_name = 'DWLS',

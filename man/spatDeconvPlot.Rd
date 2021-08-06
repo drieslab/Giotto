@@ -84,7 +84,4 @@ Visualize cell type enrichment / deconvolution results in a scatterpie
 \details{
 Description of parameters.
 }
-\seealso{
-\code{\link{spatPlot3D}}
-}
 \keyword{internal}
