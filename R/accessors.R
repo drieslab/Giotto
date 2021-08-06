@@ -679,6 +679,75 @@ set_feature_info = function(gobject,
 
 
 
+## spatial enrichment slot ####
+
+
+#' @name get_spatial_enrichment
+#' @description function to get a spatial enrichment data.table
+#' @param gobject giotto object
+#' @param enrichm_name name of spatial enrichment results
+#' @return data.table with fractions
+#' @keywords internal
+get_spatial_enrichment <- function(gobject,
+                                   enrichm_name = 'DWLS') {
+
+
+  # spatial locations
+  # if NULL (not given) and spatial locations have been added, then use first one
+  # if NULL (not given) and spatial loactions have NOT been added, then keep NULL
+  if(is.null(enrichm_name)) {
+    if(!is.null(gobject@spatial_enrichment)) {
+      enrichm_name = names(gobject@spatial_enrichment)[[1]]
+      # cat('No spatial locations have been selected, the first one -',spat_loc_name, '- will be used \n')
+    } else {
+      enrichm_name = NULL
+      cat('No spatial enrichment results have been found \n')
+      return(NULL)
+    }
+  }
+
+  potential_names = names(gobject@spatial_enrichment)
+
+  if(enrichm_name %in% potential_names) {
+    enr_res = data.table::copy(gobject@spatial_enrichment[[enrichm_name]])
+    return(enr_res)
+  } else {
+    stop("The spatial enrichment result with name ","'", enrichm_name, "'"," can not be found \n")
+  }
+}
+
+
+#' @name set_spatial_enrichment
+#' @description function to set a spatial enrichment slot
+#' @param gobject giotto object
+#' @param enrichm_name name of spatial enrichment results
+#' @param spatenrichment spatial enrichment results
+#' @return giotto object
+#' @keywords internal
+set_spatial_enrichment <- function(gobject,
+                                   enrichm_name = 'enrichment',
+                                   spatenrichment) {
+
+
+  ## 1. check if specified name has already been used
+  potential_names = names(gobject@spatial_enrichment[[enrichm_name]])
+  if(enrichm_name %in% potential_names) {
+    cat(enrichm_name, ' already exist and will be replaced with new spatial enrichment results \n')
+  }
+
+  ## TODO: 2. check input for spatial locations
+
+
+  ## 3. update and return giotto object
+  gobject@spatial_enrichment[[enrichm_name]] = spatenrichment
+  return(gobject)
+
+}
+
+
+
+
+
 
 ## Show functions ####
 
@@ -722,6 +791,24 @@ showGiottoSpatLocs = function(gobject, nrows = 4) {
     print(gobject@spatial_locs[[spatlocname]][1:nrows,])
   }
 }
+
+
+
+
+#' @name showGiottoSpatEnrichments
+#' @description shows the available spatial enrichment results
+#' @param gobject giotto object
+#' @param nrows number of rows to print for each spatial enrichment data.table
+#' @return prints the name and small subset of available data.table
+#' @export
+showGiottoSpatEnrichments = function(gobject, nrows = 4) {
+
+  for(spatenrichname in names(gobject@spatial_enrichment)) {
+    cat('Name ', spatenrichname, ': \n\n')
+    print(gobject@spatial_enrichment[[spatenrichname]][1:nrows,])
+  }
+}
+
 
 
 
