@@ -12,6 +12,7 @@ plot_spat_scatterpie_layer_ggplot(
   spatial_enrichment = NULL,
   radius = 10,
   color = NA,
+  alpha = 1,
   cell_color_code = NULL
 )
 }

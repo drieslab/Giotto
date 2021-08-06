@@ -2288,6 +2288,7 @@ plot_spat_scatterpie_layer_ggplot = function(ggobject,
                                              spatial_enrichment = NULL,
                                              radius = 10,
                                              color = NA,
+                                             alpha = 1,
                                              cell_color_code = NULL) {
 
 
@@ -2303,7 +2304,9 @@ plot_spat_scatterpie_layer_ggplot = function(ggobject,
   pl = ggobject
   pl = pl + scatterpie::geom_scatterpie(data = combined_spat_enrichm,
                                         aes(x = sdimx, y = sdimy, r = radius),
-                                        cols = cell_names, color = color)
+                                        cols = cell_names,
+                                        color = color,
+                                        alpha = alpha)
 
   ## specificy colors to use
   if(!is.null(cell_color_code)) {
@@ -3127,6 +3130,8 @@ spatPlot = function(...) {
 #' @param sdimy y-axis dimension name (default = 'sdimy')
 #' @param cell_color_code named vector with colors
 #' @param line_color color of line within pie charts
+#' @param radius radios of pie charts
+#' @param alpha alpha of pie charts
 #' @param coord_fix_ratio fix ratio between x and y-axis
 #' @param title title of plot
 #' @param legend_text size of legend text
@@ -3154,6 +3159,7 @@ spatDeconvPlot = function(gobject,
                           cell_color_code = NULL,
                           line_color = NA,
                           radius = 10,
+                          alpha = 1,
                           legend_text = 8,
                           background_color = 'white',
                           title = NULL,
@@ -3233,6 +3239,7 @@ spatDeconvPlot = function(gobject,
                                          spatial_enrichment = spatial_enrichment,
                                          radius = radius,
                                          color = line_color,
+                                         alpha = alpha,
                                          cell_color_code = cell_color_code)
 
 

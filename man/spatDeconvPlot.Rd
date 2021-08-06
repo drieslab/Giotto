@@ -17,6 +17,7 @@ spatDeconvPlot(
   cell_color_code = NULL,
   line_color = NA,
   radius = 10,
+  alpha = 1,
   legend_text = 8,
   background_color = "white",
   title = NULL,
@@ -52,6 +53,10 @@ spatDeconvPlot(
 \item{cell_color_code}{named vector with colors}
 
 \item{line_color}{color of line within pie charts}
+
+\item{radius}{radios of pie charts}
+
+\item{alpha}{alpha of pie charts}
 
 \item{legend_text}{size of legend text}
 
