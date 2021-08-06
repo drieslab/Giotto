@@ -3141,7 +3141,7 @@ spatPlot = function(...) {
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @details Description of parameters.
-#' @keywords internal
+#' @export
 spatDeconvPlot = function(gobject,
                           feat_type = NULL,
                           deconv_name = 'DWLS',

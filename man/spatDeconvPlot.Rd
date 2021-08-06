@@ -84,4 +84,3 @@ Visualize cell type enrichment / deconvolution results in a scatterpie
 \details{
 Description of parameters.
 }
-\keyword{internal}
