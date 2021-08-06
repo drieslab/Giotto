@@ -213,6 +213,7 @@ cellProximityHeatmap = function(gobject,
 #' @param only_show_enrichment_edges show only the enriched pairwise scores
 #' @param edge_width_range range of edge width
 #' @param node_size size of nodes
+#' @param node_color_code color code for the nodes (e.g. cell labels)
 #' @param node_text_size size of node labels
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
@@ -236,6 +237,7 @@ cellProximityNetwork = function(gobject,
                                 only_show_enrichment_edges = F,
                                 edge_width_range = c(0.1, 2),
                                 node_size = 4,
+                                node_color_code = NULL,
                                 node_text_size = 6,
                                 show_plot = NA,
                                 return_plot = NA,
@@ -332,7 +334,10 @@ cellProximityNetwork = function(gobject,
   gpl = gpl + ggraph::scale_edge_width(range = edge_width_range)
   gpl = gpl + ggraph::scale_edge_alpha(range = c(0.1,1))
   gpl = gpl + ggraph::geom_node_text(ggplot2::aes(label = name), repel = TRUE, size = node_text_size)
-  gpl = gpl + ggraph::geom_node_point(size = node_size)
+  gpl = gpl + ggraph::geom_node_point(ggplot2::aes(color = name), size = node_size)
+  if(!is.null(node_color_code)) {
+    gpl = gpl + ggplot2::scale_color_manual(values = node_color_code)
+  }
   gpl = gpl + ggplot2::theme_bw() + ggplot2::theme(panel.grid = ggplot2::element_blank(),
                                                    panel.border = ggplot2::element_blank(),
                                                    axis.title = ggplot2::element_blank(),

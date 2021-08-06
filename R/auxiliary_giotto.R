@@ -17,15 +17,8 @@ libNorm_giotto <- function(mymatrix, scalefactor){
 
   libsizes = colSums_flex(mymatrix)
 
-  if(methods::is(mymatrix, 'DelayedMatrix')) {
-    norm_expr = t(t(mymatrix)/ libsizes)*scalefactor
-  } else if(methods::is(mymatrix, 'dgCMatrix')) {
-    norm_expr = Matrix::t(Matrix::t(mymatrix)/ libsizes)*scalefactor # replace with sparseMatrixStats
-  } else if(methods::is(mymatrix, 'Matrix')) {
-    norm_expr = Matrix::t(Matrix::t(mymatrix)/ libsizes)*scalefactor
-  } else {
-    norm_expr = t(t(as.matrix(mymatrix))/ libsizes)*scalefactor
-  }
+  norm_expr = t_flex(t_flex(mymatrix)/ libsizes)*scalefactor
+
 }
 
 #' @title logNorm_giotto
@@ -43,42 +36,6 @@ logNorm_giotto = function(mymatrix, base, offset) {
   }
 
   return(mymatrix)
-}
-
-
-#' @title standardise_flex
-#' @keywords internal
-standardise_flex = function(x, center = TRUE, scale = TRUE) {
-
-  # switch to matrixGenerics for everything?
-
-  if(methods::is(x, class2 = 'DelayedArray')) {
-
-    if (center & scale) {
-      y <- t(x) - MatrixGenerics::colMeans2(x)
-      y <- y/sqrt(MatrixGenerics::rowSums2(y^2)) * sqrt((dim(x)[1] - 1))
-      y <- t(y)
-    }
-    else if (center & !scale) {
-      y <- t(x) - MatrixGenerics::colMeans2(x)
-    }
-    else if (!center & scale) {
-      y <- y/sqrt(MatrixGenerics::rowSums2(y^2)) * sqrt((dim(x)[1] - 1))
-      y <- t(y)
-    }
-
-
-
-  } else {
-
-    if(!methods::is(x, class2 = 'matrix')) x = as.matrix(x)
-
-    y = Rfast::standardise(x = x, center = center, scale = scale)
-
-  }
-
-  return(y)
-
 }
 
 
@@ -1289,7 +1246,7 @@ rna_standard_normalization = function(gobject,
 
   } else if(scale_feats == TRUE) {
 
-    norm_scaled_expr = t(standardise_flex(x = t_flex(norm_expr), center = TRUE, scale = TRUE))
+    norm_scaled_expr = t_flex(standardise_flex(x = t_flex(norm_expr), center = TRUE, scale = TRUE))
 
     #if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
     #norm_scaled_expr = t(Rfast::standardise(x = t(norm_expr), center = TRUE, scale = TRUE))
