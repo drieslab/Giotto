@@ -18,7 +18,8 @@ plot_cell_polygon_layer = function(ggobject = NULL,
                                    fill_as_factor = TRUE,
                                    bg_color = 'black',
                                    color = 'black',
-                                   alpha = 0.5) {
+                                   alpha = 0.5,
+                                   size = 2) {
 
 
   # check fill column
@@ -44,15 +45,17 @@ plot_cell_polygon_layer = function(ggobject = NULL,
                                                         group = polygon_grouping,
                                                         fill = 'final_fill'),
                                     alpha = alpha,
-                                    color = color)
+                                    color = color,
+                                    size = size)
   } else {
     pl = pl + ggplot2::geom_polygon(data = polygon_dt,
                                     ggplot2::aes_string(x = sdimx,
                                                         y = sdimy,
-                                                        group = polygon_grouping),
+                                                        group = 'poly_ID'),
                                     fill = bg_color,
                                     alpha = alpha,
-                                    color = color)
+                                    color = color,
+                                    size = size)
   }
 
   return(pl)
@@ -127,6 +130,7 @@ plot_feature_points_layer = function(ggobject,
 #' @param polygon_fill fill color or column for polygon
 #' @param polygon_fill_as_factor is fill color a factor
 #' @param polygon_alpha alpha of polygon
+#' @param polygon_line_size line width of the polygon's outline
 #' @param axis_text axis text size
 #' @param axis_title title text size
 #' @param legend_text legend text size
@@ -158,6 +162,7 @@ spatInSituPlotPoints = function(gobject,
                                 polygon_fill = NULL,
                                 polygon_fill_as_factor = NULL,
                                 polygon_alpha = 0.5,
+                                polygon_line_size = 2,
                                 axis_text = 8,
                                 axis_title = 8,
                                 legend_text = 6,
@@ -199,15 +204,16 @@ spatInSituPlotPoints = function(gobject,
     polygon_dt = spatVector_to_dt(polygon_info)
 
     plot = plot_cell_polygon_layer(ggobject = gobject,
-                                    polygon_dt,
-                                    polygon_grouping = 'poly_ID',
-                                    sdimx = sdimx,
-                                    sdimy = sdimy,
-                                    fill = polygon_fill,
-                                    fill_as_factor = polygon_fill_as_factor,
-                                    bg_color = polygon_bg_color,
-                                    color = polygon_color,
-                                    alpha = polygon_alpha)
+                                   polygon_dt,
+                                   polygon_grouping = 'poly_ID',
+                                   sdimx = sdimx,
+                                   sdimy = sdimy,
+                                   fill = polygon_fill,
+                                   fill_as_factor = polygon_fill_as_factor,
+                                   bg_color = polygon_bg_color,
+                                   color = polygon_color,
+                                   alpha = polygon_alpha,
+                                   size = polygon_line_size)
 
   }
 
