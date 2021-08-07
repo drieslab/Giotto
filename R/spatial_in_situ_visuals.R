@@ -16,6 +16,7 @@ plot_cell_polygon_layer = function(ggobject = NULL,
                                    sdimy = 'y',
                                    fill = NULL,
                                    fill_as_factor = TRUE,
+                                   bg_color = 'black',
                                    color = 'black',
                                    alpha = 0.5) {
 
@@ -49,7 +50,7 @@ plot_cell_polygon_layer = function(ggobject = NULL,
                                     ggplot2::aes_string(x = sdimx,
                                                         y = sdimy,
                                                         group = polygon_grouping),
-                                    fill = 'lightblue',
+                                    fill = bg_color,
                                     alpha = alpha,
                                     color = color)
   }
@@ -122,6 +123,7 @@ plot_feature_points_layer = function(ggobject,
 #' @param use_overlap use polygon and feature coordinates overlap results
 #' @param polygon_feat_type feature type associated with polygon information
 #' @param polygon_color color for polygon border
+#' @param polygon_bg_color color for polygon background (overruled by polygon_fill)
 #' @param polygon_fill fill color or column for polygon
 #' @param polygon_fill_as_factor is fill color a factor
 #' @param polygon_alpha alpha of polygon
@@ -152,6 +154,7 @@ spatInSituPlotPoints = function(gobject,
                                 use_overlap = TRUE,
                                 polygon_feat_type = 'cell',
                                 polygon_color = 'black',
+                                polygon_bg_color = 'black',
                                 polygon_fill = NULL,
                                 polygon_fill_as_factor = NULL,
                                 polygon_alpha = 0.5,
@@ -202,6 +205,7 @@ spatInSituPlotPoints = function(gobject,
                                     sdimy = sdimy,
                                     fill = polygon_fill,
                                     fill_as_factor = polygon_fill_as_factor,
+                                    bg_color = polygon_bg_color,
                                     color = polygon_color,
                                     alpha = polygon_alpha)
 

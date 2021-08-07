@@ -795,7 +795,7 @@ doKmeans <- function(gobject,
 
 
     ## using original matrix ##
-    expr_values = select_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+    expr_values = get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
 
     # subset expression matrix
     if(!is.null(genes_to_use)) {
@@ -960,7 +960,7 @@ doHclust <- function(gobject,
 
   } else {
     ## using original matrix ##
-    expr_values = select_expression_values(gobject = gobject, values = values)
+    expr_values = get_expression_values(gobject = gobject, values = values)
 
     # subset expression matrix
     if(!is.null(genes_to_use)) {
