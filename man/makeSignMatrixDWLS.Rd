@@ -4,22 +4,41 @@
 \alias{makeSignMatrixDWLS}
 \title{makeSignMatrixDWLS}
 \usage{
-makeSignMatrixDWLS(gobject, sign_gene, cell_type)
+makeSignMatrixDWLS(
+  gobject,
+  feat_type = NULL,
+  expression_values = c("normalized", "scaled", "custom"),
+  reverse_log = TRUE,
+  log_base = 2,
+  sign_gene,
+  cell_type_vector,
+  cell_type = NULL
+)
 }
 \arguments{
 \item{gobject}{Giotto object of single cell}
 
+\item{feat_type}{feature type to use}
+
+\item{expression_values}{expression values to use}
+
+\item{reverse_log}{reverse a log-normalized expression matrix}
+
+\item{log_base}{the logarithm base (deafult  = 2)}
+
 \item{sign_gene}{all of DE genes (signature)}
 
-\item{cell_type}{cell type for single cells}
+\item{cell_type_vector}{vector with cell types (length = ncol(matrix))}
+
+\item{cell_type}{deprecated, use cell_type_vector}
 }
 \value{
 matrix
 }
 \description{
-Function to convert signature genes into an average expression matrix format that can be used for
-spatialDWLS. gobject is the single cell Giotto object. sign_gene is in character format contains all DEGs.
-cell_type are all the cell types used for single cell analysis.
+Function to convert a matrix within a Giotto object into a format
+ that can be used with \code{\link{runDWLSDeconv}}. A vector of cell types
+ for cell_type_vector can be created from the cell metadata (pDataDT).
 }
 \seealso{
 \code{\link{spatialDWLS}}
