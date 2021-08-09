@@ -393,7 +393,7 @@ registerGiottoObjectListFiji = function(gobject_list,
     if(!is.null(registered_images)) {
       g_image = createGiottoImage(gobject = gobj,
                                   spatial_locs = spat_loc_name,
-                                  mg_object = registered_images[gobj_i],
+                                  mg_object = registered_images[[gobj_i]],
                                   name = registered_image_name)
 
       #Add the registered image to the gobj under registered_image_name slot.
@@ -732,8 +732,8 @@ registerImagesFIJI = function(source_img_dir,
 }
 
 
-                  
-                  
+
+
 #TODO - merge jython function into normal register FIJI
 #TODO - add in manual rigid registration when given a transforms table
 
@@ -744,8 +744,14 @@ registerImagesFIJI = function(source_img_dir,
 #TODO - install FIJI jython registration and resize scripts
 # install_FIJI_scripts = function(fiji = fiji()) {}
 
-
-
+#TODO These things require a correct set of boundary values
+# - Subset images in Giotto using Magick and followup reassignment as the default 'image'
+# - Follow this up with potential registration
+# - Need a way to determine the pixel distances between spots to get an idea of which regions of image 'belong' to a spot
+# - Would be nice to be able to put together an image mask even in magick and apply it to the image to aid with img_reg and take care of jagged lines after image subsetting
+# - A shiny app to subset tissue regions would be nice
+# The shiny app should be able to select spots in a 2d plane by default
+# If given the ability, it should also select spots of a single plane or within a certain range of z values and plot them as a 2D for selection purposes
 
 
 
