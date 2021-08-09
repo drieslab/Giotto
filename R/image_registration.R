@@ -184,7 +184,7 @@ reg_img_minmax_finder <- function(gobject_list,
     #return the max values
     return(minmaxRegVals)
   } else {
-    warning('original images must be supplied for registered images to be aligned')
+    warning('Original images must be supplied for registered images to be aligned.\n')
   }
 }
 
@@ -323,7 +323,7 @@ registerGiottoObjectListFiji = function(gobject_list,
 
   ## 3. apply transformation on spatial locations ##
   if(length(spatloc_list) != length(transf_list)) {
-    stop('xml spatial transforms must be supplied for every gobject to be registered.')
+    stop('xml spatial transforms must be supplied for every gobject to be registered.\n')
   }
 
   #Select useful info out of the TrakEM2 files
@@ -547,9 +547,9 @@ registerGiottoObjectListRvision = function(gobject_list = gobject_list,
 #' }
 #'
 #' \dontrun{
-#' # This function taken from jimpipeline by jefferislab #
+#' # This function was taken and modified from jimpipeline by jefferislab #
 #' # Set path to preferred Fiji executable (this will be remembered)
-#' # you can also set options(jimpipeline.fiji="/some/path")
+#' # you can also set options(giotto.fiji="/some/path")
 #' fiji("/Applications/Fiji.app/Contents/MacOS/ImageJ-macosx")
 #' }
 fiji = function(fijiPath = NULL) {
@@ -558,10 +558,10 @@ fiji = function(fijiPath = NULL) {
       stop("fiji is not at: ", fijiPath)
   } else {
     # do we have an option set?
-    fijiPath=getOption('jimpipeline.fiji')
+    fijiPath=getOption('giotto.fiji')
     if(!is.null(fijiPath)) {
       if(!file.exists(fijiPath))
-        stop("fiji is not at: ", fijiPath, " as specified by options('jimpipeline.fiji')!")
+        stop("fiji is not at: ", fijiPath, " as specified by options('giotto.fiji')!")
     } else {
       # look for it in sensible places
       if(!nzchar(fijiPath <- Sys.which('fiji'))) {
@@ -570,11 +570,11 @@ fiji = function(fijiPath = NULL) {
           fijiPath = macapp
         else
           stop("Unable to find fiji!",
-               "Set options('jimpipeline.fiji') to point to the fiji command line executable!")
+               "Set options('giotto.fiji') to point to the fiji command line executable!")
       }
     }
   }
-  options(jimpipeline.fiji=fijiPath)
+  options(giotto.fiji=fijiPath)
   normalizePath(fijiPath)
 }
 
@@ -582,10 +582,10 @@ fiji = function(fijiPath = NULL) {
 #' @title registerImagesFiji
 #' @name registerImagesFIJI
 #' @description Wrapper function for Register Virtual Stack Slices plugin in FIJI
-#' @param source Folder containing images to be registered
-#' @param output Folder to save registered images to
-#' @param transformSave Folder to save transforms to
-#' @param referenceImg File name of reference image for the registration
+#' @param source_img_dir Folder containing images to be registered
+#' @param output_img_dir Folder to save registered images to
+#' @param transforms_save_dir (jython implementation only) Folder to save transforms to
+#' @param ref_img_name (jython implementation only) File name of reference image for the registration
 #' @param init_gauss_blur Point detector option: initial image blurring
 #' @param steps_per_scale_octave Point detector option
 #' @param min_img_size Point detector option
@@ -603,17 +603,20 @@ fiji = function(fijiPath = NULL) {
 #' @param fijiArgs Arguments for ImageJ/FIJI
 #' @param javaArgs Arguments for Java
 #' @param ijArgs Arguments for ImageJ
+#' @param jython Use jython wrapper script
 #' @param fijiPath Path to fiji executable (can be set by
 #'   \code{options(giotto.fiji="/some/path")})
 #' @param DryRun Whether to return the command to be run rather than actually
 #'   executing it.
 #' @return list of registered giotto objects where the registered images and spatial locations
 #' \dontrun{
-#' #This function adapted from runFijiMacro function in jimpipeline by jefferislab #
+#' #This function was adapted from runFijiMacro function in jimpipeline by jefferislab #
 #' }
 #' @export
-registerImagesFIJI = function(source,
-                              output,
+registerImagesFIJI = function(source_img_dir,
+                              output_img_dir,
+                              transforms_save_dir,
+                              ref_img_name,
                               #Scale Invariant Interest Point Detector Options
                               init_gauss_blur = 1.6,
                               steps_per_scale_octave = 3,
@@ -622,7 +625,7 @@ registerImagesFIJI = function(source,
                               #Feature Descriptor Options
                               feat_desc_size = 8,
                               feat_desc_orient_bins = 8,
-                              closest_next_closest_Ratio = 0.92,
+                              closest_next_closest_ratio = 0.92,
                               #Geometric Consensus Filter Options
                               max_align_err = 25,
                               inlier_ratio = 0.05,
@@ -636,56 +639,114 @@ registerImagesFIJI = function(source,
                               fijiArgs = NULL,
                               javaArgs = NULL,
                               ijArgs = NULL,
+                              jython = FALSE,
                               fijiPath = fiji(),
                               DryRun = FALSE) {
 
-  if(file.exists(output)) {
-    unlink(output,recursive = TRUE)
-    dir.create(output)
+  #Check if output directory exists. If not, create the directory
+  if(!file.exists(output_img_dir)) {
+    dir.create(output_img_dir)
   }
   
-  if(!file.exists(output)) {
-    dir.create(output)
-  }
+  #expand the paths of source and output
+  source_img_dir = path.expand(source_img_dir)
+  output_img_dir = path.expand(output_img_dir)
+
   
   if(headless) fijiArgs = c(fijiArgs,"--headless")
   fijiArgs=paste(fijiArgs,collapse=" ")
-
+  
   javaArgs=c(paste("-Xms",MinMem,'m',sep=""),paste("-Xmx",MaxMem,'m',sep=""),javaArgs)
   if(IncrementalGC) javaArgs=c(javaArgs,"-Xincgc")
   javaArgs=paste(javaArgs,collapse=" ")
 
   threadAdjust=ifelse(is.null(Threads),"",paste("run(\"Memory & Threads...\", \"parallel=",Threads,"\");",sep=""))
-
-  macroCall=paste(" -eval '",
-                  threadAdjust,
-                  "run(\"Register Virtual Stack Slices\", \"source=[",
-                  source,
-                  "] output=[",
-                  output,
-                  "] feature=Similarity registration=[Rigid                -- translate + rotate                  ] advanced save initial_gaussian_blur=",
-                  init_gauss_blur,
-                  " steps_per_scale_octave=",
-                  steps_per_scale_octave,
-                  " minimum_image_size=",
-                  min_img_size,
-                  " maximum_image_size=",
-                  max_img_size,
-                  " feature_descriptor_size=",
-                  feat_desc_size,
-                  " feature_descriptor_orientation_bins=",
-                  feat_desc_orient_bins,
-                  " closest/next_closest_ratio=",
-                  closest_next_closest_Ratio,
-                  " maximal_alignment_error=",
-                  max_align_err,
-                  " inlier_ratio=",
-                  inlier_ratio,
-                  " feature_extraction_model=Similarity registration_model=[Rigid                -- translate + rotate                  ] interpolate\");' ",sep="")
-
+  
+  if(jython == TRUE) {
+    #TODO Add check to see if jython script is installed.
+    cat('jython implementation requires Headless_RVSS.py in "/Giotto/inst/fiji/" to be copied to "/Applications/Fiji.app/plugins/Scripts/MyScripts/Headless_RVSS.py" \n')
+    
+    macroCall=paste(" -eval '",
+                    threadAdjust,
+                    "run(\"Headless RVSS\", \"source_dir=[",
+                    source_img_dir,
+                    "] target_dir=[",
+                    output_img_dir,
+                    "] transf_dir=[",
+                    transforms_save_dir,
+                    "] reference_name=[",
+                    ref_img_name,
+                    "] init_gauss_blur=",
+                    init_gauss_blur,
+                    " steps_per_scale_octave=",
+                    steps_per_scale_octave,
+                    " min_img_size=",
+                    min_img_size,
+                    " max_img_size=",
+                    max_img_size,
+                    " feat_desc_size=",
+                    feat_desc_size,
+                    " feat_desc_orient_bins=",
+                    feat_desc_orient_bins,
+                    " closest_next_closest_ratio=",
+                    closest_next_closest_ratio,
+                    " max_align_err=",
+                    max_align_err,
+                    " minInlierRatio=",
+                    inlier_ratio,
+                    " interpolate=TRUE\");' ",
+                    sep="")
+  } else {
+    macroCall=paste(" -eval '",
+                    threadAdjust,
+                    "run(\"Register Virtual Stack Slices\", \"source=[",
+                    source_img_dir,
+                    "] output=[",
+                    output_img_dir,
+                    "] feature=Similarity registration=[Rigid                -- translate + rotate                  ] advanced save initial_gaussian_blur=",
+                    init_gauss_blur,
+                    " steps_per_scale_octave=",
+                    steps_per_scale_octave,
+                    " minimum_image_size=",
+                    min_img_size,
+                    " maximum_image_size=",
+                    max_img_size,
+                    " feature_descriptor_size=",
+                    feat_desc_size,
+                    " feature_descriptor_orientation_bins=",
+                    feat_desc_orient_bins,
+                    " closest/next_closest_ratio=",
+                    closest_next_closest_ratio,
+                    " maximal_alignment_error=",
+                    max_align_err,
+                    " inlier_ratio=",
+                    inlier_ratio,
+                    " feature_extraction_model=Similarity registration_model=[Rigid                -- translate + rotate                  ] interpolate\");' ",sep="")
+  }
+  
   ijArgs=paste(c(ijArgs,ifelse(batch,"-batch","")),collapse=" ")
 
   cmd<-paste(fijiPath,javaArgs,fijiArgs,"--",macroCall,ijArgs)
   if(DryRun) return(cmd)
   return(0==system(cmd))
 }
+
+
+                  
+                  
+#TODO - merge jython function into normal register FIJI
+#TODO - add in manual rigid registration when given a transforms table
+
+### Under Construction ####
+
+# resizeImagesFIJI = function(fiji = fiji()) {}
+
+#TODO - install FIJI jython registration and resize scripts
+# install_FIJI_scripts = function(fiji = fiji()) {}
+
+
+
+
+
+
+
