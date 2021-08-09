@@ -97,7 +97,7 @@ xy_translate_spatial_locations <- function(spatlocs,
 #' @description Performs appropriate transforms to align spatial locations with registered images.
 #' @param spatlocs input spatial locations
 #' @param transform_values transformation values to use
-#' @param method which method used for image registration
+#' @param method which method is used for image registration
 #' @keywords internal
 #Rotation is performed first, followed by XY transform.
 rigid_transform_spatial_locations <- function(spatlocs,
@@ -119,9 +119,17 @@ rigid_transform_spatial_locations <- function(spatlocs,
     spatlocs$sdimy <- -spatlocsXY$sdimy
   
     return(spatlocs)
+    
   } else if(method == 'rvision') {
     
-    #TODO *********
+    spatLocsXY <- spatlocs[,c('sdimx','sdimy')]
+    spatLocsXY <- rotate_spatial_locations(spatLocsXY,acos(transform_values[1,1]))
+    spatLocsXY <- xy_translate_spatial_locations(spatLocsXY,-transform_values[1,3],-transform_values[2,3])
+    
+    spatlocs$sdimx <- spatLocsXY[,1]
+    spatlocs$sdimy <- spatLocsXY[,2]
+    
+    return(spatlocs)
     
   } else {
     stop('Image registration method must be provided. Only "fiji" and "rvision" methods currently supported.')
@@ -176,7 +184,7 @@ reg_img_minmax_finder <- function(gobject_list,
     #return the max values
     return(minmaxRegVals)
   } else {
-    warning('original images must be supplied for registered images to be aligned \n')
+    warning('Original images must be supplied for registered images to be aligned.\n')
   }
 }
 
@@ -256,14 +264,10 @@ registerGiottoObjectList <- function(gobject_list,
 
   } else if (method == 'rvision') {
     gobject_list = registerGiottoObjectListRvision(gobject_list = gobject_list,
-                                                   # images = images,
-                                                   # registered_image_name = registered_image_name,
                                                    image_list = image_list,
                                                    save_dir = save_dir,
                                                    spat_loc_values = spat_loc_values,
                                                    spat_loc_name = spat_loc_name,
-                                                   # allow_rvision_autoscale = allow_rvision_autoscale,
-                                                   # auto_comp_reg_border = auto_comp_reg_border,
                                                    verbose = verbose)
 
   } else {
@@ -284,6 +288,7 @@ registerGiottoObjectList <- function(gobject_list,
 #' @param xml_files record of transformations performed in xml format exported during image registration using FIJI register_virtual_stack_slices
 #' @param registered_images registered images output by FIJI register_virtual_stack_slices
 #' @param scaling scaling to be applied to spatial coordinates
+#' @param method method used to perform image registration
 #' @param verbose be verbose
 #' @return list of registered giotto objects where the registered images and spatial locations
 #' @export
@@ -318,7 +323,7 @@ registerGiottoObjectListFiji = function(gobject_list,
 
   ## 3. apply transformation on spatial locations ##
   if(length(spatloc_list) != length(transf_list)) {
-    stop('xml spatial transforms must be supplied for every gobject to be registered. \n')
+    stop('xml spatial transforms must be supplied for every gobject to be registered.\n')
   }
 
   #Select useful info out of the TrakEM2 files
@@ -417,6 +422,117 @@ registerGiottoObjectListFiji = function(gobject_list,
 
 #TODO check if spatloc is actually provided in createGiottoImage() and ignore auto align if not.
 
+#' @name registerGiottoObjectListRvision
+#' @description Function to spatially align gobject data based on Rvision image registration.
+#' @param gobject_list list of gobjects to register
+#' @param image_list Filepaths to unregistered images
+#' @param save_dir (Optional) If given, save registered images to this directory
+#' @param spat_loc_values spatial locations to use
+#' @param spat_loc_name slot to save spatial locations to. Defaults to replacement of spat_loc_values (optional)
+#' @param verbose
+#' @return list of registered giotto objects where the registered images and spatial locations
+#' @export
+#Register giotto objects when given raw images and spatial locations
+registerGiottoObjectListRvision = function(gobject_list = gobject_list,
+                                           image_list = NULL,
+                                           save_dir = NULL,
+                                           spat_loc_values = NULL,
+                                           spat_loc_name = 'raw',
+                                           verbose = TRUE) { #Not used
+  
+  ## 1. get spatial coordinates and put in list ##
+  spatloc_list = list()
+  for(gobj_i in 1:length(gobject_list)) {
+    gobj = gobject_list[[gobj_i]]
+    spatloc = Giotto:::select_spatial_locations(gobject = gobj, ###Tag for editing later
+                                                spat_loc_name = spat_loc_name)
+    # Put all spatial location data together
+    spatloc_list[[gobj_i]] = spatloc
+  }
+  
+  ## 2. Load images into list
+  if (length(spatloc_list) != length(image_list)) {
+    stop('images must be supplied for every gobject to be registered.')
+  }
+  
+  unreg_images <- c()
+  for (path in image_list) {
+    unreg_images <- append(unreg_images, Rvision::image(filename = path), after = length(unreg_images))
+  }
+  
+  ## 3. Perform preprocessing
+  rows <- c()
+  cols <- c()
+  for (image_i in 1:length(unreg_images)) {
+    # Make images grayscale
+    Rvision::changeColorSpace(unreg_images[[image_i]], colorspace = "GRAY", target = "self")
+    # Retrieve image dimensions
+    dims <- dim.Rccp_Image(unreg_images[[image_i]])
+    rows <- append(rows, dims[[1]], after = length(rows))
+    cols <- append(cols, dims[[2]], after = length(cols))
+  }
+  maxes <- c(max(cols),max(rows))
+  squmax <- max(maxes)
+  rm(dims, maxes)
+  
+  enddim <- 500
+  for (i in 1:length(unreg_images)) {
+    # Add border so all images have same square dimensions
+    Rvision::border(unreg_images[[i]], squmax-rows[[i]], 0, squmax-cols[[i]], 0, border_color = "white", target = "self")
+    # Apply scaling so all images of reasonable size for processing
+    unreg_images[[i]] <- Rvision::resize(unreg_images[[i]], height = enddim, width = enddim, target = "new")
+  }
+  rm(cols,rows)
+  
+  ## 4. Compute transformations
+  # Choose reference image
+  refImage <- unreg_images[[base::floor(length(unreg_images)/2)]]
+  
+  # Compute ECC transforms
+  transfs <- base::vector(mode = "list", length = length(unreg_images))
+  for (i in 1:length(unreg_images)) {
+    transfs[[i]] <- Rvision::findTransformECC(refImage, unreg_images[[i]], warp_mode = "euclidean", filt_size = 101)
+  }
+  rm(refImage)
+  
+  ## 5. Apply transform
+  reg_images <- c()
+  for (i in 1:length(unreg_images)) {
+    # Apply scaling
+    spatloc_list[[i]] <- scale_spatial_locations(spatloc_list[[i]], enddim/squmax)
+    # Apply transform to spatlocs
+    spatloc_list[[i]] <- rigid_transform_spatial_locations(spatloc_list[[i]], transfs[[i]], method = 'rvision')
+  }
+  rm(squmax, enddim)
+  
+  ## 6. Update giotto object 
+  for(gobj_i in 1:length(gobject_list)) {
+    gobj = gobject_list[[gobj_i]]
+    #Assign original spatial locations to 'unregistered' slot
+    gobj@spatial_locs$unregistered <- gobj@spatial_locs$spat_loc_values
+    
+    #Assign registered spatial locations from spatloc_list to gobject_list
+    gobj@spatial_locs$spat_loc_values <- spatloc_list[[gobj_i]]
+    
+    gobject_list[[gobj_i]] <- gobj
+  }
+  
+  ## 7. Save transformed images
+  if (!is.null(save_dir)) {
+    # Apply transform to image
+    transf_images <- c()
+    for (i in 1:length(unreg_images)) {
+      transf_images <- append(transf_images, Rvision::warpAffine(unreg_images[[i]], transfs[[i]], target = "new"), length(transf_images))
+    }
+    # Save images to save directory
+    for(image_i in 1:length(unreg_images)) {
+      name <- paste(save_dir, image_i, ".jpg")
+      Rvision::write.Image(transf_images[[image_i]], name)
+    } 
+  }
+  
+  return(gobject_list)
+}
 
 ### FIJI related functions ####
 
@@ -463,7 +579,7 @@ fiji = function(fijiPath = NULL) {
 }
 
 
-#' @title registerImagesFIJI
+#' @title registerImagesFiji
 #' @name registerImagesFIJI
 #' @description Wrapper function for Register Virtual Stack Slices plugin in FIJI
 #' @param source_img_dir Folder containing images to be registered
@@ -527,9 +643,15 @@ registerImagesFIJI = function(source_img_dir,
                               fijiPath = fiji(),
                               DryRun = FALSE) {
 
+  #Check if output directory exists. If not, create the directory
+  if(!file.exists(output_img_dir)) {
+    dir.create(output_img_dir)
+  }
+  
   #expand the paths of source and output
   source_img_dir = path.expand(source_img_dir)
   output_img_dir = path.expand(output_img_dir)
+
   
   if(headless) fijiArgs = c(fijiArgs,"--headless")
   fijiArgs=paste(fijiArgs,collapse=" ")
@@ -610,8 +732,8 @@ registerImagesFIJI = function(source_img_dir,
 }
 
 
-
-
+                  
+                  
 #TODO - merge jython function into normal register FIJI
 #TODO - add in manual rigid registration when given a transforms table
 
@@ -621,6 +743,7 @@ registerImagesFIJI = function(source_img_dir,
 
 #TODO - install FIJI jython registration and resize scripts
 # install_FIJI_scripts = function(fiji = fiji()) {}
+
 
 
 
