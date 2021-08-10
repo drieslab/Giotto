@@ -467,7 +467,7 @@ registerGiottoObjectListRvision = function(gobject_list = gobject_list,
     # Make images grayscale
     Rvision::changeColorSpace(unreg_images[[image_i]], colorspace = "GRAY", target = "self")
     # Retrieve image dimensions
-    dims <- dim.Rccp_Image(unreg_images[[image_i]])
+    dims <- Rvision:::dim.Rcpp_Image(unreg_images[[image_i]])
     rows <- append(rows, dims[[1]], after = length(rows))
     cols <- append(cols, dims[[2]], after = length(cols))
   }
@@ -579,7 +579,7 @@ fiji = function(fijiPath = NULL) {
 }
 
 
-#' @title registerImagesFiji
+#' @title registerImagesFIJI
 #' @name registerImagesFIJI
 #' @description Wrapper function for Register Virtual Stack Slices plugin in FIJI
 #' @param source_img_dir Folder containing images to be registered

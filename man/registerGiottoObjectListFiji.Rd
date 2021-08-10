@@ -33,6 +33,8 @@ registerGiottoObjectListFiji(
 \item{scaling}{scaling to be applied to spatial coordinates}
 
 \item{verbose}{be verbose}
+
+\item{method}{method used to perform image registration}
 }
 \value{
 list of registered giotto objects where the registered images and spatial locations
