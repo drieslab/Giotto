@@ -46,38 +46,115 @@ makeSignMatrixPAGE = function(sign_names,
 
 ## create spatialDWLS matrix ####
 
+#' @title makeSignMatrixDWLSfromMatrix
+#' @name makeSignMatrixDWLSfromMatrix
+#' @description Function to convert a single-cell RNAseq matrix into a format
+#'  that can be used with \code{\link{runDWLSDeconv}}.
+#' @param matrix scRNA-seq matrix
+#' @param sign_gene genes to use (e.g. marker genes)
+#' @param cell_type_vector vector with cell types (length = ncol(matrix))
+#' @return matrix
+#' @seealso \code{\link{runDWLSDeconv}}
+#' @export
+makeSignMatrixDWLSfromMatrix = function(matrix,
+                                        sign_gene,
+                                        cell_type_vector) {
+
+
+  # 1. check if cell_type_vector and matrix are compatible
+  if(ncol(matrix) != length(cell_type_vector)) {
+    stop('ncol(matrix) needs to be the same as length(cell_type_vector)')
+  }
+
+  # check input for sign_gene
+  if(!is.character(sign_gene)) {
+    stop('\n sign_gene needs to be a character vector of cell type specific genes \n')
+  }
+
+
+  # 2. get the common genes from the matrix and vector of signature genes
+  intersect_sign_gene = intersect(rownames(matrix), sign_gene)
+  matrix_subset       = matrix[intersect_sign_gene, ]
+
+
+  # 3. for each cell type
+  # calculate average expression for all signature genes
+  signMatrix = matrix(data = NA,
+                      nrow = nrow(matrix_subset),
+                      ncol = length(unique(cell_type_vector)))
+
+  for(cell_type_i in 1:length(unique(cell_type_vector))) {
+
+    cell_type = unique(cell_type_vector)[cell_type_i]
+    selected_cells = colnames(matrix_subset)[cell_type_vector == cell_type]
+    mean_expr_in_selected_cells = rowMeans_flex(matrix_subset[, selected_cells])
+
+    signMatrix[, cell_type_i] = mean_expr_in_selected_cells
+  }
+
+  rownames(signMatrix) = rownames(matrix_subset)
+  colnames(signMatrix) = unique(cell_type_vector)
+
+  return(signMatrix)
+
+}
+
+
+
 #' @title makeSignMatrixDWLS
-#' @description Function to convert signature genes into an average expression matrix format that can be used for
-#' spatialDWLS. gobject is the single cell Giotto object. sign_gene is in character format contains all DEGs.
-#' cell_type are all the cell types used for single cell analysis.
+#' @description Function to convert a matrix within a Giotto object into a format
+#'  that can be used with \code{\link{runDWLSDeconv}}. A vector of cell types
+#'  for cell_type_vector can be created from the cell metadata (pDataDT).
 #' @param gobject Giotto object of single cell
+#' @param feat_type feature type to use
+#' @param expression_values expression values to use
+#' @param reverse_log reverse a log-normalized expression matrix
+#' @param log_base the logarithm base (deafult  = 2)
 #' @param sign_gene all of DE genes (signature)
-#' @param cell_type cell type for single cells
+#' @param cell_type_vector vector with cell types (length = ncol(matrix))
+#' @param cell_type deprecated, use cell_type_vector
 #' @return matrix
 #' @seealso \code{\link{spatialDWLS}}
 #' @export
 makeSignMatrixDWLS = function(gobject,
+                              feat_type = NULL,
+                              expression_values = c('normalized', 'scaled', 'custom'),
+                              reverse_log = TRUE,
+                              log_base = 2,
                               sign_gene,
-                              cell_type) {
-  ## check input
-  if(!is.character(sign_gene)) {
-    stop('\n sign_gene needs to be a character of signatures for all cell types / process \n')
+                              cell_type_vector,
+                              cell_type = NULL) {
+
+
+  ## deprecated arguments
+  if(!is.null(cell_type)) {
+    warning('\n cell_type is deprecated, use cell_type_vector in the future \n')
+    cell_type_vector = cell_type
   }
-  ## get un logged normalized expression value
 
-  norm_exp<- 2^(gobject@expression$rna$normalized)-1
 
-  id<- as.character(cell_type)
-  intersect_sign_gene <- intersect(rownames(norm_exp), sign_gene)
-  ExprSubset<-norm_exp[intersect_sign_gene,]
-  sig_exp<-NULL
-  for (i in unique(id)){
-    sig_exp<-cbind(sig_exp,(apply(ExprSubset,1,function(y) mean(y[which(id==i)]))))
+  ## 1. expression matrix
+  values      = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
+  expr_values = get_expression_values(gobject = gobject,
+                                      feat_type = feat_type,
+                                      values = values)
+
+  ## 2. reverse log-normalization
+  if(reverse_log == TRUE) {
+    expr_values = log_base^(expr_values)-1
   }
-  colnames(sig_exp)<-unique(id)
 
-  return(as.matrix(sig_exp))
+  ## 3. run signature matrix function
+  res = makeSignMatrixDWLSfromMatrix(matrix = expr_values,
+                                     sign_gene = sign_gene,
+                                     cell_type_vector = cell_type_vector)
+
+  return(res)
 }
+
+
+
+
 
 #' @title makeSignMatrixRank
 #' @description Function to convert a single-cell count matrix

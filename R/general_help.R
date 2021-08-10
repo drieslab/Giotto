@@ -281,7 +281,7 @@ my_arowMeans = function(x) {
     x # if only one column is selected
     #mean(x)
   } else {
-    rowMeans_giotto(x)
+    rowMeans_flex(x)
   }
 }
 
@@ -293,7 +293,7 @@ my_growMeans = function(x, offset = 0.1) {
     x # if only one column is selected
     #exp(mean(log(x+offset)))-offset
   } else {
-    exp(rowMeans_giotto(log(x+offset)))-offset
+    exp(rowMeans_flex(log(x+offset)))-offset
   }
 }
 

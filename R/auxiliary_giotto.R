@@ -1,5 +1,5 @@
 
-## * ####
+
 ## Giotto auxiliary functions ####
 
 #' @title mean_expr_det_test
@@ -17,15 +17,8 @@ libNorm_giotto <- function(mymatrix, scalefactor){
 
   libsizes = colSums_flex(mymatrix)
 
-  if(methods::is(mymatrix, 'DelayedMatrix')) {
-    norm_expr = t(t(mymatrix)/ libsizes)*scalefactor
-  } else if(methods::is(mymatrix, 'dgCMatrix')) {
-    norm_expr = Matrix::t(Matrix::t(mymatrix)/ libsizes)*scalefactor # replace with sparseMatrixStats
-  } else if(methods::is(mymatrix, 'Matrix')) {
-    norm_expr = Matrix::t(Matrix::t(mymatrix)/ libsizes)*scalefactor
-  } else {
-    norm_expr = t(t(as.matrix(mymatrix))/ libsizes)*scalefactor
-  }
+  norm_expr = t_flex(t_flex(mymatrix)/ libsizes)*scalefactor
+
 }
 
 #' @title logNorm_giotto
@@ -43,42 +36,6 @@ logNorm_giotto = function(mymatrix, base, offset) {
   }
 
   return(mymatrix)
-}
-
-
-#' @title standardise_giotto
-#' @keywords internal
-standardise_giotto = function(x, center = TRUE, scale = TRUE) {
-
-  # switch to matrixGenerics for everything?
-
-  if(methods::is(x, class2 = 'DelayedArray')) {
-
-    if (center & scale) {
-      y <- t(x) - MatrixGenerics::colMeans2(x)
-      y <- y/sqrt(MatrixGenerics::rowSums2(y^2)) * sqrt((dim(x)[1] - 1))
-      y <- t(y)
-    }
-    else if (center & !scale) {
-      y <- t(x) - MatrixGenerics::colMeans2(x)
-    }
-    else if (!center & scale) {
-      y <- y/sqrt(MatrixGenerics::rowSums2(y^2)) * sqrt((dim(x)[1] - 1))
-      y <- t(y)
-    }
-
-
-
-  } else {
-
-    if(!methods::is(x, class2 = 'matrix')) x = as.matrix(x)
-
-    y = Rfast::standardise(x = x, center = center, scale = scale)
-
-  }
-
-  return(y)
-
 }
 
 
@@ -183,7 +140,7 @@ create_average_DT <- function(gobject,
     name = paste0('cluster_', group)
 
     temp = expr_data[, cell_metadata[[meta_data_name]] == group]
-    temp_DT = rowMeans_giotto(temp)
+    temp_DT = rowMeans_flex(temp)
 
     savelist[[name]] <- temp_DT
   }
@@ -314,11 +271,15 @@ subset_spatial_info_data = function(spatial_info,
   res_list = list()
   for(spat_info in names(spatial_info)) {
 
+    cat('for ', spat_info)
+
     if(spat_info %in% poly_info) {
       spat_subset = subset_giotto_polygon_object(spatial_info[[spat_info]],
                                                  cell_ids = cell_ids,
                                                  feat_ids = feat_ids,
                                                  feat_type = feat_type)
+      print('ok')
+      print(spat_subset)
       res_list[[spat_info]] = spat_subset
 
     } else {
@@ -349,16 +310,33 @@ subset_spatial_info_data = function(spatial_info,
 
 #' @name subset_giotto_points_object
 #' @description subset a single giotto points object
+#' @details subset on feature ids and on x,y coordinates
 #' @keywords internal
 subset_giotto_points_object = function(gpoints,
-                                       feat_ids) {
+                                       feat_ids = NULL,
+                                       x_min = NULL,
+                                       x_max = NULL,
+                                       y_min = NULL,
+                                       y_max = NULL) {
 
   if(!is.null(gpoints@spatVector)) {
 
+    if(!is.null(feat_ids)) {
+      feat_id_bool = gpoints@spatVector$feat_ID %in% feat_ids
+      gpoints@spatVector = gpoints@spatVector[feat_id_bool]
+    }
 
-    feat_id_bool = gpoints@spatVector$feat_ID %in% feat_ids
+    if(!any(is.null(c(x_min, x_max, y_min, y_max)))) {
 
-    gpoints@spatVector = gpoints@spatVector[feat_id_bool]
+      myspatvector = gpoints@spatVector
+      spatDT = spatVector_to_dt(myspatvector)
+
+      spatDT_subset = spatDT[x >= x_min & x <= x_max & y >= y_min & y <= y_max]
+      myspatvector_subset = dt_to_spatVector_points(dt = spatDT_subset)
+
+      gpoints@spatVector = myspatvector_subset
+    }
+
   }
 
   return(gpoints)
@@ -366,12 +344,17 @@ subset_giotto_points_object = function(gpoints,
 }
 
 
+
 #' @name subset_feature_info_data
 #' @description subset  all spatial feature (points) data
 #' @keywords internal
 subset_feature_info_data = function(feat_info,
                                     feat_ids,
-                                    feat_type = 'rna') {
+                                    feat_type = 'rna',
+                                    x_min = NULL,
+                                    x_max = NULL,
+                                    y_min = NULL,
+                                    y_max = NULL) {
 
   res_list = list()
   for(feat in names(feat_info)) {
@@ -379,7 +362,11 @@ subset_feature_info_data = function(feat_info,
     if(feat == feat_type) {
 
       feat_subset = subset_giotto_points_object(feat_info[[feat]],
-                                                feat_ids = feat_ids)
+                                                feat_ids = feat_ids,
+                                                x_min = x_min,
+                                                x_max = x_max,
+                                                y_min = y_min,
+                                                y_max = y_max)
       res_list[[feat]] = feat_subset
 
     } else {
@@ -409,6 +396,10 @@ subset_feature_info_data = function(feat_info,
 #' @param feat_ids feature IDs to keep
 #' @param gene_ids deprecated, use feat_ids
 #' @param poly_info polygon information to use
+#' @param x_max maximum x-coordinate for feature coordinates
+#' @param x_min minimum x-coordinate for feature coordinates
+#' @param y_max maximum y-coordinate for feature coordinates
+#' @param y_min minimum y-coordinate for feature coordinates
 #' @param verbose be verbose
 #' @param toplevel_params parameters to extract
 #' @return giotto object
@@ -433,6 +424,10 @@ subsetGiotto <- function(gobject,
                          feat_ids = NULL,
                          gene_ids = NULL,
                          poly_info = NULL,
+                         x_max = NULL,
+                         x_min = NULL,
+                         y_max = NULL,
+                         y_min = NULL,
                          verbose = FALSE,
                          toplevel_params = 2) {
 
@@ -634,7 +629,11 @@ subsetGiotto <- function(gobject,
   if(!is.null(gobject@feat_info)) {
     gobject@feat_info = subset_feature_info_data(feat_info = gobject@feat_info,
                                                  feat_ids = feats_to_keep,
-                                                 feat_type = feat_type)
+                                                 feat_type = feat_type,
+                                                 x_max = x_max,
+                                                 x_min = x_min,
+                                                 y_max = y_max,
+                                                 y_min = y_min)
   }
 
 
@@ -749,6 +748,10 @@ subsetGiottoLocs = function(gobject,
     subset_object = subsetGiotto(gobject = gobject,
                                  cell_ids = filtered_cell_IDs,
                                  poly_info = poly_info,
+                                 x_max = x_max,
+                                 x_min = x_min,
+                                 y_max = y_max,
+                                 y_min = y_min,
                                  verbose = verbose)
 
     return(subset_object)
@@ -1001,12 +1004,12 @@ filterCombinations <- function(gobject,
 
 
       # first remove feats
-      filter_index_feats = rowSums_giotto(expr_values >= threshold) >= min_cells_for_feat
+      filter_index_feats = rowSums_flex(expr_values >= threshold) >= min_cells_for_feat
       removed_feats = length(filter_index_feats[filter_index_feats == FALSE])
       det_cells_res[[combn_i]] = removed_feats
 
       # then remove cells
-      filter_index_cells = colSums_giotto(expr_values[filter_index_feats, ] >= threshold) >= min_feats_per_cell
+      filter_index_cells = colSums_flex(expr_values[filter_index_feats, ] >= threshold) >= min_feats_per_cell
       removed_cells = length(filter_index_cells[filter_index_cells == FALSE])
       det_feats_res[[combn_i]] = removed_cells
     }
@@ -1220,8 +1223,8 @@ rna_standard_normalization = function(gobject,
     if(scale_order == 'first_feats') {
       if(verbose == TRUE) cat('\n first scale feats and then cells \n')
 
-      norm_scaled_expr = t_flex(standardise_giotto(x = t_flex(norm_expr), center = TRUE, scale = TRUE))
-      norm_scaled_expr = standardise_giotto(x = norm_scaled_expr, center = TRUE, scale = TRUE)
+      norm_scaled_expr = t_flex(standardise_flex(x = t_flex(norm_expr), center = TRUE, scale = TRUE))
+      norm_scaled_expr = standardise_flex(x = norm_scaled_expr, center = TRUE, scale = TRUE)
 
       #if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
       #norm_scaled_expr = t(Rfast::standardise(x = t(norm_expr), center = TRUE, scale = TRUE))
@@ -1230,8 +1233,8 @@ rna_standard_normalization = function(gobject,
     } else if(scale_order == 'first_cells') {
       if(verbose == TRUE) cat('\n first scale cells and then feats \n')
 
-      norm_scaled_expr = standardise_giotto(x = norm_expr, center = TRUE, scale = TRUE)
-      norm_scaled_expr = t_flex(standardise_giotto(x = t_flex(norm_scaled_expr), center = TRUE, scale = TRUE))
+      norm_scaled_expr = standardise_flex(x = norm_expr, center = TRUE, scale = TRUE)
+      norm_scaled_expr = t_flex(standardise_flex(x = t_flex(norm_scaled_expr), center = TRUE, scale = TRUE))
 
       #if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
       #norm_scaled_expr = Rfast::standardise(x = norm_expr, center = TRUE, scale = TRUE)
@@ -1243,14 +1246,14 @@ rna_standard_normalization = function(gobject,
 
   } else if(scale_feats == TRUE) {
 
-    norm_scaled_expr = t(standardise_giotto(x = t_flex(norm_expr), center = TRUE, scale = TRUE))
+    norm_scaled_expr = t_flex(standardise_flex(x = t_flex(norm_expr), center = TRUE, scale = TRUE))
 
     #if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
     #norm_scaled_expr = t(Rfast::standardise(x = t(norm_expr), center = TRUE, scale = TRUE))
 
   } else if(scale_cells == TRUE) {
 
-    norm_scaled_expr = standardise_giotto(x = norm_expr, center = TRUE, scale = TRUE)
+    norm_scaled_expr = standardise_flex(x = norm_expr, center = TRUE, scale = TRUE)
 
     #if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
     #norm_scaled_expr = Rfast::standardise(x = norm_expr, center = TRUE, scale = TRUE)
@@ -2748,7 +2751,7 @@ createMetafeats = function(gobject,
     if(length(selected_feats) == 1) {
       mean_score = sub_mat
     } else{
-      mean_score = colMeans_giotto(sub_mat)
+      mean_score = colMeans_flex(sub_mat)
     }
 
     res_list[[id]] = mean_score

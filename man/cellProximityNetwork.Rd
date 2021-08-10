@@ -18,6 +18,7 @@ cellProximityNetwork(
   only_show_enrichment_edges = F,
   edge_width_range = c(0.1, 2),
   node_size = 4,
+  node_color_code = NULL,
   node_text_size = 6,
   show_plot = NA,
   return_plot = NA,
@@ -52,6 +53,8 @@ cellProximityNetwork(
 \item{edge_width_range}{range of edge width}
 
 \item{node_size}{size of nodes}
+
+\item{node_color_code}{color code for the nodes (e.g. cell labels)}
 
 \item{node_text_size}{size of node labels}
 

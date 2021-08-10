@@ -11,6 +11,10 @@ subsetGiotto(
   feat_ids = NULL,
   gene_ids = NULL,
   poly_info = NULL,
+  x_max = NULL,
+  x_min = NULL,
+  y_max = NULL,
+  y_min = NULL,
   verbose = FALSE,
   toplevel_params = 2
 )
@@ -27,6 +31,14 @@ subsetGiotto(
 \item{gene_ids}{deprecated, use feat_ids}
 
 \item{poly_info}{polygon information to use}
+
+\item{x_max}{maximum x-coordinate for feature coordinates}
+
+\item{x_min}{minimum x-coordinate for feature coordinates}
+
+\item{y_max}{maximum y-coordinate for feature coordinates}
+
+\item{y_min}{minimum y-coordinate for feature coordinates}
 
 \item{verbose}{be verbose}
 
