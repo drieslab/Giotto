@@ -3655,6 +3655,7 @@ spatDimPlot = function(...) {
 
 ## ** spatial feature plotting ####
 
+#' @title spatFeatPlot2D_single
 #' @name spatFeatPlot2D_single
 #' @description Visualize cells and feature expression according to spatial coordinates
 #' @param gobject giotto object
@@ -4089,7 +4090,7 @@ spatFeatPlot2D_single <- function(gobject,
 }
 
 
-
+#' @title spatFeatPlot2D
 #' @name spatFeatPlot2D
 #' @description Visualize cells and feature expression according to spatial coordinates
 #' @param gobject giotto object
@@ -4373,7 +4374,7 @@ spatFeatPlot2D <- function(gobject,
 
 
 
-
+#' @title spatGenePlot2D
 #' @name spatGenePlot2D
 #' @description Visualize cells and gene expression according to spatial coordinates
 #' @param gobject giotto object
@@ -4417,6 +4418,7 @@ spatGenePlot = function(...) {
 
 ## ** dim reduction feature plotting ####
 
+#' @title dimFeatPlot2D
 #' @name dimFeatPlot2D
 #' @description Visualize gene expression according to dimension reduction coordinates
 #' @param gobject giotto object
@@ -4745,7 +4747,7 @@ dimFeatPlot2D <- function(gobject,
 
 
 
-
+#' @title dimGenePlot2D
 #' @name dimGenePlot2D
 #' @description Visualize gene expression according to dimension reduction coordinates
 #' @param gobject giotto object
@@ -4770,7 +4772,7 @@ dimGenePlot2D <- function(gobject,
 
 
 
-
+#' @title dimGenePlot
 #' @name dimGenePlot
 #' @description Visualize gene expression according to dimension reduction coordinates
 #' @inheritDotParams dimGenePlot2D
@@ -4789,7 +4791,7 @@ dimGenePlot = function(...) {
 ## ** spatial and dim reduction feature plotting ####
 
 
-
+#' @title spatDimFeatPlot2D
 #' @name spatDimFeatPlot2D
 #' @description Visualize cells according to spatial AND dimension reduction coordinates in ggplot mode
 #' @param gobject giotto object
@@ -5032,7 +5034,7 @@ spatDimFeatPlot2D <- function(gobject,
 
 
 
-
+#' @title spatDimGenePlot2D
 #' @name spatDimGenePlot2D
 #' @description Visualize cells according to spatial AND dimension reduction coordinates in ggplot mode
 #' @param gobject giotto object
@@ -5081,7 +5083,7 @@ spatDimGenePlot = function(...) {
 
 
 
-
+#' @title spatCellPlot2D
 #' @name spatCellPlot2D
 #' @description Visualize cells according to spatial coordinates
 #' @param gobject giotto object
