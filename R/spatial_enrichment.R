@@ -1290,11 +1290,12 @@ createSpatialEnrich <- function(...) {
 #' @title enrich_deconvolution
 #' @description Rui to fill in
 #' @keywords internal
-enrich_deconvolution<-function(expr,
-                               log_expr,
-                               cluster_info,
-                               ct_exp,
-                               cutoff){
+enrich_deconvolution <- function(expr,
+                                 log_expr,
+                                 cluster_info,
+                                 ct_exp,
+                                 cutoff) {
+
   #####generate enrich 0/1 matrix based on expression matrix
   ct_exp <- ct_exp[rowSums(ct_exp)>0,]
   enrich_matrix<-matrix(0,nrow=dim(ct_exp)[1],ncol=dim(ct_exp)[2])
@@ -1348,6 +1349,7 @@ enrich_deconvolution<-function(expr,
   }
   return(dwls_results)
 }
+
 
 #' @title spot_deconvolution
 #' @description Rui to fill in
@@ -1525,22 +1527,27 @@ optimize_solveDampenedWLS<-function(S,
                                     B,
                                     constant_J){
   #first solve OLS, use this solution to find a starting point for the weights
-  solution<-solve_OLS_internal(S,B)
+  solution = solve_OLS_internal(S,B)
   #now use dampened WLS, iterate weights until convergence
-  iterations<-0
-  changes<-c()
+  iterations = 0
+  changes = c()
   #find dampening constant for weights using cross-validation
-  j<-constant_J
-  change<-1
-  while(change>.01 & iterations<1000){
-    newsolution<-solve_dampened_WLSj(S,B,solution,j)
+  j = constant_J
+  change = 1
+
+  while(change > .01 & iterations < 1000){
+    newsolution = solve_dampened_WLSj(S, B, solution, j)
     #decrease step size for convergence
-    solutionAverage<-rowMeans(cbind(newsolution,matrix(solution,nrow = length(solution),ncol = 4)))
-    change<-norm(Matrix::as.matrix(solutionAverage-solution))
-    solution<-solutionAverage
-    iterations<-iterations+1
-    changes<-c(changes,change)
+    solutionAverage = rowMeans(cbind(newsolution,
+                                     matrix(solution,
+                                            nrow = length(solution),
+                                            ncol = 4)))
+    change = norm(Matrix::as.matrix(solutionAverage-solution))
+    solution = solutionAverage
+    iterations = iterations+1
+    changes = c(changes, change)
   }
+
   #print(round(solution/sum(solution),5))
   return(solution/sum(solution))
 }
@@ -1553,34 +1560,40 @@ find_dampening_constant<-function(S,
                                   B,
                                   goldStandard){
 
-  solutionsSd<-NULL
+
+  solutionsSd = NULL
+
   #goldStandard is used to define the weights
   sol = goldStandard
   ws = as.vector((1/(S%*%sol))^2)
   wsScaled = ws/min(ws)
   wsScaledMinusInf = wsScaled
+
   #ignore infinite weights
   if(max(wsScaled) == "Inf"){
     wsScaledMinusInf = wsScaled[-which(wsScaled == "Inf")]
   }
+
   #try multiple values of the dampening constant (multiplier)
   #for each, calculate the variance of the dampened weighted solution for a subset of genes
   for (j in 1:ceiling(log2(max(wsScaledMinusInf)))){
     multiplier = 1*2^(j-1)
     wsDampened = wsScaled
-    wsDampened[which(wsScaled>multiplier)] = multiplier
-    solutions<-NULL
-    seeds<-c(1:100)
+    wsDampened[which(wsScaled > multiplier)] = multiplier
+    solutions = NULL
+    seeds = c(1:100)
     for (i in 1:100){
       set.seed(seeds[i]) #make nondeterministic
-      subset = sample(length(ws),size=length(ws)*0.5) #randomly select half of gene set
+      subset = sample(length(ws), size=length(ws) * 0.5) #randomly select half of gene set
+
       #solve dampened weighted least squares for subset
-      fit = stats::lm (B[subset] ~ -1+S[subset,],weights=wsDampened[subset])
-      sol = fit$coef*sum(goldStandard)/sum(fit$coef)
-      solutions = cbind(solutions,sol)
+      fit = stats::lm (B[subset] ~ -1+S[subset,], weights = wsDampened[subset])
+      sol = fit$coef * sum(goldStandard) / sum(fit$coef)
+      solutions = cbind(solutions, sol)
     }
-    solutionsSd = cbind(solutionsSd,apply(solutions, 1, stats::sd))
+    solutionsSd = cbind(solutionsSd, apply(solutions, 1, stats::sd))
   }
+
   #choose dampening constant that results in least cross-validation variance
   j = which.min(colMeans(solutionsSd^2))
   return(j)
@@ -1590,14 +1603,18 @@ find_dampening_constant<-function(S,
 #' @title solve_OLS_internal
 #' @description basic functions for dwls
 #' @keywords internal
-solve_OLS_internal<-function(S,
-                             B){
-  D<-t(S)%*%S
-  d<-t(S)%*%B
-  A<-cbind(diag(dim(S)[2]))
-  bzero<-c(rep(0,dim(S)[2]))
-  solution<-quadprog::solve.QP(D,d,A,bzero)$solution
-  names(solution)<-colnames(S)
+solve_OLS_internal <- function(S,
+                               B){
+  D = t(S)%*%S
+  d = t(S)%*%B
+  A = cbind(diag(dim(S)[2]))
+  bzero = c(rep(0,dim(S)[2]))
+  solution = quadprog::solve.QP(Dmat = D,
+                                dvec = d,
+                                Amat = A,
+                                bvec = bzero)$solution
+  names(solution) = colnames(S)
+
   return(solution)
 }
 
@@ -1605,24 +1622,24 @@ solve_OLS_internal<-function(S,
 #' @title solve_dampened_WLSj
 #' @description solve WLS given a dampening constant
 #' @keywords internal
-solve_dampened_WLSj<-function(S,
-                              B,
-                              goldStandard,
-                              j){
-  multiplier<-1*2^(j-1)
-  sol<-goldStandard
-  ws<-as.vector((1/(S%*%sol))^2)
-  wsScaled<-ws/min(ws)
-  wsDampened<-wsScaled
-  wsDampened[which(wsScaled>multiplier)]<-multiplier
-  W<-diag(wsDampened)
-  D<-t(S)%*%W%*%S
-  d<- t(S)%*%W%*%B
-  A<-cbind(diag(dim(S)[2]))
-  bzero<-c(rep(0,dim(S)[2]))
-  sc <- norm(D,"2")
-  solution<-quadprog::solve.QP(D/sc,d/sc,A,bzero)$solution
-  names(solution)<-colnames(S)
+solve_dampened_WLSj <- function(S,
+                                B,
+                                goldStandard,
+                                j){
+  multiplier = 1*2^(j-1)
+  sol = goldStandard
+  ws = as.vector((1/(S%*%sol))^2)
+  wsScaled = ws/min(ws)
+  wsDampened = wsScaled
+  wsDampened[which(wsScaled > multiplier)] = multiplier
+  W = diag(wsDampened)
+  D = t(S)%*%W%*%S
+  d = t(S)%*%W%*%B
+  A = cbind(diag(dim(S)[2]))
+  bzero = c(rep(0,dim(S)[2]))
+  sc = norm(D,"2")
+  solution = quadprog::solve.QP(D/sc, d/sc, A, bzero)$solution
+  names(solution) = colnames(S)
   return(solution)
 }
 
@@ -1652,13 +1669,10 @@ runDWLSDeconv <- function(gobject,
 
 
   # verify if optional package is installed
-  # DELETE BEFORE PUSHING
   package_check(pkg_name = "quadprog", repository = "CRAN")
 
 
   ## check parameters ##
-
-  # check parameters
   if(is.null(name)) name = 'DWLS'
 
   # expression values to be used
@@ -1677,18 +1691,18 @@ runDWLSDeconv <- function(gobject,
 
 
   #####getting overlapped gene lists
-  sign_matrix <- as.matrix(sign_matrix)
-  intersect_gene = intersect(rownames(sign_matrix), rownames(nolog_expr))
-  filter_Sig = sign_matrix[intersect_gene,]
-  filter_expr = nolog_expr[intersect_gene,]
+  sign_matrix     = as.matrix(sign_matrix)
+  intersect_gene  = intersect(rownames(sign_matrix), rownames(nolog_expr))
+  filter_Sig      = sign_matrix[intersect_gene,]
+  filter_expr     = nolog_expr[intersect_gene,]
   filter_log_expr = expr_values[intersect_gene,]
 
   #####first round spatial deconvolution ##spot or cluster
-  enrich_spot_proportion <- enrich_deconvolution(expr = filter_expr,
-                                                 log_expr = filter_log_expr,
-                                                 cluster_info = cluster,
-                                                 ct_exp = filter_Sig,
-                                                 cutoff = cutoff)
+  enrich_spot_proportion = enrich_deconvolution(expr = filter_expr,
+                                                log_expr = filter_log_expr,
+                                                cluster_info = cluster,
+                                                ct_exp = filter_Sig,
+                                                cutoff = cutoff)
 
   ####re-deconvolution based on spatial resolution
   resolution = (1/n_cell)
