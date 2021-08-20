@@ -433,7 +433,7 @@ registerGiottoObjectListFiji = function(gobject_list,
 #' @return list of registered giotto objects where the registered images and spatial locations
 #' @export
 #Register giotto objects when given raw images and spatial locations
- registerGiottoObjectListRvision = function(gobject_list = gobject_list,
+registerGiottoObjectListRvision = function(gobject_list = gobject_list,
                                            image_list = NULL,
                                            save_dir = NULL,
                                            spat_loc_values = NULL,
