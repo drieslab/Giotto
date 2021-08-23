@@ -456,8 +456,10 @@ registerGiottoObjectListRvision = function(gobject_list = gobject_list,
   }
   
   unreg_images <- c()
+  color_images <- c()
   for (path in image_list) {
     unreg_images <- append(unreg_images, Rvision::image(filename = path), after = length(unreg_images))
+    color_images <- append(color_images, Rvision::image(filename = path), after = length(color_images))
   }
   
   ## 3. Perform preprocessing
@@ -479,8 +481,10 @@ registerGiottoObjectListRvision = function(gobject_list = gobject_list,
   for (i in 1:length(unreg_images)) {
     # Add border so all images have same square dimensions
     Rvision::border(unreg_images[[i]], squmax-rows[[i]], 0, squmax-cols[[i]], 0, border_color = "white", target = "self")
+    Rvision::border(color_images[[i]], squmax-rows[[i]], 0, squmax-cols[[i]], 0, border_color = "white", target = "self")
     # Apply scaling so all images of reasonable size for processing
     unreg_images[[i]] <- Rvision::resize(unreg_images[[i]], height = enddim, width = enddim, target = "new")
+    color_images[[i]] <- Rvision::resize(color_images[[i]], height = enddim, width = enddim, target = "new")
   }
   rm(cols,rows)
   
@@ -522,10 +526,10 @@ registerGiottoObjectListRvision = function(gobject_list = gobject_list,
     # Apply transform to image
     transf_images <- c()
     for (i in 1:length(unreg_images)) {
-      transf_images <- append(transf_images, Rvision::warpAffine(unreg_images[[i]], transfs[[i]], target = "new"), length(transf_images))
+      transf_images <- append(transf_images, Rvision::warpAffine(color_images[[i]], transfs[[i]], target = "new"), length(transf_images))
     }
     # Save images to save directory
-    for(image_i in 1:length(unreg_images)) {
+    for(image_i in 1:length(transf_images)) {
       name <- paste(save_dir, image_i, ".jpg")
       Rvision::write.Image(transf_images[[image_i]], name)
     } 
