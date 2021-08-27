@@ -594,6 +594,7 @@ package_check = function(pkg_name,
 #' @name getSpatialDataset
 #' @param dataset dataset to download
 #' @param directory directory to save the data to
+#' @param verbose be verbose
 #' @param \dots additional parameters to \code{\link[utils]{download.file}}
 #' @description This package will automatically download the spatial locations and
 #' expression matrix for the chosen dataset. These files are already in the right format
@@ -609,7 +610,8 @@ getSpatialDataset = function(dataset = c('ST_OB1',
                                          'merfish_preoptic',
                                          'seqfish_SS_cortex',
                                          'seqfish_OB',
-                                         'slideseq_cerebellum'),
+                                         'slideseq_cerebellum',
+                                         'ST_SCC'),
                              directory = getwd(),
                              ...) {
 
@@ -622,7 +624,8 @@ getSpatialDataset = function(dataset = c('ST_OB1',
                                                'merfish_preoptic',
                                                'seqfish_SS_cortex',
                                                'seqfish_OB',
-                                               'slideseq_cerebellum'))
+                                               'slideseq_cerebellum',
+                                               'ST_SCC'))
 
   # check operating system first
   os_specific_system = get_os()
@@ -670,22 +673,37 @@ getSpatialDataset = function(dataset = c('ST_OB1',
 
   # get url to spatial locations and download
   spatial_locs_url = datasets_file[dataset == sel_dataset][['spatial_locs']]
-  myfilename = basename(spatial_locs_url)
-  mydestfile = paste0(directory,'/', myfilename)
+  spatial_locs_url = unlist(strsplit(spatial_locs_url, split = '\\|'))
 
-  print(spatial_locs_url)
-  print(mydestfile)
-
-  utils::download.file(url = spatial_locs_url, destfile = mydestfile, ...)
-
-  #system(paste0("wget -P ", "'",directory,"'"," ", spatial_locs_url))
+  if(identical(spatial_locs_url, character(0))) {
+    NULL
+  } else {
+    for(url in spatial_locs_url) {
+      myfilename = basename(url)
+      mydestfile = paste0(directory,'/', myfilename)
+      if(verbose == TRUE) print(mydestfile)
+      utils::download.file(url = url, destfile = mydestfile, ...)
+      #system(paste0("wget -P ", "'",directory,"'"," ", url))
+    }
+  }
 
 
   # get url to expression matrix and download
   expr_matrix_url = datasets_file[dataset == sel_dataset][['expr_matrix']]
-  myfilename = basename(expr_matrix_url)
-  mydestfile = paste0(directory,'/', myfilename)
-  utils::download.file(url = expr_matrix_url, destfile = mydestfile, ...)
+  expr_matrix_url = unlist(strsplit(expr_matrix_url, split = '\\|'))
+
+  if(identical(expr_matrix_url, character(0))) {
+    NULL
+  } else {
+    for(url in expr_matrix_url) {
+      myfilename = basename(url)
+      mydestfile = paste0(directory,'/', myfilename)
+      if(verbose == TRUE) print(mydestfile)
+      utils::download.file(url = url, destfile = mydestfile, ...)
+      #system(paste0("wget -P ", "'",directory,"'"," ", url))
+    }
+  }
+
 
   #system(paste0("wget -P ", "'",directory,"'"," ", expr_matrix_url))
 
