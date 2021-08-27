@@ -613,6 +613,7 @@ getSpatialDataset = function(dataset = c('ST_OB1',
                                          'slideseq_cerebellum',
                                          'ST_SCC'),
                              directory = getwd(),
+                             verbose = TRUE,
                              ...) {
 
   sel_dataset = match.arg(dataset, choices = c('ST_OB1',

@@ -9,6 +9,7 @@ getSpatialDataset(
     "osmfish_SS_cortex", "merfish_preoptic", "seqfish_SS_cortex", "seqfish_OB",
     "slideseq_cerebellum", "ST_SCC"),
   directory = getwd(),
+  verbose = TRUE,
   ...
 )
 }
@@ -17,9 +18,9 @@ getSpatialDataset(
 
 \item{directory}{directory to save the data to}
 
-\item{\dots}{additional parameters to \code{\link[utils]{download.file}}}
-
 \item{verbose}{be verbose}
+
+\item{\dots}{additional parameters to \code{\link[utils]{download.file}}}
 }
 \description{
 This package will automatically download the spatial locations and
