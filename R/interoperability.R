@@ -237,6 +237,106 @@ giottoToSeurat <- function(obj_use = NULL,
 }
 
 
+#' @name seuratToGiotto
+#' @description Converts Seurat object into a Giotto object
+#' @param obj_use Seurat object
+#' @return Giotto object
+#' @export
+seuratToGiotto <- function(obj_use = NULL,...){
+  require(Seurat)
+  require(Giotto)
+  
+  # get general info in basic seurat structures
+  obj_assays <- names(obj_use@assays)
+  if ('Spatial' %in% obj_assays){
+    obj_assays <- c('Spatial',obj_assays[-which(obj_assays == 'Spatial')])
+  }
+  
+  obj_dimReduc <- names(obj_use@reductions)
+  obj_dimReduc_assay <- sapply(obj_dimReduc,function(x) 
+    obj_use[[x]]@assay.used)
+  
+  obj_graph_expr <- names(obj_use@graphs)
+  obj_graph_expr_assay <- sapply(obj_graph_expr,function(x) 
+    obj_use[[x]]@assay.used)
+  
+  obj_meta_cells <- obj_use@meta.data
+  obj_meta_genes <- lapply(obj_assays,function(x) 
+    obj_use[[x]]@meta.features)
+  names(obj_meta_genes) <- obj_assays
+  
+  obj_img <- obj_use@images
+  obj_img_names <- names(obj_img)
+  loc_use <- lapply(obj_img_names,function(x){
+    temp <- obj_img[[x]]@coordinates
+    temp <- as.data.frame(temp[,c('col','row')])
+    # temp$region <- x
+    return (temp)
+  })
+  loc_use <- Reduce(rbind,loc_use)
+  
+  # add assay data: raw, normalized & scaled
+  for (i in 1:length(obj_assays)){
+    data_raw <- GetAssayData(obj_use,slot = 'counts',assay = obj_assays[i])
+    data_norm <- GetAssayData(obj_use,slot = 'data',assay = obj_assays[i])
+    data_scale <- GetAssayData(obj_use,slot = 'scale.data',assay = obj_assays[i])
+    
+    if (i == 1 & obj_assays[i] == 'Spatial'){
+      feat_use <- 'rna'
+      test <- createGiottoObject(expression = obj_use[[obj_assays[i]]]@counts,
+                                 spatial_locs = loc_use,
+                                 expression_feat = 'rna')
+      test <- addCellMetadata(test,feat_type = feat_use,new_metadata = obj_meta_cells)
+    } else {
+      feat_use <- obj_assays[i]
+      test@expression[[feat_use]][['raw']] <- data_raw
+      test@feat_ID[[feat_use]] = rownames(data_raw)
+      test@feat_metadata[[feat_use]] = data.table::data.table(feat_ID = test@feat_ID[[feat_use]])
+    }
+    if (nrow(data_norm) > 0){
+      test@expression[[feat_use]][['normalized']] <- data_norm
+    }
+    if (nrow(data_scale) > 0){
+      test@expression[[feat_use]][['scaled']] <- data_scale
+    }
+    
+    # gene metadata
+    if (length(obj_meta_genes[[i]]) > 0){
+      test <- addFeatMetadata(test,feat_type = feat_use,
+                              new_metadata = obj_meta_genes[[i]])
+    }
+  }
+  
+  # add dim reduction
+  for (i in obj_dimReduc){
+    if (!i %in% c('pca','umap','tsne')){
+      next
+    } else {
+      dimReduc_name <- i
+      dimReduc_method <- i
+      dimReduc_coords <- obj_use[[i]]@cell.embeddings
+      dimReduc_misc <- list(obj_use[[i]]@stdev,
+                            obj_use[[i]]@feature.loadings,
+                            obj_use[[i]]@feature.loadings.projected)
+      names(dimReduc_misc) <- c('eigenvalues','loadings','loadings_projected')
+      dimObject <- Giotto:::create_dimObject(name = dimReduc_name,reduction_method = dimReduc_method,
+                                             coordinates = dimReduc_coords,misc = dimReduc_misc)
+      test@dimension_reduction[['cells']][[dimReduc_method]][[dimReduc_name]] <- dimObject
+    }
+  }
+  
+  # add expr nearest neighbors
+  for (i in obj_graph_expr){
+    mtx_use <- obj_use[[i]]
+    ig_use <- igraph::graph_from_adjacency_matrix(mtx_use,weighted = T)
+    g_type <- unlist(strsplit(i,split = "_"))[2]
+    g_val <- i
+    test@nn_network[[g_type]][[g_val]][['igraph']] <- ig_use
+  }
+  return (test)
+  
+}
+
 
 
 ## SpatialExperiment object ####
