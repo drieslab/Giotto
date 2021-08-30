@@ -107,8 +107,10 @@ doHMRF <- function(gobject,
 
   } else {
     values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-    expr_values = select_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+    expr_values = get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
   }
+  expr_values = as.matrix(expr_values)
+
   expression_file = paste0(output_folder,'/', 'expression_matrix.txt')
 
   # overwrite if exists
@@ -162,7 +164,7 @@ doHMRF <- function(gobject,
 
 
   ## 3. spatial network
-  spatial_network = select_spatialNetwork(gobject,
+  spatial_network = get_spatialNetwork(gobject,
                                           name = spatial_network_name,
                                           return_network_Obj = FALSE)
   spatial_network = spatial_network[,.(to,from)]
@@ -185,7 +187,7 @@ doHMRF <- function(gobject,
 
 
   ## 4. cell location
-  spatial_location = select_spatial_locations(gobject = gobject,
+  spatial_location = get_spatial_locations(gobject = gobject,
                                             spat_loc_name = spat_loc_name)
   #spatial_location = gobject@spatial_locs
 

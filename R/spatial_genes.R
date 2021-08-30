@@ -3025,7 +3025,7 @@ detectSpatialCorFeatsMatrix <- function(expression_matrix,
   ## spatial averaging or smoothing
   if(method == 'grid') {
 
-    loc_av_expr_matrix = do_spatial_grid_averaging(expression_matrix = expression_matrix,
+    loc_av_expr_matrix = do_spatial_grid_averaging(expression_matrix = as.matrix(expression_matrix),
                                                    spatial_grid = spatial_grid,
                                                    spatial_locs = spatial_locs,
                                                    subset_feats = subset_feats,
@@ -3043,7 +3043,7 @@ detectSpatialCorFeatsMatrix <- function(expression_matrix,
 
   if(method == 'network') {
 
-    knn_av_expr_matrix = do_spatial_knn_smoothing(expression_matrix = expression_matrix,
+    knn_av_expr_matrix = do_spatial_knn_smoothing(expression_matrix = as.matrix(expression_matrix),
                                                   spatial_network = spatial_network,
                                                   subset_feats = subset_feats,
                                                   b = network_smoothing)
@@ -3172,7 +3172,7 @@ detectSpatialCorFeats <- function(gobject,
 
   # get spatial locations
   spatial_locs = get_spatial_locations(gobject,
-                                          spat_loc_name = spat_loc_name)
+                                       spat_loc_name = spat_loc_name)
 
   ## spatial averaging or smoothing
   if(method == 'grid') {
@@ -3182,7 +3182,7 @@ detectSpatialCorFeats <- function(gobject,
                                       name = spatial_grid_name,
                                       return_grid_Obj = FALSE)
 
-    loc_av_expr_matrix = do_spatial_grid_averaging(expression_matrix = expr_values,
+    loc_av_expr_matrix = do_spatial_grid_averaging(expression_matrix = as.matrix(expr_values),
                                                    spatial_grid  = spatial_grid,
                                                    spatial_locs = spatial_locs,
                                                    subset_feats = subset_feats,
@@ -3205,7 +3205,7 @@ detectSpatialCorFeats <- function(gobject,
                                       name = spatial_network_name,
                                       return_network_Obj = FALSE)
 
-    knn_av_expr_matrix = do_spatial_knn_smoothing(expression_matrix = expr_values,
+    knn_av_expr_matrix = do_spatial_knn_smoothing(expression_matrix = as.matrix(expr_values),
                                                   spatial_network = spatial_network,
                                                   subset_feats = subset_feats,
                                                   b = network_smoothing)

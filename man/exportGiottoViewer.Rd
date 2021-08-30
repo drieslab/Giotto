@@ -7,6 +7,7 @@
 exportGiottoViewer(
   gobject,
   feat_type = NULL,
+  spat_loc_name = "raw",
   output_directory = NULL,
   spat_enr_names = NULL,
   factor_annotations = NULL,
@@ -25,6 +26,8 @@ exportGiottoViewer(
 \item{gobject}{giotto object}
 
 \item{feat_type}{feature types}
+
+\item{spat_loc_name}{name of spatial locations to export}
 
 \item{output_directory}{directory where to save the files}
 

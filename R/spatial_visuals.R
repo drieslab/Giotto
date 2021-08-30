@@ -2495,7 +2495,7 @@ spatPlot2D_single = function(gobject,
 
   ## extract spatial grid
   if(show_grid == TRUE) {
-    spatial_grid = select_spatialGrid(gobject = gobject,
+    spatial_grid = get_spatialGrid(gobject = gobject,
                                       name = spatial_grid_name)
   } else {
     spatial_grid = NULL
@@ -3819,7 +3819,7 @@ spatFeatPlot2D_single <- function(gobject,
 
   ## extract spatial grid
   if(show_grid == TRUE) {
-    spatial_grid = select_spatialGrid(gobject,
+    spatial_grid = get_spatialGrid(gobject,
                                       spatial_grid_name)
   } else {
     spatial_grid = NULL
@@ -6761,7 +6761,7 @@ spatPlot_2D_plotly = function(gobject,
 
   ## extract spatial grid
   if(show_grid == TRUE) {
-    spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
+    spatial_grid = get_spatialGrid(gobject, spatial_grid_name)
   } else {
     spatial_grid = NULL
   }
@@ -6985,7 +6985,7 @@ spatPlot_3D_plotly = function(gobject,
 
   ## extract spatial grid
   if(show_grid == TRUE) {
-    spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
+    spatial_grid = get_spatialGrid(gobject, spatial_grid_name)
   } else {
     spatial_grid = NULL
   }
@@ -7513,7 +7513,7 @@ spatDimPlot3D <- function(gobject,
 
   ## extract spatial grid
   if(show_spatial_grid == TRUE) {
-    spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
+    spatial_grid = get_spatialGrid(gobject, spatial_grid_name)
   } else {
     spatial_grid = NULL
   }
@@ -8205,7 +8205,7 @@ spatGenePlot3D <- function(gobject,
 
   ## extract spatial grid
   if(show_grid == TRUE) {
-    spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
+    spatial_grid = get_spatialGrid(gobject, spatial_grid_name)
   } else {
     spatial_grid = NULL
   }
@@ -8947,7 +8947,7 @@ spatDimGenePlot3D <- function(gobject,
 
   ## extract spatial grid
   if(show_spatial_grid == TRUE) {
-    spatial_grid = select_spatialGrid(gobject, spatial_grid_name)
+    spatial_grid = get_spatialGrid(gobject, spatial_grid_name)
   } else {
     spatial_grid = NULL
   }

@@ -121,6 +121,7 @@ write_giotto_viewer_dim_reduction = function(dim_reduction_cell,
 #' @description compute highly variable genes
 #' @param gobject giotto object
 #' @param feat_type feature types
+#' @param spat_loc_name name of spatial locations to export
 #' @param output_directory directory where to save the files
 #' @param spat_enr_names spatial enrichment results to include for annotations
 #' @param factor_annotations giotto cell annotations to view as factor
@@ -150,6 +151,7 @@ write_giotto_viewer_dim_reduction = function(dim_reduction_cell,
 #'
 exportGiottoViewer = function(gobject,
                               feat_type = NULL,
+                              spat_loc_name = 'raw',
                               output_directory = NULL,
                               spat_enr_names = NULL,
                               factor_annotations = NULL,
@@ -208,8 +210,9 @@ exportGiottoViewer = function(gobject,
 
   # data.table variables
   sdimx = sdimy = NULL
-
-  spatial_location = gobject@spatial_locs[, .(sdimx, sdimy)]
+  spatial_location = get_spatial_locations(gobject = gobject,
+                                           spat_loc_name = spat_loc_name)
+  spatial_location = spatial_location[, .(sdimx, sdimy)]
   write.table(spatial_location, file = paste0(output_directory,'/','centroid_locations.txt'),
               quote = F, row.names = F, col.names = F, sep = ' ')
 
@@ -341,9 +344,10 @@ exportGiottoViewer = function(gobject,
   values = match.arg(expression_values, unique(c( 'scaled', 'normalized', 'custom', expression_values)))
 
   for(feat in feat_type) {
-    expr_values = select_expression_values(gobject = gobject,
-                                           feat_type = feat,
-                                           values = values)
+    expr_values = get_expression_values(gobject = gobject,
+                                        feat_type = feat,
+                                        values = values)
+    expr_values = as.matrix(expr_values)
 
     # swap cell_IDs for numerical values
     colnames(expr_values) = 1:ncol(expr_values)
