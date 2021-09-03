@@ -170,9 +170,9 @@ flex_lapply = function(X,
                        ...) {
 
 
-  .Deprecated(new = "flex_lapply")
+  .Deprecated(new = "lapply_flex")
 
-  flex_lapply(...)
+  lapply_flex(...)
 
 }
 
