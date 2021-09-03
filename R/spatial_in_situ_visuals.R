@@ -199,12 +199,19 @@ spatInSituPlotPoints = function(gobject,
     }
 
 
-    polygon_info = get_polygon_info(gobject = gobject,
-                                    polygon_name = polygon_feat_type)
-    polygon_dt = spatVector_to_dt(polygon_info)
+    polygon_combo = combineCellData(gobject = gobject,
+                                  feat_type = feat_type,
+                                  include_poly_info = TRUE,
+                                  poly_info = polygon_feat_type)
+    polygon_dt = polygon_combo[[feat_type]]
+    data.table::setnames(polygon_dt, old = 'cell_ID', new = 'poly_ID')
+
+    #polygon_info = get_polygon_info(gobject = gobject,
+    #                                polygon_name = polygon_feat_type)
+    #polygon_dt = spatVector_to_dt(polygon_info)
 
     plot = plot_cell_polygon_layer(ggobject = gobject,
-                                   polygon_dt,
+                                   polygon_dt = polygon_dt,
                                    polygon_grouping = 'poly_ID',
                                    sdimx = sdimx,
                                    sdimy = sdimy,
