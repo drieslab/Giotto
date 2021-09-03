@@ -15,7 +15,10 @@ plot_cell_polygon_layer = function(ggobject = NULL,
                                    sdimx = 'x',
                                    sdimy = 'y',
                                    fill = NULL,
+                                   poly_fill_gradient = c('blue', 'white', 'red'),
+                                   fill_gradient_midpoint =  NULL,
                                    fill_as_factor = TRUE,
+                                   fill_code = NULL,
                                    bg_color = 'black',
                                    color = 'black',
                                    alpha = 0.5,
@@ -38,6 +41,8 @@ plot_cell_polygon_layer = function(ggobject = NULL,
     pl = ggplot2::ggplot()
   }
 
+
+  # specific fill color for polygon shapes
   if(!is.null(fill)) {
     pl = pl + ggplot2::geom_polygon(data = polygon_dt,
                                     ggplot2::aes_string(x = sdimx,
@@ -47,6 +52,34 @@ plot_cell_polygon_layer = function(ggobject = NULL,
                                     alpha = alpha,
                                     color = color,
                                     size = size)
+
+    # manual fill colors for factor values
+    if(fill_as_factor == TRUE) {
+      if(!is.null(fill_code)) {
+        pl = pl + ggplot2::scale_fill_manual(values = fill_code)
+      } else {
+        fill_values_names = unique(polygon_dt[['final_fill']])
+        fill_code = getDistinctColors(length(fill_values_names))
+        names(fill_code) = fill_values_names
+        pl = pl + ggplot2::scale_fill_manual(values = fill_code)
+      }
+    }
+
+    # gradient fill colors for numerical values
+    if(fill_as_factor == FALSE) {
+
+      if(is.null(fill_gradient_midpoint)) {
+        fill_gradient_midpoint = stats::median(polygon_dt[['final_fill']])
+      }
+
+      pl = pl + ggplot2::scale_fill_gradient2(low = poly_fill_gradient[[1]],
+                                              mid = poly_fill_gradient[[2]],
+                                              high = poly_fill_gradient[[3]],
+                                              midpoint = fill_gradient_midpoint,
+                                              guide = guide_colorbar(title = ''))
+    }
+
+
   } else {
     pl = pl + ggplot2::geom_polygon(data = polygon_dt,
                                     ggplot2::aes_string(x = sdimx,
@@ -103,7 +136,14 @@ plot_feature_points_layer = function(ggobject,
                                              shape = shape),
                          size = point_size, show.legend = show_legend)
 
+
+
   if(!is.null(feats_color_code)) {
+    pl = pl + ggplot2::scale_color_manual(values = feats_color_code)
+  } else {
+    feats_names = unique(spatial_feat_info_subset[[color]])
+    feats_color_code = getDistinctColors(length(feats_names))
+    names(feats_color_code) = feats_names
     pl = pl + ggplot2::scale_color_manual(values = feats_color_code)
   }
 
@@ -129,6 +169,7 @@ plot_feature_points_layer = function(ggobject,
 #' @param polygon_bg_color color for polygon background (overruled by polygon_fill)
 #' @param polygon_fill fill color or column for polygon
 #' @param polygon_fill_as_factor is fill color a factor
+#' @param polygon_fill_code code to color the fill column
 #' @param polygon_alpha alpha of polygon
 #' @param polygon_line_size line width of the polygon's outline
 #' @param axis_text axis text size
@@ -160,7 +201,10 @@ spatInSituPlotPoints = function(gobject,
                                 polygon_color = 'black',
                                 polygon_bg_color = 'black',
                                 polygon_fill = NULL,
+                                polygon_fill_gradient = c('blue', 'white', 'red'),
+                                polygon_fill_gradient_midpoint =  NULL,
                                 polygon_fill_as_factor = NULL,
+                                polygon_fill_code = NULL,
                                 polygon_alpha = 0.5,
                                 polygon_line_size = 2,
                                 axis_text = 8,
@@ -177,7 +221,7 @@ spatInSituPlotPoints = function(gobject,
 
 
   if(is.null(feats)) {
-    stop('You need to select features (feats) and modify feature types (feat_type) if needed \n')
+    warning('You need to select features (feats) and modify feature types (feat_type) if you want to show individual features (e.g. transcripts) \n')
   }
 
 
@@ -216,7 +260,10 @@ spatInSituPlotPoints = function(gobject,
                                    sdimx = sdimx,
                                    sdimy = sdimy,
                                    fill = polygon_fill,
+                                   poly_fill_gradient = polygon_fill_gradient,
+                                   fill_gradient_midpoint = polygon_fill_gradient_midpoint,
                                    fill_as_factor = polygon_fill_as_factor,
+                                   fill_code = polygon_fill_code,
                                    bg_color = polygon_bg_color,
                                    color = polygon_color,
                                    alpha = polygon_alpha,
@@ -226,34 +273,39 @@ spatInSituPlotPoints = function(gobject,
 
 
   ## 2. plot features second
-  # use_overlap = TRUE will use the overlap results
-  # use_overlap = FALSE will use the raw tx coordinate results
-  if(use_overlap == TRUE) {
-    # TODO: check if overlap exists, if not print warning message and default to non-overlap results
-    spatial_feat_info = combineFeatureOverlapData(gobject = gobject,
-                                                  feat_type = feat_type,
-                                                  sel_feats = feats,
-                                                  poly_info = polygon_feat_type)
-  } else {
-    spatial_feat_info = combineFeatureData(gobject = gobject,
-                                           feat_type = feat_type,
-                                           sel_feats = feats)
+
+  if(!is.null(feats)) {
+    # use_overlap = TRUE will use the overlap results
+    # use_overlap = FALSE will use the raw tx coordinate results
+    if(use_overlap == TRUE) {
+      # TODO: check if overlap exists, if not print warning message and default to non-overlap results
+      spatial_feat_info = combineFeatureOverlapData(gobject = gobject,
+                                                    feat_type = feat_type,
+                                                    sel_feats = feats,
+                                                    poly_info = polygon_feat_type)
+    } else {
+      spatial_feat_info = combineFeatureData(gobject = gobject,
+                                             feat_type = feat_type,
+                                             sel_feats = feats)
+    }
+
+    spatial_feat_info = do.call('rbind', spatial_feat_info)
+
+    plot = plot_feature_points_layer(ggobject = plot,
+                                     spatial_feat_info = spatial_feat_info,
+                                     feats = feats,
+                                     feats_color_code = feats_color_code,
+                                     feat_shape_code = feat_shape_code,
+                                     sdimx = 'x',
+                                     sdimy = 'y',
+                                     color = 'feat_ID',
+                                     shape = 'feat',
+                                     point_size = point_size,
+                                     show_legend = show_legend,
+                                     plot_method = plot_method)
   }
 
-  spatial_feat_info = do.call('rbind', spatial_feat_info)
 
-  plot = plot_feature_points_layer(ggobject = plot,
-                                   spatial_feat_info = spatial_feat_info,
-                                   feats = feats,
-                                   feats_color_code = feats_color_code,
-                                   feat_shape_code = feat_shape_code,
-                                   sdimx = 'x',
-                                   sdimy = 'y',
-                                   color = 'feat_ID',
-                                   shape = 'feat',
-                                   point_size = point_size,
-                                   show_legend = show_legend,
-                                   plot_method = plot_method)
 
 
   ## 3. adjust theme settings
