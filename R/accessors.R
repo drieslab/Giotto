@@ -12,7 +12,7 @@
 #' @param feat_type feature type
 #' @param values expression values to extract
 #' @return expression matrix
-#' @keywords internal
+#' @export
 get_expression_values <- function(gobject,
                                   feat_type = 'rna',
                                   values) {
@@ -60,7 +60,7 @@ select_expression_values = function(...) {
 #' @param name name for the expression slot
 #' @param values expression values
 #' @return giotto object
-#' @keywords internals
+#' @export
 set_expression_values <- function(gobject,
                                   feat_type = 'rna',
                                   name = 'test',
@@ -94,7 +94,7 @@ set_expression_values <- function(gobject,
 #' @param gobject giotto object
 #' @param spat_loc_name name of spatial locations
 #' @return data.table with coordinates
-#' @keywords internal
+#' @export
 get_spatial_locations <- function(gobject,
                                   spat_loc_name = 'raw') {
 
@@ -147,7 +147,7 @@ select_spatial_locations = function(...) {
 #' @param spat_loc_name name of spatial locations
 #' @param spatlocs spatial locations
 #' @return giotto object
-#' @keywords internal
+#' @export
 set_spatial_locations <- function(gobject,
                                   spat_loc_name = 'raw',
                                   spatlocs) {
@@ -178,8 +178,8 @@ set_spatial_locations <- function(gobject,
 
 #' @name get_dimReduction
 #' @description function to get a dimension reduction object
-#' @keywords internal
 #' @return dim reduction coordinates (default) or dim reduction object
+#' @export
 get_dimReduction = function(gobject,
                             reduction = c('cells', 'genes'),
                             reduction_method = c('pca', 'umap', 'tsne'),
@@ -242,7 +242,7 @@ select_dimReduction = function(...) {
 #' @param name reduction name
 #' @param dimObject dimension object
 #' @return giotto object
-#' @keywords internal
+#' @export
 set_dimReduction <- function(gobject,
                              reduction = c('cells', 'genes'),
                              reduction_method = c('pca', 'umap', 'tsne'),
@@ -281,7 +281,7 @@ set_dimReduction <- function(gobject,
 #' @param network_name name of NN network to be used
 #' @param output return a igraph or data.table object
 #' @return igraph or data.table object
-#' @keywords internal
+#' @export
 get_NearestNetwork = function(gobject,
                               nn_network_to_use = 'sNN',
                               network_name = 'sNN.pca',
@@ -346,7 +346,7 @@ select_NearestNetwork = function(...) {
 #' @param network_name name of NN network to be used
 #' @param nn_network nearest network
 #' @return giotto object
-#' @keywords internal
+#' @export
 set_NearestNetwork = function(gobject,
                               nn_network_to_use = 'sNN',
                               network_name = 'sNN.pca',
@@ -382,7 +382,7 @@ set_NearestNetwork = function(gobject,
 #' @param gobject giotto object
 #' @param name name of spatial network
 #' @param return_network_Obj return network object (default = FALSE)
-#' @keywords internal
+#' @export
 get_spatialNetwork <- function(gobject,
                                name = NULL,
                                return_network_Obj = FALSE) {
@@ -425,7 +425,7 @@ select_spatialNetwork = function(...) {
 #' @param gobject giotto object
 #' @param name name of spatial network
 #' @param spatial_network spatial network
-#' @keywords internal
+#' @export
 set_spatialNetwork <- function(gobject,
                                name = NULL,
                                spatial_network) {
@@ -458,7 +458,7 @@ set_spatialNetwork <- function(gobject,
 #' @param gobject giotto object
 #' @param name name of spatial grid
 #' @param return_network_Obj return grid object (default = FALSE)
-#' @keywords internal
+#' @export
 get_spatialGrid <- function(gobject,
                             name = NULL,
                             return_grid_Obj = FALSE) {
@@ -501,7 +501,7 @@ select_spatialGrid = function(...) {
 #' @param gobject giotto object
 #' @param name name of spatial grid
 #' @param spatial_grid spatial grid
-#' @keywords internal
+#' @export
 set_spatialGrid <- function(gobject,
                             name = NULL,
                             spatial_grid) {
@@ -538,7 +538,7 @@ set_spatialGrid <- function(gobject,
 #' @param gobject giotto object
 #' @param polygon_name name of polygons
 #' @param polygon_overlap include polygon overlap information
-#' @keywords internal
+#' @export
 get_polygon_info = function(gobject,
                             polygon_name = 'cell',
                             polygon_overlap = NULL) {
@@ -586,7 +586,7 @@ select_polygon_info = function(...) {
 #' @param gobject giotto object
 #' @param polygon_name name of polygons
 #' @param gpolygon giotto polygon
-#' @keywords internal
+#' @export
 set_polygon_info = function(gobject,
                             polygon_name = 'cell',
                             gpolygon) {
@@ -619,7 +619,7 @@ set_polygon_info = function(gobject,
 #' @description  get giotto points spatVector
 #' @param gobject giotto object
 #' @param feat_name name of feature
-#' @keywords internal
+#' @export
 get_feature_info = function(gobject,
                                feat_name = 'rna') {
 
@@ -653,7 +653,7 @@ select_feature_info = function(...) {
 #' @param gobject giotto object
 #' @param feat_name name of feat
 #' @param gpolygon giotto polygon
-#' @keywords internal
+#' @export
 set_feature_info = function(gobject,
                             feat_name = 'cell',
                             gpolygon) {
@@ -687,7 +687,7 @@ set_feature_info = function(gobject,
 #' @param gobject giotto object
 #' @param enrichm_name name of spatial enrichment results
 #' @return data.table with fractions
-#' @keywords internal
+#' @export
 get_spatial_enrichment <- function(gobject,
                                    enrichm_name = 'DWLS') {
 
@@ -723,7 +723,7 @@ get_spatial_enrichment <- function(gobject,
 #' @param enrichm_name name of spatial enrichment results
 #' @param spatenrichment spatial enrichment results
 #' @return giotto object
-#' @keywords internal
+#' @export
 set_spatial_enrichment <- function(gobject,
                                    enrichm_name = 'enrichment',
                                    spatenrichment) {
@@ -907,14 +907,17 @@ showGiottoFeatInfo = function(gobject) {
 
 
 
-#' @title showNetworks
+
+
+#' @title showGiottoSpatNetworks
+#' @name showGiottoSpatNetworks
 #' @description Prints the available spatial networks that are attached to the Giotto object
 #' @param gobject a giotto object
 #' @param verbose verbosity of function#'
 #' @return vector
 #' @export
-showNetworks = function(gobject,
-                        verbose = TRUE) {
+showGiottoSpatNetworks = function(gobject,
+                                  verbose = TRUE) {
 
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
   g_network_names = names(gobject@spatial_network)
@@ -927,15 +930,28 @@ showNetworks = function(gobject,
   return(g_network_names)
 }
 
+#' @title showNetworks
+#' @name showNetworks
+#' @inheritDotParams showGiottoSpatNetworks
+#' @seealso \code{\link{showGiottoSpatNetworks}}
+#' @export
+showNetworks = function(...) {
 
-#' @title showGrids
+  .Deprecated(new = "showGiottoSpatNetworks")
+
+  showGiottoSpatNetworks(...)
+
+}
+
+#' @title showGiottoSpatGrids
+#' @name showGiottoSpatGrids
 #' @description Prints the available spatial grids that are attached to the Giotto object
 #' @param gobject a giotto object
 #' @param verbose verbosity of function#'
 #' @return vector
 #' @export
-showGrids = function(gobject,
-                     verbose = TRUE) {
+showGiottoSpatGrids = function(gobject,
+                               verbose = TRUE) {
 
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
   g_grid_names = names(gobject@spatial_grid)
@@ -948,7 +964,18 @@ showGrids = function(gobject,
   return(g_grid_names)
 }
 
+#' @title showGrids
+#' @name showGrids
+#' @inheritDotParams showGiottoSpatGrids
+#' @seealso \code{\link{showGiottoSpatGrids}}
+#' @export
+showGrids = function(...) {
 
+  .Deprecated(new = "showGiottoSpatGrids")
+
+  showGiottoSpatGrids(...)
+
+}
 
 
 

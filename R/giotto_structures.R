@@ -280,6 +280,7 @@ fix_multipart_geoms = function(spatVector) {
 
 ## segmMaskToPolygon
 
+#' @title createGiottoPolygonsFromMask
 #' @name createGiottoPolygonsFromMask
 #' @description Creates Giotto polygon object from a mask file (e.g. segmentation results)
 #' @param maskfile path to mask file
@@ -425,6 +426,7 @@ createGiottoPolygonsFromMask = function(maskfile,
 
 ## segmDfrToPolygon
 
+#' @title createGiottoPolygonsFromDfr
 #' @name createGiottoPolygonsFromDfr
 #' @description Creates Giotto polygon object from a structured dataframe-like object
 #' @param segmdfr data.frame-like object with polygon coordinate information (x, y, ID)
@@ -550,7 +552,7 @@ extract_polygon_list = function(polygonlist) {
 
 
 
-
+#' @title addGiottoPolygons
 #' @name addGiottoPolygons
 #' @description Adds Giotto polygon to an existing Giotto object
 #' @param gobject giotto object
@@ -678,7 +680,7 @@ spline_poly <- function(xy, vertices = 20, k = 3, ...) {
 }
 
 
-
+#' @title smoothGiottoPolygons
 #' @name smoothGiottoPolygons
 #' @description Smooths Giotto polygon object
 #' @param gpolygon giotto polygon object
@@ -834,7 +836,7 @@ create_spatvector_object_from_dfr = function(x) {
 
 # create Giotto points from data.frame or spatVector
 
-
+#' @title createGiottoPoints
 #' @name createGiottoPoints
 #' @description Creates Giotto point object from a structured dataframe-like object
 #' @param x spatVector or data.frame-like object with points coordinate information (x, y, feat ID)
@@ -908,7 +910,7 @@ dt_to_spatVector_points = function(dt,
 # add Giotto points object to existing Giotto object
 # cell IDs needs to match
 
-
+#' @title addGiottoPoints
 #' @name addGiottoPoints
 #' @description Adds Giotto points to an existing Giotto object
 #' @param gobject giotto object
@@ -1041,7 +1043,7 @@ extract_points_list = function(pointslist) {
 ## ** giotto structure functions ####
 
 
-
+#' @title addSpatialCentroidLocations
 #' @name addSpatialCentroidLocations
 #' @description Calculates the centroid locations for the giotto polygons
 #' @param gobject giotto object
@@ -1086,7 +1088,9 @@ addSpatialCentroidLocations = function(gobject,
 
 ## calculate overlap between cellular structures and features
 
-#' @name calculateOverlap
+
+#' @title calculateOverlapOLD
+#' @name calculateOverlapOLD
 #' @description calculate overlap between cellular structures (polygons) and features (points)
 #' @param gobject giotto object
 #' @param name_overlap name for the overlap results (default to feat_info parameter)
@@ -1096,15 +1100,15 @@ addSpatialCentroidLocations = function(gobject,
 #' @param y_step y-direction step to travel over the polygon landscape
 #' @param return_gobject return giotto object (default: TRUE)
 #' @return giotto object or spatVector with overlapping information
-#' @keywords overlap
+#' @keywords calculateOverlapOLD
 #' @export
-calculateOverlap = function(gobject,
-                            poly_info = 'cell',
-                            feat_info = 'rna',
-                            x_step = 200,
-                            y_step = 200,
-                            return_gobject = TRUE,
-                            name_overlap = NULL) {
+calculateOverlapOLD = function(gobject,
+                               poly_info = 'cell',
+                               feat_info = 'rna',
+                               x_step = 200,
+                               y_step = 200,
+                               return_gobject = TRUE,
+                               name_overlap = NULL) {
 
 
   polvec = gobject@spatial_info[[poly_info]]@spatVector
@@ -1145,7 +1149,7 @@ calculateOverlap = function(gobject,
 
     crop_polvec = terra::crop(x = polvec,
                               y = terra::ext(dt_steps[row]$xmin, dt_steps[row]$xmax,
-                                      dt_steps[row]$ymin, dt_steps[row]$ymax))
+                                             dt_steps[row]$ymin, dt_steps[row]$ymax))
 
 
     ## only continue if crop_polvec overlaps at least one polygon
@@ -1208,9 +1212,200 @@ calculateOverlap = function(gobject,
 }
 
 
+#' @name intersect_giotto
+#' @description  giotto extension for terra::intersect()
+#' @keywords internal
+intersect_giotto = function(polvec,
+                            pointsvec,
+                            select_poly_IDs,
+                            verbose = FALSE) {
+
+  if(!is.null(select_poly_IDs)) {
+    ## create subset based on selected cell IDs
+    subpolvec = terra::subset(polvec, polvec$poly_ID %in% select_poly_IDs)
+    subpolvecDT = spatVector_to_dt(subpolvec)
+
+    ## subset points based on range of selected cell IDs polygons
+    range_x = range(subpolvecDT$x)
+    range_y = range(subpolvecDT$y)
+
+    pointsvecDT = spatVector_to_dt(pointsvec)
+    bool_filter = pointsvecDT$x > range_x[1] & pointsvecDT$x < range_x[2] & pointsvecDT$y > range_y[1] & pointsvecDT$y < range_y[2]
+    subpointsvec = pointsvec[bool_filter]
+
+    if(length(subpointsvec) > 0) {
+
+      if(verbose == TRUE) {
+        cat('subpolvec ', nrow(subpolvec), '\n')
+        cat('subpointsvec ', nrow(subpointsvec), '\n')
+      }
+
+      subtestsect = terra::intersect(x = subpolvec, y = subpointsvec)
+    }
+  } else {
+    return(NULL)
+  }
+
+}
+
+
+#' @name intersect_giotto_multi
+#' @description to serialize or parallelize intersect_giotto
+#' @keywords internal
+intersect_giotto_multi = function(polvec,
+                                  method = c('parallel', 'serial'),
+                                  pointsvec,
+                                  list_poly_IDs,
+                                  verbose = FALSE) {
+
+  method = match.arg(method, choices = c('parallel', 'serial'))
+
+  if(method == 'serial') {
+    intersect_list = list()
+    for(i in 1:length(list_poly_IDs)) {
+
+      intersect_results = intersect_giotto(polvec = polvec,
+                                           pointsvec = pointsvec,
+                                           select_poly_IDs = list_poly_IDs[[i]],
+                                           verbose = verbose)
+      intersect_list[[i]] = intersect_results
+    }
+    final_result = do.call('c', intersect_list)
+  }
 
 
 
+  if(method == 'parallel') {
+
+    # does not work with plan(multisession),
+    # should work with plan(multicore) if supported
+
+    # maybe multicore might work (not in Rstudio)
+
+    # multiple pointvectors can be wrapped (stored in memory)
+    # and be unwrapped in parallel, will take a lot of extra memory
+    # polvec_pack_i = terra::pack(polvec_i)
+    # polvec_i = terra::vect(polvec_pack_i)
+
+
+    intersect_list = lapply_flex(X = 1:length(list_poly_IDs),
+
+                                 FUN = function(x) {
+
+                                   intersect_giotto(polvec = polvec,
+                                                    pointsvec = pointsvec,
+                                                    select_poly_IDs = list_poly_IDs[[x]],
+                                                    verbose = FALSE)
+                                 })
+
+    final_result = do.call('c', intersect_list)
+  }
+  return(final_result)
+}
+
+
+
+#' @title calculateOverlap
+#' @name calculateOverlap
+#' @description calculate overlap between cellular structures (polygons) and features (points)
+#' @param gobject giotto object
+#' @param name_overlap name for the overlap results (default to feat_info parameter)
+#' @param poly_info polygon information
+#' @param feat_info feature information
+#' @param x_step x-direction step to travel over the polygon landscape
+#' @param y_step y-direction step to travel over the polygon landscape
+#' @param method serial of parallel execution (see details)
+#' @param return_gobject return giotto object (default: TRUE)
+#' @param verbose be verbose
+#' @return giotto object or spatVector with overlapping information
+#' @details parallel follows the future approach. This means that plan(multisession) does not work,
+#' since the underlying terra objects are internal C pointers. plan(multicore) is also not supported for
+#' Rstudio users.
+#' @keywords overlap
+#' @export
+calculateOverlap = function(gobject,
+                            name_overlap = NULL,
+                            poly_info = 'cell',
+                            feat_info = 'rna',
+                            x_step = 200,
+                            y_step = 200,
+                            method = c('serial', 'parallel'),
+                            return_gobject = TRUE,
+                            verbose = TRUE) {
+
+
+  polvec = gobject@spatial_info[[poly_info]]@spatVector
+  pointsvec = gobject@feat_info[[feat_info]]@spatVector
+
+  ## 1. compute windows to look for overlap
+  ## create data.table with x and y beginnings and ends
+  myext = terra::ext(polvec)
+  range_x = terra::xmax(myext) - terra::xmin(myext)
+  range_y = terra::ymax(myext) - terra::ymin(myext)
+
+  xrep = ceiling(range_x / x_step)
+  yrep = ceiling(range_y / y_step)
+
+  start_x = terra::xmin(myext)
+  end_x = start_x + (xrep * x_step)
+
+  start_y = terra::ymin(myext)
+  end_y = start_y + (yrep * y_step)
+
+  dt_steps = data.table::data.table(xmin = rep(seq(start_x, end_x, x_step), yrep),
+                                    xmax = rep(seq(x_step, (end_x+x_step), x_step), yrep),
+                                    ymin = rep(seq(start_y, end_y, y_step), each = xrep),
+                                    ymax = rep(seq(y_step, (end_y+y_step), y_step), each = xrep))
+
+  print(dt_steps)
+
+
+  ## 2. get poly ids for all tiles
+  list_ids = list()
+  used_ids = list()
+
+  for(row in  1:nrow(dt_steps)) {
+    crop_polvec = terra::crop(x = polvec,
+                              y = terra::ext(dt_steps[row]$xmin, dt_steps[row]$xmax,
+                                             dt_steps[row]$ymin, dt_steps[row]$ymax))
+    if(length(crop_polvec) > 0) {
+      row_ids = crop_polvec$poly_ID
+      row_ids = row_ids[!row_ids %in% used_ids]
+      list_ids[[row]] = row_ids
+      used_ids = unique(unlist(list_ids))
+    }
+  }
+  bool_vec = unlist(lapply(list_ids, is.null))
+  list_ids = list_ids[!bool_vec]
+
+
+  method = match.arg(arg = method, choices = c('serial', 'parallel'))
+
+  final_result = intersect_giotto_multi(polvec = polvec,
+                                        method = method,
+                                        pointsvec = pointsvec,
+                                        list_poly_IDs = list_ids,
+                                        verbose = verbose)
+
+  if(return_gobject == TRUE) {
+
+    if(is.null(name_overlap)) {
+      name_overlap = feat_info
+    }
+
+    gobject@spatial_info[[poly_info]]@overlaps[[name_overlap]] = final_result
+    return(gobject)
+
+  } else {
+    return(final_result)
+  }
+
+}
+
+
+
+
+#' @title overlapToMatrix
 #' @name overlapToMatrix
 #' @description create a count matrix based on overlap results from \code{\link{calculateOverlap}}
 #' @param gobject giotto object
@@ -1278,7 +1473,7 @@ overlapToMatrix = function(gobject,
 
 
 
-
+#' @title combineCellData
 #' @name combineCellData
 #' @description combine cell data information
 #' @param gobject giotto object
@@ -1368,6 +1563,7 @@ combineCellData = function(gobject,
 }
 
 
+#' @title combineFeatureData
 #' @name combineFeatureData
 #' @description combine feature data information
 #' @param gobject giotto object
@@ -1422,7 +1618,7 @@ combineFeatureData = function(gobject,
 }
 
 
-
+#' @title combineFeatureOverlapData
 #' @name combineFeatureOverlapData
 #' @description combine feature data information
 #' @param gobject giotto object

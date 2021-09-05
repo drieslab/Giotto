@@ -4,16 +4,19 @@
 \alias{showGrids}
 \title{showGrids}
 \usage{
-showGrids(gobject, verbose = TRUE)
+showGrids(...)
 }
 \arguments{
-\item{gobject}{a giotto object}
-
-\item{verbose}{verbosity of function#'}
-}
-\value{
-vector
+\item{...}{
+  Arguments passed on to \code{\link[=showGiottoSpatGrids]{showGiottoSpatGrids}}
+  \describe{
+    \item{\code{gobject}}{a giotto object}
+    \item{\code{verbose}}{verbosity of function#'}
+  }}
 }
 \description{
-Prints the available spatial grids that are attached to the Giotto object
+showGrids
+}
+\seealso{
+\code{\link{showGiottoSpatGrids}}
 }

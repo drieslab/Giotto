@@ -4,16 +4,19 @@
 \alias{showNetworks}
 \title{showNetworks}
 \usage{
-showNetworks(gobject, verbose = TRUE)
+showNetworks(...)
 }
 \arguments{
-\item{gobject}{a giotto object}
-
-\item{verbose}{verbosity of function#'}
-}
-\value{
-vector
+\item{...}{
+  Arguments passed on to \code{\link[=showGiottoSpatNetworks]{showGiottoSpatNetworks}}
+  \describe{
+    \item{\code{gobject}}{a giotto object}
+    \item{\code{verbose}}{verbosity of function#'}
+  }}
 }
 \description{
-Prints the available spatial networks that are attached to the Giotto object
+showNetworks
+}
+\seealso{
+\code{\link{showGiottoSpatNetworks}}
 }
