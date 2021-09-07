@@ -1220,6 +1220,7 @@ intersect_giotto = function(polvec,
                             select_poly_IDs,
                             verbose = FALSE) {
 
+
   if(!is.null(select_poly_IDs)) {
     ## create subset based on selected cell IDs
     subpolvec = terra::subset(polvec, polvec$poly_ID %in% select_poly_IDs)
@@ -1284,7 +1285,7 @@ intersect_giotto_multi = function(polvec,
 
     # multiple pointvectors can be wrapped (stored in memory)
     # and be unwrapped in parallel, will take a lot of extra memory
-    # polvec_pack_i = terra::pack(polvec_i)
+    # polvec_pack_i = terra::wrap(polvec_i)
     # polvec_i = terra::vect(polvec_pack_i)
 
 
@@ -1302,6 +1303,60 @@ intersect_giotto_multi = function(polvec,
   }
   return(final_result)
 }
+
+
+#' @name unwrap_intersect
+#' @description unwrap wrapped terra object, intersect and wrap result again
+#' @keywords internal
+unwrap_intersect = function(wrap_polvec,
+                            wrap_pointsvec) {
+
+  # first unpack / unwrap
+  unwrap_polvec = terra::vect(wrap_polvec)
+  unwrap_pointsvec = terra::vect(wrap_pointsvec)
+
+  # run intersect
+
+  if(length(unwrap_polvec) > 0 & length(unwrap_pointsvec) > 0) {
+    intersect_res = terra::intersect(x = unwrap_polvec, y = unwrap_pointsvec)
+    return(terra::wrap(intersect_res))
+  } else {
+    return(NULL)
+  }
+}
+
+
+#' @name parallel_intersect
+#' @description run parallel intersect on wrapped terra objects
+#' @keywords internal
+parallel_intersect = function(wrap_polvec_list,
+                              wrap_pointsvec_list,
+                              future.seed = TRUE) {
+
+
+  # first intersect in parallel on wrapped terra objects
+  result1 = lapply_flex(1:length(wrap_polvec_list),
+                        future.seed = future.seed,
+
+                        FUN = function(x) {
+    test = unwrap_intersect(wrap_polvec = wrap_polvec_list[[x]],
+                            wrap_pointsvec = wrap_pointsvec_list[[x]])
+  })
+
+  # unwrap the intersect terra object
+  result2 = lapply(X = 1:length(result1), FUN = function(x) {
+
+    terra::vect(result1[x][[1]])
+
+  })
+
+  # combine all terra objects
+  result_final =  do.call('c', result2)
+
+  return(result_final)
+
+}
+
 
 
 
@@ -1379,13 +1434,52 @@ calculateOverlap = function(gobject,
   list_ids = list_ids[!bool_vec]
 
 
+
+
   method = match.arg(arg = method, choices = c('serial', 'parallel'))
 
-  final_result = intersect_giotto_multi(polvec = polvec,
-                                        method = method,
-                                        pointsvec = pointsvec,
-                                        list_poly_IDs = list_ids,
-                                        verbose = verbose)
+
+  if(method == 'parallel') {
+
+    wrap_polvec_list = list()
+    wrap_pointsvec_list = list()
+
+    for(i in 1:length(list_ids)) {
+
+      select_poly_IDs = list_ids[[i]]
+
+      subpolvec = terra::subset(polvec, polvec$poly_ID %in% select_poly_IDs)
+      subpolvecDT = spatVector_to_dt(subpolvec)
+
+      ## subset points based on range of selected cell IDs polygons
+      range_x = range(subpolvecDT$x)
+      range_y = range(subpolvecDT$y)
+
+      pointsvecDT = spatVector_to_dt(pointsvec)
+      bool_filter = pointsvecDT$x > range_x[1] & pointsvecDT$x < range_x[2] & pointsvecDT$y > range_y[1] & pointsvecDT$y < range_y[2]
+      subpointsvec = pointsvec[bool_filter]
+
+      wrap_polvec_list[[i]] = terra::wrap(subpolvec)
+      wrap_pointsvec_list[[i]] = terra::wrap(subpointsvec)
+
+    }
+
+    final_result = parallel_intersect(wrap_polvec_list = wrap_polvec_list,
+                                      wrap_pointsvec_list = wrap_pointsvec_list)
+
+
+
+  } else {
+
+    final_result = intersect_giotto_multi(polvec = polvec,
+                                          method = method,
+                                          pointsvec = pointsvec,
+                                          list_poly_IDs = list_ids,
+                                          verbose = verbose)
+
+  }
+
+
 
   if(return_gobject == TRUE) {
 
