@@ -446,12 +446,15 @@ createGiottoPolygonsFromDfr = function(segmdfr,
   colnames(input_dt) = c('x', 'y', 'poly_ID')
 
 
+  # add other colnames for the input data.table
   nr_of_cells_vec = 1:length(unique(input_dt$poly_ID))
   names(nr_of_cells_vec) = unique(input_dt$poly_ID)
+  new_vec = nr_of_cells_vec[as.character(input_dt$poly_ID)]
+  input_dt[, geom := new_vec]
 
-  # add other colnaes for the input data.table
-  input_dt[, geom := nr_of_cells_vec[[get('poly_ID')]] , by = 1:nrow(input_dt)]
+  #input_dt[, geom := nr_of_cells_vec[[get('poly_ID')]] , by = 1:nrow(input_dt)]
   #input_dt[, mask := nr_of_cells_vec[[get('poly_ID')]], by = 1:nrow(input_dt)]
+
   input_dt[, c('part', 'hole') := list(1, 0)]
   input_dt = input_dt[, c('geom', 'part', 'x', 'y', 'hole', 'poly_ID'), with =F]
 
