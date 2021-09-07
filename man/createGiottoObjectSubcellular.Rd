@@ -7,6 +7,8 @@
 createGiottoObjectSubcellular(
   gpoints = NULL,
   gpolygons = NULL,
+  polygon_mask_list_params = NA,
+  polygon_dfr_list_params = NA,
   cell_metadata = NULL,
   feat_metadata = NULL,
   spatial_network = NULL,
@@ -27,6 +29,10 @@ createGiottoObjectSubcellular(
 \item{gpoints}{giotto points}
 
 \item{gpolygons}{giotto polygons}
+
+\item{polygon_mask_list_params}{list parameters for \code{\link{createGiottoPolygonsFromMask}}}
+
+\item{polygon_dfr_list_params}{list parameters for \code{\link{createGiottoPolygonsFromDfr}}}
 
 \item{cell_metadata}{cell annotation metadata}
 

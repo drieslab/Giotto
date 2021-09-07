@@ -10,6 +10,7 @@ createGiottoPolygonsFromMask(
   name = "cell",
   remove_background_polygon = FALSE,
   background_algo = c("range"),
+  fill_holes = TRUE,
   poly_IDs = NULL,
   flip_vertical = TRUE,
   shift_vertical_step = TRUE,
@@ -27,6 +28,8 @@ createGiottoPolygonsFromMask(
 \item{remove_background_polygon}{try to remove background polygon (default: FALSE)}
 
 \item{background_algo}{algorithm to remove background polygon}
+
+\item{fill_holes}{fill holes within created polygons}
 
 \item{poly_IDs}{unique nanes for each polygon in the mask file}
 
