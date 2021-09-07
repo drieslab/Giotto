@@ -287,6 +287,7 @@ fix_multipart_geoms = function(spatVector) {
 #' @param name name for polygons
 #' @param remove_background_polygon try to remove background polygon (default: FALSE)
 #' @param background_algo algorithm to remove background polygon
+#' @param fill_holes fill holes within created polygons
 #' @param poly_IDs unique nanes for each polygon in the mask file
 #' @param flip_vertical flip mask figure in a vertical manner
 #' @param shift_vertical_step shift vertical (boolean or numerical)
@@ -302,6 +303,7 @@ createGiottoPolygonsFromMask = function(maskfile,
                                         name = 'cell',
                                         remove_background_polygon = FALSE,
                                         background_algo = c('range'),
+                                        fill_holes = TRUE,
                                         poly_IDs = NULL,
                                         flip_vertical = TRUE,
                                         shift_vertical_step = TRUE,
@@ -327,6 +329,9 @@ createGiottoPolygonsFromMask = function(maskfile,
   terra_rast = terra::rast(maskfile)
   rast_dimensions = dim(terra_rast)
   terra_polygon = terra::as.polygons(x = terra_rast, value = TRUE)
+  if(fill_holes == TRUE) {
+    terra_polygon = terra::fillHoles(terra_polygon)
+  }
   spatVecDT = spatVector_to_dt(terra_polygon)
 
   # guess mask method
@@ -387,9 +392,10 @@ createGiottoPolygonsFromMask = function(maskfile,
 
     if(background_algo == 'range') {
       backgr_poly_id = identify_background_range_polygons(terra_polygon)
+      print(backgr_poly_id)
     }
 
-    terra_polygon = terra::subset(x = terra_polygon, terra_polygon[['polyID']] != backgr_poly_id)
+    terra_polygon = terra::subset(x = terra_polygon, terra_polygon[['poly_ID']] != backgr_poly_id)
 
   }
 
@@ -445,6 +451,9 @@ createGiottoPolygonsFromDfr = function(segmdfr,
   input_dt = segmdt[,c(1:3), with = F]
   colnames(input_dt) = c('x', 'y', 'poly_ID')
 
+  #pl = ggplot()
+  #pl = pl + geom_polygon(data = input_dt[100000:200000], aes(x = x, y = y, group = poly_ID))
+  #print(pl)
 
   # add other colnames for the input data.table
   nr_of_cells_vec = 1:length(unique(input_dt$poly_ID))
@@ -452,15 +461,26 @@ createGiottoPolygonsFromDfr = function(segmdfr,
   new_vec = nr_of_cells_vec[as.character(input_dt$poly_ID)]
   input_dt[, geom := new_vec]
 
-  #input_dt[, geom := nr_of_cells_vec[[get('poly_ID')]] , by = 1:nrow(input_dt)]
-  #input_dt[, mask := nr_of_cells_vec[[get('poly_ID')]], by = 1:nrow(input_dt)]
-
   input_dt[, c('part', 'hole') := list(1, 0)]
   input_dt = input_dt[, c('geom', 'part', 'x', 'y', 'hole', 'poly_ID'), with =F]
+
+
+  #pl = ggplot()
+  ##pl = pl + geom_polygon(data = input_dt[100000:200000], aes(x = x, y = y, group = geom))
+  #print(pl)
+
+
 
   # create spatvector
   spatvector = dt_to_spatVector_polygon(input_dt,
                                         include_values = TRUE)
+
+  hopla = spatVector_to_dt(spatvector)
+
+  #pl = ggplot()
+  #pl = pl + geom_polygon(data = hopla[100000:200000], aes(x = x, y = y, group = geom))
+  #print(pl)
+
 
 
   g_polygon = create_giotto_polygon_object(name = name,
@@ -484,7 +504,9 @@ createGiottoPolygonsFromDfr = function(segmdfr,
 #' @name fix_multipart_geoms
 #' @description  to extract list of polygons
 #' @keywords internal
-extract_polygon_list = function(polygonlist) {
+extract_polygon_list = function(polygonlist,
+                                polygon_mask_list_params,
+                                polygon_dfr_list_params) {
 
   # if polygonlist is not a names list
   # try to make list and give default names
@@ -526,14 +548,21 @@ extract_polygon_list = function(polygonlist) {
     polyinfo = polygonlist[[poly_i]]
 
     if(is.character(polyinfo)) {
+      poly_results = do.call('createGiottoPolygonsFromMask', c(name = name_polyinfo,
+                                                               maskfile = polyinfo,
+                                                               polygon_mask_list_params))
 
-      poly_results = createGiottoPolygonsFromMask(name = name_polyinfo,
-                                                  maskfile = polyinfo)
+      #poly_results = createGiottoPolygonsFromMask(name = name_polyinfo,
+      #                                            maskfile = polyinfo)
 
     } else if(inherits(polyinfo, 'data.frame')) {
 
-      poly_results = createGiottoPolygonsFromDfr(name = 'cell',
-                                                 segmdfr = polyinfo)
+      poly_results = do.call('createGiottoPolygonsFromDfr', c(name = name_polyinfo,
+                                                              segmdfr = polyinfo,
+                                                              polygon_dfr_list_params))
+
+      #poly_results = createGiottoPolygonsFromDfr(name = 'cell',
+      #                                           segmdfr = polyinfo)
 
     } else if(inherits(polyinfo, 'giottoPolygon')) {
 
@@ -1348,18 +1377,21 @@ parallel_intersect = function(wrap_polvec_list,
 
   # unwrap the intersect terra object
   result2 = lapply(X = 1:length(result1), FUN = function(x) {
-
     terra::vect(result1[x][[1]])
-
   })
 
-  # combine all terra objects
-  result_final =  do.call('c', result2)
+  final_vect = terra::vect()
+  print(length(result2))
+  for(i in 1:length(result2)) {
+    final_vect = rbind(final_vect, result2[[i]])
+  }
 
-  return(result_final)
+  # combine all terra objects
+  # result_final =  do.call('c', result2)
+
+  return(final_vect)
 
 }
-
 
 
 

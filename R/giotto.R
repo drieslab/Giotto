@@ -1854,6 +1854,8 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 #' @description Function to create a giotto object starting from subcellular polygon (e.g. cell) and points (e.g. transcripts) information
 #' @param gpoints giotto points
 #' @param gpolygons giotto polygons
+#' @param polygon_mask_list_params list parameters for \code{\link{createGiottoPolygonsFromMask}}
+#' @param polygon_dfr_list_params list parameters for \code{\link{createGiottoPolygonsFromDfr}}
 #' @param cell_metadata cell annotation metadata
 #' @param feat_metadata feature annotation metadata for each unique feature
 #' @param spatial_network list of spatial network(s)
@@ -1873,6 +1875,8 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 #' @export
 createGiottoObjectSubcellular = function(gpoints = NULL,
                                          gpolygons = NULL,
+                                         polygon_mask_list_params = NA,
+                                         polygon_dfr_list_params = NA,
                                          cell_metadata = NULL,
                                          feat_metadata = NULL,
                                          spatial_network = NULL,
@@ -1929,7 +1933,29 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
 
   ## extract polygon information ##
   ## --------------------------- ##
-  polygon_res = extract_polygon_list(polygonlist = gpolygons)
+
+  if(is.na(polygon_mask_list_params)) {
+    polygon_mask_list_params = list(mask_method = 'guess',
+                                    remove_background_polygon = TRUE,
+                                    background_algo = c('range'),
+                                    fill_holes = TRUE,
+                                    poly_IDs = NULL,
+                                    flip_vertical = TRUE,
+                                    shift_vertical_step = TRUE,
+                                    flip_horizontal = TRUE,
+                                    shift_horizontal_step = TRUE,
+                                    calc_centroids = FALSE,
+                                    fix_multipart = TRUE)
+  }
+
+  if(is.na(polygon_dfr_list_params)) {
+    polygon_dfr_list_params = list(calc_centroids = FALSE)
+  }
+
+
+  polygon_res = extract_polygon_list(polygonlist = gpolygons,
+                                     polygon_mask_list_params = polygon_mask_list_params,
+                                     polygon_dfr_list_params = polygon_dfr_list_params)
   gobject@spatial_info = polygon_res
 
   ## cell ID ##
