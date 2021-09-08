@@ -7,8 +7,9 @@
 getSpatialDataset(
   dataset = c("ST_OB1", "ST_OB2", "codex_spleen", "cycif_PDAC", "starmap_3D_cortex",
     "osmfish_SS_cortex", "merfish_preoptic", "seqfish_SS_cortex", "seqfish_OB",
-    "slideseq_cerebellum"),
+    "slideseq_cerebellum", "ST_SCC"),
   directory = getwd(),
+  verbose = TRUE,
   ...
 )
 }
@@ -16,6 +17,8 @@ getSpatialDataset(
 \item{dataset}{dataset to download}
 
 \item{directory}{directory to save the data to}
+
+\item{verbose}{be verbose}
 
 \item{\dots}{additional parameters to \code{\link[utils]{download.file}}}
 }

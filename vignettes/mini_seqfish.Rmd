@@ -48,7 +48,7 @@ minimum requirements:
 
 ```{r eval=FALSE}
 # giotto object 
-expr_path = system.file("extdata", "seqfish_field_expr.txt", package = 'Giotto')
+expr_path = system.file("extdata", "seqfish_field_expr.txt.gz", package = 'Giotto')
 loc_path = system.file("extdata", "seqfish_field_locs.txt", package = 'Giotto')
 seqfish_mini <- createGiottoObject(raw_exprs = expr_path,
                                    spatial_locs = loc_path,
@@ -373,6 +373,7 @@ seqfish_mini = addCellIntMetadata(seqfish_mini,
 spatPlot(seqfish_mini, cell_color = 'D_F_interactions', legend_symbol_size = 3,
          select_cell_groups =  c('other_cell D', 'other_cell F', 'select_cell D', 'select_cell F'))
 ```
+
 
 
 ### 13. cell neighborhood: interaction changed genes

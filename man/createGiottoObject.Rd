@@ -72,6 +72,8 @@ giotto object
 Function to create a giotto object
 }
 \details{
+See \url{https://rubd.github.io/Giotto_site/articles/howto_giotto_class.html} for more details
+
 [\strong{Requirements}] To create a giotto object you need to provide at least a matrix with genes as
 row names and cells as column names. This matrix can be provided as a base matrix, sparse Matrix, data.frame,
 data.table or as a path to any of those.
@@ -98,7 +100,7 @@ This data can also be added afterwards using the \code{\link{addGeneMetadata}} o
   \item{spatial networks}
   \item{spatial girds}
   \item{spatial enrichments}
-  \item{dimensions reductions}
+  \item{dimensions reduction}
   \item{nearest neighbours networks}
   \item{images}
 }

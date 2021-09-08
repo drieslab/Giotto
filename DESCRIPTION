@@ -1,6 +1,6 @@
 Package: Giotto
 Title: Spatial Single-Cell Transcriptomics Toolbox
-Version: 1.0.3
+Version: 1.0.4.01
 Authors@R: c(
 	person("Ruben", "Dries", email = "rubendries@gmail.com",
 		 role = c("aut", "cre")),
@@ -15,7 +15,7 @@ Authors@R: c(
 	)
 Maintainer: Ruben Dries <rubendries@gmail.com>
 Description: Toolbox to process, analyze and visualize spatial single-cell expression data.
-License: GPL-3 | file LICENSE
+License: MIT | file LICENSE
 Encoding: UTF-8
 LazyData: true
 URL: https://rubd.github.io/Giotto/, https://github.com/RubD/Giotto
@@ -90,6 +90,3 @@ Suggests:
     trendsceek
 biocViews:
 VignetteBuilder: knitr
-LinkingTo: 
-    Rcpp,
-    RcppArmadillo

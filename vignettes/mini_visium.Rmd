@@ -46,7 +46,7 @@ minimum requirements:
 
 ```{r eval=FALSE}
 # giotto object 
-expr_path = system.file("extdata", "visium_DG_expr.txt", package = 'Giotto')
+expr_path = system.file("extdata", "visium_DG_expr.txt.gz", package = 'Giotto')
 loc_path = system.file("extdata", "visium_DG_locs.txt", package = 'Giotto')
 mini_visium <- createGiottoObject(raw_exprs = expr_path,
                                    spatial_locs = loc_path,
@@ -145,6 +145,8 @@ plotTSNE(gobject = mini_visium)
 ```{r eval=FALSE}
 mini_visium <- createNearestNetwork(gobject = mini_visium, dimensions_to_use = 1:10, k = 15)
 mini_visium <- doLeidenCluster(gobject = mini_visium, resolution = 0.4, n_iterations = 1000)
+
+pDataDT(mini_visium)
 
 # visualize UMAP cluster results
 plotUMAP(gobject = mini_visium, cell_color = 'leiden_clus', show_NN_network = T, point_size = 2.5)

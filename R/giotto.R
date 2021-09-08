@@ -22,8 +22,6 @@
 #' @slot instructions slot for global function instructions
 #' @slot offset_file offset file used to stitch together image fields
 #' @slot OS_platform Operating System to run Giotto analysis on
-#' @useDynLib Giotto
-#' @importFrom Rcpp sourceCpp
 #' @export
 giotto <- setClass(
   "giotto",
@@ -550,7 +548,7 @@ evaluate_expr_matrix = function(inputmatrix,
                                                 colnames(inputmatrix[,-1])))
     }
 
-  } else if(class(inputmatrix) %in% c('data.frame', 'matrix')) {
+  } else if(inherits(inputmatrix, what = c('data.frame', 'matrix'))) {
     mymatrix = methods::as(as.matrix(inputmatrix), "sparseMatrix")
   } else {
     stop("raw_exprs needs to be a path or an object of class 'Matrix', 'data.table', 'data.frame' or 'matrix'")
@@ -664,6 +662,9 @@ evaluate_spatial_locations = function(spatial_locs,
 #' @param cores how many cores or threads to use to read data if paths are provided
 #' @return giotto object
 #' @details
+#'
+#' See \url{https://rubd.github.io/Giotto_site/articles/howto_giotto_class.html} for more details
+#'
 #' [\strong{Requirements}] To create a giotto object you need to provide at least a matrix with genes as
 #' row names and cells as column names. This matrix can be provided as a base matrix, sparse Matrix, data.frame,
 #' data.table or as a path to any of those.
@@ -690,7 +691,7 @@ evaluate_spatial_locations = function(spatial_locs,
 #'   \item{spatial networks}
 #'   \item{spatial girds}
 #'   \item{spatial enrichments}
-#'   \item{dimensions reductions}
+#'   \item{dimensions reduction}
 #'   \item{nearest neighbours networks}
 #'   \item{images}
 #' }

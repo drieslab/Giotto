@@ -215,17 +215,17 @@ logNorm_giotto = function(mymatrix, base, offset) {
 #'
 pDataDT <- function(gobject) {
 
-  if(!class(gobject) %in% c('ExpressionSet', 'SCESet', 'seurat', 'giotto')) {
+  if(!inherits(gobject, c('ExpressionSet', 'SCESet', 'seurat', 'giotto'))) {
     stop('only works with ExpressionSet (-like) objects')
   }
 
-  if(class(gobject) %in% c('ExpressionSet', 'SCESet')) {
+  if(inherits(gobject, c('ExpressionSet', 'SCESet'))) {
     return(data.table::as.data.table(Biobase::pData(gobject)))
   }
-  else if(class(gobject) == 'giotto') {
+  else if(inherits(gobject, 'giotto')) {
     return(gobject@cell_metadata)
   }
-  else if(class(gobject) == 'seurat') {
+  else if(inherits(gobject, 'seurat')) {
     return(data.table::as.data.table(gobject@meta.data))
   }
 
@@ -243,10 +243,10 @@ pDataDT <- function(gobject) {
 #'
 fDataDT <- function(gobject) {
 
-  if(!class(gobject) %in% c('ExpressionSet', 'SCESet', 'giotto')) {
+  if(!inherits(gobject, c('ExpressionSet', 'SCESet', 'giotto'))) {
     stop('only works with ExpressionSet (-like) objects')
   }
-  else if(class(gobject) == 'giotto') {
+  else if(inherits(gobject,'giotto')) {
     return(gobject@gene_metadata)
   }
   return(data.table::as.data.table(Biobase::fData(gobject)))
@@ -1092,23 +1092,33 @@ normalizeGiotto <- function(gobject,
       if(scale_order == 'first_genes') {
         if(verbose == TRUE) cat('\n first scale genes and then cells \n')
         if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
-        norm_scaled_expr = armaScaleRow(Z = norm_expr)
-        norm_scaled_expr = armaScaleCol(Z = norm_scaled_expr)
+        #norm_scaled_expr = armaScaleRow(Z = norm_expr)
+        norm_scaled_expr = t(Rfast::standardise(x = t(norm_expr), center = TRUE, scale = TRUE))
+
+        #norm_scaled_expr = armaScaleCol(Z = norm_scaled_expr)
+        norm_scaled_expr = Rfast::standardise(x = norm_scaled_expr, center = TRUE, scale = TRUE)
       } else if(scale_order == 'first_cells') {
         if(verbose == TRUE) cat('\n first scale cells and then genes \n')
         if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
-        norm_scaled_expr = armaScaleCol(Z = norm_expr)
-        norm_scaled_expr = armaScaleRow(Z = norm_scaled_expr)
+        #norm_scaled_expr = armaScaleCol(Z = norm_expr)
+        norm_scaled_expr = Rfast::standardise(x = norm_expr, center = TRUE, scale = TRUE)
+
+        #norm_scaled_expr = armaScaleRow(Z = norm_scaled_expr)
+        norm_scaled_expr = t(Rfast::standardise(x = t(norm_scaled_expr), center = TRUE, scale = TRUE))
       } else {
         stop('\n scale order must be given \n')
       }
 
     } else if(scale_genes == TRUE) {
       if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
-      norm_scaled_expr = armaScaleRow(Z = norm_expr)
+      #norm_scaled_expr = armaScaleRow(Z = norm_expr)
+      norm_scaled_expr = t(Rfast::standardise(x = t(norm_expr), center = TRUE, scale = TRUE))
+
     } else if(scale_cells == TRUE) {
       if(!methods::is(norm_expr, class2 = 'matrix')) norm_expr = as.matrix(norm_expr)
-      norm_scaled_expr = armaScaleCol(Z = norm_expr)
+      #norm_scaled_expr = armaScaleCol(Z = norm_expr)
+      norm_scaled_expr = Rfast::standardise(x = norm_expr, center = TRUE, scale = TRUE)
+
     } else {
       norm_scaled_expr = NULL
     }

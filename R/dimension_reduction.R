@@ -235,6 +235,9 @@ runPCA_factominer = function(x,
                              seed_number = 1234,
                              ...) {
 
+  # verify if optional package is installed
+  package_check(pkg_name = "FactoMineR", repository = "CRAN")
+
   if(!methods::is(x, 'matrix')) {
     x = as.matrix(x)
   }

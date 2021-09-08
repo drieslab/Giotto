@@ -594,6 +594,7 @@ package_check = function(pkg_name,
 #' @name getSpatialDataset
 #' @param dataset dataset to download
 #' @param directory directory to save the data to
+#' @param verbose be verbose
 #' @param \dots additional parameters to \code{\link[utils]{download.file}}
 #' @description This package will automatically download the spatial locations and
 #' expression matrix for the chosen dataset. These files are already in the right format
@@ -609,8 +610,10 @@ getSpatialDataset = function(dataset = c('ST_OB1',
                                          'merfish_preoptic',
                                          'seqfish_SS_cortex',
                                          'seqfish_OB',
-                                         'slideseq_cerebellum'),
+                                         'slideseq_cerebellum',
+                                         'ST_SCC'),
                              directory = getwd(),
+                             verbose = TRUE,
                              ...) {
 
   sel_dataset = match.arg(dataset, choices = c('ST_OB1',
@@ -622,7 +625,8 @@ getSpatialDataset = function(dataset = c('ST_OB1',
                                                'merfish_preoptic',
                                                'seqfish_SS_cortex',
                                                'seqfish_OB',
-                                               'slideseq_cerebellum'))
+                                               'slideseq_cerebellum',
+                                               'ST_SCC'))
 
   # check operating system first
   os_specific_system = get_os()
@@ -670,22 +674,37 @@ getSpatialDataset = function(dataset = c('ST_OB1',
 
   # get url to spatial locations and download
   spatial_locs_url = datasets_file[dataset == sel_dataset][['spatial_locs']]
-  myfilename = basename(spatial_locs_url)
-  mydestfile = paste0(directory,'/', myfilename)
+  spatial_locs_url = unlist(strsplit(spatial_locs_url, split = '\\|'))
 
-  print(spatial_locs_url)
-  print(mydestfile)
-
-  utils::download.file(url = spatial_locs_url, destfile = mydestfile, ...)
-
-  #system(paste0("wget -P ", "'",directory,"'"," ", spatial_locs_url))
+  if(identical(spatial_locs_url, character(0))) {
+    NULL
+  } else {
+    for(url in spatial_locs_url) {
+      myfilename = basename(url)
+      mydestfile = paste0(directory,'/', myfilename)
+      if(verbose == TRUE) print(mydestfile)
+      utils::download.file(url = url, destfile = mydestfile, ...)
+      #system(paste0("wget -P ", "'",directory,"'"," ", url))
+    }
+  }
 
 
   # get url to expression matrix and download
   expr_matrix_url = datasets_file[dataset == sel_dataset][['expr_matrix']]
-  myfilename = basename(expr_matrix_url)
-  mydestfile = paste0(directory,'/', myfilename)
-  utils::download.file(url = expr_matrix_url, destfile = mydestfile, ...)
+  expr_matrix_url = unlist(strsplit(expr_matrix_url, split = '\\|'))
+
+  if(identical(expr_matrix_url, character(0))) {
+    NULL
+  } else {
+    for(url in expr_matrix_url) {
+      myfilename = basename(url)
+      mydestfile = paste0(directory,'/', myfilename)
+      if(verbose == TRUE) print(mydestfile)
+      utils::download.file(url = url, destfile = mydestfile, ...)
+      #system(paste0("wget -P ", "'",directory,"'"," ", url))
+    }
+  }
+
 
   #system(paste0("wget -P ", "'",directory,"'"," ", expr_matrix_url))
 
@@ -711,8 +730,9 @@ getSpatialDataset = function(dataset = c('ST_OB1',
 #' @description This function creates an expression matrix from a 10X structured folder
 #' @param path_to_data path to the 10X folder
 #' @param gene_column_index which column from the features or genes .tsv file to use for row ids
+#' @param remove_zero_rows removes rows with sum equal to zero
 #' @return sparse expression matrix from 10X
-#' @details A typical 10X folder is named raw_feature_bc_matrix or raw_feature_bc_matrix and it has 3 files:
+#' @details A typical 10X folder is named raw_feature_bc_matrix or filtered_feature_bc_matrix and it has 3 files:
 #' \itemize{
 #'   \item{barcodes.tsv(.gz)}
 #'   \item{features.tsv(.gz) or genes.tsv(.gz)}
@@ -721,7 +741,7 @@ getSpatialDataset = function(dataset = c('ST_OB1',
 #' By default the first column of the features or genes .tsv file will be used, however if multiple
 #' annotations are provided (e.g. ensembl gene ids and gene symbols) the user can select another column.
 #' @export
-get10Xmatrix = function(path_to_data, gene_column_index = 1) {
+get10Xmatrix = function(path_to_data, gene_column_index = 1, remove_zero_rows = TRUE) {
 
   # data.table variables
   total = gene_symbol = gene_id = gene_id_num = cell_id = cell_id_num = sort_gene_id_num = NULL
@@ -731,13 +751,13 @@ get10Xmatrix = function(path_to_data, gene_column_index = 1) {
 
   # get barcodes and create vector
   barcodes_file = grep(files_10X, pattern = 'barcodes', value = T)
-  barcodesDT = fread(input = paste0(path_to_data,'/',barcodes_file), header = F)
+  barcodesDT = data.table::fread(input = paste0(path_to_data,'/',barcodes_file), header = F)
   barcodes_vec = barcodesDT$V1
   names(barcodes_vec) = 1:nrow(barcodesDT)
 
   # get features and create vector
   features_file = grep(files_10X, pattern = 'features|genes', value = T)
-  featuresDT = fread(input = paste0(path_to_data,'/',features_file), header = F)
+  featuresDT = data.table::fread(input = paste0(path_to_data,'/',features_file), header = F)
 
   g_name = colnames(featuresDT)[gene_column_index]
   ## convert ensembl gene id to gene symbol ##
@@ -750,29 +770,20 @@ get10Xmatrix = function(path_to_data, gene_column_index = 1) {
 
   # get matrix
   matrix_file = grep(files_10X, pattern = 'matrix', value = T)
-  matrixDT = fread(input = paste0(path_to_data,'/',matrix_file), header = F, skip = 3)
-  colnames(matrixDT) = c('gene_id_num', 'cell_id_num', 'umi')
+  MMmatrix = Matrix::readMM(paste0(path_to_data,'/',matrix_file))
+  rownames(MMmatrix) = features_vec
+  colnames(MMmatrix) = barcodes_vec
 
-  # convert barcodes and features
-  matrixDT[, gene_id := features_vec[gene_id_num]]
-  matrixDT[, cell_id := barcodes_vec[cell_id_num]]
+  if(remove_zero_rows == TRUE) {
+    rowsums_result = rowSums_giotto(MMmatrix)
+    rowsums_bool = rowsums_result != 0
+    MMmatrix = MMmatrix[rowsums_bool, ]
+  }
 
-  # make sure that gene id are consecutive
-  sort_gene_id_vec = 1:length(unique(matrixDT$gene_id))
-  names(sort_gene_id_vec) = unique(matrixDT$gene_id)
-  matrixDT[, sort_gene_id_num := sort_gene_id_vec[gene_id]]
-
-  sparsemat = Matrix::sparseMatrix(i = matrixDT$sort_gene_id_num, j = matrixDT$cell_id_num, x = matrixDT$umi,
-                                   dimnames = list(unique(matrixDT$gene_id), unique(matrixDT$cell_id)))
-
-  return(sparsemat)
-
-  # create a final matrix
-  #matrix_ab = data.table::dcast.data.table(data = matrixDT, gene_id~cell_id, value.var = 'umi')
-  #matrix_ab_mat = dt_to_matrix(matrix_ab)
-  #matrix_ab_mat[is.na(matrix_ab_mat)] = 0
+  return(MMmatrix)
 
 }
+
 
 
 
