@@ -157,6 +157,7 @@ extended_gini_fun <- function(x,
 
 
 #' @title stitchFieldCoordinates
+#' @name stitchFieldCoordinates
 #' @description Helper function to stitch field coordinates together to form one complete picture
 #' @param location_file location dataframe with X and Y coordinates
 #' @param offset_file dataframe that describes the offset for each field (see details)
@@ -241,6 +242,7 @@ stitchFieldCoordinates <- function(location_file,
 
 
 #' @title stitchTileCoordinates
+#' @name stitchTileCoordinates
 #' @description Helper function to stitch tile coordinates together to form one complete picture
 #' @param location_file location dataframe with X and Y coordinates
 #' @param Xtilespan numerical value specifying the width of each tile
@@ -861,6 +863,7 @@ get10XmatrixOLD = function(path_to_data, gene_column_index = 1) {
 
 
 #' @title get10Xmatrix_h5
+#' @name get10Xmatrix_h5
 #' @description This function creates an expression matrix from a 10X h5 file path
 #' @param path_to_data path to the 10X .h5 file
 #' @param gene_ids use gene symbols (default) or ensembl ids for the gene expression matrix
@@ -962,6 +965,7 @@ get10Xmatrix_h5 = function(path_to_data, gene_ids = c('symbols', 'ensembl')) {
 
 
 #' @title convertEnsemblToGeneSymbol
+#' @name convertEnsemblToGeneSymbol
 #' @description This function convert ensembl gene IDs from a matrix to official gene symbols
 #' @param matrix an expression matrix with ensembl gene IDs as rownames
 #' @param species species to use for gene symbol conversion
