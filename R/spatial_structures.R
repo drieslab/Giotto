@@ -4,6 +4,7 @@
 
 
 #' @title spatNetwDistributionsDistance
+#' @name spatNetwDistributionsDistance
 #' @description This function return histograms displaying the distance distribution for each spatial k-neighbor
 #' @param gobject Giotto object
 #' @param spatial_network_name name of spatial network
@@ -165,8 +166,8 @@ spatNetwDistributionsKneighbors = function(gobject,
 
 
 
-#' @title spatNetwDistributionsDistance
-#' @name spatNetwDistributionsDistance
+#' @title spatNetwDistributions
+#' @name spatNetwDistributions
 #' @description This function return histograms displaying the distance distribution for each spatial k-neighbor
 #' @param gobject Giotto object
 #' @param spatial_network_name name of spatial network

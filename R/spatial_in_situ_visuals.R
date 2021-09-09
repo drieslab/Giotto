@@ -151,7 +151,7 @@ plot_feature_points_layer = function(ggobject,
 }
 
 
-
+#' @title spatInSituPlotPoints
 #' @name spatInSituPlotPoints
 #' @description Function to plot multiple features for multiple modalities at the spatial in situ level
 #' @param gobject giotto object
@@ -474,7 +474,7 @@ spatInSituPlotHex_single = function(gobject,
 
 
 
-
+#' @title spatInSituPlotHex
 #' @name spatInSituPlotHex
 #' @description Function to plot hexbins for features for multiple modalities at the spatial in situ level
 #' @param gobject giotto object
@@ -731,7 +731,7 @@ spatInSituPlotDensity_single = function(gobject,
 
 
 
-
+#' @title spatInSituPlotDensity
 #' @name spatInSituPlotDensity
 #' @description Function for density plots for features for multiple modalities at the spatial in situ level
 #' @param gobject giotto object

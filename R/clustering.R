@@ -38,7 +38,6 @@
 #' Set \emph{weight_col = NULL} to give equal weight (=1) to each edge.
 #'
 #' @export
-#'
 doLeidenCluster = function(gobject,
                            feat_type = NULL,
                            name = 'leiden_clus',
@@ -731,13 +730,6 @@ doSNNCluster <- function(gobject,
 #' @details Description on how to use Kmeans clustering method.
 #' @seealso  \code{\link[stats]{kmeans}}
 #' @export
-#' @examples
-#'
-#' data(mini_giotto_single_cell)
-#'
-#' mini_giotto_single_cell = doKmeans(mini_giotto_single_cell, centers = 4, name = 'kmeans_clus')
-#' plotUMAP_2D(mini_giotto_single_cell, cell_color = 'kmeans_clus', point_size = 3)
-#'
 doKmeans <- function(gobject,
                      feat_type = NULL,
                      expression_values = c('normalized', 'scaled', 'custom'),
@@ -909,13 +901,6 @@ doKmeans <- function(gobject,
 #' @details Description on how to use Kmeans clustering method.
 #' @seealso  \code{\link[stats]{hclust}}
 #' @export
-#' @examples
-#'
-#' data(mini_giotto_single_cell)
-#'
-#' mini_giotto_single_cell = doHclust(mini_giotto_single_cell, k = 4, name = 'hier_clus')
-#' plotUMAP_2D(mini_giotto_single_cell, cell_color = 'hier_clus', point_size = 3)
-#'
 doHclust <- function(gobject,
                      expression_values = c('normalized', 'scaled', 'custom'),
                      genes_to_use = NULL,
@@ -2214,18 +2199,6 @@ getClusterSimilarity <- function(gobject,
 #' be reached if clusters have already been merged before \cr
 #' A giotto object is returned by default, if FALSE then the merging vector will be returned.
 #' @export
-#' @examples
-#'
-#' data("mini_giotto_single_cell")
-#'
-#' pDataDT(mini_giotto_single_cell)
-#' mini_giotto_single_cell = mergeClusters(mini_giotto_single_cell,
-#'                                         cluster_column = 'leiden_clus',
-#'                                         min_cor_score = 0.7,
-#'                                         force_min_group_size = 4)
-#' pDataDT(mini_giotto_single_cell)
-#' plotUMAP_2D(mini_giotto_single_cell, cell_color = 'merged_cluster', point_size = 3)
-#'
 mergeClusters <- function(gobject,
                           feat_type = NULL,
                           expression_values = c('normalized', 'scaled', 'custom'),
@@ -2470,13 +2443,6 @@ node_clusters = function(hclus_obj, verbose = TRUE) {
 #' subdendrograms. This information can be used to determine in a hierarchical manner
 #' differentially expressed marker genes at each node.
 #' @export
-#' @examples
-#' \dontrun{
-#' data("mini_giotto_single_cell")
-#'
-#' splits = getDendrogramSplits(mini_giotto_single_cell, cluster_column = 'leiden_clus')
-#' }
-
 getDendrogramSplits = function(gobject,
                                feat_type = NULL,
                                expression_values = c('normalized', 'scaled', 'custom'),

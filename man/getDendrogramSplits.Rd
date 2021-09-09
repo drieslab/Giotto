@@ -50,10 +50,3 @@ dendrogram. For each node the height of the node is given together with the two
 subdendrograms. This information can be used to determine in a hierarchical manner
 differentially expressed marker genes at each node.
 }
-\examples{
-\dontrun{
-data("mini_giotto_single_cell")
-
-splits = getDendrogramSplits(mini_giotto_single_cell, cluster_column = 'leiden_clus')
-}
-}

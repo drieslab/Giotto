@@ -1376,6 +1376,7 @@ rna_pears_resid_normalization = function(gobject,
 
 
 #' @title normalizeGiotto
+#' @name normalizeGiotto
 #' @description fast normalize and/or scale expresion values of Giotto object
 #' @param gobject giotto object
 #' @param feat_type feature type
@@ -1500,6 +1501,7 @@ normalizeGiotto <- function(gobject,
 
 
 
+#' @title adjustGiottoMatrix
 #' @name adjustGiottoMatrix
 #' @description Adjust expression values to account for known batch effects or technological covariates.
 #' @param gobject giotto object
@@ -1593,6 +1595,7 @@ adjustGiottoMatrix <- function(gobject,
 }
 
 
+#' @title processGiotto
 #' @name processGiotto
 #' @description Wrapper for the different Giotto object processing functions
 #' @param gobject giotto object
@@ -1653,6 +1656,7 @@ processGiotto = function(gobject,
 
 
 #' @title annotateGiotto
+#' @name annotateGiotto
 #' @description Converts cluster results into a user provided annotation.
 #' @param gobject giotto object
 #' @param feat_type feature type
@@ -1668,29 +1672,6 @@ processGiotto = function(gobject,
 #'   \item{3. provide original cluster names to previous vector, e.g. names(cell_types) = c(2, 1, 3)}
 #' }
 #' @export
-#' @examples
-#'
-#' data(mini_giotto_single_cell)
-#'
-#' # show leiden clustering results
-#' cell_metadata = pDataDT(mini_giotto_single_cell)
-#' cell_metadata[['leiden_clus']]
-#'
-#' # create vector with cell type names as names of the vector
-#' clusters_cell_types = c('cell_type_1', 'cell_type_2', 'cell_type_3')
-#' names(clusters_cell_types) = 1:3
-#'
-#' # convert cluster results into annotations and add to cell metadata
-#' mini_giotto_single_cell = annotateGiotto(gobject = mini_giotto_single_cell,
-#'                                          annotation_vector = clusters_cell_types,
-#'                                          cluster_column = 'leiden_clus', name = 'cell_types2')
-#'
-#' # visualize annotation results
-#' spatDimPlot(gobject = mini_giotto_single_cell,
-#'             cell_color = 'cell_types2',
-#'             spat_point_size = 3, dim_point_size = 3)
-#'
-#'
 annotateGiotto <- function(gobject,
                            feat_type = NULL,
                            annotation_vector = NULL,
@@ -1755,6 +1736,7 @@ annotateGiotto <- function(gobject,
 
 
 #' @title removeCellAnnotation
+#' @name removeCellAnnotation
 #' @description removes cell annotation from a Giotto object for a specific feature modality (default = 'rna')
 #' @param gobject giotto object
 #' @param feat_type feature type
@@ -1828,6 +1810,7 @@ removeFeatAnnotation <- function(gobject,
 
 
 #' @title addCellMetadata
+#' @name addCellMetadata
 #' @description adds cell metadata to the giotto object
 #' @param gobject giotto object
 #' @param feat_type feature type
@@ -1911,6 +1894,7 @@ addCellMetadata <- function(gobject,
   gobject@cell_metadata[[feat_type]] = cell_metadata
   return(gobject)
 }
+
 
 #' @title addFeatMetadata
 #' @name addFeatMetadata

@@ -539,7 +539,7 @@ findGiniMarkers_one_vs_all <- function(gobject,
 
 
 
-
+#' @title findMastMarkers
 #' @name findMastMarkers
 #' @description Identify marker feats for selected clusters based on the MAST package.
 #' @param gobject giotto object
@@ -804,7 +804,7 @@ findMastMarkers_one_vs_all = function(gobject,
 
 
 
-
+#' @title findMarkers
 #' @name findMarkers
 #' @description Identify marker feats for selected clusters.
 #' @param gobject giotto object

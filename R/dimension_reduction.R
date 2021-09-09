@@ -430,7 +430,6 @@ create_feats_to_use_matrix = function(gobject,
 #'   \item feats_to_use = c('geneA', 'geneB', ...): will use all manually provided features
 #' }
 #' @export
-#'
 runPCA <- function(gobject,
                    feat_type = NULL,
                    expression_values = c('normalized', 'scaled', 'custom'),
@@ -661,12 +660,6 @@ create_screeplot = function(pca_obj, ncp = 20, ylim = c(0, 20)) {
 #'  Screeplot will use an available pca object, based on the parameter 'name', or it will
 #'  create it if it's not available (see \code{\link{runPCA}})
 #' @export
-#' @examples
-#'
-#' data(mini_giotto_single_cell)
-#'
-#' screePlot(mini_giotto_single_cell, ncp = 10)
-#'
 screePlot = function(gobject,
                      feat_type = NULL,
                      name = NULL,
@@ -849,17 +842,6 @@ create_jackstrawplot = function(jackstraw_data,
 #'  systematically permuting genes it identifies robust, and thus significant, PCs.
 #'  \cr
 #' @export
-#' @examples
-#'
-#' \donttest{
-#'
-#' data(mini_giotto_single_cell)
-#'
-#' # jackstraw package is required to run
-#' jackstrawPlot(mini_giotto_single_cell, ncp = 10)
-#'
-#' }
-#'
 jackstrawPlot = function(gobject,
                          feat_type = NULL,
                          expression_values = c('normalized', 'scaled', 'custom'),
@@ -955,7 +937,7 @@ jackstrawPlot = function(gobject,
 }
 
 
-
+#' @title signPCA
 #' @name signPCA
 #' @description identify significant prinicipal components (PCs)
 #' @param gobject giotto object
@@ -1142,6 +1124,7 @@ signPCA <- function(gobject,
 ## * Dim reduction algos ####
 # ------------------------- #
 
+#' @title runUMAP
 #' @name runUMAP
 #' @description run UMAP
 #' @param gobject giotto object
@@ -1176,9 +1159,6 @@ signPCA <- function(gobject,
 #'   \item multiple UMAP results can be stored by changing the \emph{name} of the analysis
 #' }
 #' @export
-#' @examples
-#'
-#'
 runUMAP <- function(gobject,
                     feat_type = NULL,
                     expression_values = c('normalized', 'scaled', 'custom'),
@@ -1347,7 +1327,7 @@ runUMAP <- function(gobject,
 }
 
 
-
+#' @title runtSNE
 #' @name runtSNE
 #' @description run tSNE
 #' @param gobject giotto object
@@ -1379,9 +1359,6 @@ runUMAP <- function(gobject,
 #'   \item multiple tSNE results can be stored by changing the \emph{name} of the analysis
 #' }
 #' @export
-#' @examples
-#'
-#'
 runtSNE <- function(gobject,
                     feat_type = NULL,
                     expression_values = c('normalized', 'scaled', 'custom'),
@@ -1550,6 +1527,7 @@ runtSNE <- function(gobject,
 # ---------------------- #
 
 
+#' @title runGiottoHarmony
 #' @name runGiottoHarmony
 #' @description run UMAP
 #' @param gobject giotto object

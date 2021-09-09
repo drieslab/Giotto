@@ -81,10 +81,3 @@ Screeplot works by plotting the explained variance of each
  Screeplot will use an available pca object, based on the parameter 'name', or it will
  create it if it's not available (see \code{\link{runPCA}})
 }
-\examples{
-
-data(mini_giotto_single_cell)
-
-screePlot(mini_giotto_single_cell, ncp = 10)
-
-}

@@ -259,6 +259,7 @@ cellProximityEnrichment <- function(gobject,
 
 
 
+#' @title addCellIntMetadata
 #' @name addCellIntMetadata
 #' @description Creates an additional metadata column with information about interacting and non-interacting cell types of the
 #' selected cell-cell interaction.
@@ -890,7 +891,7 @@ findCellProximityFeats_per_interaction = function(expr_values,
 
 
 
-
+#' @title findInteractionChangedFeats
 #' @name findInteractionChangedFeats
 #' @description Identifies cell-to-cell Interaction Changed Features (ICF),
 #' i.e. features that are differentially expressed due to proximity to other cell types.#'
@@ -1188,7 +1189,7 @@ findCellProximityGenes <- function(...) {
 
 
 
-
+#' @title findICF
 #' @name findICF
 #' @description Identifies cell-to-cell Interaction Changed Features (ICF),
 #' i.e. features that are differentially expressed due to proximity to other cell types.#'
@@ -1279,9 +1280,6 @@ findICF = function(gobject,
 
 
 
-
-
-#' @title findICG
 #' @name findICG
 #' @description Identifies cell-to-cell Interaction Changed Genes (ICG),
 #' i.e. genes that are differentially expressed due to proximity to other cell types.
@@ -1369,7 +1367,7 @@ findICG = function(gobject,
 }
 
 
-#' @title findCPG
+#' @name findCPG
 #' @description Identifies cell-to-cell Interaction Changed Genes (ICG),
 #' i.e. genes that are differentially expressed due to proximity to other cell types.
 #' @inheritDotParams findICG
@@ -1386,7 +1384,7 @@ findCPG <- function(...) {
 
 
 
-
+#' @title filterInteractionChangedFeats
 #' @name filterInteractionChangedFeats
 #' @description Filter Interaction Changed Feature scores.
 #' @param cpgObject ICF (interaction changed feature) score object
@@ -1493,7 +1491,7 @@ filterCellProximityGenes <- function(...) {
 
 
 
-
+#' @title filterICF
 #' @name filterICF
 #' @description Filter Interaction Changed Feature scores.
 #' @param cpgObject ICF (interaction changed feature) score object
@@ -1554,7 +1552,7 @@ filterICG = function(...) {
 
 
 
-#' @title filterCPG
+#' @name filterCPG
 #' @description Filter Interaction Changed Gene scores.
 #' @inheritDotParams filterICF
 #' @seealso \code{\link{filterICF}}
@@ -1971,7 +1969,7 @@ combineInteractionChangedGenes = function(cpgObject,
 }
 
 
-#' @title combineCellProximityGenes
+#' @name combineCellProximityGenes
 #' @description Combine ICG scores in a pairwise manner.
 #' @inheritDotParams combineInteractionChangedGenes
 #' @seealso \code{\link{combineInteractionChangedGenes}}
@@ -1983,7 +1981,6 @@ combineCellProximityGenes <- function(...) {
   combineInteractionChangedGenes(...)
 
 }
-
 
 
 #' @title combineICG
