@@ -203,14 +203,6 @@ Visualize cells according to spatial coordinates
 \details{
 Description of parameters.
 }
-\examples{
-
-data(mini_giotto_single_cell)
-
-spatPlot2D(mini_giotto_single_cell)
-spatPlot2D(mini_giotto_single_cell, cell_color = 'cell_types', point_size = 3)
-
-}
 \seealso{
 \code{\link{spatPlot3D}}
 

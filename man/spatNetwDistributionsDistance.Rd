@@ -2,6 +2,7 @@
 % Please edit documentation in R/spatial_structures.R
 \name{spatNetwDistributionsDistance}
 \alias{spatNetwDistributionsDistance}
+\alias{spatNetwDistributions}
 \title{spatNetwDistributionsDistance}
 \usage{
 spatNetwDistributionsDistance(
@@ -15,6 +16,20 @@ spatNetwDistributionsDistance(
   save_plot = NA,
   save_param = list(),
   default_save_name = "spatNetwDistributionsDistance"
+)
+
+spatNetwDistributions(
+  gobject,
+  spatial_network_name = "spatial_network",
+  distribution = c("distance", "k_neighbors"),
+  hist_bins = 30,
+  test_distance_limit = NULL,
+  ncol = 1,
+  show_plot = NA,
+  return_plot = NA,
+  save_plot = NA,
+  save_param = list(),
+  default_save_name = "spatNetwDistributions"
 )
 }
 \arguments{
@@ -37,10 +52,22 @@ spatNetwDistributionsDistance(
 \item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
 
 \item{default_save_name}{default save name for saving, alternatively change save_name in save_param}
+
+\item{distribution}{show the distribution of cell-to-cell distance or number of k neighbors}
 }
 \value{
+ggplot plot
+
 ggplot plot
 }
 \description{
 This function return histograms displaying the distance distribution for each spatial k-neighbor
+
+This function return histograms displaying the distance distribution for each spatial k-neighbor
+}
+\details{
+The \strong{distance} option shows the spatial distance distribution for each nearest neighbor rank (1st, 2nd, 3th, ... neigbor).
+With this option the user can also test the effect of a distance limit on the spatial network. This distance limit can be used to remove neigbor
+cells that are considered to far away. \cr
+The \strong{k_neighbors} option shows the number of k neighbors distribution over all cells.
 }

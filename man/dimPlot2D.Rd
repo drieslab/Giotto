@@ -173,14 +173,6 @@ Visualize cells according to dimension reduction coordinates
 \details{
 Description of parameters. For 3D plots see \code{\link{dimPlot3D}}
 }
-\examples{
-
-data(mini_giotto_single_cell)
-
-dimPlot2D(mini_giotto_single_cell)
-dimPlot2D(mini_giotto_single_cell, cell_color = 'cell_types', point_size = 3)
-
-}
 \seealso{
 Other reduced dimension visualizations: 
 \code{\link{dimPlot3D}()},

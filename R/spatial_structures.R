@@ -166,6 +166,7 @@ spatNetwDistributionsKneighbors = function(gobject,
 
 
 #' @title spatNetwDistributionsDistance
+#' @name spatNetwDistributionsDistance
 #' @description This function return histograms displaying the distance distribution for each spatial k-neighbor
 #' @param gobject Giotto object
 #' @param spatial_network_name name of spatial network
@@ -1021,6 +1022,7 @@ create_delaunayNetwork3D <- function (gobject,
 
 
 #' @title createSpatialDelaunayNetwork
+#' @name createSpatialDelaunayNetwork
 #' @description Create a spatial Delaunay network based on cell centroid physical distances.
 #' @param gobject giotto object
 #' @param name name for spatial network (default = 'delaunay_network')
@@ -1125,6 +1127,7 @@ createSpatialDelaunayNetwork <- function(gobject,
 
 
 #' @title plotStatDelaunayNetwork
+#' @name plotStatDelaunayNetwork
 #' @description Plots network statistics for a Delaunay network..
 #' @param gobject giotto object
 #' @param method package to use to create a Delaunay network
@@ -1348,6 +1351,7 @@ create_KNNnetwork_dbscan = function(spatial_locations,
 
 
 #' @title createSpatialKNNnetwork
+#' @name createSpatialKNNnetwork
 #' @description Create a spatial knn network.
 #' @param gobject giotto object
 #' @param name name for spatial network (default = 'spatial_network')
@@ -1499,6 +1503,7 @@ createSpatialKNNnetwork <- function (gobject,
 ## spatial network ####
 
 #' @title createSpatialNetwork
+#' @name createSpatialNetwork
 #' @description Create a spatial network based on cell centroid physical distances.
 #' @param gobject giotto object
 #' @param name name for spatial network (default = 'spatial_network')
@@ -1947,6 +1952,7 @@ create_spatialGrid_default_3D <- function(gobject,
 
 
 #' @title createSpatialDefaultGrid
+#' @name createSpatialDefaultGrid
 #' @description Create a spatial grid using the default method
 #' @param gobject giotto object
 #' @param sdimx_stepsize stepsize along the x-axis
@@ -2050,6 +2056,7 @@ createSpatialDefaultGrid <- function(gobject,
 
 
 #' @title createSpatialGrid
+#' @name createSpatialGrid
 #' @description Create a spatial grid using the default method
 #' @param gobject giotto object
 #' @param name name for spatial grid
@@ -2198,6 +2205,7 @@ annotate_spatlocs_with_spatgrid_3D = function(spatloc,
 
 
 #' @title annotateSpatialGrid
+#' @name annotateSpatialGrid
 #' @description annotate spatial grid with cell ID and cell metadata (optional)
 #' @param gobject Giotto object
 #' @param spat_loc_name name of spatial locations

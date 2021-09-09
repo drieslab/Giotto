@@ -147,9 +147,6 @@ Visualize cells and feature expression according to spatial coordinates
 \details{
 Description of parameters.
 }
-\examples{
-
-}
 \seealso{
 \code{\link{spatGenePlot3D}}
 

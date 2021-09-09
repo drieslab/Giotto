@@ -169,25 +169,6 @@ calc_var_HVF = function(scaled_matrix,
 #' Features that show a higher than predicted COV (\emph{difference_in_cov}) are considered highly variable. \cr
 #'
 #' @export
-#' @examples
-#'
-#' data(mini_giotto_single_cell) # loads existing Giotto object
-#'
-#' # update a giotto object
-#' mini_giotto_single_cell <- calculateHVF(gobject = mini_giotto_single_cell,
-#'                                         zscore_threshold = 0.1,
-#'                                         nr_expression_groups = 3)
-#'
-#' # return a data.table with the high variable genes annotated
-#' hvg_dt <- calculateHVF(gobject = mini_giotto_single_cell,
-#'                        zscore_threshold = 0.1, nr_expression_groups = 3,
-#'                        return_plot = FALSE, return_gobject = FALSE)
-#'
-#' # return the ggplot object
-#' hvg_plot <- calculateHVF(gobject = mini_giotto_single_cell,
-#'                        zscore_threshold = 0.1, nr_expression_groups = 3,
-#'                        return_plot = TRUE, return_gobject = FALSE)
-#'
 calculateHVF <- function(gobject,
                          feat_type = NULL,
                          expression_values = c('normalized', 'scaled', 'custom'),
@@ -356,7 +337,6 @@ calculateHVF <- function(gobject,
 
 
 
-#' @title calculateHVG
 #' @name calculateHVG
 #' @description compute highly variable genes
 #' @param gobject giotto object
@@ -391,26 +371,6 @@ calculateHVF <- function(gobject,
 #' Genes that show a higher than predicted COV (\emph{difference_in_cov}) are considered highly variable. \cr
 #'
 #' @export
-#' @examples
-#'
-#' data(mini_giotto_single_cell) # loads existing Giotto object
-#'
-#' # update a giotto object
-#' mini_giotto_single_cell <- calculateHVG(gobject = mini_giotto_single_cell,
-#'                                         zscore_threshold = 0.1,
-#'                                         nr_expression_groups = 3)
-#'
-#' # return a data.table with the high variable genes annotated
-#' hvg_dt <- calculateHVG(gobject = mini_giotto_single_cell,
-#'                        zscore_threshold = 0.1, nr_expression_groups = 3,
-#'                        return_plot = FALSE, return_gobject = FALSE)
-#'
-#' # return the ggplot object
-#' hvg_plot <- calculateHVG(gobject = mini_giotto_single_cell,
-#'                        zscore_threshold = 0.1, nr_expression_groups = 3,
-#'                        return_plot = TRUE, return_gobject = FALSE)
-#'
-#'
 calculateHVG <- function(gobject,
                          expression_values = c('normalized', 'scaled', 'custom'),
                          method = c('cov_groups','cov_loess', 'var_p_resid'),

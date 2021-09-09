@@ -83,23 +83,3 @@ higher than the threshold (\emph{zscore_threshold}) are considered highly variab
 A predicted COV is calculated for each feature using loess regression (COV~log(mean expression))
 Features that show a higher than predicted COV (\emph{difference_in_cov}) are considered highly variable. \cr
 }
-\examples{
-
-data(mini_giotto_single_cell) # loads existing Giotto object
-
-# update a giotto object
-mini_giotto_single_cell <- calculateHVF(gobject = mini_giotto_single_cell,
-                                        zscore_threshold = 0.1,
-                                        nr_expression_groups = 3)
-
-# return a data.table with the high variable genes annotated
-hvg_dt <- calculateHVF(gobject = mini_giotto_single_cell,
-                       zscore_threshold = 0.1, nr_expression_groups = 3,
-                       return_plot = FALSE, return_gobject = FALSE)
-
-# return the ggplot object
-hvg_plot <- calculateHVF(gobject = mini_giotto_single_cell,
-                       zscore_threshold = 0.1, nr_expression_groups = 3,
-                       return_plot = TRUE, return_gobject = FALSE)
-
-}
