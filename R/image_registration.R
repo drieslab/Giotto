@@ -1,5 +1,4 @@
-### Image registration and creation of registered Giotto object ####
-
+ 
 ### Image reg functions ####
 
 #' @name trakem2_rigid_transf_extract
@@ -16,11 +15,19 @@ trakem2_rigid_transf_extract <- function(inputstring) {
   
   
   #Regex to find the values from the TrakEM2 .xml
-  transfExtractPatA = "(?<=iict_transform class=\"mpicbg.trakem2.transform.RigidModel2D\" data=\")(.*)(?=\")"
-  transfExtractPatB = "(?<=class=\"mpicbg.trakem2.transform.TranslationModel2D\" data=\")(.*)(?=\")"
+  transfExtractPatA = '.*<iict_transform class=\\"mpicbg.trakem2.transform.RigidModel2D\\" data=\\"(.*?)\\" />.*'
+  transfExtractPatB = '.*class=\\"mpicbg.trakem2.transform.TranslationModel2D\\" data=\\"(.*?)\\" />.*'
   #Split relevant text into numerical values
-  out <- c(sapply(stringr::str_split(stringr::str_extract(string = inputstring, pattern = transfExtractPatA), pattern = ' '), function(x) as.numeric(x)),
-           sapply(stringr::str_split(stringr::str_extract(string = inputstring, pattern = transfExtractPatB), pattern = ' '), function(x) as.numeric(x)))
+  out <- c(sapply(strsplit(regmatches(x = inputstring,
+                                      m = regexec(pattern = transfExtractPatA,
+                                                  text = inputstring))[[1]][2],
+                           split = ' '),
+                  function(x) as.numeric(x)),
+           sapply(strsplit(regmatches(x = inputstring,
+                                      m = regexec(pattern = transfExtractPatB,
+                                                  text = inputstring))[[1]][2],
+                           split = ' '),
+                  function(x) as.numeric(x)))
   
   if(sum(is.na(out)) == 2) {
     out <- rep(0,5)
@@ -97,8 +104,8 @@ xy_translate_spatial_locations <- function(spatlocs,
 
 
 
-#' @name registerSpatialLocations
-#' @title registerSpatialLocations
+#' @name register_spatial_locations
+#' @title register_spatial_locations
 #' @description Performs appropriate transforms to align spatial locations with registered images.
 #' @param xvals x value spatial input
 #' @param yvals y value spatial input
@@ -106,7 +113,7 @@ xy_translate_spatial_locations <- function(spatlocs,
 #' @param transformXML transformation files to use
 #' @keywords internal
 #Rotation is performed first, followed by XY transform.
-registerSpatialLocations <- function(xvals,
+register_spatial_locations <- function(xvals,
                                      yvals,
                                      scalefactor = 1,
                                      transformXML) {
@@ -139,12 +146,13 @@ registerSpatialLocations <- function(xvals,
 
 ### Data Prep for zStack Gobject ####
 
-#' @name joinExpression
-#' @title joinExpression
+#' @name join_expression
+#' @title join_expression
 #' @description joins expression list together while appending z value to cellIDs to ensure unique colnames
 #' @param expression_list list of expression values to merge
 #' @param z_list z values to use z stacking expression values
-joinExpression = function(expression_list,
+#' @keywords internal
+join_expression = function(expression_list,
                           z_list) {
   
   ## 1. Make each slice's 2D ID unique in 3D
@@ -187,12 +195,13 @@ joinExpression = function(expression_list,
 }
 
 
-#' @name stackSpatLocs
-#' @title stackSpatLocs
+#' @name stack_spatlocs
+#' @title stack_spatlocs
 #' @description Adds z values and combines list of spatlocs into single z-stacked spatloc table
 #' @param spatlocs_list list of spatial locations
 #' @param z_list z values to use for z stacking spatial locations list
-stackSpatLocs = function(spatlocs_list,
+#' @keywords internal
+stack_spatlocs = function(spatlocs_list,
                          z_list) {
   
   # 1. Append z value based on z_list
@@ -217,6 +226,7 @@ stackSpatLocs = function(spatlocs_list,
 #' @param transformXML transformation files to use
 #' @param z_list z values to use in z stacking. In order of expression_list and spatloc_list.
 #' @param instructions instructions for Giotto processing
+#' @export
 createRegZStackGobject = function(expression_list,
                                   spatlocs_list,
                                   xvals,
@@ -228,18 +238,18 @@ createRegZStackGobject = function(expression_list,
   
   # 1. Register spatlocs
   regSpatlocs = lapply(1:length(spatlocs_list), FUN = function(x) {
-    registerSpatialLocations(xvals = spatlocs_list[[x]][xvals],
-                             yvals = spatlocs_list[[x]][yvals],
-                             scalefactor = scalefactor,
-                             transformXML = transformXML[[x]])
+    register_spatial_locations(xvals = spatlocs_list[[x]][xvals],
+                               yvals = spatlocs_list[[x]][yvals],
+                               scalefactor = scalefactor,
+                               transformXML = transformXML[[x]])
   })
   
   # 2. combine spatlocs
-  stackRegSpatLocs = stackSpatLocs(spatlocs_list = regSpatlocs,
+  stackRegSpatLocs = stack_spatlocs(spatlocs_list = regSpatlocs,
                                    z_list = z_list)
   
   # 3. combine expression
-  expr_merge = joinExpression(expression_list = expression_list,
+  expr_merge = join_expression(expression_list = expression_list,
                               z_list = z_list)
   
   # 4. create Giotto object
