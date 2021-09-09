@@ -268,6 +268,7 @@ set_giotto_python_path = function(python_path = NULL,
 
 
 #' @title createGiottoInstructions
+#' @name createGiottoInstructions
 #' @description Function to set global instructions for giotto functions
 #' @param python_path path to python binary to use
 #' @param show_plot print plot to console, default = TRUE
@@ -378,8 +379,8 @@ createGiottoInstructions <- function(python_path =  NULL,
 
 }
 
-
 #' @title readGiottoInstrunctions
+#' @name readGiottoInstrunctions
 #' @description Retrieves the instruction associated with the provided parameter
 #' @param giotto_instructions giotto object or result from createGiottoInstructions()
 #' @param param parameter to retrieve
@@ -406,6 +407,7 @@ readGiottoInstructions <- function(giotto_instructions,
 
 
 #' @title showGiottoInstructions
+#' @name showGiottoInstructions
 #' @description Function to display all instructions from giotto object
 #' @param gobject giotto object
 #' @return named vector with giotto instructions
@@ -418,6 +420,7 @@ showGiottoInstructions = function(gobject) {
 
 
 #' @title changeGiottoInstructions
+#' @name changeGiottoInstructions
 #' @description Function to change one or more instructions from giotto object
 #' @param gobject giotto object
 #' @param params parameter(s) to change
@@ -473,8 +476,8 @@ changeGiottoInstructions = function(gobject,
 
 
 
-
 #' @title replaceGiottoInstructions
+#' @name replaceGiottoInstructions
 #' @description Function to replace all instructions from giotto object
 #' @param gobject giotto object
 #' @param instructions new instructions (e.g. result from createGiottoInstructions)
@@ -500,6 +503,7 @@ replaceGiottoInstructions = function(gobject,
 #### Giotto matrices ####
 
 #' @title readExprMatrix
+#' @name readExprMatrix
 #' @description Function to read an expression matrix into a sparse matrix.
 #' @param path path to the expression matrix
 #' @param cores number of cores to use
@@ -1053,6 +1057,7 @@ evaluate_feat_info = function(spatial_feat_info,
 #### creating Giotto objects ####
 
 #' @title create Giotto object
+#' @name create Giotto object
 #' @description Function to create a giotto object
 #' @param expression expression information
 #' @param raw_exprs deprecated, use expression
@@ -1587,6 +1592,7 @@ get_adj_rescale_img = function(img_minmax,
 
 
 #' @title createGiottoVisiumObject
+#' @name createGiottoVisiumObject
 #' @description creates Giotto object directly from a 10X visium folder
 #' @param visium_dir path to the 10X visium directory [required]
 #' @param expr_data raw or filtered data (see details)
