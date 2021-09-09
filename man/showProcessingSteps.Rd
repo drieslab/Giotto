@@ -16,10 +16,3 @@ list of processing steps and names
 shows the sequential processing steps that were performed
 on a Giotto object in a summarized format
 }
-\examples{
-
-data(mini_giotto_single_cell)
-
-showProcessingSteps(mini_giotto_single_cell)
-
-}
