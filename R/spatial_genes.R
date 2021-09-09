@@ -1200,7 +1200,7 @@ binSpectMulti = function(gobject,
 
 
 
-
+#' @title binSpectSingleMatrix
 #' @name binSpectSingleMatrix
 #' @description binSpect for a single spatial network and a provided expression matrix
 #' @param expression_matrix expression matrix
@@ -3107,6 +3107,7 @@ detectSpatialCorFeatsMatrix <- function(expression_matrix,
 
 
 
+#' @title detectSpatialCorFeats
 #' @name detectSpatialCorFeats
 #' @description Detect features that are spatially correlated
 #' @param gobject giotto object
@@ -3320,7 +3321,7 @@ detectSpatialCorGenes <- function(gobject,
 
 
 
-
+#' @title showSpatialCorFeats
 #' @name showSpatialCorFeats
 #' @description Shows and filters spatially correlated features
 #' @param spatCorObject spatial correlation object
@@ -3501,7 +3502,7 @@ clusterSpatialCorFeats = function(spatCorObject,
 
 
 
-#' @title clusterSpatialCorGenes
+
 #' @name clusterSpatialCorGenes
 #' @description Cluster based on spatially correlated genes
 #' @param spatCorObject spatial correlation object
@@ -3531,7 +3532,7 @@ clusterSpatialCorGenes = function(spatCorObject,
 
 
 
-
+#' @title heatmSpatialCorFeats
 #' @name heatmSpatialCorFeats
 #' @description Create heatmap of spatially correlated features
 #' @param gobject giotto object
