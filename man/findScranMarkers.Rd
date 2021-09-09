@@ -48,13 +48,3 @@ the \code{\link[scran]{findMarkers}} function from the scran package.
 To perform differential expression between cluster groups you need to specificy cluster IDs
 to the parameters \emph{group_1} and \emph{group_2}.
 }
-\examples{
-
-data(mini_giotto_single_cell)
-
-scran_markers = findScranMarkers(gobject = mini_giotto_single_cell,
-                                 cluster_column = 'leiden_clus',
-                                 group_1 = 1,
-                                 group_2 = 2)
-
-}

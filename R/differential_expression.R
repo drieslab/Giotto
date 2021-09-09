@@ -20,15 +20,6 @@
 #' to the parameters \emph{group_1} and \emph{group_2}.
 #'
 #' @export
-#' @examples
-#'
-#' data(mini_giotto_single_cell)
-#'
-#' scran_markers = findScranMarkers(gobject = mini_giotto_single_cell,
-#'                                  cluster_column = 'leiden_clus',
-#'                                  group_1 = 1,
-#'                                  group_2 = 2)
-#'
 findScranMarkers <- function(gobject,
                              feat_type = NULL,
                              expression_values = c('normalized', 'scaled', 'custom'),
@@ -134,13 +125,6 @@ findScranMarkers <- function(gobject,
 #' @return data.table with marker feats
 #' @seealso \code{\link{findScranMarkers}}
 #' @export
-#' @examples
-#'
-#' data(mini_giotto_single_cell)
-#'
-#' scran_markers = findScranMarkers_one_vs_all(gobject = mini_giotto_single_cell,
-#'                                             cluster_column = 'leiden_clus')
-#'
 findScranMarkers_one_vs_all <- function(gobject,
                                         feat_type = NULL,
                                         expression_values = c('normalized', 'scaled', 'custom'),
@@ -290,15 +274,6 @@ findScranMarkers_one_vs_all <- function(gobject,
 #' to the parameters \emph{group_1} and \emph{group_2}.
 #'
 #' @export
-#' @examples
-#'
-#' data(mini_giotto_single_cell)
-#'
-#' gini_markers = findGiniMarkers(gobject = mini_giotto_single_cell,
-#'                                cluster_column = 'leiden_clus',
-#'                                group_1 = 1,
-#'                                group_2 = 2)
-#'
 findGiniMarkers <- function(gobject,
                             feat_type = NULL,
                             expression_values = c('normalized', 'scaled', 'custom'),
@@ -331,7 +306,8 @@ findGiniMarkers <- function(gobject,
 
 
   # cluster column
-  cell_metadata = pDataDT(gobject, feat_type = feat_type)
+  cell_metadata = pDataDT(gobject,
+                          feat_type = feat_type)
   if(!cluster_column %in% colnames(cell_metadata)) {
     stop('\n cluster column not found \n')
   }
@@ -470,13 +446,6 @@ findGiniMarkers <- function(gobject,
 #' @return data.table with marker feats
 #' @seealso \code{\link{findGiniMarkers}}
 #' @export
-#' @examples
-#'
-#' data(mini_giotto_single_cell)
-#'
-#' gini_markers = findGiniMarkers_one_vs_all(gobject = mini_giotto_single_cell,
-#'                                           cluster_column = 'leiden_clus')
-#'
 findGiniMarkers_one_vs_all <- function(gobject,
                                        feat_type = NULL,
                                        expression_values = c('normalized', 'scaled', 'custom'),
@@ -589,17 +558,6 @@ findGiniMarkers_one_vs_all <- function(gobject,
 #' from the MAST package to detect differentially expressed feats. Caution: with large datasets
 #' MAST might take a long time to run and finish
 #' @export
-#' @examples
-#'
-#' \dontrun{
-#' data(mini_giotto_single_cell)
-#'
-#' mast_markers = findMastMarkers(gobject = mini_giotto_single_cell,
-#'                                cluster_column = 'leiden_clus',
-#'                                group_1 = 1,
-#'                                group_2 = 2)
-#' }
-#'
 findMastMarkers <- function(gobject,
                             feat_type = NULL,
                             expression_values = c('normalized', 'scaled', 'custom'),
@@ -747,13 +705,6 @@ findMastMarkers <- function(gobject,
 #' @return data.table with marker feats
 #' @seealso \code{\link{findMastMarkers}}
 #' @export
-#' @examples
-#'
-#' data(mini_giotto_single_cell)
-#'
-#' mast_markers = findMastMarkers_one_vs_all(gobject = mini_giotto_single_cell,
-#'                                           cluster_column = 'leiden_clus')
-#'
 findMastMarkers_one_vs_all = function(gobject,
                                       feat_type = NULL,
                                       expression_values = c('normalized', 'scaled', 'custom'),

@@ -50,14 +50,6 @@ data.table with marker feats
 \description{
 Identify marker feats for all clusters in a one vs all manner based on gini detection and expression scores.
 }
-\examples{
-
-data(mini_giotto_single_cell)
-
-gini_markers = findGiniMarkers_one_vs_all(gobject = mini_giotto_single_cell,
-                                          cluster_column = 'leiden_clus')
-
-}
 \seealso{
 \code{\link{findGiniMarkers}}
 }

@@ -41,16 +41,12 @@ logNorm_giotto = function(mymatrix, base, offset) {
 
 
 #' @title pDataDT
+#' @name pDataDT
 #' @description show cell metadata
 #' @param gobject giotto object
 #' @param feat_type feature type
 #' @return data.table with cell metadata
 #' @export
-#' @examples
-#'
-#' data(mini_giotto_single_cell) # loads existing Giotto object
-#' pDataDT(mini_giotto_single_cell)
-#'
 pDataDT <- function(gobject,
                     feat_type = NULL) {
 
@@ -75,6 +71,7 @@ pDataDT <- function(gobject,
 }
 
 #' @title fDataDT
+#' @name fDataDT
 #' @description show gene metadata
 #' @param gobject giotto object
 #' @param feat_type feature type

@@ -47,14 +47,6 @@ data.table with marker feats
 \description{
 Identify marker feats for all clusters in a one vs all manner based on scran's implementation of findMarkers.
 }
-\examples{
-
-data(mini_giotto_single_cell)
-
-scran_markers = findScranMarkers_one_vs_all(gobject = mini_giotto_single_cell,
-                                            cluster_column = 'leiden_clus')
-
-}
 \seealso{
 \code{\link{findScranMarkers}}
 }
