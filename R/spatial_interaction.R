@@ -1000,7 +1000,7 @@ findInteractionChangedFeats = function(gobject,
   if(do_parallel == TRUE) {
 
 
-    fin_result = flex_lapply(X = all_interactions, cores = cores, fun = function(x) {
+    fin_result = lapply_flex(X = all_interactions, cores = cores, fun = function(x) {
 
       tempres = findCellProximityFeats_per_interaction(expr_values = expr_values,
                                                        cell_metadata = cell_metadata,
