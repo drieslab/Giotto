@@ -667,7 +667,7 @@ decide_cluster_order = function(gobject,
 
   # epxression data
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_values = select_expression_values(gobject = gobject,
+  expr_values = get_expression_values(gobject = gobject,
                                          feat_type = feat_type,
                                          values = values)
 
@@ -794,7 +794,7 @@ createHeatmap_DT <- function(gobject,
 
   # epxression data
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_values = select_expression_values(gobject = gobject,
+  expr_values = get_expression_values(gobject = gobject,
                                          feat_type = feat_type,
                                          values = values)
 
