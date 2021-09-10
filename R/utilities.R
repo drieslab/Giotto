@@ -115,7 +115,7 @@ cor_flex = function(x, ...) {
 }
 
 
-#' @name  lapply_flex
+#' @name lapply_flex
 #' @keywords internal
 lapply_flex = function(X,
                        FUN,
