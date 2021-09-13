@@ -575,6 +575,7 @@ do_multi_permuttest_random = function(expr_values,
 
   result = lapply_flex(X = 1:n, cores = cores, fun = function(x) {
 
+
     seed_number = seed_number_list[x]
 
     perm_rand = do_permuttest_random(expr_values = expr_values,
@@ -610,6 +611,7 @@ do_permuttest = function(expr_values,
   perm_other = perm_log2fc = perm_diff = p.value = p.adj = NULL
 
   ## original data
+  print('ok1')
   original = do_permuttest_original(expr_values = expr_values,
                                     select_ind = select_ind, other_ind = other_ind,
                                     name = 'orig',
@@ -617,6 +619,7 @@ do_permuttest = function(expr_values,
                                     offset = offset)
 
   ## random permutations
+  print('ok2')
   random_perms = do_multi_permuttest_random(expr_values = expr_values,
                                             n = n_perm,
                                             select_ind = select_ind,
@@ -781,6 +784,7 @@ findCellProximityFeats_per_interaction = function(expr_values,
        length(sel_ind2) < minimum_unique_int_cells) {
       result_cell_1 = NULL
     } else {
+
       result_cell_1 = do_cell_proximity_test(expr_values = expr_values,
                                              select_ind = sel_ind1,
                                              other_ind = all_ind1,
@@ -807,6 +811,7 @@ findCellProximityFeats_per_interaction = function(expr_values,
        length(sel_ind1) < minimum_unique_int_cells) {
       result_cell_2 = NULL
     } else {
+
       result_cell_2 = do_cell_proximity_test(expr_values = expr_values,
                                              select_ind = sel_ind2, other_ind = all_ind2,
                                              diff_test = diff_test,
@@ -861,6 +866,8 @@ findCellProximityFeats_per_interaction = function(expr_values,
     if(length(sel_ind1) < minimum_unique_cells | length(all_ind1) < minimum_unique_cells) {
       return(NULL)
     }
+
+    print('second')
 
     result_cells = do_cell_proximity_test(expr_values = expr_values,
                                           select_ind = sel_ind1, other_ind = all_ind1,
@@ -997,10 +1004,14 @@ findInteractionChangedFeats = function(gobject,
 
   print(all_interactions)
 
+
   if(do_parallel == TRUE) {
 
 
-    fin_result = lapply_flex(X = all_interactions, cores = cores, fun = function(x) {
+    fin_result = lapply_flex(X = all_interactions, cores = cores, FUN = function(x) {
+
+      print('first')
+      print(x)
 
       tempres = findCellProximityFeats_per_interaction(expr_values = expr_values,
                                                        cell_metadata = cell_metadata,
