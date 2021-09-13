@@ -573,7 +573,8 @@ do_multi_permuttest_random = function(expr_values,
     seed_number_list = seed_number:(seed_number + (n-1))
   }
 
-  result = lapply_flex(X = 1:n, cores = cores, FUN = function(x) {
+  result = lapply_flex(X = 1:n, cores = cores, fun = function(x) {
+
 
     seed_number = seed_number_list[x]
 
@@ -2731,7 +2732,7 @@ spatCellCellcom = function(gobject,
   if(do_parallel == TRUE) {
 
 
-    savelist = flex_lapply(X = 1:nrow(combn_DT), cores = cores, fun = function(row) {
+    savelist = lapply_flex(X = 1:nrow(combn_DT), cores = cores, fun = function(row) {
 
       cell_type_1 = combn_DT[row][['V1']]
       cell_type_2 = combn_DT[row][['V2']]
