@@ -866,6 +866,8 @@ findCellProximityFeats_per_interaction = function(expr_values,
       return(NULL)
     }
 
+    print('second')
+
     result_cells = do_cell_proximity_test(expr_values = expr_values,
                                           select_ind = sel_ind1, other_ind = all_ind1,
                                           diff_test = diff_test,
