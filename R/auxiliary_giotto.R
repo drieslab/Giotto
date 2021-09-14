@@ -1296,7 +1296,7 @@ rna_osmfish_normalization = function(gobject,
   # 1. normalize per gene with scale-factor equal to number of genes
   norm_feats = (raw_expr/rowSums_flex(raw_expr)) * nrow(raw_expr)
   # 2. normalize per cells with scale-factor equal to number of cells
-  norm_feats_cells = t((t(norm_feats)/colSums_flex(norm_feats)) * ncol(raw_expr))
+  norm_feats_cells = t_flex((t_flex(norm_feats)/colSums_flex(norm_feats)) * ncol(raw_expr))
 
   # return results to Giotto object
   if(verbose == TRUE) message('\n osmFISH-like normalized data will be returned to the', name, 'Giotto slot \n')
