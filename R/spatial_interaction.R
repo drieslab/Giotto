@@ -565,7 +565,6 @@ do_multi_permuttest_random = function(expr_values,
                                       mean_method,
                                       offset = 0.1,
                                       n = 100,
-                                      cores = 2,
                                       set_seed = TRUE,
                                       seed_number = 1234) {
 
@@ -573,8 +572,9 @@ do_multi_permuttest_random = function(expr_values,
     seed_number_list = seed_number:(seed_number + (n-1))
   }
 
-  result = lapply_flex(X = 1:n, cores = cores, fun = function(x) {
+  result = lapply(X = 1:n, FUN = function(x) {
 
+    print('lapply')
 
     seed_number = seed_number_list[x]
 
@@ -602,9 +602,13 @@ do_permuttest = function(expr_values,
                          adjust_method = 'fdr',
                          mean_method,
                          offset = 0.1,
-                         cores = 2,
                          set_seed = TRUE,
                          seed_number = 1234) {
+
+
+  print(' ')
+  print('do_permuttest')
+  print(' ')
 
   # data.table variables
   log2fc_diff = log2fc = sel = other = feats = p_higher = p_lower = perm_sel = NULL
@@ -626,7 +630,6 @@ do_permuttest = function(expr_values,
                                             other_ind = other_ind,
                                             mean_method = mean_method,
                                             offset = offset,
-                                            cores = cores,
                                             set_seed = set_seed,
                                             seed_number = seed_number)
 
@@ -667,7 +670,6 @@ do_cell_proximity_test = function(expr_values,
                                   n_perm = 100,
                                   adjust_method = c("bonferroni","BH", "holm", "hochberg", "hommel",
                                                     "BY", "fdr", "none"),
-                                  cores = 2,
                                   set_seed = TRUE,
                                   seed_number = 1234) {
 
@@ -677,11 +679,14 @@ do_cell_proximity_test = function(expr_values,
                                                        "BY", "fdr", "none"))
   mean_method = match.arg(mean_method, choices = c('arithmic', 'geometric'))
 
+  print(' ')
+  print('do_cell_proximity_test')
+  print(' ')
 
   if(diff_test == 'permutation') {
     result = do_permuttest(expr_values = expr_values,
                            select_ind = select_ind, other_ind = other_ind,
-                           n_perm = n_perm, adjust_method = adjust_method, cores = cores,
+                           n_perm = n_perm, adjust_method = adjust_method,
                            mean_method = mean_method, offset = offset,
                            set_seed = set_seed,
                            seed_number = seed_number)
@@ -714,10 +719,10 @@ do_cell_proximity_test = function(expr_values,
 #' @name findCellProximityFeats_per_interaction
 #' @description Identifies features that are differentially expressed due to proximity to other cell types.
 #' @keywords internal
-findCellProximityFeats_per_interaction = function(expr_values,
+findCellProximityFeats_per_interaction = function(sel_int,
+                                                  expr_values,
                                                   cell_metadata,
                                                   annot_spatnetwork,
-                                                  sel_int,
                                                   cluster_column = NULL,
                                                   minimum_unique_cells = 1,
                                                   minimum_unique_int_cells = 1,
@@ -727,7 +732,6 @@ findCellProximityFeats_per_interaction = function(expr_values,
                                                   offset = 0.1,
                                                   adjust_method = 'bonferroni',
                                                   nr_permutations = 100,
-                                                  cores = 1,
                                                   set_seed = TRUE,
                                                   seed_number = 1234) {
 
@@ -793,7 +797,6 @@ findCellProximityFeats_per_interaction = function(expr_values,
                                              mean_method = mean_method,
                                              offset = offset,
                                              adjust_method = adjust_method,
-                                             cores = cores,
                                              set_seed = set_seed,
                                              seed_number = seed_number)
       result_cell_1[, cell_type := first_cell_type]
@@ -819,7 +822,6 @@ findCellProximityFeats_per_interaction = function(expr_values,
                                              mean_method = mean_method,
                                              offset = offset,
                                              adjust_method = adjust_method,
-                                             cores = cores,
                                              set_seed = set_seed,
                                              seed_number = seed_number)
       result_cell_2[, cell_type := second_cell_type]
@@ -876,7 +878,6 @@ findCellProximityFeats_per_interaction = function(expr_values,
                                           mean_method = mean_method,
                                           offset = offset,
                                           adjust_method = adjust_method,
-                                          cores = cores,
                                           set_seed = set_seed,
                                           seed_number = seed_number)
 
@@ -917,7 +918,6 @@ findCellProximityFeats_per_interaction = function(expr_values,
 #' @param nr_permutations number of permutations if diff_test = permutation
 #' @param exclude_selected_cells_from_test exclude interacting cells other cells
 #' @param do_parallel run calculations in parallel with mclapply
-#' @param cores number of cores to use if do_parallel = TRUE
 #' @param set_seed set a seed for reproducibility
 #' @param seed_number seed number
 #' @return cpgObject that contains the Interaction Changed differential gene scores
@@ -957,7 +957,6 @@ findInteractionChangedFeats = function(gobject,
                                        nr_permutations = 1000,
                                        exclude_selected_cells_from_test = T,
                                        do_parallel = TRUE,
-                                       cores = NA,
                                        set_seed = TRUE,
                                        seed_number = 1234) {
 
@@ -1008,7 +1007,7 @@ findInteractionChangedFeats = function(gobject,
   if(do_parallel == TRUE) {
 
 
-    fin_result = lapply_flex(X = all_interactions, cores = cores, FUN = function(x) {
+    fin_result = lapply_flex(X = all_interactions, FUN = function(x) {
 
       print('first')
       print(x)
@@ -1026,7 +1025,6 @@ findInteractionChangedFeats = function(gobject,
                                                        offset = offset,
                                                        adjust_method = adjust_method,
                                                        nr_permutations = nr_permutations,
-                                                       cores = 2,
                                                        set_seed = set_seed,
                                                        seed_number = seed_number)
 
@@ -1056,7 +1054,6 @@ findInteractionChangedFeats = function(gobject,
                                                        offset = offset,
                                                        adjust_method = adjust_method,
                                                        nr_permutations = nr_permutations,
-                                                       cores = 2,
                                                        set_seed = set_seed,
                                                        seed_number = seed_number)
 
@@ -1115,7 +1112,6 @@ findInteractionChangedFeats = function(gobject,
 #' @param nr_permutations number of permutations if diff_test = permutation
 #' @param exclude_selected_cells_from_test exclude interacting cells other cells
 #' @param do_parallel run calculations in parallel with mclapply
-#' @param cores number of cores to use if do_parallel = TRUE
 #' @param set_seed set a seed for reproducibility
 #' @param seed_number seed number
 #' @return cpgObject that contains the Interaction Changed differential gene scores
@@ -1154,7 +1150,6 @@ findInteractionChangedGenes = function(gobject,
                                        nr_permutations = 1000,
                                        exclude_selected_cells_from_test = T,
                                        do_parallel = TRUE,
-                                       cores = NA,
                                        set_seed = TRUE,
                                        seed_number = 1234) {
 
@@ -1175,7 +1170,6 @@ findInteractionChangedGenes = function(gobject,
                               nr_permutations = nr_permutations,
                               exclude_selected_cells_from_test = exclude_selected_cells_from_test,
                               do_parallel = do_parallel,
-                              cores = cores,
                               set_seed = set_seed,
                               seed_number = seed_number)
 
@@ -1219,7 +1213,6 @@ findCellProximityGenes <- function(...) {
 #' @param nr_permutations number of permutations if diff_test = permutation
 #' @param exclude_selected_cells_from_test exclude interacting cells other cells
 #' @param do_parallel run calculations in parallel with mclapply
-#' @param cores number of cores to use if do_parallel = TRUE
 #' @param set_seed set a seed for reproducibility
 #' @param seed_number seed number
 #' @return cpgObject that contains the Interaction Changed differential gene scores
@@ -1260,7 +1253,6 @@ findICF = function(gobject,
                    nr_permutations = 100,
                    exclude_selected_cells_from_test = T,
                    do_parallel = TRUE,
-                   cores = NA,
                    set_seed = TRUE,
                    seed_number = 1234) {
 
@@ -1280,7 +1272,6 @@ findICF = function(gobject,
                               nr_permutations = nr_permutations,
                               exclude_selected_cells_from_test = exclude_selected_cells_from_test,
                               do_parallel = do_parallel,
-                              cores = cores,
                               set_seed = set_seed,
                               seed_number = seed_number)
 
@@ -1308,7 +1299,6 @@ findICF = function(gobject,
 #' @param nr_permutations number of permutations if diff_test = permutation
 #' @param exclude_selected_cells_from_test exclude interacting cells other cells
 #' @param do_parallel run calculations in parallel with mclapply
-#' @param cores number of cores to use if do_parallel = TRUE
 #' @param set_seed set a seed for reproducibility
 #' @param seed_number seed number
 #' @return cpgObject that contains the differential gene scores
@@ -1348,7 +1338,6 @@ findICG = function(gobject,
                    nr_permutations = 100,
                    exclude_selected_cells_from_test = T,
                    do_parallel = TRUE,
-                   cores = NA,
                    set_seed = TRUE,
                    seed_number = 1234) {
 
@@ -1370,7 +1359,6 @@ findICG = function(gobject,
                               nr_permutations = nr_permutations,
                               exclude_selected_cells_from_test = exclude_selected_cells_from_test,
                               do_parallel = do_parallel,
-                              cores = cores,
                               set_seed = set_seed,
                               seed_number = seed_number)
 
