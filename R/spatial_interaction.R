@@ -2682,7 +2682,7 @@ spatCellCellcom = function(gobject,
   verbose = match.arg(verbose, choices = c('a little', 'a lot', 'none'))
 
   ## check if spatial network exists ##
-  spat_networks = showNetworks(gobject = gobject, verbose = F)
+  spat_networks = showGiottoSpatNetworks(gobject = gobject, verbose = F)
   if(!spatial_network_name %in% spat_networks) {
     stop(spatial_network_name, ' is not an existing spatial network \n',
          'use showNetworks() to see the available networks \n',
@@ -2718,7 +2718,7 @@ spatCellCellcom = function(gobject,
   if(do_parallel == TRUE) {
 
 
-    savelist = lapply_flex(X = 1:nrow(combn_DT), cores = cores, fun = function(row) {
+    savelist = lapply_flex(X = 1:nrow(combn_DT), future.seed=TRUE, cores = cores, fun = function(row) {
 
       cell_type_1 = combn_DT[row][['V1']]
       cell_type_2 = combn_DT[row][['V2']]

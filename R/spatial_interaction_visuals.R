@@ -1176,7 +1176,7 @@ plotCellProximityGenes = function(gobject,
 
 
   ## first filter
-  filter_cpg = filterInteractionChangedGenes(cpgObject = cpgObject,
+  filter_cpg = filterInteractionChangedFeats(cpgObject = cpgObject,
                                              min_cells = min_cells,
                                              min_cells_expr = min_cells_expr,
                                              min_int_cells = min_int_cells,
@@ -2442,7 +2442,7 @@ plotRankSpatvsExpr = function(gobject,
   pl = pl + ggplot2::theme_classic() + ggplot2::theme(axis.text = element_blank())
   pl = pl + ggplot2::geom_point(data = rnk_res_m, ggplot2::aes(x = variable, y = spt_rank, size = value, color = value))
   pl = pl + ggplot2::scale_color_gradient2(low = 'blue', mid = 'yellow', high = 'red', midpoint = midpoint, guide = guide_legend(title = ''))
-  pl = pl + ggplot2::scale_size_continuous(range = size_range, guide = F)
+  pl = pl + ggplot2::scale_size_continuous(range = size_range, guide = "none")
   pl = pl + ggplot2::labs(x = 'expression rank', y = 'spatial rank')
 
   if(!is.null(xlims)) {
