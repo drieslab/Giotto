@@ -574,7 +574,7 @@ do_multi_permuttest_random = function(expr_values,
 
   result = lapply(X = 1:n, FUN = function(x) {
 
-    print('lapply')
+    #print('lapply')
 
     seed_number = seed_number_list[x]
 
@@ -1007,10 +1007,10 @@ findInteractionChangedFeats = function(gobject,
   if(do_parallel == TRUE) {
 
 
-    fin_result = lapply_flex(X = all_interactions, FUN = function(x) {
+    fin_result = lapply_flex(X = all_interactions, future.seed=TRUE, FUN = function(x) {
 
-      print('first')
-      print(x)
+      #print('first')
+      #print(x)
 
       tempres = findCellProximityFeats_per_interaction(expr_values = expr_values,
                                                        cell_metadata = cell_metadata,
