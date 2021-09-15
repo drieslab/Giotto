@@ -21,7 +21,6 @@ findICF(
   nr_permutations = 100,
   exclude_selected_cells_from_test = T,
   do_parallel = TRUE,
-  cores = NA,
   set_seed = TRUE,
   seed_number = 1234
 )
@@ -56,8 +55,6 @@ findICF(
 \item{exclude_selected_cells_from_test}{exclude interacting cells other cells}
 
 \item{do_parallel}{run calculations in parallel with mclapply}
-
-\item{cores}{number of cores to use if do_parallel = TRUE}
 
 \item{set_seed}{set a seed for reproducibility}
 

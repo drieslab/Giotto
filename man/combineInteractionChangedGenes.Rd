@@ -16,7 +16,6 @@ combineInteractionChangedGenes(
   min_spat_diff = 0,
   min_log2_fc = 0.5,
   do_parallel = TRUE,
-  cores = NA,
   verbose = T
 )
 }
@@ -42,8 +41,6 @@ combineInteractionChangedGenes(
 \item{min_log2_fc}{minimum absolute log2 fold-change}
 
 \item{do_parallel}{run calculations in parallel with mclapply}
-
-\item{cores}{number of cores to use if do_parallel = TRUE}
 
 \item{verbose}{verbose}
 }

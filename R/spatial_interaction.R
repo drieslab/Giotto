@@ -29,9 +29,9 @@ make_simulated_network = function(gobject,
                                                  cluster_column = cluster_column)
 
   # remove double edges between same cells #
-  spatial_network_annot = Giotto:::sort_combine_two_DT_columns(spatial_network_annot,
-                                                               column1 = 'from', column2 = 'to',
-                                                               myname = 'unified_cells')
+  spatial_network_annot = sort_combine_two_DT_columns(spatial_network_annot,
+                                                      column1 = 'from', column2 = 'to',
+                                                      myname = 'unified_cells')
   spatial_network_annot = spatial_network_annot[!duplicated(unified_cells)]
 
   # create a simulated network
@@ -135,7 +135,7 @@ cellProximityEnrichment <- function(gobject,
   # data.table variables
   unified_cells = type_int = N = NULL
 
-  spatial_network_annot = Giotto:::sort_combine_two_DT_columns(spatial_network_annot, 'to', 'from', 'unified_cells')
+  spatial_network_annot = sort_combine_two_DT_columns(spatial_network_annot, 'to', 'from', 'unified_cells')
   spatial_network_annot = spatial_network_annot[!duplicated(unified_cells)]
 
   sample_dt = make_simulated_network(gobject = gobject,
@@ -1859,7 +1859,6 @@ combineCellProximityGenes_per_interaction =  function(cpgObject,
 #' @param min_spat_diff minimum absolute spatial expression difference
 #' @param min_log2_fc minimum absolute log2 fold-change
 #' @param do_parallel run calculations in parallel with mclapply
-#' @param cores number of cores to use if do_parallel = TRUE
 #' @param verbose verbose
 #' @return cpgObject that contains the filtered differential gene scores
 #' @export
@@ -1874,7 +1873,6 @@ combineInteractionChangedGenes = function(cpgObject,
                                      min_spat_diff = 0,
                                      min_log2_fc = 0.5,
                                      do_parallel = TRUE,
-                                     cores = NA,
                                      verbose = T) {
 
   # data.table variables
@@ -1895,7 +1893,7 @@ combineInteractionChangedGenes = function(cpgObject,
   # parallel
   if(do_parallel == TRUE) {
 
-    GTGresults = giotto_lapply(X = all_ints, cores = cores, fun = function(x) {
+    GTGresults = lapply_flex(X = all_ints, FUN = function(x) {
 
       tempres =  combineCellProximityGenes_per_interaction(cpgObject = cpgObject,
                                                            sel_int = x,
