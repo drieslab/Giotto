@@ -1176,7 +1176,7 @@ plotCellProximityGenes = function(gobject,
 
 
   ## first filter
-  filter_cpg = filterInteractionChangedGenes(cpgObject = cpgObject,
+  filter_cpg = filterInteractionChangedFeats(cpgObject = cpgObject,
                                              min_cells = min_cells,
                                              min_cells_expr = min_cells_expr,
                                              min_int_cells = min_int_cells,
