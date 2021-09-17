@@ -150,15 +150,15 @@ register_spatial_locations <- function(xvals,
 #' @title join_expression
 #' @description joins expression list together while appending z value to cellIDs to ensure unique colnames
 #' @param expression_list list of expression values to merge
-#' @param z_list z values to use z stacking expression values
+#' @param z_vals z values to use z stacking expression values
 #' @keywords internal
 join_expression = function(expression_list,
-                          z_list) {
+                          z_vals) {
   
   ## 1. Make each slice's 2D ID unique in 3D
   idList = lapply(expression_list, colnames)
   for(i in 1:length(idList)) {
-    idList[[i]] = paste0(idList[[i]],'x',z_list[[i]])
+    idList[[i]] = paste0(idList[[i]],'x',z_vals[[i]])
   }
   for(i in 1:length(expression_list)) {
     colnames(expression_list[[i]]) = idList[[i]]
@@ -199,14 +199,14 @@ join_expression = function(expression_list,
 #' @title stack_spatlocs
 #' @description Adds z values and combines list of spatlocs into single z-stacked spatloc table
 #' @param spatlocs_list list of spatial locations
-#' @param z_list z values to use for z stacking spatial locations list
+#' @param z_vals z values to use for z stacking spatial locations list
 #' @keywords internal
 stack_spatlocs = function(spatlocs_list,
-                         z_list) {
+                         z_vals) {
   
-  # 1. Append z value based on z_list
+  # 1. Append z value based on z_vals
   for(i in 1:length(spatlocs_list)) {
-    spatlocs_list[[i]]$sdimz = z_list[[i]]
+    spatlocs_list[[i]]$sdimz = z_vals[[i]]
   }
   
   # 2. rbind together all spatlocs
@@ -224,7 +224,7 @@ stack_spatlocs = function(spatlocs_list,
 #' @param yvals y value spatial input
 #' @param scalefactor scale spatial coords to pixel coords
 #' @param transformXML transformation files to use
-#' @param z_list z values to use in z stacking. In order of expression_list and spatloc_list.
+#' @param z_vals z values to use in z stacking. In order of expression_list and spatloc_list.
 #' @param instructions instructions for Giotto processing
 #' @export
 createRegZStackGobject = function(expression_list,
@@ -233,7 +233,7 @@ createRegZStackGobject = function(expression_list,
                                   yvals,
                                   scalefactor = 1,
                                   transformXML,
-                                  z_list,
+                                  z_vals,
                                   instructions = NULL) {
   
   # 1. Register spatlocs
@@ -246,11 +246,11 @@ createRegZStackGobject = function(expression_list,
   
   # 2. combine spatlocs
   stackRegSpatLocs = stack_spatlocs(spatlocs_list = regSpatlocs,
-                                   z_list = z_list)
+                                   z_vals = z_vals)
   
   # 3. combine expression
   expr_merge = join_expression(expression_list = expression_list,
-                              z_list = z_list)
+                              z_vals = z_vals)
   
   # 4. create Giotto object
   zStackGobject = createGiottoObject(raw_exprs = expr_merge,

@@ -4,12 +4,12 @@
 \alias{join_expression}
 \title{join_expression}
 \usage{
-join_expression(expression_list, z_list)
+join_expression(expression_list, z_vals)
 }
 \arguments{
 \item{expression_list}{list of expression values to merge}
 
-\item{z_list}{z values to use z stacking expression values}
+\item{z_vals}{z values to use z stacking expression values}
 }
 \description{
 joins expression list together while appending z value to cellIDs to ensure unique colnames

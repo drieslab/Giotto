@@ -11,7 +11,7 @@ createRegZStackGobject(
   yvals,
   scalefactor = 1,
   transformXML,
-  z_list,
+  z_vals,
   instructions = NULL
 )
 }
@@ -28,7 +28,7 @@ createRegZStackGobject(
 
 \item{transformXML}{transformation files to use}
 
-\item{z_list}{z values to use in z stacking. In order of expression_list and spatloc_list.}
+\item{z_vals}{z values to use in z stacking. In order of expression_list and spatloc_list.}
 
 \item{instructions}{instructions for Giotto processing}
 }
