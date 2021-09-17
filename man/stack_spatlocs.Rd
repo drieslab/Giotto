@@ -4,12 +4,12 @@
 \alias{stack_spatlocs}
 \title{stack_spatlocs}
 \usage{
-stack_spatlocs(spatlocs_list, z_list)
+stack_spatlocs(spatlocs_list, z_vals)
 }
 \arguments{
 \item{spatlocs_list}{list of spatial locations}
 
-\item{z_list}{z values to use for z stacking spatial locations list}
+\item{z_vals}{z values to use for z stacking spatial locations list}
 }
 \description{
 Adds z values and combines list of spatlocs into single z-stacked spatloc table
