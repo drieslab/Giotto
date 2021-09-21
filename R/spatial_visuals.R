@@ -1394,6 +1394,16 @@ plot_spat_point_layer_ggplot = function(ggobject,
     sdimy = 'sdimy'
   }
 
+
+  ## point parameters ##
+  point_size = as.numeric(point_size)
+  point_alpha = as.numeric(point_alpha)
+  point_border_stroke = as.numeric(point_border_stroke)
+  center_point_size = as.numeric(center_point_size)
+  center_point_border_stroke = as.numeric(center_point_border_stroke)
+  label_size = as.numeric(label_size)
+  other_point_size = as.numeric(other_point_size)
+
   ## ggplot object
   pl = ggobject
 
@@ -1623,6 +1633,14 @@ plot_spat_point_layer_ggplot_noFILL = function(ggobject,
     sdimx = 'sdimx'
     sdimy = 'sdimy'
   }
+
+  ## point parameters ##
+  point_size = as.numeric(point_size)
+  point_alpha = as.numeric(point_alpha)
+  center_point_size = as.numeric(center_point_size)
+  label_size = as.numeric(label_size)
+  other_point_size = as.numeric(other_point_size)
+
 
   ## ggplot object
   pl = ggobject
