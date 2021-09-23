@@ -1994,7 +1994,6 @@ combineCellProximityGenes <- function(...) {
 #' @param min_spat_diff minimum absolute spatial expression difference
 #' @param min_log2_fc minimum absolute log2 fold-change
 #' @param do_parallel run calculations in parallel with mclapply
-#' @param cores number of cores to use if do_parallel = TRUE
 #' @param verbose verbose
 #' @return cpgObject that contains the filtered differential gene scores
 #' @export
@@ -2009,7 +2008,6 @@ combineICG = function(cpgObject,
                       min_spat_diff = 0,
                       min_log2_fc = 0.5,
                       do_parallel = TRUE,
-                      cores = NA,
                       verbose = T) {
 
 
@@ -2024,7 +2022,6 @@ combineICG = function(cpgObject,
                                  min_spat_diff = min_spat_diff,
                                  min_log2_fc = min_log2_fc,
                                  do_parallel = do_parallel,
-                                 cores = cores,
                                  verbose = verbose)
 
 

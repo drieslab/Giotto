@@ -21,7 +21,6 @@ combineCPG(...)
     \item{\code{min_spat_diff}}{minimum absolute spatial expression difference}
     \item{\code{min_log2_fc}}{minimum absolute log2 fold-change}
     \item{\code{do_parallel}}{run calculations in parallel with mclapply}
-    \item{\code{cores}}{number of cores to use if do_parallel = TRUE}
     \item{\code{verbose}}{verbose}
   }}
 }
