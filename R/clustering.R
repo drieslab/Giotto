@@ -559,22 +559,8 @@ doRandomWalkCluster <- function(gobject,
 
 
     ## update parameters used ##
-    parameters_list = gobject@parameters
-    number_of_rounds = length(parameters_list)
-    update_name = paste0(number_of_rounds,'_cluster')
-
-
-    parameters_list[[update_name]] = c('cluster algorithm' = 'random walk',
-                                       'nn network' = nn_network_to_use,
-                                       'network name' = network_name,
-                                       'name for clusters' = name,
-                                       'random walk steps' = walk_steps,
-                                       'random walk clusters' = walk_clusters,
-                                       'random walk weights' = walk_weights)
-
-    gobject@parameters = parameters_list
+    gobject = update_giotto_params(gobject, description = '_randomwalk_cluster')
     return(gobject)
-
 
   } else {
 
@@ -676,20 +662,7 @@ doSNNCluster <- function(gobject,
 
 
     ## update parameters used ##
-    parameters_list = gobject@parameters
-    number_of_rounds = length(parameters_list)
-    update_name = paste0(number_of_rounds,'_cluster')
-
-    parameters_list[[update_name]] = c('cluster algorithm' = 'SNN cluster',
-                                       'nn network' = nn_network_to_use,
-                                       'network name' = network_name,
-                                       'name for clusters' = name,
-                                       'k for sNNclust' = k,
-                                       'eps for sNNclust' = eps,
-                                       'minPts for sNNcluster' = minPts,
-                                       'assign borderPoints' = borderPoints)
-
-    gobject@parameters = parameters_list
+    gobject = update_giotto_params(gobject, description = '_SNN_cluster')
     return(gobject)
 
 
@@ -787,7 +760,9 @@ doKmeans <- function(gobject,
 
 
     ## using original matrix ##
-    expr_values = get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+    expr_values = get_expression_values(gobject = gobject,
+                                        feat_type = feat_type,
+                                        values = values)
 
     # subset expression matrix
     if(!is.null(genes_to_use)) {
@@ -799,6 +774,7 @@ doKmeans <- function(gobject,
     matrix_to_use = t_flex(expr_values)
 
   }
+
 
   ## distance
   if(distance_method == 'original') {
@@ -846,26 +822,8 @@ doKmeans <- function(gobject,
     gobject = addCellMetadata(gobject = gobject, new_metadata = ident_clusters_DT[, c('cell_ID', name), with = F],
                               by_column = T, column_cell_ID = 'cell_ID')
 
-
     ## update parameters used ##
-    parameters_list = gobject@parameters
-    number_of_rounds = length(parameters_list)
-    update_name = paste0(number_of_rounds,'_kmeans_cluster')
-    # parameters to include
-
-
-    parameters_list[[update_name]] = c('expression values' = values,
-                                       'dim reduction used' = dim_reduction_to_use,
-                                       'dim reduction name' = dim_reduction_name,
-                                       'name for clusters' = name,
-                                       'distance method' = distance_method,
-                                       'centers' = centers,
-                                       'iter_max' = iter_max,
-                                       'nstart' =  nstart
-    )
-
-    gobject@parameters = parameters_list
-
+    gobject = update_giotto_params(gobject, description = '_kmeans_cluster')
     return(gobject)
 
   } else {
@@ -1001,24 +959,9 @@ doHclust <- function(gobject,
                               by_column = T, column_cell_ID = 'cell_ID')
 
 
+
     ## update parameters used ##
-    parameters_list = gobject@parameters
-    number_of_rounds = length(parameters_list)
-    update_name = paste0(number_of_rounds,'_hierarchical_cluster')
-    # parameters to include
-
-
-    parameters_list[[update_name]] = c('expression values' = values,
-                                       'dim reduction used' = dim_reduction_to_use,
-                                       'dim reduction name' = dim_reduction_name,
-                                       'name for clusters' = name,
-                                       'distance method' = distance_method,
-                                       'k' = k,
-                                       'h' = h
-    )
-
-    gobject@parameters = parameters_list
-
+    gobject = update_giotto_params(gobject, description = '_hierarchical_cluster')
     return(gobject)
 
   } else {

@@ -49,7 +49,7 @@ findScranMarkers <- function(gobject,
 
   # expression data
   values = match.arg(expression_values, choices = unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_data = select_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+  expr_data = get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
 
   # cluster column
   cell_metadata = pDataDT(gobject, feat_type = feat_type)
@@ -635,7 +635,7 @@ findMastMarkers <- function(gobject,
   ## create mast object ##
   # expression data
   values = match.arg(expression_values, choices = unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_data = select_expression_values(gobject = gobject,
+  expr_data = get_expression_values(gobject = gobject,
                                        feat_type = feat_type,
                                        values = values)
   # column & row data
