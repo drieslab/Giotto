@@ -12,7 +12,7 @@ registerGiottoObjectListFiji(
   spat_loc_name = "raw",
   xml_files,
   registered_images = NULL,
-  scaling = 1,
+  scaling,
   auto_comp_reg_border,
   verbose = TRUE
 )

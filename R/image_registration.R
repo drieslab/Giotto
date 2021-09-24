@@ -1,12 +1,12 @@
 ### Image registration and creation of registered Giotto object ####
 
-### helper functions ####
 
 #' @name trakem2_rigid_transf_extract
+#' @title trakem2_rigid_transf_extract
 #' @description Extract rigid registration transformation values from FIJI TrakEM2 xml file. Generated through register_virtual_stack_slices.
 #' @param inputstring string read in from TrakeEM2 xml file
 #' @keywords internal
-trakem2_rigid_transf_extract <- function(inputstring) {
+trakem2_rigid_transf_extract = function(inputstring) {
 
   #Catch wrong inputs
   if (grepl('^.*trakem2.*', inputstring, ignore.case = T) != 1) {
@@ -15,24 +15,32 @@ trakem2_rigid_transf_extract <- function(inputstring) {
 
 
   #Regex to find the values from the TrakEM2 .xml
-  transfExtractPatA = "(?<=iict_transform class=\"mpicbg.trakem2.transform.RigidModel2D\" data=\")(.*)(?=\")"
-  transfExtractPatB = "(?<=class=\"mpicbg.trakem2.transform.TranslationModel2D\" data=\")(.*)(?=\")"
+  transfExtractPatA = '.*<iict_transform class=\\"mpicbg.trakem2.transform.RigidModel2D\\" data=\\"(.*?)\\" />.*'
+  transfExtractPatB = '.*class=\\"mpicbg.trakem2.transform.TranslationModel2D\\" data=\\"(.*?)\\" />.*'
   #Split relevant text into numerical values
-  out <- c(sapply(stringr::str_split(stringr::str_extract(string = inputstring, pattern = transfExtractPatA), pattern = ' '), function(x) as.numeric(x)),
-           sapply(stringr::str_split(stringr::str_extract(string = inputstring, pattern = transfExtractPatB), pattern = ' '), function(x) as.numeric(x)))
+  out <- c(sapply(strsplit(regmatches(x = inputstring,
+                                      m = regexec(pattern = transfExtractPatA,
+                                                  text = inputstring))[[1]][2],
+                           split = ' '),
+                  function(x) as.numeric(x)),
+           sapply(strsplit(regmatches(x = inputstring,
+                                      m = regexec(pattern = transfExtractPatB,
+                                                  text = inputstring))[[1]][2],
+                           split = ' '),
+                  function(x) as.numeric(x)))
 
   if(sum(is.na(out)) == 2) {
-    out <- rep(0,5)
+    out = rep(0,5)
   }
 
-  out <- c(out,0,0)
-  out <- data.table::data.table(t(matrix(out)))
-  colnames(out) <- c('Theta','Xtransform','Ytransform','itx','ity','XFinalTransform','YFinalTransform')
+  out = c(out,0,0)
+  out = data.table::data.table(t(matrix(out)))
+  colnames(out) = c('Theta','Xtransform','Ytransform','itx','ity','XFinalTransform','YFinalTransform')
 
   #itx and ity are additional values in the trakem2 xml files that must be added to Xtransform and Ytransform in order to get the final transformation values.
   #only relevant for sampleset with more than 1 slice away from the reference image
-  out$XFinalTransform <- out$Xtransform + out$itx
-  out$YFinalTransform <- out$Ytransform + out$ity
+  out$XFinalTransform = out$Xtransform + out$itx
+  out$YFinalTransform = out$Ytransform + out$ity
 
   #Multiply theta by -1 due to differences in R and image plotting coordinates
   out$Theta <- -out$Theta
@@ -47,11 +55,11 @@ trakem2_rigid_transf_extract <- function(inputstring) {
 #' @param spatlocs spatial locations to scale
 #' @param scalefactor scaling factor to apply to coordinates
 #' @keywords internal
-scale_spatial_locations <- function(spatlocs,
+scale_spatial_locations = function(spatlocs,
                                     scalefactor) {
 
-  spatlocs$sdimx <- spatlocs$sdimx*scalefactor
-  spatlocs$sdimy <- spatlocs$sdimy*scalefactor
+  spatlocs$sdimx = spatlocs$sdimx*scalefactor
+  spatlocs$sdimy = spatlocs$sdimy*scalefactor
 
   return(spatlocs)
 }
@@ -63,14 +71,14 @@ scale_spatial_locations <- function(spatlocs,
 #' @param spatlocs spatial locations to use
 #' @param rotateradians radians by which the x and y values will be rotated in a counter clockwise manner
 #' @keywords internal
-rotate_spatial_locations <- function(spatlocs,
+rotate_spatial_locations = function(spatlocs,
                                      rotateradians) {
 
   xvals = spatlocs$sdimx
   yvals = spatlocs$sdimy
 
-  spatlocs$sdimx <- xvals*cos(rotateradians) + yvals*sin(rotateradians)
-  spatlocs$sdimy <- -xvals*sin(rotateradians) + yvals*cos(rotateradians)
+  spatlocs$sdimx = xvals*cos(rotateradians) + yvals*sin(rotateradians)
+  spatlocs$sdimy = -xvals*sin(rotateradians) + yvals*cos(rotateradians)
 
   return(spatlocs)
 }
@@ -81,7 +89,7 @@ rotate_spatial_locations <- function(spatlocs,
 #' @param xtranslate value to translate coordinates in the positive x direction
 #' @param ytranslate value to translate coordinates in the positive y direction
 #' @keywords internal
-xy_translate_spatial_locations <- function(spatlocs,
+xy_translate_spatial_locations = function(spatlocs,
                                            xtranslate,
                                            ytranslate) {
 
@@ -100,34 +108,34 @@ xy_translate_spatial_locations <- function(spatlocs,
 #' @param method which method is used for image registration
 #' @keywords internal
 #Rotation is performed first, followed by XY transform.
-rigid_transform_spatial_locations <- function(spatlocs,
+rigid_transform_spatial_locations = function(spatlocs,
                                               transform_values,
                                               method) {
   if(method == 'fiji') {
-    spatlocsXY <- spatlocs[,c('sdimx','sdimy')]
+    spatlocsXY = spatlocs[,c('sdimx','sdimy')]
     #These functions must be performed in positive y values
-    spatlocsXY$sdimy <- -spatlocsXY$sdimy
+    spatlocsXY$sdimy = -spatlocsXY$sdimy
   
-    spatlocsXY <- rotate_spatial_locations(spatlocsXY,
+    spatlocsXY = rotate_spatial_locations(spatlocsXY,
                                            transform_values$Theta)
   
-    spatlocsXY <- xy_translate_spatial_locations(spatlocsXY,
+    spatlocsXY = xy_translate_spatial_locations(spatlocsXY,
                                                  transform_values$XFinalTransform,
                                                  transform_values$YFinalTransform)
   
-    spatlocs$sdimx <- spatlocsXY$sdimx
-    spatlocs$sdimy <- -spatlocsXY$sdimy
+    spatlocs$sdimx = spatlocsXY$sdimx
+    spatlocs$sdimy = -1 *  spatlocsXY$sdimy
   
     return(spatlocs)
     
   } else if(method == 'rvision') {
     
-    spatLocsXY <- spatlocs[,c('sdimx','sdimy')]
-    spatLocsXY <- rotate_spatial_locations(spatLocsXY,acos(transform_values[1,1]))
-    spatLocsXY <- xy_translate_spatial_locations(spatLocsXY,-transform_values[1,3],-transform_values[2,3])
+    spatLocsXY = spatlocs[,c('sdimx','sdimy')]
+    spatLocsXY = rotate_spatial_locations(spatLocsXY,acos(transform_values[1,1]))
+    spatLocsXY = xy_translate_spatial_locations(spatLocsXY,-transform_values[1,3],-transform_values[2,3])
     
-    spatlocs$sdimx <- spatLocsXY[,1]
-    spatlocs$sdimy <- spatLocsXY[,2]
+    spatlocs$sdimx = spatLocsXY[,1]
+    spatlocs$sdimy = spatLocsXY[,2]
     
     return(spatlocs)
     
@@ -144,7 +152,7 @@ rigid_transform_spatial_locations <- function(spatlocs,
 #' @param transform_values transformation values to use
 #' @keywords internal
 #Automatically account for changes in image size due to alignment
-reg_img_minmax_finder <- function(gobject_list,
+reg_img_minmax_finder = function(gobject_list,
                                   unreg_image_slot,
                                   scalefactor = 1,
                                   transform_values,
@@ -152,7 +160,7 @@ reg_img_minmax_finder <- function(gobject_list,
 
   #Find image spatial info from original image if possible
   #Check to make sure that the unreg_image_slot finds an existing image in each gobject to be registered
-  imgPresent <- function(gobject,image) {
+  imgPresent = function(gobject,image) {
     imgPresent = FALSE
     if(image %in% showGiottoImageNames(gobject = gobject, verbose = FALSE)) {
       imgPresent = TRUE
@@ -193,7 +201,7 @@ reg_img_minmax_finder <- function(gobject_list,
 #' @description finds four corner spatial coords of giottoImages or magick-images
 #' @param img_object giottoImage or magick-image to use
 #' @keywords internal
-get_img_corners <- function(img_object) {
+get_img_corners = function(img_object) {
   if(methods::is(img_object,'giottoImage')) {
     img_dims = Giotto:::get_img_minmax(img_object@mg_object)
   } else if(methods::is(img_object,'magick-image')) {
@@ -235,7 +243,7 @@ get_img_corners <- function(img_object) {
 #' @param verbose be verbose
 #' @return list of registered giotto objects where the registered images and spatial locations
 #' @export
-registerGiottoObjectList <- function(gobject_list,
+registerGiottoObjectList = function(gobject_list,
                                      image = 'image',
                                      registered_image_name = 'image',
                                      image_list = NULL,
@@ -299,7 +307,7 @@ registerGiottoObjectListFiji = function(gobject_list,
                                         spat_loc_name = 'raw',
                                         xml_files,
                                         registered_images = NULL,
-                                        scaling = 1,
+                                        scaling, #TODO messing with this.
                                         auto_comp_reg_border,
                                         verbose = TRUE) {
 
@@ -332,9 +340,9 @@ registerGiottoObjectListFiji = function(gobject_list,
 
   ##Transformation of spatial coordinates
   #Start with scaling of the spatial coordinates
-  spatloc_list = lapply(spatloc_list,
-                        FUN = scale_spatial_locations,
-                        scalefactor = scaling)
+  for(i in 1:length(gobject_list)) {
+    spatloc_list[[i]] = scale_spatial_locations(spatlocs = spatloc_list[[i]], scalefactor = scaling[[i]]) #TODO edited
+  }
 
   spatloc_list = lapply(1:length(spatloc_list),
                         FUN = function(x) {
@@ -360,7 +368,7 @@ registerGiottoObjectListFiji = function(gobject_list,
   #TODO (optional if just registering spatlocs)
   reg_img_boundaries = reg_img_minmax_finder(gobject_list = gobject_list,
                                              unreg_image_slot = image,
-                                             scalefactor = scaling,
+                                             scalefactor = scaling[[1]], #TODO must be changed
                                              transform_values = transformsDF,
                                              method = 'fiji')
 
