@@ -2501,6 +2501,12 @@ spatPlot2D_single = function(gobject,
 
   }
 
+  # update cell_color_code
+  # only keep names from selected groups
+  if(!is.null(select_cell_groups) & !is.null(cell_color_code)) {
+    cell_color_code = cell_color_code[names(cell_color_code) %in% select_cell_groups]
+  }
+
 
   # data.table and ggplot variables
   sdimx_begin = sdimy_begin = sdimx_end = sdimy_end = x_start = x_end = y_start = y_end = NULL
