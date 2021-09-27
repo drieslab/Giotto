@@ -668,6 +668,7 @@ subsetGiotto <- function(gobject,
 
 
 #' @title subsetGiottoLocs
+#' @name subsetGiottoLocs
 #' @description subsets Giotto object based on spatial locations
 #' @param gobject giotto object
 #' @param x_max maximum x-coordinate
@@ -682,24 +683,6 @@ subsetGiotto <- function(gobject,
 #' @return giotto object
 #' @details if return_gobject = FALSE, then a filtered combined metadata data.table will be returned
 #' @export
-#' @examples
-#' \donttest{
-#'
-#' data(mini_giotto_single_cell)
-#'
-#' # spatial plot
-#' spatPlot(mini_giotto_single_cell)
-#'
-#' # subset giotto object based on spatial locations
-#' subset_obj = subsetGiottoLocs(mini_giotto_single_cell,
-#' x_max = 1500, x_min = 1000,
-#' y_max = -500, y_min = -1000)
-#'
-#' # spatial plot of subset giotto object
-#' spatPlot(subset_obj)
-#'
-#' }
-
 subsetGiottoLocs = function(gobject,
                             x_max = NULL,
                             x_min = NULL,
@@ -764,7 +747,7 @@ subsetGiottoLocs = function(gobject,
 
 
 
-
+#' @title filterDistributions
 #' @name filterDistributions
 #' @description show gene or cell distribution after filtering on expression threshold
 #' @param gobject giotto object
@@ -906,6 +889,7 @@ filterDistributions <- function(gobject,
 
 
 
+#' @title filterCombinations
 #' @name filterCombinations
 #' @description Shows how many genes and cells are lost with combinations of thresholds.
 #' @param gobject giotto object
@@ -931,15 +915,6 @@ filterDistributions <- function(gobject,
 #' to call a gene expressed. This function can be used to make an informed decision at the
 #' filtering step with filterGiotto.
 #' @export
-#' @examples
-#'
-#' data(mini_giotto_single_cell)
-#'
-#' # assess the effect of multiple filter criteria
-#' filterCombinations(mini_giotto_single_cell,
-#' gene_det_in_min_cells = c(2, 4, 8),
-#' min_det_genes_per_cell = c(5, 10, 20))
-#'
 filterCombinations <- function(gobject,
                                feat_type = NULL,
                                expression_values = c('raw', 'normalized', 'scaled', 'custom'),

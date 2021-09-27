@@ -6,6 +6,7 @@
 
 ## expression values slot ####
 
+#' @title  get_expression_values
 #' @name  get_expression_values
 #' @description function to get expression values from giotto object
 #' @param gobject giotto object
@@ -52,7 +53,7 @@ select_expression_values = function(...) {
 }
 
 
-
+#' @title  set_expression_values
 #' @name  set_expression_values
 #' @description function to set expression values for giotto object
 #' @param gobject giotto object
@@ -88,7 +89,7 @@ set_expression_values <- function(gobject,
 
 ## spatial locations slot ####
 
-
+#' @title get_spatial_locations
 #' @name get_spatial_locations
 #' @description function to get a spatial location data.table
 #' @param gobject giotto object
@@ -141,6 +142,7 @@ select_spatial_locations = function(...) {
 
 
 
+#' @title set_spatial_locations
 #' @name set_spatial_locations
 #' @description function to set a spatial location slot
 #' @param gobject giotto object
@@ -175,7 +177,7 @@ set_spatial_locations <- function(gobject,
 
 ## dimension reduction slot ####
 
-
+#' @title get_dimReduction
 #' @name get_dimReduction
 #' @description function to get a dimension reduction object
 #' @return dim reduction coordinates (default) or dim reduction object
@@ -233,7 +235,7 @@ select_dimReduction = function(...) {
 }
 
 
-
+#' @title set_dimReduction
 #' @name set_dimReduction
 #' @description function to set a dimension reduction slot
 #' @param gobject giotto object
@@ -273,7 +275,7 @@ set_dimReduction <- function(gobject,
 
 ## nearest neighbor network slot ####
 
-
+#' @title get_NearestNetwork
 #' @name get_NearestNetwork
 #' @description get a NN-network from a Giotto object
 #' @param gobject giotto object
@@ -338,7 +340,7 @@ select_NearestNetwork = function(...) {
 }
 
 
-
+#' @title set_NearestNetwork
 #' @name set_NearestNetwork
 #' @description set a NN-network for a Giotto object
 #' @param gobject giotto object
@@ -376,7 +378,7 @@ set_NearestNetwork = function(gobject,
 
 ## spatial network slot ####
 
-
+#' @title get_spatialNetwork
 #' @name get_spatialNetwork
 #' @description function to get a spatial network
 #' @param gobject giotto object
@@ -419,7 +421,7 @@ select_spatialNetwork = function(...) {
 }
 
 
-
+#' @title set_spatialNetwork
 #' @name set_spatialNetwork
 #' @description function to set a spatial network
 #' @param gobject giotto object
@@ -452,7 +454,7 @@ set_spatialNetwork <- function(gobject,
 
 ## spatial grid slot ####
 
-
+#' @title get_spatialGrid
 #' @name get_spatialGrid
 #' @description function to get spatial grid
 #' @param gobject giotto object
@@ -495,7 +497,7 @@ select_spatialGrid = function(...) {
 }
 
 
-
+#' @title set_spatialGrid
 #' @name set_spatialGrid
 #' @description function to set a spatial grid
 #' @param gobject giotto object
@@ -532,7 +534,7 @@ set_spatialGrid <- function(gobject,
 
 ## polygon cell info ####
 
-
+#' @title get_polygon_info
 #' @name get_polygon_info
 #' @description  get giotto polygon spatVector
 #' @param gobject giotto object
@@ -580,7 +582,7 @@ select_polygon_info = function(...) {
 
 
 
-
+#' @title set_polygon_info
 #' @name set_polygon_info
 #' @description  set giotto polygon spatVector
 #' @param gobject giotto object
@@ -615,6 +617,7 @@ set_polygon_info = function(gobject,
 
 ## feature info ####
 
+#' @title get_feature_info
 #' @name get_feature_info
 #' @description  get giotto points spatVector
 #' @param gobject giotto object
@@ -647,7 +650,7 @@ select_feature_info = function(...) {
 }
 
 
-
+#' @title set_feature_info
 #' @name set_feature_info
 #' @description  set giotto polygon spatVector for features
 #' @param gobject giotto object
@@ -682,6 +685,7 @@ set_feature_info = function(gobject,
 ## spatial enrichment slot ####
 
 
+#' @title get_spatial_enrichment
 #' @name get_spatial_enrichment
 #' @description function to get a spatial enrichment data.table
 #' @param gobject giotto object
@@ -717,6 +721,7 @@ get_spatial_enrichment <- function(gobject,
 }
 
 
+#' @title set_spatial_enrichment
 #' @name set_spatial_enrichment
 #' @description function to set a spatial enrichment slot
 #' @param gobject giotto object
@@ -751,7 +756,7 @@ set_spatial_enrichment <- function(gobject,
 
 ## Show functions ####
 
-
+#' @title showGiottoExpression
 #' @name showGiottoExpression
 #' @description shows the available matrices
 #' @param gobject giotto object
@@ -777,7 +782,7 @@ showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 
 }
 
-
+#' @title showGiottoSpatLocs
 #' @name showGiottoSpatLocs
 #' @description shows the available spatial locations
 #' @param gobject giotto object
@@ -794,7 +799,7 @@ showGiottoSpatLocs = function(gobject, nrows = 4) {
 
 
 
-
+#' @title showGiottoSpatEnrichments
 #' @name showGiottoSpatEnrichments
 #' @description shows the available spatial enrichment results
 #' @param gobject giotto object
@@ -811,7 +816,7 @@ showGiottoSpatEnrichments = function(gobject, nrows = 4) {
 
 
 
-
+#' @title showGiottoDimRed
 #' @name showGiottoDimRed
 #' @description shows the available dimension reductions
 #' @param gobject giotto object
@@ -869,7 +874,7 @@ showGiottoDimRed = function(gobject,
 
 
 
-
+#' @title showGiottoSpatialInfo
 #' @name showGiottoSpatialInfo
 #' @description show the available giotto spatial polygon information
 #' @param gobject giotto object
@@ -888,6 +893,7 @@ showGiottoSpatialInfo = function(gobject) {
 }
 
 
+#' @title showGiottoFeatInfo
 #' @name showGiottoFeatInfo
 #' @description show the available giotto spatial feature information
 #' @param gobject giotto object
@@ -904,7 +910,6 @@ showGiottoFeatInfo = function(gobject) {
   }
 
 }
-
 
 
 
@@ -930,7 +935,7 @@ showGiottoSpatNetworks = function(gobject,
   return(g_network_names)
 }
 
-#' @title showNetworks
+
 #' @name showNetworks
 #' @inheritDotParams showGiottoSpatNetworks
 #' @seealso \code{\link{showGiottoSpatNetworks}}
@@ -942,6 +947,7 @@ showNetworks = function(...) {
   showGiottoSpatNetworks(...)
 
 }
+
 
 #' @title showGiottoSpatGrids
 #' @name showGiottoSpatGrids
@@ -964,7 +970,7 @@ showGiottoSpatGrids = function(gobject,
   return(g_grid_names)
 }
 
-#' @title showGrids
+
 #' @name showGrids
 #' @inheritDotParams showGiottoSpatGrids
 #' @seealso \code{\link{showGiottoSpatGrids}}
