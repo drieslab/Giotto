@@ -1641,6 +1641,8 @@ plotMetaDataCellsHeatmap = function(gobject,
 
 
 
+
+
 #' @title violinPlot
 #' @name violinPlot
 #' @description Creates violinplot for selected clusters
@@ -1713,9 +1715,14 @@ violinPlot <- function(gobject,
   if(length(selected_feats[duplicated(selected_feats)]) != 0) {
     cat('These feats have duplicates: \n',
         selected_feats[duplicated(selected_feats)])
-
     selected_feats = unique(selected_feats)
   }
+
+  # stop and provide warning if no feats have been found
+  if(length(selected_feats) == 0) {
+    stop("No overlapping features have been found, check inputer for parameter 'feats'")
+  }
+
   subset_data = as.matrix(expr_data[rownames(expr_data) %in% selected_feats, ])
 
   if(length(feats) == 1) {
@@ -1725,7 +1732,8 @@ violinPlot <- function(gobject,
   }
 
   # metadata
-  metadata = pDataDT(gobject, feat_type = feat_type)
+  metadata = pDataDT(gobject,
+                     feat_type = feat_type)
 
   if(length(feats) == 1) {
     metadata_expr <- cbind(metadata,  t_subset_data)
@@ -1735,7 +1743,7 @@ violinPlot <- function(gobject,
   }
 
 
-  metadata_expr_m <- data.table::melt.data.table(metadata_expr, measure.vars = unique(selected_feats), variable.name = 'feats')
+  metadata_expr_m = data.table::melt.data.table(metadata_expr, measure.vars = unique(selected_feats), variable.name = 'feats')
   metadata_expr_m[, feats := factor(feats, selected_feats)]
   metadata_expr_m[[cluster_column]] = as.factor(metadata_expr_m[[cluster_column]])
 
