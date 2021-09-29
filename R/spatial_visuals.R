@@ -1245,7 +1245,7 @@ plotUMAP = function(gobject,
 #' @family reduced dimension visualizations
 #' @export
 plotTSNE_2D = function(gobject,
-                       dim_reduction_name = 'tsne',
+                       dim_reduction_name = NULL,
                        default_save_name = 'tSNE_2D',
                        ...) {
 
@@ -1269,7 +1269,7 @@ plotTSNE_2D = function(gobject,
 #' @family reduced dimension visualizations
 #' @export
 plotTSNE = function(gobject,
-                    dim_reduction_name = 'tsne',
+                    dim_reduction_name = NULL,
                     default_save_name = 'tSNE',
                     ...) {
 
@@ -1295,7 +1295,7 @@ plotTSNE = function(gobject,
 #' @family reduced dimension visualizations
 #' @export
 plotPCA_2D = function(gobject,
-                      dim_reduction_name = 'pca',
+                      dim_reduction_name = NULL,
                       default_save_name = 'PCA_2D',
                       ...) {
 
@@ -1321,7 +1321,7 @@ plotPCA_2D = function(gobject,
 #' @family reduced dimension visualizations
 #' @export
 plotPCA = function(gobject,
-                   dim_reduction_name = 'pca',
+                   dim_reduction_name = NULL,
                    default_save_name = 'PCA',
                    ...) {
 

@@ -63,7 +63,7 @@ createNearestNetwork <- function(gobject,
                                  feat_type = NULL,
                                  type = c('sNN', 'kNN'),
                                  dim_reduction_to_use = 'pca',
-                                 dim_reduction_name = 'pca',
+                                 dim_reduction_name = NULL,
                                  dimensions_to_use = 1:10,
                                  feats_to_use = NULL,
                                  genes_to_use = NULL,
@@ -86,6 +86,15 @@ createNearestNetwork <- function(gobject,
   # specify feat_type
   if(is.null(feat_type)) {
     feat_type = gobject@expression_feat[[1]]
+  }
+
+  # specify dim_reduction_name tailored to feat_type
+  if(is.null(dim_reduction_name)) {
+    if(feat_type == 'rna') {
+      dim_reduction_name = 'pca'
+    } else {
+      dim_reduction_name = paste0(feat_type,'.','pca')
+    }
   }
 
   # type of NN network

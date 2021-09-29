@@ -1023,7 +1023,7 @@ signPCA <- function(gobject,
   method = match.arg(method, choices = c('screeplot', 'jackstraw'))
 
   # select PCA method
-  pca_method = match.arg(method, choices = c('irlba', 'factominer'))
+  pca_method = match.arg(pca_method, choices = c('irlba', 'factominer'))
 
   # select direction of reduction
   reduction = match.arg(reduction, c('cells', 'feats'))
