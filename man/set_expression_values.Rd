@@ -4,7 +4,7 @@
 \alias{set_expression_values}
 \title{set_expression_values}
 \usage{
-set_expression_values(gobject, feat_type = "rna", name = "test", values)
+set_expression_values(gobject, feat_type = NULL, name = "test", values)
 }
 \arguments{
 \item{gobject}{giotto object}

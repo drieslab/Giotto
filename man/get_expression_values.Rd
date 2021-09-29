@@ -4,7 +4,7 @@
 \alias{get_expression_values}
 \title{get_expression_values}
 \usage{
-get_expression_values(gobject, feat_type = "rna", values)
+get_expression_values(gobject, feat_type = NULL, values)
 }
 \arguments{
 \item{gobject}{giotto object}

@@ -4,7 +4,7 @@
 \alias{set_feature_info}
 \title{set_feature_info}
 \usage{
-set_feature_info(gobject, feat_name = "cell", gpolygon)
+set_feature_info(gobject, feat_name = NULL, gpolygon)
 }
 \arguments{
 \item{gobject}{giotto object}

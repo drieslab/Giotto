@@ -4,7 +4,7 @@
 \alias{get_feature_info}
 \title{get_feature_info}
 \usage{
-get_feature_info(gobject, feat_name = "rna")
+get_feature_info(gobject, feat_name = NULL)
 }
 \arguments{
 \item{gobject}{giotto object}
