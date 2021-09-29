@@ -1638,7 +1638,9 @@ solve_dampened_WLSj <- function(S,
   A = cbind(diag(dim(S)[2]))
   bzero = c(rep(0,dim(S)[2]))
   sc = norm(D,"2")
-  solution = quadprog::solve.QP(D/sc, d/sc, A, bzero)$solution
+  D_positive_definite <- nearPD(D/sc)
+  solution<-quadprog::solve.QP(as.matrix(D_positive_definite$mat),d/sc,A,bzero)$solution
+  
   names(solution) = colnames(S)
   return(solution)
 }
