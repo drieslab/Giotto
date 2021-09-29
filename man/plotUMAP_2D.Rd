@@ -6,7 +6,7 @@
 \usage{
 plotUMAP_2D(
   gobject,
-  dim_reduction_name = "umap",
+  dim_reduction_name = NULL,
   default_save_name = "UMAP_2D",
   ...
 )

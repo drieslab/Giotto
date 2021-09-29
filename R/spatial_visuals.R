@@ -548,7 +548,7 @@ plot_point_layer_ggplot_noFILL = function(ggobject,
 dimPlot2D_single <- function(gobject,
                              feat_type = NULL,
                              dim_reduction_to_use = 'umap',
-                             dim_reduction_name = 'umap',
+                             dim_reduction_name = NULL,
                              dim1_to_use = 1,
                              dim2_to_use = 2,
                              spat_enr_names = NULL,
@@ -597,6 +597,17 @@ dimPlot2D_single <- function(gobject,
   # specify feat_type
   if(is.null(feat_type)) {
     feat_type = gobject@expression_feat[[1]]
+  }
+
+  # specify dim_reduction_name according to provided feat_type
+  if(!is.null(dim_reduction_to_use)) {
+    if(is.null(dim_reduction_name)) {
+      if(feat_type == 'rna') {
+        dim_reduction_name = dim_reduction_to_use
+      } else {
+        dim_reduction_name = paste0(feat_type,'.',dim_reduction_to_use)
+      }
+    }
   }
 
   ## point shape ##
@@ -904,7 +915,7 @@ dimPlot2D = function(gobject,
                      group_by = NULL,
                      group_by_subset = NULL,
                      dim_reduction_to_use = 'umap',
-                     dim_reduction_name = 'umap',
+                     dim_reduction_name = NULL,
                      dim1_to_use = 1,
                      dim2_to_use = 2,
                      spat_enr_names = NULL,
@@ -1181,7 +1192,7 @@ dimPlot = function(...) {
 #' @family reduced dimension visualizations
 #' @export
 plotUMAP_2D = function(gobject,
-                       dim_reduction_name = 'umap',
+                       dim_reduction_name = NULL,
                        default_save_name = 'UMAP_2D',
                        ...) {
 
@@ -1206,7 +1217,7 @@ plotUMAP_2D = function(gobject,
 #' @family reduced dimension visualizations
 #' @export
 plotUMAP = function(gobject,
-                    dim_reduction_name = 'umap',
+                    dim_reduction_name = NULL,
                     default_save_name = 'UMAP',
                     ...) {
 

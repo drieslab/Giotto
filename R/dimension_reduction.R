@@ -975,7 +975,7 @@ jackstrawPlot = function(gobject,
 #' @export
 signPCA <- function(gobject,
                     feat_type = NULL,
-                    name = 'pca',
+                    name = NULL,
                     method = c('screeplot', 'jackstraw'),
                     expression_values = c("normalized", "scaled", "custom"),
                     reduction = c("cells", "feats"),
@@ -1003,6 +1003,16 @@ signPCA <- function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
+
+  # specify name to use
+  if(!is.null(name)) {
+    if(feat_type == 'rna') {
+      name = 'pca'
+    } else {
+      name = paste0(feat_type,'.','pca')
+    }
+  }
+
   ## deprecated arguments
   if(!is.null(genes_to_use)) {
     feats_to_use = genes_to_use
@@ -1011,6 +1021,9 @@ signPCA <- function(gobject,
 
   # select method
   method = match.arg(method, choices = c('screeplot', 'jackstraw'))
+
+  # select PCA method
+  pca_method = match.arg(method, choices = c('irlba', 'factominer'))
 
   # select direction of reduction
   reduction = match.arg(reduction, c('cells', 'feats'))

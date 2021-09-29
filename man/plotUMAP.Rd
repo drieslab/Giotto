@@ -4,7 +4,7 @@
 \alias{plotUMAP}
 \title{plotUMAP}
 \usage{
-plotUMAP(gobject, dim_reduction_name = "umap", default_save_name = "UMAP", ...)
+plotUMAP(gobject, dim_reduction_name = NULL, default_save_name = "UMAP", ...)
 }
 \arguments{
 \item{gobject}{giotto object}

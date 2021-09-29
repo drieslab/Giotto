@@ -10,7 +10,7 @@ dimPlot2D(
   group_by = NULL,
   group_by_subset = NULL,
   dim_reduction_to_use = "umap",
-  dim_reduction_name = "umap",
+  dim_reduction_name = NULL,
   dim1_to_use = 1,
   dim2_to_use = 2,
   spat_enr_names = NULL,

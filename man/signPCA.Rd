@@ -7,7 +7,7 @@
 signPCA(
   gobject,
   feat_type = NULL,
-  name = "pca",
+  name = NULL,
   method = c("screeplot", "jackstraw"),
   expression_values = c("normalized", "scaled", "custom"),
   reduction = c("cells", "feats"),
