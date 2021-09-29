@@ -15,8 +15,14 @@
 #' @return expression matrix
 #' @export
 get_expression_values <- function(gobject,
-                                  feat_type = 'rna',
+                                  feat_type = NULL,
                                   values) {
+
+
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
 
   potential_values = names(gobject@expression[[feat_type]])
 
@@ -63,10 +69,15 @@ select_expression_values = function(...) {
 #' @return giotto object
 #' @export
 set_expression_values <- function(gobject,
-                                  feat_type = 'rna',
+                                  feat_type = NULL,
                                   name = 'test',
                                   values) {
 
+
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
 
   ## 1. check if specified name has already been used
   potential_names = names(gobject@expression[[feat_type]])
@@ -624,7 +635,12 @@ set_polygon_info = function(gobject,
 #' @param feat_name name of feature
 #' @export
 get_feature_info = function(gobject,
-                               feat_name = 'rna') {
+                            feat_name = NULL) {
+
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
 
   potential_names = names(gobject@feat_info)
 
@@ -658,10 +674,13 @@ select_feature_info = function(...) {
 #' @param gpolygon giotto polygon
 #' @export
 set_feature_info = function(gobject,
-                            feat_name = 'cell',
+                            feat_name = NULL,
                             gpolygon) {
 
-
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
 
   ## 1. check if specified name has already been used
   potential_names = names(gobject@feat_info)
