@@ -998,6 +998,11 @@ signPCA <- function(gobject,
                     default_save_name = 'signPCA') {
 
 
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
   ## deprecated arguments
   if(!is.null(genes_to_use)) {
     feats_to_use = genes_to_use
@@ -1011,8 +1016,10 @@ signPCA <- function(gobject,
   reduction = match.arg(reduction, c('cells', 'feats'))
 
   # expression values to be used
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = get_expression_values(gobject = gobject, values = values)
+  values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
+  expr_values = get_expression_values(gobject = gobject,
+                                      feat_type = feat_type,
+                                      values = values)
 
   # print, return and save parameters
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
