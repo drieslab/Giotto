@@ -2543,8 +2543,10 @@ spatPlot2D_single = function(gobject,
   ## plot spatial network
   if(!is.null(spatial_network) & show_network == TRUE) {
     if(is.null(network_color)) network_color = 'red'
-    pl <- pl + ggplot2::geom_segment(data = spatial_network, aes(x = sdimx_begin, y = sdimy_begin,
-                                                                 xend = sdimx_end, yend = sdimy_end),
+    pl <- pl + ggplot2::geom_segment(data = spatial_network, aes(x = sdimx_begin,
+                                                                 y = sdimy_begin,
+                                                                 xend = sdimx_end,
+                                                                 yend = sdimy_end),
                                      color = network_color, size = 0.5, alpha = network_alpha)
   }
 
@@ -2552,8 +2554,10 @@ spatPlot2D_single = function(gobject,
   ## plot spatial grid
   if(!is.null(spatial_grid) & show_grid == TRUE) {
     if(is.null(grid_color)) grid_color = 'black'
-    pl <- pl + ggplot2::geom_rect(data = spatial_grid, aes(xmin = x_start, xmax = x_end,
-                                                           ymin = y_start, ymax = y_end),
+    pl <- pl + ggplot2::geom_rect(data = spatial_grid, aes(xmin = x_start,
+                                                           xmax = x_end,
+                                                           ymin = y_start,
+                                                           ymax = y_end),
                                   color = grid_color, fill = NA)
   }
 
@@ -3352,7 +3356,7 @@ spatDimPlot2D <- function(gobject,
                           spat_loc_name = NULL,
                           plot_alignment = c('vertical', 'horizontal'),
                           dim_reduction_to_use = 'umap',
-                          dim_reduction_name = 'umap',
+                          dim_reduction_name = NULL,
                           dim1_to_use = 1,
                           dim2_to_use = 2,
                           sdimx = 'sdimx',
@@ -4410,7 +4414,7 @@ dimFeatPlot2D <- function(gobject,
                           expression_values = c('normalized', 'scaled', 'custom'),
                           feats = NULL,
                           dim_reduction_to_use = 'umap',
-                          dim_reduction_name = 'umap',
+                          dim_reduction_name = NULL,
                           dim1_to_use = 1,
                           dim2_to_use = 2,
                           show_NN_network = F,
@@ -4457,11 +4461,23 @@ dimFeatPlot2D <- function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
+  # specify dim_reduction_name according to provided feat_type
+  if(!is.null(dim_reduction_to_use)) {
+    if(is.null(dim_reduction_name)) {
+      if(feat_type == 'rna') {
+        dim_reduction_name = dim_reduction_to_use
+      } else {
+        dim_reduction_name = paste0(feat_type,'.',dim_reduction_to_use)
+      }
+    }
+  }
+
+
   # expression values
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
   expr_values = get_expression_values(gobject = gobject,
-                                         feat_type = feat_type,
-                                         values = values)
+                                      feat_type = feat_type,
+                                      values = values)
 
   # only keep feats that are in the dataset
   selected_feats = feats
@@ -4485,7 +4501,13 @@ dimFeatPlot2D <- function(gobject,
 
 
   ## dimension reduction ##
-  dim_dfr = gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$coordinates[,c(dim1_to_use, dim2_to_use)]
+  dim_dfr = get_dimReduction(gobject = gobject,
+                             reduction = 'cells',
+                             reduction_method = dim_reduction_to_use,
+                             name = dim_reduction_name,
+                             return_dimObj = FALSE)
+
+  #dim_dfr = gobject@dimension_reduction$cells[[dim_reduction_to_use]][[dim_reduction_name]]$coordinates[,c(dim1_to_use, dim2_to_use)]
   dim_names = colnames(dim_dfr)
   dim_DT = data.table::as.data.table(dim_dfr); dim_DT[, cell_ID := rownames(dim_dfr)]
 
