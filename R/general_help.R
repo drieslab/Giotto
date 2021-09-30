@@ -1057,4 +1057,79 @@ convertEnsemblToGeneSymbol = function(matrix,
 
 
 
+#' @title Read polygon files from Vizgen data
+#' @name readPolygonFilesVizgen
+#' @description Read selected polygon files for the FOVs present in the Giotto
+#' object and add the smoothed polygons to the object
+#' @param gobject giotto object
+#' @param boundaries_path path to the cell_boundaries folder
+#' @param polygon_feat_types a vector containing the polygon feature types
+#' considered in the analysis
+#'
+#' @export
+readPolygonFilesVizgen = function(gobject,
+                                  boundaries_path,
+                                  polygon_feat_types = 0:6) {
+  # define names
+  poly_feat_names = paste0('z', polygon_feat_types)
+  poly_feat_indexes = paste0('zIndex_', polygon_feat_types)
 
+  # select FOVs present in the subset
+  subset_metadata = pDataDT(gobject)
+  selected_fovs = unique(subset_metadata$fov)
+
+  # list all files in the folder
+  hdf5_boundary_list = list.files(full.names = T, boundaries_path)
+
+  # list polygon files from the selected FOVs
+  selected_hdf5s = paste0('feature_data_', selected_fovs, '.hdf5')
+  hdf5_boundary_selected_list = list()
+  for(hdf5_i in 1:length(selected_hdf5s)) {
+    hdf5 = selected_hdf5s[hdf5_i]
+    hdf5_boundary_selected = grep(pattern = hdf5, x = hdf5_boundary_list, value = T)[[1]]
+    hdf5_boundary_selected_list[[hdf5_i]] = hdf5_boundary_selected
+  }
+
+  # read selected polygon files
+  start_index = 1
+  # create a results list for each z index of the polygon file
+  result_list = replicate(length(polygon_feat_types), list())
+  multidt_list = replicate(length(polygon_feat_types), list())
+  for(bound_i in 1:length(hdf5_boundary_selected_list)) {
+    # read file and select feature data
+    read_file = rhdf5::H5Fopen(hdf5_boundary_selected_list[bound_i][[1]])
+    featdt = read_file$featuredata
+    cell_names = names(featdt)
+    # extract values for each z index
+    for(cell_i in 1:length(featdt)) {
+      for(z_i in 1:length(poly_feat_indexes)) {
+        singlearray = featdt[[cell_i]][[poly_feat_indexes[z_i]]]$p_0$coordinates
+        cell_name = cell_names[[cell_i]]
+        if(!is.null(singlearray)) {
+          singlearraydt = data.table::as.data.table(t(as.matrix(singlearray[,,1])))
+          singlearraydt[, file_id := paste0('file', bound_i)]
+          singlearraydt[, cell_id := cell_name]
+          singlearraydt[, my_id := paste0('cell', start_index)]
+          result_list[[z_i]][[start_index]] = singlearraydt
+        }
+      }
+      start_index = start_index + 1
+    }
+    for (i in 1:length(multidt_list)) {
+      multidt_list[[i]] = do.call('rbind', result_list[[i]])
+    }
+  }
+  # create Giotto polygons and add them to gobject
+  smooth_cell_polygons_list = list()
+  for (i in 1:length(multidt_list)) {
+    cell_polygons = createGiottoPolygonsFromDfr(segmdfr = multidt_list[[i]][,.(V1, V2, cell_id)],
+                                                 name = poly_feat_names[i])
+    smooth_cell_polygons = smoothGiottoPolygons(cell_polygons, vertices = 60)
+    smooth_cell_polygons_list[[i]] = smooth_cell_polygons
+  }
+  # add cell polygons to Giotto object
+  names(smooth_cell_polygons_list) = poly_feat_names
+  gobject = addGiottoPolygons(gobject = gobject,
+                              gpolygons = smooth_cell_polygons_list)
+  return(gobject)
+}
