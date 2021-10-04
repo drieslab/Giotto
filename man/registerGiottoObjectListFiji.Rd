@@ -6,35 +6,34 @@
 \usage{
 registerGiottoObjectListFiji(
   gobject_list,
-  image = "image",
-  registered_image_name = "image",
-  spat_loc_values = NULL,
-  spat_loc_name = "raw",
-  xml_files,
+  image_unreg = "image",
+  image_reg_name = "image",
   registered_images = NULL,
-  scaling,
-  auto_comp_reg_border,
+  spatloc_unreg = NULL,
+  spatloc_reg_name = "raw",
+  xml_files,
+  scale_factor = NULL,
   verbose = TRUE
 )
 }
 \arguments{
 \item{gobject_list}{list of gobjects to register}
 
-\item{image}{slot of original unregistered images}
+\item{image_unreg}{name of original unregistered images. Defaults to 'image' (optional)}
 
-\item{spat_loc_values}{spatial locations to use}
-
-\item{spat_loc_name}{slot to save spatial locations to. Defaults to replacement of spat_loc_values (optional)}
-
-\item{xml_files}{record of transformations performed in xml format exported during image registration using FIJI register_virtual_stack_slices}
+\item{image_reg_name}{Arbitrary name for registered images to occupy. Defaults to replacement of 'image' (optional)}
 
 \item{registered_images}{registered images output by FIJI register_virtual_stack_slices}
 
-\item{scaling}{scaling to be applied to spatial coordinates}
+\item{spatloc_unreg}{spatial locations to use. Defaults to 'raw' (optional)}
+
+\item{spatloc_reg_name}{name for registered spatial locations. Defaults to replacement of 'raw' (optional)}
+
+\item{xml_files}{atomic vector of filepaths to xml outputs from FIJI register_virtual_stack_slices}
+
+\item{scale_factor}{vector of scaling factors of images used in registration vs spatlocs}
 
 \item{verbose}{be verbose}
-
-\item{method}{method used to perform image registration}
 }
 \value{
 list of registered giotto objects where the registered images and spatial locations

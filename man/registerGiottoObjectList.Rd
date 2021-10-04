@@ -6,44 +6,49 @@
 \usage{
 registerGiottoObjectList(
   gobject_list,
-  image = "image",
-  registered_image_name = "image",
+  method = c("fiji", "rvision"),
+  image_unreg = "image",
+  image_reg_name = "image",
   image_list = NULL,
   save_dir = NULL,
-  spat_loc_values = NULL,
-  spat_loc_name = "raw",
-  method = c("fiji", "rvision"),
+  spatloc_unreg = "raw",
+  spatloc_reg_name = "raw",
   fiji_xml_files,
   fiji_registered_images,
-  scaling = 1,
+  scale_factor = NULL,
   allow_rvision_autoscale = TRUE,
-  auto_comp_reg_border = TRUE,
   verbose = TRUE
 )
 }
 \arguments{
-\item{gobject_list}{list of gobjects to register}
+\item{gobject_list}{List of gobjects to register}
 
-\item{registered_image_name}{arbitrary slot name for registered images. Defaults to the slot of unregistered images.}
+\item{method}{Method used to align gobjects. Current options are either using FIJI register_virtual_stack_slices output or rvision}
 
-\item{spat_loc_values}{spatial locations to use}
+\item{image_unreg}{Gobject image slot to use. Defaults to 'image' (optional)}
 
-\item{spat_loc_name}{arbitrary name for registered spatial locations. Defaults to replacement of spat_loc_values (optional)}
+\item{image_reg_name}{Arbitrary image slot name for registered images to occupy. Defaults to replacement of 'image' slot (optional)}
 
-\item{method}{method used to align gobjects. Current options are either using FIJI register_virtual_stack_slices output or rvision}
+\item{image_list}{RVISION - under construction}
 
-\item{fiji_xml_files}{record of transformations performed in xml format exported during image registration using FIJI register_virtual_stack_slices}
+\item{save_dir}{RVISION - under construction}
 
-\item{fiji_registered_images}{registered images output by FIJI register_virtual_stack_slices}
+\item{spatloc_unreg}{Unregistered spatial locations to align. Defaults to 'raw' slot (optional)}
 
-\item{scaling}{scaling to be applied to spatial coordinates}
+\item{spatloc_reg_name}{Arbitrary name for registered spatial locations. Defaults to replacement of 'raw' slot (optional)}
+
+\item{fiji_xml_files}{Filepaths to FIJI registration XML outputs}
+
+\item{fiji_registered_images}{Registered images output by FIJI register_virtual_stack_slices}
+
+\item{scale_factor}{Scaling to be applied to spatial coordinates}
 
 \item{allow_rvision_autoscale}{Whether or not to allow rvision to automatically scale the images when performing image registration}
 
-\item{verbose}{be verbose}
+\item{verbose}{Be verbose}
 }
 \value{
-list of registered giotto objects where the registered images and spatial locations
+List of registered giotto objects where the registered images and spatial locations
 }
 \description{
 Wrapper function for registerGiottoObjectListFiji and registerGiottoObjectListRvision

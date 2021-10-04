@@ -25,6 +25,10 @@ automatically through a script adjust the image with the spatial data.
 
 \item{\code{boundaries}}{x and y coordinate adjustments (default to 0)}
 
+\item{\code{scale_factor}}{image scaling relative to spatial locations}
+
+\item{\code{resolution}}{spatial location units covered per pixel}
+
 \item{\code{OS_platform}}{Operating System to run Giotto analysis on}
 }}
 
