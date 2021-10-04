@@ -159,17 +159,21 @@ select_spatial_locations = function(...) {
 #' @param gobject giotto object
 #' @param spat_loc_name name of spatial locations
 #' @param spatlocs spatial locations
+#' @param verbose be verbose
 #' @return giotto object
 #' @export
 set_spatial_locations <- function(gobject,
                                   spat_loc_name = 'raw',
-                                  spatlocs) {
+                                  spatlocs,
+                                  verbose = TRUE) {
 
 
   ## 1. check if specified name has already been used
   potential_names = names(gobject@spatial_locs[[spat_loc_name]])
   if(spat_loc_name %in% potential_names) {
-    cat(spat_loc_name, ' already exist and will be replaced with new spatial locations \n')
+    if(verbose == TRUE) {
+    cat(spat_loc_name, ' already exists and will be replaced with new spatial locations \n')
+    }
   }
 
   ## TODO: 2. check input for spatial locations

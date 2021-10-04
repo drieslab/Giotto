@@ -15,5 +15,5 @@ getGiottoImage(gobject, image_name)
 a giotto image
 }
 \description{
-get get a giotto image from a giotto object
+get a giotto image from a giotto object
 }

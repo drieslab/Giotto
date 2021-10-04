@@ -8,7 +8,7 @@ joinGiottoObjects(
   gobject_list,
   gobject_names = NULL,
   join_method = c("x_shift", "z_stack"),
-  z_step = 1000,
+  z_vals = 1000,
   x_shift = NULL,
   x_padding = 0,
   verbose = TRUE
@@ -21,7 +21,7 @@ joinGiottoObjects(
 
 \item{join_method}{method to join giotto objects}
 
-\item{z_step}{distance along z-axis if method is z-stack}
+\item{z_vals}{distance(s) along z-axis if method is z-stack}
 
 \item{x_shift}{shift along x-axis if method is x-shift}
 
