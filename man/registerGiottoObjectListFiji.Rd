@@ -9,7 +9,7 @@ registerGiottoObjectListFiji(
   image_unreg = "image",
   image_reg_name = "image",
   registered_images = NULL,
-  spatloc_unreg = NULL,
+  spatloc_unreg = "raw",
   spatloc_reg_name = "raw",
   xml_files,
   scale_factor = NULL,

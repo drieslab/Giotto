@@ -327,14 +327,14 @@ registerGiottoObjectListFiji = function(gobject_list,
                                         image_unreg = 'image',
                                         image_reg_name = 'image',
                                         registered_images = NULL,
-                                        spatloc_unreg = NULL,
+                                        spatloc_unreg = 'raw',
                                         spatloc_reg_name = 'raw',
                                         xml_files,
                                         scale_factor = NULL,
                                         verbose = TRUE) {
 
   ## 0. Check Params ##
-  if(length(spatloc_list) != length(transf_list)) {
+  if(length(gobject_list) != length(xml_files)) {
     stop('xml spatial transforms must be supplied for every gobject to be registered.\n')
   }
   
@@ -483,7 +483,7 @@ registerGiottoObjectListFiji = function(gobject_list,
 
       #Automatic adjustment
       if(exists('reg_img_boundaries')){ #TODO
-        im_info = gobj@images[[image]]@minmax
+        im_info = gobj@images[[image_reg_name]]@minmax
 
         #update the giottoImage boundaries
         boundaries <- as.numeric(c(reg_img_boundaries$xmax_reg - im_info[['xmax_sloc']],
@@ -493,7 +493,7 @@ registerGiottoObjectListFiji = function(gobject_list,
 
         names(boundaries) = c('xmax_adj','xmin_adj','ymax_adj','ymin_adj')
 
-        gobj@images[[registered_image_name]]@boundaries = boundaries
+        gobj@images[[image_reg_name]]@boundaries = boundaries
 
       }
     }
