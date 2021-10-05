@@ -2375,7 +2375,7 @@ join_cell_meta = function(dt_list) {
 #' @param gobject_list list of giotto objects
 #' @param gobject_names unique giotto names for each giotto object
 #' @param join_method method to join giotto objects
-#' @param z_step distance along z-axis if method is z-stack
+#' @param z_vals distance(s) along z-axis if method is z-stack
 #' @param x_shift shift along x-axis if method is x-shift
 #' @param x_padding padding bewteen datasets/images if method is x-shift
 #' @param verbose be verbose
@@ -2385,12 +2385,14 @@ join_cell_meta = function(dt_list) {
 joinGiottoObjects = function(gobject_list,
                              gobject_names = NULL,
                              join_method = c('x_shift', 'z_stack'),
-                             z_step = 1000,
+                             z_vals = 1000,
                              x_shift = NULL,
                              x_padding = 0,
                              verbose = TRUE) {
-
-
+  
+  ## determine join method
+  join_method = match.arg(arg = join_method, choices = c('x_shift', 'z_stack'))
+  
   ## check params
   if(!is.vector(gobject_names) | !is.character(gobject_names)) {
     stop('gobject_names need to be a vector with unique names for the giotto objects')
@@ -2399,8 +2401,25 @@ joinGiottoObjects = function(gobject_list,
   if(length(gobject_list) != length(gobject_names)) {
     stop('each giotto object in the list needs to have a unique (short) name')
   }
+  
+  if(join_method == 'z_stack') {
+    if(!(is.atomic(z_vals) && is.numeric(z_vals))) {
+      stop('z_vals requires either a single numeric or an atomic vector of numerics with one value for each z slice (Giotto object). \n')
+    }
+    if((length(z_vals) != length(gobject_list)) && (length(z_vals) != 1)) {
+      stop('If more than one z_value is given, there must be one for each Giotto object to be joined. \n')
+    }
+  }
 
-  join_method = match.arg(arg = join_method, choices = c('x_shift', 'z_stack'))
+  
+  
+  # expand z_vals if given as a step value
+  if(join_method == 'z_stack') {
+    if(length(z_vals) == 1) {
+      z_vals = ((1:length(gobject_list)) - 1) * z_vals # Find z vals stepwise
+    }
+  }
+
 
   # keep instructions from first giotto object
   first_instructions = gobject_list[[1]]@instructions
@@ -2507,7 +2526,7 @@ joinGiottoObjects = function(gobject_list,
       myspatlocs = gobj@spatial_locs[[locs]]
 
       if(join_method == 'z_stack') {
-        myspatlocs[, sdimz := (gobj_i - 1) * z_step]
+        myspatlocs[, sdimz := z_vals[gobj_i]]
         myspatlocs[, cell_ID := gobj@cell_ID]
         myspatlocs = myspatlocs[,.(sdimx, sdimy, sdimz, cell_ID)]
       } else if(join_method == 'x_shift') {
@@ -2660,7 +2679,7 @@ joinGiottoObjects = function(gobject_list,
 
   comb_gobject@join_info = list(list_IDs = gobject_names,
                                 join_method = join_method,
-                                z_step = z_step,
+                                z_vals = z_vals,
                                 x_shift = x_shift,
                                 x_padding = x_padding)
 

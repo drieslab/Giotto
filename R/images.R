@@ -9,6 +9,8 @@
 #' @slot mg_object magick image object
 #' @slot minmax minimum and maximum of associated spatial location coordinates
 #' @slot boundaries x and y coordinate adjustments (default to 0)
+#' @slot scale_factor image scaling relative to spatial locations
+#' @slot resolution spatial location units covered per pixel
 #' @slot OS_platform Operating System to run Giotto analysis on
 #' @details
 #' [\strong{mg_object}] Core object is any image that can be read by the magick package
@@ -26,6 +28,8 @@ giottoImage <- setClass(
     mg_object = "ANY",
     minmax = "ANY",
     boundaries = "ANY",
+    scale_factor = "ANY",
+    resolution = "ANY",
     OS_platform = "ANY"
   ),
 
@@ -34,6 +38,8 @@ giottoImage <- setClass(
     mg_object = NULL,
     minmax = NULL,
     boundaries = NULL,
+    scale_factor = NULL,
+    resolution = NULL,
     OS_platform = NULL
   )
 )
@@ -65,6 +71,23 @@ setMethod(
         "Max adjustment on y-axis: ", object@boundaries[['ymax_adj']], "\n",
         "Min adjustment on y-axis: ", object@boundaries[['ymin_adj']], "\n",
         "\n")
+    
+    cat("Boundaries are: \n",
+        "Image x-axis max boundary: ", object@minmax[['xmax_sloc']] + object@boundaries[['xmax_adj']], "\n",
+        "Image x-axis min boundary: ", object@minmax[['xmin_sloc']] - object@boundaries[['xmin_adj']], "\n",
+        "Image y-axis max boundary: ", object@minmax[['ymax_sloc']] + object@boundaries[['ymax_adj']], "\n",
+        "Image y-axis min boundary: ", object@minmax[['ymin_sloc']] - object@boundaries[['ymin_adj']], "\n",
+        "\n")
+    
+    cat("Scale factor(s) for spatlocs are: \n")
+    for(name in names(object@scale_factor)) {
+      cat(' ',name,': ',object@scale_factor[[name]][1], "\n")
+    }
+    
+    cat("Resolution(s) for spatlocs are: \n")
+    for(name in names(object@resolution)) {
+      cat(' ',name,': ',object@resolution[[name]][1], "\n")
+    }
 
     # print(object@mg_object)
 
@@ -114,6 +137,8 @@ createGiottoImage = function(gobject = NULL,
                         mg_object = NULL,
                         minmax = NULL,
                         boundaries = NULL,
+                        scale_factor = NULL,
+                        resolution = NULL,
                         OS_platform = .Platform[['OS.type']])
 
 
@@ -126,7 +151,7 @@ createGiottoImage = function(gobject = NULL,
       }
     } else {
       stop("mg_object needs to be an image object 'magick-image' from the magick package or \n
-           an existig path that can be read by magick::image_read()")
+           an existing path that can be read by magick::image_read()")
     }
   }
 
@@ -214,8 +239,8 @@ createGiottoImage = function(gobject = NULL,
     my_xmin = 0; my_xmax = 10; my_ymin = 0; my_ymax = 10
 
   }
-  
-  #minmax and boundary values for return
+  #TODO Add spatloc specific slots
+  # minmax and boundary values for return
   g_image@minmax = c('xmax_sloc' = my_xmax,
                      'xmin_sloc' = my_xmin,
                      'ymax_sloc' = my_ymax,
@@ -225,6 +250,17 @@ createGiottoImage = function(gobject = NULL,
                          'xmin_adj' = xmin_adj,
                          'ymax_adj' = ymax_adj,
                          'ymin_adj' = ymin_adj)
+  
+  # scale factor and resolution values for return
+  
+  if(!is.null(spat_loc_name)) {
+    g_image@scale_factor[[spat_loc_name]] = scale_factor
+    g_image@resolution[[spat_loc_name]] = 1/scale_factor
+  } else {
+    g_image@scale_factor$raw = scale_factor
+    g_image@resolution$raw = 1/scale_factor    
+  }
+
 
   # image object
   return(g_image)
@@ -448,10 +484,35 @@ createGiottoImageOLD = function(gobject = NULL,
 addGiottoImage = function(gobject,
                           images,
                           spat_loc_name = 'raw',
-                          scale_factor = 1) {
-
+                          scale_factor = NULL) {
+  
+  # 0. check params
   if(is.null(gobject)) stop('The giotto object that will be updated needs to be provided')
+  
+  if(is.null(images)) stop('The giotto image(s) that will be added needs to be provided')
+  
+  ext_scale_factor = FALSE
+  if(!is.null(scale_factor)) {
+    
+    if(!is.numeric(scale_factor)) stop ('Given scale_factor(s) must be numeric')
+    
+    if((length(scale_factor) == length(images)) || length(scale_factor) == 1) {
+      cat('scale_factor(s) external to giottoImage have been given and will be used')
+      ext_scale_factor = TRUE
+    } else {
+      stop('if scale_factor is given, it must be a numeric with either a single value or as many values as there are images are provided')
+    }
+  }
+  
+  # 1. expand scale_factors
+  if(ext_scale_factor == TRUE) {
+    if(length(scale_factor == 1)) {
+      scale_factor = rep(scale_factor, length(images))
+    }
+  }
 
+  
+  # 2. Add image with for loop
   for(image_i in 1:length(images)) {
 
     im = images[[image_i]]
@@ -465,7 +526,7 @@ addGiottoImage = function(gobject,
         cat('\n ', im_name, ' has already been used, will be overwritten \n')
       }
       
-      #Update boundaries if not already done during createGiottoImage() due to lack of spatlocs and gobject
+      # 3. Update boundaries if not already done during createGiottoImage() due to lack of spatlocs and gobject
       if(sum(im@boundaries == c(0,0,0,0)) == 4 && sum(im@minmax == c(10,0,10,0)) == 4) {
         spatlocs = get_spatial_locations(gobject = gobject,
                                          spat_loc_name = spat_loc_name)
@@ -478,9 +539,15 @@ addGiottoImage = function(gobject,
         
         #Find adjustment values
         img_minmax = get_img_minmax(mg_img = im@mg_object)
-        adj_values = get_adj_rescale_img(img_minmax = img_minmax,
-                                         spatial_locs = spatlocs,
-                                         scale_factor = scale_factor)
+        if(ext_scale_factor == TRUE) {
+          adj_values = get_adj_rescale_img(img_minmax = img_minmax,
+                                           spatial_locs = spatlocs,
+                                           scale_factor = scale_factor[[image_i]])
+        } else if (ext_scale_factor == FALSE) {
+          adj_values = get_adj_rescale_img(img_minmax = img_minmax,
+                                           spatial_locs = spatlocs,
+                                           scale_factor = im@scale_factor[[spat_loc_name]])
+        }
         
         #Add minmax values to giottoImage@minmax
         im@minmax = c('xmax_sloc' = xmax_sloc,
@@ -494,13 +561,19 @@ addGiottoImage = function(gobject,
                           'ymax_adj' = as.numeric(adj_values[['ymax_adj_orig']]),
                           'ymin_adj' = as.numeric(adj_values[['ymin_adj_orig']]))
         
+        # Inherit external scaling factors if given
+        if(ext_scale_factor == TRUE) {
+          im@scale_factor[[spat_loc_name]] = scale_factor[[image_i]]
+          im@resolution[[spat_loc_name]] = 1/(scale_factor[[image_i]])
+        }
+        ## Externally given scale_factors will only be written in/used if boundary adj values are not pre-existing
       }
       
-      #Add giottoImage to gobject
+      # 4. Add giottoImage to gobject
       gobject@images[[im_name]] = im
       
     } else {
-      warning('image is not a giotto image object')
+      warning('image [',image_i,'] is not a giotto image object')
     }
   }
 
@@ -615,9 +688,67 @@ updateGiottoImage = function(gobject,
 
 
 
+#' @title rescaleGiottoImage
+#' @name  rescaleGiottoImage
+#' @description Change scale_factor and resolution slot values
+#' @param gimage giottoImage to rescale
+#' @param gobject giottoObject containing giottoImage to rescale
+#' @param image_name name of giottoImage in giottoObject
+#' @param spatloc_name name of spatlocs that scaling is relative to (defaults to 'raw')
+#' @param scale_factor scale factor to convert from spatial distance to pixel distance
+#' @param resolution pixel distance per unit of real world distance (1/scale_factor)
+#' @export
+rescaleGiottoImage = function(gimage = NULL,
+                              gobject = NULL,
+                              image_name,
+                              spatloc_name = 'raw',
+                              scale_factor = NULL,
+                              resolution = NULL) {
+  # Check Params
+  if(scale_factor == NULL && resolution == NULL) stop('Either a scale factor or a resolution must be given \n')
+  if(scale_factor != NULL && resolution != NULL) stop('Either a scale factor or a resolution must be given - not both \n')
+  
+  getFlag = NULL
+  if(!is.null(gimage)) {
+    getFlag = FALSE
+  } else if(!is.null(gobject) && !is.null(image_name)) {
+    getFlag = TRUE
+  } else {
+    stop('giottoImage must be given as either the gimage OR a gobject AND an image_name \n')
+  }
+  
+  # Get giottoImage
+  if(getFlag == TRUE) g_img = getGiottoImage(gobject = gobject, image_name = image_name)
+  if(getFlag == FALSE) g_img = gimage
+  
+  # Assign values to giottoImage resolution and scale_factor slots
+  if(scale_factor != NULL) {
+    g_img@scale_factor[[spatloc_name]] = scale_factor
+    g_img@resolution[[spatloc_name]] = 1/scale_factor
+  }
+  if(resolution != NULL) {
+    g_img@scale_factor[[spatloc_name]] = 1/resolution
+    g_img@resolution[[spatloc_name]] = resolution
+  }
+  
+  # Return object
+  if(getFlag == TRUE) {
+    out = gobject
+    out@images[[image_name]] = g_img
+  }
+  if(getFlag == FALSE) {
+    out = g_img
+  }
+  
+  return(out)
+
+}
+
+
+
 #' @title getGiottoImage
 #' @name getGiottoImage
-#' @description get get a giotto image from a giotto object
+#' @description get a giotto image from a giotto object
 #' @param gobject giotto object
 #' @param image_name name of giotto image \code{\link{showGiottoImageNames}}
 #' @return a giotto image
