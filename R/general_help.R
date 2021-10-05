@@ -1057,7 +1057,7 @@ convertEnsemblToGeneSymbol = function(matrix,
 
 
 
-#' @title Read polygon files from Vizgen data
+#' @title readPolygonFilesVizgen
 #' @name readPolygonFilesVizgen
 #' @description Read selected polygon files for the FOVs present in the Giotto
 #' object and add the smoothed polygons to the object
