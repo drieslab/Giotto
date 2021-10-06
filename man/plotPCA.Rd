@@ -4,7 +4,7 @@
 \alias{plotPCA}
 \title{plotPCA}
 \usage{
-plotPCA(gobject, dim_reduction_name = "pca", default_save_name = "PCA", ...)
+plotPCA(gobject, dim_reduction_name = NULL, default_save_name = "PCA", ...)
 }
 \arguments{
 \item{gobject}{giotto object}

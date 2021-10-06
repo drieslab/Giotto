@@ -4,7 +4,7 @@
 \alias{plotTSNE}
 \title{plotTSNE}
 \usage{
-plotTSNE(gobject, dim_reduction_name = "tsne", default_save_name = "tSNE", ...)
+plotTSNE(gobject, dim_reduction_name = NULL, default_save_name = "tSNE", ...)
 }
 \arguments{
 \item{gobject}{giotto object}

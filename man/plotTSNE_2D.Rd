@@ -6,7 +6,7 @@
 \usage{
 plotTSNE_2D(
   gobject,
-  dim_reduction_name = "tsne",
+  dim_reduction_name = NULL,
   default_save_name = "tSNE_2D",
   ...
 )

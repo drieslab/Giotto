@@ -9,7 +9,7 @@ createNearestNetwork(
   feat_type = NULL,
   type = c("sNN", "kNN"),
   dim_reduction_to_use = "pca",
-  dim_reduction_name = "pca",
+  dim_reduction_name = NULL,
   dimensions_to_use = 1:10,
   feats_to_use = NULL,
   genes_to_use = NULL,

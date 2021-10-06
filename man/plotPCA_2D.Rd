@@ -6,7 +6,7 @@
 \usage{
 plotPCA_2D(
   gobject,
-  dim_reduction_name = "pca",
+  dim_reduction_name = NULL,
   default_save_name = "PCA_2D",
   ...
 )

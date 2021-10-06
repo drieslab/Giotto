@@ -4,7 +4,7 @@
 \alias{addGiottoImage}
 \title{addGiottoImage}
 \usage{
-addGiottoImage(gobject, images, spat_loc_name = "raw", scale_factor = 1)
+addGiottoImage(gobject, images, spat_loc_name = "raw", scale_factor = NULL)
 }
 \arguments{
 \item{gobject}{giotto object}

@@ -4,7 +4,7 @@
 \alias{set_spatial_locations}
 \title{set_spatial_locations}
 \usage{
-set_spatial_locations(gobject, spat_loc_name = "raw", spatlocs)
+set_spatial_locations(gobject, spat_loc_name = "raw", spatlocs, verbose = TRUE)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -12,6 +12,8 @@ set_spatial_locations(gobject, spat_loc_name = "raw", spatlocs)
 \item{spat_loc_name}{name of spatial locations}
 
 \item{spatlocs}{spatial locations}
+
+\item{verbose}{be verbose}
 }
 \value{
 giotto object

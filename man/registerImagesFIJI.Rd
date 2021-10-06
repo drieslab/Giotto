@@ -5,15 +5,17 @@
 \title{registerImagesFIJI}
 \usage{
 registerImagesFIJI(
-  source,
-  output,
+  source_img_dir,
+  output_img_dir,
+  transforms_save_dir,
+  ref_img_name,
   init_gauss_blur = 1.6,
   steps_per_scale_octave = 3,
   min_img_size = 64,
   max_img_size = 1024,
   feat_desc_size = 8,
   feat_desc_orient_bins = 8,
-  closest_next_closest_Ratio = 0.92,
+  closest_next_closest_ratio = 0.92,
   max_align_err = 25,
   inlier_ratio = 0.05,
   headless = FALSE,
@@ -25,14 +27,19 @@ registerImagesFIJI(
   fijiArgs = NULL,
   javaArgs = NULL,
   ijArgs = NULL,
+  jython = FALSE,
   fijiPath = fiji(),
   DryRun = FALSE
 )
 }
 \arguments{
-\item{source}{Folder containing images to be registered}
+\item{source_img_dir}{Folder containing images to be registered}
 
-\item{output}{Folder to save registered images to}
+\item{output_img_dir}{Folder to save registered images to}
+
+\item{transforms_save_dir}{(jython implementation only) Folder to save transforms to}
+
+\item{ref_img_name}{(jython implementation only) File name of reference image for the registration}
 
 \item{init_gauss_blur}{Point detector option: initial image blurring}
 
@@ -45,8 +52,6 @@ registerImagesFIJI(
 \item{feat_desc_size}{Feature descriptor option}
 
 \item{feat_desc_orient_bins}{Feature descriptor option}
-
-\item{closest_next_closest_Ratio}{Feature descriptor option}
 
 \item{max_align_err}{Geometric consensus filter option}
 
@@ -68,15 +73,15 @@ registerImagesFIJI(
 
 \item{ijArgs}{Arguments for ImageJ}
 
+\item{jython}{Use jython wrapper script}
+
 \item{fijiPath}{Path to fiji executable (can be set by
 \code{options(giotto.fiji="/some/path")})}
 
 \item{DryRun}{Whether to return the command to be run rather than actually
 executing it.}
 
-\item{transformSave}{Folder to save transforms to}
-
-\item{referenceImg}{File name of reference image for the registration}
+\item{closest_next_closest_Ratio}{Feature descriptor option}
 }
 \value{
 list of registered giotto objects where the registered images and spatial locations
