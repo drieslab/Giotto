@@ -1233,6 +1233,8 @@ plotMetaDataHeatmap = function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
+
+
   metaDT = calculateMetaTable(gobject = gobject,
                               feat_type = feat_type,
                               expression_values = expression_values,
