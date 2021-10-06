@@ -209,7 +209,7 @@ createGiottoImage = function(gobject = NULL,
 
   } else if(!is.null(spatial_locs)) {
     spatlocs = spatial_locs
-    if(!all(colnames(spatlocs) %in% c('sdimx', 'sdimy'))) {
+    if(!all(c('sdimx','sdimy') %in% colnames(spatlocs))) {
       stop('spatial_locs needs to be data.frame-like object with a sdimx and sdimy column')
     }
 
@@ -705,8 +705,12 @@ rescaleGiottoImage = function(gimage = NULL,
                               scale_factor = NULL,
                               resolution = NULL) {
   # Check Params
-  if(scale_factor == NULL && resolution == NULL) stop('Either a scale factor or a resolution must be given \n')
-  if(scale_factor != NULL && resolution != NULL) stop('Either a scale factor or a resolution must be given - not both \n')
+  if(is.null(scale_factor) && is.null(resolution)) stop('Either a scale factor or a resolution must be given \n')
+  if(!is.null(scale_factor) && !is.null(resolution)) stop('Either a scale factor or a resolution must be given - not both \n')
+  
+  if(is.null(gimage) && is.null(gobject)) stop('Either a giottoImage or a giottoObject with image name is needed \n')
+  
+  if(!is.null(gobject) && is.null(image_name)) stop ('image_name must be provided if gobject is given \n')
   
   getFlag = NULL
   if(!is.null(gimage)) {
@@ -722,11 +726,11 @@ rescaleGiottoImage = function(gimage = NULL,
   if(getFlag == FALSE) g_img = gimage
   
   # Assign values to giottoImage resolution and scale_factor slots
-  if(scale_factor != NULL) {
+  if(!is.null(scale_factor)) {
     g_img@scale_factor[[spatloc_name]] = scale_factor
     g_img@resolution[[spatloc_name]] = 1/scale_factor
   }
-  if(resolution != NULL) {
+  if(!is.null(resolution)) {
     g_img@scale_factor[[spatloc_name]] = 1/resolution
     g_img@resolution[[spatloc_name]] = resolution
   }
