@@ -636,10 +636,10 @@ set_polygon_info = function(gobject,
 #' @name get_feature_info
 #' @description  get giotto points spatVector
 #' @param gobject giotto object
-#' @param feat_name name of feature
+#' @param feat_type name of feature
 #' @export
 get_feature_info = function(gobject,
-                            feat_name = NULL) {
+                            feat_type = NULL) {
 
   # specify feat_type
   if(is.null(feat_type)) {
@@ -648,10 +648,10 @@ get_feature_info = function(gobject,
 
   potential_names = names(gobject@feat_info)
 
-  if(!feat_name %in% potential_names) {
-    stop('There is no feature information with name ', feat_name, '\n')
+  if(!feat_type %in% potential_names) {
+    stop('There is no feature information with name ', feat_type, '\n')
   } else {
-    feat_info = gobject@feat_info[[feat_name]]@spatVector
+    feat_info = gobject@feat_info[[feat_type]]@spatVector
     return(feat_info)
   }
 }
@@ -674,11 +674,11 @@ select_feature_info = function(...) {
 #' @name set_feature_info
 #' @description  set giotto polygon spatVector for features
 #' @param gobject giotto object
-#' @param feat_name name of feat
+#' @param feat_type name of feat
 #' @param gpolygon giotto polygon
 #' @export
 set_feature_info = function(gobject,
-                            feat_name = NULL,
+                            feat_type = NULL,
                             gpolygon) {
 
   # specify feat_type
@@ -688,20 +688,18 @@ set_feature_info = function(gobject,
 
   ## 1. check if specified name has already been used
   potential_names = names(gobject@feat_info)
-  if(feat_name %in% potential_names) {
-    cat(feat_name, ' already exist and will be replaced with new giotto polygon \n')
+  if(feat_type %in% potential_names) {
+    cat(feat_type, ' already exist and will be replaced with new giotto polygon \n')
   }
 
   ## TODO: 2. check input for giotto polygon
 
 
   ## 3. update and return giotto object
-  gobject@feat_name[[feat_name]] = gpolygon
+  gobject@feat_info[[feat_type]] = gpolygon
   return(gobject)
 
 }
-
-
 
 
 

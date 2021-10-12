@@ -501,7 +501,7 @@ createGiottoPolygonsFromDfr = function(segmdfr,
 
 
 
-#' @name fix_multipart_geoms
+#' @name extract_polygon_list
 #' @description  to extract list of polygons
 #' @keywords internal
 extract_polygon_list = function(polygonlist,
@@ -1442,10 +1442,22 @@ calculateOverlap = function(gobject,
   start_y = terra::ymin(myext)
   end_y = start_y + (yrep * y_step)
 
-  dt_steps = data.table::data.table(xmin = rep(seq(start_x, end_x, x_step), yrep),
-                                    xmax = rep(seq(x_step, (end_x+x_step), x_step), yrep),
-                                    ymin = rep(seq(start_y, end_y, y_step), each = xrep),
-                                    ymax = rep(seq(y_step, (end_y+y_step), y_step), each = xrep))
+
+  xmin = rep(seq(start_x, (end_x-x_step), x_step), yrep)
+  xmax = rep(seq((start_x+x_step), end_x, x_step), yrep)
+  ymin = rep(seq(start_y, (end_y-y_step), y_step), each = xrep)
+  ymax = rep(seq(start_y+y_step, end_y, y_step), each = xrep)
+
+  dt_steps = data.table::data.table(xmin = xmin,
+                                    xmax = xmax,
+                                    ymin = ymin,
+                                    ymax = ymax)
+
+
+  #dt_steps = data.table::data.table(xmin = rep(seq(start_x, end_x, x_step), yrep),
+  #                                  xmax = rep(seq(x_step, (end_x+x_step), x_step), yrep),
+  #                                  ymin = rep(seq(start_y, end_y, y_step), each = xrep),
+  #                                  ymax = rep(seq(y_step, (end_y+y_step), y_step), each = xrep))
 
   print(dt_steps)
 
@@ -1725,7 +1737,7 @@ combineFeatureData = function(gobject,
 
     # feature info
     feat_info_spatvec = get_feature_info(gobject = gobject,
-                                            feat_name = feat)
+                                            feat_type = feat)
     feat_info = spatVector_to_dt(feat_info_spatvec)
     if(!is.null(sel_feats[[feat_type]])) {
       selected_features = sel_feats[[feat_type]]

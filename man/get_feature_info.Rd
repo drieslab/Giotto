@@ -4,12 +4,12 @@
 \alias{get_feature_info}
 \title{get_feature_info}
 \usage{
-get_feature_info(gobject, feat_name = NULL)
+get_feature_info(gobject, feat_type = NULL)
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{feat_name}{name of feature}
+\item{feat_type}{name of feature}
 }
 \description{
 get giotto points spatVector

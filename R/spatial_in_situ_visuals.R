@@ -175,6 +175,7 @@ plot_feature_points_layer = function(ggobject,
 #' @param axis_text axis text size
 #' @param axis_title title text size
 #' @param legend_text legend text size
+#' @param coord_fix_ratio fix ratio of coordinates
 #' @param background_color background color
 #' @param show_legend show legend
 #' @param plot_method method to plot points
@@ -210,6 +211,7 @@ spatInSituPlotPoints = function(gobject,
                                 axis_text = 8,
                                 axis_title = 8,
                                 legend_text = 6,
+                                coord_fix_ratio = NULL,
                                 background_color = 'black',
                                 show_legend = TRUE,
                                 plot_method = c('ggplot', 'scattermore', 'scattermost'),
@@ -318,6 +320,10 @@ spatInSituPlotPoints = function(gobject,
                                 panel.background = element_rect(fill = background_color))
 
 
+
+  if(!is.null(coord_fix_ratio)) {
+    plot = plot + ggplot2::coord_fixed(ratio = coord_fix_ratio)
+  }
 
 
   ## print plot

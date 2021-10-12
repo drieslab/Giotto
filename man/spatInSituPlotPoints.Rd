@@ -28,6 +28,7 @@ spatInSituPlotPoints(
   axis_text = 8,
   axis_title = 8,
   legend_text = 6,
+  coord_fix_ratio = NULL,
   background_color = "black",
   show_legend = TRUE,
   plot_method = c("ggplot", "scattermore", "scattermost"),
@@ -80,6 +81,8 @@ spatInSituPlotPoints(
 \item{axis_title}{title text size}
 
 \item{legend_text}{legend text size}
+
+\item{coord_fix_ratio}{fix ratio of coordinates}
 
 \item{background_color}{background color}
 
