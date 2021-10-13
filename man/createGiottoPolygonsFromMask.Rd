@@ -17,7 +17,8 @@ createGiottoPolygonsFromMask(
   flip_horizontal = TRUE,
   shift_horizontal_step = TRUE,
   calc_centroids = FALSE,
-  fix_multipart = TRUE
+  fix_multipart = TRUE,
+  remove_unvalid_polygons = TRUE
 )
 }
 \arguments{
@@ -44,6 +45,8 @@ createGiottoPolygonsFromMask(
 \item{calc_centroids}{calculate centroids for polygons}
 
 \item{fix_multipart}{try to split polygons with multiple parts (default: TRUE)}
+
+\item{remove_unvalid_polygons}{remove unvalid polygons (default: TRUE)}
 }
 \value{
 

@@ -295,6 +295,7 @@ fix_multipart_geoms = function(spatVector) {
 #' @param shift_horizontal_step shift horizontal (boolean or numerical)
 #' @param calc_centroids calculate centroids for polygons
 #' @param fix_multipart try to split polygons with multiple parts (default: TRUE)
+#' @param remove_unvalid_polygons remove unvalid polygons (default: TRUE)
 #' @return
 #' @keywords mask polygon
 #' @export
@@ -310,7 +311,8 @@ createGiottoPolygonsFromMask = function(maskfile,
                                         flip_horizontal = TRUE,
                                         shift_horizontal_step = TRUE,
                                         calc_centroids = FALSE,
-                                        fix_multipart = TRUE) {
+                                        fix_multipart = TRUE,
+                                        remove_unvalid_polygons = TRUE) {
 
   # select background algo
   background_algo = match.arg(background_algo, choices = 'range')
@@ -329,9 +331,19 @@ createGiottoPolygonsFromMask = function(maskfile,
   terra_rast = terra::rast(maskfile)
   rast_dimensions = dim(terra_rast)
   terra_polygon = terra::as.polygons(x = terra_rast, value = TRUE)
+
+  # fill holes
   if(fill_holes == TRUE) {
     terra_polygon = terra::fillHoles(terra_polygon)
   }
+
+  # remove unvalid polygons
+  if(remove_unvalid_polygons == TRUE) {
+    valid_index = terra::is.valid(terra_polygon)
+    terra_polygon = terra_polygon[valid_index]
+  }
+
+
   spatVecDT = spatVector_to_dt(terra_polygon)
 
   # guess mask method
@@ -402,6 +414,11 @@ createGiottoPolygonsFromMask = function(maskfile,
 
   # provide own cell_ID name
   if(!is.null(poly_IDs)) {
+
+    if(remove_unvalid_polygons == TRUE) {
+      poly_IDs = poly_IDs[valid_index]
+    }
+
     if(length(poly_IDs) != nrow(terra::values(terra_polygon))) {
       stop('length cell_IDs does not equal number of found polyongs \n')
     }
