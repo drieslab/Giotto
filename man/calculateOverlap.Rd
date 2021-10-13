@@ -12,6 +12,7 @@ calculateOverlap(
   x_step = 200,
   y_step = 200,
   method = c("serial", "parallel"),
+  remove_unvalid_polygons = TRUE,
   return_gobject = TRUE,
   verbose = TRUE
 )
@@ -30,6 +31,8 @@ calculateOverlap(
 \item{y_step}{y-direction step to travel over the polygon landscape}
 
 \item{method}{serial of parallel execution (see details)}
+
+\item{remove_unvalid_polygons}{remove unvalid polygons}
 
 \item{return_gobject}{return giotto object (default: TRUE)}
 

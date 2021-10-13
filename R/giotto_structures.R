@@ -1422,6 +1422,7 @@ parallel_intersect = function(wrap_polvec_list,
 #' @param x_step x-direction step to travel over the polygon landscape
 #' @param y_step y-direction step to travel over the polygon landscape
 #' @param method serial of parallel execution (see details)
+#' @param remove_unvalid_polygons remove unvalid polygons
 #' @param return_gobject return giotto object (default: TRUE)
 #' @param verbose be verbose
 #' @return giotto object or spatVector with overlapping information
@@ -1437,12 +1438,18 @@ calculateOverlap = function(gobject,
                             x_step = 200,
                             y_step = 200,
                             method = c('serial', 'parallel'),
+                            remove_unvalid_polygons = TRUE,
                             return_gobject = TRUE,
                             verbose = TRUE) {
 
 
   polvec = gobject@spatial_info[[poly_info]]@spatVector
   pointsvec = gobject@feat_info[[feat_info]]@spatVector
+
+  # remove unvalid polygons first
+  if(remove_unvalid_polygons == TRUE) {
+    polvec = polvec[terra::is.valid(polvec)]
+  }
 
   ## 1. compute windows to look for overlap
   ## create data.table with x and y beginnings and ends
@@ -1476,7 +1483,7 @@ calculateOverlap = function(gobject,
   #                                  ymin = rep(seq(start_y, end_y, y_step), each = xrep),
   #                                  ymax = rep(seq(y_step, (end_y+y_step), y_step), each = xrep))
 
-  print(dt_steps)
+  if(verbose == TRUE) print(dt_steps)
 
 
   ## 2. get poly ids for all tiles
