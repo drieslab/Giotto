@@ -155,6 +155,10 @@ plot_feature_points_layer = function(ggobject,
 #' @name spatInSituPlotPoints
 #' @description Function to plot multiple features for multiple modalities at the spatial in situ level
 #' @param gobject giotto object
+#' @param show_image show a tissue background image
+#' @param gimage a giotto image
+#' @param image_name name of a giotto image
+#' @param spat_loc_name name of spatial locations
 #' @param feats features to plot
 #' @param feat_type feature types of the feats
 #' @param feats_color_code code to color the provided features
@@ -189,6 +193,10 @@ plot_feature_points_layer = function(ggobject,
 #' @family In Situ visualizations
 #' @export
 spatInSituPlotPoints = function(gobject,
+                                show_image = F,
+                                gimage = NULL,
+                                image_name = 'image',
+                                spat_loc_name = NULL,
                                 feats = NULL,
                                 feat_type = 'rna',
                                 feats_color_code = NULL,
@@ -233,8 +241,43 @@ spatInSituPlotPoints = function(gobject,
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
 
+
+  ## giotto image ##
+  if(show_image == TRUE) {
+    if(!is.null(gimage)) gimage = gimage
+    else if(!is.null(image_name)) {
+
+      if(length(image_name) == 1) {
+        gimage = gobject@images[[image_name]]
+        if(is.null(gimage)) warning('image_name: ', image_name, ' does not exists')
+      } else {
+        gimage = list()
+        for(gim in 1:length(image_name)) {
+          gimage[[gim]] = gobject@images[[gim]]
+          if(is.null(gimage[[gim]])) warning('image_name: ', gim, ' does not exists')
+        }
+      }
+
+    }
+  }
+
+
+
+
+
+
   # start plotting
   plot = ggplot2::ggplot()
+
+  ## 0. plot image ##
+  if(show_image == TRUE & !is.null(gimage)) {
+    plot = plot_spat_image_layer_ggplot(ggplot = plot,
+                                        gobject = gobject,
+                                        spat_loc_name = spat_loc_name,
+                                        gimage = gimage,
+                                        sdimx = 'sdimx',
+                                        sdimy = 'sdimy')
+  }
 
 
   ## 1. plot morphology first
@@ -256,7 +299,7 @@ spatInSituPlotPoints = function(gobject,
     #                                polygon_name = polygon_feat_type)
     #polygon_dt = spatVector_to_dt(polygon_info)
 
-    plot = plot_cell_polygon_layer(ggobject = gobject,
+    plot = plot_cell_polygon_layer(ggobject = plot,
                                    polygon_dt = polygon_dt,
                                    polygon_grouping = 'poly_ID',
                                    sdimx = sdimx,
@@ -305,6 +348,7 @@ spatInSituPlotPoints = function(gobject,
                                      point_size = point_size,
                                      show_legend = show_legend,
                                      plot_method = plot_method)
+
   }
 
 
