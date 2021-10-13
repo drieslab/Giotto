@@ -6,6 +6,10 @@
 \usage{
 spatInSituPlotPoints(
   gobject,
+  show_image = F,
+  gimage = NULL,
+  image_name = "image",
+  spat_loc_name = NULL,
   feats = NULL,
   feat_type = "rna",
   feats_color_code = NULL,
@@ -41,6 +45,14 @@ spatInSituPlotPoints(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{show_image}{show a tissue background image}
+
+\item{gimage}{a giotto image}
+
+\item{image_name}{name of a giotto image}
+
+\item{spat_loc_name}{name of spatial locations}
 
 \item{feats}{features to plot}
 
