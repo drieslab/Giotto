@@ -380,19 +380,22 @@ createGiottoPolygonsFromMask = function(maskfile,
 
   ## shift values ##
   if(shift_vertical_step == TRUE) {
-    shift_vertical_step = rast_dimensions[2]
+    shift_vertical_step = rast_dimensions[1] # nrows of raster
   } else if(is.numeric(shift_vertical_step)) {
     shift_vertical_step = shift_vertical_step
   } else {
     shift_vertical_step = 0
   }
   if(shift_horizontal_step == TRUE) {
-    shift_horizontal_step = rast_dimensions[1]
+    shift_horizontal_step = rast_dimensions[2] # ncols of raster
   } else if(is.numeric(shift_horizontal_step)) {
     shift_horizontal_step = shift_horizontal_step
   } else {
     shift_horizontal_step = 0
   }
+
+  print(shift_horizontal_step)
+  print(shift_vertical_step)
 
   terra_polygon = terra::shift(terra_polygon,
                                dx = shift_horizontal_step,
