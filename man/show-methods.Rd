@@ -4,17 +4,22 @@
 \name{show,giotto-method}
 \alias{show,giotto-method}
 \alias{show,giottoImage-method}
+\alias{show,giottoLargeImage-method}
 \title{show method for giotto class}
 \usage{
 \S4method{show}{giotto}(object)
 
 \S4method{show}{giottoImage}(object)
+
+\S4method{show}{giottoLargeImage}(object)
 }
 \arguments{
-\item{object}{giottoImage object}
+\item{object}{giottoLargeImage object}
 }
 \description{
 show method for giotto class
 
 show method for giottoImage class
+
+show method for giottoLargeImage class
 }
