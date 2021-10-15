@@ -8,7 +8,7 @@ rescaleGiottoImage(
   gimage = NULL,
   gobject = NULL,
   image_name,
-  spatloc_name = "raw",
+  spatloc_name = NULL,
   scale_factor = NULL,
   resolution = NULL
 )
@@ -20,7 +20,7 @@ rescaleGiottoImage(
 
 \item{image_name}{name of giottoImage in giottoObject}
 
-\item{spatloc_name}{name of spatlocs that scaling is relative to (defaults to 'raw')}
+\item{spatloc_name}{name of spatlocs that scaling is relative to (defaults to first spatloc name for gobject or, if unavailable, "raw")}
 
 \item{scale_factor}{scale factor to convert from spatial distance to pixel distance}
 

@@ -8,9 +8,11 @@ registerGiottoObjectListFiji(
   gobject_list,
   image_unreg = "image",
   image_reg_name = "image",
+  image_replace_name = "unregistered",
   registered_images = NULL,
   spatloc_unreg = "raw",
   spatloc_reg_name = "raw",
+  spatloc_replace_name = "unregistered",
   xml_files,
   scale_factor = NULL,
   verbose = TRUE
@@ -21,13 +23,17 @@ registerGiottoObjectListFiji(
 
 \item{image_unreg}{name of original unregistered images. Defaults to 'image' (optional)}
 
-\item{image_reg_name}{Arbitrary name for registered images to occupy. Defaults to replacement of 'image' (optional)}
+\item{image_reg_name}{arbitrary name for registered images to occupy. Defaults to replacement of 'image' (optional)}
+
+\item{image_replace_name}{arbitrary name for any images replaced due to image_reg_name argument (optional)}
 
 \item{registered_images}{registered images output by FIJI register_virtual_stack_slices}
 
 \item{spatloc_unreg}{spatial locations to use. Defaults to 'raw' (optional)}
 
 \item{spatloc_reg_name}{name for registered spatial locations. Defaults to replacement of 'raw' (optional)}
+
+\item{spatloc_replace_name}{arbitrary name for any spatial locations replaced due to spatloc_reg_name argument (optional)}
 
 \item{xml_files}{atomic vector of filepaths to xml outputs from FIJI register_virtual_stack_slices}
 
