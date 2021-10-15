@@ -104,16 +104,16 @@ set_expression_values <- function(gobject,
 #' @name get_spatial_locations
 #' @description function to get a spatial location data.table
 #' @param gobject giotto object
-#' @param spat_loc_name name of spatial locations
+#' @param spat_loc_name name of spatial locations (defaults to first name in spatial_locs slot)
 #' @return data.table with coordinates
 #' @export
 get_spatial_locations <- function(gobject,
-                                  spat_loc_name = 'raw') {
+                                  spat_loc_name = NULL) {
 
 
   # spatial locations
   # if NULL (not given) and spatial locations have been added, then use first one
-  # if NULL (not given) and spatial loactions have NOT been added, then keep NULL
+  # if NULL (not given) and spatial locations have NOT been added, then keep NULL
   if(is.null(spat_loc_name)) {
     if(!is.null(gobject@spatial_locs)) {
       spat_loc_name = names(gobject@spatial_locs)[[1]]

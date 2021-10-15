@@ -24,6 +24,8 @@ createGiottoImage(
 
 \item{spatial_locs}{spatial locations (alternative if giobject = NULL)}
 
+\item{spat_loc_name}{name of spatial locations within gobject}
+
 \item{mg_object}{magick image object}
 
 \item{name}{name for the image}

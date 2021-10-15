@@ -4,16 +4,16 @@
 \alias{addGiottoImage}
 \title{addGiottoImage}
 \usage{
-addGiottoImage(gobject, images, spat_loc_name = "raw", scale_factor = NULL)
+addGiottoImage(gobject, images, spat_loc_name = NULL, scale_factor = NULL)
 }
 \arguments{
 \item{gobject}{giotto object}
 
 \item{images}{list of giotto image objects, see \code{\link{createGiottoImage}}}
 
-\item{spat_loc_name}{provide spatial location slot in Giotto to align images. Defaults to 'raw'}
+\item{spat_loc_name}{provide spatial location slot in Giotto to align images. Defaults to first one}
 
-\item{scale_factor}{provide scale of image pixel dimensions relative to spatial coordinates. Defaults to 1:1}
+\item{scale_factor}{provide scale of image pixel dimensions relative to spatial coordinates.}
 }
 \value{
 an updated Giotto object with access to the list of images

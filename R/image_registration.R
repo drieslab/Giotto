@@ -314,10 +314,12 @@ registerGiottoObjectList = function(gobject_list,
 #' @description Function to spatially align gobject data based on FIJI image registration.
 #' @param gobject_list list of gobjects to register
 #' @param image_unreg name of original unregistered images. Defaults to 'image' (optional)
-#' @param image_reg_name Arbitrary name for registered images to occupy. Defaults to replacement of 'image' (optional)
+#' @param image_reg_name arbitrary name for registered images to occupy. Defaults to replacement of 'image' (optional)
+#' @param image_replace_name arbitrary name for any images replaced due to image_reg_name argument (optional)
 #' @param registered_images registered images output by FIJI register_virtual_stack_slices
 #' @param spatloc_unreg spatial locations to use. Defaults to 'raw' (optional)
 #' @param spatloc_reg_name name for registered spatial locations. Defaults to replacement of 'raw' (optional)
+#' @param spatloc_replace_name arbitrary name for any spatial locations replaced due to spatloc_reg_name argument (optional)
 #' @param xml_files atomic vector of filepaths to xml outputs from FIJI register_virtual_stack_slices
 #' @param scale_factor vector of scaling factors of images used in registration vs spatlocs
 #' @param verbose be verbose
@@ -326,9 +328,11 @@ registerGiottoObjectList = function(gobject_list,
 registerGiottoObjectListFiji = function(gobject_list,
                                         image_unreg = 'image',
                                         image_reg_name = 'image',
+                                        image_replace_name = 'unregistered',
                                         registered_images = NULL,
                                         spatloc_unreg = 'raw',
                                         spatloc_reg_name = 'raw',
+                                        spatloc_replace_name = 'unregistered',
                                         xml_files,
                                         scale_factor = NULL,
                                         verbose = TRUE) {
@@ -437,10 +441,10 @@ registerGiottoObjectListFiji = function(gobject_list,
     # Params check for conflicting names
     if(verbose == TRUE) {
       if(image_unreg == image_reg_name) {
-        cat('Image original name matches output name. Unregistered images renamed "unregistered". \n')
+        cat('Registered image name already used. Previous image named ', image_reg_name,' renamed to ',image_replace_name,'. \n')
       }
       if(spatloc_unreg == spatloc_reg_name) {
-        cat('Spatloc original name matches output name. Unregistered spatlocs renamed "unregistered". \n')
+        cat('Registered spatloc name already used. Previous spatloc named ', spatloc_reg_name,' renamed to ', spatloc_replace_name,'. \n')
       }
     }
 
@@ -449,7 +453,7 @@ registerGiottoObjectListFiji = function(gobject_list,
     #Rename original spatial locations to 'unregistered' if conflicting with output
     if(spatloc_unreg == spatloc_reg_name) {
       gobj = set_spatial_locations(gobject = gobj,
-                                   spat_loc_name = 'unregistered',
+                                   spat_loc_name = spatloc_replace_name,
                                    spatlocs = get_spatial_locations(gobject = gobj,
                                                                     spat_loc_name = spatloc_unreg))
     }
@@ -466,7 +470,7 @@ registerGiottoObjectListFiji = function(gobject_list,
     #If there is an existing image with the image_reg_name, rename it "unregistered"
     #Move the original image to 'unregistered'
     if(image_unreg == image_reg_name) {
-      gobj@images$unregistered = gobj@images[[image_unreg]]
+      gobj@images[[image_replace_name]] = gobj@images[[image_unreg]]
     }
 
     

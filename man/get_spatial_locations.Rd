@@ -4,12 +4,12 @@
 \alias{get_spatial_locations}
 \title{get_spatial_locations}
 \usage{
-get_spatial_locations(gobject, spat_loc_name = "raw")
+get_spatial_locations(gobject, spat_loc_name = NULL)
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_loc_name}{name of spatial locations}
+\item{spat_loc_name}{name of spatial locations (defaults to first name in spatial_locs slot)}
 }
 \value{
 data.table with coordinates
