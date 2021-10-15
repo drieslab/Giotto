@@ -1506,6 +1506,7 @@ createGiottoObject <- function(expression,
 
   ## images ##
   # expect a list of giotto object images
+  # prefer to make giottoImage creation separate from this function
   if(!is.null(images)) {
 
     if(is.null(names(images))) {

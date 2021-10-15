@@ -95,6 +95,72 @@ setMethod(
 )
 
 
+# giottoLargeImage class ####
+
+#' @title S4 giottoLargeImage Class
+#' @description class to handle images too large to load in normally through magick
+#' @keywords giotto, object, image
+#' @slot name name of large Giotto image
+#' @slot raster_object terra raster object
+#' @slot extents terra extent objects named by spatial location
+#' @slot scale_factor image scaling relative to spatial locations
+#' @slot resolution spatial location units covered per pixel
+#' @slot max_intensity value to set as maximum intensity in color scaling
+#' @slot OS_platform Operating System to run Giotto analysis on
+#' @export
+giottoLargeImage <- setClass(
+  Class = "giottoLargeImage",
+  
+  slots = c(
+    name = "ANY",
+    raster_object = "ANY",
+    extent = "ANY",
+    scale_factor = "ANY",
+    resolution = "ANY",
+    max_intensity = "ANY",
+    OS_platform = "ANY"
+  ),
+  
+  prototype = list(
+    name = NULL,
+    raster_object = NULL,
+    extent = NULL,
+    scale_factor = NULL,
+    resolution = NULL,
+    max_intensity = NULL,
+    OS_platform = NULL
+  )
+)
+
+
+#' show method for giottoLargeImage class
+#' @param object giottoLargeImage object
+#' @aliases show,giottoLargeImage-method
+#' @docType methods
+#' @rdname show-methods
+
+setMethod(
+  f = "show",
+  signature = "giottoLargeImage",
+  definition = function(object) {
+    
+    cat("An object of class '",  class(object), "' with name ", object@name, "\n \n")
+    
+    cat("Image boundaries are: \n")
+    print(terra::ext(object@raster_object)[1:4])
+    
+    cat("\n Scale factor: \n")
+    print(object@scale_factor)
+    
+    cat("\n Resolution: \n")
+    print(object@resolution)
+    
+    cat('\n Maximum intensity is: ', object@max_intensity, " \n")
+    
+  }
+)
+
+
 # giottoImage creation ####
 
 
@@ -271,6 +337,117 @@ createGiottoImage = function(gobject = NULL,
   return(g_image)
 }
 
+
+
+# giottoLargeImage creation ####
+
+
+#' @title createGiottoLargeImage
+#' @name createGiottoLargeImage
+#' @description Creates a large giotto image that can be added to a Giotto subcellular object
+#' @param raster_object terra SpatRaster image object
+#' @param name name for the image
+#' @param extent SpatExtent object to assign spatial extent. Takes priority.
+#' @param image_transformations vector of sequential image transformations - under construction
+#' @param xmax_adj adjustment of the maximum x-value to align the image
+#' @param xmin_adj adjustment of the minimum x-value to align the image
+#' @param ymax_adj adjustment of the maximum y-value to align the image
+#' @param ymin_adj adjustment of the minimum y-value to align the image
+#' @param scale_factor scaling of image dimensions relative to spatial coordinates
+#' @return a giottoLargeImage object
+#' @export
+createGiottoLargeImage = function(raster_object,
+                                  name = 'image',
+                                  extent = NULL,
+                                  image_transformations = NULL,
+                                  xmax_bound = NULL,
+                                  xmin_bound = NULL,
+                                  ymax_bound = NULL,
+                                  ymin_bound = NULL,
+                                  scale_factor = 1) {
+  
+  
+  # create minimum giotto
+  g_imageL = giottoLargeImage(name = name,
+                              raster_object = NULL,
+                              extent = NULL,
+                              scale_factor = NULL,
+                              resolution = NULL,
+                              OS_platform = .Platform[['OS.type']])
+  
+  
+  ## 1. check raster object and load as SpatRaster if necessary
+  if(!methods::is(raster_object, 'SpatRaster')) {
+    if(file.exists(raster_object)) {
+      raster_object = try(terra::rast(raster_object))
+      if(class(raster_object) == 'try-error') {
+        stop(raster_object, ' can not be read by terra::rast() \n')
+      }
+    } else {
+      stop("raster_object needs to be a'SpatRaster' object from the terra package or \n
+           an existing path that can be read by terra::rast()")
+    }
+  }
+  
+
+  ## 2. image bound spatial extent
+  
+  # By extent object (priority)
+  if(!is.null(extent)) {
+    if(methods::is(extent, 'SpatExtent')) {
+      terra::ext(raster_object) = extent
+    } else {
+      stop('extent argument only accepts terra SpatExtent objects')
+    }
+  } else { # OR by manual OR by image dimensions (auto)
+    
+    # Check if manual adj values were given
+    # Assign default values for any that were not manually given
+    if(all(is.null(xmax_bound),
+           is.null(xmin_bound),
+           is.null(ymax_bound),
+           is.null(ymin_bound))) {
+      im_dim = dim(raster_object)[2:1]
+      
+      # Apply scale_factor
+      im_dim = im_dim * scale_factor
+      
+      # Automatic extent values
+      xmax_bound = im_dim[1]
+      xmin_bound = 0
+      ymax_bound = 0
+      ymin_bound = -im_dim[2]
+    } else {
+      # Manual extent values
+      if(is.null(xmax_bound) == TRUE) xmax_bound = 1
+      if(is.null(xmin_bound) == TRUE) xmin_bound = 0
+      if(is.null(ymax_bound) == TRUE) ymax_bound = 0
+      if(is.null(ymin_bound) == TRUE) ymin_bound = -1
+    }
+    terra::ext(raster_object) = c(xmin_bound,xmax_bound,ymin_bound,ymax_bound)
+  }
+  
+  
+  ## 3. Assign raster_object to giottoLargeImage
+  g_imageL@raster_object = raster_object
+  
+  ## 4. scale factor and resolution values
+  g_imageL@resolution = terra::res(g_imageL@raster_object) # (x,y)
+  names(g_imageL@resolution) = c('x','y')
+  g_imageL@scale_factor = (1/g_imageL@resolution)
+  
+  ## 5. Set reasonable max intensity
+  g_imageL@max_intensity = max(terra::spatSample(raster_object,
+                                               size = 5000, # Defines the rough maximum of pixels allowed when resampling
+                                               method = 'regular',
+                                               value = TRUE))
+  
+  ## 6. extent object
+  g_imageL@extent = terra::ext(raster_object)
+  
+  ## 7. return image object
+  return(g_imageL)
+}
 
 
 # giottoImage or magick tools ####
