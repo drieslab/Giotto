@@ -656,7 +656,7 @@ binSpectSingleMatrix = function(expression_matrix,
                                 group_size = 'automatic',
                                 do_parallel = TRUE,
                                 cores = NA,
-                                verbose = T,
+                                verbose = TRUE,
                                 set.seed = NULL) {
 
 
@@ -893,7 +893,7 @@ binSpectSingle = function(gobject,
                           group_size = 'automatic',
                           do_parallel = TRUE,
                           cores = NA,
-                          verbose = T,
+                          verbose = TRUE,
                           set.seed = NULL,
                           bin_matrix = NULL) {
 

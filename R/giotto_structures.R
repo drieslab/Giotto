@@ -41,13 +41,15 @@ giottoPolygon <- setClass(
 #' @keywords internal
 create_giotto_polygon_object = function(name = 'cell',
                                         spatVector = NULL,
-                                        spatVectorCentroids = NULL) {
+                                        spatVectorCentroids = NULL,
+                                        overlaps = NULL) {
 
 
   # create minimum giotto
   g_polygon = giottoPolygon(name = name,
                             spatVector = NULL,
-                            spatVectorCentroids = NULL)
+                            spatVectorCentroids = NULL,
+                            overlaps = NULL)
 
 
   ## 1. check magick image object
@@ -74,6 +76,10 @@ create_giotto_polygon_object = function(name = 'cell',
     }
 
   }
+
+  ## 3. overlaps info
+  g_polygon@overlaps = overlaps
+
 
   # provide name
   g_polygon@name = name
@@ -828,25 +834,88 @@ giottoPoints <- setClass(
 
   slots = c(
     feat_type = "ANY",
-    spatVector = "ANY"
+    spatVector = "ANY",
+    networks = "ANY"
   ),
 
   prototype = list(
     feat_type = NULL,
-    spatVector = NULL
+    spatVector = NULL,
+    networks = NULL
   )
 )
+
+
+#' @title S4 giotto feature network Class
+#' @description Giotto class to store and operate on feature network
+#' @keywords giotto, points, network, class
+#' @slot name name of feature network
+#' @slot network_datatable feature network in data.table format
+#' @slot full fully connected network
+#' @details
+#'
+#' @export
+featureNetwork <- setClass(
+  Class = "featureNetwork",
+
+  slots = c(
+    name = "ANY",
+    network_datatable = "ANY",
+    full = "ANY"
+  ),
+
+  prototype = list(
+    name = NULL,
+    network_datatable = NULL,
+    full = NULL
+  )
+)
+
+
+#' @name create_featureNetwork_object
+#' @keywords internal
+create_featureNetwork_object = function(name = 'feat_network',
+                                        network_datatable = NULL,
+                                        full = NULL) {
+
+
+  # create minimum giotto points object
+  f_network = featureNetwork(name = name,
+                             network_datatable = NULL,
+                             full = NULL)
+
+  ## 1. check network data.table object
+  if(!methods::is(network_datatable, 'data.table')) {
+    stop("network_datatable needs to be a network data.table object")
+  }
+  f_network@network_datatable = network_datatable
+
+  ## 2. provide network fully connected status
+  f_network@full = full
+
+  ## 3. provide feature network name
+  f_network@name = name
+
+  # giotoPoints object
+  return(f_network)
+
+}
+
+
+
 
 
 #' @name create_giotto_points_object
 #' @keywords internal
 create_giotto_points_object = function(feat_type = 'rna',
-                                       spatVector = NULL) {
+                                       spatVector = NULL,
+                                       networks = NULL) {
 
 
   # create minimum giotto points object
   g_points = giottoPoints(feat_type = feat_type,
-                          spatVector = NULL)
+                          spatVector = NULL,
+                          networks = NULL)
 
   ## 1. check terra spatVector object
   if(!methods::is(spatVector, 'SpatVector')) {
@@ -858,7 +927,10 @@ create_giotto_points_object = function(feat_type = 'rna',
   ## 2. provide feature id
   g_points@feat_type = feat_type
 
-  # image object
+  ## 3. feature_network object
+  g_points@networks = networks
+
+  # giotoPoints object
   return(g_points)
 
 }
