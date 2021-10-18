@@ -636,7 +636,7 @@ calc_spatial_enrichment_DT = function(bin_matrix,
 #' The data.table implementation might be more appropriate for large datasets by setting the group_size (number of genes) parameter to divide the workload.
 #' @export
 binSpectSingleMatrix = function(expression_matrix,
-                                spatial_network,
+                                spatial_network = NULL,
                                 bin_matrix = NULL,
                                 bin_method = c('kmeans', 'rank'),
                                 subset_feats = NULL,
@@ -682,7 +682,9 @@ binSpectSingleMatrix = function(expression_matrix,
 
   # spatial network
   # TODO: verify binarization of spatial network
-  spatial_network
+  if(is.null(spatial_network)) {
+    stop("You need to provide a spatial network in data.table format to the 'spatial_network' parameter \n")
+  }
 
 
   ## start binarization ##

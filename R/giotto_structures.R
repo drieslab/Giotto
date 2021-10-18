@@ -1235,7 +1235,7 @@ calculateOverlapSerial = function(gobject,
                                   poly_ID_names = 'all',
                                   polygon_group_size = 500,
                                   return_gobject = TRUE,
-                                  verbose = TRUE) {
+                                  verbose = FALSE) {
 
   # spatial polygon
   spatvec = gobject@spatial_info[[spatial_info]]@spatVector
@@ -1261,7 +1261,7 @@ calculateOverlapSerial = function(gobject,
   final_result = list()
   for(i in 1:total_nr_groups) {
 
-    print(i)
+    print((total_nr_groups-i))
 
     selected_poly_ID_names = poly_ID_names[names(poly_ID_names) == i]
     selected_spatvec = spatvec[spatvec$poly_ID %in% selected_poly_ID_names]
@@ -1299,7 +1299,7 @@ calculateOverlapSerial = function(gobject,
 
 
 #' @name overlap_points_per_polygon_wrapped
-#' @description overlap a single wrapped polygon
+#' @description overlap wrapped polygons
 #' @keywords internal
 overlap_points_per_polygon_wrapped = function(spatvec_wrapped,
                                               pointvec_wrapped,
@@ -1310,7 +1310,7 @@ overlap_points_per_polygon_wrapped = function(spatvec_wrapped,
 
   if(length(poly_ID_names) == 1) {
     if(poly_ID_names == 'all') {
-      poly_ID_names = unique(spatvec$poly_ID)
+      poly_ID_names = unique(unwrap_spatvec$poly_ID)
     }
   }
 
@@ -1320,33 +1320,6 @@ overlap_points_per_polygon_wrapped = function(spatvec_wrapped,
                                              verbose = FALSE)
 
   return(terra::wrap(intersect_res))
-
-}
-
-
-#' @name overlap_points_per_polygon_parallel
-#' @description  loop to overlap each single wrapped polygon
-#' @keywords internal
-overlap_points_per_polygon_parallel = function(spatvec_wrap_list,
-                                               pointvec_wrap,
-                                               poly_ID_names_list,
-                                               verbose = TRUE) {
-
-
-  # first intersect in parallel on wrapped terra objects
-  result1 = Giotto:::lapply_flex(X = 1:length(spatvec_wrap_list),
-
-                                 FUN = function(x) {
-                                   test = unwrap_overlap_points_per_polygon(spatvec_wrapped = spatvec_wrap_list[[x]],
-                                                                            pointvec_wrap = pointvec_wrap,
-                                                                            poly_ID_names = poly_ID_names_list[[x]])
-                                 })
-
-  result2 = lapply(X = 1:length(result1), FUN = function(x) {
-    terra::vect(result1[x][[1]])
-  })
-
-  return(result2)
 
 }
 
@@ -1379,7 +1352,6 @@ calculateOverlapParallel = function(gobject,
   # spatial polygon
   spatvec = gobject@spatial_info[[spatial_info]]@spatVector
 
-
   # points polygon
   pointvec = gobject@feat_info[[feat_info]]@spatVector
 
@@ -1390,14 +1362,12 @@ calculateOverlapParallel = function(gobject,
     }
   }
 
-
   total_polygons = length(poly_ID_names)
   total_nr_groups = ceiling(total_polygons/polygon_group_size)
   groupnames = cut(1:total_polygons,
                    breaks = total_nr_groups,
                    labels = 1:total_nr_groups)
   names(poly_ID_names) = groupnames
-
 
   # wrap SpatVector for points
   pointvec_wrap = terra::wrap(pointvec)
@@ -1411,13 +1381,16 @@ calculateOverlapParallel = function(gobject,
   }
 
 
+  print('ok 2')
+  print(spatvec_wrap_list[[1]])
+
   # first intersect in parallel on wrapped terra objects
-  result1 = Giotto:::lapply_flex(X = 1:length(spatvec_wrap_list),
+  result1 = lapply_flex(X = 1:length(spatvec_wrap_list),
 
                                  FUN = function(x) {
-                                   test = unwrap_overlap_points_per_polygon(spatvec_wrapped = spatvec_wrap_list[[x]],
-                                                                            pointvec_wrap = pointvec_wrap,
-                                                                            poly_ID_names = 'all')
+                                   test = overlap_points_per_polygon_wrapped(spatvec_wrapped = spatvec_wrap_list[[x]],
+                                                                             pointvec_wrapped = pointvec_wrap,
+                                                                             poly_ID_names = 'all')
                                  })
 
   final_result = lapply(X = 1:length(result1), FUN = function(x) {
