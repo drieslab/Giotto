@@ -664,7 +664,7 @@ binSpectSingleMatrix = function(expression_matrix,
 
 
   # set number of cores automatically, but with limit of 10
-  cores = Giotto:::determine_cores(cores)
+  cores = determine_cores(cores)
   data.table::setDTthreads(threads = cores)
 
   # data.table: set global variable
@@ -915,14 +915,14 @@ binSpectSingle = function(gobject,
 
 
   ## 2. spatial network
-  spatial_network = Giotto:::get_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = FALSE)
+  spatial_network = get_spatialNetwork(gobject, name = spatial_network_name,return_network_Obj = FALSE)
   if(is.null(spatial_network)) {
     stop('spatial_network_name: ', spatial_network_name, ' does not exist, create a spatial network first')
   }
 
   # convert to full network
   if(reduce_network == FALSE) {
-    spatial_network = Giotto:::convert_to_full_spatial_network(spatial_network)
+    spatial_network = convert_to_full_spatial_network(spatial_network)
     data.table::setnames(spatial_network, c('source', 'target'), c('from', 'to'))
   }
 
@@ -1060,7 +1060,7 @@ binSpectMulti = function(gobject,
   if(verbose == TRUE) cat('\n This is the multi parameter version of binSpect')
 
   # set number of cores automatically, but with limit of 10
-  cores = Giotto:::determine_cores(cores)
+  cores = determine_cores(cores)
   data.table::setDTthreads(threads = cores)
 
   # check bin_method
@@ -1259,7 +1259,7 @@ binSpectMultiMatrix = function(expression_matrix,
   if(verbose == TRUE) cat('\n This is the multi parameter version of binSpect')
 
   # set number of cores automatically, but with limit of 10
-  cores = Giotto:::determine_cores(cores)
+  cores = determine_cores(cores)
   data.table::setDTthreads(threads = cores)
 
   # check bin_method
@@ -2865,7 +2865,7 @@ do_spatial_knn_smoothing = function(expression_matrix,
 
   # convert back to matrix
   spatial_smooth_dc = data.table::dcast.data.table(data = spatial_network_ext_smooth, formula = feat_ID~to, value.var = 'V1')
-  spatial_smooth_matrix = Giotto:::dt_to_matrix(spatial_smooth_dc)
+  spatial_smooth_matrix = dt_to_matrix(spatial_smooth_dc)
 
   # if network was not fully connected, some cells might be missing and are not smoothed
   # add the original values for those cells back
