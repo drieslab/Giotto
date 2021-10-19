@@ -1170,6 +1170,7 @@ createSpatialFeaturesKNNnetwork_dbscan = function(gobject,
                                                   k = 4,
                                                   maximum_distance = NULL,
                                                   minimum_k = 0,
+                                                  add_feat_ids = FALSE,
                                                   verbose = TRUE,
                                                   ...) {
 
@@ -1192,7 +1193,7 @@ createSpatialFeaturesKNNnetwork_dbscan = function(gobject,
 
   knn_sptial.norm = data.table::data.table(from = rep(1:nrow(knn_spatial$id), k),
                                            to = as.vector(knn_spatial$id),
-                                           weight = 1/(1 + as.vector(knn_spatial$dist)),
+                                           #weight = 1/(1 + as.vector(knn_spatial$dist)),
                                            distance = as.vector(knn_spatial$dist))
 
   ## 3. keep minimum and filter
@@ -1217,15 +1218,20 @@ createSpatialFeaturesKNNnetwork_dbscan = function(gobject,
   knn_sptial.norm = knn_sptial.norm[filter_bool]
 
   ## 3. add feature information and sort
-  if(verbose == TRUE) cat('Sort output \n')
-  featDT_vec = featDT$feat_ID; names(featDT_vec) = featDT$feat_ID_uniq
-  knn_sptial.norm[, from_feat := featDT_vec[from]]
-  knn_sptial.norm[, to_feat := featDT_vec[to]]
-  knn_sptial.norm[, from_to_feat := paste0(from_feat,'--',to_feat)]
+  if(add_feat_ids == TRUE) {
 
-  knn_sptial.norm = sort_combine_two_DT_columns(DT = knn_sptial.norm,
-                                                column1 = 'from_feat', column2 = 'to_feat',
-                                                myname = 'comb_feat')
+    if(verbose == TRUE) cat('Add feat IDs and sort output \n')
+
+    featDT_vec = featDT$feat_ID; names(featDT_vec) = featDT$feat_ID_uniq
+
+    knn_sptial.norm[, from_feat := featDT_vec[from]]
+    knn_sptial.norm[, to_feat := featDT_vec[to]]
+    knn_sptial.norm[, from_to_feat := paste0(from_feat,'--',to_feat)]
+
+    knn_sptial.norm = sort_combine_two_DT_columns(DT = knn_sptial.norm,
+                                                  column1 = 'from_feat', column2 = 'to_feat',
+                                                  myname = 'comb_feat')
+  }
 
 
   knn_sptial.norm_object = create_featureNetwork_object(name = name,
@@ -1250,6 +1256,7 @@ createSpatialFeaturesKNNnetwork_dbscan = function(gobject,
 #' @param k number of neighbors
 #' @param maximum_distance maximum distance bewteen features
 #' @param minimum_k minimum number of neighbors to find
+#' @param add_feat_ids add feature id names (default = FALSE, increases object size)
 #' @param verbose be verbose
 #' @param return_gobject return giotto object (default: TRUE)
 #' @return
@@ -1262,6 +1269,7 @@ createSpatialFeaturesKNNnetwork = function(gobject,
                                            k = 4,
                                            maximum_distance = NULL,
                                            minimum_k = 0,
+                                           add_feat_ids = FALSE,
                                            verbose = TRUE,
                                            return_gobject = TRUE,
                                            toplevel_params = 2,
@@ -1285,6 +1293,7 @@ createSpatialFeaturesKNNnetwork = function(gobject,
                                                                   k = k,
                                                                   maximum_distance = maximum_distance,
                                                                   minimum_k = minimum_k,
+                                                                  add_feat_ids = add_feat_ids,
                                                                   verbose = verbose,
                                                                   ...)
   }
