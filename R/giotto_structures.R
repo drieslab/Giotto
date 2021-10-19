@@ -1453,9 +1453,6 @@ calculateOverlapParallel = function(gobject,
   }
 
 
-  print('ok 2')
-  print(spatvec_wrap_list[[1]])
-
   # first intersect in parallel on wrapped terra objects
   result1 = lapply_flex(X = 1:length(spatvec_wrap_list),
 
@@ -1465,9 +1462,13 @@ calculateOverlapParallel = function(gobject,
                                                                              poly_ID_names = 'all')
                                  })
 
+  # unwrap overlap results
   final_result = lapply(X = 1:length(result1), FUN = function(x) {
     terra::vect(result1[x][[1]])
   })
+
+  # rbind all results together
+  final_result = do.call('rbind', final_result)
 
 
   if(return_gobject == TRUE) {
