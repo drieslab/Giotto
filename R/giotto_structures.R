@@ -1107,7 +1107,7 @@ addGiottoPoints = function(gobject,
 #' @keywords internal
 extract_points_list = function(pointslist) {
 
-  # if polygonlist is not a names list
+  # if polygonlist is not a named list
   # try to make list and give default names
   if(!is.list(pointslist)) {
     pointslist = as.list(pointslist)
@@ -1161,9 +1161,169 @@ extract_points_list = function(pointslist) {
 
 
 
+#' @name createSpatialFeaturesKNNnetwork_dbscan
+#' @description  to create a feature kNN spatial network using dbscan
+#' @keywords internal
+createSpatialFeaturesKNNnetwork_dbscan = function(gobject,
+                                                  feat_type = NULL,
+                                                  name = "knn_feats_network",
+                                                  k = 4,
+                                                  maximum_distance = NULL,
+                                                  minimum_k = 0,
+                                                  verbose = TRUE,
+                                                  ...) {
+
+
+  ## 1. specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+  ## 2. get spatial feature info and convert to matrix
+  if(verbose == TRUE) cat('Convert feature spatial info to matrix \n')
+  featDT = spatVector_to_dt(gobject@feat_info[[feat_type]]@spatVector)
+  spatial_locations_matrix = as.matrix(featDT[, c('x', 'y', NULL), with = F])
+
+  ## 3. create kNN network
+  if(verbose == TRUE) cat('Create kNN network with dbscan \n')
+  knn_spatial = dbscan::kNN(x = spatial_locations_matrix,
+                            k = k,
+                            ...)
+
+  knn_sptial.norm = data.table::data.table(from = rep(1:nrow(knn_spatial$id), k),
+                                           to = as.vector(knn_spatial$id),
+                                           weight = 1/(1 + as.vector(knn_spatial$dist)),
+                                           distance = as.vector(knn_spatial$dist))
+
+  ## 3. keep minimum and filter
+  if(verbose == TRUE) cat('Filter output for distance and minimum neighbours \n')
+  knn_sptial.norm[, rank := 1:.N, by = 'from']
+
+  if(minimum_k != 0) {
+    filter_bool = knn_sptial.norm$rank <= minimum_k
+  } else {
+    filter_bool = rep(TRUE, nrow(knn_sptial.norm))
+  }
+
+
+  if(!is.null(maximum_distance)) {
+    maximum_distance_bool = knn_sptial.norm$distance <= maximum_distance
+    filter_bool = filter_bool + maximum_distance_bool
+    filter_bool[filter_bool > 0] = 1
+    filter_bool = as.logical(filter_bool)
+  }
+
+
+  knn_sptial.norm = knn_sptial.norm[filter_bool]
+
+  ## 3. add feature information and sort
+  if(verbose == TRUE) cat('Sort output \n')
+  featDT_vec = featDT$feat_ID; names(featDT_vec) = featDT$feat_ID_uniq
+  knn_sptial.norm[, from_feat := featDT_vec[from]]
+  knn_sptial.norm[, to_feat := featDT_vec[to]]
+  knn_sptial.norm[, from_to_feat := paste0(from_feat,'--',to_feat)]
+
+  knn_sptial.norm = sort_combine_two_DT_columns(DT = knn_sptial.norm,
+                                                column1 = 'from_feat', column2 = 'to_feat',
+                                                myname = 'comb_feat')
+
+
+  knn_sptial.norm_object = create_featureNetwork_object(name = name,
+                                                        network_datatable = knn_sptial.norm,
+                                                        full = FALSE)
+
+  return(knn_sptial.norm_object)
+
+}
 
 
 
+
+
+#' @title createSpatialFeaturesKNNnetwork
+#' @name createSpatialFeaturesKNNnetwork
+#' @description Calculates the centroid locations for the giotto polygons
+#' @param gobject giotto object
+#' @param method kNN algorithm method
+#' @param feat_type feature type to build feature network
+#' @param name name of network
+#' @param k number of neighbors
+#' @param maximum_distance maximum distance bewteen features
+#' @param minimum_k minimum number of neighbors to find
+#' @param verbose be verbose
+#' @param return_gobject return giotto object (default: TRUE)
+#' @return
+#' @keywords Features
+#' @export
+createSpatialFeaturesKNNnetwork = function(gobject,
+                                           method = c('dbscan'),
+                                           feat_type = NULL,
+                                           name = "knn_feats_network",
+                                           k = 4,
+                                           maximum_distance = NULL,
+                                           minimum_k = 0,
+                                           verbose = TRUE,
+                                           return_gobject = TRUE,
+                                           toplevel_params = 2,
+                                           ...) {
+
+
+  # 1. select feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+  # 2. select method
+  method = match.arg(method, choices = c('dbscan'))
+
+
+  if(method == 'dbscan') {
+
+    knn_feat_network_obj = createSpatialFeaturesKNNnetwork_dbscan(gobject = gobject,
+                                                                  feat_type = feat_type,
+                                                                  name = name,
+                                                                  k = k,
+                                                                  maximum_distance = maximum_distance,
+                                                                  minimum_k = minimum_k,
+                                                                  verbose = verbose,
+                                                                  ...)
+  }
+
+
+
+
+  if(return_gobject == TRUE) {
+
+    network_names = names(gobject@feat_info[[feat_type]]@networks)
+
+    if(name %in% network_names) {
+      cat('\n ', name, ' has already been used, will be overwritten \n')
+
+    }
+
+    gobject@feat_info[[feat_type]]@networks[[name]] = knn_feat_network_obj
+
+
+    ## update parameters used ##
+    gobject = update_giotto_params(gobject,
+                                   description = '_featNetwork',
+                                   return_gobject = TRUE,
+                                   toplevel = toplevel_params)
+    return(gobject)
+
+
+  } else {
+    return(knn_feat_network_obj@network_datatable)
+  }
+
+}
+
+
+
+
+
+
+## * ####
 ## ** giotto structure functions ####
 
 

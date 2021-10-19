@@ -12,7 +12,7 @@ calculateOverlapSerial(
   poly_ID_names = "all",
   polygon_group_size = 500,
   return_gobject = TRUE,
-  verbose = TRUE
+  verbose = FALSE
 )
 }
 \arguments{

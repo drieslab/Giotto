@@ -7,7 +7,7 @@
 \usage{
 binSpectSingleMatrix(
   expression_matrix,
-  spatial_network,
+  spatial_network = NULL,
   bin_matrix = NULL,
   bin_method = c("kmeans", "rank"),
   subset_feats = NULL,
@@ -27,7 +27,7 @@ binSpectSingleMatrix(
   group_size = "automatic",
   do_parallel = TRUE,
   cores = NA,
-  verbose = T,
+  verbose = TRUE,
   set.seed = NULL
 )
 
