@@ -102,7 +102,7 @@ setMethod(
 #' @keywords giotto, object, image
 #' @slot name name of large Giotto image
 #' @slot raster_object terra raster object
-#' @slot extents terra extent objects named by spatial location
+#' @slot overall_extent terra extent object covering the original extent of image
 #' @slot scale_factor image scaling relative to spatial locations
 #' @slot resolution spatial location units covered per pixel
 #' @slot max_intensity value to set as maximum intensity in color scaling
@@ -114,7 +114,7 @@ giottoLargeImage <- setClass(
   slots = c(
     name = "ANY",
     raster_object = "ANY",
-    extent = "ANY",
+    overall_extent = "ANY",
     scale_factor = "ANY",
     resolution = "ANY",
     max_intensity = "ANY",
@@ -124,7 +124,7 @@ giottoLargeImage <- setClass(
   prototype = list(
     name = NULL,
     raster_object = NULL,
-    extent = NULL,
+    overall_extent = NULL,
     scale_factor = NULL,
     resolution = NULL,
     max_intensity = NULL,
@@ -149,6 +149,9 @@ setMethod(
     cat("Image boundaries are: \n")
     print(terra::ext(object@raster_object)[1:4])
     
+    cat("Original image boundaries are: \n")
+    print(object@overall_extent[1:4])
+    
     cat("\n Scale factor: \n")
     print(object@scale_factor)
     
@@ -168,7 +171,7 @@ setMethod(
 #' @name createGiottoImage
 #' @description Creates a giotto image that can be added to a Giotto object and/or used to add an image to the spatial plotting functions
 #' @param gobject giotto object
-#' @param spatial_locs spatial locations (alternative if giobject = NULL)
+#' @param spatial_locs spatial locations (alternative if gobject = NULL)
 #' @param spat_loc_name name of spatial locations within gobject
 #' @param mg_object magick image object
 #' @param name name for the image
@@ -179,6 +182,7 @@ setMethod(
 #' @param ymax_adj adjustment of the maximum y-value to align the image
 #' @param ymin_adj adjustment of the minimum y-value to align the image
 #' @param scale_factor scaling of image dimensions relative to spatial coordinates
+#' @param verbose be verbose
 #' @details image_transformations: transformation options from magick library
 #' [\strong{flip_x_axis}] flip x-axis (\code{\link[magick]{image_flop}})
 #' [\strong{flip_y_axis}] flip y-axis (\code{\link[magick]{image_flip}})
@@ -196,7 +200,8 @@ createGiottoImage = function(gobject = NULL,
                              xmin_adj = 0,
                              ymax_adj = 0,
                              ymin_adj = 0,
-                             scale_factor = 1) {
+                             scale_factor = 1,
+                             verbose = TRUE) {
 
 
   # create minimum giotto
@@ -245,7 +250,7 @@ createGiottoImage = function(gobject = NULL,
   g_image@mg_object = mg_object
   
   ## 2. spatial minmax and adjustments -- manual OR by image dimensions (auto)
-  if(do_manual_adj == TRUE) cat('do_manual == TRUE \n','Boundaries will be adjusted by given values.\n')
+  if(do_manual_adj == TRUE) cat('do_manual_adj == TRUE \n','Boundaries will be adjusted by given values.\n')
   #If spatlocs or gobject supplied, minmax values will always be generated
   #If do_manual_adj == TRUE, bypass followup automatic boundary value generation
   if(!is.null(gobject)) {
@@ -257,7 +262,7 @@ createGiottoImage = function(gobject = NULL,
     spatlocs = get_spatial_locations(gobject = gobject,
                                      spat_loc_name = spat_loc_name)
 
-    #spatlocs = gobject@spatial_locs[['raw']]
+    # spatlocs = gobject@spatial_locs[['raw']]
 
     my_xmin = min(spatlocs$sdimx)
     my_xmax = max(spatlocs$sdimx)
@@ -304,8 +309,10 @@ createGiottoImage = function(gobject = NULL,
 
 
   } else {
-    warning('gobject or spatial locations are not provided \n',
-            'Arbitrary values will be given \n')
+    if(verbose == TRUE) {
+      warning('gobject or spatial locations are not provided \n',
+              'Arbitrary values will be given \n')
+    }
 
     my_xmin = 0; my_xmax = 10; my_ymin = 0; my_ymax = 10
 
@@ -370,7 +377,7 @@ createGiottoLargeImage = function(raster_object,
   # create minimum giotto
   g_imageL = giottoLargeImage(name = name,
                               raster_object = NULL,
-                              extent = NULL,
+                              overall_extent = NULL,
                               scale_factor = NULL,
                               resolution = NULL,
                               OS_platform = .Platform[['OS.type']])
@@ -443,7 +450,7 @@ createGiottoLargeImage = function(raster_object,
                                                value = TRUE))
   
   ## 6. extent object
-  g_imageL@extent = terra::ext(raster_object)
+  g_imageL@overall_extent = terra::ext(raster_object)
   
   ## 7. return image object
   return(g_imageL)
@@ -997,4 +1004,278 @@ plotGiottoImage = function(gobject,
 
   graphics::plot(gobject@images[[image_name]]@mg_object)
 }
+
+
+
+
+
+
+# giottoLargeImage tools ####
+
+
+#' @title getGiottoLargeImage
+#' @name getGiottoLargeImage
+#' @description get a giottoLargeImage from a giottoObject
+#' @param gobject giotto object
+#' @param largeImage_name name of giottoLargeImage
+#' @return a giottoLargeImage
+#' @export
+getGiottoLargeImage = function(gobject = NULL,
+                               largeImage_name = NULL) {
+
+  if(is.null(gobject)) stop('The giotto object holding the giottoLargeImage needs to be provided \n')
+  if(is.null(largeImage_name)) stop('The name of the giottoLargeImage needs to be provided \n')
+  
+  g_image_names = names(gobject@largeImages)
+  if(!largeImage_name %in% g_image_names) stop(largeImage_name, ' was not found among the largeImage names. \n') #TODO See showImageNames()
+    
+  giottoLargeImage = gobject@largeImages$largeImage_name
+  
+  return(giottoLargeImage)
+}
+
+
+#' @title cropGiottoLargeImage
+#' @name cropGiottoLargeImage
+#' @description crop a giottoLargeImage based on crop_extent argument or given values
+#' @param gobject gobject holding the giottoLargeImage
+#' @param largeImage_name name of giottoLargeImage within gobject
+#' @param giottoLargeImage a giottoLargeImage
+#' @param crop_name arbitrary name for cropped giottoLargeImage
+#' @param crop_extent terra extent object used to crop the giottoLargeImage
+#' @param xmax_crop crop xmax bound
+#' @param xmin_crop crop xmin bound
+#' @param ymax_crop crop ymax bound
+#' @param ymin_crop crop ymin bound
+#' @return a giottoLargeImage
+#' @export
+cropGiottoLargeImage = function(gobject = NULL,
+                                largeImage_name = NULL,
+                                giottoLargeImage = NULL,
+                                crop_name = 'image',
+                                crop_extent = NULL,
+                                xmax_crop = NULL,
+                                xmin_crop = NULL,
+                                ymax_crop = NULL,
+                                ymin_crop = NULL) {
+  
+  ## 0. Check inputs
+  if(!is.null(crop_extent)) {
+    if(!methods::is(crop_extent, 'SpatExtent')) stop('crop_extent argument only accepts terra extent objects. \n')
+  }
+  if(!is.null(giottoLargeImage)) {
+    if(!methods::is(giottoLargeImage, 'giottoLargeImage')) stop('giottoLargeImage argument only accepts giottoLargeImage objects. \n')
+  }
+  
+  ## 1. get giottoLargeImage if necessary
+  if(is.null(giottoLargeImage)) {
+    if(!is.null(gobject) && !is.null(largeImage_name)) {
+      giottoLargeImage = getGiottoLargeImage(gobject = gobject,
+                                             largeImage_name = largeImage_name)
+    } else {
+      stop('either a giottoLargeImage or both the gobject and name of the giottoLargeImage must be given. \n')
+    }
+  }
+  
+  raster_object = giottoLargeImage@raster_object
+  
+  ## 2. Find crop extent
+  crop_bounds = c(xmin_crop,xmax_crop,ymin_crop,ymax_crop)
+  
+  if(!is.null(crop_extent)) {
+    raster_object = terra::crop(raster_object,
+                                crop_extent,
+                                snap = 'near')
+  } else if(length(crop_bounds == 4)) {
+    crop_extent = terra::ext(crop_bounds)
+    
+    raster_object = terra::crop(raster_object,
+                                crop_extent,
+                                snap = 'near')
+  } else if(length(crop_bounds) > 1) {
+    stop('All four crop bounds must be given.')
+  }
+  
+  ## 3. Return a cropped giottoLargeImage
+  giottoLargeImage@name = crop_name
+  giottoLargeImage@raster_object = raster_object
+  # The only things updated are the raster object itself and the name.
+  # The overall_extent slot must NOT be updated since it records the original extent
+  
+  return(giottoLargeImage)
+}
+
+
+#' @title plotGiottoLargeImage
+#' @name plotGiottoLargeImage
+#' @description plot a downsampled version of giottoLargeImage
+#' @param gobject giotto object
+#' @param largeImage_name name of giottoLargeImage
+#' @param zoom_extent extent object to focus on specific region of image
+#' @param xmax_zoom assign zoom boundary
+#' @param xmin_zoom assign zoom boundary
+#' @param ymax_zoom assign zoom boundary
+#' @param ymin_zoom assign zoom boundary
+#' @param max_intensity value to treat as maximum intensity in color scale
+#' @return plot
+#' @export
+plotGiottoLargeImage = function(gobject = NULL,
+                                largeImage_name = NULL,
+                                giottoLargeImage = NULL,
+                                crop_extent = NULL,
+                                xmax_crop = NULL,
+                                xmin_crop = NULL,
+                                ymax_crop = NULL,
+                                ymin_crop = NULL,
+                                max_intensity = NULL) {
+  
+  # Get giottoLargeImage and check and perform crop if needed
+  giottoLargeImage = cropGiottoLargeImage(gobject = gobject,
+                                          largeImage_name = largeImage_name,
+                                          giottoLargeImage = giottoLargeImage,
+                                          crop_extent = crop_extent,
+                                          xmax_crop = xmax_crop,
+                                          xmin_crop = xmin_crop,
+                                          ymax_crop = ymax_crop,
+                                          ymin_crop = ymin_crop)
+  
+  raster_object = giottoLargeImage@raster_object
+  
+  # plot
+  if(raster_object@ptr$rgb == FALSE) {
+    terra::plotRGB(raster_object,
+                   axes = TRUE,
+                   r = 1,g = 1,b = 1,
+                   stretch ='lin',
+                   smooth = TRUE,
+                   mar = c(5,5,1,1),
+                   asp = 1)
+  } else if(raster_object@ptr$rgb == TRUE) {
+    
+    # Determine likely image bitdepth
+    if(is.null(max_intensity)) {
+      bitDepth = ceiling(log(x = giottoLargeImage@max_intensity, base = 2))
+      # Assign discovered bitdepth as max_intensity
+      max_intensity = 2^bitDepth
+    }
+    
+    terra::plotRGB(raster_object,
+                   axes = TRUE,
+                   r = 1,g = 2,b = 3,
+                   scale = max_intensity,
+                   smooth = TRUE,
+                   mar = c(5,5,1,1),
+                   asp = 1)
+  }
+  
+}
+
+
+#' @title convertGiottoLargeImageToMG
+#' @name convertGiottoLargeImageToMG
+#' @description convert a giottoLargeImage by downsampling into a normal magick based giottoImage
+#' @param gobject gobject containing giottoLargeImage
+#' @param largeImage_name name of giottoLargeImage
+#' @param mg_name name to assign converted magick image based giottoImage
+#' @param spat_loc_name gobject spatial location name to map giottoImage to
+#' @param crop_extent extent object to focus on specific region of image
+#' @param xmax_crop assign crop boundary
+#' @param xmin_crop assign crop boundary
+#' @param ymax_crop assign crop boundary
+#' @param ymin_crop assign crop boundary
+#' @param resample_size maximum number of pixels to use when resampling
+#' @param max_intensity value to treat as maximum intensity in color scale
+convertGiottoLargeImageToMG = function(gobject = NULL,
+                                       largeImage_name = NULL,
+                                       giottoLargeImage = NULL,
+                                       mg_name = NULL,
+                                       spat_loc_name = NULL, #TODO
+                                       crop_extent = NULL,
+                                       xmax_crop = NULL,
+                                       xmin_crop = NULL,
+                                       ymax_crop = NULL,
+                                       ymin_crop = NULL,
+                                       resample_size = 500000,
+                                       max_intensity = NULL) {
+  
+  # Get giottoLargeImage and check and perform crop if needed
+  giottoLargeImage = cropGiottoLargeImage(gobject = gobject,
+                                          largeImage_name = largeImage_name,
+                                          giottoLargeImage = giottoLargeImage,
+                                          crop_extent = crop_extent,
+                                          xmax_crop = xmax_crop,
+                                          xmin_crop = xmin_crop,
+                                          ymax_crop = ymax_crop,
+                                          ymin_crop = ymin_crop)
+  
+  raster_object = giottoLargeImage@raster_object
+  
+  # Resample and then convert to Array
+  rastSample = terra::spatSample(raster_object,
+                                 size = resample_size, # Defines the rough maximum of pixels allowed when resampling
+                                 method = 'regular',
+                                 as.raster = TRUE)
+  
+  imArray = terra::as.array(rastSample)
+  
+  # Set max_intensity
+  if(is.null(max_intensity)) {
+    max_intensity = max(imArray)
+  }
+  
+  # Read in array as magick image
+  mImg = magick::image_read(imArray/max_intensity)
+  
+  # Find boundary adj values
+  overall_ext = giottoLargeImage@overall_extent
+  current_ext = terra::ext(raster_object)
+  
+  xmin_adj = current_ext$xmin - overall_ext$xmin
+  xmax_adj = overall_ext$xmax - current_ext$xmax
+  ymin_adj = current_ext$ymin - overall_ext$ymin
+  ymax_adj = overall_ext$ymax - current_ext$ymax
+  
+  names(xmin_adj) = NULL
+  names(xmax_adj) = NULL
+  names(ymin_adj) = NULL
+  names(ymax_adj) = NULL
+  
+  # magick object name
+  if(is.null(mg_name)) {
+    mg_name = giottoLargeImage@name
+  }
+  
+  # Create giottoImage
+  g_image = createGiottoImage(name = mg_name,
+                              mg_object = mImg,
+                              do_manual_adj = TRUE,
+                              xmax_adj = xmax_adj,
+                              xmin_adj = xmin_adj,
+                              ymax_adj = ymax_adj,
+                              ymin_adj = ymin_adj,
+                              verbose = FALSE) #TODO
+  
+  # Set minimax
+  #TODO make this compatible with spatlocs. The reference frame is weird right now
+  g_image@minmax = c(current_ext$xmax,
+                     current_ext$xmin,
+                     current_ext$ymax,
+                     current_ext$ymin)
+  
+  names(g_image@minmax) = c('xmax_sloc','xmin_sloc','ymax_sloc','ymin_sloc')
+  
+  # Set scalefactor
+  scale_factor = ((unlist(magick::image_info(mImg)['width']))/dim(raster_object)[2])
+  names(scale_factor) = NULL
+  
+  g_image = rescaleGiottoImage(gimage = g_image,
+                               scale_factor = scale_factor)
+  
+  # return giottoImage
+  return(g_image)
+}
+  
+
+
+
 
