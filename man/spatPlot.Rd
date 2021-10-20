@@ -52,7 +52,7 @@ spatPlot(...)
     \item{\code{other_cell_color}}{color of not selected cells}
     \item{\code{other_point_size}}{point size of not selected cells}
     \item{\code{other_cells_alpha}}{alpha of not selected cells}
-    \item{\code{coord_fix_ratio}}{fix ratio between x and y-axis}
+    \item{\code{coord_fix_ratio}}{fix ratio between x and y-axis (default = 1)}
     \item{\code{title}}{title of plot}
     \item{\code{show_legend}}{show legend}
     \item{\code{legend_text}}{size of legend text}
