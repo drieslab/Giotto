@@ -485,6 +485,62 @@ replaceGiottoInstructions = function(gobject,
 }
 
 
+#' @title explainGiottoInstructions
+#' @description Simple function to explain how to use \code{\link{createGiottoInstructions}}
+#' @return Instructions in txt format
+#' @export
+explainGiottoInstructions = function() {
+
+  cat("This is a simple guide to help explain the different Giotto instructions. \n")
+
+  cat("Instructions can be set at the beginning of each workflow with createGiottoInstructions() \n")
+
+  cat("The provided instructions for a giotto object can be viewed with showGiottoInstructions() \n")
+
+  cat("One or more parameters can be changed with changeGiottoInstructions() \n")
+
+  cat("All instructions can be replaced with the replaceGiottoInstructions() function \n")
+
+  cat('\n')
+
+  cat("The following list of parameters can be provided to save_param: \n
+      - python_path: here you can provide the path to your custom python binary (only at beginning of script)
+
+      - show_plot: TRUE or FALSE, show the plot to the console
+      - return_plot: TRUE or FALSE, return the ggplot object (e.g. to further modify or save the plot
+      - save_plot: TRUE or FALSE, automatically save the plot to your designated save_dir
+
+      - save_dir: directory to save the plot to
+      - plot_format: default picture format to use, default is .png
+      - dpi: default dpi for each plot if plot is in raster format
+      - units: default plotting units (e.g. in)
+      - height: default height of plot
+      - width: default width of plot \n")
+
+
+  cat('\n')
+
+  cat("Example: \n
+      instructions <- createGiottoInstruction(python_path = '/path/to/python',
+                                              save_plot = TRUE,
+                                              save_dir = '/path/to/working/dir'")
+
+  cat(" \n
+
+      giotto_object <- createGiottoObject(raw_exprs = '/path/to/expression/matrix',
+                                          spatial_locs = '/path/to/spatial/locations',
+                                          instructions = instructions")
+
+  cat('\n \n')
+
+  cat('Specific saving instructions can also be directly provided for each plotting function.
+
+      See showSaveParameters() for more details \n \n')
+
+}
+
+
+
 
 #' @title readExprMatrix
 #' @description Function to read an expression matrix into a sparse matrix.

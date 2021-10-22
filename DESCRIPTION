@@ -1,6 +1,6 @@
 Package: Giotto
 Title: Spatial Single-Cell Transcriptomics Toolbox
-Version: 1.0.4.04
+Version: 1.0.4.05
 Authors@R: c(
 	person("Ruben", "Dries", email = "rubendries@gmail.com",
 		 role = c("aut", "cre")),
