@@ -828,13 +828,6 @@ binSpectSingle = function(gobject,
   }
 
 
-  if("binSpect.pval" %in% names(fDataDT(gobject))){
-    removeGeneAnnotation(gobject, columns=c("binSpect.pval"))
-  }
-  result_dt = data.table::data.table(genes=result$genes, pval=result$adj.p.value)
-  gobject<-addGeneMetadata(gobject, result_dt, by_column=T, column_gene_ID="genes")
-  data.table::setnames(fDataDT(gobject), "pval", "binSpect.pval")
-
   return(result)
 
 }
@@ -1060,12 +1053,7 @@ binSpectMulti = function(gobject,
   simple_result[, p.val := stats::pchisq(q = V1, df = total_trials, log.p = F, lower.tail = F)]
 
 
-  if("binSpect.pval" %in% names(fDataDT(gobject))){
-    removeGeneAnnotation(gobject, columns=c("binSpect.pval"))
-  }
-  simple_result_dt = data.table::data.table(genes=simple_result$genes, pval=simple_result$p.val)
-  gobject<-addGeneMetadata(gobject, simple_result_dt, by_column=T, column_gene_ID="genes")
-  data.table::setnames(fDataDT(gobject), "pval", "binSpect.pval")
+  
 
 
   return(list(combined = combined_result, simple = simple_result[,.(genes, p.val)]))
@@ -1191,6 +1179,13 @@ binSpect = function(gobject,
                            set.seed = set.seed,
                            summarize = summarize)
 
+    if("binSpect.pval" %in% names(fDataDT(gobject))){
+      removeGeneAnnotation(gobject, columns=c("binSpect.pval"))
+    }
+    simple_result_dt = data.table::data.table(genes=output$genes, pval=output$p.val)
+    gobject<-addGeneMetadata(gobject, simple_result_dt, by_column=T, column_gene_ID="genes")
+    data.table::setnames(fDataDT(gobject), "pval", "binSpect.pval")
+
   } else {
 
     output = binSpectSingle(gobject = gobject,
@@ -1218,6 +1213,13 @@ binSpect = function(gobject,
                             verbose = verbose,
                             set.seed = set.seed,
                             bin_matrix = bin_matrix)
+
+    if("binSpect.pval" %in% names(fDataDT(gobject))){
+      removeGeneAnnotation(gobject, columns=c("binSpect.pval"))
+    }
+    result_dt = data.table::data.table(genes=output$genes, pval=output$adj.p.value)
+    gobject<-addGeneMetadata(gobject, result_dt, by_column=T, column_gene_ID="genes")
+    data.table::setnames(fDataDT(gobject), "pval", "binSpect.pval")
 
   }
 
@@ -1302,7 +1304,7 @@ silhouetteRank <- function(gobject,
   if("silhouetteRank.score" %in% names(fDataDT(gobject))){
     removeGeneAnnotation(gobject, columns=c("silhouetteRank.score"))
   }
-  result_dt = data.table::data.table(genes=result$genes, score=result$scores)
+  result_dt = data.table::data.table(genes=spatial_python_DT$genes, score=spatial_python_DT$scores)
   gobject<-addGeneMetadata(gobject, result_dt, by_column=T, column_gene_ID="genes")
   data.table::setnames(fDataDT(gobject), "score", "silhouetteRank.score")
 

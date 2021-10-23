@@ -160,9 +160,9 @@ initHMRF <- function(gobject,
   if(spatial_genes !=NULL){
     cat(paste0("\n User supplied gene list detected.\n"))
     cat(paste0("\n Checking user gene list is spatial...\n"))
-    if(!'binSpect' %in% names(gobject@gene_metadata) ||
-    !'silhouetteRank' %in% names(gobject@gene_metadata) ||
-    !'spatialDE' %in% names(gobject@gene_metadata)){
+    if(!'binSpect.pval' %in% names(gobject@gene_metadata) ||
+    !'silhouetteRank.score' %in% names(gobject@gene_metadata) ||
+    !'silhouetteRankTest.pval' %in% names(gobject@gene_metadata)){
       stop(paste0("\n Cannot check user's gene list, because Giotto's spatial gene detection has not been run. Please run spatial gene detection first: binSpect, silhouetteRank.\n"), call.=FALSE)
     }
     filtered = filterSpatialGenes(gobject, spatial_genes, max=gene_sampling_from_top, name=use_spatial_genes, method="none")
@@ -171,11 +171,14 @@ initHMRF <- function(gobject,
       cat(paste0("\n Kept", length(filtered$genes), "spatial genes for the sampling step next\n"))
     }
     spatial_genes = filtered$genes
+    if(length(spatial_genes)==0){
+      stop(paste0("\n No genes are remaining to do HMRF. Please give a larger gene list.\n"), call.=FALSE)
+    }
   }
 
-  if(!'binSpect' %in% names(gobject@gene_metadata) ||
-  !'silhouetteRank' %in% names(gobject@gene_metadata) ||
-  !'spatialDE' %in% names(gobject@gene_metadata)){
+  if(!'binSpect.pval' %in% names(gobject@gene_metadata) ||
+  !'silhouetteRank.score' %in% names(gobject@gene_metadata) ||
+  !'silhouetteRankTest.pval' %in% names(gobject@gene_metadata)){
     stop(paste0('Giotto spatial gene detection has not been run. Please run spatial gene detection first: binSpect, silhouetteRank.\n'), call.=FALSE)
   }
   

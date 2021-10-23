@@ -147,8 +147,9 @@ def calc_silhouette_per_gene(genes=None, expr=None, dissim=None, examine_top=0.1
 			clust[ss] = 1
 		'''
 		'''
-		'''	
-		sys.stdout.write("%s %d / %d\n" % (g, ig, len(genes)))
+		'''
+		if ig%100==0:	
+			sys.stdout.write("%s %d / %d\n" % (g, ig, len(genes)))
 		#avg_sil_rank, all_silhouette = get_distance_per_FD(dissim, ncell, clust)
 		#avg_sil_rank, all_silhouette = get_distance_per_FD_2(dissim, ncell, clust, outcome=[1,2])
 		avg_clust1_sil = get_distance_per_FD_2(dissim, ncell, clust, outcome=[1,2])
