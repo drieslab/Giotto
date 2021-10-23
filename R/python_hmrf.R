@@ -232,7 +232,7 @@ initHMRF <- function(gobject,
   
   expr_values = expr_values[spatial_genes_selected,]
   
-  y0 = t(as.matrix(expr_values))
+  y0 = t(Matrix::as.matrix(expr_values))
   
   cell.rm = setdiff(rownames(y0),unique(c(spatial_network$to,spatial_network$from)))
   y = y0
