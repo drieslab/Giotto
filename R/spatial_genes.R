@@ -827,6 +827,14 @@ binSpectSingle = function(gobject,
     data.table::setorder(result, -estimate)
   }
 
+
+  if("binSpect.pval" %in% names(fDataDT(gobject))){
+    removeGeneAnnotation(gobject, columns=c("binSpect.pval"))
+  }
+  result_dt = data.table::data.table(genes=result$genes, pval=result$adj.p.value)
+  gobject<-addGeneMetadata(gobject, result_dt, by_column=T, column_gene_ID="genes")
+  data.table::setnames(fDataDT(gobject), "pval", "binSpect.pval")
+
   return(result)
 
 }
@@ -1050,6 +1058,15 @@ binSpectMulti = function(gobject,
   simple_result = combined_result[, sum(log(get(summarize))), by = genes]
   simple_result[, V1 := V1*-2]
   simple_result[, p.val := stats::pchisq(q = V1, df = total_trials, log.p = F, lower.tail = F)]
+
+
+  if("binSpect.pval" %in% names(fDataDT(gobject))){
+    removeGeneAnnotation(gobject, columns=c("binSpect.pval"))
+  }
+  simple_result_dt = data.table::data.table(genes=simple_result$genes, pval=simple_result$p.val)
+  gobject<-addGeneMetadata(gobject, simple_result_dt, by_column=T, column_gene_ID="genes")
+  data.table::setnames(fDataDT(gobject), "pval", "binSpect.pval")
+
 
   return(list(combined = combined_result, simple = simple_result[,.(genes, p.val)]))
 
@@ -1282,6 +1299,13 @@ silhouetteRank <- function(gobject,
 
   spatial_python_DT = data.table::data.table(genes = genes, scores = scores)
 
+  if("silhouetteRank.score" %in% names(fDataDT(gobject))){
+    removeGeneAnnotation(gobject, columns=c("silhouetteRank.score"))
+  }
+  result_dt = data.table::data.table(genes=result$genes, score=result$scores)
+  gobject<-addGeneMetadata(gobject, result_dt, by_column=T, column_gene_ID="genes")
+  data.table::setnames(fDataDT(gobject), "score", "silhouetteRank.score")
+
   return(spatial_python_DT)
 
 
@@ -1441,6 +1465,13 @@ silhouetteRankTest = function(gobject,
                                 parallel_path = parallel_path,
                                 output = silh_output_dir,
                                 query_sizes = as.integer(query_sizes))
+
+  if("silhouetteRankTest.pval" %in% names(fDataDT(gobject))){
+    removeGeneAnnotation(gobject, columns=c("silhouetteRankTest.pval"))
+  }
+  result_dt = data.table::data.table(genes=output_silh$gene, pval=output_silh$qval)
+  gobject<-addGeneMetadata(gobject, result_dt, by_column=T, column_gene_ID="genes")
+  data.table::setnames(fDataDT(gobject), "pval", "silhouetteRankTest.pval")
 
   return(output_silh)
 
