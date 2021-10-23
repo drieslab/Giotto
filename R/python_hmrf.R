@@ -192,7 +192,7 @@ initHMRF <- function(gobject,
     spatial_genes = filtered$genes
   }
 
-  n = min(spatial_gene_samples,500,length(spatial_genes))
+  n = min(gene_samples,500,length(spatial_genes))
 
   #if(length(intersect(spatial_genes,rownames(expr_values)))>0){
   #  ### if input a sp gene list, use the list
@@ -226,7 +226,7 @@ initHMRF <- function(gobject,
                                              subset_genes = spatial_genes,
                                              network_smoothing = 0)
     spat_cor_netw_DT = clusterSpatialCorGenes(spat_cor_netw_DT,name = 'spat_netw_clus',k = 20)
-    sample_genes = sampling_sp_genes(spat_cor_netw_DT$cor_clusters$spat_netw_clus, sample_rate=spatial_gene_sampling_rate, target=n, seed=spatial_gene_sampling_seed)
+    sample_genes = sampling_sp_genes(spat_cor_netw_DT$cor_clusters$spat_netw_clus, sample_rate=gene_sampling_rate, target=n, seed=gene_sampling_seed)
     spatial_genes_selected = sample_genes$union_genes
   }else{spatial_genes_selected = spatial_genes}
   
