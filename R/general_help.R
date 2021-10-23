@@ -101,7 +101,7 @@ get_os <- function(){
 #' @keywords internal
 dt_to_matrix <- function(x) {
   rownames = as.character(x[[1]])
-  mat = methods::as(as.matrix(x[,-1]), 'Matrix')
+  mat = methods::as(Matrix::as.matrix(x[,-1]), 'Matrix')
   rownames(mat) = rownames
   return(mat)
 }
