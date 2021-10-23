@@ -385,6 +385,7 @@ GetDT.HMRFoutput = function(y){
 addHMRF = function (gobject, HMRFoutput){
   if (!"HMRFoutput" %in% class(HMRFoutput)) {
     stop("\n HMRFoutput needs to be output from doHMRF extend \n")
+  }
   
   ordered_cell_IDs = gobject@cell_metadata$cell_ID
   
@@ -398,8 +399,6 @@ addHMRF = function (gobject, HMRFoutput){
   }
   return(gobject)
 }
-
-
 
 #' @title view HMRF result
 #' @name viewHMRFresults2
@@ -447,8 +446,6 @@ viewHMRFresults = function (gobject, HMRFoutput, k, betas,
   }
   
 }
-
-
 
 #' @title viewHMRFresults3D
 #' @name viewHMRFresults3D
