@@ -139,6 +139,10 @@ initHMRF <- function(gobject,
   library(ggraph)
   library(graphcoloring)
 
+  zscore = match.arg(zscore, unique(c('none','rowcol', 'colrow', zscore)))
+  use_spatial_genes = match.arg(use_spatial_genes, 
+    unique(c("binSpect", "silhouetteRank", "silhouetteRankTest", use_spatial_genes)))
+
   spatial_network = select_spatialNetwork(gobject, name = spatial_network_name, 
                                           return_network_Obj = FALSE)
   spatial_network = spatial_network[, .(to, from)]
@@ -148,16 +152,15 @@ initHMRF <- function(gobject,
   expr_values = select_expression_values(gobject = gobject, values = values)   
   
   if(zscore!="none"){
-    zscore = match.arg(zscore, c("col", "row", "colrow", "rowcol"))
-    expr_values = select_expression_values(gobject = gobject, 
-                                           feat_type = feat_type, values = 'normalized')  
+    #zscore = match.arg(zscore, c("col", "row", "colrow", "rowcol"))
+    expr_values = select_expression_values(gobject = gobject, values = 'normalized')  
     if(zscore=='col'){expr_values = scale(expr_values)}
     if(zscore=='row'){expr_values = t(scale(t(expr_values)))}
     if(zscore=='colrow'){expr_values = t(scale(t(scale(expr_values))))}
     if(zscore=='rowcol'){expr_values = scale(t(scale(t(expr_values))))}
   }
 
-  if(spatial_genes !=NULL){
+  if(! is.null(spatial_genes)){
     cat(paste0("\n User supplied gene list detected.\n"))
     cat(paste0("\n Checking user gene list is spatial...\n"))
     if(!'binSpect.pval' %in% names(gobject@gene_metadata) ||
@@ -183,7 +186,7 @@ initHMRF <- function(gobject,
   }
   
   # if(!n_spatial_genes_select>0){stop("\n please provide a positive integer n_spatial_genes_select \n")}
-  if(spatial_genes==NULL){
+  if(is.null(spatial_genes)){
     all_genes = fDataDT(gobject)$gene_ID
     filtered = filterSpatialGenes(gobject, all_genes, max=gene_sampling_from_top, name=use_spatial_genes, method="none")
     spatial_genes = filtered$genes
