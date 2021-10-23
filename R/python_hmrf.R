@@ -283,7 +283,7 @@ initHMRF <- function(gobject,
   sigma<-array(0, c(m,m,k))
   for(i in 1:k){
     sigma[, , i] <- cov(y[lclust[[i]], ])
-    di<-findDampFactor(sigma[,,i], factor=factor.step, d_cutoff=tolerance, startValue=0.0001)
+    di<-findDampFactor(sigma[,,i], factor=factor_step, d_cutoff=tolerance, startValue=0.0001)
     damp[i]<-ifelse(is.null(di), 0, di)
   }
   
