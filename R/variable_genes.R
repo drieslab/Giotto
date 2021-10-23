@@ -182,12 +182,6 @@ calculateHVG <- function(gobject,
   }
 
 
-
-
-
-
-
-
   if(return_gobject == TRUE) {
 
     # add HVG metadata to gene_metadata
@@ -227,8 +221,4 @@ calculateHVG <- function(gobject,
     return(gene_in_cells_detected)
   }
 
-  }
-
-
-
-
+}

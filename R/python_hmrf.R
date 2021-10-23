@@ -382,8 +382,7 @@ GetDT.HMRFoutput = function(y){
 #' @name addHMRF2
 #' @description function to add HMRF Domain Type to cell meta data
 #' @keywords external
-addHMRF = function (gobject, HMRFoutput) 
-{
+addHMRF = function (gobject, HMRFoutput){
   if (!"HMRFoutput" %in% class(HMRFoutput)) {
     stop("\n HMRFoutput needs to be output from doHMRF extend \n")
   
@@ -407,8 +406,7 @@ addHMRF = function (gobject, HMRFoutput)
 #' @description function to plot spatial location with HMRF cluster of k and betas
 #' @keywords external
 viewHMRFresults = function (gobject, HMRFoutput, k, betas,
-          third_dim = FALSE, ...) 
-{
+          third_dim = FALSE, ...) {
   if (!"HMRFoutput" %in% class(HMRFoutput)) {
     stop("\n HMRFoutput needs to be output from doHMRFextend \n")
   }
