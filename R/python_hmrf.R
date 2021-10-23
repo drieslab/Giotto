@@ -24,7 +24,7 @@
 #' @details Description of HMRF parameters ...
 #' @export
 doHMRF <- function(gobject,
-                   expression_values = c('normalized', 'scaled', 'custom'),
+                   expression_values = c('scaled', 'normalized', 'custom'),
                    spatial_network_name = 'Delaunay_network',
                    spatial_genes = NULL,
                    spatial_dimensions = c('sdimx', 'sdimy', 'sdimz'),
