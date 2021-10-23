@@ -331,10 +331,11 @@ doHMRF = function (HMRF_init_obj, betas = c(0,10,5))
   beta_increment = betas[2]
   beta_num_iter = betas[3]
   # beta_current <- beta_init
-  beta_seq = sequence(beta_num_iter,beta_init,beta_increment)
-  beta_seq = sort(unique(c(0,beta_seq)))
+  #beta_seq = sequence(beta_num_iter,beta_init,beta_increment)
+  #beta_seq = sort(unique(c(0,beta_seq)))
   res <- c()
-  for(beta_current in beta_seq){
+  beta_current <- beta_init
+  for(bx in 1:beta_num_iter){
     print(sprintf("Doing beta=%.3f", beta_current))
     tc.hmrfem<-smfishHmrf.hmrfem.multi(y=y, neighbors=nei, beta=beta_current, numnei=numnei, 
                                        blocks=blocks, mu=mu, sigma=sigma, verbose=T, err=1e-7, maxit=50, dampFactor=damp)
@@ -353,7 +354,7 @@ doHMRF = function (HMRF_init_obj, betas = c(0,10,5))
     rownames(tc.hmrfem$unnormprob) = rownames(y)
     names(tc.hmrfem$class) = rownames(y)
     res[[t_key]] <- tc.hmrfem
-    # beta_current <- beta_current + beta_increment
+    beta_current <- beta_current + beta_increment
   }
   
   result.hmrf = res
@@ -415,39 +416,27 @@ viewHMRFresults = function (gobject, HMRFoutput, k, betas,
   beta_init = betas[1]
   beta_increment = betas[2]
   beta_num_iter = betas[3]
-  # beta_current <- beta_init
-  beta_seq = sequence(beta_num_iter,beta_init,beta_increment)
-  # beta_seq = sort(unique(c(0,beta_seq)))
+  beta_current <- beta_init
+
+  for(bx in 1:beta_num_iter){
+    t_key <- sprintf("k=%d b=%.2f", k, beta_current)
+    if(!t_key%in%names(HMRFoutput)){
+      cat(paste0("\n", t_key, "was not calculated. Skipped.\n"))
+    }else{
+      cat(paste0('\n plotting ',t_key, '\n'))
+      dt_kk = HMRFoutput[[t_key]]$class
+      spatPlot2D(gobject = gobject, cell_color = dt_kk, show_plot = T, 
+               title = t_key,...)
   
-  t_key0 = sprintf("k=%d b=%.2f", k, 0)
-  if(!t_key0%in%names(HMRFoutput))
-  {stop(paste0('\n model of k = ',k,' was not calculated \n'))}
-  
-  dt_0 = HMRFoutput[[t_key0]]$class
-  cat(paste0('\n plotting ',t_key0,' \n'))
-  spatPlot2D(gobject = gobject, cell_color = dt_0, show_plot = T, 
-             title = t_key0,...)
-  if (third_dim == TRUE) {
-    spatPlot3D(gobject = gobject, cell_color = dt_0, 
-               show_plot = T, title = kk,...)
+      if (third_dim == TRUE) {
+        spatPlot3D(gobject = gobject, cell_color = dt_kk, 
+                 show_plot = T, title = t_key,...)
+      }
+    }
+    beta_current <- beta_current + beta_increment
+
   }
 
-  t_key = sprintf("k=%d b=%.2f", k, beta_seq) 
-  if(sum(t_key%in%names(HMRFoutput))==0)
-  {stop(paste0('\n model of k = ',k,' and betas = ',paste(beta_seq,collapse = ','),' was not calculated, only result of beta = 0 plotted \n'))}
-  
-  cat(paste0('\n plotting ',t_key[t_key%in%names(HMRFoutput)],' \n'))
-  for(kk in intersect(t_key,names(HMRFoutput)))
-  {
-    dt_kk = HMRFoutput[[kk]]$class
-    spatPlot2D(gobject = gobject, cell_color = dt_kk, show_plot = T, 
-               title = kk,...)
-    if (third_dim == TRUE) {
-      spatPlot3D(gobject = gobject, cell_color = dt_kk, 
-                 show_plot = T, title = kk,...)
-    }
-  }
-  
 }
 
 #' @title viewHMRFresults3D
