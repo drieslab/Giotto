@@ -63,6 +63,8 @@ addSpatialGenesTest = function(
   #   (stop('\n please provide a spatial test result with matched genes \n'))
   
   gobject@gene_metadata[,paste0(method,'_SpatialGenesTest')] = sp_test[match(gobject@gene_metadata$gene_ID,sp_test$genes),]$adj.p.value
+  
+  return(gobject)
 }
 
 
