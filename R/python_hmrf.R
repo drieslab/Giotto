@@ -158,7 +158,7 @@ checkAndFixSpatialGenes <- function(gobject, use_spatial_genes, use_score=FALSE)
   else if(use_spatial_genes=="binSpect"){
     eval1 = 'binSpect.pval' %in% names(gobject@gene_metadata)
     if(eval1==FALSE){
-      stop(paste0("\n use_spatial_genes is set to binSpect, but it has not been run yet. Run silhouetteRank first.\n"), call.=FALSE)
+      stop(paste0("\n use_spatial_genes is set to binSpect, but it has not been run yet. Run binSpect first.\n"), call.=FALSE)
     }
     return(use_spatial_genes)
   }else{
