@@ -2,7 +2,7 @@
 #' @name sampling_sp_genes
 #' @description function to select a set of spatial genes
 #' @keywords internal
-sampling_sp_genes = function(clust, sample_rate=2, target=500){
+sampling_sp_genes = function(clust, sample_rate=2, target=500, seed = 10){
   # clust = spat_cor_netw_DT$cor_clusters$spat_netw_clus
   # sample_rate=2
   # target=500
@@ -25,7 +25,7 @@ sampling_sp_genes = function(clust, sample_rate=2, target=500){
     genes[i] = num_g
     num_sample[i] = round(num_g/(num_g^(1/sample_rate)) * factor)
   }
-  set.seed(10)
+  set.seed(seed)
   samples=list()
   union_genes = c()
   for(i in seq(1, num_cluster)){
@@ -43,69 +43,78 @@ sampling_sp_genes = function(clust, sample_rate=2, target=500){
 }
 
 
-#' @title addSpatialGenesTest
-#' @name addSpatialGenesTest
-#' @description function to add adjusted p value of spatial genes test to gene meta data
-#' @keywords external
-addSpatialGenesTest = function(
-  gobject,
-  method = 'kmeans',
-  spatial_network_name = 'Delaunay_network',
-  seed = 1234
-){
-  if(length(method)>1||!method%in%c('kmeans','rank'))
-  {stop('\n method should be one of “kmeans”, “rank” \n')}
+#' @title filterSpatialGenes
+#' @name filterSpatialGenes
+#' @description function to filter gene list with a set of spatial genes from spatial test
+#' @keywords internal
+filterSpatialGenes <- function(gobject, spatial_genes, max=2500, name=c("binSpect", "silhouetteRank", "silhouetteRankTest"), method=c("none", "elbow")){
+  name = match.arg(name, unique(c("binSpect", "silhouetteRank", "silhouetteRankTest", name)))
+  method = match.arg(method, unique(c("none", "elbow", method)))
   
-  sp_test = binSpect(gobject = gobject,bin_method = method,set.seed = seed,spatial_network_name = spatial_network_name)
+  gg = fDataDT(gobject)
+  gx = gg[gene_ID %in% spatial_genes]
   
-  # setdiff(binSpect.obj$genes,gobject@gene_metadata$gene_ID)
-  # if(!identical(sort(gobject@gene_metadata$gene_ID),sort(binSpect.obj$genes)))
-  #   (stop('\n please provide a spatial test result with matched genes \n'))
+  if(name=="binSpect"){
+    gx = gx[which(binSpect.pval<0.01)]
+    gx_sorted = gx[order(gx$binSpect.pval, decreasing=F),]
+  }else if(name=="silhouetteRank"){
+    gx = gx[!is.na(silhouetteRank.score)]
+    gx_sorted = gx[order(gx$silhouetteRank.score, decreasing=T),]
+  }else if(name=="silhouetteRankTest"){
+    gx = gx[which(silhouetteRankTest.pval<0.01)]
+    gx_sorted = gx[order(gx$silhouetteRankTest.pval, decreasing=F),]
+  }
   
-  gobject@gene_metadata[,paste0(method,'_SpatialGenesTest')] = sp_test[match(gobject@gene_metadata$gene_ID,sp_test$genes),]$adj.p.value
+  if(method=="none"){
+    gx = head(gx, n=max)
+  }else if(method=="elbow"){
+    
+  }
   
-  return(gobject)
+  num_genes_removed = length(spatial_genes) - nrow(gx)
+  
+  return(list(genes=gx$gene_ID, num_genes_removed=num_genes_removed))
 }
 
 
-#' @title initHMRF
-#' @name initialize HMRF
-#' @description function to initialize HMRF model
-#' @keywords external
-#' @param xxxxxxxxxxxxxxxxxxxxx
-#' @param xxxxxxxxxxxxxxxxxxxxx
-#' @param xxxxxxxxxxxxxxxxxxxxx
-initHMRF = function(
-  gobject, 
-  # feat_type = NULL, 
-  expression_values = c("scaled", "normalized", "custom"), 
-  spatial_network_name = "Delaunay_network", 
-  # input_features = 'spatial_genes',
-  spatial_genes = NULL, 
-  n_spatial_genes_select = 500, 
-  # spat_loc_name = "raw", 
-  # spatial_dimensions = c("sdimx", "sdimy", "sdimz"), 
-  #disable using dimension reduction
-  # dim_reduction_to_use = NULL, 
-  # dim_reduction_name = "pca", 
-  # dimensions_to_use = 1:10, 
+#' @title HMRF initialzation 
+#' @name initHMRF
+#' @description Run initialzation for HMRF model
+#' @param gobject giotto object
+#' @param expression_values expression values to use
+#' @param spatial_network_name name of spatial network to use for HMRF
+#' @param use_spatial_genes select a list of spatial genes from the tests in gobject
+#' @param spatial_genes spatial genes to use for HMRF
+#' @param gene_samples number of spatial gene subset to use for HMRF
+#' @param gene_sampling_rate parameter control proportion of gene sample from different module, 1 corresponding to sample equal size from different modules.
+#' @param gene_sampling_seed random number seed to sample spatial genes
+#' @param gene_sampling_from_top total spatial genes before sampling
+#' @param hmrf_seed random number seed to generate initial mean vector of HMRF model
+#' @param k  number of HMRF domains
+#' @param seed seed to fix random number generator (for creating initialization of HMRF) (-1 if no fixing)
+#' @param betas betas to test for. three numbers: start_beta, beta_increment, num_betas e.g. c(0, 2.0, 50)
+#' @param tolerance tolerance for convergence
+#' @param zscore if zscore need to use for HMRF
+#' @param numinit number of initializations
+#' @details Description of HMRF parameters ...
+#' @export
+initHMRF <- function(gobject,
+                     expression_values = c('scaled', 'normalized', 'custom'),
+                     spatial_network_name = 'Delaunay_network',
+                     use_spatial_genes = c("binSpect", "silhouetteRank", "silhouetteRankTest"),
+                     spatial_genes = NULL,
+                     gene_samples = 500,
+                     gene_sampling_rate = 2,
+                     gene_sampling_seed = 10,
+                     gene_sampling_from_top = 2500,
+                     #gene_pval = "auto",
+                     hmrf_seed = 100,
+                     k = 10,
+                     tolerance = 1e-5,
+                     zscore = c('none','rowcol', 'colrow'),
+                     nstart = 1000,
+                     factor_step = 1.05) {
   
-  seed.init = 100, 
-  # name = "test", 
-  k = 9, 
-  # # beta_init = 0, 
-  # # beta_increment = 10,
-  # # beta_num_iter = 5,
-  tolerance = 1e-5,
-  zscore = c("none"), 
-  
-  # numinit = 100, 
-  ### additional para
-  #blocks = NULL,
-  nstart = 1000,
-  factor.step = 1.05
-){
-  ###### will remove this step
   if (!requireNamespace("smfishHmrf", quietly = TRUE)) {
     stop("\n package ", "smfishHmrf", " is not yet installed \n", 
          "To install: \n", "devtools::install_bitbucket(\"qzhudfci/smfishHmrf-r\") \n", 
@@ -135,10 +144,9 @@ initHMRF = function(
   library(ggraph)
   library(graphcoloring)
   
-  # if (length(input_features)>1){stop("\n input_features needs to be either 'spatial_genes' or 'dim_reduction' \n")}
-  # if (!input_features%in%c('spatial_genes','dim_reduction')){
-  #   stop("\n input_features needs to be either 'spatial_genes' or 'dim_reduction' \n")
-  # }
+  zscore = match.arg(zscore, unique(c('none','rowcol', 'colrow', zscore)))
+  use_spatial_genes = match.arg(use_spatial_genes, 
+                                unique(c("binSpect", "silhouetteRank", "silhouetteRankTest", use_spatial_genes)))
   
   spatial_network = select_spatialNetwork(gobject, name = spatial_network_name, 
                                           return_network_Obj = FALSE)
@@ -146,7 +154,7 @@ initHMRF = function(
   
   # 'spatial_genes' use spatial gene list or create spatial gene list
   values = match.arg(expression_values, unique(c("scaled","normalized", "custom", expression_values)))
-  expr_values = select_expression_values(gobject = gobject, values = values)   
+  expr_values = select_expression_values(gobject = gobject, values = values) 
   
   if(zscore!="none"){
     zscore = match.arg(zscore, c("col", "row", "colrow", "rowcol"))
@@ -158,33 +166,39 @@ initHMRF = function(
     if(zscore=='rowcol'){expr_values = scale(t(scale(t(expr_values))))}
   }
   
-  # if(!n_spatial_genes_select>0){stop("\n please provide a positive integer n_spatial_genes_select \n")}
-  
-  if(length(intersect(spatial_genes,rownames(expr_values)))>0){
-    ### if input a sp gene list, use the list
-    expr_values = expr_values[intersect(spatial_genes,rownames(expr_values)),]
-    n0 = length(spatial_genes)
-    n1 = length(intersect(spatial_genes,rownames(expr_values)))
-    n = min(n_spatial_genes_select,500,n1)
-    cat(paste0('\n total ',n0, 'spatial_genes imported \n'))
-    cat(paste0('\n total ',n1, 'spatial_genes overlapped with expr data matrix \n'))
-    cat(paste0('\n sample ',n, '(max of 500) spatial_genes selected for HMRF model \n'))
-  }else{
-    
-    ### if no input any sp gene, pick significant genes from km test
-    cat('\n none overlapped genes imported, use spatial genes from kmeans_SpatialGenesTest \n')
-    
-    if(!'kmeans_SpatialGenesTest'%in%names(gobject@gene_metadata))
-    { 
-      km_spatialgenes = binSpect(gobject = gobject,bin_method = 'kmeans',set.seed = 1234,spatial_network_name = spatial_network_name)
-      spatial_genes = km_spatialgenes$genes[which(km_spatialgenes$adj.p.value<0.01)]
-    }else{
-      spatial_genes = gobject@gene_metadata$gene_ID[gobject@gene_metadata$kmeans_SpatialGenesTest<0.01]
+  if(! is.null(spatial_genes)){
+    cat(paste0("\n User supplied gene list detected.\n"))
+    cat(paste0("\n Checking user gene list is spatial...\n"))
+    if(!'binSpect.pval' %in% names(gobject@gene_metadata) &&
+       !'silhouetteRank.score' %in% names(gobject@gene_metadata) &&
+       !'silhouetteRankTest.pval' %in% names(gobject@gene_metadata)){
+      stop(paste0("\n Giotto's spatial gene detection has not been run. Cannot check user's gene list. Please run spatial gene detection first: binSpect, silhouetteRank, silhouetteRankTest.\n"), call.=FALSE)
     }
-    
-    n = min(n_spatial_genes_select,500,length(spatial_genes))
-    cat(paste0('\n sample ',n,' (max of 500) genes out of total ',length(spatial_genes),' spatial genes for HMRF model \n'))
+    filtered = filterSpatialGenes(gobject, spatial_genes, max=gene_sampling_from_top, name=use_spatial_genes, method="none")
+    if(filtered$num_genes_removed>0){
+      cat(paste0("\n Removed", filtered$num_genes_removed, "from user's input gene list due to being absent or non-spatial genes.\n"))
+      cat(paste0("\n Kept", length(filtered$genes), "spatial genes for the sampling step next\n"))
+    }
+    spatial_genes = filtered$genes
+    if(length(spatial_genes)==0){
+      stop(paste0("\n No genes are remaining to do HMRF. Please give a larger gene list.\n"), call.=FALSE)
+    }
   }
+  
+  if(!'binSpect.pval' %in% names(gobject@gene_metadata) &&
+     !'silhouetteRank.score' %in% names(gobject@gene_metadata) &&
+     !'silhouetteRankTest.pval' %in% names(gobject@gene_metadata)){
+    stop(paste0('Giotto spatial gene detection has not been run. Please run spatial gene detection first: binSpect, silhouetteRank.\n'), call.=FALSE)
+  }
+  
+  # if(!n_spatial_genes_select>0){stop("\n please provide a positive integer n_spatial_genes_select \n")}
+  if(is.null(spatial_genes)){
+    all_genes = fDataDT(gobject)$gene_ID
+    filtered = filterSpatialGenes(gobject, all_genes, max=gene_sampling_from_top, name=use_spatial_genes, method="none")
+    spatial_genes = filtered$genes
+  }
+  
+  n = min(gene_samples,500)
   
   if(n<length(spatial_genes)){
     spat_cor_netw_DT = detectSpatialCorGenes(gobject = gobject ,method = 'network',
@@ -192,12 +206,12 @@ initHMRF = function(
                                              subset_genes = spatial_genes,
                                              network_smoothing = 0)
     spat_cor_netw_DT = clusterSpatialCorGenes(spat_cor_netw_DT,name = 'spat_netw_clus',k = 20)
-    sample_genes = sampling_sp_genes(spat_cor_netw_DT$cor_clusters$spat_netw_clus, sample_rate=2, target=n)
+    sample_genes = sampling_sp_genes(spat_cor_netw_DT$cor_clusters$spat_netw_clus, sample_rate=gene_sampling_rate, target=n, seed=gene_sampling_seed)
     spatial_genes_selected = sample_genes$union_genes
   }else{spatial_genes_selected = spatial_genes}
   
   expr_values = expr_values[spatial_genes_selected,]
-  
+
   y0 = t(as.matrix(expr_values))
   
   cell.rm = setdiff(rownames(y0),unique(c(spatial_network$to,spatial_network$from)))
@@ -242,32 +256,28 @@ initHMRF = function(
   cl_color <- sort(unique(colors))
   blocks<-lapply(cl_color, function(cl){which(colors==cl)})
   
-  kk = smfishHmrf.generate.centroid(y=y,par_k = k,par_seed=seed.init,nstart=nstart)
+  kk = smfishHmrf.generate.centroid(y=y,par_k = k,par_seed=hmrf_seed,nstart=nstart)
   mu<-t(kk$centers) #should be dimension (m,k)
   lclust<-lapply(1:k, function(x) which(kk$cluster == x))
   damp<-array(0, c(k)); 
   sigma<-array(0, c(m,m,k))
   for(i in 1:k){
     sigma[, , i] <- cov(y[lclust[[i]], ])
-    di<-findDampFactor(sigma[,,i], factor=factor.step, d_cutoff=tolerance, startValue=0.0001)
+    di<-findDampFactor(sigma[,,i], factor=factor_step, d_cutoff=tolerance, startValue=0.0001)
     damp[i]<-ifelse(is.null(di), 0, di)
   }
   
   list(y=y, nei=nei, numnei=numnei, blocks=blocks, 
-       # beta_init=beta_init, beta_increment=beta_increment, beta_num_iter=beta_num_iter, 
-       damp=damp, mu=mu, sigma=sigma,k=k)
-       # tolerance=tolerance, 
-       # edgelist=edgelist)
+       damp=damp, mu=mu, sigma=sigma, k=k, genes=spatial_genes_selected, edgelist=edgelist)
 }
 
 
-#' @title doHMRF2
-#' @name do HMRF
+#' @title doHMRF v2.0
+#' @name doHMRF2
 #' @description function to run HMRF model
 #' @keywords external
-#' @param xxxxxxxxxxxxxxxxxxxxx
-#' @param xxxxxxxxxxxxxxxxxxxxx
-#' @param xxxxxxxxxxxxxxxxxxxxx
+#' @param HMRF_init_obj an HMRF initialization object with y, nei, numnei, blocks, damp, mu, sigma, k,...
+#' @param betas start, increment and iteration number of beta
 doHMRF2 = function (HMRF_init_obj, betas = c(0,10,5))
   # y, nei, numnei, blocks, beta_init, beta_increment, beta_num_iter, damp, mu, sigma, k, tolerance) 
 {
@@ -303,7 +313,9 @@ doHMRF2 = function (HMRF_init_obj, betas = c(0,10,5))
   beta_increment = betas[2]
   beta_num_iter = betas[3]
   # beta_current <- beta_init
-  beta_seq = sequence(beta_num_iter,beta_init,beta_increment)
+  
+  beta_seq = (1:beta_num_iter-1)*beta_increment+beta_init
+  # beta_seq = sequence(beta_num_iter,beta_init,beta_increment)
   beta_seq = sort(unique(c(0,beta_seq)))
   res <- c()
   for(beta_current in beta_seq){
@@ -314,7 +326,7 @@ doHMRF2 = function (HMRF_init_obj, betas = c(0,10,5))
     #do_one(name, outdir, k, y, nei, beta_current, numnei, blocks, mu, sigma, damp)
     
     ### stop the loop if there is a samll maximum probablity (<0.51) of any gene
-    if(sum(apply(tc.hmrfem$prob,1,max)<0.51)>0)
+    if(sum(apply(tc.hmrfem$prob,1,max)<(1/k+0.05))>0)
     {cat(paste0('\n HMRF is stopping at large beta >= ',beta_current,', numerical error occurs, results of smaller betas were stored\n'));
       break()}
     
@@ -441,7 +453,8 @@ viewHMRFresults2 = function (gobject, HMRFoutput, k, betas,
   beta_increment = betas[2]
   beta_num_iter = betas[3]
   # beta_current <- beta_init
-  beta_seq = sequence(beta_num_iter,beta_init,beta_increment)
+  beta_seq = (1:beta_num_iter-1)*beta_increment+beta_init
+  # beta_seq = sequence(beta_num_iter,beta_init,beta_increment)
   # beta_seq = sort(unique(c(0,beta_seq)))
   
   t_key0 = sprintf("k=%d b=%.2f", k, 0)
