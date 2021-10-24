@@ -38,6 +38,14 @@ sampling_sp_genes = function(clust, sample_rate=2, target=500, seed=10){
   return(list(union_genes = union_genes, num_sample = num_sample, num_gene=genes, gene_list=gene_list))
 }
 
+#this is an accessory function, that determines the number of points below a diagnoal passing through [x,yPt]
+numPts_below_line <- function(myVector,slope,x){
+	yPt <- myVector[x]
+	b <- yPt-(slope*x)
+	xPts <- 1:length(myVector)
+	return(sum(myVector<=(xPts*slope+b)))
+}
+
 filterSpatialGenes <- function(gobject, spatial_genes, max=2500, name=c("binSpect", "silhouetteRank", "silhouetteRankTest"), method=c("none", "elbow")){
   name = match.arg(name, unique(c("binSpect", "silhouetteRank", "silhouetteRankTest", name)))
   method = match.arg(method, unique(c("none", "elbow", method)))
@@ -57,14 +65,30 @@ filterSpatialGenes <- function(gobject, spatial_genes, max=2500, name=c("binSpec
   }
 
   if(method=="none"){
-    gx = head(gx, n=max)
+
+    gx_sorted = head(gx_sorted, n=max)
   }else if(method=="elbow"){
-    
+    y0 = c()
+    if(name=="binSpect"){
+      y0 = -log10(gx_sorted$binSpect.pval)
+    }else if(name=="silhouetteRankTest"){
+      y0 = -log10(gx_sorted$silhouetteRankTest.pval)
+    }else if(name=="silhouetteRank"){
+      y0 = gx_sorted$silhouetteRank.score
+    }
+    x0 = seq(1, nrow(gx_sorted))
+    y0[y0<0]<-0 #set those regions with more control than ranking equal to zero
+	slope <- (max(y0)-min(y0))/length(y0) #This is the slope of the line we want to slide. This is the diagonal.
+	xPt <- floor(optimize(numPts_below_line,lower=1,upper=length(y0),myVector=y0,slope=slope)$minimum) #Find the x-axis point where a line passing through that point has the minimum number of points below it. (ie. tangent)
+	y_cutoff <- y0[xPt] #The y-value at this x point. This is our y_cutoff.
+    gx_sorted = head(gx_sorted, n=xPt)
+    cat(paste0("\nElbow method chosen to determine number of spatial genes.\n"))
+    cat(paste0("\nElbow point determined to be at x=", xPt, " genes", "y=", y_cutoff, "\n"))
   }
 
-  num_genes_removed = length(spatial_genes) - nrow(gx)
+  num_genes_removed = length(spatial_genes) - nrow(gx_sorted)
 
-  return(list(genes=gx$gene_ID, num_genes_removed=num_genes_removed))
+  return(list(genes=gx_sorted$gene_ID, num_genes_removed=num_genes_removed))
 }
 
 
@@ -233,32 +257,6 @@ initHMRF <- function(gobject,
   }
 
   n = min(gene_samples,500,length(spatial_genes))
-
-  #if(length(intersect(spatial_genes,rownames(expr_values)))>0){
-  #  ### if input a sp gene list, use the list
-  #  expr_values = expr_values[intersect(spatial_genes,rownames(expr_values)),]
-  #  n0 = length(spatial_genes)
-  #  n1 = length(intersect(spatial_genes,rownames(expr_values)))
-  #  n = min(spatial_gene_samples,500,n1)
-  #  cat(paste0('\n total ',n0, 'spatial_genes imported \n'))
-  #  cat(paste0('\n total ',n1, 'spatial_genes overlapped with expr data matrix \n'))
-  #  cat(paste0('\n sample ',n, '(max of 500) spatial_genes selected for HMRF model \n'))
-  #}else{
-  #  
-  #  ### if no input any sp gene, pick significant genes from km test
-  #  cat('\n none overlapped genes imported, use spatial genes from kmeans_SpatialGenesTest \n')
-  #  
-  #  if(!'kmeans_SpatialGenesTest'%in%names(gobject@gene_metadata))
-  #  { 
-  #    km_spatialgenes = binSpect(gobject = gobject,bin_method = 'kmeans',set.seed = 1234,spatial_network_name = spatial_network_name)
-  #    spatial_genes = km_spatialgenes$genes[which(km_spatialgenes$adj.p.value<0.01)]
-  #  }else{
-  #    spatial_genes = gobject@gene_metadata$gene_ID[gobject@gene_metadata$kmeans_SpatialGenesTest<0.01]
-  #  }
-  #  
-  #  n = min(spatial_gene_samples,500,length(spatial_genes))
-  #  cat(paste0('\n sample ',n,' (max of 500) genes out of total ',length(spatial_genes),' spatial genes for HMRF model \n'))
-  #}
   
   if(n<length(spatial_genes)){
     spat_cor_netw_DT = detectSpatialCorGenes(gobject = gobject ,method = 'network',
@@ -348,7 +346,7 @@ initHMRF <- function(gobject,
 #' If number of genes N is 10<N<50, set betas=c(0, 1, 20)
 #' If 50<N<100, set betas=c(0, 2, 25)
 #' If 100<N<500, set betas=c(0, 5, 20)
-#' Returns a list with class, and log-likelihood value.
+#' Returns a list with class, probability, and model log-likelihood value.
 doHMRF = function (HMRF_init_obj, betas = c(0,10,5))
   # y, nei, numnei, blocks, beta_init, beta_increment, beta_num_iter, damp, mu, sigma, k, tolerance) 
 {
@@ -450,7 +448,7 @@ addHMRF = function (gobject, HMRFoutput){
   {
     gobject = addCellMetadata(gobject = gobject, 
                               # feat_type = feat_type, 
-                              column_cell_ID = "cell_ID", new_metadata = HMRFoutputhmrf_DT[[i]]$class,
+                              column_cell_ID = "cell_ID", new_metadata = HMRFoutputhmrf[[i]]$class,
                               vector_name = names(HMRFoutput)[i], 
                               by_column = F)
   }
