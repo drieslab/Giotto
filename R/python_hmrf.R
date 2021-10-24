@@ -54,8 +54,11 @@ filterSpatialGenes <- function(gobject, spatial_genes, max=2500, name=c("binSpec
   name = match.arg(name, unique(c("binSpect", "silhouetteRank", "silhouetteRankTest", name)))
   method = match.arg(method, unique(c("none", "elbow", method)))
 
-  gg = fDataDT(gobject)
-  gx = gg[gene_ID %in% spatial_genes]
+  #gg = fDataDT(gobject)
+  #gx = gg[gene_ID %in% spatial_genes]
+
+  #first determine how many spatial genes in this dataset
+  gx = fDataDT(gobject)
 
   if(name=="binSpect"){
     gx = gx[!is.na(binSpect.pval) & binSpect.pval<1]
@@ -95,13 +98,17 @@ filterSpatialGenes <- function(gobject, spatial_genes, max=2500, name=c("binSpec
 	#cat(paste0("slope is ", slope, ".\n"))
 	#tt<-optimize(numPts_below_line,lower=1,upper=length(y0s),myVector=y0s,slope=slope)
 	#print(tt)
-	xPt <- optimize(numPts_below_line,lower=1,upper=length(y0s),myVector=y0s,slope=slope)$minimum #Find the x-axis point where a line passing through that point has the minimum number of points below it. (ie. tangent)
+	xPt <- floor(optimize(numPts_below_line,lower=1,upper=length(y0s),myVector=y0s,slope=slope)$minimum) 
+  #Find the x-axis point where a line passing through that point has the minimum number of points below it. (ie. tangent)
 	xPt <- length(y0s) - xPt
 	y_cutoff <- y0[xPt] #The y-value at this x point. This is our y_cutoff.
     gx_sorted = head(gx_sorted, n=xPt)
     cat(paste0("\nElbow method chosen to determine number of spatial genes.\n"))
     cat(paste0("\nElbow point determined to be at x=", xPt, " genes", " y=", y_cutoff, "\n"))
   }
+
+  #filter user's gene list (spatial_genes)
+  gx_sorted = gx_sorted[gene_ID %in% spatial_genes]
 
   num_genes_removed = length(spatial_genes) - nrow(gx_sorted)
 
