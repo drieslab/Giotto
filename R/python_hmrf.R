@@ -43,38 +43,69 @@ sampling_sp_genes = function(clust, sample_rate=2, target=500, seed = 10){
   
 }
 
+numPts_below_line <- function(myVector,slope,x){
+	yPt <- myVector[x]
+	b <- yPt-(slope*x)
+	xPts <- 1:length(myVector)
+	return(sum(myVector<=(xPts*slope+b)))
+}
 
-#' @title filterSpatialGenes
-#' @name filterSpatialGenes
-#' @description function to filter gene list with a set of spatial genes from spatial test
-#' @keywords internal
 filterSpatialGenes <- function(gobject, spatial_genes, max=2500, name=c("binSpect", "silhouetteRank", "silhouetteRankTest"), method=c("none", "elbow")){
   name = match.arg(name, unique(c("binSpect", "silhouetteRank", "silhouetteRankTest", name)))
   method = match.arg(method, unique(c("none", "elbow", method)))
-  
+
   gg = fDataDT(gobject)
   gx = gg[gene_ID %in% spatial_genes]
-  
+
   if(name=="binSpect"){
-    gx = gx[!is.na(binSpect.pval) & binSpect.pval<0.01]  #binSpect.pval may be NA for genes that are skipped
+    gx = gx[!is.na(binSpect.pval) & binSpect.pval<1]
     gx_sorted = gx[order(gx$binSpect.pval, decreasing=F),]
   }else if(name=="silhouetteRank"){
-    gx = gx[!is.na(silhouetteRank.score)]
+    gx = gx[!is.na(silhouetteRank.score) & silhouetteRank.score>0]
     gx_sorted = gx[order(gx$silhouetteRank.score, decreasing=T),]
   }else if(name=="silhouetteRankTest"){
-    gx = gx[!is.na(silhouetteRankTest.pval) & silhouetteRankTest.pval<0.01]
+    gx = gx[!is.na(silhouetteRankTest.pval) & silhouetteRankTest.pval<1]
     gx_sorted = gx[order(gx$silhouetteRankTest.pval, decreasing=F),]
   }
-  
+
+  #print(gx_sorted)
   if(method=="none"){
-    gx = head(gx, n=max)
+    if(name=="binSpect"){
+      gx_sorted = gx_sorted[binSpect.pval<0.01]
+    }else if(name=="silhouetteRankTest"){
+      gx_sorted = gx_sorted[silhouetteRankTest.pval<0.01]
+    }
+    gx_sorted = head(gx_sorted, n=max)
+
   }else if(method=="elbow"){
+    y0 = c()
+    if(name=="binSpect"){
+      y0 = -log10(gx_sorted$binSpect.pval)
+    }else if(name=="silhouetteRankTest"){
+      y0 = -log10(gx_sorted$silhouetteRankTest.pval)
+    }else if(name=="silhouetteRank"){
+      y0 = gx_sorted$silhouetteRank.score
+    }
+    x0 = seq(1, nrow(gx_sorted))
     
+    y0s<-sort(y0)
+    y0s[y0s<0]<-0 #strictly positive
+    #plot(x0, y0)
+	slope <- (max(y0s)-min(y0s))/length(y0s) #This is the slope of the line we want to slide. This is the diagonal.
+	#cat(paste0("slope is ", slope, ".\n"))
+	#tt<-optimize(numPts_below_line,lower=1,upper=length(y0s),myVector=y0s,slope=slope)
+	#print(tt)
+	xPt <- optimize(numPts_below_line,lower=1,upper=length(y0s),myVector=y0s,slope=slope)$minimum #Find the x-axis point where a line passing through that point has the minimum number of points below it. (ie. tangent)
+	xPt <- length(y0s) - xPt
+	y_cutoff <- y0[xPt] #The y-value at this x point. This is our y_cutoff.
+    gx_sorted = head(gx_sorted, n=xPt)
+    cat(paste0("\nElbow method chosen to determine number of spatial genes.\n"))
+    cat(paste0("\nElbow point determined to be at x=", xPt, " genes", " y=", y_cutoff, "\n"))
   }
-  
-  num_genes_removed = length(spatial_genes) - nrow(gx)
-  
-  return(list(genes=gx$gene_ID, num_genes_removed=num_genes_removed))
+
+  num_genes_removed = length(spatial_genes) - nrow(gx_sorted)
+
+  return(list(genes=gx_sorted$gene_ID, num_genes_removed=num_genes_removed))
 }
 
 
