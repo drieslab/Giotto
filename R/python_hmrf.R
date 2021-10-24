@@ -270,23 +270,31 @@ initHMRF <- function(gobject,
   
   # if(!n_spatial_genes_select>0){stop("\n please provide a positive integer n_spatial_genes_select \n")}
   if(is.null(user_gene_list)){
+    cat(paste0("\n Choosing spatial genes from the results of ", use_spatial_genes, "\n"))
     all_genes = fDataDT(gobject)$gene_ID
     filtered = filterSpatialGenes(gobject, all_genes, max=gene_sampling_from_top, name=use_spatial_genes, method=filter_method)
+    cat(paste0("\n Kept", length(filtered$genes), "spatial genes for the sampling step next\n"))
     spatial_genes = filtered$genes
   }
   
   n = min(gene_samples,500, length(spatial_genes))
   
   if(n<length(spatial_genes)){
+    cat(paste0("\n Computing spatial coexpression modules...\n"))
+
     spat_cor_netw_DT = detectSpatialCorGenes(gobject = gobject ,method = 'network',
                                              spatial_network_name = spatial_network_name,
                                              subset_genes = spatial_genes,
                                              network_smoothing = 0)
     spat_cor_netw_DT = clusterSpatialCorGenes(spat_cor_netw_DT,name = 'spat_netw_clus',k = 20)
+    cat(paste0("\n Sampling spatial genes from coexpression modules...\n"))
     sample_genes = sampling_sp_genes(spat_cor_netw_DT$cor_clusters$spat_netw_clus, sample_rate=gene_sampling_rate, target=n, seed=gene_sampling_seed)
     spatial_genes_selected = sample_genes$union_genes
+    cat(paste0("\n Sampled ", length(spatial_gene_selected), " genes.\n"))
   }else{spatial_genes_selected = spatial_genes}
   
+  cat(paste0("\n Will use ", length(spatial_gene_selected), " genes for init of HMRF.\n"))
+
   expr_values = expr_values[spatial_genes_selected,]
 
   y0 = t(as.matrix(expr_values))
@@ -326,13 +334,17 @@ initHMRF <- function(gobject,
       edge_ind<-edge_ind+1
     }
   }
+
+  cat(paste0("\n Parsing neighborhood graph...\n"))
+
   
   pp<-tbl_graph(edges=as.data.frame(edgelist), directed=F)
   yy<-pp%>%mutate(color=as.factor(color_dsatur()))
   colors<-as.list(yy)$nodes$color
   cl_color <- sort(unique(colors))
   blocks<-lapply(cl_color, function(cl){which(colors==cl)})
-  
+  cat(paste0("\n Kmeans initialization...\n"))
+
   kk = smfishHmrf.generate.centroid(y=y,par_k = k,par_seed=hmrf_seed,nstart=nstart)
   mu<-t(kk$centers) #should be dimension (m,k)
   lclust<-lapply(1:k, function(x) which(kk$cluster == x))
@@ -344,6 +356,8 @@ initHMRF <- function(gobject,
     damp[i]<-ifelse(is.null(di), 0, di)
   }
   
+  cat(paste0("\n Done\n"))
+
   list(y=y, nei=nei, numnei=numnei, blocks=blocks, 
        damp=damp, mu=mu, sigma=sigma, k=k, genes=spatial_genes_selected, edgelist=edgelist)
 }
