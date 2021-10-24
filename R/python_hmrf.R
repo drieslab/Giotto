@@ -57,16 +57,22 @@ filterSpatialGenes <- function(gobject, spatial_genes, max=2500, name=c("binSpec
     gx = gx[!is.na(binSpect.pval) & binSpect.pval<1]
     gx_sorted = gx[order(gx$binSpect.pval, decreasing=F),]
   }else if(name=="silhouetteRank"){
-    gx = gx[!is.na(silhouetteRank.score)]
+    gx = gx[!is.na(silhouetteRank.score) & silhouetteRank.score>0]
     gx_sorted = gx[order(gx$silhouetteRank.score, decreasing=T),]
   }else if(name=="silhouetteRankTest"){
     gx = gx[!is.na(silhouetteRankTest.pval) & silhouetteRankTest.pval<1]
     gx_sorted = gx[order(gx$silhouetteRankTest.pval, decreasing=F),]
   }
 
+  #print(gx_sorted)
   if(method=="none"){
-
+    if(name=="binSpect"){
+      gx_sorted = gx_sorted[binSpect.pval<0.01]
+    }else if(name=="silhouetteRankTest"){
+      gx_sorted = gx_sorted[silhouetteRankTest.pval<0.01]
+    }
     gx_sorted = head(gx_sorted, n=max)
+
   }else if(method=="elbow"){
     y0 = c()
     if(name=="binSpect"){
@@ -77,13 +83,20 @@ filterSpatialGenes <- function(gobject, spatial_genes, max=2500, name=c("binSpec
       y0 = gx_sorted$silhouetteRank.score
     }
     x0 = seq(1, nrow(gx_sorted))
-    y0[y0<0]<-0 #set those regions with more control than ranking equal to zero
-	slope <- (max(y0)-min(y0))/length(y0) #This is the slope of the line we want to slide. This is the diagonal.
-	xPt <- floor(optimize(numPts_below_line,lower=1,upper=length(y0),myVector=y0,slope=slope)$minimum) #Find the x-axis point where a line passing through that point has the minimum number of points below it. (ie. tangent)
+    
+    y0s<-sort(y0)
+    y0s[y0s<0]<-0 #strictly positive
+    #plot(x0, y0)
+	slope <- (max(y0s)-min(y0s))/length(y0s) #This is the slope of the line we want to slide. This is the diagonal.
+	#cat(paste0("slope is ", slope, ".\n"))
+	#tt<-optimize(numPts_below_line,lower=1,upper=length(y0s),myVector=y0s,slope=slope)
+	#print(tt)
+	xPt <- optimize(numPts_below_line,lower=1,upper=length(y0s),myVector=y0s,slope=slope)$minimum #Find the x-axis point where a line passing through that point has the minimum number of points below it. (ie. tangent)
+	xPt <- length(y0s) - xPt
 	y_cutoff <- y0[xPt] #The y-value at this x point. This is our y_cutoff.
     gx_sorted = head(gx_sorted, n=xPt)
     cat(paste0("\nElbow method chosen to determine number of spatial genes.\n"))
-    cat(paste0("\nElbow point determined to be at x=", xPt, " genes", "y=", y_cutoff, "\n"))
+    cat(paste0("\nElbow point determined to be at x=", xPt, " genes", " y=", y_cutoff, "\n"))
   }
 
   num_genes_removed = length(spatial_genes) - nrow(gx_sorted)
