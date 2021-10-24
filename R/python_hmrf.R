@@ -115,6 +115,56 @@ filterSpatialGenes <- function(gobject, spatial_genes, max=2500, name=c("binSpec
   return(list(genes=gx_sorted$gene_ID, num_genes_removed=num_genes_removed))
 }
 
+chooseAvailableSpatialGenes <- function(gobject){
+  eval1 = 'binSpect.pval' %in% names(gobject@gene_metadata)
+  eval2 = 'silhouetteRankTest.pval' %in% names(gobject@gene_metadata)
+  eval3 = 'silhouetteRank.score' %in% names(gobject@gene_metadata)
+  if(eval1==TRUE){
+    return("binSpect")
+  }else if(eval2==TRUE){
+    return("silhouetteRankTest")
+  }else if(eval3==TRUE){
+    return("silhouetteRank")
+  }else{
+    stop(paste0("No available spatial genes. Please run binSpect or silhouetteRank\n"), call.=FALSE)
+  }
+}
+
+checkAndFixSpatialGenes <- function(gobject, use_spatial_genes, use_score=FALSE){
+  if(use_spatial_genes=="silhouetteRank"){
+    if(use_score==TRUE){
+      use_spatial_genes = "silhouetteRank"
+    }else{
+      eval1 = 'silhouetteRank.score' %in% names(gobject@gene_metadata)
+      eval2 = 'silhouetteRankTest.pval' %in% names(gobject@gene_metadata)
+      if(eval1==TRUE && eval2==TRUE){
+        #if both evaluate to true, then decide by use_score. 
+        #silhouetteRank works only with score, silhouetteRankTest works only with pval
+        if(use_score==TRUE){
+          use_spatial_genes = "silhouetteRank"
+        }else{
+          use_spatial_genes = "silhouetteRankTest"
+        }
+      }else if(eval1==TRUE){
+        use_spatial_genes = "silhouetteRank"
+      }else if(eval2==TRUE){
+        use_spatial_genes = "silhouetteRankTest"
+      }else{
+        stop(paste0("\n use_spatial_genes is set to silhouetteRank, but it has not been run yet. Run silhouetteRank first.\n"), call.=FALSE)
+      }
+    }
+    return(use_spatial_genes)
+  }
+  else if(use_spatial_genes=="binSpect"){
+    eval1 = 'binSpect.pval' %in% names(gobject@gene_metadata)
+    if(eval1==FALSE){
+      stop(paste0("\n use_spatial_genes is set to binSpect, but it has not been run yet. Run silhouetteRank first.\n"), call.=FALSE)
+    }
+    return(use_spatial_genes)
+  }else{
+    stop(paste0("\n use_spatial_genes is set to one that is not supported.\n"), call.=FALSE)
+  }
+}
 
 #' @name initHMRF
 #' @title HMRF initialzation 
@@ -204,32 +254,6 @@ initHMRF <- function(gobject,
                                 unique(c("binSpect", "silhouetteRank", use_spatial_genes)))
   filter_method = match.arg(filter_method, unique(c("none", "elbow", filter_method))) 
 
-  if(use_spatial_genes=="silhouetteRank"){
-    if(use_score==TRUE){
-      use_spatial_genes = "silhouetteRank"
-    }else{
-      eval1 = 'silhouetteRank.score' %in% names(gobject@gene_metadata)
-      eval2 = 'silhouetteRankTest.pval' %in% names(gobject@gene_metadata)
-      if(eval1==TRUE && eval2==TRUE){
-        #if both evaluate to true, then decide by use_score. 
-        #silhouetteRank works only with score, silhouetteRankTest works only with pval
-        if(use_score==TRUE){
-          use_spatial_genes = "silhouetteRank"
-        }else{
-          use_spatial_genes = "silhouetteRankTest"
-        }
-      }else if(eval1==TRUE){
-        use_spatial_genes = "silhouetteRank"
-      }else if(eval2==TRUE){
-        use_spatial_genes = "silhouetteRankTest"
-      }else{
-        stop(paste0("\n use_spatial_genes is set to silhouetteRank, but it has not been run yet. Run silhouetteRank first.\n"), call.=FALSE)
-      }
-    }
-  }
-
-
- 
   spatial_network = select_spatialNetwork(gobject, name = spatial_network_name, 
                                           return_network_Obj = FALSE)
   spatial_network = spatial_network[, .(to, from)]
@@ -242,8 +266,6 @@ initHMRF <- function(gobject,
     zscore = match.arg(zscore, c("none", "colrow", "rowcol"))
     expr_values = select_expression_values(gobject = gobject,
                                            values = 'normalized')  
-    #if(zscore=='col'){expr_values = scale(expr_values)}
-    #if(zscore=='row'){expr_values = t(scale(t(expr_values)))}
     if(zscore=='colrow'){expr_values = t(scale(t(scale(expr_values))))}
     if(zscore=='rowcol'){expr_values = scale(t(scale(t(expr_values))))}
   }
@@ -258,10 +280,13 @@ initHMRF <- function(gobject,
        !'silhouetteRankTest.pval' %in% names(gobject@gene_metadata)){
       stop(paste0("\n Giotto's spatial gene detection has not been run. Cannot check user's gene list. Please run spatial gene detection first: binSpect, silhouetteRank, silhouetteRankTest.\n"), call.=FALSE)
     }
+
+    use_spatial_genes = chooseAvailableSpatialGenes(gobject)
+
     filtered = filterSpatialGenes(gobject, user_gene_list, max=gene_sampling_from_top, name=use_spatial_genes, method=filter_method)
     if(filtered$num_genes_removed>0){
-      cat(paste0("\n Removed", filtered$num_genes_removed, "from user's input gene list due to being absent or non-spatial genes.\n"))
-      cat(paste0("\n Kept", length(filtered$genes), "spatial genes for the sampling step next\n"))
+      cat(paste0("\n Removed ", filtered$num_genes_removed, " from user's input gene list due to being absent or non-spatial genes.\n"))
+      cat(paste0("\n Kept ", length(filtered$genes), " spatial genes for the sampling step next\n"))
     }
     spatial_genes = filtered$genes
     if(length(spatial_genes)==0){
@@ -278,6 +303,9 @@ initHMRF <- function(gobject,
   # if(!n_spatial_genes_select>0){stop("\n please provide a positive integer n_spatial_genes_select \n")}
   if(is.null(user_gene_list)){
     cat(paste0("\n Choosing spatial genes from the results of ", use_spatial_genes, "\n"))
+
+    use_spatial_genes = checkAndFixSpatialGenes(gobject, use_spatial_genes, use_score=use_score)
+
     all_genes = fDataDT(gobject)$gene_ID
     filtered = filterSpatialGenes(gobject, all_genes, max=gene_sampling_from_top, name=use_spatial_genes, method=filter_method)
     cat(paste0("\n Kept ", length(filtered$genes), " top spatial genes for the sampling step next\n"))
