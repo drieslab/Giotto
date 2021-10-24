@@ -393,7 +393,7 @@ addHMRF2 = function (gobject, HMRFoutput
     # {cat(paste0("\n cluster of ",names(hmrf_DT)[i]," exists, rewrite in meta data \n"))}
     gobject = addCellMetadata(gobject = gobject, 
                               # feat_type = feat_type, 
-                              column_cell_ID = "cell_ID", new_metadata = HMRFoutputhmrf_DT[[i]]$class,
+                              column_cell_ID = "cell_ID", new_metadata = HMRFoutput[[i]]$class,
                               vector_name = names(HMRFoutput)[i], 
                               by_column = F)
   }
