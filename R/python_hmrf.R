@@ -267,7 +267,7 @@ initHMRF <- function(gobject,
     cat(paste0("\n Choosing spatial genes from the results of ", use_spatial_genes, "\n"))
     all_genes = fDataDT(gobject)$gene_ID
     filtered = filterSpatialGenes(gobject, all_genes, max=gene_sampling_from_top, name=use_spatial_genes, method=filter_method)
-    cat(paste0("\n Kept", length(filtered$genes), "spatial genes for the sampling step next\n"))
+    cat(paste0("\n Kept ", length(filtered$genes), " top spatial genes for the sampling step next\n"))
     spatial_genes = filtered$genes
   }
 
@@ -283,11 +283,11 @@ initHMRF <- function(gobject,
     cat(paste0("\n Sampling spatial genes from coexpression modules...\n"))
     sample_genes = sampling_sp_genes(spat_cor_netw_DT$cor_clusters$spat_netw_clus, sample_rate=gene_sampling_rate, target=n, seed=gene_sampling_seed)
     spatial_genes_selected = sample_genes$union_genes
-    cat(paste0("\n Sampled ", length(spatial_gene_selected), " genes.\n"))
+    cat(paste0("\n Sampled ", length(spatial_genes_selected), " genes.\n"))
     
   }else{spatial_genes_selected = spatial_genes}
 
-  cat(paste0("\n Will use ", length(spatial_gene_selected), " genes for init of HMRF.\n"))
+  cat(paste0("\n Will use ", length(spatial_genes_selected), " genes for init of HMRF.\n"))
 
   expr_values = expr_values[spatial_genes_selected,]
   
