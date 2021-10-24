@@ -68,39 +68,52 @@ filterSpatialGenes <- function(gobject, spatial_genes, max=2500, name=c("binSpec
 }
 
 
-#' @title doHMRF
-#' @name doHMRF
-#' @description Run HMRF
+#' @title initHMRF
+#' @name initHMRF
+#' @description Initialize HMRF
 #' @param gobject giotto object
 #' @param expression_values expression values to use
 #' @param spatial_network_name name of spatial network to use for HMRF
-#' @param spatial_genes spatial genes to use for HMRF
-#' @param spatial_dimensions select spatial dimensions to use, default is all possible dimensions
-#' @param dim_reduction_to_use use another dimension reduction set as input
-#' @param dim_reduction_name name of dimension reduction set to use
-#' @param dimensions_to_use number of dimensions to use as input
-#' @param name name of HMRF run
-#' @param k  number of HMRF domains
-#' @param seed seed to fix random number generator (for creating initialization of HMRF) (-1 if no fixing)
-#' @param betas betas to test for. three numbers: start_beta, beta_increment, num_betas e.g. c(0, 2.0, 50)
-#' @param tolerance tolerance
-#' @param zscore zscore
-#' @param numinit number of initializations
-#' @param python_path python path to use
-#' @param output_folder output folder to save results
-#' @param overwrite_output overwrite output folder
-#' @return Creates a directory with results that can be viewed with viewHMRFresults
-#' @details Description of HMRF parameters ...
+#' @param use_spatial_genes which of Giotto's spatial genes to use
+#' @param gene_samples how many spatial genes to sample
+#' @param gene_sampling_rate sampling rate parameter (1-50)
+#' @param gene_sampling_seed sampling random generator seed
+#' @param gene_sampling_from_top how many top spatial genes to perform sampling
+#' @param user_gene_list user-specified genes (optional)
+#' @param filter_method filter genes by top or by elbow method, prior to sampling
+#' @param use_score use score as gene selection criterion (applies when use_spatial_genes=silhouetteRank)
+#' @param hmrf_seed random generator seed for initialization of HMRF
+#' @param k number of spatial clusters
+#' @param tolerance error tolerance threshold
+#' @param nstart number of Kmeans initializations from which to select the best initialization
+#' @param factor_step dampened factor step
+#' @return A list (see details)
+#' @details There are two steps to running HMRF. This is the first step, the initialization. 
+#' First, user specify which of Giotto's spatial genes to run, through use_spatial_genes. 
+#' Spatial genes have been stored in the gene metadata table. A first pass of genes will filter genes 
+#' that are not significantly spatial, as determined by filter_method. If filter_method is none, 
+#' then top 2500 (gene_sampling_from_top) genes ranked by pvalue are considered spatial. 
+#' If filter_method is elbow, then the exact cutoff is determined by the elbow in the 
+#' -log10Pvalue vs. gene rank plot. 
+#' Second, the filtered gene set is subject to sampling to select 500 
+#' (controlled by gene_samples) genes for running HMRF. 
+#' Third, once spatial genes are finalized, we are ready to initialize HMRF. 
+#' This consists of running a K-means algorithm to determine initial centroids (nstart, hmrf_seed) of HMRF. 
+#' The initialization is then finished. 
+#' This function returns a list containing y (expression), nei (neighborhood structure), numnei (number of neighbors), blocks (graph colors), damp (dampened factor), mu (mean), sigma (covariance), k, genes, edgelist. This information is needed for the second step, doHMRF.
+#'
 #' @export
 initHMRF <- function(gobject,
                    expression_values = c('scaled', 'normalized', 'custom'),
                    spatial_network_name = 'Delaunay_network',
-                   use_spatial_genes = c("binSpect", "silhouetteRank", "silhouetteRankTest"),
-                   spatial_genes = NULL,
+                   use_spatial_genes = c("binSpect", "silhouetteRank"),
                    gene_samples = 500,
                    gene_sampling_rate = 2,
                    gene_sampling_seed = 10,
                    gene_sampling_from_top = 2500,
+                   filter_method = c("none", "elbow"),
+                   user_gene_list = NULL,
+                   use_score = FALSE,
                    #gene_pval = "auto",
                    hmrf_seed = 100,
                    k = 10,
@@ -141,7 +154,32 @@ initHMRF <- function(gobject,
 
   zscore = match.arg(zscore, unique(c('none','rowcol', 'colrow', zscore)))
   use_spatial_genes = match.arg(use_spatial_genes, 
-    unique(c("binSpect", "silhouetteRank", "silhouetteRankTest", use_spatial_genes)))
+    unique(c("binSpect", "silhouetteRank", use_spatial_genes)))
+  filter_method = match.arg(filter_method, unique(c("none", "elbow", filter_method)))
+
+  if(use_spatial_genes=="silhouetteRank"){
+    if(use_score==TRUE){
+      use_spatial_genes = "silhouetteRank"
+    }else{
+      eval1 = 'silhouetteRank.score' %in% names(gobject@gene_metadata)
+      eval2 = 'silhouetteRankTest.pval' %in% names(gobject@gene_metadata)
+      if(eval1==TRUE && eval2==TRUE){
+        #if both evaluate to true, then decide by use_score. 
+        #silhouetteRank works only with score, silhouetteRankTest works only with pval
+        if(use_score==TRUE){ 
+          use_spatial_genes = "silhouetteRank"
+        }else{
+          use_spatial_genes = "silhouetteRankTest"
+        }
+      }else if(eval1==TRUE){
+        use_spatial_genes = "silhouetteRank"
+      }else if(eval2==TRUE){
+        use_spatial_genes = "silhouetteRankTest"
+      }else{
+	    stop(paste0("\n use_spatial_genes is set to silhouetteRank, but it has not been run yet. Run silhouetteRank first.\n"), call.=FALSE)
+      }
+    }
+  }
 
   spatial_network = select_spatialNetwork(gobject, name = spatial_network_name, 
                                           return_network_Obj = FALSE)
@@ -160,7 +198,9 @@ initHMRF <- function(gobject,
     if(zscore=='rowcol'){expr_values = scale(t(scale(t(expr_values))))}
   }
 
-  if(! is.null(spatial_genes)){
+  spatial_genes = c()
+
+  if(! is.null(user_gene_list)){
     cat(paste0("\n User supplied gene list detected.\n"))
     cat(paste0("\n Checking user gene list is spatial...\n"))
     if(!'binSpect.pval' %in% names(gobject@gene_metadata) &&
@@ -168,7 +208,7 @@ initHMRF <- function(gobject,
     !'silhouetteRankTest.pval' %in% names(gobject@gene_metadata)){
       stop(paste0("\n Cannot check user's gene list, because Giotto's spatial gene detection has not been run. Please run spatial gene detection first: binSpect, silhouetteRank.\n"), call.=FALSE)
     }
-    filtered = filterSpatialGenes(gobject, spatial_genes, max=gene_sampling_from_top, name=use_spatial_genes, method="none")
+    filtered = filterSpatialGenes(gobject, user_gene_list, max=gene_sampling_from_top, name=use_spatial_genes, method=filter_method)
     if(filtered$num_genes_removed>0){
       cat(paste0("\n Removed", filtered$num_genes_removed, "from user's input gene list due to being absent or non-spatial genes.\n"))
       cat(paste0("\n Kept", length(filtered$genes), "spatial genes for the sampling step next\n"))
@@ -186,9 +226,9 @@ initHMRF <- function(gobject,
   }
   
   # if(!n_spatial_genes_select>0){stop("\n please provide a positive integer n_spatial_genes_select \n")}
-  if(is.null(spatial_genes)){
+  if(is.null(user_gene_list)){
     all_genes = fDataDT(gobject)$gene_ID
-    filtered = filterSpatialGenes(gobject, all_genes, max=gene_sampling_from_top, name=use_spatial_genes, method="none")
+    filtered = filterSpatialGenes(gobject, all_genes, max=gene_sampling_from_top, name=use_spatial_genes, method=filter_method)
     spatial_genes = filtered$genes
   }
 
@@ -296,9 +336,19 @@ initHMRF <- function(gobject,
 #' @name do HMRF
 #' @description function to run HMRF model
 #' @keywords external
-#' @param xxxxxxxxxxxxxxxxxxxxx
-#' @param xxxxxxxxxxxxxxxxxxxxx
-#' @param xxxxxxxxxxxxxxxxxxxxx
+#' @param HMRF_init_obj return list of initHMRF() function
+#' @param betas a vector of three values: initial beta, beta increment, and number of betas
+#' @return A list (see details)
+#' @details This function will run a HMRF model after initialization of HMRF.
+#' Of note is the beta parameter, the smoothing parameter. We recommend running a range of betas,
+#` hence betas specify what this range is.
+#' For example, betas=c(0,10,5) will run for the following betas: 0, 10, 20, 30, 40.
+#' betas=c(0,5,2) will run for betas: 0, 5, 10
+#' Setting the beta can use the following guideline.
+#' If number of genes N is 10<N<50, set betas=c(0, 1, 20)
+#' If 50<N<100, set betas=c(0, 2, 25)
+#' If 100<N<500, set betas=c(0, 5, 20)
+#' Returns a list with class, and log-likelihood value.
 doHMRF = function (HMRF_init_obj, betas = c(0,10,5))
   # y, nei, numnei, blocks, beta_init, beta_increment, beta_num_iter, damp, mu, sigma, k, tolerance) 
 {
