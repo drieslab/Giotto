@@ -160,7 +160,8 @@ initHMRF <- function(gobject,
   if(zscore!="none"){
     zscore = match.arg(zscore, c("col", "row", "colrow", "rowcol"))
     expr_values = select_expression_values(gobject = gobject, 
-                                           feat_type = feat_type, values = 'normalized')  
+                                           #feat_type = feat_type, 
+                                           values = 'normalized')  
     if(zscore=='col'){expr_values = scale(expr_values)}
     if(zscore=='row'){expr_values = t(scale(t(expr_values)))}
     if(zscore=='colrow'){expr_values = t(scale(t(scale(expr_values))))}
