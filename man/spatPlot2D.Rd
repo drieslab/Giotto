@@ -47,7 +47,7 @@ spatPlot2D(
   other_cell_color = "lightgrey",
   other_point_size = 1,
   other_cells_alpha = 0.1,
-  coord_fix_ratio = NULL,
+  coord_fix_ratio = 1,
   title = NULL,
   show_legend = T,
   legend_text = 10,
@@ -154,7 +154,7 @@ spatPlot2D(
 
 \item{other_cells_alpha}{alpha of not selected cells}
 
-\item{coord_fix_ratio}{fix ratio between x and y-axis}
+\item{coord_fix_ratio}{fix ratio between x and y-axis (default = 1)}
 
 \item{title}{title of plot}
 
@@ -202,6 +202,7 @@ Visualize cells according to spatial coordinates
 }
 \details{
 Description of parameters.
+coord_fix_ratio: set to NULL to use default ggplot parameters
 }
 \seealso{
 \code{\link{spatPlot3D}}

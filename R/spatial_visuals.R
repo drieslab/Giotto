@@ -2758,7 +2758,7 @@ spatPlot2D_single = function(gobject,
 #' @param other_cell_color color of not selected cells
 #' @param other_point_size point size of not selected cells
 #' @param other_cells_alpha alpha of not selected cells
-#' @param coord_fix_ratio fix ratio between x and y-axis
+#' @param coord_fix_ratio fix ratio between x and y-axis (default = 1)
 #' @param title title of plot
 #' @param show_legend show legend
 #' @param legend_text size of legend text
@@ -2780,6 +2780,7 @@ spatPlot2D_single = function(gobject,
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
 #' @details Description of parameters.
+#' coord_fix_ratio: set to NULL to use default ggplot parameters
 #' @family spatial visualizations
 #' @export
 #' @seealso \code{\link{spatPlot3D}}
@@ -2825,7 +2826,7 @@ spatPlot2D = function(gobject,
                       other_cell_color = 'lightgrey',
                       other_point_size = 1,
                       other_cells_alpha = 0.1,
-                      coord_fix_ratio = NULL,
+                      coord_fix_ratio = 1,
                       title = NULL,
                       show_legend = T,
                       legend_text = 10,
@@ -4344,6 +4345,8 @@ spatGenePlot2D <- function(gobject,
                            default_save_name = 'spatGenePlot2D',
                            ...) {
 
+  .Deprecated(new = "spatFeatPlot2D")
+
   spatFeatPlot2D(gobject = gobject,
                  feat_type = 'rna',
                  feats = genes,
@@ -4362,6 +4365,8 @@ spatGenePlot2D <- function(gobject,
 #' @export
 #' @seealso \code{\link{spatGenePlot3D}} and \code{\link{spatGenePlot2D}}
 spatGenePlot = function(...) {
+
+  .Deprecated(new = "spatFeatPlot2D")
 
   spatGenePlot2D(...)
 

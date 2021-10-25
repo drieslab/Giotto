@@ -12,6 +12,7 @@ createSpatialFeaturesKNNnetwork(
   k = 4,
   maximum_distance = NULL,
   minimum_k = 0,
+  add_feat_ids = FALSE,
   verbose = TRUE,
   return_gobject = TRUE,
   toplevel_params = 2,
@@ -32,6 +33,8 @@ createSpatialFeaturesKNNnetwork(
 \item{maximum_distance}{maximum distance bewteen features}
 
 \item{minimum_k}{minimum number of neighbors to find}
+
+\item{add_feat_ids}{add feature id names (default = FALSE, increases object size)}
 
 \item{verbose}{be verbose}
 
