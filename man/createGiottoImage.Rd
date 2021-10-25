@@ -9,10 +9,12 @@ createGiottoImage(
   spatial_locs = NULL,
   mg_object,
   name = "image",
-  xmax_adj = 0,
-  xmin_adj = 0,
-  ymax_adj = 0,
-  ymin_adj = 0
+  do_manual_adj = FALSE,
+  xmax_adj = NULL,
+  xmin_adj = NULL,
+  ymax_adj = NULL,
+  ymin_adj = NULL,
+  scale_factor = 1
 )
 }
 \arguments{
@@ -24,6 +26,8 @@ createGiottoImage(
 
 \item{name}{name for the image}
 
+\item{do_manual_adj}{flag to use manual adj values instead of automatic alignment when given a gobject or spatlocs}
+
 \item{xmax_adj}{adjustment of the maximum x-value to align the image}
 
 \item{xmin_adj}{adjustment of the minimum x-value to align the image}
@@ -31,6 +35,8 @@ createGiottoImage(
 \item{ymax_adj}{adjustment of the maximum y-value to align the image}
 
 \item{ymin_adj}{adjustment of the minimum y-value to align the image}
+
+\item{scale_factor}{scaling of image dimensions relative to spatial coordinates}
 }
 \value{
 a giotto image object
