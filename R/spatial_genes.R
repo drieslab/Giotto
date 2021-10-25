@@ -1147,7 +1147,7 @@ binSpect = function(gobject,
                     knn_params = NULL,
                     set.seed = NULL,
                     bin_matrix = NULL,
-                    summarize = c('p.value', 'adj.p.value'), return_gobject=T) {
+                    summarize = c('p.value', 'adj.p.value'), return_gobject=F) {
   
   
   if(!is.null(spatial_network_k)) {
@@ -1259,7 +1259,7 @@ silhouetteRank <- function(gobject,
                            subset_genes = NULL,
                            rbp_p = 0.95,
                            examine_top = 0.3,
-                           python_path = NULL, return_gobject=T) {
+                           python_path = NULL, return_gobject=F) {
   
   
   # expression values
@@ -1355,7 +1355,7 @@ silhouetteRankTest = function(gobject,
                               parallel_path = "/usr/bin",
                               output = NULL,
                               query_sizes = 10L,
-                              verbose = FALSE, return_gobject=T) {
+                              verbose = FALSE, return_gobject=F) {
   
   
   # data.table variables
