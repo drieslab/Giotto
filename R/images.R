@@ -161,7 +161,7 @@ createGiottoImage = function(gobject = NULL,
                              spatial_locs = NULL,
                              mg_object,
                              name = 'image',
-                             do_manual_adj = FALSE,
+                             do_manual_adj = TRUE,
                              xmax_adj = NULL,
                              xmin_adj = NULL,
                              ymax_adj = NULL,
@@ -213,10 +213,10 @@ createGiottoImage = function(gobject = NULL,
     
     
   } else if(do_manual_adj == TRUE) {
-    xmin_adj = 0
-    xmax_adj = 0
-    ymin_adj = 0
-    ymax_adj = 0
+    if(is.null(xmin_adj)) xmin_adj = 0
+    if(is.null(xmax_adj)) xmax_adj = 0
+    if(is.null(ymin_adj)) ymin_adj = 0
+    if(is.null(ymax_adj)) ymax_adj = 0
   }
 
   # image object

@@ -9,7 +9,7 @@ createGiottoImage(
   spatial_locs = NULL,
   mg_object,
   name = "image",
-  do_manual_adj = FALSE,
+  do_manual_adj = TRUE,
   xmax_adj = NULL,
   xmin_adj = NULL,
   ymax_adj = NULL,

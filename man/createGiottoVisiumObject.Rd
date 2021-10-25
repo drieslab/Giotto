@@ -13,7 +13,7 @@ createGiottoVisiumObject(
   h5_tissue_positions_path = NULL,
   h5_image_png_path = NULL,
   png_name = NULL,
-  do_manual_adj = FALSE,
+  do_manual_adj = TRUE,
   xmax_adj = 0,
   xmin_adj = 0,
   ymax_adj = 0,
