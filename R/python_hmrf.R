@@ -50,8 +50,11 @@ filterSpatialGenes <- function(gobject, spatial_genes, max=2500, name=c("binSpec
   name = match.arg(name, unique(c("binSpect", "silhouetteRank", "silhouetteRankTest", name)))
   method = match.arg(method, unique(c("none", "elbow", method)))
 
-  gg = fDataDT(gobject)
-  gx = gg[gene_ID %in% spatial_genes]
+  #gg = fDataDT(gobject)
+  #gx = gg[gene_ID %in% spatial_genes]
+  #first determine how many spatial genes in this dataset
+  gx = fDataDT(gobject)
+
 
   if(name=="binSpect"){
     gx = gx[!is.na(binSpect.pval) & binSpect.pval<1]
@@ -87,21 +90,75 @@ filterSpatialGenes <- function(gobject, spatial_genes, max=2500, name=c("binSpec
     y0s<-sort(y0)
     y0s[y0s<0]<-0 #strictly positive
     #plot(x0, y0)
-	slope <- (max(y0s)-min(y0s))/length(y0s) #This is the slope of the line we want to slide. This is the diagonal.
-	#cat(paste0("slope is ", slope, ".\n"))
-	#tt<-optimize(numPts_below_line,lower=1,upper=length(y0s),myVector=y0s,slope=slope)
-	#print(tt)
-	xPt <- optimize(numPts_below_line,lower=1,upper=length(y0s),myVector=y0s,slope=slope)$minimum #Find the x-axis point where a line passing through that point has the minimum number of points below it. (ie. tangent)
-	xPt <- length(y0s) - xPt
-	y_cutoff <- y0[xPt] #The y-value at this x point. This is our y_cutoff.
+	  slope <- (max(y0s)-min(y0s))/length(y0s) #This is the slope of the line we want to slide. This is the diagonal.
+	  #cat(paste0("slope is ", slope, ".\n"))
+	  #tt<-optimize(numPts_below_line,lower=1,upper=length(y0s),myVector=y0s,slope=slope)
+	  #print(tt)
+	  xPt <- floor(optimize(numPts_below_line,lower=1,upper=length(y0s),myVector=y0s,slope=slope)$minimum) #Find the x-axis point where a line passing through that point has the minimum number of points below it. (ie. tangent)
+	  xPt <- length(y0s) - xPt
+	  y_cutoff <- y0[xPt] #The y-value at this x point. This is our y_cutoff.
     gx_sorted = head(gx_sorted, n=xPt)
     cat(paste0("\nElbow method chosen to determine number of spatial genes.\n"))
     cat(paste0("\nElbow point determined to be at x=", xPt, " genes", " y=", y_cutoff, "\n"))
   }
 
+  #filter user's gene list (spatial_genes)
+  gx_sorted = gx_sorted[gene_ID %in% spatial_genes]
+
   num_genes_removed = length(spatial_genes) - nrow(gx_sorted)
 
   return(list(genes=gx_sorted$gene_ID, num_genes_removed=num_genes_removed))
+}
+
+chooseAvailableSpatialGenes <- function(gobject){
+  eval1 = 'binSpect.pval' %in% names(gobject@gene_metadata)
+  eval2 = 'silhouetteRankTest.pval' %in% names(gobject@gene_metadata)
+  eval3 = 'silhouetteRank.score' %in% names(gobject@gene_metadata)
+  if(eval1==TRUE){
+    return("binSpect")
+  }else if(eval2==TRUE){
+    return("silhouetteRankTest")
+  }else if(eval3==TRUE){
+    return("silhouetteRank")
+  }else{
+    stop(paste0("No available spatial genes. Please run binSpect or silhouetteRank\n"), call.=FALSE)
+  }
+}
+
+checkAndFixSpatialGenes <- function(gobject, use_spatial_genes, use_score=FALSE){
+  if(use_spatial_genes=="silhouetteRank"){
+    if(use_score==TRUE){
+      use_spatial_genes = "silhouetteRank"
+    }else{
+      eval1 = 'silhouetteRank.score' %in% names(gobject@gene_metadata)
+      eval2 = 'silhouetteRankTest.pval' %in% names(gobject@gene_metadata)
+      if(eval1==TRUE && eval2==TRUE){
+        #if both evaluate to true, then decide by use_score. 
+        #silhouetteRank works only with score, silhouetteRankTest works only with pval
+        if(use_score==TRUE){
+          use_spatial_genes = "silhouetteRank"
+        }else{
+          use_spatial_genes = "silhouetteRankTest"
+        }
+      }else if(eval1==TRUE){
+        use_spatial_genes = "silhouetteRank"
+      }else if(eval2==TRUE){
+        use_spatial_genes = "silhouetteRankTest"
+      }else{
+        stop(paste0("\n use_spatial_genes is set to silhouetteRank, but it has not been run yet. Run silhouetteRank first.\n"), call.=FALSE)
+      }
+    }
+    return(use_spatial_genes)
+  }
+  else if(use_spatial_genes=="binSpect"){
+    eval1 = 'binSpect.pval' %in% names(gobject@gene_metadata)
+    if(eval1==FALSE){
+      stop(paste0("\n use_spatial_genes is set to binSpect, but it has not been run yet. Run binSpect first.\n"), call.=FALSE)
+    }
+    return(use_spatial_genes)
+  }else{
+    stop(paste0("\n use_spatial_genes is set to one that is not supported.\n"), call.=FALSE)
+  }
 }
 
 
@@ -159,6 +216,10 @@ initHMRF <- function(gobject,
                    nstart = 1000,
                    factor_step = 1.05) {
 
+  message("\nIf used in published research, please cite:
+  Q Zhu, S Shah, R Dries, L Cai, GC Yuan. 'Identification of spatially associated subpopulations by combining 
+  scRNAseq and sequential fluorescence in situ hybridization data' Nature biotechnology 36 (12), 1183-1190. 2018\n")
+
 
   if(!requireNamespace('smfishHmrf', quietly = TRUE)) {
     stop("\n package ", 'smfishHmrf' ," is not yet installed \n",
@@ -194,30 +255,6 @@ initHMRF <- function(gobject,
     unique(c("binSpect", "silhouetteRank", use_spatial_genes)))
   filter_method = match.arg(filter_method, unique(c("none", "elbow", filter_method)))
 
-  if(use_spatial_genes=="silhouetteRank"){
-    if(use_score==TRUE){
-      use_spatial_genes = "silhouetteRank"
-    }else{
-      eval1 = 'silhouetteRank.score' %in% names(gobject@gene_metadata)
-      eval2 = 'silhouetteRankTest.pval' %in% names(gobject@gene_metadata)
-      if(eval1==TRUE && eval2==TRUE){
-        #if both evaluate to true, then decide by use_score. 
-        #silhouetteRank works only with score, silhouetteRankTest works only with pval
-        if(use_score==TRUE){ 
-          use_spatial_genes = "silhouetteRank"
-        }else{
-          use_spatial_genes = "silhouetteRankTest"
-        }
-      }else if(eval1==TRUE){
-        use_spatial_genes = "silhouetteRank"
-      }else if(eval2==TRUE){
-        use_spatial_genes = "silhouetteRankTest"
-      }else{
-	    stop(paste0("\n use_spatial_genes is set to silhouetteRank, but it has not been run yet. Run silhouetteRank first.\n"), call.=FALSE)
-      }
-    }
-  }
-
   spatial_network = select_spatialNetwork(gobject, name = spatial_network_name, 
                                           return_network_Obj = FALSE)
   spatial_network = spatial_network[, .(to, from)]
@@ -227,10 +264,11 @@ initHMRF <- function(gobject,
   expr_values = select_expression_values(gobject = gobject, values = values)   
   
   if(zscore!="none"){
+    zscore = match.arg(zscore, c("none", "colrow", "rowcol"))
     #zscore = match.arg(zscore, c("col", "row", "colrow", "rowcol"))
     expr_values = select_expression_values(gobject = gobject, values = 'normalized')  
-    if(zscore=='col'){expr_values = scale(expr_values)}
-    if(zscore=='row'){expr_values = t(scale(t(expr_values)))}
+    #if(zscore=='col'){expr_values = scale(expr_values)}
+    #if(zscore=='row'){expr_values = t(scale(t(expr_values)))}
     if(zscore=='colrow'){expr_values = t(scale(t(scale(expr_values))))}
     if(zscore=='rowcol'){expr_values = scale(t(scale(t(expr_values))))}
   }
@@ -245,10 +283,13 @@ initHMRF <- function(gobject,
     !'silhouetteRankTest.pval' %in% names(gobject@gene_metadata)){
       stop(paste0("\n Cannot check user's gene list, because Giotto's spatial gene detection has not been run. Please run spatial gene detection first: binSpect, silhouetteRank.\n"), call.=FALSE)
     }
+
+    use_spatial_genes = chooseAvailableSpatialGenes(gobject)
+
     filtered = filterSpatialGenes(gobject, user_gene_list, max=gene_sampling_from_top, name=use_spatial_genes, method=filter_method)
     if(filtered$num_genes_removed>0){
-      cat(paste0("\n Removed", filtered$num_genes_removed, "from user's input gene list due to being absent or non-spatial genes.\n"))
-      cat(paste0("\n Kept", length(filtered$genes), "spatial genes for the sampling step next\n"))
+      cat(paste0("\n Removed ", filtered$num_genes_removed, " from user's input gene list due to being absent or non-spatial genes.\n"))
+      cat(paste0("\n Kept ", length(filtered$genes), " spatial genes for the sampling step next\n"))
     }
     spatial_genes = filtered$genes
     if(length(spatial_genes)==0){
@@ -265,6 +306,7 @@ initHMRF <- function(gobject,
   # if(!n_spatial_genes_select>0){stop("\n please provide a positive integer n_spatial_genes_select \n")}
   if(is.null(user_gene_list)){
     cat(paste0("\n Choosing spatial genes from the results of ", use_spatial_genes, "\n"))
+    use_spatial_genes = checkAndFixSpatialGenes(gobject, use_spatial_genes, use_score=use_score)
     all_genes = fDataDT(gobject)$gene_ID
     filtered = filterSpatialGenes(gobject, all_genes, max=gene_sampling_from_top, name=use_spatial_genes, method=filter_method)
     cat(paste0("\n Kept ", length(filtered$genes), " top spatial genes for the sampling step next\n"))
@@ -357,7 +399,7 @@ initHMRF <- function(gobject,
 
 }
 
-#' @title doHMRF2
+#' @title doHMRF
 #' @name do HMRF
 #' @description function to run HMRF model
 #' @keywords external
@@ -377,6 +419,10 @@ initHMRF <- function(gobject,
 doHMRF = function (HMRF_init_obj, betas = c(0,10,5))
   # y, nei, numnei, blocks, beta_init, beta_increment, beta_num_iter, damp, mu, sigma, k, tolerance) 
 {
+  message("\nIf used in published research, please cite:
+  Q Zhu, S Shah, R Dries, L Cai, GC Yuan. 'Identification of spatially associated subpopulations by combining 
+  scRNAseq and sequential fluorescence in situ hybridization data' Nature biotechnology 36 (12), 1183-1190. 2018\n")
+
   if(!'y'%in%names(HMRF_init_obj))
   {stop('\n expression matrix \'y\' not in the intialization object \n')}
   if(!'nei'%in%names(HMRF_init_obj))
@@ -411,9 +457,12 @@ doHMRF = function (HMRF_init_obj, betas = c(0,10,5))
   # beta_current <- beta_init
   #beta_seq = sequence(beta_num_iter,beta_init,beta_increment)
   #beta_seq = sort(unique(c(0,beta_seq)))
+  beta_seq = (1:beta_num_iter-1)*beta_increment+beta_init
+  beta_seq = sort(unique(c(0,beta_seq)))
+  
   res <- c()
-  beta_current <- beta_init
-  for(bx in 1:beta_num_iter){
+  #beta_current <- beta_init
+  for(beta_current in beta_seq){
     print(sprintf("Doing beta=%.3f", beta_current))
     tc.hmrfem<-smfishHmrf.hmrfem.multi(y=y, neighbors=nei, beta=beta_current, numnei=numnei, 
                                        blocks=blocks, mu=mu, sigma=sigma, verbose=T, err=1e-7, maxit=50, dampFactor=damp)
@@ -421,7 +470,7 @@ doHMRF = function (HMRF_init_obj, betas = c(0,10,5))
     #do_one(name, outdir, k, y, nei, beta_current, numnei, blocks, mu, sigma, damp)
     
     ### stop the loop if there is a samll maximum probablity (<0.51) of any gene
-    if(sum(apply(tc.hmrfem$prob,1,max)<0.51)>0)
+    if(sum(apply(tc.hmrfem$prob,1,max)<(1/k+0.05))>0)
     {cat(paste0('\n HMRF is stopping at large beta >= ',beta_current,', numerical error occurs, results of smaller betas were stored\n'));
       break()}
     
@@ -432,7 +481,7 @@ doHMRF = function (HMRF_init_obj, betas = c(0,10,5))
     rownames(tc.hmrfem$unnormprob) = rownames(y)
     names(tc.hmrfem$class) = rownames(y)
     res[[t_key]] <- tc.hmrfem
-    beta_current <- beta_current + beta_increment
+    #beta_current <- beta_current + beta_increment
   }
   
   result.hmrf = res
@@ -475,7 +524,7 @@ addHMRF = function (gobject, HMRFoutput){
   {
     gobject = addCellMetadata(gobject = gobject, 
                               # feat_type = feat_type, 
-                              column_cell_ID = "cell_ID", new_metadata = HMRFoutputhmrf[[i]]$class,
+                              column_cell_ID = "cell_ID", new_metadata = HMRFoutput[[i]]$class,
                               vector_name = names(HMRFoutput)[i], 
                               by_column = F)
   }
@@ -494,25 +543,39 @@ viewHMRFresults = function (gobject, HMRFoutput, k, betas,
   beta_init = betas[1]
   beta_increment = betas[2]
   beta_num_iter = betas[3]
-  beta_current <- beta_init
-
-  for(bx in 1:beta_num_iter){
-    t_key <- sprintf("k=%d b=%.2f", k, beta_current)
-    if(!t_key%in%names(HMRFoutput)){
-      cat(paste0("\n", t_key, "was not calculated. Skipped.\n"))
-    }else{
-      cat(paste0('\n plotting ',t_key, '\n'))
-      dt_kk = HMRFoutput[[t_key]]$class
-      spatPlot2D(gobject = gobject, cell_color = dt_kk, show_plot = T, 
-               title = t_key,...)
+  #beta_current <- beta_init
+  beta_seq = (1:beta_num_iter-1)*beta_increment+beta_init
   
-      if (third_dim == TRUE) {
-        spatPlot3D(gobject = gobject, cell_color = dt_kk, 
-                 show_plot = T, title = t_key,...)
-      }
-    }
-    beta_current <- beta_current + beta_increment
+  t_key0 = sprintf("k=%d b=%.2f", k, 0)
+  if(!t_key0%in%names(HMRFoutput))
+  {stop(paste0('\n model of k = ',k,' was not calculated \n'))}
 
+  dt_0 = HMRFoutput[[t_key0]]$class
+  cat(paste0('\n plotting ',t_key0,' \n'))
+  spatPlot2D(gobject = gobject, cell_color = dt_0, show_plot = T, 
+             title = t_key0,...)
+  if (third_dim == TRUE) {
+    spatPlot3D(gobject = gobject, cell_color = dt_0, 
+               show_plot = T, title = kk,...)
+  }
+
+  t_keys = sprintf("k=%d b=%.2f", k, beta_seq) 
+  if(sum(t_keys%in%names(HMRFoutput))==0)
+  {stop(paste0('\n model of k = ',k,' and betas = ',paste(beta_seq,collapse = ','),' was not calculated, only result of beta = 0 plotted \n'))}
+
+
+  for(kk in intersect(t_keys, names(HMRFoutput)))
+  {
+    cat(paste0('\n plotting ', kk, '\n'))
+    dt_kk = HMRFoutput[[kk]]$class
+    spatPlot2D(gobject = gobject, cell_color = dt_kk, show_plot = T, 
+               title = kk,...)
+  
+    if (third_dim == TRUE) {
+      spatPlot3D(gobject = gobject, cell_color = dt_kk, 
+                 show_plot = T, title = kk,...)
+    }
+   
   }
 
 }
