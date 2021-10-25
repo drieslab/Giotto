@@ -1094,7 +1094,8 @@ binSpectMulti = function(gobject,
 #' @param set.seed set a seed before kmeans binarization
 #' @param bin_matrix a binarized matrix, when provided it will skip the binarization process
 #' @param summarize summarize the p-values or adjusted p-values
-#' @return data.table with results (see details)
+#' @param return_gobject return a Giotto object instead of a data.table
+#' @return data.table with results or a gobject, depending on return_gobject (see details)
 #' @details We provide two ways to identify spatial genes based on gene expression binarization.
 #' Both methods are identicial except for how binarization is performed.
 #' \itemize{
@@ -1119,6 +1120,8 @@ binSpectMulti = function(gobject,
 #' By selecting a subset of likely spatial genes (e.g. soft thresholding highly variable genes) can accelerate the speed.
 #' The simple implementation is usually faster, but lacks the possibility to run in parallel and to calculate hub cells.
 #' The data.table implementation might be more appropriate for large datasets by setting the group_size (number of genes) parameter to divide the workload.
+#' When return_gobject is true, it will return gobject and put the spatial gene information in the gene metadata table. 
+#' accessible by fDataDT(gobject).
 #' @export
 binSpect = function(gobject,
                     bin_method = c('kmeans', 'rank'),
@@ -1251,7 +1254,10 @@ binSpect = function(gobject,
 #' @param rbp_p fractional binarization threshold
 #' @param examine_top top fraction to evaluate with silhouette
 #' @param python_path specify specific path to python if required
-#' @return data.table with spatial scores
+#' @param return_gobject return a Giotto object instead of a data.table
+#' @return data.table with spatial scores or a gobject, depending on return_gobject
+#' @details When return_gobject is true, it will return gobject and put the spatial gene information in the gene metadata table. 
+#' accessible by fDataDT(gobject).
 #' @export
 silhouetteRank <- function(gobject,
                            expression_values = c('normalized', 'scaled', 'custom'),
@@ -1342,7 +1348,10 @@ silhouetteRank <- function(gobject,
 #' @param output output directory
 #' @param query_sizes size of query
 #' @param verbose be verbose
-#' @return data.table with spatial scores
+#' @param return_gobject return a Giotto object instead of a data.table
+#' @return data.table with results or a gobject, depending on return_gobject (see details)
+#' @details When return_gobject is true, it will return gobject and put the spatial gene information in the gene metadata table. 
+#' accessible by fDataDT(gobject).
 #' @export
 silhouetteRankTest = function(gobject,
                                expression_values = c('normalized', 'scaled', 'custom'),
