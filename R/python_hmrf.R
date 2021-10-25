@@ -220,6 +220,10 @@ initHMRF <- function(gobject,
                      nstart = 1000,
                      factor_step = 1.05) {
   
+  message("Using HMRF for spatial clustering. If used in published research, please cite:
+  Q Zhu, S Shah, R Dries, L Cai, GC Yuan. 'Identification of spatially associated subpopulations by combining scRNAseq and sequential fluorescence in situ hybridization data'
+          Nature biotechnology 36 (12), 1183-1190.")
+
   if (!requireNamespace("smfishHmrf", quietly = TRUE)) {
     stop("\n package ", "smfishHmrf", " is not yet installed \n", 
          "To install: \n", "devtools::install_bitbucket(\"qzhudfci/smfishHmrf-r\") \n", 
@@ -417,6 +421,9 @@ initHMRF <- function(gobject,
 doHMRF2 = function (HMRF_init_obj, betas = c(0,10,5))
   # y, nei, numnei, blocks, beta_init, beta_increment, beta_num_iter, damp, mu, sigma, k, tolerance) 
 {
+  message("Using HMRF for spatial clustering. If used in published research, please cite:
+  Q Zhu, S Shah, R Dries, L Cai, GC Yuan. 'Identification of spatially associated subpopulations by combining scRNAseq and sequential fluorescence in situ hybridization data'
+          Nature biotechnology 36 (12), 1183-1190.")
   if(!'y'%in%names(HMRF_init_obj))
   {stop('\n expression matrix \'y\' not in the intialization object \n')}
   if(!'nei'%in%names(HMRF_init_obj))
