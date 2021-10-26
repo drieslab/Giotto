@@ -1127,10 +1127,12 @@ createGiottoObject <- function(raw_exprs,
 #' @param h5_tissue_positions_path path to tissue locations (.csv file)
 #' @param h5_image_png_path path to tissue .png file (optional)
 #' @param png_name select name of png to use (see details)
+#' @param do_manual_adj flag to use manual adj values instead of automatic alignment based on visium values
 #' @param xmax_adj adjustment of the maximum x-value to align the image
 #' @param xmin_adj adjustment of the minimum x-value to align the image
 #' @param ymax_adj adjustment of the maximum y-value to align the image
 #' @param ymin_adj adjustment of the minimum y-value to align the image
+#' @param scale_factor scaling of image dimensions relative to spatial coordinates (defaults to visium specified)
 #' @param instructions list of instructions or output result from \code{\link{createGiottoInstructions}}
 #' @param cores how many cores or threads to use to read data if paths are provided
 #' @param verbose be verbose
@@ -1159,10 +1161,12 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                     h5_tissue_positions_path = NULL,
                                     h5_image_png_path = NULL,
                                     png_name = NULL,
+                                    do_manual_adj = TRUE,
                                     xmax_adj = 0,
                                     xmin_adj = 0,
                                     ymax_adj = 0,
                                     ymin_adj = 0,
+                                    scale_factor = NULL,
                                     instructions = NULL,
                                     cores = NA,
                                     verbose = TRUE) {
@@ -1250,9 +1254,17 @@ createGiottoVisiumObject = function(visium_dir = NULL,
     colnames(spatial_locs) = c('sdimx', 'sdimy')
 
     ## spatial image
-    if(is.null(png_name)) {
-      png_list = list.files(spatial_path, pattern = "*.png")
-      png_name = png_list[1]
+    if(is.null(png_name)) { # Automatically select and find scale_factor for hires
+      png_name = list.files(spatial_path, pattern = "*hires_image.png")
+      
+      json_path = list.files(spatial_path, pattern = "*json.json", full.names = TRUE)
+      json = base::readChar(json_path, nchars = 1000)
+      scale_factor = base::regmatches(json,
+                                      base::gregexpr('(?<="tissue_hires_scalef": ).*?(?=,|})',
+                                                     json,
+                                                     perl = TRUE)
+                                      )
+      scale_factor = as.numeric(scale_factor)
     }
     png_path = paste0(spatial_path,'/',png_name)
     if(!file.exists(png_path)) stop(png_path, ' does not exist! \n')
@@ -1260,10 +1272,16 @@ createGiottoVisiumObject = function(visium_dir = NULL,
     mg_img = magick::image_read(png_path)
 
 
-    visium_png = createGiottoImage(gobject = NULL, spatial_locs =  spatial_locs,
-                                   mg_object = mg_img, name = 'image',
-                                   xmax_adj = xmax_adj, xmin_adj = xmin_adj,
-                                   ymax_adj = ymax_adj, ymin_adj = ymin_adj)
+    visium_png = createGiottoImage(gobject = NULL,
+                                   spatial_locs =  spatial_locs,
+                                   mg_object = mg_img,
+                                   name = 'image',
+                                   do_manual_adj = do_manual_adj,
+                                   xmax_adj = xmax_adj,
+                                   xmin_adj = xmin_adj,
+                                   ymax_adj = ymax_adj,
+                                   ymin_adj = ymin_adj,
+                                   scale_factor = scale_factor)
 
     visium_png_list = list(visium_png)
     names(visium_png_list) = c('image')

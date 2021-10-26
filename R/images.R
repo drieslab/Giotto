@@ -149,20 +149,24 @@ changeImageBg = function(mg_object,
 #' @param spatial_locs spatial locations (alternative if giobject = NULL)
 #' @param mg_object magick image object
 #' @param name name for the image
+#' @param do_manual_adj flag to use manual adj values instead of automatic alignment when given a gobject or spatlocs
 #' @param xmax_adj adjustment of the maximum x-value to align the image
 #' @param xmin_adj adjustment of the minimum x-value to align the image
 #' @param ymax_adj adjustment of the maximum y-value to align the image
 #' @param ymin_adj adjustment of the minimum y-value to align the image
+#' @param scale_factor scaling of image dimensions relative to spatial coordinates
 #' @return a giotto image object
 #' @export
 createGiottoImage = function(gobject = NULL,
                              spatial_locs = NULL,
                              mg_object,
                              name = 'image',
-                             xmax_adj = 0,
-                             xmin_adj = 0,
-                             ymax_adj = 0,
-                             ymin_adj = 0) {
+                             do_manual_adj = TRUE,
+                             xmax_adj = NULL,
+                             xmin_adj = NULL,
+                             ymax_adj = NULL,
+                             ymin_adj = NULL,
+                             scale_factor = 1) {
   if(!methods::is(mg_object, 'magick-image')) {
     if(file.exists(mg_object)) {
       mg_object = try(magick::image_read(mg_object))
@@ -171,7 +175,7 @@ createGiottoImage = function(gobject = NULL,
       }
     } else {
       stop("mg_object needs to be an image object 'magick-image'' from the magick package or \n
-           an existig path that can be read by magick::image_read()")
+           an existing path that can be read by magick::image_read()")
     }
   }
 
@@ -183,11 +187,37 @@ createGiottoImage = function(gobject = NULL,
   } else {
     stop('gobject or spatial locations need to be provided')
   }
-
+  
+  # Get spatial minmax values
   my_xmin = min(spatlocs$sdimx)
   my_xmax = max(spatlocs$sdimx)
   my_ymin = min(spatlocs$sdimy)
   my_ymax = max(spatlocs$sdimy)
+  
+  # Apply automatic alignment
+  if(do_manual_adj == FALSE) {
+    im_dims = unlist(magick::image_info(mg_object)[2:3]) # c(xdim,ydim)
+    names(im_dims) = NULL
+    
+    # Find image bounds
+    im_bounds = c(0,im_dims[1],-im_dims[2],0) # xmin, xmax, ymin, ymax
+    
+    # Apply scaling factor to bring image dimensions back to original size/spatloc res
+    im_bounds = im_bounds/scale_factor
+    
+    # Auto-find adj values
+    xmin_adj = my_xmin - im_bounds[1]
+    xmax_adj = im_bounds[2] - my_xmax
+    ymin_adj = my_ymin - im_bounds[3]
+    ymax_adj = im_bounds[4] - my_ymax
+    
+    
+  } else if(do_manual_adj == TRUE) {
+    if(is.null(xmin_adj)) xmin_adj = 0
+    if(is.null(xmax_adj)) xmax_adj = 0
+    if(is.null(ymin_adj)) ymin_adj = 0
+    if(is.null(ymax_adj)) ymax_adj = 0
+  }
 
   # image object
   imageObj = list(name = name,

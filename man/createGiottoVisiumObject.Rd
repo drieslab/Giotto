@@ -13,10 +13,12 @@ createGiottoVisiumObject(
   h5_tissue_positions_path = NULL,
   h5_image_png_path = NULL,
   png_name = NULL,
+  do_manual_adj = TRUE,
   xmax_adj = 0,
   xmin_adj = 0,
   ymax_adj = 0,
   ymin_adj = 0,
+  scale_factor = NULL,
   instructions = NULL,
   cores = NA,
   verbose = TRUE
@@ -39,6 +41,8 @@ createGiottoVisiumObject(
 
 \item{png_name}{select name of png to use (see details)}
 
+\item{do_manual_adj}{flag to use manual adj values instead of automatic alignment based on visium values}
+
 \item{xmax_adj}{adjustment of the maximum x-value to align the image}
 
 \item{xmin_adj}{adjustment of the minimum x-value to align the image}
@@ -46,6 +50,8 @@ createGiottoVisiumObject(
 \item{ymax_adj}{adjustment of the maximum y-value to align the image}
 
 \item{ymin_adj}{adjustment of the minimum y-value to align the image}
+
+\item{scale_factor}{scaling of image dimensions relative to spatial coordinates (defaults to visium specified)}
 
 \item{instructions}{list of instructions or output result from \code{\link{createGiottoInstructions}}}
 
