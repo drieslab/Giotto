@@ -166,7 +166,7 @@ checkAndFixSpatialGenes <- function(gobject, use_spatial_genes, use_score=FALSE)
   }
 }
 
-#' @name initHMRF
+#' @name initHMRF_V2
 #' @title HMRF initialzation 
 #' @description Run initialzation for HMRF model
 #' @param gobject giotto object
@@ -201,7 +201,7 @@ checkAndFixSpatialGenes <- function(gobject, use_spatial_genes, use_score=FALSE)
 #' This function returns a list containing y (expression), nei (neighborhood structure), numnei (number of neighbors), blocks (graph colors), damp (dampened factor), mu (mean), sigma (covariance), k, genes, edgelist. This information is needed for the second step, doHMRF.
 #'
 #' @export
-initHMRF <- function(gobject,
+initHMRF_V2 <- function(gobject,
                      expression_values = c('scaled', 'normalized', 'custom'),
                      spatial_network_name = 'Delaunay_network',
                      use_spatial_genes = c("binSpect", "silhouetteRank"),
@@ -401,8 +401,8 @@ initHMRF <- function(gobject,
        damp=damp, mu=mu, sigma=sigma, k=k, genes=spatial_genes_selected, edgelist=edgelist)
 }
 
-#' @title doHMRF
-#' @name doHMRF
+#' @title doHMRF_V2
+#' @name doHMRF_V2
 #' @description function to run HMRF model
 #' @keywords external
 #' @param HMRF_init_obj return list of initHMRF() function
@@ -418,13 +418,14 @@ initHMRF <- function(gobject,
 #' If 50<N<100, set betas=c(0, 2, 25)
 #' If 100<N<500, set betas=c(0, 5, 20)
 #' Returns a list with class, probability, and model log-likelihood value.
-doHMRF = function (HMRF_init_obj, betas = c(0,10,5))
+doHMRF_V2 = function (HMRF_init_obj, betas = c(0,10,5))
   # y, nei, numnei, blocks, beta_init, beta_increment, beta_num_iter, damp, mu, sigma, k, tolerance) 
 {
   message("\nIf used in published research, please cite:
   Q Zhu, S Shah, R Dries, L Cai, GC Yuan. 'Identification of spatially associated subpopulations by combining 
   scRNAseq and sequential fluorescence in situ hybridization data' Nature biotechnology 36 (12), 1183-1190. 2018\n")
-
+  cat('\n Please find more explaination and instruction of the HMRF function on \n https://bitbucket.org/qzhudfci/smfishhmrf-r/src/master/TRANSITION.md\n')
+	
   if(!'y'%in%names(HMRF_init_obj))
   {stop('\n expression matrix \'y\' not in the intialization object \n')}
   if(!'nei'%in%names(HMRF_init_obj))
@@ -498,10 +499,10 @@ doHMRF = function (HMRF_init_obj, betas = c(0,10,5))
 
 
 #' @title add HMRF DT to cell meta data
-#' @name addHMRF
+#' @name addHMRF_V2
 #' @description function to add HMRF Domain Type to cell meta data
 #' @keywords external
-addHMRF = function (gobject, HMRFoutput
+addHMRF_V2 = function (gobject, HMRFoutput
                      # , k = NULL, betas_to_add = NULL 
                      #, hmrf_name = NULL
 ) 
@@ -570,10 +571,10 @@ addHMRF = function (gobject, HMRFoutput
 
 
 #' @title view HMRF result
-#' @name viewHMRFresults
+#' @name viewHMRFresults_V2
 #' @description function to plot spatial location with HMRF cluster of k and betas
 #' @keywords external
-viewHMRFresults = function (gobject, HMRFoutput, k, betas,
+viewHMRFresults_V2 = function (gobject, HMRFoutput, k, betas,
           third_dim = FALSE, ...) 
 {
   if (!"HMRFoutput" %in% class(HMRFoutput)) {
@@ -631,8 +632,8 @@ viewHMRFresults = function (gobject, HMRFoutput, k, betas,
 
 
 
-#' @title doHMRF.old
-#' @name doHMRF.old
+#' @title doHMRF
+#' @name doHMRF
 #' @description Run HMRF
 #' @param gobject giotto object
 #' @param expression_values expression values to use
@@ -655,7 +656,7 @@ viewHMRFresults = function (gobject, HMRFoutput, k, betas,
 #' @return Creates a directory with results that can be viewed with viewHMRFresults
 #' @details Description of HMRF parameters ...
 #' @export
-doHMRF.old <- function(gobject,
+doHMRF <- function(gobject,
                    expression_values = c('normalized', 'scaled', 'custom'),
                    spatial_network_name = 'Delaunay_network',
                    spatial_genes = NULL,
@@ -918,8 +919,8 @@ loadHMRF = function(name_used = 'test',
 
 
 
-#' @title viewHMRFresults.old
-#' @name viewHMRFresults.old
+#' @title viewHMRFresults
+#' @name viewHMRFresults
 #' @description View results from doHMRF.
 #' @param gobject giotto object
 #' @param HMRFoutput HMRF output from doHMRF
@@ -930,7 +931,7 @@ loadHMRF = function(name_used = 'test',
 #' @return spatial plots with HMRF domains
 #' @seealso \code{\link{spatPlot2D}} and \code{\link{spatPlot3D}}
 #' @export
-viewHMRFresults.old <- function(gobject,
+viewHMRFresults <- function(gobject,
                             HMRFoutput,
                             k = NULL,
                             betas_to_view = NULL,
@@ -1066,8 +1067,8 @@ writeHMRFresults <- function(gobject,
 
 
 
-#' @title addHMRF.old
-#' @name addHMRF.old
+#' @title addHMRF
+#' @name addHMRF
 #' @description Add selected results from doHMRF to the giotto object
 #' @param gobject giotto object
 #' @param HMRFoutput HMRF output from doHMRF()
@@ -1076,7 +1077,7 @@ writeHMRFresults <- function(gobject,
 #' @param hmrf_name specify a custom name
 #' @return giotto object
 #' @export
-addHMRF.old <- function(gobject,
+addHMRF <- function(gobject,
                     HMRFoutput,
                     k = NULL,
                     betas_to_add = NULL,
