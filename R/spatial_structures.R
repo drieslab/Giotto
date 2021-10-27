@@ -52,7 +52,7 @@ spatNetwDistributionsDistance <- function(gobject,
     dist_removal_dt = rbind(removed_neighbors, keep_neighbors)
     setorder(dist_removal_dt, rank_int)
 
-    dist_removal_dt_dcast = dcast.data.table(data = dist_removal_dt, rank_int~status, value.var = 'N', fill = 0)
+    dist_removal_dt_dcast = data.table::dcast.data.table(data = dist_removal_dt, rank_int~status, value.var = 'N', fill = 0)
     dist_removal_dt_dcast[, label := paste0('keep:',keep, '\n remove:',remove)]
   }
 
