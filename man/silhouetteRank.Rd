@@ -11,7 +11,8 @@ silhouetteRank(
   subset_genes = NULL,
   rbp_p = 0.95,
   examine_top = 0.3,
-  python_path = NULL
+  python_path = NULL,
+  return_gobject = F
 )
 }
 \arguments{
