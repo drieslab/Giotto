@@ -522,6 +522,7 @@ calc_spatial_enrichment_DT = function(bin_matrix,
       stop('group_size is too big, it can not be greater than the number of feats')
     }
   } else if(group_size == 'automatic') {
+
     test_number = ceiling(nrow(bin_matrix)/10)
     test_number = max(2, test_number)
     group_size = min(200, test_number)
@@ -529,6 +530,9 @@ calc_spatial_enrichment_DT = function(bin_matrix,
 
   groups = ceiling(nrow(bin_matrix)/group_size)
   cut_groups = cut(1:nrow(bin_matrix), breaks = groups, labels = 1:groups)
+  if(any(table(cut_groups) == 1)) {
+    stop('With group size = ', group_size, ' you have a single gene in a group. Manually pick another group size')
+  }
   indexes = 1:nrow(bin_matrix)
   names(indexes) = cut_groups
 
