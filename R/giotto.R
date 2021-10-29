@@ -293,6 +293,58 @@ set_giotto_python_path = function(python_path = NULL,
 #' @return named vector with giotto instructions
 #' @seealso More online information can be found here \url{https://rubd.github.io/Giotto_site/articles/instructions_and_plotting.html}
 #' @export
+#' @details
+#'
+#' ## This is a simple guide to help explain the different Giotto instructions:
+#'
+#' \itemize{
+#'  \item Instructions can be set at the beginning of each workflow with \code{\link{createGiottoInstructions}}
+#'
+#'  \item The provided instructions for a giotto object can be viewed with \code{\link{showGiottoInstructions}}
+#
+#'  \item One or more parameters can be changed with \code{\link{changeGiottoInstructions}}
+#'
+#'  \item All instructions can be replaced with the \code{\link{replaceGiottoInstructions}} function
+#'
+#' }
+#'
+#'
+#' ## The following list of parameters can be provided to save_param:
+#'
+#' \itemize{
+#'       \item  python_path: here you can provide the path to your custom python binary (only at beginning of script)
+#'
+#'       \item  show_plot: TRUE or FALSE, show the plot to the console
+#'       \item  return_plot: TRUE or FALSE, return the ggplot object (e.g. to further modify or save the plot)
+#'       \item  save_plot: TRUE or FALSE, automatically save the plot to your designated save_dir
+#'
+#'       \item  save_dir: directory to save the plot to
+#'       \item  plot_format: default picture format to use, default is .png
+#'       \item  dpi: default dpi for each plot if plot is in raster format
+#'       \item  units: default plotting units (e.g. in)
+#'       \item  height: default height of plot
+#'       \item  width: default width of plot
+#'
+#' }
+#'
+#'
+#' Example:
+#'
+#' ```
+#'       instructions <- createGiottoInstruction(python_path = '/path/to/python',
+#'                                               save_plot = TRUE,
+#'                                               save_dir = '/path/to/working/dir'")
+#'
+#'
+#'       giotto_object <- createGiottoObject(raw_exprs = '/path/to/expression/matrix',
+#'                                           spatial_locs = '/path/to/spatial/locations',
+#'                                           instructions = instructions")
+#' ```
+#'
+#' Specific saving instructions can also be directly provided for each plotting function.
+#' See \code{\link{showSaveParameters}} for more details
+#'
+#'
 createGiottoInstructions <- function(python_path =  NULL,
                                      show_plot = NULL,
                                      return_plot = NULL,
