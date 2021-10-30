@@ -19,54 +19,33 @@ createGiottoInstructions(
 )
 }
 \arguments{
-\item{python_path}{The path to your custom python binary (only at the beginning of the script).}
+\item{python_path}{path to python binary to use}
 
-\item{show_plot}{Show the plot to the console, default = TRUE.}
+\item{show_plot}{print plot to console, default = TRUE}
 
-\item{return_plot}{Return the plot as a \code{\link{ggplot2}} object (e.g. to further modify or save the plot), default = TRUE.}
+\item{return_plot}{return plot as object, default = TRUE}
 
-\item{save_plot}{Automatically save the plot to your designated save_dir, default = FALSE.}
+\item{save_plot}{automatically save plot, dafault = FALSE}
 
-\item{save_dir}{Path of the directory to save plot to.}
+\item{save_dir}{path to directory where to save plots}
 
-\item{plot_format}{The output format of plots. Can be "png" (the default), "tiff" or "pdf".}
+\item{plot_format}{format of plots (defaults to png)}
 
-\item{dpi}{Plot resolution in dpi for raster images.}
+\item{dpi}{resolution for raster images}
 
-\item{units}{The units in which height and width are given. Can be px(pixels), in (inches, the default), cm or mm.}
+\item{units}{units of format (defaults to in)}
 
-\item{height}{Plot height in `units`.}
+\item{height}{height of plots}
 
-\item{width}{Plot width in `units`.}
+\item{width}{width of  plots}
 
-\item{is_docker}{Logical. Whether using docker implementation of Giotto or not (default = FALSE).}
+\item{is_docker}{using docker implementation of Giotto (defaults to FALSE)}
 }
 \value{
-A \code{list} with Giotto instructions.
+named vector with giotto instructions
 }
 \description{
-Function to set global instructions for giotto functions.
-}
-\details{
-Instructions can be set at the beginning of each workflow with \code{\link{createGiottoInstructions}}.
-
-The provided instructions for a giotto object can be viewed with \code{\link{showGiottoInstructions}}.
-
-One or more parameters can be changed with \code{\link{changeGiottoInstructions}}.
-
-All instructions can be replaced with \code{\link{replaceGiottoInstructions}}.
-
-Specific saving instructions can also be directly provided for each plotting function. See \code{\link{showSaveParameters}} for more details.
-}
-\examples{
-instructions <- createGiottoInstruction(python_path = "/path/to/python",
-                                        save_plot = TRUE,
-                                        save_dir = "/path/to/working_dir")
-
-giotto_object <- createGiottoObject(raw_exprs = "/path/to/expression_matrix",
-                                    spatial_locs = "/path/to/spatial_locations",
-                                    instructions = instructions)
-
+Function to set global instructions for giotto functions
 }
 \seealso{
 More online information can be found here \url{https://rubd.github.io/Giotto_site/articles/instructions_and_plotting.html}
