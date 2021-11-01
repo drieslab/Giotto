@@ -64,17 +64,18 @@ A list (see details)
 Run initialzation for HMRF model
 }
 \details{
-There are two steps to running HMRF. This is the first step, the initialization. 
-First, user specify which of Giotto's spatial genes to run, through use_spatial_genes. 
-Spatial genes have been stored in the gene metadata table. A first pass of genes will filter genes 
-that are not significantly spatial, as determined by filter_method. If filter_method is none, 
-then top 2500 (gene_sampling_from_top) genes ranked by pvalue are considered spatial. 
-If filter_method is elbow, then the exact cutoff is determined by the elbow in the 
--log10Pvalue vs. gene rank plot. 
-Second, the filtered gene set is subject to sampling to select 500 
-(controlled by gene_samples) genes for running HMRF. 
-Third, once spatial genes are finalized, we are ready to initialize HMRF. 
-This consists of running a K-means algorithm to determine initial centroids (nstart, hmrf_seed) of HMRF. 
-The initialization is then finished. 
+There are two steps to running HMRF. This is the first step, the initialization.
+First, user specify which of Giotto's spatial genes to run, through use_spatial_genes.
+Spatial genes have been stored in the gene metadata table. A first pass of genes will filter genes
+that are not significantly spatial, as determined by filter_method. If filter_method is none,
+then top 2500 (gene_sampling_from_top) genes ranked by pvalue are considered spatial.
+If filter_method is elbow, then the exact cutoff is determined by the elbow in the
+-log10Pvalue vs. gene rank plot.
+Second, the filtered gene set is subject to sampling to select 500
+(controlled by gene_samples) genes for running HMRF.
+Third, once spatial genes are finalized, we are ready to initialize HMRF.
+This consists of running a K-means algorithm to determine initial centroids (nstart, hmrf_seed) of HMRF.
+The initialization is then finished.
+
 This function returns a list containing y (expression), nei (neighborhood structure), numnei (number of neighbors), blocks (graph colors), damp (dampened factor), mu (mean), sigma (covariance), k, genes, edgelist. This information is needed for the second step, doHMRF.
 }

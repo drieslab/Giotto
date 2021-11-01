@@ -6,6 +6,9 @@
 \usage{
 viewHMRFresults_V2(gobject, HMRFoutput, k, betas, third_dim = FALSE, ...)
 }
+\arguments{
+\item{...}{}
+}
 \description{
 function to plot spatial location with HMRF cluster of k and betas
 }
