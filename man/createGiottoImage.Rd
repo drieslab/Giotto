@@ -16,13 +16,14 @@ createGiottoImage(
   xmin_adj = 0,
   ymax_adj = 0,
   ymin_adj = 0,
-  scale_factor = 1
+  scale_factor = 1,
+  verbose = TRUE
 )
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spatial_locs}{spatial locations (alternative if giobject = NULL)}
+\item{spatial_locs}{spatial locations (alternative if gobject = NULL)}
 
 \item{spat_loc_name}{name of spatial locations within gobject}
 
@@ -43,6 +44,8 @@ createGiottoImage(
 \item{ymin_adj}{adjustment of the minimum y-value to align the image}
 
 \item{scale_factor}{scaling of image dimensions relative to spatial coordinates}
+
+\item{verbose}{be verbose}
 }
 \value{
 a giottoImage object

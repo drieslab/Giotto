@@ -19,6 +19,7 @@
 #' @slot dimension_reduction slot to save dimension reduction coordinates
 #' @slot nn_network nearest neighbor network in igraph format
 #' @slot images slot to store giotto images
+#' @slot largeImages slot to store giottoLargeImage objects
 #' @slot parameters slot to save parameters that have been used
 #' @slot instructions slot for global function instructions
 #' @slot offset_file offset file used to stitch together image fields
@@ -50,6 +51,7 @@ giotto <- setClass(
     dimension_reduction = 'ANY',
     nn_network = "ANY",
     images = "ANY",
+    largeImages = "ANY",
     parameters = "ANY",
     instructions = "ANY",
     offset_file = "ANY",
@@ -74,6 +76,7 @@ giotto <- setClass(
     dimension_reduction = NULL,
     nn_network = NULL,
     images = NULL,
+    largeImages = NULL,
     parameters = NULL,
     instructions = NULL,
     offset_file = NULL,
@@ -1160,6 +1163,7 @@ createGiottoObject <- function(expression,
                    dimension_reduction = NULL,
                    nn_network = NULL,
                    images = NULL,
+                   largeImages = NULL,
                    parameters = NULL,
                    offset_file = offset_file,
                    instructions = instructions,
@@ -1916,6 +1920,7 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
                    dimension_reduction = NULL,
                    nn_network = NULL,
                    images = NULL,
+                   largeImages = NULL,
                    parameters = NULL,
                    offset_file = NULL,
                    instructions = instructions,

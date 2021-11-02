@@ -47,6 +47,8 @@ that are provided in the expression slot.
 
 \item{\code{images}}{slot to store giotto images}
 
+\item{\code{largeImages}}{slot to store giottoLargeImage objects}
+
 \item{\code{parameters}}{slot to save parameters that have been used}
 
 \item{\code{instructions}}{slot for global function instructions}
