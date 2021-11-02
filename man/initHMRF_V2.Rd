@@ -76,6 +76,5 @@ Second, the filtered gene set is subject to sampling to select 500
 Third, once spatial genes are finalized, we are ready to initialize HMRF.
 This consists of running a K-means algorithm to determine initial centroids (nstart, hmrf_seed) of HMRF.
 The initialization is then finished.
-
 This function returns a list containing y (expression), nei (neighborhood structure), numnei (number of neighbors), blocks (graph colors), damp (dampened factor), mu (mean), sigma (covariance), k, genes, edgelist. This information is needed for the second step, doHMRF.
 }
