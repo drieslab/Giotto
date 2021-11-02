@@ -79,22 +79,19 @@ Function to set global instructions for giotto functions
 
 }
 
-
-Example:
-
-```
-      instructions <- createGiottoInstruction(python_path = '/path/to/python',
-                                              save_plot = TRUE,
-                                              save_dir = '/path/to/working/dir'")
-
-
-      giotto_object <- createGiottoObject(raw_exprs = '/path/to/expression/matrix',
-                                          spatial_locs = '/path/to/spatial/locations',
-                                          instructions = instructions")
-```
-
-Specific saving instructions can also be directly provided for each plotting function.
+#' Specific saving instructions can also be directly provided for each plotting function.
 See \code{\link{showSaveParameters}} for more details
+}
+\examples{
+instructions <- createGiottoInstruction(python_path = '/path/to/python',
+                                        save_plot = TRUE,
+                                        save_dir = '/path/to/working/dir')
+
+
+giotto_object <- createGiottoObject(raw_exprs = '/path/to/expression/matrix',
+                                    spatial_locs = '/path/to/spatial/locations',
+                                    instructions = instructions)
+
 }
 \seealso{
 More online information can be found here \url{https://rubd.github.io/Giotto_site/articles/instructions_and_plotting.html}

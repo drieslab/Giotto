@@ -327,23 +327,18 @@ set_giotto_python_path = function(python_path = NULL,
 #'
 #' }
 #'
-#'
-#' Example:
-#'
-#' ```
-#'       instructions <- createGiottoInstruction(python_path = '/path/to/python',
-#'                                               save_plot = TRUE,
-#'                                               save_dir = '/path/to/working/dir'")
-#'
-#'
-#'       giotto_object <- createGiottoObject(raw_exprs = '/path/to/expression/matrix',
-#'                                           spatial_locs = '/path/to/spatial/locations',
-#'                                           instructions = instructions")
-#' ```
-#'
-#' Specific saving instructions can also be directly provided for each plotting function.
+#'#' Specific saving instructions can also be directly provided for each plotting function.
 #' See \code{\link{showSaveParameters}} for more details
 #'
+#' @examples
+#' instructions <- createGiottoInstruction(python_path = '/path/to/python',
+#'                                         save_plot = TRUE,
+#'                                         save_dir = '/path/to/working/dir')
+#'
+#'
+#' giotto_object <- createGiottoObject(raw_exprs = '/path/to/expression/matrix',
+#'                                     spatial_locs = '/path/to/spatial/locations',
+#'                                     instructions = instructions)
 #'
 createGiottoInstructions <- function(python_path =  NULL,
                                      show_plot = NULL,
