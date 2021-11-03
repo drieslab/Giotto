@@ -289,9 +289,10 @@ spatInSituPlotPoints = function(gobject,
 
 
     polygon_combo = combineCellData(gobject = gobject,
-                                  feat_type = feat_type,
-                                  include_poly_info = TRUE,
-                                  poly_info = polygon_feat_type)
+                                    spat_loc_name = spat_loc_name,
+                                    feat_type = feat_type,
+                                    include_poly_info = TRUE,
+                                    poly_info = polygon_feat_type)
     polygon_dt = polygon_combo[[feat_type]]
     data.table::setnames(polygon_dt, old = 'cell_ID', new = 'poly_ID')
 

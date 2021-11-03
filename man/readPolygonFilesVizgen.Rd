@@ -11,7 +11,9 @@ readPolygonFilesVizgen(gobject, boundaries_path, polygon_feat_types = 0:6)
 
 \item{boundaries_path}{path to the cell_boundaries folder}
 
-\item{polygon_feat_types}{a vector containing the polygon feature types
+\item{polygon_feat_types}{a vector containing the polygon feature types}
+
+\item{verbose}{be verbose
 considered in the analysis}
 }
 \description{

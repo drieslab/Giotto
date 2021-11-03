@@ -1064,12 +1064,14 @@ convertEnsemblToGeneSymbol = function(matrix,
 #' @param gobject giotto object
 #' @param boundaries_path path to the cell_boundaries folder
 #' @param polygon_feat_types a vector containing the polygon feature types
+#' @param verbose be verbose
 #' considered in the analysis
 #'
 #' @export
 readPolygonFilesVizgen = function(gobject,
                                   boundaries_path,
-                                  polygon_feat_types = 0:6) {
+                                  polygon_feat_types = 0:6,
+                                  verbose = TRUE) {
   # define names
   poly_feat_names = paste0('z', polygon_feat_types)
   poly_feat_indexes = paste0('zIndex_', polygon_feat_types)
@@ -1090,12 +1092,17 @@ readPolygonFilesVizgen = function(gobject,
     hdf5_boundary_selected_list[[hdf5_i]] = hdf5_boundary_selected
   }
 
+  if(verbose == TRUE) cat('finished listing .hdf5 files')
+
   # read selected polygon files
   start_index = 1
   # create a results list for each z index of the polygon file
   result_list = replicate(length(polygon_feat_types), list())
   multidt_list = replicate(length(polygon_feat_types), list())
   for(bound_i in 1:length(hdf5_boundary_selected_list)) {
+
+    if(verbose == TRUE) cat('hdf5: ',bound_i,'\n')
+
     # read file and select feature data
     read_file = rhdf5::H5Fopen(hdf5_boundary_selected_list[bound_i][[1]])
     featdt = read_file$featuredata
