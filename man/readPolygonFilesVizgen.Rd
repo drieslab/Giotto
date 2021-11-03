@@ -4,7 +4,18 @@
 \alias{readPolygonFilesVizgen}
 \title{readPolygonFilesVizgen}
 \usage{
-readPolygonFilesVizgen(gobject, boundaries_path, polygon_feat_types = 0:6)
+readPolygonFilesVizgen(
+  gobject,
+  boundaries_path,
+  polygon_feat_types = 0:6,
+  flip_x_axis = F,
+  flip_y_axis = F,
+  smooth_polygons = TRUE,
+  smooth_vertices = 60,
+  set_neg_to_zero = FALSE,
+  return_gobject = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -13,8 +24,17 @@ readPolygonFilesVizgen(gobject, boundaries_path, polygon_feat_types = 0:6)
 
 \item{polygon_feat_types}{a vector containing the polygon feature types}
 
-\item{verbose}{be verbose
-considered in the analysis}
+\item{flip_x_axis}{flip x axis of polygon coordinates (multiply by -1)}
+
+\item{flip_y_axis}{flip y axis of polygon coordinates (multiply by -1)}
+
+\item{smooth_polygons}{smooth polygons (default = TRUE)}
+
+\item{smooth_vertices}{number of vertices for smoothing}
+
+\item{return_gobject}{return giotto object}
+
+\item{verbose}{be verbose}
 }
 \description{
 Read selected polygon files for the FOVs present in the Giotto

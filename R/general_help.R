@@ -1064,14 +1064,25 @@ convertEnsemblToGeneSymbol = function(matrix,
 #' @param gobject giotto object
 #' @param boundaries_path path to the cell_boundaries folder
 #' @param polygon_feat_types a vector containing the polygon feature types
+#' @param flip_x_axis flip x axis of polygon coordinates (multiply by -1)
+#' @param flip_y_axis flip y axis of polygon coordinates (multiply by -1)
+#' @param smooth_polygons smooth polygons (default = TRUE)
+#' @param smooth_vertices number of vertices for smoothing
+#' @param return_gobject return giotto object
 #' @param verbose be verbose
-#' considered in the analysis
 #'
 #' @export
 readPolygonFilesVizgen = function(gobject,
                                   boundaries_path,
                                   polygon_feat_types = 0:6,
+                                  flip_x_axis = F,
+                                  flip_y_axis = F,
+                                  smooth_polygons = TRUE,
+                                  smooth_vertices = 60,
+                                  set_neg_to_zero = FALSE,
+                                  return_gobject = TRUE,
                                   verbose = TRUE) {
+
   # define names
   poly_feat_names = paste0('z', polygon_feat_types)
   poly_feat_indexes = paste0('zIndex_', polygon_feat_types)
@@ -1092,21 +1103,27 @@ readPolygonFilesVizgen = function(gobject,
     hdf5_boundary_selected_list[[hdf5_i]] = hdf5_boundary_selected
   }
 
-  if(verbose == TRUE) cat('finished listing .hdf5 files')
+  if(verbose == TRUE) cat('finished listing .hdf5 files \n
+                          start extracting .hdf5 information \n')
 
   # read selected polygon files
   start_index = 1
   # create a results list for each z index of the polygon file
   result_list = replicate(length(polygon_feat_types), list())
   multidt_list = replicate(length(polygon_feat_types), list())
-  for(bound_i in 1:length(hdf5_boundary_selected_list)) {
 
-    if(verbose == TRUE) cat('hdf5: ',bound_i,'\n')
+  hdf5_list_length = length(hdf5_boundary_selected_list)
+
+  for(bound_i in 1:hdf5_list_length) {
+
+    if(verbose == TRUE) cat('hdf5: ', (hdf5_list_length - bound_i) ,'\n')
+    # print(hdf5_boundary_selected_list[bound_i][[1]])
 
     # read file and select feature data
     read_file = rhdf5::H5Fopen(hdf5_boundary_selected_list[bound_i][[1]])
     featdt = read_file$featuredata
     cell_names = names(featdt)
+
     # extract values for each z index
     for(cell_i in 1:length(featdt)) {
       for(z_i in 1:length(poly_feat_indexes)) {
@@ -1114,6 +1131,10 @@ readPolygonFilesVizgen = function(gobject,
         cell_name = cell_names[[cell_i]]
         if(!is.null(singlearray)) {
           singlearraydt = data.table::as.data.table(t(as.matrix(singlearray[,,1])))
+          data.table::setnames(singlearraydt, old = c('V1', 'V2'), new = c('x', 'y'))
+          if(flip_x_axis) singlearraydt[, x := -1 * x]
+          if(flip_y_axis) singlearraydt[, y := -1 * y]
+
           singlearraydt[, file_id := paste0('file', bound_i)]
           singlearraydt[, cell_id := cell_name]
           singlearraydt[, my_id := paste0('cell', start_index)]
@@ -1126,17 +1147,40 @@ readPolygonFilesVizgen = function(gobject,
       multidt_list[[i]] = do.call('rbind', result_list[[i]])
     }
   }
+
+  if(verbose == TRUE) cat('finished extracting .hdf5 files \n
+                          start creating polygons \n')
+
+
   # create Giotto polygons and add them to gobject
   smooth_cell_polygons_list = list()
+
   for (i in 1:length(multidt_list)) {
-    cell_polygons = createGiottoPolygonsFromDfr(segmdfr = multidt_list[[i]][,.(V1, V2, cell_id)],
-                                                 name = poly_feat_names[i])
-    smooth_cell_polygons = smoothGiottoPolygons(cell_polygons, vertices = 60)
+    dfr_subset = multidt_list[[i]][,.(x, y, cell_id)]
+    cell_polygons = createGiottoPolygonsFromDfr(segmdfr = dfr_subset,
+                                                name = poly_feat_names[i])
+
+    if(smooth_polygons == TRUE) {
+      smooth_cell_polygons = smoothGiottoPolygons(cell_polygons,
+                                                  vertices = smooth_vertices,
+                                                  set_neg_to_zero = set_neg_to_zero)
+    } else {
+      smooth_cell_polygons = cell_polygons
+    }
     smooth_cell_polygons_list[[i]] = smooth_cell_polygons
   }
-  # add cell polygons to Giotto object
-  names(smooth_cell_polygons_list) = poly_feat_names
-  gobject = addGiottoPolygons(gobject = gobject,
-                              gpolygons = smooth_cell_polygons_list)
-  return(gobject)
+
+  if(return_gobject) {
+    # add cell polygons to Giotto object
+    names(smooth_cell_polygons_list) = poly_feat_names
+    gobject = addGiottoPolygons(gobject = gobject,
+                                gpolygons = smooth_cell_polygons_list)
+    return(gobject)
+  } else {
+    return(smooth_cell_polygons_list)
+  }
+
+
 }
+
+

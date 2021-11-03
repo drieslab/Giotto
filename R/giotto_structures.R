@@ -738,6 +738,8 @@ spline_poly <- function(xy, vertices = 20, k = 3, ...) {
 }
 
 
+
+
 #' @title smoothGiottoPolygons
 #' @name smoothGiottoPolygons
 #' @description Smooths Giotto polygon object
