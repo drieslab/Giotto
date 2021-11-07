@@ -1,16 +1,16 @@
 
 #' @title sampling_sp_genes
-#' @param clust
-#' @param sample_rate
-#' @param target
-#' @param seed
-#'
 #' @name sampling_sp_genes
+#' @param clust TBD
+#' @param sample_rate TBD
+#' @param target TBD
+#' @param seed TBD
 #' @description function to select a set of spatial genes
 #' @keywords internal
-#'
-#' @export
-sampling_sp_genes = function(clust, sample_rate=2, target=500, seed = 10){
+sampling_sp_genes = function(clust,
+                             sample_rate=2,
+                             target=500,
+                             seed = 10){
   # clust = spat_cor_netw_DT$cor_clusters$spat_netw_clus
   # sample_rate=2
   # target=500
@@ -50,7 +50,15 @@ sampling_sp_genes = function(clust, sample_rate=2, target=500, seed = 10){
 
 }
 
-numPts_below_line <- function(myVector,slope,x){
+
+#' @title numPts_below_line
+#' @param myVector TBD
+#' @param slope TBD
+#' @param x TBD
+#' @keywords internal
+numPts_below_line <- function(myVector,
+                              slope,
+                              x){
 	yPt <- myVector[x]
 	b <- yPt-(slope*x)
 	xPts <- 1:length(myVector)
@@ -59,13 +67,11 @@ numPts_below_line <- function(myVector,slope,x){
 
 
 #' @title filterSpatialGenes
-#'
-#' @param gobject
-#' @param spatial_genes
-#' @param max
-#' @param name
-#' @param method
-#'
+#' @param gobject TBD
+#' @param spatial_genes TBD
+#' @param max TBD
+#' @param name TBD
+#' @param method TBD
 #' @export
 filterSpatialGenes <- function(gobject, spatial_genes, max=2500, name=c("binSpect", "silhouetteRank", "silhouetteRankTest"), method=c("none", "elbow")){
   name = match.arg(name, unique(c("binSpect", "silhouetteRank", "silhouetteRankTest", name)))
@@ -132,6 +138,11 @@ filterSpatialGenes <- function(gobject, spatial_genes, max=2500, name=c("binSpec
   return(list(genes=gx_sorted$gene_ID, num_genes_removed=num_genes_removed))
 }
 
+
+
+#' @title chooseAvailableSpatialGenes
+#' @param gobject TBD
+#' @export
 chooseAvailableSpatialGenes <- function(gobject){
   eval1 = 'binSpect.pval' %in% names(gobject@gene_metadata)
   eval2 = 'silhouetteRankTest.pval' %in% names(gobject@gene_metadata)
@@ -147,7 +158,15 @@ chooseAvailableSpatialGenes <- function(gobject){
   }
 }
 
-checkAndFixSpatialGenes <- function(gobject, use_spatial_genes, use_score=FALSE){
+
+#' @title checkAndFixSpatialGenes
+#' @param gobject TBD
+#' @param use_spatial_genes TBD
+#' @param use_score TBD
+#' @export
+checkAndFixSpatialGenes <- function(gobject,
+                                    use_spatial_genes,
+                                    use_score=FALSE){
   if(use_spatial_genes=="silhouetteRank"){
     if(use_score==TRUE){
       use_spatial_genes = "silhouetteRank"
@@ -183,8 +202,10 @@ checkAndFixSpatialGenes <- function(gobject, use_spatial_genes, use_score=FALSE)
   }
 }
 
+
+
 #' @name initHMRF_V2
-#' @title HMRF initialzation
+#' @title initHMRF_V2
 #' @description Run initialzation for HMRF model
 #' @param gobject giotto object
 #' @param expression_values expression values to use
@@ -517,7 +538,7 @@ doHMRF_V2 = function (HMRF_init_obj, betas = c(0,10,5))
 
 
 
-#' @title add HMRF DT to cell meta data
+#' @title addHMRF_V2
 #' @name addHMRF_V2
 #' @description function to add HMRF Domain Type to cell meta data
 #' @keywords external
@@ -590,21 +611,25 @@ addHMRF_V2 = function (gobject, HMRFoutput
 }
 
 
-#' @title view HMRF result
+#' @title viewHMRFresults_V2
 #' @name viewHMRFresults_V2
 #' @description function to plot spatial location with HMRF cluster of k and betas
-#' @param gobject
-#' @param HMRFoutput
-#' @param k
-#' @param betas
-#' @param third_dim
+#' @param gobject TBD
+#' @param HMRFoutput TBD
+#' @param k TBD
+#' @param betas TBD
+#' @param third_dim TBD
 #' @param ...
 #'
 #' @keywords external
 #'
 #' @export
-viewHMRFresults_V2 = function (gobject, HMRFoutput, k, betas,
-          third_dim = FALSE, ...)
+viewHMRFresults_V2 = function (gobject,
+                               HMRFoutput,
+                               k,
+                               betas,
+                               third_dim = FALSE,
+                               ...)
 {
   if (!"HMRFoutput" %in% class(HMRFoutput)) {
     stop("\n HMRFoutput needs to be output from doHMRFextend \n")

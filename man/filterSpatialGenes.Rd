@@ -13,7 +13,15 @@ filterSpatialGenes(
 )
 }
 \arguments{
-\item{method}{}
+\item{gobject}{TBD}
+
+\item{spatial_genes}{TBD}
+
+\item{max}{TBD}
+
+\item{name}{TBD}
+
+\item{method}{TBD}
 }
 \description{
 filterSpatialGenes

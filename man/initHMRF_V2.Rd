@@ -2,7 +2,7 @@
 % Please edit documentation in R/python_hmrf.R
 \name{initHMRF_V2}
 \alias{initHMRF_V2}
-\title{HMRF initialzation}
+\title{initHMRF_V2}
 \usage{
 initHMRF_V2(
   gobject,

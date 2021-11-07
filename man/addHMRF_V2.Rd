@@ -2,7 +2,7 @@
 % Please edit documentation in R/python_hmrf.R
 \name{addHMRF_V2}
 \alias{addHMRF_V2}
-\title{add HMRF DT to cell meta data}
+\title{addHMRF_V2}
 \usage{
 addHMRF_V2(gobject, HMRFoutput)
 }

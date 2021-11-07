@@ -2,11 +2,21 @@
 % Please edit documentation in R/python_hmrf.R
 \name{viewHMRFresults_V2}
 \alias{viewHMRFresults_V2}
-\title{view HMRF result}
+\title{viewHMRFresults_V2}
 \usage{
 viewHMRFresults_V2(gobject, HMRFoutput, k, betas, third_dim = FALSE, ...)
 }
 \arguments{
+\item{gobject}{TBD}
+
+\item{HMRFoutput}{TBD}
+
+\item{k}{TBD}
+
+\item{betas}{TBD}
+
+\item{third_dim}{TBD}
+
 \item{...}{}
 }
 \description{

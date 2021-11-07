@@ -7,7 +7,13 @@
 sampling_sp_genes(clust, sample_rate = 2, target = 500, seed = 10)
 }
 \arguments{
-\item{seed}{}
+\item{clust}{TBD}
+
+\item{sample_rate}{TBD}
+
+\item{target}{TBD}
+
+\item{seed}{TBD}
 }
 \description{
 function to select a set of spatial genes
