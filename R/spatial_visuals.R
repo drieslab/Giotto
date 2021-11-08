@@ -2913,6 +2913,7 @@ spatPlot2D = function(gobject,
 
     ## metadata
     comb_metadata = combineMetadata(gobject = gobject,
+                                    spat_loc_name = spat_loc_name,
                                     feat_type = feat_type,
                                     spat_enr_names = spat_enr_names)
     possible_meta_groups = colnames(comb_metadata)

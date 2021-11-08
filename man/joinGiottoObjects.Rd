@@ -7,10 +7,12 @@
 joinGiottoObjects(
   gobject_list,
   gobject_names = NULL,
-  join_method = c("x_shift", "z_stack"),
+  join_method = c("shift", "z_stack"),
   z_vals = 1000,
   x_shift = NULL,
+  y_shift = NULL,
   x_padding = 0,
+  y_padding = 0,
   verbose = TRUE
 )
 }
@@ -23,9 +25,13 @@ joinGiottoObjects(
 
 \item{z_vals}{distance(s) along z-axis if method is z-stack}
 
-\item{x_shift}{shift along x-axis if method is x-shift}
+\item{x_shift}{shift along x-axis if method is shift}
 
-\item{x_padding}{padding bewteen datasets/images if method is x-shift}
+\item{y_shift}{shift along y-axis if method is shift}
+
+\item{x_padding}{padding between datasets/images if method is shift}
+
+\item{y_padding}{padding between datasets/images if method is shift}
 
 \item{verbose}{be verbose}
 }
