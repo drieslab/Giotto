@@ -2527,7 +2527,7 @@ joinGiottoObjects = function(gobject_list,
 
           } else {
             x_shift_i = x_shift[[gobj_i]]
-            add_to_x = ((gobj_i - 1) * x_shift_i) + ((gobj_i - 1) * x_padding)
+            add_to_x = x_shift_i + x_padding
           }
 
           gobj@images[[imname]]@minmax[c("xmax_sloc", "xmin_sloc")] =  gobj@images[[imname]]@minmax[c("xmax_sloc", "xmin_sloc")] + add_to_x
@@ -2537,7 +2537,7 @@ joinGiottoObjects = function(gobject_list,
           ## shift in y-direction
           if(!is.null(y_shift)) {
             y_shift_i = y_shift[[gobj_i]]
-            add_to_y = ((gobj_i - 1) * y_shift_i) + ((gobj_i - 1) * y_padding)
+            add_to_y = y_shift_i + y_padding
 
             gobj@images[[imname]]@minmax[c("ymax_sloc", "ymin_sloc")] =  gobj@images[[imname]]@minmax[c("ymax_sloc", "ymin_sloc")] + add_to_y
             yshift_list[[gobj_i]] = add_to_y
@@ -2578,7 +2578,7 @@ joinGiottoObjects = function(gobject_list,
           add_to_x = xshift_list[[gobj_i]]
         } else {
           x_shift_i = x_shift[[gobj_i]]
-          add_to_x = (gobj_i - 1) * x_shift_i + ((gobj_i - 1) * x_padding)
+          add_to_x = x_shift_i + x_padding
         }
 
         myspatlocs[, sdimx := sdimx + add_to_x]
@@ -2588,7 +2588,7 @@ joinGiottoObjects = function(gobject_list,
       # shift for y-axis
       if(!is.null(y_shift)) {
         y_shift_i = y_shift[[gobj_i]]
-        add_to_y = (gobj_i - 1) * y_shift_i + ((gobj_i - 1) * y_padding)
+        add_to_y = y_shift_i + y_padding
         myspatlocs[, sdimy := sdimy + add_to_y]
       }
 
@@ -2630,13 +2630,13 @@ joinGiottoObjects = function(gobject_list,
           add_to_x = xshift_list[[gobj_i]]
         } else {
           x_shift_i = x_shift[[gobj_i]]
-          add_to_x = (gobj_i - 1) * x_shift_i + ((gobj_i - 1) * x_padding)
+          add_to_x = x_shift_i + x_padding
         }
 
         ## for y-axis
         if(!is.null(y_shift)) {
           y_shift_i = y_shift[[gobj_i]]
-          add_to_y = (gobj_i - 1) * y_shift_i + ((gobj_i - 1) * y_padding)
+          add_to_y = y_shift_i + y_padding
         } else {
           add_to_y = 0
         }
@@ -2669,13 +2669,13 @@ joinGiottoObjects = function(gobject_list,
           add_to_x = xshift_list[[gobj_i]]
         } else {
           x_shift_i = x_shift[[gobj_i]]
-          add_to_x = (gobj_i - 1) * x_shift_i + ((gobj_i - 1) * x_padding)
+          add_to_x = x_shift_i + x_padding
         }
 
         ## for y-axis
         if(!is.null(y_shift)) {
           y_shift_i = y_shift[[gobj_i]]
-          add_to_y = (gobj_i - 1) * y_shift_i + ((gobj_i - 1) * y_padding)
+          add_to_y = y_shift_i + y_padding
         } else {
           add_to_y = 0
         }
