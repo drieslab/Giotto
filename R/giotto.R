@@ -2530,6 +2530,8 @@ joinGiottoObjects = function(gobject_list,
             add_to_x = x_shift_i + x_padding
           }
 
+          if(verbose) cat('Image: for ',imname, ' add_to_x = ', add_to_x, '\n')
+
           gobj@images[[imname]]@minmax[c("xmax_sloc", "xmin_sloc")] =  gobj@images[[imname]]@minmax[c("xmax_sloc", "xmin_sloc")] + add_to_x
           xshift_list[[gobj_i]] = add_to_x
 
@@ -2538,6 +2540,8 @@ joinGiottoObjects = function(gobject_list,
           if(!is.null(y_shift)) {
             y_shift_i = y_shift[[gobj_i]]
             add_to_y = y_shift_i + y_padding
+
+            if(verbose) cat('Image: for ',imname, ' add_to_y = ', add_to_y, '\n')
 
             gobj@images[[imname]]@minmax[c("ymax_sloc", "ymin_sloc")] =  gobj@images[[imname]]@minmax[c("ymax_sloc", "ymin_sloc")] + add_to_y
             yshift_list[[gobj_i]] = add_to_y
@@ -2581,6 +2585,9 @@ joinGiottoObjects = function(gobject_list,
           add_to_x = x_shift_i + x_padding
         }
 
+        if(verbose) cat('Spatial loations: for ',locs, ' add_to_x = ', add_to_x, '\n')
+
+
         myspatlocs[, sdimx := sdimx + add_to_x]
         myspatlocs[, cell_ID := gobj@cell_ID]
       }
@@ -2589,6 +2596,9 @@ joinGiottoObjects = function(gobject_list,
       if(!is.null(y_shift)) {
         y_shift_i = y_shift[[gobj_i]]
         add_to_y = y_shift_i + y_padding
+
+        if(verbose) cat('Spatial loations: for ',locs, ' add_to_y = ', add_to_y, '\n')
+
         myspatlocs[, sdimy := sdimy + add_to_y]
       }
 
@@ -2641,6 +2651,9 @@ joinGiottoObjects = function(gobject_list,
           add_to_y = 0
         }
 
+        if(verbose) cat('Spatial info: for ',spat_info, ' add_to_x = ', add_to_x, '\n')
+        if(verbose) cat('Spatial info: for ',spat_info, ' add_to_y = ', add_to_y, '\n')
+
         gobj@spatial_info[[spat_info]]@spatVector = terra::shift(x = gobj@spatial_info[[spat_info]]@spatVector, dx = add_to_x, dy = add_to_y)
         gobj@spatial_info[[spat_info]]@spatVectorCentroids = terra::shift(x = gobj@spatial_info[[spat_info]]@spatVectorCentroids, dx = add_to_x, dy = add_to_y)
 
@@ -2679,6 +2692,11 @@ joinGiottoObjects = function(gobject_list,
         } else {
           add_to_y = 0
         }
+
+        if(verbose) cat('Feature info: for ',feat_info, ' add_to_x = ', add_to_x, '\n')
+        if(verbose) cat('Feature info: for ',feat_info, ' add_to_y = ', add_to_y, '\n')
+
+
 
         gobj@feat_info[[feat_info]]@spatVector = terra::shift(x = gobj@feat_info[[feat_info]]@spatVector, dx = add_to_x, dy = add_to_y)
       }
