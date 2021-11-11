@@ -23,6 +23,10 @@ class to handle images too large to load in normally through magick
 
 \item{\code{max_intensity}}{value to set as maximum intensity in color scaling}
 
+\item{\code{min_intensity}}{minimum value found}
+
+\item{\code{is_int}}{values are integers}
+
 \item{\code{OS_platform}}{Operating System to run Giotto analysis on}
 }}
 

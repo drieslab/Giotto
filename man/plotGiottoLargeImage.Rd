@@ -21,21 +21,23 @@ plotGiottoLargeImage(
 
 \item{largeImage_name}{name of giottoLargeImage}
 
+\item{giottoLargeImage}{giottoLargeImage object}
+
+\item{crop_extent}{extent object to focus on specific region of image}
+
+\item{xmax_crop}{xmax crop boundary}
+
+\item{xmin_crop}{xmin crop boundary}
+
+\item{ymax_crop}{ymax crop boundary}
+
+\item{ymin_crop}{ymin crop boundary}
+
 \item{max_intensity}{value to treat as maximum intensity in color scale}
-
-\item{zoom_extent}{extent object to focus on specific region of image}
-
-\item{xmax_zoom}{assign zoom boundary}
-
-\item{xmin_zoom}{assign zoom boundary}
-
-\item{ymax_zoom}{assign zoom boundary}
-
-\item{ymin_zoom}{assign zoom boundary}
 }
 \value{
 plot
 }
 \description{
-plot a downsampled version of giottoLargeImage
+Plot a downsampled version of giottoLargeImage. Cropping can increase plot resolution of region of interest.
 }
