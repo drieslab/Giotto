@@ -106,6 +106,8 @@ setMethod(
 #' @slot scale_factor image scaling relative to spatial locations
 #' @slot resolution spatial location units covered per pixel
 #' @slot max_intensity value to set as maximum intensity in color scaling
+#' @slot min_intensity minimum value found
+#' @slot is_int values are integers
 #' @slot OS_platform Operating System to run Giotto analysis on
 #' @export
 giottoLargeImage <- setClass(
@@ -118,6 +120,8 @@ giottoLargeImage <- setClass(
     scale_factor = "ANY",
     resolution = "ANY",
     max_intensity = "ANY",
+    min_intensity = "ANY",
+    is_int = "ANY",
     OS_platform = "ANY"
   ),
 
@@ -128,6 +132,8 @@ giottoLargeImage <- setClass(
     scale_factor = NULL,
     resolution = NULL,
     max_intensity = NULL,
+    min_intensity = NULL,
+    is_int = NULL,
     OS_platform = NULL
   )
 )
@@ -158,7 +164,11 @@ setMethod(
     cat("\n Resolution: \n")
     print(object@resolution)
 
-    cat('\n Maximum intensity is: ', object@max_intensity, " \n")
+    cat('\n Maximum intensity is: ', object@max_intensity, ' \n',
+        'Minimum intensity is: ', object@min_intensity, ' \n')
+    
+    if(object@is_int == TRUE) cat('Values are integers')
+    if(object@is_int == FALSE) cat('Values are floating point')
 
   }
 )
@@ -351,29 +361,34 @@ createGiottoImage = function(gobject = NULL,
 
 #' @title createGiottoLargeImage
 #' @name createGiottoLargeImage
-#' @description Creates a large giotto image that can be added to a Giotto subcellular object
+#' @description Creates a large giotto image that can be added to a Giotto subcellular object. Generates deep copy of SpatRaster
 #' @param raster_object terra SpatRaster image object
 #' @param name name for the image
-#' @param extent SpatExtent object to assign spatial extent. Takes priority.
+#' @param negative_y Map image to negative y spatial values if TRUE. Meaning that origin is in upper left instead of lower left.
+#' @param extent SpatExtent object to assign spatial extent. Takes priority unless use_rast_ext is TRUE.
+#' @param use_rast_extent Use extent from input raster object
 #' @param image_transformations vector of sequential image transformations - under construction
 #' @param xmax_adj adjustment of the maximum x-value to align the image
 #' @param xmin_adj adjustment of the minimum x-value to align the image
 #' @param ymax_adj adjustment of the maximum y-value to align the image
 #' @param ymin_adj adjustment of the minimum y-value to align the image
 #' @param scale_factor scaling of image dimensions relative to spatial coordinates
+#' @param verbose be verbose
 #' @return a giottoLargeImage object
 #' @export
 createGiottoLargeImage = function(raster_object,
                                   name = 'image',
+                                  negative_y = TRUE,
                                   extent = NULL,
+                                  use_rast_ext = FALSE,
                                   image_transformations = NULL,
                                   xmax_bound = NULL,
                                   xmin_bound = NULL,
                                   ymax_bound = NULL,
                                   ymin_bound = NULL,
-                                  scale_factor = 1) {
-
-
+                                  scale_factor = 1,
+                                  verbose = TRUE) {
+  
   # create minimum giotto
   g_imageL = giottoLargeImage(name = name,
                               raster_object = NULL,
@@ -396,9 +411,16 @@ createGiottoLargeImage = function(raster_object,
     }
   }
 
+  # Prevent updates to original raster object input
+  raster_object = terra::copy(raster_object)
 
+  
   ## 2. image bound spatial extent
-
+  if(use_rast_ext == TRUE) {
+    extent = terra::ext(raster_object)
+    if(verbose == TRUE) cat('use_rast_ext == TRUE, extent from input raster_object will be used.')
+  }
+  
   # By extent object (priority)
   if(!is.null(extent)) {
     if(methods::is(extent, 'SpatExtent')) {
@@ -422,14 +444,26 @@ createGiottoLargeImage = function(raster_object,
       # Automatic extent values
       xmax_bound = im_dim[1]
       xmin_bound = 0
-      ymax_bound = 0
-      ymin_bound = -im_dim[2]
+      if(negative_y == TRUE) {
+        ymax_bound = 0
+        ymin_bound = -im_dim[2]
+      } else if(negative_y == FALSE) {
+        ymax_bound = im_dim[2]
+        ymin_bound = 0
+      }
+
     } else {
       # Manual extent values
       if(is.null(xmax_bound) == TRUE) xmax_bound = 1
       if(is.null(xmin_bound) == TRUE) xmin_bound = 0
-      if(is.null(ymax_bound) == TRUE) ymax_bound = 0
-      if(is.null(ymin_bound) == TRUE) ymin_bound = -1
+      if(negative_y == TRUE) {
+        if(is.null(ymax_bound) == TRUE) ymax_bound = 0
+        if(is.null(ymin_bound) == TRUE) ymin_bound = -1
+      } else if(negative_y == FALSE) {
+        if(is.null(ymax_bound) == TRUE) ymax_bound = 1
+        if(is.null(ymin_bound) == TRUE) ymin_bound = 0
+      }
+
     }
     terra::ext(raster_object) = c(xmin_bound,xmax_bound,ymin_bound,ymax_bound)
   }
@@ -443,11 +477,27 @@ createGiottoLargeImage = function(raster_object,
   names(g_imageL@resolution) = c('x','y')
   g_imageL@scale_factor = (1/g_imageL@resolution)
 
-  ## 5. Set reasonable max intensity
-  g_imageL@max_intensity = max(terra::spatSample(raster_object,
-                                               size = 5000, # Defines the rough maximum of pixels allowed when resampling
-                                               method = 'regular',
-                                               value = TRUE))
+  ## 5. Get image characteristics by sampling
+  sampleValues = na.omit(terra::spatSample(raster_object,
+                                           size = 5000, # Defines the rough maximum of pixels allowed when resampling
+                                           method = 'regular',
+                                           value = TRUE))
+  if(nrow(sampleValues) == 0) {
+    if(verbose == TRUE) cat('No values discovered when sampling for image characteristics')
+  } else {
+    # get intensity range
+    intensityRange = range(sampleValues)
+    g_imageL@max_intensity = intensityRange[2]
+    g_imageL@min_intensity = intensityRange[1]
+    # find out if image is int or floating point
+    is_int = identical(sampleValues, round(sampleValues))
+    if(is_int == TRUE) {
+      g_imageL@is_int = TRUE
+    } else {
+      g_imageL@is_int = FALSE
+    }
+  }
+  
 
   ## 6. extent object
   g_imageL@overall_extent = terra::ext(raster_object)
@@ -1014,7 +1064,175 @@ plotGiottoImage = function(gobject,
 
 
 
-# giottoLargeImage tools ####
+# giottoLargeImage or terra tools ####
+
+
+#' @title stitchGiottoLargeImage
+#' @name stitchGiottoLargeImage
+#' @description stitch multiple giottoLargeImages into single giottoLargeImage. Time consuming & save location recommended.
+#' @param largeImage_list list of giottoLargeImage objects
+#' @param gobject_list list of gobjects containing giottoLargeImages
+#' @param largeImage_nameList list of names of giottoLargeImages within gobjects
+#' @param FOV_positions dataframe of FOV positions. Values (if any) are directly added to current image mapping
+#' @param FOV_xcol column name for FOV position x values
+#' @param FOV_ycol column name for FOV position y values
+#' @param FOV_inverty make FOV y position values negative
+#' @param method method of stitching images (mosaic: average overlapping area values, merge: values get priority by order given)
+#' @param round_positions round image positions. May be necessary to run.
+#' @param filename file name to write the stitched image to. Defaults to "save_dir/stitch.tif" if save_dir param is found in first gobject Giotto instructions
+#' @param dataType (optional) values for dataType are "INT1U", "INT2U", "INT2S", "INT4U", "INT4S", "FLT4S", "FLT8S". The first three letters indicate whether the dataType is integer (whole numbers) of a real number (decimal numbers), the fourth character indicates the number of bytes used (allowing for large numbers and/or more precision), and the "S" or "U" indicate whether the values are signed (both negative and positive) or unsigned (positive values only).
+#' @param fileType (optional) image format (e.g. .tif) If not given, defaults to format given in the filename
+#' @param dryRun display placeholder bounding boxes where images will be stitched
+#' @param overwrite overwrite if filename already used. Defaults to TRUE
+#' @param verbose be verbose
+#' @return largeGiottoImage object of stitched image
+#' @export
+stitchGiottoLargeImage = function(largeImage_list = NULL,
+                                  gobject_list = NULL,
+                                  largeImage_nameList = NULL,
+                                  FOV_positions = NULL,
+                                  FOV_xcol = NULL,
+                                  FOV_ycol = NULL,
+                                  FOV_inverty = FALSE,
+                                  method = c('mosaic','merge'),
+                                  round_positions = FALSE,
+                                  filename = NULL,
+                                  dataType = NULL,
+                                  fileType = NULL,
+                                  dryRun = TRUE,
+                                  overwrite = FALSE,
+                                  verbose = TRUE) {
+  ## 0. Check params
+  if(!is.null(gobject_list)) {
+    # Set default largeImage_nameList
+    if(is.null(largeImage_nameList)) {
+      largeImage_nameList = rep("image", length(gobject_list))
+    }
+  }
+  
+  # Select method for stitching
+  method = match.arg(method, choices = c('mosaic', 'merge'))
+  
+  # Check for filename, set default if not found
+  if(is.null(filename)) {
+    if(!is.null(gobject_list)) {
+      save_dir = readGiottoInstructions(gobject_list[[1]], param = 'save_dir')
+    } else {
+      save_dir = path.expand('~')
+    }
+    filename = paste0(save_dir, '/stitch.tif')
+  }
+  
+  # check filename
+  if(file.exists(filename)) {
+    if(verbose == TRUE) {
+      if(overwrite == TRUE) cat('File at',filename,'exists.\n (overwrite == TRUE) Image will be overwritten')
+      if(overwrite == FALSE) cat('File at',filename,'exists.\n (overwrite == FALSE) Image will not be overwritten')
+    }
+  }
+  
+  # Match dataType input if given
+  dataTypeChoices = c('INT1U','INT2U','INT2S','INT4U','INT4S','FLT4S','FLT8S')
+  if(!is.null(dataType)) dataType = match.arg(dataType, choices = dataTypeChoices)
+  # Determine compatible dataType from first  giottoLargeImage
+  
+  
+  ## 1. Get list of raster objects
+  if(is.null(largeImage_list)) {
+    if(!is.null(gobject_list)) {
+      # For loop to grab giottoLargeImages
+      largeImage_list = list()
+      for(gobj_i in 1:length(gobject_list)) {
+        largeImage_list[[gobj_i]] = getGiottoLargeImage(gobject = gobject_list[[gobj_i]],
+                                                        largeImage_name = largeImage_name[[gobj_i]])
+      }
+    } else {
+      stop('giottoLargeImages must be given either as the giottoLargeImage itself or as a giotto object and the giottoLargeImage name')
+    }
+  }
+  
+  # Determine datatype from first giottoLargeImage
+  if(is.null(dataType)) {
+    dataType = find_terra_writeRaster_dataType(giottoLargeImage = largeImage_list[[1]])
+  }
+  
+  # For loop to extract raster_objects
+  raster_list = list()
+  for(img_i in 1:length(largeImage_list)) {
+    raster_list[[img_i]] = largeImage_list[[img_i]]@raster_object
+  }
+  
+  ## 2. Apply FOV shifts (if given)
+  if(!is.null(FOV_positions)) {
+    
+    # Check if there is an FOV position for every raster object
+    if(nrow(FOV_positions) != length(raster_list)) {
+      stop('If FOV_positions are given then there must be one set of values for every image being stitched')
+    }
+    
+    if(FOV_inverty == TRUE) {
+      FOV_positions['FOV_ycol'] = -FOV_positions['FOV_ycol']
+    }
+    
+    # Shift the image extents as specified by POV_positions
+    for(rast_i in 1:length(raster_list)) {
+      raster_list[[rast_i]] = terra::shift(x = raster_list[[rast_i]],
+                                           dx = FOV_positions[rast_i,FOV_xcol],
+                                           dy = FOV_positions[rast_i,FOV_ycol])
+    }
+  }
+
+  ## 3. Perform stitch
+  # # Round final extent values (merge and mosaic may only work with integer extents)
+  if(round_positions == TRUE) {
+    if(verbose == TRUE) cat('round_positions == TRUE \n Image spatial positions will be rounded to integers. \n')
+    for(rast_i in 1:length(raster_list)) {
+      terra::ext(raster_list[[rast_i]]) = round(terra::ext(raster_list[[rast_i]]))
+    }
+  }
+  
+  if(dryRun == TRUE) {
+    # Collect SpatExtents then convert to polygons
+    imgBounds_list = list()
+    for(rast_i in 1:length(raster_list)) {
+      img_ext = terra::ext(raster_list[[rast_i]])
+      img_bound_poly = terra::as.polygons(img_ext)
+      img_bound_poly$FOV = rast_i
+      # Add to imgBounds list
+      imgBounds_list[[rast_i]] = img_bound_poly
+    }
+    imgBounds = do.call(rbind, imgBounds_list)
+    terra::plot(imgBounds, 'FOV',
+                type = 'classes',
+                legend = TRUE,
+                mar = c(3,3,2,2),
+                plg = list(x = 'topright'))
+    return(NULL)
+    
+  } else if (dryRun == FALSE) {
+    # Create SpatRasterCollection
+    rasterSRC = terra::src(raster_list)
+    
+    # stitch raster objects
+    if(method == 'merge') {
+      stitchImg = terra::merge(x = rasterSRC,
+                               filename = filename,
+                               overwrite = overwrite,
+                               wopt = list(datatype = dataType))
+    } else if(method == 'mosaic') {
+      stitchImg = terra::mosaic(x = rasterSRC,
+                                filename = filename,
+                                overwrite = overwrite,
+                                wopt = list(datatype = dataType,
+                                            filetype = fileType))
+    }
+    stitch_gLargeImg = createGiottoLargeImage(raster_object = stitchImg,
+                                              use_rast_ext = TRUE)
+    return(stitch_gLargeImg)
+  }
+  
+}
+
 
 
 #' @title getGiottoLargeImage
@@ -1112,14 +1330,15 @@ cropGiottoLargeImage = function(gobject = NULL,
 
 #' @title plotGiottoLargeImage
 #' @name plotGiottoLargeImage
-#' @description plot a downsampled version of giottoLargeImage
+#' @description Plot a downsampled version of giottoLargeImage. Cropping can increase plot resolution of region of interest.
 #' @param gobject giotto object
 #' @param largeImage_name name of giottoLargeImage
-#' @param zoom_extent extent object to focus on specific region of image
-#' @param xmax_zoom assign zoom boundary
-#' @param xmin_zoom assign zoom boundary
-#' @param ymax_zoom assign zoom boundary
-#' @param ymin_zoom assign zoom boundary
+#' @param giottoLargeImage giottoLargeImage object
+#' @param crop_extent extent object to focus on specific region of image
+#' @param xmax_crop xmax crop boundary
+#' @param xmin_crop xmin crop boundary
+#' @param ymax_crop ymax crop boundary
+#' @param ymin_crop ymin crop boundary
 #' @param max_intensity value to treat as maximum intensity in color scale
 #' @return plot
 #' @export
@@ -1160,7 +1379,7 @@ plotGiottoLargeImage = function(gobject = NULL,
     if(is.null(max_intensity)) {
       bitDepth = ceiling(log(x = giottoLargeImage@max_intensity, base = 2))
       # Assign discovered bitdepth as max_intensity
-      max_intensity = 2^bitDepth
+      max_intensity = 2^bitDepth-1
     }
 
     terra::plotRGB(raster_object,
@@ -1189,6 +1408,7 @@ plotGiottoLargeImage = function(gobject = NULL,
 #' @param ymin_crop assign crop boundary
 #' @param resample_size maximum number of pixels to use when resampling
 #' @param max_intensity value to treat as maximum intensity in color scale
+#' @return magick object
 #' @export
 convertGiottoLargeImageToMG = function(gobject = NULL,
                                        largeImage_name = NULL,
@@ -1281,6 +1501,208 @@ convertGiottoLargeImageToMG = function(gobject = NULL,
 }
 
 
+#' @title find_terra_writeRaster_dataType
+#' @name find_terra_writeRaster_dataType
+#' @description find likely compatible datatype for given image characteristics. Values given in arguments take priority over those found from giottoLargeImage metadata
+#' @param giottoLargeImage giottoLargeImage object to determine max_intensity, min_intensity, is_int settings from
+#' @param quick_INTU_maxval Treat as maximum intensity to find compatible unsigned integer settings
+#' @param max_intensity value given as image maximum intensity
+#' @param min_intensity value given as image minimum intensity
+#' @param is_int if image is integer (TRUE) or floating point (FALSE)
+#' @param signed if image is signed (TRUE) or unsigned (TRUE)
+#' @param bitDepth image bitDepth
+#' @param verbose be verbose
+#' @keywords internal
+#' @return datatype for terra writeRaster function
+find_terra_writeRaster_dataType = function(giottoLargeImage = NULL,
+                                           quick_INTS_maxval = NULL,
+                                           max_intensity = NULL,
+                                           min_intensity = NULL,
+                                           is_int = NULL,
+                                           signed = NULL,
+                                           bitDepth = NULL,
+                                           verbose = TRUE) {
+  
+  # 1. Get any missing metadata from giottoLargeImage object if given
+  if(!is.null(giottoLargeImage)) {
+    if(is.null(max_intensity)) max_intensity = giottoLargeImage@max_intensity
+    if(is.null(min_intensity)) min_intensity = giottoLargeImage@min_intensity
+    if(is.null(is_int)) is_int = giottoLargeImage@is_int
+  }
+  
+  
+  if(is.null(quick_INTS_maxval)) {
+    if(length(c(max_intensity, min_intensity)) < 2) stop('Not enough metadata is given')
+    
+    # Determine if negative values are present
+    
+    if(min_intensity < 0) {
+      signed = TRUE
+    }
+  }
 
+  # Set defaults if data still missing
+  if(is.null(is_int)) is_int = TRUE
+  if(is.null(signed)) signed = FALSE
+  
+  ## 2. Determine likely compatible datatype
+  dataTypeVerbose = data.frame(bitDepth = c(8,16,16,32,32,32,64),
+                               signed = c(FALSE,FALSE,TRUE,FALSE,TRUE,TRUE,TRUE),
+                               integer = c(TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE),
+                               dataTypeChoices = c('INT1U','INT2U','INT2S','INT4U','INT4S','FLT4S','FLT8S'),
+                               dataTypeVerbose = c('8bit unsigned integer','16bit unsigned integer','16bit signed integer',
+                                                   '32bit unsigned integer','32bit signed integer','32bit signed floating point',
+                                                   '64bit signed floating point'))
+  
+
+  ## Find Compatible Bitdepth
+  # If quick_INTS_maxval argument is set, will be treated as the highest needed (unsigned preferred) bitdepth datatype
+  if(is.null(quick_INTS_maxval)) {
+    
+    if(max_intensity > 0) {
+      
+      max_intensity = max_intensity + 1 # Accounts for 0 occupying 1 of the available values.
+      
+      if(signed == FALSE) {
+        bitDepth = ceiling(log(x = max_intensity, base = 2))
+      } else if(signed == TRUE) {
+        intensityMinMax = c(min_intensity, max_intensity)
+        intensityMinMax = abs(intensityMinMax)
+        bitDepthMinMax = ceiling(log(x = intensityMinMax, base = 2))
+        bitDepth = max(bitDepthMinMax) + 1
+      }
+    } else {
+      stop('There are no positive image intensities. \n Manual datatype assignment needed \n')
+    }
+    
+  } else if(!is.null(quick_INTS_maxval)) {
+    if(verbose == TRUE) cat('Selecting compatible datatype for given maximum value \n')
+    bitDepth = ceiling(log(x = quick_INTS_maxval, base = 2))
+  }
+  
+  if(bitDepth > 32 && bitDepth <= 128) {
+    bitDepth = 32
+    is_int = FALSE
+    signed = TRUE
+  } else if(bitDepth > 128) {
+    bitDepth = 64
+    is_int = FALSE
+    signed = TRUE
+  }
+  
+  dataType = NULL
+  # Determine datatype settings
+  if(is_int == TRUE) {
+    if(signed == FALSE) {
+      if(bitDepth <= 8) {
+        dataType = 'INT1U'
+      } else if(bitDepth <= 16) {
+        dataType = 'INT2U'
+      } else if(bitDepth <= 32) {
+        dataType = 'INT4U'
+      }
+    } else if(signed == TRUE) {
+      if(bitDepth <= 16) {
+        dataType = 'INT2S'
+      } else if(bitDepth <= 32) {
+        dataType = 'INT4S'
+      }
+    }
+  } else if(is_int == FALSE) {
+    if(bitDepth <= 32) {
+      dataType = 'FLT4S'
+    } else if(bitDepth == 64) {
+      dataType = 'FLT8S'
+      # These are very large numbers. Can't actually tell the difference from FLT4S (less than 2^128) to FLT8S unless you add roughly 10^25 to it.
+      # This necessary minimum change would be 10^22, but the log used when determining bitDepth further increases the needed difference.
+      # Manual assignment of dataType could be more reliable than automatic assignment for these very large values.
+    }
+  }
+  return(dataType)
+}
+
+
+
+#' @title writeGiottoLargeImage
+#' @name writeGiottoLargeImage
+#' @description write original resolution to file
+#' @param giottoLargeImage giottoLargeImage object
+#' @param gobject giotto object
+#' @param largeImage_name name of giottoLargeImage
+#' @param max_intensity (optional) image max intensity value from which dataType can be automatically determined
+#' @param filename path to write the image to
+#' @param dataType (optional) values for dataType are "INT1U", "INT2U", "INT2S", "INT4U", "INT4S", "FLT4S", "FLT8S". The first three letters indicate whether the dataType is integer (whole numbers) of a real number (decimal numbers), the fourth character indicates the number of bytes used (allowing for large numbers and/or more precision), and the "S" or "U" indicate whether the values are signed (both negative and positive) or unsigned (positive values only).
+#' @param fileType (optional) image format (e.g. .tif) If not given, defaults to format given in the filename
+#' @param overwrite Overwrite if filename is already existing
+#' @param verbose be verbose
+#' @export
+writeGiottoLargeImage = function(giottoLargeImage = NULL,
+                                 gobject = NULL,
+                                 largeImage_name = NULL,
+                                 max_intensity = NULL,
+                                 filename = NULL,
+                                 dataType = NULL,
+                                 fileType = NULL,
+                                 overwrite = FALSE,
+                                 verbose = TRUE) {
+  
+  # 0. Check params
+  if(!is.null(giottoLargeImage)) {
+    if(!methods::is(giottoLargeImage, 'giottoLargeImage')) stop('giottoLargeImage argument only accepts giottoLargeImage objects. \n')
+  }
+  if(!is.null(max_intensity)) {
+    if(!is.numeric(max_intensity)) stop('max_intensity must be a numeric \n')
+  } 
+  if(!is.null(filename)) {
+    if(!is.character(filename)) stop('filename must be given as character \n')
+    # check filename
+    if(file.exists(filename)) {
+      if(verbose == TRUE) {
+        if(overwrite == TRUE) cat('File at',filename,'exists.\n (overwrite == TRUE) Image will be overwritten')
+        if(overwrite == FALSE) cat('File at',filename,'exists.\n (overwrite == FALSE) Image will not be overwritten')
+      }
+    }
+  }
+  
+  if(is.null(filename)) stop('Please enter a filename to save the image as. \n')
+  
+  # Match dataType input if given
+  dataTypeChoices = c('INT1U','INT2U','INT2S','INT4U','INT4S','FLT4S','FLT8S')
+  if(!is.null(dataType)) dataType = match.arg(dataType, choices = dataTypeChoices)
+  
+  
+  ## 1. get giottoLargeImage if necessary
+  if(is.null(giottoLargeImage)) {
+    if(!is.null(gobject) && !is.null(largeImage_name)) {
+      giottoLargeImage = getGiottoLargeImage(gobject = gobject,
+                                             largeImage_name = largeImage_name)
+    } else {
+      stop('either a giottoLargeImage or both the gobject and name of the giottoLargeImage must be given. \n')
+    }
+  }
+  
+  raster_object = giottoLargeImage@raster_object
+  
+  ## 2. Get likely compatible dataType
+  if(is.null(dataType)) {
+    dataType = find_terra_writeRaster_dataType(giottoLargeImage = giottoLargeImage,
+                                               quick_INTS_maxval = max_intensity)
+  }
+  
+
+  ## 3. Write to disk
+  if(verbose == TRUE) cat(paste0('Writing image to disk as ', dataType))
+  terra::writeRaster(x = raster_object,
+                     filename = filename,
+                     filetype = fileType,
+                     datatype = dataType,
+                     overwrite = overwrite)
+}
+  
+  
+  
+  
+  
+  
 
 

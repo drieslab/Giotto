@@ -42,6 +42,9 @@ convertGiottoLargeImageToMG(
 
 \item{max_intensity}{value to treat as maximum intensity in color scale}
 }
+\value{
+magick object
+}
 \description{
 convert a giottoLargeImage by downsampling into a normal magick based giottoImage
 }
