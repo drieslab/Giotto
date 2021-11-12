@@ -186,6 +186,7 @@ setMethod(
 #' @param mg_object magick image object
 #' @param name name for the image
 #' @param image_transformations vector of sequential image transformations
+#' @param negative_y Map image to negative y spatial values if TRUE during automatic alignment. Meaning that origin is in upper left instead of lower left.
 #' @param do_manual_adj flag to use manual adj values instead of automatic alignment when given a gobject or spatlocs
 #' @param xmax_adj adjustment of the maximum x-value to align the image
 #' @param xmin_adj adjustment of the minimum x-value to align the image
@@ -205,6 +206,7 @@ createGiottoImage = function(gobject = NULL,
                              mg_object,
                              name = 'image',
                              image_transformations = NULL,
+                             negative_y = TRUE,
                              do_manual_adj = FALSE,
                              xmax_adj = 0,
                              xmin_adj = 0,
@@ -281,7 +283,8 @@ createGiottoImage = function(gobject = NULL,
 
     if(do_manual_adj == FALSE) {
       #find adjustment values
-      img_minmax = get_img_minmax(mg_img = mg_object)
+      img_minmax = get_img_minmax(mg_img = mg_object,
+                                  negative_y = negative_y)
       adj_values = get_adj_rescale_img(img_minmax = img_minmax,
                                        spatial_locs = spatlocs,
                                        scale_factor = scale_factor)
@@ -306,7 +309,8 @@ createGiottoImage = function(gobject = NULL,
 
     if(do_manual_adj == FALSE) {
       #find adjustment values
-      img_minmax = get_img_minmax(mg_img = mg_object)
+      img_minmax = get_img_minmax(mg_img = mg_object,
+                                  negative_y = negative_y)
       adj_values = get_adj_rescale_img(img_minmax = img_minmax,
                                        spatial_locs = spatlocs,
                                        scale_factor = scale_factor)
@@ -718,6 +722,7 @@ createGiottoImageOLD = function(gobject = NULL,
 #' @param images list of giotto image objects, see \code{\link{createGiottoImage}}
 #' @param spat_loc_name provide spatial location slot in Giotto to align images. Defaults to first one
 #' @param scale_factor provide scale of image pixel dimensions relative to spatial coordinates.
+#' @param negative_y Map image to negative y spatial values if TRUE during automatic alignment. Meaning that origin is in upper left instead of lower left.
 #' @return an updated Giotto object with access to the list of images
 #' @export
 addGiottoImage = function(gobject,
@@ -787,7 +792,8 @@ addGiottoImage = function(gobject,
           ymax_sloc = max(spatlocs$sdimy)
 
           #Find adjustment values
-          img_minmax = get_img_minmax(mg_img = im@mg_object)
+          img_minmax = get_img_minmax(mg_img = im@mg_object,
+                                      negative_y = negative_y)
           if(ext_scale_factor == TRUE) {
             adj_values = get_adj_rescale_img(img_minmax = img_minmax,
                                              spatial_locs = spatlocs,
@@ -1371,7 +1377,7 @@ plotGiottoLargeImage = function(gobject = NULL,
                    r = 1,g = 1,b = 1,
                    stretch ='lin',
                    smooth = TRUE,
-                   mar = c(5,5,1,1),
+                   mar = c(3,5,1.5,1),
                    asp = 1)
   } else if(raster_object@ptr$rgb == TRUE) {
 

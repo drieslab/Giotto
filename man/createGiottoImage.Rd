@@ -11,6 +11,7 @@ createGiottoImage(
   mg_object,
   name = "image",
   image_transformations = NULL,
+  negative_y = TRUE,
   do_manual_adj = FALSE,
   xmax_adj = 0,
   xmin_adj = 0,
@@ -32,6 +33,8 @@ createGiottoImage(
 \item{name}{name for the image}
 
 \item{image_transformations}{vector of sequential image transformations}
+
+\item{negative_y}{Map image to negative y spatial values if TRUE during automatic alignment. Meaning that origin is in upper left instead of lower left.}
 
 \item{do_manual_adj}{flag to use manual adj values instead of automatic alignment when given a gobject or spatlocs}
 
