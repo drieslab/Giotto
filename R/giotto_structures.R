@@ -1452,12 +1452,26 @@ polygon_to_raster = function(polygon, field = NULL) {
 #' @keywords overlap
 #' @export
 calculateOverlapRaster = function(gobject,
-                                  name_overlap,
-                                  spatial_info,
+                                  name_overlap = NULL,
+                                  spatial_info = NULL,
                                   poly_ID_names = NULL,
-                                  feat_info,
-                                  return_gobject,
+                                  feat_info = NULL,
+                                  return_gobject = TRUE,
                                   verbose = TRUE) {
+
+
+  # set defaults if not provided
+  if(is.null(feat_info)) {
+    feat_info = names(fov_join3@feat_info)[[1]]
+  }
+
+  if(is.null(name_overlap)) {
+    name_overlap = feat_info
+  }
+
+  if(is.null(spatial_info)) {
+    spatial_info = names(fov_join3@spatial_info)[[1]]
+  }
 
 
   # spatial vector
@@ -1488,7 +1502,7 @@ calculateOverlapRaster = function(gobject,
 
   # add point information
   if(verbose) cat('4. add points information \n')
-  pointvec_dt = Giotto:::spatVector_to_dt(pointvec)
+  pointvec_dt = spatVector_to_dt(pointvec)
   pointvec_dt_x = pointvec_dt$x ; names(pointvec_dt_x) = pointvec_dt$feat_ID_uniq
   pointvec_dt_y = pointvec_dt$y ; names(pointvec_dt_y) = pointvec_dt$feat_ID_uniq
 
