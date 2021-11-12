@@ -6,11 +6,11 @@
 \usage{
 calculateOverlapRaster(
   gobject,
-  name_overlap,
-  spatial_info,
+  name_overlap = NULL,
+  spatial_info = NULL,
   poly_ID_names = NULL,
-  feat_info,
-  return_gobject,
+  feat_info = NULL,
+  return_gobject = TRUE,
   verbose = TRUE
 )
 }

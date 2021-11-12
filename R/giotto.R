@@ -1543,14 +1543,23 @@ createGiottoObject <- function(expression,
 
 
 #' @name get_img_minmax
+#' @param mg_img magick object
+#' @param negative_y Map image to negative y spatial values if TRUE during automatic alignment. Meaning that origin is in upper left instead of lower left.
 #' @keywords internal
-get_img_minmax = function(mg_img) {
+get_img_minmax = function(mg_img,
+                          negative_y = TRUE) {
   #Get magick object dimensions. xmin and ymax assumed to be 0.
   info = magick::image_info(mg_img)
   img_xmax = info$width     #width
   img_xmin = 0              #x origin
-  img_ymax = 0              #y origin
-  img_ymin = -(info$height) #height
+  if(negative_y == TRUE) {
+    img_ymax = 0              #y origin
+    img_ymin = -(info$height) #height
+  } else if(negative_y == FALSE) {
+    img_ymax = info$height
+    img_ymin = 0
+  }
+
 
   return(list('img_xmax' = img_xmax,
               'img_xmin' = img_xmin,
