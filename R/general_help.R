@@ -1057,50 +1057,54 @@ convertEnsemblToGeneSymbol = function(matrix,
 
 
 
-#' @title readPolygonFilesVizgen
-#' @name readPolygonFilesVizgen
-#' @description Read selected polygon files for the FOVs present in the Giotto
-#' object and add the smoothed polygons to the object
-#' @param gobject giotto object
+
+
+#' @title readPolygonFilesVizgenHDF5
+#' @name readPolygonFilesVizgenHDF5
+#' @description Read and create polygons for all cells, or for only selected FOVs.
 #' @param boundaries_path path to the cell_boundaries folder
+#' @param fovs subset of fovs to use
 #' @param polygon_feat_types a vector containing the polygon feature types
 #' @param flip_x_axis flip x axis of polygon coordinates (multiply by -1)
 #' @param flip_y_axis flip y axis of polygon coordinates (multiply by -1)
 #' @param smooth_polygons smooth polygons (default = TRUE)
 #' @param smooth_vertices number of vertices for smoothing
-#' @param return_gobject return giotto object
 #' @param verbose be verbose
 #'
 #' @export
-readPolygonFilesVizgen = function(gobject,
-                                  boundaries_path,
-                                  polygon_feat_types = 0:6,
-                                  flip_x_axis = F,
-                                  flip_y_axis = F,
-                                  smooth_polygons = TRUE,
-                                  smooth_vertices = 60,
-                                  set_neg_to_zero = FALSE,
-                                  return_gobject = TRUE,
-                                  verbose = TRUE) {
+readPolygonFilesVizgenHDF5 = function(boundaries_path,
+                                      fovs = NULL,
+                                      polygon_feat_types = 0:6,
+                                      flip_x_axis = F,
+                                      flip_y_axis = F,
+                                      smooth_polygons = TRUE,
+                                      smooth_vertices = 60,
+                                      set_neg_to_zero = FALSE,
+                                      verbose = TRUE) {
 
   # define names
   poly_feat_names = paste0('z', polygon_feat_types)
   poly_feat_indexes = paste0('zIndex_', polygon_feat_types)
 
-  # select FOVs present in the subset
-  subset_metadata = pDataDT(gobject)
-  selected_fovs = unique(subset_metadata$fov)
-
   # list all files in the folder
   hdf5_boundary_list = list.files(full.names = T, boundaries_path)
 
-  # list polygon files from the selected FOVs
-  selected_hdf5s = paste0('feature_data_', selected_fovs, '.hdf5')
-  hdf5_boundary_selected_list = list()
-  for(hdf5_i in 1:length(selected_hdf5s)) {
-    hdf5 = selected_hdf5s[hdf5_i]
-    hdf5_boundary_selected = grep(pattern = hdf5, x = hdf5_boundary_list, value = T)[[1]]
-    hdf5_boundary_selected_list[[hdf5_i]] = hdf5_boundary_selected
+  if(!is.null(fovs)) {
+    # list polygon files from the selected FOVs
+    selected_hdf5s = paste0('feature_data_', fovs, '.hdf5')
+
+    hdf5_boundary_selected_list = list()
+    for(hdf5_i in 1:length(selected_hdf5s)) {
+      hdf5 = selected_hdf5s[hdf5_i]
+      if(grepl(pattern = hdf5, x = hdf5_boundary_list)) {
+        hdf5_boundary_selected = grep(pattern = hdf5, x = hdf5_boundary_list, value = T)[[1]]
+      } else {
+        hdf5_boundary_selected = NA
+      }
+      hdf5_boundary_selected_list[[hdf5_i]] = hdf5_boundary_selected
+    }
+  } else {
+    hdf5_boundary_selected_list = hdf5_boundary_list
   }
 
   if(verbose == TRUE) cat('finished listing .hdf5 files \n
@@ -1117,7 +1121,7 @@ readPolygonFilesVizgen = function(gobject,
   for(bound_i in 1:hdf5_list_length) {
 
     if(verbose == TRUE) cat('hdf5: ', (hdf5_list_length - bound_i) ,'\n')
-    # print(hdf5_boundary_selected_list[bound_i][[1]])
+    print(hdf5_boundary_selected_list[bound_i][[1]])
 
     # read file and select feature data
     read_file = rhdf5::H5Fopen(hdf5_boundary_selected_list[bound_i][[1]])
@@ -1169,6 +1173,62 @@ readPolygonFilesVizgen = function(gobject,
     }
     smooth_cell_polygons_list[[i]] = smooth_cell_polygons
   }
+
+  return(smooth_cell_polygons_list)
+
+}
+
+
+#' @title readPolygonFilesVizgen
+#' @name readPolygonFilesVizgen
+#' @description Read selected polygon files for the FOVs present in the Giotto
+#' object and add the smoothed polygons to the object
+#' @param gobject giotto object
+#' @param boundaries_path path to the cell_boundaries folder
+#' @param fovs selected fovs, if NULL select all fovs within Giotto object
+#' @param polygon_feat_types a vector containing the polygon feature types
+#' @param flip_x_axis flip x axis of polygon coordinates (multiply by -1)
+#' @param flip_y_axis flip y axis of polygon coordinates (multiply by -1)
+#' @param smooth_polygons smooth polygons (default = TRUE)
+#' @param smooth_vertices number of vertices for smoothing
+#' @param return_gobject return giotto object
+#' @param verbose be verbose
+#'
+#' @export
+readPolygonFilesVizgen = function(gobject,
+                                  boundaries_path,
+                                  fovs = NULL,
+                                  polygon_feat_types = 0:6,
+                                  flip_x_axis = F,
+                                  flip_y_axis = F,
+                                  smooth_polygons = TRUE,
+                                  smooth_vertices = 60,
+                                  set_neg_to_zero = FALSE,
+                                  return_gobject = TRUE,
+                                  verbose = TRUE) {
+
+  # define names
+  poly_feat_names = paste0('z', polygon_feat_types)
+  poly_feat_indexes = paste0('zIndex_', polygon_feat_types)
+
+  # select FOVs present in the subset
+  if(is.null(fovs)) {
+    subset_metadata = pDataDT(gobject)
+    fovs = unique(subset_metadata$fov)
+  }
+
+
+
+  smooth_cell_polygons_list = readPolygonFilesVizgenHDF5(boundaries_path = boundaries_path,
+                                             fovs = fovs,
+                                             polygon_feat_types = polygon_feat_types,
+                                             flip_x_axis = flip_x_axis,
+                                             flip_y_axis = flip_y_axis,
+                                             smooth_polygons = smooth_polygons,
+                                             smooth_vertices = smooth_vertices,
+                                             set_neg_to_zero = set_neg_to_zero,
+                                             verbose = verbose)
+
 
   if(return_gobject) {
     # add cell polygons to Giotto object
