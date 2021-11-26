@@ -8,6 +8,7 @@ readPolygonFilesVizgenHDF5(
   boundaries_path,
   fovs = NULL,
   polygon_feat_types = 0:6,
+  custom_polygon_names = NULL,
   flip_x_axis = F,
   flip_y_axis = F,
   smooth_polygons = TRUE,
