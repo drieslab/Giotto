@@ -1418,9 +1418,14 @@ addSpatialCentroidLocations = function(gobject,
 polygon_to_raster = function(polygon, field = NULL) {
 
   pol_xmax = terra::xmax(polygon)
-  pol_ymax = terra::ymax(polygon)
+  pol_xmin = terra::xmin(polygon)
+  ncols = abs(pol_xmax-pol_xmin)
 
-  r = terra::rast(polygon, ncols = pol_xmax, nrows = pol_ymax)
+  pol_ymax = terra::ymax(polygon)
+  pol_ymin = terra::ymin(polygon)
+  nrows = abs(pol_ymax-pol_ymin)
+
+  r = terra::rast(polygon, ncols = ncols, nrows = nrows)
 
   if(is.null(field)) {
     field = names(polygon)[1]
@@ -1462,7 +1467,7 @@ calculateOverlapRaster = function(gobject,
 
   # set defaults if not provided
   if(is.null(feat_info)) {
-    feat_info = names(fov_join3@feat_info)[[1]]
+    feat_info = names(gobject@feat_info)[[1]]
   }
 
   if(is.null(name_overlap)) {
@@ -1470,7 +1475,7 @@ calculateOverlapRaster = function(gobject,
   }
 
   if(is.null(spatial_info)) {
-    spatial_info = names(fov_join3@spatial_info)[[1]]
+    spatial_info = names(gobject@spatial_info)[[1]]
   }
 
 
