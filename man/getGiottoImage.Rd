@@ -2,18 +2,28 @@
 % Please edit documentation in R/images.R
 \name{getGiottoImage}
 \alias{getGiottoImage}
+\alias{get_GiottoImage_MG}
 \title{getGiottoImage}
 \usage{
-getGiottoImage(gobject, image_name)
+get_GiottoImage_MG(gobject, image_name)
+
+getGiottoImage(gobject = NULL, image_name = NULL, largeImage_name = NULL)
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{image_name}{name of giotto image \code{\link{showGiottoImageNames}}}
+\item{image_name}{name of a giottoImage \code{\link{showGiottoImageNames}}}
+
+\item{largeImage_name}{name of a giottoLargeImage}
 }
 \value{
 a giotto image
+
+a giottoImage or giottoLargeImage
 }
 \description{
 get a giotto image from a giotto object
+
+get giottoImage or giottoLargeImage from gobject
 }
+\keyword{internal}

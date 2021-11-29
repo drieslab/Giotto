@@ -693,30 +693,37 @@ subsetGiottoLocs = function(gobject,
                             poly_info = 'cell',
                             return_gobject = T,
                             verbose = FALSE) {
+  
+  # Check spatial params
+  spatError = NULL
+  if(!is.null(x_min) && !is.null(x_max)) if(x_min > x_max) spatError = append(spatError, 'x_max must be larger than x_min \n')
+  if(!is.null(y_min) && !is.null(y_max)) if(y_min > y_max) spatError = append(spatError, 'y_max must be larger than y_min \n')
+  if(!is.null(z_min) && !is.null(z_max)) if(z_min > z_max) spatError = append(spatError, 'z_max must be larger than z_min \n')
+  if(!is.null(spatError)) stop(spatError)
 
   comb_metadata = combineMetadata(gobject = gobject, spat_loc_name = NULL)
   comb_colnames =  colnames(comb_metadata)
 
   # x spatial dimension
   if('sdimx' %in% comb_colnames) {
-    if(is.null(x_max)) x_max = max(comb_colnames[['sdimx']])
-    if(is.null(x_min)) x_min = min(comb_colnames[['sdimx']])
+    if(is.null(x_max)) x_max = max(comb_metadata[['sdimx']])
+    if(is.null(x_min)) x_min = min(comb_metadata[['sdimx']])
 
     comb_metadata = comb_metadata[get('sdimx') < x_max & get('sdimx') > x_min]
   }
 
   # y spatial dimension
   if('sdimy' %in% comb_colnames) {
-    if(is.null(y_max)) y_max = max(comb_colnames[['sdimy']])
-    if(is.null(y_min)) y_min = min(comb_colnames[['sdimy']])
+    if(is.null(y_max)) y_max = max(comb_metadata[['sdimy']])
+    if(is.null(y_min)) y_min = min(comb_metadata[['sdimy']])
 
     comb_metadata = comb_metadata[get('sdimy') < y_max & get('sdimy') > y_min]
   }
 
   # z spatial dimension
   if('sdimz' %in% comb_colnames) {
-    if(is.null(z_max)) z_max = max(comb_colnames[['sdimz']])
-    if(is.null(z_min)) z_min = min(comb_colnames[['sdimz']])
+    if(is.null(z_max)) z_max = max(comb_metadata[['sdimz']])
+    if(is.null(z_min)) z_min = min(comb_metadata[['sdimz']])
 
     comb_metadata = comb_metadata[get('sdimz') < z_max & get('sdimz') > z_min]
   }

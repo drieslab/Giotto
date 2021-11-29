@@ -9,7 +9,8 @@ spatCellPlot2D(
   feat_type = NULL,
   show_image = F,
   gimage = NULL,
-  image_name = "image",
+  image_name = NULL,
+  largeImage_name = NULL,
   sdimx = "sdimx",
   sdimy = "sdimy",
   spat_enr_names = NULL,
@@ -73,6 +74,8 @@ spatCellPlot2D(
 \item{gimage}{a giotto image}
 
 \item{image_name}{name of a giotto image}
+
+\item{largeImage_name}{name of a giottoLargeImage}
 
 \item{sdimx}{x-axis dimension name (default = 'sdimx')}
 
