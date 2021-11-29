@@ -45,8 +45,8 @@ plot_cell_polygon_layer = function(ggobject = NULL,
   # specific fill color for polygon shapes
   if(!is.null(fill)) {
     pl = pl + ggplot2::geom_polygon(data = polygon_dt,
-                                    ggplot2::aes_string(x = sdimx,
-                                                        y = sdimy,
+                                    ggplot2::aes_string(x = 'x',
+                                                        y = 'y',
                                                         group = polygon_grouping,
                                                         fill = 'final_fill'),
                                     alpha = alpha,
@@ -82,8 +82,8 @@ plot_cell_polygon_layer = function(ggobject = NULL,
 
   } else {
     pl = pl + ggplot2::geom_polygon(data = polygon_dt,
-                                    ggplot2::aes_string(x = sdimx,
-                                                        y = sdimy,
+                                    ggplot2::aes_string(x = 'x',
+                                                        y = 'y',
                                                         group = 'poly_ID'),
                                     fill = bg_color,
                                     alpha = alpha,

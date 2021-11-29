@@ -603,21 +603,19 @@ extract_polygon_list = function(polygonlist,
                                                                maskfile = polyinfo,
                                                                polygon_mask_list_params))
 
-      #poly_results = createGiottoPolygonsFromMask(name = name_polyinfo,
-      #                                            maskfile = polyinfo)
-
     } else if(inherits(polyinfo, 'data.frame')) {
 
       poly_results = do.call('createGiottoPolygonsFromDfr', c(name = name_polyinfo,
                                                               segmdfr = polyinfo,
                                                               polygon_dfr_list_params))
 
-      #poly_results = createGiottoPolygonsFromDfr(name = 'cell',
-      #                                           segmdfr = polyinfo)
-
     } else if(inherits(polyinfo, 'giottoPolygon')) {
 
       poly_results = polyinfo
+      name_polyinfo = polyinfo@name
+
+      cat(name_polyinfo)
+      print(polyinfo)
 
     } else {
 
