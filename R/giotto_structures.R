@@ -614,6 +614,9 @@ extract_polygon_list = function(polygonlist,
       poly_results = polyinfo
       name_polyinfo = polyinfo@name
 
+      cat(name_polyinfo)
+      print(polyinfo)
+
     } else {
 
       stop('Polygon can only be extraxted from a mask file or from a correctly formatted data.frame')
