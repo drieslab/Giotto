@@ -1075,6 +1075,7 @@ convertEnsemblToGeneSymbol = function(matrix,
 readPolygonFilesVizgenHDF5 = function(boundaries_path,
                                       fovs = NULL,
                                       polygon_feat_types = 0:6,
+                                      custom_polygon_names = NULL,
                                       flip_x_axis = F,
                                       flip_y_axis = F,
                                       smooth_polygons = TRUE,
@@ -1086,26 +1087,33 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
   poly_feat_names = paste0('z', polygon_feat_types)
   poly_feat_indexes = paste0('zIndex_', polygon_feat_types)
 
+  # provide your own custom names
+  if(!is.null(custom_polygon_names)) {
+
+    if(!is.character(custom_polygon_names)) {
+      stop('If custom_polygon_names are provided, it needs to be a character vector')
+    }
+
+    if(length(custom_polygon_names) != length(poly_feat_names)) {
+      stop('length of custom names need to be same as polygon_feat_types')
+    } else {
+      poly_feat_names = custom_polygon_names
+    }
+  }
+
   # list all files in the folder
   hdf5_boundary_list = list.files(full.names = T, boundaries_path)
 
   if(!is.null(fovs)) {
-    # list polygon files from the selected FOVs
-    selected_hdf5s = paste0('feature_data_', fovs, '.hdf5')
 
-    hdf5_boundary_selected_list = list()
-    for(hdf5_i in 1:length(selected_hdf5s)) {
-      hdf5 = selected_hdf5s[hdf5_i]
-      if(grepl(pattern = hdf5, x = hdf5_boundary_list)) {
-        hdf5_boundary_selected = grep(pattern = hdf5, x = hdf5_boundary_list, value = T)[[1]]
-      } else {
-        hdf5_boundary_selected = NA
-      }
-      hdf5_boundary_selected_list[[hdf5_i]] = hdf5_boundary_selected
-    }
+    selected_hdf5s = paste0('feature_data_', fovs, '.hdf5')
+    selected_hdf5s_concatenated = paste0(selected_hdf5s, collapse = '|')
+    hdf5_boundary_selected_list = grep(selected_hdf5s_concatenated, x = hdf5_boundary_list, value = T)
+
   } else {
     hdf5_boundary_selected_list = hdf5_boundary_list
   }
+
 
   if(verbose == TRUE) cat('finished listing .hdf5 files \n
                           start extracting .hdf5 information \n')
