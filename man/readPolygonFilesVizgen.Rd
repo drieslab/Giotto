@@ -7,7 +7,6 @@
 readPolygonFilesVizgen(
   gobject,
   boundaries_path,
-  fovs = NULL,
   polygon_feat_types = 0:6,
   flip_x_axis = F,
   flip_y_axis = F,
@@ -22,8 +21,6 @@ readPolygonFilesVizgen(
 \item{gobject}{giotto object}
 
 \item{boundaries_path}{path to the cell_boundaries folder}
-
-\item{fovs}{selected fovs, if NULL select all fovs within Giotto object}
 
 \item{polygon_feat_types}{a vector containing the polygon feature types}
 
