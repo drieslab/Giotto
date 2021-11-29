@@ -540,7 +540,7 @@ readExprMatrix = function(path,
 
 
 #' @title evaluate_expr_matrix
-#' @description Evaluate expression matrices.
+#' @description Evaluate expression matrices that are provided as input.
 #' @param inputmatrix inputmatrix to evaluate
 #' @param sparse create sparse matrix (default = TRUE)
 #' @param cores how many cores to use
@@ -574,8 +574,19 @@ evaluate_expr_matrix = function(inputmatrix,
   } else if(inherits(inputmatrix, what = c('data.frame', 'matrix'))) {
     mymatrix = methods::as(as.matrix(inputmatrix), "sparseMatrix")
   } else {
-    stop("raw_exprs needs to be a path or an object of class 'Matrix', 'data.table', 'data.frame' or 'matrix'")
+    stop("expression input needs to be a path to matrix-like data or an object of class 'Matrix', 'data.table', 'data.frame' or 'matrix'")
   }
+
+
+  # check rownames and colnames
+  if(any(duplicated(rownames(mymatrix)))) {
+    stop("row names contains duplicates, please remove or rename")
+  }
+
+  if(any(duplicated(colnames(mymatrix)))) {
+    stop("column names contains duplicates, please remove or rename")
+  }
+
 
   return(mymatrix)
 }
@@ -599,12 +610,6 @@ extr_single_list = function(gobject,
                             expression_feat = 'rna',
                             cores = 1) {
 
-
-
-  # to make it compatible with previous version
-  #if(length(expr_s_list) == 1 & !list(expr_s_list)) {
-  #  expr_s_list = list('raw' = expr_s_list)
-  #}
 
   expression_name = names(expr_s_list)
 
@@ -647,6 +652,8 @@ extr_single_list = function(gobject,
 
     raw_exprs_dim = dim(expr_res)
   }
+
+
 
   ## 2. load all other provided matrices
   if(length(expression_name) > 1) {
@@ -708,6 +715,7 @@ extract_expression_list = function(gobject,
     expr_list = list('raw' = expr_list)
   }
 
+
   # 1. get depth of list
   if(verbose == TRUE) print(str(expr_list))
   list_depth = depth(expr_list)
@@ -716,6 +724,13 @@ extract_expression_list = function(gobject,
   if(list_depth == 0) {
     stop('Depth of expression list is 0, no expression information is provided \n')
   }
+
+  if(list_depth > 3) {
+    stop('Depth of expression list is more than 3, only 3 levels are possible:
+         1) feature (e.g. RNA) --> 2) measurement (e.g. raw) --> 3) spatial unit (e.g. cell) \n')
+  }
+
+
 
   # only one set provided
   if(list_depth == 1) {
@@ -758,6 +773,10 @@ extract_expression_list = function(gobject,
   return(gobject)
 
 }
+
+
+
+
 
 
 
@@ -1302,7 +1321,13 @@ createGiottoObject <- function(expression,
   if(is.null(cell_metadata)) {
 
     for(feat_type in expression_feat) {
-      gobject@cell_metadata[[feat_type]] = data.table::data.table(cell_ID = gobject@cell_ID)
+      if(is.null(gobject@spatial_info)) {
+        gobject@cell_metadata[[feat_type]][['cell']] = data.table::data.table(cell_ID = gobject@cell_ID[['cell']])
+      } else {
+        for(poly in names(gobject@spatial_info)) {
+          gobject@cell_metadata[[feat_type]][[poly]] = data.table::data.table(cell_ID = gobject@cell_ID[[poly]])
+        }
+      }
     }
 
 
@@ -1313,13 +1338,29 @@ createGiottoObject <- function(expression,
     }
 
     for(feat_type in expression_feat) {
-      gobject@cell_metadata[[feat_type]] = data.table::as.data.table(gobject@cell_metadata[[feat_type]])
-      gobject@cell_metadata[[feat_type]][, cell_ID := gobject@cell_ID]
 
-      # put cell_ID first
-      all_colnames = colnames(gobject@cell_metadata[[feat_type]])
-      other_colnames = grep('cell_ID', all_colnames, invert = T, value = T)
-      gobject@cell_metadata[[feat_type]] = gobject@cell_metadata[[feat_type]][, c('cell_ID', other_colnames), with = FALSE]
+      if(is.null(gobject@spatial_info)) {
+
+        gobject@cell_metadata[[feat_type]][['cell']] = data.table::as.data.table(gobject@cell_metadata[[feat_type]][['cell']])
+        gobject@cell_metadata[[feat_type]][['cell']][, cell_ID := gobject@cell_ID[['cell']]]
+
+        # put cell_ID first
+        all_colnames = colnames(gobject@cell_metadata[[feat_type]][[poly]])
+        other_colnames = grep('cell_ID', all_colnames, invert = T, value = T)
+        gobject@cell_metadata[[feat_type]][[poly]] = gobject@cell_metadata[[feat_type]][[poly]][, c('cell_ID', other_colnames), with = FALSE]
+
+      } else {
+
+        for(poly in names(gobject@spatial_info)) {
+          gobject@cell_metadata[[feat_type]][[poly]] = data.table::as.data.table(gobject@cell_metadata[[feat_type]][[poly]])
+          gobject@cell_metadata[[feat_type]][[poly]][, cell_ID := gobject@cell_ID[[poly]]]
+
+          # put cell_ID first
+          all_colnames = colnames(gobject@cell_metadata[[feat_type]][[poly]])
+          other_colnames = grep('cell_ID', all_colnames, invert = T, value = T)
+          gobject@cell_metadata[[feat_type]][[poly]] = gobject@cell_metadata[[feat_type]][[poly]][, c('cell_ID', other_colnames), with = FALSE]
+        }
+      }
     }
   }
 
@@ -1357,17 +1398,6 @@ createGiottoObject <- function(expression,
 
     gobject = addGiottoPoints(gobject = gobject,
                               gpoints = feat_info)
-
-    #feat_info_names = names(feat_info)
-    #for(feat_type in feat_info_names) {
-    #  if(!feat_type %in% expression_feat) {
-    #    warning('The feat info for ', feat_type, ' was not found back in ', expression_feat, ' and will not be used')
-    #  } else {
-    #    feat_info_object = feat_info[[feat_type]]
-    #    feat_ids = gobject@feat_ID[[feat_type]]
-    #    gobject@feat_info[[feat_type]] = feat_info_object
-    #  }
-    #}
 
   }
 
@@ -1981,7 +2011,13 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
 
   ## cell ID ##
   ## ------- ##
-  gobject@cell_ID = gobject@spatial_info[['cell']]@spatVector$poly_ID
+  for(poly in names(gobject@spatial_info)) {
+    unique_poly_names = unique(gobject@spatial_info[[poly]]@spatVector$poly_ID)
+    gobject@cell_ID[[poly]] = unique_poly_names
+  }
+
+  #gobject@cell_ID = gobject@spatial_info[['cell']]@spatVector$poly_ID
+  #gobject@cell_ID = gobject@spatial_info[[1]]@spatVector$poly_ID
 
   ## extract points information ##
   ## -------------------------- ##
@@ -2018,8 +2054,11 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
   ## ------------- ##
   if(is.null(cell_metadata)) {
 
+
     for(feat_type in expression_feat) {
-      gobject@cell_metadata[[feat_type]] = data.table::data.table(cell_ID = gobject@cell_ID)
+      for(poly in names(gobject@spatial_info)) {
+        gobject@cell_metadata[[feat_type]][[poly]] = data.table::data.table(cell_ID = gobject@cell_ID[[poly]])
+      }
     }
 
 
@@ -2030,13 +2069,17 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
     }
 
     for(feat_type in expression_feat) {
-      gobject@cell_metadata[[feat_type]] = data.table::as.data.table(gobject@cell_metadata[[feat_type]])
-      gobject@cell_metadata[[feat_type]][, cell_ID := gobject@cell_ID]
+      for(poly in names(gobject@spatial_info)) {
 
-      # put cell_ID first
-      all_colnames = colnames(gobject@cell_metadata[[feat_type]])
-      other_colnames = grep('cell_ID', all_colnames, invert = T, value = T)
-      gobject@cell_metadata[[feat_type]] = gobject@cell_metadata[[feat_type]][, c('cell_ID', other_colnames), with = FALSE]
+        gobject@cell_metadata[[feat_type]][[poly]] = data.table::as.data.table(gobject@cell_metadata[[feat_type]][[poly]])
+        gobject@cell_metadata[[feat_type]][[poly]][, cell_ID := gobject@cell_ID[[poly]]]
+
+        # put cell_ID first
+        all_colnames = colnames(gobject@cell_metadata[[feat_type]][[poly]])
+        other_colnames = grep('cell_ID', all_colnames, invert = T, value = T)
+        gobject@cell_metadata[[feat_type]][[poly]] = gobject@cell_metadata[[feat_type]][[poly]][, c('cell_ID', other_colnames), with = FALSE]
+      }
+
     }
   }
 
