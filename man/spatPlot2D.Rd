@@ -9,8 +9,7 @@ spatPlot2D(
   feat_type = NULL,
   show_image = F,
   gimage = NULL,
-  image_name = NULL,
-  largeImage_name = NULL,
+  image_name = "image",
   group_by = NULL,
   group_by_subset = NULL,
   spat_loc_name = NULL,
@@ -80,8 +79,6 @@ spatPlot2D(
 \item{gimage}{a giotto image}
 
 \item{image_name}{name of a giotto image or multiple images with group_by}
-
-\item{largeImage_name}{name of a giottoLargeImage or multiple images with group_by}
 
 \item{group_by}{create multiple plots based on cell annotation column}
 

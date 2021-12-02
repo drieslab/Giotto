@@ -16,9 +16,7 @@ convertGiottoLargeImageToMG(
   ymax_crop = NULL,
   ymin_crop = NULL,
   resample_size = 5e+05,
-  max_intensity = NULL,
-  return_gobject = TRUE,
-  verbose = TRUE
+  max_intensity = NULL
 )
 }
 \arguments{
@@ -26,9 +24,9 @@ convertGiottoLargeImageToMG(
 
 \item{largeImage_name}{name of giottoLargeImage}
 
-\item{mg_name}{name to assign converted magick image based giottoImage. Defaults to name of giottoLargeImage}
+\item{mg_name}{name to assign converted magick image based giottoImage}
 
-\item{spat_loc_name}{gobject spatial location name to map giottoImage to (optional)}
+\item{spat_loc_name}{gobject spatial location name to map giottoImage to}
 
 \item{crop_extent}{extent object to focus on specific region of image}
 
@@ -43,13 +41,9 @@ convertGiottoLargeImageToMG(
 \item{resample_size}{maximum number of pixels to use when resampling}
 
 \item{max_intensity}{value to treat as maximum intensity in color scale}
-
-\item{return_gobject}{return as giotto object}
-
-\item{verbose}{be verbose}
 }
 \value{
-a giotto object or an updated giotto image if return_gobject = F
+magick object
 }
 \description{
 convert a giottoLargeImage by downsampling into a normal magick based giottoImage

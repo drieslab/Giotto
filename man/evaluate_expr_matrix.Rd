@@ -17,7 +17,7 @@ evaluate_expr_matrix(inputmatrix, sparse = TRUE, cores = NA)
 sparse matrix
 }
 \description{
-Evaluate expression matrices that are provided as input.
+Evaluate expression matrices.
 }
 \details{
 The inputmatrix can be a matrix, sparse matrix, data.frame, data.table or path to any of these.

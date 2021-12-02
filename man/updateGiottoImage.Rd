@@ -5,31 +5,19 @@
 \title{updateGiottoImage}
 \usage{
 updateGiottoImage(
-  gobject = NULL,
-  image_name = NULL,
-  largeImage_name = NULL,
+  gobject,
+  image_name,
   xmax_adj = 0,
   xmin_adj = 0,
   ymax_adj = 0,
   ymin_adj = 0,
-  x_shift = 0,
-  y_shift = 0,
-  scale_x = 1,
-  scale_y = 1,
-  order = c("first_adj", "first_scale"),
-  xmax_set = NULL,
-  xmin_set = NULL,
-  ymax_set = NULL,
-  ymin_set = NULL,
   return_gobject = TRUE
 )
 }
 \arguments{
-\item{gobject}{gobject containing giottoImage or giottoLargeImage}
+\item{gobject}{giotto object}
 
-\item{image_name}{name of giottoImage}
-
-\item{largeImage_name}{name of giottoLargeImage}
+\item{image_name}{spatial locations}
 
 \item{xmax_adj}{adjustment of the maximum x-value to align the image}
 
@@ -39,29 +27,11 @@ updateGiottoImage(
 
 \item{ymin_adj}{adjustment of the minimum y-value to align the image}
 
-\item{x_shift}{shift entire image in positive x direction}
-
-\item{y_shift}{shift entire image in positive y direction}
-
-\item{scale_x}{scale x axis image mapping from origin}
-
-\item{scale_y}{scale y axis image mapping from origin}
-
-\item{order}{perform fine adjustments (adjustments and shifts) or scaling first}
-
-\item{xmax_set}{set image xmax boundary. Overrides minmax values as spatial anchor.}
-
-\item{xmin_set}{set image xmin boundary. Overrides minmax values as spatial anchor.}
-
-\item{ymax_set}{set image ymax boundary. Overrides minmax values as spatial anchor.}
-
-\item{ymin_set}{set image ymin boundary. Overrides minmax values as spatial anchor.}
-
 \item{return_gobject}{return a giotto object}
 }
 \value{
 a giotto object or an updated giotto image if return_gobject = F
 }
 \description{
-Updates the boundaries of a giottoImage or giottoLargeImage attached to a giotto object
+Updates the boundaries of a giotto image attached to a giotto object
 }

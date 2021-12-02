@@ -9,8 +9,7 @@ spatDimFeatPlot2D(
   feat_type = NULL,
   show_image = F,
   gimage = NULL,
-  image_name = NULL,
-  largeImage_name = NULL,
+  image_name = "image",
   expression_values = c("normalized", "scaled", "custom"),
   plot_alignment = c("vertical", "horizontal"),
   feats,
@@ -76,8 +75,6 @@ spatDimFeatPlot2D(
 \item{gimage}{a giotto image}
 
 \item{image_name}{name of a giotto image}
-
-\item{largeImage_name}{name of a giottoLargeImage}
 
 \item{expression_values}{feat expression values to use}
 

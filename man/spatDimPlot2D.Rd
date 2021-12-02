@@ -9,8 +9,7 @@ spatDimPlot2D(
   feat_type = NULL,
   show_image = F,
   gimage = NULL,
-  image_name = NULL,
-  largeImage_name = NULL,
+  image_name = "image",
   spat_loc_name = NULL,
   plot_alignment = c("vertical", "horizontal"),
   dim_reduction_to_use = "umap",
@@ -96,8 +95,6 @@ spatDimPlot2D(
 \item{gimage}{a giotto image}
 
 \item{image_name}{name of a giotto image}
-
-\item{largeImage_name}{name of a giottoLargeImage}
 
 \item{plot_alignment}{direction to align plot}
 

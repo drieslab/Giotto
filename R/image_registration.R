@@ -56,10 +56,10 @@ trakem2_rigid_transf_extract = function(inputstring) {
 #' @param scale_factor scaling factor to apply to coordinates
 #' @keywords internal
 scale_spatial_locations = function(spatlocs,
-                                   scale_factor) {
-  if(length(scale_factor) == 1) scale_factor = c(x = scale_factor, y = scale_factor)
-  spatlocs$sdimx = spatlocs$sdimx*scale_factor[['x']]
-  spatlocs$sdimy = spatlocs$sdimy*scale_factor[['y']]
+                                    scale_factor) {
+
+  spatlocs$sdimx = spatlocs$sdimx*scale_factor
+  spatlocs$sdimy = spatlocs$sdimy*scale_factor
 
   return(spatlocs)
 }
@@ -152,6 +152,7 @@ rigid_transform_spatial_locations = function(spatlocs,
 #' @param image_unreg name of original unregistered images
 #' @param scale_factor scale factors for registered images relative to spatlocs.
 #' @param transform_values transformation values to use
+#' @param spatloc_unreg unregistered spatloc name to use
 #' @param method method of registration
 #' @keywords internal
 #Automatically account for changes in image size due to alignment
@@ -159,6 +160,7 @@ reg_img_minmax_finder = function(gobject_list,
                                  image_unreg,
                                  scale_factor,
                                  transform_values,
+                                 spatloc_unreg,
                                  method) {
 
   #Find image spatial info from original image if possible
@@ -181,7 +183,7 @@ reg_img_minmax_finder = function(gobject_list,
     image_corners = lapply(1:length(gobject_list),
                            function(x) {
                              scale_spatial_locations(spatlocs = image_corners[[x]],
-                                                     scale_factor = (scale_factor[[x]]/giottoImage_list[[x]]@scale_factor))
+                                                     scale_factor = (scale_factor[[x]]/giottoImage_list[[x]]@scale_factor[[spatloc_unreg]]))
                            })
 
     # register corners based on transform values (only possible at reg_image scaling)
@@ -428,6 +430,7 @@ registerGiottoObjectListFiji = function(gobject_list,
                                              image_unreg = image_unreg,
                                              scale_factor = scale_list,
                                              transform_values = transformsDF,
+                                             spatloc_unreg = spatloc_unreg,
                                              method = 'fiji')
 
   # Gobject updating for loop
@@ -480,7 +483,7 @@ registerGiottoObjectListFiji = function(gobject_list,
                                   scale_factor = scale_list[[gobj_i]])
 
       #Add the registered image to the gobj.
-      gobj = addGiottoImageMG(gobject = gobj, images = list(g_image))
+      gobj = addGiottoImage(gobject = gobj, images = list(g_image))
 
       #Automatic adjustment
       if(exists('reg_img_boundaries')){ #TODO

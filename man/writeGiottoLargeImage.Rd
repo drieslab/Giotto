@@ -11,6 +11,7 @@ writeGiottoLargeImage(
   max_intensity = NULL,
   filename = NULL,
   dataType = NULL,
+  fileType = NULL,
   overwrite = FALSE,
   verbose = TRUE
 )
@@ -28,10 +29,12 @@ writeGiottoLargeImage(
 
 \item{dataType}{(optional) values for dataType are "INT1U", "INT2U", "INT2S", "INT4U", "INT4S", "FLT4S", "FLT8S". The first three letters indicate whether the dataType is integer (whole numbers) of a real number (decimal numbers), the fourth character indicates the number of bytes used (allowing for large numbers and/or more precision), and the "S" or "U" indicate whether the values are signed (both negative and positive) or unsigned (positive values only).}
 
+\item{fileType}{(optional) image format (e.g. .tif) If not given, defaults to format given in the filename}
+
 \item{overwrite}{Overwrite if filename is already existing}
 
 \item{verbose}{be verbose}
 }
 \description{
-write original resolution to file. Filetype extension should be included in filename argument.
+write original resolution to file
 }

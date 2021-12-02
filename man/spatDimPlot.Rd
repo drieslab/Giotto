@@ -15,7 +15,6 @@ spatDimPlot(...)
     \item{\code{show_image}}{show a tissue background image}
     \item{\code{gimage}}{a giotto image}
     \item{\code{image_name}}{name of a giotto image}
-    \item{\code{largeImage_name}}{name of a giottoLargeImage}
     \item{\code{plot_alignment}}{direction to align plot}
     \item{\code{dim_reduction_to_use}}{dimension reduction to use}
     \item{\code{dim_reduction_name}}{dimension reduction name}

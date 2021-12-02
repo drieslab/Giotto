@@ -18,15 +18,6 @@ createGiottoImage(
   ymax_adj = 0,
   ymin_adj = 0,
   scale_factor = 1,
-  x_shift = NULL,
-  y_shift = NULL,
-  scale_x = NULL,
-  scale_y = NULL,
-  order = c("first_scale", "first_adj"),
-  xmin_set = NULL,
-  xmax_set = NULL,
-  ymin_set = NULL,
-  ymax_set = NULL,
   verbose = TRUE
 )
 }
@@ -56,22 +47,6 @@ createGiottoImage(
 \item{ymin_adj}{adjustment of the minimum y-value to align the image}
 
 \item{scale_factor}{scaling of image dimensions relative to spatial coordinates}
-
-\item{x_shift}{shift image in positive y direction}
-
-\item{scale_x}{independently scale image in x direction}
-
-\item{scale_y}{independently scale image in y direction}
-
-\item{order}{perform scaling or adjustments and shifts first}
-
-\item{xmin_set}{values to override image minmax spatial anchors when doing adjustments}
-
-\item{xmax_set}{values to override image minmax spatial anchors when doing adjustments}
-
-\item{ymin_set}{values to override image minmax spatial anchors when doing adjustments}
-
-\item{ymax_set}{values to override image minmax spatial anchors when doing adjustments}
 
 \item{verbose}{be verbose}
 }
