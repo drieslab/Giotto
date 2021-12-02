@@ -1,5 +1,53 @@
 
 
+
+
+#' @title set_default_feat_type
+#' @name set_default_feat_type
+#' @keywords internal
+set_default_feat_type = function(gobject,
+                                 feat_type) {
+
+  if(is.null(feat_type)) {
+
+    if(!is.null(gobject@expression)) {
+      feat_type = names(gobject@expression)[[1]]
+    } else if(!is.null(gobject@feat_info)){
+      feat_type = names(gobject@feat_info)[[1]]
+    } else {
+      warning('No default for feat_type could be set \n')
+    }
+  }
+
+  return(feat_type)
+
+}
+
+
+#' @title set_default_spat_unit
+#' @name set_default_spat_unit
+#' @keywords internal
+set_default_spat_unit = function(gobject,
+                                 spat_unit) {
+
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    if(!is.null(gobject@expression)) {
+      spat_unit = names(gobject@expression[[feat_type]])[[1]]
+    } else if(!is.null(gobject@spatial_info)){
+      spat_unit = names(gobject@spatial_info)[[1]]
+    } else {
+      warning('No default for spat_unit could be set \n')
+    }
+  }
+
+  return(spat_unit)
+
+}
+
+
+
+
 ## * ####
 ## 2-D ggplots ####
 ## ----------- ##
@@ -2456,15 +2504,9 @@ spatPlot2D_single = function(gobject,
                              default_save_name = 'spatPlot2D_single') {
 
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
 
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  feat_type = set_default_feat_type(gobject, feat_type)
+  spat_unit = set_default_spat_unit(gobject, spat_unit)
 
   ## giotto image ##
   if(show_image == TRUE) {
@@ -2517,6 +2559,7 @@ spatPlot2D_single = function(gobject,
   ## get cell metadata
   cell_metadata = combineMetadata(gobject = gobject,
                                   feat_type = feat_type,
+                                  spat_unit = spat_unit,
                                   spat_loc_name = spat_loc_name,
                                   spat_enr_names = spat_enr_names)
 

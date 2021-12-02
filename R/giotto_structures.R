@@ -1362,6 +1362,7 @@ createSpatialFeaturesKNNnetwork = function(gobject,
 #' @name addSpatialCentroidLocations
 #' @description Calculates the centroid locations for the giotto polygons
 #' @param gobject giotto object
+#' @param feat_type feature type
 #' @param poly_info polygon information
 #' @param return_gobject return giotto object (default: TRUE)
 #' @return
@@ -1369,8 +1370,8 @@ createSpatialFeaturesKNNnetwork = function(gobject,
 #' @export
 addSpatialCentroidLocations = function(gobject,
                                        poly_info = 'cell',
+                                       spat_loc_name = 'raw',
                                        return_gobject = TRUE) {
-
 
   extended_spatvector = calculate_centroids_polygons(gpolygon = gobject@spatial_info[[poly_info]],
                                                      name = 'centroids',
@@ -1378,13 +1379,12 @@ addSpatialCentroidLocations = function(gobject,
 
   centroid_spatvector = spatVector_to_dt(extended_spatvector@spatVectorCentroids)
 
-  spatial_locs = centroid_spatvector[, .(x,y,poly_ID)]
+  spatial_locs = centroid_spatvector[, .(x, y, poly_ID)]
   colnames(spatial_locs) = c('sdimx', 'sdimy', 'cell_ID')
 
   if(return_gobject == TRUE) {
 
-    # add spatial locations
-    gobject@spatial_locs[[poly_info]] = spatial_locs
+    gobject@spatial_locs[[poly_info]][[spat_loc_name]] = spatial_locs
 
     # add centroids information
     gobject@spatial_info[[poly_info]] = extended_spatvector
@@ -1905,7 +1905,7 @@ overlapToMatrix = function(gobject,
 combineCellData = function(gobject,
                            feat_type = 'rna',
                            include_spat_locs = TRUE,
-                           spat_loc_name = 'cell',
+                           spat_loc_name = 'raw',
                            include_poly_info = TRUE,
                            poly_info = 'cell') {
 
@@ -1921,6 +1921,7 @@ combineCellData = function(gobject,
   # get spatial locations
   if(include_spat_locs == TRUE) {
     spat_locs_dt = get_spatial_locations(gobject = gobject,
+                                         spat_unit = poly_info,
                                          spat_loc_name = spat_loc_name)
   } else {
     spat_locs_dt = NULL
@@ -1958,7 +1959,9 @@ combineCellData = function(gobject,
   for(feat in unique(feat_type)) {
 
     # get spatial cell metadata
-    cell_meta = pDataDT(gobject, feat_type = feat)
+    cell_meta = pDataDT(gobject,
+                        feat_type = feat,
+                        spat_unit = poly_info)
 
     # merge
     if(!is.null(comb_dt)) {
