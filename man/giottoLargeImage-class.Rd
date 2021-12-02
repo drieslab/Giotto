@@ -15,13 +15,17 @@ class to handle images too large to load in normally through magick
 
 \item{\code{raster_object}}{terra raster object}
 
-\item{\code{extents}}{terra extent objects named by spatial location}
+\item{\code{overall_extent}}{terra extent object covering the original extent of image}
 
 \item{\code{scale_factor}}{image scaling relative to spatial locations}
 
 \item{\code{resolution}}{spatial location units covered per pixel}
 
 \item{\code{max_intensity}}{value to set as maximum intensity in color scaling}
+
+\item{\code{min_intensity}}{minimum value found}
+
+\item{\code{is_int}}{values are integers}
 
 \item{\code{OS_platform}}{Operating System to run Giotto analysis on}
 }}

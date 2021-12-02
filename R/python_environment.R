@@ -228,6 +228,10 @@ install_giotto_environment = function(force_environment = FALSE,
 #'   # this command will install r-miniconda
 #'   # and a giotto environment with all necessary python modules
 #'   installGiottoEnvironment()
+#'
+#'   Currently the following python modules will be installed:
+#'   -xxx
+#'
 #' }
 #'
 installGiottoEnvironment =  function(packages_to_install = c('pandas', 'networkx', 'python-igraph',

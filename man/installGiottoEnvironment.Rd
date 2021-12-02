@@ -40,6 +40,10 @@ and provide the instructions to the \code{\link{createGiottoObject}} function.
   # this command will install r-miniconda
   # and a giotto environment with all necessary python modules
   installGiottoEnvironment()
+
+  Currently the following python modules will be installed:
+  -xxx
+
 }
 
 }

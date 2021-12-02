@@ -34,6 +34,29 @@ giottoPolygon <- setClass(
 )
 
 
+
+
+#' @name polygon_to_raster
+#' @description function to convert terra SpatVector Polygon shape into a terra SpatRaster
+#' @keywords internal
+polygon_to_raster = function(polygon, field = NULL) {
+
+  pol_xmax = terra::xmax(polygon)
+  pol_ymax = terra::ymax(polygon)
+  r = terra::rast(polygon, ncols = pol_xmax, nrows = pol_ymax)
+
+  if(is.null(field)) {
+    field = names(polygon)[1]
+  }
+
+  poly_rast = terra::rasterize(x = polygon, r, field = field)
+
+  return(poly_rast)
+
+}
+
+
+
 ## extension of spatVector object
 ## name should match the cellular structure
 
@@ -51,10 +74,9 @@ create_giotto_polygon_object = function(name = 'cell',
                             spatVectorCentroids = NULL,
                             overlaps = NULL)
 
-
-  ## 1. check magick image object
+  ## 1. check spatVector object
   if(!methods::is(spatVector, 'SpatVector')) {
-    stop("spatVector needs to be a spatVector object from the terra package")
+    stop("spatVector needs to be a SpatVector object from the terra package")
   }
 
   g_polygon@spatVector = spatVector
@@ -84,9 +106,11 @@ create_giotto_polygon_object = function(name = 'cell',
   # provide name
   g_polygon@name = name
 
-  # image object
+  # giotto polygon object
   return(g_polygon)
 }
+
+
 
 
 
@@ -119,6 +143,7 @@ identify_background_range_polygons = function(spatVector) {
 
 #' @name create_segm_polygons
 #' @description creates giotto polygons from segmentation mask data
+#' @return giotto polygon
 #' @keywords internal
 create_segm_polygons = function(maskfile,
                                 name = 'cell',
@@ -578,21 +603,16 @@ extract_polygon_list = function(polygonlist,
                                                                maskfile = polyinfo,
                                                                polygon_mask_list_params))
 
-      #poly_results = createGiottoPolygonsFromMask(name = name_polyinfo,
-      #                                            maskfile = polyinfo)
-
     } else if(inherits(polyinfo, 'data.frame')) {
 
       poly_results = do.call('createGiottoPolygonsFromDfr', c(name = name_polyinfo,
                                                               segmdfr = polyinfo,
                                                               polygon_dfr_list_params))
 
-      #poly_results = createGiottoPolygonsFromDfr(name = 'cell',
-      #                                           segmdfr = polyinfo)
-
     } else if(inherits(polyinfo, 'giottoPolygon')) {
 
       poly_results = polyinfo
+      name_polyinfo = polyinfo@name
 
     } else {
 
@@ -736,6 +756,8 @@ spline_poly <- function(xy, vertices = 20, k = 3, ...) {
   # Retain only the middle part.
   cbind(x1, x2)[k < x & x <= n+k, ]
 }
+
+
 
 
 #' @title smoothGiottoPolygons
@@ -1379,7 +1401,140 @@ addSpatialCentroidLocations = function(gobject,
 
 
 
-## calculate overlap between cellular structures and features
+## * calculate overlap between cellular structures and features ####
+
+
+## ** raster way ####
+
+
+#' @name polygon_to_raster
+#' @description  convert polygon to raster
+#' @keywords internal
+polygon_to_raster = function(polygon, field = NULL) {
+
+  pol_xmax = terra::xmax(polygon)
+  pol_xmin = terra::xmin(polygon)
+  ncols = abs(pol_xmax-pol_xmin)
+
+  pol_ymax = terra::ymax(polygon)
+  pol_ymin = terra::ymin(polygon)
+  nrows = abs(pol_ymax-pol_ymin)
+
+  r = terra::rast(polygon, ncols = ncols, nrows = nrows)
+
+  if(is.null(field)) {
+    field = names(polygon)[1]
+  }
+
+  # ensure that field is numerical
+  polygon$poly_i = 1:nrow(unique(polygon[[field]]))
+  poly_rast = terra::rasterize(x = polygon, r, field = 'poly_i')
+
+  poly_ID_vector = polygon[[field]][,1]; names(poly_ID_vector) = polygon[['poly_i']][,1]
+
+  return(list('raster' = poly_rast, 'ID_vector' = poly_ID_vector))
+
+}
+
+
+
+#' @title calculateOverlapRaster
+#' @name calculateOverlapRaster
+#' @description calculate overlap between cellular structures (polygons) and features (points)
+#' @param gobject giotto object
+#' @param name_overlap name for the overlap results (default to feat_info parameter)
+#' @param poly_info polygon information
+#' @param feat_info feature information
+#' @param return_gobject return giotto object (default: TRUE)
+#' @param verbose be verbose
+#' @return giotto object or spatVector with overlapping information
+#' @details Serial overlapping function.
+#' @keywords overlap
+#' @export
+calculateOverlapRaster = function(gobject,
+                                  name_overlap = NULL,
+                                  spatial_info = NULL,
+                                  poly_ID_names = NULL,
+                                  feat_info = NULL,
+                                  return_gobject = TRUE,
+                                  verbose = TRUE) {
+
+
+  # set defaults if not provided
+  if(is.null(feat_info)) {
+    feat_info = names(gobject@feat_info)[[1]]
+  }
+
+  if(is.null(name_overlap)) {
+    name_overlap = feat_info
+  }
+
+  if(is.null(spatial_info)) {
+    spatial_info = names(gobject@spatial_info)[[1]]
+  }
+
+
+  # spatial vector
+  if(verbose) cat('1. convert polygon to raster \n')
+  spatvec = gobject@spatial_info[[spatial_info]]@spatVector
+
+  # subset spatvec
+  if(!is.null(poly_ID_names)) {
+    spatvec = spatvec[spatvec$poly_ID %in% poly_ID_names]
+  }
+
+  # spatial vector to raster
+  spatrast_res = polygon_to_raster(spatvec, field = 'poly_ID')
+  spatrast = spatrast_res[['raster']]
+  ID_vector = spatrast_res[['ID_vector']]
+
+  # point vector
+  pointvec = gobject@feat_info[[feat_info]]@spatVector
+
+  ## overlap between raster and point
+  if(verbose) cat('2. overlap raster and points \n')
+  overlap_test = terra::extract(x = spatrast, y = pointvec)
+
+  # add poly_ID information
+  if(verbose) cat('3. add polygon information \n')
+  overlap_test_dt = data.table::as.data.table(overlap_test)
+  overlap_test_dt[, poly_ID := ID_vector[poly_i]]
+
+  # add point information
+  if(verbose) cat('4. add points information \n')
+  pointvec_dt = spatVector_to_dt(pointvec)
+  pointvec_dt_x = pointvec_dt$x ; names(pointvec_dt_x) = pointvec_dt$feat_ID_uniq
+  pointvec_dt_y = pointvec_dt$y ; names(pointvec_dt_y) = pointvec_dt$feat_ID_uniq
+
+  pointvec_dt_feat_ID = pointvec_dt$feat_ID ; names(pointvec_dt_feat_ID) = pointvec_dt$feat_ID_uniq
+
+  overlap_test_dt[, x := pointvec_dt_x[ID]]
+  overlap_test_dt[, y := pointvec_dt_y[ID]]
+  overlap_test_dt[, feat_ID := pointvec_dt_feat_ID[ID]]
+
+  if(verbose) cat('5. create overlap polygon information \n')
+  overlap_test_dt_spatvector = terra::vect(x = as.matrix(overlap_test_dt[, c('x', 'y'), with = F]),
+                                           type = "points",
+                                           atts = overlap_test_dt[, c('poly_ID', 'feat_ID', 'ID'), with = F])
+  names(overlap_test_dt_spatvector) = c('poly_ID', 'feat_ID', 'feat_ID_uniq')
+
+
+
+  if(return_gobject == TRUE) {
+    if(is.null(name_overlap)) {
+      name_overlap = feat_info
+    }
+
+    gobject@spatial_info[[spatial_info]]@overlaps[[name_overlap]] = overlap_test_dt_spatvector
+    return(gobject)
+
+  } else {
+    return(overlap_test_dt_spatvector)
+  }
+
+}
+
+
 
 
 #' @name overlap_points_single_polygon
@@ -1409,6 +1564,10 @@ overlap_points_single_polygon = function(spatvec,
 
 }
 
+
+
+
+## ** polygon way ####
 
 #' @name overlap_points_per_polygon
 #' @description  loop to overlap each single polygon
@@ -1660,319 +1819,8 @@ calculateOverlapParallel = function(gobject,
 
 
 
-# * ####
-## START: old overlap functions ####
 
-
-#' @name intersect_giotto
-#' @description  giotto extension for terra::intersect()
-#' @keywords internal
-intersect_giotto = function(polvec,
-                            pointsvec,
-                            select_poly_IDs,
-                            verbose = FALSE) {
-
-
-  if(!is.null(select_poly_IDs)) {
-    ## create subset based on selected cell IDs
-    subpolvec = terra::subset(polvec, polvec$poly_ID %in% select_poly_IDs)
-    subpolvecDT = spatVector_to_dt(subpolvec)
-
-    ## subset points based on range of selected cell IDs polygons
-    range_x = range(subpolvecDT$x)
-    range_y = range(subpolvecDT$y)
-
-    pointsvecDT = spatVector_to_dt(pointsvec)
-    bool_filter = pointsvecDT$x > range_x[1] & pointsvecDT$x < range_x[2] & pointsvecDT$y > range_y[1] & pointsvecDT$y < range_y[2]
-    subpointsvec = pointsvec[bool_filter]
-
-    if(length(subpointsvec) > 0) {
-
-      if(verbose == TRUE) {
-        cat('subpolvec ', nrow(subpolvec), '\n')
-        cat('subpointsvec ', nrow(subpointsvec), '\n')
-      }
-
-      subtestsect = terra::intersect(x = subpolvec, y = subpointsvec)
-    }
-  } else {
-    return(NULL)
-  }
-
-}
-
-
-#' @name intersect_giotto_multi
-#' @description to serialize or parallelize intersect_giotto
-#' @keywords internal
-intersect_giotto_multi = function(polvec,
-                                  method = c('parallel', 'serial'),
-                                  pointsvec,
-                                  list_poly_IDs,
-                                  verbose = FALSE) {
-
-  method = match.arg(method, choices = c('parallel', 'serial'))
-
-  if(method == 'serial') {
-    intersect_list = list()
-    for(i in 1:length(list_poly_IDs)) {
-
-      intersect_results = intersect_giotto(polvec = polvec,
-                                           pointsvec = pointsvec,
-                                           select_poly_IDs = list_poly_IDs[[i]],
-                                           verbose = verbose)
-      intersect_list[[i]] = intersect_results
-    }
-    final_result = do.call('c', intersect_list)
-  }
-
-
-
-  if(method == 'parallel') {
-
-    # does not work with plan(multisession),
-    # should work with plan(multicore) if supported
-
-    # maybe multicore might work (not in Rstudio)
-
-    # multiple pointvectors can be wrapped (stored in memory)
-    # and be unwrapped in parallel, will take a lot of extra memory
-    # polvec_pack_i = terra::wrap(polvec_i)
-    # polvec_i = terra::vect(polvec_pack_i)
-
-
-    intersect_list = lapply_flex(X = 1:length(list_poly_IDs),
-
-                                 FUN = function(x) {
-
-                                   intersect_giotto(polvec = polvec,
-                                                    pointsvec = pointsvec,
-                                                    select_poly_IDs = list_poly_IDs[[x]],
-                                                    verbose = FALSE)
-                                 })
-
-    final_result = do.call('c', intersect_list)
-  }
-  return(final_result)
-}
-
-
-#' @name unwrap_intersect
-#' @description unwrap wrapped terra object, intersect and wrap result again
-#' @keywords internal
-unwrap_intersect = function(wrap_polvec,
-                            wrap_pointsvec) {
-
-  # first unpack / unwrap
-  unwrap_polvec = terra::vect(wrap_polvec)
-  unwrap_pointsvec = terra::vect(wrap_pointsvec)
-
-  # run intersect
-
-  if(length(unwrap_polvec) > 0 & length(unwrap_pointsvec) > 0) {
-    intersect_res = terra::intersect(x = unwrap_polvec, y = unwrap_pointsvec)
-    return(terra::wrap(intersect_res))
-  } else {
-    return(NULL)
-  }
-}
-
-
-#' @name parallel_intersect
-#' @description run parallel intersect on wrapped terra objects
-#' @keywords internal
-parallel_intersect = function(wrap_polvec_list,
-                              wrap_pointsvec_list,
-                              future.seed = TRUE) {
-
-
-  # first intersect in parallel on wrapped terra objects
-  result1 = lapply_flex(1:length(wrap_polvec_list),
-                        future.seed = future.seed,
-
-                        FUN = function(x) {
-    test = unwrap_intersect(wrap_polvec = wrap_polvec_list[[x]],
-                            wrap_pointsvec = wrap_pointsvec_list[[x]])
-  })
-
-  # unwrap the intersect terra object
-  result2 = lapply(X = 1:length(result1), FUN = function(x) {
-    terra::vect(result1[x][[1]])
-  })
-
-  final_vect = terra::vect()
-  print(length(result2))
-  for(i in 1:length(result2)) {
-    final_vect = rbind(final_vect, result2[[i]])
-  }
-
-  # combine all terra objects
-  # result_final =  do.call('c', result2)
-
-  return(final_vect)
-
-}
-
-
-
-#' @title calculateOverlap
-#' @name calculateOverlap
-#' @description calculate overlap between cellular structures (polygons) and features (points)
-#' @param gobject giotto object
-#' @param name_overlap name for the overlap results (default to feat_info parameter)
-#' @param poly_info polygon information
-#' @param feat_info feature information
-#' @param x_step x-direction step to travel over the polygon landscape
-#' @param y_step y-direction step to travel over the polygon landscape
-#' @param method serial of parallel execution (see details)
-#' @param remove_unvalid_polygons remove unvalid polygons
-#' @param return_gobject return giotto object (default: TRUE)
-#' @param verbose be verbose
-#' @return giotto object or spatVector with overlapping information
-#' @details parallel follows the future approach. This means that plan(multisession) does not work,
-#' since the underlying terra objects are internal C pointers. plan(multicore) is also not supported for
-#' Rstudio users.
-#' @keywords overlap
-#' @export
-calculateOverlap = function(gobject,
-                            name_overlap = NULL,
-                            poly_info = 'cell',
-                            feat_info = 'rna',
-                            x_step = 200,
-                            y_step = 200,
-                            method = c('serial', 'parallel'),
-                            remove_unvalid_polygons = TRUE,
-                            return_gobject = TRUE,
-                            verbose = TRUE) {
-
-
-  polvec = gobject@spatial_info[[poly_info]]@spatVector
-  pointsvec = gobject@feat_info[[feat_info]]@spatVector
-
-  # remove unvalid polygons first
-  if(remove_unvalid_polygons == TRUE) {
-    polvec = polvec[terra::is.valid(polvec)]
-  }
-
-  ## 1. compute windows to look for overlap
-  ## create data.table with x and y beginnings and ends
-  myext = terra::ext(polvec)
-  range_x = terra::xmax(myext) - terra::xmin(myext)
-  range_y = terra::ymax(myext) - terra::ymin(myext)
-
-  xrep = ceiling(range_x / x_step)
-  yrep = ceiling(range_y / y_step)
-
-  start_x = terra::xmin(myext)
-  end_x = start_x + (xrep * x_step)
-
-  start_y = terra::ymin(myext)
-  end_y = start_y + (yrep * y_step)
-
-
-  xmin = rep(seq(start_x, (end_x-x_step), x_step), yrep)
-  xmax = rep(seq((start_x+x_step), end_x, x_step), yrep)
-  ymin = rep(seq(start_y, (end_y-y_step), y_step), each = xrep)
-  ymax = rep(seq(start_y+y_step, end_y, y_step), each = xrep)
-
-  dt_steps = data.table::data.table(xmin = xmin,
-                                    xmax = xmax,
-                                    ymin = ymin,
-                                    ymax = ymax)
-
-
-  #dt_steps = data.table::data.table(xmin = rep(seq(start_x, end_x, x_step), yrep),
-  #                                  xmax = rep(seq(x_step, (end_x+x_step), x_step), yrep),
-  #                                  ymin = rep(seq(start_y, end_y, y_step), each = xrep),
-  #                                  ymax = rep(seq(y_step, (end_y+y_step), y_step), each = xrep))
-
-  if(verbose == TRUE) print(dt_steps)
-
-
-  ## 2. get poly ids for all tiles
-  list_ids = list()
-  used_ids = list()
-
-  for(row in  1:nrow(dt_steps)) {
-    crop_polvec = terra::crop(x = polvec,
-                              y = terra::ext(dt_steps[row]$xmin, dt_steps[row]$xmax,
-                                             dt_steps[row]$ymin, dt_steps[row]$ymax))
-    if(length(crop_polvec) > 0) {
-      row_ids = crop_polvec$poly_ID
-      row_ids = row_ids[!row_ids %in% used_ids]
-      list_ids[[row]] = row_ids
-      used_ids = unique(unlist(list_ids))
-    }
-  }
-  bool_vec = unlist(lapply(list_ids, is.null))
-  list_ids = list_ids[!bool_vec]
-
-
-
-
-  method = match.arg(arg = method, choices = c('serial', 'parallel'))
-
-
-  if(method == 'parallel') {
-
-    wrap_polvec_list = list()
-    wrap_pointsvec_list = list()
-
-    for(i in 1:length(list_ids)) {
-
-      select_poly_IDs = list_ids[[i]]
-
-      subpolvec = terra::subset(polvec, polvec$poly_ID %in% select_poly_IDs)
-      subpolvecDT = spatVector_to_dt(subpolvec)
-
-      ## subset points based on range of selected cell IDs polygons
-      range_x = range(subpolvecDT$x)
-      range_y = range(subpolvecDT$y)
-
-      pointsvecDT = spatVector_to_dt(pointsvec)
-      bool_filter = pointsvecDT$x > range_x[1] & pointsvecDT$x < range_x[2] & pointsvecDT$y > range_y[1] & pointsvecDT$y < range_y[2]
-      subpointsvec = pointsvec[bool_filter]
-
-      wrap_polvec_list[[i]] = terra::wrap(subpolvec)
-      wrap_pointsvec_list[[i]] = terra::wrap(subpointsvec)
-
-    }
-
-    final_result = parallel_intersect(wrap_polvec_list = wrap_polvec_list,
-                                      wrap_pointsvec_list = wrap_pointsvec_list)
-
-
-
-  } else {
-
-    final_result = intersect_giotto_multi(polvec = polvec,
-                                          method = method,
-                                          pointsvec = pointsvec,
-                                          list_poly_IDs = list_ids,
-                                          verbose = verbose)
-
-  }
-
-
-
-  if(return_gobject == TRUE) {
-
-    if(is.null(name_overlap)) {
-      name_overlap = feat_info
-    }
-
-    gobject@spatial_info[[poly_info]]@overlaps[[name_overlap]] = final_result
-    return(gobject)
-
-  } else {
-    return(final_result)
-  }
-
-}
-
-
-## END: old overlap functions ####
-# * ####
+# * aggregate ####
 
 #' @title overlapToMatrix
 #' @name overlapToMatrix
@@ -2040,7 +1888,7 @@ overlapToMatrix = function(gobject,
 
 
 
-
+# * combine metadata ####
 
 #' @title combineCellData
 #' @name combineCellData

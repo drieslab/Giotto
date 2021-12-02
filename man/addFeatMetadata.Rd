@@ -7,6 +7,7 @@
 addFeatMetadata(
   gobject,
   feat_type = NULL,
+  spat_unit = NULL,
   new_metadata,
   by_column = F,
   column_feat_ID = NULL
@@ -16,6 +17,8 @@ addFeatMetadata(
 \item{gobject}{giotto object}
 
 \item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{new_metadata}{new metadata to use}
 

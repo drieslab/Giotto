@@ -7,6 +7,7 @@
 spatPlot2D_single(
   gobject,
   feat_type = NULL,
+  spat_unit = NULL,
   show_image = F,
   gimage = NULL,
   image_name = "image",
@@ -67,6 +68,8 @@ spatPlot2D_single(
 \item{gobject}{giotto object}
 
 \item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{show_image}{show a tissue background image}
 

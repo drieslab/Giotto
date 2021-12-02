@@ -7,13 +7,16 @@
 createGiottoLargeImage(
   raster_object,
   name = "image",
+  negative_y = TRUE,
   extent = NULL,
+  use_rast_ext = FALSE,
   image_transformations = NULL,
   xmax_bound = NULL,
   xmin_bound = NULL,
   ymax_bound = NULL,
   ymin_bound = NULL,
-  scale_factor = 1
+  scale_factor = 1,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -21,11 +24,17 @@ createGiottoLargeImage(
 
 \item{name}{name for the image}
 
-\item{extent}{SpatExtent object to assign spatial extent. Takes priority.}
+\item{negative_y}{Map image to negative y spatial values if TRUE. Meaning that origin is in upper left instead of lower left.}
+
+\item{extent}{SpatExtent object to assign spatial extent. Takes priority unless use_rast_ext is TRUE.}
 
 \item{image_transformations}{vector of sequential image transformations - under construction}
 
 \item{scale_factor}{scaling of image dimensions relative to spatial coordinates}
+
+\item{verbose}{be verbose}
+
+\item{use_rast_extent}{Use extent from input raster object}
 
 \item{xmax_adj}{adjustment of the maximum x-value to align the image}
 
@@ -39,5 +48,5 @@ createGiottoLargeImage(
 a giottoLargeImage object
 }
 \description{
-Creates a large giotto image that can be added to a Giotto subcellular object
+Creates a large giotto image that can be added to a Giotto subcellular object. Generates deep copy of SpatRaster
 }

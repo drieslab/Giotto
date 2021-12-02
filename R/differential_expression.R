@@ -5,6 +5,7 @@
 #' @description Identify marker genes for all or selected clusters based on scran's implementation of findMarkers.
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param expression_values gene expression values to use
 #' @param cluster_column clusters to use
 #' @param subset_clusters selection of clusters to compare
@@ -22,6 +23,7 @@
 #' @export
 findScranMarkers <- function(gobject,
                              feat_type = NULL,
+                             spat_unit = NULL,
                              expression_values = c('normalized', 'scaled', 'custom'),
                              cluster_column,
                              subset_clusters = NULL,
@@ -42,17 +44,27 @@ findScranMarkers <- function(gobject,
   F1000Res., 5, 2122. doi: 10.12688/f1000research.9501.2. ")
 
 
-  # specify feat_type
+  # set feat type
   if(is.null(feat_type)) {
     feat_type = gobject@expression_feat[[1]]
   }
 
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
   # expression data
   values = match.arg(expression_values, choices = unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_data = get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+  expr_data = get_expression_values(gobject = gobject,
+                                    feat_type = feat_type,
+                                    spat_unit = spat_unit,
+                                    values = values)
 
   # cluster column
-  cell_metadata = pDataDT(gobject, feat_type = feat_type)
+  cell_metadata = pDataDT(gobject,
+                          feat_type = feat_type,
+                          spat_unit = spat_unit)
   if(!cluster_column %in% colnames(cell_metadata)) {
     stop('\n cluster column not found \n')
   }
@@ -113,6 +125,7 @@ findScranMarkers <- function(gobject,
 #' @description Identify marker feats for all clusters in a one vs all manner based on scran's implementation of findMarkers.
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param expression_values feat expression values to use
 #' @param cluster_column clusters to use
 #' @param subset_clusters subset of clusters to use
@@ -127,6 +140,7 @@ findScranMarkers <- function(gobject,
 #' @export
 findScranMarkers_one_vs_all <- function(gobject,
                                         feat_type = NULL,
+                                        spat_unit = NULL,
                                         expression_values = c('normalized', 'scaled', 'custom'),
                                         cluster_column,
                                         subset_clusters = NULL,
@@ -154,16 +168,23 @@ findScranMarkers_one_vs_all <- function(gobject,
   F1000Res., 5, 2122. doi: 10.12688/f1000research.9501.2. ")
 
 
-  # specify feat_type
+  # set feat type
   if(is.null(feat_type)) {
     feat_type = gobject@expression_feat[[1]]
+  }
+
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
   }
 
   # expression data
   values = match.arg(expression_values, choices = unique(c('normalized', 'scaled', 'custom', expression_values)))
 
   # cluster column
-  cell_metadata = pDataDT(gobject, feat_type = feat_type)
+  cell_metadata = pDataDT(gobject,
+                          feat_type = feat_type,
+                          spat_unit = spat_unit)
   if(!cluster_column %in% colnames(cell_metadata)) {
     stop('\n cluster column not found \n')
   }
@@ -199,6 +220,7 @@ findScranMarkers_one_vs_all <- function(gobject,
     # one vs all markers
     markers = findScranMarkers(gobject = gobject,
                                feat_type = feat_type,
+                               spat_unit = spat_unit,
                                expression_values = values,
                                cluster_column = cluster_column,
                                group_1 = selected_clus,
@@ -241,6 +263,7 @@ findScranMarkers_one_vs_all <- function(gobject,
 #' @description Identify marker feats for selected clusters based on gini detection and expression scores.
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param expression_values feat expression values to use
 #' @param cluster_column clusters to use
 #' @param subset_clusters selection of clusters to compare
@@ -276,6 +299,7 @@ findScranMarkers_one_vs_all <- function(gobject,
 #' @export
 findGiniMarkers <- function(gobject,
                             feat_type = NULL,
+                            spat_unit = NULL,
                             expression_values = c('normalized', 'scaled', 'custom'),
                             cluster_column,
                             subset_clusters = NULL,
@@ -296,9 +320,14 @@ findGiniMarkers <- function(gobject,
     warning('min_genes argument is deprecated, use min_feats argument in the future \n')
   }
 
-  # specify feat_type
+  # set feat type
   if(is.null(feat_type)) {
     feat_type = gobject@expression_feat[[1]]
+  }
+
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
   }
 
   ## select expression values
@@ -307,7 +336,9 @@ findGiniMarkers <- function(gobject,
 
   # cluster column
   cell_metadata = pDataDT(gobject,
-                          feat_type = feat_type)
+                          feat_type = feat_type,
+                          spat_unit = spat_unit)
+
   if(!cluster_column %in% colnames(cell_metadata)) {
     stop('\n cluster column not found \n')
   }
@@ -320,6 +351,7 @@ findGiniMarkers <- function(gobject,
     subset_cell_IDs = cell_metadata[['cell_ID']]
     gobject = subsetGiotto(gobject = gobject,
                            feat_type = feat_type,
+                           spat_unit = spat_unit,
                            cell_ids = subset_cell_IDs)
 
   } else if(!is.null(group_1) & !is.null(group_2)) {
@@ -341,13 +373,17 @@ findGiniMarkers <- function(gobject,
     subset_cell_IDs = cell_metadata[['cell_ID']]
     gobject = subsetGiotto(gobject = gobject,
                            feat_type = feat_type,
+                           spat_unit = spat_unit,
                            cell_ids = subset_cell_IDs)
-    gobject@cell_metadata[[feat_type]] = cell_metadata
+
+    gobject@cell_metadata[[feat_type]][[spat_unit]] = cell_metadata
   }
 
 
   # average expression per cluster
   aggr_sc_clusters <- create_average_DT(gobject = gobject,
+                                        feat_type = feat_type,
+                                        spat_unit = spat_unit,
                                         meta_data_name = cluster_column,
                                         expression_values = values)
   aggr_sc_clusters_DT <- data.table::as.data.table(aggr_sc_clusters)
@@ -433,6 +469,7 @@ findGiniMarkers <- function(gobject,
 #' @description Identify marker feats for all clusters in a one vs all manner based on gini detection and expression scores.
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param expression_values feat expression values to use
 #' @param cluster_column clusters to use
 #' @param subset_clusters selection of clusters to compare
@@ -448,6 +485,7 @@ findGiniMarkers <- function(gobject,
 #' @export
 findGiniMarkers_one_vs_all <- function(gobject,
                                        feat_type = NULL,
+                                       spat_unit = NULL,
                                        expression_values = c('normalized', 'scaled', 'custom'),
                                        cluster_column,
                                        subset_clusters = NULL,
@@ -472,12 +510,20 @@ findGiniMarkers_one_vs_all <- function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
   ## select expression values
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
 
 
   # cluster column
-  cell_metadata = pDataDT(gobject, feat_type = feat_type)
+  cell_metadata = pDataDT(gobject,
+                          feat_type = feat_type,
+                          spat_unit = spat_unit)
+
   if(!cluster_column %in% colnames(cell_metadata)) {
     stop('\n cluster column not found \n')
   }
@@ -488,8 +534,11 @@ findGiniMarkers_one_vs_all <- function(gobject,
     subset_cell_IDs = cell_metadata[['cell_ID']]
     gobject = subsetGiotto(gobject = gobject,
                            feat_type = feat_type,
+                           spat_unit = spat_unit,
                            cell_ids = subset_cell_IDs)
-    cell_metadata = pDataDT(gobject, feat_type = feat_type)
+    cell_metadata = pDataDT(gobject,
+                            feat_type = feat_type,
+                            spat_unit = spat_unit)
   }
 
 
@@ -512,6 +561,7 @@ findGiniMarkers_one_vs_all <- function(gobject,
 
     markers = findGiniMarkers(gobject = gobject,
                               feat_type = feat_type,
+                              spat_unit = spat_unit,
                               expression_values = values,
                               cluster_column = cluster_column,
                               group_1 = selected_clus,
@@ -544,6 +594,7 @@ findGiniMarkers_one_vs_all <- function(gobject,
 #' @description Identify marker feats for selected clusters based on the MAST package.
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param expression_values feat expression values to use
 #' @param cluster_column clusters to use
 #' @param group_1 group 1 cluster IDs from cluster_column for pairwise comparison
@@ -560,6 +611,7 @@ findGiniMarkers_one_vs_all <- function(gobject,
 #' @export
 findMastMarkers <- function(gobject,
                             feat_type = NULL,
+                            spat_unit = NULL,
                             expression_values = c('normalized', 'scaled', 'custom'),
                             cluster_column,
                             group_1 = NULL,
@@ -576,6 +628,11 @@ findMastMarkers <- function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
   # verify if optional package is installed
   package_check(pkg_name = "MAST", repository = "Bioc")
 
@@ -589,7 +646,9 @@ findMastMarkers <- function(gobject,
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
 
   ## cluster column
-  cell_metadata = pDataDT(gobject, feat_type = feat_type)
+  cell_metadata = pDataDT(gobject,
+                          feat_type = feat_type,
+                          spat_unit = spat_unit)
   if(!cluster_column %in% colnames(cell_metadata)) {
     stop('\n cluster column not found \n')
   }
@@ -626,8 +685,11 @@ findMastMarkers <- function(gobject,
 
   # expression data
   subset_cell_IDs = cell_metadata[['cell_ID']]
-  gobject = subsetGiotto(gobject = gobject, cell_ids = subset_cell_IDs)
-  gobject@cell_metadata[[feat_type]] = cell_metadata
+  gobject = subsetGiotto(gobject = gobject,
+                         feat_type = feat_type,
+                         spat_unit = spat_unit,
+                         cell_ids = subset_cell_IDs)
+  gobject@cell_metadata[[feat_type]][[spat_unit]] = cell_metadata
 
 
 
@@ -636,12 +698,17 @@ findMastMarkers <- function(gobject,
   # expression data
   values = match.arg(expression_values, choices = unique(c('normalized', 'scaled', 'custom', expression_values)))
   expr_data = get_expression_values(gobject = gobject,
-                                       feat_type = feat_type,
-                                       values = values)
+                                    feat_type = feat_type,
+                                    spat_unit = spat_unit,
+                                    values = values)
   # column & row data
-  column_data = pDataDT(gobject, feat_type = feat_type)
+  column_data = pDataDT(gobject,
+                        feat_type = feat_type,
+                        spat_unit = spat_unit)
   setnames(column_data, 'cell_ID', 'wellKey')
-  row_data = fDataDT(gobject, feat_type = feat_type)
+  row_data = fDataDT(gobject,
+                     feat_type = feat_type,
+                     spat_unit = spat_unit)
   setnames(row_data, 'feat_ID', 'primerid')
   # mast object
   mast_data = MAST::FromMatrix(exprsArray = expr_data,
@@ -692,6 +759,7 @@ findMastMarkers <- function(gobject,
 #' @description Identify marker feats for all clusters in a one vs all manner based on the MAST package.
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param expression_values feat expression values to use
 #' @param cluster_column clusters to use
 #' @param subset_clusters selection of clusters to compare
@@ -707,6 +775,7 @@ findMastMarkers <- function(gobject,
 #' @export
 findMastMarkers_one_vs_all = function(gobject,
                                       feat_type = NULL,
+                                      spat_unit = NULL,
                                       expression_values = c('normalized', 'scaled', 'custom'),
                                       cluster_column,
                                       subset_clusters = NULL,
@@ -730,6 +799,10 @@ findMastMarkers_one_vs_all = function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
 
   # verify if optional package is installed
   package_check(pkg_name = "MAST", repository = "Bioc")
@@ -742,7 +815,9 @@ findMastMarkers_one_vs_all = function(gobject,
 
 
   ## cluster column
-  cell_metadata = pDataDT(gobject, feat_type = feat_type)
+  cell_metadata = pDataDT(gobject,
+                          feat_type = feat_type,
+                          spat_unit = spat_unit)
   if(!cluster_column %in% colnames(cell_metadata)) {
     stop('\n cluster column not found \n')
   }
@@ -753,7 +828,9 @@ findMastMarkers_one_vs_all = function(gobject,
     cell_metadata = cell_metadata[get(cluster_column) %in% subset_clusters]
     subset_cell_IDs = cell_metadata[['cell_ID']]
     gobject = subsetGiotto(gobject = gobject, cell_ids = subset_cell_IDs)
-    cell_metadata = pDataDT(gobject, feat_type = feat_type)
+    cell_metadata = pDataDT(gobject,
+                            feat_type = feat_type,
+                            spat_unit = spat_unit)
   }
 
   ## sort uniq clusters
@@ -773,6 +850,7 @@ findMastMarkers_one_vs_all = function(gobject,
 
     temp_mast_markers = findMastMarkers(gobject = gobject,
                                         feat_type = feat_type,
+                                        spat_unit = spat_unit,
                                         expression_values = expression_values,
                                         cluster_column = cluster_column,
                                         adjust_columns = adjust_columns,
@@ -809,6 +887,7 @@ findMastMarkers_one_vs_all = function(gobject,
 #' @description Identify marker feats for selected clusters.
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param expression_values feat expression values to use
 #' @param cluster_column clusters to use
 #' @param method method to use to detect differentially expressed feats
@@ -831,6 +910,7 @@ findMastMarkers_one_vs_all = function(gobject,
 #' @export
 findMarkers <- function(gobject,
                         feat_type = NULL,
+                        spat_unit = NULL,
                         expression_values = c('normalized', 'scaled', 'custom'),
                         cluster_column = NULL,
                         method = c('scran','gini','mast'),
@@ -867,6 +947,7 @@ findMarkers <- function(gobject,
 
     markers_result =  findScranMarkers(gobject = gobject,
                                        feat_type = feat_type,
+                                       spat_unit = spat_unit,
                                        expression_values = expression_values,
                                        cluster_column = cluster_column,
                                        subset_clusters = subset_clusters,
@@ -876,6 +957,7 @@ findMarkers <- function(gobject,
 
     markers_result <-  findGiniMarkers(gobject = gobject,
                                        feat_type = feat_type,
+                                       spat_unit = spat_unit,
                                        expression_values = expression_values,
                                        cluster_column = cluster_column,
                                        subset_clusters = subset_clusters,
@@ -891,6 +973,7 @@ findMarkers <- function(gobject,
 
     markers_result <- findMastMarkers(gobject = gobject,
                                       feat_type = feat_type,
+                                      spat_unit = spat_unit,
                                       expression_values = expression_values,
                                       cluster_column = cluster_column,
                                       group_1 = group_1,
@@ -912,6 +995,7 @@ findMarkers <- function(gobject,
 #' @description Identify marker feats for all clusters in a one vs all manner.
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param expression_values feat expression values to use
 #' @param cluster_column clusters to use
 #' @param method method to use to detect differentially expressed feats
@@ -933,6 +1017,7 @@ findMarkers <- function(gobject,
 #' @export
 findMarkers_one_vs_all <- function(gobject,
                                    feat_type = NULL,
+                                   spat_unit = NULL,
                                    expression_values = c('normalized', 'scaled', 'custom'),
                                    cluster_column,
                                    subset_clusters = NULL,
@@ -966,6 +1051,7 @@ findMarkers_one_vs_all <- function(gobject,
 
     markers_result = findScranMarkers_one_vs_all(gobject = gobject,
                                                  feat_type = feat_type,
+                                                 spat_unit = spat_unit,
                                                  expression_values = expression_values,
                                                  cluster_column = cluster_column,
                                                  subset_clusters = subset_clusters,
@@ -978,6 +1064,7 @@ findMarkers_one_vs_all <- function(gobject,
 
     markers_result = findGiniMarkers_one_vs_all(gobject = gobject,
                                                 feat_type = feat_type,
+                                                spat_unit = spat_unit,
                                                 expression_values = expression_values,
                                                 cluster_column = cluster_column,
                                                 subset_clusters = subset_clusters,
@@ -991,6 +1078,7 @@ findMarkers_one_vs_all <- function(gobject,
 
     markers_result = findMastMarkers_one_vs_all(gobject = gobject,
                                                 feat_type = feat_type,
+                                                spat_unit = spat_unit,
                                                 expression_values = expression_values,
                                                 cluster_column = cluster_column,
                                                 subset_clusters = subset_clusters,

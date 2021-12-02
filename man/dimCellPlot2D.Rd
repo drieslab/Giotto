@@ -6,6 +6,8 @@
 \usage{
 dimCellPlot2D(
   gobject,
+  feat_type = NULL,
+  spat_unit = NULL,
   dim_reduction_to_use = "umap",
   dim_reduction_name = "umap",
   dim1_to_use = 1,
@@ -56,6 +58,10 @@ dimCellPlot2D(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{dim_reduction_to_use}{dimension reduction to use}
 

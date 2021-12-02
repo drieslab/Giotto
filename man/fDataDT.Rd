@@ -4,7 +4,7 @@
 \alias{fDataDT}
 \title{fDataDT}
 \usage{
-fDataDT(gobject, feat_type = NULL)
+fDataDT(gobject, feat_type = NULL, spat_unit = NULL)
 }
 \arguments{
 \item{gobject}{giotto object}

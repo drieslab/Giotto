@@ -522,6 +522,7 @@ calc_spatial_enrichment_DT = function(bin_matrix,
       stop('group_size is too big, it can not be greater than the number of feats')
     }
   } else if(group_size == 'automatic') {
+
     test_number = ceiling(nrow(bin_matrix)/10)
     test_number = max(2, test_number)
     group_size = min(200, test_number)
@@ -529,6 +530,9 @@ calc_spatial_enrichment_DT = function(bin_matrix,
 
   groups = ceiling(nrow(bin_matrix)/group_size)
   cut_groups = cut(1:nrow(bin_matrix), breaks = groups, labels = 1:groups)
+  if(any(table(cut_groups) == 1)) {
+    stop('With group size = ', group_size, ' you have a single gene in a group. Manually pick another group size')
+  }
   indexes = 1:nrow(bin_matrix)
   names(indexes) = cut_groups
 
@@ -818,6 +822,7 @@ binSpectSingleMatrix = function(expression_matrix,
 #' @description binSpect for a single spatial network
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param bin_method method to binarize gene expression
 #' @param expression_values expression values to use
 #' @param subset_feats only select a subset of features to test
@@ -871,6 +876,7 @@ binSpectSingleMatrix = function(expression_matrix,
 #' @export
 binSpectSingle = function(gobject,
                           feat_type = NULL,
+                          spat_unit = NULL,
                           bin_method = c('kmeans', 'rank'),
                           expression_values = c('normalized', 'scaled', 'custom'),
                           subset_feats = NULL,
@@ -909,13 +915,24 @@ binSpectSingle = function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
   ## 1. expression matrix
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_values = get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+  expr_values = get_expression_values(gobject = gobject,
+                                      feat_type = feat_type,
+                                      spat_unit = spat_unit,
+                                      values = values)
 
 
   ## 2. spatial network
-  spatial_network = get_spatialNetwork(gobject, name = spatial_network_name,return_network_Obj = FALSE)
+  spatial_network = get_spatialNetwork(gobject,
+                                       spat_unit = spat_unit,
+                                       name = spatial_network_name,
+                                       return_network_Obj = FALSE)
   if(is.null(spatial_network)) {
     stop('spatial_network_name: ', spatial_network_name, ' does not exist, create a spatial network first')
   }
@@ -1017,6 +1034,7 @@ binSpectSingle = function(gobject,
 #' @export
 binSpectMulti = function(gobject,
                          feat_type = NULL,
+                         spat_unit = NULL,
                          bin_method = c('kmeans', 'rank'),
                          expression_values = c('normalized', 'scaled', 'custom'),
                          subset_feats = NULL,
@@ -1057,6 +1075,11 @@ binSpectMulti = function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
   if(verbose == TRUE) cat('\n This is the multi parameter version of binSpect')
 
   # set number of cores automatically, but with limit of 10
@@ -1082,8 +1105,10 @@ binSpectMulti = function(gobject,
         knn_params = list(minimum_k = 1)
       }
       temp_gobject = do.call('createSpatialKNNnetwork', c(gobject = gobject,
+                                                          spat_unit = spat_unit,
                                                           name = 'temp_knn_network',
-                                                          k = k, knn_params))
+                                                          k = k,
+                                                          knn_params))
 
       for(rank_i in percentage_rank) {
 
@@ -1091,6 +1116,7 @@ binSpectMulti = function(gobject,
 
         result = binSpectSingle(gobject = temp_gobject,
                                 feat_type = feat_type,
+                                spat_unit = spat_unit,
                                 bin_method = bin_method,
                                 expression_values = expression_values,
                                 subset_feats = subset_feats,
@@ -1126,7 +1152,10 @@ binSpectMulti = function(gobject,
 
     ## expression matrix
     values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-    expr_values = get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+    expr_values = get_expression_values(gobject = gobject,
+                                        feat_type = feat_type,
+                                        spat_unit = spat_unit,
+                                        values = values)
 
 
     # pre-calculate bin_matrix once
@@ -1145,6 +1174,7 @@ binSpectMulti = function(gobject,
         knn_params = list(minimum_k = 1)
       }
       temp_gobject = do.call('createSpatialKNNnetwork', c(gobject = gobject,
+                                                          spat_unit = spat_unit,
                                                           name = 'temp_knn_network',
                                                           k = k, knn_params))
 
@@ -1152,6 +1182,7 @@ binSpectMulti = function(gobject,
 
       result = binSpectSingle(gobject = temp_gobject,
                               feat_type = feat_type,
+                              spat_unit = spat_unit,
                               bin_method = bin_method,
                               expression_values = expression_values,
                               subset_feats = subset_feats,
@@ -1386,6 +1417,7 @@ binSpectMultiMatrix = function(expression_matrix,
 #' that identifies genes with a spatially coherent expression pattern.
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param bin_method method to binarize gene expression
 #' @param expression_values expression values to use
 #' @param subset_feats only select a subset of features to test
@@ -1442,6 +1474,7 @@ binSpectMultiMatrix = function(expression_matrix,
 #' @export
 binSpect = function(gobject,
                     feat_type = NULL,
+                    spat_unit = NULL,
                     bin_method = c('kmeans', 'rank'),
                     expression_values = c('normalized', 'scaled', 'custom'),
                     subset_feats = NULL,
@@ -1476,6 +1509,7 @@ binSpect = function(gobject,
 
     output = binSpectMulti(gobject = gobject,
                            feat_type = feat_type,
+                           spat_unit = spat_unit,
                            bin_method = bin_method,
                            expression_values = expression_values,
                            subset_feats = subset_feats,
@@ -1507,6 +1541,7 @@ binSpect = function(gobject,
 
     output = binSpectSingle(gobject = gobject,
                             feat_type = feat_type,
+                            spat_unit = spat_unit,
                             bin_method = bin_method,
                             expression_values = expression_values,
                             subset_feats = subset_feats,
@@ -1786,6 +1821,8 @@ silhouetteRankTest = function(gobject,
 #' @name spatialDE
 #' @description Compute spatial variable genes with spatialDE method
 #' @param gobject Giotto object
+#' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param spat_loc_name name for spatial locations
 #' @param expression_values gene expression values to use
 #' @param size size of plot
@@ -1802,6 +1839,8 @@ silhouetteRankTest = function(gobject,
 #' @details This function is a wrapper for the SpatialDE method implemented in the ...
 #' @export
 spatialDE <- function(gobject = NULL,
+                      feat_type = NULL,
+                      spat_unit = NULL,
                       spat_loc_name = 'raw',
                       expression_values = c('raw', 'normalized', 'scaled', 'custom'),
                       size = c(4,2,1),
@@ -1850,9 +1889,22 @@ spatialDE <- function(gobject = NULL,
   # data.table variables
   cell_ID = NULL
 
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
   # expression
   values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
-  expr_values = get_expression_values(gobject = gobject, values = values)
+  expr_values = get_expression_values(gobject = gobject,
+                                      feat_type = feat_type,
+                                      spat_unit = spat_unit,
+                                      values = values)
 
   ## python path
   if(is.null(python_path)) {
@@ -1866,7 +1918,8 @@ spatialDE <- function(gobject = NULL,
 
   ## get spatial locations
   spatial_locs = get_spatial_locations(gobject,
-                                          spat_loc_name = spat_loc_name)
+                                       spat_unit = spat_unit,
+                                       spat_loc_name = spat_loc_name)
   spatial_locs <- as.data.frame(spatial_locs)
   rownames(spatial_locs) <- spatial_locs$cell_ID
   spatial_locs <- subset(spatial_locs, select = -cell_ID)
@@ -1925,6 +1978,8 @@ spatialDE <- function(gobject = NULL,
 #' @name spatialAEH
 #' @description Compute spatial variable genes with spatialDE method
 #' @param gobject Giotto object
+#' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param spat_loc_name name for spatial locations
 #' @param SpatialDE_results results of \code{\link{spatialDE}} function
 #' @param name_pattern name for the computed spatial patterns
@@ -1937,6 +1992,8 @@ spatialDE <- function(gobject = NULL,
 #' @details This function is a wrapper for the SpatialAEH method implemented in the ...
 #' @export
 spatialAEH <- function(gobject = NULL,
+                       feat_type = NULL,
+                       spat_unit = NULL,
                        spat_loc_name = 'raw',
                        SpatialDE_results = NULL,
                        name_pattern = 'AEH_patterns',
@@ -1949,9 +2006,22 @@ spatialAEH <- function(gobject = NULL,
   # data.table variables
   cell_ID = NULL
 
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
   # expression
   values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
-  expr_values = get_expression_values(gobject = gobject, values = values)
+  expr_values = get_expression_values(gobject = gobject,
+                                      feat_type = feat_type,
+                                      spat_unit = spat_unit,
+                                      values = values)
 
   ## python path
   if(is.null(python_path)) {
@@ -1966,7 +2036,8 @@ spatialAEH <- function(gobject = NULL,
 
   ## spatial locations
   spatial_locs =  get_spatial_locations(gobject,
-                                           spat_loc_name = spat_loc_name)
+                                        spat_unit = spat_unit,
+                                        spat_loc_name = spat_loc_name)
   spatial_locs <- as.data.frame(spatial_locs)
   rownames(spatial_locs) <- spatial_locs$cell_ID
   spatial_locs <- subset(spatial_locs, select = -cell_ID)
@@ -2069,6 +2140,8 @@ FSV_show <- function(results,
 #' @name trendSceek
 #' @description Compute spatial variable genes with trendsceek method
 #' @param gobject Giotto object
+#' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param spat_loc_name name for spatial locations
 #' @param expression_values gene expression values to use
 #' @param subset_genes subset of genes to run trendsceek on
@@ -2079,6 +2152,8 @@ FSV_show <- function(results,
 #' @details This function is a wrapper for the trendsceek_test method implemented in the trendsceek package
 #' @export
 trendSceek <- function(gobject,
+                       feat_type = NULL,
+                       spat_unit = NULL,
                        spat_loc_name = 'raw',
                        expression_values = c("normalized", "raw"),
                        subset_genes = NULL,
@@ -2096,9 +2171,22 @@ trendSceek <- function(gobject,
   Edsgard, Daniel, Per Johnsson, and Rickard Sandberg. 'Identification of Spatial Expression Trends in Single-Cell Gene Expression Data.'
           Nature Methods 15, no. 5 (May 2018): 339-42. https://doi.org/10.1038/nmeth.4634.")
 
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
   ## expression data
   values = match.arg(expression_values, c("normalized", "raw"))
-  expr_values = get_expression_values(gobject = gobject, values = values)
+  expr_values = get_expression_values(gobject = gobject,
+                                      feat_type = feat_type,
+                                      spat_unit = spat_unit,
+                                      values = values)
 
   ## normalization function
   if (values == "normalized") {
@@ -2120,7 +2208,9 @@ trendSceek <- function(gobject,
   # data.table variables
   cell_ID = NULL
 
-  spatial_locations = get_spatial_locations(gobject, spat_loc_name = spat_loc_name)
+  spatial_locations = get_spatial_locations(gobject,
+                                            spat_unit = spat_unit,
+                                            spat_loc_name = spat_loc_name)
   spatial_locations[, cell_ID := NULL]
   pp = trendsceek::pos2pp(spatial_locations)
 
@@ -2146,8 +2236,9 @@ trendSceek <- function(gobject,
 #' @name spark
 #' @description Compute spatially expressed genes with SPARK method
 #' @param gobject giotto object
-#' @param spat_loc_name name for spatial locations
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
+#' @param spat_loc_name name for spatial locations
 #' @param percentage The percentage of cells that are expressed for analysis
 #' @param min_count minimum number of counts for a gene to be included
 #' @param expression_values type of values to use (raw by default)
@@ -2167,6 +2258,7 @@ trendSceek <- function(gobject,
 spark = function(gobject,
                  spat_loc_name = 'raw',
                  feat_type = NULL,
+                 spat_unit = NULL,
                  percentage = 0.1,
                  min_count = 10,
                  expression_values = 'raw',
@@ -2179,6 +2271,11 @@ spark = function(gobject,
   # specify feat_type
   if(is.null(feat_type)) {
     feat_type = gobject@expression_feat[[1]]
+  }
+
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
   }
 
   # determine parameter
@@ -2201,12 +2298,14 @@ spark = function(gobject,
 
   ## extract expression values from gobject
   expr = get_expression_values(gobject = gobject,
-                                  feat_type = feat_type,
-                                  values = expression_values)
+                               feat_type = feat_type,
+                               spat_unit = spat_unit,
+                               values = expression_values)
 
   ## extract coordinates from gobject
   locs = get_spatial_locations(gobject,
-                                  spat_loc_name = spat_loc_name)
+                               spat_unit = spat_unit,
+                               spat_loc_name = spat_loc_name)
   locs = as.data.frame(locs)
   rownames(locs) = colnames(expr)
 
@@ -2227,6 +2326,7 @@ spark = function(gobject,
     filter_gene_ids = rownames(sobject@counts)
     tempgobject = subsetGiotto(gobject,
                                feat_type = feat_type,
+                               spat_unit = spat_unit,
                                cell_ids = filter_cell_ids,
                                feat_ids = filter_gene_ids)
 
@@ -3113,8 +3213,9 @@ detectSpatialCorFeatsMatrix <- function(expression_matrix,
 #' @name detectSpatialCorFeats
 #' @description Detect features that are spatially correlated
 #' @param gobject giotto object
-#' @param spat_loc_name name for spatial locations
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
+#' @param spat_loc_name name for spatial locations
 #' @param method method to use for spatial averaging
 #' @param expression_values gene expression values to use
 #' @param subset_feats subset of feats to use
@@ -3139,8 +3240,9 @@ detectSpatialCorFeatsMatrix <- function(expression_matrix,
 #' @seealso \code{\link{showSpatialCorFeats}}
 #' @export
 detectSpatialCorFeats <- function(gobject,
-                                  spat_loc_name = 'raw',
                                   feat_type = NULL,
+                                  spat_unit = NULL,
+                                  spat_loc_name = 'raw',
                                   method = c('grid', 'network'),
                                   expression_values = c('normalized', 'scaled', 'custom'),
                                   subset_feats = NULL,
@@ -3155,6 +3257,11 @@ detectSpatialCorFeats <- function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
   ## correlation method to be used
   cor_method = match.arg(cor_method, choices = c('pearson', 'kendall', 'spearman'))
 
@@ -3164,8 +3271,9 @@ detectSpatialCorFeats <- function(gobject,
   # get expression matrix
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
   expr_values = get_expression_values(gobject = gobject,
-                                         feat_type = feat_type,
-                                         values = values)
+                                      feat_type = feat_type,
+                                      spat_unit = spat_unit,
+                                      values = values)
 
   if(!is.null(subset_feats)) {
     expr_values = expr_values[rownames(expr_values) %in% subset_feats,]
@@ -3175,6 +3283,7 @@ detectSpatialCorFeats <- function(gobject,
 
   # get spatial locations
   spatial_locs = get_spatial_locations(gobject,
+                                       spat_unit = spat_unit,
                                        spat_loc_name = spat_loc_name)
 
   ## spatial averaging or smoothing
@@ -3182,8 +3291,8 @@ detectSpatialCorFeats <- function(gobject,
 
     # get spatial grid
     spatial_grid = get_spatialGrid(gobject = gobject,
-                                      name = spatial_grid_name,
-                                      return_grid_Obj = FALSE)
+                                   name = spatial_grid_name,
+                                   return_grid_Obj = FALSE)
 
     loc_av_expr_matrix = do_spatial_grid_averaging(expression_matrix = as.matrix(expr_values),
                                                    spatial_grid  = spatial_grid,
@@ -3205,8 +3314,9 @@ detectSpatialCorFeats <- function(gobject,
 
     # get spatial network
     spatial_network = get_spatialNetwork(gobject = gobject,
-                                      name = spatial_network_name,
-                                      return_network_Obj = FALSE)
+                                         spat_unit = spat_unit,
+                                         name = spatial_network_name,
+                                         return_network_Obj = FALSE)
 
     knn_av_expr_matrix = do_spatial_knn_smoothing(expression_matrix = as.matrix(expr_values),
                                                   spatial_network = spatial_network,
@@ -3269,6 +3379,8 @@ detectSpatialCorFeats <- function(gobject,
 #' @name detectSpatialCorGenes
 #' @description Detect genes that are spatially correlated
 #' @param gobject giotto object
+#' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param method method to use for spatial averaging
 #' @param expression_values gene expression values to use
 #' @param subset_feats subset of feats to use
@@ -3294,6 +3406,8 @@ detectSpatialCorFeats <- function(gobject,
 #' @seealso \code{\link{showSpatialCorGenes}}
 #' @export
 detectSpatialCorGenes <- function(gobject,
+                                  feat_type = NULL,
+                                  spat_unit = NULL,
                                   method = c('grid', 'network'),
                                   expression_values = c('normalized', 'scaled', 'custom'),
                                   subset_genes = NULL,
@@ -3307,7 +3421,8 @@ detectSpatialCorGenes <- function(gobject,
   warning("Deprecated and replaced by detectSpatialCorFeats")
 
   detectSpatialCorFeats(gobject = gobject,
-                        feat_type = NULL,
+                        feat_type = feat_type,
+                        spat_unit = spat_unit,
                         method = method,
                         expression_values = expression_values,
                         subset_feats = subset_genes,

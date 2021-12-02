@@ -11,18 +11,20 @@ createGiottoImage(
   mg_object,
   name = "image",
   image_transformations = NULL,
+  negative_y = TRUE,
   do_manual_adj = FALSE,
   xmax_adj = 0,
   xmin_adj = 0,
   ymax_adj = 0,
   ymin_adj = 0,
-  scale_factor = 1
+  scale_factor = 1,
+  verbose = TRUE
 )
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spatial_locs}{spatial locations (alternative if giobject = NULL)}
+\item{spatial_locs}{spatial locations (alternative if gobject = NULL)}
 
 \item{spat_loc_name}{name of spatial locations within gobject}
 
@@ -31,6 +33,8 @@ createGiottoImage(
 \item{name}{name for the image}
 
 \item{image_transformations}{vector of sequential image transformations}
+
+\item{negative_y}{Map image to negative y spatial values if TRUE during automatic alignment. Meaning that origin is in upper left instead of lower left.}
 
 \item{do_manual_adj}{flag to use manual adj values instead of automatic alignment when given a gobject or spatlocs}
 
@@ -43,6 +47,8 @@ createGiottoImage(
 \item{ymin_adj}{adjustment of the minimum y-value to align the image}
 
 \item{scale_factor}{scaling of image dimensions relative to spatial coordinates}
+
+\item{verbose}{be verbose}
 }
 \value{
 a giottoImage object

@@ -7,6 +7,7 @@
 create_average_detection_DT(
   gobject,
   feat_type = NULL,
+  spat_unit = NULL,
   meta_data_name,
   expression_values = c("normalized", "scaled", "custom"),
   detection_threshold = 0
@@ -16,6 +17,8 @@ create_average_detection_DT(
 \item{gobject}{giotto object}
 
 \item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{meta_data_name}{name of metadata column to use}
 

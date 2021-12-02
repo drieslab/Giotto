@@ -7,6 +7,7 @@
 findInteractionChangedFeats(
   gobject,
   feat_type = NULL,
+  spat_unit = NULL,
   expression_values = "normalized",
   selected_feats = NULL,
   cluster_column,
@@ -29,6 +30,8 @@ findInteractionChangedFeats(
 \item{gobject}{giotto object}
 
 \item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{expression_values}{expression values to use}
 

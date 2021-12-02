@@ -8,6 +8,7 @@
 create_feats_to_use_matrix(
   gobject,
   feat_type = NULL,
+  spat_unit = NULL,
   sel_matrix,
   feats_to_use,
   verbose = FALSE
@@ -17,6 +18,8 @@ create_feats_to_use_matrix(
 \item{gobject}{giotto object}
 
 \item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{sel_matrix}{selected expression matrix}
 

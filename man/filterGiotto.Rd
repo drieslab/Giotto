@@ -7,6 +7,7 @@
 filterGiotto(
   gobject,
   feat_type = NULL,
+  spat_unit = NULL,
   expression_values = c("raw", "normalized", "scaled", "custom"),
   expression_threshold = 1,
   feat_det_in_min_cells = 100,
@@ -14,13 +15,15 @@ filterGiotto(
   min_det_feats_per_cell = 100,
   min_det_genes_per_cell = NULL,
   poly_info = "cell",
-  verbose = F
+  verbose = TRUE
 )
 }
 \arguments{
 \item{gobject}{giotto object}
 
 \item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{expression_values}{expression values to use}
 
