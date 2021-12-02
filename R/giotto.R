@@ -2100,6 +2100,43 @@ createGiottoObject <- function(expression,
     gobject@spatial_locs = spatial_location_data
 
     # TODO: ensure spatial locations and expression matrices have the same cell IDs
+    # TODO: give cell IDs if not provided
+
+    for(region in names(gobject@spatial_locs)) {
+
+      expected_cell_ID_names = gobject@cell_ID[[region]]
+
+      for(coord in names(gobject@spatial_locs[[region]])) {
+
+        # 1. get colnames
+        spatial_colnames = colnames(gobject@spatial_locs[[region]][[coord]])
+
+        # if cell_ID column is provided then compare with expected cell_IDs
+        if('cell_ID' %in% spatial_colnames) {
+
+          spatial_cell_id_names = gobject@spatial_locs[[region]][[coord]][['cell_ID']]
+
+          if(!identical(spatial_cell_id_names, expected_cell_ID_names)) {
+            stop('cell_IDs between spatial and expression information are not the same for: \n
+                 region: ', region, ' and coordinates: ', coord, ' \n')
+          }
+
+        } else {
+
+          # if cell_ID column is not provided then add expected cell_IDs
+
+          if(nrow(gobject@spatial_locs[[region]][[coord]]) != length(expected_cell_ID_names)) {
+            stop('Number of rows of spatial locations do not match with cell IDs for: \n
+                 region: ', region, ' and coordinates: ', coord, ' \n')
+          }
+
+          gobject@spatial_locs[[region]][[coord]][['cell_ID']] = expected_cell_ID_names
+
+        }
+
+      }
+    }
+
 
 
 
