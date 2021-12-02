@@ -1109,16 +1109,22 @@ updateGiottoImageMG = function(gobject = NULL,
 #' @param image_name name of giotto image \code{\link{showGiottoImageNames}}
 #' @return a giotto image
 #' @keywords internal
-get_GiottoImage_MG = function(gobject,
-                              image_name) {
+get_GiottoImage_MG = function(gobject = NULL,
+                              image_name = NULL) {
 
-  if(is.null(gobject)) stop('The giotto object that will be updated needs to be provided \n')
-  if(is.null(image_name)) stop('The name of the giotto image that will be updated needs to be provided \n')
-
+  if(is.null(gobject)) stop('The giotto object holding the giottoImage needs to be provided \n')
   g_image_names = names(gobject@images)
-  if(!image_name %in% g_image_names) stop(image_name, ' was not found among the image names, see showImageNames()')
+  if(is.null(g_image_names)) stop('No giottoImages have been found \n')
+  
+  if(is.null(image_name)) {
+    image_name = g_image_names[1]
+  }
 
-  return(gobject@images[[image_name]])
+  if(!image_name %in% g_image_names) stop(image_name, ' was not found among the image names, see showImageNames()')
+  
+  g_image = gobject@images[[image_name]]
+
+  return(g_image)
 }
 
 
