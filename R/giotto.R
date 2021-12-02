@@ -596,11 +596,16 @@ evaluate_expr_matrix = function(inputmatrix,
 #' @name depth
 #' @keywords internal
 depth <- function(this) {
+  if(is.data.frame(this)) {
+    return(0)
+  }
   if(is.list(this) && length(this) == 0) {
     return(0)
   }
   ifelse(is.list(this), 1L + max(sapply(this, depth)), 0L)
 }
+
+
 
 
 #' @title read_expression_data
@@ -1108,7 +1113,7 @@ read_spatial_location_data = function(gobject,
   }
 
   # too much information
-  if(list_depth > 3) {
+  if(list_depth > 2) {
     stop('Depth of spatial location list is more than 2, only 2 levels are possible:
          1) spatial unit (e.g. cell) --> 2) coordinate (e.g. raw) \n')
   }
@@ -1118,7 +1123,7 @@ read_spatial_location_data = function(gobject,
 
 
   # 2. for list with 1 depth
-  if(list_depth == 2) { # data.frame or data.table itself is also a list!
+  if(list_depth == 1) {
 
     cat('list depth of 1 \n')
 
@@ -1133,7 +1138,7 @@ read_spatial_location_data = function(gobject,
     }
 
 
-  } else if(list_depth == 3) {
+  } else if(list_depth == 2) {
 
     cat('list depth of 2 \n')
     # add default region == 'cell'
