@@ -1864,6 +1864,7 @@ createGiottoObject_OLD <- function(expression,
 
 
 
+
 #' @title createGiottoObject
 #' @name createGiottoObject
 #' @description Function to create a giotto object
@@ -2459,7 +2460,6 @@ get_adj_rescale_img = function(img_minmax,
            'ymax_adj_orig' = ymax_adj_orig))
 
 }
-
 
 
 

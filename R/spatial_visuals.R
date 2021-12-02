@@ -4,6 +4,73 @@
 ## 2-D ggplots ####
 ## ----------- ##
 
+## ** image object compatibility ####
+
+#' @title plot_auto_convert_largeImage_MG
+#' @name plot_auto_convert_largeImage_MG
+#' @description automatically convert giottoLargeImage to giottoImage for giotto plotting functions
+#' @param gobject gobject containing largeImage
+#' @param giottoLargeImage giottoLargeImage
+#' @param largeImage_name name of largeImage
+#' @param spat_loc_name name of spatial locations to plot
+#' @param include_image_in_border expand the extent sampled to also show image in border regions not included in spatlocs
+#' @return a giottoImage (MG)
+#' @keywords internal
+plot_auto_convert_largeImage_MG = function(gobject,
+                                           giottoLargeImage = NULL,
+                                           largeImage_name = NULL,
+                                           spat_loc_name = NULL,
+                                           include_image_in_border = TRUE) {
+  
+  # If no giottoLargeImage, select specified giottoLargeImage. If none specified, select first one.
+  if(is.null(giottoLargeImage)) {
+    giottoLargeImage = get_GiottoLargeImage(gobject = gobject,
+                                    largeImage_name = largeImage_name)
+  }
+  
+  # Get spatial locations
+  cell_locations = get_spatial_locations(gobject = gobject,
+                                         spat_loc_name = spat_loc_name)
+  
+  # Determine crop
+  if(include_image_in_border == TRUE) {
+    x_halfPaddedRange = diff(range(cell_locations$sdimx))*0.625
+    y_halfPaddedRange = diff(range(cell_locations$sdimy))*0.625
+    x_mean = mean(cell_locations$sdimx)
+    y_mean = mean(cell_locations$sdimy)
+    im_minmax = terra::ext(giottoLargeImage@raster_object)[1:4]
+    xmax_crop = x_mean + x_halfPaddedRange
+    xmin_crop = x_mean - x_halfPaddedRange
+    ymax_crop = y_mean + y_halfPaddedRange
+    ymin_crop = y_mean - y_halfPaddedRange
+    
+    if(xmin_crop < im_minmax[['xmin']]) xmin_crop = im_minmax[['xmin']]
+    if(xmax_crop > im_minmax[['xmax']]) xmax_crop = im_minmax[['xmax']]
+    if(ymin_crop < im_minmax[['ymin']]) ymin_crop = im_minmax[['ymin']]
+    if(ymax_crop > im_minmax[['ymax']]) ymax_crop = im_minmax[['ymax']]
+  } else {
+    x_range = range(cell_locations$sdimx)
+    y_range = range(cell_locations$sdimy)
+    xmin_crop = x_range[1]
+    xmax_crop = x_range[2]
+    ymin_crop = y_range[1]
+    ymax_crop = y_range[2]
+  }
+  
+  # Convert to properly zoomed gimage (MG)
+  gimage = convertGiottoLargeImageToMG(giottoLargeImage = giottoLargeImage,
+                                       xmax_crop = xmax_crop,
+                                       xmin_crop = xmin_crop,
+                                       ymax_crop = ymax_crop,
+                                       ymin_crop = ymin_crop,
+                                       resample_size = 500000,
+                                       max_intensity = NULL,
+                                       return_gobject = FALSE)
+  
+  return(gimage)
+}
+
+
 ## ** dim reduction plotting ####
 
 #' @title plot_network_layer_ggplot
@@ -71,7 +138,7 @@ plot_network_layer_ggplot = function(ggobject,
 #' @param select_cell_groups select subset of cells/clusters based on cell_color parameter
 #' @param select_cells select subset of cells based on cell IDs
 #' @param point_size size of point (cell)
-#' @param point_alpha transparancy of point
+#' @param point_alpha transparency of point
 #' @param point_border_col color of border around points
 #' @param point_border_stroke stroke size of border around points
 #' @param show_cluster_center plot center of selected clusters
@@ -2344,6 +2411,7 @@ plot_spat_scatterpie_layer_ggplot = function(ggobject,
 #' @param show_image show a tissue background image
 #' @param gimage a giotto image
 #' @param image_name name of a giotto image
+#' @param largeImage_name name of a giottoLargeImage
 #' @param spat_loc_name name of spatial locations
 #' @param sdimx x-axis dimension name (default = 'sdimx')
 #' @param sdimy y-axis dimension name (default = 'sdimy')
@@ -2402,7 +2470,8 @@ spatPlot2D_single = function(gobject,
                              spat_unit = NULL,
                              show_image = F,
                              gimage = NULL,
-                             image_name = 'image',
+                             image_name = NULL,
+                             largeImage_name = NULL,
                              spat_loc_name = NULL,
                              sdimx = 'sdimx',
                              sdimy = 'sdimy',
@@ -2452,9 +2521,11 @@ spatPlot2D_single = function(gobject,
                              show_plot = NA,
                              return_plot = NA,
                              save_plot = NA,
-                             save_param =  list(),
+                             save_param = list(),
                              default_save_name = 'spatPlot2D_single') {
 
+  # Check params
+  if(!is.null(image_name) && !is.null(largeImage_name)) stop('Only one type of image can be used at a time')
 
   # specify feat_type
   if(is.null(feat_type)) {
@@ -2468,21 +2539,46 @@ spatPlot2D_single = function(gobject,
 
   ## giotto image ##
   if(show_image == TRUE) {
-    if(!is.null(gimage)) gimage = gimage
-    else if(!is.null(image_name)) {
+
+    if(!is.null(gimage)) {
+      gimage = gimage
+    } else if(!is.null(image_name)) {
+      # If there is input to image_name arg
 
       if(length(image_name) == 1) {
         gimage = gobject@images[[image_name]]
-        if(is.null(gimage)) warning('image_name: ', image_name, ' does not exists')
+        if(is.null(gimage)) warning('image_name: ', image_name, ' does not exist \n')
       } else {
         gimage = list()
         for(gim in 1:length(image_name)) {
           gimage[[gim]] = gobject@images[[gim]]
-          if(is.null(gimage[[gim]])) warning('image_name: ', gim, ' does not exists')
+          if(is.null(gimage[[gim]])) warning('image_name: ', gim, ' does not exists \n')
         }
       }
 
-
+    } else if(!is.null(largeImage_name)) {
+      # If there is input to largeImage_name arg
+      
+      if(length(largeImage_name) == 1) {
+        gimage = plot_auto_convert_largeImage_MG(gobject = gobject,
+                                                 largeImage_name = largeImage_name,
+                                                 spat_loc_name = spat_loc_name,
+                                                 include_image_in_border = TRUE)
+      } else {
+        gimage = list()
+        for(gim in 1:length(largeImage_name)) {
+          gimage[[gim]] = plot_auto_convert_largeImage_MG(gobject = gobject,
+                                                          largeImage_name = largeImage_name[[gim]],
+                                                          spat_loc_name = spat_loc_name,
+                                                          include_image_in_border = TRUE)
+        }
+      }
+      
+    } else {
+      # Default to first image available in images if no input given to image_name or largeImage_name args
+      image_name = names(gobject@images)[1]
+      gimage = gobject@images[[image_name]]
+      if(is.null(gimage)) warning('image_name: ', image_name, ' does not exist \n')
     }
   }
 
@@ -2754,6 +2850,7 @@ spatPlot2D_single = function(gobject,
 #' @param show_image show a tissue background image
 #' @param gimage a giotto image
 #' @param image_name name of a giotto image or multiple images with group_by
+#' @param largeImage_name name of a giottoLargeImage or multiple images with group_by
 #' @param group_by create multiple plots based on cell annotation column
 #' @param group_by_subset subset the group_by factor column
 #' @param spat_loc_name name of spatial locations
@@ -2822,7 +2919,8 @@ spatPlot2D = function(gobject,
                       spat_unit = NULL,
                       show_image = F,
                       gimage = NULL,
-                      image_name = 'image',
+                      image_name = NULL,
+                      largeImage_name = NULL,
                       group_by = NULL,
                       group_by_subset = NULL,
                       spat_loc_name = NULL,
@@ -2891,6 +2989,7 @@ spatPlot2D = function(gobject,
                       show_image = show_image,
                       gimage = gimage,
                       image_name = image_name,
+                      largeImage_name = largeImage_name,
                       spat_loc_name = spat_loc_name,
                       sdimx = sdimx,
                       sdimy = sdimy,
@@ -3204,12 +3303,12 @@ spatDeconvPlot = function(gobject,
 
       if(length(image_name) == 1) {
         gimage = gobject@images[[image_name]]
-        if(is.null(gimage)) warning('image_name: ', image_name, ' does not exists')
+        if(is.null(gimage)) warning('image_name: ', image_name, ' does not exist \n')
       } else {
         gimage = list()
         for(gim in 1:length(image_name)) {
           gimage[[gim]] = gobject@images[[gim]]
-          if(is.null(gimage[[gim]])) warning('image_name: ', gim, ' does not exists')
+          if(is.null(gimage[[gim]])) warning('image_name: ', gim, ' does not exists \n')
         }
       }
 
@@ -3316,6 +3415,7 @@ spatDeconvPlot = function(gobject,
 #' @param show_image show a tissue background image
 #' @param gimage a giotto image
 #' @param image_name name of a giotto image
+#' @param largeImage_name name of a giottoLargeImage
 #' @param plot_alignment direction to align plot
 #' @param dim_reduction_to_use dimension reduction to use
 #' @param dim_reduction_name dimension reduction name
@@ -3397,7 +3497,8 @@ spatDimPlot2D <- function(gobject,
                           feat_type = NULL,
                           show_image = F,
                           gimage = NULL,
-                          image_name = 'image',
+                          image_name = NULL,
+                          largeImage_name = NULL,
                           spat_loc_name = NULL,
                           plot_alignment = c('vertical', 'horizontal'),
                           dim_reduction_to_use = 'umap',
@@ -3546,6 +3647,7 @@ spatDimPlot2D <- function(gobject,
                    show_image = show_image,
                    gimage = gimage,
                    image_name = image_name,
+                   largeImage_name = largeImage_name,
                    spat_loc_name = spat_loc_name,
                    group_by = NULL,
                    group_by_subset = NULL,
@@ -3663,6 +3765,7 @@ spatDimPlot = function(...) {
 #' @param show_image show a tissue background image
 #' @param gimage a giotto image
 #' @param image_name name of a giotto image
+#' @param largeImage_name name of a giottoLargeImage
 #' @param sdimx x-axis dimension name (default = 'sdimx')
 #' @param sdimy y-axis dimension name (default = 'sdimy')
 #' @param expression_values gene expression values to use
@@ -3693,7 +3796,7 @@ spatDimPlot = function(...) {
 #' @param background_color color of plot background
 #' @param vor_border_color border colorr for voronoi plot
 #' @param vor_max_radius maximum radius for voronoi 'cells'
-#' @param vor_alpha transparancy of voronoi 'cells'
+#' @param vor_alpha transparency of voronoi 'cells'
 #' @param axis_text size of axis text
 #' @param axis_title size of axis title
 #' @param show_plot show plots
@@ -3711,7 +3814,8 @@ spatFeatPlot2D_single <- function(gobject,
                                   spat_unit = NULL,
                                   show_image = F,
                                   gimage = NULL,
-                                  image_name = 'image',
+                                  image_name = NULL,
+                                  largeImage_name = NULL,
                                   spat_loc_name = NULL,
                                   sdimx = 'sdimx',
                                   sdimy = 'sdimy',
@@ -3763,10 +3867,25 @@ spatFeatPlot2D_single <- function(gobject,
 
   ## giotto image ##
   if(show_image == TRUE) {
-    if(!is.null(gimage)) gimage = gimage
-    else if(!is.null(image_name)) {
+    
+    if(!is.null(gimage)) {
+      gimage = gimage
+    } else if(!is.null(image_name)) {
+      # if there is input to image_name arg
       gimage = gobject@images[[image_name]]
-      if(is.null(gimage)) warning('image_name: ', image_name, ' does not exists')
+      if(is.null(gimage)) warning('image_name: ', image_name, ' does not exist \n')
+    } else if (!is.null(largeImage_name)) {
+      # if there is input to largeImage_name arg
+      
+      gimage = plot_auto_convert_largeImage_MG(gobject = gobject,
+                                               largeImage_name = largeImage_name,
+                                               spat_loc_name = spat_loc_name,
+                                               include_image_in_border = TRUE)
+    } else {
+      # Default to first image available in images if no input given to image_name or largeImage_name args
+      image_name = names(gobject@images)[1]
+      gimage = gobject@images[[image_name]]
+      if(is.null(gimage)) warning('image_name: ', image_name, ' does not exist \n')
     }
   }
 
@@ -4108,6 +4227,7 @@ spatFeatPlot2D_single <- function(gobject,
 #' @param show_image show a tissue background image
 #' @param gimage a giotto image
 #' @param image_name name of a giotto image or multiple images if group_by
+#' @param largeImage_name name of a giottoLargeImage or multiple images if group by
 #' @param group_by create multiple plots based on cell annotation column
 #' @param group_by_subset subset the group_by factor column
 #' @param sdimx x-axis dimension name (default = 'sdimx')
@@ -4158,7 +4278,8 @@ spatFeatPlot2D <- function(gobject,
                            spat_unit = NULL,
                            show_image = F,
                            gimage = NULL,
-                           image_name = 'image',
+                           image_name = NULL,
+                           largeImage_name = NULL,
                            spat_loc_name = NULL,
                            group_by = NULL,
                            group_by_subset = NULL,
@@ -4211,6 +4332,7 @@ spatFeatPlot2D <- function(gobject,
                           gimage = gimage,
                           spat_loc_name = spat_loc_name,
                           image_name = image_name,
+                          largeImage_name = largeImage_name,
                           sdimx = sdimx,
                           sdimy = sdimy,
                           expression_values = expression_values,
@@ -4309,6 +4431,7 @@ spatFeatPlot2D <- function(gobject,
                                  show_image = show_image,
                                  gimage = gimage,
                                  image_name = spec_image_name,
+                                 largeImage_name = largeImage_name,
                                  spat_loc_name = spat_loc_name,
                                  sdimx = sdimx,
                                  sdimy = sdimy,
@@ -4841,6 +4964,7 @@ dimGenePlot = function(...) {
 #' @param show_image show a tissue background image
 #' @param gimage a giotto image
 #' @param image_name name of a giotto image
+#' @param largeImage_name name of a giottoLargeImage
 #' @param expression_values feat expression values to use
 #' @param plot_alignment direction to align plot
 #' @param feats features to show
@@ -4903,7 +5027,8 @@ spatDimFeatPlot2D <- function(gobject,
                               spat_unit = NULL,
                               show_image = F,
                               gimage = NULL,
-                              image_name = 'image',
+                              image_name = NULL,
+                              largeImage_name = NULL,
                               expression_values = c('normalized', 'scaled', 'custom'),
                               plot_alignment = c('vertical', 'horizontal'),
                               feats,
@@ -5004,6 +5129,7 @@ spatDimFeatPlot2D <- function(gobject,
                        show_image = show_image,
                        gimage = gimage,
                        image_name = image_name,
+                       largeImage_name = largeImage_name,
                        sdimx = sdimx,
                        sdimy = sdimy,
                        expression_values = expression_values,
@@ -5135,6 +5261,7 @@ spatDimGenePlot = function(...) {
 #' @param show_image show a tissue background image
 #' @param gimage a giotto image
 #' @param image_name name of a giotto image
+#' @param largeImage_name name of a giottoLargeImage
 #' @param sdimx x-axis dimension name (default = 'sdimx')
 #' @param sdimy y-axis dimension name (default = 'sdimy')
 #' @param spat_enr_names names of spatial enrichment results to include
@@ -5195,7 +5322,8 @@ spatCellPlot2D = function(gobject,
                           spat_unit = NULL,
                           show_image = F,
                           gimage = NULL,
-                          image_name = 'image',
+                          image_name = NULL,
+                          largeImage_name = NULL,
                           sdimx = 'sdimx',
                           sdimy = 'sdimy',
                           spat_enr_names = NULL,
@@ -5288,6 +5416,7 @@ spatCellPlot2D = function(gobject,
                     show_image = show_image,
                     gimage = gimage,
                     image_name = image_name,
+                    largeImage_name = largeImage_name,
                     group_by = NULL,
                     group_by_subset = NULL,
                     sdimx = sdimx,
@@ -5639,6 +5768,7 @@ dimCellPlot = function(gobject, ...) {
 #' @param show_image show a tissue background image
 #' @param gimage a giotto image
 #' @param image_name name of a giotto image
+#' @param largeImage_name name of a giottoLargeImage
 #' @param plot_alignment direction to align plot
 #' @param spat_enr_names names of spatial enrichment results to include
 #' @param cell_annotation_values numeric cell annotation columns
@@ -5722,7 +5852,8 @@ spatDimCellPlot2D <- function(gobject,
                               spat_unit = NULL,
                               show_image = F,
                               gimage = NULL,
-                              image_name = 'image',
+                              image_name = NULL,
+                              largeImage_name = NULL,
                               plot_alignment = c('vertical', 'horizontal'),
                               spat_enr_names = NULL,
                               cell_annotation_values = NULL,
@@ -5855,6 +5986,7 @@ spatDimCellPlot2D <- function(gobject,
                        show_image = show_image,
                        gimage = gimage,
                        image_name = image_name,
+                       largeImage_name = largeImage_name,
                        sdimx = sdimx,
                        sdimy = sdimy,
                        spat_enr_names = spat_enr_names,

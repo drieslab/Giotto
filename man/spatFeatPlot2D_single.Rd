@@ -10,7 +10,8 @@ spatFeatPlot2D_single(
   spat_unit = NULL,
   show_image = F,
   gimage = NULL,
-  image_name = "image",
+  image_name = NULL,
+  largeImage_name = NULL,
   spat_loc_name = NULL,
   sdimx = "sdimx",
   sdimy = "sdimy",
@@ -115,7 +116,7 @@ spatFeatPlot2D_single(
 
 \item{vor_border_color}{border colorr for voronoi plot}
 
-\item{vor_alpha}{transparancy of voronoi 'cells'}
+\item{vor_alpha}{transparency of voronoi 'cells'}
 
 \item{vor_max_radius}{maximum radius for voronoi 'cells'}
 

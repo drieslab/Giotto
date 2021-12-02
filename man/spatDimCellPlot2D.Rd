@@ -10,7 +10,8 @@ spatDimCellPlot2D(
   spat_unit = NULL,
   show_image = F,
   gimage = NULL,
-  image_name = "image",
+  image_name = NULL,
+  largeImage_name = NULL,
   plot_alignment = c("vertical", "horizontal"),
   spat_enr_names = NULL,
   cell_annotation_values = NULL,
@@ -99,6 +100,8 @@ spatDimCellPlot2D(
 \item{gimage}{a giotto image}
 
 \item{image_name}{name of a giotto image}
+
+\item{largeImage_name}{name of a giottoLargeImage}
 
 \item{plot_alignment}{direction to align plot}
 
