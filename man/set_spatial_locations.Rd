@@ -4,10 +4,18 @@
 \alias{set_spatial_locations}
 \title{set_spatial_locations}
 \usage{
-set_spatial_locations(gobject, spat_loc_name = "raw", spatlocs, verbose = TRUE)
+set_spatial_locations(
+  gobject,
+  spat_unit = NULL,
+  spat_loc_name = "raw",
+  spatlocs,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{spat_unit}{spatial unit}
 
 \item{spat_loc_name}{name of spatial locations}
 

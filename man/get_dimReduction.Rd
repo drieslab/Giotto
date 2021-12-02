@@ -6,7 +6,9 @@
 \usage{
 get_dimReduction(
   gobject,
-  reduction = c("cells", "genes"),
+  feat_type = NULL,
+  spat_unit = NULL,
+  reduction = c("cells", "feats"),
   reduction_method = c("pca", "umap", "tsne"),
   name = "pca",
   return_dimObj = FALSE

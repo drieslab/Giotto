@@ -7,6 +7,7 @@
 binSpectMulti(
   gobject,
   feat_type = NULL,
+  spat_unit = NULL,
   bin_method = c("kmeans", "rank"),
   expression_values = c("normalized", "scaled", "custom"),
   subset_feats = NULL,

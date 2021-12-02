@@ -7,6 +7,7 @@
 dimPlot2D(
   gobject,
   feat_type = NULL,
+  spat_unit = NULL,
   group_by = NULL,
   group_by_subset = NULL,
   dim_reduction_to_use = "umap",
@@ -63,6 +64,8 @@ dimPlot2D(
 \item{gobject}{giotto object}
 
 \item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{group_by}{create multiple plots based on cell annotation column}
 

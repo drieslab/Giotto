@@ -4,10 +4,20 @@
 \alias{get_spatialNetwork}
 \title{get_spatialNetwork}
 \usage{
-get_spatialNetwork(gobject, name = NULL, return_network_Obj = FALSE)
+get_spatialNetwork(
+  gobject,
+  feat_type = NULL,
+  spat_unit = NULL,
+  name = NULL,
+  return_network_Obj = FALSE
+)
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{name}{name of spatial network}
 

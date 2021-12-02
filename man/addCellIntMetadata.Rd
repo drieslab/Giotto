@@ -7,6 +7,7 @@
 addCellIntMetadata(
   gobject,
   feat_type = NULL,
+  spat_unit = NULL,
   spatial_network = "spatial_network",
   cluster_column,
   cell_interaction,
@@ -18,6 +19,8 @@ addCellIntMetadata(
 \item{gobject}{giotto object}
 
 \item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{spatial_network}{name of spatial network to use}
 

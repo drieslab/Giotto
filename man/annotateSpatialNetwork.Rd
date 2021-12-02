@@ -7,6 +7,7 @@
 annotateSpatialNetwork(
   gobject,
   feat_type = NULL,
+  spat_unit = NULL,
   spatial_network_name = "Delaunay_network",
   cluster_column,
   create_full_network = FALSE

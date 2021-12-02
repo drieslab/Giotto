@@ -12,8 +12,9 @@ cellProximitySpatPlot(gobject, ...)
 \item{...}{
   Arguments passed on to \code{\link[=cellProximitySpatPlot2D]{cellProximitySpatPlot2D}}
   \describe{
-    \item{\code{spat_loc_name}}{spatial locations to use}
     \item{\code{feat_type}}{feature type}
+    \item{\code{spat_unit}}{spatial unit}
+    \item{\code{spat_loc_name}}{spatial locations to use}
     \item{\code{interaction_name}}{cell-cell interaction name}
     \item{\code{cluster_column}}{cluster column with cell clusters}
     \item{\code{sdimx}}{x-axis dimension name (default = 'sdimx')}

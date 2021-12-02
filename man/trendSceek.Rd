@@ -6,6 +6,8 @@
 \usage{
 trendSceek(
   gobject,
+  feat_type = NULL,
+  spat_unit = NULL,
   spat_loc_name = "raw",
   expression_values = c("normalized", "raw"),
   subset_genes = NULL,
@@ -16,6 +18,10 @@ trendSceek(
 }
 \arguments{
 \item{gobject}{Giotto object}
+
+\item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{spat_loc_name}{name for spatial locations}
 

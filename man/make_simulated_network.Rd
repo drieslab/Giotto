@@ -7,6 +7,7 @@
 make_simulated_network(
   gobject,
   feat_type = NULL,
+  spat_unit = NULL,
   spatial_network_name = "Delaunay_network",
   cluster_column,
   number_of_simulations = 100,

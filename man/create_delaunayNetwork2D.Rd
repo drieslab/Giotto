@@ -7,6 +7,7 @@
 create_delaunayNetwork2D(
   gobject,
   method = c("delaunayn_geometry", "RTriangle", "deldir"),
+  spat_unit = NULL,
   spat_loc_name = "raw",
   sdimx = "sdimx",
   sdimy = "sdimy",

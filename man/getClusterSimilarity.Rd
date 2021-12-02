@@ -7,6 +7,7 @@
 getClusterSimilarity(
   gobject,
   feat_type = NULL,
+  spat_unit = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   cluster_column,
   cor = c("pearson", "spearman")

@@ -6,6 +6,8 @@
 \usage{
 plotStatDelaunayNetwork(
   gobject,
+  feat_type = NULL,
+  spat_unit = NULL,
   method = c("deldir", "delaunayn_geometry", "RTriangle"),
   dimensions = "all",
   maximum_distance = "auto",
@@ -24,6 +26,10 @@ plotStatDelaunayNetwork(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{method}{package to use to create a Delaunay network}
 

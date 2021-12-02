@@ -7,6 +7,7 @@
 exprCellCellcom(
   gobject,
   feat_type = NULL,
+  spat_unit = NULL,
   cluster_column = "cell_types",
   random_iter = 1000,
   feat_set_1,
@@ -27,6 +28,8 @@ exprCellCellcom(
 \item{gobject}{giotto object to use}
 
 \item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{cluster_column}{cluster column with cell type information}
 

@@ -7,6 +7,7 @@
 dimFeatPlot2D(
   gobject,
   feat_type = NULL,
+  spat_unit = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   feats = NULL,
   dim_reduction_to_use = "umap",
@@ -47,6 +48,8 @@ dimFeatPlot2D(
 \item{gobject}{giotto object}
 
 \item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{expression_values}{gene expression values to use}
 

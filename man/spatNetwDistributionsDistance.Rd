@@ -6,6 +6,7 @@
 \usage{
 spatNetwDistributionsDistance(
   gobject,
+  spat_unit = NULL,
   spatial_network_name = "spatial_network",
   hist_bins = 30,
   test_distance_limit = NULL,
@@ -19,6 +20,8 @@ spatNetwDistributionsDistance(
 }
 \arguments{
 \item{gobject}{Giotto object}
+
+\item{spat_unit}{spatial unit}
 
 \item{spatial_network_name}{name of spatial network}
 
