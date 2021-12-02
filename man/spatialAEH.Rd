@@ -6,6 +6,8 @@
 \usage{
 spatialAEH(
   gobject = NULL,
+  feat_type = NULL,
+  spat_unit = NULL,
   spat_loc_name = "raw",
   SpatialDE_results = NULL,
   name_pattern = "AEH_patterns",
@@ -18,6 +20,10 @@ spatialAEH(
 }
 \arguments{
 \item{gobject}{Giotto object}
+
+\item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{spat_loc_name}{name for spatial locations}
 

@@ -7,6 +7,7 @@
 findMarkers(
   gobject,
   feat_type = NULL,
+  spat_unit = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   cluster_column = NULL,
   method = c("scran", "gini", "mast"),
@@ -29,6 +30,8 @@ findMarkers(
 \item{gobject}{giotto object}
 
 \item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{expression_values}{feat expression values to use}
 

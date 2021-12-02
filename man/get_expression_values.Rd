@@ -4,12 +4,14 @@
 \alias{get_expression_values}
 \title{get_expression_values}
 \usage{
-get_expression_values(gobject, feat_type = NULL, values)
+get_expression_values(gobject, feat_type = NULL, spat_unit = NULL, values)
 }
 \arguments{
 \item{gobject}{giotto object}
 
 \item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{values}{expression values to extract}
 }

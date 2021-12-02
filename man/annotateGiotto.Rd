@@ -7,6 +7,7 @@
 annotateGiotto(
   gobject,
   feat_type = NULL,
+  spat_unit = NULL,
   annotation_vector = NULL,
   cluster_column = NULL,
   name = "cell_types"

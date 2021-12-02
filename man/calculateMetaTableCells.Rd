@@ -6,6 +6,8 @@
 \usage{
 calculateMetaTableCells(
   gobject,
+  feat_type = NULL,
+  spat_unit = NULL,
   value_cols = NULL,
   metadata_cols = NULL,
   spat_enr_names = NULL
@@ -13,6 +15,10 @@ calculateMetaTableCells(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{value_cols}{metadata or enrichment value columns to use}
 

@@ -603,6 +603,137 @@ depth <- function(this) {
 }
 
 
+#' @title read_expression_data
+#' @name read_expression_data
+#' @param expr_list (nested) list with expression data
+#' @param sparse read matrix data in a sparse manner
+#' @param cores number of cores to use
+#' @param verbose be verbose
+#' @details
+#'
+#' mylistA = list('a' = matrix(1:5), 'b' = matrix(1:5))
+#' depth(mylistA)
+#'
+#' mylistB = list(A = list('a' = matrix(1:5), 'b' = matrix(1:5)),
+#'                B = list('c' = matrix(1:5),'d' = matrix(1:5)))
+#' depth(mylistB)
+#'
+#' mylistC = list('RNA' = list('RAW' = list('cell' = matrix(1:5), 'nucleus' = matrix(6:10)),
+#'                             'NORM' = list('cell' = matrix(11:15),'nucleus' = matrix(20:25))),
+#'                'PROT' = list('RAW' = list('cell' = matrix(16:20))))
+#' depth(mylistC)
+#'
+#' mymatD = matrix(data = 1:4)
+#'
+#' @keywords internal
+read_expression_data = function(expr_list = NULL,
+                                sparse = TRUE,
+                                cores = NA,
+                                verbose = TRUE) {
+
+  if(is.null(expr_list)) return(NULL)
+
+
+  ## to make it compatible with previous version
+
+  # single matrix
+  if(inherits(expr_list, c('matrix', 'Matrix', 'DelayedMatrix'))) {
+    expr_list = list('raw' = expr_list)
+  }
+
+  # single path to matrix
+  if(length(expr_list) == 1 & !is.list(expr_list)) {
+    expr_list = list('raw' = expr_list)
+  }
+
+
+
+  # 1. get depth of list
+  if(verbose == TRUE) print(str(expr_list))
+  list_depth = depth(expr_list)
+
+  # no expression information
+  if(list_depth == 0) {
+    stop('Depth of expression list is 0, no expression information is provided \n')
+  }
+
+  # too much information
+  if(list_depth > 3) {
+    stop('Depth of expression list is more than 3, only 3 levels are possible:
+         1) feature (e.g. RNA) --> 2) measurement (e.g. raw) --> 3) spatial unit (e.g. cell) \n')
+  }
+
+
+  return_list = list()
+
+
+  # 2. for list with 1 depth
+  if(list_depth == 1) {
+
+    cat('list depth of 1 \n')
+
+
+    for(data in names(expr_list)) {
+
+      # print(expr_list[[data]])
+      res_mat = evaluate_expr_matrix(inputmatrix = expr_list[[data]],
+                                     sparse = sparse,
+                                     cores = cores)
+      # add default feat == 'rna'
+      # add default region == 'cell'
+      return_list[['rna']][['cell']][[data]] = res_mat
+
+    }
+
+
+  } else if(list_depth == 2) {
+
+    cat('list depth of 2 \n')
+    # add default region == 'cell'
+
+    for(feat in names(expr_list)) {
+      for(data in names(expr_list[[feat]])) {
+
+        # print(expr_list[[feat]][[data]])
+        res_mat = evaluate_expr_matrix(inputmatrix = expr_list[[feat]][[data]],
+                                       sparse = sparse,
+                                       cores = cores)
+        # add default region == 'cell'
+        return_list[[feat]][['cell']][[data]] = res_mat
+
+      }
+    }
+
+  } else if(list_depth == 3) {
+
+    cat('list depth of 3 \n')
+
+    for(feat in names(expr_list)) {
+      for(data in names(expr_list[[feat]])) {
+        for(region in names(expr_list[[feat]][[data]])) {
+
+          #print(expr_list[[feat]][[data]][[region]])
+          res_mat = evaluate_expr_matrix(inputmatrix = expr_list[[feat]][[data]][[region]],
+                                         sparse = sparse,
+                                         cores = cores)
+          # add default region == 'cell'
+          return_list[[feat]][[region]][[data]] = res_mat
+
+        }
+      }
+    }
+
+
+
+  } else {
+    stop('unexpected list_depth error')
+  }
+
+  return(return_list)
+
+}
+
+
 #' @name extr_single_list
 #' @keywords internal
 extr_single_list = function(gobject,
@@ -783,7 +914,8 @@ extract_expression_list = function(gobject,
 
 #### Giotto locations ####
 
-#' @name evaluate_spatial_locations
+#' @title evaluate_spatial_locations_OLD
+#' @name evaluate_spatial_locations_OLD
 #' @description Evaluate spatial location input
 #' @param spatial_locs spatial locations to evaluate
 #' @param cores how many cores to use
@@ -791,7 +923,7 @@ extract_expression_list = function(gobject,
 #' @param expr_matrix expression matrix to compare the cell IDs with
 #' @return data.table
 #' @keywords internal
-evaluate_spatial_locations = function(spatial_locs,
+evaluate_spatial_locations_OLD = function(spatial_locs,
                                       cores = 1,
                                       dummy_n = 2,
                                       expr_matrix = NULL) {
@@ -869,6 +1001,164 @@ evaluate_spatial_locations = function(spatial_locs,
 }
 
 
+#' @title evaluate_spatial_locations
+#' @name evaluate_spatial_locations
+#' @description Evaluate spatial location input
+#' @param spatial_locs spatial locations to evaluate
+#' @param cores how many cores to use
+#' @return data.table
+#' @keywords internal
+evaluate_spatial_locations = function(spatial_locs,
+                                      cores = 1) {
+
+  if(!any(class(spatial_locs) %in% c('data.table', 'data.frame', 'matrix', 'character'))) {
+    stop('spatial_locs needs to be a data.table or data.frame-like object or a path to one of these')
+  }
+  if(methods::is(spatial_locs, 'character')) {
+    if(!file.exists(spatial_locs)) stop('path to spatial locations does not exist')
+    spatial_locs = data.table::fread(input = spatial_locs, nThread = cores)
+  } else {
+    spatial_locs = data.table::as.data.table(spatial_locs)
+  }
+
+  # check if all columns are numeric
+  column_classes = lapply(spatial_locs, FUN = class)
+  #non_numeric_classes = column_classes[column_classes != 'numeric']
+  non_numeric_classes = column_classes[!column_classes %in% c('numeric','integer')]
+
+
+  potential_cell_IDs = NULL
+
+  if(length(non_numeric_classes) > 0) {
+
+    non_numeric_indices = which(!column_classes %in% c('numeric','integer'))
+
+    warning('There are non numeric or integer columns for the spatial location input at column position(s): ', non_numeric_indices,
+            '\n The first non-numeric column will be considered as a cell ID to test for consistency with the expression matrix',
+            '\n Other non numeric columns will be removed')
+
+
+    potential_cell_IDs = spatial_locs[[names(non_numeric_classes)[[1]]]]
+
+    spatial_locs = spatial_locs[,-non_numeric_indices, with = F]
+
+  }
+
+  # check number of columns: too few
+  if(ncol(spatial_locs) < 2) {
+    stop('There need to be at least 2 numeric columns for spatial locations \n')
+  }
+
+  # check number of columns: too many
+  if(ncol(spatial_locs) > 3) {
+    warning('There are more than 3 columns for spatial locations, only the first 3 will be used \n')
+    spatial_locs = spatial_locs[, 1:3]
+  }
+
+  # for spatial dimension names
+  spatial_dimensions = c('x', 'y', 'z')
+  colnames(spatial_locs) = paste0('sdim', spatial_dimensions[1:ncol(spatial_locs)])
+
+  if(!is.null(potential_cell_IDs)) {
+    spatial_locs[, cell_ID := potential_cell_IDs]
+  }
+
+  return(spatial_locs)
+
+}
+
+
+#' @name read_spatial_location_data
+#' @description read spatial locations
+#' @param gobject giotto object
+#' @param spat_loc_list list of spatial locations
+#' @param cores how many cores to use
+#' @param verbose be verbose
+#' @return updated giotto object
+#' @keywords internal
+read_spatial_location_data = function(gobject,
+                                      spat_loc_list,
+                                      cores = 1,
+                                      verbose = TRUE) {
+
+  if(is.null(spat_loc_list)) return(NULL)
+
+
+  ## to make it compatible with previous version
+
+  # single matrix
+  if(inherits(spat_loc_list, c('data.frame', 'data.table', 'matrix', 'character'))) {
+    spat_loc_list = list('raw' = spat_loc_list)
+  }
+
+  # single path to matrix
+  if(length(spat_loc_list) == 1 & !is.list(spat_loc_list)) {
+    spat_loc_list = list('raw' = spat_loc_list)
+  }
+
+
+
+  # 1. get depth of list
+  if(verbose == TRUE) print(str(spat_loc_list))
+  list_depth = depth(spat_loc_list)
+
+  # no expression information
+  if(list_depth == 0) {
+    stop('Depth of spatial location list is 0, no expression information is provided \n')
+  }
+
+  # too much information
+  if(list_depth > 3) {
+    stop('Depth of spatial location list is more than 2, only 2 levels are possible:
+         1) spatial unit (e.g. cell) --> 2) coordinate (e.g. raw) \n')
+  }
+
+
+  return_list = list()
+
+
+  # 2. for list with 1 depth
+  if(list_depth == 2) { # data.frame or data.table itself is also a list!
+
+    cat('list depth of 1 \n')
+
+    for(coord in names(spat_loc_list)) {
+
+      res_spatlocs = evaluate_spatial_locations(spatial_locs = spat_loc_list[[coord]],
+                                                cores = cores)
+
+      # add default region == 'cell'
+      return_list[['cell']][[coord]] = res_spatlocs
+
+    }
+
+
+  } else if(list_depth == 3) {
+
+    cat('list depth of 2 \n')
+    # add default region == 'cell'
+
+    for(region in names(spat_loc_list)) {
+      for(coord in names(spat_loc_list[[region]])) {
+
+        res_spatlocs = evaluate_spatial_locations(spatial_locs = spat_loc_list[[region]][[coord]],
+                                                     cores = cores)
+
+        # add default region == 'cell'
+        return_list[[region]][[coord]] = res_spatlocs
+
+      }
+    }
+
+  } else {
+    stop('unexpected list_depth error')
+  }
+
+  return(return_list)
+
+}
+
+
 
 #' @name extract_spatial_locations_list
 #' @description Extract spatial locations
@@ -892,11 +1182,12 @@ extract_spatial_locations_list = function(gobject,
 
   # single data.table-like
   if(inherits(spat_loc_list, c('data.frame', 'data.table', 'matrix', 'character'))) {
-    spat_loc_list = list('raw' = spat_loc_list)
+    spat_loc_list = list('cell' = list('raw' = spat_loc_list))
   }
 
 
-  spat_locs_names = names(spat_loc_list)
+  spat_locs_region_names = names(spat_loc_list)
+
 
   ## 1. raw expression data is required
   if(!'raw' %in% spat_locs_names) {
@@ -912,7 +1203,7 @@ extract_spatial_locations_list = function(gobject,
 
     spatial_locs = spat_loc_list[[spatlocname]]
 
-    spatial_locs = evaluate_spatial_locations(spatial_locs = spatial_locs,
+    spatial_locs = evaluate_spatial_locations_OLD(spatial_locs = spatial_locs,
                                               cores = cores,
                                               dummy_n = dummy_n,
                                               expr_matrix = expr_matrix)
@@ -1078,8 +1369,8 @@ evaluate_feat_info = function(spatial_feat_info,
 
 #### creating Giotto objects ####
 
-#' @title create Giotto object
-#' @name create Giotto object
+#' @title createGiottoObject_OLD
+#' @name createGiottoObject_OLD
 #' @description Function to create a giotto object
 #' @param expression expression information
 #' @param raw_exprs deprecated, use expression
@@ -1144,7 +1435,7 @@ evaluate_feat_info = function(spatial_feat_info,
 #' @keywords giotto
 #' @importFrom methods new
 #' @export
-createGiottoObject <- function(expression,
+createGiottoObject_OLD <- function(expression,
                                raw_exprs = NULL,
                                expression_feat = 'rna',
                                spatial_locs = NULL,
@@ -1572,6 +1863,544 @@ createGiottoObject <- function(expression,
 }
 
 
+
+#' @title createGiottoObject
+#' @name createGiottoObject
+#' @description Function to create a giotto object
+#' @param expression expression information
+#' @param raw_exprs deprecated, use expression
+#' @param expression_feat available features (e.g. rna, protein, ...)
+#' @param spatial_locs data.table or data.frame with coordinates for cell centroids
+#' @param spatial_info information about spatial units
+#' @param spatial_info list of giotto polygon objects with spatial information,
+#' see \code{\link{createGiottoPolygonsFromMask}} and \code{\link{createGiottoPolygonsFromDfr}}
+#' @param cell_metadata cell annotation metadata
+#' @param feat_metadata feature annotation metadata for each unique feature
+#' @param feat_info list of giotto point objects with feature info,
+#' see \code{\link{createGiottoPoints}}
+#' @param spatial_network list of spatial network(s)
+#' @param spatial_network_name list of spatial network name(s)
+#' @param spatial_grid list of spatial grid(s)
+#' @param spatial_grid_name list of spatial grid name(s)
+#' @param spatial_enrichment list of spatial enrichment score(s) for each spatial region
+#' @param spatial_enrichment_name list of spatial enrichment name(s)
+#' @param dimension_reduction list of dimension reduction(s)
+#' @param nn_network list of nearest neighbor network(s)
+#' @param images list of images
+#' @param offset_file file used to stitch fields together (optional)
+#' @param instructions list of instructions or output result from \code{\link{createGiottoInstructions}}
+#' @param cores how many cores or threads to use to read data if paths are provided
+#' @param verbose be verbose when building Giotto object
+#' @return giotto object
+#' @details
+#'
+#' See \url{https://rubd.github.io/Giotto_site/articles/howto_giotto_class.html} for more details
+#'
+#' [\strong{Requirements}] To create a giotto object you need to provide at least a matrix with genes as
+#' row names and cells as column names. This matrix can be provided as a base matrix, sparse Matrix, data.frame,
+#' data.table or as a path to any of those.
+#' To include spatial information about cells (or regions) you need to provide a matrix, data.table or data.frame (or path to them)
+#' with coordinates for all spatial dimensions. This can be 2D (x and y) or 3D (x, y, x).
+#' The row order for the cell coordinates should be the same as the column order for the provided expression data.
+#'
+#' [\strong{Instructions}] Additionally an instruction file, generated manually or with \code{\link{createGiottoInstructions}}
+#' can be provided to instructions, if not a default instruction file will be created
+#' for the Giotto object.
+#'
+#' [\strong{Multiple fields}] In case a dataset consists of multiple fields, like seqFISH+ for example,
+#' an offset file can be provided to stitch the different fields together. \code{\link{stitchFieldCoordinates}}
+#' can be used to generate such an offset file.
+#'
+#' [\strong{Processed data}] Processed count data, such as normalized data, can be provided using
+#' one of the different expression slots (norm_expr, norm_scaled_expr, custom_expr).
+#'
+#' [\strong{Metadata}] Cell and gene metadata can be provided using the cell and gene metadata slots.
+#' This data can also be added afterwards using the \code{\link{addGeneMetadata}} or \code{\link{addCellMetadata}} functions.
+#'
+#' [\strong{Other information}] Additional information can be provided through the appropriate slots:
+#' \itemize{
+#'   \item{spatial networks}
+#'   \item{spatial girds}
+#'   \item{spatial enrichments}
+#'   \item{dimensions reduction}
+#'   \item{nearest neighbours networks}
+#'   \item{images}
+#' }
+#'
+#' @keywords giotto
+#' @importFrom methods new
+#' @export
+createGiottoObject <- function(expression,
+                                  raw_exprs = NULL,
+                                  expression_feat = 'rna',
+                                  spatial_locs = NULL,
+                                  spatial_info = NULL,
+                                  cell_metadata = NULL,
+                                  feat_metadata = NULL,
+                                  feat_info = NULL,
+                                  spatial_network = NULL,
+                                  spatial_network_name = NULL,
+                                  spatial_grid = NULL,
+                                  spatial_grid_name = NULL,
+                                  spatial_enrichment = NULL,
+                                  spatial_enrichment_name = NULL,
+                                  dimension_reduction = NULL,
+                                  nn_network = NULL,
+                                  images = NULL,
+                                  offset_file = NULL,
+                                  instructions = NULL,
+                                  cores = NA,
+                                  verbose = TRUE) {
+
+  # create minimum giotto
+  gobject = giotto(expression = list(),
+                   expression_feat = expression_feat,
+                   spatial_locs = spatial_locs,
+                   spatial_info = NULL,
+                   cell_metadata = cell_metadata,
+                   feat_metadata = feat_metadata,
+                   feat_info = feat_info,
+                   cell_ID = NULL,
+                   feat_ID = NULL,
+                   spatial_network = NULL,
+                   spatial_grid = NULL,
+                   spatial_enrichment = NULL,
+                   dimension_reduction = NULL,
+                   nn_network = NULL,
+                   images = NULL,
+                   largeImages = NULL,
+                   parameters = NULL,
+                   offset_file = offset_file,
+                   instructions = instructions,
+                   OS_platform = .Platform[['OS.type']],
+                   join_info = NULL)
+
+
+  ## data.table: set global variable
+  cell_ID = feat_ID = NULL
+
+  ## check if all optional packages are installed
+  # TODO: update at the end
+  # TODO: extract from suggest field of DESCRIPTION
+  extra_packages = c("scran", "MAST", "png", "tiff", "biomaRt", "trendsceek", "multinet", "RTriangle", "FactoMiner")
+
+  pack_index = extra_packages %in% rownames(utils::installed.packages())
+  extra_installed_packages = extra_packages[pack_index]
+  extra_not_installed_packages = extra_packages[!pack_index]
+
+  if(any(pack_index == FALSE) == TRUE) {
+    cat("Consider to install these (optional) packages to run all possible Giotto commands for spatial analyses: ",
+        extra_not_installed_packages)
+    cat("\n Giotto does not automatically install all these packages as they are not absolutely required and this reduces the number of dependencies \n")
+  }
+
+
+  ## if cores is not set, then set number of cores automatically, but with limit of 10
+  cores = determine_cores(cores)
+  data.table::setDTthreads(threads = cores)
+
+
+  ## expression data ##
+  ## --------------- ##
+
+
+  ## deprecated arguments
+  if(!is.null(raw_exprs)) {
+    expression = raw_exprs
+    warning('raw_exprs argument is deprecated, use expression argument in the future \n')
+  }
+
+  if(!is.null(expression)) {
+
+    expression_data = read_expression_data(expr_list = expression,
+                                           sparse = TRUE,
+                                           cores = cores,
+                                           verbose = verbose)
+
+    gobject@expression = expression_data
+
+    # 1. set cell_ID for each region
+    for(region in names(gobject@expression[[1]])) {
+      gobject@cell_ID[[region]] =  colnames(gobject@expression[[1]][[region]][[1]])
+    }
+
+    # 2. ensure cell_ID and colnames for each matrix are the same
+    for(feat in names(gobject@expression)) {
+
+      for(region in names(gobject@expression[[feat]])) {
+        for(data in names(gobject@expression[[feat]][[region]])) {
+          colnames_matrix = colnames(gobject@expression[[feat]][[region]][[data]])
+          if(!identical(colnames_matrix, gobject@cell_ID[[region]])) {
+            stop('Colnames are not the same for feat: ', feat,', region: ', region ,', and data: ', data)
+          }
+        }
+      }
+    }
+
+    # 3. set feat_ID for each feature
+    for(feat_type in names(gobject@expression)) {
+      gobject@feat_ID[[feat_type]] =  rownames(gobject@expression[[feat_type]][[1]][[1]])
+    }
+  }
+
+
+
+
+  ## parameters ##
+  ## ---------- ##
+  gobject@parameters = list()
+
+
+  ## set instructions ##
+  ## ---------------- ##
+  if(is.null(instructions)) {
+    # create all default instructions
+    gobject@instructions = createGiottoInstructions()
+  }
+
+
+  ## test if python modules are available
+  python_modules = c('pandas', 'igraph', 'leidenalg', 'community', 'networkx', 'sklearn')
+  my_python_path = gobject@instructions$python_path
+  for(module in python_modules) {
+    if(reticulate::py_module_available(module) == FALSE) {
+      warning('module: ', module, ' was not found with python path: ', my_python_path, '\n')
+    }
+  }
+
+
+  ## spatial locations ##
+  ## ----------------- ##
+  raw_cell_dim_list = list()
+  for(feat in names(gobject@expression)) {
+    for(region in names(gobject@expression[[feat]])) {
+      raw_cell_dim_list[[feat]][[region]] = ncol(gobject@expression[[feat]][[region]][[1]])
+    }
+  }
+
+  #raw_cell_dim = ncol(gobject@expression[[1]][[1]][[1]]) # number of columns
+
+  # list of spatial location data.table, each with a unique name
+  # the default name = 'raw' and correspond to the real physical coordinates
+  # additional spatial locations can be provided
+
+
+  if(!is.null(spatial_locs)) {
+
+    spatial_location_data = read_spatial_location_data(spat_loc_list = spatial_locs,
+                                                       cores = cores,
+                                                       verbose = verbose)
+
+    gobject@spatial_locs = spatial_location_data
+
+    # TODO: ensure spatial locations and expression matrices have the same cell IDs
+
+
+
+  } else {
+
+    if(verbose == TRUE) warning('\n No spatial locations have been provided, dummy locations will be created \n')
+
+    for(region in names(raw_cell_dim_list[[1]])) {
+
+      # create square dummy coordinates
+      nr_cells = raw_cell_dim_list[[1]][[region]]
+      x = ceiling(sqrt(nr_cells))
+      first_col  = rep(1:x, each = x)[1:nr_cells]
+      second_col = rep(1:x, times = x)[1:nr_cells]
+
+      spatial_locs = data.table::data.table(cell_ID = gobject@cell_ID[[region]],
+                                            sdimx = first_col,
+                                            sdimy = second_col)
+
+      gobject@spatial_locs[[region]][['raw']] = spatial_locs
+
+    }
+  }
+
+  ## spatial info ##
+  ## ------------ ##
+  ## place to store segmentation info in polygon format style
+
+
+  if(is.null(spatial_info)) {
+
+    gobject@spatial_info = NULL
+
+  } else {
+
+    gobject = addGiottoPolygons(gobject = gobject,
+                                gpolygons = spatial_info)
+
+  }
+
+
+
+
+
+
+  ## cell metadata ##
+  ## ------------- ##
+  if(is.null(cell_metadata)) {
+
+    for(feat_type in expression_feat) {
+      if(is.null(gobject@spatial_info)) {
+        gobject@cell_metadata[[feat_type]][['cell']] = data.table::data.table(cell_ID = gobject@cell_ID[['cell']])
+      } else {
+        for(poly in names(gobject@spatial_info)) {
+          gobject@cell_metadata[[feat_type]][[poly]] = data.table::data.table(cell_ID = gobject@cell_ID[[poly]])
+        }
+      }
+    }
+
+
+  } else {
+
+    if(length(cell_metadata) != length(expression_feat)) {
+      stop('Number of different molecular features need to correspond with the cell_metadata list length \n')
+    }
+
+    for(feat_type in expression_feat) {
+
+      if(is.null(gobject@spatial_info)) {
+
+        gobject@cell_metadata[[feat_type]][['cell']] = data.table::as.data.table(gobject@cell_metadata[[feat_type]][['cell']])
+        gobject@cell_metadata[[feat_type]][['cell']][, cell_ID := gobject@cell_ID[['cell']]]
+
+        # put cell_ID first
+        all_colnames = colnames(gobject@cell_metadata[[feat_type]][[poly]])
+        other_colnames = grep('cell_ID', all_colnames, invert = T, value = T)
+        gobject@cell_metadata[[feat_type]][[poly]] = gobject@cell_metadata[[feat_type]][[poly]][, c('cell_ID', other_colnames), with = FALSE]
+
+      } else {
+
+        for(poly in names(gobject@spatial_info)) {
+          gobject@cell_metadata[[feat_type]][[poly]] = data.table::as.data.table(gobject@cell_metadata[[feat_type]][[poly]])
+          gobject@cell_metadata[[feat_type]][[poly]][, cell_ID := gobject@cell_ID[[poly]]]
+
+          # put cell_ID first
+          all_colnames = colnames(gobject@cell_metadata[[feat_type]][[poly]])
+          other_colnames = grep('cell_ID', all_colnames, invert = T, value = T)
+          gobject@cell_metadata[[feat_type]][[poly]] = gobject@cell_metadata[[feat_type]][[poly]][, c('cell_ID', other_colnames), with = FALSE]
+        }
+      }
+    }
+  }
+
+
+
+  ## feat metadata ##
+  ## ------------- ##
+  if(is.null(feat_metadata)) {
+
+    for(feat_type in expression_feat) {
+      for(region in names(gobject@expression[[feat_type]])) {
+        gobject@feat_metadata[[feat_type]][[region]] = data.table::data.table(feat_ID = gobject@feat_ID[[feat_type]])
+      }
+    }
+
+  } else {
+
+    if(length(feat_metadata) != length(expression_feat)) {
+      stop('Number of different molecular features need to correspond with the feat_metadata list length \n')
+    }
+
+    for(feat_type in expression_feat) {
+      for(region in names(gobject@expression[[feat_type]])) {
+        gobject@feat_metadata[[feat_type]][[region]] = data.table::as.data.table(feat_metadata[[feat_type]][[region]])
+        gobject@feat_metadata[[feat_type]][, feat_ID := gobject@feat_ID[[feat_type]]]
+      }
+    }
+  }
+
+  ## feature info ##
+  ## ------------ ##
+  ## place to store individual feature info
+  if(is.null(feat_info)) {
+
+    gobject@feat_info = NULL
+
+  } else {
+
+    gobject = addGiottoPoints(gobject = gobject,
+                              gpoints = feat_info)
+
+  }
+
+
+
+
+  ### OPTIONAL:
+  ## spatial network
+  if(!is.null(spatial_network)) {
+    if(is.null(spatial_network_name) | length(spatial_network) != length(spatial_network_name)) {
+      stop('\n each spatial network must be given a unique name \n')
+    } else {
+
+      for(network_i in 1:length(spatial_network)) {
+
+        networkname = spatial_network_name[[network_i]]
+        network     = spatial_network[[network_i]]
+
+        if(any(c('data.frame', 'data.table') %in% class(network))) {
+          if(all(c('to', 'from', 'weight', 'sdimx_begin', 'sdimy_begin', 'sdimx_end', 'sdimy_end') %in% colnames(network))) {
+            spatial_network_Obj = create_spatialNetworkObject(name = networkname, networkDT = network)
+            gobject@spatial_network[[networkname]] = spatial_network_Obj
+          } else {
+            stop('\n network ', networkname, ' does not have all necessary column names, see details \n')
+          }
+        } else {
+          stop('\n network ', networkname, ' is not a data.frame or data.table \n')
+        }
+      }
+    }
+  }
+
+
+  ## spatial grid
+  if(!is.null(spatial_grid)) {
+    if(is.null(spatial_grid_name) | length(spatial_grid) != length(spatial_grid_name)) {
+      stop('\n each spatial grid must be given a unique name \n')
+    } else {
+
+      for(grid_i in 1:length(spatial_grid)) {
+
+        gridname = spatial_grid_name[[grid_i]]
+        grid     = spatial_grid[[grid_i]]
+
+        if(any(c('data.frame', 'data.table') %in% class(grid))) {
+          if(all(c('x_start', 'y_start', 'x_end', 'y_end', 'gr_name') %in% colnames(grid))) {
+            gobject@spatial_grid[[gridname]] = grid
+          } else {
+            stop('\n grid ', gridname, ' does not have all necessary column names, see details \n')
+          }
+        } else {
+          stop('\n grid ', gridname, ' is not a data.frame or data.table \n')
+        }
+      }
+    }
+  }
+
+  ## spatial enrichment
+  if(!is.null(spatial_enrichment)) {
+    if(is.null(spatial_enrichment_name) | length(spatial_enrichment) != length(spatial_enrichment_name)) {
+      stop('\n each spatial enrichment data.table or data.frame must be given a unique name \n')
+    } else {
+
+      for(spat_enrich_i in 1:length(spatial_enrichment)) {
+
+        spatenrichname = spatial_enrichment_name[[spat_enrich_i]]
+        spatenrich     = spatial_enrichment[[spat_enrich_i]]
+
+        if(nrow(spatenrich) != nrow(gobject@cell_metadata)) {
+          stop('\n spatial enrichment ', spatenrichname, ' does not have the same number of rows as spots/cells, see details \n')
+        } else {
+
+          gobject@spatial_enrichment[[spatenrichname]] = spatenrich
+
+        }
+      }
+    }
+  }
+
+
+  ## dimension reduction
+  if(!is.null(dimension_reduction)) {
+
+    for(dim_i in 1:length(dimension_reduction)) {
+
+      dim_red = dimension_reduction[[dim_i]]
+
+      if(all(c('type', 'name', 'reduction_method', 'coordinates', 'misc') %in% names(dim_red))) {
+
+        coord_data = dim_red[['coordinates']]
+
+        if(all(rownames(coord_data) %in% gobject@cell_ID)) {
+
+          type_value = dim_red[['type']] # cells or genes
+          reduction_meth_value = dim_red[['reduction_method']] # e.g. umap, tsne, ...
+          name_value = dim_red[['name']]  # uniq name
+          misc_value = dim_red[['misc']]  # additional data
+
+          gobject@dimension_reduction[[type_value]][[reduction_meth_value]][[name_value]] = dim_red[c('name', 'reduction_method', 'coordinates', 'misc')]
+        } else {
+          stop('\n rownames for coordinates are not found in gobject IDs \n')
+        }
+
+      } else {
+        stop('\n each dimension reduction list must contain all required slots, see details. \n')
+      }
+
+    }
+
+  }
+
+  # NN network
+  if(!is.null(nn_network)) {
+
+    for(nn_i in 1:length(nn_network)) {
+
+      nn_netw = nn_network[[nn_i]]
+
+      if(all(c('type', 'name', 'igraph') %in% names(nn_netw))) {
+
+        igraph_data = nn_netw[['igraph']]
+
+        if(all(names(igraph::V(igraph_data)) %in% gobject@cell_ID)) {
+
+          type_value = nn_netw[['type']] # sNN or kNN
+          name_value = nn_netw[['name']]  # uniq name
+
+          gobject@nn_network[[type_value]][[name_value]][['igraph']] = igraph_data
+        } else {
+          stop('\n igraph vertex names are not found in gobject IDs \n')
+        }
+
+      } else {
+        stop('\n each nn network list must contain all required slots, see details. \n')
+      }
+
+    }
+
+  }
+
+  ## images ##
+  # expect a list of giotto object images
+  # prefer to make giottoImage creation separate from this function
+  if(!is.null(images)) {
+
+    if(is.null(names(images))) {
+      names(images) = paste0('image.', 1:length(images))
+    }
+
+    for(image_i in 1:length(images)) {
+
+      im = images[[image_i]]
+      im_name = names(images)[[image_i]]
+
+      if(methods::is(im, 'giottoImage')) {
+        gobject@images[[im_name]] = im
+      } else {
+        warning('image: ', im, ' is not a giotto image object')
+      }
+
+    }
+
+  }
+
+
+
+  # other information
+  # TODO
+
+  return(gobject)
+
+}
+
+
+
+
+
 #' @name get_img_minmax
 #' @param mg_img magick object
 #' @param negative_y Map image to negative y spatial values if TRUE during automatic alignment. Meaning that origin is in upper left instead of lower left.
@@ -1781,7 +2610,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                        expression_feat = 'rna',
                                        spatial_locs = spatial_locs,
                                        instructions = instructions,
-                                       cell_metadata = list('rna' = spatial_results[,.(in_tissue, array_row, array_col)]),
+                                       cell_metadata = list('rna' = list('cell' = spatial_results[,.(in_tissue, array_row, array_col)])),
                                        images = visium_png_list)
     return(giotto_object)
 
@@ -1828,6 +2657,8 @@ createGiottoVisiumObject = function(visium_dir = NULL,
     if(!file.exists(png_path)) stop(png_path, ' does not exist! \n')
 
     mg_img = magick::image_read(png_path)
+
+
 
 
     if(png_name == 'tissue_lowres_image.png') {
@@ -1888,7 +2719,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                        expression_feat = 'rna',
                                        spatial_locs = spatial_locs,
                                        instructions = instructions,
-                                       cell_metadata = list('rna' = spatial_results[,.(in_tissue, array_row, array_col)]),
+                                       cell_metadata = list('rna' = list('cell' = spatial_results[,.(in_tissue, array_row, array_col)])),
                                        images = visium_png_list)
     return(giotto_object)
 

@@ -7,6 +7,7 @@
 average_feat_feat_expression_in_groups(
   gobject,
   feat_type = NULL,
+  spat_unit = NULL,
   cluster_column = "cell_types",
   feat_set_1,
   feat_set_2
@@ -16,6 +17,8 @@ average_feat_feat_expression_in_groups(
 \item{gobject}{giotto object to use}
 
 \item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{cluster_column}{cluster column with cell type information}
 

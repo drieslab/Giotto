@@ -11,11 +11,13 @@
 #' @description function to get expression values from giotto object
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param values expression values to extract
 #' @return expression matrix
 #' @export
 get_expression_values <- function(gobject,
                                   feat_type = NULL,
+                                  spat_unit = NULL,
                                   values) {
 
 
@@ -24,23 +26,27 @@ get_expression_values <- function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
-  potential_values = names(gobject@expression[[feat_type]])
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
+  potential_values = names(gobject@expression[[feat_type]][[spat_unit]])
 
   ## special cases for giotto standard pipeline
-  if(values == 'scaled' & is.null(gobject@expression[[feat_type]][[values]])) {
+  if(values == 'scaled' & is.null(gobject@expression[[feat_type]][[spat_unit]][[values]])) {
     stop('run first scaling (& normalization) step')
-  } else if(values == 'normalized' & is.null(gobject@expression[[feat_type]][[values]])) {
+  } else if(values == 'normalized' & is.null(gobject@expression[[feat_type]][[spat_unit]][[values]])) {
     stop('run first normalization step')
-  } else if(values == 'custom' & is.null(gobject@expression[[feat_type]][[values]])) {
+  } else if(values == 'custom' & is.null(gobject@expression[[feat_type]][[spat_unit]][[values]])) {
     stop('first add custom expression matrix')
   }
 
 
   if(values %in% potential_values) {
-    expr_values = gobject@expression[[feat_type]][[values]]
+    expr_values = gobject@expression[[feat_type]][[spat_unit]][[values]]
     return(expr_values)
   } else {
-    stop("The ", feat_type ," expression matrix with name ","'", values, "'"," can not be found \n")
+    stop("The ", feat_type ," expression matrix for spatial unit ", spat_unit, " and with name ","'", values, "'"," can not be found \n")
   }
 
 }
@@ -64,12 +70,14 @@ select_expression_values = function(...) {
 #' @description function to set expression values for giotto object
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param name name for the expression slot
 #' @param values expression values
 #' @return giotto object
 #' @export
 set_expression_values <- function(gobject,
                                   feat_type = NULL,
+                                  spat_unit = NULL,
                                   name = 'test',
                                   values) {
 
@@ -79,8 +87,13 @@ set_expression_values <- function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
+
   ## 1. check if specified name has already been used
-  potential_names = names(gobject@expression[[feat_type]])
+  potential_names = names(gobject@expression[[feat_type]][[spat_unit]])
   if(name %in% potential_names) {
     cat(name, ' already exist and will be replaced with new values \n')
   }
@@ -89,7 +102,7 @@ set_expression_values <- function(gobject,
 
 
   ## 3. update and return giotto object
-  gobject@expression[[feat_type]][[name]] = values
+  gobject@expression[[feat_type]][[spat_unit]][[name]] = values
   return(gobject)
 
 }
@@ -104,19 +117,25 @@ set_expression_values <- function(gobject,
 #' @name get_spatial_locations
 #' @description function to get a spatial location data.table
 #' @param gobject giotto object
+#' @param spat_unit spatial unit
 #' @param spat_loc_name name of spatial locations (defaults to first name in spatial_locs slot)
 #' @return data.table with coordinates
 #' @export
 get_spatial_locations <- function(gobject,
+                                  spat_unit = NULL,
                                   spat_loc_name = NULL) {
 
 
   # spatial locations
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[1]])[[1]]
+  }
+
   # if NULL (not given) and spatial locations have been added, then use first one
   # if NULL (not given) and spatial locations have NOT been added, then keep NULL
   if(is.null(spat_loc_name)) {
     if(!is.null(gobject@spatial_locs)) {
-      spat_loc_name = names(gobject@spatial_locs)[[1]]
+      spat_loc_name = names(gobject@spatial_locs[[spat_unit]])[[1]]
       # cat('No spatial locations have been selected, the first one -',spat_loc_name, '- will be used \n')
     } else {
       spat_loc_name = NULL
@@ -125,10 +144,10 @@ get_spatial_locations <- function(gobject,
     }
   }
 
-  potential_names = names(gobject@spatial_locs)
+  potential_names = names(gobject@spatial_locs[[spat_unit]])
 
   if(spat_loc_name %in% potential_names) {
-    spatloc = data.table::copy(gobject@spatial_locs[[spat_loc_name]])
+    spatloc = data.table::copy(gobject@spatial_locs[[spat_unit]][[spat_loc_name]])
     return(spatloc)
   } else {
     stop("The spatial locations with name ","'", spat_loc_name, "'"," can not be found \n")
@@ -157,19 +176,25 @@ select_spatial_locations = function(...) {
 #' @name set_spatial_locations
 #' @description function to set a spatial location slot
 #' @param gobject giotto object
+#' @param spat_unit spatial unit
 #' @param spat_loc_name name of spatial locations
 #' @param spatlocs spatial locations
 #' @param verbose be verbose
 #' @return giotto object
 #' @export
 set_spatial_locations <- function(gobject,
+                                  spat_unit = NULL,
                                   spat_loc_name = 'raw',
                                   spatlocs,
                                   verbose = TRUE) {
 
+  # spatial locations
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[1]])[[1]]
+  }
 
   ## 1. check if specified name has already been used
-  potential_names = names(gobject@spatial_locs[[spat_loc_name]])
+  potential_names = names(gobject@spatial_locs[[spat_unit]][[spat_loc_name]])
   if(spat_loc_name %in% potential_names) {
     if(verbose == TRUE) {
     cat(spat_loc_name, ' already exists and will be replaced with new spatial locations \n')
@@ -180,7 +205,7 @@ set_spatial_locations <- function(gobject,
 
 
   ## 3. update and return giotto object
-  gobject@spatial_locs[[spat_loc_name]] = spatlocs
+  gobject@spatial_locs[[spat_unit]][[spat_loc_name]] = spatlocs
   return(gobject)
 
 }
@@ -198,19 +223,31 @@ set_spatial_locations <- function(gobject,
 #' @return dim reduction coordinates (default) or dim reduction object
 #' @export
 get_dimReduction = function(gobject,
-                            reduction = c('cells', 'genes'),
+                            feat_type = NULL,
+                            spat_unit = NULL,
+                            reduction = c('cells', 'feats'),
                             reduction_method = c('pca', 'umap', 'tsne'),
                             name = 'pca',
                             return_dimObj = FALSE) {
 
 
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
+
   ## check parameters
-  reduction = match.arg(arg = reduction, choices = c('cells', 'genes'))
+  reduction = match.arg(arg = reduction, choices = c('cells', 'feats'))
   reduction_method = match.arg(arg = reduction_method, choices = unique(c('pca', 'umap', 'tsne', reduction_method)))
 
-
   ## check reduction
-  reduction_res = gobject@dimension_reduction[[reduction]]
+  reduction_res = gobject@dimension_reduction[[reduction]][[spat_unit]]
   if(is.null(reduction_res)) {
     stop('No dimension reduction for ', reduction, ' has been applied \n')
   }
@@ -261,6 +298,8 @@ select_dimReduction = function(...) {
 #' @return giotto object
 #' @export
 set_dimReduction <- function(gobject,
+                             feat_type = NULL,
+                             spat_unit = NULL,
                              reduction = c('cells', 'genes'),
                              reduction_method = c('pca', 'umap', 'tsne'),
                              name = 'pca',
@@ -268,7 +307,7 @@ set_dimReduction <- function(gobject,
 
 
   ## 1. check if specified name has already been used
-  potential_names = names(gobject@dimension_reduction[[reduction]][[reduction_method]])
+  potential_names = names(gobject@dimension_reduction[[reduction]][[spat_unit]][[reduction_method]])
   if(name %in% potential_names) {
     cat(name, ' already exist and will be replaced with new dimension reduction object \n')
   }
@@ -277,7 +316,8 @@ set_dimReduction <- function(gobject,
 
 
   ## 3. update and return giotto object
-  gobject@dimension_reduction[[reduction]][[reduction_method]][[name]] = dimObject
+  gobject@dimension_reduction[[reduction]][[spat_unit]][[reduction_method]][[name]] = dimObject
+
   return(gobject)
 
 }
@@ -294,24 +334,38 @@ set_dimReduction <- function(gobject,
 #' @name get_NearestNetwork
 #' @description get a NN-network from a Giotto object
 #' @param gobject giotto object
+#' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param nn_network_to_use kNN or sNN
 #' @param network_name name of NN network to be used
 #' @param output return a igraph or data.table object
 #' @return igraph or data.table object
 #' @export
 get_NearestNetwork = function(gobject,
+                              feat_type = NULL,
+                              spat_unit = NULL,
                               nn_network_to_use = 'sNN',
                               network_name = 'sNN.pca',
                               output = c('igraph', 'data.table')) {
 
   output = match.arg(arg = output, choices = c('igraph', 'data.table'))
 
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
   ## select network to use
   if(is.null(nn_network_to_use) | is.null(network_name)) {
     stop('\n you need to select network type: knn or snn \n
          and you need to select the network name you created\n')
   } else {
-    igraph_object = gobject@nn_network[[nn_network_to_use]][[network_name]][['igraph']]
+    igraph_object = gobject@nn_network[[spat_unit]][[nn_network_to_use]][[network_name]][['igraph']]
     if(is.null(igraph_object)) {
       cat('\n nn_network_to_use or network_name does not exist, \n
            create a nearest-neighbor network first \n')
@@ -359,19 +413,33 @@ select_NearestNetwork = function(...) {
 #' @name set_NearestNetwork
 #' @description set a NN-network for a Giotto object
 #' @param gobject giotto object
+#' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param nn_network_to_use kNN or sNN
 #' @param network_name name of NN network to be used
 #' @param nn_network nearest network
 #' @return giotto object
 #' @export
 set_NearestNetwork = function(gobject,
+                              feat_type = NULL,
+                              spat_unit = NULL,
                               nn_network_to_use = 'sNN',
                               network_name = 'sNN.pca',
                               nn_network) {
 
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
 
   ## 1. check if specified name has already been used
-  potential_names = names(gobject@nn_network[[nn_network_to_use]])
+  potential_names = names(gobject@nn_network[[spat_unit]][[nn_network_to_use]])
   if(network_name %in% potential_names) {
     cat(network_name, ' already exist and will be replaced with nearest neighbor network \n')
   }
@@ -381,7 +449,8 @@ set_NearestNetwork = function(gobject,
 
 
   ## 3. update and return giotto object
-  gobject@nn_network[[nn_network_to_use]][[network_name]] = nn_network
+  gobject@nn_network[[spat_unit]][[nn_network_to_use]][[network_name]] = nn_network
+
   return(gobject)
 
 }
@@ -397,20 +466,36 @@ set_NearestNetwork = function(gobject,
 #' @name get_spatialNetwork
 #' @description function to get a spatial network
 #' @param gobject giotto object
+#' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param name name of spatial network
 #' @param return_network_Obj return network object (default = FALSE)
 #' @export
 get_spatialNetwork <- function(gobject,
+                               feat_type = NULL,
+                               spat_unit = NULL,
                                name = NULL,
                                return_network_Obj = FALSE) {
 
-  if (!is.element(name, names(gobject@spatial_network))){
+
+
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
+  if (!is.element(name, names(gobject@spatial_network[[spat_unit]]))){
     message = sprintf("spatial network %s has not been created. Returning NULL.
                       check which spatial networks exist with showNetworks() \n", name)
     warning(message)
     return(NULL)
   }else{
-    networkObj = gobject@spatial_network[[name]]
+    networkObj = gobject@spatial_network[[spat_unit]][[name]]
     networkDT = networkObj$networkDT
   }
 
@@ -440,17 +525,30 @@ select_spatialNetwork = function(...) {
 #' @name set_spatialNetwork
 #' @description function to set a spatial network
 #' @param gobject giotto object
+#' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param name name of spatial network
 #' @param spatial_network spatial network
 #' @export
 set_spatialNetwork <- function(gobject,
+                               feat_type = NULL,
+                               spat_unit = NULL,
                                name = NULL,
                                spatial_network) {
 
 
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
 
   ## 1. check if specified name has already been used
-  potential_names = names(gobject@spatial_network)
+  potential_names = names(gobject@spatial_network[[spat_unit]])
   if(name %in% potential_names) {
     cat(name, ' already exist and will be replaced with new spatial network \n')
   }
@@ -459,7 +557,7 @@ set_spatialNetwork <- function(gobject,
 
 
   ## 3. update and return giotto object
-  gobject@spatial_network[[name]] = spatial_network
+  gobject@spatial_network[[spat_unit]][[name]] = spatial_network
   return(gobject)
 
 }
@@ -789,18 +887,21 @@ showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 
   for(feat_type in names(gobject@expression)) {
 
-    cat('Feature ', feat_type, ': \n\n')
+    cat('Feature: ', feat_type, ' \n\n')
 
-    for(mat_i in names(gobject@expression[[feat_type]])) {
+    for(region in names(gobject@expression[[feat_type]])) {
 
-      cat('---> ', mat_i, 'matrix: \n')
+      cat('--> Region: ', region, ' \n\n')
 
-      print(gobject@expression[[feat_type]][[mat_i]][1:nrows, 1:ncols])
-      cat('\n')
+       for(mat_i in names(gobject@expression[[feat_type]][[region]])) {
+
+        cat('---> ', mat_i, 'matrix: \n')
+
+        print(gobject@expression[[feat_type]][[region]][[mat_i]][1:nrows, 1:ncols])
+        cat('\n')
+      }
     }
-
   }
-
 }
 
 #' @title showGiottoSpatLocs
@@ -812,10 +913,16 @@ showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 #' @export
 showGiottoSpatLocs = function(gobject, nrows = 4) {
 
-  for(spatlocname in names(gobject@spatial_locs)) {
-    cat('Name ', spatlocname, ': \n\n')
-    print(gobject@spatial_locs[[spatlocname]][1:nrows,])
+  for(region in names(gobject@spatial_locs)) {
+
+    cat('Region: ', region, ' \n\n')
+
+    for(spatlocname in names(gobject@spatial_locs[[region]])) {
+      cat('--> Name: ', spatlocname, ' \n\n')
+      print(gobject@spatial_locs[[region]][[spatlocname]][1:nrows,])
+    }
   }
+
 }
 
 
@@ -939,14 +1046,29 @@ showGiottoFeatInfo = function(gobject) {
 #' @name showGiottoSpatNetworks
 #' @description Prints the available spatial networks that are attached to the Giotto object
 #' @param gobject a giotto object
+#' @param feat_type feature type
+#' @param spat_unit  spatial unit
 #' @param verbose verbosity of function#'
 #' @return vector
 #' @export
 showGiottoSpatNetworks = function(gobject,
+                                  feat_type = NULL,
+                                  spat_unit = NULL,
                                   verbose = TRUE) {
 
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
-  g_network_names = names(gobject@spatial_network)
+
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
+  g_network_names = names(gobject@spatial_network[[spat_unit]])
 
   if(verbose == TRUE) {
     cat('The following images are available: ',

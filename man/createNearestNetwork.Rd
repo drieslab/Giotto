@@ -7,6 +7,7 @@
 createNearestNetwork(
   gobject,
   feat_type = NULL,
+  spat_unit = NULL,
   type = c("sNN", "kNN"),
   dim_reduction_to_use = "pca",
   dim_reduction_name = NULL,
@@ -27,6 +28,8 @@ createNearestNetwork(
 \item{gobject}{giotto object}
 
 \item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{type}{sNN or kNN}
 

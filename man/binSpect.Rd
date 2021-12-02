@@ -7,6 +7,7 @@
 binSpect(
   gobject,
   feat_type = NULL,
+  spat_unit = NULL,
   bin_method = c("kmeans", "rank"),
   expression_values = c("normalized", "scaled", "custom"),
   subset_feats = NULL,
@@ -41,6 +42,8 @@ binSpect(
 \item{gobject}{giotto object}
 
 \item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{bin_method}{method to binarize gene expression}
 

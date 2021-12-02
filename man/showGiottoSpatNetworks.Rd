@@ -4,10 +4,19 @@
 \alias{showGiottoSpatNetworks}
 \title{showGiottoSpatNetworks}
 \usage{
-showGiottoSpatNetworks(gobject, verbose = TRUE)
+showGiottoSpatNetworks(
+  gobject,
+  feat_type = NULL,
+  spat_unit = NULL,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{gobject}{a giotto object}
+
+\item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{verbose}{verbosity of function#'}
 }

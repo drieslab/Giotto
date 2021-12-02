@@ -6,6 +6,7 @@
 \usage{
 spatNetwDistributionsKneighbors(
   gobject,
+  spat_unit = NULL,
   spatial_network_name = "spatial_network",
   hist_bins = 30,
   show_plot = NA,
@@ -17,6 +18,8 @@ spatNetwDistributionsKneighbors(
 }
 \arguments{
 \item{gobject}{Giotto object}
+
+\item{spat_unit}{spatial unit}
 
 \item{spatial_network_name}{name of spatial network}
 

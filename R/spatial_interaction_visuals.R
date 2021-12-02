@@ -2618,8 +2618,9 @@ plotRecovery = function(gobject,
 #' @name cellProximitySpatPlot2D
 #' @description Visualize 2D cell-cell interactions according to spatial coordinates in ggplot mode
 #' @param gobject giotto object
-#' @param spat_loc_name spatial locations to use
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
+#' @param spat_loc_name spatial locations to use
 #' @param interaction_name cell-cell interaction name
 #' @param cluster_column cluster column with cell clusters
 #' @param sdimx x-axis dimension name (default = 'sdimx')
@@ -2653,8 +2654,9 @@ plotRecovery = function(gobject,
 #' @details Description of parameters.
 #' @export
 cellProximitySpatPlot2D <- function(gobject,
-                                    spat_loc_name = NULL,
                                     feat_type = NULL,
+                                    spat_unit = NULL,
+                                    spat_loc_name = NULL,
                                     interaction_name = NULL,
                                     cluster_column = NULL,
                                     sdimx = 'sdimx',
@@ -2693,18 +2695,26 @@ cellProximitySpatPlot2D <- function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
 
   # get information from all slots
   cell_locations  = get_spatial_locations(gobject = gobject,
+                                          spat_unit = spat_unit,
                                           spat_loc_name = spat_loc_name)
 
   spatial_grid = get_spatialGrid(gobject = gobject,
                                  name = spatial_grid_name)
 
-  cell_metadata   = gobject@cell_metadata[[feat_type]]
+  cell_metadata   = pDataDT(gobject = gobject,
+                            feat_type = feat_type,
+                            spat_unit = spat_unit)
 
   spatial_network = annotateSpatialNetwork(gobject = gobject,
                                            feat_type = feat_type,
+                                           spat_unit = spat_unit,
                                            spatial_network_name = spatial_network_name,
                                            cluster_column = cluster_column)
 

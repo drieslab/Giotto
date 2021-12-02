@@ -6,6 +6,7 @@
 #' @description create a nearest neighbour (NN) network
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param type sNN or kNN
 #' @param dim_reduction_to_use dimension reduction method to use
 #' @param dim_reduction_name name of dimension reduction set to use
@@ -61,6 +62,7 @@
 #'
 createNearestNetwork <- function(gobject,
                                  feat_type = NULL,
+                                 spat_unit = NULL,
                                  type = c('sNN', 'kNN'),
                                  dim_reduction_to_use = 'pca',
                                  dim_reduction_name = NULL,
@@ -88,6 +90,11 @@ createNearestNetwork <- function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
   # specify dim_reduction_name tailored to feat_type
   if(is.null(dim_reduction_name)) {
     if(feat_type == 'rna') {
@@ -104,12 +111,22 @@ createNearestNetwork <- function(gobject,
   if(!is.null(dim_reduction_to_use)) {
 
     ## check if reduction exists
-    check = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]]
+    check = gobject@dimension_reduction[['cells']][[spat_unit]][[dim_reduction_to_use]][[dim_reduction_name]]
     if(is.null(check)) stop('dimension reduction does not exist, check if you did ', dim_reduction_to_use,
                             ' and if ', dim_reduction_name, ' was the name used')
 
     # use only available dimensions if dimensions < dimensions_to_use
-    dim_coord = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']]
+
+    dim_coord = get_dimReduction(gobject = gobject,
+                                 feat_type = feat_type,
+                                 spat_unit = spat_unit,
+                                 reduction = 'cells',
+                                 reduction_method = dim_reduction_to_use,
+                                 name = dim_reduction_name,
+                                 return_dimObj = FALSE)
+
+    #dim_coord = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']]
+
     dimensions_to_use = dimensions_to_use[dimensions_to_use %in% 1:ncol(dim_coord)]
     matrix_to_use = dim_coord[, dimensions_to_use]
 
@@ -119,7 +136,10 @@ createNearestNetwork <- function(gobject,
     ## using original matrix ##
     # expression values to be used
     values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-    expr_values = select_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+    expr_values = select_expression_values(gobject = gobject,
+                                           feat_type = feat_type,
+                                           spat_unit = spat_unit,
+                                           values = values)
 
     # subset expression matrix
     if(!is.null(feats_to_use)) {
@@ -191,14 +211,14 @@ createNearestNetwork <- function(gobject,
 
   if(return_gobject == TRUE) {
 
-    nn_names = names(gobject@nn_network[[type]])
+    nn_names = names(gobject@nn_network[[spat_unit]][[type]])
 
     if(name %in% nn_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
 
     }
 
-    gobject@nn_network[[type]][[name]][['igraph']] <- nn_network_igraph
+    gobject@nn_network[[spat_unit]][[type]][[name]][['igraph']] = nn_network_igraph
 
     ## update parameters used ##
     gobject = update_giotto_params(gobject, description = '_nn_network')
@@ -217,6 +237,8 @@ createNearestNetwork <- function(gobject,
 #' @name addNetworkLayout
 #' @description Add a network layout for a selected nearest neighbor network
 #' @param gobject giotto object
+#' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param nn_network_to_use kNN or sNN
 #' @param network_name name of NN network to be used
 #' @param layout_type layout algorithm to use
@@ -229,6 +251,8 @@ createNearestNetwork <- function(gobject,
 #' is implemented. This provides an alternative to tSNE or UMAP based visualizations.
 #' @export
 addNetworkLayout = function(gobject,
+                            feat_type = NULL,
+                            spat_unit = NULL,
                             nn_network_to_use = "sNN",
                             network_name = "sNN.pca",
                             layout_type = c('drl'),
@@ -241,7 +265,17 @@ addNetworkLayout = function(gobject,
     stop('\n first create a nearest network \n')
   }
 
-  ig_object = gobject@nn_network[[nn_network_to_use]][[network_name]][['igraph']]
+  # specify feat_type
+  if(is.null(feat_type)) {
+    feat_type = gobject@expression_feat[[1]]
+  }
+
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
+  ig_object = gobject@nn_network[[spat_unit]][[nn_network_to_use]][[network_name]][['igraph']]
 
   layout_type = match.arg(arg = layout_type, c('drl'))
 
@@ -257,12 +291,12 @@ addNetworkLayout = function(gobject,
 
   if(return_gobject == TRUE) {
 
-    nn_names = names(gobject@nn_network[[nn_network_to_use]])
+    nn_names = names(gobject@nn_network[[spat_unit]][[nn_network_to_use]])
     if(layout_name %in% nn_names) {
       cat('\n ', layout_name, ' has already been used, will be overwritten \n')
     }
 
-    gobject@nn_network[[nn_network_to_use]][[network_name]][['layout']] <- layout_coord
+    gobject@nn_network[[spat_unit]][[nn_network_to_use]][[network_name]][['layout']] = layout_coord
 
     ## update parameters used ##
     gobject = update_giotto_params(gobject, description = '_nn_network_layout')
@@ -304,7 +338,10 @@ nnDT_to_kNN <- function(nnDT) {
   id_prep[, from := NULL]
   id_matrix = as.matrix(id_prep)
 
-  return(structure(list(dist = dist_matrix, id = id_matrix, k = k, sort = TRUE),
+  return(structure(list(dist = dist_matrix,
+                        id = id_matrix,
+                        k = k,
+                        sort = TRUE),
                    class = c("kNN", "NN")))
 }
 

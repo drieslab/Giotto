@@ -12,6 +12,8 @@ dimCellPlot(gobject, ...)
 \item{...}{
   Arguments passed on to \code{\link[=dimCellPlot2D]{dimCellPlot2D}}
   \describe{
+    \item{\code{feat_type}}{feature type}
+    \item{\code{spat_unit}}{spatial unit}
     \item{\code{dim_reduction_to_use}}{dimension reduction to use}
     \item{\code{dim_reduction_name}}{dimension reduction name}
     \item{\code{dim1_to_use}}{dimension to use on x-axis}

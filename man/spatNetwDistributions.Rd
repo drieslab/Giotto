@@ -6,6 +6,7 @@
 \usage{
 spatNetwDistributions(
   gobject,
+  spat_unit = NULL,
   spatial_network_name = "spatial_network",
   distribution = c("distance", "k_neighbors"),
   hist_bins = 30,
@@ -20,6 +21,8 @@ spatNetwDistributions(
 }
 \arguments{
 \item{gobject}{Giotto object}
+
+\item{spat_unit}{spatial unit}
 
 \item{spatial_network_name}{name of spatial network}
 

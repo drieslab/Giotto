@@ -6,6 +6,8 @@
 #' @name create_dimObject
 #' @description Creates an object that stores a dimension reduction output
 #' @param name arbitrary name for object
+#' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param reduction_method method used to reduce dimensions
 #' @param coordinates accepts the coordinates after dimension reduction
 #' @param misc any additional information will be added to this slot
@@ -13,6 +15,8 @@
 #' @keywords internal
 #' @return number of distinct colors
 create_dimObject = function(name = 'test',
+                            feat_type = 'rna',
+                            spat_unit = 'cell',
                             reduction_method = NULL,
                             coordinates = NULL,
                             misc = NULL,
@@ -27,6 +31,8 @@ create_dimObject = function(name = 'test',
   }
 
   dimObj = list(name = name,
+                feat_type = feat_type,
+                spat_unit = spat_unit,
                 reduction_method = reduction_method,
                 coordinates = coordinates,
                 misc = misc)
@@ -360,6 +366,7 @@ runPCA_BiocSingular = function(x,
 #' @description subsets matrix based on vector of genes or hvf column
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param sel_matrix selected expression matrix
 #' @param feats_to_use feats to use, character or vector of features
 #' @param verbose verbosity
@@ -367,6 +374,7 @@ runPCA_BiocSingular = function(x,
 #' @return subsetted matrix based on selected genes
 create_feats_to_use_matrix = function(gobject,
                                       feat_type = NULL,
+                                      spat_unit = NULL,
                                       sel_matrix,
                                       feats_to_use,
                                       verbose = FALSE) {
@@ -376,8 +384,15 @@ create_feats_to_use_matrix = function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
   # cell metadata
-  feat_metadata = fDataDT(gobject, feat_type = feat_type)
+  feat_metadata = fDataDT(gobject,
+                          feat_type = feat_type,
+                          spat_unit = spat_unit)
 
   # for hvg genes
   if(is.character(feats_to_use) & length(feats_to_use) == 1) {
@@ -405,6 +420,7 @@ create_feats_to_use_matrix = function(gobject,
 #' @description runs a Principal Component Analysis
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param expression_values expression values to use
 #' @param reduction cells or genes
 #' @param name arbitrary name for PCA run
@@ -432,6 +448,7 @@ create_feats_to_use_matrix = function(gobject,
 #' @export
 runPCA <- function(gobject,
                    feat_type = NULL,
+                   spat_unit = NULL,
                    expression_values = c('normalized', 'scaled', 'custom'),
                    reduction = c('cells', 'feats'),
                    name = NULL,
@@ -455,6 +472,11 @@ runPCA <- function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
   # specify name to use for pca
   if(is.null(name)) {
     if(feat_type == 'rna') {
@@ -472,7 +494,10 @@ runPCA <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_values = get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+  expr_values = get_expression_values(gobject = gobject,
+                                      feat_type = feat_type,
+                                      spat_unit = spat_unit,
+                                      values = values)
 
   ## subset matrix
   if(!is.null(feats_to_use)) {
@@ -541,7 +566,7 @@ runPCA <- function(gobject,
 
   if(return_gobject == TRUE) {
 
-    pca_names = names(gobject@dimension_reduction[[reduction]][['pca']])
+    pca_names = names(gobject@dimension_reduction[[reduction]][[spat_unit]][['pca']])
 
     if(name %in% pca_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
@@ -549,13 +574,15 @@ runPCA <- function(gobject,
     }
 
     dimObject = create_dimObject(name = name,
+                                 feat_type = feat_type,
+                                 spat_unit = spat_unit,
                                  reduction_method = 'pca',
                                  coordinates = pca_object$coords,
                                  misc = list(eigenvalues = pca_object$eigenvalues,
                                              loadings = pca_object$loadings),
                                  my_rownames = colnames(expr_values))
 
-    gobject@dimension_reduction[[reduction]][['pca']][[name]] <- dimObject
+    gobject@dimension_reduction[[reduction]][[spat_unit]][['pca']][[name]] <- dimObject
 
 
     ## update parameters used ##
@@ -634,6 +661,7 @@ create_screeplot = function(pca_obj, ncp = 20, ylim = c(0, 20)) {
 #' @description identify significant principal components (PCs) using an screeplot (a.k.a. elbowplot)
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param name name of PCA object if available
 #' @param expression_values expression values to use
 #' @param reduction cells or features
@@ -662,6 +690,7 @@ create_screeplot = function(pca_obj, ncp = 20, ylim = c(0, 20)) {
 #' @export
 screePlot = function(gobject,
                      feat_type = NULL,
+                     spat_unit = NULL,
                      name = NULL,
                      expression_values = c('normalized', 'scaled', 'custom'),
                      reduction = c('cells', 'feats'),
@@ -687,6 +716,11 @@ screePlot = function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
   # specify name to use for screeplot
   if(is.null(name)) {
     if(feat_type == 'rna') {
@@ -704,7 +738,7 @@ screePlot = function(gobject,
 
   # select direction of reduction
   reduction = match.arg(reduction, c('cells', 'feats'))
-  pca_obj = gobject@dimension_reduction[[reduction]]$pca[[name]]
+  pca_obj = gobject@dimension_reduction[[reduction]][[spat_unit]]$pca[[name]]
 
   # print, return and save parameters
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
@@ -724,7 +758,10 @@ screePlot = function(gobject,
 
     # expression values to be used
     values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-    expr_values = get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+    expr_values = get_expression_values(gobject = gobject,
+                                        feat_type = feat_type,
+                                        spat_unit = spat_unit,
+                                        values = values)
 
     # PCA implementation
     method = match.arg(method, c('irlba', 'exact', 'random','factominer'))
@@ -733,6 +770,7 @@ screePlot = function(gobject,
     if(!is.null(feats_to_use)) {
       expr_values = create_feats_to_use_matrix(gobject = gobject,
                                                feat_type = feat_type,
+                                               spat_unit = spat_unit,
                                                sel_matrix = expr_values,
                                                feats_to_use = feats_to_use,
                                                verbose = verbose)
@@ -751,6 +789,8 @@ screePlot = function(gobject,
       }
 
       dimObject = create_dimObject(name = name,
+                                   feat_type = feat_type,
+                                   spat_unit = spat_unit,
                                    reduction_method = 'pca',
                                    coordinates = pca_object$coords,
                                    misc = list(eigenvalues = pca_object$eigenvalues,
@@ -820,6 +860,7 @@ create_jackstrawplot = function(jackstraw_data,
 #' @description identify significant prinicipal components (PCs)
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param expression_values expression values to use
 #' @param reduction cells or genes
 #' @param feats_to_use subset of features to use for PCA
@@ -844,6 +885,7 @@ create_jackstrawplot = function(jackstraw_data,
 #' @export
 jackstrawPlot = function(gobject,
                          feat_type = NULL,
+                         spat_unit = NULL,
                          expression_values = c('normalized', 'scaled', 'custom'),
                          reduction = c('cells', 'feats'),
                          feats_to_use = NULL,
@@ -865,6 +907,11 @@ jackstrawPlot = function(gobject,
   # specify feat_type
   if(is.null(feat_type)) {
     feat_type = gobject@expression_feat[[1]]
+  }
+
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
   }
 
   ## deprecated arguments
@@ -890,13 +937,17 @@ jackstrawPlot = function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_values = get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+  expr_values = get_expression_values(gobject = gobject,
+                                      feat_type = feat_type,
+                                      spat_unit = spat_unit,
+                                      values = values)
 
 
   ## subset matrix
   if(!is.null(feats_to_use)) {
     expr_values = create_feats_to_use_matrix(gobject = gobject,
                                              feat_type = feat_type,
+                                             spat_unit = spat_unit,
                                              sel_matrix = expr_values,
                                              feats_to_use = feats_to_use,
                                              verbose = verbose)
@@ -942,6 +993,7 @@ jackstrawPlot = function(gobject,
 #' @description identify significant prinicipal components (PCs)
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param name name of PCA object if available
 #' @param method method to use to identify significant PCs
 #' @param expression_values expression values to use
@@ -975,6 +1027,7 @@ jackstrawPlot = function(gobject,
 #' @export
 signPCA <- function(gobject,
                     feat_type = NULL,
+                    spat_unit = NULL,
                     name = NULL,
                     method = c('screeplot', 'jackstraw'),
                     expression_values = c("normalized", "scaled", "custom"),
@@ -1004,6 +1057,11 @@ signPCA <- function(gobject,
   }
 
 
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
   # specify name to use
   if(!is.null(name)) {
     if(feat_type == 'rna') {
@@ -1032,6 +1090,7 @@ signPCA <- function(gobject,
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
   expr_values = get_expression_values(gobject = gobject,
                                       feat_type = feat_type,
+                                      spat_unit = spat_unit,
                                       values = values)
 
   # print, return and save parameters
@@ -1044,6 +1103,7 @@ signPCA <- function(gobject,
   if(!is.null(genes_to_use)) {
     expr_values = create_feats_to_use_matrix(gobject = gobject,
                                              feat_type = feat_type,
+                                             spat_unit = spat_unit,
                                              sel_matrix = expr_values,
                                              feats_to_use = feats_to_use,
                                              verbose = verbose)
@@ -1056,6 +1116,7 @@ signPCA <- function(gobject,
 
       screeplot = screePlot(gobject = gobject,
                             feat_type = feat_type,
+                            spat_unit = spat_unit,
                             name = name,
                             expression_values = values,
                             reduction = reduction,
@@ -1094,6 +1155,7 @@ signPCA <- function(gobject,
 
       jackplot = jackstrawPlot(gobject = gobject,
                                feat_type = feat_type,
+                               spat_unit = spat_unit,
                                expression_values = values,
                                reduction = reduction,
                                feats_to_use = feats_to_use,
@@ -1149,6 +1211,7 @@ signPCA <- function(gobject,
 #' @description run UMAP
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param expression_values expression values to use
 #' @param reduction cells or genes
 #' @param dim_reduction_to_use use another dimension reduction set as input
@@ -1181,6 +1244,7 @@ signPCA <- function(gobject,
 #' @export
 runUMAP <- function(gobject,
                     feat_type = NULL,
+                    spat_unit = NULL,
                     expression_values = c('normalized', 'scaled', 'custom'),
                     reduction = c('cells', 'feats'),
                     dim_reduction_to_use = 'pca',
@@ -1212,6 +1276,11 @@ runUMAP <- function(gobject,
   # specify feat_type
   if(is.null(feat_type)) {
     feat_type = gobject@expression_feat[[1]]
+  }
+
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
   }
 
   reduction = match.arg(reduction, choices = c('cells', 'feats'))
@@ -1253,10 +1322,12 @@ runUMAP <- function(gobject,
 
       ## TODO: check if reduction exists
       matrix_to_use = get_dimReduction(gobject = gobject,
-                                          reduction = reduction,
-                                          reduction_method = dim_reduction_to_use,
-                                          name = dim_reduction_name,
-                                          return_dimObj = FALSE)
+                                       feat_type = feat_type,
+                                       spat_unit = spat_unit,
+                                       reduction = reduction,
+                                       reduction_method = dim_reduction_to_use,
+                                       name = dim_reduction_name,
+                                       return_dimObj = FALSE)
       matrix_to_use = matrix_to_use[, dimensions_to_use]
 
       #matrix_to_use = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']][, dimensions_to_use]
@@ -1266,13 +1337,17 @@ runUMAP <- function(gobject,
       ## using original matrix ##
       # expression values to be used
       values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-      expr_values = get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+      expr_values = get_expression_values(gobject = gobject,
+                                          feat_type = feat_type,
+                                          spat_unit = spat_unit,
+                                          values = values)
 
 
       ## subset matrix
-      if(!is.null(genes_to_use)) {
+      if(!is.null(feats_to_use)) {
         expr_values = create_feats_to_use_matrix(gobject = gobject,
                                                  feat_type = feat_type,
+                                                 spat_unit = spat_unit,
                                                  sel_matrix = expr_values,
                                                  feats_to_use = feats_to_use,
                                                  verbose = verbose)
@@ -1303,7 +1378,7 @@ runUMAP <- function(gobject,
 
     if(return_gobject == TRUE) {
 
-      umap_names = names(gobject@dimension_reduction[[reduction]][['umap']])
+      umap_names = names(gobject@dimension_reduction[[reduction]][[spat_unit]][['umap']])
 
       if(name %in% umap_names) {
         cat('\n ', name, ' has already been used, will be overwritten \n')
@@ -1315,11 +1390,22 @@ runUMAP <- function(gobject,
       rownames(coordinates) = rownames(matrix_to_use)
 
       dimObject = create_dimObject(name = name,
-                                            reduction_method = 'umap',
-                                            coordinates = coordinates,
-                                            misc = NULL)
+                                   feat_type = feat_type,
+                                   spat_unit = spat_unit,
+                                   reduction_method = 'umap',
+                                   coordinates = coordinates,
+                                   misc = NULL)
 
-      gobject@dimension_reduction[[reduction]][['umap']][[name]] <- dimObject
+
+      gobject = set_dimReduction(gobject = gobject,
+                       feat_type = feat_type,
+                       spat_unit = spat_unit,
+                       reduction = reduction,
+                       reduction_method = 'umap',
+                       name = name,
+                       dimObject = dimObject)
+
+      #gobject@dimension_reduction[[reduction]][[spat_unit]][['umap']][[name]] = dimObject
 
 
 
@@ -1352,6 +1438,7 @@ runUMAP <- function(gobject,
 #' @description run tSNE
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param expression_values expression values to use
 #' @param reduction cells or genes
 #' @param dim_reduction_to_use use another dimension reduction set as input
@@ -1381,6 +1468,7 @@ runUMAP <- function(gobject,
 #' @export
 runtSNE <- function(gobject,
                     feat_type = NULL,
+                    spat_unit = NULL,
                     expression_values = c('normalized', 'scaled', 'custom'),
                     reduction = c('cells', 'feats'),
                     dim_reduction_to_use = 'pca',
@@ -1411,6 +1499,10 @@ runtSNE <- function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
 
   reduction = match.arg(reduction, choices = c('cells', 'feats'))
 
@@ -1449,10 +1541,12 @@ runtSNE <- function(gobject,
 
       ## TODO: check if reduction exists
       matrix_to_use = get_dimReduction(gobject = gobject,
-                                          reduction = reduction,
-                                          reduction_method = dim_reduction_to_use,
-                                          name = dim_reduction_name,
-                                          return_dimObj = FALSE)
+                                       feat_type = feat_type,
+                                       spat_unit = spat_unit,
+                                       reduction = reduction,
+                                       reduction_method = dim_reduction_to_use,
+                                       name = dim_reduction_name,
+                                       return_dimObj = FALSE)
       matrix_to_use = matrix_to_use[, dimensions_to_use]
 
       #matrix_to_use = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']][, dimensions_to_use]
@@ -1462,12 +1556,16 @@ runtSNE <- function(gobject,
       ## using original matrix ##
       # expression values to be used
       values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-      expr_values = get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+      expr_values = get_expression_values(gobject = gobject,
+                                          feat_type = feat_type,
+                                          spat_unit = spat_unit,
+                                          values = values)
 
       ## subset matrix
-      if(!is.null(genes_to_use)) {
+      if(!is.null(feats_to_use)) {
         expr_values = create_feats_to_use_matrix(gobject = gobject,
                                                  feat_type = feat_type,
+                                                 spat_unit = spat_unit,
                                                  sel_matrix = expr_values,
                                                  feats_to_use = feats_to_use,
                                                  verbose = verbose)
@@ -1502,7 +1600,7 @@ runtSNE <- function(gobject,
 
     if(return_gobject == TRUE) {
 
-      tsne_names = names(gobject@dimension_reduction[[reduction]][['tsne']])
+      tsne_names = names(gobject@dimension_reduction[[reduction]][[spat_unit]][['tsne']])
 
       if(name %in% tsne_names) {
         cat('\n ', name, ' has already been used, will be overwritten \n')
@@ -1514,11 +1612,21 @@ runtSNE <- function(gobject,
       rownames(coordinates) = rownames(matrix_to_use)
 
       dimObject = create_dimObject(name = name,
-                                            reduction_method = 'tsne',
-                                            coordinates = coordinates,
-                                            misc = tsne_clus)
+                                   feat_type = feat_type,
+                                   spat_unit = spat_unit,
+                                   reduction_method = 'tsne',
+                                   coordinates = coordinates,
+                                   misc = tsne_clus)
 
-      gobject@dimension_reduction[[reduction]][['tsne']][[name]] <- dimObject
+      gobject = set_dimReduction(gobject = gobject,
+                                 feat_type = feat_type,
+                                 spat_unit = spat_unit,
+                                 reduction = reduction,
+                                 reduction_method = 'tsne',
+                                 name = name,
+                                 dimObject = dimObject)
+
+      #gobject@dimension_reduction[[reduction]][['tsne']][[name]] <- dimObject
 
       ## update parameters used ##
       gobject = update_giotto_params(gobject, description = '_tsne')
@@ -1530,7 +1638,7 @@ runtSNE <- function(gobject,
     }
 
 
-  } else if(reduction == 'genes') {
+  } else if(reduction == 'feats') {
 
     cat('\n Not yet implemented \n')
 
@@ -1552,6 +1660,7 @@ runtSNE <- function(gobject,
 #' @description run UMAP
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param expression_values expression values to use
 #' @param dim_reduction_to_use use another dimension reduction set as input
 #' @param dim_reduction_name name of dimension reduction set to use
@@ -1568,6 +1677,7 @@ runtSNE <- function(gobject,
 #' @export
 runGiottoHarmony = function(gobject,
                             feat_type = NULL,
+                            spat_unit = NULL,
                             vars_use = 'list_ID',
                             do_pca = FALSE,
                             expression_values = c('normalized', 'scaled', 'custom'),
@@ -1598,6 +1708,10 @@ runGiottoHarmony = function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
 
   # specify dim_reduction_name to use for pca input for umap
   if(!is.null(dim_reduction_to_use)) {
@@ -1634,10 +1748,12 @@ runGiottoHarmony = function(gobject,
 
     ## TODO: check if reduction exists
     matrix_to_use = get_dimReduction(gobject = gobject,
-                                        reduction = 'cells',
-                                        reduction_method = dim_reduction_to_use,
-                                        name = dim_reduction_name,
-                                        return_dimObj = FALSE)
+                                     feat_type = feat_type,
+                                     spat_unit = spat_unit,
+                                     reduction = 'cells',
+                                     reduction_method = dim_reduction_to_use,
+                                     name = dim_reduction_name,
+                                     return_dimObj = FALSE)
     matrix_to_use = matrix_to_use[, dimensions_to_use]
 
   } else {
@@ -1646,14 +1762,16 @@ runGiottoHarmony = function(gobject,
     # expression values to be used
     values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
     expr_values = get_expression_values(gobject = gobject,
-                                           feat_type = feat_type,
-                                           values = values)
+                                        feat_type = feat_type,
+                                        spat_unit = spat_unit,
+                                        values = values)
 
 
     ## subset matrix
     if(!is.null(genes_to_use)) {
       expr_values = create_feats_to_use_matrix(gobject = gobject,
                                                feat_type = feat_type,
+                                               spat_unit = spat_unit,
                                                sel_matrix = expr_values,
                                                feats_to_use = feats_to_use,
                                                verbose = verbose)
@@ -1663,7 +1781,7 @@ runGiottoHarmony = function(gobject,
   }
 
   # get metadata
-  metadata = pDataDT(gobject)
+  metadata = pDataDT(gobject, feat_type = feat_type, spat_unit = spat_unit)
 
   # run harmony
   harmony_results = harmony::HarmonyMatrix(data_mat = matrix_to_use,
@@ -1676,6 +1794,8 @@ runGiottoHarmony = function(gobject,
   rownames(harmony_results) = rownames(matrix_to_use)
 
   harmdimObject = create_dimObject(name = name,
+                                   feat_type = feat_type,
+                                   spat_unit = spat_unit,
                                    reduction_method = 'harmony',
                                    coordinates = harmony_results,
                                    misc = NULL)
@@ -1683,14 +1803,23 @@ runGiottoHarmony = function(gobject,
   # return giotto object or harmony results
   if(return_gobject == TRUE) {
 
-    harmony_names = names(gobject@dimension_reduction[['cells']][['harmony']])
+    harmony_names = names(gobject@dimension_reduction[['cells']][[spat_unit]][['harmony']])
 
     if(name %in% harmony_names) {
       cat('\n ', name, ' has already been used with harmony, will be overwritten \n')
 
     }
 
-    gobject@dimension_reduction[['cells']][['harmony']][[name]] = harmdimObject
+    gobject = set_dimReduction(gobject = gobject,
+                               feat_type = feat_type,
+                               spat_unit = spat_unit,
+                               reduction = reduction,
+                               reduction_method = 'harmony',
+                               name = name,
+                               dimObject = harmdimObject)
+
+
+    #gobject@dimension_reduction[['cells']][[spat_unit]][['harmony']][[name]] = harmdimObject
 
     ## update parameters used ##
     gobject = update_giotto_params(gobject,

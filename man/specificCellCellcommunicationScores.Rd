@@ -7,6 +7,7 @@
 specificCellCellcommunicationScores(
   gobject,
   feat_type = NULL,
+  spat_unit = NULL,
   spatial_network_name = "Delaunay_network",
   cluster_column = "cell_types",
   random_iter = 100,
@@ -31,6 +32,8 @@ specificCellCellcommunicationScores(
 \item{gobject}{giotto object to use}
 
 \item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{spatial_network_name}{spatial network to use for identifying interacting cells}
 

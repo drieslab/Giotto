@@ -7,6 +7,7 @@
 violinPlot(
   gobject,
   feat_type = NULL,
+  spat_unit = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   feats = NULL,
   genes = NULL,
@@ -29,6 +30,8 @@ violinPlot(
 \item{gobject}{giotto object}
 
 \item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{expression_values}{expression values to use}
 

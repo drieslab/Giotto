@@ -8,6 +8,7 @@ spark(
   gobject,
   spat_loc_name = "raw",
   feat_type = NULL,
+  spat_unit = NULL,
   percentage = 0.1,
   min_count = 10,
   expression_values = "raw",
@@ -23,6 +24,8 @@ spark(
 \item{spat_loc_name}{name for spatial locations}
 
 \item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{percentage}{The percentage of cells that are expressed for analysis}
 

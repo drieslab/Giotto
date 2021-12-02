@@ -12,6 +12,7 @@ dimPlot(...)
   \describe{
     \item{\code{gobject}}{giotto object}
     \item{\code{feat_type}}{feature type}
+    \item{\code{spat_unit}}{spatial unit}
     \item{\code{group_by}}{create multiple plots based on cell annotation column}
     \item{\code{group_by_subset}}{subset the group_by factor column}
     \item{\code{dim_reduction_to_use}}{dimension reduction to use}

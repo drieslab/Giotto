@@ -6,6 +6,8 @@
 \usage{
 set_dimReduction(
   gobject,
+  feat_type = NULL,
+  spat_unit = NULL,
   reduction = c("cells", "genes"),
   reduction_method = c("pca", "umap", "tsne"),
   name = "pca",

@@ -9,6 +9,7 @@
 #' @keywords internal
 make_simulated_network = function(gobject,
                                   feat_type = NULL,
+                                  spat_unit = NULL,
                                   spatial_network_name = 'Delaunay_network',
                                   cluster_column,
                                   number_of_simulations = 100,
@@ -20,11 +21,17 @@ make_simulated_network = function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
   # data.table variables
   unified_cells = NULL
 
   spatial_network_annot = annotateSpatialNetwork(gobject = gobject,
                                                  feat_type = feat_type,
+                                                 spat_unit = spat_unit,
                                                  spatial_network_name = spatial_network_name,
                                                  cluster_column = cluster_column)
 
@@ -84,6 +91,7 @@ make_simulated_network = function(gobject,
 #' @description Compute cell-cell interaction enrichment (observed vs expected)
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param spatial_network_name name of spatial network to use
 #' @param cluster_column name of column to use for clusters
 #' @param number_of_simulations number of simulations to create expected observations
@@ -102,6 +110,7 @@ make_simulated_network = function(gobject,
 #' @export
 cellProximityEnrichment <- function(gobject,
                                     feat_type = NULL,
+                                    spat_unit = NULL,
                                     spatial_network_name = 'Delaunay_network',
                                     cluster_column,
                                     number_of_simulations = 1000,
@@ -118,6 +127,11 @@ cellProximityEnrichment <- function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
   # p.adj test
   sel_adjust_method = match.arg(adjust_method, choices = c("none", "fdr", "bonferroni","BH",
                                                            "holm", "hochberg", "hommel",
@@ -125,6 +139,7 @@ cellProximityEnrichment <- function(gobject,
 
   spatial_network_annot = annotateSpatialNetwork(gobject = gobject,
                                                  feat_type = feat_type,
+                                                 spat_unit = spat_unit,
                                                  spatial_network_name = spatial_network_name,
                                                  cluster_column = cluster_column)
 
@@ -140,6 +155,7 @@ cellProximityEnrichment <- function(gobject,
 
   sample_dt = make_simulated_network(gobject = gobject,
                                      feat_type = feat_type,
+                                     spat_unit = spat_unit,
                                      spatial_network_name = spatial_network_name,
                                      cluster_column = cluster_column,
                                      number_of_simulations = number_of_simulations,
@@ -265,6 +281,7 @@ cellProximityEnrichment <- function(gobject,
 #' selected cell-cell interaction.
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param spatial_network name of spatial network to use
 #' @param cluster_column column of cell types
 #' @param cell_interaction cell-cell interaction to use
@@ -278,6 +295,7 @@ cellProximityEnrichment <- function(gobject,
 #' @export
 addCellIntMetadata = function(gobject,
                               feat_type = NULL,
+                              spat_unit = NULL,
                               spatial_network = 'spatial_network',
                               cluster_column,
                               cell_interaction,
@@ -288,6 +306,11 @@ addCellIntMetadata = function(gobject,
   # specify feat_type
   if(is.null(feat_type)) {
     feat_type = gobject@expression_feat[[1]]
+  }
+
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
   }
 
   if(is.null(spatial_network)) {
@@ -305,6 +328,7 @@ addCellIntMetadata = function(gobject,
   # create spatial network
   spatial_network_annot = annotateSpatialNetwork(gobject = gobject,
                                                  feat_type = feat_type,
+                                                 spat_unit = spat_unit,
                                                  spatial_network_name = spatial_network,
                                                  cluster_column = cluster_column)
 
@@ -327,7 +351,7 @@ addCellIntMetadata = function(gobject,
 
   if(return_gobject == TRUE) {
 
-    gobject@cell_metadata[[feat_type]] = cell_metadata
+    gobject@cell_metadata[[feat_type]][[spat_unit]] = cell_metadata
 
     ## update parameters used ##
     gobject = update_giotto_params(gobject, description = '_add_cell_int_info')
@@ -905,6 +929,7 @@ findCellProximityFeats_per_interaction = function(sel_int,
 #' i.e. features that are differentially expressed due to proximity to other cell types.#'
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param expression_values expression values to use
 #' @param selected_feats subset of selected features (optional)
 #' @param cluster_column name of column to use for cell types
@@ -943,6 +968,7 @@ findCellProximityFeats_per_interaction = function(sel_int,
 #' @export
 findInteractionChangedFeats = function(gobject,
                                        feat_type = NULL,
+                                       spat_unit = NULL,
                                        expression_values = 'normalized',
                                        selected_feats = NULL,
                                        cluster_column,
@@ -966,9 +992,17 @@ findInteractionChangedFeats = function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
   # expression values to be used
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_values = get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+  expr_values = get_expression_values(gobject = gobject,
+                                      feat_type = feat_type,
+                                      spat_unit = spat_unit,
+                                      values = values)
 
   ## test selected feats ##
   if(!is.null(selected_feats)) {
@@ -994,14 +1028,12 @@ findInteractionChangedFeats = function(gobject,
   ## annotated spatial network
   annot_spatnetwork = annotateSpatialNetwork(gobject,
                                              feat_type = feat_type,
+                                             spat_unit = spat_unit,
                                              spatial_network_name = spatial_network_name,
                                              cluster_column = cluster_column)
-
-  print(annot_spatnetwork)
-
+  # print(annot_spatnetwork)
   all_interactions = unique(annot_spatnetwork$unified_int)
-
-  print(all_interactions)
+  # print(all_interactions)
 
 
   if(do_parallel == TRUE) {
@@ -1099,6 +1131,8 @@ findInteractionChangedFeats = function(gobject,
 #' @description Identifies cell-to-cell Interaction Changed Genes (ICG),
 #' i.e. genes that are differentially expressed due to proximity to other cell types.#'
 #' @param gobject giotto object
+#' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param expression_values expression values to use
 #' @param selected_genes subset of selected genes (optional)
 #' @param cluster_column name of column to use for cell types
@@ -1136,6 +1170,8 @@ findInteractionChangedFeats = function(gobject,
 #' }
 #' @export
 findInteractionChangedGenes = function(gobject,
+                                       feat_type = NULL,
+                                       spat_unit = NULL,
                                        expression_values = 'normalized',
                                        selected_genes = NULL,
                                        cluster_column,
@@ -1200,6 +1236,7 @@ findCellProximityGenes <- function(...) {
 #' i.e. features that are differentially expressed due to proximity to other cell types.#'
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param expression_values expression values to use
 #' @param selected_feats subset of selected features (optional)
 #' @param cluster_column name of column to use for cell types
@@ -1239,6 +1276,7 @@ findCellProximityGenes <- function(...) {
 #' @export
 findICF = function(gobject,
                    feat_type = NULL,
+                   spat_unit = NULL,
                    expression_values = 'normalized',
                    selected_feats = NULL,
                    cluster_column,
@@ -1259,6 +1297,7 @@ findICF = function(gobject,
 
   findInteractionChangedFeats(gobject = gobject,
                               feat_type = feat_type,
+                              spat_unit = spat_unit,
                               expression_values = expression_values,
                               selected_feats = selected_feats,
                               cluster_column = cluster_column,
@@ -1286,6 +1325,8 @@ findICF = function(gobject,
 #' @description Identifies cell-to-cell Interaction Changed Genes (ICG),
 #' i.e. genes that are differentially expressed due to proximity to other cell types.
 #' @param gobject giotto object
+#' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param expression_values expression values to use
 #' @param selected_genes subset of selected genes (optional)
 #' @param cluster_column name of column to use for cell types
@@ -1324,6 +1365,8 @@ findICF = function(gobject,
 #' @seealso \code{\link{findICF}}
 #' @export
 findICG = function(gobject,
+                   feat_type = NULL,
+                   spat_unit = NULL,
                    expression_values = 'normalized',
                    selected_genes = NULL,
                    cluster_column,
@@ -1345,7 +1388,8 @@ findICG = function(gobject,
   warning("Deprecated and replaced by findInteractionChangedFeats or findICF")
 
   findInteractionChangedFeats(gobject = gobject,
-                              feat_type = NULL,
+                              feat_type = feat_type,
+                              spat_unit = spat_unit,
                               expression_values = expression_values,
                               selected_feats = selected_genes,
                               cluster_column = cluster_column,
@@ -2052,6 +2096,7 @@ combineCPG <- function(...) {
 #' @description calculate average expression per cluster
 #' @param gobject giotto object to use
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param cluster_column cluster column with cell type information
 #' @param feat_set_1 first specific feat set from feat pairs
 #' @param feat_set_2 second specific feat set from feat pairs
@@ -2059,6 +2104,7 @@ combineCPG <- function(...) {
 #' @keywords internal
 average_feat_feat_expression_in_groups = function(gobject,
                                                   feat_type = NULL,
+                                                  spat_unit = NULL,
                                                   cluster_column = 'cell_types',
                                                   feat_set_1,
                                                   feat_set_2) {
@@ -2068,8 +2114,14 @@ average_feat_feat_expression_in_groups = function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
   average_DT = create_average_DT(gobject = gobject,
                                  feat_type = feat_type,
+                                 spat_unit = spat_unit,
                                  meta_data_name = cluster_column)
 
   # change column names back to original
@@ -2131,6 +2183,7 @@ average_feat_feat_expression_in_groups = function(gobject,
 #' @description Cell-Cell communication scores based on expression only
 #' @param gobject giotto object to use
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param cluster_column cluster column with cell type information
 #' @param random_iter number of iterations
 #' @param feat_set_1 first specific feature set from feature pairs
@@ -2150,6 +2203,7 @@ average_feat_feat_expression_in_groups = function(gobject,
 #' @export
 exprCellCellcom = function(gobject,
                            feat_type = NULL,
+                           spat_unit = NULL,
                            cluster_column = 'cell_types',
                            random_iter = 1000,
                            feat_set_1,
@@ -2169,6 +2223,11 @@ exprCellCellcom = function(gobject,
   # set feat type
   if(is.null(feat_type)) {
     feat_type = gobject@expression_feat[[1]]
+  }
+
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
   }
 
   ## deprecated arguments
@@ -2192,7 +2251,8 @@ exprCellCellcom = function(gobject,
 
   # get information about number of cells
   cell_metadata = pDataDT(gobject,
-                          feat_type = feat_type)
+                          feat_type = feat_type,
+                          spat_unit = spat_unit)
   nr_cell_types = cell_metadata[,.N, by = c(cluster_column)]
   nr_cells = nr_cell_types$N
   names(nr_cells) = nr_cell_types$cluster_column
@@ -2200,6 +2260,7 @@ exprCellCellcom = function(gobject,
 
   comScore = average_feat_feat_expression_in_groups(gobject = gobject,
                                                     feat_type = feat_type,
+                                                    spat_unit = spat_unit,
                                                     cluster_column = cluster_column,
                                                     feat_set_1 = feat_set_1,
                                                     feat_set_2 = feat_set_2)
@@ -2230,7 +2291,8 @@ exprCellCellcom = function(gobject,
 
     # create temporary giotto
     tempGiotto = subsetGiotto(gobject = gobject,
-                              feat_type = feat_type)
+                              feat_type = feat_type,
+                              spat_unit = spat_unit)
 
     # randomize annoation
     cell_types = cell_metadata[[cluster_column]]
@@ -2241,12 +2303,14 @@ exprCellCellcom = function(gobject,
     random_cell_types = sample(x = cell_types, size = length(cell_types))
     tempGiotto = addCellMetadata(gobject = tempGiotto,
                                  feat_type = feat_type,
+                                 spat_unit = spat_unit,
                                  new_metadata = random_cell_types,
                                  by_column = F)
 
     # get random communication scores
     randomScore = average_feat_feat_expression_in_groups(gobject = tempGiotto,
                                                          feat_type = feat_type,
+                                                         spat_unit = spat_unit,
                                                          cluster_column = 'random_cell_types',
                                                          feat_set_1 = feat_set_1,
                                                          feat_set_2 = feat_set_2)
@@ -2324,6 +2388,7 @@ exprCellCellcom = function(gobject,
 #' @keywords internal
 create_cell_type_random_cell_IDs = function(gobject,
                                             feat_type = NULL,
+                                            spat_unit = NULL,
                                             cluster_column = 'cell_types',
                                             needed_cell_types,
                                             set_seed = FALSE,
@@ -2334,9 +2399,15 @@ create_cell_type_random_cell_IDs = function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
   # subset metadata to choose from
   full_metadata = pDataDT(gobject,
-                          feat_type = feat_type)
+                          feat_type = feat_type,
+                          spat_unit = spat_unit)
   possible_metadata = full_metadata[get(cluster_column) %in% unique(needed_cell_types)]
 
   sample_ids = list()
@@ -2365,6 +2436,7 @@ create_cell_type_random_cell_IDs = function(gobject,
 #' @description Specific Cell-Cell communication scores based on spatial expression of interacting cells
 #' @param gobject giotto object to use
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param spatial_network_name spatial network to use for identifying interacting cells
 #' @param cluster_column cluster column with cell type information
 #' @param random_iter number of iterations
@@ -2410,6 +2482,7 @@ create_cell_type_random_cell_IDs = function(gobject,
 #' @export
 specificCellCellcommunicationScores = function(gobject,
                                                feat_type = NULL,
+                                               spat_unit = NULL,
                                                spatial_network_name = 'Delaunay_network',
                                                cluster_column = 'cell_types',
                                                random_iter = 100,
@@ -2432,6 +2505,11 @@ specificCellCellcommunicationScores = function(gobject,
   # set feat type
   if(is.null(feat_type)) {
     feat_type = gobject@expression_feat[[1]]
+  }
+
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
   }
 
   ## deprecated arguments
@@ -2457,11 +2535,13 @@ specificCellCellcommunicationScores = function(gobject,
 
   # metadata
   cell_metadata = pDataDT(gobject = gobject,
-                          feat_type = feat_type)
+                          feat_type = feat_type,
+                          spat_unit = spat_unit)
 
   # get annotated spatial network
   annot_network = annotateSpatialNetwork(gobject,
                                          feat_type = feat_type,
+                                         spat_unit = spat_unit,
                                          spatial_network_name = spatial_network_name,
                                          cluster_column = cluster_column)
 
@@ -2482,17 +2562,21 @@ specificCellCellcommunicationScores = function(gobject,
     subset_ids = unique(c(subset_annot_network$to, subset_annot_network$from))
     subsetGiotto = subsetGiotto(gobject = gobject,
                                 cell_ids = subset_ids,
-                                feat_type = feat_type)
+                                feat_type = feat_type,
+                                spat_unit = spat_unit)
 
     # get information about number of cells
     temp_meta = pDataDT(subsetGiotto,
-                        feat_type = feat_type)
+                        feat_type = feat_type,
+                        spat_unit = spat_unit)
     nr_cell_types = temp_meta[cell_ID %in% subset_ids][,.N, by = c(cluster_column)]
     nr_cells = nr_cell_types$N
     names(nr_cells) = nr_cell_types$cell_types
 
     # get average communication scores
     comScore = average_feat_feat_expression_in_groups(gobject = subsetGiotto,
+                                                      feat_type = feat_type,
+                                                      spat_unit = spat_unit,
                                                       cluster_column = cluster_column,
                                                       feat_set_1 = feat_set_1,
                                                       feat_set_2 = feat_set_2)
@@ -2530,17 +2614,21 @@ specificCellCellcommunicationScores = function(gobject,
         set.seed(seed = seed_number)
       }
       random_ids = create_cell_type_random_cell_IDs(gobject = gobject,
+                                                    feat_type = feat_type,
+                                                    spat_unit = spat_unit,
                                                     cluster_column = cluster_column,
                                                     needed_cell_types = needed_cell_types,
                                                     set_seed = set_seed,
                                                     seed_number = seed_number)
       tempGiotto = subsetGiotto(gobject = gobject,
                                 cell_ids = random_ids,
-                                feat_type = feat_type)
+                                feat_type = feat_type,
+                                spat_unit = spat_unit)
 
       # get random communication scores
       randomScore = average_feat_feat_expression_in_groups(gobject = tempGiotto,
                                                            feat_type = feat_type,
+                                                           spat_unit = spat_unit,
                                                            cluster_column = cluster_column,
                                                            feat_set_1 = feat_set_1,
                                                            feat_set_2 = feat_set_2)
@@ -2612,6 +2700,7 @@ specificCellCellcommunicationScores = function(gobject,
 #' @description Spatial Cell-Cell communication scores based on spatial expression of interacting cells
 #' @param gobject giotto object to use
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param spatial_network_name spatial network to use for identifying interacting cells
 #' @param cluster_column cluster column with cell type information
 #' @param random_iter number of iterations
@@ -2657,6 +2746,7 @@ specificCellCellcommunicationScores = function(gobject,
 #' @export
 spatCellCellcom = function(gobject,
                            feat_type = NULL,
+                           spat_unit = NULL,
                            spatial_network_name = 'Delaunay_network',
                            cluster_column = 'cell_types',
                            random_iter = 1000,
@@ -2691,6 +2781,11 @@ spatCellCellcom = function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
+  # set spatial unit
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
   ## deprecated arguments
   if(!is.null(gene_set_1)) {
     feat_set_1 = gene_set_1
@@ -2703,7 +2798,8 @@ spatCellCellcom = function(gobject,
 
 
   cell_metadata = pDataDT(gobject,
-                          feat_type = feat_type)
+                          feat_type = feat_type,
+                          spat_unit = spatial_unit)
 
   ## get all combinations between cell types
   all_uniq_values = unique(cell_metadata[[cluster_column]])
@@ -2722,6 +2818,7 @@ spatCellCellcom = function(gobject,
 
       specific_scores = specificCellCellcommunicationScores(gobject = gobject,
                                                             feat_type = feat_type,
+                                                            spat_unit = spat_unit,
                                                             cluster_column = cluster_column,
                                                             random_iter = random_iter,
                                                             cell_type_1 = cell_type_1,
@@ -2761,6 +2858,7 @@ spatCellCellcom = function(gobject,
 
       specific_scores = specificCellCellcommunicationScores(gobject = gobject,
                                                             feat_type = feat_type,
+                                                            spat_unit = spat_unit,
                                                             cluster_column = cluster_column,
                                                             random_iter = random_iter,
                                                             cell_type_1 = cell_type_1,

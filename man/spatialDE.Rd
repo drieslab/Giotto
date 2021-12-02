@@ -6,6 +6,8 @@
 \usage{
 spatialDE(
   gobject = NULL,
+  feat_type = NULL,
+  spat_unit = NULL,
   spat_loc_name = "raw",
   expression_values = c("raw", "normalized", "scaled", "custom"),
   size = c(4, 2, 1),
@@ -22,6 +24,10 @@ spatialDE(
 }
 \arguments{
 \item{gobject}{Giotto object}
+
+\item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{spat_loc_name}{name for spatial locations}
 

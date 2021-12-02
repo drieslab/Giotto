@@ -7,6 +7,7 @@
 signPCA(
   gobject,
   feat_type = NULL,
+  spat_unit = NULL,
   name = NULL,
   method = c("screeplot", "jackstraw"),
   expression_values = c("normalized", "scaled", "custom"),
@@ -34,6 +35,8 @@ signPCA(
 \item{gobject}{giotto object}
 
 \item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{name}{name of PCA object if available}
 
