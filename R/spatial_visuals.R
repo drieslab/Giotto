@@ -28,7 +28,8 @@ set_default_feat_type = function(gobject,
 #' @name set_default_spat_unit
 #' @keywords internal
 set_default_spat_unit = function(gobject,
-                                 spat_unit) {
+                                 spat_unit,
+                                 feat_type) {
 
   # set spatial unit
   if(is.null(spat_unit)) {
@@ -2503,10 +2504,8 @@ spatPlot2D_single = function(gobject,
                              save_param =  list(),
                              default_save_name = 'spatPlot2D_single') {
 
-
-
   feat_type = set_default_feat_type(gobject, feat_type)
-  spat_unit = set_default_spat_unit(gobject, spat_unit)
+  spat_unit = set_default_spat_unit(gobject, spat_unit, feat_type)
 
   ## giotto image ##
   if(show_image == TRUE) {

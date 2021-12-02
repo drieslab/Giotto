@@ -4,7 +4,12 @@
 \alias{addSpatialCentroidLocations}
 \title{addSpatialCentroidLocations}
 \usage{
-addSpatialCentroidLocations(gobject, poly_info = "cell", return_gobject = TRUE)
+addSpatialCentroidLocations(
+  gobject,
+  poly_info = "cell",
+  spat_loc_name = "raw",
+  return_gobject = TRUE
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -12,6 +17,8 @@ addSpatialCentroidLocations(gobject, poly_info = "cell", return_gobject = TRUE)
 \item{poly_info}{polygon information}
 
 \item{return_gobject}{return giotto object (default: TRUE)}
+
+\item{feat_type}{feature type}
 }
 \value{
 

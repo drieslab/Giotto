@@ -1841,8 +1841,8 @@ overlapToMatrix = function(gobject,
 
 
   overlap_spatvec = get_polygon_info(gobject = gobject,
-                                        polygon_name = poly_info,
-                                        polygon_overlap = feat_info)
+                                     polygon_name = poly_info,
+                                     polygon_overlap = feat_info)
 
   if(is.null(overlap_spatvec)) {
     cat('overlap between ', poly_info, ' and ', feat_info, ' has not been found \n')
@@ -1857,13 +1857,17 @@ overlapToMatrix = function(gobject,
   all_feats = gobject@feat_ID[[feat_info]]
   missing_feats = all_feats[!all_feats %in% unique(aggr_dtoverlap$feat_ID)]
 
-  all_ids = gobject@cell_ID
+  all_ids = gobject@cell_ID[[poly_info]]
   missing_ids = all_ids[!all_ids %in% unique(aggr_dtoverlap$poly_ID)]
+
+  print(missing_ids)
 
   # create missing cell values
   first_feature = aggr_dtoverlap[['feat_ID']][[1]]
   missing_dt = data.table::data.table(poly_ID = missing_ids, feat_ID = first_feature, N = 0)
   aggr_dtoverlap = rbind(aggr_dtoverlap, missing_dt)
+
+  print(aggr_dtoverlap)
 
   # TODO: creating missing feature values
 
@@ -1871,6 +1875,7 @@ overlapToMatrix = function(gobject,
   overlapmatrixDT = data.table::dcast(data = aggr_dtoverlap,
                                       formula = feat_ID~poly_ID,
                                       value.var = 'N', fill = 0)
+  print(overlapmatrixDT[1:2, 1:2])
   overlapmatrix = Giotto:::dt_to_matrix(overlapmatrixDT)
 
   overlapmatrix = overlapmatrix[match(gobject@feat_ID[[feat_info]], rownames(overlapmatrix)),
@@ -1878,7 +1883,7 @@ overlapToMatrix = function(gobject,
 
 
   if(return_gobject == TRUE) {
-    gobject@expression[[feat_info]][[name]] = overlapmatrix
+    gobject@expression[[feat_info]][[poly_info]][[name]] = overlapmatrix
     return(gobject)
   } else {
     return(overlapmatrix)

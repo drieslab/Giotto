@@ -8,7 +8,7 @@ combineCellData(
   gobject,
   feat_type = "rna",
   include_spat_locs = TRUE,
-  spat_loc_name = "cell",
+  spat_loc_name = "raw",
   include_poly_info = TRUE,
   poly_info = "cell"
 )
