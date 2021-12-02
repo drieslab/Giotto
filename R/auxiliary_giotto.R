@@ -258,8 +258,8 @@ subset_expression_data = function(gobject,
         for(expr_name in expression_names) {
 
           # for HDF5Array
-          if(methods::is(gobject@expression[[feat_type]][[spat_unit]][[expr_name]], 'HDF5Array')) {
-            gobject@expression[[feat_type]][[spat_unit]][[expr_name]] = DelayedArray::realize(gobject@expression[[feat_type]][[spat_unit]][[expr_name]][filter_bool_feats, filter_bool_cells], "HDF5Array")
+          if(methods::is(gobject@expression[[expr_feat]][[spat_unit]][[expr_name]], 'HDF5Array')) {
+            gobject@expression[[expr_feat]][[spat_unit]][[expr_name]] = DelayedArray::realize(gobject@expression[[expr_feat]][[spat_unit]][[expr_name]][filter_bool_feats, filter_bool_cells], "HDF5Array")
           }
 
           gobject@expression[[expr_feat]][[region]][[expr_name]] = gobject@expression[[expr_feat]][[region]][[expr_name]][filter_bool_feats, filter_bool_cells]
@@ -288,8 +288,8 @@ subset_expression_data = function(gobject,
         for(expr_name in expression_names) {
 
           # for HDF5Array
-          if(methods::is(gobject@expression[[feat_type]][[spat_unit]][[expr_name]], 'HDF5Array')) {
-            gobject@expression[[feat_type]][[spat_unit]][[expr_name]] = DelayedArray::realize(gobject@expression[[feat_type]][[spat_unit]][[expr_name]][, filter_bool_cells], "HDF5Array")
+          if(methods::is(gobject@expression[[expr_feat]][[spat_unit]][[expr_name]], 'HDF5Array')) {
+            gobject@expression[[expr_feat]][[spat_unit]][[expr_name]] = DelayedArray::realize(gobject@expression[[expr_feat]][[spat_unit]][[expr_name]][, filter_bool_cells], "HDF5Array")
           }
 
           gobject@expression[[expr_feat]][[region]][[expr_name]] = gobject@expression[[expr_feat]][[region]][[expr_name]][, filter_bool_cells]
@@ -791,6 +791,8 @@ subsetGiotto <- function(gobject,
   feats_to_keep = g_feat_IDs[filter_bool_feats]
 
 
+  print(cells_to_keep[1:5])
+  print(feats_to_keep[1:5])
 
   if(verbose) cat('completed 1: preparation \n')
 
@@ -1780,6 +1782,7 @@ normalizeGiotto <- function(gobject,
 #' @description Adjust expression values to account for known batch effects or technological covariates.
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param expression_values expression values to use
 #' @param batch_columns metadata columns that represent different batch (max = 2)
 #' @param covariate_columns metadata columns that represent covariates to regress out
@@ -1792,6 +1795,7 @@ normalizeGiotto <- function(gobject,
 #'
 adjustGiottoMatrix <- function(gobject,
                                feat_type = NULL,
+                               spat_unit = NULL,
                                expression_values = c('normalized', 'scaled', 'custom'),
                                batch_columns = NULL,
                                covariate_columns = NULL,
@@ -1803,8 +1807,14 @@ adjustGiottoMatrix <- function(gobject,
     feat_type = gobject@expression_feat[[1]]
   }
 
+  if(is.null(spat_unit)) {
+    spat_unit = names(gobject@expression[[feat_type]])[[1]]
+  }
+
   # metadata
-  cell_metadata = pDataDT(gobject, feat_type = feat_type)
+  cell_metadata = pDataDT(gobject,
+                          feat_type = feat_type,
+                          spat_unit = spat_unit)
 
   if(!is.null(batch_columns)) {
     if(!all(batch_columns %in% colnames(cell_metadata))) {
@@ -1822,7 +1832,10 @@ adjustGiottoMatrix <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_data = get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+  expr_data = get_expression_values(gobject = gobject,
+                                    feat_type = feat_type,
+                                    spat_unit = spat_unit,
+                                    values = values)
 
 
   # batch columns
@@ -1857,7 +1870,7 @@ adjustGiottoMatrix <- function(gobject,
 
     gobject = update_giotto_params(gobject, description = '_adj_matrix')
 
-    gobject@expression[[feat_type]][[update_slot]] = adjusted_matrix
+    gobject@expression[[feat_type]][[spat_unit]][[update_slot]] = adjusted_matrix
     return(gobject)
 
   } else {
