@@ -158,6 +158,7 @@ plot_feature_points_layer = function(ggobject,
 #' @param show_image show a tissue background image
 #' @param gimage a giotto image
 #' @param image_name name of a giotto image
+#' @param spat_unit spatial unit
 #' @param spat_loc_name name of spatial locations
 #' @param feats features to plot
 #' @param feat_type feature types of the feats
@@ -166,7 +167,7 @@ plot_feature_points_layer = function(ggobject,
 #' @param sdimx spatial dimension x
 #' @param sdimy spatial dimension y
 #' @param point_size size of the points
-#' @param show_polygon overlay polygon information (cell shape)
+#' @param show_polygon overlay polygon information (e.g. cell shape)
 #' @param use_overlap use polygon and feature coordinates overlap results
 #' @param polygon_feat_type feature type associated with polygon information
 #' @param polygon_color color for polygon border
@@ -196,6 +197,7 @@ spatInSituPlotPoints = function(gobject,
                                 show_image = F,
                                 gimage = NULL,
                                 image_name = 'image',
+                                spat_unit = NULL,
                                 spat_loc_name = NULL,
                                 feats = NULL,
                                 feat_type = 'rna',
@@ -286,7 +288,6 @@ spatInSituPlotPoints = function(gobject,
     if(is.null(polygon_feat_type)) {
       polygon_feat_type = gobject@expression_feat[[1]]
     }
-
 
     polygon_combo = combineCellData(gobject = gobject,
                                     spat_loc_name = spat_loc_name,
