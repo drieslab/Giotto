@@ -10,7 +10,8 @@ spatFeatPlot2D(
   spat_unit = NULL,
   show_image = F,
   gimage = NULL,
-  image_name = "image",
+  image_name = NULL,
+  largeImage_name = NULL,
   spat_loc_name = NULL,
   group_by = NULL,
   group_by_subset = NULL,
@@ -66,6 +67,10 @@ spatFeatPlot2D(
 \item{gimage}{a giotto image}
 
 \item{image_name}{name of a giotto image or multiple images if group_by}
+
+\item{largeImage_name}{name of a giottoLargeImage or multiple images if group by}
+
+\item{spat_loc_name}{name of spatial locations}
 
 \item{group_by}{create multiple plots based on cell annotation column}
 

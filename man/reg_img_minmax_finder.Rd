@@ -9,7 +9,6 @@ reg_img_minmax_finder(
   image_unreg,
   scale_factor,
   transform_values,
-  spatloc_unreg,
   method
 )
 }
@@ -21,8 +20,6 @@ reg_img_minmax_finder(
 \item{scale_factor}{scale factors for registered images relative to spatlocs.}
 
 \item{transform_values}{transformation values to use}
-
-\item{spatloc_unreg}{unregistered spatloc name to use}
 
 \item{method}{method of registration}
 }

@@ -7,6 +7,7 @@
 filterCombinations(
   gobject,
   feat_type = NULL,
+  spat_unit = NULL,
   expression_values = c("raw", "normalized", "scaled", "custom"),
   expression_thresholds = c(1, 2),
   feat_det_in_min_cells = c(5, 50),
@@ -28,6 +29,8 @@ filterCombinations(
 \item{gobject}{giotto object}
 
 \item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{expression_values}{expression values to use}
 
