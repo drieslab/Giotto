@@ -6,6 +6,8 @@
 \usage{
 dimGenePlot3D(
   gobject,
+  feat_type = NULL,
+  spat_unit = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   genes = NULL,
   dim_reduction_to_use = "umap",
@@ -38,6 +40,10 @@ dimGenePlot3D(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{expression_values}{gene expression values to use}
 

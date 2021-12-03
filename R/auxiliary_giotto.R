@@ -52,13 +52,12 @@ pDataDT <- function(gobject,
                     feat_type = NULL,
                     spat_unit = NULL) {
 
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    feat_type = feat_type)
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   if(!inherits(gobject, c('ExpressionSet', 'SCESet', 'seurat', 'giotto'))) {
     stop('only works with ExpressionSet (-like) objects')
@@ -127,15 +126,12 @@ create_average_DT <- function(gobject,
                               expression_values = c('normalized', 'scaled', 'custom')) {
 
 
-  # set feat type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    feat_type = feat_type)
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
@@ -186,15 +182,12 @@ create_average_detection_DT <- function(gobject,
                                         detection_threshold = 0) {
 
 
-  # set feat type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    feat_type = feat_type)
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
@@ -755,15 +748,12 @@ subsetGiotto <- function(gobject,
                          verbose = TRUE,
                          toplevel_params = 2) {
 
-  # set feat type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    feat_type = feat_type)
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # set poly_info
   if(is.null(poly_info)) {
@@ -961,30 +951,37 @@ subsetGiottoLocs = function(gobject,
                             poly_info = 'cell',
                             return_gobject = T,
                             verbose = FALSE) {
+  
+  # Check spatial params
+  spatError = NULL
+  if(!is.null(x_min) && !is.null(x_max)) if(x_min > x_max) spatError = append(spatError, 'x_max must be larger than x_min \n')
+  if(!is.null(y_min) && !is.null(y_max)) if(y_min > y_max) spatError = append(spatError, 'y_max must be larger than y_min \n')
+  if(!is.null(z_min) && !is.null(z_max)) if(z_min > z_max) spatError = append(spatError, 'z_max must be larger than z_min \n')
+  if(!is.null(spatError)) stop(spatError)
 
   comb_metadata = combineMetadata(gobject = gobject, spat_loc_name = NULL)
   comb_colnames =  colnames(comb_metadata)
 
   # x spatial dimension
   if('sdimx' %in% comb_colnames) {
-    if(is.null(x_max)) x_max = max(comb_colnames[['sdimx']])
-    if(is.null(x_min)) x_min = min(comb_colnames[['sdimx']])
+    if(is.null(x_max)) x_max = max(comb_metadata[['sdimx']])
+    if(is.null(x_min)) x_min = min(comb_metadata[['sdimx']])
 
     comb_metadata = comb_metadata[get('sdimx') < x_max & get('sdimx') > x_min]
   }
 
   # y spatial dimension
   if('sdimy' %in% comb_colnames) {
-    if(is.null(y_max)) y_max = max(comb_colnames[['sdimy']])
-    if(is.null(y_min)) y_min = min(comb_colnames[['sdimy']])
+    if(is.null(y_max)) y_max = max(comb_metadata[['sdimy']])
+    if(is.null(y_min)) y_min = min(comb_metadata[['sdimy']])
 
     comb_metadata = comb_metadata[get('sdimy') < y_max & get('sdimy') > y_min]
   }
 
   # z spatial dimension
   if('sdimz' %in% comb_colnames) {
-    if(is.null(z_max)) z_max = max(comb_colnames[['sdimz']])
-    if(is.null(z_min)) z_min = min(comb_colnames[['sdimz']])
+    if(is.null(z_max)) z_max = max(comb_metadata[['sdimz']])
+    if(is.null(z_min)) z_min = min(comb_metadata[['sdimz']])
 
     comb_metadata = comb_metadata[get('sdimz') < z_max & get('sdimz') > z_min]
   }
@@ -1020,6 +1017,7 @@ subsetGiottoLocs = function(gobject,
 #' @description show gene or cell distribution after filtering on expression threshold
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param expression_values expression values to use
 #' @param expression_threshold threshold to consider a gene expressed
 #' @param detection consider features (e.g. genes) or cells
@@ -1047,6 +1045,7 @@ subsetGiottoLocs = function(gobject,
 #'
 filterDistributions <- function(gobject,
                                 feat_type = NULL,
+                                spat_unit = NULL,
                                 expression_values = c('raw', 'normalized', 'scaled', 'custom'),
                                 expression_threshold = 1,
                                 detection = c('feats', 'cells'),
@@ -1062,16 +1061,19 @@ filterDistributions <- function(gobject,
                                 default_save_name = 'filterDistributions') {
 
 
-  # set feat type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
+  # Set feat_type and spat_unit
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    feat_type = feat_type)
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('raw', 'normalized', 'scaled', 'custom', expression_values)))
   expr_values = get_expression_values(gobject = gobject,
-                                         feat_type = feat_type,
-                                         values = values)
+                                      feat_type = feat_type,
+                                      spat_unit = spat_unit,
+                                      values = values)
 
   # plot distribution for genes or cells
   detection = match.arg(detection, c('feats', 'cells'))
@@ -1162,6 +1164,7 @@ filterDistributions <- function(gobject,
 #' @description Shows how many genes and cells are lost with combinations of thresholds.
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param expression_values expression values to use
 #' @param expression_thresholds all thresholds to consider a gene expressed
 #' @param feat_det_in_min_cells minimum # of cells that need to express a feature
@@ -1185,6 +1188,7 @@ filterDistributions <- function(gobject,
 #' @export
 filterCombinations <- function(gobject,
                                feat_type = NULL,
+                               spat_unit = NULL,
                                expression_values = c('raw', 'normalized', 'scaled', 'custom'),
                                expression_thresholds = c(1, 2),
                                feat_det_in_min_cells = c(5, 50),
@@ -1212,17 +1216,20 @@ filterCombinations <- function(gobject,
     warning('min_det_genes_per_cell is deprecated, use min_det_feats_per_cell in the future \n')
   }
 
-  # set feat type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
+  # Set feat_type and spat_unit
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    feat_type = feat_type)
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('raw', 'normalized', 'scaled', 'custom', expression_values)))
   expr_values = get_expression_values(gobject = gobject,
-                                         feat_type = feat_type,
-                                         values = values)
+                                      feat_type = feat_type,
+                                      spat_unit = spat_unit,
+                                      values = values)
 
   # feat and cell minimums need to have the same length
   if(length(feat_det_in_min_cells) != length(min_det_feats_per_cell)) {
@@ -1366,15 +1373,12 @@ filterGiotto <- function(gobject,
   }
 
 
-  # set feat type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    feat_type = feat_type)
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('raw', 'normalized', 'scaled', 'custom', expression_values)))
@@ -1706,15 +1710,12 @@ normalizeGiotto <- function(gobject,
     warning('scale_genes is deprecated, use scale_feats in the future \n')
   }
 
-  ## set feat type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    feat_type = feat_type)
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   ## default is to start from raw data
   values = match.arg(expression_values, unique(c('raw', expression_values)))
@@ -2313,15 +2314,12 @@ addFeatStatistics <- function(gobject,
                               detection_threshold = 0,
                               return_gobject = TRUE) {
 
-  # set feat type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    feat_type = feat_type)
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # expression values to be used
   expression_values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
@@ -2449,15 +2447,12 @@ addCellStatistics <- function(gobject,
                               detection_threshold = 0,
                               return_gobject = TRUE) {
 
-  # set feat type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    feat_type = feat_type)
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # expression values to be used
   expression_values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))

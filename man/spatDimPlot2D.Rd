@@ -7,9 +7,11 @@
 spatDimPlot2D(
   gobject,
   feat_type = NULL,
+  spat_unit = NULL,
   show_image = F,
   gimage = NULL,
-  image_name = "image",
+  image_name = NULL,
+  largeImage_name = NULL,
   spat_loc_name = NULL,
   plot_alignment = c("vertical", "horizontal"),
   dim_reduction_to_use = "umap",
@@ -90,11 +92,17 @@ spatDimPlot2D(
 
 \item{feat_type}{feature type}
 
+\item{spat_unit}{spatial unit}
+
 \item{show_image}{show a tissue background image}
 
 \item{gimage}{a giotto image}
 
 \item{image_name}{name of a giotto image}
+
+\item{largeImage_name}{name of a giottoLargeImage}
+
+\item{spat_loc_name}{name of spatial locations}
 
 \item{plot_alignment}{direction to align plot}
 

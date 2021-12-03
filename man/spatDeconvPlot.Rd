@@ -7,10 +7,12 @@
 spatDeconvPlot(
   gobject,
   feat_type = NULL,
+  spat_unit = NULL,
   deconv_name = "DWLS",
   show_image = F,
   gimage = NULL,
-  image_name = "image",
+  image_name = NULL,
+  largeImage_name = NULL,
   spat_loc_name = NULL,
   sdimx = "sdimx",
   sdimy = "sdimy",
@@ -36,6 +38,8 @@ spatDeconvPlot(
 
 \item{feat_type}{feature type}
 
+\item{spat_unit}{spatial unit}
+
 \item{deconv_name}{name of deconvolution results to use}
 
 \item{show_image}{show a tissue background image}
@@ -43,6 +47,8 @@ spatDeconvPlot(
 \item{gimage}{a giotto image}
 
 \item{image_name}{name of a giotto image}
+
+\item{largeImage_name}{name of a giottoLargeImage}
 
 \item{spat_loc_name}{name of spatial locations}
 
