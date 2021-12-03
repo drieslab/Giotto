@@ -4,7 +4,12 @@
 \alias{combineFeatureData}
 \title{combineFeatureData}
 \usage{
-combineFeatureData(gobject, feat_type = "rna", sel_feats = NULL)
+combineFeatureData(
+  gobject,
+  feat_type = NULL,
+  spat_unit = NULL,
+  sel_feats = NULL
+)
 }
 \arguments{
 \item{gobject}{giotto object}
