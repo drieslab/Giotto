@@ -9,6 +9,7 @@ spatInSituPlotPoints(
   show_image = F,
   gimage = NULL,
   image_name = "image",
+  spat_unit = NULL,
   spat_loc_name = NULL,
   feats = NULL,
   feat_type = "rna",
@@ -52,6 +53,8 @@ spatInSituPlotPoints(
 
 \item{image_name}{name of a giotto image}
 
+\item{spat_unit}{spatial unit}
+
 \item{spat_loc_name}{name of spatial locations}
 
 \item{feats}{features to plot}
@@ -68,7 +71,7 @@ spatInSituPlotPoints(
 
 \item{point_size}{size of the points}
 
-\item{show_polygon}{overlay polygon information (cell shape)}
+\item{show_polygon}{overlay polygon information (e.g. cell shape)}
 
 \item{use_overlap}{use polygon and feature coordinates overlap results}
 
