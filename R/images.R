@@ -81,7 +81,7 @@ setMethod(
 
     cat("Scale factor: \n")
     print(object@scale_factor)
-    
+
     cat("\n Resolution: \n")
     print(object@resolution)
 
@@ -162,7 +162,7 @@ setMethod(
 
     cat('\n Maximum intensity is: ', object@max_intensity, ' \n',
         'Minimum intensity is: ', object@min_intensity, ' \n')
-    
+
     if(object@is_int == TRUE) cat('Values are integers')
     if(object@is_int == FALSE) cat('Values are floating point')
 
@@ -177,6 +177,8 @@ setMethod(
 #' @name createGiottoImage
 #' @description Creates a giotto image that can be added to a Giotto object and/or used to add an image to the spatial plotting functions
 #' @param gobject giotto object
+#' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param spatial_locs spatial locations (alternative if gobject = NULL)
 #' @param spat_loc_name name of spatial locations within gobject
 #' @param mg_object magick image object
@@ -206,6 +208,8 @@ setMethod(
 #' @return a giottoImage object
 #' @export
 createGiottoImage = function(gobject = NULL,
+                             feat_type = NULL,
+                             spat_unit = NULL,
                              spatial_locs = NULL,
                              spat_loc_name = NULL,
                              mg_object,
@@ -232,7 +236,7 @@ createGiottoImage = function(gobject = NULL,
   # Check params
   order = match.arg(order, choices = c('first_scale','first_adj'))
   scale_factor = c(x = scale_factor, y = scale_factor)
-  
+
   # create minimum giotto
   g_image = giottoImage(name = name,
                         mg_object = NULL,
@@ -285,12 +289,19 @@ createGiottoImage = function(gobject = NULL,
   # If spatlocs or gobject supplied, minmax values will always be generated
   # If do_manual_adj == TRUE, bypass followup automatic boundary value generation
   if(!is.null(gobject)) {
+
+    feat_type = set_default_feat_type(gobject, feat_type = feat_type)
+    spat_unit = set_default_spat_unit(gobject, feat_type = feat_type, spat_unit = spat_unit)
+
     # Get spatial locations
     if(!is.null(gobject@spatial_locs)) {
-      spat_loc_name = names(gobject@spatial_locs)[[1]]
+      spat_loc_name = names(gobject@spatial_locs[[spat_unit]])[[1]]
     }
+
     spatlocs = get_spatial_locations(gobject = gobject,
+                                     spat_unit = spat_unit,
                                      spat_loc_name = spat_loc_name)
+
     # spatlocs = gobject@spatial_locs[['raw']]
 
     # Find g_image minmax (spatial) from spatial_locs in gobject
@@ -349,7 +360,7 @@ createGiottoImage = function(gobject = NULL,
     my_xmin = 0; my_xmax = 10; my_ymin = 0; my_ymax = 10
 
   }
-  
+
   # Set minmax and boundary values for return
   g_image@minmax = c('xmax_sloc' = my_xmax,
                      'xmin_sloc' = my_xmin,
@@ -394,7 +405,7 @@ createGiottoImage = function(gobject = NULL,
                                     verbose = FALSE)
     }
   }
-  
+
   # image object
   return(g_image)
 }
@@ -433,7 +444,7 @@ createGiottoLargeImage = function(raster_object,
                                   ymin_bound = NULL,
                                   scale_factor = 1,
                                   verbose = TRUE) {
-  
+
   # create minimum giotto
   g_imageL = giottoLargeImage(name = name,
                               raster_object = NULL,
@@ -459,13 +470,13 @@ createGiottoLargeImage = function(raster_object,
   # Prevent updates to original raster object input
   raster_object = terra::copy(raster_object)
 
-  
+
   ## 2. image bound spatial extent
   if(use_rast_ext == TRUE) {
     extent = terra::ext(raster_object)
     if(verbose == TRUE) cat('use_rast_ext == TRUE, extent from input raster_object will be used.')
   }
-  
+
   # By extent object (priority)
   if(!is.null(extent)) {
     if(methods::is(extent, 'SpatExtent')) {
@@ -542,7 +553,7 @@ createGiottoLargeImage = function(raster_object,
       g_imageL@is_int = FALSE
     }
   }
-  
+
 
   ## 6. extent object
   g_imageL@overall_extent = terra::ext(raster_object)
@@ -991,8 +1002,8 @@ updateGiottoImageMG = function(gobject = NULL,
                                ymax_set = NULL,
                                return_gobject = TRUE,
                                verbose = TRUE) {
-  
-  
+
+
   # 0. Check params
   # Check input image
   if(is.null(gobject)) {
@@ -1007,10 +1018,10 @@ updateGiottoImageMG = function(gobject = NULL,
     if(verbose == TRUE && !is.null(gobject)) cat('giottoImage argument is given and will take priority \n return_gobject set to FALSE \n')
     return_gobject = FALSE
   }
-  
+
   # Check scalefactors
   if(!is.null(scale_factor)) scale_x = scale_y = scale_factor
-  
+
   # Check spatial anchor values
   spatAnchor = c('xmax_sloc' = xmax_set,
                  'xmin_sloc' = xmin_set,
@@ -1021,11 +1032,11 @@ updateGiottoImageMG = function(gobject = NULL,
     if(xmax_set < xmin_set) stop('xmax_set must be greater than xmin_set \n')
     if(ymax_set < ymin_set) stop('ymax_set must be greater than ymin_set \n')
   }
-  
+
   # Find order of adjust and scaling
   order = match.arg(order, choices = c('first_adj','first_scale'))
-  
-  
+
+
   # 1. get giottoImage if necessary
   if(is.null(giottoImage)) {
     if(!is.null(gobject) && !is.null(image_name)) {
@@ -1035,31 +1046,31 @@ updateGiottoImageMG = function(gobject = NULL,
       stop('either a giottoImage or both the gobject and name of the giottoImage must be given. \n')
     }
   }
-  
-  
+
+
   # 2. Find minmax spatial anchor values
   if(is.null(spatAnchor)) {
     spatAnchor = g_image@minmax
   }
-  
+
   # Perform scale if first_scale
   if(order == 'first_scale') {
     spatAnchor = spatAnchor * c(scale_x, scale_x, scale_y, scale_y)
   }
-  
+
   # 3. Prepare adjustment values
   # Apply shifts
   xmin_adj = xmin_adj - x_shift
   xmax_adj = xmax_adj + x_shift
   ymin_adj = ymin_adj - y_shift
   ymax_adj = ymax_adj + y_shift
-  
+
   # Find final bounds
   xmax_final = spatAnchor[['xmax_sloc']] + xmax_adj
   xmin_final = spatAnchor[['xmin_sloc']] - xmin_adj
   ymax_final = spatAnchor[['ymax_sloc']] + ymax_adj
   ymin_final = spatAnchor[['ymin_sloc']] - ymin_adj
-  
+
   # Perform scale if first_adj
   if(order == 'first_adj') {
     xmax_final = xmax_final * scale_x
@@ -1067,7 +1078,7 @@ updateGiottoImageMG = function(gobject = NULL,
     ymax_final = ymax_final * scale_y
     ymin_final = ymin_final * scale_y
   }
-  
+
   # Find final adj values
   xmax_adj = xmax_final - g_image@minmax[['xmax_sloc']]
   xmin_adj = g_image@minmax[['xmin_sloc']] - xmin_final
@@ -1087,7 +1098,7 @@ updateGiottoImageMG = function(gobject = NULL,
   im_dims = magick::image_info(g_image@mg_object)
   x_scalefactor = im_dims[['width']] / x_range
   y_scalefactor = im_dims[['height']] / y_range
-  
+
   g_image@scale_factor = c('x' = x_scalefactor, 'y' = y_scalefactor)
   g_image@resolution = (1/g_image@scale_factor)
 
@@ -1115,13 +1126,13 @@ get_GiottoImage_MG = function(gobject = NULL,
   if(is.null(gobject)) stop('The giotto object holding the giottoImage needs to be provided \n')
   g_image_names = names(gobject@images)
   if(is.null(g_image_names)) stop('No giottoImages have been found \n')
-  
+
   if(is.null(image_name)) {
     image_name = g_image_names[1]
   }
 
   if(!image_name %in% g_image_names) stop(image_name, ' was not found among the image names, see showImageNames()')
-  
+
   g_image = gobject@images[[image_name]]
 
   return(g_image)
@@ -1139,16 +1150,16 @@ get_GiottoImage_MG = function(gobject = NULL,
 plot_giottoImage_MG = function(gobject = NULL,
                                image_name = NULL,
                                giottoImage = NULL) {
-  
+
   if(!is.null(giottoImage)) {
     graphics::plot(giottoImage@mg_object)
   } else {
     if(is.null(gobject)) stop('The giotto object that will be updated needs to be provided \n')
     if(is.null(image_name)) stop('The name of the giotto image that will be updated needs to be provided \n')
-    
+
     g_image_names = names(gobject@images)
     if(!image_name %in% g_image_names) stop(image_name, ' was not found among the image names, see showImageNames()')
-    
+
     graphics::plot(gobject@images[[image_name]]@mg_object)
   }
 
@@ -1204,10 +1215,10 @@ stitchGiottoLargeImage = function(largeImage_list = NULL,
       largeImage_nameList = rep("image", length(gobject_list))
     }
   }
-  
+
   # Select method for stitching
   method = match.arg(method, choices = c('mosaic', 'merge'))
-  
+
   # Check for filename, set default if not found
   if(is.null(filename)) {
     if(!is.null(gobject_list)) {
@@ -1217,7 +1228,7 @@ stitchGiottoLargeImage = function(largeImage_list = NULL,
     }
     filename = paste0(save_dir, '/stitch.tif')
   }
-  
+
   # check filename
   if(file.exists(filename)) {
     if(verbose == TRUE) {
@@ -1225,13 +1236,13 @@ stitchGiottoLargeImage = function(largeImage_list = NULL,
       if(overwrite == FALSE) cat('File at',filename,'exists.\n (overwrite == FALSE) Image will not be overwritten')
     }
   }
-  
+
   # Match dataType input if given
   dataTypeChoices = c('INT1U','INT2U','INT2S','INT4U','INT4S','FLT4S','FLT8S')
   if(!is.null(dataType)) dataType = match.arg(dataType, choices = dataTypeChoices)
   # Determine compatible dataType from first  giottoLargeImage
-  
-  
+
+
   ## 1. Get list of raster objects
   if(is.null(largeImage_list)) {
     if(!is.null(gobject_list)) {
@@ -1245,30 +1256,30 @@ stitchGiottoLargeImage = function(largeImage_list = NULL,
       stop('giottoLargeImages must be given either as the giottoLargeImage itself or as a giotto object and the giottoLargeImage name')
     }
   }
-  
+
   # Determine datatype from first giottoLargeImage
   if(is.null(dataType)) {
     dataType = find_terra_writeRaster_dataType(giottoLargeImage = largeImage_list[[1]])
   }
-  
+
   # For loop to extract raster_objects
   raster_list = list()
   for(img_i in 1:length(largeImage_list)) {
     raster_list[[img_i]] = largeImage_list[[img_i]]@raster_object
   }
-  
+
   ## 2. Apply FOV shifts (if given)
   if(!is.null(FOV_positions)) {
-    
+
     # Check if there is an FOV position for every raster object
     if(nrow(FOV_positions) != length(raster_list)) {
       stop('If FOV_positions are given then there must be one set of values for every image being stitched')
     }
-    
+
     if(FOV_inverty == TRUE) {
       FOV_positions['FOV_ycol'] = -FOV_positions['FOV_ycol']
     }
-    
+
     # Shift the image extents as specified by POV_positions
     for(rast_i in 1:length(raster_list)) {
       raster_list[[rast_i]] = terra::shift(x = raster_list[[rast_i]],
@@ -1285,7 +1296,7 @@ stitchGiottoLargeImage = function(largeImage_list = NULL,
       terra::ext(raster_list[[rast_i]]) = round(terra::ext(raster_list[[rast_i]]))
     }
   }
-  
+
   if(dryRun == TRUE) {
     # Collect SpatExtents then convert to polygons
     imgBounds_list = list()
@@ -1303,11 +1314,11 @@ stitchGiottoLargeImage = function(largeImage_list = NULL,
                 mar = c(3,3,2,2),
                 plg = list(x = 'topright'))
     return(NULL)
-    
+
   } else if (dryRun == FALSE) {
     # Create SpatRasterCollection
     rasterSRC = terra::src(raster_list)
-    
+
     # stitch raster objects
     if(method == 'merge') {
       stitchImg = terra::merge(x = rasterSRC,
@@ -1325,7 +1336,7 @@ stitchGiottoLargeImage = function(largeImage_list = NULL,
                                               use_rast_ext = TRUE)
     return(stitch_gLargeImg)
   }
-  
+
 }
 
 
@@ -1343,7 +1354,7 @@ get_GiottoLargeImage = function(gobject = NULL,
   if(is.null(gobject)) stop('The giotto object holding the giottoLargeImage needs to be provided \n')
   g_image_names = names(gobject@largeImages)
   if(is.null(g_image_names)) stop('No giottoLargeImages have been found \n')
-  
+
   if(is.null(largeImage_name)) {
     largeImage_name = g_image_names[1]
   }
@@ -1533,7 +1544,7 @@ convertGiottoLargeImageToMG = function(gobject = NULL,
   }
 
 
-  
+
   # Get giottoLargeImage and check and perform crop if needed
   giottoLargeImage = cropGiottoLargeImage(gobject = gobject,
                                           largeImage_name = largeImage_name,
@@ -1603,7 +1614,7 @@ convertGiottoLargeImageToMG = function(gobject = NULL,
   im_dims = magick::image_info(g_image@mg_object)
   x_scalefactor = im_dims[['width']] / dim(raster_object)[2]
   y_scalefactor = im_dims[['height']] / dim(raster_object)[1]
-  
+
 
   g_image@scale_factor = c('x' = x_scalefactor, 'y' = y_scalefactor)
   g_image@resolution = 1/g_image@scale_factor
@@ -1617,7 +1628,7 @@ convertGiottoLargeImageToMG = function(gobject = NULL,
   } else if(return_gobject == FALSE) {
     return(g_image)
   }
-  
+
 }
 
 
@@ -1642,20 +1653,20 @@ find_terra_writeRaster_dataType = function(giottoLargeImage = NULL,
                                            signed = NULL,
                                            bitDepth = NULL,
                                            verbose = TRUE) {
-  
+
   # 1. Get any missing metadata from giottoLargeImage object if given
   if(!is.null(giottoLargeImage)) {
     if(is.null(max_intensity)) max_intensity = giottoLargeImage@max_intensity
     if(is.null(min_intensity)) min_intensity = giottoLargeImage@min_intensity
     if(is.null(is_int)) is_int = giottoLargeImage@is_int
   }
-  
-  
+
+
   if(is.null(quick_INTS_maxval)) {
     if(length(c(max_intensity, min_intensity)) < 2) stop('Not enough metadata is given')
-    
+
     # Determine if negative values are present
-    
+
     if(min_intensity < 0) {
       signed = TRUE
     }
@@ -1664,7 +1675,7 @@ find_terra_writeRaster_dataType = function(giottoLargeImage = NULL,
   # Set defaults if data still missing
   if(is.null(is_int)) is_int = TRUE
   if(is.null(signed)) signed = FALSE
-  
+
   ## 2. Determine likely compatible datatype
   dataTypeVerbose = data.frame(bitDepth = c(8,16,16,32,32,32,64),
                                signed = c(FALSE,FALSE,TRUE,FALSE,TRUE,TRUE,TRUE),
@@ -1673,16 +1684,16 @@ find_terra_writeRaster_dataType = function(giottoLargeImage = NULL,
                                dataTypeVerbose = c('8bit unsigned integer','16bit unsigned integer','16bit signed integer',
                                                    '32bit unsigned integer','32bit signed integer','32bit signed floating point',
                                                    '64bit signed floating point'))
-  
+
 
   ## Find Compatible Bitdepth
   # If quick_INTS_maxval argument is set, will be treated as the highest needed (unsigned preferred) bitdepth datatype
   if(is.null(quick_INTS_maxval)) {
-    
+
     if(max_intensity > 0) {
-      
+
       max_intensity = max_intensity + 1 # Accounts for 0 occupying 1 of the available values.
-      
+
       if(signed == FALSE) {
         bitDepth = ceiling(log(x = max_intensity, base = 2))
       } else if(signed == TRUE) {
@@ -1694,12 +1705,12 @@ find_terra_writeRaster_dataType = function(giottoLargeImage = NULL,
     } else {
       stop('There are no positive image intensities. \n Manual datatype assignment needed \n')
     }
-    
+
   } else if(!is.null(quick_INTS_maxval)) {
     if(verbose == TRUE) cat('Selecting compatible datatype for given maximum value \n')
     bitDepth = ceiling(log(x = quick_INTS_maxval, base = 2))
   }
-  
+
   if(bitDepth > 32 && bitDepth <= 128) {
     bitDepth = 32
     is_int = FALSE
@@ -1709,7 +1720,7 @@ find_terra_writeRaster_dataType = function(giottoLargeImage = NULL,
     is_int = FALSE
     signed = TRUE
   }
-  
+
   dataType = NULL
   # Determine datatype settings
   if(is_int == TRUE) {
@@ -1763,14 +1774,14 @@ writeGiottoLargeImage = function(giottoLargeImage = NULL,
                                  dataType = NULL,
                                  overwrite = FALSE,
                                  verbose = TRUE) {
-  
+
   # 0. Check params
   if(!is.null(giottoLargeImage)) {
     if(!methods::is(giottoLargeImage, 'giottoLargeImage')) stop('giottoLargeImage argument only accepts giottoLargeImage objects. \n')
   }
   if(!is.null(max_intensity)) {
     if(!is.numeric(max_intensity)) stop('max_intensity must be a numeric \n')
-  } 
+  }
   if(!is.null(filename)) {
     if(!is.character(filename)) stop('filename must be given as character \n')
     # check filename
@@ -1781,16 +1792,16 @@ writeGiottoLargeImage = function(giottoLargeImage = NULL,
       }
     }
   }
-  
+
   if(is.null(filename)) stop('Please enter a filename to save the image as. \n')
-  
+
   filename = path.expand(filename)
-  
+
   # Match dataType input if given
   dataTypeChoices = c('INT1U','INT2U','INT2S','INT4U','INT4S','FLT4S','FLT8S')
   if(!is.null(dataType)) dataType = match.arg(dataType, choices = dataTypeChoices)
-  
-  
+
+
   ## 1. get giottoLargeImage if necessary
   if(is.null(giottoLargeImage)) {
     if(!is.null(gobject) && !is.null(largeImage_name)) {
@@ -1800,15 +1811,15 @@ writeGiottoLargeImage = function(giottoLargeImage = NULL,
       stop('either a giottoLargeImage or both the gobject and name of the giottoLargeImage must be given. \n')
     }
   }
-  
+
   raster_object = giottoLargeImage@raster_object
-  
+
   ## 2. Get likely compatible dataType
   if(is.null(dataType)) {
     dataType = find_terra_writeRaster_dataType(giottoLargeImage = giottoLargeImage,
                                                quick_INTS_maxval = max_intensity)
   }
-  
+
 
   ## 3. Write to disk
   if(verbose == TRUE) cat(paste0('Writing image to disk as ', dataType))
@@ -1817,7 +1828,7 @@ writeGiottoLargeImage = function(giottoLargeImage = NULL,
                      datatype = dataType,
                      overwrite = overwrite)
 }
-  
+
 
 
 #' @title updateGiottoLargeImage
@@ -1863,8 +1874,8 @@ updateGiottoLargeImage = function(gobject = NULL,
                                   ymax_set = NULL,
                                   return_gobject = TRUE,
                                   verbose = TRUE) {
-  
-  
+
+
   # 0. Check params
   # Check input image
   if(is.null(gobject)) {
@@ -1873,16 +1884,16 @@ updateGiottoLargeImage = function(gobject = NULL,
     return_gobject = FALSE
   }
   if(is.null(giottoLargeImage) && is.null(largeImage_name)) stop('The name of the giottoLargeImage that will be updated needs to be provided \n')
-  
+
   if(!is.null(giottoLargeImage)) {
     if(!methods::is(giottoLargeImage, 'giottoLargeImage')) stop('giottoLargeImage argument only accpts giottoLargeImage objects \n')
     if(verbose == TRUE && !is.null(gobject)) cat('giottoLargeImage argument is given and will take priority \n return_gobject set to FALSE \n')
     return_gobject = FALSE
   }
-  
+
   # Check scalefactors
   if(!is.null(scale_factor)) scale_x = scale_y = scale_factor
-  
+
   # Check spatial anchor values
   spatAnchor = c(xmin_set,
                  xmax_set,
@@ -1893,10 +1904,10 @@ updateGiottoLargeImage = function(gobject = NULL,
     if(xmax_set < xmin_set) stop('xmax_set must be greater than xmin_set \n')
     if(ymax_set < ymin_set) stop('ymax_set must be greater than ymin_set \n')
   }
-  
+
   # Find order of adjust and scaling
   order = match.arg(order, choices = c('first_adj','first_scale'))
-  
+
   # 1. get giottoImage if necessary
   if(is.null(giottoLargeImage)) {
     if(!is.null(gobject) && !is.null(largeImage_name)) {
@@ -1906,32 +1917,32 @@ updateGiottoLargeImage = function(gobject = NULL,
       stop('either a giottoLargeImage or both the gobject and name of the giottoLargeImage must be given. \n')
     }
   }
-  
-  
+
+
   # 2. Find minmax spatial anchor values if set values not supplied
   if(is.null(spatAnchor)) {
     spatAnchor = terra::ext(x = g_imageL@raster_object)[1:4] #(xmin, xmax, ymin, ymax)
     names(spatAnchor) = NULL
   }
-  
+
   # Perform scale if first_scale
   if(order == 'first_scale') {
     spatAnchor = spatAnchor * c(scale_x, scale_x, scale_y, scale_y)
   }
-  
+
   # 3. Prepare adjustment values
   # Apply shifts
   xmin_adj = xmin_adj - x_shift
   xmax_adj = xmax_adj + x_shift
   ymin_adj = ymin_adj - y_shift
   ymax_adj = ymax_adj + y_shift
-  
+
   # Find final bounds
   xmin_final = spatAnchor[1] - xmin_adj
   xmax_final = spatAnchor[2] + xmax_adj
   ymin_final = spatAnchor[3] - ymin_adj
   ymax_final = spatAnchor[4] + ymax_adj
-  
+
   # Perform scale if first_adj
   if(order == 'first_adj') {
     xmin_final = xmin_final * scale_x
@@ -1939,29 +1950,29 @@ updateGiottoLargeImage = function(gobject = NULL,
     ymin_final = ymin_final * scale_y
     ymax_final = ymax_final * scale_y
   }
-  
-  
+
+
   # 4. Update the boundaries
   if(return_gobject == FALSE) g_imageL@raster_object = terra::copy(g_imageL@raster_object)
   terra::ext(g_imageL@raster_object) = c(xmin_final,
                                          xmax_final,
                                          ymin_final,
                                          ymax_final)
-  
-  
+
+
   #5. Update the scalefactors for x and y
   g_imageL@resolution = terra::res(g_imageL@raster_object) #(x,y)
   names(g_imageL@resolution) = c('x','y')
   g_imageL@scale_factor = (1/g_imageL@resolution)
-  
-  
+
+
   if(return_gobject == TRUE) {
     gobject@largeImages[[largeImage_name]] = g_imageL
     return(gobject)
   } else {
     return(g_imageL)
   }
-  
+
 }
 
 
@@ -1981,18 +1992,18 @@ addGiottoLargeImage = function(gobject = NULL,
                                scale_factor = NULL,
                                negative_y = TRUE,
                                verbose = TRUE) {
-  
-  
+
+
   # 0. check params
   if(is.null(gobject)) stop('The giotto object that will be updated needs to be provided')
-  
+
   if(is.null(largeImages)) stop('The giotto large image(s) that will be added needs to be provided')
-  
+
   ext_scale_factor = FALSE
   if(!is.null(scale_factor)) {
-    
+
     if(!is.numeric(scale_factor)) stop ('Given scale_factor(s) must be numeric')
-    
+
     if((length(scale_factor) == length(largeImages)) || length(scale_factor) == 1) {
       cat('scale_factor(s) external to giottoImage have been given and will be used')
       ext_scale_factor = TRUE
@@ -2000,44 +2011,44 @@ addGiottoLargeImage = function(gobject = NULL,
       stop('if scale_factor is given, it must be a numeric with either a single value or as many values as there are largeImages are provided')
     }
   }
-  
+
   # 1. expand scale_factors
   if(ext_scale_factor == TRUE) {
     if(length(scale_factor == 1)) {
       scale_factor = rep(scale_factor, length(largeImages))
     }
   }
-  
-  
+
+
   # 2. Add image with for loop
   for(image_i in 1:length(largeImages)) {
-    
+
     im = largeImages[[image_i]]
-    
+
     if(methods::is(im, 'giottoLargeImage')) {
       im_name = im@name
-      
+
       all_im_names = names(gobject@largeImages)
-      
+
       if(im_name %in% all_im_names) {
         cat('\n ', im_name, ' has already been used, will be overwritten \n')
       }
-      
+
       # Deep copy the raster_object
       im@raster_object = terra::copy(im@raster_object)
-      
+
       # # 3. Update boundaries if not already done during createGiottoImage() due to lack of spatlocs and gobject
       # if(sum(im@boundaries == c(0,0,0,0)) == 4 && sum(im@minmax == c(10,0,10,0)) == 4) {
       #   if(!is.null(spat_loc_name)) { # A check for the first available spatloc was already done
       #     spatlocs = get_spatial_locations(gobject = gobject,
       #                                      spat_loc_name = spat_loc_name)
-      #     
+      #
       #     #Find spatial minmax values
       #     xmin_sloc = min(spatlocs$sdimx)
       #     xmax_sloc = max(spatlocs$sdimx)
       #     ymin_sloc = min(spatlocs$sdimy)
       #     ymax_sloc = max(spatlocs$sdimy)
-      #     
+      #
       #     #Find adjustment values
       #     img_minmax = get_img_minmax(mg_img = im@mg_object,
       #                                 negative_y = negative_y)
@@ -2050,19 +2061,19 @@ addGiottoLargeImage = function(gobject = NULL,
       #                                        spatial_locs = spatlocs,
       #                                        scale_factor = im@scale_factor[[spat_loc_name]])
       #     }
-      #     
+      #
       #     #Add minmax values to giottoImage@minmax
       #     im@minmax = c('xmax_sloc' = xmax_sloc,
       #                   'xmin_sloc' = xmin_sloc,
       #                   'ymax_sloc' = ymax_sloc,
       #                   'ymin_sloc' = ymin_sloc)
-      #     
+      #
       #     #Add adjustment values to giottoImage@boundaries
       #     im@boundaries = c('xmax_adj' = as.numeric(adj_values[['xmax_adj_orig']]),
       #                       'xmin_adj' = as.numeric(adj_values[['xmin_adj_orig']]),
       #                       'ymax_adj' = as.numeric(adj_values[['ymax_adj_orig']]),
       #                       'ymin_adj' = as.numeric(adj_values[['ymin_adj_orig']]))
-      #     
+      #
       #     # Inherit external scaling factors if given
       #     if(ext_scale_factor == TRUE) {
       #       im@scale_factor[[spat_loc_name]] = scale_factor[[image_i]]
@@ -2070,23 +2081,23 @@ addGiottoLargeImage = function(gobject = NULL,
       #     }
       #     ## Externally given scale_factors will only be written in/used if boundary adj values are not pre-existing
       #   }
-      #   
+      #
       # }
-      
+
       # 4. Add giottoImage to gobject
       gobject@largeImages[[im_name]] = im
-      
+
     } else {
       warning('image [',image_i,'] is not a giotto image object')
     }
   }
-  
+
   return(gobject)
-  
+
 }
 
 
-  
+
 # Image Tools ####
 
 
@@ -2108,8 +2119,8 @@ get_img_minmax = function(mg_img,
     img_ymax = info$height
     img_ymin = 0
   }
-  
-  
+
+
   return(list('img_xmax' = img_xmax,
               'img_xmin' = img_xmin,
               'img_ymax' = img_ymax,
@@ -2123,37 +2134,37 @@ get_img_minmax = function(mg_img,
 get_adj_rescale_img = function(img_minmax,
                                spatial_locs,
                                scale_factor = 1) {
-  
+
   # Expand scale_factor if needed
   if(length(scale_factor) == 1) {
     scale_factor = c(x = scale_factor, y = scale_factor)
   }
-  
+
   # Spatial minmax
   my_xmin = min(spatial_locs$sdimx)
   my_xmax = max(spatial_locs$sdimx)
   my_ymin = min(spatial_locs$sdimy)
   my_ymax = max(spatial_locs$sdimy)
-  
+
   # Find scaled image adjustments based on scaled spatlocs
   xmin_adj_scaled = (my_xmin*scale_factor[['x']]) - (img_minmax$img_xmin)
   xmin_adj_orig = xmin_adj_scaled/scale_factor[['x']]
-  
+
   xmax_adj_scaled = (img_minmax$img_xmax) - (my_xmax*scale_factor[['x']])
   xmax_adj_orig = xmax_adj_scaled/scale_factor[['x']]
-  
+
   ymin_adj_scaled = (my_ymin*scale_factor[['y']]) - (img_minmax$img_ymin)
   ymin_adj_orig = ymin_adj_scaled/scale_factor[['y']]
-  
+
   ymax_adj_scaled = (img_minmax$img_ymax) - (my_ymax*scale_factor[['y']])
   ymax_adj_orig = ymax_adj_scaled/scale_factor[['y']]
-  
+
   # return scaled adjustments
   return(c('xmin_adj_orig' = xmin_adj_orig,
            'xmax_adj_orig' = xmax_adj_orig,
            'ymin_adj_orig' = ymin_adj_orig,
            'ymax_adj_orig' = ymax_adj_orig))
-  
+
 }
 
 
@@ -2177,13 +2188,13 @@ plotGiottoImage = function(gobject = NULL,
                            giottoLargeImage = NULL,
                            largeImage_crop_params_list = NULL,
                            largeImage_max_intensity = NULL) {
-  
+
   # Check params
   if(!is.null(gobject)) {
     if(!is.null(image_name) && !is.null(largeImage_name)) stop('Only one of a giottoImage or a giottoLargeImage can be plotted at the same time. \n')
   }
   if(!is.null(giottoImage) && !is.null(giottoLargeImage)) stop('Only one of a giottoImage or a giottoLargeImage can be plotted at the same time. \n')
-  
+
   # Select plotting function
   if(!is.null(image_name) || !is.null(giottoImage)) {
     plot_giottoImage_MG(gobject = gobject,
@@ -2215,10 +2226,10 @@ plotGiottoImage = function(gobject = NULL,
 getGiottoImage = function(gobject = NULL,
                           image_name= NULL,
                           largeImage_name = NULL) {
-  
+
   # Check params
   if(!is.null(image_name) && !is.null(largeImage_name)) stop('Get only one of a giottoImage or a giottoLargeImage at a time. \n')
-  
+
   # Select get function
   if(!is.null(image_name)) {
     g_img = get_GiottoImage_MG(gobject = gobject,
@@ -2249,7 +2260,7 @@ addGiottoImage = function(gobject = NULL,
                           spat_loc_name = NULL,
                           scale_factor = NULL,
                           negative_y = TRUE) {
-  
+
   if(!is.null(images) && !is.null(largeImages)) stop('Can only add one type of image to giotto object at a time')
   if(!is.null(images)) {
     addGiottoImageMG(gobject = gobject,
@@ -2307,17 +2318,17 @@ updateGiottoImage = function(gobject = NULL,
                              ymax_set = NULL,
                              ymin_set = NULL,
                              return_gobject = TRUE) {
-  
-  
+
+
   # 0. Check params
   if(is.null(gobject)) stop('The giotto object that will be updated needs to be provided \n')
   if(is.null(image_name) && is.null(largeImage_name)) stop('The name of the giotto image that will be updated needs to be provided \n')
-  
+
   order = match.arg(order, choices = c('first_adj','first_scale'))
-  
+
   if(!is.null(image_name) && !is.null(largeImage_name)) stop('Adjust only giottoImage OR giottoLargeImage at any one time. \n')
-  
-  
+
+
   # 2. Select adjustment function
   if(!is.null(image_name)) {
     out = updateGiottoImageMG(gobject = gobject,

@@ -951,7 +951,7 @@ subsetGiottoLocs = function(gobject,
                             poly_info = 'cell',
                             return_gobject = T,
                             verbose = FALSE) {
-  
+
   # Check spatial params
   spatError = NULL
   if(!is.null(x_min) && !is.null(x_max)) if(x_min > x_max) spatError = append(spatError, 'x_max must be larger than x_min \n')
@@ -1967,15 +1967,12 @@ annotateGiotto <- function(gobject,
                            cluster_column = NULL,
                            name = 'cell_types') {
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # specify spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    feat_type = feat_type)
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # data.table: set global variable
   temp_cluster_name = NULL
@@ -2128,15 +2125,12 @@ addCellMetadata <- function(gobject,
                             by_column = FALSE,
                             column_cell_ID = NULL) {
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    feat_type = feat_type)
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # data.table variables
   cell_ID = NULL
@@ -2219,15 +2213,12 @@ addFeatMetadata <- function(gobject,
                             by_column = F,
                             column_feat_ID = NULL) {
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    feat_type = feat_type)
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # data.table variables
   feat_ID = NULL
@@ -2527,14 +2518,11 @@ addStatistics <- function(gobject,
 
 
   # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    feat_type = feat_type)
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # get feats statistics
   feat_stats = addFeatStatistics(gobject = gobject,

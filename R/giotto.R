@@ -613,6 +613,7 @@ depth <- function(this) {
 #' @param expr_list (nested) list with expression data
 #' @param sparse read matrix data in a sparse manner
 #' @param cores number of cores to use
+#' @param default_feat_type default feature type if nothing is provided
 #' @param verbose be verbose
 #' @details
 #'
@@ -634,10 +635,12 @@ depth <- function(this) {
 read_expression_data = function(expr_list = NULL,
                                 sparse = TRUE,
                                 cores = NA,
+                                default_feat_type = NULL,
                                 verbose = TRUE) {
 
   if(is.null(expr_list)) return(NULL)
 
+  if(is.null(default_feat_type)) default_feat_type = 'rna'
 
   ## to make it compatible with previous version
 
@@ -686,7 +689,7 @@ read_expression_data = function(expr_list = NULL,
                                      cores = cores)
       # add default feat == 'rna'
       # add default region == 'cell'
-      return_list[['rna']][['cell']][[data]] = res_mat
+      return_list[[default_feat_type]][['cell']][[data]] = res_mat
 
     }
 
@@ -2021,6 +2024,7 @@ createGiottoObject <- function(expression,
     expression_data = read_expression_data(expr_list = expression,
                                            sparse = TRUE,
                                            cores = cores,
+                                           default_feat_type = expression_feat,
                                            verbose = verbose)
 
     gobject@expression = expression_data
@@ -2048,8 +2052,6 @@ createGiottoObject <- function(expression,
       gobject@feat_ID[[feat_type]] =  rownames(gobject@expression[[feat_type]][[1]][[1]])
     }
   }
-
-
 
 
   ## parameters ##
@@ -2179,9 +2181,6 @@ createGiottoObject <- function(expression,
 
 
 
-
-
-
   ## cell metadata ##
   ## ------------- ##
   if(is.null(cell_metadata)) {
@@ -2199,38 +2198,27 @@ createGiottoObject <- function(expression,
 
   } else {
 
-    if(length(cell_metadata) != length(expression_feat)) {
-      stop('Number of different molecular features need to correspond with the cell_metadata list length \n')
-    }
+    # extract all metadata information
+    # need to be nested list (feature type and spatial unit)
+    for(feat_type in names(cell_metadata)) {
+      print(feat_type)
+      for(spat_unit in names(cell_metadata[[feat_type]])) {
 
-    for(feat_type in expression_feat) {
 
-      if(is.null(gobject@spatial_info)) {
+        gobject@cell_metadata[[feat_type]][[spat_unit]] = data.table::as.data.table(cell_metadata[[feat_type]][[spat_unit]])
 
-        gobject@cell_metadata[[feat_type]][['cell']] = data.table::as.data.table(gobject@cell_metadata[[feat_type]][['cell']])
-        gobject@cell_metadata[[feat_type]][['cell']][, cell_ID := gobject@cell_ID[['cell']]]
+        gobject@cell_metadata[[feat_type]][[spat_unit]][, cell_ID := gobject@cell_ID[[spat_unit]]]
 
         # put cell_ID first
-        all_colnames = colnames(gobject@cell_metadata[[feat_type]][[poly]])
+        all_colnames = colnames(gobject@cell_metadata[[feat_type]][[spat_unit]])
         other_colnames = grep('cell_ID', all_colnames, invert = T, value = T)
-        gobject@cell_metadata[[feat_type]][[poly]] = gobject@cell_metadata[[feat_type]][[poly]][, c('cell_ID', other_colnames), with = FALSE]
+        gobject@cell_metadata[[feat_type]][[spat_unit]] = gobject@cell_metadata[[feat_type]][[spat_unit]][, c('cell_ID', other_colnames), with = FALSE]
 
-      } else {
-
-        for(poly in names(gobject@spatial_info)) {
-          gobject@cell_metadata[[feat_type]][[poly]] = data.table::as.data.table(gobject@cell_metadata[[feat_type]][[poly]])
-          gobject@cell_metadata[[feat_type]][[poly]][, cell_ID := gobject@cell_ID[[poly]]]
-
-          # put cell_ID first
-          all_colnames = colnames(gobject@cell_metadata[[feat_type]][[poly]])
-          other_colnames = grep('cell_ID', all_colnames, invert = T, value = T)
-          gobject@cell_metadata[[feat_type]][[poly]] = gobject@cell_metadata[[feat_type]][[poly]][, c('cell_ID', other_colnames), with = FALSE]
-        }
       }
     }
   }
 
-
+  cat('works 3')
 
   ## feat metadata ##
   ## ------------- ##
