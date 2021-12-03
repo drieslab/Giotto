@@ -8,6 +8,8 @@ plot_spat_image_layer_ggplot(
   ggplot,
   gobject,
   gimage,
+  feat_type = NULL,
+  spat_unit = NULL,
   spat_loc_name = NULL,
   sdimx = NULL,
   sdimy = NULL
@@ -17,6 +19,10 @@ plot_spat_image_layer_ggplot(
 \item{gobject}{giotto object}
 
 \item{gimage}{a giotto image or a list/vector of giotto images}
+
+\item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{spat_loc_name}{name for spatial locations}
 

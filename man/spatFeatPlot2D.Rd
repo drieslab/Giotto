@@ -70,6 +70,8 @@ spatFeatPlot2D(
 
 \item{largeImage_name}{name of a giottoLargeImage or multiple images if group by}
 
+\item{spat_loc_name}{name of spatial locations}
+
 \item{group_by}{create multiple plots based on cell annotation column}
 
 \item{group_by_subset}{subset the group_by factor column}

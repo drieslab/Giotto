@@ -7,6 +7,7 @@
 filterDistributions(
   gobject,
   feat_type = NULL,
+  spat_unit = NULL,
   expression_values = c("raw", "normalized", "scaled", "custom"),
   expression_threshold = 1,
   detection = c("feats", "cells"),
@@ -26,6 +27,8 @@ filterDistributions(
 \item{gobject}{giotto object}
 
 \item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{expression_values}{expression values to use}
 

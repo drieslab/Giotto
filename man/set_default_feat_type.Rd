@@ -4,7 +4,7 @@
 \alias{set_default_feat_type}
 \title{set_default_feat_type}
 \usage{
-set_default_feat_type(gobject, feat_type)
+set_default_feat_type(gobject, feat_type = NULL)
 }
 \description{
 set_default_feat_type

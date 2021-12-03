@@ -8,6 +8,8 @@ plot_auto_convert_largeImage_MG(
   gobject,
   giottoLargeImage = NULL,
   largeImage_name = NULL,
+  feat_type = NULL,
+  spat_unit = NULL,
   spat_loc_name = NULL,
   include_image_in_border = TRUE
 )
@@ -18,6 +20,10 @@ plot_auto_convert_largeImage_MG(
 \item{giottoLargeImage}{giottoLargeImage}
 
 \item{largeImage_name}{name of largeImage}
+
+\item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{spat_loc_name}{name of spatial locations to plot}
 

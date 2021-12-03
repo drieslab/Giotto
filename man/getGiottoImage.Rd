@@ -5,7 +5,7 @@
 \alias{get_GiottoImage_MG}
 \title{getGiottoImage}
 \usage{
-get_GiottoImage_MG(gobject, image_name)
+get_GiottoImage_MG(gobject = NULL, image_name = NULL)
 
 getGiottoImage(gobject = NULL, image_name = NULL, largeImage_name = NULL)
 }

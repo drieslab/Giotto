@@ -4,7 +4,7 @@
 \alias{set_default_spat_unit}
 \title{set_default_spat_unit}
 \usage{
-set_default_spat_unit(gobject, spat_unit, feat_type)
+set_default_spat_unit(gobject, spat_unit = NULL, feat_type)
 }
 \description{
 set_default_spat_unit

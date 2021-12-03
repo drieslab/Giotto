@@ -6,6 +6,9 @@
 \usage{
 spatGenePlot3D(
   gobject,
+  spat_unit = NULL,
+  feat_type = NULL,
+  spat_loc_name = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   genes,
   show_network = FALSE,
@@ -39,6 +42,12 @@ spatGenePlot3D(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
+
+\item{spat_loc_name}{name of spatial locations to use}
 
 \item{expression_values}{gene expression values to use}
 

@@ -66,6 +66,10 @@ spatFeatPlot2D_single(
 
 \item{image_name}{name of a giotto image}
 
+\item{largeImage_name}{name of a giottoLargeImage}
+
+\item{spat_loc_name}{name of spatial locations}
+
 \item{sdimx}{x-axis dimension name (default = 'sdimx')}
 
 \item{sdimy}{y-axis dimension name (default = 'sdimy')}

@@ -21,14 +21,12 @@ get_expression_values <- function(gobject,
                                   values) {
 
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    feat_type = feat_type)
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   potential_values = names(gobject@expression[[feat_type]][[spat_unit]])
 
@@ -231,15 +229,12 @@ get_dimReduction = function(gobject,
                             return_dimObj = FALSE) {
 
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    feat_type = feat_type)
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
 
   ## check parameters
@@ -350,15 +345,12 @@ get_NearestNetwork = function(gobject,
 
   output = match.arg(arg = output, choices = c('igraph', 'data.table'))
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    feat_type = feat_type)
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   ## select network to use
   if(is.null(nn_network_to_use) | is.null(network_name)) {
@@ -479,15 +471,12 @@ get_spatialNetwork <- function(gobject,
 
 
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    feat_type = feat_type)
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   if (!is.element(name, names(gobject@spatial_network[[spat_unit]]))){
     message = sprintf("spatial network %s has not been created. Returning NULL.
@@ -740,9 +729,8 @@ get_feature_info = function(gobject,
                             feat_type = NULL) {
 
   # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    feat_type = feat_type)
 
   potential_names = names(gobject@feat_info)
 
@@ -1058,15 +1046,12 @@ showGiottoSpatNetworks = function(gobject,
 
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    feat_type = feat_type)
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   g_network_names = names(gobject@spatial_network[[spat_unit]])
 

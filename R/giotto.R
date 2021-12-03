@@ -2443,69 +2443,6 @@ createGiottoObject <- function(expression,
 
 
 
-
-#' @name get_img_minmax
-#' @param mg_img magick object
-#' @param negative_y Map image to negative y spatial values if TRUE during automatic alignment. Meaning that origin is in upper left instead of lower left.
-#' @keywords internal
-get_img_minmax = function(mg_img,
-                          negative_y = TRUE) {
-  #Get magick object dimensions. xmin and ymax assumed to be 0.
-  info = magick::image_info(mg_img)
-  img_xmax = info$width     #width
-  img_xmin = 0              #x origin
-  if(negative_y == TRUE) {
-    img_ymax = 0              #y origin
-    img_ymin = -(info$height) #height
-  } else if(negative_y == FALSE) {
-    img_ymax = info$height
-    img_ymin = 0
-  }
-
-
-  return(list('img_xmax' = img_xmax,
-              'img_xmin' = img_xmin,
-              'img_ymax' = img_ymax,
-              'img_ymin' = img_ymin))
-}
-
-
-#' @name get_adj_rescale_img
-#' @keywords internal
-get_adj_rescale_img = function(img_minmax,
-                               spatial_locs,
-                               scale_factor = 1) {
-
-  #Spatial minmax
-  my_xmin = min(spatial_locs$sdimx)
-  my_xmax = max(spatial_locs$sdimx)
-  my_ymin = min(spatial_locs$sdimy)
-  my_ymax = max(spatial_locs$sdimy)
-
-  #Find scaled image adjustments based on scaled spatlocs
-  xmin_adj_scaled = (my_xmin*scale_factor) - (img_minmax$img_xmin)
-  xmin_adj_orig = xmin_adj_scaled/scale_factor
-
-  xmax_adj_scaled = (img_minmax$img_xmax) - (my_xmax*scale_factor)
-  xmax_adj_orig = xmax_adj_scaled/scale_factor
-
-  ymin_adj_scaled = (my_ymin*scale_factor) - (img_minmax$img_ymin)
-  ymin_adj_orig = ymin_adj_scaled/scale_factor
-
-  ymax_adj_scaled = (img_minmax$img_ymax) - (my_ymax*scale_factor)
-  ymax_adj_orig = ymax_adj_scaled/scale_factor
-
-  #return scaled adjustments
-  return(c('xmin_adj_orig' = xmin_adj_orig,
-           'xmax_adj_orig' = xmax_adj_orig,
-           'ymin_adj_orig' = ymin_adj_orig,
-           'ymax_adj_orig' = ymax_adj_orig))
-
-}
-
-
-
-
 #' @title createGiottoVisiumObject
 #' @name createGiottoVisiumObject
 #' @description creates Giotto object directly from a 10X visium folder
