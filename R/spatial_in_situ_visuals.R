@@ -285,9 +285,10 @@ spatInSituPlotPoints = function(gobject,
   ## 1. plot morphology first
   if(show_polygon == TRUE) {
 
-    if(is.null(polygon_feat_type)) {
-      polygon_feat_type = gobject@expression_feat[[1]]
-    }
+    polygon_feat_type = set_default_feat_type(gobject = gobject, feat_type = feat_type)
+    #if(is.null(polygon_feat_type)) {
+    #  polygon_feat_type = gobject@expression_feat[[1]]
+    #}
 
     polygon_combo = combineCellData(gobject = gobject,
                                     spat_loc_name = spat_loc_name,

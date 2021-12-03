@@ -970,19 +970,28 @@ showGiottoDimRed = function(gobject,
       '\n',
       '----------------------',
       '\n\n\n')
-  for(dim_type in names(gobject@dimension_reduction[['cells']])) {
 
-    cat('Dim reduction ', dim_type, ': \n\n')
+  for(spat_unit in names(gobject@dimension_reduction[['cells']])) {
 
-    for(sub_type in names(gobject@dimension_reduction[['cells']][[dim_type]])) {
+    cat('Spatial unit ', spat_unit, ': \n\n')
 
-      cat('---> ', sub_type, 'coordinates: \n')
+    for(dim_type in names(gobject@dimension_reduction[['cells']][[spat_unit]])) {
 
-      print(gobject@dimension_reduction[['cells']][[dim_type]][[sub_type]][['coordinates']][1:nrows, 1:ncols])
-      cat('\n')
+      cat('Dim reduction ', dim_type, ': \n\n')
+
+      for(sub_type in names(gobject@dimension_reduction[['cells']][[spat_unit]][[dim_type]])) {
+
+        cat('---> ', sub_type, 'coordinates: \n')
+
+        print(gobject@dimension_reduction[['cells']][[spat_unit]][[dim_type]][[sub_type]][['coordinates']][1:nrows, 1:ncols])
+        cat('\n')
+      }
+
     }
 
   }
+
+
 
 }
 

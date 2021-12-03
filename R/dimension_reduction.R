@@ -1273,15 +1273,9 @@ runUMAP <- function(gobject,
     warning('genes_to_use is deprecated, use feats_to_use in the future \n')
   }
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # specify feat type and spatial unit
+  feat_type = set_default_feat_type(gobject = gobject, feat_type = feat_type)
+  spat_unit = set_default_spat_unit(gobject = gobject, spat_unit = spat_unit, feat_type = feat_type)
 
   reduction = match.arg(reduction, choices = c('cells', 'feats'))
 
@@ -1329,6 +1323,8 @@ runUMAP <- function(gobject,
                                        name = dim_reduction_name,
                                        return_dimObj = FALSE)
       matrix_to_use = matrix_to_use[, dimensions_to_use]
+
+      print(matrix_to_use[1:2,1:2])
 
       #matrix_to_use = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']][, dimensions_to_use]
 
