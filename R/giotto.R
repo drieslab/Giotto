@@ -2899,7 +2899,9 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
   if(is.null(feat_metadata)) {
 
     for(feat_type in expression_feat) {
-      gobject@feat_metadata[[feat_type]] = data.table::data.table(feat_ID = gobject@feat_ID[[feat_type]])
+      for(poly in names(gobject@spatial_info)) {
+        gobject@feat_metadata[[feat_type]][[poly]] = data.table::data.table(feat_ID = gobject@feat_ID[[feat_type]])
+      }
     }
 
   } else {

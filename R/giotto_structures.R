@@ -1850,6 +1850,8 @@ overlapToMatrix = function(gobject,
   }
 
   dtoverlap = spatVector_to_dt(overlap_spatvec)
+  dtoverlap = dtoverlap[!is.na(poly_ID)] # removes points that have no overlap with any polygons
+  #dtoverlap[, poly_ID := ifelse(is.na(poly_ID), 'no_overlap', poly_ID), by = 1:nrow(dtoverlap)]
   aggr_dtoverlap = dtoverlap[, .N, by = c('poly_ID', 'feat_ID')]
 
 
@@ -1866,7 +1868,6 @@ overlapToMatrix = function(gobject,
 
   # create missing cell values
   first_feature = aggr_dtoverlap[['feat_ID']][[1]]
-  print(first_feature)
   missing_dt = data.table::data.table(poly_ID = missing_ids, feat_ID = first_feature, N = 0)
   aggr_dtoverlap = rbind(aggr_dtoverlap, missing_dt)
 
@@ -1882,7 +1883,7 @@ overlapToMatrix = function(gobject,
   overlapmatrix = Giotto:::dt_to_matrix(overlapmatrixDT)
 
   overlapmatrix = overlapmatrix[match(gobject@feat_ID[[feat_info]], rownames(overlapmatrix)),
-                                match(gobject@cell_ID, colnames(overlapmatrix))]
+                                match(gobject@cell_ID[[poly_info]], colnames(overlapmatrix))]
 
 
   if(return_gobject == TRUE) {
@@ -2001,41 +2002,44 @@ combineCellData = function(gobject,
 #' @keywords combine feature metadata
 #' @export
 combineFeatureData = function(gobject,
-                              feat_type = 'rna',
+                              feat_type = NULL,
+                              spat_unit = NULL,
                               sel_feats = NULL) {
 
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
+  feat_type = set_default_feat_type(gobject = gobject, feat_type = feat_type)
+  spat_unit = set_default_spat_unit(gobject = gobject, feat_type = feat_type, spat_unit = spat_unit)
 
 
   res_list = list()
   for(feat in unique(feat_type)) {
+    for(spat in unique(spat_unit)) {
 
-    # feature meta
-    feat_meta = gobject@feat_metadata[[feat]]
-    if(!is.null(sel_feats[[feat_type]])) {
-      selected_features = sel_feats[[feat_type]]
-      feat_meta = feat_meta[feat_ID %in% selected_features]
+      # feature meta
+      feat_meta = gobject@feat_metadata[[feat]][[spat_unit]]
+      if(!is.null(sel_feats[[feat_type]])) {
+        selected_features = sel_feats[[feat_type]]
+        feat_meta = feat_meta[feat_ID %in% selected_features]
+      }
+
+
+      # feature info
+      feat_info_spatvec = get_feature_info(gobject = gobject,
+                                           feat_type = feat)
+      feat_info = spatVector_to_dt(feat_info_spatvec)
+      if(!is.null(sel_feats[[feat_type]])) {
+        selected_features = sel_feats[[feat_type]]
+        feat_info = feat_info[feat_ID %in% selected_features]
+      }
+
+      comb_dt = data.table::merge.data.table(x = feat_meta,
+                                             y = feat_info,
+                                             by = 'feat_ID')
+
+      comb_dt[, 'feat' := feat]
+      comb_dt[, 'spat_unit' := spat]
+
     }
-
-
-    # feature info
-    feat_info_spatvec = get_feature_info(gobject = gobject,
-                                            feat_type = feat)
-    feat_info = spatVector_to_dt(feat_info_spatvec)
-    if(!is.null(sel_feats[[feat_type]])) {
-      selected_features = sel_feats[[feat_type]]
-      feat_info = feat_info[feat_ID %in% selected_features]
-    }
-
-    comb_dt = data.table::merge.data.table(x = feat_meta,
-                                           y = feat_info,
-                                           by = 'feat_ID')
-
-    comb_dt[, 'feat' := feat]
 
     res_list[[feat]] = comb_dt
 
@@ -2062,46 +2066,49 @@ combineFeatureOverlapData = function(gobject,
                                      poly_info = c('cell')) {
 
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
+  feat_type = set_default_feat_type(gobject = gobject, feat_type = feat_type)
+  poly_info = set_default_spat_unit(gobject = gobject, feat_type = feat_type, spat_unit = poly_info)
+
 
 
   res_list = list()
   for(feat in unique(feat_type)) {
 
-    # feature meta
-    feat_meta = gobject@feat_metadata[[feat]]
-    if(!is.null(sel_feats[[feat_type]])) {
-      selected_features = sel_feats[[feat_type]]
-      feat_meta = feat_meta[feat_ID %in% selected_features]
-    }
+    for(spat in unique(poly_info)) {
 
-    # overlap poly and feat info
-    poly_list = list()
-    for(poly in poly_info) {
-      feat_overlap_info_spatvec = get_polygon_info(gobject = gobject,
-                                                      polygon_name = poly,
-                                                      polygon_overlap = feat)
-      feat_overlap_info = spatVector_to_dt(feat_overlap_info_spatvec)
-
+      # feature meta
+      feat_meta = gobject@feat_metadata[[feat]][[spat]]
       if(!is.null(sel_feats[[feat_type]])) {
         selected_features = sel_feats[[feat_type]]
-        feat_overlap_info = feat_overlap_info[feat_ID %in% selected_features]
+        feat_meta = feat_meta[feat_ID %in% selected_features]
       }
 
-      feat_overlap_info[, poly_info := poly]
-      poly_list[[poly]] = feat_overlap_info
+      # overlap poly and feat info
+      poly_list = list()
+      for(poly in poly_info) {
+        feat_overlap_info_spatvec = get_polygon_info(gobject = gobject,
+                                                     polygon_name = poly,
+                                                     polygon_overlap = feat)
+        feat_overlap_info = spatVector_to_dt(feat_overlap_info_spatvec)
+
+        if(!is.null(sel_feats[[feat_type]])) {
+          selected_features = sel_feats[[feat_type]]
+          feat_overlap_info = feat_overlap_info[feat_ID %in% selected_features]
+        }
+
+        feat_overlap_info[, poly_info := poly]
+        poly_list[[poly]] = feat_overlap_info
+      }
+
+      poly_list_res = do.call('rbind', poly_list)
+
+      comb_dt = data.table::merge.data.table(x = feat_meta,
+                                             y = poly_list_res,
+                                             by = 'feat_ID')
+
     }
 
-    poly_list_res = do.call('rbind', poly_list)
-
-    comb_dt = data.table::merge.data.table(x = feat_meta,
-                                           y = poly_list_res,
-                                           by = 'feat_ID')
     comb_dt[, 'feat' := feat]
-
     res_list[[feat]] = comb_dt
 
   }
