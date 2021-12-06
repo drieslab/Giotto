@@ -242,7 +242,7 @@ spatInSituPlotPoints = function(gobject,
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
-
+ print('ok 1')
 
   ## giotto image ##
   if(show_image == TRUE) {
@@ -264,7 +264,7 @@ spatInSituPlotPoints = function(gobject,
   }
 
 
-
+ print('ok 2')
 
 
 
@@ -275,17 +275,20 @@ spatInSituPlotPoints = function(gobject,
   if(show_image == TRUE & !is.null(gimage)) {
     plot = plot_spat_image_layer_ggplot(ggplot = plot,
                                         gobject = gobject,
+                                        feat_type = feat_type,
+                                        spat_unit = spat_unit,
                                         spat_loc_name = spat_loc_name,
                                         gimage = gimage,
                                         sdimx = 'sdimx',
                                         sdimy = 'sdimy')
   }
 
+  print('ok 3')
 
   ## 1. plot morphology first
   if(show_polygon == TRUE) {
 
-    polygon_feat_type = set_default_feat_type(gobject = gobject, feat_type = feat_type)
+    feat_type = set_default_feat_type(gobject = gobject, feat_type = feat_type)
     #if(is.null(polygon_feat_type)) {
     #  polygon_feat_type = gobject@expression_feat[[1]]
     #}
@@ -320,6 +323,8 @@ spatInSituPlotPoints = function(gobject,
   }
 
 
+  print('ok 4')
+
   ## 2. plot features second
 
   if(!is.null(feats)) {
@@ -333,6 +338,7 @@ spatInSituPlotPoints = function(gobject,
                                                     poly_info = polygon_feat_type)
     } else {
       spatial_feat_info = combineFeatureData(gobject = gobject,
+                                             spat_unit =  polygon_feat_type,
                                              feat_type = feat_type,
                                              sel_feats = feats)
     }
@@ -354,7 +360,7 @@ spatInSituPlotPoints = function(gobject,
 
   }
 
-
+  print('ok 5')
 
 
   ## 3. adjust theme settings

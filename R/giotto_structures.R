@@ -1923,9 +1923,7 @@ combineCellData = function(gobject,
   # 2. cell metadata
 
   # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
+  feat_type = set_default_feat_type(gobject, feat_type = feat_type)
 
   # get spatial locations
   if(include_spat_locs == TRUE) {
