@@ -2,51 +2,6 @@
 
 
 
-#' @title set_default_feat_type
-#' @name set_default_feat_type
-#' @keywords internal
-set_default_feat_type = function(gobject,
-                                 feat_type = NULL) {
-
-  if(is.null(feat_type)) {
-
-    if(!is.null(gobject@expression)) {
-      feat_type = names(gobject@expression)[[1]]
-    } else if(!is.null(gobject@feat_info)){
-      feat_type = names(gobject@feat_info)[[1]]
-    } else {
-      warning('No default for feat_type could be set \n')
-    }
-  }
-
-  return(feat_type)
-
-}
-
-
-#' @title set_default_spat_unit
-#' @name set_default_spat_unit
-#' @keywords internal
-set_default_spat_unit = function(gobject,
-                                 spat_unit = NULL,
-                                 feat_type) {
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    if(!is.null(gobject@expression)) {
-      spat_unit = names(gobject@expression[[feat_type]])[[1]]
-      if(is.null(spat_unit)) stop('valid feat_type input needed \n')
-    } else if(!is.null(gobject@spatial_info)){
-      spat_unit = names(gobject@spatial_info)[[1]]
-    } else {
-      warning('No default for spat_unit could be set \n')
-    }
-  }
-
-  return(spat_unit)
-
-}
-
 
 
 
@@ -75,25 +30,25 @@ plot_auto_convert_largeImage_MG = function(gobject,
                                            spat_unit = NULL,
                                            spat_loc_name = NULL,
                                            include_image_in_border = TRUE) {
-  
+
   # If no giottoLargeImage, select specified giottoLargeImage. If none specified, select first one.
   if(is.null(giottoLargeImage)) {
     giottoLargeImage = get_GiottoLargeImage(gobject = gobject,
                                     largeImage_name = largeImage_name)
   }
-  
+
   # Set feat_type and spat_unit
   feat_type = set_default_feat_type(gobject = gobject,
                                     feat_type = feat_type)
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
-  
+
   # Get spatial locations
   cell_locations = get_spatial_locations(gobject = gobject,
                                          spat_unit = spat_unit,
                                          spat_loc_name = spat_loc_name)
-  
+
   # Determine crop
   if(include_image_in_border == TRUE) {
     x_halfPaddedRange = diff(range(cell_locations$sdimx))*0.625
@@ -105,7 +60,7 @@ plot_auto_convert_largeImage_MG = function(gobject,
     xmin_crop = x_mean - x_halfPaddedRange
     ymax_crop = y_mean + y_halfPaddedRange
     ymin_crop = y_mean - y_halfPaddedRange
-    
+
     if(xmin_crop < im_minmax[['xmin']]) xmin_crop = im_minmax[['xmin']]
     if(xmax_crop > im_minmax[['xmax']]) xmax_crop = im_minmax[['xmax']]
     if(ymin_crop < im_minmax[['ymin']]) ymin_crop = im_minmax[['ymin']]
@@ -118,7 +73,7 @@ plot_auto_convert_largeImage_MG = function(gobject,
     ymin_crop = y_range[1]
     ymax_crop = y_range[2]
   }
-  
+
   # Convert to properly zoomed gimage (MG)
   gimage = convertGiottoLargeImageToMG(giottoLargeImage = giottoLargeImage,
                                        xmax_crop = xmax_crop,
@@ -128,7 +83,7 @@ plot_auto_convert_largeImage_MG = function(gobject,
                                        resample_size = 500000,
                                        max_intensity = NULL,
                                        return_gobject = FALSE)
-  
+
   return(gimage)
 }
 
@@ -2344,7 +2299,7 @@ plot_spat_image_layer_ggplot = function(ggplot,
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
-  
+
   # spatial locations
   spatlocs = get_spatial_locations(gobject = gobject,
                                    spat_unit = spat_unit,
@@ -2626,7 +2581,7 @@ spatPlot2D_single = function(gobject,
 
     } else if(!is.null(largeImage_name)) {
       # If there is input to largeImage_name arg
-      
+
       if(length(largeImage_name) == 1) {
         gimage = plot_auto_convert_largeImage_MG(gobject = gobject,
                                                  largeImage_name = largeImage_name,
@@ -2645,7 +2600,7 @@ spatPlot2D_single = function(gobject,
                                                           include_image_in_border = TRUE)
         }
       }
-      
+
     } else {
       # Default to first image available in images if no input given to image_name or largeImage_name args
       image_name = names(gobject@images)[1]
@@ -3128,7 +3083,7 @@ spatPlot2D = function(gobject,
     spat_unit = set_default_spat_unit(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type)
-    
+
     ## metadata
     comb_metadata = combineMetadata(gobject = gobject,
                                     spat_loc_name = spat_loc_name,
@@ -3387,12 +3342,12 @@ spatDeconvPlot = function(gobject,
 
   ## giotto image ##
   if(show_image == TRUE) {
-    
+
     if(!is.null(gimage)) {
       gimage = gimage
     } else if(!is.null(image_name)) {
       # If there is input to image_name arg
-      
+
       if(length(image_name) == 1) {
         gimage = gobject@images[[image_name]]
         if(is.null(gimage)) warning('image_name: ', image_name, ' does not exist \n')
@@ -3403,10 +3358,10 @@ spatDeconvPlot = function(gobject,
           if(is.null(gimage[[gim]])) warning('image_name: ', gim, ' does not exists \n')
         }
       }
-      
+
     } else if(!is.null(largeImage_name)) {
       # If there is input to largeImage_name arg
-      
+
       if(length(largeImage_name) == 1) {
         gimage = plot_auto_convert_largeImage_MG(gobject = gobject,
                                                  largeImage_name = largeImage_name,
@@ -3425,7 +3380,7 @@ spatDeconvPlot = function(gobject,
                                                           include_image_in_border = TRUE)
         }
       }
-      
+
     } else {
       # Default to first image available in images if no input given to image_name or largeImage_name args
       image_name = names(gobject@images)[1]
@@ -3433,7 +3388,7 @@ spatDeconvPlot = function(gobject,
       if(is.null(gimage)) warning('image_name: ', image_name, ' does not exist \n')
     }
   }
-  
+
 
   ## get spatial cell locations
   spatial_locations = get_spatial_locations(gobject = gobject,
@@ -3704,7 +3659,7 @@ spatDimPlot2D <- function(gobject,
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
-  
+
   plot_alignment = match.arg(plot_alignment, choices = c( 'vertical','horizontal'))
 
 
@@ -4000,7 +3955,7 @@ spatFeatPlot2D_single <- function(gobject,
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-  
+
   # Set feat_type and spat_unit
   feat_type = set_default_feat_type(gobject = gobject,
                                     feat_type = feat_type)
@@ -4010,7 +3965,7 @@ spatFeatPlot2D_single <- function(gobject,
 
   ## giotto image ##
   if(show_image == TRUE) {
-    
+
     if(!is.null(gimage)) {
       gimage = gimage
     } else if(!is.null(image_name)) {
@@ -4019,7 +3974,7 @@ spatFeatPlot2D_single <- function(gobject,
       if(is.null(gimage)) warning('image_name: ', image_name, ' does not exist \n')
     } else if (!is.null(largeImage_name)) {
       # if there is input to largeImage_name arg
-      
+
       gimage = plot_auto_convert_largeImage_MG(gobject = gobject,
                                                largeImage_name = largeImage_name,
                                                feat_type = feat_type,
@@ -4513,7 +4468,7 @@ spatFeatPlot2D <- function(gobject,
 
 
   } else {
-    
+
     # Set feat_type and spat_unit
     feat_type = set_default_feat_type(gobject = gobject,
                                       feat_type = feat_type)
@@ -7269,7 +7224,7 @@ spatPlot_3D_plotly = function(gobject,
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
-  
+
   ## get spatial cell locations
   cell_locations  = get_spatial_locations(gobject,
                                           spat_unit = spat_unit,
@@ -8871,7 +8826,7 @@ dimGenePlot3D <- function(gobject,
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
-  
+
   ## select genes ##
   selected_genes = genes
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
@@ -9246,7 +9201,7 @@ spatDimGenePlot3D <- function(gobject,
                               save_plot = NA,
                               save_param =  list(),
                               default_save_name = "spatDimGenePlot3D"){
-  
+
   # Set feat_type and spat_unit
   feat_type = set_default_feat_type(gobject = gobject,
                                     feat_type = feat_type)
