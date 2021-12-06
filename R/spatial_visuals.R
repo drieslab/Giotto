@@ -2554,9 +2554,9 @@ spatPlot2D_single = function(gobject,
   if(!is.null(image_name) && !is.null(largeImage_name)) stop('Only one type of image can be used at a time')
 
   # Set feat_type and spat_unit
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    feat_type = feat_type)
   spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
