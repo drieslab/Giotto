@@ -1602,8 +1602,21 @@ rna_standard_normalization = function(gobject,
   }
 
   # return Giotto object
-  gobject@expression[[feat_type]][[spat_unit]][['normalized']] = norm_expr
-  gobject@expression[[feat_type]][[spat_unit]][['scaled']] = norm_scaled_expr
+
+  gobject = set_expression_values(gobject = gobject,
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type,
+                                  name = 'normalized',
+                                  values = norm_expr)
+
+  gobject = set_expression_values(gobject = gobject,
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type,
+                                  name = 'scaled',
+                                  values = norm_scaled_expr)
+
+  #gobject@expression[[spat_unit]][[feat_type]][['normalized']] = norm_expr
+  #gobject@expression[[spat_unit]][[feat_type]][['scaled']] = norm_scaled_expr
 
   return(gobject)
 }
@@ -1633,7 +1646,13 @@ rna_osmfish_normalization = function(gobject,
   # return results to Giotto object
   if(verbose == TRUE) message('\n osmFISH-like normalized data will be returned to the', name, 'Giotto slot \n')
 
-  gobject@expression[[feat_type]][[spat_unit]][[name]] = norm_feats_cells
+  gobject = set_expression_values(gobject = gobject,
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type,
+                                  name = name,
+                                  values = norm_feats_cells)
+
+  #gobject@expression[[spat_unit]][[feat_type]][[name]] = norm_feats_cells
 
   return(gobject)
 }
@@ -1699,7 +1718,13 @@ rna_pears_resid_normalization = function(gobject,
   # return results to Giotto object
   if(verbose == TRUE) message('\n Pearson residual normalized data will be returned to the ', name, ' Giotto slot \n')
 
-  gobject@expression[[feat_type]][[spat_unit]][[name]] = z
+  gobject = set_expression_values(gobject = gobject,
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type,
+                                  name = name,
+                                  values = z)
+
+  #gobject@expression[[spat_unit]][[feat_type]][[name]] = z
 
   return(gobject)
 
