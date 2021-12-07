@@ -821,8 +821,8 @@ binSpectSingleMatrix = function(expression_matrix,
 #' @name binSpectSingle
 #' @description binSpect for a single spatial network
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param bin_method method to binarize gene expression
 #' @param expression_values expression values to use
 #' @param subset_feats only select a subset of features to test
@@ -875,8 +875,8 @@ binSpectSingleMatrix = function(expression_matrix,
 #' The data.table implementation might be more appropriate for large datasets by setting the group_size (number of genes) parameter to divide the workload.
 #' @export
 binSpectSingle = function(gobject,
-                          feat_type = NULL,
                           spat_unit = NULL,
+                          feat_type = NULL,
                           bin_method = c('kmeans', 'rank'),
                           expression_values = c('normalized', 'scaled', 'custom'),
                           subset_feats = NULL,
@@ -910,15 +910,12 @@ binSpectSingle = function(gobject,
     warning('subset_genes is deprecated, use subset_feats in the future \n')
   }
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   ## 1. expression matrix
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
@@ -1070,15 +1067,12 @@ binSpectMulti = function(gobject,
     warning('subset_genes is deprecated, use subset_feats in the future \n')
   }
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   if(verbose == TRUE) cat('\n This is the multi parameter version of binSpect')
 
@@ -1416,8 +1410,8 @@ binSpectMultiMatrix = function(expression_matrix,
 #' @description Previously: binGetSpatialGenes. BinSpect (Binary Spatial Extraction of genes) is a fast computational method
 #' that identifies genes with a spatially coherent expression pattern.
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param bin_method method to binarize gene expression
 #' @param expression_values expression values to use
 #' @param subset_feats only select a subset of features to test
@@ -1473,8 +1467,8 @@ binSpectMultiMatrix = function(expression_matrix,
 #' The data.table implementation might be more appropriate for large datasets by setting the group_size (number of genes) parameter to divide the workload.
 #' @export
 binSpect = function(gobject,
-                    feat_type = NULL,
                     spat_unit = NULL,
+                    feat_type = NULL,
                     bin_method = c('kmeans', 'rank'),
                     expression_values = c('normalized', 'scaled', 'custom'),
                     subset_feats = NULL,
@@ -1508,8 +1502,8 @@ binSpect = function(gobject,
   if(!is.null(spatial_network_k)) {
 
     output = binSpectMulti(gobject = gobject,
-                           feat_type = feat_type,
                            spat_unit = spat_unit,
+                           feat_type = feat_type,
                            bin_method = bin_method,
                            expression_values = expression_values,
                            subset_feats = subset_feats,
@@ -1540,8 +1534,8 @@ binSpect = function(gobject,
   } else {
 
     output = binSpectSingle(gobject = gobject,
-                            feat_type = feat_type,
                             spat_unit = spat_unit,
+                            feat_type = feat_type,
                             bin_method = bin_method,
                             expression_values = expression_values,
                             subset_feats = subset_feats,
@@ -1889,15 +1883,12 @@ spatialDE <- function(gobject = NULL,
   # data.table variables
   cell_ID = NULL
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # expression
   values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
@@ -2006,15 +1997,12 @@ spatialAEH <- function(gobject = NULL,
   # data.table variables
   cell_ID = NULL
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # expression
   values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
@@ -2171,15 +2159,12 @@ trendSceek <- function(gobject,
   Edsgard, Daniel, Per Johnsson, and Rickard Sandberg. 'Identification of Spatial Expression Trends in Single-Cell Gene Expression Data.'
           Nature Methods 15, no. 5 (May 2018): 339-42. https://doi.org/10.1038/nmeth.4634.")
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   ## expression data
   values = match.arg(expression_values, c("normalized", "raw"))
@@ -2268,15 +2253,12 @@ spark = function(gobject,
                  ...) {
 
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # determine parameter
   return_object = match.arg(return_object, c('data.table', 'spark'))
