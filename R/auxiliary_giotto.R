@@ -120,8 +120,8 @@ logNorm_giotto = function(mymatrix, base, offset) {
 #' @return data.table with cell metadata
 #' @export
 pDataDT <- function(gobject,
-                    feat_type = NULL,
-                    spat_unit = NULL) {
+                    spat_unit = NULL,
+                    feat_type = NULL) {
 
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
@@ -161,8 +161,8 @@ pDataDT <- function(gobject,
 #' fDataDT(mini_giotto_single_cell)
 #'
 fDataDT <- function(gobject,
-                    feat_type = NULL,
-                    spat_unit = NULL) {
+                    spat_unit = NULL,
+                    feat_type = NULL) {
 
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,

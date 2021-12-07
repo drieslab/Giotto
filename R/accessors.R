@@ -215,6 +215,7 @@ set_spatial_locations <- function(gobject,
 #' @name get_dimReduction
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param reduction reduction on cells or features
 #' @param reduction_method reduction method (e.g. pca)
 #' @param name name of reduction results
@@ -224,6 +225,7 @@ set_spatial_locations <- function(gobject,
 #' @export
 get_dimReduction = function(gobject,
                             spat_unit = NULL,
+                            feat_type = NULL,
                             reduction = c('cells', 'feats'),
                             reduction_method = c('pca', 'umap', 'tsne'),
                             name = 'pca',
@@ -233,7 +235,9 @@ get_dimReduction = function(gobject,
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
-
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   ## check parameters
   reduction = match.arg(arg = reduction, choices = c('cells', 'feats'))
@@ -285,6 +289,7 @@ select_dimReduction = function(...) {
 #' @description function to set a dimension reduction slot
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param reduction reduction on cells or features
 #' @param reduction_method reduction method (e.g. pca)
 #' @param name name of reduction results
@@ -302,6 +307,9 @@ set_dimReduction <- function(gobject,
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   ## 1. check if specified name has already been used
   potential_names = names(gobject@dimension_reduction[[reduction]][[spat_unit]][[reduction_method]])
