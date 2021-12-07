@@ -68,11 +68,14 @@ doLeidenCluster = function(gobject,
   cell_ID_vec = gobject@cell_ID[[spat_unit]]
 
   ## select network to use
-  igraph_object = get_NearestNetwork(gobject,
+  igraph_object = get_NearestNetwork(gobject = gobject,
                                      spat_unit = spat_unit,
                                      feat_type = feat_type,
                                      nn_network_to_use = nn_network_to_use,
-                                     network_name = network_name)
+                                     network_name = network_name,
+                                     output = 'igraph')
+
+  print(igraph_object)
 
   ## select partition type
   partition_type = match.arg(partition_type,
@@ -118,6 +121,8 @@ doLeidenCluster = function(gobject,
   }
 
 
+  print(network_edge_dt)
+
   ## do python leiden clustering
   reticulate::py_set_seed(seed = seed_number, disable_hash_randomization = TRUE)
   pyth_leid_result = python_leiden(df = network_edge_dt,
@@ -131,6 +136,7 @@ doLeidenCluster = function(gobject,
   ident_clusters_DT = data.table::data.table(cell_ID = pyth_leid_result[[1]], 'name' = pyth_leid_result[[2]])
   data.table::setnames(ident_clusters_DT, 'name', name)
 
+  print(ident_clusters_DT)
 
   ## add clusters to metadata ##
   if(return_gobject == TRUE) {

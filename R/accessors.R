@@ -298,6 +298,7 @@ select_dimReduction = function(...) {
 #' @export
 set_dimReduction <- function(gobject,
                              spat_unit = NULL,
+                             feat_type = NULL,
                              reduction = c('cells', 'genes'),
                              reduction_method = c('pca', 'umap', 'tsne'),
                              name = 'pca',
@@ -340,6 +341,7 @@ set_dimReduction <- function(gobject,
 #' @description get a NN-network from a Giotto object
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param nn_network_to_use kNN or sNN
 #' @param network_name name of NN network to be used
 #' @param output return a igraph or data.table object
@@ -347,6 +349,7 @@ set_dimReduction <- function(gobject,
 #' @export
 get_NearestNetwork = function(gobject,
                               spat_unit = NULL,
+                              feat_type = NULL,
                               nn_network_to_use = 'sNN',
                               network_name = 'sNN.pca',
                               output = c('igraph', 'data.table')) {
@@ -356,13 +359,16 @@ get_NearestNetwork = function(gobject,
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   ## select network to use
   if(is.null(nn_network_to_use) | is.null(network_name)) {
     stop('\n you need to select network type: knn or snn \n
          and you need to select the network name you created\n')
   } else {
-    igraph_object = gobject@nn_network[[spat_unit]][[nn_network_to_use]][[network_name]][['igraph']]
+    igraph_object = gobject@nn_network[[spat_unit]][[nn_network_to_use]][[network_name]]
     if(is.null(igraph_object)) {
       cat('\n nn_network_to_use or network_name does not exist, \n
            create a nearest-neighbor network first \n')
@@ -411,6 +417,7 @@ select_NearestNetwork = function(...) {
 #' @description set a NN-network for a Giotto object
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param nn_network_to_use kNN or sNN
 #' @param network_name name of NN network to be used
 #' @param nn_network nearest network
@@ -418,6 +425,7 @@ select_NearestNetwork = function(...) {
 #' @export
 set_NearestNetwork = function(gobject,
                               spat_unit = NULL,
+                              feat_type = NULL,
                               nn_network_to_use = 'sNN',
                               network_name = 'sNN.pca',
                               nn_network) {
@@ -425,7 +433,9 @@ set_NearestNetwork = function(gobject,
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
-
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   ## 1. check if specified name has already been used
   potential_names = names(gobject@nn_network[[spat_unit]][[nn_network_to_use]])

@@ -116,6 +116,7 @@ createNearestNetwork <- function(gobject,
 
     dim_coord = get_dimReduction(gobject = gobject,
                                  spat_unit = spat_unit,
+                                 feat_type = feat_type,
                                  reduction = 'cells',
                                  reduction_method = dim_reduction_to_use,
                                  name = dim_reduction_name,
@@ -216,6 +217,7 @@ createNearestNetwork <- function(gobject,
 
     gobject = set_NearestNetwork(gobject = gobject,
                                  spat_unit = spat_unit,
+                                 feat_type = feat_type,
                                  nn_network_to_use = type,
                                  network_name = name,
                                  nn_network = nn_network_igraph)
