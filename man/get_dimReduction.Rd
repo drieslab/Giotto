@@ -7,6 +7,7 @@
 get_dimReduction(
   gobject,
   spat_unit = NULL,
+  feat_type = NULL,
   reduction = c("cells", "feats"),
   reduction_method = c("pca", "umap", "tsne"),
   name = "pca",
@@ -17,6 +18,8 @@ get_dimReduction(
 \item{gobject}{giotto object}
 
 \item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 
 \item{reduction}{reduction on cells or features}
 

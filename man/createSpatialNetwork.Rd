@@ -7,8 +7,8 @@
 createSpatialNetwork(
   gobject,
   name = NULL,
-  feat_type = NULL,
   spat_unit = NULL,
+  feat_type = NULL,
   spat_loc_name = NULL,
   dimensions = "all",
   method = c("Delaunay", "kNN"),
@@ -32,9 +32,9 @@ createSpatialNetwork(
 
 \item{name}{name for spatial network (default = 'spatial_network')}
 
-\item{feat_type}{feature type}
-
 \item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 
 \item{spat_loc_name}{name of spatial locations to use}
 

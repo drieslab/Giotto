@@ -11,8 +11,8 @@ spatPlot(...)
   Arguments passed on to \code{\link[=spatPlot2D]{spatPlot2D}}
   \describe{
     \item{\code{gobject}}{giotto object}
-    \item{\code{feat_type}}{feature type}
     \item{\code{spat_unit}}{spatial unit}
+    \item{\code{feat_type}}{feature type}
     \item{\code{show_image}}{show a tissue background image}
     \item{\code{gimage}}{a giotto image}
     \item{\code{image_name}}{name of a giotto image or multiple images with group_by}

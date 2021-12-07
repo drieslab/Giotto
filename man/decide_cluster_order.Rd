@@ -6,6 +6,7 @@
 \usage{
 decide_cluster_order(
   gobject,
+  spat_unit = NULL,
   feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   feats,
@@ -19,6 +20,8 @@ decide_cluster_order(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{spat_unit}{spatial unit}
 
 \item{feat_type}{feature type}
 
