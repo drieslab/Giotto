@@ -6,6 +6,7 @@
 \usage{
 findNetworkNeighbors(
   gobject,
+  spat_unit = NULL,
   spatial_network_name,
   source_cell_ids = NULL,
   name = "nb_cells"
@@ -13,6 +14,8 @@ findNetworkNeighbors(
 }
 \arguments{
 \item{gobject}{Giotto object}
+
+\item{spat_unit}{spatial unit}
 
 \item{spatial_network_name}{name of spatial network}
 

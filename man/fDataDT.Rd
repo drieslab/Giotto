@@ -10,6 +10,8 @@ fDataDT(gobject, feat_type = NULL, spat_unit = NULL)
 \item{gobject}{giotto object}
 
 \item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 }
 \value{
 data.table with gene metadata

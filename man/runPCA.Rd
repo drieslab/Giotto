@@ -6,8 +6,8 @@
 \usage{
 runPCA(
   gobject,
-  feat_type = NULL,
   spat_unit = NULL,
+  feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   reduction = c("cells", "feats"),
   name = NULL,
@@ -29,9 +29,9 @@ runPCA(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{feat_type}{feature type}
-
 \item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 
 \item{expression_values}{expression values to use}
 

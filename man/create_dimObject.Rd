@@ -6,8 +6,8 @@
 \usage{
 create_dimObject(
   name = "test",
-  feat_type = "rna",
   spat_unit = "cell",
+  feat_type = "rna",
   reduction_method = NULL,
   coordinates = NULL,
   misc = NULL,
@@ -17,9 +17,9 @@ create_dimObject(
 \arguments{
 \item{name}{arbitrary name for object}
 
-\item{feat_type}{feature type}
-
 \item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 
 \item{reduction_method}{method used to reduce dimensions}
 

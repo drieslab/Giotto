@@ -6,6 +6,8 @@
 \usage{
 createGiottoImage(
   gobject = NULL,
+  feat_type = NULL,
+  spat_unit = NULL,
   spatial_locs = NULL,
   spat_loc_name = NULL,
   mg_object,
@@ -32,6 +34,10 @@ createGiottoImage(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
 
 \item{spatial_locs}{spatial locations (alternative if gobject = NULL)}
 

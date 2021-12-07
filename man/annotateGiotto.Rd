@@ -6,8 +6,8 @@
 \usage{
 annotateGiotto(
   gobject,
-  feat_type = NULL,
   spat_unit = NULL,
+  feat_type = NULL,
   annotation_vector = NULL,
   cluster_column = NULL,
   name = "cell_types"
@@ -15,6 +15,8 @@ annotateGiotto(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{spat_unit}{spatial unit}
 
 \item{feat_type}{feature type}
 

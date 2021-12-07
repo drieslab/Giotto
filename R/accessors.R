@@ -10,8 +10,8 @@
 #' @name  get_expression_values
 #' @description function to get expression values from giotto object
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param values expression values to extract
 #' @return expression matrix
 #' @export
@@ -213,11 +213,16 @@ set_spatial_locations <- function(gobject,
 
 #' @title get_dimReduction
 #' @name get_dimReduction
+#' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param reduction reduction on cells or features
+#' @param reduction_method reduction method (e.g. pca)
+#' @param name name of reduction results
+#' @param return_dimObj return full dimension object result
 #' @description function to get a dimension reduction object
 #' @return dim reduction coordinates (default) or dim reduction object
 #' @export
 get_dimReduction = function(gobject,
-                            feat_type = NULL,
                             spat_unit = NULL,
                             reduction = c('cells', 'feats'),
                             reduction_method = c('pca', 'umap', 'tsne'),
@@ -226,11 +231,8 @@ get_dimReduction = function(gobject,
 
 
   # Set feat_type and spat_unit
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    feat_type = feat_type)
   spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type)
+                                    spat_unit = spat_unit)
 
 
   ## check parameters
@@ -282,20 +284,24 @@ select_dimReduction = function(...) {
 #' @name set_dimReduction
 #' @description function to set a dimension reduction slot
 #' @param gobject giotto object
-#' @param reduction reduction with cells or genes
-#' @param reduction_method reduction name
-#' @param name reduction name
-#' @param dimObject dimension object
+#' @param spat_unit spatial unit
+#' @param reduction reduction on cells or features
+#' @param reduction_method reduction method (e.g. pca)
+#' @param name name of reduction results
+#' @param dimObject dimension object result to set
 #' @return giotto object
 #' @export
 set_dimReduction <- function(gobject,
-                             feat_type = NULL,
                              spat_unit = NULL,
                              reduction = c('cells', 'genes'),
                              reduction_method = c('pca', 'umap', 'tsne'),
                              name = 'pca',
                              dimObject) {
 
+
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
 
   ## 1. check if specified name has already been used
   potential_names = names(gobject@dimension_reduction[[reduction]][[spat_unit]][[reduction_method]])
@@ -325,7 +331,6 @@ set_dimReduction <- function(gobject,
 #' @name get_NearestNetwork
 #' @description get a NN-network from a Giotto object
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
 #' @param nn_network_to_use kNN or sNN
 #' @param network_name name of NN network to be used
@@ -333,7 +338,6 @@ set_dimReduction <- function(gobject,
 #' @return igraph or data.table object
 #' @export
 get_NearestNetwork = function(gobject,
-                              feat_type = NULL,
                               spat_unit = NULL,
                               nn_network_to_use = 'sNN',
                               network_name = 'sNN.pca',
@@ -342,11 +346,8 @@ get_NearestNetwork = function(gobject,
   output = match.arg(arg = output, choices = c('igraph', 'data.table'))
 
   # Set feat_type and spat_unit
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    feat_type = feat_type)
   spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type)
+                                    spat_unit = spat_unit)
 
   ## select network to use
   if(is.null(nn_network_to_use) | is.null(network_name)) {
@@ -401,7 +402,6 @@ select_NearestNetwork = function(...) {
 #' @name set_NearestNetwork
 #' @description set a NN-network for a Giotto object
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
 #' @param nn_network_to_use kNN or sNN
 #' @param network_name name of NN network to be used
@@ -409,21 +409,14 @@ select_NearestNetwork = function(...) {
 #' @return giotto object
 #' @export
 set_NearestNetwork = function(gobject,
-                              feat_type = NULL,
                               spat_unit = NULL,
                               nn_network_to_use = 'sNN',
                               network_name = 'sNN.pca',
                               nn_network) {
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
 
 
   ## 1. check if specified name has already been used

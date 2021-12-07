@@ -6,7 +6,6 @@
 \usage{
 get_spatialNetwork(
   gobject,
-  feat_type = NULL,
   spat_unit = NULL,
   name = NULL,
   return_network_Obj = FALSE
@@ -14,8 +13,6 @@ get_spatialNetwork(
 }
 \arguments{
 \item{gobject}{giotto object}
-
-\item{feat_type}{feature type}
 
 \item{spat_unit}{spatial unit}
 

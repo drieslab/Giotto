@@ -6,6 +6,7 @@
 \usage{
 removeCellAnnotation(
   gobject,
+  spat_unit = NULL,
   feat_type = NULL,
   columns = NULL,
   return_gobject = TRUE
@@ -13,6 +14,8 @@ removeCellAnnotation(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{spat_unit}{spatial unit}
 
 \item{feat_type}{feature type}
 

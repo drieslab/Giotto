@@ -583,8 +583,8 @@ plot_point_layer_ggplot_noFILL = function(ggobject,
 #' @name dimPlot2D_single
 #' @description Visualize cells according to dimension reduction coordinates
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param dim_reduction_to_use dimension reduction to use
 #' @param dim_reduction_name dimension reduction name
 #' @param dim1_to_use dimension to use on x-axis
@@ -631,8 +631,8 @@ plot_point_layer_ggplot_noFILL = function(ggobject,
 #' @details Description of parameters. For 3D plots see \code{\link{dimPlot3D}}
 #' @keywords internal
 dimPlot2D_single <- function(gobject,
-                             feat_type = NULL,
                              spat_unit = NULL,
+                             feat_type = NULL,
                              dim_reduction_to_use = 'umap',
                              dim_reduction_name = NULL,
                              dim1_to_use = 1,
@@ -681,9 +681,9 @@ dimPlot2D_single <- function(gobject,
 
 
   # Set feat_type and spat_unit
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    feat_type = feat_type)
   spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
@@ -708,8 +708,8 @@ dimPlot2D_single <- function(gobject,
   }
 
   dim_dfr = get_dimReduction(gobject = gobject,
-                             feat_type = feat_type,
                              spat_unit = spat_unit,
+                             feat_type = feat_type,
                              reduction = 'cells',
                              reduction_method = dim_reduction_to_use,
                              name = dim_reduction_name,
@@ -727,8 +727,8 @@ dimPlot2D_single <- function(gobject,
 
   ## annotated cell metadata
   cell_metadata = combineMetadata(gobject = gobject,
-                                  feat_type = feat_type,
                                   spat_unit = spat_unit,
+                                  feat_type = feat_type,
                                   spat_enr_names = spat_enr_names,
                                   spat_loc_name = NULL)
 
@@ -741,7 +741,13 @@ dimPlot2D_single <- function(gobject,
   if(show_NN_network == TRUE) {
 
     # nn_network
-    selected_nn_network = gobject@nn_network[[spat_unit]][[nn_network_to_use]][[network_name]][['igraph']]
+    selected_nn_network = get_NearestNetwork(gobject = gobject,
+                                             spat_unit = spat_unit,
+                                             nn_network_to_use = nn_network_to_use,
+                                             network_name = network_name,
+                                             output = 'igraph')
+
+    #selected_nn_network = gobject@nn_network[[spat_unit]][[nn_network_to_use]][[network_name]][['igraph']]
     network_DT = data.table::as.data.table(igraph::as_data_frame(selected_nn_network, what = 'edges'))
 
     # annotated network
@@ -950,13 +956,12 @@ dimPlot2D_single <- function(gobject,
 
 
 
-
 #' @title dimPlot2D
 #' @name dimPlot2D
 #' @description Visualize cells according to dimension reduction coordinates
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param group_by create multiple plots based on cell annotation column
 #' @param group_by_subset subset the group_by factor column
 #' @param dim_reduction_to_use dimension reduction to use
@@ -1012,8 +1017,8 @@ dimPlot2D_single <- function(gobject,
 #' @family reduced dimension visualizations
 #' @export
 dimPlot2D = function(gobject,
-                     feat_type = NULL,
                      spat_unit = NULL,
+                     feat_type = NULL,
                      group_by = NULL,
                      group_by_subset = NULL,
                      dim_reduction_to_use = 'umap',
@@ -1070,8 +1075,8 @@ dimPlot2D = function(gobject,
   if(is.null(group_by)) {
 
     dimPlot2D_single(gobject = gobject,
-                     feat_type = feat_type,
                      spat_unit = spat_unit,
+                     feat_type = feat_type,
                      dim_reduction_to_use = dim_reduction_to_use,
                      dim_reduction_name = dim_reduction_name,
                      dim1_to_use = dim1_to_use,
@@ -1122,8 +1127,8 @@ dimPlot2D = function(gobject,
   } else {
 
     comb_metadata = combineMetadata(gobject = gobject,
-                                    feat_type = feat_type,
                                     spat_unit = spat_unit,
+                                    feat_type = feat_type,
                                     spat_enr_names = spat_enr_names,
                                     spat_loc_name = NULL)
     possible_meta_groups = colnames(comb_metadata)
@@ -1171,7 +1176,7 @@ dimPlot2D = function(gobject,
     return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
     ## plotting ##
-    savelist <- list()
+    savelist = list()
 
 
     for(group_id in 1:length(unique_groups)) {
@@ -1179,11 +1184,14 @@ dimPlot2D = function(gobject,
       group = unique_groups[group_id]
 
       subset_cell_IDs = comb_metadata[get(group_by) == group][['cell_ID']]
-      temp_gobject = subsetGiotto(gobject = gobject, cell_ids = subset_cell_IDs)
+      temp_gobject = subsetGiotto(gobject = gobject,
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type,
+                                  cell_ids = subset_cell_IDs)
 
       pl = dimPlot2D_single(gobject = temp_gobject,
-                            feat_type = feat_type,
                             spat_unit = spat_unit,
+                            feat_type = feat_type,
                             dim_reduction_to_use = dim_reduction_to_use,
                             dim_reduction_name = dim_reduction_name,
                             dim1_to_use = dim1_to_use,

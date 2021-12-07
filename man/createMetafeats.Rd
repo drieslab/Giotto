@@ -6,6 +6,7 @@
 \usage{
 createMetafeats(
   gobject,
+  spat_unit = NULL,
   feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   feat_clusters,
@@ -15,6 +16,10 @@ createMetafeats(
 }
 \arguments{
 \item{gobject}{Giotto object}
+
+\item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 
 \item{expression_values}{expression values to use}
 

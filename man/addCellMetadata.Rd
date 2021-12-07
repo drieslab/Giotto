@@ -6,8 +6,8 @@
 \usage{
 addCellMetadata(
   gobject,
-  feat_type = NULL,
   spat_unit = NULL,
+  feat_type = NULL,
   new_metadata,
   vector_name = NULL,
   by_column = FALSE,
@@ -17,9 +17,9 @@ addCellMetadata(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{feat_type}{feature type}
-
 \item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 
 \item{new_metadata}{new cell metadata to use (data.table, data.frame, ...)}
 
