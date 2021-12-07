@@ -185,23 +185,23 @@ fDataDT <- function(gobject,
 #' @title create_average_DT
 #' @description calculates average gene expression for a cell metadata factor (e.g. cluster)
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param meta_data_name name of metadata column to use
 #' @param expression_values which expression values to use
 #' @return data.table with average gene epression values for each factor
 #' @keywords internal
 create_average_DT <- function(gobject,
-                              feat_type = NULL,
                               spat_unit = NULL,
+                              feat_type = NULL,
                               meta_data_name,
                               expression_values = c('normalized', 'scaled', 'custom')) {
 
 
   # Set feat_type and spat_unit
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    feat_type = feat_type)
   spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
@@ -239,8 +239,8 @@ create_average_DT <- function(gobject,
 #' @title create_average_detection_DT
 #' @description calculates average gene detection for a cell metadata factor (e.g. cluster)
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param meta_data_name name of metadata column to use
 #' @param expression_values which expression values to use
 #' @param detection_threshold detection threshold to consider a gene detected
@@ -255,9 +255,9 @@ create_average_detection_DT <- function(gobject,
 
 
   # Set feat_type and spat_unit
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    feat_type = feat_type)
   spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
@@ -774,12 +774,12 @@ subset_feature_info_data = function(feat_info,
 #' @title subsetGiotto
 #' @description subsets Giotto object including previous analyses.
 #' @param gobject giotto object
-#' @param cell_ids cell IDs to keep
+#' @param spat_unit spatial unit
 #' @param feat_type feature type to use
+#' @param cell_ids cell IDs to keep
 #' @param feat_ids feature IDs to keep
 #' @param gene_ids deprecated, use feat_ids
 #' @param poly_info polygon information to use
-#' @param spat_unit spatial unit
 #' @param x_max maximum x-coordinate for feature coordinates
 #' @param x_min minimum x-coordinate for feature coordinates
 #' @param y_max maximum y-coordinate for feature coordinates
@@ -803,12 +803,12 @@ subset_feature_info_data = function(feat_info,
 #' }
 #'
 subsetGiotto <- function(gobject,
-                         cell_ids = NULL,
+                         spat_unit = NULL,
                          feat_type = NULL,
+                         cell_ids = NULL,
                          feat_ids = NULL,
                          gene_ids = NULL,
                          poly_info = NULL,
-                         spat_unit = NULL,
                          x_max = NULL,
                          x_min = NULL,
                          y_max = NULL,
@@ -997,6 +997,8 @@ subsetGiotto <- function(gobject,
 #' @name subsetGiottoLocs
 #' @description subsets Giotto object based on spatial locations
 #' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type to use
 #' @param x_max maximum x-coordinate
 #' @param x_min minimum x-coordinate
 #' @param y_max maximum y-coordinate
@@ -1010,6 +1012,8 @@ subsetGiotto <- function(gobject,
 #' @details if return_gobject = FALSE, then a filtered combined metadata data.table will be returned
 #' @export
 subsetGiottoLocs = function(gobject,
+                            spat_unit = NULL,
+                            feat_type = NULL,
                             x_max = NULL,
                             x_min = NULL,
                             y_max = NULL,
@@ -1020,6 +1024,14 @@ subsetGiottoLocs = function(gobject,
                             return_gobject = T,
                             verbose = FALSE) {
 
+
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
+
   # Check spatial params
   spatError = NULL
   if(!is.null(x_min) && !is.null(x_max)) if(x_min > x_max) spatError = append(spatError, 'x_max must be larger than x_min \n')
@@ -1027,7 +1039,10 @@ subsetGiottoLocs = function(gobject,
   if(!is.null(z_min) && !is.null(z_max)) if(z_min > z_max) spatError = append(spatError, 'z_max must be larger than z_min \n')
   if(!is.null(spatError)) stop(spatError)
 
-  comb_metadata = combineMetadata(gobject = gobject, spat_loc_name = NULL)
+  comb_metadata = combineMetadata(gobject = gobject,
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type,
+                                  spat_loc_name = NULL)
   comb_colnames =  colnames(comb_metadata)
 
   # x spatial dimension
@@ -1059,6 +1074,8 @@ subsetGiottoLocs = function(gobject,
     filtered_cell_IDs = comb_metadata[['cell_ID']]
 
     subset_object = subsetGiotto(gobject = gobject,
+                                 spat_unit = spat_unit,
+                                 feat_type = feat_type,
                                  cell_ids = filtered_cell_IDs,
                                  poly_info = poly_info,
                                  x_max = x_max,
@@ -1130,9 +1147,9 @@ filterDistributions <- function(gobject,
 
 
   # Set feat_type and spat_unit
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    feat_type = feat_type)
   spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
@@ -1285,9 +1302,9 @@ filterCombinations <- function(gobject,
   }
 
   # Set feat_type and spat_unit
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    feat_type = feat_type)
   spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
