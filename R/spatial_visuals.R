@@ -709,7 +709,6 @@ dimPlot2D_single <- function(gobject,
 
   dim_dfr = get_dimReduction(gobject = gobject,
                              spat_unit = spat_unit,
-                             feat_type = feat_type,
                              reduction = 'cells',
                              reduction_method = dim_reduction_to_use,
                              name = dim_reduction_name,

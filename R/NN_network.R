@@ -5,8 +5,8 @@
 #' @name createNearestNetwork
 #' @description create a nearest neighbour (NN) network
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param type sNN or kNN
 #' @param dim_reduction_to_use dimension reduction method to use
 #' @param dim_reduction_name name of dimension reduction set to use
@@ -61,8 +61,8 @@
 #'                                                 dimensions_to_use = 1:3, k = 3)
 #'
 createNearestNetwork <- function(gobject,
-                                 feat_type = NULL,
                                  spat_unit = NULL,
+                                 feat_type = NULL,
                                  type = c('sNN', 'kNN'),
                                  dim_reduction_to_use = 'pca',
                                  dim_reduction_name = NULL,
@@ -85,15 +85,12 @@ createNearestNetwork <- function(gobject,
     warning('genes_to_use is deprecated, use feats_to_use in the future \n')
   }
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # specify dim_reduction_name tailored to feat_type
   if(is.null(dim_reduction_name)) {
@@ -118,7 +115,6 @@ createNearestNetwork <- function(gobject,
     # use only available dimensions if dimensions < dimensions_to_use
 
     dim_coord = get_dimReduction(gobject = gobject,
-                                 feat_type = feat_type,
                                  spat_unit = spat_unit,
                                  reduction = 'cells',
                                  reduction_method = dim_reduction_to_use,
@@ -218,7 +214,13 @@ createNearestNetwork <- function(gobject,
 
     }
 
-    gobject@nn_network[[spat_unit]][[type]][[name]][['igraph']] = nn_network_igraph
+    gobject = set_NearestNetwork(gobject = gobject,
+                                 spat_unit = spat_unit,
+                                 nn_network_to_use = type,
+                                 network_name = name,
+                                 nn_network = nn_network_igraph)
+
+    #gobject@nn_network[[spat_unit]][[type]][[name]][['igraph']] = nn_network_igraph
 
     ## update parameters used ##
     gobject = update_giotto_params(gobject, description = '_nn_network')
@@ -237,8 +239,8 @@ createNearestNetwork <- function(gobject,
 #' @name addNetworkLayout
 #' @description Add a network layout for a selected nearest neighbor network
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param nn_network_to_use kNN or sNN
 #' @param network_name name of NN network to be used
 #' @param layout_type layout algorithm to use
@@ -251,8 +253,8 @@ createNearestNetwork <- function(gobject,
 #' is implemented. This provides an alternative to tSNE or UMAP based visualizations.
 #' @export
 addNetworkLayout = function(gobject,
-                            feat_type = NULL,
                             spat_unit = NULL,
+                            feat_type = NULL,
                             nn_network_to_use = "sNN",
                             network_name = "sNN.pca",
                             layout_type = c('drl'),
@@ -265,17 +267,19 @@ addNetworkLayout = function(gobject,
     stop('\n first create a nearest network \n')
   }
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  ig_object = get_NearestNetwork(gobject = gobject,
+                                 spat_unit = spat_unit,
+                                 nn_network_to_use = nn_network_to_use,
+                                 network_name = network_name, output = 'igraph')
 
-  ig_object = gobject@nn_network[[spat_unit]][[nn_network_to_use]][[network_name]][['igraph']]
+  #ig_object = gobject@nn_network[[spat_unit]][[nn_network_to_use]][[network_name]][['igraph']]
 
   layout_type = match.arg(arg = layout_type, c('drl'))
 
