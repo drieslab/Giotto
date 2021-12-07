@@ -2884,8 +2884,8 @@ spatPlot2D_single = function(gobject,
 #' @name spatPlot2D
 #' @description Visualize cells according to spatial coordinates
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param show_image show a tissue background image
 #' @param gimage a giotto image
 #' @param image_name name of a giotto image or multiple images with group_by
@@ -2954,8 +2954,8 @@ spatPlot2D_single = function(gobject,
 #' @export
 #' @seealso \code{\link{spatPlot3D}}
 spatPlot2D = function(gobject,
-                      feat_type = NULL,
                       spat_unit = NULL,
+                      feat_type = NULL,
                       show_image = F,
                       gimage = NULL,
                       image_name = NULL,
@@ -3023,8 +3023,8 @@ spatPlot2D = function(gobject,
   if(is.null(group_by)) {
 
     spatPlot2D_single(gobject = gobject,
-                      feat_type = feat_type,
                       spat_unit = spat_unit,
+                      feat_type = feat_type,
                       show_image = show_image,
                       gimage = gimage,
                       image_name = image_name,
@@ -3085,9 +3085,9 @@ spatPlot2D = function(gobject,
   } else {
 
     # Set feat_type and spat_unit
-    feat_type = set_default_feat_type(gobject = gobject,
-                                      feat_type = feat_type)
     spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+    feat_type = set_default_feat_type(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type)
 
@@ -3147,8 +3147,8 @@ spatPlot2D = function(gobject,
 
       subset_cell_IDs = comb_metadata[get(group_by) == group][['cell_ID']]
       temp_gobject = subsetGiotto(gobject = gobject,
-                                  feat_type = feat_type,
                                   spat_unit = spat_unit,
+                                  feat_type = feat_type,
                                   cell_ids = subset_cell_IDs)
 
 
@@ -3159,8 +3159,8 @@ spatPlot2D = function(gobject,
       }
 
       pl = spatPlot2D_single(gobject = temp_gobject,
-                             feat_type = feat_type,
                              spat_unit = spat_unit,
+                             feat_type = feat_type,
                              show_image = show_image,
                              gimage = gimage,
                              image_name = spec_image_name,
@@ -4710,8 +4710,8 @@ spatGenePlot = function(...) {
 #' @family dimension reduction feature expression visualizations
 #' @export
 dimFeatPlot2D <- function(gobject,
-                          feat_type = NULL,
                           spat_unit = NULL,
+                          feat_type = NULL,
                           expression_values = c('normalized', 'scaled', 'custom'),
                           feats = NULL,
                           dim_reduction_to_use = 'umap',
@@ -4756,16 +4756,12 @@ dimFeatPlot2D <- function(gobject,
   # point shape
   point_shape = match.arg(point_shape, choices = c('border', 'no_border'))
 
-
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # specify dim_reduction_name according to provided feat_type
   if(!is.null(dim_reduction_to_use)) {
@@ -4821,7 +4817,9 @@ dimFeatPlot2D <- function(gobject,
   dim_DT = data.table::as.data.table(dim_dfr); dim_DT[, cell_ID := rownames(dim_dfr)]
 
   ## annotated cell metadata
-  cell_metadata = gobject@cell_metadata[[feat_type]]
+  cell_metadata = pDataDT(gobject,
+                          spat_unit = spat_unit,
+                          feat_type = feat_type)
   annotated_DT = data.table::merge.data.table(cell_metadata, dim_DT, by = 'cell_ID')
 
   ## merge feat info
@@ -4831,7 +4829,14 @@ dimFeatPlot2D <- function(gobject,
   if(show_NN_network == TRUE) {
 
     # nn_network
-    selected_nn_network = gobject@nn_network[[nn_network_to_use]][[network_name]][['igraph']]
+    selected_nn_network = get_NearestNetwork(gobject = gobject,
+                                             spat_unit = spat_unit,
+                                             feat_type = feat_type,
+                                             nn_network_to_use = nn_network_to_use,
+                                             network_name = network_name,
+                                             output = 'igraph')
+    # gobject@nn_network[[nn_network_to_use]][[network_name]][['igraph']]
+
     network_DT = data.table::as.data.table(igraph::as_data_frame(selected_nn_network, what = 'edges'))
 
     # annotated network
