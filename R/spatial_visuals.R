@@ -3495,8 +3495,8 @@ spatDeconvPlot = function(gobject,
 #' @name spatDimPlot2D
 #' @description Visualize cells according to spatial AND dimension reduction coordinates 2D
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param show_image show a tissue background image
 #' @param gimage a giotto image
 #' @param image_name name of a giotto image
@@ -3580,8 +3580,8 @@ spatDeconvPlot = function(gobject,
 #' @export
 #' @seealso \code{\link{spatDimPlot3D}}
 spatDimPlot2D <- function(gobject,
-                          feat_type = NULL,
                           spat_unit = NULL,
+                          feat_type = NULL,
                           show_image = F,
                           gimage = NULL,
                           image_name = NULL,
@@ -3661,9 +3661,9 @@ spatDimPlot2D <- function(gobject,
                           default_save_name = 'spatDimPlot2D'){
 
   # Set feat_type and spat_unit
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    feat_type = feat_type)
   spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
@@ -3675,8 +3675,8 @@ spatDimPlot2D <- function(gobject,
     if(is.character(cell_color)) {
 
       cell_metadata = pDataDT(gobject,
-                              feat_type = feat_type,
-                              spat_unit = spat_unit)
+                              spat_unit = spat_unit,
+                              feat_type = feat_type)
       if(cell_color %in% colnames(cell_metadata)) {
 
         if(color_as_factor == TRUE) {
@@ -3691,6 +3691,7 @@ spatDimPlot2D <- function(gobject,
 
   # dimension reduction plot
   dmpl = dimPlot2D(gobject = gobject,
+                   spat_unit = spat_unit,
                    feat_type = feat_type,
                    group_by = NULL,
                    group_by_subset = NULL,
@@ -3739,8 +3740,8 @@ spatDimPlot2D <- function(gobject,
 
   # spatial plot
   spl = spatPlot2D(gobject = gobject,
-                   feat_type = feat_type,
                    spat_unit = spat_unit,
+                   feat_type = feat_type,
                    show_image = show_image,
                    gimage = gimage,
                    image_name = image_name,
@@ -3857,8 +3858,8 @@ spatDimPlot = function(...) {
 #' @name spatFeatPlot2D_single
 #' @description Visualize cells and feature expression according to spatial coordinates
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param show_image show a tissue background image
 #' @param gimage a giotto image
 #' @param image_name name of a giotto image
@@ -3908,8 +3909,8 @@ spatDimPlot = function(...) {
 #' @export
 #' @seealso \code{\link{spatGenePlot3D}}
 spatFeatPlot2D_single <- function(gobject,
-                                  feat_type = NULL,
                                   spat_unit = NULL,
+                                  feat_type = NULL,
                                   show_image = F,
                                   gimage = NULL,
                                   image_name = NULL,
@@ -3964,9 +3965,9 @@ spatFeatPlot2D_single <- function(gobject,
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
   # Set feat_type and spat_unit
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    feat_type = feat_type)
   spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
