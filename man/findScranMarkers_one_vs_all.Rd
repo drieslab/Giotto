@@ -6,8 +6,8 @@
 \usage{
 findScranMarkers_one_vs_all(
   gobject,
-  feat_type = NULL,
   spat_unit = NULL,
+  feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   cluster_column,
   subset_clusters = NULL,
@@ -22,9 +22,9 @@ findScranMarkers_one_vs_all(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{feat_type}{feature type}
-
 \item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 
 \item{expression_values}{feat expression values to use}
 

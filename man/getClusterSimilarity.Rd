@@ -6,8 +6,8 @@
 \usage{
 getClusterSimilarity(
   gobject,
-  feat_type = NULL,
   spat_unit = NULL,
+  feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   cluster_column,
   cor = c("pearson", "spearman")
@@ -15,6 +15,8 @@ getClusterSimilarity(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{spat_unit}{spatial unit}
 
 \item{feat_type}{feature type}
 

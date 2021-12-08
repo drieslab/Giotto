@@ -6,12 +6,12 @@
 \usage{
 subsetGiotto(
   gobject,
-  cell_ids = NULL,
+  spat_unit = NULL,
   feat_type = NULL,
+  cell_ids = NULL,
   feat_ids = NULL,
   gene_ids = NULL,
   poly_info = NULL,
-  spat_unit = NULL,
   x_max = NULL,
   x_min = NULL,
   y_max = NULL,
@@ -23,17 +23,17 @@ subsetGiotto(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{cell_ids}{cell IDs to keep}
+\item{spat_unit}{spatial unit}
 
 \item{feat_type}{feature type to use}
+
+\item{cell_ids}{cell IDs to keep}
 
 \item{feat_ids}{feature IDs to keep}
 
 \item{gene_ids}{deprecated, use feat_ids}
 
 \item{poly_info}{polygon information to use}
-
-\item{spat_unit}{spatial unit}
 
 \item{x_max}{maximum x-coordinate for feature coordinates}
 

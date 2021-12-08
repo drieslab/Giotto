@@ -8,23 +8,20 @@
 #' @description Simulate random network.
 #' @keywords internal
 make_simulated_network = function(gobject,
-                                  feat_type = NULL,
                                   spat_unit = NULL,
+                                  feat_type = NULL,
                                   spatial_network_name = 'Delaunay_network',
                                   cluster_column,
                                   number_of_simulations = 100,
                                   set_seed = TRUE,
                                   seed_number = 1234) {
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # data.table variables
   unified_cells = NULL
@@ -90,8 +87,8 @@ make_simulated_network = function(gobject,
 #' @name cellProximityEnrichment
 #' @description Compute cell-cell interaction enrichment (observed vs expected)
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param spatial_network_name name of spatial network to use
 #' @param cluster_column name of column to use for clusters
 #' @param number_of_simulations number of simulations to create expected observations
@@ -109,8 +106,8 @@ make_simulated_network = function(gobject,
 #' in the spatial network.
 #' @export
 cellProximityEnrichment <- function(gobject,
-                                    feat_type = NULL,
                                     spat_unit = NULL,
+                                    feat_type = NULL,
                                     spatial_network_name = 'Delaunay_network',
                                     cluster_column,
                                     number_of_simulations = 1000,
@@ -121,16 +118,12 @@ cellProximityEnrichment <- function(gobject,
                                     seed_number = 1234) {
 
 
-
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # p.adj test
   sel_adjust_method = match.arg(adjust_method, choices = c("none", "fdr", "bonferroni","BH",
@@ -154,8 +147,8 @@ cellProximityEnrichment <- function(gobject,
   spatial_network_annot = spatial_network_annot[!duplicated(unified_cells)]
 
   sample_dt = make_simulated_network(gobject = gobject,
-                                     feat_type = feat_type,
                                      spat_unit = spat_unit,
+                                     feat_type = feat_type,
                                      spatial_network_name = spatial_network_name,
                                      cluster_column = cluster_column,
                                      number_of_simulations = number_of_simulations,
@@ -987,15 +980,12 @@ findInteractionChangedFeats = function(gobject,
                                        seed_number = 1234) {
 
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
@@ -2095,29 +2085,25 @@ combineCPG <- function(...) {
 #' @name average_feat_feat_expression_in_groups
 #' @description calculate average expression per cluster
 #' @param gobject giotto object to use
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param cluster_column cluster column with cell type information
 #' @param feat_set_1 first specific feat set from feat pairs
 #' @param feat_set_2 second specific feat set from feat pairs
 #' @return data.table with average expression scores for each cluster
 #' @keywords internal
 average_feat_feat_expression_in_groups = function(gobject,
-                                                  feat_type = NULL,
                                                   spat_unit = NULL,
+                                                  feat_type = NULL,
                                                   cluster_column = 'cell_types',
                                                   feat_set_1,
                                                   feat_set_2) {
-
-  # set feat type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   average_DT = create_average_DT(gobject = gobject,
                                  feat_type = feat_type,
@@ -2220,15 +2206,12 @@ exprCellCellcom = function(gobject,
                            verbose = T) {
 
 
-  # set feat type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   ## deprecated arguments
   if(!is.null(gene_set_1)) {
@@ -2394,15 +2377,12 @@ create_cell_type_random_cell_IDs = function(gobject,
                                             set_seed = FALSE,
                                             seed_number = 1234) {
 
-  # set feat type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # subset metadata to choose from
   full_metadata = pDataDT(gobject,
@@ -2502,15 +2482,12 @@ specificCellCellcommunicationScores = function(gobject,
                                                seed_number = 1234,
                                                verbose = T) {
 
-  # set feat type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   ## deprecated arguments
   if(!is.null(gene_set_1)) {
@@ -2776,15 +2753,12 @@ spatCellCellcom = function(gobject,
          'or create a new spatial network with createSpatialNetwork() \n')
   }
 
-  # set feat type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   ## deprecated arguments
   if(!is.null(gene_set_1)) {

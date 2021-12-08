@@ -6,12 +6,15 @@
 \usage{
 combineSpatialCellFeatureInfo(
   gobject,
+  spat_unit = NULL,
   feat_type = NULL,
   selected_features = NULL
 )
 }
 \arguments{
 \item{gobject}{Giotto object}
+
+\item{spat_unit}{spatial unit}
 
 \item{feat_type}{feature type(s)}
 

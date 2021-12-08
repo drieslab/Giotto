@@ -1855,8 +1855,6 @@ overlapToMatrix = function(gobject,
   aggr_dtoverlap = dtoverlap[, .N, by = c('poly_ID', 'feat_ID')]
 
 
-  print(aggr_dtoverlap)
-
   # get all feature and cell information
   all_feats = gobject@feat_ID[[feat_info]]
   missing_feats = all_feats[!all_feats %in% unique(aggr_dtoverlap$feat_ID)]
@@ -1871,7 +1869,6 @@ overlapToMatrix = function(gobject,
   missing_dt = data.table::data.table(poly_ID = missing_ids, feat_ID = first_feature, N = 0)
   aggr_dtoverlap = rbind(aggr_dtoverlap, missing_dt)
 
-  print(aggr_dtoverlap)
 
   # TODO: creating missing feature values
 
@@ -1887,7 +1884,7 @@ overlapToMatrix = function(gobject,
 
 
   if(return_gobject == TRUE) {
-    gobject@expression[[feat_info]][[poly_info]][[name]] = overlapmatrix
+    gobject@expression[[poly_info]][[feat_info]][[name]] = overlapmatrix
     return(gobject)
   } else {
     return(overlapmatrix)
@@ -1923,7 +1920,13 @@ combineCellData = function(gobject,
   # 2. cell metadata
 
   # specify feat_type
-  feat_type = set_default_feat_type(gobject, feat_type = feat_type)
+  # Set feat_type and spat_unit
+  poly_info = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = poly_info)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = poly_info,
+                                    feat_type = feat_type)
+
 
   # get spatial locations
   if(include_spat_locs == TRUE) {
@@ -1948,6 +1951,8 @@ combineCellData = function(gobject,
   }
 
 
+
+
   # combine prior information if wanted
   if(!is.null(spat_locs_dt) & !is.null(spatial_cell_info_dt)) {
     comb_dt = data.table::merge.data.table(spat_locs_dt,
@@ -1965,8 +1970,9 @@ combineCellData = function(gobject,
   res_list = list()
   for(feat in unique(feat_type)) {
 
+
     # get spatial cell metadata
-    cell_meta = pDataDT(gobject,
+    cell_meta = pDataDT(gobject = gobject,
                         feat_type = feat,
                         spat_unit = poly_info)
 
@@ -2005,16 +2011,23 @@ combineFeatureData = function(gobject,
                               sel_feats = NULL) {
 
 
-  feat_type = set_default_feat_type(gobject = gobject, feat_type = feat_type)
-  spat_unit = set_default_spat_unit(gobject = gobject, feat_type = feat_type, spat_unit = spat_unit)
-
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   res_list = list()
   for(feat in unique(feat_type)) {
     for(spat in unique(spat_unit)) {
 
       # feature meta
-      feat_meta = gobject@feat_metadata[[feat]][[spat_unit]]
+      # feat_meta = gobject@feat_metadata[[spat_unit]][[feat]]
+
+      feat_meta = fDataDT(gobject = gobject,
+                          spat_unit = spat_unit,
+                          feat_type = feat)
+
       if(!is.null(sel_feats[[feat_type]])) {
         selected_features = sel_feats[[feat_type]]
         feat_meta = feat_meta[feat_ID %in% selected_features]
@@ -2064,9 +2077,11 @@ combineFeatureOverlapData = function(gobject,
                                      poly_info = c('cell')) {
 
 
-  feat_type = set_default_feat_type(gobject = gobject, feat_type = feat_type)
-  poly_info = set_default_spat_unit(gobject = gobject, feat_type = feat_type, spat_unit = poly_info)
-
+  poly_info = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = poly_info)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = poly_info,
+                                    feat_type = feat_type)
 
 
   res_list = list()
@@ -2075,7 +2090,12 @@ combineFeatureOverlapData = function(gobject,
     for(spat in unique(poly_info)) {
 
       # feature meta
-      feat_meta = gobject@feat_metadata[[feat]][[spat]]
+      # feat_meta = gobject@feat_metadata[[feat]][[spat]]
+
+      feat_meta = fDataDT(gobject = gobject,
+                          spat_unit = spat,
+                          feat_type = feat)
+
       if(!is.null(sel_feats[[feat_type]])) {
         selected_features = sel_feats[[feat_type]]
         feat_meta = feat_meta[feat_ID %in% selected_features]

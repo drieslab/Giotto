@@ -8,6 +8,7 @@ read_expression_data(
   expr_list = NULL,
   sparse = TRUE,
   cores = NA,
+  default_feat_type = NULL,
   verbose = TRUE
 )
 }
@@ -17,6 +18,8 @@ read_expression_data(
 \item{sparse}{read matrix data in a sparse manner}
 
 \item{cores}{number of cores to use}
+
+\item{default_feat_type}{default feature type if nothing is provided}
 
 \item{verbose}{be verbose}
 }

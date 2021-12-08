@@ -2,51 +2,6 @@
 
 
 
-#' @title set_default_feat_type
-#' @name set_default_feat_type
-#' @keywords internal
-set_default_feat_type = function(gobject,
-                                 feat_type = NULL) {
-
-  if(is.null(feat_type)) {
-
-    if(!is.null(gobject@expression)) {
-      feat_type = names(gobject@expression)[[1]]
-    } else if(!is.null(gobject@feat_info)){
-      feat_type = names(gobject@feat_info)[[1]]
-    } else {
-      warning('No default for feat_type could be set \n')
-    }
-  }
-
-  return(feat_type)
-
-}
-
-
-#' @title set_default_spat_unit
-#' @name set_default_spat_unit
-#' @keywords internal
-set_default_spat_unit = function(gobject,
-                                 spat_unit = NULL,
-                                 feat_type) {
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    if(!is.null(gobject@expression)) {
-      spat_unit = names(gobject@expression[[feat_type]])[[1]]
-      if(is.null(spat_unit)) stop('valid feat_type input needed \n')
-    } else if(!is.null(gobject@spatial_info)){
-      spat_unit = names(gobject@spatial_info)[[1]]
-    } else {
-      warning('No default for spat_unit could be set \n')
-    }
-  }
-
-  return(spat_unit)
-
-}
-
 
 
 
@@ -75,25 +30,25 @@ plot_auto_convert_largeImage_MG = function(gobject,
                                            spat_unit = NULL,
                                            spat_loc_name = NULL,
                                            include_image_in_border = TRUE) {
-  
+
   # If no giottoLargeImage, select specified giottoLargeImage. If none specified, select first one.
   if(is.null(giottoLargeImage)) {
     giottoLargeImage = get_GiottoLargeImage(gobject = gobject,
                                     largeImage_name = largeImage_name)
   }
-  
+
   # Set feat_type and spat_unit
   feat_type = set_default_feat_type(gobject = gobject,
                                     feat_type = feat_type)
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
-  
+
   # Get spatial locations
   cell_locations = get_spatial_locations(gobject = gobject,
                                          spat_unit = spat_unit,
                                          spat_loc_name = spat_loc_name)
-  
+
   # Determine crop
   if(include_image_in_border == TRUE) {
     x_halfPaddedRange = diff(range(cell_locations$sdimx))*0.625
@@ -105,7 +60,7 @@ plot_auto_convert_largeImage_MG = function(gobject,
     xmin_crop = x_mean - x_halfPaddedRange
     ymax_crop = y_mean + y_halfPaddedRange
     ymin_crop = y_mean - y_halfPaddedRange
-    
+
     if(xmin_crop < im_minmax[['xmin']]) xmin_crop = im_minmax[['xmin']]
     if(xmax_crop > im_minmax[['xmax']]) xmax_crop = im_minmax[['xmax']]
     if(ymin_crop < im_minmax[['ymin']]) ymin_crop = im_minmax[['ymin']]
@@ -118,7 +73,7 @@ plot_auto_convert_largeImage_MG = function(gobject,
     ymin_crop = y_range[1]
     ymax_crop = y_range[2]
   }
-  
+
   # Convert to properly zoomed gimage (MG)
   gimage = convertGiottoLargeImageToMG(giottoLargeImage = giottoLargeImage,
                                        xmax_crop = xmax_crop,
@@ -128,7 +83,7 @@ plot_auto_convert_largeImage_MG = function(gobject,
                                        resample_size = 500000,
                                        max_intensity = NULL,
                                        return_gobject = FALSE)
-  
+
   return(gimage)
 }
 
@@ -628,8 +583,8 @@ plot_point_layer_ggplot_noFILL = function(ggobject,
 #' @name dimPlot2D_single
 #' @description Visualize cells according to dimension reduction coordinates
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param dim_reduction_to_use dimension reduction to use
 #' @param dim_reduction_name dimension reduction name
 #' @param dim1_to_use dimension to use on x-axis
@@ -676,8 +631,8 @@ plot_point_layer_ggplot_noFILL = function(ggobject,
 #' @details Description of parameters. For 3D plots see \code{\link{dimPlot3D}}
 #' @keywords internal
 dimPlot2D_single <- function(gobject,
-                             feat_type = NULL,
                              spat_unit = NULL,
+                             feat_type = NULL,
                              dim_reduction_to_use = 'umap',
                              dim_reduction_name = NULL,
                              dim1_to_use = 1,
@@ -726,9 +681,9 @@ dimPlot2D_single <- function(gobject,
 
 
   # Set feat_type and spat_unit
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    feat_type = feat_type)
   spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
@@ -753,7 +708,6 @@ dimPlot2D_single <- function(gobject,
   }
 
   dim_dfr = get_dimReduction(gobject = gobject,
-                             feat_type = feat_type,
                              spat_unit = spat_unit,
                              reduction = 'cells',
                              reduction_method = dim_reduction_to_use,
@@ -772,8 +726,8 @@ dimPlot2D_single <- function(gobject,
 
   ## annotated cell metadata
   cell_metadata = combineMetadata(gobject = gobject,
-                                  feat_type = feat_type,
                                   spat_unit = spat_unit,
+                                  feat_type = feat_type,
                                   spat_enr_names = spat_enr_names,
                                   spat_loc_name = NULL)
 
@@ -786,7 +740,13 @@ dimPlot2D_single <- function(gobject,
   if(show_NN_network == TRUE) {
 
     # nn_network
-    selected_nn_network = gobject@nn_network[[spat_unit]][[nn_network_to_use]][[network_name]][['igraph']]
+    selected_nn_network = get_NearestNetwork(gobject = gobject,
+                                             spat_unit = spat_unit,
+                                             nn_network_to_use = nn_network_to_use,
+                                             network_name = network_name,
+                                             output = 'igraph')
+
+    #selected_nn_network = gobject@nn_network[[spat_unit]][[nn_network_to_use]][[network_name]][['igraph']]
     network_DT = data.table::as.data.table(igraph::as_data_frame(selected_nn_network, what = 'edges'))
 
     # annotated network
@@ -995,13 +955,12 @@ dimPlot2D_single <- function(gobject,
 
 
 
-
 #' @title dimPlot2D
 #' @name dimPlot2D
 #' @description Visualize cells according to dimension reduction coordinates
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param group_by create multiple plots based on cell annotation column
 #' @param group_by_subset subset the group_by factor column
 #' @param dim_reduction_to_use dimension reduction to use
@@ -1057,8 +1016,8 @@ dimPlot2D_single <- function(gobject,
 #' @family reduced dimension visualizations
 #' @export
 dimPlot2D = function(gobject,
-                     feat_type = NULL,
                      spat_unit = NULL,
+                     feat_type = NULL,
                      group_by = NULL,
                      group_by_subset = NULL,
                      dim_reduction_to_use = 'umap',
@@ -1115,8 +1074,8 @@ dimPlot2D = function(gobject,
   if(is.null(group_by)) {
 
     dimPlot2D_single(gobject = gobject,
-                     feat_type = feat_type,
                      spat_unit = spat_unit,
+                     feat_type = feat_type,
                      dim_reduction_to_use = dim_reduction_to_use,
                      dim_reduction_name = dim_reduction_name,
                      dim1_to_use = dim1_to_use,
@@ -1167,8 +1126,8 @@ dimPlot2D = function(gobject,
   } else {
 
     comb_metadata = combineMetadata(gobject = gobject,
-                                    feat_type = feat_type,
                                     spat_unit = spat_unit,
+                                    feat_type = feat_type,
                                     spat_enr_names = spat_enr_names,
                                     spat_loc_name = NULL)
     possible_meta_groups = colnames(comb_metadata)
@@ -1216,7 +1175,7 @@ dimPlot2D = function(gobject,
     return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
 
     ## plotting ##
-    savelist <- list()
+    savelist = list()
 
 
     for(group_id in 1:length(unique_groups)) {
@@ -1224,11 +1183,14 @@ dimPlot2D = function(gobject,
       group = unique_groups[group_id]
 
       subset_cell_IDs = comb_metadata[get(group_by) == group][['cell_ID']]
-      temp_gobject = subsetGiotto(gobject = gobject, cell_ids = subset_cell_IDs)
+      temp_gobject = subsetGiotto(gobject = gobject,
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type,
+                                  cell_ids = subset_cell_IDs)
 
       pl = dimPlot2D_single(gobject = temp_gobject,
-                            feat_type = feat_type,
                             spat_unit = spat_unit,
+                            feat_type = feat_type,
                             dim_reduction_to_use = dim_reduction_to_use,
                             dim_reduction_name = dim_reduction_name,
                             dim1_to_use = dim1_to_use,
@@ -2339,12 +2301,12 @@ plot_spat_image_layer_ggplot = function(ggplot,
   }
 
   # Set feat_type and spat_unit
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    feat_type = feat_type)
   spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
-  
+
   # spatial locations
   spatlocs = get_spatial_locations(gobject = gobject,
                                    spat_unit = spat_unit,
@@ -2599,9 +2561,9 @@ spatPlot2D_single = function(gobject,
   if(!is.null(image_name) && !is.null(largeImage_name)) stop('Only one type of image can be used at a time')
 
   # Set feat_type and spat_unit
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    feat_type = feat_type)
   spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
@@ -2626,7 +2588,7 @@ spatPlot2D_single = function(gobject,
 
     } else if(!is.null(largeImage_name)) {
       # If there is input to largeImage_name arg
-      
+
       if(length(largeImage_name) == 1) {
         gimage = plot_auto_convert_largeImage_MG(gobject = gobject,
                                                  largeImage_name = largeImage_name,
@@ -2645,7 +2607,7 @@ spatPlot2D_single = function(gobject,
                                                           include_image_in_border = TRUE)
         }
       }
-      
+
     } else {
       # Default to first image available in images if no input given to image_name or largeImage_name args
       image_name = names(gobject@images)[1]
@@ -2922,8 +2884,8 @@ spatPlot2D_single = function(gobject,
 #' @name spatPlot2D
 #' @description Visualize cells according to spatial coordinates
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param show_image show a tissue background image
 #' @param gimage a giotto image
 #' @param image_name name of a giotto image or multiple images with group_by
@@ -2992,8 +2954,8 @@ spatPlot2D_single = function(gobject,
 #' @export
 #' @seealso \code{\link{spatPlot3D}}
 spatPlot2D = function(gobject,
-                      feat_type = NULL,
                       spat_unit = NULL,
+                      feat_type = NULL,
                       show_image = F,
                       gimage = NULL,
                       image_name = NULL,
@@ -3061,8 +3023,8 @@ spatPlot2D = function(gobject,
   if(is.null(group_by)) {
 
     spatPlot2D_single(gobject = gobject,
-                      feat_type = feat_type,
                       spat_unit = spat_unit,
+                      feat_type = feat_type,
                       show_image = show_image,
                       gimage = gimage,
                       image_name = image_name,
@@ -3123,12 +3085,12 @@ spatPlot2D = function(gobject,
   } else {
 
     # Set feat_type and spat_unit
-    feat_type = set_default_feat_type(gobject = gobject,
-                                      feat_type = feat_type)
     spat_unit = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = spat_unit)
+    feat_type = set_default_feat_type(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type)
-    
+
     ## metadata
     comb_metadata = combineMetadata(gobject = gobject,
                                     spat_loc_name = spat_loc_name,
@@ -3185,8 +3147,8 @@ spatPlot2D = function(gobject,
 
       subset_cell_IDs = comb_metadata[get(group_by) == group][['cell_ID']]
       temp_gobject = subsetGiotto(gobject = gobject,
-                                  feat_type = feat_type,
                                   spat_unit = spat_unit,
+                                  feat_type = feat_type,
                                   cell_ids = subset_cell_IDs)
 
 
@@ -3197,8 +3159,8 @@ spatPlot2D = function(gobject,
       }
 
       pl = spatPlot2D_single(gobject = temp_gobject,
-                             feat_type = feat_type,
                              spat_unit = spat_unit,
+                             feat_type = feat_type,
                              show_image = show_image,
                              gimage = gimage,
                              image_name = spec_image_name,
@@ -3387,12 +3349,12 @@ spatDeconvPlot = function(gobject,
 
   ## giotto image ##
   if(show_image == TRUE) {
-    
+
     if(!is.null(gimage)) {
       gimage = gimage
     } else if(!is.null(image_name)) {
       # If there is input to image_name arg
-      
+
       if(length(image_name) == 1) {
         gimage = gobject@images[[image_name]]
         if(is.null(gimage)) warning('image_name: ', image_name, ' does not exist \n')
@@ -3403,10 +3365,10 @@ spatDeconvPlot = function(gobject,
           if(is.null(gimage[[gim]])) warning('image_name: ', gim, ' does not exists \n')
         }
       }
-      
+
     } else if(!is.null(largeImage_name)) {
       # If there is input to largeImage_name arg
-      
+
       if(length(largeImage_name) == 1) {
         gimage = plot_auto_convert_largeImage_MG(gobject = gobject,
                                                  largeImage_name = largeImage_name,
@@ -3425,7 +3387,7 @@ spatDeconvPlot = function(gobject,
                                                           include_image_in_border = TRUE)
         }
       }
-      
+
     } else {
       # Default to first image available in images if no input given to image_name or largeImage_name args
       image_name = names(gobject@images)[1]
@@ -3433,7 +3395,7 @@ spatDeconvPlot = function(gobject,
       if(is.null(gimage)) warning('image_name: ', image_name, ' does not exist \n')
     }
   }
-  
+
 
   ## get spatial cell locations
   spatial_locations = get_spatial_locations(gobject = gobject,
@@ -3533,8 +3495,8 @@ spatDeconvPlot = function(gobject,
 #' @name spatDimPlot2D
 #' @description Visualize cells according to spatial AND dimension reduction coordinates 2D
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param show_image show a tissue background image
 #' @param gimage a giotto image
 #' @param image_name name of a giotto image
@@ -3618,8 +3580,8 @@ spatDeconvPlot = function(gobject,
 #' @export
 #' @seealso \code{\link{spatDimPlot3D}}
 spatDimPlot2D <- function(gobject,
-                          feat_type = NULL,
                           spat_unit = NULL,
+                          feat_type = NULL,
                           show_image = F,
                           gimage = NULL,
                           image_name = NULL,
@@ -3699,12 +3661,12 @@ spatDimPlot2D <- function(gobject,
                           default_save_name = 'spatDimPlot2D'){
 
   # Set feat_type and spat_unit
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    feat_type = feat_type)
   spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
-  
+
   plot_alignment = match.arg(plot_alignment, choices = c( 'vertical','horizontal'))
 
 
@@ -3713,8 +3675,8 @@ spatDimPlot2D <- function(gobject,
     if(is.character(cell_color)) {
 
       cell_metadata = pDataDT(gobject,
-                              feat_type = feat_type,
-                              spat_unit = spat_unit)
+                              spat_unit = spat_unit,
+                              feat_type = feat_type)
       if(cell_color %in% colnames(cell_metadata)) {
 
         if(color_as_factor == TRUE) {
@@ -3729,6 +3691,7 @@ spatDimPlot2D <- function(gobject,
 
   # dimension reduction plot
   dmpl = dimPlot2D(gobject = gobject,
+                   spat_unit = spat_unit,
                    feat_type = feat_type,
                    group_by = NULL,
                    group_by_subset = NULL,
@@ -3777,8 +3740,8 @@ spatDimPlot2D <- function(gobject,
 
   # spatial plot
   spl = spatPlot2D(gobject = gobject,
-                   feat_type = feat_type,
                    spat_unit = spat_unit,
+                   feat_type = feat_type,
                    show_image = show_image,
                    gimage = gimage,
                    image_name = image_name,
@@ -3895,8 +3858,8 @@ spatDimPlot = function(...) {
 #' @name spatFeatPlot2D_single
 #' @description Visualize cells and feature expression according to spatial coordinates
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param show_image show a tissue background image
 #' @param gimage a giotto image
 #' @param image_name name of a giotto image
@@ -3946,8 +3909,8 @@ spatDimPlot = function(...) {
 #' @export
 #' @seealso \code{\link{spatGenePlot3D}}
 spatFeatPlot2D_single <- function(gobject,
-                                  feat_type = NULL,
                                   spat_unit = NULL,
+                                  feat_type = NULL,
                                   show_image = F,
                                   gimage = NULL,
                                   image_name = NULL,
@@ -4000,17 +3963,17 @@ spatFeatPlot2D_single <- function(gobject,
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-  
+
   # Set feat_type and spat_unit
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    feat_type = feat_type)
   spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
   ## giotto image ##
   if(show_image == TRUE) {
-    
+
     if(!is.null(gimage)) {
       gimage = gimage
     } else if(!is.null(image_name)) {
@@ -4019,7 +3982,7 @@ spatFeatPlot2D_single <- function(gobject,
       if(is.null(gimage)) warning('image_name: ', image_name, ' does not exist \n')
     } else if (!is.null(largeImage_name)) {
       # if there is input to largeImage_name arg
-      
+
       gimage = plot_auto_convert_largeImage_MG(gobject = gobject,
                                                largeImage_name = largeImage_name,
                                                feat_type = feat_type,
@@ -4513,7 +4476,7 @@ spatFeatPlot2D <- function(gobject,
 
 
   } else {
-    
+
     # Set feat_type and spat_unit
     feat_type = set_default_feat_type(gobject = gobject,
                                       feat_type = feat_type)
@@ -4747,8 +4710,8 @@ spatGenePlot = function(...) {
 #' @family dimension reduction feature expression visualizations
 #' @export
 dimFeatPlot2D <- function(gobject,
-                          feat_type = NULL,
                           spat_unit = NULL,
+                          feat_type = NULL,
                           expression_values = c('normalized', 'scaled', 'custom'),
                           feats = NULL,
                           dim_reduction_to_use = 'umap',
@@ -4793,16 +4756,12 @@ dimFeatPlot2D <- function(gobject,
   # point shape
   point_shape = match.arg(point_shape, choices = c('border', 'no_border'))
 
-
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # specify dim_reduction_name according to provided feat_type
   if(!is.null(dim_reduction_to_use)) {
@@ -4858,7 +4817,9 @@ dimFeatPlot2D <- function(gobject,
   dim_DT = data.table::as.data.table(dim_dfr); dim_DT[, cell_ID := rownames(dim_dfr)]
 
   ## annotated cell metadata
-  cell_metadata = gobject@cell_metadata[[feat_type]]
+  cell_metadata = pDataDT(gobject,
+                          spat_unit = spat_unit,
+                          feat_type = feat_type)
   annotated_DT = data.table::merge.data.table(cell_metadata, dim_DT, by = 'cell_ID')
 
   ## merge feat info
@@ -4868,7 +4829,14 @@ dimFeatPlot2D <- function(gobject,
   if(show_NN_network == TRUE) {
 
     # nn_network
-    selected_nn_network = gobject@nn_network[[nn_network_to_use]][[network_name]][['igraph']]
+    selected_nn_network = get_NearestNetwork(gobject = gobject,
+                                             spat_unit = spat_unit,
+                                             feat_type = feat_type,
+                                             nn_network_to_use = nn_network_to_use,
+                                             network_name = network_name,
+                                             output = 'igraph')
+    # gobject@nn_network[[nn_network_to_use]][[network_name]][['igraph']]
+
     network_DT = data.table::as.data.table(igraph::as_data_frame(selected_nn_network, what = 'edges'))
 
     # annotated network
@@ -5464,8 +5432,8 @@ spatDimGenePlot = function(...) {
 #' @family spatial cell annotation visualizations
 #' @export
 spatCellPlot2D = function(gobject,
-                          feat_type = NULL,
                           spat_unit = NULL,
+                          feat_type = NULL,
                           show_image = F,
                           gimage = NULL,
                           image_name = NULL,
@@ -5523,19 +5491,16 @@ spatCellPlot2D = function(gobject,
                           default_save_name = 'spatCellPlot2D') {
 
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   comb_metadata = combineMetadata(gobject = gobject,
-                                  feat_type = feat_type,
                                   spat_unit = spat_unit,
+                                  feat_type = feat_type,
                                   spat_enr_names = spat_enr_names)
 
   # keep only available columns
@@ -5557,8 +5522,8 @@ spatCellPlot2D = function(gobject,
   for(annot in cell_annotation_values) {
 
     pl = spatPlot2D(gobject = gobject,
-                    feat_type = feat_type,
                     spat_unit = spat_unit,
+                    feat_type = feat_type,
                     show_image = show_image,
                     gimage = gimage,
                     image_name = image_name,
@@ -5669,8 +5634,8 @@ spatCellPlot = function(...) {
 #' @name dimCellPlot2D
 #' @description Visualize cells according to dimension reduction coordinates
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param dim_reduction_to_use dimension reduction to use
 #' @param dim_reduction_name dimension reduction name
 #' @param dim1_to_use dimension to use on x-axis
@@ -5722,8 +5687,8 @@ spatCellPlot = function(...) {
 #' @family dimension reduction cell annotation visualizations
 #' @export
 dimCellPlot2D = function(gobject,
-                         feat_type = NULL,
                          spat_unit = NULL,
+                         feat_type = NULL,
                          dim_reduction_to_use = 'umap',
                          dim_reduction_name = 'umap',
                          dim1_to_use = 1,
@@ -5771,19 +5736,17 @@ dimCellPlot2D = function(gobject,
                          save_param = list(),
                          default_save_name = 'dimCellPlot2D') {
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
 
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   comb_metadata = combineMetadata(gobject = gobject,
-                                  feat_type = feat_type,
                                   spat_unit = spat_unit,
+                                  feat_type = feat_type,
                                   spat_enr_names = spat_enr_names)
 
   # keep only available columns
@@ -5804,8 +5767,8 @@ dimCellPlot2D = function(gobject,
   for(annot in cell_annotation_values) {
 
     pl = dimPlot2D(gobject = gobject,
-                   feat_type = feat_type,
                    spat_unit = spat_unit,
+                   feat_type = feat_type,
                    group_by = NULL,
                    group_by_subset = NULL,
                    dim_reduction_to_use = dim_reduction_to_use,
@@ -5909,8 +5872,8 @@ dimCellPlot = function(gobject, ...) {
 #' @name spatDimCellPlot2D
 #' @description Visualize numerical features of cells according to spatial AND dimension reduction coordinates in 2D
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param show_image show a tissue background image
 #' @param gimage a giotto image
 #' @param image_name name of a giotto image
@@ -6079,8 +6042,8 @@ spatDimCellPlot2D <- function(gobject,
 
   # dimension reduction plot
   dmpl = dimCellPlot2D(gobject = gobject,
-                       feat_type = feat_type,
                        spat_unit = spat_unit,
+                       feat_type = feat_type,
                        dim_reduction_to_use = dim_reduction_to_use,
                        dim_reduction_name = dim_reduction_name,
                        dim1_to_use = dim1_to_use,
@@ -6127,8 +6090,8 @@ spatDimCellPlot2D <- function(gobject,
 
   # spatial plot
   spl = spatCellPlot2D(gobject = gobject,
-                       feat_type = feat_type,
                        spat_unit = spat_unit,
+                       feat_type = feat_type,
                        show_image = show_image,
                        gimage = gimage,
                        image_name = image_name,
@@ -7269,7 +7232,7 @@ spatPlot_3D_plotly = function(gobject,
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
-  
+
   ## get spatial cell locations
   cell_locations  = get_spatial_locations(gobject,
                                           spat_unit = spat_unit,
@@ -8871,7 +8834,7 @@ dimGenePlot3D <- function(gobject,
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
-  
+
   ## select genes ##
   selected_genes = genes
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
@@ -9246,7 +9209,7 @@ spatDimGenePlot3D <- function(gobject,
                               save_plot = NA,
                               save_param =  list(),
                               default_save_name = "spatDimGenePlot3D"){
-  
+
   # Set feat_type and spat_unit
   feat_type = set_default_feat_type(gobject = gobject,
                                     feat_type = feat_type)

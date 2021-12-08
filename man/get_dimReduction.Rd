@@ -6,13 +6,28 @@
 \usage{
 get_dimReduction(
   gobject,
-  feat_type = NULL,
   spat_unit = NULL,
+  feat_type = NULL,
   reduction = c("cells", "feats"),
   reduction_method = c("pca", "umap", "tsne"),
   name = "pca",
   return_dimObj = FALSE
 )
+}
+\arguments{
+\item{gobject}{giotto object}
+
+\item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
+
+\item{reduction}{reduction on cells or features}
+
+\item{reduction_method}{reduction method (e.g. pca)}
+
+\item{name}{name of reduction results}
+
+\item{return_dimObj}{return full dimension object result}
 }
 \value{
 dim reduction coordinates (default) or dim reduction object

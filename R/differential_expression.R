@@ -4,8 +4,8 @@
 #' @name findScranMarkers
 #' @description Identify marker genes for all or selected clusters based on scran's implementation of findMarkers.
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param expression_values gene expression values to use
 #' @param cluster_column clusters to use
 #' @param subset_clusters selection of clusters to compare
@@ -22,8 +22,8 @@
 #'
 #' @export
 findScranMarkers <- function(gobject,
-                             feat_type = NULL,
                              spat_unit = NULL,
+                             feat_type = NULL,
                              expression_values = c('normalized', 'scaled', 'custom'),
                              cluster_column,
                              subset_clusters = NULL,
@@ -44,27 +44,24 @@ findScranMarkers <- function(gobject,
   F1000Res., 5, 2122. doi: 10.12688/f1000research.9501.2. ")
 
 
-  # set feat type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # expression data
   values = match.arg(expression_values, choices = unique(c('normalized', 'scaled', 'custom', expression_values)))
   expr_data = get_expression_values(gobject = gobject,
-                                    feat_type = feat_type,
                                     spat_unit = spat_unit,
+                                    feat_type = feat_type,
                                     values = values)
 
   # cluster column
   cell_metadata = pDataDT(gobject,
-                          feat_type = feat_type,
-                          spat_unit = spat_unit)
+                          spat_unit = spat_unit,
+                          feat_type = feat_type)
   if(!cluster_column %in% colnames(cell_metadata)) {
     stop('\n cluster column not found \n')
   }
@@ -139,8 +136,8 @@ findScranMarkers <- function(gobject,
 #' @seealso \code{\link{findScranMarkers}}
 #' @export
 findScranMarkers_one_vs_all <- function(gobject,
-                                        feat_type = NULL,
                                         spat_unit = NULL,
+                                        feat_type = NULL,
                                         expression_values = c('normalized', 'scaled', 'custom'),
                                         cluster_column,
                                         subset_clusters = NULL,
@@ -168,15 +165,12 @@ findScranMarkers_one_vs_all <- function(gobject,
   F1000Res., 5, 2122. doi: 10.12688/f1000research.9501.2. ")
 
 
-  # set feat type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # expression data
   values = match.arg(expression_values, choices = unique(c('normalized', 'scaled', 'custom', expression_values)))
@@ -219,8 +213,8 @@ findScranMarkers_one_vs_all <- function(gobject,
 
     # one vs all markers
     markers = findScranMarkers(gobject = gobject,
-                               feat_type = feat_type,
                                spat_unit = spat_unit,
+                               feat_type = feat_type,
                                expression_values = values,
                                cluster_column = cluster_column,
                                group_1 = selected_clus,
@@ -320,15 +314,12 @@ findGiniMarkers <- function(gobject,
     warning('min_genes argument is deprecated, use min_feats argument in the future \n')
   }
 
-  # set feat type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   ## select expression values
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
@@ -376,23 +367,24 @@ findGiniMarkers <- function(gobject,
                            spat_unit = spat_unit,
                            cell_ids = subset_cell_IDs)
 
-    gobject@cell_metadata[[feat_type]][[spat_unit]] = cell_metadata
+
+    gobject@cell_metadata[[spat_unit]][[feat_type]] = cell_metadata
   }
 
 
   # average expression per cluster
-  aggr_sc_clusters <- create_average_DT(gobject = gobject,
+  aggr_sc_clusters = create_average_DT(gobject = gobject,
                                         feat_type = feat_type,
                                         spat_unit = spat_unit,
                                         meta_data_name = cluster_column,
                                         expression_values = values)
-  aggr_sc_clusters_DT <- data.table::as.data.table(aggr_sc_clusters)
+  aggr_sc_clusters_DT = data.table::as.data.table(aggr_sc_clusters)
 
   # data.table variables
   feats = NULL
 
   aggr_sc_clusters_DT[, feats := rownames(aggr_sc_clusters)]
-  aggr_sc_clusters_DT_melt <- data.table::melt.data.table(aggr_sc_clusters_DT,
+  aggr_sc_clusters_DT_melt = data.table::melt.data.table(aggr_sc_clusters_DT,
                                                           variable.name = 'cluster',
                                                           id.vars = 'feats',
                                                           value.name = 'expression')
@@ -400,10 +392,12 @@ findGiniMarkers <- function(gobject,
 
   ## detection per cluster
   aggr_detection_sc_clusters = create_average_detection_DT(gobject = gobject,
-                                                                     meta_data_name = cluster_column,
-                                                                     expression_values = values,
-                                                                     detection_threshold = detection_threshold)
-  aggr_detection_sc_clusters_DT <- data.table::as.data.table(aggr_detection_sc_clusters)
+                                                           spat_unit = spat_unit,
+                                                           feat_type = feat_type,
+                                                           meta_data_name = cluster_column,
+                                                           expression_values = values,
+                                                           detection_threshold = detection_threshold)
+  aggr_detection_sc_clusters_DT = data.table::as.data.table(aggr_detection_sc_clusters)
   aggr_detection_sc_clusters_DT[, feats := rownames(aggr_detection_sc_clusters)]
   aggr_detection_sc_clusters_DT_melt = data.table::melt.data.table(aggr_detection_sc_clusters_DT,
                                                                     variable.name = 'cluster',
@@ -505,15 +499,12 @@ findGiniMarkers_one_vs_all <- function(gobject,
     warning('min_genes argument is deprecated, use min_feats argument in the future \n')
   }
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   ## select expression values
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
@@ -623,15 +614,12 @@ findMastMarkers <- function(gobject,
                             ...) {
 
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # verify if optional package is installed
   package_check(pkg_name = "MAST", repository = "Bioc")
@@ -689,7 +677,7 @@ findMastMarkers <- function(gobject,
                          feat_type = feat_type,
                          spat_unit = spat_unit,
                          cell_ids = subset_cell_IDs)
-  gobject@cell_metadata[[feat_type]][[spat_unit]] = cell_metadata
+  gobject@cell_metadata[[spat_unit]][[feat_type]] = cell_metadata
 
 
 
@@ -794,15 +782,12 @@ findMastMarkers_one_vs_all = function(gobject,
     warning('min_genes argument is deprecated, use min_feats argument in the future \n')
   }
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # verify if optional package is installed
   package_check(pkg_name = "MAST", repository = "Bioc")
@@ -886,8 +871,8 @@ findMastMarkers_one_vs_all = function(gobject,
 #' @name findMarkers
 #' @description Identify marker feats for selected clusters.
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param expression_values feat expression values to use
 #' @param cluster_column clusters to use
 #' @param method method to use to detect differentially expressed feats
@@ -909,8 +894,8 @@ findMastMarkers_one_vs_all = function(gobject,
 #' @seealso \code{\link{findScranMarkers}}, \code{\link{findGiniMarkers}} and \code{\link{findMastMarkers}}
 #' @export
 findMarkers <- function(gobject,
-                        feat_type = NULL,
                         spat_unit = NULL,
+                        feat_type = NULL,
                         expression_values = c('normalized', 'scaled', 'custom'),
                         cluster_column = NULL,
                         method = c('scran','gini','mast'),

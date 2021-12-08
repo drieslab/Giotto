@@ -32,10 +32,9 @@ spatNetwDistributionsDistance <- function(gobject,
                                           default_save_name = 'spatNetwDistributionsDistance') {
 
 
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
 
   # data.table variables
   distance = rank_int = status = label = keep = NULL
@@ -44,7 +43,8 @@ spatNetwDistributionsDistance <- function(gobject,
   #spatial_network = gobject@spatial_network[[spatial_network_name]]
   spatial_network = get_spatialNetwork(gobject,
                                        spat_unit = spat_unit,
-                                       name = spatial_network_name,return_network_Obj = FALSE)
+                                       name = spatial_network_name,
+                                       return_network_Obj = FALSE)
 
   ## convert to full network with rank_int column
   spatial_network = convert_to_full_spatial_network(spatial_network)
@@ -130,10 +130,9 @@ spatNetwDistributionsKneighbors = function(gobject,
                                            save_param =  list(),
                                            default_save_name = 'spatNetwDistributionsKneighbors') {
 
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
 
   # data.table variables
   N = NULL
@@ -220,10 +219,9 @@ spatNetwDistributions <- function(gobject,
                                   default_save_name = 'spatNetwDistributions') {
 
 
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
 
   ## histogram to show
   distribution = match.arg(distribution, choices = c('distance', 'k_neighbors'))
@@ -536,10 +534,10 @@ compatible_spatial_network = function(spatial_network,
 #' @description Create a spatial Delaunay network.
 #' @keywords internal
 create_delaunayNetwork_geometry <- function(spatial_locations,
-                                               sdimx = 'sdimx',
-                                               sdimy = 'sdimy',
-                                               options = "Pp",
-                                               ...) {
+                                            sdimx = 'sdimx',
+                                            sdimy = 'sdimy',
+                                            options = "Pp",
+                                            ...) {
 
 
   # verify if optional package is installed
@@ -598,11 +596,11 @@ create_delaunayNetwork_geometry <- function(spatial_locations,
 #' @description Create a spatial 3D Delaunay network with geometry
 #' @keywords internal
 create_delaunayNetwork_geometry_3D <- function(spatial_locations,
-                                                  sdimx = 'sdimx',
-                                                  sdimy = 'sdimy',
-                                                  sdimz = 'sdimz',
-                                                  options = options,
-                                                  ...){
+                                               sdimx = 'sdimx',
+                                               sdimy = 'sdimy',
+                                               sdimz = 'sdimz',
+                                               options = options,
+                                               ...){
 
 
   # verify if optional package is installed
@@ -797,10 +795,9 @@ create_delaunayNetwork2D <- function (gobject,
   # get parameter values
   method = match.arg(method, c("delaunayn_geometry", "RTriangle", "deldir"))
 
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
 
   spatial_locations = get_spatial_locations(gobject,
                                             spat_unit = spat_unit,
@@ -892,13 +889,13 @@ create_delaunayNetwork2D <- function (gobject,
   ###
   ###
   delaunay_network_Obj = create_spatialNetworkObject(name = name,
-                                                              method = method,
-                                                              parameters = parameters,
-                                                              outputObj = outputObj,
-                                                              networkDT = delaunay_network_DT,
-                                                              networkDT_before_filter = networkDT_before_filter,
-                                                              cellShapeObj = cellShapeObj,
-                                                              misc = NULL)
+                                                     method = method,
+                                                     parameters = parameters,
+                                                     outputObj = outputObj,
+                                                     networkDT = delaunay_network_DT,
+                                                     networkDT_before_filter = networkDT_before_filter,
+                                                     cellShapeObj = cellShapeObj,
+                                                     misc = NULL)
   ###
   ###
 
@@ -971,10 +968,9 @@ create_delaunayNetwork3D <- function (gobject,
   # get parameter values
   method = match.arg(method, c("delaunayn_geometry", "RTriangle", "deldir"))
 
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
 
   spatial_locations =  get_spatial_locations(gobject = gobject,
                                              spat_unit = spat_unit,
@@ -1093,8 +1089,8 @@ create_delaunayNetwork3D <- function (gobject,
 #' @export
 createSpatialDelaunayNetwork <- function(gobject,
                                          name = "Delaunay_network",
-                                         feat_type = NULL,
                                          spat_unit = NULL,
+                                         feat_type = NULL,
                                          spat_loc_name = NULL,
                                          method = c("deldir", "delaunayn_geometry", "RTriangle"),
                                          dimensions = "all",
@@ -1109,15 +1105,12 @@ createSpatialDelaunayNetwork <- function(gobject,
                                          ...) {
 
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # get parameter values
   method = match.arg(method, c("deldir", "delaunayn_geometry", "RTriangle"))
@@ -1141,7 +1134,7 @@ createSpatialDelaunayNetwork <- function(gobject,
     first_dimension = colnames(spatial_locations)[[1]]
     second_dimension = colnames(spatial_locations)[[2]]
 
-    out = create_delaunayNetwork2D(gobject= gobject,
+    out = create_delaunayNetwork2D(gobject = gobject,
                                    method = method,
                                    spat_unit = spat_unit,
                                    spat_loc_name = spat_loc_name,
@@ -1167,7 +1160,7 @@ createSpatialDelaunayNetwork <- function(gobject,
       second_dimension = colnames(spatial_locations)[[2]]
       third_dimension = colnames(spatial_locations)[[3]]
 
-      out = create_delaunayNetwork3D(gobject=gobject,
+      out = create_delaunayNetwork3D(gobject = gobject,
                                      method = method,
                                      spat_unit = spat_unit,
                                      spat_loc_name = spat_loc_name,
@@ -1449,8 +1442,8 @@ create_KNNnetwork_dbscan = function(spatial_locations,
 #' @export
 createSpatialKNNnetwork <- function (gobject,
                                      method = "dbscan",
-                                     feat_type = NULL,
                                      spat_unit = NULL,
+                                     feat_type = NULL,
                                      spat_loc_name = NULL,
                                      dimensions = "all",
                                      name = "knn_network",
@@ -1463,15 +1456,12 @@ createSpatialKNNnetwork <- function (gobject,
 {
 
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # data.table variables
   distance = rank_int = NULL
@@ -1554,6 +1544,7 @@ createSpatialKNNnetwork <- function (gobject,
   if (return_gobject == TRUE) {
 
     spn_names = names(gobject@spatial_network[[spat_unit]])
+
     if (name %in% spn_names) {
       cat("\n ", name, " has already been used, will be overwritten \n")
     }
@@ -1594,8 +1585,8 @@ createSpatialKNNnetwork <- function (gobject,
 #' @description Create a spatial network based on cell centroid physical distances.
 #' @param gobject giotto object
 #' @param name name for spatial network (default = 'spatial_network')
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param spat_loc_name name of spatial locations to use
 #' @param dimensions which spatial dimensions to use (default = all)
 #' @param method which method to use to create a spatial network. (default = Delaunay)
@@ -1624,8 +1615,8 @@ createSpatialKNNnetwork <- function (gobject,
 #' @export
 createSpatialNetwork <- function(gobject,
                                  name = NULL,
-                                 feat_type = NULL,
                                  spat_unit = NULL,
+                                 feat_type = NULL,
                                  spat_loc_name = NULL,
                                  dimensions = "all",
                                  method = c('Delaunay', 'kNN'),
@@ -1655,8 +1646,8 @@ createSpatialNetwork <- function(gobject,
     knn_method = match.arg(knn_method,c("dbscan"))
 
     out = createSpatialKNNnetwork(gobject = gobject,
-                                  feat_type = feat_type,
                                   spat_unit = spat_unit,
+                                  feat_type = feat_type,
                                   method = knn_method,
                                   spat_loc_name = spat_loc_name,
                                   dimensions = dimensions,
@@ -1675,8 +1666,8 @@ createSpatialNetwork <- function(gobject,
       name = paste0(method,"_","network")
     }
     out = createSpatialDelaunayNetwork(gobject=gobject,
-                                       feat_type = feat_type,
                                        spat_unit = spat_unit,
+                                       feat_type = feat_type,
                                        spat_loc_name = spat_loc_name,
                                        method = delaunay_method,
                                        dimensions = dimensions,

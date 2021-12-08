@@ -2654,8 +2654,8 @@ plotRecovery = function(gobject,
 #' @details Description of parameters.
 #' @export
 cellProximitySpatPlot2D <- function(gobject,
-                                    feat_type = NULL,
                                     spat_unit = NULL,
+                                    feat_type = NULL,
                                     spat_loc_name = NULL,
                                     interaction_name = NULL,
                                     cluster_column = NULL,
@@ -2690,15 +2690,13 @@ cellProximitySpatPlot2D <- function(gobject,
     stop('\n you need to specific at least one interaction name, run cellProximityEnrichment \n')
   }
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
 
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # get information from all slots
   cell_locations  = get_spatial_locations(gobject = gobject,

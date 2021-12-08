@@ -6,8 +6,8 @@
 \usage{
 doLeidenCluster(
   gobject,
-  feat_type = NULL,
   spat_unit = NULL,
+  feat_type = NULL,
   name = "leiden_clus",
   nn_network_to_use = "sNN",
   network_name = "sNN.pca",
@@ -25,9 +25,9 @@ doLeidenCluster(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{feat_type}{feature type}
-
 \item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 
 \item{name}{name for cluster}
 

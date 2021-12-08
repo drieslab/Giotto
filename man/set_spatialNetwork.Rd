@@ -6,8 +6,8 @@
 \usage{
 set_spatialNetwork(
   gobject,
-  feat_type = NULL,
   spat_unit = NULL,
+  feat_type = NULL,
   name = NULL,
   spatial_network
 )
@@ -15,9 +15,9 @@ set_spatialNetwork(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{feat_type}{feature type}
-
 \item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 
 \item{name}{name of spatial network}
 

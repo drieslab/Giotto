@@ -6,8 +6,8 @@
 \usage{
 set_dimReduction(
   gobject,
-  feat_type = NULL,
   spat_unit = NULL,
+  feat_type = NULL,
   reduction = c("cells", "genes"),
   reduction_method = c("pca", "umap", "tsne"),
   name = "pca",
@@ -17,13 +17,17 @@ set_dimReduction(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{reduction}{reduction with cells or genes}
+\item{spat_unit}{spatial unit}
 
-\item{reduction_method}{reduction name}
+\item{feat_type}{feature type}
 
-\item{name}{reduction name}
+\item{reduction}{reduction on cells or features}
 
-\item{dimObject}{dimension object}
+\item{reduction_method}{reduction method (e.g. pca)}
+
+\item{name}{name of reduction results}
+
+\item{dimObject}{dimension object result to set}
 }
 \value{
 giotto object

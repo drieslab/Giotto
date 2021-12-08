@@ -275,8 +275,8 @@ spatInSituPlotPoints = function(gobject,
   if(show_image == TRUE & !is.null(gimage)) {
     plot = plot_spat_image_layer_ggplot(ggplot = plot,
                                         gobject = gobject,
-                                        feat_type = feat_type,
                                         spat_unit = spat_unit,
+                                        feat_type = feat_type,
                                         spat_loc_name = spat_loc_name,
                                         gimage = gimage,
                                         sdimx = 'sdimx',
@@ -288,7 +288,14 @@ spatInSituPlotPoints = function(gobject,
   ## 1. plot morphology first
   if(show_polygon == TRUE) {
 
-    feat_type = set_default_feat_type(gobject = gobject, feat_type = feat_type)
+    # Set feat_type and spat_unit
+    polygon_feat_type = set_default_spat_unit(gobject = gobject,
+                                      spat_unit = polygon_feat_type)
+    feat_type = set_default_feat_type(gobject = gobject,
+                                      spat_unit = polygon_feat_type,
+                                      feat_type = feat_type)
+
+    #feat_type = set_default_feat_type(gobject = gobject, feat_type = feat_type)
     #if(is.null(polygon_feat_type)) {
     #  polygon_feat_type = gobject@expression_feat[[1]]
     #}

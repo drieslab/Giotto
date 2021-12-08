@@ -4,10 +4,12 @@
 \alias{combineSpatialCellMetadataInfo}
 \title{combineSpatialCellMetadataInfo}
 \usage{
-combineSpatialCellMetadataInfo(gobject, feat_type = NULL)
+combineSpatialCellMetadataInfo(gobject, spat_unit = NULL, feat_type = NULL)
 }
 \arguments{
 \item{gobject}{Giotto object}
+
+\item{spat_unit}{spatial unit}
 
 \item{feat_type}{feature type(s)}
 }

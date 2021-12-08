@@ -6,8 +6,8 @@
 \usage{
 filterGiotto(
   gobject,
-  feat_type = NULL,
   spat_unit = NULL,
+  feat_type = NULL,
   expression_values = c("raw", "normalized", "scaled", "custom"),
   expression_threshold = 1,
   feat_det_in_min_cells = 100,
@@ -21,9 +21,9 @@ filterGiotto(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{feat_type}{feature type}
-
 \item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 
 \item{expression_values}{expression values to use}
 
