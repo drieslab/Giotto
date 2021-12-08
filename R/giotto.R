@@ -740,175 +740,43 @@ read_expression_data = function(expr_list = NULL,
 }
 
 
-# TODO: remove extr_single_list
 
-#' @name extr_single_list
+#' @name set_cell_and_feat_IDs
+#' @description sets cell and feature IDs based on provided expression data
 #' @keywords internal
-extr_single_list = function(gobject,
-                            expr_s_list,
-                            expression_feat = 'rna',
-                            cores = 1) {
+set_cell_and_feat_IDs = function(gobject) {
 
 
-  expression_name = names(expr_s_list)
 
-  ## 1. raw expression data is required
-  if(!'raw' %in% expression_name) {
-    stop("\n the raw expression matrix with name 'raw' must be provided \n")
-  } else {
-
-    exprname = 'raw'
-    expr_i = match('raw', expression_name)
-    expr     = expr_s_list[[expr_i]]
-    expr_res = evaluate_expr_matrix(inputmatrix = expr, cores = cores, sparse = TRUE)
-
-    # check rownames and colnames
-    if(any(duplicated(rownames(expr_res)))) {
-      stop("row names for ", exprname, " contains duplicates, please remove or rename")
-    }
-
-    if(any(duplicated(colnames(expr_res)))) {
-      stop("column names for ", exprname, " contains duplicates, please remove or rename")
-    }
-
-
-    # update giotto object
-    gobject@expression[[expression_feat]] = list()
-    gobject@expression[[expression_feat]][['raw']] = expr_res
-
-    # prepare other slots related to raw matrix
-
-    # check existin cell_IDs; need to be consistent across features
-    if(!is.null(gobject@cell_ID)) {
-      test = identical(gobject@cell_ID, colnames(expr_res))
-      if(test == FALSE) stop('column names (cell ids) between feature expression matrices need to be identical and in the same order')
-    } else {
-      gobject@cell_ID = colnames(expr_res)
-    }
-
-    # can be unique for each feature
-    gobject@feat_ID[[expression_feat]] = rownames(expr_res)
-
-    raw_exprs_dim = dim(expr_res)
+  # 1. set cell_ID for each region
+  # each regions can have multiple features, but the cell_IDs (spatial units) should be the same
+  for(spat_unit in names(gobject@expression)) {
+    gobject@cell_ID[[spat_unit]] =  colnames(gobject@expression[[spat_unit]][[1]][[1]])
   }
 
+  # 2. ensure cell_ID and colnames for each matrix are the same
+  for(spat_unit in names(gobject@expression)) {
 
-
-  ## 2. load all other provided matrices
-  if(length(expression_name) > 1) {
-    expression_name_other = expression_name[expression_name != 'raw']
-
-    for(exprname in expression_name_other) {
-
-      expr_i   = match(exprname, expression_name)
-      expr     = expr_s_list[[expr_i]]
-      expr_res = evaluate_expr_matrix(inputmatrix = expr, cores = cores, sparse = TRUE)
-
-      # check rownames and colnames
-      if(any(duplicated(rownames(expr_res)))) {
-        stop("row names for ", exprname, " contains duplicates, please remove or rename")
+    for(feat in names(gobject@expression[[spat_unit]])) {
+      for(data in names(gobject@expression[[spat_unit]][[feat]])) {
+        colnames_matrix = colnames(gobject@expression[[spat_unit]][[feat]][[data]])
+        if(!identical(colnames_matrix, gobject@cell_ID[[spat_unit]])) {
+          stop('Colnames are not the same for feat: ', feat,', spatial unit: ', spat_unit ,', and data: ', data)
+        }
       }
+    }
+  }
 
-      if(any(duplicated(colnames(expr_res)))) {
-        stop("column names for ", exprname, " contains duplicates, please remove or rename")
+
+  # 3. set feat_ID for each feature
+  for(spat_unit in names(gobject@expression)) {
+    feat_types_covered = list()
+    for(feat_type in names(gobject@expression[[spat_unit]])) {
+      if(!feat_type %in% feat_types_covered) {
+        gobject@feat_ID[[feat_type]] =  rownames(gobject@expression[[spat_unit]][[feat_type]][[1]])
+        feat_types_covered[[feat_type]] = feat_type
       }
-
-      # compare processed matrix dimensions with raw matrix
-      if(all(dim(expr_res) == raw_exprs_dim) &
-         all(colnames(expr_res) == gobject@cell_ID) &
-         all(rownames(expr_res) == gobject@feat_ID[[expression_feat]])) {
-
-        gobject@expression[[expression_feat]][[exprname]] = expr_res
-
-      } else {
-        stop('\n dimensions, row or column names are not the same between ', exprname, ' and raw expression \n')
-      }
-
     }
-
-  }
-
-  return(gobject)
-
-}
-
-
-# TODO: remove extract_expression_list
-
-#' @name extract_expression_list
-#' @keywords internal
-extract_expression_list = function(gobject,
-                                   expr_list,
-                                   expression_feat = 'rna',
-                                   cores = 1,
-                                   verbose = TRUE) {
-
-
-  ## to make it compatible with previous version
-
-  # single matrix
-  if(inherits(expr_list, c('matrix', 'Matrix', 'DelayedMatrix'))) {
-    expr_list = list('raw' = expr_list)
-  }
-
-  # single path to matrix
-  if(length(expr_list) == 1 & !is.list(expr_list)) {
-    expr_list = list('raw' = expr_list)
-  }
-
-
-  # 1. get depth of list
-  if(verbose == TRUE) print(str(expr_list))
-  list_depth = depth(expr_list)
-
-  # nothing provided
-  if(list_depth == 0) {
-    stop('Depth of expression list is 0, no expression information is provided \n')
-  }
-
-  if(list_depth > 3) {
-    stop('Depth of expression list is more than 3, only 3 levels are possible:
-         1) feature (e.g. RNA) --> 2) measurement (e.g. raw) --> 3) spatial unit (e.g. cell) \n')
-  }
-
-
-
-  # only one set provided
-  if(list_depth == 1) {
-    if(verbose == TRUE) message('Depth of provided expression list is 1, working with one type of molecular feature \n')
-
-    if(length(expression_feat) > list_depth) {
-      stop('More expression feature types provided than expected \n')
-    }
-
-    gobject = extr_single_list(gobject = gobject,
-                               expr_s_list = expr_list,
-                               expression_feat = expression_feat,
-                               cores = cores)
-
-
-
-  } else {
-    if(verbose == TRUE) message('Depth of provided expression list is more than 1, working with multiple types of molecular features \n')
-
-
-    if(length(expression_feat) > length(expr_list)) {
-      stop('More expression feature types provided than expected \n')
-    }
-
-    if(length(expression_feat) < length(expr_list)) {
-      stop('Too few expression feature types provided than expected \n')
-    }
-
-    for(feat_type in names(expr_list)) {
-
-      gobject = extr_single_list(gobject = gobject,
-                                 expr_s_list = expr_list[[feat_type]],
-                                 expression_feat = feat_type,
-                                 cores = cores)
-
-    }
-
   }
 
   return(gobject)
@@ -917,6 +785,94 @@ extract_expression_list = function(gobject,
 
 
 
+
+#### Giotto metadata ####
+
+#' @name set_cell_metadata
+#' @description set cell metadata
+#' @keywords internal
+set_cell_metadata = function(gobject,
+                             cell_metadata) {
+
+  # if metadata is not provided, then:
+  # create metadata for each spatial unit and feature type combination
+
+  if(is.null(cell_metadata)) {
+
+    for(spat_unit in names(gobject@expression)) {
+
+      for(feat_type in names(gobject@expression[[spat_unit]])) {
+
+        if(is.null(gobject@spatial_info)) {
+          gobject@cell_metadata[[spat_unit]][[feat_type]] = data.table::data.table(cell_ID = gobject@cell_ID[[spat_unit]])
+        } else {
+          for(poly in names(gobject@spatial_info)) {
+            gobject@cell_metadata[[poly]][[feat_type]] = data.table::data.table(cell_ID = gobject@cell_ID[[poly]])
+          }
+        }
+      }
+    }
+
+  } else {
+
+    # extract all metadata information
+    # need to be nested list (feature type and spatial unit)
+    for(spat_unit in names(cell_metadata)) {
+
+      for(feat_type in names(cell_metadata[[spat_unit]])) {
+
+
+        gobject@cell_metadata[[spat_unit]][[feat_type]] = data.table::as.data.table(cell_metadata[[spat_unit]][[feat_type]])
+        gobject@cell_metadata[[spat_unit]][[feat_type]][, cell_ID := gobject@cell_ID[[spat_unit]]]
+
+        # put cell_ID first
+        all_colnames = colnames(gobject@cell_metadata[[spat_unit]][[feat_type]])
+        other_colnames = grep('cell_ID', all_colnames, invert = T, value = T)
+        gobject@cell_metadata[[spat_unit]][[feat_type]] = gobject@cell_metadata[[spat_unit]][[feat_type]][, c('cell_ID', other_colnames), with = FALSE]
+
+      }
+    }
+  }
+
+  return(gobject)
+
+}
+
+
+#' @name set_feature_metadata
+#' @description set feature metadata
+#' @keywords internal
+set_feature_metadata = function(gobject,
+                                feat_metadata) {
+
+
+  if(is.null(feat_metadata)) {
+
+    for(spat_unit in names(gobject@expression)) {
+      for(feat_type in names(gobject@expression[[spat_unit]])) {
+        gobject@feat_metadata[[spat_unit]][[feat_type]] = data.table::data.table(feat_ID = gobject@feat_ID[[feat_type]])
+      }
+    }
+
+  } else {
+
+    for(spat_unit in names(gobject@expression)) {
+      for(feat_type in names(gobject@expression[[spat_unit]])) {
+        gobject@feat_metadata[[spat_unit]][[feat_type]] = data.table::as.data.table(feat_metadata[[spat_unit]][[feat_type]])
+        gobject@feat_metadata[[spat_unit]][[feat_type]][, feat_ID := gobject@feat_ID[[feat_type]]]
+
+        # put feat_ID first
+        all_colnames = colnames(gobject@feat_metadata[[spat_unit]][[feat_type]])
+        other_colnames = grep('feat_ID', all_colnames, invert = T, value = T)
+        gobject@feat_metadata[[spat_unit]][[feat_type]] = gobject@feat_metadata[[spat_unit]][[feat_type]][, c('feat_ID', other_colnames), with = FALSE]
+
+      }
+    }
+  }
+
+  return(gobject)
+
+}
 
 
 
@@ -1169,80 +1125,50 @@ read_spatial_location_data = function(gobject,
 }
 
 
-
-# TODO: remove extract_spatial_locations_list
-
-#' @name extract_spatial_locations_list
-#' @description Extract spatial locations
-#' @param gobject giotto object
-#' @param spat_loc_list list of spatial locations
-#' @param cores how many cores to use
-#' @param dummy_n number of rows to create dummy spaial locations
-#' @param expr_matrix expression matrix to compare the cell IDs with
-#' @param verbose be verbose
-#' @return updated giotto object
+#' @name check_spatial_location_data
+#' @description check cell ID (spatial unit) names between spatial location and expression data
 #' @keywords internal
-extract_spatial_locations_list = function(gobject,
-                                          spat_loc_list,
-                                          cores = 1,
-                                          dummy_n = 1,
-                                          expr_matrix = NULL,
-                                          verbose = TRUE) {
+check_spatial_location_data = function(gobject) {
 
 
-  ## to make it compatible with previous version
+  for(spat_unit in names(gobject@spatial_locs)) {
 
-  # single data.table-like
-  if(inherits(spat_loc_list, c('data.frame', 'data.table', 'matrix', 'character'))) {
-    spat_loc_list = list('cell' = list('raw' = spat_loc_list))
-  }
+    expected_cell_ID_names = gobject@cell_ID[[spat_unit]]
 
+    for(coord in names(gobject@spatial_locs[[spat_unit]])) {
 
-  spat_locs_region_names = names(spat_loc_list)
+      # 1. get colnames
+      spatial_colnames = colnames(gobject@spatial_locs[[spat_unit]][[coord]])
 
+      # if cell_ID column is provided then compare with expected cell_IDs
+      if('cell_ID' %in% spatial_colnames) {
 
-  ## 1. raw expression data is required
-  if(!'raw' %in% spat_locs_names) {
-    stop("\n the raw / real / physical coordinates must be provided with name 'raw' \n")
-  }
+        spatial_cell_id_names = gobject@spatial_locs[[spat_unit]][[coord]][['cell_ID']]
 
+        if(!identical(spatial_cell_id_names, expected_cell_ID_names)) {
+          stop('cell_IDs between spatial and expression information are not the same for: \n
+                 spatial unit: ', spat_unit, ' and coordinates: ', coord, ' \n')
+        }
 
-  gobject@spatial_locs = list()
+      } else {
 
-  for(spatlocname in spat_locs_names) {
+        # if cell_ID column is not provided then add expected cell_IDs
 
-    cat('spatlocname: ', spatlocname, '\n')
+        if(nrow(gobject@spatial_locs[[spat_unit]][[coord]]) != length(expected_cell_ID_names)) {
+          stop('Number of rows of spatial locations do not match with cell IDs for: \n
+                 spatial unit: ', region, ' and coordinates: ', coord, ' \n')
+        }
 
-    spatial_locs = spat_loc_list[[spatlocname]]
+        gobject@spatial_locs[[spat_unit]][[coord]][['cell_ID']] = expected_cell_ID_names
 
-    spatial_locs = evaluate_spatial_locations_OLD(spatial_locs = spatial_locs,
-                                              cores = cores,
-                                              dummy_n = dummy_n,
-                                              expr_matrix = expr_matrix)
+      }
 
-    # check if dimensions agree
-    # dummy_n = number of columns in expression matrix, also dummy number if no spatial location are being provided
-    if(nrow(spatial_locs) != dummy_n) {
-      stop('\n Number of rows of spatial location must equal number of columns of raw expression matrix \n')
     }
-
-    # force dimension names
-    spatial_dimensions = c('x', 'y', 'z')
-    colnames(spatial_locs) = paste0('sdim', spatial_dimensions[1:ncol(spatial_locs)])
-
-    # add cell_ID column
-    spatial_locs[, cell_ID := gobject@cell_ID]
-
-    gobject@spatial_locs[[spatlocname]] = spatial_locs
-
   }
 
   return(gobject)
 
 }
-
-
-
 
 
 #### Giotto spatial info ####
@@ -2030,37 +1956,9 @@ createGiottoObject <- function(expression,
                                            cores = cores,
                                            default_feat_type = expression_feat,
                                            verbose = verbose)
-
     gobject@expression = expression_data
 
-    # 1. set cell_ID for each region
-    for(spat_unit in names(gobject@expression)) {
-      gobject@cell_ID[[spat_unit]] =  colnames(gobject@expression[[spat_unit]][[1]][[1]])
-    }
-
-    # 2. ensure cell_ID and colnames for each matrix are the same
-    for(spat_unit in names(gobject@expression)) {
-
-      for(feat in names(gobject@expression[[spat_unit]])) {
-        for(data in names(gobject@expression[[spat_unit]][[feat]])) {
-          colnames_matrix = colnames(gobject@expression[[spat_unit]][[feat]][[data]])
-          if(!identical(colnames_matrix, gobject@cell_ID[[spat_unit]])) {
-            stop('Colnames are not the same for feat: ', feat,', spatial unit: ', spat_unit ,', and data: ', data)
-          }
-        }
-      }
-    }
-
-    # 3. set feat_ID for each feature
-    for(spat_unit in names(gobject@expression)) {
-      feat_types_covered = list()
-      for(feat_type in names(gobject@expression[[spat_unit]])) {
-        if(!feat_type %in% feat_types_covered) {
-          gobject@feat_ID[[feat_type]] =  rownames(gobject@expression[[spat_unit]][[feat_type]][[1]])
-          feat_types_covered[[feat_type]] = feat_type
-        }
-      }
-    }
+    gobject = set_cell_and_feat_IDs(gobject)
 
   }
 
@@ -2110,53 +2008,18 @@ createGiottoObject <- function(expression,
     spatial_location_data = read_spatial_location_data(spat_loc_list = spatial_locs,
                                                        cores = cores,
                                                        verbose = verbose)
-
     gobject@spatial_locs = spatial_location_data
 
     # TODO: ensure spatial locations and expression matrices have the same cell IDs
     # TODO: give cell IDs if not provided
 
-    for(spat_unit in names(gobject@spatial_locs)) {
-
-      expected_cell_ID_names = gobject@cell_ID[[spat_unit]]
-
-      for(coord in names(gobject@spatial_locs[[spat_unit]])) {
-
-        # 1. get colnames
-        spatial_colnames = colnames(gobject@spatial_locs[[spat_unit]][[coord]])
-
-        # if cell_ID column is provided then compare with expected cell_IDs
-        if('cell_ID' %in% spatial_colnames) {
-
-          spatial_cell_id_names = gobject@spatial_locs[[spat_unit]][[coord]][['cell_ID']]
-
-          if(!identical(spatial_cell_id_names, expected_cell_ID_names)) {
-            stop('cell_IDs between spatial and expression information are not the same for: \n
-                 spatial unit: ', spat_unit, ' and coordinates: ', coord, ' \n')
-          }
-
-        } else {
-
-          # if cell_ID column is not provided then add expected cell_IDs
-
-          if(nrow(gobject@spatial_locs[[spat_unit]][[coord]]) != length(expected_cell_ID_names)) {
-            stop('Number of rows of spatial locations do not match with cell IDs for: \n
-                 spatial unit: ', region, ' and coordinates: ', coord, ' \n')
-          }
-
-          gobject@spatial_locs[[spat_unit]][[coord]][['cell_ID']] = expected_cell_ID_names
-
-        }
-
-      }
-    }
-
-
-
+    gobject =  check_spatial_location_data(gobject)
 
   } else {
 
     if(verbose == TRUE) warning('\n No spatial locations have been provided, dummy locations will be created \n')
+
+    # for each spatial unit create a dummy raw spatial location matrix
 
     for(spat_unit in names(raw_cell_dim_list)) {
 
@@ -2179,97 +2042,36 @@ createGiottoObject <- function(expression,
   ## ------------ ##
   ## place to store segmentation info in polygon format style
 
-
   if(is.null(spatial_info)) {
-
     gobject@spatial_info = NULL
-
   } else {
-
     gobject = addGiottoPolygons(gobject = gobject,
                                 gpolygons = spatial_info)
-
   }
-
 
 
   ## cell metadata ##
   ## ------------- ##
-  if(is.null(cell_metadata)) {
-
-    for(spat_unit in names(gobject@expression)) {
-      for(feat_type in names(gobject@expression[[spat_unit]])) {
-
-        if(is.null(gobject@spatial_info)) {
-          gobject@cell_metadata[[spat_unit]][[feat_type]] = data.table::data.table(cell_ID = gobject@cell_ID[[spat_unit]])
-        } else {
-          for(poly in names(gobject@spatial_info)) {
-            gobject@cell_metadata[[poly]][[feat_type]] = data.table::data.table(cell_ID = gobject@cell_ID[[poly]])
-          }
-        }
-      }
-    }
-
-  } else {
-
-    # extract all metadata information
-    # need to be nested list (feature type and spatial unit)
-    for(spat_unit in names(cell_metadata)) {
-
-      for(feat_type in names(cell_metadata[[spat_unit]])) {
+  gobject = set_cell_metadata(gobject = gobject,
+                              cell_metadata = cell_metadata)
 
 
-        gobject@cell_metadata[[spat_unit]][[feat_type]] = data.table::as.data.table(cell_metadata[[spat_unit]][[feat_type]])
-
-        gobject@cell_metadata[[spat_unit]][[feat_type]][, cell_ID := gobject@cell_ID[[spat_unit]]]
-
-        # put cell_ID first
-        all_colnames = colnames(gobject@cell_metadata[[spat_unit]][[feat_type]])
-        other_colnames = grep('cell_ID', all_colnames, invert = T, value = T)
-        gobject@cell_metadata[[spat_unit]][[feat_type]] = gobject@cell_metadata[[spat_unit]][[feat_type]][, c('cell_ID', other_colnames), with = FALSE]
-
-      }
-    }
-  }
-
-  cat('works 3')
 
   ## feat metadata ##
   ## ------------- ##
-  if(is.null(feat_metadata)) {
+  gobject = set_feature_metadata(gobject = gobject,
+                                 feat_metadata = feat_metadata)
 
-    for(spat_unit in names(gobject@expression)) {
-      for(feat_type in names(gobject@expression[[spat_unit]])) {
-        gobject@feat_metadata[[spat_unit]][[feat_type]] = data.table::data.table(feat_ID = gobject@feat_ID[[feat_type]])
-      }
-    }
 
-  } else {
-
-    if(length(feat_metadata) != length(expression_feat)) {
-      stop('Number of different molecular features need to correspond with the feat_metadata list length \n')
-    }
-
-    for(spat_unit in names(gobject@expression)) {
-      for(feat_type in names(gobject@expression[[spat_unit]])) {
-        gobject@feat_metadata[[spat_unit]][[feat_type]] = data.table::as.data.table(feat_metadata[[spat_unit]][[feat_type]])
-        gobject@feat_metadata[[spat_unit]][[feat_type]][, feat_ID := gobject@feat_ID[[feat_type]]]
-      }
-    }
-  }
 
   ## feature info ##
   ## ------------ ##
   ## place to store individual feature info
   if(is.null(feat_info)) {
-
     gobject@feat_info = NULL
-
   } else {
-
     gobject = addGiottoPoints(gobject = gobject,
                               gpoints = feat_info)
-
   }
 
 
@@ -2302,6 +2104,7 @@ createGiottoObject <- function(expression,
   }
 
 
+
   ## spatial grid
   if(!is.null(spatial_grid)) {
     if(is.null(spatial_grid_name) | length(spatial_grid) != length(spatial_grid_name)) {
@@ -2326,6 +2129,7 @@ createGiottoObject <- function(expression,
     }
   }
 
+
   ## spatial enrichment
   if(!is.null(spatial_enrichment)) {
     if(is.null(spatial_enrichment_name) | length(spatial_enrichment) != length(spatial_enrichment_name)) {
@@ -2347,6 +2151,7 @@ createGiottoObject <- function(expression,
       }
     }
   }
+
 
 
   ## dimension reduction
@@ -2380,6 +2185,7 @@ createGiottoObject <- function(expression,
 
   }
 
+
   # NN network
   if(!is.null(nn_network)) {
 
@@ -2408,6 +2214,7 @@ createGiottoObject <- function(expression,
     }
 
   }
+
 
   ## images ##
   # expect a list of giotto object images
