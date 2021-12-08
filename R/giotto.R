@@ -1944,26 +1944,26 @@ createGiottoObject_OLD <- function(expression,
 #' @importFrom methods new
 #' @export
 createGiottoObject <- function(expression,
-                                  raw_exprs = NULL,
-                                  expression_feat = 'rna',
-                                  spatial_locs = NULL,
-                                  spatial_info = NULL,
-                                  cell_metadata = NULL,
-                                  feat_metadata = NULL,
-                                  feat_info = NULL,
-                                  spatial_network = NULL,
-                                  spatial_network_name = NULL,
-                                  spatial_grid = NULL,
-                                  spatial_grid_name = NULL,
-                                  spatial_enrichment = NULL,
-                                  spatial_enrichment_name = NULL,
-                                  dimension_reduction = NULL,
-                                  nn_network = NULL,
-                                  images = NULL,
-                                  offset_file = NULL,
-                                  instructions = NULL,
-                                  cores = NA,
-                                  verbose = TRUE) {
+                               raw_exprs = NULL,
+                               expression_feat = 'rna',
+                               spatial_locs = NULL,
+                               spatial_info = NULL,
+                               cell_metadata = NULL,
+                               feat_metadata = NULL,
+                               feat_info = NULL,
+                               spatial_network = NULL,
+                               spatial_network_name = NULL,
+                               spatial_grid = NULL,
+                               spatial_grid_name = NULL,
+                               spatial_enrichment = NULL,
+                               spatial_enrichment_name = NULL,
+                               dimension_reduction = NULL,
+                               nn_network = NULL,
+                               images = NULL,
+                               offset_file = NULL,
+                               instructions = NULL,
+                               cores = NA,
+                               verbose = TRUE) {
 
   # create minimum giotto
   gobject = giotto(expression = list(),
@@ -2034,29 +2034,29 @@ createGiottoObject <- function(expression,
     gobject@expression = expression_data
 
     # 1. set cell_ID for each region
-    for(region in names(gobject@expression)) {
-      gobject@cell_ID[[region]] =  colnames(gobject@expression[[region]][[1]][[1]])
+    for(spat_unit in names(gobject@expression)) {
+      gobject@cell_ID[[spat_unit]] =  colnames(gobject@expression[[spat_unit]][[1]][[1]])
     }
 
     # 2. ensure cell_ID and colnames for each matrix are the same
-    for(region in names(gobject@expression)) {
+    for(spat_unit in names(gobject@expression)) {
 
-      for(feat in names(gobject@expression[[region]])) {
-        for(data in names(gobject@expression[[region]][[feat]])) {
-          colnames_matrix = colnames(gobject@expression[[region]][[feat]][[data]])
-          if(!identical(colnames_matrix, gobject@cell_ID[[region]])) {
-            stop('Colnames are not the same for feat: ', feat,', region: ', region ,', and data: ', data)
+      for(feat in names(gobject@expression[[spat_unit]])) {
+        for(data in names(gobject@expression[[spat_unit]][[feat]])) {
+          colnames_matrix = colnames(gobject@expression[[spat_unit]][[feat]][[data]])
+          if(!identical(colnames_matrix, gobject@cell_ID[[spat_unit]])) {
+            stop('Colnames are not the same for feat: ', feat,', spatial unit: ', spat_unit ,', and data: ', data)
           }
         }
       }
     }
 
     # 3. set feat_ID for each feature
-    for(region in names(gobject@expression)) {
+    for(spat_unit in names(gobject@expression)) {
       feat_types_covered = list()
-      for(feat_type in names(gobject@expression[[region]])) {
+      for(feat_type in names(gobject@expression[[spat_unit]])) {
         if(!feat_type %in% feat_types_covered) {
-          gobject@feat_ID[[feat_type]] =  rownames(gobject@expression[[region]][[feat_type]][[1]])
+          gobject@feat_ID[[feat_type]] =  rownames(gobject@expression[[spat_unit]][[feat_type]][[1]])
           feat_types_covered[[feat_type]] = feat_type
         }
       }
@@ -2092,9 +2092,9 @@ createGiottoObject <- function(expression,
   ## ----------------- ##
   raw_cell_dim_list = list()
 
-  for(region in names(gobject@expression)) {
-    for(feat in names(gobject@expression[[region]])) {
-      raw_cell_dim_list[[region]][[feat]] = ncol(gobject@expression[[region]][[feat]][[1]])
+  for(spat_unit in names(gobject@expression)) {
+    for(feat_type in names(gobject@expression[[spat_unit]])) {
+      raw_cell_dim_list[[spat_unit]][[feat_type]] = ncol(gobject@expression[[spat_unit]][[feat_type]][[1]])
     }
   }
 
@@ -2116,35 +2116,35 @@ createGiottoObject <- function(expression,
     # TODO: ensure spatial locations and expression matrices have the same cell IDs
     # TODO: give cell IDs if not provided
 
-    for(region in names(gobject@spatial_locs)) {
+    for(spat_unit in names(gobject@spatial_locs)) {
 
-      expected_cell_ID_names = gobject@cell_ID[[region]]
+      expected_cell_ID_names = gobject@cell_ID[[spat_unit]]
 
-      for(coord in names(gobject@spatial_locs[[region]])) {
+      for(coord in names(gobject@spatial_locs[[spat_unit]])) {
 
         # 1. get colnames
-        spatial_colnames = colnames(gobject@spatial_locs[[region]][[coord]])
+        spatial_colnames = colnames(gobject@spatial_locs[[spat_unit]][[coord]])
 
         # if cell_ID column is provided then compare with expected cell_IDs
         if('cell_ID' %in% spatial_colnames) {
 
-          spatial_cell_id_names = gobject@spatial_locs[[region]][[coord]][['cell_ID']]
+          spatial_cell_id_names = gobject@spatial_locs[[spat_unit]][[coord]][['cell_ID']]
 
           if(!identical(spatial_cell_id_names, expected_cell_ID_names)) {
             stop('cell_IDs between spatial and expression information are not the same for: \n
-                 region: ', region, ' and coordinates: ', coord, ' \n')
+                 spatial unit: ', spat_unit, ' and coordinates: ', coord, ' \n')
           }
 
         } else {
 
           # if cell_ID column is not provided then add expected cell_IDs
 
-          if(nrow(gobject@spatial_locs[[region]][[coord]]) != length(expected_cell_ID_names)) {
+          if(nrow(gobject@spatial_locs[[spat_unit]][[coord]]) != length(expected_cell_ID_names)) {
             stop('Number of rows of spatial locations do not match with cell IDs for: \n
-                 region: ', region, ' and coordinates: ', coord, ' \n')
+                 spatial unit: ', region, ' and coordinates: ', coord, ' \n')
           }
 
-          gobject@spatial_locs[[region]][[coord]][['cell_ID']] = expected_cell_ID_names
+          gobject@spatial_locs[[spat_unit]][[coord]][['cell_ID']] = expected_cell_ID_names
 
         }
 
@@ -2158,19 +2158,19 @@ createGiottoObject <- function(expression,
 
     if(verbose == TRUE) warning('\n No spatial locations have been provided, dummy locations will be created \n')
 
-    for(region in names(raw_cell_dim_list[[1]])) {
+    for(spat_unit in names(raw_cell_dim_list)) {
 
       # create square dummy coordinates
-      nr_cells = raw_cell_dim_list[[1]][[region]]
+      nr_cells = raw_cell_dim_list[[spat_unit]][[1]]
       x = ceiling(sqrt(nr_cells))
       first_col  = rep(1:x, each = x)[1:nr_cells]
       second_col = rep(1:x, times = x)[1:nr_cells]
 
-      spatial_locs = data.table::data.table(cell_ID = gobject@cell_ID[[region]],
+      spatial_locs = data.table::data.table(cell_ID = gobject@cell_ID[[spat_unit]],
                                             sdimx = first_col,
                                             sdimy = second_col)
 
-      gobject@spatial_locs[[region]][['raw']] = spatial_locs
+      gobject@spatial_locs[[spat_unit]][['raw']] = spatial_locs
 
     }
   }
@@ -2197,11 +2197,11 @@ createGiottoObject <- function(expression,
   ## ------------- ##
   if(is.null(cell_metadata)) {
 
-    for(region in names(gobject@expression)) {
-      for(feat_type in names(gobject@expression[[region]])) {
+    for(spat_unit in names(gobject@expression)) {
+      for(feat_type in names(gobject@expression[[spat_unit]])) {
 
         if(is.null(gobject@spatial_info)) {
-          gobject@cell_metadata[[region]][[feat_type]] = data.table::data.table(cell_ID = gobject@cell_ID[[region]])
+          gobject@cell_metadata[[spat_unit]][[feat_type]] = data.table::data.table(cell_ID = gobject@cell_ID[[spat_unit]])
         } else {
           for(poly in names(gobject@spatial_info)) {
             gobject@cell_metadata[[poly]][[feat_type]] = data.table::data.table(cell_ID = gobject@cell_ID[[poly]])
@@ -2216,7 +2216,7 @@ createGiottoObject <- function(expression,
     # need to be nested list (feature type and spatial unit)
     for(spat_unit in names(cell_metadata)) {
 
-      for(feat_type in names(cell_metadata[[spat-unit]])) {
+      for(feat_type in names(cell_metadata[[spat_unit]])) {
 
 
         gobject@cell_metadata[[spat_unit]][[feat_type]] = data.table::as.data.table(cell_metadata[[spat_unit]][[feat_type]])
@@ -2238,9 +2238,9 @@ createGiottoObject <- function(expression,
   ## ------------- ##
   if(is.null(feat_metadata)) {
 
-    for(region in names(gobject@expression)) {
-      for(feat_type in names(gobject@expression[[region]])) {
-        gobject@feat_metadata[[region]][[feat_type]] = data.table::data.table(feat_ID = gobject@feat_ID[[feat_type]])
+    for(spat_unit in names(gobject@expression)) {
+      for(feat_type in names(gobject@expression[[spat_unit]])) {
+        gobject@feat_metadata[[spat_unit]][[feat_type]] = data.table::data.table(feat_ID = gobject@feat_ID[[feat_type]])
       }
     }
 
@@ -2250,10 +2250,10 @@ createGiottoObject <- function(expression,
       stop('Number of different molecular features need to correspond with the feat_metadata list length \n')
     }
 
-    for(region in names(gobject@expression)) {
-      for(feat_type in names(gobject@expression[[region]])) {
-        gobject@feat_metadata[[region]][[feat_type]] = data.table::as.data.table(feat_metadata[[region]][[feat_type]])
-        gobject@feat_metadata[[region]][[feat_type]][, feat_ID := gobject@feat_ID[[feat_type]]]
+    for(spat_unit in names(gobject@expression)) {
+      for(feat_type in names(gobject@expression[[spat_unit]])) {
+        gobject@feat_metadata[[spat_unit]][[feat_type]] = data.table::as.data.table(feat_metadata[[spat_unit]][[feat_type]])
+        gobject@feat_metadata[[spat_unit]][[feat_type]][, feat_ID := gobject@feat_ID[[feat_type]]]
       }
     }
   }
@@ -2869,7 +2869,7 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
 
     for(feat_type in expression_feat) {
       for(poly in names(gobject@spatial_info)) {
-        gobject@cell_metadata[[feat_type]][[poly]] = data.table::data.table(cell_ID = gobject@cell_ID[[poly]])
+        gobject@cell_metadata[[poly]][[feat_type]] = data.table::data.table(cell_ID = gobject@cell_ID[[poly]])
       }
     }
 
@@ -2883,13 +2883,13 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
     for(feat_type in expression_feat) {
       for(poly in names(gobject@spatial_info)) {
 
-        gobject@cell_metadata[[feat_type]][[poly]] = data.table::as.data.table(gobject@cell_metadata[[feat_type]][[poly]])
-        gobject@cell_metadata[[feat_type]][[poly]][, cell_ID := gobject@cell_ID[[poly]]]
+        gobject@cell_metadata[[poly]][[feat_type]] = data.table::as.data.table(gobject@cell_metadata[[poly]][[feat_type]])
+        gobject@cell_metadata[[poly]][[feat_type]][, cell_ID := gobject@cell_ID[[poly]]]
 
         # put cell_ID first
-        all_colnames = colnames(gobject@cell_metadata[[feat_type]][[poly]])
+        all_colnames = colnames(gobject@cell_metadata[[poly]][[feat_type]])
         other_colnames = grep('cell_ID', all_colnames, invert = T, value = T)
-        gobject@cell_metadata[[feat_type]][[poly]] = gobject@cell_metadata[[feat_type]][[poly]][, c('cell_ID', other_colnames), with = FALSE]
+        gobject@cell_metadata[[poly]][[feat_type]] = gobject@cell_metadata[[poly]][[feat_type]][, c('cell_ID', other_colnames), with = FALSE]
       }
 
     }
@@ -2902,7 +2902,7 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
 
     for(feat_type in expression_feat) {
       for(poly in names(gobject@spatial_info)) {
-        gobject@feat_metadata[[feat_type]][[poly]] = data.table::data.table(feat_ID = gobject@feat_ID[[feat_type]])
+        gobject@feat_metadata[[poly]][[feat_type]] = data.table::data.table(feat_ID = gobject@feat_ID[[feat_type]])
       }
     }
 
