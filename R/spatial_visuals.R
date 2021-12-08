@@ -209,8 +209,12 @@ plot_point_layer_ggplot = function(ggobject,
   if((!is.null(select_cells) | !is.null(select_cell_groups)) & show_other_cells == TRUE) {
 
     dims = grep('Dim.', colnames(annotated_DT_other), value = T)
-    pl = pl + ggplot2::geom_point(data = annotated_DT_other,ggplot2::aes_string(x = dims[1], dims[2]),
-                                  color = other_cell_color, show.legend = F, size = other_point_size, alpha = point_alpha)
+    pl = pl + ggplot2::geom_point(data = annotated_DT_other,
+                                  ggplot2::aes_string(x = dims[1], dims[2]),
+                                  color = other_cell_color,
+                                  show.legend = F,
+                                  size = other_point_size,
+                                  alpha = point_alpha)
 
   }
 
@@ -231,8 +235,12 @@ plot_point_layer_ggplot = function(ggobject,
   if(is.null(cell_color)) {
 
     cell_color = 'lightblue'
-    pl <- pl + ggplot2::geom_point(data = annotated_DT_selected,ggplot2::aes_string(x = dims[1], dims[2]),
-                                   color = cell_color, show.legend = show_legend, size = point_size, alpha = point_alpha)
+    pl <- pl + ggplot2::geom_point(data = annotated_DT_selected,
+                                   ggplot2::aes_string(x = dims[1], dims[2]),
+                                   color = cell_color,
+                                   show.legend = show_legend,
+                                   size = point_size,
+                                   alpha = point_alpha)
 
 
   } else if(length(cell_color) > 1) {
@@ -241,7 +249,8 @@ plot_point_layer_ggplot = function(ggobject,
       if(nrow(annotated_DT_selected) != length(cell_color)) stop('\n vector needs to be the same lengths as number of cells \n')
       annotated_DT_selected[['temp_color']] = cell_color
 
-      pl <- pl + ggplot2::geom_point(data = annotated_DT_selected, aes_string2(x = dims[1], y = dims[2], fill = 'temp_color'),
+      pl <- pl + ggplot2::geom_point(data = annotated_DT_selected,
+                                     aes_string2(x = dims[1], y = dims[2], fill = 'temp_color'),
                                      show.legend = show_legend, shape = 21,
                                      size = point_size,
                                      color = point_border_col,
@@ -3280,8 +3289,8 @@ spatPlot = function(...) {
 #' @name spatDeconvPlot
 #' @description Visualize cell type enrichment / deconvolution results in a scatterpie
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param deconv_name name of deconvolution results to use
 #' @param show_image show a tissue background image
 #' @param gimage a giotto image
@@ -3310,8 +3319,8 @@ spatPlot = function(...) {
 #' @details Description of parameters.
 #' @export
 spatDeconvPlot = function(gobject,
-                          feat_type = NULL,
                           spat_unit = NULL,
+                          feat_type = NULL,
                           deconv_name = 'DWLS',
                           show_image = F,
                           gimage = NULL,
@@ -3341,9 +3350,9 @@ spatDeconvPlot = function(gobject,
   package_check(pkg_name = "scatterpie", repository = "CRAN")
 
   # Set feat_type and spat_unit
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    feat_type = feat_type)
   spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
@@ -3404,6 +3413,7 @@ spatDeconvPlot = function(gobject,
 
   ## deconvolution results
   spatial_enrichment = get_spatial_enrichment(gobject = gobject,
+                                              spat_unit = spat_unit,
                                               enrichm_name = deconv_name)
 
 
@@ -5074,8 +5084,8 @@ dimGenePlot = function(...) {
 #' @name spatDimFeatPlot2D
 #' @description Visualize cells according to spatial AND dimension reduction coordinates in ggplot mode
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param show_image show a tissue background image
 #' @param gimage a giotto image
 #' @param image_name name of a giotto image
@@ -5138,8 +5148,8 @@ dimGenePlot = function(...) {
 #' @family spatial and dimension reduction feature expression visualizations
 #' @export
 spatDimFeatPlot2D <- function(gobject,
-                              feat_type = NULL,
                               spat_unit = NULL,
+                              feat_type = NULL,
                               show_image = F,
                               gimage = NULL,
                               image_name = NULL,
