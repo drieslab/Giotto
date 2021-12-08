@@ -4820,6 +4820,7 @@ dimFeatPlot2D <- function(gobject,
   cell_metadata = pDataDT(gobject,
                           spat_unit = spat_unit,
                           feat_type = feat_type)
+
   annotated_DT = data.table::merge.data.table(cell_metadata, dim_DT, by = 'cell_ID')
 
   ## merge feat info
@@ -4854,7 +4855,7 @@ dimFeatPlot2D <- function(gobject,
 
 
 
-  ## visualize multipe plots ##
+  ## visualize multiple plots ##
   ## 2D plots ##
   savelist <- list()
 

@@ -6,6 +6,7 @@
 \usage{
 registerGiottoObjectListFiji(
   gobject_list,
+  spat_unit = NULL,
   image_unreg = "image",
   image_reg_name = "image",
   image_replace_name = "unregistered",
@@ -20,6 +21,8 @@ registerGiottoObjectListFiji(
 }
 \arguments{
 \item{gobject_list}{list of gobjects to register}
+
+\item{spat_unit}{spatial unit}
 
 \item{image_unreg}{name of original unregistered images. Defaults to 'image' (optional)}
 

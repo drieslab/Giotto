@@ -311,6 +311,7 @@ registerGiottoObjectList = function(gobject_list,
 #' @name registerGiottoObjectListFiji
 #' @description Function to spatially align gobject data based on FIJI image registration.
 #' @param gobject_list list of gobjects to register
+#' @param spat_unit spatial unit
 #' @param image_unreg name of original unregistered images. Defaults to 'image' (optional)
 #' @param image_reg_name arbitrary name for registered images to occupy. Defaults to replacement of 'image' (optional)
 #' @param image_replace_name arbitrary name for any images replaced due to image_reg_name argument (optional)
@@ -324,6 +325,7 @@ registerGiottoObjectList = function(gobject_list,
 #' @return list of registered giotto objects where the registered images and spatial locations
 #' @export
 registerGiottoObjectListFiji = function(gobject_list,
+                                        spat_unit = NULL,
                                         image_unreg = 'image',
                                         image_reg_name = 'image',
                                         image_replace_name = 'unregistered',

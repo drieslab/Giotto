@@ -7,6 +7,7 @@
 addGiottoImageMG(
   gobject,
   images,
+  spat_unit = NULL,
   spat_loc_name = NULL,
   scale_factor = NULL,
   negative_y = TRUE
@@ -16,6 +17,8 @@ addGiottoImageMG(
 \item{gobject}{giotto object}
 
 \item{images}{list of giotto image objects, see \code{\link{createGiottoImage}}}
+
+\item{spat_unit}{spatial unit}
 
 \item{spat_loc_name}{provide spatial location slot in Giotto to align images. Defaults to first one}
 

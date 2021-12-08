@@ -6,7 +6,7 @@
 \usage{
 package_check(
   pkg_name,
-  repository = c("CRAN", "Bioc", "github"),
+  repository = c("CRAN", "Bioc", "github", "pip"),
   github_repo = NULL
 )
 }
