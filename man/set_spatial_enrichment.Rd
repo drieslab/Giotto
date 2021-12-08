@@ -4,10 +4,20 @@
 \alias{set_spatial_enrichment}
 \title{set_spatial_enrichment}
 \usage{
-set_spatial_enrichment(gobject, enrichm_name = "enrichment", spatenrichment)
+set_spatial_enrichment(
+  gobject,
+  spat_unit = NULL,
+  feat_type = NULL,
+  enrichm_name = "enrichment",
+  spatenrichment
+)
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 
 \item{enrichm_name}{name of spatial enrichment results}
 
