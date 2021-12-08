@@ -3199,7 +3199,13 @@ createMetafeats = function(gobject,
       cat('\n ', name, ' has already been used, will be overwritten \n')
     }
 
-    gobject@spatial_enrichment[[name]] = res_final
+
+    gobject = set_spatial_enrichment(gobject = gobject,
+                                     spat_unit = spat_unit,
+                                     feat_type = feat_type,
+                                     enrichm_name = name,
+                                     spatenrichment = res_final)
+    #gobject@spatial_enrichment[[spat_unit]][[name]] = res_final
 
     ## update parameters used ##
     gobject = update_giotto_params(gobject, description = '_create_metafeat')
@@ -3216,6 +3222,7 @@ createMetafeats = function(gobject,
 #' @name createMetagenes
 #' @description This function creates an average metagene for gene clusters.
 #' @param gobject Giotto object
+#' @param spat_unit spatial unit
 #' @param expression_values expression values to use
 #' @param gene_clusters numerical vector with genes as names
 #' @param name name of the metagene results
@@ -3225,6 +3232,7 @@ createMetafeats = function(gobject,
 #' cluster_vector = c(1, 1, 2, 2); names(cluster_vector) = c('geneA', 'geneB', 'geneC', 'geneD')
 #' @export
 createMetagenes = function(gobject,
+                           spat_unit = NULL,
                            expression_values = c('normalized', 'scaled', 'custom'),
                            gene_clusters,
                            name = 'metagene',
@@ -3233,6 +3241,7 @@ createMetagenes = function(gobject,
   warning("Deprecated and replaced by createMetafeats")
 
   createMetafeats(gobject = gobject,
+                  spat_unit = spat_unit,
                   feat_type = NULL,
                   expression_values = expression_values,
                   feat_clusters = gene_clusters,

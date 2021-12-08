@@ -466,11 +466,13 @@ set_NearestNetwork = function(gobject,
 #' @description function to get a spatial network
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param name name of spatial network
 #' @param return_network_Obj return network object (default = FALSE)
 #' @export
 get_spatialNetwork <- function(gobject,
                                spat_unit = NULL,
+                               feat_type = NULL,
                                name = NULL,
                                return_network_Obj = FALSE) {
 
@@ -479,6 +481,9 @@ get_spatialNetwork <- function(gobject,
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   if (!is.element(name, names(gobject@spatial_network[[spat_unit]]))){
     message = sprintf("spatial network %s has not been created. Returning NULL.
@@ -517,17 +522,22 @@ select_spatialNetwork = function(...) {
 #' @description function to set a spatial network
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param name name of spatial network
 #' @param spatial_network spatial network
 #' @export
 set_spatialNetwork <- function(gobject,
                                spat_unit = NULL,
+                               feat_type = NULL,
                                name = NULL,
                                spatial_network) {
 
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   ## 1. check if specified name has already been used
   potential_names = names(gobject@spatial_network[[spat_unit]])
@@ -789,19 +799,30 @@ set_feature_info = function(gobject,
 #' @name get_spatial_enrichment
 #' @description function to get a spatial enrichment data.table
 #' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param enrichm_name name of spatial enrichment results
 #' @return data.table with fractions
 #' @export
 get_spatial_enrichment <- function(gobject,
+                                   spat_unit = NULL,
+                                   feat_type = NULL,
                                    enrichm_name = 'DWLS') {
 
+
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # spatial locations
   # if NULL (not given) and spatial locations have been added, then use first one
   # if NULL (not given) and spatial loactions have NOT been added, then keep NULL
   if(is.null(enrichm_name)) {
     if(!is.null(gobject@spatial_enrichment)) {
-      enrichm_name = names(gobject@spatial_enrichment)[[1]]
+      enrichm_name = names(gobject@spatial_enrichment[[spat_unit]])[[1]]
       # cat('No spatial locations have been selected, the first one -',spat_loc_name, '- will be used \n')
     } else {
       enrichm_name = NULL
@@ -810,10 +831,10 @@ get_spatial_enrichment <- function(gobject,
     }
   }
 
-  potential_names = names(gobject@spatial_enrichment)
+  potential_names = names(gobject@spatial_enrichment[[spat_unit]])
 
   if(enrichm_name %in% potential_names) {
-    enr_res = data.table::copy(gobject@spatial_enrichment[[enrichm_name]])
+    enr_res = data.table::copy(gobject@spatial_enrichment[[spat_unit]][[enrichm_name]])
     return(enr_res)
   } else {
     stop("The spatial enrichment result with name ","'", enrichm_name, "'"," can not be found \n")
@@ -825,17 +846,28 @@ get_spatial_enrichment <- function(gobject,
 #' @name set_spatial_enrichment
 #' @description function to set a spatial enrichment slot
 #' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param enrichm_name name of spatial enrichment results
 #' @param spatenrichment spatial enrichment results
 #' @return giotto object
 #' @export
 set_spatial_enrichment <- function(gobject,
+                                   spat_unit = NULL,
+                                   feat_type = NULL,
                                    enrichm_name = 'enrichment',
                                    spatenrichment) {
 
 
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
+
   ## 1. check if specified name has already been used
-  potential_names = names(gobject@spatial_enrichment[[enrichm_name]])
+  potential_names = names(gobject@spatial_enrichment[[spat_unit]][[enrichm_name]])
   if(enrichm_name %in% potential_names) {
     cat(enrichm_name, ' already exist and will be replaced with new spatial enrichment results \n')
   }
@@ -844,7 +876,7 @@ set_spatial_enrichment <- function(gobject,
 
 
   ## 3. update and return giotto object
-  gobject@spatial_enrichment[[enrichm_name]] = spatenrichment
+  gobject@spatial_enrichment[[spat_unit]][[enrichm_name]] = spatenrichment
   return(gobject)
 
 }
@@ -894,13 +926,13 @@ showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 #' @export
 showGiottoSpatLocs = function(gobject, nrows = 4) {
 
-  for(region in names(gobject@spatial_locs)) {
+  for(spat_unit in names(gobject@spatial_locs)) {
 
-    cat('Spatial unit: ', region, ' \n\n')
+    cat('Spatial unit: ', spat_unit, ' \n\n')
 
-    for(spatlocname in names(gobject@spatial_locs[[region]])) {
+    for(spatlocname in names(gobject@spatial_locs[[spat_unit]])) {
       cat('--> Name: ', spatlocname, ' \n\n')
-      print(gobject@spatial_locs[[region]][[spatlocname]][1:nrows,])
+      print(gobject@spatial_locs[[spat_unit]][[spatlocname]][1:nrows,])
     }
   }
 
@@ -915,12 +947,21 @@ showGiottoSpatLocs = function(gobject, nrows = 4) {
 #' @param nrows number of rows to print for each spatial enrichment data.table
 #' @return prints the name and small subset of available data.table
 #' @export
-showGiottoSpatEnrichments = function(gobject, nrows = 4) {
+showGiottoSpatEnrichments = function(gobject,
+                                     nrows = 4) {
 
-  for(spatenrichname in names(gobject@spatial_enrichment)) {
-    cat('Name ', spatenrichname, ': \n\n')
-    print(gobject@spatial_enrichment[[spatenrichname]][1:nrows,])
+  for(spat_unit in names(gobject@spatial_enrichment)) {
+
+    cat('Spatial unit: ', spat_unit, ' \n\n')
+
+    for(spatenrichname in names(gobject@spatial_enrichment[[spat_unit]])) {
+      cat('Name ', spatenrichname, ': \n\n')
+      print(gobject@spatial_enrichment[[spat_unit]][[spatenrichname]][1:nrows,])
+    }
+
   }
+
+
 }
 
 

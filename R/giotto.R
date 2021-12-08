@@ -1104,14 +1104,14 @@ read_spatial_location_data = function(gobject,
     cat('list depth of 2 \n')
     # add default region == 'cell'
 
-    for(region in names(spat_loc_list)) {
-      for(coord in names(spat_loc_list[[region]])) {
+    for(spat_unit in names(spat_loc_list)) {
+      for(coord in names(spat_loc_list[[spat_unit]])) {
 
-        res_spatlocs = evaluate_spatial_locations(spatial_locs = spat_loc_list[[region]][[coord]],
+        res_spatlocs = evaluate_spatial_locations(spatial_locs = spat_loc_list[[spat_unit]][[coord]],
                                                      cores = cores)
 
         # add default region == 'cell'
-        return_list[[region]][[coord]] = res_spatlocs
+        return_list[[spat_unit]][[coord]] = res_spatlocs
 
       }
     }
@@ -1169,6 +1169,204 @@ check_spatial_location_data = function(gobject) {
   return(gobject)
 
 }
+
+
+
+#### Giotto spatial network ####
+
+#' @name read_spatial_networks
+#' @description read spatial networks from list
+#' @keywords internal
+read_spatial_networks = function(gobject,
+                                 spatial_network) {
+
+  if(is.null(spatial_network)) {
+    cat('No spatial networks are provided \n')
+    return(gobject)
+
+  } else {
+
+    for(spat_unit in names(spatial_network)) {
+      for(name in names(spatial_network[[spat_unit]])) {
+
+        # first check if corresponding expression matrix exists
+        if(!is.null(gobject@expression[[spat_unit]])) {
+
+
+          # TODO: use fread if it's an existing path
+
+          network = spatial_network[[spat_unit]][[name]]
+
+          if(any(c('data.frame', 'data.table') %in% class(network))) {
+            if(all(c('to', 'from', 'weight', 'sdimx_begin', 'sdimy_begin', 'sdimx_end', 'sdimy_end') %in% colnames(network))) {
+              spatial_network_Obj = create_spatialNetworkObject(name = name, networkDT = network)
+              gobject@spatial_network[[spat_unit]][[name]] = spatial_network_Obj
+            } else {
+              warning('\n spatial unit: ', spat_unit, ' with network name: ', name, ' does not have all necessary column names, see details
+                      and will not be added to the Giotto object \n')
+            }
+          } else {
+            warning('\n spatial unit: ', spat_unit, ' with network name: ', name, ' is not a data.frame or data.table
+                    and will not be added to the Giotto object \n')
+          }
+
+        }
+      }
+    }
+  }
+
+  return(gobject)
+
+}
+
+
+#### Giotto spatial enrichment ####
+
+
+#' @name read_spatial_enrichment
+#' @description read spatial enrichment results from list
+#' @keywords internal
+read_spatial_enrichment = function(gobject,
+                                   spatial_enrichment) {
+
+  if(is.null(spatial_enrichment)) {
+    cat('No spatial enrichment results are provided \n')
+    return(gobject)
+
+  } else {
+
+    for(spat_unit in names(spatial_enrichment)) {
+      for(name in names(spatial_enrichment[[spat_unit]])) {
+
+        # first check if corresponding expression matrix exists
+        if(!is.null(gobject@expression[[spat_unit]])) {
+
+
+          # TODO: use fread if it's an existing path
+
+          spat_enrich = spatial_enrichment[[spat_unit]][[name]]
+
+          if(nrow(spat_enrich) != ncol(gobject@expression[[spat_unit]][[1]][[1]])) {
+            stop('\n spatial enrichment for spatial unit: ', spat_unit, ' and name: ', name, ' does not match the corresponding expression data \n')
+          } else {
+            gobject@spatial_enrichment[[spat_unit]][[name]] = spat_enrich
+          }
+
+        }
+
+      }
+
+    }
+
+  }
+
+  return(gobject)
+
+}
+
+
+
+#### Giotto dimension reduction ####
+
+
+#' @name read_dimension_reduction
+#' @description read dimension reduction results from list
+#' @keywords internal
+read_dimension_reduction = function(gobject,
+                                    dimension_reduction) {
+
+
+  if(is.null(dimension_reduction)) {
+    cat('No dimension reduction results are provided \n')
+    return(gobject)
+
+  } else {
+
+    for(dim_i in 1:length(dimension_reduction)) {
+
+      dim_red = dimension_reduction[[dim_i]]
+
+      if(all(c('type', 'spat_unit', 'name', 'reduction_method', 'coordinates', 'misc') %in% names(dim_red))) {
+
+        coord_data = dim_red[['coordinates']]
+        spat_unit = dim_red[['spat_unit']]
+
+        if(all(rownames(coord_data) %in% gobject@cell_ID[[spat_unit]])) {
+
+          type_value = dim_red[['type']] # cells or genes
+          reduction_meth_value = dim_red[['reduction_method']] # e.g. umap, tsne, ...
+          name_value = dim_red[['name']]  # uniq name
+          misc_value = dim_red[['misc']]  # additional data
+
+          gobject@dimension_reduction[[spat_unit]][[type_value]][[reduction_meth_value]][[name_value]] = dim_red[c('name', 'reduction_method', 'coordinates', 'misc')]
+        } else {
+          stop('\n rownames for coordinates are not found in gobject IDs \n')
+        }
+
+      } else {
+        stop('\n each dimension reduction list must contain all required slots, see details. \n')
+      }
+
+    }
+
+  }
+
+  return(gobject)
+
+}
+
+
+
+#### Giotto nearest network ####
+
+#' @name read_nearest_networks
+#' @description read nearest network results from list
+#' @keywords internal
+read_nearest_networks = function(gobject,
+                                 nn_network) {
+
+  if(is.null(nn_network)) {
+    cat('No nearst network results are provided \n')
+    return(gobject)
+
+  } else {
+
+    for(nn_i in 1:length(nn_network)) {
+
+      nn_netw = nn_network[[nn_i]]
+
+      if(all(c('spat_unit', 'type', 'name', 'igraph') %in% names(nn_netw))) {
+
+        igraph_data = nn_netw[['igraph']]
+        spat_unit = nn_netw[['spat_unit']]
+
+        if(all(names(igraph::V(igraph_data)) %in% gobject@cell_ID[[spat_unit]])) {
+
+          type_value = nn_netw[['type']] # sNN or kNN
+          name_value = nn_netw[['name']]  # uniq name
+
+          gobject@nn_network[[spat_unit]][[type_value]][[name_value]][['igraph']] = igraph_data
+        } else {
+          stop('\n igraph vertex names are not found in gobject IDs \n')
+        }
+
+      } else {
+        stop('\n each nn network list must contain all required slots, see details. \n')
+      }
+
+    }
+
+  }
+
+  return(gobject)
+
+}
+
+
+
+
+
+
 
 
 #### Giotto spatial info ####
@@ -1307,502 +1505,6 @@ evaluate_feat_info = function(spatial_feat_info,
 
 #### creating Giotto objects ####
 
-#' @title createGiottoObject_OLD
-#' @name createGiottoObject_OLD
-#' @description Function to create a giotto object
-#' @param expression expression information
-#' @param raw_exprs deprecated, use expression
-#' @param expression_feat available features (e.g. rna, protein, ...)
-#' @param spatial_locs data.table or data.frame with coordinates for cell centroids
-#' @param spatial_info information about spatial units
-#' @param spatial_info list of giotto polygon objects with spatial information,
-#' see \code{\link{createGiottoPolygonsFromMask}} and \code{\link{createGiottoPolygonsFromDfr}}
-#' @param cell_metadata cell annotation metadata
-#' @param feat_metadata feature annotation metadata for each unique feature
-#' @param feat_info list of giotto point objects with feature info,
-#' see \code{\link{createGiottoPoints}}
-#' @param spatial_network list of spatial network(s)
-#' @param spatial_network_name list of spatial network name(s)
-#' @param spatial_grid list of spatial grid(s)
-#' @param spatial_grid_name list of spatial grid name(s)
-#' @param spatial_enrichment list of spatial enrichment score(s) for each spatial region
-#' @param spatial_enrichment_name list of spatial enrichment name(s)
-#' @param dimension_reduction list of dimension reduction(s)
-#' @param nn_network list of nearest neighbor network(s)
-#' @param images list of images
-#' @param offset_file file used to stitch fields together (optional)
-#' @param instructions list of instructions or output result from \code{\link{createGiottoInstructions}}
-#' @param cores how many cores or threads to use to read data if paths are provided
-#' @param verbose be verbose when building Giotto object
-#' @return giotto object
-#' @details
-#'
-#' See \url{https://rubd.github.io/Giotto_site/articles/howto_giotto_class.html} for more details
-#'
-#' [\strong{Requirements}] To create a giotto object you need to provide at least a matrix with genes as
-#' row names and cells as column names. This matrix can be provided as a base matrix, sparse Matrix, data.frame,
-#' data.table or as a path to any of those.
-#' To include spatial information about cells (or regions) you need to provide a matrix, data.table or data.frame (or path to them)
-#' with coordinates for all spatial dimensions. This can be 2D (x and y) or 3D (x, y, x).
-#' The row order for the cell coordinates should be the same as the column order for the provided expression data.
-#'
-#' [\strong{Instructions}] Additionally an instruction file, generated manually or with \code{\link{createGiottoInstructions}}
-#' can be provided to instructions, if not a default instruction file will be created
-#' for the Giotto object.
-#'
-#' [\strong{Multiple fields}] In case a dataset consists of multiple fields, like seqFISH+ for example,
-#' an offset file can be provided to stitch the different fields together. \code{\link{stitchFieldCoordinates}}
-#' can be used to generate such an offset file.
-#'
-#' [\strong{Processed data}] Processed count data, such as normalized data, can be provided using
-#' one of the different expression slots (norm_expr, norm_scaled_expr, custom_expr).
-#'
-#' [\strong{Metadata}] Cell and gene metadata can be provided using the cell and gene metadata slots.
-#' This data can also be added afterwards using the \code{\link{addGeneMetadata}} or \code{\link{addCellMetadata}} functions.
-#'
-#' [\strong{Other information}] Additional information can be provided through the appropriate slots:
-#' \itemize{
-#'   \item{spatial networks}
-#'   \item{spatial girds}
-#'   \item{spatial enrichments}
-#'   \item{dimensions reduction}
-#'   \item{nearest neighbours networks}
-#'   \item{images}
-#' }
-#'
-#' @keywords giotto
-#' @importFrom methods new
-#' @export
-createGiottoObject_OLD <- function(expression,
-                               raw_exprs = NULL,
-                               expression_feat = 'rna',
-                               spatial_locs = NULL,
-                               spatial_info = NULL,
-                               cell_metadata = NULL,
-                               feat_metadata = NULL,
-                               feat_info = NULL,
-                               spatial_network = NULL,
-                               spatial_network_name = NULL,
-                               spatial_grid = NULL,
-                               spatial_grid_name = NULL,
-                               spatial_enrichment = NULL,
-                               spatial_enrichment_name = NULL,
-                               dimension_reduction = NULL,
-                               nn_network = NULL,
-                               images = NULL,
-                               offset_file = NULL,
-                               instructions = NULL,
-                               cores = NA,
-                               verbose = TRUE) {
-
-  # create minimum giotto
-  gobject = giotto(expression = list(),
-                   expression_feat = expression_feat,
-                   spatial_locs = spatial_locs,
-                   spatial_info = NULL,
-                   cell_metadata = cell_metadata,
-                   feat_metadata = feat_metadata,
-                   feat_info = feat_info,
-                   cell_ID = NULL,
-                   feat_ID = NULL,
-                   spatial_network = NULL,
-                   spatial_grid = NULL,
-                   spatial_enrichment = NULL,
-                   dimension_reduction = NULL,
-                   nn_network = NULL,
-                   images = NULL,
-                   largeImages = NULL,
-                   parameters = NULL,
-                   offset_file = offset_file,
-                   instructions = instructions,
-                   OS_platform = .Platform[['OS.type']],
-                   join_info = NULL)
-
-
-  ## data.table: set global variable
-  cell_ID = feat_ID = NULL
-
-  ## check if all optional packages are installed
-  # TODO: update at the end
-  # TODO: extract from suggest field of DESCRIPTION
-  extra_packages = c("scran", "MAST", "png", "tiff", "biomaRt", "trendsceek", "multinet", "RTriangle", "FactoMiner")
-
-  pack_index = extra_packages %in% rownames(utils::installed.packages())
-  extra_installed_packages = extra_packages[pack_index]
-  extra_not_installed_packages = extra_packages[!pack_index]
-
-  if(any(pack_index == FALSE) == TRUE) {
-    cat("Consider to install these (optional) packages to run all possible Giotto commands for spatial analyses: ",
-        extra_not_installed_packages)
-    cat("\n Giotto does not automatically install all these packages as they are not absolutely required and this reduces the number of dependencies \n")
-  }
-
-
-  ## if cores is not set, then set number of cores automatically, but with limit of 10
-  cores = determine_cores(cores)
-  data.table::setDTthreads(threads = cores)
-
-
-  ## expression data ##
-  ## --------------- ##
-
-
-  ## deprecated arguments
-  if(!is.null(raw_exprs)) {
-    expression = raw_exprs
-    warning('raw_exprs argument is deprecated, use expression argument in the future \n')
-  }
-
-  if(!is.null(expression)) {
-
-    gobject = extract_expression_list(gobject = gobject,
-                                      expr_list = expression,
-                                      expression_feat = expression_feat,
-                                      cores = cores,
-                                      verbose = verbose)
-  }
-
-
-
-
-  ## parameters ##
-  ## ---------- ##
-  gobject@parameters = list()
-
-
-  ## set instructions ##
-  ## ---------------- ##
-  if(is.null(instructions)) {
-    # create all default instructions
-    gobject@instructions = createGiottoInstructions()
-  }
-
-
-  ## test if python modules are available
-  python_modules = c('pandas', 'igraph', 'leidenalg', 'community', 'networkx', 'sklearn')
-  my_python_path = gobject@instructions$python_path
-  for(module in python_modules) {
-    if(reticulate::py_module_available(module) == FALSE) {
-      warning('module: ', module, ' was not found with python path: ', my_python_path, '\n')
-    }
-  }
-
-
-  ## spatial locations ##
-  ## ----------------- ##
-  raw_cell_dim = ncol(gobject@expression[[1]][[1]]) # number of columns
-
-  # list of spatial location data.table, each with a unique name
-  # the default name = 'raw' and correspond to the real physical coordinates
-  # additional spatial locations can be provided
-
-
-  if(!is.null(spatial_locs)) {
-
-    gobject = extract_spatial_locations_list(gobject,
-                                             spat_loc_list = spatial_locs,
-                                             cores = cores,
-                                             dummy_n = raw_cell_dim,
-                                             expr_matrix = gobject@expression[[1]][['raw']],
-                                             verbose = TRUE)
-
-  } else {
-
-    if(verbose == TRUE) warning('\n No spatial locations have been provided, dummy locations will be created \n')
-
-    # create square dummy coordinates
-    nr_cells = raw_cell_dim
-    x = ceiling(sqrt(nr_cells))
-    first_col  = rep(1:x, each = x)[1:nr_cells]
-    second_col = rep(1:x, times = x)[1:nr_cells]
-
-    spatial_locs = data.table::data.table(cell_ID = gobject@cell_ID,
-                                          sdimx = first_col,
-                                          sdimy = second_col)
-
-    gobject@spatial_locs[['raw']] = spatial_locs
-
-  }
-
-  ## spatial info ##
-  ## ------------ ##
-  ## place to store segmentation info in polygon format style
-
-
-  if(is.null(spatial_info)) {
-
-    gobject@spatial_info = NULL
-
-  } else {
-
-    gobject = addGiottoPolygons(gobject = gobject,
-                                gpolygons = spatial_info)
-
-  }
-
-
-
-
-
-
-  ## cell metadata ##
-  ## ------------- ##
-  if(is.null(cell_metadata)) {
-
-    for(feat_type in expression_feat) {
-      if(is.null(gobject@spatial_info)) {
-        gobject@cell_metadata[[feat_type]][['cell']] = data.table::data.table(cell_ID = gobject@cell_ID[['cell']])
-      } else {
-        for(poly in names(gobject@spatial_info)) {
-          gobject@cell_metadata[[feat_type]][[poly]] = data.table::data.table(cell_ID = gobject@cell_ID[[poly]])
-        }
-      }
-    }
-
-
-  } else {
-
-    if(length(cell_metadata) != length(expression_feat)) {
-      stop('Number of different molecular features need to correspond with the cell_metadata list length \n')
-    }
-
-    for(feat_type in expression_feat) {
-
-      if(is.null(gobject@spatial_info)) {
-
-        gobject@cell_metadata[[feat_type]][['cell']] = data.table::as.data.table(gobject@cell_metadata[[feat_type]][['cell']])
-        gobject@cell_metadata[[feat_type]][['cell']][, cell_ID := gobject@cell_ID[['cell']]]
-
-        # put cell_ID first
-        all_colnames = colnames(gobject@cell_metadata[[feat_type]][[poly]])
-        other_colnames = grep('cell_ID', all_colnames, invert = T, value = T)
-        gobject@cell_metadata[[feat_type]][[poly]] = gobject@cell_metadata[[feat_type]][[poly]][, c('cell_ID', other_colnames), with = FALSE]
-
-      } else {
-
-        for(poly in names(gobject@spatial_info)) {
-          gobject@cell_metadata[[feat_type]][[poly]] = data.table::as.data.table(gobject@cell_metadata[[feat_type]][[poly]])
-          gobject@cell_metadata[[feat_type]][[poly]][, cell_ID := gobject@cell_ID[[poly]]]
-
-          # put cell_ID first
-          all_colnames = colnames(gobject@cell_metadata[[feat_type]][[poly]])
-          other_colnames = grep('cell_ID', all_colnames, invert = T, value = T)
-          gobject@cell_metadata[[feat_type]][[poly]] = gobject@cell_metadata[[feat_type]][[poly]][, c('cell_ID', other_colnames), with = FALSE]
-        }
-      }
-    }
-  }
-
-
-
-  ## feat metadata ##
-  ## ------------- ##
-  if(is.null(feat_metadata)) {
-
-    for(feat_type in expression_feat) {
-      gobject@feat_metadata[[feat_type]] = data.table::data.table(feat_ID = gobject@feat_ID[[feat_type]])
-    }
-
-  } else {
-
-    if(length(feat_metadata) != length(expression_feat)) {
-      stop('Number of different molecular features need to correspond with the feat_metadata list length \n')
-    }
-
-    for(feat_type in expression_feat) {
-      gobject@feat_metadata[[feat_type]] = data.table::as.data.table(gobject@feat_metadata[[feat_type]])
-      gobject@feat_metadata[[feat_type]][, feat_ID := gobject@feat_ID[[feat_type]]]
-    }
-
-  }
-
-  ## feature info ##
-  ## ------------ ##
-  ## place to store individual feature info
-  if(is.null(feat_info)) {
-
-    gobject@feat_info = NULL
-
-  } else {
-
-    gobject = addGiottoPoints(gobject = gobject,
-                              gpoints = feat_info)
-
-  }
-
-
-
-
-  ### OPTIONAL:
-  ## spatial network
-  if(!is.null(spatial_network)) {
-    if(is.null(spatial_network_name) | length(spatial_network) != length(spatial_network_name)) {
-      stop('\n each spatial network must be given a unique name \n')
-    } else {
-
-      for(network_i in 1:length(spatial_network)) {
-
-        networkname = spatial_network_name[[network_i]]
-        network     = spatial_network[[network_i]]
-
-        if(any(c('data.frame', 'data.table') %in% class(network))) {
-          if(all(c('to', 'from', 'weight', 'sdimx_begin', 'sdimy_begin', 'sdimx_end', 'sdimy_end') %in% colnames(network))) {
-            spatial_network_Obj = create_spatialNetworkObject(name = networkname, networkDT = network)
-            gobject@spatial_network[[networkname]] = spatial_network_Obj
-          } else {
-            stop('\n network ', networkname, ' does not have all necessary column names, see details \n')
-          }
-        } else {
-          stop('\n network ', networkname, ' is not a data.frame or data.table \n')
-        }
-      }
-    }
-  }
-
-
-  ## spatial grid
-  if(!is.null(spatial_grid)) {
-    if(is.null(spatial_grid_name) | length(spatial_grid) != length(spatial_grid_name)) {
-      stop('\n each spatial grid must be given a unique name \n')
-    } else {
-
-      for(grid_i in 1:length(spatial_grid)) {
-
-        gridname = spatial_grid_name[[grid_i]]
-        grid     = spatial_grid[[grid_i]]
-
-        if(any(c('data.frame', 'data.table') %in% class(grid))) {
-          if(all(c('x_start', 'y_start', 'x_end', 'y_end', 'gr_name') %in% colnames(grid))) {
-            gobject@spatial_grid[[gridname]] = grid
-          } else {
-            stop('\n grid ', gridname, ' does not have all necessary column names, see details \n')
-          }
-        } else {
-          stop('\n grid ', gridname, ' is not a data.frame or data.table \n')
-        }
-      }
-    }
-  }
-
-  ## spatial enrichment
-  if(!is.null(spatial_enrichment)) {
-    if(is.null(spatial_enrichment_name) | length(spatial_enrichment) != length(spatial_enrichment_name)) {
-      stop('\n each spatial enrichment data.table or data.frame must be given a unique name \n')
-    } else {
-
-      for(spat_enrich_i in 1:length(spatial_enrichment)) {
-
-        spatenrichname = spatial_enrichment_name[[spat_enrich_i]]
-        spatenrich     = spatial_enrichment[[spat_enrich_i]]
-
-        if(nrow(spatenrich) != nrow(gobject@cell_metadata)) {
-          stop('\n spatial enrichment ', spatenrichname, ' does not have the same number of rows as spots/cells, see details \n')
-        } else {
-
-          gobject@spatial_enrichment[[spatenrichname]] = spatenrich
-
-        }
-      }
-    }
-  }
-
-
-  ## dimension reduction
-  if(!is.null(dimension_reduction)) {
-
-    for(dim_i in 1:length(dimension_reduction)) {
-
-      dim_red = dimension_reduction[[dim_i]]
-
-      if(all(c('type', 'name', 'reduction_method', 'coordinates', 'misc') %in% names(dim_red))) {
-
-        coord_data = dim_red[['coordinates']]
-
-        if(all(rownames(coord_data) %in% gobject@cell_ID)) {
-
-          type_value = dim_red[['type']] # cells or genes
-          reduction_meth_value = dim_red[['reduction_method']] # e.g. umap, tsne, ...
-          name_value = dim_red[['name']]  # uniq name
-          misc_value = dim_red[['misc']]  # additional data
-
-          gobject@dimension_reduction[[type_value]][[reduction_meth_value]][[name_value]] = dim_red[c('name', 'reduction_method', 'coordinates', 'misc')]
-        } else {
-          stop('\n rownames for coordinates are not found in gobject IDs \n')
-        }
-
-      } else {
-        stop('\n each dimension reduction list must contain all required slots, see details. \n')
-      }
-
-    }
-
-  }
-
-  # NN network
-  if(!is.null(nn_network)) {
-
-    for(nn_i in 1:length(nn_network)) {
-
-      nn_netw = nn_network[[nn_i]]
-
-      if(all(c('type', 'name', 'igraph') %in% names(nn_netw))) {
-
-        igraph_data = nn_netw[['igraph']]
-
-        if(all(names(igraph::V(igraph_data)) %in% gobject@cell_ID)) {
-
-          type_value = nn_netw[['type']] # sNN or kNN
-          name_value = nn_netw[['name']]  # uniq name
-
-          gobject@nn_network[[type_value]][[name_value]][['igraph']] = igraph_data
-        } else {
-          stop('\n igraph vertex names are not found in gobject IDs \n')
-        }
-
-      } else {
-        stop('\n each nn network list must contain all required slots, see details. \n')
-      }
-
-    }
-
-  }
-
-  ## images ##
-  # expect a list of giotto object images
-  # prefer to make giottoImage creation separate from this function
-  if(!is.null(images)) {
-
-    if(is.null(names(images))) {
-      names(images) = paste0('image.', 1:length(images))
-    }
-
-    for(image_i in 1:length(images)) {
-
-      im = images[[image_i]]
-      im_name = names(images)[[image_i]]
-
-      if(methods::is(im, 'giottoImage')) {
-        gobject@images[[im_name]] = im
-      } else {
-        warning('image: ', im, ' is not a giotto image object')
-      }
-
-    }
-
-  }
-
-
-
-  # other information
-  # TODO
-
-  return(gobject)
-
-}
-
-
-
-
 #' @title createGiottoObject
 #' @name createGiottoObject
 #' @description Function to create a giotto object
@@ -1878,11 +1580,9 @@ createGiottoObject <- function(expression,
                                feat_metadata = NULL,
                                feat_info = NULL,
                                spatial_network = NULL,
-                               spatial_network_name = NULL,
                                spatial_grid = NULL,
                                spatial_grid_name = NULL,
                                spatial_enrichment = NULL,
-                               spatial_enrichment_name = NULL,
                                dimension_reduction = NULL,
                                nn_network = NULL,
                                images = NULL,
@@ -1962,6 +1662,8 @@ createGiottoObject <- function(expression,
 
   }
 
+  if(verbose) cat('finished expression data \n')
+
 
   ## parameters ##
   ## ---------- ##
@@ -2038,6 +1740,9 @@ createGiottoObject <- function(expression,
     }
   }
 
+  if(verbose) cat('finished spatial location data \n')
+
+
   ## spatial info ##
   ## ------------ ##
   ## place to store segmentation info in polygon format style
@@ -2050,12 +1755,13 @@ createGiottoObject <- function(expression,
   }
 
 
+
   ## cell metadata ##
   ## ------------- ##
   gobject = set_cell_metadata(gobject = gobject,
                               cell_metadata = cell_metadata)
 
-
+  if(verbose) cat('finished cell metadata  \n')
 
   ## feat metadata ##
   ## ------------- ##
@@ -2079,29 +1785,8 @@ createGiottoObject <- function(expression,
 
   ### OPTIONAL:
   ## spatial network
-  if(!is.null(spatial_network)) {
-    if(is.null(spatial_network_name) | length(spatial_network) != length(spatial_network_name)) {
-      stop('\n each spatial network must be given a unique name \n')
-    } else {
-
-      for(network_i in 1:length(spatial_network)) {
-
-        networkname = spatial_network_name[[network_i]]
-        network     = spatial_network[[network_i]]
-
-        if(any(c('data.frame', 'data.table') %in% class(network))) {
-          if(all(c('to', 'from', 'weight', 'sdimx_begin', 'sdimy_begin', 'sdimx_end', 'sdimy_end') %in% colnames(network))) {
-            spatial_network_Obj = create_spatialNetworkObject(name = networkname, networkDT = network)
-            gobject@spatial_network[[networkname]] = spatial_network_Obj
-          } else {
-            stop('\n network ', networkname, ' does not have all necessary column names, see details \n')
-          }
-        } else {
-          stop('\n network ', networkname, ' is not a data.frame or data.table \n')
-        }
-      }
-    }
-  }
+  gobject = read_spatial_networks(gobject = gobject,
+                                  spatial_network = spatial_network)
 
 
 
@@ -2131,89 +1816,19 @@ createGiottoObject <- function(expression,
 
 
   ## spatial enrichment
-  if(!is.null(spatial_enrichment)) {
-    if(is.null(spatial_enrichment_name) | length(spatial_enrichment) != length(spatial_enrichment_name)) {
-      stop('\n each spatial enrichment data.table or data.frame must be given a unique name \n')
-    } else {
-
-      for(spat_enrich_i in 1:length(spatial_enrichment)) {
-
-        spatenrichname = spatial_enrichment_name[[spat_enrich_i]]
-        spatenrich     = spatial_enrichment[[spat_enrich_i]]
-
-        if(nrow(spatenrich) != nrow(gobject@cell_metadata)) {
-          stop('\n spatial enrichment ', spatenrichname, ' does not have the same number of rows as spots/cells, see details \n')
-        } else {
-
-          gobject@spatial_enrichment[[spatenrichname]] = spatenrich
-
-        }
-      }
-    }
-  }
+  gobject = read_spatial_enrichment(gobject = gobject,
+                                    spatial_enrichment = spatial_enrichment)
 
 
 
   ## dimension reduction
-  if(!is.null(dimension_reduction)) {
-
-    for(dim_i in 1:length(dimension_reduction)) {
-
-      dim_red = dimension_reduction[[dim_i]]
-
-      if(all(c('type', 'name', 'reduction_method', 'coordinates', 'misc') %in% names(dim_red))) {
-
-        coord_data = dim_red[['coordinates']]
-
-        if(all(rownames(coord_data) %in% gobject@cell_ID)) {
-
-          type_value = dim_red[['type']] # cells or genes
-          reduction_meth_value = dim_red[['reduction_method']] # e.g. umap, tsne, ...
-          name_value = dim_red[['name']]  # uniq name
-          misc_value = dim_red[['misc']]  # additional data
-
-          gobject@dimension_reduction[[type_value]][[reduction_meth_value]][[name_value]] = dim_red[c('name', 'reduction_method', 'coordinates', 'misc')]
-        } else {
-          stop('\n rownames for coordinates are not found in gobject IDs \n')
-        }
-
-      } else {
-        stop('\n each dimension reduction list must contain all required slots, see details. \n')
-      }
-
-    }
-
-  }
+  gobject = read_dimension_reduction(gobject = gobject,
+                                     dimension_reduction = dimension_reduction)
 
 
   # NN network
-  if(!is.null(nn_network)) {
-
-    for(nn_i in 1:length(nn_network)) {
-
-      nn_netw = nn_network[[nn_i]]
-
-      if(all(c('type', 'name', 'igraph') %in% names(nn_netw))) {
-
-        igraph_data = nn_netw[['igraph']]
-
-        if(all(names(igraph::V(igraph_data)) %in% gobject@cell_ID)) {
-
-          type_value = nn_netw[['type']] # sNN or kNN
-          name_value = nn_netw[['name']]  # uniq name
-
-          gobject@nn_network[[type_value]][[name_value]][['igraph']] = igraph_data
-        } else {
-          stop('\n igraph vertex names are not found in gobject IDs \n')
-        }
-
-      } else {
-        stop('\n each nn network list must contain all required slots, see details. \n')
-      }
-
-    }
-
-  }
+  gobject = read_nearest_networks(gobject = gobject,
+                                  nn_network = nn_network)
 
 
   ## images ##
@@ -2398,7 +2013,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                        expression_feat = 'rna',
                                        spatial_locs = spatial_locs,
                                        instructions = instructions,
-                                       cell_metadata = list('rna' = list('cell' = spatial_results[,.(in_tissue, array_row, array_col)])),
+                                       cell_metadata = list('cell' = list('rna' = spatial_results[,.(in_tissue, array_row, array_col)])),
                                        images = visium_png_list)
     return(giotto_object)
 
@@ -2507,7 +2122,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
                                        expression_feat = 'rna',
                                        spatial_locs = spatial_locs,
                                        instructions = instructions,
-                                       cell_metadata = list('rna' = list('cell' = spatial_results[,.(in_tissue, array_row, array_col)])),
+                                       cell_metadata = list('cell' = list('rna' = spatial_results[,.(in_tissue, array_row, array_col)])),
                                        images = visium_png_list)
     return(giotto_object)
 
@@ -2549,11 +2164,9 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
                                          cell_metadata = NULL,
                                          feat_metadata = NULL,
                                          spatial_network = NULL,
-                                         spatial_network_name = NULL,
                                          spatial_grid = NULL,
                                          spatial_grid_name = NULL,
                                          spatial_enrichment = NULL,
-                                         spatial_enrichment_name = NULL,
                                          dimension_reduction = NULL,
                                          nn_network = NULL,
                                          images = NULL,

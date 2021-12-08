@@ -5432,8 +5432,8 @@ spatDimGenePlot = function(...) {
 #' @family spatial cell annotation visualizations
 #' @export
 spatCellPlot2D = function(gobject,
-                          feat_type = NULL,
                           spat_unit = NULL,
+                          feat_type = NULL,
                           show_image = F,
                           gimage = NULL,
                           image_name = NULL,
@@ -5491,19 +5491,16 @@ spatCellPlot2D = function(gobject,
                           default_save_name = 'spatCellPlot2D') {
 
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   comb_metadata = combineMetadata(gobject = gobject,
-                                  feat_type = feat_type,
                                   spat_unit = spat_unit,
+                                  feat_type = feat_type,
                                   spat_enr_names = spat_enr_names)
 
   # keep only available columns
@@ -5525,8 +5522,8 @@ spatCellPlot2D = function(gobject,
   for(annot in cell_annotation_values) {
 
     pl = spatPlot2D(gobject = gobject,
-                    feat_type = feat_type,
                     spat_unit = spat_unit,
+                    feat_type = feat_type,
                     show_image = show_image,
                     gimage = gimage,
                     image_name = image_name,
@@ -5637,8 +5634,8 @@ spatCellPlot = function(...) {
 #' @name dimCellPlot2D
 #' @description Visualize cells according to dimension reduction coordinates
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param dim_reduction_to_use dimension reduction to use
 #' @param dim_reduction_name dimension reduction name
 #' @param dim1_to_use dimension to use on x-axis
@@ -5690,8 +5687,8 @@ spatCellPlot = function(...) {
 #' @family dimension reduction cell annotation visualizations
 #' @export
 dimCellPlot2D = function(gobject,
-                         feat_type = NULL,
                          spat_unit = NULL,
+                         feat_type = NULL,
                          dim_reduction_to_use = 'umap',
                          dim_reduction_name = 'umap',
                          dim1_to_use = 1,
@@ -5739,19 +5736,17 @@ dimCellPlot2D = function(gobject,
                          save_param = list(),
                          default_save_name = 'dimCellPlot2D') {
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
 
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   comb_metadata = combineMetadata(gobject = gobject,
-                                  feat_type = feat_type,
                                   spat_unit = spat_unit,
+                                  feat_type = feat_type,
                                   spat_enr_names = spat_enr_names)
 
   # keep only available columns
@@ -5772,8 +5767,8 @@ dimCellPlot2D = function(gobject,
   for(annot in cell_annotation_values) {
 
     pl = dimPlot2D(gobject = gobject,
-                   feat_type = feat_type,
                    spat_unit = spat_unit,
+                   feat_type = feat_type,
                    group_by = NULL,
                    group_by_subset = NULL,
                    dim_reduction_to_use = dim_reduction_to_use,
@@ -5877,8 +5872,8 @@ dimCellPlot = function(gobject, ...) {
 #' @name spatDimCellPlot2D
 #' @description Visualize numerical features of cells according to spatial AND dimension reduction coordinates in 2D
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param show_image show a tissue background image
 #' @param gimage a giotto image
 #' @param image_name name of a giotto image
@@ -6047,8 +6042,8 @@ spatDimCellPlot2D <- function(gobject,
 
   # dimension reduction plot
   dmpl = dimCellPlot2D(gobject = gobject,
-                       feat_type = feat_type,
                        spat_unit = spat_unit,
+                       feat_type = feat_type,
                        dim_reduction_to_use = dim_reduction_to_use,
                        dim_reduction_name = dim_reduction_name,
                        dim1_to_use = dim1_to_use,
@@ -6095,8 +6090,8 @@ spatDimCellPlot2D <- function(gobject,
 
   # spatial plot
   spl = spatCellPlot2D(gobject = gobject,
-                       feat_type = feat_type,
                        spat_unit = spat_unit,
+                       feat_type = feat_type,
                        show_image = show_image,
                        gimage = gimage,
                        image_name = image_name,
