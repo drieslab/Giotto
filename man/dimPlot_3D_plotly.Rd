@@ -6,6 +6,8 @@
 \usage{
 dimPlot_3D_plotly(
   gobject,
+  spat_unit = NULL,
+  feat_type = NULL,
   dim_reduction_to_use = "umap",
   dim_reduction_name = "umap",
   dim1_to_use = 1,

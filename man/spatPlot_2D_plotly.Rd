@@ -6,8 +6,8 @@
 \usage{
 spatPlot_2D_plotly(
   gobject,
-  feat_type = NULL,
   spat_unit = NULL,
+  feat_type = NULL,
   spat_loc_name = NULL,
   sdimx = NULL,
   sdimy = NULL,

@@ -6,6 +6,8 @@
 \usage{
 spatPlot3D(
   gobject,
+  spat_unit = NULL,
+  feat_type = NULL,
   sdimx = "sdimx",
   sdimy = "sdimy",
   sdimz = "sdimz",
@@ -43,6 +45,10 @@ spatPlot3D(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 
 \item{sdimx}{x-axis dimension name (default = 'sdimx')}
 

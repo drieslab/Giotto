@@ -6,8 +6,8 @@
 \usage{
 spatDimPlot3D(
   gobject,
-  feat_type = NULL,
   spat_unit = NULL,
+  feat_type = NULL,
   plot_alignment = c("horizontal", "vertical"),
   dim_reduction_to_use = "umap",
   dim_reduction_name = "umap",
@@ -62,9 +62,9 @@ spatDimPlot3D(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{feat_type}{feature type}
-
 \item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 
 \item{plot_alignment}{direction to align plot}
 

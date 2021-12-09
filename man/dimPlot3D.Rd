@@ -6,6 +6,8 @@
 \usage{
 dimPlot3D(
   gobject,
+  spat_unit = NULL,
+  feat_type = NULL,
   dim_reduction_to_use = "umap",
   dim_reduction_name = "umap",
   dim1_to_use = 1,
@@ -38,6 +40,10 @@ dimPlot3D(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 
 \item{dim_reduction_to_use}{dimension reduction to use}
 

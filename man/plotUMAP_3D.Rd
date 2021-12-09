@@ -21,6 +21,8 @@ plotUMAP_3D(
 \item{...}{
   Arguments passed on to \code{\link[=dimPlot3D]{dimPlot3D}}
   \describe{
+    \item{\code{spat_unit}}{spatial unit}
+    \item{\code{feat_type}}{feature type}
     \item{\code{dim1_to_use}}{dimension to use on x-axis}
     \item{\code{dim2_to_use}}{dimension to use on y-axis}
     \item{\code{dim3_to_use}}{dimension to use on z-axis}
