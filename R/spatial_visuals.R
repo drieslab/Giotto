@@ -3158,7 +3158,8 @@ spatPlot2D = function(gobject,
       temp_gobject = subsetGiotto(gobject = gobject,
                                   spat_unit = spat_unit,
                                   feat_type = feat_type,
-                                  cell_ids = subset_cell_IDs)
+                                  cell_ids = subset_cell_IDs,
+                                  verbose = FALSE)
 
 
       if(length(unique_groups) == length(image_name)) {

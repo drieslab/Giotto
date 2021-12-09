@@ -849,8 +849,8 @@ subsetGiotto <- function(gobject,
   feats_to_keep = g_feat_IDs[filter_bool_feats]
 
 
-  print(cells_to_keep[1:5])
-  print(feats_to_keep[1:5])
+  #print(cells_to_keep[1:5])
+  #print(feats_to_keep[1:5])
 
   if(verbose) cat('completed 1: preparation \n')
 
@@ -1021,7 +1021,7 @@ subsetGiottoLocs = function(gobject,
                             z_max = NULL,
                             z_min = NULL,
                             poly_info = 'cell',
-                            return_gobject = T,
+                            return_gobject = TRUE,
                             verbose = FALSE) {
 
 

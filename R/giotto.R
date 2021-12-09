@@ -2761,23 +2761,31 @@ joinGiottoObjects = function(gobject_list,
 
 
     ## 0. update cell ID
-    gobj@cell_ID = paste0(gname,'-',gobj@cell_ID)
+    for(spat_unit in names(gobj@cell_ID)) {
+      gobj@cell_ID[[spat_unit]] = paste0(gname,'-',gobj@cell_ID[[spat_unit]])
+      all_cell_ID_list[[spat_unit]][[gobj_i]] = gobj@cell_ID[[spat_unit]]
+    }
 
-    all_cell_ID_list[[gobj_i]] = gobj@cell_ID
+
+
 
 
     ## 1. update expression and all feature IDs
     # provide unique cell ID name
-    for(feat in gobj@expression_feat) {
+    for(spat_unit in names(gobj@expression)) {
 
-      for(matr in names(gobj@expression[[feat]])) {
-        colnames(gobj@expression[[feat]][[matr]]) = gobj@cell_ID
+      for(feat_type in names(gobj@expression[[spat_unit]])) {
+
+        for(matr in names(gobj@expression[[spat_unit]][[feat_type]])) {
+          colnames(gobj@expression[[spat_unit]][[feat_type]][[matr]]) = gobj@cell_ID[[spat_unit]]
+        }
+
+        all_feat_ID_list[[feat_type]][[gobj_i]] = gobj@feat_ID[[feat_type]]
       }
 
-
-      all_feat_ID_list[[feat]][[gobj_i]] = gobj@feat_ID[[feat]]
-
     }
+
+
 
 
     ## 2. update images
@@ -2853,54 +2861,63 @@ joinGiottoObjects = function(gobject_list,
     ## 3. update spatial location
     # add padding to x-axis
     # update cell ID
-    for(locs in names(gobj@spatial_locs)) {
-      myspatlocs = gobj@spatial_locs[[locs]]
+    for(spat_unit in names(gobj@spatial_locs)) {
 
-      if(join_method == 'z_stack') {
-        myspatlocs[, sdimz := z_vals[gobj_i]]
-        myspatlocs[, cell_ID := gobj@cell_ID]
-        myspatlocs = myspatlocs[,.(sdimx, sdimy, sdimz, cell_ID)]
-      } else if(join_method == 'shift') {
+      for(locs in names(gobj@spatial_locs[[spat_unit]])) {
+        myspatlocs = gobj@spatial_locs[[spat_unit]][[locs]]
+
+        if(join_method == 'z_stack') {
+          myspatlocs[, sdimz := z_vals[gobj_i]]
+          myspatlocs[, cell_ID := gobj@cell_ID[[spat_unit]] ]
+          myspatlocs = myspatlocs[,.(sdimx, sdimy, sdimz, cell_ID)]
+
+        } else if(join_method == 'shift') {
 
 
-        # shift for x-axis
-        if(is.null(x_shift)) {
-          add_to_x = xshift_list[[gobj_i]]
-        } else {
-          x_shift_i = x_shift[[gobj_i]]
-          add_to_x = x_shift_i + x_padding
+          # shift for x-axis
+          if(is.null(x_shift)) {
+            add_to_x = xshift_list[[gobj_i]]
+          } else {
+            x_shift_i = x_shift[[gobj_i]]
+            add_to_x = x_shift_i + x_padding
+          }
+
+          if(verbose) cat('Spatial loations: for ',locs, ' add_to_x = ', add_to_x, '\n')
+
+
+          myspatlocs[, sdimx := sdimx + add_to_x]
+          myspatlocs[, cell_ID := gobj@cell_ID[[spat_unit]] ]
         }
 
-        if(verbose) cat('Spatial loations: for ',locs, ' add_to_x = ', add_to_x, '\n')
+        # shift for y-axis
+        if(!is.null(y_shift)) {
+          y_shift_i = y_shift[[gobj_i]]
+          add_to_y = y_shift_i + y_padding
+
+          if(verbose) cat('Spatial loations: for ',locs, ' add_to_y = ', add_to_y, '\n')
+
+          myspatlocs[, sdimy := sdimy + add_to_y]
+        }
 
 
-        myspatlocs[, sdimx := sdimx + add_to_x]
-        myspatlocs[, cell_ID := gobj@cell_ID]
+        gobj@spatial_locs[[spat_unit]][[locs]] = myspatlocs
       }
-
-      # shift for y-axis
-      if(!is.null(y_shift)) {
-        y_shift_i = y_shift[[gobj_i]]
-        add_to_y = y_shift_i + y_padding
-
-        if(verbose) cat('Spatial loations: for ',locs, ' add_to_y = ', add_to_y, '\n')
-
-        myspatlocs[, sdimy := sdimy + add_to_y]
-      }
-
-
-      gobj@spatial_locs[[locs]] = myspatlocs
     }
+
+
 
 
 
     ## 4. cell metadata
     # rbind metadata
     # create capture area specific names
-    for(feat in names(gobj@cell_metadata)) {
-      gobj@cell_metadata[[feat]][['cell_ID']] = gobj@cell_ID
-      gobj@cell_metadata[[feat]][['list_ID']] = gname
+    for(spat_unit in names(gobj@cell_metadata)) {
+      for(feat_type in names(gobj@cell_metadata[[spat_unit]])) {
+        gobj@cell_metadata[[spat_unit]][[feat_type]][['cell_ID']] = gobj@cell_ID[[spat_unit]]
+        gobj@cell_metadata[[spat_unit]][[feat_type]][['list_ID']] = gname
+      }
     }
+
 
 
     ## 5. prepare spatial information
@@ -2982,8 +2999,6 @@ joinGiottoObjects = function(gobject_list,
         if(verbose) cat('Feature info: for ',feat_info, ' add_to_x = ', add_to_x, '\n')
         if(verbose) cat('Feature info: for ',feat_info, ' add_to_y = ', add_to_y, '\n')
 
-
-
         gobj@feat_info[[feat_info]]@spatVector = terra::shift(x = gobj@feat_info[[feat_info]]@spatVector, dx = add_to_x, dy = add_to_y)
       }
 
@@ -3034,42 +3049,59 @@ joinGiottoObjects = function(gobject_list,
   first_obj = updated_object_list[[1]]
 
   ## cell IDs
-  combined_cell_ID = unlist(all_cell_ID_list)
-  comb_gobject@cell_ID = combined_cell_ID
+  for(spat_unit in names(all_cell_ID_list)) {
+    combined_cell_ID = unlist(all_cell_ID_list[[spat_unit]])
+    comb_gobject@cell_ID[[spat_unit]] = combined_cell_ID
+  }
+
+
 
 
 
   ## expression and feat IDs
   ## if no expression matrices are provided, then just combine all feature IDs
   if(verbose == TRUE) cat('start expression combination \n')
+
   expr_names = names(first_obj@expression)
 
   if(is.null(expr_names)) {
     ## feat IDS
+
     for(feat in first_features) {
       combined_feat_ID = unique(unlist(all_feat_ID_list[[feat]]))
       comb_gobject@feat_ID[[feat]] = combined_feat_ID
-      comb_gobject@feat_metadata[[feat]] = data.table::data.table(feat_ID = combined_feat_ID)
+
+      # TODO: figure out best way
+      comb_gobject@feat_metadata[[spat_unit]][[feat]] = data.table::data.table(feat_ID = combined_feat_ID)
+
     }
+
+
 
   } else {
 
-    for(name in expr_names) {
+    for(spat_unit in names(first_obj@expression)) {
 
-      for(mode in names(first_obj@expression[[name]])) {
+      for(feat_type in names(first_obj@expression[[spat_unit]])) {
 
-        savelist = list()
-        for(gobj_i in 1:length(updated_object_list)) {
+        for(mode in names(first_obj@expression[[spat_unit]][[feat_type]])) {
 
-          mat = updated_object_list[[gobj_i]]@expression[[name]][[mode]]
-          savelist[[gobj_i]] = mat
+          savelist = list()
+          for(gobj_i in 1:length(updated_object_list)) {
+
+            mat = updated_object_list[[gobj_i]]@expression[[spat_unit]][[feat_type]][[mode]]
+            savelist[[gobj_i]] = mat
+          }
+
+          combmat = join_expression_matrices(matrix_list = savelist)
+          comb_gobject@expression[[spat_unit]][[feat_type]][[mode]] = combmat$matrix
+
+          comb_gobject@feat_ID[[feat_type]] = combmat$sort_all_feats
+          comb_gobject@feat_metadata[[spat_unit]][[feat_type]] = data.table::data.table(feat_ID = combmat$sort_all_feats)
+
         }
 
-        combmat = join_expression_matrices(matrix_list = savelist)
-        comb_gobject@expression[[name]][[mode]] = combmat$matrix
 
-        comb_gobject@feat_ID[[name]] = combmat$sort_all_feats
-        comb_gobject@feat_metadata[[name]] = data.table::data.table(feat_ID = combmat$sort_all_feats)
       }
 
     }
@@ -3082,37 +3114,49 @@ joinGiottoObjects = function(gobject_list,
 
   ## spatial locations
   if(verbose == TRUE) cat('start spatial location combination \n')
-  spatloc_names = names(first_obj@spatial_locs)
 
-  for(name in spatloc_names) {
 
-    savelist = list()
-    for(gobj_i in 1:length(updated_object_list)) {
-      spatlocs = updated_object_list[[gobj_i]]@spatial_locs[[name]]
-      savelist[[gobj_i]] = spatlocs
+  for(spat_unit in names(first_obj@spatial_locs)) {
+
+    for(name in names(first_obj@spatial_locs[[spat_unit]])) {
+
+      savelist = list()
+      for(gobj_i in 1:length(updated_object_list)) {
+        spatlocs = updated_object_list[[gobj_i]]@spatial_locs[[spat_unit]][[name]]
+        savelist[[gobj_i]] = spatlocs
+      }
+
+      combspatlocs = join_spatlocs(dt_list = savelist)
+      comb_gobject@spatial_locs[[spat_unit]][[name]] = combspatlocs
     }
 
-    combspatlocs = join_spatlocs(dt_list = savelist)
-    comb_gobject@spatial_locs[[name]] = combspatlocs
   }
+
+
+
 
 
   ## cell metadata
   if(verbose == TRUE) cat('start cell metadata combination \n')
-  metanames = names(first_obj@cell_metadata)
 
-  for(name in metanames) {
+  for(spat_unit in names(first_obj@cell_metadata)) {
 
-    savelist = list()
-    for(gobj_i in 1:length(updated_object_list)) {
-      cellmeta = updated_object_list[[gobj_i]]@cell_metadata[[name]]
-      savelist[[gobj_i]] = cellmeta
+     for(feat_type in names(first_obj@cell_metadata[[spat_unit]])) {
+
+      savelist = list()
+      for(gobj_i in 1:length(updated_object_list)) {
+        cellmeta = updated_object_list[[gobj_i]]@cell_metadata[[spat_unit]][[feat_type]]
+        savelist[[gobj_i]] = cellmeta
+      }
+
+      combcellmeta = join_cell_meta(dt_list = savelist)
+      comb_gobject@cell_metadata[[spat_unit]][[feat_type]] = combcellmeta
+
     }
-
-    combcellmeta = join_cell_meta(dt_list = savelist)
-    comb_gobject@cell_metadata[[name]] = combcellmeta
-
   }
+
+
+
 
 
 
@@ -3120,11 +3164,18 @@ joinGiottoObjects = function(gobject_list,
   if(verbose == TRUE) cat('start spatial polygon combination \n')
   available_spat_info = unique(unlist(all_spatinfo_list))
 
+  cat('available_spat_info: \n')
+  print(available_spat_info)
+
   for(spat_info in available_spat_info) {
 
     savelist_vector = list()
     savelist_centroids = list()
     for(gobj_i in 1:length(updated_object_list)) {
+
+      print(gobj_i)
+      print(updated_object_list[[gobj_i]]@spatial_info[[spat_info]])
+
 
       spat_information_vector = updated_object_list[[gobj_i]]@spatial_info[[spat_info]]@spatVector
       savelist_vector[[gobj_i]] = spat_information_vector
@@ -3158,7 +3209,16 @@ joinGiottoObjects = function(gobject_list,
 
     for(gobj_i in 1:length(updated_object_list)) {
 
-      spat_point_vector = updated_object_list[[gobj_i]]@feat_info[[feat]]@spatVector
+      print(updated_object_list[[gobj_i]]@feat_info[[feat]])
+      print(gobj_i)
+
+      if(is.null(updated_object_list[[gobj_i]]@feat_info)) {
+        spat_point_vector = NULL
+      } else {
+        spat_point_vector = updated_object_list[[gobj_i]]@feat_info[[feat]]@spatVector
+      }
+
+
       savelist_vector[[gobj_i]] = spat_point_vector
 
       # add network
@@ -3166,9 +3226,14 @@ joinGiottoObjects = function(gobject_list,
     }
 
     comb_spatvectors = do.call('rbind', savelist_vector)
-    comb_points = create_giotto_points_object(feat_type = feat,
-                                              spatVector = comb_spatvectors,
-                                              networks = NULL)
+
+    if(is.null(comb_spatvectors)) {
+      comb_points = NULL
+    } else {
+      comb_points = create_giotto_points_object(feat_type = feat,
+                                                spatVector = comb_spatvectors,
+                                                networks = NULL)
+    }
 
     comb_gobject@feat_info[[feat]] = comb_points
 

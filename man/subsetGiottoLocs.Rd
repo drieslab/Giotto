@@ -15,7 +15,7 @@ subsetGiottoLocs(
   z_max = NULL,
   z_min = NULL,
   poly_info = "cell",
-  return_gobject = T,
+  return_gobject = TRUE,
   verbose = FALSE
 )
 }

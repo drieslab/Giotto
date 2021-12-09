@@ -188,8 +188,14 @@ findScranMarkers_one_vs_all <- function(gobject,
 
     cell_metadata = cell_metadata[get(cluster_column) %in% subset_clusters]
     subset_cell_IDs = cell_metadata[['cell_ID']]
-    gobject = subsetGiotto(gobject = gobject, cell_ids = subset_cell_IDs)
-    cell_metadata = pDataDT(gobject)
+    gobject = subsetGiotto(gobject = gobject,
+                           spat_unit = spat_unit,
+                           feat_type = feat_type,
+                           cell_ids = subset_cell_IDs,
+                           verbose = FALSE)
+    cell_metadata = pDataDT(gobject,
+                            spat_unit = spat_unit,
+                            feat_type = feat_type)
   }
 
 
@@ -812,10 +818,14 @@ findMastMarkers_one_vs_all = function(gobject,
 
     cell_metadata = cell_metadata[get(cluster_column) %in% subset_clusters]
     subset_cell_IDs = cell_metadata[['cell_ID']]
-    gobject = subsetGiotto(gobject = gobject, cell_ids = subset_cell_IDs)
+    gobject = subsetGiotto(gobject = gobject,
+                           spat_unit = spat_unit,
+                           feat_type = feat_type,
+                           cell_ids = subset_cell_IDs,
+                           verbose = FALSE)
     cell_metadata = pDataDT(gobject,
-                            feat_type = feat_type,
-                            spat_unit = spat_unit)
+                            spat_unit = spat_unit,
+                            feat_type = feat_type)
   }
 
   ## sort uniq clusters
