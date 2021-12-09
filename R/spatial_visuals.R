@@ -5052,7 +5052,9 @@ dimGenePlot2D <- function(gobject,
                           genes = NULL,
                           default_save_name = 'dimGenePlot2D',
                           ...) {
-
+  
+  .Deprecated(new = "dimFeatPlot2D")
+  
   dimFeatPlot2D(gobject = gobject,
                 feat_type = 'rna',
                 feats = genes,
@@ -5071,7 +5073,9 @@ dimGenePlot2D <- function(gobject,
 #' @export
 #' @seealso \code{\link{dimGenePlot3D}}
 dimGenePlot = function(...) {
-
+  
+  .Deprecated(new = "dimGenePlot2D")
+  
   dimGenePlot2D(...)
 
 }
@@ -5346,6 +5350,8 @@ spatDimGenePlot2D <- function(gobject,
                               default_save_name = 'spatDimGenePlot2D',
                               ...) {
 
+  .Deprecated(new = "spatDimFeatPlot2D")
+  
   spatDimFeatPlot2D(gobject = gobject,
                     feat_type = 'rna',
                     feats = genes,
@@ -5369,6 +5375,9 @@ spatDimGenePlot2D <- function(gobject,
 #' @export
 #' @seealso \code{\link{spatDimGenePlot3D}}
 spatDimGenePlot = function(...) {
+  
+  .Deprecated(new = "spatDimGenePlot2D")
+  
   spatDimGenePlot2D(...)
 }
 
