@@ -177,7 +177,6 @@ setMethod(
 #' @name createGiottoImage
 #' @description Creates a giotto image that can be added to a Giotto object and/or used to add an image to the spatial plotting functions
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
 #' @param spatial_locs spatial locations (alternative if gobject = NULL)
 #' @param spat_loc_name name of spatial locations within gobject
@@ -208,7 +207,6 @@ setMethod(
 #' @return a giottoImage object
 #' @export
 createGiottoImage = function(gobject = NULL,
-                             feat_type = NULL,
                              spat_unit = NULL,
                              spatial_locs = NULL,
                              spat_loc_name = NULL,
@@ -290,12 +288,9 @@ createGiottoImage = function(gobject = NULL,
   # If do_manual_adj == TRUE, bypass followup automatic boundary value generation
   if(!is.null(gobject)) {
 
-    # Set feat_type and spat_unit
+    # Set spat_unit
     spat_unit = set_default_spat_unit(gobject = gobject,
                                       spat_unit = spat_unit)
-    feat_type = set_default_feat_type(gobject = gobject,
-                                      spat_unit = spat_unit,
-                                      feat_type = feat_type)
 
     # Get spatial locations
     if(!is.null(gobject@spatial_locs)) {

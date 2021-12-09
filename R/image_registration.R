@@ -250,6 +250,7 @@ get_img_corners = function(img_object) {
 #' @name registerGiottoObjectList
 #' @description Wrapper function for registerGiottoObjectListFiji and registerGiottoObjectListRvision
 #' @param gobject_list List of gobjects to register
+#' @param spat_unit spatial unit
 #' @param method Method used to align gobjects. Current options are either using FIJI register_virtual_stack_slices output or rvision
 #' @param image_unreg Gobject image slot to use. Defaults to 'image' (optional)
 #' @param image_reg_name Arbitrary image slot name for registered images to occupy. Defaults to replacement of 'image' slot (optional)
@@ -265,6 +266,7 @@ get_img_corners = function(img_object) {
 #' @return List of registered giotto objects where the registered images and spatial locations
 #' @export
 registerGiottoObjectList = function(gobject_list,
+                                    spat_unit = NULL,
                                     method = c('fiji','rvision'),
                                     image_unreg = 'image',
                                     image_reg_name = 'image',
@@ -279,6 +281,8 @@ registerGiottoObjectList = function(gobject_list,
                                     # auto_comp_reg_border = TRUE,
                                     verbose = TRUE) {
 
+  method = match.arg(method, choices = c('fiji','rvision'))
+  
   if(method == 'fiji') {
     gobject_list = registerGiottoObjectListFiji(gobject_list = gobject_list,
                                                 image_unreg = image_unreg,
@@ -337,6 +341,10 @@ registerGiottoObjectListFiji = function(gobject_list,
                                         scale_factor = NULL,
                                         verbose = TRUE) {
 
+  # set spat_unit based on first gobject
+  spat_unit = set_default_spat_unit(gobject = gobject_list[[1]],
+                                    spat_unit = spat_unit)
+  
   ## 0. Check Params ##
   if(length(gobject_list) != length(xml_files)) {
     stop('xml spatial transforms must be supplied for every gobject to be registered.\n')
@@ -377,6 +385,7 @@ registerGiottoObjectListFiji = function(gobject_list,
   for(gobj_i in 1:length(gobject_list)) {
     gobj = gobject_list[[gobj_i]]
     spatloc = get_spatial_locations(gobject = gobj,
+                                    spat_unit = spat_unit,
                                     spat_loc_name = spatloc_unreg)
     #------ Put all spatial location data together
     spatloc_list[[gobj_i]] = spatloc
@@ -452,14 +461,17 @@ registerGiottoObjectListFiji = function(gobject_list,
     #Rename original spatial locations to 'unregistered' if conflicting with output
     if(spatloc_unreg == spatloc_reg_name) {
       gobj = set_spatial_locations(gobject = gobj,
+                                   spat_unit = spat_unit,
                                    spat_loc_name = spatloc_replace_name,
                                    spatlocs = get_spatial_locations(gobject = gobj,
+                                                                    spat_unit = spat_unit,
                                                                     spat_loc_name = spatloc_unreg))
     }
 
 
     #Assign registered spatial locations from spatloc_list to gobject_list
     gobj = set_spatial_locations(gobject = gobj,
+                                 spat_unit = spat_unit,
                                  spat_loc_name = spatloc_reg_name,
                                  spatlocs = spatloc_list[[gobj_i]])
     
@@ -476,13 +488,17 @@ registerGiottoObjectListFiji = function(gobject_list,
     #Create a giotto image if there are registered images supplied
     if(!is.null(registered_images)) {
       g_image = createGiottoImage(gobject = gobj,
+                                  spat_unit = spat_unit,
                                   spatial_locs = spatloc_reg_name,
                                   mg_object = registered_images[[gobj_i]],
                                   name = image_reg_name,
                                   scale_factor = scale_list[[gobj_i]])
 
       #Add the registered image to the gobj.
-      gobj = addGiottoImageMG(gobject = gobj, images = list(g_image))
+      gobj = addGiottoImageMG(gobject = gobj,
+                              spat_unit = spat_unit,
+                              spat_loc_name = spatloc_reg_name,
+                              images = list(g_image))
 
       #Automatic adjustment
       if(exists('reg_img_boundaries')){ #TODO

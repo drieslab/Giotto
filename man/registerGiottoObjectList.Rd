@@ -6,6 +6,7 @@
 \usage{
 registerGiottoObjectList(
   gobject_list,
+  spat_unit = NULL,
   method = c("fiji", "rvision"),
   image_unreg = "image",
   image_reg_name = "image",
@@ -22,6 +23,8 @@ registerGiottoObjectList(
 }
 \arguments{
 \item{gobject_list}{List of gobjects to register}
+
+\item{spat_unit}{spatial unit}
 
 \item{method}{Method used to align gobjects. Current options are either using FIJI register_virtual_stack_slices output or rvision}
 
