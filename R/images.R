@@ -177,7 +177,6 @@ setMethod(
 #' @name createGiottoImage
 #' @description Creates a giotto image that can be added to a Giotto object and/or used to add an image to the spatial plotting functions
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
 #' @param spatial_locs spatial locations (alternative if gobject = NULL)
 #' @param spat_loc_name name of spatial locations within gobject
@@ -208,7 +207,6 @@ setMethod(
 #' @return a giottoImage object
 #' @export
 createGiottoImage = function(gobject = NULL,
-                             feat_type = NULL,
                              spat_unit = NULL,
                              spatial_locs = NULL,
                              spat_loc_name = NULL,
@@ -290,12 +288,9 @@ createGiottoImage = function(gobject = NULL,
   # If do_manual_adj == TRUE, bypass followup automatic boundary value generation
   if(!is.null(gobject)) {
 
-    # Set feat_type and spat_unit
+    # Set spat_unit
     spat_unit = set_default_spat_unit(gobject = gobject,
                                       spat_unit = spat_unit)
-    feat_type = set_default_feat_type(gobject = gobject,
-                                      spat_unit = spat_unit,
-                                      feat_type = feat_type)
 
     # Get spatial locations
     if(!is.null(gobject@spatial_locs)) {
@@ -776,6 +771,7 @@ createGiottoImageOLD = function(gobject = NULL,
 #' @description Adds giotto image objects to your giotto object
 #' @param gobject giotto object
 #' @param images list of giotto image objects, see \code{\link{createGiottoImage}}
+#' @param spat_unit spatial unit
 #' @param spat_loc_name provide spatial location slot in Giotto to align images. Defaults to first one
 #' @param scale_factor provide scale of image pixel dimensions relative to spatial coordinates.
 #' @param negative_y Map image to negative y spatial values if TRUE during automatic alignment. Meaning that origin is in upper left instead of lower left.
@@ -783,6 +779,7 @@ createGiottoImageOLD = function(gobject = NULL,
 #' @export
 addGiottoImageMG = function(gobject,
                             images,
+                            spat_unit = NULL,
                             spat_loc_name = NULL,
                             scale_factor = NULL,
                             negative_y = TRUE) {
@@ -794,7 +791,7 @@ addGiottoImageMG = function(gobject,
 
   if(is.null(spat_loc_name)) {
     if(!is.null(gobject@spatial_locs)) {
-      spat_loc_name = names(gobject@spatial_locs)[[1]]
+      spat_loc_name = names(gobject@spatial_locs[[spat_unit]])[[1]]
     } else {
       spat_loc_name = NULL
       cat('No spatial locations have been found \n')
@@ -2233,6 +2230,7 @@ getGiottoImage = function(gobject = NULL,
 
   # Check params
   if(!is.null(image_name) && !is.null(largeImage_name)) stop('Get only one of a giottoImage or a giottoLargeImage at a time. \n')
+  if(is.null(image_name) && is.null(largeImage_name)) image_name = 'image'
 
   # Select get function
   if(!is.null(image_name)) {

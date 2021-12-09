@@ -554,10 +554,10 @@ sort_combine_two_DT_columns = function(DT,
 #' @description check if package is available and provide installation instruction if not available
 #' @keywords internal
 package_check = function(pkg_name,
-                         repository = c('CRAN', 'Bioc', 'github'),
+                         repository = c('CRAN', 'Bioc', 'github', 'pip'),
                          github_repo = NULL) {
 
-  repository = match.arg(repository, choices = c('CRAN', 'Bioc', 'github'))
+  repository = match.arg(repository, choices = c('CRAN', 'Bioc', 'github', 'pip'))
 
   if(repository == 'CRAN') {
 
@@ -596,6 +596,14 @@ package_check = function(pkg_name,
       return(TRUE)
     }
 
+  } else if(repository == 'pip') {
+    
+    if(!reticulate::py_module_available(pkg_name)) {
+      stop("\n package ", pkg_name ," is not yet installed \n",
+           "To install for default Giotto miniconda environment: \n",
+           "reticulate::conda_install(envname = 'giotto_env',packages = 'scrublet',pip = TRUE)",
+           call. = FALSE)
+    }
   }
 
 }

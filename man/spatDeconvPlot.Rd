@@ -6,8 +6,8 @@
 \usage{
 spatDeconvPlot(
   gobject,
-  feat_type = NULL,
   spat_unit = NULL,
+  feat_type = NULL,
   deconv_name = "DWLS",
   show_image = F,
   gimage = NULL,
@@ -36,9 +36,9 @@ spatDeconvPlot(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{feat_type}{feature type}
-
 \item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 
 \item{deconv_name}{name of deconvolution results to use}
 
