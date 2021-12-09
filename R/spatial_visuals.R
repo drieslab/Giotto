@@ -5053,9 +5053,9 @@ dimGenePlot2D <- function(gobject,
                           genes = NULL,
                           default_save_name = 'dimGenePlot2D',
                           ...) {
-  
+
   .Deprecated(new = "dimFeatPlot2D")
-  
+
   dimFeatPlot2D(gobject = gobject,
                 feat_type = 'rna',
                 feats = genes,
@@ -5074,9 +5074,9 @@ dimGenePlot2D <- function(gobject,
 #' @export
 #' @seealso \code{\link{dimGenePlot3D}}
 dimGenePlot = function(...) {
-  
+
   .Deprecated(new = "dimGenePlot2D")
-  
+
   dimGenePlot2D(...)
 
 }
@@ -5352,7 +5352,7 @@ spatDimGenePlot2D <- function(gobject,
                               ...) {
 
   .Deprecated(new = "spatDimFeatPlot2D")
-  
+
   spatDimFeatPlot2D(gobject = gobject,
                     feat_type = 'rna',
                     feats = genes,
@@ -5376,9 +5376,9 @@ spatDimGenePlot2D <- function(gobject,
 #' @export
 #' @seealso \code{\link{spatDimGenePlot3D}}
 spatDimGenePlot = function(...) {
-  
+
   .Deprecated(new = "spatDimGenePlot2D")
-  
+
   spatDimGenePlot2D(...)
 }
 
@@ -6235,6 +6235,8 @@ spatDimCellPlot = function(...) {
 #' @return plotly object
 #' @keywords internal
 dimPlot_2D_plotly <- function(gobject,
+                              spat_unit = NULL,
+                              feat_type = NULL,
                               dim_reduction_to_use = 'umap',
                               dim_reduction_name = 'umap',
                               dim1_to_use = 1,
@@ -6259,15 +6261,25 @@ dimPlot_2D_plotly <- function(gobject,
                               point_size = 5){
 
 
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
+
   # data.table variables
   cell_ID = NULL
 
   ## dimension reduction ##
-  dim_dfr = select_dimReduction(gobject,
-                                reduction = 'cells',
-                                reduction_method = dim_reduction_to_use,
-                                name = dim_reduction_name,
-                                return_dimObj = FALSE)
+  dim_dfr = get_dimReduction(gobject = gobject,
+                             spat_unit = spat_unit,
+                             feat_type = feat_type,
+                             reduction = 'cells',
+                             reduction_method = dim_reduction_to_use,
+                             name = dim_reduction_name,
+                             return_dimObj = FALSE)
+
   dim_dfr = dim_dfr[,c(dim1_to_use, dim2_to_use)]
   dim_names = colnames(dim_dfr)
   dim_DT = data.table::as.data.table(dim_dfr)
@@ -6276,6 +6288,8 @@ dimPlot_2D_plotly <- function(gobject,
 
   ## annotated cell metadata
   cell_metadata = combineMetadata(gobject = gobject,
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type,
                                   spat_enr_names = spat_enr_names)
   annotated_DT = merge(cell_metadata, dim_DT, by = 'cell_ID')
 
@@ -6285,15 +6299,17 @@ dimPlot_2D_plotly <- function(gobject,
 
     # nn_network
     selected_nn_network = get_NearestNetwork(gobject = gobject,
-                                                nn_network_to_use = nn_network_to_use,
-                                                network_name = network_name,
-                                                output = 'igraph')
+                                             spat_unit = spat_unit,
+                                             feat_type = feat_type,
+                                             nn_network_to_use = nn_network_to_use,
+                                             network_name = network_name,
+                                             output = 'igraph')
     network_DT = data.table::as.data.table(igraph::as_data_frame(selected_nn_network, what = 'edges'))
 
     # annotated network
     old_dim_names = dim_names
 
-    annotated_network_DT <- merge(network_DT, dim_DT, by.x = 'from', by.y = 'cell_ID')
+    annotated_network_DT = merge(network_DT, dim_DT, by.x = 'from', by.y = 'cell_ID')
     from_dim_names = paste0('from_', old_dim_names)
     data.table::setnames(annotated_network_DT, old = old_dim_names, new = from_dim_names)
 
@@ -6305,11 +6321,14 @@ dimPlot_2D_plotly <- function(gobject,
 
 
   if(dim_reduction_to_use == "pca"){
-    pca_object = select_dimReduction(gobject,
-                                     reduction = 'cells',
-                                     reduction_method = dim_reduction_to_use,
-                                     name = dim_reduction_name,
-                                     return_dimObj = TRUE)
+
+    pca_object = get_dimReduction(gobject = gobject,
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type,
+                                  reduction = 'cells',
+                                  reduction_method = dim_reduction_to_use,
+                                  name = dim_reduction_name,
+                                  return_dimObj = TRUE)
     eigenvalues = pca_object$misc$eigenvalues
 
     if(!is.null(eigenvalues)) {
@@ -6479,6 +6498,8 @@ dimPlot_2D_plotly <- function(gobject,
 #' @return plotly object
 #' @keywords internal
 dimPlot_3D_plotly <- function(gobject,
+                              spat_unit = NULL,
+                              feat_type = NULL,
                               dim_reduction_to_use = 'umap',
                               dim_reduction_name = 'umap',
                               dim1_to_use = 1,
@@ -6505,15 +6526,26 @@ dimPlot_3D_plotly <- function(gobject,
                               edge_alpha = NULL,
                               point_size = 1){
 
+
+
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
+
   # data.table variables
   cell_ID = NULL
 
   ## dimension reduction ##
-  dim_dfr = select_dimReduction(gobject,
-                                reduction = 'cells',
-                                reduction_method = dim_reduction_to_use,
-                                name = dim_reduction_name,
-                                return_dimObj = FALSE)
+  dim_dfr = get_dimReduction(gobject = gobject,
+                             spat_unit = spat_unit,
+                             feat_type = feat_type,
+                             reduction = 'cells',
+                             reduction_method = dim_reduction_to_use,
+                             name = dim_reduction_name,
+                             return_dimObj = FALSE)
   dim_dfr = dim_dfr[,c(dim1_to_use, dim2_to_use, dim3_to_use)]
   dim_names = colnames(dim_dfr)
   dim_DT = data.table::as.data.table(dim_dfr)
@@ -6522,6 +6554,8 @@ dimPlot_3D_plotly <- function(gobject,
 
   ## annotated cell metadata
   cell_metadata = combineMetadata(gobject = gobject,
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type,
                                   spat_enr_names = spat_enr_names)
   annotated_DT = merge(cell_metadata, dim_DT, by = 'cell_ID')
 
@@ -6530,10 +6564,11 @@ dimPlot_3D_plotly <- function(gobject,
   if(show_NN_network == TRUE) {
 
     # nn_network
-    selected_nn_network = get_NearestNetwork(gobject = gobject,
-                                                nn_network_to_use = nn_network_to_use,
-                                                network_name = network_name,
-                                                output = 'igraph')
+    selected_nn_network = get_NearestNetwork(gobject = gobject,spat_unit = spat_unit,
+                                             feat_type = feat_type,
+                                             nn_network_to_use = nn_network_to_use,
+                                             network_name = network_name,
+                                             output = 'igraph')
     network_DT = data.table::as.data.table(igraph::as_data_frame(selected_nn_network, what = 'edges'))
 
     # annotated network
@@ -6550,11 +6585,13 @@ dimPlot_3D_plotly <- function(gobject,
   }
 
   if(dim_reduction_to_use == "pca"){
-    pca_object = select_dimReduction(gobject,
-                                     reduction = 'cells',
-                                     reduction_method = dim_reduction_to_use,
-                                     name = dim_reduction_name,
-                                     return_dimObj = TRUE)
+    pca_object = get_dimReduction(gobject = gobject,
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type,
+                                  reduction = 'cells',
+                                  reduction_method = dim_reduction_to_use,
+                                  name = dim_reduction_name,
+                                  return_dimObj = TRUE)
 
     eigenvalues = pca_object$misc$eigenvalues
     if(!is.null(eigenvalues)) {
@@ -6740,6 +6777,8 @@ dimPlot_3D_plotly <- function(gobject,
 #' @name dimPlot3D
 #' @description Visualize cells according to dimension reduction coordinates
 #' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param dim_reduction_to_use dimension reduction to use
 #' @param dim_reduction_name dimension reduction name
 #' @param dim1_to_use dimension to use on x-axis
@@ -6773,6 +6812,8 @@ dimPlot_3D_plotly <- function(gobject,
 #' @family reduced dimension visualizations
 #' @export
 dimPlot3D = function(gobject,
+                     spat_unit = NULL,
+                     feat_type = NULL,
                      dim_reduction_to_use = 'umap',
                      dim_reduction_name = 'umap',
                      dim1_to_use = 1,
@@ -6809,6 +6850,8 @@ dimPlot3D = function(gobject,
     cat('create 2D plot\n')
 
     pl = dimPlot_2D_plotly(gobject = gobject,
+                           spat_unit = spat_unit,
+                           feat_type = feat_type,
                            dim_reduction_to_use = dim_reduction_to_use,
                            dim_reduction_name = dim_reduction_name,
                            dim1_to_use = dim1_to_use,
@@ -6838,6 +6881,8 @@ dimPlot3D = function(gobject,
   else{
     cat('create 3D plot\n')
     pl = dimPlot_3D_plotly(gobject = gobject,
+                           spat_unit = spat_unit,
+                           feat_type = feat_type,
                            dim_reduction_to_use = dim_reduction_to_use,
                            dim_reduction_name = dim_reduction_name,
                            dim1_to_use = dim1_to_use,
@@ -6975,8 +7020,8 @@ plotPCA_3D = function(gobject,
 #' @return plotly object
 #' @keywords internal
 spatPlot_2D_plotly = function(gobject,
-                              feat_type = NULL,
                               spat_unit = NULL,
+                              feat_type = NULL,
                               spat_loc_name = NULL,
                               sdimx = NULL,
                               sdimy = NULL,
@@ -7007,9 +7052,9 @@ spatPlot_2D_plotly = function(gobject,
                               show_plot = F) {
 
   # Set feat_type and spat_unit
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    feat_type = feat_type)
   spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
@@ -7215,8 +7260,8 @@ spatPlot_2D_plotly = function(gobject,
 #' @return plotly object
 #' @keywords internal
 spatPlot_3D_plotly = function(gobject,
-                              feat_type = NULL,
                               spat_unit = NULL,
+                              feat_type = NULL,
                               spat_loc_name = NULL,
                               sdimx = NULL,
                               sdimy = NULL,
@@ -7248,9 +7293,9 @@ spatPlot_3D_plotly = function(gobject,
 
 
   # Set feat_type and spat_unit
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    feat_type = feat_type)
   spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
@@ -7427,6 +7472,8 @@ spatPlot_3D_plotly = function(gobject,
 #' @name spatPlot3D
 #' @description Visualize cells according to spatial coordinates
 #' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param sdimx x-axis dimension name (default = 'sdimx')
 #' @param sdimy y-axis dimension name (default = 'sdimy')
 #' @param sdimz z-axis dimension name (default = 'sdimy')
@@ -7464,6 +7511,8 @@ spatPlot_3D_plotly = function(gobject,
 #' @family spatial visualizations
 #' @export
 spatPlot3D = function(gobject,
+                      spat_unit = NULL,
+                      feat_type = NULL,
                       sdimx = "sdimx",
                       sdimy = "sdimy",
                       sdimz = "sdimz",
@@ -7502,6 +7551,8 @@ spatPlot3D = function(gobject,
     cat('create 2D plot\n')
 
     pl = spatPlot_2D_plotly(gobject = gobject,
+                            spat_unit = spat_unit,
+                            feat_type = feat_type,
                             sdimx = sdimx,
                             sdimy = sdimy,
                             point_size = point_size,
@@ -7532,6 +7583,8 @@ spatPlot3D = function(gobject,
 
     cat('create 3D plot\n')
     pl = spatPlot_3D_plotly(gobject = gobject,
+                            spat_unit = spat_unit,
+                            feat_type = feat_type,
                             sdimx = sdimx,
                             sdimy = sdimy,
                             sdimz = sdimz,
@@ -7594,8 +7647,8 @@ spatPlot3D = function(gobject,
 #' @name spatDimPlot3D
 #' @description Visualize cells according to spatial AND dimension reduction coordinates in plotly mode
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param plot_alignment direction to align plot
 #' @param dim_reduction_to_use dimension reduction to use
 #' @param dim_reduction_name dimension reduction name
@@ -7658,8 +7711,8 @@ spatPlot3D = function(gobject,
 #' @family spatial and dimension reduction visualizations
 #' @export
 spatDimPlot3D <- function(gobject,
-                          feat_type = NULL,
                           spat_unit = NULL,
+                          feat_type = NULL,
                           plot_alignment = c('horizontal','vertical'),
                           dim_reduction_to_use = 'umap',
                           dim_reduction_name = 'umap',
@@ -7721,9 +7774,9 @@ spatDimPlot3D <- function(gobject,
                           default_save_name = "spatDimPlot3D"){
 
   # Set feat_type and spat_unit
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    feat_type = feat_type)
   spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
@@ -7734,11 +7787,13 @@ spatDimPlot3D <- function(gobject,
 
   # ********data prepare********#
   ## dimension reduction ##
-  dim_dfr = select_dimReduction(gobject,
-                                reduction = 'cells',
-                                reduction_method = dim_reduction_to_use,
-                                name = dim_reduction_name,
-                                return_dimObj = FALSE)
+  dim_dfr = get_dimReduction(gobject = gobject,
+                             spat_unit = spat_unit,
+                             feat_type = feat_type,
+                             reduction = 'cells',
+                             reduction_method = dim_reduction_to_use,
+                             name = dim_reduction_name,
+                             return_dimObj = FALSE)
   dim_dfr = dim_dfr[,c(dim1_to_use, dim2_to_use, dim3_to_use)]
   dim_names = colnames(dim_dfr)
   dim_DT = data.table::as.data.table(dim_dfr)
@@ -7758,11 +7813,13 @@ spatDimPlot3D <- function(gobject,
 
 
   if(dim_reduction_to_use == "pca"){
-    pca_object = select_dimReduction(gobject,
-                                     reduction = 'cells',
-                                     reduction_method = dim_reduction_to_use,
-                                     name = dim_reduction_name,
-                                     return_dimObj = TRUE)
+    pca_object = get_dimReduction(gobject = gobject,
+                                  spat_unit = spat_unit,
+                                  feat_type = feat_type,
+                                  reduction = 'cells',
+                                  reduction_method = dim_reduction_to_use,
+                                  name = dim_reduction_name,
+                                  return_dimObj = TRUE)
     eigenvalues = pca_object$misc$eigenvalues
 
     if(!is.null(eigenvalues)) {
@@ -8484,9 +8541,9 @@ spatGenePlot3D <- function(gobject,
                            default_save_name = "spatGenePlot3D"){
 
   # Set feat_type and spat_unit
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    feat_type = feat_type)
   spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
@@ -8850,9 +8907,9 @@ dimGenePlot3D <- function(gobject,
                           default_save_name = "dimGenePlot3D"){
 
   # Set feat_type and spat_unit
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    feat_type = feat_type)
   spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
@@ -9232,9 +9289,9 @@ spatDimGenePlot3D <- function(gobject,
                               default_save_name = "spatDimGenePlot3D"){
 
   # Set feat_type and spat_unit
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    feat_type = feat_type)
   spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
