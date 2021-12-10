@@ -3,6 +3,7 @@
 #' @name doHMRF
 #' @description Run HMRF
 #' @param gobject giotto object
+#' @param spat_unit spatial unit
 #' @param feat_type feature type
 #' @param expression_values expression values to use
 #' @param spatial_network_name name of spatial network to use for HMRF
@@ -26,6 +27,7 @@
 #' @details Description of HMRF parameters ...
 #' @export
 doHMRF <- function(gobject,
+                   spat_unit = NULL,
                    feat_type = NULL,
                    expression_values = c('normalized', 'scaled', 'custom'),
                    spatial_network_name = 'Delaunay_network',
@@ -59,10 +61,12 @@ doHMRF <- function(gobject,
   # data.table set global variable
   to = from = NULL
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   ## check or make paths
   # python path
@@ -97,17 +101,22 @@ doHMRF <- function(gobject,
 
     #expr_values = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']][, dimensions_to_use]
 
-    expr_values = select_dimReduction(gobject = gobject,
-                                      reduction = 'cells',
-                                      reduction_method = dim_reduction_to_use,
-                                      name = dim_reduction_name,
-                                      return_dimObj = FALSE)
+    expr_values = get_dimReduction(gobject = gobject,
+                                   spat_unit = spat_unit,
+                                   feat_type = feat_type,
+                                   reduction = 'cells',
+                                   reduction_method = dim_reduction_to_use,
+                                   name = dim_reduction_name,
+                                   return_dimObj = FALSE)
     expr_values = expr_values[, dimensions_to_use]
     expr_values = t_flex(expr_values)
 
   } else {
     values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-    expr_values = get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+    expr_values = get_expression_values(gobject = gobject,
+                                        spat_unit = spat_unit,
+                                        feat_type = feat_type,
+                                        values = values)
   }
   expr_values = as.matrix(expr_values)
 
@@ -164,9 +173,11 @@ doHMRF <- function(gobject,
 
 
   ## 3. spatial network
-  spatial_network = get_spatialNetwork(gobject,
-                                          name = spatial_network_name,
-                                          return_network_Obj = FALSE)
+  spatial_network = get_spatialNetwork(gobject = gobject,
+                                       spat_unit = spat_unit,
+                                       feat_type = feat_type,
+                                       name = spatial_network_name,
+                                       return_network_Obj = FALSE)
   spatial_network = spatial_network[,.(to,from)]
   spatial_network_file = paste0(output_folder,'/', 'spatial_network.txt')
 
@@ -188,7 +199,8 @@ doHMRF <- function(gobject,
 
   ## 4. cell location
   spatial_location = get_spatial_locations(gobject = gobject,
-                                            spat_loc_name = spat_loc_name)
+                                           spat_unit = spat_unit,
+                                           spat_loc_name = spat_loc_name)
   #spatial_location = gobject@spatial_locs
 
   # select spatial dimensions that are available #
@@ -462,6 +474,8 @@ writeHMRFresults <- function(gobject,
 #' @name addHMRF
 #' @description Add selected results from doHMRF to the giotto object
 #' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param HMRFoutput HMRF output from doHMRF()
 #' @param k number of domains
 #' @param betas_to_add results from different betas that you want to add
@@ -469,6 +483,8 @@ writeHMRFresults <- function(gobject,
 #' @return giotto object
 #' @export
 addHMRF <- function(gobject,
+                    spat_unit = NULL,
+                    feat_type = NULL,
                     HMRFoutput,
                     k = NULL,
                     betas_to_add = NULL,
@@ -478,6 +494,13 @@ addHMRF <- function(gobject,
   if(!'HMRFoutput' %in% class(HMRFoutput)) {
     stop('\n HMRFoutput needs to be output from doHMRFextend \n')
   }
+
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # get feat_type
   feat_type = HMRFoutput$feat_type
@@ -533,6 +556,7 @@ addHMRF <- function(gobject,
 
 
     gobject = addCellMetadata(gobject = gobject,
+                              spat_unit = spat_unit,
                               feat_type = feat_type,
                               column_cell_ID = 'cell_ID',
                               new_metadata = annot_DT,

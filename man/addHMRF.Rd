@@ -4,10 +4,22 @@
 \alias{addHMRF}
 \title{addHMRF}
 \usage{
-addHMRF(gobject, HMRFoutput, k = NULL, betas_to_add = NULL, hmrf_name = NULL)
+addHMRF(
+  gobject,
+  spat_unit = NULL,
+  feat_type = NULL,
+  HMRFoutput,
+  k = NULL,
+  betas_to_add = NULL,
+  hmrf_name = NULL
+)
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 
 \item{HMRFoutput}{HMRF output from doHMRF()}
 
