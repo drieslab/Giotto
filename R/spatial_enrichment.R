@@ -106,6 +106,7 @@ makeSignMatrixDWLSfromMatrix = function(matrix,
 #'  that can be used with \code{\link{runDWLSDeconv}}. A vector of cell types
 #'  for cell_type_vector can be created from the cell metadata (pDataDT).
 #' @param gobject Giotto object of single cell
+#' @param spat_unit spatial unit
 #' @param feat_type feature type to use
 #' @param expression_values expression values to use
 #' @param reverse_log reverse a log-normalized expression matrix
@@ -117,6 +118,7 @@ makeSignMatrixDWLSfromMatrix = function(matrix,
 #' @seealso \code{\link{spatialDWLS}}
 #' @export
 makeSignMatrixDWLS = function(gobject,
+                              spat_unit = NULL,
                               feat_type = NULL,
                               expression_values = c('normalized', 'scaled', 'custom'),
                               reverse_log = TRUE,
@@ -133,9 +135,17 @@ makeSignMatrixDWLS = function(gobject,
   }
 
 
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
+
   ## 1. expression matrix
   values      = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
   expr_values = get_expression_values(gobject = gobject,
+                                      spat_unit = spat_unit,
                                       feat_type = feat_type,
                                       values = values)
 
@@ -688,6 +698,8 @@ PAGE_DT_method = function(sign_matrix,
 #' @title runPAGEEnrich
 #' @description Function to calculate gene signature enrichment scores per spatial position using PAGE.
 #' @param gobject Giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param sign_matrix Matrix of signature genes for each cell type / process
 #' @param expression_values expression values to use
 #' @param min_overlap_genes minimum number of overlapping genes in sign_matrix required to calculate enrichment
@@ -715,6 +727,8 @@ PAGE_DT_method = function(sign_matrix,
 #' @seealso \code{\link{makeSignMatrixPAGE}}
 #' @export
 runPAGEEnrich <- function(gobject,
+                          spat_unit = NULL,
+                          feat_type = NULL,
                           sign_matrix,
                           expression_values = c('normalized', 'scaled', 'custom'),
                           min_overlap_genes = 5,
@@ -730,9 +744,19 @@ runPAGEEnrich <- function(gobject,
                           return_gobject = TRUE) {
 
 
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
+
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = get_expression_values(gobject = gobject, values = values)
+  expr_values = get_expression_values(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type,
+                                      values = values)
 
   # check parameters
   if(is.null(name)) name = 'PAGE'
@@ -753,7 +777,7 @@ runPAGEEnrich <- function(gobject,
   ## return object or results ##
   if(return_gobject == TRUE) {
 
-    spenr_names = names(gobject@spatial_enrichment)
+    spenr_names = names(gobject@spatial_enrichment[[spat_unit]])
 
     if(name %in% spenr_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
@@ -776,7 +800,7 @@ runPAGEEnrich <- function(gobject,
                                        'nr permutations' = n_times)
 
     gobject@parameters = parameters_list
-    gobject@spatial_enrichment[[name]] = PAGE_results[['matrix']]
+    gobject@spatial_enrichment[[spat_unit]][[name]] = PAGE_results[['matrix']]
 
     return(gobject)
 
@@ -826,6 +850,8 @@ do_rank_permutation <- function(sc_gene, n){
 #' @title runRankEnrich
 #' @description Function to calculate gene signature enrichment scores per spatial position using a rank based approach.
 #' @param gobject Giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param sign_matrix Matrix of signature genes for each cell type / process
 #' @param expression_values expression values to use
 #' @param reverse_log_scale reverse expression values from log scale
@@ -851,25 +877,38 @@ do_rank_permutation <- function(sc_gene, n){
 #' @seealso \code{\link{makeSignMatrixRank}}
 #' @export
 runRankEnrich <- function(gobject,
-                       sign_matrix,
-                       expression_values = c('normalized', "raw", 'scaled', 'custom'),
-                       reverse_log_scale = TRUE,
-                       logbase = 2,
-                       output_enrichment = c('original', 'zscore'),
-                       ties_method = c("random", "max"),
-                       p_value = FALSE,
-                       n_times = 1000,
-                       rbp_p = 0.99,
-                       num_agg = 100,
-                       name = NULL,
-                       return_gobject = TRUE) {
+                          spat_unit = NULL,
+                          feat_type = NULL,
+                          sign_matrix,
+                          expression_values = c('normalized', "raw", 'scaled', 'custom'),
+                          reverse_log_scale = TRUE,
+                          logbase = 2,
+                          output_enrichment = c('original', 'zscore'),
+                          ties_method = c("random", "max"),
+                          p_value = FALSE,
+                          n_times = 1000,
+                          rbp_p = 0.99,
+                          num_agg = 100,
+                          name = NULL,
+                          return_gobject = TRUE) {
+
+
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # determine ties.method
   ties_method = match.arg(ties_method, choices = c("random", "max"))
 
   # expression values to be used
-  values = match.arg(expression_values, c('normalized', "raw", 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
+  expr_values = get_expression_values(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type,
+                                      values = values)
 
   if(values=="raw"){
     expr_values = Matrix::as.matrix(expr_values)
@@ -951,10 +990,13 @@ runRankEnrich <- function(gobject,
 
   # default name for page enrichment
 
-  if (p_value==TRUE){
+  if(p_value == TRUE){
     random_rank = do_rank_permutation(sc_gene = rownames(sign_matrix),
                                       n = n_times)
+
     random_DT = runRankEnrich(gobject = gobject,
+                              spat_unit = spat_unit,
+                              feat_type = feat_type,
                               sign_matrix = random_rank,
                               expression_values = expression_values,
                               reverse_log_scale = reverse_log_scale,
@@ -973,7 +1015,7 @@ runRankEnrich <- function(gobject,
   ## return object or results ##
   if(return_gobject == TRUE) {
 
-    spenr_names = names(gobject@spatial_enrichment)
+    spenr_names = names(gobject@spatial_enrichment[[spat_unit]])
 
     if(name %in% spenr_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
@@ -996,7 +1038,7 @@ runRankEnrich <- function(gobject,
                                        'nr permutations' = n_times)
     gobject@parameters = parameters_list
 
-    gobject@spatial_enrichment[[name]] = enrichmentDT
+    gobject@spatial_enrichment[[spat_unit]][[name]] = enrichmentDT
 
     return(gobject)
 
@@ -1026,6 +1068,8 @@ rankEnrich <- function(...) {
 #' @title runHyperGeometricEnrich
 #' @description Function to calculate gene signature enrichment scores per spatial position using a hypergeometric test.
 #' @param gobject Giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param sign_matrix Matrix of signature genes for each cell type / process
 #' @param expression_values expression values to use
 #' @param reverse_log_scale reverse expression values from log scale
@@ -1040,19 +1084,30 @@ rankEnrich <- function(...) {
 #' hypergeometric test, -log10(p-value).
 #' @export
 runHyperGeometricEnrich <- function(gobject,
-                                 sign_matrix,
-                                 expression_values = c('normalized', 'scaled', 'custom'),
-                                 reverse_log_scale = TRUE,
-                                 logbase = 2,
-                                 top_percentage = 5,
-                                 output_enrichment = c('original', 'zscore'),
-                                 p_value = FALSE,
-                                 name = NULL,
-                                 return_gobject = TRUE) {
+                                    spat_unit = NULL,
+                                    feat_type = NULL,
+                                    sign_matrix,
+                                    expression_values = c('normalized', 'scaled', 'custom'),
+                                    reverse_log_scale = TRUE,
+                                    logbase = 2,
+                                    top_percentage = 5,
+                                    output_enrichment = c('original', 'zscore'),
+                                    p_value = FALSE,
+                                    name = NULL,
+                                    return_gobject = TRUE) {
 
-  # expression values to be used
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = select_expression_values(gobject = gobject, values = values)
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
+
+  values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
+  expr_values = get_expression_values(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type,
+                                      values = values)
 
   # check parameters
   if(is.null(name)) name = 'hypergeometric'
@@ -1120,7 +1175,7 @@ runHyperGeometricEnrich <- function(gobject,
   ## return object or results ##
   if(return_gobject == TRUE) {
 
-    spenr_names = names(gobject@spatial_enrichment)
+    spenr_names = names(gobject@spatial_enrichment[[spat_unit]])
 
     if(name %in% spenr_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
@@ -1143,7 +1198,7 @@ runHyperGeometricEnrich <- function(gobject,
                                        'p values calculated' = p_value)
     gobject@parameters = parameters_list
 
-    gobject@spatial_enrichment[[name]] = enrichmentDT
+    gobject@spatial_enrichment[[spat_unit]][[name]] = enrichmentDT
 
     return(gobject)
 
@@ -1172,6 +1227,8 @@ hyperGeometricEnrich <- function(...) {
 #' @title runSpatialEnrich
 #' @description Function to calculate gene signature enrichment scores per spatial position using an enrichment test.
 #' @param gobject Giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param enrich_method method for gene signature enrichment calculation
 #' @param sign_matrix Matrix of signature genes for each cell type / process
 #' @param expression_values expression values to use
@@ -1198,6 +1255,8 @@ hyperGeometricEnrich <- function(...) {
 #'
 #' @export
 runSpatialEnrich = function(gobject,
+                            spat_unit = NULL,
+                            feat_type = NULL,
                             enrich_method = c('PAGE', 'rank', 'hypergeometric'),
                             sign_matrix,
                             expression_values = c('normalized', 'scaled', 'custom'),
@@ -1217,26 +1276,30 @@ runSpatialEnrich = function(gobject,
 
 
   enrich_method = match.arg(enrich_method, choices = c('PAGE', 'rank', 'hypergeometric'))
-  expression_values = match.arg(expression_values, choices = c('normalized', 'scaled', 'custom'))
+
   output_enrichment = match.arg(output_enrichment, choices = c('original', 'zscore'))
 
 
   if(enrich_method == 'PAGE') {
 
     results =  runPAGEEnrich(gobject = gobject,
-                          sign_matrix = sign_matrix,
-                          expression_values = expression_values,
-                          reverse_log_scale = reverse_log_scale,
-                          logbase = logbase,
-                          output_enrichment = output_enrichment,
-                          p_value = p_value,
-                          n_times = n_times,
-                          name = name,
-                          return_gobject = return_gobject)
+                             spat_unit = spat_unit,
+                             feat_type = feat_type,
+                             sign_matrix = sign_matrix,
+                             expression_values = expression_values,
+                             reverse_log_scale = reverse_log_scale,
+                             logbase = logbase,
+                             output_enrichment = output_enrichment,
+                             p_value = p_value,
+                             n_times = n_times,
+                             name = name,
+                             return_gobject = return_gobject)
 
   } else if(enrich_method == 'rank') {
 
     results =  runRankEnrich(gobject = gobject,
+                             spat_unit = spat_unit,
+                             feat_type = feat_type,
                              sign_matrix = sign_matrix,
                              expression_values = expression_values,
                              reverse_log_scale = reverse_log_scale,
@@ -1253,6 +1316,8 @@ runSpatialEnrich = function(gobject,
   } else if(enrich_method == 'hypergeometric'){
 
     results =  runHyperGeometricEnrich(gobject = gobject,
+                                       spat_unit = spat_unit,
+                                       feat_type = feat_type,
                                        sign_matrix = sign_matrix,
                                        expression_values = expression_values,
                                        reverse_log_scale = reverse_log_scale,
@@ -1640,7 +1705,7 @@ solve_dampened_WLSj <- function(S,
   sc = norm(D,"2")
   D_positive_definite <- Matrix::nearPD(D/sc)
   solution<-quadprog::solve.QP(as.matrix(D_positive_definite$mat),d/sc,A,bzero)$solution
-  
+
   names(solution) = colnames(S)
   return(solution)
 }
@@ -1649,6 +1714,8 @@ solve_dampened_WLSj <- function(S,
 #' @title runDWLSDeconv
 #' @description Function to perform DWLS deconvolution based on single cell expression data
 #' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param expression_values expression values to use
 #' @param logbase base used for log normalization
 #' @param cluster_column name of cluster column
@@ -1660,6 +1727,8 @@ solve_dampened_WLSj <- function(S,
 #' @return giotto object or deconvolution results
 #' @export
 runDWLSDeconv <- function(gobject,
+                          spat_unit = NULL,
+                          feat_type = NULL,
                           expression_values = c('normalized'),
                           logbase = 2,
                           cluster_column = 'leiden_clus',
@@ -1673,19 +1742,31 @@ runDWLSDeconv <- function(gobject,
   # verify if optional package is installed
   package_check(pkg_name = "quadprog", repository = "CRAN")
 
-
   ## check parameters ##
   if(is.null(name)) name = 'DWLS'
 
-  # expression values to be used
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = as.array(select_expression_values(gobject = gobject, values = values))
+
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
+
+  values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
+  expr_values = get_expression_values(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type,
+                                      values = values)
+
 
   # #transform expression data to no log data
   nolog_expr = logbase^(expr_values)-1
 
   # cluster column
-  cell_metadata = pDataDT(gobject)
+  cell_metadata = pDataDT(gobject,
+                          spat_unit = spat_unit,
+                          feat_type = feat_type)
   if(!cluster_column %in% colnames(cell_metadata)) {
     stop('\n cluster column not found \n')
   }
@@ -1720,7 +1801,7 @@ runDWLSDeconv <- function(gobject,
   ## return object or results ##
   if(return_gobject == TRUE) {
 
-    spenr_names = names(gobject@spatial_enrichment)
+    spenr_names = names(gobject@spatial_enrichment[[spat_unit]])
 
     if(name %in% spenr_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
@@ -1742,7 +1823,7 @@ runDWLSDeconv <- function(gobject,
 
     gobject@parameters = parameters_list
 
-    gobject@spatial_enrichment[[name]] = deconvolutionDT
+    gobject@spatial_enrichment[[spat_unit]][[name]] = deconvolutionDT
 
     return(gobject)
 
@@ -1757,6 +1838,8 @@ runDWLSDeconv <- function(gobject,
 #' @title runSpatialDeconv
 #' @description Function to perform deconvolution based on single cell expression data
 #' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param deconv_method method to use for deconvolution
 #' @param expression_values expression values to use
 #' @param logbase base used for log normalization
@@ -1769,6 +1852,8 @@ runDWLSDeconv <- function(gobject,
 #' @return giotto object or deconvolution results
 #' @export
 runSpatialDeconv <- function(gobject,
+                             spat_unit = NULL,
+                             feat_type = NULL,
                              deconv_method = c('DWLS'),
                              expression_values = c('normalized'),
                              logbase = 2,
@@ -1786,6 +1871,8 @@ runSpatialDeconv <- function(gobject,
   if(deconv_method == 'DWLS') {
 
     results =  runDWLSDeconv(gobject = gobject,
+                             spat_unit = spat_unit,
+                             feat_type = feat_type,
                              expression_values = expression_values,
                              logbase = logbase,
                              cluster_column = cluster_column,

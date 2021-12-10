@@ -6,6 +6,8 @@
 \usage{
 runPAGEEnrich(
   gobject,
+  spat_unit = NULL,
+  feat_type = NULL,
   sign_matrix,
   expression_values = c("normalized", "scaled", "custom"),
   min_overlap_genes = 5,
@@ -23,6 +25,10 @@ runPAGEEnrich(
 }
 \arguments{
 \item{gobject}{Giotto object}
+
+\item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 
 \item{sign_matrix}{Matrix of signature genes for each cell type / process}
 

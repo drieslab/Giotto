@@ -6,6 +6,8 @@
 \usage{
 runSpatialDeconv(
   gobject,
+  spat_unit = NULL,
+  feat_type = NULL,
   deconv_method = c("DWLS"),
   expression_values = c("normalized"),
   logbase = 2,
@@ -19,6 +21,10 @@ runSpatialDeconv(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 
 \item{deconv_method}{method to use for deconvolution}
 

@@ -6,6 +6,7 @@
 \usage{
 makeSignMatrixDWLS(
   gobject,
+  spat_unit = NULL,
   feat_type = NULL,
   expression_values = c("normalized", "scaled", "custom"),
   reverse_log = TRUE,
@@ -17,6 +18,8 @@ makeSignMatrixDWLS(
 }
 \arguments{
 \item{gobject}{Giotto object of single cell}
+
+\item{spat_unit}{spatial unit}
 
 \item{feat_type}{feature type to use}
 

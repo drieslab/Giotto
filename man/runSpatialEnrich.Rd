@@ -6,6 +6,8 @@
 \usage{
 runSpatialEnrich(
   gobject,
+  spat_unit = NULL,
+  feat_type = NULL,
   enrich_method = c("PAGE", "rank", "hypergeometric"),
   sign_matrix,
   expression_values = c("normalized", "scaled", "custom"),
@@ -26,6 +28,10 @@ runSpatialEnrich(
 }
 \arguments{
 \item{gobject}{Giotto object}
+
+\item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 
 \item{enrich_method}{method for gene signature enrichment calculation}
 

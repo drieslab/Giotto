@@ -6,6 +6,8 @@
 \usage{
 runDWLSDeconv(
   gobject,
+  spat_unit = NULL,
+  feat_type = NULL,
   expression_values = c("normalized"),
   logbase = 2,
   cluster_column = "leiden_clus",
@@ -18,6 +20,10 @@ runDWLSDeconv(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 
 \item{expression_values}{expression values to use}
 

@@ -6,6 +6,8 @@
 \usage{
 runHyperGeometricEnrich(
   gobject,
+  spat_unit = NULL,
+  feat_type = NULL,
   sign_matrix,
   expression_values = c("normalized", "scaled", "custom"),
   reverse_log_scale = TRUE,
@@ -19,6 +21,10 @@ runHyperGeometricEnrich(
 }
 \arguments{
 \item{gobject}{Giotto object}
+
+\item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 
 \item{sign_matrix}{Matrix of signature genes for each cell type / process}
 

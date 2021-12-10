@@ -11,6 +11,8 @@ hyperGeometricEnrich(...)
   Arguments passed on to \code{\link[=runHyperGeometricEnrich]{runHyperGeometricEnrich}}
   \describe{
     \item{\code{gobject}}{Giotto object}
+    \item{\code{spat_unit}}{spatial unit}
+    \item{\code{feat_type}}{feature type}
     \item{\code{sign_matrix}}{Matrix of signature genes for each cell type / process}
     \item{\code{expression_values}}{expression values to use}
     \item{\code{reverse_log_scale}}{reverse expression values from log scale}
