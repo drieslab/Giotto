@@ -8,6 +8,7 @@ subsetGiottoLocs(
   gobject,
   spat_unit = NULL,
   feat_type = NULL,
+  spat_loc_name = NULL,
   x_max = NULL,
   x_min = NULL,
   y_max = NULL,
@@ -25,6 +26,8 @@ subsetGiottoLocs(
 \item{spat_unit}{spatial unit}
 
 \item{feat_type}{feature type to use}
+
+\item{spat_loc_name}{name of spatial locations to use}
 
 \item{x_max}{maximum x-coordinate}
 

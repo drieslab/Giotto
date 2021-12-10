@@ -7,6 +7,7 @@
 addSpatialCentroidLocations(
   gobject,
   poly_info = "cell",
+  feat_type = NULL,
   spat_loc_name = "raw",
   return_gobject = TRUE
 )
@@ -16,9 +17,11 @@ addSpatialCentroidLocations(
 
 \item{poly_info}{polygon information}
 
-\item{return_gobject}{return giotto object (default: TRUE)}
-
 \item{feat_type}{feature type}
+
+\item{spat_loc_name}{name to give to the created spatial locations}
+
+\item{return_gobject}{return giotto object (default: TRUE)}
 }
 \value{
 

@@ -1362,16 +1362,29 @@ createSpatialFeaturesKNNnetwork = function(gobject,
 #' @name addSpatialCentroidLocations
 #' @description Calculates the centroid locations for the giotto polygons
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param poly_info polygon information
+#' @param feat_type feature type
+#' @param spat_loc_name name to give to the created spatial locations
 #' @param return_gobject return giotto object (default: TRUE)
 #' @return
 #' @keywords centroid
 #' @export
 addSpatialCentroidLocations = function(gobject,
                                        poly_info = 'cell',
+                                       feat_type = NULL,
                                        spat_loc_name = 'raw',
                                        return_gobject = TRUE) {
+
+  # Set feat_type and spat_unit
+  poly_info = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = poly_info)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = poly_info,
+                                    feat_type = feat_type)
+
+  # Set feat_type and spat_unit
+  poly_info = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = poly_info)
 
   extended_spatvector = calculate_centroids_polygons(gpolygon = gobject@spatial_info[[poly_info]],
                                                      name = 'centroids',
@@ -1384,7 +1397,16 @@ addSpatialCentroidLocations = function(gobject,
 
   if(return_gobject == TRUE) {
 
+    # spatial location
     gobject@spatial_locs[[poly_info]][[spat_loc_name]] = spatial_locs
+
+    # cell metadata
+    # new spatial locations come with new cell and feature metadata
+    for(type in feat_type) {
+      gobject@cell_metadata[[poly_info]][[type]] = data.table::data.table(cell_ID = gobject@spatial_info[[poly_info]]@spatVector$poly_ID)
+      gobject@feat_metadata[[poly_info]][[type]] = data.table::data.table(feat_ID = gobject@feat_ID[[type]])
+    }
+
 
     # add centroids information
     gobject@spatial_info[[poly_info]] = extended_spatvector

@@ -2235,11 +2235,14 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
     polygon_dfr_list_params = list(calc_centroids = FALSE)
   }
 
+  if(verbose) cat("1. Start extracting polygon information \n")
 
   polygon_res = extract_polygon_list(polygonlist = gpolygons,
                                      polygon_mask_list_params = polygon_mask_list_params,
                                      polygon_dfr_list_params = polygon_dfr_list_params)
   gobject@spatial_info = polygon_res
+
+  if(verbose) cat("2. Finished extracting polygon information \n")
 
   ## cell ID ##
   ## ------- ##
@@ -2253,8 +2256,13 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
 
   ## extract points information ##
   ## -------------------------- ##
+
+  if(verbose) cat("3. Start extracting spatial feature information \n")
+
   points_res = extract_points_list(pointslist = gpoints)
   gobject@feat_info = points_res
+
+  if(verbose) cat("4. Finished extracting spatial feature information \n")
 
   ## expression features ##
   ## ------------------- ##

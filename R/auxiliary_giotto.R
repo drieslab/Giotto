@@ -837,6 +837,9 @@ subsetGiotto <- function(gobject,
   g_cell_IDs = gobject@cell_ID[[spat_unit]]
   g_feat_IDs = gobject@feat_ID[[feat_type]]
 
+  print(g_cell_IDs[1:5])
+  print(g_feat_IDs[1:5])
+
   ## filter index
   if(!is.null(cell_ids)) {
     filter_bool_cells = g_cell_IDs %in% cell_ids
@@ -848,9 +851,8 @@ subsetGiotto <- function(gobject,
   cells_to_keep = g_cell_IDs[filter_bool_cells]
   feats_to_keep = g_feat_IDs[filter_bool_feats]
 
-
-  #print(cells_to_keep[1:5])
-  #print(feats_to_keep[1:5])
+  print(cells_to_keep[1:5])
+  print(feats_to_keep[1:5])
 
   if(verbose) cat('completed 1: preparation \n')
 
@@ -874,8 +876,8 @@ subsetGiotto <- function(gobject,
 
 
   # filter cell_ID and gene_ID
-  gobject@cell_ID[[spat_unit]] = colnames(gobject@expression[[spat_unit]][[feat_type]][[1]])
-  gobject@feat_ID[[feat_type]] = rownames(gobject@expression[[spat_unit]][[feat_type]][[1]])
+  gobject@cell_ID[[spat_unit]] = gobject@cell_ID[[spat_unit]][filter_bool_cells]
+  gobject@feat_ID[[feat_type]] = gobject@feat_ID[[feat_type]][filter_bool_feats]
 
 
   if(verbose) cat('completed 4: subset cell (spatial units) and feature IDs \n')
@@ -999,6 +1001,7 @@ subsetGiotto <- function(gobject,
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type to use
+#' @param spat_loc_name name of spatial locations to use
 #' @param x_max maximum x-coordinate
 #' @param x_min minimum x-coordinate
 #' @param y_max maximum y-coordinate
@@ -1014,6 +1017,7 @@ subsetGiotto <- function(gobject,
 subsetGiottoLocs = function(gobject,
                             spat_unit = NULL,
                             feat_type = NULL,
+                            spat_loc_name = NULL,
                             x_max = NULL,
                             x_min = NULL,
                             y_max = NULL,
@@ -1042,7 +1046,7 @@ subsetGiottoLocs = function(gobject,
   comb_metadata = combineMetadata(gobject = gobject,
                                   spat_unit = spat_unit,
                                   feat_type = feat_type,
-                                  spat_loc_name = NULL)
+                                  spat_loc_name = spat_loc_name)
   comb_colnames =  colnames(comb_metadata)
 
   # x spatial dimension
