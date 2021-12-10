@@ -1886,10 +1886,13 @@ overlapToMatrix = function(gobject,
 
   print(missing_ids)
 
-  # create missing cell values
-  first_feature = aggr_dtoverlap[['feat_ID']][[1]]
-  missing_dt = data.table::data.table(poly_ID = missing_ids, feat_ID = first_feature, N = 0)
-  aggr_dtoverlap = rbind(aggr_dtoverlap, missing_dt)
+  # create missing cell values, only if there are missing cell IDs!
+  if(!is.null(missing_ids)) {
+    first_feature = aggr_dtoverlap[['feat_ID']][[1]]
+    missing_dt = data.table::data.table(poly_ID = missing_ids, feat_ID = first_feature, N = 0)
+    aggr_dtoverlap = rbind(aggr_dtoverlap, missing_dt)
+  }
+
 
 
   # TODO: creating missing feature values
