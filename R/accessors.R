@@ -563,20 +563,31 @@ set_spatialNetwork <- function(gobject,
 #' @name get_spatialGrid
 #' @description function to get spatial grid
 #' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param name name of spatial grid
 #' @param return_network_Obj return grid object (default = FALSE)
 #' @export
 get_spatialGrid <- function(gobject,
+                            spat_unit = NULL,
+                            feat_type = NULL,
                             name = NULL,
                             return_grid_Obj = FALSE) {
 
-  if (!is.element(name, names(gobject@spatial_grid))){
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
+
+  if (!is.element(name, names(gobject@spatial_grid[[spat_unit]]))){
     message = sprintf("spatial grid %s has not been created. Returning NULL.
                       check which spatial grids exist with showGrids() \n", name)
     warning(message)
     return(NULL)
   }else{
-    gridObj = gobject@spatial_grid[[name]]
+    gridObj = gobject@spatial_grid[[spat_unit]][[name]]
     gridDT = gridObj$gridDT
   }
 
@@ -610,13 +621,21 @@ select_spatialGrid = function(...) {
 #' @param spatial_grid spatial grid
 #' @export
 set_spatialGrid <- function(gobject,
+                            spat_unit = NULL,
+                            feat_type = NULL,
                             name = NULL,
                             spatial_grid) {
 
 
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   ## 1. check if specified name has already been used
-  potential_names = names(gobject@spatial_grid)
+  potential_names = names(gobject@spatial_grid[[spat_unit]])
   if(name %in% potential_names) {
     cat(name, ' already exist and will be replaced with new spatial grid \n')
   }
@@ -625,7 +644,8 @@ set_spatialGrid <- function(gobject,
 
 
   ## 3. update and return giotto object
-  gobject@spatial_grid[[name]] = spatial_grid
+  gobject@spatial_grid[[spat_unit]][[name]] = spatial_grid
+
   return(gobject)
 
 }
@@ -1128,10 +1148,20 @@ showNetworks = function(...) {
 #' @return vector
 #' @export
 showGiottoSpatGrids = function(gobject,
+                               feat_type = NULL,
+                               spat_unit = NULL,
                                verbose = TRUE) {
 
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
+
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
-  g_grid_names = names(gobject@spatial_grid)
+
+  g_grid_names = names(gobject@spatial_grid[[spat_unit]])
 
   if(verbose == TRUE) {
     cat('The following grids are available: ',

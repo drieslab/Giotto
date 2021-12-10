@@ -6,6 +6,8 @@
 \usage{
 createSpatialDefaultGrid(
   gobject,
+  spat_unit = NULL,
+  spat_loc_name = "raw",
   sdimx_stepsize = NULL,
   sdimy_stepsize = NULL,
   sdimz_stepsize = NULL,
@@ -16,6 +18,10 @@ createSpatialDefaultGrid(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{spat_unit}{spatial unit}
+
+\item{spat_loc_name}{spatial location name}
 
 \item{sdimx_stepsize}{stepsize along the x-axis}
 

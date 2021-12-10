@@ -4,7 +4,12 @@
 \alias{showGiottoSpatGrids}
 \title{showGiottoSpatGrids}
 \usage{
-showGiottoSpatGrids(gobject, verbose = TRUE)
+showGiottoSpatGrids(
+  gobject,
+  feat_type = NULL,
+  spat_unit = NULL,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{gobject}{a giotto object}

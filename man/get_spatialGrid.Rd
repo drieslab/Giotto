@@ -4,10 +4,20 @@
 \alias{get_spatialGrid}
 \title{get_spatialGrid}
 \usage{
-get_spatialGrid(gobject, name = NULL, return_grid_Obj = FALSE)
+get_spatialGrid(
+  gobject,
+  spat_unit = NULL,
+  feat_type = NULL,
+  name = NULL,
+  return_grid_Obj = FALSE
+)
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 
 \item{name}{name of spatial grid}
 

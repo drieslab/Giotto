@@ -4,7 +4,13 @@
 \alias{set_spatialGrid}
 \title{set_spatialGrid}
 \usage{
-set_spatialGrid(gobject, name = NULL, spatial_grid)
+set_spatialGrid(
+  gobject,
+  spat_unit = NULL,
+  feat_type = NULL,
+  name = NULL,
+  spatial_grid
+)
 }
 \arguments{
 \item{gobject}{giotto object}

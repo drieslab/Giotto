@@ -1880,6 +1880,7 @@ create_spatialGridObject <- function(name = NULL,
 #' @description create a 2D spatial grid
 #' @keywords internal
 create_spatialGrid_default_2D <- function(gobject,
+                                          spat_unit = NULL,
                                           spat_loc_name = 'raw',
                                           sdimx_stepsize = NULL,
                                           sdimy_stepsize = NULL,
@@ -1889,8 +1890,12 @@ create_spatialGrid_default_2D <- function(gobject,
   # data.table variables
   gr_name = gr_x_name = gr_y_name = gr_x_loc = gr_y_loc = gr_loc = NULL
 
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+
   spatlocs = get_spatial_locations(gobject = gobject,
-                                      spat_loc_name = spat_loc_name)
+                                   spat_unit = spat_unit,
+                                   spat_loc_name = spat_loc_name)
 
   if(is.null(spatlocs)) stop('\n spatial locations are needed to create a spatial grid \n')
 
@@ -1956,6 +1961,7 @@ create_spatialGrid_default_2D <- function(gobject,
 #' @description create a 3D spatial grid
 #' @keywords internal
 create_spatialGrid_default_3D <- function(gobject,
+                                          spat_unit = NULL,
                                           spat_loc_name = 'raw',
                                           sdimx_stepsize = NULL,
                                           sdimy_stepsize = NULL,
@@ -1966,8 +1972,12 @@ create_spatialGrid_default_3D <- function(gobject,
   # data.table variables
   gr_name = gr_x_name = gr_y_name = gr_z_name = gr_x_loc = gr_y_loc = gr_z_loc = gr_loc = NULL
 
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+
   spatlocs = get_spatial_locations(gobject = gobject,
-                                      spat_loc_name = spat_loc_name)
+                                   spat_unit = spat_unit,
+                                   spat_loc_name = spat_loc_name)
 
   if(is.null(spatlocs)) stop('\n spatial locations are needed to create a spatial grid \n')
 
@@ -2050,6 +2060,8 @@ create_spatialGrid_default_3D <- function(gobject,
 #' @name createSpatialDefaultGrid
 #' @description Create a spatial grid using the default method
 #' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param spat_loc_name spatial location name
 #' @param sdimx_stepsize stepsize along the x-axis
 #' @param sdimy_stepsize stepsize along the y-axis
 #' @param sdimz_stepsize stepsize along the z-axis
@@ -2061,6 +2073,8 @@ create_spatialGrid_default_3D <- function(gobject,
 #' The dimension units are based on the provided spatial location units.
 #' @export
 createSpatialDefaultGrid <- function(gobject,
+                                     spat_unit = NULL,
+                                     spat_loc_name = 'raw',
                                      sdimx_stepsize = NULL,
                                      sdimy_stepsize = NULL,
                                      sdimz_stepsize = NULL,
@@ -2076,6 +2090,8 @@ createSpatialDefaultGrid <- function(gobject,
   if(length(c(sdimx_stepsize, sdimy_stepsize, sdimz_stepsize)) == 3) {
 
     resultgrid = create_spatialGrid_default_3D(gobject = gobject,
+                                               spat_unit = spat_unit,
+                                               spat_loc_name = spat_loc_name,
                                                sdimx_stepsize = sdimx_stepsize,
                                                sdimy_stepsize = sdimy_stepsize,
                                                sdimz_stepsize = sdimz_stepsize,
@@ -2084,6 +2100,8 @@ createSpatialDefaultGrid <- function(gobject,
   } else if(!is.null(sdimx_stepsize) & !is.null(sdimy_stepsize)) {
 
     resultgrid = create_spatialGrid_default_2D(gobject = gobject,
+                                               spat_unit = spat_unit,
+                                               spat_loc_name = spat_loc_name,
                                                sdimx_stepsize = sdimx_stepsize,
                                                sdimy_stepsize = sdimy_stepsize,
                                                minimum_padding = minimum_padding)
@@ -2097,7 +2115,7 @@ createSpatialDefaultGrid <- function(gobject,
   if(return_gobject == TRUE) {
 
     # 1. check if name has already been used
-    spg_names = names(gobject@spatial_grid)
+    spg_names = names(gobject@spatial_grid[[spat_unit]])
 
     if(name %in% spg_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
@@ -2117,7 +2135,7 @@ createSpatialDefaultGrid <- function(gobject,
                                            misc = NULL)
 
     # 3. assign spatial grid object
-    gobject@spatial_grid[[name]] <- spatgridobj
+    gobject@spatial_grid[[spat_unit]][[name]] = spatgridobj
 
 
     # 4. update log
@@ -2154,6 +2172,8 @@ createSpatialDefaultGrid <- function(gobject,
 #' @name createSpatialGrid
 #' @description Create a spatial grid using the default method
 #' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param spat_loc_name spatial location name
 #' @param name name for spatial grid
 #' @param method method to create a spatial grid
 #' @param sdimx_stepsize stepsize along the x-axis
@@ -2169,6 +2189,8 @@ createSpatialDefaultGrid <- function(gobject,
 #' }
 #' @export
 createSpatialGrid <- function(gobject,
+                              spat_unit = NULL,
+                              spat_loc_name = 'raw',
                               name = NULL,
                               method = c('default'),
                               sdimx_stepsize = NULL,
@@ -2183,6 +2205,8 @@ createSpatialGrid <- function(gobject,
   if(method == 'default') {
 
     out = createSpatialDefaultGrid(gobject = gobject,
+                                   spat_unit = spat_unit,
+                                   spat_loc_name = spat_loc_name,
                                    sdimx_stepsize = sdimx_stepsize,
                                    sdimy_stepsize = sdimy_stepsize,
                                    sdimz_stepsize = sdimz_stepsize,
@@ -2303,12 +2327,14 @@ annotate_spatlocs_with_spatgrid_3D = function(spatloc,
 #' @name annotateSpatialGrid
 #' @description annotate spatial grid with cell ID and cell metadata (optional)
 #' @param gobject Giotto object
+#' @param spat_unit spatial unit
 #' @param spat_loc_name name of spatial locations
 #' @param spatial_grid_name name of spatial grid, see \code{\link{showGrids}}
 #' @param cluster_columns names of cell metadata, see \code{\link{pDataDT}}
 #' @return annotated spatial grid data.table
 #' @export
 annotateSpatialGrid = function(gobject,
+                               spat_unit = NULL,
                                spat_loc_name = 'raw',
                                spatial_grid_name = 'spatial_grid',
                                cluster_columns = NULL) {
@@ -2316,9 +2342,11 @@ annotateSpatialGrid = function(gobject,
 
   # get grid
   spatial_grid = get_spatialGrid(gobject = gobject,
-                                    name = spatial_grid_name)
+                                 spat_unit = spat_unit,
+                                 name = spatial_grid_name)
   spatial_locs = get_spatial_locations(gobject = gobject,
-                                          spat_loc_name = spat_loc_name)
+                                       spat_unit = spat_unit,
+                                       spat_loc_name = spat_loc_name)
 
   # 1. annotate spatial grid with spatial locations
   if(all(c('sdimx', 'sdimy', 'sdimz') %in% colnames(spatial_locs))) {
@@ -2328,7 +2356,9 @@ annotateSpatialGrid = function(gobject,
   }
 
   # 2.select metadata
-  cell_metadata = pDataDT(gobject)
+  cell_metadata = pDataDT(gobject,
+                          spat_unit = spat_unit,
+                          feat_type = NULL)
 
   if(!is.null(cluster_columns)) {
 

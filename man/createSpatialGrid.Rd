@@ -6,6 +6,8 @@
 \usage{
 createSpatialGrid(
   gobject,
+  spat_unit = NULL,
+  spat_loc_name = "raw",
   name = NULL,
   method = c("default"),
   sdimx_stepsize = NULL,
@@ -17,6 +19,10 @@ createSpatialGrid(
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{spat_unit}{spatial unit}
+
+\item{spat_loc_name}{spatial location name}
 
 \item{name}{name for spatial grid}
 

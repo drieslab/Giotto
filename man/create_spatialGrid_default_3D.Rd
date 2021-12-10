@@ -6,6 +6,7 @@
 \usage{
 create_spatialGrid_default_3D(
   gobject,
+  spat_unit = NULL,
   spat_loc_name = "raw",
   sdimx_stepsize = NULL,
   sdimy_stepsize = NULL,
