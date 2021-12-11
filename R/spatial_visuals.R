@@ -2328,16 +2328,16 @@ plot_spat_image_layer_ggplot = function(ggplot,
         my_xmin = gimage[[i]]@minmax[2]
         my_ymax = gimage[[i]]@minmax[3]
         my_ymin = gimage[[i]]@minmax[4]
-        
+
         # convert giotto image object into array
         img_array = as.numeric(gimage[[i]]@mg_object[[1]])
-        
+
         # extract adjustments from object
         xmax_b = gimage[[i]]@boundaries[1]
         xmin_b = gimage[[i]]@boundaries[2]
         ymax_b = gimage[[i]]@boundaries[3]
         ymin_b = gimage[[i]]@boundaries[4]
-        
+
         ggplot = ggplot + annotation_raster(img_array,
                                             xmin = my_xmin-xmin_b, xmax = my_xmax+xmax_b,
                                             ymin = my_ymin-ymin_b, ymax = my_ymax+ymax_b)
@@ -2368,23 +2368,23 @@ plot_spat_image_layer_ggplot = function(ggplot,
     }
 
   } else {
-    
+
     if(methods::is(gimage, 'giottoImage')) {
       # extract min and max from object
       my_xmax = gimage@minmax[1]
       my_xmin = gimage@minmax[2]
       my_ymax = gimage@minmax[3]
       my_ymin = gimage@minmax[4]
-      
+
       # convert giotto image object into array
       img_array = as.numeric(gimage@mg_object[[1]])
-      
+
       # extract adjustments from object
       xmax_b = gimage@boundaries[1]
       xmin_b = gimage@boundaries[2]
       ymax_b = gimage@boundaries[3]
       ymin_b = gimage@boundaries[4]
-      
+
       ggplot = ggplot + annotation_raster(img_array,
                                           xmin = my_xmin-xmin_b, xmax = my_xmax+xmax_b,
                                           ymin = my_ymin-ymin_b, ymax = my_ymax+ymax_b)
@@ -2396,7 +2396,7 @@ plot_spat_image_layer_ggplot = function(ggplot,
       xmax = extent[['xmax']]
       ymin = extent[['ymin']]
       ymax = extent[['ymax']]
-      
+
       # convert raster object into array with 3 channels
       img_array = terra::as.array(gimage@raster_object)
       img_array = img_array/max(img_array)
@@ -2406,7 +2406,7 @@ plot_spat_image_layer_ggplot = function(ggplot,
       } else {
         img_array_RGB = img_array
       }
-      
+
       ggplot = ggplot + annotation_raster(img_array_RGB,
                                           xmin = xmin, xmax = xmax,
                                           ymin = ymin, ymax = ymax)
@@ -3423,7 +3423,6 @@ spatDeconvPlot = function(gobject,
       if(length(largeImage_name) == 1) {
         gimage = plot_auto_largeImage_resample(gobject = gobject,
                                                largeImage_name = largeImage_name,
-                                               feat_type = feat_type,
                                                spat_unit = spat_unit,
                                                spat_loc_name = spat_loc_name,
                                                include_image_in_border = TRUE)
@@ -3432,7 +3431,6 @@ spatDeconvPlot = function(gobject,
         for(gim in 1:length(largeImage_name)) {
           gimage[[gim]] = plot_auto_largeImage_resample(gobject = gobject,
                                                         largeImage_name = largeImage_name[[gim]],
-                                                        feat_type = feat_type,
                                                         spat_unit = spat_unit,
                                                         spat_loc_name = spat_loc_name,
                                                         include_image_in_border = TRUE)
@@ -4037,7 +4035,6 @@ spatFeatPlot2D_single <- function(gobject,
 
       gimage = plot_auto_largeImage_resample(gobject = gobject,
                                              largeImage_name = largeImage_name,
-                                             feat_type = feat_type,
                                              spat_unit = spat_unit,
                                              spat_loc_name = spat_loc_name,
                                              include_image_in_border = TRUE)
