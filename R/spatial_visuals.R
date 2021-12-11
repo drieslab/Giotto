@@ -11,25 +11,23 @@
 
 ## ** image object compatibility ####
 
-#' @title plot_auto_convert_largeImage_MG
-#' @name plot_auto_convert_largeImage_MG
-#' @description automatically convert giottoLargeImage to giottoImage for giotto plotting functions
+#' @title plot_auto_largeImage_resample
+#' @name plot_auto_largeImage_resample
+#' @description resamples largeImage for plotting
 #' @param gobject gobject containing largeImage
 #' @param giottoLargeImage giottoLargeImage
 #' @param largeImage_name name of largeImage
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
 #' @param spat_loc_name name of spatial locations to plot
 #' @param include_image_in_border expand the extent sampled to also show image in border regions not included in spatlocs
-#' @return a giottoImage (MG)
+#' @return a giottoLargeImage cropped and resampled properly for plotting
 #' @keywords internal
-plot_auto_convert_largeImage_MG = function(gobject,
-                                           giottoLargeImage = NULL,
-                                           largeImage_name = NULL,
-                                           feat_type = NULL,
-                                           spat_unit = NULL,
-                                           spat_loc_name = NULL,
-                                           include_image_in_border = TRUE) {
+plot_auto_largeImage_resample = function(gobject,
+                                     giottoLargeImage = NULL,
+                                     largeImage_name = NULL,
+                                     spat_unit = NULL,
+                                     spat_loc_name = NULL,
+                                     include_image_in_border = TRUE) {
 
   # If no giottoLargeImage, select specified giottoLargeImage. If none specified, select first one.
   if(is.null(giottoLargeImage)) {
@@ -37,12 +35,9 @@ plot_auto_convert_largeImage_MG = function(gobject,
                                     largeImage_name = largeImage_name)
   }
 
-  # Set feat_type and spat_unit
+  # Set spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type)
 
   # Get spatial locations
   cell_locations = get_spatial_locations(gobject = gobject,
@@ -74,17 +69,17 @@ plot_auto_convert_largeImage_MG = function(gobject,
     ymax_crop = y_range[2]
   }
 
-  # Convert to properly zoomed gimage (MG)
-  gimage = convertGiottoLargeImageToMG(giottoLargeImage = giottoLargeImage,
-                                       xmax_crop = xmax_crop,
-                                       xmin_crop = xmin_crop,
-                                       ymax_crop = ymax_crop,
-                                       ymin_crop = ymin_crop,
-                                       resample_size = 500000,
-                                       max_intensity = NULL,
-                                       return_gobject = FALSE)
+  # setup crop extent
+  crop_ext = terra::ext(xmin_crop, xmax_crop,
+                        ymin_crop, ymax_crop)
+  # zoom and resample giottoLargeImage
+  giottoLargeImage@raster_object = terra::spatSample(giottoLargeImage@raster_object,
+                                                     size = 500000,
+                                                     method = 'regular',
+                                                     as.raster = TRUE,
+                                                     ext = crop_ext)
 
-  return(gimage)
+  return(giottoLargeImage)
 }
 
 
@@ -2327,48 +2322,96 @@ plot_spat_image_layer_ggplot = function(ggplot,
 
     for(i in 1:length(gimage)) {
 
+      if(methods::is(gimage[[i]], 'giottoImage')) {
+        # extract min and max from object
+        my_xmax = gimage[[i]]@minmax[1]
+        my_xmin = gimage[[i]]@minmax[2]
+        my_ymax = gimage[[i]]@minmax[3]
+        my_ymin = gimage[[i]]@minmax[4]
+        
+        # convert giotto image object into array
+        img_array = as.numeric(gimage[[i]]@mg_object[[1]])
+        
+        # extract adjustments from object
+        xmax_b = gimage[[i]]@boundaries[1]
+        xmin_b = gimage[[i]]@boundaries[2]
+        ymax_b = gimage[[i]]@boundaries[3]
+        ymin_b = gimage[[i]]@boundaries[4]
+        
+        ggplot = ggplot + annotation_raster(img_array,
+                                            xmin = my_xmin-xmin_b, xmax = my_xmax+xmax_b,
+                                            ymin = my_ymin-ymin_b, ymax = my_ymax+ymax_b)
 
-      # extract min and max from object
-      my_xmax = gimage[[i]]@minmax[1]
-      my_xmin = gimage[[i]]@minmax[2]
-      my_ymax = gimage[[i]]@minmax[3]
-      my_ymin = gimage[[i]]@minmax[4]
+      } else if(methods::is(gimage[[i]], 'giottoLargeImage')) {
+        # get plotting minmax
+        extent = terra::ext(gimage[[i]]@raster_object)[1:4]
+        xmin = extent[['xmin']]
+        xmax = extent[['xmax']]
+        ymin = extent[['ymin']]
+        ymax = extent[['ymax']]
 
-      # convert giotto image object into array
-      img_array = as.numeric(gimage[[i]]@mg_object[[1]])
+        # convert raster object into array with 3 channels
+        img_array = terra::as.array(gimage[[i]]@raster_object)
+        img_array = img_array/max(img_array)
+        if(dim(img_array)[3] == 1) {
+          img_array_RGB = array(NA, dim = c(dim(img_array)[1:2],3))
+          img_array_RGB[,,1:3] = img_array
+        } else {
+          img_array_RGB = img_array
+        }
 
-      # extract adjustments from object
-      xmax_b = gimage[[i]]@boundaries[1]
-      xmin_b = gimage[[i]]@boundaries[2]
-      ymax_b = gimage[[i]]@boundaries[3]
-      ymin_b = gimage[[i]]@boundaries[4]
-
-      ggplot = ggplot + annotation_raster(img_array,
-                                          xmin = my_xmin-xmin_b, xmax = my_xmax+xmax_b,
-                                          ymin = my_ymin-ymin_b, ymax = my_ymax+ymax_b)
+        ggplot = ggplot + annotation_raster(img_array_RGB,
+                                            xmin = xmin, xmax = xmax,
+                                            ymin = ymin, ymax = ymax)
+      }
 
     }
 
   } else {
+    
+    if(methods::is(gimage, 'giottoImage')) {
+      # extract min and max from object
+      my_xmax = gimage@minmax[1]
+      my_xmin = gimage@minmax[2]
+      my_ymax = gimage@minmax[3]
+      my_ymin = gimage@minmax[4]
+      
+      # convert giotto image object into array
+      img_array = as.numeric(gimage@mg_object[[1]])
+      
+      # extract adjustments from object
+      xmax_b = gimage@boundaries[1]
+      xmin_b = gimage@boundaries[2]
+      ymax_b = gimage@boundaries[3]
+      ymin_b = gimage@boundaries[4]
+      
+      ggplot = ggplot + annotation_raster(img_array,
+                                          xmin = my_xmin-xmin_b, xmax = my_xmax+xmax_b,
+                                          ymin = my_ymin-ymin_b, ymax = my_ymax+ymax_b)
 
-    # extract min and max from object
-    my_xmax = gimage@minmax[1]
-    my_xmin = gimage@minmax[2]
-    my_ymax = gimage@minmax[3]
-    my_ymin = gimage@minmax[4]
+    } else if(methods::is(gimage, 'giottoLargeImage')) {
+      # get plotting minmax
+      extent = terra::ext(gimage@raster_object)[1:4]
+      xmin = extent[['xmin']]
+      xmax = extent[['xmax']]
+      ymin = extent[['ymin']]
+      ymax = extent[['ymax']]
+      
+      # convert raster object into array with 3 channels
+      img_array = terra::as.array(gimage@raster_object)
+      img_array = img_array/max(img_array)
+      if(dim(img_array)[3] == 1) {
+        img_array_RGB = array(NA, dim = c(dim(img_array)[1:2],3))
+        img_array_RGB[,,1:3] = img_array
+      } else {
+        img_array_RGB = img_array
+      }
+      
+      ggplot = ggplot + annotation_raster(img_array_RGB,
+                                          xmin = xmin, xmax = xmax,
+                                          ymin = ymin, ymax = ymax)
+    }
 
-    # convert giotto image object into array
-    img_array = as.numeric(gimage@mg_object[[1]])
-
-    # extract adjustments from object
-    xmax_b = gimage@boundaries[1]
-    xmin_b = gimage@boundaries[2]
-    ymax_b = gimage@boundaries[3]
-    ymin_b = gimage@boundaries[4]
-
-    ggplot = ggplot + annotation_raster(img_array,
-                                        xmin = my_xmin-xmin_b, xmax = my_xmax+xmax_b,
-                                        ymin = my_ymin-ymin_b, ymax = my_ymax+ymax_b)
   }
 
 
@@ -2599,21 +2642,19 @@ spatPlot2D_single = function(gobject,
       # If there is input to largeImage_name arg
 
       if(length(largeImage_name) == 1) {
-        gimage = plot_auto_convert_largeImage_MG(gobject = gobject,
-                                                 largeImage_name = largeImage_name,
-                                                 feat_type = feat_type,
-                                                 spat_unit = spat_unit,
-                                                 spat_loc_name = spat_loc_name,
-                                                 include_image_in_border = TRUE)
+        gimage = plot_auto_largeImage_resample(gobject = gobject,
+                                               largeImage_name = largeImage_name,
+                                               spat_unit = spat_unit,
+                                               spat_loc_name = spat_loc_name,
+                                               include_image_in_border = TRUE)
       } else {
         gimage = list()
         for(gim in 1:length(largeImage_name)) {
-          gimage[[gim]] = plot_auto_convert_largeImage_MG(gobject = gobject,
-                                                          largeImage_name = largeImage_name[[gim]],
-                                                          feat_type = feat_type,
-                                                          spat_unit = spat_unit,
-                                                          spat_loc_name = spat_loc_name,
-                                                          include_image_in_border = TRUE)
+          gimage[[gim]] = plot_auto_largeImage_resample(gobject = gobject,
+                                                        largeImage_name = largeImage_name[[gim]],
+                                                        spat_unit = spat_unit,
+                                                        spat_loc_name = spat_loc_name,
+                                                        include_image_in_border = TRUE)
         }
       }
 
@@ -3380,21 +3421,21 @@ spatDeconvPlot = function(gobject,
       # If there is input to largeImage_name arg
 
       if(length(largeImage_name) == 1) {
-        gimage = plot_auto_convert_largeImage_MG(gobject = gobject,
-                                                 largeImage_name = largeImage_name,
-                                                 feat_type = feat_type,
-                                                 spat_unit = spat_unit,
-                                                 spat_loc_name = spat_loc_name,
-                                                 include_image_in_border = TRUE)
+        gimage = plot_auto_largeImage_resample(gobject = gobject,
+                                               largeImage_name = largeImage_name,
+                                               feat_type = feat_type,
+                                               spat_unit = spat_unit,
+                                               spat_loc_name = spat_loc_name,
+                                               include_image_in_border = TRUE)
       } else {
         gimage = list()
         for(gim in 1:length(largeImage_name)) {
-          gimage[[gim]] = plot_auto_convert_largeImage_MG(gobject = gobject,
-                                                          largeImage_name = largeImage_name[[gim]],
-                                                          feat_type = feat_type,
-                                                          spat_unit = spat_unit,
-                                                          spat_loc_name = spat_loc_name,
-                                                          include_image_in_border = TRUE)
+          gimage[[gim]] = plot_auto_largeImage_resample(gobject = gobject,
+                                                        largeImage_name = largeImage_name[[gim]],
+                                                        feat_type = feat_type,
+                                                        spat_unit = spat_unit,
+                                                        spat_loc_name = spat_loc_name,
+                                                        include_image_in_border = TRUE)
         }
       }
 
@@ -3994,12 +4035,12 @@ spatFeatPlot2D_single <- function(gobject,
     } else if (!is.null(largeImage_name)) {
       # if there is input to largeImage_name arg
 
-      gimage = plot_auto_convert_largeImage_MG(gobject = gobject,
-                                               largeImage_name = largeImage_name,
-                                               feat_type = feat_type,
-                                               spat_unit = spat_unit,
-                                               spat_loc_name = spat_loc_name,
-                                               include_image_in_border = TRUE)
+      gimage = plot_auto_largeImage_resample(gobject = gobject,
+                                             largeImage_name = largeImage_name,
+                                             feat_type = feat_type,
+                                             spat_unit = spat_unit,
+                                             spat_loc_name = spat_loc_name,
+                                             include_image_in_border = TRUE)
     } else {
       # Default to first image available in images if no input given to image_name or largeImage_name args
       image_name = names(gobject@images)[1]
