@@ -311,59 +311,59 @@ subset_expression_data = function(gobject,
                                   spat_unit) {
 
 
-  for(spat_unit in names(gobject@expression)) {
+  for(spat_unit_name in names(gobject@expression)) {
 
-    for(feat_type in names(gobject@expression[[spat_unit]])) {
+    for(feat_type_name in names(gobject@expression[[spat_unit_name]])) {
 
-      if(feat_type == feat_type & spat_unit == spat_unit) {
+      if(feat_type_name == feat_type & spat_unit_name == spat_unit) {
 
         # filter features and cells
-        expression_names = names(gobject@expression[[spat_unit]][[feat_type]])
+        expression_names = names(gobject@expression[[spat_unit_name]][[feat_type_name]])
 
         for(expr_name in expression_names) {
 
           # for HDF5Array
-          if(methods::is(gobject@expression[[spat_unit]][[feat_type]][[expr_name]], 'HDF5Array')) {
-            gobject@expression[[spat_unit]][[feat_type]][[expr_name]] = DelayedArray::realize(gobject@expression[[spat_unit]][[feat_type]][[expr_name]][filter_bool_feats, filter_bool_cells], "HDF5Array")
+          if(methods::is(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]], 'HDF5Array')) {
+            gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]] = DelayedArray::realize(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]][filter_bool_feats, filter_bool_cells], "HDF5Array")
           }
 
-          gobject@expression[[spat_unit]][[feat_type]][[expr_name]] = gobject@expression[[spat_unit]][[feat_type]][[expr_name]][filter_bool_feats, filter_bool_cells]
+          gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]] = gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]][filter_bool_feats, filter_bool_cells]
         }
 
-      } else if(feat_type == feat_type & spat_unit != spat_unit){
+      } else if(feat_type_name == feat_type & spat_unit_name != spat_unit){
 
         # filter only features, but NOT cells
-        expression_names = names(gobject@expression[[spat_unit]][[feat_type]])
+        expression_names = names(gobject@expression[[spat_unit_name]][[feat_type_name]])
 
         for(expr_name in expression_names) {
 
           # for HDF5Array
-          if(methods::is(gobject@expression[[spat_unit]][[feat_type]][[expr_name]], 'HDF5Array')) {
-            gobject@expression[[spat_unit]][[feat_type]][[expr_name]] = DelayedArray::realize(gobject@expression[[spat_unit]][[feat_type]][[expr_name]][filter_bool_feats, ], "HDF5Array")
+          if(methods::is(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]], 'HDF5Array')) {
+            gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]] = DelayedArray::realize(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]][filter_bool_feats, ], "HDF5Array")
           }
 
-          gobject@expression[[spat_unit]][[feat_type]][[expr_name]] = gobject@expression[[spat_unit]][[feat_type]][[expr_name]][filter_bool_feats, ]
+          gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]] = gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]][filter_bool_feats, ]
         }
 
-      } else if(feat_type != feat_type & spat_unit == spat_unit) {
+      } else if(feat_type_name != feat_type & spat_unit_name == spat_unit) {
 
         # filter only cells, but NOT features
-        expression_names = names(gobject@expression[[spat_unit]][[feat_type]])
+        expression_names = names(gobject@expression[[spat_unit_name]][[feat_type_name]])
 
         for(expr_name in expression_names) {
 
           # for HDF5Array
-          if(methods::is(gobject@expression[[spat_unit]][[feat_type]][[expr_name]], 'HDF5Array')) {
-            gobject@expression[[spat_unit]][[feat_type]][[expr_name]] = DelayedArray::realize(gobject@expression[[spat_unit]][[feat_type]][[expr_name]][, filter_bool_cells], "HDF5Array")
+          if(methods::is(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]], 'HDF5Array')) {
+            gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]] = DelayedArray::realize(gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]][, filter_bool_cells], "HDF5Array")
           }
 
-          gobject@expression[[spat_unit]][[feat_type]][[expr_name]] = gobject@expression[[spat_unit]][[feat_type]][[expr_name]][, filter_bool_cells]
+          gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]] = gobject@expression[[spat_unit_name]][[feat_type_name]][[expr_name]][, filter_bool_cells]
         }
 
       } else {
 
         # don't filter
-        expression_names = names(gobject@expression[[spat_unit]][[feat_type]])
+        expression_names = names(gobject@expression[[spat_unit_name]][[feat_type_name]])
 
       }
 
@@ -386,10 +386,12 @@ subset_spatial_locations = function(gobject,
 
   # only subset cell_ID if the spatial unit is the same (e.g. cell)
 
-  for(spat_unit in names(gobject@spatial_locs)) {
-    if(spat_unit == spat_unit) {
-      for(spatlocname in names(gobject@spatial_locs[[spat_unit]])) {
-        gobject@spatial_locs[[spat_unit]][[spatlocname]] = gobject@spatial_locs[[spat_unit]][[spatlocname]][filter_bool_cells]
+  for(spat_unit_name in names(gobject@spatial_locs)) {
+    if(spat_unit_name == spat_unit) {
+      print(spat_unit)
+      print(spat_unit_name)
+      for(spatlocname in names(gobject@spatial_locs[[spat_unit_name]])) {
+        gobject@spatial_locs[[spat_unit_name]][[spatlocname]] = gobject@spatial_locs[[spat_unit_name]][[spatlocname]][filter_bool_cells]
       }
     }
   }
@@ -449,10 +451,10 @@ subset_spatial_network = function(gobject,
 
   # cell spatial network
   if(!is.null(gobject@spatial_network)) {
-    for(spat_unit in names(gobject@spatial_network)) {
-      if(spat_unit == spat_unit) {
-        for(network in names(gobject@spatial_network[[spat_unit]])) {
-          gobject@spatial_network[[spat_unit]][[network]]$networkDT =   gobject@spatial_network[[spat_unit]][[network]]$networkDT[to %in% cells_to_keep & from %in% cells_to_keep]
+    for(spat_unit_name in names(gobject@spatial_network)) {
+      if(spat_unit_name == spat_unit) {
+        for(network in names(gobject@spatial_network[[spat_unit_name]])) {
+          gobject@spatial_network[[spat_unit_name]][[network]]$networkDT =   gobject@spatial_network[[spat_unit_name]][[network]]$networkDT[to %in% cells_to_keep & from %in% cells_to_keep]
         }
       }
     }
@@ -474,29 +476,29 @@ subset_dimension_reduction = function(gobject,
 
   if(!is.null(gobject@dimension_reduction$cells)) {
 
-    for(spat_unit in names(gobject@dimension_reduction[['cells']])) {
+    for(spat_unit_name in names(gobject@dimension_reduction[['cells']])) {
 
-      if(spat_unit == spat_unit) {
+      if(spat_unit_name == spat_unit) {
 
         # for pca
-        for(pca_name in names(gobject@dimension_reduction[['cells']][[spat_unit]][['pca']]) ) {
-          old_coord = gobject@dimension_reduction[['cells']][[spat_unit]][['pca']][[pca_name]][['coordinates']]
+        for(pca_name in names(gobject@dimension_reduction[['cells']][[spat_unit_name]][['pca']]) ) {
+          old_coord = gobject@dimension_reduction[['cells']][[spat_unit_name]][['pca']][[pca_name]][['coordinates']]
           new_coord = old_coord[rownames(old_coord) %in% cells_to_keep,]
-          gobject@dimension_reduction[['cells']][[spat_unit]][['pca']][[pca_name]][['coordinates']] = new_coord
+          gobject@dimension_reduction[['cells']][[spat_unit_name]][['pca']][[pca_name]][['coordinates']] = new_coord
         }
 
         # for umap
-        for(umap_name in names(gobject@dimension_reduction[['cells']][[spat_unit]][['umap']]) ) {
-          old_coord = gobject@dimension_reduction[['cells']][[spat_unit]][['umap']][[umap_name]][['coordinates']]
+        for(umap_name in names(gobject@dimension_reduction[['cells']][[spat_unit_name]][['umap']]) ) {
+          old_coord = gobject@dimension_reduction[['cells']][[spat_unit_name]][['umap']][[umap_name]][['coordinates']]
           new_coord = old_coord[rownames(old_coord) %in% cells_to_keep,]
-          gobject@dimension_reduction[['cells']][[spat_unit]][['umap']][[umap_name]][['coordinates']] = new_coord
+          gobject@dimension_reduction[['cells']][[spat_unit_name]][['umap']][[umap_name]][['coordinates']] = new_coord
         }
 
         # for tsne
-        for(tsne_name in names(gobject@dimension_reduction[['cells']][[spat_unit]][['tsne']]) ) {
-          old_coord = gobject@dimension_reduction[['cells']][[spat_unit]][['tsne']][[tsne_name]][['coordinates']]
+        for(tsne_name in names(gobject@dimension_reduction[['cells']][[spat_unit_name]][['tsne']]) ) {
+          old_coord = gobject@dimension_reduction[['cells']][[spat_unit_name]][['tsne']][[tsne_name]][['coordinates']]
           new_coord = old_coord[rownames(old_coord) %in% cells_to_keep,]
-          gobject@dimension_reduction[['cells']][[spat_unit]][['tsne']][[tsne_name]][['coordinates']] = new_coord
+          gobject@dimension_reduction[['cells']][[spat_unit_name]][['tsne']][[tsne_name]][['coordinates']] = new_coord
         }
 
       }
@@ -522,14 +524,14 @@ subset_nearest_network = function(gobject,
   ## nn network ##
   if(!is.null(gobject@nn_network[['cells']])) {
 
-    for(spat_unit in names(gobject@nn_network[['cells']])) {
+    for(spat_unit_name in names(gobject@nn_network[['cells']])) {
 
-      if(spat_unit == spat_unit) {
+      if(spat_unit_name == spat_unit) {
 
-        for(knn_name in names(gobject@nn_network[['cells']][[spat_unit]][['kNN']])) {
+        for(knn_name in names(gobject@nn_network[['cells']][[spat_unit_name]][['kNN']])) {
 
           # layout
-          old_layout = gobject@nn_network[['cells']][[spat_unit]][['kNN']][[knn_name]][['layout']]
+          old_layout = gobject@nn_network[['cells']][[spat_unit_name]][['kNN']][[knn_name]][['layout']]
 
           if(!is.null(old_layout)) {
             new_layout = old_layout[filter_bool_cells,]
@@ -537,27 +539,27 @@ subset_nearest_network = function(gobject,
           }
 
           # igraph object
-          old_graph = gobject@nn_network[['cells']][[spat_unit]][['kNN']][[knn_name]][['igraph']]
+          old_graph = gobject@nn_network[['cells']][[spat_unit_name]][['kNN']][[knn_name]][['igraph']]
           vertices_to_keep = V(old_graph)[filter_bool_cells]
           new_subgraph = igraph::subgraph(graph = old_graph, v = vertices_to_keep)
-          gobject@nn_network[['cells']][[spat_unit]][['kNN']][[knn_name]][['igraph']] = new_subgraph
+          gobject@nn_network[['cells']][[spat_unit_name]][['kNN']][[knn_name]][['igraph']] = new_subgraph
         }
 
-        for(snn_name in names(gobject@nn_network[['cells']][[spat_unit]][['sNN']])) {
+        for(snn_name in names(gobject@nn_network[['cells']][[spat_unit_name]][['sNN']])) {
 
           # layout
-          old_layout = gobject@nn_network[['cells']][[spat_unit]][['sNN']][[snn_name]][['layout']]
+          old_layout = gobject@nn_network[['cells']][[spat_unit_name]][['sNN']][[snn_name]][['layout']]
 
           if(!is.null(old_layout)) {
             new_layout = old_layout[filter_bool_cells,]
-            gobject@nn_network[['cells']][[spat_unit]][['sNN']][[snn_name]][['layout']] = new_layout
+            gobject@nn_network[['cells']][[spat_unit_name]][['sNN']][[snn_name]][['layout']] = new_layout
           }
 
           # igraph object
-          old_graph = gobject@nn_network[['cells']][[spat_unit]][['sNN']][[snn_name]][['igraph']]
+          old_graph = gobject@nn_network[['cells']][[spat_unit_name]][['sNN']][[snn_name]][['igraph']]
           vertices_to_keep = V(old_graph)[filter_bool_cells]
           new_subgraph = igraph::subgraph(graph = old_graph, v = vertices_to_keep)
-          gobject@nn_network[['cells']][[spat_unit]][['sNN']][[snn_name]][['igraph']] = new_subgraph
+          gobject@nn_network[['cells']][[spat_unit_name]][['sNN']][[snn_name]][['igraph']] = new_subgraph
         }
 
       }
@@ -579,10 +581,10 @@ subset_spatial_enrichment = function(gobject,
                                      filter_bool_cells) {
 
   if(!is.null(gobject@spatial_enrichment)) {
-    for(spat_unit in names(gobject@spatial_enrichment)) {
-      if(spat_unit == spat_unit) {
-        for(spat_enrich_name in names(gobject@spatial_enrichment[[spat_unit]])) {
-          gobject@spatial_enrichment[[spat_unit]][[spat_enrich_name]] = gobject@spatial_enrichment[[spat_unit]][[spat_enrich_name]][filter_bool_cells]
+    for(spat_unit_name in names(gobject@spatial_enrichment)) {
+      if(spat_unit_name == spat_unit) {
+        for(spat_enrich_name in names(gobject@spatial_enrichment[[spat_unit_name]])) {
+          gobject@spatial_enrichment[[spat_unit_name]][[spat_enrich_name]] = gobject@spatial_enrichment[[spat_unit_name]][[spat_enrich_name]][filter_bool_cells]
         }
       }
     }
@@ -852,9 +854,14 @@ subsetGiotto <- function(gobject,
   feats_to_keep = g_feat_IDs[filter_bool_feats]
 
   print(cells_to_keep[1:5])
+  print(length(filter_bool_cells))
   print(feats_to_keep[1:5])
+  print(length(filter_bool_feats))
 
   if(verbose) cat('completed 1: preparation \n')
+
+
+  print(gobject@spatial_locs[[spat_unit]][['raw']])
 
   ## FILTER ##
   # filter expression data
@@ -866,11 +873,13 @@ subsetGiotto <- function(gobject,
 
   if(verbose) cat('completed 2: subset expression data \n')
 
+  print(gobject@spatial_locs[[spat_unit]][['raw']])
 
   # filter spatial locations
+  print(spat_unit)
   gobject = subset_spatial_locations(gobject = gobject,
-                                    filter_bool_cells = filter_bool_cells,
-                                    spat_unit = spat_unit)
+                                     filter_bool_cells = filter_bool_cells,
+                                     spat_unit = spat_unit)
 
   if(verbose) cat('completed 3: subset spatial locations \n')
 
