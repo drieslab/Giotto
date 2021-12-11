@@ -1400,6 +1400,9 @@ addSpatialCentroidLocations = function(gobject,
     # spatial location
     gobject@spatial_locs[[poly_info]][[spat_loc_name]] = spatial_locs
 
+    # cell ID
+    gobject@cell_ID[[poly_info]] = gobject@spatial_info[[poly_info]]@spatVector$poly_ID
+
     # cell metadata
     # new spatial locations come with new cell and feature metadata
     for(type in feat_type) {
@@ -1884,8 +1887,6 @@ overlapToMatrix = function(gobject,
   all_ids = gobject@cell_ID[[poly_info]]
   missing_ids = all_ids[!all_ids %in% unique(aggr_dtoverlap$poly_ID)]
 
-  print(missing_ids)
-
   # create missing cell values, only if there are missing cell IDs!
   if(!is.null(missing_ids)) {
     first_feature = aggr_dtoverlap[['feat_ID']][[1]]
@@ -1893,6 +1894,11 @@ overlapToMatrix = function(gobject,
     aggr_dtoverlap = rbind(aggr_dtoverlap, missing_dt)
   }
 
+  if(!is.null(missing_feats)) {
+    first_cell = aggr_dtoverlap[['poly_ID']][[1]]
+    missing_dt = data.table::data.table(poly_ID = first_cell, feat_ID = missing_feats, N = 0)
+    aggr_dtoverlap = rbind(aggr_dtoverlap, missing_dt)
+  }
 
 
   # TODO: creating missing feature values
@@ -1901,7 +1907,6 @@ overlapToMatrix = function(gobject,
   overlapmatrixDT = data.table::dcast(data = aggr_dtoverlap,
                                       formula = feat_ID~poly_ID,
                                       value.var = 'N', fill = 0)
-  print(overlapmatrixDT[1:2, 1:2])
   overlapmatrix = Giotto:::dt_to_matrix(overlapmatrixDT)
 
   overlapmatrix = overlapmatrix[match(gobject@feat_ID[[feat_info]], rownames(overlapmatrix)),
