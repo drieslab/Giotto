@@ -11,18 +11,18 @@
 
 ## ** image object compatibility ####
 
-#' @title plot_auto_largeImage_crop
-#' @name plot_auto_largeImage_crop
-#' @description find values to crop 
+#' @title plot_auto_largeImage_resample
+#' @name plot_auto_largeImage_resample
+#' @description resamples largeImage for plotting
 #' @param gobject gobject containing largeImage
 #' @param giottoLargeImage giottoLargeImage
 #' @param largeImage_name name of largeImage
 #' @param spat_unit spatial unit
 #' @param spat_loc_name name of spatial locations to plot
 #' @param include_image_in_border expand the extent sampled to also show image in border regions not included in spatlocs
-#' @return a giottoLargeImage cropped properly for plotting
+#' @return a giottoLargeImage cropped and resampled properly for plotting
 #' @keywords internal
-plot_auto_largeImage_crop = function(gobject,
+plot_auto_largeImage_resample = function(gobject,
                                      giottoLargeImage = NULL,
                                      largeImage_name = NULL,
                                      spat_unit = NULL,
@@ -69,14 +69,17 @@ plot_auto_largeImage_crop = function(gobject,
     ymax_crop = y_range[2]
   }
 
-  # Convert to properly zoomed gimage (MG)
-  gimage = cropGiottoLargeImage(giottoLargeImage = giottoLargeImage,
-                                       xmax_crop = xmax_crop,
-                                       xmin_crop = xmin_crop,
-                                       ymax_crop = ymax_crop,
-                                       ymin_crop = ymin_crop)
+  # setup crop extent
+  crop_ext = terra::ext(xmin_crop, xmax_crop,
+                        ymin_crop, ymax_crop)
+  # zoom and resample giottoLargeImage
+  giottoLargeImage@raster_object = terra::spatSample(giottoLargeImage@raster_object,
+                                                     size = 500000,
+                                                     method = 'regular',
+                                                     as.raster = TRUE,
+                                                     ext = crop_ext)
 
-  return(gimage)
+  return(giottoLargeImage)
 }
 
 
@@ -2347,14 +2350,8 @@ plot_spat_image_layer_ggplot = function(ggplot,
         ymin = extent[['ymin']]
         ymax = extent[['ymax']]
 
-        # resample raster object
-        gimage_sample = terra::spatSample(gimage[[i]]@raster_object,
-                                          size = 500000,
-                                          method = 'regular',
-                                          as.raster = TRUE)
-
         # convert raster object into array with 3 channels
-        img_array = terra::as.array(gimage_sample)
+        img_array = terra::as.array(gimage[[i]]@raster_object)
         img_array = img_array/max(img_array)
         if(dim(img_array)[3] == 1) {
           img_array_RGB = array(NA, dim = c(dim(img_array)[1:2],3))
@@ -2400,14 +2397,8 @@ plot_spat_image_layer_ggplot = function(ggplot,
       ymin = extent[['ymin']]
       ymax = extent[['ymax']]
       
-      # resample raster object
-      gimage_sample = terra::spatSample(gimage@raster_object,
-                                        size = 500000,
-                                        method = 'regular',
-                                        as.raster = TRUE)
-      
       # convert raster object into array with 3 channels
-      img_array = terra::as.array(gimage_sample)
+      img_array = terra::as.array(gimage@raster_object)
       img_array = img_array/max(img_array)
       if(dim(img_array)[3] == 1) {
         img_array_RGB = array(NA, dim = c(dim(img_array)[1:2],3))
@@ -2651,19 +2642,19 @@ spatPlot2D_single = function(gobject,
       # If there is input to largeImage_name arg
 
       if(length(largeImage_name) == 1) {
-        gimage = plot_auto_largeImage_crop(gobject = gobject,
-                                           largeImage_name = largeImage_name,
-                                           spat_unit = spat_unit,
-                                           spat_loc_name = spat_loc_name,
-                                           include_image_in_border = TRUE)
+        gimage = plot_auto_largeImage_resample(gobject = gobject,
+                                               largeImage_name = largeImage_name,
+                                               spat_unit = spat_unit,
+                                               spat_loc_name = spat_loc_name,
+                                               include_image_in_border = TRUE)
       } else {
         gimage = list()
         for(gim in 1:length(largeImage_name)) {
-          gimage[[gim]] = plot_auto_largeImage_crop(gobject = gobject,
-                                                    largeImage_name = largeImage_name[[gim]],
-                                                    spat_unit = spat_unit,
-                                                    spat_loc_name = spat_loc_name,
-                                                    include_image_in_border = TRUE)
+          gimage[[gim]] = plot_auto_largeImage_resample(gobject = gobject,
+                                                        largeImage_name = largeImage_name[[gim]],
+                                                        spat_unit = spat_unit,
+                                                        spat_loc_name = spat_loc_name,
+                                                        include_image_in_border = TRUE)
         }
       }
 
@@ -3430,21 +3421,21 @@ spatDeconvPlot = function(gobject,
       # If there is input to largeImage_name arg
 
       if(length(largeImage_name) == 1) {
-        gimage = plot_auto_largeImage_crop(gobject = gobject,
-                                           largeImage_name = largeImage_name,
-                                           feat_type = feat_type,
-                                           spat_unit = spat_unit,
-                                           spat_loc_name = spat_loc_name,
-                                           include_image_in_border = TRUE)
+        gimage = plot_auto_largeImage_resample(gobject = gobject,
+                                               largeImage_name = largeImage_name,
+                                               feat_type = feat_type,
+                                               spat_unit = spat_unit,
+                                               spat_loc_name = spat_loc_name,
+                                               include_image_in_border = TRUE)
       } else {
         gimage = list()
         for(gim in 1:length(largeImage_name)) {
-          gimage[[gim]] = plot_auto_largeImage_crop(gobject = gobject,
-                                                    largeImage_name = largeImage_name[[gim]],
-                                                    feat_type = feat_type,
-                                                    spat_unit = spat_unit,
-                                                    spat_loc_name = spat_loc_name,
-                                                    include_image_in_border = TRUE)
+          gimage[[gim]] = plot_auto_largeImage_resample(gobject = gobject,
+                                                        largeImage_name = largeImage_name[[gim]],
+                                                        feat_type = feat_type,
+                                                        spat_unit = spat_unit,
+                                                        spat_loc_name = spat_loc_name,
+                                                        include_image_in_border = TRUE)
         }
       }
 
@@ -4044,12 +4035,12 @@ spatFeatPlot2D_single <- function(gobject,
     } else if (!is.null(largeImage_name)) {
       # if there is input to largeImage_name arg
 
-      gimage = plot_auto_largeImage_crop(gobject = gobject,
-                                         largeImage_name = largeImage_name,
-                                         feat_type = feat_type,
-                                         spat_unit = spat_unit,
-                                         spat_loc_name = spat_loc_name,
-                                         include_image_in_border = TRUE)
+      gimage = plot_auto_largeImage_resample(gobject = gobject,
+                                             largeImage_name = largeImage_name,
+                                             feat_type = feat_type,
+                                             spat_unit = spat_unit,
+                                             spat_loc_name = spat_loc_name,
+                                             include_image_in_border = TRUE)
     } else {
       # Default to first image available in images if no input given to image_name or largeImage_name args
       image_name = names(gobject@images)[1]
