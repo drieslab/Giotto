@@ -149,9 +149,9 @@ doLeidenCluster = function(gobject,
 
     if(name %in% cluster_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
-      cell_metadata = gobject@cell_metadata[[feat_type]][[spat_unit]]
+      cell_metadata = gobject@cell_metadata[[spat_unit]][[feat_type]]
       cell_metadata[, eval(name) := NULL]
-      gobject@cell_metadata[[feat_type]][[spat_unit]] = cell_metadata
+      gobject@cell_metadata[[spat_unit]][[feat_type]] = cell_metadata
     }
 
     gobject = addCellMetadata(gobject = gobject,
@@ -850,9 +850,9 @@ doKmeans <- function(gobject,
 
     if(name %in% cluster_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
-      cell_metadata = gobject@cell_metadata[[feat_type]][[spat_unit]]
+      cell_metadata = gobject@cell_metadata[[spat_unit]][[feat_type]]
       cell_metadata[, eval(name) := NULL]
-      gobject@cell_metadata[[feat_type]][[spat_unit]] = cell_metadata
+      gobject@cell_metadata[[spat_unit]][[feat_type]] = cell_metadata
     }
 
     gobject = addCellMetadata(gobject = gobject,
@@ -1018,9 +1018,9 @@ doHclust <- function(gobject,
 
     if(name %in% cluster_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
-      cell_metadata = gobject@cell_metadata[[feat_type]][[spat_unit]]
+      cell_metadata = gobject@cell_metadata[[spat_unit]][[feat_type]]
       cell_metadata[, eval(name) := NULL]
-      gobject@cell_metadata[[feat_type]][[spat_unit]] = cell_metadata
+      gobject@cell_metadata[[spat_unit]][[feat_type]] = cell_metadata
     }
 
     gobject = addCellMetadata(gobject = gobject,

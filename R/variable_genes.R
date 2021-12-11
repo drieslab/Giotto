@@ -137,6 +137,7 @@ calc_var_HVF = function(scaled_matrix,
 #' @name calculateHVF
 #' @description compute highly variable features
 #' @param gobject giotto object
+#' @param spat_unit spatial unit
 #' @param feat_type feature type
 #' @param expression_values expression values to use
 #' @param method method to calculate highly variable features
@@ -170,6 +171,7 @@ calc_var_HVF = function(scaled_matrix,
 #'
 #' @export
 calculateHVF <- function(gobject,
+                         spat_unit = NULL,
                          feat_type = NULL,
                          expression_values = c('normalized', 'scaled', 'custom'),
                          method = c('cov_groups','cov_loess', 'var_p_resid'),
@@ -192,14 +194,19 @@ calculateHVF <- function(gobject,
   # set data.table variables to NULL
   sd = cov = mean_expr = gini = cov_group_zscore = selected = cov_diff = pred_cov_feats = feats = NULL
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
-  expr_values = get_expression_values(gobject = gobject, feat_type = feat_type, values = values)
+  expr_values = get_expression_values(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      feat_type = feat_type,
+                                      values = values)
 
   # not advised
   if(reverse_log_scale == TRUE) {
@@ -296,13 +303,14 @@ calculateHVF <- function(gobject,
   if(return_gobject == TRUE) {
 
     # add HVG metadata to feat_metadata
-    feat_metadata = gobject@feat_metadata[[feat_type]]
+    feat_metadata = gobject@feat_metadata[[spat_unit]][[feat_type]]
 
     column_names_feat_metadata = colnames(feat_metadata)
+
     if(HVFname %in% column_names_feat_metadata) {
       cat('\n ', HVFname, ' has already been used, will be overwritten \n')
       feat_metadata[, eval(HVFname) := NULL]
-      gobject@feat_metadata[[feat_type]] = feat_metadata
+      gobject@feat_metadata[[spat_unit]][[feat_type]] = feat_metadata
     }
 
     if(method == 'var_p_resid') {
@@ -315,6 +323,7 @@ calculateHVF <- function(gobject,
 
 
     gobject = addFeatMetadata(gobject = gobject,
+                              spat_unit = spat_unit,
                               feat_type = feat_type,
                               new_metadata = HVGfeats,
                               by_column = TRUE,

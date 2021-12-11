@@ -13,26 +13,17 @@ set_default_spat_unit = function(gobject,
   # set spatial unit
   if(is.null(spat_unit)) {
 
-    if(!is.null(gobject@expression)) {
-      spat_unit = names(gobject@expression)[[1]]
-    } else if(!is.null(gobject@spatial_info)){
-      spat_unit = names(gobject@spatial_info)[[1]]
-    } else {
-      warning('No default for spat_unit could be set \n')
+    spat_unit = getOption('giotto.spat_unit')
+    if(is.null(spat_unit)) {
+      if(!is.null(gobject@expression)) {
+        spat_unit = names(gobject@expression)[[1]]
+      } else if(!is.null(gobject@spatial_info)){
+        spat_unit = names(gobject@spatial_info)[[1]]
+      } else {
+        warning('No default for spat_unit could be set \n')
+      }
     }
-  }
 
-  # set spatial unit
-  if(is.null(spat_unit)) {
-
-    if(!is.null(gobject@expression)) {
-      spat_unit = names(gobject@expression[[feat_type]])[[1]]
-      if(is.null(spat_unit)) stop('valid feat_type input needed \n')
-    } else if(!is.null(gobject@spatial_info)){
-      spat_unit = names(gobject@spatial_info)[[1]]
-    } else {
-      warning('No default for spat_unit could be set \n')
-    }
   }
 
   return(spat_unit)
@@ -52,25 +43,23 @@ set_default_feat_type = function(gobject,
   # set spatial unit
   if(is.null(feat_type)) {
 
-    if(!is.null(gobject@expression)) {
-      feat_type = names(gobject@expression[[spat_unit]])[[1]]
-      if(is.null(feat_type)) stop('valid spat_unit input needed \n')
-    } else if(!is.null(gobject@feat_info)){
-      feat_type = names(gobject@feat_info)[[1]]
-    } else {
-      warning('No default for feat_type could be set \n')
+    feat_type = getOption('giotto.feat_type')
+
+    if(is.null(feat_type)) {
+      if(!is.null(gobject@expression)) {
+        feat_type = names(gobject@expression[[spat_unit]])[[1]]
+        if(is.null(feat_type)) stop('valid spat_unit input needed \n')
+      } else if(!is.null(gobject@feat_info)){
+        feat_type = names(gobject@feat_info)[[1]]
+      } else {
+        warning('No default for feat_type could be set \n')
+      }
     }
+
   }
 
   return(feat_type)
 }
-
-
-
-
-
-
-
 
 
 #' @title mean_expr_det_test
