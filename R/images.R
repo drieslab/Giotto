@@ -160,8 +160,8 @@ setMethod(
     cat("\n Resolution: \n")
     print(object@resolution)
 
-    cat('\n Maximum intensity is: ', object@max_intensity, ' \n',
-        'Minimum intensity is: ', object@min_intensity, ' \n')
+    cat('\n Estimated maximum intensity is: ', object@max_intensity, ' \n',
+        'Estimated minimum intensity is: ', object@min_intensity, ' \n')
 
     if(object@is_int == TRUE) cat('Values are integers')
     if(object@is_int == FALSE) cat('Values are floating point')
@@ -1511,6 +1511,7 @@ plot_giottoLargeImage = function(gobject = NULL,
 #' @param gobject gobject containing giottoLargeImage
 #' @param largeImage_name name of giottoLargeImage
 #' @param mg_name name to assign converted magick image based giottoImage. Defaults to name of giottoLargeImage
+#' @param spat_unit spatial unit
 #' @param spat_loc_name gobject spatial location name to map giottoImage to (optional)
 #' @param crop_extent extent object to focus on specific region of image
 #' @param xmax_crop assign crop boundary
@@ -1527,6 +1528,7 @@ convertGiottoLargeImageToMG = function(gobject = NULL,
                                        largeImage_name = NULL,
                                        giottoLargeImage = NULL,
                                        mg_name = NULL,
+                                       spat_unit = NULL,
                                        spat_loc_name = NULL,
                                        crop_extent = NULL,
                                        xmax_crop = NULL,
@@ -1544,7 +1546,9 @@ convertGiottoLargeImageToMG = function(gobject = NULL,
     if(!is.null(spat_loc_name)) stop('if spatial location name is given then gobject containing it must also be given')
   }
 
-
+  # Set spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
 
   # Get giottoLargeImage and check and perform crop if needed
   giottoLargeImage = cropGiottoLargeImage(gobject = gobject,
@@ -1601,8 +1605,11 @@ convertGiottoLargeImageToMG = function(gobject = NULL,
                        current_ext$ymax,
                        current_ext$ymin)
   } else if(!is.null(spat_loc_name)) {
-    x_range = range(gobject@spatial_locs[[spat_loc_name]]$sdimx)
-    y_range = range(gobject@spatial_locs[[spat_loc_name]]$sdimy)
+    spatial_locs = get_spatial_locations(gobject = gobject,
+                                         spat_unit = spat_unit,
+                                         spat_loc_name = spat_loc_name)
+    x_range = range(spatial_locs$sdimx)
+    y_range = range(spatial_locs$sdimy)
     g_image@minmax = c(x_range[2],
                        x_range[1],
                        y_range[2],

@@ -10,7 +10,10 @@ plot_auto_largeImage_resample(
   largeImage_name = NULL,
   spat_unit = NULL,
   spat_loc_name = NULL,
-  include_image_in_border = TRUE
+  include_image_in_border = TRUE,
+  flex_resample = TRUE,
+  max_crop = 1e+08,
+  max_resample_scale = 100
 )
 }
 \arguments{
@@ -25,6 +28,12 @@ plot_auto_largeImage_resample(
 \item{spat_loc_name}{name of spatial locations to plot}
 
 \item{include_image_in_border}{expand the extent sampled to also show image in border regions not included in spatlocs}
+
+\item{flex_resample}{decide to crop then resample or resample then crop depending on plotting ROI dimensions}
+
+\item{max_crop}{maximum crop size allowed for crop THEN resample}
+
+\item{max_resampl_scale}{maximum cells allowed to resample to compensate for decreased resolution after subsequent cropping}
 }
 \value{
 a giottoLargeImage cropped and resampled properly for plotting

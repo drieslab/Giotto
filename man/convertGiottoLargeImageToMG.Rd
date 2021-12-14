@@ -9,6 +9,7 @@ convertGiottoLargeImageToMG(
   largeImage_name = NULL,
   giottoLargeImage = NULL,
   mg_name = NULL,
+  spat_unit = NULL,
   spat_loc_name = NULL,
   crop_extent = NULL,
   xmax_crop = NULL,
@@ -27,6 +28,8 @@ convertGiottoLargeImageToMG(
 \item{largeImage_name}{name of giottoLargeImage}
 
 \item{mg_name}{name to assign converted magick image based giottoImage. Defaults to name of giottoLargeImage}
+
+\item{spat_unit}{spatial unit}
 
 \item{spat_loc_name}{gobject spatial location name to map giottoImage to (optional)}
 

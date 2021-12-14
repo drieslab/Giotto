@@ -20,6 +20,9 @@
 #' @param spat_unit spatial unit
 #' @param spat_loc_name name of spatial locations to plot
 #' @param include_image_in_border expand the extent sampled to also show image in border regions not included in spatlocs
+#' @param flex_resample decide to crop then resample or resample then crop depending on plotting ROI dimensions
+#' @param max_crop maximum crop size allowed for crop THEN resample
+#' @param max_resampl_scale maximum cells allowed to resample to compensate for decreased resolution after subsequent cropping
 #' @return a giottoLargeImage cropped and resampled properly for plotting
 #' @keywords internal
 plot_auto_largeImage_resample = function(gobject,
@@ -27,7 +30,10 @@ plot_auto_largeImage_resample = function(gobject,
                                      largeImage_name = NULL,
                                      spat_unit = NULL,
                                      spat_loc_name = NULL,
-                                     include_image_in_border = TRUE) {
+                                     include_image_in_border = TRUE,
+                                     flex_resample = TRUE,
+                                     max_crop = 1e+08,
+                                     max_resample_scale = 100) {
 
   # If no giottoLargeImage, select specified giottoLargeImage. If none specified, select first one.
   if(is.null(giottoLargeImage)) {
@@ -44,13 +50,15 @@ plot_auto_largeImage_resample = function(gobject,
                                          spat_unit = spat_unit,
                                          spat_loc_name = spat_loc_name)
 
+  # Get image extent minmax
+  im_minmax = terra::ext(giottoLargeImage@raster_object)[1:4]
   # Determine crop
   if(include_image_in_border == TRUE) {
     x_halfPaddedRange = diff(range(cell_locations$sdimx))*0.625
     y_halfPaddedRange = diff(range(cell_locations$sdimy))*0.625
     x_mean = mean(cell_locations$sdimx)
     y_mean = mean(cell_locations$sdimy)
-    im_minmax = terra::ext(giottoLargeImage@raster_object)[1:4]
+
     xmax_crop = x_mean + x_halfPaddedRange
     xmin_crop = x_mean - x_halfPaddedRange
     ymax_crop = y_mean + y_halfPaddedRange
@@ -72,12 +80,39 @@ plot_auto_largeImage_resample = function(gobject,
   # setup crop extent
   crop_ext = terra::ext(xmin_crop, xmax_crop,
                         ymin_crop, ymax_crop)
+
   # zoom and resample giottoLargeImage
-  giottoLargeImage@raster_object = terra::spatSample(giottoLargeImage@raster_object,
-                                                     size = 500000,
-                                                     method = 'regular',
-                                                     as.raster = TRUE,
-                                                     ext = crop_ext)
+  crop_xdim = abs(xmax_crop - xmin_crop)
+  crop_ydim = abs(ymax_crop - ymin_crop)
+  crop_area_px = crop_xdim * giottoLargeImage@scale_factor[['x']] * giottoLargeImage@scale_factor[['y']] * crop_ydim
+  im_xdim = abs(im_minmax[2] - im_minmax[1])
+  im_ydim = abs(im_minmax[2] - im_minmax[1])
+  crop_relative_scale = max(im_xdim/crop_xdim, im_ydim/crop_ydim)
+
+  if(flex_resample == FALSE || crop_area_px <= max_crop) {
+    if(flex_resample == FALSE && crop_area_px > max_crop) {
+      warning('Plotting large regions with flex_resample == FALSE will be costly in time and drive space.')
+    }
+    giottoLargeImage@raster_object = terra::spatSample(giottoLargeImage@raster_object,
+                                                       size = 500000,
+                                                       method = 'regular',
+                                                       as.raster = TRUE,
+                                                       ext = crop_ext)
+  } else {
+    if(crop_relative_scale <= max_resample_scale) {
+      resample_image = terra::spatSample(giottoLargeImage@raster_object,
+                                         size = round(500000 * crop_relative_scale),
+                                         method = 'regular',
+                                         as.raster = TRUE)
+    } else {
+      resample_image = terra::spatSample(giottoLargeImage@raster_object,
+                                         size = 500000 * max_resample_scale,
+                                         method = 'regular',
+                                         as.raster = TRUE)
+    }
+    giottoLargeImage@raster_object = terra::crop(x = resample_image,
+                                                 y = crop_ext)
+  }
 
   return(giottoLargeImage)
 }
