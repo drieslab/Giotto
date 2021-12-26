@@ -30,7 +30,7 @@ doScrubletDetect = function(gobject,
                 repository = 'pip')
   
   # prepare python path and scrublet_script
-  python_path <- readGiottoInstructions(gobject, param = "python_path")
+  python_path = readGiottoInstructions(gobject, param = "python_path")
   reticulate::use_python(required = T, python = python_path)
   python_scrublet_function = system.file("python", "python_scrublet.py", package = 'Giotto')
   reticulate::source_python(file = python_scrublet_function,convert = TRUE)
@@ -40,11 +40,12 @@ doScrubletDetect = function(gobject,
   reticulate::py_set_seed(seed = seed_number, disable_hash_randomization = TRUE)
   
   # Set feat_type and spat_unit
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    feat_type = feat_type)
   spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
+
   
   # 1. convert input to char for python inputs that must be type int
   min_counts = as.character(min_counts)
@@ -84,7 +85,10 @@ doScrubletDetect = function(gobject,
                               by_column = FALSE)
     return(gobject)
   } else {
-    
+    return(cbind(cell_ID = pDataDT(gobject = gobject,
+                                   spat_unit = spat_unit,
+                                   feat_type = feat_type)$cell_ID,
+                 scrublet_out))
   }
   
 }
