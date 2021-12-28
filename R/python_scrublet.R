@@ -29,6 +29,13 @@ doScrubletDetect = function(gobject,
   package_check(pkg_name = 'scrublet',
                 repository = 'pip')
   
+  # print message with information #
+  message("using 'scrublet' to detect doublets. If used in published research, please cite: \n
+          Wolock, S. L., Lopez, R. & Klein, A. M.
+                  Scrublet: Computational Identification of Cell Doublets in Single-Cell Transcriptomic Data.
+                  Cell Syst. 8, 281-291.e9 (2019).
+                  https://doi.org/10.1016/j.cels.2018.11.005")
+  
   # prepare python path and scrublet_script
   python_path = readGiottoInstructions(gobject, param = "python_path")
   reticulate::use_python(required = T, python = python_path)
