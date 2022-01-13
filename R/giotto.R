@@ -2768,13 +2768,17 @@ joinGiottoObjects = function(gobject_list,
     gname = gobject_names[[gobj_i]]
 
 
-    ## 0. update cell ID
+    ## 0. update cell ID and feat ID
     for(spat_unit in names(gobj@cell_ID)) {
       gobj@cell_ID[[spat_unit]] = paste0(gname,'-',gobj@cell_ID[[spat_unit]])
       all_cell_ID_list[[spat_unit]][[gobj_i]] = gobj@cell_ID[[spat_unit]]
     }
 
 
+
+    for(feat_type in names(gobj@feat_ID)) {
+      all_feat_ID_list[[feat_type]][[gobj_i]] = gobj@feat_ID[[feat_type]]
+    }
 
 
 
@@ -2788,7 +2792,7 @@ joinGiottoObjects = function(gobject_list,
           colnames(gobj@expression[[spat_unit]][[feat_type]][[matr]]) = gobj@cell_ID[[spat_unit]]
         }
 
-        all_feat_ID_list[[feat_type]][[gobj_i]] = gobj@feat_ID[[feat_type]]
+        #all_feat_ID_list[[feat_type]][[gobj_i]] = gobj@feat_ID[[feat_type]]
       }
 
     }
@@ -3062,7 +3066,11 @@ joinGiottoObjects = function(gobject_list,
     comb_gobject@cell_ID[[spat_unit]] = combined_cell_ID
   }
 
-
+  ## feat IDs
+  for(feat_type in names(all_feat_ID_list)) {
+    combined_feat_ID = unique(unlist(all_cell_ID_list[[feat_type]]))
+    comb_gobject@feat_ID[[feat_type]] = combined_feat_ID
+  }
 
 
 

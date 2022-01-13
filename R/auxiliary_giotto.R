@@ -15,7 +15,7 @@ set_default_spat_unit = function(gobject,
 
     spat_unit = getOption('giotto.spat_unit')
     if(is.null(spat_unit)) {
-      if(!is.null(gobject@expression)) {
+      if(!is.null(gobject@expression) & length(gobject@expression) > 0) {
         spat_unit = names(gobject@expression)[[1]]
       } else if(!is.null(gobject@spatial_info)){
         spat_unit = names(gobject@spatial_info)[[1]]
@@ -46,7 +46,7 @@ set_default_feat_type = function(gobject,
     feat_type = getOption('giotto.feat_type')
 
     if(is.null(feat_type)) {
-      if(!is.null(gobject@expression)) {
+      if(!is.null(gobject@expression) & length(gobject@expression) > 0) {
         feat_type = names(gobject@expression[[spat_unit]])[[1]]
         if(is.null(feat_type)) stop('valid spat_unit input needed \n')
       } else if(!is.null(gobject@feat_info)){

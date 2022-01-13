@@ -97,8 +97,65 @@ plot_cell_polygon_layer = function(ggobject = NULL,
 
 
 
+#' @name select_gimage
+#' @description selects and creates giotto images for plotting
+#' @keywords internal
+select_gimage = function(gobject,
+                         gimage = NULL,
+                         image_name = NULL,
+                         largeImage_name = NULL,
+                         spat_unit = NULL,
+                         spat_loc_name = NULL,
+                         feat_type = NULL) {
 
 
+  if(!is.null(gimage)) gimage = gimage
+
+
+  else if(!is.null(image_name)) {
+
+    if(length(image_name) == 1) {
+      gimage = gobject@images[[image_name]]
+      if(is.null(gimage)) warning('image_name: ', image_name, ' does not exists')
+    } else {
+      gimage = list()
+      for(gim in 1:length(image_name)) {
+        gimage[[gim]] = gobject@images[[gim]]
+        if(is.null(gimage[[gim]])) warning('image_name: ', gim, ' does not exists')
+      }
+    }
+
+  } else if(!is.null(largeImage_name)) {
+    # If there is input to largeImage_name arg
+
+    if(length(largeImage_name) == 1) {
+      gimage = plot_auto_largeImage_resample(gobject = gobject,
+                                             largeImage_name = largeImage_name,
+                                             spat_unit = spat_unit,
+                                             spat_loc_name = spat_loc_name,
+                                             include_image_in_border = TRUE)
+    } else {
+      gimage = list()
+      for(gim in 1:length(largeImage_name)) {
+        gimage[[gim]] = plot_auto_largeImage_resample(gobject = gobject,
+                                                      largeImage_name = largeImage_name[[gim]],
+                                                      spat_unit = spat_unit,
+                                                      spat_loc_name = spat_loc_name,
+                                                      include_image_in_border = TRUE)
+      }
+    }
+
+  } else {
+    # Default to first image available in images if no input given to image_name or largeImage_name args
+    image_name = names(gobject@images)[1]
+    gimage = gobject@images[[image_name]]
+
+    if(is.null(gimage)) warning('image_name: ', image_name, ' does not exist \n')
+  }
+
+  return(gimage)
+
+}
 
 
 #' @name plot_feature_points_layer
@@ -158,6 +215,7 @@ plot_feature_points_layer = function(ggobject,
 #' @param show_image show a tissue background image
 #' @param gimage a giotto image
 #' @param image_name name of a giotto image
+#' @param largeImage_name name of a giottoLargeImage
 #' @param spat_unit spatial unit
 #' @param spat_loc_name name of spatial locations
 #' @param feats features to plot
@@ -196,7 +254,8 @@ plot_feature_points_layer = function(ggobject,
 spatInSituPlotPoints = function(gobject,
                                 show_image = F,
                                 gimage = NULL,
-                                image_name = 'image',
+                                image_name = NULL,
+                                largeImage_name = NULL,
                                 spat_unit = NULL,
                                 spat_loc_name = NULL,
                                 feats = NULL,
@@ -246,21 +305,15 @@ spatInSituPlotPoints = function(gobject,
 
   ## giotto image ##
   if(show_image == TRUE) {
-    if(!is.null(gimage)) gimage = gimage
-    else if(!is.null(image_name)) {
 
-      if(length(image_name) == 1) {
-        gimage = gobject@images[[image_name]]
-        if(is.null(gimage)) warning('image_name: ', image_name, ' does not exists')
-      } else {
-        gimage = list()
-        for(gim in 1:length(image_name)) {
-          gimage[[gim]] = gobject@images[[gim]]
-          if(is.null(gimage[[gim]])) warning('image_name: ', gim, ' does not exists')
-        }
-      }
+    gimage = select_gimage(gobject = gobject,
+                           gimage = gimage,
+                           image_name = image_name,
+                           largeImage_name = largeImage_name,
+                           spat_unit = spat_unit,
+                           spat_loc_name = spat_loc_name,
+                           feat_type = feat_type)
 
-    }
   }
 
 

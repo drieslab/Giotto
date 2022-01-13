@@ -937,27 +937,6 @@ addGiottoImageToSpatPlot = function(spatpl = NULL,
 }
 
 
-#' @title showGiottoImageNames
-#' @name showGiottoImageNames
-#' @description Prints the available giotto images that are attached to the Giotto object
-#' @param gobject a giotto object
-#' @param verbose verbosity of function
-#' @return a vector of giotto image names attached to the giotto object
-#' @export
-showGiottoImageNames = function(gobject,
-                          verbose = TRUE) {
-
-  if(is.null(gobject)) stop('A giotto object needs to be provided \n')
-  g_image_names = names(gobject@images)
-
-  if(verbose == TRUE) {
-    cat('The following images are available: ',
-        g_image_names, '\n')
-  }
-
-  return(g_image_names)
-
-}
 
 
 #' @title updateGiottoImageMG
