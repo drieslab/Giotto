@@ -8,7 +8,8 @@ spatInSituPlotPoints(
   gobject,
   show_image = F,
   gimage = NULL,
-  image_name = "image",
+  image_name = NULL,
+  largeImage_name = NULL,
   spat_unit = NULL,
   spat_loc_name = NULL,
   feats = NULL,
@@ -52,6 +53,8 @@ spatInSituPlotPoints(
 \item{gimage}{a giotto image}
 
 \item{image_name}{name of a giotto image}
+
+\item{largeImage_name}{name of a giottoLargeImage}
 
 \item{spat_unit}{spatial unit}
 

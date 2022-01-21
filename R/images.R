@@ -467,7 +467,7 @@ createGiottoLargeImage = function(raster_object,
   }
 
   # Prevent updates to original raster object input
-  raster_object = terra::copy(raster_object)
+  raster_object = terra::deepcopy(raster_object)
 
 
   ## 2. image bound spatial extent
@@ -1940,7 +1940,7 @@ updateGiottoLargeImage = function(gobject = NULL,
 
 
   # 4. Update the boundaries
-  if(return_gobject == FALSE) g_imageL@raster_object = terra::copy(g_imageL@raster_object)
+  if(return_gobject == FALSE) g_imageL@raster_object = terra::deepcopy(g_imageL@raster_object)
   terra::ext(g_imageL@raster_object) = c(xmin_final,
                                          xmax_final,
                                          ymin_final,
@@ -2022,7 +2022,7 @@ addGiottoLargeImage = function(gobject = NULL,
       }
 
       # Deep copy the raster_object
-      im@raster_object = terra::copy(im@raster_object)
+      im@raster_object = terra::deepcopy(im@raster_object)
 
       # # 3. Update boundaries if not already done during createGiottoImage() due to lack of spatlocs and gobject
       # if(sum(im@boundaries == c(0,0,0,0)) == 4 && sum(im@minmax == c(10,0,10,0)) == 4) {
