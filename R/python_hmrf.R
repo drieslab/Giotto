@@ -762,8 +762,8 @@ doHMRF <- function(gobject,
   }
   # folder path specified
   else if(!is.null(output_folder)) {
+    output_folder = path.expand(output_folder)
     if(!file.exists(output_folder)) {
-      output_folder = path.expand(output_folder)
       dir.create(path = output_folder, recursive = T)
     }
   }
