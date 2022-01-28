@@ -124,9 +124,13 @@ setMethod(
 #' @name set_giotto_python_path
 #' @description sets the python path and/or installs miniconda and the python modules
 set_giotto_python_path = function(python_path = NULL,
-                                  packages_to_install = c('pandas', 'networkx', 'python-igraph',
-                                                          'leidenalg', 'python-louvain', 'python.app',
-                                                          'scikit-learn')) {
+                                  packages_to_install = c('pandas==1.1.5',
+                                                          'networkx==2.6.3',
+                                                          'python-igraph==0.9.6',
+                                                          'leidenalg==0.8.7',
+                                                          'python-louvain==0.15',
+                                                          'python.app==2',
+                                                          'scikit-learn==0.24.2')) {
 
   ## if a python path is provided, use that path
   if(!is.null(python_path)) {
