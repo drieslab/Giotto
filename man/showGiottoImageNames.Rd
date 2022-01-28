@@ -4,10 +4,12 @@
 \alias{showGiottoImageNames}
 \title{showGiottoImageNames}
 \usage{
-showGiottoImageNames(gobject, verbose = TRUE)
+showGiottoImageNames(gobject, return = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{gobject}{a giotto object}
+
+\item{return}{return named list of available images}
 
 \item{verbose}{verbosity of function}
 }
