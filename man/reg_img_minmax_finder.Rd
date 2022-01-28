@@ -7,6 +7,7 @@
 reg_img_minmax_finder(
   gobject_list,
   image_unreg,
+  largeImage_unreg,
   scale_factor,
   transform_values,
   method
@@ -16,6 +17,8 @@ reg_img_minmax_finder(
 \item{gobject_list}{list of gobjects to use}
 
 \item{image_unreg}{name of original unregistered images}
+
+\item{largeImage_unreg}{name of original unregistered largeImages}
 
 \item{scale_factor}{scale factors for registered images relative to spatlocs.}
 
