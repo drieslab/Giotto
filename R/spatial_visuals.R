@@ -9840,4 +9840,77 @@ spatDimGenePlot3D <- function(gobject,
 }
 
 
+#' Select interactive polygons
+#'
+#' @param p An image or plot to draw polygons on
+#'
+#' @return A `data.table` stored in polygon_results containing x,y coordinates from the plotted polygons.
+#'
+#' @import shiny data.table magrittr
+#'
+#' @examples
+#' \dontrun{
+#' # Using a ggplot2 plot
+#' libray(ggplot2)
+#' df <- data.frame(x = 1:5, y = 1:5)
+#' my_plot <- ggplot(df, aes(x,y)) + geom_point()
+#' spatPlotInteractive(my_plot)
+#'
+#' # Using a terra rast image
+#' library(terra)
+#' r = rast(system.file("ex/elev.tif", package="terra"))
+#' spatPlotInteractive(r)
+#'
+#' # Using an image contained in Giotto object
+#' my_spatPlot <- spatPlot2D(gobject = my_giotto_object,
+#'                           show_image = TRUE,
+#'                           point_alpha = 0.75,
+#'                           save_plot = FALSE)
+#' spatPlotInteractive(my_spatPlot)
+#' }
+#' @export
+
+spatPlotInteractive <- function(p) {
+
+  saveData <- function(data) {
+    data <- as.data.table(data)
+    polygon_results <<- data
+  }
+
+  app = shinyApp(
+    ui <- basicPage(
+      plotOutput("plot1", click = "plot_click"),
+      tableOutput("table"),
+      textInput("polygon_name", label = "Polygon name", value = "polygon 1")
+    ),
+
+    server <- function(input, output, session) {
+      coords <- reactiveVal(value = data.table(x = numeric(), y = numeric(), name = character()))
+
+      observeEvent(input$plot_click, {
+        rbind(coords(),
+              data.table(x = isolate(input$plot_click$x),
+                         y = isolate(input$plot_click$y),
+                         name = isolate(input$polygon_name) )
+        ) %>% coords()
+
+        saveData(coords())
+      })
+
+      output$plot1 <- renderPlot({
+        plot(p)
+        lapply(split(coords(), by = "name"), function (x) polygon(x$x,x$y))
+      })
+
+      output$table <- renderTable(coords())
+    }
+
+  )
+  runApp(app)
+}
+
+
+
+
+
 
