@@ -873,6 +873,7 @@ giottoPoints <- setClass(
 #' @keywords giotto, points, network, class
 #' @slot name name of feature network
 #' @slot network_datatable feature network in data.table format
+#' @slot network_lookup_id vector mapping numeric network ID information back to unique gene numerical IDs
 #' @slot full fully connected network
 #' @details
 #'
@@ -883,12 +884,14 @@ featureNetwork <- setClass(
   slots = c(
     name = "ANY",
     network_datatable = "ANY",
+    network_lookup_id = "ANY",
     full = "ANY"
   ),
 
   prototype = list(
     name = NULL,
     network_datatable = NULL,
+    network_lookup_id = NULL,
     full = NULL
   )
 )
@@ -898,12 +901,14 @@ featureNetwork <- setClass(
 #' @keywords internal
 create_featureNetwork_object = function(name = 'feat_network',
                                         network_datatable = NULL,
+                                        network_lookup_id = NULL,
                                         full = NULL) {
 
 
   # create minimum giotto points object
   f_network = featureNetwork(name = name,
                              network_datatable = NULL,
+                             network_lookup_id = NULL,
                              full = NULL)
 
   ## 1. check network data.table object
@@ -917,6 +922,9 @@ create_featureNetwork_object = function(name = 'feat_network',
 
   ## 3. provide feature network name
   f_network@name = name
+
+  ## 4. network lookup id
+  f_network@network_lookup_id = network_lookup_id
 
   # giotoPoints object
   return(f_network)
@@ -1199,13 +1207,17 @@ createSpatialFeaturesKNNnetwork_dbscan = function(gobject,
 
   ## 1. specify feat_type
   if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
+    gobject@feat_info[[1]]@feat_type
   }
 
   ## 2. get spatial feature info and convert to matrix
   if(verbose == TRUE) cat('Convert feature spatial info to matrix \n')
   featDT = spatVector_to_dt(gobject@feat_info[[feat_type]]@spatVector)
   spatial_locations_matrix = as.matrix(featDT[, c('x', 'y', NULL), with = F])
+
+  # store lookup table to keep information about unique ID
+  # important with multiple joined objects where row id is not always equal to unique gene
+  network_id_lookup_table = 1:nrow(featDT); names(network_id_lookup_table) = featDT$feat_ID_uniq
 
   ## 3. create kNN network
   if(verbose == TRUE) cat('Create kNN network with dbscan \n')
@@ -1258,6 +1270,7 @@ createSpatialFeaturesKNNnetwork_dbscan = function(gobject,
 
   knn_sptial.norm_object = create_featureNetwork_object(name = name,
                                                         network_datatable = knn_sptial.norm,
+                                                        network_lookup_id = network_id_lookup_table,
                                                         full = FALSE)
 
   return(knn_sptial.norm_object)
