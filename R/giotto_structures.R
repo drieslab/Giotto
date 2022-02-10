@@ -873,7 +873,7 @@ giottoPoints <- setClass(
 #' @keywords giotto, points, network, class
 #' @slot name name of feature network
 #' @slot network_datatable feature network in data.table format
-#' @slot network_lookup_id vector mapping numeric network ID information back to unique gene numerical IDs
+#' @slot network_lookup_id table mapping numeric network ID to unique feature numerical IDs
 #' @slot full fully connected network
 #' @details
 #'
@@ -1217,7 +1217,8 @@ createSpatialFeaturesKNNnetwork_dbscan = function(gobject,
 
   # store lookup table to keep information about unique ID
   # important with multiple joined objects where row id is not always equal to unique gene
-  network_id_lookup_table = 1:nrow(featDT); names(network_id_lookup_table) = featDT$feat_ID_uniq
+  network_id_lookup_table = data.table::data.table(row = 1:nrow(featDT),
+                                                   id = featDT$feat_ID_uniq)
 
   ## 3. create kNN network
   if(verbose == TRUE) cat('Create kNN network with dbscan \n')
