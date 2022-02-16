@@ -1542,19 +1542,21 @@ calculateOverlapRaster = function(gobject,
   # add point information
   if(verbose) cat('4. add points information \n')
   pointvec_dt = spatVector_to_dt(pointvec)
-  pointvec_dt_x = pointvec_dt$x ; names(pointvec_dt_x) = pointvec_dt$feat_ID_uniq
-  pointvec_dt_y = pointvec_dt$y ; names(pointvec_dt_y) = pointvec_dt$feat_ID_uniq
 
-  pointvec_dt_feat_ID = pointvec_dt$feat_ID ; names(pointvec_dt_feat_ID) = pointvec_dt$feat_ID_uniq
+  pointvec_dt_x = pointvec_dt$x ; names(pointvec_dt_x) = pointvec_dt$geom
+  pointvec_dt_y = pointvec_dt$y ; names(pointvec_dt_y) = pointvec_dt$geom
+  pointvec_dt_feat_ID = pointvec_dt$feat_ID ; names(pointvec_dt_feat_ID) = pointvec_dt$geom
+  pointvec_dt_feat_ID_uniq = pointvec_dt$feat_ID_uniq ; names(pointvec_dt_feat_ID_uniq) = pointvec_dt$geom
 
   overlap_test_dt[, x := pointvec_dt_x[ID]]
   overlap_test_dt[, y := pointvec_dt_y[ID]]
   overlap_test_dt[, feat_ID := pointvec_dt_feat_ID[ID]]
+  overlap_test_dt[, feat_ID_uniq := pointvec_dt_feat_ID_uniq[ID]]
 
   if(verbose) cat('5. create overlap polygon information \n')
   overlap_test_dt_spatvector = terra::vect(x = as.matrix(overlap_test_dt[, c('x', 'y'), with = F]),
                                            type = "points",
-                                           atts = overlap_test_dt[, c('poly_ID', 'feat_ID', 'ID'), with = F])
+                                           atts = overlap_test_dt[, c('poly_ID', 'feat_ID', 'feat_ID_uniq'), with = F])
   names(overlap_test_dt_spatvector) = c('poly_ID', 'feat_ID', 'feat_ID_uniq')
 
 
@@ -1902,13 +1904,13 @@ overlapToMatrix = function(gobject,
   missing_ids = all_ids[!all_ids %in% unique(aggr_dtoverlap$poly_ID)]
 
   # create missing cell values, only if there are missing cell IDs!
-  if(!is.null(missing_ids)) {
+  if(!length(missing_ids) == 0) {
     first_feature = aggr_dtoverlap[['feat_ID']][[1]]
     missing_dt = data.table::data.table(poly_ID = missing_ids, feat_ID = first_feature, N = 0)
     aggr_dtoverlap = rbind(aggr_dtoverlap, missing_dt)
   }
 
-  if(!is.null(missing_feats)) {
+  if(!length(missing_feats) == 0) {
     first_cell = aggr_dtoverlap[['poly_ID']][[1]]
     missing_dt = data.table::data.table(poly_ID = first_cell, feat_ID = missing_feats, N = 0)
     aggr_dtoverlap = rbind(aggr_dtoverlap, missing_dt)
