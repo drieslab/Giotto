@@ -1740,7 +1740,7 @@ runGiottoHarmony = function(gobject,
     ## TODO: check if reduction exists
     matrix_to_use = get_dimReduction(gobject = gobject,
                                      spat_unit = spat_unit,
-                                     reduction = 'cells',
+                                     reduction = 'cells', # set to spat_unit?
                                      reduction_method = dim_reduction_to_use,
                                      name = dim_reduction_name,
                                      return_dimObj = FALSE)
@@ -1803,7 +1803,7 @@ runGiottoHarmony = function(gobject,
     gobject = set_dimReduction(gobject = gobject,
                                feat_type = feat_type,
                                spat_unit = spat_unit,
-                               reduction = reduction,
+                               reduction = 'cells', # set to spat_unit?
                                reduction_method = 'harmony',
                                name = name,
                                dimObject = harmdimObject)
