@@ -18,6 +18,8 @@ Giotto class to store and operate on feature network
 
 \item{\code{network_datatable}}{feature network in data.table format}
 
+\item{\code{network_lookup_id}}{table mapping numeric network ID to unique feature numerical IDs}
+
 \item{\code{full}}{fully connected network}
 }}
 

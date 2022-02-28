@@ -2486,12 +2486,21 @@ addFeatStatistics <- function(gobject,
 
     # parent function name
     cl = sys.call(-1)
-    fname = as.character(cl[[1]])
-    if(fname == 'addStatistics') {
-      gobject = update_giotto_params(gobject, description = '_feat_stats', toplevel = 3)
-    } else {
+
+    print('cl = ')
+    print(cl)
+
+    if(is.null(cl)) {
       gobject = update_giotto_params(gobject, description = '_feat_stats')
+    } else {
+      fname = as.character(cl[[1]])
+      if(fname == 'addStatistics') {
+        gobject = update_giotto_params(gobject, description = '_feat_stats', toplevel = 3)
+      } else {
+        gobject = update_giotto_params(gobject, description = '_feat_stats')
+      }
     }
+
 
     return(gobject)
 
@@ -2581,6 +2590,7 @@ addCellStatistics <- function(gobject,
                                     values = expression_values)
 
   # calculate stats
+  print('ok 1')
   cell_stats = data.table::data.table(cells = colnames(expr_data),
                                       nr_feats = colSums_flex(expr_data > detection_threshold),
                                       perc_feats = (colSums_flex(expr_data > detection_threshold)/nrow(expr_data))*100,
@@ -2599,6 +2609,9 @@ addCellStatistics <- function(gobject,
       gobject@cell_metadata[[feat_type]][[spat_unit]] = cell_metadata
     }
 
+
+    print('ok 2')
+    print(cell_stats)
     gobject = addCellMetadata(gobject = gobject,
                               feat_type = feat_type,
                               spat_unit = spat_unit,
@@ -2609,12 +2622,21 @@ addCellStatistics <- function(gobject,
     ## update parameters used ##
     # parent function name
     cl = sys.call(-1)
-    fname = as.character(cl[[1]])
-    if(fname == 'addStatistics') {
-      gobject = update_giotto_params(gobject, description = '_cell_stats', toplevel = 3)
-    } else {
+
+    if(is.null(cl)) {
       gobject = update_giotto_params(gobject, description = '_cell_stats')
+    } else {
+
+      fname = as.character(cl[[1]])
+      if(fname == 'addStatistics') {
+        gobject = update_giotto_params(gobject, description = '_cell_stats', toplevel = 3)
+      } else {
+        gobject = update_giotto_params(gobject, description = '_cell_stats')
+      }
+
     }
+
+
     return(gobject)
 
 
