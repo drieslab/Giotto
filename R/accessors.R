@@ -350,8 +350,8 @@ set_dimReduction <- function(gobject,
 get_NearestNetwork = function(gobject,
                               spat_unit = NULL,
                               feat_type = NULL,
-                              nn_network_to_use = 'sNN',
-                              network_name = 'sNN.pca',
+                              nn_network_to_use = NULL,
+                              network_name = NULL,
                               output = c('igraph', 'data.table')) {
 
   output = match.arg(arg = output, choices = c('igraph', 'data.table'))
@@ -363,17 +363,34 @@ get_NearestNetwork = function(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
-  ## select network to use
-  if(is.null(nn_network_to_use) | is.null(network_name)) {
-    stop('\n you need to select network type: knn or snn \n
-         and you need to select the network name you created\n')
-  } else {
-    igraph_object = gobject@nn_network[[spat_unit]][[nn_network_to_use]][[network_name]]
-    if(is.null(igraph_object)) {
-      cat('\n nn_network_to_use or network_name does not exist, \n
-           create a nearest-neighbor network first \n')
+
+  # automatic nearest network selection
+  if(is.null(nn_network_to_use)) {
+    nn_network_to_use = names(gobject@nn_network[[spat_unit]])[[1]]
+    if(is.null(nn_network_to_use)) {
+      stop('There is currently no nearest-neighbor network build for spatial unit: ', spat_unit)
+    } else {
+      cat('The NN network type was not specified, default to the first: ', nn_network_to_use)
     }
   }
+
+  if(is.null(network_name)) {
+    network_name = names(gobject@nn_network[[spat_unit]][[nn_network_to_use]])[[1]]
+    if(is.null(network_name)) {
+      stop('There is currently no nearest-neighbor network build for spatial unit: ', spat_unit,
+           'and network type: ', nn_network_to_use)
+    }else {
+      cat('The NN network name was not specified, default to the first: ', network_name)
+    }
+  }
+
+  # get igraph object
+  igraph_object = gobject@nn_network[[spat_unit]][[nn_network_to_use]][[network_name]]
+  if(is.null(igraph_object)) {
+    stop('nn_network_to_use: ', nn_network_to_use, ' or network_name: ', network_name, 'does not exist.
+          Create a nearest-neighbor network first')
+  }
+
 
   ## convert igraph to data.table
   if(output == 'data.table') {
@@ -1211,7 +1228,7 @@ showGiottoImageNames = function(gobject,
     cat('The following large images are available: ',
         g_limage_names, '\n')
   }
-  
+
   if(return == TRUE) {
     availableImages = list(images = g_image_names,
                            largeImages = g_limage_names)
