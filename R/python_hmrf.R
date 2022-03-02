@@ -120,7 +120,7 @@ doHMRF <- function(gobject,
                                         values = values)
   }
 
-  if(class(expr_values) != 'matrix') {
+  if(!'matrix' %in% class(expr_values)) {
     warning('this matrix will be converted to a dense and memory intensive base matrix ...')
     expr_values = as.matrix(expr_values)
   }
