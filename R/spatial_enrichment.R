@@ -1109,6 +1109,14 @@ runHyperGeometricEnrich <- function(gobject,
                                       feat_type = feat_type,
                                       values = values)
 
+  ## temporary ##
+  if(class(expr_values)[[1]] != 'matrix') {
+    warning('The expression matrix is not stored as a base matrix and will be changed to a base matrix object. \n
+            This will be updated in the future')
+    expr_values = as.matrix(expr_values)
+  }
+
+
   # check parameters
   if(is.null(name)) name = 'hypergeometric'
 
