@@ -837,6 +837,7 @@ addGiottoImageMG = function(gobject,
       if(sum(im@boundaries == c(0,0,0,0)) == 4 && sum(im@minmax == c(10,0,10,0)) == 4) {
         if(!is.null(spat_loc_name)) { # A check for the first available spatloc was already done
           spatlocs = get_spatial_locations(gobject = gobject,
+                                           spat_unit = spat_unit,
                                            spat_loc_name = spat_loc_name)
 
           #Find spatial minmax values
