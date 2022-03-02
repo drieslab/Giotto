@@ -1767,6 +1767,10 @@ runDWLSDeconv <- function(gobject,
                                       feat_type = feat_type,
                                       values = values)
 
+  if(class(expr_values) != 'matrix') {
+    warning('this matrix will be converted to a dense and memory intensive base matrix ...')
+    expr_values = as.matrix(expr_values)
+  }
 
   # #transform expression data to no log data
   nolog_expr = logbase^(expr_values)-1
