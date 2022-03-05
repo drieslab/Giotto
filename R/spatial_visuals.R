@@ -9840,6 +9840,11 @@ spatDimGenePlot3D <- function(gobject,
 }
 
 
+
+# ** ####
+# ** interactive plotting ####
+
+
 #' Select interactive polygons
 #'
 #' @param p An image or plot to draw polygons on
