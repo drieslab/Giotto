@@ -119,7 +119,12 @@ doHMRF <- function(gobject,
                                         feat_type = feat_type,
                                         values = values)
   }
-  expr_values = as.matrix(expr_values)
+
+  if(!'matrix' %in% class(expr_values)) {
+    warning('this matrix will be converted to a dense and memory intensive base matrix ...')
+    expr_values = as.matrix(expr_values)
+  }
+
 
   expression_file = paste0(output_folder,'/', 'expression_matrix.txt')
 

@@ -1109,6 +1109,14 @@ runHyperGeometricEnrich <- function(gobject,
                                       feat_type = feat_type,
                                       values = values)
 
+  ## temporary ##
+  if(!'matrix' %in% class(expr_values)) {
+    warning('The expression matrix is not stored as a base matrix and will be changed to a base matrix object. \n
+            This will be updated in the future')
+    expr_values = as.matrix(expr_values)
+  }
+
+
   # check parameters
   if(is.null(name)) name = 'hypergeometric'
 
@@ -1759,6 +1767,10 @@ runDWLSDeconv <- function(gobject,
                                       feat_type = feat_type,
                                       values = values)
 
+  if(!'matrix' %in% class(expr_values)) {
+    warning('this matrix will be converted to a dense and memory intensive base matrix ...')
+    expr_values = as.matrix(expr_values)
+  }
 
   # #transform expression data to no log data
   nolog_expr = logbase^(expr_values)-1
