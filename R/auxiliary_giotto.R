@@ -377,8 +377,8 @@ subset_spatial_locations = function(gobject,
 
   for(spat_unit_name in names(gobject@spatial_locs)) {
     if(spat_unit_name == spat_unit) {
-      print(spat_unit)
-      print(spat_unit_name)
+      #print(spat_unit)
+      #print(spat_unit_name)
       for(spatlocname in names(gobject@spatial_locs[[spat_unit_name]])) {
         gobject@spatial_locs[[spat_unit_name]][[spatlocname]] = gobject@spatial_locs[[spat_unit_name]][[spatlocname]][filter_bool_cells]
       }
@@ -828,8 +828,8 @@ subsetGiotto <- function(gobject,
   g_cell_IDs = gobject@cell_ID[[spat_unit]]
   g_feat_IDs = gobject@feat_ID[[feat_type]]
 
-  print(g_cell_IDs[1:5])
-  print(g_feat_IDs[1:5])
+  #print(g_cell_IDs[1:5])
+  #print(g_feat_IDs[1:5])
 
   ## filter index
   if(!is.null(cell_ids)) {
@@ -842,15 +842,15 @@ subsetGiotto <- function(gobject,
   cells_to_keep = g_cell_IDs[filter_bool_cells]
   feats_to_keep = g_feat_IDs[filter_bool_feats]
 
-  print(cells_to_keep[1:5])
-  print(length(filter_bool_cells))
-  print(feats_to_keep[1:5])
-  print(length(filter_bool_feats))
+  #print(cells_to_keep[1:5])
+  #print(length(filter_bool_cells))
+  #print(feats_to_keep[1:5])
+  #print(length(filter_bool_feats))
 
   if(verbose) cat('completed 1: preparation \n')
 
 
-  print(gobject@spatial_locs[[spat_unit]][['raw']])
+  #print(gobject@spatial_locs[[spat_unit]][['raw']])
 
   ## FILTER ##
   # filter expression data
@@ -862,10 +862,10 @@ subsetGiotto <- function(gobject,
 
   if(verbose) cat('completed 2: subset expression data \n')
 
-  print(gobject@spatial_locs[[spat_unit]][['raw']])
+  #print(gobject@spatial_locs[[spat_unit]][['raw']])
 
   # filter spatial locations
-  print(spat_unit)
+  #print(spat_unit)
   gobject = subset_spatial_locations(gobject = gobject,
                                      filter_bool_cells = filter_bool_cells,
                                      spat_unit = spat_unit)
@@ -2590,7 +2590,7 @@ addCellStatistics <- function(gobject,
                                     values = expression_values)
 
   # calculate stats
-  print('ok 1')
+  #print('ok 1')
   cell_stats = data.table::data.table(cells = colnames(expr_data),
                                       nr_feats = colSums_flex(expr_data > detection_threshold),
                                       perc_feats = (colSums_flex(expr_data > detection_threshold)/nrow(expr_data))*100,
@@ -2610,8 +2610,8 @@ addCellStatistics <- function(gobject,
     }
 
 
-    print('ok 2')
-    print(cell_stats)
+    #print('ok 2')
+    #print(cell_stats)
     gobject = addCellMetadata(gobject = gobject,
                               feat_type = feat_type,
                               spat_unit = spat_unit,

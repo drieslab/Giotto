@@ -1571,6 +1571,9 @@ plot_spat_point_layer_ggplot = function(ggobject,
 
   ## first plot other non-selected cells
   if((!is.null(select_cells) | !is.null(select_cell_groups)) & show_other_cells == TRUE) {
+
+    #print('OTHER CELLS WILL BE PLOTTED')
+
     pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_other,
                                    aes_string(x = sdimx, sdimy),
                                    color = other_cell_color,
@@ -2756,7 +2759,7 @@ spatPlot2D_single = function(gobject,
   if(!is.null(select_cells)) {
     cell_locations_metadata_other = cell_locations_metadata[!cell_locations_metadata$cell_ID %in% select_cells]
     cell_locations_metadata_selected = cell_locations_metadata[cell_locations_metadata$cell_ID %in% select_cells]
-    spatial_network <- spatial_network[spatial_network$to %in% select_cells & spatial_network$from %in% select_cells]
+    spatial_network = spatial_network[spatial_network$to %in% select_cells & spatial_network$from %in% select_cells]
 
     # if specific cells are selected
     # cell_locations_metadata = cell_locations_metadata_selected
@@ -2782,8 +2785,8 @@ spatPlot2D_single = function(gobject,
   #cat('create 2D plot with ggplot \n')
 
 
-  pl <- ggplot2::ggplot()
-  pl <- pl + ggplot2::theme_bw()
+  pl = ggplot2::ggplot()
+  pl = pl + ggplot2::theme_bw()
 
   ## plot image ##
   if(show_image == TRUE & !is.null(gimage)) {
