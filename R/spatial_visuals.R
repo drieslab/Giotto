@@ -1571,6 +1571,9 @@ plot_spat_point_layer_ggplot = function(ggobject,
 
   ## first plot other non-selected cells
   if((!is.null(select_cells) | !is.null(select_cell_groups)) & show_other_cells == TRUE) {
+
+    #print('OTHER CELLS WILL BE PLOTTED')
+
     pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_other,
                                    aes_string(x = sdimx, sdimy),
                                    color = other_cell_color,
@@ -2756,7 +2759,7 @@ spatPlot2D_single = function(gobject,
   if(!is.null(select_cells)) {
     cell_locations_metadata_other = cell_locations_metadata[!cell_locations_metadata$cell_ID %in% select_cells]
     cell_locations_metadata_selected = cell_locations_metadata[cell_locations_metadata$cell_ID %in% select_cells]
-    spatial_network <- spatial_network[spatial_network$to %in% select_cells & spatial_network$from %in% select_cells]
+    spatial_network = spatial_network[spatial_network$to %in% select_cells & spatial_network$from %in% select_cells]
 
     # if specific cells are selected
     # cell_locations_metadata = cell_locations_metadata_selected
@@ -2782,8 +2785,8 @@ spatPlot2D_single = function(gobject,
   #cat('create 2D plot with ggplot \n')
 
 
-  pl <- ggplot2::ggplot()
-  pl <- pl + ggplot2::theme_bw()
+  pl = ggplot2::ggplot()
+  pl = pl + ggplot2::theme_bw()
 
   ## plot image ##
   if(show_image == TRUE & !is.null(gimage)) {
@@ -9840,18 +9843,18 @@ spatDimGenePlot3D <- function(gobject,
 }
 
 
-
 # ** ####
 # ** interactive plotting ####
 
-
-#' Select interactive polygons
+#' Select image regions by plotting interactive polygons
 #'
-#' @param p An image or plot to draw polygons on
+#' @param x A plot or `ggplot` object to draw polygons on
+#' @param width,height An integer, defining the width/height in pixels.
+#' @param ... Graphical parameters passed on to `polygon` or `geom_point`.
 #'
-#' @return A `data.table` stored in polygon_results containing x,y coordinates from the plotted polygons.
+#' @return A `data.table` containing x,y coordinates from the plotted polygons.
 #'
-#' @import shiny data.table magrittr
+#' @import shiny miniUI data.table magrittr
 #'
 #' @examples
 #' \dontrun{
@@ -9859,61 +9862,65 @@ spatDimGenePlot3D <- function(gobject,
 #' libray(ggplot2)
 #' df <- data.frame(x = 1:5, y = 1:5)
 #' my_plot <- ggplot(df, aes(x,y)) + geom_point()
-#' spatPlotInteractive(my_plot)
+#' plotInteractivePolygons(my_plot)
+#' plotInteractivePolygons(my_plot, alpha = 0.5)
 #'
 #' # Using a terra rast image
 #' library(terra)
 #' r = rast(system.file("ex/elev.tif", package="terra"))
-#' spatPlotInteractive(r)
+#' plotInteractivePolygons(r, border = "red", lwd = 2)
 #'
 #' # Using an image contained in Giotto object
+#' library(Giotto)
 #' my_spatPlot <- spatPlot2D(gobject = my_giotto_object,
 #'                           show_image = TRUE,
 #'                           point_alpha = 0.75,
 #'                           save_plot = FALSE)
-#' spatPlotInteractive(my_spatPlot)
+#' my_polygon_coordinates <- plotInteractivePolygons(my_spatPlot, size = 0.5, alpha = 0)
 #' }
 #' @export
+plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
 
-spatPlotInteractive <- function(p) {
-
-  saveData <- function(data) {
-    data <- as.data.table(data)
-    polygon_results <<- data
-  }
-
-  app = shinyApp(
-    ui <- basicPage(
-      plotOutput("plot1", click = "plot_click"),
-      tableOutput("table"),
-      textInput("polygon_name", label = "Polygon name", value = "polygon 1")
-    ),
-
-    server <- function(input, output, session) {
-      coords <- reactiveVal(value = data.table(x = numeric(), y = numeric(), name = character()))
-
-      observeEvent(input$plot_click, {
-        rbind(coords(),
-              data.table(x = isolate(input$plot_click$x),
-                         y = isolate(input$plot_click$y),
-                         name = isolate(input$polygon_name) )
-        ) %>% coords()
-
-        saveData(coords())
-      })
-
-      output$plot1 <- renderPlot({
-        plot(p)
-        lapply(split(coords(), by = "name"), function (x) polygon(x$x,x$y))
-      })
-
-      output$table <- renderTable(coords())
-    }
-
+  ui <- miniPage(
+    gadgetTitleBar("Plot Interactive Polygons"),
+    miniContentPanel(
+      plotOutput("plot", click = "plot_click"),
+      textInput("polygon_name", label = "Polygon name", value = "polygon 1"),
+      tableOutput("info")
+    )
   )
-  runApp(app)
-}
 
+  server <- function(input, output,session) {
+    output$plot <- renderPlot({
+      if ("ggplot" %in% class(x)) {
+        x +
+          geom_polygon(data = clicklist(), aes(x,y, color = name, fill = name), ...)
+      } else {
+        plot(x)
+        lapply(split(clicklist(), by = "name"), function (x) polygon(x$x, x$y, ...) )
+      }
+    }, res = 96, width = width, height = height)
+
+    clicklist <- reactiveVal(data.table(x = numeric(), y = numeric(), name = character())) # empty table
+    observeEvent(input$plot_click, {
+      click_x <- input$plot_click$x
+      click_y <- input$plot_click$y
+      polygon_name <- input$polygon_name
+      temp <- clicklist() # get the table of past clicks
+      temp <- rbind(temp,data.table(x = click_x, y = click_y, name = polygon_name))
+      clicklist(temp)
+    })
+
+
+    output$info <- renderTable(clicklist())
+
+    observeEvent(input$done, {
+      returnValue <- clicklist()
+      stopApp(returnValue)
+    })
+  }
+  runGadget(ui, server)
+}
 
 
 

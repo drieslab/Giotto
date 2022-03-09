@@ -1177,8 +1177,26 @@ extract_points_list = function(pointslist) {
     pointinfo = pointslist[[point_i]]
 
 
-    point_results = createGiottoPoints(x = pointinfo,
-                                       feat_type = name_pointinfo)
+    if(inherits(pointinfo, 'giottoPoints')) {
+
+      point_results = pointinfo
+      name_pointinfo = pointinfo@feat_type
+
+    } else if(inherits(pointinfo, 'data.frame')) {
+
+      point_results = createGiottoPoints(x = pointinfo,
+                                         feat_type = name_pointinfo)
+
+    } else if(inherits(pointinfo, 'character')) {
+
+      stop('Giotto points can not yet be created directly from a file path')
+
+    } else {
+
+      stop('Giotto points can only be created from a correctly formatted data.frame-like object')
+
+    }
+
 
     final_list[[name_pointinfo]] = point_results
 
