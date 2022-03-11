@@ -9893,7 +9893,8 @@ plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
       if ("ggplot" %in% class(x)) {
         x +
           geom_polygon(data = clicklist(), aes(x,y, color = name, fill = name),
-                       alpha = 0, show.legend = FALSE, ...)
+                       alpha = 0, ...) +
+          theme(legend.position = 'none')
       } else {
         terra::plot(x)
         lapply(split(clicklist(), by = "name"), function (x) polygon(x$x, x$y, ...) )
