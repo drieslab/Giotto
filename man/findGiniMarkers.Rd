@@ -12,7 +12,9 @@ findGiniMarkers(
   cluster_column,
   subset_clusters = NULL,
   group_1 = NULL,
+  group_1_name = NULL,
   group_2 = NULL,
+  group_2_name = NULL,
   min_expr_gini_score = 0.2,
   min_det_gini_score = 0.2,
   detection_threshold = 0,
@@ -36,7 +38,11 @@ findGiniMarkers(
 
 \item{group_1}{group 1 cluster IDs from cluster_column for pairwise comparison}
 
+\item{group_1_name}{custom name for group_1 clusters}
+
 \item{group_2}{group 2 cluster IDs from cluster_column for pairwise comparison}
+
+\item{group_2_name}{custom name for group_2 clusters}
 
 \item{min_expr_gini_score}{filter on minimum gini coefficient for expression}
 
@@ -73,6 +79,6 @@ As a results "top gini" feats are feats that are very selectivily expressed in a
 however not always expressed in all cells of that cluster. In other words highly specific, but
 not necessarily sensitive at the single-cell level.
 
-To perform differential expression between cluster groups you need to specificy cluster IDs
-to the parameters \emph{group_1} and \emph{group_2}.
+To perform differential expression between specific groups you need to specify cluster IDs
+to the parameters \emph{group_1} and \emph{group_2} and provide names for \emph{group_1_name} and \emph{group_2_name}
 }

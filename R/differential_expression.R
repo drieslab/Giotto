@@ -10,15 +10,17 @@
 #' @param cluster_column clusters to use
 #' @param subset_clusters selection of clusters to compare
 #' @param group_1 group 1 cluster IDs from cluster_column for pairwise comparison
+#' @param group_1_name custom name for group_1 clusters
 #' @param group_2 group 2 cluster IDs from cluster_column for pairwise comparison
+#' @param group_2_name custom name for group_2 clusters
 #' @param verbose be verbose (default = FALSE)
 #' @param ... additional parameters for the findMarkers function in scran
 #' @return data.table with marker genes
 #' @details This is a minimal convenience wrapper around
 #' the \code{\link[scran]{findMarkers}} function from the scran package.
 #'
-#' To perform differential expression between cluster groups you need to specificy cluster IDs
-#' to the parameters \emph{group_1} and \emph{group_2}.
+#' To perform differential expression between specific groups you need to specify cluster IDs
+#' to the parameters \emph{group_1} and \emph{group_2} and provide names for \emph{group_1_name} and \emph{group_2_name}
 #'
 #' @export
 findScranMarkers <- function(gobject,
@@ -28,7 +30,9 @@ findScranMarkers <- function(gobject,
                              cluster_column,
                              subset_clusters = NULL,
                              group_1 = NULL,
+                             group_1_name = NULL,
                              group_2 = NULL,
+                             group_2_name = NULL,
                              verbose = FALSE,
                              ...) {
 
@@ -79,8 +83,20 @@ findScranMarkers <- function(gobject,
     cell_metadata = cell_metadata[get(cluster_column) %in% c(group_1, group_2)]
 
     # create new pairwise group
-    group_1_name = paste0(group_1, collapse = '_')
-    group_2_name = paste0(group_2, collapse = '_')
+    if(!is.null(group_1_name)) {
+      if(!is.character(group_1_name)) stop('group_1_name needs to be a character')
+      group_1_name = group_1_name
+    } else {
+      group_1_name = paste0(group_1, collapse = '_')
+    }
+
+    if(!is.null(group_2_name)) {
+      if(!is.character(group_2_name)) stop('group_2_name needs to be a character')
+      group_2_name = group_2_name
+    } else {
+      group_2_name = paste0(group_2, collapse = '_')
+    }
+
 
     # data.table variables
     pairwise_select_comp = NULL
@@ -268,7 +284,9 @@ findScranMarkers_one_vs_all <- function(gobject,
 #' @param cluster_column clusters to use
 #' @param subset_clusters selection of clusters to compare
 #' @param group_1 group 1 cluster IDs from cluster_column for pairwise comparison
+#' @param group_1_name custom name for group_1 clusters
 #' @param group_2 group 2 cluster IDs from cluster_column for pairwise comparison
+#' @param group_2_name custom name for group_2 clusters
 #' @param min_expr_gini_score filter on minimum gini coefficient for expression
 #' @param min_det_gini_score filter on minimum gini coefficient for detection
 #' @param detection_threshold detection threshold for feat expression
@@ -293,8 +311,8 @@ findScranMarkers_one_vs_all <- function(gobject,
 #' however not always expressed in all cells of that cluster. In other words highly specific, but
 #' not necessarily sensitive at the single-cell level.
 #'
-#' To perform differential expression between cluster groups you need to specificy cluster IDs
-#' to the parameters \emph{group_1} and \emph{group_2}.
+#' To perform differential expression between specific groups you need to specify cluster IDs
+#' to the parameters \emph{group_1} and \emph{group_2} and provide names for \emph{group_1_name} and \emph{group_2_name}
 #'
 #' @export
 findGiniMarkers <- function(gobject,
@@ -304,7 +322,9 @@ findGiniMarkers <- function(gobject,
                             cluster_column,
                             subset_clusters = NULL,
                             group_1 = NULL,
+                            group_1_name = NULL,
                             group_2 = NULL,
+                            group_2_name = NULL,
                             min_expr_gini_score = 0.2,
                             min_det_gini_score = 0.2,
                             detection_threshold = 0,
@@ -356,9 +376,19 @@ findGiniMarkers <- function(gobject,
     cell_metadata = cell_metadata[get(cluster_column) %in% c(group_1, group_2)]
 
     # create new pairwise group
-    group_1_name = paste0(group_1, collapse = '_')
-    group_2_name = paste0(group_2, collapse = '_')
+    if(!is.null(group_1_name)) {
+      if(!is.character(group_1_name)) stop('group_1_name needs to be a character')
+      group_1_name = group_1_name
+    } else {
+      group_1_name = paste0(group_1, collapse = '_')
+    }
 
+    if(!is.null(group_2_name)) {
+      if(!is.character(group_2_name)) stop('group_2_name needs to be a character')
+      group_2_name = group_2_name
+    } else {
+      group_2_name = paste0(group_2, collapse = '_')
+    }
     # data.table variables
     pairwise_select_comp = NULL
 
@@ -947,7 +977,10 @@ findMarkers <- function(gobject,
                                        cluster_column = cluster_column,
                                        subset_clusters = subset_clusters,
                                        group_1 = group_1,
-                                       group_2 = group_2, ...)
+                                       group_2 = group_2,
+                                       group_1_name = group_1_name,
+                                       group_2_name = group_2_name,
+                                       ...)
   } else if(method == 'gini') {
 
     markers_result <-  findGiniMarkers(gobject = gobject,
@@ -958,6 +991,8 @@ findMarkers <- function(gobject,
                                        subset_clusters = subset_clusters,
                                        group_1 = group_1,
                                        group_2 = group_2,
+                                       group_1_name = group_1_name,
+                                       group_2_name = group_2_name,
                                        min_expr_gini_score = min_expr_gini_score,
                                        min_det_gini_score = min_det_gini_score,
                                        detection_threshold = detection_threshold,
