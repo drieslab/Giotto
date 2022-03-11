@@ -9863,11 +9863,11 @@ spatDimGenePlot3D <- function(gobject,
 #' df <- data.frame(x = 1:5, y = 1:5)
 #' my_plot <- ggplot(df, aes(x,y)) + geom_point()
 #' plotInteractivePolygons(my_plot)
-#' plotInteractivePolygons(my_plot, alpha = 0.5)
 #'
 #' # Using a terra rast image
 #' library(terra)
 #' r = rast(system.file("ex/elev.tif", package="terra"))
+#' plotInteractivePolygons(r)
 #' plotInteractivePolygons(r, border = "red", lwd = 2)
 #'
 #' # Using an image contained in Giotto object
@@ -9875,8 +9875,10 @@ spatDimGenePlot3D <- function(gobject,
 #' my_spatPlot <- spatPlot2D(gobject = my_giotto_object,
 #'                           show_image = TRUE,
 #'                           point_alpha = 0.75,
+#'                           show_legend = F,
 #'                           save_plot = FALSE)
-#' my_polygon_coordinates <- plotInteractivePolygons(my_spatPlot, size = 0.5, alpha = 0)
+#' plotInteractivePolygons(my_spatPlot, height = 500)
+#' my_polygon_coordinates <- plotInteractivePolygons(my_spatPlot, height = 500)
 #' }
 #' @export
 plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
@@ -9884,9 +9886,8 @@ plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
   ui <- miniPage(
     gadgetTitleBar("Plot Interactive Polygons"),
     miniContentPanel(
-      plotOutput("plot", click = "plot_click"),
       textInput("polygon_name", label = "Polygon name", value = "polygon 1"),
-      tableOutput("info")
+      plotOutput("plot", click = "plot_click")
     )
   )
 
@@ -9894,9 +9895,10 @@ plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
     output$plot <- renderPlot({
       if ("ggplot" %in% class(x)) {
         x +
-          geom_polygon(data = clicklist(), aes(x,y, color = name, fill = name), ...)
+          geom_polygon(data = clicklist(), aes(x,y, color = name, fill = name),
+                       alpha = 0, show.legend = FALSE, ...)
       } else {
-        plot(x)
+        terra::plot(x)
         lapply(split(clicklist(), by = "name"), function (x) polygon(x$x, x$y, ...) )
       }
     }, res = 96, width = width, height = height)
