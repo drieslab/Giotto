@@ -9851,7 +9851,7 @@ spatDimGenePlot3D <- function(gobject,
 #'
 #' @return A `data.table` containing x,y coordinates from the plotted polygons.
 #'
-#' @import shiny miniUI data.table magrittr
+#' @import shiny miniUI data.table magrittr ggplot2
 #'
 #' @examples
 #' \dontrun{
@@ -9872,7 +9872,6 @@ spatDimGenePlot3D <- function(gobject,
 #' my_spatPlot <- spatPlot2D(gobject = my_giotto_object,
 #'                           show_image = TRUE,
 #'                           point_alpha = 0.75,
-#'                           show_legend = F,
 #'                           save_plot = FALSE)
 #' plotInteractivePolygons(my_spatPlot, height = 500)
 #' my_polygon_coordinates <- plotInteractivePolygons(my_spatPlot, height = 500)
