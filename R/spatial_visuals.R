@@ -9848,13 +9848,14 @@ spatDimGenePlot3D <- function(gobject,
 
 #' Select image regions by plotting interactive polygons
 #'
-#' @param x A plot or `ggplot` object to draw polygons on
+#' @description Plot interactive polygons on an image and retrieve the polygons coordinates.
+#' @param x A `ggplot` or `rast` plot object to draw polygons on
 #' @param width,height An integer, defining the width/height in pixels.
 #' @param ... Graphical parameters passed on to `polygon` or `geom_point`.
 #'
 #' @return A `data.table` containing x,y coordinates from the plotted polygons.
 #'
-#' @import shiny miniUI data.table magrittr
+#' @import shiny miniUI data.table magrittr ggplot2
 #'
 #' @examples
 #' \dontrun{
@@ -9875,7 +9876,6 @@ spatDimGenePlot3D <- function(gobject,
 #' my_spatPlot <- spatPlot2D(gobject = my_giotto_object,
 #'                           show_image = TRUE,
 #'                           point_alpha = 0.75,
-#'                           show_legend = F,
 #'                           save_plot = FALSE)
 #' plotInteractivePolygons(my_spatPlot, height = 500)
 #' my_polygon_coordinates <- plotInteractivePolygons(my_spatPlot, height = 500)
@@ -9896,7 +9896,8 @@ plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
       if ("ggplot" %in% class(x)) {
         x +
           geom_polygon(data = clicklist(), aes(x,y, color = name, fill = name),
-                       alpha = 0, show.legend = FALSE, ...)
+                       alpha = 0, ...) +
+          theme(legend.position = 'none')
       } else {
         terra::plot(x)
         lapply(split(clicklist(), by = "name"), function (x) polygon(x$x, x$y, ...) )
