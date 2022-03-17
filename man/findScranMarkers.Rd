@@ -54,6 +54,11 @@ Identify marker genes for all or selected clusters based on scran's implementati
 This is a minimal convenience wrapper around
 the \code{\link[scran]{findMarkers}} function from the scran package.
 
-To perform differential expression between specific groups you need to specify cluster IDs
-to the parameters \emph{group_1} and \emph{group_2} and provide names for \emph{group_1_name} and \emph{group_2_name}
+To perform differential expression between custom selected groups of cells
+you need to specify the cell_ID column to parameter \emph{cluster_column}
+and provide the individual cell IDs to the parameters \emph{group_1} and \emph{group_2}
+
+By default group names will be created by pasting the different id names within each selected group.
+When you have many different ids in a single group
+it is recommend to provide names for both groups to \emph{group_1_name} and \emph{group_2_name}
 }

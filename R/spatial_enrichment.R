@@ -1128,13 +1128,17 @@ runHyperGeometricEnrich <- function(gobject,
     expr_values = logbase^expr_values-1
   }
 
-  interGene<-intersect(rownames(gobject@expression$rna$normalized),rownames(sign_matrix))
-  inter_sign_matrix<-sign_matrix[interGene,]
-  aveExp<-log2(2*(rowMeans(2^gobject@expression$rna$normalized-1, dims = 1))+1)
-  foldChange<-gobject@expression$rna$normalized-aveExp
-  top_q<-1-top_percentage/100
+  interGene = intersect(rownames(expr_values),rownames(sign_matrix))
+
+  inter_sign_matrix = sign_matrix[interGene,]
+
+  aveExp = log2(2*(rowMeans(2^(expr_values-1), dims = 1))+1)
+
+  foldChange = expr_values-aveExp
+
+  top_q = 1-top_percentage/100
   quantilecut = apply(foldChange, 2 , stats::quantile , probs = top_q, na.rm = TRUE )
-  expbinary<-t(ifelse(t(foldChange)>quantilecut,1,0))
+  expbinary = t(ifelse(t(foldChange)>quantilecut,1,0))
 
   markerGenes = rownames(inter_sign_matrix)
   expbinaryOverlap = expbinary[markerGenes,]

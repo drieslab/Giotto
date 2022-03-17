@@ -635,7 +635,7 @@ select_spatialGrid = function(...) {
 #' @description function to set a spatial grid
 #' @param gobject giotto object
 #' @param name name of spatial grid
-#' @param spatial_grid spatial grid
+#' @param spatial_grid spatial grid object
 #' @export
 set_spatialGrid <- function(gobject,
                             spat_unit = NULL,

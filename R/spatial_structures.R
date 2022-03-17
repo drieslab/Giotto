@@ -2082,6 +2082,12 @@ createSpatialDefaultGrid <- function(gobject,
                                      name = NULL,
                                      return_gobject = TRUE) {
 
+
+
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+
   # check parameters
   if(is.null(name)) {
     name = 'spatial_grid'
@@ -2112,6 +2118,7 @@ createSpatialDefaultGrid <- function(gobject,
   }
 
 
+  # object return
   if(return_gobject == TRUE) {
 
     # 1. check if name has already been used
@@ -2135,24 +2142,30 @@ createSpatialDefaultGrid <- function(gobject,
                                            misc = NULL)
 
     # 3. assign spatial grid object
-    gobject@spatial_grid[[spat_unit]][[name]] = spatgridobj
-
+    gobject = set_spatialGrid(gobject = gobject,
+                              spat_unit = spat_unit,
+                              name = name,
+                              spatial_grid = spatgridobj)
 
     # 4. update log
     ## update parameters used ##
-    parameters_list = gobject@parameters
-    number_of_rounds = length(parameters_list)
-    update_name = paste0(number_of_rounds,'_grid')
 
-    # parameters to include
-    parameters_list[[update_name]] = c('name' = name,
-                                       'method' = 'default',
-                                       'x stepsize' = sdimx_stepsize,
-                                       'y stepsize' = sdimy_stepsize,
-                                       'z stepsize' = sdimz_stepsize,
-                                       'minimum padding' = minimum_padding)
+    # parent function name
+    cl = sys.call(-1)
 
-    gobject@parameters = parameters_list
+    print('cl = ')
+    print(cl)
+
+    if(is.null(cl)) {
+      gobject = update_giotto_params(gobject, description = '_grid')
+    } else {
+      fname = as.character(cl[[1]])
+      if(fname == 'createSpatialGrid') {
+        gobject = update_giotto_params(gobject, description = '_grid', toplevel = 3)
+      } else {
+        gobject = update_giotto_params(gobject, description = '_grid')
+      }
+    }
 
     return(gobject)
 
