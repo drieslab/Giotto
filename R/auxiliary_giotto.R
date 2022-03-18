@@ -460,6 +460,7 @@ subset_spatial_network = function(gobject,
 #' @keywords internal
 subset_dimension_reduction = function(gobject,
                                       spat_unit,
+                                      feat_type,
                                       cells_to_keep) {
 
 
@@ -467,30 +468,37 @@ subset_dimension_reduction = function(gobject,
 
     for(spat_unit_name in names(gobject@dimension_reduction[['cells']])) {
 
-      if(spat_unit_name == spat_unit) {
 
-        # for pca
-        for(pca_name in names(gobject@dimension_reduction[['cells']][[spat_unit_name]][['pca']]) ) {
-          old_coord = gobject@dimension_reduction[['cells']][[spat_unit_name]][['pca']][[pca_name]][['coordinates']]
-          new_coord = old_coord[rownames(old_coord) %in% cells_to_keep,]
-          gobject@dimension_reduction[['cells']][[spat_unit_name]][['pca']][[pca_name]][['coordinates']] = new_coord
-        }
+      for(feat_type_name in names(gobject@dimension_reduction[['cells']][[spat_unit_name]])) {
 
-        # for umap
-        for(umap_name in names(gobject@dimension_reduction[['cells']][[spat_unit_name]][['umap']]) ) {
-          old_coord = gobject@dimension_reduction[['cells']][[spat_unit_name]][['umap']][[umap_name]][['coordinates']]
-          new_coord = old_coord[rownames(old_coord) %in% cells_to_keep,]
-          gobject@dimension_reduction[['cells']][[spat_unit_name]][['umap']][[umap_name]][['coordinates']] = new_coord
-        }
 
-        # for tsne
-        for(tsne_name in names(gobject@dimension_reduction[['cells']][[spat_unit_name]][['tsne']]) ) {
-          old_coord = gobject@dimension_reduction[['cells']][[spat_unit_name]][['tsne']][[tsne_name]][['coordinates']]
-          new_coord = old_coord[rownames(old_coord) %in% cells_to_keep,]
-          gobject@dimension_reduction[['cells']][[spat_unit_name]][['tsne']][[tsne_name]][['coordinates']] = new_coord
+        for(dim_method in names(gobject@dimension_reduction[['cells']][[spat_unit_name]][[feat_type_name]])) {
+
+          if(spat_unit_name == spat_unit & feat_type_name == feat_type) {
+
+            dim_red_names = list_dim_reductions_names(gobject = gobject, data_type = 'cells',
+                                                      spat_unit = spat_unit_name, feat_type = feat_type_name,
+                                                      dim_type = dim_method)
+
+            for(selected_name in dim_red_names) {
+
+              old_coord = get_dimReduction(gobject = gobject,
+                                           spat_unit = spat_unit_name,
+                                           feat_type = feat_type_name, reduction = 'cells',
+                                           reduction_method = dim_method, name = selected_name,
+                                           return_dimObj = FALSE)
+
+              new_coord = old_coord[rownames(old_coord) %in% cells_to_keep,]
+              gobject@dimension_reduction[['cells']][[spat_unit_name]][[feat_type_name]][[dim_method]][[selected_name]][['coordinates']] = new_coord
+
+            }
+
+          }
+
         }
 
       }
+
     }
 
   }
@@ -918,6 +926,7 @@ subsetGiotto <- function(gobject,
   # cell dim reduction
   gobject = subset_dimension_reduction(gobject = gobject,
                                        spat_unit = spat_unit,
+                                       feat_type = feat_type,
                                        cells_to_keep = cells_to_keep)
 
   if(verbose == TRUE) cat('completed 8: subsetted dimension reductions \n')

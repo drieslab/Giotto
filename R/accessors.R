@@ -244,7 +244,7 @@ get_dimReduction = function(gobject,
   reduction_method = match.arg(arg = reduction_method, choices = unique(c('pca', 'umap', 'tsne', reduction_method)))
 
   ## check reduction
-  reduction_res = gobject@dimension_reduction[[reduction]][[spat_unit]]
+  reduction_res = gobject@dimension_reduction[[reduction]][[spat_unit]][[feat_type]]
   if(is.null(reduction_res)) {
     stop('No dimension reduction for ', reduction, ' has been applied \n')
   }
@@ -313,7 +313,7 @@ set_dimReduction <- function(gobject,
                                     feat_type = feat_type)
 
   ## 1. check if specified name has already been used
-  potential_names = names(gobject@dimension_reduction[[reduction]][[spat_unit]][[reduction_method]])
+  potential_names = names(gobject@dimension_reduction[[reduction]][[spat_unit]][[feat_type]][[reduction_method]])
   if(name %in% potential_names) {
     cat(name, ' already exist and will be replaced with new dimension reduction object \n')
   }
@@ -322,7 +322,7 @@ set_dimReduction <- function(gobject,
 
 
   ## 3. update and return giotto object
-  gobject@dimension_reduction[[reduction]][[spat_unit]][[reduction_method]][[name]] = dimObject
+  gobject@dimension_reduction[[reduction]][[spat_unit]][[feat_type]][[reduction_method]][[name]] = dimObject
 
   return(gobject)
 
@@ -936,7 +936,7 @@ set_spatial_enrichment <- function(gobject,
 showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 
   available_data = list_expression(gobject = gobject)
-  
+
   for(spat_unit in unique(available_data$spat_unit)) {
 
     cat('Spatial unit: ', spat_unit, ' \n\n')
@@ -1351,7 +1351,7 @@ list_spatial_locations = function(gobject,
 #' @return names and locations of available data.table as dataframe
 list_spatial_enrichments = function(gobject,
                                     spat_unit = NULL) {
-  
+
   availableSpatEnr = data.frame()
   for(spatial_unit in names(gobject@spatial_enrichment)) {
     for(spatenr_name in names(gobject@spatial_enrichment[[spatial_unit]])) {
@@ -1384,10 +1384,10 @@ list_dim_reductions = function(gobject,
                                spat_unit = NULL,
                                dim_type = NULL,
                                data_type = 'both') {
-  
+
   # check data_type input
   data_type = match.arg(arg = data_type, choices = c('both', 'cells', 'feats'))
-  
+
   availableDimRed = list(feats = data.frame(),
                          cells = data.frame())
   # for features
@@ -1398,7 +1398,7 @@ list_dim_reductions = function(gobject,
                                               dim_type = dimred_type))
     }
   }
-  
+
   # for cells
   for(spatial_unit in names(gobject@dimension_reduction[['cells']])) {
     for(dimred_type in names(gobject@dimension_reduction[['cells']][[spatial_unit]])) {
@@ -1410,7 +1410,7 @@ list_dim_reductions = function(gobject,
       }
     }
   }
-  
+
   # check if a specific category is desired
   if(!is.null(spat_unit) & !is.null(dim_type)) {
     availableDimRed[['cells']] = availableDimRed[['cells']][availableDimRed[['cells']]$spat_unit == spat_unit & availableDimRed[['cells']]$dim_type == dim_type,]
@@ -1422,16 +1422,41 @@ list_dim_reductions = function(gobject,
     availableDimRed[['cells']] = availableDimRed[['cells']][availableDimRed[['cells']]$dim_type == dim_type,]
     availableDimRed[['feats']] = availableDimRed[['feats']][availableDimRed[['feats']]$dim_type == dim_type,]
   }
-  
+
   # NULL if there is no data
   if(nrow(availableDimRed[['feats']]) == 0) availableDimRed[['feats']] = NULL
   if(nrow(availableDimRed[['cells']]) == 0) availableDimRed[['cells']] = NULL
-  
+
   # return results
   if(data_type == 'both') return(availableDimRed)
   else if(data_type == 'cells') return(availableDimRed[['cells']])
   else if(data_type == 'feats') return(availableDimRed[['feats']])
 }
+
+
+
+#' @title list_dim_reductions_names
+#' @name list_dim_reductions_names
+#' @description return the available dimension reductions object names
+#' @param gobject giotto object
+#' @param data_type cells or feats dim reduction
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
+#' @param dim_type dimensional reduction type (method)
+#' @return names pf dimension reduction object
+#' @details function that can be used to find which names have been used
+list_dim_reductions_names = function(gobject,
+                                     data_type = 'cells',
+                                     spat_unit,
+                                     feat_type,
+                                     dim_type) {
+
+  dim_red_object_names = names(gobject@dimension_reduction[[data_type]][[spat_unit]][[feat_type]][[dim_type]])
+
+  return(dim_red_object_names)
+}
+
+
 
 
 
@@ -1517,7 +1542,7 @@ list_spatial_networks = function(gobject,
 #' @param gobject giotto object
 #' @return dataframe of names and locations of available spatial grids. col order matters
 list_spatial_grids = function(gobject) {
-  
+
   availableSpatGrids = data.frame()
   for(spat_unit in names(gobject@spatial_grid)) {
     for(feat_type in names(gobject@spatial_grid[[spat_unit]])) {
@@ -1543,13 +1568,13 @@ list_spatial_grids = function(gobject) {
 #' @param verbose verbosity of function
 #' @return a vector of giotto image names attached to the giotto object
 list_image_names = function(gobject) {
-  
+
   g_image_names = names(gobject@images)
   g_limage_names = names(gobject@largeImages)
-  
+
   availableImages = list(images = g_image_names,
                          largeImages = g_limage_names)
-  
+
   return(availableImages)
 }
 

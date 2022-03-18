@@ -742,9 +742,18 @@ dimPlot2D_single <- function(gobject,
 
   ## dimension reduction ##
   # test if dimension reduction was performed
-  if(is.null(gobject@dimension_reduction$cells[[spat_unit]][[dim_reduction_to_use]][[dim_reduction_name]])) {
+
+  dim_red_names = list_dim_reductions_names(gobject = gobject, data_type = 'cells',
+                                            spat_unit = spat_unit, feat_type = feat_type,
+                                            dim_type = dim_reduction_to_use)
+
+  if(!dim_reduction_name %in% dim_red_names) {
     stop('\n dimension reduction: ', dim_reduction_to_use, ' or dimension reduction name: ',dim_reduction_name,' is not available \n')
   }
+
+  #if(is.null(gobject@dimension_reduction$cells[[spat_unit]][[feat_type]][[dim_reduction_to_use]][[dim_reduction_name]])) {
+  #  stop('\n dimension reduction: ', dim_reduction_to_use, ' or dimension reduction name: ',dim_reduction_name,' is not available \n')
+  #}
 
   dim_dfr = get_dimReduction(gobject = gobject,
                              spat_unit = spat_unit,
@@ -4940,11 +4949,10 @@ dimFeatPlot2D <- function(gobject,
 
   }
 
-
-
   ## visualize multiple plots ##
   ## 2D plots ##
   savelist <- list()
+
 
   for(feat in selected_feats) {
 
@@ -4981,8 +4989,6 @@ dimFeatPlot2D <- function(gobject,
         }
       }
     }
-
-
 
 
     ## point layer ##
@@ -5068,7 +5074,6 @@ dimFeatPlot2D <- function(gobject,
 
       }
     }
-
 
     ## add title
     pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y', title = feat)

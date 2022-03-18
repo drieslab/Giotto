@@ -562,11 +562,12 @@ runPCA <- function(gobject,
 
   if(return_gobject == TRUE) {
 
-    pca_names = names(gobject@dimension_reduction[[reduction]][[spat_unit]][['pca']])
+    pca_names = list_dim_reductions_names(gobject = gobject, data_type = reduction,
+                                           spat_unit = spat_unit, feat_type = feat_type,
+                                           dim_type = 'pca')
 
     if(name %in% pca_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
-
     }
 
     dimObject = create_dimObject(name = name,
@@ -585,9 +586,6 @@ runPCA <- function(gobject,
                                reduction_method = 'pca',
                                name = name,
                                dimObject = dimObject)
-
-    #gobject@dimension_reduction[[reduction]][[spat_unit]][['pca']][[name]] <- dimObject
-
 
     ## update parameters used ##
     gobject = update_giotto_params(gobject, description = '_pca')
@@ -1376,11 +1374,12 @@ runUMAP <- function(gobject,
 
     if(return_gobject == TRUE) {
 
-      umap_names = names(gobject@dimension_reduction[[reduction]][[spat_unit]][['umap']])
+      umap_names = list_dim_reductions_names(gobject = gobject, data_type = reduction,
+                                             spat_unit = spat_unit, feat_type = feat_type,
+                                             dim_type = 'umap')
 
       if(name %in% umap_names) {
         cat('\n ', name, ' has already been used, will be overwritten \n')
-
       }
 
 
@@ -1543,8 +1542,6 @@ runtSNE <- function(gobject,
                                        return_dimObj = FALSE)
       matrix_to_use = matrix_to_use[, dimensions_to_use]
 
-      #matrix_to_use = gobject@dimension_reduction[['cells']][[dim_reduction_to_use]][[dim_reduction_name]][['coordinates']][, dimensions_to_use]
-
 
     } else {
       ## using original matrix ##
@@ -1594,11 +1591,12 @@ runtSNE <- function(gobject,
 
     if(return_gobject == TRUE) {
 
-      tsne_names = names(gobject@dimension_reduction[[reduction]][[spat_unit]][['tsne']])
+      tsne_names = list_dim_reductions_names(gobject = gobject, data_type = reduction,
+                                             spat_unit = spat_unit, feat_type = feat_type,
+                                             dim_type = 'tsne')
 
       if(name %in% tsne_names) {
         cat('\n ', name, ' has already been used, will be overwritten \n')
-
       }
 
 
@@ -1793,11 +1791,14 @@ runGiottoHarmony = function(gobject,
   # return giotto object or harmony results
   if(return_gobject == TRUE) {
 
-    harmony_names = names(gobject@dimension_reduction[['cells']][[spat_unit]][['harmony']])
+    #harmony_names = names(gobject@dimension_reduction[['cells']][[spat_unit]][['harmony']])
+
+    harmony_names = list_dim_reductions_names(gobject = gobject, data_type = reduction,
+                                              spat_unit = spat_unit, feat_type = feat_type,
+                                              dim_type = 'harmony')
 
     if(name %in% harmony_names) {
       cat('\n ', name, ' has already been used with harmony, will be overwritten \n')
-
     }
 
     gobject = set_dimReduction(gobject = gobject,
