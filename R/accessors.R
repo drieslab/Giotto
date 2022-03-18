@@ -1536,6 +1536,21 @@ list_spatial_info = function(gobject) {
 
 
 
+
+#' @title list_spatial_info_names
+#' @name list_spatial_info_names
+#' @description return the available names for giotto spatial polygon information
+#' @param gobject giotto object
+#' @return vector with names of available spatial polygon information
+list_spatial_info_names = function(gobject) {
+
+  spat_info_names = names(gobject@spatial_info)
+
+  return(spat_info_names)
+}
+
+
+
 #' @title list_feature_info
 #' @name list_feature_info
 #' @description return the available giotto spatial feature information
@@ -1551,6 +1566,19 @@ list_feature_info = function(gobject) {
 
   if(nrow(availableFeatInfo) == 0) return(NULL)
   else return(availableFeatInfo)
+}
+
+
+#' @title list_feature_info_names
+#' @name list_feature_info_names
+#' @description return the available names for giotto feature information
+#' @param gobject giotto object
+#' @return vector with names of available feature information
+list_feature_info_names = function(gobject) {
+
+  feat_info_names = names(gobject@feat_info)
+
+  return(feat_info_names)
 }
 
 
@@ -1592,6 +1620,24 @@ list_spatial_networks = function(gobject,
 }
 
 
+#' @title list_spatial_networks_names
+#' @name list_spatial_networks_names
+#' @description return the available names for giotto feature information
+#' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
+#' @return vector with names of available feature information
+list_spatial_networks_names = function(gobject,
+                                       spat_unit = NULL,
+                                       feat_type = NULL) {
+
+  spat_network_names = names(gobject@spatial_network[[spatial_unit]][[feature_type]])
+
+  return(spat_network_names)
+}
+
+
+
 
 #' @title list_spatial_grids
 #' @name list_spatial_grids
@@ -1616,6 +1662,23 @@ list_spatial_grids = function(gobject,
 
 
 
+
+#' @title list_spatial_grids_names
+#' @name list_spatial_grids_names
+#' @description return the available spatial grids name for a given spatial unit that are attached to the Giotto object
+#' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @return vector with names of available spatial grids names
+list_spatial_grids_names = function(gobject,
+                                    spat_unit = NULL) {
+
+  spat_grid_names = names(gobject@spatial_grid[[spatial_unit]])
+
+  return(spat_grid_names)
+}
+
+
+
 #' @title list_image_names
 #' @name list_image_names
 #' @description Prints the available giotto images that are attached to the Giotto object
@@ -1633,7 +1696,6 @@ list_image_names = function(gobject) {
 
   return(availableImages)
 }
-
 
 
 
