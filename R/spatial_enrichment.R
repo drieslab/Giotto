@@ -884,7 +884,7 @@ runRankEnrich <- function(gobject,
                           reverse_log_scale = TRUE,
                           logbase = 2,
                           output_enrichment = c('original', 'zscore'),
-                          ties_method = c("random", "max"),
+                          ties_method = c("average", "max"),
                           p_value = FALSE,
                           n_times = 1000,
                           rbp_p = 0.99,
@@ -901,7 +901,7 @@ runRankEnrich <- function(gobject,
                                     feat_type = feat_type)
 
   # determine ties.method
-  ties_method = match.arg(ties_method, choices = c("random", "max"))
+  ties_method = match.arg(ties_method, choices = c("average", "max"))
 
   # expression values to be used
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
@@ -932,9 +932,9 @@ runRankEnrich <- function(gobject,
 
   # calculate mean gene expression
   if(reverse_log_scale == TRUE) {
-    mean_gene_expr = log(rowMeans(logbase^expr_values-1, dims = 1)+1)
+    mean_gene_expr = log(Matrix::rowMeans(logbase^expr_values-1, dims = 1)+1)
   } else {
-    mean_gene_expr = rowMeans(expr_values)
+    mean_gene_expr = Matrix::rowMeans(expr_values)
   }
 
   # fold change and ranking
@@ -949,8 +949,8 @@ runRankEnrich <- function(gobject,
   }
   #else ties_1=ties_2 is equal to random
   geneFold = expr_values
-  geneFold = matrixStats::rowRanks(geneFold, ties.method = ties_1)
-  rankFold = t(matrixStats::colRanks(-geneFold, ties.method = ties_2))
+  geneFold = sparseMatrixStats::rowRanks(geneFold, ties.method = ties_1)
+  rankFold = t(sparseMatrixStats::colRanks(-geneFold, ties.method = ties_2))
 
   rownames(rankFold) = rownames(expr_values)
   colnames(rankFold) = colnames(expr_values)
@@ -1110,11 +1110,11 @@ runHyperGeometricEnrich <- function(gobject,
                                       values = values)
 
   ## temporary ##
-  if(!'matrix' %in% class(expr_values)) {
-    warning('The expression matrix is not stored as a base matrix and will be changed to a base matrix object. \n
-            This will be updated in the future')
-    expr_values = as.matrix(expr_values)
-  }
+  # if(!'matrix' %in% class(expr_values)) {
+  #  warning('The expression matrix is not stored as a base matrix and will be changed to a base matrix object. \n
+  #          This will be updated in the future')
+  #  expr_values = as.matrix(expr_values)
+  #}
 
 
   # check parameters
@@ -1132,13 +1132,13 @@ runHyperGeometricEnrich <- function(gobject,
 
   inter_sign_matrix = sign_matrix[interGene,]
 
-  aveExp = log2(2*(rowMeans(2^(expr_values-1), dims = 1))+1)
+  aveExp = log2(2*(Matrix::rowMeans(2^(expr_values-1), dims = 1))+1)
 
   foldChange = expr_values-aveExp
 
   top_q = 1-top_percentage/100
   quantilecut = apply(foldChange, 2 , stats::quantile , probs = top_q, na.rm = TRUE )
-  expbinary = t(ifelse(t(foldChange)>quantilecut,1,0))
+  expbinary = t_flex(1* t_flex(foldChange > quantilecut)) 
 
   markerGenes = rownames(inter_sign_matrix)
   expbinaryOverlap = expbinary[markerGenes,]
@@ -1469,7 +1469,7 @@ spot_deconvolution<-function(expr,
       cluster_cell_exp<-expr[uniq_ct_gene,cluster_i_cell]
       ######calculate
       ######overlap signature with spatial genes
-      all_exp<-rowMeans(cluster_cell_exp)
+      all_exp<-Matrix::rowMeans(cluster_cell_exp)
       solution_all_exp<-solve_OLS_internal(select_sig_exp,all_exp)
       constant_J<-find_dampening_constant(select_sig_exp,all_exp,solution_all_exp)
       ######deconvolution for each spot
@@ -1536,7 +1536,7 @@ enrich_analysis <- function(expr_values,
   signames = rownames(filterSig)[which(filterSig[,1]==1)]
   # calculate mean gene expression
   #mean_gene_expr = rowMeans(expr_values)
-  mean_gene_expr = log2(rowMeans(2^expr_values-1, dims = 1)+1)
+  mean_gene_expr = log2(Matrix::rowMeans(2^expr_values-1, dims = 1)+1)
   geneFold = expr_values - mean_gene_expr
   # calculate sample/spot mean and sd
   cellColMean = apply(geneFold,2, mean)
@@ -1577,7 +1577,7 @@ optimize_deconvolute_dwls <- function(exp,
   Bulk<-Matrix::as.matrix(exp)
   subBulk = Bulk[Genes,]
   allCounts_DWLS<-NULL
-  all_exp<-rowMeans(exp)
+  all_exp<-Matrix::rowMeans(exp)
 
   solution_all_exp<-solve_OLS_internal(S,all_exp[Genes])
 
@@ -1771,10 +1771,10 @@ runDWLSDeconv <- function(gobject,
                                       feat_type = feat_type,
                                       values = values)
 
-  if(!'matrix' %in% class(expr_values)) {
-    warning('this matrix will be converted to a dense and memory intensive base matrix ...')
-    expr_values = as.matrix(expr_values)
-  }
+ # if(!'matrix' %in% class(expr_values)) {
+ #    warning('this matrix will be converted to a dense and memory intensive base matrix ...')
+ #   expr_values = as.matrix(expr_values)
+ #  }
 
   # #transform expression data to no log data
   nolog_expr = logbase^(expr_values)-1
