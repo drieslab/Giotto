@@ -288,15 +288,7 @@ createGiottoImage = function(gobject = NULL,
   # If do_manual_adj == TRUE, bypass followup automatic boundary value generation
   if(!is.null(gobject)) {
 
-    # Set spat_unit
-    spat_unit = set_default_spat_unit(gobject = gobject,
-                                      spat_unit = spat_unit)
-
-    # Get spatial locations
-    if(!is.null(gobject@spatial_locs)) {
-      spat_loc_name = names(gobject@spatial_locs[[spat_unit]])[[1]]
-    }
-
+    # Get spatial locations (or automatically take first available)
     spatlocs = get_spatial_locations(gobject = gobject,
                                      spat_unit = spat_unit,
                                      spat_loc_name = spat_loc_name)
@@ -791,7 +783,7 @@ addGiottoImageMG = function(gobject,
 
   if(is.null(spat_loc_name)) {
     if(!is.null(gobject@spatial_locs)) {
-      spat_loc_name = names(gobject@spatial_locs[[spat_unit]])[[1]]
+      spat_loc_name = list_spatial_locations(gobject = gobject, spat_unit = spat_unit)[1,]
     } else {
       spat_loc_name = NULL
       cat('No spatial locations have been found \n')

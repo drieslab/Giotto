@@ -935,15 +935,17 @@ set_spatial_enrichment <- function(gobject,
 #' @export
 showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 
-  for(spat_unit in names(gobject@expression)) {
+  available_data = list_expression(gobject = gobject)
+  
+  for(spat_unit in unique(available_data$spat_unit)) {
 
     cat('Spatial unit: ', spat_unit, ' \n\n')
 
-    for(feat_type in names(gobject@expression[[spat_unit]])) {
+    for(feat_type in unique(base::subset(available_data, spat_unit == spat_unit)$feat_type)) {
 
       cat('--> Feature: ', feat_type, ' \n\n')
 
-       for(mat_i in names(gobject@expression[[spat_unit]][[feat_type]])) {
+       for(mat_i in base::subset(available_data, spat_unit == spat_unit & feat_type == feat_type)$name) {
 
         cat('---> Name: ', mat_i, 'matrix: \n')
 
@@ -1236,5 +1238,321 @@ showGiottoImageNames = function(gobject,
   }
 
 }
+
+
+
+# List functions ####
+
+
+#' @title list_giotto_data
+#' @name list_giotto_data
+#' @description list the available data within specified giotto object slot
+#' @param gobject giotto object
+#' @param slot giotto object slot of interest
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
+#' @return names and locations of data within giotto object slot
+#' @keywords internal
+list_giotto_data = function(gobject = NULL,
+                            slot = NULL,
+                            spat_unit = NULL,
+                            feat_type = NULL) {
+
+  if(slot == 'expression') return(list_expression(gobject = gobject,
+                                                  spat_unit = spat_unit,
+                                                  feat_type = feat_type))
+  if(slot == 'spatial_locs') return(list_spatial_locations(gobject = gobject,
+                                                           spat_unit = spat_unit))
+  if(slot == 'spatial_enrichment') return(list_spatial_enrichments(gobject = gobject,
+                                                                   spat_unit = spat_unit))
+  if(slot == 'dimension_reduction') return(list_dim_reductions(gobject = gobject,
+                                                               spat_unit = spat_unit))
+  if(slot == 'spatial_info') return(list_spatial_info(gobject = gobject)) #
+  if(slot == 'feat_info') return(list_feature_info(gobject = gobject)) #
+  if(slot == 'spatial_network') return(list_spatial_networks(gobject = gobject,
+                                                             spat_unit = spat_unit))
+  if(slot == 'spatial_grid') return(list_spatial_grids(gobject = gobject)) #
+  if(slot == 'images') return(list_image_names(gobject = gobject))
+  if(slot == 'largeImages') return(list_image_names(gobject = gobject))
+
+}
+
+
+#' @title list_expression
+#' @name list_expression
+#' @description lists the available matrices
+#' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
+#' @return names and locations of available matrices as dataframe. col order matters.
+list_expression = function(gobject,
+                           spat_unit = NULL,
+                           feat_type = NULL) {
+
+  availableExpr = data.frame()
+  for(spatial_unit in names(gobject@expression)) {
+    for(feature_type in names(gobject@expression[[spatial_unit]])) {
+      for(mat_i in names(gobject@expression[[spatial_unit]][[feature_type]])) {
+        availableExpr = rbind(availableExpr,
+                              list(name = mat_i,
+                                   spat_unit = spatial_unit,
+                                   feat_type = feature_type))
+      }
+    }
+  }
+
+  # check if a specific category is desired
+  if(!is.null(spat_unit) & !is.null(feat_type)) {
+    availableExpr = availableExpr[availableExpr$spat_unit == spat_unit & availableExpr$feat_type == feat_type,]
+  } else if(!is.null(spat_unit)) {
+    availableExpr = availableExpr[availableExpr$spat_unit == spat_unit,]
+  } else if(!is.null(feat_type)) {
+    availableExpr = availableExpr[availableExpr$feat_type == feat_type,]
+  }
+
+  # return dataframe (NULL if empty)
+  if(nrow(availableExpr) == 0) return(NULL)
+    else return(availableExpr)
+}
+
+#' @title list_spatial_locations
+#' @name list_spatial_locations
+#' @description shows the available spatial locations
+#' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @return names and locations of available data.table as dataframe
+list_spatial_locations = function(gobject,
+                                  spat_unit = NULL) {
+
+  availableSpatLocs = data.frame()
+  for(spatial_unit in names(gobject@spatial_locs)) {
+    for(spatloc_name in names(gobject@spatial_locs[[spatial_unit]]))
+      availableSpatLocs = rbind(availableSpatLocs,
+                                list(name = spatloc_name,
+                                     spat_unit = spatial_unit))
+  }
+
+  # check if a specific category is desired
+  if(!is.null(spat_unit)) {
+    availableSpatLocs = availableSpatLocs[availableSpatLocs$spat_unit == spat_unit,]
+  }
+
+  if(nrow(availableSpatLocs) == 0) return(NULL)
+  else return(availableSpatLocs)
+}
+
+
+
+#' @title list_spatial_enrichments
+#' @name list_spatial_enrichments
+#' @description return the available spatial enrichment results
+#' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @return names and locations of available data.table as dataframe
+list_spatial_enrichments = function(gobject,
+                                    spat_unit = NULL) {
+  
+  availableSpatEnr = data.frame()
+  for(spatial_unit in names(gobject@spatial_enrichment)) {
+    for(spatenr_name in names(gobject@spatial_enrichment[[spatial_unit]])) {
+      availableSpatEnr = rbind(availableSpatEnr,
+                               list(name = spatenr_name,
+                                    spat_unit = spatial_unit))
+    }
+  }
+
+  # check if a specific category is desired
+  if(!is.null(spat_unit)) {
+    availableSpatEnr = availableSpatEnr[availableSpatEnr$spat_unit == spat_unit,]
+  }
+
+  if(nrow(availableSpatEnr) == 0) return(NULL)
+  else return(availableSpatEnr)
+}
+
+
+
+#' @title list_dim_reductions
+#' @name list_dim_reductions
+#' @description return the available dimension reductions
+#' @param gobject giotto object
+#' @param data_type cells or feats dim reduction
+#' @param spat_unit spatial unit
+#' @param dim_type dimensional reduction type (method)
+#' @return names and locations of dimension reduction as a dataframe
+list_dim_reductions = function(gobject,
+                               spat_unit = NULL,
+                               dim_type = NULL,
+                               data_type = 'both') {
+  
+  # check data_type input
+  data_type = match.arg(arg = data_type, choices = c('both', 'cells', 'feats'))
+  
+  availableDimRed = list(feats = data.frame(),
+                         cells = data.frame())
+  # for features
+  for(dimred_type in names(gobject@dimension_reduction[['feats']])) {
+    for(sub_type in names(gobject@dimension_reduction[['feats']][[dimred_type]])) {
+      availableDimRed[['feats']] = rbind(availableDimRed[['feats']],
+                                         list(sub_type = sub_type,
+                                              dim_type = dimred_type))
+    }
+  }
+  
+  # for cells
+  for(spatial_unit in names(gobject@dimension_reduction[['cells']])) {
+    for(dimred_type in names(gobject@dimension_reduction[['cells']][[spatial_unit]])) {
+      for(sub_type in names(gobject@dimension_reduction[['cells']][[spatial_unit]][[dimred_type]])) {
+        availableDimRed[['cells']] = rbind(availableDimRed[['cells']],
+                                           list(sub_type = sub_type,
+                                                spat_unit = spatial_unit,
+                                                dim_type = dimred_type))
+      }
+    }
+  }
+  
+  # check if a specific category is desired
+  if(!is.null(spat_unit) & !is.null(dim_type)) {
+    availableDimRed[['cells']] = availableDimRed[['cells']][availableDimRed[['cells']]$spat_unit == spat_unit & availableDimRed[['cells']]$dim_type == dim_type,]
+    data_type = 'cells' # only cells data_type has spat_unit, so it will be assumed.
+  } else if(!is.null(spat_unit)) {
+    availableDimRed[['cells']] = availableDimRed[['cells']][availableDimRed[['cells']]$spat_unit == spat_unit,]
+    data_type = 'cells' # only cells data_type has spat_unit, so it will be assumed.
+  } else if(!is.null(dim_type)) {
+    availableDimRed[['cells']] = availableDimRed[['cells']][availableDimRed[['cells']]$dim_type == dim_type,]
+    availableDimRed[['feats']] = availableDimRed[['feats']][availableDimRed[['feats']]$dim_type == dim_type,]
+  }
+  
+  # NULL if there is no data
+  if(nrow(availableDimRed[['feats']]) == 0) availableDimRed[['feats']] = NULL
+  if(nrow(availableDimRed[['cells']]) == 0) availableDimRed[['cells']] = NULL
+  
+  # return results
+  if(data_type == 'both') return(availableDimRed)
+  else if(data_type == 'cells') return(availableDimRed[['cells']])
+  else if(data_type == 'feats') return(availableDimRed[['feats']])
+}
+
+
+
+#' @title list_spatial_info
+#' @name list_spatial_info
+#' @description return the available giotto spatial polygon information
+#' @param gobject giotto object
+#' @return names of available spatial polygon information
+list_spatial_info = function(gobject) {
+
+  availableSpatInfo = data.frame()
+  for(info in names(gobject@spatial_info)) {
+    availableSpatInfo = rbind(availableSpatInfo,
+                              list(spat_info = info))
+  }
+
+  if(nrow(availableSpatInfo) == 0) return(NULL)
+  else return(availableSpatInfo)
+}
+
+
+
+#' @title list_feature_info
+#' @name list_feature_info
+#' @description return the available giotto spatial feature information
+#' @param gobject giotto object
+#' @return names of available feature information
+list_feature_info = function(gobject) {
+
+  availableFeatInfo = data.frame()
+  for(info in names(gobject@feat_info)) {
+    availableFeatInfo = rbind(availableFeatInfo,
+                              list(feat_info = info))
+  }
+
+  if(nrow(availableFeatInfo) == 0) return(NULL)
+  else return(availableFeatInfo)
+}
+
+
+
+#' @title list_spatial_networks
+#' @name list_spatial_networks
+#' @description return the available spatial networks that are attached to the Giotto object
+#' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
+#' @return dataframe of names and locations of available spatial networks. col order matters
+list_spatial_networks = function(gobject,
+                                 spat_unit = NULL,
+                                 feat_type = NULL) {
+
+  availableSpatNetworks = data.frame()
+  for(spatial_unit in names(gobject@spatial_network)) {
+    for(feature_type in names(gobject@spatial_network[[spatial_unit]])) {
+      for(spat_network_name in names(gobject@spatial_network[[spatial_unit]][[feature_type]])) {
+        availableSpatNetworks = rbind(availableSpatNetworks,
+                                      list(name = spat_network_name,
+                                           spat_unit = spatial_unit,
+                                           feat_type = feature_type))
+      }
+    }
+  }
+
+  # check if a specific category is desired
+  if(!is.null(spat_unit) & !is.null(feat_type)) {
+    availableSpatNetworks = availableSpatNetworks[availableSpatNetworks$spat_unit == spat_unit & availableSpatNetworks$feat_type == feat_type,]
+  } else if(!is.null(spat_unit)) {
+    availableSpatNetworks = availableSpatNetworks[availableSpatNetworks$spat_unit == spat_unit,]
+  } else if(!is.null(feat_type)) {
+    availableSpatNetworks = availableSpatNetworks[availableSpatNetworks$feat_type == feat_type,]
+  }
+
+  if(nrow(availableSpatNetworks) == 0) return(NULL)
+  else return(availableSpatNetworks)
+}
+
+
+
+#' @title list_spatial_grids
+#' @name list_spatial_grids
+#' @description return the available spatial grids that are attached to the Giotto object
+#' @param gobject giotto object
+#' @return dataframe of names and locations of available spatial grids. col order matters
+list_spatial_grids = function(gobject) {
+  
+  availableSpatGrids = data.frame()
+  for(spat_unit in names(gobject@spatial_grid)) {
+    for(feat_type in names(gobject@spatial_grid[[spat_unit]])) {
+      for(grid_names in names(gobject@spatial_grid[[spat_unit]][[feat_type]])) {
+        availableSpatGrids = rbind(availableSpatGrids,
+                                   list(name = grid_names,
+                                        spat_unit = spat_unit,
+                                        feat_type = feat_type))
+      }
+    }
+  }
+  if(nrow(availableSpatGrids) == 0) return(NULL)
+  else return(availableSpatGrids)
+}
+
+
+
+#' @title list_image_names
+#' @name list_image_names
+#' @description Prints the available giotto images that are attached to the Giotto object
+#' @param gobject a giotto object
+#' @param return return named list of available images
+#' @param verbose verbosity of function
+#' @return a vector of giotto image names attached to the giotto object
+list_image_names = function(gobject) {
+  
+  g_image_names = names(gobject@images)
+  g_limage_names = names(gobject@largeImages)
+  
+  availableImages = list(images = g_image_names,
+                         largeImages = g_limage_names)
+  
+  return(availableImages)
+}
+
+
 
 
