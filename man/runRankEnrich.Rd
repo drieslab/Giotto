@@ -13,7 +13,7 @@ runRankEnrich(
   reverse_log_scale = TRUE,
   logbase = 2,
   output_enrichment = c("original", "zscore"),
-  ties_method = c("random", "max"),
+  ties_method = c("average", "max"),
   p_value = FALSE,
   n_times = 1000,
   rbp_p = 0.99,
