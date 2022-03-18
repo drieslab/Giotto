@@ -127,7 +127,7 @@ findScranMarkers <- function(gobject,
   savelist = lapply(names(marker_results), FUN = function(x) {
     dfr = marker_results[[x]]
     DT = data.table::as.data.table(dfr)
-    DT[, genes := rownames(dfr)]
+    DT[, feats := rownames(dfr)]
     DT[, cluster := x]
 
   })
@@ -260,6 +260,7 @@ findScranMarkers_one_vs_all <- function(gobject,
 
     # change logFC.xxx name to logFC
     data.table::setnames(selected_table, colnames(selected_table)[4], 'logFC')
+    data.table::setnames(selected_table, colnames(selected_table)[5], 'feats')
 
     # filter selected table
     filtered_table = selected_table[logFC > 0]
