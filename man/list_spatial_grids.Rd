@@ -4,10 +4,12 @@
 \alias{list_spatial_grids}
 \title{list_spatial_grids}
 \usage{
-list_spatial_grids(gobject)
+list_spatial_grids(gobject, spat_unit = NULL)
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{spat_unit}{spatial unit}
 }
 \value{
 dataframe of names and locations of available spatial grids. col order matters
