@@ -554,6 +554,69 @@ createGiottoLargeImage = function(raster_object,
 }
 
 
+#' @title createGiottoLargeImageList
+#' @name createGiottoLargeImageList
+#' @description Creates a list of large giotto images that can be added to a Giotto object. Generates deep copy of SpatRaster
+#' @param raster_objects vector of image paths or terra SpatRaster image objects
+#' @param names vector of names for the images
+#' @param negative_y Map image to negative y spatial values if TRUE. Meaning that origin is in upper left instead of lower left.
+#' @param extent SpatExtent object to assign spatial extent. Takes priority unless use_rast_ext is TRUE.
+#' @param use_rast_extent Use extent from input raster object
+#' @param image_transformations vector of sequential image transformations - under construction
+#' @param xmax_adj adjustment of the maximum x-value to align the image
+#' @param xmin_adj adjustment of the minimum x-value to align the image
+#' @param ymax_adj adjustment of the maximum y-value to align the image
+#' @param ymin_adj adjustment of the minimum y-value to align the image
+#' @param scale_factor scaling of image dimensions relative to spatial coordinates
+#' @param verbose be verbose
+#' @details See \code{\link{createGiottoLargeImage}}
+#' @return a list with giottoLargeImage objects
+#' @export
+createGiottoLargeImageList = function(raster_objects,
+                                      names = 'image',
+                                      negative_y = TRUE,
+                                      extent = NULL,
+                                      use_rast_ext = FALSE,
+                                      image_transformations = NULL,
+                                      xmax_bound = NULL,
+                                      xmin_bound = NULL,
+                                      ymax_bound = NULL,
+                                      ymin_bound = NULL,
+                                      scale_factor = 1,
+                                      verbose = TRUE) {
+
+  l_images = length(raster_objects)
+  l_image_names = length(unique(names))
+
+  if(l_image_names != l_image_names) {
+    stop('length of raster_objects and unique names must be the same')
+  }
+
+  result_list = list()
+
+  for(i in 1:l_images) {
+
+    image_res = createGiottoLargeImage(raster_object = raster_objects[[i]],
+                                      name = names[[i]],
+                                      negative_y = negative_y,
+                                      extent = extent,
+                                      use_rast_ext = use_rast_ext,
+                                      image_transformations = image_transformations,
+                                      xmax_bound = xmax_bound,
+                                      xmin_bound = xmin_bound,
+                                      ymax_bound = ymax_bound,
+                                      ymin_bound = ymin_bound,
+                                      scale_factor = scale_factor,
+                                      verbose = verbose)
+
+    result_list[[i]] = image_res
+
+  }
+
+  return(result_list)
+
+}
+
 # giottoImage or magick tools ####
 
 #' @title convert_mgImage_to_array_DT

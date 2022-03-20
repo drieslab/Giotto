@@ -1390,9 +1390,9 @@ createSpatialFeaturesKNNnetwork = function(gobject,
 ## ** giotto structure functions ####
 
 
-#' @title addSpatialCentroidLocations
-#' @name addSpatialCentroidLocations
-#' @description Calculates the centroid locations for the giotto polygons
+#' @title addSpatialCentroidLocationsLayer
+#' @name addSpatialCentroidLocationsLayer
+#' @description Calculates the centroid locations for the polygons within one selected layer
 #' @param gobject giotto object
 #' @param poly_info polygon information
 #' @param feat_type feature type
@@ -1401,11 +1401,11 @@ createSpatialFeaturesKNNnetwork = function(gobject,
 #' @return
 #' @keywords centroid
 #' @export
-addSpatialCentroidLocations = function(gobject,
-                                       poly_info = 'cell',
-                                       feat_type = NULL,
-                                       spat_loc_name = 'raw',
-                                       return_gobject = TRUE) {
+addSpatialCentroidLocationsLayer = function(gobject,
+                                            poly_info = 'cell',
+                                            feat_type = NULL,
+                                            spat_loc_name = 'raw',
+                                            return_gobject = TRUE) {
 
   # Set feat_type and spat_unit
   poly_info = set_default_spat_unit(gobject = gobject,
@@ -1414,23 +1414,32 @@ addSpatialCentroidLocations = function(gobject,
                                     spat_unit = poly_info,
                                     feat_type = feat_type)
 
-  # Set feat_type and spat_unit
-  poly_info = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = poly_info)
-
   extended_spatvector = calculate_centroids_polygons(gpolygon = gobject@spatial_info[[poly_info]],
                                                      name = 'centroids',
                                                      append_gpolygon = TRUE)
 
   centroid_spatvector = spatVector_to_dt(extended_spatvector@spatVectorCentroids)
 
+  # this could be 3D
   spatial_locs = centroid_spatvector[, .(x, y, poly_ID)]
   colnames(spatial_locs) = c('sdimx', 'sdimy', 'cell_ID')
 
   if(return_gobject == TRUE) {
 
     # spatial location
-    gobject@spatial_locs[[poly_info]][[spat_loc_name]] = spatial_locs
+    spat_locs_names = list_spatial_locations_names(vizsubc,
+                                                   spat_unit = poly_info)
+    if(spat_loc_name %in% spat_locs_names) {
+      cat('spatial locations for polygon information layer ', poly_info,
+          ' and name ', spat_loc_name, ' already exists and will be replaced')
+    }
+
+    gobject = set_spatial_locations(gobject = gobject,
+                                    spat_unit = poly_info,
+                                    spat_loc_name = spat_loc_name,
+                                    spatlocs = spatial_locs)
+
+    #gobject@spatial_locs[[poly_info]][[spat_loc_name]] = spatial_locs
 
     # cell ID
     gobject@cell_ID[[poly_info]] = gobject@spatial_info[[poly_info]]@spatVector$poly_ID
@@ -1450,6 +1459,68 @@ addSpatialCentroidLocations = function(gobject,
 
   } else {
     return(spatial_locs)
+  }
+
+}
+
+
+#' @title addSpatialCentroidLocations
+#' @name addSpatialCentroidLocations
+#' @description Calculates the centroid locations for the polygons within one or more selected layers
+#' @param gobject giotto object
+#' @param poly_info polygon information
+#' @param feat_type feature type
+#' @param spat_loc_name name to give to the created spatial locations
+#' @param return_gobject return giotto object (default: TRUE)
+#' @param verbose be verbose
+#' @return
+#' @keywords centroid
+#' @export
+addSpatialCentroidLocations = function(gobject,
+                                       poly_info = 'cell',
+                                       feat_type = NULL,
+                                       spat_loc_name = 'raw',
+                                       return_gobject = TRUE,
+                                       verbose = TRUE) {
+
+
+  potential_polygon_names = list_spatial_info_names(gobject)
+
+  return_list = list()
+
+  for(poly_layer in unique(poly_info)) {
+
+    if(!poly_layer %in% potential_polygon_names) {
+      warning('Polygon info layer with name ', poly_layer, ' has not been found and will be skipped')
+    } else {
+
+      if(verbose == TRUE) {
+        cat('Start centroid calculation for polygon information layer: ', poly_layer, '\n')
+      }
+
+      if(return_gobject == TRUE) {
+        gobject = addSpatialCentroidLocationsLayer(gobject = gobject,
+                                                   poly_info = poly_layer,
+                                                   feat_type = feat_type,
+                                                   spat_loc_name = spat_loc_name,
+                                                   return_gobject = return_gobject)
+      } else {
+
+        return_list[[poly_layer]] = addSpatialCentroidLocationsLayer(gobject = gobject,
+                                                                     poly_info = poly_layer,
+                                                                     feat_type = feat_type,
+                                                                     spat_loc_name = spat_loc_name,
+                                                                     return_gobject = return_gobject)
+
+      }
+
+    }
+  }
+
+  if(return_gobject == TRUE) {
+    return(gobject)
+  } else {
+    return_list
   }
 
 }
