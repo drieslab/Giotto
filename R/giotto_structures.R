@@ -1486,6 +1486,8 @@ addSpatialCentroidLocations = function(gobject,
 
   potential_polygon_names = list_spatial_info_names(gobject)
 
+  return_list = list()
+
   for(poly_layer in unique(poly_info)) {
 
     if(!poly_layer %in% potential_polygon_names) {
@@ -1496,15 +1498,30 @@ addSpatialCentroidLocations = function(gobject,
         cat('Start centroid calculation for polygon information layer: ', poly_layer, '\n')
       }
 
-      result = addSpatialCentroidLocationsLayer(gobject = gobject,
-                                                poly_info = poly_layer,
-                                                feat_type = feat_type,
-                                                spat_loc_name = spat_loc_name,
-                                                return_gobject = return_gobject)
+      if(return_gobject == TRUE) {
+        gobject = addSpatialCentroidLocationsLayer(gobject = gobject,
+                                                   poly_info = poly_layer,
+                                                   feat_type = feat_type,
+                                                   spat_loc_name = spat_loc_name,
+                                                   return_gobject = return_gobject)
+      } else {
+
+        return_list[[poly_layer]] = addSpatialCentroidLocationsLayer(gobject = gobject,
+                                                                     poly_info = poly_layer,
+                                                                     feat_type = feat_type,
+                                                                     spat_loc_name = spat_loc_name,
+                                                                     return_gobject = return_gobject)
+
+      }
+
     }
   }
 
-  return(result)
+  if(return_gobject == TRUE) {
+    return(gobject)
+  } else {
+    return_list
+  }
 
 }
 
