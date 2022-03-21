@@ -6,19 +6,22 @@
 \usage{
 list_dim_reductions(
   gobject,
+  data_type = NULL,
   spat_unit = NULL,
-  dim_type = NULL,
-  data_type = "both"
+  feat_type = NULL,
+  dim_type = NULL
 )
 }
 \arguments{
 \item{gobject}{giotto object}
 
+\item{data_type}{cells or feats data used in dim reduction}
+
 \item{spat_unit}{spatial unit}
 
-\item{dim_type}{dimensional reduction type (method)}
+\item{feat_type}{feature type}
 
-\item{data_type}{cells or feats dim reduction}
+\item{dim_type}{dimensional reduction method}
 }
 \value{
 names and locations of dimension reduction as a dataframe

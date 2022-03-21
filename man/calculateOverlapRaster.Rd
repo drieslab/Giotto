@@ -10,6 +10,8 @@ calculateOverlapRaster(
   spatial_info = NULL,
   poly_ID_names = NULL,
   feat_info = NULL,
+  feat_subset_column = NULL,
+  feat_subset_ids = NULL,
   return_gobject = TRUE,
   verbose = TRUE
 )
@@ -20,6 +22,10 @@ calculateOverlapRaster(
 \item{name_overlap}{name for the overlap results (default to feat_info parameter)}
 
 \item{feat_info}{feature information}
+
+\item{feat_subset_column}{feature info column to subset features with}
+
+\item{feat_subset_ids}{ids within feature info column to use for subsetting}
 
 \item{return_gobject}{return giotto object (default: TRUE)}
 

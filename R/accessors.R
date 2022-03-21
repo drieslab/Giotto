@@ -1441,64 +1441,46 @@ list_spatial_enrichments_names = function(gobject,
 #' @name list_dim_reductions
 #' @description return the available dimension reductions
 #' @param gobject giotto object
-#' @param data_type cells or feats dim reduction
+#' @param data_type cells or feats data used in dim reduction
 #' @param spat_unit spatial unit
-#' @param reduction_method dimensional reduction method
+#' @param feat_type feature type
+#' @param dim_type dimensional reduction method
 #' @return names and locations of dimension reduction as a dataframe
 list_dim_reductions = function(gobject,
+                               data_type = NULL,
                                spat_unit = NULL,
-                               reduction_method = NULL,
-                               data_type = 'both') {
+                               feat_type = NULL,
+                               dim_type = NULL) {
 
-  # check data_type input
-  data_type = match.arg(arg = data_type, choices = c('both', 'cells', 'feats'))
-
-  availableDimRed = list(feats = data.frame(),
-                         cells = data.frame())
-  # for features
-  for(dimred_type in names(gobject@dimension_reduction[['feats']])) {
-    for(sub_type in names(gobject@dimension_reduction[['feats']][[dimred_type]])) {
-      availableDimRed[['feats']] = rbind(availableDimRed[['feats']],
-                                         list(approach = 'feats',
-                                              spat_unit = NA,
-                                              reduction_method = dimred_type,
-                                              name = sub_type))
-    }
-  }
-
-  # for cells
-  for(spatial_unit in names(gobject@dimension_reduction[['cells']])) {
-    for(dimred_type in names(gobject@dimension_reduction[['cells']][[spatial_unit]])) {
-      for(sub_type in names(gobject@dimension_reduction[['cells']][[spatial_unit]][[dimred_type]])) {
-        availableDimRed[['cells']] = rbind(availableDimRed[['cells']],
-                                           list(approach = 'cells',
-                                                spat_unit = spatial_unit,
-                                                reduction_method = dimred_type,
-                                                name = sub_type))
+  availableDimRed = data.frame()
+  for(dataType in names(gobject@dimension_reduction)) {
+    for(spatUnit in names(gobject@dimension_reduction[[dataType]])) {
+      for(featType in names(gobject@dimension_reduction[[dataType]][[spatUnit]])) {
+        for(dimType in names(gobject@dimension_reduction[[dataType]][[spatUnit]][[featType]])) {
+          for(subType in names(gobject@dimension_reduction[[dataType]][[spatUnit]][[featType]][[dimType]])) {
+            availableDimRed = rbind(availableDimRed,
+                                    list(approach = dataType,
+                                         spat_unit = spatUnit,
+                                         feat_type = featType,
+                                         reduction_method = dimType,
+                                         name = subType))
+          }
+        }
       }
     }
   }
 
   # check if a specific category is desired
-  if(!is.null(spat_unit) & !is.null(reduction_method)) {
-    availableDimRed[['cells']] = availableDimRed[['cells']][availableDimRed[['cells']]$spat_unit == spat_unit & availableDimRed[['cells']]$reduction_method == reduction_method,]
-    data_type = 'cells' # only cells data_type has spat_unit, so it will be assumed.
-  } else if(!is.null(spat_unit)) {
-    availableDimRed[['cells']] = availableDimRed[['cells']][availableDimRed[['cells']]$spat_unit == spat_unit,]
-    data_type = 'cells' # only cells data_type has spat_unit, so it will be assumed.
-  } else if(!is.null(reduction_method)) {
-    availableDimRed[['cells']] = availableDimRed[['cells']][availableDimRed[['cells']]$reduction_method == reduction_method,]
-    availableDimRed[['feats']] = availableDimRed[['feats']][availableDimRed[['feats']]$reduction_method == reduction_method,]
-  }
+  if(!is.null(data_type)) data_type_subset = availableDimRed$approach == data_type else data_type_subset = TRUE
+  if(!is.null(spat_unit)) spat_unit_subset = availableDimRed$spat_unit == spat_unit else spat_unit_subset = TRUE
+  if(!is.null(feat_type)) feat_type_subset = availableDimRed$feat_type == feat_type else feat_type_subset = TRUE
+  if(!is.null(dim_type)) dimred_type_subset = availableDimRed$reduction_method == dim_type else dimred_type_subset = TRUE
+  
+  availableDimRed = availableDimRed[data_type_subset & spat_unit_subset & feat_type_subset & dimred_type_subset,]
 
   # NULL if there is no data
-  if(nrow(availableDimRed[['feats']]) == 0) availableDimRed[['feats']] = NULL
-  if(nrow(availableDimRed[['cells']]) == 0) availableDimRed[['cells']] = NULL
-
-  # return results
-  if(data_type == 'both') return(availableDimRed)
-  else if(data_type == 'cells') return(availableDimRed[['cells']])
-  else if(data_type == 'feats') return(availableDimRed[['feats']])
+  if(nrow(availableDimRed) == 0) return(NULL)
+  else return(availableDimRed)
 }
 
 
@@ -1642,7 +1624,7 @@ list_spatial_networks_names = function(gobject,
                                        spat_unit = NULL,
                                        feat_type = NULL) {
 
-  spat_network_names = names(gobject@spatial_network[[spatial_unit]][[feature_type]])
+  spat_network_names = names(gobject@spatial_network[[spat_unit]][[feat_type]])
 
   return(spat_network_names)
 }
@@ -1660,15 +1642,19 @@ list_spatial_grids = function(gobject,
                               spat_unit = NULL) {
 
   availableSpatGrids = data.frame()
-
-  for(spat_unit in names(gobject@spatial_grid)) {
-
-    availableSpatGrids = rbind(availableSpatGrids,
-                               list(name = grid_names,
-                                    spat_unit = spat_unit))
-
+  for(spatial_unit in names(gobject@spatial_grid)) {
+    for(grid_names in names(gobject@spatial_grid[[spatial_unit]])) {
+      availableSpatGrids = rbind(availableSpatGrids,
+                                 list(spat_unit = spatial_unit,
+                                      name = grid_names))
+    }
   }
 
+  # check if a specific category is desired
+  if(!is.null(spat_unit)) {
+    availableSpatGrids = availableSpatGrids[availableSpatGrids$spat_unit == spat_unit,]
+  }
+  
   if(nrow(availableSpatGrids) == 0) return(NULL)
   else return(availableSpatGrids)
 }
@@ -1685,7 +1671,7 @@ list_spatial_grids = function(gobject,
 list_spatial_grids_names = function(gobject,
                                     spat_unit = NULL) {
 
-  spat_grid_names = names(gobject@spatial_grid[[spatial_unit]])
+  spat_grid_names = names(gobject@spatial_grid[[spat_unit]])
 
   return(spat_grid_names)
 }
