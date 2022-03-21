@@ -11,7 +11,7 @@ runGiottoHarmony(
   vars_use = "list_ID",
   do_pca = FALSE,
   expression_values = c("normalized", "scaled", "custom"),
-  reduction = c("cells", "feats"),
+  reduction = "cells",
   dim_reduction_to_use = "pca",
   dim_reduction_name = NULL,
   dimensions_to_use = 1:10,

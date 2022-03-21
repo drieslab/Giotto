@@ -1673,7 +1673,7 @@ runGiottoHarmony = function(gobject,
                             vars_use = 'list_ID',
                             do_pca = FALSE,
                             expression_values = c('normalized', 'scaled', 'custom'),
-                            reduction = c('cells', 'feats'),
+                            reduction = 'cells',
                             dim_reduction_to_use = 'pca',
                             dim_reduction_name = NULL,
                             dimensions_to_use = 1:10,
@@ -1703,9 +1703,7 @@ runGiottoHarmony = function(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
-  ## check parameters
-  reduction = match.arg(arg = reduction, choices = c('cells', 'feats'))
-  
+
   # specify dim_reduction_name to use for pca input for umap
   if(!is.null(dim_reduction_to_use)) {
     if(dim_reduction_to_use == 'pca') {
@@ -1742,7 +1740,7 @@ runGiottoHarmony = function(gobject,
     ## TODO: check if reduction exists
     matrix_to_use = get_dimReduction(gobject = gobject,
                                      spat_unit = spat_unit,
-                                     reduction = 'cells', # set to spat_unit?
+                                     reduction = reduction, # set to spat_unit?
                                      reduction_method = dim_reduction_to_use,
                                      name = dim_reduction_name,
                                      return_dimObj = FALSE)
