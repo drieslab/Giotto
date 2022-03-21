@@ -11,6 +11,7 @@
 #' @slot boundaries x and y coordinate adjustments (default to 0)
 #' @slot scale_factor image scaling relative to spatial locations
 #' @slot resolution spatial location units covered per pixel
+#' @slot file_path file path to the image if given
 #' @slot OS_platform Operating System to run Giotto analysis on
 #' @details
 #' [\strong{mg_object}] Core object is any image that can be read by the magick package
@@ -30,6 +31,7 @@ giottoImage <- setClass(
     boundaries = "ANY",
     scale_factor = "ANY",
     resolution = "ANY",
+    file_path = "ANY",
     OS_platform = "ANY"
   ),
 
@@ -40,6 +42,7 @@ giottoImage <- setClass(
     boundaries = NULL,
     scale_factor = NULL,
     resolution = NULL,
+    file_path = NULL,
     OS_platform = NULL
   )
 )
@@ -84,6 +87,9 @@ setMethod(
 
     cat("\n Resolution: \n")
     print(object@resolution)
+    
+    cat("\n File Path: \n")
+    print(object@file_path)
 
     # print(object@mg_object)
 
@@ -104,6 +110,7 @@ setMethod(
 #' @slot max_intensity value to set as maximum intensity in color scaling
 #' @slot min_intensity minimum value found
 #' @slot is_int values are integers
+#' @slot file_path file path to the image if given
 #' @slot OS_platform Operating System to run Giotto analysis on
 #' @export
 giottoLargeImage <- setClass(
@@ -118,6 +125,7 @@ giottoLargeImage <- setClass(
     max_intensity = "ANY",
     min_intensity = "ANY",
     is_int = "ANY",
+    file_path = "ANY",
     OS_platform = "ANY"
   ),
 
@@ -130,6 +138,7 @@ giottoLargeImage <- setClass(
     max_intensity = NULL,
     min_intensity = NULL,
     is_int = NULL,
+    file_path = NULL,
     OS_platform = NULL
   )
 )
@@ -162,9 +171,11 @@ setMethod(
 
     cat('\n Estimated maximum intensity is: ', object@max_intensity, ' \n',
         'Estimated minimum intensity is: ', object@min_intensity, ' \n')
-
+    
     if(object@is_int == TRUE) cat('Values are integers')
     if(object@is_int == FALSE) cat('Values are floating point')
+    
+    cat('\n File path is: ', object@file_path, '\n')
 
   }
 )
@@ -242,12 +253,14 @@ createGiottoImage = function(gobject = NULL,
                         boundaries = NULL,
                         scale_factor = NULL,
                         resolution = NULL,
+                        file_path = NULL,
                         OS_platform = .Platform[['OS.type']])
 
 
   ## 1.a. check magick image object
   if(!methods::is(mg_object, 'magick-image')) {
     if(file.exists(mg_object)) {
+      g_image@file_path = mg_object
       mg_object = try(magick::image_read(mg_object))
       if(class(mg_object) == 'try-error') {
         stop(mg_object, ' can not be read by magick::image_read() \n')
@@ -442,12 +455,14 @@ createGiottoLargeImage = function(raster_object,
                               overall_extent = NULL,
                               scale_factor = NULL,
                               resolution = NULL,
+                              file_path = NULL,
                               OS_platform = .Platform[['OS.type']])
 
 
   ## 1. check raster object and load as SpatRaster if necessary
   if(!methods::is(raster_object, 'SpatRaster')) {
     if(file.exists(raster_object)) {
+      g_imageL@file_path = raster_object
       raster_object = try(suppressWarnings(terra::rast(x = raster_object)))
       if(class(raster_object) == 'try-error') {
         stop(raster_object, ' can not be read by terra::rast() \n')
@@ -2414,7 +2429,34 @@ updateGiottoImage = function(gobject = NULL,
 
 
 
-
+#' @title reconnectImage
+#' @name reconnectImage
+#' @description reconnect dead image pointers using filepaths
+#' @param gobject giotto object
+#' @param image_name name of image to be reconnected
+#' @param largeImage_name name of largeImage to be reconnected
+#' @return a giotto object with updated image pointer
+reconnectImage = function(gobject,
+                          image_name = NULL,
+                          largeImage_name = NULL,
+                          path = NULL) {
+  
+  # Check params
+  if(!is.null(image_name) && !is.null(largeImage_name)) {
+    stop('Only one image type can be reconnected at once')
+  }
+  
+  # Load new image pointer and update
+  if(!is.null(image_name)) {
+    mg_object = magick::image_read(path = path)
+    gobject@images[[image_name]]@mg_object = mg_object
+  }
+  if(!is.null(largeImage_name)) {
+    # terra::rast() - Needs more work. Need a way to save the extents because those are part of the raster obj.
+    stop('largeImage reconnection still not supported')
+  }
+  return(gobject)
+}
 
 
 
