@@ -984,8 +984,6 @@ showGiottoSpatLocs = function(gobject, nrows = 4) {
 
 }
 
-vizsubc@spatial_locs$z1$raw
-vizsubc@spatial_locs$z2$raw
 
 #' @title showGiottoSpatEnrichments
 #' @name showGiottoSpatEnrichments
