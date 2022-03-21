@@ -4574,11 +4574,11 @@ spatFeatPlot2D <- function(gobject,
   } else {
 
     # Set feat_type and spat_unit
-    feat_type = set_default_feat_type(gobject = gobject,
-                                      feat_type = feat_type)
     spat_unit = set_default_spat_unit(gobject = gobject,
-                                      spat_unit = spat_unit,
-                                      feat_type = feat_type)
+                                      spat_unit = spat_unit)
+    feat_type = set_default_feat_type(gobject = gobject,
+                                      feat_type = feat_type,
+                                      spat_unit = spat_unit)
 
     ## metadata
     comb_metadata = combineMetadata(gobject = gobject,
