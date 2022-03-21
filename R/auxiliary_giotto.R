@@ -655,17 +655,12 @@ subset_spatial_info_data = function(spatial_info,
 
     cat('for ', spat_info, '\n')
 
-
-    print(spat_info)
-    print(poly_info)
-
     if(spat_info %in% poly_info) {
 
       spat_subset = subset_giotto_polygon_object(spatial_info[[spat_info]],
                                                  cell_ids = cell_ids,
                                                  feat_ids = feat_ids,
                                                  feat_type = feat_type)
-      print('ok')
       print(spat_subset)
       res_list[[spat_info]] = spat_subset
 
@@ -791,6 +786,7 @@ subset_feature_info_data = function(feat_info,
 #' @param verbose be verbose
 #' @param toplevel_params parameters to extract
 #' @return giotto object
+#' @details Subsets a Giotto object for a specific spatial unit and feature type
 #' @export
 #' @examples
 #' \donttest{
@@ -1028,7 +1024,8 @@ subsetGiotto <- function(gobject,
 #' @param return_gobject return Giotto object
 #' @param verbose be verbose
 #' @return giotto object
-#' @details if return_gobject = FALSE, then a filtered combined metadata data.table will be returned
+#' @details Subsets a Giotto based on spatial locations and for one provided spatial unit
+#' if return_gobject = FALSE, then a filtered combined metadata data.table will be returned
 #' @export
 subsetGiottoLocs = function(gobject,
                             spat_unit = NULL,
@@ -1113,6 +1110,89 @@ subsetGiottoLocs = function(gobject,
 }
 
 
+
+
+#' @title subsetGiottoLocsMulti
+#' @name subsetGiottoLocsMulti
+#' @description subsets Giotto object based on spatial locations
+#' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type to use
+#' @param spat_loc_name name of spatial locations to use
+#' @param x_max maximum x-coordinate
+#' @param x_min minimum x-coordinate
+#' @param y_max maximum y-coordinate
+#' @param y_min minimum y-coordinate
+#' @param z_max maximum z-coordinate
+#' @param z_min minimum z-coordinate
+#' @param poly_info polygon information to use
+#' @param return_gobject return Giotto object
+#' @param verbose be verbose
+#' @return giotto object
+#' @details Subsets a Giotto based on spatial locations for multiple spatial units
+#' if return_gobject = FALSE, then a filtered combined metadata data.table will be returned
+#' @export
+subsetGiottoLocsMulti = function(gobject,
+                                 spat_unit = NULL,
+                                 feat_type = NULL,
+                                 spat_loc_name = NULL,
+                                 x_max = NULL,
+                                 x_min = NULL,
+                                 y_max = NULL,
+                                 y_min = NULL,
+                                 z_max = NULL,
+                                 z_min = NULL,
+                                 poly_info = NULL,
+                                 return_gobject = TRUE,
+                                 verbose = FALSE) {
+
+
+  res_list = list()
+
+  for(spat_unit_selected in spat_unit) {
+
+    poly_info_selected = poly_info[[spat_unit_selected]]
+
+    if(return_gobject == TRUE) {
+      gobject = subsetGiottoLocs(gobject = gobject,
+                                 spat_unit = spat_unit_selected,
+                                 feat_type = feat_type,
+                                 spat_loc_name = spat_loc_name,
+                                 x_max = x_max,
+                                 x_min = x_min,
+                                 y_max = y_max,
+                                 y_min = y_min,
+                                 z_max = z_max,
+                                 z_min = z_min,
+                                 poly_info = poly_info_selected,
+                                 return_gobject = return_gobject,
+                                 verbose = verbose)
+    } else {
+
+      res_list[[spat_unit_selected]] = subsetGiottoLocs(gobject = gobject,
+                                                        spat_unit = spat_unit_selected,
+                                                        feat_type = feat_type,
+                                                        spat_loc_name = spat_loc_name,
+                                                        x_max = x_max,
+                                                        x_min = x_min,
+                                                        y_max = y_max,
+                                                        y_min = y_min,
+                                                        z_max = z_max,
+                                                        z_min = z_min,
+                                                        poly_info = poly_info_selected,
+                                                        return_gobject = return_gobject,
+                                                        verbose = verbose)
+
+    }
+  }
+
+  if(return_gobject == TRUE) {
+    return(gobject)
+  } else {
+    return(res_list)
+  }
+
+}
 
 
 
