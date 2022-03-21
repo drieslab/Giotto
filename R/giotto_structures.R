@@ -1573,6 +1573,8 @@ polygon_to_raster = function(polygon, field = NULL) {
 #' @param name_overlap name for the overlap results (default to feat_info parameter)
 #' @param poly_info polygon information
 #' @param feat_info feature information
+#' @param feat_subset_column feature info column to subset features with
+#' @param feat_subset_ids ids within feature info column to use for subsetting
 #' @param return_gobject return giotto object (default: TRUE)
 #' @param verbose be verbose
 #' @return giotto object or spatVector with overlapping information
@@ -1584,6 +1586,8 @@ calculateOverlapRaster = function(gobject,
                                   spatial_info = NULL,
                                   poly_ID_names = NULL,
                                   feat_info = NULL,
+                                  feat_subset_column = NULL,
+                                  feat_subset_ids = NULL,
                                   return_gobject = TRUE,
                                   verbose = TRUE) {
 
@@ -1618,6 +1622,13 @@ calculateOverlapRaster = function(gobject,
 
   # point vector
   pointvec = gobject@feat_info[[feat_info]]@spatVector
+
+  # subset points if needed
+  # e.g. to select transcripts within a z-plane
+  if(!is.null(feat_subset_column) & !is.null(feat_subset_ids)) {
+    bool_vector = pointvec[[feat_subset_column]][[1]] %in% feat_subset_ids
+    pointvec = pointvec[bool_vector]
+  }
 
   ## overlap between raster and point
   if(verbose) cat('2. overlap raster and points \n')
@@ -2012,7 +2023,7 @@ overlapToMatrix = function(gobject,
   overlapmatrixDT = data.table::dcast(data = aggr_dtoverlap,
                                       formula = feat_ID~poly_ID,
                                       value.var = 'N', fill = 0)
-  overlapmatrix = Giotto:::dt_to_matrix(overlapmatrixDT)
+  overlapmatrix = dt_to_matrix(overlapmatrixDT)
 
   overlapmatrix = overlapmatrix[match(gobject@feat_ID[[feat_info]], rownames(overlapmatrix)),
                                 match(gobject@cell_ID[[poly_info]], colnames(overlapmatrix))]
@@ -2026,6 +2037,110 @@ overlapToMatrix = function(gobject,
   }
 
 }
+
+
+
+
+#' @title overlapToMatrixMultiPoly
+#' @name overlapToMatrixMultiPoly
+#' @description create a count matrix based on overlap results from \code{\link{calculateOverlap}}
+#' and aggregate information from multiple polygon layers (e.g. z-stacks) together
+#' @param gobject giotto object
+#' @param name name for the overlap count matrix
+#' @param poly_info vector with polygon information
+#' @param feat_info feature information
+#' @param new_poly_info name for new aggregated polygon information
+#' @param return_gobject return giotto object (default: TRUE)
+#' @return giotto object or count matrix
+#' @keywords overlap
+#' @export
+overlapToMatrixMultiPoly = function(gobject,
+                                    name = 'raw',
+                                    poly_info = 'cell',
+                                    feat_info = 'rna',
+                                    new_poly_info = 'multi',
+                                    return_gobject = TRUE) {
+
+
+  result_list = list()
+  cell_ids_list = list()
+
+  for(poly_info_i in 1:length(poly_info)) {
+
+    poly_info_set = poly_info[[poly_info_i]]
+
+    expr_names = list_expression_names(gobject = gobject,
+                                       spat_unit = poly_info_set,
+                                       feat_type = feat_info)
+
+    # check if matrix already exists, if not try to make it
+    if(!name %in% expr_names) {
+      gobject = overlapToMatrix(gobject = gobject,
+                                poly_info = poly_info_set,
+                                feat_info = feat_info,
+                                name = name)
+    }
+
+    testmat = get_expression_values(gobject = gobject,
+                                    spat_unit = poly_info_set,
+                                    feat_type = feat_info,
+                                    values = name)
+
+    featnames = dimnames(testmat)[[1]]
+    names(featnames) = 1:length(featnames)
+
+    colnames = dimnames(testmat)[[2]]
+    names(colnames) = 1:length(colnames)
+
+    testmat_DT = data.table::as.data.table(Matrix::summary(testmat))
+    testmat_DT[, i := featnames[i]]
+    testmat_DT[, j := colnames[j]]
+
+    result_list[[poly_info_i]] = testmat_DT
+
+    # cell ids
+    cell_ids = gobject@cell_ID[[poly_info_set]]
+
+    cell_ids_list[[poly_info_i]] = cell_ids
+
+  }
+
+  final_DT = data.table::rbindlist(result_list)
+  final_DT_aggr = final_DT[, sum(x), by = .(i, j)]
+
+  combined_cell_IDs = sort(unique(unlist(cell_ids_list)))
+  print(combined_cell_IDs[1:4])
+  print(length(combined_cell_IDs))
+
+  print(final_DT_aggr)
+
+  # create matrix
+  overlapmatrixDT = data.table::dcast(data = final_DT_aggr,
+                                      formula = i~j,
+                                      value.var = 'V1', fill = 0)
+  overlapmatrix = dt_to_matrix(overlapmatrixDT)
+
+  print(overlapmatrix[1:4, 1:4])
+
+
+  combined_cell_IDs = combined_cell_IDs[combined_cell_IDs %in% colnames(overlapmatrix)]
+
+  #overlapmatrix = overlapmatrix[match(gobject@feat_ID[[feat_info]], rownames(overlapmatrix)),
+  #                              match(combined_cell_IDs, colnames(overlapmatrix))]
+
+  print(overlapmatrix[1:4, 1:4])
+
+  if(return_gobject == TRUE) {
+    gobject@expression[[new_poly_info]][[feat_info]][[name]] = overlapmatrix
+    gobject@cell_ID[[new_poly_info]] = combined_cell_IDs
+    return(gobject)
+  } else {
+    return(overlapmatrix)
+  }
+
+}
+
+
 
 
 
