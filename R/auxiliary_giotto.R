@@ -653,9 +653,14 @@ subset_spatial_info_data = function(spatial_info,
   res_list = list()
   for(spat_info in names(spatial_info)) {
 
-    cat('for ', spat_info)
+    cat('for ', spat_info, '\n')
+
+
+    print(spat_info)
+    print(poly_info)
 
     if(spat_info %in% poly_info) {
+
       spat_subset = subset_giotto_polygon_object(spatial_info[[spat_info]],
                                                  cell_ids = cell_ids,
                                                  feat_ids = feat_ids,
@@ -954,6 +959,8 @@ subsetGiotto <- function(gobject,
                                                     cell_ids = cells_to_keep,
                                                     feat_ids = feats_to_keep,
                                                     poly_info = poly_info)
+
+    if(verbose == TRUE) cat('completed 11: subsetted spatial information data \n')
   }
 
 
@@ -966,6 +973,8 @@ subsetGiotto <- function(gobject,
                                                  x_min = x_min,
                                                  y_max = y_max,
                                                  y_min = y_min)
+
+    if(verbose == TRUE) cat('completed 12: subsetted spatial feature data \n')
   }
 
 

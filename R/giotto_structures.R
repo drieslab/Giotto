@@ -1427,7 +1427,7 @@ addSpatialCentroidLocationsLayer = function(gobject,
   if(return_gobject == TRUE) {
 
     # spatial location
-    spat_locs_names = list_spatial_locations_names(vizsubc,
+    spat_locs_names = list_spatial_locations_names(gobject,
                                                    spat_unit = poly_info)
     if(spat_loc_name %in% spat_locs_names) {
       cat('spatial locations for polygon information layer ', poly_info,

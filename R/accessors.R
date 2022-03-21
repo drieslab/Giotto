@@ -974,15 +974,18 @@ showGiottoSpatLocs = function(gobject, nrows = 4) {
 
     cat('Spatial unit: ', spat_unit, ' \n\n')
 
-    for(spatlocname in base::subset(available_data, spat_unit == spat_unit)$name) {
+    #for(spatlocname in base::subset(available_data, spat_unit == spat_unit)$name) {
+    for(spatlocname in  available_data[available_data$spat_unit == spat_unit,]$name) {
       cat('--> Name: ', spatlocname, ' \n\n')
       print(gobject@spatial_locs[[spat_unit]][[spatlocname]][1:nrows,])
+      cat('\n')
     }
   }
 
 }
 
-
+vizsubc@spatial_locs$z1$raw
+vizsubc@spatial_locs$z2$raw
 
 #' @title showGiottoSpatEnrichments
 #' @name showGiottoSpatEnrichments
@@ -1475,7 +1478,7 @@ list_dim_reductions = function(gobject,
   if(!is.null(spat_unit)) spat_unit_subset = availableDimRed$spat_unit == spat_unit else spat_unit_subset = TRUE
   if(!is.null(feat_type)) feat_type_subset = availableDimRed$feat_type == feat_type else feat_type_subset = TRUE
   if(!is.null(dim_type)) dimred_type_subset = availableDimRed$reduction_method == dim_type else dimred_type_subset = TRUE
-  
+
   availableDimRed = availableDimRed[data_type_subset & spat_unit_subset & feat_type_subset & dimred_type_subset,]
 
   # NULL if there is no data
@@ -1654,7 +1657,7 @@ list_spatial_grids = function(gobject,
   if(!is.null(spat_unit)) {
     availableSpatGrids = availableSpatGrids[availableSpatGrids$spat_unit == spat_unit,]
   }
-  
+
   if(nrow(availableSpatGrids) == 0) return(NULL)
   else return(availableSpatGrids)
 }
