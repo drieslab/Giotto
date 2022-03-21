@@ -2099,20 +2099,18 @@ overlapToMatrixMultiPoly = function(gobject,
     result_list[[poly_info_i]] = testmat_DT
 
     # cell ids
-    cell_ids = gobject@cell_ID[[poly_info_set]]
+    #cell_ids = gobject@cell_ID[[poly_info_set]]
 
-    cell_ids_list[[poly_info_i]] = cell_ids
+    #cell_ids_list[[poly_info_i]] = cell_ids
 
   }
 
   final_DT = data.table::rbindlist(result_list)
   final_DT_aggr = final_DT[, sum(x), by = .(i, j)]
 
-  combined_cell_IDs = sort(unique(unlist(cell_ids_list)))
-  print(combined_cell_IDs[1:4])
-  print(length(combined_cell_IDs))
 
-  print(final_DT_aggr)
+  #combined_cell_IDs = sort(unique(unlist(cell_ids_list)))
+
 
   # create matrix
   overlapmatrixDT = data.table::dcast(data = final_DT_aggr,
@@ -2120,19 +2118,22 @@ overlapToMatrixMultiPoly = function(gobject,
                                       value.var = 'V1', fill = 0)
   overlapmatrix = dt_to_matrix(overlapmatrixDT)
 
-  print(overlapmatrix[1:4, 1:4])
+  #print(overlapmatrix[1:4, 1:4])
 
 
-  combined_cell_IDs = combined_cell_IDs[combined_cell_IDs %in% colnames(overlapmatrix)]
+  #combined_cell_IDs = combined_cell_IDs[combined_cell_IDs %in% colnames(overlapmatrix)]
 
   #overlapmatrix = overlapmatrix[match(gobject@feat_ID[[feat_info]], rownames(overlapmatrix)),
   #                              match(combined_cell_IDs, colnames(overlapmatrix))]
 
-  print(overlapmatrix[1:4, 1:4])
+  #print(overlapmatrix[1:4, 1:4])
 
   if(return_gobject == TRUE) {
     gobject@expression[[new_poly_info]][[feat_info]][[name]] = overlapmatrix
-    gobject@cell_ID[[new_poly_info]] = combined_cell_IDs
+    gobject@cell_ID[[new_poly_info]] = colnames(overlapmatrix)
+    gobject@cell_metadata[[new_poly_info]][[feat_info]] = data.table::data.table(cell_ID = colnames(overlapmatrix))
+    gobject@feat_metadata[[new_poly_info]][[feat_info]] = data.table::data.table(feat_ID = rownames(overlapmatrix))
+
     return(gobject)
   } else {
     return(overlapmatrix)

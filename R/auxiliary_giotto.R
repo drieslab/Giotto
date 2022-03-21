@@ -657,11 +657,13 @@ subset_spatial_info_data = function(spatial_info,
 
     if(spat_info %in% poly_info) {
 
+      cat('--> ', spat_info, ' found back in polygon layer: ', poly_info, '\n')
+
       spat_subset = subset_giotto_polygon_object(spatial_info[[spat_info]],
                                                  cell_ids = cell_ids,
                                                  feat_ids = feat_ids,
                                                  feat_type = feat_type)
-      print(spat_subset)
+      #print(spat_subset)
       res_list[[spat_info]] = spat_subset
 
     } else {
@@ -1144,7 +1146,9 @@ subsetGiottoLocsMulti = function(gobject,
                                  z_min = NULL,
                                  poly_info = NULL,
                                  return_gobject = TRUE,
-                                 verbose = FALSE) {
+                                 verbose = TRUE) {
+
+
 
 
   res_list = list()
@@ -1152,6 +1156,12 @@ subsetGiottoLocsMulti = function(gobject,
   for(spat_unit_selected in spat_unit) {
 
     poly_info_selected = poly_info[[spat_unit_selected]]
+
+    cat('\n \n')
+
+    if(verbose) cat('Start subset on location for spatial unit: ', spat_unit_selected,
+                    'and polygon information layers: ', poly_info_selected, '\n')
+
 
     if(return_gobject == TRUE) {
       gobject = subsetGiottoLocs(gobject = gobject,
@@ -1587,6 +1597,9 @@ filterGiotto <- function(gobject,
   filter_index_cells = colSums_flex(expr_values[filter_index_feats, ] >= expression_threshold) >= min_det_feats_per_cell
   selected_cell_ids = gobject@cell_ID[[spat_unit]][filter_index_cells]
 
+
+  print(selected_cell_ids[1:4])
+  print(selected_feat_ids[1:4])
 
   newGiottoObject = subsetGiotto(gobject = gobject,
                                  feat_type = feat_type,
@@ -3190,9 +3203,14 @@ combineMetadata = function(gobject,
                      feat_type = feat_type)
 
   # spatial locations
-  spatial_locs = get_spatial_locations(gobject = gobject,
-                                       spat_unit = spat_unit,
-                                       spat_loc_name = spat_loc_name)
+  if(!is.null(spat_loc_name)) {
+    spatial_locs = get_spatial_locations(gobject = gobject,
+                                         spat_unit = spat_unit,
+                                         spat_loc_name = spat_loc_name)
+  } else {
+    spatial_locs = NULL
+  }
+
 
   # data.table variables
   cell_ID = NULL
