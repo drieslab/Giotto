@@ -27,6 +27,8 @@ class to handle images too large to load in normally through magick
 
 \item{\code{is_int}}{values are integers}
 
+\item{\code{file_path}}{file path to the image if given}
+
 \item{\code{OS_platform}}{Operating System to run Giotto analysis on}
 }}
 

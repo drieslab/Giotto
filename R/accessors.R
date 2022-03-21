@@ -936,18 +936,17 @@ set_spatial_enrichment <- function(gobject,
 showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 
   available_data = list_expression(gobject = gobject)
-
   if(is.null(available_data)) cat('No expression data available')
 
   for(spat_unit in unique(available_data$spat_unit)) {
 
     cat('Spatial unit: ', spat_unit, ' \n\n')
 
-    for(feat_type in unique(base::subset(available_data, spat_unit == spat_unit)$feat_type)) {
+    for(feat_type in unique(available_data[available_data$spat_unit == spat_unit,]$feat_type)) {
 
       cat('--> Feature: ', feat_type, ' \n\n')
 
-       for(mat_i in base::subset(available_data, spat_unit == spat_unit & feat_type == feat_type)$name) {
+      for(mat_i in available_data[available_data$spat_unit == spat_unit & available_data$feat_type == feat_type,]$name) {
 
         cat('---> Name: ', mat_i, 'matrix: \n')
 
@@ -974,8 +973,7 @@ showGiottoSpatLocs = function(gobject, nrows = 4) {
 
     cat('Spatial unit: ', spat_unit, ' \n\n')
 
-    #for(spatlocname in base::subset(available_data, spat_unit == spat_unit)$name) {
-    for(spatlocname in  available_data[available_data$spat_unit == spat_unit,]$name) {
+    for(spatlocname in available_data[available_data$spat_unit == spat_unit,]$name) {
       cat('--> Name: ', spatlocname, ' \n\n')
       print(gobject@spatial_locs[[spat_unit]][[spatlocname]][1:nrows,])
       cat('\n')
@@ -1002,7 +1000,7 @@ showGiottoSpatEnrichments = function(gobject,
 
     cat('Spatial unit: ', spat_unit, ' \n\n')
 
-    for(spatenrichname in base::subset(available_data, spat_unit == spat_unit)$name) {
+    for(spatenrichname in available_data[available_data$spat_unit == spat_unit,]$name) {
       cat('Name ', spatenrichname, ': \n\n')
       print(gobject@spatial_enrichment[[spat_unit]][[spatenrichname]][1:nrows,])
     }
