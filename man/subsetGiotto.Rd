@@ -53,6 +53,9 @@ giotto object
 \description{
 subsets Giotto object including previous analyses.
 }
+\details{
+Subsets a Giotto object for a specific spatial unit and feature type
+}
 \examples{
 \donttest{
 
