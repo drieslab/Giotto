@@ -17,7 +17,7 @@ subsetGiottoLocsMulti(
   z_min = NULL,
   poly_info = NULL,
   return_gobject = TRUE,
-  verbose = FALSE
+  verbose = TRUE
 )
 }
 \arguments{
