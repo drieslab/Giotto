@@ -752,7 +752,7 @@ runPAGEEnrich <- function(gobject,
                                     feat_type = feat_type)
 
   # expression values to be used
-  values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
+  values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom'), expression_values))
   expr_values = get_expression_values(gobject = gobject,
                                       spat_unit = spat_unit,
                                       feat_type = feat_type,
@@ -777,7 +777,9 @@ runPAGEEnrich <- function(gobject,
   ## return object or results ##
   if(return_gobject == TRUE) {
 
-    spenr_names = names(gobject@spatial_enrichment[[spat_unit]])
+    #spenr_names = names(gobject@spatial_enrichment[[spat_unit]])
+
+    spenr_names = list_spatial_enrichments_names(gobject = gobject, spat_unit = spat_unit, feat_type = feat_type)
 
     if(name %in% spenr_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
@@ -800,7 +802,15 @@ runPAGEEnrich <- function(gobject,
                                        'nr permutations' = n_times)
 
     gobject@parameters = parameters_list
-    gobject@spatial_enrichment[[spat_unit]][[name]] = PAGE_results[['matrix']]
+
+
+    gobject = set_spatial_enrichment(gobject = gobject,
+                                     spat_unit = spat_unit,
+                                     feat_type = feat_type,
+                                     enrichm_name = name,
+                                     spatenrichment = PAGE_results[['matrix']])
+
+    #gobject@spatial_enrichment[[spat_unit]][[name]] = PAGE_results[['matrix']]
 
     return(gobject)
 
@@ -1015,7 +1025,10 @@ runRankEnrich <- function(gobject,
   ## return object or results ##
   if(return_gobject == TRUE) {
 
-    spenr_names = names(gobject@spatial_enrichment[[spat_unit]])
+    #spenr_names = names(gobject@spatial_enrichment[[spat_unit]])
+
+    spenr_names = list_spatial_enrichments_names(gobject = gobject, spat_unit = spat_unit, feat_type = feat_type)
+
 
     if(name %in% spenr_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
@@ -1038,7 +1051,13 @@ runRankEnrich <- function(gobject,
                                        'nr permutations' = n_times)
     gobject@parameters = parameters_list
 
-    gobject@spatial_enrichment[[spat_unit]][[name]] = enrichmentDT
+    #gobject@spatial_enrichment[[spat_unit]][[name]] = enrichmentDT
+
+    gobject = set_spatial_enrichment(gobject = gobject,
+                                     spat_unit = spat_unit,
+                                     feat_type = feat_type,
+                                     enrichm_name = name,
+                                     spatenrichment = enrichmentDT)
 
     return(gobject)
 
@@ -1138,7 +1157,7 @@ runHyperGeometricEnrich <- function(gobject,
 
   top_q = 1-top_percentage/100
   quantilecut = apply(foldChange, 2 , stats::quantile , probs = top_q, na.rm = TRUE )
-  expbinary = t_flex(1* t_flex(foldChange > quantilecut)) 
+  expbinary = t_flex(1* t_flex(foldChange > quantilecut))
 
   markerGenes = rownames(inter_sign_matrix)
   expbinaryOverlap = expbinary[markerGenes,]
@@ -1187,7 +1206,7 @@ runHyperGeometricEnrich <- function(gobject,
   ## return object or results ##
   if(return_gobject == TRUE) {
 
-    spenr_names = names(gobject@spatial_enrichment[[spat_unit]])
+    spenr_names = list_spatial_enrichments_names(gobject = gobject, spat_unit = spat_unit, feat_type = feat_type)
 
     if(name %in% spenr_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
@@ -1210,7 +1229,11 @@ runHyperGeometricEnrich <- function(gobject,
                                        'p values calculated' = p_value)
     gobject@parameters = parameters_list
 
-    gobject@spatial_enrichment[[spat_unit]][[name]] = enrichmentDT
+    gobject = set_spatial_enrichment(gobject = gobject,
+                                     spat_unit = spat_unit,
+                                     feat_type = feat_type,
+                                     enrichm_name = name,
+                                     spatenrichment = enrichmentDT)
 
     return(gobject)
 

@@ -859,7 +859,7 @@ get_spatial_enrichment <- function(gobject,
   # if NULL (not given) and spatial loactions have NOT been added, then keep NULL
   if(is.null(enrichm_name)) {
     if(!is.null(gobject@spatial_enrichment)) {
-      enrichm_name = names(gobject@spatial_enrichment[[spat_unit]])[[1]]
+      enrichm_name = names(gobject@spatial_enrichment[[spat_unit]][[feat_type]])[[1]]
       # cat('No spatial locations have been selected, the first one -',spat_loc_name, '- will be used \n')
     } else {
       enrichm_name = NULL
@@ -868,10 +868,12 @@ get_spatial_enrichment <- function(gobject,
     }
   }
 
-  potential_names = names(gobject@spatial_enrichment[[spat_unit]])
+
+
+  potential_names = names(gobject@spatial_enrichment[[spat_unit]][[feat_type]])
 
   if(enrichm_name %in% potential_names) {
-    enr_res = data.table::copy(gobject@spatial_enrichment[[spat_unit]][[enrichm_name]])
+    enr_res = data.table::copy(gobject@spatial_enrichment[[spat_unit]][[feat_type]][[enrichm_name]])
     return(enr_res)
   } else {
     stop("The spatial enrichment result with name ","'", enrichm_name, "'"," can not be found \n")
@@ -904,7 +906,7 @@ set_spatial_enrichment <- function(gobject,
                                     feat_type = feat_type)
 
   ## 1. check if specified name has already been used
-  potential_names = names(gobject@spatial_enrichment[[spat_unit]][[enrichm_name]])
+  potential_names = names(gobject@spatial_enrichment[[spat_unit]][[feat_type]][[enrichm_name]])
   if(enrichm_name %in% potential_names) {
     cat(enrichm_name, ' already exist and will be replaced with new spatial enrichment results \n')
   }
@@ -913,7 +915,7 @@ set_spatial_enrichment <- function(gobject,
 
 
   ## 3. update and return giotto object
-  gobject@spatial_enrichment[[spat_unit]][[enrichm_name]] = spatenrichment
+  gobject@spatial_enrichment[[spat_unit]][[feat_type]][[enrichm_name]] = spatenrichment
   return(gobject)
 
 }
@@ -994,15 +996,24 @@ showGiottoSpatEnrichments = function(gobject,
                                      nrows = 4) {
 
   available_data = list_spatial_enrichments(gobject = gobject)
+
   if(is.null(available_data)) cat('No spatial enrichments available')
 
-  for(spat_unit in unique(available_data$spat_unit)) {
+  for(spatial_unit in unique(available_data$spat_unit)) {
 
-    cat('Spatial unit: ', spat_unit, ' \n\n')
+    cat('Spatial unit: ', spatial_unit, ' \n\n')
 
-    for(spatenrichname in available_data[available_data$spat_unit == spat_unit,]$name) {
-      cat('Name ', spatenrichname, ': \n\n')
-      print(gobject@spatial_enrichment[[spat_unit]][[spatenrichname]][1:nrows,])
+    for(feature_type in available_data[spat_unit == spatial_unit][['feat_type']]) {
+
+      cat('Feature type: ', feature_type, ' \n\n')
+
+      for(spatenrichname in available_data[spat_unit == spatial_unit][feat_type == feature_type][['name']]) {
+
+        cat('Name ', spatenrichname, ': \n\n')
+        print(gobject@spatial_enrichment[[spatial_unit]][[feature_type]][[spatenrichname]][1:nrows,])
+
+      }
+
     }
 
   }
@@ -1026,38 +1037,38 @@ showGiottoDimRed = function(gobject,
 
   available_data = list_dim_reductions(gobject)
   if(is.null(available_data)) cat('No dimensional reductions available')
-  
+
   for(data_type in unique(available_data$data_type)) {
     data_type_subset = available_data$data_type == data_type
-    
+
     if(data_type == 'feats') cat('Dim reduction on features:')
     if(data_type == 'cells') cat('Dim reduction on cells:')
 
     cat('\n',
         '-------------------------',
         '\n\n\n')
-    
+
     for(spat_unit in unique(available_data[data_type_subset,]$spat_unit)) {
       spat_unit_subset = available_data$spat_unit == spat_unit
-      
+
       cat('Spatial unit ', spat_unit, ': \n\n')
-      
+
       for(feat_type in unique(available_data[data_type_subset & spat_unit_subset,]$feat_type)) {
         feat_type_subset = available_data$feat_type == feat_type
-        
+
         cat('--> Feature type ', feat_type, ': \n\n')
-        
+
         for(dim_type in unique(available_data[data_type_subset & spat_unit_subset & feat_type_subset,]$dim_type)) {
           dim_type_subset = available_data$dim_type == dim_type
-          
+
           cat('----> Dim reduction type, ', dim_type, ': \n\n')
-          
+
           for(name in available_data[data_type_subset & spat_unit_subset & feat_type_subset & dim_type_subset,]$name) {
-            
+
             cat('------> ', name, 'coordinates: \n')
             print(gobject@dimension_reduction[[data_type]][[spat_unit]][[feat_type]][[dim_type]][[name]][['coordinates']][1:nrows, 1:ncols])
             cat('\n')
-            
+
           }
         }
       }
@@ -1384,15 +1395,25 @@ list_spatial_locations_names = function(gobject,
 #' @param spat_unit spatial unit
 #' @return names and locations of available data.table as dataframe
 list_spatial_enrichments = function(gobject,
-                                    spat_unit = NULL) {
+                                    spat_unit = NULL,
+                                    feat_type = NULL) {
 
-  availableSpatEnr = data.frame()
+  availableSpatEnr = data.table()
+
   for(spatial_unit in names(gobject@spatial_enrichment)) {
-    for(spatenr_name in names(gobject@spatial_enrichment[[spatial_unit]])) {
-      availableSpatEnr = rbind(availableSpatEnr,
-                               list(spat_unit = spatial_unit,
-                                    name = spatenr_name))
+
+    for(feature_type in names(gobject@spatial_enrichment[[spatial_unit]])) {
+
+      for(spatenr_name in names(gobject@spatial_enrichment[[spatial_unit]][[feature_type]])) {
+
+        availableSpatEnr = rbind(availableSpatEnr,
+                                 list(spat_unit = spatial_unit,
+                                      feat_type = feature_type,
+                                      name = spatenr_name))
+      }
+
     }
+
   }
 
   # check if a specific category is desired
@@ -1413,11 +1434,13 @@ list_spatial_enrichments = function(gobject,
 #' @description returns the available spatial enrichment names for a given spatial unit
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @return vector of names for available spatial enrichments
 list_spatial_enrichments_names = function(gobject,
-                                          spat_unit) {
+                                          spat_unit,
+                                          feat_type) {
 
-  spatenr_names = names(gobject@spatial_enrichment[[spat_unit]])
+  spatenr_names = names(gobject@spatial_enrichment[[spat_unit]][[feat_type]])
 
   return(spatenr_names)
 }

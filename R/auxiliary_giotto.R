@@ -575,15 +575,25 @@ subset_nearest_network = function(gobject,
 #' @keywords internal
 subset_spatial_enrichment = function(gobject,
                                      spat_unit,
+                                     feat_type,
                                      filter_bool_cells) {
 
   if(!is.null(gobject@spatial_enrichment)) {
     for(spat_unit_name in names(gobject@spatial_enrichment)) {
-      if(spat_unit_name == spat_unit) {
-        for(spat_enrich_name in names(gobject@spatial_enrichment[[spat_unit_name]])) {
-          gobject@spatial_enrichment[[spat_unit_name]][[spat_enrich_name]] = gobject@spatial_enrichment[[spat_unit_name]][[spat_enrich_name]][filter_bool_cells]
+
+      for(feat_type_name in names(gobject@spatial_enrichment[[spat_unit_name]])) {
+
+        if(spat_unit_name == spat_unit & feat_type_name == feat_type) {
+          for(spat_enrich_name in names(gobject@spatial_enrichment[[spat_unit_name]][[feat_type_name]])) {
+
+            gobject@spatial_enrichment[[spat_unit_name]][[feat_type_name]][[spat_enrich_name]] = gobject@spatial_enrichment[[spat_unit_name]][[feat_type_name]][[spat_enrich_name]][filter_bool_cells]
+
+          }
         }
+
       }
+
+
     }
   }
 
@@ -946,6 +956,7 @@ subsetGiotto <- function(gobject,
   ## spatial enrichment ##
   gobject = subset_spatial_enrichment(gobject = gobject,
                                       spat_unit = spat_unit,
+                                      feat_type = feat_type,
                                       filter_bool_cells = filter_bool_cells)
 
   if(verbose == TRUE) cat('completed 10: subsetted spatial enrichment results \n')
@@ -3234,7 +3245,7 @@ combineMetadata = function(gobject,
 
 
   # cell/spot enrichment data
-  available_enr = names(gobject@spatial_enrichment[[spat_unit]])
+  available_enr = list_spatial_enrichments_names(gobject = gobject, spat_unit = spat_unit, feat_type = feat_type)
 
   # output warning if not found
   not_available = spat_enr_names[!spat_enr_names %in% available_enr]
@@ -3251,7 +3262,12 @@ combineMetadata = function(gobject,
     for(spatenr in 1:length(spat_enr_names)) {
 
       spatenr_name = spat_enr_names[spatenr]
-      temp_spat = data.table::copy(gobject@spatial_enrichment[[spat_unit]][[spatenr_name]])
+
+      temp_spat = get_spatial_enrichment(gobject = gobject,
+                                         spat_unit = spat_unit,
+                                         feat_type = feat_type,
+                                         enrichm_name = spatenr_name)
+
       temp_spat[, 'cell_ID' := NULL]
 
       result_list[[spatenr]] = temp_spat
@@ -3346,7 +3362,7 @@ createMetafeats = function(gobject,
   if(return_gobject == TRUE) {
 
     ## enrichment scores
-    spenr_names = names(gobject@spatial_enrichment)
+    spenr_names = list_spatial_enrichments_names(gobject = gobject, spat_unit = spat_unit, feat_type = feat_type)
 
     if(name %in% spenr_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
@@ -3358,7 +3374,6 @@ createMetafeats = function(gobject,
                                      feat_type = feat_type,
                                      enrichm_name = name,
                                      spatenrichment = res_final)
-    #gobject@spatial_enrichment[[spat_unit]][[name]] = res_final
 
     ## update parameters used ##
     gobject = update_giotto_params(gobject, description = '_create_metafeat')

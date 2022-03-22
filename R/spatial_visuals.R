@@ -3513,6 +3513,7 @@ spatDeconvPlot = function(gobject,
   ## deconvolution results
   spatial_enrichment = get_spatial_enrichment(gobject = gobject,
                                               spat_unit = spat_unit,
+                                              feat_type = feat_type,
                                               enrichm_name = deconv_name)
 
 
