@@ -14,7 +14,7 @@ list_spatial_networks(gobject, spat_unit = NULL, feat_type = NULL)
 \item{feat_type}{feature type}
 }
 \value{
-dataframe of names and locations of available spatial networks. col order matters
+data.table of names and locations of available spatial networks. col order matters
 }
 \description{
 return the available spatial networks that are attached to the Giotto object
