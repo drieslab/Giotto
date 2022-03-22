@@ -1024,55 +1024,45 @@ showGiottoDimRed = function(gobject,
                             nrows = 3,
                             ncols = 2) {
 
+  available_data = list_dim_reductions(gobject)
+  if(is.null(available_data)) cat('No dimensional reductions available')
+  
+  for(data_type in unique(available_data$data_type)) {
+    data_type_subset = available_data$data_type == data_type
+    
+    if(data_type == 'feats') cat('Dim reduction on features:')
+    if(data_type == 'cells') cat('Dim reduction on cells:')
 
-  # for features
-  cat('Dim reduction on features:',
-      '\n',
-      '-------------------------',
-      '\n\n\n')
-
-  for(dim_type in names(gobject@dimension_reduction[['feats']])) {
-
-    cat('Dim reduction ', dim_type, ': \n\n')
-
-    for(sub_type in names(gobject@dimension_reduction[['feats']][[dim_type]])) {
-
-      cat('---> ', sub_type, 'coordinates: \n')
-
-      print(gobject@dimension_reduction[['feats']][[dim_type]][[sub_type]][['coordinates']][1:nrows, 1:ncols])
-      cat('\n')
-    }
-
-  }
-
-  # for cells
-  cat('Dim reduction on cells:',
-      '\n',
-      '----------------------',
-      '\n\n\n')
-
-  for(spat_unit in names(gobject@dimension_reduction[['cells']])) {
-
-    cat('Spatial unit ', spat_unit, ': \n\n')
-
-    for(dim_type in names(gobject@dimension_reduction[['cells']][[spat_unit]])) {
-
-      cat('Dim reduction ', dim_type, ': \n\n')
-
-      for(sub_type in names(gobject@dimension_reduction[['cells']][[spat_unit]][[dim_type]])) {
-
-        cat('---> ', sub_type, 'coordinates: \n')
-
-        print(gobject@dimension_reduction[['cells']][[spat_unit]][[dim_type]][[sub_type]][['coordinates']][1:nrows, 1:ncols])
-        cat('\n')
+    cat('\n',
+        '-------------------------',
+        '\n\n\n')
+    
+    for(spat_unit in unique(available_data[data_type_subset,]$spat_unit)) {
+      spat_unit_subset = available_data$spat_unit == spat_unit
+      
+      cat('Spatial unit ', spat_unit, ': \n\n')
+      
+      for(feat_type in unique(available_data[data_type_subset & spat_unit_subset,]$feat_type)) {
+        feat_type_subset = available_data$feat_type == feat_type
+        
+        cat('--> Feature type ', feat_type, ': \n\n')
+        
+        for(dim_type in unique(available_data[data_type_subset & spat_unit_subset & feat_type_subset,]$dim_type)) {
+          dim_type_subset = available_data$dim_type == dim_type
+          
+          cat('----> Dim reduction type, ', dim_type, ': \n\n')
+          
+          for(name in available_data[data_type_subset & spat_unit_subset & feat_type_subset & dim_type_subset,]$name) {
+            
+            cat('------> ', name, 'coordinates: \n')
+            print(gobject@dimension_reduction[[data_type]][[spat_unit]][[feat_type]][[dim_type]][[name]][['coordinates']][1:nrows, 1:ncols])
+            cat('\n')
+            
+          }
+        }
       }
-
     }
-
   }
-
-
-
 }
 
 
@@ -1458,10 +1448,10 @@ list_dim_reductions = function(gobject,
         for(dimType in names(gobject@dimension_reduction[[dataType]][[spatUnit]][[featType]])) {
           for(subType in names(gobject@dimension_reduction[[dataType]][[spatUnit]][[featType]][[dimType]])) {
             availableDimRed = rbind(availableDimRed,
-                                    list(approach = dataType,
+                                    list(data_type = dataType,
                                          spat_unit = spatUnit,
                                          feat_type = featType,
-                                         reduction_method = dimType,
+                                         dim_type = dimType,
                                          name = subType))
           }
         }
@@ -1470,10 +1460,10 @@ list_dim_reductions = function(gobject,
   }
 
   # check if a specific category is desired
-  if(!is.null(data_type)) data_type_subset = availableDimRed$approach == data_type else data_type_subset = TRUE
+  if(!is.null(data_type)) data_type_subset = availableDimRed$data_type == data_type else data_type_subset = TRUE
   if(!is.null(spat_unit)) spat_unit_subset = availableDimRed$spat_unit == spat_unit else spat_unit_subset = TRUE
   if(!is.null(feat_type)) feat_type_subset = availableDimRed$feat_type == feat_type else feat_type_subset = TRUE
-  if(!is.null(dim_type)) dimred_type_subset = availableDimRed$reduction_method == dim_type else dimred_type_subset = TRUE
+  if(!is.null(dim_type)) dimred_type_subset = availableDimRed$dim_type == dim_type else dimred_type_subset = TRUE
 
   availableDimRed = availableDimRed[data_type_subset & spat_unit_subset & feat_type_subset & dimred_type_subset,]
 
