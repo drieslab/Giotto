@@ -1058,6 +1058,19 @@ subsetGiottoLocs = function(gobject,
   if(!is.null(z_min) && !is.null(z_max)) if(z_min > z_max) spatError = append(spatError, 'z_max must be larger than z_min \n')
   if(!is.null(spatError)) stop(spatError)
 
+
+  # function requires spat_loc_name
+  if(is.null(spat_loc_name)) {
+    if(!is.null(gobject@spatial_locs)) {
+      spat_loc_name = names(gobject@spatial_locs[[spat_unit]])[[1]]
+      # cat('No spatial locations have been selected, the first one -',spat_loc_name, '- will be used \n')
+    } else {
+      spat_loc_name = NULL
+      cat('No spatial locations have been found \n')
+      return(NULL)
+    }
+  }
+
   comb_metadata = combineMetadata(gobject = gobject,
                                   spat_unit = spat_unit,
                                   feat_type = feat_type,

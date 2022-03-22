@@ -4134,7 +4134,17 @@ spatFeatPlot2D_single <- function(gobject,
 
 
   ## extract cell locations
-  print(spat_loc_name)
+  if(is.null(spat_loc_name)) {
+    if(!is.null(gobject@spatial_locs)) {
+      spat_loc_name = names(gobject@spatial_locs[[spat_unit]])[[1]]
+      # cat('No spatial locations have been selected, the first one -',spat_loc_name, '- will be used \n')
+    } else {
+      spat_loc_name = NULL
+      cat('No spatial locations have been found \n')
+      return(NULL)
+    }
+  }
+
   cell_locations  = get_spatial_locations(gobject,
                                           spat_unit = spat_unit,
                                           spat_loc_name = spat_loc_name)
