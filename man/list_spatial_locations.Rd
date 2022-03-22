@@ -12,7 +12,7 @@ list_spatial_locations(gobject, spat_unit = NULL)
 \item{spat_unit}{spatial unit}
 }
 \value{
-names and locations of available data.table as dataframe
+names and locations of available data.table as data.table
 }
 \description{
 shows the available spatial locations

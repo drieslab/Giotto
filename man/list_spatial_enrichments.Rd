@@ -4,7 +4,7 @@
 \alias{list_spatial_enrichments}
 \title{list_spatial_enrichments}
 \usage{
-list_spatial_enrichments(gobject, spat_unit = NULL)
+list_spatial_enrichments(gobject, spat_unit = NULL, feat_type = NULL)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -12,7 +12,7 @@ list_spatial_enrichments(gobject, spat_unit = NULL)
 \item{spat_unit}{spatial unit}
 }
 \value{
-names and locations of available data.table as dataframe
+names and locations of available data as data.table
 }
 \description{
 return the available spatial enrichment results
