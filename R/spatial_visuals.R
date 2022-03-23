@@ -2591,6 +2591,7 @@ plot_spat_scatterpie_layer_ggplot = function(ggobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
+#' @param verbose be verbose
 #' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
@@ -2653,8 +2654,14 @@ spatPlot2D_single = function(gobject,
                              show_plot = NA,
                              return_plot = NA,
                              save_plot = NA,
+                             verbose = FALSE,
                              save_param = list(),
                              default_save_name = 'spatPlot2D_single') {
+
+
+  if(verbose == TRUE) {
+    cat('\n verbose == TRUE \n')
+  }
 
   # Check params
   if(!is.null(image_name) && !is.null(largeImage_name)) stop('Only one type of image can be used at a time')
@@ -2737,7 +2744,8 @@ spatPlot2D_single = function(gobject,
   ## extract spatial grid
   if(show_grid == TRUE) {
     spatial_grid = get_spatialGrid(gobject = gobject,
-                                      name = spatial_grid_name)
+                                   spat_unit = spat_unit,
+                                   name = spatial_grid_name)
   } else {
     spatial_grid = NULL
   }
@@ -2804,6 +2812,16 @@ spatPlot2D_single = function(gobject,
 
   ### create 2D plot with ggplot ###
   #cat('create 2D plot with ggplot \n')
+
+  if(verbose == TRUE) {
+    cat('Data table with selected information (e.g. cells): \n')
+    print(cell_locations_metadata_selected[1:5,])
+
+    cat('Data table with non-selected information (e.g. cells): \n')
+    print(cell_locations_metadata_other[1:5,])
+  }
+
+
 
 
   pl = ggplot2::ggplot()

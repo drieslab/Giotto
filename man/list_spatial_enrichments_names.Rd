@@ -4,12 +4,14 @@
 \alias{list_spatial_enrichments_names}
 \title{list_spatial_enrichments_names}
 \usage{
-list_spatial_enrichments_names(gobject, spat_unit)
+list_spatial_enrichments_names(gobject, spat_unit, feat_type)
 }
 \arguments{
 \item{gobject}{giotto object}
 
 \item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 }
 \value{
 vector of names for available spatial enrichments
