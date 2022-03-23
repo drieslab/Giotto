@@ -12,7 +12,7 @@ list_spatial_grids(gobject, spat_unit = NULL)
 \item{spat_unit}{spatial unit}
 }
 \value{
-dataframe of names and locations of available spatial grids. col order matters
+data.table of names and locations of available spatial grids. col order matters
 }
 \description{
 return the available spatial grids that are attached to the Giotto object

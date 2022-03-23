@@ -12,7 +12,7 @@ list_spatial_enrichments(gobject, spat_unit = NULL, feat_type = NULL)
 \item{spat_unit}{spatial unit}
 }
 \value{
-names and locations of available data.table as dataframe
+names and locations of available data as data.table
 }
 \description{
 return the available spatial enrichment results

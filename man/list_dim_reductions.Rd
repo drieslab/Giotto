@@ -24,7 +24,7 @@ list_dim_reductions(
 \item{dim_type}{dimensional reduction method}
 }
 \value{
-names and locations of dimension reduction as a dataframe
+names and locations of dimension reduction as a data.table
 }
 \description{
 return the available dimension reductions

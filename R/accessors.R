@@ -1292,12 +1292,12 @@ list_giotto_data = function(gobject = NULL,
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
-#' @return names and locations of available matrices as dataframe. col order matters.
+#' @return names and locations of available matrices as data.table. col order matters.
 list_expression = function(gobject,
                            spat_unit = NULL,
                            feat_type = NULL) {
 
-  availableExpr = data.frame()
+  availableExpr = data.table()
   for(spatial_unit in names(gobject@expression)) {
     for(feature_type in names(gobject@expression[[spatial_unit]])) {
       for(mat_i in names(gobject@expression[[spatial_unit]][[feature_type]])) {
@@ -1318,7 +1318,7 @@ list_expression = function(gobject,
     availableExpr = availableExpr[availableExpr$feat_type == feat_type,]
   }
 
-  # return dataframe (NULL if empty)
+  # return data.table (NULL if empty)
   if(nrow(availableExpr) == 0) return(NULL)
     else return(availableExpr)
 }
@@ -1348,11 +1348,11 @@ list_expression_names = function(gobject,
 #' @description shows the available spatial locations
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
-#' @return names and locations of available data.table as dataframe
+#' @return names and locations of available data.table as data.table
 list_spatial_locations = function(gobject,
                                   spat_unit = NULL) {
 
-  availableSpatLocs = data.frame()
+  availableSpatLocs = data.table()
   for(spatial_unit in names(gobject@spatial_locs)) {
     for(spatloc_name in names(gobject@spatial_locs[[spatial_unit]]))
       availableSpatLocs = rbind(availableSpatLocs,
@@ -1393,13 +1393,13 @@ list_spatial_locations_names = function(gobject,
 #' @description return the available spatial enrichment results
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
-#' @return names and locations of available data.table as dataframe
+#' @return names and locations of available data as data.table
 list_spatial_enrichments = function(gobject,
                                     spat_unit = NULL,
                                     feat_type = NULL) {
 
   availableSpatEnr = data.table()
-
+  
   for(spatial_unit in names(gobject@spatial_enrichment)) {
 
     for(feature_type in names(gobject@spatial_enrichment[[spatial_unit]])) {
@@ -1457,14 +1457,14 @@ list_spatial_enrichments_names = function(gobject,
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
 #' @param dim_type dimensional reduction method
-#' @return names and locations of dimension reduction as a dataframe
+#' @return names and locations of dimension reduction as a data.table
 list_dim_reductions = function(gobject,
                                data_type = NULL,
                                spat_unit = NULL,
                                feat_type = NULL,
                                dim_type = NULL) {
 
-  availableDimRed = data.frame()
+  availableDimRed = data.table()
   for(dataType in names(gobject@dimension_reduction)) {
     for(spatUnit in names(gobject@dimension_reduction[[dataType]])) {
       for(featType in names(gobject@dimension_reduction[[dataType]][[spatUnit]])) {
@@ -1529,7 +1529,7 @@ list_dim_reductions_names = function(gobject,
 #' @return names of available spatial polygon information
 list_spatial_info = function(gobject) {
 
-  availableSpatInfo = data.frame()
+  availableSpatInfo = data.table()
   for(info in names(gobject@spatial_info)) {
     availableSpatInfo = rbind(availableSpatInfo,
                               list(spat_info = info))
@@ -1563,7 +1563,7 @@ list_spatial_info_names = function(gobject) {
 #' @return names of available feature information
 list_feature_info = function(gobject) {
 
-  availableFeatInfo = data.frame()
+  availableFeatInfo = data.table()
   for(info in names(gobject@feat_info)) {
     availableFeatInfo = rbind(availableFeatInfo,
                               list(feat_info = info))
@@ -1594,12 +1594,12 @@ list_feature_info_names = function(gobject) {
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
-#' @return dataframe of names and locations of available spatial networks. col order matters
+#' @return data.table of names and locations of available spatial networks. col order matters
 list_spatial_networks = function(gobject,
                                  spat_unit = NULL,
                                  feat_type = NULL) {
 
-  availableSpatNetworks = data.frame()
+  availableSpatNetworks = data.table()
   for(spatial_unit in names(gobject@spatial_network)) {
     for(feature_type in names(gobject@spatial_network[[spatial_unit]])) {
       for(spat_network_name in names(gobject@spatial_network[[spatial_unit]][[feature_type]])) {
@@ -1649,11 +1649,11 @@ list_spatial_networks_names = function(gobject,
 #' @description return the available spatial grids that are attached to the Giotto object
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
-#' @return dataframe of names and locations of available spatial grids. col order matters
+#' @return data.table of names and locations of available spatial grids. col order matters
 list_spatial_grids = function(gobject,
                               spat_unit = NULL) {
 
-  availableSpatGrids = data.frame()
+  availableSpatGrids = data.table()
   for(spatial_unit in names(gobject@spatial_grid)) {
     for(grid_names in names(gobject@spatial_grid[[spatial_unit]])) {
       availableSpatGrids = rbind(availableSpatGrids,
