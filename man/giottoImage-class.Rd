@@ -29,6 +29,8 @@ automatically through a script adjust the image with the spatial data.
 
 \item{\code{resolution}}{spatial location units covered per pixel}
 
+\item{\code{file_path}}{file path to the image if given}
+
 \item{\code{OS_platform}}{Operating System to run Giotto analysis on}
 }}
 

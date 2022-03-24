@@ -61,6 +61,7 @@ spatPlot2D_single(
   show_plot = NA,
   return_plot = NA,
   save_plot = NA,
+  verbose = FALSE,
   save_param = list(),
   default_save_name = "spatPlot2D_single"
 )
@@ -173,6 +174,8 @@ spatPlot2D_single(
 \item{return_plot}{return ggplot object}
 
 \item{save_plot}{directly save the plot [boolean]}
+
+\item{verbose}{be verbose}
 
 \item{save_param}{list of saving parameters from \code{\link{all_plots_save_function}}}
 

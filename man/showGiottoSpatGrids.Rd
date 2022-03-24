@@ -4,20 +4,15 @@
 \alias{showGiottoSpatGrids}
 \title{showGiottoSpatGrids}
 \usage{
-showGiottoSpatGrids(
-  gobject,
-  feat_type = NULL,
-  spat_unit = NULL,
-  verbose = TRUE
-)
+showGiottoSpatGrids(gobject, nrows = 4)
 }
 \arguments{
-\item{gobject}{a giotto object}
+\item{gobject}{giotto object}
 
-\item{verbose}{verbosity of function#'}
+\item{nrows}{number of rows to print}
 }
 \value{
-vector
+prints name of available spatial grids
 }
 \description{
 Prints the available spatial grids that are attached to the Giotto object

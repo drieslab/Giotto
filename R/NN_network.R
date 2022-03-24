@@ -108,9 +108,17 @@ createNearestNetwork <- function(gobject,
   if(!is.null(dim_reduction_to_use)) {
 
     ## check if reduction exists
-    check = gobject@dimension_reduction[['cells']][[spat_unit]][[dim_reduction_to_use]][[dim_reduction_name]]
-    if(is.null(check)) stop('dimension reduction does not exist, check if you did ', dim_reduction_to_use,
-                            ' and if ', dim_reduction_name, ' was the name used')
+    dim_red_names = list_dim_reductions_names(gobject = gobject, data_type = 'cells',
+                                              spat_unit = spat_unit, feat_type = feat_type,
+                                              dim_type = dim_reduction_to_use)
+
+    if(!dim_reduction_name %in% dim_red_names) {
+      stop('\n dimension reduction: ', dim_reduction_to_use, ' or dimension reduction name: ',dim_reduction_name,' is not available \n')
+    }
+
+    #check = gobject@dimension_reduction[['cells']][[spat_unit]][[dim_reduction_to_use]][[dim_reduction_name]]
+    #if(is.null(check)) stop('dimension reduction does not exist, check if you did ', dim_reduction_to_use,
+    #                        ' and if ', dim_reduction_name, ' was the name used')
 
     # use only available dimensions if dimensions < dimensions_to_use
 

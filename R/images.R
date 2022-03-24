@@ -11,6 +11,7 @@
 #' @slot boundaries x and y coordinate adjustments (default to 0)
 #' @slot scale_factor image scaling relative to spatial locations
 #' @slot resolution spatial location units covered per pixel
+#' @slot file_path file path to the image if given
 #' @slot OS_platform Operating System to run Giotto analysis on
 #' @details
 #' [\strong{mg_object}] Core object is any image that can be read by the magick package
@@ -30,6 +31,7 @@ giottoImage <- setClass(
     boundaries = "ANY",
     scale_factor = "ANY",
     resolution = "ANY",
+    file_path = "ANY",
     OS_platform = "ANY"
   ),
 
@@ -40,6 +42,7 @@ giottoImage <- setClass(
     boundaries = NULL,
     scale_factor = NULL,
     resolution = NULL,
+    file_path = NULL,
     OS_platform = NULL
   )
 )
@@ -84,6 +87,9 @@ setMethod(
 
     cat("\n Resolution: \n")
     print(object@resolution)
+    
+    cat("\n File Path: \n")
+    print(object@file_path)
 
     # print(object@mg_object)
 
@@ -98,12 +104,14 @@ setMethod(
 #' @keywords giotto, object, image
 #' @slot name name of large Giotto image
 #' @slot raster_object terra raster object
+#' @slot extent tracks the extent of the raster object. Note that most processes should rely on the extent of the raster object instead of this.
 #' @slot overall_extent terra extent object covering the original extent of image
 #' @slot scale_factor image scaling relative to spatial locations
 #' @slot resolution spatial location units covered per pixel
 #' @slot max_intensity value to set as maximum intensity in color scaling
 #' @slot min_intensity minimum value found
 #' @slot is_int values are integers
+#' @slot file_path file path to the image if given
 #' @slot OS_platform Operating System to run Giotto analysis on
 #' @export
 giottoLargeImage <- setClass(
@@ -112,24 +120,28 @@ giottoLargeImage <- setClass(
   slots = c(
     name = "ANY",
     raster_object = "ANY",
+    extent = "ANY",
     overall_extent = "ANY",
     scale_factor = "ANY",
     resolution = "ANY",
     max_intensity = "ANY",
     min_intensity = "ANY",
     is_int = "ANY",
+    file_path = "ANY",
     OS_platform = "ANY"
   ),
 
   prototype = list(
     name = NULL,
     raster_object = NULL,
+    extent = NULL,
     overall_extent = NULL,
     scale_factor = NULL,
     resolution = NULL,
     max_intensity = NULL,
     min_intensity = NULL,
     is_int = NULL,
+    file_path = NULL,
     OS_platform = NULL
   )
 )
@@ -162,9 +174,11 @@ setMethod(
 
     cat('\n Estimated maximum intensity is: ', object@max_intensity, ' \n',
         'Estimated minimum intensity is: ', object@min_intensity, ' \n')
-
+    
     if(object@is_int == TRUE) cat('Values are integers')
     if(object@is_int == FALSE) cat('Values are floating point')
+    
+    cat('\n File path is: ', object@file_path, '\n')
 
   }
 )
@@ -242,12 +256,14 @@ createGiottoImage = function(gobject = NULL,
                         boundaries = NULL,
                         scale_factor = NULL,
                         resolution = NULL,
+                        file_path = NULL,
                         OS_platform = .Platform[['OS.type']])
 
 
   ## 1.a. check magick image object
   if(!methods::is(mg_object, 'magick-image')) {
     if(file.exists(mg_object)) {
+      g_image@file_path = mg_object
       mg_object = try(magick::image_read(mg_object))
       if(class(mg_object) == 'try-error') {
         stop(mg_object, ' can not be read by magick::image_read() \n')
@@ -288,15 +304,7 @@ createGiottoImage = function(gobject = NULL,
   # If do_manual_adj == TRUE, bypass followup automatic boundary value generation
   if(!is.null(gobject)) {
 
-    # Set spat_unit
-    spat_unit = set_default_spat_unit(gobject = gobject,
-                                      spat_unit = spat_unit)
-
-    # Get spatial locations
-    if(!is.null(gobject@spatial_locs)) {
-      spat_loc_name = names(gobject@spatial_locs[[spat_unit]])[[1]]
-    }
-
+    # Get spatial locations (or automatically take first available)
     spatlocs = get_spatial_locations(gobject = gobject,
                                      spat_unit = spat_unit,
                                      spat_loc_name = spat_loc_name)
@@ -450,12 +458,14 @@ createGiottoLargeImage = function(raster_object,
                               overall_extent = NULL,
                               scale_factor = NULL,
                               resolution = NULL,
+                              file_path = NULL,
                               OS_platform = .Platform[['OS.type']])
 
 
   ## 1. check raster object and load as SpatRaster if necessary
   if(!methods::is(raster_object, 'SpatRaster')) {
     if(file.exists(raster_object)) {
+      g_imageL@file_path = raster_object
       raster_object = try(suppressWarnings(terra::rast(x = raster_object)))
       if(class(raster_object) == 'try-error') {
         stop(raster_object, ' can not be read by terra::rast() \n')
@@ -555,12 +565,75 @@ createGiottoLargeImage = function(raster_object,
 
 
   ## 6. extent object
-  g_imageL@overall_extent = terra::ext(raster_object)
+  g_imageL@extent = g_imageL@overall_extent = terra::ext(raster_object)
 
   ## 7. return image object
   return(g_imageL)
 }
 
+
+#' @title createGiottoLargeImageList
+#' @name createGiottoLargeImageList
+#' @description Creates a list of large giotto images that can be added to a Giotto object. Generates deep copy of SpatRaster
+#' @param raster_objects vector of image paths or terra SpatRaster image objects
+#' @param names vector of names for the images
+#' @param negative_y Map image to negative y spatial values if TRUE. Meaning that origin is in upper left instead of lower left.
+#' @param extent SpatExtent object to assign spatial extent. Takes priority unless use_rast_ext is TRUE.
+#' @param use_rast_extent Use extent from input raster object
+#' @param image_transformations vector of sequential image transformations - under construction
+#' @param xmax_adj adjustment of the maximum x-value to align the image
+#' @param xmin_adj adjustment of the minimum x-value to align the image
+#' @param ymax_adj adjustment of the maximum y-value to align the image
+#' @param ymin_adj adjustment of the minimum y-value to align the image
+#' @param scale_factor scaling of image dimensions relative to spatial coordinates
+#' @param verbose be verbose
+#' @details See \code{\link{createGiottoLargeImage}}
+#' @return a list with giottoLargeImage objects
+#' @export
+createGiottoLargeImageList = function(raster_objects,
+                                      names = 'image',
+                                      negative_y = TRUE,
+                                      extent = NULL,
+                                      use_rast_ext = FALSE,
+                                      image_transformations = NULL,
+                                      xmax_bound = NULL,
+                                      xmin_bound = NULL,
+                                      ymax_bound = NULL,
+                                      ymin_bound = NULL,
+                                      scale_factor = 1,
+                                      verbose = TRUE) {
+
+  l_images = length(raster_objects)
+  l_image_names = length(unique(names))
+
+  if(l_image_names != l_image_names) {
+    stop('length of raster_objects and unique names must be the same')
+  }
+
+  result_list = list()
+
+  for(i in 1:l_images) {
+
+    image_res = createGiottoLargeImage(raster_object = raster_objects[[i]],
+                                      name = names[[i]],
+                                      negative_y = negative_y,
+                                      extent = extent,
+                                      use_rast_ext = use_rast_ext,
+                                      image_transformations = image_transformations,
+                                      xmax_bound = xmax_bound,
+                                      xmin_bound = xmin_bound,
+                                      ymax_bound = ymax_bound,
+                                      ymin_bound = ymin_bound,
+                                      scale_factor = scale_factor,
+                                      verbose = verbose)
+
+    result_list[[i]] = image_res
+
+  }
+
+  return(result_list)
+
+}
 
 # giottoImage or magick tools ####
 
@@ -791,7 +864,7 @@ addGiottoImageMG = function(gobject,
 
   if(is.null(spat_loc_name)) {
     if(!is.null(gobject@spatial_locs)) {
-      spat_loc_name = names(gobject@spatial_locs[[spat_unit]])[[1]]
+      spat_loc_name = list_spatial_locations(gobject = gobject, spat_unit = spat_unit)[1,]
     } else {
       spat_loc_name = NULL
       cat('No spatial locations have been found \n')
@@ -837,6 +910,7 @@ addGiottoImageMG = function(gobject,
       if(sum(im@boundaries == c(0,0,0,0)) == 4 && sum(im@minmax == c(10,0,10,0)) == 4) {
         if(!is.null(spat_loc_name)) { # A check for the first available spatloc was already done
           spatlocs = get_spatial_locations(gobject = gobject,
+                                           spat_unit = spat_unit,
                                            spat_loc_name = spat_loc_name)
 
           #Find spatial minmax values
@@ -1411,7 +1485,8 @@ cropGiottoLargeImage = function(gobject = NULL,
   ## 3. Return a cropped giottoLargeImage
   giottoLargeImage@name = crop_name
   giottoLargeImage@raster_object = raster_object
-  # The only things updated are the raster object itself and the name.
+  giottoLargeImage@extent = terra::ext(raster_object)
+  # The only things updated are the raster object itself, the name, and the extent tracking slot.
   # The overall_extent slot must NOT be updated since it records the original extent
 
   return(giottoLargeImage)
@@ -1945,7 +2020,9 @@ updateGiottoLargeImage = function(gobject = NULL,
                                          xmax_final,
                                          ymin_final,
                                          ymax_final)
-
+  
+  # Update the extent tracking slot
+  g_imageL@extent = terra::ext(g_imageL@raster_object)
 
   #5. Update the scalefactors for x and y
   g_imageL@resolution = terra::res(g_imageL@raster_object) #(x,y)
@@ -2358,7 +2435,55 @@ updateGiottoImage = function(gobject = NULL,
 
 
 
+#' @title reconnectGiottoImage
+#' @name reconnectGiottoImage
+#' @description reconnect dead image pointers using filepaths. Inputs can either be given as both image name and filepath args or as a named list through filepath argument alone.
+#' @param gobject giotto object
+#' @param image_name names of images to reconnect
+#' @param largeImage_name name of large images to reconnect
+#' @param image_path named list of paths to images to reconnect to giottoImages
+#' @param largeImage_path named list of paths to images to reconnect to giottoLargeImages
+#' @return a giotto object with updated image pointer
+reconnectGiottoImage = function(gobject,
+                                image_name = NULL,
+                                largeImage_name = NULL,
+                                image_path = NULL,
+                                largeImage_path = NULL) {
+  
+  # 1. Check params
+  if(is.null(gobject)) stop('Giotto object containing the giottoImages or giottoLargeImages to reconnect must be given')
+  if(is.null(image_path) & is.null(largeImage_path)) stop('Named list(s) of paths to images must be given')
+  
+  # Find names of image objects in gobject
+  availableImgs = list_image_names(gobject = gobject)
+  
+  # Determine if image names are given
+  if(is.null(image_name)) image_name = names(image_path)
+  if(is.null(largeImage_name)) largeImage_name = names(largeImage_path)
+  if(is.null(image_name) | is.null(largeImage_name)) stop('Names of images or largeImages to be reconnected must be given')
+  if(length(image_name) != length(image_path) | length(largeImage_name) != length(largeImage_path)) stop('Names AND filepaths for each image object to be reconnected must be given')
+  if(!all(image_name %in% availableImgs$images) | !all(largeImage_name %in% availableImgs$largeImages)) stop('names given to image_name and largeImage_name arguments must match those in the gobject')
+  
+  # 2. Load new image pointer and update
+  if(!is.null(image_name)) {
+    
+    for(image_i in 1:length(image_name)) {
+      gobject@images[[image_name[image_i]]]@mg_object = magick::image_read(path = image_path[image_i])
+    }
 
+  }
+  
+  if(!is.null(largeImage_name)) {
+    
+    for(large_image_i in 1:length(largeImage_name)) {
+      gobject@largeImages[[largeImage_name[large_image_i]]]@raster_object = terra::rast(x = largeImage_path[large_image_i])
+      # Load raster object extent from extent tracker slot
+      terra::ext(gobject@largeImages[[largeImage_name[large_image_i]]]@raster_object) = gobject@largeImages[[largeImage_name[large_image_i]]]@extent
+    }
+
+  }
+  return(gobject)
+}
 
 
 

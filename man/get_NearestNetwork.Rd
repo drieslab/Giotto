@@ -8,8 +8,8 @@ get_NearestNetwork(
   gobject,
   spat_unit = NULL,
   feat_type = NULL,
-  nn_network_to_use = "sNN",
-  network_name = "sNN.pca",
+  nn_network_to_use = NULL,
+  network_name = NULL,
   output = c("igraph", "data.table")
 )
 }

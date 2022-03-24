@@ -54,5 +54,6 @@ giotto object
 subsets Giotto object based on spatial locations
 }
 \details{
+Subsets a Giotto based on spatial locations and for one provided spatial unit
 if return_gobject = FALSE, then a filtered combined metadata data.table will be returned
 }

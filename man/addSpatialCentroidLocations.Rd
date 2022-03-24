@@ -9,7 +9,8 @@ addSpatialCentroidLocations(
   poly_info = "cell",
   feat_type = NULL,
   spat_loc_name = "raw",
-  return_gobject = TRUE
+  return_gobject = TRUE,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -22,11 +23,13 @@ addSpatialCentroidLocations(
 \item{spat_loc_name}{name to give to the created spatial locations}
 
 \item{return_gobject}{return giotto object (default: TRUE)}
+
+\item{verbose}{be verbose}
 }
 \value{
 
 }
 \description{
-Calculates the centroid locations for the giotto polygons
+Calculates the centroid locations for the polygons within one or more selected layers
 }
 \keyword{centroid}

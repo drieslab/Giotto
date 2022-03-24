@@ -75,7 +75,7 @@ doLeidenCluster = function(gobject,
                                      network_name = network_name,
                                      output = 'igraph')
 
-  print(igraph_object)
+  #print(igraph_object)
 
   ## select partition type
   partition_type = match.arg(partition_type,
@@ -121,7 +121,7 @@ doLeidenCluster = function(gobject,
   }
 
 
-  print(network_edge_dt)
+  #print(network_edge_dt)
 
   ## do python leiden clustering
   reticulate::py_set_seed(seed = seed_number, disable_hash_randomization = TRUE)
@@ -136,7 +136,7 @@ doLeidenCluster = function(gobject,
   ident_clusters_DT = data.table::data.table(cell_ID = pyth_leid_result[[1]], 'name' = pyth_leid_result[[2]])
   data.table::setnames(ident_clusters_DT, 'name', name)
 
-  print(ident_clusters_DT)
+  #print(ident_clusters_DT)
 
   ## add clusters to metadata ##
   if(return_gobject == TRUE) {

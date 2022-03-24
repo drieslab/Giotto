@@ -17,7 +17,7 @@ set_spatialGrid(
 
 \item{name}{name of spatial grid}
 
-\item{spatial_grid}{spatial grid}
+\item{spatial_grid}{spatial grid object}
 }
 \description{
 function to set a spatial grid

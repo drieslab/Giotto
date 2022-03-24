@@ -742,9 +742,18 @@ dimPlot2D_single <- function(gobject,
 
   ## dimension reduction ##
   # test if dimension reduction was performed
-  if(is.null(gobject@dimension_reduction$cells[[spat_unit]][[dim_reduction_to_use]][[dim_reduction_name]])) {
+
+  dim_red_names = list_dim_reductions_names(gobject = gobject, data_type = 'cells',
+                                            spat_unit = spat_unit, feat_type = feat_type,
+                                            dim_type = dim_reduction_to_use)
+
+  if(!dim_reduction_name %in% dim_red_names) {
     stop('\n dimension reduction: ', dim_reduction_to_use, ' or dimension reduction name: ',dim_reduction_name,' is not available \n')
   }
+
+  #if(is.null(gobject@dimension_reduction$cells[[spat_unit]][[feat_type]][[dim_reduction_to_use]][[dim_reduction_name]])) {
+  #  stop('\n dimension reduction: ', dim_reduction_to_use, ' or dimension reduction name: ',dim_reduction_name,' is not available \n')
+  #}
 
   dim_dfr = get_dimReduction(gobject = gobject,
                              spat_unit = spat_unit,
@@ -1571,6 +1580,9 @@ plot_spat_point_layer_ggplot = function(ggobject,
 
   ## first plot other non-selected cells
   if((!is.null(select_cells) | !is.null(select_cell_groups)) & show_other_cells == TRUE) {
+
+    #print('OTHER CELLS WILL BE PLOTTED')
+
     pl <- pl + ggplot2::geom_point(data = cell_locations_metadata_other,
                                    aes_string(x = sdimx, sdimy),
                                    color = other_cell_color,
@@ -2579,6 +2591,7 @@ plot_spat_scatterpie_layer_ggplot = function(ggobject,
 #' @param show_plot show plot
 #' @param return_plot return ggplot object
 #' @param save_plot directly save the plot [boolean]
+#' @param verbose be verbose
 #' @param save_param list of saving parameters from \code{\link{all_plots_save_function}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot
@@ -2641,8 +2654,14 @@ spatPlot2D_single = function(gobject,
                              show_plot = NA,
                              return_plot = NA,
                              save_plot = NA,
+                             verbose = FALSE,
                              save_param = list(),
                              default_save_name = 'spatPlot2D_single') {
+
+
+  if(verbose == TRUE) {
+    cat('\n verbose == TRUE \n')
+  }
 
   # Check params
   if(!is.null(image_name) && !is.null(largeImage_name)) stop('Only one type of image can be used at a time')
@@ -2725,13 +2744,26 @@ spatPlot2D_single = function(gobject,
   ## extract spatial grid
   if(show_grid == TRUE) {
     spatial_grid = get_spatialGrid(gobject = gobject,
-                                      name = spatial_grid_name)
+                                   spat_unit = spat_unit,
+                                   name = spatial_grid_name)
   } else {
     spatial_grid = NULL
   }
 
 
   ## get cell metadata
+
+  if(is.null(spat_loc_name)) {
+    if(!is.null(gobject@spatial_locs)) {
+      spat_loc_name = names(gobject@spatial_locs[[spat_unit]])[[1]]
+      # cat('No spatial locations have been selected, the first one -',spat_loc_name, '- will be used \n')
+    } else {
+      spat_loc_name = NULL
+      cat('No spatial locations have been found \n')
+      return(NULL)
+    }
+  }
+
   cell_metadata = combineMetadata(gobject = gobject,
                                   feat_type = feat_type,
                                   spat_unit = spat_unit,
@@ -2756,7 +2788,7 @@ spatPlot2D_single = function(gobject,
   if(!is.null(select_cells)) {
     cell_locations_metadata_other = cell_locations_metadata[!cell_locations_metadata$cell_ID %in% select_cells]
     cell_locations_metadata_selected = cell_locations_metadata[cell_locations_metadata$cell_ID %in% select_cells]
-    spatial_network <- spatial_network[spatial_network$to %in% select_cells & spatial_network$from %in% select_cells]
+    spatial_network = spatial_network[spatial_network$to %in% select_cells & spatial_network$from %in% select_cells]
 
     # if specific cells are selected
     # cell_locations_metadata = cell_locations_metadata_selected
@@ -2781,9 +2813,19 @@ spatPlot2D_single = function(gobject,
   ### create 2D plot with ggplot ###
   #cat('create 2D plot with ggplot \n')
 
+  if(verbose == TRUE) {
+    cat('Data table with selected information (e.g. cells): \n')
+    print(cell_locations_metadata_selected[1:5,])
 
-  pl <- ggplot2::ggplot()
-  pl <- pl + ggplot2::theme_bw()
+    cat('Data table with non-selected information (e.g. cells): \n')
+    print(cell_locations_metadata_other[1:5,])
+  }
+
+
+
+
+  pl = ggplot2::ggplot()
+  pl = pl + ggplot2::theme_bw()
 
   ## plot image ##
   if(show_image == TRUE & !is.null(gimage)) {
@@ -3489,6 +3531,7 @@ spatDeconvPlot = function(gobject,
   ## deconvolution results
   spatial_enrichment = get_spatial_enrichment(gobject = gobject,
                                               spat_unit = spat_unit,
+                                              feat_type = feat_type,
                                               enrichm_name = deconv_name)
 
 
@@ -4110,7 +4153,17 @@ spatFeatPlot2D_single <- function(gobject,
 
 
   ## extract cell locations
-  print(spat_loc_name)
+  if(is.null(spat_loc_name)) {
+    if(!is.null(gobject@spatial_locs)) {
+      spat_loc_name = names(gobject@spatial_locs[[spat_unit]])[[1]]
+      # cat('No spatial locations have been selected, the first one -',spat_loc_name, '- will be used \n')
+    } else {
+      spat_loc_name = NULL
+      cat('No spatial locations have been found \n')
+      return(NULL)
+    }
+  }
+
   cell_locations  = get_spatial_locations(gobject,
                                           spat_unit = spat_unit,
                                           spat_loc_name = spat_loc_name)
@@ -4562,11 +4615,11 @@ spatFeatPlot2D <- function(gobject,
   } else {
 
     # Set feat_type and spat_unit
-    feat_type = set_default_feat_type(gobject = gobject,
-                                      feat_type = feat_type)
     spat_unit = set_default_spat_unit(gobject = gobject,
-                                      spat_unit = spat_unit,
-                                      feat_type = feat_type)
+                                      spat_unit = spat_unit)
+    feat_type = set_default_feat_type(gobject = gobject,
+                                      feat_type = feat_type,
+                                      spat_unit = spat_unit)
 
     ## metadata
     comb_metadata = combineMetadata(gobject = gobject,
@@ -4937,11 +4990,10 @@ dimFeatPlot2D <- function(gobject,
 
   }
 
-
-
   ## visualize multiple plots ##
   ## 2D plots ##
   savelist <- list()
+
 
   for(feat in selected_feats) {
 
@@ -4978,8 +5030,6 @@ dimFeatPlot2D <- function(gobject,
         }
       }
     }
-
-
 
 
     ## point layer ##
@@ -5065,7 +5115,6 @@ dimFeatPlot2D <- function(gobject,
 
       }
     }
-
 
     ## add title
     pl <- pl + ggplot2::labs(x = 'coord x', y = 'coord y', title = feat)
@@ -9838,6 +9887,91 @@ spatDimGenePlot3D <- function(gobject,
   }
 
 }
+
+
+# ** ####
+# ** interactive plotting ####
+
+#' Select image regions by plotting interactive polygons
+#'
+#' @description Plot interactive polygons on an image and retrieve the polygons coordinates.
+#' @param x A `ggplot` or `rast` plot object to draw polygons on
+#' @param width,height An integer, defining the width/height in pixels.
+#' @param ... Graphical parameters passed on to `polygon` or `geom_point`.
+#'
+#' @return A `data.table` containing x,y coordinates from the plotted polygons.
+#'
+#' @import shiny miniUI data.table magrittr ggplot2
+#'
+#' @examples
+#' \dontrun{
+#' # Using a ggplot2 plot
+#' libray(ggplot2)
+#' df <- data.frame(x = 1:5, y = 1:5)
+#' my_plot <- ggplot(df, aes(x,y)) + geom_point()
+#' plotInteractivePolygons(my_plot)
+#'
+#' # Using a terra rast image
+#' library(terra)
+#' r = rast(system.file("ex/elev.tif", package="terra"))
+#' plotInteractivePolygons(r)
+#' plotInteractivePolygons(r, border = "red", lwd = 2)
+#'
+#' # Using an image contained in Giotto object
+#' library(Giotto)
+#' my_spatPlot <- spatPlot2D(gobject = my_giotto_object,
+#'                           show_image = TRUE,
+#'                           point_alpha = 0.75,
+#'                           save_plot = FALSE)
+#' plotInteractivePolygons(my_spatPlot, height = 500)
+#' my_polygon_coordinates <- plotInteractivePolygons(my_spatPlot, height = 500)
+#' }
+#' @export
+plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
+
+  ui <- miniPage(
+    gadgetTitleBar("Plot Interactive Polygons"),
+    miniContentPanel(
+      textInput("polygon_name", label = "Polygon name", value = "polygon 1"),
+      plotOutput("plot", click = "plot_click")
+    )
+  )
+
+  server <- function(input, output,session) {
+    output$plot <- renderPlot({
+      if ("ggplot" %in% class(x)) {
+        x +
+          geom_polygon(data = clicklist(), aes(x,y, color = name, fill = name),
+                       alpha = 0, ...) +
+          theme(legend.position = 'none')
+      } else {
+        terra::plot(x)
+        lapply(split(clicklist(), by = "name"), function (x) polygon(x$x, x$y, ...) )
+      }
+    }, res = 96, width = width, height = height)
+
+    clicklist <- reactiveVal(data.table(x = numeric(), y = numeric(), name = character())) # empty table
+    observeEvent(input$plot_click, {
+      click_x <- input$plot_click$x
+      click_y <- input$plot_click$y
+      polygon_name <- input$polygon_name
+      temp <- clicklist() # get the table of past clicks
+      temp <- rbind(temp,data.table(x = click_x, y = click_y, name = polygon_name))
+      clicklist(temp)
+    })
+
+
+    output$info <- renderTable(clicklist())
+
+    observeEvent(input$done, {
+      returnValue <- clicklist()
+      stopApp(returnValue)
+    })
+  }
+  runGadget(ui, server)
+}
+
+
 
 
 

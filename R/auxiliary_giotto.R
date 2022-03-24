@@ -377,8 +377,8 @@ subset_spatial_locations = function(gobject,
 
   for(spat_unit_name in names(gobject@spatial_locs)) {
     if(spat_unit_name == spat_unit) {
-      print(spat_unit)
-      print(spat_unit_name)
+      #print(spat_unit)
+      #print(spat_unit_name)
       for(spatlocname in names(gobject@spatial_locs[[spat_unit_name]])) {
         gobject@spatial_locs[[spat_unit_name]][[spatlocname]] = gobject@spatial_locs[[spat_unit_name]][[spatlocname]][filter_bool_cells]
       }
@@ -460,6 +460,7 @@ subset_spatial_network = function(gobject,
 #' @keywords internal
 subset_dimension_reduction = function(gobject,
                                       spat_unit,
+                                      feat_type,
                                       cells_to_keep) {
 
 
@@ -467,30 +468,37 @@ subset_dimension_reduction = function(gobject,
 
     for(spat_unit_name in names(gobject@dimension_reduction[['cells']])) {
 
-      if(spat_unit_name == spat_unit) {
 
-        # for pca
-        for(pca_name in names(gobject@dimension_reduction[['cells']][[spat_unit_name]][['pca']]) ) {
-          old_coord = gobject@dimension_reduction[['cells']][[spat_unit_name]][['pca']][[pca_name]][['coordinates']]
-          new_coord = old_coord[rownames(old_coord) %in% cells_to_keep,]
-          gobject@dimension_reduction[['cells']][[spat_unit_name]][['pca']][[pca_name]][['coordinates']] = new_coord
-        }
+      for(feat_type_name in names(gobject@dimension_reduction[['cells']][[spat_unit_name]])) {
 
-        # for umap
-        for(umap_name in names(gobject@dimension_reduction[['cells']][[spat_unit_name]][['umap']]) ) {
-          old_coord = gobject@dimension_reduction[['cells']][[spat_unit_name]][['umap']][[umap_name]][['coordinates']]
-          new_coord = old_coord[rownames(old_coord) %in% cells_to_keep,]
-          gobject@dimension_reduction[['cells']][[spat_unit_name]][['umap']][[umap_name]][['coordinates']] = new_coord
-        }
 
-        # for tsne
-        for(tsne_name in names(gobject@dimension_reduction[['cells']][[spat_unit_name]][['tsne']]) ) {
-          old_coord = gobject@dimension_reduction[['cells']][[spat_unit_name]][['tsne']][[tsne_name]][['coordinates']]
-          new_coord = old_coord[rownames(old_coord) %in% cells_to_keep,]
-          gobject@dimension_reduction[['cells']][[spat_unit_name]][['tsne']][[tsne_name]][['coordinates']] = new_coord
+        for(dim_method in names(gobject@dimension_reduction[['cells']][[spat_unit_name]][[feat_type_name]])) {
+
+          if(spat_unit_name == spat_unit & feat_type_name == feat_type) {
+
+            dim_red_names = list_dim_reductions_names(gobject = gobject, data_type = 'cells',
+                                                      spat_unit = spat_unit_name, feat_type = feat_type_name,
+                                                      dim_type = dim_method)
+
+            for(selected_name in dim_red_names) {
+
+              old_coord = get_dimReduction(gobject = gobject,
+                                           spat_unit = spat_unit_name,
+                                           feat_type = feat_type_name, reduction = 'cells',
+                                           reduction_method = dim_method, name = selected_name,
+                                           return_dimObj = FALSE)
+
+              new_coord = old_coord[rownames(old_coord) %in% cells_to_keep,]
+              gobject@dimension_reduction[['cells']][[spat_unit_name]][[feat_type_name]][[dim_method]][[selected_name]][['coordinates']] = new_coord
+
+            }
+
+          }
+
         }
 
       }
+
     }
 
   }
@@ -567,15 +575,25 @@ subset_nearest_network = function(gobject,
 #' @keywords internal
 subset_spatial_enrichment = function(gobject,
                                      spat_unit,
+                                     feat_type,
                                      filter_bool_cells) {
 
   if(!is.null(gobject@spatial_enrichment)) {
     for(spat_unit_name in names(gobject@spatial_enrichment)) {
-      if(spat_unit_name == spat_unit) {
-        for(spat_enrich_name in names(gobject@spatial_enrichment[[spat_unit_name]])) {
-          gobject@spatial_enrichment[[spat_unit_name]][[spat_enrich_name]] = gobject@spatial_enrichment[[spat_unit_name]][[spat_enrich_name]][filter_bool_cells]
+
+      for(feat_type_name in names(gobject@spatial_enrichment[[spat_unit_name]])) {
+
+        if(spat_unit_name == spat_unit & feat_type_name == feat_type) {
+          for(spat_enrich_name in names(gobject@spatial_enrichment[[spat_unit_name]][[feat_type_name]])) {
+
+            gobject@spatial_enrichment[[spat_unit_name]][[feat_type_name]][[spat_enrich_name]] = gobject@spatial_enrichment[[spat_unit_name]][[feat_type_name]][[spat_enrich_name]][filter_bool_cells]
+
+          }
         }
+
       }
+
+
     }
   }
 
@@ -645,15 +663,17 @@ subset_spatial_info_data = function(spatial_info,
   res_list = list()
   for(spat_info in names(spatial_info)) {
 
-    cat('for ', spat_info)
+    cat('for ', spat_info, '\n')
 
     if(spat_info %in% poly_info) {
+
+      cat('--> ', spat_info, ' found back in polygon layer: ', poly_info, '\n')
+
       spat_subset = subset_giotto_polygon_object(spatial_info[[spat_info]],
                                                  cell_ids = cell_ids,
                                                  feat_ids = feat_ids,
                                                  feat_type = feat_type)
-      print('ok')
-      print(spat_subset)
+      #print(spat_subset)
       res_list[[spat_info]] = spat_subset
 
     } else {
@@ -778,6 +798,7 @@ subset_feature_info_data = function(feat_info,
 #' @param verbose be verbose
 #' @param toplevel_params parameters to extract
 #' @return giotto object
+#' @details Subsets a Giotto object for a specific spatial unit and feature type
 #' @export
 #' @examples
 #' \donttest{
@@ -828,8 +849,8 @@ subsetGiotto <- function(gobject,
   g_cell_IDs = gobject@cell_ID[[spat_unit]]
   g_feat_IDs = gobject@feat_ID[[feat_type]]
 
-  print(g_cell_IDs[1:5])
-  print(g_feat_IDs[1:5])
+  #print(g_cell_IDs[1:5])
+  #print(g_feat_IDs[1:5])
 
   ## filter index
   if(!is.null(cell_ids)) {
@@ -842,15 +863,15 @@ subsetGiotto <- function(gobject,
   cells_to_keep = g_cell_IDs[filter_bool_cells]
   feats_to_keep = g_feat_IDs[filter_bool_feats]
 
-  print(cells_to_keep[1:5])
-  print(length(filter_bool_cells))
-  print(feats_to_keep[1:5])
-  print(length(filter_bool_feats))
+  #print(cells_to_keep[1:5])
+  #print(length(filter_bool_cells))
+  #print(feats_to_keep[1:5])
+  #print(length(filter_bool_feats))
 
   if(verbose) cat('completed 1: preparation \n')
 
 
-  print(gobject@spatial_locs[[spat_unit]][['raw']])
+  #print(gobject@spatial_locs[[spat_unit]][['raw']])
 
   ## FILTER ##
   # filter expression data
@@ -862,10 +883,10 @@ subsetGiotto <- function(gobject,
 
   if(verbose) cat('completed 2: subset expression data \n')
 
-  print(gobject@spatial_locs[[spat_unit]][['raw']])
+  #print(gobject@spatial_locs[[spat_unit]][['raw']])
 
   # filter spatial locations
-  print(spat_unit)
+  #print(spat_unit)
   gobject = subset_spatial_locations(gobject = gobject,
                                      filter_bool_cells = filter_bool_cells,
                                      spat_unit = spat_unit)
@@ -918,6 +939,7 @@ subsetGiotto <- function(gobject,
   # cell dim reduction
   gobject = subset_dimension_reduction(gobject = gobject,
                                        spat_unit = spat_unit,
+                                       feat_type = feat_type,
                                        cells_to_keep = cells_to_keep)
 
   if(verbose == TRUE) cat('completed 8: subsetted dimension reductions \n')
@@ -934,6 +956,7 @@ subsetGiotto <- function(gobject,
   ## spatial enrichment ##
   gobject = subset_spatial_enrichment(gobject = gobject,
                                       spat_unit = spat_unit,
+                                      feat_type = feat_type,
                                       filter_bool_cells = filter_bool_cells)
 
   if(verbose == TRUE) cat('completed 10: subsetted spatial enrichment results \n')
@@ -945,6 +968,8 @@ subsetGiotto <- function(gobject,
                                                     cell_ids = cells_to_keep,
                                                     feat_ids = feats_to_keep,
                                                     poly_info = poly_info)
+
+    if(verbose == TRUE) cat('completed 11: subsetted spatial information data \n')
   }
 
 
@@ -957,6 +982,8 @@ subsetGiotto <- function(gobject,
                                                  x_min = x_min,
                                                  y_max = y_max,
                                                  y_min = y_min)
+
+    if(verbose == TRUE) cat('completed 12: subsetted spatial feature data \n')
   }
 
 
@@ -1010,7 +1037,8 @@ subsetGiotto <- function(gobject,
 #' @param return_gobject return Giotto object
 #' @param verbose be verbose
 #' @return giotto object
-#' @details if return_gobject = FALSE, then a filtered combined metadata data.table will be returned
+#' @details Subsets a Giotto based on spatial locations and for one provided spatial unit
+#' if return_gobject = FALSE, then a filtered combined metadata data.table will be returned
 #' @export
 subsetGiottoLocs = function(gobject,
                             spat_unit = NULL,
@@ -1040,6 +1068,19 @@ subsetGiottoLocs = function(gobject,
   if(!is.null(y_min) && !is.null(y_max)) if(y_min > y_max) spatError = append(spatError, 'y_max must be larger than y_min \n')
   if(!is.null(z_min) && !is.null(z_max)) if(z_min > z_max) spatError = append(spatError, 'z_max must be larger than z_min \n')
   if(!is.null(spatError)) stop(spatError)
+
+
+  # function requires spat_loc_name
+  if(is.null(spat_loc_name)) {
+    if(!is.null(gobject@spatial_locs)) {
+      spat_loc_name = names(gobject@spatial_locs[[spat_unit]])[[1]]
+      # cat('No spatial locations have been selected, the first one -',spat_loc_name, '- will be used \n')
+    } else {
+      spat_loc_name = NULL
+      cat('No spatial locations have been found \n')
+      return(NULL)
+    }
+  }
 
   comb_metadata = combineMetadata(gobject = gobject,
                                   spat_unit = spat_unit,
@@ -1095,6 +1136,97 @@ subsetGiottoLocs = function(gobject,
 }
 
 
+
+
+#' @title subsetGiottoLocsMulti
+#' @name subsetGiottoLocsMulti
+#' @description subsets Giotto object based on spatial locations
+#' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type to use
+#' @param spat_loc_name name of spatial locations to use
+#' @param x_max maximum x-coordinate
+#' @param x_min minimum x-coordinate
+#' @param y_max maximum y-coordinate
+#' @param y_min minimum y-coordinate
+#' @param z_max maximum z-coordinate
+#' @param z_min minimum z-coordinate
+#' @param poly_info polygon information to use
+#' @param return_gobject return Giotto object
+#' @param verbose be verbose
+#' @return giotto object
+#' @details Subsets a Giotto based on spatial locations for multiple spatial units
+#' if return_gobject = FALSE, then a filtered combined metadata data.table will be returned
+#' @export
+subsetGiottoLocsMulti = function(gobject,
+                                 spat_unit = NULL,
+                                 feat_type = NULL,
+                                 spat_loc_name = NULL,
+                                 x_max = NULL,
+                                 x_min = NULL,
+                                 y_max = NULL,
+                                 y_min = NULL,
+                                 z_max = NULL,
+                                 z_min = NULL,
+                                 poly_info = NULL,
+                                 return_gobject = TRUE,
+                                 verbose = TRUE) {
+
+
+
+
+  res_list = list()
+
+  for(spat_unit_selected in spat_unit) {
+
+    poly_info_selected = poly_info[[spat_unit_selected]]
+
+    cat('\n \n')
+
+    if(verbose) cat('Start subset on location for spatial unit: ', spat_unit_selected,
+                    'and polygon information layers: ', poly_info_selected, '\n')
+
+
+    if(return_gobject == TRUE) {
+      gobject = subsetGiottoLocs(gobject = gobject,
+                                 spat_unit = spat_unit_selected,
+                                 feat_type = feat_type,
+                                 spat_loc_name = spat_loc_name,
+                                 x_max = x_max,
+                                 x_min = x_min,
+                                 y_max = y_max,
+                                 y_min = y_min,
+                                 z_max = z_max,
+                                 z_min = z_min,
+                                 poly_info = poly_info_selected,
+                                 return_gobject = return_gobject,
+                                 verbose = verbose)
+    } else {
+
+      res_list[[spat_unit_selected]] = subsetGiottoLocs(gobject = gobject,
+                                                        spat_unit = spat_unit_selected,
+                                                        feat_type = feat_type,
+                                                        spat_loc_name = spat_loc_name,
+                                                        x_max = x_max,
+                                                        x_min = x_min,
+                                                        y_max = y_max,
+                                                        y_min = y_min,
+                                                        z_max = z_max,
+                                                        z_min = z_min,
+                                                        poly_info = poly_info_selected,
+                                                        return_gobject = return_gobject,
+                                                        verbose = verbose)
+
+    }
+  }
+
+  if(return_gobject == TRUE) {
+    return(gobject)
+  } else {
+    return(res_list)
+  }
+
+}
 
 
 
@@ -1489,6 +1621,9 @@ filterGiotto <- function(gobject,
   filter_index_cells = colSums_flex(expr_values[filter_index_feats, ] >= expression_threshold) >= min_det_feats_per_cell
   selected_cell_ids = gobject@cell_ID[[spat_unit]][filter_index_cells]
 
+
+  print(selected_cell_ids[1:4])
+  print(selected_feat_ids[1:4])
 
   newGiottoObject = subsetGiotto(gobject = gobject,
                                  feat_type = feat_type,
@@ -2486,12 +2621,21 @@ addFeatStatistics <- function(gobject,
 
     # parent function name
     cl = sys.call(-1)
-    fname = as.character(cl[[1]])
-    if(fname == 'addStatistics') {
-      gobject = update_giotto_params(gobject, description = '_feat_stats', toplevel = 3)
-    } else {
+
+    print('cl = ')
+    print(cl)
+
+    if(is.null(cl)) {
       gobject = update_giotto_params(gobject, description = '_feat_stats')
+    } else {
+      fname = as.character(cl[[1]])
+      if(fname == 'addStatistics') {
+        gobject = update_giotto_params(gobject, description = '_feat_stats', toplevel = 3)
+      } else {
+        gobject = update_giotto_params(gobject, description = '_feat_stats')
+      }
     }
+
 
     return(gobject)
 
@@ -2581,6 +2725,7 @@ addCellStatistics <- function(gobject,
                                     values = expression_values)
 
   # calculate stats
+  #print('ok 1')
   cell_stats = data.table::data.table(cells = colnames(expr_data),
                                       nr_feats = colSums_flex(expr_data > detection_threshold),
                                       perc_feats = (colSums_flex(expr_data > detection_threshold)/nrow(expr_data))*100,
@@ -2599,6 +2744,9 @@ addCellStatistics <- function(gobject,
       gobject@cell_metadata[[feat_type]][[spat_unit]] = cell_metadata
     }
 
+
+    #print('ok 2')
+    #print(cell_stats)
     gobject = addCellMetadata(gobject = gobject,
                               feat_type = feat_type,
                               spat_unit = spat_unit,
@@ -2609,12 +2757,21 @@ addCellStatistics <- function(gobject,
     ## update parameters used ##
     # parent function name
     cl = sys.call(-1)
-    fname = as.character(cl[[1]])
-    if(fname == 'addStatistics') {
-      gobject = update_giotto_params(gobject, description = '_cell_stats', toplevel = 3)
-    } else {
+
+    if(is.null(cl)) {
       gobject = update_giotto_params(gobject, description = '_cell_stats')
+    } else {
+
+      fname = as.character(cl[[1]])
+      if(fname == 'addStatistics') {
+        gobject = update_giotto_params(gobject, description = '_cell_stats', toplevel = 3)
+      } else {
+        gobject = update_giotto_params(gobject, description = '_cell_stats')
+      }
+
     }
+
+
     return(gobject)
 
 
@@ -3070,9 +3227,14 @@ combineMetadata = function(gobject,
                      feat_type = feat_type)
 
   # spatial locations
-  spatial_locs = get_spatial_locations(gobject = gobject,
-                                       spat_unit = spat_unit,
-                                       spat_loc_name = spat_loc_name)
+  if(!is.null(spat_loc_name)) {
+    spatial_locs = get_spatial_locations(gobject = gobject,
+                                         spat_unit = spat_unit,
+                                         spat_loc_name = spat_loc_name)
+  } else {
+    spatial_locs = NULL
+  }
+
 
   # data.table variables
   cell_ID = NULL
@@ -3083,7 +3245,7 @@ combineMetadata = function(gobject,
 
 
   # cell/spot enrichment data
-  available_enr = names(gobject@spatial_enrichment[[spat_unit]])
+  available_enr = list_spatial_enrichments_names(gobject = gobject, spat_unit = spat_unit, feat_type = feat_type)
 
   # output warning if not found
   not_available = spat_enr_names[!spat_enr_names %in% available_enr]
@@ -3100,7 +3262,12 @@ combineMetadata = function(gobject,
     for(spatenr in 1:length(spat_enr_names)) {
 
       spatenr_name = spat_enr_names[spatenr]
-      temp_spat = data.table::copy(gobject@spatial_enrichment[[spat_unit]][[spatenr_name]])
+
+      temp_spat = get_spatial_enrichment(gobject = gobject,
+                                         spat_unit = spat_unit,
+                                         feat_type = feat_type,
+                                         enrichm_name = spatenr_name)
+
       temp_spat[, 'cell_ID' := NULL]
 
       result_list[[spatenr]] = temp_spat
@@ -3195,7 +3362,7 @@ createMetafeats = function(gobject,
   if(return_gobject == TRUE) {
 
     ## enrichment scores
-    spenr_names = names(gobject@spatial_enrichment)
+    spenr_names = list_spatial_enrichments_names(gobject = gobject, spat_unit = spat_unit, feat_type = feat_type)
 
     if(name %in% spenr_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
@@ -3207,7 +3374,6 @@ createMetafeats = function(gobject,
                                      feat_type = feat_type,
                                      enrichm_name = name,
                                      spatenrichment = res_final)
-    #gobject@spatial_enrichment[[spat_unit]][[name]] = res_final
 
     ## update parameters used ##
     gobject = update_giotto_params(gobject, description = '_create_metafeat')

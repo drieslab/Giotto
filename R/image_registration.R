@@ -150,6 +150,7 @@ rigid_transform_spatial_locations = function(spatlocs,
 #' @description finds new minmax boundaries of registration transformed images
 #' @param gobject_list list of gobjects to use
 #' @param image_unreg name of original unregistered images
+#' @param largeImage_unreg name of original unregistered largeImages
 #' @param scale_factor scale factors for registered images relative to spatlocs.
 #' @param transform_values transformation values to use
 #' @param method method of registration
@@ -157,6 +158,7 @@ rigid_transform_spatial_locations = function(spatlocs,
 #Automatically account for changes in image size due to alignment
 reg_img_minmax_finder = function(gobject_list,
                                  image_unreg,
+                                 largeImage_unreg,
                                  scale_factor,
                                  transform_values,
                                  method) {
@@ -165,7 +167,7 @@ reg_img_minmax_finder = function(gobject_list,
   #Check to make sure that image_unreg finds an existing image in each gobject to be registered
   imgPresent = function(gobject,image) {
     imgPresent = FALSE
-    if(image %in% showGiottoImageNames(gobject = gobject, verbose = FALSE)) {
+    if(image %in% showGiottoImageNames(gobject = gobject, verbose = FALSE, return = TRUE)$images) {
       imgPresent = TRUE
     }
     return(imgPresent)
@@ -517,6 +519,7 @@ registerGiottoObjectListFiji = function(gobject_list,
       }
     }
     gobject_list[[gobj_i]] = gobj
+
   } # gobj update loop end
   return(gobject_list)
 }
