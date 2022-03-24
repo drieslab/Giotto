@@ -2745,20 +2745,22 @@ spatCellCellcom = function(gobject,
 
   verbose = match.arg(verbose, choices = c('a little', 'a lot', 'none'))
 
-  ## check if spatial network exists ##
-  spat_networks = showGiottoSpatNetworks(gobject = gobject, verbose = F)
-  if(!spatial_network_name %in% spat_networks) {
-    stop(spatial_network_name, ' is not an existing spatial network \n',
-         'use showNetworks() to see the available networks \n',
-         'or create a new spatial network with createSpatialNetwork() \n')
-  }
-
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
   feat_type = set_default_feat_type(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
+  
+  ## check if spatial network exists ##
+  spat_networks = list_spatial_networks_names(gobject = gobject,
+                                              spat_unit = spat_unit,
+                                              feat_type = feat_type)
+  if(!spatial_network_name %in% spat_networks) {
+    stop(spatial_network_name, ' is not an existing spatial network \n',
+         'use showNetworks() to see the available networks \n',
+         'or create a new spatial network with createSpatialNetwork() \n')
+  }
 
   ## deprecated arguments
   if(!is.null(gene_set_1)) {

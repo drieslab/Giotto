@@ -2113,8 +2113,7 @@ createSpatialDefaultGrid <- function(gobject,
                                                minimum_padding = minimum_padding)
 
   } else {
-    cat('\n the stepsize for the x-axis (sdimx) and y-axis (sdimy) is the minimally required \n')
-    cat('\n Additionally for a 3D spatial grid the z-axis (sdimz) is also required \n')
+    stop('\n the stepsize for the x-axis (sdimx) and y-axis (sdimy) is the minimal requirement \n\n Additionally for a 3D spatial grid the z-axis (sdimz) is also required \n')
   }
 
 

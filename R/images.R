@@ -104,6 +104,7 @@ setMethod(
 #' @keywords giotto, object, image
 #' @slot name name of large Giotto image
 #' @slot raster_object terra raster object
+#' @slot extent tracks the extent of the raster object. Note that most processes should rely on the extent of the raster object instead of this.
 #' @slot overall_extent terra extent object covering the original extent of image
 #' @slot scale_factor image scaling relative to spatial locations
 #' @slot resolution spatial location units covered per pixel
@@ -119,6 +120,7 @@ giottoLargeImage <- setClass(
   slots = c(
     name = "ANY",
     raster_object = "ANY",
+    extent = "ANY",
     overall_extent = "ANY",
     scale_factor = "ANY",
     resolution = "ANY",
@@ -132,6 +134,7 @@ giottoLargeImage <- setClass(
   prototype = list(
     name = NULL,
     raster_object = NULL,
+    extent = NULL,
     overall_extent = NULL,
     scale_factor = NULL,
     resolution = NULL,
@@ -562,7 +565,7 @@ createGiottoLargeImage = function(raster_object,
 
 
   ## 6. extent object
-  g_imageL@overall_extent = terra::ext(raster_object)
+  g_imageL@extent = g_imageL@overall_extent = terra::ext(raster_object)
 
   ## 7. return image object
   return(g_imageL)
@@ -1482,7 +1485,8 @@ cropGiottoLargeImage = function(gobject = NULL,
   ## 3. Return a cropped giottoLargeImage
   giottoLargeImage@name = crop_name
   giottoLargeImage@raster_object = raster_object
-  # The only things updated are the raster object itself and the name.
+  giottoLargeImage@extent = terra::ext(raster_object)
+  # The only things updated are the raster object itself, the name, and the extent tracking slot.
   # The overall_extent slot must NOT be updated since it records the original extent
 
   return(giottoLargeImage)
@@ -2016,7 +2020,9 @@ updateGiottoLargeImage = function(gobject = NULL,
                                          xmax_final,
                                          ymin_final,
                                          ymax_final)
-
+  
+  # Update the extent tracking slot
+  g_imageL@extent = terra::ext(g_imageL@raster_object)
 
   #5. Update the scalefactors for x and y
   g_imageL@resolution = terra::res(g_imageL@raster_object) #(x,y)
@@ -2429,31 +2435,52 @@ updateGiottoImage = function(gobject = NULL,
 
 
 
-#' @title reconnectImage
-#' @name reconnectImage
-#' @description reconnect dead image pointers using filepaths
+#' @title reconnectGiottoImage
+#' @name reconnectGiottoImage
+#' @description reconnect dead image pointers using filepaths. Inputs can either be given as both image name and filepath args or as a named list through filepath argument alone.
 #' @param gobject giotto object
-#' @param image_name name of image to be reconnected
-#' @param largeImage_name name of largeImage to be reconnected
+#' @param image_name names of images to reconnect
+#' @param largeImage_name name of large images to reconnect
+#' @param image_path named list of paths to images to reconnect to giottoImages
+#' @param largeImage_path named list of paths to images to reconnect to giottoLargeImages
 #' @return a giotto object with updated image pointer
-reconnectImage = function(gobject,
-                          image_name = NULL,
-                          largeImage_name = NULL,
-                          path = NULL) {
+reconnectGiottoImage = function(gobject,
+                                image_name = NULL,
+                                largeImage_name = NULL,
+                                image_path = NULL,
+                                largeImage_path = NULL) {
   
-  # Check params
-  if(!is.null(image_name) && !is.null(largeImage_name)) {
-    stop('Only one image type can be reconnected at once')
-  }
+  # 1. Check params
+  if(is.null(gobject)) stop('Giotto object containing the giottoImages or giottoLargeImages to reconnect must be given')
+  if(is.null(image_path) & is.null(largeImage_path)) stop('Named list(s) of paths to images must be given')
   
-  # Load new image pointer and update
+  # Find names of image objects in gobject
+  availableImgs = list_image_names(gobject = gobject)
+  
+  # Determine if image names are given
+  if(is.null(image_name)) image_name = names(image_path)
+  if(is.null(largeImage_name)) largeImage_name = names(largeImage_path)
+  if(is.null(image_name) | is.null(largeImage_name)) stop('Names of images or largeImages to be reconnected must be given')
+  if(length(image_name) != length(image_path) | length(largeImage_name) != length(largeImage_path)) stop('Names AND filepaths for each image object to be reconnected must be given')
+  if(!all(image_name %in% availableImgs$images) | !all(largeImage_name %in% availableImgs$largeImages)) stop('names given to image_name and largeImage_name arguments must match those in the gobject')
+  
+  # 2. Load new image pointer and update
   if(!is.null(image_name)) {
-    mg_object = magick::image_read(path = path)
-    gobject@images[[image_name]]@mg_object = mg_object
+    
+    for(image_i in 1:length(image_name)) {
+      gobject@images[[image_name[image_i]]]@mg_object = magick::image_read(path = image_path[image_i])
+    }
+
   }
+  
   if(!is.null(largeImage_name)) {
-    # terra::rast() - Needs more work. Need a way to save the extents because those are part of the raster obj.
-    stop('largeImage reconnection still not supported')
+    
+    for(large_image_i in 1:length(largeImage_name)) {
+      gobject@largeImages[[largeImage_name[large_image_i]]]@raster_object = terra::rast(x = largeImage_path[large_image_i])
+      # Load raster object extent from extent tracker slot
+      terra::ext(gobject@largeImages[[largeImage_name[large_image_i]]]@raster_object) = gobject@largeImages[[largeImage_name[large_image_i]]]@extent
+    }
+
   }
   return(gobject)
 }

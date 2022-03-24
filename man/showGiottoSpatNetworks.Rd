@@ -4,24 +4,15 @@
 \alias{showGiottoSpatNetworks}
 \title{showGiottoSpatNetworks}
 \usage{
-showGiottoSpatNetworks(
-  gobject,
-  feat_type = NULL,
-  spat_unit = NULL,
-  verbose = TRUE
-)
+showGiottoSpatNetworks(gobject, nrows = 4)
 }
 \arguments{
 \item{gobject}{a giotto object}
 
-\item{feat_type}{feature type}
-
-\item{spat_unit}{spatial unit}
-
-\item{verbose}{verbosity of function#'}
+\item{nrows}{number of rows to print}
 }
 \value{
-vector
+prints names and small subset of available spatial network info
 }
 \description{
 Prints the available spatial networks that are attached to the Giotto object

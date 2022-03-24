@@ -4,14 +4,12 @@
 \alias{list_image_names}
 \title{list_image_names}
 \usage{
-list_image_names(gobject)
+list_image_names(gobject, img_type = NULL)
 }
 \arguments{
 \item{gobject}{a giotto object}
 
-\item{return}{return named list of available images}
-
-\item{verbose}{verbosity of function}
+\item{img_type}{image or largeImage}
 }
 \value{
 a vector of giotto image names attached to the giotto object

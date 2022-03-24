@@ -15,6 +15,8 @@ class to handle images too large to load in normally through magick
 
 \item{\code{raster_object}}{terra raster object}
 
+\item{\code{extent}}{tracks the extent of the raster object. Note that most processes should rely on the extent of the raster object instead of this.}
+
 \item{\code{overall_extent}}{terra extent object covering the original extent of image}
 
 \item{\code{scale_factor}}{image scaling relative to spatial locations}
