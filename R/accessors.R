@@ -1693,17 +1693,21 @@ list_spatial_grids_names = function(gobject,
 #' @name list_image_names
 #' @description Prints the available giotto images that are attached to the Giotto object
 #' @param gobject a giotto object
-#' @param return return named list of available images
-#' @param verbose verbosity of function
+#' @param img_type image or largeImage
 #' @return a vector of giotto image names attached to the giotto object
-list_image_names = function(gobject) {
-
+list_image_names = function(gobject,
+                            img_type = NULL) {
+  
   g_image_names = names(gobject@images)
   g_limage_names = names(gobject@largeImages)
 
-  availableImages = list(images = g_image_names,
-                         largeImages = g_limage_names)
+  if(is.null(img_type)) availableImages = list(images = g_image_names,
+                                               largeImages = g_limage_names)
+  else if(img_type == 'image') availableImages = g_image_names
+  else if(img_type == 'largeImage') availableImages = g_limage_names
+  else stop('img_type argument only takes "image" or "largeImage"')
 
+  
   return(availableImages)
 }
 
