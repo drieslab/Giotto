@@ -937,6 +937,8 @@ set_spatial_enrichment <- function(gobject,
 #' @export
 showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 
+  if(is.null(gobject)) stop('A giotto object needs to be provided \n')
+  
   available_data = list_expression(gobject = gobject)
   if(is.null(available_data)) cat('No expression data available')
 
@@ -968,6 +970,8 @@ showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 #' @export
 showGiottoSpatLocs = function(gobject, nrows = 4) {
 
+  if(is.null(gobject)) stop('A giotto object needs to be provided \n')
+  
   available_data = list_spatial_locations(gobject = gobject)
   if(is.null(available_data)) cat('No spatial locations available')
 
@@ -994,6 +998,8 @@ showGiottoSpatLocs = function(gobject, nrows = 4) {
 #' @export
 showGiottoSpatEnrichments = function(gobject,
                                      nrows = 4) {
+  
+  if(is.null(gobject)) stop('A giotto object needs to be provided \n')
 
   available_data = list_spatial_enrichments(gobject = gobject)
 
@@ -1005,11 +1011,11 @@ showGiottoSpatEnrichments = function(gobject,
 
     for(feature_type in available_data[spat_unit == spatial_unit][['feat_type']]) {
 
-      cat('Feature type: ', feature_type, ' \n\n')
+      cat('--> Feature type: ', feature_type, ' \n\n')
 
       for(spatenrichname in available_data[spat_unit == spatial_unit][feat_type == feature_type][['name']]) {
 
-        cat('Name ', spatenrichname, ': \n\n')
+        cat('----> Name ', spatenrichname, ': \n\n')
         print(gobject@spatial_enrichment[[spatial_unit]][[feature_type]][[spatenrichname]][1:nrows,])
 
       }
@@ -1035,6 +1041,8 @@ showGiottoDimRed = function(gobject,
                             nrows = 3,
                             ncols = 2) {
 
+  if(is.null(gobject)) stop('A giotto object needs to be provided \n')
+  
   available_data = list_dim_reductions(gobject)
   if(is.null(available_data)) cat('No dimensional reductions available')
 
@@ -1088,6 +1096,8 @@ showGiottoDimRed = function(gobject,
 #' @export
 showGiottoSpatialInfo = function(gobject) {
 
+  if(is.null(gobject)) stop('A giotto object needs to be provided \n')
+  
   for(info in names(gobject@spatial_info)) {
 
     cat("For Spatial info: ", info, "\n\n")
@@ -1107,6 +1117,8 @@ showGiottoSpatialInfo = function(gobject) {
 #' @export
 showGiottoFeatInfo = function(gobject) {
 
+  if(is.null(gobject)) stop('A giotto object needs to be provided \n')
+  
   for(info in names(gobject@feat_info)) {
 
     cat("For Feature info: ", info, "\n\n")
@@ -1124,33 +1136,30 @@ showGiottoFeatInfo = function(gobject) {
 #' @name showGiottoSpatNetworks
 #' @description Prints the available spatial networks that are attached to the Giotto object
 #' @param gobject a giotto object
-#' @param feat_type feature type
-#' @param spat_unit  spatial unit
-#' @param verbose verbosity of function#'
-#' @return vector
+#' @param nrows number of rows to print
+#' @return prints names and small subset of available spatial network info
 #' @export
 showGiottoSpatNetworks = function(gobject,
-                                  feat_type = NULL,
-                                  spat_unit = NULL,
-                                  verbose = TRUE) {
+                                  nrows = 4) {
 
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
-
-  # Set feat_type and spat_unit
-  spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = spat_unit)
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type)
-
-  g_network_names = names(gobject@spatial_network[[spat_unit]])
-
-  if(verbose == TRUE) {
-    cat('The following images are available: ',
-        g_network_names, '\n')
+  
+  available_data = list_spatial_networks(gobject = gobject)
+  if(is.null(available_data)) cat('No spatial networks are available')
+  
+  for(spat_unit in unique(available_data$spat_unit)) {
+    
+    cat('Spatial unit:', spat_unit, '\n\n')
+    
+    for(name in available_data[available_data$spat_unit == spat_unit,]$name) {
+      
+      cat('--> Name:', name, '\n\n')
+      
+      print(gobject@spatial_network[[spat_unit]][[name]][['networkDT']][1:nrows,])
+      cat('\n')
+      
+    }
   }
-
-  return(g_network_names)
 }
 
 
@@ -1170,32 +1179,31 @@ showNetworks = function(...) {
 #' @title showGiottoSpatGrids
 #' @name showGiottoSpatGrids
 #' @description Prints the available spatial grids that are attached to the Giotto object
-#' @param gobject a giotto object
-#' @param verbose verbosity of function#'
-#' @return vector
+#' @param gobject giotto object
+#' @param nrows number of rows to print
+#' @return prints name of available spatial grids
 #' @export
 showGiottoSpatGrids = function(gobject,
-                               feat_type = NULL,
-                               spat_unit = NULL,
-                               verbose = TRUE) {
-
-  # Set feat_type and spat_unit
-  spat_unit = set_default_spat_unit(gobject = gobject,
-                                    spat_unit = spat_unit)
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type)
+                               nrows = 4) {
 
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
-
-  g_grid_names = names(gobject@spatial_grid[[spat_unit]])
-
-  if(verbose == TRUE) {
-    cat('The following grids are available: ',
-        g_grid_names, '\n')
+  
+  available_data = list_spatial_grids(gobject = gobject)
+  if(is.null(available_data)) cat('No available spatial grids')
+  
+  for(spat_unit in unique(available_data$spat_unit)) {
+    
+    cat('Spatial grid:', spat_unit, '\n\n')
+    
+    for(name in available_data[available_data$spat_unit == spat_unit,]$name) {
+      
+      cat('--> Name:', name, '\n\n')
+      
+      print(gobject@spatial_grid[[spat_unit]][[name]][['gridDT']][1:nrows,])
+      cat('\n')
+      
+    }
   }
-
-  return(g_grid_names)
 }
 
 
@@ -1593,33 +1601,24 @@ list_feature_info_names = function(gobject) {
 #' @description return the available spatial networks that are attached to the Giotto object
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
-#' @param feat_type feature type
 #' @return data.table of names and locations of available spatial networks. col order matters
 list_spatial_networks = function(gobject,
-                                 spat_unit = NULL,
-                                 feat_type = NULL) {
+                                 spat_unit = NULL) {
 
   availableSpatNetworks = data.table()
   for(spatial_unit in names(gobject@spatial_network)) {
-    for(feature_type in names(gobject@spatial_network[[spatial_unit]])) {
-      for(spat_network_name in names(gobject@spatial_network[[spatial_unit]][[feature_type]])) {
-        availableSpatNetworks = rbind(availableSpatNetworks,
-                                      list(spat_unit = spatial_unit,
-                                           feat_type = feature_type,
-                                           name = spat_network_name))
-      }
+    for(spat_network_name in names(gobject@spatial_network[[spatial_unit]])) {
+      availableSpatNetworks = rbind(availableSpatNetworks,
+                                    list(spat_unit = spatial_unit,
+                                         name = spat_network_name))
     }
   }
 
   # check if a specific category is desired
-  if(!is.null(spat_unit) & !is.null(feat_type)) {
-    availableSpatNetworks = availableSpatNetworks[availableSpatNetworks$spat_unit == spat_unit & availableSpatNetworks$feat_type == feat_type,]
-  } else if(!is.null(spat_unit)) {
-    availableSpatNetworks = availableSpatNetworks[availableSpatNetworks$spat_unit == spat_unit,]
-  } else if(!is.null(feat_type)) {
-    availableSpatNetworks = availableSpatNetworks[availableSpatNetworks$feat_type == feat_type,]
-  }
+  if(!is.null(spat_unit)) spat_unit_subset = availableSpatNetworks$spat_unit == spat_unit else spat_unit_subset = TRUE
 
+  availableSpatNetworks = availableSpatNetworks[spat_unit_subset,]
+  
   if(nrow(availableSpatNetworks) == 0) return(NULL)
   else return(availableSpatNetworks)
 }

@@ -4,14 +4,12 @@
 \alias{list_spatial_networks}
 \title{list_spatial_networks}
 \usage{
-list_spatial_networks(gobject, spat_unit = NULL, feat_type = NULL)
+list_spatial_networks(gobject, spat_unit = NULL)
 }
 \arguments{
 \item{gobject}{giotto object}
 
 \item{spat_unit}{spatial unit}
-
-\item{feat_type}{feature type}
 }
 \value{
 data.table of names and locations of available spatial networks. col order matters
