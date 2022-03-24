@@ -477,7 +477,7 @@ createGiottoLargeImage = function(raster_object,
   }
 
   # Prevent updates to original raster object input
-  raster_object = terra::copy(raster_object)
+  raster_object = terra::deepcopy(raster_object)
 
 
   ## 2. image bound spatial extent
