@@ -237,12 +237,12 @@ giottoToSeurat <- function(obj_use = NULL,
 }
 
 
-#' @name seuratToGiotto
+#' @name seuratToGiotto_OLD
 #' @description Converts Seurat object into a Giotto object
 #' @param obj_use Seurat object
 #' @return Giotto object
 #' @export
-seuratToGiotto <- function(obj_use = NULL,...){
+seuratToGiotto_OLD <- function(obj_use = NULL,...){
   require(Seurat)
   require(Giotto)
   
@@ -335,6 +335,118 @@ seuratToGiotto <- function(obj_use = NULL,...){
   }
   return (test)
   
+}
+
+
+
+#' @title seuratToGiotto
+#' @name seuratToGiotto
+#' @description Converts Seurat object into a Giotto object
+#' @param sobject Seurat object
+#' @return Giotto object
+#' @export
+seuratToGiotto = function(sobject){
+  require(Seurat)
+  require(Giotto)
+  
+  if(is.null(GetAssayData(object = sobject, slot = "counts"))) {
+    cat('No expression values are provided \n')
+    return(sobject)
+    
+  } else {
+    
+    exp = GetAssayData(object = sobject, slot = "counts")
+    
+    # Dimension Reduction 
+    if(length(sobject@reductions) == 0)  {
+      dim_reduc = NULL
+      
+    } else {
+      
+      if(!is.null(Embeddings(object = sobject, reduction = "pca"))) {
+        
+        pca_coord = as.matrix(Embeddings(object = sobject, reduction = "pca"))
+        pca_load = as.matrix(Loadings(object = sobject, reduction = "pca"))
+        pca_eig = sapply(Stdev(sobject, reduction = "pca"), function(x) x ^ 2) 
+        
+        colnames(pca_coord) = gsub(x = colnames(pca_coord), pattern = "PC_", replacement = "Dim.")  
+        colnames(pca_load) = gsub(x = colnames(pca_load), pattern = "PC_", replacement = "Dim.") 
+        
+        pca = list(type = "cells",
+                   spat_unit = "cell",
+                   name = "test",
+                   reduction_method = 'pca',
+                   coordinates = pca_coord,
+                   misc =list(eigenvalues = pca_eig, loadings = pca_load))
+      } else { pca = NULL} 
+      
+      if(!is.null(Embeddings(object = sobject, reduction = "umap"))) {
+        
+        umap_coord = as.matrix(Embeddings(object = sobject, reduction = "umap"))
+        
+        colnames(umap_coord) = gsub(x = colnames(umap_coord), pattern = "UMAP_", replacement = "Dim.") 
+        
+        umap = list(type = "cells",
+                    spat_unit = "cell",
+                    name = "test",
+                    reduction_method = 'umap',
+                    coordinates = umap_coord,
+                    misc = NULL)
+      } else { umap = NULL} 
+      
+      dim_reduc = list(pca,umap)
+      
+    }
+    
+    # Spatial Locations
+    if(length(sobject@assays[["Spatial"]]) == 0) {
+      spat_loc = NULL
+      
+    } else {
+      
+      spat_coord = GetTissueCoordinates(sobject)
+      spat_coord = cbind(rownames(spat_coord), data.frame(spat_coord, row.names=NULL))
+      colnames(spat_coord) = c("cell_ID", "sdimy", "sdimx")}
+    
+    
+    # Subcellular
+    name = names(sobject@images)
+    if(length(sobject@assays[["Vizgen"]]) == 1 | length(sobject@assays[["Akoya"]]) == 1 | length(sobject@assays[["Nanostring"]]) == 1) {
+      
+      spat_coord = GetTissueCoordinates(sobject)
+      colnames(spat_coord) = c("sdimx", "sdimy", "cell_ID")
+    }
+    
+    if(exists("spat_coord")) {
+      exp = exp[  , c(intersect(spat_coord$cell_ID, colnames(exp)))] 
+      spat_loc = spat_coord
+    }
+    if (!length(sobject@images) == 0) {
+      if ("molecules" %in% methods::slotNames(sobject@images[[name]]) == TRUE) {
+        if(!length(sobject@images$name$molecules) == 0) {
+          
+          assay = names(sobject@assays)
+          featnames = rownames(sobject@assays[[assay]]@meta.features)
+          mol_spatlocs = data.table::data.table()
+          
+          for (x in featnames) {
+            df = (FetchData(sobject[[name]][["molecules"]], vars = x))
+            mol_spatlocs = rbind(mol_spatlocs, df)
+          }
+          gpoints = createGiottoPoints(mol_spatlocs)
+        }
+      }  
+    }
+  }
+  
+  gobject= createGiottoObject(exp, 
+                              spatial_locs = spat_loc,
+                              dimension_reduction = dim_reduc)
+  
+  if(exists("gpoints")) {
+    gobject = addGiottoPoints(gobject = gobject,
+                              gpoints = list(gpoints)) 
+  }
 }
 
 
