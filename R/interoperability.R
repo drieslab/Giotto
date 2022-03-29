@@ -346,6 +346,8 @@ seuratToGiotto_OLD <- function(obj_use = NULL,...){
 #' @return Giotto object
 #' @export
 SeuratToGiotto = function(sobject){
+  require(Seurat)
+  require(Giotto)
   
   if(is.null(GetAssayData(object = sobject, slot = "counts"))) {
     cat('No expression values are provided \n')
