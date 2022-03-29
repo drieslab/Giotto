@@ -352,11 +352,11 @@ seuratToGiotto = function(sobject){
   if(is.null(GetAssayData(object = sobject, slot = "counts"))) {
     cat('No expression values are provided \n')
     return(sobject)
-    
+
   } else {
     
-    exp = GetAssayData(object = sobject, slot = "counts")
-    
+  exp = GetAssayData(object = sobject, slot = "counts")
+  
     # Dimension Reduction 
     if(length(sobject@reductions) == 0)  {
       dim_reduc = NULL
@@ -364,34 +364,34 @@ seuratToGiotto = function(sobject){
     } else {
       
       if(!is.null(Embeddings(object = sobject, reduction = "pca"))) {
-        
-        pca_coord = as.matrix(Embeddings(object = sobject, reduction = "pca"))
-        pca_load = as.matrix(Loadings(object = sobject, reduction = "pca"))
-        pca_eig = sapply(Stdev(sobject, reduction = "pca"), function(x) x ^ 2) 
-        
-        colnames(pca_coord) = gsub(x = colnames(pca_coord), pattern = "PC_", replacement = "Dim.")  
-        colnames(pca_load) = gsub(x = colnames(pca_load), pattern = "PC_", replacement = "Dim.") 
-        
-        pca = list(type = "cells",
-                   spat_unit = "cell",
-                   name = "test",
-                   reduction_method = 'pca',
-                   coordinates = pca_coord,
-                   misc =list(eigenvalues = pca_eig, loadings = pca_load))
+      
+      pca_coord = as.matrix(Embeddings(object = sobject, reduction = "pca"))
+      pca_load = as.matrix(Loadings(object = sobject, reduction = "pca"))
+      pca_eig = sapply(Stdev(sobject, reduction = "pca"), function(x) x ^ 2) 
+      
+      colnames(pca_coord) = gsub(x = colnames(pca_coord), pattern = "PC_", replacement = "Dim.")  
+      colnames(pca_load) = gsub(x = colnames(pca_load), pattern = "PC_", replacement = "Dim.") 
+      
+      pca = list(type = "cells",
+                 spat_unit = "cell",
+                 name = "test",
+                 reduction_method = 'pca',
+                 coordinates = pca_coord,
+                 misc =list(eigenvalues = pca_eig, loadings = pca_load))
       } else { pca = NULL} 
       
       if(!is.null(Embeddings(object = sobject, reduction = "umap"))) {
-        
-        umap_coord = as.matrix(Embeddings(object = sobject, reduction = "umap"))
-        
-        colnames(umap_coord) = gsub(x = colnames(umap_coord), pattern = "UMAP_", replacement = "Dim.") 
-        
-        umap = list(type = "cells",
-                    spat_unit = "cell",
-                    name = "test",
-                    reduction_method = 'umap',
-                    coordinates = umap_coord,
-                    misc = NULL)
+     
+      umap_coord = as.matrix(Embeddings(object = sobject, reduction = "umap"))
+      
+      colnames(umap_coord) = gsub(x = colnames(umap_coord), pattern = "UMAP_", replacement = "Dim.") 
+      
+      umap = list(type = "cells",
+                  spat_unit = "cell",
+                  name = "test",
+                  reduction_method = 'umap',
+                  coordinates = umap_coord,
+                  misc = NULL)
       } else { umap = NULL} 
       
       dim_reduc = list(pca,umap)
@@ -403,10 +403,11 @@ seuratToGiotto = function(sobject){
       spat_loc = NULL
       
     } else {
-      
+    
       spat_coord = GetTissueCoordinates(sobject)
       spat_coord = cbind(rownames(spat_coord), data.frame(spat_coord, row.names=NULL))
-      colnames(spat_coord) = c("cell_ID", "sdimy", "sdimx")}
+      colnames(spat_coord) = c("cell_ID", "sdimy", "sdimx")
+      spat_loc = spat_coord}
     
     
     # Subcellular
@@ -415,15 +416,12 @@ seuratToGiotto = function(sobject){
       
       spat_coord = GetTissueCoordinates(sobject)
       colnames(spat_coord) = c("sdimx", "sdimy", "cell_ID")
-    }
-    
-    if(exists("spat_coord")) {
       exp = exp[  , c(intersect(spat_coord$cell_ID, colnames(exp)))] 
       spat_loc = spat_coord
     }
     if (!length(sobject@images) == 0) {
       if ("molecules" %in% methods::slotNames(sobject@images[[name]]) == TRUE) {
-        if(!length(sobject@images$name$molecules) == 0) {
+        if(!length(sobject@images[[name]][["molecules"]]) == 0) {
           
           assay = names(sobject@assays)
           featnames = rownames(sobject@assays[[assay]]@meta.features)
@@ -433,22 +431,23 @@ seuratToGiotto = function(sobject){
             df = (FetchData(sobject[[name]][["molecules"]], vars = x))
             mol_spatlocs = rbind(mol_spatlocs, df)
           }
-          gpoints = createGiottoPoints(mol_spatlocs)
+            gpoints = createGiottoPoints(mol_spatlocs, feat_type = "rna")
+            
         }
       }  
     }
-  }
-  
-  gobject= createGiottoObject(exp, 
-                              spatial_locs = spat_loc,
-                              dimension_reduction = dim_reduc)
-  
-  if(exists("gpoints")) {
-    gobject = addGiottoPoints(gobject = gobject,
-                              gpoints = list(gpoints)) 
-  }
-}
+   }
+    
+   gobject = createGiottoObject(exp,
+                       spatial_locs = spat_loc,
+                       dimension_reduction = dim_reduc)
 
+   if (exists('gpoints') == TRUE) {
+    gobject = addGiottoPoints(gobject = gobject,
+                                      gpoints = list(gpoints))
+     }
+}
+  
 
 
 ## SpatialExperiment object ####
