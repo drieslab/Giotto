@@ -345,7 +345,7 @@ seuratToGiotto_OLD <- function(obj_use = NULL,...){
 #' @param sobject Seurat object
 #' @return Giotto object
 #' @export
-SeuratToGiotto = function(sobject){
+seuratToGiotto = function(sobject){
   require(Seurat)
   require(Giotto)
   
