@@ -8,6 +8,9 @@ my_arowMeans(x)
 
 my_arowMeans(x)
 }
+\arguments{
+\item{x}{data to use}
+}
 \description{
 arithmic rowMeans that works for a single column
 }

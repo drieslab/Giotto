@@ -6,8 +6,8 @@
 \usage{
 reg_img_minmax_finder(
   gobject_list,
-  image_unreg,
-  largeImage_unreg,
+  image_unreg = NULL,
+  largeImage_unreg = NULL,
   scale_factor,
   transform_values,
   method

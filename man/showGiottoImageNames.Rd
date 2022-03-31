@@ -4,17 +4,13 @@
 \alias{showGiottoImageNames}
 \title{showGiottoImageNames}
 \usage{
-showGiottoImageNames(gobject, return = FALSE, verbose = TRUE)
+showGiottoImageNames(gobject)
 }
 \arguments{
 \item{gobject}{a giotto object}
-
-\item{return}{return named list of available images}
-
-\item{verbose}{verbosity of function}
 }
 \value{
-a vector of giotto image names attached to the giotto object
+prints names of available giotto image objects
 }
 \description{
 Prints the available giotto images that are attached to the Giotto object

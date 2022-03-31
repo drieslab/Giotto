@@ -1,8 +1,13 @@
 
 
-## General utility functionss ##
+## General utility functions ##
 
+
+
+#' @title mean_flex
 #' @name mean_flex
+#' @param x data to use
+#' @param ... other arguments to pass
 #' @keywords internal
 mean_flex = function(x, ...) {
 
@@ -15,7 +20,11 @@ mean_flex = function(x, ...) {
   }
 }
 
-#' @name  rowSums_flex
+
+
+#' @title rowSums_flex
+#' @name rowSums_flex
+#' @param mymatrix matrix to use
 #' @keywords internal
 rowSums_flex = function(mymatrix) {
 
@@ -33,7 +42,11 @@ rowSums_flex = function(mymatrix) {
   }
 }
 
+
+
+#' @title rowMeans_flex
 #' @name rowMeans_flex
+#' @param mymatrix matrix to use
 #' @keywords internal
 rowMeans_flex = function(mymatrix) {
 
@@ -54,7 +67,11 @@ rowMeans_flex = function(mymatrix) {
   }
 }
 
-#' @name  colSums_flex
+
+
+#' @title colSums_flex
+#' @name colSums_flex
+#' @param mymatrix matrix to use
 #' @keywords internal
 colSums_flex = function(mymatrix) {
 
@@ -72,7 +89,11 @@ colSums_flex = function(mymatrix) {
   }
 }
 
-#' @name  colMeans_flex
+
+
+#' @title colMeans_flex
+#' @name colMeans_flex
+#' @param mymatrix matrix to use
 #' @keywords internal
 colMeans_flex = function(mymatrix) {
 
@@ -90,7 +111,11 @@ colMeans_flex = function(mymatrix) {
   }
 }
 
-#' @name  t_flex
+
+
+#' @title t_flex
+#' @name t_flex
+#' @param mymatrix matrix to use
 #' @keywords internal
 t_flex = function(mymatrix) {
 
@@ -107,7 +132,12 @@ t_flex = function(mymatrix) {
   }
 }
 
-#' @name  cor_flex
+
+
+#' @title cor_flex
+#' @name cor_flex
+#' @param x data to use
+#' @param ... other arguments passed to stats::cor()
 #' @keywords internal
 cor_flex = function(x, ...) {
   x = as.matrix(x)
@@ -115,7 +145,14 @@ cor_flex = function(x, ...) {
 }
 
 
+
+#' @title lapply_flex
 #' @name lapply_flex
+#' @param X list to use
+#' @param FUN function to be performed
+#' @param cores cores to use
+#' @param fun deprecated. Backwards compatibility for FUN
+#' @param ... other arguments to pass
 #' @keywords internal
 lapply_flex = function(X,
                        FUN,
@@ -159,6 +196,7 @@ lapply_flex = function(X,
 }
 
 
+
 #' @name  flex_lapply
 #' @inheritDotParams lapply_flex
 #' @seealso \code{\link{lapply_flex}}
@@ -177,7 +215,10 @@ flex_lapply = function(X,
 }
 
 
+
+#' @title my_arowMeans
 #' @name  my_arowMeans
+#' @param x data to use
 #' @keywords internal
 my_arowMeans = function(x) {
   if(is.null(nrow(x))) {
@@ -188,7 +229,12 @@ my_arowMeans = function(x) {
   }
 }
 
+
+
+#' @title my_growMeans
 #' @name  my_growMeans
+#' @param x data to use
+#' @param offset offset
 #' @keywords internal
 my_growMeans = function(x, offset = 0.1) {
   if(is.null(nrow(x))) {
@@ -199,7 +245,11 @@ my_growMeans = function(x, offset = 0.1) {
   }
 }
 
+#' @title my_rowMeans
 #' @name  my_rowMeans
+#' @param x data to use
+#' @param method method is either "arithmic" or "geometric"
+#' @param offset offset
 #' @keywords internal
 my_rowMeans = function(x, method = c('arithmic', 'geometric'), offset = 0.1) {
   method = match.arg(method, c('arithmic', 'geometric'))
@@ -208,6 +258,8 @@ my_rowMeans = function(x, method = c('arithmic', 'geometric'), offset = 0.1) {
 }
 
 
+
+#' @title standardise_flex
 #' @name standardise_flex
 #' @description standardizes a matrix
 #' @param x matrix
