@@ -11,7 +11,7 @@
 #' @slot cell_metadata metadata for cells
 #' @slot feat_metadata metadata for available features
 #' @slot feat_info information about features (Giotto spatVector)
-#' @slot cell_ID unique cell IDs
+#' @slot cell_ID unique cell IDs for each spatial unit (e.g. cells)
 #' @slot feat_ID unique feature IDs for all features or modalities
 #' @slot spatial_network spatial network in data.table/data.frame format
 #' @slot spatial_grid spatial grid in data.table/data.frame format
@@ -1516,7 +1516,6 @@ evaluate_feat_info = function(spatial_feat_info,
 #' @param raw_exprs deprecated, use expression
 #' @param expression_feat available features (e.g. rna, protein, ...)
 #' @param spatial_locs data.table or data.frame with coordinates for cell centroids
-#' @param spatial_info information about spatial units
 #' @param spatial_info list of giotto polygon objects with spatial information,
 #' see \code{\link{createGiottoPolygonsFromMask}} and \code{\link{createGiottoPolygonsFromDfr}}
 #' @param cell_metadata cell annotation metadata
@@ -1524,11 +1523,8 @@ evaluate_feat_info = function(spatial_feat_info,
 #' @param feat_info list of giotto point objects with feature info,
 #' see \code{\link{createGiottoPoints}}
 #' @param spatial_network list of spatial network(s)
-#' @param spatial_network_name list of spatial network name(s)
 #' @param spatial_grid list of spatial grid(s)
-#' @param spatial_grid_name list of spatial grid name(s)
 #' @param spatial_enrichment list of spatial enrichment score(s) for each spatial region
-#' @param spatial_enrichment_name list of spatial enrichment name(s)
 #' @param dimension_reduction list of dimension reduction(s)
 #' @param nn_network list of nearest neighbor network(s)
 #' @param images list of images
@@ -1585,7 +1581,6 @@ createGiottoObject <- function(expression,
                                feat_info = NULL,
                                spatial_network = NULL,
                                spatial_grid = NULL,
-                               spatial_grid_name = NULL,
                                spatial_enrichment = NULL,
                                dimension_reduction = NULL,
                                nn_network = NULL,
@@ -1625,7 +1620,12 @@ createGiottoObject <- function(expression,
   ## check if all optional packages are installed
   # TODO: update at the end
   # TODO: extract from suggest field of DESCRIPTION
-  extra_packages = c("scran", "MAST", "png", "tiff", "biomaRt", "trendsceek", "multinet", "RTriangle", "FactoMiner")
+
+  #extra_packages = c("scran", "MAST", "png", "tiff", "biomaRt", "trendsceek", "multinet", "RTriangle", "FactoMiner")
+  extra_packages_file = system.file("extdata", "additional_r_packages.txt", package = 'Giotto')
+  extra_packages = readLines(extra_packages_file)
+
+
 
   pack_index = extra_packages %in% rownames(utils::installed.packages())
   extra_installed_packages = extra_packages[pack_index]
