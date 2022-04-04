@@ -8,6 +8,11 @@ my_growMeans(x, offset = 0.1)
 
 my_growMeans(x, offset = 0.1)
 }
+\arguments{
+\item{x}{data to use}
+
+\item{offset}{offset}
+}
 \description{
 geometric rowMeans that works for a single column
 }

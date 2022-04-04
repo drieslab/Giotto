@@ -31,37 +31,42 @@ updateGiottoImage(
 
 \item{largeImage_name}{name of giottoLargeImage}
 
-\item{xmax_adj}{adjustment of the maximum x-value to align the image}
+\item{xmax_adj}{increase of the maximum x image boundary}
 
-\item{xmin_adj}{adjustment of the minimum x-value to align the image}
+\item{xmin_adj}{decrease of the minimum x image boundary}
 
-\item{ymax_adj}{adjustment of the maximum y-value to align the image}
+\item{ymax_adj}{increase of the maximum y image boundary}
 
-\item{ymin_adj}{adjustment of the minimum y-value to align the image}
+\item{ymin_adj}{decrease of the minimum y image boundary}
 
 \item{x_shift}{shift entire image in positive x direction}
 
 \item{y_shift}{shift entire image in positive y direction}
 
-\item{scale_x}{scale x axis image mapping from origin}
+\item{scale_x}{scale x axis image mapping from coordinate origin}
 
-\item{scale_y}{scale y axis image mapping from origin}
+\item{scale_y}{scale y axis image mapping from coordinate origin}
 
-\item{order}{perform fine adjustments (adjustments and shifts) or scaling first}
+\item{order}{order of operations between fine adjustments (adjustment and shift
+parameters) and scaling}
 
-\item{xmax_set}{set image xmax boundary. Overrides minmax values as spatial anchor.}
+\item{xmax_set}{directly set image xmax boundary. Overrides minmax values as spatial anchor.}
 
-\item{xmin_set}{set image xmin boundary. Overrides minmax values as spatial anchor.}
+\item{xmin_set}{directly set image xmin boundary. Overrides minmax values as spatial anchor.}
 
-\item{ymax_set}{set image ymax boundary. Overrides minmax values as spatial anchor.}
+\item{ymax_set}{directly set image ymax boundary. Overrides minmax values as spatial anchor.}
 
-\item{ymin_set}{set image ymin boundary. Overrides minmax values as spatial anchor.}
+\item{ymin_set}{directly set image ymin boundary. Overrides minmax values as spatial anchor.}
 
 \item{return_gobject}{return a giotto object}
 }
 \value{
-a giotto object or an updated giotto image if return_gobject = F
+a giotto object or an updated giotto image object if return_gobject = F
 }
 \description{
-Updates the boundaries of a giottoImage or giottoLargeImage attached to a giotto object
+Updates the spatial positioning and sizing of a giottoImage or
+  giottoLargeImage attached to a giotto object.
+}
+\details{
+This function works for all image objects associated with Giotto.
 }

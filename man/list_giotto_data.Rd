@@ -4,21 +4,14 @@
 \alias{list_giotto_data}
 \title{list_giotto_data}
 \usage{
-list_giotto_data(
-  gobject = NULL,
-  slot = NULL,
-  spat_unit = NULL,
-  feat_type = NULL
-)
+list_giotto_data(gobject = NULL, slot = NULL, ...)
 }
 \arguments{
 \item{gobject}{giotto object}
 
 \item{slot}{giotto object slot of interest}
 
-\item{spat_unit}{spatial unit}
-
-\item{feat_type}{feature type}
+\item{...}{additional params to pass}
 }
 \value{
 names and locations of data within giotto object slot

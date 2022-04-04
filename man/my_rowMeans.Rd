@@ -8,6 +8,13 @@ my_rowMeans(x, method = c("arithmic", "geometric"), offset = 0.1)
 
 my_rowMeans(x, method = c("arithmic", "geometric"), offset = 0.1)
 }
+\arguments{
+\item{x}{data to use}
+
+\item{method}{method is either "arithmic" or "geometric"}
+
+\item{offset}{offset}
+}
 \description{
 arithmic or geometric rowMeans that works for a single column
 }

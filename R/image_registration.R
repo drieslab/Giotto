@@ -157,21 +157,24 @@ rigid_transform_spatial_locations = function(spatlocs,
 #' @keywords internal
 #Automatically account for changes in image size due to alignment
 reg_img_minmax_finder = function(gobject_list,
-                                 image_unreg,
-                                 largeImage_unreg,
+                                 image_unreg = NULL,
+                                 largeImage_unreg = NULL, #TODO Currently unused
                                  scale_factor,
                                  transform_values,
                                  method) {
 
   #Find image spatial info from original image if possible
   #Check to make sure that image_unreg finds an existing image in each gobject to be registered
-  imgPresent = function(gobject,image) {
+  imgPresent = function(gobject,image,img_type) {
     imgPresent = FALSE
-    if(image %in% showGiottoImageNames(gobject = gobject, verbose = FALSE, return = TRUE)$images) {
+    if(image %in% list_images_names(gobject = gobject, img_type = img_type)) {
       imgPresent = TRUE
     }
     return(imgPresent)
   }
+  
+  if(!is.null(image_unreg)) img_type = 'image' #TODO needs reworking
+  if(!is.null(largeImage_unreg)) img_type = 'largeImage' #TODO needs reworking - currently only pays attention to 'image' and not 'largeImage' types
 
   if(all(as.logical(lapply(gobject_list, imgPresent, image = image_unreg)))) {
 

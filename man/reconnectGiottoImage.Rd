@@ -6,14 +6,18 @@
 \usage{
 reconnectGiottoImage(
   gobject,
+  auto_reconnect = TRUE,
   image_name = NULL,
   largeImage_name = NULL,
   image_path = NULL,
-  largeImage_path = NULL
+  largeImage_path = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
 \item{gobject}{giotto object}
+
+\item{auto_reconnect}{automatically reconnect images if TRUE. manual if FALSE}
 
 \item{image_name}{names of images to reconnect}
 
@@ -22,10 +26,23 @@ reconnectGiottoImage(
 \item{image_path}{named list of paths to images to reconnect to giottoImages}
 
 \item{largeImage_path}{named list of paths to images to reconnect to giottoLargeImages}
+
+\item{verbose}{be verbose}
 }
 \value{
 a giotto object with updated image pointer
 }
 \description{
-reconnect dead image pointers using filepaths. Inputs can either be given as both image name and filepath args or as a named list through filepath argument alone.
+reconnect a gobject's dead image pointers using filepaths. Inputs can either be given as both image name and filepath args or as a named list through filepath argument alone.
+}
+\details{
+Inputs can either be given as both image name and filepath args
+  or as a named list through filepath arg alone.
+  If auto_reconnect is TRUE then no additional params need to be supplied.
+  As long as giotto image objects were directly created using filepaths, those
+  filepaths are stored within the image objects and will be referenced during
+  reconnection. Issues will only arise if giotto image objects were created directly
+  from the underlying image handling package objects (magick or raster objects) or
+  if image files have been moved since the the giotto image object was generated.
+  In such cases, use manual reconnection by setting auto_reconnect to FALSE.
 }
