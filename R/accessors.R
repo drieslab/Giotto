@@ -935,19 +935,19 @@ set_spatial_enrichment <- function(gobject,
 #' @keywords internal
 get_giottoImage_MG = function(gobject = NULL,
                               name = NULL) {
-  
+
   if(is.null(gobject)) stop('The giotto object holding the giottoImage needs to be provided \n')
   g_image_names = names(gobject@images)
   if(is.null(g_image_names)) stop('No giottoImages have been found \n')
-  
+
   if(is.null(name)) {
     name = g_image_names[1]
   }
-  
+
   if(!name %in% g_image_names) stop(name, ' was not found among the image names, see showGiottoImageNames()')
-  
+
   g_image = gobject@images[[name]]
-  
+
   return(g_image)
 }
 
@@ -966,25 +966,25 @@ set_giottoImage_MG = function(gobject,
                               image_object,
                               name = NULL,
                               verbose = TRUE) {
-  
+
   # Check params
   if(is.null(gobject)) stop('gobject must be given \n')
   if(is.null(image_object)) stop('image_object to be attached must be given \n')
-  
+
   # Default to name present in image object name slot
   if(is.null(name)) name = image_object@name
-  
+
   # Find existing names
   potential_names = list_images_names(gobject = gobject, img_type = 'image')
-  
+
   if(verbose == TRUE) {
     if(name %in% potential_names) cat(name, ' already exists and will be replaced with new image object \n')
   }
-  
+
   gobject@images[name] = image_object
-  
+
   return(gobject)
-  
+
 }
 
 
@@ -1002,19 +1002,19 @@ set_giottoImage_MG = function(gobject,
 #' @keywords internal
 get_giottoLargeImage = function(gobject = NULL,
                                 name = NULL) {
-  
+
   if(is.null(gobject)) stop('The giotto object holding the giottoLargeImage needs to be provided \n')
   g_image_names = names(gobject@largeImages)
   if(is.null(g_image_names)) stop('No giottoLargeImages have been found \n')
-  
+
   if(is.null(name)) {
     name = g_image_names[1]
   }
-  
+
   if(!name %in% g_image_names) stop(name,' was not found among the largeImage names. See showGiottoImageNames() \n')
-  
+
   g_imageL = gobject@largeImages[[name]]
-  
+
   return(g_imageL)
 }
 
@@ -1034,25 +1034,25 @@ set_giottoLargeImage = function(gobject,
                                 largeImage_object,
                                 name = NULL,
                                 verbose = TRUE) {
-  
+
   # Check params
   if(is.null(gobject)) stop('gobject must be given \n')
   if(is.null(largeImage_object)) stop('largeImage_object to be attached must be given \n')
-  
+
   # Default to name present in image object name slot
   if(is.null(name)) name = largeImage_object@name
-  
+
   # Find existing names
   potential_names = list_images_names(gobject = gobject, img_type = 'largeImage')
-  
+
   if(verbose == TRUE) {
     if(name %in% potential_names) cat(name, 'already exists and will be replaced with new image object \n')
   }
-  
+
   gobject@largeImages[name] = largeImage_object
-  
+
   return(gobject)
-  
+
 }
 
 
@@ -1072,10 +1072,10 @@ set_giottoLargeImage = function(gobject,
 get_giottoImage = function(gobject = NULL,
                            image_type = c('image','largeImage'),
                            name = NULL) {
-  
+
   # Check image type
   image_type = match.arg(image_type, choices = c('image','largeImage'))
-  
+
   # Select get function
   if(image_type == 'image') {
     g_img = get_giottoImage_MG(gobject = gobject,
@@ -1094,7 +1094,7 @@ get_giottoImage = function(gobject = NULL,
 #' @name set_giottoImage
 #' @description directly attach a giotto image to giotto object
 #' @details Unlike the other setter functions, this is an internal function.
-#'   Using this function, giotto image objects are directly attached to the 
+#'   Using this function, giotto image objects are directly attached to the
 #'   gobject without further modifications of spatial positioning values
 #'   within the image object that are generally needed in order for them to
 #'   plot in the correct location relative to the other modalities of spatial data.
@@ -1113,10 +1113,10 @@ set_giottoImage = function(gobject = NULL,
                            image_type = NULL,
                            name = NULL,
                            verbose = TRUE) {
-  
+
   # Check image type
   image_type = match.arg(image_type, choices = c('image','largeImage'))
-  
+
   # Select set function
   if(image_type == 'image') {
     gobject = set_giottoImage_MG(gobject = gobject,
@@ -1148,7 +1148,7 @@ set_giottoImage = function(gobject = NULL,
 showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
-  
+
   available_data = list_expression(gobject = gobject)
   if(is.null(available_data)) cat('No expression data available')
 
@@ -1181,7 +1181,7 @@ showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 showGiottoSpatLocs = function(gobject, nrows = 4) {
 
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
-  
+
   available_data = list_spatial_locations(gobject = gobject)
   if(is.null(available_data)) cat('No spatial locations available')
 
@@ -1208,7 +1208,7 @@ showGiottoSpatLocs = function(gobject, nrows = 4) {
 #' @export
 showGiottoSpatEnrichments = function(gobject,
                                      nrows = 4) {
-  
+
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
 
   available_data = list_spatial_enrichments(gobject = gobject)
@@ -1252,7 +1252,7 @@ showGiottoDimRed = function(gobject,
                             ncols = 2) {
 
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
-  
+
   available_data = list_dim_reductions(gobject)
   if(is.null(available_data)) cat('No dimensional reductions available')
 
@@ -1307,7 +1307,7 @@ showGiottoDimRed = function(gobject,
 showGiottoSpatialInfo = function(gobject) {
 
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
-  
+
   for(info in names(gobject@spatial_info)) {
 
     cat("For Spatial info: ", info, "\n\n")
@@ -1328,7 +1328,7 @@ showGiottoSpatialInfo = function(gobject) {
 showGiottoFeatInfo = function(gobject) {
 
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
-  
+
   for(info in names(gobject@feat_info)) {
 
     cat("For Feature info: ", info, "\n\n")
@@ -1353,21 +1353,21 @@ showGiottoSpatNetworks = function(gobject,
                                   nrows = 4) {
 
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
-  
+
   available_data = list_spatial_networks(gobject = gobject)
   if(is.null(available_data)) cat('No spatial networks are available')
-  
+
   for(spat_unit in unique(available_data$spat_unit)) {
-    
+
     cat('Spatial unit:', spat_unit, '\n\n')
-    
+
     for(name in available_data[available_data$spat_unit == spat_unit,]$name) {
-      
+
       cat('--> Name:', name, '\n\n')
-      
+
       print(gobject@spatial_network[[spat_unit]][[name]][['networkDT']][1:nrows,])
       cat('\n')
-      
+
     }
   }
 }
@@ -1397,21 +1397,21 @@ showGiottoSpatGrids = function(gobject,
                                nrows = 4) {
 
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
-  
+
   available_data = list_spatial_grids(gobject = gobject)
   if(is.null(available_data)) cat('No available spatial grids')
-  
+
   for(spat_unit in unique(available_data$spat_unit)) {
-    
+
     cat('Spatial grid:', spat_unit, '\n\n')
-    
+
     for(name in available_data[available_data$spat_unit == spat_unit,]$name) {
-      
+
       cat('--> Name:', name, '\n\n')
-      
+
       print(gobject@spatial_grid[[spat_unit]][[name]][['gridDT']][1:nrows,])
       cat('\n')
-      
+
     }
   }
 }
@@ -1439,18 +1439,18 @@ showGrids = function(...) {
 showGiottoImageNames = function(gobject) {
 
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
-  
+
   available_data = list_images(gobject = gobject)
   if(is.null(available_data)) cat('No available images \n')
 
   for(img_type in unique(available_data$img_type)) {
-    
+
     cat('Image type:', img_type, '\n\n')
-    
+
     for(name in available_data[available_data$img_type == img_type,]$name) {
-      
+
       cat('--> Name:', name, '\n')
-      
+
     }
     cat('\n')
   }
@@ -1515,9 +1515,9 @@ list_expression = function(gobject,
   # check if a specific category is desired
   if(!is.null(spat_unit)) spat_unit_subset = availableExpr$spat_unit == spat_unit else spat_unit_subset = TRUE
   if(!is.null(feat_type)) feat_type_subset = availableExpr$feat_type == feat_type else feat_type_subset = TRUE
-  
+
   availableExpr = availableExpr[spat_unit_subset & feat_type_subset,]
-  
+
   # return data.table (NULL if empty)
   if(nrow(availableExpr) == 0) return(NULL)
   else return(availableExpr)
@@ -1548,24 +1548,26 @@ list_expression_names = function(gobject,
 #' @description lists the available cell metadata
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @return names and locations of available cell metadata as data.table
 list_cell_metadata = function(gobject,
-                              spat_unit = NULL) {
-  
+                              spat_unit = NULL,
+                              feat_type = NULL) {
+
   availableCMet = data.table()
   for(spatial_unit in names(gobject@cell_metadata)) {
-    for(metadata in names(gobject@cell_metadata[[spatial_unit]])) {
+    for(feature_type in names(gobject@cell_metadata[[spatial_unit]])) {
       availableCMet = rbind(availableCMet,
                             list(spat_unit = spatial_unit,
-                                 name = metadata))
+                                 feat_type = feature_type))
     }
   }
-  
+
   # check if a specific category is desired
   if(!is.null(spat_unit)) spat_unit_subset = availableCMet$spat_unit == spat_unit else spat_unit_subset = TRUE
-  
+
   availableCMet = availableCMet[spat_unit_subset,]
-  
+
   # return data.table (NULL if empty)
   if(nrow(availableCMet) == 0) return(NULL)
   else return(availableCMet)
@@ -1578,24 +1580,26 @@ list_cell_metadata = function(gobject,
 #' @description lists the available feature metadata
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @return names and locations of available feature metadata as data.table
 list_feat_metadata = function(gobject,
-                              spat_unit = NULL) {
-  
+                              spat_unit = NULL,
+                              feat_type = NULL) {
+
   availableFMet = data.table()
   for(spatial_unit in names(gobject@feat_metadata)) {
-    for(metadata in names(gobject@feat_metadata[[spatial_unit]])) {
+    for(feature_type in names(gobject@feat_metadata[[spatial_unit]])) {
       availableFMet = rbind(availableFMet,
                             list(spat_unit = spatial_unit,
-                                 name = metadata))
+                                 feat_type = feature_type))
     }
   }
-  
+
   # check if a specific category is desired
   if(!is.null(spat_unit)) spat_unit_subset = availableFMet$spat_unit == spat_unit else spat_unit_subset = TRUE
-  
+
   availableFMet = availableFMet[spat_unit_subset,]
-  
+
   # return data.table (NULL if empty)
   if(nrow(availableFMet) == 0) return(NULL)
   else return(availableFMet)
@@ -1659,7 +1663,7 @@ list_spatial_enrichments = function(gobject,
                                     feat_type = NULL) {
 
   availableSpatEnr = data.table()
-  
+
   for(spatial_unit in names(gobject@spatial_enrichment)) {
 
     for(feature_type in names(gobject@spatial_enrichment[[spatial_unit]])) {
@@ -1870,7 +1874,7 @@ list_spatial_networks = function(gobject,
   if(!is.null(spat_unit)) spat_unit_subset = availableSpatNetworks$spat_unit == spat_unit else spat_unit_subset = TRUE
 
   availableSpatNetworks = availableSpatNetworks[spat_unit_subset,]
-  
+
   if(nrow(availableSpatNetworks) == 0) return(NULL)
   else return(availableSpatNetworks)
 }
@@ -1948,12 +1952,12 @@ list_spatial_grids_names = function(gobject,
 #' @return data.table of giotto image names attached to the giotto object
 list_images = function(gobject,
                        img_type = NULL) {
-  
+
   availableImages = data.table()
-  
+
   g_image_names = names(gobject@images)
   g_limage_names = names(gobject@largeImages)
-  
+
   for(image_type in c('image', 'largeImage')) {
     if(image_type == 'image') {
       for(name in g_image_names) {
@@ -1970,12 +1974,12 @@ list_images = function(gobject,
       }
     }
   }
-  
+
   # check if a specific category is desired
   if(!is.null(img_type)) img_type_subset = availableImages$img_type == img_type else img_type_subset = TRUE
-  
+
   availableImages = availableImages[img_type_subset,]
-  
+
   # NULL if there is no data
   if(nrow(availableImages) == 0) return(NULL)
   else return(availableImages)
@@ -1991,12 +1995,12 @@ list_images = function(gobject,
 #' @return vector with names of available image names
 list_images_names = function(gobject,
                              img_type) {
-  
+
   if(!img_type %in% c('image', 'largeImage')) stop('img_type must be either "image" or "largeImage\n"')
-  
+
   if(img_type == 'image') img_names = names(gobject@images)
   if(img_type == 'largeImage') img_names = names(gobject@largeImages)
-  
+
   return(img_names)
 }
 
