@@ -2131,6 +2131,7 @@ overlapToMatrixMultiPoly = function(gobject,
   if(return_gobject == TRUE) {
     gobject@expression[[new_poly_info]][[feat_info]][[name]] = overlapmatrix
     gobject@cell_ID[[new_poly_info]] = colnames(overlapmatrix)
+
     gobject@cell_metadata[[new_poly_info]][[feat_info]] = data.table::data.table(cell_ID = colnames(overlapmatrix))
     gobject@feat_metadata[[new_poly_info]][[feat_info]] = data.table::data.table(feat_ID = rownames(overlapmatrix))
 

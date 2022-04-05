@@ -1185,13 +1185,13 @@ showGiottoSpatLocs = function(gobject, nrows = 4) {
   available_data = list_spatial_locations(gobject = gobject)
   if(is.null(available_data)) cat('No spatial locations available')
 
-  for(spat_unit in unique(available_data$spat_unit)) {
+  for(spatial_unit in unique(available_data$spat_unit)) {
 
-    cat('Spatial unit: ', spat_unit, ' \n\n')
+    cat('Spatial unit: ', spatial_unit, ' \n\n')
 
-    for(spatlocname in available_data[available_data$spat_unit == spat_unit,]$name) {
+    for(spatlocname in available_data[available_data$spat_unit == spatial_unit,]$name) {
       cat('--> Name: ', spatlocname, ' \n\n')
-      print(gobject@spatial_locs[[spat_unit]][[spatlocname]][1:nrows,])
+      print(gobject@spatial_locs[[spatial_unit]][[spatlocname]][1:nrows,])
       cat('\n')
     }
   }
