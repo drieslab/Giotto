@@ -6,6 +6,13 @@
 \usage{
 set_default_feat_type(gobject, feat_type = NULL, spat_unit)
 }
+\arguments{
+\item{gobject}{gobject}
+
+\item{feat_type}{feature type}
+
+\item{spat_unit}{spatial unit}
+}
 \description{
 set_default_feat_type
 }

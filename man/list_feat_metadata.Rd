@@ -4,12 +4,14 @@
 \alias{list_feat_metadata}
 \title{list_feat_metadata}
 \usage{
-list_feat_metadata(gobject, spat_unit = NULL)
+list_feat_metadata(gobject, spat_unit = NULL, feat_type = NULL)
 }
 \arguments{
 \item{gobject}{giotto object}
 
 \item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 }
 \value{
 names and locations of available feature metadata as data.table
