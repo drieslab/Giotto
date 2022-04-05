@@ -6,6 +6,11 @@
 \usage{
 set_default_spat_unit(gobject, spat_unit = NULL)
 }
+\arguments{
+\item{gobject}{gobject}
+
+\item{spat_unit}{spatial unit}
+}
 \description{
 set_default_spat_unit
 }

@@ -4,12 +4,14 @@
 \alias{list_cell_metadata}
 \title{list_cell_metadata}
 \usage{
-list_cell_metadata(gobject, spat_unit = NULL)
+list_cell_metadata(gobject, spat_unit = NULL, feat_type = NULL)
 }
 \arguments{
 \item{gobject}{giotto object}
 
 \item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 }
 \value{
 names and locations of available cell metadata as data.table
