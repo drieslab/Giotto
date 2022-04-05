@@ -5,6 +5,8 @@
 
 #' @title set_default_spat_unit
 #' @name set_default_spat_unit
+#' @param gobject gobject
+#' @param spat_unit spatial unit
 #' @keywords internal
 set_default_spat_unit = function(gobject,
                                  spat_unit = NULL) {
@@ -34,6 +36,9 @@ set_default_spat_unit = function(gobject,
 
 #' @title set_default_feat_type
 #' @name set_default_feat_type
+#' @param gobject gobject
+#' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @keywords internal
 set_default_feat_type = function(gobject,
                                  feat_type = NULL,

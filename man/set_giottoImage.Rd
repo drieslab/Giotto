@@ -32,7 +32,7 @@ directly attach a giotto image to giotto object
 }
 \details{
 Unlike the other setter functions, this is an internal function.
-  Using this function, giotto image objects are directly attached to the 
+  Using this function, giotto image objects are directly attached to the
   gobject without further modifications of spatial positioning values
   within the image object that are generally needed in order for them to
   plot in the correct location relative to the other modalities of spatial data.
