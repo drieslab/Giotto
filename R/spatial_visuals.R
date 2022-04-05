@@ -37,7 +37,7 @@ plot_auto_largeImage_resample = function(gobject,
 
   # If no giottoLargeImage, select specified giottoLargeImage. If none specified, select first one.
   if(is.null(giottoLargeImage)) {
-    giottoLargeImage = get_GiottoLargeImage(gobject = gobject,
+    giottoLargeImage = get_giottoLargeImage(gobject = gobject,
                                     largeImage_name = largeImage_name)
   }
 
