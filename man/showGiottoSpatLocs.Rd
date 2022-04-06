@@ -17,3 +17,4 @@ prints the name and small subset of available data.table
 \description{
 shows the available spatial locations
 }
+\keyword{show}

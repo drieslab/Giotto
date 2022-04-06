@@ -1144,27 +1144,28 @@ set_giottoImage = function(gobject = NULL,
 #' @param nrows number of rows to print for each matrix
 #' @param ncols number of columns to print for each matrix
 #' @return prints the name and small subset of available matrices
+#' @keywords show
 #' @export
 showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
 
   available_data = list_expression(gobject = gobject)
-  if(is.null(available_data)) cat('No expression data available')
+  if(is.null(available_data)) cat('No expression data available \n')
 
-  for(spat_unit in unique(available_data$spat_unit)) {
+  for(spatial_unit in unique(available_data$spat_unit)) {
 
-    cat('Spatial unit: ', spat_unit, ' \n\n')
+    cat('Spatial unit: ', spatial_unit, ' \n\n')
 
-    for(feat_type in unique(available_data[available_data$spat_unit == spat_unit,]$feat_type)) {
+    for(feature_type in unique(available_data[available_data$spat_unit == spatial_unit,]$feat_type)) {
 
-      cat('--> Feature: ', feat_type, ' \n\n')
+      cat('--> Feature: ', feature_type, ' \n\n')
 
-      for(mat_i in available_data[available_data$spat_unit == spat_unit & available_data$feat_type == feat_type,]$name) {
+      for(mat_i in available_data[available_data$spat_unit == spat_unit & available_data$feat_type == feature_type,]$name) {
 
-        cat('---> Name: ', mat_i, 'matrix: \n')
+        cat('----> Name: ', mat_i, 'matrix: \n')
 
-        print(gobject@expression[[spat_unit]][[feat_type]][[mat_i]][1:nrows, 1:ncols])
+        print(gobject@expression[[spatial_unit]][[feature_type]][[mat_i]][1:nrows, 1:ncols])
         cat('\n')
       }
     }
@@ -1177,13 +1178,14 @@ showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 #' @param gobject giotto object
 #' @param nrows number of rows to print for each spatial location data.table
 #' @return prints the name and small subset of available data.table
+#' @keywords show
 #' @export
 showGiottoSpatLocs = function(gobject, nrows = 4) {
 
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
 
   available_data = list_spatial_locations(gobject = gobject)
-  if(is.null(available_data)) cat('No spatial locations available')
+  if(is.null(available_data)) cat('No spatial locations available \n')
 
   for(spatial_unit in unique(available_data$spat_unit)) {
 
@@ -1205,6 +1207,7 @@ showGiottoSpatLocs = function(gobject, nrows = 4) {
 #' @param gobject giotto object
 #' @param nrows number of rows to print for each spatial enrichment data.table
 #' @return prints the name and small subset of available data.table
+#' @keywords show
 #' @export
 showGiottoSpatEnrichments = function(gobject,
                                      nrows = 4) {
@@ -1213,7 +1216,7 @@ showGiottoSpatEnrichments = function(gobject,
 
   available_data = list_spatial_enrichments(gobject = gobject)
 
-  if(is.null(available_data)) cat('No spatial enrichments available')
+  if(is.null(available_data)) cat('No spatial enrichments available \n')
 
   for(spatial_unit in unique(available_data$spat_unit)) {
 
@@ -1246,6 +1249,7 @@ showGiottoSpatEnrichments = function(gobject,
 #' @param nrows number of coordinates rows to print
 #' @param ncols number of coordinates columns to print
 #' @return prints the name and small subset of available dimension reduction coordinates
+#' @keywords show
 #' @export
 showGiottoDimRed = function(gobject,
                             nrows = 3,
@@ -1254,37 +1258,37 @@ showGiottoDimRed = function(gobject,
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
 
   available_data = list_dim_reductions(gobject)
-  if(is.null(available_data)) cat('No dimensional reductions available')
+  if(is.null(available_data)) cat('No dimensional reductions available \n')
 
-  for(data_type in unique(available_data$data_type)) {
-    data_type_subset = available_data$data_type == data_type
+  for(data_type_red in unique(available_data$data_type)) {
+    data_type_subset = available_data$data_type == data_type_red
 
-    if(data_type == 'feats') cat('Dim reduction on features:')
-    if(data_type == 'cells') cat('Dim reduction on cells:')
+    if(data_type_red == 'feats') cat('Dim reduction on features:')
+    if(data_type_red == 'cells') cat('Dim reduction on cells:')
 
     cat('\n',
         '-------------------------',
         '\n\n\n')
 
-    for(spat_unit in unique(available_data[data_type_subset,]$spat_unit)) {
-      spat_unit_subset = available_data$spat_unit == spat_unit
+    for(spatial_unit in unique(available_data[data_type_subset,]$spat_unit)) {
+      spat_unit_subset = available_data$spat_unit == spatial_unit
 
-      cat('Spatial unit ', spat_unit, ': \n\n')
+      cat('Spatial unit ', spatial_unit, ': \n\n')
 
-      for(feat_type in unique(available_data[data_type_subset & spat_unit_subset,]$feat_type)) {
-        feat_type_subset = available_data$feat_type == feat_type
+      for(feature_type in unique(available_data[data_type_subset & spat_unit_subset,]$feat_type)) {
+        feat_type_subset = available_data$feat_type == feature_type
 
-        cat('--> Feature type ', feat_type, ': \n\n')
+        cat('--> Feature type ', feature_type, ': \n\n')
 
-        for(dim_type in unique(available_data[data_type_subset & spat_unit_subset & feat_type_subset,]$dim_type)) {
-          dim_type_subset = available_data$dim_type == dim_type
+        for(dimRed_type in unique(available_data[data_type_subset & spat_unit_subset & feat_type_subset,]$dim_type)) {
+          dim_type_subset = available_data$dim_type == dimRed_type
 
-          cat('----> Dim reduction type, ', dim_type, ': \n\n')
+          cat('----> Dim reduction type, ', dimRed_type, ': \n\n')
 
-          for(name in available_data[data_type_subset & spat_unit_subset & feat_type_subset & dim_type_subset,]$name) {
+          for(dimRed_name in available_data[data_type_subset & spat_unit_subset & feat_type_subset & dim_type_subset,]$name) {
 
-            cat('------> ', name, 'coordinates: \n')
-            print(gobject@dimension_reduction[[data_type]][[spat_unit]][[feat_type]][[dim_type]][[name]][['coordinates']][1:nrows, 1:ncols])
+            cat('------> ', dimRed_name, 'coordinates: \n')
+            print(gobject@dimension_reduction[[data_type_red]][[spatial_unit]][[feature_type]][[dimRed_type]][[dimRed_name]][['coordinates']][1:nrows, 1:ncols])
             cat('\n')
 
           }
@@ -1307,8 +1311,11 @@ showGiottoDimRed = function(gobject,
 showGiottoSpatialInfo = function(gobject) {
 
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
+  
+  available_data = list_spatial_info(gobject = gobject)
+  if(is.null(available_data)) cat('No spatial info available \n')
 
-  for(info in names(gobject@spatial_info)) {
+  for(info in available_data$spat_info) {
 
     cat("For Spatial info: ", info, "\n\n")
     print(gobject@spatial_info[[info]])
@@ -1328,8 +1335,11 @@ showGiottoSpatialInfo = function(gobject) {
 showGiottoFeatInfo = function(gobject) {
 
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
+  
+  available_data = list_feature_info(gobject = gobject)
+  if(is.null(available_data)) cat('No feature info available \n')
 
-  for(info in names(gobject@feat_info)) {
+  for(info in available_data$feat_info) {
 
     cat("For Feature info: ", info, "\n\n")
     print(gobject@feat_info[[info]])
@@ -1348,6 +1358,7 @@ showGiottoFeatInfo = function(gobject) {
 #' @param gobject a giotto object
 #' @param nrows number of rows to print
 #' @return prints names and small subset of available spatial network info
+#' @keywords show
 #' @export
 showGiottoSpatNetworks = function(gobject,
                                   nrows = 4) {
@@ -1355,17 +1366,17 @@ showGiottoSpatNetworks = function(gobject,
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
 
   available_data = list_spatial_networks(gobject = gobject)
-  if(is.null(available_data)) cat('No spatial networks are available')
+  if(is.null(available_data)) cat('No spatial networks are available \n')
 
-  for(spat_unit in unique(available_data$spat_unit)) {
+  for(spatial_unit in unique(available_data$spat_unit)) {
 
-    cat('Spatial unit:', spat_unit, '\n\n')
+    cat('Spatial unit:', spatial_unit, '\n\n')
 
-    for(name in available_data[available_data$spat_unit == spat_unit,]$name) {
+    for(network_name in available_data[available_data$spat_unit == spatial_unit,]$name) {
 
-      cat('--> Name:', name, '\n\n')
+      cat('--> Name:', network_name, '\n\n')
 
-      print(gobject@spatial_network[[spat_unit]][[name]][['networkDT']][1:nrows,])
+      print(gobject@spatial_network[[spatial_unit]][[network_name]][['networkDT']][1:nrows,])
       cat('\n')
 
     }
@@ -1392,6 +1403,7 @@ showNetworks = function(...) {
 #' @param gobject giotto object
 #' @param nrows number of rows to print
 #' @return prints name of available spatial grids
+#' @keywords show
 #' @export
 showGiottoSpatGrids = function(gobject,
                                nrows = 4) {
@@ -1399,17 +1411,17 @@ showGiottoSpatGrids = function(gobject,
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
 
   available_data = list_spatial_grids(gobject = gobject)
-  if(is.null(available_data)) cat('No available spatial grids')
+  if(is.null(available_data)) cat('No available spatial grids \n')
 
-  for(spat_unit in unique(available_data$spat_unit)) {
+  for(spatial_unit in unique(available_data$spat_unit)) {
 
-    cat('Spatial grid:', spat_unit, '\n\n')
+    cat('Spatial grid:', spatial_unit, '\n\n')
 
-    for(name in available_data[available_data$spat_unit == spat_unit,]$name) {
+    for(grid_name in available_data[available_data$spat_unit == spatial_unit,]$name) {
 
-      cat('--> Name:', name, '\n\n')
+      cat('--> Name:', grid_name, '\n\n')
 
-      print(gobject@spatial_grid[[spat_unit]][[name]][['gridDT']][1:nrows,])
+      print(gobject@spatial_grid[[spatial_unit]][[grid_name]][['gridDT']][1:nrows,])
       cat('\n')
 
     }
@@ -1435,6 +1447,7 @@ showGrids = function(...) {
 #' @description Prints the available giotto images that are attached to the Giotto object
 #' @param gobject a giotto object
 #' @return prints names of available giotto image objects
+#' @keywords show
 #' @export
 showGiottoImageNames = function(gobject) {
 
@@ -1443,13 +1456,13 @@ showGiottoImageNames = function(gobject) {
   available_data = list_images(gobject = gobject)
   if(is.null(available_data)) cat('No available images \n')
 
-  for(img_type in unique(available_data$img_type)) {
+  for(image_type in unique(available_data$img_type)) {
 
-    cat('Image type:', img_type, '\n\n')
+    cat('Image type:', image_type, '\n\n')
 
-    for(name in available_data[available_data$img_type == img_type,]$name) {
+    for(image_name in available_data[available_data$img_type == image_type,]$name) {
 
-      cat('--> Name:', name, '\n')
+      cat('--> Name:', image_name, '\n')
 
     }
     cat('\n')

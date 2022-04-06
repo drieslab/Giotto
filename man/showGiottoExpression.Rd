@@ -19,3 +19,4 @@ prints the name and small subset of available matrices
 \description{
 shows the available matrices
 }
+\keyword{show}

@@ -19,3 +19,4 @@ prints the name and small subset of available dimension reduction coordinates
 \description{
 shows the available dimension reductions
 }
+\keyword{show}
