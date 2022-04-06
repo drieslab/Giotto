@@ -17,3 +17,4 @@ prints names and small subset of available spatial network info
 \description{
 Prints the available spatial networks that are attached to the Giotto object
 }
+\keyword{show}
