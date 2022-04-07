@@ -981,7 +981,7 @@ set_giottoImage_MG = function(gobject,
     if(name %in% potential_names) cat(name, ' already exists and will be replaced with new image object \n')
   }
 
-  gobject@images[name] = image_object
+  gobject@images[[name]] = image_object
 
   return(gobject)
 
@@ -1049,7 +1049,7 @@ set_giottoLargeImage = function(gobject,
     if(name %in% potential_names) cat(name, 'already exists and will be replaced with new image object \n')
   }
 
-  gobject@largeImages[name] = largeImage_object
+  gobject@largeImages[[name]] = largeImage_object
 
   return(gobject)
 
