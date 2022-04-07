@@ -566,7 +566,7 @@ createGiottoLargeImage = function(raster_object,
 
 
   ## 6. extent object
-  g_imageL@extent = g_imageL@overall_extent = terra::ext(raster_object)
+  g_imageL@extent = g_imageL@overall_extent = as.vector(terra::ext(raster_object))
 
   ## 7. return image object
   return(g_imageL)
@@ -1526,7 +1526,7 @@ cropGiottoLargeImage = function(gobject = NULL,
   ## 3. Return a cropped giottoLargeImage
   giottoLargeImage@name = crop_name
   giottoLargeImage@raster_object = raster_object
-  giottoLargeImage@extent = terra::ext(raster_object)
+  giottoLargeImage@extent = as.vector(terra::ext(raster_object))
   # The only things updated are the raster object itself, the name, and the extent tracking slot.
   # The overall_extent slot must NOT be updated since it records the original extent
 
@@ -2066,7 +2066,7 @@ updateGiottoLargeImage = function(gobject = NULL,
                                          ymax_final)
   
   # Update the extent tracking slot
-  g_imageL@extent = terra::ext(g_imageL@raster_object)
+  g_imageL@extent = as.vector(terra::ext(g_imageL@raster_object))
 
   #5. Update the scalefactors for x and y
   g_imageL@resolution = terra::res(g_imageL@raster_object) #(x,y)
@@ -2501,24 +2501,19 @@ reconnectGiottoImage = function(gobject,
     # Run for each image_type given...
     for(image_type in image_type_list) {
       
-      print(image_type) #TEST
-      
       # Images to update will be ANY available images
       # Get list of image object names
       name_list[[image_type]] = list_images_names(gobject = gobject,
                                                  img_type = image_type)
       
       # get image objects
-      img_list[[image_type]] = lapply(X = name_list[[image_type]],
-                                     FUN = get_giottoImage,
-                                     gobject = gobject,
-                                     image_type = image_type)
-      
-      # get file paths from image objects
-      img_path[[image_type]] = lapply(X = 1:length(img_list[[image_type]]),
-                                      function(x) {
-                                        img_list[[image_type]][[x]]@file_path
-                                      })
+      for(auto_index in 1:length(name_list[[image_type]])) {
+        img_list[[image_type]][[auto_index]] = get_giottoImage(gobject = gobject,
+                                                               image_type = image_type,
+                                                               name = name_list[[image_type]][[auto_index]])
+        # get file paths from image objects
+        img_path[[image_type]][[auto_index]] = img_list[[image_type]][[auto_index]]@file_path
+      }
       
       # print discovered images and paths
       # additionally, set path to NULL if file.exists() == FALSE
@@ -2568,20 +2563,17 @@ reconnectGiottoImage = function(gobject,
       # Check params
       if(is.null(name_list[[image_type]])) name_list[[image_type]] = names(img_path[[image_type]])
       if(is.null(name_list[[image_type]])) stop('Names of ',image_type,'s to be reconnected must be given as named list in ',image_type,'_path arg or together with ',image_type,'_path as a separate vector in ',image_type,'_name arg. \n')
-      if(length(name_list[[image_type]]) != length(img_path[[image_type]])) stop('If ',image_type,'s to be reconnected are selected through ',image_type,'_name arg then length and order must be the same as in ',image_type,'_path arg. \n')
+      if(length(unique(name_list[[image_type]])) != length(img_path[[image_type]])) stop('If ',image_type,'s to be reconnected are selected through ',image_type,'_name arg then names must be unique and length and order must be the same as in ',image_type,'_path arg. \n')
       if(!all(name_list[[image_type]] %in% list_images_names(gobject = gobject, img_type = image_type))) stop('Names given to ',image_type,'_name argument must match those in the gobject \n')
       
       # get image objects
-      img_list[[image_type]] = lapply(X = name_list[[image_type]],
-                                      FUN = get_giottoImage,
-                                      gobject = gobject,
-                                      image_type = image_type)
-      
-      # update file_path
-      img_list[[image_type]] = lapply(X = 1:length(img_list[[image_type]],
-                                                   function(x) {
-                                                     img_list[[image_type]][[x]]@file_path = img_path[[image_type]][[x]]
-                                                   }))
+      for(manual_index in 1:length(name_list[[image_type]])) {
+        img_list[[image_type]][[manual_index]] = get_giottoImage(gobject = gobject,
+                                                         image_type = image_type,
+                                                         name = name_list[[image_type]][[manual_index]])
+        # update file_path
+        img_list[[image_type]][[manual_index]]@file_path = img_path[[image_type]][[manual_index]]
+      }
       
     }
     
@@ -2613,21 +2605,19 @@ reconnectGiottoImage = function(gobject,
         }
       }
       
-      img_path[[image_type]] = img_path[[image_type]][!(image_path_NULL[[image_type]])]
-      name_list[[image_type]] = name_list[[image_type]][!(image_path_NULL[[image_type]])]
-      img_list[[image_type]] = img_list[[image_type]][!(image_path_NULL[[image_type]])]
+      img_path[[image_type]] = img_path[[image_type]][[!(image_path_NULL[[image_type]])]]
+      name_list[[image_type]] = name_list[[image_type]][[!(image_path_NULL[[image_type]])]]
+      img_list[[image_type]] = img_list[[image_type]][[!(image_path_NULL[[image_type]])]]
     }
     
     
     # Load pointers
-    print(img_path[[image_type]]) #test
-    
-    img_list[[image_type]] = lapply(X = 1:length(img_list[[image_type]]),
-                                    function(x) {
-                                      reconnect_image_object(image_object = img_list[[image_type]][[x]],
-                                                             image_type = image_type,
-                                                             image_path = img_path[[image_type]][[x]])
-                                    })
+    for(reconnect_index in 1:length(img_list[[image_type]])) {
+      img_list[[image_type]][[reconnect_index]] = reconnect_image_object(image_object = img_list[[image_type]][[reconnect_index]],
+                                                                         image_type = image_type,
+                                                                         image_path = img_path[[image_type]][[reconnect_index]])
+    }
+
     
     # 4. Update gobject:--------------------------------------------------------------------#
     
@@ -2640,6 +2630,7 @@ reconnectGiottoImage = function(gobject,
                                 verbose = FALSE)
     }
     
+    if(verbose == TRUE) cat('done \n')
     
   } # image_type end loop
   return(gobject)
