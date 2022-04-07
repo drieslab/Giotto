@@ -163,6 +163,7 @@ reg_img_minmax_finder = function(gobject_list,
                                  transform_values,
                                  method) {
 
+  
   #Find image spatial info from original image if possible
   #Check to make sure that image_unreg finds an existing image in each gobject to be registered
   imgPresent = function(gobject,image,img_type) {
@@ -176,9 +177,9 @@ reg_img_minmax_finder = function(gobject_list,
   if(!is.null(image_unreg)) img_type = 'image' #TODO needs reworking
   if(!is.null(largeImage_unreg)) img_type = 'largeImage' #TODO needs reworking - currently only pays attention to 'image' and not 'largeImage' types
 
-  if(all(as.logical(lapply(gobject_list, imgPresent, image = image_unreg)))) {
+  if(all(as.logical(lapply(X = gobject_list, FUN = imgPresent, image = image_unreg, img_type = img_type)))) {
 
-    giottoImage_list = lapply(gobject_list, getGiottoImage, image_name = image_unreg)
+    giottoImage_list = lapply(X = gobject_list, FUN = get_giottoImage, name = image_unreg, image_type = img_type)
     image_corners = lapply(giottoImage_list, get_img_corners)
 
     # Infer image corners of registered images PRIOR TO REGISTRATION
