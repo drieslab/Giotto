@@ -2,7 +2,7 @@
 % Please edit documentation in R/auxiliary_giotto.R
 \name{addCellMetadata}
 \alias{addCellMetadata}
-\title{addCellMetadata}
+\title{Add cell metadata}
 \usage{
 addCellMetadata(
   gobject,
@@ -25,7 +25,7 @@ addCellMetadata(
 
 \item{vector_name}{(optional) custom name if you provide a single vector}
 
-\item{by_column}{merge metadata based on cell_ID column in pDataDT (default = FALSE)}
+\item{by_column}{merge metadata based on \emph{cell_ID} column in \code{\link{pDataDT}} (default = FALSE)}
 
 \item{column_cell_ID}{column name of new metadata to use if by_column = TRUE}
 }
@@ -33,12 +33,12 @@ addCellMetadata(
 giotto object
 }
 \description{
-adds cell metadata to the giotto object
+Adds cell metadata to the giotto object
 }
 \details{
 You can add additional cell metadata in two manners:
 \itemize{
-  \item{1. Provide a data.table or data.frame with cell annotations in the same order as the cell_ID column in pDataDT(gobject) }
-  \item{2. Provide a data.table or data.frame with cell annotations and specificy which column contains the cell IDs, these cell IDs need to match with the cell_ID column in pDataDT(gobject)}
+  \item{1. Provide a data.table or data.frame with cell annotations in the same order as the \emph{cell_ID} column in pDataDT(gobject) }
+  \item{2. Provide a data.table or data.frame with cell annotations and specify which column contains the cell IDs, these cell IDs need to match with the \emph{cell_ID} column in pDataDT(gobject)}
 }
 }

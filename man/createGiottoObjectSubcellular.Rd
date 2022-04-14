@@ -2,7 +2,7 @@
 % Please edit documentation in R/giotto.R
 \name{createGiottoObjectSubcellular}
 \alias{createGiottoObjectSubcellular}
-\title{createGiottoObjectSubcellular}
+\title{Create a giotto object from subcellular data}
 \usage{
 createGiottoObjectSubcellular(
   gpoints = NULL,

@@ -2,7 +2,7 @@
 % Please edit documentation in R/giotto_structures.R
 \name{createGiottoPoints}
 \alias{createGiottoPoints}
-\title{createGiottoPoints}
+\title{Create giotto points object}
 \usage{
 createGiottoPoints(x, feat_type = "rna")
 }

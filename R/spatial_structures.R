@@ -3,7 +3,7 @@
 
 
 
-#' @title spatNetwDistributionsDistance
+#' @title Plot spatial distance distribution
 #' @name spatNetwDistributionsDistance
 #' @description This function return histograms displaying the distance distribution for each spatial k-neighbor
 #' @param gobject Giotto object
@@ -1064,7 +1064,7 @@ create_delaunayNetwork3D <- function (gobject,
 
 
 
-#' @title createSpatialDelaunayNetwork
+#' @title Create a spatial Delaunay network
 #' @name createSpatialDelaunayNetwork
 #' @description Create a spatial Delaunay network based on cell centroid physical distances.
 #' @param gobject giotto object
@@ -1097,9 +1097,9 @@ createSpatialDelaunayNetwork <- function(gobject,
                                          maximum_distance = "auto", # all
                                          minimum_k = 0, # all
                                          options = "Pp", # geometry
-                                         Y = TRUE, # RTriange
-                                         j = TRUE, # RTriange
-                                         S = 0, # RTriange
+                                         Y = TRUE, # RTriangle
+                                         j = TRUE, # RTriangle
+                                         S = 0, # RTriangle
                                          verbose = T,
                                          return_gobject = TRUE,
                                          ...) {
@@ -2341,7 +2341,7 @@ annotate_spatlocs_with_spatgrid_3D = function(spatloc,
 #' @param gobject Giotto object
 #' @param spat_unit spatial unit
 #' @param spat_loc_name name of spatial locations
-#' @param spatial_grid_name name of spatial grid, see \code{\link{showGrids}}
+#' @param spatial_grid_name name of spatial grid, see \code{\link{showGiottoSpatGrids}}
 #' @param cluster_columns names of cell metadata, see \code{\link{pDataDT}}
 #' @return annotated spatial grid data.table
 #' @export

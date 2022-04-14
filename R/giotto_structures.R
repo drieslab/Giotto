@@ -35,7 +35,7 @@ giottoPolygon <- setClass(
 
 
 
-
+#' @title Convert polygon to raster
 #' @name polygon_to_raster
 #' @description function to convert terra SpatVector Polygon shape into a terra SpatRaster
 #' @keywords internal
@@ -60,6 +60,7 @@ polygon_to_raster = function(polygon, field = NULL) {
 ## extension of spatVector object
 ## name should match the cellular structure
 
+#' @title Create a giotto polygon object
 #' @name create_giotto_polygon_object
 #' @keywords internal
 create_giotto_polygon_object = function(name = 'cell',
@@ -114,7 +115,7 @@ create_giotto_polygon_object = function(name = 'cell',
 
 
 
-
+#' @title Identify background range polygons
 #' @name identify_background_range_polygons
 #' @description function to remove background polygon based on largest range
 #' @keywords internal
@@ -140,7 +141,7 @@ identify_background_range_polygons = function(spatVector) {
 
 
 
-
+#' @title Create segmentation polygons
 #' @name create_segm_polygons
 #' @description creates giotto polygons from segmentation mask data
 #' @return giotto polygon
@@ -221,6 +222,7 @@ create_segm_polygons = function(maskfile,
 }
 
 
+#' @title Calculate polygon centroids
 #' @name calculate_centroids_polygons
 #' @description calculates centroids from selected polygons
 #' @keywords internal
@@ -250,7 +252,7 @@ calculate_centroids_polygons = function(gpolygon,
 
 
 
-
+#' @title Split multi-part polygons
 #' @name fix_multipart_geoms
 #' @description function to split geoms (polygons) that have multiple parts
 #' @keywords internal
@@ -311,7 +313,7 @@ fix_multipart_geoms = function(spatVector) {
 
 ## segmMaskToPolygon
 
-#' @title createGiottoPolygonsFromMask
+#' @title Create giotto polygons from mask file
 #' @name createGiottoPolygonsFromMask
 #' @description Creates Giotto polygon object from a mask file (e.g. segmentation results)
 #' @param maskfile path to mask file
@@ -483,7 +485,7 @@ createGiottoPolygonsFromMask = function(maskfile,
 
 ## segmDfrToPolygon
 
-#' @title createGiottoPolygonsFromDfr
+#' @title Create giotto polygons from dataframe
 #' @name createGiottoPolygonsFromDfr
 #' @description Creates Giotto polygon object from a structured dataframe-like object
 #' @param segmdfr data.frame-like object with polygon coordinate information (x, y, ID)
@@ -551,7 +553,7 @@ createGiottoPolygonsFromDfr = function(segmdfr,
 
 
 
-
+#' @title Extract list of polygons
 #' @name extract_polygon_list
 #' @description  to extract list of polygons
 #' @keywords internal
@@ -630,7 +632,7 @@ extract_polygon_list = function(polygonlist,
 
 
 
-#' @title addGiottoPolygons
+#' @title Add giotto polygons to giotto object
 #' @name addGiottoPolygons
 #' @description Adds Giotto polygon to an existing Giotto object
 #' @param gobject giotto object
@@ -679,6 +681,7 @@ addGiottoPolygons = function(gobject,
 
 # convert spatVector to data.table
 
+#' @title Convert spatVector to data.table
 #' @name spatVector_to_dt
 #' @description  convert spatVector to data.table
 #' @keywords internal
@@ -698,7 +701,7 @@ spatVector_to_dt = function(spatvector,
 }
 
 
-
+#' @title Convert data.table to polygon spatVector
 #' @name dt_to_spatVector_polygon
 #' @description convert data.table to spatVector for polygons
 #' @keywords internal
@@ -733,8 +736,13 @@ dt_to_spatVector_polygon = function(dt,
 }
 
 
+#' @title Convert spline to polygon
 #' @name spline_poly
 #' @description spline polynomial to smooth polygon
+#' @param xy xy
+#' @param vertices vertices
+#' @param k k
+#' @param ... additional params to pass
 #' @keywords internal
 spline_poly <- function(xy, vertices = 20, k = 3, ...) {
   # Assert: xy is an n by 2 matrix with n >= k.
@@ -897,7 +905,12 @@ featureNetwork <- setClass(
 )
 
 
+#' @title Create feature network object
 #' @name create_featureNetwork_object
+#' @param name name to assign the created feature network object
+#' @param network_datatable network data.table object
+#' @param network_lookup_id network lookup id
+#' @param full fully connected status
 #' @keywords internal
 create_featureNetwork_object = function(name = 'feat_network',
                                         network_datatable = NULL,
@@ -934,8 +947,11 @@ create_featureNetwork_object = function(name = 'feat_network',
 
 
 
-
+#' @title Create giotto points object
 #' @name create_giotto_points_object
+#' @param feat_type feature type
+#' @param spatVector terra spatVector object containing point data
+#' @param networks feature network object
 #' @keywords internal
 create_giotto_points_object = function(feat_type = 'rna',
                                        spatVector = NULL,
@@ -967,8 +983,10 @@ create_giotto_points_object = function(feat_type = 'rna',
 
 
 
-#' @name create_giotto_points_object
+#' @title Create terra spatvector object from a data.frame
+#' @name create_spatvector_object_from_dfr
 #' @description create terra spatvector from a data.frame
+#' @param x data.frame object
 #' @keywords internal
 create_spatvector_object_from_dfr = function(x) {
 
@@ -990,7 +1008,7 @@ create_spatvector_object_from_dfr = function(x) {
 
 # create Giotto points from data.frame or spatVector
 
-#' @title createGiottoPoints
+#' @title Create giotto points object
 #' @name createGiottoPoints
 #' @description Creates Giotto point object from a structured dataframe-like object
 #' @param x spatVector or data.frame-like object with points coordinate information (x, y, feat ID)
@@ -1026,8 +1044,12 @@ createGiottoPoints = function(x,
 # data.table to spatVector
 
 
+#' @title Convert point data data.table to spatVector
 #' @name dt_to_spatVector_points
 #' @description  data.table to spatVector for points
+#' @param dt data.table
+#' @param include_values include additional values from data.table as attributes paired with created terra spatVector [boolean]
+#' @param specific_values specific values to include as attributes if include_values == TRUE
 #' @keywords internal
 dt_to_spatVector_points = function(dt,
                                    include_values = TRUE,
@@ -1064,7 +1086,7 @@ dt_to_spatVector_points = function(dt,
 # add Giotto points object to existing Giotto object
 # cell IDs needs to match
 
-#' @title addGiottoPoints
+#' @title Add giotto points object to giotto object
 #' @name addGiottoPoints
 #' @description Adds Giotto points to an existing Giotto object
 #' @param gobject giotto object
@@ -1131,9 +1153,10 @@ addGiottoPoints = function(gobject,
 
 
 
-
+#' @title Extract list of giotto points objects
 #' @name extract_points_list
-#' @description  to extract list of giotto points
+#' @description to extract list of giotto points
+#' @param pointslist list of inputs from which to create giotto points objects
 #' @keywords internal
 extract_points_list = function(pointslist) {
 
@@ -1209,8 +1232,18 @@ extract_points_list = function(pointslist) {
 
 
 
+#' @title Create kNN spatial feature network using dbscan
 #' @name createSpatialFeaturesKNNnetwork_dbscan
 #' @description  to create a feature kNN spatial network using dbscan
+#' @param gobject giotto object
+#' @param feat_type feature type
+#' @param name name to assign generated feature network
+#' @param k number of neighbors for kNN to find
+#' @param maximum_distance network maximum distance allowed
+#' @param minimum_k minimum neighbors allowed
+#' @param add_feat_ids whether to add feature information [boolean]
+#' @param verbose be verbose
+#' @param ... additional parameters to pass
 #' @keywords internal
 createSpatialFeaturesKNNnetwork_dbscan = function(gobject,
                                                   feat_type = NULL,
@@ -1300,7 +1333,7 @@ createSpatialFeaturesKNNnetwork_dbscan = function(gobject,
 
 
 
-#' @title createSpatialFeaturesKNNnetwork
+#' @title Create kNN spatial feature network
 #' @name createSpatialFeaturesKNNnetwork
 #' @description Calculates the centroid locations for the giotto polygons
 #' @param gobject giotto object
@@ -1965,7 +1998,7 @@ calculateOverlapParallel = function(gobject,
 
 #' @title overlapToMatrix
 #' @name overlapToMatrix
-#' @description create a count matrix based on overlap results from \code{\link{calculateOverlap}}
+#' @description create a count matrix based on overlap results from \code{\link{calculateOverlapRaster}}, \code{\link{calculateOverlapSerial}}, or \code{\link{calculateOverlapParallel}}
 #' @param gobject giotto object
 #' @param name name for the overlap count matrix
 #' @param poly_info polygon information
@@ -2043,7 +2076,7 @@ overlapToMatrix = function(gobject,
 
 #' @title overlapToMatrixMultiPoly
 #' @name overlapToMatrixMultiPoly
-#' @description create a count matrix based on overlap results from \code{\link{calculateOverlap}}
+#' @description create a count matrix based on overlap results from \code{\link{calculateOverlapRaster}}, \code{\link{calculateOverlapSerial}}, or \code{\link{calculateOverlapParallel}}
 #' and aggregate information from multiple polygon layers (e.g. z-stacks) together
 #' @param gobject giotto object
 #' @param name name for the overlap count matrix

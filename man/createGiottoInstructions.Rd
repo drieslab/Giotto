@@ -2,7 +2,7 @@
 % Please edit documentation in R/giotto.R
 \name{createGiottoInstructions}
 \alias{createGiottoInstructions}
-\title{createGiottoInstructions}
+\title{Create instructions for giotto functions}
 \usage{
 createGiottoInstructions(
   python_path = NULL,

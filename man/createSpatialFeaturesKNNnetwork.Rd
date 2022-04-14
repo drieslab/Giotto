@@ -2,7 +2,7 @@
 % Please edit documentation in R/giotto_structures.R
 \name{createSpatialFeaturesKNNnetwork}
 \alias{createSpatialFeaturesKNNnetwork}
-\title{createSpatialFeaturesKNNnetwork}
+\title{Create kNN spatial feature network}
 \usage{
 createSpatialFeaturesKNNnetwork(
   gobject,

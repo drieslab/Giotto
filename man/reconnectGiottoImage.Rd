@@ -2,7 +2,7 @@
 % Please edit documentation in R/images.R
 \name{reconnectGiottoImage}
 \alias{reconnectGiottoImage}
-\title{reconnectGiottoImage}
+\title{Reconnect images with dead pointers}
 \usage{
 reconnectGiottoImage(
   gobject,
@@ -33,16 +33,18 @@ reconnectGiottoImage(
 a giotto object with updated image pointer
 }
 \description{
-reconnect a gobject's dead image pointers using filepaths. Inputs can either be given as both image name and filepath args or as a named list through filepath argument alone.
+reconnect a gobject's dead image pointers using filepaths to 
+  the original source image files
 }
 \details{
-Inputs can either be given as both image name and filepath args
-  or as a named list through filepath arg alone.
-  If auto_reconnect is TRUE then no additional params need to be supplied.
+Inputs can either be given as both image name (\code{image_name}/\code{largeImage_name})
+  and filepath (\code{image_path}/\code{largeImage_path}) args or as only a
+  a named list through a filepath argument alone.
+  If \code{auto_reconnect = TRUE} then no additional params need to be supplied.
   As long as giotto image objects were directly created using filepaths, those
   filepaths are stored within the image objects and will be referenced during
   reconnection. Issues will only arise if giotto image objects were created directly
-  from the underlying image handling package objects (magick or raster objects) or
+  from the underlying image handling package objects (\emph{magick} or \emph{raster objects}) or
   if image files have been moved since the the giotto image object was generated.
-  In such cases, use manual reconnection by setting auto_reconnect to FALSE.
+  In such cases, use manual reconnection by setting \code{auto_reconnect = FALSE}.
 }

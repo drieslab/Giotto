@@ -1003,7 +1003,7 @@ dimPlot2D_single <- function(gobject,
 
 
 
-#' @title dimPlot2D
+#' @title Plot dimension reduction 2D
 #' @name dimPlot2D
 #' @description Visualize cells according to dimension reduction coordinates
 #' @param gobject giotto object
@@ -4456,7 +4456,7 @@ spatFeatPlot2D_single <- function(gobject,
 }
 
 
-#' @title spatFeatPlot2D
+#' @title Plot data in physical space 2D
 #' @name spatFeatPlot2D
 #' @description Visualize cells and feature expression according to spatial coordinates
 #' @param gobject giotto object
@@ -4755,7 +4755,7 @@ spatFeatPlot2D <- function(gobject,
 
 
 
-
+#' @title spatGenePlot2D
 #' @name spatGenePlot2D
 #' @description Visualize cells and gene expression according to spatial coordinates
 #' @param gobject giotto object
@@ -4782,6 +4782,7 @@ spatGenePlot2D <- function(gobject,
 }
 
 
+#' @title spatGenePlot
 #' @name spatGenePlot
 #' @description Visualize cells and gene expression according to spatial coordinates
 #' @inheritDotParams spatGenePlot2D
@@ -5160,7 +5161,7 @@ dimFeatPlot2D <- function(gobject,
 
 
 
-
+#' @title dimGenePlot2D
 #' @name dimGenePlot2D
 #' @description Visualize gene expression according to dimension reduction coordinates
 #' @param gobject giotto object
@@ -5187,6 +5188,7 @@ dimGenePlot2D <- function(gobject,
 
 
 
+#' @title dimGenePlot
 #' @name dimGenePlot
 #' @description Visualize gene expression according to dimension reduction coordinates
 #' @inheritDotParams dimGenePlot2D

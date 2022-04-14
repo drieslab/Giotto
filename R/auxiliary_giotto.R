@@ -2031,7 +2031,7 @@ normalizeGiotto <- function(gobject,
 
 
 
-#' @title adjustGiottoMatrix
+#' @title Adjust expression values
 #' @name adjustGiottoMatrix
 #' @description Adjust expression values to account for known batch effects or technological covariates.
 #' @param gobject giotto object
@@ -2151,7 +2151,7 @@ adjustGiottoMatrix <- function(gobject,
 #' @param verbose be verbose (default is TRUE)
 #' @return giotto object
 #' @details See \code{\link{filterGiotto}}, \code{\link{normalizeGiotto}},
-#' \code{\link{addStatistics}} and \code{\link{adjustGiottoMatrix}} for more
+#' \code{\link{addStatistics}}, and \code{\link{adjustGiottoMatrix}}. For more
 #' information about the different parameters in each step. If you do not provide
 #' them it will use the default values.
 #' @export
@@ -2200,7 +2200,7 @@ processGiotto = function(gobject,
 ## Gene & Cell metadata functions ####
 
 
-#' @title annotateGiotto
+#' @title Annotate giotto clustering
 #' @name annotateGiotto
 #' @description Converts cluster results into a user provided annotation.
 #' @param gobject giotto object
@@ -2286,16 +2286,16 @@ annotateGiotto <- function(gobject,
 
 
 
-#' @title removeCellAnnotation
+#' @title Remove cell annotation
 #' @name removeCellAnnotation
-#' @description removes cell annotation from a Giotto object for a specific feature modality (default = 'rna')
+#' @description Removes cell annotation from a Giotto object for a specific feature modality (default = 'rna')
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
 #' @param columns names of columns to remove
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @return giotto object
-#' @details if return_gobject = FALSE, it will return the cell metadata
+#' @details if \code{return_gobject = FALSE}, it will return the cell metadata
 #' @export
 removeCellAnnotation <- function(gobject,
                                  spat_unit = NULL,
@@ -2326,16 +2326,16 @@ removeCellAnnotation <- function(gobject,
 }
 
 
-#' @title removeFeatAnnotation
+#' @title Remove feature annotation
 #' @name removeFeatAnnotation
-#' @description removes feature annotation from a Giotto object for a specific feature modality
+#' @description Removes feature annotation from a Giotto object for a specific feature modality
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
 #' @param columns names of columns to remove
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @return giotto object
-#' @details if return_gobject = FALSE, it will return the gene metadata
+#' @details if \code{return_gobject = FALSE}, it will return the gene metadata
 #' @export
 removeFeatAnnotation <- function(gobject,
                                  spat_unit = NULL,
@@ -2368,21 +2368,21 @@ removeFeatAnnotation <- function(gobject,
 
 
 
-#' @title addCellMetadata
+#' @title Add cell metadata
 #' @name addCellMetadata
-#' @description adds cell metadata to the giotto object
+#' @description Adds cell metadata to the giotto object
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
 #' @param new_metadata new cell metadata to use (data.table, data.frame, ...)
 #' @param vector_name (optional) custom name if you provide a single vector
-#' @param by_column merge metadata based on cell_ID column in pDataDT (default = FALSE)
+#' @param by_column merge metadata based on \emph{cell_ID} column in \code{\link{pDataDT}} (default = FALSE)
 #' @param column_cell_ID column name of new metadata to use if by_column = TRUE
 #' @return giotto object
 #' @details You can add additional cell metadata in two manners:
 #' \itemize{
-#'   \item{1. Provide a data.table or data.frame with cell annotations in the same order as the cell_ID column in pDataDT(gobject) }
-#'   \item{2. Provide a data.table or data.frame with cell annotations and specificy which column contains the cell IDs, these cell IDs need to match with the cell_ID column in pDataDT(gobject)}
+#'   \item{1. Provide a data.table or data.frame with cell annotations in the same order as the \emph{cell_ID} column in pDataDT(gobject) }
+#'   \item{2. Provide a data.table or data.frame with cell annotations and specify which column contains the cell IDs, these cell IDs need to match with the \emph{cell_ID} column in pDataDT(gobject)}
 #' }
 #' @export
 addCellMetadata <- function(gobject,
@@ -2459,20 +2459,20 @@ addCellMetadata <- function(gobject,
 }
 
 
-#' @title addFeatMetadata
+#' @title Add feature metadata
 #' @name addFeatMetadata
-#' @description adds gene metadata to the giotto object
+#' @description Adds feature metadata to the giotto object
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
 #' @param new_metadata new metadata to use
-#' @param by_column merge metadata based on gene_ID column in fDataDT
+#' @param by_column merge metadata based on \emph{feat_ID} column in \code{\link{fDataDT}}
 #' @param column_feat_ID column name of new metadata to use if by_column = TRUE
 #' @return giotto object
-#' @details You can add additional gene metadata in two manners:
-#' 1. Provide a data.table or data.frame with gene annotations in the same order as the gene_ID column in fDataDT(gobject)
-#' 2. Provide a data.table or data.frame with gene annotations and specificy which column contains the gene IDs,
-#' these gene IDs need to match with the gene_ID column in fDataDT(gobject)
+#' @details You can add additional gene metadata in two manners: \cr
+#' 1. Provide a data.table or data.frame with feature annotations in the same order as the \emph{feat_ID} column in fDataDT(gobject) \cr
+#' 2. Provide a data.table or data.frame with feature annotations and specify which column contains the feature IDs,
+#' these feature IDs need to match with the \emph{feat_ID} column in fDataDT(gobject)
 #' @export
 addFeatMetadata <- function(gobject,
                             feat_type = NULL,
@@ -2515,17 +2515,17 @@ addFeatMetadata <- function(gobject,
 
 
 
-
+#' @title Add gene metadata
 #' @name addGeneMetadata
 #' @description adds gene metadata to the giotto object
 #' @param gobject giotto object
 #' @param new_metadata new metadata to use
-#' @param by_column merge metadata based on gene_ID column in fDataDT
-#' @param column_gene_ID column name of new metadata to use if by_column = TRUE
+#' @param by_column merge metadata based on gene_ID column in \code{\link{fDataDT}}
+#' @param column_gene_ID column name of new metadata to use if \code{by_column = TRUE}
 #' @return giotto object
 #' @details You can add additional gene metadata in two manners:
 #' 1. Provide a data.table or data.frame with gene annotations in the same order as the gene_ID column in fDataDT(gobject)
-#' 2. Provide a data.table or data.frame with gene annotations and specificy which column contains the gene IDs,
+#' 2. Provide a data.table or data.frame with gene annotations and specify which column contains the gene IDs,
 #' these gene IDs need to match with the gene_ID column in fDataDT(gobject)
 #' @export
 addGeneMetadata <- function(gobject,

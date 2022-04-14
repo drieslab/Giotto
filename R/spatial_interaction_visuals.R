@@ -1465,7 +1465,7 @@ plotCPG = function(gobject,
 
 
 
-
+#' @title Plot interaction changed features
 #' @name plotInteractionChangedFeats
 #' @description Create barplot to visualize interaction changed features
 #' @param gobject giotto object
@@ -1570,7 +1570,7 @@ plotInteractionChangedFeats = function(gobject,
 
 
 
-#' @title plotInteractionChangedGenes
+#' @title Plot interaction changed genes
 #' @name plotInteractionChangedGenes
 #' @description Create barplot to visualize interaction changed genes
 #' @param gobject giotto object
@@ -1615,7 +1615,7 @@ plotInteractionChangedGenes = function(gobject,
 }
 
 
-
+#' @title Plot interaction changed features
 #' @name plotICF
 #' @description Create barplot to visualize interaction changed features
 #' @param gobject giotto object
@@ -2615,6 +2615,7 @@ plotRecovery = function(gobject,
 # * ####
 # cell proximity spatplots ####
 
+#' @title cellProximitySpatPlot2D
 #' @name cellProximitySpatPlot2D
 #' @description Visualize 2D cell-cell interactions according to spatial coordinates in ggplot mode
 #' @param gobject giotto object
@@ -2877,7 +2878,7 @@ cellProximitySpatPlot = function(gobject, ...) {
 }
 
 
-#' @title cellProximitySpatPlot2D
+#' @title cellProximitySpatPlot3D
 #' @name cellProximitySpatPlot3D
 #' @description Visualize 3D cell-cell interactions according to spatial coordinates in plotly mode
 #' @param gobject giotto object

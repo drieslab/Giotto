@@ -2,7 +2,7 @@
 % Please edit documentation in R/auxiliary_giotto.R
 \name{removeFeatAnnotation}
 \alias{removeFeatAnnotation}
-\title{removeFeatAnnotation}
+\title{Remove feature annotation}
 \usage{
 removeFeatAnnotation(
   gobject,
@@ -27,8 +27,8 @@ removeFeatAnnotation(
 giotto object
 }
 \description{
-removes feature annotation from a Giotto object for a specific feature modality
+Removes feature annotation from a Giotto object for a specific feature modality
 }
 \details{
-if return_gobject = FALSE, it will return the gene metadata
+if \code{return_gobject = FALSE}, it will return the gene metadata
 }

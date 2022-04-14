@@ -2,7 +2,7 @@
 % Please edit documentation in R/giotto.R
 \name{evaluate_spatial_locations}
 \alias{evaluate_spatial_locations}
-\title{evaluate_spatial_locations}
+\title{Evaluate spatial locations}
 \usage{
 evaluate_spatial_locations(spatial_locs, cores = 1)
 }

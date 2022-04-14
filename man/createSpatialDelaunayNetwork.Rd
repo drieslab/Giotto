@@ -2,7 +2,7 @@
 % Please edit documentation in R/spatial_structures.R
 \name{createSpatialDelaunayNetwork}
 \alias{createSpatialDelaunayNetwork}
-\title{createSpatialDelaunayNetwork}
+\title{Create a spatial Delaunay network}
 \usage{
 createSpatialDelaunayNetwork(
   gobject,

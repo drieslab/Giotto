@@ -2,7 +2,7 @@
 % Please edit documentation in R/giotto.R
 \name{showGiottoInstructions}
 \alias{showGiottoInstructions}
-\title{showGiottoInstructions}
+\title{Show giotto instructions associated with giotto object}
 \usage{
 showGiottoInstructions(gobject)
 }

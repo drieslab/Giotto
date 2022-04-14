@@ -2,7 +2,7 @@
 % Please edit documentation in R/auxiliary_giotto.R
 \name{adjustGiottoMatrix}
 \alias{adjustGiottoMatrix}
-\title{adjustGiottoMatrix}
+\title{Adjust expression values}
 \usage{
 adjustGiottoMatrix(
   gobject,
