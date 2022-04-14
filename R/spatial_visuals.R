@@ -10027,5 +10027,57 @@ getCellsFromPolygon <- function(gobject,
 }
 
 
+#' Add corresponding polygon IDs to cell metadata
+#'
+#' @param gobject A Giotto object
+#' @param cellsFromPolygon A `SpatVector` with cell IDs located inside each polygon
+#' @param feat_type feature name where metadata will be added
+#'
+#' @return A Giotto object with a modified cell_metadata slot that includes the
+#' polygon name where each cell is located or NA if the cell is not located
+#' within a polygon area
+#'
+#' @export
+#'
+#' @examples
+#'
+#' ## Plot interactive polygons
+#' my_polygon_coords <- plotInteractivePolygons(my_spatPlot)
+#'
+#' ## Add polygon coordinates to Giotto object
+#' my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords)
+#' my_giotto_object <- addGiottoPolygons(gobject = my_giotto_object,
+#'                                       gpolygons = list(my_giotto_polygons))
+#'
+#' ## Get cells located within polygons area
+#' my_polygon_cells <- getCellsFromPolygon(my_giotto_object)
+#'
+#' my_giotto_object <- addCellsFromPolygon(my_giotto_object, my_polygon_cells)
+
+addCellsFromPolygon <- function(gobject,
+                                cellsFromPolygon,
+                                feat_type = "rna") {
+
+  ## verify Giotto object
+  if (!inherits(gobject, "giotto")) {
+    stop("gobject needs to be a giotto object")
+  }
+
+  ## get original metadas
+  cell_metadata <- slot(gobject, "cell_metadata")$cell[[feat_type]]
+
+  ## convert cellsFromPolygon to data frame
+  cellsFromPolygondata <- as.data.frame(cellsFromPolygon)
+
+  ## merge metadata as data.table
+  new_cell_metadata <- merge(cell_metadata, cellsFromPolygondata[,c("cell_ID", "poly_ID")],
+                             by = "cell_ID", all.x = TRUE)
+  new_cell_metadata <- new_cell_metadata[match(cell_metadata$cell_ID, new_cell_metadata$cell_ID),]
+
+  ## add cell metadata to Giotto object
+  addCellMetadata(gobject = gobject, new_metadata = new_cell_metadata[,-1])
+
+}
+
 
 
