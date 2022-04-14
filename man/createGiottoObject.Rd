@@ -2,7 +2,7 @@
 % Please edit documentation in R/giotto.R
 \name{createGiottoObject}
 \alias{createGiottoObject}
-\title{createGiottoObject}
+\title{Create a giotto object}
 \usage{
 createGiottoObject(
   expression,
@@ -78,7 +78,7 @@ giotto object
 Function to create a giotto object
 }
 \details{
-See \url{https://rubd.github.io/Giotto_site/articles/howto_giotto_class.html} for more details
+See \url{http://giottosuite.com/articles/getting_started_gobject.html} for more details
 
 [\strong{Requirements}] To create a giotto object you need to provide at least a matrix with genes as
 row names and cells as column names. This matrix can be provided as a base matrix, sparse Matrix, data.frame,
@@ -99,7 +99,7 @@ can be used to generate such an offset file.
 one of the different expression slots (norm_expr, norm_scaled_expr, custom_expr).
 
 [\strong{Metadata}] Cell and gene metadata can be provided using the cell and gene metadata slots.
-This data can also be added afterwards using the \code{\link{addGeneMetadata}} or \code{\link{addCellMetadata}} functions.
+This data can also be added afterwards using the \code{\link{addFeatMetadata}} or \code{\link{addCellMetadata}} functions.
 
 [\strong{Other information}] Additional information can be provided through the appropriate slots:
 \itemize{

@@ -2,7 +2,7 @@
 % Please edit documentation in R/giotto_structures.R
 \name{createGiottoPolygonsFromDfr}
 \alias{createGiottoPolygonsFromDfr}
-\title{createGiottoPolygonsFromDfr}
+\title{Create giotto polygons from dataframe}
 \usage{
 createGiottoPolygonsFromDfr(segmdfr, name = "cell", calc_centroids = FALSE)
 }

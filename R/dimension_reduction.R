@@ -1204,7 +1204,7 @@ signPCA <- function(gobject,
 ## * Dim reduction algos ####
 # ------------------------- #
 
-#' @title runUMAP
+#' @title Run UMAP dimension reduction
 #' @name runUMAP
 #' @description run UMAP
 #' @param gobject giotto object
@@ -1230,13 +1230,13 @@ signPCA <- function(gobject,
 #' @param verbose verbosity of function
 #' @param toplevel_params parameters to extract
 #' @param ... additional UMAP parameters
-#' @return giotto object with updated UMAP dimension recuction
+#' @return giotto object with updated UMAP dimension reduction
 #' @details See \code{\link[uwot]{umap}} for more information about these and other parameters.
 #' \itemize{
 #'   \item Input for UMAP dimension reduction can be another dimension reduction (default = 'pca')
 #'   \item To use gene expression as input set dim_reduction_to_use = NULL
 #'   \item If dim_reduction_to_use = NULL, genes_to_use can be used to select a column name of
-#'   highly variable genes (see \code{\link{calculateHVG}}) or simply provide a vector of genes
+#'   highly variable genes (see \code{\link{calculateHVF}}) or simply provide a vector of genes
 #'   \item multiple UMAP results can be stored by changing the \emph{name} of the analysis
 #' }
 #' @export
@@ -1430,7 +1430,7 @@ runUMAP <- function(gobject,
 }
 
 
-#' @title runtSNE
+#' @title Run tSNE dimensional reduction
 #' @name runtSNE
 #' @description run tSNE
 #' @param gobject giotto object
@@ -1459,7 +1459,7 @@ runUMAP <- function(gobject,
 #'   \item Input for tSNE dimension reduction can be another dimension reduction (default = 'pca')
 #'   \item To use gene expression as input set dim_reduction_to_use = NULL
 #'   \item If dim_reduction_to_use = NULL, genes_to_use can be used to select a column name of
-#'   highly variable genes (see \code{\link{calculateHVG}}) or simply provide a vector of genes
+#'   highly variable genes (see \code{\link{calculateHVF}}) or simply provide a vector of genes
 #'   \item multiple tSNE results can be stored by changing the \emph{name} of the analysis
 #' }
 #' @export

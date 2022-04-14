@@ -2,7 +2,7 @@
 % Please edit documentation in R/giotto.R
 \name{replaceGiottoInstructions}
 \alias{replaceGiottoInstructions}
-\title{replaceGiottoInstructions}
+\title{Replace all giotto instructions in giotto object}
 \usage{
 replaceGiottoInstructions(gobject, instructions = NULL)
 }

@@ -34,7 +34,7 @@ Wrapper for the different Giotto object processing functions
 }
 \details{
 See \code{\link{filterGiotto}}, \code{\link{normalizeGiotto}},
-\code{\link{addStatistics}} and \code{\link{adjustGiottoMatrix}} for more
+\code{\link{addStatistics}}, and \code{\link{adjustGiottoMatrix}}. For more
 information about the different parameters in each step. If you do not provide
 them it will use the default values.
 }

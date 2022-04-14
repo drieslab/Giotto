@@ -2,7 +2,7 @@
 % Please edit documentation in R/auxiliary_giotto.R
 \name{removeCellAnnotation}
 \alias{removeCellAnnotation}
-\title{removeCellAnnotation}
+\title{Remove cell annotation}
 \usage{
 removeCellAnnotation(
   gobject,
@@ -27,8 +27,8 @@ removeCellAnnotation(
 giotto object
 }
 \description{
-removes cell annotation from a Giotto object for a specific feature modality (default = 'rna')
+Removes cell annotation from a Giotto object for a specific feature modality (default = 'rna')
 }
 \details{
-if return_gobject = FALSE, it will return the cell metadata
+if \code{return_gobject = FALSE}, it will return the cell metadata
 }

@@ -103,19 +103,19 @@ makeSignMatrixDWLSfromMatrix = function(matrix,
 
 #' @title makeSignMatrixDWLS
 #' @description Function to convert a matrix within a Giotto object into a format
-#'  that can be used with \code{\link{runDWLSDeconv}}. A vector of cell types
-#'  for cell_type_vector can be created from the cell metadata (pDataDT).
+#'  that can be used with \code{\link{runDWLSDeconv}} for deconvolution. A vector of cell types
+#'  for parameter \code{cell_type_vector} can be created from the cell metadata (\code{\link{pDataDT}}).
 #' @param gobject Giotto object of single cell
 #' @param spat_unit spatial unit
 #' @param feat_type feature type to use
 #' @param expression_values expression values to use
 #' @param reverse_log reverse a log-normalized expression matrix
-#' @param log_base the logarithm base (deafult  = 2)
+#' @param log_base the logarithm base (default = 2)
 #' @param sign_gene all of DE genes (signature)
 #' @param cell_type_vector vector with cell types (length = ncol(matrix))
-#' @param cell_type deprecated, use cell_type_vector
+#' @param cell_type deprecated, use \code{cell_type_vector}
 #' @return matrix
-#' @seealso \code{\link{spatialDWLS}}
+#' @seealso \code{\link{runDWLSDeconv}}
 #' @export
 makeSignMatrixDWLS = function(gobject,
                               spat_unit = NULL,
@@ -1875,6 +1875,7 @@ runDWLSDeconv <- function(gobject,
 
 
 #' @title runSpatialDeconv
+#' @name runSpatialDeconv
 #' @description Function to perform deconvolution based on single cell expression data
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
@@ -1889,6 +1890,8 @@ runDWLSDeconv <- function(gobject,
 #' @param name name to give to spatial deconvolution results
 #' @param return_gobject return giotto object
 #' @return giotto object or deconvolution results
+#' @seealso \url{https://github.com/dtsoucas/DWLS} for the \emph{DWLS} bulk deconvolution method,
+#' and \url{https://doi.org/10.1186/s13059-021-02362-7} for \emph{spatialDWLS}, the spatial implementation used here.
 #' @export
 runSpatialDeconv <- function(gobject,
                              spat_unit = NULL,

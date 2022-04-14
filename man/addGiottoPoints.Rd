@@ -2,7 +2,7 @@
 % Please edit documentation in R/giotto_structures.R
 \name{addGiottoPoints}
 \alias{addGiottoPoints}
-\title{addGiottoPoints}
+\title{Add giotto points object to giotto object}
 \usage{
 addGiottoPoints(gobject, gpoints)
 }

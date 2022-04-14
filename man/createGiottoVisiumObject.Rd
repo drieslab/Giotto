@@ -2,7 +2,7 @@
 % Please edit documentation in R/giotto.R
 \name{createGiottoVisiumObject}
 \alias{createGiottoVisiumObject}
-\title{createGiottoVisiumObject}
+\title{Create a giotto object from 10x visium data}
 \usage{
 createGiottoVisiumObject(
   visium_dir = NULL,

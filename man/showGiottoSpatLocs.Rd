@@ -17,4 +17,16 @@ prints the name and small subset of available data.table
 \description{
 shows the available spatial locations
 }
+\seealso{
+Other functions to show data in giotto object: 
+\code{\link{showGiottoDimRed}()},
+\code{\link{showGiottoExpression}()},
+\code{\link{showGiottoFeatInfo}()},
+\code{\link{showGiottoImageNames}()},
+\code{\link{showGiottoSpatEnrichments}()},
+\code{\link{showGiottoSpatGrids}()},
+\code{\link{showGiottoSpatNetworks}()},
+\code{\link{showGiottoSpatialInfo}()}
+}
+\concept{functions to show data in giotto object}
 \keyword{show}

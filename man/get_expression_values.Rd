@@ -21,3 +21,20 @@ expression matrix
 \description{
 function to get expression values from giotto object
 }
+\seealso{
+Other expression accessor functions: 
+\code{\link{set_expression_values}()}
+
+Other functions to get data from giotto object: 
+\code{\link{get_NearestNetwork}()},
+\code{\link{get_dimReduction}()},
+\code{\link{get_feature_info}()},
+\code{\link{get_giottoImage}()},
+\code{\link{get_polygon_info}()},
+\code{\link{get_spatialGrid}()},
+\code{\link{get_spatialNetwork}()},
+\code{\link{get_spatial_enrichment}()},
+\code{\link{get_spatial_locations}()}
+}
+\concept{expression accessor functions}
+\concept{functions to get data from giotto object}

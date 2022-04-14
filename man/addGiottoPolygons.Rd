@@ -2,7 +2,7 @@
 % Please edit documentation in R/giotto_structures.R
 \name{addGiottoPolygons}
 \alias{addGiottoPolygons}
-\title{addGiottoPolygons}
+\title{Add giotto polygons to giotto object}
 \usage{
 addGiottoPolygons(gobject, gpolygons)
 }

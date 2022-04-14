@@ -2,7 +2,7 @@
 % Please edit documentation in R/giotto.R
 \name{changeGiottoInstructions}
 \alias{changeGiottoInstructions}
-\title{changeGiottoInstructions}
+\title{Change giotto instruction(s) associated with giotto object}
 \usage{
 changeGiottoInstructions(
   gobject,

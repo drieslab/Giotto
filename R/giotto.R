@@ -274,7 +274,7 @@ set_giotto_python_path = function(python_path = NULL,
 #### Giotto instructions ####
 
 
-#' @title createGiottoInstructions
+#' @title Create instructions for giotto functions
 #' @name createGiottoInstructions
 #' @description Function to set global instructions for giotto functions
 #' @param python_path path to python binary to use
@@ -386,8 +386,8 @@ createGiottoInstructions <- function(python_path =  NULL,
 
 }
 
-#' @title readGiottoInstrunctions
-#' @name readGiottoInstrunctions
+#' @title Read giotto instructions associated with giotto object
+#' @name readGiottoInstructions
 #' @description Retrieves the instruction associated with the provided parameter
 #' @param giotto_instructions giotto object or result from createGiottoInstructions()
 #' @param param parameter to retrieve
@@ -413,7 +413,7 @@ readGiottoInstructions <- function(giotto_instructions,
 }
 
 
-#' @title showGiottoInstructions
+#' @title Show giotto instructions associated with giotto object
 #' @name showGiottoInstructions
 #' @description Function to display all instructions from giotto object
 #' @param gobject giotto object
@@ -426,7 +426,7 @@ showGiottoInstructions = function(gobject) {
 }
 
 
-#' @title changeGiottoInstructions
+#' @title Change giotto instruction(s) associated with giotto object
 #' @name changeGiottoInstructions
 #' @description Function to change one or more instructions from giotto object
 #' @param gobject giotto object
@@ -483,7 +483,7 @@ changeGiottoInstructions = function(gobject,
 
 
 
-#' @title replaceGiottoInstructions
+#' @title Replace all giotto instructions in giotto object
 #' @name replaceGiottoInstructions
 #' @description Function to replace all instructions from giotto object
 #' @param gobject giotto object
@@ -509,7 +509,7 @@ replaceGiottoInstructions = function(gobject,
 
 #### Giotto matrices ####
 
-#' @title readExprMatrix
+#' @title Read expression matrix
 #' @name readExprMatrix
 #' @description Function to read an expression matrix into a sparse matrix.
 #' @param path path to the expression matrix
@@ -543,7 +543,8 @@ readExprMatrix = function(path,
 
 
 
-#' @title evaluate_expr_matrix
+#' @title Evaluate expression matrix
+#' @name evaluate_expr_matrix
 #' @description Evaluate expression matrices that are provided as input.
 #' @param inputmatrix inputmatrix to evaluate
 #' @param sparse create sparse matrix (default = TRUE)
@@ -597,6 +598,7 @@ evaluate_expr_matrix = function(inputmatrix,
 
 
 
+#' @title Find depth of subnesting
 #' @name depth
 #' @keywords internal
 depth <- function(this) {
@@ -612,7 +614,7 @@ depth <- function(this) {
 
 
 
-#' @title read_expression_data
+#' @title Read expression data
 #' @name read_expression_data
 #' @param expr_list (nested) list with expression data
 #' @param sparse read matrix data in a sparse manner
@@ -745,6 +747,7 @@ read_expression_data = function(expr_list = NULL,
 
 
 
+#' @title Set cell and feature IDs
 #' @name set_cell_and_feat_IDs
 #' @description sets cell and feature IDs based on provided expression data
 #' @keywords internal
@@ -792,8 +795,9 @@ set_cell_and_feat_IDs = function(gobject) {
 
 #### Giotto metadata ####
 
+#' @title Set cell metadata
 #' @name set_cell_metadata
-#' @description set cell metadata
+#' @description Set cell metadata
 #' @keywords internal
 set_cell_metadata = function(gobject,
                              cell_metadata) {
@@ -843,8 +847,9 @@ set_cell_metadata = function(gobject,
 }
 
 
+#' @title Set feature metadata
 #' @name set_feature_metadata
-#' @description set feature metadata
+#' @description Set feature metadata
 #' @keywords internal
 set_feature_metadata = function(gobject,
                                 feat_metadata) {
@@ -971,7 +976,7 @@ evaluate_spatial_locations_OLD = function(spatial_locs,
 }
 
 
-#' @title evaluate_spatial_locations
+#' @title Evaluate spatial locations
 #' @name evaluate_spatial_locations
 #' @description Evaluate spatial location input
 #' @param spatial_locs spatial locations to evaluate
@@ -1038,6 +1043,7 @@ evaluate_spatial_locations = function(spatial_locs,
 }
 
 
+#' @title Read spatial location data
 #' @name read_spatial_location_data
 #' @description read spatial locations
 #' @param gobject giotto object
@@ -1129,6 +1135,7 @@ read_spatial_location_data = function(gobject,
 }
 
 
+#' @title Check spatial location data
 #' @name check_spatial_location_data
 #' @description check cell ID (spatial unit) names between spatial location and expression data
 #' @keywords internal
@@ -1178,6 +1185,7 @@ check_spatial_location_data = function(gobject) {
 
 #### Giotto spatial network ####
 
+#' @title Read spatial networks
 #' @name read_spatial_networks
 #' @description read spatial networks from list
 #' @keywords internal
@@ -1227,6 +1235,7 @@ read_spatial_networks = function(gobject,
 #### Giotto spatial enrichment ####
 
 
+#' @title Read spatial enrichment
 #' @name read_spatial_enrichment
 #' @description read spatial enrichment results from list
 #' @keywords internal
@@ -1273,6 +1282,7 @@ read_spatial_enrichment = function(gobject,
 #### Giotto dimension reduction ####
 
 
+#' @title Read dimensional reduction
 #' @name read_dimension_reduction
 #' @description read dimension reduction results from list
 #' @keywords internal
@@ -1323,6 +1333,7 @@ read_dimension_reduction = function(gobject,
 
 #### Giotto nearest network ####
 
+#' @title Read nearest neighbor networks
 #' @name read_nearest_networks
 #' @description read nearest network results from list
 #' @keywords internal
@@ -1330,7 +1341,7 @@ read_nearest_networks = function(gobject,
                                  nn_network) {
 
   if(is.null(nn_network)) {
-    cat('No nearst network results are provided \n')
+    cat('No nearest network results are provided \n')
     return(gobject)
 
   } else {
@@ -1376,6 +1387,7 @@ read_nearest_networks = function(gobject,
 #### Giotto spatial info ####
 
 
+#' @title Evaluate spatial info
 #' @name evaluate_spatial_info
 #' @description Evaluate spatial information input
 #' @param spatial_info spatial information to evaluate
@@ -1443,6 +1455,7 @@ evaluate_spatial_info = function(spatial_info,
 #### Giotto spatial feature info ####
 
 
+#' @title Evaluate feature info
 #' @name evaluate_feat_info
 #' @description Evaluate spatial feature information input
 #' @param spatial_feat_info spatial feature information to evaluate
@@ -1509,7 +1522,7 @@ evaluate_feat_info = function(spatial_feat_info,
 
 #### creating Giotto objects ####
 
-#' @title createGiottoObject
+#' @title Create a giotto object
 #' @name createGiottoObject
 #' @description Function to create a giotto object
 #' @param expression expression information
@@ -1539,7 +1552,7 @@ evaluate_feat_info = function(spatial_feat_info,
 #' @return giotto object
 #' @details
 #'
-#' See \url{https://rubd.github.io/Giotto_site/articles/howto_giotto_class.html} for more details
+#' See \url{http://giottosuite.com/articles/getting_started_gobject.html} for more details
 #'
 #' [\strong{Requirements}] To create a giotto object you need to provide at least a matrix with genes as
 #' row names and cells as column names. This matrix can be provided as a base matrix, sparse Matrix, data.frame,
@@ -1560,7 +1573,7 @@ evaluate_feat_info = function(spatial_feat_info,
 #' one of the different expression slots (norm_expr, norm_scaled_expr, custom_expr).
 #'
 #' [\strong{Metadata}] Cell and gene metadata can be provided using the cell and gene metadata slots.
-#' This data can also be added afterwards using the \code{\link{addGeneMetadata}} or \code{\link{addCellMetadata}} functions.
+#' This data can also be added afterwards using the \code{\link{addFeatMetadata}} or \code{\link{addCellMetadata}} functions.
 #'
 #' [\strong{Other information}] Additional information can be provided through the appropriate slots:
 #' \itemize{
@@ -1871,7 +1884,7 @@ createGiottoObject <- function(expression,
 
 
 
-#' @title createGiottoVisiumObject
+#' @title Create a giotto object from 10x visium data
 #' @name createGiottoVisiumObject
 #' @description creates Giotto object directly from a 10X visium folder
 #' @param visium_dir path to the 10X visium directory [required]
@@ -2137,7 +2150,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 
 
 
-#' @title createGiottoObjectSubcellular
+#' @title Create a giotto object from subcellular data
 #' @name createGiottoObjectSubcellular
 #' @description Function to create a giotto object starting from subcellular polygon (e.g. cell) and points (e.g. transcripts) information
 #' @param gpoints giotto points
@@ -2520,6 +2533,7 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
 
 #### logging of giotto functions ####
 
+#' @title Log args used
 #' @name get_args
 #' @keywords internal
 get_args <- function(toplevel = 2, verbose = FALSE) {
@@ -2592,6 +2606,7 @@ get_args <- function(toplevel = 2, verbose = FALSE) {
 
 
 
+#' @title Update giotto parameters
 #' @name update_giotto_params
 #' @keywords internal
 update_giotto_params = function(gobject,
@@ -2617,6 +2632,7 @@ update_giotto_params = function(gobject,
 
 #### joining giotto object ####
 
+#' @title join_expression_matrices
 #' @name join_expression_matrices
 #' @keywords internal
 join_expression_matrices = function(matrix_list) {
@@ -2655,6 +2671,7 @@ join_expression_matrices = function(matrix_list) {
   return(list(matrix = combined_matrix, sort_all_feats = final_feats))
 }
 
+#' @title join_spatlocs
 #' @name join_spatlocs
 #' @keywords internal
 join_spatlocs = function(dt_list) {
@@ -2663,6 +2680,7 @@ join_spatlocs = function(dt_list) {
   return(final_list)
 }
 
+#' @title join_cell_meta
 #' @name join_cell_meta
 #' @keywords internal
 join_cell_meta = function(dt_list) {

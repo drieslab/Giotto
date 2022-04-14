@@ -2,7 +2,7 @@
 % Please edit documentation in R/spatial_interaction_visuals.R
 \name{plotInteractionChangedGenes}
 \alias{plotInteractionChangedGenes}
-\title{plotInteractionChangedGenes}
+\title{Plot interaction changed genes}
 \usage{
 plotInteractionChangedGenes(
   gobject,

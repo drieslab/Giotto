@@ -15,4 +15,16 @@ prints names of available giotto image objects
 \description{
 Prints the available giotto images that are attached to the Giotto object
 }
+\seealso{
+Other functions to show data in giotto object: 
+\code{\link{showGiottoDimRed}()},
+\code{\link{showGiottoExpression}()},
+\code{\link{showGiottoFeatInfo}()},
+\code{\link{showGiottoSpatEnrichments}()},
+\code{\link{showGiottoSpatGrids}()},
+\code{\link{showGiottoSpatLocs}()},
+\code{\link{showGiottoSpatNetworks}()},
+\code{\link{showGiottoSpatialInfo}()}
+}
+\concept{functions to show data in giotto object}
 \keyword{show}

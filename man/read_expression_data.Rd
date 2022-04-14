@@ -2,7 +2,7 @@
 % Please edit documentation in R/giotto.R
 \name{read_expression_data}
 \alias{read_expression_data}
-\title{read_expression_data}
+\title{Read expression data}
 \usage{
 read_expression_data(
   expr_list = NULL,
@@ -24,7 +24,7 @@ read_expression_data(
 \item{verbose}{be verbose}
 }
 \description{
-read_expression_data
+Read expression data
 }
 \details{
 mylistA = list('a' = matrix(1:5), 'b' = matrix(1:5))

@@ -16,7 +16,7 @@ set_giottoLargeImage(gobject, largeImage_object, name = NULL, verbose = TRUE)
 \item{verbose}{be verbose}
 }
 \value{
-a giotto object
+giotto object
 }
 \description{
 set a giottoLargeImage for a giotto object with no additional modifications

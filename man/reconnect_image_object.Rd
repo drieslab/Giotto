@@ -23,6 +23,6 @@ Reconnect giotto image object with dead image pointer using a filepath
 \details{
 This is a simple wrapper function for image object-specific reconnection
   functions and does not include other functionality to find the specific image
-  objects in the giotto object. See \link{\code{reconnectGiottoImage}}.
+  objects in the giotto object.
 }
 \keyword{internal}

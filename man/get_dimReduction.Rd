@@ -35,3 +35,20 @@ dim reduction coordinates (default) or dim reduction object
 \description{
 function to get a dimension reduction object
 }
+\seealso{
+Other dimensional reduction data accessor functions: 
+\code{\link{set_dimReduction}()}
+
+Other functions to get data from giotto object: 
+\code{\link{get_NearestNetwork}()},
+\code{\link{get_expression_values}()},
+\code{\link{get_feature_info}()},
+\code{\link{get_giottoImage}()},
+\code{\link{get_polygon_info}()},
+\code{\link{get_spatialGrid}()},
+\code{\link{get_spatialNetwork}()},
+\code{\link{get_spatial_enrichment}()},
+\code{\link{get_spatial_locations}()}
+}
+\concept{dimensional reduction data accessor functions}
+\concept{functions to get data from giotto object}

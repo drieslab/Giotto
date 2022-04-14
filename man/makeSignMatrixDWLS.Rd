@@ -27,22 +27,22 @@ makeSignMatrixDWLS(
 
 \item{reverse_log}{reverse a log-normalized expression matrix}
 
-\item{log_base}{the logarithm base (deafult  = 2)}
+\item{log_base}{the logarithm base (default = 2)}
 
 \item{sign_gene}{all of DE genes (signature)}
 
 \item{cell_type_vector}{vector with cell types (length = ncol(matrix))}
 
-\item{cell_type}{deprecated, use cell_type_vector}
+\item{cell_type}{deprecated, use \code{cell_type_vector}}
 }
 \value{
 matrix
 }
 \description{
 Function to convert a matrix within a Giotto object into a format
- that can be used with \code{\link{runDWLSDeconv}}. A vector of cell types
- for cell_type_vector can be created from the cell metadata (pDataDT).
+ that can be used with \code{\link{runDWLSDeconv}} for deconvolution. A vector of cell types
+ for parameter \code{cell_type_vector} can be created from the cell metadata (\code{\link{pDataDT}}).
 }
 \seealso{
-\code{\link{spatialDWLS}}
+\code{\link{runDWLSDeconv}}
 }

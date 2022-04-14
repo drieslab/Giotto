@@ -2,7 +2,7 @@
 % Please edit documentation in R/auxiliary_giotto.R
 \name{addFeatMetadata}
 \alias{addFeatMetadata}
-\title{addFeatMetadata}
+\title{Add feature metadata}
 \usage{
 addFeatMetadata(
   gobject,
@@ -22,7 +22,7 @@ addFeatMetadata(
 
 \item{new_metadata}{new metadata to use}
 
-\item{by_column}{merge metadata based on gene_ID column in fDataDT}
+\item{by_column}{merge metadata based on \emph{feat_ID} column in \code{\link{fDataDT}}}
 
 \item{column_feat_ID}{column name of new metadata to use if by_column = TRUE}
 }
@@ -30,11 +30,11 @@ addFeatMetadata(
 giotto object
 }
 \description{
-adds gene metadata to the giotto object
+Adds feature metadata to the giotto object
 }
 \details{
-You can add additional gene metadata in two manners:
-1. Provide a data.table or data.frame with gene annotations in the same order as the gene_ID column in fDataDT(gobject)
-2. Provide a data.table or data.frame with gene annotations and specificy which column contains the gene IDs,
-these gene IDs need to match with the gene_ID column in fDataDT(gobject)
+You can add additional gene metadata in two manners: \cr
+1. Provide a data.table or data.frame with feature annotations in the same order as the \emph{feat_ID} column in fDataDT(gobject) \cr
+2. Provide a data.table or data.frame with feature annotations and specify which column contains the feature IDs,
+these feature IDs need to match with the \emph{feat_ID} column in fDataDT(gobject)
 }

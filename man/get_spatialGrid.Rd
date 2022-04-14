@@ -26,3 +26,20 @@ get_spatialGrid(
 \description{
 function to get spatial grid
 }
+\seealso{
+Other spatial grid data accessor functions: 
+\code{\link{set_spatialGrid}()}
+
+Other functions to get data from giotto object: 
+\code{\link{get_NearestNetwork}()},
+\code{\link{get_dimReduction}()},
+\code{\link{get_expression_values}()},
+\code{\link{get_feature_info}()},
+\code{\link{get_giottoImage}()},
+\code{\link{get_polygon_info}()},
+\code{\link{get_spatialNetwork}()},
+\code{\link{get_spatial_enrichment}()},
+\code{\link{get_spatial_locations}()}
+}
+\concept{functions to get data from giotto object}
+\concept{spatial grid data accessor functions}

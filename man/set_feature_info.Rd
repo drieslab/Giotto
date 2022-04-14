@@ -13,6 +13,26 @@ set_feature_info(gobject, feat_type = NULL, gpolygon)
 
 \item{gpolygon}{giotto polygon}
 }
+\value{
+giotto object
+}
 \description{
 set giotto polygon spatVector for features
 }
+\seealso{
+Other feature info data accessor functions: 
+\code{\link{get_feature_info}()}
+
+Other functions to set data in giotto object: 
+\code{\link{set_NearestNetwork}()},
+\code{\link{set_dimReduction}()},
+\code{\link{set_expression_values}()},
+\code{\link{set_giottoImage}()},
+\code{\link{set_polygon_info}()},
+\code{\link{set_spatialGrid}()},
+\code{\link{set_spatialNetwork}()},
+\code{\link{set_spatial_enrichment}()},
+\code{\link{set_spatial_locations}()}
+}
+\concept{feature info data accessor functions}
+\concept{functions to set data in giotto object}

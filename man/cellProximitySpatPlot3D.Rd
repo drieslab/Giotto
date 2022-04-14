@@ -2,7 +2,7 @@
 % Please edit documentation in R/spatial_interaction_visuals.R
 \name{cellProximitySpatPlot3D}
 \alias{cellProximitySpatPlot3D}
-\title{cellProximitySpatPlot2D}
+\title{cellProximitySpatPlot3D}
 \usage{
 cellProximitySpatPlot3D(
   gobject,

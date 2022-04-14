@@ -2,7 +2,7 @@
 % Please edit documentation in R/spatial_visuals.R
 \name{dimPlot2D}
 \alias{dimPlot2D}
-\title{dimPlot2D}
+\title{Plot dimension reduction 2D}
 \usage{
 dimPlot2D(
   gobject,

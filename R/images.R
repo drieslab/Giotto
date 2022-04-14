@@ -2422,7 +2422,7 @@ updateGiottoImage = function(gobject = NULL,
 #'   to the original image source
 #' @details This is a simple wrapper function for image object-specific reconnection
 #'   functions and does not include other functionality to find the specific image
-#'   objects in the giotto object. See \link{\code{reconnectGiottoImage}}.
+#'   objects in the giotto object.
 #' @param image_object giotto image object
 #' @param image_type type of giotto image object
 #' @param image_path path to image source to reconnect image object with
@@ -2442,18 +2442,20 @@ reconnect_image_object = function(image_object,
 
 
 
-#' @title reconnectGiottoImage
+#' @title Reconnect images with dead pointers
 #' @name reconnectGiottoImage
-#' @description reconnect a gobject's dead image pointers using filepaths. Inputs can either be given as both image name and filepath args or as a named list through filepath argument alone.
-#' @details Inputs can either be given as both image name and filepath args
-#'   or as a named list through filepath arg alone.
-#'   If auto_reconnect is TRUE then no additional params need to be supplied.
+#' @description reconnect a gobject's dead image pointers using filepaths to 
+#'   the original source image files
+#' @details Inputs can either be given as both image name (\code{image_name}/\code{largeImage_name})
+#'   and filepath (\code{image_path}/\code{largeImage_path}) args or as only a
+#'   a named list through a filepath argument alone.
+#'   If \code{auto_reconnect = TRUE} then no additional params need to be supplied.
 #'   As long as giotto image objects were directly created using filepaths, those
 #'   filepaths are stored within the image objects and will be referenced during
 #'   reconnection. Issues will only arise if giotto image objects were created directly
-#'   from the underlying image handling package objects (magick or raster objects) or
+#'   from the underlying image handling package objects (\emph{magick} or \emph{raster objects}) or
 #'   if image files have been moved since the the giotto image object was generated.
-#'   In such cases, use manual reconnection by setting auto_reconnect to FALSE.
+#'   In such cases, use manual reconnection by setting \code{auto_reconnect = FALSE}.
 #' @param gobject giotto object
 #' @param auto_reconnect automatically reconnect images if TRUE. manual if FALSE
 #' @param image_name names of images to reconnect

@@ -14,6 +14,8 @@
 #' @param feat_type feature type
 #' @param values expression values to extract
 #' @return expression matrix
+#' @family expression accessor functions
+#' @family functions to get data from giotto object
 #' @export
 get_expression_values <- function(gobject,
                                   feat_type = NULL,
@@ -72,6 +74,8 @@ select_expression_values = function(...) {
 #' @param name name for the expression slot
 #' @param values expression values
 #' @return giotto object
+#' @family expression accessor functions
+#' @family functions to set data in giotto object
 #' @export
 set_expression_values <- function(gobject,
                                   spat_unit = NULL,
@@ -116,6 +120,8 @@ set_expression_values <- function(gobject,
 #' @param spat_unit spatial unit
 #' @param spat_loc_name name of spatial locations (defaults to first name in spatial_locs slot)
 #' @return data.table with coordinates
+#' @family spatial location data accessor functions
+#' @family functions to get data from giotto object
 #' @export
 get_spatial_locations <- function(gobject,
                                   spat_unit = NULL,
@@ -176,6 +182,8 @@ select_spatial_locations = function(...) {
 #' @param spatlocs spatial locations
 #' @param verbose be verbose
 #' @return giotto object
+#' @family spatial location data accessor functions
+#' @family functions to set data in giotto object
 #' @export
 set_spatial_locations <- function(gobject,
                                   spat_unit = NULL,
@@ -222,6 +230,8 @@ set_spatial_locations <- function(gobject,
 #' @param return_dimObj return full dimension object result
 #' @description function to get a dimension reduction object
 #' @return dim reduction coordinates (default) or dim reduction object
+#' @family dimensional reduction data accessor functions
+#' @family functions to get data from giotto object
 #' @export
 get_dimReduction = function(gobject,
                             spat_unit = NULL,
@@ -295,6 +305,8 @@ select_dimReduction = function(...) {
 #' @param name name of reduction results
 #' @param dimObject dimension object result to set
 #' @return giotto object
+#' @family dimensional reduction data accessor functions
+#' @family functions to set data in giotto object
 #' @export
 set_dimReduction <- function(gobject,
                              spat_unit = NULL,
@@ -346,6 +358,8 @@ set_dimReduction <- function(gobject,
 #' @param network_name name of NN network to be used
 #' @param output return a igraph or data.table object
 #' @return igraph or data.table object
+#' @family expression space nearest network accessor functions
+#' @family functions to get data from giotto object
 #' @export
 get_NearestNetwork = function(gobject,
                               spat_unit = NULL,
@@ -439,6 +453,8 @@ select_NearestNetwork = function(...) {
 #' @param network_name name of NN network to be used
 #' @param nn_network nearest network
 #' @return giotto object
+#' @family expression space nearest network accessor functions
+#' @family functions to set data in giotto object
 #' @export
 set_NearestNetwork = function(gobject,
                               spat_unit = NULL,
@@ -486,6 +502,8 @@ set_NearestNetwork = function(gobject,
 #' @param feat_type feature type
 #' @param name name of spatial network
 #' @param return_network_Obj return network object (default = FALSE)
+#' @family spatial network data accessor functions
+#' @family functions to get data from giotto object
 #' @export
 get_spatialNetwork <- function(gobject,
                                spat_unit = NULL,
@@ -542,6 +560,9 @@ select_spatialNetwork = function(...) {
 #' @param feat_type feature type
 #' @param name name of spatial network
 #' @param spatial_network spatial network
+#' @return giotto object
+#' @family spatial network data accessor functions
+#' @family functions to set data in giotto object
 #' @export
 set_spatialNetwork <- function(gobject,
                                spat_unit = NULL,
@@ -584,6 +605,8 @@ set_spatialNetwork <- function(gobject,
 #' @param feat_type feature type
 #' @param name name of spatial grid
 #' @param return_network_Obj return grid object (default = FALSE)
+#' @family spatial grid data accessor functions
+#' @family functions to get data from giotto object
 #' @export
 get_spatialGrid <- function(gobject,
                             spat_unit = NULL,
@@ -636,6 +659,9 @@ select_spatialGrid = function(...) {
 #' @param gobject giotto object
 #' @param name name of spatial grid
 #' @param spatial_grid spatial grid object
+#' @return giotto object
+#' @family spatial grid data accessor functions
+#' @family functions to set data in giotto object
 #' @export
 set_spatialGrid <- function(gobject,
                             spat_unit = NULL,
@@ -682,6 +708,8 @@ set_spatialGrid <- function(gobject,
 #' @param gobject giotto object
 #' @param polygon_name name of polygons
 #' @param polygon_overlap include polygon overlap information
+#' @family polygon info data accessor functions
+#' @family functions to get data from giotto object
 #' @export
 get_polygon_info = function(gobject,
                             polygon_name = 'cell',
@@ -730,6 +758,9 @@ select_polygon_info = function(...) {
 #' @param gobject giotto object
 #' @param polygon_name name of polygons
 #' @param gpolygon giotto polygon
+#' @return giotto object
+#' @family polygon info data accessor functions
+#' @family functions to set data in giotto object
 #' @export
 set_polygon_info = function(gobject,
                             polygon_name = 'cell',
@@ -764,6 +795,8 @@ set_polygon_info = function(gobject,
 #' @description  get giotto points spatVector
 #' @param gobject giotto object
 #' @param feat_type name of feature
+#' @family feature info data accessor functions
+#' @family functions to get data from giotto object
 #' @export
 get_feature_info = function(gobject,
                             feat_type = NULL) {
@@ -802,6 +835,9 @@ select_feature_info = function(...) {
 #' @param gobject giotto object
 #' @param feat_type name of feat
 #' @param gpolygon giotto polygon
+#' @return giotto object
+#' @family feature info data accessor functions
+#' @family functions to set data in giotto object
 #' @export
 set_feature_info = function(gobject,
                             feat_type = NULL,
@@ -840,6 +876,8 @@ set_feature_info = function(gobject,
 #' @param feat_type feature type
 #' @param enrichm_name name of spatial enrichment results
 #' @return data.table with fractions
+#' @family spatial enrichment data accessor functions
+#' @family functions to get data from giotto object
 #' @export
 get_spatial_enrichment <- function(gobject,
                                    spat_unit = NULL,
@@ -890,6 +928,8 @@ get_spatial_enrichment <- function(gobject,
 #' @param enrichm_name name of spatial enrichment results
 #' @param spatenrichment spatial enrichment results
 #' @return giotto object
+#' @family spatial enrichment data accessor functions
+#' @family functions to set data in giotto object
 #' @export
 set_spatial_enrichment <- function(gobject,
                                    spat_unit = NULL,
@@ -960,7 +1000,7 @@ get_giottoImage_MG = function(gobject = NULL,
 #' @param image_object a giottoImage object
 #' @param name name to assign giottoImage
 #' @param verbose be verbose
-#' @return a giotto object
+#' @return giotto object
 #' @keywords internal
 set_giottoImage_MG = function(gobject,
                               image_object,
@@ -1028,7 +1068,7 @@ get_giottoLargeImage = function(gobject = NULL,
 #' @param largeImage_object a giottoLargeImage object
 #' @param name name to assign giottoLargeImage
 #' @param verbose be verbose
-#' @return a giotto object
+#' @return giotto object
 #' @keywords internal
 set_giottoLargeImage = function(gobject,
                                 largeImage_object,
@@ -1068,6 +1108,8 @@ set_giottoLargeImage = function(gobject,
 #' @param image_type type of giotto image object
 #' @param image_name name of a giotto image object \code{\link{showGiottoImageNames}}
 #' @return a giotto image object
+#' @family image data accessor functions
+#' @family functions to get data from giotto object
 #' @export
 get_giottoImage = function(gobject = NULL,
                            image_type = c('image','largeImage'),
@@ -1093,21 +1135,22 @@ get_giottoImage = function(gobject = NULL,
 #' @title set_giottoImage
 #' @name set_giottoImage
 #' @description directly attach a giotto image to giotto object
-#' @details Unlike the other setter functions, this is an internal function.
-#'   Using this function, giotto image objects are directly attached to the
-#'   gobject without further modifications of spatial positioning values
+#' @details \emph{\strong{Use with care!}} This function directly attaches giotto image
+#'   objects to the gobject without further modifications of spatial positioning values
 #'   within the image object that are generally needed in order for them to
-#'   plot in the correct location relative to the other modalities of spatial data.
-#'   Thus, this function should be used with care. For the more general-purpose
-#'   method of attaching image objects, see \code{\link{addGiottoImage}}
+#'   plot in the correct location relative to the other modalities of spatial data. \cr
+#'   For the more general-purpose method of attaching image objects, see \code{\link{addGiottoImage}}
 #' @param gobject giotto object
 #' @param image giotto image object to be attached without modification to the
 #'   giotto object
 #' @param image_type type of giotto image object
 #' @param name name of giotto image object
 #' @param verbose be verbose
-#' @return a giotto object with image object directly attached
-#' @keywords internal
+#' @return giotto object
+#' @family image data accessor functions
+#' @family functions to set data in giotto object
+#' @seealso \code{\link{addGiottoImage}}
+#' @export
 set_giottoImage = function(gobject = NULL,
                            image = NULL,
                            image_type = NULL,
@@ -1144,6 +1187,7 @@ set_giottoImage = function(gobject = NULL,
 #' @param nrows number of rows to print for each matrix
 #' @param ncols number of columns to print for each matrix
 #' @return prints the name and small subset of available matrices
+#' @family functions to show data in giotto object
 #' @keywords show
 #' @export
 showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
@@ -1178,6 +1222,7 @@ showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 #' @param gobject giotto object
 #' @param nrows number of rows to print for each spatial location data.table
 #' @return prints the name and small subset of available data.table
+#' @family functions to show data in giotto object
 #' @keywords show
 #' @export
 showGiottoSpatLocs = function(gobject, nrows = 4) {
@@ -1207,6 +1252,7 @@ showGiottoSpatLocs = function(gobject, nrows = 4) {
 #' @param gobject giotto object
 #' @param nrows number of rows to print for each spatial enrichment data.table
 #' @return prints the name and small subset of available data.table
+#' @family functions to show data in giotto object
 #' @keywords show
 #' @export
 showGiottoSpatEnrichments = function(gobject,
@@ -1249,6 +1295,7 @@ showGiottoSpatEnrichments = function(gobject,
 #' @param nrows number of coordinates rows to print
 #' @param ncols number of coordinates columns to print
 #' @return prints the name and small subset of available dimension reduction coordinates
+#' @family functions to show data in giotto object
 #' @keywords show
 #' @export
 showGiottoDimRed = function(gobject,
@@ -1306,6 +1353,7 @@ showGiottoDimRed = function(gobject,
 #' @name showGiottoSpatialInfo
 #' @description show the available giotto spatial polygon information
 #' @param gobject giotto object
+#' @family functions to show data in giotto object
 #' @keywords show
 #' @export
 showGiottoSpatialInfo = function(gobject) {
@@ -1330,6 +1378,7 @@ showGiottoSpatialInfo = function(gobject) {
 #' @name showGiottoFeatInfo
 #' @description show the available giotto spatial feature information
 #' @param gobject giotto object
+#' @family functions to show data in giotto object
 #' @keywords show
 #' @export
 showGiottoFeatInfo = function(gobject) {
@@ -1358,6 +1407,7 @@ showGiottoFeatInfo = function(gobject) {
 #' @param gobject a giotto object
 #' @param nrows number of rows to print
 #' @return prints names and small subset of available spatial network info
+#' @family functions to show data in giotto object
 #' @keywords show
 #' @export
 showGiottoSpatNetworks = function(gobject,
@@ -1403,6 +1453,7 @@ showNetworks = function(...) {
 #' @param gobject giotto object
 #' @param nrows number of rows to print
 #' @return prints name of available spatial grids
+#' @family functions to show data in giotto object
 #' @keywords show
 #' @export
 showGiottoSpatGrids = function(gobject,
@@ -1447,6 +1498,7 @@ showGrids = function(...) {
 #' @description Prints the available giotto images that are attached to the Giotto object
 #' @param gobject a giotto object
 #' @return prints names of available giotto image objects
+#' @family functions to show data in giotto object
 #' @keywords show
 #' @export
 showGiottoImageNames = function(gobject) {

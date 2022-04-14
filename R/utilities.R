@@ -196,7 +196,7 @@ lapply_flex = function(X,
 }
 
 
-
+#' @title flex_lapply
 #' @name  flex_lapply
 #' @inheritDotParams lapply_flex
 #' @seealso \code{\link{lapply_flex}}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/auxiliary_giotto.R
 \name{annotateGiotto}
 \alias{annotateGiotto}
-\title{annotateGiotto}
+\title{Annotate giotto clustering}
 \usage{
 annotateGiotto(
   gobject,

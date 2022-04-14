@@ -1,4 +1,5 @@
 
+#' @title calc_cov_group_HVF
 #' @name calc_cov_group_HVF
 #' @keywords internal
 calc_cov_group_HVF = function(feat_in_cells_detected,

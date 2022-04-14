@@ -2,7 +2,7 @@
 % Please edit documentation in R/giotto_structures.R
 \name{createGiottoPolygonsFromMask}
 \alias{createGiottoPolygonsFromMask}
-\title{createGiottoPolygonsFromMask}
+\title{Create giotto polygons from mask file}
 \usage{
 createGiottoPolygonsFromMask(
   maskfile,

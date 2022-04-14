@@ -2,7 +2,7 @@
 % Please edit documentation in R/giotto.R
 \name{evaluate_expr_matrix}
 \alias{evaluate_expr_matrix}
-\title{evaluate_expr_matrix}
+\title{Evaluate expression matrix}
 \usage{
 evaluate_expr_matrix(inputmatrix, sparse = TRUE, cores = NA)
 }

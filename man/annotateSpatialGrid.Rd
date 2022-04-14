@@ -19,7 +19,7 @@ annotateSpatialGrid(
 
 \item{spat_loc_name}{name of spatial locations}
 
-\item{spatial_grid_name}{name of spatial grid, see \code{\link{showGrids}}}
+\item{spatial_grid_name}{name of spatial grid, see \code{\link{showGiottoSpatGrids}}}
 
 \item{cluster_columns}{names of cell metadata, see \code{\link{pDataDT}}}
 }

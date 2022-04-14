@@ -2,7 +2,7 @@
 % Please edit documentation in R/spatial_visuals.R
 \name{spatFeatPlot2D}
 \alias{spatFeatPlot2D}
-\title{spatFeatPlot2D}
+\title{Plot data in physical space 2D}
 \usage{
 spatFeatPlot2D(
   gobject,

@@ -2,7 +2,7 @@
 % Please edit documentation in R/giotto.R
 \name{readExprMatrix}
 \alias{readExprMatrix}
-\title{readExprMatrix}
+\title{Read expression matrix}
 \usage{
 readExprMatrix(path, cores = NA, transpose = FALSE)
 }
