@@ -9935,6 +9935,16 @@ plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
     gadgetTitleBar("Plot Interactive Polygons"),
     miniContentPanel(
       textInput("polygon_name", label = "Polygon name", value = "polygon 1"),
+      sliderInput("xrange", label = "x coordinates",
+                  min = min(x[["layers"]][[1]]$data$sdimx),
+                  max = max(x[["layers"]][[1]]$data$sdimx),
+                  value = c(min(x[["layers"]][[1]]$data$sdimx),
+                            max(x[["layers"]][[1]]$data$sdimx))) ,
+      sliderInput("yrange", label = "y coordinates",
+                  min = min(x[["layers"]][[1]]$data$sdimy),
+                  max = max(x[["layers"]][[1]]$data$sdimy),
+                  value = c(min(x[["layers"]][[1]]$data$sdimy),
+                            max(x[["layers"]][[1]]$data$sdimy))) ,
       plotOutput("plot", click = "plot_click")
     )
   )
@@ -9945,6 +9955,8 @@ plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
         x +
           geom_polygon(data = clicklist(), aes(x,y, color = name, fill = name),
                        alpha = 0, ...) +
+          coord_cartesian(xlim = c(input$xrange[1], input$xrange[2]),
+                          ylim = c(input$yrange[1], input$yrange[2])) +
           theme(legend.position = 'none')
       } else {
         terra::plot(x)
