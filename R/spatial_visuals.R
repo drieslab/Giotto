@@ -9935,6 +9935,16 @@ plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
     gadgetTitleBar("Plot Interactive Polygons"),
     miniContentPanel(
       textInput("polygon_name", label = "Polygon name", value = "polygon 1"),
+      sliderInput("xrange", label = "x coordinates",
+                  min = min(x[["layers"]][[1]]$data$sdimx),
+                  max = max(x[["layers"]][[1]]$data$sdimx),
+                  value = c(min(x[["layers"]][[1]]$data$sdimx),
+                            max(x[["layers"]][[1]]$data$sdimx))) ,
+      sliderInput("yrange", label = "y coordinates",
+                  min = min(x[["layers"]][[1]]$data$sdimy),
+                  max = max(x[["layers"]][[1]]$data$sdimy),
+                  value = c(min(x[["layers"]][[1]]$data$sdimy),
+                            max(x[["layers"]][[1]]$data$sdimy))) ,
       plotOutput("plot", click = "plot_click")
     )
   )
@@ -9945,6 +9955,8 @@ plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
         x +
           geom_polygon(data = clicklist(), aes(x,y, color = name, fill = name),
                        alpha = 0, ...) +
+          coord_cartesian(xlim = c(input$xrange[1], input$xrange[2]),
+                          ylim = c(input$yrange[1], input$yrange[2])) +
           theme(legend.position = 'none')
       } else {
         terra::plot(x)
@@ -9974,6 +9986,110 @@ plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
 }
 
 
+#' Get cells located within the polygons area
+#'
+#' @param gobject A Giotto object
+#' @param polygon_slot Slot name where polygon coordinates are stored in Giotto object
+#' @param cells_loc_slot Slot name where cell coordinates are stored in Giotto object
+#'
+#' @return A `SpatVector` with cell IDs, x,y coordinates, and polygon name where
+#'  each cell is located in.
+#'
+#' @export
+#'
+#' @examples
+#' ## Plot interactive polygons
+#' my_spatPlot <- spatPlot2D(gobject = my_giotto_object,
+#'                           show_image = TRUE,
+#'                           point_alpha = 0.75,
+#'                           save_plot = FALSE)
+#' my_polygon_coords <- plotInteractivePolygons(my_spatPlot)
+#'
+#' ## Add polygon coordinates to Giotto object
+#' my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords)
+#' my_giotto_object <- addGiottoPolygons(gobject = my_giotto_object,
+#'                                       gpolygons = list(my_giotto_polygons))
+#'
+#' ## Get cells located within polygons area
+#' getCellsFromPolygon(my_giotto_object)
+
+getCellsFromPolygon <- function(gobject,
+                                polygon_slot = "spatial_info",
+                                cells_loc_slot = "spatial_locs") {
+  ## verify Giotto object
+  if (!inherits(gobject, "giotto")) {
+    stop("gobject needs to be a giotto object")
+  }
+
+  ## get polygon spatvector
+  my_polygon_spatplot <- slot(slot(gobject, polygon_slot)$cell,"spatVector")
+
+  ## get spatial locs from cells
+  my_spatial_locs <- slot(gobject, cells_loc_slot)$cell$raw
+
+  ## create spatvector from spatial locs
+  my_cells_spatplot <- terra::vect(as.matrix(my_spatial_locs[,1:2]),
+                                   type = "points",
+                                   atts = my_spatial_locs)
+
+  ## get the insersect of polygons and cells
+  my_intersect <- terra::intersect(my_cells_spatplot, my_polygon_spatplot)
+
+  return(my_intersect)
+}
+
+
+#' Add corresponding polygon IDs to cell metadata
+#'
+#' @param gobject A Giotto object
+#' @param cellsFromPolygon A `SpatVector` with cell IDs located inside each polygon
+#' @param feat_type feature name where metadata will be added
+#'
+#' @return A Giotto object with a modified cell_metadata slot that includes the
+#' polygon name where each cell is located or NA if the cell is not located
+#' within a polygon area
+#'
+#' @export
+#'
+#' @examples
+#'
+#' ## Plot interactive polygons
+#' my_polygon_coords <- plotInteractivePolygons(my_spatPlot)
+#'
+#' ## Add polygon coordinates to Giotto object
+#' my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords)
+#' my_giotto_object <- addGiottoPolygons(gobject = my_giotto_object,
+#'                                       gpolygons = list(my_giotto_polygons))
+#'
+#' ## Get cells located within polygons area
+#' my_polygon_cells <- getCellsFromPolygon(my_giotto_object)
+#'
+#' my_giotto_object <- addCellsFromPolygon(my_giotto_object, my_polygon_cells)
+
+addCellsFromPolygon <- function(gobject,
+                                cellsFromPolygon,
+                                feat_type = "rna") {
+
+  ## verify Giotto object
+  if (!inherits(gobject, "giotto")) {
+    stop("gobject needs to be a giotto object")
+  }
+
+  ## get original metadas
+  cell_metadata <- slot(gobject, "cell_metadata")$cell[[feat_type]]
+
+  ## convert cellsFromPolygon to data frame
+  cellsFromPolygondata <- as.data.frame(cellsFromPolygon)
+
+  ## merge metadata as data.table
+  new_cell_metadata <- merge(cell_metadata, cellsFromPolygondata[,c("cell_ID", "poly_ID")],
+                             by = "cell_ID", all.x = TRUE)
+  new_cell_metadata <- new_cell_metadata[match(cell_metadata$cell_ID, new_cell_metadata$cell_ID),]
+
+  ## add cell metadata to Giotto object
+  addCellMetadata(gobject = gobject, new_metadata = new_cell_metadata[,-1])
+
+}
 
 
 
