@@ -9974,6 +9974,58 @@ plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
 }
 
 
+#' Get cells located within the polygons area
+#'
+#' @param gobject A Giotto object
+#' @param polygon_slot Slot name where polygon coordinates are stored in Giotto object
+#' @param cells_loc_slot Slot name where cell coordinates are stored in Giotto object
+#'
+#' @return A `SpatVector` with cell IDs, x,y coordinates, and polygon name where
+#'  each cell is located in.
+#'
+#' @export
+#'
+#' @examples
+#' ## Plot interactive polygons
+#' my_spatPlot <- spatPlot2D(gobject = my_giotto_object,
+#'                           show_image = TRUE,
+#'                           point_alpha = 0.75,
+#'                           save_plot = FALSE)
+#' my_polygon_coords <- plotInteractivePolygons(my_spatPlot)
+#'
+#' ## Add polygon coordinates to Giotto object
+#' my_giotto_polygons <- createGiottoPolygonsFromDfr(my_polygon_coords)
+#' my_giotto_object <- addGiottoPolygons(gobject = my_giotto_object,
+#'                                       gpolygons = list(my_giotto_polygons))
+#'
+#' ## Get cells located within polygons area
+#' getCellsFromPolygon(my_giotto_object)
+
+getCellsFromPolygon <- function(gobject,
+                                polygon_slot = "spatial_info",
+                                cells_loc_slot = "spatial_locs") {
+  ## verify Giotto object
+  if (!inherits(gobject, "giotto")) {
+    stop("gobject needs to be a giotto object")
+  }
+
+  ## get polygon spatvector
+  my_polygon_spatplot <- slot(slot(gobject, polygon_slot)$cell,"spatVector")
+
+  ## get spatial locs from cells
+  my_spatial_locs <- slot(gobject, cells_loc_slot)$cell$raw
+
+  ## create spatvector from spatial locs
+  my_cells_spatplot <- terra::vect(as.matrix(my_spatial_locs[,1:2]),
+                                   type = "points",
+                                   atts = my_spatial_locs)
+
+  ## get the insersect of polygons and cells
+  my_intersect <- terra::intersect(my_cells_spatplot, my_polygon_spatplot)
+
+  return(my_intersect)
+}
+
 
 
 
