@@ -2,7 +2,7 @@
 % Please edit documentation in R/dimension_reduction.R
 \name{runUMAP}
 \alias{runUMAP}
-\title{runUMAP}
+\title{Run UMAP dimension reduction}
 \usage{
 runUMAP(
   gobject,
@@ -78,7 +78,7 @@ runUMAP(
 \item{...}{additional UMAP parameters}
 }
 \value{
-giotto object with updated UMAP dimension recuction
+giotto object with updated UMAP dimension reduction
 }
 \description{
 run UMAP
@@ -89,7 +89,7 @@ See \code{\link[uwot]{umap}} for more information about these and other paramete
   \item Input for UMAP dimension reduction can be another dimension reduction (default = 'pca')
   \item To use gene expression as input set dim_reduction_to_use = NULL
   \item If dim_reduction_to_use = NULL, genes_to_use can be used to select a column name of
-  highly variable genes (see \code{\link{calculateHVG}}) or simply provide a vector of genes
+  highly variable genes (see \code{\link{calculateHVF}}) or simply provide a vector of genes
   \item multiple UMAP results can be stored by changing the \emph{name} of the analysis
 }
 }

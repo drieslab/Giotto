@@ -5458,7 +5458,7 @@ spatDimFeatPlot2D <- function(gobject,
 
 
 
-
+#' @title spatDimGenePlot2D
 #' @name spatDimGenePlot2D
 #' @description Visualize cells according to spatial AND dimension reduction coordinates in ggplot mode
 #' @param gobject giotto object
@@ -5490,7 +5490,7 @@ spatDimGenePlot2D <- function(gobject,
 
 
 
-
+#' @title spatDimGenePlot
 #' @name spatDimGenePlot
 #' @description Visualize cells according to spatial AND dimension reduction coordinates in ggplot mode
 #' @inheritDotParams spatDimGenePlot2D

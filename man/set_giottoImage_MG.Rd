@@ -16,7 +16,7 @@ set_giottoImage_MG(gobject, image_object, name = NULL, verbose = TRUE)
 \item{verbose}{be verbose}
 }
 \value{
-a giotto object
+giotto object
 }
 \description{
 set a giottoImage for a giotto object with no additional modifications

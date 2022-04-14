@@ -25,18 +25,34 @@ giotto object}
 \item{verbose}{be verbose}
 }
 \value{
-a giotto object with image object directly attached
+giotto object
 }
 \description{
 directly attach a giotto image to giotto object
 }
 \details{
-Unlike the other setter functions, this is an internal function.
-  Using this function, giotto image objects are directly attached to the
-  gobject without further modifications of spatial positioning values
+\emph{\strong{Use with care!}} This function directly attaches giotto image
+  objects to the gobject without further modifications of spatial positioning values
   within the image object that are generally needed in order for them to
-  plot in the correct location relative to the other modalities of spatial data.
-  Thus, this function should be used with care. For the more general-purpose
-  method of attaching image objects, see \code{\link{addGiottoImage}}
+  plot in the correct location relative to the other modalities of spatial data. \cr
+  For the more general-purpose method of attaching image objects, see \code{\link{addGiottoImage}}
 }
-\keyword{internal}
+\seealso{
+\code{\link{addGiottoImage}}
+
+Other image data accessor functions: 
+\code{\link{get_giottoImage}()}
+
+Other functions to set data in giotto object: 
+\code{\link{set_NearestNetwork}()},
+\code{\link{set_dimReduction}()},
+\code{\link{set_expression_values}()},
+\code{\link{set_feature_info}()},
+\code{\link{set_polygon_info}()},
+\code{\link{set_spatialGrid}()},
+\code{\link{set_spatialNetwork}()},
+\code{\link{set_spatial_enrichment}()},
+\code{\link{set_spatial_locations}()}
+}
+\concept{functions to set data in giotto object}
+\concept{image data accessor functions}

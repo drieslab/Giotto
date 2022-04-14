@@ -12,4 +12,16 @@ showGiottoFeatInfo(gobject)
 \description{
 show the available giotto spatial feature information
 }
+\seealso{
+Other functions to show data in giotto object: 
+\code{\link{showGiottoDimRed}()},
+\code{\link{showGiottoExpression}()},
+\code{\link{showGiottoImageNames}()},
+\code{\link{showGiottoSpatEnrichments}()},
+\code{\link{showGiottoSpatGrids}()},
+\code{\link{showGiottoSpatLocs}()},
+\code{\link{showGiottoSpatNetworks}()},
+\code{\link{showGiottoSpatialInfo}()}
+}
+\concept{functions to show data in giotto object}
 \keyword{show}

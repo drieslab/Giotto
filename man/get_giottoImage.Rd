@@ -23,3 +23,20 @@ a giotto image object
 \description{
 get giotto image object from gobject
 }
+\seealso{
+Other image data accessor functions: 
+\code{\link{set_giottoImage}()}
+
+Other functions to get data from giotto object: 
+\code{\link{get_NearestNetwork}()},
+\code{\link{get_dimReduction}()},
+\code{\link{get_expression_values}()},
+\code{\link{get_feature_info}()},
+\code{\link{get_polygon_info}()},
+\code{\link{get_spatialGrid}()},
+\code{\link{get_spatialNetwork}()},
+\code{\link{get_spatial_enrichment}()},
+\code{\link{get_spatial_locations}()}
+}
+\concept{functions to get data from giotto object}
+\concept{image data accessor functions}

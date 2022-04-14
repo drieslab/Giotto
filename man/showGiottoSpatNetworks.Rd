@@ -17,4 +17,16 @@ prints names and small subset of available spatial network info
 \description{
 Prints the available spatial networks that are attached to the Giotto object
 }
+\seealso{
+Other functions to show data in giotto object: 
+\code{\link{showGiottoDimRed}()},
+\code{\link{showGiottoExpression}()},
+\code{\link{showGiottoFeatInfo}()},
+\code{\link{showGiottoImageNames}()},
+\code{\link{showGiottoSpatEnrichments}()},
+\code{\link{showGiottoSpatGrids}()},
+\code{\link{showGiottoSpatLocs}()},
+\code{\link{showGiottoSpatialInfo}()}
+}
+\concept{functions to show data in giotto object}
 \keyword{show}

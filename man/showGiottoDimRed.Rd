@@ -19,4 +19,16 @@ prints the name and small subset of available dimension reduction coordinates
 \description{
 shows the available dimension reductions
 }
+\seealso{
+Other functions to show data in giotto object: 
+\code{\link{showGiottoExpression}()},
+\code{\link{showGiottoFeatInfo}()},
+\code{\link{showGiottoImageNames}()},
+\code{\link{showGiottoSpatEnrichments}()},
+\code{\link{showGiottoSpatGrids}()},
+\code{\link{showGiottoSpatLocs}()},
+\code{\link{showGiottoSpatNetworks}()},
+\code{\link{showGiottoSpatialInfo}()}
+}
+\concept{functions to show data in giotto object}
 \keyword{show}

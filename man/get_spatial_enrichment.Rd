@@ -26,3 +26,20 @@ data.table with fractions
 \description{
 function to get a spatial enrichment data.table
 }
+\seealso{
+Other spatial enrichment data accessor functions: 
+\code{\link{set_spatial_enrichment}()}
+
+Other functions to get data from giotto object: 
+\code{\link{get_NearestNetwork}()},
+\code{\link{get_dimReduction}()},
+\code{\link{get_expression_values}()},
+\code{\link{get_feature_info}()},
+\code{\link{get_giottoImage}()},
+\code{\link{get_polygon_info}()},
+\code{\link{get_spatialGrid}()},
+\code{\link{get_spatialNetwork}()},
+\code{\link{get_spatial_locations}()}
+}
+\concept{functions to get data from giotto object}
+\concept{spatial enrichment data accessor functions}

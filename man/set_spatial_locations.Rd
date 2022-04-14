@@ -29,3 +29,20 @@ giotto object
 \description{
 function to set a spatial location slot
 }
+\seealso{
+Other spatial location data accessor functions: 
+\code{\link{get_spatial_locations}()}
+
+Other functions to set data in giotto object: 
+\code{\link{set_NearestNetwork}()},
+\code{\link{set_dimReduction}()},
+\code{\link{set_expression_values}()},
+\code{\link{set_feature_info}()},
+\code{\link{set_giottoImage}()},
+\code{\link{set_polygon_info}()},
+\code{\link{set_spatialGrid}()},
+\code{\link{set_spatialNetwork}()},
+\code{\link{set_spatial_enrichment}()}
+}
+\concept{functions to set data in giotto object}
+\concept{spatial location data accessor functions}

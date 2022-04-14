@@ -23,6 +23,26 @@ set_spatialNetwork(
 
 \item{spatial_network}{spatial network}
 }
+\value{
+giotto object
+}
 \description{
 function to set a spatial network
 }
+\seealso{
+Other spatial network data accessor functions: 
+\code{\link{get_spatialNetwork}()}
+
+Other functions to set data in giotto object: 
+\code{\link{set_NearestNetwork}()},
+\code{\link{set_dimReduction}()},
+\code{\link{set_expression_values}()},
+\code{\link{set_feature_info}()},
+\code{\link{set_giottoImage}()},
+\code{\link{set_polygon_info}()},
+\code{\link{set_spatialGrid}()},
+\code{\link{set_spatial_enrichment}()},
+\code{\link{set_spatial_locations}()}
+}
+\concept{functions to set data in giotto object}
+\concept{spatial network data accessor functions}
