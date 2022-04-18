@@ -33,7 +33,7 @@ giotto object
 Adds feature metadata to the giotto object
 }
 \details{
-You can add additional gene metadata in two manners: \cr
+You can add additional feature metadata in two manners: \cr
 1. Provide a data.table or data.frame with feature annotations in the same order as the \emph{feat_ID} column in fDataDT(gobject) \cr
 2. Provide a data.table or data.frame with feature annotations and specify which column contains the feature IDs,
 these feature IDs need to match with the \emph{feat_ID} column in fDataDT(gobject)

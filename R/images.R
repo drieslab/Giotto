@@ -1294,25 +1294,62 @@ reconnect_giottoImage_MG = function(giottoImage,
 # giottoLargeImage or terra tools ####
 
 
-#' @title stitchGiottoLargeImage
+#' @title Stitch multiple giottoLargeImage objects into a single giottoLargeImage object
 #' @name stitchGiottoLargeImage
-#' @description stitch multiple giottoLargeImages into single giottoLargeImage. Time consuming & save location recommended.
-#' @param largeImage_list list of giottoLargeImage objects
-#' @param gobject_list list of gobjects containing giottoLargeImages
-#' @param largeImage_nameList list of names of giottoLargeImages within gobjects
+#' @description Function to stitch together multiple field of view (FOV) images into a
+#'   single final image. Images are loaded into Giotto as \code{giottoLargeImage} and
+#'   stitched based on a set of FOV positions into a single final \code{giottoLargeImage}.
+#' @details This function is time consuming. Setting a save location through the 
+#'   \code{filename} parameter is also highly recommended as file size will likely be large.
+#'   This function creates a single stitched image from multiple FOV tiles and saves that
+#'   image to disk as it works. When finished, the pointer to that new image is loaded in
+#'   as a \code{giottoLargeImage} object. \cr
+#'   \strong{Note:} Dry runs are on by default and \code{dryRun} param must be set to FALSE
+#'   to proceed with the final stitching operation.
+#' @section Dry runs are default:
+#'     To ensure that disk space and time is not wasted, this function defaults to previewing
+#'     the stitching operation.
+#' @section FOV positions:
+#'     The final image is stitched together from multiple FOV tiles. The \code{FOV_positions}
+#'     parameter accepts a table of x and y values for where each FOV tile should be placed
+#'     when performing the stitch. Which columns are the x and y values are determined by
+#'     the \code{FOV_xcol} and \code{FOV_ycol} params respectively. FOV tiles are at full resolution
+#'     with a starting position where either the lower left or upper left of the image touch the origin
+#'     depending on the value of \code{FOV_inverty} param. The FOV image is then translated according
+#'     to the x and y shift values.
+#' @section FOV invert y:
+#'     Many imaging systems may treat the origin according to image convention where (0,0) is at the
+#'     upper left of an image. This is at odds with coordinate convention and what Giotto uses internally
+#'     where the coordinate (0,0) is at the lower left. The \code{FOV_inverty} defaults to FALSE, but if
+#'     set to TRUE, then FOV tile images will start with the upper left touching (0,0) and all y values
+#'     given through \code{FOV_positions} and \code{FOV_ycol} will be treated as negative y shift values.
+#' @section dataType:
+#'     There are multiple datatypes defining the range of intensity values that images can be saved
+#'     with. Setting a value with the \code{dataType} para is optional and Giotto attempts
+#'     to determine compatible data type to save the image as automatically.
+#' @param largeImage_list list of \code{giottoLargeImage} objects
+#' @param gobject_list list of \code{gobjects} containing \code{giottoLargeImages}
+#' @param largeImage_nameList list of names of \code{giottoLargeImages} within \code{gobjects}
 #' @param FOV_positions dataframe of FOV positions. Values (if any) are directly added to current image mapping
 #' @param FOV_xcol column name for FOV position x values
 #' @param FOV_ycol column name for FOV position y values
 #' @param FOV_inverty make FOV y position values negative
-#' @param method method of stitching images (mosaic: average overlapping area values, merge: values get priority by order given)
-#' @param round_positions round image positions. May be necessary to run.
-#' @param filename file name to write the stitched image to. Defaults to "save_dir/stitch.tif" if save_dir param is found in first gobject Giotto instructions
-#' @param dataType (optional) values for dataType are "INT1U", "INT2U", "INT2S", "INT4U", "INT4S", "FLT4S", "FLT8S". The first three letters indicate whether the dataType is integer (whole numbers) of a real number (decimal numbers), the fourth character indicates the number of bytes used (allowing for large numbers and/or more precision), and the "S" or "U" indicate whether the values are signed (both negative and positive) or unsigned (positive values only).
+#' @param method method of stitching images (\strong{mosaic}: average overlapping area values,
+#'   \strong{merge}:values get priority by order of images given)
+#' @param round_positions [boolean] round image positions. May be necessary to run.
+#' @param filename file name to write the stitched image to. Defaults to \code{"save_dir/stitch.tif"}
+#'   if \code{save_dir} param is found in the first \code{gobject}'s Giotto instructions
+#' @param dataType (optional) values for \code{dataType} are "INT1U", "INT2U", "INT2S", "INT4U",
+#'   "INT4S", "FLT4S", "FLT8S". The first three letters indicate whether the \code{dataType} is
+#'   integer (whole numbers) of a real number (decimal numbers), the fourth character indicates
+#'   the number of bytes used (allowing for large numbers and/or more precision), and the "S" or "U"
+#'   indicate whether the values are signed (both negative and positive) or unsigned (positive values only).
 #' @param fileType (optional) image format (e.g. .tif) If not given, defaults to format given in the filename
-#' @param dryRun display placeholder bounding boxes where images will be stitched
-#' @param overwrite overwrite if filename already used. Defaults to TRUE
-#' @param verbose be verbose
-#' @return largeGiottoImage object of stitched image
+#' @param dryRun [boolean] plot placeholder bounding rectangles where FOV images will be stitched without
+#'   actually proceeding with the full image stitching and saving process.
+#' @param overwrite [boolean] overwrite if filename to save image as already exists. Defaults to TRUE
+#' @param verbose [boolean] be verbose
+#' @return \code{largeGiottoImage} object with pointer to stitched image
 #' @export
 stitchGiottoLargeImage = function(largeImage_list = NULL,
                                   gobject_list = NULL,
@@ -2234,47 +2271,74 @@ reconnect_giottoLargeImage = function(giottoLargeImage,
 # Image Tools ####
 
 
-
-
-
-
-
-#' @title plotGiottoImage
+#' @title Plot a giotto image object
 #' @name plotGiottoImage
-#' @description plot a giottoImage or giottoLargeImage
-#' @param gobject gobject containing giottoImage or giottoLargeImage
-#' @param image_name name of giottoImage
-#' @param largeImage_name name of giottoLargeImage
-#' @param giottoImage giottoImage object
-#' @param giottoLargeImage giottoLargeImage object
-#' @param largeImage_crop_params_list list of parameters for focusing on a specified region of a giottoLargeImage for potentially better plotting resolution
-#' @param largeImage_max_intensity assign override value to treat as maximum intensity in color scale when plotting giottoLargeImage
-#' @return a plot
+#' @description Display a giotto image in the viewer panel. Image object to plot
+#'   can be specified by providing the giotto object containing the image (\code{gobject}),
+#'   the image object name (\code{image_name}), and the image object type (\code{image_type}).
+#'   Alternatively, image objects can be directly plotted through their respective
+#'   associated params.
+#' @param gobject gobject containing giotto image object
+#' @param image_name name of giotto image object
+#' @param image_type type of giotto image object to plot
+#' @param giottoImage giottoImage object to plot directly
+#' @param giottoLargeImage giottoLargeImage object to plot directly
+#' @param largeImage_crop_params_list (optional) named list of params for focusing
+#' on a specified region of a giottoLargeImage.
+#' @param largeImage_max_intensity (optional) assign override value to treat as
+#' maximum intensity in color scale when plotting giottoLargeImage
+#' @section largeImage-specific additional params:
+#'   \code{largeImage_crop_params_list} accepts a named list of the following
+#'     possible params to define a region of interest (ROI) to plot through either
+#'     a terra extent object OR x and y min and max bounds:
+#'   \itemize{
+#'     \item{\code{crop_extent} -- terra extent object to define crop ROI}
+#'     \item{\code{xmax_crop} -- x max of ROI}
+#'     \item{\code{xmin_crop} -- x min of ROI}
+#'     \item{\code{ymax_crop} -- y max of ROI}
+#'     \item{\code{ymin_crop} -- y min of ROI}
+#'   }
+#'   \code{largeImage_max_intensity} accepts a numeric value to set the max
+#'     value in the plotting color scale. Can be used in case there are high
+#'     outlier intensity values in the image and a preview with alternative 
+#'     color scaling is desired.
 #' @export
 plotGiottoImage = function(gobject = NULL,
                            image_name = NULL,
-                           largeImage_name = NULL,
+                           image_type = NULL,
                            giottoImage = NULL,
                            giottoLargeImage = NULL,
                            largeImage_crop_params_list = NULL,
                            largeImage_max_intensity = NULL) {
-
+  
   # Check params
-  if(!is.null(gobject)) {
-    if(!is.null(image_name) && !is.null(largeImage_name)) stop('Only one of a giottoImage or a giottoLargeImage can be plotted at the same time. \n')
-  }
   if(!is.null(giottoImage) && !is.null(giottoLargeImage)) stop('Only one of a giottoImage or a giottoLargeImage can be plotted at the same time. \n')
-
-  # Select plotting function
-  if(!is.null(image_name) || !is.null(giottoImage)) {
-    plot_giottoImage_MG(gobject = gobject,
-                        image_name = image_name,
-                        giottoImage = giottoImage)
+  
+  # Get image object
+  if(!is.null(gobject)) {
+    img_obj = get_giottoImage(gobject = gobject,
+                              image_type = image_type,
+                              name = image_name)
   }
-  if(!is.null(largeImage_name) || !is.null(giottoLargeImage)) {
-    plot_giottoLargeImage(gobject = gobject,
-                          largeImage_name = largeImage_name,
-                          giottoLargeImage = giottoLargeImage,
+  if(!is.null(giottoImage)) {
+    img_obj = giottoImage
+    image_type = 'image'
+    image_name = img_obj@name
+  }
+  if(!is.null(giottoLargeImage)) {
+    img_obj = giottoLargeImage
+    image_type = 'largeImage'
+    image_name = img_obj@name
+  }
+  
+  # Select plotting function
+  cat('Plotting', image_type, ':', image_name, '... \n')
+  
+  if(image_type == 'image') {
+    plot_giottoImage_MG(giottoImage = img_obj)
+  }
+  if(image_type == 'largeImage') {
+    plot_giottoLargeImage(giottoLargeImage = img_obj,
                           crop_extent = largeImage_crop_params_list$crop_extent,
                           xmax_crop = largeImage_crop_params_list$xmax_crop,
                           xmin_crop = largeImage_crop_params_list$xmin_crop,
@@ -2282,6 +2346,7 @@ plotGiottoImage = function(gobject = NULL,
                           ymin_crop = largeImage_crop_params_list$ymin_crop,
                           max_intensity = largeImage_max_intensity)
   }
+  
 }
 
 
@@ -2509,13 +2574,16 @@ reconnectGiottoImage = function(gobject,
                                                  img_type = image_type)
       
       # get image objects
-      for(auto_index in 1:length(name_list[[image_type]])) {
-        img_list[[image_type]][[auto_index]] = get_giottoImage(gobject = gobject,
-                                                               image_type = image_type,
-                                                               name = name_list[[image_type]][[auto_index]])
-        # get file paths from image objects
-        img_path[[image_type]][[auto_index]] = img_list[[image_type]][[auto_index]]@file_path
-      }
+      img_list[[image_type]] = lapply(X = name_list[[image_type]],
+                                      FUN = get_giottoImage,
+                                      gobject = gobject,
+                                      image_type = image_type)
+      
+      # get file paths from image objects
+      img_path[[image_type]] = lapply(X = 1:length(img_list[[image_type]]),
+                                      function(x) {
+                                        img_list[[image_type]][[x]]@file_path
+                                      })
       
       # print discovered images and paths
       # additionally, set path to NULL if file.exists() == FALSE
@@ -2569,13 +2637,16 @@ reconnectGiottoImage = function(gobject,
       if(!all(name_list[[image_type]] %in% list_images_names(gobject = gobject, img_type = image_type))) stop('Names given to ',image_type,'_name argument must match those in the gobject \n')
       
       # get image objects
-      for(manual_index in 1:length(name_list[[image_type]])) {
-        img_list[[image_type]][[manual_index]] = get_giottoImage(gobject = gobject,
-                                                         image_type = image_type,
-                                                         name = name_list[[image_type]][[manual_index]])
-        # update file_path
-        img_list[[image_type]][[manual_index]]@file_path = img_path[[image_type]][[manual_index]]
-      }
+      img_list[[image_type]] = lapply(X = name_list[[image_type]],
+                                      FUN = get_giottoImage,
+                                      gobject = gobject,
+                                      image_type = image_type)
+      
+      # update file_path
+      img_list[[image_type]] = lapply(X = 1:length(img_list[[image_type]],
+                                                   function(x) {
+                                                     img_list[[image_type]][[x]]@file_path = img_path[[image_type]][[x]]
+                                                   }))
       
     }
     
@@ -2607,18 +2678,20 @@ reconnectGiottoImage = function(gobject,
         }
       }
       
-      img_path[[image_type]] = img_path[[image_type]][[!(image_path_NULL[[image_type]])]]
-      name_list[[image_type]] = name_list[[image_type]][[!(image_path_NULL[[image_type]])]]
-      img_list[[image_type]] = img_list[[image_type]][[!(image_path_NULL[[image_type]])]]
+      img_path[[image_type]] = img_path[[image_type]][!(image_path_NULL[[image_type]])]
+      name_list[[image_type]] = name_list[[image_type]][!(image_path_NULL[[image_type]])]
+      img_list[[image_type]] = img_list[[image_type]][!(image_path_NULL[[image_type]])]
+
     }
     
     
     # Load pointers
-    for(reconnect_index in 1:length(img_list[[image_type]])) {
-      img_list[[image_type]][[reconnect_index]] = reconnect_image_object(image_object = img_list[[image_type]][[reconnect_index]],
-                                                                         image_type = image_type,
-                                                                         image_path = img_path[[image_type]][[reconnect_index]])
-    }
+    img_list[[image_type]] = lapply(X = 1:length(img_list[[image_type]]),
+                                    function(x) {
+                                      reconnect_image_object(image_object = img_list[[image_type]][[x]],
+                                                             image_type = image_type,
+                                                             image_path = img_path[[image_type]][[x]])
+                                    })
 
     
     # 4. Update gobject:--------------------------------------------------------------------#

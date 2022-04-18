@@ -2,12 +2,12 @@
 % Please edit documentation in R/images.R
 \name{plotGiottoImage}
 \alias{plotGiottoImage}
-\title{plotGiottoImage}
+\title{Plot a giotto image object}
 \usage{
 plotGiottoImage(
   gobject = NULL,
   image_name = NULL,
-  largeImage_name = NULL,
+  image_type = NULL,
   giottoImage = NULL,
   giottoLargeImage = NULL,
   largeImage_crop_params_list = NULL,
@@ -15,23 +15,44 @@ plotGiottoImage(
 )
 }
 \arguments{
-\item{gobject}{gobject containing giottoImage or giottoLargeImage}
+\item{gobject}{gobject containing giotto image object}
 
-\item{image_name}{name of giottoImage}
+\item{image_name}{name of giotto image object}
 
-\item{largeImage_name}{name of giottoLargeImage}
+\item{image_type}{type of giotto image object to plot}
 
-\item{giottoImage}{giottoImage object}
+\item{giottoImage}{giottoImage object to plot directly}
 
-\item{giottoLargeImage}{giottoLargeImage object}
+\item{giottoLargeImage}{giottoLargeImage object to plot directly}
 
-\item{largeImage_crop_params_list}{list of parameters for focusing on a specified region of a giottoLargeImage for potentially better plotting resolution}
+\item{largeImage_crop_params_list}{(optional) named list of params for focusing
+on a specified region of a giottoLargeImage.}
 
-\item{largeImage_max_intensity}{assign override value to treat as maximum intensity in color scale when plotting giottoLargeImage}
-}
-\value{
-a plot
+\item{largeImage_max_intensity}{(optional) assign override value to treat as
+maximum intensity in color scale when plotting giottoLargeImage}
 }
 \description{
-plot a giottoImage or giottoLargeImage
+Display a giotto image in the viewer panel. Image object to plot
+  can be specified by providing the giotto object containing the image (\code{gobject}),
+  the image object name (\code{image_name}), and the image object type (\code{image_type}).
+  Alternatively, image objects can be directly plotted through their respective
+  associated params.
 }
+\section{largeImage-specific additional params}{
+
+  \code{largeImage_crop_params_list} accepts a named list of the following
+    possible params to define a region of interest (ROI) to plot through either
+    a terra extent object OR x and y min and max bounds:
+  \itemize{
+    \item{\code{crop_extent} -- terra extent object to define crop ROI}
+    \item{\code{xmax_crop} -- x max of ROI}
+    \item{\code{xmin_crop} -- x min of ROI}
+    \item{\code{ymax_crop} -- y max of ROI}
+    \item{\code{ymin_crop} -- y min of ROI}
+  }
+  \code{largeImage_max_intensity} accepts a numeric value to set the max
+    value in the plotting color scale. Can be used in case there are high
+    outlier intensity values in the image and a preview with alternative 
+    color scaling is desired.
+}
+
