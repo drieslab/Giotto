@@ -2,7 +2,7 @@
 % Please edit documentation in R/images.R
 \name{stitchGiottoLargeImage}
 \alias{stitchGiottoLargeImage}
-\title{stitchGiottoLargeImage}
+\title{Stitch multiple giottoLargeImage objects into a single giottoLargeImage object}
 \usage{
 stitchGiottoLargeImage(
   largeImage_list = NULL,
@@ -23,11 +23,11 @@ stitchGiottoLargeImage(
 )
 }
 \arguments{
-\item{largeImage_list}{list of giottoLargeImage objects}
+\item{largeImage_list}{list of \code{giottoLargeImage} objects}
 
-\item{gobject_list}{list of gobjects containing giottoLargeImages}
+\item{gobject_list}{list of \code{gobjects} containing \code{giottoLargeImages}}
 
-\item{largeImage_nameList}{list of names of giottoLargeImages within gobjects}
+\item{largeImage_nameList}{list of names of \code{giottoLargeImages} within \code{gobjects}}
 
 \item{FOV_positions}{dataframe of FOV positions. Values (if any) are directly added to current image mapping}
 
@@ -37,25 +37,76 @@ stitchGiottoLargeImage(
 
 \item{FOV_inverty}{make FOV y position values negative}
 
-\item{method}{method of stitching images (mosaic: average overlapping area values, merge: values get priority by order given)}
+\item{method}{method of stitching images (\strong{mosaic}: average overlapping area values,
+\strong{merge}:values get priority by order of images given)}
 
-\item{round_positions}{round image positions. May be necessary to run.}
+\item{round_positions}{[boolean] round image positions. May be necessary to run.}
 
-\item{filename}{file name to write the stitched image to. Defaults to "save_dir/stitch.tif" if save_dir param is found in first gobject Giotto instructions}
+\item{filename}{file name to write the stitched image to. Defaults to \code{"save_dir/stitch.tif"}
+if \code{save_dir} param is found in the first \code{gobject}'s Giotto instructions}
 
-\item{dataType}{(optional) values for dataType are "INT1U", "INT2U", "INT2S", "INT4U", "INT4S", "FLT4S", "FLT8S". The first three letters indicate whether the dataType is integer (whole numbers) of a real number (decimal numbers), the fourth character indicates the number of bytes used (allowing for large numbers and/or more precision), and the "S" or "U" indicate whether the values are signed (both negative and positive) or unsigned (positive values only).}
+\item{dataType}{(optional) values for \code{dataType} are "INT1U", "INT2U", "INT2S", "INT4U",
+"INT4S", "FLT4S", "FLT8S". The first three letters indicate whether the \code{dataType} is
+integer (whole numbers) of a real number (decimal numbers), the fourth character indicates
+the number of bytes used (allowing for large numbers and/or more precision), and the "S" or "U"
+indicate whether the values are signed (both negative and positive) or unsigned (positive values only).}
 
 \item{fileType}{(optional) image format (e.g. .tif) If not given, defaults to format given in the filename}
 
-\item{dryRun}{display placeholder bounding boxes where images will be stitched}
+\item{dryRun}{[boolean] plot placeholder bounding rectangles where FOV images will be stitched without
+actually proceeding with the full image stitching and saving process.}
 
-\item{overwrite}{overwrite if filename already used. Defaults to TRUE}
+\item{overwrite}{[boolean] overwrite if filename to save image as already exists. Defaults to TRUE}
 
-\item{verbose}{be verbose}
+\item{verbose}{[boolean] be verbose}
 }
 \value{
-largeGiottoImage object of stitched image
+\code{largeGiottoImage} object with pointer to stitched image
 }
 \description{
-stitch multiple giottoLargeImages into single giottoLargeImage. Time consuming & save location recommended.
+Function to stitch together multiple field of view (FOV) images into a
+  single final image. Images are loaded into Giotto as \code{giottoLargeImage} and
+  stitched based on a set of FOV positions into a single final \code{giottoLargeImage}.
 }
+\details{
+This function is time consuming. Setting a save location through the 
+  \code{filename} parameter is also highly recommended as file size will likely be large.
+  This function creates a single stitched image from multiple FOV tiles and saves that
+  image to disk as it works. When finished, the pointer to that new image is loaded in
+  as a \code{giottoLargeImage} object. \cr
+  \strong{Note:} Dry runs are on by default and \code{dryRun} param must be set to FALSE
+  to proceed with the final stitching operation.
+}
+\section{Dry runs are default}{
+
+    To ensure that disk space and time is not wasted, this function defaults to previewing
+    the stitching operation.
+}
+
+\section{FOV positions}{
+
+    The final image is stitched together from multiple FOV tiles. The \code{FOV_positions}
+    parameter accepts a table of x and y values for where each FOV tile should be placed
+    when performing the stitch. Which columns are the x and y values are determined by
+    the \code{FOV_xcol} and \code{FOV_ycol} params respectively. FOV tiles are at full resolution
+    with a starting position where either the lower left or upper left of the image touch the origin
+    depending on the value of \code{FOV_inverty} param. The FOV image is then translated according
+    to the x and y shift values.
+}
+
+\section{FOV invert y}{
+
+    Many imaging systems may treat the origin according to image convention where (0,0) is at the
+    upper left of an image. This is at odds with coordinate convention and what Giotto uses internally
+    where the coordinate (0,0) is at the lower left. The \code{FOV_inverty} defaults to FALSE, but if
+    set to TRUE, then FOV tile images will start with the upper left touching (0,0) and all y values
+    given through \code{FOV_positions} and \code{FOV_ycol} will be treated as negative y shift values.
+}
+
+\section{dataType}{
+
+    There are multiple datatypes defining the range of intensity values that images can be saved
+    with. Setting a value with the \code{dataType} para is optional and Giotto attempts
+    to determine compatible data type to save the image as automatically.
+}
+
