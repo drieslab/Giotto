@@ -445,7 +445,9 @@ seuratToGiotto = function(sobject){
    if (exists('gpoints') == TRUE) {
     gobject = addGiottoPoints(gobject = gobject,
                                       gpoints = list(gpoints))
-     }
+   }
+   
+   return (gobject)
 }
   
 
