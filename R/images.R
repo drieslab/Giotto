@@ -552,9 +552,16 @@ createGiottoLargeImage = function(raster_object,
     if(verbose == TRUE) cat('No values discovered when sampling for image characteristics')
   } else {
     # get intensity range
-    intensityRange = range(sampleValues)
-    g_imageL@max_intensity = intensityRange[2]
-    g_imageL@min_intensity = intensityRange[1]
+    srMinmax = suppressWarnings(terra::minmax(raster_object))
+    if(sum(is.infinite(srMinmax)) == 0) { # pull minmax values from terra spatRaster obj if img was small enough for them to be calculated
+      g_imageL@max_intensity = srMinmax[2]
+      g_imageL@min_intensity = srMinmax[1]
+    } else { # pull minmax values from sampled subset if img was too large
+      intensityRange = range(sampleValues)
+      g_imageL@max_intensity = intensityRange[2]
+      g_imageL@min_intensity = intensityRange[1]
+    }
+
     # find out if image is int or floating point
     is_int = identical(sampleValues, round(sampleValues))
     if(is_int == TRUE) {
@@ -563,6 +570,7 @@ createGiottoLargeImage = function(raster_object,
       g_imageL@is_int = FALSE
     }
   }
+
 
 
   ## 6. extent object
@@ -1292,6 +1300,39 @@ reconnect_giottoImage_MG = function(giottoImage,
 
 
 # giottoLargeImage or terra tools ####
+
+
+#' @title Plot smoothed curve of giotto largeImage intensity values
+#' @name density_giottoLargeImage
+#' @param gobject giotto object
+#' @param image_type image object type (only supports largeImage and is set as
+#'   default)
+#' @param giottoLargeImage giotto large image object
+#' @param method method of plotting image distribution
+#' @keywords internal
+dist_giottoLargeImage = function(gobject = NULL,
+                                 image_name = NULL,
+                                 giottoLargeImage = NULL,
+                                 method = 'dens') {
+  
+  # get image object
+  if(!is.null(gobject) & !is.null(image_name)) {
+    img_obj = get_giottoImage(gobject = gobject,
+                              image_type = 'largeImage',
+                              name = image_name)
+  } else if(!is.null(giottoLargeImage)){
+    img_obj = giottoLargeImage@raster_object
+  } else {
+    stop('No giottoLargeImage given \n')
+  }
+  
+  # plot curve
+  if(method == 'dens') terra::density(img_obj)
+  if(method == 'hist') terra::hist(img_obj)
+
+  
+}
+
 
 
 #' @title Stitch multiple giottoLargeImage objects into a single giottoLargeImage object
@@ -2268,7 +2309,20 @@ reconnect_giottoLargeImage = function(giottoLargeImage,
 
 
 
-# Image Tools ####
+
+# giottoMultiIntensity tools ####
+
+
+
+
+
+# rvision and ROpenCVLite tools ####
+
+
+
+
+
+# Generalized Image Tools ####
 
 
 #' @title Plot a giotto image object
@@ -2711,6 +2765,47 @@ reconnectGiottoImage = function(gobject,
   return(gobject)
 }
 
+
+
+#' @title Plot distribution of image intensity values
+#' @name distGiottoImage
+#' @description Plot distribution of intensity values using either a density plot
+#'   or a histogram. Useful for finding image artefact outliers and determining
+#'   reasonable scaling cutoffs.
+#' @section Plotting method \code{'dens'}:
+#'   Density plot of intensity values for image objects. \strong{N} total values
+#'   examined. \strong{Bandwidth} refers to the curve smoothing value applied.
+#' @section Plotting method \code{'hist'}:
+#'   Histogram of intensity values for image objects.
+#' @details Plot is generated from a downsampling of the original image
+#' @param gobject giotto object
+#' @param image_type image object type (only supports largeImage and is set as
+#'   default)
+#' @param giottoLargeImage giotto large image object
+#' @param method plot type to show image intensity distribution
+#' @export
+distGiottoImage = function(gobject = NULL,
+                           image_type = 'largeImage',
+                           image_name = NULL,
+                           giottoLargeImage = NULL,
+                           method = c('dens', 'hist')) {
+  
+  # check params
+  if(image_type != 'largeImage') stop('Only largeImage objects currently supported \n')
+  if((is.null(image_type) | is.null(image_name) | is.null(gobject)) & (is.null(giottoLargeImage))) {
+    stop('Image must be given through gobject, image_type, and image_name params or as the image object itself \n')
+  }
+  method = match.arg(arg = method, choices = c('dens','hist'))
+  
+  # run specific function
+  if(image_type == 'largeImage') {
+    dist_giottoLargeImage(gobject = gobject,
+                          image_name = image_name,
+                          giottoLargeImage = giottoLargeImage,
+                          method = method)
+  }
+  
+}
 
 
 
