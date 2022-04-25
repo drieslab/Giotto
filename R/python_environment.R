@@ -29,17 +29,17 @@ checkGiottoEnvironment =  function(verbose = TRUE) {
     reticulate::use_python(required = T, python = full_path)
 
     if(verbose) cat('\n reticulate python configuration: \n')
-    reticulate::py_config()
+    print(reticulate::py_config())
 
     if(verbose) cat('\n find pyton modules: \n')
 
     if(verbose) {
-      reticulate::py_module_available('pandas')
-      reticulate::py_module_available('igraph')
-      reticulate::py_module_available('leidenalg')
-      reticulate::py_module_available('networkx')
-      reticulate::py_module_available('community')
-      reticulate::py_module_available('sklearn')
+      cat('pandas:'); print(reticulate::py_module_available('pandas'))
+      cat('igraph:'); print(reticulate::py_module_available('igraph'))
+      cat('leidenalg:'); print(reticulate::py_module_available('leidenalg'))
+      cat('networkx:'); print(reticulate::py_module_available('networkx'))
+      cat('community:'); print(reticulate::py_module_available('community'))
+      cat('sklearn:'); print(reticulate::py_module_available('sklearn'))
     }
 
 
