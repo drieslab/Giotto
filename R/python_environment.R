@@ -105,9 +105,11 @@ install_giotto_environment_specific = function(packages_to_install = c('pandas',
   ## 3. identify operating system and adjust the necessary packages
   os_specific_system = get_os()
 
+
   if(os_specific_system != 'osx') {
-    packages_to_install = packages_to_install[packages_to_install != 'python.app']
+    packages_to_install = packages_to_install[!grepl(pattern = 'python.app', x = packages_to_install)]
   }
+
 
 
   ## for unix-like systems ##
@@ -242,8 +244,12 @@ install_giotto_environment = function(force_environment = FALSE,
 #'
 #' }
 #'
-installGiottoEnvironment =  function(packages_to_install = c('pandas', 'networkx', 'python-igraph',
-                                                             'leidenalg', 'python-louvain', 'python.app',
+installGiottoEnvironment =  function(packages_to_install = c('pandas',
+                                                             'networkx',
+                                                             'python-igraph',
+                                                             'leidenalg',
+                                                             'python-louvain',
+                                                             'python.app',
                                                              'scikit-learn'),
                                      force_miniconda = FALSE,
                                      force_environment = FALSE,
