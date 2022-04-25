@@ -28,6 +28,8 @@ checkGiottoEnvironment =  function(verbose = TRUE) {
     return(TRUE)
 
   } else {
+    if(verbose) cat('\n giotto environment was expected, but NOT found at \n',
+                    full_path, '\n')
     return(FALSE)
   }
 
