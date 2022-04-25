@@ -25,9 +25,31 @@ checkGiottoEnvironment =  function(verbose = TRUE) {
   if(file.exists(full_path)) {
     if(verbose) cat('\n giotto environment found at \n',
                     full_path, '\n')
+
+    reticulate::use_python(required = T, python = full_path)
+
+    if(verbose) cat('\n reticulate python configuration: \n')
+    reticulate::py_config()
+
+    if(verbose) cat('\n find pyton modules: \n')
+
+    if(verbose) {
+      reticulate::py_module_available('pandas')
+      reticulate::py_module_available('igraph')
+      reticulate::py_module_available('leidenalg')
+      reticulate::py_module_available('networkx')
+      reticulate::py_module_available('community')
+      reticulate::py_module_available('sklearn')
+    }
+
+
     return(TRUE)
 
   } else {
+
+    if(verbose) cat('\n the expected giotto environment \n',
+                    full_path, '\n',
+                    'was not found \n')
     return(FALSE)
   }
 
@@ -91,8 +113,12 @@ return_giotto_environment_path_executable = function() {
 #' @title install_giotto_environment_specific
 #' @description installation of giotto environment
 #' @keywords internal
-install_giotto_environment_specific = function(packages_to_install = c('pandas', 'networkx', 'python-igraph',
-                                                                       'leidenalg', 'python-louvain', 'python.app',
+install_giotto_environment_specific = function(packages_to_install = c('pandas',
+                                                                       'networkx',
+                                                                       'python-igraph',
+                                                                       'leidenalg',
+                                                                       'python-louvain',
+                                                                       'python.app',
                                                                        'scikit-learn'),
                                                verbose = TRUE) {
 
@@ -104,7 +130,8 @@ install_giotto_environment_specific = function(packages_to_install = c('pandas',
   os_specific_system = get_os()
 
   if(os_specific_system != 'osx') {
-    packages_to_install = packages_to_install[packages_to_install != 'python.app']
+    packages_to_install = packages_to_install[!grepl(pattern = 'python.app', x = packages_to_install)]
+    #packages_to_install = packages_to_install[packages_to_install != 'python.app']
   }
 
 
@@ -173,8 +200,12 @@ install_giotto_environment_specific = function(packages_to_install = c('pandas',
 #' @description installation options of giotto environment
 #' @keywords internal
 install_giotto_environment = function(force_environment = FALSE,
-                                      packages_to_install = c('pandas', 'networkx', 'python-igraph',
-                                                              'leidenalg', 'python-louvain', 'python.app',
+                                      packages_to_install = c('pandas',
+                                                              'networkx',
+                                                              'python-igraph',
+                                                              'leidenalg',
+                                                              'python-louvain',
+                                                              'python.app',
                                                               'scikit-learn'),
                                       verbose = TRUE) {
 
