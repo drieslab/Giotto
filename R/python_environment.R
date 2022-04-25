@@ -244,13 +244,13 @@ install_giotto_environment = function(force_environment = FALSE,
 #'
 #' }
 #'
-installGiottoEnvironment =  function(packages_to_install = c('pandas',
-                                                             'networkx',
-                                                             'python-igraph',
-                                                             'leidenalg',
-                                                             'python-louvain',
-                                                             'python.app',
-                                                             'scikit-learn'),
+installGiottoEnvironment =  function(packages_to_install = c('pandas==1.1.5',
+                                                             'networkx==2.6.3',
+                                                             'python-igraph==0.9.6',
+                                                             'leidenalg==0.8.7',
+                                                             'python-louvain==0.15',
+                                                             'python.app==2',
+                                                             'scikit-learn==0.24.2'),
                                      force_miniconda = FALSE,
                                      force_environment = FALSE,
                                      verbose = TRUE) {
