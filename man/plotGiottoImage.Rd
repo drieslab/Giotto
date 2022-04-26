@@ -42,7 +42,7 @@ Display a giotto image in the viewer panel. Image object to plot
 
   \code{largeImage_crop_params_list} accepts a named list of the following
     possible params to define a region of interest (ROI) to plot through either
-    a terra extent object OR x and y min and max bounds:
+    a terra extent object OR x and y min and max bounds given as numerics:
   \itemize{
     \item{\code{crop_extent} -- terra extent object to define crop ROI}
     \item{\code{xmax_crop} -- x max of ROI}
@@ -56,3 +56,10 @@ Display a giotto image in the viewer panel. Image object to plot
     color scaling is desired.
 }
 
+\seealso{
+Other basic image functions: 
+\code{\link{addGiottoImage}()},
+\code{\link{reconnectGiottoImage}()},
+\code{\link{updateGiottoImage}()}
+}
+\concept{basic image functions}

@@ -1049,16 +1049,24 @@ addGiottoImageMG = function(gobject,
 
 
 
+
 #' @title addGiottoImageToSpatPlot
 #' @name addGiottoImageToSpatPlot
 #' @description Add a giotto image to a spatial ggplot object post creation
 #' @param spatpl a spatial ggplot object
 #' @param gimage a giotto image, see \code{\link{createGiottoImage}}
+#' @param layer numeric layer on which to add the giotto image. OR takes 'bg' or
+#'   'overlay' as input to designate last (bottom/background) or first (top/overlay)
+#' @param alpha (optional) add giotto image to plot with transparency. Numeric. From 0
+#'   (transparent) to 1 (fully visible)
 #' @return an updated spatial ggplot object
 #' @export
 addGiottoImageToSpatPlot = function(spatpl = NULL,
-                                    gimage = NULL) {
+                                    gimage = NULL,
+                                    layer = c('bg', 'overlay'),
+                                    alpha = NULL) {
 
+  layer = match.arg(arg = layer, choices = c('bg', 'overlay'))
 
   if(is.null(spatpl) | is.null(gimage)) {
     stop('A spatial ggplot object and a giotto image need to be given')
@@ -1072,6 +1080,12 @@ addGiottoImageToSpatPlot = function(spatpl = NULL,
 
   # convert giotto image object into array
   img_array = as.numeric(gimage@mg_object[[1]])
+  
+  # add transparency if needed
+  if(!is.null(alpha) & is.numeric(alpha)) {
+    img_array = add_img_array_alpha(x = img_array,
+                                    alpha = alpha)
+  }
 
   # extract adjustments from object
   xmax_b = gimage@boundaries[1]
@@ -1083,9 +1097,13 @@ addGiottoImageToSpatPlot = function(spatpl = NULL,
                                      xmin = my_xmin-xmin_b, xmax = my_xmax+xmax_b,
                                      ymin = my_ymin-ymin_b, ymax = my_ymax+ymax_b)
 
-  # move image to background
-  nr_layers = length(newpl$layers)
-  newpl$layers = c(newpl$layers[[nr_layers]], newpl$layers[1:(nr_layers-1)])
+  # position new layer
+  if(layer == 'bg') {
+    # move image to background
+    nr_layers = length(newpl$layers)
+    newpl$layers = c(newpl$layers[[nr_layers]], newpl$layers[1:(nr_layers-1)])
+  } else if(layer == 'overlay') {} # keep image on top
+
 
   return(newpl)
 
@@ -1540,18 +1558,15 @@ stitchGiottoLargeImage = function(largeImage_list = NULL,
 
 
 
-#' @title cropGiottoLargeImage
+#' @title Crop a giotto largeImage object
 #' @name cropGiottoLargeImage
-#' @description crop a giottoLargeImage based on crop_extent argument or given values
+#' @description Crop a giottoLargeImage based on crop_extent argument or given values
 #' @param gobject gobject holding the giottoLargeImage
 #' @param largeImage_name name of giottoLargeImage within gobject
 #' @param giottoLargeImage a giottoLargeImage
 #' @param crop_name arbitrary name for cropped giottoLargeImage
 #' @param crop_extent terra extent object used to crop the giottoLargeImage
-#' @param xmax_crop crop xmax bound
-#' @param xmin_crop crop xmin bound
-#' @param ymax_crop crop ymax bound
-#' @param ymin_crop crop ymin bound
+#' @param xmax_crop,xmin_crop,ymax_crop,ymin_crop crop min/max x and y bounds
 #' @return a giottoLargeImage
 #' @export
 cropGiottoLargeImage = function(gobject = NULL,
@@ -1614,16 +1629,13 @@ cropGiottoLargeImage = function(gobject = NULL,
 
 #' @title plot_giottoLargeImage
 #' @name plot_giottoLargeImage
-#' @description Plot a downsampled version of giottoLargeImage. Cropping can increase plot resolution of region of interest.
+#' @description Plot a \emph{downsampled} version of giottoLargeImage. Cropping can increase plot resolution of region of interest.
 #' @param gobject giotto object
 #' @param largeImage_name name of giottoLargeImage
 #' @param giottoLargeImage giottoLargeImage object
-#' @param crop_extent extent object to focus on specific region of image
-#' @param xmax_crop xmax crop boundary
-#' @param xmin_crop xmin crop boundary
-#' @param ymax_crop ymax crop boundary
-#' @param ymin_crop ymin crop boundary
-#' @param max_intensity value to treat as maximum intensity in color scale
+#' @param crop_extent (optional) extent object to focus on specific region of image
+#' @param xmax_crop,xmin_crop,ymax_crop,ymin_crop (optional) crop min/max x and y bounds
+#' @param max_intensity (optional) value to treat as maximum intensity in color scale
 #' @return plot
 #' @keywords internal
 plot_giottoLargeImage = function(gobject = NULL,
@@ -1815,11 +1827,14 @@ convertGiottoLargeImageToMG = function(gobject = NULL,
 
 #' @title find_terra_writeRaster_dataType
 #' @name find_terra_writeRaster_dataType
-#' @description find likely compatible datatype for given image characteristics. Values given in arguments take priority over those found from giottoLargeImage metadata
-#' @param giottoLargeImage giottoLargeImage object to determine max_intensity, min_intensity, is_int settings from
-#' @param quick_INTU_maxval Treat as maximum intensity to find compatible unsigned integer settings
-#' @param max_intensity value given as image maximum intensity
-#' @param min_intensity value given as image minimum intensity
+#' @description find likely compatible datatype for given image characteristics.
+#'   Values given in arguments take priority over those found from giottoLargeImage
+#'   metadata
+#' @param giottoLargeImage giottoLargeImage object to determine max_intensity,
+#'   min_intensity, is_int settings from
+#' @param quick_INTU_maxval Treat as maximum intensity to find compatible unsigned
+#'   integer settings
+#' @param max_intensity,min_intensity value given as image maximum/minimum intensity
 #' @param is_int if image is integer (TRUE) or floating point (FALSE)
 #' @param signed if image is signed (TRUE) or unsigned (TRUE)
 #' @param bitDepth image bitDepth
@@ -1937,22 +1952,30 @@ find_terra_writeRaster_dataType = function(giottoLargeImage = NULL,
 
 #' @title writeGiottoLargeImage
 #' @name writeGiottoLargeImage
-#' @description write original resolution to file. Filetype extension should be included in filename argument.
+#' @description Write full resolution image to file. Filetype extension should be
+#'   included in \code{filename} argument. Be careful if write time and disk space
+#'   needed if image is very large.
 #' @param giottoLargeImage giottoLargeImage object
 #' @param gobject giotto object
 #' @param largeImage_name name of giottoLargeImage
-#' @param max_intensity (optional) image max intensity value from which dataType can be automatically determined
-#' @param filename path to write the image to
-#' @param dataType (optional) values for dataType are "INT1U", "INT2U", "INT2S", "INT4U", "INT4S", "FLT4S", "FLT8S". The first three letters indicate whether the dataType is integer (whole numbers) of a real number (decimal numbers), the fourth character indicates the number of bytes used (allowing for large numbers and/or more precision), and the "S" or "U" indicate whether the values are signed (both negative and positive) or unsigned (positive values only).
-#' @param overwrite Overwrite if filename is already existing
+#' @param filename file name and path to write the image to
+#' @param dataType (optional) values for \code{dataType} are "INT1U", "INT2U", "INT2S",
+#'   "INT4U", "INT4S", "FLT4S", "FLT8S". The first three letters indicate whether
+#'   the dataType is integer (whole numbers) of a real number (decimal numbers),
+#'   the fourth character indicates the number of bytes used (allowing for large
+#'   numbers and/or more precision), and the "S" or "U" indicate whether the values
+#'   are signed (both negative and positive) or unsigned (positive values only).
+#' @param max_intensity (optional) image max intensity value from which \code{dataType}
+#'   can be automatically determined
+#' @param overwrite Overwrite if \code{filename} is already existing
 #' @param verbose be verbose
 #' @export
 writeGiottoLargeImage = function(giottoLargeImage = NULL,
                                  gobject = NULL,
                                  largeImage_name = NULL,
-                                 max_intensity = NULL,
                                  filename = NULL,
                                  dataType = NULL,
+                                 max_intensity = NULL,
                                  overwrite = FALSE,
                                  verbose = TRUE) {
 
@@ -2048,7 +2071,7 @@ updateGiottoLargeImage = function(gobject = NULL,
                                   scale_factor = NULL,
                                   scale_x = 1,
                                   scale_y = 1,
-                                  order = c('first_adj', 'first_scale'),
+                                  order = c('first_adj', 'first_scale'), #TODO make this a list of operations to perform, include rotation
                                   xmin_set = NULL,
                                   xmax_set = NULL,
                                   ymin_set = NULL,
@@ -2344,7 +2367,7 @@ reconnect_giottoLargeImage = function(giottoLargeImage,
 #' @section largeImage-specific additional params:
 #'   \code{largeImage_crop_params_list} accepts a named list of the following
 #'     possible params to define a region of interest (ROI) to plot through either
-#'     a terra extent object OR x and y min and max bounds:
+#'     a terra extent object OR x and y min and max bounds given as numerics:
 #'   \itemize{
 #'     \item{\code{crop_extent} -- terra extent object to define crop ROI}
 #'     \item{\code{xmax_crop} -- x max of ROI}
@@ -2356,6 +2379,7 @@ reconnect_giottoLargeImage = function(giottoLargeImage,
 #'     value in the plotting color scale. Can be used in case there are high
 #'     outlier intensity values in the image and a preview with alternative 
 #'     color scaling is desired.
+#' @family basic image functions
 #' @export
 plotGiottoImage = function(gobject = NULL,
                            image_name = NULL,
@@ -2415,6 +2439,7 @@ plotGiottoImage = function(gobject = NULL,
 #' @param scale_factor provide scale of image pixel dimensions relative to spatial coordinates.
 #' @param negative_y Map image to negative y spatial values if TRUE during automatic alignment. Meaning that origin is in upper left instead of lower left.
 #' @return an updated Giotto object with access to the list of images
+#' @family basic image functions
 #' @export
 addGiottoImage = function(gobject = NULL,
                           images = NULL,
@@ -2449,22 +2474,17 @@ addGiottoImage = function(gobject = NULL,
 #' @param gobject gobject containing giottoImage or giottoLargeImage
 #' @param image_name name of giottoImage
 #' @param largeImage_name name of giottoLargeImage
-#' @param xmax_adj increase of the maximum x image boundary
-#' @param xmin_adj decrease of the minimum x image boundary
-#' @param ymax_adj increase of the maximum y image boundary
-#' @param ymin_adj decrease of the minimum y image boundary
-#' @param x_shift shift entire image in positive x direction
-#' @param y_shift shift entire image in positive y direction
-#' @param scale_x scale x axis image mapping from coordinate origin
-#' @param scale_y scale y axis image mapping from coordinate origin
+#' @param xmax_adj,xmin_adj,ymax_adj,ymin_adj adjust image boundaries by increasing 
+#'   maximum and decreasing minimum bounds respectively of xy bounds
+#' @param x_shift,y_shift shift entire image along xy axes
+#' @param scale_x,scale_y scale xy axis image mapping from coordinate origin
 #' @param order order of operations between fine adjustments (adjustment and shift
 #'   parameters) and scaling
-#' @param xmin_set directly set image xmin boundary. Overrides minmax values as spatial anchor.
-#' @param xmax_set directly set image xmax boundary. Overrides minmax values as spatial anchor.
-#' @param ymin_set directly set image ymin boundary. Overrides minmax values as spatial anchor.
-#' @param ymax_set directly set image ymax boundary. Overrides minmax values as spatial anchor.
+#' @param xmin_set,xmax_set,ymin_set,ymax_set directly set xy image boundaries.
+#'   Overrides minmax values as spatial anchor.
 #' @param return_gobject return a giotto object
 #' @return a giotto object or an updated giotto image object if return_gobject = F
+#' @family basic image functions
 #' @export
 updateGiottoImage = function(gobject = NULL,
                              image_name = NULL,
@@ -2583,6 +2603,7 @@ reconnect_image_object = function(image_object,
 #' @param largeImage_path named list of paths to images to reconnect to giottoLargeImages
 #' @param verbose be verbose
 #' @return a giotto object with updated image pointer
+#' @family basic image functions
 #' @export
 reconnectGiottoImage = function(gobject,
                                 auto_reconnect = TRUE,
@@ -2808,6 +2829,22 @@ distGiottoImage = function(gobject = NULL,
 }
 
 
+
+#' @title Add alpha channel to image array
+#' @name add_img_array_alpha
+#' @details Add 4th alpha channel to 3 channel RGB image arrays
+#' @param x image array to use
+#' @param alpha global alpha value to use. Numeric. Scales from 0 to 1, with 0
+#'   being fully transparent and 1 being fully visible
+#' @return image array with 4th channel for transparency
+#' @keywords internal
+add_img_array_alpha = function(x,
+                               alpha) {
+  img_dims = dim(x)
+  x_alpha = array(data = alpha, dim = c(img_dims[1], img_dims[2], 4))
+  x_alpha[,,1:3] = x
+  return(x_alpha)
+}
 
 
 

@@ -48,3 +48,10 @@ Inputs can either be given as both image name (\code{image_name}/\code{largeImag
   if image files have been moved since the the giotto image object was generated.
   In such cases, use manual reconnection by setting \code{auto_reconnect = FALSE}.
 }
+\seealso{
+Other basic image functions: 
+\code{\link{addGiottoImage}()},
+\code{\link{plotGiottoImage}()},
+\code{\link{updateGiottoImage}()}
+}
+\concept{basic image functions}

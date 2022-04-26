@@ -32,3 +32,10 @@ an updated Giotto object with access to the list of images
 \description{
 Adds lists of giottoImages and giottoLargeImages to gobjects
 }
+\seealso{
+Other basic image functions: 
+\code{\link{plotGiottoImage}()},
+\code{\link{reconnectGiottoImage}()},
+\code{\link{updateGiottoImage}()}
+}
+\concept{basic image functions}

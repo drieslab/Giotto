@@ -1760,6 +1760,8 @@ solve_dampened_WLSj <- function(S,
 #' @param name name to give to spatial deconvolution results, default = DWLS
 #' @param return_gobject return giotto object
 #' @return giotto object or deconvolution results
+#' @seealso \url{https://github.com/dtsoucas/DWLS} for the \emph{DWLS} bulk deconvolution method,
+#' and \url{https://doi.org/10.1186/s13059-021-02362-7} for \emph{spatialDWLS}, the spatial implementation used here.
 #' @export
 runDWLSDeconv <- function(gobject,
                           spat_unit = NULL,
@@ -1890,8 +1892,7 @@ runDWLSDeconv <- function(gobject,
 #' @param name name to give to spatial deconvolution results
 #' @param return_gobject return giotto object
 #' @return giotto object or deconvolution results
-#' @seealso \url{https://github.com/dtsoucas/DWLS} for the \emph{DWLS} bulk deconvolution method,
-#' and \url{https://doi.org/10.1186/s13059-021-02362-7} for \emph{spatialDWLS}, the spatial implementation used here.
+#' @seealso \code{\link{runDWLSDeconv}}
 #' @export
 runSpatialDeconv <- function(gobject,
                              spat_unit = NULL,
