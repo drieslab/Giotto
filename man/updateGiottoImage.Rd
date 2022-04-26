@@ -31,32 +31,18 @@ updateGiottoImage(
 
 \item{largeImage_name}{name of giottoLargeImage}
 
-\item{xmax_adj}{increase of the maximum x image boundary}
+\item{xmax_adj, xmin_adj, ymax_adj, ymin_adj}{adjust image boundaries by increasing 
+maximum and decreasing minimum bounds respectively of xy bounds}
 
-\item{xmin_adj}{decrease of the minimum x image boundary}
+\item{x_shift, y_shift}{shift entire image along xy axes}
 
-\item{ymax_adj}{increase of the maximum y image boundary}
-
-\item{ymin_adj}{decrease of the minimum y image boundary}
-
-\item{x_shift}{shift entire image in positive x direction}
-
-\item{y_shift}{shift entire image in positive y direction}
-
-\item{scale_x}{scale x axis image mapping from coordinate origin}
-
-\item{scale_y}{scale y axis image mapping from coordinate origin}
+\item{scale_x, scale_y}{scale xy axis image mapping from coordinate origin}
 
 \item{order}{order of operations between fine adjustments (adjustment and shift
 parameters) and scaling}
 
-\item{xmax_set}{directly set image xmax boundary. Overrides minmax values as spatial anchor.}
-
-\item{xmin_set}{directly set image xmin boundary. Overrides minmax values as spatial anchor.}
-
-\item{ymax_set}{directly set image ymax boundary. Overrides minmax values as spatial anchor.}
-
-\item{ymin_set}{directly set image ymin boundary. Overrides minmax values as spatial anchor.}
+\item{xmin_set, xmax_set, ymin_set, ymax_set}{directly set xy image boundaries.
+Overrides minmax values as spatial anchor.}
 
 \item{return_gobject}{return a giotto object}
 }
@@ -70,3 +56,10 @@ Updates the spatial positioning and sizing of a giottoImage or
 \details{
 This function works for all image objects associated with Giotto.
 }
+\seealso{
+Other basic image functions: 
+\code{\link{addGiottoImage}()},
+\code{\link{plotGiottoImage}()},
+\code{\link{reconnectGiottoImage}()}
+}
+\concept{basic image functions}

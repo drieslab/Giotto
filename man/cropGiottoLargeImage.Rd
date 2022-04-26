@@ -2,7 +2,7 @@
 % Please edit documentation in R/images.R
 \name{cropGiottoLargeImage}
 \alias{cropGiottoLargeImage}
-\title{cropGiottoLargeImage}
+\title{Crop a giotto largeImage object}
 \usage{
 cropGiottoLargeImage(
   gobject = NULL,
@@ -27,17 +27,11 @@ cropGiottoLargeImage(
 
 \item{crop_extent}{terra extent object used to crop the giottoLargeImage}
 
-\item{xmax_crop}{crop xmax bound}
-
-\item{xmin_crop}{crop xmin bound}
-
-\item{ymax_crop}{crop ymax bound}
-
-\item{ymin_crop}{crop ymin bound}
+\item{xmax_crop, xmin_crop, ymax_crop, ymin_crop}{crop min/max x and y bounds}
 }
 \value{
 a giottoLargeImage
 }
 \description{
-crop a giottoLargeImage based on crop_extent argument or given values
+Crop a giottoLargeImage based on crop_extent argument or given values
 }

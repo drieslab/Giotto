@@ -22,7 +22,7 @@ Plot interactive polygons on an image and retrieve the polygons coordinates.
 \examples{
 \dontrun{
 # Using a ggplot2 plot
-libray(ggplot2)
+library(ggplot2)
 df <- data.frame(x = 1:5, y = 1:5)
 my_plot <- ggplot(df, aes(x,y)) + geom_point()
 plotInteractivePolygons(my_plot)
