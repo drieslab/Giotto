@@ -1864,8 +1864,13 @@ runDWLSDeconv <- function(gobject,
 
     gobject@parameters = parameters_list
 
-    gobject@spatial_enrichment[[spat_unit]][[name]] = deconvolutionDT
-
+    #gobject@spatial_enrichment[[spat_unit]][[name]] = deconvolutionDT
+    gobject = set_spatial_enrichment(gobject = gobject,
+                                     spat_unit = spat_unit,
+                                     feat_type = feat_type,
+                                     enrichm_name = name,
+                                     spatenrichment = deconvolutionDT)
+    
     return(gobject)
 
   } else {
