@@ -11,7 +11,8 @@ plotGiottoImage(
   giottoImage = NULL,
   giottoLargeImage = NULL,
   largeImage_crop_params_list = NULL,
-  largeImage_max_intensity = NULL
+  largeImage_max_intensity = NULL,
+  ...
 )
 }
 \arguments{
@@ -30,6 +31,8 @@ on a specified region of a giottoLargeImage.}
 
 \item{largeImage_max_intensity}{(optional) assign override value to treat as
 maximum intensity in color scale when plotting giottoLargeImage}
+
+\item{...}{additional params to pass to image object specific plotting functions}
 }
 \description{
 Display a giotto image in the viewer panel. Image object to plot

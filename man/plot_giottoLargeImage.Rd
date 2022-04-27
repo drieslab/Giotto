@@ -13,7 +13,8 @@ plot_giottoLargeImage(
   xmin_crop = NULL,
   ymax_crop = NULL,
   ymin_crop = NULL,
-  max_intensity = NULL
+  max_intensity = NULL,
+  asRGB = FALSE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ plot_giottoLargeImage(
 \item{xmax_crop, xmin_crop, ymax_crop, ymin_crop}{(optional) crop min/max x and y bounds}
 
 \item{max_intensity}{(optional) value to treat as maximum intensity in color scale}
+
+\item{asRGB}{(optional) [boolean] force RGB plotting if not automatically detected}
 }
 \value{
 plot
