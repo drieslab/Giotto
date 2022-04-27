@@ -1636,6 +1636,7 @@ cropGiottoLargeImage = function(gobject = NULL,
 #' @param crop_extent (optional) extent object to focus on specific region of image
 #' @param xmax_crop,xmin_crop,ymax_crop,ymin_crop (optional) crop min/max x and y bounds
 #' @param max_intensity (optional) value to treat as maximum intensity in color scale
+#' @param asRGB (optional) [boolean] force RGB plotting if not automatically detected
 #' @return plot
 #' @keywords internal
 plot_giottoLargeImage = function(gobject = NULL,
@@ -1646,7 +1647,8 @@ plot_giottoLargeImage = function(gobject = NULL,
                                  xmin_crop = NULL,
                                  ymax_crop = NULL,
                                  ymin_crop = NULL,
-                                 max_intensity = NULL) {
+                                 max_intensity = NULL,
+                                 asRGB = FALSE) {
 
   # Get giottoLargeImage and check and perform crop if needed
   giottoLargeImage = cropGiottoLargeImage(gobject = gobject,
@@ -1661,29 +1663,28 @@ plot_giottoLargeImage = function(gobject = NULL,
   raster_object = giottoLargeImage@raster_object
 
   # plot
-  if(raster_object@ptr$rgb == FALSE) {
-    terra::plotRGB(raster_object,
-                   axes = TRUE,
-                   r = 1,g = 1,b = 1,
-                   stretch ='lin',
-                   smooth = TRUE,
-                   mar = c(3,5,1.5,1),
-                   asp = 1)
-  } else if(raster_object@ptr$rgb == TRUE) {
-
+  if(asRGB == TRUE | raster_object@ptr$rgb == TRUE) {
     # Determine likely image bitdepth
     if(is.null(max_intensity)) {
       bitDepth = ceiling(log(x = giottoLargeImage@max_intensity, base = 2))
       # Assign discovered bitdepth as max_intensity
       max_intensity = 2^bitDepth-1
     }
-
+    
     terra::plotRGB(raster_object,
                    axes = TRUE,
                    r = 1,g = 2,b = 3,
                    scale = max_intensity,
                    smooth = TRUE,
                    mar = c(5,5,1,1),
+                   asp = 1)
+  } else {
+    terra::plotRGB(raster_object,
+                   axes = TRUE,
+                   r = 1,g = 1,b = 1,
+                   stretch ='lin',
+                   smooth = TRUE,
+                   mar = c(3,5,1.5,1),
                    asp = 1)
   }
 
@@ -2364,6 +2365,7 @@ reconnect_giottoLargeImage = function(giottoLargeImage,
 #' on a specified region of a giottoLargeImage.
 #' @param largeImage_max_intensity (optional) assign override value to treat as
 #' maximum intensity in color scale when plotting giottoLargeImage
+#' @param ... additional params to pass to image object specific plotting functions
 #' @section largeImage-specific additional params:
 #'   \code{largeImage_crop_params_list} accepts a named list of the following
 #'     possible params to define a region of interest (ROI) to plot through either
@@ -2387,7 +2389,8 @@ plotGiottoImage = function(gobject = NULL,
                            giottoImage = NULL,
                            giottoLargeImage = NULL,
                            largeImage_crop_params_list = NULL,
-                           largeImage_max_intensity = NULL) {
+                           largeImage_max_intensity = NULL,
+                           ...) {
   
   # Check params
   if(!is.null(giottoImage) && !is.null(giottoLargeImage)) stop('Only one of a giottoImage or a giottoLargeImage can be plotted at the same time. \n')
@@ -2410,7 +2413,7 @@ plotGiottoImage = function(gobject = NULL,
   }
   
   # Select plotting function
-  cat('Plotting', image_type, ':', image_name, '... \n')
+  cat('Plotting ', image_type, ': "', image_name, '" ... \n', sep = '')
   
   if(image_type == 'image') {
     plot_giottoImage_MG(giottoImage = img_obj)
@@ -2422,7 +2425,8 @@ plotGiottoImage = function(gobject = NULL,
                           xmin_crop = largeImage_crop_params_list$xmin_crop,
                           ymax_crop = largeImage_crop_params_list$ymax_crop,
                           ymin_crop = largeImage_crop_params_list$ymin_crop,
-                          max_intensity = largeImage_max_intensity)
+                          max_intensity = largeImage_max_intensity,
+                          ...)
   }
   
 }
