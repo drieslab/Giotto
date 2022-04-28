@@ -48,6 +48,7 @@ calc_cov_group_HVF = function(feat_in_cells_detected,
 
 
 
+#' @title calc_cov_loess_HVF
 #' @name calc_cov_loess_HVF
 #' @keywords internal
 calc_cov_loess_HVF = function(feat_in_cells_detected,
@@ -86,6 +87,7 @@ calc_cov_loess_HVF = function(feat_in_cells_detected,
 }
 
 
+#' @title calc_var_HVF
 #' @name calc_var_HVF
 #' @keywords internal
 calc_var_HVF = function(scaled_matrix,
@@ -346,7 +348,7 @@ calculateHVF <- function(gobject,
 
 
 
-
+#' @title calculateHVG
 #' @name calculateHVG
 #' @description compute highly variable genes
 #' @param gobject giotto object

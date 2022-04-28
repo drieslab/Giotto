@@ -6,9 +6,9 @@
 
 ## expression values slot ####
 
-#' @title  get_expression_values
+#' @title  Get expression values
 #' @name  get_expression_values
-#' @description function to get expression values from giotto object
+#' @description Function to get expression values from giotto object
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
@@ -52,6 +52,7 @@ get_expression_values <- function(gobject,
 }
 
 
+#' @title select_expression_values
 #' @name select_expression_values
 #' @inheritDotParams get_expression_values
 #' @seealso \code{\link{get_expression_values}}
@@ -65,9 +66,9 @@ select_expression_values = function(...) {
 }
 
 
-#' @title  set_expression_values
+#' @title  Set expression values
 #' @name  set_expression_values
-#' @description function to set expression values for giotto object
+#' @description Function to set expression values for giotto object
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
@@ -113,9 +114,9 @@ set_expression_values <- function(gobject,
 
 ## spatial locations slot ####
 
-#' @title get_spatial_locations
+#' @title Get spatial locations
 #' @name get_spatial_locations
-#' @description function to get a spatial location data.table
+#' @description Function to get a spatial location data.table
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param spat_loc_name name of spatial locations (defaults to first name in spatial_locs slot)
@@ -157,8 +158,8 @@ get_spatial_locations <- function(gobject,
 
 
 
-
-#' @name select_expression_values
+#' @title select_spatial_locations
+#' @name select_spatial_locations
 #' @inheritDotParams get_spatial_locations
 #' @seealso \code{\link{get_spatial_locations}}
 #' @keywords internal
@@ -173,9 +174,9 @@ select_spatial_locations = function(...) {
 
 
 
-#' @title set_spatial_locations
+#' @title Set spatial locations
 #' @name set_spatial_locations
-#' @description function to set a spatial location slot
+#' @description Function to set a spatial location slot
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param spat_loc_name name of spatial locations
@@ -219,7 +220,7 @@ set_spatial_locations <- function(gobject,
 
 ## dimension reduction slot ####
 
-#' @title get_dimReduction
+#' @title Get dimension reduction
 #' @name get_dimReduction
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
@@ -228,7 +229,7 @@ set_spatial_locations <- function(gobject,
 #' @param reduction_method reduction method (e.g. pca)
 #' @param name name of reduction results
 #' @param return_dimObj return full dimension object result
-#' @description function to get a dimension reduction object
+#' @description Function to get a dimension reduction object
 #' @return dim reduction coordinates (default) or dim reduction object
 #' @family dimensional reduction data accessor functions
 #' @family functions to get data from giotto object
@@ -281,6 +282,7 @@ get_dimReduction = function(gobject,
 }
 
 
+#' @title select_dimReduction
 #' @name select_dimReduction
 #' @inheritDotParams get_dimReduction
 #' @seealso \code{\link{get_dimReduction}}
@@ -294,9 +296,9 @@ select_dimReduction = function(...) {
 }
 
 
-#' @title set_dimReduction
+#' @title Set dimension reduction
 #' @name set_dimReduction
-#' @description function to set a dimension reduction slot
+#' @description Function to set a dimension reduction slot
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
@@ -348,9 +350,9 @@ set_dimReduction <- function(gobject,
 
 ## nearest neighbor network slot ####
 
-#' @title get_NearestNetwork
+#' @title Get nearest network
 #' @name get_NearestNetwork
-#' @description get a NN-network from a Giotto object
+#' @description Get a NN-network from a Giotto object
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
@@ -417,6 +419,7 @@ get_NearestNetwork = function(gobject,
 }
 
 
+#' @title Extract nearest network
 #' @name extractNearestNetwork
 #' @inheritDotParams get_NearestNetwork
 #' @seealso \code{\link{get_NearestNetwork}}
@@ -430,6 +433,7 @@ extractNearestNetwork = function(...) {
 }
 
 
+#' @title Select nearest network
 #' @name select_NearestNetwork
 #' @inheritDotParams get_NearestNetwork
 #' @seealso \code{\link{get_NearestNetwork}}
@@ -443,9 +447,9 @@ select_NearestNetwork = function(...) {
 }
 
 
-#' @title set_NearestNetwork
+#' @title Set nearest network
 #' @name set_NearestNetwork
-#' @description set a NN-network for a Giotto object
+#' @description Set a NN-network for a Giotto object
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
@@ -494,9 +498,9 @@ set_NearestNetwork = function(gobject,
 
 ## spatial network slot ####
 
-#' @title get_spatialNetwork
+#' @title Get spatial network
 #' @name get_spatialNetwork
-#' @description function to get a spatial network
+#' @description Function to get a spatial network
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
@@ -538,7 +542,7 @@ get_spatialNetwork <- function(gobject,
 }
 
 
-
+#' @title Select spatial network
 #' @name select_spatialNetwork
 #' @inheritDotParams get_spatialNetwork
 #' @seealso \code{\link{get_spatialNetwork}}
@@ -552,9 +556,9 @@ select_spatialNetwork = function(...) {
 }
 
 
-#' @title set_spatialNetwork
+#' @title Set spatial network
 #' @name set_spatialNetwork
-#' @description function to set a spatial network
+#' @description Function to set a spatial network
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
@@ -597,9 +601,9 @@ set_spatialNetwork <- function(gobject,
 
 ## spatial grid slot ####
 
-#' @title get_spatialGrid
+#' @title Get spatial grid
 #' @name get_spatialGrid
-#' @description function to get spatial grid
+#' @description Function to get spatial grid
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
@@ -639,7 +643,7 @@ get_spatialGrid <- function(gobject,
 }
 
 
-
+#' @title Select spatial grid
 #' @name select_spatialGrid
 #' @inheritDotParams get_spatialGrid
 #' @seealso \code{\link{get_spatialGrid}}
@@ -653,9 +657,9 @@ select_spatialGrid = function(...) {
 }
 
 
-#' @title set_spatialGrid
+#' @title Set spatial grid
 #' @name set_spatialGrid
-#' @description function to set a spatial grid
+#' @description Function to set a spatial grid
 #' @param gobject giotto object
 #' @param name name of spatial grid
 #' @param spatial_grid spatial grid object
@@ -702,9 +706,9 @@ set_spatialGrid <- function(gobject,
 
 ## polygon cell info ####
 
-#' @title get_polygon_info
+#' @title Get polygon info
 #' @name get_polygon_info
-#' @description  get giotto polygon spatVector
+#' @description Get giotto polygon spatVector
 #' @param gobject giotto object
 #' @param polygon_name name of polygons
 #' @param polygon_overlap include polygon overlap information
@@ -737,7 +741,7 @@ get_polygon_info = function(gobject,
 }
 
 
-
+#' @title Select polygon info
 #' @name select_polygon_info
 #' @inheritDotParams get_polygon_info
 #' @seealso \code{\link{get_polygon_info}}
@@ -752,9 +756,9 @@ select_polygon_info = function(...) {
 
 
 
-#' @title set_polygon_info
+#' @title Set polygon info
 #' @name set_polygon_info
-#' @description  set giotto polygon spatVector
+#' @description Set giotto polygon spatVector
 #' @param gobject giotto object
 #' @param polygon_name name of polygons
 #' @param gpolygon giotto polygon
@@ -790,9 +794,9 @@ set_polygon_info = function(gobject,
 
 ## feature info ####
 
-#' @title get_feature_info
+#' @title Get feature info
 #' @name get_feature_info
-#' @description  get giotto points spatVector
+#' @description Get giotto points spatVector
 #' @param gobject giotto object
 #' @param feat_type name of feature
 #' @family feature info data accessor functions
@@ -815,7 +819,7 @@ get_feature_info = function(gobject,
   }
 }
 
-
+#' @title Select feature info
 #' @name select_feature_info
 #' @inheritDotParams get_feature_info
 #' @seealso \code{\link{get_feature_info}}
@@ -829,9 +833,9 @@ select_feature_info = function(...) {
 }
 
 
-#' @title set_feature_info
+#' @title Set feature info
 #' @name set_feature_info
-#' @description  set giotto polygon spatVector for features
+#' @description Set giotto polygon spatVector for features
 #' @param gobject giotto object
 #' @param feat_type name of feat
 #' @param gpolygon giotto polygon
@@ -868,9 +872,9 @@ set_feature_info = function(gobject,
 ## spatial enrichment slot ####
 
 
-#' @title get_spatial_enrichment
+#' @title Get spatial enrichment
 #' @name get_spatial_enrichment
-#' @description function to get a spatial enrichment data.table
+#' @description Function to get a spatial enrichment data.table
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
@@ -919,9 +923,9 @@ get_spatial_enrichment <- function(gobject,
 }
 
 
-#' @title set_spatial_enrichment
+#' @title Set spatial enrichment
 #' @name set_spatial_enrichment
-#' @description function to set a spatial enrichment slot
+#' @description Function to set a spatial enrichment slot
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
@@ -966,9 +970,9 @@ set_spatial_enrichment <- function(gobject,
 
 
 
-#' @title get_giottoImage_MG
+#' @title Get \emph{magick}-based giotto \code{image}
 #' @name get_giottoImage_MG
-#' @description get a giottoImage from a giotto object
+#' @description Get a giottoImage from a giotto object
 #' @param gobject giotto object
 #' @param name name of giottoImage \code{\link{showGiottoImageNames}}
 #' @return a giottoImage
@@ -993,9 +997,9 @@ get_giottoImage_MG = function(gobject = NULL,
 
 
 
-#' @title set_giottoImage_MG
+#' @title Set \emph{magick}-based giotto \code{image}
 #' @name set_giottoImage_MG
-#' @description set a giottoImage for a giotto object with no additional modifications
+#' @description Set a giottoImage for a giotto object with no additional modifications
 #' @param gobject giotto object
 #' @param image_object a giottoImage object
 #' @param name name to assign giottoImage
@@ -1033,9 +1037,9 @@ set_giottoImage_MG = function(gobject,
 
 
 
-#' @title get_giottoLargeImage
+#' @title Get \emph{terra}-based giotto \code{largeImage}
 #' @name get_giottoLargeImage
-#' @description get a giottoLargeImage from a giottoObject
+#' @description Set a giottoLargeImage from a giottoObject
 #' @param gobject giotto object
 #' @param name name of giottoLargeImage \code{\link{showGiottoImageNames}}
 #' @return a giottoLargeImage
@@ -1061,9 +1065,9 @@ get_giottoLargeImage = function(gobject = NULL,
 
 
 
-#' @title set_giottoLargeImage
+#' @title Set \emph{terra}-based giotto \code{largeImage}
 #' @name set_giottoLargeImage
-#' @description set a giottoLargeImage for a giotto object with no additional modifications
+#' @description Set a giottoLargeImage for a giotto object with no additional modifications
 #' @param gobject giotto object
 #' @param largeImage_object a giottoLargeImage object
 #' @param name name to assign giottoLargeImage
@@ -1101,9 +1105,9 @@ set_giottoLargeImage = function(gobject,
 
 
 
-#' @title get_giottoImage
+#' @title Get giotto image object
 #' @name get_giottoImage
-#' @description get giotto image object from gobject
+#' @description Get giotto image object from gobject
 #' @param gobject giotto object
 #' @param image_type type of giotto image object
 #' @param image_name name of a giotto image object \code{\link{showGiottoImageNames}}
@@ -1132,9 +1136,9 @@ get_giottoImage = function(gobject = NULL,
 
 
 
-#' @title set_giottoImage
+#' @title Set giotto image object
 #' @name set_giottoImage
-#' @description directly attach a giotto image to giotto object
+#' @description Directly attach a giotto image to giotto object
 #' @details \emph{\strong{Use with care!}} This function directly attaches giotto image
 #'   objects to the gobject without further modifications of spatial positioning values
 #'   within the image object that are generally needed in order for them to
@@ -1434,6 +1438,7 @@ showGiottoSpatNetworks = function(gobject,
 }
 
 
+#' @title Show networks
 #' @name showNetworks
 #' @inheritDotParams showGiottoSpatNetworks
 #' @seealso \code{\link{showGiottoSpatNetworks}}
@@ -1480,6 +1485,7 @@ showGiottoSpatGrids = function(gobject,
 }
 
 
+#' @title Show Spatial Grids
 #' @name showGrids
 #' @inheritDotParams showGiottoSpatGrids
 #' @seealso \code{\link{showGiottoSpatGrids}}

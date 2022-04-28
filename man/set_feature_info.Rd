@@ -2,7 +2,7 @@
 % Please edit documentation in R/accessors.R
 \name{set_feature_info}
 \alias{set_feature_info}
-\title{set_feature_info}
+\title{Set feature info}
 \usage{
 set_feature_info(gobject, feat_type = NULL, gpolygon)
 }
@@ -17,7 +17,7 @@ set_feature_info(gobject, feat_type = NULL, gpolygon)
 giotto object
 }
 \description{
-set giotto polygon spatVector for features
+Set giotto polygon spatVector for features
 }
 \seealso{
 Other feature info data accessor functions: 

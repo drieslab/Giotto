@@ -242,8 +242,9 @@ runPCA_factominer = function(x,
 }
 
 
+#' @title runPCA_BiocSingular
 #' @name runPCA_BiocSingular
-#' @description performs PCA based on the biocSingular package
+#' @description Performs PCA based on the biocSingular package
 #' @param x matrix or object that can be converted to matrix
 #' @param ncp number of principal components to calculate
 #' @param center center the matrix before pca

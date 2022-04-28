@@ -363,6 +363,9 @@ addCellIntMetadata = function(gobject,
 # * ####
 # ICG cell proximity feature changes ####
 
+
+
+#' @title do_ttest
 #' @name do_ttest
 #' @description Performs t.test on subsets of a matrix
 #' @keywords internal
@@ -402,6 +405,9 @@ do_ttest = function(expr_values,
   return(resultsDT)
 }
 
+
+
+#' @title do_limmatest
 #' @name do_limmatest
 #' @description Performs limma t.test on subsets of a matrix
 #' @keywords internal
@@ -460,6 +466,9 @@ do_limmatest = function(expr_values,
 
 }
 
+
+
+#' @title do_wilctest
 #' @name do_wilctest
 #' @description Performs wilcoxon on subsets of a matrix
 #' @keywords internal
@@ -500,6 +509,8 @@ do_wilctest = function(expr_values,
 
 }
 
+
+#' @title do_permuttest_original
 #' @name do_permuttest_original
 #' @description calculate original values
 #' @keywords internal
@@ -530,6 +541,9 @@ do_permuttest_original = function(expr_values,
 
 }
 
+
+
+#' @title do_permuttest_random
 #' @name do_permuttest_random
 #' @description calculate random values
 #' @keywords internal
@@ -573,6 +587,9 @@ do_permuttest_random = function(expr_values,
 
 }
 
+
+
+#' @title do_multi_permuttest_random
 #' @name do_multi_permuttest_random
 #' @description calculate multiple random values
 #' @keywords internal
@@ -676,6 +693,8 @@ do_permuttest = function(expr_values,
 }
 
 
+
+#' @title Do cell proximity test
 #' @name do_cell_proximity_test
 #' @description Performs a selected differential test on subsets of a matrix
 #' @keywords internal
@@ -733,6 +752,8 @@ do_cell_proximity_test = function(expr_values,
 
 
 
+
+#' @title findCellProximityFeats_per_interaction
 #' @name findCellProximityFeats_per_interaction
 #' @description Identifies features that are differentially expressed due to proximity to other cell types.
 #' @keywords internal
@@ -1117,6 +1138,8 @@ findInteractionChangedFeats = function(gobject,
 }
 
 
+
+#' @title findInteractionChangedGenes
 #' @name findInteractionChangedGenes
 #' @description Identifies cell-to-cell Interaction Changed Genes (ICG),
 #' i.e. genes that are differentially expressed due to proximity to other cell types.#'
@@ -1202,6 +1225,8 @@ findInteractionChangedGenes = function(gobject,
 }
 
 
+
+#' @title findCellProximityGenes
 #' @name findCellProximityGenes
 #' @description Identifies cell-to-cell Interaction Changed Features (ICF),
 #' i.e. genes that are differentially expressed due to proximity to other cell types.
@@ -1310,7 +1335,7 @@ findICF = function(gobject,
 
 
 
-
+#' @title findICG
 #' @name findICG
 #' @description Identifies cell-to-cell Interaction Changed Genes (ICG),
 #' i.e. genes that are differentially expressed due to proximity to other cell types.
@@ -1400,6 +1425,8 @@ findICG = function(gobject,
 }
 
 
+
+#' @title findCPG
 #' @name findCPG
 #' @description Identifies cell-to-cell Interaction Changed Genes (ICG),
 #' i.e. genes that are differentially expressed due to proximity to other cell types.
@@ -1492,7 +1519,7 @@ filterInteractionChangedFeats = function(cpgObject,
 }
 
 
-
+#' @title filterInteractionChangedGenes
 #' @name filterInteractionChangedGenes
 #' @description Filter Interaction Changed Gene scores.
 #' @inheritDotParams filterInteractionChangedFeats
@@ -1507,6 +1534,7 @@ filterInteractionChangedGenes = function(...) {
 }
 
 
+#' @title filterCellProximityGenes
 #' @name filterCellProximityGenes
 #' @description Filter Interaction Changed Gene scores.
 #' @inheritDotParams filterInteractionChangedFeats
@@ -1569,7 +1597,7 @@ filterICF = function(cpgObject,
 
 
 
-
+#' @title filterICG
 #' @name filterICG
 #' @description Filter Interaction Changed Gene scores.
 #' @inheritDotParams filterICF
@@ -1585,6 +1613,7 @@ filterICG = function(...) {
 
 
 
+#' @title filterCPG
 #' @name filterCPG
 #' @description Filter Interaction Changed Gene scores.
 #' @inheritDotParams filterICF
@@ -2000,6 +2029,7 @@ combineInteractionChangedGenes = function(cpgObject,
 }
 
 
+#' @title combineCellProximityGenes
 #' @name combineCellProximityGenes
 #' @description Combine ICG scores in a pairwise manner.
 #' @inheritDotParams combineInteractionChangedGenes

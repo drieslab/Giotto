@@ -1710,7 +1710,7 @@ calculateOverlapRaster = function(gobject,
 
 
 
-
+#' @title Overlap points -- single polygon
 #' @name overlap_points_single_polygon
 #' @description  overlap for a single polygon
 #' @keywords internal
@@ -1743,9 +1743,12 @@ overlap_points_single_polygon = function(spatvec,
 
 ## ** polygon way ####
 
+
+#' @title Overlap points per polgyon
 #' @name overlap_points_per_polygon
-#' @description  loop to overlap each single polygon
+#' @description Loop to overlap each single polygon
 #' @keywords internal
+#' @seealso \code{\link{overlap_points_single_polygon}}
 overlap_points_per_polygon = function(spatvec,
                                       pointvec,
                                       poly_ID_names,
@@ -1871,7 +1874,7 @@ calculateOverlapSerial = function(gobject,
 
 
 
-
+#' @title Overlap points per polygon -- wrapped
 #' @name overlap_points_per_polygon_wrapped
 #' @description overlap wrapped polygons
 #' @keywords internal

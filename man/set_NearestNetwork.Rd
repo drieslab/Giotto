@@ -2,7 +2,7 @@
 % Please edit documentation in R/accessors.R
 \name{set_NearestNetwork}
 \alias{set_NearestNetwork}
-\title{set_NearestNetwork}
+\title{Set nearest network}
 \usage{
 set_NearestNetwork(
   gobject,
@@ -30,7 +30,7 @@ set_NearestNetwork(
 giotto object
 }
 \description{
-set a NN-network for a Giotto object
+Set a NN-network for a Giotto object
 }
 \seealso{
 Other expression space nearest network accessor functions: 

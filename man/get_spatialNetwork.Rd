@@ -2,7 +2,7 @@
 % Please edit documentation in R/accessors.R
 \name{get_spatialNetwork}
 \alias{get_spatialNetwork}
-\title{get_spatialNetwork}
+\title{Get spatial network}
 \usage{
 get_spatialNetwork(
   gobject,
@@ -24,7 +24,7 @@ get_spatialNetwork(
 \item{return_network_Obj}{return network object (default = FALSE)}
 }
 \description{
-function to get a spatial network
+Function to get a spatial network
 }
 \seealso{
 Other spatial network data accessor functions: 

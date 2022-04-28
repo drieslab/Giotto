@@ -2,7 +2,7 @@
 % Please edit documentation in R/auxiliary_giotto.R
 \name{addFeatStatistics}
 \alias{addFeatStatistics}
-\title{addFeatStatistics}
+\title{Add feature statistics}
 \usage{
 addFeatStatistics(
   gobject,
@@ -30,7 +30,7 @@ addFeatStatistics(
 giotto object if return_gobject = TRUE
 }
 \description{
-adds gene statistics to the giotto object
+Adds feature statistics to the giotto object
 }
 \details{
 This function will add the following statistics to feature metadata:

@@ -3,8 +3,9 @@
 
 
 
+#' @title Plot cell polygon layer
 #' @name plot_cell_polygon_layer
-#' @description low level function to plot a polygon
+#' @description Low level function to plot a polygon
 #' @return ggplot
 #' @details This functions plots a polygon based on spatial cell information.
 #' This is most likely a polygon that corresponds to the cell shape.
@@ -97,6 +98,7 @@ plot_cell_polygon_layer = function(ggobject = NULL,
 
 
 
+#' @title select_gimage
 #' @name select_gimage
 #' @description selects and creates giotto images for plotting
 #' @keywords internal
@@ -158,6 +160,7 @@ select_gimage = function(gobject,
 }
 
 
+#' @title plot_feature_points_layer
 #' @name plot_feature_points_layer
 #' @description low level function to plot a points at the spatial in situ level
 #' @return ggplot
@@ -461,7 +464,7 @@ spatInSituPlotPoints = function(gobject,
 
 
 
-
+#' @title plot_feature_hexbin_layer
 #' @name plot_feature_hexbin_layer
 #' @description low level function to plot hexbins at the spatial in situ level
 #' @return ggplot
@@ -497,6 +500,7 @@ plot_feature_hexbin_layer = function(ggobject = NULL,
 
 
 
+#' @title spatInSituPlotHex_single
 #' @name spatInSituPlotHex_single
 #' @description function to plot hexbins at the spatial in situ level
 #' @return ggplot
@@ -720,7 +724,7 @@ spatInSituPlotHex = function(gobject,
 
 
 
-
+#' @title plot_feature_raster_density_layer
 #' @name plot_feature_raster_density_layer
 #' @description low level function to plot density plots at the spatial in situ level
 #' @return ggplot
@@ -757,6 +761,7 @@ plot_feature_raster_density_layer = function(ggobject = NULL,
 
 
 
+#' @title spatInSituPlotDensity_single
 #' @name spatInSituPlotDensity_single
 #' @description low level function to plot density plots at the spatial in situ level
 #' @return ggplot

@@ -2,7 +2,7 @@
 % Please edit documentation in R/accessors.R
 \name{set_spatial_enrichment}
 \alias{set_spatial_enrichment}
-\title{set_spatial_enrichment}
+\title{Set spatial enrichment}
 \usage{
 set_spatial_enrichment(
   gobject,
@@ -27,7 +27,7 @@ set_spatial_enrichment(
 giotto object
 }
 \description{
-function to set a spatial enrichment slot
+Function to set a spatial enrichment slot
 }
 \seealso{
 Other spatial enrichment data accessor functions: 

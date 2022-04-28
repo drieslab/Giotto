@@ -2,7 +2,7 @@
 % Please edit documentation in R/accessors.R
 \name{get_spatialGrid}
 \alias{get_spatialGrid}
-\title{get_spatialGrid}
+\title{Get spatial grid}
 \usage{
 get_spatialGrid(
   gobject,
@@ -24,7 +24,7 @@ get_spatialGrid(
 \item{return_network_Obj}{return grid object (default = FALSE)}
 }
 \description{
-function to get spatial grid
+Function to get spatial grid
 }
 \seealso{
 Other spatial grid data accessor functions: 

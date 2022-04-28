@@ -2,7 +2,7 @@
 % Please edit documentation in R/accessors.R
 \name{get_expression_values}
 \alias{get_expression_values}
-\title{get_expression_values}
+\title{Get expression values}
 \usage{
 get_expression_values(gobject, feat_type = NULL, spat_unit = NULL, values)
 }
@@ -19,7 +19,7 @@ get_expression_values(gobject, feat_type = NULL, spat_unit = NULL, values)
 expression matrix
 }
 \description{
-function to get expression values from giotto object
+Function to get expression values from giotto object
 }
 \seealso{
 Other expression accessor functions: 

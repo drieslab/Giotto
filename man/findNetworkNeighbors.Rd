@@ -2,7 +2,7 @@
 % Please edit documentation in R/auxiliary_giotto.R
 \name{findNetworkNeighbors}
 \alias{findNetworkNeighbors}
-\title{findNetworkNeighbors}
+\title{Find network neighbors}
 \usage{
 findNetworkNeighbors(
   gobject,

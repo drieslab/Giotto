@@ -2979,6 +2979,9 @@ do_spatial_knn_smoothing = function(expression_matrix,
 }
 
 
+
+
+#' @title Evaluate provided spatial locations
 #' @name evaluate_provided_spatial_locations
 #' @keywords internal
 evaluate_provided_spatial_locations = function(spatial_locs) {
@@ -3000,6 +3003,8 @@ evaluate_provided_spatial_locations = function(spatial_locs) {
 }
 
 
+
+#' @title do_spatial_grid_averaging
 #' @name do_spatial_grid_averaging
 #' @description smooth gene expression over a defined spatial grid
 #' @return matrix with smoothened gene expression values based on spatial grid
@@ -3358,6 +3363,7 @@ detectSpatialCorFeats <- function(gobject,
 
 
 
+#' @title detectSpatialCorGenes
 #' @name detectSpatialCorGenes
 #' @description Detect genes that are spatially correlated
 #' @param gobject giotto object
@@ -3506,6 +3512,7 @@ showSpatialCorFeats = function(spatCorObject,
 
 
 
+#' @title showSpatialCorGenes
 #' @name showSpatialCorGenes
 #' @description Shows and filters spatially correlated genes
 #' @param spatCorObject spatial correlation object
@@ -3602,6 +3609,7 @@ clusterSpatialCorFeats = function(spatCorObject,
 
 
 
+#' @title clusterSpatialCorGenes
 #' @name clusterSpatialCorGenes
 #' @description Cluster based on spatially correlated genes
 #' @param spatCorObject spatial correlation object
@@ -3747,6 +3755,7 @@ heatmSpatialCorFeats = function(gobject,
 
 
 
+#' @title heatmSpatialCorGenes
 #' @name heatmSpatialCorGenes
 #' @description Create heatmap of spatially correlated genes
 #' @inheritDotParams heatmSpatialCorFeats

@@ -2,7 +2,7 @@
 % Please edit documentation in R/accessors.R
 \name{set_expression_values}
 \alias{set_expression_values}
-\title{set_expression_values}
+\title{Set expression values}
 \usage{
 set_expression_values(
   gobject,
@@ -27,7 +27,7 @@ set_expression_values(
 giotto object
 }
 \description{
-function to set expression values for giotto object
+Function to set expression values for giotto object
 }
 \seealso{
 Other expression accessor functions: 

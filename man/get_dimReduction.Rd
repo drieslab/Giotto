@@ -2,7 +2,7 @@
 % Please edit documentation in R/accessors.R
 \name{get_dimReduction}
 \alias{get_dimReduction}
-\title{get_dimReduction}
+\title{Get dimension reduction}
 \usage{
 get_dimReduction(
   gobject,
@@ -33,7 +33,7 @@ get_dimReduction(
 dim reduction coordinates (default) or dim reduction object
 }
 \description{
-function to get a dimension reduction object
+Function to get a dimension reduction object
 }
 \seealso{
 Other dimensional reduction data accessor functions: 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/accessors.R
 \name{set_spatialNetwork}
 \alias{set_spatialNetwork}
-\title{set_spatialNetwork}
+\title{Set spatial network}
 \usage{
 set_spatialNetwork(
   gobject,
@@ -27,7 +27,7 @@ set_spatialNetwork(
 giotto object
 }
 \description{
-function to set a spatial network
+Function to set a spatial network
 }
 \seealso{
 Other spatial network data accessor functions: 

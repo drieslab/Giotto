@@ -2,7 +2,7 @@
 % Please edit documentation in R/accessors.R
 \name{get_NearestNetwork}
 \alias{get_NearestNetwork}
-\title{get_NearestNetwork}
+\title{Get nearest network}
 \usage{
 get_NearestNetwork(
   gobject,
@@ -30,7 +30,7 @@ get_NearestNetwork(
 igraph or data.table object
 }
 \description{
-get a NN-network from a Giotto object
+Get a NN-network from a Giotto object
 }
 \seealso{
 Other expression space nearest network accessor functions: 

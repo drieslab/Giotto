@@ -2,7 +2,7 @@
 % Please edit documentation in R/accessors.R
 \name{get_giottoImage}
 \alias{get_giottoImage}
-\title{get_giottoImage}
+\title{Get giotto image object}
 \usage{
 get_giottoImage(
   gobject = NULL,
@@ -21,7 +21,7 @@ get_giottoImage(
 a giotto image object
 }
 \description{
-get giotto image object from gobject
+Get giotto image object from gobject
 }
 \seealso{
 Other image data accessor functions: 

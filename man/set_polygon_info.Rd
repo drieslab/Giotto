@@ -2,7 +2,7 @@
 % Please edit documentation in R/accessors.R
 \name{set_polygon_info}
 \alias{set_polygon_info}
-\title{set_polygon_info}
+\title{Set polygon info}
 \usage{
 set_polygon_info(gobject, polygon_name = "cell", gpolygon)
 }
@@ -17,7 +17,7 @@ set_polygon_info(gobject, polygon_name = "cell", gpolygon)
 giotto object
 }
 \description{
-set giotto polygon spatVector
+Set giotto polygon spatVector
 }
 \seealso{
 Other polygon info data accessor functions: 

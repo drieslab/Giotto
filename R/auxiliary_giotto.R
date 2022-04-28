@@ -294,9 +294,9 @@ create_average_detection_DT <- function(gobject,
 
 
 
-
+#' @title Subset expression data
 #' @name subset_expression_data
-#' @description subset expression data from giotto object
+#' @description Subset expression data from giotto object
 #' @keywords internal
 subset_expression_data = function(gobject,
                                   filter_bool_feats,
@@ -371,8 +371,9 @@ subset_expression_data = function(gobject,
 
 }
 
+#' @title Subset spatial locations
 #' @name subset_spatial_locations
-#' @description subset location data from giotto object
+#' @description Subset location data from giotto object
 #' @keywords internal
 subset_spatial_locations = function(gobject,
                                     filter_bool_cells,
@@ -393,8 +394,9 @@ subset_spatial_locations = function(gobject,
 }
 
 
-#' @name subset_spatial_locations
-#' @description subset cell metadata from giotto object
+#' @title Subset cell metadata
+#' @name subset_cell_metadata
+#' @description Subset cell metadata from giotto object
 #' @keywords internal
 subset_cell_metadata = function(gobject,
                                 feat_type,
@@ -412,9 +414,9 @@ subset_cell_metadata = function(gobject,
 }
 
 
-
+#' @title Subset feature metadata
 #' @name subset_feature_metadata
-#' @description subset feature metadata from giotto object
+#' @description Subset feature metadata from giotto object
 #' @keywords internal
 subset_feature_metadata = function(gobject,
                                    feat_type,
@@ -436,6 +438,7 @@ subset_feature_metadata = function(gobject,
 
 
 
+#' @title Subset spatial network
 #' @name subset_spatial_network
 #' @description subset spatial networks from giotto object
 #' @keywords internal
@@ -459,9 +462,9 @@ subset_spatial_network = function(gobject,
 
 
 
-
+#' @title Subset dimension reduction
 #' @name subset_dimension_reduction
-#' @description subset dimension reduction results from giotto object
+#' @description Subset dimension reduction results from giotto object
 #' @keywords internal
 subset_dimension_reduction = function(gobject,
                                       spat_unit,
@@ -514,9 +517,9 @@ subset_dimension_reduction = function(gobject,
 
 
 
-
+#' @title Subset nearest network
 #' @name subset_nearest_network
-#' @description subset nearest network results from giotto object
+#' @description Subset nearest network results from giotto object
 #' @keywords internal
 subset_nearest_network = function(gobject,
                                   spat_unit,
@@ -574,9 +577,9 @@ subset_nearest_network = function(gobject,
 
 
 
-
+#' @title Subset spatial enrichment
 #' @name subset_spatial_enrichment
-#' @description subset spatial enrichment results from giotto object
+#' @description Subset spatial enrichment results from giotto object
 #' @keywords internal
 subset_spatial_enrichment = function(gobject,
                                      spat_unit,
@@ -610,9 +613,9 @@ subset_spatial_enrichment = function(gobject,
 
 
 
-
+#' @title Subset giotto polygon object
 #' @name subset_giotto_polygon_object
-#' @description subset a single giotto polygon object
+#' @description Subset a single giotto polygon object
 #' @keywords internal
 subset_giotto_polygon_object = function(gpolygon,
                                         cell_ids,
@@ -650,8 +653,11 @@ subset_giotto_polygon_object = function(gpolygon,
 
 }
 
+
+
+#' @title Subset spatial info data
 #' @name subset_spatial_info_data
-#' @description subset  all spatial info (polygon) data
+#' @description Subset  all spatial info (polygon) data
 #' @keywords internal
 subset_spatial_info_data = function(spatial_info,
                                     cell_ids,
@@ -707,9 +713,10 @@ subset_spatial_info_data = function(spatial_info,
 
 # subset giotto points
 
+#' @title Subset giotto points object
 #' @name subset_giotto_points_object
-#' @description subset a single giotto points object
-#' @details subset on feature ids and on x,y coordinates
+#' @description Subset a single giotto points object
+#' @details Subset on feature ids and on x,y coordinates
 #' @keywords internal
 subset_giotto_points_object = function(gpoints,
                                        feat_ids = NULL,
@@ -744,8 +751,9 @@ subset_giotto_points_object = function(gpoints,
 
 
 
+#' @title Subset feature info data
 #' @name subset_feature_info_data
-#' @description subset  all spatial feature (points) data
+#' @description Subset  all spatial feature (points) data
 #' @keywords internal
 subset_feature_info_data = function(feat_info,
                                     feat_ids,
@@ -788,7 +796,7 @@ subset_feature_info_data = function(feat_info,
 
 
 #' @title subsetGiotto
-#' @description subsets Giotto object including previous analyses.
+#' @description Subsets Giotto object including previous analyses.
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type to use
@@ -796,10 +804,7 @@ subset_feature_info_data = function(feat_info,
 #' @param feat_ids feature IDs to keep
 #' @param gene_ids deprecated, use feat_ids
 #' @param poly_info polygon information to use
-#' @param x_max maximum x-coordinate for feature coordinates
-#' @param x_min minimum x-coordinate for feature coordinates
-#' @param y_max maximum y-coordinate for feature coordinates
-#' @param y_min minimum y-coordinate for feature coordinates
+#' @param x_max,x_min,y_max,y_min minimum and maximum x and y coordinates to keep for feature coordinates
 #' @param verbose be verbose
 #' @param toplevel_params parameters to extract
 #' @return giotto object
@@ -1662,7 +1667,7 @@ filterGiotto <- function(gobject,
 
 
 
-
+#' @title RNA standard normalization
 #' @name rna_standard_normalization
 #' @description standard function for RNA normalization
 #' @keywords internal
@@ -1782,6 +1787,7 @@ rna_standard_normalization = function(gobject,
 
 
 
+#' @title RNA osmfish normalization
 #' @name rna_osmfish_normalization
 #' @description function for RNA normalization according to osmFISH paper
 #' @keywords internal
@@ -1817,6 +1823,7 @@ rna_osmfish_normalization = function(gobject,
 }
 
 
+#' @title RNA pearson residuals normalization
 #' @name rna_pears_resid_normalization
 #' @description function for RNA normalization according to Lause/Kobak et al paper
 #' Adapted from https://gist.github.com/hypercompetent/51a3c428745e1c06d826d76c3671797c#file-pearson_residuals-r
@@ -2653,6 +2660,7 @@ addFeatStatistics <- function(gobject,
 
 
 
+#' @title Add gene statistics
 #' @name addGeneStatistics
 #' @description adds gene statistics to the giotto object
 #' @param gobject giotto object
@@ -2789,7 +2797,7 @@ addCellStatistics <- function(gobject,
 
 #' @title addStatistics
 #' @name addStatistics
-#' @description adds genes and cells statistics to the giotto object
+#' @description Adds feature and cell statistics to the giotto object
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
@@ -2849,15 +2857,15 @@ addStatistics <- function(gobject,
 
 #' @title addFeatsPerc
 #' @name addFeatsPerc
-#' @description calculates the total percentage of (normalized) counts for a subset of selected genes
+#' @description Calculates the total percentage of (normalized) counts for a subset of selected genes
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
 #' @param expression_values expression values to use
 #' @param feats vector of selected features
-#' @param vector_name column name as seen in pDataDT()
+#' @param vector_name column name as seen in \code{\link{pDataDT}}
 #' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @return giotto object if return_gobject = TRUE, else a vector with % results
+#' @return giotto object if \code{return_gobject = TRUE}, else a vector with % results
 #' @export
 addFeatsPerc = function(gobject,
                         spat_unit = NULL,
@@ -2917,6 +2925,7 @@ addFeatsPerc = function(gobject,
 
 
 
+#' @title addGenesPerc
 #' @name addGenesPerc
 #' @description calculates the total percentage of (normalized) counts for a subset of selected genes
 #' @param gobject giotto object
@@ -2924,9 +2933,9 @@ addFeatsPerc = function(gobject,
 #' @param feat_type feature type
 #' @param expression_values expression values to use
 #' @param genes vector of selected genes
-#' @param vector_name column name as seen in pDataDT()
+#' @param vector_name column name as seen in \code{\link{pDataDT}}
 #' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @return giotto object if return_gobject = TRUE, else a vector with % results
+#' @return giotto object if \code{return_gobject = TRUE}, else a vector with % results
 #' @export
 addGenesPerc = function(gobject,
                         spat_unit = NULL,
@@ -2990,7 +2999,7 @@ showProcessingSteps <- function(gobject) {
 
 
 
-
+#' @title create_cluster_matrix
 #' @name create_cluster_matrix
 #' @description creates aggregated matrix for a given clustering column
 #' @keywords internal
@@ -3060,7 +3069,7 @@ create_cluster_matrix <- function(gobject,
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
 #' @param expression_values expression values to use
-#' @param metadata_cols annotation columns found in pDataDT(gobject)
+#' @param metadata_cols annotation columns found in \code{pDataDT(gobject)}
 #' @param selected_genes subset of genes to use
 #' @return data.table with average expression values for each gene per (combined) annotation
 #' @export
@@ -3148,7 +3157,7 @@ calculateMetaTable = function(gobject,
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
 #' @param value_cols metadata or enrichment value columns to use
-#' @param metadata_cols annotation columns found in pDataDT(gobject)
+#' @param metadata_cols annotation columns found in \code{pDataDT(gobject)}
 #' @param spat_enr_names which spatial enrichment results to include
 #' @return data.table with average metadata values per (combined) annotation
 #' @export
@@ -3392,6 +3401,7 @@ createMetafeats = function(gobject,
 
 
 
+#' @title Create metagenes
 #' @name createMetagenes
 #' @description This function creates an average metagene for gene clusters.
 #' @param gobject Giotto object
@@ -3424,7 +3434,7 @@ createMetagenes = function(gobject,
 }
 
 
-#' @title findNetworkNeighbors
+#' @title Find network neighbors
 #' @name findNetworkNeighbors
 #' @description Find the spatial neighbors for a selected group of cells within the selected spatial network.
 #' @param gobject Giotto object
@@ -3484,7 +3494,7 @@ findNetworkNeighbors = function(gobject,
 
 
 
-
+#' @title merge_spatial_locs_feat_info
 #' @name merge_spatial_locs_feat_info
 #' @description merge spatial cell and feature location information
 #' @keywords internal

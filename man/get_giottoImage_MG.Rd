@@ -2,7 +2,7 @@
 % Please edit documentation in R/accessors.R
 \name{get_giottoImage_MG}
 \alias{get_giottoImage_MG}
-\title{get_giottoImage_MG}
+\title{Get \emph{magick}-based giotto \code{image}}
 \usage{
 get_giottoImage_MG(gobject = NULL, name = NULL)
 }
@@ -15,6 +15,6 @@ get_giottoImage_MG(gobject = NULL, name = NULL)
 a giottoImage
 }
 \description{
-get a giottoImage from a giotto object
+Get a giottoImage from a giotto object
 }
 \keyword{internal}

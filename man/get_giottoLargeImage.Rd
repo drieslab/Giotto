@@ -2,7 +2,7 @@
 % Please edit documentation in R/accessors.R
 \name{get_giottoLargeImage}
 \alias{get_giottoLargeImage}
-\title{get_giottoLargeImage}
+\title{Get \emph{terra}-based giotto \code{largeImage}}
 \usage{
 get_giottoLargeImage(gobject = NULL, name = NULL)
 }
@@ -15,6 +15,6 @@ get_giottoLargeImage(gobject = NULL, name = NULL)
 a giottoLargeImage
 }
 \description{
-get a giottoLargeImage from a giottoObject
+Set a giottoLargeImage from a giottoObject
 }
 \keyword{internal}

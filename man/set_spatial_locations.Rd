@@ -2,7 +2,7 @@
 % Please edit documentation in R/accessors.R
 \name{set_spatial_locations}
 \alias{set_spatial_locations}
-\title{set_spatial_locations}
+\title{Set spatial locations}
 \usage{
 set_spatial_locations(
   gobject,
@@ -27,7 +27,7 @@ set_spatial_locations(
 giotto object
 }
 \description{
-function to set a spatial location slot
+Function to set a spatial location slot
 }
 \seealso{
 Other spatial location data accessor functions: 
