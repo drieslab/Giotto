@@ -1469,7 +1469,7 @@ stitchGiottoLargeImage = function(largeImage_list = NULL,
       largeImage_list = list()
       for(gobj_i in 1:length(gobject_list)) {
         largeImage_list[[gobj_i]] = get_giottoLargeImage(gobject = gobject_list[[gobj_i]],
-                                                         name = largeImage_name[[gobj_i]])
+                                                         name = largeImage_nameList[[gobj_i]])
       }
     } else {
       stop('giottoLargeImages must be given either as the giottoLargeImage itself or as a giotto object and the giottoLargeImage name')
