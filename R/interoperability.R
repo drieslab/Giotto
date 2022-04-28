@@ -281,9 +281,9 @@ seuratToGiotto_OLD <- function(obj_use = NULL,...){
   
   # add assay data: raw, normalized & scaled
   for (i in 1:length(obj_assays)){
-    data_raw <- GetAssayData(obj_use,slot = 'counts',assay = obj_assays[i])
-    data_norm <- GetAssayData(obj_use,slot = 'data',assay = obj_assays[i])
-    data_scale <- GetAssayData(obj_use,slot = 'scale.data',assay = obj_assays[i])
+    data_raw <- Seurat::GetAssayData(obj_use,slot = 'counts',assay = obj_assays[i])
+    data_norm <- Seurat::GetAssayData(obj_use,slot = 'data',assay = obj_assays[i])
+    data_scale <- Seurat::GetAssayData(obj_use,slot = 'scale.data',assay = obj_assays[i])
     
     if (i == 1 & obj_assays[i] == 'Spatial'){
       feat_use <- 'rna'
@@ -353,13 +353,13 @@ seuratToGiotto = function(sobject){
   require(Seurat)
   require(Giotto)
   
-  if(is.null(GetAssayData(object = sobject, slot = "counts"))) {
+  if(is.null(Seurat::GetAssayData(object = sobject, slot = "counts"))) {
     cat('No expression values are provided \n')
     return(sobject)
 
   } else {
     
-  exp = GetAssayData(object = sobject, slot = "counts")
+  exp = Seurat::GetAssayData(object = sobject, slot = "counts")
   
     # Dimension Reduction 
     if(length(sobject@reductions) == 0)  {
@@ -367,11 +367,11 @@ seuratToGiotto = function(sobject){
       
     } else {
       
-      if(!is.null(Embeddings(object = sobject, reduction = "pca"))) {
+      if(!is.null(Seurat::Embeddings(object = sobject, reduction = "pca"))) {
       
-      pca_coord = as.matrix(Embeddings(object = sobject, reduction = "pca"))
-      pca_load = as.matrix(Loadings(object = sobject, reduction = "pca"))
-      pca_eig = sapply(Stdev(sobject, reduction = "pca"), function(x) x ^ 2) 
+      pca_coord = as.matrix(Seurat::Embeddings(object = sobject, reduction = "pca"))
+      pca_load = as.matrix(Seurat::Loadings(object = sobject, reduction = "pca"))
+      pca_eig = sapply(Seurat::Stdev(sobject, reduction = "pca"), function(x) x ^ 2) 
       
       colnames(pca_coord) = gsub(x = colnames(pca_coord), pattern = "PC_", replacement = "Dim.")  
       colnames(pca_load) = gsub(x = colnames(pca_load), pattern = "PC_", replacement = "Dim.") 
@@ -384,9 +384,9 @@ seuratToGiotto = function(sobject){
                  misc =list(eigenvalues = pca_eig, loadings = pca_load))
       } else { pca = NULL} 
       
-      if(!is.null(Embeddings(object = sobject, reduction = "umap"))) {
+      if(!is.null(Seurat::Embeddings(object = sobject, reduction = "umap"))) {
      
-      umap_coord = as.matrix(Embeddings(object = sobject, reduction = "umap"))
+      umap_coord = as.matrix(Seurat::Embeddings(object = sobject, reduction = "umap"))
       
       colnames(umap_coord) = gsub(x = colnames(umap_coord), pattern = "UMAP_", replacement = "Dim.") 
       
@@ -408,7 +408,7 @@ seuratToGiotto = function(sobject){
       
     } else {
     
-      spat_coord = GetTissueCoordinates(sobject)
+      spat_coord = Seurat::GetTissueCoordinates(sobject)
       spat_coord = cbind(rownames(spat_coord), data.frame(spat_coord, row.names=NULL))
       colnames(spat_coord) = c("cell_ID", "sdimy", "sdimx")
       spat_loc = spat_coord}
@@ -418,7 +418,7 @@ seuratToGiotto = function(sobject){
     name = names(sobject@images)
     if(length(sobject@assays[["Vizgen"]]) == 1 | length(sobject@assays[["Akoya"]]) == 1 | length(sobject@assays[["Nanostring"]]) == 1) {
       
-      spat_coord = GetTissueCoordinates(sobject)
+      spat_coord = Seurat::GetTissueCoordinates(sobject)
       colnames(spat_coord) = c("sdimx", "sdimy", "cell_ID")
       exp = exp[  , c(intersect(spat_coord$cell_ID, colnames(exp)))] 
       spat_loc = spat_coord
@@ -432,7 +432,7 @@ seuratToGiotto = function(sobject){
           mol_spatlocs = data.table::data.table()
           
           for (x in featnames) {
-            df = (FetchData(sobject[[name]][["molecules"]], vars = x))
+            df = (Seurat::FetchData(sobject[[name]][["molecules"]], vars = x))
             mol_spatlocs = rbind(mol_spatlocs, df)
           }
             gpoints = createGiottoPoints(mol_spatlocs, feat_type = "rna")
