@@ -2,7 +2,7 @@
 % Please edit documentation in R/accessors.R
 \name{set_spatialGrid}
 \alias{set_spatialGrid}
-\title{set_spatialGrid}
+\title{Set spatial grid}
 \usage{
 set_spatialGrid(
   gobject,
@@ -23,7 +23,7 @@ set_spatialGrid(
 giotto object
 }
 \description{
-function to set a spatial grid
+Function to set a spatial grid
 }
 \seealso{
 Other spatial grid data accessor functions: 

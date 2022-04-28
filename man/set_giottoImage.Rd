@@ -2,7 +2,7 @@
 % Please edit documentation in R/accessors.R
 \name{set_giottoImage}
 \alias{set_giottoImage}
-\title{set_giottoImage}
+\title{Set giotto image object}
 \usage{
 set_giottoImage(
   gobject = NULL,
@@ -28,7 +28,7 @@ giotto object}
 giotto object
 }
 \description{
-directly attach a giotto image to giotto object
+Directly attach a giotto image to giotto object
 }
 \details{
 \emph{\strong{Use with care!}} This function directly attaches giotto image

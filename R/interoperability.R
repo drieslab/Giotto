@@ -6,6 +6,7 @@
 
 ## anndata object ####
 
+#' @title Convert anndata to Giotto
 #' @name anndataToGiotto
 #' @description Converts a spatial anndata (e.g. scanpy) .h5ad file into a Giotto object
 #' @param anndata_path path to the .h5ad file
@@ -80,6 +81,8 @@ anndataToGiotto = function(anndata_path,
 
 ## Seurat object ####
 
+
+#' @title Convert Giotto to Seurat
 #' @name giottoToSeurat
 #' @description Converts Giotto object into a Seurat object
 #' @param obj_use Giotto object
@@ -237,8 +240,9 @@ giottoToSeurat <- function(obj_use = NULL,
 }
 
 
+#' @title seuratToGiotto_OLD
 #' @name seuratToGiotto_OLD
-#' @description Converts Seurat object into a Giotto object
+#' @description Converts Seurat object into a Giotto object. Deprecated, see \code{\link{giottoToSeurat}}
 #' @param obj_use Seurat object
 #' @return Giotto object
 #' @export

@@ -475,6 +475,7 @@ filter_network <- function(networkDT = NULL,
 
 
 
+#' @title Evaluate spatial network
 #' @name evaluate_spatial_network
 #' @description function to evaluate a spatial network
 #' @keywords internal
@@ -500,8 +501,10 @@ evaluate_spatial_network = function(spatial_network) {
 }
 
 
+
+#' @title Compatible spatial network
 #' @name compatible_spatial_network
-#' @description function to evaluate if a spatial network is compatible
+#' @description Function to evaluate if a spatial network is compatible
 #' with a provided expression matrix
 #' @keywords internal
 compatible_spatial_network = function(spatial_network,

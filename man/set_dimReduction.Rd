@@ -2,7 +2,7 @@
 % Please edit documentation in R/accessors.R
 \name{set_dimReduction}
 \alias{set_dimReduction}
-\title{set_dimReduction}
+\title{Set dimension reduction}
 \usage{
 set_dimReduction(
   gobject,
@@ -33,7 +33,7 @@ set_dimReduction(
 giotto object
 }
 \description{
-function to set a dimension reduction slot
+Function to set a dimension reduction slot
 }
 \seealso{
 Other dimensional reduction data accessor functions: 

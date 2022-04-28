@@ -1,4 +1,5 @@
 
+#' @title aes_string2
 #' @name aes_string2
 #' @param \dots aes_string parameters
 #' @keywords internal
@@ -9,6 +10,7 @@ aes_string2 <- function(...){
 }
 
 
+#' @title giotto_point
 #' @name giotto_point
 #' @param \dots geom_point parameters
 #' @keywords internal

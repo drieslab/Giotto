@@ -413,6 +413,8 @@ kmeans_arma_subset_binarize = function(x, n_iter = 5, extreme_nr = 20, sample_nr
 }
 
 
+
+#' @title kmeans_binarize_wrapper
 #' @name kmeans_binarize_wrapper
 #' @description wrapper for different binarization functions
 #' @keywords internal
@@ -453,6 +455,9 @@ kmeans_binarize_wrapper = function(expr_values,
 
 }
 
+
+
+#' @title rank_binarize
 #' @name rank_binarize
 #' @description create binarized scores from a vector using arbitrary rank
 #' @keywords internal
@@ -469,6 +474,8 @@ rank_binarize = function(x, max_rank = 200) {
 }
 
 
+
+#' @title rank_binarize_wrapper
 #' @name rank_binarize_wrapper
 #' @description wrapper for rank binarization function
 #' @keywords internal
@@ -794,7 +801,7 @@ get10Xmatrix = function(path_to_data, gene_column_index = 1, remove_zero_rows = 
 
 
 
-
+#' @title get10XmatrixOLD
 #' @name get10XmatrixOLD
 #' @description This function creates an expression matrix from a 10X structured folder
 #' @param path_to_data path to the 10X folder

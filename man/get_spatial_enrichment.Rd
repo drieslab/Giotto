@@ -2,7 +2,7 @@
 % Please edit documentation in R/accessors.R
 \name{get_spatial_enrichment}
 \alias{get_spatial_enrichment}
-\title{get_spatial_enrichment}
+\title{Get spatial enrichment}
 \usage{
 get_spatial_enrichment(
   gobject,
@@ -24,7 +24,7 @@ get_spatial_enrichment(
 data.table with fractions
 }
 \description{
-function to get a spatial enrichment data.table
+Function to get a spatial enrichment data.table
 }
 \seealso{
 Other spatial enrichment data accessor functions: 

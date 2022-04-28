@@ -788,11 +788,13 @@ changeImageBg = function(mg_object,
 }
 
 
+#' @title createGiottoImageOLD
 #' @name createGiottoImageOLD
-#' @description Creates a giotto image that can be added to a Giotto object and/or used to add an image to the spatial plotting functions
+#' @description Creates a giotto image that can be added to a Giotto object and/or
+#'   used to add an image to the spatial plotting functions. Deprecated. See \code{\link{createGiottoImage}}
 #' @param gobject giotto object
-#' @param spatial_locs spatial locations (alternative if giobject = NULL)
-#' @param mg_object magick image object
+#' @param spatial_locs spatial locations (alternative if \code{gobject = NULL})
+#' @param mg_object \emph{magick} image object
 #' @param name name for the image
 #' @param xmax_adj adjustment of the maximum x-value to align the image
 #' @param xmin_adj adjustment of the minimum x-value to align the image

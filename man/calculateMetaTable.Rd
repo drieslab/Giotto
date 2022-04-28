@@ -23,7 +23,7 @@ calculateMetaTable(
 
 \item{expression_values}{expression values to use}
 
-\item{metadata_cols}{annotation columns found in pDataDT(gobject)}
+\item{metadata_cols}{annotation columns found in \code{pDataDT(gobject)}}
 
 \item{selected_genes}{subset of genes to use}
 }

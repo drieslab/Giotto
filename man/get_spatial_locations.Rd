@@ -2,7 +2,7 @@
 % Please edit documentation in R/accessors.R
 \name{get_spatial_locations}
 \alias{get_spatial_locations}
-\title{get_spatial_locations}
+\title{Get spatial locations}
 \usage{
 get_spatial_locations(gobject, spat_unit = NULL, spat_loc_name = NULL)
 }
@@ -17,7 +17,7 @@ get_spatial_locations(gobject, spat_unit = NULL, spat_loc_name = NULL)
 data.table with coordinates
 }
 \description{
-function to get a spatial location data.table
+Function to get a spatial location data.table
 }
 \seealso{
 Other spatial location data accessor functions: 

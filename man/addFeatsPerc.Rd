@@ -25,13 +25,13 @@ addFeatsPerc(
 
 \item{feats}{vector of selected features}
 
-\item{vector_name}{column name as seen in pDataDT()}
+\item{vector_name}{column name as seen in \code{\link{pDataDT}}}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 }
 \value{
-giotto object if return_gobject = TRUE, else a vector with % results
+giotto object if \code{return_gobject = TRUE}, else a vector with % results
 }
 \description{
-calculates the total percentage of (normalized) counts for a subset of selected genes
+Calculates the total percentage of (normalized) counts for a subset of selected genes
 }

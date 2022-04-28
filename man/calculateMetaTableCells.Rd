@@ -22,7 +22,7 @@ calculateMetaTableCells(
 
 \item{value_cols}{metadata or enrichment value columns to use}
 
-\item{metadata_cols}{annotation columns found in pDataDT(gobject)}
+\item{metadata_cols}{annotation columns found in \code{pDataDT(gobject)}}
 
 \item{spat_enr_names}{which spatial enrichment results to include}
 }

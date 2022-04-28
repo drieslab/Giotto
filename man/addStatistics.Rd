@@ -30,7 +30,7 @@ addStatistics(
 giotto object if return_gobject = TRUE, else a list with results
 }
 \description{
-adds genes and cells statistics to the giotto object
+Adds feature and cell statistics to the giotto object
 }
 \details{
 See \code{\link{addFeatStatistics}} and \code{\link{addCellStatistics}}

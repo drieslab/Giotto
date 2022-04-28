@@ -2,7 +2,7 @@
 % Please edit documentation in R/accessors.R
 \name{set_giottoLargeImage}
 \alias{set_giottoLargeImage}
-\title{set_giottoLargeImage}
+\title{Set \emph{terra}-based giotto \code{largeImage}}
 \usage{
 set_giottoLargeImage(gobject, largeImage_object, name = NULL, verbose = TRUE)
 }
@@ -19,6 +19,6 @@ set_giottoLargeImage(gobject, largeImage_object, name = NULL, verbose = TRUE)
 giotto object
 }
 \description{
-set a giottoLargeImage for a giotto object with no additional modifications
+Set a giottoLargeImage for a giotto object with no additional modifications
 }
 \keyword{internal}
