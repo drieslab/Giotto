@@ -2546,9 +2546,9 @@ addGeneMetadata <- function(gobject,
 
 
 
-#' @title addFeatStatistics
+#' @title Add feature statistics
 #' @name addFeatStatistics
-#' @description adds gene statistics to the giotto object
+#' @description Adds feature statistics to the giotto object
 #' @param gobject giotto object
 #' @param feat_type feature type
 #' @param spat_unit spatial unit
