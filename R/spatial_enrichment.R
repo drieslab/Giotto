@@ -1709,13 +1709,59 @@ solve_OLS_internal <- function(S,
   d = t(S)%*%B
   A = cbind(diag(dim(S)[2]))
   bzero = c(rep(0,dim(S)[2]))
-  solution = quadprog::solve.QP(Dmat = D,
-                                dvec = d,
-                                Amat = A,
-                                bvec = bzero)$solution
-  names(solution) = colnames(S)
 
-  return(solution)
+  #solution = quadprog::solve.QP(Dmat = D,
+  #                              dvec = d,
+  #                              Amat = A,
+  #                              bvec = bzero)$solution
+
+  out = tryCatch(
+    expr = {solution = quadprog::solve.QP(Dmat = D,
+                                          dvec = d,
+                                          Amat = A,
+                                          bvec = bzero)$solution},
+
+    error = function(cond) {
+      message('Original error message: \n')
+      message(cond)
+
+      message('\n Will try to fix error with Matrix::nearPD()')
+      return('quadprog.indifinite.error')
+    }
+  )
+
+
+  if(out == 'quadprog.indifinite.error') {
+
+    D = Matrix::nearPD(D)
+    D = as.matrix(D$mat)
+
+    out = tryCatch(
+      expr = {solution = quadprog::solve.QP(Dmat = D,
+                                            dvec = d,
+                                            Amat = A,
+                                            bvec = bzero)$solution},
+
+      error = function(cond) {
+        message('Original error message: \n')
+        message(cond)
+
+        message('\n nearPD() did not fix the error')
+        return('final.error')
+      }
+    )
+
+    if(out == 'final.error') {
+      stop('Errors could not be fixed')
+    } else {
+      names(out) = colnames(S)
+    }
+
+  } else {
+    names(out) = colnames(S)
+  }
+
+  return(out)
 }
 
 #
@@ -1738,8 +1784,13 @@ solve_dampened_WLSj <- function(S,
   A = cbind(diag(dim(S)[2]))
   bzero = c(rep(0,dim(S)[2]))
   sc = norm(D,"2")
-  D_positive_definite <- Matrix::nearPD(D/sc)
-  solution<-quadprog::solve.QP(as.matrix(D_positive_definite$mat),d/sc,A,bzero)$solution
+
+  D_positive_definite <- Matrix::nearPD(x = D/sc)
+
+  solution <- quadprog::solve.QP(Dmat = as.matrix(D_positive_definite$mat),
+                                 dvec = d/sc,
+                                 Amat = A,
+                                 bvec = bzero)$solution
 
   names(solution) = colnames(S)
   return(solution)
@@ -1870,7 +1921,7 @@ runDWLSDeconv <- function(gobject,
                                      feat_type = feat_type,
                                      enrichm_name = name,
                                      spatenrichment = deconvolutionDT)
-    
+
     return(gobject)
 
   } else {
