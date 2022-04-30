@@ -270,13 +270,13 @@ my_rowMeans = function(x, method = c('arithmic', 'geometric'), offset = 0.1) {
 standardise_flex = function (x, center = TRUE, scale = TRUE) {
 
   if (center & scale) {
-    y = Giotto:::t_flex(x) - colMeans_flex(x)
+    y = t_flex(x) - colMeans_flex(x)
     y = y/sqrt(rowSums_flex(y^2)) * sqrt((dim(x)[1] - 1))
-    y = Giotto:::t_flex(y)
+    y = t_flex(y)
   }
   else if (center & !scale) {
-    y = Giotto:::t_flex(x) - colMeans_flex(x)
-    y = Giotto:::t_flex(y)
+    y = t_flex(x) - colMeans_flex(x)
+    y = t_flex(y)
   }
   else if (!center & scale) {
     csd = matrixStats::colSds(x)

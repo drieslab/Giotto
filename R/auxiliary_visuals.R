@@ -393,7 +393,9 @@ all_plots_save_function = function(gobject,
 #' @return Instruction on how to use the automatic plot saving options within Giotto
 #' @export
 #' @examples
-#'     showSaveParameters()
+#' \dontrun{
+#'   showSaveParameters()
+#' }
 showSaveParameters = function() {
 
   cat("This is a simple guide to help you with automatically saving plots. \n")

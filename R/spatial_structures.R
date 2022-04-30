@@ -1773,10 +1773,10 @@ annotateSpatialNetwork = function(gobject,
   spatial_network_annot[, from_to := paste0(from_cell_type,'-',to_cell_type)]
 
   # unified direction, due to 'sort'
-  spatial_network_annot = Giotto:::sort_combine_two_DT_columns(spatial_network_annot,
-                                                               column1 = 'from_cell_type',
-                                                               column2 = 'to_cell_type',
-                                                               myname = 'unified_int')
+  spatial_network_annot = sort_combine_two_DT_columns(spatial_network_annot,
+                                                      column1 = 'from_cell_type',
+                                                      column2 = 'to_cell_type',
+                                                      myname = 'unified_int')
 
   return(spatial_network_annot)
 

@@ -438,13 +438,13 @@ kmeans_binarize_wrapper = function(expr_values,
   kmeans_algo = match.arg(arg = kmeans_algo, choices = c('kmeans', 'kmeans_arma', 'kmeans_arma_subset'))
 
   if(kmeans_algo == 'kmeans') {
-    bin_matrix = t_flex(apply(X = expr_values, MARGIN = 1, FUN = Giotto:::kmeans_binarize,
+    bin_matrix = t_flex(apply(X = expr_values, MARGIN = 1, FUN = kmeans_binarize,
                               nstart = nstart, iter.max = iter_max, set.seed = set.seed))
   } else if(kmeans_algo == 'kmeans_arma') {
-    bin_matrix = t_flex(apply(X = expr_values, MARGIN = 1, FUN = Giotto:::kmeans_arma_binarize,
+    bin_matrix = t_flex(apply(X = expr_values, MARGIN = 1, FUN = kmeans_arma_binarize,
                               n_iter = iter_max, set.seed = set.seed))
   } else if(kmeans_algo == 'kmeans_arma_subset') {
-    bin_matrix = t_flex(apply(X = expr_values, MARGIN = 1, FUN = Giotto:::kmeans_arma_subset_binarize,
+    bin_matrix = t_flex(apply(X = expr_values, MARGIN = 1, FUN = kmeans_arma_subset_binarize,
                               n_iter = iter_max,
                               extreme_nr = extreme_nr,
                               sample_nr = sample_nr,

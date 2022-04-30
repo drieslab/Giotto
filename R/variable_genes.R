@@ -249,7 +249,7 @@ calculateHVF <- function(gobject,
                                                      mean_expr = rowMeans_flex(expr_values),
                                                      sd = unlist(apply(expr_values, 1, sd)))
     feat_in_cells_detected[, cov := (sd/mean_expr)]
-    gini_level <- unlist(apply(expr_values, MARGIN = 1, Giotto:::mygini_fun))
+    gini_level <- unlist(apply(expr_values, MARGIN = 1, mygini_fun))
     feat_in_cells_detected[, gini := gini_level]
 
 

@@ -323,7 +323,7 @@ seuratToGiotto_OLD <- function(obj_use = NULL,...){
                             obj_use[[i]]@feature.loadings,
                             obj_use[[i]]@feature.loadings.projected)
       names(dimReduc_misc) <- c('eigenvalues','loadings','loadings_projected')
-      dimObject <- Giotto:::create_dimObject(name = dimReduc_name,reduction_method = dimReduc_method,
+      dimObject <- create_dimObject(name = dimReduc_name,reduction_method = dimReduc_method,
                                              coordinates = dimReduc_coords,misc = dimReduc_misc)
       test@dimension_reduction[['cells']][[dimReduc_method]][[dimReduc_name]] <- dimObject
     }
