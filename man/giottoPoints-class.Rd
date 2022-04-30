@@ -9,7 +9,7 @@
 Giotto class to store and operate on points data
 }
 \details{
-
+Contains vector-type feature data
 }
 \section{Slots}{
 
@@ -17,6 +17,8 @@ Giotto class to store and operate on points data
 \item{\code{feat_type}}{name of feature type}
 
 \item{\code{spatVector}}{terra spatVector to store point shapes}
+
+\item{\code{networks}}{feature networks}
 }}
 
 \keyword{class}

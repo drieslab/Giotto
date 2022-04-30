@@ -22,7 +22,7 @@ smoothGiottoPolygons(
 \item{set_neg_to_zero}{set negative values to zero (default: TRUE)}
 }
 \value{
-
+Smoothed Giotto polygon object with reduced vertices
 }
 \description{
 Smooths Giotto polygon object

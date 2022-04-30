@@ -12,7 +12,7 @@
 #' @slot spatVector terra spatVector to store polygon shapes
 #' @slot spatVectorCentroids centroids of polygon shapes
 #' @slot overlaps information about overlapping points and polygons
-#' @details
+#' @details holds polygon data
 #'
 #' @export
 giottoPolygon <- setClass(
@@ -258,6 +258,11 @@ calculate_centroids_polygons = function(gpolygon,
 #' @keywords internal
 fix_multipart_geoms = function(spatVector) {
 
+  # overlap for .()
+  x = NULL
+  y = NULL
+  geom = NULL
+  
   spatVecDT = spatVector_to_dt(spatVector)
   uniq_multi = unique(spatVecDT[part == 2]$geom)
 
@@ -329,7 +334,7 @@ fix_multipart_geoms = function(spatVector) {
 #' @param calc_centroids calculate centroids for polygons
 #' @param fix_multipart try to split polygons with multiple parts (default: TRUE)
 #' @param remove_unvalid_polygons remove unvalid polygons (default: TRUE)
-#' @return
+#' @return a giotto polygon object
 #' @keywords mask polygon
 #' @export
 createGiottoPolygonsFromMask = function(maskfile,
@@ -347,6 +352,12 @@ createGiottoPolygonsFromMask = function(maskfile,
                                         fix_multipart = TRUE,
                                         remove_unvalid_polygons = TRUE) {
 
+  # define for .()
+  x = NULL
+  y = NULL
+  geom = NULL
+  part = NULL
+  
   # select background algo
   background_algo = match.arg(background_algo, choices = 'range')
 
@@ -775,7 +786,7 @@ spline_poly <- function(xy, vertices = 20, k = 3, ...) {
 #' @param vertices number of vertices
 #' @param k k
 #' @param set_neg_to_zero set negative values to zero (default: TRUE)
-#' @return
+#' @return Smoothed Giotto polygon object with reduced vertices
 #' @keywords polygon
 #' @export
 smoothGiottoPolygons = function(gpolygon,
@@ -784,6 +795,10 @@ smoothGiottoPolygons = function(gpolygon,
                                 set_neg_to_zero = TRUE,
                                 ...) {
 
+  # define for .()
+  x = NULL
+  y = NULL
+  
   polygDT = spatVector_to_dt(gpolygon@spatVector)
 
   # store other values
@@ -856,7 +871,8 @@ smoothGiottoPolygons = function(gpolygon,
 #' @keywords giotto, points, class
 #' @slot feat_type name of feature type
 #' @slot spatVector terra spatVector to store point shapes
-#' @details
+#' @slot networks feature networks
+#' @details Contains vector-type feature data
 #'
 #' @export
 giottoPoints <- setClass(
@@ -1346,7 +1362,9 @@ createSpatialFeaturesKNNnetwork_dbscan = function(gobject,
 #' @param add_feat_ids add feature id names (default = FALSE, increases object size)
 #' @param verbose be verbose
 #' @param return_gobject return giotto object (default: TRUE)
-#' @return
+#' @return If \code{return_gobject = TRUE} a giotto object containing the network
+#'   will be returned. If \code{return_gobject = FALSE} the network will be returned
+#'   as a datatable.
 #' @keywords Features
 #' @export
 createSpatialFeaturesKNNnetwork = function(gobject,
@@ -1431,7 +1449,9 @@ createSpatialFeaturesKNNnetwork = function(gobject,
 #' @param feat_type feature type
 #' @param spat_loc_name name to give to the created spatial locations
 #' @param return_gobject return giotto object (default: TRUE)
-#' @return
+#' @return If \code{return_gobject = TRUE} the giotto object containing the calculated
+#'   polygon centroids will be returned. If \code{return_gobject = FALSE} only the
+#'   generated polygon centroids will be returned.
 #' @keywords centroid
 #' @export
 addSpatialCentroidLocationsLayer = function(gobject,
@@ -1440,6 +1460,11 @@ addSpatialCentroidLocationsLayer = function(gobject,
                                             spat_loc_name = 'raw',
                                             return_gobject = TRUE) {
 
+  # define for .()
+  x = NULL
+  y = NULL
+  poly_ID = NULL
+  
   # Set feat_type and spat_unit
   poly_info = set_default_spat_unit(gobject = gobject,
                                     spat_unit = poly_info)
@@ -1506,7 +1531,9 @@ addSpatialCentroidLocationsLayer = function(gobject,
 #' @param spat_loc_name name to give to the created spatial locations
 #' @param return_gobject return giotto object (default: TRUE)
 #' @param verbose be verbose
-#' @return
+#' @return If \code{return_gobject = TRUE} the giotto object containing the calculated
+#'   polygon centroids will be returned. If \code{return_gobject = FALSE} only the
+#'   generated polygon centroids will be returned.
 #' @keywords centroid
 #' @export
 addSpatialCentroidLocations = function(gobject,
@@ -2098,6 +2125,10 @@ overlapToMatrixMultiPoly = function(gobject,
                                     return_gobject = TRUE) {
 
 
+  # define for .()
+  i = NULL
+  j = NULL
+  
   result_list = list()
   cell_ids_list = list()
 

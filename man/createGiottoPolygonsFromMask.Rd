@@ -49,7 +49,7 @@ createGiottoPolygonsFromMask(
 \item{remove_unvalid_polygons}{remove unvalid polygons (default: TRUE)}
 }
 \value{
-
+a giotto polygon object
 }
 \description{
 Creates Giotto polygon object from a mask file (e.g. segmentation results)

@@ -1698,6 +1698,7 @@ createSpatialNetwork <- function(gobject,
 #' @description Annotate spatial network with cell metadata information.
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param spatial_network_name name of spatial network to use
 #' @param cluster_column name of column to use for clusters
 #' @param create_full_network convert from reduced to full network representation
