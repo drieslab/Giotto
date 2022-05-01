@@ -21,6 +21,10 @@ calculateOverlapRaster(
 
 \item{name_overlap}{name for the overlap results (default to feat_info parameter)}
 
+\item{spatial_info}{polygon information}
+
+\item{poly_ID_names}{(optional) list of poly_IDs to use}
+
 \item{feat_info}{feature information}
 
 \item{feat_subset_column}{feature info column to subset features with}
@@ -30,8 +34,6 @@ calculateOverlapRaster(
 \item{return_gobject}{return giotto object (default: TRUE)}
 
 \item{verbose}{be verbose}
-
-\item{poly_info}{polygon information}
 }
 \value{
 giotto object or spatVector with overlapping information

@@ -24,6 +24,8 @@ createGiottoPolygonsFromMask(
 \arguments{
 \item{maskfile}{path to mask file}
 
+\item{mask_method}{how the mask file defines individual segmentation annotations}
+
 \item{name}{name for polygons}
 
 \item{remove_background_polygon}{try to remove background polygon (default: FALSE)}
@@ -49,7 +51,7 @@ createGiottoPolygonsFromMask(
 \item{remove_unvalid_polygons}{remove unvalid polygons (default: TRUE)}
 }
 \value{
-
+a giotto polygon object
 }
 \description{
 Creates Giotto polygon object from a mask file (e.g. segmentation results)

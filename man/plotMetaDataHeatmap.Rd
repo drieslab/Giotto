@@ -49,7 +49,9 @@ plotMetaDataHeatmap(
 
 \item{metadata_cols}{annotation columns found in pDataDT(gobject)}
 
-\item{selected_genes}{subset of genes to use}
+\item{selected_feats}{subset of features to use}
+
+\item{selected_genes}{deprecated. See \code{selected_feats} param}
 
 \item{first_meta_col}{if more than 1 metadata column, select the x-axis factor}
 
@@ -63,11 +65,17 @@ plotMetaDataHeatmap(
 
 \item{clus_cluster_method}{hierarchical cluster method for the clusters}
 
-\item{custom_gene_order}{custom gene order (default = NULL)}
+\item{custom_feat_order}{custom feature order (default = NULL)}
 
-\item{gene_cor_method}{correlation method for genes}
+\item{custom_gene_order}{deprecated. See \code{custom_feat_order} param}
 
-\item{gene_cluster_method}{hierarchical cluster method for the genes}
+\item{feat_cor_method}{correlation method for features}
+
+\item{gene_cor_method}{deprecated. See \code{feat_cor_method} param}
+
+\item{feat_cluster_method}{hierarchical cluster method for the features}
+
+\item{gene_cluster_method}{deprecated. See \code{feat_cluster_method} param}
 
 \item{gradient_color}{vector with 3 colors for numeric data}
 

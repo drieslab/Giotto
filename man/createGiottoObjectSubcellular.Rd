@@ -12,9 +12,11 @@ createGiottoObjectSubcellular(
   cell_metadata = NULL,
   feat_metadata = NULL,
   spatial_network = NULL,
+  spatial_network_name = NULL,
   spatial_grid = NULL,
   spatial_grid_name = NULL,
   spatial_enrichment = NULL,
+  spatial_enrichment_name = NULL,
   dimension_reduction = NULL,
   nn_network = NULL,
   images = NULL,
@@ -38,11 +40,15 @@ createGiottoObjectSubcellular(
 
 \item{spatial_network}{list of spatial network(s)}
 
+\item{spatial_network_name}{list of spatial network name(s)}
+
 \item{spatial_grid}{list of spatial grid(s)}
 
 \item{spatial_grid_name}{list of spatial grid name(s)}
 
 \item{spatial_enrichment}{list of spatial enrichment score(s) for each spatial region}
+
+\item{spatial_enrichment_name}{list of spatial enrichment name(s)}
 
 \item{dimension_reduction}{list of dimension reduction(s)}
 
@@ -55,10 +61,6 @@ createGiottoObjectSubcellular(
 \item{cores}{how many cores or threads to use to read data if paths are provided}
 
 \item{verbose}{be verbose when building Giotto object}
-
-\item{spatial_network_name}{list of spatial network name(s)}
-
-\item{spatial_enrichment_name}{list of spatial enrichment name(s)}
 }
 \value{
 giotto object

@@ -15,6 +15,10 @@ set_spatialGrid(
 \arguments{
 \item{gobject}{giotto object}
 
+\item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
+
 \item{name}{name of spatial grid}
 
 \item{spatial_grid}{spatial grid object}

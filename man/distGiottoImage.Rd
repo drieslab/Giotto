@@ -18,6 +18,8 @@ distGiottoImage(
 \item{image_type}{image object type (only supports largeImage and is set as
 default)}
 
+\item{image_name}{name of image object to use}
+
 \item{giottoLargeImage}{giotto large image object}
 
 \item{method}{plot type to show image intensity distribution}

@@ -9,7 +9,9 @@ calc_cov_group_HVF = function(feat_in_cells_detected,
                               return_plot = NA,
                               save_plot = NA) {
 
-
+  # define for :=
+  cov_group_zscore = NULL
+  
   steps = 1/nr_expression_groups
   prob_sequence = seq(0, 1, steps)
   prob_sequence[length(prob_sequence)] = 1
@@ -249,7 +251,7 @@ calculateHVF <- function(gobject,
                                                      mean_expr = rowMeans_flex(expr_values),
                                                      sd = unlist(apply(expr_values, 1, sd)))
     feat_in_cells_detected[, cov := (sd/mean_expr)]
-    gini_level <- unlist(apply(expr_values, MARGIN = 1, Giotto:::mygini_fun))
+    gini_level <- unlist(apply(expr_values, MARGIN = 1, mygini_fun))
     feat_in_cells_detected[, gini := gini_level]
 
 

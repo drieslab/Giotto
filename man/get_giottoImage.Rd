@@ -15,7 +15,7 @@ get_giottoImage(
 
 \item{image_type}{type of giotto image object}
 
-\item{image_name}{name of a giotto image object \code{\link{showGiottoImageNames}}}
+\item{name}{name of a giotto image object \code{\link{showGiottoImageNames}}}
 }
 \value{
 a giotto image object

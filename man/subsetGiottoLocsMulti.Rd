@@ -2,7 +2,7 @@
 % Please edit documentation in R/auxiliary_giotto.R
 \name{subsetGiottoLocsMulti}
 \alias{subsetGiottoLocsMulti}
-\title{subsetGiottoLocsMulti}
+\title{Subset by spatial locations -- multi}
 \usage{
 subsetGiottoLocsMulti(
   gobject,
@@ -29,17 +29,23 @@ subsetGiottoLocsMulti(
 
 \item{spat_loc_name}{name of spatial locations to use}
 
-\item{x_max}{maximum x-coordinate}
+\item{x_max}{minimum and maximum x, y, and z coordinates
+to subset to}
 
-\item{x_min}{minimum x-coordinate}
+\item{x_min}{minimum and maximum x, y, and z coordinates
+to subset to}
 
-\item{y_max}{maximum y-coordinate}
+\item{y_max}{minimum and maximum x, y, and z coordinates
+to subset to}
 
-\item{y_min}{minimum y-coordinate}
+\item{y_min}{minimum and maximum x, y, and z coordinates
+to subset to}
 
-\item{z_max}{maximum z-coordinate}
+\item{z_max}{minimum and maximum x, y, and z coordinates
+to subset to}
 
-\item{z_min}{minimum z-coordinate}
+\item{z_min}{minimum and maximum x, y, and z coordinates
+to subset to}
 
 \item{poly_info}{polygon information to use}
 
@@ -51,7 +57,7 @@ subsetGiottoLocsMulti(
 giotto object
 }
 \description{
-subsets Giotto object based on spatial locations
+Subsets Giotto object based on spatial locations
 }
 \details{
 Subsets a Giotto based on spatial locations for multiple spatial units

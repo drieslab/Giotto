@@ -6,6 +6,9 @@
 \usage{
 fiji(fijiPath = NULL)
 }
+\arguments{
+\item{fijiPath}{manually set filepath to Fiji executable}
+}
 \description{
 \code{fiji} returns path to preferred Fiji executable
 }

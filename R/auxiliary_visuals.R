@@ -393,7 +393,9 @@ all_plots_save_function = function(gobject,
 #' @return Instruction on how to use the automatic plot saving options within Giotto
 #' @export
 #' @examples
-#'     showSaveParameters()
+#' \dontrun{
+#'   showSaveParameters()
+#' }
 showSaveParameters = function() {
 
   cat("This is a simple guide to help you with automatically saving plots. \n")
@@ -441,7 +443,8 @@ showSaveParameters = function() {
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
 #' @param expression_values expression values to use
-#' @param genes vector of genes to use, default to 'all'
+#' @param feats vector of features to use, default to 'all'
+#' @param genes deprecated. Replaced by \code{feats} param
 #' @param cluster_column name of column to use for clusters
 #' @param cor correlation score to calculate distance
 #' @param distance distance method to use for hierarchical clustering
@@ -1184,16 +1187,20 @@ plotHeatmap <- function(gobject,
 #' @param feat_type feature type
 #' @param expression_values expression values to use
 #' @param metadata_cols annotation columns found in pDataDT(gobject)
-#' @param selected_genes subset of genes to use
+#' @param selected_feats subset of features to use
+#' @param selected_genes deprecated. See \code{selected_feats} param
 #' @param first_meta_col if more than 1 metadata column, select the x-axis factor
 #' @param second_meta_col if more than 1 metadata column, select the facetting factor
 #' @param show_values which values to show on heatmap
 #' @param custom_cluster_order custom cluster order (default = NULL)
 #' @param clus_cor_method correlation method for clusters
 #' @param clus_cluster_method hierarchical cluster method for the clusters
-#' @param custom_gene_order custom gene order (default = NULL)
-#' @param gene_cor_method correlation method for genes
-#' @param gene_cluster_method hierarchical cluster method for the genes
+#' @param custom_feat_order custom feature order (default = NULL)
+#' @param custom_gene_order deprecated. See \code{custom_feat_order} param
+#' @param feat_cor_method correlation method for features
+#' @param gene_cor_method deprecated. See \code{feat_cor_method} param
+#' @param feat_cluster_method hierarchical cluster method for the features
+#' @param gene_cluster_method deprecated. See \code{feat_cluster_method} param
 #' @param gradient_color vector with 3 colors for numeric data
 #' @param gradient_midpoint midpoint for color gradient
 #' @param gradient_limits vector with lower and upper limits

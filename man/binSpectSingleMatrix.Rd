@@ -2,7 +2,6 @@
 % Please edit documentation in R/spatial_genes.R
 \name{binSpectSingleMatrix}
 \alias{binSpectSingleMatrix}
-\alias{binSpectMultiMatrix}
 \title{binSpectSingleMatrix}
 \usage{
 binSpectSingleMatrix(
@@ -30,33 +29,6 @@ binSpectSingleMatrix(
   verbose = TRUE,
   set.seed = NULL
 )
-
-binSpectMultiMatrix(
-  expression_matrix,
-  spatial_networks,
-  bin_method = c("kmeans", "rank"),
-  subset_feats = NULL,
-  kmeans_algo = c("kmeans", "kmeans_arma", "kmeans_arma_subset"),
-  nstart = 3,
-  iter_max = 10,
-  extreme_nr = 50,
-  sample_nr = 50,
-  percentage_rank = c(10, 30),
-  do_fisher_test = TRUE,
-  adjust_method = "fdr",
-  calc_hub = FALSE,
-  hub_min_int = 3,
-  get_av_expr = TRUE,
-  get_high_expr = TRUE,
-  implementation = c("data.table", "simple", "matrix"),
-  group_size = "automatic",
-  do_parallel = TRUE,
-  cores = NA,
-  verbose = T,
-  knn_params = NULL,
-  set.seed = NULL,
-  summarize = c("adj.p.value", "p.value")
-)
 }
 \arguments{
 \item{expression_matrix}{expression matrix}
@@ -79,7 +51,7 @@ binSpectMultiMatrix(
 
 \item{sample_nr}{total number of cells to sample (see details)}
 
-\item{percentage_rank}{vector of percentages of top cells for binarization}
+\item{percentage_rank}{percentage of top cells for binarization}
 
 \item{do_fisher_test}{perform fisher test}
 
@@ -104,17 +76,11 @@ binSpectMultiMatrix(
 \item{verbose}{be verbose}
 
 \item{set.seed}{set a seed before kmeans binarization}
-
-\item{spatial_networks}{list of spatial networks in data.table format}
 }
 \value{
 data.table with results (see details)
-
-data.table with results
 }
 \description{
-binSpect for a single spatial network and a provided expression matrix
-
 binSpect for a single spatial network and a provided expression matrix
 }
 \details{

@@ -19,9 +19,3 @@ data.table with gene metadata
 \description{
 show gene metadata
 }
-\examples{
-
-data(mini_giotto_single_cell) # loads existing Giotto object
-fDataDT(mini_giotto_single_cell)
-
-}

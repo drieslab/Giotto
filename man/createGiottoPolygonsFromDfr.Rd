@@ -14,7 +14,7 @@ createGiottoPolygonsFromDfr(segmdfr, name = "cell", calc_centroids = FALSE)
 \item{calc_centroids}{calculate centroids for polygons}
 }
 \value{
-
+giotto polygon object
 }
 \description{
 Creates Giotto polygon object from a structured dataframe-like object

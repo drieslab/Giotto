@@ -24,7 +24,9 @@ addSpatialCentroidLocationsLayer(
 \item{return_gobject}{return giotto object (default: TRUE)}
 }
 \value{
-
+If \code{return_gobject = TRUE} the giotto object containing the calculated
+  polygon centroids will be returned. If \code{return_gobject = FALSE} only the
+  generated polygon centroids will be returned.
 }
 \description{
 Calculates the centroid locations for the polygons within one selected layer

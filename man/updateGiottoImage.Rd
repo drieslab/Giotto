@@ -14,6 +14,7 @@ updateGiottoImage(
   ymin_adj = 0,
   x_shift = 0,
   y_shift = 0,
+  scale_factor = NULL,
   scale_x = 1,
   scale_y = 1,
   order = c("first_adj", "first_scale"),
@@ -21,22 +22,25 @@ updateGiottoImage(
   xmin_set = NULL,
   ymax_set = NULL,
   ymin_set = NULL,
-  return_gobject = TRUE
+  return_gobject = TRUE,
+  verbose = TRUE
 )
 }
 \arguments{
-\item{gobject}{gobject containing giottoImage or giottoLargeImage}
+\item{gobject}{gobject containing desired image object}
 
-\item{image_name}{name of giottoImage}
+\item{image_name}{name of giotto \code{image} object}
 
-\item{largeImage_name}{name of giottoLargeImage}
+\item{largeImage_name}{name of giotto \code{largeImage} object}
 
 \item{xmax_adj, xmin_adj, ymax_adj, ymin_adj}{adjust image boundaries by increasing 
 maximum and decreasing minimum bounds respectively of xy bounds}
 
 \item{x_shift, y_shift}{shift entire image along xy axes}
 
-\item{scale_x, scale_y}{scale xy axis image mapping from coordinate origin}
+\item{scale_factor}{set \code{scale_x} and \code{scale_y} params at the same time}
+
+\item{scale_x, scale_y}{independently scale x or y axis image mapping from coordinate origin}
 
 \item{order}{order of operations between fine adjustments (adjustment and shift
 parameters) and scaling}
@@ -44,14 +48,17 @@ parameters) and scaling}
 \item{xmin_set, xmax_set, ymin_set, ymax_set}{directly set xy image boundaries.
 Overrides minmax values as spatial anchor.}
 
-\item{return_gobject}{return a giotto object}
+\item{return_gobject}{return a giotto object if \code{TRUE}, a giotto image object
+if \code{FALSE}}
+
+\item{verbose}{be verbose}
 }
 \value{
 a giotto object or an updated giotto image object if return_gobject = F
 }
 \description{
-Updates the spatial positioning and sizing of a giottoImage or
-  giottoLargeImage attached to a giotto object.
+Updates the spatial positioning and sizing of a giotto \code{image} or
+  \code{largeImage} attached to a giotto object.
 }
 \details{
 This function works for all image objects associated with Giotto.

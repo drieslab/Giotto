@@ -289,6 +289,7 @@ set_giotto_python_path = function(python_path = NULL,
 #' @param width width of  plots
 #' @param is_docker using docker implementation of Giotto (defaults to FALSE)
 #' @param plot_count [global option] start count for creating automatic unique plots
+#' @param fiji_path path to fiji executable
 #' @return named vector with giotto instructions
 #' @seealso More online information can be found here \url{https://rubd.github.io/Giotto_site/articles/instructions_and_plotting.html}
 #' @export
@@ -1537,11 +1538,9 @@ evaluate_feat_info = function(spatial_feat_info,
 #' @param feat_info list of giotto point objects with feature info,
 #' see \code{\link{createGiottoPoints}}
 #' @param spatial_network list of spatial network(s)
-#' @param spatial_network_name list of spatial network name(s)
 #' @param spatial_grid list of spatial grid(s)
 #' @param spatial_grid_name list of spatial grid name(s)
 #' @param spatial_enrichment list of spatial enrichment score(s) for each spatial region
-#' @param spatial_enrichment_name list of spatial enrichment name(s)
 #' @param dimension_reduction list of dimension reduction(s)
 #' @param nn_network list of nearest neighbor network(s)
 #' @param images list of images
@@ -2181,9 +2180,11 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
                                          cell_metadata = NULL,
                                          feat_metadata = NULL,
                                          spatial_network = NULL,
+                                         spatial_network_name = NULL,
                                          spatial_grid = NULL,
                                          spatial_grid_name = NULL,
                                          spatial_enrichment = NULL,
+                                         spatial_enrichment_name = NULL,
                                          dimension_reduction = NULL,
                                          nn_network = NULL,
                                          images = NULL,

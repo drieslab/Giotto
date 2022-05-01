@@ -37,11 +37,3 @@ Creates data.table with pairwise correlation scores between each cluster and
 the group size (# of cells) for each cluster. This information can be used together
 with mergeClusters to combine very similar or small clusters into bigger clusters.
 }
-\examples{
-
-data("mini_giotto_single_cell")
-
-cluster_similarities = getClusterSimilarity(mini_giotto_single_cell,
-                                            cluster_column = 'leiden_clus')
-
-}

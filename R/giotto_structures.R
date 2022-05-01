@@ -12,7 +12,7 @@
 #' @slot spatVector terra spatVector to store polygon shapes
 #' @slot spatVectorCentroids centroids of polygon shapes
 #' @slot overlaps information about overlapping points and polygons
-#' @details
+#' @details holds polygon data
 #'
 #' @export
 giottoPolygon <- setClass(
@@ -258,6 +258,11 @@ calculate_centroids_polygons = function(gpolygon,
 #' @keywords internal
 fix_multipart_geoms = function(spatVector) {
 
+  # overlap for .()
+  x = NULL
+  y = NULL
+  geom = NULL
+  
   spatVecDT = spatVector_to_dt(spatVector)
   uniq_multi = unique(spatVecDT[part == 2]$geom)
 
@@ -317,6 +322,7 @@ fix_multipart_geoms = function(spatVector) {
 #' @name createGiottoPolygonsFromMask
 #' @description Creates Giotto polygon object from a mask file (e.g. segmentation results)
 #' @param maskfile path to mask file
+#' @param mask_method how the mask file defines individual segmentation annotations
 #' @param name name for polygons
 #' @param remove_background_polygon try to remove background polygon (default: FALSE)
 #' @param background_algo algorithm to remove background polygon
@@ -329,7 +335,7 @@ fix_multipart_geoms = function(spatVector) {
 #' @param calc_centroids calculate centroids for polygons
 #' @param fix_multipart try to split polygons with multiple parts (default: TRUE)
 #' @param remove_unvalid_polygons remove unvalid polygons (default: TRUE)
-#' @return
+#' @return a giotto polygon object
 #' @keywords mask polygon
 #' @export
 createGiottoPolygonsFromMask = function(maskfile,
@@ -347,6 +353,12 @@ createGiottoPolygonsFromMask = function(maskfile,
                                         fix_multipart = TRUE,
                                         remove_unvalid_polygons = TRUE) {
 
+  # define for .()
+  x = NULL
+  y = NULL
+  geom = NULL
+  part = NULL
+  
   # select background algo
   background_algo = match.arg(background_algo, choices = 'range')
 
@@ -491,7 +503,7 @@ createGiottoPolygonsFromMask = function(maskfile,
 #' @param segmdfr data.frame-like object with polygon coordinate information (x, y, ID)
 #' @param name name for polygons
 #' @param calc_centroids calculate centroids for polygons
-#' @return
+#' @return giotto polygon object
 #' @keywords polygon
 #' @export
 createGiottoPolygonsFromDfr = function(segmdfr,
@@ -775,8 +787,10 @@ spline_poly <- function(xy, vertices = 20, k = 3, ...) {
 #' @param vertices number of vertices
 #' @param k k
 #' @param set_neg_to_zero set negative values to zero (default: TRUE)
-#' @return
+#' @param ... additional params to pass to \code{spline}
+#' @return Smoothed Giotto polygon object with reduced vertices
 #' @keywords polygon
+#' @seealso \code{\link[stats]{spline}}
 #' @export
 smoothGiottoPolygons = function(gpolygon,
                                 vertices = 20,
@@ -784,6 +798,10 @@ smoothGiottoPolygons = function(gpolygon,
                                 set_neg_to_zero = TRUE,
                                 ...) {
 
+  # define for .()
+  x = NULL
+  y = NULL
+  
   polygDT = spatVector_to_dt(gpolygon@spatVector)
 
   # store other values
@@ -856,7 +874,8 @@ smoothGiottoPolygons = function(gpolygon,
 #' @keywords giotto, points, class
 #' @slot feat_type name of feature type
 #' @slot spatVector terra spatVector to store point shapes
-#' @details
+#' @slot networks feature networks
+#' @details Contains vector-type feature data
 #'
 #' @export
 giottoPoints <- setClass(
@@ -883,7 +902,7 @@ giottoPoints <- setClass(
 #' @slot network_datatable feature network in data.table format
 #' @slot network_lookup_id table mapping numeric network ID to unique feature numerical IDs
 #' @slot full fully connected network
-#' @details
+#' @details contains feature network information
 #'
 #' @export
 featureNetwork <- setClass(
@@ -1243,7 +1262,7 @@ extract_points_list = function(pointslist) {
 #' @param minimum_k minimum neighbors allowed
 #' @param add_feat_ids whether to add feature information [boolean]
 #' @param verbose be verbose
-#' @param ... additional parameters to pass
+#' @param ... additional parameters to pass to \code{\link[dbscan]{kNN}}
 #' @keywords internal
 createSpatialFeaturesKNNnetwork_dbscan = function(gobject,
                                                   feat_type = NULL,
@@ -1346,7 +1365,11 @@ createSpatialFeaturesKNNnetwork_dbscan = function(gobject,
 #' @param add_feat_ids add feature id names (default = FALSE, increases object size)
 #' @param verbose be verbose
 #' @param return_gobject return giotto object (default: TRUE)
-#' @return
+#' @param toplevel_params toplevel value to pass when updating giotto params
+#' @param ... additional parameters to pass to \code{\link[dbscan]{kNN}}
+#' @return If \code{return_gobject = TRUE} a giotto object containing the network
+#'   will be returned. If \code{return_gobject = FALSE} the network will be returned
+#'   as a datatable.
 #' @keywords Features
 #' @export
 createSpatialFeaturesKNNnetwork = function(gobject,
@@ -1431,7 +1454,9 @@ createSpatialFeaturesKNNnetwork = function(gobject,
 #' @param feat_type feature type
 #' @param spat_loc_name name to give to the created spatial locations
 #' @param return_gobject return giotto object (default: TRUE)
-#' @return
+#' @return If \code{return_gobject = TRUE} the giotto object containing the calculated
+#'   polygon centroids will be returned. If \code{return_gobject = FALSE} only the
+#'   generated polygon centroids will be returned.
 #' @keywords centroid
 #' @export
 addSpatialCentroidLocationsLayer = function(gobject,
@@ -1440,6 +1465,11 @@ addSpatialCentroidLocationsLayer = function(gobject,
                                             spat_loc_name = 'raw',
                                             return_gobject = TRUE) {
 
+  # define for .()
+  x = NULL
+  y = NULL
+  poly_ID = NULL
+  
   # Set feat_type and spat_unit
   poly_info = set_default_spat_unit(gobject = gobject,
                                     spat_unit = poly_info)
@@ -1506,7 +1536,9 @@ addSpatialCentroidLocationsLayer = function(gobject,
 #' @param spat_loc_name name to give to the created spatial locations
 #' @param return_gobject return giotto object (default: TRUE)
 #' @param verbose be verbose
-#' @return
+#' @return If \code{return_gobject = TRUE} the giotto object containing the calculated
+#'   polygon centroids will be returned. If \code{return_gobject = FALSE} only the
+#'   generated polygon centroids will be returned.
 #' @keywords centroid
 #' @export
 addSpatialCentroidLocations = function(gobject,
@@ -1604,7 +1636,8 @@ polygon_to_raster = function(polygon, field = NULL) {
 #' @description calculate overlap between cellular structures (polygons) and features (points)
 #' @param gobject giotto object
 #' @param name_overlap name for the overlap results (default to feat_info parameter)
-#' @param poly_info polygon information
+#' @param spatial_info polygon information
+#' @param poly_ID_names (optional) list of poly_IDs to use
 #' @param feat_info feature information
 #' @param feat_subset_column feature info column to subset features with
 #' @param feat_subset_ids ids within feature info column to use for subsetting
@@ -1624,6 +1657,14 @@ calculateOverlapRaster = function(gobject,
                                   return_gobject = TRUE,
                                   verbose = TRUE) {
 
+  # define for :=
+  poly_ID = NULL
+  poly_i = NULL
+  ID = NULL
+  x = NULL
+  y = NULL
+  feat_ID = NULL
+  feat_ID_uniq = NULL
 
   # set defaults if not provided
   if(is.null(feat_info)) {
@@ -1797,12 +1838,15 @@ overlap_points_per_polygon = function(spatvec,
 #' @description calculate overlap between cellular structures (polygons) and features (points)
 #' @param gobject giotto object
 #' @param name_overlap name for the overlap results (default to feat_info parameter)
-#' @param poly_info polygon information
+#' @param spatial_info polygon information
 #' @param feat_info feature information
+#' @param poly_ID_names list of poly_IDs to use
+#' @param polygon_group_size number of polygons to process per group
 #' @param return_gobject return giotto object (default: TRUE)
 #' @param verbose be verbose
 #' @return giotto object or spatVector with overlapping information
-#' @details Serial overlapping function.
+#' @details Serial overlapping function that works on groups of polygons at a time.
+#'   Number of polygons per group is defined by \code{polygon_group_size} param
 #' @keywords overlap
 #' @export
 calculateOverlapSerial = function(gobject,
@@ -1907,8 +1951,10 @@ overlap_points_per_polygon_wrapped = function(spatvec_wrapped,
 #' @description calculate overlap between cellular structures (polygons) and features (points)
 #' @param gobject giotto object
 #' @param name_overlap name for the overlap results (default to feat_info parameter)
-#' @param poly_info polygon information
+#' @param spatial_info polygon information
 #' @param feat_info feature information
+#' @param poly_ID_names list of poly_IDs to use
+#' @param polygon_group_size number of polygons to process per parallelization group
 #' @param return_gobject return giotto object (default: TRUE)
 #' @param verbose be verbose
 #' @return giotto object or spatVector with overlapping information
@@ -2098,6 +2144,10 @@ overlapToMatrixMultiPoly = function(gobject,
                                     return_gobject = TRUE) {
 
 
+  # define for .()
+  i = NULL
+  j = NULL
+  
   result_list = list()
   cell_ids_list = list()
 
@@ -2289,6 +2339,7 @@ combineCellData = function(gobject,
 #' @description combine feature data information
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param sel_feats selected features (default: NULL or no selection)
 #' @return data.table with combined spatial feature information
 #' @keywords combine feature metadata

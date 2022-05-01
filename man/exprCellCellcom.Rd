@@ -39,6 +39,10 @@ exprCellCellcom(
 
 \item{feat_set_2}{second specific feature set from feature pairs}
 
+\item{gene_set_1}{deprecated. see \code{feat_set_1}}
+
+\item{gene_set_2}{deprecated. see \code{feat_set_2}}
+
 \item{log2FC_addendum}{addendum to add when calculating log2FC}
 
 \item{detailed}{provide more detailed information (random variance and z-score)}

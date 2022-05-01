@@ -1698,6 +1698,7 @@ createSpatialNetwork <- function(gobject,
 #' @description Annotate spatial network with cell metadata information.
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param spatial_network_name name of spatial network to use
 #' @param cluster_column name of column to use for clusters
 #' @param create_full_network convert from reduced to full network representation
@@ -1773,10 +1774,10 @@ annotateSpatialNetwork = function(gobject,
   spatial_network_annot[, from_to := paste0(from_cell_type,'-',to_cell_type)]
 
   # unified direction, due to 'sort'
-  spatial_network_annot = Giotto:::sort_combine_two_DT_columns(spatial_network_annot,
-                                                               column1 = 'from_cell_type',
-                                                               column2 = 'to_cell_type',
-                                                               myname = 'unified_int')
+  spatial_network_annot = sort_combine_two_DT_columns(spatial_network_annot,
+                                                      column1 = 'from_cell_type',
+                                                      column2 = 'to_cell_type',
+                                                      myname = 'unified_int')
 
   return(spatial_network_annot)
 

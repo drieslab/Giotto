@@ -86,11 +86,14 @@ anndataToGiotto = function(anndata_path,
 #' @name giottoToSeurat
 #' @description Converts Giotto object into a Seurat object
 #' @param obj_use Giotto object
+#' @param ... additional params to pass to \code{\link{get_spatial_locations}}
 #' @return Seurat object
 #' @export
 giottoToSeurat <- function(obj_use = NULL,
                            ...){
 
+  requireNamespace('Seurat')
+  
   # verify if optional package is installed
   package_check(pkg_name = "Seurat", repository = "CRAN")
 
@@ -157,7 +160,7 @@ giottoToSeurat <- function(obj_use = NULL,
     rownames(meta_cells) <- meta_cells$cell_ID
     meta_cells <- meta_cells[,-which(colnames(meta_cells) == 'cell_ID')]
     colnames(meta_cells) <- paste0(assay_use,"_",colnames(meta_cells))
-    sobj <- Seurat::AddMetaData(sobj,metadata = meta_cells[Cells(sobj),])
+    sobj <- Seurat::AddMetaData(sobj,metadata = meta_cells[Seurat::Cells(sobj),])
 
     # add feature metadata
     meta_genes <- as.data.frame(fDataDT(obj_use,feat_type = assay_use))
@@ -183,7 +186,7 @@ giottoToSeurat <- function(obj_use = NULL,
     for (i in dr_use){
       dr_name <- i
       dr_obj <- select_dimReduction(gobject = obj_use,return_dimObj = T,reduction_method = dr_name,name = dr_name)
-      emb_use <- dr_obj$coordinates[Cells(sobj),]
+      emb_use <- dr_obj$coordinates[Seurat::Cells(sobj),]
       if (sum(c('loadings','eigenvalues') %in% names(dr_obj$misc)) == 2){
         loadings_use <- dr_obj$misc$loadings
         stdev_use <- dr_obj$misc$eigenvalues
@@ -209,13 +212,13 @@ giottoToSeurat <- function(obj_use = NULL,
                                       nn_network_to_use = i,
                                       output = 'data.table',
                                       network_name = names(obj_use@nn_network[[i]]))
-      idx1 <- match(nn_use$from,Cells(sobj))
-      idx2 <- match(nn_use$to,Cells(sobj))
+      idx1 <- match(nn_use$from,Seurat::Cells(sobj))
+      idx2 <- match(nn_use$to,Seurat::Cells(sobj))
       edge_weight <- nn_use$weight
       nn_mtx <- Matrix::sparseMatrix(i = idx1,j = idx2,x = edge_weight,dims = c(ncol(sobj),ncol(sobj)))
-      rownames(nn_mtx) <- colnames(nn_mtx) <- Cells(sobj)
+      rownames(nn_mtx) <- colnames(nn_mtx) <- Seurat::Cells(sobj)
       nn_name <- paste0('expr_',i)
-      sobj[[nn_name]] <- as.Graph(nn_mtx)
+      sobj[[nn_name]] <- Seurat::as.Graph(nn_mtx)
       sobj[[nn_name]]@assay.used <- names(sobj@assays)[1]
     }
   }
@@ -225,13 +228,13 @@ giottoToSeurat <- function(obj_use = NULL,
   if (!is.null(sn_all)){
     for (i in sn_all){
       snt_use <- select_spatialNetwork(gobject = obj_use,name = i)
-      idx1 <- match(snt_use$from,Cells(sobj))
-      idx2 <- match(snt_use$to,Cells(sobj))
+      idx1 <- match(snt_use$from,Seurat::Cells(sobj))
+      idx2 <- match(snt_use$to,Seurat::Cells(sobj))
       edge_weight <- snt_use$weight
       nn_mtx <- Matrix::sparseMatrix(i = idx1,j = idx2,x = edge_weight,dims = c(ncol(sobj),ncol(sobj)))
-      rownames(nn_mtx) <- colnames(nn_mtx) <- Cells(sobj)
+      rownames(nn_mtx) <- colnames(nn_mtx) <- Seurat::Cells(sobj)
       nn_name <- paste0('spatial_',i)
-      sobj[[nn_name]] <- as.Graph(nn_mtx)
+      sobj[[nn_name]] <- Seurat::as.Graph(nn_mtx)
       sobj[[nn_name]]@assay.used <- names(sobj@assays)[1]
     }
   }
@@ -244,11 +247,13 @@ giottoToSeurat <- function(obj_use = NULL,
 #' @name seuratToGiotto_OLD
 #' @description Converts Seurat object into a Giotto object. Deprecated, see \code{\link{giottoToSeurat}}
 #' @param obj_use Seurat object
+#' @param ... additional params to pass
 #' @return Giotto object
 #' @export
-seuratToGiotto_OLD <- function(obj_use = NULL,...){
-  require(Seurat)
-  require(Giotto)
+seuratToGiotto_OLD <- function(obj_use = NULL,
+                               ...){
+  requireNamespace('Seurat')
+  requireNamespace('Giotto')
   
   # get general info in basic seurat structures
   obj_assays <- names(obj_use@assays)
@@ -323,7 +328,7 @@ seuratToGiotto_OLD <- function(obj_use = NULL,...){
                             obj_use[[i]]@feature.loadings,
                             obj_use[[i]]@feature.loadings.projected)
       names(dimReduc_misc) <- c('eigenvalues','loadings','loadings_projected')
-      dimObject <- Giotto:::create_dimObject(name = dimReduc_name,reduction_method = dimReduc_method,
+      dimObject <- create_dimObject(name = dimReduc_name,reduction_method = dimReduc_method,
                                              coordinates = dimReduc_coords,misc = dimReduc_misc)
       test@dimension_reduction[['cells']][[dimReduc_method]][[dimReduc_name]] <- dimObject
     }
@@ -350,8 +355,8 @@ seuratToGiotto_OLD <- function(obj_use = NULL,...){
 #' @return Giotto object
 #' @export
 seuratToGiotto = function(sobject){
-  require(Seurat)
-  require(Giotto)
+  requireNamespace('Seurat')
+  requireNamespace('Giotto')
   
   if(is.null(Seurat::GetAssayData(object = sobject, slot = "counts"))) {
     cat('No expression values are provided \n')

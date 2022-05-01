@@ -18,6 +18,8 @@ annotateSpatialNetwork(
 
 \item{feat_type}{feature type}
 
+\item{spat_unit}{spatial unit}
+
 \item{spatial_network_name}{name of spatial network to use}
 
 \item{cluster_column}{name of column to use for clusters}

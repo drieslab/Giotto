@@ -96,11 +96,3 @@ For sNN networks two additional parameters can be set:
   \item{top_shared: }{keep this number of the top shared neighbours, irrespective of minimum_shared setting}
 }
 }
-\examples{
-
-data(mini_giotto_single_cell)
-
-mini_giotto_single_cell <- createNearestNetwork(gobject = mini_giotto_single_cell,
-                                                dimensions_to_use = 1:3, k = 3)
-
-}

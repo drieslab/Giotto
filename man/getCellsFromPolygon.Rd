@@ -25,6 +25,8 @@ A `SpatVector` with cell IDs, x,y coordinates, and polygon name where
 Get cells located within the polygons area
 }
 \examples{
+
+\dontrun{
 ## Plot interactive polygons
 my_spatPlot <- spatPlot2D(gobject = my_giotto_object,
                           show_image = TRUE,
@@ -39,4 +41,6 @@ my_giotto_object <- addGiottoPolygons(gobject = my_giotto_object,
 
 ## Get cells located within polygons area
 getCellsFromPolygon(my_giotto_object)
+}
+
 }

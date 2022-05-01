@@ -72,8 +72,8 @@ doScrubletDetect = function(gobject,
   # input is a sparse matrix with cells as rows and genes as columns   data.table::as.data.table()
   scr_input = expr_values
   scr_input = as.matrix(scr_input)
-  scr_input = Giotto:::t_flex(scr_input)
-  scr_input = Giotto:::evaluate_expr_matrix(inputmatrix = scr_input,
+  scr_input = t_flex(scr_input)
+  scr_input = evaluate_expr_matrix(inputmatrix = scr_input,
                                             sparse = TRUE)
   
   scrublet_out = python_scrublet(counts_matrix = scr_input,

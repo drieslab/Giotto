@@ -16,6 +16,8 @@ combineFeatureData(
 
 \item{feat_type}{feature type}
 
+\item{spat_unit}{spatial unit}
+
 \item{sel_feats}{selected features (default: NULL or no selection)}
 }
 \value{

@@ -9,7 +9,7 @@
 Giotto class to store and operate on feature network
 }
 \details{
-
+contains feature network information
 }
 \section{Slots}{
 

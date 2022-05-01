@@ -39,9 +39,15 @@ createSpatialFeaturesKNNnetwork(
 \item{verbose}{be verbose}
 
 \item{return_gobject}{return giotto object (default: TRUE)}
+
+\item{toplevel_params}{toplevel value to pass when updating giotto params}
+
+\item{...}{additional parameters to pass to \code{\link[dbscan]{kNN}}}
 }
 \value{
-
+If \code{return_gobject = TRUE} a giotto object containing the network
+  will be returned. If \code{return_gobject = FALSE} the network will be returned
+  as a datatable.
 }
 \description{
 Calculates the centroid locations for the giotto polygons

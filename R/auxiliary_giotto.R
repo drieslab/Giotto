@@ -149,11 +149,6 @@ pDataDT <- function(gobject,
 #' @param feat_type feature type
 #' @return data.table with gene metadata
 #' @export
-#' @examples
-#'
-#' data(mini_giotto_single_cell) # loads existing Giotto object
-#' fDataDT(mini_giotto_single_cell)
-#'
 fDataDT <- function(gobject,
                     spat_unit = NULL,
                     feat_type = NULL) {
@@ -810,20 +805,6 @@ subset_feature_info_data = function(feat_info,
 #' @return giotto object
 #' @details Subsets a Giotto object for a specific spatial unit and feature type
 #' @export
-#' @examples
-#' \donttest{
-#'
-#'data(mini_giotto_single_cell)
-#'
-#'random_cells = sample(slot(mini_giotto_single_cell, 'cell_ID'), 10)
-#'random_genes = sample(slot(mini_giotto_single_cell, 'gene_ID'), 10)
-#'
-#'subset_obj = subsetGiotto(mini_giotto_single_cell,
-#'                          cell_ids = random_cells,
-#'                          feat_ids = random_genes)
-#'
-#' }
-#'
 subsetGiotto <- function(gobject,
                          spat_unit = NULL,
                          feat_type = NULL,
@@ -1030,19 +1011,15 @@ subsetGiotto <- function(gobject,
 
 
 
-#' @title subsetGiottoLocs
+#' @title Subset by spatial locations
 #' @name subsetGiottoLocs
-#' @description subsets Giotto object based on spatial locations
+#' @description Subsets Giotto object based on spatial locations
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type to use
 #' @param spat_loc_name name of spatial locations to use
-#' @param x_max maximum x-coordinate
-#' @param x_min minimum x-coordinate
-#' @param y_max maximum y-coordinate
-#' @param y_min minimum y-coordinate
-#' @param z_max maximum z-coordinate
-#' @param z_min minimum z-coordinate
+#' @param x_max,x_min,y_max,y_min,z_max,z_min minimum and maximum x, y, and z coordinates
+#'   to subset to
 #' @param poly_info polygon information to use
 #' @param return_gobject return Giotto object
 #' @param verbose be verbose
@@ -1148,22 +1125,10 @@ subsetGiottoLocs = function(gobject,
 
 
 
-#' @title subsetGiottoLocsMulti
+#' @title Subset by spatial locations -- multi
 #' @name subsetGiottoLocsMulti
-#' @description subsets Giotto object based on spatial locations
-#' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type to use
-#' @param spat_loc_name name of spatial locations to use
-#' @param x_max maximum x-coordinate
-#' @param x_min minimum x-coordinate
-#' @param y_max maximum y-coordinate
-#' @param y_min minimum y-coordinate
-#' @param z_max maximum z-coordinate
-#' @param z_min minimum z-coordinate
-#' @param poly_info polygon information to use
-#' @param return_gobject return Giotto object
-#' @param verbose be verbose
+#' @description Subsets Giotto object based on spatial locations
+#' @inheritParams subsetGiottoLocs
 #' @return giotto object
 #' @details Subsets a Giotto based on spatial locations for multiple spatial units
 #' if return_gobject = FALSE, then a filtered combined metadata data.table will be returned
@@ -1262,16 +1227,6 @@ subsetGiottoLocsMulti = function(gobject,
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return ggplot object
 #' @export
-#' @examples
-#'
-#' data(mini_giotto_single_cell)
-#'
-#' # distribution plot of genes
-#' filterDistributions(mini_giotto_single_cell, detection = 'genes')
-#'
-#' # distribution plot of cells
-#' filterDistributions(mini_giotto_single_cell, detection = 'cells')
-#'
 filterDistributions <- function(gobject,
                                 feat_type = NULL,
                                 spat_unit = NULL,
@@ -3070,7 +3025,8 @@ create_cluster_matrix <- function(gobject,
 #' @param feat_type feature type
 #' @param expression_values expression values to use
 #' @param metadata_cols annotation columns found in \code{pDataDT(gobject)}
-#' @param selected_genes subset of genes to use
+#' @param selected_feats subset of features to use
+#' @param selected_genes subset of genes to use (deprecated)
 #' @return data.table with average expression values for each gene per (combined) annotation
 #' @export
 calculateMetaTable = function(gobject,
@@ -3219,6 +3175,7 @@ calculateMetaTableCells = function(gobject,
 #' @param gobject Giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
+#' @param spat_loc_name name of spatial locations to include
 #' @param spat_enr_names names of spatial enrichment results to include
 #' @return Extended cell metadata in data.table format.
 #' @export

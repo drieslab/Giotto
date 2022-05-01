@@ -227,9 +227,9 @@ reg_img_minmax_finder = function(gobject_list,
 #' @keywords internal
 get_img_corners = function(img_object) {
   if(methods::is(img_object,'giottoImage')) {
-    img_dims = Giotto:::get_img_minmax(img_object@mg_object)
+    img_dims = get_img_minmax(img_object@mg_object)
   } else if(methods::is(img_object,'magick-image')) {
-    img_dims = Giotto:::get_img_minmax(img_object)
+    img_dims = get_img_minmax(img_object)
   } else {
     stop('img_object must be either a giottoImage or a magick-image \n')
   }
@@ -578,7 +578,7 @@ registerGiottoObjectListRvision = function(gobject_list = gobject_list,
     # Make images grayscale
     Rvision::changeColorSpace(unreg_images[[image_i]], colorspace = "GRAY", target = "self")
     # Retrieve image dimensions
-    dims <- Rvision:::dim.Rcpp_Image(unreg_images[[image_i]])
+    dims <- dim(unreg_images[[image_i]])
     rows <- append(rows, dims[[1]], after = length(rows))
     cols <- append(cols, dims[[2]], after = length(cols))
   }
@@ -652,6 +652,7 @@ registerGiottoObjectListRvision = function(gobject_list = gobject_list,
 #' @title fiji
 #' @description \code{fiji} returns path to preferred Fiji executable
 #' @rdname runFijiMacro
+#' @param fijiPath manually set filepath to Fiji executable
 #' @export
 #' @examples
 #' # Path to current Fiji executable
@@ -687,8 +688,9 @@ fiji = function(fijiPath = NULL) {
       }
     }
   }
+  fijiPath = normalizePath(fijiPath)
   options(giotto.fiji=fijiPath)
-  normalizePath(fijiPath)
+  fijiPath
 }
 
 
@@ -705,7 +707,7 @@ fiji = function(fijiPath = NULL) {
 #' @param max_img_size Point detector option
 #' @param feat_desc_size Feature descriptor option
 #' @param feat_desc_orient_bins Feature descriptor option
-#' @param closest_next_closest_Ratio Feature descriptor option
+#' @param closest_next_closest_ratio Feature descriptor option
 #' @param max_align_err Geometric consensus filter option
 #' @param inlier_ratio Geometric consensus filter option
 #' @param headless Whether to have ImageJ/Fiji running headless #TODO
@@ -722,9 +724,8 @@ fiji = function(fijiPath = NULL) {
 #' @param DryRun Whether to return the command to be run rather than actually
 #'   executing it.
 #' @return list of registered giotto objects where the registered images and spatial locations
-#' \dontrun{
-#' #This function was adapted from runFijiMacro function in jimpipeline by jefferislab #
-#' }
+#' @details This function was adapted from runFijiMacro function in jimpipeline by jefferislab
+#'
 #' @export
 registerImagesFIJI = function(source_img_dir,
                               output_img_dir,

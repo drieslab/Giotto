@@ -36,7 +36,7 @@ createGiottoImage(
 
 \item{spat_unit}{spatial unit}
 
-\item{spatial_locs}{spatial locations (alternative if gobject = NULL)}
+\item{spatial_locs}{spatial locations (alternative if \code{gobject = NULL})}
 
 \item{spat_loc_name}{name of spatial locations within gobject}
 
@@ -46,35 +46,22 @@ createGiottoImage(
 
 \item{image_transformations}{vector of sequential image transformations}
 
-\item{negative_y}{Map image to negative y spatial values if TRUE during automatic alignment. Meaning that origin is in upper left instead of lower left.}
+\item{negative_y}{Map image to negative y spatial values if TRUE during automatic
+alignment. Meaning that origin is in upper left instead of lower left.}
 
 \item{do_manual_adj}{flag to use manual adj values instead of automatic alignment when given a gobject or spatlocs}
 
-\item{xmax_adj}{adjustment of the maximum x-value to align the image}
-
-\item{xmin_adj}{adjustment of the minimum x-value to align the image}
-
-\item{ymax_adj}{adjustment of the maximum y-value to align the image}
-
-\item{ymin_adj}{adjustment of the minimum y-value to align the image}
+\item{xmax_adj, xmin_adj, ymax_adj, ymin_adj}{adjustment of the maximum or maximum x or y-value to align the image}
 
 \item{scale_factor}{scaling of image dimensions relative to spatial coordinates}
 
-\item{x_shift}{shift image in positive y direction}
+\item{x_shift, y_shift}{shift image along x or y axes}
 
-\item{scale_x}{independently scale image in x direction}
-
-\item{scale_y}{independently scale image in y direction}
+\item{scale_x, scale_y}{independently scale image in x or y direction}
 
 \item{order}{perform scaling or adjustments and shifts first}
 
-\item{xmin_set}{values to override image minmax spatial anchors when doing adjustments}
-
-\item{xmax_set}{values to override image minmax spatial anchors when doing adjustments}
-
-\item{ymin_set}{values to override image minmax spatial anchors when doing adjustments}
-
-\item{ymax_set}{values to override image minmax spatial anchors when doing adjustments}
+\item{xmin_set, xmax_set, ymin_set, ymax_set}{values to override image minmax spatial anchors when doing adjustments}
 
 \item{verbose}{be verbose}
 }

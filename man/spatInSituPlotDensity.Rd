@@ -43,6 +43,8 @@ spatInSituPlotDensity(
 
 \item{sdimy}{spatial dimension y}
 
+\item{alpha}{alpha of density plot}
+
 \item{show_polygon}{overlay polygon information (cell shape)}
 
 \item{polygon_feat_type}{feature type associated with polygon information}

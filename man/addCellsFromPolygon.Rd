@@ -23,6 +23,7 @@ Add corresponding polygon IDs to cell metadata
 }
 \examples{
 
+\dontrun{
 ## Plot interactive polygons
 my_polygon_coords <- plotInteractivePolygons(my_spatPlot)
 
@@ -35,4 +36,6 @@ my_giotto_object <- addGiottoPolygons(gobject = my_giotto_object,
 my_polygon_cells <- getCellsFromPolygon(my_giotto_object)
 
 my_giotto_object <- addCellsFromPolygon(my_giotto_object, my_polygon_cells)
+}
+
 }

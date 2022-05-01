@@ -8,6 +8,8 @@ seuratToGiotto_OLD(obj_use = NULL, ...)
 }
 \arguments{
 \item{obj_use}{Seurat object}
+
+\item{...}{additional params to pass}
 }
 \value{
 Giotto object

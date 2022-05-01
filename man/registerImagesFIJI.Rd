@@ -53,6 +53,8 @@ registerImagesFIJI(
 
 \item{feat_desc_orient_bins}{Feature descriptor option}
 
+\item{closest_next_closest_ratio}{Feature descriptor option}
+
 \item{max_align_err}{Geometric consensus filter option}
 
 \item{inlier_ratio}{Geometric consensus filter option}
@@ -80,15 +82,13 @@ registerImagesFIJI(
 
 \item{DryRun}{Whether to return the command to be run rather than actually
 executing it.}
-
-\item{closest_next_closest_Ratio}{Feature descriptor option}
 }
 \value{
 list of registered giotto objects where the registered images and spatial locations
-\dontrun{
-#This function was adapted from runFijiMacro function in jimpipeline by jefferislab #
-}
 }
 \description{
 Wrapper function for Register Virtual Stack Slices plugin in FIJI
+}
+\details{
+This function was adapted from runFijiMacro function in jimpipeline by jefferislab
 }

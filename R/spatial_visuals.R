@@ -9998,6 +9998,8 @@ plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
 #' @export
 #'
 #' @examples
+#' 
+#' \dontrun{
 #' ## Plot interactive polygons
 #' my_spatPlot <- spatPlot2D(gobject = my_giotto_object,
 #'                           show_image = TRUE,
@@ -10012,6 +10014,8 @@ plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
 #'
 #' ## Get cells located within polygons area
 #' getCellsFromPolygon(my_giotto_object)
+#' }
+#' 
 
 getCellsFromPolygon <- function(gobject,
                                 polygon_slot = "spatial_info",
@@ -10052,7 +10056,8 @@ getCellsFromPolygon <- function(gobject,
 #' @export
 #'
 #' @examples
-#'
+#' 
+#' \dontrun{
 #' ## Plot interactive polygons
 #' my_polygon_coords <- plotInteractivePolygons(my_spatPlot)
 #'
@@ -10065,6 +10070,8 @@ getCellsFromPolygon <- function(gobject,
 #' my_polygon_cells <- getCellsFromPolygon(my_giotto_object)
 #'
 #' my_giotto_object <- addCellsFromPolygon(my_giotto_object, my_polygon_cells)
+#' }
+#' 
 
 addCellsFromPolygon <- function(gobject,
                                 cellsFromPolygon,

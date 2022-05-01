@@ -35,6 +35,8 @@ readPolygonFilesVizgen(
 
 \item{smooth_vertices}{number of vertices for smoothing}
 
+\item{set_neg_to_zero}{set negative values to zero when smoothing}
+
 \item{return_gobject}{return giotto object}
 
 \item{verbose}{be verbose}
@@ -42,4 +44,7 @@ readPolygonFilesVizgen(
 \description{
 Read selected polygon files for the FOVs present in the Giotto
 object and add the smoothed polygons to the object
+}
+\seealso{
+\code{\link{smoothGiottoPolygons}}
 }

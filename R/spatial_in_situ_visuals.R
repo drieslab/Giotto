@@ -234,6 +234,9 @@ plot_feature_points_layer = function(ggobject,
 #' @param polygon_color color for polygon border
 #' @param polygon_bg_color color for polygon background (overruled by polygon_fill)
 #' @param polygon_fill fill color or column for polygon
+#' @param polygon_fill_gradient polygon fill gradient colors given in order from low to high
+#' @param polygon_fill_gradient_midpoint value to set as gradient midpoint (optional). If
+#'   left as \code{NULL}, the median value detected will be chosen
 #' @param polygon_fill_as_factor is fill color a factor
 #' @param polygon_fill_code code to color the fill column
 #' @param polygon_alpha alpha of polygon
@@ -606,6 +609,7 @@ spatInSituPlotHex_single = function(gobject,
 #' @param sdimx spatial dimension x
 #' @param sdimy spatial dimension y
 #' @param bins number of hexbins in one direction
+#' @param alpha alpha of hexbin plot
 #' @param show_polygon overlay polygon information (cell shape)
 #' @param polygon_feat_type feature type associated with polygon information
 #' @param polygon_color color for polygon border
@@ -863,6 +867,7 @@ spatInSituPlotDensity_single = function(gobject,
 #' @param feat_type feature types of the feats
 #' @param sdimx spatial dimension x
 #' @param sdimy spatial dimension y
+#' @param alpha alpha of density plot
 #' @param show_polygon overlay polygon information (cell shape)
 #' @param polygon_feat_type feature type associated with polygon information
 #' @param polygon_color color for polygon border

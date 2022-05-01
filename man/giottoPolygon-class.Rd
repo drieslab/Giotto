@@ -9,7 +9,7 @@
 Giotto class to store and operate on polygon-like data
 }
 \details{
-
+holds polygon data
 }
 \section{Slots}{
 

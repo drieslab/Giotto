@@ -2204,6 +2204,8 @@ average_feat_feat_expression_in_groups = function(gobject,
 #' @param random_iter number of iterations
 #' @param feat_set_1 first specific feature set from feature pairs
 #' @param feat_set_2 second specific feature set from feature pairs
+#' @param gene_set_1 deprecated. see \code{feat_set_1}
+#' @param gene_set_2 deprecated. see \code{feat_set_2}
 #' @param log2FC_addendum addendum to add when calculating log2FC
 #' @param detailed provide more detailed information (random variance and z-score)
 #' @param adjust_method which method to adjust p-values

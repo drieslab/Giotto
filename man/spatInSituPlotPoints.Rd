@@ -86,6 +86,11 @@ spatInSituPlotPoints(
 
 \item{polygon_fill}{fill color or column for polygon}
 
+\item{polygon_fill_gradient}{polygon fill gradient colors given in order from low to high}
+
+\item{polygon_fill_gradient_midpoint}{value to set as gradient midpoint (optional). If
+left as \code{NULL}, the median value detected will be chosen}
+
 \item{polygon_fill_as_factor}{is fill color a factor}
 
 \item{polygon_fill_code}{code to color the fill column}

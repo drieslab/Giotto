@@ -10,6 +10,7 @@ detectSpatialCorGenes(
   spat_unit = NULL,
   method = c("grid", "network"),
   expression_values = c("normalized", "scaled", "custom"),
+  subset_feats = NULL,
   subset_genes = NULL,
   spatial_network_name = "Delaunay_network",
   network_smoothing = NULL,
@@ -29,7 +30,9 @@ detectSpatialCorGenes(
 
 \item{expression_values}{gene expression values to use}
 
-\item{subset_genes}{deprecated, use subset_feats}
+\item{subset_feats}{subset of feats to use}
+
+\item{subset_genes}{deprecated, use \code{subset_feats}}
 
 \item{spatial_network_name}{name of spatial network to use}
 
@@ -40,8 +43,6 @@ detectSpatialCorGenes(
 \item{min_cells_per_grid}{minimum number of cells to consider a grid}
 
 \item{cor_method}{correlation method}
-
-\item{subset_feats}{subset of feats to use}
 }
 \value{
 returns a spatial correlation object: "spatCorObject"

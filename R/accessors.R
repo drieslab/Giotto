@@ -608,7 +608,7 @@ set_spatialNetwork <- function(gobject,
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
 #' @param name name of spatial grid
-#' @param return_network_Obj return grid object (default = FALSE)
+#' @param return_grid_Obj return grid object (default = FALSE)
 #' @family spatial grid data accessor functions
 #' @family functions to get data from giotto object
 #' @export
@@ -661,6 +661,8 @@ select_spatialGrid = function(...) {
 #' @name set_spatialGrid
 #' @description Function to set a spatial grid
 #' @param gobject giotto object
+#' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param name name of spatial grid
 #' @param spatial_grid spatial grid object
 #' @return giotto object
@@ -1110,7 +1112,7 @@ set_giottoLargeImage = function(gobject,
 #' @description Get giotto image object from gobject
 #' @param gobject giotto object
 #' @param image_type type of giotto image object
-#' @param image_name name of a giotto image object \code{\link{showGiottoImageNames}}
+#' @param name name of a giotto image object \code{\link{showGiottoImageNames}}
 #' @return a giotto image object
 #' @family image data accessor functions
 #' @family functions to get data from giotto object
@@ -1728,6 +1730,7 @@ list_spatial_locations_names = function(gobject,
 #' @description return the available spatial enrichment results
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @return names and locations of available data as data.table
 list_spatial_enrichments = function(gobject,
                                     spat_unit = NULL,

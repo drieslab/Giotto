@@ -66,10 +66,6 @@ see \code{\link{createGiottoPoints}}}
 \item{cores}{how many cores or threads to use to read data if paths are provided}
 
 \item{verbose}{be verbose when building Giotto object}
-
-\item{spatial_network_name}{list of spatial network name(s)}
-
-\item{spatial_enrichment_name}{list of spatial enrichment name(s)}
 }
 \value{
 giotto object
