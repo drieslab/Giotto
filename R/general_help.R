@@ -1083,13 +1083,16 @@ convertEnsemblToGeneSymbol = function(matrix,
 #' @description Read and create polygons for all cells, or for only selected FOVs.
 #' @param boundaries_path path to the cell_boundaries folder
 #' @param fovs subset of fovs to use
+#' @param custom_polygon_names a character vector to provide custom polygon names
+#'   (optional)
 #' @param polygon_feat_types a vector containing the polygon feature types
 #' @param flip_x_axis flip x axis of polygon coordinates (multiply by -1)
 #' @param flip_y_axis flip y axis of polygon coordinates (multiply by -1)
 #' @param smooth_polygons smooth polygons (default = TRUE)
 #' @param smooth_vertices number of vertices for smoothing
+#' @param set_neg_to_zero set negative values to zero when smoothing
 #' @param verbose be verbose
-#'
+#' @seealso \code{\link{smoothGiottoPolygons}}
 #' @export
 readPolygonFilesVizgenHDF5 = function(boundaries_path,
                                       fovs = NULL,
@@ -1102,6 +1105,13 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
                                       set_neg_to_zero = FALSE,
                                       verbose = TRUE) {
 
+  # define for .()
+  x = NULL
+  y = NULL
+  cell_id = NULL
+  file_id = NULL
+  my_id = NULL
+  
   # define names
   poly_feat_names = paste0('z', polygon_feat_types)
   poly_feat_indexes = paste0('zIndex_', polygon_feat_types)
@@ -1218,9 +1228,10 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
 #' @param flip_y_axis flip y axis of polygon coordinates (multiply by -1)
 #' @param smooth_polygons smooth polygons (default = TRUE)
 #' @param smooth_vertices number of vertices for smoothing
+#' @param set_neg_to_zero set negative values to zero when smoothing
 #' @param return_gobject return giotto object
 #' @param verbose be verbose
-#'
+#' @seealso \code{\link{smoothGiottoPolygons}}
 #' @export
 readPolygonFilesVizgen = function(gobject,
                                   boundaries_path,
@@ -1247,14 +1258,14 @@ readPolygonFilesVizgen = function(gobject,
 
 
   smooth_cell_polygons_list = readPolygonFilesVizgenHDF5(boundaries_path = boundaries_path,
-                                             fovs = fovs,
-                                             polygon_feat_types = polygon_feat_types,
-                                             flip_x_axis = flip_x_axis,
-                                             flip_y_axis = flip_y_axis,
-                                             smooth_polygons = smooth_polygons,
-                                             smooth_vertices = smooth_vertices,
-                                             set_neg_to_zero = set_neg_to_zero,
-                                             verbose = verbose)
+                                                         fovs = fovs,
+                                                         polygon_feat_types = polygon_feat_types,
+                                                         flip_x_axis = flip_x_axis,
+                                                         flip_y_axis = flip_y_axis,
+                                                         smooth_polygons = smooth_polygons,
+                                                         smooth_vertices = smooth_vertices,
+                                                         set_neg_to_zero = set_neg_to_zero,
+                                                         verbose = verbose)
 
 
   if(return_gobject) {

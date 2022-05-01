@@ -31,7 +31,9 @@ showClusterHeatmap(
 
 \item{expression_values}{expression values to use}
 
-\item{genes}{vector of genes to use, default to 'all'}
+\item{feats}{vector of features to use, default to 'all'}
+
+\item{genes}{deprecated. Replaced by \code{feats} param}
 
 \item{cluster_column}{name of column to use for clusters}
 

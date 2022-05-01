@@ -21,7 +21,8 @@ cropGiottoLargeImage(
 
 \item{largeImage_name}{name of giottoLargeImage within gobject}
 
-\item{giottoLargeImage}{a giottoLargeImage}
+\item{giottoLargeImage}{alternative input param using giottoLargeImage object
+instead of through \code{gobject} and \code{largeImage_name} params}
 
 \item{crop_name}{arbitrary name for cropped giottoLargeImage}
 
@@ -30,7 +31,7 @@ cropGiottoLargeImage(
 \item{xmax_crop, xmin_crop, ymax_crop, ymin_crop}{crop min/max x and y bounds}
 }
 \value{
-a giottoLargeImage
+a giottoLargeImage object
 }
 \description{
 Crop a giottoLargeImage based on crop_extent argument or given values

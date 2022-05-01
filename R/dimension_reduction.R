@@ -1654,7 +1654,9 @@ runtSNE <- function(gobject,
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
+#' @inheritParams harmony::HarmonyMatrix
 #' @param expression_values expression values to use
+#' @param reduction reduction on cells or features
 #' @param dim_reduction_to_use use another dimension reduction set as input
 #' @param dim_reduction_name name of dimension reduction set to use
 #' @param dimensions_to_use number of dimensions to use as input
@@ -1682,6 +1684,7 @@ runGiottoHarmony = function(gobject,
                             feats_to_use = NULL,
                             toplevel_params = 2,
                             return_gobject = TRUE,
+                            verbose = NULL,
                             ...) {
 
 

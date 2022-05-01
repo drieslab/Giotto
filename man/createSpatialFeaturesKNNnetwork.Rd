@@ -39,6 +39,10 @@ createSpatialFeaturesKNNnetwork(
 \item{verbose}{be verbose}
 
 \item{return_gobject}{return giotto object (default: TRUE)}
+
+\item{toplevel_params}{toplevel value to pass when updating giotto params}
+
+\item{...}{additional parameters to pass to \code{\link[dbscan]{kNN}}}
 }
 \value{
 If \code{return_gobject = TRUE} a giotto object containing the network

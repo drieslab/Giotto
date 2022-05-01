@@ -9,7 +9,9 @@ calc_cov_group_HVF = function(feat_in_cells_detected,
                               return_plot = NA,
                               save_plot = NA) {
 
-
+  # define for :=
+  cov_group_zscore = NULL
+  
   steps = 1/nr_expression_groups
   prob_sequence = seq(0, 1, steps)
   prob_sequence[length(prob_sequence)] = 1

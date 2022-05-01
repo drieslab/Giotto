@@ -587,7 +587,7 @@ calc_spatial_enrichment_DT = function(bin_matrix,
 
 
 
-
+#' @title binSpectSingleMatrix
 #' @name binSpectSingleMatrix
 #' @description binSpect for a single spatial network and a provided expression matrix
 #' @param expression_matrix expression matrix
@@ -977,6 +977,7 @@ binSpectSingle = function(gobject,
 #' @description binSpect for multiple spatial kNN networks
 #' @param gobject giotto object
 #' @param feat_type feature type
+#' @param spat_unit spatial unit
 #' @param bin_method method to binarize gene expression
 #' @param expression_values expression values to use
 #' @param subset_feats only select a subset of features to test
@@ -1227,12 +1228,11 @@ binSpectMulti = function(gobject,
 
 
 
-#' @title binSpectSingleMatrix
-#' @name binSpectSingleMatrix
+#' @title binSpectMultiMatrix
+#' @name binSpectMultiMatrix
 #' @description binSpect for a single spatial network and a provided expression matrix
 #' @param expression_matrix expression matrix
 #' @param spatial_networks list of spatial networks in data.table format
-#' @param bin_matrix a binarized matrix, when provided it will skip the binarization process
 #' @param bin_method method to binarize gene expression
 #' @param subset_feats only select a subset of features to test
 #' @param kmeans_algo kmeans algorithm to use (kmeans, kmeans_arma, kmeans_arma_subset)
@@ -1252,7 +1252,9 @@ binSpectMulti = function(gobject,
 #' @param do_parallel run calculations in parallel with mclapply
 #' @param cores number of cores to use if do_parallel = TRUE
 #' @param verbose be verbose
+#' @param knn_params list of parameters to create spatial kNN network
 #' @param set.seed set a seed before kmeans binarization
+#' @param summarize summarize the p-values or adjusted p-values
 #' @return data.table with results
 binSpectMultiMatrix = function(expression_matrix,
                                spatial_networks,
@@ -3372,7 +3374,7 @@ detectSpatialCorFeats <- function(gobject,
 #' @param method method to use for spatial averaging
 #' @param expression_values gene expression values to use
 #' @param subset_feats subset of feats to use
-#' @param subset_genes deprecated, use subset_feats
+#' @param subset_genes deprecated, use \code{subset_feats}
 #' @param spatial_network_name name of spatial network to use
 #' @param network_smoothing  smoothing factor beteen 0 and 1 (default: automatic)
 #' @param spatial_grid_name name of spatial grid to use
@@ -3398,6 +3400,7 @@ detectSpatialCorGenes <- function(gobject,
                                   spat_unit = NULL,
                                   method = c('grid', 'network'),
                                   expression_values = c('normalized', 'scaled', 'custom'),
+                                  subset_feats = NULL,
                                   subset_genes = NULL,
                                   spatial_network_name = 'Delaunay_network',
                                   network_smoothing = NULL,
@@ -3405,6 +3408,11 @@ detectSpatialCorGenes <- function(gobject,
                                   min_cells_per_grid = 4,
                                   cor_method = c('pearson', 'kendall', 'spearman')) {
 
+  ## deprecated arguments
+  if(!is.null(subset_genes)) {
+    subset_feats = subset_genes
+    warning('subset_genes is deprecated, use subset_feats in the future \n')
+  }
 
   warning("Deprecated and replaced by detectSpatialCorFeats")
 
@@ -3413,7 +3421,7 @@ detectSpatialCorGenes <- function(gobject,
                         spat_unit = spat_unit,
                         method = method,
                         expression_values = expression_values,
-                        subset_feats = subset_genes,
+                        subset_feats = subset_feats,
                         spatial_network_name = spatial_network_name,
                         network_smoothing = network_smoothing,
                         spatial_grid_name = spatial_grid_name,

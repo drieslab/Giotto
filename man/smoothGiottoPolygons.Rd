@@ -20,11 +20,16 @@ smoothGiottoPolygons(
 \item{k}{k}
 
 \item{set_neg_to_zero}{set negative values to zero (default: TRUE)}
+
+\item{...}{additional params to pass to \code{spline}}
 }
 \value{
 Smoothed Giotto polygon object with reduced vertices
 }
 \description{
 Smooths Giotto polygon object
+}
+\seealso{
+\code{\link[stats]{spline}}
 }
 \keyword{polygon}

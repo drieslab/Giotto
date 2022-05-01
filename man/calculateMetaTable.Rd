@@ -25,7 +25,9 @@ calculateMetaTable(
 
 \item{metadata_cols}{annotation columns found in \code{pDataDT(gobject)}}
 
-\item{selected_genes}{subset of genes to use}
+\item{selected_feats}{subset of features to use}
+
+\item{selected_genes}{subset of genes to use (deprecated)}
 }
 \value{
 data.table with average expression values for each gene per (combined) annotation

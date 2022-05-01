@@ -3025,7 +3025,8 @@ create_cluster_matrix <- function(gobject,
 #' @param feat_type feature type
 #' @param expression_values expression values to use
 #' @param metadata_cols annotation columns found in \code{pDataDT(gobject)}
-#' @param selected_genes subset of genes to use
+#' @param selected_feats subset of features to use
+#' @param selected_genes subset of genes to use (deprecated)
 #' @return data.table with average expression values for each gene per (combined) annotation
 #' @export
 calculateMetaTable = function(gobject,
@@ -3174,6 +3175,7 @@ calculateMetaTableCells = function(gobject,
 #' @param gobject Giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
+#' @param spat_loc_name name of spatial locations to include
 #' @param spat_enr_names names of spatial enrichment results to include
 #' @return Extended cell metadata in data.table format.
 #' @export

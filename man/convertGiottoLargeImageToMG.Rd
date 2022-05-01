@@ -27,6 +27,9 @@ convertGiottoLargeImageToMG(
 
 \item{largeImage_name}{name of giottoLargeImage}
 
+\item{giottoLargeImage}{alternative input param using giottoLargeImage object
+instead of through \code{gobject} and \code{largeImage_name} params}
+
 \item{mg_name}{name to assign converted magick image based giottoImage. Defaults to name of giottoLargeImage}
 
 \item{spat_unit}{spatial unit}
@@ -52,7 +55,8 @@ convertGiottoLargeImageToMG(
 \item{verbose}{be verbose}
 }
 \value{
-a giotto object or an updated giotto image if return_gobject = F
+a giotto object if \code{return_gobject = TRUE} or an updated giotto 
+  image object if \code{return_gobject = FALSE}
 }
 \description{
 convert a giottoLargeImage by downsampling into a normal magick based giottoImage

@@ -14,6 +14,7 @@ select_spatialGrid(...)
     \item{\code{spat_unit}}{spatial unit}
     \item{\code{feat_type}}{feature type}
     \item{\code{name}}{name of spatial grid}
+    \item{\code{return_grid_Obj}}{return grid object (default = FALSE)}
   }}
 }
 \description{

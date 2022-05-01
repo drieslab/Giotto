@@ -192,27 +192,20 @@ setMethod(
 #' @description Creates a giotto image that can be added to a Giotto object and/or used to add an image to the spatial plotting functions
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
-#' @param spatial_locs spatial locations (alternative if gobject = NULL)
+#' @param spatial_locs spatial locations (alternative if \code{gobject = NULL})
 #' @param spat_loc_name name of spatial locations within gobject
 #' @param mg_object magick image object
 #' @param name name for the image
 #' @param image_transformations vector of sequential image transformations
-#' @param negative_y Map image to negative y spatial values if TRUE during automatic alignment. Meaning that origin is in upper left instead of lower left.
+#' @param negative_y Map image to negative y spatial values if TRUE during automatic
+#'   alignment. Meaning that origin is in upper left instead of lower left.
 #' @param do_manual_adj flag to use manual adj values instead of automatic alignment when given a gobject or spatlocs
-#' @param xmax_adj adjustment of the maximum x-value to align the image
-#' @param xmin_adj adjustment of the minimum x-value to align the image
-#' @param ymax_adj adjustment of the maximum y-value to align the image
-#' @param ymin_adj adjustment of the minimum y-value to align the image
+#' @param xmax_adj,xmin_adj,ymax_adj,ymin_adj adjustment of the maximum or maximum x or y-value to align the image
 #' @param scale_factor scaling of image dimensions relative to spatial coordinates
-#' @param x_shift shift image in positive x direction
-#' @param x_shift shift image in positive y direction
-#' @param scale_x independently scale image in x direction
-#' @param scale_y independently scale image in y direction
+#' @param x_shift,y_shift shift image along x or y axes
+#' @param scale_x,scale_y independently scale image in x or y direction
 #' @param order perform scaling or adjustments and shifts first
-#' @param xmin_set values to override image minmax spatial anchors when doing adjustments
-#' @param xmax_set values to override image minmax spatial anchors when doing adjustments
-#' @param ymin_set values to override image minmax spatial anchors when doing adjustments
-#' @param ymax_set values to override image minmax spatial anchors when doing adjustments
+#' @param xmin_set,xmax_set,ymin_set,ymax_set values to override image minmax spatial anchors when doing adjustments
 #' @param verbose be verbose
 #' @details image_transformations: transformation options from magick library
 #' [\strong{flip_x_axis}] flip x-axis (\code{\link[magick]{image_flop}})
@@ -429,12 +422,10 @@ createGiottoImage = function(gobject = NULL,
 #' @param name name for the image
 #' @param negative_y Map image to negative y spatial values if TRUE. Meaning that origin is in upper left instead of lower left.
 #' @param extent SpatExtent object to assign spatial extent. Takes priority unless use_rast_ext is TRUE.
-#' @param use_rast_extent Use extent from input raster object
+#' @param use_rast_ext Use extent from input raster object
 #' @param image_transformations vector of sequential image transformations - under construction
-#' @param xmax_adj adjustment of the maximum x-value to align the image
-#' @param xmin_adj adjustment of the minimum x-value to align the image
-#' @param ymax_adj adjustment of the maximum y-value to align the image
-#' @param ymin_adj adjustment of the minimum y-value to align the image
+#' @param xmax_bound,xmin_bound,ymax_bound,ymin_bound assign min and max x and y
+#'   values for image spatial placement
 #' @param scale_factor scaling of image dimensions relative to spatial coordinates
 #' @param verbose be verbose
 #' @return a giottoLargeImage object
@@ -544,10 +535,10 @@ createGiottoLargeImage = function(raster_object,
   g_imageL@scale_factor = (1/g_imageL@resolution)
 
   ## 5. Get image characteristics by sampling
-  sampleValues = na.omit(terra::spatSample(raster_object,
-                                           size = 5000, # Defines the rough maximum of pixels allowed when resampling
-                                           method = 'regular',
-                                           value = TRUE))
+  sampleValues = stats::na.omit(terra::spatSample(raster_object,
+                                                  size = 5000, # Defines the rough maximum of pixels allowed when resampling
+                                                  method = 'regular',
+                                                  value = TRUE))
   if(nrow(sampleValues) == 0) {
     if(verbose == TRUE) cat('No values discovered when sampling for image characteristics')
   } else {
@@ -588,12 +579,10 @@ createGiottoLargeImage = function(raster_object,
 #' @param names vector of names for the images
 #' @param negative_y Map image to negative y spatial values if TRUE. Meaning that origin is in upper left instead of lower left.
 #' @param extent SpatExtent object to assign spatial extent. Takes priority unless use_rast_ext is TRUE.
-#' @param use_rast_extent Use extent from input raster object
+#' @param use_rast_ext Use extent from input raster object
 #' @param image_transformations vector of sequential image transformations - under construction
-#' @param xmax_adj adjustment of the maximum x-value to align the image
-#' @param xmin_adj adjustment of the minimum x-value to align the image
-#' @param ymax_adj adjustment of the maximum y-value to align the image
-#' @param ymin_adj adjustment of the minimum y-value to align the image
+#' @param xmax_bound,xmin_bound,ymax_bound,ymin_bound assign min and max x and y
+#'   values for image spatial placement
 #' @param scale_factor scaling of image dimensions relative to spatial coordinates
 #' @param verbose be verbose
 #' @details See \code{\link{createGiottoLargeImage}}
@@ -1116,27 +1105,20 @@ addGiottoImageToSpatPlot = function(spatpl = NULL,
 
 #' @title updateGiottoImageMG
 #' @name updateGiottoImageMG
-#' @description Updates the boundaries of a giotto image attached to a giotto object
-#' @param gobject giotto object
-#' @param image_name name of giottoImage
-#' @param giottoImage giottoImage object
-#' @param xmax_adj adjustment of the maximum x-value to align the image
-#' @param xmin_adj adjustment of the minimum x-value to align the image
-#' @param ymax_adj adjustment of the maximum y-value to align the image
-#' @param ymin_adj adjustment of the minimum y-value to align the image
-#' @param x_shift shift entire image in positive x direction
-#' @param y_shift shift entire image in positive y direction
-#' @param scale_factor set scale_x and scale_y at the same time
-#' @param scale_x independently scale x axis image mapping from origin
-#' @param scale_y independently scale y axis image mapping from origin
-#' @param order perform fine adjustments (adjustments and shifts) or scaling first
+#' @description Updates the boundaries of a giotto \code{image} object attached to 
+#'   a \code{giotto} object if both \code{gobject} and \code{image_name} params
+#'   are given. Alternatively can directly accept and return as \code{image}
+#' @inheritParams updateGiottoImage
+#' @param gobject \code{giotto} object containing giotto \code{image} object
+#' @param giottoImage \code{image} object to directly update
 #' @param xmin_set set image xmin boundary. Applied before adjustments
 #' @param xmax_set set image xmax boundary. Applied before adjustments
 #' @param ymin_set set image ymin boundary. Applied before adjustments
 #' @param ymax_set set image ymax boundary. Applied before adjustments
-#' @param return_gobject return a giotto object
-#' @param verbose be verbose
-#' @return a giotto object or an updated giotto image if return_gobject = F
+#' @param return_gobject return a \code{giotto} object if \code{TRUE}, a giotto
+#'   \code{image} object if \code{FALSE}
+#' @return a \code{giotto} object or an updated giotto \code{image} object if 
+#'   \code{return_gobject = FALSe}
 #' @export
 updateGiottoImageMG = function(gobject = NULL,
                                image_name = NULL,
@@ -1565,11 +1547,12 @@ stitchGiottoLargeImage = function(largeImage_list = NULL,
 #' @description Crop a giottoLargeImage based on crop_extent argument or given values
 #' @param gobject gobject holding the giottoLargeImage
 #' @param largeImage_name name of giottoLargeImage within gobject
-#' @param giottoLargeImage a giottoLargeImage
+#' @param giottoLargeImage alternative input param using giottoLargeImage object
+#'   instead of through \code{gobject} and \code{largeImage_name} params
 #' @param crop_name arbitrary name for cropped giottoLargeImage
 #' @param crop_extent terra extent object used to crop the giottoLargeImage
 #' @param xmax_crop,xmin_crop,ymax_crop,ymin_crop crop min/max x and y bounds
-#' @return a giottoLargeImage
+#' @return a giottoLargeImage object
 #' @export
 cropGiottoLargeImage = function(gobject = NULL,
                                 largeImage_name = NULL,
@@ -1698,6 +1681,8 @@ plot_giottoLargeImage = function(gobject = NULL,
 #' @description convert a giottoLargeImage by downsampling into a normal magick based giottoImage
 #' @param gobject gobject containing giottoLargeImage
 #' @param largeImage_name name of giottoLargeImage
+#' @param giottoLargeImage alternative input param using giottoLargeImage object
+#'   instead of through \code{gobject} and \code{largeImage_name} params
 #' @param mg_name name to assign converted magick image based giottoImage. Defaults to name of giottoLargeImage
 #' @param spat_unit spatial unit
 #' @param spat_loc_name gobject spatial location name to map giottoImage to (optional)
@@ -1710,7 +1695,8 @@ plot_giottoLargeImage = function(gobject = NULL,
 #' @param max_intensity value to treat as maximum intensity in color scale
 #' @param return_gobject return as giotto object
 #' @param verbose be verbose
-#' @return a giotto object or an updated giotto image if return_gobject = F
+#' @return a giotto object if \code{return_gobject = TRUE} or an updated giotto 
+#'   image object if \code{return_gobject = FALSE}
 #' @export
 convertGiottoLargeImageToMG = function(gobject = NULL,
                                        largeImage_name = NULL,
@@ -2040,27 +2026,16 @@ writeGiottoLargeImage = function(giottoLargeImage = NULL,
 
 #' @title updateGiottoLargeImage
 #' @name updateGiottoLargeImage
-#' @description Updates the boundaries of a giottoLargeImage attached to a giotto object
-#' @param gobject giotto object containing giottoLargeImage
-#' @param largeImage_name name of giottoLargeImage
-#' @param giottoLargeImage giottoLargeImage object
-#' @param xmax_adj adjustment of the maximum x-value to align the image
-#' @param xmin_adj adjustment of the minimum x-value to align the image
-#' @param ymax_adj adjustment of the maximum y-value to align the image
-#' @param ymin_adj adjustment of the minimum y-value to align the image
-#' @param x_shift shift entire image in positive x direction
-#' @param y_shift shift entire image in positive y direction
-#' @param scale_factor set scale_x and scale_y at the same time
-#' @param scale_x independently scale x axis image mapping from origin
-#' @param scale_y independently scale y axis image mapping from origin
-#' @param order perform fine adjustments (adjustments and shifts) or scaling first
-#' @param xmin_bound set image xmin boundary. Overrides minmax values as spatial anchor.
-#' @param xmax_bound set image xmax boundary. Overrides minmax values as spatial anchor.
-#' @param ymin_bound set image ymin boundary. Overrides minmax values as spatial anchor.
-#' @param ymax_bound set image ymax boundary. Overrides minmax values as spatial anchor.
-#' @param return_gobject return a giotto object if TRUE, a giottoLargeImage if FALSE
-#' @param verbose be verbose
-#' @return a giotto object or an updated giottoLargeImage if return_gobject = FALSE
+#' @description Updates the boundaries of a giotto \code{largeImage} object attached to 
+#'   a \code{giotto} object if both \code{gobject} and \code{largeImage_name} params
+#'   are given. Alternatively can directly accept and return as \code{largeImage}
+#' @inheritParams updateGiottoImage
+#' @param gobject \code{giotto} object containing giotto \code{largeImage} object
+#' @param giottoLargeImage \code{largeImage} object to directly update
+#' @param return_gobject return a \code{giotto} object if \code{TRUE}, a giotto 
+#'   \code{largeImage} object if \code{FALSE}
+#' @return a \code{giotto} object or an updated giotto \code{largeImage} object if
+#'   \code{return_gobject = FALSE}
 #' @export
 updateGiottoLargeImage = function(gobject = NULL,
                                   largeImage_name = NULL,
@@ -2195,7 +2170,8 @@ updateGiottoLargeImage = function(gobject = NULL,
 #' @param largeImages list of giottoLargeImage objects
 #' @param spat_loc_name provide spatial location slot in Giotto to align images. (optional)
 #' @param scale_factor provide scale of image pixel dimensions relative to spatial coordinates.
-#' @param negative_y Map image to negative y spatial values if TRUE during automatic alignment. Meaning that origin is in upper left instead of lower left.
+#' @param negative_y map image to negative y spatial values if TRUE during automatic alignment. Meaning that origin is in upper left instead of lower left.
+#' @param verbose be verbose
 #' @return an updated Giotto object with access to the list of images
 #' @export
 addGiottoLargeImage = function(gobject = NULL,
@@ -2474,21 +2450,24 @@ addGiottoImage = function(gobject = NULL,
 
 #' @title updateGiottoImage
 #' @name updateGiottoImage
-#' @description Updates the spatial positioning and sizing of a giottoImage or
-#'   giottoLargeImage attached to a giotto object.
+#' @description Updates the spatial positioning and sizing of a giotto \code{image} or
+#'   \code{largeImage} attached to a giotto object.
 #' @details This function works for all image objects associated with Giotto.
-#' @param gobject gobject containing giottoImage or giottoLargeImage
-#' @param image_name name of giottoImage
-#' @param largeImage_name name of giottoLargeImage
+#' @param gobject gobject containing desired image object
+#' @param image_name name of giotto \code{image} object
+#' @param largeImage_name name of giotto \code{largeImage} object
 #' @param xmax_adj,xmin_adj,ymax_adj,ymin_adj adjust image boundaries by increasing 
 #'   maximum and decreasing minimum bounds respectively of xy bounds
 #' @param x_shift,y_shift shift entire image along xy axes
-#' @param scale_x,scale_y scale xy axis image mapping from coordinate origin
+#' @param scale_factor set \code{scale_x} and \code{scale_y} params at the same time
+#' @param scale_x,scale_y independently scale x or y axis image mapping from coordinate origin
 #' @param order order of operations between fine adjustments (adjustment and shift
 #'   parameters) and scaling
 #' @param xmin_set,xmax_set,ymin_set,ymax_set directly set xy image boundaries.
 #'   Overrides minmax values as spatial anchor.
-#' @param return_gobject return a giotto object
+#' @param return_gobject return a giotto object if \code{TRUE}, a giotto image object
+#'   if \code{FALSE}
+#' @param verbose be verbose
 #' @return a giotto object or an updated giotto image object if return_gobject = F
 #' @family basic image functions
 #' @export
@@ -2501,6 +2480,7 @@ updateGiottoImage = function(gobject = NULL,
                              ymin_adj = 0,
                              x_shift = 0,
                              y_shift = 0,
+                             scale_factor = NULL,
                              scale_x = 1,
                              scale_y = 1,
                              order = c('first_adj', 'first_scale'),
@@ -2508,7 +2488,8 @@ updateGiottoImage = function(gobject = NULL,
                              xmin_set = NULL,
                              ymax_set = NULL,
                              ymin_set = NULL,
-                             return_gobject = TRUE) {
+                             return_gobject = TRUE,
+                             verbose = TRUE) {
 
 
   # 0. Check params
@@ -2530,6 +2511,7 @@ updateGiottoImage = function(gobject = NULL,
                               ymin_adj = ymin_adj,
                               x_shift = x_shift,
                               y_shift = y_shift,
+                              scale_factor = scale_factor,
                               scale_x = scale_x,
                               scale_y = scale_y,
                               order = order,
@@ -2537,7 +2519,8 @@ updateGiottoImage = function(gobject = NULL,
                               xmin_set = xmin_set,
                               ymax_set = ymax_set,
                               ymin_set = ymin_set,
-                              return_gobject = return_gobject)
+                              return_gobject = return_gobject,
+                              verbose = verbose)
   } else if(!is.null(largeImage_name)) {
     out = updateGiottoLargeImage(gobject = gobject,
                                  largeImage_name = largeImage_name,
@@ -2547,6 +2530,7 @@ updateGiottoImage = function(gobject = NULL,
                                  ymin_adj = ymin_adj,
                                  x_shift = x_shift,
                                  y_shift = y_shift,
+                                 scale_factor = scale_factor,
                                  scale_x = scale_x,
                                  scale_y = scale_y,
                                  order = order,
@@ -2554,7 +2538,8 @@ updateGiottoImage = function(gobject = NULL,
                                  xmin_set = xmin_set,
                                  ymax_set = ymax_set,
                                  ymin_set = ymin_set,
-                                 return_gobject = return_gobject)
+                                 return_gobject = return_gobject,
+                                 verbose = verbose)
   }
   return(out)
 }
@@ -2808,6 +2793,7 @@ reconnectGiottoImage = function(gobject,
 #' @param gobject giotto object
 #' @param image_type image object type (only supports largeImage and is set as
 #'   default)
+#' @param image_name name of image object to use
 #' @param giottoLargeImage giotto large image object
 #' @param method plot type to show image intensity distribution
 #' @export

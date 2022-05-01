@@ -46,6 +46,8 @@ spatInSituPlotHex(
 
 \item{bins}{number of hexbins in one direction}
 
+\item{alpha}{alpha of hexbin plot}
+
 \item{show_polygon}{overlay polygon information (cell shape)}
 
 \item{polygon_feat_type}{feature type associated with polygon information}

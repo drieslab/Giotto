@@ -24,6 +24,9 @@ readPolygonFilesVizgenHDF5(
 
 \item{polygon_feat_types}{a vector containing the polygon feature types}
 
+\item{custom_polygon_names}{a character vector to provide custom polygon names
+(optional)}
+
 \item{flip_x_axis}{flip x axis of polygon coordinates (multiply by -1)}
 
 \item{flip_y_axis}{flip y axis of polygon coordinates (multiply by -1)}
@@ -32,8 +35,13 @@ readPolygonFilesVizgenHDF5(
 
 \item{smooth_vertices}{number of vertices for smoothing}
 
+\item{set_neg_to_zero}{set negative values to zero when smoothing}
+
 \item{verbose}{be verbose}
 }
 \description{
 Read and create polygons for all cells, or for only selected FOVs.
+}
+\seealso{
+\code{\link{smoothGiottoPolygons}}
 }

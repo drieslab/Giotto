@@ -41,6 +41,8 @@ binSpectMulti(
 
 \item{feat_type}{feature type}
 
+\item{spat_unit}{spatial unit}
+
 \item{bin_method}{method to binarize gene expression}
 
 \item{expression_values}{expression values to use}

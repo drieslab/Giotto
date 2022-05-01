@@ -21,7 +21,7 @@ get_spatialGrid(
 
 \item{name}{name of spatial grid}
 
-\item{return_network_Obj}{return grid object (default = FALSE)}
+\item{return_grid_Obj}{return grid object (default = FALSE)}
 }
 \description{
 Function to get spatial grid

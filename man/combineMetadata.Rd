@@ -19,6 +19,8 @@ combineMetadata(
 
 \item{feat_type}{feature type}
 
+\item{spat_loc_name}{name of spatial locations to include}
+
 \item{spat_enr_names}{names of spatial enrichment results to include}
 }
 \value{

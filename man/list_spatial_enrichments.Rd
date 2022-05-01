@@ -10,6 +10,8 @@ list_spatial_enrichments(gobject, spat_unit = NULL, feat_type = NULL)
 \item{gobject}{giotto object}
 
 \item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 }
 \value{
 names and locations of available data as data.table
