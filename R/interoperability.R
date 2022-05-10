@@ -367,7 +367,7 @@ seuratToGiotto = function(sobject){
   exp = Seurat::GetAssayData(object = sobject, slot = "counts")
   
     # Dimension Reduction 
-    if(length(sobject@reductions) == 0)  {
+    if(length(sobject@reductions$pca) == 0 & length(sobject@reductions$umap) == 0) {
       dim_reduc = NULL
       
     } else {
