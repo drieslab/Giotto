@@ -1706,7 +1706,7 @@ runDWLSDeconv <- function(gobject,
   
   ### xuan modify 9: ###
   if (length(intersect_gene) < 10){
-    stop(paste0("The overlapped genes between signature matrix and\nspatial expression profile is too small. (", 
+    stop(paste0("The overlapped genes between signature matrix and spatial expression profile is too small. (", 
                length(intersect_gene), ' overlapped genes)'))} else {
     print(paste0('The ',length(intersect_gene),' overlapped genes between signature matrix and\nspatial expression profile'))
   }
