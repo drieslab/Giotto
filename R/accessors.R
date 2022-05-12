@@ -10,12 +10,20 @@
 #' @name  get_expression_values
 #' @description Function to get expression values from giotto object
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
-#' @param values expression values to extract
+#' @param spat_unit spatial unit, e.g. "cell"
+#' @param feat_type feature type, e.g. "rna", "dna", "protein"
+#' @param values expression values to extract, e.g. "raw", "normalized", "scaled"
 #' @return expression matrix
 #' @family expression accessor functions
 #' @family functions to get data from giotto object
+#'
+#' @examples
+#' library(Giotto)
+#' my_giotto_object <- data("my_giotto_object.rda", package = "Giotto")
+#' get_expression_values(my_giotto_object,
+#'                       spat_unit = "cell",
+#'                       feat_type = "rna",
+#'                       values = "raw")
 #' @export
 get_expression_values <- function(gobject,
                                   feat_type = NULL,
@@ -1365,7 +1373,7 @@ showGiottoDimRed = function(gobject,
 showGiottoSpatialInfo = function(gobject) {
 
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
-  
+
   available_data = list_spatial_info(gobject = gobject)
   if(is.null(available_data)) cat('No spatial info available \n')
 
@@ -1390,7 +1398,7 @@ showGiottoSpatialInfo = function(gobject) {
 showGiottoFeatInfo = function(gobject) {
 
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
-  
+
   available_data = list_feature_info(gobject = gobject)
   if(is.null(available_data)) cat('No feature info available \n')
 
