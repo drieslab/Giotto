@@ -22,7 +22,6 @@ expression matrix
 Function to get expression values from giotto object
 }
 \examples{
-library(Giotto)
 get_expression_values(my_giotto_object,
                       spat_unit = "cell",
                       feat_type = "rna",
