@@ -15,9 +15,9 @@ set_expression_values(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit,  e.g. "cell"}
 
-\item{feat_type}{feature type}
+\item{feat_type}{feature type, e.g. "rna", "dna", "protein"}
 
 \item{name}{name for the expression slot}
 
@@ -28,6 +28,14 @@ giotto object
 }
 \description{
 Function to set expression values for giotto object
+}
+\examples{
+my_matrix <- matrix(rnorm(7486491), nrow = 11827, ncol = 633)
+my_giotto_object <- set_expression_values(my_giotto_object,
+                                          spat_unit = "cell",
+                                          feat_type = "rna",
+                                          name = "test",
+                                          values = my_matrix)
 }
 \seealso{
 Other expression accessor functions: 

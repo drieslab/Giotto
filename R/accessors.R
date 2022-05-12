@@ -18,7 +18,6 @@
 #' @family functions to get data from giotto object
 #'
 #' @examples
-#' library(Giotto)
 #' get_expression_values(my_giotto_object,
 #'                       spat_unit = "cell",
 #'                       feat_type = "rna",
@@ -77,13 +76,20 @@ select_expression_values = function(...) {
 #' @name  set_expression_values
 #' @description Function to set expression values for giotto object
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
+#' @param spat_unit spatial unit,  e.g. "cell"
+#' @param feat_type feature type, e.g. "rna", "dna", "protein"
 #' @param name name for the expression slot
 #' @param values expression values
 #' @return giotto object
 #' @family expression accessor functions
 #' @family functions to set data in giotto object
+#' @examples
+#' my_matrix <- matrix(rnorm(7486491), nrow = 11827, ncol = 633)
+#' my_giotto_object <- set_expression_values(my_giotto_object,
+#'                                           spat_unit = "cell",
+#'                                           feat_type = "rna",
+#'                                           name = "test",
+#'                                           values = my_matrix)
 #' @export
 set_expression_values <- function(gobject,
                                   spat_unit = NULL,
