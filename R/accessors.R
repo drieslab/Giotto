@@ -246,16 +246,20 @@ set_spatial_locations <- function(gobject,
 #' @title Get dimension reduction
 #' @name get_dimReduction
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
-#' @param reduction reduction on cells or features
-#' @param reduction_method reduction method (e.g. pca)
+#' @param spat_unit spatial unit, e.g. "cell"
+#' @param feat_type feature type, e.g. "rna", "dna", "protein"
+#' @param reduction reduction on cells or features, eg, "cells", "feats"
+#' @param reduction_method reduction method, e.g. "pca", "umap", "tsne"
 #' @param name name of reduction results
-#' @param return_dimObj return full dimension object result
+#' @param return_dimObj return full dimension object result. Default = FALSE
 #' @description Function to get a dimension reduction object
 #' @return dim reduction coordinates (default) or dim reduction object
 #' @family dimensional reduction data accessor functions
 #' @family functions to get data from giotto object
+#' @examples
+#' get_dimReduction(my_giotto_object,
+#'                  spat_unit = "cell",
+#'                  feat_type = "rna")
 #' @export
 get_dimReduction = function(gobject,
                             spat_unit = NULL,
