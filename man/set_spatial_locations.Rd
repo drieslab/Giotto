@@ -31,10 +31,10 @@ Function to set a spatial location slot
 }
 \examples{
 my_locs <- data.table::data.table(sdimx = rnorm(633), sdimy = rnorm(633), cell_ID = 1:633)
-set_spatial_locations(my_giotto_object,
-                      spat_unit = "cell",
-                      spat_loc_name = "raw",
-                      spatlocs = my_locs)
+my_giotto_object <- set_spatial_locations(my_giotto_object,
+                                          spat_unit = "cell",
+                                          spat_loc_name = "raw",
+                                          spatlocs = my_locs)
 }
 \seealso{
 Other spatial location data accessor functions: 
