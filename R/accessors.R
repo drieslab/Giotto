@@ -19,7 +19,6 @@
 #'
 #' @examples
 #' library(Giotto)
-#' my_giotto_object <- data("my_giotto_object.rda", package = "Giotto")
 #' get_expression_values(my_giotto_object,
 #'                       spat_unit = "cell",
 #'                       feat_type = "rna",
