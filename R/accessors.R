@@ -131,11 +131,15 @@ set_expression_values <- function(gobject,
 #' @name get_spatial_locations
 #' @description Function to get a spatial location data.table
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param spat_loc_name name of spatial locations (defaults to first name in spatial_locs slot)
+#' @param spat_unit spatial unit, e.g. "cell"
+#' @param spat_loc_name name of spatial locations (defaults to first name in spatial_locs slot), e.g. "raw"
 #' @return data.table with coordinates
 #' @family spatial location data accessor functions
 #' @family functions to get data from giotto object
+#' @examples
+#' get_spatial_locations(my_giotto_object,
+#'                       spat_unit = "cell",
+#'                       spat_loc_name = "raw")
 #' @export
 get_spatial_locations <- function(gobject,
                                   spat_unit = NULL,

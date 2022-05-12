@@ -9,15 +9,20 @@ get_spatial_locations(gobject, spat_unit = NULL, spat_loc_name = NULL)
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit, e.g. "cell"}
 
-\item{spat_loc_name}{name of spatial locations (defaults to first name in spatial_locs slot)}
+\item{spat_loc_name}{name of spatial locations (defaults to first name in spatial_locs slot), e.g. "raw"}
 }
 \value{
 data.table with coordinates
 }
 \description{
 Function to get a spatial location data.table
+}
+\examples{
+get_spatial_locations(my_giotto_object,
+                      spat_unit = "cell",
+                      spat_loc_name = "raw")
 }
 \seealso{
 Other spatial location data accessor functions: 
