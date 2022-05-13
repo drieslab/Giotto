@@ -178,19 +178,13 @@ select_spatial_locations = function(...) {
 #' @name set_spatial_locations
 #' @description Function to set a spatial location slot
 #' @param gobject giotto object
-#' @param spat_unit spatial unit,  e.g. "cell"
+#' @param spat_unit spatial unit (e.g. "cell")
 #' @param spat_loc_name name of spatial locations, default "raw"
 #' @param spatlocs spatial locations
 #' @param verbose be verbose
 #' @return giotto object
 #' @family spatial location data accessor functions
 #' @family functions to set data in giotto object
-#' @examples
-#' my_locs <- data.table::data.table(sdimx = rnorm(633), sdimy = rnorm(633), cell_ID = 1:633)
-#' my_giotto_object <- set_spatial_locations(my_giotto_object,
-#'                                           spat_unit = "cell",
-#'                                           spat_loc_name = "raw",
-#'                                           spatlocs = my_locs)
 #' @export
 set_spatial_locations <- function(gobject,
                                   spat_unit = NULL,
