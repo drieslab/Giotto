@@ -11,9 +11,9 @@ select_expression_values(...)
   Arguments passed on to \code{\link[=get_expression_values]{get_expression_values}}
   \describe{
     \item{\code{gobject}}{giotto object}
-    \item{\code{spat_unit}}{spatial unit, e.g. "cell"}
-    \item{\code{feat_type}}{feature type, e.g. "rna", "dna", "protein"}
-    \item{\code{values}}{expression values to extract, e.g. "raw", "normalized", "scaled"}
+    \item{\code{spat_unit}}{spatial unit (e.g. "cell")}
+    \item{\code{feat_type}}{feature type (e.g. "rna", "dna", "protein")}
+    \item{\code{values}}{expression values to extract (e.g. "raw", "normalized", "scaled")}
   }}
 }
 \description{

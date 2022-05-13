@@ -10,18 +10,12 @@
 #' @name  get_expression_values
 #' @description Function to get expression values from giotto object
 #' @param gobject giotto object
-#' @param spat_unit spatial unit, e.g. "cell"
-#' @param feat_type feature type, e.g. "rna", "dna", "protein"
-#' @param values expression values to extract, e.g. "raw", "normalized", "scaled"
+#' @param spat_unit spatial unit (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
+#' @param values expression values to extract (e.g. "raw", "normalized", "scaled")
 #' @return expression matrix
 #' @family expression accessor functions
 #' @family functions to get data from giotto object
-#'
-#' @examples
-#' get_expression_values(my_giotto_object,
-#'                       spat_unit = "cell",
-#'                       feat_type = "rna",
-#'                       values = "raw")
 #' @export
 get_expression_values <- function(gobject,
                                   feat_type = NULL,
