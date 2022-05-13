@@ -1654,7 +1654,9 @@ runtSNE <- function(gobject,
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
-#' @inheritParams harmony::HarmonyMatrix
+#' @param vars_use If meta_data is dataframe, this defines which variable(s) to
+#'   remove (character vector).
+#' @param do_pca Whether to perform PCA on input matrix.
 #' @param expression_values expression values to use
 #' @param reduction reduction on cells or features
 #' @param dim_reduction_to_use use another dimension reduction set as input

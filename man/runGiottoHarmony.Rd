@@ -30,8 +30,8 @@ runGiottoHarmony(
 
 \item{feat_type}{feature type}
 
-\item{vars_use}{If meta_data is dataframe, this defined which variable(s) 
-to remove (character vector).}
+\item{vars_use}{If meta_data is dataframe, this defines which variable(s) to
+remove (character vector).}
 
 \item{do_pca}{Whether to perform PCA on input matrix.}
 

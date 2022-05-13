@@ -2785,7 +2785,7 @@ showPatternGenes <- function(gobject,
     return(subset)
   }
 
-  pl <- ggplot()
+  pl <- ggplot2::ggplot()
   pl <- pl + ggplot2::theme_classic()
   pl <- pl + ggplot2::geom_point(data = subset, aes_string(x = selected_PC, y = 'gene_ID'), size = point_size)
   pl <- pl + ggplot2::geom_vline(xintercept = 0, linetype = 2)
