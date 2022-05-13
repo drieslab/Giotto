@@ -17,13 +17,13 @@ get_dimReduction(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit, e.g. "cell"}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
-\item{feat_type}{feature type, e.g. "rna", "dna", "protein"}
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
-\item{reduction}{reduction on cells or features, eg, "cells", "feats"}
+\item{reduction}{reduction on cells or features (e.g. "cells", "feats")}
 
-\item{reduction_method}{reduction method, e.g. "pca", "umap", "tsne"}
+\item{reduction_method}{reduction method (e.g. "pca", "umap", "tsne")}
 
 \item{name}{name of reduction results}
 
@@ -34,11 +34,6 @@ dim reduction coordinates (default) or dim reduction object
 }
 \description{
 Function to get a dimension reduction object
-}
-\examples{
-get_dimReduction(my_giotto_object,
-                 spat_unit = "cell",
-                 feat_type = "rna")
 }
 \seealso{
 Other dimensional reduction data accessor functions: 

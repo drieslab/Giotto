@@ -11,10 +11,10 @@ select_dimReduction(...)
   Arguments passed on to \code{\link[=get_dimReduction]{get_dimReduction}}
   \describe{
     \item{\code{gobject}}{giotto object}
-    \item{\code{spat_unit}}{spatial unit, e.g. "cell"}
-    \item{\code{feat_type}}{feature type, e.g. "rna", "dna", "protein"}
-    \item{\code{reduction}}{reduction on cells or features, eg, "cells", "feats"}
-    \item{\code{reduction_method}}{reduction method, e.g. "pca", "umap", "tsne"}
+    \item{\code{spat_unit}}{spatial unit (e.g. "cell")}
+    \item{\code{feat_type}}{feature type (e.g. "rna", "dna", "protein")}
+    \item{\code{reduction}}{reduction on cells or features (e.g. "cells", "feats")}
+    \item{\code{reduction_method}}{reduction method (e.g. "pca", "umap", "tsne")}
     \item{\code{name}}{name of reduction results}
     \item{\code{return_dimObj}}{return full dimension object result. Default = FALSE}
   }}
