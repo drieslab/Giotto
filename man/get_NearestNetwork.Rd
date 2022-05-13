@@ -16,21 +16,34 @@ get_NearestNetwork(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit, e.g. "cell"}
 
-\item{feat_type}{feature type}
+\item{feat_type}{feature type, e.g. "rna", "dna", "protein"}
 
 \item{nn_network_to_use}{kNN or sNN}
 
 \item{network_name}{name of NN network to be used}
 
-\item{output}{return a igraph or data.table object}
+\item{output}{return a igraph or data.table object. Default 'igraph'}
 }
 \value{
 igraph or data.table object
 }
 \description{
 Get a NN-network from a Giotto object
+}
+\examples{
+get_NearestNetwork(my_giotto_object,
+                   spat_unit = "cell",
+                   feat_type = "rna")
+
+# get output as data.table
+get_NearestNetwork(my_giotto_object,
+                   spat_unit = "cell",
+                   feat_type = "rna",
+                   nn_network_to_use = "sNN",
+                   network_name = "sNN.pca",
+                   output = "data.table")
 }
 \seealso{
 Other expression space nearest network accessor functions: 

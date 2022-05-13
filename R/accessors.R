@@ -399,14 +399,26 @@ set_dimReduction <- function(gobject,
 #' @name get_NearestNetwork
 #' @description Get a NN-network from a Giotto object
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
+#' @param spat_unit spatial unit, e.g. "cell"
+#' @param feat_type feature type, e.g. "rna", "dna", "protein"
 #' @param nn_network_to_use kNN or sNN
 #' @param network_name name of NN network to be used
-#' @param output return a igraph or data.table object
+#' @param output return a igraph or data.table object. Default 'igraph'
 #' @return igraph or data.table object
 #' @family expression space nearest network accessor functions
 #' @family functions to get data from giotto object
+#' @examples
+#' get_NearestNetwork(my_giotto_object,
+#'                    spat_unit = "cell",
+#'                    feat_type = "rna")
+#'
+#' # get output as data.table
+#' get_NearestNetwork(my_giotto_object,
+#'                    spat_unit = "cell",
+#'                    feat_type = "rna",
+#'                    nn_network_to_use = "sNN",
+#'                    network_name = "sNN.pca",
+#'                    output = "data.table")
 #' @export
 get_NearestNetwork = function(gobject,
                               spat_unit = NULL,
