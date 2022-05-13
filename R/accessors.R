@@ -451,9 +451,9 @@ select_NearestNetwork = function(...) {
 #' @name set_NearestNetwork
 #' @description Set a NN-network for a Giotto object
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
-#' @param nn_network_to_use kNN or sNN
+#' @param spat_unit spatial unit (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
+#' @param nn_network_to_use "kNN" or "sNN"
 #' @param network_name name of NN network to be used
 #' @param nn_network nearest network
 #' @return giotto object
