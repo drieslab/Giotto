@@ -502,8 +502,8 @@ set_NearestNetwork = function(gobject,
 #' @name get_spatialNetwork
 #' @description Function to get a spatial network
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
+#' @param spat_unit spatial unit (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @param name name of spatial network
 #' @param return_network_Obj return network object (default = FALSE)
 #' @family spatial network data accessor functions
