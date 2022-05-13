@@ -300,33 +300,15 @@ select_dimReduction = function(...) {
 #' @name set_dimReduction
 #' @description Function to set a dimension reduction slot
 #' @param gobject giotto object
-#' @param spat_unit spatial unit, e.g. "cell"
-#' @param feat_type feature type, e.g. "rna", "dna", "protein"
+#' @param spat_unit spatial unit (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @param reduction reduction on cells or features
 #' @param reduction_method reduction method (e.g. "pca")
 #' @param name name of reduction results
 #' @param dimObject dimension object result to set
 #' @return giotto object
 #' @family dimensional reduction data accessor functions
-#' @family functions to set data in giotto object
-#' @examples
-#' expr_values = Giotto:::create_feats_to_use_matrix(gobject = my_giotto_object,
-#'                                                   spat_unit = "cell",
-#'                                                   feat_type = "rna",
-#'                                                   sel_matrix = my_giotto_object@expression$cell$rna$raw,
-#'                                                   feats_to_use = 'hvf')
-#' pca_object <- Giotto:::runPCA_factominer(x = Giotto:::t_flex(expr_values),
-#'                                          scale = TRUE,
-#'                                          ncp = 100, rev = FALSE,
-#'                                          set_seed = TRUE,
-#'                                          seed_number = 1234)
-#' my_giotto_object <- set_dimReduction(my_giotto_object,
-#'                                      spat_unit = "cell",
-#'                                      feat_type = "rna",
-#'                                      reduction = "genes",
-#'                                      reduction_method = "pca",
-#'                                      name = "pca",
-#'                                      dimObject = pca_object)
+#' @family functions to set data in giotto object                                    dimObject = pca_object)
 #' @export
 set_dimReduction <- function(gobject,
                              spat_unit = NULL,

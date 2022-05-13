@@ -17,9 +17,9 @@ set_dimReduction(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit, e.g. "cell"}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
-\item{feat_type}{feature type, e.g. "rna", "dna", "protein"}
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
 \item{reduction}{reduction on cells or features}
 
@@ -35,39 +35,9 @@ giotto object
 \description{
 Function to set a dimension reduction slot
 }
-\examples{
-expr_values = Giotto:::create_feats_to_use_matrix(gobject = my_giotto_object,
-                                                  spat_unit = "cell",
-                                                  feat_type = "rna",
-                                                  sel_matrix = my_giotto_object@expression$cell$rna$raw,
-                                                  feats_to_use = 'hvf')
-pca_object <- Giotto:::runPCA_factominer(x = Giotto:::t_flex(expr_values),
-                                         scale = TRUE,
-                                         ncp = 100, rev = FALSE,
-                                         set_seed = TRUE,
-                                         seed_number = 1234)
-my_giotto_object <- set_dimReduction(my_giotto_object,
-                                     spat_unit = "cell",
-                                     feat_type = "rna",
-                                     reduction = "genes",
-                                     reduction_method = "pca",
-                                     name = "pca",
-                                     dimObject = pca_object)
-}
 \seealso{
 Other dimensional reduction data accessor functions: 
 \code{\link{get_dimReduction}()}
-
-Other functions to set data in giotto object: 
-\code{\link{set_NearestNetwork}()},
-\code{\link{set_expression_values}()},
-\code{\link{set_feature_info}()},
-\code{\link{set_giottoImage}()},
-\code{\link{set_polygon_info}()},
-\code{\link{set_spatialGrid}()},
-\code{\link{set_spatialNetwork}()},
-\code{\link{set_spatial_enrichment}()},
-\code{\link{set_spatial_locations}()}
 }
 \concept{dimensional reduction data accessor functions}
-\concept{functions to set data in giotto object}
+\concept{functions to set data in giotto object                                    dimObject = pca_object)}
