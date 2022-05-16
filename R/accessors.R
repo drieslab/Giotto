@@ -605,8 +605,8 @@ set_spatialNetwork <- function(gobject,
 #' @name get_spatialGrid
 #' @description Function to get spatial grid
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
+#' @param spat_unit spatial unit (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @param name name of spatial grid
 #' @param return_grid_Obj return grid object (default = FALSE)
 #' @family spatial grid data accessor functions
