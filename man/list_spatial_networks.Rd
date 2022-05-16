@@ -9,7 +9,7 @@ list_spatial_networks(gobject, spat_unit = NULL)
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 }
 \value{
 data.table of names and locations of available spatial networks. col order matters

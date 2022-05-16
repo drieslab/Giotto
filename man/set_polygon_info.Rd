@@ -9,7 +9,7 @@ set_polygon_info(gobject, polygon_name = "cell", gpolygon)
 \arguments{
 \item{gobject}{giotto object}
 
-\item{polygon_name}{name of polygons}
+\item{polygon_name}{name of polygons. Default "cell"}
 
 \item{gpolygon}{giotto polygon}
 }

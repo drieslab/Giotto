@@ -9,7 +9,7 @@ list_spatial_locations_names(gobject, spat_unit)
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 }
 \value{
 vector with names of available spatial locations

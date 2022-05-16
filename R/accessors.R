@@ -661,8 +661,8 @@ select_spatialGrid = function(...) {
 #' @name set_spatialGrid
 #' @description Function to set a spatial grid
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
+#' @param spat_unit spatial unit (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @param name name of spatial grid
 #' @param spatial_grid spatial grid object
 #' @return giotto object
@@ -712,7 +712,7 @@ set_spatialGrid <- function(gobject,
 #' @name get_polygon_info
 #' @description Get giotto polygon spatVector
 #' @param gobject giotto object
-#' @param polygon_name name of polygons
+#' @param polygon_name name of polygons. Default "cell"
 #' @param polygon_overlap include polygon overlap information
 #' @family polygon info data accessor functions
 #' @family functions to get data from giotto object
@@ -762,7 +762,7 @@ select_polygon_info = function(...) {
 #' @name set_polygon_info
 #' @description Set giotto polygon spatVector
 #' @param gobject giotto object
-#' @param polygon_name name of polygons
+#' @param polygon_name name of polygons. Default "cell"
 #' @param gpolygon giotto polygon
 #' @return giotto object
 #' @family polygon info data accessor functions
@@ -800,7 +800,7 @@ set_polygon_info = function(gobject,
 #' @name get_feature_info
 #' @description Get giotto points spatVector
 #' @param gobject giotto object
-#' @param feat_type name of feature
+#' @param feat_type name of feature (e.g. "rna", "dna", "protein")
 #' @family feature info data accessor functions
 #' @family functions to get data from giotto object
 #' @export
@@ -839,7 +839,7 @@ select_feature_info = function(...) {
 #' @name set_feature_info
 #' @description Set giotto polygon spatVector for features
 #' @param gobject giotto object
-#' @param feat_type name of feat
+#' @param feat_type name of feat (e.g. "rna", "dna", "protein")
 #' @param gpolygon giotto polygon
 #' @return giotto object
 #' @family feature info data accessor functions
@@ -878,9 +878,9 @@ set_feature_info = function(gobject,
 #' @name get_spatial_enrichment
 #' @description Function to get a spatial enrichment data.table
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
-#' @param enrichm_name name of spatial enrichment results
+#' @param spat_unit spatial unit (e.g."cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
+#' @param enrichm_name name of spatial enrichment results. Default "DWLS"
 #' @return data.table with fractions
 #' @family spatial enrichment data accessor functions
 #' @family functions to get data from giotto object
@@ -929,9 +929,9 @@ get_spatial_enrichment <- function(gobject,
 #' @name set_spatial_enrichment
 #' @description Function to set a spatial enrichment slot
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
-#' @param enrichm_name name of spatial enrichment results
+#' @param spat_unit spatial unit (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
+#' @param enrichm_name name of spatial enrichment results. Default "DWLS"
 #' @param spatenrichment spatial enrichment results
 #' @return giotto object
 #' @family spatial enrichment data accessor functions
@@ -1111,7 +1111,7 @@ set_giottoLargeImage = function(gobject,
 #' @name get_giottoImage
 #' @description Get giotto image object from gobject
 #' @param gobject giotto object
-#' @param image_type type of giotto image object
+#' @param image_type type of giotto image object. Either "image" or "largeImage"
 #' @param name name of a giotto image object \code{\link{showGiottoImageNames}}
 #' @return a giotto image object
 #' @family image data accessor functions
@@ -1149,7 +1149,7 @@ get_giottoImage = function(gobject = NULL,
 #' @param gobject giotto object
 #' @param image giotto image object to be attached without modification to the
 #'   giotto object
-#' @param image_type type of giotto image object
+#' @param image_type type of giotto image object. Either "image" or "largeImage"
 #' @param name name of giotto image object
 #' @param verbose be verbose
 #' @return giotto object
@@ -1538,7 +1538,7 @@ showGiottoImageNames = function(gobject) {
 #' @name list_giotto_data
 #' @description list the available data within specified giotto object slot
 #' @param gobject giotto object
-#' @param slot giotto object slot of interest
+#' @param slot giotto object slot of interest (e.g. "expression", "spatial_locs", etc.)
 #' @param ... additional params to pass
 #' @return names and locations of data within giotto object slot
 #' @keywords internal
@@ -1566,8 +1566,8 @@ list_giotto_data = function(gobject = NULL,
 #' @name list_expression
 #' @description lists the available matrices
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
+#' @param spat_unit spatial unit (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @return names and locations of available matrices as data.table. col order matters.
 list_expression = function(gobject,
                            spat_unit = NULL,
@@ -1602,8 +1602,8 @@ list_expression = function(gobject,
 #' @name list_expression_names
 #' @description lists the available matrices names for a given spatial unit and feature type
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
+#' @param spat_unit spatial unit (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @return vector with names of available matrices
 list_expression_names = function(gobject,
                                  spat_unit,
@@ -1620,8 +1620,8 @@ list_expression_names = function(gobject,
 #' @name list_cell_metadata
 #' @description lists the available cell metadata
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
+#' @param spat_unit spatial unit (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @return names and locations of available cell metadata as data.table
 list_cell_metadata = function(gobject,
                               spat_unit = NULL,
@@ -1652,8 +1652,8 @@ list_cell_metadata = function(gobject,
 #' @name list_feat_metadata
 #' @description lists the available feature metadata
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
+#' @param spat_unit spatial unit (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @return names and locations of available feature metadata as data.table
 list_feat_metadata = function(gobject,
                               spat_unit = NULL,
@@ -1684,7 +1684,7 @@ list_feat_metadata = function(gobject,
 #' @name list_spatial_locations
 #' @description shows the available spatial locations
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
+#' @param spat_unit spatial unit (e.g. "cell")
 #' @return names and locations of available data.table as data.table
 list_spatial_locations = function(gobject,
                                   spat_unit = NULL) {
@@ -1713,7 +1713,7 @@ list_spatial_locations = function(gobject,
 #' @name list_spatial_locations_names
 #' @description lists the available spatial location names for a given spatial unit
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
+#' @param spat_unit spatial unit (e.g. "cell")
 #' @return vector with names of available spatial locations
 list_spatial_locations_names = function(gobject,
                                         spat_unit) {
@@ -1729,8 +1729,8 @@ list_spatial_locations_names = function(gobject,
 #' @name list_spatial_enrichments
 #' @description return the available spatial enrichment results
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
+#' @param spat_unit spatial unit (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @return names and locations of available data as data.table
 list_spatial_enrichments = function(gobject,
                                     spat_unit = NULL,
@@ -1771,8 +1771,8 @@ list_spatial_enrichments = function(gobject,
 #' @name list_spatial_enrichments_names
 #' @description returns the available spatial enrichment names for a given spatial unit
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
+#' @param spat_unit spatial unit (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @return vector of names for available spatial enrichments
 list_spatial_enrichments_names = function(gobject,
                                           spat_unit,
@@ -1791,10 +1791,10 @@ list_spatial_enrichments_names = function(gobject,
 #' @name list_dim_reductions
 #' @description return the available dimension reductions
 #' @param gobject giotto object
-#' @param data_type cells or feats data used in dim reduction
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
-#' @param dim_type dimensional reduction method
+#' @param data_type "cells" or "feats" data used in dim reduction
+#' @param spat_unit spatial unit (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
+#' @param dim_type dimensional reduction method (e.g. "pca", "umap")
 #' @return names and locations of dimension reduction as a data.table
 list_dim_reductions = function(gobject,
                                data_type = NULL,
@@ -1840,8 +1840,8 @@ list_dim_reductions = function(gobject,
 #' @description return the available dimension reductions object names
 #' @param gobject giotto object
 #' @param data_type cells or feats dim reduction
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
+#' @param spat_unit spatial unit (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @param dim_type dimensional reduction type (method)
 #' @return names pf dimension reduction object
 #' @details function that can be used to find which names have been used
@@ -1930,7 +1930,7 @@ list_feature_info_names = function(gobject) {
 #' @name list_spatial_networks
 #' @description return the available spatial networks that are attached to the Giotto object
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
+#' @param spat_unit spatial unit (e.g. "cell")
 #' @return data.table of names and locations of available spatial networks. col order matters
 list_spatial_networks = function(gobject,
                                  spat_unit = NULL) {
@@ -1958,8 +1958,8 @@ list_spatial_networks = function(gobject,
 #' @name list_spatial_networks_names
 #' @description return the available names for giotto feature information
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
+#' @param spat_unit spatial unit (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @return vector with names of available feature information
 list_spatial_networks_names = function(gobject,
                                        spat_unit = NULL,
@@ -1977,7 +1977,7 @@ list_spatial_networks_names = function(gobject,
 #' @name list_spatial_grids
 #' @description return the available spatial grids that are attached to the Giotto object
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
+#' @param spat_unit spatial unit (e.g. "cell")
 #' @return data.table of names and locations of available spatial grids. col order matters
 list_spatial_grids = function(gobject,
                               spat_unit = NULL) {
@@ -2007,7 +2007,7 @@ list_spatial_grids = function(gobject,
 #' @name list_spatial_grids_names
 #' @description return the available spatial grids name for a given spatial unit that are attached to the Giotto object
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
+#' @param spat_unit spatial unit (e.g. "cell")
 #' @return vector with names of available spatial grids names
 list_spatial_grids_names = function(gobject,
                                     spat_unit = NULL) {
@@ -2022,7 +2022,7 @@ list_spatial_grids_names = function(gobject,
 #' @name list_images
 #' @description Prints the available giotto images that are attached to the Giotto object
 #' @param gobject giotto object
-#' @param img_type image or largeImage
+#' @param img_type "image" or "largeImage"
 #' @return data.table of giotto image names attached to the giotto object
 list_images = function(gobject,
                        img_type = NULL) {
@@ -2065,7 +2065,7 @@ list_images = function(gobject,
 #' @name list_images_names
 #' @description return the available image names for a given image type that are attached to the Giotto object
 #' @param gobject a giotto object
-#' @param img_type image or largeImage
+#' @param img_type "image" or "largeImage"
 #' @return vector with names of available image names
 list_images_names = function(gobject,
                              img_type) {

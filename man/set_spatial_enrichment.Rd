@@ -15,11 +15,11 @@ set_spatial_enrichment(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
-\item{feat_type}{feature type}
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
-\item{enrichm_name}{name of spatial enrichment results}
+\item{enrichm_name}{name of spatial enrichment results. Default "DWLS"}
 
 \item{spatenrichment}{spatial enrichment results}
 }

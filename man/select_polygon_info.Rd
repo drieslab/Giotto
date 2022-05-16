@@ -11,7 +11,7 @@ select_polygon_info(...)
   Arguments passed on to \code{\link[=get_polygon_info]{get_polygon_info}}
   \describe{
     \item{\code{gobject}}{giotto object}
-    \item{\code{polygon_name}}{name of polygons}
+    \item{\code{polygon_name}}{name of polygons. Default "cell"}
     \item{\code{polygon_overlap}}{include polygon overlap information}
   }}
 }

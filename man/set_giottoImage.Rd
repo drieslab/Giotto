@@ -18,7 +18,7 @@ set_giottoImage(
 \item{image}{giotto image object to be attached without modification to the
 giotto object}
 
-\item{image_type}{type of giotto image object}
+\item{image_type}{type of giotto image object. Either "image" or "largeImage"}
 
 \item{name}{name of giotto image object}
 

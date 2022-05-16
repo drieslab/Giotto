@@ -9,7 +9,7 @@ set_feature_info(gobject, feat_type = NULL, gpolygon)
 \arguments{
 \item{gobject}{giotto object}
 
-\item{feat_type}{name of feat}
+\item{feat_type}{name of feat (e.g. "rna", "dna", "protein")}
 
 \item{gpolygon}{giotto polygon}
 }

@@ -9,7 +9,7 @@ list_images_names(gobject, img_type)
 \arguments{
 \item{gobject}{a giotto object}
 
-\item{img_type}{image or largeImage}
+\item{img_type}{"image" or "largeImage"}
 }
 \value{
 vector with names of available image names
