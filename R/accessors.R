@@ -560,8 +560,8 @@ select_spatialNetwork = function(...) {
 #' @name set_spatialNetwork
 #' @description Function to set a spatial network
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
+#' @param spat_unit spatial unit  (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @param name name of spatial network
 #' @param spatial_network spatial network
 #' @return giotto object
