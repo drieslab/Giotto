@@ -24,9 +24,7 @@ doScrubletDetect = function(gobject,
                             min_gene_variability_pctl = 85,
                             n_prin_comps = 30,
                             return_gobject = TRUE) {
-  
-  # declare function name
-  python_scrublet = NULL
+
   
   # verify if optional package is installed
   package_check(pkg_name = 'scrublet',

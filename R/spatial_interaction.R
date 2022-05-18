@@ -2775,6 +2775,7 @@ spatCellCellcom = function(gobject,
                            seed_number = 1234,
                            verbose = c('a little', 'a lot', 'none')) {
 
+  
   verbose = match.arg(verbose, choices = c('a little', 'a lot', 'none'))
 
   # Set feat_type and spat_unit
@@ -2807,7 +2808,7 @@ spatCellCellcom = function(gobject,
 
   cell_metadata = pDataDT(gobject,
                           feat_type = feat_type,
-                          spat_unit = spatial_unit)
+                          spat_unit = spat_unit)
 
   ## get all combinations between cell types
   all_uniq_values = unique(cell_metadata[[cluster_column]])

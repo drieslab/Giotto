@@ -121,6 +121,9 @@ create_giotto_polygon_object = function(name = 'cell',
 #' @keywords internal
 identify_background_range_polygons = function(spatVector) {
 
+  # define for data.table
+  x = y = geom = V1 = NULL
+  
   # identify polygon with the largest average range for x and y
   gDT = data.table::as.data.table(terra::geom(spatVector))
 
@@ -155,6 +158,7 @@ create_segm_polygons = function(maskfile,
                                 shift_horizontal_step = TRUE,
                                 remove_background_polygon = FALSE) {
 
+  
   if(!file.exists(maskfile)) {
     stop('path : ', maskfile, ' does not exist \n')
   }
@@ -168,11 +172,11 @@ create_segm_polygons = function(maskfile,
 
   ## flip axes ##
   if(flip_vertical == TRUE) {
-    terra_polygon = flip(terra_polygon, direction = 'vertical')
+    terra_polygon = terra::flip(terra_polygon, direction = 'vertical')
   }
 
   if(flip_horizontal == TRUE) {
-    terra_polygon = flip(terra_polygon, direction = 'horizontal')
+    terra_polygon = terra::flip(terra_polygon, direction = 'horizontal')
   }
 
   ## shift values ##
@@ -258,10 +262,8 @@ calculate_centroids_polygons = function(gpolygon,
 #' @keywords internal
 fix_multipart_geoms = function(spatVector) {
 
-  # overlap for .()
-  x = NULL
-  y = NULL
-  geom = NULL
+  # data.table variables
+  x = y = geom = part = NULL
   
   spatVecDT = spatVector_to_dt(spatVector)
   uniq_multi = unique(spatVecDT[part == 2]$geom)
@@ -510,6 +512,9 @@ createGiottoPolygonsFromDfr = function(segmdfr,
                                        name = 'cell',
                                        calc_centroids = FALSE) {
 
+  # define for data.table
+  geom = NULL
+  
   # input data.frame-like object
   # columns: x y cell_ID
   segmdt = data.table::as.data.table(segmdfr)
@@ -700,6 +705,9 @@ addGiottoPolygons = function(gobject,
 spatVector_to_dt = function(spatvector,
                             include_values = TRUE) {
 
+  # define for :=
+  geom = NULL
+  
   DT_geom = data.table::as.data.table(terra::geom(spatvector))
 
   if(include_values == TRUE) {
@@ -768,10 +776,10 @@ spline_poly <- function(xy, vertices = 20, k = 3, ...) {
   }
 
   # Spline the x and y coordinates.
-  data.spline <- spline(1:(n+2*k), data[,1], n=vertices, ...)
+  data.spline <- stats::spline(1:(n+2*k), data[,1], n=vertices, ...)
   x <- data.spline$x
   x1 <- data.spline$y
-  x2 <- spline(1:(n+2*k), data[,2], n=vertices, ...)$y
+  x2 <- stats::spline(1:(n+2*k), data[,2], n=vertices, ...)$y
 
   # Retain only the middle part.
   cbind(x1, x2)[k < x & x <= n+k, ]
@@ -801,6 +809,9 @@ smoothGiottoPolygons = function(gpolygon,
   # define for .()
   x = NULL
   y = NULL
+  
+  # define for data.table [] subsetting
+  geom = NULL
   
   polygDT = spatVector_to_dt(gpolygon@spatVector)
 
@@ -1274,7 +1285,9 @@ createSpatialFeaturesKNNnetwork_dbscan = function(gobject,
                                                   verbose = TRUE,
                                                   ...) {
 
-
+  # define for data.table
+  from_feat = from = to_feat = to = from_to_feat = NULL
+  
   ## 1. specify feat_type
   if(is.null(feat_type)) {
     gobject@feat_info[[1]]@feat_type
@@ -1759,6 +1772,9 @@ overlap_points_single_polygon = function(spatvec,
                                          poly_ID_name,
                                          pointvec_dt) {
 
+  # define for data.table
+  x = y = NULL
+  
   ## extract single polygon and get spatextent
   one_polygon_spatvector = spatvec[spatvec$poly_ID == poly_ID_name]
   ext_limits = terra::ext(one_polygon_spatvector)
@@ -2062,6 +2078,8 @@ overlapToMatrix = function(gobject,
                            feat_info = 'rna',
                            return_gobject = TRUE) {
 
+  # define for data.table
+  poly_ID = NULL
 
   overlap_spatvec = get_polygon_info(gobject = gobject,
                                      polygon_name = poly_info,
@@ -2144,9 +2162,8 @@ overlapToMatrixMultiPoly = function(gobject,
                                     return_gobject = TRUE) {
 
 
-  # define for .()
-  i = NULL
-  j = NULL
+  # define for data.table
+  i = j = x = NULL
   
   result_list = list()
   cell_ids_list = list()
@@ -2349,6 +2366,8 @@ combineFeatureData = function(gobject,
                               spat_unit = NULL,
                               sel_feats = NULL) {
 
+  # define for data.table [] subsetting
+  feat_ID = NULL
 
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
@@ -2415,6 +2434,8 @@ combineFeatureOverlapData = function(gobject,
                                      sel_feats = NULL,
                                      poly_info = c('cell')) {
 
+  # define for data.table [] subsetting
+  feat_ID = NULL
 
   poly_info = set_default_spat_unit(gobject = gobject,
                                     spat_unit = poly_info)

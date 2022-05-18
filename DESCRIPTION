@@ -51,6 +51,7 @@ Imports:
     lfa (>= 1.12.0),
     limma,
     Matrix,
+    MatrixGenerics,
     magick,
     magrittr,
     matrixStats (>= 0.55.0),

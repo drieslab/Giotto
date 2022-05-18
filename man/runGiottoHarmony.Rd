@@ -47,7 +47,7 @@ remove (character vector).}
 
 \item{name}{arbitrary name for Harmony run}
 
-\item{feats_to_use}{if dim_reduction_to_use = NULL, which genes to use}
+\item{feats_to_use}{if dim_reduction_to_use = NULL, which feats to use}
 
 \item{toplevel_params}{parameters to extract}
 

@@ -558,7 +558,7 @@ registerGiottoObjectListRvision = function(gobject_list = gobject_list,
   for(gobj_i in 1:length(gobject_list)) {
     gobj = gobject_list[[gobj_i]]
     spatloc = get_spatial_locations(gobject = gobj, ###Tag for editing later
-                                    spat_loc_name = spat_loc_name)
+                                    spat_loc_name = spatloc_unreg)
     # Put all spatial location data together
     spatloc_list[[gobj_i]] = spatloc
   }

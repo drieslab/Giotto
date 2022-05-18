@@ -1663,7 +1663,7 @@ runtSNE <- function(gobject,
 #' @param dim_reduction_name name of dimension reduction set to use
 #' @param dimensions_to_use number of dimensions to use as input
 #' @param name arbitrary name for Harmony run
-#' @param feats_to_use if dim_reduction_to_use = NULL, which genes to use
+#' @param feats_to_use if dim_reduction_to_use = NULL, which feats to use
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param toplevel_params parameters to extract
 #' @param verbose be verbose
@@ -1764,7 +1764,7 @@ runGiottoHarmony = function(gobject,
 
 
     ## subset matrix
-    if(!is.null(genes_to_use)) {
+    if(!is.null(feats_to_use)) {
       expr_values = create_feats_to_use_matrix(gobject = gobject,
                                                feat_type = feat_type,
                                                spat_unit = spat_unit,

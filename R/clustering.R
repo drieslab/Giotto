@@ -359,8 +359,8 @@ doLouvainCluster_multinet <- function(gobject,
 
   # create mlnetworkobject
   mln_object <- multinet::ml_empty()
-  multinet::add_actors_ml(mlnetwork = mln_object, actors = igraph::V(igraph_object))
-  multinet::add_igraph_layer_ml(mlnetwork = mln_object, g = igraph_object, name = name)
+  multinet::add_vertices_ml(n = mln_object, vertices = igraph::V(igraph_object))
+  multinet::add_igraph_layer_ml(n = mln_object, g = igraph_object, name = name)
 
   # start seed
   if(set_seed == TRUE) {
@@ -370,7 +370,7 @@ doLouvainCluster_multinet <- function(gobject,
   # data.table variables
   cell_ID = actor = weight_col = NULL
 
-  louvain_clusters = multinet::glouvain_ml(mlnetwork = mln_object, gamma = gamma, omega = omega)
+  louvain_clusters = multinet::glouvain_ml(n = mln_object, gamma = gamma, omega = omega)
   ident_clusters_DT = data.table::as.data.table(louvain_clusters)
   ident_clusters_DT[, cell_ID := actor]
   data.table::setnames(ident_clusters_DT, 'cid', name)
