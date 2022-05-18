@@ -9,8 +9,11 @@ calc_cov_group_HVF = function(feat_in_cells_detected,
                               return_plot = NA,
                               save_plot = NA) {
 
-  # define for :=
+  # define for := and ggplot
   cov_group_zscore = NULL
+  cov = NULL
+  selected = NULL
+  mean_expr = NULL
   
   steps = 1/nr_expression_groups
   prob_sequence = seq(0, 1, steps)
@@ -59,6 +62,11 @@ calc_cov_loess_HVF = function(feat_in_cells_detected,
                               return_plot = NA,
                               save_plot = NA) {
 
+  # define for :=
+  cov_diff = NULL
+  pred_cov_feats = NULL
+  selected = NULL
+  
   # create loess regression
   loess_formula = paste0('cov~log(mean_expr)')
   var_col = 'cov'
@@ -99,6 +107,10 @@ calc_var_HVF = function(scaled_matrix,
                         return_plot = NA,
                         save_plot = NA) {
 
+  # define for :=
+  var = NULL
+  selected = NULL
+  
   test = apply(X = scaled_matrix, MARGIN = 1, FUN = function(x) var(x))
   test = sort(test, decreasing = T)
 
@@ -197,7 +209,7 @@ calculateHVF <- function(gobject,
                          return_gobject = TRUE) {
 
   # set data.table variables to NULL
-  sd = cov = mean_expr = gini = cov_group_zscore = selected = cov_diff = pred_cov_feats = feats = NULL
+  sd = cov = mean_expr = gini = cov_group_zscore = selected = cov_diff = pred_cov_feats = feats = var = NULL
 
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,

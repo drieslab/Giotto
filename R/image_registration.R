@@ -549,12 +549,16 @@ registerGiottoObjectListRvision = function(gobject_list = gobject_list,
                                            spatloc_reg_name = 'raw',
                                            verbose = TRUE) { #Not used
   
+  package_check(pkg_name = 'Rvision',
+                repository = c('github'),
+                github_repo = 'swarm-lab/Rvision')
+  
   ## 1. get spatial coordinates and put in list ##
   spatloc_list = list()
   for(gobj_i in 1:length(gobject_list)) {
     gobj = gobject_list[[gobj_i]]
     spatloc = get_spatial_locations(gobject = gobj, ###Tag for editing later
-                                    spat_loc_name = spat_loc_name)
+                                    spat_loc_name = spatloc_unreg)
     # Put all spatial location data together
     spatloc_list[[gobj_i]] = spatloc
   }
@@ -649,19 +653,19 @@ registerGiottoObjectListRvision = function(gobject_list = gobject_list,
 
 ### FIJI related functions ####
 
-#' @title fiji
-#' @description \code{fiji} returns path to preferred Fiji executable
+#' @title Find Fiji location
+#' @name fiji
+#' @description \code{fiji} returns path to preferred Fiji executable. \cr
+#'   This function is modified from jimpipeline by jefferislab
+#'   
 #' @rdname runFijiMacro
 #' @param fijiPath manually set filepath to Fiji executable
 #' @export
 #' @examples
-#' # Path to current Fiji executable
-#' \donttest{
-#' fiji()
-#' }
-#'
 #' \dontrun{
-#' # This function was taken and modified from jimpipeline by jefferislab #
+#' # Path to current Fiji executable
+#' fiji()
+#'
 #' # Set path to preferred Fiji executable (this will be remembered)
 #' # you can also set options(giotto.fiji="/some/path")
 #' fiji("/Applications/Fiji.app/Contents/MacOS/ImageJ-macosx")

@@ -71,14 +71,14 @@ spatNetwDistributionsDistance <- function(gobject,
   freq_dt = spatial_network[, table(cut(distance, breaks = 30)), by = rank_int]
   middle_height = max(freq_dt$V1)/(3/2)
 
-  pl = ggplot()
-  pl = pl + labs(title = 'distance distribution per k-neighbor')
-  pl = pl + theme_classic()
-  pl = pl + geom_histogram(data = spatial_network, aes(x = distance), color = 'white', fill = 'black', bins = hist_bins)
-  pl = pl + facet_wrap(~rank_int, ncol = ncol)
+  pl = ggplot2::ggplot()
+  pl = pl + ggplot2::labs(title = 'distance distribution per k-neighbor')
+  pl = pl + ggplot2::theme_classic()
+  pl = pl + ggplot2::geom_histogram(data = spatial_network, ggplot2::aes(x = distance), color = 'white', fill = 'black', bins = hist_bins)
+  pl = pl + ggplot2::facet_wrap(~rank_int, ncol = ncol)
   if(!is.null(test_distance_limit)) {
-    pl = pl + geom_vline(xintercept = test_distance_limit, color = 'red')
-    pl = pl + geom_text(data = dist_removal_dt_dcast, aes(x = middle_distance, y = middle_height, label = label))
+    pl = pl + ggplot2::geom_vline(xintercept = test_distance_limit, color = 'red')
+    pl = pl + ggplot2::geom_text(data = dist_removal_dt_dcast, ggplot2::aes(x = middle_distance, y = middle_height, label = label))
   }
 
   # print, return and save parameters
@@ -153,10 +153,10 @@ spatNetwDistributionsKneighbors = function(gobject,
 
   spatial_network_dt = as.data.table(spatial_network[, table(source)])
 
-  pl = ggplot()
-  pl = pl + labs(title = 'k-neighbor distribution for all cells', x = 'k-neighbors/cell')
-  pl = pl + theme_classic()
-  pl = pl + geom_histogram(data = spatial_network_dt, aes(x = N), color = 'white', fill = 'black', bins = hist_bins)
+  pl = ggplot2::ggplot()
+  pl = pl + ggplot2::labs(title = 'k-neighbor distribution for all cells', x = 'k-neighbors/cell')
+  pl = pl + ggplot2::theme_classic()
+  pl = pl + ggplot2::geom_histogram(data = spatial_network_dt, ggplot2::aes(x = N), color = 'white', fill = 'black', bins = hist_bins)
 
 
   # print, return and save parameters
@@ -1249,21 +1249,21 @@ plotStatDelaunayNetwork = function(gobject,
 
 
   ## create visuals
-  pl1 = ggplot(delaunay_network_DT, aes(x=factor(""), y=distance))
-  pl1 = pl1 + theme_classic() + theme(plot.title = element_text(hjust=0.5))
-  pl1 = pl1 + geom_boxplot(outlier.colour = "red", outlier.shape = 1)
-  pl1 = pl1 + labs(title = 'Delaunay network', y = 'cell-cell distances', x = '')
+  pl1 = ggplot2::ggplot(delaunay_network_DT, ggplot2::aes(x=factor(""), y=distance))
+  pl1 = pl1 + ggplot2::theme_classic() + ggplot2::theme(plot.title = ggplot2::element_text(hjust=0.5))
+  pl1 = pl1 + ggplot2::geom_boxplot(outlier.colour = "red", outlier.shape = 1)
+  pl1 = pl1 + ggplot2::labs(title = 'Delaunay network', y = 'cell-cell distances', x = '')
 
-  pl2 = ggplot(delaunay_network_DT_c, aes(x=factor(rank_int), y=distance))
-  pl2 = pl2 + theme_classic() + theme(plot.title = element_text(hjust=0.5))
-  pl2 = pl2 + geom_boxplot(outlier.colour = "red", outlier.shape = 1)
-  pl2 = pl2 + labs(title = 'Delaunay network by neigbor ranking', y = 'cell-cell distances', x = '')
+  pl2 = ggplot2::ggplot(delaunay_network_DT_c, ggplot2::aes(x=factor(rank_int), y=distance))
+  pl2 = pl2 + ggplot2::theme_classic() + ggplot2::theme(plot.title = ggplot2::element_text(hjust=0.5))
+  pl2 = pl2 + ggplot2::geom_boxplot(outlier.colour = "red", outlier.shape = 1)
+  pl2 = pl2 + ggplot2::labs(title = 'Delaunay network by neigbor ranking', y = 'cell-cell distances', x = '')
 
   neighbors = delaunay_network_DT_c[, .N, by = source]
-  pl3 = ggplot()
-  pl3 = pl3 + theme_classic() + theme(plot.title = element_text(hjust=0.5))
-  pl3 = pl3 + geom_histogram(data = neighbors, aes(x = as.factor(N)), stat = 'count')
-  pl3 = pl3 + labs(title = 'Delaunay network neigbors per cell', y = 'count', x = '')
+  pl3 = ggplot2::ggplot()
+  pl3 = pl3 + ggplot2::theme_classic() + ggplot2::theme(plot.title = ggplot2::element_text(hjust=0.5))
+  pl3 = pl3 + ggplot2::geom_histogram(data = neighbors, ggplot2::aes(x = as.factor(N)), stat = 'count')
+  pl3 = pl3 + ggplot2::labs(title = 'Delaunay network neigbors per cell', y = 'count', x = '')
   pl3
 
   savelist = list(pl1, pl2, pl3)

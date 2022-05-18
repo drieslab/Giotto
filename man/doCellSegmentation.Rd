@@ -8,7 +8,8 @@ doCellSegmentation(
   raster_img,
   folder_path,
   reduce_resolution = 4,
-  overlapping_pixels = 50
+  overlapping_pixels = 50,
+  python_path = NULL
 )
 }
 \arguments{
@@ -21,6 +22,8 @@ better in the Mesmer algorithm if its resolution is reduced 4 times.}
 
 \item{overlapping_pixels}{numeric; the number of pixels to overlap when
 calculating the rolling window}
+
+\item{python_path}{specify specific path to python if required}
 }
 \description{
 segment cells in Dapi image

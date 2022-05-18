@@ -25,6 +25,8 @@ plot_cell_polygon_layer = function(ggobject = NULL,
                                    alpha = 0.5,
                                    size = 2) {
 
+  # data.table variables
+  final_fill = NULL
 
   # check fill column
   if(!is.null(fill)) {
@@ -179,6 +181,8 @@ plot_feature_points_layer = function(ggobject,
                                      show_legend = TRUE,
                                      plot_method = c('ggplot', 'scattermore', 'scattermost')) {
 
+  # data.table variables
+  feat_ID = NULL
 
   spatial_feat_info_subset = spatial_feat_info[feat_ID %in% unlist(feats)]
 
@@ -481,7 +485,8 @@ plot_feature_hexbin_layer = function(ggobject = NULL,
                                       bins = 10,
                                       alpha = 0.5) {
 
-
+  # data.table variables
+  feat_ID = NULL
 
   spatial_feat_info_subset = spatial_feat_info[feat_ID %in% sel_feat]
 
@@ -741,6 +746,9 @@ plot_feature_raster_density_layer = function(ggobject = NULL,
                                               sdimy = 'y',
                                               alpha = 0.5) {
 
+  # data.table variable
+  feat_ID = NULL
+  
   spatial_feat_info_subset = spatial_feat_info[feat_ID %in% unlist(sel_feat)]
 
   if(!is.null(ggobject) & methods::is(ggobject, 'ggplot')) {

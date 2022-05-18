@@ -441,6 +441,10 @@ subset_spatial_network = function(gobject,
                                   spat_unit,
                                   cells_to_keep) {
 
+  # define for data.table [] subset
+  to = NULL
+  from = NULL
+  
   # cell spatial network
   if(!is.null(gobject@spatial_network)) {
     for(spat_unit_name in names(gobject@spatial_network)) {
@@ -540,7 +544,7 @@ subset_nearest_network = function(gobject,
 
           # igraph object
           old_graph = gobject@nn_network[['cells']][[spat_unit_name]][['kNN']][[knn_name]][['igraph']]
-          vertices_to_keep = V(old_graph)[filter_bool_cells]
+          vertices_to_keep = igraph::V(old_graph)[filter_bool_cells]
           new_subgraph = igraph::subgraph(graph = old_graph, v = vertices_to_keep)
           gobject@nn_network[['cells']][[spat_unit_name]][['kNN']][[knn_name]][['igraph']] = new_subgraph
         }
@@ -557,7 +561,7 @@ subset_nearest_network = function(gobject,
 
           # igraph object
           old_graph = gobject@nn_network[['cells']][[spat_unit_name]][['sNN']][[snn_name]][['igraph']]
-          vertices_to_keep = V(old_graph)[filter_bool_cells]
+          vertices_to_keep = igraph::V(old_graph)[filter_bool_cells]
           new_subgraph = igraph::subgraph(graph = old_graph, v = vertices_to_keep)
           gobject@nn_network[['cells']][[spat_unit_name]][['sNN']][[snn_name]][['igraph']] = new_subgraph
         }
@@ -720,6 +724,10 @@ subset_giotto_points_object = function(gpoints,
                                        y_min = NULL,
                                        y_max = NULL) {
 
+  # define for data.table [] subset
+  x = NULL
+  y = NULL
+  
   if(!is.null(gpoints@spatVector)) {
 
     if(!is.null(feat_ids)) {
@@ -1805,8 +1813,8 @@ rna_pears_resid_normalization = function(gobject,
 
   if(methods::is(raw_expr, 'HDF5Matrix')) {
 
-    counts_sum0 = as(matrix(MatrixGenerics::colSums2(raw_expr),nrow=1),"HDF5Matrix")
-    counts_sum1 = as(matrix(MatrixGenerics::rowSums2(raw_expr),ncol=1),"HDF5Matrix")
+    counts_sum0 = methods::as(matrix(MatrixGenerics::colSums2(raw_expr),nrow=1),"HDF5Matrix")
+    counts_sum1 = methods::as(matrix(MatrixGenerics::rowSums2(raw_expr),ncol=1),"HDF5Matrix")
     counts_sum  = sum(raw_expr)
 
     #get residuals
@@ -1821,8 +1829,8 @@ rna_pears_resid_normalization = function(gobject,
   } else {
 
 
-    counts_sum0 = as(matrix(Matrix::colSums(raw_expr),nrow=1),"dgCMatrix")
-    counts_sum1 = as(matrix(Matrix::rowSums(raw_expr),ncol=1),"dgCMatrix")
+    counts_sum0 = methods::as(matrix(Matrix::colSums(raw_expr),nrow=1),"dgCMatrix")
+    counts_sum1 = methods::as(matrix(Matrix::rowSums(raw_expr),ncol=1),"dgCMatrix")
     counts_sum  = sum(raw_expr)
 
     #get residuals
@@ -3458,6 +3466,8 @@ findNetworkNeighbors = function(gobject,
 merge_spatial_locs_feat_info = function(spatial_info,
                                         feature_info) {
 
+  # data.table variables
+  cell_ID = used = NULL
 
   reslist = list()
   for(i in 1:length(unique(spatial_info$cell_ID))) {
@@ -3513,6 +3523,8 @@ combineSpatialCellFeatureInfo = function(gobject,
                                          feat_type = NULL,
                                          selected_features = NULL) {
 
+  # define for data.table
+  feat_ID = NULL
 
   # combine
   # 1. spatial morphology information ( = polygon)

@@ -1779,11 +1779,17 @@ silhouetteRankTest = function(gobject,
   #write.table(x = as.matrix(expr_values),
   #            file = paste0(silh_output_dir,'/', 'expression.txt'),
   #            quote = F, sep = '\t', col.names=NA)
-  data.table::fwrite(data.table::as.data.table(expr_values, keep.rownames="gene"), file=fs::path(silh_output_dir, "expression.txt"), quot=F, sep="\t", col.names=T, row.names=F)
+  silh_output_dir_norm = normalizePath(silh_output_dir)
+  expr_values_path_norm = paste0(silh_output_dir_norm,'/', 'expression.txt')
+  
+  data.table::fwrite(data.table::as.data.table(expr_values, keep.rownames="gene"),
+                     file=expr_values_path_norm,
+                     quot=F,
+                     sep="\t",
+                     col.names=T,
+                     row.names=F)
 
   expr_values_path = paste0(silh_output_dir,'/', 'expression.txt')
-
-
 
   ## prepare python path and louvain script
   python_path = readGiottoInstructions(gobject, param = 'python_path')
@@ -2785,7 +2791,7 @@ showPatternGenes <- function(gobject,
     return(subset)
   }
 
-  pl <- ggplot()
+  pl <- ggplot2::ggplot()
   pl <- pl + ggplot2::theme_classic()
   pl <- pl + ggplot2::geom_point(data = subset, aes_string(x = selected_PC, y = 'gene_ID'), size = point_size)
   pl <- pl + ggplot2::geom_vline(xintercept = 0, linetype = 2)

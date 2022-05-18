@@ -9931,6 +9931,11 @@ spatDimGenePlot3D <- function(gobject,
 #' @export
 plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
 
+  # data.table variables
+  y = name = NULL
+  
+  if(is.null(x)) stop('plot object is empty')
+  
   ui <- miniPage(
     gadgetTitleBar("Plot Interactive Polygons"),
     miniContentPanel(
@@ -9960,7 +9965,7 @@ plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
           theme(legend.position = 'none')
       } else {
         terra::plot(x)
-        lapply(split(clicklist(), by = "name"), function (x) polygon(x$x, x$y, ...) )
+        lapply(split(clicklist(), by = "name"), function (x) graphics::polygon(x$x, x$y, ...) )
       }
     }, res = 96, width = width, height = height)
 
@@ -10026,10 +10031,10 @@ getCellsFromPolygon <- function(gobject,
   }
 
   ## get polygon spatvector
-  my_polygon_spatplot <- slot(slot(gobject, polygon_slot)$cell,"spatVector")
+  my_polygon_spatplot <- methods::slot(methods::slot(gobject, polygon_slot)$cell,"spatVector")
 
   ## get spatial locs from cells
-  my_spatial_locs <- slot(gobject, cells_loc_slot)$cell$raw
+  my_spatial_locs <- methods::slot(gobject, cells_loc_slot)$cell$raw
 
   ## create spatvector from spatial locs
   my_cells_spatplot <- terra::vect(as.matrix(my_spatial_locs[,1:2]),
@@ -10083,7 +10088,7 @@ addCellsFromPolygon <- function(gobject,
   }
 
   ## get original metadas
-  cell_metadata <- slot(gobject, "cell_metadata")$cell[[feat_type]]
+  cell_metadata <- methods::slot(gobject, "cell_metadata")$cell[[feat_type]]
 
   ## convert cellsFromPolygon to data frame
   cellsFromPolygondata <- as.data.frame(cellsFromPolygon)
