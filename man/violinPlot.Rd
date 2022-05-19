@@ -29,25 +29,25 @@ violinPlot(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
-\item{feat_type}{feature type}
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
-\item{expression_values}{expression values to use}
+\item{expression_values}{expression values to use (e.g. "normalized", "scaled", "custom")}
 
 \item{feats}{features to plot}
 
 \item{genes}{deprecated, use feats argument}
 
-\item{cluster_column}{name of column to use for clusters}
+\item{cluster_column}{name of column to use for clusters (e.g. "leiden_clus")}
 
 \item{cluster_custom_order}{custom order of clusters}
 
-\item{color_violin}{color violin according to genes or clusters}
+\item{color_violin}{color violin according to "genes" or "clusters"}
 
 \item{cluster_color_code}{color code for clusters}
 
-\item{strip_position}{position of gene labels}
+\item{strip_position}{position of gene labels (e.g. "top", "right", "left", "bottom")}
 
 \item{strip_text}{size of strip text}
 
@@ -55,11 +55,11 @@ violinPlot(
 
 \item{axis_text_y_size}{size of y-axis text}
 
-\item{show_plot}{show plot}
+\item{show_plot}{show plot. TRUE or FALSE}
 
-\item{return_plot}{return ggplot object}
+\item{return_plot}{return ggplot object. TRUE or FALSE}
 
-\item{save_plot}{directly save the plot [boolean]}
+\item{save_plot}{directly save the plot. TRUE or FALSE}
 
 \item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 
