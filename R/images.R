@@ -258,7 +258,7 @@ createGiottoImage = function(gobject = NULL,
     if(file.exists(mg_object)) {
       g_image@file_path = mg_object
       mg_object = try(magick::image_read(mg_object))
-      if(class(mg_object) == 'try-error') {
+      if(inherits(mg_object, 'try-error')) {
         stop(mg_object, ' can not be read by magick::image_read() \n')
       }
     } else {
@@ -458,7 +458,7 @@ createGiottoLargeImage = function(raster_object,
     if(file.exists(raster_object)) {
       g_imageL@file_path = raster_object
       raster_object = try(suppressWarnings(terra::rast(x = raster_object)))
-      if(class(raster_object) == 'try-error') {
+      if(inherits(raster_object, 'try-error')) {
         stop(raster_object, ' can not be read by terra::rast() \n')
       }
     } else {
@@ -809,7 +809,7 @@ createGiottoImageOLD = function(gobject = NULL,
   if(!methods::is(mg_object, 'magick-image')) {
     if(file.exists(mg_object)) {
       mg_object = try(magick::image_read(mg_object))
-      if(class(mg_object) == 'try-error') {
+      if(inherits(mg_object, 'try-error')) {
         stop(mg_object, ' can not be read by magick::image_read() \n')
       }
     } else {

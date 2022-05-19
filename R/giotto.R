@@ -257,7 +257,7 @@ set_giotto_python_path = function(python_path = NULL,
           python_path = try(system('where python', intern = T))
         }
 
-        if(class(python_path) == "try-error") {
+        if(inherits(python_path, 'try-error')) {
           cat('\n no python path found, set it manually when needed \n')
           python_path = '/need/to/set/path/to/python'
         } else {
@@ -402,7 +402,7 @@ readGiottoInstructions <- function(giotto_instructions,
                                    param = NULL) {
 
   # get instructions if provided the giotto object
-  if(class(giotto_instructions) == 'giotto') {
+  if(inherits(giotto_instructions, 'giotto')) {
     giotto_instructions = giotto_instructions@instructions
   }
 
