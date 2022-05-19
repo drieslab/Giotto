@@ -9,7 +9,7 @@ list_images(gobject, img_type = NULL)
 \arguments{
 \item{gobject}{giotto object}
 
-\item{img_type}{image or largeImage}
+\item{img_type}{"image" or "largeImage"}
 }
 \value{
 data.table of giotto image names attached to the giotto object

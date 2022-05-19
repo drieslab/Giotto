@@ -18,7 +18,7 @@ set_giottoImage(
 \item{image}{giotto image object to be attached without modification to the
 giotto object}
 
-\item{image_type}{type of giotto image object}
+\item{image_type}{type of giotto image object. Either "image" or "largeImage"}
 
 \item{name}{name of giotto image object}
 
@@ -45,7 +45,6 @@ Other image data accessor functions:
 
 Other functions to set data in giotto object: 
 \code{\link{set_NearestNetwork}()},
-\code{\link{set_dimReduction}()},
 \code{\link{set_expression_values}()},
 \code{\link{set_feature_info}()},
 \code{\link{set_polygon_info}()},

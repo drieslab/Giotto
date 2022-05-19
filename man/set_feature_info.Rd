@@ -9,7 +9,7 @@ set_feature_info(gobject, feat_type = NULL, gpolygon)
 \arguments{
 \item{gobject}{giotto object}
 
-\item{feat_type}{name of feat}
+\item{feat_type}{name of feat (e.g. "rna", "dna", "protein")}
 
 \item{gpolygon}{giotto polygon}
 }
@@ -25,7 +25,6 @@ Other feature info data accessor functions:
 
 Other functions to set data in giotto object: 
 \code{\link{set_NearestNetwork}()},
-\code{\link{set_dimReduction}()},
 \code{\link{set_expression_values}()},
 \code{\link{set_giottoImage}()},
 \code{\link{set_polygon_info}()},

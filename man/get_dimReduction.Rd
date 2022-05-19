@@ -17,17 +17,17 @@ get_dimReduction(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
-\item{feat_type}{feature type}
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
-\item{reduction}{reduction on cells or features}
+\item{reduction}{reduction on cells or features (e.g. "cells", "feats")}
 
-\item{reduction_method}{reduction method (e.g. pca)}
+\item{reduction_method}{reduction method (e.g. "pca", "umap", "tsne")}
 
 \item{name}{name of reduction results}
 
-\item{return_dimObj}{return full dimension object result}
+\item{return_dimObj}{return full dimension object result. Default = FALSE}
 }
 \value{
 dim reduction coordinates (default) or dim reduction object

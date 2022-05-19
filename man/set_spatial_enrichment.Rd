@@ -15,11 +15,11 @@ set_spatial_enrichment(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
-\item{feat_type}{feature type}
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
-\item{enrichm_name}{name of spatial enrichment results}
+\item{enrichm_name}{name of spatial enrichment results. Default "DWLS"}
 
 \item{spatenrichment}{spatial enrichment results}
 }
@@ -35,7 +35,6 @@ Other spatial enrichment data accessor functions:
 
 Other functions to set data in giotto object: 
 \code{\link{set_NearestNetwork}()},
-\code{\link{set_dimReduction}()},
 \code{\link{set_expression_values}()},
 \code{\link{set_feature_info}()},
 \code{\link{set_giottoImage}()},

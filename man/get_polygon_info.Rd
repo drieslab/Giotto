@@ -9,7 +9,7 @@ get_polygon_info(gobject, polygon_name = "cell", polygon_overlap = NULL)
 \arguments{
 \item{gobject}{giotto object}
 
-\item{polygon_name}{name of polygons}
+\item{polygon_name}{name of polygons. Default "cell"}
 
 \item{polygon_overlap}{include polygon overlap information}
 }

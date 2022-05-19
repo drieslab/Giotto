@@ -15,13 +15,13 @@ list_dim_reductions(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{data_type}{cells or feats data used in dim reduction}
+\item{data_type}{"cells" or "feats" data used in dim reduction}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
-\item{feat_type}{feature type}
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
-\item{dim_type}{dimensional reduction method}
+\item{dim_type}{dimensional reduction method (e.g. "pca", "umap")}
 }
 \value{
 names and locations of dimension reduction as a data.table

@@ -9,7 +9,7 @@ list_spatial_locations(gobject, spat_unit = NULL)
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 }
 \value{
 names and locations of available data.table as data.table

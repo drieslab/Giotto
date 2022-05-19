@@ -15,9 +15,9 @@ set_spatial_locations(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
-\item{spat_loc_name}{name of spatial locations}
+\item{spat_loc_name}{name of spatial locations, default "raw"}
 
 \item{spatlocs}{spatial locations}
 
@@ -35,7 +35,6 @@ Other spatial location data accessor functions:
 
 Other functions to set data in giotto object: 
 \code{\link{set_NearestNetwork}()},
-\code{\link{set_dimReduction}()},
 \code{\link{set_expression_values}()},
 \code{\link{set_feature_info}()},
 \code{\link{set_giottoImage}()},

@@ -13,7 +13,7 @@ get_giottoImage(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{image_type}{type of giotto image object}
+\item{image_type}{type of giotto image object. Either "image" or "largeImage"}
 
 \item{name}{name of a giotto image object \code{\link{showGiottoImageNames}}}
 }

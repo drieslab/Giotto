@@ -9,9 +9,9 @@ list_expression(gobject, spat_unit = NULL, feat_type = NULL)
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
-\item{feat_type}{feature type}
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 }
 \value{
 names and locations of available matrices as data.table. col order matters.

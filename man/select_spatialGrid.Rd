@@ -11,8 +11,8 @@ select_spatialGrid(...)
   Arguments passed on to \code{\link[=get_spatialGrid]{get_spatialGrid}}
   \describe{
     \item{\code{gobject}}{giotto object}
-    \item{\code{spat_unit}}{spatial unit}
-    \item{\code{feat_type}}{feature type}
+    \item{\code{spat_unit}}{spatial unit (e.g. "cell")}
+    \item{\code{feat_type}}{feature type (e.g. "rna", "dna", "protein")}
     \item{\code{name}}{name of spatial grid}
     \item{\code{return_grid_Obj}}{return grid object (default = FALSE)}
   }}

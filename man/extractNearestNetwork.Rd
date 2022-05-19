@@ -11,11 +11,11 @@ extractNearestNetwork(...)
   Arguments passed on to \code{\link[=get_NearestNetwork]{get_NearestNetwork}}
   \describe{
     \item{\code{gobject}}{giotto object}
-    \item{\code{spat_unit}}{spatial unit}
-    \item{\code{feat_type}}{feature type}
-    \item{\code{nn_network_to_use}}{kNN or sNN}
+    \item{\code{spat_unit}}{spatial unit (e.g. "cell")}
+    \item{\code{feat_type}}{feature type (e.g. "rna", "dna", "protein")}
+    \item{\code{nn_network_to_use}}{"kNN" or "sNN"}
     \item{\code{network_name}}{name of NN network to be used}
-    \item{\code{output}}{return a igraph or data.table object}
+    \item{\code{output}}{return a igraph or data.table object. Default 'igraph'}
   }}
 }
 \description{
