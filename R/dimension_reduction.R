@@ -1654,21 +1654,23 @@ runtSNE <- function(gobject,
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
-#' @inheritParams harmony::HarmonyMatrix
+#' @param vars_use If meta_data is dataframe, this defines which variable(s) to
+#'   remove (character vector).
+#' @param do_pca Whether to perform PCA on input matrix.
 #' @param expression_values expression values to use
 #' @param reduction reduction on cells or features
 #' @param dim_reduction_to_use use another dimension reduction set as input
 #' @param dim_reduction_name name of dimension reduction set to use
 #' @param dimensions_to_use number of dimensions to use as input
 #' @param name arbitrary name for Harmony run
-#' @param feats_to_use if dim_reduction_to_use = NULL, which genes to use
+#' @param feats_to_use if dim_reduction_to_use = NULL, which feats to use
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param toplevel_params parameters to extract
 #' @param verbose be verbose
 #' @param ... additional Harmony parameters
 #' @return giotto object with updated Harmony dimension recuction
 #' @details See \code{\link[harmony]{HarmonyMatrix}} for more information about these and other parameters.
-#' This is a simple wrapper for the HarmonyMatrix function in the Harmony package.
+#' This is a simple wrapper for the HarmonyMatrix function in the Harmony package \doi{10.1038/s41592-019-0619-0}.
 #' @export
 runGiottoHarmony = function(gobject,
                             spat_unit = NULL,
@@ -1762,7 +1764,7 @@ runGiottoHarmony = function(gobject,
 
 
     ## subset matrix
-    if(!is.null(genes_to_use)) {
+    if(!is.null(feats_to_use)) {
       expr_values = create_feats_to_use_matrix(gobject = gobject,
                                                feat_type = feat_type,
                                                spat_unit = spat_unit,

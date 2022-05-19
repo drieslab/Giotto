@@ -30,8 +30,8 @@ runGiottoHarmony(
 
 \item{feat_type}{feature type}
 
-\item{vars_use}{If meta_data is dataframe, this defined which variable(s) 
-to remove (character vector).}
+\item{vars_use}{If meta_data is dataframe, this defines which variable(s) to
+remove (character vector).}
 
 \item{do_pca}{Whether to perform PCA on input matrix.}
 
@@ -47,7 +47,7 @@ to remove (character vector).}
 
 \item{name}{arbitrary name for Harmony run}
 
-\item{feats_to_use}{if dim_reduction_to_use = NULL, which genes to use}
+\item{feats_to_use}{if dim_reduction_to_use = NULL, which feats to use}
 
 \item{toplevel_params}{parameters to extract}
 
@@ -65,5 +65,5 @@ run UMAP
 }
 \details{
 See \code{\link[harmony]{HarmonyMatrix}} for more information about these and other parameters.
-This is a simple wrapper for the HarmonyMatrix function in the Harmony package.
+This is a simple wrapper for the HarmonyMatrix function in the Harmony package \doi{10.1038/s41592-019-0619-0}.
 }

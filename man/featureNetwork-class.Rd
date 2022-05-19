@@ -23,7 +23,4 @@ contains feature network information
 \item{\code{full}}{fully connected network}
 }}
 
-\keyword{class}
-\keyword{giotto,}
-\keyword{network,}
-\keyword{points,}
+\concept{giotto points network class}

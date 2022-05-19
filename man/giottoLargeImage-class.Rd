@@ -34,6 +34,4 @@ class to handle images too large to load in normally through magick
 \item{\code{OS_platform}}{Operating System to run Giotto analysis on}
 }}
 
-\keyword{giotto,}
-\keyword{image}
-\keyword{object,}
+\concept{giotto object image}

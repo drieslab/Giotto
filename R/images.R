@@ -4,7 +4,7 @@
 
 #' @title S4 giottoImage Class
 #' @description Framework of giotto object to store and work with spatial expression data
-#' @keywords giotto, object
+#' @concept giotto image object
 #' @slot name name of Giotto image
 #' @slot mg_object magick image object
 #' @slot minmax minimum and maximum of associated spatial location coordinates
@@ -101,7 +101,7 @@ setMethod(
 
 #' @title S4 giottoLargeImage Class
 #' @description class to handle images too large to load in normally through magick
-#' @keywords giotto, object, image
+#' @concept giotto object image
 #' @slot name name of large Giotto image
 #' @slot raster_object terra raster object
 #' @slot extent tracks the extent of the raster object. Note that most processes should rely on the extent of the raster object instead of this.
@@ -258,7 +258,7 @@ createGiottoImage = function(gobject = NULL,
     if(file.exists(mg_object)) {
       g_image@file_path = mg_object
       mg_object = try(magick::image_read(mg_object))
-      if(class(mg_object) == 'try-error') {
+      if(inherits(mg_object, 'try-error')) {
         stop(mg_object, ' can not be read by magick::image_read() \n')
       }
     } else {
@@ -458,7 +458,7 @@ createGiottoLargeImage = function(raster_object,
     if(file.exists(raster_object)) {
       g_imageL@file_path = raster_object
       raster_object = try(suppressWarnings(terra::rast(x = raster_object)))
-      if(class(raster_object) == 'try-error') {
+      if(inherits(raster_object, 'try-error')) {
         stop(raster_object, ' can not be read by terra::rast() \n')
       }
     } else {
@@ -469,7 +469,13 @@ createGiottoLargeImage = function(raster_object,
 
   # Prevent updates to original raster object input
   if(getNamespaceVersion('terra') >= '1.15-12') raster_object = terra::deepcopy(raster_object)
-  else raster_object = terra::copy(raster_object)
+  else {
+    # raster_object = terra::copy(raster_object)
+    if(isTRUE(verbose)) warning('\n If largeImage was created from a terra raster
+                                object, manipulations to the giotto image may be
+                                reflected in the raster object as well. Update
+                                terra to >= 1.15-12 to avoid this issue. \n')
+  }
 
 
   ## 2. image bound spatial extent
@@ -803,12 +809,12 @@ createGiottoImageOLD = function(gobject = NULL,
   if(!methods::is(mg_object, 'magick-image')) {
     if(file.exists(mg_object)) {
       mg_object = try(magick::image_read(mg_object))
-      if(class(mg_object) == 'try-error') {
+      if(inherits(mg_object, 'try-error')) {
         stop(mg_object, ' can not be read by magick::image_read() \n')
       }
     } else {
       stop("mg_object needs to be an image object 'magick-image' from the magick package or \n
-           an existig path that can be read by magick::image_read()")
+           an existing path that can be read by magick::image_read()")
     }
   }
 
@@ -2137,7 +2143,13 @@ updateGiottoLargeImage = function(gobject = NULL,
   # 4. Update the boundaries
   if(return_gobject == FALSE) {
     if(getNamespaceVersion('terra') >= '1.15-12') g_imageL@raster_object = terra::deepcopy(g_imageL@raster_object)
-    else g_imageL@raster_object = terra::copy(g_imageL@raster_object)
+    else {
+      # g_imageL@raster_object = terra::copy(g_imageL@raster_object)
+      if(isTRUE(verbose)) warning('\n If largeImage was created from a terra raster
+                                object, manipulations to the giotto image may be
+                                reflected in the raster object as well. Update
+                                terra to >= 1.15-12 to avoid this issue. \n')
+    }
   }
   terra::ext(g_imageL@raster_object) = c(xmin_final,
                                          xmax_final,
@@ -2224,7 +2236,13 @@ addGiottoLargeImage = function(gobject = NULL,
 
       # Deep copy the raster_object
       if(getNamespaceVersion('terra') >= '1.15-12') im@raster_object = terra::deepcopy(im@raster_object)
-      else im@raster_object = terra::copy(im@raster_object)
+      else {
+        # im@raster_object = terra::copy(im@raster_object)
+        if(isTRUE(verbose)) warning('\n If largeImage was created from a terra raster
+                                object, manipulations to the giotto image may be
+                                reflected in the raster object as well. Update
+                                terra to >= 1.15-12 to avoid this issue. \n')
+      }
 
       # # 3. Update boundaries if not already done during createGiottoImage() due to lack of spatlocs and gobject
       # if(sum(im@boundaries == c(0,0,0,0)) == 4 && sum(im@minmax == c(10,0,10,0)) == 4) {
@@ -2709,10 +2727,10 @@ reconnectGiottoImage = function(gobject,
                                       image_type = image_type)
       
       # update file_path
-      img_list[[image_type]] = lapply(X = 1:length(img_list[[image_type]],
+      img_list[[image_type]] = lapply(X = 1:length(img_list[[image_type]]),
                                                    function(x) {
                                                      img_list[[image_type]][[x]]@file_path = img_path[[image_type]][[x]]
-                                                   }))
+                                                   })
       
     }
     

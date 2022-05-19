@@ -26,6 +26,4 @@ data.table with combined spatial polygon information
 \description{
 combine feature data information
 }
-\keyword{combine}
-\keyword{feature}
-\keyword{metadata}
+\concept{combine feature metadata}

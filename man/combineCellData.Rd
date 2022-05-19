@@ -32,6 +32,4 @@ data.table with combined spatial information
 \description{
 combine cell data information
 }
-\keyword{cell}
-\keyword{combine}
-\keyword{metadata}
+\concept{combine cell metadata}

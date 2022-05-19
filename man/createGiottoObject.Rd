@@ -107,4 +107,4 @@ This data can also be added afterwards using the \code{\link{addFeatMetadata}} o
   \item{images}
 }
 }
-\keyword{giotto}
+\concept{giotto}

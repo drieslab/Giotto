@@ -3,7 +3,7 @@
 
 #' @title S4 giotto Class
 #' @description Framework of giotto object to store and work with spatial expression data
-#' @keywords giotto, object
+#' @concept giotto object
 #' @slot expression expression information
 #' @slot expression_feat available features (e.g. rna, protein, ...)
 #' @slot spatial_locs spatial location coordinates for cells/spots/grids
@@ -28,7 +28,7 @@
 #' @details
 #' [\strong{expression}] There are several ways to provide expression information:
 #'
-#' [\strong{expression_feat}] The different featurs or modalities such as rna, protein, metabolites, ...
+#' [\strong{expression_feat}] The different features or modalities such as rna, protein, metabolites, ...
 #' that are provided in the expression slot.
 #'
 #'
@@ -100,16 +100,20 @@ setMethod(
 
     cat("An object of class",  class(object), "\n")
 
-    for(feat_type in unique(object@expression_feat)) {
-      cat("features = ", feat_type, "\n")
-
-      cat(
-        nrow(x = object@expression[[feat_type]][['raw']]),
-        "features across",
-        ncol(x = object@expression[[feat_type]][['raw']]),
-        "samples.\n \n"
-      )
+    for(spat_unit in names(object@expression_feat)) {
+      cat('spatial units = ', spat_unit, '\n')
+      for(feat_type in unique(object@expression_feat)) {
+        cat("features = ", feat_type, "\n")
+        
+        cat(
+          nrow(x = object@expression[[spat_unit]][[feat_type]][['raw']]),
+          "features across",
+          ncol(x = object@expression[[spat_unit]][[feat_type]][['raw']]),
+          "samples.\n \n"
+        )
+      }
     }
+
 
     cat('Steps and parameters used: \n \n')
     print(object@parameters)
@@ -253,7 +257,7 @@ set_giotto_python_path = function(python_path = NULL,
           python_path = try(system('where python', intern = T))
         }
 
-        if(class(python_path) == "try-error") {
+        if(inherits(python_path, 'try-error')) {
           cat('\n no python path found, set it manually when needed \n')
           python_path = '/need/to/set/path/to/python'
         } else {
@@ -398,7 +402,7 @@ readGiottoInstructions <- function(giotto_instructions,
                                    param = NULL) {
 
   # get instructions if provided the giotto object
-  if(class(giotto_instructions) == 'giotto') {
+  if(inherits(giotto_instructions, 'giotto')) {
     giotto_instructions = giotto_instructions@instructions
   }
 
@@ -805,6 +809,9 @@ set_cell_metadata = function(gobject,
 
   # if metadata is not provided, then:
   # create metadata for each spatial unit and feature type combination
+  
+  # define for data.table :=
+  cell_ID = NULL
 
   if(is.null(cell_metadata)) {
 
@@ -855,6 +862,8 @@ set_cell_metadata = function(gobject,
 set_feature_metadata = function(gobject,
                                 feat_metadata) {
 
+  # define for data.table :=
+  feat_ID = NULL
 
   if(is.null(feat_metadata)) {
 
@@ -986,6 +995,9 @@ evaluate_spatial_locations_OLD = function(spatial_locs,
 #' @keywords internal
 evaluate_spatial_locations = function(spatial_locs,
                                       cores = 1) {
+  
+  # data.table variables
+  cell_ID = NULL
 
   if(!any(class(spatial_locs) %in% c('data.table', 'data.frame', 'matrix', 'character'))) {
     stop('spatial_locs needs to be a data.table or data.frame-like object or a path to one of these')
@@ -1168,7 +1180,7 @@ check_spatial_location_data = function(gobject) {
 
         if(nrow(gobject@spatial_locs[[spat_unit]][[coord]]) != length(expected_cell_ID_names)) {
           stop('Number of rows of spatial locations do not match with cell IDs for: \n
-                 spatial unit: ', region, ' and coordinates: ', coord, ' \n')
+                 spatial unit: ', spat_unit, ' and coordinates: ', coord, ' \n')
         }
 
         gobject@spatial_locs[[spat_unit]][[coord]][['cell_ID']] = expected_cell_ID_names
@@ -1584,7 +1596,7 @@ evaluate_feat_info = function(spatial_feat_info,
 #'   \item{images}
 #' }
 #'
-#' @keywords giotto
+#' @concept giotto
 #' @importFrom methods new
 #' @export
 createGiottoObject <- function(expression,
@@ -2171,7 +2183,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 #' @param cores how many cores or threads to use to read data if paths are provided
 #' @param verbose be verbose when building Giotto object
 #' @return giotto object
-#' @keywords giotto
+#' @concept giotto
 #' @export
 createGiottoObjectSubcellular = function(gpoints = NULL,
                                          gpolygons = NULL,
@@ -2192,6 +2204,9 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
                                          cores = NA,
                                          verbose = TRUE) {
 
+  # define for data.table :=
+  cell_ID = NULL
+  feat_ID = NULL
 
   # create minimum giotto
   gobject = giotto(expression = NULL,
@@ -2705,7 +2720,7 @@ join_cell_meta = function(dt_list) {
 #' @param y_padding padding between datasets/images if method is shift
 #' @param verbose be verbose
 #' @return giotto object
-#' @keywords giotto
+#' @concept giotto
 #' @export
 joinGiottoObjects = function(gobject_list,
                              gobject_names = NULL,
@@ -2717,6 +2732,12 @@ joinGiottoObjects = function(gobject_list,
                              y_padding = 0,
                              verbose = TRUE) {
 
+  # define for data.table := and .()
+  sdimz = NULL
+  cell_ID = NULL
+  sdimx = NULL
+  sdimy = NULL
+  
   ## determine join method
   join_method = match.arg(arg = join_method, choices = c('shift', 'z_stack'))
 
@@ -3054,26 +3075,48 @@ joinGiottoObjects = function(gobject_list,
 
   ## 2. prepare for new giotto object ##
   ## -------------------------------- ##
-  comb_gobject = Giotto:::giotto(expression = list(),
-                                 expression_feat = first_features,
-                                 spatial_locs = NULL,
-                                 spatial_info = NULL,
-                                 cell_metadata = NULL,
-                                 feat_metadata = NULL,
-                                 feat_info = NULL,
-                                 cell_ID = NULL,
-                                 feat_ID = NULL,
-                                 spatial_network = NULL,
-                                 spatial_grid = NULL,
-                                 spatial_enrichment = NULL,
-                                 dimension_reduction = NULL,
-                                 nn_network = NULL,
-                                 images = NULL,
-                                 parameters = NULL,
-                                 offset_file = NULL,
-                                 instructions = first_instructions,
-                                 OS_platform = .Platform[['OS.type']],
-                                 join_info = NULL)
+  comb_gobject = new('giotto',
+                     expression = list(),
+                     expression_feat = first_features,
+                     spatial_locs = NULL,
+                     spatial_info = NULL,
+                     cell_metadata = NULL,
+                     feat_metadata = NULL,
+                     feat_info = NULL,
+                     cell_ID = NULL,
+                     feat_ID = NULL,
+                     spatial_network = NULL,
+                     spatial_grid = NULL,
+                     spatial_enrichment = NULL,
+                     dimension_reduction = NULL,
+                     nn_network = NULL,
+                     images = NULL,
+                     parameters = NULL,
+                     offset_file = NULL,
+                     instructions = first_instructions,
+                     OS_platform = .Platform[['OS.type']],
+                     join_info = NULL)
+  
+  # comb_gobject = Giotto:::giotto(expression = list(),
+  #                                expression_feat = first_features,
+  #                                spatial_locs = NULL,
+  #                                spatial_info = NULL,
+  #                                cell_metadata = NULL,
+  #                                feat_metadata = NULL,
+  #                                feat_info = NULL,
+  #                                cell_ID = NULL,
+  #                                feat_ID = NULL,
+  #                                spatial_network = NULL,
+  #                                spatial_grid = NULL,
+  #                                spatial_enrichment = NULL,
+  #                                dimension_reduction = NULL,
+  #                                nn_network = NULL,
+  #                                images = NULL,
+  #                                parameters = NULL,
+  #                                offset_file = NULL,
+  #                                instructions = first_instructions,
+  #                                OS_platform = .Platform[['OS.type']],
+  #                                join_info = NULL)
 
 
 

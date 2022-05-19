@@ -132,7 +132,7 @@ pDataDT <- function(gobject,
   if(inherits(gobject, c('ExpressionSet', 'SCESet'))) {
     return(data.table::as.data.table(Biobase::pData(gobject)))
   }
-  else if(class(gobject) == 'giotto') {
+  else if(inherits(gobject, 'giotto')) {
     return(gobject@cell_metadata[[spat_unit]][[feat_type]])
   }
   else if(inherits(gobject, 'seurat')) {
@@ -163,7 +163,7 @@ fDataDT <- function(gobject,
   if(!inherits(gobject, c('ExpressionSet', 'SCESet', 'giotto'))) {
     stop('only works with ExpressionSet (-like) objects')
   }
-  else if(class(gobject) == 'giotto') {
+  else if(inherits(gobject, 'giotto')) {
     return(gobject@feat_metadata[[spat_unit]][[feat_type]])
   }
   return(data.table::as.data.table(Biobase::fData(gobject)))
@@ -441,6 +441,10 @@ subset_spatial_network = function(gobject,
                                   spat_unit,
                                   cells_to_keep) {
 
+  # define for data.table [] subset
+  to = NULL
+  from = NULL
+  
   # cell spatial network
   if(!is.null(gobject@spatial_network)) {
     for(spat_unit_name in names(gobject@spatial_network)) {
@@ -540,7 +544,7 @@ subset_nearest_network = function(gobject,
 
           # igraph object
           old_graph = gobject@nn_network[['cells']][[spat_unit_name]][['kNN']][[knn_name]][['igraph']]
-          vertices_to_keep = V(old_graph)[filter_bool_cells]
+          vertices_to_keep = igraph::V(old_graph)[filter_bool_cells]
           new_subgraph = igraph::subgraph(graph = old_graph, v = vertices_to_keep)
           gobject@nn_network[['cells']][[spat_unit_name]][['kNN']][[knn_name]][['igraph']] = new_subgraph
         }
@@ -557,7 +561,7 @@ subset_nearest_network = function(gobject,
 
           # igraph object
           old_graph = gobject@nn_network[['cells']][[spat_unit_name]][['sNN']][[snn_name]][['igraph']]
-          vertices_to_keep = V(old_graph)[filter_bool_cells]
+          vertices_to_keep = igraph::V(old_graph)[filter_bool_cells]
           new_subgraph = igraph::subgraph(graph = old_graph, v = vertices_to_keep)
           gobject@nn_network[['cells']][[spat_unit_name]][['sNN']][[snn_name]][['igraph']] = new_subgraph
         }
@@ -720,6 +724,10 @@ subset_giotto_points_object = function(gpoints,
                                        y_min = NULL,
                                        y_max = NULL) {
 
+  # define for data.table [] subset
+  x = NULL
+  y = NULL
+  
   if(!is.null(gpoints@spatVector)) {
 
     if(!is.null(feat_ids)) {
@@ -1805,8 +1813,8 @@ rna_pears_resid_normalization = function(gobject,
 
   if(methods::is(raw_expr, 'HDF5Matrix')) {
 
-    counts_sum0 = as(matrix(MatrixGenerics::colSums2(raw_expr),nrow=1),"HDF5Matrix")
-    counts_sum1 = as(matrix(MatrixGenerics::rowSums2(raw_expr),ncol=1),"HDF5Matrix")
+    counts_sum0 = methods::as(matrix(MatrixGenerics::colSums2(raw_expr),nrow=1),"HDF5Matrix")
+    counts_sum1 = methods::as(matrix(MatrixGenerics::rowSums2(raw_expr),ncol=1),"HDF5Matrix")
     counts_sum  = sum(raw_expr)
 
     #get residuals
@@ -1821,8 +1829,8 @@ rna_pears_resid_normalization = function(gobject,
   } else {
 
 
-    counts_sum0 = as(matrix(Matrix::colSums(raw_expr),nrow=1),"dgCMatrix")
-    counts_sum1 = as(matrix(Matrix::rowSums(raw_expr),ncol=1),"dgCMatrix")
+    counts_sum0 = methods::as(matrix(Matrix::colSums(raw_expr),nrow=1),"dgCMatrix")
+    counts_sum1 = methods::as(matrix(Matrix::rowSums(raw_expr),ncol=1),"dgCMatrix")
     counts_sum  = sum(raw_expr)
 
     #get residuals
@@ -2123,27 +2131,27 @@ processGiotto = function(gobject,
                          norm_params = list(),
                          stat_params = list(),
                          adjust_params = list(),
-                         verbose = TRUE){
+                         verbose = TRUE) {
 
   # filter Giotto
   if(verbose == TRUE) cat('1. start filter step \n')
-  if(class(filter_params) != 'list') stop('filter_params need to be a list of parameters for filterGiotto \n')
+  if(!inherits(filter_params, 'list')) stop('filter_params need to be a list of parameters for filterGiotto \n')
   gobject = do.call('filterGiotto', c(gobject = gobject, filter_params))
 
   # normalize Giotto
   if(verbose == TRUE) cat('2. start normalization step \n')
-  if(class(norm_params) != 'list') stop('norm_params need to be a list of parameters for normalizeGiotto \n')
+  if(!inherits(norm_params, 'list')) stop('norm_params need to be a list of parameters for normalizeGiotto \n')
   gobject = do.call('normalizeGiotto', c(gobject = gobject, norm_params))
 
   # add Statistics
   if(verbose == TRUE) cat('3. start cell and gene statistics step \n')
-  if(class(stat_params) != 'list') stop('stat_params need to be a list of parameters for addStatistics \n')
+  if(!inherits(stat_params, 'list')) stop('stat_params need to be a list of parameters for addStatistics \n')
   stat_params[['return_gobject']] = TRUE # force this to be true
   gobject = do.call('addStatistics', c(gobject = gobject, stat_params))
 
   # adjust Giotto
   if(verbose == TRUE) cat('3. start adjusted matrix step \n')
-  if(class(adjust_params) != 'list') stop('adjust_params need to be a list of parameters for adjustGiottoMatrix \n')
+  if(!inherits(adjust_params, 'list')) stop('adjust_params need to be a list of parameters for adjustGiottoMatrix \n')
   adjust_params[['return_gobject']] = TRUE # force this to be true
   gobject = do.call('adjustGiottoMatrix', c(gobject = gobject, adjust_params))
 
@@ -3458,6 +3466,8 @@ findNetworkNeighbors = function(gobject,
 merge_spatial_locs_feat_info = function(spatial_info,
                                         feature_info) {
 
+  # data.table variables
+  cell_ID = used = NULL
 
   reslist = list()
   for(i in 1:length(unique(spatial_info$cell_ID))) {
@@ -3513,6 +3523,8 @@ combineSpatialCellFeatureInfo = function(gobject,
                                          feat_type = NULL,
                                          selected_features = NULL) {
 
+  # define for data.table
+  feat_ID = NULL
 
   # combine
   # 1. spatial morphology information ( = polygon)

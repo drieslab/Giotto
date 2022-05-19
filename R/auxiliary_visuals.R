@@ -1126,7 +1126,7 @@ plotHeatmap <- function(gobject,
     featDT[, featOrder := 1:.N]
     featDT[, subset_feats := ifelse(feats %in% feat_label_selection, as.character(feats), '')]
 
-    axis <- ggplot(data = featDT, aes(x = 0, y = featOrder, label = subset_feats))
+    axis <- ggplot2::ggplot(data = featDT, aes(x = 0, y = featOrder, label = subset_feats))
     axis <- axis + ggrepel::geom_text_repel(min.segment.length = grid::unit(0, "pt"),
                                             color = "grey30",  ## ggplot2 theme_grey() axis text
                                             size = axis_text_y_size  ## default ggplot2 theme_grey() axis text

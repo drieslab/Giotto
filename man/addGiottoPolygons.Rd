@@ -18,4 +18,4 @@ giotto object
 \description{
 Adds Giotto polygon to an existing Giotto object
 }
-\keyword{polygon}
+\concept{polygon}

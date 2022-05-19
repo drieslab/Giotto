@@ -8,6 +8,7 @@
 #' better in the Mesmer algorithm if its resolution is reduced 4 times.
 #' @param overlapping_pixels numeric; the number of pixels to overlap when
 #' calculating the rolling window
+#' @param python_path specify specific path to python if required
 #' @details
 #' This function is a wrapper for the Mesmer algorithm implemented in python.
 #' It segments the cells in tissue by applying a rolling window on the complete
@@ -16,8 +17,14 @@
 #'
 #' @export
 doCellSegmentation <- function(raster_img, folder_path, reduce_resolution = 4,
-                               overlapping_pixels = 50){
+                               overlapping_pixels = 50,
+                               python_path = NULL){
 
+  # python path (requires use of gobject)
+  # if(is.null(python_path)) {
+  #   python_path = readGiottoInstructions(gobject, param = "python_path")
+  # }
+  
   # prepare python path and segmentation script
   reticulate::use_python(required = T, python = python_path)
   python_segmentation_function = system.file("python",

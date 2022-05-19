@@ -1812,7 +1812,7 @@ solve_dampened_WLSj <- function(S,
 #' @param return_gobject return giotto object
 #' @return giotto object or deconvolution results
 #' @seealso \url{https://github.com/dtsoucas/DWLS} for the \emph{DWLS} bulk deconvolution method,
-#' and \url{https://doi.org/10.1186/s13059-021-02362-7} for \emph{spatialDWLS}, the spatial implementation used here.
+#' and \doi{10.1186/s13059-021-02362-7} for \emph{spatialDWLS}, the spatial implementation used here.
 #' @export
 runDWLSDeconv <- function(gobject,
                           spat_unit = NULL,

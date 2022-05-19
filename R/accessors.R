@@ -3,6 +3,7 @@
 
 ## Get and set functions to get and set values in one of the giotto class slots ##
 
+#%%%%% NOTE: python, instructions, metadata accessors are currently in giotto.R %%%%%#
 
 ## expression values slot ####
 
@@ -1211,7 +1212,7 @@ showGiottoExpression = function(gobject, nrows = 4, ncols = 4) {
 
       cat('--> Feature: ', feature_type, ' \n\n')
 
-      for(mat_i in available_data[available_data$spat_unit == spat_unit & available_data$feat_type == feature_type,]$name) {
+      for(mat_i in available_data[available_data$spat_unit == spatial_unit & available_data$feat_type == feature_type,]$name) {
 
         cat('----> Name: ', mat_i, 'matrix: \n')
 
@@ -1264,6 +1265,10 @@ showGiottoSpatLocs = function(gobject, nrows = 4) {
 showGiottoSpatEnrichments = function(gobject,
                                      nrows = 4) {
 
+  # define for data.table [] subsetting
+  spat_unit = NULL
+  feat_type = NULL
+  
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
 
   available_data = list_spatial_enrichments(gobject = gobject)

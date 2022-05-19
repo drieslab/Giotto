@@ -23,6 +23,4 @@ holds polygon data
 \item{\code{overlaps}}{information about overlapping points and polygons}
 }}
 
-\keyword{class}
-\keyword{giotto,}
-\keyword{polygon,}
+\concept{giotto polygon class}

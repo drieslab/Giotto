@@ -43,4 +43,4 @@ parallel follows the future approach. This means that plan(multisession) does no
 since the underlying terra objects are internal C pointers. plan(multicore) is also not supported for
 Rstudio users.
 }
-\keyword{overlap}
+\concept{overlap}

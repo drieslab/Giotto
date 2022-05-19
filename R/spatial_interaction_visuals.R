@@ -279,7 +279,7 @@ cellProximityNetwork = function(gobject,
 
 
   # create coordinates for layout
-  if(class(layout) %in% c('data.frame', 'data.table')) {
+  if(inherits(layout, c('data.frame', 'data.table'))) {
     if(ncol(layout) < 2) {
       stop('custom layout needs to have at least 2 columns')
     }

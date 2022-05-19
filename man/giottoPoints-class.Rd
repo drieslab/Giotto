@@ -21,6 +21,4 @@ Contains vector-type feature data
 \item{\code{networks}}{feature networks}
 }}
 
-\keyword{class}
-\keyword{giotto,}
-\keyword{points,}
+\concept{giotto points class}

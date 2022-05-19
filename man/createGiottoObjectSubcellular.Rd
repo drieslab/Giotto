@@ -68,4 +68,4 @@ giotto object
 \description{
 Function to create a giotto object starting from subcellular polygon (e.g. cell) and points (e.g. transcripts) information
 }
-\keyword{giotto}
+\concept{giotto}

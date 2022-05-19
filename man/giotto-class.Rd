@@ -11,7 +11,7 @@ Framework of giotto object to store and work with spatial expression data
 \details{
 [\strong{expression}] There are several ways to provide expression information:
 
-[\strong{expression_feat}] The different featurs or modalities such as rna, protein, metabolites, ...
+[\strong{expression_feat}] The different features or modalities such as rna, protein, metabolites, ...
 that are provided in the expression slot.
 }
 \section{Slots}{
@@ -60,5 +60,4 @@ that are provided in the expression slot.
 \item{\code{join_info}}{information about joined Giotto objects}
 }}
 
-\keyword{giotto,}
-\keyword{object}
+\concept{giotto object}

@@ -17,4 +17,4 @@ giotto object
 \description{
 Adds Giotto points to an existing Giotto object
 }
-\keyword{polygon}
+\concept{polygon}
