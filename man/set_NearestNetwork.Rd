@@ -37,6 +37,7 @@ Other expression space nearest network accessor functions:
 \code{\link{get_NearestNetwork}()}
 
 Other functions to set data in giotto object: 
+\code{\link{set_dimReduction}()},
 \code{\link{set_expression_values}()},
 \code{\link{set_feature_info}()},
 \code{\link{set_giottoImage}()},

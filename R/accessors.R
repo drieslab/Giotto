@@ -309,7 +309,7 @@ select_dimReduction = function(...) {
 #' @param dimObject dimension object result to set
 #' @return giotto object
 #' @family dimensional reduction data accessor functions
-#' @family functions to set data in giotto object                                    dimObject = pca_object)
+#' @family functions to set data in giotto object
 #' @export
 set_dimReduction <- function(gobject,
                              spat_unit = NULL,
@@ -1268,7 +1268,7 @@ showGiottoSpatEnrichments = function(gobject,
   # define for data.table [] subsetting
   spat_unit = NULL
   feat_type = NULL
-  
+
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
 
   available_data = list_spatial_enrichments(gobject = gobject)
