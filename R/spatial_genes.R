@@ -1838,7 +1838,8 @@ silhouetteRankTest = function(gobject,
 #' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
 #' @return a list of data.frames with results and plot (optional)
-#' @details This function is a wrapper for the SpatialDE method implemented in the ...
+#' @details This function is a wrapper for the SpatialDE method originally implemented
+#' in python. See publication \doi{10.1038/nmeth.4636}
 #' @export
 spatialDE <- function(gobject = NULL,
                       feat_type = NULL,
@@ -2146,6 +2147,7 @@ FSV_show <- function(results,
 #' @param \dots Additional parameters to the \code{\link[trendsceek]{trendsceek_test}} function
 #' @return data.frame with trendsceek spatial genes results
 #' @details This function is a wrapper for the trendsceek_test method implemented in the trendsceek package
+#' Publication: \doi{10.1038/nmeth.4634}
 #' @export
 trendSceek <- function(gobject,
                        feat_type = NULL,
@@ -2247,6 +2249,7 @@ trendSceek <- function(gobject,
 #'  see \code{\link[SPARK]{spark.vc}} for additional parameters}
 #'  \item{3. spark.test }{ Testing multiple kernel matrices}
 #' }
+#' Publication: \doi{10.1101/810903}
 #' @export
 spark = function(gobject,
                  spat_loc_name = 'raw',

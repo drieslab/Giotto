@@ -4,7 +4,7 @@
 
 #' @title S4 giottoImage Class
 #' @description Framework of giotto object to store and work with spatial expression data
-#' @keywords giotto, object
+#' @concept giotto image object
 #' @slot name name of Giotto image
 #' @slot mg_object magick image object
 #' @slot minmax minimum and maximum of associated spatial location coordinates
@@ -101,7 +101,7 @@ setMethod(
 
 #' @title S4 giottoLargeImage Class
 #' @description class to handle images too large to load in normally through magick
-#' @keywords giotto, object, image
+#' @concept giotto object image
 #' @slot name name of large Giotto image
 #' @slot raster_object terra raster object
 #' @slot extent tracks the extent of the raster object. Note that most processes should rely on the extent of the raster object instead of this.
@@ -258,7 +258,7 @@ createGiottoImage = function(gobject = NULL,
     if(file.exists(mg_object)) {
       g_image@file_path = mg_object
       mg_object = try(magick::image_read(mg_object))
-      if(class(mg_object) == 'try-error') {
+      if(inherits(mg_object, 'try-error')) {
         stop(mg_object, ' can not be read by magick::image_read() \n')
       }
     } else {
@@ -458,7 +458,7 @@ createGiottoLargeImage = function(raster_object,
     if(file.exists(raster_object)) {
       g_imageL@file_path = raster_object
       raster_object = try(suppressWarnings(terra::rast(x = raster_object)))
-      if(class(raster_object) == 'try-error') {
+      if(inherits(raster_object, 'try-error')) {
         stop(raster_object, ' can not be read by terra::rast() \n')
       }
     } else {
@@ -809,12 +809,12 @@ createGiottoImageOLD = function(gobject = NULL,
   if(!methods::is(mg_object, 'magick-image')) {
     if(file.exists(mg_object)) {
       mg_object = try(magick::image_read(mg_object))
-      if(class(mg_object) == 'try-error') {
+      if(inherits(mg_object, 'try-error')) {
         stop(mg_object, ' can not be read by magick::image_read() \n')
       }
     } else {
       stop("mg_object needs to be an image object 'magick-image' from the magick package or \n
-           an existig path that can be read by magick::image_read()")
+           an existing path that can be read by magick::image_read()")
     }
   }
 

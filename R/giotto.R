@@ -3,7 +3,7 @@
 
 #' @title S4 giotto Class
 #' @description Framework of giotto object to store and work with spatial expression data
-#' @keywords giotto, object
+#' @concept giotto object
 #' @slot expression expression information
 #' @slot expression_feat available features (e.g. rna, protein, ...)
 #' @slot spatial_locs spatial location coordinates for cells/spots/grids
@@ -28,7 +28,7 @@
 #' @details
 #' [\strong{expression}] There are several ways to provide expression information:
 #'
-#' [\strong{expression_feat}] The different featurs or modalities such as rna, protein, metabolites, ...
+#' [\strong{expression_feat}] The different features or modalities such as rna, protein, metabolites, ...
 #' that are provided in the expression slot.
 #'
 #'
@@ -257,7 +257,7 @@ set_giotto_python_path = function(python_path = NULL,
           python_path = try(system('where python', intern = T))
         }
 
-        if(class(python_path) == "try-error") {
+        if(inherits(python_path, 'try-error')) {
           cat('\n no python path found, set it manually when needed \n')
           python_path = '/need/to/set/path/to/python'
         } else {
@@ -402,7 +402,7 @@ readGiottoInstructions <- function(giotto_instructions,
                                    param = NULL) {
 
   # get instructions if provided the giotto object
-  if(class(giotto_instructions) == 'giotto') {
+  if(inherits(giotto_instructions, 'giotto')) {
     giotto_instructions = giotto_instructions@instructions
   }
 
@@ -1596,7 +1596,7 @@ evaluate_feat_info = function(spatial_feat_info,
 #'   \item{images}
 #' }
 #'
-#' @keywords giotto
+#' @concept giotto
 #' @importFrom methods new
 #' @export
 createGiottoObject <- function(expression,
@@ -2183,7 +2183,7 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 #' @param cores how many cores or threads to use to read data if paths are provided
 #' @param verbose be verbose when building Giotto object
 #' @return giotto object
-#' @keywords giotto
+#' @concept giotto
 #' @export
 createGiottoObjectSubcellular = function(gpoints = NULL,
                                          gpolygons = NULL,
@@ -2720,7 +2720,7 @@ join_cell_meta = function(dt_list) {
 #' @param y_padding padding between datasets/images if method is shift
 #' @param verbose be verbose
 #' @return giotto object
-#' @keywords giotto
+#' @concept giotto
 #' @export
 joinGiottoObjects = function(gobject_list,
                              gobject_names = NULL,

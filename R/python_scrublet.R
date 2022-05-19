@@ -12,6 +12,7 @@
 #' @param min_gene_variability_pctl scrublet internal PCA generation. highly variable gene percentile cutoff
 #' @param n_prin_comps number of PCs to use in PCA for detection
 #' @param return_gobject return as gobject if TRUE, data.frame with cell_ID if fALSE
+#' @seealso This function wraps the python package scrublet \doi{10.1016/j.cels.2018.11.005}
 #' @return list including doublet scores and classifications
 #' @export
 doScrubletDetect = function(gobject,

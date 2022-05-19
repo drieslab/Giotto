@@ -328,7 +328,7 @@ set_giotto_python_path = function(python_path = NULL) {
       python_path = try(system('where python3', intern = T))
     }
 
-    if(class(python_path) == "try-error") {
+    if(inherits(python_path, 'try-error')) {
       cat('\n no default python path found, install python and/or use strategy 1 or 2 \n')
       python_path = '/need/to/set/path/to/python'
     } else {

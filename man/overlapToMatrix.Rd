@@ -29,4 +29,4 @@ giotto object or count matrix
 \description{
 create a count matrix based on overlap results from \code{\link{calculateOverlapRaster}}, \code{\link{calculateOverlapSerial}}, or \code{\link{calculateOverlapParallel}}
 }
-\keyword{overlap}
+\concept{overlap}

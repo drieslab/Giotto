@@ -34,4 +34,4 @@ If \code{return_gobject = TRUE} the giotto object containing the calculated
 \description{
 Calculates the centroid locations for the polygons within one or more selected layers
 }
-\keyword{centroid}
+\concept{centroid}

@@ -132,7 +132,7 @@ pDataDT <- function(gobject,
   if(inherits(gobject, c('ExpressionSet', 'SCESet'))) {
     return(data.table::as.data.table(Biobase::pData(gobject)))
   }
-  else if(class(gobject) == 'giotto') {
+  else if(inherits(gobject, 'giotto')) {
     return(gobject@cell_metadata[[spat_unit]][[feat_type]])
   }
   else if(inherits(gobject, 'seurat')) {
@@ -163,7 +163,7 @@ fDataDT <- function(gobject,
   if(!inherits(gobject, c('ExpressionSet', 'SCESet', 'giotto'))) {
     stop('only works with ExpressionSet (-like) objects')
   }
-  else if(class(gobject) == 'giotto') {
+  else if(inherits(gobject, 'giotto')) {
     return(gobject@feat_metadata[[spat_unit]][[feat_type]])
   }
   return(data.table::as.data.table(Biobase::fData(gobject)))
@@ -2131,27 +2131,27 @@ processGiotto = function(gobject,
                          norm_params = list(),
                          stat_params = list(),
                          adjust_params = list(),
-                         verbose = TRUE){
+                         verbose = TRUE) {
 
   # filter Giotto
   if(verbose == TRUE) cat('1. start filter step \n')
-  if(class(filter_params) != 'list') stop('filter_params need to be a list of parameters for filterGiotto \n')
+  if(!inherits(filter_params, 'list')) stop('filter_params need to be a list of parameters for filterGiotto \n')
   gobject = do.call('filterGiotto', c(gobject = gobject, filter_params))
 
   # normalize Giotto
   if(verbose == TRUE) cat('2. start normalization step \n')
-  if(class(norm_params) != 'list') stop('norm_params need to be a list of parameters for normalizeGiotto \n')
+  if(!inherits(norm_params, 'list')) stop('norm_params need to be a list of parameters for normalizeGiotto \n')
   gobject = do.call('normalizeGiotto', c(gobject = gobject, norm_params))
 
   # add Statistics
   if(verbose == TRUE) cat('3. start cell and gene statistics step \n')
-  if(class(stat_params) != 'list') stop('stat_params need to be a list of parameters for addStatistics \n')
+  if(!inherits(stat_params, 'list')) stop('stat_params need to be a list of parameters for addStatistics \n')
   stat_params[['return_gobject']] = TRUE # force this to be true
   gobject = do.call('addStatistics', c(gobject = gobject, stat_params))
 
   # adjust Giotto
   if(verbose == TRUE) cat('3. start adjusted matrix step \n')
-  if(class(adjust_params) != 'list') stop('adjust_params need to be a list of parameters for adjustGiottoMatrix \n')
+  if(!inherits(adjust_params, 'list')) stop('adjust_params need to be a list of parameters for adjustGiottoMatrix \n')
   adjust_params[['return_gobject']] = TRUE # force this to be true
   gobject = do.call('adjustGiottoMatrix', c(gobject = gobject, adjust_params))
 

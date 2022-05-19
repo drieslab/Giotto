@@ -32,4 +32,4 @@ Smooths Giotto polygon object
 \seealso{
 \code{\link[stats]{spline}}
 }
-\keyword{polygon}
+\concept{polygon}

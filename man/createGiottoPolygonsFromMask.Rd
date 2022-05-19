@@ -56,5 +56,4 @@ a giotto polygon object
 \description{
 Creates Giotto polygon object from a mask file (e.g. segmentation results)
 }
-\keyword{mask}
-\keyword{polygon}
+\concept{mask polygon}

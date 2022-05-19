@@ -42,4 +42,4 @@ calculate overlap between cellular structures (polygons) and features (points)
 Serial overlapping function that works on groups of polygons at a time.
   Number of polygons per group is defined by \code{polygon_group_size} param
 }
-\keyword{overlap}
+\concept{overlap}
