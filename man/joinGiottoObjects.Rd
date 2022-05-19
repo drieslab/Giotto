@@ -41,4 +41,4 @@ giotto object
 \description{
 Function to join multiple giotto objects together
 }
-\keyword{giotto}
+\concept{giotto}

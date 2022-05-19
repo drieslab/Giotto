@@ -4,7 +4,7 @@
 
 #' @title S4 giottoImage Class
 #' @description Framework of giotto object to store and work with spatial expression data
-#' @keywords giotto, object
+#' @concept giotto image object
 #' @slot name name of Giotto image
 #' @slot mg_object magick image object
 #' @slot minmax minimum and maximum of associated spatial location coordinates
@@ -101,7 +101,7 @@ setMethod(
 
 #' @title S4 giottoLargeImage Class
 #' @description class to handle images too large to load in normally through magick
-#' @keywords giotto, object, image
+#' @concept giotto object image
 #' @slot name name of large Giotto image
 #' @slot raster_object terra raster object
 #' @slot extent tracks the extent of the raster object. Note that most processes should rely on the extent of the raster object instead of this.
@@ -814,7 +814,7 @@ createGiottoImageOLD = function(gobject = NULL,
       }
     } else {
       stop("mg_object needs to be an image object 'magick-image' from the magick package or \n
-           an existig path that can be read by magick::image_read()")
+           an existing path that can be read by magick::image_read()")
     }
   }
 

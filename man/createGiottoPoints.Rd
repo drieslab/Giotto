@@ -17,4 +17,4 @@ giottoPoints
 \description{
 Creates Giotto point object from a structured dataframe-like object
 }
-\keyword{polygon}
+\concept{polygon}

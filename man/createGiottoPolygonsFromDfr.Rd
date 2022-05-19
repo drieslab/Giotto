@@ -19,4 +19,4 @@ giotto polygon object
 \description{
 Creates Giotto polygon object from a structured dataframe-like object
 }
-\keyword{polygon}
+\concept{polygon}

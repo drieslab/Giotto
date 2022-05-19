@@ -52,4 +52,4 @@ If \code{return_gobject = TRUE} a giotto object containing the network
 \description{
 Calculates the centroid locations for the giotto polygons
 }
-\keyword{Features}
+\concept{feature}

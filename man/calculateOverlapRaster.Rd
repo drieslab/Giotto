@@ -44,4 +44,4 @@ calculate overlap between cellular structures (polygons) and features (points)
 \details{
 Serial overlapping function.
 }
-\keyword{overlap}
+\concept{overlap}
