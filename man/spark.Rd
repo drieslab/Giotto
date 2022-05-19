@@ -55,4 +55,5 @@ This function is a wrapper for the method implemented in the SPARK package:
  see \code{\link[SPARK]{spark.vc}} for additional parameters}
  \item{3. spark.test }{ Testing multiple kernel matrices}
 }
+Publication: \doi{10.1101/810903}
 }

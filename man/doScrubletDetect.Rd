@@ -44,3 +44,6 @@ list including doublet scores and classifications
 \description{
 run scrublet doublet detection for raw expression.
 }
+\seealso{
+This function wraps the python package scrublet \doi{10.1016/j.cels.2018.11.005}
+}
