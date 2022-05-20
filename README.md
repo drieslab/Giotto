@@ -9,6 +9,8 @@
 [![License: GPL
 v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 ![Last Commit](https://badgen.net/github/last-commit/RubD/Giotto/suite)
+![Commits Since
+Latest](https://img.shields.io/github/commits-since/RubD/Giotto/latest/suite)
 <!-- badges: end -->
 
 Giotto Suite is a comprehensive update to the Giotto package that
