@@ -2,7 +2,7 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 <!-- This line is from RStudio -->
 
-# Giotto
+# Giotto Suite
 
 <!-- badges: start -->
 
@@ -11,7 +11,7 @@ v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/li
 ![Last Commit](https://badgen.net/github/last-commit/RubD/Giotto/suite)
 <!-- badges: end -->
 
-*Giotto Suite* is a comprehensive update to the *Giotto* package that
+Giotto Suite is a comprehensive update to the Giotto package that
 provides tools to process, analyze and visualize **single-cell and
 subcellular spatial expression** data. The underlying framework is
 generalizable to virtually all currently available spatial datasets. We
