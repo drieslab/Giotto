@@ -608,7 +608,7 @@ package_check = function(pkg_name,
     if(!reticulate::py_module_available(pkg_name)) {
       stop("\n package ", pkg_name ," is not yet installed \n",
            "To install for default Giotto miniconda environment: \n",
-           "reticulate::conda_install(envname = 'giotto_env',packages = 'scrublet',pip = TRUE)",
+           "reticulate::conda_install(envname = 'giotto_env',packages = '",pkg_name,"',pip = TRUE)",
            call. = FALSE)
     }
   }
