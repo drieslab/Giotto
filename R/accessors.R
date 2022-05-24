@@ -13,7 +13,7 @@
 #' @param spat_unit spatial unit
 #' @param feat_type feature type
 #' @param values expression values to extract
-#' @return expression matrix
+#' @return An expression matrix
 #' @family expression accessor functions
 #' @family functions to get data from giotto object
 #' @export
@@ -1365,7 +1365,7 @@ showGiottoDimRed = function(gobject,
 showGiottoSpatialInfo = function(gobject) {
 
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
-  
+
   available_data = list_spatial_info(gobject = gobject)
   if(is.null(available_data)) cat('No spatial info available \n')
 
@@ -1390,7 +1390,7 @@ showGiottoSpatialInfo = function(gobject) {
 showGiottoFeatInfo = function(gobject) {
 
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
-  
+
   available_data = list_feature_info(gobject = gobject)
   if(is.null(available_data)) cat('No feature info available \n')
 
