@@ -243,18 +243,19 @@ createGiottoImage = function(gobject = NULL,
   scale_factor = c(x = scale_factor, y = scale_factor)
 
   # create minimum giotto
-  g_image = giottoImage(name = name,
-                        mg_object = NULL,
-                        minmax = NULL,
-                        boundaries = NULL,
-                        scale_factor = NULL,
-                        resolution = NULL,
-                        file_path = NULL,
-                        OS_platform = .Platform[['OS.type']])
+  g_image = new('giottoImage',
+                name = name,
+                mg_object = NULL,
+                minmax = NULL,
+                boundaries = NULL,
+                scale_factor = NULL,
+                resolution = NULL,
+                file_path = NULL,
+                OS_platform = .Platform[['OS.type']])
 
 
   ## 1.a. check magick image object
-  if(!methods::is(mg_object, 'magick-image')) {
+  if(!inherits(mg_object, 'magick-image')) {
     if(file.exists(mg_object)) {
       g_image@file_path = mg_object
       mg_object = try(magick::image_read(mg_object))
@@ -444,17 +445,18 @@ createGiottoLargeImage = function(raster_object,
                                   verbose = TRUE) {
 
   # create minimum giotto
-  g_imageL = giottoLargeImage(name = name,
-                              raster_object = NULL,
-                              overall_extent = NULL,
-                              scale_factor = NULL,
-                              resolution = NULL,
-                              file_path = NULL,
-                              OS_platform = .Platform[['OS.type']])
+  g_imageL = new('giottoLargeImage',
+                 name = name,
+                 raster_object = NULL,
+                 overall_extent = NULL,
+                 scale_factor = NULL,
+                 resolution = NULL,
+                 file_path = NULL,
+                 OS_platform = .Platform[['OS.type']])
 
 
   ## 1. check raster object and load as SpatRaster if necessary
-  if(!methods::is(raster_object, 'SpatRaster')) {
+  if(!inherits(raster_object, 'SpatRaster')) {
     if(file.exists(raster_object)) {
       g_imageL@file_path = raster_object
       raster_object = try(suppressWarnings(terra::rast(x = raster_object)))
@@ -486,7 +488,7 @@ createGiottoLargeImage = function(raster_object,
 
   # By extent object (priority)
   if(!is.null(extent)) {
-    if(methods::is(extent, 'SpatExtent')) {
+    if(inherits(extent, 'SpatExtent')) {
       terra::ext(raster_object) = extent
     } else {
       stop('extent argument only accepts terra SpatExtent objects')
@@ -649,7 +651,7 @@ createGiottoLargeImageList = function(raster_objects,
 #' @keywords internal
 convert_mgImage_to_array_DT = function(mg_object) {
 
-  if(methods::is(mg_object, 'giottoImage')) {
+  if(inherits(mg_object, 'giottoImage')) {
     mg_object = mg_object@mg_object
   }
 
@@ -677,7 +679,7 @@ convert_mgImage_to_array_DT = function(mg_object) {
 #' @export
 estimateImageBg = function(mg_object, top_color_range = 1:50) {
 
-  if(methods::is(mg_object, 'giottoImage')) {
+  if(inherits(mg_object, 'giottoImage')) {
     mg_object = mg_object@mg_object
   }
 
@@ -706,7 +708,7 @@ changeImageBg = function(mg_object,
                          new_color = '#FFFFFF',
                          new_name = NULL) {
 
-  if(methods::is(mg_object, 'giottoImage')) {
+  if(inherits(mg_object, 'giottoImage')) {
     is_g_image = TRUE
     g_image = mg_object
     mg_object = mg_object@mg_object
@@ -714,7 +716,7 @@ changeImageBg = function(mg_object,
     is_g_image = FALSE
   }
 
-  if(!methods::is(mg_object, 'magick-image')) {
+  if(!inherits(mg_object, 'magick-image')) {
     stop("mg_object needs to be a giottImage or a 'magick-image' object from the magick package")
   }
 
@@ -806,7 +808,7 @@ createGiottoImageOLD = function(gobject = NULL,
                              ymax_adj = 0,
                              ymin_adj = 0) {
 
-  if(!methods::is(mg_object, 'magick-image')) {
+  if(!inherits(mg_object, 'magick-image')) {
     if(file.exists(mg_object)) {
       mg_object = try(magick::image_read(mg_object))
       if(inherits(mg_object, 'try-error')) {
@@ -975,7 +977,7 @@ addGiottoImageMG = function(gobject,
 
     im = images[[image_i]]
 
-    if(methods::is(im, 'giottoImage')) {
+    if(inherits(im, 'giottoImage')) {
       im_name = im@name
 
       all_im_names = names(gobject@images)
@@ -1157,7 +1159,7 @@ updateGiottoImageMG = function(gobject = NULL,
   if(is.null(giottoImage) && is.null(image_name)) stop('The name of the giotto image that will be updated needs to be provided \n')
 
   if(!is.null(giottoImage)) {
-    if(!methods::is(giottoImage, 'giottoImage')) stop('giottoImage argument only accepts giottoImage objects \n')
+    if(!inherits(giottoImage, 'giottoImage')) stop('giottoImage argument only accepts giottoImage objects \n')
     if(verbose == TRUE && !is.null(gobject)) cat('giottoImage argument is given and will take priority \n return_gobject set to FALSE \n')
     return_gobject = FALSE
   }
@@ -1572,10 +1574,10 @@ cropGiottoLargeImage = function(gobject = NULL,
 
   ## 0. Check inputs
   if(!is.null(crop_extent)) {
-    if(!methods::is(crop_extent, 'SpatExtent')) stop('crop_extent argument only accepts terra extent objects. \n')
+    if(!inherits(crop_extent, 'SpatExtent')) stop('crop_extent argument only accepts terra extent objects. \n')
   }
   if(!is.null(giottoLargeImage)) {
-    if(!methods::is(giottoLargeImage, 'giottoLargeImage')) stop('giottoLargeImage argument only accepts giottoLargeImage objects. \n')
+    if(!inherits(giottoLargeImage, 'giottoLargeImage')) stop('giottoLargeImage argument only accepts giottoLargeImage objects. \n')
   }
 
   ## 1. get giottoLargeImage if necessary
@@ -1976,7 +1978,7 @@ writeGiottoLargeImage = function(giottoLargeImage = NULL,
 
   # 0. Check params
   if(!is.null(giottoLargeImage)) {
-    if(!methods::is(giottoLargeImage, 'giottoLargeImage')) stop('giottoLargeImage argument only accepts giottoLargeImage objects. \n')
+    if(!inherits(giottoLargeImage, 'giottoLargeImage')) stop('giottoLargeImage argument only accepts giottoLargeImage objects. \n')
   }
   if(!is.null(max_intensity)) {
     if(!is.numeric(max_intensity)) stop('max_intensity must be a numeric \n')
@@ -2074,7 +2076,7 @@ updateGiottoLargeImage = function(gobject = NULL,
   if(is.null(giottoLargeImage) && is.null(largeImage_name)) stop('The name of the giottoLargeImage that will be updated needs to be provided \n')
 
   if(!is.null(giottoLargeImage)) {
-    if(!methods::is(giottoLargeImage, 'giottoLargeImage')) stop('giottoLargeImage argument only accpts giottoLargeImage objects \n')
+    if(!inherits(giottoLargeImage, 'giottoLargeImage')) stop('giottoLargeImage argument only accpts giottoLargeImage objects \n')
     if(verbose == TRUE && !is.null(gobject)) cat('giottoLargeImage argument is given and will take priority \n return_gobject set to FALSE \n')
     return_gobject = FALSE
   }
@@ -2225,7 +2227,7 @@ addGiottoLargeImage = function(gobject = NULL,
 
     im = largeImages[[image_i]]
 
-    if(methods::is(im, 'giottoLargeImage')) {
+    if(inherits(im, 'giottoLargeImage')) {
       im_name = im@name
 
       all_im_names = names(gobject@largeImages)
