@@ -14,6 +14,14 @@ plotly_grid(
 }
 \arguments{
 \item{spatial_grid}{spatial_grid in giotto object}
+
+\item{x_start}{default to "x_start"}
+
+\item{y_start}{default to "y_start"}
+
+\item{x_end}{default to "x_end"}
+
+\item{y_end}{default to "y_end"}
 }
 \value{
 edges in spatial grid as data.table()

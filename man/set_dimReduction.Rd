@@ -38,6 +38,17 @@ Function to set a dimension reduction slot
 \seealso{
 Other dimensional reduction data accessor functions: 
 \code{\link{get_dimReduction}()}
+
+Other functions to set data in giotto object: 
+\code{\link{set_NearestNetwork}()},
+\code{\link{set_expression_values}()},
+\code{\link{set_feature_info}()},
+\code{\link{set_giottoImage}()},
+\code{\link{set_polygon_info}()},
+\code{\link{set_spatialGrid}()},
+\code{\link{set_spatialNetwork}()},
+\code{\link{set_spatial_enrichment}()},
+\code{\link{set_spatial_locations}()}
 }
 \concept{dimensional reduction data accessor functions}
-\concept{functions to set data in giotto object                                    dimObject = pca_object)}
+\concept{functions to set data in giotto object}

@@ -21,25 +21,25 @@ decide_cluster_order(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
-\item{feat_type}{feature type}
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
-\item{expression_values}{expression values to use}
+\item{expression_values}{expression values to use (e.g. "normalized", "scaled", "custom")}
 
 \item{feats}{features to use (e.g. genes)}
 
 \item{genes}{deprecated, use feats}
 
-\item{cluster_column}{name of column to use for clusters}
+\item{cluster_column}{name of column to use for clusters (e.g. "leiden_clus")}
 
-\item{cluster_order}{method to determine cluster order}
+\item{cluster_order}{method to determine cluster order (e.g. "size", "correlation", "custom")}
 
 \item{cluster_custom_order}{custom order for clusters}
 
-\item{cor_method}{method for correlation}
+\item{cor_method}{method for correlation, default to 'pearson'}
 
-\item{hclust_method}{method for hierarchical clustering}
+\item{hclust_method}{method for hierarchical clustering, default to 'ward.D'}
 }
 \value{
 custom
