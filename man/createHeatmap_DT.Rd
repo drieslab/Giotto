@@ -29,27 +29,27 @@ createHeatmap_DT(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
-\item{feat_type}{feature type}
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
-\item{expression_values}{expression values to use}
+\item{expression_values}{expression values to use (e.g. "normalized", "scaled", "custom")}
 
 \item{feats}{features to use}
 
 \item{genes}{deprecated, use feats}
 
-\item{cluster_column}{name of column to use for clusters}
+\item{cluster_column}{name of column to use for clusters (e.g. "leiden_clus")}
 
-\item{cluster_order}{method to determine cluster order}
+\item{cluster_order}{method to determine cluster order (e.g. "size", "correlation", "custom")}
 
 \item{cluster_custom_order}{custom order for clusters}
 
-\item{cluster_cor_method}{method for cluster correlation}
+\item{cluster_cor_method}{method for cluster correlation, default to "pearson"}
 
-\item{cluster_hclust_method}{method for hierarchical clustering of clusters}
+\item{cluster_hclust_method}{method for hierarchical clustering of clusters, default to "ward.D"}
 
-\item{feat_order}{method to determine features order}
+\item{feat_order}{method to determine features order (e.g. "correlation", "custom")}
 
 \item{gene_order}{deprecated, use feat_order in the future}
 
@@ -57,11 +57,11 @@ createHeatmap_DT(
 
 \item{gene_custom_order}{deprecated, use feat_custom_order in the future}
 
-\item{feat_cor_method}{method for features correlation}
+\item{feat_cor_method}{method for features correlation, default to "pearson"}
 
 \item{gene_cor_method}{deprecated, use feat_cor_method in the future}
 
-\item{feat_hclust_method}{method for hierarchical clustering of features}
+\item{feat_hclust_method}{method for hierarchical clustering of features, default to "complete"}
 
 \item{gene_hclust_method}{deprecated, use feat_hclust_method in the future}
 }

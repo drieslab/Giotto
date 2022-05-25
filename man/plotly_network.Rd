@@ -15,7 +15,19 @@ plotly_network(
 )
 }
 \arguments{
-\item{gobject}{network in giotto object}
+\item{network}{network object}
+
+\item{x}{default to "sdimx_begin"}
+
+\item{y}{default to "sdimy_begin"}
+
+\item{z}{default to "sdimz_begin"}
+
+\item{x_end}{default to "sdimx_end"}
+
+\item{y_end}{default to "sdimy_end"}
+
+\item{z_end}{default to "sdimz_end"}
 }
 \value{
 edges in network as data.table()

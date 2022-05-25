@@ -35,9 +35,9 @@ plotMetaDataCellsHeatmap(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
-\item{feat_type}{feature type}
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
 \item{metadata_cols}{annotation columns found in pDataDT(gobject)}
 
@@ -49,19 +49,19 @@ plotMetaDataCellsHeatmap(
 
 \item{second_meta_col}{if more than 1 metadata column, select the facetting factor}
 
-\item{show_values}{which values to show on heatmap}
+\item{show_values}{which values to show on heatmap (e.g. "zscores", "original", "zscores_rescaled")}
 
 \item{custom_cluster_order}{custom cluster order (default = NULL)}
 
-\item{clus_cor_method}{correlation method for clusters}
+\item{clus_cor_method}{correlation method for clusters, default to "pearson"}
 
-\item{clus_cluster_method}{hierarchical cluster method for the clusters}
+\item{clus_cluster_method}{hierarchical cluster method for the clusters, default to "complete"}
 
 \item{custom_values_order}{custom values order (default = NULL)}
 
-\item{values_cor_method}{correlation method for values}
+\item{values_cor_method}{correlation method for values, default to "pearson"}
 
-\item{values_cluster_method}{hierarchical cluster method for the values}
+\item{values_cluster_method}{hierarchical cluster method for the values, default to "complete"}
 
 \item{midpoint}{midpoint of show_values}
 
@@ -73,11 +73,11 @@ plotMetaDataCellsHeatmap(
 
 \item{strip_text_size}{size of strip text}
 
-\item{show_plot}{show plot}
+\item{show_plot}{show plot. TRUE or FALSE}
 
-\item{return_plot}{return ggplot object}
+\item{return_plot}{return ggplot object. TRUE or FALSE}
 
-\item{save_plot}{directly save the plot [boolean]}
+\item{save_plot}{directly save the plot. TRUE or FALSE}
 
 \item{save_param}{list of saving parameters, see \code{\link{showSaveParameters}}}
 

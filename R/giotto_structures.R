@@ -123,7 +123,7 @@ identify_background_range_polygons = function(spatVector) {
 
   # define for data.table
   x = y = geom = V1 = NULL
-  
+
   # identify polygon with the largest average range for x and y
   gDT = data.table::as.data.table(terra::geom(spatVector))
 
@@ -158,7 +158,7 @@ create_segm_polygons = function(maskfile,
                                 shift_horizontal_step = TRUE,
                                 remove_background_polygon = FALSE) {
 
-  
+
   if(!file.exists(maskfile)) {
     stop('path : ', maskfile, ' does not exist \n')
   }
@@ -264,7 +264,7 @@ fix_multipart_geoms = function(spatVector) {
 
   # data.table variables
   x = y = geom = part = NULL
-  
+
   spatVecDT = spatVector_to_dt(spatVector)
   uniq_multi = unique(spatVecDT[part == 2]$geom)
 
@@ -360,7 +360,7 @@ createGiottoPolygonsFromMask = function(maskfile,
   y = NULL
   geom = NULL
   part = NULL
-  
+
   # select background algo
   background_algo = match.arg(background_algo, choices = 'range')
 
@@ -514,7 +514,7 @@ createGiottoPolygonsFromDfr = function(segmdfr,
 
   # define for data.table
   geom = NULL
-  
+
   # input data.frame-like object
   # columns: x y cell_ID
   segmdt = data.table::as.data.table(segmdfr)
@@ -707,7 +707,7 @@ spatVector_to_dt = function(spatvector,
 
   # define for :=
   geom = NULL
-  
+
   DT_geom = data.table::as.data.table(terra::geom(spatvector))
 
   if(include_values == TRUE) {
@@ -809,10 +809,10 @@ smoothGiottoPolygons = function(gpolygon,
   # define for .()
   x = NULL
   y = NULL
-  
+
   # define for data.table [] subsetting
   geom = NULL
-  
+
   polygDT = spatVector_to_dt(gpolygon@spatVector)
 
   # store other values
@@ -1181,6 +1181,46 @@ addGiottoPoints = function(gobject,
 }
 
 
+#' Add sub cellular 3D coordinates to Giotto object
+#'
+#' @param gobject  A Giotto object.
+#' @param coords A \link{data.frame} or `spatVector` with at least xyz coordinates and feature ids.
+#' @param feat_type a character. The feat_type must previously exist in the Giotto object. Default = "rna".
+#'
+#' @return A Giotto object with a `spatVector` object in the feat_info slot
+#' @export
+addGiottoPoints3D <- function (gobject, coords, feat_type = "rna")
+{
+  # verify gobject class
+  if (!inherits(gobject, "giotto")) {
+    stop("gobject needs to be a giotto object")
+  }
+  # available features types
+  feat_types = gobject@expression_feat
+  if(!feat_type %in% feat_types) {
+    stop(feat_type, ' is not a feature type in the giotto object \n')
+  }
+
+  if (inherits(coords, "data.frame")) {
+    spatvec = terra::vect(as.matrix(coords[,1:2]), type = "points", atts = coords)
+    names(spatvec)[4] = 'feat_ID'
+
+    g_points = Giotto:::create_giotto_points_object(feat_type = feat_type,
+                                                    spatVector = spatvec)
+  }
+  else if (inherits(coords, "spatVector")) {
+    g_points = Giotto:::create_giotto_points_object(feat_type = feat_type,
+                                                    spatVector = coords)
+  }
+  else {
+    stop("Class ", class(coords), " is not supported")
+  }
+
+  gobject@feat_info[[g_points@feat_type]] = g_points
+
+  return(gobject)
+}
+
 
 
 #' @title Extract list of giotto points objects
@@ -1287,7 +1327,7 @@ createSpatialFeaturesKNNnetwork_dbscan = function(gobject,
 
   # define for data.table
   from_feat = from = to_feat = to = from_to_feat = NULL
-  
+
   ## 1. specify feat_type
   if(is.null(feat_type)) {
     gobject@feat_info[[1]]@feat_type
@@ -1482,7 +1522,7 @@ addSpatialCentroidLocationsLayer = function(gobject,
   x = NULL
   y = NULL
   poly_ID = NULL
-  
+
   # Set feat_type and spat_unit
   poly_info = set_default_spat_unit(gobject = gobject,
                                     spat_unit = poly_info)
@@ -1774,7 +1814,7 @@ overlap_points_single_polygon = function(spatvec,
 
   # define for data.table
   x = y = NULL
-  
+
   ## extract single polygon and get spatextent
   one_polygon_spatvector = spatvec[spatvec$poly_ID == poly_ID_name]
   ext_limits = terra::ext(one_polygon_spatvector)
@@ -2164,7 +2204,7 @@ overlapToMatrixMultiPoly = function(gobject,
 
   # define for data.table
   i = j = x = NULL
-  
+
   result_list = list()
   cell_ids_list = list()
 
