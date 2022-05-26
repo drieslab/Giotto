@@ -11,29 +11,61 @@
 
 ## ** image object compatibility ####
 
-#' @title plot_auto_largeImage_resample
+#' @title Optimized largeImage resampling
 #' @name plot_auto_largeImage_resample
-#' @description resamples largeImage for plotting
-#' @param gobject gobject containing largeImage
-#' @param giottoLargeImage giottoLargeImage
-#' @param largeImage_name name of largeImage
+#' @description Downsample \code{largeImage} for plotting. Uses \code{\link[terra]{spatSample}}
+#' to load only a portion of the original image, speeding up plotting and lowering memory
+#' footprint.
+#' 
+#' Default behavior of \code{spatSample} is to crop if only a smaller ROI is needed for plotting
+#' followed by the sampling process in order to reduce wasted sampling by focusing the
+#' sample space. For very large ROIs, this crop can be time intensive and require
+#' writing to disk.
+#' 
+#' This function examines the ROI dimensions as defined through the limits of the spatial 
+#' locations to be plotted, and decides between the following two methods in order to
+#' avoid this issue:
+#' \itemize{
+#'   \item{\strong{Method A.} First crop original image and then sample n values where
+#'   n = 500,000 to generate final image}
+#'   \item{\strong{Method B.} First oversample n values and then crop, where n = 500,000
+#'   scaled by a value >1. Scaling factor increases the smaller the ROI is and
+#'   is defined by: original dimensions/crop dimensions where the larger ratio between
+#'   x and y dims is chosen. Scale factor is capped by \code{max_resample_scale}}
+#' }
+#' Control points for this function are set by \code{max_crop} which decides the max
+#' ROI area after which switchover to method B happens in order to avoid laborious crops 
+#' and \code{max_resample_scale} which determines the maximum scale factor for number
+#' of values to sample. Both values can be adjusted depending on system resources.
+#' Additionally, \code{flex_resample} determines if this switching behavior happens.
+#' When set to \code{FALSE}, only method A is used.
+#' @param gobject \code{gobject} containing \code{largeImage} object
+#' @param giottoLargeImage \code{largeImage} object to resample if not provided through
+#' \code{gobject} and \code{largeImage_name}
+#' @param largeImage_name name of \code{largeImage} in \code{gobject}
 #' @param spat_unit spatial unit
 #' @param spat_loc_name name of spatial locations to plot
-#' @param include_image_in_border expand the extent sampled to also show image in border regions not included in spatlocs
-#' @param flex_resample decide to crop then resample or resample then crop depending on plotting ROI dimensions
-#' @param max_crop maximum crop size allowed for crop THEN resample
-#' @param max_resampl_scale maximum cells allowed to resample to compensate for decreased resolution after subsequent cropping
-#' @return a giottoLargeImage cropped and resampled properly for plotting
+#' @param include_image_in_border [boolean] expand the extent sampled to also show image in 
+#' border regions not included in spatlocs. This prevents images in plots from
+#' being sharply cut off around the furthest spatial locations. (default is \code{TRUE})
+#' @param flex_resample [boolean] Whether to allow automatic selection of sampling
+#' workflow as defined in details sections. (default is \code{TRUE})
+#' @param max_crop maximum crop size allowed for \strong{method A} before switching to
+#' \strong{method B} (see description)
+#' @param max_resample_scale maximum cells allowed to resample to compensate for
+#' decreased resolution when cropping after sampling
+#' @return a \code{giottoLargeImage} cropped and resampled properly for plotting
+#' @seealso \code{\link[terra]{spatSample}}
 #' @keywords internal
 plot_auto_largeImage_resample = function(gobject,
-                                     giottoLargeImage = NULL,
-                                     largeImage_name = NULL,
-                                     spat_unit = NULL,
-                                     spat_loc_name = NULL,
-                                     include_image_in_border = TRUE,
-                                     flex_resample = TRUE,
-                                     max_crop = 1e+08,
-                                     max_resample_scale = 100) {
+                                         giottoLargeImage = NULL,
+                                         largeImage_name = NULL,
+                                         spat_unit = NULL,
+                                         spat_loc_name = NULL,
+                                         include_image_in_border = TRUE,
+                                         flex_resample = TRUE,
+                                         max_crop = 1e+08,
+                                         max_resample_scale = 100) {
 
   # If no giottoLargeImage, select specified giottoLargeImage. If none specified, select first one.
   if(is.null(giottoLargeImage)) {
@@ -53,7 +85,8 @@ plot_auto_largeImage_resample = function(gobject,
   # Get image extent minmax
   im_minmax = terra::ext(giottoLargeImage@raster_object)[1:4]
   # Determine crop
-  if(include_image_in_border == TRUE) {
+  if(isTRUE(include_image_in_border)) {
+    # with crop padding
     x_halfPaddedRange = diff(range(cell_locations$sdimx))*0.625
     y_halfPaddedRange = diff(range(cell_locations$sdimy))*0.625
     x_mean = mean(cell_locations$sdimx)
@@ -69,6 +102,7 @@ plot_auto_largeImage_resample = function(gobject,
     if(ymin_crop < im_minmax[['ymin']]) ymin_crop = im_minmax[['ymin']]
     if(ymax_crop > im_minmax[['ymax']]) ymax_crop = im_minmax[['ymax']]
   } else {
+    # no crop padding
     x_range = range(cell_locations$sdimx)
     y_range = range(cell_locations$sdimy)
     xmin_crop = x_range[1]
@@ -77,7 +111,7 @@ plot_auto_largeImage_resample = function(gobject,
     ymax_crop = y_range[2]
   }
 
-  # setup crop extent
+  # setup crop extent object
   crop_ext = terra::ext(xmin_crop, xmax_crop,
                         ymin_crop, ymax_crop)
 
@@ -89,22 +123,28 @@ plot_auto_largeImage_resample = function(gobject,
   im_ydim = abs(im_minmax[2] - im_minmax[1])
   crop_relative_scale = max(im_xdim/crop_xdim, im_ydim/crop_ydim)
 
-  if(flex_resample == FALSE || crop_area_px <= max_crop) {
-    if(flex_resample == FALSE && crop_area_px > max_crop) {
+  if(!isTRUE(flex_resample) | crop_area_px <= max_crop) {
+    # METHOD A: Crop if needed then resample to final image
+    if(!isTRUE(flex_resample) & crop_area_px > max_crop) {
       warning('Plotting large regions with flex_resample == FALSE will be costly in time and drive space.')
     }
+    # For ROIs with area smaller than max_crop OR if flex_resample is FALSE
     giottoLargeImage@raster_object = terra::spatSample(giottoLargeImage@raster_object,
                                                        size = 500000,
                                                        method = 'regular',
                                                        as.raster = TRUE,
                                                        ext = crop_ext)
   } else {
+    # METHOD B: Resample then crop to final image
+    # Sample n values where n = default val scaled by a value >1
     if(crop_relative_scale <= max_resample_scale) {
+      # Scale factor is fullsize image dim/crop dim. Larger of the two ratios is chosen
       resample_image = terra::spatSample(giottoLargeImage@raster_object,
                                          size = round(500000 * crop_relative_scale),
                                          method = 'regular',
                                          as.raster = TRUE)
     } else {
+      # For scale factors that are too large, scaling is capped by max_resample_scale
       resample_image = terra::spatSample(giottoLargeImage@raster_object,
                                          size = 500000 * max_resample_scale,
                                          method = 'regular',

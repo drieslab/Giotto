@@ -1620,6 +1620,8 @@ cropGiottoLargeImage = function(gobject = NULL,
 }
 
 
+#TODO link this up to plot_auto_largeImage_resample() ?
+
 #' @title plot_giottoLargeImage
 #' @name plot_giottoLargeImage
 #' @description Plot a \emph{downsampled} version of giottoLargeImage. Cropping can increase plot resolution of region of interest.
