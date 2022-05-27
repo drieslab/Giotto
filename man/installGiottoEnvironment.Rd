@@ -7,6 +7,7 @@
 installGiottoEnvironment(
   packages_to_install = c("pandas==1.1.5", "networkx==2.6.3", "python-igraph==0.9.6",
     "leidenalg==0.8.7", "python-louvain==0.15", "python.app==2", "scikit-learn==0.24.2"),
+  python_version = "3.6",
   force_miniconda = FALSE,
   force_environment = FALSE,
   verbose = TRUE
@@ -14,6 +15,8 @@ installGiottoEnvironment(
 }
 \arguments{
 \item{packages_to_install}{all python modules (packages) that should be installed for Giotto to work}
+
+\item{python_version}{python version to use within the giotto conda environment}
 
 \item{force_miniconda}{force reinstallation of miniconda}
 
@@ -41,7 +44,7 @@ and provide the instructions to the \code{\link{createGiottoObject}} function.
   # and a giotto environment with all necessary python modules
   installGiottoEnvironment()
 
-  The following python modules will be installed:
+ By default python v3.6 will be  used with the following python modules:
   - pandas==1.1.5
   - networkx==2.6.3
   - python-igraph==0.9.6
@@ -49,6 +52,21 @@ and provide the instructions to the \code{\link{createGiottoObject}} function.
   - python-louvain==0.15
   - python.app==2 [mac OSX only]
   - scikit-learn==0.24.2
+
+ A more recent giotto environment can be installed by changing the python_version parameter
+ and module versions in the packages_to_install parameter:
+
+ For example this giotto environment is know to work:
+ python_version = '3.8.10'
+
+ and modules:
+  - pandas==1.3.1
+  - networkx==2.6.2
+  - python-igraph==0.9.6
+  - leidenalg==0.8.7
+  - python-louvain==0.15
+  - python.app==2 [mac OSX only]
+  - scikit-learn==1.0.2
 
 }
 

@@ -96,6 +96,7 @@ return_giotto_environment_path_executable = function() {
 install_giotto_environment_specific = function(packages_to_install = c('pandas', 'networkx', 'python-igraph',
                                                                        'leidenalg', 'python-louvain', 'python.app',
                                                                        'scikit-learn'),
+                                               python_version = '3.6',
                                                verbose = TRUE) {
 
   ## install Giotto environment
@@ -133,14 +134,14 @@ install_giotto_environment_specific = function(packages_to_install = c('pandas',
                            envname = 'giotto_env',
                            method = 'conda',
                            conda = conda_full_path,
-                           python_version = '3.6')
+                           python_version = python_version)
 
     reticulate::py_install(packages = 'smfishhmrf',
                            envname = full_envname,
                            method = 'conda',
                            conda = conda_full_path,
                            pip = TRUE,
-                           python_version = '3.6')
+                           python_version = python_version)
 
 
     ## for windows systems ##
@@ -158,7 +159,7 @@ install_giotto_environment_specific = function(packages_to_install = c('pandas',
                            envname = 'giotto_env',
                            method = 'conda',
                            conda = conda_full_path,
-                           python_version = '3.6',
+                           python_version = python_version,
                            channel = c('conda-forge', 'vtraag'))
 
     reticulate::py_install(packages = 'smfishhmrf',
@@ -166,7 +167,7 @@ install_giotto_environment_specific = function(packages_to_install = c('pandas',
                            method = 'conda',
                            conda = conda_full_path,
                            pip = TRUE,
-                           python_version = '3.6')
+                           python_version = python_version)
   }
 
 
@@ -180,6 +181,7 @@ install_giotto_environment = function(force_environment = FALSE,
                                       packages_to_install = c('pandas', 'networkx', 'python-igraph',
                                                               'leidenalg', 'python-louvain', 'python.app',
                                                               'scikit-learn'),
+                                      python_version = '3.6',
                                       verbose = TRUE) {
 
   # first see if Giotto is already installed
@@ -198,12 +200,14 @@ install_giotto_environment = function(force_environment = FALSE,
     reticulate::conda_remove(envname = 'giotto_env')
 
     install_giotto_environment_specific(packages_to_install = packages_to_install,
+                                        python_version = python_version,
                                         verbose = verbose)
 
   } else {
 
     # install giotto if nothing is found
     install_giotto_environment_specific(packages_to_install = packages_to_install,
+                                        python_version = python_version,
                                         verbose = verbose)
 
   }
@@ -216,6 +220,7 @@ install_giotto_environment = function(force_environment = FALSE,
 #' @title installGiottoEnvironment
 #' @description Installs a giotto environment
 #' @param packages_to_install all python modules (packages) that should be installed for Giotto to work
+#' @param python_version python version to use within the giotto conda environment
 #' @param force_miniconda force reinstallation of miniconda
 #' @param force_environment force reinstallation of the giotto environment
 #' @param verbose be verbose
@@ -233,7 +238,7 @@ install_giotto_environment = function(force_environment = FALSE,
 #'   # and a giotto environment with all necessary python modules
 #'   installGiottoEnvironment()
 #'
-#'   The following python modules will be installed:
+#'  By default python v3.6 will be  used with the following python modules:
 #'   - pandas==1.1.5
 #'   - networkx==2.6.3
 #'   - python-igraph==0.9.6
@@ -241,6 +246,21 @@ install_giotto_environment = function(force_environment = FALSE,
 #'   - python-louvain==0.15
 #'   - python.app==2 [mac OSX only]
 #'   - scikit-learn==0.24.2
+#'
+#'  A more recent giotto environment can be installed by changing the python_version parameter
+#'  and module versions in the packages_to_install parameter:
+#'
+#'  For example this giotto environment is know to work:
+#'  python_version = '3.8.10'
+#'
+#'  and modules:
+#'   - pandas==1.3.1
+#'   - networkx==2.6.2
+#'   - python-igraph==0.9.6
+#'   - leidenalg==0.8.7
+#'   - python-louvain==0.15
+#'   - python.app==2 [mac OSX only]
+#'   - scikit-learn==1.0.2
 #'
 #' }
 #'
@@ -251,6 +271,7 @@ installGiottoEnvironment =  function(packages_to_install = c('pandas==1.1.5',
                                                              'python-louvain==0.15',
                                                              'python.app==2',
                                                              'scikit-learn==0.24.2'),
+                                     python_version = '3.6',
                                      force_miniconda = FALSE,
                                      force_environment = FALSE,
                                      verbose = TRUE) {
@@ -268,6 +289,7 @@ installGiottoEnvironment =  function(packages_to_install = c('pandas==1.1.5',
   ## 2. install giotto environment
   install_giotto_environment(force_environment = force_environment,
                              packages_to_install = packages_to_install,
+                             python_version = python_version,
                              verbose = verbose)
 
 
