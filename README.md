@@ -10,6 +10,8 @@
 MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Last
 Commit](https://img.shields.io/github/last-commit/RubD/Giotto/master)
+![Commits Since
+Latest](https://img.shields.io/github/commits-since/RubD/Giotto/latest/master)
 <!-- badges: end -->
 
 The Giotto package consists of two modules, Giotto Analyzer and Viewer
