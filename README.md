@@ -13,19 +13,21 @@ v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/li
 Latest](https://img.shields.io/github/commits-since/RubD/Giotto/latest/suite)
 <!-- badges: end -->
 
-Giotto Suite is a comprehensive update to the Giotto package that
-provides tools to process, analyze and visualize **single-cell and
-subcellular spatial expression** data. The underlying framework is
-generalizable to virtually all currently available spatial datasets. We
-recently demonstrated the general applicability on 10 different datasets
-created by 9 different state-of-the-art spatial technologies, including
-*in situ* hybridization (seqFISH+, merFISH, osmFISH), sequencing
-(Slide-seq, Visium, STARmap) and imaging-based multiplexing/proteomics
-(CyCIF, MIBI, CODEX). These technologies differ in terms of resolution
-(single cell vs multiple cells), spatial dimension (2D vs 3D), molecular
-modality (protein vs RNA), and throughput (number of cells and genes).
-More information and documentation about Giotto Suite can be found at
-<http://giottosuite.com/index.html>.
+Giotto Suite is a major upgrade to the Giotto package that provides
+tools to process, analyze and visualize **spatial multi-omics data at
+all scales and multiple resolutions**. The underlying framework is
+generalizable to virtually all current and emerging spatial
+technologies. Our Giotto Suite prototype pipeline is generally
+applicable on various different datasets, such as those created by
+state-of-the-art spatial technologies, including *in situ* hybridization
+(seqFISH+, merFISH, osmFISH, CosMx), sequencing (Slide-seq, Visium,
+STARmap, Seq-Scope, Stereo-Seq) and imaging-based
+multiplexing/proteomics (CyCIF, MIBI, CODEX).  
+These technologies differ in terms of resolution (subcellular, single
+cell or multiple cells), spatial dimension (2D vs 3D), molecular
+modality (protein, RNA, DNA, …), and throughput (number of cells and
+analytes). More information and documentation about Giotto Suite can be
+found at <http://giottosuite.com/index.html>.
 
 The package is in heavy development. Please check back often!
 
