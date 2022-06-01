@@ -12,3 +12,4 @@
 ^docs$
 ^pkgdown$
 .Rbuildignore.save
+^\.github$
