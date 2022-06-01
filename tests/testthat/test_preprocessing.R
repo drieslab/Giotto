@@ -7,7 +7,6 @@ loc_path = system.file("extdata", "seqfish_field_locs.txt", package = 'Giotto')
 # Tests for Giotto object creation
 # ---------------------------------------------
 
-
 object <- createGiottoObject(raw_exprs = expr_path,
                              spatial_locs = loc_path)
 
