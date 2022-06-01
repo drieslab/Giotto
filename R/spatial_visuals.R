@@ -9997,11 +9997,12 @@ plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
   server <- function(input, output,session) {
     output$plot <- renderPlot({
       if ("ggplot" %in% class(x)) {
+        x$coordinates$default <- TRUE
         x +
           geom_polygon(data = clicklist(), aes(x,y, color = name, fill = name),
                        alpha = 0, ...) +
-          coord_cartesian(xlim = c(input$xrange[1], input$xrange[2]),
-                          ylim = c(input$yrange[1], input$yrange[2])) +
+          coord_fixed(xlim = c(input$xrange[1], input$xrange[2]),
+                      ylim = c(input$yrange[1], input$yrange[2])) +
           theme(legend.position = 'none')
       } else {
         terra::plot(x)
