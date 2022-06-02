@@ -31,12 +31,12 @@ jobs:
       _R_CHECK_RD_XREFS: false
 
     steps:
-      - uses: actions/checkout@v2
-      
       # remove vignettes dir
       - name: Remove vignettes dir
         run: rm -rf 'vignettes/'
         shell: bash
+        
+      - uses: actions/checkout@v2
         
       - uses: r-lib/actions/setup-pandoc@v2
 
@@ -48,9 +48,8 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck
-          needs: |
-            Imports
+          extra-packages: any::rcmdcheck, package=jackstraw?ignore
+          needs: check
 
       - uses: r-lib/actions/check-r-package@v2
         with:
