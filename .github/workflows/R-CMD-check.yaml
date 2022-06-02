@@ -50,12 +50,9 @@ jobs:
         with:
           dependencies: '"hard"'
           extra-packages: any::rcmdcheck, any::testthat
-            # jackstraw=?ignore-before-r=99.0.0
-            # Rvision=??ignore-before-r=99.0.0
-            # SPARK=?ignore-before-r=99.0.0
-            # trendsceek=?ignore-before-r=99.0.0
           needs: check
 
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
+          error-on: '"error"'
