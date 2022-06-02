@@ -48,7 +48,11 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck, jackstraw=?ignore, Rvision=?ignore, SPARK=?ignore, trendsceek=?ignore
+          extra-packages: any::rcmdcheck
+          jackstraw=?ignore-before-r=99.0.0
+          Rvision=??ignore-before-r=99.0.0
+          SPARK=?ignore-before-r=99.0.0
+          trendsceek=?ignore-before-r=99.0.0
           needs: check
 
       - uses: r-lib/actions/check-r-package@v2
