@@ -49,7 +49,7 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           dependencies: '"hard"'
-          extra-packages: any::rcmdcheck
+          extra-packages: any::rcmdcheck, any::testthat
             # jackstraw=?ignore-before-r=99.0.0
             # Rvision=??ignore-before-r=99.0.0
             # SPARK=?ignore-before-r=99.0.0
