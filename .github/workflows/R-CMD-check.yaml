@@ -12,7 +12,7 @@ jobs:
   R-CMD-check:
     runs-on: ${{ matrix.config.os }}
 
-    name: ${{ matrix.config.os }} (${{ matrix.config.r }}) py=${{ matrix.config.python }}
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
 
     strategy:
       fail-fast: false
@@ -43,10 +43,6 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
-
-      - uses: actions/setup-python@v3
-        with:
-          python-version: ${{ matrix.config.python }}
       
       - uses: r-lib/actions/setup-r-dependencies@v2
         env:
