@@ -50,7 +50,6 @@ jobs:
         with:
           dependencies: '"hard"'
           extra-packages: any::rcmdcheck, any::testthat
-          needs: check
 
       - uses: r-lib/actions/check-r-package@v2
         with:
