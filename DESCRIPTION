@@ -106,7 +106,8 @@ Suggests:
     smfishHmrf,
     SPARK,
     tiff,
-    trendsceek
+    trendsceek,
+    testthat (>= 3.0.0)
 biocViews:
 VignetteBuilder: knitr
 Config/testthat/edition: 3
