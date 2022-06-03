@@ -27,8 +27,6 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
-      _R_CHECK_FORCE_SUGGESTS: false
-      _R_CHECK_RD_XREFS: false
 
     steps:
       # remove vignettes dir
@@ -47,6 +45,9 @@ jobs:
           use-public-rspm: true
 
       - uses: r-lib/actions/setup-r-dependencies@v2
+        env:
+          _R_CHECK_FORCE_SUGGESTS: false
+          _R_CHECK_RD_XREFS: false
         with:
           dependencies: '"hard"'
           extra-packages: any::rcmdcheck, any::testthat
@@ -55,3 +56,8 @@ jobs:
         with:
           upload-snapshots: true
           error-on: '"error"'
+      
+      - name: Show testthat output
+        if: always()
+        run: find check -name 'testthat.Rout*' -exec cat '{}' \; || true
+        shell: bash
