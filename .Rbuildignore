@@ -14,4 +14,3 @@
 ^pkgdown$
 .Rbuildignore.save
 ^\.github$
-^codecov\.yml$
