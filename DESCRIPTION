@@ -107,7 +107,8 @@ Suggests:
     SPARK,
     tiff,
     trendsceek,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    covr
 biocViews:
 VignetteBuilder: knitr
 Config/testthat/edition: 3
