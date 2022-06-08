@@ -54,10 +54,32 @@ test_that("Cell metadata are read and added to Giotto object", {
 })
 
 # FILTER GIOTTO OBJECT
-object <- filterGiotto(gobject = object,
+###   kind of arbitrary threshold
+###   here we just test dimensions of filtered data, is there a more robust unit test?
+filtered_object <- filterGiotto(gobject = object,
                        expression_values = "raw",
                        expression_threshold = 1,
-                       feat_det_in_min_cells = 0,
-                       min_det_feats_per_cell = 0,
+                       feat_det_in_min_cells = 50,
+                       min_det_feats_per_cell = 50,
                        verbose = TRUE)
+
+test_that("Data in filtered object is expected size", {
+  
+  # filtered object expression values have expected dimensions
+  expect_true(all(filtered_object@expression[["cell"]][["rna"]][["raw"]]@Dim == c(153, 17814)))
+  
+  # filtered object spatial locations have expected length
+  expect_length(filtered_object@spatial_locs[["cell"]][["raw"]][["sdimx"]], 17814)
+  expect_length(filtered_object@spatial_locs[["cell"]][["raw"]][["sdimy"]], 17814)
+  expect_length(filtered_object@spatial_locs[["cell"]][["raw"]][["sdimz"]], 17814)
+  expect_length(filtered_object@spatial_locs[["cell"]][["raw"]][["cell_ID"]], 17814)
+  
+  # filtered object metadata has expected length 
+  expect_length(filtered_object@cell_metadata[["cell"]][["rna"]][["layer_ID"]], 17814)
+  expect_length(filtered_object@cell_metadata[["cell"]][["rna"]][["orig_cell_types"]], 17814)
+  
+})
+
+# NORMALIZE GIOTTO OBJECT
+merFISH_test <- normalizeGiotto(gobject = merFISH_test, scalefactor = 10000, verbose = T)
 
