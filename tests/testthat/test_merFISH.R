@@ -81,5 +81,49 @@ test_that("Data in filtered object is expected size", {
 })
 
 # NORMALIZE GIOTTO OBJECT
-merFISH_test <- normalizeGiotto(gobject = merFISH_test, scalefactor = 10000, verbose = T)
+object <- normalizeGiotto(gobject = object, scalefactor = 10000, verbose = T)
 
+test_that("Normalized data added to giotto object", {
+  
+  # gobject now also contains S4 object of class "dgCMatrix" containing normalized expression
+  expect_s4_class(object@expression[["cell"]][["rna"]][["normalized"]], "dgCMatrix")
+  expect_true(all(object@expression[["cell"]][["rna"]][["normalized"]]@Dim == c(161, 73655)))
+  
+  # gobject now also contains S4 object of class "dgeMatrix" containing scaled expression
+  expect_s4_class(object@expression[["cell"]][["rna"]][["scaled"]], "dgeMatrix")
+  expect_true(all(object@expression[["cell"]][["rna"]][["scaled"]]@Dim == c(161, 73655)))
+  
+})
+
+# ADD FEATURE AND CELL STATISTICS TO GIOTTO OBJECT
+object <- addStatistics(gobject = object)
+
+test_that("Feature and cell statistics are added to giotto object", {
+  
+  # gobject cell metadata contains nr_feats, perc_feats, total_expr
+  expect_length(object@cell_metadata[["cell"]][["rna"]][["nr_feats"]], 73655)
+  expect_type(object@cell_metadata[["cell"]][["rna"]][["nr_feats"]], "integer")
+  expect_length(object@cell_metadata[["cell"]][["rna"]][["perc_feats"]], 73655)
+  expect_type(object@cell_metadata[["cell"]][["rna"]][["perc_feats"]], "double")
+  expect_length(object@cell_metadata[["cell"]][["rna"]][["total_expr"]], 73655)
+  expect_type(object@cell_metadata[["cell"]][["rna"]][["total_expr"]], "double")
+  
+  # gobject feat metadata contains nr_cells, perc_cells, total_expr, mean_expr, mean_expr_det
+  expect_length(object@feat_metadata[["cell"]][["rna"]][["nr_cells"]], 161)
+  expect_type(object@feat_metadata[["cell"]][["rna"]][["nr_cells"]], "integer")
+  expect_length(object@feat_metadata[["cell"]][["rna"]][["perc_cells"]], 161)
+  expect_type(object@feat_metadata[["cell"]][["rna"]][["perc_cells"]], "double")
+  expect_length(object@feat_metadata[["cell"]][["rna"]][["total_expr"]], 161)
+  expect_type(object@feat_metadata[["cell"]][["rna"]][["total_expr"]], "double")
+  expect_length(object@feat_metadata[["cell"]][["rna"]][["mean_expr"]], 161)
+  expect_type(object@feat_metadata[["cell"]][["rna"]][["mean_expr"]], "double")
+  expect_length(object@feat_metadata[["cell"]][["rna"]][["mean_expr_det"]], 161)
+  expect_type(object@feat_metadata[["cell"]][["rna"]][["mean_expr_det"]], "double")
+  
+})
+
+# ADJUST EXPRESSION VALUES 
+object <- adjustGiottoMatrix(gobject = object, expression_values = c('normalized'),
+                             batch_columns = NULL, covariate_columns = c('layer_ID'),
+                             return_gobject = TRUE,
+                             update_slot = c('custom'))
