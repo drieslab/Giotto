@@ -214,7 +214,8 @@ markers = findMarkers_one_vs_all(gobject = object,
                                  method = 'gini',
                                  expression_values = 'normalized',
                                  cluster_column = 'leiden_0.2',
-                                 min_feats = 1, rank_score = 2)
+                                 min_feats = 1, rank_score = 2,
+                                 verbose = FALSE)
 
 test_that("Cell type markers are detected", {
   
@@ -225,6 +226,32 @@ test_that("Cell type markers are detected", {
   
   # number of markers
   expect_equal(nrow(markers), 584)
+  
+})
+
+# CLUSTER ANNOTATION
+selected_genes = c('Myh11', 'Klf4', 'Fn1', 'Cd24a', 'Cyr61', 'Nnat', 
+                   'Trh', 'Selplg', 'Pou3f2', 'Aqp4', 'Traf4',
+                   'Pdgfra', 'Opalin', 'Mbp', 'Ttyh2', 'Fezf1', 
+                   'Cbln1', 'Slc17a6', 'Scg2', 'Isl1', 'Gad1')
+cluster_order = c(6, 11, 9, 12, 4, 8, 7, 5, 13, 3, 1, 2, 10)
+clusters_cell_types_hypo = c('Inhibitory', 'Inhibitory', 'Excitatory', 
+                             'Astrocyte','OD Mature', 'Endothelial',
+                             'OD Mature', 'OD Immature', 'Ependymal', 'Ambiguous', 
+                             'Endothelial', 'Microglia', 'OD Mature')
+
+names(clusters_cell_types_hypo) = as.character(sort(cluster_order))
+object = annotateGiotto(gobject = object, annotation_vector = clusters_cell_types_hypo,
+                        cluster_column = 'leiden_0.2', name = 'cell_types')
+
+test_that("Cell type annotations are added to cell metadata", {
+  
+  expect_type(object@cell_metadata[["cell"]][["rna"]][["cell_types"]], "character")
+  expect_length(object@cell_metadata[["cell"]][["rna"]][["cell_types"]], 73655)
+  
+  # check a few annotations
+  expect_equal(object@cell_metadata[["cell"]][["rna"]][["cell_types"]][5], "Inhibitory")
+  expect_equal(object@cell_metadata[["cell"]][["rna"]][["cell_types"]][250], "OD Immature")
   
 })
 
