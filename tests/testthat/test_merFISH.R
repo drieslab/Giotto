@@ -12,7 +12,8 @@ meta_path = system.file("extdata", "merFISH_3D_metadata.txt", package = 'Giotto'
 
 # CREATE GIOTTO OBJECT
 object <- createGiottoObject(expression = expr_path,
-                             spatial_locs = loc_path)
+                             spatial_locs = loc_path,
+                             verbose = FALSE)
 
 test_that("Object initialization creates expected Giotto object", {
   
@@ -55,13 +56,12 @@ test_that("Cell metadata are read and added to Giotto object", {
 
 # FILTER GIOTTO OBJECT
 ###   kind of arbitrary threshold
-###   here we just test dimensions of filtered data, is there a more robust unit test?
 filtered_object <- filterGiotto(gobject = object,
                        expression_values = "raw",
                        expression_threshold = 1,
                        feat_det_in_min_cells = 50,
                        min_det_feats_per_cell = 50,
-                       verbose = TRUE)
+                       verbose = FALSE)
 
 test_that("Data in filtered object is expected size", {
   
@@ -81,7 +81,7 @@ test_that("Data in filtered object is expected size", {
 })
 
 # NORMALIZE GIOTTO OBJECT
-object <- normalizeGiotto(gobject = object, scalefactor = 10000, verbose = T)
+object <- normalizeGiotto(gobject = object, scalefactor = 10000, verbose = F)
 
 test_that("Normalized data added to giotto object", {
   
@@ -136,3 +136,95 @@ test_that("Adjusted values are created in 'custom' slot", {
   expect_equal(ncol(object@expression[["cell"]][["rna"]][["custom"]]), 73655)
   
 })
+
+# RUN DIMENSION REDUCTION
+object <- runPCA(gobject = object, 
+                 genes_to_use = NULL, 
+                 scale_unit = FALSE,
+                 center = TRUE,
+                 verbose = FALSE)
+
+test_that("PCA S3 object is created as expected", {
+  
+  # s3 object of class "dimObj"
+  expect_s3_class(object@dimension_reduction[["cells"]][["cell"]][["rna"]][["pca"]][["pca"]], "dimObj")
+  
+  # coordinates double of dims 73655 x 100
+  expect_equal(nrow(object@dimension_reduction[["cells"]][["cell"]][["rna"]][["pca"]][["pca"]][["coordinates"]]), 73655)
+  expect_equal(ncol(object@dimension_reduction[["cells"]][["cell"]][["rna"]][["pca"]][["pca"]][["coordinates"]]), 100)
+  
+  # test a few arbitrary coordinates
+  expect_equal(object@dimension_reduction[["cells"]][["cell"]][["rna"]][["pca"]][["pca"]][["coordinates"]][5], 
+               -5.612915,
+               tolerance = 1*10^-3)
+  expect_equal(object@dimension_reduction[["cells"]][["cell"]][["rna"]][["pca"]][["pca"]][["coordinates"]][10], 
+               -24.66273,
+               tolerance = 1*10^-3)
+  
+})
+
+# UMAP
+object <- runUMAP(object, dimensions_to_use = 1:8, n_components = 3, n_threads = 4, verbose = FALSE)
+
+test_that("UMAP S3 object is created as expected", {
+  
+  # s3 object of class "dimObj"
+  expect_s3_class(object@dimension_reduction[["cells"]][["cell"]][["rna"]][["umap"]][["umap"]], "dimObj")
+  
+  # coordinates double of dims 73655 x 3
+  expect_equal(nrow(object@dimension_reduction[["cells"]][["cell"]][["rna"]][["umap"]][["umap"]][["coordinates"]]), 73655)
+  expect_equal(ncol(object@dimension_reduction[["cells"]][["cell"]][["rna"]][["umap"]][["umap"]][["coordinates"]]), 3)
+  
+  # test a few arbitrary coordinates
+  expect_equal(object@dimension_reduction[["cells"]][["cell"]][["rna"]][["umap"]][["umap"]][["coordinates"]][20], 
+               1.803326,
+               tolerance = 1*10^-3)
+  expect_equal(object@dimension_reduction[["cells"]][["cell"]][["rna"]][["umap"]][["umap"]][["coordinates"]][40], 
+               -10.44192,
+               tolerance = 1*10^-3)
+  
+})
+
+# CREATE NETWORK
+object <- createNearestNetwork(gobject = object, dimensions_to_use = 1:8, k = 15, verbose = FALSE)
+
+test_that("sNN S3 object is created as expected", {
+  
+  # igraph s3 object
+  expect_s3_class(object@nn_network[["cell"]][["sNN"]][["sNN.pca"]], "igraph")
+  
+})
+
+# LEIDEN CLUSTERING
+object <- doLeidenCluster(gobject = object, resolution = 0.2, n_iterations = 200,
+                          name = 'leiden_0.2')
+
+test_that("New clusters are added to cell metadata", {
+  
+  expect_length(object@cell_metadata[["cell"]][["rna"]][["leiden_0.2"]], 73655)
+  
+  # test a few cluster assignments
+  expect_equal(object@cell_metadata[["cell"]][["rna"]][["leiden_0.2"]][10], 5)
+  expect_equal(object@cell_metadata[["cell"]][["rna"]][["leiden_0.2"]][80], 4)
+  
+})
+
+# CELL TYPE MARKER GENE DETECTION
+markers = findMarkers_one_vs_all(gobject = object,
+                                 method = 'gini',
+                                 expression_values = 'normalized',
+                                 cluster_column = 'leiden_0.2',
+                                 min_feats = 1, rank_score = 2)
+
+test_that("Cell type markers are detected", {
+  
+  # markers col names
+  expect_named(markers, c("feats", "cluster", "expression", "expression_gini", 
+                          "detection", "detection_gini", "expression_rank", 
+                          "detection_rank", "comb_score", "comb_rank"))
+  
+  # number of markers
+  expect_equal(nrow(markers), 584)
+  
+})
+
