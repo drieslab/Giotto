@@ -122,8 +122,17 @@ test_that("Feature and cell statistics are added to giotto object", {
   
 })
 
-# ADJUST EXPRESSION VALUES 
+# ADJUST EXPRESSION VALUES FOR BATCH/COVARIATES
 object <- adjustGiottoMatrix(gobject = object, expression_values = c('normalized'),
                              batch_columns = NULL, covariate_columns = c('layer_ID'),
                              return_gobject = TRUE,
                              update_slot = c('custom'))
+
+test_that("Adjusted values are created in 'custom' slot", {
+  
+  # expression now also contains custom object of class double
+  expect_type(object@expression[["cell"]][["rna"]][["custom"]], "double")
+  expect_equal(nrow(object@expression[["cell"]][["rna"]][["custom"]]), 161)
+  expect_equal(ncol(object@expression[["cell"]][["rna"]][["custom"]]), 73655)
+  
+})
