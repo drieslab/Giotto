@@ -13,28 +13,28 @@ doRandomWalkCluster(
   walk_clusters = 10,
   walk_weights = NA,
   return_gobject = TRUE,
-  set_seed = F,
+  set_seed = FALSE,
   seed_number = 1234
 )
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{name}{name for cluster}
+\item{name}{name for cluster, default to "random_walk_clus"}
 
-\item{nn_network_to_use}{type of NN network to use (kNN vs sNN)}
+\item{nn_network_to_use}{type of NN network to use (kNN vs sNN), default to "sNN"}
 
-\item{network_name}{name of NN network to use}
+\item{network_name}{name of NN network to use, default to "sNN.pca"}
 
-\item{walk_steps}{number of walking steps}
+\item{walk_steps}{number of walking steps, default = 4}
 
-\item{walk_clusters}{number of final clusters}
+\item{walk_clusters}{number of final clusters, default =  10}
 
 \item{walk_weights}{cluster column defining the walk weights}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
-\item{set_seed}{set seed}
+\item{set_seed}{set seed (default = FALSE)}
 
 \item{seed_number}{number for seed}
 }

@@ -25,23 +25,23 @@ doLeidenCluster(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit (e.g. "cell")}
 
-\item{feat_type}{feature type}
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
-\item{name}{name for cluster}
+\item{name}{name for cluster, default to "leiden_clus"}
 
-\item{nn_network_to_use}{type of NN network to use (kNN vs sNN)}
+\item{nn_network_to_use}{type of NN network to use (kNN vs sNN), default to "sNN"}
 
-\item{network_name}{name of NN network to use}
+\item{network_name}{name of NN network to use, default to "sNN.pca"}
 
 \item{python_path}{specify specific path to python if required}
 
-\item{resolution}{resolution}
+\item{resolution}{resolution, default = 1}
 
-\item{weight_col}{weight column to use for edges}
+\item{weight_col}{weight column to use for edges, default to "weight"}
 
-\item{partition_type}{The type of partition to use for optimisation.}
+\item{partition_type}{The type of partition to use for optimisation. (e.g. "RBConfigurationVertexPartition", "ModularityVertexPartition")}
 
 \item{init_membership}{initial membership of cells for the partition}
 

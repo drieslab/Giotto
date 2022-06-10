@@ -3,15 +3,15 @@
 #' @name doLeidenCluster
 #' @description cluster cells using a NN-network and the Leiden community detection algorithm
 #' @param gobject giotto object
-#' @param spat_unit spatial unit
-#' @param feat_type feature type
-#' @param name name for cluster
-#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
-#' @param network_name name of NN network to use
+#' @param spat_unit spatial unit (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
+#' @param name name for cluster, default to "leiden_clus"
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN), default to "sNN"
+#' @param network_name name of NN network to use, default to "sNN.pca"
 #' @param python_path specify specific path to python if required
-#' @param resolution resolution
-#' @param weight_col weight column to use for edges
-#' @param partition_type The type of partition to use for optimisation.
+#' @param resolution resolution, default = 1
+#' @param weight_col weight column to use for edges, default to "weight"
+#' @param partition_type The type of partition to use for optimisation. (e.g. "RBConfigurationVertexPartition", "ModularityVertexPartition")
 #' @param init_membership initial membership of cells for the partition
 #' @param n_iterations number of interations to run the Leiden algorithm.
 #' If the number of iterations is negative, the Leiden algorithm is run until
@@ -179,16 +179,16 @@ doLeidenCluster = function(gobject,
 #' @name doLouvainCluster_community
 #' @description cluster cells using a NN-network and the Louvain algorithm from the community module in Python
 #' @param gobject giotto object
-#' @param name name for cluster
-#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
-#' @param network_name name of NN network to use
+#' @param name name for cluster, default to "louvain_clus"
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN), default to "sNN"
+#' @param network_name name of NN network to use, default to "sNN.pca"
 #' @param python_path specify specific path to python if required
-#' @param resolution resolution
+#' @param resolution resolution, default = 1
 #' @param weight_col weight column to use for edges
 #' @param louv_random Will randomize the node evaluation order and the community evaluation
-#' order to get different partitions at each call
+#' order to get different partitions at each call (default = FALSE)
 #' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @param set_seed set seed
+#' @param set_seed set seed (default = FALSE)
 #' @param seed_number number for seed
 #' @return giotto object with new clusters appended to cell metadata
 #' @details This function is a wrapper for the Louvain algorithm implemented in Python,
@@ -207,9 +207,9 @@ doLouvainCluster_community <- function(gobject,
                                        python_path = NULL,
                                        resolution = 1,
                                        weight_col = NULL,
-                                       louv_random = F,
+                                       louv_random = FALSE,
                                        return_gobject = TRUE,
-                                       set_seed = F,
+                                       set_seed = FALSE,
                                        seed_number = 1234) {
 
 
@@ -317,13 +317,13 @@ doLouvainCluster_community <- function(gobject,
 #' @name doLouvainCluster_multinet
 #' @description cluster cells using a NN-network and the Louvain algorithm from the multinet package in R.
 #' @param gobject giotto object
-#' @param name name for cluster
-#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
-#' @param network_name name of NN network to use
-#' @param gamma Resolution parameter for modularity in the generalized louvain method.
-#' @param omega Inter-layer weight parameter in the generalized louvain method.
+#' @param name name for cluster, default to "louvain_clus"
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN), default to "sNN"
+#' @param network_name name of NN network to use, default to "sNN.pca"
+#' @param gamma Resolution parameter for modularity in the generalized louvain method. default  = 1
+#' @param omega Inter-layer weight parameter in the generalized louvain method. default = 1
 #' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @param set_seed set seed
+#' @param set_seed set seed (default = FALSE)
 #' @param seed_number number for seed
 #' @return giotto object with new clusters appended to cell metadata
 #' @details See \code{\link[multinet]{glouvain_ml}} from the multinet package in R for
@@ -337,7 +337,7 @@ doLouvainCluster_multinet <- function(gobject,
                                       gamma = 1,
                                       omega = 1,
                                       return_gobject = TRUE,
-                                      set_seed = F,
+                                      set_seed = FALSE,
                                       seed_number = 1234) {
 
 
@@ -427,22 +427,24 @@ doLouvainCluster_multinet <- function(gobject,
 #' @title doLouvainCluster
 #' @name doLouvainCluster
 #' @description cluster cells using a NN-network and the Louvain algorithm.
+#'
 #' @param gobject giotto object
 #' @param version implemented version of Louvain clustering to use
-#' @param name name for cluster
-#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
-#' @param network_name name of NN network to use
+#' @param name name for cluster, default to "louvain_clus"
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN), default to "sNN"
+#' @param network_name name of NN network to use, default to "sNN.pca"
 #' @param python_path [community] specify specific path to python if required
-#' @param resolution [community] resolution
+#' @param resolution [community] resolution, default = 1
 #' @param louv_random [community] Will randomize the node evaluation order and the community evaluation
-#' order to get different partitions at each call
+#' order to get different partitions at each call (default = FALSE)
 #' @param weight_col weight column name
-#' @param gamma [multinet] Resolution parameter for modularity in the generalized louvain method.
-#' @param omega [multinet] Inter-layer weight parameter in the generalized louvain method
+#' @param gamma [multinet] Resolution parameter for modularity in the generalized louvain method, default = 1
+#' @param omega [multinet] Inter-layer weight parameter in the generalized louvain method, default = 1
 #' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @param set_seed set seed
+#' @param set_seed set seed (default = FALSE)
+#' @param ... arguments passed to \code{\link{doLouvainCluster_community}} or \code{\link{doLouvainCluster_multinet}}
 #' @param seed_number number for seed
-#' @param \dots additional parameters
+#'
 #' @return giotto object with new clusters appended to cell metadata
 #' @details Louvain clustering using the community or multinet implementation of the louvain clustering algorithm.
 #' @seealso \code{\link{doLouvainCluster_community}} and \code{\link{doLouvainCluster_multinet}}
@@ -457,9 +459,9 @@ doLouvainCluster = function(gobject,
                             weight_col = NULL,
                             gamma = 1,
                             omega = 1,
-                            louv_random = F,
+                            louv_random = FALSE,
                             return_gobject = TRUE,
-                            set_seed = F,
+                            set_seed = FALSE,
                             seed_number = 1234,
                             ...) {
 
@@ -511,14 +513,14 @@ doLouvainCluster = function(gobject,
 #' @name doRandomWalkCluster
 #' @description Cluster cells using a random walk approach.
 #' @param gobject giotto object
-#' @param name name for cluster
-#' @param nn_network_to_use type of NN network to use (kNN vs sNN)
-#' @param network_name name of NN network to use
-#' @param walk_steps number of walking steps
-#' @param walk_clusters number of final clusters
+#' @param name name for cluster, default to "random_walk_clus"
+#' @param nn_network_to_use type of NN network to use (kNN vs sNN), default to "sNN"
+#' @param network_name name of NN network to use, default to "sNN.pca"
+#' @param walk_steps number of walking steps, default = 4
+#' @param walk_clusters number of final clusters, default =  10
 #' @param walk_weights cluster column defining the walk weights
 #' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @param set_seed set seed
+#' @param set_seed set seed (default = FALSE)
 #' @param seed_number number for seed
 #' @return giotto object with new clusters appended to cell metadata
 #' @details See \code{\link[igraph]{cluster_walktrap}} function from the igraph
@@ -532,7 +534,7 @@ doRandomWalkCluster <- function(gobject,
                                 walk_clusters = 10,
                                 walk_weights = NA,
                                 return_gobject = TRUE,
-                                set_seed = F,
+                                set_seed = FALSE,
                                 seed_number = 1234) {
 
   ## get cell IDs ##
@@ -593,15 +595,15 @@ doRandomWalkCluster <- function(gobject,
 #' @name doSNNCluster
 #' @description Cluster cells using a SNN cluster approach.
 #' @param gobject giotto object
-#' @param name name for cluster
-#' @param nn_network_to_use type of NN network to use (only works on kNN)
-#' @param network_name name of kNN network to use
-#' @param k Neighborhood size for nearest neighbor sparsification to create the shared NN graph.
-#' @param eps Two objects are only reachable from each other if they share at least eps nearest neighbors.
-#' @param minPts minimum number of points that share at least eps nearest neighbors for a point to be considered a core points.
-#' @param borderPoints should borderPoints be assigned to clusters like in DBSCAN?
+#' @param name name for cluster, default to "sNN_clus"
+#' @param nn_network_to_use type of NN network to use (only works on kNN), default to "kNN"
+#' @param network_name name of kNN network to use, default to "kNN.pca"
+#' @param k Neighborhood size for nearest neighbor sparsification to create the shared NN graph, default = 20
+#' @param eps Two objects are only reachable from each other if they share at least eps nearest neighbors, default = 4
+#' @param minPts minimum number of points that share at least eps nearest neighbors for a point to be considered a core points, default = 16
+#' @param borderPoints should borderPoints be assigned to clusters like in DBSCAN? (default = TRUE)
 #' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @param set_seed set seed
+#' @param set_seed set seed (default = FALSE)
 #' @param seed_number number for seed
 #' @return giotto object with new clusters appended to cell metadata
 #' @details See \code{\link[dbscan]{sNNclust}} from dbscan package
@@ -615,7 +617,7 @@ doSNNCluster <- function(gobject,
                          minPts = 16,
                          borderPoints = TRUE,
                          return_gobject = TRUE,
-                         set_seed = F,
+                         set_seed = FALSE,
                          seed_number = 1234) {
 
 
@@ -701,22 +703,22 @@ doSNNCluster <- function(gobject,
 #' @name doKmeans
 #' @description cluster cells using kmeans algorithm
 #' @param gobject giotto object
-#' @param feat_type feature type
-#' @param spat_unit spatial unit
-#' @param expression_values expression values to use
+#' @param feat_type feature type (e.g. "cell")
+#' @param spat_unit spatial unit (e.g. "rna", "dna", "protein")
+#' @param expression_values expression values to use (e.g. "normalized", "scaled", "custom")
 #' @param feats_to_use subset of features to use
 #' @param genes_to_use deprecated use feats_to_use
-#' @param dim_reduction_to_use dimension reduction to use
-#' @param dim_reduction_name dimensions reduction name
-#' @param dimensions_to_use dimensions to use
-#' @param distance_method distance method
-#' @param centers number of final clusters
-#' @param iter_max kmeans maximum iterations
-#' @param nstart kmeans nstart
-#' @param algorithm kmeans algorithm
-#' @param name name for kmeans clustering
+#' @param dim_reduction_to_use dimension reduction to use (e.g. "cells", "pca", "umap", "tsne")
+#' @param dim_reduction_name dimensions reduction name, default to "pca"
+#' @param dimensions_to_use dimensions to use, default = 1:10
+#' @param distance_method distance method (e.g. "original", "pearson", "spearman", "euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski")
+#' @param centers number of final clusters, default = 10
+#' @param iter_max kmeans maximum iterations, default = 100
+#' @param nstart kmeans nstart, default = 1000
+#' @param algorithm kmeans algorithm, default to "Hartigan-Wong"
+#' @param name name for kmeans clustering, default to "kmeans"
 #' @param return_gobject boolean: return giotto object (default = TRUE)
-#' @param set_seed set seed
+#' @param set_seed set seed (default = TRUE)
 #' @param seed_number number for seed
 #' @return giotto object with new clusters appended to cell metadata
 #' @details Description on how to use Kmeans clustering method.
@@ -740,7 +742,7 @@ doKmeans <- function(gobject,
                      algorithm = "Hartigan-Wong",
                      name = 'kmeans',
                      return_gobject = TRUE,
-                     set_seed = T,
+                     set_seed = TRUE,
                      seed_number = 1234) {
 
 

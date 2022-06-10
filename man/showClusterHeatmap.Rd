@@ -51,7 +51,7 @@ showClusterHeatmap(
 
 \item{default_save_name}{default save name for saving, don't change, change save_name in save_param}
 
-\item{...}{additional parameters passed to \code{\link{ComplexHeatmap::Heatmap}} function}
+\item{...}{additional parameters passed to \code{\link[ComplexHeatmap]{Heatmap}} function}
 }
 \value{
 ggplot

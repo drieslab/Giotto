@@ -16,13 +16,13 @@
 #' @description Downsample \code{largeImage} for plotting. Uses \code{\link[terra]{spatSample}}
 #' to load only a portion of the original image, speeding up plotting and lowering memory
 #' footprint.
-#' 
+#'
 #' Default behavior of \code{spatSample} is to crop if only a smaller ROI is needed for plotting
 #' followed by the sampling process in order to reduce wasted sampling by focusing the
 #' sample space. For very large ROIs, this crop can be time intensive and require
 #' writing to disk.
-#' 
-#' This function examines the ROI dimensions as defined through the limits of the spatial 
+#'
+#' This function examines the ROI dimensions as defined through the limits of the spatial
 #' locations to be plotted, and decides between the following two methods in order to
 #' avoid this issue:
 #' \itemize{
@@ -34,7 +34,7 @@
 #'   x and y dims is chosen. Scale factor is capped by \code{max_resample_scale}}
 #' }
 #' Control points for this function are set by \code{max_crop} which decides the max
-#' ROI area after which switchover to method B happens in order to avoid laborious crops 
+#' ROI area after which switchover to method B happens in order to avoid laborious crops
 #' and \code{max_resample_scale} which determines the maximum scale factor for number
 #' of values to sample. Both values can be adjusted depending on system resources.
 #' Additionally, \code{flex_resample} determines if this switching behavior happens.
@@ -45,7 +45,7 @@
 #' @param largeImage_name name of \code{largeImage} in \code{gobject}
 #' @param spat_unit spatial unit
 #' @param spat_loc_name name of spatial locations to plot
-#' @param include_image_in_border [boolean] expand the extent sampled to also show image in 
+#' @param include_image_in_border [boolean] expand the extent sampled to also show image in
 #' border regions not included in spatlocs. This prevents images in plots from
 #' being sharply cut off around the furthest spatial locations. (default is \code{TRUE})
 #' @param flex_resample [boolean] Whether to allow automatic selection of sampling
@@ -9973,9 +9973,9 @@ plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
 
   # data.table variables
   y = name = NULL
-  
+
   if(is.null(x)) stop('plot object is empty')
-  
+
   ui <- miniPage(
     gadgetTitleBar("Plot Interactive Polygons"),
     miniContentPanel(
@@ -9997,11 +9997,12 @@ plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
   server <- function(input, output,session) {
     output$plot <- renderPlot({
       if ("ggplot" %in% class(x)) {
+        x$coordinates$default <- TRUE
         x +
           geom_polygon(data = clicklist(), aes(x,y, color = name, fill = name),
                        alpha = 0, ...) +
-          coord_cartesian(xlim = c(input$xrange[1], input$xrange[2]),
-                          ylim = c(input$yrange[1], input$yrange[2])) +
+          coord_fixed(xlim = c(input$xrange[1], input$xrange[2]),
+                      ylim = c(input$yrange[1], input$yrange[2])) +
           theme(legend.position = 'none')
       } else {
         terra::plot(x)
@@ -10043,7 +10044,7 @@ plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
 #' @export
 #'
 #' @examples
-#' 
+#'
 #' \dontrun{
 #' ## Plot interactive polygons
 #' my_spatPlot <- spatPlot2D(gobject = my_giotto_object,
@@ -10060,7 +10061,7 @@ plotInteractivePolygons <- function(x, width = "auto", height = "auto", ...) {
 #' ## Get cells located within polygons area
 #' getCellsFromPolygon(my_giotto_object)
 #' }
-#' 
+#'
 
 getCellsFromPolygon <- function(gobject,
                                 polygon_slot = "spatial_info",
@@ -10101,7 +10102,7 @@ getCellsFromPolygon <- function(gobject,
 #' @export
 #'
 #' @examples
-#' 
+#'
 #' \dontrun{
 #' ## Plot interactive polygons
 #' my_polygon_coords <- plotInteractivePolygons(my_spatPlot)
@@ -10116,7 +10117,7 @@ getCellsFromPolygon <- function(gobject,
 #'
 #' my_giotto_object <- addCellsFromPolygon(my_giotto_object, my_polygon_cells)
 #' }
-#' 
+#'
 
 addCellsFromPolygon <- function(gobject,
                                 cellsFromPolygon,
@@ -10136,6 +10137,11 @@ addCellsFromPolygon <- function(gobject,
   ## merge metadata as data.table
   new_cell_metadata <- merge(cell_metadata, cellsFromPolygondata[,c("cell_ID", "poly_ID")],
                              by = "cell_ID", all.x = TRUE)
+
+  ## replace NA's with a defult name
+  new_cell_metadata[is.na(new_cell_metadata$poly_ID),"poly_ID"] <- "no_polygon"
+
+  ## set rows order
   new_cell_metadata <- new_cell_metadata[match(cell_metadata$cell_ID, new_cell_metadata$cell_ID),]
 
   ## add cell metadata to Giotto object

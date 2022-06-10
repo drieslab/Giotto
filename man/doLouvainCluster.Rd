@@ -15,9 +15,9 @@ doLouvainCluster(
   weight_col = NULL,
   gamma = 1,
   omega = 1,
-  louv_random = F,
+  louv_random = FALSE,
   return_gobject = TRUE,
-  set_seed = F,
+  set_seed = FALSE,
   seed_number = 1234,
   ...
 )
@@ -27,32 +27,32 @@ doLouvainCluster(
 
 \item{version}{implemented version of Louvain clustering to use}
 
-\item{name}{name for cluster}
+\item{name}{name for cluster, default to "louvain_clus"}
 
-\item{nn_network_to_use}{type of NN network to use (kNN vs sNN)}
+\item{nn_network_to_use}{type of NN network to use (kNN vs sNN), default to "sNN"}
 
-\item{network_name}{name of NN network to use}
+\item{network_name}{name of NN network to use, default to "sNN.pca"}
 
 \item{python_path}{[community] specify specific path to python if required}
 
-\item{resolution}{[community] resolution}
+\item{resolution}{[community] resolution, default = 1}
 
 \item{weight_col}{weight column name}
 
-\item{gamma}{[multinet] Resolution parameter for modularity in the generalized louvain method.}
+\item{gamma}{[multinet] Resolution parameter for modularity in the generalized louvain method, default = 1}
 
-\item{omega}{[multinet] Inter-layer weight parameter in the generalized louvain method}
+\item{omega}{[multinet] Inter-layer weight parameter in the generalized louvain method, default = 1}
 
 \item{louv_random}{[community] Will randomize the node evaluation order and the community evaluation
-order to get different partitions at each call}
+order to get different partitions at each call (default = FALSE)}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
-\item{set_seed}{set seed}
+\item{set_seed}{set seed (default = FALSE)}
 
 \item{seed_number}{number for seed}
 
-\item{\dots}{additional parameters}
+\item{...}{arguments passed to \code{\link{doLouvainCluster_community}} or \code{\link{doLouvainCluster_multinet}}}
 }
 \value{
 giotto object with new clusters appended to cell metadata
