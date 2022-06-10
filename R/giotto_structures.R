@@ -1205,12 +1205,12 @@ addGiottoPoints3D <- function (gobject, coords, feat_type = "rna")
     spatvec = terra::vect(as.matrix(coords[,1:2]), type = "points", atts = coords)
     names(spatvec)[4] = 'feat_ID'
 
-    g_points = Giotto:::create_giotto_points_object(feat_type = feat_type,
-                                                    spatVector = spatvec)
+    g_points = create_giotto_points_object(feat_type = feat_type,
+                                           spatVector = spatvec)
   }
   else if (inherits(coords, "spatVector")) {
-    g_points = Giotto:::create_giotto_points_object(feat_type = feat_type,
-                                                    spatVector = coords)
+    g_points = create_giotto_points_object(feat_type = feat_type,
+                                           spatVector = coords)
   }
   else {
     stop("Class ", class(coords), " is not supported")
