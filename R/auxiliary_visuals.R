@@ -453,7 +453,7 @@ showSaveParameters = function() {
 #' @param save_plot directly save the plot. TRUE or FALSE
 #' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
-#' @param ... additional parameters passed to \code{\link{ComplexHeatmap::Heatmap}} function
+#' @param ... additional parameters passed to \code{\link[ComplexHeatmap]{Heatmap}} function
 #' @return ggplot
 #' @details Correlation heatmap of selected clusters.
 #' @export
@@ -563,7 +563,7 @@ showClusterHeatmap <- function(gobject,
 #' @param save_plot directly save the plot. TRUE or FALSE
 #' @param save_param list of saving parameters, see \code{\link{showSaveParameters}}
 #' @param default_save_name default save name for saving, don't change, change save_name in save_param
-#' @param ... additional parameters passed to \code{\link{ggdendro::ggdendrogram}}
+#' @param ... additional parameters passed to \code{\link[ggdendro]{ggdendrogram}}
 #' @return ggplot
 #' @details Expression correlation dendrogram for selected clusters.
 #' @export
