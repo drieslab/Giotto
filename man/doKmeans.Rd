@@ -22,44 +22,44 @@ doKmeans(
   algorithm = "Hartigan-Wong",
   name = "kmeans",
   return_gobject = TRUE,
-  set_seed = T,
+  set_seed = TRUE,
   seed_number = 1234
 )
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{feat_type}{feature type}
+\item{feat_type}{feature type (e.g. "cell")}
 
-\item{spat_unit}{spatial unit}
+\item{spat_unit}{spatial unit (e.g. "rna", "dna", "protein")}
 
-\item{expression_values}{expression values to use}
+\item{expression_values}{expression values to use (e.g. "normalized", "scaled", "custom")}
 
 \item{feats_to_use}{subset of features to use}
 
 \item{genes_to_use}{deprecated use feats_to_use}
 
-\item{dim_reduction_to_use}{dimension reduction to use}
+\item{dim_reduction_to_use}{dimension reduction to use (e.g. "cells", "pca", "umap", "tsne")}
 
-\item{dim_reduction_name}{dimensions reduction name}
+\item{dim_reduction_name}{dimensions reduction name, default to "pca"}
 
-\item{dimensions_to_use}{dimensions to use}
+\item{dimensions_to_use}{dimensions to use, default = 1:10}
 
-\item{distance_method}{distance method}
+\item{distance_method}{distance method (e.g. "original", "pearson", "spearman", "euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski")}
 
-\item{centers}{number of final clusters}
+\item{centers}{number of final clusters, default = 10}
 
-\item{iter_max}{kmeans maximum iterations}
+\item{iter_max}{kmeans maximum iterations, default = 100}
 
-\item{nstart}{kmeans nstart}
+\item{nstart}{kmeans nstart, default = 1000}
 
-\item{algorithm}{kmeans algorithm}
+\item{algorithm}{kmeans algorithm, default to "Hartigan-Wong"}
 
-\item{name}{name for kmeans clustering}
+\item{name}{name for kmeans clustering, default to "kmeans"}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
-\item{set_seed}{set seed}
+\item{set_seed}{set seed (default = TRUE)}
 
 \item{seed_number}{number for seed}
 }

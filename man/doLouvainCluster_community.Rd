@@ -12,33 +12,33 @@ doLouvainCluster_community(
   python_path = NULL,
   resolution = 1,
   weight_col = NULL,
-  louv_random = F,
+  louv_random = FALSE,
   return_gobject = TRUE,
-  set_seed = F,
+  set_seed = FALSE,
   seed_number = 1234
 )
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{name}{name for cluster}
+\item{name}{name for cluster, default to "louvain_clus"}
 
-\item{nn_network_to_use}{type of NN network to use (kNN vs sNN)}
+\item{nn_network_to_use}{type of NN network to use (kNN vs sNN), default to "sNN"}
 
-\item{network_name}{name of NN network to use}
+\item{network_name}{name of NN network to use, default to "sNN.pca"}
 
 \item{python_path}{specify specific path to python if required}
 
-\item{resolution}{resolution}
+\item{resolution}{resolution, default = 1}
 
 \item{weight_col}{weight column to use for edges}
 
 \item{louv_random}{Will randomize the node evaluation order and the community evaluation
-order to get different partitions at each call}
+order to get different partitions at each call (default = FALSE)}
 
 \item{return_gobject}{boolean: return giotto object (default = TRUE)}
 
-\item{set_seed}{set seed}
+\item{set_seed}{set seed (default = FALSE)}
 
 \item{seed_number}{number for seed}
 }

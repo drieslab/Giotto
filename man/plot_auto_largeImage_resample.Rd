@@ -28,7 +28,7 @@ plot_auto_largeImage_resample(
 
 \item{spat_loc_name}{name of spatial locations to plot}
 
-\item{include_image_in_border}{[boolean] expand the extent sampled to also show image in 
+\item{include_image_in_border}{[boolean] expand the extent sampled to also show image in
 border regions not included in spatlocs. This prevents images in plots from
 being sharply cut off around the furthest spatial locations. (default is \code{TRUE})}
 
@@ -54,7 +54,7 @@ followed by the sampling process in order to reduce wasted sampling by focusing 
 sample space. For very large ROIs, this crop can be time intensive and require
 writing to disk.
 
-This function examines the ROI dimensions as defined through the limits of the spatial 
+This function examines the ROI dimensions as defined through the limits of the spatial
 locations to be plotted, and decides between the following two methods in order to
 avoid this issue:
 \itemize{
@@ -66,7 +66,7 @@ avoid this issue:
   x and y dims is chosen. Scale factor is capped by \code{max_resample_scale}}
 }
 Control points for this function are set by \code{max_crop} which decides the max
-ROI area after which switchover to method B happens in order to avoid laborious crops 
+ROI area after which switchover to method B happens in order to avoid laborious crops
 and \code{max_resample_scale} which determines the maximum scale factor for number
 of values to sample. Both values can be adjusted depending on system resources.
 Additionally, \code{flex_resample} determines if this switching behavior happens.
