@@ -3,9 +3,11 @@ if(is.null(python_path)) {
   installGiottoEnvironment()
 }
 
-expr_path = system.file("extdata/merFISH_3D_data", "merFISH_3D_data_expression.txt.gz", package = 'Giotto')
-loc_path = system.file("/extdata/merFISH_3D_data", "merFISH_3D_data_cell_locations.txt", package = 'Giotto')
-meta_path = system.file("extdata/merFISH_3D_data", "merFISH_3D_metadata.txt", package = 'Giotto')
+getSpatialDataset(dataset = "merfish_preoptic", directory = paste0(getwd(), "/merfish_preoptic/"))
+
+expr_path = "./merfish_preoptic/merFISH_3D_data_expression.txt.gz"
+loc_path = "./merfish_preoptic/merFISH_3D_data_cell_locations.txt"
+meta_path = "./merfish_preoptic/merFISH_3D_metadata.txt"
 
 ### TESTS FOR MERFISH MOUSE HYPOTHALMIC PREOPTIC REGION DATASET
 # --------------------------------------------------------------
