@@ -354,74 +354,64 @@ seuratToGiotto_OLD <- function(obj_use = NULL,
 #' @param sobject Seurat object
 #' @return Giotto object
 #' @export
-seuratToGiotto = function(sobject){
+seuratToGiotto = function(sobject, spatial_assay = 'Spatial', 
+                          dim_reduction = c('pca','umap'), subcellular_assay = 'Vizgen'){
   requireNamespace('Seurat')
   requireNamespace('Giotto')
   
-  if(is.null(Seurat::GetAssayData(object = sobject, slot = "counts"))) {
-    cat('No expression values are provided \n')
+  if(is.null(Seurat::GetAssayData(object = sobject, slot = "counts", assay = spatial_assay))) {
+    cat('No raw expression values are provided in spatial_assay\n')
     return(sobject)
-
+    
   } else {
     
-  exp = Seurat::GetAssayData(object = sobject, slot = "counts")
-  
+    exp = Seurat::GetAssayData(object = sobject, slot = "counts", assay = spatial_assay)
+    
+    # Cell Metadata
+    cell_metadata = sobject@meta.data
+    
     # Dimension Reduction 
-    if(length(sobject@reductions$pca) == 0 & length(sobject@reductions$umap) == 0) {
+    if(sum(sapply(dim_reduction,function(x) length(sobject@reductions[[x]]))) == 0) {
       dim_reduc = NULL
-      
     } else {
-      
-      if(!is.null(Seurat::Embeddings(object = sobject, reduction = "pca"))) {
-      
-      pca_coord = as.matrix(Seurat::Embeddings(object = sobject, reduction = "pca"))
-      pca_load = as.matrix(Seurat::Loadings(object = sobject, reduction = "pca"))
-      pca_eig = sapply(Seurat::Stdev(sobject, reduction = "pca"), function(x) x ^ 2) 
-      
-      colnames(pca_coord) = gsub(x = colnames(pca_coord), pattern = "PC_", replacement = "Dim.")  
-      colnames(pca_load) = gsub(x = colnames(pca_load), pattern = "PC_", replacement = "Dim.") 
-      
-      pca = list(type = "cells",
-                 spat_unit = "cell",
-                 name = "test",
-                 reduction_method = 'pca',
-                 coordinates = pca_coord,
-                 misc =list(eigenvalues = pca_eig, loadings = pca_load))
-      } else { pca = NULL} 
-      
-      if(!is.null(Seurat::Embeddings(object = sobject, reduction = "umap"))) {
-     
-      umap_coord = as.matrix(Seurat::Embeddings(object = sobject, reduction = "umap"))
-      
-      colnames(umap_coord) = gsub(x = colnames(umap_coord), pattern = "UMAP_", replacement = "Dim.") 
-      
-      umap = list(type = "cells",
-                  spat_unit = "cell",
-                  name = "test",
-                  reduction_method = 'umap',
-                  coordinates = umap_coord,
-                  misc = NULL)
-      } else { umap = NULL} 
-      
-      dim_reduc = list(pca,umap)
-      
+      dimReduc_list = lapply(dim_reduction,function(x){
+        dim_coord = as.matrix(Seurat::Embeddings(object = sobject,reduction = x))
+        dim_load = as.matrix(Seurat::Loadings(object = sobject, reduction = x))
+        dim_eig = Seurat::Stdev(sobject, reduction = x)
+        if (length(dim_eig) > 0){
+          dim_eig = sapply(dim_eig, function(x) x ^ 2)
+        }
+        colnames(dim_coord) = paste0('Dim.',1:ncol(dim_coord))
+        if (length(dim_load) > 0){
+          colnames(dim_load) = paste0('Dim.',1:ncol(dim_load))
+        }
+        dimReduc = list(type = "cells",
+                        spat_unit = "cell",
+                        name = x,
+                        reduction_method = x,
+                        coordinates = dim_coord,
+                        feat_type = 'rna',
+                        misc =list(eigenvalues = dim_eig, loadings = dim_load))
+        return (dimReduc)
+      })
+      # names(dimReduc_list) <- dim_reduction
     }
     
     # Spatial Locations
-    if(length(sobject@assays[["Spatial"]]) == 0) {
+    if(length(sobject@assays[[spatial_assay]]) == 0) {
       spat_loc = NULL
-      
     } else {
-    
+      
       spat_coord = Seurat::GetTissueCoordinates(sobject)
       spat_coord = cbind(rownames(spat_coord), data.frame(spat_coord, row.names=NULL))
       colnames(spat_coord) = c("cell_ID", "sdimy", "sdimx")
-      spat_loc = spat_coord}
+      spat_loc = spat_coord
+    }
     
     
     # Subcellular
     name = names(sobject@images)
-    if(length(sobject@assays[["Vizgen"]]) == 1 | length(sobject@assays[["Akoya"]]) == 1 | length(sobject@assays[["Nanostring"]]) == 1) {
+    if(length(sobject@assays[[subcellular_assay]]) == 1) {
       
       spat_coord = Seurat::GetTissueCoordinates(sobject)
       colnames(spat_coord) = c("sdimx", "sdimy", "cell_ID")
@@ -440,24 +430,26 @@ seuratToGiotto = function(sobject){
             df = (Seurat::FetchData(sobject[[name]][["molecules"]], vars = x))
             mol_spatlocs = rbind(mol_spatlocs, df)
           }
-            gpoints = createGiottoPoints(mol_spatlocs, feat_type = "rna")
-            
+          gpoints = createGiottoPoints(mol_spatlocs, feat_type = "rna")
+          
         }
       }  
     }
-   }
-    
-   gobject = createGiottoObject(exp,
-                       spatial_locs = spat_loc,
-                       dimension_reduction = dim_reduc)
-
-   if (exists('gpoints') == TRUE) {
+  }
+  
+  gobject = createGiottoObject(exp,
+                               spatial_locs = spat_loc,
+                               dimension_reduction = dimReduc_list)
+  gobject = addCellMetadata(gobject = gobject, new_metadata = cell_metadata)
+  
+  if (exists('gpoints') == TRUE) {
     gobject = addGiottoPoints(gobject = gobject,
-                                      gpoints = list(gpoints))
-   }
-   
-   return (gobject)
+                              gpoints = list(gpoints))
+  }
+  
+  return (gobject)
 }
+
   
 
 
