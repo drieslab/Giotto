@@ -3,17 +3,14 @@ if(is.null(python_path)) {
   installGiottoEnvironment()
 }
 
-# use download method
-# getSpatialDataset(dataset = "Mouse_brain_scRNAseq", directory = paste0(getwd(), "/mouse_brain_scRNAseq/"))
-
-data_path = system.file("extdata/", "visium_brain_data/", package = 'Giotto')
+filtered_matrix = system.file("extdata/visium_brain_data", "filtered_feature_bc_matrix.h5", package = 'Giotto')
 
 ### TESTS FOR 10X VISIUM MOUSE BRAIN DATASET
 # --------------------------------------------------------------
 
 # CREATE VISIUM OBJECT
 object = createGiottoVisiumObject(visium_dir = data_path,
-                                  expr_data = 'raw',
+                                  expr_data = 'filter',
                                   png_name = 'tissue_lowres_image.png',
                                   gene_column_index = 2)
 
@@ -125,3 +122,8 @@ gini_markers_subclusters = findMarkers_one_vs_all(gobject = object,
                                                   min_feats = 20,
                                                   min_expr_gini_score = 0.5,
                                                   min_det_gini_score = 0.5)
+
+# ENRICHMENT
+
+
+
