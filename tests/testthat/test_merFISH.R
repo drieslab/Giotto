@@ -57,7 +57,6 @@ test_that("Cell metadata are read and added to Giotto object", {
 })
 
 # FILTER GIOTTO OBJECT
-###   kind of arbitrary threshold
 filtered_object <- filterGiotto(gobject = object,
                        expression_values = "raw",
                        expression_threshold = 1,
