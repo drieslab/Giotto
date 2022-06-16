@@ -36,8 +36,8 @@ cellProximityBarplot = function(gobject,
   # data.table variables
   original = simulations = p_higher_orig = p_lower_orig = enrichm = type_int = unified_int = NULL
 
-  table_mean_results_dc_filter = table_mean_results_dc[original >= min_orig_ints & simulations >= min_sim_ints]
-  table_mean_results_dc_filter = table_mean_results_dc_filter[p_higher_orig <= p_val | p_lower_orig <= p_val]
+  table_mean_results_dc_filter = table_mean_results_dc[original >= min_orig_ints & simulations >= min_sim_ints,]
+  table_mean_results_dc_filter = table_mean_results_dc_filter[p_higher_orig <= p_val | p_lower_orig <= p_val,]
 
   pl <- ggplot2::ggplot()
   pl <- pl + ggplot2::geom_bar(data = table_mean_results_dc_filter, ggplot2::aes(x = unified_int, y = enrichm, fill = type_int), stat = 'identity', show.legend = F)
