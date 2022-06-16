@@ -302,7 +302,7 @@ addCellIntMetadata = function(gobject,
 
   # specify feat_type
   if(is.null(feat_type)) {
-    feat_type = names(gobject@expression_feat[[spat_unit]])[[1]]
+    feat_type = names(gobject@expression[[spat_unit]])[[1]]
   }
 
   if(is.null(spatial_network)) {
