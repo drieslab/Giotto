@@ -2785,9 +2785,8 @@ spatCellCellcom = function(gobject,
                                     feat_type = feat_type)
 
   ## check if spatial network exists ##
-  spat_networks = list_spatial_networks_names(gobject = gobject,
-                                              spat_unit = spat_unit,
-                                              feat_type = feat_type)
+  spat_networks = names(gobject@spatial_network[[spat_unit]])
+
   if(!spatial_network_name %in% spat_networks) {
     stop(spatial_network_name, ' is not an existing spatial network \n',
          'use showNetworks() to see the available networks \n',
@@ -2811,13 +2810,12 @@ spatCellCellcom = function(gobject,
 
   ## get all combinations between cell types
   all_uniq_values = unique(cell_metadata[[cluster_column]])
-  same_DT = data.table(V1 = all_uniq_values, V2 = all_uniq_values)
-  combn_DT = as.data.table(t(combn(all_uniq_values, m = 2)))
+  same_DT = data.table::data.table(V1 = all_uniq_values, V2 = all_uniq_values)
+  combn_DT = data.table::as.data.table(t(combn(all_uniq_values, m = 2)))
   combn_DT = rbind(same_DT, combn_DT)
 
   ## parallel option ##
   if(do_parallel == TRUE) {
-
 
     savelist = lapply_flex(X = 1:nrow(combn_DT), future.seed=TRUE, cores = cores, fun = function(row) {
 
