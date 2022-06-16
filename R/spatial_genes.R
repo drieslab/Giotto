@@ -1605,9 +1605,8 @@ silhouetteRank <- function(gobject,
   # subset genes
   if(!is.null(subset_genes)) {
 
-    subset_genes = subset_genes[subset_genes %in% gobject@gene_ID]
+    subset_genes = subset_genes[subset_genes %in% gobject@feat_ID]
     expr_values = expr_values[rownames(expr_values) %in% subset_genes, ]
-
   }
 
 
@@ -1615,7 +1614,7 @@ silhouetteRank <- function(gobject,
   sdimx = sdimy = NULL
 
   # spatial locations
-  spatlocs = as.matrix(gobject@spatial_locs[['raw']][,.(sdimx, sdimy)])
+  spatlocs = as.matrix(gobject@spatial_locs[['cell']][['raw']][,.(sdimx, sdimy)])
 
   # python path
   if(is.null(python_path)) {
@@ -1627,9 +1626,8 @@ silhouetteRank <- function(gobject,
   python_silh_function = system.file("python", "python_spatial_genes.py", package = 'Giotto')
   reticulate::source_python(file = python_silh_function)
 
-
   output_python = python_spatial_genes(spatial_locations = spatlocs,
-                                       expression_matrix = as.data.frame(expr_values),
+                                       expression_matrix = as.data.frame(as.matrix(expr_values)),
                                        metric = metric,
                                        rbp_p = rbp_p,
                                        examine_top = examine_top)
@@ -1781,7 +1779,7 @@ silhouetteRankTest = function(gobject,
   #            quote = F, sep = '\t', col.names=NA)
   silh_output_dir_norm = normalizePath(silh_output_dir)
   expr_values_path_norm = paste0(silh_output_dir_norm,'/', 'expression.txt')
-  
+
   data.table::fwrite(data.table::as.data.table(expr_values, keep.rownames="gene"),
                      file=expr_values_path_norm,
                      quot=F,
