@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 
 ```{r setup, eval=FALSE}
 library(Giotto)
+
 ```
 
 
@@ -36,8 +37,6 @@ myinstructions = createGiottoInstructions(save_dir = results_dir,
                                           save_plot = TRUE, 
                                           show_plot = F)
 ```
-
-
 
 
 ## 1. Create a Giotto object  
@@ -69,7 +68,6 @@ Of note, the python path can only be set once in an R session. See the reticulat
 # show instructions associated with giotto object (seqfish_mini)
 showGiottoInstructions(seqfish_mini)
 ```
-
 
 
 ## 2. processing steps
@@ -246,12 +244,12 @@ spatFeatPlot2D(seqfish_mini,
 
 silh_spatialgenes = silhouetteRank(gobject = seqfish_mini) # TODO: suppress print output
 
-spatGenePlot(seqfish_mini, 
-             expression_values = 'scaled', 
-             genes = silh_spatialgenes[1:4]$genes,
-             point_shape = 'border', point_border_stroke = 0.1,
-             show_network = F, network_color = 'lightgrey', point_size = 2.5,
-             cow_n_col = 2)
+spatFeatPlot2D(seqfish_mini, 
+               expression_values = 'scaled', 
+               feats = silh_spatialgenes[1:4]$genes,
+               point_shape = 'border', point_border_stroke = 0.1,
+               show_network = F, network_color = 'lightgrey', point_size = 2.5,
+               cow_n_col = 2)
 ```
 
 
@@ -302,7 +300,7 @@ spatCellPlot(seqfish_mini,
 
 ## 11. spatial HMRF domains
 ```{r eval=FALSE}
-hmrf_folder = paste0(temp_dir,'/','11_HMRF/')
+hmrf_folder = paste0('11_HMRF/')
 if(!file.exists(hmrf_folder)) dir.create(hmrf_folder, recursive = T)
 
 # perform hmrf
@@ -391,6 +389,7 @@ cellProximitySpatPlot2D(gobject = seqfish_mini,
 
 # Option 2: create additional metadata
 seqfish_mini = addCellIntMetadata(seqfish_mini,
+                                  spat_unit = "cell",
                                   spatial_network = 'Delaunay_network',
                                   cluster_column = 'cell_types',
                                   cell_interaction = spec_interaction,
