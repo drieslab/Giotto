@@ -4,15 +4,18 @@ if(is.null(python_path)) {
 }
 
 filtered_matrix = system.file("extdata/visium_brain_data", "filtered_feature_bc_matrix.h5", package = 'Giotto')
+tissue_positions = system.file("extdata/visium_brain_data/spatial", "tissue_positions_list.csv", package = 'Giotto')
+image_path = system.file("extdata/visium_brain_data/spatial", "tissue_lowres_image.png", package = 'Giotto')
+scalefactors_path = system.file("extdata/visium_brain_data/spatial", "scalefactors_json.json", package = "Giotto")
 
 ### TESTS FOR 10X VISIUM MOUSE BRAIN DATASET
 # --------------------------------------------------------------
 
 # CREATE VISIUM OBJECT
-object = createGiottoVisiumObject(visium_dir = data_path,
-                                  expr_data = 'filter',
-                                  png_name = 'tissue_lowres_image.png',
-                                  gene_column_index = 2)
+object = createGiottoVisiumObject(h5_visium_path = filtered_matrix,
+                                  h5_tissue_positions_path = tissue_positions,
+                                  h5_image_png_path = image_path,
+                                  h5_json_scalefactors_path = scalefactors_path)
 
 test_that("Object initialization creates expected Giotto object", {
   
@@ -123,7 +126,6 @@ gini_markers_subclusters = findMarkers_one_vs_all(gobject = object,
                                                   min_expr_gini_score = 0.5,
                                                   min_det_gini_score = 0.5)
 
-# ENRICHMENT
 
 
 
