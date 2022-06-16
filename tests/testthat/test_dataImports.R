@@ -1,3 +1,8 @@
+python_path = NULL 
+if(is.null(python_path)) {
+  installGiottoEnvironment()
+}
+
 # getSpatialDataset
 getSpatialDataset(dataset = c("Mouse_brain_scRNAseq"), directory = paste0(getwd(), "/testdata"))
 
@@ -18,7 +23,7 @@ test_that("Expression matrix is read correctly", {
   expect_equal(expr_mat@Dimnames[[1]][50], 'Zfp804a')
 })
 
-# remove files after testing
+## remove files after testing
 if (file.exists("./testdata/brain_sc_expression_matrix.txt.gz")) {
   unlink("./testdata/brain_sc_expression_matrix.txt.gz")
 }
@@ -27,4 +32,14 @@ if (file.exists("./testdata/brain_sc_metadata.csv")) {
   unlink("./testdata/brain_sc_metadata.csv")
 }
 
+# get10Xmatrix_h5
+mat <- get10Xmatrix_h5("./testdata/visium_brain_data/filtered_feature_bc_matrix.h5")
+
+test_that("get10Xmatrix_h5 returns list", {
+  expect_type(mat, "list")
+})
+
+# stitchFieldCoordinates
+
+# stitchTileCoordinates
 
