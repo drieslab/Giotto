@@ -23,21 +23,21 @@ test_that("Object initialization creates expected Giotto object", {
   expect_s4_class(object, "giotto")
   
   # gobject contains S4 object of class "dgCMatrix" containing raw expression
-  expect_s4_class(object@expression[["cell"]][["rna"]][["raw"]], "dgTMatrix")
-  expect_true(all(object@expression[["cell"]][["rna"]][["raw"]]@Dim == c(22125, 4992)))
+  expect_s4_class(object@expression[["cell"]][["rna"]][["raw"]], "dgCMatrix")
+  expect_true(all(object@expression[["cell"]][["rna"]][["raw"]]@Dim == c(32285, 2702)))
   
   # gobject contains S3 object "data.table" containing spatial locations
   expect_s3_class(object@spatial_locs[["cell"]][["raw"]], "data.table")
-  expect_length(object@spatial_locs[["cell"]][["raw"]][["sdimx"]], 4992)
-  expect_length(object@spatial_locs[["cell"]][["raw"]][["sdimy"]], 4992)
-  expect_length(object@spatial_locs[["cell"]][["raw"]][["cell_ID"]], 4992)
+  expect_length(object@spatial_locs[["cell"]][["raw"]][["sdimx"]], 2702)
+  expect_length(object@spatial_locs[["cell"]][["raw"]][["sdimy"]], 2702)
+  expect_length(object@spatial_locs[["cell"]][["raw"]][["cell_ID"]], 2702)
   
   # metadata length/types
-  expect_length(object@cell_metadata[["cell"]][["rna"]][["cell_ID"]], 4992)
+  expect_length(object@cell_metadata[["cell"]][["rna"]][["cell_ID"]], 2702)
   expect_type(object@cell_metadata[["cell"]][["rna"]][["cell_ID"]], "character")
-  expect_length(object@cell_metadata[["cell"]][["rna"]][["in_tissue"]], 4992)
+  expect_length(object@cell_metadata[["cell"]][["rna"]][["in_tissue"]], 2702)
   expect_type(object@cell_metadata[["cell"]][["rna"]][["in_tissue"]], "integer")
-  expect_length(object@feat_metadata[["cell"]][["rna"]][["feat_ID"]], 22125)
+  expect_length(object@feat_metadata[["cell"]][["rna"]][["feat_ID"]], 32285)
   expect_type(object@feat_metadata[["cell"]][["rna"]][["feat_ID"]], "character")
   
 })
@@ -48,9 +48,7 @@ in_tissue_barcodes = metadata[in_tissue == 1]$cell_ID
 object = subsetGiotto(object, cell_ids = in_tissue_barcodes)
 
 test_that("Object filtered for  in-tissue", {
-  
   expect_true(all(object@cell_metadata[["cell"]][["rna"]][["in_tissue"]]))
-  
 })
 
 object <- filterGiotto(gobject = object,
@@ -93,7 +91,7 @@ DG_subset = subsetGiottoLocs(object,
 test_that("Subset object created as expected", {
   
   # DG_subset contains S4 object of class "dgTMatrix" containing raw expression
-  expect_s4_class(DG_subset@expression[["cell"]][["rna"]][["raw"]], "dgTMatrix")
+  expect_s4_class(DG_subset@expression[["cell"]][["rna"]][["raw"]], "dgCMatrix")
   expect_true(all(DG_subset@expression[["cell"]][["rna"]][["raw"]]@Dim == c(14814, 624)))
   
   # DG_subset contains S4 object of class "dgTMatrix" containing raw expression
@@ -116,15 +114,6 @@ test_that("Subset object created as expected", {
   expect_s3_class(DG_subset@dimension_reduction[["cells"]][["cell"]][["rna"]][["tsne"]][["tsne"]], "dimObj")
   
 })
-
-# MARKER GENES
-gini_markers_subclusters = findMarkers_one_vs_all(gobject = object,
-                                                  method = 'gini',
-                                                  expression_values = 'normalized',
-                                                  cluster_column = 'leiden_clus',
-                                                  min_feats = 20,
-                                                  min_expr_gini_score = 0.5,
-                                                  min_det_gini_score = 0.5)
 
 
 
