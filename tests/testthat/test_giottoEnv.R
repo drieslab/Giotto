@@ -7,7 +7,6 @@ if (checkGiottoEnvironment() == T) {
 }
 
 test_that("No Giotto environment exists", {
-  expect_error(removeGiottoEnvironment())
   expect_false(checkGiottoEnvironment())
 })
 
