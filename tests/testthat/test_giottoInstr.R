@@ -12,16 +12,68 @@ meta_path = "./testdata/merFISH_3D_metadata.txt"
 
 ### TESTS FUNCTIONS FOR CREATING/CHANGING GIOTTO INSTRUCTIONS
 # --------------------------------------------------------------
+# createGiottoInstructions
+instrs = createGiottoInstructions(
+  python_path = NULL,
+  show_plot = NULL,
+  return_plot = NULL,
+  save_plot = NULL,
+  save_dir = NULL,
+  plot_format = NULL,
+  dpi = NULL,
+  units = NULL,
+  height = NULL,
+  width = NULL,
+  is_docker = FALSE,
+  plot_count = 0,
+  fiji_path = NULL
+)
+
+test_that("Instructions are created", {
+  expect_type(instrs, "list")
+})
 
 # CREATE GIOTTO OBJECT FOR TESTING
 object <- createGiottoObject(expression = expr_path,
                              spatial_locs = loc_path,
+                             instructions = instrs,
                              verbose = FALSE)
 
+# readGiottoInstructions
+test_that("readGiottoInstructions reads a few giotto object params correctly", {
+  expect_type(readGiottoInstructions(object, param = "show_plot"), "logical")
+  expect_type(readGiottoInstructions(object, param = "plot_format"), "character")
+  expect_type(readGiottoInstructions(object, param = "dpi"), "double")
+})
+
+# showGiottoInstructions
+test_that("showGiottoInstructions returns expected list", {
+  expect_type(showGiottoInstructions(object), "list")
+})
+
+# changeGiottoInstructions
+object = changeGiottoInstructions(
+  object,
+  params = c("show_plot", "save_plot"),
+  new_values = c(FALSE, TRUE),
+  return_gobject = TRUE
+)
+
+test_that("changeGiottoInstructions changes instruction params in object", {
+  expect_false(readGiottoInstructions(object, param = "show_plot"))
+  expect_true(readGiottoInstructions(object, param = "save_plot"))
+})
+
+# replaceGiottoInstructions
+object = replaceGiottoInstructions(object, instrs)
+
+test_that("replaceGiottoInstructions returns object instructions to original", {
+  expect_true(readGiottoInstructions(object, param = "show_plot"))
+  expect_false(readGiottoInstructions(object, param = "save_plot"))
+})
 
 
-
-
+# ---------------------------------------------
 # remove downloaded datasets after tests run
 if (file.exists("./testdata/merFISH_3D_data_expression.txt.gz")) {
   unlink("./testdata/merFISH_3D_data_expression.txt.gz")
