@@ -3,10 +3,12 @@ if(is.null(python_path)) {
   installGiottoEnvironment()
 }
 
-filtered_matrix = system.file("extdata/visium_brain_data", "filtered_feature_bc_matrix.h5", package = 'Giotto')
-tissue_positions = system.file("extdata/visium_brain_data/spatial", "tissue_positions_list.csv", package = 'Giotto')
-image_path = system.file("extdata/visium_brain_data/spatial", "tissue_lowres_image.png", package = 'Giotto')
-scalefactors_path = system.file("extdata/visium_brain_data/spatial", "scalefactors_json.json", package = "Giotto")
+data_path = paste0(getwd(), "/testdata/visium_brain_data")
+
+filtered_matrix = paste0(data_path, "/filtered_feature_bc_matrix.h5")
+tissue_positions = paste0(data_path, "/spatial/tissue_positions_list.csv")
+image_path = paste0(data_path, "/spatial/tissue_lowres_image.png")
+scalefactors_path = paste0(data_path, "/spatial/scalefactors_json.json")
 
 ### TESTS FOR 10X VISIUM MOUSE BRAIN DATASET
 # --------------------------------------------------------------
