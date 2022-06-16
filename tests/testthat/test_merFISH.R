@@ -256,3 +256,17 @@ test_that("Cell type annotations are added to cell metadata", {
   
 })
 
+
+
+# remove downloaded datasets after tests run
+if (file.exists("./testdata/merFISH_3D_data_expression.txt.gz")) {
+  unlink("./testdata/merFISH_3D_data_expression.txt.gz")
+}
+
+if (file.exists("./testdata/merFISH_3D_data_cell_locations.txt")) {
+  unlink("./testdata/merFISH_3D_data_cell_locations.txt")
+}
+
+if (file.exists("./testdata/merFISH_3D_metadata.txt")) {
+  unlink("./testdata/merFISH_3D_metadata.txt")
+}
