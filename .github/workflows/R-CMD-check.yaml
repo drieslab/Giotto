@@ -48,7 +48,7 @@ jobs:
           _R_CHECK_RD_XREFS: false
         with:
           dependencies: '"hard"'
-          extra-packages: any::rcmdcheck, any::testthat
+          extra-packages: any::rcmdcheck, any::testthat, any::hdf5r
 
       - uses: r-lib/actions/check-r-package@v2
         with:
