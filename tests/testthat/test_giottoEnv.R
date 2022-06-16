@@ -1,3 +1,6 @@
+### TESTS FOR GIOTTO ENVIRONMENT INSTALLATION
+# --------------------------------------------------------------
+
 # remove any preexisting giotto environment
 if (checkGiottoEnvironment() == T) {
   removeGiottoEnvironment()

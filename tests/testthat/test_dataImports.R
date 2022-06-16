@@ -3,6 +3,9 @@ if(is.null(python_path)) {
   installGiottoEnvironment()
 }
 
+### TESTS FOR DATA IMPORT FUNCTIONS
+# ------------------------------------
+
 # getSpatialDataset
 getSpatialDataset(dataset = c("Mouse_brain_scRNAseq"), directory = paste0(getwd(), "/testdata"))
 
