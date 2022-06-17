@@ -4,7 +4,12 @@
 \alias{seuratToGiotto}
 \title{seuratToGiotto}
 \usage{
-seuratToGiotto(sobject)
+seuratToGiotto(
+  sobject,
+  spatial_assay = "Spatial",
+  dim_reduction = c("pca", "umap"),
+  subcellular_assay = "Vizgen"
+)
 }
 \arguments{
 \item{sobject}{Seurat object}
