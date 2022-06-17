@@ -7,7 +7,7 @@ if(is.null(python_path)) {
 # ------------------------------------
 
 # getSpatialDataset
-getSpatialDataset(dataset = c("Mouse_brain_scRNAseq"), directory = paste0(getwd(), "/testdata"))
+getSpatialDataset(dataset = c("Mouse_brain_scRNAseq"), directory = paste0(getwd(), "/testdata/"))
 
 test_that("Spatial dataset was downloaded", {
   expect_true(file.exists("./testdata/brain_sc_expression_matrix.txt.gz"))
