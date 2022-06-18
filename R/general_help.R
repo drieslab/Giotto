@@ -604,7 +604,7 @@ package_check = function(pkg_name,
     }
 
   } else if(repository == 'pip') {
-    
+
     if(!reticulate::py_module_available(pkg_name)) {
       stop("\n package ", pkg_name ," is not yet installed \n",
            "To install for default Giotto miniconda environment: \n",
@@ -636,6 +636,7 @@ getSpatialDataset = function(dataset = c('ST_OB1',
                                          'starmap_3D_cortex',
                                          'osmfish_SS_cortex',
                                          'merfish_preoptic',
+                                         'mini_seqFISH',
                                          'seqfish_SS_cortex',
                                          'seqfish_OB',
                                          'slideseq_cerebellum',
@@ -651,6 +652,7 @@ getSpatialDataset = function(dataset = c('ST_OB1',
                                                'starmap_3D_cortex',
                                                'osmfish_SS_cortex',
                                                'merfish_preoptic',
+                                               'mini_seqFISH',
                                                'seqfish_SS_cortex',
                                                'seqfish_OB',
                                                'slideseq_cerebellum',
@@ -1111,7 +1113,7 @@ readPolygonFilesVizgenHDF5 = function(boundaries_path,
   cell_id = NULL
   file_id = NULL
   my_id = NULL
-  
+
   # define names
   poly_feat_names = paste0('z', polygon_feat_types)
   poly_feat_indexes = paste0('zIndex_', polygon_feat_types)
