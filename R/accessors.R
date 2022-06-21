@@ -74,7 +74,7 @@ select_expression_values = function(...) {
 #' @param feat_type feature type
 #' @param name name for the expression slot
 #' @param values expression values
-#' @return giotto object
+#' @return A giotto object
 #' @family expression accessor functions
 #' @family functions to set data in giotto object
 #' @export
