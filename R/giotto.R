@@ -1299,49 +1299,49 @@ read_spatial_enrichment = function(gobject,
 #' @name read_dimension_reduction
 #' @description read dimension reduction results from list
 #' @keywords internal
-read_dimension_reduction = function(gobject,
-                                    dimension_reduction) {
-
-
+read_dimension_reduction <- function(gobject,
+                                     dimension_reduction) {
+  
+  
   if(is.null(dimension_reduction)) {
     cat('No dimension reduction results are provided \n')
     return(gobject)
-
+    
   } else {
-
+    
     for(dim_i in 1:length(dimension_reduction)) {
-
+      
       dim_red = dimension_reduction[[dim_i]]
-
-      if(all(c('type', 'spat_unit', 'name', 'reduction_method', 'coordinates', 'misc') %in% names(dim_red))) {
-
+      
+      if(all(c('type', 'spat_unit', 'name', 'reduction_method', 'coordinates', 'misc', 'feat_type') %in% names(dim_red))) {
+        
         coord_data = dim_red[['coordinates']]
         spat_unit = dim_red[['spat_unit']]
-
+        
         if(all(rownames(coord_data) %in% gobject@cell_ID[[spat_unit]])) {
-
+          
           type_value = dim_red[['type']] # cells or genes
           reduction_meth_value = dim_red[['reduction_method']] # e.g. umap, tsne, ...
           name_value = dim_red[['name']]  # uniq name
           misc_value = dim_red[['misc']]  # additional data
-
-          gobject@dimension_reduction[[spat_unit]][[type_value]][[reduction_meth_value]][[name_value]] = dim_red[c('name', 'reduction_method', 'coordinates', 'misc')]
+          feat_type = dim_red[['feat_type']]
+          
+          gobject@dimension_reduction[[type_value]][[spat_unit]][[feat_type]][[reduction_meth_value]][[name_value]] = dim_red[c('name', 'reduction_method', 'coordinates', 'misc')]
         } else {
           stop('\n rownames for coordinates are not found in gobject IDs \n')
         }
-
+        
       } else {
         stop('\n each dimension reduction list must contain all required slots, see details. \n')
       }
-
+      
     }
-
+    
   }
-
+  
   return(gobject)
-
+  
 }
-
 
 
 #### Giotto nearest network ####
