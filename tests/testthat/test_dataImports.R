@@ -27,11 +27,15 @@ test_that("Expression matrix is read correctly", {
 })
 
 # get10Xmatrix_h5
+<<<<<<< HEAD
 mat <- get10Xmatrix_h5("./testdata/visium_brain_data/filtered_feature_bc_matrix.h5")
 
 test_that("get10Xmatrix_h5 returns list", {
   expect_type(mat, "list")
 })
+=======
+# TODO
+>>>>>>> d9bde2477f314c7574c942d16b3e6af06a86ed0d
 
 # stitchFieldCoordinates
 # TODO
