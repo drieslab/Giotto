@@ -3,8 +3,11 @@
 on:
   push:
     branches:
-      - 'ci-unittest' # run workflow on push to branch
+      - 'ci-unittest' 
+      - 'suite' # run workflow on push to branch
   pull_request:
+    branches:
+      - 'suite'
 
 name: R-CMD-check
 
