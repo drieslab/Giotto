@@ -4,6 +4,7 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^README\.Rmd$
+^CODE_OF_CONDUCT\.md$
 ^inst/examples$
 ^inst/faqs$
 ^inst/images$
@@ -12,3 +13,4 @@
 ^docs$
 ^pkgdown$
 .Rbuildignore.save
+^\.github$

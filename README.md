@@ -11,6 +11,7 @@ v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/li
 ![Last Commit](https://badgen.net/github/last-commit/RubD/Giotto/suite)
 ![Commits Since
 Latest](https://img.shields.io/github/commits-since/RubD/Giotto/latest/suite)
+[![R-CMD-check](https://github.com/yeung-jsn/Giotto/actions/workflows/R-CMD-check.yaml/badge.svg?branch=ci-unittest)](https://github.com/yeung-jsn/Giotto/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 Giotto Suite is a major upgrade to the Giotto package that provides
