@@ -366,6 +366,13 @@ seuratToGiotto = function(sobject, spatial_assay = 'Spatial',
   } else {
     
     exp = Seurat::GetAssayData(object = sobject, slot = "counts", assay = spatial_assay)
+    if(!is.null(sobject@assays$SCT)){
+        normexp = Seurat::GetAssayData(object = sobject, slot = "counts", assay = 'SCT')
+      }
+    
+      if(!is.null(sobject@assays$Spatial@data)){
+        normexp = Seurat::GetAssayData(object = sobject, slot = "data", assay = 'Spatial')
+      }
     
     # Cell Metadata
     cell_metadata = sobject@meta.data
@@ -440,7 +447,11 @@ seuratToGiotto = function(sobject, spatial_assay = 'Spatial',
   gobject = createGiottoObject(exp,
                                spatial_locs = spat_loc,
                                dimension_reduction = dimReduc_list)
+   if (exists('normexp') == TRUE) {
+    gobject@expression$cell$rna$normalized = normexp
+    }
   gobject = addCellMetadata(gobject = gobject, new_metadata = cell_metadata)
+  
   
   if (exists('gpoints') == TRUE) {
     gobject = addGiottoPoints(gobject = gobject,
