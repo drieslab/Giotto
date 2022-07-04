@@ -12,6 +12,7 @@ output: github_document
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 ![Last Commit](https://badgen.net/github/last-commit/RubD/Giotto/suite)
 ![Commits Since Latest](https://img.shields.io/github/commits-since/RubD/Giotto/latest/suite)
+[![R-CMD-check](https://github.com/yeung-jsn/Giotto/actions/workflows/R-CMD-check.yaml/badge.svg?branch=ci-unittest)](https://github.com/yeung-jsn/Giotto/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 Giotto Suite is a major upgrade to the Giotto package that provides tools to process, analyze and visualize **spatial multi-omics data at all scales and multiple resolutions**. The underlying framework is generalizable to virtually all current and emerging spatial technologies. Our Giotto Suite prototype pipeline is generally applicable on various different datasets, such as those created by state-of-the-art spatial technologies, including *in situ* hybridization (seqFISH+, merFISH, osmFISH, CosMx), sequencing (Slide-seq, Visium, STARmap, Seq-Scope, Stereo-Seq) and imaging-based multiplexing/proteomics (CyCIF, MIBI, CODEX).  
