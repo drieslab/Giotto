@@ -2370,8 +2370,6 @@ addCellMetadata <- function(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
-  # data.table variables
-  cell_ID = NULL
 
   cell_metadata = data.table::copy(gobject@cell_metadata[[spat_unit]][[feat_type]])
   ordered_cell_IDs = gobject@cell_ID[[spat_unit]]
@@ -2420,6 +2418,9 @@ addCellMetadata <- function(gobject,
                                                  by.y = column_cell_ID,
                                                  all.x = TRUE)
   }
+  
+  # data.table variables
+  cell_ID = NULL
 
   # reorder
   cell_metadata = cell_metadata[match(ordered_cell_IDs, cell_ID)]

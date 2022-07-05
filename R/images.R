@@ -1632,6 +1632,8 @@ cropGiottoLargeImage = function(gobject = NULL,
 #' @param xmax_crop,xmin_crop,ymax_crop,ymin_crop (optional) crop min/max x and y bounds
 #' @param max_intensity (optional) value to treat as maximum intensity in color scale
 #' @param asRGB (optional) [boolean] force RGB plotting if not automatically detected
+#' @param stretch character. Option to stretch the values to increase contrast: "lin"
+#' linear or "hist" (histogram)
 #' @return plot
 #' @keywords internal
 plot_giottoLargeImage = function(gobject = NULL,
@@ -1643,7 +1645,8 @@ plot_giottoLargeImage = function(gobject = NULL,
                                  ymax_crop = NULL,
                                  ymin_crop = NULL,
                                  max_intensity = NULL,
-                                 asRGB = FALSE) {
+                                 asRGB = FALSE,
+                                 stretch = NULL) {
 
   # Get giottoLargeImage and check and perform crop if needed
   giottoLargeImage = cropGiottoLargeImage(gobject = gobject,
@@ -1658,7 +1661,7 @@ plot_giottoLargeImage = function(gobject = NULL,
   raster_object = giottoLargeImage@raster_object
 
   # plot
-  if(asRGB == TRUE | raster_object@ptr$rgb == TRUE) {
+  if(asRGB == TRUE | raster_object@ptr$rgb == TRUE | terra::nlyr(raster_object) == 3) {
     # Determine likely image bitdepth
     if(is.null(max_intensity)) {
       bitDepth = ceiling(log(x = giottoLargeImage@max_intensity, base = 2))
@@ -1670,14 +1673,16 @@ plot_giottoLargeImage = function(gobject = NULL,
                    axes = TRUE,
                    r = 1,g = 2,b = 3,
                    scale = max_intensity,
+                   stretch = stretch,
                    smooth = TRUE,
-                   mar = c(5,5,1,1),
+                   mar = c(3,5,1.5,1),
                    asp = 1)
   } else {
+    if(is.null(stretch)) stretch = 'lin'
     terra::plotRGB(raster_object,
                    axes = TRUE,
                    r = 1,g = 1,b = 1,
-                   stretch ='lin',
+                   stretch = stretch,
                    smooth = TRUE,
                    mar = c(3,5,1.5,1),
                    asp = 1)
