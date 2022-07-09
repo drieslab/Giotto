@@ -108,6 +108,38 @@ Suggests:
     tiff,
     trendsceek,
     testthat (>= 3.0.0)
+Collate:
+    'accessors.R'
+    'auxiliary_giotto.R'
+    'auxiliary_visuals.R'
+    'cell_segmentation.R'
+    'clustering.R'
+    'cross_section.R'
+    'differential_expression.R'
+    'dimension_reduction.R'
+    'general_help.R'
+    'giotto_structures.R'
+    'giotto_viewer.R'
+    'giotto.R'
+    'globals.R'
+    'images.R'
+    'image_registration.R'
+    'interoperability.R'
+    'NN_network.R'
+    'python_environment.R'
+    'python_hmrf.R'
+    'python_scrublet.R'
+    'spatial_enrichment.R'
+    'spatial_genes.R'
+    'spatial_in_situ_visuals.R'
+    'spatial_interaction_visuals.R'
+    'spatial_interaction.R'
+    'spatial_structures.R'
+    'spatial_visuals.R'
+    'utilities.R'
+    'utils-pipe.R'
+    'variable_genes.R'
+    'generics.R'
 biocViews:
 VignetteBuilder: knitr
 Config/testthat/edition: 3

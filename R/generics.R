@@ -11,7 +11,7 @@
 #     nrow()
 # })
 
-# Set plotting generics
+
 setOldClass('plot')
 setMethod('plot', signature('giottoImage'), function(x,...) plot_giottoImage_MG(giottoImage = x,...))
 setMethod('plot', signature('giottoLargeImage'), function(x,...) plot_giottoLargeImage(giottoLargeImage = x,...))
