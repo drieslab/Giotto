@@ -1964,13 +1964,11 @@ list_spatial_networks = function(gobject,
 #' @description return the available names for giotto feature information
 #' @param gobject giotto object
 #' @param spat_unit spatial unit (e.g. "cell")
-#' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @return vector with names of available feature information
 list_spatial_networks_names = function(gobject,
-                                       spat_unit = NULL,
-                                       feat_type = NULL) {
+                                       spat_unit = NULL) {
 
-  spat_network_names = names(gobject@spatial_network[[spat_unit]][[feat_type]])
+  spat_network_names = names(gobject@spatial_network[[spat_unit]])
 
   return(spat_network_names)
 }
