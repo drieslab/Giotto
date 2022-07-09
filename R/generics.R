@@ -26,9 +26,13 @@ setMethod('plot', signature('giottoImage'), function(x,...) plot_giottoImage_MG(
 setMethod('plot', signature('giottoLargeImage'), function(x,...) plot_giottoLargeImage(giottoLargeImage = x,...))
 
 #' @export
-setMethod('plot', signature('giottoPolygon'), function(x) terra::plot(x@spatVector))
+setMethod('plot', signature('giottoPolygon'), function(x,...) {
+  terra::plot(x = x@spatVector,...)
+})
 
 #' @export
-setMethod('plot', signature('giottoPoints'), function(x) terra::plot(x@spatVector))
+setMethod('plot', signature('giottoPoints'), function(x,point_size = 0.1,...) {
+  terra::plot(x = x@spatVector,cex = point_size,...)
+})
 
 
