@@ -11,11 +11,24 @@
 #     nrow()
 # })
 
-
+#' "plot" S4 method
+#' 
+#' @name plot-method
+#' @aliases plot
+#' @family plot
+#' @exportMethod plot
 setOldClass('plot')
+
+#' @export
 setMethod('plot', signature('giottoImage'), function(x,...) plot_giottoImage_MG(giottoImage = x,...))
+
+#' @export
 setMethod('plot', signature('giottoLargeImage'), function(x,...) plot_giottoLargeImage(giottoLargeImage = x,...))
+
+#' @export
 setMethod('plot', signature('giottoPolygon'), function(x) terra::plot(x@spatVector))
+
+#' @export
 setMethod('plot', signature('giottoPoints'), function(x) terra::plot(x@spatVector))
 
 
