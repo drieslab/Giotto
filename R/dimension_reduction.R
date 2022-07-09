@@ -1667,10 +1667,9 @@ runtSNE <- function(gobject,
 #' @param return_gobject boolean: return giotto object (default = TRUE)
 #' @param toplevel_params parameters to extract
 #' @param verbose be verbose
-#' @param ... additional Harmony parameters
+#' @param ... additional \code{\link[harmony]{HarmonyMatrix}} parameters
 #' @return giotto object with updated Harmony dimension recuction
-#' @details See \code{\link[harmony]{HarmonyMatrix}} for more information about these and other parameters.
-#' This is a simple wrapper for the HarmonyMatrix function in the Harmony package \doi{10.1038/s41592-019-0619-0}.
+#' @details This is a simple wrapper for the HarmonyMatrix function in the Harmony package \doi{10.1038/s41592-019-0619-0}.
 #' @export
 runGiottoHarmony = function(gobject,
                             spat_unit = NULL,

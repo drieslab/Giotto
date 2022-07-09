@@ -14,7 +14,8 @@ plot_giottoLargeImage(
   ymax_crop = NULL,
   ymin_crop = NULL,
   max_intensity = NULL,
-  asRGB = FALSE
+  asRGB = FALSE,
+  stretch = NULL
 )
 }
 \arguments{
@@ -31,6 +32,9 @@ plot_giottoLargeImage(
 \item{max_intensity}{(optional) value to treat as maximum intensity in color scale}
 
 \item{asRGB}{(optional) [boolean] force RGB plotting if not automatically detected}
+
+\item{stretch}{character. Option to stretch the values to increase contrast: "lin"
+linear or "hist" (histogram)}
 }
 \value{
 plot
