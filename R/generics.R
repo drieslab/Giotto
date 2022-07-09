@@ -1,4 +1,4 @@
-# Methods ####
+# Methods and Generics ####
 
 # Define base::nrow() dispatch for gobjects
 # setOldClass('nrow')
