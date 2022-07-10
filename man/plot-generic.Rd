@@ -18,11 +18,11 @@
 \S4method{plot}{giottoPoints,ANY}(x, point_size = 0.1, feats = NULL, ...)
 }
 \arguments{
-\item{x}{giottoPoint object to plot}
+\item{x}{giotto image, giottoPolygon, or giottoPoints object}
 
-\item{...}{additional params to pass to \code{\link[terra]{plot}}}
+\item{...}{additional params to pass}
 
-\item{point_size}{size of points in plot}
+\item{point_size}{size of points when plotting giottoPoint}
 
 \item{feats}{specific features to plot within giottoPoint object (defaults to NULL, meaning all available features)}
 }
@@ -31,13 +31,13 @@ S4 generic for previewing Giotto's image and subcellular objects.
 }
 \section{Functions}{
 \itemize{
-\item \code{plot,giottoImage,ANY-method}: Plot \emph{magick}-based giottoImage object
+\item \code{plot,giottoImage,ANY-method}: Plot \emph{magick}-based giottoImage object. ... param passes to \code{\link{plot_giottoImage_MG}}
 
-\item \code{plot,giottoLargeImage,ANY-method}: Plot \emph{terra}-based giottoLargeImage object
+\item \code{plot,giottoLargeImage,ANY-method}: Plot \emph{terra}-based giottoLargeImage object. ... param passes to \code{\link{plot_giottoLargeImage}}
 
-\item \code{plot,giottoPolygon,ANY-method}: Plot \emph{terra}-based giottoPolygon object
+\item \code{plot,giottoPolygon,ANY-method}: Plot \emph{terra}-based giottoPolygon object. ... param passes to \code{\link[terra]{plot}}
 
-\item \code{plot,giottoPoints,ANY-method}: \emph{terra}-based giottoPoint object
+\item \code{plot,giottoPoints,ANY-method}: \emph{terra}-based giottoPoint object. ... param passes to \code{\link[terra]{plot}}
 }}
 
 \concept{plot}

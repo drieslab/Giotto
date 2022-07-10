@@ -12,7 +12,7 @@
 \S4method{nrow}{giottoPolygon}(x)
 }
 \arguments{
-\item{x}{giottoPolygon object to use}
+\item{x}{giottoPoints or giottoPolygon object}
 }
 \description{
 Get the number of rows (nrow)

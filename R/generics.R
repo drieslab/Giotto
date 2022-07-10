@@ -7,6 +7,7 @@
 #' @title Dimensions of giotto points and polygon objects
 #' @name nrow-generic
 #' @description Get the number of rows (nrow)
+#' @param x giottoPoints or giottoPolygon object
 #' @aliases nrow
 #' @exportMethod nrow
 setOldClass('nrow')
@@ -21,13 +22,11 @@ setOldClass('nrow')
 # })
 
 #' @describeIn nrow-generic Find rows of giottoPoints object
-#' @param x giottoPoints object to use
 #' @export
 setMethod('nrow', signature('giottoPoints'), function(x) terra::nrow(x@spatVector))
 
 
 #' @describeIn nrow-generic Find rows of giottoPolygon object
-#' @param x giottoPolygon object to use
 #' @export
 setMethod('nrow', signature('giottoPolygon'), function(x) terra::nrow(x@spatVector))
 
@@ -41,35 +40,32 @@ setMethod('nrow', signature('giottoPolygon'), function(x) terra::nrow(x@spatVect
 #' @description S4 generic for previewing Giotto's image and subcellular objects.
 #' @name plot-generic
 #' @aliases plot
+#' @param x giotto image, giottoPolygon, or giottoPoints object
 #' @family plot
 #' @exportMethod plot
 setOldClass('plot')
 
-#' @describeIn plot-generic Plot \emph{magick}-based giottoImage object
-#' @param x giottoImage object to plot
-#' @param ... additional params to pass to \code{\link{plot_giottoImage_MG}}
+#' @describeIn plot-generic Plot \emph{magick}-based giottoImage object. ... param passes to \code{\link{plot_giottoImage_MG}}
+#' @param ... additional params to pass
 #' @export
 setMethod('plot', signature('giottoImage'), function(x,...) plot_giottoImage_MG(giottoImage = x,...))
 
-#' @describeIn plot-generic Plot \emph{terra}-based giottoLargeImage object
-#' @param x giottoLargeImage object to plot
-#' @param ... additional params to pass to \code{\link{plot_giottoLargeImage}}
+#' @describeIn plot-generic Plot \emph{terra}-based giottoLargeImage object. ... param passes to \code{\link{plot_giottoLargeImage}}
+#' @param ... additional params to pass
 #' @export
 setMethod('plot', signature('giottoLargeImage'), function(x,...) plot_giottoLargeImage(giottoLargeImage = x,...))
 
-#' @describeIn plot-generic Plot \emph{terra}-based giottoPolygon object
-#' @param x giottoPolygon object to plot
-#' @param ... additional params to pass to \code{\link[terra]{plot}}
+#' @describeIn plot-generic Plot \emph{terra}-based giottoPolygon object. ... param passes to \code{\link[terra]{plot}}
+#' @param ... additional params to pass
 #' @export
 setMethod('plot', signature('giottoPolygon'), function(x,...) {
   terra::plot(x = x@spatVector,...)
 })
 
-#' @describeIn plot-generic \emph{terra}-based giottoPoint object
-#' @param x giottoPoint object to plot
-#' @param point_size size of points in plot
+#' @describeIn plot-generic \emph{terra}-based giottoPoint object. ... param passes to \code{\link[terra]{plot}}
+#' @param point_size size of points when plotting giottoPoint
 #' @param feats specific features to plot within giottoPoint object (defaults to NULL, meaning all available features)
-#' @param ... additional params to pass to \code{\link[terra]{plot}}
+#' @param ... additional params to pass
 #' @export
 setMethod('plot', signature('giottoPoints'), function(x,
                                                       point_size = 0.1,
