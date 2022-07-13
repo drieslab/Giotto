@@ -1,6 +1,6 @@
 # Methods and Generics ####
 
-# nrow S4 generic ####
+# nrow() S4 generic ####
 
 # Define base::nrow() for giottoPoints and giottoPolygon objects
 
@@ -34,29 +34,27 @@ setMethod('nrow', signature('giottoPolygon'), function(x) terra::nrow(x@spatVect
 
 
 
-# Plot S4 Generic ####
+# plot() S4 Generic ####
 
 #' @title Preview a Giotto spatial object
 #' @description S4 generic for previewing Giotto's image and subcellular objects.
 #' @name plot-generic
 #' @aliases plot
 #' @param x giotto image, giottoPolygon, or giottoPoints object
+#' @param ... additional parameters to pass
 #' @family plot
 #' @exportMethod plot
 setOldClass('plot')
 
 #' @describeIn plot-generic Plot \emph{magick}-based giottoImage object. ... param passes to \code{\link{plot_giottoImage_MG}}
-#' @param ... additional params to pass
 #' @export
 setMethod('plot', signature('giottoImage'), function(x,...) plot_giottoImage_MG(giottoImage = x,...))
 
 #' @describeIn plot-generic Plot \emph{terra}-based giottoLargeImage object. ... param passes to \code{\link{plot_giottoLargeImage}}
-#' @param ... additional params to pass
 #' @export
 setMethod('plot', signature('giottoLargeImage'), function(x,...) plot_giottoLargeImage(giottoLargeImage = x,...))
 
 #' @describeIn plot-generic Plot \emph{terra}-based giottoPolygon object. ... param passes to \code{\link[terra]{plot}}
-#' @param ... additional params to pass
 #' @export
 setMethod('plot', signature('giottoPolygon'), function(x,...) {
   terra::plot(x = x@spatVector,...)
@@ -65,7 +63,6 @@ setMethod('plot', signature('giottoPolygon'), function(x,...) {
 #' @describeIn plot-generic \emph{terra}-based giottoPoint object. ... param passes to \code{\link[terra]{plot}}
 #' @param point_size size of points when plotting giottoPoint
 #' @param feats specific features to plot within giottoPoint object (defaults to NULL, meaning all available features)
-#' @param ... additional params to pass
 #' @export
 setMethod('plot', signature('giottoPoints'), function(x,
                                                       point_size = 0.1,
