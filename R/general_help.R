@@ -29,6 +29,9 @@ determine_cores = function(cores, min_cores = 1, max_cores = 10) {
 #' @return number of distinct colors
 #' @export
 getDistinctColors <- function(n) {
+  
+  if(n < 1) stop('Error in getDistinctColors: number of colors wanted must be at least 1')
+  
   qual_col_pals <- RColorBrewer::brewer.pal.info[RColorBrewer::brewer.pal.info$category == 'qual',]
   col_vector <- unique(unlist(mapply(RColorBrewer::brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals))));
 
