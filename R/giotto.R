@@ -2073,7 +2073,8 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 
     ## spatial locations and image
     spatial_path = paste0(visium_dir, '/', 'spatial/')
-    spatial_results = data.table::fread(paste0(spatial_path, '/','tissue_positions_list.csv'))
+    # spatial_results = data.table::fread(paste0(spatial_path, '/','tissue_positions_list.csv'))
+    spatial_results = data.table::fread(Sys.glob(paths = file.path(spatial_path, 'tissue_positions*')))
     spatial_results = spatial_results[match(colnames(raw_matrix), V1)]
     colnames(spatial_results) = c('barcode', 'in_tissue', 'array_row', 'array_col', 'col_pxl', 'row_pxl')
     spatial_locs = spatial_results[,.(row_pxl,-col_pxl)]

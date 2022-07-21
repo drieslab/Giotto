@@ -151,9 +151,9 @@ dimPlot2D(
 
 \item{cow_n_col}{cowplot param: how many columns}
 
-\item{cow_rel_h}{cowplot param: relative height}
+\item{cow_rel_h}{cowplot param: relative heights of rows (e.g. c(1,2))}
 
-\item{cow_rel_w}{cowplot param: relative width}
+\item{cow_rel_w}{cowplot param: relative widths of columns (e.g. c(1,2))}
 
 \item{cow_align}{cowplot param: how to align}
 

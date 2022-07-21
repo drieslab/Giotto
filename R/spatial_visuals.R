@@ -1091,8 +1091,8 @@ dimPlot2D_single <- function(gobject,
 #' @param axis_text size of axis text
 #' @param axis_title size of axis title
 #' @param cow_n_col cowplot param: how many columns
-#' @param cow_rel_h cowplot param: relative height
-#' @param cow_rel_w cowplot param: relative width
+#' @param cow_rel_h cowplot param: relative heights of rows (e.g. c(1,2))
+#' @param cow_rel_w cowplot param: relative widths of columns (e.g. c(1,2))
 #' @param cow_align cowplot param: how to align
 #' @param show_plot show plot
 #' @param return_plot return ggplot object

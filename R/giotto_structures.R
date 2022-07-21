@@ -1230,7 +1230,7 @@ addGiottoPoints3D <- function (gobject, coords, feat_type = "rna")
 #' @keywords internal
 extract_points_list = function(pointslist) {
 
-  # if polygonlist is not a named list
+  # if pointslist is not a named list
   # try to make list and give default names
   if(!is.list(pointslist)) {
     pointslist = as.list(pointslist)

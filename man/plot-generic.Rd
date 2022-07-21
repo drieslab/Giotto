@@ -20,7 +20,7 @@
 \arguments{
 \item{x}{giotto image, giottoPolygon, or giottoPoints object}
 
-\item{...}{additional params to pass}
+\item{...}{additional parameters to pass}
 
 \item{point_size}{size of points when plotting giottoPoint}
 
