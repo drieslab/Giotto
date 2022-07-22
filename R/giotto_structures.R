@@ -1015,18 +1015,48 @@ create_giotto_points_object = function(feat_type = 'rna',
 
 #' @title Create terra spatvector object from a data.frame
 #' @name create_spatvector_object_from_dfr
-#' @description create terra spatvector from a data.frame
+#' @description create terra spatvector from a data.frame where cols 1 and 2 must
+#' be x and y coordinates respectively. Additional columns are set as attributes
+#' to the points where the first additional should be the feat_ID.
 #' @param x data.frame object
 #' @keywords internal
 create_spatvector_object_from_dfr = function(x) {
 
+  x = data.table::as.data.table(x)
+  
   # data.frame like object needs to have 2 coordinate columns and
   # at least one other column as the feat_ID
-  loc_dfr = data.table::as.data.table(x[, 1:2])
-  att_dfr = data.table::as.data.table(x[, -c(1:2)])
+  col_classes = sapply(x, class)
+  ## find feat_ID as either first character col or named column
+  if('feat_ID' %in% colnames(x)) {
+    feat_ID_col = which(colnames(x) == 'feat_ID')
+  } else {
+    feat_ID_col = which(col_classes == 'character')[[1]]
+  }
+  cat(paste0('Selecting "',colnames(x[,..feat_ID_col]),'" as feat_ID column\n'))
+  colnames(x)[feat_ID_col] = 'feat_ID'
+  
+  ## find first two numeric cols as x and y respectively or named column
+  if(all(c('x','y') %in% colnames(x))) {
+    x_col = which(colnames(x) == 'x')
+    y_col = which(colnames(y) == 'y')
+  } else {
+    x_col = which(col_classes == 'numeric')[1]
+    y_col = which(col_classes == 'numeric')[2]
+  }
+  cat(paste0('Selecting "',colnames(x[,..x_col]),'" and "', colnames(x[,..y_col]),'" as x and y respectively\n'))
+  colnames(x)[x_col] = 'x'
+  colnames(x)[y_col] = 'y'
+  
+  # define for data.table
+  .SD = NULL
+  
+  ## select location and attribute dataframes
+  x = x[,.SD, c('feat_ID','x','y')]
+  loc_dfr = x[,2:3]
+  att_dfr = x[,-c(2:3)]
 
-  spatvec = terra::vect(as.matrix(x[,1:2]), type = 'points', atts = att_dfr)
-  names(spatvec)[1] = 'feat_ID'
+  spatvec = terra::vect(as.matrix(loc_dfr), type = 'points', atts = att_dfr)
 
   # will be given and is a unique numerical barcode for each feature
   spatvec[['feat_ID_uniq']] = 1:nrow(spatvec)

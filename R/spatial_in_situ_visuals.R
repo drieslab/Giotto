@@ -185,8 +185,9 @@ plot_feature_points_layer = function(ggobject,
   feat_ID = NULL
 
   spatial_feat_info_subset = spatial_feat_info[feat_ID %in% unlist(feats)]
+  cat(' --| Plotting ', nrow(spatial_feat_info_subset), ' feature points\n')
 
-  if(!is.null(ggobject) & methods::is(ggobject, 'ggplot')) {
+  if(!is.null(ggobject) & inherits(ggobject, 'ggplot')) {
     pl = ggobject
   } else {
     pl = ggplot2::ggplot()
