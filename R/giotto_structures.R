@@ -1039,7 +1039,7 @@ create_spatvector_object_from_dfr = function(x) {
   ## find first two numeric cols as x and y respectively or named column
   if(all(c('x','y') %in% colnames(x))) {
     x_col = which(colnames(x) == 'x')
-    y_col = which(colnames(y) == 'y')
+    y_col = which(colnames(x) == 'y')
   } else {
     x_col = which(col_classes == 'numeric')[1]
     y_col = which(col_classes == 'numeric')[2]

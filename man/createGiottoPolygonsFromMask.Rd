@@ -34,7 +34,7 @@ createGiottoPolygonsFromMask(
 
 \item{fill_holes}{fill holes within created polygons}
 
-\item{poly_IDs}{unique nanes for each polygon in the mask file}
+\item{poly_IDs}{unique names for each polygon in the mask file}
 
 \item{flip_vertical}{flip mask figure in a vertical manner}
 
