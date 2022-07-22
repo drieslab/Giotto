@@ -10,6 +10,8 @@ create_spatvector_object_from_dfr(x)
 \item{x}{data.frame object}
 }
 \description{
-create terra spatvector from a data.frame
+create terra spatvector from a data.frame where cols 1 and 2 must
+be x and y coordinates respectively. Additional columns are set as attributes
+to the points where the first additional should be the feat_ID.
 }
 \keyword{internal}
