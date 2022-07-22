@@ -329,7 +329,7 @@ fix_multipart_geoms = function(spatVector) {
 #' @param remove_background_polygon try to remove background polygon (default: FALSE)
 #' @param background_algo algorithm to remove background polygon
 #' @param fill_holes fill holes within created polygons
-#' @param poly_IDs unique nanes for each polygon in the mask file
+#' @param poly_IDs unique names for each polygon in the mask file
 #' @param flip_vertical flip mask figure in a vertical manner
 #' @param shift_vertical_step shift vertical (boolean or numerical)
 #' @param flip_horizontal flip mask figure in a horizontal manner
