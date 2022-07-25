@@ -329,7 +329,7 @@ fix_multipart_geoms = function(spatVector) {
 #' @param remove_background_polygon try to remove background polygon (default: FALSE)
 #' @param background_algo algorithm to remove background polygon
 #' @param fill_holes fill holes within created polygons
-#' @param poly_IDs unique nanes for each polygon in the mask file
+#' @param poly_IDs unique names for each polygon in the mask file
 #' @param flip_vertical flip mask figure in a vertical manner
 #' @param shift_vertical_step shift vertical (boolean or numerical)
 #' @param flip_horizontal flip mask figure in a horizontal manner
@@ -1039,7 +1039,7 @@ create_spatvector_object_from_dfr = function(x) {
   ## find first two numeric cols as x and y respectively or named column
   if(all(c('x','y') %in% colnames(x))) {
     x_col = which(colnames(x) == 'x')
-    y_col = which(colnames(y) == 'y')
+    y_col = which(colnames(x) == 'y')
   } else {
     x_col = which(col_classes == 'numeric')[1]
     y_col = which(col_classes == 'numeric')[2]

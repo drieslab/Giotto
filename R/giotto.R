@@ -2188,8 +2188,8 @@ createGiottoVisiumObject = function(visium_dir = NULL,
 #' @export
 createGiottoObjectSubcellular = function(gpoints = NULL,
                                          gpolygons = NULL,
-                                         polygon_mask_list_params = NA,
-                                         polygon_dfr_list_params = NA,
+                                         polygon_mask_list_params = NULL,
+                                         polygon_dfr_list_params = NULL,
                                          cell_metadata = NULL,
                                          feat_metadata = NULL,
                                          spatial_network = NULL,
@@ -2251,7 +2251,7 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
   ## extract polygon information ##
   ## --------------------------- ##
 
-  if(is.na(polygon_mask_list_params)) {
+  if(is.null(polygon_mask_list_params)) {
     polygon_mask_list_params = list(mask_method = 'guess',
                                     remove_background_polygon = TRUE,
                                     background_algo = c('range'),
@@ -2265,7 +2265,7 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
                                     fix_multipart = TRUE)
   }
 
-  if(is.na(polygon_dfr_list_params)) {
+  if(is.null(polygon_dfr_list_params)) {
     polygon_dfr_list_params = list(calc_centroids = FALSE)
   }
 

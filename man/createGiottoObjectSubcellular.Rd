@@ -7,7 +7,7 @@
 createGiottoObjectSubcellular(
   gpoints = NULL,
   gpolygons = NULL,
-  polygon_mask_list_params = NA,
+  polygon_mask_list_params = list(),
   polygon_dfr_list_params = NA,
   cell_metadata = NULL,
   feat_metadata = NULL,
