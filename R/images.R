@@ -459,10 +459,7 @@ createGiottoLargeImage = function(raster_object,
   if(!inherits(raster_object, 'SpatRaster')) {
     if(file.exists(raster_object)) {
       g_imageL@file_path = raster_object
-      raster_object = try(suppressWarnings(terra::rast(x = raster_object)))
-      if(inherits(raster_object, 'try-error')) {
-        stop(raster_object, ' can not be read by terra::rast() \n')
-      }
+      raster_object = create_terra_spatRaster(image_path = raster_object)
     } else {
       stop("raster_object needs to be a'SpatRaster' object from the terra package or \n
            an existing path that can be read by terra::rast()")
@@ -1310,6 +1307,20 @@ reconnect_giottoImage_MG = function(giottoImage,
 
 
 # giottoLargeImage or terra tools ####
+
+
+#' @title Load image as a terra spatRaster object
+#' @name create_terra_spatRaster
+#' @param image_path existing full filepath to image to be loaded as a terra spatRaster
+#' @keywords internal
+create_terra_spatRaster = function(image_path) {
+  raster_object = try(suppressWarnings(terra::rast(x = image_path)))
+  if(inherits(raster_object, 'try-error')) {
+    stop(raster_object, ' can not be read by terra::rast() \n')
+  }
+  return(raster_object)
+}
+
 
 
 #' @title Plot smoothed curve of giotto largeImage intensity values
@@ -2325,7 +2336,7 @@ reconnect_giottoLargeImage = function(giottoLargeImage,
                                       image_path) {
   
   # load in new terra raster objects
-  raster_object = terra::rast(image_path)
+  raster_object = create_terra_spatRaster(image_path = image_path)
   
   # replace old raster objects and inherit tracked extents
   giottoLargeImage@raster_object = raster_object
