@@ -163,7 +163,7 @@ create_segm_polygons = function(maskfile,
     stop('path : ', maskfile, ' does not exist \n')
   }
 
-  terra_rast = terra::rast(maskfile)
+  terra_rast = create_terra_spatRaster(maskfile)
   rast_dimensions = dim(terra_rast)
 
   terra_polygon = terra::as.polygons(x = terra_rast, value = TRUE)
@@ -371,11 +371,11 @@ createGiottoPolygonsFromMask = function(maskfile,
 
   # mask method
   # single: single mask value for all segmented cells
-  # multiple: multiple maks values and thus a unique value for each segmented cell
+  # multiple: multiple mask values and thus a unique value for each segmented cell
   mask_method = match.arg(mask_method, choices = c('guess', 'single', 'multiple'))
 
   # create polygons from mask
-  terra_rast = terra::rast(maskfile)
+  terra_rast = create_terra_spatRaster(maskfile)
   rast_dimensions = dim(terra_rast)
   terra_polygon = terra::as.polygons(x = terra_rast, value = TRUE)
 
