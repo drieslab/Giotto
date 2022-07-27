@@ -2800,6 +2800,7 @@ joinGiottoObjects = function(gobject_list,
   all_feat_ID_list = list()
   all_cell_ID_list = list()
   all_image_list = list()
+  all_largeImage_list = list()
 
   xshift_list = list()
   yshift_list = list()
@@ -2910,7 +2911,68 @@ joinGiottoObjects = function(gobject_list,
     }
 
 
+    ## 2.2 update largeImages
+    # change individual names
+    
+    images_found = !is.null(gobj@largeImages)
+    
+    if(images_found) {
+      
+      names(gobj@largeImages) = paste0(gname, '-', names(gobj@largeImages))
+      for(imname in names(gobj@largeImages)) {
+        
+        gobj@largeImages[[imname]]@name = paste0(gname,'-', gobj@largeImages[[imname]]@name)
+        
+        
+        if(join_method == 'shift') {
+          
 
+          ## shift in x-direction (always happens)
+          if(is.null(x_shift)) {
+            
+            # estimate x_shift step directly from giotto image
+            extent = terra::ext(gobj@largeImages[[imname]]@raster_object)
+            
+            xmax = extent$xmax[[1]]
+            xmin = extent$xmin[[1]]
+            
+            add_to_x = ((gobj_i - 1) * (xmax-xmin)) + ((gobj_i - 1) * x_padding)
+            
+          } else {
+            x_shift_i = x_shift[[gobj_i]]
+            add_to_x = x_shift_i + x_padding
+          }
+          
+          if(verbose) cat('largeImage: for ',imname, ' add_to_x = ', add_to_x, '\n')
+          
+          xshift_list[[gobj_i]] = add_to_x
+          gobj@largeImages[[imname]]@raster_object = 
+            terra::shift(gobj@largeImages[[imname]]@raster_object, dx = xshift_list[[gobj_i]])
+          
+          
+          ## shift in y-direction (only happens when y_shift is provided)
+          if(!is.null(y_shift)) {
+            y_shift_i = y_shift[[gobj_i]]
+            add_to_y = y_shift_i + y_padding
+            
+            if(verbose) cat('largeImage: for ',imname, ' add_to_y = ', add_to_y, '\n')
+            
+            yshift_list[[gobj_i]] = add_to_y
+            gobj@largeImages[[imname]]@raster_object = 
+              terra::shift(gobj@largeImages[[imname]]@raster_object, dy = yshift_list[[gobj_i]])
+
+          }
+          
+          
+          
+        }
+        
+        all_largeImage_list[[imname]] = gobj@largeImages[[imname]]
+        
+      }
+      
+      
+    }
 
 
 
@@ -3333,8 +3395,9 @@ joinGiottoObjects = function(gobject_list,
   # keep individual images
   # each individual image has updated x and y locations
   # so all images can be viewed together by plotting them one-by-one
-  # but images can also be easify viewed separately by grouping them
+  # but images can also be easily viewed separately by grouping them
   comb_gobject@images = all_image_list
+  comb_gobject@largeImages = all_largeImage_list
 
 
   ## TODO:
