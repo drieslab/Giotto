@@ -3238,9 +3238,12 @@ joinGiottoObjects = function(gobject_list,
       poly_ids = gobj@spatial_info[[spat_info]]@spatVector$poly_ID
       gobj@spatial_info[[spat_info]]@spatVector$poly_ID = paste0(gname,'-',poly_ids)
 
-      # spatVecterCentroids
-      poly_ids = gobj@spatial_info[[spat_info]]@spatVectorCentroids$poly_ID
-      gobj@spatial_info[[spat_info]]@spatVectorCentroids$poly_ID = paste0(gname,'-',poly_ids)
+      # spatVectorCentroids
+      if(!is.null(gobj@spatial_info[[spat_info]]@spatVectorCentroids)) {
+        poly_ids = gobj@spatial_info[[spat_info]]@spatVectorCentroids$poly_ID
+        gobj@spatial_info[[spat_info]]@spatVectorCentroids$poly_ID = paste0(gname,'-',poly_ids)
+      }
+
 
       # overlaps??
       # TODO
@@ -3268,7 +3271,10 @@ joinGiottoObjects = function(gobject_list,
         if(verbose) cat('Spatial info: for ',spat_info, ' add_to_y = ', add_to_y, '\n')
 
         gobj@spatial_info[[spat_info]]@spatVector = terra::shift(x = gobj@spatial_info[[spat_info]]@spatVector, dx = add_to_x, dy = add_to_y)
-        gobj@spatial_info[[spat_info]]@spatVectorCentroids = terra::shift(x = gobj@spatial_info[[spat_info]]@spatVectorCentroids, dx = add_to_x, dy = add_to_y)
+        if(!is.null(gobj@spatial_info[[spat_info]]@spatVectorCentroids)) {
+          gobj@spatial_info[[spat_info]]@spatVectorCentroids = terra::shift(x = gobj@spatial_info[[spat_info]]@spatVectorCentroids, dx = add_to_x, dy = add_to_y)
+        }
+        
 
       }
 
