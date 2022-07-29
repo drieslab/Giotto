@@ -803,6 +803,8 @@ set_cell_and_feat_IDs = function(gobject) {
 #' @title Set cell metadata
 #' @name set_cell_metadata
 #' @description Set cell metadata
+#' @param gobject giotto object
+#' @param cell_metadata cell_metadata supplied as a nested list with spat_unit$feat_type$name
 #' @keywords internal
 set_cell_metadata = function(gobject,
                              cell_metadata) {
@@ -1589,7 +1591,7 @@ evaluate_feat_info = function(spatial_feat_info,
 #' [\strong{Other information}] Additional information can be provided through the appropriate slots:
 #' \itemize{
 #'   \item{spatial networks}
-#'   \item{spatial girds}
+#'   \item{spatial grids}
 #'   \item{spatial enrichments}
 #'   \item{dimensions reduction}
 #'   \item{nearest neighbours networks}
@@ -3579,7 +3581,7 @@ joinGiottoObjects = function(gobject_list,
 
 
   ## images
-  if(verbose == TRUE) cat('start image')
+  if(verbose == TRUE) cat('start image\n')
 
   # keep individual images
   # each individual image has updated x and y locations
