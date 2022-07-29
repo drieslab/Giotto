@@ -1172,6 +1172,11 @@ check_spatial_location_data = function(gobject) {
         spatial_cell_id_names = gobject@spatial_locs[[spat_unit]][[coord]][['cell_ID']]
 
         if(!identical(spatial_cell_id_names, expected_cell_ID_names)) {
+          message('spatloc cell_IDs: ')
+          cat('  ', head(spatial_cell_id_names,3), '...', tail(spatial_cell_id_names,3), '\n')
+          message('expression cell_IDs: ')
+          cat('  ', head(expected_cell_ID_names,3), '...', tail(expected_cell_ID_names,3), '\n')
+          
           stop('cell_IDs between spatial and expression information are not the same for: \n
                  spatial unit: ', spat_unit, ' and coordinates: ', coord, ' \n')
         }
