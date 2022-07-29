@@ -35,3 +35,35 @@ a giotto object
 Given the path to a CosMx experiment directory, creates a Giotto
 object.
 }
+\details{
+[\strong{Expected Directory}] This function generates a giotto object when given a 
+link to a cosmx output directory. It expects the following items within the directory
+where the \strong{bolded} portions are what this function matches against:
+\itemize{
+  \item{\strong{CellComposite} (folder of images)}
+  \item{\strong{CellLabels} (folder of images)}
+  \item{\strong{CellOverlay} (folder of images)}
+  \item{\strong{CompartmentLabels} (folder of images)}
+  \item{experimentname_\strong{exprMat_file}.csv (file)}
+  \item{experimentname_\strong{fov_positions_file}.csv (file)}
+  \item{experimentname_\strong{metadata_file}.csv (file)}
+  \item{experimentname_\strong{tx_file}.csv (file)}
+}
+
+[\strong{Workflows}] Workflow to use is accessed through the data_to_use param
+\itemize{
+  \item{'all' - loads and requires subcellular information from tx_file and fov_positions_file
+  and also the existing aggregated information (expression, spatial locations, and metadata)
+  from exprMat_file and metadata_file.}
+  \item{'subcellular' - loads and requires subcellular information from tx_file and 
+  fov_positions_file only.}
+  \item{'aggregate' - loads and requires the existing aggregate information (expression, 
+  spatial locations, and metadata) from exprMat_file and metadata_file.}
+}
+
+[\strong{Images}] Images in the default CellComposite, CellLabels, CompartmentLabels, and CellOverlay
+folders will be loaded as giotto largeImage objects in all workflows as long as they are available.
+Additionally, CellComposite images will be converted to giotto image objects, making plotting with
+these image objects more responsive when accessing them from a server.
+\code{\link{showGiottoImageNames()}} can be used to see the available images.
+}
