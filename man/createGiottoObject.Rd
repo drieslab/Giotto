@@ -100,7 +100,7 @@ This data can also be added afterwards using the \code{\link{addFeatMetadata}} o
 [\strong{Other information}] Additional information can be provided through the appropriate slots:
 \itemize{
   \item{spatial networks}
-  \item{spatial girds}
+  \item{spatial grids}
   \item{spatial enrichments}
   \item{dimensions reduction}
   \item{nearest neighbours networks}

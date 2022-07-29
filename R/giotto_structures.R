@@ -994,7 +994,7 @@ create_giotto_points_object = function(feat_type = 'rna',
                           networks = NULL)
 
   ## 1. check terra spatVector object
-  if(!methods::is(spatVector, 'SpatVector')) {
+  if(!inherits(spatVector, 'SpatVector')) {
     stop("spatVector needs to be a spatVector object from the terra package")
   }
 
