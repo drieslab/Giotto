@@ -2594,7 +2594,7 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
 #' folders will be loaded as giotto largeImage objects in all workflows as long as they are available.
 #' Additionally, CellComposite images will be converted to giotto image objects, making plotting with
 #' these image objects more responsive when accessing them from a server.
-#' \code{\link{showGiottoImageNames()}} can be used to see the available images.
+#' \code{\link{showGiottoImageNames}} can be used to see the available images.
 #' 
 #' 
 createGiottoCosMxObject = function(cosmx_dir = NULL,
@@ -3363,7 +3363,7 @@ joinGiottoObjects = function(gobject_list,
             add_to_x = x_shift_i + x_padding
           }
 
-          if(verbose) cat('Spatial loations: for ',locs, ' add_to_x = ', add_to_x, '\n')
+          if(verbose) cat('Spatial locations: for ',locs, ' add_to_x = ', add_to_x, '\n')
 
 
           myspatlocs[, sdimx := sdimx + add_to_x]
