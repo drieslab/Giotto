@@ -65,5 +65,5 @@ where the \strong{bolded} portions are what this function matches against:
 folders will be loaded as giotto largeImage objects in all workflows as long as they are available.
 Additionally, CellComposite images will be converted to giotto image objects, making plotting with
 these image objects more responsive when accessing them from a server.
-\code{\link{showGiottoImageNames()}} can be used to see the available images.
+\code{\link{showGiottoImageNames}} can be used to see the available images.
 }
