@@ -2594,7 +2594,7 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
 #' folders will be loaded as giotto largeImage objects in all workflows as long as they are available.
 #' Additionally, CellComposite images will be converted to giotto image objects, making plotting with
 #' these image objects more responsive when accessing them from a server.
-#' \code{\link{showGiottoImageNames()}} can be used to see the available images.
+#' \code{\link{showGiottoImageNames}} can be used to see the available images.
 #' 
 #' 
 createGiottoCosMxObject = function(cosmx_dir = NULL,
@@ -3070,24 +3070,50 @@ join_cell_meta = function(dt_list) {
 }
 
 
-#' @title joinGiottoObjects
+#' @title Join giotto objects
 #' @name joinGiottoObjects
 #' @description Function to join multiple giotto objects together
 #' @param gobject_list list of giotto objects
 #' @param gobject_names unique giotto names for each giotto object
-#' @param join_method method to join giotto objects
-#' @param z_vals distance(s) along z-axis if method is z-stack
-#' @param x_shift shift along x-axis if method is shift
-#' @param y_shift shift along y-axis if method is shift
+#' @param join_method method to join giotto objects, see details
+#' @param z_vals distance(s) along z-axis if method is z-stack (default is step of 1000)
+#' @param x_shift list of values to shift along x-axis if method is shift
+#' @param y_shift list of values to shift along y-axis if method is shift
 #' @param x_padding padding between datasets/images if method is shift
 #' @param y_padding padding between datasets/images if method is shift
 #' @param verbose be verbose
 #' @return giotto object
+#' @details This function joins both the expression and spatial information of
+#' multiple giotto objects into a single one. Giotto supports multiple ways of
+#' joining spatial information as selected through param \code{join_method}:
+#' 
+#' [\strong{"shift"}] Spatial locations of different datasets are shifted by numeric
+#' vectors of values supplied through \code{x_shift} and \code{y_shift}. If these
+#' shift values are given then one is needed for each giotto object to be joined
+#' in \code{gobject_list}. Order matters.
+#' If a regular step value is desired instead of a specific list of values, use
+#' \code{x_padding} and \code{y_padding}. Both shift and padding values can be used
+#' at the same time.
+#' Leaving \code{x_shift} and \code{y_shift} values as \code{NULL} will have Giotto
+#' estimate an appropriate \code{x_shift} value based on the x dimension of
+#' available image objects.
+#' 
+#' [\strong{"z_stack"}] Datasets are spatially combined with no change to x and y
+#' spatial locations, but a z value is incorporated for each dataset based on input
+#' supplied through param \code{z_vals}. To specify a z value for each dataset to
+#' join, a numeric vector must be given with a value for each element in \code{gobject_list}.
+#' Order matters.
+#' Alternatively, a single numeric value can be supplied to \code{z_vals} in which
+#' case this input will be treated as a z step value.
+#' 
+#' [\strong{"no_change"}] No changes are applied to the spatial locations of the
+#' datasets when joining.
+#' 
 #' @concept giotto
 #' @export
 joinGiottoObjects = function(gobject_list,
                              gobject_names = NULL,
-                             join_method = c('shift', 'z_stack'),
+                             join_method = c('shift', 'z_stack', 'no_change'),
                              z_vals = 1000,
                              x_shift = NULL,
                              y_shift = NULL,
@@ -3102,8 +3128,11 @@ joinGiottoObjects = function(gobject_list,
   sdimy = NULL
   
   ## determine join method
-  join_method = match.arg(arg = join_method, choices = c('shift', 'z_stack'))
+  join_method = match.arg(arg = join_method, choices = c('shift', 'z_stack', 'no_change'))
 
+  # print out join method
+  if(isTRUE(verbose)) cat('Join method:', join_method,'\n')
+  
   ## check params
   if(!is.vector(gobject_names) | !is.character(gobject_names)) {
     stop('gobject_names need to be a vector with unique names for the giotto objects')
@@ -3112,7 +3141,7 @@ joinGiottoObjects = function(gobject_list,
   if(length(gobject_list) != length(gobject_names)) {
     stop('each giotto object in the list needs to have a unique (short) name')
   }
-
+  # For z_stack workflow
   if(join_method == 'z_stack') {
     if(!(is.atomic(z_vals) && is.numeric(z_vals))) {
       stop('z_vals requires either a single numeric or an atomic vector of numerics with one value for each z slice (Giotto object). \n')
@@ -3121,12 +3150,29 @@ joinGiottoObjects = function(gobject_list,
       stop('If more than one z_value is given, there must be one for each Giotto object to be joined. \n')
     }
   }
+  # For shift workflow
+  if(join_method == 'shift') {
+    if(!is.null(x_shift)) {
+      if(length(x_shift) != length(gobject_list)) stop('A numeric vector with an x_shift value for each gobject in gobject_list must be given.\n')
+    }
+    if(!is.null(y_shift)) {
+      if(length(y_shift) != length(gobject_list)) stop('A numeric vector with a y_shift value for each gobject in gobject_list must be given.\n')
+    }
+  }
 
-
+  # If no changes to spatlocs are desired when joining
+  if(join_method == 'no_change') {
+    join_method = 'shift'
+    x_shift = rep(0,length(gobject_list))
+    y_shift = rep(0,length(gobject_list))
+    x_padding = 0
+    y_padding = 0
+  }
 
   # expand z_vals if given as a step value
   if(join_method == 'z_stack') {
     if(length(z_vals) == 1) {
+      if(isTRUE(verbose)) cat('Only one value given through z_vals param\n Treating this value as a z step\n')
       z_vals = ((1:length(gobject_list)) - 1) * z_vals # Find z vals stepwise
     }
   }
@@ -3289,37 +3335,49 @@ joinGiottoObjects = function(gobject_list,
         if(join_method == 'shift') {
           
 
-          ## shift in x-direction (always happens)
-          if(is.null(x_shift)) {
+          ## shift in x-direction (always happens if not already defined during giottoImage section)
+          if(!list_element_exists(xshift_list, gobj_i)) {
+            if(is.null(x_shift)) {
+              
+              # estimate x_shift step directly from giotto image
+              extent = terra::ext(gobj@largeImages[[imname]]@raster_object)
+              
+              xmax = extent$xmax[[1]]
+              xmin = extent$xmin[[1]]
+              
+              add_to_x = ((gobj_i - 1) * (xmax-xmin)) + ((gobj_i - 1) * x_padding)
+              
+            } else {
+              x_shift_i = x_shift[[gobj_i]]
+              add_to_x = x_shift_i + x_padding
+            }
             
-            # estimate x_shift step directly from giotto image
-            extent = terra::ext(gobj@largeImages[[imname]]@raster_object)
-            
-            xmax = extent$xmax[[1]]
-            xmin = extent$xmin[[1]]
-            
-            add_to_x = ((gobj_i - 1) * (xmax-xmin)) + ((gobj_i - 1) * x_padding)
-            
-          } else {
-            x_shift_i = x_shift[[gobj_i]]
-            add_to_x = x_shift_i + x_padding
+            # record xshift (if not already done)
+            xshift_list[[gobj_i]] = add_to_x
           }
+
           
           if(verbose) cat('largeImage: for ',imname, ' add_to_x = ', add_to_x, '\n')
           
-          xshift_list[[gobj_i]] = add_to_x
+          
+
           gobj@largeImages[[imname]]@raster_object = 
             terra::shift(gobj@largeImages[[imname]]@raster_object, dx = xshift_list[[gobj_i]])
           
           
           ## shift in y-direction (only happens when y_shift is provided)
           if(!is.null(y_shift)) {
-            y_shift_i = y_shift[[gobj_i]]
-            add_to_y = y_shift_i + y_padding
+            if(!list_element_exists(yshift_list, gobj_i)) {
+              y_shift_i = y_shift[[gobj_i]]
+              add_to_y = y_shift_i + y_padding
+              
+              yshift_list[[gobj_i]] = add_to_y
+            }
+
             
             if(verbose) cat('largeImage: for ',imname, ' add_to_y = ', add_to_y, '\n')
             
-            yshift_list[[gobj_i]] = add_to_y
+
             gobj@largeImages[[imname]]@raster_object = 
               terra::shift(gobj@largeImages[[imname]]@raster_object, dy = yshift_list[[gobj_i]])
 
@@ -3363,7 +3421,7 @@ joinGiottoObjects = function(gobject_list,
             add_to_x = x_shift_i + x_padding
           }
 
-          if(verbose) cat('Spatial loations: for ',locs, ' add_to_x = ', add_to_x, '\n')
+          if(verbose) cat('Spatial locations: for ',locs, ' add_to_x = ', add_to_x, '\n')
 
 
           myspatlocs[, sdimx := sdimx + add_to_x]
@@ -3375,7 +3433,7 @@ joinGiottoObjects = function(gobject_list,
           y_shift_i = y_shift[[gobj_i]]
           add_to_y = y_shift_i + y_padding
 
-          if(verbose) cat('Spatial loations: for ',locs, ' add_to_y = ', add_to_y, '\n')
+          if(verbose) cat('Spatial locations: for ',locs, ' add_to_y = ', add_to_y, '\n')
 
           myspatlocs[, sdimy := sdimy + add_to_y]
         }
