@@ -286,3 +286,20 @@ standardise_flex = function (x, center = TRUE, scale = TRUE) {
   }
 }
 
+
+
+#' @title Test if list element exists
+#' @name list_element_exists
+#' @description Test if nth element of list exists
+#' @param x list
+#' @param index element index
+#' @keywords internal
+#' @return boolean
+list_element_exists = function(x, index) {
+  tryCatch({
+    if(length(x[[index]]) > -1)
+      return(TRUE)
+  }, error = function(e) {
+    return(FALSE)
+  })
+}
