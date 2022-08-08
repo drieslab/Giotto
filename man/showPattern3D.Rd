@@ -68,3 +68,4 @@ plotly
 \description{
 show patterns for 3D spatial data
 }
+\keyword{internal}

@@ -38,3 +38,4 @@ Select genes correlated with spatial patterns
 \details{
 Description.
 }
+\keyword{internal}

@@ -50,3 +50,4 @@ ggplot
 \description{
 show genes correlated with spatial patterns
 }
+\keyword{internal}

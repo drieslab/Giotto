@@ -316,7 +316,7 @@ do_page_permutation<-function(gobject,
 #' and delta is the standard deviation. Sm is the mean fold change value of a specific marker gene set
 #' and  m is the size of a given marker gene set.
 #' @seealso \code{\link{makeSignMatrixPAGE}}
-#' @export
+#' @keywords internal
 runPAGEEnrich_OLD <- function(gobject,
                           sign_matrix,
                           expression_values = c('normalized', 'scaled', 'custom'),
@@ -1383,8 +1383,8 @@ spot_deconvolution<-function(expr,
       all_exp<-rowMeans(cluster_cell_exp)
       solution_all_exp<-solve_OLS_internal(select_sig_exp,all_exp)
       ### Xuan modify 1: if (length(all_exp) >= 4){, 1 line ###
-      ### Xuan modify 2: else if(length(ct_spot_k)==0); NULL, 2 lines ### 
-      ### Xuan modify 3: if (length(which(B != 0)) > 0){; NULL, 1 line ### 
+      ### Xuan modify 2: else if(length(ct_spot_k)==0); NULL, 2 lines ###
+      ### Xuan modify 3: if (length(which(B != 0)) > 0){; NULL, 1 line ###
       if (length(all_exp) >= 4){
         constant_J<-find_dampening_constant(select_sig_exp,all_exp,solution_all_exp)
         ######deconvolution for each spot
@@ -1408,7 +1408,7 @@ spot_deconvolution<-function(expr,
               dwls_results[names(solDWLS),colnames(cluster_cell_exp)[k]]<-solDWLS
             }
           }
-        } 
+        }
       }
       ### Xuan modify end: ####
     }
@@ -1703,10 +1703,10 @@ runDWLSDeconv <- function(gobject,
   filter_Sig = sign_matrix[intersect_gene,]
   filter_expr = nolog_expr[intersect_gene,]
   filter_log_expr = expr_values[intersect_gene,]
-  
+
   ### xuan modify 9: ###
   if (length(intersect_gene) < 10){
-    stop(paste0("The overlapped genes between signature matrix and spatial expression profile is too small. (", 
+    stop(paste0("The overlapped genes between signature matrix and spatial expression profile is too small. (",
                length(intersect_gene), ' overlapped genes)'))} else {
     print(paste0('The ',length(intersect_gene),' overlapped genes between signature matrix and\nspatial expression profile'))
   }

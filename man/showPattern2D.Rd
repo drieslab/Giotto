@@ -53,3 +53,4 @@ ggplot
 \description{
 show patterns for 2D spatial data
 }
+\keyword{internal}

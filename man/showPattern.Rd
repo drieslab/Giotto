@@ -36,3 +36,4 @@ show patterns for 2D spatial data
 \seealso{
 \code{\link{showPattern2D}}
 }
+\keyword{internal}

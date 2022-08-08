@@ -58,3 +58,4 @@ and  m is the size of a given marker gene set.
 \seealso{
 \code{\link{makeSignMatrixPAGE}}
 }
+\keyword{internal}
