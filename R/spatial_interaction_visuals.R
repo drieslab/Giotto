@@ -950,6 +950,7 @@ cellProximityVisPlot_3D_plotly <- function(gobject,
 #' @return ggplot or plotly
 #' @details Description of parameters.
 #' @export
+#' @keywords internal
 cellProximityVisPlot <- function(gobject,
                                  interaction_name = NULL,
                                  cluster_column = NULL,

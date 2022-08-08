@@ -6,7 +6,7 @@
 #' @param x vector
 #' @param \dots additional parameters
 #' @return numeric
-#' @export
+#' @keywords internal
 mean_giotto = function(x, ...) {
 
   if(methods::is(x, 'dgCMatrix')) {
@@ -23,7 +23,7 @@ mean_giotto = function(x, ...) {
 #' @description rowSums function that works with multiple matrix representations
 #' @param mymatrix matrix object
 #' @return numeric vector
-#' @export
+#' @keywords internal
 rowSums_giotto = function(mymatrix) {
 
   if(methods::is(mymatrix, 'dgCMatrix')) {
@@ -43,7 +43,7 @@ rowSums_giotto = function(mymatrix) {
 #' @description rowMeans function that works with multiple matrix representations
 #' @param mymatrix matrix object
 #' @return numeric vector
-#' @export
+#' @keywords internal
 rowMeans_giotto = function(mymatrix) {
 
   if(methods::is(mymatrix, 'dgCMatrix')) {
@@ -63,7 +63,7 @@ rowMeans_giotto = function(mymatrix) {
 #' @description colSums function that works with multiple matrix representations
 #' @param mymatrix matrix object
 #' @return numeric vector
-#' @export
+#' @keywords internal
 colSums_giotto = function(mymatrix) {
 
   if(methods::is(mymatrix, 'dgCMatrix')) {
@@ -82,7 +82,7 @@ colSums_giotto = function(mymatrix) {
 #' @description colMeans function that works with multiple matrix representations
 #' @param mymatrix matrix object
 #' @return numeric vector
-#' @export
+#' @keywords internal
 colMeans_giotto = function(mymatrix) {
 
   if(methods::is(mymatrix, 'dgCMatrix')) {
@@ -101,7 +101,7 @@ colMeans_giotto = function(mymatrix) {
 #' @description t function that works with multiple matrix representations
 #' @param mymatrix matrix object
 #' @return transposed matrix
-#' @export
+#' @keywords internal
 t_giotto = function(mymatrix) {
 
   if(methods::is(mymatrix, 'dgCMatrix')) {
