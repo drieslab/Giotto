@@ -17,3 +17,4 @@ numeric
 \description{
 mean function that works with multiple matrix representations
 }
+\keyword{internal}

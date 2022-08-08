@@ -15,3 +15,4 @@ numeric vector
 \description{
 colMeans function that works with multiple matrix representations
 }
+\keyword{internal}

@@ -15,3 +15,4 @@ transposed matrix
 \description{
 t function that works with multiple matrix representations
 }
+\keyword{internal}

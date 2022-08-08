@@ -15,3 +15,4 @@ numeric vector
 \description{
 colSums function that works with multiple matrix representations
 }
+\keyword{internal}
