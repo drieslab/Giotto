@@ -21,3 +21,4 @@ unified_int, type_int, V1, external, internal.
 \description{
 Compute cell-cell interactions observed value for internal and external spots
 }
+\keyword{internal}

@@ -11,9 +11,10 @@
 #' by cell number in each spot
 #' @return List of cell proximity observed value in data.table format. Columns:
 #' unified_int, internal value, type_int.
+#' @keywords internal
 cell_proximity_spots_internal <- function(cell_IDs,
                                           dwls_values){
-  
+
   proximity_dt = data.table::data.table()
   # calculate proximity for each spot
   for (cell_i in 1:length(cell_IDs)){
@@ -21,7 +22,7 @@ cell_proximity_spots_internal <- function(cell_IDs,
     # dwls value for one spot and remove 0 cell type
     dwls_spot = dwls_values[cell_ID,]
     dwls_spot = dwls_spot[dwls_spot > 0]
-    
+
     # calculate proximity of same cell type (A==B)
     same_ct = data.table::data.table()
     if (length(dwls_spot) >= 1){
@@ -31,8 +32,8 @@ cell_proximity_spots_internal <- function(cell_IDs,
       unified_int_same = paste0(unified_int_same,'--',unified_int_same)
       same_ct = data.table::data.table('unified_int' = unified_int_same,'internal' = same_ct)
     }
-    
-    # calculate proximity of different cell type (A==B) 
+
+    # calculate proximity of different cell type (A==B)
     diff_ct = data.table::data.table()
     if (length(dwls_spot) >= 2){
       diff_ct = dwls_spot %o% dwls_spot
@@ -47,15 +48,15 @@ cell_proximity_spots_internal <- function(cell_IDs,
       diff_ct = diff_ct[, c('unified_int', 'value')]
       data.table::setnames(diff_ct, old = c('value'), new = c('internal'))
     }
-    
+
     # merge spot proximity to proximity data.table
     proximity_dt = rbind(proximity_dt, same_ct, diff_ct)
   }
-  
+
   proximity_dt = proximity_dt[internal > 0]
   proximity_dt[, internal := sum(internal), by=c('unified_int')]
   proximity_dt = unique(proximity_dt)
-  
+
   return(proximity_dt)
 }
 
@@ -68,21 +69,22 @@ cell_proximity_spots_internal <- function(cell_IDs,
 #' by cell number in each spot
 #' @return List of cell proximity observed value in data.table format. Columns:
 #' unified_int, internal value, type_int.
+#' @keywords internal
 cell_proximity_spots_external <- function(pairs,
                                           dwls_values){
-  
+
   cell_IDs = unique(c(pairs$from, pairs$to))
   pairs = pairs[, .N, by = c('from','to')]
-  # add internal pairs to make full matirx 
+  # add internal pairs to make full matirx
   pairs_spots = data.table::data.table(from = cell_IDs, to = cell_IDs, N = 0)
   pairs_balance = data.table::data.table(from = pairs$to, to = pairs$from, N = pairs$N)
   pairs_for_mat = rbind(pairs_spots, pairs, pairs_balance)
   pairs_for_mat = pairs_for_mat[, .N, by = c('from','to')]
-  
+
   # make square matrix of interaction between spots
   pairs_mat = reshape2::acast(pairs_for_mat, from ~ to, value.var = 'N' ,fill = 0)
   pairs_mat = pairs_mat[cell_IDs,cell_IDs]
-  
+
   #calculate cell-tyep/cell-type interactions
   dwls_sub = dwls_values[cell_IDs,]
   proximity_dt = data.table::data.table()
@@ -91,7 +93,7 @@ cell_proximity_spots_external <- function(pairs,
   for (i in 1:length(cts)){
     ct1 = cts[i]
     dwls_ct1 = dwls_sub[, ct1]
-    
+
     for (j in i:length(cts)){
       ct2 = cts[j]
       dwls_ct2 = dwls_sub[, ct2]
@@ -116,21 +118,22 @@ cell_proximity_spots_external <- function(pairs,
 #' by cell number in each spot
 #' @return List of cell proximity observed value in data.table format. Columns:
 #' unified_int, type_int, V1, external, internal.
+#' @keywords internal
 cell_proximity_spots <- function(cell_IDs,
                                  pairs_external,
                                  dwls_values){
-  
+
   # compute cell-type/cell-type interactions in each spot (internal)
   if (length(cell_IDs) > 0){
     proximity_in = cell_proximity_spots_internal(cell_IDs = cell_IDs,
                                                  dwls_values = dwls_values)
   }
-  
+
   # compute cell-type/cell-type interactions between spots (external)
   # get paired spots barcodes
   proximity_ex = cell_proximity_spots_external(pairs = pairs_external,
                                                dwls_values = dwls_values)
-  
+
   if (length(cell_IDs) > 0) {
     proximity_dt = merge(proximity_ex, proximity_in, by= 'unified_int', all=TRUE)
   }else{
@@ -138,7 +141,7 @@ cell_proximity_spots <- function(cell_IDs,
   }
   proximity_dt[is.na(proximity_dt)] = 0
   proximity_dt[, V1 := internal + external]
-  
+
   proximity_dt[, s1 := strsplit(as.character(unified_int), split = '--')[[1]][1], by = 1:nrow(proximity_dt)]
   proximity_dt[, s2 := strsplit(as.character(unified_int), split = '--')[[1]][2], by = 1:nrow(proximity_dt)]
   proximity_dt[, type_int := ifelse(s1 == s2, 'homo', 'hetero')]
@@ -178,22 +181,22 @@ cellProximityEnrichmentSpots <- function(gobject,
                                                            "BY"),
                                          set_seed = TRUE,
                                          seed_number = 1234) {
-  
+
   # p.adj test
   sel_adjust_method = match.arg(adjust_method, choices = c("none", "fdr", "bonferroni","BH",
                                                            "holm", "hochberg", "hommel",
                                                            "BY"))
-  
+
   spatial_network_annot = annotateSpatialNetwork(gobject = gobject,
                                                  spatial_network_name = spatial_network_name,
                                                  cluster_column = cluster_column)
-  
+
   # data.table variables
   unified_cells = type_int = N = NULL
-  
+
   spatial_network_annot = Giotto:::sort_combine_two_DT_columns(spatial_network_annot, 'to', 'from', 'unified_cells')
   spatial_network_annot = spatial_network_annot[!duplicated(unified_cells)]
-  
+
   # exact spatial_enrichment matrix
   dwls_values = gobject@spatial_enrichment$DWLS
   data.table::setDF(dwls_values)
@@ -201,15 +204,15 @@ cellProximityEnrichmentSpots <- function(gobject,
   dwls_values = as.matrix(dwls_values[,-1])
   rownames(dwls_values) = rownames_dwls
   dwls_values_adjust = dwls_values * cells_in_spot
-  
+
   # compute cell-type/cell-type interactions
   orig_pairs_external = spatial_network_annot[, .N, by = c('from', 'to')]
   table_orig_results = cell_proximity_spots(cell_IDs = gobject@cell_ID,
-                                            pairs_external = orig_pairs_external, 
+                                            pairs_external = orig_pairs_external,
                                             dwls_values = dwls_values_adjust)
   table_orig_results[, orig := 'original']
-  table_orig_results[, round := 'original']  
-  
+  table_orig_results[, round := 'original']
+
   # make simulated network
   sample_dt = make_simulated_network(gobject = gobject,
                                      spatial_network_name = spatial_network_name,
@@ -217,30 +220,30 @@ cellProximityEnrichmentSpots <- function(gobject,
                                      number_of_simulations = number_of_simulations,
                                      set_seed = set_seed,
                                      seed_number = seed_number)
-  
+
   # method for get simulation cell-type/cell-type interaction for each round
   data.table::setnames(sample_dt, old = c('s1', 's2'), new = c('from', 'to'))
   table_sim_results = NULL
   for(sim in 1:number_of_simulations) {
     r = paste0('sim',sim)
-    sim_pairs = sample_dt[round == r, c("from","to")]    
-    
+    sim_pairs = sample_dt[round == r, c("from","to")]
+
     sim_cell_IDs = unique(sim_pairs[from == to, from])
     sim_pairs_ex = sim_pairs[from != to, ]
     sim_pairs_ex[, N :=1]
-    
+
     sim_dt_round = cell_proximity_spots(cell_IDs = sim_cell_IDs,
-                                        pairs_external = sim_pairs_ex, 
+                                        pairs_external = sim_pairs_ex,
                                         dwls_values = dwls_values_adjust)
-    
+
     sim_dt_round[, orig := 'simulations']
     sim_dt_round[, round := r]
     table_sim_results = rbind(table_sim_results, sim_dt_round)
   }
-  
-  
+
+
   table_results = rbind(table_orig_results, table_sim_results)
-  
+
   # add missing combinations from original or simulations
   # probably not needed anymore
   all_sim_ints = as.character(unique(table_results[orig == 'simulations']$unified_int))
@@ -251,70 +254,70 @@ cellProximityEnrichmentSpots <- function(gobject,
   create_missing_for_orig = unique(create_missing_for_orig[, c('orig', 'V1') := list('original', 0)])
   create_missing_for_sim = table_results[unified_int %in% missing_in_sim]
   create_missing_for_sim = unique(create_missing_for_sim[, c('orig', 'V1') := list('simulations', 0)])
-  
+
   table_results <- do.call('rbind', list(table_results, create_missing_for_orig, create_missing_for_sim))
-  
+
   ## p-values
   combo_list = rep(NA, length = length(unique(table_results$unified_int)))
   p_high = rep(NA, length = length(unique(table_results$unified_int)))
   p_low = rep(NA, length = length(unique(table_results$unified_int)))
-  
+
   for(int_combo in 1:length(unique(table_results$unified_int))) {
-    
+
     this_combo = as.character(unique(table_results$unified_int)[int_combo])
-    
+
     sub = table_results[unified_int == this_combo]
-    
+
     orig_value = sub[orig == 'original']$V1
     sim_values = sub[orig == 'simulations']$V1
-    
+
     length_simulations = length(sim_values)
     if(length_simulations != number_of_simulations) {
       additional_length_needed = number_of_simulations-length_simulations
       sim_values = c(sim_values, rep(0, additional_length_needed))
       #length_simulations = c(length_simulations, rep(0, additional_length_needed))
     }
-    
+
     p_orig_higher = 1 - (sum((orig_value+1) > (sim_values+1))/number_of_simulations)
     p_orig_lower = 1 - (sum((orig_value+1) < (sim_values+1))/number_of_simulations)
-    
+
     combo_list[[int_combo]] = this_combo
     p_high[[int_combo]] = p_orig_higher
     p_low[[int_combo]] = p_orig_lower
-    
+
   }
   res_pvalue_DT = data.table::data.table(unified_int = as.vector(combo_list), p_higher_orig = p_high, p_lower_orig = p_low)
-  
-  
+
+
   # depletion or enrichment in barplot format
   table_mean_results <- table_results[, .(mean(V1)), by = c('orig', 'unified_int', 'type_int')]
   table_mean_results_dc <- data.table::dcast.data.table(data = table_mean_results, formula = type_int+unified_int~orig, value.var = 'V1')
   table_mean_results_dc[, original := ifelse(is.na(original), 0, original)]
   table_mean_results_dc[, enrichm := log2((original+1)/(simulations+1))]
-  
-  
+
+
   table_mean_results_dc <- merge(table_mean_results_dc, res_pvalue_DT, by = 'unified_int')
   data.table::setorder(table_mean_results_dc, enrichm)
   table_mean_results_dc[, unified_int := factor(unified_int, unified_int)]
-  
+
   # adjust p-values for mht
-  
+
   # data.table variables
   p.adj_higher = p.adj_lower = p_lower_orig = p_higher_orig = PI_value = int_ranking = NULL
-  
+
   table_mean_results_dc[, p.adj_higher := stats::p.adjust(p_higher_orig, method = sel_adjust_method)]
   table_mean_results_dc[, p.adj_lower := stats::p.adjust(p_lower_orig, method = sel_adjust_method)]
-  
-  
+
+
   table_mean_results_dc[, PI_value := ifelse(p.adj_higher <= p.adj_lower,
                                              -log10(p.adj_higher+(1/number_of_simulations))*enrichm,
                                              -log10(p.adj_lower+(1/number_of_simulations))*enrichm)]
   data.table::setorder(table_mean_results_dc, PI_value)
-  
+
   # order
   table_mean_results_dc <- table_mean_results_dc[order(-PI_value)]
   table_mean_results_dc[, int_ranking := 1:.N]
-  
+
   return(list(raw_sim_table = table_results, enrichm_res = table_mean_results_dc))
 }
 
@@ -327,45 +330,46 @@ cellProximityEnrichmentSpots <- function(gobject,
 
 #' @title geneExpDWLS
 #' @name geneExpDWLS
-#' @description Compute predicted gene expression value by spacialDWSL results and 
+#' @description Compute predicted gene expression value by spatialDWSL results and
 #' average gene expression for cell type
 #' @param gobject gottio object
 #' @param ave_celltype_exp data.table of gene expression in each cell type
 #' @return matrix
+#' @export
 geneExpDWLS = function(gobject,
                        ave_celltype_exp){
-  
+
   # exact spatial_enrichment matrix
   dwls_values = gobject@spatial_enrichment$DWLS
-  
+
   # 1. check if cell_type_vector and matrix are compatible
   if(ncol(ave_celltype_exp) != ncol(dwls_values) - 1) {
     stop('ncol(ave_celltype_exp) needs to be the same as ncol(dwls_values) - 1')
   }
-  
+
   cell_types = colnames(ave_celltype_exp)
   data.table::setcolorder(dwls_values,c('cell_ID',cell_types))
-  
+
   # 2. for each spot
-  # calculate dwls predicted expression for genes 
+  # calculate dwls predicted expression for genes
   expMatrixDWLS = matrix(data = NA,
                          nrow = nrow(ave_celltype_exp),
                          ncol = nrow(dwls_values))
-  
+
   average_exp = as.matrix(ave_celltype_exp)
   for(spot_i in 1:nrow(dwls_values)){
     spot = dwls_values[spot_i,1]
     spot_dwls = dwls_values[spot_i, -1]
     data.table::setDF(spot_dwls)
     spot_dwls = as.vector(t(spot_dwls)[,1])
-    
+
     spot_exp = average_exp %*% spot_dwls
-    
+
     expMatrixDWLS[, spot_i] = spot_exp
   }
   rownames(expMatrixDWLS) = rownames(ave_celltype_exp)
   colnames(expMatrixDWLS) = dwls_values$cell_ID
-  
+
   return(expMatrixDWLS)
 }
 
@@ -380,27 +384,27 @@ geneExpDWLS = function(gobject,
 cal_expr_residual <- function(gobject,
                               expression_values = c('normalized', 'scaled', 'custom'),
                               ave_celltype_exp) {
-  
+
   # expression data
   values = match.arg(expression_values, choices = unique(c('normalized', 'scaled', 'custom', expression_values)))
   expr_observed = select_expression_values(gobject = gobject, values = values)
-  
+
   # Compute predicted gene expression value
   expr_predicted = geneExpDWLS(gobject = gobject,
                                ave_celltype_exp = ave_celltype_exp)
-  
+
   # Get the difference expssion matrix between observed and predicted expression
   intersect_gene  = intersect(rownames(expr_predicted), rownames(expr_observed))
   expr_residual = expr_observed[intersect_gene,] - expr_predicted[intersect_gene,]
   expr_residual = as.matrix(expr_residual)
-  
+
   return(expr_residual)
 }
 
 
 #' @title cellProximityEnrichmentEachSpot
 #' @name cellProximityEnrichmentEachSpot
-#' @description Compute cell-cell interaction enrichment for each spot with its 
+#' @description Compute cell-cell interaction enrichment for each spot with its
 #' interacted spots (observed)
 #' @param gobject giotto object
 #' @param feat_type feature type
@@ -411,75 +415,75 @@ cal_expr_residual <- function(gobject,
 cellProximityEnrichmentEachSpot <- function(gobject,
                                             spatial_network_name = 'spatial_network',
                                             cluster_column = 'cell_ID') {
-  
-  
+
+
   spatial_network_annot = annotateSpatialNetwork(gobject = gobject,
                                                  spatial_network_name = spatial_network_name,
                                                  cluster_column = cluster_column)
-  
+
   # data.table variables
   unified_cells = type_int = N = NULL
-  
+
   spatial_network_annot = Giotto:::sort_combine_two_DT_columns(spatial_network_annot, 'to', 'from', 'unified_cells')
   spatial_network_annot = spatial_network_annot[!duplicated(unified_cells)]
-  
+
   # exact spatial_enrichment matrix
   dwls_values = gobject@spatial_enrichment$DWLS
   data.table::setDF(dwls_values)
   rownames_dwls = dwls_values[,'cell_ID']
   dwls_values = as.matrix(dwls_values[,-1])
   rownames(dwls_values) = rownames_dwls
-  
+
   # calculate cell-cell interaction with gene expression in each spot
-  # proximity_spots is the 
+  # proximity_spots is the
   # get cell-cell types pairs
   cts = colnames(dwls_values)
   ct_pairs = data.table::data.table(V1 = rep(cts,each = length(cts)), V2 = rep(cts,length(cts)))
   ct_pairs[, unified_int := paste0(V1,'--',V2), by = 1:nrow(ct_pairs)]
   unified_int = ct_pairs$unified_int
-  
-  
+
+
   # get paired spots barcodes
-  orig_pairs = spatial_network_annot[, .N, by = c('from', 'to')]  
+  orig_pairs = spatial_network_annot[, .N, by = c('from', 'to')]
   cell_IDs = unique(c(orig_pairs$from, orig_pairs$to))
-  
-  # make matrix that rows are cell-cell types and columns are cell_IDs 
+
+  # make matrix that rows are cell-cell types and columns are cell_IDs
   proximityMat = matrix(data = 0,
                         nrow = length(unified_int),
                         ncol = length(cell_IDs))
-  
+
   rownames(proximityMat) = unified_int
   colnames(proximityMat) = cell_IDs
-  
-  # for each spot, calculate cell type proximity to it 
+
+  # for each spot, calculate cell type proximity to it
   for (cell_i in 1:length(cell_IDs)){
     cell_ID = cell_IDs[cell_i]
     spot_pairs = orig_pairs[from == cell_ID | to == cell_ID]
     spot_pairs[, int_cell_IDS := ifelse(from==cell_ID, to, from)]
     int_num = spot_pairs$N
-    
+
     dwls_target_cell = dwls_values[cell_ID,]
     dwls_int_cells = dwls_values[spot_pairs$int_cell_IDS,]
-    
-    # filter 0 and kept the data type 
+
+    # filter 0 and kept the data type
     idx1 = which(dwls_target_cell > 0)
     idx2 = which(colSums(dwls_int_cells) > 0)
-    
+
     if (length(idx1) > 1){
       dwls_target_cell = dwls_target_cell[idx1]
     }
-    
+
     if (length(idx2) > 1){
       dwls_int_cells = dwls_int_cells[, idx2]
     }
-    
-    spot_proximity = dwls_target_cell %o% (dwls_int_cells * int_num) 
+
+    spot_proximity = dwls_target_cell %o% (dwls_int_cells * int_num)
     spot_proximity = apply(spot_proximity, 3, rowSums)
     spot_proximity = reshape2::melt(spot_proximity)
     spot_proximity = data.table::data.table(spot_proximity)
     spot_proximity[, c('Var1', 'Var2') := lapply(.SD, as.character),.SDcols = c('Var1', 'Var2')]
     spot_proximity[, unified_int := paste0(Var1,'--',Var2)]
-    
+
     # add to proximityMat(matrix)
     proximityMat[spot_proximity$unified_int, cell_i] = spot_proximity$value
   }
@@ -488,7 +492,7 @@ cellProximityEnrichmentEachSpot <- function(gobject,
 
 #' @title cal_diff_per_interaction
 #' @name cal_diff_per_interaction
-#' @description calculate correlation between expression residual and 
+#' @description calculate correlation between expression residual and
 #' cell proximity score of selected cell for spots
 #' @keywords internal
 cal_diff_per_interaction <- function(sel_int,
@@ -497,40 +501,40 @@ cal_diff_per_interaction <- function(sel_int,
                                      other_ind,
                                      proximityMat,
                                      expr_residual){
-  
+
   # get data
-  
-  prox_sel = proximityMat[sel_int, select_ind] 
+
+  prox_sel = proximityMat[sel_int, select_ind]
   prox_sel = as.matrix(prox_sel)
   expr_sel = expr_residual[, select_ind]
-  
+
   prox_other = proximityMat[other_ints,other_ind]
   prox_other = prox_other[rowSums(prox_other) != 0, ]
   expr_other = expr_residual[, other_ind]
-  
+
   # calculate pcc between expresidiual and proximity
   pcc_sel = cor(t(expr_sel), prox_sel)
-  
+
   pcc_other = cor(t(expr_other), t(prox_other))
   pcc_other = rowMeans(pcc_other)
-  
+
   genes = rownames(pcc_sel)
-  pcc_dt = data.table::data.table(genes = genes, 
-                                  pcc_sel = as.vector(pcc_sel), 
+  pcc_dt = data.table::data.table(genes = genes,
+                                  pcc_sel = as.vector(pcc_sel),
                                   pcc_other = pcc_other[genes])
-  
+
   pcc_dt[, pcc_diff := pcc_sel - pcc_other]
-  
+
   # calculate mean exression residual
   expr_sel_mean = rowMeans(expr_sel)
   expr_other_mean = rowMeans(expr_other)
   expr_residual_dt = data.table::data.table(genes = genes,
-                                            sel = expr_sel_mean[genes], 
+                                            sel = expr_sel_mean[genes],
                                             other = expr_other_mean[genes])
   expr_residual_dt[, diff := sel - other]
-  
+
   results_dt = data.table::merge.data.table(expr_residual_dt, pcc_dt, by = 'genes')
-  
+
   return(results_dt)
 }
 
@@ -546,7 +550,7 @@ do_permuttest_original_spot <- function(sel_int,
                                         proximityMat,
                                         expr_residual
 ){
-  
+
   resultsDT = cal_diff_per_interaction(sel_int = sel_int,
                                        other_ints = other_ints,
                                        select_ind = select_ind,
@@ -570,26 +574,26 @@ do_permuttest_random_spot <- function(sel_int,
                                       expr_residual,
                                       set_seed = TRUE,
                                       seed_number = 1234) {
-  
+
   # data.table variables
   genes = NULL
-  
+
   l_sel_int = length(sel_int)
   l_other_ints = length(other_ints)
   l_select_ind = length(select_ind)
   l_other_ind = length(other_ind)
-  
+
   all_IDs = colnames(proximityMat)
   all_ints = rownames(proximityMat)
   all_ints = all_ints[!rownames(proximityMat) %in% sel_int]
-  
+
   if(set_seed == TRUE) {
     set.seed(seed = seed_number)
   }
   random_sel_int = sample(all_ints, size = l_sel_int, replace = F)
   random_other_ints = sample(all_ints, size = l_other_ints, replace = F)
-  
-  # keep the random selete not all the zeros 
+
+  # keep the random selete not all the zeros
   prox = proximityMat[random_sel_int,]
   prox = prox[prox>0]
   random_select = c(sample(all_IDs, size = l_select_ind - 1, replace = F), names(prox[1]))
@@ -602,7 +606,7 @@ do_permuttest_random_spot <- function(sel_int,
                                        proximityMat = proximityMat,
                                        expr_residual = expr_residual)
   resultsDT[, name := name]
-  
+
   return(resultsDT)
 }
 
@@ -621,15 +625,15 @@ do_multi_permuttest_random_spot = function(sel_int,
                                            cores = 2,
                                            set_seed = TRUE,
                                            seed_number = 1234) {
-  
+
   if(set_seed == TRUE) {
     seed_number_list = seed_number:(seed_number + (n-1))
   }
-  
+
   result = giotto_lapply(X = 1:n, cores = cores, fun = function(x) {
-    
+
     seed_number = seed_number_list[x]
-    
+
     perm_rand = do_permuttest_random_spot(sel_int = sel_int,
                                           other_ints = other_ints,
                                           select_ind = select_ind,
@@ -639,19 +643,19 @@ do_multi_permuttest_random_spot = function(sel_int,
                                           expr_residual = expr_residual,
                                           set_seed = set_seed,
                                           seed_number = seed_number)
-    
+
   })
-  
+
   final_result = do.call('rbind', result)
-  
+
 }
 
 #' @title do_permuttest_spot
 #' @name do_permuttest_spot
 #' @description Performs permutation test on subsets of a matrix for spots
 #' @keywords internal
-do_permuttest_spot = function(sel_int, 
-                              other_ints, 
+do_permuttest_spot = function(sel_int,
+                              other_ints,
                               select_ind,
                               other_ind,
                               proximityMat,
@@ -661,11 +665,11 @@ do_permuttest_spot = function(sel_int,
                               cores = 2,
                               set_seed = TRUE,
                               seed_number = 1234) {
-  
+
   # data.table variables
   log2fc_diff = log2fc = sel = other = genes = p_higher = p_lower = perm_sel = NULL
   perm_other = perm_log2fc = perm_diff = p.value = p.adj = NULL
-  
+
   ## original data
   original = do_permuttest_original_spot(sel_int = sel_int,
                                          other_ints = other_ints ,
@@ -674,7 +678,7 @@ do_permuttest_spot = function(sel_int,
                                          name = 'orig',
                                          proximityMat = proximityMat,
                                          expr_residual = expr_residual)
-  
+
   ## random permutations
   random_perms = do_multi_permuttest_random_spot(sel_int = sel_int,
                                                  other_ints = other_ints,
@@ -686,30 +690,30 @@ do_permuttest_spot = function(sel_int,
                                                  cores = cores,
                                                  set_seed = set_seed,
                                                  seed_number = seed_number)
-  
+
   c##
   #random_perms[, log2fc_diff := rep(original$log2fc, n_perm) - log2fc]
   random_perms[, c('perm_sel', 'perm_other', 'perm_pcc_sel', 'perm_pcc_diff') := list(mean(sel), mean(other), mean(pcc_sel), mean(pcc_diff)), by = genes]
-  
+
   ## get p-values
   random_perms[, p_higher := sum(pcc_diff > 0), by = genes]
   random_perms[, p_higher := 1-(p_higher/n_perm)]
   random_perms[, p_lower := sum(pcc_diff < 0), by = genes]
   random_perms[, p_lower := 1-(p_lower/n_perm)]
-  
+
   ## combine results permutation and original
   random_perms_res = unique(random_perms[,.(genes, perm_sel, perm_other, perm_pcc_sel, perm_pcc_diff, p_higher, p_lower)])
   results_m = data.table::merge.data.table(random_perms_res, original[,.(genes, sel, other, diff, pcc_sel, pcc_other, pcc_diff)], by = 'genes')
-  
+
   # select lowest p-value and perform p.adj
   results_m[, p.value := ifelse(p_higher <= p_lower, p_higher, p_lower)]
   results_m[, p.adj := stats::p.adjust(p.value, method = adjust_method)]
-  
+
   results_m = results_m[,.(genes, sel, other, pcc_sel, pcc_other, pcc_diff, p.value, p.adj, perm_sel, perm_other, perm_pcc_sel, perm_pcc_diff)]
   setorder(results_m, p.adj, -pcc_diff)
-  
+
   return(results_m)
-  
+
 }
 
 
@@ -717,8 +721,8 @@ do_permuttest_spot = function(sel_int,
 #' @name do_cell_proximity_test_spot
 #' @description Performs a selected differential test on subsets of a matrix for spots
 #' @keywords internal
-do_cell_proximity_test_spot = function(sel_int, 
-                                       other_ints, 
+do_cell_proximity_test_spot = function(sel_int,
+                                       other_ints,
                                        select_ind,
                                        other_ind,
                                        proximityMat,
@@ -729,16 +733,16 @@ do_cell_proximity_test_spot = function(sel_int,
                                        cores = 2,
                                        set_seed = TRUE,
                                        seed_number = 1234) {
-  
+
   # get parameters
   diff_test = match.arg(diff_test, choices = c('permutation', 'limma', 't.test', 'wilcox'))
   adjust_method = match.arg(adjust_method, choices = c("bonferroni","BH", "holm", "hochberg", "hommel",
                                                        "BY", "fdr", "none"))
-  
-  
+
+
   if(diff_test == 'permutation') {
-    result = do_permuttest_spot(sel_int = sel_int, 
-                                other_ints = other_ints, 
+    result = do_permuttest_spot(sel_int = sel_int,
+                                other_ints = other_ints,
                                 select_ind = select_ind,
                                 other_ind = other_ind,
                                 proximityMat = proximityMat,
@@ -748,10 +752,10 @@ do_cell_proximity_test_spot = function(sel_int,
                                 cores = cores,
                                 set_seed = set_seed,
                                 seed_number = seed_number)
-    
-  } 
+
+  }
   return(result)
-  
+
 }
 
 #' @title findICG_per_interaction_spot
@@ -773,31 +777,31 @@ findICG_per_interaction_spot <- function(sel_int,
                                          cores = 2,
                                          set_seed = TRUE,
                                          seed_number = 1234){
-  
+
   sel_ct = strsplit(sel_int, '--')[[1]][1]
   int_ct = strsplit(sel_int, '--')[[1]][2]
-  
+
   # filter out cells that without these two cellsltype
   prox_sel = proximityMat[sel_int,]
   prox_sel = prox_sel[which(prox_sel != 0)]
   prox_sel = prox_sel[which(prox_sel > CCI_cell_score)]
   spec_IDs = names(prox_sel)
-  
+
   # find other cells contribution to cell type
   dwls_all_cell = dwls_values[, sel_ct]
   dwls_all_cell = dwls_all_cell[dwls_all_cell > dwls_cutoff]
   all_IDs = names(dwls_all_cell)
   other_IDs = setdiff(all_IDs, spec_IDs)
-  
+
   other_ints = all_ints[cell_type == sel_ct]$unified_int
   other_ints = other_ints[-which(other_ints == sel_int)]
-  
+
   ## do not continue if too few cells ##
   if(length(spec_IDs) < minimum_unique_cells | length(other_IDs) < minimum_unique_cells) {
     result = NULL
   } else {
-    result = do_cell_proximity_test_spot(sel_int = sel_int, 
-                                         other_ints = other_ints, 
+    result = do_cell_proximity_test_spot(sel_int = sel_int,
+                                         other_ints = other_ints,
                                          select_ind = spec_IDs,
                                          other_ind = other_IDs,
                                          proximityMat = proximityMat,
@@ -808,16 +812,16 @@ findICG_per_interaction_spot <- function(sel_int,
                                          cores = cores,
                                          set_seed = set_seed,
                                          seed_number = seed_number)
-    
+
     result[, cell_type := sel_ct]
     result[, int_cell_type := int_ct]
     result[, nr_select := length(spec_IDs)]
     result[, int_nr_select := length(other_IDs)]
     result[, unif_int := sel_int]
   }
-  
+
   return(result)
-  
+
 }
 
 
@@ -833,8 +837,8 @@ findICG_per_interaction_spot <- function(sel_int,
 #' @param spatial_network_name name of spatial network to use
 #' @param minimum_unique_cells minimum number of target cells required
 #' @param minimum_unique_int_cells minimum number of interacting cells required
-#' @param CCI_cell_score cell proximity score to filter no interacted cell 
-#' @param dwls_cutoff cell type proportion cutoff to label the cell 
+#' @param CCI_cell_score cell proximity score to filter no interacted cell
+#' @param dwls_cutoff cell type proportion cutoff to label the cell
 #' @param diff_test which differential expression test
 #' @param adjust_method which method to adjust p-values
 #' @param nr_permutations number of permutations if diff_test = permutation
@@ -845,7 +849,7 @@ findICG_per_interaction_spot <- function(sel_int,
 #' @return cpgObject that contains the differential gene scores
 #' @details Function to calculate if genes expreesion residual are differentially expressed in cell types
 #'  when they interact (approximated by physical proximity) with other cell types.
-#'  Gene expression residual calculated as: 
+#'  Gene expression residual calculated as:
 #'  (observed expression in spot - cell_type_proportion * average_expressed_in_cell_type)
 #'  The results data.table in the cpgObject contains - at least - the following columns:
 #' \itemize{
@@ -880,50 +884,50 @@ findICGSpot <- function(gobject,
                         cores = 2,
                         set_seed = TRUE,
                         seed_number = 1234) {
-  
+
   # expression data
   values = match.arg(expression_values, choices = unique(c('normalized', 'scaled', 'custom', expression_values)))
   genes_overlap = intersect(gobject@gene_ID, rownames(ave_celltype_exp))
   ave_celltype_exp_sel = ave_celltype_exp[genes_overlap,]
   expr_residual = cal_expr_residual(gobject = gobject, ave_celltype_exp = ave_celltype_exp_sel)
-  
+
   ## test selected genes ##
   if(!is.null(selected_genes)) {
     expr_residual = expr_residual[rownames(expr_residual) %in% selected_genes, ]
   }
-  
+
   # compute cell proximity for each spot
-  proximityMat = cellProximityEnrichmentEachSpot(gobject = gobject, 
+  proximityMat = cellProximityEnrichmentEachSpot(gobject = gobject,
                                                  spatial_network_name = spatial_network_name)
-  
+
   # select overlapped spots
   #intersect_cell_IDs = intersect(colnames(expr_residual), colnames(proximityMat))
   #expr_residual = expr_residual[, intersect_cell_IDs]
   #proximityMat = proximityMat[, intersect_cell_IDs]
-  
+
   # compute correlation between genes and cell-types to find ICGs
   all_ints = data.table::data.table(unified_int = rownames(proximityMat))
   all_ints[, cell_type := strsplit(as.character(unified_int), '--')[[1]][1], by = 1:nrow(all_ints)]
   all_ints[, int_cell_type := strsplit(as.character(unified_int), '--')[[1]][2], by = 1:nrow(all_ints)]
-  
+
   # exact spatial_enrichment matrix
   dwls_values = gobject@spatial_enrichment$DWLS
   data.table::setDF(dwls_values)
   rownames_dwls = dwls_values[,'cell_ID']
   dwls_values = as.matrix(dwls_values[,-1])
   rownames(dwls_values) = rownames_dwls
-  
-  
+
+
   if(do_parallel == TRUE) {
-    
-    
+
+
     fin_result = giotto_lapply(X = all_ints$unified_int, cores = cores, fun = function(x) {
-      
+
       tempres = findICG_per_interaction_spot(sel_int = x,
                                              all_ints = all_ints,
                                              proximityMat = proximityMat,
                                              expr_residual = expr_residual,
-                                             dwls_values = dwls_values, 
+                                             dwls_values = dwls_values,
                                              dwls_cutoff = dwls_cutoff,
                                              CCI_cell_score = CCI_cell_score,
                                              minimum_unique_cells = minimum_unique_cells,
@@ -934,22 +938,22 @@ findICGSpot <- function(gobject,
                                              set_seed = set_seed,
                                              seed_number = seed_number)
     })
-    
-    
+
+
   } else {
-    
+
     fin_result = list()
-    
+
     for(i in 1:length(all_ints$unified_int)) {
-      
+
       x = all_ints$unified_int[i]
       print(x)
-      
+
       tempres = findICG_per_interaction_spot(sel_int = x,
                                              all_ints = all_ints,
                                              proximityMat = proximityMat,
                                              expr_residual = expr_residual,
-                                             dwls_values = dwls_values, 
+                                             dwls_values = dwls_values,
                                              dwls_cutoff = dwls_cutoff,
                                              CCI_cell_score = CCI_cell_score,
                                              minimum_unique_cells = minimum_unique_cells,
@@ -959,25 +963,25 @@ findICGSpot <- function(gobject,
                                              cores = 2,
                                              set_seed = set_seed,
                                              seed_number = seed_number)
-      
+
       fin_result[[i]] = tempres
-      
+
     }
-    
+
   }
   final_result = do.call('rbind', fin_result)
 
   # data.table variables
   spec_int = cell_type = int_cell_type = type_int = NULL
-  
+
   final_result[, spec_int := paste0(cell_type,'--',int_cell_type)]
   final_result[, type_int := ifelse(cell_type == int_cell_type, 'homo', 'hetero')]
-  
-  
+
+
   #return(final_result)
-  
+
   permutation_test = ifelse(diff_test == 'permutation', nr_permutations, 'no permutations')
-  
+
   cpgObject = list(CPGscores = final_result,
                    Giotto_info = list('values' = values,
                                       'cluster' = 'cell_ID',
@@ -989,7 +993,7 @@ findICGSpot <- function(gobject,
                                     'perm' = permutation_test))
   class(cpgObject) = append(class(cpgObject), 'cpgObject')
   return(cpgObject)
-  
+
 }
 
 
@@ -1018,37 +1022,37 @@ filterICGSpot = function(cpgObject,
                          min_zscore = 0.05,
                          zscores_column = c('cell_type', 'genes'),
                          direction = c('both', 'up', 'down')) {
-  
+
   # data.table variables
   nr_select = int_nr_select = zscores = pcc_diff = sel = other = p.adj = NULL
-  
+
   if(!'cpgObject' %in% class(cpgObject)) {
     stop('\n cpgObject needs to be the output from findCellProximityGenes() or findCPG() \n')
   }
-  
+
   zscores_column = match.arg(zscores_column, choices = c('cell_type', 'genes'))
-  
+
   CPGscore = copy(cpgObject[['CPGscores']])
-  
+
   # other parameters
   direction = match.arg(direction, choices = c('both', 'up', 'down'))
-  
-  
+
+
   ## sequential filter steps ##
   # 1. minimum number of source and target cells
   selection_scores = CPGscore[nr_select >= min_cells & int_nr_select >= min_int_cells]
-  
+
   # 2. create z-scores for log2fc per cell type
   selection_scores[, zscores := scale(pcc_diff), by = c(zscores_column)]
-  
+
   # 3. filter based on z-scores and minimum levels
   comb_DT = rbind(selection_scores[zscores >= min_zscore & abs(pcc_diff) >= min_pcc_diff & sel >= min_cells_expr_resi],
                   selection_scores[zscores <= -min_zscore & abs(pcc_diff) >= min_pcc_diff & other >= min_int_cells_expr_resi])
-  
+
   # 4. filter based on adjusted p-value (fdr)
   comb_DT = comb_DT[p.adj < min_fdr]
-  
-  
+
+
   if(direction == 'both') {
     selection_scores = selection_scores
   } else if(direction == 'up') {
@@ -1056,13 +1060,13 @@ filterICGSpot = function(cpgObject,
   } else if(direction == 'down') {
     selection_scores = selection_scores[log2fc <= -min_log2_fc]
   }
-  
-  
+
+
   newobj = copy(cpgObject)
   newobj[['CPGscores']] = comb_DT
-  
+
   return(newobj)
-  
+
 }
 
 #' @title plotICGSpot
@@ -1092,23 +1096,23 @@ plotICGSpot <- function(gobject,
                         save_plot = NA,
                         save_param =  list(),
                         default_save_name = 'plotICGSpot') {
-  
-  
+
+
   # data.table variables
   cell_type = int_cell_type = pcc_diff = NULL
-  
-  
+
+
   if(!'cpgObject' %in% class(cpgObject)) {
     stop('\n cpgObject needs to be the output from findCellProximityGenes() or findCPG() \n')
   }
-  
+
   CPGscores = cpgObject[['CPGscores']]
-  
+
   # combine genes
   names(source_markers) = rep('marker', length(source_markers))
   neighbor_types = names(ICG_genes)
   all_genes = c(source_markers, ICG_genes)
-  
+
   # warning if there are genes selected that are not detected
   detected_genes = unique(CPGscores[['genes']])
   not_detected_genes = all_genes[!all_genes %in% detected_genes]
@@ -1116,23 +1120,23 @@ plotICGSpot <- function(gobject,
     cat('These selected genes are not in the cpgObject: \n',
         not_detected_genes, '\n')
   }
-  
+
   # data.table set column names
   genes = group = NULL
-  
+
   tempDT = CPGscores[genes %in% all_genes][cell_type == source_type][int_cell_type %in% neighbor_types]
   tempDT[, genes := factor(genes, levels = all_genes)]
   tempDT[, group := names(all_genes[all_genes == genes]), by = 1:nrow(tempDT)]
-  
-  
+
+
   if(is.null(cell_color_code)) {
     mycolors = getDistinctColors(n = length(unique(tempDT$int_cell_type)))
     names(mycolors) = unique(tempDT$int_cell_type)
   } else {
     mycolors = cell_color_code
   }
-  
-  
+
+
   pl = ggplot2::ggplot()
   pl = pl + ggplot2::theme_classic() + ggplot2::theme(axis.text.x = ggplot2::element_text(size = 14, angle = 45, vjust = 1, hjust = 1),
                                                       axis.text.y = ggplot2::element_text(size = 14),
@@ -1140,34 +1144,34 @@ plotICGSpot <- function(gobject,
   pl = pl + ggplot2::geom_bar(data = tempDT, ggplot2::aes(x = genes, y = pcc_diff, fill = int_cell_type), stat = 'identity', position = ggplot2::position_dodge())
   pl = pl + ggplot2::scale_fill_manual(values = mycolors)
   pl = pl + ggplot2::labs(x = '', title = paste0('fold-change z-scores in ' ,source_type))
-  
-  
-  
+
+
+
   # print, return and save parameters
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-  
-  
+
+
   ## print plot
   if(show_plot == TRUE) {
     print(pl)
   }
-  
+
   ## save plot
   if(save_plot == TRUE) {
     do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
   }
-  
+
   ## return plot
   if(return_plot == TRUE) {
     return(pl)
   }
-  
+
 }
 
-#' @title plotCellProximityGenes
-#' @name plotCellProximityGenes
+#' @title plotCellProximityGenesSpot
+#' @name plotCellProximityGenesSpot
 #' @description Create visualization for cell proximity gene scores
 #' @param gobject giotto object
 #' @param cpgObject ICG (interaction changed gene) score object
@@ -1208,18 +1212,18 @@ plotCellProximityGenesSpot = function(gobject,
                                       save_plot = NA,
                                       save_param =  list(),
                                       default_save_name = 'plotCellProximityGenes') {
-  
-  
+
+
   if(!'cpgObject' %in% class(cpgObject)) {
     stop('\n cpgObject needs to be the output from findCellProximityGenes() or findCPG() \n')
   }
-  
+
   # print, return and save parameters
   show_plot = ifelse(is.na(show_plot), readGiottoInstructions(gobject, param = 'show_plot'), show_plot)
   save_plot = ifelse(is.na(save_plot), readGiottoInstructions(gobject, param = 'save_plot'), save_plot)
   return_plot = ifelse(is.na(return_plot), readGiottoInstructions(gobject, param = 'return_plot'), return_plot)
-  
-  
+
+
   ## first filter
   filter_cpg = filterICGSpot(cpgObject,
                              min_cells = min_cells,
@@ -1231,80 +1235,80 @@ plotCellProximityGenesSpot = function(gobject,
                              min_zscore = min_zscore,
                              zscores_column = c('cell_type', 'genes'),
                              direction = c('both', 'up', 'down'))
-  
+
   complete_part = filter_cpg[['CPGscores']]
-  
+
   ## other parameters
   method = match.arg(method, choices = c('volcano', 'cell_barplot', 'cell-cell', 'cell_sankey', 'heatmap', 'dotplot'))
-  
-  
+
+
   # variables
   pcc_diff = p.adj =  unif_int = N = cell_type = int_cell_type = NULL
-  
+
   ## create data.table for visualization
   if(method == 'volcano') {
-    
+
     ## volcanoplot
     pl = ggplot2::ggplot()
     pl = pl + ggplot2::geom_point(data = complete_part, ggplot2::aes(x = pcc_diff, y = ifelse(is.infinite(-log10(p.adj)), 1000, -log10(p.adj))))
     pl = pl + ggplot2::theme_classic()
     pl = pl + ggplot2::geom_vline(xintercept = 0, linetype = 2)
     pl = pl + ggplot2::labs(x = 'pcc diff', y = '-log10(p.adjusted)')
-    
-    
+
+
     ## print plot
     if(show_plot == TRUE) {
       print(pl)
     }
-    
+
     ## save plot
     if(save_plot == TRUE) {
       do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
     }
-    
+
     ## return plot
     if(return_plot == TRUE) {
       return(pl)
     }
-    
-    
+
+
   } else if(method == 'cell-cell') {
-    
+
     nr_int_selection_scores = complete_part[, .N, by = unif_int]
     order_interactions = nr_int_selection_scores[order(N)]$unif_int
-    
+
     complete_part[, unif_int := factor(unif_int, order_interactions)]
-    
+
     pl <- ggplot2::ggplot()
     pl <- pl + ggplot2::geom_bar(data = complete_part, ggplot2::aes(x = unif_int, fill = unif_int))
     pl <- pl + ggplot2::theme_classic() + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1, vjust = 1))
     pl <- pl + ggplot2::coord_flip()
-    
+
     ## print plot
     if(show_plot == TRUE) {
       print(pl)
     }
-    
+
     ## save plot
     if(save_plot == TRUE) {
       do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
     }
-    
+
     ## return plot
     if(return_plot == TRUE) {
       return(pl)
     }
-    
-    
+
+
   } else if(method == 'cell_barplot') {
-    
-    
+
+
     # by source cell type plot
     nr_source_selection_scores = complete_part[, .N, by = cell_type]
     order_source = nr_source_selection_scores[order(N)]$cell_type
-    
+
     complete_part[, cell_type := factor(cell_type, order_source)]
-    
+
     pl <- ggplot2::ggplot()
     pl <- pl + ggplot2::geom_bar(data = complete_part, ggplot2::aes(x = cell_type, fill = int_cell_type))
     if(!is.null(cell_color_code)) {
@@ -1312,35 +1316,35 @@ plotCellProximityGenesSpot = function(gobject,
     }
     pl <- pl + ggplot2::theme_classic() + ggplot2::theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
     pl <- pl + ggplot2::labs(x = '', y = '# of genes influenced by cell neighborhood')
-    
-    
+
+
     ## print plot
     if(show_plot == TRUE) {
       print(pl)
     }
-    
+
     ## save plot
     if(save_plot == TRUE) {
       do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
     }
-    
+
     ## return plot
     if(return_plot == TRUE) {
       return(pl)
     }
-    
+
   } else if(method == 'cell_sankey') {
-    
-    
+
+
     # package check for ggalluvial
     package_check(pkg_name = 'ggalluvial', repository = 'CRAN')
-    
-    
+
+
     testalluv = complete_part[, .N, by = c('int_cell_type', 'cell_type')]
-    
+
     # library(ggalluvial) # this is needed for it to work, why??
     # maybe use requireNamespace() instead?
-    
+
     pl <- ggplot2::ggplot(testalluv,
                           ggplot2::aes(y = N, axis1 = cell_type, axis2 = int_cell_type)) +
       ggalluvial::geom_alluvium(aes(fill = cell_type), width = 1/12) +
@@ -1348,92 +1352,92 @@ plotCellProximityGenesSpot = function(gobject,
       ggplot2::scale_x_discrete(limits = c("cell type", "neighbours"), expand = c(.05, .05)) +
       ggplot2::geom_label(stat = "stratum", label.strata = TRUE, size = 3) +
       ggplot2::theme_classic() + ggplot2::labs(x = '', y = '# of genes influenced by cell neighborhood')
-    
+
     if(!is.null(cell_color_code)) {
       pl <- pl + ggplot2::scale_fill_manual(values = cell_color_code)
     }
-    
-    
-    
+
+
+
     ## print plot
     if(show_plot == TRUE) {
       print(pl)
     }
-    
+
     ## save plot
     if(save_plot == TRUE) {
       do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
     }
-    
+
     ## return plot
     if(return_plot == TRUE) {
       return(pl)
     }
-    
+
   } else if(method == 'dotplot') {
-    
+
     changed_genes = complete_part[, .N, by = c('cell_type', 'int_cell_type')]
-    
+
     changed_genes[, cell_type := factor(cell_type, unique(cell_type))]
     changed_genes[, int_cell_type := factor(int_cell_type, unique(int_cell_type))]
-    
+
     pl = ggplot2::ggplot()
     pl = pl + ggplot2::theme_classic()
     pl = pl + ggplot2::geom_point(data = changed_genes, ggplot2::aes(x = cell_type, y = int_cell_type, size = N))
     pl = pl + ggplot2::scale_size_continuous(guide=guide_legend(title = '# of ICGs'))
     pl = pl + ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 1, hjust = 1))
     pl = pl + ggplot2::labs(x = 'source cell type', y = 'neighbor cell type')
-    
+
     ## print plot
     if(show_plot == TRUE) {
       print(pl)
     }
-    
+
     ## save plot
     if(save_plot == TRUE) {
       do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = pl, default_save_name = default_save_name), save_param))
     }
-    
+
     ## return plot
     if(return_plot == TRUE) {
       return(pl)
     }
-    
+
   } else if(method == 'heatmap') {
-    
+
     changed_genes = complete_part[, .N, by = c('cell_type', 'int_cell_type')]
-    
+
     changed_genes[, cell_type := factor(cell_type, unique(cell_type))]
     changed_genes[, int_cell_type := factor(int_cell_type, unique(int_cell_type))]
-    
+
     changed_genes_d = data.table::dcast.data.table(changed_genes, cell_type~int_cell_type, value.var = 'N', fill = 0)
     changed_genes_m = dt_to_matrix(changed_genes_d)
-    
+
     col_fun = circlize::colorRamp2(breaks = stats::quantile(log2(changed_genes_m+1)),
                                    colors =  c("white", 'white', "blue", "yellow", "red"))
-    
+
     heatm = ComplexHeatmap::Heatmap(as.matrix(log2(changed_genes_m+1)), col = col_fun,
                                     row_title = 'cell_type', column_title = 'int_cell_type', heatmap_legend_param = list(title = 'log2(# DEGs)'))
-    
+
     ## print plot
     if(show_plot == TRUE) {
       print(heatm)
     }
-    
+
     ## save plot
     if(save_plot == TRUE) {
       do.call('all_plots_save_function', c(list(gobject = gobject, plot_object = heatm, default_save_name = default_save_name), save_param))
     }
-    
+
     ## return plot
     if(return_plot == TRUE) {
       return(heatm)
     }
-    
+
   }
 }
-  
-  
+
+
 # * ####
 # cell communication spots ####
 
@@ -1481,8 +1485,8 @@ plotCellProximityGenesSpot = function(gobject,
 #'  \item{p.adj:}{ adjusted p-value }
 #'  \item{PI:}{ significanc score: log2fc * -log10(p.adj) }
 #' }
-#' @export
-specific_CCCScores_spots = function(gobject, 
+#' @keywords internal
+specific_CCCScores_spots = function(gobject,
                                     expr_residual,
                                     dwls_values,
                                     proximityMat,
@@ -1499,51 +1503,51 @@ specific_CCCScores_spots = function(gobject,
                                     set_seed = FALSE,
                                     seed_number = 1234,
                                     verbose = T){
-  
+
   # data.table variables
   from_to = cell_ID = lig_cell_type = rec_cell_type = lig_nr = rec_nr = rand_expr = NULL
   av_diff = log2fc = LR_expr = pvalue = LR_cell_comb = p.adj = LR_comb = PI = NULL
   sd_diff = z_score = NULL
-  
+
   # get parameters
   adjust_method = match.arg(adjust_method, choices = c("fdr", "bonferroni","BH", "holm", "hochberg", "hommel",
                                                        "BY", "none"))
   adjust_target = match.arg(adjust_target, choices = c('genes', 'cells'))
-  
+
   # select cell_ids with cell-types
   cell_direction_1 = paste0(cell_type_1,'--',cell_type_2)
   cell_direction_2 = paste0(cell_type_2,'--',cell_type_1)
-  
+
   print(paste0('Processing sepcific CCC Scores: ', cell_direction_1))
-  
+
   proxi_1 = proximityMat[cell_direction_1,]
   proxi_2 = proximityMat[cell_direction_2,]
-  
+
   ct1_cell_ids = names(proxi_1[proxi_1 > 0])
   ct2_cell_ids = names(proxi_2[proxi_2 > 0])
-  
+
   # dwls value for cell types
   dwls_ct1 = dwls_values[,cell_type_1]
   dwls_ct2 = dwls_values[,cell_type_2]
-  
+
   # make sure that there are sufficient observations
   if(length(ct1_cell_ids) <= min_observations | length(ct2_cell_ids) <= min_observations) {
-    
+
     return(NULL)
-    
+
   } else {
-    
+
     # get gene expression residual for ligand and receptor
     expr_res_L = expr_residual[gene_set_1, ct1_cell_ids]
     expr_res_R = expr_residual[gene_set_2, ct2_cell_ids]
-    
+
     # compute Ligand value
     lig_expr = t(t(expr_res_L) * dwls_ct1[ct1_cell_ids])
     rec_expr = t(t(expr_res_R) * dwls_ct2[ct2_cell_ids])
-    
+
     lig_expr = round(rowMeans(lig_expr), 7)
     rec_expr = round(rowMeans(rec_expr), 7)
-    
+
     comScore = data.table::data.table(LR_comb = paste0(gene_set_1, '-', gene_set_2),
                                       lig_cell_type = rep(cell_type_1, length(gene_set_1)),
                                       lig_expr = lig_expr,
@@ -1554,28 +1558,28 @@ specific_CCCScores_spots = function(gobject,
                                       lig_nr = rep(length(ct1_cell_ids), length(gene_set_1)),
                                       rec_nr = rep(length(ct2_cell_ids), length(gene_set_1))
     )
-    
+
     comScore[, LR_expr := lig_expr + rec_expr]
-    comScore = comScore[, .(LR_comb, lig_cell_type, lig_expr, ligand, 
+    comScore = comScore[, .(LR_comb, lig_cell_type, lig_expr, ligand,
                             rec_cell_type, rec_expr, receptor, LR_expr, lig_nr, rec_nr)]
-    
+
     # prepare for randomized scores
     total_av = rep(0, nrow(comScore))
-    
+
     if(detailed == FALSE) {
       total_sum = rep(0, nrow(comScore))
     } else {
       total_sum = matrix(nrow = nrow(comScore), ncol = random_iter)
     }
-    
+
     total_bool = rep(0, nrow(comScore))
-    
+
     all_cell_ids = gobject@cell_metadata$cell_ID
     ## simulations ##
     for(sim in 1:random_iter) {
-      
+
       if(verbose == TRUE) cat('simulation ', sim, '\n')
-      
+
       # get random ids and subset
       if(set_seed == TRUE) {
         seed_number = seed_number+sim
@@ -1583,74 +1587,74 @@ specific_CCCScores_spots = function(gobject,
       }
       random_ids_1 = all_cell_ids[sample(length(all_cell_ids), size = length(ct1_cell_ids))]
       random_ids_2 = all_cell_ids[sample(length(all_cell_ids), size = length(ct2_cell_ids))]
-      
+
       # get gene expression residual for ligand and receptor
       random_expr_res_L = expr_residual[gene_set_1, random_ids_1]
       random_expr_res_R = expr_residual[gene_set_2, random_ids_2]
-      
+
       # compute Ligand value
       random_lig_expr = t(t(random_expr_res_L) * dwls_ct1[random_ids_1])
       random_rec_expr = t(t(random_expr_res_R) * dwls_ct2[random_ids_2])
-      
+
       random_lig_expr = round(rowMeans(random_lig_expr), 7)
       random_rec_expr = round(rowMeans(random_rec_expr), 7)
-      
+
       randomScore = data.table::data.table(lig_expr = random_lig_expr,
                                            rec_expr = random_rec_expr)
       randomScore = randomScore[, LR_expr := lig_expr + rec_expr]
-      
+
       # average random score
       total_av = total_av + randomScore[['LR_expr']]
-      
+
       # difference between observed and random
       difference = comScore[['LR_expr']] - randomScore[['LR_expr']]
-      
+
       # calculate total difference
       if(detailed == FALSE) {
         total_sum = total_sum+difference
       } else {
         total_sum[,sim] = difference
       }
-      
+
       # calculate p-values
       difference[difference > 0] = 1
       difference[difference < 0] = -1
       total_bool = total_bool + difference
-      
+
     }
-    
+
     comScore[, rand_expr := total_av/random_iter]
-    
+
     if(detailed == TRUE) {
       av_difference_scores = rowMeans_giotto(total_sum)
       sd_difference_scores = apply(total_sum, MARGIN = 1, FUN = stats::sd)
-      
+
       comScore[, av_diff := av_difference_scores]
       comScore[, sd_diff := sd_difference_scores]
       comScore[, z_score := (LR_expr - rand_expr)/sd_diff]
-      
+
     } else {
       comScore[, av_diff := total_sum/random_iter]
     }
-    
+
     comScore[, log2fc := LR_expr - rand_expr]
     comScore[, pvalue := total_bool/random_iter]
     comScore[, pvalue := ifelse(pvalue > 0, 1-pvalue, 1+pvalue)]
     comScore[, LR_cell_comb := paste0(lig_cell_type,'--',rec_cell_type)]
-    
+
     if(adjust_target == 'genes') {
       comScore[, p.adj := stats::p.adjust(pvalue, method = adjust_method), by = .(LR_cell_comb)]
     } else if(adjust_target == 'cells'){
       comScore[, p.adj := stats::p.adjust(pvalue, method = adjust_method), by = .(LR_comb)]
     }
-    
+
     # get minimum adjusted p.value that is not zero
     all_p.adj = comScore[['p.adj']]
     lowest_p.adj = min(all_p.adj[all_p.adj != 0])
     comScore[, PI := ifelse(p.adj == 0, log2fc*(-log10(lowest_p.adj)), log2fc*(-log10(p.adj)))]
-    
+
     return(comScore)
-    
+
   }
 }
 
@@ -1706,7 +1710,7 @@ spatCellCellcomSpots = function(gobject,
                                 cluster_column = 'cell_ID',
                                 random_iter = 1000,
                                 gene_set_1,
-                                gene_set_2, 
+                                gene_set_2,
                                 min_observations = 2,
                                 expression_values = c('normalized', 'scaled', 'custom'),
                                 detailed = FALSE,
@@ -1718,11 +1722,11 @@ spatCellCellcomSpots = function(gobject,
                                 set_seed = TRUE,
                                 seed_number = 1234,
                                 verbose = c('a little', 'a lot', 'none')){
-  
-  
+
+
   # code start
   verbose = match.arg(verbose, choices = c('a little', 'a lot', 'none'))
-  
+
   ## check if spatial network exists ##
   spat_networks = showNetworks(gobject = gobject, verbose = F)
   if(!spatial_network_name %in% spat_networks) {
@@ -1730,33 +1734,33 @@ spatCellCellcomSpots = function(gobject,
          'use showNetworks() to see the available networks \n',
          'or create a new spatial network with createSpatialNetwork() \n')
   }
-  
-  
+
+
   # expression data
   values = match.arg(expression_values, choices = unique(c('normalized', 'scaled', 'custom', expression_values)))
   expr_residual = cal_expr_residual(gobject = gobject, ave_celltype_exp = ave_celltype_exp)
-  
+
   # compute cell proximity for each spot
-  proximityMat = cellProximityEnrichmentEachSpot(gobject = gobject, 
+  proximityMat = cellProximityEnrichmentEachSpot(gobject = gobject,
                                                  spatial_network_name = spatial_network_name)
-  
+
   # select overlapped spots
   intersect_cell_IDs = intersect(colnames(expr_residual), colnames(proximityMat))
   expr_residual = expr_residual[, intersect_cell_IDs]
   proximityMat = proximityMat[, intersect_cell_IDs]
-  
+
   # exact spatial_enrichment matrix
   dwls_values = gobject@spatial_enrichment$DWLS
   data.table::setDF(dwls_values)
   rownames_dwls = dwls_values[,'cell_ID']
   dwls_values = as.matrix(dwls_values[,-1])
   rownames(dwls_values) = rownames_dwls
-  
+
   # check gene list
   LR_comb = data.table::data.table(ligand = gene_set_1, receptor = gene_set_2)
   # check LR pair not captured in giotto object
   LR_out = LR_comb[!LR_comb$ligand %in% rownames(expr_residual) | !LR_comb$receptor %in% rownames(expr_residual)]
-  
+
   if (dim(LR_out)[1] > 0){
     print('Ligand or receptor were removed after computing expresion residual.')
     print(LR_out)
@@ -1764,22 +1768,22 @@ spatCellCellcomSpots = function(gobject,
     gene_set_1 = LR_comb$ligand
     gene_set_2 = LR_comb$receptor
   }
-  
+
   ## get all combinations between cell types
   combn_DT = data.table::data.table(LR_cell_comb = rownames(proximityMat))
   combn_DT = combn_DT[, V1 := strsplit(LR_cell_comb, '--')[[1]][1], by = 1:nrow(combn_DT)]
   combn_DT = combn_DT[, V2 := strsplit(LR_cell_comb, '--')[[1]][2], by = 1:nrow(combn_DT)]
-  
+
   ## parallel option ##
   if(do_parallel == TRUE) {
-    
-    
+
+
     savelist = giotto_lapply(X = 1:nrow(combn_DT), cores = cores, fun = function(row) {
-      
+
       cell_type_1 = combn_DT[row][['V1']]
       cell_type_2 = combn_DT[row][['V2']]
-      
-      
+
+
       specific_scores = specific_CCCScores_spots(gobject = gobject,
                                                  expr_residual = expr_residual,
                                                  dwls_values = dwls_values,
@@ -1796,26 +1800,26 @@ spatCellCellcomSpots = function(gobject,
                                                  set_seed = set_seed,
                                                  seed_number = seed_number)
     })
-    
+
   } else {
-    
+
     ## for loop over all combinations ##
     savelist = list()
     countdown = nrow(combn_DT)
-    
+
     for(row in 1:nrow(combn_DT)) {
-      
+
       cell_type_1 = combn_DT[row][['V1']]
       cell_type_2 = combn_DT[row][['V2']]
-      
+
       if(verbose == 'a little' | verbose == 'a lot') cat('\n\n PROCESS nr ', countdown,': ', cell_type_1, ' and ', cell_type_2, '\n\n')
-      
+
       if(verbose %in% c('a little', 'none')) {
         specific_verbose = F
       } else {
         specific_verbose = T
       }
-      
+
       specific_scores = specific_CCCScores_spots(gobject = gobject,
                                                  expr_residual = expr_residual,
                                                  dwls_values = dwls_values,
@@ -1835,18 +1839,18 @@ spatCellCellcomSpots = function(gobject,
       savelist[[row]] = specific_scores
       countdown = countdown - 1
     }
-    
+
   }
-  
+
   finalDT = do.call('rbind', savelist)
-  
+
   # data.table variables
   LR_comb = LR_expr = NULL
-  
+
   data.table::setorder(finalDT, LR_comb, -LR_expr)
-  
+
   return(finalDT)
-  
+
 }
 
 

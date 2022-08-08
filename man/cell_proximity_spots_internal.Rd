@@ -19,3 +19,4 @@ unified_int, internal value, type_int.
 \description{
 Compute cell-cell interactions observed value inner each spot
 }
+\keyword{internal}

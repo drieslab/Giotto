@@ -66,7 +66,7 @@ i.e. genes expression residual that are differentially due to proximity to other
 \details{
 Function to calculate if genes expreesion residual are differentially expressed in cell types
  when they interact (approximated by physical proximity) with other cell types.
- Gene expression residual calculated as: 
+ Gene expression residual calculated as:
  (observed expression in spot - cell_type_proportion * average_expressed_in_cell_type)
  The results data.table in the cpgObject contains - at least - the following columns:
 \itemize{

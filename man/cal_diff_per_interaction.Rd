@@ -14,7 +14,7 @@ cal_diff_per_interaction(
 )
 }
 \description{
-calculate correlation between expression residual and 
+calculate correlation between expression residual and
 cell proximity score of selected cell for spots
 }
 \keyword{internal}

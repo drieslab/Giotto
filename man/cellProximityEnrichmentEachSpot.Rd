@@ -23,6 +23,6 @@ cellProximityEnrichmentEachSpot(
 matrix that rownames are cell-cell interaction pairs and colnames are cell_IDs
 }
 \description{
-Compute cell-cell interaction enrichment for each spot with its 
+Compute cell-cell interaction enrichment for each spot with its
 interacted spots (observed)
 }

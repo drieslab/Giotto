@@ -15,6 +15,6 @@ geneExpDWLS(gobject, ave_celltype_exp)
 matrix
 }
 \description{
-Compute predicted gene expression value by spacialDWSL results and 
+Compute predicted gene expression value by spatialDWSL results and
 average gene expression for cell type
 }
