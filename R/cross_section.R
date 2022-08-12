@@ -18,6 +18,7 @@
 #' @param cell_subset_projection_locations 3D projection coordinates of selected cells onto the cross section plane
 #' @param cell_subset_projection_PCA pca of projection coordinates
 #' @param cell_subset_projection_coords 2D PCA coordinates of selected cells in the cross section plane
+#' @export
 create_crossSection_object <- function(name=NULL,
                                        method=NULL,
                                        thickness_unit=NULL,
