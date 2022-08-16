@@ -36,7 +36,7 @@ Given the path to a CosMx experiment directory, creates a Giotto
 object.
 }
 \details{
-[\strong{Expected Directory}] This function generates a giotto object when given a 
+[\strong{Expected Directory}] This function generates a giotto object when given a
 link to a cosmx output directory. It expects the following items within the directory
 where the \strong{bolded} portions are what this function matches against:
 \itemize{
@@ -55,9 +55,9 @@ where the \strong{bolded} portions are what this function matches against:
   \item{'all' - loads and requires subcellular information from tx_file and fov_positions_file
   and also the existing aggregated information (expression, spatial locations, and metadata)
   from exprMat_file and metadata_file.}
-  \item{'subcellular' - loads and requires subcellular information from tx_file and 
+  \item{'subcellular' - loads and requires subcellular information from tx_file and
   fov_positions_file only.}
-  \item{'aggregate' - loads and requires the existing aggregate information (expression, 
+  \item{'aggregate' - loads and requires the existing aggregate information (expression,
   spatial locations, and metadata) from exprMat_file and metadata_file.}
 }
 
