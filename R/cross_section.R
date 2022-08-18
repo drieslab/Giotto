@@ -1,17 +1,19 @@
+# TODO Create S4 crossSectionObj Class
+
 
 # cross section helper functions ####
 
 #' @title create_crossSection_object
 #' @name create_crossSection_object
 #' @description create a crossSection object
-#' @param name name of cress section object. (default = cross_sectino)
+#' @param name name of cross section object. (default = cross_section)
 #' @param method method to define the cross section plane.
 #' @param thickness_unit unit of the virtual section thickness. If "cell", average size of the observed cells is used as length unit. If "natural", the unit of cell location coordinates is used.(default = cell)
 #' @param slice_thickness thickness of slice
 #' @param cell_distance_estimate_method method to estimate average distance between neighobring cells. (default = mean)
-#' @param extend_ratio deciding the span of the cross section meshgrid, as a ratio of extension compared to the borders of the vitural tissue section. (default = 0.2)
+#' @param extend_ratio deciding the span of the cross section meshgrid, as a ratio of extension compared to the borders of the virtual tissue section. (default = 0.2)
 #' @param plane_equation a numerical vector of length 4, in the form of c(A,B,C,D), which defines plane Ax+By+Cz=D.
-#' @param mesh_grid_n numer of meshgrid lines to generate along both directions for the cross section plane.
+#' @param mesh_grid_n number of meshgrid lines to generate along both directions for the cross section plane.
 #' @param mesh_obj object that stores the cross section meshgrid information.
 #' @param cell_subset cells selected by the cross section
 #' @param cell_subset_spatial_locations locations of cells selected by the cross section
