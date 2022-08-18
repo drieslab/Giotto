@@ -1621,7 +1621,20 @@ filterGiotto <- function(gobject,
 
 
   ## update parameters used ##
+  
+  # Do not update downstream of processGiotto
+  # Parameters will be updated within processGiotto
+  try({
+    upstream_func = sys.call(-2)
+    fname = as.character(upstream_func[[1]])
+    if (fname == 'processGiotto') return(newGiottoObject)
+  },
+  silent = TRUE)
+  
+  
+  # If this function call is not downstream of processGiotto, update normally
   newGiottoObject = update_giotto_params(newGiottoObject, description = '_filter')
+  
   return(newGiottoObject)
 
 
@@ -1993,6 +2006,18 @@ normalizeGiotto <- function(gobject,
   }
 
   ## update parameters used ##
+  
+  # Do not update downstream of processGiotto
+  # Parameters will be updated within processGiotto
+  try({
+    upstream_func = sys.call(-2)
+    fname = as.character(upstream_func[[1]])
+    if (fname == 'processGiotto') return(gobject)
+  },
+  silent = TRUE)
+  
+  
+  # If this function call is not downstream of processGiotto, update normally
   gobject = update_giotto_params(gobject, description = '_normalize')
 
   return(gobject)
@@ -2025,7 +2050,12 @@ adjustGiottoMatrix <- function(gobject,
                                covariate_columns = NULL,
                                return_gobject = TRUE,
                                update_slot = c('custom')) {
-
+  
+  # Catch for both batch and covariate being null
+  if (is.null(batch_columns) & is.null(covariate_columns)){
+    stop('\nMetadata for either different batches or covariates must be provided.')
+  }
+  
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
@@ -2090,15 +2120,27 @@ adjustGiottoMatrix <- function(gobject,
 
   if(return_gobject == TRUE) {
 
-    gobject = update_giotto_params(gobject, description = '_adj_matrix')
-
     gobject = set_expression_values(gobject = gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type,
                                     name = update_slot,
                                     values = adjusted_matrix)
-    #gobject@expression[[feat_type]][[spat_unit]][[update_slot]] = adjusted_matrix
-
+    
+    ## update parameters used ##
+    
+    # Do not update downstream of processGiotto
+    # Parameters will be updated within processGiotto
+    try({
+      test = sys.call(-2)
+      fname = as.character(test[[1]])
+      if (fname == 'processGiotto') return(gobject)
+    },
+    silent = TRUE)
+    
+    
+    # If this function call is not downstream of processGiotto, update normally
+    gobject = update_giotto_params(gobject, description = '_adj_matrix')
+    
     return(gobject)
 
   } else {
@@ -2155,7 +2197,8 @@ processGiotto = function(gobject,
   adjust_params[['return_gobject']] = TRUE # force this to be true
   gobject = do.call('adjustGiottoMatrix', c(gobject = gobject, adjust_params))
 
-
+  gobject = update_giotto_params(gobject, description = '_process')
+  
   return(gobject)
 
 }
@@ -2598,9 +2641,17 @@ addFeatStatistics <- function(gobject,
     # parent function name
     cl = sys.call(-1)
 
-    print('cl = ')
-    print(cl)
-
+    # Do not update downstream of processGiotto
+    # Parameters will be updated within processGiotto
+    try({
+      upstream_func = sys.call(-3)
+      fname = as.character(upstream_func[[1]])
+      if (fname == 'processGiotto') return(gobject)
+    },
+    silent = TRUE)
+    
+    
+    # If this function call is not downstream of processGiotto, update normally    
     if(is.null(cl)) {
       gobject = update_giotto_params(gobject, description = '_feat_stats')
     } else {
@@ -2732,9 +2783,20 @@ addCellStatistics <- function(gobject,
                               column_cell_ID = 'cells')
 
     ## update parameters used ##
+    
     # parent function name
     cl = sys.call(-1)
-
+    
+    # Do not update downstream of processGiotto
+    # Parameters will be updated within processGiotto
+    try({
+      upstream_func = sys.call(-3)
+      fname = as.character(upstream_func[[1]])
+      if (fname == 'processGiotto') return(gobject)
+    },
+    silent = TRUE)
+    
+    # If this function call is not downstream of processGiotto, update normally
     if(is.null(cl)) {
       gobject = update_giotto_params(gobject, description = '_cell_stats')
     } else {
