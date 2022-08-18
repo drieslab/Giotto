@@ -10206,7 +10206,7 @@ comparePolygonExpression <- function(gobject,
 
   for (gene in my_rownames) {
     mean_expression_gene <- mean(my_expression[gene,])
-    sd_expression_gene <- sd(my_expression[gene,])
+    sd_expression_gene <- stats::sd(my_expression[gene,])
     for (cell in colnames(my_expression)) {
       my_zscores[gene, cell] <- (my_expression[gene, cell]-mean_expression_gene)/sd_expression_gene
     }
