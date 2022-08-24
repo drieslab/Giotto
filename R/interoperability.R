@@ -555,7 +555,6 @@ giottoToSpatialExperiment <- function(giottoObj){
     message("No reduced dimensions found in the input Giotto object")
   }
 
-  #
   #also where to store spatialgrid?
 
  ## NN graph
@@ -581,7 +580,6 @@ giottoToSpatialExperiment <- function(giottoObj){
     message("No nearest networks found in the input Giotto object")
   }
 
-
   # spatial network from giotto
   giottoSpatialNetworks <- Giotto:::list_spatial_networks(giottoObj)
   if(!is.null(giottoSpatialNetworks)){
@@ -601,7 +599,6 @@ giottoToSpatialExperiment <- function(giottoObj){
   }
 
   # images from giotto?
-
   giottoImages <- Giotto:::list_images(giottoObj)
   if(!is.null(giottoImages)){
     for(i in seq(nrow(giottoImages))){
@@ -618,7 +615,6 @@ giottoToSpatialExperiment <- function(giottoObj){
                                        load = TRUE)
 
       # loadedspatialimage (find more)
-
       S4Vectors::metadata(spe)[[img@name]] <- img # can be stored in spatialData
     }
 
