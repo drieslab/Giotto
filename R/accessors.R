@@ -2081,5 +2081,35 @@ list_images_names = function(gobject,
   return(img_names)
 }
 
+#' @title list_nearest_networks
+#' @name list_nearest_networks
+#' @description return the available nearest networks that are attached to the Giotto object
+#' @param gobject giotto object
+#' @param spat_unit spatial unit (e.g. "cell")
+#' @return data.table of names and locations of available nearest networks.
+list_nearest_networks = function(gobject,
+                                 spat_unit = NULL) {
+
+  availableNetworks = data.table()
+  for(spatial_unit in names(gobject@nn_network)) {
+    for(network_type in names(gobject@nn_network[[spatial_unit]])) {
+      for(network_name in names(gobject@nn_network[[spatial_unit]][[network_type]])){
+        availableNetworks = rbind(availableNetworks,
+                                  list(spat_unit = spatial_unit,
+                                       type = network_type,
+                                       name = network_name))
+      }
+    }
+  }
+
+  # check if a specific category is desired
+  if(!is.null(spat_unit)) spat_unit_subset = availableNetworks$spat_unit == spat_unit else spat_unit_subset = TRUE
+
+  availableNetworks = availableNetworks[spat_unit_subset,]
+
+  if(nrow(availableNetworks) == 0) return(NULL)
+  else return(availableNetworks)
+}
+
 
 

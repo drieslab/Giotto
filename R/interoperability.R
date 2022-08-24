@@ -555,22 +555,31 @@ giottoToSpatialExperiment <- function(giottoObj){
     message("No reduced dimensions found in the input Giotto object")
   }
 
-
-  # store more and see if you can have multiple graphs (iterate over all graphs) = YES, multiple possible
-  # any list graph function? wait for this
-  # g <- get_NearestNetwork(visium_brain)
-  # g <- igraph::get.data.frame(g, "both")
-  # g <- g$edges
-  # #find cell indices
-  # cell1 <- match(g$from, pDataDT(visium_brain)$cell_ID)
-  # cell2 <- match(g$to, pDataDT(visium_brain)$cell_ID)
-  # weight <- g$weight # are these columns fixed?
-  # distance <- g$distance
-  # shared <- g$shared
-  # rank <- g$rank
   #
-  # colPair(spe, "SNN.PCA") <- SelfHits(
-  #   cell1, cell2, nnode=ncol(spe), weight=weight, distance=distance, shared=shared, rank=rank)
+  #also where to store spatialgrid?
+
+ ## NN graph
+  giottoNearestNetworks <- Giotto:::list_nearest_networks(giottoObj)
+  if(!is.null(giottoNearestNetworks)){
+    for(i in seq(nrow(giottoNearestNetworks))){
+      message("Copying nearest networks")
+      nn_network <- get_NearestNetwork(
+        gobject = giottoObj,
+        spat_unit = giottoNearestNetworks[i]$spat_unit,
+        output = "data.table",
+        nn_network_to_use = giottoNearestNetworks[i]$network_type,
+        network_name = giottoNearestNetworks[i]$network_name)
+
+      # spe stores in colpairs, with col indices instead of colnames
+      cell1 <- match(nn_network$from, pDataDT(giottoObj)$cell_ID)
+      cell2 <- match(nn_network$to, pDataDT(giottoObj)$cell_ID)
+
+      SingleCellExperiment::colPair(spe, giottoNearestNetworks[i]$network_name) <- S4Vectors::SelfHits(
+        cell1, cell2, nnode=ncol(spe), sp_network[, -1:-2]) #removing from and to
+    }
+  } else{
+    message("No nearest networks found in the input Giotto object")
+  }
 
 
   # spatial network from giotto
@@ -610,7 +619,7 @@ giottoToSpatialExperiment <- function(giottoObj){
 
       # loadedspatialimage (find more)
 
-      S4Vectors::metadata(spe)[[img@name]] <- img # saving info here because cannot change dataframe in imgData spe, can be stored in spatialData
+      S4Vectors::metadata(spe)[[img@name]] <- img # can be stored in spatialData
     }
 
     message("Copying spatial images")

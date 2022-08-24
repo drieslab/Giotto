@@ -33,14 +33,27 @@ updateGiottoImageMG(
 
 \item{giottoImage}{\code{image} object to directly update}
 
-\item{xmax_adj, xmin_adj, ymax_adj, ymin_adj}{adjust image boundaries by increasing 
+\item{xmax_adj}{adjust image boundaries by increasing 
 maximum and decreasing minimum bounds respectively of xy bounds}
 
-\item{x_shift, y_shift}{shift entire image along xy axes}
+\item{xmin_adj}{adjust image boundaries by increasing 
+maximum and decreasing minimum bounds respectively of xy bounds}
+
+\item{ymax_adj}{adjust image boundaries by increasing 
+maximum and decreasing minimum bounds respectively of xy bounds}
+
+\item{ymin_adj}{adjust image boundaries by increasing 
+maximum and decreasing minimum bounds respectively of xy bounds}
+
+\item{x_shift}{shift entire image along xy axes}
+
+\item{y_shift}{shift entire image along xy axes}
 
 \item{scale_factor}{set \code{scale_x} and \code{scale_y} params at the same time}
 
-\item{scale_x, scale_y}{independently scale x or y axis image mapping from coordinate origin}
+\item{scale_x}{independently scale x or y axis image mapping from coordinate origin}
+
+\item{scale_y}{independently scale x or y axis image mapping from coordinate origin}
 
 \item{order}{order of operations between fine adjustments (adjustment and shift
 parameters) and scaling}
