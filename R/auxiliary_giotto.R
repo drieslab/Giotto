@@ -2159,13 +2159,13 @@ adjustGiottoMatrix <- function(gobject,
 #' @param filter_params additional parameters to filterGiotto
 #' @param norm_params additional parameters to normalizeGiotto
 #' @param stat_params additional parameters to addStatistics
-#' @param adjust_params additional parameters to adjustGiottoMatrix
+#' @param adjust_params additional parameters to adjustGiottoMatrix; set to NULL if not required
 #' @param verbose be verbose (default is TRUE)
 #' @return giotto object
 #' @details See \code{\link{filterGiotto}}, \code{\link{normalizeGiotto}},
 #' \code{\link{addStatistics}}, and \code{\link{adjustGiottoMatrix}}. For more
 #' information about the different parameters in each step. If you do not provide
-#' them it will use the default values.
+#' them it will use the default values. If no adjustment is required, adjust_params must be set to NULL
 #' @export
 #'
 processGiotto = function(gobject,
@@ -2191,11 +2191,13 @@ processGiotto = function(gobject,
   stat_params[['return_gobject']] = TRUE # force this to be true
   gobject = do.call('addStatistics', c(gobject = gobject, stat_params))
 
-  # adjust Giotto
-  if(verbose == TRUE) cat('3. start adjusted matrix step \n')
-  if(!inherits(adjust_params, 'list')) stop('adjust_params need to be a list of parameters for adjustGiottoMatrix \n')
-  adjust_params[['return_gobject']] = TRUE # force this to be true
-  gobject = do.call('adjustGiottoMatrix', c(gobject = gobject, adjust_params))
+  # adjust Giotto, if applicable
+  if(!is.null(adjust_params)){
+    if(verbose == TRUE) cat('4. start adjusted matrix step \n')
+    if(!inherits(adjust_params, 'list')) stop('adjust_params need to be a list of parameters for adjustGiottoMatrix \n')
+    adjust_params[['return_gobject']] = TRUE # force this to be true
+    gobject = do.call('adjustGiottoMatrix', c(gobject = gobject, adjust_params))
+  }
 
   gobject = update_giotto_params(gobject, description = '_process')
   
