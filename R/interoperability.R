@@ -472,8 +472,6 @@ seuratToGiotto = function(sobject, spatial_assay = 'Spatial',
 #'
 #' @return A SpatialExperiment object that contains data from the input Giotto object.
 #' @export
-#'
-#' @examples
 giottoToSpatialExperiment <- function(giottoObj){
 
   requireNamespace(c(
@@ -517,7 +515,8 @@ giottoToSpatialExperiment <- function(giottoObj){
   # check if exists
   if(nrow(pDataDT(giottoObj)) > 0){
     message("Copying phenotype data")
-    SummarizedExperiment::colData(spe) <- S4Vectors::DataFrame(pDataDT(giottoObj))
+    pData <- pDataDT(giottoObj)
+    SummarizedExperiment::colData(spe) <- S4Vectors::DataFrame(pData, row.names = pData$cell_ID) #will giotto always have cell ids?
   } else{
     message("No phenotype data found in input Giotto object") # use message instead of cat
   }
@@ -560,21 +559,21 @@ giottoToSpatialExperiment <- function(giottoObj){
  ## NN graph
   giottoNearestNetworks <- Giotto:::list_nearest_networks(giottoObj)
   if(!is.null(giottoNearestNetworks)){
+    message("Copying nearest networks")
     for(i in seq(nrow(giottoNearestNetworks))){
-      message("Copying nearest networks")
       nn_network <- get_NearestNetwork(
         gobject = giottoObj,
         spat_unit = giottoNearestNetworks[i]$spat_unit,
         output = "data.table",
-        nn_network_to_use = giottoNearestNetworks[i]$network_type,
-        network_name = giottoNearestNetworks[i]$network_name)
+        nn_network_to_use = giottoNearestNetworks[i]$type,
+        network_name = giottoNearestNetworks[i]$name)
 
       # spe stores in colpairs, with col indices instead of colnames
       cell1 <- match(nn_network$from, pDataDT(giottoObj)$cell_ID)
       cell2 <- match(nn_network$to, pDataDT(giottoObj)$cell_ID)
 
-      SingleCellExperiment::colPair(spe, giottoNearestNetworks[i]$network_name) <- S4Vectors::SelfHits(
-        cell1, cell2, nnode=ncol(spe), sp_network[, -1:-2]) #removing from and to
+      SingleCellExperiment::colPair(spe, giottoNearestNetworks[i]$name) <- S4Vectors::SelfHits(
+        cell1, cell2, nnode=ncol(spe), nn_network[, -1:-2]) #removing from and to
     }
   } else{
     message("No nearest networks found in the input Giotto object")
@@ -583,8 +582,8 @@ giottoToSpatialExperiment <- function(giottoObj){
   # spatial network from giotto
   giottoSpatialNetworks <- Giotto:::list_spatial_networks(giottoObj)
   if(!is.null(giottoSpatialNetworks)){
+    message("Copying spatial networks")
     for(i in seq(nrow(giottoSpatialNetworks))){
-      message("Copying spatial networks")
       sp_network <- get_spatialNetwork(gobject = giottoObj, spat_unit = giottoSpatialNetworks[i]$spat_unit, name = giottoSpatialNetworks[i]$name)
 
       # spe stores in colpairs, with col indices instead of colnames
@@ -601,24 +600,26 @@ giottoToSpatialExperiment <- function(giottoObj){
   # images from giotto?
   giottoImages <- Giotto:::list_images(giottoObj)
   if(!is.null(giottoImages)){
+    message("Copying spatial images")
     for(i in seq(nrow(giottoImages))){
       img <- get_giottoImage(
         gobject = giottoObj,
         image_type = giottoImages[i]$img_type,
         name = giottoImages[i]$name)
 
-      spe <- SpatialExperiment::addImg(spe,
-                                       sample_id = "sample01", # ask how to find sample? different samples get appended to cell_ids
-                                       image_id = img@name,
-                                       imageSource = img@file_path,
-                                       scaleFactor = NA_real_,
-                                       load = TRUE)
-
-      # loadedspatialimage (find more)
+      if(!is.null(img@file_path)){
+        spe <- SpatialExperiment::addImg(spe,
+                                         sample_id = "sample01", # ask how to find sample? different samples get appended to cell_ids
+                                         image_id = img@name,
+                                         imageSource = img@file_path, #this will work but drawback is that you need to have the images, it verifies the path
+                                         scaleFactor = NA_real_,
+                                         load = TRUE)
+      }
+      else{
+        message("\t - Skipping image with NULL file path")
+      }
       S4Vectors::metadata(spe)[[img@name]] <- img # can be stored in spatialData
     }
-
-    message("Copying spatial images")
   } else{
     message("No spatial images found in the input Giotto object")
   }
