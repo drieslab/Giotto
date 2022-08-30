@@ -500,10 +500,15 @@ giottoToSpatialExperiment <- function(giottoObj){
     stop("The input Giotto object must contain atleast one expression matrix.")
   }
 
-  if(nrow(giottoExpr) > 0){ # what if $rna $or something else same $raw etc. (maybe in line 63 add _ both names)
+  if(nrow(giottoExpr) > 0){
     for(i in seq(nrow(giottoExpr))){
       message("Copying expression matrix: ", giottoExpr[i]$name)
-      SummarizedExperiment::assay(spe, giottoExpr[i]$name, withDimnames = FALSE) <- get_expression_values( #fix dimnames issue
+      SummarizedExperiment::assay(
+        spe,
+        paste0(giottoExpr[i]$name, "_",
+               giottoExpr[i]$feat_type, "_",
+               giottoExpr[i]$spat_unit),
+        withDimnames = FALSE) <- get_expression_values(
         gobject = giottoObj,
         spat_unit = giottoExpr[i]$spat_unit,
         feat_type = giottoExpr[i]$feat_type,
@@ -516,9 +521,9 @@ giottoToSpatialExperiment <- function(giottoObj){
   if(nrow(pDataDT(giottoObj)) > 0){
     message("Copying phenotype data")
     pData <- pDataDT(giottoObj)
-    SummarizedExperiment::colData(spe) <- S4Vectors::DataFrame(pData, row.names = pData$cell_ID) #will giotto always have cell ids?
+    SummarizedExperiment::colData(spe) <- S4Vectors::DataFrame(pData, row.names = pData$cell_ID)
   } else{
-    message("No phenotype data found in input Giotto object") # use message instead of cat
+    message("No phenotype data found in input Giotto object")
   }
 
   # check if exists
@@ -554,7 +559,7 @@ giottoToSpatialExperiment <- function(giottoObj){
     message("No reduced dimensions found in the input Giotto object")
   }
 
-  #also where to store spatialgrid?
+  #also where to store spatialgrid? metadata?
 
  ## NN graph
   giottoNearestNetworks <- Giotto:::list_nearest_networks(giottoObj)
@@ -611,14 +616,14 @@ giottoToSpatialExperiment <- function(giottoObj){
         spe <- SpatialExperiment::addImg(spe,
                                          sample_id = "sample01", # ask how to find sample? different samples get appended to cell_ids
                                          image_id = img@name,
-                                         imageSource = img@file_path, #this will work but drawback is that you need to have the images, it verifies the path
+                                         imageSource = img@file_path,
                                          scaleFactor = NA_real_,
                                          load = TRUE)
       }
       else{
         message("\t - Skipping image with NULL file path")
       }
-      S4Vectors::metadata(spe)[[img@name]] <- img # can be stored in spatialData
+      S4Vectors::metadata(spe)[[img@name]] <- img
     }
   } else{
     message("No spatial images found in the input Giotto object")
