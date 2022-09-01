@@ -474,15 +474,16 @@ seuratToGiotto = function(sobject, spatial_assay = 'Spatial',
 #' @export
 giottoToSpatialExperiment <- function(giottoObj){
 
+  # Load required packages
   requireNamespace(c(
     "SummarizedExperiment",
     "SingleCellExperiment",
     "SpatialExperiment",
     "S4Vectors"))
 
-  #expression matrices
+  # Expression Matrices
   giottoExpr <- Giotto:::list_expression(giottoObj)
-  # check if has > 0 rows
+  # Check if expression matrices exist in input object
   if(!is.null(giottoExpr)){
     message("Copying expression matrix: ", giottoExpr[1]$name)
     exprMat <- get_expression_values(
@@ -490,19 +491,22 @@ giottoToSpatialExperiment <- function(giottoObj){
       spat_unit = giottoExpr[1]$spat_unit,
       feat_type = giottoExpr[1]$feat_type,
       values = giottoExpr[1]$name)
-    names(rownames(exprMat)) <- NULL #sp doesnt allow
+    names(rownames(exprMat)) <- NULL
     names(colnames(exprMat)) <- NULL
     exprMat <- list(exprMat)
     names(exprMat)[1] <- giottoExpr[1]$name
+    # Creating SPE object with first expression matrix
     spe <- SpatialExperiment::SpatialExperiment(assays = exprMat)
     giottoExpr <- giottoExpr[-1, ]
   } else{
     stop("The input Giotto object must contain atleast one expression matrix.")
   }
 
+  # Copying remaining expression matrices if they exist
   if(nrow(giottoExpr) > 0){
     for(i in seq(nrow(giottoExpr))){
       message("Copying expression matrix: ", giottoExpr[i]$name)
+      # SPE does not have specific slots for different units, instead joining multiple unit names to identify them
       SummarizedExperiment::assay(
         spe,
         paste0(giottoExpr[i]$name, "_",
@@ -516,8 +520,7 @@ giottoToSpatialExperiment <- function(giottoObj){
     }
   }
 
-  # metadata to coldata
-  # check if exists
+  # Cell Metadata to ColData
   if(nrow(pDataDT(giottoObj)) > 0){
     message("Copying phenotype data")
     pData <- pDataDT(giottoObj)
@@ -526,7 +529,7 @@ giottoToSpatialExperiment <- function(giottoObj){
     message("No phenotype data found in input Giotto object")
   }
 
-  # check if exists
+  # Feature Metadata to RowData
   if(nrow(fDataDT(giottoObj)) > 0){
     message("Copying feature metadata")
     SummarizedExperiment::rowData(spe) <- fDataDT(giottoObj)
@@ -534,7 +537,7 @@ giottoToSpatialExperiment <- function(giottoObj){
     message("No feature metadata found in input Giotto object")
   }
 
-  # check if exists
+  # Spatial Locations to Spatial Coordinates
   if(!is.null(get_spatial_locations(giottoObj))){
     message("Copying spatial locations")
     SpatialExperiment::spatialCoords(spe) <- data.matrix(get_spatial_locations(giottoObj)[, 1:2])
@@ -542,7 +545,7 @@ giottoToSpatialExperiment <- function(giottoObj){
     message("No spatial locations found in the input Giotto object")
   }
 
-
+  # DimReductions
   giottoReductions <- Giotto:::list_dim_reductions(giottoObj)
   if(!is.null(giottoReductions)){
     message("Copying reduced dimensions")
@@ -559,9 +562,9 @@ giottoToSpatialExperiment <- function(giottoObj){
     message("No reduced dimensions found in the input Giotto object")
   }
 
-  #also where to store spatialgrid? metadata?
+ # SpatialGrid
 
- ## NN graph
+  # NN Graph
   giottoNearestNetworks <- Giotto:::list_nearest_networks(giottoObj)
   if(!is.null(giottoNearestNetworks)){
     message("Copying nearest networks")
@@ -573,7 +576,7 @@ giottoToSpatialExperiment <- function(giottoObj){
         nn_network_to_use = giottoNearestNetworks[i]$type,
         network_name = giottoNearestNetworks[i]$name)
 
-      # spe stores in colpairs, with col indices instead of colnames
+      # SPE stores in colpairs, with col indices instead of colnames
       cell1 <- match(nn_network$from, pDataDT(giottoObj)$cell_ID)
       cell2 <- match(nn_network$to, pDataDT(giottoObj)$cell_ID)
 
@@ -584,7 +587,7 @@ giottoToSpatialExperiment <- function(giottoObj){
     message("No nearest networks found in the input Giotto object")
   }
 
-  # spatial network from giotto
+  # Spatial Networks
   giottoSpatialNetworks <- Giotto:::list_spatial_networks(giottoObj)
   if(!is.null(giottoSpatialNetworks)){
     message("Copying spatial networks")
@@ -602,7 +605,7 @@ giottoToSpatialExperiment <- function(giottoObj){
     message("No spatial networks found in the input Giotto object")
   }
 
-  # images from giotto?
+  # SpatialImages
   giottoImages <- Giotto:::list_images(giottoObj)
   if(!is.null(giottoImages)){
     message("Copying spatial images")
@@ -614,7 +617,7 @@ giottoToSpatialExperiment <- function(giottoObj){
 
       if(!is.null(img@file_path)){
         spe <- SpatialExperiment::addImg(spe,
-                                         sample_id = "sample01", # ask how to find sample? different samples get appended to cell_ids
+                                         sample_id = "sample01", #TODO? different samples get appended to cell_ids
                                          image_id = img@name,
                                          imageSource = img@file_path,
                                          scaleFactor = NA_real_,
