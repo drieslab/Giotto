@@ -87,7 +87,7 @@ setMethod(
 
     cat("\n Resolution: \n")
     print(object@resolution)
-    
+
     cat("\n File Path: \n")
     print(object@file_path)
 
@@ -174,10 +174,10 @@ setMethod(
 
     cat('\n Estimated maximum intensity is: ', object@max_intensity, ' \n',
         'Estimated minimum intensity is: ', object@min_intensity, ' \n')
-    
+
     if(object@is_int == TRUE) cat('Values are integers')
     if(object@is_int == FALSE) cat('Values are floating point')
-    
+
     cat('\n File path is: ', object@file_path, '\n')
 
   }
@@ -864,8 +864,8 @@ get_img_minmax = function(mg_img,
     img_ymax = info$height
     img_ymin = 0
   }
-  
-  
+
+
   return(list('img_xmax' = img_xmax,
               'img_xmin' = img_xmin,
               'img_ymax' = img_ymax,
@@ -881,37 +881,37 @@ get_img_minmax = function(mg_img,
 get_adj_rescale_img = function(img_minmax,
                                spatial_locs,
                                scale_factor = 1) {
-  
+
   # Expand scale_factor if needed
   if(length(scale_factor) == 1) {
     scale_factor = c(x = scale_factor, y = scale_factor)
   }
-  
+
   # Spatial minmax
   my_xmin = min(spatial_locs$sdimx)
   my_xmax = max(spatial_locs$sdimx)
   my_ymin = min(spatial_locs$sdimy)
   my_ymax = max(spatial_locs$sdimy)
-  
+
   # Find scaled image adjustments based on scaled spatlocs
   xmin_adj_scaled = (my_xmin*scale_factor[['x']]) - (img_minmax$img_xmin)
   xmin_adj_orig = xmin_adj_scaled/scale_factor[['x']]
-  
+
   xmax_adj_scaled = (img_minmax$img_xmax) - (my_xmax*scale_factor[['x']])
   xmax_adj_orig = xmax_adj_scaled/scale_factor[['x']]
-  
+
   ymin_adj_scaled = (my_ymin*scale_factor[['y']]) - (img_minmax$img_ymin)
   ymin_adj_orig = ymin_adj_scaled/scale_factor[['y']]
-  
+
   ymax_adj_scaled = (img_minmax$img_ymax) - (my_ymax*scale_factor[['y']])
   ymax_adj_orig = ymax_adj_scaled/scale_factor[['y']]
-  
+
   # return scaled adjustments
   return(c('xmin_adj_orig' = xmin_adj_orig,
            'xmax_adj_orig' = xmax_adj_orig,
            'ymin_adj_orig' = ymin_adj_orig,
            'ymax_adj_orig' = ymax_adj_orig))
-  
+
 }
 
 
@@ -1076,7 +1076,7 @@ addGiottoImageToSpatPlot = function(spatpl = NULL,
 
   # convert giotto image object into array
   img_array = as.numeric(gimage@mg_object[[1]])
-  
+
   # add transparency if needed
   if(!is.null(alpha) & is.numeric(alpha)) {
     img_array = add_img_array_alpha(x = img_array,
@@ -1110,7 +1110,7 @@ addGiottoImageToSpatPlot = function(spatpl = NULL,
 
 #' @title updateGiottoImageMG
 #' @name updateGiottoImageMG
-#' @description Updates the boundaries of a giotto \code{image} object attached to 
+#' @description Updates the boundaries of a giotto \code{image} object attached to
 #'   a \code{giotto} object if both \code{gobject} and \code{image_name} params
 #'   are given. Alternatively can directly accept and return as \code{image}
 #' @inheritParams updateGiottoImage
@@ -1122,7 +1122,7 @@ addGiottoImageToSpatPlot = function(spatpl = NULL,
 #' @param ymax_set set image ymax boundary. Applied before adjustments
 #' @param return_gobject return a \code{giotto} object if \code{TRUE}, a giotto
 #'   \code{image} object if \code{FALSE}
-#' @return a \code{giotto} object or an updated giotto \code{image} object if 
+#' @return a \code{giotto} object or an updated giotto \code{image} object if
 #'   \code{return_gobject = FALSe}
 #' @export
 updateGiottoImageMG = function(gobject = NULL,
@@ -1292,16 +1292,16 @@ plot_giottoImage_MG = function(gobject = NULL,
 #' @keywords internal
 reconnect_giottoImage_MG = function(giottoImage,
                                     image_path) {
-  
+
   # load in new magick object
   mg_object = magick::image_read(image_path)
-  
+
   # replace old magick object
   giottoImage@mg_object = mg_object
-  
+
   # return reconnected giottoImage
   return(giottoImage)
-  
+
 }
 
 
@@ -1335,7 +1335,7 @@ dist_giottoLargeImage = function(gobject = NULL,
                                  image_name = NULL,
                                  giottoLargeImage = NULL,
                                  method = 'dens') {
-  
+
   # get image object
   if(!is.null(gobject) & !is.null(image_name)) {
     img_obj = get_giottoImage(gobject = gobject,
@@ -1346,12 +1346,12 @@ dist_giottoLargeImage = function(gobject = NULL,
   } else {
     stop('No giottoLargeImage given \n')
   }
-  
+
   # plot curve
   if(method == 'dens') terra::density(img_obj)
   if(method == 'hist') terra::hist(img_obj)
 
-  
+
 }
 
 
@@ -1361,7 +1361,7 @@ dist_giottoLargeImage = function(gobject = NULL,
 #' @description Function to stitch together multiple field of view (FOV) images into a
 #'   single final image. Images are loaded into Giotto as \code{giottoLargeImage} and
 #'   stitched based on a set of FOV positions into a single final \code{giottoLargeImage}.
-#' @details This function is time consuming. Setting a save location through the 
+#' @details This function is time consuming. Setting a save location through the
 #'   \code{filename} parameter is also highly recommended as file size will likely be large.
 #'   This function creates a single stitched image from multiple FOV tiles and saves that
 #'   image to disk as it works. When finished, the pointer to that new image is loaded in
@@ -1537,7 +1537,7 @@ stitchGiottoLargeImage = function(largeImage_list = NULL,
 
   } else if (dryRun == FALSE) {
     # Create SpatRasterCollection
-    rasterSRC = terra::src(raster_list)
+    rasterSRC = terra::sprc(raster_list)
 
     # stitch raster objects
     if(method == 'merge') {
@@ -1679,7 +1679,7 @@ plot_giottoLargeImage = function(gobject = NULL,
       # Assign discovered bitdepth as max_intensity
       max_intensity = 2^bitDepth-1
     }
-    
+
     terra::plotRGB(raster_object,
                    axes = TRUE,
                    r = 1,g = 2,b = 3,
@@ -1721,7 +1721,7 @@ plot_giottoLargeImage = function(gobject = NULL,
 #' @param max_intensity value to treat as maximum intensity in color scale
 #' @param return_gobject return as giotto object
 #' @param verbose be verbose
-#' @return a giotto object if \code{return_gobject = TRUE} or an updated giotto 
+#' @return a giotto object if \code{return_gobject = TRUE} or an updated giotto
 #'   image object if \code{return_gobject = FALSE}
 #' @export
 convertGiottoLargeImageToMG = function(gobject = NULL,
@@ -2052,13 +2052,13 @@ writeGiottoLargeImage = function(giottoLargeImage = NULL,
 
 #' @title updateGiottoLargeImage
 #' @name updateGiottoLargeImage
-#' @description Updates the boundaries of a giotto \code{largeImage} object attached to 
+#' @description Updates the boundaries of a giotto \code{largeImage} object attached to
 #'   a \code{giotto} object if both \code{gobject} and \code{largeImage_name} params
 #'   are given. Alternatively can directly accept and return as \code{largeImage}
 #' @inheritParams updateGiottoImage
 #' @param gobject \code{giotto} object containing giotto \code{largeImage} object
 #' @param giottoLargeImage \code{largeImage} object to directly update
-#' @param return_gobject return a \code{giotto} object if \code{TRUE}, a giotto 
+#' @param return_gobject return a \code{giotto} object if \code{TRUE}, a giotto
 #'   \code{largeImage} object if \code{FALSE}
 #' @return a \code{giotto} object or an updated giotto \code{largeImage} object if
 #'   \code{return_gobject = FALSE}
@@ -2175,7 +2175,7 @@ updateGiottoLargeImage = function(gobject = NULL,
                                          xmax_final,
                                          ymin_final,
                                          ymax_final)
-  
+
   # Update the extent tracking slot
   g_imageL@extent = as.vector(terra::ext(g_imageL@raster_object))
 
@@ -2334,17 +2334,17 @@ addGiottoLargeImage = function(gobject = NULL,
 #' @keywords internal
 reconnect_giottoLargeImage = function(giottoLargeImage,
                                       image_path) {
-  
+
   # load in new terra raster objects
   raster_object = create_terra_spatRaster(image_path = image_path)
-  
+
   # replace old raster objects and inherit tracked extents
   giottoLargeImage@raster_object = raster_object
   terra::ext(giottoLargeImage@raster_object) = giottoLargeImage@extent
-  
+
   # return reconnected giottoLargeImage
   return(giottoLargeImage)
-  
+
 }
 
 
@@ -2395,7 +2395,7 @@ reconnect_giottoLargeImage = function(giottoLargeImage,
 #'   }
 #'   \code{largeImage_max_intensity} accepts a numeric value to set the max
 #'     value in the plotting color scale. Can be used in case there are high
-#'     outlier intensity values in the image and a preview with alternative 
+#'     outlier intensity values in the image and a preview with alternative
 #'     color scaling is desired.
 #' @family basic image functions
 #' @export
@@ -2407,10 +2407,10 @@ plotGiottoImage = function(gobject = NULL,
                            largeImage_crop_params_list = NULL,
                            largeImage_max_intensity = NULL,
                            ...) {
-  
+
   # Check params
   if(!is.null(giottoImage) && !is.null(giottoLargeImage)) stop('Only one of a giottoImage or a giottoLargeImage can be plotted at the same time. \n')
-  
+
   # Get image object
   if(!is.null(gobject)) {
     img_obj = get_giottoImage(gobject = gobject,
@@ -2427,10 +2427,10 @@ plotGiottoImage = function(gobject = NULL,
     image_type = 'largeImage'
     image_name = img_obj@name
   }
-  
+
   # Select plotting function
   cat('Plotting ', image_type, ': "', image_name, '" ... \n', sep = '')
-  
+
   if(image_type == 'image') {
     plot_giottoImage_MG(giottoImage = img_obj)
   }
@@ -2444,7 +2444,7 @@ plotGiottoImage = function(gobject = NULL,
                           max_intensity = largeImage_max_intensity,
                           ...)
   }
-  
+
 }
 
 
@@ -2494,7 +2494,7 @@ addGiottoImage = function(gobject = NULL,
 #' @param gobject gobject containing desired image object
 #' @param image_name name of giotto \code{image} object
 #' @param largeImage_name name of giotto \code{largeImage} object
-#' @param xmax_adj,xmin_adj,ymax_adj,ymin_adj adjust image boundaries by increasing 
+#' @param xmax_adj,xmin_adj,ymax_adj,ymin_adj adjust image boundaries by increasing
 #'   maximum and decreasing minimum bounds respectively of xy bounds
 #' @param x_shift,y_shift shift entire image along xy axes
 #' @param scale_factor set \code{scale_x} and \code{scale_y} params at the same time
@@ -2599,12 +2599,12 @@ updateGiottoImage = function(gobject = NULL,
 reconnect_image_object = function(image_object,
                                   image_type,
                                   image_path) {
-  
+
   if(image_type == 'image') image_object = reconnect_giottoImage_MG(giottoImage = image_object,
                                                                     image_path = image_path)
   if(image_type == 'largeImage') image_object = reconnect_giottoLargeImage(giottoLargeImage = image_object,
                                                                            image_path = image_path)
-  
+
   return(image_object)
 }
 
@@ -2612,7 +2612,7 @@ reconnect_image_object = function(image_object,
 
 #' @title Reconnect images with dead pointers
 #' @name reconnectGiottoImage
-#' @description reconnect a gobject's dead image pointers using filepaths to 
+#' @description reconnect a gobject's dead image pointers using filepaths to
 #'   the original source image files
 #' @details Inputs can either be given as both image name (\code{image_name}/\code{largeImage_name})
 #'   and filepath (\code{image_path}/\code{largeImage_path}) args or as only a
@@ -2641,58 +2641,58 @@ reconnectGiottoImage = function(gobject,
                                 image_path = NULL,
                                 largeImage_path = NULL,
                                 verbose = TRUE) {
-  
+
   # Adding image_types:
   # Manual workflow needs to be updated when adding more image types
-  
+
   if(is.null(gobject)) stop('Giotto object containing the giottoImages or giottoLargeImages to reconnect must be given \n')
-  
+
   # 1. Find names and locations of image objects in gobject: ----------------------------#
   availableImgs = list_images(gobject = gobject)
-  
+
   # 2. Get reconnection info: -----------------------------------------------------------#
-  
+
   # Initialize lists
   name_list = list()
   img_list = list()
   img_path = list()
-  
+
   ## image_type_list | vector of image types present within images to be reconnected (vector)
   ## name_list | determines which available images to reconnect, categorized by image_type | (list)
   ## img_list | list of image objects, categorized by image_type | (list)
   ## img_path | filepaths to reconnect images with, categorized by image_type | (list)
-  
+
   #### Auto Workflow
   if(auto_reconnect == TRUE) {
     if(verbose == TRUE) cat('Attempting automatic reconnection...\n\n')
-    
+
     # Find image_types to reconnect
     image_type_list = unique(availableImgs$img_type)
 
     # Run for each image_type given...
     for(image_type in image_type_list) {
-      
+
       # Images to update will be ANY available images
       # Get list of image object names
       name_list[[image_type]] = list_images_names(gobject = gobject,
                                                  img_type = image_type)
-      
+
       # get image objects
       img_list[[image_type]] = lapply(X = name_list[[image_type]],
                                       FUN = get_giottoImage,
                                       gobject = gobject,
                                       image_type = image_type)
-      
+
       # get file paths from image objects
       img_path[[image_type]] = lapply(X = 1:length(img_list[[image_type]]),
                                       function(x) {
                                         img_list[[image_type]][[x]]@file_path
                                       })
-      
+
       # print discovered images and paths
       # additionally, set path to NULL if file.exists() == FALSE
       if(verbose == TRUE) cat(image_type, '(s) discovered...\n', sep = '')
-      
+
       for(image_i in 1:length(img_path[[image_type]])) {
         if(!is.null(img_path[[image_type]][[image_i]])) {
           if(verbose == TRUE) cat('-->', name_list[[image_type]][[image_i]], ': filepath found')
@@ -2703,92 +2703,92 @@ reconnectGiottoImage = function(gobject,
         } else if(verbose == TRUE) cat('-->', name_list[[image_type]][[image_i]], ': filepath NOT found\n')
       }
       if(verbose == TRUE) cat('\n')
-      
-      
-    } # image_type end loop
-    
 
-    
+
+    } # image_type end loop
+
+
+
   #### Manual Workflow
   } else {
     if(verbose == TRUE) cat('Reconnecting with manual input...\n\n')
-    
+
     # Check params
     # filepath list(s) must be given as input
     if(is.null(image_path) & is.null(largeImage_path)) stop('Image filepaths must be given for manual reconnection \n')
-    
+
     # Assemble reconnection info lists - UPDATE THIS WHEN ADDING IMAGE TYPES
     image_type_list = c()
     if(!is.null(image_path)) {
       image_type_list = c(image_type_list, 'image')
       name_list[['image']] = image_name
       img_path[['image']] = image_path
-    } 
+    }
     if(!is.null(largeImage_path)) {
       image_type_list = c(image_type_list, 'largeImage')
       name_list[['largeImage']] = largeImage_name
       img_path[['largeImage']] = largeImage_path
     }
-    
-    
+
+
     # Run for each image_type given...
     for(image_type in image_type_list) {
-      
+
       # Check params
       if(is.null(name_list[[image_type]])) name_list[[image_type]] = names(img_path[[image_type]])
       if(is.null(name_list[[image_type]])) stop('Names of ',image_type,'s to be reconnected must be given as named list in ',image_type,'_path arg or together with ',image_type,'_path as a separate vector in ',image_type,'_name arg. \n')
       if(length(unique(name_list[[image_type]])) != length(img_path[[image_type]])) stop('If ',image_type,'s to be reconnected are selected through ',image_type,'_name arg then names must be unique and length and order must be the same as in ',image_type,'_path arg. \n')
       if(!all(name_list[[image_type]] %in% list_images_names(gobject = gobject, img_type = image_type))) stop('Names given to ',image_type,'_name argument must match those in the gobject \n')
-      
+
       # get image objects
       img_list[[image_type]] = lapply(X = name_list[[image_type]],
                                       FUN = get_giottoImage,
                                       gobject = gobject,
                                       image_type = image_type)
-      
+
       # update file_path
       img_list[[image_type]] = lapply(X = 1:length(img_list[[image_type]]),
                                                    function(x) {
                                                      img_list[[image_type]][[x]]@file_path = img_path[[image_type]][[x]]
                                                    })
-      
+
     }
-    
+
 
   } # Manual workflow-specific end
-  
+
   # 3. Load new image pointer: -----------------------------------------------------------#
-  
+
   image_path_NULL = list()
-  
+
   for(image_type in image_type_list) {
-    
+
     # check for NULLs in image paths
     image_path_NULL[[image_type]] = unlist(lapply(X = img_path[[image_type]], is.null))
-    
+
     # Remove NULL path entries from name, path, and image object lists
     if(any(image_path_NULL[[image_type]])) {
-      
+
       # End loop early if there are no imagepaths
       if(sum(image_path_NULL[[image_type]]) == length(img_path[[image_type]])) {
         if(verbose == TRUE) cat(image_type, ': no filepaths found. Skipping. \n')
         next
       }
-      
+
       if(verbose == TRUE) {
         cat('\n Skipping ',image_type,'s with missing filepaths: \n', sep = '')
         for(image_NULL_i in 1:sum(image_path_NULL[[image_type]])) {
           cat(name_list[[image_type]][[which(image_path_NULL[[image_type]])[[image_NULL_i]]]], '\n')
         }
       }
-      
+
       img_path[[image_type]] = img_path[[image_type]][!(image_path_NULL[[image_type]])]
       name_list[[image_type]] = name_list[[image_type]][!(image_path_NULL[[image_type]])]
       img_list[[image_type]] = img_list[[image_type]][!(image_path_NULL[[image_type]])]
 
     }
-    
-    
+
+
     # Load pointers
     img_list[[image_type]] = lapply(X = 1:length(img_list[[image_type]]),
                                     function(x) {
@@ -2797,9 +2797,9 @@ reconnectGiottoImage = function(gobject,
                                                              image_path = img_path[[image_type]][[x]])
                                     })
 
-    
+
     # 4. Update gobject:--------------------------------------------------------------------#
-    
+
     # Set the image objects into the gobject
     for(image_ii in 1:length(img_list[[image_type]])) {
       gobject = set_giottoImage(gobject = gobject,
@@ -2808,9 +2808,9 @@ reconnectGiottoImage = function(gobject,
                                 name = name_list[[image_type]][[image_ii]],
                                 verbose = FALSE)
     }
-    
+
     if(verbose == TRUE) cat('done \n')
-    
+
   } # image_type end loop
   return(gobject)
 }
@@ -2840,14 +2840,14 @@ distGiottoImage = function(gobject = NULL,
                            image_name = NULL,
                            giottoLargeImage = NULL,
                            method = c('dens', 'hist')) {
-  
+
   # check params
   if(image_type != 'largeImage') stop('Only largeImage objects currently supported \n')
   if((is.null(image_type) | is.null(image_name) | is.null(gobject)) & (is.null(giottoLargeImage))) {
     stop('Image must be given through gobject, image_type, and image_name params or as the image object itself \n')
   }
   method = match.arg(arg = method, choices = c('dens','hist'))
-  
+
   # run specific function
   if(image_type == 'largeImage') {
     dist_giottoLargeImage(gobject = gobject,
@@ -2855,7 +2855,7 @@ distGiottoImage = function(gobject = NULL,
                           giottoLargeImage = giottoLargeImage,
                           method = method)
   }
-  
+
 }
 
 

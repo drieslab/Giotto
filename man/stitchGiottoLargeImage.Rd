@@ -69,7 +69,7 @@ Function to stitch together multiple field of view (FOV) images into a
   stitched based on a set of FOV positions into a single final \code{giottoLargeImage}.
 }
 \details{
-This function is time consuming. Setting a save location through the 
+This function is time consuming. Setting a save location through the
   \code{filename} parameter is also highly recommended as file size will likely be large.
   This function creates a single stitched image from multiple FOV tiles and saves that
   image to disk as it works. When finished, the pointer to that new image is loaded in

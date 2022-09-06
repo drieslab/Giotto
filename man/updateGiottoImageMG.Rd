@@ -33,7 +33,7 @@ updateGiottoImageMG(
 
 \item{giottoImage}{\code{image} object to directly update}
 
-\item{xmax_adj, xmin_adj, ymax_adj, ymin_adj}{adjust image boundaries by increasing 
+\item{xmax_adj, xmin_adj, ymax_adj, ymin_adj}{adjust image boundaries by increasing
 maximum and decreasing minimum bounds respectively of xy bounds}
 
 \item{x_shift, y_shift}{shift entire image along xy axes}
@@ -59,11 +59,11 @@ parameters) and scaling}
 \item{verbose}{be verbose}
 }
 \value{
-a \code{giotto} object or an updated giotto \code{image} object if 
+a \code{giotto} object or an updated giotto \code{image} object if
   \code{return_gobject = FALSe}
 }
 \description{
-Updates the boundaries of a giotto \code{image} object attached to 
+Updates the boundaries of a giotto \code{image} object attached to
   a \code{giotto} object if both \code{gobject} and \code{image_name} params
   are given. Alternatively can directly accept and return as \code{image}
 }

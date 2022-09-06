@@ -348,11 +348,16 @@ seuratToGiotto_OLD <- function(obj_use = NULL,
 
 
 
-#' @title seuratToGiotto
-#' @name seuratToGiotto
-#' @description Converts Seurat object into a Giotto object
-#' @param sobject Seurat object
-#' @return Giotto object
+
+#' Convert a Seurat object to a Giotto object
+#'
+#' @param sobject Input Seurat object to convert to Giotto object
+#' @param spatial_assay Specify name of the spatial assay slot in Seurat. Default is \code{"Spatial"}.
+#' @param dim_reduction Specify which dimensional reduction computations to fetch from
+#'  input Seurat object. Default is \code{"c('pca', 'umap')"}.
+#' @param subcellular_assay Specify name of the subcellular assay in input object.
+#'  Default is \code{"Vizgen"}.
+#' @return A Giotto object converted from Seurat object with all computations stored in it.
 #' @export
 seuratToGiotto = function(sobject, spatial_assay = 'Spatial',
                           dim_reduction = c('pca','umap'), subcellular_assay = 'Vizgen'){
@@ -482,7 +487,7 @@ giottoToSpatialExperiment <- function(giottoObj){
     "S4Vectors"))
 
   # Expression Matrices
-  giottoExpr <- Giotto:::list_expression(giottoObj)
+  giottoExpr <- list_expression(giottoObj)
   # Check if expression matrices exist in input object
   if(!is.null(giottoExpr)){
     message("Copying expression matrix: ", giottoExpr[1]$name)
@@ -546,7 +551,7 @@ giottoToSpatialExperiment <- function(giottoObj){
   }
 
   # DimReductions
-  giottoReductions <- Giotto:::list_dim_reductions(giottoObj)
+  giottoReductions <- list_dim_reductions(giottoObj)
   if(!is.null(giottoReductions)){
     message("Copying reduced dimensions")
     for(i in seq(nrow(giottoReductions))){
@@ -565,7 +570,7 @@ giottoToSpatialExperiment <- function(giottoObj){
  # SpatialGrid
 
   # NN Graph
-  giottoNearestNetworks <- Giotto:::list_nearest_networks(giottoObj)
+  giottoNearestNetworks <- list_nearest_networks(giottoObj)
   if(!is.null(giottoNearestNetworks)){
     message("Copying nearest networks")
     for(i in seq(nrow(giottoNearestNetworks))){
@@ -588,7 +593,7 @@ giottoToSpatialExperiment <- function(giottoObj){
   }
 
   # Spatial Networks
-  giottoSpatialNetworks <- Giotto:::list_spatial_networks(giottoObj)
+  giottoSpatialNetworks <- list_spatial_networks(giottoObj)
   if(!is.null(giottoSpatialNetworks)){
     message("Copying spatial networks")
     for(i in seq(nrow(giottoSpatialNetworks))){
@@ -606,7 +611,7 @@ giottoToSpatialExperiment <- function(giottoObj){
   }
 
   # SpatialImages
-  giottoImages <- Giotto:::list_images(giottoObj)
+  giottoImages <- list_images(giottoObj)
   if(!is.null(giottoImages)){
     message("Copying spatial images")
     for(i in seq(nrow(giottoImages))){

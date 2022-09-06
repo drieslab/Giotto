@@ -55,7 +55,7 @@ instead of through \code{gobject} and \code{largeImage_name} params}
 \item{verbose}{be verbose}
 }
 \value{
-a giotto object if \code{return_gobject = TRUE} or an updated giotto 
+a giotto object if \code{return_gobject = TRUE} or an updated giotto
   image object if \code{return_gobject = FALSE}
 }
 \description{
