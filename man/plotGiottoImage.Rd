@@ -55,7 +55,7 @@ Display a giotto image in the viewer panel. Image object to plot
   }
   \code{largeImage_max_intensity} accepts a numeric value to set the max
     value in the plotting color scale. Can be used in case there are high
-    outlier intensity values in the image and a preview with alternative 
+    outlier intensity values in the image and a preview with alternative
     color scaling is desired.
 }
 

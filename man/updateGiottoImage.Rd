@@ -33,7 +33,7 @@ updateGiottoImage(
 
 \item{largeImage_name}{name of giotto \code{largeImage} object}
 
-\item{xmax_adj, xmin_adj, ymax_adj, ymin_adj}{adjust image boundaries by increasing 
+\item{xmax_adj, xmin_adj, ymax_adj, ymin_adj}{adjust image boundaries by increasing
 maximum and decreasing minimum bounds respectively of xy bounds}
 
 \item{x_shift, y_shift}{shift entire image along xy axes}
