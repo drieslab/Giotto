@@ -75,7 +75,8 @@ Imports:
     sp,
     sparseMatrixStats,
     terra (>= 1.5-12),
-    uwot (>= 0.0.0.9010)
+    uwot (>= 0.0.0.9010),
+    zellkonverter
 Suggests:
     Biobase,
     biomaRt,
