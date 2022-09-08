@@ -2,7 +2,7 @@
 % Please edit documentation in R/interoperability.R
 \name{seuratToGiotto}
 \alias{seuratToGiotto}
-\title{seuratToGiotto}
+\title{Convert a Seurat object to a Giotto object}
 \usage{
 seuratToGiotto(
   sobject,
@@ -12,11 +12,19 @@ seuratToGiotto(
 )
 }
 \arguments{
-\item{sobject}{Seurat object}
+\item{sobject}{Input Seurat object to convert to Giotto object}
+
+\item{spatial_assay}{Specify name of the spatial assay slot in Seurat. Default is \code{"Spatial"}.}
+
+\item{dim_reduction}{Specify which dimensional reduction computations to fetch from
+input Seurat object. Default is \code{"c('pca', 'umap')"}.}
+
+\item{subcellular_assay}{Specify name of the subcellular assay in input object.
+Default is \code{"Vizgen"}.}
 }
 \value{
-Giotto object
+A Giotto object converted from Seurat object with all computations stored in it.
 }
 \description{
-Converts Seurat object into a Giotto object
+Convert a Seurat object to a Giotto object
 }

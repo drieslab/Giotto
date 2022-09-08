@@ -33,7 +33,7 @@ reconnectGiottoImage(
 a giotto object with updated image pointer
 }
 \description{
-reconnect a gobject's dead image pointers using filepaths to 
+reconnect a gobject's dead image pointers using filepaths to
   the original source image files
 }
 \details{
