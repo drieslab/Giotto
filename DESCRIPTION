@@ -60,6 +60,7 @@ Imports:
     reshape2,
     reticulate (>= 1.14),
     rmarkdown,
+    R.utils,
     Rtsne (>= 0.15),
     Rfast,
     rhdf5,
