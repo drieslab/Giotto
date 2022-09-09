@@ -1022,6 +1022,7 @@ create_giotto_points_object = function(feat_type = 'rna',
 #' @keywords internal
 create_spatvector_object_from_dfr = function(x) {
 
+
   x = data.table::as.data.table(x)
 
   # data.frame like object needs to have 2 coordinate columns and
@@ -1033,7 +1034,7 @@ create_spatvector_object_from_dfr = function(x) {
   } else {
     feat_ID_col = which(col_classes == 'character')[[1]]
   }
-  cat(paste0('Selecting "',colnames(x[,..feat_ID_col]),'" as feat_ID column\n'))
+  cat(paste0('Selecting "',colnames(x[, feat_ID_col, with = FALSE]),'" as feat_ID column\n'))
   colnames(x)[feat_ID_col] = 'feat_ID'
 
   ## find first two numeric cols as x and y respectively or named column
@@ -1044,17 +1045,14 @@ create_spatvector_object_from_dfr = function(x) {
     x_col = which(col_classes == 'numeric')[1]
     y_col = which(col_classes == 'numeric')[2]
   }
-  cat(paste0('Selecting "',colnames(x[,..x_col]),'" and "', colnames(x[,..y_col]),'" as x and y respectively\n'))
+  cat(paste0('Selecting "',colnames(x[, x_col, with = FALSE]),'" and "', colnames(x[, y_col, with = FALSE]),'" as x and y respectively\n'))
   colnames(x)[x_col] = 'x'
   colnames(x)[y_col] = 'y'
-
-  # define for data.table
-  .SD = NULL
 
   ## select location and attribute dataframes
   # Use unique() to set column order
   ordered_colnames = unique(c('feat_ID','x','y', colnames(x)))
-  x = x[, ..ordered_colnames]
+  x = x[, ordered_colnames, with = FALSE]
   loc_dfr = x[,2:3]
   att_dfr = x[,-c(2:3)]
 

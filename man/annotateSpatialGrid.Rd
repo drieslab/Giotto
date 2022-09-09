@@ -7,6 +7,7 @@
 annotateSpatialGrid(
   gobject,
   spat_unit = NULL,
+  feat_type = NULL,
   spat_loc_name = "raw",
   spatial_grid_name = "spatial_grid",
   cluster_columns = NULL
@@ -16,6 +17,8 @@ annotateSpatialGrid(
 \item{gobject}{Giotto object}
 
 \item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 
 \item{spat_loc_name}{name of spatial locations}
 

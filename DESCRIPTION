@@ -20,11 +20,12 @@ Encoding: UTF-8
 LazyData: true
 URL: https://rubd.github.io/Giotto/, https://github.com/RubD/Giotto
 BugReports: https://github.com/RubD/Giotto/issues
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
 Depends:
     base (>= 3.5.0),
     utils (>= 3.5.0),
-    R (>= 3.5.0)
+    R (>= 3.5.0),
+    methods
 Imports:
     BiocSingular,
     ClusterR,
@@ -36,6 +37,7 @@ Imports:
     DelayedMatrixStats,
     deldir,
     fitdistrplus,
+    future,
     future.apply,
     ggplot2 (>= 3.1.1),
     ggraph,
@@ -51,13 +53,14 @@ Imports:
     magick,
     magrittr,
     matrixStats (>= 0.55.0),
-    methods,
     miniUI,
     plotly,
     parallel,
     RColorBrewer (>= 1.1-2),
     reshape2,
     reticulate (>= 1.14),
+    rmarkdown,
+    R.utils,
     Rtsne (>= 0.15),
     Rfast,
     rhdf5,
@@ -78,6 +81,7 @@ Suggests:
     ggalluvial,
     ggdendro,
     ggforce,
+    HDF5Array (>= 1.18.1),
     hdf5r,
     htmlwidgets,
     jackstraw,
@@ -89,6 +93,7 @@ Suggests:
     harmony,
     RTriangle (>= 1.6-0.10),
     Rvision,
+    S4Vectors,
     Seurat,
     scatterpie,
     scattermore,
@@ -96,10 +101,13 @@ Suggests:
     SingleCellExperiment,
     smfishHmrf,
     SPARK,
+    SpatialExperiment,
+    SummarizedExperiment,
     tiff,
     trendsceek,
     testthat (>= 3.0.0)
 Collate:
+    'NN_network.R'
     'accessors.R'
     'auxiliary_giotto.R'
     'auxiliary_visuals.R'
@@ -109,28 +117,27 @@ Collate:
     'differential_expression.R'
     'dimension_reduction.R'
     'general_help.R'
-    'giotto_structures.R'
-    'giotto_viewer.R'
-    'giotto.R'
-    'globals.R'
     'images.R'
+    'giotto_structures.R'
+    'generics.R'
+    'giotto.R'
+    'giotto_viewer.R'
+    'globals.R'
     'image_registration.R'
     'interoperability.R'
-    'NN_network.R'
     'python_environment.R'
     'python_hmrf.R'
     'python_scrublet.R'
     'spatial_enrichment.R'
     'spatial_genes.R'
     'spatial_in_situ_visuals.R'
-    'spatial_interaction_visuals.R'
     'spatial_interaction.R'
+    'spatial_interaction_visuals.R'
     'spatial_structures.R'
     'spatial_visuals.R'
     'utilities.R'
     'utils-pipe.R'
     'variable_genes.R'
-    'generics.R'
 biocViews:
 VignetteBuilder: knitr
 Config/testthat/edition: 3

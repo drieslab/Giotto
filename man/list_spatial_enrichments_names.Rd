@@ -4,7 +4,7 @@
 \alias{list_spatial_enrichments_names}
 \title{list_spatial_enrichments_names}
 \usage{
-list_spatial_enrichments_names(gobject, spat_unit, feat_type)
+list_spatial_enrichments_names(gobject, spat_unit = NULL, feat_type = NULL)
 }
 \arguments{
 \item{gobject}{giotto object}

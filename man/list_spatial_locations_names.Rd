@@ -4,7 +4,7 @@
 \alias{list_spatial_locations_names}
 \title{list_spatial_locations_names}
 \usage{
-list_spatial_locations_names(gobject, spat_unit)
+list_spatial_locations_names(gobject, spat_unit = NULL)
 }
 \arguments{
 \item{gobject}{giotto object}

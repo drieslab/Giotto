@@ -36,7 +36,7 @@ doScrubletDetect(
 
 \item{n_prin_comps}{number of PCs to use in PCA for detection}
 
-\item{return_gobject}{return as gobject if TRUE, data.frame with cell_ID if fALSE}
+\item{return_gobject}{return as gobject if TRUE, data.frame with cell_ID if FALSE}
 }
 \value{
 list including doublet scores and classifications

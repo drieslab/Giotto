@@ -3,24 +3,26 @@
 \name{plot-generic}
 \alias{plot-generic}
 \alias{plot}
-\alias{plot,giottoImage,ANY-method}
-\alias{plot,giottoLargeImage,ANY-method}
-\alias{plot,giottoPolygon,ANY-method}
-\alias{plot,giottoPoints,ANY-method}
+\alias{plot,giottoImage,missing-method}
+\alias{plot,giottoLargeImage,missing-method}
+\alias{plot,giottoPolygon,missing-method}
+\alias{plot,giottoPoints,missing-method}
 \title{Preview a Giotto spatial object}
 \usage{
-\S4method{plot}{giottoImage,ANY}(x, y, ...)
+\S4method{plot}{giottoImage,missing}(x, y, ...)
 
-\S4method{plot}{giottoLargeImage,ANY}(x, y, ...)
+\S4method{plot}{giottoLargeImage,missing}(x, y, ...)
 
-\S4method{plot}{giottoPolygon,ANY}(x, y, ...)
+\S4method{plot}{giottoPolygon,missing}(x, y, ...)
 
-\S4method{plot}{giottoPoints,ANY}(x, point_size = 0.1, feats = NULL, ...)
+\S4method{plot}{giottoPoints,missing}(x, y, point_size = 0.1, feats = NULL, ...)
 }
 \arguments{
 \item{x}{giotto image, giottoPolygon, or giottoPoints object}
 
-\item{...}{additional parameters to pass}
+\item{y}{Not used.}
+
+\item{\dots}{additional parameters to pass}
 
 \item{point_size}{size of points when plotting giottoPoint}
 
@@ -31,13 +33,13 @@ S4 generic for previewing Giotto's image and subcellular objects.
 }
 \section{Functions}{
 \itemize{
-\item \code{plot,giottoImage,ANY-method}: Plot \emph{magick}-based giottoImage object. ... param passes to \code{\link{plot_giottoImage_MG}}
+\item \code{plot(x = giottoImage, y = missing)}: Plot \emph{magick}-based giottoImage object. ... param passes to \code{\link{plot_giottoImage_MG}}
 
-\item \code{plot,giottoLargeImage,ANY-method}: Plot \emph{terra}-based giottoLargeImage object. ... param passes to \code{\link{plot_giottoLargeImage}}
+\item \code{plot(x = giottoLargeImage, y = missing)}: Plot \emph{terra}-based giottoLargeImage object. ... param passes to \code{\link{plot_giottoLargeImage}}
 
-\item \code{plot,giottoPolygon,ANY-method}: Plot \emph{terra}-based giottoPolygon object. ... param passes to \code{\link[terra]{plot}}
+\item \code{plot(x = giottoPolygon, y = missing)}: Plot \emph{terra}-based giottoPolygon object. ... param passes to \code{\link[terra]{plot}}
 
-\item \code{plot,giottoPoints,ANY-method}: \emph{terra}-based giottoPoint object. ... param passes to \code{\link[terra]{plot}}
+\item \code{plot(x = giottoPoints, y = missing)}: \emph{terra}-based giottoPoint object. ... param passes to \code{\link[terra]{plot}}
+
 }}
-
 \concept{plot}

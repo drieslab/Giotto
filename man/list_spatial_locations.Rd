@@ -4,12 +4,14 @@
 \alias{list_spatial_locations}
 \title{list_spatial_locations}
 \usage{
-list_spatial_locations(gobject, spat_unit = NULL)
+list_spatial_locations(gobject, spat_unit = NULL, return_uniques = FALSE)
 }
 \arguments{
 \item{gobject}{giotto object}
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
+
+\item{return_uniques}{return unique nesting names (ignores if final object exists/is correct class)}
 }
 \value{
 names and locations of available data.table as data.table

@@ -6,8 +6,8 @@
 \usage{
 detectSpatialCorFeats(
   gobject,
-  feat_type = NULL,
   spat_unit = NULL,
+  feat_type = NULL,
   spat_loc_name = "raw",
   method = c("grid", "network"),
   expression_values = c("normalized", "scaled", "custom"),
@@ -22,9 +22,9 @@ detectSpatialCorFeats(
 \arguments{
 \item{gobject}{giotto object}
 
-\item{feat_type}{feature type}
-
 \item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 
 \item{spat_loc_name}{name for spatial locations}
 

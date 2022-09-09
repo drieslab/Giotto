@@ -181,7 +181,6 @@ doHMRF <- function(gobject,
   ## 3. spatial network
   spatial_network = get_spatialNetwork(gobject = gobject,
                                        spat_unit = spat_unit,
-                                       feat_type = feat_type,
                                        name = spatial_network_name,
                                        return_network_Obj = FALSE)
   spatial_network = spatial_network[,.(to,from)]

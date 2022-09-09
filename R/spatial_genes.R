@@ -920,8 +920,8 @@ binSpectSingle = function(gobject,
   ## 1. expression matrix
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
   expr_values = get_expression_values(gobject = gobject,
-                                      feat_type = feat_type,
                                       spat_unit = spat_unit,
+                                      feat_type = feat_type,
                                       values = values)
 
 
@@ -1148,8 +1148,8 @@ binSpectMulti = function(gobject,
     ## expression matrix
     values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
     expr_values = get_expression_values(gobject = gobject,
-                                        feat_type = feat_type,
                                         spat_unit = spat_unit,
+                                        feat_type = feat_type,
                                         values = values)
 
 
@@ -1600,7 +1600,8 @@ silhouetteRank <- function(gobject,
 
   # expression values
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = get_expression_values(gobject = gobject, values = values)
+  expr_values = get_expression_values(gobject = gobject,
+                                      values = values)
 
   # subset genes
   if(!is.null(subset_genes)) {
@@ -1721,7 +1722,8 @@ silhouetteRankTest = function(gobject,
 
   # expression values
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = get_expression_values(gobject = gobject, values = values)
+  expr_values = get_expression_values(gobject = gobject,
+                                      values = values)
 
   # subset genes
   if(!is.null(subset_genes)) {
@@ -1900,8 +1902,8 @@ spatialDE <- function(gobject = NULL,
   # expression
   values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
   expr_values = get_expression_values(gobject = gobject,
-                                      feat_type = feat_type,
                                       spat_unit = spat_unit,
+                                      feat_type = feat_type,
                                       values = values)
 
   ## python path
@@ -2014,8 +2016,8 @@ spatialAEH <- function(gobject = NULL,
   # expression
   values = match.arg(expression_values, c('raw', 'normalized', 'scaled', 'custom'))
   expr_values = get_expression_values(gobject = gobject,
-                                      feat_type = feat_type,
                                       spat_unit = spat_unit,
+                                      feat_type = feat_type,
                                       values = values)
 
   ## python path
@@ -2177,8 +2179,8 @@ trendSceek <- function(gobject,
   ## expression data
   values = match.arg(expression_values, c("normalized", "raw"))
   expr_values = get_expression_values(gobject = gobject,
-                                      feat_type = feat_type,
                                       spat_unit = spat_unit,
+                                      feat_type = feat_type,
                                       values = values)
 
   ## normalization function
@@ -2289,8 +2291,8 @@ spark = function(gobject,
 
   ## extract expression values from gobject
   expr = get_expression_values(gobject = gobject,
-                               feat_type = feat_type,
                                spat_unit = spat_unit,
+                               feat_type = feat_type,
                                values = expression_values)
 
   ## extract coordinates from gobject
@@ -2396,14 +2398,15 @@ detectSpatialPatterns <- function(gobject,
 
   # expression values to be used
   values = match.arg(expression_values, c('normalized', 'scaled', 'custom'))
-  expr_values = get_expression_values(gobject = gobject, values = values)
+  expr_values = get_expression_values(gobject = gobject,
+                                      values = values)
 
 
   # spatial grid and spatial locations
-  if(is.null(gobject@spatial_grid)) {
+  if(is.null(slot(gobject, 'spatial_grid'))) {
     stop("\n you need to create a spatial grid, see createSpatialGrid(), for this function to work \n")
   }
-  if(!spatial_grid_name %in% names(gobject@spatial_grid)) {
+  if(!spatial_grid_name %in% list_spatial_grids_names(gobject = gobject)) {
     stop("\n you need to provide an existing spatial grid name for this function to work \n")
   }
 
@@ -2498,7 +2501,7 @@ detectSpatialPatterns <- function(gobject,
                        feat_matrix_DT = feat_matrix_DT,
                        spatial_grid = spatial_grid)
 
-  class(spatPatObject) <- append(class(spatPatObject), 'spatPatObj')
+  class(spatPatObject) <- append('spatPatObj', class(spatPatObject))
 
   return(spatPatObject)
 }
@@ -3209,8 +3212,8 @@ detectSpatialCorFeatsMatrix <- function(expression_matrix,
 #' @name detectSpatialCorFeats
 #' @description Detect features that are spatially correlated
 #' @param gobject giotto object
-#' @param feat_type feature type
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param spat_loc_name name for spatial locations
 #' @param method method to use for spatial averaging
 #' @param expression_values gene expression values to use
@@ -3236,8 +3239,8 @@ detectSpatialCorFeatsMatrix <- function(expression_matrix,
 #' @seealso \code{\link{showSpatialCorFeats}}
 #' @export
 detectSpatialCorFeats <- function(gobject,
-                                  feat_type = NULL,
                                   spat_unit = NULL,
+                                  feat_type = NULL,
                                   spat_loc_name = 'raw',
                                   method = c('grid', 'network'),
                                   expression_values = c('normalized', 'scaled', 'custom'),
@@ -3248,15 +3251,12 @@ detectSpatialCorFeats <- function(gobject,
                                   min_cells_per_grid = 4,
                                   cor_method = c('pearson', 'kendall', 'spearman')) {
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # set default spat_unit and feat_type
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   ## correlation method to be used
   cor_method = match.arg(cor_method, choices = c('pearson', 'kendall', 'spearman'))
@@ -3267,8 +3267,8 @@ detectSpatialCorFeats <- function(gobject,
   # get expression matrix
   values = match.arg(expression_values, unique(c('normalized', 'scaled', 'custom', expression_values)))
   expr_values = get_expression_values(gobject = gobject,
-                                      feat_type = feat_type,
                                       spat_unit = spat_unit,
+                                      feat_type = feat_type,
                                       values = values)
 
   if(!is.null(subset_feats)) {
@@ -3287,6 +3287,8 @@ detectSpatialCorFeats <- function(gobject,
 
     # get spatial grid
     spatial_grid = get_spatialGrid(gobject = gobject,
+                                   spat_unit = spat_unit,
+                                   feat_type = feat_type,
                                    name = spatial_grid_name,
                                    return_grid_Obj = FALSE)
 
@@ -3364,7 +3366,7 @@ detectSpatialCorFeats <- function(gobject,
                        cor_hclust = list(),
                        cor_clusters = list())
 
-  class(spatCorObject) = append(class(spatCorObject), 'spatCorObject')
+  class(spatCorObject) = append('spatCorObject', class(spatCorObject))
 
   return(spatCorObject)
 

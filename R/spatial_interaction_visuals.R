@@ -2705,6 +2705,8 @@ cellProximitySpatPlot2D <- function(gobject,
                                           spat_loc_name = spat_loc_name)
 
   spatial_grid = get_spatialGrid(gobject = gobject,
+                                 spat_unit = spat_unit,
+                                 feat_type = feat_type,
                                  name = spatial_grid_name)
 
   cell_metadata   = pDataDT(gobject = gobject,

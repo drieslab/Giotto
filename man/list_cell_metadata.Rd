@@ -4,7 +4,12 @@
 \alias{list_cell_metadata}
 \title{list_cell_metadata}
 \usage{
-list_cell_metadata(gobject, spat_unit = NULL, feat_type = NULL)
+list_cell_metadata(
+  gobject,
+  spat_unit = NULL,
+  feat_type = NULL,
+  return_uniques = FALSE
+)
 }
 \arguments{
 \item{gobject}{giotto object}
@@ -12,6 +17,8 @@ list_cell_metadata(gobject, spat_unit = NULL, feat_type = NULL)
 \item{spat_unit}{spatial unit (e.g. "cell")}
 
 \item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
+
+\item{return_uniques}{return unique nesting names (ignores if final object exists/is correct class)}
 }
 \value{
 names and locations of available cell metadata as data.table

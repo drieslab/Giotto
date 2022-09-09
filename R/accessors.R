@@ -1,5 +1,14 @@
 
-
+# Commonly used params
+#' @title Giotto object data accessors
+#' @description Access or examine slots within the giotto object
+#' @name data_access
+#' @param gobject giotto object
+#' @param spat_unit spatial unit (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
+#' @param return_uniques return unique nesting names (ignores if final object exists/is correct class)
+#' @keywords internal
+NULL
 
 ## Get and set functions to get and set values in one of the giotto class slots ##
 
@@ -10,17 +19,15 @@
 #' @title  Get expression values
 #' @name  get_expression_values
 #' @description Function to get expression values from giotto object
-#' @param gobject giotto object
-#' @param spat_unit spatial unit (e.g. "cell")
-#' @param feat_type feature type (e.g. "rna", "dna", "protein")
+#' @inheritParams data_access
 #' @param values expression values to extract (e.g. "raw", "normalized", "scaled")
 #' @return expression matrix
 #' @family expression accessor functions
 #' @family functions to get data from giotto object
 #' @export
 get_expression_values <- function(gobject,
-                                  feat_type = NULL,
                                   spat_unit = NULL,
+                                  feat_type = NULL,
                                   values) {
 
 
@@ -256,7 +263,7 @@ get_dimReduction = function(gobject,
   reduction_method = match.arg(arg = reduction_method, choices = unique(c('pca', 'umap', 'tsne', reduction_method)))
 
   ## check reduction
-  reduction_res = gobject@dimension_reduction[[reduction]][[spat_unit]][[feat_type]]
+  reduction_res = slot(gobject, 'dimension_reduction')[[reduction]][[spat_unit]][[feat_type]]
   if(is.null(reduction_res)) {
     stop('No dimension reduction for ', reduction, ' has been applied \n')
   }
@@ -273,11 +280,15 @@ get_dimReduction = function(gobject,
     stop(name, ': this name is not available for method: ', reduction_method, '\n')
   }
 
+  ## S3 backwards compatibility
+  if(!isS4(reduction_res)) reduction_res = S3toS4dimObj(reduction_res)
+  silent = validObject(reduction_res) # variable hides TRUE print
+
   ## return object or coordinates
   if(return_dimObj == TRUE) {
     return(reduction_res)
   } else {
-    return(reduction_res$coordinates)
+    return(slot(reduction_res, 'coordinates'))
   }
 
 }
@@ -328,16 +339,17 @@ set_dimReduction <- function(gobject,
                                     feat_type = feat_type)
 
   ## 1. check if specified name has already been used
-  potential_names = names(gobject@dimension_reduction[[reduction]][[spat_unit]][[feat_type]][[reduction_method]])
+  potential_names = names(slot(gobject, 'dimension_reduction')[[reduction]][[spat_unit]][[feat_type]][[reduction_method]])
   if(name %in% potential_names) {
     cat(name, ' already exist and will be replaced with new dimension reduction object \n')
   }
 
   ## TODO: 2. check input for dimension reduction object
-
+  if(!inherits(dimObject, 'dimObj')) stop('Object to set must be a giotto S4 "dimObj"\n')
+  silent = validObject(dimObject) # variable hides TRUE print
 
   ## 3. update and return giotto object
-  gobject@dimension_reduction[[reduction]][[spat_unit]][[feat_type]][[reduction_method]][[name]] = dimObject
+  slot(gobject, 'dimension_reduction')[[reduction]][[spat_unit]][[feat_type]][[reduction_method]][[name]] = dimObject
 
   return(gobject)
 
@@ -380,31 +392,59 @@ get_NearestNetwork = function(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
+  # **to be deprecated - check for old nesting**
+  if(is.null(names(gobject@nn_network[[spat_unit]][[feat_type]])[[1]])) { # If gobject has nothing for this feat_type
+  available = list_nearest_networks(gobject,
+                                    spat_unit = spat_unit,
+                                    nn_type = nn_network_to_use)
+    if(nrow(available) > 0 & is.null(available$feat_type)) { # If ANY old nesting objects are discovered (only reports old nestings if detected)
+      if(is.null(network_name)) igraph_object = gobject@nn_network[[spat_unit]][[available$nn_type[[1]]]][[available$name[[1]]]]
+      else igraph_object = gobject@nn_network[[spat_unit]][[available$nn_type[[1]]]][[network_name]]
+      if(inherits(igraph_object, 'igraph')) {
+        if(is.null(nn_network_to_use)) message('The NN network type was not specified, default to the first: "', available$nn_type[[1]],'"')
+        if(is.null(network_name)) message('The NN network name was not specified, default to the first: "', available$name[[1]],'"')
+        ## convert igraph to data.table
+        if(output == 'data.table') {
+          igraph_object = data.table::as.data.table(igraph::get.data.frame(x = igraph_object))
+          return(igraph_object)
+        }
+        return(igraph_object)
+      } else {
+        stop('There is currently no nearest-neighbor network created for
+           spatial unit: "', spat_unit, '" and feature type "', feat_type, '".
+           First run createNearestNetwork()\n')
+      }
+    }
+  } # **deprecation end**
+
 
   # automatic nearest network selection
   if(is.null(nn_network_to_use)) {
-    nn_network_to_use = names(gobject@nn_network[[spat_unit]])[[1]]
+    nn_network_to_use = names(gobject@nn_network[[spat_unit]][[feat_type]])[[1]]
     if(is.null(nn_network_to_use)) {
-      stop('There is currently no nearest-neighbor network build for spatial unit: ', spat_unit)
+
+      stop('There is currently no nearest-neighbor network created for
+           spatial unit: "', spat_unit, '" and feature type "', feat_type, '".
+           First run createNearestNetwork()\n')
     } else {
-      cat('The NN network type was not specified, default to the first: ', nn_network_to_use)
+      message('The NN network type was not specified, default to the first: "', nn_network_to_use,'"')
     }
   }
 
   if(is.null(network_name)) {
-    network_name = names(gobject@nn_network[[spat_unit]][[nn_network_to_use]])[[1]]
+    network_name = names(gobject@nn_network[[spat_unit]][[feat_type]][[nn_network_to_use]])[[1]]
     if(is.null(network_name)) {
-      stop('There is currently no nearest-neighbor network build for spatial unit: ', spat_unit,
-           'and network type: ', nn_network_to_use)
+      stop('There is currently no nearest-neighbor network built for spatial unit: "', spat_unit,
+           '" feature type: "', feat_type, '" and network type: "', nn_network_to_use,'"\n')
     }else {
-      cat('The NN network name was not specified, default to the first: ', network_name)
+      message('The NN network name was not specified, default to the first: "', network_name,'"')
     }
   }
 
   # get igraph object
-  igraph_object = gobject@nn_network[[spat_unit]][[nn_network_to_use]][[network_name]]
+  igraph_object = gobject@nn_network[[spat_unit]][[feat_type]][[nn_network_to_use]][[network_name]]
   if(is.null(igraph_object)) {
-    stop('nn_network_to_use: ', nn_network_to_use, ' or network_name: ', network_name, 'does not exist.
+    stop('nn_network_to_use: "', nn_network_to_use, '" or network_name: "', network_name, '" does not exist.
           Create a nearest-neighbor network first')
   }
 
@@ -476,9 +516,9 @@ set_NearestNetwork = function(gobject,
                                     feat_type = feat_type)
 
   ## 1. check if specified name has already been used
-  potential_names = names(gobject@nn_network[[spat_unit]][[nn_network_to_use]])
+  potential_names = names(gobject@nn_network[[spat_unit]][[feat_type]][[nn_network_to_use]])
   if(network_name %in% potential_names) {
-    cat(network_name, ' already exist and will be replaced with nearest neighbor network \n')
+    message('"',network_name, '" already exists and will be replaced with new nearest neighbor network')
   }
 
   ## TODO: 2. check input for nearest neighbor network
@@ -486,7 +526,7 @@ set_NearestNetwork = function(gobject,
 
 
   ## 3. update and return giotto object
-  gobject@nn_network[[spat_unit]][[nn_network_to_use]][[network_name]] = nn_network
+  gobject@nn_network[[spat_unit]][[feat_type]][[nn_network_to_use]][[network_name]] = nn_network
 
   return(gobject)
 
@@ -504,7 +544,6 @@ set_NearestNetwork = function(gobject,
 #' @description Function to get a spatial network
 #' @param gobject giotto object
 #' @param spat_unit spatial unit (e.g. "cell")
-#' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @param name name of spatial network
 #' @param return_network_Obj return network object (default = FALSE)
 #' @family spatial network data accessor functions
@@ -512,27 +551,28 @@ set_NearestNetwork = function(gobject,
 #' @export
 get_spatialNetwork <- function(gobject,
                                spat_unit = NULL,
-                               feat_type = NULL,
                                name = NULL,
                                return_network_Obj = FALSE) {
 
 
 
-  # Set feat_type and spat_unit
+  # Set spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type)
 
-  if (!is.element(name, names(gobject@spatial_network[[spat_unit]]))){
+  if (!is.element(name, names(slot(gobject, 'spatial_network')[[spat_unit]]))){
     message = sprintf("spatial network %s has not been created. Returning NULL.
-                      check which spatial networks exist with showNetworks() \n", name)
+                      check which spatial networks exist with showGiottoSpatNetworks()\n", name)
     warning(message)
     return(NULL)
   }else{
-    networkObj = gobject@spatial_network[[spat_unit]][[name]]
-    networkDT = networkObj$networkDT
+    networkObj = slot(gobject, 'spatial_network')[[spat_unit]][[name]]
+
+    # S3 backwards compatibility
+    if(!isS4(networkObj)) networkObj = S3toS4spatNetObj(networkObj)
+    silent = validObject(networkObj) # Variable used to hide TRUE print
+
+    networkDT = slot(networkObj, 'networkDT')
   }
 
   if (return_network_Obj == TRUE){
@@ -562,7 +602,6 @@ select_spatialNetwork = function(...) {
 #' @description Function to set a spatial network
 #' @param gobject giotto object
 #' @param spat_unit spatial unit  (e.g. "cell")
-#' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @param name name of spatial network
 #' @param spatial_network spatial network
 #' @return giotto object
@@ -571,16 +610,12 @@ select_spatialNetwork = function(...) {
 #' @export
 set_spatialNetwork <- function(gobject,
                                spat_unit = NULL,
-                               feat_type = NULL,
                                name = NULL,
                                spatial_network) {
 
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
-  feat_type = set_default_feat_type(gobject = gobject,
-                                    spat_unit = spat_unit,
-                                    feat_type = feat_type)
 
   ## 1. check if specified name has already been used
   potential_names = names(gobject@spatial_network[[spat_unit]])
@@ -589,10 +624,12 @@ set_spatialNetwork <- function(gobject,
   }
 
   ## TODO: 2. check input for spatial network
-
+  if(!inherits(spatial_network, 'spatialNetworkObj')) stop('spatial_network to set must be S4 "spatialNetworkObj"\n')
+  ## Variable used to hide TRUE prints
+  silent = validObject(spatial_network)
 
   ## 3. update and return giotto object
-  gobject@spatial_network[[spat_unit]][[name]] = spatial_network
+  slot(gobject, 'spatial_network')[[spat_unit]][[name]] = spatial_network
   return(gobject)
 
 }
@@ -626,15 +663,53 @@ get_spatialGrid <- function(gobject,
                                     spat_unit = spat_unit,
                                     feat_type = feat_type)
 
-  if (!is.element(name, names(gobject@spatial_grid[[spat_unit]]))){
+  # **To be deprecated** - check for old nesting
+  if(is.null(names(gobject@spatial_grid[[spat_unit]][[feat_type]])[[1]])) { # If gobject has nothing for this feat_type
+    available = list_spatial_grids(gobject,
+                                   spat_unit = spat_unit)
+    if(nrow(available > 0 & is.null(available$feat_type))) { # If ANY old nesting objects are discovered (only reports old nestings if any detected)
+      if(is.null(name)) gridObj = gobject@spatial_grid[[spat_unit]][[available$name[[1]]]]
+      else gridObj = gobject@spatial_grid[[spat_unit]][[name]]
+      if(inherits(gridObj, 'spatialGridObj')) {
+        if(is.null(name)) message('The grid name was not specified, default to the first: "', available$name[[1]],'"')
+        # S3 backwards compatibility
+        if(!isS4(gridObj)) gridObj = S3toS4spatialGridObj(gridObj)
+        silent = validObject(gridObj) # variable used to hide TRUE print
+
+        gridDT = slot(gridObj, 'gridDT')
+        if (return_grid_Obj == TRUE){
+          return(gridObj)
+        }else{
+          return(gridDT)
+        }
+      } else {
+        stop('There is currently no spatial grid created for
+             spatial unit: "', spat_unit,'" and feature type "', feat_type,'".
+             First run createSpatialGrid()')
+      }
+    }
+  } # ** deprecation end**
+
+  # Automatically select first grid for given spat_unit/feat_type combination
+  if(is.null(name)) {
+    name = names(slot(gobject, 'spatial_grid')[[spat_unit]][[feat_type]])[[1]]
+    message('The grid name was not specified, default to the first: "', name, '"')
+  } else if (!is.element(name, names(slot(gobject, 'spatial_grid')[[spat_unit]][[feat_type]]))){
+
     message = sprintf("spatial grid %s has not been created. Returning NULL.
-                      check which spatial grids exist with showGrids() \n", name)
+                      check which spatial grids exist with showGiottoSpatGrids()\n", name)
     warning(message)
     return(NULL)
-  }else{
-    gridObj = gobject@spatial_grid[[spat_unit]][[name]]
-    gridDT = gridObj$gridDT
   }
+
+  # Get spatialGridObj
+  gridObj = slot(gobject, 'spatial_grid')[[spat_unit]][[feat_type]][[name]]
+
+  # S3 backwards compatibility
+  if(!isS4(gridObj)) gridObj = S3toS4spatialGridObj(gridObj)
+  silent = validObject(gridObj) # variable used to hide TRUE print
+
+  gridDT = slot(gridObj, 'gridDT')
 
   if (return_grid_Obj == TRUE){
     return(gridObj)
@@ -685,16 +760,17 @@ set_spatialGrid <- function(gobject,
                                     feat_type = feat_type)
 
   ## 1. check if specified name has already been used
-  potential_names = names(gobject@spatial_grid[[spat_unit]])
+  potential_names = names(slot(gobject, 'spatial_grid')[[spat_unit]][[feat_type]])
   if(name %in% potential_names) {
     cat(name, ' already exist and will be replaced with new spatial grid \n')
   }
 
   ## TODO: 2. check input for spatial grid
-
+  if(!inherits(spatial_grid, 'spatialGridObj')) stop('spatial_grid to set must be S4 "spatialGridObj"\n')
+  silent = validObject(spatial_grid) # Variable only used to hide TRUE prints
 
   ## 3. update and return giotto object
-  gobject@spatial_grid[[spat_unit]][[name]] = spatial_grid
+  slot(gobject, 'spatial_grid')[[spat_unit]][[feat_type]][[name]] = spatial_grid
 
   return(gobject)
 
@@ -1313,11 +1389,62 @@ showGiottoDimRed = function(gobject,
                             nrows = 3,
                             ncols = 2) {
 
+  # Define for data.table
+  data_type = NULL
+
+  # import boxchars
+  ch = box_chars()
+
+  # 1. Check inputs
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
 
+  # 2. Get availability matrix
   available_data = list_dim_reductions(gobject)
   if(is.null(available_data)) cat('No dimensional reductions available \n')
 
+  # 3.1 Set up object printouts
+  objPrints = objRows = objCols = list()
+  for(obj_i in seq(nrow(available_data))) {
+
+    # Get object
+    dataObj = get_dimReduction(gobject = gobject,
+                               reduction = available_data$data_type[[obj_i]],
+                               spat_unit = available_data$spat_unit[[obj_i]],
+                               feat_type = available_data$feat_type[[obj_i]],
+                               reduction_method = available_data$dim_type[[obj_i]],
+                               name = available_data$name[[obj_i]],
+                               return_dimObj = FALSE)
+
+    # Collect object prints
+    objRows[[obj_i]] = nrow(dataObj)
+    objCols[[obj_i]] = ncol(dataObj)
+
+    objPrints[[obj_i]] =
+      dataObj[1:if(nrows <= objRows[[obj_i]]) nrows else objRows[[obj_i]],
+              1:if(ncols <= objCols[[obj_i]]) ncols else objCols[[obj_i]]] %>%
+      print %>%
+      capture.output
+
+  }
+
+  # object printblock edits
+  objPrints = lapply(objPrints, function(x) paste0(ch$s, x)) # Add indent
+  objPrints = lapply(objPrints, function(x) paste(x, collapse = ('\n'))) # Linearize print
+
+  # Append to availability table
+  available_data$values = unlist(objPrints)
+
+  # 3.2 Setup general prints
+  available_data$spat_unit = paste0('Spatial unit "', available_data$spat_unit, '"')
+  available_data$feat_type = paste0('Feature type "', available_data$feat_type, '"')
+  available_data$dim_type = paste0('Dim reduction type "', available_data$dim_type, '"')
+  available_data$name = paste0('S4 dimObj "', available_data$name, '" coordinates:')
+  for(obj_i in seq(nrow(available_data))) {
+    available_data$name[[obj_i]] = paste0(available_data$name[[obj_i]],
+                                          ch$s ,'(', objRows[[obj_i]], ' rows ', objCols[[obj_i]], ' cols)')
+  }
+
+  # 4. Print information
   for(data_type_red in unique(available_data$data_type)) {
     data_type_subset = available_data$data_type == data_type_red
 
@@ -1326,36 +1453,89 @@ showGiottoDimRed = function(gobject,
 
     cat('\n',
         '-------------------------',
-        '\n\n\n')
+        '\n\n.\n')
 
-    for(spatial_unit in unique(available_data[data_type_subset,]$spat_unit)) {
-      spat_unit_subset = available_data$spat_unit == spatial_unit
+    print_leaf(level_index = 2, # skip over dim reduction layer
+               availableDT = available_data[data_type == data_type_red],
+               inherit_last = TRUE,
+               indent = '')
 
-      cat('Spatial unit ', spatial_unit, ': \n\n')
-
-      for(feature_type in unique(available_data[data_type_subset & spat_unit_subset,]$feat_type)) {
-        feat_type_subset = available_data$feat_type == feature_type
-
-        cat('--> Feature type ', feature_type, ': \n\n')
-
-        for(dimRed_type in unique(available_data[data_type_subset & spat_unit_subset & feat_type_subset,]$dim_type)) {
-          dim_type_subset = available_data$dim_type == dimRed_type
-
-          cat('----> Dim reduction type, ', dimRed_type, ': \n\n')
-
-          for(dimRed_name in available_data[data_type_subset & spat_unit_subset & feat_type_subset & dim_type_subset,]$name) {
-
-            cat('------> ', dimRed_name, 'coordinates: \n')
-            print(gobject@dimension_reduction[[data_type_red]][[spatial_unit]][[feature_type]][[dimRed_type]][[dimRed_name]][['coordinates']][1:nrows, 1:ncols])
-            cat('\n')
-
-          }
-        }
-      }
-    }
   }
 }
 
+
+
+
+#' @title showGiottoNearestNetworks
+#' @name showGiottoNearestNetworks
+#' @description shows the available nearest neighbor networks
+#' @param gobject giotto object
+#' @param nrows number of network rows to print
+#' @return prints the name and small subset of available nearest neighbor network info
+#' @family functions to show data in giotto object
+#' @keywords show
+#' @export
+showGiottoNearestNetworks = function(gobject,
+                                     nrows = 3) {
+
+  # import boxchars
+  ch = box_chars()
+
+  # 1. check input
+  if(is.null(gobject)) stop('A giotto object needs to be provided \n')
+
+  # 2. get availability matrix
+  available_data = list_nearest_networks(gobject)
+  if(is.null(available_data)) cat('No nearest neighbor networks available \n')
+
+  # 3.1 Set up object printouts
+  objPrints = objRows = list()
+  for(obj_i in seq(nrow(available_data))) {
+
+    # Get object
+    dataObj = get_NearestNetwork(gobject = gobject,
+                                 spat_unit = available_data$spat_unit[[obj_i]],
+                                 feat_type = available_data$feat_type[[obj_i]],
+                                 nn_network_to_use = available_data$nn_type[[obj_i]],
+                                 network_name = available_data$name[[obj_i]],
+                                 output = 'data.table')
+
+    # Collect object prints
+    objRows[[obj_i]] = nrow(dataObj)
+
+    objPrints[[obj_i]] =
+      dataObj[1:if(nrows <= objRows[[obj_i]]) nrows else objRows[[obj_i]],] %>%
+      print %>%
+      capture.output
+
+  }
+
+  # object printblock edits
+  objPrints = lapply(objPrints, function(x) paste0(ch$s, x)) # Add indent
+  objPrints = lapply(objPrints, function(x) paste(x, collapse = ('\n'))) # Linearize print
+
+  # Append to availability table
+  available_data$values = unlist(objPrints)
+
+  # 3.2 Setup general prints
+  available_data$spat_unit = paste0('Spatial unit "', available_data$spat_unit, '"')
+  if(!is.null(available_data$feat_type)) {
+    available_data$feat_type = paste0('Feature type "', available_data$feat_type, '"')  # Check to be deprecated
+  } else warning('Only networks from the deprecated nesting will be shown')
+  available_data$nn_type = paste0('NN network type "', available_data$nn_type, '"')
+  available_data$name = paste0('S3 igraph "', available_data$name, '"')
+  for(obj_i in seq(nrow(available_data))) {
+    available_data$name[[obj_i]] = paste0(available_data$name[[obj_i]],
+                                          ch$s ,'(', objRows[[obj_i]], ' rows)')
+  }
+
+  # 4. Print information
+  print_leaf(level_index = 1,
+             availableDT = available_data,
+             inherit_last = TRUE,
+             indent = '')
+
+}
 
 
 
@@ -1424,24 +1604,57 @@ showGiottoFeatInfo = function(gobject) {
 showGiottoSpatNetworks = function(gobject,
                                   nrows = 4) {
 
+  # import boxchars
+  ch = box_chars()
+
+  # 1. Check input
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
 
+  # 2. Get availability matrix
   available_data = list_spatial_networks(gobject = gobject)
   if(is.null(available_data)) cat('No spatial networks are available \n')
 
-  for(spatial_unit in unique(available_data$spat_unit)) {
+  # 3.1 Set up object printouts
+  objPrints = objRows = list()
+  for(obj_i in seq(nrow(available_data))) {
 
-    cat('Spatial unit:', spatial_unit, '\n\n')
+    # Get object
+    dataObj = get_spatialNetwork(gobject = gobject,
+                                 spat_unit = available_data$spat_unit[[obj_i]],
+                                 name = available_data$name[[obj_i]],
+                                 return_network_Obj = FALSE)
 
-    for(network_name in available_data[available_data$spat_unit == spatial_unit,]$name) {
+    # Collect object prints
+    objRows[[obj_i]] = nrow(dataObj)
 
-      cat('--> Name:', network_name, '\n\n')
+    objPrints[[obj_i]] =
+      dataObj[1:if(nrows <= objRows[[obj_i]]) nrows else objRows[[obj_i]],] %>%
+      print %>%
+      capture.output
 
-      print(gobject@spatial_network[[spatial_unit]][[network_name]][['networkDT']][1:nrows,])
-      cat('\n')
-
-    }
   }
+
+  # object printblock edits
+  objPrints = lapply(objPrints, function(x) paste0(ch$s, x)) # Add indent
+  objPrints = lapply(objPrints, function(x) paste(x, collapse = ('\n'))) # Linearize print
+
+  # Append to availability table
+  available_data$values = unlist(objPrints)
+
+  # 3.2 Setup general prints
+  available_data$spat_unit = paste0('Spatial unit "', available_data$spat_unit, '"')
+  available_data$name = paste0('S4 spatialNetworkObj "', available_data$name, '"')
+  for(obj_i in seq(nrow(available_data))) {
+    available_data$name[[obj_i]] = paste0(available_data$name[[obj_i]],
+                                          ch$s ,'(', objRows[[obj_i]], ' rows)')
+  }
+
+  # 4. Print information
+  print_leaf(level_index = 1,
+             availableDT = available_data,
+             inherit_last = TRUE,
+             indent = '')
+
 }
 
 
@@ -1471,24 +1684,60 @@ showNetworks = function(...) {
 showGiottoSpatGrids = function(gobject,
                                nrows = 4) {
 
+  # import boxchars
+  ch = box_chars()
+
+  # 1. check input
   if(is.null(gobject)) stop('A giotto object needs to be provided \n')
 
+  # 2. get availability matrix
   available_data = list_spatial_grids(gobject = gobject)
   if(is.null(available_data)) cat('No available spatial grids \n')
 
-  for(spatial_unit in unique(available_data$spat_unit)) {
+  # 3.1 Set up object printouts
+  objPrints = objRows = list()
+  for(obj_i in seq(nrow(available_data))) {
 
-    cat('Spatial grid:', spatial_unit, '\n\n')
+    # Get object
+    dataObj = get_spatialGrid(gobject = gobject,
+                              spat_unit = available_data$spat_unit[[obj_i]],
+                              name = available_data$name[[obj_i]],
+                              return_grid_Obj = FALSE)
 
-    for(grid_name in available_data[available_data$spat_unit == spatial_unit,]$name) {
+    # Collect object prints
+    objRows[[obj_i]] = nrow(dataObj)
 
-      cat('--> Name:', grid_name, '\n\n')
+    objPrints[[obj_i]] =
+      dataObj[1:if(nrows <= objRows[[obj_i]]) nrows else objRows[[obj_i]],] %>%
+      print %>%
+      capture.output
 
-      print(gobject@spatial_grid[[spatial_unit]][[grid_name]][['gridDT']][1:nrows,])
-      cat('\n')
-
-    }
   }
+
+  # object printblock edits
+  objPrints = lapply(objPrints, function(x) paste0(ch$s, x)) # Add indent
+  objPrints = lapply(objPrints, function(x) paste(x, collapse = ('\n'))) # Linearize print
+
+  # Append to availability table
+  available_data$values = unlist(objPrints)
+
+  # 3.2 Setup general prints
+  available_data$spat_unit = paste0('Spatial unit "', available_data$spat_unit, '"')
+  if(!is.null(available_data$feat_type)) {
+    available_data$feat_type = paste0('Feature type "', available_data$feat_type, '"') # Check to be deprecated
+  } else warning('Only networks from the deprecated nesting will be shown')
+  available_data$name = paste0('S4 spatialGridObj "', available_data$name, '"')
+  for(obj_i in seq(nrow(available_data))) {
+    available_data$name[[obj_i]] = paste0(available_data$name[[obj_i]],
+                                          ch$s ,'(', objRows[[obj_i]], ' rows)')
+  }
+
+  # 4. Print information
+  print_leaf(level_index = 1,
+             availableDT = available_data,
+             inherit_last = TRUE,
+             indent = '')
+
 }
 
 
@@ -1538,7 +1787,6 @@ showGiottoImageNames = function(gobject) {
 
 # List functions ####
 
-
 #' @title list_giotto_data
 #' @name list_giotto_data
 #' @description list the available data within specified giotto object slot
@@ -1557,6 +1805,7 @@ list_giotto_data = function(gobject = NULL,
   if(slot == 'spatial_locs') return(list_spatial_locations(gobject = gobject,...))
   if(slot == 'spatial_enrichment') return(list_spatial_enrichments(gobject = gobject,...))
   if(slot == 'dimension_reduction') return(list_dim_reductions(gobject = gobject,...))
+  if(slot == 'nn_network') return(list_nearest_networks(gobject = gobject,...))
   if(slot == 'spatial_info') return(list_spatial_info(gobject = gobject))
   if(slot == 'feat_info') return(list_feature_info(gobject = gobject))
   if(slot == 'spatial_network') return(list_spatial_networks(gobject = gobject,...))
@@ -1611,8 +1860,11 @@ list_expression = function(gobject,
 #' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @return vector with names of available matrices
 list_expression_names = function(gobject,
-                                 spat_unit,
-                                 feat_type) {
+                                 spat_unit = NULL,
+                                 feat_type = NULL) {
+
+  if(is.null(spat_unit)) stop('spat_unit must be given\n')
+  if(is.null(feat_type)) stop('feat_type must be given\n')
 
   expression_names = names(gobject@expression[[spat_unit]][[feat_type]])
 
@@ -1624,17 +1876,19 @@ list_expression_names = function(gobject,
 #' @title list_cell_metadata
 #' @name list_cell_metadata
 #' @description lists the available cell metadata
-#' @param gobject giotto object
-#' @param spat_unit spatial unit (e.g. "cell")
-#' @param feat_type feature type (e.g. "rna", "dna", "protein")
+#' @inheritParams data_access
 #' @return names and locations of available cell metadata as data.table
 list_cell_metadata = function(gobject,
                               spat_unit = NULL,
-                              feat_type = NULL) {
+                              feat_type = NULL,
+                              return_uniques = FALSE) {
 
   availableCMet = data.table()
+  uniques = list()
   for(spatial_unit in names(gobject@cell_metadata)) {
+    uniques$spat_unit = c(uniques$spat_unit, spatial_unit)
     for(feature_type in names(gobject@cell_metadata[[spatial_unit]])) {
+      uniques$feat_type = c(uniques$feat_type, feature_type)
       availableCMet = rbind(availableCMet,
                             list(spat_unit = spatial_unit,
                                  feat_type = feature_type))
@@ -1646,9 +1900,13 @@ list_cell_metadata = function(gobject,
 
   availableCMet = availableCMet[spat_unit_subset,]
 
-  # return data.table (NULL if empty)
-  if(nrow(availableCMet) == 0) return(NULL)
-  else return(availableCMet)
+  if(!isTRUE(return_uniques)) {
+    # return data.table (NULL if empty)
+    if(nrow(availableCMet) == 0) return(NULL)
+    else return(availableCMet)
+  } else {
+    return(lapply(uniques, unique))
+  }
 }
 
 
@@ -1656,17 +1914,19 @@ list_cell_metadata = function(gobject,
 #' @title list_feat_metadata
 #' @name list_feat_metadata
 #' @description lists the available feature metadata
-#' @param gobject giotto object
-#' @param spat_unit spatial unit (e.g. "cell")
-#' @param feat_type feature type (e.g. "rna", "dna", "protein")
+#' @inheritParams data_access
 #' @return names and locations of available feature metadata as data.table
 list_feat_metadata = function(gobject,
                               spat_unit = NULL,
-                              feat_type = NULL) {
+                              feat_type = NULL,
+                              return_uniques = FALSE) {
 
   availableFMet = data.table()
+  uniques = list()
   for(spatial_unit in names(gobject@feat_metadata)) {
+    uniques$spat_unit = c(uniques$spat_unit, spatial_unit)
     for(feature_type in names(gobject@feat_metadata[[spatial_unit]])) {
+      uniques$feat_type = c(uniques$feat_type, feature_type)
       availableFMet = rbind(availableFMet,
                             list(spat_unit = spatial_unit,
                                  feat_type = feature_type))
@@ -1678,9 +1938,13 @@ list_feat_metadata = function(gobject,
 
   availableFMet = availableFMet[spat_unit_subset,]
 
-  # return data.table (NULL if empty)
-  if(nrow(availableFMet) == 0) return(NULL)
-  else return(availableFMet)
+  if(!isTRUE(return_uniques)) {
+    # return data.table (NULL if empty)
+    if(nrow(availableFMet) == 0) return(NULL)
+    else return(availableFMet)
+  } else {
+    return(lapply(uniques, unique))
+  }
 }
 
 
@@ -1688,18 +1952,24 @@ list_feat_metadata = function(gobject,
 #' @title list_spatial_locations
 #' @name list_spatial_locations
 #' @description shows the available spatial locations
-#' @param gobject giotto object
-#' @param spat_unit spatial unit (e.g. "cell")
+#' @inheritParams data_access
 #' @return names and locations of available data.table as data.table
 list_spatial_locations = function(gobject,
-                                  spat_unit = NULL) {
+                                  spat_unit = NULL,
+                                  return_uniques = FALSE) {
 
   availableSpatLocs = data.table()
+  uniques = list()
   for(spatial_unit in names(gobject@spatial_locs)) {
-    for(spatloc_name in names(gobject@spatial_locs[[spatial_unit]]))
-      availableSpatLocs = rbind(availableSpatLocs,
-                                list(spat_unit = spatial_unit,
-                                     name = spatloc_name))
+    uniques$spat_unit = c(uniques$spat_unit, spatial_unit)
+    for(spatloc_name in names(gobject@spatial_locs[[spatial_unit]])) {
+      uniques$name = c(uniques$name, spatloc_name)
+      if(inherits(slot(gobject, 'spatial_locs')[[spatial_unit]][[spatloc_name]], 'data.table')) {
+        availableSpatLocs = rbind(availableSpatLocs,
+                                  list(spat_unit = spatial_unit,
+                                       name = spatloc_name))
+      }
+    }
   }
 
   # check if a specific category is desired
@@ -1707,8 +1977,12 @@ list_spatial_locations = function(gobject,
     availableSpatLocs = availableSpatLocs[availableSpatLocs$spat_unit == spat_unit,]
   }
 
-  if(nrow(availableSpatLocs) == 0) return(NULL)
-  else return(availableSpatLocs)
+  if(!isTRUE(return_uniques)) {
+    if(nrow(availableSpatLocs) == 0) return(NULL)
+    else return(availableSpatLocs)
+  } else {
+    return(lapply(uniques, unique))
+  }
 }
 
 
@@ -1721,7 +1995,9 @@ list_spatial_locations = function(gobject,
 #' @param spat_unit spatial unit (e.g. "cell")
 #' @return vector with names of available spatial locations
 list_spatial_locations_names = function(gobject,
-                                        spat_unit) {
+                                        spat_unit = NULL) {
+
+  if(is.null(spat_unit)) stop('spat_unit must be given\n')
 
   spatlocs_names = names(gobject@spatial_locs[[spat_unit]])
 
@@ -1780,8 +2056,11 @@ list_spatial_enrichments = function(gobject,
 #' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @return vector of names for available spatial enrichments
 list_spatial_enrichments_names = function(gobject,
-                                          spat_unit,
-                                          feat_type) {
+                                          spat_unit = NULL,
+                                          feat_type = NULL) {
+
+  if(is.null(spat_unit)) stop('spat_unit must be given\n')
+  if(is.null(feat_type)) stop('feat_type must be given\n')
 
   spatenr_names = names(gobject@spatial_enrichment[[spat_unit]][[feat_type]])
 
@@ -1808,17 +2087,19 @@ list_dim_reductions = function(gobject,
                                dim_type = NULL) {
 
   availableDimRed = data.table()
-  for(dataType in names(gobject@dimension_reduction)) {
-    for(spatUnit in names(gobject@dimension_reduction[[dataType]])) {
-      for(featType in names(gobject@dimension_reduction[[dataType]][[spatUnit]])) {
-        for(dimType in names(gobject@dimension_reduction[[dataType]][[spatUnit]][[featType]])) {
-          for(subType in names(gobject@dimension_reduction[[dataType]][[spatUnit]][[featType]][[dimType]])) {
-            availableDimRed = rbind(availableDimRed,
-                                    list(data_type = dataType,
-                                         spat_unit = spatUnit,
-                                         feat_type = featType,
-                                         dim_type = dimType,
-                                         name = subType))
+  for(dataType in names(slot(gobject, 'dimension_reduction'))) {
+    for(spatUnit in names(slot(gobject, 'dimension_reduction')[[dataType]])) {
+      for(featType in names(slot(gobject, 'dimension_reduction')[[dataType]][[spatUnit]])) {
+        for(dimType in names(slot(gobject, 'dimension_reduction')[[dataType]][[spatUnit]][[featType]])) {
+          for(subType in names(slot(gobject, 'dimension_reduction')[[dataType]][[spatUnit]][[featType]][[dimType]])) {
+            if(inherits(slot(gobject, 'dimension_reduction')[[dataType]][[spatUnit]][[featType]][[dimType]][[subType]], 'dimObj')) {
+              availableDimRed = rbind(availableDimRed,
+                                      list(data_type = dataType,
+                                           spat_unit = spatUnit,
+                                           feat_type = featType,
+                                           dim_type = dimType,
+                                           name = subType))
+            }
           }
         }
       }
@@ -1848,20 +2129,139 @@ list_dim_reductions = function(gobject,
 #' @param spat_unit spatial unit (e.g. "cell")
 #' @param feat_type feature type (e.g. "rna", "dna", "protein")
 #' @param dim_type dimensional reduction type (method)
-#' @return names pf dimension reduction object
+#' @return names of dimension reduction object
 #' @details function that can be used to find which names have been used
 list_dim_reductions_names = function(gobject,
                                      data_type = 'cells',
-                                     spat_unit,
-                                     feat_type,
-                                     dim_type) {
+                                     spat_unit = NULL,
+                                     feat_type = NULL,
+                                     dim_type = NULL) {
 
-  dim_red_object_names = names(gobject@dimension_reduction[[data_type]][[spat_unit]][[feat_type]][[dim_type]])
+  if(is.null(spat_unit)) stop('spat_unit must be given\n')
+  if(is.null(feat_type)) stop('feat_type must be given\n')
+  if(is.null(dim_type)) stop('dim_type must be given\n')
+
+  dim_red_object_names = names(slot(gobject, 'dimension_reduction')[[data_type]][[spat_unit]][[feat_type]][[dim_type]])
 
   return(dim_red_object_names)
 }
 
 
+
+#' @title list_nearest_networks
+#' @name list_nearest_networks
+#' @description return the available nearest neighbor network information
+#' @inheritParams data_access
+#' @param nn_type nearest neighbor method (e.g. "sNN", "kNN")
+#' @return names and locations of nearest neighbor networks as a data.table
+list_nearest_networks = function(gobject,
+                                 spat_unit = NULL,
+                                 feat_type = NULL,
+                                 nn_type = NULL,
+                                 return_uniques = FALSE) {
+
+  availableNN = data.table()
+  uniques = list()
+  for(spatUnit in names(slot(gobject, 'nn_network'))) {
+    uniques$spat_unit = c(uniques$spat_unit, spatUnit)
+    for(featType in names(slot(gobject, 'nn_network')[[spatUnit]])) {
+      uniques$feat_type = c(uniques$feat_type, featType)
+      for(nnType in names(slot(gobject, 'nn_network')[[spatUnit]][[featType]])) {
+        uniques$nn_type = c(uniques$nn_type, nnType)
+        for(nnNet in names(slot(gobject, 'nn_network')[[spatUnit]][[featType]][[nnType]])) {
+          uniques$name = c(uniques$name, nnNet)
+          if(inherits(slot(gobject, 'nn_network')[[spatUnit]][[featType]][[nnType]][[nnNet]], 'igraph'))
+          availableNN = rbind(availableNN,
+                              list(spat_unit = spatUnit,
+                                   feat_type = featType,
+                                   nn_type = nnType,
+                                   name = nnNet))
+        }
+      }
+    }
+  }
+
+  # **To be deprecated**
+  # nn network has gained feat_type nesting. Check back one layer
+  if(!all(uniques$nn_type %in% availableNN$nn_type)) {
+    # Check for vaid igraph objects at lower nesting
+    availableNN_old = data.table()
+    for(spatUnit in names(slot(gobject, 'nn_network'))) {
+      for(nnType in names(slot(gobject, 'nn_network')[[spatUnit]])) {
+        for(nnNet in names(slot(gobject, 'nn_network')[[spatUnit]][[nnType]])) {
+          if(inherits(slot(gobject, 'nn_network')[[spatUnit]][[nnType]][[nnNet]], 'igraph')) {
+            availableNN_old = rbind(availableNN_old,
+                                    list(spat_unit = spatUnit,
+                                         nn_type = nnType,
+                                         name = nnNet))
+          }
+        }
+      }
+    }
+    if(nrow(availableNN_old > 0)) {
+      message('Deprecated nesting found within nn_network slot:')
+      print(availableNN_old)
+      warning('Deprecated nesting discovered within Giotto nn_network slot. Consider remaking the object or changing the nesting to the suggested.')
+
+      for(net in seq(nrow(availableNN_old))) {
+        # Assign default feature type for each spat_unit
+        featType = set_default_feat_type(gobject,
+                                         spat_unit = availableNN_old$spat_unit[[net]])
+        # Place object in new location
+        gobject@nn_network[[availableNN_old$spat_unit[[net]]]][[featType]][[availableNN_old$nn_type[[net]]]][[availableNN_old$name[[net]]]] =
+          gobject@nn_network[[availableNN_old$spat_unit[[net]]]][[availableNN_old$nn_type[[net]]]][[availableNN_old$name[[net]]]]
+        # Remove old object so that it is not detected by this list function
+        gobject@nn_network[[availableNN_old$spat_unit[[net]]]][[availableNN_old$nn_type[[net]]]][[availableNN_old$name[[net]]]] = NULL
+      }
+      # Recursive call on new nesting structure
+      message('Suggested new nesting:')
+      availableNN_suggest = list_nearest_networks(gobject)
+      print(availableNN_suggest)
+      cat('\n')
+      availableNN = availableNN_old
+    }
+  } # **deprecation end**
+
+  # check if a specific category is desired
+  if(!is.null(spat_unit)) spat_unit_subset = availableNN$spat_unit == spat_unit else spat_unit_subset = TRUE
+  if(!is.null(feat_type)) feat_type_subset = availableNN$feat_type == feat_type else feat_type_subset = TRUE
+  if(!is.null(nn_type)) nn_type_subset = availableNN$nn_type == nn_type else nn_type_subset = TRUE
+
+  availableNN = availableNN[spat_unit_subset & feat_type_subset & nn_type_subset,]
+
+  if(!isTRUE(return_uniques)) {
+    # NULL if there is no data
+    if(nrow(availableNN) == 0) return(NULL)
+    else return(availableNN)
+  } else {
+    return(lapply(uniques, unique))
+  }
+}
+
+
+
+#' @title list_nearest_networks_names
+#' @name list_nearest_networks_names
+#' @description return the available nearest neighbor network object names
+#' @param gobject giotto object
+#' @param spat_unit spatial unit (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
+#' @param nn_type nearest neighbor method (e.g. "sNN", "kNN")
+#' @return names of nearest neighbor network object
+#' @details function that can be used to find which names have been used
+list_nearest_networks_names = function(gobject,
+                                       spat_unit = NULL,
+                                       feat_type = NULL,
+                                       nn_type = NULL) {
+
+  if(is.null(spat_unit)) stop('spat_unit must be given\n')
+  if(is.null(feat_type)) stop('feat_type must be given\n')
+  if(is.null(nn_type)) stop('nn_type must be given\n')
+
+  nn_object_names = names(slot(gobject, 'nn_network')[[spat_unit]][[feat_type]][[nn_type]])
+
+  return(nn_object_names)
+}
 
 
 
@@ -1934,15 +2334,19 @@ list_feature_info_names = function(gobject) {
 #' @title list_spatial_networks
 #' @name list_spatial_networks
 #' @description return the available spatial networks that are attached to the Giotto object
-#' @param gobject giotto object
-#' @param spat_unit spatial unit (e.g. "cell")
-#' @return data.table of names and locations of available spatial networks. col order matters
+#' @inheritParams data_access
+#' @return data.table of names and locations of available spatial networks, col order matters or list of unique nestings
 list_spatial_networks = function(gobject,
-                                 spat_unit = NULL) {
+                                 spat_unit = NULL,
+                                 return_uniques = FALSE) {
 
   availableSpatNetworks = data.table()
+  uniques = list()
   for(spatial_unit in names(gobject@spatial_network)) {
+    uniques$spat_unit = c(uniques$spat_unit, spatial_unit)
     for(spat_network_name in names(gobject@spatial_network[[spatial_unit]])) {
+      uniques$name = c(uniques$name, spat_network_name)
+      if(inherits(gobject@spatial_network[[spatial_unit]][[spat_network_name]], 'spatialNetworkObj'))
       availableSpatNetworks = rbind(availableSpatNetworks,
                                     list(spat_unit = spatial_unit,
                                          name = spat_network_name))
@@ -1954,8 +2358,13 @@ list_spatial_networks = function(gobject,
 
   availableSpatNetworks = availableSpatNetworks[spat_unit_subset,]
 
-  if(nrow(availableSpatNetworks) == 0) return(NULL)
-  else return(availableSpatNetworks)
+  if(!isTRUE(return_uniques)) {
+    if(nrow(availableSpatNetworks) == 0) return(NULL)
+    else return(availableSpatNetworks)
+  } else {
+    return(lapply(uniques, unique))
+  }
+
 }
 
 
@@ -1968,6 +2377,8 @@ list_spatial_networks = function(gobject,
 list_spatial_networks_names = function(gobject,
                                        spat_unit = NULL) {
 
+  if(is.null(spat_unit)) stop('spat_unit must be given\n')
+
   spat_network_names = names(gobject@spatial_network[[spat_unit]])
 
   return(spat_network_names)
@@ -1979,28 +2390,81 @@ list_spatial_networks_names = function(gobject,
 #' @title list_spatial_grids
 #' @name list_spatial_grids
 #' @description return the available spatial grids that are attached to the Giotto object
-#' @param gobject giotto object
-#' @param spat_unit spatial unit (e.g. "cell")
+#' @inheritParams data_access
 #' @return data.table of names and locations of available spatial grids. col order matters
 list_spatial_grids = function(gobject,
-                              spat_unit = NULL) {
+                              spat_unit = NULL,
+                              feat_type = NULL,
+                              return_uniques = FALSE) {
 
   availableSpatGrids = data.table()
+  uniques = list()
   for(spatial_unit in names(gobject@spatial_grid)) {
-    for(grid_names in names(gobject@spatial_grid[[spatial_unit]])) {
-      availableSpatGrids = rbind(availableSpatGrids,
-                                 list(spat_unit = spatial_unit,
-                                      name = grid_names))
+    uniques$spat_unit = c(uniques$spat_unit, spatial_unit)
+    for(feature_type in names(gobject@spatial_grid[[spatial_unit]])) {
+      uniques$feat_type = c(uniques$feat_type, feature_type)
+      for(grid_names in names(gobject@spatial_grid[[spatial_unit]][[feature_type]])) {
+        uniques$name = c(uniques$name, grid_names)
+        if(inherits(gobject@spatial_grid[[spatial_unit]][[feature_type]][[grid_names]], 'spatialGridObj')) {
+          availableSpatGrids = rbind(availableSpatGrids,
+                                     list(spat_unit = spatial_unit,
+                                          feat_type = feature_type,
+                                          name = grid_names))
+        }
+      }
     }
   }
 
-  # check if a specific category is desired
-  if(!is.null(spat_unit)) {
-    availableSpatGrids = availableSpatGrids[availableSpatGrids$spat_unit == spat_unit,]
-  }
+  # **To be deprecated**
+  # spatial_grid has gained feat_type nesting. Check back one layer
+  if(!all(uniques$name %in% availableSpatGrids$name)) {
+    # Check for valid spatialGridObj objects at lower nesting
+    availableSpatGrids_old = data.table()
+    for(spatial_unit in names(gobject@spatial_grid)) {
+      for(grid_names in names(gobject@spatial_grid[[spatial_unit]])) {
+        if(inherits(gobject@spatial_grid[[spatial_unit]][[grid_names]], 'spatialGridObj')) {
+          availableSpatGrids_old = rbind(availableSpatGrids_old,
+                                         list(spat_unit = spatial_unit,
+                                              name = grid_names))
+        }
+      }
+    }
+    if(nrow(availableSpatGrids_old > 0)) {
+      message('Deprecated nesting discovered within spatial_grid slot:')
+      print(availableSpatGrids_old)
+      warning('Deprecated nesting discovered within Giotto spatial_grid slot. Consider remaking the object or changing the nesting to the suggested.')
+      for(grid in seq(nrow(availableSpatGrids_old))) {
+        # Assign default feature type for each spat_unit
+        feature_type = set_default_feat_type(gobject,
+                                             spat_unit = availableSpatGrids_old$spat_unit[[grid]])
+        # Place object in new location
+        gobject@spatial_grid[[availableSpatGrids_old$spat_unit[[grid]]]][[feature_type]][[availableSpatGrids_old$name[[grid]]]] =
+          gobject@spatial_grid[[availableSpatGrids_old$spat_unit[[grid]]]][[availableSpatGrids_old$name[[grid]]]]
+        # Remove old object so that it is not detected by this list function
+        gobject@spatial_grid[[availableSpatGrids_old$spat_unit[[grid]]]][[availableSpatGrids_old$name[[grid]]]] = NULL
+      }
+      # Recursive call on new nesting structure
+      message('Suggested new nesting:')
+      availableSpatGrids_suggest = list_spatial_grids(gobject)
+      print(availableSpatGrids_suggest)
+      cat('\n')
+      availableSpatGrids = availableSpatGrids_old
+    }
+  } # **deprecation end**
 
-  if(nrow(availableSpatGrids) == 0) return(NULL)
-  else return(availableSpatGrids)
+
+  # check if a specific category is desired
+  if(!is.null(spat_unit)) spat_unit_subset = availableSpatGrids$spat_unit == spat_unit else spat_unit_subset = TRUE
+  if(!is.null(feat_type)) feat_type_subset = availableSpatGrids$feat_type == feat_type else feat_type_subset = TRUE
+
+  availableSpatGrids = availableSpatGrids[spat_unit_subset & feat_type_subset,]
+
+  if(!isTRUE(return_uniques)) {
+    if(nrow(availableSpatGrids) == 0) return(NULL)
+    else return(availableSpatGrids)
+  } else {
+    return(lapply(uniques, unique))
+  }
 }
 
 
@@ -2011,11 +2475,18 @@ list_spatial_grids = function(gobject,
 #' @description return the available spatial grids name for a given spatial unit that are attached to the Giotto object
 #' @param gobject giotto object
 #' @param spat_unit spatial unit (e.g. "cell")
+#' @param feat_type feature type (e.g. "rna", "dna", "protein")
+#' @param return_uniques return unique nesting names (ignores if final object exists/is correct class)
 #' @return vector with names of available spatial grids names
 list_spatial_grids_names = function(gobject,
-                                    spat_unit = NULL) {
+                                    spat_unit = NULL,
+                                    feat_type = NULL,
+                                    return_uniques = FALSE) {
 
-  spat_grid_names = names(gobject@spatial_grid[[spat_unit]])
+  if(is.null(spat_unit)) stop('spat_unit must be given\n')
+  if(is.null(feat_type)) stop('feat_type must be given\n')
+
+  spat_grid_names = names(gobject@spatial_grid[[spat_unit]][[feat_type]])
 
   return(spat_grid_names)
 }
@@ -2032,8 +2503,8 @@ list_images = function(gobject,
 
   availableImages = data.table()
 
-  g_image_names = names(gobject@images)
-  g_limage_names = names(gobject@largeImages)
+  g_image_names = names(slot(gobject, 'images'))
+  g_limage_names = names(slot(gobject, 'largeImages'))
 
   for(image_type in c('image', 'largeImage')) {
     if(image_type == 'image') {
@@ -2080,36 +2551,5 @@ list_images_names = function(gobject,
 
   return(img_names)
 }
-
-#' @title list_nearest_networks
-#' @name list_nearest_networks
-#' @description return the available nearest networks that are attached to the Giotto object
-#' @param gobject giotto object
-#' @param spat_unit spatial unit (e.g. "cell")
-#' @return data.table of names and locations of available nearest networks.
-list_nearest_networks = function(gobject,
-                                 spat_unit = NULL) {
-
-  availableNetworks = data.table()
-  for(spatial_unit in names(gobject@nn_network)) {
-    for(network_type in names(gobject@nn_network[[spatial_unit]])) {
-      for(network_name in names(gobject@nn_network[[spatial_unit]][[network_type]])){
-        availableNetworks = rbind(availableNetworks,
-                                  list(spat_unit = spatial_unit,
-                                       type = network_type,
-                                       name = network_name))
-      }
-    }
-  }
-
-  # check if a specific category is desired
-  if(!is.null(spat_unit)) spat_unit_subset = availableNetworks$spat_unit == spat_unit else spat_unit_subset = TRUE
-
-  availableNetworks = availableNetworks[spat_unit_subset,]
-
-  if(nrow(availableNetworks) == 0) return(NULL)
-  else return(availableNetworks)
-}
-
 
 

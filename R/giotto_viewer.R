@@ -120,6 +120,7 @@ write_giotto_viewer_dim_reduction = function(dim_reduction_cell,
 #' @name exportGiottoViewer
 #' @description compute highly variable genes
 #' @param gobject giotto object
+#' @param spat_unit spatial unit
 #' @param feat_type feature types
 #' @param spat_loc_name name of spatial locations to export
 #' @param output_directory directory where to save the files
@@ -150,6 +151,7 @@ write_giotto_viewer_dim_reduction = function(dim_reduction_cell,
 #' }
 #'
 exportGiottoViewer = function(gobject,
+                              spat_unit = NULL,
                               feat_type = NULL,
                               spat_loc_name = 'raw',
                               output_directory = NULL,
@@ -345,6 +347,7 @@ exportGiottoViewer = function(gobject,
 
   for(feat in feat_type) {
     expr_values = get_expression_values(gobject = gobject,
+                                        spat_unit = spat_unit,
                                         feat_type = feat,
                                         values = values)
     expr_values = as.matrix(expr_values)

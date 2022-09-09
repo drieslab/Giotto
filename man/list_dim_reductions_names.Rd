@@ -7,9 +7,9 @@
 list_dim_reductions_names(
   gobject,
   data_type = "cells",
-  spat_unit,
-  feat_type,
-  dim_type
+  spat_unit = NULL,
+  feat_type = NULL,
+  dim_type = NULL
 )
 }
 \arguments{
@@ -24,7 +24,7 @@ list_dim_reductions_names(
 \item{dim_type}{dimensional reduction type (method)}
 }
 \value{
-names pf dimension reduction object
+names of dimension reduction object
 }
 \description{
 return the available dimension reductions object names
