@@ -7,6 +7,7 @@
 createSpatialDefaultGrid(
   gobject,
   spat_unit = NULL,
+  feat_type = NULL,
   spat_loc_name = "raw",
   sdimx_stepsize = NULL,
   sdimy_stepsize = NULL,
@@ -20,6 +21,8 @@ createSpatialDefaultGrid(
 \item{gobject}{giotto object}
 
 \item{spat_unit}{spatial unit}
+
+\item{feat_type}{feature type}
 
 \item{spat_loc_name}{spatial location name}
 

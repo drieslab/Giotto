@@ -17,6 +17,7 @@ Other functions to show data in giotto object:
 \code{\link{showGiottoDimRed}()},
 \code{\link{showGiottoExpression}()},
 \code{\link{showGiottoImageNames}()},
+\code{\link{showGiottoNearestNetworks}()},
 \code{\link{showGiottoSpatEnrichments}()},
 \code{\link{showGiottoSpatGrids}()},
 \code{\link{showGiottoSpatLocs}()},

@@ -7,6 +7,7 @@
 subset_spatial_network(gobject, spat_unit, cells_to_keep)
 }
 \description{
-subset spatial networks from giotto object
+subset ALL spatial networks from giotto object of the given
+spat_unit
 }
 \keyword{internal}

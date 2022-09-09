@@ -2773,7 +2773,6 @@ spatPlot2D_single = function(gobject,
   ## extract spatial network
   if(show_network == TRUE) {
     spatial_network = get_spatialNetwork(gobject,
-                                         feat_type = feat_type,
                                          spat_unit = spat_unit,
                                          name = spatial_network_name,
                                          return_network_Obj = FALSE)
@@ -2785,6 +2784,7 @@ spatPlot2D_single = function(gobject,
   if(show_grid == TRUE) {
     spatial_grid = get_spatialGrid(gobject = gobject,
                                    spat_unit = spat_unit,
+                                   feat_type = feat_type,
                                    name = spatial_grid_name)
   } else {
     spatial_grid = NULL
@@ -4211,7 +4211,6 @@ spatFeatPlot2D_single <- function(gobject,
   ## extract spatial network
   if(show_network == TRUE) {
     spatial_network = get_spatialNetwork(gobject,
-                                         feat_type = feat_type,
                                          spat_unit = spat_unit,
                                          name = spatial_network_name,
                                          return_network_Obj = FALSE)
@@ -4222,7 +4221,10 @@ spatFeatPlot2D_single <- function(gobject,
   ## extract spatial grid
   if(show_grid == TRUE) {
     spatial_grid = get_spatialGrid(gobject,
-                                      spatial_grid_name)
+                                   spat_unit = spat_unit,
+                                   feat_type = feat_type,
+                                   name = spatial_grid_name)
+
   } else {
     spatial_grid = NULL
   }
@@ -6493,7 +6495,7 @@ dimPlot_2D_plotly <- function(gobject,
                                   reduction_method = dim_reduction_to_use,
                                   name = dim_reduction_name,
                                   return_dimObj = TRUE)
-    eigenvalues = pca_object$misc$eigenvalues
+    eigenvalues = slot(pca_object, 'misc')$eigenvalues
 
     if(!is.null(eigenvalues)) {
       total = sum(eigenvalues)
@@ -6757,7 +6759,7 @@ dimPlot_3D_plotly <- function(gobject,
                                   name = dim_reduction_name,
                                   return_dimObj = TRUE)
 
-    eigenvalues = pca_object$misc$eigenvalues
+    eigenvalues = slot(pca_object, 'misc')$eigenvalues
     if(!is.null(eigenvalues)) {
       total = sum(eigenvalues)
       var_expl_vec = (eigenvalues/total) * 100
@@ -7231,7 +7233,6 @@ spatPlot_2D_plotly = function(gobject,
   ## extract spatial network
   if(show_network == TRUE) {
     spatial_network = get_spatialNetwork(gobject,
-                                         feat_type = feat_type,
                                          spat_unit = spat_unit,
                                          name = spatial_network_name,
                                          return_network_Obj = FALSE)
@@ -7241,7 +7242,10 @@ spatPlot_2D_plotly = function(gobject,
 
   ## extract spatial grid
   if(show_grid == TRUE) {
-    spatial_grid = get_spatialGrid(gobject, spatial_grid_name)
+    spatial_grid = get_spatialGrid(gobject,
+                                   spat_unit = spat_unit,
+                                   feat_type = feat_type,
+                                   spatial_grid_name)
   } else {
     spatial_grid = NULL
   }
@@ -7471,7 +7475,6 @@ spatPlot_3D_plotly = function(gobject,
   ## extract spatial network
   if(show_network == TRUE) {
     spatial_network = get_spatialNetwork(gobject,
-                                         feat_type = feat_type,
                                          spat_unit = spat_unit,
                                          name = spatial_network_name,
                                          return_network_Obj = FALSE)
@@ -7481,7 +7484,10 @@ spatPlot_3D_plotly = function(gobject,
 
   ## extract spatial grid
   if(show_grid == TRUE) {
-    spatial_grid = get_spatialGrid(gobject, spatial_grid_name)
+    spatial_grid = get_spatialGrid(gobject,
+                                   spat_unit = spat_unit,
+                                   feat_type = feat_type,
+                                   spatial_grid_name)
   } else {
     spatial_grid = NULL
   }
@@ -7984,7 +7990,7 @@ spatDimPlot3D <- function(gobject,
                                   reduction_method = dim_reduction_to_use,
                                   name = dim_reduction_name,
                                   return_dimObj = TRUE)
-    eigenvalues = pca_object$misc$eigenvalues
+    eigenvalues = slot(pca_object, 'misc')$eigenvalues
 
     if(!is.null(eigenvalues)) {
       total = sum(eigenvalues)
@@ -8031,7 +8037,6 @@ spatDimPlot3D <- function(gobject,
   ## extract spatial network
   if(show_spatial_network == TRUE) {
     spatial_network = get_spatialNetwork(gobject,
-                                         feat_type = feat_type,
                                          spat_unit = spat_unit,
                                          name = spatial_network_name,
                                          return_network_Obj = FALSE)
@@ -8042,7 +8047,10 @@ spatDimPlot3D <- function(gobject,
 
   ## extract spatial grid
   if(show_spatial_grid == TRUE) {
-    spatial_grid = get_spatialGrid(gobject, spatial_grid_name)
+    spatial_grid = get_spatialGrid(gobject,
+                                   spat_unit = spat_unit,
+                                   feat_type = feat_type,
+                                   spatial_grid_name)
   } else {
     spatial_grid = NULL
   }
@@ -8747,7 +8755,6 @@ spatGenePlot3D <- function(gobject,
   ## extract spatial network
   if(show_network == TRUE) {
     spatial_network = get_spatialNetwork(gobject,
-                                         feat_type = feat_type,
                                          spat_unit = spat_unit,
                                          name = spatial_network_name,
                                          return_network_Obj = FALSE)
@@ -8757,7 +8764,10 @@ spatGenePlot3D <- function(gobject,
 
   ## extract spatial grid
   if(show_grid == TRUE) {
-    spatial_grid = get_spatialGrid(gobject, spatial_grid_name)
+    spatial_grid = get_spatialGrid(gobject,
+                                   spat_unit = spat_unit,
+                                   feat_type = feat_type,
+                                   spatial_grid_name)
   } else {
     spatial_grid = NULL
   }
@@ -9536,7 +9546,6 @@ spatDimGenePlot3D <- function(gobject,
   ## extract spatial network
   if(show_spatial_network == TRUE) {
     spatial_network = get_spatialNetwork(gobject,
-                                         feat_type = feat_type,
                                          spat_unit = spat_unit,
                                          name = spatial_network_name,
                                          return_network_Obj = FALSE)
@@ -9546,7 +9555,10 @@ spatDimGenePlot3D <- function(gobject,
 
   ## extract spatial grid
   if(show_spatial_grid == TRUE) {
-    spatial_grid = get_spatialGrid(gobject, spatial_grid_name)
+    spatial_grid = get_spatialGrid(gobject,
+                                   spat_unit = spat_unit,
+                                   feat_type = feat_type,
+                                   spatial_grid_name)
   } else {
     spatial_grid = NULL
   }

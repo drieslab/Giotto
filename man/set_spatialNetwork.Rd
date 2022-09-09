@@ -4,20 +4,12 @@
 \alias{set_spatialNetwork}
 \title{Set spatial network}
 \usage{
-set_spatialNetwork(
-  gobject,
-  spat_unit = NULL,
-  feat_type = NULL,
-  name = NULL,
-  spatial_network
-)
+set_spatialNetwork(gobject, spat_unit = NULL, name = NULL, spatial_network)
 }
 \arguments{
 \item{gobject}{giotto object}
 
 \item{spat_unit}{spatial unit  (e.g. "cell")}
-
-\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
 \item{name}{name of spatial network}
 

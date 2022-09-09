@@ -4,16 +4,28 @@
 \alias{list_nearest_networks}
 \title{list_nearest_networks}
 \usage{
-list_nearest_networks(gobject, spat_unit = NULL)
+list_nearest_networks(
+  gobject,
+  spat_unit = NULL,
+  feat_type = NULL,
+  nn_type = NULL,
+  return_uniques = FALSE
+)
 }
 \arguments{
 \item{gobject}{giotto object}
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
+
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
+
+\item{nn_type}{nearest neighbor method (e.g. "sNN", "kNN")}
+
+\item{return_uniques}{return unique nesting names (ignores if final object exists/is correct class)}
 }
 \value{
-data.table of names and locations of available nearest networks.
+names and locations of nearest neighbor networks as a data.table
 }
 \description{
-return the available nearest networks that are attached to the Giotto object
+return the available nearest neighbor network information
 }

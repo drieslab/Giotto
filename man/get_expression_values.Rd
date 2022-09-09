@@ -4,14 +4,14 @@
 \alias{get_expression_values}
 \title{Get expression values}
 \usage{
-get_expression_values(gobject, feat_type = NULL, spat_unit = NULL, values)
+get_expression_values(gobject, spat_unit = NULL, feat_type = NULL, values)
 }
 \arguments{
 \item{gobject}{giotto object}
 
-\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
-
 \item{spat_unit}{spatial unit (e.g. "cell")}
+
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
 
 \item{values}{expression values to extract (e.g. "raw", "normalized", "scaled")}
 }

@@ -2406,7 +2406,7 @@ detectSpatialPatterns <- function(gobject,
   if(is.null(slot(gobject, 'spatial_grid'))) {
     stop("\n you need to create a spatial grid, see createSpatialGrid(), for this function to work \n")
   }
-  if(!spatial_grid_name %in% names(gobject@spatial_grid)) {
+  if(!spatial_grid_name %in% list_spatial_grids_names(gobject = gobject)) {
     stop("\n you need to provide an existing spatial grid name for this function to work \n")
   }
 
@@ -2501,7 +2501,7 @@ detectSpatialPatterns <- function(gobject,
                        feat_matrix_DT = feat_matrix_DT,
                        spatial_grid = spatial_grid)
 
-  class(spatPatObject) <- append(class(spatPatObject), 'spatPatObj')
+  class(spatPatObject) <- append('spatPatObj', class(spatPatObject))
 
   return(spatPatObject)
 }
@@ -3251,15 +3251,12 @@ detectSpatialCorFeats <- function(gobject,
                                   min_cells_per_grid = 4,
                                   cor_method = c('pearson', 'kendall', 'spearman')) {
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # set default spat_unit and feat_type
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   ## correlation method to be used
   cor_method = match.arg(cor_method, choices = c('pearson', 'kendall', 'spearman'))
@@ -3290,6 +3287,8 @@ detectSpatialCorFeats <- function(gobject,
 
     # get spatial grid
     spatial_grid = get_spatialGrid(gobject = gobject,
+                                   spat_unit = spat_unit,
+                                   feat_type = feat_type,
                                    name = spatial_grid_name,
                                    return_grid_Obj = FALSE)
 
@@ -3367,7 +3366,7 @@ detectSpatialCorFeats <- function(gobject,
                        cor_hclust = list(),
                        cor_clusters = list())
 
-  class(spatCorObject) = append(class(spatCorObject), 'spatCorObject')
+  class(spatCorObject) = append('spatCorObject', class(spatCorObject))
 
   return(spatCorObject)
 

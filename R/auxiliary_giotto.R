@@ -1,4 +1,19 @@
+## Define class unions ####
 
+#' @title NULL or char class union
+#' @description class to allow either NULL or character
+#' @keywords internal
+setClassUnion('nullOrChar', c('NULL', 'character'))
+
+#' @title NULL or list class union
+#' @description class to allow either NULL or list
+#' @keywords internal
+setClassUnion('nullOrList', c('NULL', 'list'))
+
+#' @title NULL or data.table class union
+#' @description class to allow either NULL or data.table
+#' @keywords internal
+setClassUnion('nullOrDatatable', c('NULL', 'data.table'))
 
 ## Giotto auxiliary functions ####
 
@@ -446,13 +461,25 @@ subset_spatial_network = function(gobject,
   to = from = NULL
 
   # cell spatial network
-  if(!is.null(gobject@spatial_network)) {
-    for(spat_unit_name in names(gobject@spatial_network)) {
-      if(spat_unit_name == spat_unit) {
-        for(network in names(gobject@spatial_network[[spat_unit_name]])) {
-          gobject@spatial_network[[spat_unit_name]][[network]]$networkDT =   gobject@spatial_network[[spat_unit_name]][[network]]$networkDT[to %in% cells_to_keep & from %in% cells_to_keep]
-        }
-      }
+  if(!is.null(slot(gobject, 'spatial_network'))) {
+    # Find existing networks for given spatial unit
+    existing_networks = list_spatial_networks_names(gobject = gobject,
+                                                    spat_unit = spat_unit)
+    # Iterate through all networks of this spatial unit...
+    for(network in existing_networks) {
+      spatNetObj = get_spatialNetwork(gobject = gobject,
+                                      spat_unit = spat_unit,
+                                      name = network,
+                                      return_network_Obj = TRUE)
+
+      # Within each spatialNetworkObj, subset only the cells_to_keep
+      slot(spatNetObj, 'networkDT') = slot(spatNetObj, 'networkDT')[to %in% cells_to_keep & from %in% cells_to_keep]
+
+      # Set the spatialNetworkObj back into the gobject
+      gobject = set_spatialNetwork(gobject = gobject,
+                                   spat_unit = spat_unit,
+                                   name = network,
+                                   spatial_network = spatNetObj)
     }
   }
 
@@ -489,14 +516,25 @@ subset_dimension_reduction = function(gobject,
 
             for(selected_name in dim_red_names) {
 
-              old_coord = get_dimReduction(gobject = gobject,
-                                           spat_unit = spat_unit_name,
-                                           feat_type = feat_type_name, reduction = 'cells',
-                                           reduction_method = dim_method, name = selected_name,
-                                           return_dimObj = FALSE)
+              dimObj = get_dimReduction(gobject = gobject,
+                                        spat_unit = spat_unit_name,
+                                        feat_type = feat_type_name,
+                                        reduction = 'cells',
+                                        reduction_method = dim_method,
+                                        name = selected_name,
+                                        return_dimObj = TRUE)
 
+              old_coord = slot(dimObj, 'coordinates')
               new_coord = old_coord[rownames(old_coord) %in% cells_to_keep,]
-              gobject@dimension_reduction[['cells']][[spat_unit_name]][[feat_type_name]][[dim_method]][[selected_name]][['coordinates']] = new_coord
+              slot(dimObj, 'coordinates') = new_coord
+
+              gobject = set_dimReduction(gobject = gobject,
+                                         reduction = 'cells',
+                                         spat_unit = spat_unit_name,
+                                         feat_type = feat_type_name,
+                                         reduction_method = dim_method,
+                                         name = selected_name,
+                                         dimObject = dimObj)
 
             }
 

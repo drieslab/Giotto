@@ -30,7 +30,7 @@ create_dimObject(
 \item{my_rownames}{rownames}
 }
 \value{
-number of distinct colors
+a dimObj
 }
 \description{
 Creates an object that stores a dimension reduction output

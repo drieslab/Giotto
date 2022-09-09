@@ -60,21 +60,23 @@ read_crossSection <- function(gobject,
                               spatial_network_name = NULL){
   if(is.null(spatial_network_name)){
     stop("spatial_network_name is not specified.")
-  }else if (!is.element(spatial_network_name,names(gobject@spatial_network))){
+  }else if (!is.element(spatial_network_name, names(slot(gobject, 'spatial_network')))){
     stop(paste0(spatial_network_name, " has not been created."))
   }else {
-    sp_network_obj = select_spatialNetwork(gobject,name = spatial_network_name,return_network_Obj = TRUE)
-    if (length(sp_network_obj$crossSectionObjects)==0){
+    sp_network_obj = select_spatialNetwork(gobject,
+                                           name = spatial_network_name,
+                                           return_network_Obj = TRUE)
+    if (length(slot(sp_network_obj, 'crossSectionObjects'))==0){
       stop("No cross section object has been created.")
     }else if (is.null(name)){
       sprintf("cross section object is not specified, reading the last one %s from the existing list",
-              names(sp_network_obj$crossSectionObjects)[length(sp_network_obj$crossSectionObjects)])
-      crossSection_obj = sp_network_obj$crossSectionObjects[[length(sp_network_obj$crossSectionObjects)]]
-    }else if(!is.element(name,names(sp_network_obj$crossSectionObjects))){
+              names(slot(sp_network_obj, 'crossSectionObjects'))[length(slot(sp_network_obj, 'crossSectionObjects'))])
+      crossSection_obj = slot(sp_network_obj, 'crossSectionObjects')[[length(slot(sp_network_obj, 'crossSectionObjects'))]]
+    }else if(!is.element(name,names(slot(sp_network_obj, 'crossSectionObjects')))){
       stop(paste0(name, " has not been created."))
     }
     else{
-      crossSection_obj = sp_network_obj$crossSectionObjects[[name]]
+      crossSection_obj = slot(sp_network_obj, 'crossSectionObjects')[[name]]
     }
   }
   return(crossSection_obj)

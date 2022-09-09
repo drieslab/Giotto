@@ -1,3 +1,268 @@
+## spatialNetworkObj Class ####
+
+### validity check ####
+#' @title Check spatialNetworkObj
+#' @name checkSpatNetObj
+#' @description Check function for S4 spatialNetworkObj
+#' @param object S4 spatialNetworkObj to check
+#' @keywords internal
+checkSpatNetObj = function(object) {
+  errors = character()
+  method_slot = slot(object, 'method')
+  length_method = length(method_slot)
+  if(length_method > 1) {
+    msg = paste0('method is length ', length_method, '. Should be 1')
+    errors = c(errors, msg)
+  }
+
+  # if(is.null(method_slot)) {
+  #   msg = 'A spatial network generation method must be given'
+  #   errors = c(errors, msg)
+  # }
+
+  if(is.null(object@networkDT) & is.null(object@networkDT_before_filter)) {
+    msg = 'No data in either networkDT or networkDT_before_filter slots.\nThis object contains no network information.\n'
+    errors = c(errors, msg)
+  }
+
+  if(length(errors) == 0) TRUE else errors
+}
+
+
+
+### class definition ####
+
+#' @title S4 spatialNetworkObj Class
+#' @description Framework to store spatial network information
+#' @slot name name of spatialNetworkObj
+#' @slot method method used to generate spatial network
+#' @slot parameters additional method-specific parameters used during spatial network generation
+#' @slot outputObj network geometry object
+#' @slot networkDT data.table of network connections, distances, and weightings
+#' @slot networkDT_before_filter unfiltered data.table  of network connections, distances, and weightings
+#' @slot cellShapeObj network cell shape information
+#' @slot crossSectionObjects crossSectionObjects (see \code{\link{create_crossSection_object}})
+#' @slot spat_unit spatial unit tag
+#' @slot misc misc
+#' @export
+setClass('spatialNetworkObj',
+         slots = c(name = 'nullOrChar',
+                   method = 'nullOrChar',
+                   parameters = 'nullOrList',
+                   outputObj = 'ANY',
+                   networkDT = 'nullOrDatatable',
+                   networkDT_before_filter = 'nullOrDatatable',
+                   cellShapeObj = 'ANY',
+                   crossSectionObjects = 'ANY',
+                   spat_unit = 'nullOrChar',
+                   misc = 'ANY'),
+         prototype = list(name = NULL,
+                          method = NULL,
+                          parameters = NULL,
+                          outputObj = NULL,
+                          networkDT = NULL,
+                          networkDT_before_filter = NULL,
+                          cellShapeObj = NULL,
+                          crossSectionObjects = NULL,
+                          spat_unit = NULL,
+                          misc = NULL),
+         validity = checkSpatNetObj)
+
+
+### show method ####
+
+#' show method for spatialNetworkObj class
+#' @param object spatial network object
+#' @aliases show,spatialNetworkObj-method
+#' @docType methods
+#' @rdname show-methods
+setMethod(
+  f = "show", signature('spatialNetworkObj'), function(object) {
+
+    cat("An object of class",  class(object), "\n")
+    if(!is.null(object@method)) cat('Contains spatial network generated with:', object@method, '\n')
+    if(!is.null(object@spat_unit) & !is.null(object@feat_type)) cat(paste0('for spatial unit: "', object@spat_unit, '" and feature type: "', object@feat_type, '"\n'))
+
+    if(!is.null(object@networkDT)) cat('  ', nrow(object@networkDT), 'connections (filtered)\n')
+    if(!is.null(object@networkDT_before_filter)) cat('  ', nrow(object@networkDT_before_filter), 'connections (before filter)\n\n')
+
+})
+
+
+
+### S3 to S4 backwards compatibility ####
+
+#' @title Spatial Networks
+#' @name S3toS4spatNetObj
+#' @description convert S3 spatialNetworkObj to S4
+#' @param object S3 spatNetworkObj
+#' @param spat_unit spatial unit metadata to append
+#' @keywords internal
+S3toS4spatNetObj = function(object,
+                            spat_unit = NULL) {
+  if(!isS4(object)) {
+    object = new('spatialNetworkObj',
+                 name = object$name,
+                 method = object$method,
+                 parameters = object$parameters,
+                 outputObj = object$outputObj,
+                 networkDT = object$networkDT,
+                 networkDT_before_filter = object$networkDT_before_filter,
+                 cellShapeObj = object$cellShapeObj,
+                 crossSectionObjects = object$crossSectionObjects,
+                 spat_unit = spat_unit,
+                 misc = object$misc)
+  }
+  object
+}
+
+
+## spatialGridObj Class ####
+
+### validity check ####
+#' @title Check spatialGridObj
+#' @name checkSpatGridObj
+#' @description Check function for S4 spatialGridObj
+#' @param object S4 spatialGridObj to check
+#' @keywords internal
+checkSpatGridObj = function(object) {
+  errors = character()
+  method_slot = slot(object, 'method')
+  length_method = length(method_slot)
+  if(length_method > 1) {
+    msg = paste0('method is length ', length_method, '. Should be 1')
+    errors = c(errors, msg)
+  }
+
+  # if(is.null(method_slot)) {
+  #   msg = 'A grid generation method must be given'
+  #   errors = c(errors, msg)
+  # }
+
+  if(is.null(object@gridDT)) {
+    msg = 'No data in gridDT slot.\nThis object contains no spatial grid information\n'
+    errors = c(errors, msg)
+  }
+
+  if(length(errors) == 0) TRUE else errors
+}
+
+
+
+### class definition ####
+
+#' @title S4 spatialGridObj Class
+#' @description Framework to store spatial grid
+#' @slot name name of spatialGridObj
+#' @slot method method used to generate spatial grid
+#' @slot parameters additional method-specific parameters used during spatial grid generation
+#' @slot gridDT data.table holding the spatial grid information
+#' @slot spat_unit spatial unit
+#' @slot feat_type feature type
+#' @slot misc misc
+#' @details
+#' This is an S4 object that defines a spatial grid. The structure of the grid is stored as a
+#' \code{data.table} within the \code{gridDT} slot and is defined by start and stop spatial
+#' locations along the spatial axes. The \code{data.table} also includes names for each cell
+#' of the grid and names for each of the spatial axis locations that make up the cell.
+#' Grids can be annotated with both spatial and feature information
+#' @export
+setClass('spatialGridObj',
+         slots = c(name = 'nullOrChar',
+                   method = 'nullOrChar',
+                   parameters = 'nullOrList',
+                   gridDT = 'data.table',
+                   spat_unit = 'nullOrChar',
+                   feat_type = 'nullOrChar',
+                   misc = 'ANY'),
+         prototype = list(name = NULL,
+                          method = NULL,
+                          parameters = NULL,
+                          gridDT = NULL,
+                          spat_unit = NULL,
+                          feat_type = NULL,
+                          misc = NULL),
+         validity = checkSpatGridObj)
+
+
+
+### show method ####
+
+#' show method for spatialGridObj class
+#' @param object spatial grid object
+#' @aliases show,spatialGridObj-method
+#' @docType methods
+#' @rdname show-methods
+setMethod(
+  f = "show", signature('spatialGridObj'), function(object) {
+
+    # define for data.table
+    x_start = x_end = y_start = y_end = z_start = z_end = NULL
+
+    cat("An object of class",  class(object), "\n")
+    if(!is.null(slot(object, 'spat_unit'))) cat('Contains annotations for spatial unit: "', slot(object, 'spat_unit'),'"', sep = '')
+    if(!is.null(slot(object, 'feat_type'))) {
+      cat(' and feature type: "', slot(object, 'feat_type'), '"\n', sep = '')
+    } else cat('\n')
+
+    # find grid spatial extent
+    gridNames = colnames(slot(object, 'gridDT'))
+    sdimx_max = slot(object, 'gridDT')[, max(x_start, x_end)]
+    sdimx_min = slot(object, 'gridDT')[, min(x_start, x_end)]
+    sdimy_max = slot(object, 'gridDT')[, max(y_start, y_end)]
+    sdimy_min = slot(object, 'gridDT')[, min(y_start, y_end)]
+    sdimx_uniques = slot(object, 'gridDT')[, length(unique(x_start))]
+    sdimy_uniques = slot(object, 'gridDT')[, length(unique(y_start))]
+    cat('Contains spatial grid defined for:\n  ', sdimx_uniques,'intervals from x range:',
+        sdimx_min, 'to', sdimx_max, '\n  ' ,sdimy_uniques,'intervals from y range:',
+        sdimy_min, 'to', sdimy_max)
+    if('z_start' %in% gridNames & 'z_end' %in% gridNames) {
+      sdimz_max = slot(object, 'gridDT')[, max(z_start, z_end)]
+      sdimz_min = slot(object, 'gridDT')[, min(z_start, z_end)]
+      sdimz_uniques = slot(object, 'gridDT')[, length(unique(z_start))]
+      cat('\n  ', sdimz_uniques, 'intervals from z range:', sdimz_min, 'to', sdimz_max, '\n\n')
+    } else {
+      cat('\n\n')
+    }
+
+    if(!is.null(slot(object, 'method'))) cat('Contains spatial grid generated with:', slot(object, 'method'), '\n\n')
+
+    if(!is.null(slot(object, 'parameters'))) {
+      cat('Parameters used:\n')
+      for(param in names(slot(object, 'parameters'))) {
+        cat(paste0('  ',param, ': ', slot(object, 'parameters')[[param]], '\n'))
+      }
+      cat('\n')
+    }
+
+    if(!is.null(slot(object, 'misc'))) {
+      cat('Additional included info:\n')
+      print(names(slot(object, 'misc')))
+      cat('\n')
+    }
+  })
+
+
+
+### S3 to S4 backwards compatibility ####
+
+#' @title Spatially Binned Data
+#' @name S3toS4spatGridObj
+#' @description convert S3 spatialGridObj to S4
+#' @param object S3 spatialGridObj
+#' @keywords internal
+S3toS4spatialGridObj = function(object) {
+  if(!isS4(object)) {
+    object = new('spatialGridObj',
+                 name = object$name,
+                 method = object$method,
+                 parameters = object$parameters,
+                 gridDT = object$gridDT,
+                 misc = object$misc)
+  }
+  object
+}
+
 
 ## Spatial structure helper functions ####
 
@@ -344,44 +609,6 @@ convert_to_reduced_spatial_network =  function(full_spatial_network_DT) {
   reduced_spatial_network_DT = reduced_spatial_network_DT[, c('source', 'target', source_coordinates, target_coordinates, 'distance', 'weight'), with = F]
   colnames(reduced_spatial_network_DT) = c('from', 'to', new_source_coordinates, new_target_coordinates, 'distance', 'weight')
   return(reduced_spatial_network_DT)
-
-}
-
-
-#' @title create_spatialNetworkObject
-#' @name create_spatialNetworkObject
-#' @param name name
-#' @param method method
-#' @param parameters parameters
-#' @param outputObj outputObj
-#' @param networkDT networkDT
-#' @param cellShapeObj cellShapeObj
-#' @param networkDT_before_filter networkDT_before_filter
-#' @param crossSectionObjects crossSectionObjects
-#' @keywords internal
-#' @description creates a spatial network object to store the created spatial network and additional information
-create_spatialNetworkObject <- function(name = NULL,
-                                        method = NULL,
-                                        parameters = NULL,
-                                        outputObj = NULL,
-                                        networkDT = NULL,
-                                        cellShapeObj = NULL,
-                                        networkDT_before_filter = NULL,
-                                        crossSectionObjects = NULL,
-                                        misc = NULL) {
-
-  networkObj = list(name = name,
-                    method = method,
-                    parameters = parameters,
-                    outputObj = outputObj,
-                    networkDT = networkDT,
-                    networkDT_before_filter = networkDT_before_filter,
-                    cellShapeObj = cellShapeObj,
-                    crossSectionObjects = crossSectionObjects,
-                    misc = misc)
-
-  class(networkObj) <- append(class(networkObj), "spatialNetworkObj")
-  return(networkObj)
 
 }
 
@@ -891,20 +1118,23 @@ create_delaunayNetwork2D <- function (gobject,
 
   ###
   ###
-  delaunay_network_Obj = create_spatialNetworkObject(name = name,
-                                                     method = method,
-                                                     parameters = parameters,
-                                                     outputObj = outputObj,
-                                                     networkDT = delaunay_network_DT,
-                                                     networkDT_before_filter = networkDT_before_filter,
-                                                     cellShapeObj = cellShapeObj,
-                                                     misc = NULL)
+  delaunay_network_Obj = new('spatialNetworkObj',
+                             name = name,
+                             method = method,
+                             parameters = parameters,
+                             outputObj = outputObj,
+                             networkDT = delaunay_network_DT,
+                             networkDT_before_filter = networkDT_before_filter,
+                             cellShapeObj = cellShapeObj,
+                             spat_unit = spat_unit,
+                             misc = NULL)
   ###
   ###
 
   if (return_gobject == TRUE) {
 
-    spn_names = names(gobject@spatial_network[[spat_unit]])
+    spn_names = list_spatial_networks_names(gobject = gobject,
+                                            spat_unit = spat_unit)
     if (name %in% spn_names) {
       cat("\n ", name, " has already been used, will be overwritten \n")
     }
@@ -932,11 +1162,13 @@ create_delaunayNetwork2D <- function (gobject,
                                          `name of spatial network` = name)
     }
 
-    gobject@parameters = parameters_list
-    # gobject@spatial_network[[name]] = delaunay_network_DT
+    slot(gobject, 'parameters') = parameters_list
 
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-    gobject@spatial_network[[spat_unit]][[name]] = delaunay_network_Obj
+    gobject = set_spatialNetwork(gobject = gobject,
+                                 spat_unit = spat_unit,
+                                 name = name,
+                                 spatial_network = delaunay_network_Obj)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 
@@ -1020,7 +1252,7 @@ create_delaunayNetwork3D <- function (gobject,
   )
 
   if (return_gobject == TRUE) {
-    spn_names = names(gobject@spatial_network[[spat_unit]])
+    spn_names = list_spatial_networks_names(gobject = gobject, spat_unit = 'cell')
     if (name %in% spn_names) {
       cat("\n ", name, " has already been used, will be overwritten \n")
     }
@@ -1039,17 +1271,22 @@ create_delaunayNetwork3D <- function (gobject,
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
     ###
     ###
-    delaunay_network_Obj = create_spatialNetworkObject(name = name,
-                                                       method = method,
-                                                       parameters = parameters,
-                                                       outputObj = outputObj,
-                                                       networkDT = delaunay_network_DT,
-                                                       networkDT_before_filter = networkDT_before_filter,
-                                                       cellShapeObj = cellShapeObj,
-                                                       misc = NULL)
+    delaunay_network_Obj = new('spatialNetworkObj',
+                               name = name,
+                               method = method,
+                               parameters = parameters,
+                               outputObj = outputObj,
+                               networkDT = delaunay_network_DT,
+                               networkDT_before_filter = networkDT_before_filter,
+                               cellShapeObj = cellShapeObj,
+                               spat_unit = spat_unit,
+                               misc = NULL)
     ###
     ###
-    gobject@spatial_network[[spat_unit]][[name]] = delaunay_network_Obj
+    gobject = set_spatialNetwork(gobject = gobject,
+                                 spat_unit = spat_unit,
+                                 name = name,
+                                 spatial_network = delaunay_network_Obj)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
 
@@ -1534,19 +1771,22 @@ createSpatialKNNnetwork <- function (gobject,
                     "k" = k,
                     "dimensions" = dimensions)
 
-  spatial_network_Obj = create_spatialNetworkObject(name = name,
-                                                    method = method,
-                                                    parameters = parameters,
-                                                    outputObj = outputObj,
-                                                    networkDT = spatial_network_DT,
-                                                    misc = NULL)
+  spatial_network_Obj = new('spatialNetworkObj',
+                            name = name,
+                            method = method,
+                            parameters = parameters,
+                            outputObj = outputObj,
+                            networkDT = spatial_network_DT,
+                            spat_unit = spat_unit,
+                            misc = NULL)
 
   ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
   ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
   if (return_gobject == TRUE) {
 
-    spn_names = names(gobject@spatial_network[[spat_unit]])
+    spn_names = list_spatial_networks_names(gobject = gobject,
+                                            spat_unit = spat_unit)
 
     if (name %in% spn_names) {
       cat("\n ", name, " has already been used, will be overwritten \n")
@@ -1562,7 +1802,10 @@ createSpatialKNNnetwork <- function (gobject,
     slot(gobject, 'parameters') = parameters_list
 
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-    gobject@spatial_network[[spat_unit]][[name]] = spatial_network_Obj
+    gobject = set_spatialNetwork(gobject = gobject,
+                                 spat_unit = spat_unit,
+                                 name = name,
+                                 spatial_network = spatial_network_Obj)
     ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 
     return(gobject)
@@ -1710,18 +1953,15 @@ annotateSpatialNetwork = function(gobject,
                                   cluster_column,
                                   create_full_network = FALSE) {
 
-  # specify feat_type
-  if(is.null(feat_type)) {
-    feat_type = gobject@expression_feat[[1]]
-  }
-
-  # set spatial unit
-  if(is.null(spat_unit)) {
-    spat_unit = names(gobject@expression[[feat_type]])[[1]]
-  }
+  # Set feat_type and spat_unit
+  spat_unit = set_default_spat_unit(gobject = gobject,
+                                    spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # get network
-  if(!spatial_network_name %in% names(gobject@spatial_network[[spat_unit]])) {
+  if(!spatial_network_name %in% list_spatial_networks_names(gobject, spat_unit)) {
     stop('\n spatial network with name: ', spatial_network_name, ' does not exist \n')
   }
   spatial_network = get_spatialNetwork(gobject,
@@ -1856,27 +2096,6 @@ find_grid_z <- function(grid_DT, z_loc) {
   return(name_z)
 }
 
-
-
-#' @title create_spatialGridObject
-#' @description create a spatial grid object
-#' @keywords internal
-create_spatialGridObject <- function(name = NULL,
-                                     method = NULL,
-                                     parameters = NULL,
-                                     gridDT = NULL,
-                                     outputObj = NULL,
-                                     misc = NULL) {
-
-  gridObj = list(name = name,
-                 method = method,
-                 parameters = parameters,
-                 gridDT = gridDT,
-                 misc = misc)
-
-  class(gridObj) <- append(class(gridObj), "spatialGridObj")
-  return(gridObj)
-  }
 
 
 #' @title create_spatialGrid_default_2D
@@ -2064,6 +2283,7 @@ create_spatialGrid_default_3D <- function(gobject,
 #' @description Create a spatial grid using the default method
 #' @param gobject giotto object
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param spat_loc_name spatial location name
 #' @param sdimx_stepsize stepsize along the x-axis
 #' @param sdimy_stepsize stepsize along the y-axis
@@ -2077,6 +2297,7 @@ create_spatialGrid_default_3D <- function(gobject,
 #' @export
 createSpatialDefaultGrid <- function(gobject,
                                      spat_unit = NULL,
+                                     feat_type = NULL,
                                      spat_loc_name = 'raw',
                                      sdimx_stepsize = NULL,
                                      sdimy_stepsize = NULL,
@@ -2090,6 +2311,9 @@ createSpatialDefaultGrid <- function(gobject,
   # Set feat_type and spat_unit
   spat_unit = set_default_spat_unit(gobject = gobject,
                                     spat_unit = spat_unit)
+  feat_type = set_default_feat_type(gobject = gobject,
+                                    spat_unit = spat_unit,
+                                    feat_type = feat_type)
 
   # check parameters
   if(is.null(name)) {
@@ -2124,7 +2348,9 @@ createSpatialDefaultGrid <- function(gobject,
   if(return_gobject == TRUE) {
 
     # 1. check if name has already been used
-    spg_names = names(gobject@spatial_grid[[spat_unit]])
+    spg_names = list_spatial_grids_names(gobject = gobject,
+                                         spat_unit = spat_unit,
+                                         feat_type = feat_type)
 
     if(name %in% spg_names) {
       cat('\n ', name, ' has already been used, will be overwritten \n')
@@ -2136,16 +2362,18 @@ createSpatialDefaultGrid <- function(gobject,
                       "sdimz_stepsize" = sdimz_stepsize,
                       "minimum_padding" = minimum_padding)
 
-    spatgridobj = create_spatialGridObject(name = name,
-                                           method = 'default',
-                                           parameters = parameters,
-                                           gridDT = resultgrid,
-                                           outputObj = NULL, # NULL with default
-                                           misc = NULL)
+    spatgridobj = new('spatialGridObj',
+                      name = name,
+                      method = 'default',
+                      parameters = parameters,
+                      gridDT = resultgrid,
+                      outputObj = NULL, # NULL with default
+                      misc = NULL)
 
     # 3. assign spatial grid object
     gobject = set_spatialGrid(gobject = gobject,
                               spat_unit = spat_unit,
+                              feat_type = feat_type,
                               name = name,
                               spatial_grid = spatgridobj)
 
@@ -2343,6 +2571,7 @@ annotate_spatlocs_with_spatgrid_3D = function(spatloc,
 #' @description annotate spatial grid with cell ID and cell metadata (optional)
 #' @param gobject Giotto object
 #' @param spat_unit spatial unit
+#' @param feat_type feature type
 #' @param spat_loc_name name of spatial locations
 #' @param spatial_grid_name name of spatial grid, see \code{\link{showGiottoSpatGrids}}
 #' @param cluster_columns names of cell metadata, see \code{\link{pDataDT}}
@@ -2350,6 +2579,7 @@ annotate_spatlocs_with_spatgrid_3D = function(spatloc,
 #' @export
 annotateSpatialGrid = function(gobject,
                                spat_unit = NULL,
+                               feat_type = NULL,
                                spat_loc_name = 'raw',
                                spatial_grid_name = 'spatial_grid',
                                cluster_columns = NULL) {
@@ -2358,6 +2588,7 @@ annotateSpatialGrid = function(gobject,
   # get grid
   spatial_grid = get_spatialGrid(gobject = gobject,
                                  spat_unit = spat_unit,
+                                 feat_type = feat_type,
                                  name = spatial_grid_name)
   spatial_locs = get_spatial_locations(gobject = gobject,
                                        spat_unit = spat_unit,
@@ -2373,7 +2604,7 @@ annotateSpatialGrid = function(gobject,
   # 2.select metadata
   cell_metadata = pDataDT(gobject,
                           spat_unit = spat_unit,
-                          feat_type = NULL)
+                          feat_type = feat_type)
 
   if(!is.null(cluster_columns)) {
 

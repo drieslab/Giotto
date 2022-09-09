@@ -4,12 +4,21 @@
 \alias{list_spatial_grids}
 \title{list_spatial_grids}
 \usage{
-list_spatial_grids(gobject, spat_unit = NULL)
+list_spatial_grids(
+  gobject,
+  spat_unit = NULL,
+  feat_type = NULL,
+  return_uniques = FALSE
+)
 }
 \arguments{
 \item{gobject}{giotto object}
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
+
+\item{feat_type}{feature type (e.g. "rna", "dna", "protein")}
+
+\item{return_uniques}{return unique nesting names (ignores if final object exists/is correct class)}
 }
 \value{
 data.table of names and locations of available spatial grids. col order matters

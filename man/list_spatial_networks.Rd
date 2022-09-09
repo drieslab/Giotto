@@ -4,15 +4,17 @@
 \alias{list_spatial_networks}
 \title{list_spatial_networks}
 \usage{
-list_spatial_networks(gobject, spat_unit = NULL)
+list_spatial_networks(gobject, spat_unit = NULL, return_uniques = FALSE)
 }
 \arguments{
 \item{gobject}{giotto object}
 
 \item{spat_unit}{spatial unit (e.g. "cell")}
+
+\item{return_uniques}{return unique nesting names (ignores if final object exists/is correct class)}
 }
 \value{
-data.table of names and locations of available spatial networks. col order matters
+data.table of names and locations of available spatial networks, col order matters or list of unique nestings
 }
 \description{
 return the available spatial networks that are attached to the Giotto object

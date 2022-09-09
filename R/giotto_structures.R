@@ -1022,6 +1022,9 @@ create_giotto_points_object = function(feat_type = 'rna',
 #' @keywords internal
 create_spatvector_object_from_dfr = function(x) {
 
+  # define for data.table
+  ..feat_ID_col = ..x_col = ..y_col = ..ordered_colnames = NULL
+
   x = data.table::as.data.table(x)
 
   # data.frame like object needs to have 2 coordinate columns and
@@ -1047,9 +1050,6 @@ create_spatvector_object_from_dfr = function(x) {
   cat(paste0('Selecting "',colnames(x[,..x_col]),'" and "', colnames(x[,..y_col]),'" as x and y respectively\n'))
   colnames(x)[x_col] = 'x'
   colnames(x)[y_col] = 'y'
-
-  # define for data.table
-  .SD = NULL
 
   ## select location and attribute dataframes
   # Use unique() to set column order

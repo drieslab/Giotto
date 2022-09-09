@@ -184,11 +184,14 @@ giottoToSeurat <- function(obj_use = NULL,
     dr_use <- names(obj_use@dimension_reduction[[1]])
     for (i in dr_use){
       dr_name <- i
-      dr_obj <- select_dimReduction(gobject = obj_use,return_dimObj = T,reduction_method = dr_name,name = dr_name)
-      emb_use <- dr_obj$coordinates[Seurat::Cells(sobj),]
-      if (sum(c('loadings','eigenvalues') %in% names(dr_obj$misc)) == 2){
-        loadings_use <- dr_obj$misc$loadings
-        stdev_use <- dr_obj$misc$eigenvalues
+      dr_obj <- get_dimReduction(gobject = obj_use,
+                                 return_dimObj = T,
+                                 reduction_method = dr_name,
+                                 name = dr_name)
+      emb_use <- slot(dr_obj, 'coordinates')[Seurat::Cells(sobj),]
+      if (sum(c('loadings','eigenvalues') %in% names(slot(dr_obj, 'misc'))) == 2){
+        loadings_use <- slot(dr_obj, 'misc')$loadings
+        stdev_use <- slot(dr_obj, 'misc')$eigenvalues
         sobj[[dr_name]] <- Seurat::CreateDimReducObject(embeddings = as.matrix(emb_use),
                                                         loadings = loadings_use,
                                                         key = dr_name,

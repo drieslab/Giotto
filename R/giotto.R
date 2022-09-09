@@ -1,6 +1,10 @@
 
 #### Giotto class ####
 
+
+
+##### Giotto Class Definition ####
+
 #' @title S4 giotto Class
 #' @description Framework of giotto object to store and work with spatial expression data
 #' @concept giotto object
@@ -36,7 +40,7 @@
 giotto <- setClass(
   "giotto",
   slots = c(
-    expression = "ANY",
+    expression = "list",
     expression_feat = "ANY",
     spatial_locs = "ANY",
     spatial_info = "ANY",
@@ -512,6 +516,106 @@ replaceGiottoInstructions = function(gobject,
 
 
 
+
+#### aggregateExprObj Class ####
+
+##### aggregateExprObj Class Check Function ####
+
+#' @title Check aggregateExprObj
+#' @name checkAggExprObj
+#' @description Check function for S4 aggregateExprObj
+#' @param object S4 aggregateExprObj to check
+#' @keywords internal
+checkAggExprObj = function(object) {
+  errors = character()
+
+  # Check for expr info
+  if(is.null(slot(object, 'expressionMat'))) {
+    msg = paste0('No expression matrix found in expressionMat slot.\nThis object contains no expression information.\n')
+    errors = c(errors, msg)
+  }
+
+  # Check expr matrix class
+  if(!inherits(slot(object, 'expressionMat'), c('dgeMatrix', 'dgCMatrix'))) {
+    msg = paste0('Expression matrix should be provided as either dgCmatrix (sparse) or dgeMatrix (dense) from the Matrix package.\n')
+    errors = c(errors, msg)
+  }
+  if(inherits(slot(object, 'expressionMat'), 'dgCMatrix') & !isTRUE(slot(object, 'sparse'))) {
+    msg = paste0('expressionMat slot contains "dgCMatrix".\nsparse slot should be "TRUE"\n')
+    errors = c(errors, msg)
+  }
+  if(inherits(slot(object, 'expressionMat'), 'dgeMatrix') & isTRUE(slot(object, 'sparse'))) {
+    msg = paste0('expressionMat slot contains "dgeMatrix".\nsparse slot should be "FALSE"\n')
+    errors = c(errors, msg)
+  }
+
+  if(length(errors) == 0) TRUE else errors
+}
+
+
+
+##### aggregateExprObj Class Definition ####
+
+#' @title S4 aggregateExprObj
+#' @description Framework to store aggregated expression information
+#' @slot name name of aggregateExprObj
+#' @slot sparse (boolean) if matrix is sparse
+#' @slot expressionMat matrix of expression information
+#' @slot provenance origin data of aggregated expression information (if applicable)
+#' @slot spat_unit spatial unit of aggregated expression (e.g. 'cell')
+#' @slot feat_type feature type of aggregated expression (e.g. 'rna', 'protein')
+#' @slot misc misc
+#' @export
+setClass('aggregateExprObj',
+         slots = c(name = 'nullOrChar',
+                   sparse = 'logical',
+                   expressionMat = 'ANY',
+                   provenance = 'ANY',
+                   spat_unit = 'character',
+                   feat_type = 'character',
+                   misc = 'ANY'),
+         prototype = list(name = NULL,
+                          sparse = NULL,
+                          expressionMat = NULL,
+                          provenance = NULL,
+                          spat_unit = NULL,
+                          feat_type = NULL,
+                          misc = NULL),
+         validity = checkAggExprObj)
+
+##### aggregateExprObj Show Function ####
+
+#' show method for aggregateExprObj class
+#' @param object aggregated expression object
+#' @aliases show,aggregateExprObj-method
+#' @docType methods
+#' @rdname show-methods
+setMethod(
+  f = "show", signature('aggregateExprObj'), function(object) {
+
+    cat("An object of class",  class(object), "\n\n")
+    if(!is.null(slot(object, 'sparse'))) {
+      if(isTRUE(slot(object, 'sparse'))) {
+        cat('Contains sparse matrix with aggregated expression information\n')
+      } else if(!isTRUE(slot(object, 'sparse'))) {
+        cat('Contains dense matrix with aggregated expression information\n')
+      }
+    }
+
+    cat(paste0('for spatial unit: "', slot(object, 'spat_unit'), '" and feature type: "', slot(object, 'feat_type'),'" \n'))
+    if(!is.null(slot(object, 'provenance'))) cat('  Provenance: ', unlist(slot(object, 'provenance')),'\n')
+
+    print(slot(object, 'expressionMat'))
+
+    cat('\n')
+
+  })
+
+
+
+
+
+
 #### Giotto matrices ####
 
 #' @title Read expression matrix
@@ -608,15 +712,31 @@ evaluate_expr_matrix = function(inputmatrix,
 
 #' @title Find depth of subnesting
 #' @name depth
+#' @param this object to evaluate
+#' @param method max (default) or min nesting to detect
+#' @param sig signature or class to check for. Default is 'data.frame'
+#' @description Determines how many max or min layers of subnesting there is, with the end
+#' object (defined by param sig or a list of length 0) being layer 0
+#' @details https://stackoverflow.com/questions/13432863/determine-level-of-nesting-in-r
 #' @keywords internal
-depth <- function(this) {
-  if(is.data.frame(this)) {
+depth <- function(this,
+                  method = c('max', 'min'),
+                  sig = 'data.frame') {
+
+  method = match.arg(arg = method, choices = c('max', 'min'))
+
+  if(inherits(this, sig)) {
     return(0)
   }
   if(is.list(this) && length(this) == 0) {
     return(0)
   }
-  ifelse(is.list(this), 1L + max(sapply(this, depth)), 0L)
+  if(method == 'max') {
+    ifelse(is.list(this), 1L + max(sapply(this, function(x) depth(x, method = method, sig = sig))), 0L)
+  } else if(method == 'min') {
+    ifelse(is.list(this), 1L + min(sapply(this, function(x) depth(x, method = method, sig = sig))), 0L)
+  }
+
 }
 
 
@@ -652,8 +772,13 @@ read_expression_data = function(expr_list = NULL,
                                 default_feat_type = NULL,
                                 verbose = TRUE) {
 
+  # Check
   if(is.null(expr_list)) return(NULL)
 
+  # import box characters
+  ch = box_chars()
+
+  # Set default feature type if missing
   if(is.null(default_feat_type)) default_feat_type = 'rna'
 
   ## to make it compatible with previous version
@@ -682,7 +807,10 @@ read_expression_data = function(expr_list = NULL,
   # too much information
   if(list_depth > 3) {
     stop('Depth of expression list is more than 3, only 3 levels are possible:
-         1) spatial unit (e.g. cell) --> 2) feature (e.g. RNA) --> 3) data type (e.g. raw)  \n')
+       0)', ch$s, '.
+       1)', ch$s, ch$b, 'spatial unit (e.g. cell)
+       2)', ch$s, ch$s, ch$b, 'feature (e.g. RNA)
+       3)', ch$s, ch$s, ch$s, ch$b, 'data type (e.g. raw)\n')
   }
 
 
@@ -1234,8 +1362,13 @@ read_spatial_networks = function(gobject,
 
           if(any(c('data.frame', 'data.table') %in% class(network))) {
             if(all(c('to', 'from', 'weight', 'sdimx_begin', 'sdimy_begin', 'sdimx_end', 'sdimy_end') %in% colnames(network))) {
-              spatial_network_Obj = create_spatialNetworkObject(name = name, networkDT = network)
-              gobject@spatial_network[[spat_unit]][[name]] = spatial_network_Obj
+              spatial_network_Obj = new('spatialNetworkObj',
+                                        name = name,
+                                        networkDT = network)
+              gobject = set_spatialNetwork(gobject = gobject,
+                                           spat_unit = spat_unit,
+                                           name = name,
+                                           spatial_network = spatial_network_Obj)
             } else {
               warning('\n spatial unit: ', spat_unit, ' with network name: ', name, ' does not have all necessary column names, see details
                       and will not be added to the Giotto object \n')
@@ -1841,7 +1974,17 @@ createGiottoObject <- function(expression,
 
         if(any(c('data.frame', 'data.table') %in% class(grid))) {
           if(all(c('x_start', 'y_start', 'x_end', 'y_end', 'gr_name') %in% colnames(grid))) {
-            gobject@spatial_grid[[gridname]] = grid
+            if(!inherits(grid, 'data.table')) data.table::as.data.table(grid)
+            grid = new('spatialGridObj',
+                       name = gridname,
+                       gridDT = grid)
+            # TODO Assign grid as the first spat_unit and feat_type. Assigment process will need to be improved later
+            avail_spat_feats = list_expression(gobject)
+            gobject = set_spatialGrid(gobject = gobject,
+                                      spat_unit = avail_spat_feats$spat_unit[[1]],
+                                      feat_type = avail_spat_feats$feat_type[[1]],
+                                      name = gridname,
+                                      spatial_grid = grid)
           } else {
             stop('\n grid ', gridname, ' does not have all necessary column names, see details \n')
           }
@@ -2407,8 +2550,13 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
 
         if(any(c('data.frame', 'data.table') %in% class(network))) {
           if(all(c('to', 'from', 'weight', 'sdimx_begin', 'sdimy_begin', 'sdimx_end', 'sdimy_end') %in% colnames(network))) {
-            spatial_network_Obj = create_spatialNetworkObject(name = networkname, networkDT = network)
-            gobject@spatial_network[[networkname]] = spatial_network_Obj
+            spatial_network_Obj = new('spatialNetworkObj',
+                                      name = networkname,
+                                      networkDT = network)
+            gobject = set_spatialNetwork(gobject = gobject,
+                                         spat_unit = names(slot(gobject, 'spatial_info'))[[1]],
+                                         name = networkname,
+                                         spatial_network = spatial_network_Obj)
           } else {
             stop('\n network ', networkname, ' does not have all necessary column names, see details\n')
           }
@@ -2434,7 +2582,12 @@ createGiottoObjectSubcellular = function(gpoints = NULL,
         if(inherits(grid, c('data.table', 'data.frame'))) {
           if(!inherits(grid, 'data.table')) grid = as.data.table(grid)
           if(all(c('x_start', 'y_start', 'x_end', 'y_end', 'gr_name') %in% colnames(grid))) {
-            gobject@spatial_grid[[gridname]] = grid
+            # Assume first spat_info and first expression_feat as spat_unit and feat_type respectively
+            gobject = set_spatialGrid(gobject = gobject,
+                                      spat_unit = names(slot(gobject, 'spatial_info'))[[1]],
+                                      feat_type = expression_feat[[1]],
+                                      name = gridname,
+                                      spatial_grid = grid)
           } else {
             stop('\n grid ', gridname, ' does not have all necessary column names, see details \n')
           }
@@ -2609,6 +2762,10 @@ createGiottoCosMxObject = function(cosmx_dir = NULL,
                                    instructions = NULL,
                                    cores = NA,
                                    verbose = TRUE) {
+
+  # Define for data.table
+  fov = target = x_local_px = y_local_px = z = cell_ID = CenterX_global_px = CenterY_global_px =
+    CenterX_local_px = CenterY_local_px = NULL
 
   # 0. test if folder structure exists and is as expected
   if(is.null(cosmx_dir) | !dir.exists(cosmx_dir)) stop('The full path to a cosmx directory must be given.\n')
@@ -3011,6 +3168,20 @@ update_giotto_params = function(gobject,
   } else {
     return(list(plist = parameters_list, newname = update_name))
   }
+}
+
+
+
+#' @title Giotto object history
+#' @name objHistory
+#' @description Print and return giotto object history
+#' @param object giotto object
+#' @export
+objHistory = function(object) {
+  cat('Steps and parameters used: \n \n')
+  print(object@parameters)
+  cat('\n\n')
+  invisible(x = object@parameters)
 }
 
 

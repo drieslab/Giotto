@@ -331,3 +331,82 @@ list_element_exists = function(x, index) {
 #' @usage slot(object, name)
 NULL
 
+
+#' See \code{methods::\link[methods]{validObject}} for details.
+#'
+#' @rdname validObject
+#' @name validObject
+#' @keywords internal
+#' @export
+#' @importFrom methods validObject
+#' @usage validObject(object, test = FALSE, complete = FALSE)
+NULL
+
+
+
+
+# Show function helpers ####
+
+#' @title Hierarchical tree printing
+#' @name print_leaf
+#' @param level_index Which col of availability matrix to start print from
+#' @param availableDT availability matrix given as data.table
+#' @param inherit_last (boolean) determine behavior from previous level for last level (intended for values print)
+#' Only TRUE behavior defined. #TODO
+#' @param indent ident characters to print for this level (top level is '')
+#' @keywords internal
+#' @details Much inspiration taken from https://rdrr.io/cran/fs/src/R/tree.R
+print_leaf = function(level_index,
+                      availableDT,
+                      inherit_last = TRUE,
+                      indent) {
+
+
+  ch = box_chars()
+
+  leafs = unique(unlist(availableDT[, level_index, with = FALSE])) # Read unique items for this level into 'leafs'
+  for (i in seq_along(leafs)) {
+    if(isTRUE(inherit_last) & level_index == ncol(availableDT)) { # values layer has no special indent and ends
+      writeLines(paste0(indent, capture.output(cat(leafs[[i]]))))
+      cat(indent ,"\n", sep = "")
+    } else {
+
+      if (i == length(leafs)) {
+        cat(indent, ch$b, leafs[[i]], "\n", sep = "")
+        print_leaf(level_index = level_index + 1, # increment level_index
+                   availableDT = availableDT[as.vector(availableDT[, level_index, with = FALSE] == leafs[[i]])], # pass subset
+                   inherit_last = inherit_last,
+                   indent = paste0(indent, "   "))
+      } else {
+        cat(indent, ch$t, leafs[[i]], "\n", sep = "")
+        print_leaf(level_index = level_index + 1,
+                   availableDT = availableDT[as.vector(availableDT[, level_index, with = FALSE] == leafs[[i]])], # pass subset
+                   inherit_last = inherit_last,
+                   indent = paste0(indent, paste0(ch$v, "  ")))
+
+      }
+    }
+  }
+}
+
+
+#' @title Box characters
+#' @name box_chars
+#' @keywords internal
+#' @details Much inspiration taken from https://rdrr.io/cran/fs/src/R/tree.R
+# These are derived from https://github.com/r-lib/cli/blob/e9acc82b0d20fa5c64dd529400b622c0338374ed/R/tree.R#L111
+box_chars <- function() {
+  list(
+    "h" = "\u2500",                   # horizontal
+    "v" = "\u2502",                   # vertical
+    "l" = "\u2514",
+    "j" = "\u251C",
+    "b" = "\u2514\u2500\u2500",       # branch
+    "t" = "\u251C\u2500\u2500",       # T
+    "i" = "\u2502  ",                 # layer
+    "s" = "   "                       # spaces
+  )
+}
+
+
+
