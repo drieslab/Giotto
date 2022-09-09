@@ -92,10 +92,9 @@ anndataToGiotto = function(anndata_path,
 giottoToSeurat <- function(obj_use = NULL,
                            ...){
 
-  requireNamespace('Seurat')
-
   # verify if optional package is installed
   package_check(pkg_name = "Seurat", repository = "CRAN")
+  requireNamespace('Seurat')
 
   # check whether any raw data exist -- required for Seurat
   raw_exist <- sapply(obj_use@expression_feat,function(x)
@@ -359,10 +358,11 @@ seuratToGiotto_OLD <- function(obj_use = NULL,
 #'  Default is \code{"Vizgen"}.
 #' @return A Giotto object converted from Seurat object with all computations stored in it.
 #' @export
-seuratToGiotto = function(sobject, spatial_assay = 'Spatial',
-                          dim_reduction = c('pca','umap'), subcellular_assay = 'Vizgen'){
-  requireNamespace('Seurat')
-  requireNamespace('Giotto')
+seuratToGiotto = function(sobject,
+                          spatial_assay = 'Spatial',
+                          dim_reduction = c('pca','umap'),
+                          subcellular_assay = 'Vizgen'){
+  package_check('Seurat')
 
   if(is.null(Seurat::GetAssayData(object = sobject, slot = "counts", assay = spatial_assay))) {
     cat('No raw expression values are provided in spatial_assay\n')
@@ -480,11 +480,10 @@ seuratToGiotto = function(sobject, spatial_assay = 'Spatial',
 giottoToSpatialExperiment <- function(giottoObj){
 
   # Load required packages
-  requireNamespace(c(
-    "SummarizedExperiment",
-    "SingleCellExperiment",
-    "SpatialExperiment",
-    "S4Vectors"))
+  package_check(pkg_name = "SummarizedExperiment", repository = 'Bioc')
+  package_check(pkg_name = "SingleCellExperiment", repository = 'Bioc')
+  package_check(pkg_name = "SpatialExperiment", repository = 'Bioc')
+  package_check(pkg_name = "S4Vectors", repository = 'Bioc')
 
   # Expression Matrices
   giottoExpr <- list_expression(giottoObj)
